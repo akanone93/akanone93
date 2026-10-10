@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /// Bindings to `plux_native`, built by `hook/build.dart` (ADR-0030). Only
-/// `mmap/` and `zstd/` call these; they check every bound before a call.
+/// `mmap/`, `zstd/` and the platform AEAD (`security/platform_aead.dart`)
+/// call these; they check every bound before a call.
 ///
 /// The externals are private and called only from the wrappers in this
 /// library: `.address` arguments need a trampoline that the compiler
@@ -102,3 +103,66 @@ int nativeZstdDecompress(Uint8List dst, Uint8List src, Uint8List dict) =>
       dict.address,
       dict.length,
     );
+
+@Native<
+  Int64 Function(
+    Int32,
+    Pointer<Uint8>,
+    Pointer<Uint8>,
+    Pointer<Uint8>,
+    Uint64,
+    Pointer<Uint8>,
+    Uint64,
+    Pointer<Uint8>,
+    Uint64,
+  )
+>(symbol: 'plux_aead', isLeaf: true)
+external int _aead(
+  int mode,
+  Pointer<Uint8> key,
+  Pointer<Uint8> nonce,
+  Pointer<Uint8> aad,
+  int aadLength,
+  Pointer<Uint8> input,
+  int inputLength,
+  Pointer<Uint8> output,
+  int outputCapacity,
+);
+
+/// The results of [nativeAead] that are not a length.
+abstract final class NativeAeadResult {
+  /// The platform has no native AES-GCM here.
+  static const int unsupported = -1;
+
+  /// The platform failed, or an argument has the wrong length.
+  static const int failed = -2;
+
+  /// The tag does not verify.
+  static const int authentication = -3;
+
+  /// The output buffer is too small.
+  static const int capacity = -4;
+}
+
+/// Seals ([open] false) or opens ([open] true) one AES-256-GCM record with
+/// the platform's implementation (ADR-0058): [key] is 32 bytes, [nonce] 12.
+/// Sealing writes the ciphertext then the tag to [output], opening the
+/// plaintext. Returns the bytes written or a [NativeAeadResult].
+int nativeAead({
+  required bool open,
+  required Uint8List key,
+  required Uint8List nonce,
+  required Uint8List aad,
+  required Uint8List input,
+  required Uint8List output,
+}) => _aead(
+  open ? 1 : 0,
+  key.address,
+  nonce.address,
+  aad.address,
+  aad.length,
+  input.address,
+  input.length,
+  output.address,
+  output.length,
+);
