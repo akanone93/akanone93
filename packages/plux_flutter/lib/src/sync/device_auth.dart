@@ -87,6 +87,17 @@ final class DeviceAuth {
   /// Forgets the held token, after the server refused it.
   void forgetToken() => _token = null;
 
+  /// Offers the server fresh evidence for the registered key now, for a
+  /// risk signal such as a RASP detection (SEC-006, SEC-025), and forgets
+  /// the held token so that the next one carries the level the server
+  /// computes from it. Does nothing for a device that is not registered.
+  Future<void> reattestNow() async {
+    final s = await _session();
+    if (s == null) return;
+    await _reattest(s);
+    _token = null;
+  }
+
   /// A token that is valid for at least [refreshMargin], registering the
   /// device on first use. Concurrent callers share one exchange.
   Future<DeviceToken> token() {

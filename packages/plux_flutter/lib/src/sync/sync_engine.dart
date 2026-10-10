@@ -621,6 +621,9 @@ final class SyncEngine {
   /// Forgets the held token, after the server refused it.
   void forgetToken() => _auth.forgetToken();
 
+  /// Re-attests the device's key now, after a risk signal (SEC-006).
+  Future<void> reattest() => _auth.reattestNow();
+
   /// Obtains one bundle: by its delta when the plan offers one against
   /// the bundle this device holds, else — or when the rebuilt bundle is
   /// not the signed one — as the full bundle (SYN-011).
