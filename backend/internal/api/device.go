@@ -62,7 +62,7 @@ func (s Device) RegisterAttestedDevice(ctx context.Context, req *connect.Request
 		AppID: m.GetAppId(), Environment: m.GetEnvironment(), Platform: m.GetPlatform(),
 		OSVersion: m.GetOsVersion(), RuntimeVersion: m.GetRuntimeVersion(), Build: m.GetHostBuild(),
 		Challenge: m.GetChallenge(), DPoPKeyJWK: m.GetDpopPublicKeyJwk(), KeyStorage: keyStorageOf(m.GetKeyStorage()),
-		Evidence: evidenceOf(m.GetEvidence()),
+		Evidence: evidenceOf(m.GetEvidence()), AgreementKeyJWK: m.GetKeyAgreementPublicKeyJwk(),
 	})
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error

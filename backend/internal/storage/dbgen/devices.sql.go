@@ -315,7 +315,7 @@ func (q *Queries) GetDelta(ctx context.Context, arg GetDeltaParams) (Delta, erro
 }
 
 const getDevice = `-- name: GetDevice :one
-SELECT id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason FROM devices WHERE id = $1
+SELECT id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, agreement_public_key FROM devices WHERE id = $1
 `
 
 func (q *Queries) GetDevice(ctx context.Context, id pgtype.UUID) (Device, error) {
@@ -348,12 +348,13 @@ func (q *Queries) GetDevice(ctx context.Context, id pgtype.UUID) (Device, error)
 		&i.AppAttestReceipt,
 		&i.RevokedAt,
 		&i.RevokedReason,
+		&i.AgreementPublicKey,
 	)
 	return i, err
 }
 
 const getDeviceByJKT = `-- name: GetDeviceByJKT :one
-SELECT id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason FROM devices WHERE dpop_jkt = $1
+SELECT id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, agreement_public_key FROM devices WHERE dpop_jkt = $1
 `
 
 // Runs in the authentication scope.
@@ -387,6 +388,7 @@ func (q *Queries) GetDeviceByJKT(ctx context.Context, dpopJkt *string) (Device, 
 		&i.AppAttestReceipt,
 		&i.RevokedAt,
 		&i.RevokedReason,
+		&i.AgreementPublicKey,
 	)
 	return i, err
 }
@@ -395,9 +397,10 @@ const insertAttestedDevice = `-- name: InsertAttestedDevice :one
 INSERT INTO devices (id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build,
                      secret_hash, assurance_level, dpop_jkt, dpop_public_key, key_storage,
                      attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at,
-                     app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, ''::bytea, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
-RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason
+                     app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt,
+                     agreement_public_key)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, ''::bytea, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, agreement_public_key
 `
 
 type InsertAttestedDeviceParams struct {
@@ -421,6 +424,7 @@ type InsertAttestedDeviceParams struct {
 	AppAttestPublicKey    []byte
 	AppAttestCounter      int64
 	AppAttestReceipt      []byte
+	AgreementPublicKey    []byte
 }
 
 // A device that registered with a DPoP key and verified attestation
@@ -448,6 +452,7 @@ func (q *Queries) InsertAttestedDevice(ctx context.Context, arg InsertAttestedDe
 		arg.AppAttestPublicKey,
 		arg.AppAttestCounter,
 		arg.AppAttestReceipt,
+		arg.AgreementPublicKey,
 	)
 	var i Device
 	err := row.Scan(
@@ -477,6 +482,7 @@ func (q *Queries) InsertAttestedDevice(ctx context.Context, arg InsertAttestedDe
 		&i.AppAttestReceipt,
 		&i.RevokedAt,
 		&i.RevokedReason,
+		&i.AgreementPublicKey,
 	)
 	return i, err
 }
@@ -511,7 +517,7 @@ func (q *Queries) InsertDelta(ctx context.Context, arg InsertDeltaParams) error 
 const insertDevice = `-- name: InsertDevice :one
 INSERT INTO devices (id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, secret_hash)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason
+RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, agreement_public_key
 `
 
 type InsertDeviceParams struct {
@@ -566,6 +572,7 @@ func (q *Queries) InsertDevice(ctx context.Context, arg InsertDeviceParams) (Dev
 		&i.AppAttestReceipt,
 		&i.RevokedAt,
 		&i.RevokedReason,
+		&i.AgreementPublicKey,
 	)
 	return i, err
 }
@@ -700,7 +707,7 @@ func (q *Queries) LatestManifest(ctx context.Context, channelID pgtype.UUID) (Ma
 }
 
 const listDevices = `-- name: ListDevices :many
-SELECT id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason FROM devices
+SELECT id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, agreement_public_key FROM devices
  WHERE app_id = $1
    AND ($2::uuid IS NULL OR environment_id = $2::uuid)
    AND (registered_at, id) < ($3::timestamptz, $4::uuid)
@@ -758,6 +765,7 @@ func (q *Queries) ListDevices(ctx context.Context, arg ListDevicesParams) ([]Dev
 			&i.AppAttestReceipt,
 			&i.RevokedAt,
 			&i.RevokedReason,
+			&i.AgreementPublicKey,
 		); err != nil {
 			return nil, err
 		}
@@ -1023,7 +1031,7 @@ UPDATE devices
                                  ELSE $9::bigint END,
        app_attest_receipt = COALESCE($10::bytea, app_attest_receipt)
  WHERE id = $11 AND revoked_at IS NULL
-RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason
+RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, agreement_public_key
 `
 
 type UpdateDeviceAttestationParams struct {
@@ -1084,6 +1092,7 @@ func (q *Queries) UpdateDeviceAttestation(ctx context.Context, arg UpdateDeviceA
 		&i.AppAttestReceipt,
 		&i.RevokedAt,
 		&i.RevokedReason,
+		&i.AgreementPublicKey,
 	)
 	return i, err
 }

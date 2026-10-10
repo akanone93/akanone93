@@ -82,6 +82,9 @@ type AttestedRegistration struct {
 	KeyStorage KeyStorage
 	// Evidence is the attestation of the key.
 	Evidence Evidence
+	// AgreementKeyJWK is the device's key-agreement public key as a JSON
+	// Web Key, for confidential bundles (SEC-053); empty when it has none.
+	AgreementKeyJWK []byte
 }
 
 // subject is what an evidence check needs to know about the device and
@@ -125,6 +128,10 @@ func (s *Service) RegisterAttested(ctx context.Context, r AttestedRegistration) 
 	if err != nil {
 		return Device{}, err
 	}
+	agreement, err := parseAgreementKey(r.AgreementKeyJWK)
+	if err != nil {
+		return Device{}, err
+	}
 	found, err := s.findEnvironment(ctx, r.AppID, r.Environment)
 	if err != nil {
 		return Device{}, err
@@ -155,6 +162,7 @@ func (s *Service) RegisterAttested(ctx context.Context, r AttestedRegistration) 
 		RuntimeVersion: r.RuntimeVersion, HostBuild: r.Build, AssuranceLevel: string(Assess(v.proof, conf)),
 		DpopJkt: &jkt, DpopPublicKey: canonical, KeyStorage: string(v.proof.KeyStorage),
 		AttestationVerdicts: v.verdicts, AttestationRiskMetric: v.risk, AttestedAt: storage.Timestamp(s.now()),
+		AgreementPublicKey: agreement,
 	}
 	provider := string(v.proof.Provider)
 	params.AttestationProvider = &provider
@@ -214,23 +222,45 @@ func (e Evidence) matches(platform string) error {
 // JWK in the form the server keeps (the key's members and no others) and
 // the RFC 7638 thumbprint.
 func parseKey(raw []byte) (*ecdsa.PublicKey, []byte, string, error) {
-	var jwk jose.JSONWebKey
-	if err := json.Unmarshal(raw, &jwk); err != nil || !jwk.Valid() || !jwk.IsPublic() {
-		return nil, nil, "", plxerr.New(plxerr.InvalidFormat, "the DPoP key is not a public key in JWK form")
-	}
-	pub, ok := jwk.Key.(*ecdsa.PublicKey)
-	if !ok || pub.Curve != elliptic.P256() {
-		return nil, nil, "", plxerr.New(plxerr.InvalidFormat, "the DPoP key is not an EC P-256 key")
+	pub, canonical, err := parseP256(raw, "DPoP key")
+	if err != nil {
+		return nil, nil, "", err
 	}
 	jkt, err := dpop.Thumbprint(pub)
 	if err != nil {
 		return nil, nil, "", err //nolint:wrapcheck // a domain error
 	}
+	return pub, canonical, jkt, nil
+}
+
+// parseP256 reads an EC P-256 public key from a JWK; what names the key
+// in messages. It returns the key and the JWK in the form the server
+// keeps (the key's members and no others).
+func parseP256(raw []byte, what string) (*ecdsa.PublicKey, []byte, error) {
+	var jwk jose.JSONWebKey
+	if err := json.Unmarshal(raw, &jwk); err != nil || !jwk.Valid() || !jwk.IsPublic() {
+		return nil, nil, plxerr.New(plxerr.InvalidFormat, "the %s is not a public key in JWK form", what)
+	}
+	pub, ok := jwk.Key.(*ecdsa.PublicKey)
+	if !ok || pub.Curve != elliptic.P256() {
+		return nil, nil, plxerr.New(plxerr.InvalidFormat, "the %s is not an EC P-256 key", what)
+	}
 	canonical, err := json.Marshal(jose.JSONWebKey{Key: pub})
 	if err != nil {
-		return nil, nil, "", fmt.Errorf("device: encode the DPoP key: %w", err)
+		return nil, nil, fmt.Errorf("device: encode the %s: %w", what, err)
 	}
-	return pub, canonical, jkt, nil
+	return pub, canonical, nil
+}
+
+// parseAgreementKey reads the key-agreement key a registration offers
+// (SEC-053): the JWK in the form the server keeps, or nil for a device
+// that has none.
+func parseAgreementKey(raw []byte) ([]byte, error) {
+	if len(raw) == 0 {
+		return nil, nil
+	}
+	_, canonical, err := parseP256(raw, "key-agreement key")
+	return canonical, err
 }
 
 // settingsFor resolves the security settings of an environment.
