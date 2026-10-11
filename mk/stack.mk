@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the Compose and image
 # jobs on a pull request (ci/affected.json, ADR-0043).
 
-.PHONY: compose-secrets compose-up compose-down test-db test-db-down compose-seed dev dev-starter dev-app compose-test image-check
+.PHONY: compose-secrets compose-up compose-down test-db test-db-down compose-seed dev dev-starter dev-app compose-test image-check zap-api
 
 ##@ Stack (Docker Compose)
 
@@ -110,3 +110,21 @@ image-check: ## Build the server image and check its SVG compiler's output and i
 		plux-server/LICENSE-cupertino-icons plux-svgc/dart-sdk.LICENSE plux-svgc/skia.LICENSE plux-svgc/flutter-path_ops.LICENSE; do \
 		printf '%s\n' "$$docs" | grep -qx "doc/$$f" || { echo "✗ the image lacks /usr/share/doc/$$f" >&2; exit 1; }; \
 	done; echo "✓ the image carries its third-party notices"
+
+# The OWASP ZAP baseline scan of the API (QA-008; Studio's is P11). The
+# official image is pinned by digest like the stack's own images: the
+# multi-arch index of `ghcr.io/zaproxy/zaproxy:stable` on 2026-10-11.
+ZAP_IMAGE  := ghcr.io/zaproxy/zaproxy:stable@sha256:7aaa659b0d43078febd82e29bad112285c370727e86ab8340444220e17d9f0d2
+ZAP_TARGET ?= https://localhost:8080
+ZAP_OUT    := $(abspath build/zap)
+# Extra ZAP command line options (zap-baseline.py -z), for example to trust
+# the stack's development CA when the image does not.
+ZAP_OPTS   ?=
+
+# Verifies: QA-008.
+zap-api: ## Scan the running Compose stack's API with the ZAP baseline, ignoring only test/zap/api-rules.tsv; report in build/zap (QA-008)
+	@curl -fsS --cacert $(DEV_CA) $(ZAP_TARGET)/readyz >/dev/null || { echo "✗ no stack answering at $(ZAP_TARGET): run 'make compose-up' first"; exit 1; }
+	@mkdir -p $(ZAP_OUT) && chmod a+w $(ZAP_OUT) && cp test/zap/api-rules.tsv $(ZAP_OUT)/api-rules.tsv
+	@# The container shares the host's network to reach the stack's loopback port. Exit 0 is a clean scan; 1 a failed rule, 2 a warning, 3 an error: all but 0 fail.
+	docker run --rm --network host -v $(ZAP_OUT):/zap/wrk:rw $(ZAP_IMAGE) \
+		zap-baseline.py -t $(ZAP_TARGET) -c api-rules.tsv -r zap-api.html -J zap-api.json -w zap-api.md $(if $(ZAP_OPTS),-z "$(ZAP_OPTS)")

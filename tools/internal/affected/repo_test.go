@@ -160,7 +160,7 @@ func TestProjectPastChangesRunTheRightJobs_CI_002(t *testing.T) {
 	for _, job := range rules.Jobs() {
 		all = append(all, job.Name)
 	}
-	goServer := []string{"bench-sync", "compose", "e2e-android", "go-lint", "go-test", "starter-e2e"}
+	goServer := []string{"bench-sync", "compose", "e2e-android", "go-lint", "go-test", "starter-e2e", "zap-api"}
 	runtime := []string{"bench-runtime", "bench-sync", "dart", "e2e-android", "e2e-ios", "size-android", "size-ios", "starter-e2e"}
 	cases := []struct {
 		name  string
@@ -194,7 +194,7 @@ func TestProjectPastChangesRunTheRightJobs_CI_002(t *testing.T) {
 			files: []string{
 				"mk/stack.mk", "scripts/test-db.sh", "docs/engineering/testing.md", "docs/guides/run-locally.md", "docs/WORKLOG.md",
 			},
-			want: []string{"compose", "image-arm64"},
+			want: []string{"compose", "image-arm64", "zap-api"},
 		},
 		{
 			name: "PR #10: retry the pathops downloads, the Run it locally guide",
@@ -202,7 +202,7 @@ func TestProjectPastChangesRunTheRightJobs_CI_002(t *testing.T) {
 				"README.md", "docs/WORKLOG.md", "docs/guides/first-release.md", "docs/guides/run-locally.md", "docs/worklog-archive.md",
 				"packages/plux_svgc/native/build.sh", "site/astro.config.mjs", "site/src/content/docs/index.md",
 			},
-			want: []string{"compose", "dart", "image-arm64"},
+			want: []string{"compose", "dart", "image-arm64", "zap-api"},
 		},
 		{
 			name:  "PR #8: the test database in cloud sessions",

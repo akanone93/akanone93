@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+#
+# Rules for `make zap-api`, the OWASP ZAP baseline scan of the API (QA-008).
+# Format: rule id, IGNORE, a comment (https://www.zaproxy.org/docs/docker/baseline-scan/).
+# Every rule not listed here is reported as a warning, and a warning fails
+# the scan (mk/stack.mk), so this file is the only place a finding can be
+# waved through. List a rule only with the reason it is a false positive for
+# an API that serves ConnectRPC and no HTML, and say where the behaviour it
+# flags is deliberate.
+#
+# No rule is ignored yet: the scan has not been run against the stack (it
+# needs the ZAP image from ghcr.io, which the development sandbox cannot
+# reach). The first CI run lists what ZAP reports; each finding is then
+# fixed in the server or listed here with its reason, one line each:
+#
+# 10000	IGNORE	(Rule name) why this is a false positive and where the behaviour is deliberate
