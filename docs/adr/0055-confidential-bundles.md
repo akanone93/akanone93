@@ -61,3 +61,13 @@ device, which needs the old plaintext on disk. Deferred.
 ### Option 3: transport encryption
 
 TLS already exists; it does not protect content at the CDN or on the device.
+
+## Revisions (2026-10-11)
+
+Decided by the maintainer's lead during S7 (P6 plan §5.7); the decision above stands, with these refinements as built.
+
+1. **Associated data.** A section's hash covers its ciphertext, so it cannot be part of the associated data, and the container has no bundle ID. The associated data of a sealed section is the container kind, the section kind (two bytes each, little endian) and the 16-byte section ID. A section sealed for one place does not open in another.
+2. **The signed manifest.** For a confidential release the signed part names the sealed bundles: the hash and size are the ciphertext's, and the required features gain `security.confidential.v1`, so a runtime that cannot decrypt refuses the release before it downloads anything. The wrapped content key stays outside the signed part (`GetManifestResponse.content_key`); a key that does not open the signed ciphertext is refused by the device.
+3. **Confidentiality is per release, honoured per environment.** A release is created as confidential (`CreateReleaseRequest.confidential`) or not. A release is built once and promoted between environments, so the environment a manifest is signed for decides at signing time, by `confidentialBundles`: `required` seals every release, `optional` the releases created as confidential, `off` none (and refuses to create one). The worker seals a copy of each bundle the first time it signs a manifest for the release; the published versions are untouched.
+4. **Eligibility.** A new security setting, `confidentialMinAssurance` (AL0–AL3, default AL2 in every profile, tighter is higher, server-only), is the lowest assurance level a device must hold to receive the content key. A device below it, revoked, or with no registered key-agreement key gets no key.
+5. **Errors.** `PLX-6050` covers a device that may not have the key and a key that does not open the content (wrapped for another device or release, altered, or unusable on the device). Section hash failures stay `PLX-3041` and are raised before anything is decrypted.

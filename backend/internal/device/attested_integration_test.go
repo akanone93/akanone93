@@ -710,3 +710,57 @@ func TestRevoke(t *testing.T) {
 		t.Errorf("Get = %+v, %v", got, err)
 	}
 }
+
+// Verifies: SEC-053.
+// A device that registers a key-agreement key can receive a confidential
+// release's content key; one that registers none, or one below the
+// environment's assurance level, cannot (PLX-6050).
+func TestConfidentialRecipient(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	r.profiles["production"] = settings.Strict // confidentialMinAssurance is AL2
+	ctx := context.Background()
+	identity := func(d device.Device) device.Identity {
+		return device.Identity{DeviceID: d.ID, OrganizationID: r.org, AppID: r.app, EnvironmentID: d.EnvironmentID}
+	}
+
+	key, jwk := devicetest.NewKey(t)
+	agreement, agreementJWK := devicetest.NewKey(t)
+	r.android(&key.PublicKey, keyattest.SecurityTrustedEnvironment, playintegrity.LabelDevice)
+	d, err := r.svc.RegisterAttested(ctx, device.AttestedRegistration{
+		AppID: r.app, Environment: "production", Platform: "android", OSVersion: "15", RuntimeVersion: "1.0.0", Build: "42",
+		Challenge: r.challenge(t, "production"), DPoPKeyJWK: jwk, KeyStorage: device.KeyStorageTEE, Evidence: androidEvidence(),
+		AgreementKeyJWK: agreementJWK,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := r.svc.ConfidentialRecipient(ctx, identity(d))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want, err := agreement.PublicKey.ECDH()
+	if err != nil || !got.Equal(want) {
+		t.Errorf("the recipient is another key: %v", err)
+	}
+
+	// No key-agreement key: no content key.
+	bare, bareJWK := devicetest.NewKey(t)
+	r.android(&bare.PublicKey, keyattest.SecurityTrustedEnvironment, playintegrity.LabelDevice)
+	d, err = r.register(t, "production", "android", bareJWK, device.KeyStorageTEE, androidEvidence())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := r.svc.ConfidentialRecipient(ctx, identity(d)); code(err) != plxerr.ConfidentialKeyUnavailable {
+		t.Errorf("a device with no key-agreement key: %v", err)
+	}
+
+	// A key that is not P-256 is refused at registration.
+	if _, err := r.svc.RegisterAttested(ctx, device.AttestedRegistration{
+		AppID: r.app, Environment: "production", Platform: "android", OSVersion: "15", RuntimeVersion: "1.0.0", Build: "42",
+		Challenge: r.challenge(t, "production"), DPoPKeyJWK: bareJWK, KeyStorage: device.KeyStorageTEE, Evidence: androidEvidence(),
+		AgreementKeyJWK: []byte(`{"kty":"oct"}`),
+	}); code(err) != plxerr.InvalidFormat {
+		t.Errorf("a bad key-agreement key: %v", err)
+	}
+}

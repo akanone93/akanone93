@@ -904,8 +904,13 @@ type GetManifestResponse struct {
 	// config_full_required is true when no patch can be given, so the
 	// device fetches the whole configuration (SEC-182).
 	ConfigFullRequired bool `protobuf:"varint,6,opt,name=config_full_required,json=configFullRequired,proto3" json:"config_full_required,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// content_key is the release's content key wrapped for this device;
+	// set when the manifest names confidential bundles (SEC-053). It is
+	// outside the signed part: the bundles' signed hashes cover ciphertext,
+	// and a key that does not open them is refused by the device.
+	ContentKey    *ContentKey `protobuf:"bytes,7,opt,name=content_key,json=contentKey,proto3" json:"content_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetManifestResponse) Reset() {
@@ -980,6 +985,71 @@ func (x *GetManifestResponse) GetConfigFullRequired() bool {
 	return false
 }
 
+func (x *GetManifestResponse) GetContentKey() *ContentKey {
+	if x != nil {
+		return x.ContentKey
+	}
+	return nil
+}
+
+// ContentKey is a confidential release's content key wrapped to one
+// device's key-agreement key with ECDH-ES (P-256), HKDF-SHA-256 and AES-KW
+// (SEC-053, ADR-0055).
+type ContentKey struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ephemeral_public_key is the server's one-time P-256 key, an
+	// uncompressed SEC1 point of 65 bytes.
+	EphemeralPublicKey []byte `protobuf:"bytes,1,opt,name=ephemeral_public_key,json=ephemeralPublicKey,proto3" json:"ephemeral_public_key,omitempty"`
+	// wrapped_key is the AES-KW output, 40 bytes.
+	WrappedKey    []byte `protobuf:"bytes,2,opt,name=wrapped_key,json=wrappedKey,proto3" json:"wrapped_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ContentKey) Reset() {
+	*x = ContentKey{}
+	mi := &file_plux_v1_manifest_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ContentKey) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContentKey) ProtoMessage() {}
+
+func (x *ContentKey) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_manifest_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContentKey.ProtoReflect.Descriptor instead.
+func (*ContentKey) Descriptor() ([]byte, []int) {
+	return file_plux_v1_manifest_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ContentKey) GetEphemeralPublicKey() []byte {
+	if x != nil {
+		return x.EphemeralPublicKey
+	}
+	return nil
+}
+
+func (x *ContentKey) GetWrappedKey() []byte {
+	if x != nil {
+		return x.WrappedKey
+	}
+	return nil
+}
+
 type GetRootKeysRequest struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
 	AppId       string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
@@ -993,7 +1063,7 @@ type GetRootKeysRequest struct {
 
 func (x *GetRootKeysRequest) Reset() {
 	*x = GetRootKeysRequest{}
-	mi := &file_plux_v1_manifest_proto_msgTypes[12]
+	mi := &file_plux_v1_manifest_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1005,7 +1075,7 @@ func (x *GetRootKeysRequest) String() string {
 func (*GetRootKeysRequest) ProtoMessage() {}
 
 func (x *GetRootKeysRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_manifest_proto_msgTypes[12]
+	mi := &file_plux_v1_manifest_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1018,7 +1088,7 @@ func (x *GetRootKeysRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRootKeysRequest.ProtoReflect.Descriptor instead.
 func (*GetRootKeysRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_manifest_proto_rawDescGZIP(), []int{12}
+	return file_plux_v1_manifest_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetRootKeysRequest) GetAppId() string {
@@ -1056,7 +1126,7 @@ type GetRootKeysResponse struct {
 
 func (x *GetRootKeysResponse) Reset() {
 	*x = GetRootKeysResponse{}
-	mi := &file_plux_v1_manifest_proto_msgTypes[13]
+	mi := &file_plux_v1_manifest_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1068,7 +1138,7 @@ func (x *GetRootKeysResponse) String() string {
 func (*GetRootKeysResponse) ProtoMessage() {}
 
 func (x *GetRootKeysResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_manifest_proto_msgTypes[13]
+	mi := &file_plux_v1_manifest_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1081,7 +1151,7 @@ func (x *GetRootKeysResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRootKeysResponse.ProtoReflect.Descriptor instead.
 func (*GetRootKeysResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_manifest_proto_rawDescGZIP(), []int{13}
+	return file_plux_v1_manifest_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetRootKeysResponse) GetKeys() []*PublicKey {
@@ -1115,7 +1185,7 @@ type PublicKey struct {
 
 func (x *PublicKey) Reset() {
 	*x = PublicKey{}
-	mi := &file_plux_v1_manifest_proto_msgTypes[14]
+	mi := &file_plux_v1_manifest_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1127,7 +1197,7 @@ func (x *PublicKey) String() string {
 func (*PublicKey) ProtoMessage() {}
 
 func (x *PublicKey) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_manifest_proto_msgTypes[14]
+	mi := &file_plux_v1_manifest_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1140,7 +1210,7 @@ func (x *PublicKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublicKey.ProtoReflect.Descriptor instead.
 func (*PublicKey) Descriptor() ([]byte, []int) {
-	return file_plux_v1_manifest_proto_rawDescGZIP(), []int{14}
+	return file_plux_v1_manifest_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *PublicKey) GetKeyId() string {
@@ -1251,14 +1321,21 @@ const file_plux_v1_manifest_proto_rawDesc = "" +
 	"\tinstalled\x18\x05 \x03(\v2\x18.plux.v1.InstalledBundleR\tinstalled\x12\"\n" +
 	"\rif_none_match\x18\x06 \x01(\tR\vifNoneMatch\x12)\n" +
 	"\x10installed_digest\x18\a \x01(\fR\x0finstalledDigest\x12%\n" +
-	"\x0econfig_version\x18\b \x01(\x03R\rconfigVersion\"\xff\x01\n" +
+	"\x0econfig_version\x18\b \x01(\x03R\rconfigVersion\"\xb5\x02\n" +
 	"\x13GetManifestResponse\x12!\n" +
 	"\fnot_modified\x18\x01 \x01(\bR\vnotModified\x12-\n" +
 	"\bmanifest\x18\x02 \x01(\v2\x11.plux.v1.ManifestR\bmanifest\x12\x12\n" +
 	"\x04etag\x18\x03 \x01(\tR\x04etag\x12-\n" +
 	"\x12installed_required\x18\x04 \x01(\bR\x11installedRequired\x12!\n" +
 	"\fconfig_patch\x18\x05 \x01(\fR\vconfigPatch\x120\n" +
-	"\x14config_full_required\x18\x06 \x01(\bR\x12configFullRequired\"{\n" +
+	"\x14config_full_required\x18\x06 \x01(\bR\x12configFullRequired\x124\n" +
+	"\vcontent_key\x18\a \x01(\v2\x13.plux.v1.ContentKeyR\n" +
+	"contentKey\"_\n" +
+	"\n" +
+	"ContentKey\x120\n" +
+	"\x14ephemeral_public_key\x18\x01 \x01(\fR\x12ephemeralPublicKey\x12\x1f\n" +
+	"\vwrapped_key\x18\x02 \x01(\fR\n" +
+	"wrappedKey\"{\n" +
 	"\x12GetRootKeysRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12,\n" +
@@ -1289,7 +1366,7 @@ func file_plux_v1_manifest_proto_rawDescGZIP() []byte {
 	return file_plux_v1_manifest_proto_rawDescData
 }
 
-var file_plux_v1_manifest_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_plux_v1_manifest_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_plux_v1_manifest_proto_goTypes = []any{
 	(*Manifest)(nil),              // 0: plux.v1.Manifest
 	(*SecurityConfigRef)(nil),     // 1: plux.v1.SecurityConfigRef
@@ -1303,14 +1380,15 @@ var file_plux_v1_manifest_proto_goTypes = []any{
 	(*InstalledBundle)(nil),       // 9: plux.v1.InstalledBundle
 	(*GetManifestRequest)(nil),    // 10: plux.v1.GetManifestRequest
 	(*GetManifestResponse)(nil),   // 11: plux.v1.GetManifestResponse
-	(*GetRootKeysRequest)(nil),    // 12: plux.v1.GetRootKeysRequest
-	(*GetRootKeysResponse)(nil),   // 13: plux.v1.GetRootKeysResponse
-	(*PublicKey)(nil),             // 14: plux.v1.PublicKey
-	(*timestamppb.Timestamp)(nil), // 15: google.protobuf.Timestamp
+	(*ContentKey)(nil),            // 12: plux.v1.ContentKey
+	(*GetRootKeysRequest)(nil),    // 13: plux.v1.GetRootKeysRequest
+	(*GetRootKeysResponse)(nil),   // 14: plux.v1.GetRootKeysResponse
+	(*PublicKey)(nil),             // 15: plux.v1.PublicKey
+	(*timestamppb.Timestamp)(nil), // 16: google.protobuf.Timestamp
 }
 var file_plux_v1_manifest_proto_depIdxs = []int32{
-	15, // 0: plux.v1.Manifest.issued_at:type_name -> google.protobuf.Timestamp
-	15, // 1: plux.v1.Manifest.expires_at:type_name -> google.protobuf.Timestamp
+	16, // 0: plux.v1.Manifest.issued_at:type_name -> google.protobuf.Timestamp
+	16, // 1: plux.v1.Manifest.expires_at:type_name -> google.protobuf.Timestamp
 	4,  // 2: plux.v1.Manifest.app_bundle:type_name -> plux.v1.BundleDescriptor
 	5,  // 3: plux.v1.Manifest.plugins:type_name -> plux.v1.PluginDescriptor
 	7,  // 4: plux.v1.Manifest.control:type_name -> plux.v1.ControlFlags
@@ -1322,16 +1400,17 @@ var file_plux_v1_manifest_proto_depIdxs = []int32{
 	4,  // 10: plux.v1.PluginDescriptor.bundle:type_name -> plux.v1.BundleDescriptor
 	9,  // 11: plux.v1.GetManifestRequest.installed:type_name -> plux.v1.InstalledBundle
 	0,  // 12: plux.v1.GetManifestResponse.manifest:type_name -> plux.v1.Manifest
-	14, // 13: plux.v1.GetRootKeysResponse.keys:type_name -> plux.v1.PublicKey
-	10, // 14: plux.v1.ManifestService.GetManifest:input_type -> plux.v1.GetManifestRequest
-	12, // 15: plux.v1.ManifestService.GetRootKeys:input_type -> plux.v1.GetRootKeysRequest
-	11, // 16: plux.v1.ManifestService.GetManifest:output_type -> plux.v1.GetManifestResponse
-	13, // 17: plux.v1.ManifestService.GetRootKeys:output_type -> plux.v1.GetRootKeysResponse
-	16, // [16:18] is the sub-list for method output_type
-	14, // [14:16] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	12, // 13: plux.v1.GetManifestResponse.content_key:type_name -> plux.v1.ContentKey
+	15, // 14: plux.v1.GetRootKeysResponse.keys:type_name -> plux.v1.PublicKey
+	10, // 15: plux.v1.ManifestService.GetManifest:input_type -> plux.v1.GetManifestRequest
+	13, // 16: plux.v1.ManifestService.GetRootKeys:input_type -> plux.v1.GetRootKeysRequest
+	11, // 17: plux.v1.ManifestService.GetManifest:output_type -> plux.v1.GetManifestResponse
+	14, // 18: plux.v1.ManifestService.GetRootKeys:output_type -> plux.v1.GetRootKeysResponse
+	17, // [17:19] is the sub-list for method output_type
+	15, // [15:17] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_manifest_proto_init() }
@@ -1345,7 +1424,7 @@ func file_plux_v1_manifest_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_manifest_proto_rawDesc), len(file_plux_v1_manifest_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

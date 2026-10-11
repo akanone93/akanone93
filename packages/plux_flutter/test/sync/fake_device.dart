@@ -34,8 +34,9 @@ final class FakeDeviceKeys implements DeviceKeys {
   KeyStorage storage = KeyStorage.tee;
 
   var _created = 0;
+  var _agreements = 0;
 
-  /// The number of keys created.
+  /// The number of keys created, key-agreement keys apart.
   int get created => _created;
 
   @override
@@ -45,14 +46,18 @@ final class FakeDeviceKeys implements DeviceKeys {
     Uint8List? challenge,
     bool strongBox = true,
   }) async {
-    _created++;
-    challenges.add(challenge);
+    // Key-agreement keys are counted apart, so the tests of the DPoP flow
+    // keep counting the keys they care about.
+    final n = purpose == KeyPurpose.agreement
+        ? (200 + ++_agreements) % 256
+        : ++_created;
+    if (purpose != KeyPurpose.agreement) challenges.add(challenge);
     final key = DeviceKey(
       alias: alias,
       purpose: purpose,
       publicKey: EcPublicKey(
-        Uint8List.fromList(List.filled(32, _created)),
-        Uint8List.fromList(List.filled(32, _created + 100)),
+        Uint8List.fromList(List.filled(32, n)),
+        Uint8List.fromList(List.filled(32, n % 100 + 100)),
       ),
       storage: storage,
     );
@@ -75,6 +80,10 @@ final class FakeDeviceKeys implements DeviceKeys {
     signed.add(alias);
     return Uint8List.fromList([for (var i = 0; i < 64; i++) i]);
   }
+
+  @override
+  Future<Uint8List> agree(String alias, EcPublicKey peer) async =>
+      throw UnimplementedError('FakeDeviceKeys.agree');
 
   @override
   Future<void> delete(String alias) async {

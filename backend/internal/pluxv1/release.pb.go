@@ -205,10 +205,13 @@ type Release struct {
 	AppBundleSha256  string   `protobuf:"bytes,5,opt,name=app_bundle_sha256,json=appBundleSha256,proto3" json:"app_bundle_sha256,omitempty"`
 	AppBundleSize    int64    `protobuf:"varint,6,opt,name=app_bundle_size,json=appBundleSize,proto3" json:"app_bundle_size,omitempty"`
 	// rollback_of is the sequence this release reproduces, when it is one.
-	RollbackOf    int64                  `protobuf:"varint,7,opt,name=rollback_of,json=rollbackOf,proto3" json:"rollback_of,omitempty"`
-	Notes         string                 `protobuf:"bytes,8,opt,name=notes,proto3" json:"notes,omitempty"`
-	CreatedBy     *Actor                 `protobuf:"bytes,9,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	RollbackOf int64                  `protobuf:"varint,7,opt,name=rollback_of,json=rollbackOf,proto3" json:"rollback_of,omitempty"`
+	Notes      string                 `protobuf:"bytes,8,opt,name=notes,proto3" json:"notes,omitempty"`
+	CreatedBy  *Actor                 `protobuf:"bytes,9,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	CreatedAt  *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// confidential is true when the release's bundles are delivered
+	// encrypted (SEC-053).
+	Confidential  bool `protobuf:"varint,11,opt,name=confidential,proto3" json:"confidential,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -311,6 +314,13 @@ func (x *Release) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *Release) GetConfidential() bool {
+	if x != nil {
+		return x.Confidential
+	}
+	return false
 }
 
 type ChangelogEntry struct {
@@ -746,8 +756,13 @@ type CreateReleaseRequest struct {
 	// plugin left out keeps the version of the environment's last release.
 	PluginVersions map[string]int64 `protobuf:"bytes,3,rep,name=plugin_versions,json=pluginVersions,proto3" json:"plugin_versions,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
 	Notes          string           `protobuf:"bytes,4,opt,name=notes,proto3" json:"notes,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// confidential asks for a confidential release, whose bundles are
+	// delivered encrypted to eligible devices (SEC-053). The environment's
+	// confidentialBundles setting decides whether it may be asked for
+	// (optional) or is implied (required); under off it is refused.
+	Confidential  bool `protobuf:"varint,5,opt,name=confidential,proto3" json:"confidential,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateReleaseRequest) Reset() {
@@ -806,6 +821,13 @@ func (x *CreateReleaseRequest) GetNotes() string {
 		return x.Notes
 	}
 	return ""
+}
+
+func (x *CreateReleaseRequest) GetConfidential() bool {
+	if x != nil {
+		return x.Confidential
+	}
+	return false
 }
 
 type CreateReleaseResponse struct {
@@ -1544,7 +1566,7 @@ const file_plux_v1_release_proto_rawDesc = "" +
 	"\x12source_snapshot_id\x18\x0e \x01(\tR\x10sourceSnapshotId\x121\n" +
 	"\fpublished_by\x18\x0f \x01(\v2\x0e.plux.v1.ActorR\vpublishedBy\x129\n" +
 	"\n" +
-	"created_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xef\x02\n" +
+	"created_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\x93\x03\n" +
 	"\aRelease\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12\x1a\n" +
@@ -1559,7 +1581,8 @@ const file_plux_v1_release_proto_rawDesc = "" +
 	"created_by\x18\t \x01(\v2\x0e.plux.v1.ActorR\tcreatedBy\x129\n" +
 	"\n" +
 	"created_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"o\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\"\n" +
+	"\fconfidential\x18\v \x01(\bR\fconfidential\"o\n" +
 	"\x0eChangelogEntry\x12\x12\n" +
 	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x16\n" +
 	"\x06change\x18\x02 \x01(\tR\x06change\x12\x1d\n" +
@@ -1589,12 +1612,13 @@ const file_plux_v1_release_proto_rawDesc = "" +
 	"\x04page\x18\x02 \x01(\v2\r.plux.v1.PageR\x04page\"y\n" +
 	"\x1aListPluginVersionsResponse\x122\n" +
 	"\bversions\x18\x01 \x03(\v2\x16.plux.v1.PluginVersionR\bversions\x12'\n" +
-	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\x89\x02\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\xad\x02\n" +
 	"\x14CreateReleaseRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12Z\n" +
 	"\x0fplugin_versions\x18\x03 \x03(\v21.plux.v1.CreateReleaseRequest.PluginVersionsEntryR\x0epluginVersions\x12\x14\n" +
-	"\x05notes\x18\x04 \x01(\tR\x05notes\x1aA\n" +
+	"\x05notes\x18\x04 \x01(\tR\x05notes\x12\"\n" +
+	"\fconfidential\x18\x05 \x01(\bR\fconfidential\x1aA\n" +
 	"\x13PluginVersionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"z\n" +

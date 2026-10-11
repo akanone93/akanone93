@@ -19,7 +19,7 @@ final class PluxKeys {
   /// and never holds up the DPoP proofs on `queue`.
   private static let authQueue = DispatchQueue(label: "dev.plux.keys.auth", qos: .userInitiated)
 
-  /// Handles one of keyCreate, keyPublic, keySign and keyDelete. Keychain and
+  /// Handles one of keyCreate, keyPublic, keySign, keyAgree and keyDelete. Keychain and
   /// Secure Enclave work runs on a serial queue; `result` is called on the
   /// main queue.
   func handle(_ method: String, _ args: [String: Any], result: @escaping FlutterResult) {
@@ -37,6 +37,11 @@ final class PluxKeys {
         return result(Self.fail("PLUX_PLATFORM", "data"))
       }
       Self.run(result) { try Self.sign(alias, data) }
+    case "keyAgree":
+      guard let x = (args["x"] as? FlutterStandardTypedData)?.data,
+            let y = (args["y"] as? FlutterStandardTypedData)?.data, x.count == 32, y.count == 32
+      else { return result(Self.fail("PLUX_PLATFORM", "peer")) }
+      Self.run(result) { try Self.agree(alias, x, y) }
     case "keySignAuth":
       guard let data = (args["data"] as? FlutterStandardTypedData)?.data,
             let title = args["title"] as? String else {
@@ -235,6 +240,33 @@ final class PluxKeys {
     }
     guard let raw = derToRaw(der) else { throw platform("signature", 0) }
     return FlutterStandardTypedData(bytes: raw)
+  }
+
+  // MARK: - Key agreement
+
+  /// The ECDH secret of the "agreement" key under `alias` and the peer public
+  /// point (x, y), 32 bytes (SEC-053). The key stays in the Secure Enclave or
+  /// Keychain; the secret is used once, to unwrap a content key.
+  private static func agree(_ alias: String, _ x: Data, _ y: Data) throws -> FlutterStandardTypedData {
+    guard let found = try lookup(alias) else {
+      throw KeyError(code: "PLUX_KEY_MISSING", message: "alias")
+    }
+    guard found.purpose == "agreement" else { throw platform("purpose", 0) }
+    let point = Data([0x04]) + x + y
+    let attrs: [String: Any] = [
+      kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
+      kSecAttrKeyClass as String: kSecAttrKeyClassPublic,
+      kSecAttrKeySizeInBits as String: 256,
+    ]
+    var peerError: Unmanaged<CFError>?
+    guard let peer = SecKeyCreateWithData(point as CFData, attrs as CFDictionary, &peerError) else {
+      throw platform("peer", cfError: peerError)
+    }
+    var agreeError: Unmanaged<CFError>?
+    guard let secret = SecKeyCopyKeyExchangeResult(
+      found.key, .ecdhKeyExchangeStandard, peer, [:] as CFDictionary, &agreeError) as Data?
+    else { throw platform("agree", cfError: agreeError) }
+    return FlutterStandardTypedData(bytes: secret)
   }
 
   /// Converts an ASN.1 DER ECDSA signature (SEQUENCE of two INTEGERs r, s)

@@ -39,6 +39,10 @@ final class _InstantKeys implements DeviceKeys {
       throw UnimplementedError();
 
   @override
+  Future<Uint8List> agree(String alias, EcPublicKey peer) =>
+      throw UnimplementedError();
+
+  @override
   Future<void> delete(String alias) => throw UnimplementedError();
 }
 

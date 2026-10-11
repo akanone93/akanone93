@@ -64,8 +64,11 @@ type Release struct {
 	MinRuntime       string
 	RequiredFeatures []string
 	Size             int64
-	CreatedBy        audit.Actor
-	CreatedAt        time.Time
+	// Confidential is true when the release is delivered encrypted
+	// (SEC-053).
+	Confidential bool
+	CreatedBy    audit.Actor
+	CreatedAt    time.Time
 }
 
 // CreateRelease creates an app release in an environment from a version
@@ -74,10 +77,16 @@ type Release struct {
 // its newest; the key "" names the app bundle's version. The whole set
 // is compiled again from the versions' sources: an unresolved reference,
 // or a version whose bundle those sources would not reproduce, stops the
-// release, reported as diagnostics (REL-003).
-func (s *Service) CreateRelease(ctx context.Context, p auth.Principal, appID, envID string, chosen map[string]int64, notes string) (Release, plxerr.Diagnostics, error) {
+// release, reported as diagnostics (REL-003). WithConfidential asks for a
+// release delivered encrypted, which the environment's confidentialBundles
+// setting allows or implies (SEC-053).
+func (s *Service) CreateRelease(ctx context.Context, p auth.Principal, appID, envID string, chosen map[string]int64, notes string, opts ...CreateOption) (Release, plxerr.Diagnostics, error) {
 	if err := authorize(p, auth.ReleasePublish, appID); err != nil {
 		return Release{}, nil, err
+	}
+	var o createOptions
+	for _, apply := range opts {
+		apply(&o)
 	}
 	var (
 		out   Release
@@ -100,7 +109,11 @@ func (s *Service) CreateRelease(ctx context.Context, p auth.Principal, appID, en
 		if diags, err = s.validateSet(ctx, tx, p, appID, versions); err != nil || diags.HasErrors() {
 			return err
 		}
-		out, err = s.insertRelease(ctx, tx, p, env, versions, 0, notes)
+		confidential, err := s.confidentialFor(ctx, tx, p.OrganizationID, env, versions, o.confidential)
+		if err != nil {
+			return err
+		}
+		out, err = s.insertRelease(ctx, tx, p, env, versions, 0, notes, confidential)
 		return err
 	})
 	return out, diags, err
@@ -211,7 +224,7 @@ func nameOf(v dbgen.PluginVersion) string {
 }
 
 // insertRelease records a release with the next sequence of the app.
-func (s *Service) insertRelease(ctx context.Context, tx pgx.Tx, p auth.Principal, env dbgen.Environment, versions []dbgen.PluginVersion, rollbackOf int64, notes string) (Release, error) {
+func (s *Service) insertRelease(ctx context.Context, tx pgx.Tx, p auth.Principal, env dbgen.Environment, versions []dbgen.PluginVersion, rollbackOf int64, notes string, confidential bool) (Release, error) {
 	q := dbgen.New(tx)
 	seq, err := q.NextReleaseSequence(ctx, env.AppID)
 	if err != nil {
@@ -253,6 +266,12 @@ func (s *Service) insertRelease(ctx context.Context, tx pgx.Tx, p auth.Principal
 			return Release{}, failure(err, "release")
 		}
 	}
+	if confidential {
+		if err := q.SetReleaseConfidential(ctx, row.ID); err != nil {
+			return Release{}, failure(err, "release")
+		}
+		row.Confidential = true
+	}
 	// The native entries the release uses decide which host builds can
 	// run it (REL-080).
 	all, err := unionUses(versions)
@@ -270,7 +289,11 @@ func (s *Service) insertRelease(ctx context.Context, tx pgx.Tx, p auth.Principal
 	if rollbackOf > 0 {
 		action = audit.ReleaseRolledBack
 	}
-	if err := s.record(ctx, tx, p, audit.Entry{Action: action, TargetKind: "release", TargetID: id, Detail: "sequence " + strconv.FormatInt(seq, 10)}); err != nil {
+	detail := "sequence " + strconv.FormatInt(seq, 10)
+	if confidential {
+		detail += ", confidential"
+	}
+	if err := s.record(ctx, tx, p, audit.Entry{Action: action, TargetKind: "release", TargetID: id, Detail: detail}); err != nil {
 		return Release{}, err
 	}
 	return releaseOf(row, versions), nil
@@ -486,14 +509,16 @@ func (s *Service) RollbackRelease(ctx context.Context, p auth.Principal, appID, 
 		if _, err := q.LockApp(ctx, app); err != nil {
 			return failure(err, "app")
 		}
-		_, vs, err := s.releaseRow(ctx, q, appID, toSequence)
+		earlier, vs, err := s.releaseRow(ctx, q, appID, toSequence)
 		if err != nil {
 			return err
 		}
 		if notes == "" {
 			notes = "Rollback to release " + strconv.FormatInt(toSequence, 10)
 		}
-		out, err = s.insertRelease(ctx, tx, p, env, vs, toSequence, notes)
+		// A rollback reproduces the release, so it is as confidential as
+		// the release it reproduces; it gets a content key of its own.
+		out, err = s.insertRelease(ctx, tx, p, env, vs, toSequence, notes, earlier.Confidential)
 		if err != nil {
 			return err
 		}
@@ -542,7 +567,7 @@ func releaseOf(r dbgen.Release, vs []dbgen.PluginVersion) Release {
 	out := Release{
 		ID: storage.ID(r.ID), AppID: storage.ID(r.AppID), EnvironmentID: storage.ID(r.EnvironmentID),
 		Sequence: r.Sequence, AppVersionID: storage.ID(r.AppVersionID), RollbackOf: r.RollbackOf, Notes: r.Notes,
-		MinRuntime: r.MinRuntime, RequiredFeatures: r.RequiredFeatures, Size: r.Size,
+		MinRuntime: r.MinRuntime, RequiredFeatures: r.RequiredFeatures, Size: r.Size, Confidential: r.Confidential,
 		CreatedBy: audit.Actor{Kind: r.CreatedByKind, ID: r.CreatedByID, Display: r.CreatedBy},
 		CreatedAt: storage.Time(r.CreatedAt),
 	}

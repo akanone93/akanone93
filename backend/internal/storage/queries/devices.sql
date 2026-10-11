@@ -29,8 +29,9 @@ RETURNING *;
 INSERT INTO devices (id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build,
                      secret_hash, assurance_level, dpop_jkt, dpop_public_key, key_storage,
                      attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at,
-                     app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, ''::bytea, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+                     app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt,
+                     agreement_public_key)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, ''::bytea, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
 RETURNING *;
 
 -- name: UpdateDeviceAttestation :one

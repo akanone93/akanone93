@@ -72,6 +72,9 @@ message Release {
   string notes = 8;
   Actor created_by = 9;
   google.protobuf.Timestamp created_at = 10;
+  // confidential is true when the release's bundles are delivered
+  // encrypted (SEC-053).
+  bool confidential = 11;
 }
 
 message ChangelogEntry {
@@ -133,6 +136,11 @@ message CreateReleaseRequest {
   // plugin left out keeps the version of the environment's last release.
   map<string, int64> plugin_versions = 3;
   string notes = 4;
+  // confidential asks for a confidential release, whose bundles are
+  // delivered encrypted to eligible devices (SEC-053). The environment's
+  // confidentialBundles setting decides whether it may be asked for
+  // (optional) or is implied (required); under off it is refused.
+  bool confidential = 5;
 }
 message CreateReleaseResponse {
   Release release = 1;

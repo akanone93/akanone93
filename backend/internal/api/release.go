@@ -214,7 +214,11 @@ func (s Release) CreateRelease(ctx context.Context, req *connect.Request[pluxv1.
 			return nil, err
 		}
 		m := req.Msg
-		r, diags, err := s.h.Releases.CreateRelease(ctx, p, m.GetAppId(), m.GetEnvironmentId(), m.GetPluginVersions(), m.GetNotes())
+		var opts []release.CreateOption
+		if m.GetConfidential() {
+			opts = append(opts, release.WithConfidential())
+		}
+		r, diags, err := s.h.Releases.CreateRelease(ctx, p, m.GetAppId(), m.GetEnvironmentId(), m.GetPluginVersions(), m.GetNotes(), opts...)
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
@@ -379,6 +383,6 @@ func releaseProto(r release.Release) *pluxv1.Release {
 	return &pluxv1.Release{
 		Id: r.ID, AppId: r.AppID, Sequence: r.Sequence, PluginVersionIds: r.VersionIDs,
 		AppBundleSha256: r.AppBundleSHA256, AppBundleSize: r.AppBundleSize, RollbackOf: r.RollbackOf,
-		Notes: r.Notes, CreatedBy: actorProto(r.CreatedBy), CreatedAt: ts(r.CreatedAt),
+		Notes: r.Notes, CreatedBy: actorProto(r.CreatedBy), CreatedAt: ts(r.CreatedAt), Confidential: r.Confidential,
 	}
 }

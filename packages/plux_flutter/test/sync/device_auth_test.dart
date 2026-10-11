@@ -133,6 +133,8 @@ final class _Rig {
 
 String _alias() => dpopKeyAlias('app_1', 'production');
 
+String _agreementAlias() => agreementKeyAlias('app_1', 'production');
+
 void main() {
   group('registration', () {
     test(
@@ -183,6 +185,11 @@ void main() {
             utf8.encode(jsonEncode(key.publicKey.jwk)),
           ),
           'keyStorage': 'KEY_STORAGE_TEE',
+          'keyAgreementPublicKeyJwk': base64.encode(
+            utf8.encode(
+              jsonEncode(rig.keys.stored[_agreementAlias()]!.publicKey.jwk),
+            ),
+          ),
           'evidence': {
             'android': {
               'keyAttestationChain': [
@@ -597,7 +604,7 @@ void main() {
         final token = await rig.auth.token();
         expect(token.value, 'tok-2');
         expect(rig.at(_registerPath), hasLength(2));
-        expect(rig.keys.deleted, [_alias()]);
+        expect(rig.keys.deleted, [_alias(), _agreementAlias()]);
         expect(rig.keys.created, 2);
         expect((await rig.credentials.read())!.deviceId, 'dev-2');
 

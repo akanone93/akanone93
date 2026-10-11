@@ -104,6 +104,7 @@ androidDeviceVerdictAL2          MEETS_DEVICE_INTEGRITY  profile
 androidRefreshRequiresIntegrity  false                   profile
 attestationOutageGrace           3600                    profile
 confidentialBundles              optional                profile
+confidentialMinAssurance         AL2                     profile
 defaultFunctionAssurance         AL2                     profile
 dpopIatWindow                    60                      profile
 dpopIatWindowFallback            15                      profile

@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"slices"
 	"strings"
 	"sync"
@@ -61,6 +62,9 @@ func (DeltaJob) Kind() string { return "delta.precompute" }
 // app and environment come from its credential, not from the request.
 type ManifestRequest struct {
 	OrganizationID, AppID, EnvironmentID, Channel string
+	// DeviceID is the requesting device, whose key-agreement key a
+	// confidential release's content key is wrapped to (SEC-053).
+	DeviceID string
 	// HostBuild is the build the device registered or last reported; a
 	// build that cannot run the channel's release gets the manifest of
 	// the newest release it can (REL-080).
@@ -113,6 +117,10 @@ type ServedManifest struct {
 	// ConfigFullRequired is set when ConfigPatch is not a patch from the
 	// device's version but from nothing, or when there is none.
 	ConfigFullRequired bool
+	// ContentKey is the key of a confidential release, wrapped for the
+	// requesting device; nil when no bundle of the manifest is
+	// confidential (SEC-053). It is outside the signed part.
+	ContentKey *bundle.WrappedKey
 }
 
 // GetManifest returns the newest signed manifest of a channel with the
@@ -163,6 +171,11 @@ func (s *Service) GetManifest(ctx context.Context, r ManifestRequest) (ServedMan
 	}
 	if err := s.deliverConfig(ctx, r, pinned, &out); err != nil {
 		return ServedManifest{}, err
+	}
+	if slices.ContainsFunc(slices.Collect(maps.Values(targets)), isConfidential) {
+		if out.ContentKey, err = s.contentKey(ctx, r, out.Document); err != nil {
+			return ServedManifest{}, err
+		}
 	}
 	return out, nil
 }
@@ -283,7 +296,9 @@ func (s *Service) plan(ctx context.Context, org string, target SignedBundle, ins
 		return SyncStep{Action: SyncKeep}, full, nil
 	}
 	fullStep := SyncStep{Action: SyncFull, URL: full, Size: target.Size}
-	if len(installed) != sha256.Size {
+	// Ciphertext does not diff: a confidential bundle downloads whole,
+	// whatever the device holds (SEC-053, ADR-0055).
+	if len(installed) != sha256.Size || isConfidential(target) {
 		return fullStep, full, nil
 	}
 	d, found, err := s.Delta(ctx, org, installed, to)

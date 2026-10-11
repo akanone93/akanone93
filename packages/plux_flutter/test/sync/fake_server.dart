@@ -17,10 +17,13 @@ import 'package:cryptography/cryptography.dart' show SimpleKeyPair;
 import 'package:cryptography/dart.dart';
 import 'package:plux_flutter/src/assets/assets.dart';
 import 'package:plux_flutter/src/bundle/container.dart';
+import 'package:plux_flutter/src/security/content_key.dart';
+import 'package:plux_flutter/src/security/device_keys.dart' show EcPublicKey;
 import 'package:plux_flutter/src/sync/api_client.dart' show installedDigest;
 import 'package:plux_flutter/src/verify/jcs.dart';
 import 'package:plux_flutter/src/verify/manifest.dart';
 
+import 'confidential_support.dart';
 import 'fake_metadata.dart';
 
 /// The compiled golden bundles and the Go deltas between them.
@@ -84,6 +87,7 @@ final class FakeRelease {
     this.message = '',
     this.mandatory = false,
     this.requiredFeatures = const ['pxl.v1'],
+    this.sealed,
   });
 
   /// Its sequence.
@@ -109,6 +113,12 @@ final class FakeRelease {
 
   /// The features the manifest names for every bundle.
   final List<String> requiredFeatures;
+
+  /// When set, the release is confidential: the manifest names these sealed
+  /// bundles instead of [app] and [plugins], and the response carries the
+  /// content key wrapped for the key-agreement key the device registered
+  /// (SEC-053).
+  final SealedRelease? sealed;
 }
 
 /// What the next request to a path suffers.
@@ -246,6 +256,16 @@ final class FakePluxServer {
 
   /// Devices registered.
   int registrations = 0;
+
+  /// Whether a confidential release is served without its content key.
+  bool withholdContentKey = false;
+
+  /// When set, the release sequence the content key is wrapped for instead
+  /// of the manifest's.
+  int? contentKeySequence;
+
+  /// The key-agreement key of the last registration, if it sent one.
+  EcPublicKey? agreementKey;
 
   /// Registration challenges issued.
   int challenges = 0;
@@ -481,6 +501,15 @@ final class FakePluxServer {
         );
       case '/plux.v1.DeviceService/RegisterAttestedDevice':
         registrations++;
+        final jwk = body['keyAgreementPublicKeyJwk'] as String?;
+        if (jwk != null) {
+          final j = jsonDecode(
+            utf8.decode(base64.decode(jwk)),
+          ) as Map<String, Object?>;
+          Uint8List coord(Object? v) =>
+              base64Url.decode(base64Url.normalize(v! as String));
+          agreementKey = EcPublicKey(coord(j['x']), coord(j['y']));
+        }
         return (
           200,
           {
@@ -554,6 +583,10 @@ final class FakePluxServer {
 
   Future<Map<String, Object?>> _manifest(Map<String, Object?> req) async {
     final r = release!;
+    final sealed = r.sealed;
+    Uint8List appBytes() => sealed?.bundles[''] ?? r.app;
+    Uint8List pluginBytes(String key) =>
+        sealed?.bundles[key] ?? r.plugins[key]!;
     configVersionsSeen.add(req['configVersion']);
     final deviceConfig = int.parse('${req['configVersion'] ?? 0}');
     final installed = {
@@ -570,9 +603,8 @@ final class FakePluxServer {
     final etag =
         '"${sha256.convert(utf8.encode('${r.sequence}|${r.killSwitches}|${r.appKillSwitch}|$configVersion')).toString().substring(0, 16)}"';
     final targets = {
-      '': Goldens.hashOf(r.app),
-      for (final MapEntry(:key, :value) in r.plugins.entries)
-        key: Goldens.hashOf(value),
+      '': Goldens.hashOf(appBytes()),
+      for (final key in r.plugins.keys) key: Goldens.hashOf(pluginBytes(key)),
     };
     final digest = req['installedDigest'] as String?;
     final holds = digest != null
@@ -588,7 +620,10 @@ final class FakePluxServer {
     Map<String, Object?> bundleJson(Uint8List b) => {
       'hash': 'sha256:${Goldens.hashOf(b)}',
       'size': b.length,
-      'requiredFeatures': r.requiredFeatures,
+      'requiredFeatures': [
+        ...r.requiredFeatures,
+        if (sealed != null) confidentialFeature,
+      ]..sort(),
       'minRuntime': '0.1.0',
     };
     final signedDoc = {
@@ -601,12 +636,10 @@ final class FakePluxServer {
       'releaseSequence': r.sequence,
       'issuedAt': '2026-09-28T00:00:00Z',
       'expires': expires.toUtc().toIso8601String().replaceFirst('.000', ''),
-      'appBundle': bundleJson(r.app),
+      'appBundle': bundleJson(appBytes()),
       'plugins': [
-        for (final MapEntry(:key, :value)
-            in (r.plugins.entries.toList()
-              ..sort((a, b) => a.key.compareTo(b.key))))
-          {'key': key, 'version': r.sequence, ...bundleJson(value)},
+        for (final key in (r.plugins.keys.toList()..sort()))
+          {'key': key, 'version': r.sequence, ...bundleJson(pluginBytes(key))},
       ],
       'control': {
         'killSwitches': r.killSwitches,
@@ -636,7 +669,9 @@ final class FakePluxServer {
       Map<String, Object?> step;
       if (have == hash) {
         step = {'action': 'keep'};
-      } else if (have != null && deltas.containsKey('$have→$hash')) {
+      } else if (sealed == null &&
+          have != null &&
+          deltas.containsKey('$have→$hash')) {
         final d = deltas['$have→$hash']!;
         step = {
           'action': 'delta',
@@ -656,8 +691,26 @@ final class FakePluxServer {
     }
 
     final patch = configPatches[deviceConfig];
+    final device = agreementKey;
+    final wrapped = sealed == null || device == null || withholdContentKey
+        ? null
+        : await wrapContentKeyFor(
+            sealed.contentKey,
+            device,
+            infoFor(
+              'dev_$registrations',
+              app,
+              environment,
+              contentKeySequence ?? r.sequence,
+            ),
+          );
     return {
       'etag': etag,
+      if (wrapped != null)
+        'contentKey': {
+          'ephemeralPublicKey': base64.encode(wrapped.ephemeralPublicKey),
+          'wrappedKey': base64.encode(wrapped.wrappedKey),
+        },
       if (pinsConfig && deviceConfig != configVersion && patch != null)
         'configPatch': base64.encode(utf8.encode(jsonEncode(patch))),
       if (pinsConfig && configFullRequiredFor.contains(deviceConfig))
@@ -674,13 +727,13 @@ final class FakePluxServer {
             'signature': base64.encode(sig.bytes),
           },
         ],
-        'appBundle': descriptor('', r.app),
+        'appBundle': descriptor('', appBytes()),
         'plugins': [
-          for (final MapEntry(:key, :value) in r.plugins.entries)
+          for (final key in r.plugins.keys)
             {
               'key': key,
               'version': '${r.sequence}',
-              'bundle': descriptor(key, value),
+              'bundle': descriptor(key, pluginBytes(key)),
             },
         ],
       },

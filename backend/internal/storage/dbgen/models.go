@@ -167,6 +167,7 @@ type Device struct {
 	RevokedReason         string
 	RaspDetectedAt        pgtype.Timestamptz
 	RaspKinds             []string
+	AgreementPublicKey    []byte
 }
 
 type DeviceAuthorization struct {
@@ -465,6 +466,23 @@ type Release struct {
 	CreatedBy        string
 	CreatedAt        pgtype.Timestamptz
 	NativeUses       []byte
+	Confidential     bool
+}
+
+type ReleaseConfidentialBundle struct {
+	ReleaseID      pgtype.UUID
+	OrganizationID pgtype.UUID
+	PluginKey      string
+	PlainSha256    []byte
+	BundleSha256   []byte
+	Size           int64
+}
+
+type ReleaseContentKey struct {
+	ReleaseID      pgtype.UUID
+	OrganizationID pgtype.UUID
+	Sealed         []byte
+	CreatedAt      pgtype.Timestamptz
 }
 
 type ReleaseVersion struct {

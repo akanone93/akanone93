@@ -12,6 +12,7 @@ import 'package:plux_flutter/src/bundle/container.dart';
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
+import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/store/directory_sync.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
@@ -134,7 +135,13 @@ void main() {
     expect(server.registrations, 1);
     final credential = await credentials.read();
     expect(credential!.deviceId, 'dev_1');
-    expect(credential.jkt, keys.stored.values.single.publicKey.thumbprint);
+    expect(
+      credential.jkt,
+      keys
+          .stored[dpopKeyAlias(FakePluxServer.app, FakePluxServer.environment)]!
+          .publicKey
+          .thumbprint,
+    );
   });
 
   test(

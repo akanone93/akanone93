@@ -154,3 +154,22 @@ SELECT COALESCE((SELECT size FROM releases WHERE app_id = $1 ORDER BY sequence D
 -- name: CountPages :one
 SELECT count(*) FROM documents d JOIN drafts dr ON dr.id = d.draft_id
  WHERE dr.app_id = $1 AND dr.plugin_id = $2 AND d.kind = 'page' AND d.deleted_at IS NULL;
+
+-- name: SetReleaseConfidential :exec
+UPDATE releases SET confidential = true WHERE id = $1;
+
+-- name: LockRelease :one
+SELECT id FROM releases WHERE id = $1 FOR UPDATE;
+
+-- name: GetReleaseContentKey :one
+SELECT sealed FROM release_content_keys WHERE release_id = $1;
+
+-- name: InsertReleaseContentKey :exec
+INSERT INTO release_content_keys (release_id, organization_id, sealed) VALUES ($1, $2, $3);
+
+-- name: ListReleaseConfidentialBundles :many
+SELECT * FROM release_confidential_bundles WHERE release_id = $1 ORDER BY plugin_key;
+
+-- name: InsertReleaseConfidentialBundle :exec
+INSERT INTO release_confidential_bundles (release_id, organization_id, plugin_key, plain_sha256, bundle_sha256, size)
+VALUES ($1, $2, $3, $4, $5, $6);
