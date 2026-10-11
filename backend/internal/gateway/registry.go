@@ -150,8 +150,8 @@ func (r *Registry) Update(ctx context.Context, p auth.Principal, u Upstream) (Up
 		return r.record(ctx, tx, p, audit.UpstreamUpdated, out)
 	})
 	if err == nil {
-		r.forget(out.EnvironmentID, out.Name)
-		r.forget(out.EnvironmentID, oldName)
+		r.forget(out.OrganizationID, out.EnvironmentID, out.Name)
+		r.forget(out.OrganizationID, out.EnvironmentID, oldName)
 	}
 	return out, err
 }
@@ -181,7 +181,7 @@ func (r *Registry) Delete(ctx context.Context, p auth.Principal, id string) erro
 		return r.record(ctx, tx, p, audit.UpstreamDeleted, gone)
 	})
 	if err == nil {
-		r.forget(gone.EnvironmentID, gone.Name)
+		r.forget(gone.OrganizationID, gone.EnvironmentID, gone.Name)
 	}
 	return err
 }
@@ -247,7 +247,7 @@ func (r *Registry) List(ctx context.Context, p auth.Principal, appID, environmen
 // Resolve finds the upstream a device of an environment named. The answer
 // may be up to resolveTTL old (PLX-6060 when there is none).
 func (r *Registry) Resolve(ctx context.Context, organizationID, environmentID, name string) (Upstream, error) {
-	key := environmentID + "/" + name
+	key := organizationID + "/" + environmentID + "/" + name
 	now := r.now()
 	r.mu.Lock()
 	hit, ok := r.resolved[key]
@@ -284,9 +284,9 @@ func (r *Registry) Resolve(ctx context.Context, organizationID, environmentID, n
 }
 
 // forget drops what this replica remembers of an upstream.
-func (r *Registry) forget(environmentID, name string) {
+func (r *Registry) forget(organizationID, environmentID, name string) {
 	r.mu.Lock()
-	delete(r.resolved, environmentID+"/"+name)
+	delete(r.resolved, organizationID+"/"+environmentID+"/"+name)
 	r.mu.Unlock()
 }
 

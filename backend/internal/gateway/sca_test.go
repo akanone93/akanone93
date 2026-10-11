@@ -53,7 +53,7 @@ func TestTransactionIsVerifiedAndForwarded(t *testing.T) {
 	if want := f.clock.Now().Add(5 * time.Minute).Truncate(time.Second); !c.ExpiresAt.Equal(want) {
 		t.Errorf("expires at %v, want %v (sca.challengeLifetime)", c.ExpiresAt, want)
 	}
-	sig := f.signTransaction(c, "bank", "transfer", []byte(summaryJSON))
+	sig := f.signTransaction(c, []byte(summaryJSON))
 	if _, err := f.call(transfer(c, sig), []byte(payment)); err != nil {
 		t.Fatalf("a valid transaction: %v", err)
 	}
@@ -79,7 +79,7 @@ func TestTransactionIsVerifiedAndForwarded(t *testing.T) {
 	}
 	// The same amount written another way is the same amount.
 	c2 := f.challenge(summaryJSON)
-	sig2 := f.signTransaction(c2, "bank", "transfer", []byte(summaryJSON))
+	sig2 := f.signTransaction(c2, []byte(summaryJSON))
 	body := `{"amount":"125.500","currency":"EUR","to":{"iban":"DE89370400440532013000"}}`
 	if _, err := f.call(transfer(c2, sig2), []byte(body)); err != nil {
 		t.Errorf("125.500 for 125.50: %v", err)
@@ -102,63 +102,58 @@ func TestTransactionRefusals(t *testing.T) {
 	}{
 		{"valid", func(f *fixture) error {
 			c := f.challenge(summaryJSON)
-			_, err := f.call(transfer(c, f.signTransaction(c, "bank", "transfer", []byte(summaryJSON))), []byte(payment))
+			_, err := f.call(transfer(c, f.signTransaction(c, []byte(summaryJSON))), []byte(payment))
 			return err
 		}, 0},
 		{"another amount", func(f *fixture) error {
 			c := f.challenge(summaryJSON)
 			body := `{"amount":9999,"currency":"EUR","to":{"iban":"DE89370400440532013000"}}`
-			_, err := f.call(transfer(c, f.signTransaction(c, "bank", "transfer", []byte(summaryJSON))), []byte(body))
+			_, err := f.call(transfer(c, f.signTransaction(c, []byte(summaryJSON))), []byte(body))
 			return err
 		}, plxerr.SCADynamicLinkingMismatch},
 		{"another payee", func(f *fixture) error {
 			c := f.challenge(summaryJSON)
 			body := `{"amount":125.5,"currency":"EUR","to":{"iban":"DE00000000000000000000"}}`
-			_, err := f.call(transfer(c, f.signTransaction(c, "bank", "transfer", []byte(summaryJSON))), []byte(body))
+			_, err := f.call(transfer(c, f.signTransaction(c, []byte(summaryJSON))), []byte(body))
 			return err
 		}, plxerr.SCADynamicLinkingMismatch},
 		{"another currency", func(f *fixture) error {
 			c := f.challenge(summaryJSON)
 			body := `{"amount":125.5,"currency":"USD","to":{"iban":"DE89370400440532013000"}}`
-			_, err := f.call(transfer(c, f.signTransaction(c, "bank", "transfer", []byte(summaryJSON))), []byte(body))
+			_, err := f.call(transfer(c, f.signTransaction(c, []byte(summaryJSON))), []byte(body))
 			return err
 		}, plxerr.SCADynamicLinkingMismatch},
 		{"a field the mapping does not find", func(f *fixture) error {
 			c := f.challenge(summaryJSON)
-			_, err := f.call(transfer(c, f.signTransaction(c, "bank", "transfer", []byte(summaryJSON))), []byte(`{"amount":125.5,"currency":"EUR"}`))
+			_, err := f.call(transfer(c, f.signTransaction(c, []byte(summaryJSON))), []byte(`{"amount":125.5,"currency":"EUR"}`))
 			return err
 		}, plxerr.SCADynamicLinkingMismatch},
 		{"duplicate members smuggle a second amount", func(f *fixture) error {
 			c := f.challenge(summaryJSON)
 			body := `{"amount":125.5,"amount":9999,"currency":"EUR","to":{"iban":"DE89370400440532013000"}}`
-			_, err := f.call(transfer(c, f.signTransaction(c, "bank", "transfer", []byte(summaryJSON))), []byte(body))
+			_, err := f.call(transfer(c, f.signTransaction(c, []byte(summaryJSON))), []byte(body))
 			return err
 		}, plxerr.SCADynamicLinkingMismatch},
 		{"a body that is not JSON", func(f *fixture) error {
 			c := f.challenge(summaryJSON)
-			_, err := f.call(transfer(c, f.signTransaction(c, "bank", "transfer", []byte(summaryJSON))), []byte("amount=1"))
+			_, err := f.call(transfer(c, f.signTransaction(c, []byte(summaryJSON))), []byte("amount=1"))
 			return err
 		}, plxerr.SCADynamicLinkingMismatch},
 		{"signed for another summaryJSON", func(f *fixture) error {
 			c := f.challenge(summaryJSON)
-			sig := f.signTransaction(c, "bank", "transfer", []byte(`{"amount":"1.00","currency":"EUR","payee":"x"}`))
+			sig := f.signTransaction(c, []byte(`{"amount":"1.00","currency":"EUR","payee":"x"}`))
 			_, err := f.call(transfer(c, sig), []byte(payment))
-			return err
-		}, plxerr.SCASignatureInvalid},
-		{"signed for another operation", func(f *fixture) error {
-			c := f.challenge(summaryJSON)
-			_, err := f.call(transfer(c, f.signTransaction(c, "bank", "balance", []byte(summaryJSON))), []byte(payment))
 			return err
 		}, plxerr.SCASignatureInvalid},
 		{"signed by another key", func(f *fixture) error {
 			c := f.challenge(summaryJSON)
 			f.scaKey = other
-			_, err := f.call(transfer(c, f.signTransaction(c, "bank", "transfer", []byte(summaryJSON))), []byte(payment))
+			_, err := f.call(transfer(c, f.signTransaction(c, []byte(summaryJSON))), []byte(payment))
 			return err
 		}, plxerr.SCASignatureInvalid},
-		{"a signature that is not DER", func(f *fixture) error {
+		{"a signature of the wrong length", func(f *fixture) error {
 			c := f.challenge(summaryJSON)
-			_, err := f.call(transfer(c, make([]byte, 64)), []byte(payment))
+			_, err := f.call(transfer(c, make([]byte, 70)), []byte(payment))
 			return err
 		}, plxerr.SCASignatureInvalid},
 		{"no signature", func(f *fixture) error {
@@ -178,18 +173,18 @@ func TestTransactionRefusals(t *testing.T) {
 			c := f.challenge(summaryJSON)
 			f.dev.DeviceID = "dev-2"
 			f.keys["dev-2"] = f.keys["dev-1"]
-			_, err := f.call(transfer(c, f.signTransaction(c, "bank", "transfer", []byte(summaryJSON))), []byte(payment))
+			_, err := f.call(transfer(c, f.signTransaction(c, []byte(summaryJSON))), []byte(payment))
 			return err
 		}, plxerr.SCAChallengeInvalid},
 		{"an expired challenge", func(f *fixture) error {
 			c := f.challenge(summaryJSON)
 			f.clock.Advance(6 * time.Minute)
-			_, err := f.call(transfer(c, f.signTransaction(c, "bank", "transfer", []byte(summaryJSON))), []byte(payment))
+			_, err := f.call(transfer(c, f.signTransaction(c, []byte(summaryJSON))), []byte(payment))
 			return err
 		}, plxerr.SCAChallengeInvalid},
 		{"a replayed challenge", func(f *fixture) error {
 			c := f.challenge(summaryJSON)
-			req := transfer(c, f.signTransaction(c, "bank", "transfer", []byte(summaryJSON)))
+			req := transfer(c, f.signTransaction(c, []byte(summaryJSON)))
 			if _, err := f.call(req, []byte(payment)); err != nil {
 				return err
 			}
@@ -257,13 +252,8 @@ func TestChallengeLifetimeComesFromTheRegistry(t *testing.T) {
 // this vector signs what the server verifies.
 func TestSigningInputVector(t *testing.T) {
 	t.Parallel()
-	got := SigningInput("c1", "bank", "transfer", []byte{1, 2, 3}, []byte(`{"amount":"1"}`))
-	const want = "706c75782d7363612d763100" + // "plux-sca-v1" 0x00
-		"00000002" + "6331" + // challenge id
-		"00000004" + "62616e6b" + // upstream
-		"00000008" + "7472616e73666572" + // operation
-		"00000003" + "010203" + // challenge
-		"0000000e" + "7b22616d6f756e74223a2231227d" // summaryJSON
+	got := SigningInput([]byte{1, 2, 3}, []byte(`{"amount":"1"}`))
+	const want = "010203" + "7b22616d6f756e74223a2231227d"
 	if hex.EncodeToString(got) != want {
 		t.Errorf("signing input = %x\nwant          %s", got, want)
 	}

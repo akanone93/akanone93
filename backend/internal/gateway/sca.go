@@ -11,11 +11,11 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/base64"
-	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"math/big"
 	"strconv"
 	"strings"
 	"time"
@@ -28,44 +28,29 @@ import (
 )
 
 const (
-	// SigningPrefix opens the message an SCA key signs. It names the format
-	// and its version, so a signature made for another purpose or version
-	// never verifies as a transaction confirmation.
-	SigningPrefix = "plux-sca-v1"
-
 	challengeBytes = 32
 	// usedMargin keeps a spent challenge remembered past its expiry.
 	usedMargin = time.Minute
 	// jsonDepth bounds the nesting of a transaction summary and body.
 	jsonDepth = 32
+	// SignatureSize is the length of a transaction signature: ES256 in
+	// JOSE form, r then s, 32 bytes each.
+	SignatureSize = 64
 
 	challengeKey = "sca:challenge:"
 	usedKey      = "sca:used:"
 )
 
 // SigningInput returns the message a device's SCA key signs to confirm a
-// transaction, and the server verifies (SEC-027, SEC-028). It is
-//
-//	"plux-sca-v1" 0x00 field(challengeID) field(upstream) field(operation)
-//	field(challenge) field(summary)
-//
-// where field(x) is the length of x as four big-endian bytes followed by
-// x, challengeID, upstream and operation are UTF-8, challenge is the
-// random bytes of the challenge, and summary is the RFC 8785 canonical
-// JSON the challenge was created with. The key signs the message with
-// ECDSA over P-256 and SHA-256 (the platform hashes it), and the
-// signature is ASN.1 DER.
-func SigningInput(challengeID, upstream, operation string, challenge, summary []byte) []byte {
-	var b bytes.Buffer
-	b.WriteString(SigningPrefix)
-	b.WriteByte(0)
-	for _, f := range [][]byte{[]byte(challengeID), []byte(upstream), []byte(operation), challenge, summary} {
-		var n [4]byte
-		binary.BigEndian.PutUint32(n[:], uint32(len(f))) //nolint:gosec // fields are bounded by the request size
-		b.Write(n[:])
-		b.Write(f)
-	}
-	return b.Bytes()
+// transaction, and the server verifies (SEC-027, SEC-028): the challenge's
+// random bytes followed by the transaction summary, the RFC 8785 canonical
+// JSON the challenge was created with. The key signs it with ECDSA over
+// P-256 and SHA-256 (ES256), and the signature is 64 bytes, r followed by
+// s. What the challenge is for, the device, the upstream and the
+// operation, is bound when the server creates it, and not repeated in the
+// signed bytes.
+func SigningInput(challenge, summary []byte) []byte {
+	return append(append(make([]byte, 0, len(challenge)+len(summary)), challenge...), summary...)
 }
 
 // SCAKeys finds the SCA key a device enrolled.
@@ -193,8 +178,9 @@ func (s *SCA) Verify(ctx context.Context, d device.Identity, u Upstream, op Oper
 	if err != nil {
 		return SCAProof{}, plxerr.New(plxerr.SCASignatureInvalid, "the device has no SCA key")
 	}
-	digest := sha256.Sum256(SigningInput(challengeID, u.Name, op.Name, rec.Challenge, rec.Summary))
-	if !ecdsa.VerifyASN1(key.Public, digest[:], signature) {
+	digest := sha256.Sum256(SigningInput(rec.Challenge, rec.Summary))
+	if len(signature) != SignatureSize ||
+		!ecdsa.Verify(key.Public, digest[:], new(big.Int).SetBytes(signature[:SignatureSize/2]), new(big.Int).SetBytes(signature[SignatureSize/2:])) {
 		return SCAProof{}, plxerr.New(plxerr.SCASignatureInvalid, "the signature does not verify with the device's SCA key")
 	}
 	sum := sha256.Sum256(rec.Summary)

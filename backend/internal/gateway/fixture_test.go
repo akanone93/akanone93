@@ -265,14 +265,18 @@ func code(err error) plxerr.Code {
 	return c
 }
 
-// signTransaction answers a challenge as the device's SCA key would.
-func (f *fixture) signTransaction(c Challenge, upstream, operation string, summary []byte) []byte {
+// signTransaction answers a challenge as the device's SCA key would:
+// ES256 over the challenge followed by the summary, r then s.
+func (f *fixture) signTransaction(c Challenge, summary []byte) []byte {
 	f.t.Helper()
-	digest := sha256.Sum256(SigningInput(c.ID, upstream, operation, c.Bytes, summary))
-	sig, err := ecdsa.SignASN1(rand.Reader, f.scaKey, digest[:])
+	digest := sha256.Sum256(SigningInput(c.Bytes, summary))
+	r, s, err := ecdsa.Sign(rand.Reader, f.scaKey, digest[:])
 	if err != nil {
 		f.t.Fatal(err)
 	}
+	sig := make([]byte, SignatureSize)
+	r.FillBytes(sig[:32])
+	s.FillBytes(sig[32:])
 	return sig
 }
 

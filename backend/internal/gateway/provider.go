@@ -81,7 +81,7 @@ func (r *Registry) SetProvider(ctx context.Context, p auth.Principal, idp Identi
 		return r.recordProvider(ctx, tx, p, audit.UserIdentityProviderSet, idp)
 	})
 	if err == nil {
-		r.forgetProvider(idp.EnvironmentID)
+		r.forgetProvider(p.OrganizationID, idp.EnvironmentID)
 	}
 	return err
 }
@@ -129,7 +129,7 @@ func (r *Registry) DeleteProvider(ctx context.Context, p auth.Principal, appID, 
 		return r.recordProvider(ctx, tx, p, audit.UserIdentityProviderDeleted, IdentityProvider{AppID: appID, EnvironmentID: environmentID})
 	})
 	if err == nil {
-		r.forgetProvider(environmentID)
+		r.forgetProvider(p.OrganizationID, environmentID)
 	}
 	return err
 }
@@ -138,7 +138,7 @@ func (r *Registry) DeleteProvider(ctx context.Context, p auth.Principal, appID, 
 // belongs to; PreconditionFailed when it has none. The answer may be up
 // to resolveTTL old.
 func (r *Registry) ProviderFor(ctx context.Context, organizationID, environmentID string) (IdentityProvider, error) {
-	key := "idp/" + environmentID
+	key := "idp/" + organizationID + "/" + environmentID
 	now := r.now()
 	r.mu.Lock()
 	hit, ok := r.providers[key]
@@ -180,9 +180,9 @@ type cachedProvider struct {
 	until    time.Time
 }
 
-func (r *Registry) forgetProvider(environmentID string) {
+func (r *Registry) forgetProvider(organizationID, environmentID string) {
 	r.mu.Lock()
-	delete(r.providers, "idp/"+environmentID)
+	delete(r.providers, "idp/"+organizationID+"/"+environmentID)
 	r.mu.Unlock()
 }
 
