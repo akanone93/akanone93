@@ -101,6 +101,11 @@ fail() {
 	echo "✗ $1"; exit 1
 }
 
+# connections: how many entries adb's server lists for the emulator.
+connections() {
+	timeout 10 "$adb" devices 2>/dev/null | awk -v s="$serial" '$1 == s' | wc -l | tr -d ' '
+}
+
 # Booted when sys.boot_completed is 1; never waits on a dead emulator or
 # longer than ten minutes of wall time (adb wait-for-device would wait
 # forever). The emulator can report its boot complete while adb's shell
@@ -119,7 +124,15 @@ while [ "$SECONDS" -lt "$deadline" ]; do
 	kill -0 "$emulator" 2>/dev/null || fail "the emulator exited while booting"
 	answer=$(timeout 10 "$adb" -s "$serial" shell getprop sys.boot_completed 2>&1 | tr -d '\r') || true
 	if [ "$answer" = 1 ]; then
-		booted=true; break
+		# A restart of adb's server can register the emulator twice under
+		# one serial, which every later "adb -s" refuses with "more than one
+		# device/emulator" (run 38127865288): booted only with one entry.
+		if [ "$(connections)" = 1 ]; then
+			booted=true; break
+		fi
+		echo "adb lists $serial more than once; restarting adb's server"
+		timeout 10 "$adb" kill-server >/dev/null 2>&1 || true
+		timeout 10 "$adb" start-server >/dev/null 2>&1 || true
 	fi
 	if grep -q 'Boot completed' "$log"; then
 		if [ -z "$restart_at" ]; then
