@@ -24,6 +24,7 @@ import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
 import 'package:plux_flutter/src/render/renderer.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
+import 'package:plux_flutter/src/secure/masking.dart';
 import 'package:plux_flutter/src/secure/platform.dart';
 import 'package:plux_flutter/src/secure/secure_ui.dart';
 
@@ -243,6 +244,139 @@ void main() {
         expect(
           h.errors.map((e) => e.code),
           contains(PluxErrorCode.deviceCapabilityBlocked),
+        );
+      },
+    );
+  });
+
+  group('masked values', () {
+    late Harness h;
+    setUp(() async => h = await Harness.create());
+    tearDown(() => h.close());
+
+    final text = _widget('Text');
+    final field = _widget('TextField');
+    final column = _widget('Column');
+
+    /// A page with a masked and a plain Text, and a masked input; the
+    /// compiler's `Masked` hint is set by hand.
+    Future<void> show(WidgetTester tester) async {
+      tester.view
+        ..physicalSize = const Size(800, 2400)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final gallery = _gallery(
+        [
+          fbs.NodeObjectBuilder(widget: column.id, children: [1, 2, 3]),
+          fbs.NodeObjectBuilder(
+            widget: text.id,
+            hints: 4,
+            props: [
+              fbs.PropObjectBuilder(id: text.props['data'], value: _str(2)),
+            ],
+          ),
+          fbs.NodeObjectBuilder(
+            widget: text.id,
+            props: [
+              fbs.PropObjectBuilder(id: text.props['data'], value: _str(3)),
+            ],
+          ),
+          fbs.NodeObjectBuilder(
+            widget: field.id,
+            hints: 4,
+            props: [
+              fbs.PropObjectBuilder(id: field.props['value'], value: _str(4)),
+            ],
+          ),
+        ],
+        ['', 'layout', 'topsecret', 'public', 'pin-4321'],
+        secure: false,
+      );
+      await tester.runAsync(
+        () => h.startFrom(Harness.goldens.bundles['widgets/widgets.pxb']!, {
+          'gallery': gallery,
+        }),
+      );
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: PluxScope(child: PluxView('layout'))),
+        ),
+      );
+      await settle(tester);
+    }
+
+    TextField input(WidgetTester tester) =>
+        tester.widget<TextField>(find.byType(TextField));
+
+    testWidgets(
+      'a value the compiler marked is bullets until the user unmasks it, and never reaches the semantics tree [SEC-092]',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        await show(tester);
+        expect(find.text('topsecret'), findsNothing);
+        expect(find.text(maskBullets), findsOneWidget);
+        expect(find.bySemanticsLabel('Hidden value'), findsOneWidget);
+        expect(find.bySemanticsLabel(RegExp('topsecret')), findsNothing);
+        expect(
+          find.text('public'),
+          findsOneWidget,
+          reason: 'plain text is not masked',
+        );
+
+        await tester.tap(find.byTooltip('Show value').first);
+        await tester.pump();
+        expect(find.text('topsecret'), findsOneWidget);
+        expect(find.text(maskBullets), findsNothing);
+
+        await tester.tap(find.byTooltip('Hide value'));
+        await tester.pump();
+        expect(find.text('topsecret'), findsNothing);
+        handle.dispose();
+      },
+    );
+
+    testWidgets(
+      'a masked input is obscured, takes no suggestions, learning or menu, and unmasks on request [SEC-092]',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        await show(tester);
+        var f = input(tester);
+        expect(f.obscureText, isTrue);
+        expect(f.enableSuggestions, isFalse);
+        expect(f.autocorrect, isFalse);
+        expect(f.enableIMEPersonalizedLearning, isFalse);
+        expect(f.enableInteractiveSelection, isFalse);
+        expect(find.bySemanticsLabel(RegExp('pin-4321')), findsNothing);
+
+        await tester.tap(find.byTooltip('Show value').last);
+        await tester.pump();
+        f = input(tester);
+        expect(f.obscureText, isFalse);
+        expect(f.controller!.text, 'pin-4321');
+
+        tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.inactive,
+        );
+        await tester.pump();
+        expect(
+          input(tester).obscureText,
+          isTrue,
+          reason: 'masked again in the background',
+        );
+        tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        );
+        handle.dispose();
+      },
+    );
+
+    testWidgets(
+      'a masked node reports no error and keeps the page working [SEC-092]',
+      (tester) async {
+        await show(tester);
+        expect(
+          h.errors.where((e) => e.code != PluxErrorCode.syncFailed),
+          isEmpty,
         );
       },
     );
