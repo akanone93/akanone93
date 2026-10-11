@@ -198,6 +198,9 @@ final class _SecurePageGateState extends State<SecurePageGate>
       builder: (context, _) {
         final locked = widget.ui.lock.locked;
         return Stack(
+          // The page keeps the constraints its parent gives it; the lock
+          // screen fills the room the hidden page leaves.
+          fit: locked ? StackFit.expand : StackFit.passthrough,
           children: [
             // Mounted but neither painted, hit-tested nor in the semantics
             // tree while locked.
