@@ -263,6 +263,7 @@ final class ManifestResponse {
     this.metadata,
     this.configPatch,
     this.configFullRequired = false,
+    this.contentKey,
   });
 
   /// Whether the manifest matches the ETag the device sent (NFR-006).
@@ -296,6 +297,11 @@ final class ManifestResponse {
   /// Whether the server could give no patch from the version the device
   /// sent: the device asks again from version 0 (SEC-182).
   final bool configFullRequired;
+
+  /// The content key of a confidential release, wrapped for this device:
+  /// the server's ephemeral key and the AES-KW output. Outside the signed
+  /// part (SEC-053); null when no bundle is confidential.
+  final ({Uint8List ephemeralPublicKey, Uint8List wrappedKey})? contentKey;
 }
 
 /// What a device sends in place of its installed bundles on an
@@ -520,6 +526,15 @@ final class PluxApiClient {
           : null,
       configPatch: patch,
       configFullRequired: r['configFullRequired'] == true,
+      contentKey: switch (r['contentKey']) {
+        final Map<String, Object?> k => (
+          ephemeralPublicKey: base64.decode(
+            k['ephemeralPublicKey'] as String? ?? '',
+          ),
+          wrappedKey: base64.decode(k['wrappedKey'] as String? ?? ''),
+        ),
+        _ => null,
+      },
       signed: base64.decode(m['signed']! as String),
       signatures: [
         for (final s

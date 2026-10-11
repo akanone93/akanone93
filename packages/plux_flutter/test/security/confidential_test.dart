@@ -10,6 +10,7 @@ import 'package:plux_flutter/src/bundle/container.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/security/aead.dart';
 import 'package:plux_flutter/src/security/confidential.dart';
+import 'package:plux_flutter/src/security/content_key.dart';
 import 'package:plux_flutter/src/security/software_keys.dart';
 import 'package:plux_flutter/src/verify/bundle_verifier.dart';
 
