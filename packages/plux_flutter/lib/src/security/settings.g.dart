@@ -72,8 +72,9 @@ enum SecuritySetting {
   /// The interval after which a device must attest again to keep its assurance
   /// level.
   reattestationInterval('reattestationInterval', SecuritySettingType.seconds, 86400, 86400, 86400),
-  /// Whether screens block screenshots and screen recording unless a page opts
-  /// out.
+  /// Whether every screen blocks screenshots and screen recording, as a secure
+  /// page does. A page cannot opt out: protection is the default and only a
+  /// configuration change lifts it.
   screenshotBlockingDefault('screenshotBlockingDefault', SecuritySettingType.boolean, false, false, true);
 
   const SecuritySetting(this.key, this.type, this.standard, this.strict, this.maximum);
