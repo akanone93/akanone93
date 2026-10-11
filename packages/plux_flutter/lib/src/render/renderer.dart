@@ -44,6 +44,7 @@ import 'package:plux_flutter/src/pxl/regex.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
 import 'package:plux_flutter/src/pxl/vm.dart';
 import 'package:plux_flutter/src/render/builders/builders.dart';
+import 'package:plux_flutter/src/render/builders/secure.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
@@ -59,6 +60,7 @@ import 'package:plux_flutter/src/render/values.dart';
 import 'package:plux_flutter/src/schema/limit_values.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
+import 'package:plux_flutter/src/secure/secure_ui.dart';
 import 'package:plux_flutter/src/state/access.dart';
 import 'package:plux_flutter/src/state/persistence.dart';
 import 'package:plux_flutter/src/state/providers.dart';
@@ -70,6 +72,7 @@ import 'package:plux_flutter/src/verify/manifest.dart';
 final Map<int, NodeBuilder> nodeBuilders = {
   ...generatedBuilders,
   ...manualBuilders,
+  ...secureBuilders,
 };
 
 /// Renders pages of the active release.
@@ -85,6 +88,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
     this.assets = AssetDevice.plain,
     this.actions,
     this.data,
+    this.secureUi,
     StatePersistence? statePersistence,
     VerifiedAssets? verified,
     int? cacheEntries,
@@ -127,6 +131,12 @@ final class PluxRenderer implements PageRenderer, RenderServices {
   /// What pages load data sources with (ADR-0048); without it, `data`
   /// reads nothing and the data actions fail.
   final DataServices? data;
+
+  /// What secure pages and the secure widgets run on (ADR-0059): the
+  /// screen protection, the inactivity lock and the biometric prompt.
+  /// Without it secure pages are not protected and `BiometricButton` is
+  /// disabled.
+  final SecureUi? secureUi;
 
   /// The data a page of [plugin] sees (ADR-0048): its own sources from
   /// [page] (a page section's sources and strings), its plugin's and the
@@ -1484,6 +1494,26 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       fallback: (c, e) => widget.renderer.fallback(c, e, plugin),
       child: RenderScopeWidget(scope: scope, child: const PluxNode(0)),
     );
+    final secureUi = widget.renderer.secureUi;
+    if (secureUi != null) {
+      // Pages marked secure, and every page when the setting says so, hold
+      // the screen's protection while they show; a secure page also locks
+      // after the idle time (SEC-091, SEC-093, SEC-094). Components are
+      // parts of pages, so they never gate.
+      if (!_component) {
+        page = SecurePageGate(
+          ui: secureUi,
+          secure: _section.page?.secure ?? false,
+          child: page,
+        );
+      }
+      page = SecureUiScope(
+        ui: secureUi,
+        plugin: plugin,
+        guard: widget.renderer.actions?.deviceGuard,
+        child: page,
+      );
+    }
     if (theme.cupertino case final cupertino?) {
       page = CupertinoTheme(data: cupertino, child: page);
     }

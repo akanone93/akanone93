@@ -58,6 +58,7 @@ import 'package:plux_flutter/src/render/renderer.dart';
 import 'package:plux_flutter/src/runtime_info.dart';
 import 'package:plux_flutter/src/schema/limit_values.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
+import 'package:plux_flutter/src/secure/secure_ui.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/security/pins.dart';
@@ -111,6 +112,7 @@ final class RuntimeOverrides {
     this.random,
     this.secrets,
     this.configSecrets,
+    this.secure = const SecurePlatforms(),
   });
 
   /// Creates the credential store on the sync isolate.
@@ -143,6 +145,11 @@ final class RuntimeOverrides {
   /// Creates, on the sync isolate, the secret store that keeps the remote
   /// security configuration (SEC-182); the platform's when null.
   final SecretStore Function()? configSecrets;
+
+  /// The platform calls of the secure UI (ADR-0059): the screen
+  /// protection and the biometric prompt; the platform channel's by
+  /// default.
+  final SecurePlatforms secure;
 }
 
 /// The runtime.
@@ -553,6 +560,15 @@ final class PluxRuntime with WidgetsBindingObserver {
     next: HostEventTriggers(triggers),
   );
 
+  /// What secure pages and widgets run on (ADR-0059): the screen
+  /// protection, the inactivity lock over [settings] and the biometric
+  /// prompt, shared by every page.
+  late final SecureUi secureUi = SecureUi(
+    settings: settings,
+    report: _report,
+    platforms: overrides.secure,
+  );
+
   /// Turns page sections into widgets (ADR-0031).
   late PageRenderer? renderer = PluxRenderer(
     config: config,
@@ -564,6 +580,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     assets: assets,
     verified: _verified,
     data: _dataServices,
+    secureUi: secureUi,
     actions: ActionServices(
       router: router,
       emit: emitHostEvent,
@@ -580,6 +597,7 @@ final class PluxRuntime with WidgetsBindingObserver {
         ...deviceServices(
           packages: config.devicePackages,
           openLink: handleDeepLink,
+          biometrics: overrides.secure.biometrics,
         ),
         PluxDatabase: database,
       },
@@ -1179,6 +1197,7 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// Stops the sync isolate and releases every mapping.
   Future<void> dispose() async {
     disconnect();
+    secureUi.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _flushEvery?.cancel();
     if (_inForeground) _endStretch();
