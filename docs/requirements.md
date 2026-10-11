@@ -462,6 +462,7 @@ internal/
   api/          ConnectRPC handlers — thin; translate to domain calls and errors
   auth/         Studio sessions, PATs, CI OIDC federation, RBAC evaluation
   device/       registration, attestation (android/, ios/), assurance levels
+  gateway/      secure gateway: upstream registry, assertions, user-token exchange, SCA verification (SEC-030–SEC-032)
   dpop/         DPoP proof validation, nonces, replay cache
   token/        sender-constrained access tokens, token exchange
   document/     drafts, snapshots, JSON Patch, locks, references graph
@@ -2723,7 +2724,7 @@ Every error and diagnostic has a stable code `PLX-NNNN` (`DX-003`). Codes are gr
 
 ```yaml
 server:
-  roles: [api, worker, fnrunner]     # or a subset per deployment
+  roles: [api, worker, gateway, fnrunner]  # or a subset per deployment
   listen: ":8080"
   publicBaseURL: "https://plux.acme.example"
 database:
@@ -2763,10 +2764,10 @@ securityConfig:                      # installation defaults; per app and enviro
 updateMetadata:
   rootThreshold: 2
   expiry: { timestamp: "24h", snapshot: "168h", targets: "720h", root: "8760h" }
-gateway:
-  enabled: true                      # upstreams are registered per app and environment (SEC-031)
-sca:
-  challengeTTL: "5m"
+# The secure gateway has no section of its own: the api role serves it, and the gateway role
+# serves it alone (server.roles, ADR-0006). Upstreams are registered per app and environment
+# through the API (SEC-031); the gateway's sizes, timeout and rate, and the lifetime of an SCA
+# challenge, are the limits gateway.* and sca.challengeLifetime (§30.4).
 functions:
   defaults: { timeout: "2s", memory: "64MiB", maxHTTPCalls: 10 }
   device: { enabled: true, timeout: "500ms", memory: "32MiB" }

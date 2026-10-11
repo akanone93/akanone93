@@ -20,6 +20,8 @@ import (
 // resolve stage builds, the intermediate representation the later stages
 // refine, and the outputs.
 type unit struct {
+	// gateway are the data sources that go through the gateway.
+	gateway []GatewaySource
 	opts    Options
 	project *schema.Project
 	diags   plxerr.Diagnostics

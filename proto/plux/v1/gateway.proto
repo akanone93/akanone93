@@ -25,11 +25,15 @@ service GatewayService {
 
 message CallRequest {
   // upstream names a configured upstream of the device's app and
-  // environment (SEC-030).
+  // environment: the data source's name (SEC-030). The end user's token,
+  // when the call acts for one, travels in the Plux-User-Token request
+  // header (SEC-026).
   string upstream = 1;
   // operation names the allowed operation, so the server can apply its
   // policy and require a transaction confirmation where one is set
-  // (SEC-031).
+  // (SEC-031). It is empty for a data source's load; the server then
+  // finds the operation by the method and path, and a path that belongs
+  // to a transaction still needs its confirmation.
   string operation = 2;
   // method is the HTTP method.
   string method = 3;
@@ -47,8 +51,13 @@ message CallRequest {
   // (SEC-032).
   string transaction_challenge_id = 7;
   // transaction_signature is the signature of the device's SCA key over
-  // the challenge and the transaction summary (SEC-032).
+  // the challenge followed by the transaction summary: ES256, 64 bytes,
+  // r then s (SEC-032).
   bytes transaction_signature = 8;
+  // plugin is the key of the plugin that makes the call, for the
+  // operation's plugin capability (SEC-080); empty when the operation
+  // names none.
+  string plugin = 9;
 }
 
 message CallResponse {

@@ -506,6 +506,31 @@ func (s *Service) OpenSecret(ctx context.Context, p auth.Principal, envID, key s
 	return out, err
 }
 
+// OpenEnvironmentSecret decrypts a secret for the gateway, which acts for
+// a device and has no principal: the environment names the organisation.
+// The value is never returned by the API (SEC-106).
+func (s *Service) OpenEnvironmentSecret(ctx context.Context, organizationID, envID, key string) ([]byte, error) {
+	id, err := parseID(envID, "environment")
+	if err != nil {
+		return nil, err
+	}
+	var out []byte
+	err = s.o.DB.InTx(ctx, storage.Tenant{OrganizationID: organizationID}, func(ctx context.Context, tx pgx.Tx) error {
+		row, err := dbgen.New(tx).GetSecret(ctx, dbgen.GetSecretParams{EnvironmentID: id, Key: key})
+		if err != nil {
+			return failure(err, "secret")
+		}
+		out, err = signing.Open(ctx, s.o.Crypter, signing.Sealed{
+			Ciphertext: row.Ciphertext, WrappedKey: row.WrappedKey, KeyID: row.KeyID,
+		}, secretBinding(storage.ID(id), key))
+		if err != nil {
+			return fmt.Errorf("tenancy: open a secret: %w", err)
+		}
+		return nil
+	})
+	return out, err //nolint:wrapcheck // InTx wraps its own failures
+}
+
 // ListSecrets lists an environment's secrets without their values.
 func (s *Service) ListSecrets(ctx context.Context, p auth.Principal, envID string, page Page) ([]Secret, error) {
 	var out []Secret

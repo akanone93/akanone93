@@ -15,6 +15,7 @@ package httpx
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"net"
@@ -107,14 +108,45 @@ func NewClient(opts Options) *http.Client {
 	if opts.MaxRedirects <= 0 {
 		opts.MaxRedirects = 10
 	}
+	return &http.Client{
+		Timeout:   opts.Timeout,
+		Transport: NewTransport(TransportOptions{Policy: opts.Policy}),
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if len(via) >= opts.MaxRedirects {
+				return fmt.Errorf("httpx: more than %d redirects", opts.MaxRedirects)
+			}
+			return CheckURL(req.URL.Scheme, req.URL.Hostname())
+		},
+	}
+}
+
+// TransportOptions configures NewTransport.
+type TransportOptions struct {
+	// Policy decides which addresses may be reached.
+	Policy Policy
+	// TLS is the client TLS configuration, such as one that presents a
+	// client certificate; nil uses the defaults.
+	TLS *tls.Config
+	// MaxIdleConnsPerHost bounds the pool kept per host; zero uses 32.
+	MaxIdleConnsPerHost int
+	// ResponseHeaderTimeout bounds the wait for response headers; zero
+	// means none.
+	ResponseHeaderTimeout time.Duration
+}
+
+// NewTransport returns an HTTP/2-capable transport whose connections are
+// checked against the policy at the moment they are made, with the
+// address the name resolved to, so a name that resolves differently than
+// it did a moment ago cannot reach an internal service. It never uses a
+// proxy, which would resolve the name itself. Share one transport per
+// destination: it pools connections.
+func NewTransport(opts TransportOptions) *http.Transport {
 	policy := opts.Policy
 	dialer := &net.Dialer{
 		Timeout:   10 * time.Second,
 		KeepAlive: 30 * time.Second,
 		// Control runs after the name has been resolved, with the
-		// address the connection will actually use, so a name that
-		// resolves to a blocked address — including one that changed
-		// between the check and the connection — is refused here.
+		// address the connection will actually use.
 		Control: func(_, address string, _ syscall.RawConn) error {
 			host, _, err := net.SplitHostPort(address)
 			if err != nil {
@@ -127,25 +159,21 @@ func NewClient(opts Options) *http.Client {
 			return policy.Check(addr)
 		},
 	}
-	return &http.Client{
-		Timeout: opts.Timeout,
-		Transport: &http.Transport{
-			DialContext:           dialer.DialContext,
-			ForceAttemptHTTP2:     true,
-			MaxIdleConns:          32,
-			IdleConnTimeout:       90 * time.Second,
-			TLSHandshakeTimeout:   10 * time.Second,
-			ExpectContinueTimeout: time.Second,
-			// A proxy would resolve the name itself, which would defeat
-			// the check above.
-			Proxy: nil,
-		},
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			if len(via) >= opts.MaxRedirects {
-				return fmt.Errorf("httpx: more than %d redirects", opts.MaxRedirects)
-			}
-			return CheckURL(req.URL.Scheme, req.URL.Hostname())
-		},
+	perHost := opts.MaxIdleConnsPerHost
+	if perHost <= 0 {
+		perHost = 32
+	}
+	return &http.Transport{
+		DialContext:           dialer.DialContext,
+		TLSClientConfig:       opts.TLS,
+		ForceAttemptHTTP2:     true,
+		MaxIdleConns:          perHost,
+		MaxIdleConnsPerHost:   perHost,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: time.Second,
+		ResponseHeaderTimeout: opts.ResponseHeaderTimeout,
+		Proxy:                 nil,
 	}
 }
 

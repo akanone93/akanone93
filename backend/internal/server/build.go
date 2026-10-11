@@ -102,8 +102,13 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 	if err != nil {
 		return fail(err)
 	}
-	if cfg.Has(config.RoleAPI) {
+	switch {
+	case cfg.Has(config.RoleAPI):
 		if err := srv.RegisterAPI(services); err != nil {
+			return fail(err)
+		}
+	case cfg.Has(config.RoleGateway):
+		if err := srv.RegisterGateway(services); err != nil {
 			return fail(err)
 		}
 	}

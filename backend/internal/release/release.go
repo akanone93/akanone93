@@ -25,6 +25,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -87,6 +88,11 @@ type Options struct {
 	PublicBaseURL string
 	// Devices answers REL-080's question; nil counts none.
 	Devices Devices
+	// Gateway holds the upstreams data sources reach their origins
+	// through; with it, a release whose gateway data sources the
+	// environment's upstreams do not match is refused (SEC-030, SEC-031).
+	// Nil skips the check.
+	Gateway *gateway.Registry
 	// SecurityConfig supplies the security configuration a manifest pins
 	// and the patch that brings a device to it (SEC-182); nil pins none.
 	SecurityConfig *seccfg.Service

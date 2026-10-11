@@ -23,6 +23,13 @@ var DeviceProcedures = map[string]bool{
 	pluxv1connect.DeviceServiceReportInstalledProcedure: true,
 	pluxv1connect.TelemetryServiceIngestEventsProcedure: true,
 	pluxv1connect.ManifestServiceGetRootKeysProcedure:   true,
+	// The gateway's procedures: a device calls its upstreams, confirms a
+	// transaction and exchanges its user's token with an access token and
+	// a proof like any other call (SEC-030, SEC-026, SEC-027).
+	pluxv1connect.GatewayServiceCallProcedure:                   true,
+	pluxv1connect.ScaServiceCreateTransactionChallengeProcedure: true,
+	pluxv1connect.TokenServiceExchangeUserTokenProcedure:        true,
+	pluxv1connect.DeviceServiceEnrolScaKeyProcedure:             true,
 }
 
 // DeviceProofOnly are the procedures a device calls with a DPoP proof
@@ -178,11 +185,38 @@ func (a DeviceAuth) deviceCall(ctx context.Context, c Call, next func(context.Co
 
 // authenticate checks the token and the proof of a device call.
 func (a DeviceAuth) authenticate(ctx context.Context, c Call) (device.Identity, error) {
-	token, err := dpopToken(c.Header)
+	return a.authenticateWith(ctx, c.Header, proofMethod, a.url(c.Procedure))
+}
+
+// url is the htu of a proof for a path of this server.
+func (a DeviceAuth) url(path string) string {
+	return strings.TrimSuffix(a.BaseURL, "/") + path
+}
+
+// AuthenticateRequest authenticates an HTTP request that is not a Connect
+// call, such as the gateway's streaming route: the same token, the same
+// proof, nonce, binding, replay and revocation checks, with the request's
+// own method and path as htm and htu. Like a Connect call, the response
+// carries the current DPoP nonce, and a refusal carries the challenge that
+// names what failed (SEC-021, SEC-024). The device's own rate is the
+// caller's to apply.
+func (a DeviceAuth) AuthenticateRequest(ctx context.Context, w http.ResponseWriter, r *http.Request) (device.Identity, error) {
+	w.Header().Set(nonceHeader, a.Nonces.Current())
+	d, err := a.authenticateWith(ctx, r.Header, r.Method, a.url(r.URL.EscapedPath()))
+	if err != nil {
+		return device.Identity{}, refuse(Call{ResponseHeader: w.Header()}, err)
+	}
+	return d, nil
+}
+
+// authenticateWith checks the token and the proof of a request made with
+// the method to the URL.
+func (a DeviceAuth) authenticateWith(ctx context.Context, h http.Header, method, url string) (device.Identity, error) {
+	token, err := dpopToken(h)
 	if err != nil {
 		return device.Identity{}, err
 	}
-	rawProof, err := proofOf(c.Header)
+	rawProof, err := proofOf(h)
 	if err != nil {
 		return device.Identity{}, err
 	}
@@ -201,7 +235,7 @@ func (a DeviceAuth) authenticate(ctx context.Context, c Call) (device.Identity, 
 			return device.Identity{}, err
 		}
 	}
-	expect := a.expect(c, token, window)
+	expect := dpop.Expect{Method: method, URL: url, AccessToken: token, Window: window}
 	expect.JKT = claims.JKT
 	proof, err := a.Proofs.Verify(rawProof, expect)
 	if err != nil {
@@ -230,7 +264,7 @@ func (a DeviceAuth) authenticateProof(ctx context.Context, c Call) (context.Cont
 	if err != nil {
 		return ctx, err
 	}
-	proof, err := a.Proofs.Verify(rawProof, a.expect(c, "", a.Window))
+	proof, err := a.Proofs.Verify(rawProof, dpop.Expect{Method: proofMethod, URL: a.url(c.Procedure), Window: a.Window})
 	if err != nil {
 		return ctx, err //nolint:wrapcheck // a domain error
 	}
@@ -247,14 +281,6 @@ func (a DeviceAuth) authenticateProof(ctx context.Context, c Call) (context.Cont
 		}
 	}
 	return context.WithValue(ctx, proofKey{}, DeviceProof{JKT: proof.JKT, Raw: rawProof}), nil
-}
-
-// expect is what a call's proof must be bound to.
-func (a DeviceAuth) expect(c Call, token string, window time.Duration) dpop.Expect {
-	return dpop.Expect{
-		Method: proofMethod, URL: strings.TrimSuffix(a.BaseURL, "/") + c.Procedure,
-		AccessToken: token, Window: window,
-	}
 }
 
 // checkReplay refuses a proof that was used before. The proof is

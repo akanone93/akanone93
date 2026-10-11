@@ -15,8 +15,12 @@ type Role string
 // The roles. A process runs any subset; a single-node install runs them
 // all.
 const (
-	RoleAPI      Role = "api"
-	RoleWorker   Role = "worker"
+	RoleAPI    Role = "api"
+	RoleWorker Role = "worker"
+	// RoleGateway serves the secure gateway alone, so that it can scale
+	// apart from the rest of the API (ADR-0006, ADR-0056). The api role
+	// serves the gateway as well.
+	RoleGateway  Role = "gateway"
 	RoleFnRunner Role = "fnrunner"
 )
 
@@ -401,6 +405,11 @@ type Retention struct {
 
 // Has reports whether the process runs a role.
 func (c *Config) Has(r Role) bool { return slices.Contains(c.Server.Roles, r) }
+
+// ServesHTTP reports whether the process terminates the public listener:
+// the api role and the gateway role both do, and both authenticate
+// devices.
+func (c *Config) ServesHTTP() bool { return c.Has(RoleAPI) || c.Has(RoleGateway) }
 
 // String renders the configuration without its secrets, so that it can be
 // logged at start-up (OBS-003).

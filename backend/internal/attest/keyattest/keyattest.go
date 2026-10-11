@@ -38,6 +38,10 @@ type Policy struct {
 	// RequireVerifiedBoot demands a locked bootloader and a fully verified
 	// boot state.
 	RequireVerifiedBoot bool
+	// RequireUserAuth demands that the hardware enforces user
+	// authentication before the key signs: it names an authentication
+	// type and does not allow use without one (SEC-027).
+	RequireUserAuth bool
 }
 
 // Result is the verified content of an attestation. It is only returned for a
@@ -64,6 +68,10 @@ type Result struct {
 	OSPatchLevel int
 	// PublicKey is the attested P-256 key, the leaf certificate's key.
 	PublicKey *ecdsa.PublicKey
+	// UserAuthRequired reports that the hardware enforces user
+	// authentication, by password or biometrics, before every use of the
+	// key.
+	UserAuthRequired bool
 }
 
 // HardwareBacked reports whether both the attestation and the key are
@@ -218,6 +226,10 @@ func checkPolicy(kd *keyDescription, challenge []byte, p Policy) (Result, error)
 	res := Result{AttestationLevel: kd.attestationLevel, KeyMintLevel: kd.keyMintLevel}
 	if p.RequireHardware && !res.HardwareBacked() {
 		return Result{}, plxerr.New(plxerr.KeyNotHardwareBacked, "key is not protected by a TEE or StrongBox")
+	}
+	res.UserAuthRequired = !kd.hardware.noAuthRequired && kd.hardware.userAuthType != nil && *kd.hardware.userAuthType != 0
+	if p.RequireUserAuth && !res.UserAuthRequired {
+		return Result{}, plxerr.New(plxerr.AttestationFailed, "key does not require user authentication")
 	}
 	if err := applyBootState(&res, kd.hardware.rootOfTrust, p.RequireVerifiedBoot); err != nil {
 		return Result{}, err

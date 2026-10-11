@@ -44,9 +44,11 @@ const (
 
 // Authorisation list tags (EXPLICIT, context-specific).
 const (
-	tagRootOfTrust  = 704
-	tagOSPatchLevel = 706
-	tagAppID        = 709
+	tagNoAuthRequired = 503
+	tagUserAuthType   = 504
+	tagRootOfTrust    = 704
+	tagOSPatchLevel   = 706
+	tagAppID          = 709
 )
 
 const maxBootStateEnum = 3
@@ -69,6 +71,12 @@ type authList struct {
 	rootOfTrust  *rootOfTrust
 	osPatchLevel *int64
 	appID        *appID
+	// noAuthRequired is set when the key may be used without the user
+	// authenticating (tag 503).
+	noAuthRequired bool
+	// userAuthType is the kinds of authentication the key demands (tag
+	// 504, a bit mask of password and fingerprint); nil when absent.
+	userAuthType *int64
 }
 
 // keyDescription is the decoded Android KeyDescription extension.
@@ -165,6 +173,16 @@ func parseAuthList(list []byte) (authList, error) {
 // readTag stores the element if its tag is one of interest.
 func (l *authList) readTag(t tlv) error {
 	switch t.number {
+	case tagNoAuthRequired:
+		l.noAuthRequired = true
+		return nil
+	case tagUserAuthType:
+		if l.userAuthType != nil {
+			return malformed("duplicate userAuthType")
+		}
+		v, err := parseAuthType(t.content)
+		l.userAuthType = &v
+		return err
 	case tagRootOfTrust:
 		if l.rootOfTrust != nil {
 			return malformed("duplicate rootOfTrust")
@@ -223,6 +241,16 @@ func parseRootOfTrust(content []byte) (*rootOfTrust, error) {
 		}
 	}
 	return &rootOfTrust{deviceLocked: locked, state: BootState(state) + BootVerified}, nil
+}
+
+func parseAuthType(content []byte) (int64, error) {
+	in := cryptobyte.String(content)
+	var v int64
+	var elem cryptobyte.String
+	if !in.ReadASN1Element(&elem, cbasn1.INTEGER) || !in.Empty() || !elem.ReadASN1Integer(&v) || v < 0 {
+		return 0, malformed("userAuthType")
+	}
+	return v, nil
 }
 
 func parsePatchLevel(content []byte) (int64, error) {

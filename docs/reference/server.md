@@ -10,6 +10,7 @@ starts and stops. The API it serves is in [api.md](api.md).
 | Role | Runs | Holds | Exposure |
 |---|---|---|---|
 | `api` | The ConnectRPC services, the manifest and artifact endpoints, health and metrics | database, object storage, cache | public, behind ingress |
+| `gateway` | Only the secure gateway: its services, its streaming route and its published keys, behind device authentication (`SEC-030`, [gateway.md](gateway.md)); the `api` role serves the gateway too | database, cache, token signing | public, behind ingress |
 | `worker` | The publish, delta, asset and retention jobs | database, object storage, signing keys | internal only |
 | `fnrunner` | WebAssembly function sandboxes (P7) | nothing | internal only, mTLS |
 
@@ -46,7 +47,7 @@ the phase it arrives in, rather than being silently accepted.
 
 ```yaml
 server:
-  roles: [api, worker]          # api | worker  (fnrunner arrives in P7)
+  roles: [api, worker]          # api | worker | gateway  (fnrunner arrives in P7)
   listen: ":8080"
   publicBaseURL: "https://plux.acme.example"
   shutdownGrace: "30s"

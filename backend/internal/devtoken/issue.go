@@ -11,7 +11,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"sync"
 	"time"
 
 	"github.com/nightCode42/plux3/backend/internal/signing"
@@ -34,11 +33,7 @@ type Issuer struct {
 	// Random supplies the token identifiers; nil uses the system source.
 	Random io.Reader
 
-	mu sync.Mutex
-	// kids remembers the key identifier that signs for each class. The
-	// signature's own key identifier is checked against it, so a
-	// rotation shows up as a mismatch that clears the entry.
-	kids map[signing.TokenClass]string
+	jws Compact
 }
 
 // Issue mints a token for the claims and returns it with its expiry.
@@ -72,79 +67,11 @@ func (i *Issuer) Issue(ctx context.Context, c Claims) (string, time.Time, error)
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("devtoken: encode the claims: %w", err)
 	}
-	for attempt := 0; attempt < 2; attempt++ {
-		token, ok, err := i.sign(ctx, class, payload)
-		if err != nil {
-			return "", time.Time{}, err
-		}
-		if ok {
-			return token, time.Unix(exp, 0).UTC(), nil
-		}
-	}
-	return "", time.Time{}, errors.New("devtoken: the signing key changed twice while signing a token")
-}
-
-// sign builds and signs one token. It reports false, with the cached
-// key identifier cleared, when the signer used another key than the one
-// named in the header.
-func (i *Issuer) sign(ctx context.Context, class signing.TokenClass, payload []byte) (string, bool, error) {
-	kid, err := i.keyID(ctx, class)
+	token, err := i.jws.Sign(ctx, i.Signer, class, tokenType, payload)
 	if err != nil {
-		return "", false, err
+		return "", time.Time{}, err
 	}
-	header, err := json.Marshal(struct {
-		Alg string `json:"alg"`
-		Typ string `json:"typ"`
-		Kid string `json:"kid"`
-	}{Alg: "ES256", Typ: tokenType, Kid: kid})
-	if err != nil {
-		return "", false, fmt.Errorf("devtoken: encode the header: %w", err)
-	}
-	input := base64.RawURLEncoding.EncodeToString(header) + "." + base64.RawURLEncoding.EncodeToString(payload)
-	sig, signedBy, err := i.Signer.SignToken(ctx, class, []byte(input))
-	if err != nil {
-		return "", false, fmt.Errorf("devtoken: sign: %w", err)
-	}
-	if signedBy != kid {
-		i.mu.Lock()
-		delete(i.kids, class)
-		i.mu.Unlock()
-		return "", false, nil
-	}
-	if len(sig) != signing.TokenSignatureSize {
-		return "", false, fmt.Errorf("devtoken: the signer returned a %d-byte signature", len(sig))
-	}
-	return input + "." + base64.RawURLEncoding.EncodeToString(sig), true, nil
-}
-
-// keyID returns the identifier of the newest key of a class, reading the
-// signer's keys when none is remembered.
-func (i *Issuer) keyID(ctx context.Context, class signing.TokenClass) (string, error) {
-	i.mu.Lock()
-	kid, ok := i.kids[class]
-	i.mu.Unlock()
-	if ok {
-		return kid, nil
-	}
-	keys, err := i.Signer.TokenKeys(ctx)
-	if err != nil {
-		return "", fmt.Errorf("devtoken: list the token keys: %w", err)
-	}
-	for _, k := range keys {
-		if k.Class == class {
-			kid = k.ID
-		}
-	}
-	if kid == "" {
-		return "", fmt.Errorf("devtoken: the signer has no %s token key", class)
-	}
-	i.mu.Lock()
-	if i.kids == nil {
-		i.kids = map[signing.TokenClass]string{}
-	}
-	i.kids[class] = kid
-	i.mu.Unlock()
-	return kid, nil
+	return token, time.Unix(exp, 0).UTC(), nil
 }
 
 // validate checks the issuer's configuration and the claims.

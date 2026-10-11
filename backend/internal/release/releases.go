@@ -21,6 +21,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/compiler"
+	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
@@ -106,7 +107,7 @@ func (s *Service) CreateRelease(ctx context.Context, p auth.Principal, appID, en
 			diags = missing
 			return err
 		}
-		if diags, err = s.validateSet(ctx, tx, p, appID, versions); err != nil || diags.HasErrors() {
+		if diags, err = s.validateSet(ctx, tx, p, appID, env.ID, versions); err != nil || diags.HasErrors() {
 			return err
 		}
 		confidential, err := s.confidentialFor(ctx, tx, p.OrganizationID, env, versions, o.confidential)
@@ -182,8 +183,10 @@ func (*Service) versionFor(ctx context.Context, q *dbgen.Queries, app, plugin pg
 }
 
 // validateSet compiles a set of versions from their sources and checks
-// that every bundle it produces is the one each version stored.
-func (s *Service) validateSet(ctx context.Context, tx pgx.Tx, p auth.Principal, appID string, versions []dbgen.PluginVersion) (plxerr.Diagnostics, error) {
+// that every bundle it produces is the one each version stored, and that
+// the data sources that go through the gateway are matched by the
+// environment's registered upstreams (SEC-030, SEC-031).
+func (s *Service) validateSet(ctx context.Context, tx pgx.Tx, p auth.Principal, appID string, environment pgtype.UUID, versions []dbgen.PluginVersion) (plxerr.Diagnostics, error) {
 	sources := make([]string, 0, len(versions))
 	for _, v := range versions {
 		sources = append(sources, storage.ID(v.SourceSnapshotID))
@@ -200,6 +203,15 @@ func (s *Service) validateSet(ctx context.Context, tx pgx.Tx, p auth.Principal, 
 	diags := res.Diagnostics
 	if diags.HasErrors() {
 		return diags, nil
+	}
+	if s.o.Gateway != nil {
+		upstreams, err := s.o.Gateway.UpstreamsOf(ctx, tx, storage.ID(environment))
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		if gw := gateway.CheckSources(res.GatewaySources, upstreams); len(gw) > 0 {
+			return append(diags, gw...), nil
+		}
 	}
 	produced := map[string]*compiler.Bundle{"": res.App}
 	for _, b := range res.Plugins {

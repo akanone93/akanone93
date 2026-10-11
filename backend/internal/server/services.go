@@ -32,10 +32,12 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
 	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
+	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
@@ -70,8 +72,11 @@ type Services struct {
 	// (SEC-182).
 	SecurityConfig *seccfg.Service
 	// DeviceTrust authenticates device calls; nil where the process does
-	// not run the api role.
+	// not run the api or the gateway role.
 	DeviceTrust *DeviceTrust
+	// Gateway is the secure gateway; nil where the process runs neither
+	// role (SEC-030).
+	Gateway *GatewayParts
 	// KMS checks the key management service, when the signing backend
 	// is one; nil for the development file backend (SRV-007).
 	KMS func(context.Context) error
@@ -335,7 +340,14 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
-	releases, err := buildReleases(cfg, db, set, work, releaseDeps{ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend})
+	gw, err := buildGateway(gatewayDeps{
+		cfg: cfg, db: db, cache: shared, set: set, signer: tokenSigner, ids: gen, audit: log, tenancy: tenancyService,
+		devices: devices, configs: configs, trust: trust, metrics: work.Metrics, secretOf: secrets{t: tenancyService},
+	})
+	if err != nil {
+		return nil, err
+	}
+	releases, err := buildReleases(cfg, db, set, work, releaseDeps{ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw)})
 	if err != nil {
 		return nil, err
 	}
@@ -345,7 +357,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	}
 	return &Services{
 		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
-		Devices: devices, Events: events, Idempotency: store, Pages: pages, DeviceTrust: trust,
+		Devices: devices, Events: events, Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
 	}, nil
 }
@@ -392,6 +404,9 @@ type releaseDeps struct {
 	devices   *device.Service
 	configs   *seccfg.Service
 	crypter   signing.Crypter
+	// gateway is the upstream registry the release check reads; nil where
+	// the process serves no gateway.
+	gateway *gateway.Registry
 }
 
 // buildReleases assembles the release service, or returns nil when the
@@ -403,7 +418,7 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 	releases, err := release.NewService(release.Options{
 		DB: db, Audit: deps.audit, Tenancy: deps.tenancy, Documents: deps.documents, Objects: work.Objects, IDs: deps.ids,
 		Jobs: publishQueue{work.Queue}, Signer: work.Signer, ProductionSigning: work.ProductionSigning, Limits: set,
-		Devices: deps.devices, SecurityConfig: deps.configs, PublicBaseURL: cfg.Server.PublicBaseURL,
+		Devices: deps.devices, Gateway: deps.gateway, SecurityConfig: deps.configs, PublicBaseURL: cfg.Server.PublicBaseURL,
 		Crypter: deps.crypter, Recipients: deps.devices,
 		CompilerVersion: buildinfo.Get().Version, DevelopmentDays: cfg.Retention.DevelopmentReleaseDays,
 		Metadata: metadataOptions(cfg),
@@ -507,13 +522,12 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	if svc.AuditCheckpoints != nil {
 		h.AuditCheckpoints = svc.AuditCheckpoints
 	}
+	if g := svc.Gateway; g != nil {
+		h.Gateway, h.Upstreams, h.Exchange = g.Gateway, g.Upstreams, g.Exchange
+	}
 	people := api.Authentication(svc.Auth, api.IdentityPublic, s.trusted, limiter, s.limits.Get(limits.APIRequestsPerMinute))
-	trust := svc.DeviceTrust
-	authn := api.DeviceAuthentication(api.DeviceAuth{
-		Devices: svc.Devices, Tokens: trust.Tokens, Proofs: trust.Proofs, Nonces: trust.Nonces, Replay: trust.Replay,
-		BaseURL: s.cfg.Server.PublicBaseURL, Window: trust.Window, FallbackWindow: trust.FallbackWindow, Windows: trust.Windows,
-		Limiter: limiter, PerDevice: s.limits.Get(limits.APIRequestsPerMinutePerDevice), People: people,
-	})
+	deviceAuth := s.deviceAuth(svc, limiter, people)
+	authn := api.DeviceAuthentication(deviceAuth)
 	// api.requestSize bounds a body as sent, before a handler reads it
 	// (httpx.MaxBytes), and also each message after decompression: Connect
 	// accepts gzip bodies, and a small one could otherwise expand without
@@ -554,12 +568,53 @@ func (s *Server) RegisterAPI(svc *Services) error {
 		path, handler := register()
 		s.Register(path, handler)
 	}
+	if svc.Gateway != nil {
+		s.registerGateway(svc.Gateway, h, deviceAuth, opts)
+	}
 	if s.objects != nil {
 		s.Register("GET "+release.ObjectsPath, s.objectHandler())
 	}
 	if svc.Releases != nil {
 		s.Register(MetadataRoute, s.metadataHandler(svc.Releases))
 	}
+	return nil
+}
+
+// deviceAuth is the device authentication of this server's listener.
+func (s *Server) deviceAuth(svc *Services, limiter api.RateLimiter, people api.Around) api.DeviceAuth {
+	trust := svc.DeviceTrust
+	return api.DeviceAuth{
+		Devices: svc.Devices, Tokens: trust.Tokens, Proofs: trust.Proofs, Nonces: trust.Nonces, Replay: trust.Replay,
+		BaseURL: s.cfg.Server.PublicBaseURL, Window: trust.Window, FallbackWindow: trust.FallbackWindow, Windows: trust.Windows,
+		Limiter: limiter, PerDevice: s.limits.Get(limits.APIRequestsPerMinutePerDevice), People: people,
+	}
+}
+
+// RegisterGateway mounts what the gateway role serves on its own: the
+// gateway and SCA services, the streaming route and the published key
+// sets, behind device authentication. A person's call is refused, because
+// the role offers none of the rest of the API (ADR-0006, ADR-0056).
+func (s *Server) RegisterGateway(svc *Services) error {
+	if svc.DeviceTrust == nil || svc.Gateway == nil {
+		return errors.New("server: the gateway role needs services built with device trust and a gateway")
+	}
+	limiter := api.RateLimiter{Window: time.Minute}
+	if s.cache != nil {
+		limiter.Count = s.cache.Increment
+	}
+	h := &api.Handlers{
+		Devices: svc.Devices, Pages: svc.Pages, Limiter: limiter, Limits: s.limits,
+		Gateway: svc.Gateway.Gateway, Upstreams: svc.Gateway.Upstreams, Exchange: svc.Gateway.Exchange,
+	}
+	people := func(context.Context, api.Call, func(context.Context) error) error {
+		return plxerr.New(plxerr.PermissionDenied, "this role serves devices only")
+	}
+	deviceAuth := s.deviceAuth(svc, limiter, people)
+	opts := connect.WithHandlerOptions(
+		connect.WithInterceptors(s.Interceptors(api.DeviceAuthentication(deviceAuth))...),
+		connect.WithReadMaxBytes(int(s.limits.Get(limits.APIRequestSize))),
+	)
+	s.registerGateway(svc.Gateway, h, deviceAuth, opts)
 	return nil
 }
 
@@ -651,4 +706,12 @@ func (w *maintenanceWorker) Work(ctx context.Context, _ *river.Job[Maintenance])
 func MaintenanceJobs(workers *jobs.Workers, svc *Services, log *slog.Logger) []*river.PeriodicJob {
 	jobs.AddWorker(workers, &maintenanceWorker{svc: svc, log: log})
 	return []*river.PeriodicJob{jobs.Every(time.Hour, Maintenance{})}
+}
+
+// gatewayRegistry returns the upstream registry of the gateway, if any.
+func gatewayRegistry(g *GatewayParts) *gateway.Registry {
+	if g == nil {
+		return nil
+	}
+	return g.Upstreams
 }
