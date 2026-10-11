@@ -38,6 +38,16 @@ service SecurityAdminService {
   // log's hash chain, which let anyone verify that no entry was removed
   // (SEC-141).
   rpc ListAuditCheckpoints(ListAuditCheckpointsRequest) returns (ListAuditCheckpointsResponse) {}
+
+  // SetConfigValue creates or changes a server-held configuration value
+  // of an environment (DAT-090). It fails when expected_version is not
+  // the value's current version.
+  rpc SetConfigValue(SetConfigValueRequest) returns (SetConfigValueResponse) {}
+  // GetConfigValue returns one value; a sensitive value's content is
+  // omitted (DAT-090).
+  rpc GetConfigValue(GetConfigValueRequest) returns (GetConfigValueResponse) {}
+  rpc ListConfigValues(ListConfigValuesRequest) returns (ListConfigValuesResponse) {}
+  rpc DeleteConfigValue(DeleteConfigValueRequest) returns (DeleteConfigValueResponse) {}
 }
 
 message SetSecurityConfigRequest {
@@ -133,6 +143,39 @@ message UpstreamOperation {
   // plugins limits the operation to the plugins that declare the
   // capability to call it (SEC-080); empty means any plugin of the app.
   repeated string plugins = 6;
+  // bindings put server-held configuration values into the request the
+  // gateway forwards, at locations only this definition names (DAT-091).
+  repeated ConfigBinding bindings = 7;
+}
+
+// ConfigBinding binds one server-held configuration value into the
+// outgoing request of an operation (DAT-091). The device never sends,
+// chooses or sees a bound value, and a request that sets the bound
+// location is refused.
+message ConfigBinding {
+  // key is the configuration value; its tier must be server-bound.
+  string key = 1;
+  // location is where the gateway puts the value.
+  oneof location {
+    // json_pointer (RFC 6901) addresses a member of a JSON request body.
+    string json_pointer = 2;
+    // header is the name of a request header.
+    string header = 3;
+    // path_param names a path segment the gateway inserts directly after
+    // the operation's path prefix, in the order of the bindings.
+    string path_param = 4;
+    // query_param is the name of a query parameter.
+    string query_param = 5;
+  }
+  // display marks a value of a transaction the user must see before they
+  // confirm it: the gateway resolves it when the challenge is created,
+  // returns it for the confirmation sheet and binds it into the signed
+  // summary (DAT-093). It needs a json_pointer location that the
+  // operation's transaction maps.
+  bool display = 6;
+  // label is what the confirmation sheet calls a displayed value; empty
+  // means key.
+  string label = 7;
 }
 
 // UpstreamTransaction maps the fields that dynamic linking signs to
@@ -267,3 +310,95 @@ message ListAuditCheckpointsResponse {
   repeated AuditCheckpoint checkpoints = 1;
   PageResult page = 2;
 }
+
+// ConfigTier says how a configuration value reaches the code that uses it
+// (DAT-090).
+enum ConfigTier {
+  CONFIG_TIER_UNSPECIFIED = 0;
+  // CONFIG_TIER_SERVER_BOUND values are resolved by the gateway for every
+  // request and bound where an operation declares; devices never see
+  // them (DAT-091).
+  CONFIG_TIER_SERVER_BOUND = 1;
+  // CONFIG_TIER_LIVE values are fetched by the device over its DPoP-bound
+  // channel and held in memory only (DAT-094).
+  CONFIG_TIER_LIVE = 2;
+}
+
+// ConfigType is the type of a configuration value, which is carried as
+// text.
+enum ConfigType {
+  CONFIG_TYPE_UNSPECIFIED = 0;
+  CONFIG_TYPE_STRING = 1;
+  // CONFIG_TYPE_INTEGER is a base-10 integer that fits 64 bits.
+  CONFIG_TYPE_INTEGER = 2;
+  // CONFIG_TYPE_DECIMAL is an exact decimal number, carried as a string
+  // and bound as one.
+  CONFIG_TYPE_DECIMAL = 3;
+  // CONFIG_TYPE_BOOLEAN is "true" or "false".
+  CONFIG_TYPE_BOOLEAN = 4;
+}
+
+// ConfigValue is one server-held configuration value of an environment
+// (DAT-090).
+message ConfigValue {
+  // key names the value: a letter followed by letters, digits and
+  // underscores.
+  string key = 1;
+  ConfigTier tier = 2;
+  // sensitive values are sealed at rest and never returned (SEC-106);
+  // only server-bound values may be sensitive.
+  bool sensitive = 3;
+  // strict marks a live value whose change refuses a gateway call made
+  // with an older live-configuration version (DAT-096, DAT-097).
+  bool strict = 4;
+  ConfigType type = 5;
+  // value is the text form of the value; it is omitted when the value is
+  // sensitive and the message is a response.
+  string value = 6;
+  // version rises with every change of the value.
+  int64 version = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message SetConfigValueRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  // value is the value to store; version and updated_at are ignored.
+  ConfigValue value = 3;
+  // expected_version is the version the caller read; zero for a key that
+  // does not exist yet. Omit it to set without the check.
+  optional int64 expected_version = 4;
+}
+message SetConfigValueResponse {
+  // value is the stored value, without its content when it is sensitive.
+  ConfigValue value = 1;
+}
+
+message GetConfigValueRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string key = 3;
+}
+message GetConfigValueResponse {
+  ConfigValue value = 1;
+}
+
+message ListConfigValuesRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  Page page = 3;
+}
+message ListConfigValuesResponse {
+  repeated ConfigValue values = 1;
+  PageResult page = 2;
+  // epoch is the environment's configuration epoch, which rises with
+  // every change (DAT-095).
+  int64 epoch = 3;
+}
+
+message DeleteConfigValueRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string key = 3;
+}
+message DeleteConfigValueResponse {}

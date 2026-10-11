@@ -94,6 +94,10 @@ enum PluxLimit {
   bundleVerifierTables('bundle.verifierTables', PluxLimitUnit.count, 1000000, 0, 10000000),
   /// Bytes of confidential content one confidential bundle may hold.
   confidentialBundleBytes('confidential.bundleBytes', PluxLimitUnit.bytes, 16777216, 0, 268435456),
+  /// Bytes of one server-held configuration value.
+  configValueBytes('config.valueBytes', PluxLimitUnit.bytes, 4096, 0, 65536),
+  /// Server-held configuration values one environment holds.
+  configValuesPerEnvironment('config.valuesPerEnvironment', PluxLimitUnit.count, 256, 0, 4096),
   /// Bytes the response cache of data sources keeps on the device; the least
   /// recently used entries are evicted beyond it.
   dataCacheBytes('data.cacheBytes', PluxLimitUnit.bytes, 16777216, 0, 268435456),

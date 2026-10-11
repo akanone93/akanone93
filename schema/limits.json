@@ -560,6 +560,46 @@
       "description": "Bytes of confidential content one confidential bundle may hold."
     },
     {
+      "key": "config.valueBytes",
+      "unit": "bytes",
+      "default": 4096,
+      "max": 65536,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P6",
+      "requirements": [
+        "DAT-090",
+        "LIM-004"
+      ],
+      "description": "Bytes of one server-held configuration value."
+    },
+    {
+      "key": "config.valuesPerEnvironment",
+      "unit": "count",
+      "default": 256,
+      "max": 4096,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P6",
+      "requirements": [
+        "DAT-090",
+        "LIM-004"
+      ],
+      "description": "Server-held configuration values one environment holds."
+    },
+    {
       "key": "data.cacheBytes",
       "unit": "bytes",
       "default": 16777216,

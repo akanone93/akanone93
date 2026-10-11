@@ -87,6 +87,12 @@ const (
 	// ConfidentialBundleBytes: Bytes of confidential content one confidential
 	// bundle may hold. (SEC-053, LIM-004)
 	ConfidentialBundleBytes Key = "confidential.bundleBytes"
+	// ConfigValueBytes: Bytes of one server-held configuration value. (DAT-090,
+	// LIM-004)
+	ConfigValueBytes Key = "config.valueBytes"
+	// ConfigValuesPerEnvironment: Server-held configuration values one
+	// environment holds. (DAT-090, LIM-004)
+	ConfigValuesPerEnvironment Key = "config.valuesPerEnvironment"
 	// DataCacheBytes: Bytes the response cache of data sources keeps on the
 	// device; the least recently used entries are evicted beyond it. (DAT-010,
 	// LIM-004)
@@ -320,6 +326,8 @@ var registry = [...]Definition{
 	{Key: BundleVerifierDepth, Unit: UnitCount, Default: 64, Warning: 0, Max: 256, Scopes: ScopeInstallation, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P1", Description: "Maximum nesting of tables the FlatBuffers verifier accepts in one section."},
 	{Key: BundleVerifierTables, Unit: UnitCount, Default: 1000000, Warning: 0, Max: 10000000, Scopes: ScopeInstallation, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P1", Description: "Maximum number of tables and vectors the FlatBuffers verifier visits in one section."},
 	{Key: ConfidentialBundleBytes, Unit: UnitBytes, Default: 16777216, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of confidential content one confidential bundle may hold."},
+	{Key: ConfigValueBytes, Unit: UnitBytes, Default: 4096, Warning: 0, Max: 65536, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of one server-held configuration value."},
+	{Key: ConfigValuesPerEnvironment, Unit: UnitCount, Default: 256, Warning: 0, Max: 4096, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Server-held configuration values one environment holds."},
 	{Key: DataCacheBytes, Unit: UnitBytes, Default: 16777216, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes the response cache of data sources keeps on the device; the least recently used entries are evicted beyond it."},
 	{Key: DataCacheEntries, Unit: UnitCount, Default: 1000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Responses the cache of data sources keeps on the device; the least recently used are evicted beyond it."},
 	{Key: DataDownloadSize, Unit: UnitBytes, Default: 52428800, Warning: 0, Max: 2147483648, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes one download may have; checked against the declared length before the transfer and counted during it, a larger one is stopped."},

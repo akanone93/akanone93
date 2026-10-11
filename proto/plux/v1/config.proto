@@ -1,0 +1,46 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "plux/v1/security_admin.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// ConfigService delivers the live server-held configuration of a device's
+// app and environment over the device's DPoP-bound channel (DAT-094).
+service ConfigService {
+  // GetLiveConfig returns every live value of the device's environment
+  // with the version of the snapshot and the environment's epoch. It
+  // never returns a server-bound or a sensitive value (DAT-094).
+  rpc GetLiveConfig(GetLiveConfigRequest) returns (GetLiveConfigResponse) {}
+}
+
+message GetLiveConfigRequest {}
+
+message GetLiveConfigResponse {
+  // version is the live-configuration version of this snapshot: the
+  // epoch at which a live value last changed. The device sends it in
+  // Plux-Config-Version with every gateway call (DAT-096).
+  int64 version = 1;
+  // epoch is the environment's configuration epoch when the snapshot was
+  // read. A gateway response with a greater Plux-Config-Epoch tells the
+  // device to fetch again (DAT-095).
+  int64 epoch = 2;
+  repeated LiveConfigValue values = 3;
+}
+
+// LiveConfigValue is a live value as a device receives it. Devices hold
+// it in memory only (DAT-094).
+message LiveConfigValue {
+  string key = 1;
+  ConfigType type = 2;
+  // strict values fail closed while they cannot be refreshed (DAT-097).
+  bool strict = 3;
+  // value is the text form of the value.
+  string value = 4;
+  // version is the value's own version.
+  int64 version = 5;
+}

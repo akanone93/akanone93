@@ -2128,6 +2128,46 @@
       "fix": "Slow down and retry after the indicated delay."
     },
     {
+      "code": "PLX-6065",
+      "reason": "BOUND_LOCATION_SET_BY_DEVICE",
+      "severity": "error",
+      "title": "Request sets a server-bound location",
+      "cause": "The request sets a header, query parameter or body member that the operation binds to a server-held configuration value; only the server sets it (DAT-091).",
+      "fix": "Remove the value from the request; the gateway adds it."
+    },
+    {
+      "code": "PLX-6066",
+      "reason": "BOUND_VALUE_CHANGED",
+      "severity": "error",
+      "title": "Server-held value changed since the challenge",
+      "cause": "A server-held value the user confirmed in a transaction changed before the transaction was sent, so the confirmation no longer describes it (DAT-093).",
+      "fix": "Request a new challenge and confirm the transaction again; the runtime does so transparently."
+    },
+    {
+      "code": "PLX-6067",
+      "reason": "LIVE_CONFIG_STALE",
+      "severity": "error",
+      "title": "Live configuration is stale",
+      "cause": "A strict live configuration value changed after the version the call carries (DAT-096).",
+      "fix": "Fetch the live configuration again and repeat the call; the runtime does so once."
+    },
+    {
+      "code": "PLX-6068",
+      "reason": "LIVE_CONFIG_UNAVAILABLE",
+      "severity": "error",
+      "title": "Live configuration unavailable",
+      "cause": "A strict live configuration value was read while the device is offline or the values could not be refreshed (DAT-097).",
+      "fix": "Go online and try again."
+    },
+    {
+      "code": "PLX-6069",
+      "reason": "CONFIG_STORE_UNAVAILABLE",
+      "severity": "error",
+      "title": "Configuration store unavailable",
+      "cause": "The gateway could not check the current version of the server-held configuration, so it refuses the call instead of using a value that may be stale (DAT-092).",
+      "fix": "Try again shortly."
+    },
+    {
       "code": "PLX-6070",
       "reason": "SCA_SIGNATURE_INVALID",
       "severity": "error",
