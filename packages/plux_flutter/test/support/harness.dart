@@ -66,6 +66,8 @@ final class Harness {
     Map<String, PluxNativeAction<Object?, Object?>> nativeActions = const {},
     PluxRouterAdapter? router,
     PluxDatabaseAdapter? databaseAdapter,
+    bool? encryptLocalStores,
+    KeyWrapper Function()? keyWrapper,
   }) async {
     server.release = null;
     final baseline = await server.baseline(5, app, plugins);
@@ -106,6 +108,8 @@ final class Harness {
         healthyAfter: const Duration(hours: 1),
         secrets: () => secrets,
         configSecrets: MemorySecretStore.new,
+        encryptLocalStores: encryptLocalStores,
+        keyWrapper: keyWrapper,
       ),
     );
   }
