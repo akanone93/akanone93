@@ -28,6 +28,8 @@ import 'package:plux_flutter/src/db/row_identity.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
+import 'package:plux_flutter/src/render/builders/secure.dart'
+    show isSensitiveEvent;
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
@@ -604,6 +606,7 @@ final class NodeContextImpl implements NodeContext, MotionSource {
         // Runs a component's nodes start end with its instance (ACT-004).
         owner: s.componentState,
         emitEvent: s.emitEvent,
+        sensitiveEvent: isSensitiveEvent(node.widget, id),
         resolve: (v, roots) => toPxl(
           ValueResolver(
             plugin: s.plugin,

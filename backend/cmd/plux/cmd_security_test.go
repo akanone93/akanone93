@@ -104,6 +104,7 @@ androidDeviceVerdictAL2          MEETS_DEVICE_INTEGRITY  profile
 androidRefreshRequiresIntegrity  false                   profile
 attestationOutageGrace           3600                    profile
 confidentialBundles              optional                profile
+confidentialMinAssurance         AL2                     profile
 defaultFunctionAssurance         AL2                     profile
 dpopIatWindow                    60                      profile
 dpopIatWindowFallback            15                      profile
@@ -112,7 +113,15 @@ encryptLocalStores               true                    profile
 inactivityLock                   true                    profile
 inactivityLockTimeout            60                      override (profile: 300)
 minAssuranceForSync              AL1                     profile
+raspAccessibilityResponse        warn                    profile
+raspDebuggerResponse             degrade                 profile
+raspEmulatorResponse             warn                    profile
+raspInstallerResponse            warn                    profile
+raspOverlayResponse              warn                    profile
+raspRepackagingResponse          degrade                 profile
 raspRootHookingResponse          degrade                 profile
+raspScanInterval                 60                      profile
+raspScreenCaptureResponse        warn                    profile
 reattestationInterval            86400                   profile
 registrationChallengeTtl         300                     profile
 replayCacheFallback              memory                  profile

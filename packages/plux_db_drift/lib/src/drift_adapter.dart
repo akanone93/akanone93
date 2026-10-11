@@ -115,14 +115,16 @@ final class PluxDriftAdapter implements PluxDatabaseAdapter {
   /// Creates the adapter for the database file [path]; the platform's
   /// storage directory, under `plux-db/`, when null. [secrets] keeps the
   /// database key under the name [keyName] (the platform's secure storage
-  /// when null). [onProblem] hears of a database that could not be
-  /// decrypted and was discarded.
+  /// when null; with the platform's, the key is wrapped by secure hardware
+  /// when the profile requires encryption, SEC-073). [onProblem] hears of a
+  /// database that could not be decrypted and was discarded.
   PluxDriftAdapter({
     this.path,
     SecretStore? secrets,
     this.keyName = 'db-drift',
     void Function(PluxException problem)? onProblem,
   }) : _secrets = secrets ?? const PlatformSecretStore(),
+       _wrapsKey = secrets == null,
        _onProblem = onProblem, // ignore: prefer_initializing_formals
        _opener = null,
        _probe = _probeCipher,
@@ -142,6 +144,7 @@ final class PluxDriftAdapter implements PluxDatabaseAdapter {
   }) : path = null,
        // ignore: prefer_initializing_formals
        _secrets = secrets,
+       _wrapsKey = false,
        // ignore: prefer_initializing_formals
        _onProblem = onProblem,
        // ignore: prefer_initializing_formals
@@ -156,7 +159,11 @@ final class PluxDriftAdapter implements PluxDatabaseAdapter {
   /// The name of the database key in secure storage.
   final String keyName;
 
-  final SecretStore _secrets;
+  SecretStore _secrets;
+
+  // Whether [_secrets] is the platform's default, which the key leaves for a
+  // hardware-wrapped store when encryption is required (SEC-073).
+  bool _wrapsKey;
   final void Function(PluxException problem)? _onProblem;
   final DriftOpener? _opener;
   final Future<bool> Function() _probe;
@@ -210,6 +217,16 @@ final class PluxDriftAdapter implements PluxDatabaseAdapter {
         );
       }
       return;
+    }
+    if (_wrapsKey && requireEncryption) {
+      // The `strict` and `maximum` profiles keep the database key wrapped by
+      // secure hardware, like the runtime's other stores (ADR-0058). A key an
+      // earlier launch stored unwrapped is wrapped on its first read.
+      _secrets = HardwareWrappedSecretStore(
+        _secrets,
+        const PlatformKeyWrapper(),
+      );
+      _wrapsKey = false;
     }
     final cipher = await _probe();
     if (!cipher && requireEncryption) {

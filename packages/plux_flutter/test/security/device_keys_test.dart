@@ -213,6 +213,84 @@ void main() {
       );
     });
 
+    test('SEC-027 create makes an sca key under its purpose name', () async {
+      reply((_) => keyReply(storage: 'strongbox'));
+      final key = await keys.create('a', KeyPurpose.sca);
+      expect(calls.single.arguments, containsPair('purpose', 'sca'));
+      expect(key.purpose, KeyPurpose.sca);
+      expect(
+        scaKeyAlias('a', 'b'),
+        'dev.plux.sca.59b271ae1bbcb1d3',
+        reason: 'same hash as the other aliases, own prefix',
+      );
+    });
+
+    test(
+      'SEC-027 signWithUser sends the prompt text and returns the signature',
+      () async {
+        final sig = Uint8List.fromList([for (var i = 0; i < 64; i++) i]);
+        reply((_) => sig);
+        final data = Uint8List.fromList([1, 2]);
+        expect(
+          await keys.signWithUser(
+            'a',
+            data,
+            title: 'Confirm',
+            subtitle: '1 EUR',
+          ),
+          sig,
+        );
+        expect(calls.single.method, 'keySignAuth');
+        expect(calls.single.arguments, {
+          'alias': 'a',
+          'data': data,
+          'title': 'Confirm',
+          'subtitle': '1 EUR',
+        });
+      },
+    );
+
+    test(
+      'SEC-027 a cancelled prompt is a cancellation, not a key failure',
+      () async {
+        reply((_) => throw PlatformException(code: 'PLUX_USER_CANCELLED'));
+        await expectLater(
+          keys.signWithUser('a', Uint8List(1), title: 't', subtitle: 's'),
+          throwsA(isA<UserAuthenticationCancelled>()),
+        );
+      },
+    );
+
+    test(
+      'SEC-027 a missing, invalidated or malformed signWithUser fails closed',
+      () async {
+        reply((_) => throw PlatformException(code: 'PLUX_KEY_MISSING'));
+        await expectLater(
+          keys.signWithUser('a', Uint8List(1), title: 't', subtitle: 's'),
+          throwsA(
+            isA<PluxException>().having(
+              (e) => e.code,
+              'code',
+              PluxErrorCode.deviceKeyUnavailable,
+            ),
+          ),
+        );
+        reply((_) => Uint8List(10));
+        await expectLater(
+          keys.signWithUser('a', Uint8List(1), title: 't', subtitle: 's'),
+          throwsA(isA<PluxException>()),
+        );
+      },
+    );
+
+    test('a cancellation code on another call is a key failure', () async {
+      reply((_) => throw PlatformException(code: 'PLUX_USER_CANCELLED'));
+      await expectLater(
+        keys.sign('a', Uint8List(1)),
+        throwsA(isA<PluxException>()),
+      );
+    });
+
     test('delete sends the alias', () async {
       reply((_) => null);
       await keys.delete('a');

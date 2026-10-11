@@ -1310,8 +1310,8 @@ var registry = []Definition{
 	},
 	{
 		ConfidentialKeyUnavailable, "CONFIDENTIAL_KEY_UNAVAILABLE", SeverityError, "Confidential key unavailable",
-		"The device may not receive the key that unlocks confidential content, because it does not meet the content's requirements (SEC-053).",
-		"Use a device that meets the content's assurance requirements.", false,
+		"The device cannot obtain or use the key that unlocks confidential content: its assurance is below confidentialMinAssurance, it registered no key-agreement key, or the key does not open the content because it was wrapped for another device or release, or was altered (SEC-053).",
+		"Use a device that meets the content's assurance requirements and has a key-agreement key; ask the operator to publish the release again if the key does not open it.", false,
 	},
 	{
 		GatewayUpstreamUnknown, "GATEWAY_UPSTREAM_UNKNOWN", SeverityError, "Gateway upstream unknown",

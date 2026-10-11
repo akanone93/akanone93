@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_flutter/src/core/runtime.dart';
 import 'package:plux_flutter/src/render/renderer.dart';
+import 'package:plux_flutter/src/secure/secure_ui.dart';
 import 'package:plux_flutter/src/state/providers.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
 
@@ -66,6 +67,9 @@ final class Harness {
     Map<String, PluxNativeAction<Object?, Object?>> nativeActions = const {},
     PluxRouterAdapter? router,
     PluxDatabaseAdapter? databaseAdapter,
+    bool? encryptLocalStores,
+    KeyWrapper Function()? keyWrapper,
+    SecurePlatforms secure = const SecurePlatforms(),
   }) async {
     server.release = null;
     final baseline = await server.baseline(5, app, plugins);
@@ -106,6 +110,9 @@ final class Harness {
         healthyAfter: const Duration(hours: 1),
         secrets: () => secrets,
         configSecrets: MemorySecretStore.new,
+        encryptLocalStores: encryptLocalStores,
+        keyWrapper: keyWrapper,
+        secure: secure,
       ),
     );
   }

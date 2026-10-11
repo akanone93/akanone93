@@ -165,6 +165,8 @@ type Device struct {
 	AppAttestReceipt      []byte
 	RevokedAt             pgtype.Timestamptz
 	RevokedReason         string
+	RaspDetectedAt        pgtype.Timestamptz
+	RaspKinds             []string
 	AgreementPublicKey    []byte
 }
 

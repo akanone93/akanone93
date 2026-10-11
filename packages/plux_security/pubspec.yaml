@@ -1,0 +1,34 @@
+name: plux_security
+description: >-
+  Runtime application self-protection for Plux apps: detects rooted, hooked,
+  debugged, repackaged and otherwise hostile devices and responds by policy.
+version: 0.1.0
+repository: https://github.com/nightCode42/plux3/tree/main/packages/plux_security
+# Not published until its release is wired (release.yml, pub.dev).
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plux_flutter: ^0.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+# The platform detectors of Android and iOS (SEC-070); the channel is
+# dev.plux/security.
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: dev.plux.plux_security
+        pluginClass: PluxSecurityPlugin
+      ios:
+        pluginClass: PluxSecurityPlugin

@@ -74,7 +74,7 @@ func TestRecipientOf(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	strict := mustSettings(t, settings.Strict) // sync needs AL1
+	strict := mustSettings(t, settings.Strict) // confidentialMinAssurance is AL2
 	row := func(level string, agreement []byte, revoked bool) dbgen.Device {
 		return dbgen.Device{AssuranceLevel: level, AgreementPublicKey: agreement, RevokedAt: pgtype.Timestamptz{Valid: revoked}}
 	}
@@ -83,9 +83,9 @@ func TestRecipientOf(t *testing.T) {
 		row  dbgen.Device
 		want plxerr.Code
 	}{
-		{"eligible", row("AL2", canonical, false), 0},
-		{"at the level", row("AL1", canonical, false), 0},
-		{"below the level", row("AL0", canonical, false), plxerr.ConfidentialKeyUnavailable},
+		{"at the level", row("AL2", canonical, false), 0},
+		{"above the level", row("AL3", canonical, false), 0},
+		{"below the level", row("AL1", canonical, false), plxerr.ConfidentialKeyUnavailable},
 		{"no level", row("", canonical, false), plxerr.ConfidentialKeyUnavailable},
 		{"no key-agreement key", row("AL2", nil, false), plxerr.ConfidentialKeyUnavailable},
 		{"revoked", row("AL2", canonical, true), plxerr.DeviceRevoked},

@@ -35,8 +35,10 @@ final class DeviceAuth {
     required this.appId,
     required this.environment,
     required this.device,
+    bool enrolSca = false,
     DateTime Function()? clock,
-  }) : _clock = clock ?? DateTime.now;
+  }) : _sca = enrolSca,
+       _clock = clock ?? DateTime.now;
 
   /// The API client.
   final PluxApiClient api;
@@ -61,6 +63,11 @@ final class DeviceAuth {
 
   final DateTime Function() _clock;
 
+  /// Whether a registration includes an SCA key (SEC-027): set by the host's
+  /// configuration, and by [ensureSca] for a device registered without one.
+  bool _sca;
+  var _scaTried = false;
+
   /// How long before its expiry a token counts as expired.
   static const refreshMargin = Duration(seconds: 30);
 
@@ -82,11 +89,60 @@ final class DeviceAuth {
   String get _alias => dpopKeyAlias(appId, environment);
   String get _agreementAlias => agreementKeyAlias(appId, environment);
 
+  String get _scaAlias => scaKeyAlias(appId, environment);
+
+  /// The ID the server knows this device by, registering it on first use.
+  Future<String> deviceId() async {
+    await token();
+    final c = await credentials.read();
+    if (c == null) {
+      throw const ApiError(0, 'unknown', 'the device is not registered');
+    }
+    return c.deviceId;
+  }
+
+  /// Whether the device has an SCA key registered with the server, and if
+  /// it has none, registers it again with one (SEC-027): the server has no
+  /// call that adds a key to a registered device, and a key that the
+  /// platform invalidated (a new fingerprint was enrolled) is gone. Tried
+  /// once per launch; false when the platform cannot create the key, for
+  /// example when the device has no screen lock.
+  Future<bool> ensureSca() async {
+    if (await _scaKey() != null) return true;
+    if (_scaTried) return false;
+    _scaTried = true;
+    _sca = true;
+    _token = null;
+    await _forget();
+    await _register();
+    return await _scaKey() != null;
+  }
+
+  Future<DeviceKey?> _scaKey() async {
+    try {
+      return await keys.load(_scaAlias, KeyPurpose.sca);
+    } on PluxException catch (e) {
+      if (e.code != PluxErrorCode.deviceKeyUnavailable) rethrow;
+      return null;
+    }
+  }
+
   /// Starts a sync: registering again after a refusal is allowed once more.
   void beginSync() => _reregistered = false;
 
   /// Forgets the held token, after the server refused it.
   void forgetToken() => _token = null;
+
+  /// Offers the server fresh evidence for the registered key now, for a
+  /// risk signal such as a RASP detection (SEC-006, SEC-025), and forgets
+  /// the held token so that the next one carries the level the server
+  /// computes from it. Does nothing for a device that is not registered.
+  Future<void> reattestNow() async {
+    final s = await _session();
+    if (s == null) return;
+    await _reattest(s);
+    _token = null;
+  }
 
   /// A token that is valid for at least [refreshMargin], registering the
   /// device on first use. Concurrent callers share one exchange.
@@ -149,6 +205,33 @@ final class DeviceAuth {
     return _Session(c.deviceId, key, _proofs(key));
   }
 
+  /// Creates the SCA key (user authentication required) for the
+  /// registration [challenge]; null when the platform cannot, which leaves
+  /// the device without strong customer authentication but registered.
+  Future<DeviceKey?> _createSca(Uint8List challenge) async {
+    try {
+      return await keys.create(_scaAlias, KeyPurpose.sca, challenge: challenge);
+    } on PluxException catch (e) {
+      if (e.code != PluxErrorCode.deviceKeyUnavailable) rethrow;
+      return null;
+    }
+  }
+
+  /// The evidence of the SCA key: on Android its own Key Attestation chain
+  /// with the Play Integrity token of the registration, which the server
+  /// has verified for the device; the other platforms offer the
+  /// registration's evidence itself, since App Attest attests one key per
+  /// installation.
+  AttestationEvidence _scaEvidence(AttestationEvidence e, DeviceKey sca) =>
+      switch (e) {
+        AndroidEvidence() when sca.attestationChain.isNotEmpty =>
+          AndroidEvidence(
+            keyAttestationChain: sca.attestationChain,
+            playIntegrityToken: e.playIntegrityToken,
+          ),
+        _ => e,
+      };
+
   DpopProofs _proofs(DeviceKey key) => DpopProofs(
     keys: keys,
     alias: _alias,
@@ -160,6 +243,7 @@ final class DeviceAuth {
     await credentials.clear();
     await keys.delete(_alias);
     await keys.delete(_agreementAlias);
+    if (_sca) await keys.delete(_scaAlias);
   }
 
   /// Creates the key-agreement key for confidential bundles (SEC-053). A
@@ -188,6 +272,7 @@ final class DeviceAuth {
       challenge: challenge,
     );
     final agreementKey = await _createAgreementKey();
+    final sca = _sca ? await _createSca(challenge) : null;
     final evidence = await attestation.attest(
       challenge: challenge,
       jkt: key.publicKey.thumbprint,
@@ -201,6 +286,8 @@ final class DeviceAuth {
       key: key,
       evidence: evidence,
       agreementKey: agreementKey,
+      scaKey: sca,
+      scaEvidence: sca == null ? null : _scaEvidence(evidence, sca),
     );
     await credentials.write(DeviceCredential(id, key.publicKey.thumbprint));
     return _Session(id, key, _proofs(key));

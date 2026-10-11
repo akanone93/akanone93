@@ -2054,9 +2054,9 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 `CONFIDENTIAL_KEY_UNAVAILABLE` · error · Confidential key unavailable
 
-**Cause.** The device may not receive the key that unlocks confidential content, because it does not meet the content's requirements (SEC-053).
+**Cause.** The device cannot obtain or use the key that unlocks confidential content: its assurance is below confidentialMinAssurance, it registered no key-agreement key, or the key does not open the content because it was wrapped for another device or release, or was altered (SEC-053).
 
-**Fix.** Use a device that meets the content's assurance requirements.
+**Fix.** Use a device that meets the content's assurance requirements and has a key-agreement key; ask the operator to publish the release again if the key does not open it.
 
 ### PLX-6060
 

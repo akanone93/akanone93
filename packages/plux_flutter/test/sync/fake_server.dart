@@ -238,6 +238,10 @@ final class FakePluxServer {
   /// Every request path, in order.
   final List<String> requests = [];
 
+  /// The `Authorization` and `DPoP` headers of every request that sent
+  /// them, for tests that look for them elsewhere (SEC-072).
+  final List<String> credentialsSeen = [];
+
   /// `Range` headers of object requests.
   final List<String> ranges = [];
 
@@ -268,6 +272,9 @@ final class FakePluxServer {
 
   /// Telemetry events received, in the order they arrived.
   final List<Map<String, Object?>> events = [];
+
+  /// Re-attestations received (SEC-006).
+  int reattestations = 0;
 
   /// Paths of requests whose body came compressed with gzip.
   final List<String> compressedRequests = [];
@@ -477,6 +484,7 @@ final class FakePluxServer {
     // As the server does: a device token is a DPoP token, and a request
     // with it carries a proof (the fake does not check the signature).
     final auth = headers.value('authorization');
+    credentialsSeen.addAll([?auth, ?headers.value('dpop')]);
     final authed =
         auth != null &&
         auth.startsWith('DPoP plux_dat_') &&
@@ -529,6 +537,9 @@ final class FakePluxServer {
           },
         );
       case '/plux.v1.DeviceService/ReportInstalled':
+        return (200, <String, Object?>{});
+      case '/plux.v1.DeviceService/ReattestDevice':
+        reattestations++;
         return (200, <String, Object?>{});
       case '/plux.v1.TelemetryService/IngestEvents':
         if (!authed) {

@@ -299,6 +299,7 @@ final class ActionHost {
     StateAccess? state,
     Object? owner,
     void Function(String event, Object? payload)? emitEvent,
+    bool sensitiveEvent = false,
   }) {
     unawaited(
       fireFor(
@@ -315,6 +316,7 @@ final class ActionHost {
         state: state,
         owner: owner,
         emitEvent: emitEvent,
+        sensitiveEvent: sensitiveEvent,
       ),
     );
   }
@@ -336,6 +338,7 @@ final class ActionHost {
     StateAccess? state,
     Object? owner,
     void Function(String event, Object? payload)? emitEvent,
+    bool sensitiveEvent = false,
   }) async {
     if (_disposed) return null;
     final graph = this.graph(handler.graph, bundle, path, resolve);
@@ -357,6 +360,7 @@ final class ActionHost {
       state: state,
       owner: owner,
       emitEvent: emitEvent,
+      sensitiveEvent: sensitiveEvent,
     );
   }
 
@@ -403,7 +407,9 @@ final class ActionHost {
   /// (ACT-004), nor with the component instance [owner] that started it
   /// ([cancelOwned]). An [errorHandler] run's own failure is not routed
   /// again. [emitEvent] emits the events of the component whose handler
-  /// runs (`emitEvent`).
+  /// runs (`emitEvent`). A run started by a [sensitiveEvent], one whose
+  /// payload is a secret such as a PIN, records no values in its trace
+  /// (SEC-092).
   Future<RunResult?> start(
     ActionGraph graph, {
     required Map<String, Object?> Function() roots,
@@ -417,6 +423,7 @@ final class ActionHost {
     StateAccess? state,
     Object? owner,
     void Function(String event, Object? payload)? emitEvent,
+    bool sensitiveEvent = false,
   }) async {
     if (_disposed || _ownerGone(owner)) return null;
     Future<RunResult?> launch() => _launch(
@@ -431,6 +438,7 @@ final class ActionHost {
       state: state,
       owner: owner,
       emitEvent: emitEvent,
+      sensitiveEvent: sensitiveEvent,
     );
     switch (policy.kind) {
       case ConcurrencyPolicy.parallel:
@@ -524,6 +532,7 @@ final class ActionHost {
     required StateAccess? state,
     required Object? owner,
     required void Function(String event, Object? payload)? emitEvent,
+    required bool sensitiveEvent,
   }) async {
     if (_ownerGone(owner)) return null;
     final buffer = traces;
@@ -533,7 +542,10 @@ final class ActionHost {
     if (emitEvent != null) base = base.inComponent(emitEvent);
     final tracer = buffer == null
         ? null
-        : RunTracer(maxSteps: limits.traceSteps, values: buffer.values);
+        : RunTracer(
+            maxSteps: limits.traceSteps,
+            values: buffer.values && !sensitiveEvent,
+          );
     final run = ActionRun(
       graph: graph,
       roots: roots,

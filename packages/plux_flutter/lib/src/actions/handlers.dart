@@ -23,11 +23,12 @@ import 'package:plux_flutter/src/device/handlers.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/forms/handlers.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
+import 'package:plux_flutter/src/security/handlers.dart';
 import 'package:plux_flutter/src/state/access.dart';
 
 /// The phase this runtime belongs to: it runs every action of earlier
 /// phases, and the actions of this phase that [builtInHandlers] holds.
-const int runtimePhase = 5;
+const int runtimePhase = 6;
 
 /// What a run may navigate (ADR-0040). The page or component that started
 /// the run provides it; every method fails with an [ActionError].
@@ -432,6 +433,7 @@ final Map<String, ActionHandler> builtInHandlers = {
   ...deviceHandlers,
   ...animationHandlers,
   ...dbHandlers,
+  ...securityHandlers,
 };
 
 /// A handler written as a function, for handler tables outside this

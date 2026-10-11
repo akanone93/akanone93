@@ -89,6 +89,7 @@ final class DeviceGuard {
     'pickFile': 'files',
     'scanCode': 'camera',
     'getLocation': 'location',
+    'biometricAuth': 'biometrics',
   };
 
   /// Admits a step running [action] with [inputs] for [plugin], or fails

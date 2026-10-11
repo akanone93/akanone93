@@ -122,6 +122,9 @@ type Settings struct {
 	// MinAssuranceForSync is the lowest assurance level a device must hold
 	// to fetch a manifest (SEC-007).
 	MinAssuranceForSync Level
+	// ConfidentialMinAssurance is the lowest assurance level a device must
+	// hold to receive the content key of a confidential bundle (SEC-053).
+	ConfidentialMinAssurance Level
 }
 
 // SettingsFor resolves the settings of a profile from the registry's
@@ -160,9 +163,16 @@ func resolveSettings(p settings.Profile, read func(settings.Key) (settings.Value
 	if err != nil {
 		return Settings{}, err
 	}
-	out := Settings{Profile: p, AllowSoftwareKeys: allow.Bool(), AndroidDeviceVerdictAL2: label, MinAssuranceForSync: Level(minimum.Text())}
+	confidential, err := read(settings.ConfidentialMinAssurance)
+	if err != nil {
+		return Settings{}, err
+	}
+	out := Settings{Profile: p, AllowSoftwareKeys: allow.Bool(), AndroidDeviceVerdictAL2: label, MinAssuranceForSync: Level(minimum.Text()), ConfidentialMinAssurance: Level(confidential.Text())}
 	if out.MinAssuranceForSync.Rank() < 0 {
 		return Settings{}, fmt.Errorf("device: the setting %s names no assurance level", settings.MinAssuranceForSync)
+	}
+	if out.ConfidentialMinAssurance.Rank() < 0 {
+		return Settings{}, fmt.Errorf("device: the setting %s names no assurance level", settings.ConfidentialMinAssurance)
 	}
 	if err := out.resolveTokens(read); err != nil {
 		return Settings{}, err
@@ -233,9 +243,11 @@ func verdictRank(l playintegrity.DeviceLabel) int {
 
 // Assess computes the assurance level a verified proof earns under the
 // settings (SEC-007, device-trust.md §1). A software key caps the level
-// at AL1 whatever else is proven. No RASP finding is known until the
-// runtime reports them, and Apple's fraud-metric receipt is not checked
-// yet, so an iOS device never reaches AL3.
+// at AL1 whatever else is proven. A RASP finding is not part of a proof:
+// the runtime reports it afterwards (RecordRiskEvents), which caps the
+// stored level at AL1 until the next clean attestation recomputes it
+// here. Apple's fraud-metric receipt is not checked yet, so an iOS device
+// never reaches AL3.
 func Assess(p Proof, s Settings) Level {
 	switch p.Provider {
 	case ProviderPlayIntegrity:

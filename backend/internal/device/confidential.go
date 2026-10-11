@@ -19,8 +19,8 @@ import (
 // ConfidentialRecipient returns the key-agreement key a confidential
 // release's content key is wrapped to for device d, or refuses with
 // PLX-6050 (SEC-053, ADR-0055). The device must not be revoked, must hold
-// at least the assurance level the environment's settings require for
-// syncing, and must have registered a key-agreement key. A device below
+// at least the assurance level the environment's confidentialMinAssurance
+// setting asks for, and must have registered a key-agreement key. A device below
 // the level, or without a key, gets no content key and so cannot open the
 // release.
 func (s *Service) ConfidentialRecipient(ctx context.Context, d Identity) (*ecdh.PublicKey, error) {
@@ -52,9 +52,9 @@ func recipientOf(row dbgen.Device, conf Settings) (*ecdh.PublicKey, error) {
 	switch {
 	case row.RevokedAt.Valid:
 		return nil, plxerr.New(plxerr.DeviceRevoked, "the device was revoked")
-	case Level(row.AssuranceLevel).Rank() < conf.MinAssuranceForSync.Rank():
+	case Level(row.AssuranceLevel).Rank() < conf.ConfidentialMinAssurance.Rank():
 		return nil, plxerr.New(plxerr.ConfidentialKeyUnavailable,
-			"confidential content needs assurance %s, and this device has %s", conf.MinAssuranceForSync, row.AssuranceLevel)
+			"confidential content needs assurance %s, and this device has %s", conf.ConfidentialMinAssurance, row.AssuranceLevel)
 	case len(row.AgreementPublicKey) == 0:
 		return nil, plxerr.New(plxerr.ConfidentialKeyUnavailable, "this device registered no key-agreement key")
 	}

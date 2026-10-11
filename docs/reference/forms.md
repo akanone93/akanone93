@@ -38,6 +38,14 @@ owner (`PLX-1166`).
 ]
 ```
 
+## Sensitive fields
+
+A field can carry `"sensitive": true` (`SCH-012`, `SEC-092`). A bundle that tags one requires
+`forms.sensitive.v1`, first in runtime 0.4.0. The compiler then refuses `trackEvent` steps that
+read the field's value (`PLX-1501`), and marks every step
+input that reads it, so traces never record it. Use a `SecureTextField` or a `SecurePinPad`
+to enter it: they are masked until the user unmasks them.
+
 ## Validators
 
 | Kind | Options | Applies to |

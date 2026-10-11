@@ -718,7 +718,7 @@ func TestRevoke(t *testing.T) {
 func TestConfidentialRecipient(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
-	r.profiles["production"] = settings.Strict // sync needs AL1
+	r.profiles["production"] = settings.Strict // confidentialMinAssurance is AL2
 	ctx := context.Background()
 	identity := func(d device.Device) device.Identity {
 		return device.Identity{DeviceID: d.ID, OrganizationID: r.org, AppID: r.app, EnvironmentID: d.EnvironmentID}

@@ -23,6 +23,8 @@ import 'package:plux_flutter/src/data/transfer_transport.dart';
 import 'package:plux_flutter/src/data/transport.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/platform/pinned_http.dart';
+import 'package:plux_flutter/src/security/platform_aead.dart';
+import 'package:plux_flutter/src/security/record_cipher.dart';
 import 'package:plux_flutter/src/store/kv_store.dart';
 
 /// The key that encrypts cached responses of sources marked `encrypted`
@@ -114,20 +116,24 @@ final class _Close extends _Command {
 /// The UI isolate's handle on the data isolate.
 final class DataWorker
     implements DataTransport, StreamTransport, TransferTransport {
-  DataWorker._(this._isolate, this._commands, this._keys);
+  DataWorker._(this._isolate, this._commands, this._keys, this._sealed);
 
   /// Starts the data isolate with the client [httpClient] creates (a
   /// top-level or static function) and its cache under [cacheDirectory].
   /// WebSockets connect with the `dart:io` client [webSocketClient] creates
   /// (also top-level or static), or `dart:io`'s default when null.
   /// [rootIsolateToken] lets the isolate use platform channels, which the
-  /// pinned HTTP client of the Plux server needs (SEC-041).
+  /// pinned HTTP client of the Plux server needs (SEC-041). With [sealed]
+  /// (the `encryptLocalStores` setting, SEC-073) every cached response is
+  /// encrypted under the key [keys] gives, and entries an earlier launch
+  /// stored in the clear are sealed in place when the key arrives.
   static Future<DataWorker> start({
     required http.Client Function() httpClient,
     required String cacheDirectory,
     HttpClient Function()? webSocketClient,
     DataCacheKeyProvider? keys,
     RootIsolateToken? rootIsolateToken,
+    bool sealed = false,
   }) async {
     final ready = ReceivePort();
     final isolate = await Isolate.spawn(_main, (
@@ -136,15 +142,20 @@ final class DataWorker
       cacheDirectory,
       ready.sendPort,
       rootIsolateToken,
+      sealed,
     ), debugName: 'plux-data');
     final commands = await ready.first as SendPort;
     ready.close();
-    return DataWorker._(isolate, commands, keys);
+    return DataWorker._(isolate, commands, keys, sealed);
   }
 
   final Isolate _isolate;
   final SendPort _commands;
   final DataCacheKeyProvider? _keys;
+
+  /// Whether every entry, not only those of `encrypted` sources, is
+  /// stored as a record of the encrypted format (SEC-073).
+  final bool _sealed;
   Future<void>? _keySent;
 
   Future<Object?> _call(_Command Function(SendPort reply) command) async {
@@ -282,7 +293,7 @@ final class _WorkerStore implements CacheStore {
   Future<Object?> _op(String op, [String? key, Object? json, int? at]) async {
     // Clearing removes the files and needs no key, so a logout or a wipe
     // never makes one.
-    if (secure && op != 'clear') {
+    if ((secure || worker._sealed) && op != 'clear') {
       try {
         await worker._ensureKey();
       } on Object {
@@ -319,17 +330,20 @@ Future<void> _main(
     String,
     SendPort,
     RootIsolateToken?,
+    bool,
   )
   args,
 ) async {
-  final (client, socketClient, dir, ready, token) = args;
+  final (client, socketClient, dir, ready, token, sealed) = args;
   if (token != null) BackgroundIsolateBinaryMessenger.ensureInitialized(token);
   final http = client();
   final transport = ClientTransport(http);
   final streams = SocketStreamTransport(http, webSocketClient: socketClient);
   final transfers = HttpTransferTransport(http);
-  final plain = FileCacheStore('$dir/plain');
+  var plain = FileCacheStore('$dir/plain');
   FileCacheStore? secure;
+  // Decided once in this isolate: the platform's AES-GCM, else Dart's.
+  final cipher = sealed ? RecordCipher(platformAead) : null;
   final port = ReceivePort();
   ready.send(port.sendPort);
   await for (final c in port.cast<_Command>()) {
@@ -344,12 +358,32 @@ Future<void> _main(
     Future<Object?> run() async => switch (c) {
       _Send(:final request) => transport.send(request),
       _OpenStream() || _StartTransfer() => null,
-      _SetKey(:final key) => secure = FileCacheStore('$dir/secure', key: key),
+      _SetKey(:final key) => () async {
+        secure = FileCacheStore(
+          '$dir/secure',
+          key: key,
+          cipher: cipher,
+          storeName: 'data-cache/secure',
+        );
+        if (cipher != null) {
+          plain = FileCacheStore(
+            '$dir/plain',
+            key: key,
+            cipher: cipher,
+            storeName: 'data-cache/plain',
+          );
+          await plain.migrate();
+          await secure!.migrate();
+        }
+        return null;
+      }(),
       _PinDomains(:final pins) => _pinDomains(http, pins),
       _Close() => transport.close(),
       final _Store s => _store(
         s.secure
             ? secure ?? (s.op == 'clear' ? FileCacheStore('$dir/secure') : null)
+            : sealed && cipher != null && s.op != 'clear' && secure == null
+            ? null
             : plain,
         s.op,
         s.key,

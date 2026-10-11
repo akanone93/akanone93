@@ -521,6 +521,26 @@ void main() {
       expect(rig.keys.deleted, isEmpty);
     });
 
+    test('re-attestation on a risk signal offers fresh evidence for the '
+        'registered key and forgets the token [SEC-006] [SEC-025]', () async {
+      final rig = _Rig()..attestation.token = 'integrity-2';
+      await rig.auth.token();
+      rig.seen.clear();
+      await rig.auth.reattestNow();
+      expect(rig.paths, [_challengePath, _reattestPath]);
+      expect(rig.at(_reattestPath).single.body['deviceId'], 'dev-1');
+      await rig.auth.token();
+      expect(rig.paths.last, _refreshPath, reason: 'the token is exchanged');
+      expect(rig.keys.created, 1);
+    });
+
+    test('re-attestation does nothing for a device that is not registered '
+        '[SEC-006]', () async {
+      final rig = _Rig();
+      await rig.auth.reattestNow();
+      expect(rig.paths, isEmpty);
+    });
+
     test('PLX-6007 on iOS re-attests with the registration evidence and no '
         'key attestation chain [SEC-025]', () async {
       final rig = _Rig(platform: 'ios')

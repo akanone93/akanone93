@@ -35,6 +35,7 @@ import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
 import 'package:plux_flutter/src/sync/device_auth.dart';
 import 'package:plux_flutter/src/sync/downloader.dart';
+import 'package:plux_flutter/src/sync/gateway_agent.dart';
 import 'package:plux_flutter/src/sync/metadata_sync.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
 import 'package:plux_flutter/src/verify/bundle_verifier.dart';
@@ -100,6 +101,7 @@ final class SyncConfig {
     this.production = kReleaseMode,
     this.rootDocument,
     this.pins,
+    this.enrolSca = false,
   });
 
   /// The app.
@@ -149,6 +151,10 @@ final class SyncConfig {
   /// verified root replace them (SEC-041). It must be the very object the
   /// client was made with.
   final PinSet? pins;
+
+  /// Whether registration creates the SCA key and registers it with the
+  /// server (SEC-027): `PluxConfig.strongCustomerAuthentication`.
+  final bool enrolSca;
 }
 
 /// Runs syncs against one store.
@@ -181,8 +187,10 @@ final class SyncEngine {
       appId: config.appId,
       environment: config.environment,
       device: config.device,
+      enrolSca: config.enrolSca,
       clock: _clock,
     );
+    gateway = GatewayAgent(api: api, auth: _auth, clock: _clock);
     _metadata = MetadataSync(
       api: api,
       store: MetadataStore(store.root),
@@ -223,6 +231,10 @@ final class SyncEngine {
 
   final DateTime Function() _clock;
   late final DeviceAuth _auth;
+
+  /// The device's calls to the gateway, which share its token and DPoP key
+  /// (SEC-030).
+  late final GatewayAgent gateway;
   late final MetadataSync _metadata;
   final SecurityConfigStore? _configs;
 
@@ -639,6 +651,9 @@ final class SyncEngine {
 
   /// Forgets the held token, after the server refused it.
   void forgetToken() => _auth.forgetToken();
+
+  /// Re-attests the device's key now, after a risk signal (SEC-006).
+  Future<void> reattest() => _auth.reattestNow();
 
   /// Obtains one bundle: by its delta when the plan offers one against
   /// the bundle this device holds, else — or when the rebuilt bundle is

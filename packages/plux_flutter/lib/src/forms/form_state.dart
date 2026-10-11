@@ -98,6 +98,7 @@ final class FormFieldDecl {
     required this.type,
     required this.initial,
     required this.validators,
+    this.sensitive = false,
   });
 
   /// The field's name.
@@ -111,6 +112,11 @@ final class FormFieldDecl {
 
   /// The validators, in declaration order.
   final List<FieldValidator> validators;
+
+  /// Whether the value is sensitive (SCH-012, SEC-092): masked in any
+  /// display the user did not unmask, and never recorded in a trace, a
+  /// log or telemetry.
+  final bool sensitive;
 }
 
 /// A form as its bundle declares it.
@@ -175,6 +181,7 @@ List<FormDecl> decodeForms(
               name: strings(fd.name),
               type: parse(strings(fd.type)),
               initial: fd.initial == null ? null : literal(fd.initial),
+              sensitive: fd.sensitive,
               validators: [
                 for (final v in fd.validators ?? const <fbs.FormValidator>[])
                   FieldValidator(
