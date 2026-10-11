@@ -54,6 +54,8 @@ android {
 
 dependencies {
     implementation("androidx.core:core:1.13.1")
+    // The system prompt that unlocks the SCA key (SEC-027, ADR-0056).
+    implementation("androidx.biometric:biometric:1.1.0")
     // Play Integrity standard requests (SEC-003, ADR-0012).
     implementation("com.google.android.play:integrity:1.6.0")
     // The Cronet API of the pinned HTTP/2 client (SEC-041). cronet_http

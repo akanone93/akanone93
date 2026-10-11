@@ -3,6 +3,7 @@
 
 package dev.plux.plux_flutter
 
+import android.app.Activity
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -12,6 +13,10 @@ import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
 import android.security.keystore.StrongBoxUnavailableException
 import androidx.annotation.RequiresApi
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.math.BigInteger
@@ -40,6 +45,9 @@ class PluxKeys {
     private val executor: ExecutorService = Executors.newSingleThreadExecutor()
     private val main = Handler(Looper.getMainLooper())
 
+    /** The host activity the system prompt of an "sca" key needs; set by the plugin. */
+    var activity: Activity? = null
+
     /** Handles keyCreate, keyPublic, keySign and keyDelete; never throws. */
     fun handle(call: MethodCall, result: MethodChannel.Result) {
         val task: () -> Any? = try {
@@ -64,6 +72,108 @@ class PluxKeys {
         }
     }
 
+    /**
+     * Handles keySignAuth (SEC-027): signs with an "sca" key behind the system prompt, which
+     * asks for a biometric or, from API 30, the device credential. The signature object is
+     * unlocked by the prompt itself (a CryptoObject), so the key is usable only after the
+     * user authenticated for this very signature.
+     */
+    fun handleAuth(call: MethodCall, result: MethodChannel.Result) {
+        val host = activity as? FragmentActivity
+        val alias: String
+        val data: ByteArray
+        val title: String
+        val subtitle: String
+        try {
+            alias = alias(call)
+            data = call.argument<ByteArray>("data") ?: throw IllegalArgumentException("data")
+            title = call.argument<String>("title") ?: throw IllegalArgumentException("title")
+            subtitle = call.argument<String>("subtitle") ?: ""
+        } catch (e: IllegalArgumentException) {
+            result.error(PLATFORM, e.javaClass.simpleName, null)
+            return
+        }
+        if (host == null) {
+            // The prompt needs a FragmentActivity: the host uses FlutterFragmentActivity.
+            result.error(PLATFORM, "activity", null)
+            return
+        }
+        try {
+            executor.execute {
+                val outcome = runTask { initSignature(alias) }
+                main.post {
+                    val signature = outcome.value as? Signature
+                    if (signature == null) outcome.deliver(result) else prompt(host, signature, data, title, subtitle, result)
+                }
+            }
+        } catch (e: RejectedExecutionException) {
+            result.error(PLATFORM, e.javaClass.simpleName, null)
+        }
+    }
+
+    private fun initSignature(alias: String): Signature {
+        val keyStore = store()
+        val key = privateKey(keyStore, alias) ?: throw KeyFailure(MISSING, "missing")
+        try {
+            return Signature.getInstance("SHA256withECDSA").apply { initSign(key) }
+        } catch (e: KeyPermanentlyInvalidatedException) {
+            // A new biometric enrolment invalidates the key; the runtime enrols again.
+            keyStore.deleteEntry(alias)
+            throw KeyFailure(MISSING, "invalidated")
+        }
+    }
+
+    private fun prompt(
+        host: FragmentActivity,
+        signature: Signature,
+        data: ByteArray,
+        title: String,
+        subtitle: String,
+        result: MethodChannel.Result,
+    ) {
+        val callback = object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationSucceeded(authenticated: BiometricPrompt.AuthenticationResult) {
+                val unlocked = authenticated.cryptoObject?.signature
+                if (unlocked == null) {
+                    result.error(PLATFORM, "crypto", null)
+                    return
+                }
+                executor.execute {
+                    val outcome = runTask {
+                        unlocked.update(data)
+                        derToRaw(unlocked.sign())
+                    }
+                    main.post { outcome.deliver(result) }
+                }
+            }
+
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                // Only the code is reported, never the system's text.
+                when (errorCode) {
+                    BiometricPrompt.ERROR_USER_CANCELED,
+                    BiometricPrompt.ERROR_NEGATIVE_BUTTON,
+                    BiometricPrompt.ERROR_CANCELED -> result.error(CANCELLED, null, null)
+                    else -> result.error(PLATFORM, "auth $errorCode", null)
+                }
+            }
+        }
+        // Before API 30 a CryptoObject cannot be unlocked with the device credential.
+        val credential = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+        val authenticators = if (credential) {
+            BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        } else {
+            BiometricManager.Authenticators.BIOMETRIC_STRONG
+        }
+        val info = BiometricPrompt.PromptInfo.Builder()
+            .setTitle(title)
+            .setSubtitle(subtitle)
+            .setAllowedAuthenticators(authenticators)
+            .apply { if (!credential) setNegativeButtonText("Cancel") }
+            .build()
+        BiometricPrompt(host, ContextCompat.getMainExecutor(host), callback)
+            .authenticate(info, BiometricPrompt.CryptoObject(signature))
+    }
+
     /** Stops the background thread; called when the engine detaches. */
     fun close() {
         executor.shutdown()
@@ -72,7 +182,7 @@ class PluxKeys {
     private fun createTask(call: MethodCall): () -> Any? {
         val alias = alias(call)
         val purpose = call.argument<String>("purpose") ?: throw IllegalArgumentException("purpose")
-        require(purpose == DPOP || purpose == AGREEMENT) { "purpose" }
+        require(purpose == DPOP || purpose == AGREEMENT || purpose == SCA) { "purpose" }
         val challenge = call.argument<ByteArray>("challenge")?.takeIf { it.isNotEmpty() }
         val strongBox = call.argument<Boolean>("strongBox") == true
         return { create(alias, purpose, challenge, strongBox) }
@@ -152,13 +262,31 @@ class PluxKeys {
     }
 
     private fun spec(alias: String, purpose: String, challenge: ByteArray?, strongBox: Boolean): KeyGenParameterSpec {
-        val purposes = if (purpose == DPOP) KeyProperties.PURPOSE_SIGN else KeyProperties.PURPOSE_AGREE_KEY
+        val purposes = if (purpose == AGREEMENT) KeyProperties.PURPOSE_AGREE_KEY else KeyProperties.PURPOSE_SIGN
         val builder = KeyGenParameterSpec.Builder(alias, purposes)
             .setAlgorithmParameterSpec(ECGenParameterSpec(CURVE))
-        if (purpose == DPOP) builder.setDigests(KeyProperties.DIGEST_SHA256)
+        if (purpose != AGREEMENT) builder.setDigests(KeyProperties.DIGEST_SHA256)
+        if (purpose == SCA) requireUserAuthentication(builder)
         if (challenge != null) builder.setAttestationChallenge(challenge)
         if (strongBox && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) requestStrongBox(builder)
         return builder.build()
+    }
+
+    /**
+     * Every signature needs the user (SEC-027): a biometric or, from API 30, the device
+     * credential, for each use. Creation fails where the device has no secure screen lock.
+     */
+    @Suppress("DEPRECATION")
+    private fun requireUserAuthentication(builder: KeyGenParameterSpec.Builder) {
+        builder.setUserAuthenticationRequired(true)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            builder.setUserAuthenticationParameters(
+                0,
+                KeyProperties.AUTH_BIOMETRIC_STRONG or KeyProperties.AUTH_DEVICE_CREDENTIAL,
+            )
+        } else {
+            builder.setUserAuthenticationValidityDurationSeconds(-1)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
@@ -246,10 +374,12 @@ class PluxKeys {
         const val PLATFORM = "PLUX_PLATFORM"
         const val MISSING = "PLUX_KEY_MISSING"
         const val UNSUPPORTED = "PLUX_KEY_UNSUPPORTED"
+        const val CANCELLED = "PLUX_USER_CANCELLED"
         const val KEYSTORE = "AndroidKeyStore"
         const val CURVE = "secp256r1"
         const val DPOP = "dpop"
         const val AGREEMENT = "agreement"
+        const val SCA = "sca"
         val ALIAS = Regex("^[a-z0-9._-]{1,64}$")
     }
 }
