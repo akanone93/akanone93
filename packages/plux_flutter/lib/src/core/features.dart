@@ -6,7 +6,7 @@
 /// (route guards, ADR-0040), `data.v1` (the data layer, ADR-0048) with `data.streams.v1`, `data.outbox.v1` and
 /// `data.transfers.v1`, the state
 /// engine's `state.write.v1`, `state.computed.v1` and `state.persistence.v1`,
-/// forms' `forms.v1` (ADR-0047), the device actions' `device.v1`,
+/// forms' `forms.v1` (ADR-0047) and `forms.sensitive.v1`, the device actions' `device.v1`,
 /// animation's `anim.v1`, `anim.timelines.v1` and `anim.transitions.v1`
 /// (ANI-001–ANI-006, NAV-010), the local database's `db.v1` (ADR-0049), and
 /// registry revisions — `widget.<Type>.v<n>`,
@@ -76,8 +76,9 @@ final class RuntimeFeatures {
   };
 
   /// Forms (STA-020, ADR-0047): a bundle declaring a form or running a
-  /// form action requires them.
-  static const Set<String> forms = {'forms.v1'};
+  /// form action requires `forms.v1`, and one tagging a form field
+  /// `sensitive` requires `forms.sensitive.v1` (SCH-012, first in 0.4.0).
+  static const Set<String> forms = {'forms.v1', 'forms.sensitive.v1'};
 
   /// The feedback and device actions (SEC-080): a bundle running
   /// `showSnackbar`, `haptic`, `openUrl`, `pickImage` or another of them
