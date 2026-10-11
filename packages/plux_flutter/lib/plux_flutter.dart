@@ -51,6 +51,8 @@ export 'src/device/types.dart'
         PluxDeviceException,
         PluxDeviceFailure,
         PluxDevicePackage,
+        PluxKycCapture,
+        PluxKycPhoto,
         PluxLocationProvider,
         PluxMediaPicker,
         PluxPickedFile,

@@ -74,14 +74,15 @@ Uint8List _gallery(
 }
 
 /// A node as a builder reads it, with props by permanent ID.
-final class _Node implements NodeContext {
-  _Node(this.context, this.props, {this.handled = const {}});
+final class FakeNode implements NodeContext {
+  FakeNode(this.context, this.props, {this.handled = const {}});
 
   @override
   final BuildContext context;
   final Map<int, Object?> props;
   final Set<int> handled;
   final List<int> fired = [];
+  final List<Object?> payloads = [];
 
   @override
   T? decode<T>(int id, T? Function(Decoding d, Object? v) decoder) {
@@ -93,7 +94,10 @@ final class _Node implements NodeContext {
   bool handles(int id) => handled.contains(id);
 
   @override
-  void fire(int id, [Object? payload]) => fired.add(id);
+  void fire(int id, [Object? payload]) {
+    fired.add(id);
+    payloads.add(payload);
+  }
 
   @override
   Never missing(String name) => throw DecodeError('$name is missing');
@@ -383,7 +387,7 @@ void main() {
   });
 
   group('BiometricButton', () {
-    Future<(_Node, FakeBiometrics, List<PluxException>)> build(
+    Future<(FakeNode, FakeBiometrics, List<PluxException>)> build(
       WidgetTester tester, {
       required List<String> declared,
       Set<String> handled = const {'onSuccess', 'onFailure'},
@@ -398,7 +402,7 @@ void main() {
       );
       addTearDown(ui.dispose);
       final d = _widget('BiometricButton');
-      late _Node node;
+      late FakeNode node;
       await tester.pumpWidget(
         MaterialApp(
           home: SecureUiScope(
@@ -412,7 +416,7 @@ void main() {
             ),
             child: Builder(
               builder: (context) {
-                node = _Node(
+                node = FakeNode(
                   context,
                   {
                     d.props['label']!: 'Approve',

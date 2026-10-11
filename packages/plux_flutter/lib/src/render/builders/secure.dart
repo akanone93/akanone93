@@ -9,11 +9,14 @@ library;
 
 import 'package:flutter/widgets.dart';
 import 'package:plux_flutter/src/actions/action_error.dart';
+import 'package:plux_flutter/src/device/platform.dart' show PickedFiles;
+import 'package:plux_flutter/src/device/types.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
+import 'package:plux_flutter/src/secure/kyc.dart';
 import 'package:plux_flutter/src/secure/otp.dart';
 import 'package:plux_flutter/src/secure/platform.dart';
 import 'package:plux_flutter/src/secure/secure_ui.dart';
@@ -26,6 +29,7 @@ final WidgetDescriptor _text = _widget('SecureTextField');
 final WidgetDescriptor _pin = _widget('SecurePinPad');
 final WidgetDescriptor _otp = _widget('OtpInput');
 final WidgetDescriptor _bio = _widget('BiometricButton');
+final WidgetDescriptor _kyc = _widget('KycCameraCapture');
 
 /// The secure widgets' builders, by permanent widget ID.
 final Map<int, NodeBuilder> secureBuilders = {
@@ -33,6 +37,7 @@ final Map<int, NodeBuilder> secureBuilders = {
   _pin.id: buildSecurePinPad,
   _otp.id: buildOtpInput,
   _bio.id: buildBiometricButton,
+  _kyc.id: buildKycCameraCapture,
 };
 
 /// Whether event [event] of widget [widget] carries a secret: a run it
@@ -103,6 +108,69 @@ Widget buildOtpInput(NodeContext c) {
           : null,
       onActivity: _activity(c),
     ),
+  );
+}
+
+/// `KycCameraCapture`: a framing guide, the camera of `plux_media` and a
+/// quality check, for an ID document or a selfie. It needs the `camera`
+/// device API (SEC-080) and `plux_media` in `PluxConfig.devicePackages`
+/// (RT-060); without either the button is disabled and the problem
+/// reported. The photo is kept behind an opaque reference, which
+/// `onCaptured` carries.
+Widget buildKycCameraCapture(NodeContext c) {
+  final p = _kyc.props, onCaptured = _kyc.events['onCaptured']!;
+  final mode =
+      c.decode(p['mode']!, nameKycCaptureMode) ??
+      c.missing('KycCameraCapture.mode');
+  final scope = SecureUiScope.maybeOf(c.context);
+  final guard = scope?.guard;
+  final files = scope?.service<PickedFiles>();
+  return KycCameraCaptureView(
+    mode: mode,
+    capture: scope == null || guard == null || files == null
+        ? null
+        : () async {
+            try {
+              guard.admit(scope.plugin, 'capturePhoto', const {});
+            } on ActionError {
+              // Blocked: the guard has reported it.
+              return null;
+            }
+            final kyc = scope.service<PluxKycCapture>();
+            if (kyc == null) {
+              guard.report(
+                PluxException(
+                  PluxErrorCode.devicePackageMissing,
+                  'KycCameraCapture needs plux_media: add it to '
+                  'PluxConfig.devicePackages',
+                  details: {'plugin': scope.plugin},
+                ),
+              );
+              return null;
+            }
+            try {
+              final photo = await kyc.capture(mode);
+              if (photo == null) return null;
+              return KycShot(
+                path: photo.file.path,
+                reference: files.add(photo.file)['handle']! as String,
+                problems: photo.problems,
+              );
+            } on PluxDeviceException catch (e) {
+              guard.report(
+                PluxException(
+                  e.failure == PluxDeviceFailure.denied
+                      ? PluxErrorCode.devicePermissionDenied
+                      : PluxErrorCode.deviceUnavailable,
+                  'KycCameraCapture: ${e.message}',
+                  details: {'plugin': scope.plugin},
+                ),
+              );
+              return null;
+            }
+          },
+    onCaptured: c.handles(onCaptured) ? (ref) => c.fire(onCaptured, ref) : null,
+    onActivity: _activity(c),
   );
 }
 

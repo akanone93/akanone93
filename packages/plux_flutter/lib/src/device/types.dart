@@ -156,3 +156,25 @@ abstract interface class PluxLocationProvider {
   /// [PluxDeviceException].
   Future<PluxPosition> current(String accuracy);
 }
+
+/// A photo for identity verification and what the quality checks found.
+final class PluxKycPhoto {
+  /// Creates a photo.
+  const PluxKycPhoto({required this.file, this.problems = const []});
+
+  /// The photo, in app-private storage.
+  final PluxPickedFile file;
+
+  /// Why the photo is not good enough, by stable code: `blurry`, `dark` or
+  /// `bright`. Empty when it passed.
+  final List<String> problems;
+}
+
+/// Takes photos for identity verification and checks their quality
+/// (`KycCameraCapture`, `plux_media`).
+abstract interface class PluxKycCapture {
+  /// Takes a photo for [mode], a `KycCaptureMode` member name: `document`
+  /// with the rear camera, `selfie` with the front camera. Null when the
+  /// user cancels. Fails with a [PluxDeviceException].
+  Future<PluxKycPhoto?> capture(String mode);
+}
