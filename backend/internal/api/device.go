@@ -65,6 +65,7 @@ func (s Device) RegisterAttestedDevice(ctx context.Context, req *connect.Request
 		Challenge: m.GetChallenge(), DPoPKeyJWK: m.GetDpopPublicKeyJwk(), KeyStorage: keyStorageOf(m.GetKeyStorage()),
 		Evidence: evidenceOf(m.GetEvidence()), AgreementKeyJWK: m.GetKeyAgreementPublicKeyJwk(),
 		SCAKeyJWK: m.GetScaPublicKeyJwk(), SCAEvidence: optionalEvidence(m.GetScaEvidence()),
+		AgreementKeyChain: m.GetKeyAgreementKeyAttestationChain(),
 	})
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
@@ -208,7 +209,7 @@ func evidenceOf(e *pluxv1.AttestationEvidence) device.Evidence {
 		out.Android = &device.AndroidEvidence{KeyAttestationChain: a.GetKeyAttestationChain(), PlayIntegrityToken: a.GetPlayIntegrityToken()}
 	}
 	if i := e.GetIos(); i != nil {
-		out.IOS = &device.IOSEvidence{KeyID: i.GetAppAttestKeyId(), AttestationObject: i.GetAttestationObject()}
+		out.IOS = &device.IOSEvidence{KeyID: i.GetAppAttestKeyId(), AttestationObject: i.GetAttestationObject(), Assertion: i.GetAppAttestAssertion()}
 	}
 	if d := e.GetDevelopment(); d != nil {
 		out.Development = &device.DevelopmentEvidence{BuildID: d.GetBuildId()}

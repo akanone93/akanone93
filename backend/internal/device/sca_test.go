@@ -8,14 +8,18 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/x509"
 	"encoding/json"
 	"testing"
 
 	"github.com/go-jose/go-jose/v4"
 
 	"github.com/nightCode42/plux3/backend/internal/attest/appattest"
+	"github.com/nightCode42/plux3/backend/internal/attest/binding"
 	"github.com/nightCode42/plux3/backend/internal/attest/keyattest"
+	"github.com/nightCode42/plux3/backend/internal/device/devicetest"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 )
 
 // scaKeyAttestor returns the key a chain "attests" and records the policy
@@ -103,32 +107,72 @@ func TestVerifySCAAndroid(t *testing.T) {
 	}
 }
 
-// Verifies: SEC-027.
-// An iOS SCA key is vouched for by an App Attest attestation whose client
-// data hash binds the key's thumbprint, so an attestation made for
-// another key does not carry over.
-func TestVerifySCAIOS(t *testing.T) {
+// Verifies: SEC-027, SEC-004.
+// An iOS SCA key enrolled after registration is vouched for by an
+// assertion with the registration's App Attest key over the binding hash of
+// the challenge and all three thumbprints, so an assertion made for another
+// set of keys does not carry over.
+func TestVerifySCAAssertion(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	trust := TrustConfig{IOSAppID: "TEAM.com.example.app"}
-	key := newSCAKey(t)
-	attestor := &scaAppAttestor{}
-	s := &Service{attestors: Attestors{AppAttest: attestor}, appTrust: func(context.Context, string) (TrustConfig, error) { return trust, nil }}
-	challenge := []byte("challenge")
-	evidence := Evidence{IOS: &IOSEvidence{KeyID: []byte("id"), AttestationObject: []byte("object")}}
-	got, err := s.verifySCA(ctx, "app", false, SCAEnrolment{Challenge: challenge, KeyJWK: jwkOf(t, key), Evidence: evidence})
+	assertor := &devicetest.AppAssertor{Counter: 5}
+	s := &Service{attestors: Attestors{AppAssertions: assertor}, appTrust: func(context.Context, string) (TrustConfig, error) { return trust, nil }}
+
+	appAttestKey := newSCAKey(t)
+	der, err := x509.MarshalPKIXPublicKey(appAttestKey)
 	if err != nil {
-		t.Fatalf("a valid SCA key: %v", err)
+		t.Fatal(err)
 	}
-	if got.Storage != KeyStorageSecureEnclave || got.Provider != scaProviderAppAttest {
-		t.Errorf("verified key = %+v", got)
+	_, agreementRaw := agreementJWK(t)
+	agreement, _, kaJKT, err := parseAgreementKey(agreementRaw)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if want := appattest.ClientDataHash(challenge, got.JKT); attestor.hash != want {
-		t.Errorf("the client data hash does not bind the challenge and the SCA key's thumbprint")
+	dpopJKT := "dpop-jkt"
+	row := dbgen.Device{DpopJkt: &dpopJKT, AppAttestPublicKey: der, AppAttestCounter: 2, AgreementPublicKey: agreement}
+	sca := newSCAKey(t)
+	_, _, scaJKT, err := parseKey(jwkOf(t, sca))
+	if err != nil {
+		t.Fatal(err)
 	}
-	noID := Evidence{IOS: &IOSEvidence{AttestationObject: []byte("object")}}
-	if _, err := s.verifySCA(ctx, "app", false, SCAEnrolment{Challenge: challenge, KeyJWK: jwkOf(t, key), Evidence: noID}); errCode(err) != plxerr.AttestationFailed {
-		t.Errorf("no key identifier: %v", err)
+	challenge := []byte("challenge")
+	enrolment := SCAEnrolment{Challenge: challenge, KeyJWK: jwkOf(t, sca), Evidence: Evidence{IOS: &IOSEvidence{Assertion: []byte("assertion")}}}
+
+	key, counter, err := s.verifyEnrolment(ctx, row, false, enrolment)
+	if err != nil || counter == nil || *counter != 5 {
+		t.Fatalf("a valid enrolment: %+v %v %v", key, counter, err)
+	}
+	if key.Storage != KeyStorageSecureEnclave || key.Provider != scaProviderAppAttest || key.JKT != scaJKT {
+		t.Errorf("verified key = %+v", key)
+	}
+	if want := binding.Hash(challenge, dpopJKT, kaJKT, scaJKT); assertor.ClientDataHash != want || assertor.LastCounter != 2 {
+		t.Errorf("the assertion was checked against %x after %d, want %x", assertor.ClientDataHash, assertor.LastCounter, want)
+	}
+
+	// A device without a key-agreement key is bound with the empty string.
+	row.AgreementPublicKey = nil
+	if _, _, err := s.verifyEnrolment(ctx, row, false, enrolment); err != nil {
+		t.Fatalf("no agreement key: %v", err)
+	}
+	if want := binding.Hash(challenge, dpopJKT, "", scaJKT); assertor.ClientDataHash != want {
+		t.Error("an absent key-agreement key is not bound as the empty string")
+	}
+	row.AgreementPublicKey = agreement
+
+	assertor.Err = plxerr.New(plxerr.AttestationFailed, "bad assertion")
+	if _, _, err := s.verifyEnrolment(ctx, row, false, enrolment); errCode(err) != plxerr.AttestationFailed {
+		t.Errorf("a refused assertion: %v", err)
+	}
+	assertor.Err = nil
+	none := SCAEnrolment{Challenge: challenge, KeyJWK: jwkOf(t, sca), Evidence: Evidence{IOS: &IOSEvidence{KeyID: []byte("id"), AttestationObject: []byte("object")}}}
+	if _, _, err := s.verifyEnrolment(ctx, row, false, none); errCode(err) != plxerr.AttestationFailed {
+		t.Errorf("an attestation instead of an assertion: %v", err)
+	}
+	noKey := row
+	noKey.AppAttestPublicKey = nil
+	if _, _, err := s.verifyEnrolment(ctx, noKey, false, enrolment); errCode(err) != plxerr.AttestationFailed {
+		t.Errorf("a device without an App Attest key: %v", err)
 	}
 }
 
@@ -180,7 +224,7 @@ func TestRegistrationSCAComesWithEvidence(t *testing.T) {
 
 // Verifies: SEC-027.
 // An iOS registration may reuse its own App Attest evidence for the SCA
-// key; evidence that differs is verified for the key itself.
+// key, which the binding hash covers; other iOS evidence is refused.
 func TestRegistrationSCAReusesIOSEvidence(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
@@ -197,7 +241,7 @@ func TestRegistrationSCAReusesIOSEvidence(t *testing.T) {
 		t.Error("reused evidence was verified again")
 	}
 	other := Evidence{IOS: &IOSEvidence{KeyID: []byte("id2"), AttestationObject: []byte("object2")}}
-	if got, err := s.verifyRegistrationSCA(ctx, "app", false, AttestedRegistration{Platform: "ios", Evidence: same, SCAKeyJWK: key, SCAEvidence: &other}); err != nil || got == nil || attestor.hash == ([32]byte{}) {
-		t.Errorf("other evidence must be verified for the key: %+v %v", got, err)
+	if got, err := s.verifyRegistrationSCA(ctx, "app", false, AttestedRegistration{Platform: "ios", Evidence: same, SCAKeyJWK: key, SCAEvidence: &other}); errCode(err) != plxerr.AttestationFailed || got != nil {
+		t.Errorf("other iOS evidence must be refused: %+v %v", got, err)
 	}
 }
