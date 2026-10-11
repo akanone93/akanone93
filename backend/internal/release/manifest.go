@@ -312,7 +312,11 @@ func (s *Service) manifestDocument(ctx context.Context, q *dbgen.Queries, ch dbg
 		return SignedManifest{}, err
 	}
 	doc := newManifest(env, ch, rel.Sequence, appVersion, versions, control, when.at)
-	if rel.Confidential {
+	sealed, err := s.deliveredSealed(ctx, env, rel)
+	if err != nil {
+		return SignedManifest{}, err
+	}
+	if sealed {
 		if err := s.sealManifest(ctx, q, rel, versions, &doc); err != nil {
 			return SignedManifest{}, err
 		}

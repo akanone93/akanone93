@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/ecdh"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"slices"
 
@@ -62,19 +63,42 @@ func isConfidential(b SignedBundle) bool {
 	return slices.Contains(b.RequiredFeatures, bundle.FeatureConfidential)
 }
 
-// confidentialFor decides whether a new release in env is confidential:
-// under confidentialBundles "required" every release is, under "optional"
-// the ones asked for are, and under "off" none may be. A confidential
-// release needs the means to seal its key, and none of its bundles may
-// exceed confidential.bundleBytes.
+// confidentialSetting is the environment's confidentialBundles setting:
+// "off", "optional" or "required". Without a security configuration
+// service it is the standard profile's "off".
+func (s *Service) confidentialSetting(ctx context.Context, env dbgen.Environment) (string, error) {
+	if s.o.SecurityConfig == nil {
+		return "off", nil
+	}
+	values, _, err := s.o.SecurityConfig.Effective(ctx, storage.ID(env.AppID), storage.ID(env.ID))
+	if err != nil {
+		return "", fmt.Errorf("release: %w", err)
+	}
+	return values.Get(settings.ConfidentialBundles).Text(), nil
+}
+
+// deliveredSealed reports whether the manifest of a release in env names
+// sealed bundles: always under "required", for the releases created as
+// confidential under "optional", never under "off". A release is built
+// once and promoted between environments (REL-004), so the environment a
+// device belongs to decides, not the one the release was created in.
+func (s *Service) deliveredSealed(ctx context.Context, env dbgen.Environment, rel dbgen.Release) (bool, error) {
+	setting, err := s.confidentialSetting(ctx, env)
+	if err != nil {
+		return false, err
+	}
+	return setting == "required" || (setting == "optional" && rel.Confidential), nil
+}
+
+// confidentialFor decides whether a new release in env is created as
+// confidential: under confidentialBundles "required" every release is,
+// under "optional" the ones asked for are, and under "off" none may be. A
+// confidential release needs the means to seal its key, and none of its
+// bundles may exceed confidential.bundleBytes.
 func (s *Service) confidentialFor(ctx context.Context, tx pgx.Tx, orgID string, env dbgen.Environment, versions []dbgen.PluginVersion, requested bool) (bool, error) {
-	setting := "off"
-	if s.o.SecurityConfig != nil {
-		values, _, err := s.o.SecurityConfig.Effective(ctx, storage.ID(env.AppID), storage.ID(env.ID))
-		if err != nil {
-			return false, fmt.Errorf("release: %w", err)
-		}
-		setting = values.Get(settings.ConfidentialBundles).Text()
+	setting, err := s.confidentialSetting(ctx, env)
+	if err != nil {
+		return false, err
 	}
 	switch {
 	case setting == "off" && requested:
@@ -83,19 +107,24 @@ func (s *Service) confidentialFor(ctx context.Context, tx pgx.Tx, orgID string, 
 		return false, nil
 	}
 	if s.o.Crypter == nil {
-		return false, fmt.Errorf("release: confidential releases need the installation's key encryption")
+		return false, errors.New("release: confidential releases need the installation's key encryption")
 	}
 	set, err := s.o.Tenancy.Effective(ctx, tx, orgID, storage.ID(env.AppID), "")
 	if err != nil {
 		return false, fmt.Errorf("release: %w", err)
 	}
+	return true, checkSealedSize(set, versions)
+}
+
+// checkSealedSize refuses a bundle larger than confidential.bundleBytes.
+func checkSealedSize(set limits.Set, versions []dbgen.PluginVersion) error {
 	max := set.Get(limits.ConfidentialBundleBytes)
 	for _, v := range versions {
 		if v.BundleSize > max {
-			return false, plxerr.New(plxerr.LimitExceeded, "%s has %d bytes, more than %s = %d", nameOf(v), v.BundleSize, limits.ConfidentialBundleBytes, max)
+			return plxerr.New(plxerr.LimitExceeded, "%s has %d bytes, more than %s = %d", nameOf(v), v.BundleSize, limits.ConfidentialBundleBytes, max)
 		}
 	}
-	return true, nil
+	return nil
 }
 
 // sealedBundles returns the sealed copies of a confidential release's
@@ -133,7 +162,10 @@ func (s *Service) sealedBundles(ctx context.Context, q *dbgen.Queries, rel dbgen
 // objects, and a key is never used by two attempts.
 func (s *Service) seal(ctx context.Context, q *dbgen.Queries, rel dbgen.Release, versions []dbgen.PluginVersion) ([]dbgen.ReleaseConfidentialBundle, error) {
 	if s.o.Crypter == nil {
-		return nil, fmt.Errorf("release: confidential releases need the installation's key encryption")
+		return nil, errors.New("release: confidential releases need the installation's key encryption")
+	}
+	if err := checkSealedSize(s.o.Limits, versions); err != nil {
+		return nil, err
 	}
 	key := make([]byte, bundle.ContentKeySize)
 	if _, err := rand.Read(key); err != nil {
