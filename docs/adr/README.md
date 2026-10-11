@@ -70,5 +70,6 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0058](0058-encryption-at-rest-native-aes-gcm.md) | Encryption at rest and native AES-GCM | P6 | Accepted |
 | [0059](0059-secure-ui.md) | Secure UI: secure widgets, secure pages, overlay filtering and inactivity lock | P6 | Accepted |
 | [0060](0060-signing-backends-and-audit-checkpoints.md) | Signing backends and audit checkpoints | P6 | Accepted |
+| [0061](0061-server-held-configuration.md) | Server-held configuration: server-bound and live values, the epoch and the version check | P6 | Accepted |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.
