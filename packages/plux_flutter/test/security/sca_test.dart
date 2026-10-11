@@ -56,7 +56,11 @@ final class _Rig
   }
 
   @override
-  Future<bool> confirm(BuildContext context, TransactionSummary summary) async {
+  Future<bool> confirm(
+    BuildContext context,
+    TransactionSummary summary, {
+    List<DisplayedValue> displayed = const [],
+  }) async {
     steps.add('sheet');
     shown = summary;
     return approve;

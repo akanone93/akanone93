@@ -12,6 +12,7 @@ import 'dart:typed_data';
 
 import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/data/failure.dart';
+import 'package:plux_flutter/src/data/live_config.dart';
 import 'package:plux_flutter/src/data/transport.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/security/sca.dart';
@@ -118,7 +119,7 @@ DataFailure gatewayFailure(ApiError e, String what) {
 PluxErrorCode? _code(int? number) {
   if (number == null) return null;
   for (final c in PluxErrorCode.values) {
-    if (c.code == number) return _known.contains(c) ? c : null;
+    if (c.code == number) return _known.contains(c) || _isConfig(c) ? c : null;
   }
   return null;
 }
@@ -140,9 +141,15 @@ const Set<PluxErrorCode> _known = {
   PluxErrorCode.transactionRequiresGateway,
 };
 
+bool _isConfig(PluxErrorCode c) => ConfigCode.all.any((k) => k.registered == c);
+
 ActionErrorKind _kind(PluxErrorCode c) => switch (c) {
   PluxErrorCode.gatewayUpstreamFailed => ActionErrorKind.network,
   PluxErrorCode.gatewayRateLimited => ActionErrorKind.http,
+  _
+      when ConfigCode.unavailable.registered == c ||
+          ConfigCode.storeUnavailable.registered == c =>
+    ActionErrorKind.network,
   PluxErrorCode.userTokenInvalid => ActionErrorKind.http,
   PluxErrorCode.gatewayUpstreamUnknown ||
   PluxErrorCode.gatewayDestinationRefused ||

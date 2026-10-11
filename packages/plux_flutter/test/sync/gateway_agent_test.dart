@@ -694,7 +694,11 @@ final class _Confirmer implements TransactionConfirmer {
   final List<String> order;
 
   @override
-  Future<bool> confirm(BuildContext context, TransactionSummary summary) async {
+  Future<bool> confirm(
+    BuildContext context,
+    TransactionSummary summary, {
+    List<DisplayedValue> displayed = const [],
+  }) async {
     order.add('sheet');
     return true;
   }

@@ -10,6 +10,12 @@
 /// token the exchange returns is scoped to one upstream, kept in memory
 /// only until shortly before it expires, and never logged or written to
 /// disk; a different host token replaces it at once.
+///
+/// The agent also holds the device's `live` configuration values (DAT-094),
+/// in memory only: every call names their version, a newer epoch on a
+/// response refreshes them in the background (DAT-095), and a call the
+/// server refuses because a `strict` value changed (DAT-096) is repeated
+/// once with the same request, idempotency key included, after a refresh.
 library;
 
 import 'dart:async';
@@ -20,11 +26,13 @@ import 'package:crypto/crypto.dart';
 import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/data/gateway.dart';
+import 'package:plux_flutter/src/data/live_config.dart';
 import 'package:plux_flutter/src/data/transport.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/security/sca.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
 import 'package:plux_flutter/src/sync/device_auth.dart';
+import 'package:plux_flutter/src/sync/live_config.dart';
 
 /// Sends the gateway calls of one device.
 ///
@@ -37,13 +45,18 @@ final class GatewayAgent {
     required this.api,
     required this.auth,
     DateTime Function()? clock,
-  }) : _clock = clock ?? DateTime.now;
+  }) : _clock = clock ?? DateTime.now {
+    live = LiveConfig(_fetchLive);
+  }
 
   /// The API client.
   final PluxApiClient api;
 
   /// The device's standing with the server.
   final DeviceAuth auth;
+
+  /// The `live` configuration values, in memory only (DAT-094).
+  late final LiveConfig live;
 
   final DateTime Function() _clock;
   final Map<String, _Exchanged> _users = {};
@@ -53,7 +66,10 @@ final class GatewayAgent {
   ///
   /// A token the server no longer accepts is replaced once and the call
   /// repeated: the server refuses a stale token before it looks at a
-  /// transaction's challenge, so the challenge is not spent.
+  /// transaction's challenge, so the challenge is not spent. So is a call
+  /// that names a `live` configuration version a `strict` value has
+  /// outlived: the values are refreshed and the call repeated once, as it
+  /// was (DAT-096); if the repeat is refused too, the failure is reported.
   Future<DataResponse> call(GatewayRequest r) => _call(r).timeout(
     r.timeout,
     onTimeout: () => throw DataFailure(
@@ -65,7 +81,9 @@ final class GatewayAgent {
   );
 
   Future<DataResponse> _call(GatewayRequest r) async {
-    for (var attempt = 0; ; attempt++) {
+    var reauthenticated = false;
+    var refreshed = false;
+    while (true) {
       final token = await _token();
       final user = r.userToken;
       final userToken = user == null
@@ -84,15 +102,54 @@ final class GatewayAgent {
           userToken: userToken,
           challengeId: r.confirmation?.challengeId ?? '',
           signature: r.confirmation?.signature,
+          configVersion: live.version,
+          onHeaders: live.noteHeaders,
+        );
+      } on ApiError catch (e) {
+        if (!reauthenticated &&
+            e.plxCode == null &&
+            e.code == 'unauthenticated') {
+          reauthenticated = true;
+          auth.forgetToken();
+          continue;
+        }
+        if (!refreshed && ConfigCode.stale.matches(e.plxCode)) {
+          refreshed = true;
+          await live.refresh(afresh: true);
+          continue;
+        }
+        throw _refused(e, 'the call of ${r.upstream}');
+      }
+      return _decode(r, reply);
+    }
+  }
+
+  /// Fetches the `live` values for [LiveConfig]; a token the server no
+  /// longer accepts is replaced once. A failure to reach the server is the
+  /// code of unavailable configuration (DAT-097).
+  Future<LiveConfigSnapshot> _fetchLive() async {
+    for (var attempt = 0; ; attempt++) {
+      final token = await _token();
+      try {
+        return await api.getLiveConfig(
+          token,
+          appId: auth.appId,
+          environment: auth.environment,
         );
       } on ApiError catch (e) {
         if (attempt == 0 && e.plxCode == null && e.code == 'unauthenticated') {
           auth.forgetToken();
           continue;
         }
-        throw _refused(e, 'the call of ${r.upstream}');
+        final f = _refused(e, 'the live configuration');
+        if (f.kind != ActionErrorKind.network) throw f;
+        throw DataFailure(
+          ActionErrorKind.network,
+          ConfigCode.unavailable.raised,
+          'the live configuration could not be fetched: the Plux server did '
+          'not answer',
+        );
       }
-      return _decode(r, reply);
     }
   }
 
