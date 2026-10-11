@@ -137,6 +137,15 @@ final class DevelopmentAttestation implements Attestation {
   }) async => DevelopmentEvidence(buildId);
 
   @override
+  Future<AttestationEvidence> scaEnrolment({
+    required Uint8List challenge,
+    required String jkt,
+    required String kaJkt,
+    required String scaJkt,
+    required List<Uint8List> scaKeyChain,
+  }) async => DevelopmentEvidence(buildId);
+
+  @override
   Future<Uint8List?> assertion(Uint8List clientDataHash) async => null;
 
   @override

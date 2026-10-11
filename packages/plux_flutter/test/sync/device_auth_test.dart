@@ -9,6 +9,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
@@ -89,6 +90,7 @@ final class _Rig {
   var devices = 0;
   var lifetime = const Duration(minutes: 15);
   Object? assuranceLevel;
+  final reports = <Map<String, Object?>>[];
 
   DeviceAuth get auth => _auth ??= DeviceAuth(
     api: api,
@@ -104,6 +106,7 @@ final class _Rig {
       hostBuild: '7',
     ),
     enrolSca: enrolSca,
+    onAttestation: reports.add,
     clock: () => now,
   );
   DeviceAuth? _auth;
@@ -528,6 +531,97 @@ void main() {
         );
       },
     );
+  });
+
+  group('attestation_result telemetry [SEC-003] [SEC-004] [SEC-006]', () {
+    test('a registration is reported with the level of its first token, and '
+        'the report names no device', () async {
+      final rig = _Rig()
+        ..assuranceLevel = 'AL2'
+        ..attestation.evidence = AndroidEvidence(
+          keyAttestationChain: [
+            Uint8List.fromList([1]),
+          ],
+          playIntegrityToken: 't',
+        );
+      await rig.auth.token();
+      expect(rig.reports, [
+        {
+          'provider': 'play_integrity',
+          'result': 'success',
+          'assurance_level': 2,
+        },
+      ]);
+      await rig.auth.token();
+      expect(rig.reports, hasLength(1), reason: 'reported once');
+    });
+
+    test(
+      'a refused registration is reported with the server\'s code',
+      () async {
+        final rig = _Rig(platform: 'ios')
+          ..attestation.evidence = IosEvidence(
+            keyId: Uint8List(32),
+            attestationObject: Uint8List.fromList([1]),
+          );
+        rig.script[_registerPath] = [
+          () =>
+              _error(403, 'permission_denied', 'PLX-6001: attestation failed'),
+        ];
+        await expectLater(rig.auth.token(), throwsA(isA<ApiError>()));
+        expect(rig.reports, [
+          {
+            'provider': 'app_attest',
+            'result': 'failure',
+            'assurance_level': 0,
+            'error_code': 'PLX-6001',
+          },
+        ]);
+      },
+    );
+
+    test(
+      'evidence the platform cannot produce is reported as a failure',
+      () async {
+        final rig = _Rig()
+          ..attestation.failure = const PluxException(
+            PluxErrorCode.attestationUnavailable,
+            'no service',
+          );
+        await expectLater(rig.auth.token(), throwsA(isA<PluxException>()));
+        expect(rig.reports.single, containsPair('result', 'failure'));
+        expect(rig.reports.single, containsPair('error_code', 'PLX-6009'));
+      },
+    );
+
+    test('a re-attestation is reported with the level that follows', () async {
+      final rig = _Rig()
+        ..attestation.token = 'integrity-2'
+        ..assuranceLevel = 'AL3';
+      await rig.auth.token();
+      rig.reports.clear();
+      await rig.auth.reattestNow();
+      await rig.auth.token();
+      expect(rig.reports, [
+        {
+          'provider': 'play_integrity',
+          'result': 'success',
+          'assurance_level': 3,
+        },
+      ]);
+    });
+
+    test('a refused re-attestation is reported at once', () async {
+      final rig = _Rig()..attestation.token = 'integrity-2';
+      await rig.auth.token();
+      rig.reports.clear();
+      rig.script[_reattestPath] = [
+        () => _error(403, 'permission_denied', 'PLX-6001: attestation failed'),
+      ];
+      await expectLater(rig.auth.reattestNow(), throwsA(isA<ApiError>()));
+      expect(rig.reports.single, containsPair('error_code', 'PLX-6001'));
+      expect(rig.reports.single, containsPair('result', 'failure'));
+    });
   });
 
   group('server demands', () {

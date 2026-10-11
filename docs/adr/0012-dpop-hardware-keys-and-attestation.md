@@ -249,3 +249,8 @@ Simple, but Play Integrity's quota and latency rule it out, and tokens stay repl
   `sca_jkt`), so a fresh verdict vouches for the same set.
 - Development evidence carries no platform proof and is covered by nothing beyond the
   challenge; it is refused in production (`SEC-008`).
+- **Runtime.** A registered device that lacks an SCA key (none yet, or the platform
+  invalidated it) enrols a new one with `EnrolScaKey` as above instead of registering again;
+  only a device with no registration registers. Each registration, re-attestation and SCA
+  enrolment is reported as the `necessary` `attestation_result` event (`provider`, `result`,
+  `assurance_level`, `error_code` on a failure), naming no device (ADR-0034).

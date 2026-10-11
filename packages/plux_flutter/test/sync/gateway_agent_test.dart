@@ -27,6 +27,7 @@ import 'fake_device.dart';
 
 const _challengePath = '/plux.v1.DeviceService/CreateRegistrationChallenge';
 const _registerPath = '/plux.v1.DeviceService/RegisterAttestedDevice';
+const _enrolPath = '/plux.v1.DeviceService/EnrolScaKey';
 const _refreshPath = '/plux.v1.TokenService/RefreshDeviceToken';
 const _callPath = '/plux.v1.GatewayService/Call';
 const _exchangePath = '/plux.v1.TokenService/ExchangeUserToken';
@@ -86,6 +87,7 @@ final class _Rig {
         hostBuild: '7',
       ),
       enrolSca: sca,
+      onAttestation: reports.add,
       clock: () => now,
     );
     agent = GatewayAgent(api: api, auth: auth, clock: () => now);
@@ -100,6 +102,7 @@ final class _Rig {
   final keys = FakeDeviceKeys();
   final attestation = FakeAttestation();
   final credentials = MemoryCredentialStore();
+  final reports = <Map<String, Object?>>[];
   var now = DateTime.utc(2026, 10, 10, 12);
   var exchanges = 0;
   var devices = 0;
@@ -113,6 +116,7 @@ final class _Rig {
     _registerPath => _json({
       'device': {'id': 'dev-${++devices}'},
     }),
+    _enrolPath => _json({'scaJkt': 'stored-jkt'}),
     _refreshPath => _json({
       'accessToken': 'tok-${++tokens}',
       'expiresAt': now.add(const Duration(minutes: 15)).toIso8601String(),
@@ -514,12 +518,27 @@ void main() {
           isFalse,
           reason: 'tried once per launch',
         );
-        expect(rig.at(_registerPath), hasLength(2));
+        expect(
+          rig.at(_registerPath),
+          hasLength(1),
+          reason: 'a registered device is not registered again',
+        );
+        expect(rig.at(_enrolPath), isEmpty);
       },
     );
 
-    test('without the flag no key is made; ensureSca registers again with one, once [SEC-027]', () async {
+    test('without the flag no key is made; ensureSca enrols one with '
+        'EnrolScaKey, once, and does not register again [SEC-027]', () async {
       final rig = _Rig();
+      rig.keys.chain = [
+        Uint8List.fromList([7, 7]),
+      ];
+      rig.attestation.scaEvidence = AndroidEvidence(
+        keyAttestationChain: [
+          Uint8List.fromList([7, 7]),
+        ],
+        playIntegrityToken: '',
+      );
       await rig.auth.token();
       expect(rig.keys.stored.keys.where((k) => k.contains('sca')), isEmpty);
       expect(
@@ -528,11 +547,105 @@ void main() {
       );
 
       expect(await rig.auth.ensureSca(), isTrue);
-      expect(rig.at(_registerPath), hasLength(2));
-      expect(rig.at(_registerPath).last.body, contains('scaPublicKeyJwk'));
+      expect(rig.at(_registerPath), hasLength(1));
+      final sca = rig.keys.stored[scaKeyAlias('app_1', 'production')]!;
+      final enrol = rig.at(_enrolPath).single;
+      expect(enrol.body['challenge'], base64.encode(_registration));
+      expect(
+        jsonDecode(
+          utf8.decode(base64.decode(enrol.body['scaPublicKeyJwk']! as String)),
+        ),
+        sca.publicKey.jwk,
+      );
+      expect(
+        ((enrol.body['scaEvidence']! as Map)['android']!
+            as Map)['keyAttestationChain'],
+        [
+          base64.encode([7, 7]),
+        ],
+      );
+      expect(
+        enrol.headers['authorization'],
+        startsWith('DPoP tok-'),
+        reason: 'the call is authenticated like any device call',
+      );
+      expect(enrol.headers, contains('dpop'));
+      // The key was created for the fresh challenge and the evidence is
+      // bound to the registered keys and the new one (ADR-0012).
+      expect(rig.keys.challenges.last, _registration);
+      final asked = rig.attestation.enrolments.single;
+      expect(asked.challenge, _registration);
+      expect(
+        asked.jkt,
+        rig
+            .keys
+            .stored[dpopKeyAlias('app_1', 'production')]!
+            .publicKey
+            .thumbprint,
+      );
+      expect(
+        asked.kaJkt,
+        rig
+            .keys
+            .stored[agreementKeyAlias('app_1', 'production')]!
+            .publicKey
+            .thumbprint,
+      );
+      expect(asked.scaJkt, sca.publicKey.thumbprint);
+
       expect(await rig.auth.ensureSca(), isTrue);
-      expect(rig.at(_registerPath), hasLength(2), reason: 'it has the key now');
+      expect(rig.at(_enrolPath), hasLength(1), reason: 'it has the key now');
+      expect(rig.reports.last, {
+        'provider': 'play_integrity',
+        'result': 'success',
+        'assurance_level': 0,
+      });
     });
+
+    test('iOS enrols with an assertion over the binding [SEC-027]', () async {
+      final rig = _Rig()
+        ..attestation.scaEvidence = IosAssertionEvidence(
+          Uint8List.fromList([4, 2]),
+        );
+      await rig.auth.token();
+      expect(await rig.auth.ensureSca(), isTrue);
+      expect(rig.at(_enrolPath).single.body['scaEvidence'], {
+        'ios': {
+          'appAttestAssertion': base64.encode([4, 2]),
+        },
+      });
+    });
+
+    test(
+      'a refused enrolment leaves no key that looks enrolled [SEC-027]',
+      () async {
+        final rig = _Rig();
+        rig.script[_enrolPath] = [
+          () => _plx(403, 'permission_denied', 'PLX-6001'),
+        ];
+        await rig.auth.token();
+        await expectLater(rig.auth.ensureSca(), throwsA(isA<ApiError>()));
+        expect(rig.reports.last, {
+          'provider': 'development',
+          'result': 'failure',
+          'assurance_level': 0,
+          'error_code': 'PLX-6001',
+        });
+        expect(rig.keys.stored.keys.where((k) => k.contains('sca')), isEmpty);
+        expect(rig.at(_registerPath), hasLength(1));
+      },
+    );
+
+    test(
+      'a device with no registration at all registers, with the key [SEC-027]',
+      () async {
+        final rig = _Rig();
+        expect(await rig.auth.ensureSca(), isTrue);
+        expect(rig.at(_registerPath), hasLength(1));
+        expect(rig.at(_registerPath).single.body, contains('scaPublicKeyJwk'));
+        expect(rig.at(_enrolPath), isEmpty);
+      },
+    );
   });
 
   group('a transaction, from the challenge to the call', () {

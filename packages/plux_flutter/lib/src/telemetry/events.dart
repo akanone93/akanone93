@@ -160,3 +160,19 @@ Map<String, Object?> eventJson({
   if (fields.isNotEmpty)
     'fields': base64.encode(utf8.encode(jsonEncode(fields))),
 };
+
+/// The buffered line of an `attestation_result` event (Appendix G.2): the
+/// `necessary` outcome of a registration, re-attestation or SCA enrolment
+/// with [fields] `provider`, `result`, `assurance_level` and, on a failure,
+/// `error_code`. It names no device.
+TelemetryLine attestationResultLine(
+  Map<String, Object?> fields,
+  DateTime time,
+) => TelemetryLine(
+  TelemetryCategory.necessary,
+  eventJson(
+    name: 'attestation_result',
+    time: time,
+    fields: redactFields(fields),
+  ),
+);

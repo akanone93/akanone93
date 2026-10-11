@@ -18,6 +18,7 @@ import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/data/gateway.dart';
 import 'package:plux_flutter/src/data/transport.dart' show DataResponse;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/schema/limits.g.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/security/sca.dart';
@@ -354,6 +355,8 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
   );
   final client = config.httpClient();
   final api = PluxApiClient(client, config.endpoint);
+  final outbox = TelemetryOutbox(config.storeRoot);
+  var bufferBytes = PluxLimit.telemetryBufferBytes.defaultValue;
   final engine = SyncEngine(
     config: config.sync,
     store: store,
@@ -363,8 +366,18 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
     keys: config.deviceKeys(),
     attestation: config.attestation(),
     configSecrets: config.configSecrets?.call(),
+    // The sync isolate buffers the `attestation_result` events of its own
+    // registrations itself: the device authority lives here.
+    onAttestation: (fields) {
+      try {
+        outbox.append([
+          attestationResultLine(fields, DateTime.now()).encode(),
+        ], bufferBytes);
+      } on FileSystemException {
+        // A full or unwritable disk loses events, never the sync.
+      }
+    },
   );
-  final outbox = TelemetryOutbox(config.storeRoot);
   final commands = ReceivePort();
   Object? settings;
   try {
@@ -392,6 +405,7 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
         }
       case _Record(:final lines, :final maxBytes):
         try {
+          bufferBytes = maxBytes;
           outbox.append(lines, maxBytes);
         } on FileSystemException {
           // A full or unwritable disk loses events, never the sync.

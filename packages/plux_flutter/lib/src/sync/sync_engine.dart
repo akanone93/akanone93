@@ -169,6 +169,7 @@ final class SyncEngine {
     required this.keys,
     required this.attestation,
     SecretStore? configSecrets,
+    void Function(Map<String, Object?> fields)? onAttestation,
     DateTime Function()? clock,
     this.aead = const DartAead(),
   }) : _clock = clock ?? DateTime.now,
@@ -188,6 +189,7 @@ final class SyncEngine {
       environment: config.environment,
       device: config.device,
       enrolSca: config.enrolSca,
+      onAttestation: onAttestation,
       clock: _clock,
     );
     gateway = GatewayAgent(api: api, auth: _auth, clock: _clock);

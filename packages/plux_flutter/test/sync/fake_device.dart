@@ -8,6 +8,7 @@ library;
 
 import 'dart:typed_data';
 
+import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/security/dpop.dart';
@@ -104,10 +105,29 @@ final class FakeAttestation implements Attestation {
     this.evidence = const DevelopmentEvidence('build-1'),
     this.assertionBytes,
     this.token,
+    this.scaEvidence = const DevelopmentEvidence('build-1'),
   });
+
+  /// What `scaEnrolment` returns.
+  AttestationEvidence scaEvidence;
+
+  /// The arguments of each `scaEnrolment`, in order.
+  final List<
+    ({
+      Uint8List challenge,
+      String jkt,
+      String kaJkt,
+      String scaJkt,
+      List<Uint8List> chain,
+    })
+  >
+  enrolments = [];
 
   /// What `attest` returns.
   AttestationEvidence evidence;
+
+  /// When set, `attest` throws it.
+  PluxException? failure;
 
   /// What `assertion` returns.
   Uint8List? assertionBytes;
@@ -141,6 +161,8 @@ final class FakeAttestation implements Attestation {
     required String scaJkt,
     required List<Uint8List> keyAttestationChain,
   }) async {
+    final f = failure;
+    if (f != null) throw f;
     attested.add((
       challenge: challenge,
       jkt: jkt,
@@ -149,6 +171,24 @@ final class FakeAttestation implements Attestation {
       chain: keyAttestationChain,
     ));
     return evidence;
+  }
+
+  @override
+  Future<AttestationEvidence> scaEnrolment({
+    required Uint8List challenge,
+    required String jkt,
+    required String kaJkt,
+    required String scaJkt,
+    required List<Uint8List> scaKeyChain,
+  }) async {
+    enrolments.add((
+      challenge: challenge,
+      jkt: jkt,
+      kaJkt: kaJkt,
+      scaJkt: scaJkt,
+      chain: scaKeyChain,
+    ));
+    return scaEvidence;
   }
 
   @override

@@ -73,6 +73,19 @@ final class IosEvidence extends AttestationEvidence {
   String toString() => 'IosEvidence([redacted])';
 }
 
+/// iOS, for an SCA key enrolled after registration: an App Attest assertion
+/// over the binding hash, made with the key attested at registration.
+final class IosAssertionEvidence extends AttestationEvidence {
+  /// Creates iOS assertion evidence.
+  const IosAssertionEvidence(this.assertion);
+
+  /// The assertion; never logged (SEC-092).
+  final Uint8List assertion;
+
+  @override
+  String toString() => 'IosAssertionEvidence([redacted])';
+}
+
 /// A development build on an emulator or simulator (SEC-008).
 final class DevelopmentEvidence extends AttestationEvidence {
   /// Creates development evidence.
@@ -95,6 +108,20 @@ abstract interface class Attestation {
     required String kaJkt,
     required String scaJkt,
     required List<Uint8List> keyAttestationChain,
+  });
+
+  /// Evidence for enrolling an SCA key with thumbprint [scaJkt] on a device
+  /// that is already registered, bound to the fresh [challenge] and to the
+  /// registered thumbprints [jkt] and [kaJkt] (ADR-0012, Revisions
+  /// 2026-10-11). [scaKeyChain] is the chain the Android SCA key was created
+  /// with for [challenge]; iOS answers with an App Attest assertion over the
+  /// binding hash.
+  Future<AttestationEvidence> scaEnrolment({
+    required Uint8List challenge,
+    required String jkt,
+    required String kaJkt,
+    required String scaJkt,
+    required List<Uint8List> scaKeyChain,
   });
 
   /// An App Attest assertion over [clientDataHash] with the device's App

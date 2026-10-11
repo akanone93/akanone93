@@ -400,6 +400,93 @@ void main() {
     });
   });
 
+  group('SCA enrolment after registration', () {
+    Future<AttestationEvidence> enrol(PlatformAttestation sut) =>
+        sut.scaEnrolment(
+          challenge: _challenge,
+          jkt: _jkt,
+          kaJkt: 'ka-jkt',
+          scaJkt: 'sca-jkt',
+          scaKeyChain: _chain,
+        );
+
+    test('Android sends the SCA key\'s own chain [SEC-027]', () async {
+      platform({'attestationSupported': true});
+      final evidence = await enrol(_attestation(TargetPlatform.android));
+      evidence as AndroidEvidence;
+      expect(evidence.keyAttestationChain, _chain);
+      expect(
+        calls.where((c) => c.method == 'integrityToken'),
+        isEmpty,
+        reason: 'the registration\'s verdict stands for the installation',
+      );
+    });
+
+    test('iOS asserts over the binding of all three keys [SEC-027]', () async {
+      final signed = Uint8List.fromList([5, 5]);
+      platform({
+        'attestationSupported': true,
+        'appAttestKey': _keyId,
+        'appAttestAttest': _object,
+        'appAttestAssert': signed,
+      });
+      final sut = _attestation(TargetPlatform.iOS);
+      await sut.attest(
+        challenge: _challenge,
+        jkt: _jkt,
+        kaJkt: 'ka-jkt',
+        scaJkt: '',
+        keyAttestationChain: [],
+      );
+      final evidence = await enrol(sut);
+      evidence as IosAssertionEvidence;
+      expect(evidence.assertion, signed);
+      final asked = calls.singleWhere((c) => c.method == 'appAttestAssert');
+      expect(asked.arguments, {
+        'keyId': _keyId,
+        'clientDataHash': bindingHash(_challenge, _jkt, 'ka-jkt', 'sca-jkt'),
+      });
+    });
+
+    test('a debug build with no attestation service enrols with '
+        'development evidence; a release build never does [SEC-008]', () async {
+      platform({'attestationSupported': false});
+      expect(
+        await enrol(_attestation(TargetPlatform.android)),
+        isA<DevelopmentEvidence>(),
+      );
+      platform({'attestationSupported': true});
+      expect(
+        await enrol(
+          _attestation(TargetPlatform.android, cloudProjectNumber: null),
+        ),
+        isA<DevelopmentEvidence>(),
+      );
+      platform({'attestationSupported': true});
+      await expectLater(
+        enrol(_attestation(TargetPlatform.iOS, release: true)),
+        throwsA(
+          isA<PluxException>().having(
+            (e) => e.code,
+            'code',
+            PluxErrorCode.attestationUnavailable,
+          ),
+        ),
+      );
+      platform({'attestationSupported': true});
+      await expectLater(
+        _attestation(TargetPlatform.android, release: true).scaEnrolment(
+          challenge: _challenge,
+          jkt: _jkt,
+          kaJkt: '',
+          scaJkt: 's',
+          scaKeyChain: [],
+        ),
+        throwsA(isA<PluxException>()),
+      );
+    });
+  });
+
   group('secrecy (SEC-092)', () {
     test(
       'evidence and errors never print tokens, key ids or objects',
