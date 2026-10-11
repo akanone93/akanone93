@@ -242,7 +242,7 @@ func TestProjectPastChangesRunTheRightJobs_CI_002(t *testing.T) {
 		{
 			name:  "the starter app's iOS project",
 			files: []string{"apps/starter/ios/Runner/AppDelegate.swift"},
-			want:  []string{"dart", "e2e-ios"},
+			want:  []string{"dart", "e2e-ios", "size-ios"},
 		},
 		{
 			name:  "a Dart-only package",

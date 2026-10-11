@@ -85,6 +85,8 @@ How tests are organised: [testing](../engineering/testing.md).
 - Sync on a simulated slow network: `make bench-sync`.
 - What the runtime adds to an app: `make size-android` (Android SDK), `make size-ios`
   (Xcode). History: [size journey](../benchmarks/size.md).
+- That a release build holds no dev tooling, dev-only logging or source maps: `make release-inspect`
+  (`PLATFORM=android` or `ios`; [test/release](../../test/release/README.md)).
 
 ## 8. Documentation site
 

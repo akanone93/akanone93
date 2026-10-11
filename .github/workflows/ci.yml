@@ -1176,6 +1176,9 @@ jobs:
       # Verifies: RT-061, NFR-009.
       - name: Release APKs and App Bundle, blank and with plux_flutter
         run: make size-android
+      # Verifies: SEC-074, DEV-050.
+      - name: Release APKs of the starter and Plux Bank hold no dev tooling
+        run: make release-inspect PLATFORM=android
       - name: Report
         if: always()
         run: cat build/size/android-compare.md build/size/android.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
@@ -1222,6 +1225,9 @@ jobs:
       # Verifies: RT-061, NFR-009.
       - name: Release app for arm64, blank and with plux_flutter, unsigned
         run: make size-ios
+      # Verifies: SEC-074, DEV-050.
+      - name: Release apps of the starter and Plux Bank hold no dev tooling
+        run: make release-inspect PLATFORM=ios
       - name: Report
         if: always()
         run: cat build/size/ios.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
