@@ -396,8 +396,13 @@ type IosEvidence struct {
 	// attestation_object is the CBOR attestation object App Attest
 	// returned for the challenge.
 	AttestationObject []byte `protobuf:"bytes,2,opt,name=attestation_object,json=attestationObject,proto3" json:"attestation_object,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// app_attest_assertion is set only when enrolling an SCA key later
+	// (EnrolScaKey): an assertion over the binding hash with the App Attest
+	// key stored at registration, in which case app_attest_key_id and
+	// attestation_object are empty.
+	AppAttestAssertion []byte `protobuf:"bytes,3,opt,name=app_attest_assertion,json=appAttestAssertion,proto3" json:"app_attest_assertion,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *IosEvidence) Reset() {
@@ -440,6 +445,13 @@ func (x *IosEvidence) GetAppAttestKeyId() []byte {
 func (x *IosEvidence) GetAttestationObject() []byte {
 	if x != nil {
 		return x.AttestationObject
+	}
+	return nil
+}
+
+func (x *IosEvidence) GetAppAttestAssertion() []byte {
+	if x != nil {
+		return x.AppAttestAssertion
 	}
 	return nil
 }
@@ -726,9 +738,15 @@ type RegisterAttestedDeviceRequest struct {
 	ScaPublicKeyJwk []byte `protobuf:"bytes,12,opt,name=sca_public_key_jwk,json=scaPublicKeyJwk,proto3" json:"sca_public_key_jwk,omitempty"`
 	// sca_evidence is the attestation of the SCA key, in the same forms as
 	// evidence; set when sca_public_key_jwk is (SEC-027).
-	ScaEvidence   *AttestationEvidence `protobuf:"bytes,13,opt,name=sca_evidence,json=scaEvidence,proto3" json:"sca_evidence,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ScaEvidence *AttestationEvidence `protobuf:"bytes,13,opt,name=sca_evidence,json=scaEvidence,proto3" json:"sca_evidence,omitempty"`
+	// key_agreement_key_attestation_chain is the Android Key Attestation
+	// chain of the key-agreement key, leaf first, DER-encoded, created with
+	// the registration challenge; empty on other platforms and when the
+	// device has no such key. The binding hash covers the thumbprints of
+	// the DPoP, key-agreement and SCA keys (SEC-004, ADR-0012).
+	KeyAgreementKeyAttestationChain [][]byte `protobuf:"bytes,14,rep,name=key_agreement_key_attestation_chain,json=keyAgreementKeyAttestationChain,proto3" json:"key_agreement_key_attestation_chain,omitempty"`
+	unknownFields                   protoimpl.UnknownFields
+	sizeCache                       protoimpl.SizeCache
 }
 
 func (x *RegisterAttestedDeviceRequest) Reset() {
@@ -848,6 +866,13 @@ func (x *RegisterAttestedDeviceRequest) GetScaPublicKeyJwk() []byte {
 func (x *RegisterAttestedDeviceRequest) GetScaEvidence() *AttestationEvidence {
 	if x != nil {
 		return x.ScaEvidence
+	}
+	return nil
+}
+
+func (x *RegisterAttestedDeviceRequest) GetKeyAgreementKeyAttestationChain() [][]byte {
+	if x != nil {
+		return x.KeyAgreementKeyAttestationChain
 	}
 	return nil
 }
@@ -1673,10 +1698,11 @@ const file_plux_v1_device_proto_rawDesc = "" +
 	"riskMetric\"w\n" +
 	"\x0fAndroidEvidence\x122\n" +
 	"\x15key_attestation_chain\x18\x01 \x03(\fR\x13keyAttestationChain\x120\n" +
-	"\x14play_integrity_token\x18\x02 \x01(\tR\x12playIntegrityToken\"g\n" +
+	"\x14play_integrity_token\x18\x02 \x01(\tR\x12playIntegrityToken\"\x99\x01\n" +
 	"\vIosEvidence\x12)\n" +
 	"\x11app_attest_key_id\x18\x01 \x01(\fR\x0eappAttestKeyId\x12-\n" +
-	"\x12attestation_object\x18\x02 \x01(\fR\x11attestationObject\"0\n" +
+	"\x12attestation_object\x18\x02 \x01(\fR\x11attestationObject\x120\n" +
+	"\x14app_attest_assertion\x18\x03 \x01(\fR\x12appAttestAssertion\"0\n" +
 	"\x13DevelopmentEvidence\x12\x19\n" +
 	"\bbuild_id\x18\x01 \x01(\tR\abuildId\"\xc3\x01\n" +
 	"\x13AttestationEvidence\x124\n" +
@@ -1691,7 +1717,7 @@ const file_plux_v1_device_proto_rawDesc = "" +
 	"#CreateRegistrationChallengeResponse\x12\x1c\n" +
 	"\tchallenge\x18\x01 \x01(\fR\tchallenge\x129\n" +
 	"\n" +
-	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"\xc6\x04\n" +
+	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"\x94\x05\n" +
 	"\x1dRegisterAttestedDeviceRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12\x1a\n" +
@@ -1709,7 +1735,8 @@ const file_plux_v1_device_proto_rawDesc = "" +
 	" \x01(\v2\x1c.plux.v1.AttestationEvidenceR\bevidence\x12>\n" +
 	"\x1ckey_agreement_public_key_jwk\x18\v \x01(\fR\x18keyAgreementPublicKeyJwk\x12+\n" +
 	"\x12sca_public_key_jwk\x18\f \x01(\fR\x0fscaPublicKeyJwk\x12?\n" +
-	"\fsca_evidence\x18\r \x01(\v2\x1c.plux.v1.AttestationEvidenceR\vscaEvidence\"I\n" +
+	"\fsca_evidence\x18\r \x01(\v2\x1c.plux.v1.AttestationEvidenceR\vscaEvidence\x12L\n" +
+	"#key_agreement_key_attestation_chain\x18\x0e \x03(\fR\x1fkeyAgreementKeyAttestationChain\"I\n" +
 	"\x1eRegisterAttestedDeviceResponse\x12'\n" +
 	"\x06device\x18\x01 \x01(\v2\x0f.plux.v1.DeviceR\x06device\"\x8c\x01\n" +
 	"\x15ReattestDeviceRequest\x12\x1b\n" +

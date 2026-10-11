@@ -119,6 +119,11 @@ message IosEvidence {
   // attestation_object is the CBOR attestation object App Attest
   // returned for the challenge.
   bytes attestation_object = 2;
+  // app_attest_assertion is set only when enrolling an SCA key later
+  // (EnrolScaKey): an assertion over the binding hash with the App Attest
+  // key stored at registration, in which case app_attest_key_id and
+  // attestation_object are empty.
+  bytes app_attest_assertion = 3;
 }
 
 // DevelopmentEvidence marks a development build. The server accepts it
@@ -178,6 +183,12 @@ message RegisterAttestedDeviceRequest {
   // sca_evidence is the attestation of the SCA key, in the same forms as
   // evidence; set when sca_public_key_jwk is (SEC-027).
   AttestationEvidence sca_evidence = 13;
+  // key_agreement_key_attestation_chain is the Android Key Attestation
+  // chain of the key-agreement key, leaf first, DER-encoded, created with
+  // the registration challenge; empty on other platforms and when the
+  // device has no such key. The binding hash covers the thumbprints of
+  // the DPoP, key-agreement and SCA keys (SEC-004, ADR-0012).
+  repeated bytes key_agreement_key_attestation_chain = 14;
 }
 message RegisterAttestedDeviceResponse {
   Device device = 1;
