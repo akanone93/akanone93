@@ -533,6 +533,8 @@ func TestVerifyAssertion(t *testing.T) {
 
 // FuzzVerifyAttestation checks that no input makes attestation
 // verification panic.
+//
+// Verifies: QA-004, SEC-004.
 func FuzzVerifyAttestation(f *testing.F) {
 	pool, err := DefaultRoots()
 	if err != nil {
@@ -548,6 +550,8 @@ func FuzzVerifyAttestation(f *testing.F) {
 
 // FuzzVerifyAssertion checks that no input makes assertion verification
 // panic.
+//
+// Verifies: QA-004, SEC-004.
 func FuzzVerifyAssertion(f *testing.F) {
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
