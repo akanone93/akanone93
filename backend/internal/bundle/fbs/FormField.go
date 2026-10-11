@@ -98,8 +98,20 @@ func (rcv *FormField) ValidatorsLength() int {
 	return 0
 }
 
+func (rcv *FormField) Sensitive() bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
+		return rcv._tab.GetBool(o + rcv._tab.Pos)
+	}
+	return false
+}
+
+func (rcv *FormField) MutateSensitive(n bool) bool {
+	return rcv._tab.MutateBoolSlot(12, n)
+}
+
 func FormFieldStart(builder *flatbuffers.Builder) {
-	builder.StartObject(4)
+	builder.StartObject(5)
 }
 func FormFieldAddName(builder *flatbuffers.Builder, name uint32) {
 	builder.PrependUint32Slot(0, name, 0)
@@ -115,6 +127,9 @@ func FormFieldAddValidators(builder *flatbuffers.Builder, validators flatbuffers
 }
 func FormFieldStartValidatorsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
+}
+func FormFieldAddSensitive(builder *flatbuffers.Builder, sensitive bool) {
+	builder.PrependBoolSlot(4, sensitive, false)
 }
 func FormFieldEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

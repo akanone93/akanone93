@@ -9,8 +9,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.view.WindowManager
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.fragment.app.FragmentActivity
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
@@ -18,15 +22,28 @@ import java.io.File
 
 /**
  * The device actions that need the platform (SEC-080): the share sheet and
- * permission prompts. Nothing here reads or returns a picked file's
- * contents; files are handed to the share sheet through a content URI, and
- * only files under the app's cache or files directories can be shared.
+ * permission prompts, the biometric prompt (SEC-027, SEC-094) and the
+ * protection of the window while secure pages show (SEC-091, SEC-093).
+ * Nothing here reads or returns a picked file's contents; files are handed
+ * to the share sheet through a content URI, and only files under the app's
+ * cache or files directories can be shared. The biometric prompt answers
+ * with a word and never with biometric data.
  */
 internal class PluxDevice(private val context: Context) :
     PluginRegistry.RequestPermissionsResultListener {
-    /** The foreground activity, or null while none is attached. */
+    /**
+     * The foreground activity, or null while none is attached. A new
+     * activity (after a configuration change) gets the window protection
+     * the secure pages on screen still need.
+     */
     var activity: Activity? = null
+        set(value) {
+            field = value
+            applySecureScreen()
+        }
 
+    private var secure = false
+    private var prompting = false
     private val pending = HashMap<Int, MethodChannel.Result>()
     private var nextCode = REQUEST_BASE
 
@@ -56,6 +73,96 @@ internal class PluxDevice(private val context: Context) :
         if (host !is Activity) chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         host.startActivity(chooser)
         result.success(null)
+    }
+
+    /**
+     * Turns the protection of the window on or off: FLAG_SECURE blocks
+     * screenshots and screen recording and blurs the app switcher
+     * (SEC-091), and the window drops touches while another window covers
+     * it (SEC-093).
+     */
+    fun secureScreen(call: MethodCall, result: MethodChannel.Result) {
+        val enabled = call.argument<Boolean>("enabled")
+        if (enabled == null) {
+            result.error("PLUX_PLATFORM", "enabled", null)
+            return
+        }
+        secure = enabled
+        applySecureScreen()
+        result.success(null)
+    }
+
+    private fun applySecureScreen() {
+        val window = activity?.window ?: return
+        if (secure) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        else window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        window.decorView.filterTouchesWhenObscured = secure
+    }
+
+    /**
+     * Asks the user to confirm with a biometric or, when allowed, the
+     * device credential. The answer is one of "success", "cancelled",
+     * "failed" or "unavailable". The host activity must be a
+     * FragmentActivity, as FlutterFragmentActivity is.
+     */
+    fun biometricAuth(call: MethodCall, result: MethodChannel.Result) {
+        val reason = call.argument<String>("reason")
+        val credential = call.argument<Boolean>("allowDeviceCredential") ?: true
+        if (reason.isNullOrEmpty()) {
+            result.error("PLUX_PLATFORM", "reason", null)
+            return
+        }
+        val host = activity as? FragmentActivity
+        if (host == null) {
+            result.error("PLUX_PLATFORM", "activity", null)
+            return
+        }
+        if (prompting) {
+            result.error("PLUX_PLATFORM", "busy", null)
+            return
+        }
+        // BIOMETRIC_STRONG with DEVICE_CREDENTIAL needs API 30.
+        val authenticators = when {
+            !credential -> BiometricManager.Authenticators.BIOMETRIC_STRONG
+            Build.VERSION.SDK_INT >= 30 ->
+                BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            else ->
+                BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        }
+        if (BiometricManager.from(context).canAuthenticate(authenticators) != BiometricManager.BIOMETRIC_SUCCESS) {
+            result.success("unavailable")
+            return
+        }
+        val info = BiometricPrompt.PromptInfo.Builder()
+            .setTitle(reason)
+            .setAllowedAuthenticators(authenticators)
+            .apply { if (!credential) setNegativeButtonText(host.getString(android.R.string.cancel)) }
+            .build()
+        prompting = true
+        val prompt = BiometricPrompt(host, ContextCompat.getMainExecutor(host), object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationSucceeded(authResult: BiometricPrompt.AuthenticationResult) {
+                prompting = false
+                result.success("success")
+            }
+
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                prompting = false
+                result.success(
+                    when (errorCode) {
+                        BiometricPrompt.ERROR_USER_CANCELED,
+                        BiometricPrompt.ERROR_NEGATIVE_BUTTON,
+                        BiometricPrompt.ERROR_CANCELED -> "cancelled"
+                        BiometricPrompt.ERROR_NO_BIOMETRICS,
+                        BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL,
+                        BiometricPrompt.ERROR_HW_NOT_PRESENT,
+                        BiometricPrompt.ERROR_HW_UNAVAILABLE,
+                        BiometricPrompt.ERROR_SECURITY_UPDATE_REQUIRED -> "unavailable"
+                        else -> "failed"
+                    },
+                )
+            }
+        })
+        prompt.authenticate(info)
     }
 
     private fun allowed(file: File): Boolean {

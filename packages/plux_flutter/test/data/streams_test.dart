@@ -520,6 +520,7 @@ void main() {
     const caller = DataCaller(pluginKey: 'shop', domains: ['127.0.0.1']);
 
     DataSourceSpec spec({String name = 'orders'}) => DataSourceSpec(
+      route: DataRoute.direct,
       id: '$name-id',
       name: name,
       kind: DataKind.webSocket,

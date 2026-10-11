@@ -557,6 +557,15 @@ func (s Telemetry) IngestEvents(ctx context.Context, req *connect.Request[pluxv1
 			events[len(events)-1].Time = zeroTime
 		}
 	}
+	// A detection lowers the device's level before its event is stored: if
+	// this fails, the device keeps its buffer and reports again (SEC-071).
+	risk := make([]device.RiskEvent, 0, len(events))
+	for _, e := range events {
+		risk = append(risk, device.RiskEvent{Name: e.Name, Fields: e.Fields})
+	}
+	if err := s.h.Devices.RecordRiskEvents(ctx, d, risk); err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
 	n, diags, err := s.h.Events.Ingest(ctx, telemetry.Source{
 		OrganizationID: d.OrganizationID, AppID: d.AppID, EnvironmentID: d.EnvironmentID, DeviceID: d.DeviceID,
 	}, events)

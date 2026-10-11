@@ -124,6 +124,7 @@ var tableLayouts = [...]tableLayout{
 		{name: "type", id: 1, kind: fieldScalar, size: 4, align: 4, table: -1, required: false},
 		{name: "initial", id: 2, kind: fieldTable, size: 0, align: 0, table: 68, required: false},
 		{name: "validators", id: 3, kind: fieldVectorTable, size: 0, align: 0, table: 21, required: false},
+		{name: "sensitive", id: 4, kind: fieldScalar, size: 1, align: 1, table: -1, required: false},
 	}},
 	21: {name: "FormValidator", fields: []fieldLayout{
 		{name: "kind", id: 0, kind: fieldScalar, size: 1, align: 1, table: -1, required: false},

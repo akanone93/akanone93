@@ -17,8 +17,12 @@ P4 and P5's core; P5 adds state (`setState`, `patchState`, `resetState`), forms,
 animation control, device and feedback actions, `forEach`, `parallel`, `delay`,
 `callFlow`, `logout`, `trackEvent` and `sync`. Device actions of an optional package run when the
 host installs it ([host app guide](../guides/host-app.md)); without it the step fails with
-`permission`. Actions of later phases (`invokeFunction`, `biometricAuth`,
-`signTransaction`, `startPayment`, `setLocale`) fail their step with
+`permission`. `biometricAuth` (P6) asks for a biometric or the device credential under the
+`biometrics` capability: the user's confirmation takes the `success` branch, a failed or
+cancelled one the `failure` branch, and a device that cannot ask fails the step with
+`PLX-5403`. A run started by an event that carries a secret (a `SecureTextField` change, a
+`SecurePinPad` or `OtpInput` completion) records no values in its trace. Actions of later
+phases (`invokeFunction`, `signTransaction`, `startPayment`, `setLocale`) fail their step with
 `PLX-4010` (`custom`), which the step's `onError` can handle.
 
 ## 2. Runs

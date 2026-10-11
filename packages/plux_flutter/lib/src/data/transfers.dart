@@ -188,6 +188,7 @@ final class TransferClient {
     Map<String, Object?> input,
     String path,
   ) {
+    client.requireDirect(s, caller, 'file transfers');
     final base = s.baseUrls[client.environment];
     if (base == null) {
       throw DataFailure.unavailable(

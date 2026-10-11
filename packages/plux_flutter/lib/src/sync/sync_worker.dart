@@ -13,9 +13,14 @@ import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:plux_flutter/src/actions/action_error.dart';
+import 'package:plux_flutter/src/data/failure.dart';
+import 'package:plux_flutter/src/data/gateway.dart';
+import 'package:plux_flutter/src/data/transport.dart' show DataResponse;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
+import 'package:plux_flutter/src/security/sca.dart';
 import 'package:plux_flutter/src/security/security_config.dart';
 import 'package:plux_flutter/src/store/baseline.dart';
 import 'package:plux_flutter/src/store/directory_sync.dart';
@@ -114,9 +119,36 @@ final class _Settings extends _Command {
   const _Settings(super.reply);
 }
 
+/// Re-attests the device now (SEC-006).
+final class _Reattest extends _Command {
+  const _Reattest(super.reply);
+}
+
 final class _Flush extends _Command {
   const _Flush(super.reply, this.perRequest);
   final int perRequest;
+}
+
+/// A request through the gateway (SEC-030); replies a [DataResponse] or a
+/// [DataFailure].
+final class _Gateway extends _Command {
+  const _Gateway(super.reply, this.request);
+  final GatewayRequest request;
+}
+
+/// A challenge for a transaction (SEC-027); replies a
+/// [TransactionChallenge] or a [DataFailure].
+final class _Challenge extends _Command {
+  const _Challenge(super.reply, this.dataSource, this.operation, this.summary);
+  final String dataSource;
+  final String operation;
+  final Uint8List summary;
+}
+
+/// Makes sure the device has an SCA key registered (SEC-027); replies a bool
+/// or a [DataFailure].
+final class _EnrolSca extends _Command {
+  const _EnrolSca(super.reply);
 }
 
 /// Events to buffer; no reply (ADR-0034).
@@ -132,9 +164,16 @@ final class _Purge {
   final Set<TelemetryCategory> categories;
 }
 
-/// The UI isolate's handle on the sync isolate.
-final class SyncWorker {
-  SyncWorker._(this._isolate, this._commands, this._baselineAssets);
+/// The UI isolate's handle on the sync isolate. It also carries the device's
+/// requests to the gateway, because that isolate holds the token and the
+/// DPoP key (SEC-030).
+final class SyncWorker implements GatewayTransport, ChallengeSource {
+  SyncWorker._(
+    this._isolate,
+    this._commands,
+    this._baselineAssets,
+    this._startSettings,
+  );
 
   /// Starts the sync isolate. [baselineAssets] is the directory of the
   /// host's assets holding the baseline `plux pull` wrote, if any.
@@ -147,14 +186,17 @@ final class SyncWorker {
       config,
       ready.sendPort,
     ), debugName: 'plux-sync');
-    final commands = await ready.first as SendPort;
+    // The isolate answers with its command port and the settings it read,
+    // so the launch needs no round trip of its own for them (QA-007).
+    final (commands, settings) = await ready.first as (SendPort, Object?);
     ready.close();
-    return SyncWorker._(isolate, commands, baselineAssets);
+    return SyncWorker._(isolate, commands, baselineAssets, settings);
   }
 
   final Isolate _isolate;
   final SendPort _commands;
   final String? _baselineAssets;
+  final Object? _startSettings;
   Future<SyncResult>? _running;
 
   /// Syncs once, reporting events to [onEvent]; a sync already running is
@@ -199,6 +241,14 @@ final class SyncWorker {
     }
   }
 
+  /// The security settings in force when the isolate started, as
+  /// [loadSettings] reads them; throws [StateError] when they could not be
+  /// read (SEC-182).
+  SecuritySettings? get startSettings => switch (_startSettings) {
+    final _Failure f => throw StateError(f.message),
+    final s => s as SecuritySettings?,
+  };
+
   /// The security settings in force: the stored configuration once it has
   /// verified against its hash again, else the built-in defaults; null
   /// when the worker keeps no configuration (SEC-182).
@@ -226,12 +276,40 @@ final class SyncWorker {
   Future<StorePointer> _store(String op) async =>
       await _ask((p) => _Store(p, op)) as StorePointer;
 
+  @override
+  Future<DataResponse> call(GatewayRequest request) async =>
+      await _ask((p) => _Gateway(p, request)) as DataResponse;
+
+  @override
+  Future<TransactionChallenge> challenge({
+    required String dataSource,
+    required String operation,
+    required Uint8List summaryJcs,
+  }) async {
+    try {
+      return await _ask((p) => _Challenge(p, dataSource, operation, summaryJcs))
+          as TransactionChallenge;
+    } on DataFailure catch (f) {
+      throw PluxException(f.code, f.message);
+    }
+  }
+
+  @override
+  Future<bool> ensureEnrolled() async {
+    try {
+      return await _ask(_EnrolSca.new) as bool;
+    } on DataFailure catch (f) {
+      throw PluxException(f.code, f.message);
+    }
+  }
+
   Future<Object?> _ask(_Command Function(SendPort) command) async {
     final port = ReceivePort();
     _commands.send(command(port.sendPort));
     final reply = await port.first;
     port.close();
     if (reply is PluxException) throw reply;
+    if (reply is DataFailure) throw reply;
     if (reply is _Failure) throw StateError(reply.message);
     return reply;
   }
@@ -249,6 +327,10 @@ final class SyncWorker {
   /// Sends the buffered events in batches of at most [perRequest].
   Future<TelemetryFlush> flushTelemetry(int perRequest) async =>
       await _ask((p) => _Flush(p, perRequest)) as TelemetryFlush;
+
+  /// Offers the server fresh evidence for the device's key (SEC-006),
+  /// after the telemetry sent before it: a detection is reported first.
+  Future<void> reattest() => _ask(_Reattest.new);
 
   /// Completes once the isolate has handled every message sent before.
   Future<void> settle() => _ask(_Settle.new);
@@ -284,7 +366,13 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
   );
   final outbox = TelemetryOutbox(config.storeRoot);
   final commands = ReceivePort();
-  ready.send(commands.sendPort);
+  Object? settings;
+  try {
+    settings = await engine.loadSettings();
+  } on Object catch (e) {
+    settings = _Failure('$e');
+  }
+  ready.send((commands.sendPort, settings));
   await for (final c in commands) {
     switch (c) {
       case _Settle(:final reply):
@@ -292,6 +380,13 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
       case _Settings(:final reply):
         try {
           reply.send(await engine.loadSettings());
+        } on Object catch (e) {
+          reply.send(_Failure('$e'));
+        }
+      case _Reattest(:final reply):
+        try {
+          await engine.reattest();
+          reply.send(null);
         } on Object catch (e) {
           reply.send(_Failure('$e'));
         }
@@ -321,6 +416,28 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
         } on Object catch (e) {
           reply.send(_Failure('$e'));
         }
+      // Gateway calls do not wait for a sync, or for each other: a sync can
+      // take long, and a transaction waits for the user.
+      case _Gateway(:final reply, :final request):
+        unawaited(_serve(reply, () => engine.gateway.call(request)));
+      case _Challenge(
+        :final reply,
+        :final dataSource,
+        :final operation,
+        :final summary,
+      ):
+        unawaited(
+          _serve(
+            reply,
+            () => engine.gateway.challenge(
+              dataSource: dataSource,
+              operation: operation,
+              summaryJcs: summary,
+            ),
+          ),
+        );
+      case _EnrolSca(:final reply):
+        unawaited(_serve(reply, engine.gateway.ensureEnrolled));
       case _Sync(:final reply):
         reply.send(await engine.run(reply.send));
       case _Baseline(:final reply, :final assets):
@@ -366,6 +483,25 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
           reply.send(_Failure('$e'));
         }
     }
+  }
+}
+
+/// Runs [work] and replies its result; a failure that is not typed is
+/// replied as a [DataFailure] naming only its type, since nothing it says is
+/// known to be free of request content (SCH-012).
+Future<void> _serve(SendPort reply, Future<Object> Function() work) async {
+  try {
+    reply.send(await work());
+  } on DataFailure catch (f) {
+    reply.send(f);
+  } on Object catch (e) {
+    reply.send(
+      DataFailure(
+        ActionErrorKind.custom,
+        PluxErrorCode.dataSourceUnavailable,
+        'the gateway call failed: ${e.runtimeType}',
+      ),
+    );
   }
 }
 

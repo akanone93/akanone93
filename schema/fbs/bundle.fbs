@@ -536,6 +536,10 @@ table FormField {
   type: uint;
   initial: Value;
   validators: [FormValidator];
+  // Whether the value is sensitive: never logged, traced or sent to
+  // analytics, and masked in any display the user did not unmask
+  // (SCH-012, SEC-092).
+  sensitive: bool;
 }
 
 // A form of a page or component; its state is the scope entry `name`.

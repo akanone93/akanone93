@@ -3,7 +3,8 @@
 
 // The Android side of plux_flutter's platform channel (ADR-0029): storage
 // directory, Keystore-protected secrets, the share sheet and permission
-// prompts. Its one dependency is AndroidX Core, for FileProvider.
+// prompts, the biometric prompt and the protection of secure pages. Its
+// AndroidX dependencies are Core, for FileProvider, and Biometric.
 
 group = "dev.plux.plux_flutter"
 version = "1.0"
@@ -54,6 +55,10 @@ android {
 
 dependencies {
     implementation("androidx.core:core:1.13.1")
+    // BiometricPrompt for the SCA key unlock, biometricAuth and the
+    // inactivity lock (SEC-027, SEC-094, ADR-0056, ADR-0059); brings
+    // androidx.fragment.
+    implementation("androidx.biometric:biometric:1.1.0")
     // Play Integrity standard requests (SEC-003, ADR-0012).
     implementation("com.google.android.play:integrity:1.6.0")
     // The Cronet API of the pinned HTTP/2 client (SEC-041). cronet_http

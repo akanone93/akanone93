@@ -26,6 +26,11 @@ enum KeyPurpose {
 
   /// ECDH key agreement for confidential bundles.
   agreement,
+
+  /// Signs transaction confirmations (SEC-027, ADR-0056): created with
+  /// user authentication required, so each signature needs the user's
+  /// biometric or device credential.
+  sca,
 }
 
 /// Where a key really lives, as reported by the platform.
@@ -134,6 +139,34 @@ final class DeviceKey {
   final List<Uint8List> attestationChain;
 }
 
+/// The user cancelled the system prompt that unlocks a key (SEC-027): not a
+/// failure of the key, and the transaction it would have signed is declined.
+final class UserAuthenticationCancelled implements Exception {
+  /// Creates the exception.
+  const UserAuthenticationCancelled();
+
+  @override
+  String toString() => 'UserAuthenticationCancelled()';
+}
+
+/// Signs with a key that needs the user (SEC-027): the platform asks for a
+/// biometric or the device credential before each signature.
+abstract interface class UserAuthSigner {
+  /// Signs [data] with the `sca` key under [alias]: ES256, 64 bytes of
+  /// `r || s` over SHA-256 of [data], after the system prompt, which shows
+  /// [title] and [subtitle]. Fails with [UserAuthenticationCancelled] when
+  /// the user cancels, and with a [PluxException] of
+  /// [PluxErrorCode.deviceKeyUnavailable] when the key is gone, was
+  /// invalidated by a change of the user's biometrics, or the prompt cannot
+  /// be shown.
+  Future<Uint8List> signWithUser(
+    String alias,
+    Uint8List data, {
+    required String title,
+    required String subtitle,
+  });
+}
+
 /// The device's keys, held by the platform (SEC-001).
 abstract interface class DeviceKeys {
   /// Creates a P-256 key under [alias], replacing any key with that alias.
@@ -170,6 +203,11 @@ String dpopKeyAlias(String appId, String environment) =>
 String agreementKeyAlias(String appId, String environment) =>
     _alias('agreement', appId, environment);
 
+/// The alias of the SCA key of one app in one environment; see
+/// [dpopKeyAlias].
+String scaKeyAlias(String appId, String environment) =>
+    _alias('sca', appId, environment);
+
 String _alias(String kind, String appId, String environment) {
   final digest = sha256.convert(utf8.encode('$appId\u0000$environment'));
   final hex = digest.bytes
@@ -186,6 +224,10 @@ const _platformCodes = {
   'PLUX_PLATFORM',
 };
 
+/// The platform's answer when the user cancels the prompt of a key that
+/// needs the user.
+const _userCancelled = 'PLUX_USER_CANCELLED';
+
 /// [DeviceKeys] over the `dev.plux/runtime` platform channel.
 ///
 /// Platform failures become [PluxException]s with
@@ -193,7 +235,7 @@ const _platformCodes = {
 /// key, a key the platform cannot create, any other platform failure and any
 /// malformed reply fail closed, and the runtime registers again. Messages carry
 /// the platform's error code only, never key material.
-final class PlatformDeviceKeys implements DeviceKeys {
+final class PlatformDeviceKeys implements DeviceKeys, UserAuthSigner {
   /// Creates the platform-backed keys.
   const PlatformDeviceKeys();
 
@@ -230,6 +272,30 @@ final class PlatformDeviceKeys implements DeviceKeys {
   }
 
   @override
+  Future<Uint8List> signWithUser(
+    String alias,
+    Uint8List data, {
+    required String title,
+    required String subtitle,
+  }) async {
+    final Object? reply;
+    try {
+      reply = await _call('keySignAuth', {
+        'alias': alias,
+        'data': data,
+        'title': title,
+        'subtitle': subtitle,
+      });
+    } on _Cancelled {
+      throw const UserAuthenticationCancelled();
+    }
+    if (reply is! Uint8List || reply.length != 64) {
+      throw _malformed('keySignAuth');
+    }
+    return reply;
+  }
+
+  @override
   Future<void> delete(String alias) async {
     final reply = await _call('keyDelete', {'alias': alias});
     if (reply != null) throw _malformed('keyDelete');
@@ -239,6 +305,9 @@ final class PlatformDeviceKeys implements DeviceKeys {
     try {
       return await _channel.invokeMethod<Object?>(method, args);
     } on PlatformException catch (e) {
+      if (method == 'keySignAuth' && e.code == _userCancelled) {
+        throw const _Cancelled();
+      }
       throw PluxException(
         PluxErrorCode.deviceKeyUnavailable,
         switch (e.code) {
@@ -291,4 +360,10 @@ final class PlatformDeviceKeys implements DeviceKeys {
       attestationChain: List.unmodifiable(chain.cast<Uint8List>()),
     );
   }
+}
+
+/// The platform reported that the user cancelled; turned into
+/// [UserAuthenticationCancelled] by the call that prompted.
+final class _Cancelled implements Exception {
+  const _Cancelled();
 }

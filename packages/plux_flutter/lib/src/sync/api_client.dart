@@ -17,6 +17,7 @@ import 'package:plux_flutter/src/security/assurance.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/security/dpop.dart';
+import 'package:plux_flutter/src/security/sca.dart';
 
 /// A failed call: the HTTP status, the Connect error code and the server's
 /// `Retry-After`, when it sent one.
@@ -106,6 +107,49 @@ final class DeviceToken {
 
   @override
   String toString() => 'DeviceToken([redacted])';
+}
+
+/// The header that carries the Plux user token on a gateway call, outside the
+/// headers the upstream receives (SEC-026).
+const String pluxUserTokenHeader = 'Plux-User-Token';
+
+/// The RFC 8693 token type of the host's access token.
+const String accessTokenType = 'urn:ietf:params:oauth:token-type:access_token';
+
+/// The gateway's answer: the upstream's status, the response headers the
+/// server passes on and the upstream's body.
+final class GatewayReply {
+  /// Creates the reply.
+  const GatewayReply({
+    required this.status,
+    required this.headers,
+    required this.body,
+  });
+
+  /// The upstream's HTTP status.
+  final int status;
+
+  /// The response headers, names in lower case.
+  final Map<String, String> headers;
+
+  /// The upstream's body.
+  final Uint8List body;
+}
+
+/// A Plux user token (SEC-026): the host's end-user token exchanged for one
+/// scoped to an upstream, kept in memory only and never logged.
+final class UserToken {
+  /// Creates a token.
+  const UserToken(this.value, this.expiresAt);
+
+  /// The token.
+  final String value;
+
+  /// When the server stops accepting it.
+  final DateTime expiresAt;
+
+  @override
+  String toString() => 'UserToken([redacted])';
 }
 
 /// What a device reports about itself at registration.
@@ -355,6 +399,8 @@ final class PluxApiClient {
     required Uint8List challenge,
     required DeviceKey key,
     required AttestationEvidence evidence,
+    DeviceKey? scaKey,
+    AttestationEvidence? scaEvidence,
   }) async {
     final r = await _call('plux.v1.DeviceService/RegisterAttestedDevice', {
       'appId': appId,
@@ -373,6 +419,14 @@ final class PluxApiClient {
         evidence is DevelopmentEvidence ? KeyStorage.software : key.storage,
       ),
       'evidence': _evidence(evidence),
+      // The key that signs transaction confirmations, with its own
+      // evidence (SEC-027).
+      if (scaKey != null && scaEvidence != null) ...{
+        'scaPublicKeyJwk': base64.encode(
+          utf8.encode(jsonEncode(scaKey.publicKey.jwk)),
+        ),
+        'scaEvidence': _evidence(scaEvidence),
+      },
     });
     final d = r['device'];
     final id = d is Map<String, Object?> ? d['id'] : null;
@@ -627,6 +681,113 @@ final class PluxApiClient {
     return (accepted: _int(r['accepted']), rejected: _int(r['rejected']));
   }
 
+  /// Forwards one request to an upstream through the gateway (SEC-030,
+  /// `GatewayService.Call`): authenticated by [token] and a DPoP proof. A
+  /// [userToken] — the Plux user token of the token exchange — travels in
+  /// the `Plux-User-Token` header, outside the headers the upstream
+  /// receives (SEC-026). A transaction carries the [challengeId] and the
+  /// [signature] of the SCA key (SEC-032).
+  Future<GatewayReply> gatewayCall({
+    required DeviceToken token,
+    required String upstream,
+    required String operation,
+    required String method,
+    required String path,
+    required Map<String, String> headers,
+    Uint8List? body,
+    String? userToken,
+    String challengeId = '',
+    Uint8List? signature,
+  }) async {
+    final r = await _call(
+      'plux.v1.GatewayService/Call',
+      {
+        'upstream': upstream,
+        'operation': operation,
+        'method': method,
+        'path': path,
+        'headers': headers,
+        if (body != null && body.isNotEmpty) 'body': base64.encode(body),
+        if (challengeId.isNotEmpty) 'transactionChallengeId': challengeId,
+        if (signature != null && signature.isNotEmpty)
+          'transactionSignature': base64.encode(signature),
+      },
+      token: token,
+      extraHeaders: {pluxUserTokenHeader: ?userToken},
+    );
+    try {
+      final h = r['headers'];
+      return GatewayReply(
+        status: _int(r['status']),
+        headers: {
+          if (h is Map<String, Object?>)
+            for (final e in h.entries)
+              if (e.value is String) e.key.toLowerCase(): e.value! as String,
+        },
+        body: base64.decode(r['body'] as String? ?? ''),
+      );
+    } on FormatException {
+      throw const ApiError(0, 'unknown', 'the gateway sent a malformed body');
+    }
+  }
+
+  /// Asks for a single-use challenge bound to the hash of the canonical
+  /// summary [summaryJcs] (SEC-027, `ScaService.CreateTransactionChallenge`).
+  Future<TransactionChallenge> transactionChallenge({
+    required DeviceToken token,
+    required String deviceId,
+    required String dataSource,
+    required String operation,
+    required Uint8List summaryJcs,
+  }) async {
+    final r = await _call('plux.v1.ScaService/CreateTransactionChallenge', {
+      'deviceId': deviceId,
+      'dataSource': dataSource,
+      'operation': operation,
+      'transactionSummaryJcs': base64.encode(summaryJcs),
+    }, token: token);
+    final id = r['challengeId'];
+    final expires = DateTime.tryParse(r['expiresAt'] as String? ?? '');
+    Uint8List? challenge;
+    try {
+      challenge = base64.decode(r['challenge'] as String? ?? '');
+    } on FormatException {
+      challenge = null;
+    }
+    if (id is! String ||
+        id.isEmpty ||
+        challenge == null ||
+        challenge.isEmpty ||
+        expires == null) {
+      throw const ApiError(0, 'unknown', 'the server sent no challenge');
+    }
+    return TransactionChallenge(id: id, bytes: challenge, expiresAt: expires);
+  }
+
+  /// Trades the host's end-user token [subjectToken] for a short-lived Plux
+  /// user token scoped to [audience], an upstream (SEC-026, RFC 8693,
+  /// `TokenService.ExchangeUserToken`).
+  Future<UserToken> exchangeUserToken({
+    required DeviceToken token,
+    required String subjectToken,
+    required String audience,
+    required DateTime now,
+  }) async {
+    final r = await _call('plux.v1.TokenService/ExchangeUserToken', {
+      'subjectToken': subjectToken,
+      'subjectTokenType': accessTokenType,
+      'audience': audience,
+    }, token: token);
+    final access = r['accessToken'];
+    if (access is! String || access.isEmpty) {
+      throw const ApiError(0, 'unknown', 'the server sent no user token');
+    }
+    return UserToken(
+      access,
+      DateTime.tryParse(r['expiresAt'] as String? ?? '') ?? now,
+    );
+  }
+
   /// Posts one call. With [proofs] the request carries a DPoP proof (with
   /// the [token], when there is one, as `Authorization: DPoP`); [extend]
   /// adds body members that depend on the proof. A 401 that asks for a
@@ -638,6 +799,7 @@ final class PluxApiClient {
     DpopProofs? proofs,
     Future<Map<String, Object?>> Function(String proof)? extend,
     bool compress = false,
+    Map<String, String> extraHeaders = const {},
   }) async {
     final uri = endpoint.resolve(procedure);
     final signer = proofs ?? token?.proofs;
@@ -664,6 +826,7 @@ final class PluxApiClient {
             if (compress) 'Content-Encoding': 'gzip',
             if (token != null) 'Authorization': 'DPoP ${token.value}',
             'DPoP': ?proof,
+            ...extraHeaders,
           },
           body: compress ? gzip.encode(json) : json,
         );
