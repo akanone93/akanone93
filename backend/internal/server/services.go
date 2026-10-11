@@ -283,45 +283,11 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	backend = signing.CrypterOnly(backend)
 	gen := NewIDs()
 	log := audit.NewLog(gen, nil)
-	issuers, err := trustedIssuers(cfg)
+	core, err := buildCore(cfg, db, shared, set, backend, gen, log, work)
 	if err != nil {
 		return nil, err
 	}
-	oidc, err := oidcProvider(cfg)
-	if err != nil {
-		return nil, err
-	}
-	authService, err := auth.NewService(auth.Options{
-		DB: db, Audit: log, Cache: shared, Limits: set, Crypter: backend, IDs: gen,
-		SessionTTL:      cfg.Auth.Studio.SessionTTL.Duration(),
-		CITokenTTL:      cfg.Auth.CI.TokenTTL.Duration(),
-		Issuer:          "Plux",
-		VerificationURI: verificationURI(cfg),
-		Issuers:         issuers,
-		OIDC:            oidc,
-		WebAuthn:        webAuthn(cfg),
-	})
-	if err != nil {
-		return nil, fmt.Errorf("server: %w", err)
-	}
-	tenancyService, err := tenancy.NewService(tenancy.Options{
-		DB: db, Audit: log, Auth: authService, Crypter: backend, IDs: gen, Limits: set,
-		TrashDays: cfg.Retention.TrashDays, SigningKeyPrefix: cfg.Signing.Keys.Targets,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("server: %w", err)
-	}
-	docs, err := document.NewService(document.Options{
-		DB: db, Audit: log, Tenancy: tenancyService, IDs: gen, Limits: set,
-		SnapshotDays: cfg.Retention.SnapshotDays, CompilerVersion: buildinfo.Get().Version,
-		Objects: work.Objects, Jobs: assetQueue{work.Queue}, Scanner: scanner(cfg), Codecs: work.Codecs, SVG: work.SVG,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("server: %w", err)
-	}
-	for kind, k := range docs.TrashKinds() {
-		tenancyService.RegisterTrashKind(kind, k)
-	}
+	authService, tenancyService, docs := core.auth, core.tenancy, core.docs
 	store, pages, err := buildEdge(ctx, db, backend, set)
 	if err != nil {
 		return nil, err
@@ -360,6 +326,58 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		Devices: devices, Events: events, Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
 	}, nil
+}
+
+// coreServices are the services the others are built on: sign-in, tenancy
+// and documents.
+type coreServices struct {
+	auth    *auth.Service
+	tenancy *tenancy.Service
+	docs    *document.Service
+}
+
+// buildCore assembles the services of sign-in, tenancy and documents.
+func buildCore(cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, backend signing.Crypter, gen interface{ New() (string, error) }, log *audit.Log, work WorkDeps) (coreServices, error) {
+	issuers, err := trustedIssuers(cfg)
+	if err != nil {
+		return coreServices{}, err
+	}
+	oidc, err := oidcProvider(cfg)
+	if err != nil {
+		return coreServices{}, err
+	}
+	authService, err := auth.NewService(auth.Options{
+		DB: db, Audit: log, Cache: shared, Limits: set, Crypter: backend, IDs: gen,
+		SessionTTL:      cfg.Auth.Studio.SessionTTL.Duration(),
+		CITokenTTL:      cfg.Auth.CI.TokenTTL.Duration(),
+		Issuer:          "Plux",
+		VerificationURI: verificationURI(cfg),
+		Issuers:         issuers,
+		OIDC:            oidc,
+		WebAuthn:        webAuthn(cfg),
+	})
+	if err != nil {
+		return coreServices{}, fmt.Errorf("server: %w", err)
+	}
+	tenancyService, err := tenancy.NewService(tenancy.Options{
+		DB: db, Audit: log, Auth: authService, Crypter: backend, IDs: gen, Limits: set,
+		TrashDays: cfg.Retention.TrashDays, SigningKeyPrefix: cfg.Signing.Keys.Targets,
+	})
+	if err != nil {
+		return coreServices{}, fmt.Errorf("server: %w", err)
+	}
+	docs, err := document.NewService(document.Options{
+		DB: db, Audit: log, Tenancy: tenancyService, IDs: gen, Limits: set,
+		SnapshotDays: cfg.Retention.SnapshotDays, CompilerVersion: buildinfo.Get().Version,
+		Objects: work.Objects, Jobs: assetQueue{work.Queue}, Scanner: scanner(cfg), Codecs: work.Codecs, SVG: work.SVG,
+	})
+	if err != nil {
+		return coreServices{}, fmt.Errorf("server: %w", err)
+	}
+	for kind, k := range docs.TrashKinds() {
+		tenancyService.RegisterTrashKind(kind, k)
+	}
+	return coreServices{auth: authService, tenancy: tenancyService, docs: docs}, nil
 }
 
 // buildEdge builds what the API edge keeps beside the domain services:

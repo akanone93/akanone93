@@ -214,10 +214,7 @@ func (s *Service) seal(ctx context.Context, q *dbgen.Queries, rel dbgen.Release,
 		return nil, failure(err, "release")
 	}
 	for _, r := range rows {
-		if err := q.InsertReleaseConfidentialBundle(ctx, dbgen.InsertReleaseConfidentialBundleParams{
-			ReleaseID: r.ReleaseID, OrganizationID: r.OrganizationID, PluginKey: r.PluginKey,
-			PlainSha256: r.PlainSha256, BundleSha256: r.BundleSha256, Size: r.Size,
-		}); err != nil {
+		if err := q.InsertReleaseConfidentialBundle(ctx, dbgen.InsertReleaseConfidentialBundleParams(r)); err != nil {
 			return nil, failure(err, "release")
 		}
 	}

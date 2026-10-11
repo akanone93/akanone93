@@ -235,6 +235,33 @@ func nameOf(v dbgen.PluginVersion) string {
 	return "plugin " + v.PluginKey
 }
 
+// versionSummary is what a release takes from the versions it holds.
+type versionSummary struct {
+	appVersion pgtype.UUID
+	size       int64
+	minRuntime string
+	features   map[string]bool
+}
+
+// summarise adds up a release's versions: the app bundle's, the total
+// size, the newest runtime they need and the features they require.
+func summarise(versions []dbgen.PluginVersion) versionSummary {
+	sum := versionSummary{features: map[string]bool{}}
+	for _, v := range versions {
+		if !v.PluginID.Valid {
+			sum.appVersion = v.ID
+		}
+		sum.size += v.BundleSize
+		if semverLess(sum.minRuntime, v.MinRuntime) {
+			sum.minRuntime = v.MinRuntime
+		}
+		for _, f := range v.RequiredFeatures {
+			sum.features[f] = true
+		}
+	}
+	return sum
+}
+
 // insertRelease records a release with the next sequence of the app.
 func (s *Service) insertRelease(ctx context.Context, tx pgx.Tx, p auth.Principal, env dbgen.Environment, versions []dbgen.PluginVersion, rollbackOf int64, notes string, confidential bool) (Release, error) {
 	q := dbgen.New(tx)
@@ -246,28 +273,11 @@ func (s *Service) insertRelease(ctx context.Context, tx pgx.Tx, p auth.Principal
 	if err != nil {
 		return Release{}, err
 	}
-	var (
-		appVersion pgtype.UUID
-		size       int64
-		minRuntime string
-		features   = map[string]bool{}
-	)
-	for _, v := range versions {
-		if !v.PluginID.Valid {
-			appVersion = v.ID
-		}
-		size += v.BundleSize
-		if semverLess(minRuntime, v.MinRuntime) {
-			minRuntime = v.MinRuntime
-		}
-		for _, f := range v.RequiredFeatures {
-			features[f] = true
-		}
-	}
+	sum := summarise(versions)
 	row, err := q.InsertRelease(ctx, dbgen.InsertReleaseParams{
 		ID: storage.MustUUID(id), OrganizationID: env.OrganizationID, AppID: env.AppID, EnvironmentID: env.ID,
-		Sequence: seq, AppVersionID: appVersion, RollbackOf: rollbackOf, Notes: notes,
-		MinRuntime: minRuntime, RequiredFeatures: nonNilStrings(slices.Sorted(maps.Keys(features))), Size: size,
+		Sequence: seq, AppVersionID: sum.appVersion, RollbackOf: rollbackOf, Notes: notes,
+		MinRuntime: sum.minRuntime, RequiredFeatures: nonNilStrings(slices.Sorted(maps.Keys(sum.features))), Size: sum.size,
 		CreatedByKind: p.Kind, CreatedByID: p.ID, CreatedBy: p.Display,
 	})
 	if err != nil {
