@@ -312,6 +312,7 @@ func (s Manifest) GetManifest(ctx context.Context, req *connect.Request[pluxv1.G
 	}
 	served, err := s.h.Releases.GetManifest(ctx, release.ManifestRequest{
 		OrganizationID: d.OrganizationID, AppID: d.AppID, EnvironmentID: d.EnvironmentID, Channel: m.GetChannel(), HostBuild: d.HostBuild,
+		DeviceID:          d.DeviceID,
 		InstalledSequence: m.GetInstalledSequence(), Installed: installed, IfNoneMatch: m.GetIfNoneMatch(),
 		InstalledDigest: m.GetInstalledDigest(), ConfigVersion: m.GetConfigVersion(),
 	})
@@ -330,6 +331,9 @@ func (s Manifest) GetManifest(ctx context.Context, req *connect.Request[pluxv1.G
 	}
 	res.Msg.Manifest = manifestProto(d, served)
 	res.Msg.ConfigPatch, res.Msg.ConfigFullRequired = served.ConfigPatch, served.ConfigFullRequired
+	if k := served.ContentKey; k != nil {
+		res.Msg.ContentKey = &pluxv1.ContentKey{EphemeralPublicKey: k.EphemeralPublicKey, WrappedKey: k.Wrapped}
+	}
 	return res, nil
 }
 

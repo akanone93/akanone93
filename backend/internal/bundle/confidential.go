@@ -6,6 +6,7 @@ package bundle
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/sha256"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -142,4 +143,15 @@ func Decrypt(sealed, key []byte) ([]byte, error) {
 		plain[i] = Section{Kind: s.Kind, ID: s.ID, Data: data}
 	}
 	return Encode(b.Kind, plain)
+}
+
+// HashOf returns the bundle hash of a bundle in either form after
+// checking its header (BND-005): for a confidential bundle, the hash the
+// manifest names and the device verifies before it decrypts.
+func HashOf(data []byte) ([sha256.Size]byte, error) {
+	b, err := readHeader(data, nil, true)
+	if err != nil {
+		return [sha256.Size]byte{}, err
+	}
+	return b.Hash, nil
 }

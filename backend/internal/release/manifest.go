@@ -312,6 +312,11 @@ func (s *Service) manifestDocument(ctx context.Context, q *dbgen.Queries, ch dbg
 		return SignedManifest{}, err
 	}
 	doc := newManifest(env, ch, rel.Sequence, appVersion, versions, control, when.at)
+	if rel.Confidential {
+		if err := s.sealManifest(ctx, q, rel, versions, &doc); err != nil {
+			return SignedManifest{}, err
+		}
+	}
 	doc.Version = when.version
 	if lifetime := s.o.Metadata.Expiry.Targets; lifetime > 0 {
 		doc.Expires = updatemeta.FormatTime(when.at.Add(lifetime))

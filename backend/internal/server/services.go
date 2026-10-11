@@ -335,7 +335,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
-	releases, err := buildReleases(cfg, db, set, work, releaseDeps{ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs})
+	releases, err := buildReleases(cfg, db, set, work, releaseDeps{ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend})
 	if err != nil {
 		return nil, err
 	}
@@ -391,6 +391,7 @@ type releaseDeps struct {
 	documents *document.Service
 	devices   *device.Service
 	configs   *seccfg.Service
+	crypter   signing.Crypter
 }
 
 // buildReleases assembles the release service, or returns nil when the
@@ -403,6 +404,7 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 		DB: db, Audit: deps.audit, Tenancy: deps.tenancy, Documents: deps.documents, Objects: work.Objects, IDs: deps.ids,
 		Jobs: publishQueue{work.Queue}, Signer: work.Signer, ProductionSigning: work.ProductionSigning, Limits: set,
 		Devices: deps.devices, SecurityConfig: deps.configs, PublicBaseURL: cfg.Server.PublicBaseURL,
+		Crypter: deps.crypter, Recipients: deps.devices,
 		CompilerVersion: buildinfo.Get().Version, DevelopmentDays: cfg.Retention.DevelopmentReleaseDays,
 		Metadata: metadataOptions(cfg),
 	})
