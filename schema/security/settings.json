@@ -294,6 +294,138 @@
       "description": "The lowest assurance level a device must hold to sync plugins."
     },
     {
+      "key": "raspAccessibilityResponse",
+      "type": "enum",
+      "values": [
+        "report",
+        "warn",
+        "degrade",
+        "block"
+      ],
+      "tighter": "order",
+      "defaults": {
+        "standard": "report",
+        "strict": "warn",
+        "maximum": "degrade"
+      },
+      "travelsToDevice": true,
+      "phase": "P6",
+      "requirements": [
+        "SEC-071"
+      ],
+      "description": "How the runtime responds when an accessibility service that can read the screen and perform gestures is enabled."
+    },
+    {
+      "key": "raspDebuggerResponse",
+      "type": "enum",
+      "values": [
+        "report",
+        "warn",
+        "degrade",
+        "block"
+      ],
+      "tighter": "order",
+      "defaults": {
+        "standard": "report",
+        "strict": "degrade",
+        "maximum": "block"
+      },
+      "travelsToDevice": true,
+      "phase": "P6",
+      "requirements": [
+        "SEC-071"
+      ],
+      "description": "How the runtime responds when a debugger is attached."
+    },
+    {
+      "key": "raspEmulatorResponse",
+      "type": "enum",
+      "values": [
+        "report",
+        "warn",
+        "degrade",
+        "block"
+      ],
+      "tighter": "order",
+      "defaults": {
+        "standard": "report",
+        "strict": "warn",
+        "maximum": "degrade"
+      },
+      "travelsToDevice": true,
+      "phase": "P6",
+      "requirements": [
+        "SEC-071"
+      ],
+      "description": "How the runtime responds when it runs on an emulator or a simulator."
+    },
+    {
+      "key": "raspInstallerResponse",
+      "type": "enum",
+      "values": [
+        "report",
+        "warn",
+        "degrade",
+        "block"
+      ],
+      "tighter": "order",
+      "defaults": {
+        "standard": "report",
+        "strict": "warn",
+        "maximum": "degrade"
+      },
+      "travelsToDevice": true,
+      "phase": "P6",
+      "requirements": [
+        "SEC-071"
+      ],
+      "description": "How the runtime responds when the app was not installed by a trusted store."
+    },
+    {
+      "key": "raspOverlayResponse",
+      "type": "enum",
+      "values": [
+        "report",
+        "warn",
+        "degrade",
+        "block"
+      ],
+      "tighter": "order",
+      "defaults": {
+        "standard": "report",
+        "strict": "warn",
+        "maximum": "degrade"
+      },
+      "travelsToDevice": true,
+      "phase": "P6",
+      "requirements": [
+        "SEC-071"
+      ],
+      "description": "How the runtime responds when a touch arrives while another window covers the app."
+    },
+    {
+      "key": "raspRepackagingResponse",
+      "type": "enum",
+      "values": [
+        "report",
+        "warn",
+        "degrade",
+        "block"
+      ],
+      "tighter": "order",
+      "defaults": {
+        "standard": "report",
+        "strict": "degrade",
+        "maximum": "block"
+      },
+      "travelsToDevice": true,
+      "phase": "P6",
+      "requirements": [
+        "SEC-071"
+      ],
+      "description": "How the runtime responds when the app is not signed as expected."
+    },
+    {
       "key": "raspRootHookingResponse",
       "type": "enum",
       "values": [
@@ -314,6 +446,48 @@
         "SEC-071"
       ],
       "description": "How the runtime responds when it detects a rooted or hooked device."
+    },
+    {
+      "key": "raspScanInterval",
+      "type": "seconds",
+      "tighter": "lower",
+      "defaults": {
+        "standard": 60,
+        "strict": 60,
+        "maximum": 30
+      },
+      "bounds": {
+        "min": 10,
+        "max": 3600
+      },
+      "travelsToDevice": true,
+      "phase": "P6",
+      "requirements": [
+        "SEC-070"
+      ],
+      "description": "How often the runtime scans the device for hostile conditions."
+    },
+    {
+      "key": "raspScreenCaptureResponse",
+      "type": "enum",
+      "values": [
+        "report",
+        "warn",
+        "degrade",
+        "block"
+      ],
+      "tighter": "order",
+      "defaults": {
+        "standard": "report",
+        "strict": "warn",
+        "maximum": "degrade"
+      },
+      "travelsToDevice": true,
+      "phase": "P6",
+      "requirements": [
+        "SEC-071"
+      ],
+      "description": "How the runtime responds when the screen is mirrored or recorded."
     },
     {
       "key": "reattestationInterval",

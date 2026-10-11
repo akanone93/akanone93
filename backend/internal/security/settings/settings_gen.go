@@ -182,9 +182,34 @@ const (
 	// MinAssuranceForSync: The lowest assurance level a device must hold to sync
 	// plugins. (SEC-007)
 	MinAssuranceForSync Key = "minAssuranceForSync"
+	// RaspAccessibilityResponse: How the runtime responds when an accessibility
+	// service that can read the screen and perform gestures is enabled.
+	// (SEC-071)
+	RaspAccessibilityResponse Key = "raspAccessibilityResponse"
+	// RaspDebuggerResponse: How the runtime responds when a debugger is
+	// attached. (SEC-071)
+	RaspDebuggerResponse Key = "raspDebuggerResponse"
+	// RaspEmulatorResponse: How the runtime responds when it runs on an emulator
+	// or a simulator. (SEC-071)
+	RaspEmulatorResponse Key = "raspEmulatorResponse"
+	// RaspInstallerResponse: How the runtime responds when the app was not
+	// installed by a trusted store. (SEC-071)
+	RaspInstallerResponse Key = "raspInstallerResponse"
+	// RaspOverlayResponse: How the runtime responds when a touch arrives while
+	// another window covers the app. (SEC-071)
+	RaspOverlayResponse Key = "raspOverlayResponse"
+	// RaspRepackagingResponse: How the runtime responds when the app is not
+	// signed as expected. (SEC-071)
+	RaspRepackagingResponse Key = "raspRepackagingResponse"
 	// RaspRootHookingResponse: How the runtime responds when it detects a rooted
 	// or hooked device. (SEC-071)
 	RaspRootHookingResponse Key = "raspRootHookingResponse"
+	// RaspScanInterval: How often the runtime scans the device for hostile
+	// conditions. (SEC-070)
+	RaspScanInterval Key = "raspScanInterval"
+	// RaspScreenCaptureResponse: How the runtime responds when the screen is
+	// mirrored or recorded. (SEC-071)
+	RaspScreenCaptureResponse Key = "raspScreenCaptureResponse"
 	// ReattestationInterval: The interval after which a device must attest again
 	// to keep its assurance level. (SEC-006)
 	ReattestationInterval Key = "reattestationInterval"
@@ -310,11 +335,67 @@ func All() []Setting {
 			Description: "The lowest assurance level a device must hold to sync plugins.",
 		},
 		{
+			Key: RaspAccessibilityResponse, Type: TypeEnum, Tighter: TighterOrder,
+			Values:          []string{"report", "warn", "degrade", "block"},
+			Defaults:        Defaults{Standard: TextValue("report"), Strict: TextValue("warn"), Maximum: TextValue("degrade")},
+			TravelsToDevice: true, Phase: "P6", Requirements: []string{"SEC-071"},
+			Description: "How the runtime responds when an accessibility service that can read the screen and perform gestures is enabled.",
+		},
+		{
+			Key: RaspDebuggerResponse, Type: TypeEnum, Tighter: TighterOrder,
+			Values:          []string{"report", "warn", "degrade", "block"},
+			Defaults:        Defaults{Standard: TextValue("report"), Strict: TextValue("degrade"), Maximum: TextValue("block")},
+			TravelsToDevice: true, Phase: "P6", Requirements: []string{"SEC-071"},
+			Description: "How the runtime responds when a debugger is attached.",
+		},
+		{
+			Key: RaspEmulatorResponse, Type: TypeEnum, Tighter: TighterOrder,
+			Values:          []string{"report", "warn", "degrade", "block"},
+			Defaults:        Defaults{Standard: TextValue("report"), Strict: TextValue("warn"), Maximum: TextValue("degrade")},
+			TravelsToDevice: true, Phase: "P6", Requirements: []string{"SEC-071"},
+			Description: "How the runtime responds when it runs on an emulator or a simulator.",
+		},
+		{
+			Key: RaspInstallerResponse, Type: TypeEnum, Tighter: TighterOrder,
+			Values:          []string{"report", "warn", "degrade", "block"},
+			Defaults:        Defaults{Standard: TextValue("report"), Strict: TextValue("warn"), Maximum: TextValue("degrade")},
+			TravelsToDevice: true, Phase: "P6", Requirements: []string{"SEC-071"},
+			Description: "How the runtime responds when the app was not installed by a trusted store.",
+		},
+		{
+			Key: RaspOverlayResponse, Type: TypeEnum, Tighter: TighterOrder,
+			Values:          []string{"report", "warn", "degrade", "block"},
+			Defaults:        Defaults{Standard: TextValue("report"), Strict: TextValue("warn"), Maximum: TextValue("degrade")},
+			TravelsToDevice: true, Phase: "P6", Requirements: []string{"SEC-071"},
+			Description: "How the runtime responds when a touch arrives while another window covers the app.",
+		},
+		{
+			Key: RaspRepackagingResponse, Type: TypeEnum, Tighter: TighterOrder,
+			Values:          []string{"report", "warn", "degrade", "block"},
+			Defaults:        Defaults{Standard: TextValue("report"), Strict: TextValue("degrade"), Maximum: TextValue("block")},
+			TravelsToDevice: true, Phase: "P6", Requirements: []string{"SEC-071"},
+			Description: "How the runtime responds when the app is not signed as expected.",
+		},
+		{
 			Key: RaspRootHookingResponse, Type: TypeEnum, Tighter: TighterOrder,
 			Values:          []string{"report", "warn", "degrade", "block"},
 			Defaults:        Defaults{Standard: TextValue("report"), Strict: TextValue("degrade"), Maximum: TextValue("block")},
 			TravelsToDevice: true, Phase: "P6", Requirements: []string{"SEC-071"},
 			Description: "How the runtime responds when it detects a rooted or hooked device.",
+		},
+		{
+			Key: RaspScanInterval, Type: TypeSeconds, Tighter: TighterLower,
+			Min: 10, Max: 3600,
+			Defaults:        Defaults{Standard: IntValue(60), Strict: IntValue(60), Maximum: IntValue(30)},
+			TravelsToDevice: true, Phase: "P6", Requirements: []string{"SEC-070"},
+			Description: "How often the runtime scans the device for hostile conditions.",
+		},
+		{
+			Key: RaspScreenCaptureResponse, Type: TypeEnum, Tighter: TighterOrder,
+			Values:          []string{"report", "warn", "degrade", "block"},
+			Defaults:        Defaults{Standard: TextValue("report"), Strict: TextValue("warn"), Maximum: TextValue("degrade")},
+			TravelsToDevice: true, Phase: "P6", Requirements: []string{"SEC-071"},
+			Description: "How the runtime responds when the screen is mirrored or recorded.",
 		},
 		{
 			Key: ReattestationInterval, Type: TypeSeconds, Tighter: TighterLower,

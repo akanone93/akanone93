@@ -82,6 +82,7 @@ abstract final class Plux {
             authDelegate: config.authDelegate,
           ),
         );
+    rt.attachSecurity();
     return startup;
   }
 

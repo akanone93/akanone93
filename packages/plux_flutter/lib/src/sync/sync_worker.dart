@@ -114,6 +114,11 @@ final class _Settings extends _Command {
   const _Settings(super.reply);
 }
 
+/// Re-attests the device now (SEC-006).
+final class _Reattest extends _Command {
+  const _Reattest(super.reply);
+}
+
 final class _Flush extends _Command {
   const _Flush(super.reply, this.perRequest);
   final int perRequest;
@@ -266,6 +271,10 @@ final class SyncWorker {
   Future<TelemetryFlush> flushTelemetry(int perRequest) async =>
       await _ask((p) => _Flush(p, perRequest)) as TelemetryFlush;
 
+  /// Offers the server fresh evidence for the device's key (SEC-006),
+  /// after the telemetry sent before it: a detection is reported first.
+  Future<void> reattest() => _ask(_Reattest.new);
+
   /// Completes once the isolate has handled every message sent before.
   Future<void> settle() => _ask(_Settle.new);
 
@@ -314,6 +323,13 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
       case _Settings(:final reply):
         try {
           reply.send(await engine.loadSettings());
+        } on Object catch (e) {
+          reply.send(_Failure('$e'));
+        }
+      case _Reattest(:final reply):
+        try {
+          await engine.reattest();
+          reply.send(null);
         } on Object catch (e) {
           reply.send(_Failure('$e'));
         }

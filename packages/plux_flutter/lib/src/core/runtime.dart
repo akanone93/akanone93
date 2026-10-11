@@ -62,6 +62,7 @@ import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/security/pins.dart';
 import 'package:plux_flutter/src/security/platform_attestation.dart';
+import 'package:plux_flutter/src/security/rasp.dart';
 import 'package:plux_flutter/src/security/security_config.dart';
 import 'package:plux_flutter/src/state/persistence.dart';
 import 'package:plux_flutter/src/state/providers.dart';
@@ -399,8 +400,55 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// server computed it and the latest token carried it (SEC-007). `AL0`
   /// until a token arrived, and again at once when the server refuses the
   /// device with `PLX-6002` or `PLX-6006`. Pages, routes and data sources
-  /// that ask for more are refused; read-only.
+  /// that ask for more are refused; read-only. A security module's
+  /// `degrade` response caps it ([limitAssurance]).
   final ValueNotifier<int> assurance = ValueNotifier(0);
+  var _assuranceCeiling = 3;
+
+  /// Caps the level at [ceiling] (0 to 3): the level falls to it at once
+  /// and no later token lifts it higher (SEC-071).
+  void limitAssurance(int ceiling) {
+    _assuranceCeiling = ceiling;
+    if (assurance.value > ceiling) assurance.value = ceiling;
+  }
+
+  /// What the attached security modules (SEC-070) can reach.
+  late final PluxSecurityHost securityHost = RuntimeSecurityHost(
+    settings: settings,
+    assurance: assurance,
+    record: (name, fields) {
+      if (_disposed) return;
+      telemetry.record(name, fields: fields);
+      unawaited(flushTelemetry());
+    },
+    limit: (ceiling) {
+      if (!_disposed) limitAssurance(ceiling);
+    },
+    reattest: _reattest,
+  );
+
+  Future<void> _reattest() async {
+    if (_disposed) return;
+    try {
+      await _worker.reattest();
+    } on Object catch (e) {
+      developer.log('re-attestation: $e', name: 'plux');
+    }
+  }
+
+  /// Attaches the app's security modules.
+  void attachSecurity() {
+    for (final m in config.securityModules) {
+      m.attach(securityHost);
+    }
+  }
+
+  /// Detaches them, before the runtime goes.
+  void detachSecurity() {
+    for (final m in config.securityModules) {
+      m.detach();
+    }
+  }
 
   late final LazyDataWorker _dataWorker = LazyDataWorker(
     () => DataWorker.start(
@@ -996,7 +1044,9 @@ final class PluxRuntime with WidgetsBindingObserver {
       try {
         final r = await _worker.sync(_emit);
         if (r.settings != null) settings.value = r.settings!;
-        if (r.assurance != null) assurance.value = r.assurance!;
+        if (r.assurance != null) {
+          assurance.value = math.min(r.assurance!, _assuranceCeiling);
+        }
         if (r.configError != null) _report(r.configError!);
         if (r.outcome == SyncOutcome.staged) _onStaged();
         // The radio is awake: record the result and send what is buffered
@@ -1181,6 +1231,7 @@ final class PluxRuntime with WidgetsBindingObserver {
 
   /// Stops the sync isolate and releases every mapping.
   Future<void> dispose() async {
+    detachSecurity();
     disconnect();
     WidgetsBinding.instance.removeObserver(this);
     _flushEvery?.cancel();

@@ -249,6 +249,9 @@ final class FakePluxServer {
   /// Telemetry events received, in the order they arrived.
   final List<Map<String, Object?>> events = [];
 
+  /// Re-attestations received (SEC-006).
+  int reattestations = 0;
+
   /// Paths of requests whose body came compressed with gzip.
   final List<String> compressedRequests = [];
 
@@ -500,6 +503,9 @@ final class FakePluxServer {
           },
         );
       case '/plux.v1.DeviceService/ReportInstalled':
+        return (200, <String, Object?>{});
+      case '/plux.v1.DeviceService/ReattestDevice':
+        reattestations++;
         return (200, <String, Object?>{});
       case '/plux.v1.TelemetryService/IngestEvents':
         if (!authed) {

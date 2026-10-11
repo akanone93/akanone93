@@ -17,6 +17,7 @@ import 'package:plux_flutter/src/device/types.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/navigation/delegate.dart';
+import 'package:plux_flutter/src/security/rasp.dart';
 import 'package:plux_flutter/src/verify/manifest.dart';
 
 /// How `Plux.initialize` treats the network (SYN-003).
@@ -222,6 +223,7 @@ final class PluxConfig {
     this.devicePackages = const [],
     this.allowedCapabilities,
     this.databaseAdapter,
+    this.securityModules = const [],
   }) : assert(downloadParallelism > 0, 'at least one download at a time'),
        assert(
          hostBuild.length <= 64,
@@ -406,4 +408,10 @@ final class PluxConfig {
   /// key-value entries and a plugin that declares a collection reports
   /// `PLX-5201`.
   final PluxDatabaseAdapter? databaseAdapter;
+
+  /// The security modules the app installs, such as `PluxSecurity()` of
+  /// `plux_security` (RT-060, SEC-070, ADR-0057): each is attached once the
+  /// runtime is up and detached when it is disposed. Without one nothing
+  /// is detected, and a device never reaches `AL3`.
+  final List<PluxSecurityModule> securityModules;
 }

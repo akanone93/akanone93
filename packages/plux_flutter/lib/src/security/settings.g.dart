@@ -48,8 +48,27 @@ enum SecuritySetting {
   inactivityLockTimeout('inactivityLockTimeout', SecuritySettingType.seconds, 300, 300, 120),
   /// The lowest assurance level a device must hold to sync plugins.
   minAssuranceForSync('minAssuranceForSync', SecuritySettingType.choice, 'AL0', 'AL1', 'AL2'),
+  /// How the runtime responds when an accessibility service that can read the
+  /// screen and perform gestures is enabled.
+  raspAccessibilityResponse('raspAccessibilityResponse', SecuritySettingType.choice, 'report', 'warn', 'degrade'),
+  /// How the runtime responds when a debugger is attached.
+  raspDebuggerResponse('raspDebuggerResponse', SecuritySettingType.choice, 'report', 'degrade', 'block'),
+  /// How the runtime responds when it runs on an emulator or a simulator.
+  raspEmulatorResponse('raspEmulatorResponse', SecuritySettingType.choice, 'report', 'warn', 'degrade'),
+  /// How the runtime responds when the app was not installed by a trusted
+  /// store.
+  raspInstallerResponse('raspInstallerResponse', SecuritySettingType.choice, 'report', 'warn', 'degrade'),
+  /// How the runtime responds when a touch arrives while another window covers
+  /// the app.
+  raspOverlayResponse('raspOverlayResponse', SecuritySettingType.choice, 'report', 'warn', 'degrade'),
+  /// How the runtime responds when the app is not signed as expected.
+  raspRepackagingResponse('raspRepackagingResponse', SecuritySettingType.choice, 'report', 'degrade', 'block'),
   /// How the runtime responds when it detects a rooted or hooked device.
   raspRootHookingResponse('raspRootHookingResponse', SecuritySettingType.choice, 'report', 'degrade', 'block'),
+  /// How often the runtime scans the device for hostile conditions.
+  raspScanInterval('raspScanInterval', SecuritySettingType.seconds, 60, 60, 30),
+  /// How the runtime responds when the screen is mirrored or recorded.
+  raspScreenCaptureResponse('raspScreenCaptureResponse', SecuritySettingType.choice, 'report', 'warn', 'degrade'),
   /// The interval after which a device must attest again to keep its assurance
   /// level.
   reattestationInterval('reattestationInterval', SecuritySettingType.seconds, 86400, 86400, 86400),
