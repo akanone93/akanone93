@@ -243,10 +243,35 @@ func (u *unit) checkSources(pl *plugin, sources []schema.DataSource, file string
 		case len(s.Config) > 0:
 			d.config = u.inferred(literalCtx(pl, file, ptr+"/config"), s.Config)
 		}
+		u.checkSourceRoute(s, file, ptr)
 		u.checkDirectAssurance(s, file, ptr)
 		out = append(out, d)
 	}
 	return out
+}
+
+// checkSourceRoute checks how a source reaches its origin. A transaction, which
+// needs the strong customer authentication only the gateway verifies, can
+// never be direct (PLX-6073); and a direct source is refused where the app
+// does not allow direct calls: under the maximum profile, or when its
+// security settings turn allowDirectDataSources off (PLX-6063, SEC-030).
+func (u *unit) checkSourceRoute(s *schema.DataSource, file, ptr string) {
+	if s.Route != schema.DataSourceRouteDirect {
+		return
+	}
+	if s.Transaction != nil {
+		u.report(plxerr.TransactionRequiresGateway, file, ptr+"/route",
+			"data source %q declares a transaction and so cannot be direct: only the gateway verifies the signature", s.Name)
+	}
+	app := u.project.App.Doc
+	refused := app.SecurityProfile == schema.SecurityProfileMaximum
+	if sec := app.Security; sec != nil && sec.Settings != nil && sec.Settings.AllowDirectDataSources != nil && !*sec.Settings.AllowDirectDataSources {
+		refused = true
+	}
+	if refused {
+		u.report(plxerr.DirectDataSourceRefused, file, ptr+"/route",
+			"data source %q is direct, which the app's security profile or settings do not allow", s.Name)
+	}
 }
 
 // checkDirectAssurance warns about a source that reaches its origin

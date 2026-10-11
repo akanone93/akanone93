@@ -578,6 +578,19 @@ func (u *unit) encodeDataConfig(s *schema.DataSource, file, ptr string, sc *scop
 	if lvl := s.RequiresAssurance; lvl != "" && lvl != schema.AssuranceLevelAL0 {
 		obj["requiresAssurance"] = string(lvl)
 	}
+	// So does the route (SEC-030) and the mapping of the fields a
+	// transaction signs (SEC-028): the runtime builds the summary the user
+	// confirms from them and sends the call through the gateway.
+	if s.Route != "" {
+		obj["route"] = string(s.Route)
+	}
+	if t := s.Transaction; t != nil {
+		mapping := map[string]any{"amount": t.Amount, "currency": t.Currency, "payee": t.Payee}
+		if t.Summary != "" {
+			mapping["summary"] = t.Summary
+		}
+		obj["transaction"] = mapping
+	}
 	// Mocks are for tests and development builds (DAT-080): a release
 	// bundle carries none, so a release can never answer from one.
 	if u.opts.Mode != Development {

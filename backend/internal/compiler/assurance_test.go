@@ -102,3 +102,99 @@ func TestGuardsReadAppState(t *testing.T) {
 		}
 	}
 }
+
+// transactionSource makes the plugin's first source a transaction that
+// reaches its origin by route (empty: the default).
+func transactionSource(route string) func(*testing.T, fstest.MapFS) {
+	return onSource("0", func(_ *testing.T, src, _ map[string]any) {
+		src["transaction"] = map[string]any{"amount": "/amount", "currency": "/currency", "payee": "/to/iban", "summary": "/memo"}
+		if route != "" {
+			src["route"] = route
+		}
+	})
+}
+
+// Verifies: SEC-030, SEC-028.
+// A source's route and the mapping of its transaction travel in its
+// configuration, for the runtime to build the confirmed summary from.
+func TestRouteAndTransactionAreEncoded(t *testing.T) {
+	t.Parallel()
+	m := project(t, dataDir)
+	transactionSource("plux")(t, m)
+	res := compileFS(m)
+	onlyRaised(t, res)
+	cfg, strs := sourceConfig(t, readAll(t, res)[1], "tasks")
+	route := valueEntry(cfg, strs, "route")
+	if route == nil || strs(route.S()) != "plux" {
+		t.Fatalf("route = %v", route)
+	}
+	tx := valueEntry(cfg, strs, "transaction")
+	if tx == nil {
+		t.Fatal("the bundle carries no transaction mapping")
+	}
+	for key, want := range map[string]string{"amount": "/amount", "currency": "/currency", "payee": "/to/iban", "summary": "/memo"} {
+		if v := valueEntry(tx, strs, key); v == nil || strs(v.S()) != want {
+			t.Errorf("transaction.%s = %v, want %s", key, v, want)
+		}
+	}
+
+	plain := compileFS(project(t, dataDir))
+	cfg, strs = sourceConfig(t, readAll(t, plain)[1], "tasks")
+	if valueEntry(cfg, strs, "route") != nil || valueEntry(cfg, strs, "transaction") != nil {
+		t.Error("a source with no route and no transaction carries them")
+	}
+}
+
+// Verifies: SEC-030, SEC-032.
+// A transaction cannot be direct: only the gateway verifies its signature.
+func TestDirectTransactionIsAnError(t *testing.T) {
+	t.Parallel()
+	m := project(t, dataDir)
+	transactionSource("direct")(t, m)
+	wantDiag(t, compileFS(m), plxerr.TransactionRequiresGateway, shopFile, "/dataSources/0/route")
+	for _, route := range []string{"", "plux"} {
+		m := project(t, dataDir)
+		transactionSource(route)(t, m)
+		if hasDiag(compileFS(m).Diagnostics, plxerr.TransactionRequiresGateway, shopFile, "/dataSources/0/route") {
+			t.Errorf("route %q: PLX-6073 reported", route)
+		}
+	}
+}
+
+// Verifies: SEC-030.
+// A direct source is refused where the app does not allow direct calls:
+// under the maximum profile, or when its settings turn them off.
+func TestDirectSourceRefusedWhereNotAllowed(t *testing.T) {
+	t.Parallel()
+	direct := onSource("0", func(_ *testing.T, src, _ map[string]any) { src["route"] = "direct" })
+	for _, app := range map[string]func(map[string]any){
+		"the maximum profile": func(doc map[string]any) { doc["securityProfile"] = "maximum" },
+		"settings that forbid it": func(doc map[string]any) {
+			doc["security"] = map[string]any{"settings": map[string]any{"allowDirectDataSources": false}}
+		},
+	} {
+		m := project(t, dataDir)
+		direct(t, m)
+		edit(t, m, "app.json", app)
+		wantDiag(t, compileFS(m), plxerr.DirectDataSourceRefused, shopFile, "/dataSources/0/route")
+	}
+	for name, app := range map[string]func(map[string]any){
+		"the strict profile": func(doc map[string]any) { doc["securityProfile"] = "strict" },
+		"settings that allow it": func(doc map[string]any) {
+			doc["security"] = map[string]any{"settings": map[string]any{"allowDirectDataSources": true}}
+		},
+	} {
+		m := project(t, dataDir)
+		direct(t, m)
+		edit(t, m, "app.json", app)
+		if hasDiag(compileFS(m).Diagnostics, plxerr.DirectDataSourceRefused, shopFile, "/dataSources/0/route") {
+			t.Errorf("%s: PLX-6063 reported", name)
+		}
+	}
+	m := project(t, dataDir)
+	onSource("0", func(_ *testing.T, src, _ map[string]any) { src["route"] = "plux" })(t, m)
+	edit(t, m, "app.json", func(doc map[string]any) { doc["securityProfile"] = "maximum" })
+	if hasDiag(compileFS(m).Diagnostics, plxerr.DirectDataSourceRefused, shopFile, "/dataSources/0/route") {
+		t.Error("a gateway source under maximum was refused")
+	}
+}
