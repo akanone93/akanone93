@@ -11,7 +11,7 @@ A bundle (`.pxb`) is a fixed header, a section directory and the sections. All i
 | 0 | 4 | `PLUX` |
 | 4 | 2 | container version, `1` |
 | 6 | 2 | bundle kind: `1` plugin, `2` app, `3` development |
-| 8 | 4 | flags: bit 0 encrypted (reserved until `SEC-053`), bit 1 has a source map; other bits zero |
+| 8 | 4 | flags: bit 0 encrypted (a confidential bundle, §6), bit 1 has a source map; other bits zero |
 | 12 | 4 | section count *n* |
 | 16 | 32 | header hash: SHA-256 of bytes 0–15 followed by the directory |
 | 48 | 72 × *n* | directory |
@@ -98,3 +98,19 @@ Bundles are stored uncompressed so that they can be memory-mapped; for transport
 ## 6. Tooling
 
 `make gen` runs the pinned `flatc` (built by `make install-flatc`) on `schema/fbs/bundle.fbs` for the Go package `backend/internal/bundle/fbs` and the Dart library `packages/plux_flutter/lib/src/bundle/fbs/bundle_fbs_generated.dart`, and on `schema/fbs/sections/*.fbs` for the binary schemas from which schemagen writes `backend/internal/bundle/layout_gen.go`. A section is finished with `bundle.Finish`, which writes its kind's file identifier. `schema/testdata/bundles/sample.pxb` is written by the Go tests (`-update`) and read by the Dart tests, so both languages agree on the format.
+
+## 6. Confidential bundles
+
+A confidential release ships every bundle sealed (`SEC-053`, [ADR-0055](../adr/0055-confidential-bundles.md)). The compiler is not involved: the worker seals a copy of each published bundle when it first signs a manifest for the release, and the plain versions stay as published.
+
+- **Container.** Flag bit 0 is set. The directory lists the same sections in the same order. Each section's bytes are `nonce (12) || ciphertext || tag (16)` of AES-256-GCM under the release's content key, and the directory hash is the SHA-256 of those bytes. The header hash, which is the bundle hash the manifest names, therefore covers the ciphertext: a device checks the signed hash and every section hash before it decrypts anything (`SEC-052`).
+- **Nonces.** Four zero bytes and a big-endian counter, one count per section across all bundles of the release, under a content key drawn for that release only.
+- **Associated data.** The container kind and section kind (two bytes each, little endian) and the 16-byte section ID, so a section sealed for one place does not open in another. The section's own hash cannot be part of it, because the hash covers the sealed bytes.
+- **Decrypting** every section and laying the sections out again gives byte for byte the plain bundle that was sealed (`bundle.Decrypt`).
+- **Required feature.** Each sealed bundle names `security.confidential.v1` in the manifest's required features, so a runtime that cannot decrypt refuses the release before it downloads anything.
+- **No deltas.** Ciphertext does not diff; the manifest plans a full download of a sealed bundle whatever the device holds.
+- **Content key.** It is stored on the server sealed under the installation's key (`SEC-106`) and delivered in `GetManifestResponse.content_key`, outside the signed part, wrapped for one device and one release: ECDH-ES between a one-time P-256 key and the device's key-agreement key; HKDF-SHA-256 with the two public points (65 bytes each, ephemeral first) as salt and, as info, `plux.confidential.v1` followed by a zero byte and each of device ID, app, environment and release sequence (decimal), zero-separated; AES-KW (RFC 3394) of the 32-byte key under the derived 32-byte key. Only devices whose assurance level meets the environment's `minAssuranceForSync` and that registered a key-agreement key receive it; others are refused with `PLX-6050`.
+- **When it applies.** The environment's `confidentialBundles` setting decides at signing time: `required` seals every release, `optional` the releases created as confidential (`CreateReleaseRequest.confidential`), `off` none. `confidential.bundleBytes` bounds a confidential bundle.
+- **On the device** the bundles stay encrypted on disk with the wrapped key beside the release record. At launch the key is unwrapped with the key-agreement key (ECDH in the platform), each bundle's hash is checked, and its sections are decrypted into memory on a background isolate, once per launch; the reader works on that buffer instead of a memory mapping.
+
+`schema/testdata/confidential/vectors.json` pins a sealed compiled bundle, a wrapped key and the damage a device must refuse; the Go writer and the Dart reader are both tested against it.
