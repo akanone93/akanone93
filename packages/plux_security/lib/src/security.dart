@@ -99,7 +99,7 @@ final class PluxSecurityStatus {
 /// telemetry event, where it lowers the device's assurance level, and a
 /// detection that suggests a modified environment makes the device attest
 /// again (SEC-006). The response on the device follows the security
-/// settings and [policy]. RASP raises the cost of an attack; it does not
+/// settings, which [policy] can only tighten; so does the scan interval. RASP raises the cost of an attack; it does not
 /// stop a determined attacker on a device they control.
 final class PluxSecurity implements PluxSecurityModule {
   /// Creates the module. The first scan runs when the runtime attaches it,
@@ -108,12 +108,8 @@ final class PluxSecurity implements PluxSecurityModule {
     this._detector = const PlatformRaspDetector(),
     PluxRaspExpectations? expectations,
     this.policy = const PluxRaspPolicy(),
-    this.scanInterval = const Duration(seconds: 60),
-  }) : assert(
-         scanInterval >= const Duration(seconds: 10),
-         'scanning more often than every ten seconds costs battery for no gain',
-       ),
-       expectations = expectations ?? PluxRaspExpectations();
+    this.scanInterval,
+  }) : expectations = expectations ?? PluxRaspExpectations();
 
   final PluxRaspDetector _detector;
 
@@ -123,8 +119,10 @@ final class PluxSecurity implements PluxSecurityModule {
   /// The response to each kind of detection.
   final PluxRaspPolicy policy;
 
-  /// How often the device is scanned again.
-  final Duration scanInterval;
+  /// How often the device is scanned again, when the app wants it more
+  /// often than the `raspScanInterval` setting asks; the setting applies
+  /// otherwise (SEC-182).
+  final Duration? scanInterval;
 
   final ValueNotifier<PluxSecurityStatus> _status = ValueNotifier(
     PluxSecurityStatus.clear,
@@ -136,6 +134,7 @@ final class PluxSecurity implements PluxSecurityModule {
 
   PluxSecurityHost? _host;
   Timer? _timer;
+  Duration? _every;
   Future<void>? _scanning;
   var _ceiling = 3;
   final Map<PluxDetectionKind, PluxDetection> _active = {};
@@ -149,13 +148,33 @@ final class PluxSecurity implements PluxSecurityModule {
     _host = host;
     host.settings.addListener(_settingsChanged);
     unawaited(scanNow());
-    _timer = Timer.periodic(scanInterval, (_) => unawaited(scanNow()));
+    _schedule();
+  }
+
+  /// The interval in force: the setting's, or the app's when it is shorter.
+  Duration _interval(SecuritySettings settings) {
+    final fromSettings = Duration(
+      seconds: settings.number(SecuritySetting.raspScanInterval),
+    );
+    final own = scanInterval;
+    return own != null && own < fromSettings ? own : fromSettings;
+  }
+
+  void _schedule() {
+    final host = _host;
+    if (host == null) return;
+    final every = _interval(host.settings.value);
+    if (every == _every && _timer != null) return;
+    _timer?.cancel();
+    _every = every;
+    _timer = Timer.periodic(every, (_) => unawaited(scanNow()));
   }
 
   @override
   void detach() {
     _timer?.cancel();
     _timer = null;
+    _every = null;
     _host?.settings.removeListener(_settingsChanged);
     _host = null;
   }
@@ -193,7 +212,10 @@ final class PluxSecurity implements PluxSecurityModule {
     _publish(fresh);
   }
 
-  void _settingsChanged() => _publish(const []);
+  void _settingsChanged() {
+    _schedule();
+    _publish(const []);
+  }
 
   /// Recomputes the status, reports the [fresh] detections and applies the
   /// assurance ceiling.

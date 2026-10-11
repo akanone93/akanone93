@@ -62,38 +62,70 @@ void main() {
     });
   });
 
-  group('the other kinds follow the app', () {
-    test('report unless the app says otherwise [SEC-071]', () {
-      const policy = PluxRaspPolicy(
-        responses: {PluxDetectionKind.emulator: PluxRaspResponse.warn},
-      );
-      final settings = settingsWithRaspResponse('block');
+  group('every other kind follows its own setting', () {
+    SecuritySettings with_(String key, String value) =>
+        SecuritySettings.fromDocument({
+          'overrides': {key: value},
+        });
+
+    for (final (kind, key) in [
+      (PluxDetectionKind.debugger, 'raspDebuggerResponse'),
+      (PluxDetectionKind.emulator, 'raspEmulatorResponse'),
+      (PluxDetectionKind.repackaging, 'raspRepackagingResponse'),
+      (PluxDetectionKind.untrustedInstaller, 'raspInstallerResponse'),
+      (PluxDetectionKind.screenCapture, 'raspScreenCaptureResponse'),
+      (PluxDetectionKind.overlay, 'raspOverlayResponse'),
+      (PluxDetectionKind.accessibility, 'raspAccessibilityResponse'),
+    ]) {
+      test('${kind.name} reads $key [SEC-071]', () {
+        for (final response in PluxRaspResponse.values) {
+          expect(
+            const PluxRaspPolicy().responseFor(kind, with_(key, response.name)),
+            response,
+          );
+        }
+        expect(PluxRaspPolicy.settingFor(kind).key, key);
+      });
+    }
+
+    test('the profiles\' defaults reach the policy [SEC-071]', () {
+      final strict = SecuritySettings.fromDocument({'profile': 'strict'});
+      final maximum = SecuritySettings.fromDocument({'profile': 'maximum'});
+      const policy = PluxRaspPolicy();
       expect(
-        policy.responseFor(PluxDetectionKind.emulator, settings),
+        policy.responseFor(PluxDetectionKind.emulator, strict),
         PluxRaspResponse.warn,
       );
-      for (final kind in PluxDetectionKind.values.where(
-        (k) =>
-            k != PluxDetectionKind.root &&
-            k != PluxDetectionKind.hooking &&
-            k != PluxDetectionKind.emulator,
-      )) {
-        expect(
-          policy.responseFor(kind, settings),
-          PluxRaspResponse.report,
-          reason: kind.name,
-        );
-      }
+      expect(
+        policy.responseFor(PluxDetectionKind.repackaging, maximum),
+        PluxRaspResponse.block,
+      );
+      expect(
+        policy.responseFor(PluxDetectionKind.overlay, SecuritySettings.builtIn),
+        PluxRaspResponse.report,
+      );
     });
 
-    test('the default for the unnamed kinds can be raised [SEC-071]', () {
-      const policy = PluxRaspPolicy(otherwise: PluxRaspResponse.degrade);
+    test('the app can tighten any kind, never loosen it [SEC-071]', () {
+      const policy = PluxRaspPolicy(
+        responses: {
+          PluxDetectionKind.emulator: PluxRaspResponse.warn,
+          PluxDetectionKind.debugger: PluxRaspResponse.report,
+        },
+      );
+      expect(
+        policy.responseFor(
+          PluxDetectionKind.emulator,
+          SecuritySettings.builtIn,
+        ),
+        PluxRaspResponse.warn,
+      );
       expect(
         policy.responseFor(
           PluxDetectionKind.debugger,
-          SecuritySettings.builtIn,
+          with_('raspDebuggerResponse', 'block'),
         ),
-        PluxRaspResponse.degrade,
+        PluxRaspResponse.block,
       );
     });
   });

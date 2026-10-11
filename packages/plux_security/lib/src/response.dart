@@ -37,35 +37,39 @@ enum PluxRaspResponse {
 
 /// Picks the response to each kind of detection (SEC-071).
 ///
-/// Root and hooking follow the `raspRootHookingResponse` security setting,
-/// which the server distributes per profile (SEC-182); the app can make
-/// them stricter in [responses] but never looser. The other kinds have no
-/// setting yet: they follow [responses], else [otherwise].
+/// Every kind follows its security setting (`raspRootHookingResponse` for
+/// root and hooking, `rasp<Kind>Response` for the others), which the server
+/// distributes per profile (SEC-182). The app can make a response stricter
+/// in [responses], never looser.
 final class PluxRaspPolicy {
   /// Creates a policy.
-  const PluxRaspPolicy({
-    this.responses = const {},
-    this.otherwise = PluxRaspResponse.report,
-  });
+  const PluxRaspPolicy({this.responses = const {}});
 
-  /// The app's response per kind.
+  /// The app's own response per kind; the stricter of it and the setting
+  /// applies.
   final Map<PluxDetectionKind, PluxRaspResponse> responses;
 
-  /// The response to a kind that neither the settings nor [responses] name.
-  final PluxRaspResponse otherwise;
+  /// The setting that names the response to [kind].
+  static SecuritySetting settingFor(PluxDetectionKind kind) => switch (kind) {
+    PluxDetectionKind.root ||
+    PluxDetectionKind.hooking => SecuritySetting.raspRootHookingResponse,
+    PluxDetectionKind.debugger => SecuritySetting.raspDebuggerResponse,
+    PluxDetectionKind.emulator => SecuritySetting.raspEmulatorResponse,
+    PluxDetectionKind.repackaging => SecuritySetting.raspRepackagingResponse,
+    PluxDetectionKind.untrustedInstaller =>
+      SecuritySetting.raspInstallerResponse,
+    PluxDetectionKind.screenCapture =>
+      SecuritySetting.raspScreenCaptureResponse,
+    PluxDetectionKind.overlay => SecuritySetting.raspOverlayResponse,
+    PluxDetectionKind.accessibility =>
+      SecuritySetting.raspAccessibilityResponse,
+  };
 
   /// The response to [kind] under [settings].
   PluxRaspResponse responseFor(
     PluxDetectionKind kind,
     SecuritySettings settings,
-  ) {
-    final own = responses[kind];
-    return switch (kind) {
-      PluxDetectionKind.root ||
-      PluxDetectionKind.hooking => PluxRaspResponse.fromSetting(
-        settings.choice(SecuritySetting.raspRootHookingResponse),
-      ).stricter(own ?? PluxRaspResponse.report),
-      _ => own ?? otherwise,
-    };
-  }
+  ) =>
+      PluxRaspResponse.fromSetting(settings.choice(settingFor(kind)))
+          .stricter(responses[kind] ?? PluxRaspResponse.report);
 }

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_security/plux_security.dart';
 import 'package:plux_security/testing.dart';
 
@@ -311,6 +312,54 @@ void main() {
       expect(detector.scans.single.signingCertSha256, ['abcdef']);
       expect(detector.scans.single.iosTeamId, 'TEAM123456');
       security.detach();
+    });
+  });
+
+  group('the scan interval is a setting', () {
+    SecuritySettings every(int seconds) => SecuritySettings.fromDocument({
+      'overrides': {'raspScanInterval': seconds},
+    });
+
+    testWidgets('the setting sets it, and a new value reschedules the timer '
+        '[SEC-070] [SEC-182]', (tester) async {
+      final security = PluxSecurity(detector: detector);
+      host = FakeHost(every(20));
+      security.attach(host);
+      await tester.pump();
+      expect(detector.scans, hasLength(1));
+      await tester.pump(const Duration(seconds: 20));
+      expect(detector.scans, hasLength(2));
+      host.settings.value = every(100);
+      await tester.pump(const Duration(seconds: 60));
+      expect(detector.scans, hasLength(2), reason: 'now every 100 seconds');
+      await tester.pump(const Duration(seconds: 40));
+      expect(detector.scans, hasLength(3));
+      security.detach();
+    });
+
+    testWidgets('the app can scan more often than the setting, never less '
+        'often [SEC-070]', (tester) async {
+      final often = PluxSecurity(
+        detector: detector,
+        scanInterval: const Duration(seconds: 15),
+      );
+      host = FakeHost(every(60));
+      often.attach(host);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 15));
+      expect(detector.scans, hasLength(2));
+      often.detach();
+
+      detector.scans.clear();
+      final rarely = PluxSecurity(
+        detector: detector,
+        scanInterval: const Duration(minutes: 30),
+      );
+      rarely.attach(host);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 60));
+      expect(detector.scans, hasLength(2));
+      rarely.detach();
     });
   });
 }

@@ -33,7 +33,7 @@ only one.
 | `overlay` | A touch that arrived while another window covered the app | not applicable |
 | `accessibility` | An enabled non-system service that can read the window and perform gestures | not applicable |
 
-Checks run off the UI thread, at start and every `scanInterval` (60 seconds by default). A
+Checks run off the UI thread, at start and every `raspScanInterval` seconds (60 by default). A
 hostile environment (root, hooking, debugger, emulator, repackaging, installer) stays in force until
 the app restarts, because what it did cannot be undone by its going away. Screen capture,
 overlays and accessibility services follow the current state.
@@ -79,10 +79,12 @@ Each detection has one response (`SEC-071`), from mild to strict:
 | `degrade` | Reported; the assurance level is capped at `AL2`, so pages, routes and data sources that need `AL3` are refused with `PLX-6002` |
 | `block` | Reported; `PluxSecurityGate` replaces the app with the blocking screen and the level is capped at `AL0` |
 
-Root and hooking follow the security setting `raspRootHookingResponse` (defaults `report`,
-`degrade`, `block` for the `standard`, `strict` and `maximum` profiles), which the server
-distributes; `PluxRaspPolicy.responses` can make them stricter, never looser. The other kinds
-follow `PluxRaspPolicy.responses` and report by default. Give `PluxSecurityGate` your own
+Every kind follows a security setting that the server distributes per profile (`SEC-182`):
+`raspRootHookingResponse` for root and hooking, and `raspDebuggerResponse`, `raspEmulatorResponse`,
+`raspRepackagingResponse`, `raspInstallerResponse`, `raspScreenCaptureResponse`,
+`raspOverlayResponse` and `raspAccessibilityResponse` for the rest; `raspScanInterval` sets how
+often the device is scanned. `PluxRaspPolicy.responses` and `PluxSecurity(scanInterval:)` can make
+the response stricter or the scan more frequent, never looser. Give `PluxSecurityGate` your own
 `blockedBuilder` and `warningBuilder`; the defaults are plain and English.
 
 ## Reporting
@@ -90,8 +92,8 @@ follow `PluxRaspPolicy.responses` and report by default. Give `PluxSecurityGate`
 Every detection is recorded as the `necessary` telemetry event `rasp_detection` with its
 `kind`, `severity`, `response` and the codes of the checks that tripped, and sent at once over the
 DPoP-protected telemetry call. It carries no path, identifier or other personal data. A detection
-that suggests a modified environment also makes the device offer the server fresh attestation
-evidence (`SEC-006`).
+that suggests a modified environment also lowers the device's level at the server to `AL1`
+until it attests again, and makes the device offer fresh attestation evidence (`SEC-006`).
 
 ## Testing your app
 
