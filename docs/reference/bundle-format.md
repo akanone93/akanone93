@@ -11,7 +11,7 @@ A bundle (`.pxb`) is a fixed header, a section directory and the sections. All i
 | 0 | 4 | `PLUX` |
 | 4 | 2 | container version, `1` |
 | 6 | 2 | bundle kind: `1` plugin, `2` app, `3` development |
-| 8 | 4 | flags: bit 0 encrypted (a confidential bundle, §6), bit 1 has a source map; other bits zero |
+| 8 | 4 | flags: bit 0 encrypted (a confidential bundle, §7), bit 1 has a source map; other bits zero |
 | 12 | 4 | section count *n* |
 | 16 | 32 | header hash: SHA-256 of bytes 0–15 followed by the directory |
 | 48 | 72 × *n* | directory |
@@ -99,7 +99,7 @@ Bundles are stored uncompressed so that they can be memory-mapped; for transport
 
 `make gen` runs the pinned `flatc` (built by `make install-flatc`) on `schema/fbs/bundle.fbs` for the Go package `backend/internal/bundle/fbs` and the Dart library `packages/plux_flutter/lib/src/bundle/fbs/bundle_fbs_generated.dart`, and on `schema/fbs/sections/*.fbs` for the binary schemas from which schemagen writes `backend/internal/bundle/layout_gen.go`. A section is finished with `bundle.Finish`, which writes its kind's file identifier. `schema/testdata/bundles/sample.pxb` is written by the Go tests (`-update`) and read by the Dart tests, so both languages agree on the format.
 
-## 6. Confidential bundles
+## 7. Confidential bundles
 
 A confidential release ships every bundle sealed (`SEC-053`, [ADR-0055](../adr/0055-confidential-bundles.md)). The compiler is not involved: the worker seals a copy of each published bundle when it first signs a manifest for the release, and the plain versions stay as published.
 
