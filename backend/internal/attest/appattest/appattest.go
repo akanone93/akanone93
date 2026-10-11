@@ -115,19 +115,6 @@ func DefaultRoots() (*x509.CertPool, error) {
 	return pool, nil
 }
 
-// ClientDataHash binds an attestation or assertion to the server's
-// challenge and the device's DPoP key thumbprint: SHA-256(challenge ‖
-// jkt). The device passes it as clientDataHash to attestKey and
-// generateAssertion.
-func ClientDataHash(challenge []byte, jkt string) [32]byte {
-	h := sha256.New()
-	h.Write(challenge)
-	h.Write([]byte(jkt))
-	var out [32]byte
-	h.Sum(out[:0])
-	return out
-}
-
 // fail returns the error for a failed check.
 func fail(check string) error {
 	return plxerr.New(plxerr.AttestationFailed, "app attest: %s", check)

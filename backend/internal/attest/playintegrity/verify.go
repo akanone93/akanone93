@@ -27,7 +27,7 @@ const (
 type Expect struct {
 	// PackageName is the Android application ID the token must be issued for.
 	PackageName string
-	// RequestHash is the expected requestHash, see RequestHash.
+	// RequestHash is the expected requestHash, see binding.RequestHash.
 	RequestHash string
 	// CertDigests are the SHA-256 digests of the accepted signing
 	// certificates. When empty the certificate is not checked; when set,
