@@ -57,7 +57,7 @@ http.Response _plx(int status, String code, String plx) =>
     _json({'code': code, 'message': '$plx: refused'}, status: status);
 
 final class _Rig {
-  _Rig({bool sca = false, this.platform = 'android'}) {
+  _Rig({bool sca = false}) {
     client = MockClient((req) async {
       final text = utf8.decode(req.bodyBytes);
       seen.add(
@@ -80,7 +80,7 @@ final class _Rig {
       appId: 'app_1',
       environment: 'production',
       device: DeviceInfo(
-        platform: platform,
+        platform: 'android',
         osVersion: '14',
         runtimeVersion: '0.1.0',
         hostBuild: '7',
@@ -91,7 +91,6 @@ final class _Rig {
     agent = GatewayAgent(api: api, auth: auth, clock: () => now);
   }
 
-  final String platform;
   late final http.Client client;
   late final PluxApiClient api;
   late final DeviceAuth auth;
