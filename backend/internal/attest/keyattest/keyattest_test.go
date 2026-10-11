@@ -306,3 +306,48 @@ func TestVerifyChainLengthBound(t *testing.T) {
 		t.Errorf("a chain at the configured bound: %v", err)
 	}
 }
+
+// Verifies: SEC-027.
+// A key counts as user-authentication-bound only when the hardware names
+// an authentication type and does not also allow use without one.
+func TestVerifyUserAuthentication(t *testing.T) {
+	t.Parallel()
+	fingerprintOrPassword := int64(3)
+	none := int64(0)
+	tests := []struct {
+		name       string
+		authType   *int64
+		noAuth     bool
+		wantAuth   bool
+		requireErr bool
+	}{
+		{name: "biometric or credential", authType: &fingerprintOrPassword, wantAuth: true},
+		{name: "no authentication tags", requireErr: true},
+		{name: "authentication type zero", authType: &none, requireErr: true},
+		{name: "no authentication required", authType: &fingerprintOrPassword, noAuth: true, requireErr: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			p := newPKI(t, nil)
+			spec := validSpec()
+			spec.userAuthType, spec.noAuthRequired = tt.authType, tt.noAuth
+			chain := p.chain(p.leaf(elliptic.P256(), encodeKD(spec)))
+			res, err := p.verifier(nil).Verify(chain, testChallenge, testPolicy())
+			if err != nil {
+				t.Fatalf("Verify without the requirement: %v", err)
+			}
+			if res.UserAuthRequired != tt.wantAuth {
+				t.Errorf("UserAuthRequired = %v, want %v", res.UserAuthRequired, tt.wantAuth)
+			}
+			policy := testPolicy()
+			policy.RequireUserAuth = true
+			_, err = p.verifier(nil).Verify(chain, testChallenge, policy)
+			if tt.requireErr {
+				wantCode(t, err, plxerr.AttestationFailed)
+			} else if err != nil {
+				t.Errorf("Verify with the requirement: %v", err)
+			}
+		})
+	}
+}

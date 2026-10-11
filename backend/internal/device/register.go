@@ -82,6 +82,11 @@ type AttestedRegistration struct {
 	KeyStorage KeyStorage
 	// Evidence is the attestation of the key.
 	Evidence Evidence
+	// SCAKeyJWK is the device's strong customer authentication key as a
+	// JSON Web Key, and SCAEvidence its attestation; both empty for a
+	// device that enrols the key later (SEC-027).
+	SCAKeyJWK   []byte
+	SCAEvidence *Evidence
 }
 
 // subject is what an evidence check needs to know about the device and
@@ -145,6 +150,10 @@ func (s *Service) RegisterAttested(ctx context.Context, r AttestedRegistration) 
 	if err != nil {
 		return Device{}, err
 	}
+	sca, err := s.verifyRegistrationSCA(ctx, appID, found.Production, r)
+	if err != nil {
+		return Device{}, err
+	}
 	id, err := s.newID()
 	if err != nil {
 		return Device{}, err
@@ -168,7 +177,10 @@ func (s *Service) RegisterAttested(ctx context.Context, r AttestedRegistration) 
 			return fmt.Errorf("device: register: %w", err)
 		}
 		d = deviceOf(row)
-		return nil
+		if sca == nil {
+			return nil
+		}
+		return putSCAKey(ctx, tx, row.ID, row.OrganizationID, sca.der, sca.key)
 	})
 	if isUniqueViolation(err) {
 		return Device{}, plxerr.New(plxerr.AttestationFailed, "a device with this key is already registered")
@@ -177,6 +189,36 @@ func (s *Service) RegisterAttested(ctx context.Context, r AttestedRegistration) 
 		return Device{}, fmt.Errorf("device: %w", err)
 	}
 	return d, nil
+}
+
+// registeredSCA is a verified SCA key on its way into the database.
+type registeredSCA struct {
+	key SCAKey
+	der []byte
+}
+
+// verifyRegistrationSCA verifies the SCA key a registration brings, when
+// it brings one (SEC-027). A key without evidence, and evidence without a
+// key, are refused.
+func (s *Service) verifyRegistrationSCA(ctx context.Context, appID string, production bool, r AttestedRegistration) (*registeredSCA, error) {
+	if len(r.SCAKeyJWK) == 0 && r.SCAEvidence == nil {
+		return nil, nil //nolint:nilnil // the device has no SCA key yet
+	}
+	if len(r.SCAKeyJWK) == 0 || r.SCAEvidence == nil {
+		return nil, plxerr.New(plxerr.AttestationFailed, "an SCA key and its evidence come together")
+	}
+	if err := r.SCAEvidence.matches(r.Platform); err != nil {
+		return nil, err
+	}
+	key, err := s.verifySCA(ctx, appID, production, SCAEnrolment{Challenge: r.Challenge, KeyJWK: r.SCAKeyJWK, Evidence: *r.SCAEvidence})
+	if err != nil {
+		return nil, err
+	}
+	der, err := x509.MarshalPKIXPublicKey(key.Public)
+	if err != nil {
+		return nil, fmt.Errorf("device: encode the SCA key: %w", err)
+	}
+	return &registeredSCA{key: key, der: der}, nil
 }
 
 // checkDescription validates what a device says about itself.
