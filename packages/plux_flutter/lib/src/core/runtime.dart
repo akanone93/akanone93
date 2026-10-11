@@ -58,11 +58,15 @@ import 'package:plux_flutter/src/render/renderer.dart';
 import 'package:plux_flutter/src/runtime_info.dart';
 import 'package:plux_flutter/src/schema/limit_values.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
+import 'package:plux_flutter/src/security/aead.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
+import 'package:plux_flutter/src/security/key_wrap.dart';
 import 'package:plux_flutter/src/security/pins.dart';
+import 'package:plux_flutter/src/security/platform_aead.dart';
 import 'package:plux_flutter/src/security/platform_attestation.dart';
 import 'package:plux_flutter/src/security/rasp.dart';
+import 'package:plux_flutter/src/security/record_cipher.dart';
 import 'package:plux_flutter/src/security/security_config.dart';
 import 'package:plux_flutter/src/state/persistence.dart';
 import 'package:plux_flutter/src/state/providers.dart';
@@ -71,6 +75,7 @@ import 'package:plux_flutter/src/store/kv_store.dart';
 import 'package:plux_flutter/src/store/metadata_state.dart';
 import 'package:plux_flutter/src/store/pointer.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
+import 'package:plux_flutter/src/store/sealed_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
 import 'package:plux_flutter/src/sync/metadata_sync.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
@@ -112,6 +117,9 @@ final class RuntimeOverrides {
     this.random,
     this.secrets,
     this.configSecrets,
+    this.encryptLocalStores,
+    this.keyWrapper,
+    this.aead,
   });
 
   /// Creates the credential store on the sync isolate.
@@ -144,6 +152,18 @@ final class RuntimeOverrides {
   /// Creates, on the sync isolate, the secret store that keeps the remote
   /// security configuration (SEC-182); the platform's when null.
   final SecretStore Function()? configSecrets;
+
+  /// Whether the local stores are encrypted (SEC-073), instead of what the
+  /// stored security configuration says.
+  final bool? encryptLocalStores;
+
+  /// The hardware key that wraps the stores' data keys; the platform's
+  /// when null.
+  final KeyWrapper Function()? keyWrapper;
+
+  /// The AES-256-GCM of the encrypted stores; the platform's, else Dart's,
+  /// when null.
+  final Aead? aead;
 }
 
 /// The runtime.
@@ -158,6 +178,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     this._root,
     this.assets,
     this._httpClient,
+    this._encrypt,
   ) {
     active.addListener(() => unawaited(_loadFonts(active.value)));
     active.addListener(() {
@@ -173,6 +194,34 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// Creates the HTTP client of the data layer and of images, pinned to the
   /// Plux server (SEC-041).
   final http.Client Function() _httpClient;
+
+  /// Whether the local stores are encrypted with hardware-wrapped keys
+  /// (`encryptLocalStores`, SEC-073). Read once at start: a configuration
+  /// that tightens it applies, and migrates the stores, on the next launch.
+  final bool _encrypt;
+
+  /// Whether the stored security configuration, or [overrides], turns on
+  /// the encryption of local stores. A configuration that cannot be read
+  /// is the built-in `standard` profile's.
+  static Future<bool> _encryptsStores(
+    PluxConfig config,
+    RuntimeOverrides overrides,
+  ) async {
+    final forced = overrides.encryptLocalStores;
+    if (forced != null) return forced;
+    final stored = await SecurityConfigStore(
+      overrides.secrets?.call() ?? const PlatformSecretStore(),
+      config.appId,
+      config.environment,
+    ).read();
+    final settings = stored == null
+        ? SecuritySettings.builtIn
+        : SecuritySettings.fromDocument(
+            stored.document,
+            version: stored.version,
+          );
+    return settings.flag(SecuritySetting.encryptLocalStores);
+  }
 
   /// Starts the runtime: opens the store, starts the sync isolate, imports
   /// the baseline when there is no release, counts the launch, and syncs
@@ -267,6 +316,7 @@ final class PluxRuntime with WidgetsBindingObserver {
         root,
         assets,
         httpClient,
+        await _encryptsStores(config, overrides),
       );
       await rt.statePersistence.load();
       final startup = await rt._startup();
@@ -458,7 +508,8 @@ final class PluxRuntime with WidgetsBindingObserver {
       cacheDirectory: '$_root/data',
       // The encrypted cache's key, kept like the secure state store's
       // (DAT-010, plan p5 D6).
-      keys: SecretCacheKeys(_secrets, 'data-cache.$_keyId'),
+      keys: SecretCacheKeys(_keySecrets, 'data-cache.$_keyId'),
+      sealed: _encrypt,
     ),
   );
 
@@ -487,21 +538,49 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// installation kept by the platform's secure storage, like the secure
   /// state store's (DAT-020, plan p5 D6). Its size follows the active app
   /// bundle's `data.outboxBytes`.
-  late final EncryptedFileStore _outboxStore = () {
-    final store = EncryptedFileStore(
-      path: '$_root/data/outbox.pxk',
-      secrets: _secrets,
-      keyName: 'data-outbox.$_keyId',
-      label: 'data-outbox/$_keyId',
-      maxBytes: PluxLimit.dataOutboxBytes.defaultValue,
-    );
+  late final PluxKeyValueStore _outboxStore = () {
+    final path = '$_root/data/outbox.pxk';
+    final id = _keyId;
+    final PluxKeyValueStore store = _encrypt
+        ? SealedFileStore(
+            path: path,
+            name: 'data-outbox/$id',
+            secrets: _keySecrets,
+            keyName: 'dk-outbox.$id',
+            maxBytes: PluxLimit.dataOutboxBytes.defaultValue,
+            cipher: _cipher,
+            legacySecrets: _secrets,
+            legacyKeyName: 'data-outbox.$id',
+            legacyLabel: 'data-outbox/$id',
+          )
+        : EncryptedFileStore(
+            path: path,
+            secrets: _secrets,
+            keyName: 'data-outbox.$id',
+            label: 'data-outbox/$id',
+            maxBytes: PluxLimit.dataOutboxBytes.defaultValue,
+          );
     active.addListener(() {
-      store.maxBytes =
-          active.value?.limits[PluxLimit.dataOutboxBytes.key] ??
-          PluxLimit.dataOutboxBytes.defaultValue;
+      _setMaxBytes(
+        store,
+        active.value?.limits[PluxLimit.dataOutboxBytes.key] ??
+            PluxLimit.dataOutboxBytes.defaultValue,
+      );
     });
     return store;
   }();
+
+  static void _setMaxBytes(PluxKeyValueStore store, int bytes) {
+    switch (store) {
+      case SealedFileStore():
+        store.maxBytes = bytes;
+      case EncryptedFileStore():
+        store.maxBytes = bytes;
+      case PlainFileStore():
+        store.maxBytes = bytes;
+      default:
+    }
+  }
 
   /// The host says whether the network is available
   /// (`Plux.setNetworkAvailable`, decision D13): streams waiting to
@@ -525,6 +604,21 @@ final class PluxRuntime with WidgetsBindingObserver {
   late final SecretStore _secrets =
       overrides.secrets?.call() ?? const PlatformSecretStore();
 
+  /// Where the data keys of the encrypted stores are kept (SEC-073): in
+  /// [_secrets], wrapped by secure hardware, when the stores are encrypted;
+  /// otherwise the platform's secret store itself.
+  late final SecretStore _keySecrets = _encrypt
+      ? HardwareWrappedSecretStore(
+          _secrets,
+          overrides.keyWrapper?.call() ?? const PlatformKeyWrapper(),
+        )
+      : _secrets;
+
+  /// The cipher of the encrypted stores' records (ADR-0058).
+  late final RecordCipher _cipher = RecordCipher(
+    overrides.aead ?? platformAead,
+  );
+
   /// The name part of this installation's keys.
   String get _keyId =>
       '${_safe(config.appId)}.${_safe(config.environment)}'.toLowerCase();
@@ -536,22 +630,49 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// memory for the session.
   late final StatePersistence statePersistence = () {
     final id = _keyId;
-    final persisted = PlainFileStore(
-      path: '$_root/plux-state/persisted.json',
-      maxBytes: PluxLimit.statePersistedBytes.defaultValue,
-    );
-    final secure = EncryptedFileStore(
-      path: '$_root/plux-state/secure.pxk',
-      secrets: _secrets,
-      keyName: 'state-secure.$id',
-      label: 'plux-state/secure/$id',
-      maxBytes: PluxLimit.stateSecureBytes.defaultValue,
-    );
+    final PluxKeyValueStore persisted;
+    final PluxKeyValueStore secure;
+    if (_encrypt) {
+      // Both stores keep their files, which a `standard` launch wrote plain
+      // and encrypted, and migrate them in place (SEC-073).
+      persisted = SealedFileStore(
+        path: '$_root/plux-state/persisted.json',
+        name: 'plux-state/persisted/$id',
+        secrets: _keySecrets,
+        keyName: 'dk-persisted.$id',
+        maxBytes: PluxLimit.statePersistedBytes.defaultValue,
+        cipher: _cipher,
+        plainMigration: true,
+      );
+      secure = SealedFileStore(
+        path: '$_root/plux-state/secure.pxk',
+        name: 'plux-state/secure/$id',
+        secrets: _keySecrets,
+        keyName: 'dk-secure.$id',
+        maxBytes: PluxLimit.stateSecureBytes.defaultValue,
+        cipher: _cipher,
+        legacySecrets: _secrets,
+        legacyKeyName: 'state-secure.$id',
+        legacyLabel: 'plux-state/secure/$id',
+      );
+    } else {
+      persisted = PlainFileStore(
+        path: '$_root/plux-state/persisted.json',
+        maxBytes: PluxLimit.statePersistedBytes.defaultValue,
+      );
+      secure = EncryptedFileStore(
+        path: '$_root/plux-state/secure.pxk',
+        secrets: _secrets,
+        keyName: 'state-secure.$id',
+        label: 'plux-state/secure/$id',
+        maxBytes: PluxLimit.stateSecureBytes.defaultValue,
+      );
+    }
     // The limits of the active app bundle (LIM-001).
     active.addListener(() {
       final limits = active.value?.limits ?? const <String, int>{};
-      persisted.maxBytes = limits.valueOf(PluxLimit.statePersistedBytes);
-      secure.maxBytes = limits.valueOf(PluxLimit.stateSecureBytes);
+      _setMaxBytes(persisted, limits.valueOf(PluxLimit.statePersistedBytes));
+      _setMaxBytes(secure, limits.valueOf(PluxLimit.stateSecureBytes));
     });
     return StatePersistence(
       persisted: persisted,
@@ -567,13 +688,25 @@ final class PluxRuntime with WidgetsBindingObserver {
   late final PluxDatabaseAdapter _dbAdapter =
       config.databaseAdapter ??
       BuiltInDatabaseAdapter(
-        store: EncryptedFileStore(
-          path: '$_root/plux-db/kv.pxk',
-          secrets: _secrets,
-          keyName: 'db-kv.$_keyId',
-          label: 'plux-db/kv/$_keyId',
-          maxBytes: PluxLimit.dbKvBytes.max * 4,
-        ),
+        store: _encrypt
+            ? SealedFileStore(
+                path: '$_root/plux-db/kv.pxk',
+                name: 'plux-db/kv/$_keyId',
+                secrets: _keySecrets,
+                keyName: 'dk-kv.$_keyId',
+                maxBytes: PluxLimit.dbKvBytes.max * 4,
+                cipher: _cipher,
+                legacySecrets: _secrets,
+                legacyKeyName: 'db-kv.$_keyId',
+                legacyLabel: 'plux-db/kv/$_keyId',
+              )
+            : EncryptedFileStore(
+                path: '$_root/plux-db/kv.pxk',
+                secrets: _secrets,
+                keyName: 'db-kv.$_keyId',
+                label: 'plux-db/kv/$_keyId',
+                maxBytes: PluxLimit.dbKvBytes.max * 4,
+              ),
         encrypted: true,
         report: _report,
       );

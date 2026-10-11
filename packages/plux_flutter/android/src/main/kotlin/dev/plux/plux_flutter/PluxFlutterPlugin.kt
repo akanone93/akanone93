@@ -22,7 +22,8 @@ import javax.crypto.spec.GCMParameterSpec
  * The platform services of the Plux runtime (ADR-0029): where the release
  * store lives, and secrets kept encrypted under an Android Keystore key, so
  * that no secret is ever written in the clear. The device keys live in
- * [PluxKeys] (SEC-001), the Play Integrity attestation in [PluxAttestation]
+ * [PluxKeys] (SEC-001), the key that wraps the encrypted stores' data keys
+ * in [PluxDataKeys] (SEC-073), the Play Integrity attestation in [PluxAttestation]
  * (SEC-003), the pinned HTTP/2 client of the Plux server in [PluxPinnedHttp]
  * (SEC-041). The device actions that need the platform, the share
  * sheet and permission prompts, run here too (SEC-080). Bundle data never crosses this channel.
@@ -32,6 +33,7 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
     private lateinit var context: Context
     private lateinit var device: PluxDevice
     private lateinit var keys: PluxKeys
+    private lateinit var dataKeys: PluxDataKeys
     private lateinit var attestation: PluxAttestation
     private lateinit var http: PluxPinnedHttp
     private var activityBinding: ActivityPluginBinding? = null
@@ -54,9 +56,11 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
     }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        loadNative()
         context = binding.applicationContext
         device = PluxDevice(context)
         keys = PluxKeys()
+        dataKeys = PluxDataKeys()
         attestation = PluxAttestation(context)
         http = PluxPinnedHttp(context)
         channel = MethodChannel(binding.binaryMessenger, CHANNEL)
@@ -66,6 +70,7 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
         keys.close()
+        dataKeys.close()
         http.close()
     }
 
@@ -85,6 +90,7 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
                     result.success(null)
                 }
                 "keyCreate", "keyPublic", "keySign", "keyDelete" -> keys.handle(call, result)
+                "dataKeyWrap", "dataKeyUnwrap" -> dataKeys.handle(call, result)
                 "attestationSupported", "integrityToken" -> attestation.handle(call, result)
                 "httpOpen", "httpRead", "httpClose" -> http.handle(call, result)
                 "share" -> device.share(call, result)
@@ -140,6 +146,20 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, sealed, 0, IV_BYTES))
         return String(cipher.doFinal(sealed, IV_BYTES, sealed.size - IV_BYTES), Charsets.UTF_8)
+    }
+
+    /**
+     * Loads `plux_native`, whose `JNI_OnLoad` keeps the Java VM so that the
+     * library can reach `javax.crypto` for AES-GCM from any isolate thread
+     * (SEC-073, ADR-0058). Where the library is absent, the runtime falls
+     * back to its own AES-GCM.
+     */
+    private fun loadNative() {
+        try {
+            System.loadLibrary("plux_native")
+        } catch (e: UnsatisfiedLinkError) {
+            // Dart checks the platform AES-GCM before it uses it.
+        }
     }
 
     private companion object {

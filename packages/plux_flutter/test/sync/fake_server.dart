@@ -228,6 +228,10 @@ final class FakePluxServer {
   /// Every request path, in order.
   final List<String> requests = [];
 
+  /// The `Authorization` and `DPoP` headers of every request that sent
+  /// them, for tests that look for them elsewhere (SEC-072).
+  final List<String> credentialsSeen = [];
+
   /// `Range` headers of object requests.
   final List<String> ranges = [];
 
@@ -460,6 +464,7 @@ final class FakePluxServer {
     // As the server does: a device token is a DPoP token, and a request
     // with it carries a proof (the fake does not check the signature).
     final auth = headers.value('authorization');
+    credentialsSeen..addAll([?auth, ?headers.value('dpop')]);
     final authed =
         auth != null &&
         auth.startsWith('DPoP plux_dat_') &&
