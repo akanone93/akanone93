@@ -55,8 +55,9 @@ android {
 
 dependencies {
     implementation("androidx.core:core:1.13.1")
-    // BiometricPrompt for biometricAuth and the inactivity lock (SEC-027,
-    // SEC-094, ADR-0059); brings androidx.fragment.
+    // BiometricPrompt for the SCA key unlock, biometricAuth and the
+    // inactivity lock (SEC-027, SEC-094, ADR-0056, ADR-0059); brings
+    // androidx.fragment.
     implementation("androidx.biometric:biometric:1.1.0")
     // Play Integrity standard requests (SEC-003, ADR-0012).
     implementation("com.google.android.play:integrity:1.6.0")

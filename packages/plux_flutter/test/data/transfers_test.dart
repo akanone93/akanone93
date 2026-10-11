@@ -183,6 +183,7 @@ void main() {
       own: [
         DataSourceController(
           spec: DataSourceSpec(
+            route: DataRoute.direct,
             id: 'files-id',
             name: 'files',
             kind: DataKind.rest,
@@ -454,6 +455,7 @@ void main() {
       own: [
         DataSourceController(
           spec: DataSourceSpec(
+            route: DataRoute.direct,
             id: 'blocked-id',
             name: 'blocked',
             kind: DataKind.rest,

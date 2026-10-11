@@ -16,6 +16,7 @@ import 'package:plux_flutter/src/core/config.dart' show PluxAuthDelegate;
 import 'package:plux_flutter/src/data/cache.dart';
 import 'package:plux_flutter/src/data/client.dart';
 import 'package:plux_flutter/src/data/failure.dart';
+import 'package:plux_flutter/src/data/gateway.dart';
 import 'package:plux_flutter/src/data/mapping.dart';
 import 'package:plux_flutter/src/data/mocks.dart';
 import 'package:plux_flutter/src/data/outbox.dart';
@@ -30,6 +31,7 @@ import 'package:plux_flutter/src/data/transport.dart';
 import 'package:plux_flutter/src/db/service.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
+import 'package:plux_flutter/src/security/sca.dart';
 import 'package:plux_flutter/src/store/kv_store.dart' show PluxKeyValueStore;
 
 /// The data layer's runtime services: one per runtime.
@@ -58,18 +60,31 @@ final class DataServices implements DataContext {
     int Function()? now,
     this.allowCleartext = false,
     int Function()? assurance,
-  }) : _report = report, // ignore: prefer_initializing_formals
+    this.gateway,
+    this.authoriser,
+    bool Function()? allowDirect,
+  }) : _allowDirect = allowDirect ?? (() => true),
+       _report = report, // ignore: prefer_initializing_formals
        _assurance = assurance ?? (() => 0),
        _auth = AuthSession(authDelegate),
        now = now ?? (() => DateTime.now().millisecondsSinceEpoch);
 
   final int Function() _assurance;
+  final bool Function() _allowDirect;
 
   @override
   int get assurance => _assurance();
 
   /// Sends requests (the data isolate in apps).
   final DataTransport transport;
+
+  /// Carries the requests of `plux` sources through the gateway (SEC-030);
+  /// without one they fail with `PLX-5108`.
+  final GatewayTransport? gateway;
+
+  /// Confirms transactions with the user (SEC-027); without one a
+  /// transaction operation fails.
+  final TransactionAuthoriser? authoriser;
 
   /// Plain cached responses.
   final CacheStore? plainStore;
@@ -144,6 +159,9 @@ final class DataServices implements DataContext {
     report: _report,
     allowCleartext: allowCleartext,
     onSuccess: () => outbox?.replaySoon(),
+    gateway: gateway,
+    authoriser: authoriser,
+    allowDirect: _allowDirect,
   );
 
   bool _network = true;
@@ -446,8 +464,11 @@ final class DataScope extends ChangeNotifier implements DataActions {
     try {
       if (spec.transfer != null) return await _transfer(c, spec, input, cancel);
       final Object? raw;
+      // A transaction is never queued: its confirmation is single use and
+      // expires with its challenge, so a replay could not carry one.
       if ((spec.offlineCapable ?? c.spec.offlineCapable) &&
-          spec.mutates(c.spec.kind)) {
+          spec.mutates(c.spec.kind) &&
+          c.spec.transaction == null) {
         final r = await services.callOffline(c.spec, spec, c.caller, input);
         if (r.queued) return null;
         raw = r.json;

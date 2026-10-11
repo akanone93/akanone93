@@ -515,6 +515,7 @@ void main() {
         'share',
         'showSnackbar',
         'showToast',
+        'signTransaction',
         'startAnimation',
         'stop',
         'submitForm',

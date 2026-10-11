@@ -171,6 +171,7 @@ void main() {
     bool auth = false,
     int requiresAssurance = 0,
   }) => DataSourceSpec(
+    route: DataRoute.direct,
     requiresAssurance: requiresAssurance,
     id: 'tasks-id',
     name: 'tasks',
@@ -256,6 +257,7 @@ void main() {
       final s = tasks();
       final c = controller(
         DataSourceSpec(
+          route: DataRoute.direct,
           id: s.id,
           name: s.name,
           kind: s.kind,
@@ -405,6 +407,7 @@ void main() {
     'GraphQL queries return data; errors fail without their messages [DAT-001]',
     () async {
       final s = DataSourceSpec(
+        route: DataRoute.direct,
         id: 'p',
         name: 'profile',
         kind: DataKind.graphql,
@@ -422,6 +425,7 @@ void main() {
         'variables': {'id': 1},
       });
       final broken = DataSourceSpec(
+        route: DataRoute.direct,
         id: 'p',
         name: 'profile',
         kind: DataKind.graphql,
@@ -483,6 +487,7 @@ void main() {
     () async {
       final c = controller(
         DataSourceSpec(
+          route: DataRoute.direct,
           id: 'n',
           name: 'count',
           kind: DataKind.rest,

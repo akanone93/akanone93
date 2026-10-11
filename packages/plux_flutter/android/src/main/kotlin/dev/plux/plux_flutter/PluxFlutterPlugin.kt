@@ -42,6 +42,7 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activityBinding = binding
         device.activity = binding.activity
+        keys.activity = binding.activity
         binding.addRequestPermissionsResultListener(device)
     }
 
@@ -54,6 +55,7 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
         activityBinding?.removeRequestPermissionsResultListener(device)
         activityBinding = null
         device.activity = null
+        keys.activity = null
     }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -92,6 +94,7 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
                 }
                 "keyCreate", "keyPublic", "keySign", "keyDelete" -> keys.handle(call, result)
                 "dataKeyWrap", "dataKeyUnwrap" -> dataKeys.handle(call, result)
+                "keySignAuth" -> keys.handleAuth(call, result)
                 "attestationSupported", "integrityToken" -> attestation.handle(call, result)
                 "httpOpen", "httpRead", "httpClose" -> http.handle(call, result)
                 "share" -> device.share(call, result)
