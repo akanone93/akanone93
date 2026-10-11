@@ -59,9 +59,11 @@ import 'package:plux_flutter/src/runtime_info.dart';
 import 'package:plux_flutter/src/schema/limit_values.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
+import 'package:plux_flutter/src/security/confirm_sheet.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/security/pins.dart';
 import 'package:plux_flutter/src/security/platform_attestation.dart';
+import 'package:plux_flutter/src/security/sca.dart';
 import 'package:plux_flutter/src/security/security_config.dart';
 import 'package:plux_flutter/src/state/persistence.dart';
 import 'package:plux_flutter/src/state/providers.dart';
@@ -111,6 +113,7 @@ final class RuntimeOverrides {
     this.random,
     this.secrets,
     this.configSecrets,
+    this.userAuthSigner,
   });
 
   /// Creates the credential store on the sync isolate.
@@ -143,6 +146,10 @@ final class RuntimeOverrides {
   /// Creates, on the sync isolate, the secret store that keeps the remote
   /// security configuration (SEC-182); the platform's when null.
   final SecretStore Function()? configSecrets;
+
+  /// Creates the signer of the SCA key that asks the user (SEC-027); the
+  /// platform's when null.
+  final UserAuthSigner Function()? userAuthSigner;
 }
 
 /// The runtime.
@@ -245,6 +252,7 @@ final class PluxRuntime with WidgetsBindingObserver {
               runtimeVersion: PluxRuntimeInfo.version,
               hostBuild: config.hostBuild,
             ),
+            enrolSca: config.strongCustomerAuthentication,
             supportsFeature: features.supports,
             verifierLimits: limits,
             diskQuota: config.diskQuota ?? PluxLimit.deviceDiskQuota.max,
@@ -430,6 +438,23 @@ final class PluxRuntime with WidgetsBindingObserver {
     downloadDirectory: '$_root/downloads',
     database: database,
     assurance: () => assurance.value,
+    gateway: _worker,
+    authoriser: _sca,
+    allowDirect: () =>
+        settings.value.flag(SecuritySetting.allowDirectDataSources),
+  );
+
+  /// Strong customer authentication (SEC-027, ADR-0056): challenge,
+  /// confirmation sheet, the system prompt and the SCA key's signature. The
+  /// sheet shows on the app's navigator when the step has no screen of its
+  /// own.
+  late final ScaService _sca = ScaService(
+    challenges: _worker,
+    keys: overrides.deviceKeys?.call() ?? const PlatformDeviceKeys(),
+    signer: overrides.userAuthSigner?.call() ?? const PlatformDeviceKeys(),
+    confirmer: const SheetTransactionConfirmer(),
+    alias: scaKeyAlias(config.appId, config.environment),
+    context: () => navigatorKey?.currentState?.overlay?.context,
   );
 
   /// The offline outbox's store: encrypted under a key of this
@@ -462,6 +487,7 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// cached response, so the next user never sees the previous user's
   /// data, then tells the host's auth delegate.
   Future<void> logout() async {
+    _sca.clear();
     await _dataServices.clearCache();
     environment().authDelegate?.onLogout();
   }
@@ -582,6 +608,7 @@ final class PluxRuntime with WidgetsBindingObserver {
           openLink: handleDeepLink,
         ),
         PluxDatabase: database,
+        ScaService: _sca,
       },
       deviceGuard: _deviceGuard,
     )..ownerErrors = _ownerErrors,

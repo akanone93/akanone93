@@ -164,6 +164,7 @@ void main() {
     );
     final source = DataSourceController(
       spec: const DataSourceSpec(
+        route: DataRoute.direct,
         id: 's',
         name: 'posts',
         kind: DataKind.rest,

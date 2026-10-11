@@ -43,6 +43,44 @@ enum DataKind {
   other,
 }
 
+/// How a source reaches its API (SEC-030, ADR-0056).
+enum DataRoute {
+  /// Through the Plux gateway (the default): the device sends its token and a
+  /// DPoP proof to the Plux server, which forwards to the upstream it has
+  /// registered for the source.
+  plux,
+
+  /// Straight to the origin, as in P5, within the plugin's network domains
+  /// (DAT-030) and the optional pins (SEC-042); a security profile may
+  /// refuse it (`PLX-6063`).
+  direct,
+}
+
+/// The fields of an operation's input that dynamic linking signs
+/// (SEC-028): JSON Pointers (RFC 6901) into the input, as the document's
+/// `transaction` names them.
+final class TransactionMapping {
+  /// Creates the mapping.
+  const TransactionMapping({
+    required this.amount,
+    required this.currency,
+    required this.payee,
+    this.summary,
+  });
+
+  /// The pointer to the amount.
+  final String amount;
+
+  /// The pointer to the currency.
+  final String currency;
+
+  /// The pointer to the payee.
+  final String payee;
+
+  /// The pointer to a human-readable summary, or null.
+  final String? summary;
+}
+
 /// The directions of a file transfer (DAT-031).
 enum TransferKind {
   /// A file is sent.
@@ -289,6 +327,8 @@ final class DataSourceSpec {
     this.offlineCapable = false,
     this.database,
     this.requiresAssurance = 0,
+    this.route = DataRoute.plux,
+    this.transaction,
   });
 
   /// Decodes a source of a bundle; [strings] is the table of the section
@@ -375,6 +415,8 @@ final class DataSourceSpec {
             ? DatabaseQuerySpec.fromConfig(literal)
             : null,
         requiresAssurance: assuranceOf(literal['requiresAssurance']),
+        route: literal['route'] == 'direct' ? DataRoute.direct : DataRoute.plux,
+        transaction: _transaction(literal['transaction']),
       );
     } on TypeError catch (e) {
       throw PluxException(
@@ -399,6 +441,15 @@ final class DataSourceSpec {
   /// The assurance level (0 to 3) the device must have for the source to
   /// load or be called (SEC-007); 0 asks for nothing.
   final int requiresAssurance;
+
+  /// How the source reaches its API (SEC-030): through the Plux gateway
+  /// unless the document says `direct`.
+  final DataRoute route;
+
+  /// The fields a mutating operation of the source signs for strong
+  /// customer authentication (SEC-028), or null: then no operation asks the
+  /// user to confirm a transaction.
+  final TransactionMapping? transaction;
 
   /// The base URL per environment key (DAT-003).
   final Map<String, String> baseUrls;
@@ -463,6 +514,16 @@ final class DataSourceSpec {
 
   /// The watched query of a database source (DB-006), else null.
   final DatabaseQuerySpec? database;
+}
+
+TransactionMapping? _transaction(Object? v) {
+  if (v is! Map<String, Object?>) return null;
+  return TransactionMapping(
+    amount: v['amount']! as String,
+    currency: v['currency']! as String,
+    payee: v['payee']! as String,
+    summary: v['summary'] as String?,
+  );
 }
 
 Map<String, Object?> _map(Object? v) =>

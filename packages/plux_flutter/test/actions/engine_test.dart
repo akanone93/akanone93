@@ -462,7 +462,7 @@ void main() {
       final handler = handlerFor(d);
       if (runsInThisRuntime(d) || stateHandlers.containsKey(d.name)) {
         expect(handler, isNot(isA<RefusingHandler>()), reason: d.name);
-        expect(int.parse(d.phase.substring(1)), lessThanOrEqualTo(5));
+        expect(int.parse(d.phase.substring(1)), lessThanOrEqualTo(6));
       } else {
         expect(handler, isA<RefusingHandler>(), reason: d.name);
         expect(d.phase, isNot('P4'), reason: d.name);
@@ -514,6 +514,7 @@ void main() {
         'share',
         'showSnackbar',
         'showToast',
+        'signTransaction',
         'startAnimation',
         'stop',
         'submitForm',
