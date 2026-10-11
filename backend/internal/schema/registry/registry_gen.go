@@ -146,7 +146,7 @@ var widgets = [...]Widget{
 		},
 	},
 	{
-		Type: "BiometricButton", ID: 107, Layer: 2, Phase: "P6", Revision: 1, Runtimes: []string{"0.1.0"},
+		Type: "BiometricButton", ID: 107, Layer: 2, Phase: "P6", Revision: 1, Runtimes: []string{"0.4.0"},
 		Category: "interaction", Icon: "fingerprint", Description: "A button that triggers a biometric step-up (SEC-027).",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 80, Role: RoleButton, Interactive: true,
 		Props: []Prop{
@@ -1371,7 +1371,7 @@ var widgets = [...]Widget{
 		},
 	},
 	{
-		Type: "KycCameraCapture", ID: 108, Layer: 2, Phase: "P6", Revision: 1, Runtimes: []string{"0.1.0"},
+		Type: "KycCameraCapture", ID: 108, Layer: 2, Phase: "P6", Revision: 1, Runtimes: []string{"0.4.0"},
 		Category: "input", Icon: "photo_camera", Description: "ID document and selfie capture with framing guides and quality checks. Ships in `plux_media`.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 400, Role: RoleNone, Interactive: true,
 		Props: []Prop{
@@ -1525,7 +1525,7 @@ var widgets = [...]Widget{
 		},
 	},
 	{
-		Type: "OtpInput", ID: 106, Layer: 2, Phase: "P6", Revision: 1, Runtimes: []string{"0.1.0"},
+		Type: "OtpInput", ID: 106, Layer: 2, Phase: "P6", Revision: 1, Runtimes: []string{"0.4.0"},
 		Category: "input", Icon: "pin", Description: "One-time code entry with platform autofill: SMS User Consent API on Android, one-time-code autofill on iOS (SEC-090).",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 140, Role: RoleTextField, Interactive: true,
 		Props: []Prop{
@@ -1822,7 +1822,7 @@ var widgets = [...]Widget{
 		},
 	},
 	{
-		Type: "SecurePinPad", ID: 105, Layer: 2, Phase: "P6", Revision: 1, Runtimes: []string{"0.1.0"},
+		Type: "SecurePinPad", ID: 105, Layer: 2, Phase: "P6", Revision: 1, Runtimes: []string{"0.4.0"},
 		Category: "input", Icon: "dialpad", Description: "PIN entry with an optional randomised layout and haptic-only key feedback (SEC-090).",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 150, Role: RoleButton, Interactive: true,
 		Props: []Prop{
@@ -1835,7 +1835,7 @@ var widgets = [...]Widget{
 		},
 	},
 	{
-		Type: "SecureTextField", ID: 104, Layer: 2, Phase: "P6", Revision: 1, Runtimes: []string{"0.1.0"},
+		Type: "SecureTextField", ID: 104, Layer: 2, Phase: "P6", Revision: 1, Runtimes: []string{"0.4.0"},
 		Category: "input", Icon: "password", Description: "Hardened text entry: obscured, with no suggestions, autocorrect, clipboard or keyboard learning (SEC-090).",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 120, Role: RoleTextField, Interactive: true,
 		Props: []Prop{

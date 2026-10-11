@@ -281,7 +281,7 @@ ID 16 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Baseline` · an
 
 A button that triggers a biometric step-up (SEC-027).
 
-ID 107 · Layer 2 · P6 · revision 1 (runtime 0.1.0) · android, ios · cost 80 µs · role button · interactive
+ID 107 · Layer 2 · P6 · revision 1 (runtime 0.4.0) · android, ios · cost 80 µs · role button · interactive
 
 | Prop | ID | Type | Default | Description |
 |---|---|---|---|---|
@@ -1676,7 +1676,7 @@ ID 58 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `InputChip` · a
 
 ID document and selfie capture with framing guides and quality checks. Ships in `plux_media`.
 
-ID 108 · Layer 2 · P6 · revision 1 (runtime 0.1.0) · android, ios · cost 400 µs · role none · interactive
+ID 108 · Layer 2 · P6 · revision 1 (runtime 0.4.0) · android, ios · cost 400 µs · role none · interactive
 
 | Prop | ID | Type | Default | Description |
 |---|---|---|---|---|
@@ -1853,7 +1853,7 @@ ID 22 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Opacity` · and
 
 One-time code entry with platform autofill: SMS User Consent API on Android, one-time-code autofill on iOS (SEC-090).
 
-ID 106 · Layer 2 · P6 · revision 1 (runtime 0.1.0) · android, ios · cost 140 µs · role textField · interactive
+ID 106 · Layer 2 · P6 · revision 1 (runtime 0.4.0) · android, ios · cost 140 µs · role textField · interactive
 
 | Prop | ID | Type | Default | Description |
 |---|---|---|---|---|
@@ -2193,7 +2193,7 @@ ID 45 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Scrollbar` · a
 
 PIN entry with an optional randomised layout and haptic-only key feedback (SEC-090).
 
-ID 105 · Layer 2 · P6 · revision 1 (runtime 0.1.0) · android, ios · cost 150 µs · role button · interactive
+ID 105 · Layer 2 · P6 · revision 1 (runtime 0.4.0) · android, ios · cost 150 µs · role button · interactive
 
 | Prop | ID | Type | Default | Description |
 |---|---|---|---|---|
@@ -2209,7 +2209,7 @@ ID 105 · Layer 2 · P6 · revision 1 (runtime 0.1.0) · android, ios · cost 15
 
 Hardened text entry: obscured, with no suggestions, autocorrect, clipboard or keyboard learning (SEC-090).
 
-ID 104 · Layer 2 · P6 · revision 1 (runtime 0.1.0) · android, ios · cost 120 µs · role textField · interactive
+ID 104 · Layer 2 · P6 · revision 1 (runtime 0.4.0) · android, ios · cost 120 µs · role textField · interactive
 
 | Prop | ID | Type | Default | Description |
 |---|---|---|---|---|
