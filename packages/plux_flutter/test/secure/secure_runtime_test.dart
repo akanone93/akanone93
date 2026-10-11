@@ -188,6 +188,7 @@ void main() {
           'widget.OtpInput.v1',
           'widget.BiometricButton.v1',
           'forms.sensitive.v1',
+          'security.secureui.v1',
         ]) {
           expect(features.supports(f), isTrue, reason: f);
         }

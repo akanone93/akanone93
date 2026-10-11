@@ -20,6 +20,7 @@ import (
 // version each member needs (WGT-004).
 func semantic(u *unit) {
 	u.checkDecls()
+	u.checkAppSecureUI()
 	for _, c := range u.shared {
 		if u.inFocus(c.file) {
 			u.checkComponent(c)
@@ -82,6 +83,9 @@ func (u *unit) checkPage(pg *page) {
 	for i, p := range doc.Params {
 		ptr := plxerr.Pointer("params", strconv.Itoa(i))
 		pg.params = append(pg.params, u.checkParam(pl, p, file, ptr, true))
+	}
+	if doc.Security != nil && doc.Security.Secure != nil && *doc.Security.Secure {
+		u.useRevision(secureUIFeature, secureUIRuntimes, 1, vctx{file: file, ptr: "/security/secure", pl: pl})
 	}
 	pg.state = u.checkState(pl, doc.State, file, pg.scope)
 	pg.sources = u.checkSources(pl, doc.DataSources, file, pg.scope)
