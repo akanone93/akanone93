@@ -202,7 +202,7 @@ func (a DeviceAuth) url(path string) string {
 // caller's to apply.
 func (a DeviceAuth) AuthenticateRequest(ctx context.Context, w http.ResponseWriter, r *http.Request) (device.Identity, error) {
 	w.Header().Set(nonceHeader, a.Nonces.Current())
-	d, err := a.authenticateWith(ctx, r.Header, r.Method, a.url(r.URL.Path))
+	d, err := a.authenticateWith(ctx, r.Header, r.Method, a.url(r.URL.EscapedPath()))
 	if err != nil {
 		return device.Identity{}, refuse(Call{ResponseHeader: w.Header()}, err)
 	}

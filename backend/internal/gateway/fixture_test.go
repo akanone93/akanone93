@@ -92,7 +92,7 @@ func (f fakeKeys) SCAKey(_ context.Context, d device.Identity) (device.SCAKey, e
 
 // fixture is a gateway in front of an httptest upstream.
 type fixture struct {
-	t        *testing.T
+	t        testing.TB
 	clock    *clock
 	signer   *signing.File
 	cache    *cache.Memory
@@ -115,7 +115,7 @@ type fixture struct {
 
 // newFixture builds the gateway, an upstream called "bank" with a
 // transaction operation "transfer" and a plain one "balance", and a device.
-func newFixture(t *testing.T) *fixture {
+func newFixture(t testing.TB) *fixture {
 	t.Helper()
 	f := &fixture{
 		t: t, clock: newClock(), secrets: fakeSecrets{}, keys: fakeKeys{}, requests: make(chan seen, 64),
@@ -281,7 +281,7 @@ func (f *fixture) signTransaction(c Challenge, summary []byte) []byte {
 }
 
 // mustTighten lowers a limit.
-func mustTighten(t *testing.T, s limits.Set, k limits.Key, v int64) limits.Set {
+func mustTighten(t testing.TB, s limits.Set, k limits.Key, v int64) limits.Set {
 	t.Helper()
 	out, err := s.Tighten(k, limits.ScopeApp, v)
 	if err != nil {
@@ -301,7 +301,7 @@ func mustAddr(s string) netip.Addr {
 
 // newTokenServer is an OAuth token endpoint: next returns the token and
 // its lifetime in seconds. It checks the client authenticates with Basic.
-func newTokenServer(t *testing.T, next func() (string, int)) *httptest.Server {
+func newTokenServer(t testing.TB, next func() (string, int)) *httptest.Server {
 	t.Helper()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id, secret, ok := r.BasicAuth()
