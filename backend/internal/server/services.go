@@ -331,7 +331,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	events, err := telemetry.NewService(telemetry.Options{DB: db, IDs: gen, Limits: set})
+	events, err := telemetry.NewService(telemetry.Options{DB: db, IDs: gen, Limits: set, Retention: time.Duration(cfg.Telemetry.RetentionDays) * 24 * time.Hour})
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}

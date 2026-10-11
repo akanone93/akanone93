@@ -389,6 +389,9 @@ type Observability struct {
 type Telemetry struct {
 	// Store is "postgres"; "clickhouse" arrives with ANL-010 in P9.
 	Store string `json:"store"`
+	// RetentionDays is how long events are kept before the maintenance
+	// sweep deletes them (SEC-160).
+	RetentionDays int `json:"retentionDays"`
 }
 
 // Retention is how long history is kept.

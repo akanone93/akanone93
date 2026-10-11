@@ -327,6 +327,7 @@ func (c *Config) validateTelemetry(p *problems) {
 	if p.oneOf("telemetry.store", c.Telemetry.Store, "postgres", "clickhouse") && c.Telemetry.Store == "clickhouse" {
 		p.addf("telemetry.store", "clickhouse arrives in P9 (ANL-010)")
 	}
+	p.positive("telemetry.retentionDays", int64(c.Telemetry.RetentionDays))
 }
 
 // validateLimits checks the installation-level tightenings against the

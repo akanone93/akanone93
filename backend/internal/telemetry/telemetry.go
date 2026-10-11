@@ -29,8 +29,9 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 )
 
-// Retention is how long events are kept.
-const Retention = 30 * 24 * time.Hour
+// DefaultRetention is how long events are kept unless the operator sets
+// telemetry.retentionDays (SEC-160).
+const DefaultRetention = 30 * 24 * time.Hour
 
 // Bounds of one event's fields.
 const (
@@ -63,6 +64,8 @@ type Options struct {
 	IDs    IDs
 	Limits limits.Set
 	Now    func() time.Time
+	// Retention is how long events are kept; zero means DefaultRetention.
+	Retention time.Duration
 }
 
 // Service ingests and lists events.
@@ -78,6 +81,9 @@ func NewService(o Options) (*Service, error) {
 	}
 	if o.Limits.IsZero() {
 		o.Limits = limits.Defaults()
+	}
+	if o.Retention <= 0 {
+		o.Retention = DefaultRetention
 	}
 	now := o.Now
 	if now == nil {
@@ -209,7 +215,7 @@ func (s *Service) check(src Source, e Event) ([]byte, error) {
 		return nil, fmt.Errorf("%q is not a catalogued event", e.Name)
 	case e.DeviceID != "" && e.DeviceID != src.DeviceID:
 		return nil, errors.New("an event names another device")
-	case e.Time.IsZero() || e.Time.After(s.now().Add(time.Hour)) || e.Time.Before(s.now().Add(-Retention)):
+	case e.Time.IsZero() || e.Time.After(s.now().Add(time.Hour)) || e.Time.Before(s.now().Add(-s.o.Retention)):
 		return nil, errors.New("the event time is missing or out of range")
 	case e.ReleaseSequence < 0 || len(e.PluginKey) > 64 || len(e.Route) > maxText:
 		return nil, errors.New("a field is out of range")
@@ -286,7 +292,7 @@ func (s *Service) List(ctx context.Context, p auth.Principal, appID, envID, name
 		t = s.now().Add(2 * time.Hour)
 	}
 	if since.IsZero() {
-		since = s.now().Add(-Retention)
+		since = s.now().Add(-s.o.Retention)
 	}
 	id := before.AfterID()
 	if before.ID == "" {
@@ -319,7 +325,7 @@ func (s *Service) Purge(ctx context.Context, org string) (int64, error) {
 	var n int64
 	err := s.o.DB.InTx(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
-		n, err = dbgen.New(tx).PurgeTelemetry(ctx, storage.Timestamp(s.now().Add(-Retention)))
+		n, err = dbgen.New(tx).PurgeTelemetry(ctx, storage.Timestamp(s.now().Add(-s.o.Retention)))
 		return err //nolint:wrapcheck // one statement
 	})
 	if err != nil {
