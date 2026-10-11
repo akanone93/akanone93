@@ -464,7 +464,7 @@ final class FakePluxServer {
     // As the server does: a device token is a DPoP token, and a request
     // with it carries a proof (the fake does not check the signature).
     final auth = headers.value('authorization');
-    credentialsSeen..addAll([?auth, ?headers.value('dpop')]);
+    credentialsSeen.addAll([?auth, ?headers.value('dpop')]);
     final authed =
         auth != null &&
         auth.startsWith('DPoP plux_dat_') &&
