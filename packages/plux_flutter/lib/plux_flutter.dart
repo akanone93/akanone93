@@ -80,6 +80,8 @@ export 'src/navigation/shell.dart' show PluxShell, PluxShellScope, PluxShellTab;
 export 'src/platform/platform_services.dart'
     show PlatformSecretStore, platformStorageDirectory;
 export 'src/runtime_info.dart';
+export 'src/security/key_wrap.dart'
+    show HardwareWrappedSecretStore, KeyWrapper, PlatformKeyWrapper;
 export 'src/security/security_config.dart'
     show
         SecurityProfile,
