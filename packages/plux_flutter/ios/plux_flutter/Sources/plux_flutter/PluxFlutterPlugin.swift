@@ -41,7 +41,7 @@ public class PluxFlutterPlugin: NSObject, FlutterPlugin {
       guard let name = Self.name(args) else { return result(Self.badName) }
       _ = SecItemDelete(query(name) as CFDictionary)
       result(nil)
-    case "keyCreate", "keyPublic", "keySign", "keyDelete":
+    case "keyCreate", "keyPublic", "keySign", "keyAgree", "keyDelete":
       keys.handle(call.method, args, result: result)
     case "attestationSupported", "appAttestKey", "appAttestAttest", "appAttestAssert":
       attestation.handle(call.method, args, result: result)

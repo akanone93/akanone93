@@ -355,6 +355,7 @@ final class PluxApiClient {
     required Uint8List challenge,
     required DeviceKey key,
     required AttestationEvidence evidence,
+    DeviceKey? agreementKey,
   }) async {
     final r = await _call('plux.v1.DeviceService/RegisterAttestedDevice', {
       'appId': appId,
@@ -373,6 +374,12 @@ final class PluxApiClient {
         evidence is DevelopmentEvidence ? KeyStorage.software : key.storage,
       ),
       'evidence': _evidence(evidence),
+      // The key-agreement key lets the server wrap the content key of a
+      // confidential release to this device (SEC-053).
+      if (agreementKey != null)
+        'keyAgreementPublicKeyJwk': base64.encode(
+          utf8.encode(jsonEncode(agreementKey.publicKey.jwk)),
+        ),
     });
     final d = r['device'];
     final id = d is Map<String, Object?> ? d['id'] : null;

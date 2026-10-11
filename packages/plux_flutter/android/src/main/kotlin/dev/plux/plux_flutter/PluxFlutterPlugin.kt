@@ -84,7 +84,7 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
                     secretFile(name(call)).delete()
                     result.success(null)
                 }
-                "keyCreate", "keyPublic", "keySign", "keyDelete" -> keys.handle(call, result)
+                "keyCreate", "keyPublic", "keySign", "keyAgree", "keyDelete" -> keys.handle(call, result)
                 "attestationSupported", "integrityToken" -> attestation.handle(call, result)
                 "httpOpen", "httpRead", "httpClose" -> http.handle(call, result)
                 "share" -> device.share(call, result)

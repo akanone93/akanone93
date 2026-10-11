@@ -80,6 +80,7 @@ final class DeviceAuth {
   void lowerAssurance() => _assurance = 0;
 
   String get _alias => dpopKeyAlias(appId, environment);
+  String get _agreementAlias => agreementKeyAlias(appId, environment);
 
   /// Starts a sync: registering again after a refusal is allowed once more.
   void beginSync() => _reregistered = false;
@@ -158,6 +159,19 @@ final class DeviceAuth {
   Future<void> _forget() async {
     await credentials.clear();
     await keys.delete(_alias);
+    await keys.delete(_agreementAlias);
+  }
+
+  /// Creates the key-agreement key for confidential bundles (SEC-053). A
+  /// platform that cannot make one (Android before API 31) registers the
+  /// device without it: it then receives no content keys.
+  Future<DeviceKey?> _createAgreementKey() async {
+    try {
+      return await keys.create(_agreementAlias, KeyPurpose.agreement);
+    } on PluxException catch (e) {
+      if (e.code != PluxErrorCode.deviceKeyUnavailable) rethrow;
+      return null;
+    }
   }
 
   /// Creates a new DPoP key for a challenge and registers it with the
@@ -173,6 +187,7 @@ final class DeviceAuth {
       KeyPurpose.dpop,
       challenge: challenge,
     );
+    final agreementKey = await _createAgreementKey();
     final evidence = await attestation.attest(
       challenge: challenge,
       jkt: key.publicKey.thumbprint,
@@ -185,6 +200,7 @@ final class DeviceAuth {
       challenge: challenge,
       key: key,
       evidence: evidence,
+      agreementKey: agreementKey,
     );
     await credentials.write(DeviceCredential(id, key.publicKey.thumbprint));
     return _Session(id, key, _proofs(key));

@@ -155,6 +155,11 @@ abstract interface class DeviceKeys {
   /// `r || s` over SHA-256 of [data].
   Future<Uint8List> sign(String alias, Uint8List data);
 
+  /// ECDH between the `agreement` key under [alias] and [peer]: the 32-byte
+  /// shared secret, which unwraps a content key (SEC-053). The private key
+  /// stays in the platform.
+  Future<Uint8List> agree(String alias, EcPublicKey peer);
+
   /// Deletes the key under [alias]; absent keys are not an error.
   Future<void> delete(String alias);
 }
@@ -225,6 +230,19 @@ final class PlatformDeviceKeys implements DeviceKeys {
     final reply = await _call('keySign', {'alias': alias, 'data': data});
     if (reply is! Uint8List || reply.length != 64) {
       throw _malformed('keySign');
+    }
+    return reply;
+  }
+
+  @override
+  Future<Uint8List> agree(String alias, EcPublicKey peer) async {
+    final reply = await _call('keyAgree', {
+      'alias': alias,
+      'x': peer.x,
+      'y': peer.y,
+    });
+    if (reply is! Uint8List || reply.length != 32) {
+      throw _malformed('keyAgree');
     }
     return reply;
   }
