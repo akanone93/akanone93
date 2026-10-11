@@ -23,6 +23,7 @@ import 'package:plux_flutter/src/device/types.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/pxl/values.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
+import 'package:plux_flutter/src/secure/platform.dart';
 
 /// The permissions `requestPermission` asks for: the device APIs a platform
 /// asks the user to permit.
@@ -44,6 +45,7 @@ final Map<String, ActionHandler> deviceHandlers = {
   'openUrl': actionHandler(_openUrl, waitsForUser: true),
   'share': actionHandler(_share, waitsForUser: true),
   'requestPermission': actionHandler(_requestPermission, waitsForUser: true),
+  'biometricAuth': actionHandler(_biometricAuth, waitsForUser: true),
   'pickImage': actionHandler(_pickImage, waitsForUser: true),
   'capturePhoto': actionHandler(_capturePhoto, waitsForUser: true),
   'pickFile': actionHandler(_pickFile, waitsForUser: true),
@@ -317,6 +319,38 @@ Future<StepResult> _requestPermission(
     ).requestPermission(permission),
   );
   return StepDone(granted, granted ? 'granted' : 'denied');
+}
+
+/// `biometricAuth` (SEC-027, SEC-094): the system prompt for a biometric
+/// or, unless `allowDeviceCredential` is false, the device credential. The
+/// step takes the `success` branch when the user confirms and `failure`
+/// when the confirmation fails or is cancelled; a device that cannot ask
+/// fails the step with `PLX-5403`. The answer holds no biometric data.
+Future<StepResult> _biometricAuth(StepContext c, Map<String, Object?> i) async {
+  final reason = _string(i, 'reason', 'biometricAuth');
+  final credential = i['allowDeviceCredential'] ?? true;
+  if (credential is! bool) {
+    throw ActionError.validation(
+      'biometricAuth: allowDeviceCredential is not a bool',
+    );
+  }
+  final outcome = await _guarded(
+    () => _service<BiometricPlatform>(
+      c,
+      'biometricAuth',
+    ).authenticate(reason: reason, allowDeviceCredential: credential),
+  );
+  return switch (outcome) {
+    BiometricOutcome.success => const StepDone(true, 'success'),
+    BiometricOutcome.cancelled ||
+    BiometricOutcome.failed => const StepDone(false, 'failure'),
+    BiometricOutcome.unavailable => throw const ActionError(
+      ActionErrorKind.custom,
+      PluxErrorCode.deviceUnavailable,
+      'biometricAuth: this device cannot ask for a biometric or its '
+      'credential',
+    ),
+  };
 }
 
 // ── Optional packages ─────────────────────────────────────────────────────

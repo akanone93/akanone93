@@ -4506,10 +4506,11 @@ class FormField {
   int get type => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 6, 0);
   Value? get initial => Value.reader.vTableGetNullable(_bc, _bcOffset, 8);
   List<FormValidator>? get validators => const fb.ListReader<FormValidator>(FormValidator.reader).vTableGetNullable(_bc, _bcOffset, 10);
+  bool get sensitive => const fb.BoolReader().vTableGet(_bc, _bcOffset, 12, false);
 
   @override
   String toString() {
-    return 'FormField{name: ${name}, type: ${type}, initial: ${initial}, validators: ${validators}}';
+    return 'FormField{name: ${name}, type: ${type}, initial: ${initial}, validators: ${validators}, sensitive: ${sensitive}}';
   }
 }
 
@@ -4527,7 +4528,7 @@ class FormFieldBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(4);
+    fbBuilder.startTable(5);
   }
 
   int addName(int? name) {
@@ -4546,6 +4547,10 @@ class FormFieldBuilder {
     fbBuilder.addOffset(3, offset);
     return fbBuilder.offset;
   }
+  int addSensitive(bool? sensitive) {
+    fbBuilder.addBool(4, sensitive);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -4557,17 +4562,20 @@ class FormFieldObjectBuilder extends fb.ObjectBuilder {
   final int? _type;
   final ValueObjectBuilder? _initial;
   final List<FormValidatorObjectBuilder>? _validators;
+  final bool? _sensitive;
 
   FormFieldObjectBuilder({
     int? name,
     int? type,
     ValueObjectBuilder? initial,
     List<FormValidatorObjectBuilder>? validators,
+    bool? sensitive,
   })
       : _name = name,
         _type = type,
         _initial = initial,
-        _validators = validators;
+        _validators = validators,
+        _sensitive = sensitive;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -4575,11 +4583,12 @@ class FormFieldObjectBuilder extends fb.ObjectBuilder {
     final int? initialOffset = _initial?.getOrCreateOffset(fbBuilder);
     final int? validatorsOffset = _validators == null ? null
         : fbBuilder.writeList(_validators!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
-    fbBuilder.startTable(4);
+    fbBuilder.startTable(5);
     fbBuilder.addUint32(0, _name);
     fbBuilder.addUint32(1, _type);
     fbBuilder.addOffset(2, initialOffset);
     fbBuilder.addOffset(3, validatorsOffset);
+    fbBuilder.addBool(4, _sensitive);
     return fbBuilder.endTable();
   }
 

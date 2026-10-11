@@ -400,9 +400,27 @@ func (u *unit) sensitivePaths(g *graph) []string {
 	}
 	if g.page != nil {
 		add("page", g.page.doc.State)
+		out = append(out, sensitiveFormFields("page", g.page.doc.Forms)...)
 		for _, p := range g.page.doc.Params {
 			if p.Sensitive != nil && *p.Sensitive {
 				out = append(out, "params."+p.Name)
+			}
+		}
+	}
+	if g.component != nil {
+		out = append(out, sensitiveFormFields("component", g.component.doc.Forms)...)
+	}
+	return out
+}
+
+// sensitiveFormFields lists the paths of the values of the form fields
+// tagged sensitive, under the scope root they are read from (SCH-012).
+func sensitiveFormFields(root string, forms []schema.Form) []string {
+	var out []string
+	for _, f := range forms {
+		for _, fd := range f.Fields {
+			if fd.Sensitive != nil && *fd.Sensitive {
+				out = append(out, root+"."+f.Name+"."+formValues+"."+fd.Name)
 			}
 		}
 	}

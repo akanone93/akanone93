@@ -142,7 +142,7 @@ void main() {
 
   test('an action of a later phase fails its step with PLX-4010, which onError handles [RT-021]', () async {
     final r = await run([
-      GraphStep(id: 'toast', action: id('biometricAuth'), onError: 1),
+      GraphStep(id: 'toast', action: id('invokeFunction'), onError: 1),
       GraphStep(
         id: 'recover',
         action: id('emitHostEvent'),
@@ -157,13 +157,13 @@ void main() {
     expect(r.outcome, RunOutcome.ok);
     final error = events.single.$2['error']! as Map;
     expect(error['kind'], 'custom');
-    expect(error['message'], contains('biometricAuth arrives in P6'));
+    expect(error['message'], contains('invokeFunction arrives in P7'));
     expect(reports, isEmpty);
   });
 
   test('an unhandled error ends the run and is reported with its graph and step [RT-021]', () async {
     final r = await run([
-      GraphStep(id: 'toast', action: id('biometricAuth'), next: 1),
+      GraphStep(id: 'toast', action: id('invokeFunction'), next: 1),
       GraphStep(
         id: 'never',
         action: id('emitHostEvent'),
@@ -457,12 +457,12 @@ void main() {
     },
   );
 
-  test('the engine runs every action Appendix D tags up to P4 and the P5 ones delivered so far, and refuses the rest (ADR-0039)', () {
+  test('the engine runs every action Appendix D tags up to P4, the P5 ones and the P6 ones delivered so far, and refuses the rest (ADR-0039)', () {
     for (final d in actionDescriptors) {
       final handler = handlerFor(d);
       if (runsInThisRuntime(d) || stateHandlers.containsKey(d.name)) {
         expect(handler, isNot(isA<RefusingHandler>()), reason: d.name);
-        expect(int.parse(d.phase.substring(1)), lessThanOrEqualTo(5));
+        expect(int.parse(d.phase.substring(1)), lessThanOrEqualTo(6));
       } else {
         expect(handler, isA<RefusingHandler>(), reason: d.name);
         expect(d.phase, isNot('P4'), reason: d.name);
@@ -475,6 +475,7 @@ void main() {
       ]..sort(),
       [
         'apiCall',
+        'biometricAuth',
         'callFlow',
         'callNative',
         'capturePhoto',

@@ -8,6 +8,7 @@ library;
 
 import 'package:plux_flutter/src/device/platform.dart';
 import 'package:plux_flutter/src/device/types.dart';
+import 'package:plux_flutter/src/secure/platform.dart';
 
 /// Builds the device services of a runtime: the platform calls, the picked
 /// files and everything [packages] provide. A device action whose package
@@ -17,11 +18,13 @@ Map<Type, Object> deviceServices({
   required Future<bool> Function(Uri link) openLink,
   UrlOpener urls = const PlatformUrlOpener(),
   DevicePlatform platform = const ChannelDevicePlatform(),
+  BiometricPlatform biometrics = const ChannelBiometricPlatform(),
   PickedFiles? files,
 }) => {
   UrlOpener: urls,
   DeepLinkOpener: _Links(openLink),
   DevicePlatform: platform,
+  BiometricPlatform: biometrics,
   PickedFiles: files ?? PickedFiles(),
   for (final p in packages) ...p.services,
 };

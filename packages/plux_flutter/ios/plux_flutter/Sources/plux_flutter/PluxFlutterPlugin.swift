@@ -12,8 +12,9 @@ import Security
 /// the encrypted stores' data keys (SEC-073) by PluxDataKeys, App Attest
 /// (SEC-004) by PluxAttestation, the pinned HTTP/2 client of the Plux
 /// server (SEC-041) by PluxPinnedHttp. The device actions that need the platform,
-/// the share sheet and permission prompts, run here too (SEC-080). Bundle
-/// data never crosses this channel.
+/// the share sheet, permission prompts, the biometric prompt and the cover of
+/// secure pages, run here too (SEC-080, SEC-091, SEC-094). Bundle data never
+/// crosses this channel.
 public class PluxFlutterPlugin: NSObject, FlutterPlugin {
   private static let service = "dev.plux.secrets"
   private let device = PluxDevice()
@@ -56,6 +57,10 @@ public class PluxFlutterPlugin: NSObject, FlutterPlugin {
       device.share(args, result: result)
     case "permissionRequest":
       device.requestPermission(args, result: result)
+    case "secureScreen":
+      device.secureScreen(args, result: result)
+    case "biometricAuth":
+      device.biometricAuth(args, result: result)
     default:
       result(FlutterMethodNotImplemented)
     }

@@ -29,6 +29,15 @@ const formsFeature = "forms"
 // shipped in.
 var formsRuntimes = []string{"0.3.0"}
 
+// formSensitiveFeature is required by a bundle that tags a form field
+// sensitive (SCH-012, SEC-092): a runtime that does not know the tag would
+// show and trace the value, so it refuses the bundle instead.
+const formSensitiveFeature = "forms.sensitive"
+
+// formSensitiveRuntimes lists the runtime each revision of
+// formSensitiveFeature first shipped in.
+var formSensitiveRuntimes = []string{"0.4.0"}
+
 // form is a checked form of a page or component.
 type form struct {
 	id     [16]byte
@@ -42,6 +51,7 @@ type formField struct {
 	typ        string
 	initial    *value
 	validators []*formValidator
+	sensitive  bool
 }
 
 // formValidator is a checked validator; maxScale and maxIntegerDigits
@@ -280,7 +290,10 @@ func (u *unit) checkFormField(pl *plugin, fd *schema.FormField, file, ptr string
 	if err != nil {
 		return nil // reported by formTypes
 	}
-	out := &formField{name: fd.Name, typ: fd.Type}
+	out := &formField{name: fd.Name, typ: fd.Type, sensitive: fd.Sensitive != nil && *fd.Sensitive}
+	if out.sensitive {
+		u.useRevision(formSensitiveFeature, formSensitiveRuntimes, 1, vctx{file: file, ptr: ptr + "/sensitive", pl: pl})
+	}
 	switch {
 	case len(fd.Initial) > 0:
 		out.initial = u.checkRaw(literalCtx(pl, file, ptr+"/initial"), fd.Initial, te)
@@ -618,6 +631,7 @@ func (e *valueEnc) formField(fd *formField) flatbuffers.UOffsetT {
 		fbs.FormFieldAddInitial(b, initial)
 	}
 	fbs.FormFieldAddValidators(b, vv)
+	fbs.FormFieldAddSensitive(b, fd.sensitive)
 	return fbs.FormFieldEnd(b)
 }
 
