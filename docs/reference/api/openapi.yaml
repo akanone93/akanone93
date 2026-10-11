@@ -1314,6 +1314,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.CreateRegistrationChallengeResponse'
+  /plux.v1.DeviceService/EnrolScaKey:
+    post:
+      tags:
+        - plux.v1.DeviceService
+      summary: EnrolScaKey
+      description: |-
+        EnrolScaKey stores the public half of the device's strong customer
+         authentication key after the server verifies its attestation, for a
+         device that created the key after it registered, or whose key was
+         invalidated, such as by a change of enrolled biometrics (SEC-027).
+      operationId: plux.v1.DeviceService.EnrolScaKey
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.EnrolScaKeyRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.EnrolScaKeyResponse'
   /plux.v1.DeviceService/GetDevice:
     post:
       tags:
@@ -5017,6 +5060,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.DeleteUpstreamResponse'
+  /plux.v1.SecurityAdminService/DeleteUserIdentityProvider:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: DeleteUserIdentityProvider
+      operationId: plux.v1.SecurityAdminService.DeleteUserIdentityProvider
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteUserIdentityProviderRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteUserIdentityProviderResponse'
   /plux.v1.SecurityAdminService/GetEffectiveSecurityConfig:
     post:
       tags:
@@ -5096,6 +5177,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetUpstreamResponse'
+  /plux.v1.SecurityAdminService/GetUserIdentityProvider:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: GetUserIdentityProvider
+      operationId: plux.v1.SecurityAdminService.GetUserIdentityProvider
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetUserIdentityProviderRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetUserIdentityProviderResponse'
   /plux.v1.SecurityAdminService/ListAuditCheckpoints:
     post:
       tags:
@@ -5218,6 +5337,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.SetSecurityConfigResponse'
+  /plux.v1.SecurityAdminService/SetUserIdentityProvider:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: SetUserIdentityProvider
+      description: |-
+        SetUserIdentityProvider sets the customer identity provider whose user
+         tokens an environment's devices may exchange (SEC-026).
+      operationId: plux.v1.SecurityAdminService.SetUserIdentityProvider
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetUserIdentityProviderRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SetUserIdentityProviderResponse'
   /plux.v1.SecurityAdminService/UpdateUpstream:
     post:
       tags:
@@ -6292,6 +6452,20 @@ components:
           description: |-
             transaction_signature is the signature of the device's SCA key over
              the challenge and the transaction summary (SEC-032).
+        plugin:
+          type: string
+          title: plugin
+          description: |-
+            plugin is the key of the plugin that makes the call, for the
+             operation's plugin capability (SEC-080); empty when the operation
+             names none.
+        userToken:
+          type: string
+          title: user_token
+          description: |-
+            user_token is the token TokenService.ExchangeUserToken returned, when
+             the call acts for a signed-in user; the gateway forwards the verified
+             user in its assertion (SEC-026).
       title: CallRequest
       additionalProperties: false
     plux.v1.CallResponse:
@@ -7127,6 +7301,21 @@ components:
       type: object
       title: DeleteUpstreamResponse
       additionalProperties: false
+    plux.v1.DeleteUserIdentityProviderRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+      title: DeleteUserIdentityProviderRequest
+      additionalProperties: false
+    plux.v1.DeleteUserIdentityProviderResponse:
+      type: object
+      title: DeleteUserIdentityProviderResponse
+      additionalProperties: false
     plux.v1.DeleteWorkloadIdentityRequest:
       type: object
       properties:
@@ -7232,6 +7421,12 @@ components:
             dpop_jkt is the RFC 7638 thumbprint of the device's DPoP public key,
              base64url-encoded; every token issued to the device is bound to it
              (SEC-020).
+        scaJkt:
+          type: string
+          title: sca_jkt
+          description: |-
+            sca_jkt is the thumbprint of the device's strong customer
+             authentication key; empty while it has none (SEC-027).
       title: Device
       additionalProperties: false
     plux.v1.Diagnostic:
@@ -7336,6 +7531,40 @@ components:
             $ref: '#/components/schemas/plux.v1.PatchOp'
           title: patch
       title: DocumentChange
+      additionalProperties: false
+    plux.v1.EnrolScaKeyRequest:
+      type: object
+      properties:
+        challenge:
+          type: string
+          title: challenge
+          format: byte
+          description: |-
+            challenge is a fresh challenge from CreateRegistrationChallenge; the
+             attestation of the key must be bound to it.
+        scaPublicKeyJwk:
+          type: string
+          title: sca_public_key_jwk
+          format: byte
+          description: sca_public_key_jwk is the SCA public key as a JWK (RFC 7517).
+        scaEvidence:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.AttestationEvidence'
+          title: sca_evidence
+          description: |-
+            sca_evidence is the attestation of the key: an Android Key Attestation
+             chain of the SCA key, or an App Attest attestation bound to its
+             thumbprint (SEC-027).
+      title: EnrolScaKeyRequest
+      additionalProperties: false
+    plux.v1.EnrolScaKeyResponse:
+      type: object
+      properties:
+        scaJkt:
+          type: string
+          title: sca_jkt
+          description: sca_jkt is the RFC 7638 thumbprint of the stored key.
+      title: EnrolScaKeyResponse
       additionalProperties: false
     plux.v1.EnrollTotpRequest:
       type: object
@@ -8137,6 +8366,26 @@ components:
             - $ref: '#/components/schemas/plux.v1.Upstream'
           title: upstream
       title: GetUpstreamResponse
+      additionalProperties: false
+    plux.v1.GetUserIdentityProviderRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+      title: GetUserIdentityProviderRequest
+      additionalProperties: false
+    plux.v1.GetUserIdentityProviderResponse:
+      type: object
+      properties:
+        provider:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.UserIdentityProvider'
+          title: provider
+      title: GetUserIdentityProviderResponse
       additionalProperties: false
     plux.v1.GrantAccessRequest:
       type: object
@@ -10706,6 +10955,19 @@ components:
           description: version is the new configuration version.
       title: SetSecurityConfigResponse
       additionalProperties: false
+    plux.v1.SetUserIdentityProviderRequest:
+      type: object
+      properties:
+        provider:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.UserIdentityProvider'
+          title: provider
+      title: SetUserIdentityProviderRequest
+      additionalProperties: false
+    plux.v1.SetUserIdentityProviderResponse:
+      type: object
+      title: SetUserIdentityProviderResponse
+      additionalProperties: false
     plux.v1.SetVariableRequest:
       type: object
       properties:
@@ -11292,6 +11554,37 @@ components:
           description: |-
             timeout_ms bounds one call to the upstream; zero uses the registry's
              default (LIM-001).
+        allowedMethods:
+          type: array
+          items:
+            type: string
+          title: allowed_methods
+          description: |-
+            allowed_methods are the HTTP methods the gateway forwards to the
+             upstream; at least one is required (SEC-031).
+        requiresAssurance:
+          type: string
+          title: requires_assurance
+          description: |-
+            requires_assurance is the lowest assurance level ("AL0" to "AL3") any
+             call to the upstream needs; empty means "AL0". An operation may ask
+             for more, never less (SEC-007).
+        operations:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.UpstreamOperation'
+          title: operations
+          description: |-
+            operations are the named operations devices may call. When the list
+             is not empty a call must name one of them; each narrows the upstream's
+             methods and paths and carries the policy the gateway enforces for it
+             (SEC-028, SEC-030).
+        audience:
+          type: string
+          title: audience
+          description: |-
+            audience is the `aud` of the Plux assertion sent to the upstream;
+             empty means base_url (SEC-031).
       title: Upstream
       description: |-
         Upstream is an API the gateway may reach for an environment's devices
@@ -11345,6 +11638,76 @@ components:
       description: |-
         UpstreamOAuthClientCredentials authenticates with the OAuth 2.0 client
          credentials grant (RFC 6749 §4.4).
+    plux.v1.UpstreamOperation:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+          description: name is what CallRequest.operation names.
+        methods:
+          type: array
+          items:
+            type: string
+          title: methods
+          description: |-
+            methods narrow the upstream's allowed methods; empty means all of
+             them.
+        pathPrefix:
+          type: string
+          title: path_prefix
+          description: |-
+            path_prefix is the path every call must start with, in segments;
+             empty means any path under the base URL.
+        requiresAssurance:
+          type: string
+          title: requires_assurance
+          description: |-
+            requires_assurance is the lowest assurance level this operation
+             needs; empty means the upstream's (SEC-007).
+        transaction:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.UpstreamTransaction'
+          title: transaction
+          description: |-
+            transaction, when set, makes the operation a transaction that needs
+             strong customer authentication: the gateway refuses a call without a
+             valid signature over the fields it names (SEC-028, SEC-032).
+        plugins:
+          type: array
+          items:
+            type: string
+          title: plugins
+          description: |-
+            plugins limits the operation to the plugins that declare the
+             capability to call it (SEC-080); empty means any plugin of the app.
+      title: UpstreamOperation
+      additionalProperties: false
+      description: |-
+        UpstreamOperation is one operation of an upstream and the policy the
+         gateway enforces before it forwards a call to it.
+    plux.v1.UpstreamTransaction:
+      type: object
+      properties:
+        amount:
+          type: string
+          title: amount
+        currency:
+          type: string
+          title: currency
+        payee:
+          type: string
+          title: payee
+        summary:
+          type: string
+          title: summary
+          description: 'summary is optional: a human-readable summary the user also confirmed.'
+      title: UpstreamTransaction
+      additionalProperties: false
+      description: |-
+        UpstreamTransaction maps the fields that dynamic linking signs to
+         positions in the request body, which must be JSON (SEC-028). Each is a
+         JSON Pointer (RFC 6901).
     plux.v1.Usage:
       type: object
       properties:
@@ -11391,6 +11754,44 @@ components:
           title: last_login_at
       title: User
       additionalProperties: false
+    plux.v1.UserIdentityProvider:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        issuer:
+          type: string
+          title: issuer
+          description: issuer is the `iss` the provider's tokens carry.
+        jwksUrl:
+          type: string
+          title: jwks_url
+          description: |-
+            jwks_url is where the provider publishes its signing keys. It is
+             fetched through the SSRF-safe client and must be HTTPS.
+        audiences:
+          type: array
+          items:
+            type: string
+          title: audiences
+          description: audiences are the `aud` values accepted; a token must carry one.
+        forwardClaims:
+          type: array
+          items:
+            type: string
+          title: forward_claims
+          description: |-
+            forward_claims are the claims of the user token the gateway passes to
+             upstreams in the Plux assertion; `sub` always is.
+      title: UserIdentityProvider
+      additionalProperties: false
+      description: |-
+        UserIdentityProvider is the customer identity provider an environment's
+         user tokens come from (SEC-026).
     plux.v1.ValidateDraftRequest:
       type: object
       properties:

@@ -49,6 +49,14 @@ message CallRequest {
   // transaction_signature is the signature of the device's SCA key over
   // the challenge and the transaction summary (SEC-032).
   bytes transaction_signature = 8;
+  // plugin is the key of the plugin that makes the call, for the
+  // operation's plugin capability (SEC-080); empty when the operation
+  // names none.
+  string plugin = 9;
+  // user_token is the token TokenService.ExchangeUserToken returned, when
+  // the call acts for a signed-in user; the gateway forwards the verified
+  // user in its assertion (SEC-026).
+  string user_token = 10;
 }
 
 message CallResponse {

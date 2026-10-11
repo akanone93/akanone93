@@ -28,6 +28,12 @@ service SecurityAdminService {
   rpc UpdateUpstream(UpdateUpstreamRequest) returns (UpdateUpstreamResponse) {}
   rpc DeleteUpstream(DeleteUpstreamRequest) returns (DeleteUpstreamResponse) {}
 
+  // SetUserIdentityProvider sets the customer identity provider whose user
+  // tokens an environment's devices may exchange (SEC-026).
+  rpc SetUserIdentityProvider(SetUserIdentityProviderRequest) returns (SetUserIdentityProviderResponse) {}
+  rpc GetUserIdentityProvider(GetUserIdentityProviderRequest) returns (GetUserIdentityProviderResponse) {}
+  rpc DeleteUserIdentityProvider(DeleteUserIdentityProviderRequest) returns (DeleteUserIdentityProviderResponse) {}
+
   // ListAuditCheckpoints lists the signed checkpoints over the audit
   // log's hash chain, which let anyone verify that no entry was removed
   // (SEC-141).
@@ -89,6 +95,55 @@ message Upstream {
   // timeout_ms bounds one call to the upstream; zero uses the registry's
   // default (LIM-001).
   int32 timeout_ms = 10;
+  // allowed_methods are the HTTP methods the gateway forwards to the
+  // upstream; at least one is required (SEC-031).
+  repeated string allowed_methods = 11;
+  // requires_assurance is the lowest assurance level ("AL0" to "AL3") any
+  // call to the upstream needs; empty means "AL0". An operation may ask
+  // for more, never less (SEC-007).
+  string requires_assurance = 12;
+  // operations are the named operations devices may call. When the list
+  // is not empty a call must name one of them; each narrows the upstream's
+  // methods and paths and carries the policy the gateway enforces for it
+  // (SEC-028, SEC-030).
+  repeated UpstreamOperation operations = 13;
+  // audience is the `aud` of the Plux assertion sent to the upstream;
+  // empty means base_url (SEC-031).
+  string audience = 14;
+}
+
+// UpstreamOperation is one operation of an upstream and the policy the
+// gateway enforces before it forwards a call to it.
+message UpstreamOperation {
+  // name is what CallRequest.operation names.
+  string name = 1;
+  // methods narrow the upstream's allowed methods; empty means all of
+  // them.
+  repeated string methods = 2;
+  // path_prefix is the path every call must start with, in segments;
+  // empty means any path under the base URL.
+  string path_prefix = 3;
+  // requires_assurance is the lowest assurance level this operation
+  // needs; empty means the upstream's (SEC-007).
+  string requires_assurance = 4;
+  // transaction, when set, makes the operation a transaction that needs
+  // strong customer authentication: the gateway refuses a call without a
+  // valid signature over the fields it names (SEC-028, SEC-032).
+  UpstreamTransaction transaction = 5;
+  // plugins limits the operation to the plugins that declare the
+  // capability to call it (SEC-080); empty means any plugin of the app.
+  repeated string plugins = 6;
+}
+
+// UpstreamTransaction maps the fields that dynamic linking signs to
+// positions in the request body, which must be JSON (SEC-028). Each is a
+// JSON Pointer (RFC 6901).
+message UpstreamTransaction {
+  string amount = 1;
+  string currency = 2;
+  string payee = 3;
+  // summary is optional: a human-readable summary the user also confirmed.
+  string summary = 4;
 }
 
 // UpstreamMtls authenticates with a client certificate.
@@ -153,6 +208,42 @@ message DeleteUpstreamRequest {
   string id = 1;
 }
 message DeleteUpstreamResponse {}
+
+// UserIdentityProvider is the customer identity provider an environment's
+// user tokens come from (SEC-026).
+message UserIdentityProvider {
+  string app_id = 1;
+  string environment_id = 2;
+  // issuer is the `iss` the provider's tokens carry.
+  string issuer = 3;
+  // jwks_url is where the provider publishes its signing keys. It is
+  // fetched through the SSRF-safe client and must be HTTPS.
+  string jwks_url = 4;
+  // audiences are the `aud` values accepted; a token must carry one.
+  repeated string audiences = 5;
+  // forward_claims are the claims of the user token the gateway passes to
+  // upstreams in the Plux assertion; `sub` always is.
+  repeated string forward_claims = 6;
+}
+
+message SetUserIdentityProviderRequest {
+  UserIdentityProvider provider = 1;
+}
+message SetUserIdentityProviderResponse {}
+
+message GetUserIdentityProviderRequest {
+  string app_id = 1;
+  string environment_id = 2;
+}
+message GetUserIdentityProviderResponse {
+  UserIdentityProvider provider = 1;
+}
+
+message DeleteUserIdentityProviderRequest {
+  string app_id = 1;
+  string environment_id = 2;
+}
+message DeleteUserIdentityProviderResponse {}
 
 // AuditCheckpoint is a signed point in the audit log's hash chain
 // (SEC-141).

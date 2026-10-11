@@ -189,6 +189,16 @@ type DeviceBundle struct {
 	BundleSha256   []byte
 }
 
+type DeviceScaKey struct {
+	DeviceID            pgtype.UUID
+	OrganizationID      pgtype.UUID
+	PublicKey           []byte
+	Jkt                 string
+	KeyStorage          string
+	AttestationProvider string
+	EnrolledAt          pgtype.Timestamptz
+}
+
 type DeviceToken struct {
 	ID             pgtype.UUID
 	OrganizationID pgtype.UUID
@@ -265,6 +275,26 @@ type EnvironmentVariable struct {
 	Key            string
 	Value          string
 	UpdatedAt      pgtype.Timestamptz
+}
+
+type GatewayUpstream struct {
+	ID                    pgtype.UUID
+	OrganizationID        pgtype.UUID
+	AppID                 pgtype.UUID
+	EnvironmentID         pgtype.UUID
+	Name                  string
+	BaseUrl               string
+	AuthKind              string
+	Auth                  []byte
+	AllowPrivateAddresses bool
+	TimeoutMs             int32
+	AllowedMethods        []string
+	RequiresAssurance     string
+	Operations            []byte
+	Audience              string
+	Version               int64
+	CreatedAt             pgtype.Timestamptz
+	UpdatedAt             pgtype.Timestamptz
 }
 
 type IdempotencyKey struct {
@@ -585,6 +615,17 @@ type UserIdentity struct {
 	Issuer    string
 	Subject   string
 	CreatedAt pgtype.Timestamptz
+}
+
+type UserIdentityProvider struct {
+	EnvironmentID  pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	Issuer         string
+	JwksUrl        string
+	Audiences      []string
+	ForwardClaims  []string
+	UpdatedAt      pgtype.Timestamptz
 }
 
 type WorkloadIdentity struct {

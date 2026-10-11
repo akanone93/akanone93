@@ -59,6 +59,9 @@ const (
 	// DeviceServiceRevokeDeviceProcedure is the fully-qualified name of the DeviceService's
 	// RevokeDevice RPC.
 	DeviceServiceRevokeDeviceProcedure = "/plux.v1.DeviceService/RevokeDevice"
+	// DeviceServiceEnrolScaKeyProcedure is the fully-qualified name of the DeviceService's EnrolScaKey
+	// RPC.
+	DeviceServiceEnrolScaKeyProcedure = "/plux.v1.DeviceService/EnrolScaKey"
 )
 
 // DeviceServiceClient is a client for the plux.v1.DeviceService service.
@@ -82,6 +85,11 @@ type DeviceServiceClient interface {
 	// RevokeDevice withdraws a device's trust: its tokens stop working and
 	// it can no longer refresh them. Administrators only (SEC-006).
 	RevokeDevice(context.Context, *connect.Request[pluxv1.RevokeDeviceRequest]) (*connect.Response[pluxv1.RevokeDeviceResponse], error)
+	// EnrolScaKey stores the public half of the device's strong customer
+	// authentication key after the server verifies its attestation, for a
+	// device that created the key after it registered, or whose key was
+	// invalidated, such as by a change of enrolled biometrics (SEC-027).
+	EnrolScaKey(context.Context, *connect.Request[pluxv1.EnrolScaKeyRequest]) (*connect.Response[pluxv1.EnrolScaKeyResponse], error)
 }
 
 // NewDeviceServiceClient constructs a client for the plux.v1.DeviceService service. By default, it
@@ -143,6 +151,12 @@ func NewDeviceServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(deviceServiceMethods.ByName("RevokeDevice")),
 			connect.WithClientOptions(opts...),
 		),
+		enrolScaKey: connect.NewClient[pluxv1.EnrolScaKeyRequest, pluxv1.EnrolScaKeyResponse](
+			httpClient,
+			baseURL+DeviceServiceEnrolScaKeyProcedure,
+			connect.WithSchema(deviceServiceMethods.ByName("EnrolScaKey")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -156,6 +170,7 @@ type deviceServiceClient struct {
 	registerAttestedDevice      *connect.Client[pluxv1.RegisterAttestedDeviceRequest, pluxv1.RegisterAttestedDeviceResponse]
 	reattestDevice              *connect.Client[pluxv1.ReattestDeviceRequest, pluxv1.ReattestDeviceResponse]
 	revokeDevice                *connect.Client[pluxv1.RevokeDeviceRequest, pluxv1.RevokeDeviceResponse]
+	enrolScaKey                 *connect.Client[pluxv1.EnrolScaKeyRequest, pluxv1.EnrolScaKeyResponse]
 }
 
 // RegisterDevice calls plux.v1.DeviceService.RegisterDevice.
@@ -198,6 +213,11 @@ func (c *deviceServiceClient) RevokeDevice(ctx context.Context, req *connect.Req
 	return c.revokeDevice.CallUnary(ctx, req)
 }
 
+// EnrolScaKey calls plux.v1.DeviceService.EnrolScaKey.
+func (c *deviceServiceClient) EnrolScaKey(ctx context.Context, req *connect.Request[pluxv1.EnrolScaKeyRequest]) (*connect.Response[pluxv1.EnrolScaKeyResponse], error) {
+	return c.enrolScaKey.CallUnary(ctx, req)
+}
+
 // DeviceServiceHandler is an implementation of the plux.v1.DeviceService service.
 type DeviceServiceHandler interface {
 	RegisterDevice(context.Context, *connect.Request[pluxv1.RegisterDeviceRequest]) (*connect.Response[pluxv1.RegisterDeviceResponse], error)
@@ -219,6 +239,11 @@ type DeviceServiceHandler interface {
 	// RevokeDevice withdraws a device's trust: its tokens stop working and
 	// it can no longer refresh them. Administrators only (SEC-006).
 	RevokeDevice(context.Context, *connect.Request[pluxv1.RevokeDeviceRequest]) (*connect.Response[pluxv1.RevokeDeviceResponse], error)
+	// EnrolScaKey stores the public half of the device's strong customer
+	// authentication key after the server verifies its attestation, for a
+	// device that created the key after it registered, or whose key was
+	// invalidated, such as by a change of enrolled biometrics (SEC-027).
+	EnrolScaKey(context.Context, *connect.Request[pluxv1.EnrolScaKeyRequest]) (*connect.Response[pluxv1.EnrolScaKeyResponse], error)
 }
 
 // NewDeviceServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -276,6 +301,12 @@ func NewDeviceServiceHandler(svc DeviceServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(deviceServiceMethods.ByName("RevokeDevice")),
 		connect.WithHandlerOptions(opts...),
 	)
+	deviceServiceEnrolScaKeyHandler := connect.NewUnaryHandler(
+		DeviceServiceEnrolScaKeyProcedure,
+		svc.EnrolScaKey,
+		connect.WithSchema(deviceServiceMethods.ByName("EnrolScaKey")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.DeviceService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DeviceServiceRegisterDeviceProcedure:
@@ -294,6 +325,8 @@ func NewDeviceServiceHandler(svc DeviceServiceHandler, opts ...connect.HandlerOp
 			deviceServiceReattestDeviceHandler.ServeHTTP(w, r)
 		case DeviceServiceRevokeDeviceProcedure:
 			deviceServiceRevokeDeviceHandler.ServeHTTP(w, r)
+		case DeviceServiceEnrolScaKeyProcedure:
+			deviceServiceEnrolScaKeyHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -333,4 +366,8 @@ func (UnimplementedDeviceServiceHandler) ReattestDevice(context.Context, *connec
 
 func (UnimplementedDeviceServiceHandler) RevokeDevice(context.Context, *connect.Request[pluxv1.RevokeDeviceRequest]) (*connect.Response[pluxv1.RevokeDeviceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DeviceService.RevokeDevice is not implemented"))
+}
+
+func (UnimplementedDeviceServiceHandler) EnrolScaKey(context.Context, *connect.Request[pluxv1.EnrolScaKeyRequest]) (*connect.Response[pluxv1.EnrolScaKeyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.DeviceService.EnrolScaKey is not implemented"))
 }

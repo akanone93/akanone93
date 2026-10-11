@@ -300,7 +300,22 @@ type Upstream struct {
 	AllowPrivateAddresses bool `protobuf:"varint,9,opt,name=allow_private_addresses,json=allowPrivateAddresses,proto3" json:"allow_private_addresses,omitempty"`
 	// timeout_ms bounds one call to the upstream; zero uses the registry's
 	// default (LIM-001).
-	TimeoutMs     int32 `protobuf:"varint,10,opt,name=timeout_ms,json=timeoutMs,proto3" json:"timeout_ms,omitempty"`
+	TimeoutMs int32 `protobuf:"varint,10,opt,name=timeout_ms,json=timeoutMs,proto3" json:"timeout_ms,omitempty"`
+	// allowed_methods are the HTTP methods the gateway forwards to the
+	// upstream; at least one is required (SEC-031).
+	AllowedMethods []string `protobuf:"bytes,11,rep,name=allowed_methods,json=allowedMethods,proto3" json:"allowed_methods,omitempty"`
+	// requires_assurance is the lowest assurance level ("AL0" to "AL3") any
+	// call to the upstream needs; empty means "AL0". An operation may ask
+	// for more, never less (SEC-007).
+	RequiresAssurance string `protobuf:"bytes,12,opt,name=requires_assurance,json=requiresAssurance,proto3" json:"requires_assurance,omitempty"`
+	// operations are the named operations devices may call. When the list
+	// is not empty a call must name one of them; each narrows the upstream's
+	// methods and paths and carries the policy the gateway enforces for it
+	// (SEC-028, SEC-030).
+	Operations []*UpstreamOperation `protobuf:"bytes,13,rep,name=operations,proto3" json:"operations,omitempty"`
+	// audience is the `aud` of the Plux assertion sent to the upstream;
+	// empty means base_url (SEC-031).
+	Audience      string `protobuf:"bytes,14,opt,name=audience,proto3" json:"audience,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -418,6 +433,34 @@ func (x *Upstream) GetTimeoutMs() int32 {
 	return 0
 }
 
+func (x *Upstream) GetAllowedMethods() []string {
+	if x != nil {
+		return x.AllowedMethods
+	}
+	return nil
+}
+
+func (x *Upstream) GetRequiresAssurance() string {
+	if x != nil {
+		return x.RequiresAssurance
+	}
+	return ""
+}
+
+func (x *Upstream) GetOperations() []*UpstreamOperation {
+	if x != nil {
+		return x.Operations
+	}
+	return nil
+}
+
+func (x *Upstream) GetAudience() string {
+	if x != nil {
+		return x.Audience
+	}
+	return ""
+}
+
 type isUpstream_Auth interface {
 	isUpstream_Auth()
 }
@@ -440,6 +483,176 @@ func (*Upstream_OauthClientCredentials) isUpstream_Auth() {}
 
 func (*Upstream_ApiKey) isUpstream_Auth() {}
 
+// UpstreamOperation is one operation of an upstream and the policy the
+// gateway enforces before it forwards a call to it.
+type UpstreamOperation struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// name is what CallRequest.operation names.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// methods narrow the upstream's allowed methods; empty means all of
+	// them.
+	Methods []string `protobuf:"bytes,2,rep,name=methods,proto3" json:"methods,omitempty"`
+	// path_prefix is the path every call must start with, in segments;
+	// empty means any path under the base URL.
+	PathPrefix string `protobuf:"bytes,3,opt,name=path_prefix,json=pathPrefix,proto3" json:"path_prefix,omitempty"`
+	// requires_assurance is the lowest assurance level this operation
+	// needs; empty means the upstream's (SEC-007).
+	RequiresAssurance string `protobuf:"bytes,4,opt,name=requires_assurance,json=requiresAssurance,proto3" json:"requires_assurance,omitempty"`
+	// transaction, when set, makes the operation a transaction that needs
+	// strong customer authentication: the gateway refuses a call without a
+	// valid signature over the fields it names (SEC-028, SEC-032).
+	Transaction *UpstreamTransaction `protobuf:"bytes,5,opt,name=transaction,proto3" json:"transaction,omitempty"`
+	// plugins limits the operation to the plugins that declare the
+	// capability to call it (SEC-080); empty means any plugin of the app.
+	Plugins       []string `protobuf:"bytes,6,rep,name=plugins,proto3" json:"plugins,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpstreamOperation) Reset() {
+	*x = UpstreamOperation{}
+	mi := &file_plux_v1_security_admin_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpstreamOperation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpstreamOperation) ProtoMessage() {}
+
+func (x *UpstreamOperation) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_security_admin_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpstreamOperation.ProtoReflect.Descriptor instead.
+func (*UpstreamOperation) Descriptor() ([]byte, []int) {
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpstreamOperation) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpstreamOperation) GetMethods() []string {
+	if x != nil {
+		return x.Methods
+	}
+	return nil
+}
+
+func (x *UpstreamOperation) GetPathPrefix() string {
+	if x != nil {
+		return x.PathPrefix
+	}
+	return ""
+}
+
+func (x *UpstreamOperation) GetRequiresAssurance() string {
+	if x != nil {
+		return x.RequiresAssurance
+	}
+	return ""
+}
+
+func (x *UpstreamOperation) GetTransaction() *UpstreamTransaction {
+	if x != nil {
+		return x.Transaction
+	}
+	return nil
+}
+
+func (x *UpstreamOperation) GetPlugins() []string {
+	if x != nil {
+		return x.Plugins
+	}
+	return nil
+}
+
+// UpstreamTransaction maps the fields that dynamic linking signs to
+// positions in the request body, which must be JSON (SEC-028). Each is a
+// JSON Pointer (RFC 6901).
+type UpstreamTransaction struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Amount   string                 `protobuf:"bytes,1,opt,name=amount,proto3" json:"amount,omitempty"`
+	Currency string                 `protobuf:"bytes,2,opt,name=currency,proto3" json:"currency,omitempty"`
+	Payee    string                 `protobuf:"bytes,3,opt,name=payee,proto3" json:"payee,omitempty"`
+	// summary is optional: a human-readable summary the user also confirmed.
+	Summary       string `protobuf:"bytes,4,opt,name=summary,proto3" json:"summary,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpstreamTransaction) Reset() {
+	*x = UpstreamTransaction{}
+	mi := &file_plux_v1_security_admin_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpstreamTransaction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpstreamTransaction) ProtoMessage() {}
+
+func (x *UpstreamTransaction) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_security_admin_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpstreamTransaction.ProtoReflect.Descriptor instead.
+func (*UpstreamTransaction) Descriptor() ([]byte, []int) {
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpstreamTransaction) GetAmount() string {
+	if x != nil {
+		return x.Amount
+	}
+	return ""
+}
+
+func (x *UpstreamTransaction) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
+func (x *UpstreamTransaction) GetPayee() string {
+	if x != nil {
+		return x.Payee
+	}
+	return ""
+}
+
+func (x *UpstreamTransaction) GetSummary() string {
+	if x != nil {
+		return x.Summary
+	}
+	return ""
+}
+
 // UpstreamMtls authenticates with a client certificate.
 type UpstreamMtls struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -452,7 +665,7 @@ type UpstreamMtls struct {
 
 func (x *UpstreamMtls) Reset() {
 	*x = UpstreamMtls{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[5]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -464,7 +677,7 @@ func (x *UpstreamMtls) String() string {
 func (*UpstreamMtls) ProtoMessage() {}
 
 func (x *UpstreamMtls) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[5]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -477,7 +690,7 @@ func (x *UpstreamMtls) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpstreamMtls.ProtoReflect.Descriptor instead.
 func (*UpstreamMtls) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{5}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UpstreamMtls) GetClientCertSecretRef() string {
@@ -502,7 +715,7 @@ type UpstreamOAuthClientCredentials struct {
 
 func (x *UpstreamOAuthClientCredentials) Reset() {
 	*x = UpstreamOAuthClientCredentials{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[6]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -514,7 +727,7 @@ func (x *UpstreamOAuthClientCredentials) String() string {
 func (*UpstreamOAuthClientCredentials) ProtoMessage() {}
 
 func (x *UpstreamOAuthClientCredentials) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[6]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -527,7 +740,7 @@ func (x *UpstreamOAuthClientCredentials) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpstreamOAuthClientCredentials.ProtoReflect.Descriptor instead.
 func (*UpstreamOAuthClientCredentials) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{6}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UpstreamOAuthClientCredentials) GetTokenUrl() string {
@@ -571,7 +784,7 @@ type UpstreamApiKey struct {
 
 func (x *UpstreamApiKey) Reset() {
 	*x = UpstreamApiKey{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[7]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -583,7 +796,7 @@ func (x *UpstreamApiKey) String() string {
 func (*UpstreamApiKey) ProtoMessage() {}
 
 func (x *UpstreamApiKey) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[7]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -596,7 +809,7 @@ func (x *UpstreamApiKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpstreamApiKey.ProtoReflect.Descriptor instead.
 func (*UpstreamApiKey) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{7}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpstreamApiKey) GetHeader() string {
@@ -623,7 +836,7 @@ type CreateUpstreamRequest struct {
 
 func (x *CreateUpstreamRequest) Reset() {
 	*x = CreateUpstreamRequest{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[8]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -635,7 +848,7 @@ func (x *CreateUpstreamRequest) String() string {
 func (*CreateUpstreamRequest) ProtoMessage() {}
 
 func (x *CreateUpstreamRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[8]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -648,7 +861,7 @@ func (x *CreateUpstreamRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateUpstreamRequest.ProtoReflect.Descriptor instead.
 func (*CreateUpstreamRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{8}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *CreateUpstreamRequest) GetUpstream() *Upstream {
@@ -667,7 +880,7 @@ type CreateUpstreamResponse struct {
 
 func (x *CreateUpstreamResponse) Reset() {
 	*x = CreateUpstreamResponse{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[9]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -679,7 +892,7 @@ func (x *CreateUpstreamResponse) String() string {
 func (*CreateUpstreamResponse) ProtoMessage() {}
 
 func (x *CreateUpstreamResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[9]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -692,7 +905,7 @@ func (x *CreateUpstreamResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateUpstreamResponse.ProtoReflect.Descriptor instead.
 func (*CreateUpstreamResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{9}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CreateUpstreamResponse) GetUpstream() *Upstream {
@@ -711,7 +924,7 @@ type GetUpstreamRequest struct {
 
 func (x *GetUpstreamRequest) Reset() {
 	*x = GetUpstreamRequest{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[10]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -723,7 +936,7 @@ func (x *GetUpstreamRequest) String() string {
 func (*GetUpstreamRequest) ProtoMessage() {}
 
 func (x *GetUpstreamRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[10]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -736,7 +949,7 @@ func (x *GetUpstreamRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUpstreamRequest.ProtoReflect.Descriptor instead.
 func (*GetUpstreamRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{10}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetUpstreamRequest) GetId() string {
@@ -755,7 +968,7 @@ type GetUpstreamResponse struct {
 
 func (x *GetUpstreamResponse) Reset() {
 	*x = GetUpstreamResponse{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[11]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -767,7 +980,7 @@ func (x *GetUpstreamResponse) String() string {
 func (*GetUpstreamResponse) ProtoMessage() {}
 
 func (x *GetUpstreamResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[11]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -780,7 +993,7 @@ func (x *GetUpstreamResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUpstreamResponse.ProtoReflect.Descriptor instead.
 func (*GetUpstreamResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{11}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetUpstreamResponse) GetUpstream() *Upstream {
@@ -801,7 +1014,7 @@ type ListUpstreamsRequest struct {
 
 func (x *ListUpstreamsRequest) Reset() {
 	*x = ListUpstreamsRequest{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[12]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -813,7 +1026,7 @@ func (x *ListUpstreamsRequest) String() string {
 func (*ListUpstreamsRequest) ProtoMessage() {}
 
 func (x *ListUpstreamsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[12]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -826,7 +1039,7 @@ func (x *ListUpstreamsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUpstreamsRequest.ProtoReflect.Descriptor instead.
 func (*ListUpstreamsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{12}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListUpstreamsRequest) GetAppId() string {
@@ -860,7 +1073,7 @@ type ListUpstreamsResponse struct {
 
 func (x *ListUpstreamsResponse) Reset() {
 	*x = ListUpstreamsResponse{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[13]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -872,7 +1085,7 @@ func (x *ListUpstreamsResponse) String() string {
 func (*ListUpstreamsResponse) ProtoMessage() {}
 
 func (x *ListUpstreamsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[13]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -885,7 +1098,7 @@ func (x *ListUpstreamsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUpstreamsResponse.ProtoReflect.Descriptor instead.
 func (*ListUpstreamsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{13}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListUpstreamsResponse) GetUpstreams() []*Upstream {
@@ -912,7 +1125,7 @@ type UpdateUpstreamRequest struct {
 
 func (x *UpdateUpstreamRequest) Reset() {
 	*x = UpdateUpstreamRequest{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[14]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -924,7 +1137,7 @@ func (x *UpdateUpstreamRequest) String() string {
 func (*UpdateUpstreamRequest) ProtoMessage() {}
 
 func (x *UpdateUpstreamRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[14]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -937,7 +1150,7 @@ func (x *UpdateUpstreamRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUpstreamRequest.ProtoReflect.Descriptor instead.
 func (*UpdateUpstreamRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{14}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *UpdateUpstreamRequest) GetUpstream() *Upstream {
@@ -956,7 +1169,7 @@ type UpdateUpstreamResponse struct {
 
 func (x *UpdateUpstreamResponse) Reset() {
 	*x = UpdateUpstreamResponse{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[15]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -968,7 +1181,7 @@ func (x *UpdateUpstreamResponse) String() string {
 func (*UpdateUpstreamResponse) ProtoMessage() {}
 
 func (x *UpdateUpstreamResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[15]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -981,7 +1194,7 @@ func (x *UpdateUpstreamResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateUpstreamResponse.ProtoReflect.Descriptor instead.
 func (*UpdateUpstreamResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{15}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *UpdateUpstreamResponse) GetUpstream() *Upstream {
@@ -1000,7 +1213,7 @@ type DeleteUpstreamRequest struct {
 
 func (x *DeleteUpstreamRequest) Reset() {
 	*x = DeleteUpstreamRequest{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[16]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1012,7 +1225,7 @@ func (x *DeleteUpstreamRequest) String() string {
 func (*DeleteUpstreamRequest) ProtoMessage() {}
 
 func (x *DeleteUpstreamRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[16]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1025,7 +1238,7 @@ func (x *DeleteUpstreamRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteUpstreamRequest.ProtoReflect.Descriptor instead.
 func (*DeleteUpstreamRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{16}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *DeleteUpstreamRequest) GetId() string {
@@ -1043,7 +1256,7 @@ type DeleteUpstreamResponse struct {
 
 func (x *DeleteUpstreamResponse) Reset() {
 	*x = DeleteUpstreamResponse{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[17]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1055,7 +1268,7 @@ func (x *DeleteUpstreamResponse) String() string {
 func (*DeleteUpstreamResponse) ProtoMessage() {}
 
 func (x *DeleteUpstreamResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[17]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1068,7 +1281,363 @@ func (x *DeleteUpstreamResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteUpstreamResponse.ProtoReflect.Descriptor instead.
 func (*DeleteUpstreamResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{17}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{19}
+}
+
+// UserIdentityProvider is the customer identity provider an environment's
+// user tokens come from (SEC-026).
+type UserIdentityProvider struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	// issuer is the `iss` the provider's tokens carry.
+	Issuer string `protobuf:"bytes,3,opt,name=issuer,proto3" json:"issuer,omitempty"`
+	// jwks_url is where the provider publishes its signing keys. It is
+	// fetched through the SSRF-safe client and must be HTTPS.
+	JwksUrl string `protobuf:"bytes,4,opt,name=jwks_url,json=jwksUrl,proto3" json:"jwks_url,omitempty"`
+	// audiences are the `aud` values accepted; a token must carry one.
+	Audiences []string `protobuf:"bytes,5,rep,name=audiences,proto3" json:"audiences,omitempty"`
+	// forward_claims are the claims of the user token the gateway passes to
+	// upstreams in the Plux assertion; `sub` always is.
+	ForwardClaims []string `protobuf:"bytes,6,rep,name=forward_claims,json=forwardClaims,proto3" json:"forward_claims,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserIdentityProvider) Reset() {
+	*x = UserIdentityProvider{}
+	mi := &file_plux_v1_security_admin_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserIdentityProvider) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserIdentityProvider) ProtoMessage() {}
+
+func (x *UserIdentityProvider) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_security_admin_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserIdentityProvider.ProtoReflect.Descriptor instead.
+func (*UserIdentityProvider) Descriptor() ([]byte, []int) {
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *UserIdentityProvider) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *UserIdentityProvider) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *UserIdentityProvider) GetIssuer() string {
+	if x != nil {
+		return x.Issuer
+	}
+	return ""
+}
+
+func (x *UserIdentityProvider) GetJwksUrl() string {
+	if x != nil {
+		return x.JwksUrl
+	}
+	return ""
+}
+
+func (x *UserIdentityProvider) GetAudiences() []string {
+	if x != nil {
+		return x.Audiences
+	}
+	return nil
+}
+
+func (x *UserIdentityProvider) GetForwardClaims() []string {
+	if x != nil {
+		return x.ForwardClaims
+	}
+	return nil
+}
+
+type SetUserIdentityProviderRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Provider      *UserIdentityProvider  `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetUserIdentityProviderRequest) Reset() {
+	*x = SetUserIdentityProviderRequest{}
+	mi := &file_plux_v1_security_admin_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetUserIdentityProviderRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetUserIdentityProviderRequest) ProtoMessage() {}
+
+func (x *SetUserIdentityProviderRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_security_admin_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetUserIdentityProviderRequest.ProtoReflect.Descriptor instead.
+func (*SetUserIdentityProviderRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *SetUserIdentityProviderRequest) GetProvider() *UserIdentityProvider {
+	if x != nil {
+		return x.Provider
+	}
+	return nil
+}
+
+type SetUserIdentityProviderResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetUserIdentityProviderResponse) Reset() {
+	*x = SetUserIdentityProviderResponse{}
+	mi := &file_plux_v1_security_admin_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetUserIdentityProviderResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetUserIdentityProviderResponse) ProtoMessage() {}
+
+func (x *SetUserIdentityProviderResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_security_admin_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetUserIdentityProviderResponse.ProtoReflect.Descriptor instead.
+func (*SetUserIdentityProviderResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{22}
+}
+
+type GetUserIdentityProviderRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserIdentityProviderRequest) Reset() {
+	*x = GetUserIdentityProviderRequest{}
+	mi := &file_plux_v1_security_admin_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserIdentityProviderRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserIdentityProviderRequest) ProtoMessage() {}
+
+func (x *GetUserIdentityProviderRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_security_admin_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserIdentityProviderRequest.ProtoReflect.Descriptor instead.
+func (*GetUserIdentityProviderRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *GetUserIdentityProviderRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *GetUserIdentityProviderRequest) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+type GetUserIdentityProviderResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Provider      *UserIdentityProvider  `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserIdentityProviderResponse) Reset() {
+	*x = GetUserIdentityProviderResponse{}
+	mi := &file_plux_v1_security_admin_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserIdentityProviderResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserIdentityProviderResponse) ProtoMessage() {}
+
+func (x *GetUserIdentityProviderResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_security_admin_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserIdentityProviderResponse.ProtoReflect.Descriptor instead.
+func (*GetUserIdentityProviderResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *GetUserIdentityProviderResponse) GetProvider() *UserIdentityProvider {
+	if x != nil {
+		return x.Provider
+	}
+	return nil
+}
+
+type DeleteUserIdentityProviderRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteUserIdentityProviderRequest) Reset() {
+	*x = DeleteUserIdentityProviderRequest{}
+	mi := &file_plux_v1_security_admin_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteUserIdentityProviderRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteUserIdentityProviderRequest) ProtoMessage() {}
+
+func (x *DeleteUserIdentityProviderRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_security_admin_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteUserIdentityProviderRequest.ProtoReflect.Descriptor instead.
+func (*DeleteUserIdentityProviderRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *DeleteUserIdentityProviderRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *DeleteUserIdentityProviderRequest) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+type DeleteUserIdentityProviderResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteUserIdentityProviderResponse) Reset() {
+	*x = DeleteUserIdentityProviderResponse{}
+	mi := &file_plux_v1_security_admin_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteUserIdentityProviderResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteUserIdentityProviderResponse) ProtoMessage() {}
+
+func (x *DeleteUserIdentityProviderResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_security_admin_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteUserIdentityProviderResponse.ProtoReflect.Descriptor instead.
+func (*DeleteUserIdentityProviderResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{26}
 }
 
 // AuditCheckpoint is a signed point in the audit log's hash chain
@@ -1091,7 +1660,7 @@ type AuditCheckpoint struct {
 
 func (x *AuditCheckpoint) Reset() {
 	*x = AuditCheckpoint{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[18]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1103,7 +1672,7 @@ func (x *AuditCheckpoint) String() string {
 func (*AuditCheckpoint) ProtoMessage() {}
 
 func (x *AuditCheckpoint) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[18]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1116,7 +1685,7 @@ func (x *AuditCheckpoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuditCheckpoint.ProtoReflect.Descriptor instead.
 func (*AuditCheckpoint) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{18}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *AuditCheckpoint) GetSequence() int64 {
@@ -1163,7 +1732,7 @@ type ListAuditCheckpointsRequest struct {
 
 func (x *ListAuditCheckpointsRequest) Reset() {
 	*x = ListAuditCheckpointsRequest{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[19]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1175,7 +1744,7 @@ func (x *ListAuditCheckpointsRequest) String() string {
 func (*ListAuditCheckpointsRequest) ProtoMessage() {}
 
 func (x *ListAuditCheckpointsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[19]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1188,7 +1757,7 @@ func (x *ListAuditCheckpointsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAuditCheckpointsRequest.ProtoReflect.Descriptor instead.
 func (*ListAuditCheckpointsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{19}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ListAuditCheckpointsRequest) GetPage() *Page {
@@ -1208,7 +1777,7 @@ type ListAuditCheckpointsResponse struct {
 
 func (x *ListAuditCheckpointsResponse) Reset() {
 	*x = ListAuditCheckpointsResponse{}
-	mi := &file_plux_v1_security_admin_proto_msgTypes[20]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1220,7 +1789,7 @@ func (x *ListAuditCheckpointsResponse) String() string {
 func (*ListAuditCheckpointsResponse) ProtoMessage() {}
 
 func (x *ListAuditCheckpointsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_security_admin_proto_msgTypes[20]
+	mi := &file_plux_v1_security_admin_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1233,7 +1802,7 @@ func (x *ListAuditCheckpointsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAuditCheckpointsResponse.ProtoReflect.Descriptor instead.
 func (*ListAuditCheckpointsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{20}
+	return file_plux_v1_security_admin_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ListAuditCheckpointsResponse) GetCheckpoints() []*AuditCheckpoint {
@@ -1270,7 +1839,7 @@ const file_plux_v1_security_admin_proto_rawDesc = "" +
 	"\aprofile\x18\x01 \x01(\tR\aprofile\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\x03R\aversion\x12%\n" +
 	"\x0eeffective_json\x18\x03 \x01(\fR\reffectiveJson\x12\x16\n" +
-	"\x06sha256\x18\x04 \x01(\fR\x06sha256\"\xac\x03\n" +
+	"\x06sha256\x18\x04 \x01(\fR\x06sha256\"\xdc\x04\n" +
 	"\bUpstream\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12%\n" +
@@ -1283,8 +1852,27 @@ const file_plux_v1_security_admin_proto_rawDesc = "" +
 	"\x17allow_private_addresses\x18\t \x01(\bR\x15allowPrivateAddresses\x12\x1d\n" +
 	"\n" +
 	"timeout_ms\x18\n" +
-	" \x01(\x05R\ttimeoutMsB\x06\n" +
-	"\x04auth\"C\n" +
+	" \x01(\x05R\ttimeoutMs\x12'\n" +
+	"\x0fallowed_methods\x18\v \x03(\tR\x0eallowedMethods\x12-\n" +
+	"\x12requires_assurance\x18\f \x01(\tR\x11requiresAssurance\x12:\n" +
+	"\n" +
+	"operations\x18\r \x03(\v2\x1a.plux.v1.UpstreamOperationR\n" +
+	"operations\x12\x1a\n" +
+	"\baudience\x18\x0e \x01(\tR\baudienceB\x06\n" +
+	"\x04auth\"\xeb\x01\n" +
+	"\x11UpstreamOperation\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
+	"\amethods\x18\x02 \x03(\tR\amethods\x12\x1f\n" +
+	"\vpath_prefix\x18\x03 \x01(\tR\n" +
+	"pathPrefix\x12-\n" +
+	"\x12requires_assurance\x18\x04 \x01(\tR\x11requiresAssurance\x12>\n" +
+	"\vtransaction\x18\x05 \x01(\v2\x1c.plux.v1.UpstreamTransactionR\vtransaction\x12\x18\n" +
+	"\aplugins\x18\x06 \x03(\tR\aplugins\"y\n" +
+	"\x13UpstreamTransaction\x12\x16\n" +
+	"\x06amount\x18\x01 \x01(\tR\x06amount\x12\x1a\n" +
+	"\bcurrency\x18\x02 \x01(\tR\bcurrency\x12\x14\n" +
+	"\x05payee\x18\x03 \x01(\tR\x05payee\x12\x18\n" +
+	"\asummary\x18\x04 \x01(\tR\asummary\"C\n" +
 	"\fUpstreamMtls\x123\n" +
 	"\x16client_cert_secret_ref\x18\x01 \x01(\tR\x13clientCertSecretRef\"\x9e\x01\n" +
 	"\x1eUpstreamOAuthClientCredentials\x12\x1b\n" +
@@ -1317,7 +1905,26 @@ const file_plux_v1_security_admin_proto_rawDesc = "" +
 	"\bupstream\x18\x01 \x01(\v2\x11.plux.v1.UpstreamR\bupstream\"'\n" +
 	"\x15DeleteUpstreamRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x18\n" +
-	"\x16DeleteUpstreamResponse\"\xbc\x01\n" +
+	"\x16DeleteUpstreamResponse\"\xcc\x01\n" +
+	"\x14UserIdentityProvider\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x16\n" +
+	"\x06issuer\x18\x03 \x01(\tR\x06issuer\x12\x19\n" +
+	"\bjwks_url\x18\x04 \x01(\tR\ajwksUrl\x12\x1c\n" +
+	"\taudiences\x18\x05 \x03(\tR\taudiences\x12%\n" +
+	"\x0eforward_claims\x18\x06 \x03(\tR\rforwardClaims\"[\n" +
+	"\x1eSetUserIdentityProviderRequest\x129\n" +
+	"\bprovider\x18\x01 \x01(\v2\x1d.plux.v1.UserIdentityProviderR\bprovider\"!\n" +
+	"\x1fSetUserIdentityProviderResponse\"^\n" +
+	"\x1eGetUserIdentityProviderRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\"\\\n" +
+	"\x1fGetUserIdentityProviderResponse\x129\n" +
+	"\bprovider\x18\x01 \x01(\v2\x1d.plux.v1.UserIdentityProviderR\bprovider\"a\n" +
+	"!DeleteUserIdentityProviderRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\"$\n" +
+	"\"DeleteUserIdentityProviderResponse\"\xbc\x01\n" +
 	"\x0fAuditCheckpoint\x12\x1a\n" +
 	"\bsequence\x18\x01 \x01(\x03R\bsequence\x12\x1d\n" +
 	"\n" +
@@ -1330,7 +1937,7 @@ const file_plux_v1_security_admin_proto_rawDesc = "" +
 	"\x04page\x18\x01 \x01(\v2\r.plux.v1.PageR\x04page\"\x83\x01\n" +
 	"\x1cListAuditCheckpointsResponse\x12:\n" +
 	"\vcheckpoints\x18\x01 \x03(\v2\x18.plux.v1.AuditCheckpointR\vcheckpoints\x12'\n" +
-	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page2\xf1\x05\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page2\xca\b\n" +
 	"\x14SecurityAdminService\x12\\\n" +
 	"\x11SetSecurityConfig\x12!.plux.v1.SetSecurityConfigRequest\x1a\".plux.v1.SetSecurityConfigResponse\"\x00\x12w\n" +
 	"\x1aGetEffectiveSecurityConfig\x12*.plux.v1.GetEffectiveSecurityConfigRequest\x1a+.plux.v1.GetEffectiveSecurityConfigResponse\"\x00\x12S\n" +
@@ -1338,7 +1945,10 @@ const file_plux_v1_security_admin_proto_rawDesc = "" +
 	"\vGetUpstream\x12\x1b.plux.v1.GetUpstreamRequest\x1a\x1c.plux.v1.GetUpstreamResponse\"\x00\x12P\n" +
 	"\rListUpstreams\x12\x1d.plux.v1.ListUpstreamsRequest\x1a\x1e.plux.v1.ListUpstreamsResponse\"\x00\x12S\n" +
 	"\x0eUpdateUpstream\x12\x1e.plux.v1.UpdateUpstreamRequest\x1a\x1f.plux.v1.UpdateUpstreamResponse\"\x00\x12S\n" +
-	"\x0eDeleteUpstream\x12\x1e.plux.v1.DeleteUpstreamRequest\x1a\x1f.plux.v1.DeleteUpstreamResponse\"\x00\x12e\n" +
+	"\x0eDeleteUpstream\x12\x1e.plux.v1.DeleteUpstreamRequest\x1a\x1f.plux.v1.DeleteUpstreamResponse\"\x00\x12n\n" +
+	"\x17SetUserIdentityProvider\x12'.plux.v1.SetUserIdentityProviderRequest\x1a(.plux.v1.SetUserIdentityProviderResponse\"\x00\x12n\n" +
+	"\x17GetUserIdentityProvider\x12'.plux.v1.GetUserIdentityProviderRequest\x1a(.plux.v1.GetUserIdentityProviderResponse\"\x00\x12w\n" +
+	"\x1aDeleteUserIdentityProvider\x12*.plux.v1.DeleteUserIdentityProviderRequest\x1a+.plux.v1.DeleteUserIdentityProviderResponse\"\x00\x12e\n" +
 	"\x14ListAuditCheckpoints\x12$.plux.v1.ListAuditCheckpointsRequest\x1a%.plux.v1.ListAuditCheckpointsResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
@@ -1353,70 +1963,89 @@ func file_plux_v1_security_admin_proto_rawDescGZIP() []byte {
 	return file_plux_v1_security_admin_proto_rawDescData
 }
 
-var file_plux_v1_security_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_plux_v1_security_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_plux_v1_security_admin_proto_goTypes = []any{
 	(*SetSecurityConfigRequest)(nil),           // 0: plux.v1.SetSecurityConfigRequest
 	(*SetSecurityConfigResponse)(nil),          // 1: plux.v1.SetSecurityConfigResponse
 	(*GetEffectiveSecurityConfigRequest)(nil),  // 2: plux.v1.GetEffectiveSecurityConfigRequest
 	(*GetEffectiveSecurityConfigResponse)(nil), // 3: plux.v1.GetEffectiveSecurityConfigResponse
 	(*Upstream)(nil),                           // 4: plux.v1.Upstream
-	(*UpstreamMtls)(nil),                       // 5: plux.v1.UpstreamMtls
-	(*UpstreamOAuthClientCredentials)(nil),     // 6: plux.v1.UpstreamOAuthClientCredentials
-	(*UpstreamApiKey)(nil),                     // 7: plux.v1.UpstreamApiKey
-	(*CreateUpstreamRequest)(nil),              // 8: plux.v1.CreateUpstreamRequest
-	(*CreateUpstreamResponse)(nil),             // 9: plux.v1.CreateUpstreamResponse
-	(*GetUpstreamRequest)(nil),                 // 10: plux.v1.GetUpstreamRequest
-	(*GetUpstreamResponse)(nil),                // 11: plux.v1.GetUpstreamResponse
-	(*ListUpstreamsRequest)(nil),               // 12: plux.v1.ListUpstreamsRequest
-	(*ListUpstreamsResponse)(nil),              // 13: plux.v1.ListUpstreamsResponse
-	(*UpdateUpstreamRequest)(nil),              // 14: plux.v1.UpdateUpstreamRequest
-	(*UpdateUpstreamResponse)(nil),             // 15: plux.v1.UpdateUpstreamResponse
-	(*DeleteUpstreamRequest)(nil),              // 16: plux.v1.DeleteUpstreamRequest
-	(*DeleteUpstreamResponse)(nil),             // 17: plux.v1.DeleteUpstreamResponse
-	(*AuditCheckpoint)(nil),                    // 18: plux.v1.AuditCheckpoint
-	(*ListAuditCheckpointsRequest)(nil),        // 19: plux.v1.ListAuditCheckpointsRequest
-	(*ListAuditCheckpointsResponse)(nil),       // 20: plux.v1.ListAuditCheckpointsResponse
-	(*Page)(nil),                               // 21: plux.v1.Page
-	(*PageResult)(nil),                         // 22: plux.v1.PageResult
-	(*timestamppb.Timestamp)(nil),              // 23: google.protobuf.Timestamp
+	(*UpstreamOperation)(nil),                  // 5: plux.v1.UpstreamOperation
+	(*UpstreamTransaction)(nil),                // 6: plux.v1.UpstreamTransaction
+	(*UpstreamMtls)(nil),                       // 7: plux.v1.UpstreamMtls
+	(*UpstreamOAuthClientCredentials)(nil),     // 8: plux.v1.UpstreamOAuthClientCredentials
+	(*UpstreamApiKey)(nil),                     // 9: plux.v1.UpstreamApiKey
+	(*CreateUpstreamRequest)(nil),              // 10: plux.v1.CreateUpstreamRequest
+	(*CreateUpstreamResponse)(nil),             // 11: plux.v1.CreateUpstreamResponse
+	(*GetUpstreamRequest)(nil),                 // 12: plux.v1.GetUpstreamRequest
+	(*GetUpstreamResponse)(nil),                // 13: plux.v1.GetUpstreamResponse
+	(*ListUpstreamsRequest)(nil),               // 14: plux.v1.ListUpstreamsRequest
+	(*ListUpstreamsResponse)(nil),              // 15: plux.v1.ListUpstreamsResponse
+	(*UpdateUpstreamRequest)(nil),              // 16: plux.v1.UpdateUpstreamRequest
+	(*UpdateUpstreamResponse)(nil),             // 17: plux.v1.UpdateUpstreamResponse
+	(*DeleteUpstreamRequest)(nil),              // 18: plux.v1.DeleteUpstreamRequest
+	(*DeleteUpstreamResponse)(nil),             // 19: plux.v1.DeleteUpstreamResponse
+	(*UserIdentityProvider)(nil),               // 20: plux.v1.UserIdentityProvider
+	(*SetUserIdentityProviderRequest)(nil),     // 21: plux.v1.SetUserIdentityProviderRequest
+	(*SetUserIdentityProviderResponse)(nil),    // 22: plux.v1.SetUserIdentityProviderResponse
+	(*GetUserIdentityProviderRequest)(nil),     // 23: plux.v1.GetUserIdentityProviderRequest
+	(*GetUserIdentityProviderResponse)(nil),    // 24: plux.v1.GetUserIdentityProviderResponse
+	(*DeleteUserIdentityProviderRequest)(nil),  // 25: plux.v1.DeleteUserIdentityProviderRequest
+	(*DeleteUserIdentityProviderResponse)(nil), // 26: plux.v1.DeleteUserIdentityProviderResponse
+	(*AuditCheckpoint)(nil),                    // 27: plux.v1.AuditCheckpoint
+	(*ListAuditCheckpointsRequest)(nil),        // 28: plux.v1.ListAuditCheckpointsRequest
+	(*ListAuditCheckpointsResponse)(nil),       // 29: plux.v1.ListAuditCheckpointsResponse
+	(*Page)(nil),                               // 30: plux.v1.Page
+	(*PageResult)(nil),                         // 31: plux.v1.PageResult
+	(*timestamppb.Timestamp)(nil),              // 32: google.protobuf.Timestamp
 }
 var file_plux_v1_security_admin_proto_depIdxs = []int32{
-	5,  // 0: plux.v1.Upstream.mtls:type_name -> plux.v1.UpstreamMtls
-	6,  // 1: plux.v1.Upstream.oauth_client_credentials:type_name -> plux.v1.UpstreamOAuthClientCredentials
-	7,  // 2: plux.v1.Upstream.api_key:type_name -> plux.v1.UpstreamApiKey
-	4,  // 3: plux.v1.CreateUpstreamRequest.upstream:type_name -> plux.v1.Upstream
-	4,  // 4: plux.v1.CreateUpstreamResponse.upstream:type_name -> plux.v1.Upstream
-	4,  // 5: plux.v1.GetUpstreamResponse.upstream:type_name -> plux.v1.Upstream
-	21, // 6: plux.v1.ListUpstreamsRequest.page:type_name -> plux.v1.Page
-	4,  // 7: plux.v1.ListUpstreamsResponse.upstreams:type_name -> plux.v1.Upstream
-	22, // 8: plux.v1.ListUpstreamsResponse.page:type_name -> plux.v1.PageResult
-	4,  // 9: plux.v1.UpdateUpstreamRequest.upstream:type_name -> plux.v1.Upstream
-	4,  // 10: plux.v1.UpdateUpstreamResponse.upstream:type_name -> plux.v1.Upstream
-	23, // 11: plux.v1.AuditCheckpoint.created_at:type_name -> google.protobuf.Timestamp
-	21, // 12: plux.v1.ListAuditCheckpointsRequest.page:type_name -> plux.v1.Page
-	18, // 13: plux.v1.ListAuditCheckpointsResponse.checkpoints:type_name -> plux.v1.AuditCheckpoint
-	22, // 14: plux.v1.ListAuditCheckpointsResponse.page:type_name -> plux.v1.PageResult
-	0,  // 15: plux.v1.SecurityAdminService.SetSecurityConfig:input_type -> plux.v1.SetSecurityConfigRequest
-	2,  // 16: plux.v1.SecurityAdminService.GetEffectiveSecurityConfig:input_type -> plux.v1.GetEffectiveSecurityConfigRequest
-	8,  // 17: plux.v1.SecurityAdminService.CreateUpstream:input_type -> plux.v1.CreateUpstreamRequest
-	10, // 18: plux.v1.SecurityAdminService.GetUpstream:input_type -> plux.v1.GetUpstreamRequest
-	12, // 19: plux.v1.SecurityAdminService.ListUpstreams:input_type -> plux.v1.ListUpstreamsRequest
-	14, // 20: plux.v1.SecurityAdminService.UpdateUpstream:input_type -> plux.v1.UpdateUpstreamRequest
-	16, // 21: plux.v1.SecurityAdminService.DeleteUpstream:input_type -> plux.v1.DeleteUpstreamRequest
-	19, // 22: plux.v1.SecurityAdminService.ListAuditCheckpoints:input_type -> plux.v1.ListAuditCheckpointsRequest
-	1,  // 23: plux.v1.SecurityAdminService.SetSecurityConfig:output_type -> plux.v1.SetSecurityConfigResponse
-	3,  // 24: plux.v1.SecurityAdminService.GetEffectiveSecurityConfig:output_type -> plux.v1.GetEffectiveSecurityConfigResponse
-	9,  // 25: plux.v1.SecurityAdminService.CreateUpstream:output_type -> plux.v1.CreateUpstreamResponse
-	11, // 26: plux.v1.SecurityAdminService.GetUpstream:output_type -> plux.v1.GetUpstreamResponse
-	13, // 27: plux.v1.SecurityAdminService.ListUpstreams:output_type -> plux.v1.ListUpstreamsResponse
-	15, // 28: plux.v1.SecurityAdminService.UpdateUpstream:output_type -> plux.v1.UpdateUpstreamResponse
-	17, // 29: plux.v1.SecurityAdminService.DeleteUpstream:output_type -> plux.v1.DeleteUpstreamResponse
-	20, // 30: plux.v1.SecurityAdminService.ListAuditCheckpoints:output_type -> plux.v1.ListAuditCheckpointsResponse
-	23, // [23:31] is the sub-list for method output_type
-	15, // [15:23] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	7,  // 0: plux.v1.Upstream.mtls:type_name -> plux.v1.UpstreamMtls
+	8,  // 1: plux.v1.Upstream.oauth_client_credentials:type_name -> plux.v1.UpstreamOAuthClientCredentials
+	9,  // 2: plux.v1.Upstream.api_key:type_name -> plux.v1.UpstreamApiKey
+	5,  // 3: plux.v1.Upstream.operations:type_name -> plux.v1.UpstreamOperation
+	6,  // 4: plux.v1.UpstreamOperation.transaction:type_name -> plux.v1.UpstreamTransaction
+	4,  // 5: plux.v1.CreateUpstreamRequest.upstream:type_name -> plux.v1.Upstream
+	4,  // 6: plux.v1.CreateUpstreamResponse.upstream:type_name -> plux.v1.Upstream
+	4,  // 7: plux.v1.GetUpstreamResponse.upstream:type_name -> plux.v1.Upstream
+	30, // 8: plux.v1.ListUpstreamsRequest.page:type_name -> plux.v1.Page
+	4,  // 9: plux.v1.ListUpstreamsResponse.upstreams:type_name -> plux.v1.Upstream
+	31, // 10: plux.v1.ListUpstreamsResponse.page:type_name -> plux.v1.PageResult
+	4,  // 11: plux.v1.UpdateUpstreamRequest.upstream:type_name -> plux.v1.Upstream
+	4,  // 12: plux.v1.UpdateUpstreamResponse.upstream:type_name -> plux.v1.Upstream
+	20, // 13: plux.v1.SetUserIdentityProviderRequest.provider:type_name -> plux.v1.UserIdentityProvider
+	20, // 14: plux.v1.GetUserIdentityProviderResponse.provider:type_name -> plux.v1.UserIdentityProvider
+	32, // 15: plux.v1.AuditCheckpoint.created_at:type_name -> google.protobuf.Timestamp
+	30, // 16: plux.v1.ListAuditCheckpointsRequest.page:type_name -> plux.v1.Page
+	27, // 17: plux.v1.ListAuditCheckpointsResponse.checkpoints:type_name -> plux.v1.AuditCheckpoint
+	31, // 18: plux.v1.ListAuditCheckpointsResponse.page:type_name -> plux.v1.PageResult
+	0,  // 19: plux.v1.SecurityAdminService.SetSecurityConfig:input_type -> plux.v1.SetSecurityConfigRequest
+	2,  // 20: plux.v1.SecurityAdminService.GetEffectiveSecurityConfig:input_type -> plux.v1.GetEffectiveSecurityConfigRequest
+	10, // 21: plux.v1.SecurityAdminService.CreateUpstream:input_type -> plux.v1.CreateUpstreamRequest
+	12, // 22: plux.v1.SecurityAdminService.GetUpstream:input_type -> plux.v1.GetUpstreamRequest
+	14, // 23: plux.v1.SecurityAdminService.ListUpstreams:input_type -> plux.v1.ListUpstreamsRequest
+	16, // 24: plux.v1.SecurityAdminService.UpdateUpstream:input_type -> plux.v1.UpdateUpstreamRequest
+	18, // 25: plux.v1.SecurityAdminService.DeleteUpstream:input_type -> plux.v1.DeleteUpstreamRequest
+	21, // 26: plux.v1.SecurityAdminService.SetUserIdentityProvider:input_type -> plux.v1.SetUserIdentityProviderRequest
+	23, // 27: plux.v1.SecurityAdminService.GetUserIdentityProvider:input_type -> plux.v1.GetUserIdentityProviderRequest
+	25, // 28: plux.v1.SecurityAdminService.DeleteUserIdentityProvider:input_type -> plux.v1.DeleteUserIdentityProviderRequest
+	28, // 29: plux.v1.SecurityAdminService.ListAuditCheckpoints:input_type -> plux.v1.ListAuditCheckpointsRequest
+	1,  // 30: plux.v1.SecurityAdminService.SetSecurityConfig:output_type -> plux.v1.SetSecurityConfigResponse
+	3,  // 31: plux.v1.SecurityAdminService.GetEffectiveSecurityConfig:output_type -> plux.v1.GetEffectiveSecurityConfigResponse
+	11, // 32: plux.v1.SecurityAdminService.CreateUpstream:output_type -> plux.v1.CreateUpstreamResponse
+	13, // 33: plux.v1.SecurityAdminService.GetUpstream:output_type -> plux.v1.GetUpstreamResponse
+	15, // 34: plux.v1.SecurityAdminService.ListUpstreams:output_type -> plux.v1.ListUpstreamsResponse
+	17, // 35: plux.v1.SecurityAdminService.UpdateUpstream:output_type -> plux.v1.UpdateUpstreamResponse
+	19, // 36: plux.v1.SecurityAdminService.DeleteUpstream:output_type -> plux.v1.DeleteUpstreamResponse
+	22, // 37: plux.v1.SecurityAdminService.SetUserIdentityProvider:output_type -> plux.v1.SetUserIdentityProviderResponse
+	24, // 38: plux.v1.SecurityAdminService.GetUserIdentityProvider:output_type -> plux.v1.GetUserIdentityProviderResponse
+	26, // 39: plux.v1.SecurityAdminService.DeleteUserIdentityProvider:output_type -> plux.v1.DeleteUserIdentityProviderResponse
+	29, // 40: plux.v1.SecurityAdminService.ListAuditCheckpoints:output_type -> plux.v1.ListAuditCheckpointsResponse
+	30, // [30:41] is the sub-list for method output_type
+	19, // [19:30] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_security_admin_proto_init() }
@@ -1436,7 +2065,7 @@ func file_plux_v1_security_admin_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_security_admin_proto_rawDesc), len(file_plux_v1_security_admin_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   21,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
