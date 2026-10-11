@@ -134,7 +134,12 @@ final class _Purge {
 
 /// The UI isolate's handle on the sync isolate.
 final class SyncWorker {
-  SyncWorker._(this._isolate, this._commands, this._baselineAssets);
+  SyncWorker._(
+    this._isolate,
+    this._commands,
+    this._baselineAssets,
+    this._startSettings,
+  );
 
   /// Starts the sync isolate. [baselineAssets] is the directory of the
   /// host's assets holding the baseline `plux pull` wrote, if any.
@@ -147,14 +152,17 @@ final class SyncWorker {
       config,
       ready.sendPort,
     ), debugName: 'plux-sync');
-    final commands = await ready.first as SendPort;
+    // The isolate answers with its command port and the settings it read,
+    // so the launch needs no round trip of its own for them (QA-007).
+    final (commands, settings) = await ready.first as (SendPort, Object?);
     ready.close();
-    return SyncWorker._(isolate, commands, baselineAssets);
+    return SyncWorker._(isolate, commands, baselineAssets, settings);
   }
 
   final Isolate _isolate;
   final SendPort _commands;
   final String? _baselineAssets;
+  final Object? _startSettings;
   Future<SyncResult>? _running;
 
   /// Syncs once, reporting events to [onEvent]; a sync already running is
@@ -198,6 +206,14 @@ final class SyncWorker {
       assets.close();
     }
   }
+
+  /// The security settings in force when the isolate started, as
+  /// [loadSettings] reads them; throws [StateError] when they could not be
+  /// read (SEC-182).
+  SecuritySettings? get startSettings => switch (_startSettings) {
+    final _Failure f => throw StateError(f.message),
+    final s => s as SecuritySettings?,
+  };
 
   /// The security settings in force: the stored configuration once it has
   /// verified against its hash again, else the built-in defaults; null
@@ -284,7 +300,13 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
   );
   final outbox = TelemetryOutbox(config.storeRoot);
   final commands = ReceivePort();
-  ready.send(commands.sendPort);
+  Object? settings;
+  try {
+    settings = await engine.loadSettings();
+  } on Object catch (e) {
+    settings = _Failure('$e');
+  }
+  ready.send((commands.sendPort, settings));
   await for (final c in commands) {
     switch (c) {
       case _Settle(:final reply):

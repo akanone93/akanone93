@@ -181,6 +181,9 @@ final class PluxRuntime with WidgetsBindingObserver {
     RuntimeOverrides overrides = const RuntimeOverrides(),
   }) async {
     final task = developer.TimelineTask()..start('plux.initialize');
+    // Started first: an asset load costs a round trip to the platform, which
+    // overlaps the awaits below instead of adding its own (QA-007).
+    final bundledRoot = _bundledRoot(config.baseline);
     try {
       // Refuses an unpinned release build before anything is started
       // (SEC-041); a host's own client is the host's to pin.
@@ -237,7 +240,7 @@ final class PluxRuntime with WidgetsBindingObserver {
             environment: config.environment,
             channel: config.channel,
             keys: [for (final k in keys) k.toTrustedKey()],
-            rootDocument: await _bundledRoot(config.baseline),
+            rootDocument: await bundledRoot,
             pins: pinSet,
             device: DeviceInfo(
               platform: Platform.operatingSystem,
@@ -937,7 +940,7 @@ final class PluxRuntime with WidgetsBindingObserver {
       pointer = await _worker.activate();
     }
     try {
-      settings.value = await _worker.loadSettings() ?? settings.value;
+      settings.value = _worker.startSettings ?? settings.value;
     } on StateError catch (e) {
       _report(
         PluxException(PluxErrorCode.syncFailed, 'settings: ${e.message}'),

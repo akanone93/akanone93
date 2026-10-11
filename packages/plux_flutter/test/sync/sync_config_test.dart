@@ -322,6 +322,7 @@ void main() {
           ),
         );
         try {
+          expect(worker.startSettings, SecuritySettings.builtIn);
           expect(await worker.loadSettings(), SecuritySettings.builtIn);
           final r = await worker.sync((_) {});
           expect(r.configError, isNull, reason: '${r.configError}');
