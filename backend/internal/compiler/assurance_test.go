@@ -198,3 +198,36 @@ func TestDirectSourceRefusedWhereNotAllowed(t *testing.T) {
 		t.Error("a gateway source under maximum was refused")
 	}
 }
+
+// Verifies: SEC-030, SEC-031.
+// The compilation lists the data sources that go through the gateway with
+// the assurance they need and their transaction mapping, for the server to
+// check against its registered upstreams; a direct source is not listed.
+func TestGatewaySourcesAreListed(t *testing.T) {
+	t.Parallel()
+	m := project(t, dataDir)
+	transactionSource("plux")(t, m)
+	requireAssurance("AL2", "")(t, m)
+	res := compileFS(m)
+	onlyRaised(t, res)
+	var found *GatewaySource
+	for i := range res.GatewaySources {
+		if res.GatewaySources[i].Name == "tasks" {
+			found = &res.GatewaySources[i]
+		}
+	}
+	if found == nil {
+		t.Fatalf("sources = %+v", res.GatewaySources)
+	}
+	if found.Assurance != "AL2" || found.Transaction == nil || found.Transaction.Payee != "/to/iban" || found.Transaction.Summary != "/memo" {
+		t.Errorf("source = %+v", found)
+	}
+
+	m = project(t, dataDir)
+	requireAssurance("", "direct")(t, m)
+	for _, g := range compileFS(m).GatewaySources {
+		if g.Name == "tasks" {
+			t.Errorf("a direct source is listed: %+v", g)
+		}
+	}
+}

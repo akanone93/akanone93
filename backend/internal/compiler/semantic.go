@@ -244,6 +244,7 @@ func (u *unit) checkSources(pl *plugin, sources []schema.DataSource, file string
 			d.config = u.inferred(literalCtx(pl, file, ptr+"/config"), s.Config)
 		}
 		u.checkSourceRoute(s, file, ptr)
+		u.noteGatewaySource(s, file, ptr)
 		u.checkDirectAssurance(s, file, ptr)
 		out = append(out, d)
 	}

@@ -52,3 +52,6 @@ SELECT * FROM user_identity_providers WHERE environment_id = $1;
 
 -- name: DeleteUserIdentityProvider :execrows
 DELETE FROM user_identity_providers WHERE environment_id = $1;
+
+-- name: ListEnvironmentGatewayUpstreams :many
+SELECT * FROM gateway_upstreams WHERE environment_id = $1 ORDER BY name;

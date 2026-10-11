@@ -31,6 +31,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/compiler/media"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -667,4 +668,62 @@ func usageOf(us []tenancy.LimitUsage, key string) int64 {
 		}
 	}
 	return -1
+}
+
+// Verifies: SEC-028, SEC-030, SEC-031.
+// A release whose gateway data sources the environment's registered
+// upstreams do not match is refused, with a diagnostic at each source, and
+// is created once they do.
+func TestReleaseChecksGatewayUpstreams(t *testing.T) {
+	t.Parallel()
+	var registry *gateway.Registry
+	f := newFixtureWith(t, "data", limits.Defaults(), func(o *release.Options) {
+		var err error
+		registry, err = gateway.NewRegistry(gateway.RegistryOptions{DB: o.DB, Audit: o.Audit, IDs: o.IDs})
+		if err != nil {
+			t.Fatal(err)
+		}
+		o.Gateway = registry
+	})
+	ctx := context.Background()
+	dev := f.envs["development"].ID
+	for _, id := range []string{"", f.loans} {
+		if job := f.publish(t, id, true); job.State != release.StateSucceeded {
+			t.Fatalf("publish %q: %+v", id, job)
+		}
+	}
+
+	_, diags, err := f.rel.CreateRelease(ctx, f.owner, f.app, dev, nil, "")
+	if err != nil || !hasCode(diags, plxerr.GatewayUpstreamUnknown) {
+		t.Fatalf("no upstream registered: %v %v", diags, err)
+	}
+	for _, d := range diags {
+		if d.Code == plxerr.GatewayUpstreamUnknown && d.Location.File == "" {
+			t.Errorf("a diagnostic with no source: %+v", d)
+		}
+	}
+	for _, d := range diags {
+		if d.Code != plxerr.GatewayUpstreamUnknown {
+			continue
+		}
+		name := nameInQuotes(d.Message)
+		_, err := registry.Create(ctx, f.owner, gateway.Upstream{
+			AppID: f.app, EnvironmentID: dev, Name: name, BaseURL: "https://api.example.com", Auth: gateway.Auth{Kind: gateway.AuthNone},
+			Methods: []string{"GET", "POST"},
+		})
+		if err != nil && code(err) != plxerr.ResourceExists {
+			t.Fatalf("register %s: %v", name, err)
+		}
+	}
+	rel, diags, err := f.rel.CreateRelease(ctx, f.owner, f.app, dev, nil, "With upstreams")
+	if err != nil || diags.HasErrors() || rel.Sequence != 1 {
+		t.Fatalf("with the upstreams registered: %+v %v %v", rel, diags, err)
+	}
+}
+
+// nameInQuotes returns the first double-quoted word of a message.
+func nameInQuotes(msg string) string {
+	_, rest, _ := strings.Cut(msg, `"`)
+	name, _, _ := strings.Cut(rest, `"`)
+	return name
 }

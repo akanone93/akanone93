@@ -32,6 +32,7 @@ The Go module `github.com/nightCode42/plux3/backend`: the Plux Server (`plux-ser
 | `internal/device/` | Device registration, device credentials and access tokens, installed releases and bundles | AGPL-3.0-only |
 | `internal/telemetry/` | Runtime event ingestion (Appendix G.2), listing and retention | AGPL-3.0-only |
 | `internal/audit/` | The hash-chained, append-only audit log (`SEC-140`) | AGPL-3.0-only |
+| `internal/gateway/` | The secure gateway: upstream registry, assertions, user-token exchange, SCA verification, streaming proxy ([gateway.md](../docs/reference/gateway.md), [ADR-0056](../docs/adr/0056-secure-gateway-and-sca.md)) | AGPL-3.0-only |
 | `internal/signing/` | The only package that touches keys: file and Vault Transit backends, envelope encryption (`SEC-106`, `SEC-120`, L-3) | AGPL-3.0-only |
 | `internal/server/` | Role wiring, health, lifecycle ([server.md](../docs/reference/server.md)) | AGPL-3.0-only |
 | `internal/<module>/` | Further server modules as listed in spec §6.3, added phase by phase | per `REUSE.toml` |

@@ -41,6 +41,18 @@ addresses allowed), the methods it allows, its operations and one way to authent
 mutual TLS, OAuth 2.0 client credentials (the token is kept until it expires) or a key in a
 header. Credentials are environment secrets, referenced by key and sealed at rest (`SEC-106`).
 
+## Releases are checked against the registry
+
+The registry is the server's source of truth; the documents are what the device follows. So
+creating a release compares the two (`SEC-028`, `SEC-030`): every data source that goes through
+the gateway (any network source not declared `route: direct`) needs an upstream of its name in
+the release's environment (`PLX-6060`); the upstream and the operations the source calls must
+require at least the source's `requiresAssurance` (`PLX-6002`); the operations the source
+declares must be registered if the upstream registers any (`PLX-6061`); and a source's
+`transaction` mapping must equal the mapping of the registered transaction operations, and an
+operation registered as a transaction must be the document's too (`PLX-6072`). Each mismatch is
+an error at the source in the document.
+
 ## Measured
 
 `go test -bench . ./internal/gateway` reports `authorise-p95-ms`, `added-p95-ms` and

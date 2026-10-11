@@ -32,6 +32,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
 	"github.com/nightCode42/plux3/backend/internal/observability"
@@ -335,6 +336,10 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
+	events, err := telemetry.NewService(telemetry.Options{DB: db, IDs: gen, Limits: set})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
 	gw, err := buildGateway(gatewayDeps{
 		cfg: cfg, db: db, cache: shared, set: set, signer: tokenSigner, ids: gen, audit: log, tenancy: tenancyService,
 		devices: devices, configs: configs, trust: trust, metrics: work.Metrics, secretOf: secrets{t: tenancyService},
@@ -342,11 +347,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	events, err := telemetry.NewService(telemetry.Options{DB: db, IDs: gen, Limits: set})
-	if err != nil {
-		return nil, fmt.Errorf("server: %w", err)
-	}
-	releases, err := buildReleases(cfg, db, set, work, releaseDeps{ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend})
+	releases, err := buildReleases(cfg, db, set, work, releaseDeps{ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw)})
 	if err != nil {
 		return nil, err
 	}
@@ -403,6 +404,9 @@ type releaseDeps struct {
 	devices   *device.Service
 	configs   *seccfg.Service
 	crypter   signing.Crypter
+	// gateway is the upstream registry the release check reads; nil where
+	// the process serves no gateway.
+	gateway *gateway.Registry
 }
 
 // buildReleases assembles the release service, or returns nil when the
@@ -414,7 +418,7 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 	releases, err := release.NewService(release.Options{
 		DB: db, Audit: deps.audit, Tenancy: deps.tenancy, Documents: deps.documents, Objects: work.Objects, IDs: deps.ids,
 		Jobs: publishQueue{work.Queue}, Signer: work.Signer, ProductionSigning: work.ProductionSigning, Limits: set,
-		Devices: deps.devices, SecurityConfig: deps.configs, PublicBaseURL: cfg.Server.PublicBaseURL,
+		Devices: deps.devices, Gateway: deps.gateway, SecurityConfig: deps.configs, PublicBaseURL: cfg.Server.PublicBaseURL,
 		Crypter: deps.crypter, Recipients: deps.devices,
 		CompilerVersion: buildinfo.Get().Version, DevelopmentDays: cfg.Retention.DevelopmentReleaseDays,
 		Metadata: metadataOptions(cfg),
@@ -702,4 +706,12 @@ func (w *maintenanceWorker) Work(ctx context.Context, _ *river.Job[Maintenance])
 func MaintenanceJobs(workers *jobs.Workers, svc *Services, log *slog.Logger) []*river.PeriodicJob {
 	jobs.AddWorker(workers, &maintenanceWorker{svc: svc, log: log})
 	return []*river.PeriodicJob{jobs.Every(time.Hour, Maintenance{})}
+}
+
+// gatewayRegistry returns the upstream registry of the gateway, if any.
+func gatewayRegistry(g *GatewayParts) *gateway.Registry {
+	if g == nil {
+		return nil
+	}
+	return g.Upstreams
 }
