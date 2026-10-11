@@ -10,7 +10,6 @@ import 'package:plux_flutter/src/render/builders/secure.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
 import 'package:plux_flutter/src/secure/kyc.dart';
 import 'package:plux_flutter/src/secure/secure_ui.dart';
-import 'package:plux_flutter/src/security/security_config.dart';
 
 import 'secure_pages_test.dart' show FakeBiometrics, FakeClock, FakeScreen;
 import 'secure_runtime_test.dart' show FakeNode;

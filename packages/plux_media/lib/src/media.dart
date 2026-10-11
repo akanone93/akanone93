@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:image_picker/image_picker.dart';
 import 'package:plux_flutter/plux_flutter.dart';
+import 'package:plux_media/src/kyc.dart';
 
 /// A file a backend picked, before the runtime keeps it behind a handle.
 typedef PickedEntry = ({String path, String name, String? mimeType, int size});
@@ -20,8 +21,9 @@ abstract interface class ImageBackend {
     int? maxDimension,
   });
 
-  /// Takes a photo, scaled to [maxDimension]; null when cancelled.
-  Future<PickedEntry?> capture({int? maxDimension});
+  /// Takes a photo, scaled to [maxDimension], with the front camera when
+  /// [front] is set; null when cancelled.
+  Future<PickedEntry?> capture({int? maxDimension, bool front = false});
 }
 
 /// Picks files. The default is `file_picker`.
@@ -36,7 +38,8 @@ abstract interface class FileBackend {
 }
 
 /// The media actions of Plux plugins: `pickImage`, `capturePhoto` and
-/// `pickFile` (RT-060, SEC-080).
+/// `pickFile`, and the capture service of the `KycCameraCapture` widget
+/// (RT-060, SEC-080, SEC-090).
 ///
 /// Register it in `PluxConfig.devicePackages`:
 /// `PluxConfig(…, devicePackages: [PluxMedia()])`. Plugins must declare the
@@ -44,20 +47,42 @@ abstract interface class FileBackend {
 final class PluxMedia implements PluxDevicePackage {
   /// Creates the package. [images] and [files] replace the default pickers.
   PluxMedia({
+    KycThresholds kyc = const KycThresholds(),
     @visibleForTesting ImageBackend? images,
     @visibleForTesting FileBackend? files,
-  }) : _picker = _MediaPicker(
+    @visibleForTesting KycAnalyser? analyse,
+  }) : this._(
+         kyc,
          images ?? _ImagePickerBackend(),
          files ?? const _FilePickerBackend(),
+         analyse ?? analyseFile,
        );
 
+  PluxMedia._(
+    KycThresholds kyc,
+    ImageBackend images,
+    FileBackend files,
+    KycAnalyser analyse,
+  ) : _picker = _MediaPicker(images, files),
+      _kyc = KycCaptureService(
+        camera: ({required front}) =>
+            _guard(() => images.capture(front: front)),
+        thresholds: kyc,
+        analyse: analyse,
+        mimeOf: (p) => p.mimeType ?? mimeForName(p.name) ?? 'image/jpeg',
+      );
+
   final _MediaPicker _picker;
+  final KycCaptureService _kyc;
 
   @override
   String get name => 'plux_media';
 
   @override
-  Map<Type, Object> get services => {PluxMediaPicker: _picker};
+  Map<Type, Object> get services => {
+    PluxMediaPicker: _picker,
+    PluxKycCapture: _kyc,
+  };
 }
 
 final class _MediaPicker implements PluxMediaPicker {
@@ -251,10 +276,11 @@ final class _ImagePickerBackend implements ImageBackend {
   }
 
   @override
-  Future<PickedEntry?> capture({int? maxDimension}) async {
+  Future<PickedEntry?> capture({int? maxDimension, bool front = false}) async {
     final side = maxDimension?.toDouble();
     final f = await _picker.pickImage(
       source: ImageSource.camera,
+      preferredCameraDevice: front ? CameraDevice.front : CameraDevice.rear,
       maxWidth: side,
       maxHeight: side,
     );
