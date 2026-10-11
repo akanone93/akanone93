@@ -44,8 +44,51 @@ func (u *unit) optimiseTree(root *node, pageRoot bool) {
 	}
 }
 
+// maskable are the widgets that show or edit a value as text, which the
+// runtime can mask (SEC-092).
+var maskable = map[string]bool{
+	"Text": true, "SelectableText": true,
+	"TextField": true, "TextFormField": true, "CupertinoTextField": true,
+}
+
+// masked reports whether node n is a text display or input with a prop
+// bound to a sensitive value, which the runtime masks until the user
+// unmasks it (SEC-092).
+func (u *unit) masked(n *node) bool {
+	if n.widget == nil || !maskable[n.widget.Type] {
+		return false
+	}
+	sensitive, ok := u.sensitiveByOwner[n.owner]
+	if !ok {
+		sensitive = u.sensitiveOf(n.owner.plugin(), n.owner.page, n.owner.component)
+		if u.sensitiveByOwner == nil {
+			u.sensitiveByOwner = map[owner][]string{}
+		}
+		u.sensitiveByOwner[n.owner] = sensitive
+	}
+	if len(sensitive) == 0 {
+		return false
+	}
+	for _, p := range n.props {
+		if readsSensitive(p.value, sensitive) {
+			return true
+		}
+	}
+	for _, o := range n.overrides {
+		for _, p := range o.props {
+			if readsSensitive(p.value, sensitive) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // optimiseNode optimises a node and its subtree, bottom-up.
 func (u *unit) optimiseNode(n *node) {
+	if u.masked(n) {
+		n.hints |= fbs.NodeHintsMasked
+	}
 	for _, p := range n.props {
 		p.value = foldValue(p.value)
 	}

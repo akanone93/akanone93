@@ -225,7 +225,10 @@ table SlotFill {
 // single enum value and fails on combined flags.
 enum NodeHints : ubyte (bit_flags) {
   RepaintBoundary,
-  Static
+  Static,
+  // The node shows or edits a value that reads a sensitive path: the
+  // runtime masks it until the user unmasks it (SEC-092).
+  Masked
 }
 
 // A node of a flat node array (BND-015). `widget` is the permanent widget
