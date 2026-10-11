@@ -372,3 +372,29 @@ func TestJWKSVerifiesAssertions(t *testing.T) {
 		t.Error("a development key is in the production set")
 	}
 }
+
+// Verifies: SEC-030, SEC-028.
+// A call that names no operation, the load of a data source, is matched by
+// its method and path: a path that belongs to a transaction still needs
+// its confirmation, and a path no operation covers falls under the
+// upstream's own rules.
+func TestCallWithoutOperationIsMatchedByPath(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	if _, err := f.call(Request{Upstream: "bank", Method: "GET", Target: "/accounts/1"}, nil); err != nil {
+		t.Fatalf("a load under an operation's path: %v", err)
+	}
+	f.next()
+	if _, err := f.call(Request{Upstream: "bank", Method: "POST", Target: "/transfers"}, []byte(payment)); code(err) != plxerr.SCAChallengeInvalid {
+		t.Errorf("a transfer with no operation named: %v", err)
+	}
+	f.none()
+	f.dev.Assurance = "AL1"
+	if _, err := f.call(Request{Upstream: "bank", Method: "POST", Target: "/transfers"}, []byte(payment)); code(err) != plxerr.AssuranceInsufficient {
+		t.Errorf("the transfer's assurance applies to the inferred operation: %v", err)
+	}
+	if _, err := f.call(Request{Upstream: "bank", Method: "POST", Target: "/elsewhere"}, []byte(`{}`)); err != nil {
+		t.Errorf("a path no operation covers: %v", err)
+	}
+	f.next()
+}

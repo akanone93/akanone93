@@ -233,18 +233,43 @@ func methodForMessage(m string) string {
 }
 
 // operation finds the operation a call names and applies its method, path
-// and plugin rules. An upstream with operations accepts only them.
+// and plugin rules. A call that names none, the load of a data source, is
+// matched by its method and path to the first operation that covers them,
+// so that a path that belongs to a transaction cannot be reached without
+// its confirmation; with no match, the upstream's own rules apply.
 func (g *Gateway) operation(up Upstream, r Request) (Operation, error) {
-	if len(up.Operations) == 0 {
-		if r.Operation != "" && len(r.Operation) > 128 {
-			return Operation{}, refused("the operation name is too long")
+	if len(r.Operation) > 128 {
+		return Operation{}, refused("the operation name is too long")
+	}
+	if r.Operation == "" {
+		rel, _ := url.ParseRequestURI(r.Target)
+		for _, op := range up.Operations {
+			if rel != nil && covers(op, r.Method, rel.Path) {
+				return g.checkOperation(op, r)
+			}
 		}
+		return Operation{}, nil
+	}
+	if len(up.Operations) == 0 {
 		return Operation{Name: r.Operation}, nil
 	}
 	op, ok := up.Operation(r.Operation)
 	if !ok {
 		return Operation{}, refused("the upstream has no such operation")
 	}
+	return g.checkOperation(op, r)
+}
+
+// covers reports whether an operation's methods and path cover a call.
+func covers(op Operation, method, path string) bool {
+	if len(op.Methods) > 0 && !contains(op.Methods, method) {
+		return false
+	}
+	return op.PathPrefix == "" || underPrefix(path, op.PathPrefix)
+}
+
+// checkOperation applies an operation's rules to a call.
+func (*Gateway) checkOperation(op Operation, r Request) (Operation, error) {
 	if len(op.Methods) > 0 && !contains(op.Methods, r.Method) {
 		return Operation{}, refused("the method %s is not one the operation allows", methodForMessage(r.Method))
 	}

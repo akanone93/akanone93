@@ -4,6 +4,7 @@
 package device
 
 import (
+	"bytes"
 	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
@@ -210,7 +211,7 @@ func (s *Service) verifyRegistrationSCA(ctx context.Context, appID string, produ
 	if err := r.SCAEvidence.matches(r.Platform); err != nil {
 		return nil, err
 	}
-	key, err := s.verifySCA(ctx, appID, production, SCAEnrolment{Challenge: r.Challenge, KeyJWK: r.SCAKeyJWK, Evidence: *r.SCAEvidence})
+	key, err := s.registrationSCAKey(ctx, appID, production, r)
 	if err != nil {
 		return nil, err
 	}
@@ -219,6 +220,24 @@ func (s *Service) verifyRegistrationSCA(ctx context.Context, appID string, produ
 		return nil, fmt.Errorf("device: encode the SCA key: %w", err)
 	}
 	return &registeredSCA{key: key, der: der}, nil
+}
+
+// registrationSCAKey verifies the SCA key of a registration. An iOS device
+// reuses the registration's own App Attest evidence for the key, which
+// cannot be attested apart from the DPoP key: the request that carries
+// the key was made by the attested app, and the key is stored with the
+// Secure Enclave as its storage. Any other evidence is verified for the
+// SCA key itself (SEC-027).
+func (s *Service) registrationSCAKey(ctx context.Context, appID string, production bool, r AttestedRegistration) (SCAKey, error) {
+	if ios, reg := r.SCAEvidence.IOS, r.Evidence.IOS; ios != nil && reg != nil &&
+		bytes.Equal(ios.KeyID, reg.KeyID) && bytes.Equal(ios.AttestationObject, reg.AttestationObject) {
+		key, _, jkt, err := parseKey(r.SCAKeyJWK)
+		if err != nil {
+			return SCAKey{}, plxerr.New(plxerr.InvalidFormat, "the SCA key is not an EC P-256 public key in JWK form")
+		}
+		return SCAKey{Public: key, JKT: jkt, Storage: KeyStorageSecureEnclave, Provider: scaProviderAppAttest}, nil
+	}
+	return s.verifySCA(ctx, appID, production, SCAEnrolment{Challenge: r.Challenge, KeyJWK: r.SCAKeyJWK, Evidence: *r.SCAEvidence})
 }
 
 // checkDescription validates what a device says about itself.

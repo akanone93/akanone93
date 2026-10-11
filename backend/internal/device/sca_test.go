@@ -177,3 +177,27 @@ func TestRegistrationSCAComesWithEvidence(t *testing.T) {
 		t.Errorf("a development SCA key: %+v %v", got, err)
 	}
 }
+
+// Verifies: SEC-027.
+// An iOS registration may reuse its own App Attest evidence for the SCA
+// key; evidence that differs is verified for the key itself.
+func TestRegistrationSCAReusesIOSEvidence(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	attestor := &scaAppAttestor{}
+	trust := TrustConfig{IOSAppID: "TEAM.com.example.app"}
+	s := &Service{attestors: Attestors{AppAttest: attestor}, appTrust: func(context.Context, string) (TrustConfig, error) { return trust, nil }}
+	key := jwkOf(t, newSCAKey(t))
+	same := Evidence{IOS: &IOSEvidence{KeyID: []byte("id"), AttestationObject: []byte("object")}}
+	got, err := s.verifyRegistrationSCA(ctx, "app", false, AttestedRegistration{Platform: "ios", Evidence: same, SCAKeyJWK: key, SCAEvidence: &same})
+	if err != nil || got == nil || got.key.Storage != KeyStorageSecureEnclave {
+		t.Fatalf("reused evidence: %+v %v", got, err)
+	}
+	if attestor.hash != ([32]byte{}) {
+		t.Error("reused evidence was verified again")
+	}
+	other := Evidence{IOS: &IOSEvidence{KeyID: []byte("id2"), AttestationObject: []byte("object2")}}
+	if got, err := s.verifyRegistrationSCA(ctx, "app", false, AttestedRegistration{Platform: "ios", Evidence: same, SCAKeyJWK: key, SCAEvidence: &other}); err != nil || got == nil || attestor.hash == ([32]byte{}) {
+		t.Errorf("other evidence must be verified for the key: %+v %v", got, err)
+	}
+}

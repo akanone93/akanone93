@@ -28,11 +28,15 @@ const (
 type CallRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// upstream names a configured upstream of the device's app and
-	// environment (SEC-030).
+	// environment: the data source's name (SEC-030). The end user's token,
+	// when the call acts for one, travels in the Plux-User-Token request
+	// header (SEC-026).
 	Upstream string `protobuf:"bytes,1,opt,name=upstream,proto3" json:"upstream,omitempty"`
 	// operation names the allowed operation, so the server can apply its
 	// policy and require a transaction confirmation where one is set
-	// (SEC-031).
+	// (SEC-031). It is empty for a data source's load; the server then
+	// finds the operation by the method and path, and a path that belongs
+	// to a transaction still needs its confirmation.
 	Operation string `protobuf:"bytes,2,opt,name=operation,proto3" json:"operation,omitempty"`
 	// method is the HTTP method.
 	Method string `protobuf:"bytes,3,opt,name=method,proto3" json:"method,omitempty"`
@@ -50,16 +54,13 @@ type CallRequest struct {
 	// (SEC-032).
 	TransactionChallengeId string `protobuf:"bytes,7,opt,name=transaction_challenge_id,json=transactionChallengeId,proto3" json:"transaction_challenge_id,omitempty"`
 	// transaction_signature is the signature of the device's SCA key over
-	// the challenge and the transaction summary (SEC-032).
+	// the challenge followed by the transaction summary: ES256, 64 bytes,
+	// r then s (SEC-032).
 	TransactionSignature []byte `protobuf:"bytes,8,opt,name=transaction_signature,json=transactionSignature,proto3" json:"transaction_signature,omitempty"`
 	// plugin is the key of the plugin that makes the call, for the
 	// operation's plugin capability (SEC-080); empty when the operation
 	// names none.
-	Plugin string `protobuf:"bytes,9,opt,name=plugin,proto3" json:"plugin,omitempty"`
-	// user_token is the token TokenService.ExchangeUserToken returned, when
-	// the call acts for a signed-in user; the gateway forwards the verified
-	// user in its assertion (SEC-026).
-	UserToken     string `protobuf:"bytes,10,opt,name=user_token,json=userToken,proto3" json:"user_token,omitempty"`
+	Plugin        string `protobuf:"bytes,9,opt,name=plugin,proto3" json:"plugin,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -153,13 +154,6 @@ func (x *CallRequest) GetTransactionSignature() []byte {
 func (x *CallRequest) GetPlugin() string {
 	if x != nil {
 		return x.Plugin
-	}
-	return ""
-}
-
-func (x *CallRequest) GetUserToken() string {
-	if x != nil {
-		return x.UserToken
 	}
 	return ""
 }
@@ -369,7 +363,7 @@ var File_plux_v1_gateway_proto protoreflect.FileDescriptor
 
 const file_plux_v1_gateway_proto_rawDesc = "" +
 	"\n" +
-	"\x15plux/v1/gateway.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa6\x03\n" +
+	"\x15plux/v1/gateway.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x87\x03\n" +
 	"\vCallRequest\x12\x1a\n" +
 	"\bupstream\x18\x01 \x01(\tR\bupstream\x12\x1c\n" +
 	"\toperation\x18\x02 \x01(\tR\toperation\x12\x16\n" +
@@ -379,10 +373,7 @@ const file_plux_v1_gateway_proto_rawDesc = "" +
 	"\x04body\x18\x06 \x01(\fR\x04body\x128\n" +
 	"\x18transaction_challenge_id\x18\a \x01(\tR\x16transactionChallengeId\x123\n" +
 	"\x15transaction_signature\x18\b \x01(\fR\x14transactionSignature\x12\x16\n" +
-	"\x06plugin\x18\t \x01(\tR\x06plugin\x12\x1d\n" +
-	"\n" +
-	"user_token\x18\n" +
-	" \x01(\tR\tuserToken\x1a:\n" +
+	"\x06plugin\x18\t \x01(\tR\x06plugin\x1a:\n" +
 	"\fHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb4\x01\n" +

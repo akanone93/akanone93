@@ -122,7 +122,7 @@ var httpMethods = []string{"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE"}
 var bodyMethods = []string{"POST", "PUT", "PATCH"}
 
 var (
-	upstreamName = regexp.MustCompile(`^[a-z][a-z0-9-]{0,62}$`)
+	upstreamName = regexp.MustCompile(`^[a-z][a-zA-Z0-9]{0,63}$`)
 	operationKey = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_.-]{0,127}$`)
 	secretKey    = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]{0,127}$`)
 	headerName   = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9-]{0,63}$`)
@@ -157,7 +157,7 @@ func invalid(format string, args ...any) error {
 // problem as an error that names the field and never echoes a secret.
 func (u Upstream) Validate() error {
 	if !upstreamName.MatchString(u.Name) {
-		return invalid("the name of an upstream is a lower-case letter followed by up to 62 lower-case letters, digits and hyphens")
+		return invalid("the name of an upstream is the name of its data source: a lower-case letter followed by up to 63 letters and digits")
 	}
 	if err := u.validateBaseURL(); err != nil {
 		return err

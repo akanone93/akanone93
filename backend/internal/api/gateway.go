@@ -46,7 +46,7 @@ func (s GatewayService) Call(ctx context.Context, req *connect.Request[pluxv1.Ca
 	}
 	p, err := s.h.Gateway.Begin(ctx, d, gateway.Request{
 		Upstream: m.GetUpstream(), Operation: m.GetOperation(), Plugin: m.GetPlugin(), Method: m.GetMethod(), Target: m.GetPath(),
-		Header: header, UserToken: m.GetUserToken(), ChallengeID: m.GetTransactionChallengeId(), Signature: m.GetTransactionSignature(),
+		Header: header, UserToken: req.Header().Get(headerUserToken), ChallengeID: m.GetTransactionChallengeId(), Signature: m.GetTransactionSignature(),
 	})
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error

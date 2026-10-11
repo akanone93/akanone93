@@ -6405,14 +6405,18 @@ components:
           title: upstream
           description: |-
             upstream names a configured upstream of the device's app and
-             environment (SEC-030).
+             environment: the data source's name (SEC-030). The end user's token,
+             when the call acts for one, travels in the Plux-User-Token request
+             header (SEC-026).
         operation:
           type: string
           title: operation
           description: |-
             operation names the allowed operation, so the server can apply its
              policy and require a transaction confirmation where one is set
-             (SEC-031).
+             (SEC-031). It is empty for a data source's load; the server then
+             finds the operation by the method and path, and a path that belongs
+             to a transaction still needs its confirmation.
         method:
           type: string
           title: method
@@ -6451,7 +6455,8 @@ components:
           format: byte
           description: |-
             transaction_signature is the signature of the device's SCA key over
-             the challenge and the transaction summary (SEC-032).
+             the challenge followed by the transaction summary: ES256, 64 bytes,
+             r then s (SEC-032).
         plugin:
           type: string
           title: plugin
@@ -6459,13 +6464,6 @@ components:
             plugin is the key of the plugin that makes the call, for the
              operation's plugin capability (SEC-080); empty when the operation
              names none.
-        userToken:
-          type: string
-          title: user_token
-          description: |-
-            user_token is the token TokenService.ExchangeUserToken returned, when
-             the call acts for a signed-in user; the gateway forwards the verified
-             user in its assertion (SEC-026).
       title: CallRequest
       additionalProperties: false
     plux.v1.CallResponse:

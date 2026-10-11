@@ -29,7 +29,7 @@ CREATE TABLE gateway_upstreams (
     version                 bigint      NOT NULL DEFAULT 1,
     created_at              timestamptz NOT NULL DEFAULT now(),
     updated_at              timestamptz NOT NULL DEFAULT now(),
-    CONSTRAINT gateway_upstreams_name CHECK (name ~ '^[a-z][a-z0-9-]{0,62}$'),
+    CONSTRAINT gateway_upstreams_name CHECK (name ~ '^[a-z][a-zA-Z0-9]{0,63}$'),
     CONSTRAINT gateway_upstreams_auth_kind CHECK (auth_kind IN ('none', 'mtls', 'oauth_client_credentials', 'api_key')),
     CONSTRAINT gateway_upstreams_assurance CHECK (requires_assurance IN ('AL0', 'AL1', 'AL2', 'AL3')),
     CONSTRAINT gateway_upstreams_timeout CHECK (timeout_ms >= 0),
