@@ -25,7 +25,8 @@ import javax.crypto.spec.GCMParameterSpec
  * [PluxKeys] (SEC-001), the Play Integrity attestation in [PluxAttestation]
  * (SEC-003), the pinned HTTP/2 client of the Plux server in [PluxPinnedHttp]
  * (SEC-041). The device actions that need the platform, the share
- * sheet and permission prompts, run here too (SEC-080). Bundle data never crosses this channel.
+ * sheet, permission prompts, the biometric prompt and the protection of the
+ * screen for secure pages, run here too (SEC-080, SEC-091, SEC-094). Bundle data never crosses this channel.
  */
 class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCallHandler {
     private lateinit var channel: MethodChannel
@@ -89,6 +90,8 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
                 "httpOpen", "httpRead", "httpClose" -> http.handle(call, result)
                 "share" -> device.share(call, result)
                 "permissionRequest" -> device.requestPermission(call, result)
+                "secureScreen" -> device.secureScreen(call, result)
+                "biometricAuth" -> device.biometricAuth(call, result)
                 else -> result.notImplemented()
             }
         } catch (e: Exception) {
