@@ -6,6 +6,7 @@ package gateway
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -52,6 +53,10 @@ type SecretReader interface {
 type Egress struct {
 	secrets SecretReader
 	now     func() time.Time
+	// roots are the certificate authorities upstreams are verified with,
+	// for an installation whose customers run a private CA; nil uses the
+	// system's.
+	roots *x509.CertPool
 
 	mu      sync.Mutex
 	entries map[string]*connection
@@ -64,6 +69,13 @@ func NewEgress(secrets SecretReader, now func() time.Time) *Egress {
 		now = time.Now
 	}
 	return &Egress{secrets: secrets, now: now}
+}
+
+// WithRoots returns the connection manager verifying upstreams with the
+// given authorities instead of the system's. Call it before first use.
+func (e *Egress) WithRoots(roots *x509.CertPool) *Egress {
+	e.roots = roots
+	return e
 }
 
 // connection is the state kept for one upstream.
@@ -130,6 +142,9 @@ func (e *Egress) connectionFor(ctx context.Context, u Upstream) (*connection, er
 // authentication names.
 func (e *Egress) build(ctx context.Context, u Upstream) (*connection, error) {
 	opts := httpx.TransportOptions{Policy: policyFor(u), MaxIdleConnsPerHost: 64}
+	if e.roots != nil {
+		opts.TLS = &tls.Config{RootCAs: e.roots, MinVersion: tls.VersionTLS12}
+	}
 	c := &connection{version: u.Version, built: e.now()}
 	switch u.Auth.Kind {
 	case AuthMTLS:
@@ -141,7 +156,10 @@ func (e *Egress) build(ctx context.Context, u Upstream) (*connection, error) {
 		if err != nil {
 			return nil, plxerr.New(plxerr.GatewayUpstreamFailed, "the client certificate secret of the upstream is not a PEM certificate chain with its private key")
 		}
-		opts.TLS = &tls.Config{Certificates: []tls.Certificate{cert}, MinVersion: tls.VersionTLS12}
+		if opts.TLS == nil {
+			opts.TLS = &tls.Config{MinVersion: tls.VersionTLS12}
+		}
+		opts.TLS.Certificates = []tls.Certificate{cert}
 	case AuthAPIKey:
 		key, err := e.secret(ctx, u, u.Auth.KeySecret)
 		if err != nil {
