@@ -17,6 +17,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -43,8 +44,14 @@ type Handlers struct {
 	// AuditCheckpoints lists the signed audit checkpoints (SEC-141); nil
 	// answers ListAuditCheckpoints with Unimplemented.
 	AuditCheckpoints CheckpointSource
-	Idempotency      *idempotency.Store
-	Pages            *Pages
+	// Gateway serves GatewayService and ScaService (SEC-030–SEC-032); nil
+	// leaves them unmounted. Upstreams and Exchange serve the upstream
+	// registry and ExchangeUserToken.
+	Gateway     *gateway.Gateway
+	Upstreams   *gateway.Registry
+	Exchange    *gateway.Exchanger
+	Idempotency *idempotency.Store
+	Pages       *Pages
 	// Limiter counts calls per principal and organisation when an
 	// organisation tightens api.requestsPerMinute (SRV-065, LIM-002).
 	Limiter RateLimiter

@@ -7421,12 +7421,6 @@ components:
             dpop_jkt is the RFC 7638 thumbprint of the device's DPoP public key,
              base64url-encoded; every token issued to the device is bound to it
              (SEC-020).
-        scaJkt:
-          type: string
-          title: sca_jkt
-          description: |-
-            sca_jkt is the thumbprint of the device's strong customer
-             authentication key; empty while it has none (SEC-027).
       title: Device
       additionalProperties: false
     plux.v1.Diagnostic:

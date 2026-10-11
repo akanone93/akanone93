@@ -73,29 +73,29 @@ func (c *Config) Validate() error {
 
 func (c *Config) validateServer(p *problems) {
 	if len(c.Server.Roles) == 0 {
-		p.addf("server.roles", "must name at least one of api, worker, fnrunner")
+		p.addf("server.roles", "must name at least one of api, worker, gateway, fnrunner")
 	}
 	seen := map[Role]bool{}
 	for i, r := range c.Server.Roles {
 		path := "server.roles[" + strconv.Itoa(i) + "]"
 		switch r {
-		case RoleAPI, RoleWorker:
+		case RoleAPI, RoleWorker, RoleGateway:
 		case RoleFnRunner:
 			p.addf(path, "the fnrunner role arrives in P7")
 		default:
-			p.addf(path, "%q is not one of api, worker", r)
+			p.addf(path, "%q is not one of api, worker, gateway", r)
 		}
 		if seen[r] {
 			p.addf(path, "%q is listed twice", r)
 		}
 		seen[r] = true
 	}
-	if c.Has(RoleAPI) {
+	if c.ServesHTTP() {
 		if c.Server.Listen == "" {
-			p.addf("server.listen", "must be set when the api role runs")
+			p.addf("server.listen", "must be set when the api or gateway role runs")
 		}
 		if c.Server.PublicBaseURL == "" {
-			p.addf("server.publicBaseURL", "must be set when the api role runs, so that the server can build the links it hands out")
+			p.addf("server.publicBaseURL", "must be set when the api or gateway role runs, so that the server can build the links it hands out")
 		} else {
 			checkURL(p, "server.publicBaseURL", c.Server.PublicBaseURL)
 		}

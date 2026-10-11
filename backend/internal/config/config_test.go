@@ -402,3 +402,21 @@ func TestUpdateMetadataSettings_SEC_050(t *testing.T) {
 		t.Errorf("two roles sharing a key prefix: %s", msg)
 	}
 }
+
+// Verifies: SEC-031.
+// The gateway role is a role of its own: it serves HTTP like the api role,
+// needs the same listener settings, and a gateway-only process needs the
+// shared cache.
+func TestGatewayRole(t *testing.T) {
+	t.Parallel()
+	c := parse(t, withServer("  roles: [gateway]\n  behindTLSProxy: true\n")+"cache:\n  backend: valkey\n  valkeyURL: \"rediss://v.example:6379\"\n")
+	if !c.Has(RoleGateway) || c.Has(RoleAPI) || !c.ServesHTTP() {
+		t.Errorf("roles %v, serves HTTP %v", c.Server.Roles, c.ServesHTTP())
+	}
+	if parse(t, minimal).ServesHTTP() != true {
+		t.Error("the api role does not serve HTTP")
+	}
+	mentions(t, []struct{ name, src, want string }{
+		{"gateway alone on the memory cache", withServer("  roles: [gateway]\n"), "single-node only"},
+	})
+}

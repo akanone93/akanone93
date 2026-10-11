@@ -4,13 +4,17 @@
 package gateway
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/go-jose/go-jose/v4"
+
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
+	"github.com/nightCode42/plux3/backend/internal/signing"
 )
 
 // Verifies: SEC-031.
@@ -328,5 +332,43 @@ func TestOperationPolicy(t *testing.T) {
 	_, err := f.gw.Begin(t.Context(), f.dev, Request{Upstream: "bank", Operation: "transfer", Method: "POST", Target: "/transfers", ChallengeID: "c", Signature: []byte{1}})
 	if code(err) != plxerr.AssuranceInsufficient {
 		t.Errorf("AL1 for an AL2 operation: %v (body %s)", err, body)
+	}
+}
+
+// Verifies: SEC-031.
+// The published key set holds the keys of one class and verifies an
+// assertion; it holds nothing private.
+func TestJWKSVerifiesAssertions(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	if _, err := f.call(Request{Upstream: "bank", Operation: "balance", Method: "GET", Target: "/accounts"}, nil); err != nil {
+		t.Fatal(err)
+	}
+	assertion := f.next().Header.Get(AssertionHeader)
+	keys, err := f.signer.TokenKeys(t.Context())
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := JWKS(keys, signing.TokenDevelopment)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var set jose.JSONWebKeySet
+	if err := json.Unmarshal(raw, &set); err != nil || len(set.Keys) == 0 {
+		t.Fatalf("key set %s: %v", raw, err)
+	}
+	jws, err := jose.ParseSignedCompact(assertion, []jose.SignatureAlgorithm{jose.ES256})
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := set.Key(jws.Signatures[0].Header.KeyID)
+	if len(found) != 1 || !found[0].IsPublic() {
+		t.Fatalf("the assertion's key is not in the set")
+	}
+	if _, err := jws.Verify(found[0].Key); err != nil {
+		t.Errorf("verify: %v", err)
+	}
+	if prod, _ := JWKS(keys, signing.TokenProduction); strings.Contains(string(prod), found[0].KeyID) {
+		t.Error("a development key is in the production set")
 	}
 }

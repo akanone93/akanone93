@@ -13,6 +13,7 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/nightCode42/plux3/backend/internal/device"
+	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -62,12 +63,40 @@ func (s Device) RegisterAttestedDevice(ctx context.Context, req *connect.Request
 		AppID: m.GetAppId(), Environment: m.GetEnvironment(), Platform: m.GetPlatform(),
 		OSVersion: m.GetOsVersion(), RuntimeVersion: m.GetRuntimeVersion(), Build: m.GetHostBuild(),
 		Challenge: m.GetChallenge(), DPoPKeyJWK: m.GetDpopPublicKeyJwk(), KeyStorage: keyStorageOf(m.GetKeyStorage()),
-		Evidence: evidenceOf(m.GetEvidence()),
+		Evidence: evidenceOf(m.GetEvidence()), SCAKeyJWK: m.GetScaPublicKeyJwk(), SCAEvidence: optionalEvidence(m.GetScaEvidence()),
 	})
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
 	}
 	return connect.NewResponse(&pluxv1.RegisterAttestedDeviceResponse{Device: deviceProto(d)}), nil
+}
+
+// optionalEvidence converts evidence that may be absent.
+func optionalEvidence(e *pluxv1.AttestationEvidence) *device.Evidence {
+	if e == nil {
+		return nil
+	}
+	out := evidenceOf(e)
+	return &out
+}
+
+// EnrolScaKey stores the device's strong customer authentication key
+// after verifying its attestation (SEC-027).
+func (s Device) EnrolScaKey(ctx context.Context, req *connect.Request[pluxv1.EnrolScaKeyRequest]) (*connect.Response[pluxv1.EnrolScaKeyResponse], error) {
+	d, err := deviceOf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	m := req.Msg
+	evidence := optionalEvidence(m.GetScaEvidence())
+	if evidence == nil {
+		return nil, plxerr.New(plxerr.MissingProperty, "the SCA key needs evidence")
+	}
+	key, err := s.h.Devices.EnrolSCAKey(ctx, d, device.SCAEnrolment{Challenge: m.GetChallenge(), KeyJWK: m.GetScaPublicKeyJwk(), Evidence: *evidence})
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	return connect.NewResponse(&pluxv1.EnrolScaKeyResponse{ScaJkt: key.JKT}), nil
 }
 
 // ReattestDevice replaces a device's attestation with a fresh one. The
@@ -237,8 +266,6 @@ func deviceProto(d device.Device) *pluxv1.Device {
 
 // Token serves TokenService.
 type Token struct {
-	// Unimplemented answers ExchangeUserToken until its handler lands.
-	pluxv1connect.UnimplementedTokenServiceHandler
 	h *Handlers
 }
 
@@ -269,6 +296,27 @@ func (s Token) RefreshDeviceToken(ctx context.Context, req *connect.Request[plux
 		return nil, err //nolint:wrapcheck // a domain error
 	}
 	return connect.NewResponse(&pluxv1.RefreshDeviceTokenResponse{AccessToken: t.Value, ExpiresAt: ts(t.ExpiresAt), TokenType: "DPoP", AssuranceLevel: t.Assurance}), nil
+}
+
+// ExchangeUserToken trades the host's user token for the token the
+// gateway forwards, after verifying it against the customer's identity
+// provider (SEC-026, RFC 8693).
+func (s Token) ExchangeUserToken(ctx context.Context, req *connect.Request[pluxv1.ExchangeUserTokenRequest]) (*connect.Response[pluxv1.ExchangeUserTokenResponse], error) {
+	if s.h.Exchange == nil {
+		return nil, plxerr.New(plxerr.PreconditionFailed, "this server does not exchange user tokens")
+	}
+	d, err := deviceOf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	m := req.Msg
+	out, err := s.h.Exchange.Exchange(ctx, d, m.GetSubjectToken(), m.GetSubjectTokenType(), m.GetAudience())
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	return connect.NewResponse(&pluxv1.ExchangeUserTokenResponse{
+		AccessToken: out.Token, IssuedTokenType: gateway.TokenTypeAccessToken, ExpiresAt: ts(out.ExpiresAt),
+	}), nil
 }
 
 // Manifest serves ManifestService.

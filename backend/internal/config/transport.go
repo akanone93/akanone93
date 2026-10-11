@@ -46,7 +46,7 @@ func (c *Config) validateTransport(p *problems) {
 // validateProduction refuses the transports that are acceptable on a
 // developer's machine and nowhere else (SEC-040).
 func (c *Config) validateProduction(p *problems) {
-	if c.Has(RoleAPI) && !c.Server.TLS.Enabled() && !c.Server.BehindTLSProxy {
+	if c.ServesHTTP() && !c.Server.TLS.Enabled() && !c.Server.BehindTLSProxy {
 		p.addf("server.tls", "a production installation terminates TLS itself; set certFile and keyFile, or set server.behindTLSProxy to say that a proxy terminates TLS 1.3 in front")
 	}
 	if c.Database.URL != "" {
@@ -83,7 +83,7 @@ func valkeyTLS(raw string) bool {
 func (c *Config) Warnings() []string {
 	var w []string
 	s := c.Server
-	if c.Has(RoleAPI) {
+	if c.ServesHTTP() {
 		if !s.TLS.Enabled() && !s.BehindTLSProxy {
 			w = append(w, "server.tls is not set and server.behindTLSProxy is false: the api role serves plain HTTP; terminate TLS 1.3 in front of it")
 		}

@@ -60,10 +60,11 @@ type DeviceTrust struct {
 }
 
 // tokenSignerFor narrows the signing backend to token signing for the api
-// role, and returns nil for the others: only the api role issues access
-// tokens, and it cannot reach anything else of the backend (L-3).
+// and gateway roles, and returns nil for the others: only they issue
+// access tokens, assertions and user tokens, and they cannot reach
+// anything else of the backend (L-3).
 func tokenSignerFor(cfg *config.Config, backend signing.Crypter) (signing.TokenSigner, error) {
-	if !cfg.Has(config.RoleAPI) {
+	if !cfg.ServesHTTP() {
 		return nil, nil //nolint:nilnil // the role issues no tokens
 	}
 	t, ok := backend.(signing.TokenSigner)

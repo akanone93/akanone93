@@ -114,10 +114,7 @@ type Device struct {
 	// dpop_jkt is the RFC 7638 thumbprint of the device's DPoP public key,
 	// base64url-encoded; every token issued to the device is bound to it
 	// (SEC-020).
-	DpopJkt string `protobuf:"bytes,15,opt,name=dpop_jkt,json=dpopJkt,proto3" json:"dpop_jkt,omitempty"`
-	// sca_jkt is the thumbprint of the device's strong customer
-	// authentication key; empty while it has none (SEC-027).
-	ScaJkt        string `protobuf:"bytes,16,opt,name=sca_jkt,json=scaJkt,proto3" json:"sca_jkt,omitempty"`
+	DpopJkt       string `protobuf:"bytes,15,opt,name=dpop_jkt,json=dpopJkt,proto3" json:"dpop_jkt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -253,13 +250,6 @@ func (x *Device) GetRevokedAt() *timestamppb.Timestamp {
 func (x *Device) GetDpopJkt() string {
 	if x != nil {
 		return x.DpopJkt
-	}
-	return ""
-}
-
-func (x *Device) GetScaJkt() string {
-	if x != nil {
-		return x.ScaJkt
 	}
 	return ""
 }
@@ -1651,7 +1641,7 @@ var File_plux_v1_device_proto protoreflect.FileDescriptor
 
 const file_plux_v1_device_proto_rawDesc = "" +
 	"\n" +
-	"\x14plux/v1/device.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\x94\x05\n" +
+	"\x14plux/v1/device.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\xfb\x04\n" +
 	"\x06Device\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12%\n" +
@@ -1673,8 +1663,7 @@ const file_plux_v1_device_proto_rawDesc = "" +
 	"\vattestation\x18\r \x01(\v2\x1b.plux.v1.AttestationSummaryR\vattestation\x129\n" +
 	"\n" +
 	"revoked_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\trevokedAt\x12\x19\n" +
-	"\bdpop_jkt\x18\x0f \x01(\tR\adpopJkt\x12\x17\n" +
-	"\asca_jkt\x18\x10 \x01(\tR\x06scaJkt\"\xaa\x01\n" +
+	"\bdpop_jkt\x18\x0f \x01(\tR\adpopJkt\"\xaa\x01\n" +
 	"\x12AttestationSummary\x12\x1a\n" +
 	"\bprovider\x18\x01 \x01(\tR\bprovider\x12;\n" +
 	"\vverified_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\n" +

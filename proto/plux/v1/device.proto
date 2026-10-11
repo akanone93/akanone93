@@ -68,9 +68,6 @@ message Device {
   // base64url-encoded; every token issued to the device is bound to it
   // (SEC-020).
   string dpop_jkt = 15;
-  // sca_jkt is the thumbprint of the device's strong customer
-  // authentication key; empty while it has none (SEC-027).
-  string sca_jkt = 16;
 }
 
 // KeyStorage says where a device key is held (SEC-002).
