@@ -386,3 +386,59 @@ func TestSensitiveFormFieldsAreRedacted(t *testing.T) {
 		t.Errorf("redacted inputs %v", redacted)
 	}
 }
+
+// maskedNodes counts the nodes of the forms page marked for masking.
+func maskedNodes(t *testing.T, m fstest.MapFS) int {
+	t.Helper()
+	res := compileFS(m)
+	if res.Diagnostics.HasErrors() {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	var pg *fbs.Page
+	for _, s := range readAll(t, res)[1].Sections {
+		if s.Kind == bundle.SectionPage {
+			pg = fbs.GetRootAsPage(s.Data, 0)
+		}
+	}
+	masked := 0
+	var n fbs.Node
+	for i := range pg.NodesLength() {
+		pg.Nodes(&n, i)
+		if n.Hints()&byte(fbs.NodeHintsMasked) != 0 {
+			masked++
+		}
+	}
+	return masked
+}
+
+// TestSensitiveValuesAreMasked checks that a text display or input with a
+// prop bound to a sensitive value is marked for masking, and others are
+// not (SEC-092).
+// Verifies: SEC-092, SCH-012.
+func TestSensitiveValuesAreMasked(t *testing.T) {
+	t.Parallel()
+	m := project(t, formsDir)
+	edit(t, m, formsApp, func(doc map[string]any) { doc["minRuntimeVersion"] = "0.4.0" })
+	if got := maskedNodes(t, m); got != 0 {
+		t.Fatalf("%d masked nodes with nothing sensitive", got)
+	}
+	sensitiveForm(t, m)
+	// The page's own input and "value" text read the sensitive field.
+	base := maskedNodes(t, m)
+	if base != 2 {
+		t.Fatalf("%d masked nodes, want the page's TextFormField and Text", base)
+	}
+	edit(t, m, formsPage, func(doc map[string]any) {
+		body := at(t, doc, "root/slots/body")
+		body["children"] = append(body["children"].([]any),
+			raw(t, `{"id": "01f0c450-6c00-7000-8000-000000009101", "type": "Text",
+				"props": {"data": {"$expr": "page.signup.values.name"}}}`),
+			raw(t, `{"id": "01f0c450-6c00-7000-8000-000000009102", "type": "Text",
+				"props": {"data": {"$expr": "page.signup.values.email"}}}`),
+			raw(t, `{"id": "01f0c450-6c00-7000-8000-000000009103", "type": "TextField",
+				"props": {"value": {"$expr": "page.signup.values.name"}}}`))
+	})
+	if got := maskedNodes(t, m); got != base+2 {
+		t.Errorf("%d masked nodes, want %d: the Text and the TextField bound to the sensitive field", got, base+2)
+	}
+}

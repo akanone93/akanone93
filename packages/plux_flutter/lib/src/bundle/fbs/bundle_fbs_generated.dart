@@ -302,6 +302,7 @@ class _OverrideKindReader extends fb.Reader<OverrideKind> {
 enum NodeHints {
   RepaintBoundary(1),
   Static(2),
+  Masked(4),
   _default(0);
 
   final int value;
@@ -311,6 +312,7 @@ enum NodeHints {
     switch (value) {
       case 1: return NodeHints.RepaintBoundary;
       case 2: return NodeHints.Static;
+      case 4: return NodeHints.Masked;
       case 0: return NodeHints._default;
       default: throw StateError('Invalid value $value for bit flag enum');
     }

@@ -77,6 +77,7 @@ final class SecureUiScope extends InheritedWidget {
     required this.plugin,
     required this.guard,
     required super.child,
+    this.services = const {},
   });
 
   /// The runtime's secure UI.
@@ -89,13 +90,23 @@ final class SecureUiScope extends InheritedWidget {
   /// actions are not wired.
   final DeviceGuard? guard;
 
+  /// The services the device actions find (the picked files, the packages'
+  /// implementations), by type.
+  final Map<Type, Object> services;
+
+  /// The service of type [T] the runtime or a registered package provides.
+  T? service<T extends Object>() => services[T] as T?;
+
   /// The scope above [context], or null outside a page.
   static SecureUiScope? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<SecureUiScope>();
 
   @override
   bool updateShouldNotify(SecureUiScope old) =>
-      ui != old.ui || plugin != old.plugin || guard != old.guard;
+      ui != old.ui ||
+      plugin != old.plugin ||
+      guard != old.guard ||
+      services != old.services;
 }
 
 /// Puts a page behind the protection of the screen and the inactivity lock

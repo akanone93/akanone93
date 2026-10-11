@@ -27,7 +27,7 @@ final class FakeImages implements ImageBackend {
   }
 
   @override
-  Future<PickedEntry?> capture({int? maxDimension}) async {
+  Future<PickedEntry?> capture({int? maxDimension, bool front = false}) async {
     calls.add('capture $maxDimension');
     if (failure case final f?) throw f;
     return captured;
@@ -70,7 +70,7 @@ void main() {
       final media = PluxMedia(images: images, files: files);
       expect(media, isA<PluxDevicePackage>());
       expect(media.name, 'plux_media');
-      expect(media.services.keys, [PluxMediaPicker]);
+      expect(media.services.keys, [PluxMediaPicker, PluxKycCapture]);
     },
   );
 

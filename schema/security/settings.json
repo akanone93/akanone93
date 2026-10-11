@@ -606,7 +606,7 @@
       "requirements": [
         "SEC-091"
       ],
-      "description": "Whether screens block screenshots and screen recording unless a page opts out."
+      "description": "Whether every screen blocks screenshots and screen recording, as a secure page does. A page cannot opt out: protection is the default and only a configuration change lifts it."
     },
     {
       "key": "tls12Allowed",

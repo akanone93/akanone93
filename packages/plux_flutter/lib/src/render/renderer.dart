@@ -1511,6 +1511,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
         ui: secureUi,
         plugin: plugin,
         guard: widget.renderer.actions?.deviceGuard,
+        services: widget.renderer.actions?.services ?? const {},
         child: page,
       );
     }

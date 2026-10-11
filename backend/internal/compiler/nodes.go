@@ -125,6 +125,9 @@ func (u *unit) checkNode(n *node) {
 	c := vctx{file: file, ptr: n.ptr, scope: n.scope, pl: n.owner.plugin(), code: plxerr.PropTypeMismatch, from: ownerID(n.owner)}
 	if sh.widget != nil {
 		u.useRevision("widget."+sh.widget.Type, sh.widget.Runtimes, 1, c.at("type"))
+		if secureWidgets[sh.widget.Type] {
+			u.useRevision(secureUIFeature, secureUIRuntimes, 1, c.at("type"))
+		}
 		u.deprecation(sh.widget.Deprecated, sh.widget.Type, vctx{file: file, ptr: n.ptr + "/type"})
 	}
 	n.props = u.checkProps(n, sh, n.doc.Props, c, "props", true)

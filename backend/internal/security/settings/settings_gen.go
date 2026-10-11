@@ -225,8 +225,9 @@ const (
 	// RiskMetricMaxAL3: The highest platform risk metric, such as recent app
 	// activity, that still qualifies a device for assurance level AL3. (SEC-007)
 	RiskMetricMaxAL3 Key = "riskMetricMaxAL3"
-	// ScreenshotBlockingDefault: Whether screens block screenshots and screen
-	// recording unless a page opts out. (SEC-091)
+	// ScreenshotBlockingDefault: Whether every screen blocks screenshots and
+	// screen recording, as a secure page does. A page cannot opt out: protection
+	// is the default and only a configuration change lifts it. (SEC-091)
 	ScreenshotBlockingDefault Key = "screenshotBlockingDefault"
 	// Tls12Allowed: Whether connections may negotiate TLS 1.2 instead of
 	// requiring TLS 1.3. (SEC-040)
@@ -439,7 +440,7 @@ func All() []Setting {
 			Key: ScreenshotBlockingDefault, Type: TypeBool, Tighter: TighterTrue,
 			Defaults:        Defaults{Standard: BoolValue(false), Strict: BoolValue(false), Maximum: BoolValue(true)},
 			TravelsToDevice: true, Phase: "P6", Requirements: []string{"SEC-091"},
-			Description: "Whether screens block screenshots and screen recording unless a page opts out.",
+			Description: "Whether every screen blocks screenshots and screen recording, as a secure page does. A page cannot opt out: protection is the default and only a configuration change lifts it.",
 		},
 		{
 			Key: Tls12Allowed, Type: TypeBool, Tighter: TighterFalse,

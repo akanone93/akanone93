@@ -380,6 +380,13 @@ func (u *unit) sensitiveReads(file, ptr string, v *value, sensitive []string) {
 
 // sensitivePaths lists the root paths of sensitive values a graph sees.
 func (u *unit) sensitivePaths(g *graph) []string {
+	return u.sensitiveOf(g.plugin, g.page, g.component)
+}
+
+// sensitiveOf lists the root paths of the sensitive values that the page
+// or component, in plugin pl, reads: the app's, the plugin's and its own
+// state, user context, parameters, and form fields.
+func (u *unit) sensitiveOf(pl *plugin, pg *page, c *component) []string {
 	var out []string
 	add := func(root string, entries []schema.StateEntry) {
 		for _, e := range entries {
@@ -395,20 +402,21 @@ func (u *unit) sensitivePaths(g *graph) []string {
 			out = append(out, "user."+f.Name)
 		}
 	}
-	if g.plugin != nil {
-		add("plugin", g.plugin.doc.State)
+	if pl != nil {
+		add("plugin", pl.doc.State)
 	}
-	if g.page != nil {
-		add("page", g.page.doc.State)
-		out = append(out, sensitiveFormFields("page", g.page.doc.Forms)...)
-		for _, p := range g.page.doc.Params {
+	if pg != nil {
+		add("page", pg.doc.State)
+		out = append(out, sensitiveFormFields("page", pg.doc.Forms)...)
+		for _, p := range pg.doc.Params {
 			if p.Sensitive != nil && *p.Sensitive {
 				out = append(out, "params."+p.Name)
 			}
 		}
 	}
-	if g.component != nil {
-		out = append(out, sensitiveFormFields("component", g.component.doc.Forms)...)
+	if c != nil {
+		add("component", c.doc.State)
+		out = append(out, sensitiveFormFields("component", c.doc.Forms)...)
 	}
 	return out
 }
