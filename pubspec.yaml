@@ -22,6 +22,7 @@ workspace:
   - packages/plux_native_scan
   - packages/plux_rive
   - packages/plux_scanner
+  - packages/plux_security
   - packages/plux_widget_api
   - test/bench/runtime
   - test/size/blank
