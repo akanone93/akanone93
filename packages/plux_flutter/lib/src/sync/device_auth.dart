@@ -118,6 +118,15 @@ final class DeviceAuth {
     return await _scaKey() != null;
   }
 
+  Future<DeviceKey?> _loadAgreementKey() async {
+    try {
+      return await keys.load(_agreementAlias, KeyPurpose.agreement);
+    } on PluxException catch (e) {
+      if (e.code != PluxErrorCode.deviceKeyUnavailable) rethrow;
+      return null;
+    }
+  }
+
   Future<DeviceKey?> _scaKey() async {
     try {
       return await keys.load(_scaAlias, KeyPurpose.sca);
@@ -246,12 +255,17 @@ final class DeviceAuth {
     if (_sca) await keys.delete(_scaAlias);
   }
 
-  /// Creates the key-agreement key for confidential bundles (SEC-053). A
+  /// Creates the key-agreement key for confidential bundles (SEC-053), with
+  /// its own Key Attestation for the registration [challenge] on Android. A
   /// platform that cannot make one (Android before API 31) registers the
   /// device without it: it then receives no content keys.
-  Future<DeviceKey?> _createAgreementKey() async {
+  Future<DeviceKey?> _createAgreementKey(Uint8List challenge) async {
     try {
-      return await keys.create(_agreementAlias, KeyPurpose.agreement);
+      return await keys.create(
+        _agreementAlias,
+        KeyPurpose.agreement,
+        challenge: challenge,
+      );
     } on PluxException catch (e) {
       if (e.code != PluxErrorCode.deviceKeyUnavailable) rethrow;
       return null;
@@ -271,11 +285,14 @@ final class DeviceAuth {
       KeyPurpose.dpop,
       challenge: challenge,
     );
-    final agreementKey = await _createAgreementKey();
+    final agreementKey = await _createAgreementKey(challenge);
     final sca = _sca ? await _createSca(challenge) : null;
+    // The evidence vouches for every key the device registers (ADR-0012).
     final evidence = await attestation.attest(
       challenge: challenge,
       jkt: key.publicKey.thumbprint,
+      kaJkt: agreementKey?.publicKey.thumbprint ?? '',
+      scaJkt: sca?.publicKey.thumbprint ?? '',
       keyAttestationChain: key.attestationChain,
     );
     final id = await api.registerAttestedDevice(
@@ -301,7 +318,7 @@ final class DeviceAuth {
   );
 
   /// Offers new evidence for the registered key (SEC-025): Android a Play
-  /// Integrity token bound to the challenge and the key, the other
+  /// Integrity token bound to the challenge and the device's keys, the other
   /// platforms the evidence of registration without a key attestation.
   Future<void> _reattest(_Session s) async {
     final jkt = s.key.publicKey.thumbprint;
@@ -309,8 +326,10 @@ final class DeviceAuth {
       appId: appId,
       environment: environment,
     );
+    final kaJkt = (await _loadAgreementKey())?.publicKey.thumbprint ?? '';
+    final scaJkt = (await _scaKey())?.publicKey.thumbprint ?? '';
     final binding = base64Url
-        .encode(bindingHash(challenge, jkt))
+        .encode(bindingHash(challenge, jkt, kaJkt, scaJkt))
         .replaceAll('=', '');
     final token = device.platform == 'android'
         ? await attestation.integrityToken(binding)
@@ -323,6 +342,8 @@ final class DeviceAuth {
         : await attestation.attest(
             challenge: challenge,
             jkt: jkt,
+            kaJkt: kaJkt,
+            scaJkt: scaJkt,
             keyAttestationChain: const [],
           );
     await api.reattestDevice(

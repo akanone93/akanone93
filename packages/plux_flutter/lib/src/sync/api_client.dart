@@ -432,6 +432,12 @@ final class PluxApiClient {
         'keyAgreementPublicKeyJwk': base64.encode(
           utf8.encode(jsonEncode(agreementKey.publicKey.jwk)),
         ),
+      // On Android the key-agreement key's own Key Attestation chain: the
+      // server requires hardware for it wherever the DPoP key is hardware.
+      if (agreementKey != null && agreementKey.attestationChain.isNotEmpty)
+        'keyAgreementKeyAttestationChain': [
+          for (final c in agreementKey.attestationChain) base64.encode(c),
+        ],
       // The key that signs transaction confirmations, with its own
       // evidence (SEC-027).
       if (scaKey != null && scaEvidence != null) ...{

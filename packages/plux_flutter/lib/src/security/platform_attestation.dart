@@ -87,6 +87,8 @@ final class PlatformAttestation implements Attestation {
   Future<AttestationEvidence> attest({
     required Uint8List challenge,
     required String jkt,
+    required String kaJkt,
+    required String scaJkt,
     required List<Uint8List> keyAttestationChain,
   }) async {
     if (!_release) {
@@ -100,7 +102,13 @@ final class PlatformAttestation implements Attestation {
                 cloudProjectNumber == null)) {
           return DevelopmentEvidence(buildId);
         }
-        return await _attest(challenge, jkt, keyAttestationChain);
+        return await _attest(
+          challenge,
+          jkt,
+          kaJkt,
+          scaJkt,
+          keyAttestationChain,
+        );
       } on PluxException catch (e) {
         if (e.details['platformCode'] == _unsupported) {
           return DevelopmentEvidence(buildId);
@@ -108,15 +116,17 @@ final class PlatformAttestation implements Attestation {
         rethrow;
       }
     }
-    return _attest(challenge, jkt, keyAttestationChain);
+    return _attest(challenge, jkt, kaJkt, scaJkt, keyAttestationChain);
   }
 
   Future<AttestationEvidence> _attest(
     Uint8List challenge,
     String jkt,
+    String kaJkt,
+    String scaJkt,
     List<Uint8List> chain,
   ) async {
-    final hash = bindingHash(challenge, jkt);
+    final hash = bindingHash(challenge, jkt, kaJkt, scaJkt);
     switch (_platform) {
       case TargetPlatform.android:
         if (chain.isEmpty) {

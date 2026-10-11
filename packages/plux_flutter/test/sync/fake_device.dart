@@ -21,6 +21,9 @@ final class FakeDeviceKeys implements DeviceKeys {
   /// The challenge of each `create`, in order.
   final List<Uint8List?> challenges = [];
 
+  /// The challenge of each key-agreement `create`, in order.
+  final List<Uint8List?> agreementChallenges = [];
+
   /// The aliases deleted, in order.
   final List<String> deleted = [];
 
@@ -51,7 +54,9 @@ final class FakeDeviceKeys implements DeviceKeys {
     final n = purpose == KeyPurpose.agreement
         ? (200 + ++_agreements) % 256
         : ++_created;
-    if (purpose != KeyPurpose.agreement) challenges.add(challenge);
+    (purpose == KeyPurpose.agreement ? agreementChallenges : challenges).add(
+      challenge,
+    );
     final key = DeviceKey(
       alias: alias,
       purpose: purpose,
@@ -111,7 +116,15 @@ final class FakeAttestation implements Attestation {
   String? token;
 
   /// The arguments of each `attest`, in order.
-  final List<({Uint8List challenge, String jkt, List<Uint8List> chain})>
+  final List<
+    ({
+      Uint8List challenge,
+      String jkt,
+      String kaJkt,
+      String scaJkt,
+      List<Uint8List> chain,
+    })
+  >
   attested = [];
 
   /// The client data hash of each `assertion`, in order.
@@ -124,9 +137,17 @@ final class FakeAttestation implements Attestation {
   Future<AttestationEvidence> attest({
     required Uint8List challenge,
     required String jkt,
+    required String kaJkt,
+    required String scaJkt,
     required List<Uint8List> keyAttestationChain,
   }) async {
-    attested.add((challenge: challenge, jkt: jkt, chain: keyAttestationChain));
+    attested.add((
+      challenge: challenge,
+      jkt: jkt,
+      kaJkt: kaJkt,
+      scaJkt: scaJkt,
+      chain: keyAttestationChain,
+    ));
     return evidence;
   }
 

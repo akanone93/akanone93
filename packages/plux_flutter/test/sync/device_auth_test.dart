@@ -53,7 +53,7 @@ http.Response _error(int status, String code, String message) =>
 
 /// A scripted server: answers per path from a queue, then by default.
 final class _Rig {
-  _Rig({this.platform = 'android'}) {
+  _Rig({this.platform = 'android', this.enrolSca = false}) {
     client = MockClient((req) async {
       final path = req.url.path;
       seen.add(
@@ -77,6 +77,7 @@ final class _Rig {
   }
 
   final String platform;
+  final bool enrolSca;
   late final http.Client client;
   late final PluxApiClient api;
   final List<_Seen> seen = [];
@@ -102,6 +103,7 @@ final class _Rig {
       runtimeVersion: '0.1.0',
       hostBuild: '7',
     ),
+    enrolSca: enrolSca,
     clock: () => now,
   );
   DeviceAuth? _auth;
@@ -164,6 +166,14 @@ void main() {
         expect(attested.challenge, _challenge);
         expect(attested.jkt, jkt);
         expect(attested.chain, rig.keys.chain);
+        // The evidence is bound to the key-agreement key too, which was
+        // created with the registration challenge (ADR-0012).
+        expect(rig.keys.agreementChallenges, [_challenge]);
+        expect(
+          attested.kaJkt,
+          rig.keys.stored[_agreementAlias()]!.publicKey.thumbprint,
+        );
+        expect(attested.scaJkt, isEmpty);
 
         final challenge = rig.seen[0];
         expect(challenge.body, {'appId': 'app_1', 'environment': 'production'});
@@ -190,6 +200,10 @@ void main() {
               jsonEncode(rig.keys.stored[_agreementAlias()]!.publicKey.jwk),
             ),
           ),
+          'keyAgreementKeyAttestationChain': [
+            base64.encode([1, 2, 3]),
+            base64.encode([4, 5]),
+          ],
           'evidence': {
             'android': {
               'keyAttestationChain': [
@@ -222,6 +236,40 @@ void main() {
         expect((stored!.deviceId, stored.jkt), ('dev-1', jkt));
       },
     );
+
+    test('the evidence is bound to the SCA key too, and the registration '
+        'carries its chain [SEC-027] [SEC-003]', () async {
+      final rig = _Rig(enrolSca: true)
+        ..keys.chain = [
+          Uint8List.fromList([1, 2, 3]),
+        ]
+        ..attestation.evidence = AndroidEvidence(
+          keyAttestationChain: [
+            Uint8List.fromList([1, 2, 3]),
+          ],
+          playIntegrityToken: 'integrity-token',
+        );
+      await rig.auth.token();
+      final sca = rig.keys.stored[scaKeyAlias('app_1', 'production')]!;
+      final attested = rig.attestation.attested.single;
+      expect(attested.scaJkt, sca.publicKey.thumbprint);
+      expect(attested.kaJkt, isNotEmpty);
+      expect(rig.keys.challenges, [_challenge, _challenge]);
+      final body = rig.at(_registerPath).single.body;
+      expect(
+        body['scaPublicKeyJwk'],
+        base64.encode(utf8.encode(jsonEncode(sca.publicKey.jwk))),
+      );
+      expect(
+        (body['scaEvidence']! as Map)['android'],
+        containsPair('keyAttestationChain', [
+          base64.encode([1, 2, 3]),
+        ]),
+      );
+      expect(body['keyAgreementKeyAttestationChain'], [
+        base64.encode([1, 2, 3]),
+      ]);
+    });
 
     test('iOS registers with an App Attest object and binds every refresh to '
         'its proof with an assertion [SEC-002] [SEC-025]', () async {
@@ -500,8 +548,9 @@ void main() {
         _refreshPath,
       ]);
       final jkt = rig.keys.stored[_alias()]!.publicKey.thumbprint;
+      final kaJkt = rig.keys.stored[_agreementAlias()]!.publicKey.thumbprint;
       expect(rig.attestation.integrityHashes, [
-        _b64url(bindingHash(_challenge, jkt)),
+        _b64url(bindingHash(_challenge, jkt, kaJkt, '')),
       ]);
       final re = rig.at(_reattestPath).single;
       expect(re.body, {

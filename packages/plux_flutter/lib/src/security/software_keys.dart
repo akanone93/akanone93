@@ -131,6 +131,8 @@ final class DevelopmentAttestation implements Attestation {
   Future<AttestationEvidence> attest({
     required Uint8List challenge,
     required String jkt,
+    required String kaJkt,
+    required String scaJkt,
     required List<Uint8List> keyAttestationChain,
   }) async => DevelopmentEvidence(buildId);
 

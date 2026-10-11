@@ -71,14 +71,18 @@ void main() {
       'SEC-003 evidence holds the chain and a token bound to the hash',
       () async {
         platform({'attestationSupported': true, 'integrityToken': 'the-token'});
-        final evidence = await _attestation(
-          TargetPlatform.android,
-        ).attest(challenge: _challenge, jkt: _jkt, keyAttestationChain: _chain);
+        final evidence = await _attestation(TargetPlatform.android).attest(
+          challenge: _challenge,
+          jkt: _jkt,
+          kaJkt: 'ka-jkt',
+          scaJkt: 'sca-jkt',
+          keyAttestationChain: _chain,
+        );
         evidence as AndroidEvidence;
         expect(evidence.keyAttestationChain, _chain);
         expect(evidence.playIntegrityToken, 'the-token');
         final request = calls.singleWhere((c) => c.method == 'integrityToken');
-        final hash = bindingHash(_challenge, _jkt);
+        final hash = bindingHash(_challenge, _jkt, 'ka-jkt', 'sca-jkt');
         expect(request.arguments, {
           'requestHash': _b64url(hash),
           'cloudProjectNumber': 123456789,
@@ -93,10 +97,13 @@ void main() {
     test('SEC-003 an empty key attestation chain is rejected', () async {
       platform({'attestationSupported': true, 'integrityToken': 'the-token'});
       await expectLater(
-        _attestation(
-          TargetPlatform.android,
-          release: true,
-        ).attest(challenge: _challenge, jkt: _jkt, keyAttestationChain: []),
+        _attestation(TargetPlatform.android, release: true).attest(
+          challenge: _challenge,
+          jkt: _jkt,
+          kaJkt: '',
+          scaJkt: '',
+          keyAttestationChain: [],
+        ),
         throwsA(
           isA<PluxException>().having(
             (e) => e.code,
@@ -149,15 +156,20 @@ void main() {
         'appAttestKey': _keyId,
         'appAttestAttest': _object,
       });
-      final evidence = await _attestation(TargetPlatform.iOS)
-          .attest(challenge: _challenge, jkt: _jkt, keyAttestationChain: []);
+      final evidence = await _attestation(TargetPlatform.iOS).attest(
+        challenge: _challenge,
+        jkt: _jkt,
+        kaJkt: 'ka-jkt',
+        scaJkt: '',
+        keyAttestationChain: [],
+      );
       evidence as IosEvidence;
       expect(evidence.keyId, _keyId);
       expect(evidence.attestationObject, _object);
       final attest = calls.singleWhere((c) => c.method == 'appAttestAttest');
       expect(attest.arguments, {
         'keyId': _keyId,
-        'clientDataHash': bindingHash(_challenge, _jkt),
+        'clientDataHash': bindingHash(_challenge, _jkt, 'ka-jkt', ''),
       });
     });
 
@@ -172,6 +184,8 @@ void main() {
       await sut.attest(
         challenge: _challenge,
         jkt: _jkt,
+        kaJkt: '',
+        scaJkt: '',
         keyAttestationChain: [],
       );
       final name = secrets.keys.single;
@@ -192,8 +206,13 @@ void main() {
         'appAttestKey': _keyId,
         'appAttestAttest': _object,
       });
-      await _attestation(TargetPlatform.iOS)
-          .attest(challenge: _challenge, jkt: _jkt, keyAttestationChain: []);
+      await _attestation(TargetPlatform.iOS).attest(
+        challenge: _challenge,
+        jkt: _jkt,
+        kaJkt: '',
+        scaJkt: '',
+        keyAttestationChain: [],
+      );
       final first = secrets.keys.single;
       await PlatformAttestation(
         appId: 'dev.example.app',
@@ -201,7 +220,13 @@ void main() {
         buildId: 'b',
         release: false,
         platform: TargetPlatform.iOS,
-      ).attest(challenge: _challenge, jkt: _jkt, keyAttestationChain: []);
+      ).attest(
+        challenge: _challenge,
+        jkt: _jkt,
+        kaJkt: '',
+        scaJkt: '',
+        keyAttestationChain: [],
+      );
       expect(secrets.keys.toSet(), hasLength(2));
       expect(secrets.keys, contains(first));
     });
@@ -231,8 +256,13 @@ void main() {
     test('a debug build falls back when attestation is unsupported', () async {
       platform({'attestationSupported': false});
       for (final p in [TargetPlatform.android, TargetPlatform.iOS]) {
-        final evidence = await _attestation(p)
-            .attest(challenge: _challenge, jkt: _jkt, keyAttestationChain: []);
+        final evidence = await _attestation(p).attest(
+          challenge: _challenge,
+          jkt: _jkt,
+          kaJkt: '',
+          scaJkt: '',
+          keyAttestationChain: [],
+        );
         expect((evidence as DevelopmentEvidence).buildId, 'build-42');
       }
       expect(calls.map((c) => c.method).toSet(), {'attestationSupported'});
@@ -243,9 +273,13 @@ void main() {
         'attestationSupported': true,
         'integrityToken': PlatformException(code: 'UNSUPPORTED'),
       });
-      final evidence = await _attestation(
-        TargetPlatform.android,
-      ).attest(challenge: _challenge, jkt: _jkt, keyAttestationChain: _chain);
+      final evidence = await _attestation(TargetPlatform.android).attest(
+        challenge: _challenge,
+        jkt: _jkt,
+        kaJkt: '',
+        scaJkt: '',
+        keyAttestationChain: _chain,
+      );
       expect(evidence, isA<DevelopmentEvidence>());
     });
 
@@ -253,8 +287,13 @@ void main() {
       'a debug build on another platform gets development evidence',
       () async {
         platform({});
-        final evidence = await _attestation(TargetPlatform.linux)
-            .attest(challenge: _challenge, jkt: _jkt, keyAttestationChain: []);
+        final evidence = await _attestation(TargetPlatform.linux).attest(
+          challenge: _challenge,
+          jkt: _jkt,
+          kaJkt: '',
+          scaJkt: '',
+          keyAttestationChain: [],
+        );
         expect(evidence, isA<DevelopmentEvidence>());
       },
     );
@@ -262,10 +301,17 @@ void main() {
     test('a debug build on Android with no Play Integrity project gets '
         'development evidence [SEC-008]', () async {
       platform({'attestationSupported': true});
-      final evidence = await _attestation(
-        TargetPlatform.android,
-        cloudProjectNumber: null,
-      ).attest(challenge: _challenge, jkt: _jkt, keyAttestationChain: _chain);
+      final evidence =
+          await _attestation(
+            TargetPlatform.android,
+            cloudProjectNumber: null,
+          ).attest(
+            challenge: _challenge,
+            jkt: _jkt,
+            kaJkt: '',
+            scaJkt: '',
+            keyAttestationChain: _chain,
+          );
       expect(evidence, isA<DevelopmentEvidence>());
       expect(calls.map((c) => c.method), isNot(contains('integrityToken')));
     });
@@ -276,9 +322,13 @@ void main() {
         'integrityToken': PlatformException(code: 'PLUX_PLATFORM'),
       });
       await expectLater(
-        _attestation(
-          TargetPlatform.android,
-        ).attest(challenge: _challenge, jkt: _jkt, keyAttestationChain: _chain),
+        _attestation(TargetPlatform.android).attest(
+          challenge: _challenge,
+          jkt: _jkt,
+          kaJkt: '',
+          scaJkt: '',
+          keyAttestationChain: _chain,
+        ),
         throwsA(isA<PluxException>()),
       );
     });
@@ -294,6 +344,8 @@ void main() {
           _attestation(p, release: true).attest(
             challenge: _challenge,
             jkt: _jkt,
+            kaJkt: '',
+            scaJkt: '',
             keyAttestationChain: p == TargetPlatform.android ? _chain : [],
           ),
           throwsA(
@@ -317,10 +369,13 @@ void main() {
     test('a release build on another platform throws', () async {
       platform({});
       await expectLater(
-        _attestation(
-          TargetPlatform.linux,
-          release: true,
-        ).attest(challenge: _challenge, jkt: _jkt, keyAttestationChain: []),
+        _attestation(TargetPlatform.linux, release: true).attest(
+          challenge: _challenge,
+          jkt: _jkt,
+          kaJkt: '',
+          scaJkt: '',
+          keyAttestationChain: [],
+        ),
         throwsA(isA<PluxException>()),
       );
     });
@@ -336,6 +391,8 @@ void main() {
       final evidence = await sut.attest(
         challenge: _challenge,
         jkt: _jkt,
+        kaJkt: '',
+        scaJkt: '',
         keyAttestationChain: [],
       );
       expect(evidence, isA<DevelopmentEvidence>());
@@ -351,9 +408,13 @@ void main() {
           'attestationSupported': true,
           'integrityToken': 'secret-token-value',
         });
-        final evidence = await _attestation(
-          TargetPlatform.android,
-        ).attest(challenge: _challenge, jkt: _jkt, keyAttestationChain: _chain);
+        final evidence = await _attestation(TargetPlatform.android).attest(
+          challenge: _challenge,
+          jkt: _jkt,
+          kaJkt: '',
+          scaJkt: '',
+          keyAttestationChain: _chain,
+        );
         expect(evidence.toString(), isNot(contains('secret-token-value')));
         expect(
           IosEvidence(keyId: _keyId, attestationObject: _object).toString(),
@@ -372,6 +433,8 @@ void main() {
           await _attestation(TargetPlatform.android).attest(
             challenge: _challenge,
             jkt: _jkt,
+            kaJkt: '',
+            scaJkt: '',
             keyAttestationChain: _chain,
           );
           fail('expected a PluxException');
