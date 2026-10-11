@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -28,7 +29,7 @@ const (
 	// AssertionLifetime is how long an assertion is valid (ADR-0056).
 	AssertionLifetime = 60 * time.Second
 	// UserTokenType is the JOSE typ of the token ExchangeUserToken issues.
-	UserTokenType = "plux-user+jwt"
+	UserTokenType = "plux-user+jwt" //nolint:gosec // G101: a JOSE typ, not a credential
 
 	jtiBytes = 16
 )
@@ -151,7 +152,7 @@ func randomID(src io.Reader) (string, error) {
 func RequestHash(method, pathAndQuery string, bodySHA256 []byte) string {
 	h := sha256.New()
 	for _, f := range [][]byte{[]byte(method), []byte(pathAndQuery), bodySHA256} {
-		h.Write([]byte{byte(len(f) >> 24), byte(len(f) >> 16), byte(len(f) >> 8), byte(len(f))})
+		h.Write(binary.BigEndian.AppendUint32(nil, uint32(len(f)))) //nolint:gosec // G115: fields are bounded by the request size
 		h.Write(f)
 	}
 	return base64.RawURLEncoding.EncodeToString(h.Sum(nil))

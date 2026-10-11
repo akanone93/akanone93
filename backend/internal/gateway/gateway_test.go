@@ -6,6 +6,7 @@ package gateway
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -280,10 +281,10 @@ func TestUpstreamAuthentication(t *testing.T) {
 		t.Parallel()
 		f := newFixture(t)
 		tokens := 0
-		idp := newTokenServer(t, func() (string, int) { tokens++; return "tok-" + string(rune('0'+tokens)), 120 })
+		idp := newTokenServer(t, func() (string, int) { tokens++; return "tok-" + strconv.Itoa(tokens), 120 })
 		f.secrets["bank_secret"] = []byte("client-secret")
 		u := f.ups["bank"]
-		u.Auth = Auth{Kind: AuthOAuth, TokenURL: idp.URL, ClientID: "plux", ClientSecret: "bank_secret", Scopes: []string{"read", "pay"}}
+		u.Auth = Auth{Kind: AuthOAuth, TokenURL: idp.URL, ClientID: "plux", ClientSecretRef: "bank_secret", Scopes: []string{"read", "pay"}}
 		f.ups["bank"] = u
 		r := Request{Upstream: "bank", Operation: "balance", Method: "GET", Target: "/accounts"}
 		for i, want := range []string{"Bearer tok-1", "Bearer tok-1", "Bearer tok-2"} {

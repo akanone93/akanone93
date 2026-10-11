@@ -84,7 +84,7 @@ func (s SecurityAdmin) GetEffectiveSecurityConfig(ctx context.Context, req *conn
 // CreateUpstream registers an upstream the gateway may reach (SEC-031).
 func (s SecurityAdmin) CreateUpstream(ctx context.Context, req *connect.Request[pluxv1.CreateUpstreamRequest]) (*connect.Response[pluxv1.CreateUpstreamResponse], error) {
 	if s.h.Upstreams == nil {
-		return s.UnimplementedSecurityAdminServiceHandler.CreateUpstream(ctx, req)
+		return s.UnimplementedSecurityAdminServiceHandler.CreateUpstream(ctx, req) //nolint:wrapcheck // the generated Unimplemented answer
 	}
 	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.CreateUpstreamResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
@@ -102,7 +102,7 @@ func (s SecurityAdmin) CreateUpstream(ctx context.Context, req *connect.Request[
 // GetUpstream returns one upstream.
 func (s SecurityAdmin) GetUpstream(ctx context.Context, req *connect.Request[pluxv1.GetUpstreamRequest]) (*connect.Response[pluxv1.GetUpstreamResponse], error) {
 	if s.h.Upstreams == nil {
-		return s.UnimplementedSecurityAdminServiceHandler.GetUpstream(ctx, req)
+		return s.UnimplementedSecurityAdminServiceHandler.GetUpstream(ctx, req) //nolint:wrapcheck // the generated Unimplemented answer
 	}
 	return read(ctx, func(ctx context.Context) (*pluxv1.GetUpstreamResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
@@ -120,7 +120,7 @@ func (s SecurityAdmin) GetUpstream(ctx context.Context, req *connect.Request[plu
 // ListUpstreams lists an app's upstreams.
 func (s SecurityAdmin) ListUpstreams(ctx context.Context, req *connect.Request[pluxv1.ListUpstreamsRequest]) (*connect.Response[pluxv1.ListUpstreamsResponse], error) {
 	if s.h.Upstreams == nil {
-		return s.UnimplementedSecurityAdminServiceHandler.ListUpstreams(ctx, req)
+		return s.UnimplementedSecurityAdminServiceHandler.ListUpstreams(ctx, req) //nolint:wrapcheck // the generated Unimplemented answer
 	}
 	return read(ctx, func(ctx context.Context) (*pluxv1.ListUpstreamsResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
@@ -158,7 +158,7 @@ func (s SecurityAdmin) ListUpstreams(ctx context.Context, req *connect.Request[p
 // UpdateUpstream replaces an upstream's settings.
 func (s SecurityAdmin) UpdateUpstream(ctx context.Context, req *connect.Request[pluxv1.UpdateUpstreamRequest]) (*connect.Response[pluxv1.UpdateUpstreamResponse], error) {
 	if s.h.Upstreams == nil {
-		return s.UnimplementedSecurityAdminServiceHandler.UpdateUpstream(ctx, req)
+		return s.UnimplementedSecurityAdminServiceHandler.UpdateUpstream(ctx, req) //nolint:wrapcheck // the generated Unimplemented answer
 	}
 	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.UpdateUpstreamResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
@@ -176,7 +176,7 @@ func (s SecurityAdmin) UpdateUpstream(ctx context.Context, req *connect.Request[
 // DeleteUpstream removes an upstream.
 func (s SecurityAdmin) DeleteUpstream(ctx context.Context, req *connect.Request[pluxv1.DeleteUpstreamRequest]) (*connect.Response[pluxv1.DeleteUpstreamResponse], error) {
 	if s.h.Upstreams == nil {
-		return s.UnimplementedSecurityAdminServiceHandler.DeleteUpstream(ctx, req)
+		return s.UnimplementedSecurityAdminServiceHandler.DeleteUpstream(ctx, req) //nolint:wrapcheck // the generated Unimplemented answer
 	}
 	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.DeleteUpstreamResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
@@ -194,7 +194,7 @@ func (s SecurityAdmin) DeleteUpstream(ctx context.Context, req *connect.Request[
 // users (SEC-026).
 func (s SecurityAdmin) SetUserIdentityProvider(ctx context.Context, req *connect.Request[pluxv1.SetUserIdentityProviderRequest]) (*connect.Response[pluxv1.SetUserIdentityProviderResponse], error) {
 	if s.h.Upstreams == nil {
-		return s.UnimplementedSecurityAdminServiceHandler.SetUserIdentityProvider(ctx, req)
+		return s.UnimplementedSecurityAdminServiceHandler.SetUserIdentityProvider(ctx, req) //nolint:wrapcheck // the generated Unimplemented answer
 	}
 	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.SetUserIdentityProviderResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
@@ -217,7 +217,7 @@ func (s SecurityAdmin) SetUserIdentityProvider(ctx context.Context, req *connect
 // environment's users.
 func (s SecurityAdmin) GetUserIdentityProvider(ctx context.Context, req *connect.Request[pluxv1.GetUserIdentityProviderRequest]) (*connect.Response[pluxv1.GetUserIdentityProviderResponse], error) {
 	if s.h.Upstreams == nil {
-		return s.UnimplementedSecurityAdminServiceHandler.GetUserIdentityProvider(ctx, req)
+		return s.UnimplementedSecurityAdminServiceHandler.GetUserIdentityProvider(ctx, req) //nolint:wrapcheck // the generated Unimplemented answer
 	}
 	return read(ctx, func(ctx context.Context) (*pluxv1.GetUserIdentityProviderResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
@@ -239,7 +239,7 @@ func (s SecurityAdmin) GetUserIdentityProvider(ctx context.Context, req *connect
 // environment's users.
 func (s SecurityAdmin) DeleteUserIdentityProvider(ctx context.Context, req *connect.Request[pluxv1.DeleteUserIdentityProviderRequest]) (*connect.Response[pluxv1.DeleteUserIdentityProviderResponse], error) {
 	if s.h.Upstreams == nil {
-		return s.UnimplementedSecurityAdminServiceHandler.DeleteUserIdentityProvider(ctx, req)
+		return s.UnimplementedSecurityAdminServiceHandler.DeleteUserIdentityProvider(ctx, req) //nolint:wrapcheck // the generated Unimplemented answer
 	}
 	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.DeleteUserIdentityProviderResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
@@ -268,7 +268,7 @@ func upstreamFromProto(m *pluxv1.Upstream) gateway.Upstream {
 	case *pluxv1.Upstream_OauthClientCredentials:
 		o := a.OauthClientCredentials
 		u.Auth = gateway.Auth{
-			Kind: gateway.AuthOAuth, TokenURL: o.GetTokenUrl(), ClientID: o.GetClientId(), ClientSecret: o.GetClientSecretRef(), Scopes: o.GetScopes(),
+			Kind: gateway.AuthOAuth, TokenURL: o.GetTokenUrl(), ClientID: o.GetClientId(), ClientSecretRef: o.GetClientSecretRef(), Scopes: o.GetScopes(),
 		}
 	case *pluxv1.Upstream_ApiKey:
 		u.Auth = gateway.Auth{Kind: gateway.AuthAPIKey, Header: a.ApiKey.GetHeader(), KeySecret: a.ApiKey.GetSecretRef()}
@@ -298,7 +298,7 @@ func upstreamProto(u gateway.Upstream) *pluxv1.Upstream {
 		m.Auth = &pluxv1.Upstream_Mtls{Mtls: &pluxv1.UpstreamMtls{ClientCertSecretRef: u.Auth.MTLSSecret}}
 	case gateway.AuthOAuth:
 		m.Auth = &pluxv1.Upstream_OauthClientCredentials{OauthClientCredentials: &pluxv1.UpstreamOAuthClientCredentials{
-			TokenUrl: u.Auth.TokenURL, ClientId: u.Auth.ClientID, ClientSecretRef: u.Auth.ClientSecret, Scopes: u.Auth.Scopes,
+			TokenUrl: u.Auth.TokenURL, ClientId: u.Auth.ClientID, ClientSecretRef: u.Auth.ClientSecretRef, Scopes: u.Auth.Scopes,
 		}}
 	case gateway.AuthAPIKey:
 		m.Auth = &pluxv1.Upstream_ApiKey{ApiKey: &pluxv1.UpstreamApiKey{Header: u.Auth.Header, SecretRef: u.Auth.KeySecret}}

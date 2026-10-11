@@ -225,7 +225,7 @@ func (e *Egress) bearer(ctx context.Context, c *connection, u Upstream) (string,
 	if c.token != "" && e.now().Add(tokenSkew).Before(c.expires) {
 		return c.token, nil
 	}
-	secret, err := e.secret(ctx, u, u.Auth.ClientSecret)
+	secret, err := e.secret(ctx, u, u.Auth.ClientSecretRef)
 	if err != nil {
 		return "", err
 	}

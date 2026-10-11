@@ -22,9 +22,9 @@ import (
 
 // The RFC 8693 token types the exchange accepts and returns.
 const (
-	TokenTypeJWT         = "urn:ietf:params:oauth:token-type:jwt"
-	TokenTypeAccessToken = "urn:ietf:params:oauth:token-type:access_token"
-	TokenTypeIDToken     = "urn:ietf:params:oauth:token-type:id_token"
+	TokenTypeJWT         = "urn:ietf:params:oauth:token-type:jwt"          //nolint:gosec // G101: an RFC 8693 token type URN, not a credential
+	TokenTypeAccessToken = "urn:ietf:params:oauth:token-type:access_token" //nolint:gosec // G101: an RFC 8693 token type URN, not a credential
+	TokenTypeIDToken     = "urn:ietf:params:oauth:token-type:id_token"     //nolint:gosec // G101: an RFC 8693 token type URN, not a credential
 )
 
 const (

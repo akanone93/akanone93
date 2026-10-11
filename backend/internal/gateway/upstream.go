@@ -36,10 +36,13 @@ type Auth struct {
 	// and its private key, both PEM.
 	MTLSSecret string
 	// OAuth client credentials (RFC 6749 section 4.4).
-	TokenURL     string
-	ClientID     string
-	ClientSecret string
-	Scopes       []string
+	TokenURL string
+	ClientID string
+	// ClientSecretRef is the key of the environment secret that holds the
+	// client secret, which is sealed at rest (SEC-106) and never stored or
+	// serialised here.
+	ClientSecretRef string
+	Scopes          []string
 	// Header and KeySecret are the header that carries a static key and
 	// the secret that holds it.
 	Header    string
@@ -230,18 +233,11 @@ func (a Auth) validate(allowPrivate bool) error {
 			return invalid("mutual TLS names the secret that holds the client certificate")
 		}
 	case AuthOAuth:
-		if !secretKey.MatchString(a.ClientSecret) || a.ClientID == "" || len(a.ClientID) > 256 {
+		if !secretKey.MatchString(a.ClientSecretRef) || a.ClientID == "" || len(a.ClientID) > 256 {
 			return invalid("OAuth client credentials need a client ID and the secret that holds the client secret")
 		}
-		token, err := url.Parse(a.TokenURL)
-		if err != nil || token.Host == "" || token.User != nil || token.Fragment != "" ||
-			!(token.Scheme == "https" || (token.Scheme == "http" && allowPrivate)) {
-			return invalid("the token URL must be an https URL without credentials")
-		}
-		for _, s := range a.Scopes {
-			if s == "" || strings.ContainsAny(s, " \t\r\n\"\\") {
-				return invalid("a scope is not empty and has no spaces")
-			}
+		if err := a.validateOAuth(allowPrivate); err != nil {
+			return err
 		}
 	case AuthAPIKey:
 		if !headerName.MatchString(a.Header) || reservedHeader(a.Header) || !secretKey.MatchString(a.KeySecret) {
@@ -249,6 +245,22 @@ func (a Auth) validate(allowPrivate bool) error {
 		}
 	default:
 		return invalid("%q is not an authentication kind", a.Kind)
+	}
+	return nil
+}
+
+// validateOAuth checks the token endpoint and the scopes of client
+// credentials.
+func (a Auth) validateOAuth(allowPrivate bool) error {
+	token, err := url.Parse(a.TokenURL)
+	secure := err == nil && (token.Scheme == "https" || (token.Scheme == "http" && allowPrivate))
+	if !secure || token.Host == "" || token.User != nil || token.Fragment != "" {
+		return invalid("the token URL must be an https URL without credentials")
+	}
+	for _, s := range a.Scopes {
+		if s == "" || strings.ContainsAny(s, " \t\r\n\"\\") {
+			return invalid("a scope is not empty and has no spaces")
+		}
 	}
 	return nil
 }
@@ -261,6 +273,17 @@ func (op Operation) validate(u Upstream) error {
 	if err := checkMethods(op.Methods, u.Methods); err != nil {
 		return err
 	}
+	if err := op.validatePolicy(); err != nil {
+		return err
+	}
+	if op.Transaction == nil {
+		return nil
+	}
+	return op.validateTransaction(u)
+}
+
+// validatePolicy checks an operation's path, assurance and plugins.
+func (op Operation) validatePolicy() error {
 	if op.PathPrefix != "" {
 		if !strings.HasPrefix(op.PathPrefix, "/") {
 			return invalid("the path prefix of operation %q starts with /", op.Name)
@@ -277,9 +300,12 @@ func (op Operation) validate(u Upstream) error {
 			return invalid("%q is not a plugin key", p)
 		}
 	}
-	if op.Transaction == nil {
-		return nil
-	}
+	return nil
+}
+
+// validateTransaction checks a transaction's pointers, and that it can
+// carry a body.
+func (op Operation) validateTransaction(u Upstream) error {
 	t := op.Transaction
 	for _, ptr := range []string{t.Amount, t.Currency, t.Payee} {
 		if ptr == "" || !pointerForm.MatchString(ptr) {

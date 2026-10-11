@@ -81,7 +81,7 @@ func (p *idp) token(kid string, alg jose.SignatureAlgorithm, now time.Time, edit
 	if edit != nil {
 		edit(claims)
 	}
-	out, err := jwt.Signed(signer).Claims(claims).Serialize()
+	out, err := jwt.Signed(signer).Claims(claims).Serialize() //nolint:misspell // the go-jose API name
 	if err != nil {
 		p.t.Fatal(err)
 	}
@@ -257,7 +257,7 @@ func TestExchangeRefusesSymmetricAlgorithms(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	tok, err := jwt.Signed(signer).Claims(map[string]any{"iss": idpIssuer, "aud": "plux-app", "sub": "x", "exp": f.clock.Now().Add(time.Hour).Unix()}).Serialize()
+	tok, err := jwt.Signed(signer).Claims(map[string]any{"iss": idpIssuer, "aud": "plux-app", "sub": "x", "exp": f.clock.Now().Add(time.Hour).Unix()}).Serialize() //nolint:misspell // the go-jose API name
 	if err != nil {
 		t.Fatal(err)
 	}

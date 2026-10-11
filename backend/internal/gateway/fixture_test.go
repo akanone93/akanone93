@@ -315,3 +315,13 @@ func newTokenServer(t testing.TB, next func() (string, int)) *httptest.Server {
 	t.Cleanup(srv.Close)
 	return srv
 }
+
+// send makes a request in the test's context; the caller closes the body.
+func send(t testing.TB, method, url string, body io.Reader) (*http.Response, error) {
+	t.Helper()
+	req, err := http.NewRequestWithContext(t.Context(), method, url, body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return http.DefaultClient.Do(req) //nolint:wrapcheck // the test examines it
+}

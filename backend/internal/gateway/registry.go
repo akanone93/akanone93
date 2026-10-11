@@ -343,13 +343,13 @@ func failure(err error, what string) error {
 
 // authDoc is the stored form of Auth: references and settings, no secret.
 type authDoc struct {
-	MTLSSecret   string   `json:"mtlsSecret,omitempty"`
-	TokenURL     string   `json:"tokenUrl,omitempty"`
-	ClientID     string   `json:"clientId,omitempty"`
-	ClientSecret string   `json:"clientSecret,omitempty"`
-	Scopes       []string `json:"scopes,omitempty"`
-	Header       string   `json:"header,omitempty"`
-	KeySecret    string   `json:"keySecret,omitempty"`
+	MTLSSecret      string   `json:"mtlsSecret,omitempty"`
+	TokenURL        string   `json:"tokenUrl,omitempty"`
+	ClientID        string   `json:"clientId,omitempty"`
+	ClientSecretRef string   `json:"clientSecretRef,omitempty"`
+	Scopes          []string `json:"scopes,omitempty"`
+	Header          string   `json:"header,omitempty"`
+	KeySecret       string   `json:"keySecret,omitempty"`
 }
 
 // operationDoc is the stored form of Operation.
@@ -375,7 +375,7 @@ type transactionDoc struct {
 func encode(u Upstream) (authJSON, operationsJSON []byte, err error) {
 	a := u.Auth
 	authJSON, err = json.Marshal(authDoc{
-		MTLSSecret: a.MTLSSecret, TokenURL: a.TokenURL, ClientID: a.ClientID, ClientSecret: a.ClientSecret,
+		MTLSSecret: a.MTLSSecret, TokenURL: a.TokenURL, ClientID: a.ClientID, ClientSecretRef: a.ClientSecretRef,
 		Scopes: a.Scopes, Header: a.Header, KeySecret: a.KeySecret,
 	})
 	if err != nil {
@@ -450,7 +450,7 @@ func upstreamOf(row dbgen.GatewayUpstream) (Upstream, error) {
 		EnvironmentID: storage.ID(row.EnvironmentID), Name: row.Name, BaseURL: row.BaseUrl,
 		Auth: Auth{
 			Kind: AuthKind(row.AuthKind), MTLSSecret: a.MTLSSecret, TokenURL: a.TokenURL, ClientID: a.ClientID,
-			ClientSecret: a.ClientSecret, Scopes: a.Scopes, Header: a.Header, KeySecret: a.KeySecret,
+			ClientSecretRef: a.ClientSecretRef, Scopes: a.Scopes, Header: a.Header, KeySecret: a.KeySecret,
 		},
 		AllowPrivate: row.AllowPrivateAddresses, Timeout: time.Duration(row.TimeoutMs) * time.Millisecond,
 		Methods: row.AllowedMethods, Assurance: row.RequiresAssurance, Operations: ops, Audience: row.Audience, Version: row.Version,

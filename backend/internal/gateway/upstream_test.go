@@ -70,13 +70,13 @@ func TestUpstreamValidation(t *testing.T) {
 		{"mutual TLS without a secret", func(u *Upstream) { u.Auth = Auth{Kind: AuthMTLS} }, plxerr.InvalidFormat},
 		{"mutual TLS", func(u *Upstream) { u.Auth = Auth{Kind: AuthMTLS, MTLSSecret: "bank_cert"} }, 0},
 		{"OAuth with a cleartext token URL", func(u *Upstream) {
-			u.Auth = Auth{Kind: AuthOAuth, TokenURL: "http://idp.bank.example/token", ClientID: "c", ClientSecret: "s"}
+			u.Auth = Auth{Kind: AuthOAuth, TokenURL: "http://idp.bank.example/token", ClientID: "c", ClientSecretRef: "s"}
 		}, plxerr.InvalidFormat},
 		{"OAuth", func(u *Upstream) {
-			u.Auth = Auth{Kind: AuthOAuth, TokenURL: "https://idp.bank.example/token", ClientID: "c", ClientSecret: "s", Scopes: []string{"pay"}}
+			u.Auth = Auth{Kind: AuthOAuth, TokenURL: "https://idp.bank.example/token", ClientID: "c", ClientSecretRef: "s", Scopes: []string{"pay"}}
 		}, 0},
 		{"OAuth with a scope with a space", func(u *Upstream) {
-			u.Auth = Auth{Kind: AuthOAuth, TokenURL: "https://idp.bank.example/token", ClientID: "c", ClientSecret: "s", Scopes: []string{"a b"}}
+			u.Auth = Auth{Kind: AuthOAuth, TokenURL: "https://idp.bank.example/token", ClientID: "c", ClientSecretRef: "s", Scopes: []string{"a b"}}
 		}, plxerr.InvalidFormat},
 		{"an API key in the Host header", func(u *Upstream) { u.Auth = Auth{Kind: AuthAPIKey, Header: "Host", KeySecret: "k"} }, plxerr.InvalidFormat},
 		{"an API key in a Plux header", func(u *Upstream) { u.Auth = Auth{Kind: AuthAPIKey, Header: "Plux-Assertion", KeySecret: "k"} }, plxerr.InvalidFormat},

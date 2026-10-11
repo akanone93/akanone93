@@ -113,7 +113,7 @@ const (
 
 	headerOperation   = "Plux-Operation"
 	headerPlugin      = "Plux-Plugin"
-	headerUserToken   = "Plux-User-Token"
+	headerUserToken   = "Plux-User-Token" //nolint:gosec // G101: a header name, not a credential
 	headerChallengeID = "Plux-Challenge-Id"
 	headerSignature   = "Plux-Transaction-Signature"
 )

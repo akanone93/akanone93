@@ -50,7 +50,8 @@ func newRouteFixture(t *testing.T) *routeFixture {
 
 	f.upstream = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		f.seen <- r.Header.Clone()
-		_, _ = io.WriteString(w, "hello "+r.URL.Path)
+		w.Header().Set("Content-Type", "text/plain")
+		_, _ = io.WriteString(w, "hello "+r.URL.Path) //nolint:gosec // G705: a test upstream echoing its path as plain text
 	}))
 	t.Cleanup(f.upstream.Close)
 	backend, err := signing.NewFile(t.TempDir())
@@ -78,7 +79,7 @@ func newRouteFixture(t *testing.T) *routeFixture {
 
 // get sends a GET through the route with a proof for htm and htu (the
 // path is the route's), adjusted by tweak.
-func (f *routeFixture) get(t *testing.T, path string, tweak func(*devicetest.Proof, http.Header)) *http.Response {
+func (f *routeFixture) get(t *testing.T, path string, tweak func(*devicetest.Proof, http.Header)) routeResponse {
 	t.Helper()
 	p := devicetest.Proof{Method: "GET", URL: f.w.base + strings.SplitN(path, "?", 2)[0], AccessToken: f.dev.token, Nonce: f.w.deviceAuth.Nonces.Current()}
 	h := http.Header{"Authorization": {"DPoP " + f.dev.token}}
@@ -97,8 +98,16 @@ func (f *routeFixture) get(t *testing.T, path string, tweak func(*devicetest.Pro
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Cleanup(func() { res.Body.Close() })
-	return res
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+	return routeResponse{StatusCode: res.StatusCode, Header: res.Header, Body: body}
+}
+
+// routeResponse is what the route answered, its body read.
+type routeResponse struct {
+	StatusCode int
+	Header     http.Header
+	Body       []byte
 }
 
 // Verifies: SEC-030, SEC-021, SEC-029.
@@ -110,9 +119,8 @@ func TestGatewayRoute(t *testing.T) {
 	f := newRouteFixture(t)
 
 	res := f.get(t, "/gateway/v1/bank/accounts?x=1", nil)
-	body, _ := io.ReadAll(res.Body)
-	if res.StatusCode != http.StatusOK || string(body) != "hello /v1/accounts" {
-		t.Fatalf("a valid call: %d %q", res.StatusCode, body)
+	if res.StatusCode != http.StatusOK || string(res.Body) != "hello /v1/accounts" {
+		t.Fatalf("a valid call: %d %q", res.StatusCode, res.Body)
 	}
 	if res.Header.Get("DPoP-Nonce") == "" {
 		t.Error("the response carries no DPoP-Nonce")

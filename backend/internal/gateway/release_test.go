@@ -68,7 +68,7 @@ func TestCheckSources(t *testing.T) {
 				t.Fatalf("diagnostics = %v, want codes %v", got, tt.want)
 			}
 			for i, d := range got {
-				if d.Code != tt.want[i] || d.Severity != plxerr.SeverityError || d.Location.File != tt.src.File || d.Location.Path != tt.src.Pointer {
+				if d.Code != tt.want[i] || d.Severity != plxerr.SeverityError || d.File != tt.src.File || d.Path != tt.src.Pointer {
 					t.Errorf("diagnostic %d = %+v, want code %d at the source", i, d, tt.want[i])
 				}
 			}

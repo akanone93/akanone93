@@ -65,11 +65,11 @@ func TestProxyStreamsServerSentEvents(t *testing.T) {
 		_, _ = io.WriteString(w, "data: two\n\n")
 	}
 	srv := f.front()
-	resp, err := http.Get(srv.URL + "/gw/events")
+	resp, err := send(t, http.MethodGet, srv.URL+"/gw/events", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	line, err := bufio.NewReader(resp.Body).ReadString('\n')
 	if err != nil || line != "data: one\n" {
 		t.Fatalf("the first event = %q, %v: it must arrive before the upstream finishes", line, err)
@@ -99,30 +99,30 @@ func TestProxyStreamsAndBoundsBodies(t *testing.T) {
 	}
 	srv := f.front()
 
-	resp, err := http.Post(srv.URL+"/gw/upload", "application/octet-stream", strings.NewReader(strings.Repeat("a", 40)))
+	resp, err := send(t, http.MethodPost, srv.URL+"/gw/upload", strings.NewReader(strings.Repeat("a", 40)))
 	if err != nil {
 		t.Fatal(err)
 	}
 	body, _ := io.ReadAll(resp.Body)
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	if resp.StatusCode != 200 || len(body) != 40 {
 		t.Errorf("a body within the limit: %d, %d bytes echoed", resp.StatusCode, len(body))
 	}
 	f.next()
 
-	resp, err = http.Post(srv.URL+"/gw/upload", "application/octet-stream", strings.NewReader(strings.Repeat("a", 1000)))
+	resp, err = send(t, http.MethodPost, srv.URL+"/gw/upload", strings.NewReader(strings.Repeat("a", 1000)))
 	if err == nil {
 		body, _ = io.ReadAll(resp.Body)
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		if resp.StatusCode == 200 && len(body) >= 1000 {
 			t.Errorf("a body over the limit was forwarded whole (status %d, %d bytes)", resp.StatusCode, len(body))
 		}
 	}
 
-	resp, err = http.Get(srv.URL + "/gw/big")
+	resp, err = send(t, http.MethodGet, srv.URL+"/gw/big", nil)
 	if err == nil {
 		body, readErr := io.ReadAll(resp.Body)
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		if readErr == nil && len(body) > 64 {
 			t.Errorf("a response over the limit arrived whole: %d bytes", len(body))
 		}
@@ -152,7 +152,7 @@ func TestProxyCarriesWebSocketUpgrade(t *testing.T) {
 		_ = rw.Flush()
 	}
 	srv := f.front()
-	conn, err := net.Dial("tcp", strings.TrimPrefix(srv.URL, "http://"))
+	conn, err := (&net.Dialer{}).DialContext(t.Context(), "tcp", strings.TrimPrefix(srv.URL, "http://"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -190,11 +190,11 @@ func TestProxyRefusesBeforeConnecting(t *testing.T) {
 	t.Parallel()
 	f := newFixture(t)
 	srv := f.front()
-	resp, err := http.Get(srv.URL + "/gw/%2e%2e/admin")
+	resp, err := send(t, http.MethodGet, srv.URL+"/gw/%2e%2e/admin", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	if resp.StatusCode != http.StatusForbidden {
 		t.Errorf("status = %d", resp.StatusCode)
 	}

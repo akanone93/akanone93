@@ -108,12 +108,16 @@ func BenchmarkGatewayOverhead(b *testing.B) {
 		baseline := make([]time.Duration, 0, 2000)
 		for range 2000 {
 			start := time.Now()
-			resp, err := client.Get(direct.URL + "/api/accounts/1?expand=history")
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, direct.URL+"/api/accounts/1?expand=history", nil)
+			if err != nil {
+				b.Fatal(err)
+			}
+			resp, err := client.Do(req)
 			if err != nil {
 				b.Fatal(err)
 			}
 			_, _ = io.Copy(io.Discard, resp.Body)
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			baseline = append(baseline, time.Since(start))
 		}
 		slices.Sort(baseline)

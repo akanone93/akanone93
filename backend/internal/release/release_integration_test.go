@@ -698,7 +698,7 @@ func TestReleaseChecksGatewayUpstreams(t *testing.T) {
 		t.Fatalf("no upstream registered: %v %v", diags, err)
 	}
 	for _, d := range diags {
-		if d.Code == plxerr.GatewayUpstreamUnknown && d.Location.File == "" {
+		if d.Code == plxerr.GatewayUpstreamUnknown && d.File == "" {
 			t.Errorf("a diagnostic with no source: %+v", d)
 		}
 	}
