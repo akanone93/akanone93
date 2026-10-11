@@ -44,7 +44,20 @@ UPDATE devices
        app_attest_public_key = COALESCE(sqlc.narg(app_attest_public_key)::bytea, app_attest_public_key),
        app_attest_counter = CASE WHEN sqlc.narg(app_attest_key_id)::bytea IS NULL THEN app_attest_counter
                                  ELSE sqlc.arg(app_attest_counter)::bigint END,
-       app_attest_receipt = COALESCE(sqlc.narg(app_attest_receipt)::bytea, app_attest_receipt)
+       app_attest_receipt = COALESCE(sqlc.narg(app_attest_receipt)::bytea, app_attest_receipt),
+       rasp_detected_at = NULL, rasp_kinds = '{}'
+ WHERE id = sqlc.arg(id) AND revoked_at IS NULL
+RETURNING *;
+
+-- name: RecordDeviceRASP :one
+-- Notes the kinds of detection that suggest a modified environment and
+-- caps the device's level at the given one until it attests again
+-- (SEC-071). A level at or below the cap is left alone.
+UPDATE devices
+   SET rasp_detected_at = sqlc.arg(detected_at),
+       rasp_kinds = ARRAY(SELECT DISTINCT k FROM unnest(rasp_kinds || sqlc.arg(kinds)::text[]) AS k ORDER BY k),
+       assurance_level = CASE WHEN assurance_level = ANY (sqlc.arg(capped)::text[]) THEN sqlc.arg(cap)::text
+                              ELSE assurance_level END
  WHERE id = sqlc.arg(id) AND revoked_at IS NULL
 RETURNING *;
 

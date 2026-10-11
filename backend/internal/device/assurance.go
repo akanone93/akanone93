@@ -233,9 +233,11 @@ func verdictRank(l playintegrity.DeviceLabel) int {
 
 // Assess computes the assurance level a verified proof earns under the
 // settings (SEC-007, device-trust.md §1). A software key caps the level
-// at AL1 whatever else is proven. No RASP finding is known until the
-// runtime reports them, and Apple's fraud-metric receipt is not checked
-// yet, so an iOS device never reaches AL3.
+// at AL1 whatever else is proven. A RASP finding is not part of a proof:
+// the runtime reports it afterwards (RecordRiskEvents), which caps the
+// stored level at AL1 until the next clean attestation recomputes it
+// here. Apple's fraud-metric receipt is not checked yet, so an iOS device
+// never reaches AL3.
 func Assess(p Proof, s Settings) Level {
 	switch p.Provider {
 	case ProviderPlayIntegrity:
