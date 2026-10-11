@@ -37,6 +37,9 @@ Chosen option: **1**.
   outside the signed part, carries the content key wrapped with ECDH-ES against that key,
   HKDF-SHA-256 bound to the device ID and release, and AES-KW. Ineligible devices get no
   key and do not sync confidential plugins (`PLX-6050`).
+  The registration's attestation covers the key's thumbprint, and on Android the key carries
+  its own Key Attestation chain ([ADR-0012](0012-dpop-hardware-keys-and-attestation.md), Revisions
+  2026-10-11).
 - **No deltas.** Ciphertext does not diff; a changed confidential bundle downloads whole.
   Encrypted deltas may come later with their own ADR.
 - **On the device.** Bundles stay encrypted at rest; sections are decrypted into memory
