@@ -122,6 +122,9 @@ type Settings struct {
 	// MinAssuranceForSync is the lowest assurance level a device must hold
 	// to fetch a manifest (SEC-007).
 	MinAssuranceForSync Level
+	// ConfidentialMinAssurance is the lowest assurance level a device must
+	// hold to receive the content key of a confidential bundle (SEC-053).
+	ConfidentialMinAssurance Level
 }
 
 // SettingsFor resolves the settings of a profile from the registry's
@@ -160,9 +163,16 @@ func resolveSettings(p settings.Profile, read func(settings.Key) (settings.Value
 	if err != nil {
 		return Settings{}, err
 	}
-	out := Settings{Profile: p, AllowSoftwareKeys: allow.Bool(), AndroidDeviceVerdictAL2: label, MinAssuranceForSync: Level(minimum.Text())}
+	confidential, err := read(settings.ConfidentialMinAssurance)
+	if err != nil {
+		return Settings{}, err
+	}
+	out := Settings{Profile: p, AllowSoftwareKeys: allow.Bool(), AndroidDeviceVerdictAL2: label, MinAssuranceForSync: Level(minimum.Text()), ConfidentialMinAssurance: Level(confidential.Text())}
 	if out.MinAssuranceForSync.Rank() < 0 {
 		return Settings{}, fmt.Errorf("device: the setting %s names no assurance level", settings.MinAssuranceForSync)
+	}
+	if out.ConfidentialMinAssurance.Rank() < 0 {
+		return Settings{}, fmt.Errorf("device: the setting %s names no assurance level", settings.ConfidentialMinAssurance)
 	}
 	if err := out.resolveTokens(read); err != nil {
 		return Settings{}, err

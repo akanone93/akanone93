@@ -191,6 +191,28 @@ void main() {
       expect(calls.single.arguments, {'alias': 'a', 'data': data});
     });
 
+    test('SEC-053 agree sends the peer point and returns the secret', () async {
+      final secret = Uint8List.fromList([for (var i = 0; i < 32; i++) i * 3]);
+      reply((_) => secret);
+      expect(await keys.agree('a', EcPublicKey(_x, _y)), secret);
+      expect(calls.single.method, 'keyAgree');
+      expect(calls.single.arguments, {'alias': 'a', 'x': _x, 'y': _y});
+    });
+
+    test('SEC-053 agree refuses a secret of the wrong length', () async {
+      reply((_) => Uint8List(31));
+      await expectLater(
+        keys.agree('a', EcPublicKey(_x, _y)),
+        throwsA(
+          isA<PluxException>().having(
+            (e) => e.code,
+            'code',
+            PluxErrorCode.deviceKeyUnavailable,
+          ),
+        ),
+      );
+    });
+
     test('SEC-027 create makes an sca key under its purpose name', () async {
       reply((_) => keyReply(storage: 'strongbox'));
       final key = await keys.create('a', KeyPurpose.sca);

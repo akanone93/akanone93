@@ -6757,6 +6757,27 @@ components:
           title: factor
       title: ConfirmFactorResponse
       additionalProperties: false
+    plux.v1.ContentKey:
+      type: object
+      properties:
+        ephemeralPublicKey:
+          type: string
+          title: ephemeral_public_key
+          format: byte
+          description: |-
+            ephemeral_public_key is the server's one-time P-256 key, an
+             uncompressed SEC1 point of 65 bytes.
+        wrappedKey:
+          type: string
+          title: wrapped_key
+          format: byte
+          description: wrapped_key is the AES-KW output, 40 bytes.
+      title: ContentKey
+      additionalProperties: false
+      description: |-
+        ContentKey is a confidential release's content key wrapped to one
+         device's key-agreement key with ECDH-ES (P-256), HKDF-SHA-256 and AES-KW
+         (SEC-053, ADR-0055).
     plux.v1.Control:
       type: object
       properties:
@@ -7010,6 +7031,14 @@ components:
         notes:
           type: string
           title: notes
+        confidential:
+          type: boolean
+          title: confidential
+          description: |-
+            confidential asks for a confidential release, whose bundles are
+             delivered encrypted to eligible devices (SEC-053). The environment's
+             confidentialBundles setting decides whether it may be asked for
+             (optional) or is implied (required); under off it is refused.
       title: CreateReleaseRequest
       additionalProperties: false
     plux.v1.CreateReleaseResponse:
@@ -8129,6 +8158,15 @@ components:
           description: |-
             config_full_required is true when no patch can be given, so the
              device fetches the whole configuration (SEC-182).
+        contentKey:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ContentKey'
+          title: content_key
+          description: |-
+            content_key is the release's content key wrapped for this device;
+             set when the manifest names confidential bundles (SEC-053). It is
+             outside the signed part: the bundles' signed hashes cover ciphertext,
+             and a key that does not open them is refused by the device.
       title: GetManifestResponse
       additionalProperties: false
     plux.v1.GetNativeCatalogueRequest:
@@ -10494,6 +10532,12 @@ components:
           allOf:
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: created_at
+        confidential:
+          type: boolean
+          title: confidential
+          description: |-
+            confidential is true when the release's bundles are delivered
+             encrypted (SEC-053).
       title: Release
       additionalProperties: false
       description: |-

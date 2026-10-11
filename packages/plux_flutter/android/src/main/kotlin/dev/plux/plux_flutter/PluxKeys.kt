@@ -29,9 +29,12 @@ import java.security.Signature
 import java.security.UnrecoverableKeyException
 import java.security.interfaces.ECPublicKey
 import java.security.spec.ECGenParameterSpec
+import java.security.spec.ECPoint
+import java.security.spec.ECPublicKeySpec
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
+import javax.crypto.KeyAgreement
 
 /**
  * The device keys of the Plux runtime (SEC-001, SEC-021, ADR-0012): P-256 key
@@ -48,13 +51,14 @@ class PluxKeys {
     /** The host activity the system prompt of an "sca" key needs; set by the plugin. */
     var activity: Activity? = null
 
-    /** Handles keyCreate, keyPublic, keySign and keyDelete; never throws. */
+    /** Handles keyCreate, keyPublic, keySign, keyAgree and keyDelete; never throws. */
     fun handle(call: MethodCall, result: MethodChannel.Result) {
         val task: () -> Any? = try {
             when (call.method) {
                 "keyCreate" -> createTask(call)
                 "keyPublic" -> publicTask(call)
                 "keySign" -> signTask(call)
+                "keyAgree" -> agreeTask(call)
                 "keyDelete" -> deleteTask(call)
                 else -> throw IllegalArgumentException("method")
             }
@@ -197,6 +201,14 @@ class PluxKeys {
         val alias = alias(call)
         val data = call.argument<ByteArray>("data") ?: throw IllegalArgumentException("data")
         return { sign(alias, data) }
+    }
+
+    private fun agreeTask(call: MethodCall): () -> Any? {
+        val alias = alias(call)
+        val x = call.argument<ByteArray>("x") ?: throw IllegalArgumentException("x")
+        val y = call.argument<ByteArray>("y") ?: throw IllegalArgumentException("y")
+        require(x.size == 32 && y.size == 32) { "peer" }
+        return { agree(alias, x, y) }
     }
 
     private fun deleteTask(call: MethodCall): () -> Any? {
@@ -356,6 +368,28 @@ class PluxKeys {
             return derToRaw(signature.sign())
         } catch (e: KeyPermanentlyInvalidatedException) {
             // The runtime re-registers a key reported missing.
+            keyStore.deleteEntry(alias)
+            throw KeyFailure(MISSING, "invalidated")
+        }
+    }
+
+    /**
+     * The ECDH secret of the "agreement" key under [alias] and the peer public
+     * point (x, y), 32 bytes (SEC-053). The key never leaves the Keystore; the
+     * secret is used once, to unwrap a content key, and is not kept.
+     */
+    private fun agree(alias: String, x: ByteArray, y: ByteArray): ByteArray {
+        val keyStore = store()
+        val key = privateKey(keyStore, alias) ?: throw KeyFailure(MISSING, "missing")
+        val own = keyStore.getCertificate(alias)?.publicKey as? ECPublicKey ?: throw KeyFailure(MISSING, "missing")
+        try {
+            val point = ECPoint(BigInteger(1, x), BigInteger(1, y))
+            val peer = KeyFactory.getInstance(KeyProperties.KEY_ALGORITHM_EC).generatePublic(ECPublicKeySpec(point, own.params))
+            val agreement = KeyAgreement.getInstance("ECDH", KEYSTORE)
+            agreement.init(key)
+            agreement.doPhase(peer, true)
+            return agreement.generateSecret()
+        } catch (e: KeyPermanentlyInvalidatedException) {
             keyStore.deleteEntry(alias)
             throw KeyFailure(MISSING, "invalidated")
         }

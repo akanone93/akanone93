@@ -10,6 +10,8 @@ library;
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:plux_flutter/src/security/content_key.dart';
+
 /// How a release reached the device.
 enum ReleaseSource {
   /// Embedded in the host app by `plux pull` (SYN-007).
@@ -53,6 +55,10 @@ final class RecordBundle {
   /// Whether this is the app bundle.
   bool get isApp => key.isEmpty;
 
+  /// Whether the bundle is stored encrypted: the signed manifest lists the
+  /// confidential feature among its required ones (SEC-053).
+  bool get confidential => features?.contains(confidentialFeature) ?? false;
+
   Map<String, Object?> _toJson() => {
     'key': key,
     'version': version,
@@ -81,6 +87,7 @@ final class ReleaseRecord {
     this.killSwitches = const [],
     this.appKillSwitch = false,
     this.message = '',
+    this.contentKey,
   });
 
   /// The release sequence.
@@ -110,6 +117,11 @@ final class ReleaseRecord {
   /// The message shown while a switch is on.
   final String message;
 
+  /// The release's content key, wrapped for this device, when its bundles
+  /// are confidential (SEC-053); it opens only with the device's
+  /// key-agreement key.
+  final WrappedContentKey? contentKey;
+
   /// The app bundle.
   RecordBundle get app => bundles.firstWhere((b) => b.isApp);
 
@@ -126,6 +138,7 @@ final class ReleaseRecord {
       'killSwitches': killSwitches,
       'appKillSwitch': appKillSwitch,
       'message': message,
+      'contentKey': ?contentKey?.toJson(),
     }),
   );
 
@@ -153,6 +166,10 @@ final class ReleaseRecord {
             .toList(),
         appKillSwitch: j['appKillSwitch']! as bool,
         message: j['message']! as String,
+        contentKey: switch (j['contentKey']) {
+          final Map<String, Object?> k => WrappedContentKey.fromJson(k),
+          _ => null,
+        },
       );
     } on FormatException {
       rethrow;

@@ -307,7 +307,7 @@ func (q *Queries) GetPublishJobForUpdate(ctx context.Context, id pgtype.UUID) (P
 }
 
 const getRelease = `-- name: GetRelease :one
-SELECT id, organization_id, app_id, environment_id, sequence, app_version_id, rollback_of, notes, min_runtime, required_features, size, production, created_by_kind, created_by_id, created_by, created_at, native_uses FROM releases WHERE app_id = $1 AND sequence = $2
+SELECT id, organization_id, app_id, environment_id, sequence, app_version_id, rollback_of, notes, min_runtime, required_features, size, production, created_by_kind, created_by_id, created_by, created_at, native_uses, confidential FROM releases WHERE app_id = $1 AND sequence = $2
 `
 
 type GetReleaseParams struct {
@@ -336,8 +336,20 @@ func (q *Queries) GetRelease(ctx context.Context, arg GetReleaseParams) (Release
 		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.NativeUses,
+		&i.Confidential,
 	)
 	return i, err
+}
+
+const getReleaseContentKey = `-- name: GetReleaseContentKey :one
+SELECT sealed FROM release_content_keys WHERE release_id = $1
+`
+
+func (q *Queries) GetReleaseContentKey(ctx context.Context, releaseID pgtype.UUID) ([]byte, error) {
+	row := q.db.QueryRow(ctx, getReleaseContentKey, releaseID)
+	var sealed []byte
+	err := row.Scan(&sealed)
+	return sealed, err
 }
 
 const getVersion = `-- name: GetVersion :one
@@ -512,7 +524,7 @@ const insertRelease = `-- name: InsertRelease :one
 INSERT INTO releases (id, organization_id, app_id, environment_id, sequence, app_version_id, rollback_of, notes,
                       min_runtime, required_features, size, created_by_kind, created_by_id, created_by)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-RETURNING id, organization_id, app_id, environment_id, sequence, app_version_id, rollback_of, notes, min_runtime, required_features, size, production, created_by_kind, created_by_id, created_by, created_at, native_uses
+RETURNING id, organization_id, app_id, environment_id, sequence, app_version_id, rollback_of, notes, min_runtime, required_features, size, production, created_by_kind, created_by_id, created_by, created_at, native_uses, confidential
 `
 
 type InsertReleaseParams struct {
@@ -568,8 +580,50 @@ func (q *Queries) InsertRelease(ctx context.Context, arg InsertReleaseParams) (R
 		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.NativeUses,
+		&i.Confidential,
 	)
 	return i, err
+}
+
+const insertReleaseConfidentialBundle = `-- name: InsertReleaseConfidentialBundle :exec
+INSERT INTO release_confidential_bundles (release_id, organization_id, plugin_key, plain_sha256, bundle_sha256, size)
+VALUES ($1, $2, $3, $4, $5, $6)
+`
+
+type InsertReleaseConfidentialBundleParams struct {
+	ReleaseID      pgtype.UUID
+	OrganizationID pgtype.UUID
+	PluginKey      string
+	PlainSha256    []byte
+	BundleSha256   []byte
+	Size           int64
+}
+
+func (q *Queries) InsertReleaseConfidentialBundle(ctx context.Context, arg InsertReleaseConfidentialBundleParams) error {
+	_, err := q.db.Exec(ctx, insertReleaseConfidentialBundle,
+		arg.ReleaseID,
+		arg.OrganizationID,
+		arg.PluginKey,
+		arg.PlainSha256,
+		arg.BundleSha256,
+		arg.Size,
+	)
+	return err
+}
+
+const insertReleaseContentKey = `-- name: InsertReleaseContentKey :exec
+INSERT INTO release_content_keys (release_id, organization_id, sealed) VALUES ($1, $2, $3)
+`
+
+type InsertReleaseContentKeyParams struct {
+	ReleaseID      pgtype.UUID
+	OrganizationID pgtype.UUID
+	Sealed         []byte
+}
+
+func (q *Queries) InsertReleaseContentKey(ctx context.Context, arg InsertReleaseContentKeyParams) error {
+	_, err := q.db.Exec(ctx, insertReleaseContentKey, arg.ReleaseID, arg.OrganizationID, arg.Sealed)
+	return err
 }
 
 const insertReleaseVersion = `-- name: InsertReleaseVersion :exec
@@ -588,7 +642,7 @@ func (q *Queries) InsertReleaseVersion(ctx context.Context, arg InsertReleaseVer
 }
 
 const latestReleaseInEnvironment = `-- name: LatestReleaseInEnvironment :one
-SELECT id, organization_id, app_id, environment_id, sequence, app_version_id, rollback_of, notes, min_runtime, required_features, size, production, created_by_kind, created_by_id, created_by, created_at, native_uses FROM releases WHERE app_id = $1 AND environment_id = $2 ORDER BY sequence DESC LIMIT 1
+SELECT id, organization_id, app_id, environment_id, sequence, app_version_id, rollback_of, notes, min_runtime, required_features, size, production, created_by_kind, created_by_id, created_by, created_at, native_uses, confidential FROM releases WHERE app_id = $1 AND environment_id = $2 ORDER BY sequence DESC LIMIT 1
 `
 
 type LatestReleaseInEnvironmentParams struct {
@@ -617,6 +671,7 @@ func (q *Queries) LatestReleaseInEnvironment(ctx context.Context, arg LatestRele
 		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.NativeUses,
+		&i.Confidential,
 	)
 	return i, err
 }
@@ -677,7 +732,7 @@ func (q *Queries) LatestVersion(ctx context.Context, arg LatestVersionParams) (P
 }
 
 const listAllReleases = `-- name: ListAllReleases :many
-SELECT id, organization_id, app_id, environment_id, sequence, app_version_id, rollback_of, notes, min_runtime, required_features, size, production, created_by_kind, created_by_id, created_by, created_at, native_uses FROM releases WHERE app_id = $1 ORDER BY sequence
+SELECT id, organization_id, app_id, environment_id, sequence, app_version_id, rollback_of, notes, min_runtime, required_features, size, production, created_by_kind, created_by_id, created_by, created_at, native_uses, confidential FROM releases WHERE app_id = $1 ORDER BY sequence
 `
 
 func (q *Queries) ListAllReleases(ctx context.Context, appID pgtype.UUID) ([]Release, error) {
@@ -707,6 +762,7 @@ func (q *Queries) ListAllReleases(ctx context.Context, appID pgtype.UUID) ([]Rel
 			&i.CreatedBy,
 			&i.CreatedAt,
 			&i.NativeUses,
+			&i.Confidential,
 		); err != nil {
 			return nil, err
 		}
@@ -783,7 +839,7 @@ func (q *Queries) ListPublishJobs(ctx context.Context, arg ListPublishJobsParams
 }
 
 const listPurgeableReleases = `-- name: ListPurgeableReleases :many
-SELECT r.id, r.organization_id, r.app_id, r.environment_id, r.sequence, r.app_version_id, r.rollback_of, r.notes, r.min_runtime, r.required_features, r.size, r.production, r.created_by_kind, r.created_by_id, r.created_by, r.created_at, r.native_uses FROM releases r
+SELECT r.id, r.organization_id, r.app_id, r.environment_id, r.sequence, r.app_version_id, r.rollback_of, r.notes, r.min_runtime, r.required_features, r.size, r.production, r.created_by_kind, r.created_by_id, r.created_by, r.created_at, r.native_uses, r.confidential FROM releases r
  WHERE NOT r.production
    AND r.created_at < $1::timestamptz
    AND r.sequence < (SELECT MAX(sequence) FROM releases n WHERE n.app_id = r.app_id)
@@ -828,6 +884,38 @@ func (q *Queries) ListPurgeableReleases(ctx context.Context, arg ListPurgeableRe
 			&i.CreatedBy,
 			&i.CreatedAt,
 			&i.NativeUses,
+			&i.Confidential,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listReleaseConfidentialBundles = `-- name: ListReleaseConfidentialBundles :many
+SELECT release_id, organization_id, plugin_key, plain_sha256, bundle_sha256, size FROM release_confidential_bundles WHERE release_id = $1 ORDER BY plugin_key
+`
+
+func (q *Queries) ListReleaseConfidentialBundles(ctx context.Context, releaseID pgtype.UUID) ([]ReleaseConfidentialBundle, error) {
+	rows, err := q.db.Query(ctx, listReleaseConfidentialBundles, releaseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ReleaseConfidentialBundle{}
+	for rows.Next() {
+		var i ReleaseConfidentialBundle
+		if err := rows.Scan(
+			&i.ReleaseID,
+			&i.OrganizationID,
+			&i.PluginKey,
+			&i.PlainSha256,
+			&i.BundleSha256,
+			&i.Size,
 		); err != nil {
 			return nil, err
 		}
@@ -892,7 +980,7 @@ func (q *Queries) ListReleaseVersions(ctx context.Context, releaseID pgtype.UUID
 }
 
 const listReleases = `-- name: ListReleases :many
-SELECT id, organization_id, app_id, environment_id, sequence, app_version_id, rollback_of, notes, min_runtime, required_features, size, production, created_by_kind, created_by_id, created_by, created_at, native_uses FROM releases
+SELECT id, organization_id, app_id, environment_id, sequence, app_version_id, rollback_of, notes, min_runtime, required_features, size, production, created_by_kind, created_by_id, created_by, created_at, native_uses, confidential FROM releases
  WHERE app_id = $1
    AND ($2::uuid IS NULL OR environment_id = $2::uuid)
    AND sequence < $3::bigint
@@ -939,6 +1027,7 @@ func (q *Queries) ListReleases(ctx context.Context, arg ListReleasesParams) ([]R
 			&i.CreatedBy,
 			&i.CreatedAt,
 			&i.NativeUses,
+			&i.Confidential,
 		); err != nil {
 			return nil, err
 		}
@@ -1021,6 +1110,17 @@ SELECT id FROM apps WHERE id = $1 AND deleted_at IS NULL FOR UPDATE
 
 func (q *Queries) LockApp(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error) {
 	row := q.db.QueryRow(ctx, lockApp, id)
+	var id_2 pgtype.UUID
+	err := row.Scan(&id_2)
+	return id_2, err
+}
+
+const lockRelease = `-- name: LockRelease :one
+SELECT id FROM releases WHERE id = $1 FOR UPDATE
+`
+
+func (q *Queries) LockRelease(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, lockRelease, id)
 	var id_2 pgtype.UUID
 	err := row.Scan(&id_2)
 	return id_2, err
@@ -1141,4 +1241,13 @@ func (q *Queries) ReleaseUnusedSnapshots(ctx context.Context, organizationID pgt
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const setReleaseConfidential = `-- name: SetReleaseConfidential :exec
+UPDATE releases SET confidential = true WHERE id = $1
+`
+
+func (q *Queries) SetReleaseConfidential(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, setReleaseConfidential, id)
+	return err
 }

@@ -227,4 +227,22 @@ void main() {
     expect(await attestation.assertion(Uint8List(32)), isNull);
     expect(await attestation.integrityToken('hash'), isNull);
   });
+
+  test('SEC-053 agree gives both sides the same secret', () async {
+    final keys = SoftwareDeviceKeys();
+    final a = await keys.create('a', KeyPurpose.agreement);
+    final b = await keys.create('b', KeyPurpose.agreement);
+    final ab = await keys.agree('a', b.publicKey);
+    final ba = await keys.agree('b', a.publicKey);
+    expect(ab, hasLength(32));
+    expect(ab, ba);
+    expect(await keys.agree('a', a.publicKey), isNot(ab));
+  });
+
+  test('SEC-053 agree refuses a point off the curve', () async {
+    final keys = SoftwareDeviceKeys();
+    await keys.create('a', KeyPurpose.agreement);
+    final off = EcPublicKey(Uint8List(32)..[31] = 1, Uint8List(32)..[31] = 1);
+    await expectLater(keys.agree('a', off), throwsArgumentError);
+  });
 }

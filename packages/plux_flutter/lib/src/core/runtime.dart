@@ -28,6 +28,7 @@ import 'package:plux_flutter/src/assets/icon_fonts.dart';
 import 'package:plux_flutter/src/assets/image_providers.dart';
 import 'package:plux_flutter/src/core/active_release.dart';
 import 'package:plux_flutter/src/core/app_state.dart';
+import 'package:plux_flutter/src/core/confidential_bundles.dart';
 import 'package:plux_flutter/src/core/config.dart';
 import 'package:plux_flutter/src/core/fallback.dart';
 import 'package:plux_flutter/src/core/features.dart';
@@ -166,8 +167,8 @@ final class RuntimeOverrides {
   /// when null.
   final KeyWrapper Function()? keyWrapper;
 
-  /// The AES-256-GCM of the encrypted stores; the platform's, else Dart's,
-  /// when null.
+  /// The AES-256-GCM of the encrypted stores and of confidential bundles
+  /// (SEC-053, SEC-073); the platform's, else Dart's, when null.
   final Aead? aead;
 
   /// The platform calls of the secure UI (ADR-0059): the screen
@@ -359,6 +360,17 @@ final class PluxRuntime with WidgetsBindingObserver {
   final SyncWorker _worker;
   final VerifierLimits _limits;
   final String _root;
+
+  /// The confidential bundles of the active release, opened once per
+  /// launch off the UI isolate (SEC-053).
+  /// The confidential bundles of the active release, opened once per
+  /// launch off the UI isolate with the platform's AES-256-GCM (SEC-053).
+  late final ConfidentialBundles _confidential = ConfidentialBundles(
+    keys: (overrides.deviceKeys ?? PlatformDeviceKeys.new)(),
+    appId: config.appId,
+    environment: config.environment,
+    aead: overrides.aead ?? platformAead,
+  );
 
   /// Which file of each asset this device uses (ADR-0027 Revision).
   final AssetDevice assets;
@@ -1183,7 +1195,7 @@ final class PluxRuntime with WidgetsBindingObserver {
         ),
       );
     }
-    _load();
+    await _load();
     // Before the first sync, so the flush after it carries the session's
     // start with the release the device runs.
     _startSession();
@@ -1262,7 +1274,7 @@ final class PluxRuntime with WidgetsBindingObserver {
       final from = active.value?.sequence;
       final p = await _worker.revert();
       if (from != null && p.active != from) {
-        _load();
+        await _load();
         _emit(SyncRolledBack(from, p.active!));
         _report(
           PluxException(
@@ -1291,15 +1303,18 @@ final class PluxRuntime with WidgetsBindingObserver {
   Future<void> _activate() async {
     if (_reopen().staged == null) return;
     await _worker.activate();
-    _load();
+    await _load();
     final seq = active.value?.sequence;
     if (seq != null) _emit(SyncActivated(seq));
   }
 
   StorePointer _reopen() => ReleaseStore.open(_store.root).pointer;
 
-  /// Maps the active release from the store's current pointer.
-  void _load() {
+  /// Maps the active release from the store's current pointer. The
+  /// confidential bundles of the release are decrypted into memory first,
+  /// off the UI isolate, once per launch (SEC-053); a release whose key or
+  /// bundle does not open is reported and leaves no active release.
+  Future<void> _load() async {
     final store = ReleaseStore.open(_store.root);
     final seq = store.pointer.active;
     final record = seq == null ? null : store.record(seq);
@@ -1308,11 +1323,17 @@ final class PluxRuntime with WidgetsBindingObserver {
       active.value = null;
     } else {
       try {
+        final decrypted = await _confidential.open(record, store);
+        _confidential.retain({
+          for (final b in record.bundles)
+            if (b.confidential) b.hash,
+        });
         active.value = ActiveRelease.open(
           store,
           record,
           _limits,
           report: _report,
+          decrypted: decrypted,
         );
       } on PluxException catch (e) {
         _report(e);

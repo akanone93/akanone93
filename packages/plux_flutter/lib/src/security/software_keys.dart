@@ -80,6 +80,19 @@ final class SoftwareDeviceKeys implements DeviceKeys {
   }
 
   @override
+  Future<Uint8List> agree(String alias, EcPublicKey peer) async {
+    final d = _scalars[alias];
+    if (d == null) throw StateError('no software key under "$alias"');
+    final point = Uint8List.fromList([0x04, ...peer.x, ...peer.y]);
+    if (!isP256PublicKey(point)) {
+      throw ArgumentError.value(peer, 'peer', 'not a point of P-256');
+    }
+    final shared = p256Multiply(d, P256Point(p256Int(peer.x), p256Int(peer.y)));
+    if (shared == null) throw ArgumentError.value(peer, 'peer', 'bad point');
+    return p256Bytes32(shared.x);
+  }
+
+  @override
   Future<void> delete(String alias) async {
     _scalars.remove(alias);
   }

@@ -6,6 +6,7 @@ package release_test
 import (
 	"bytes"
 	"context"
+	"crypto/ecdh"
 	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/sha256"
@@ -164,7 +165,15 @@ func newFixtureWith(t *testing.T, name string, securityLimits limits.Set, tweak 
 		DB: db, Audit: log, Tenancy: f.tenancy, Documents: f.docs, Objects: store, IDs: gen,
 		Jobs: f.q, Signer: backend, ProductionSigning: true, Now: clock, DevelopmentDays: 90,
 		PublicBaseURL: "https://plux.example.com", SecurityConfig: f.sec,
+		// A profile that requires confidential bundles (maximum) seals them,
+		// so the service can seal and has a device to wrap the key to.
+		Crypter: backend,
 	}
+	deviceKey, err := ecdh.P256().GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	opts.Recipients = &recipients{key: deviceKey.PublicKey()}
 	if tweak != nil {
 		tweak(&opts)
 	}

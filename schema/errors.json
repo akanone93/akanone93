@@ -2084,8 +2084,8 @@
       "reason": "CONFIDENTIAL_KEY_UNAVAILABLE",
       "severity": "error",
       "title": "Confidential key unavailable",
-      "cause": "The device may not receive the key that unlocks confidential content, because it does not meet the content's requirements (SEC-053).",
-      "fix": "Use a device that meets the content's assurance requirements."
+      "cause": "The device cannot obtain or use the key that unlocks confidential content: its assurance is below confidentialMinAssurance, it registered no key-agreement key, or the key does not open the content because it was wrapped for another device or release, or was altered (SEC-053).",
+      "fix": "Use a device that meets the content's assurance requirements and has a key-agreement key; ask the operator to publish the release again if the key does not open it."
     },
     {
       "code": "PLX-6060",

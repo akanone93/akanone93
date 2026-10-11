@@ -138,6 +138,29 @@
       "description": "Whether bundles are encrypted for the device: not at all, per plugin, or always."
     },
     {
+      "key": "confidentialMinAssurance",
+      "type": "enum",
+      "values": [
+        "AL0",
+        "AL1",
+        "AL2",
+        "AL3"
+      ],
+      "tighter": "order",
+      "defaults": {
+        "standard": "AL2",
+        "strict": "AL2",
+        "maximum": "AL2"
+      },
+      "travelsToDevice": false,
+      "phase": "P6",
+      "requirements": [
+        "SEC-053",
+        "SEC-007"
+      ],
+      "description": "The lowest assurance level a device must hold to receive the content key of a confidential bundle."
+    },
+    {
       "key": "defaultFunctionAssurance",
       "type": "enum",
       "values": [

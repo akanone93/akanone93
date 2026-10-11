@@ -158,6 +158,9 @@ const (
 	// ConfidentialBundles: Whether bundles are encrypted for the device: not at
 	// all, per plugin, or always. (SEC-053)
 	ConfidentialBundles Key = "confidentialBundles"
+	// ConfidentialMinAssurance: The lowest assurance level a device must hold to
+	// receive the content key of a confidential bundle. (SEC-053, SEC-007)
+	ConfidentialMinAssurance Key = "confidentialMinAssurance"
 	// DefaultFunctionAssurance: The assurance level a Plux Function requires
 	// when it declares none. (SEC-007)
 	DefaultFunctionAssurance Key = "defaultFunctionAssurance"
@@ -279,6 +282,13 @@ func All() []Setting {
 			Defaults:        Defaults{Standard: TextValue("off"), Strict: TextValue("optional"), Maximum: TextValue("required")},
 			TravelsToDevice: false, Phase: "P6", Requirements: []string{"SEC-053"},
 			Description: "Whether bundles are encrypted for the device: not at all, per plugin, or always.",
+		},
+		{
+			Key: ConfidentialMinAssurance, Type: TypeEnum, Tighter: TighterOrder,
+			Values:          []string{"AL0", "AL1", "AL2", "AL3"},
+			Defaults:        Defaults{Standard: TextValue("AL2"), Strict: TextValue("AL2"), Maximum: TextValue("AL2")},
+			TravelsToDevice: false, Phase: "P6", Requirements: []string{"SEC-053", "SEC-007"},
+			Description: "The lowest assurance level a device must hold to receive the content key of a confidential bundle.",
 		},
 		{
 			Key: DefaultFunctionAssurance, Type: TypeEnum, Tighter: TighterOrder,

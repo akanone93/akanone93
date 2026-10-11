@@ -7,6 +7,7 @@
 /// `data.transfers.v1`, the state
 /// engine's `state.write.v1`, `state.computed.v1` and `state.persistence.v1`,
 /// forms' `forms.v1` (ADR-0047) and `forms.sensitive.v1`, the device actions' `device.v1`,
+/// confidential bundles' `security.confidential.v1` (SEC-053, ADR-0055),
 /// animation's `anim.v1`, `anim.timelines.v1` and `anim.transitions.v1`
 /// (ANI-001–ANI-006, NAV-010), the local database's `db.v1` (ADR-0049), and
 /// registry revisions — `widget.<Type>.v<n>`,
@@ -15,6 +16,7 @@
 library;
 
 import 'package:plux_flutter/src/schema/registry.g.dart';
+import 'package:plux_flutter/src/security/content_key.dart';
 
 /// Answers whether this runtime supports a required feature.
 final class RuntimeFeatures {
@@ -97,9 +99,14 @@ final class RuntimeFeatures {
   /// or running a database action requires it.
   static const Set<String> db = {'db.v1'};
 
+  /// Confidential bundles (SEC-053): a release whose bundles arrive encrypted
+  /// requires it, so a runtime that cannot decrypt them never downloads one.
+  static const Set<String> security = {confidentialFeature};
+
   /// Whether [feature] is supported.
   bool supports(String feature) {
     if (forms.contains(feature) ||
+        security.contains(feature) ||
         device.contains(feature) ||
         animation.contains(feature) ||
         db.contains(feature) ||

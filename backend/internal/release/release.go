@@ -90,6 +90,12 @@ type Options struct {
 	// SecurityConfig supplies the security configuration a manifest pins
 	// and the patch that brings a device to it (SEC-182); nil pins none.
 	SecurityConfig *seccfg.Service
+	// Crypter seals the content keys of confidential releases (SEC-053,
+	// SEC-106). Nil refuses them.
+	Crypter signing.Crypter
+	// Recipients decides which devices receive a content key; nil serves
+	// no confidential manifest.
+	Recipients Recipients
 	// Limits are the installation's limits.
 	Limits limits.Set
 	// CompilerVersion is recorded in every bundle (CMP-005).

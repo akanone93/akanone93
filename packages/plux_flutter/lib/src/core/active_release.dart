@@ -31,14 +31,16 @@ final class MappedBundle {
   /// The plugin version.
   final int version;
 
-  final MappedFile _file;
+  /// The mapping of a plain bundle; null for a confidential one, which is
+  /// read from the decrypted buffer in memory (SEC-053).
+  final MappedFile? _file;
 
   /// The container, read in place.
   final BundleContainer container;
 
   fbs.Meta? _meta;
 
-  void _release() => _file.release();
+  void _release() => _file?.release();
 }
 
 /// A page's place: its plugin, its section and route.
@@ -79,17 +81,22 @@ final class ActiveRelease {
     this.gate,
     this.control,
     this._report,
+    this._decrypted,
   );
 
   /// Opens release [record] from [store]: maps the app bundle and checks
   /// its header against the record (ADR-0029). Plugin bundles are mapped
   /// when first used; a bundle that fails its check is passed to [report]
-  /// once and fails every later use the same way.
+  /// once and fails every later use the same way. [decrypted] holds the
+  /// plain containers of the record's confidential bundles by plugin key,
+  /// opened beforehand off the UI isolate (SEC-053); the reader works on
+  /// those buffers instead of a mapping.
   factory ActiveRelease.open(
     ReleaseStore store,
     ReleaseRecord record,
     VerifierLimits limits, {
     void Function(PluxException error)? report,
+    Map<String, Uint8List> decrypted = const {},
   }) {
     final r = ActiveRelease._(
       record,
@@ -97,6 +104,7 @@ final class ActiveRelease {
       SectionGate(limits),
       _control(store, record),
       report,
+      decrypted,
     );
     r.bundle('');
     return r;
@@ -114,6 +122,7 @@ final class ActiveRelease {
   final ControlState control;
 
   final void Function(PluxException error)? _report;
+  final Map<String, Uint8List> _decrypted;
   final Map<String, MappedBundle> _bundles = {};
   final Map<String, PluxException> _failed = {};
   Map<String, (String, fbs.PageEntry)>? _routes;
@@ -154,6 +163,7 @@ final class ActiveRelease {
       );
     }
     final name = key.isEmpty ? 'the app' : key;
+    if (entry.confidential) return _openDecrypted(key, entry, name);
     final MappedFile file;
     try {
       file = MappedFile.open(_store.objectPath(ObjectKind.bundles, entry.hash));
@@ -188,6 +198,35 @@ final class ActiveRelease {
       rethrow;
     } on Object {
       file.release();
+      rethrow;
+    }
+  }
+
+  /// A confidential bundle, read from its decrypted buffer. The ciphertext
+  /// was checked against the signed hash before it was decrypted, so there
+  /// is no header to compare here; the sections are still checked on first
+  /// use like any other.
+  MappedBundle _openDecrypted(String key, RecordBundle entry, String name) {
+    final plain = _decrypted[key];
+    if (plain == null) {
+      final error = PluxException(
+        PluxErrorCode.confidentialKeyUnavailable,
+        'the confidential bundle of $name has not been decrypted',
+      );
+      _failed[key] = error;
+      _report?.call(error);
+      throw error;
+    }
+    try {
+      return _bundles[key] = MappedBundle._(
+        key,
+        entry.version,
+        null,
+        BundleContainer.parse(plain),
+      );
+    } on PluxException catch (e) {
+      _failed[key] = e;
+      _report?.call(e);
       rethrow;
     }
   }

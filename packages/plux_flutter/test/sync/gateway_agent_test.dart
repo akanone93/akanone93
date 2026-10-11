@@ -659,6 +659,10 @@ final class _NoScaKeys implements DeviceKeys {
       inner.sign(alias, data);
 
   @override
+  Future<Uint8List> agree(String alias, EcPublicKey peer) =>
+      inner.agree(alias, peer);
+
+  @override
   Future<void> delete(String alias) => inner.delete(alias);
 }
 

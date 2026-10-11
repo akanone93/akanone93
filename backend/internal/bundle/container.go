@@ -127,12 +127,17 @@ const (
 // only (CMP-002). Only development bundles may carry a source map
 // (CMP-041).
 func Encode(k Kind, sections []Section) ([]byte, error) {
+	return encode(k, sections, 0)
+}
+
+// encode is Encode with header flags the sections do not imply: a
+// confidential bundle sets FlagEncrypted (SEC-053).
+func encode(k Kind, sections []Section, flags uint32) ([]byte, error) {
 	if k < KindPlugin || k > KindDevelopment {
 		return nil, fmt.Errorf("bundle.Encode: unknown bundle kind %d", k)
 	}
 	sorted := slices.Clone(sections)
 	slices.SortFunc(sorted, compareSections)
-	var flags uint32
 	for i, s := range sorted {
 		if !s.Kind.Known() {
 			return nil, fmt.Errorf("bundle.Encode: unknown section kind %d", s.Kind)
@@ -238,7 +243,7 @@ type ReadOptions struct {
 // the bundle is in use. Errors carry the codes PLX-3040–3043, PLX-3010,
 // PLX-1320 or PLX-1503.
 func Read(data []byte, opts ReadOptions) (*Bundle, error) {
-	b, err := readHeader(data, &opts.Limits)
+	b, err := readHeader(data, &opts.Limits, false)
 	if err != nil {
 		return nil, err
 	}
@@ -261,7 +266,7 @@ func Read(data []byte, opts ReadOptions) (*Bundle, error) {
 // that handles bundles as opaque sections — the delta encoder and applier
 // — which never interprets a section.
 func ReadStructure(data []byte) (*Bundle, error) {
-	b, err := readHeader(data, nil)
+	b, err := readHeader(data, nil, false)
 	if err != nil {
 		return nil, err
 	}
@@ -269,11 +274,19 @@ func ReadStructure(data []byte) (*Bundle, error) {
 		return nil, err
 	}
 	for _, s := range b.Sections {
-		if sha256.Sum256(s.Data) != s.Hash {
-			return nil, newErr(plxerr.SectionHashMismatch, "%s section %x", s.Kind, s.ID)
+		if err := checkHash(s); err != nil {
+			return nil, err
 		}
 	}
 	return b, nil
+}
+
+// checkHash checks a section's bytes against its directory hash (BND-005).
+func checkHash(s Section) error {
+	if sha256.Sum256(s.Data) != s.Hash {
+		return newErr(plxerr.SectionHashMismatch, "%s section %x", s.Kind, s.ID)
+	}
+	return nil
 }
 
 // newErr returns a coded error (ADR-0018).
@@ -290,8 +303,10 @@ func malformed(format string, args ...any) error {
 	return newErr(plxerr.BundleMalformed, format, args...)
 }
 
-// readHeader checks the fixed header and the header hash.
-func readHeader(data []byte, lim *limits.Set) (*Bundle, error) {
+// readHeader checks the fixed header and the header hash. A bundle with
+// the encrypted flag is refused unless the caller opens confidential
+// bundles (Decrypt).
+func readHeader(data []byte, lim *limits.Set, confidential bool) (*Bundle, error) {
 	if len(data) < headerSize || string(data[:4]) != magic {
 		return nil, malformed("not a Plux bundle")
 	}
@@ -305,7 +320,7 @@ func readHeader(data []byte, lim *limits.Set) (*Bundle, error) {
 	if b.Flags&^knownFlags != 0 {
 		return nil, malformed("unknown flags %#x", b.Flags)
 	}
-	if b.Flags&FlagEncrypted != 0 {
+	if b.Flags&FlagEncrypted != 0 && !confidential {
 		return nil, newErr(plxerr.BundleEncryptedUnsupported, "the bundle is encrypted")
 	}
 	if lim != nil {
@@ -370,8 +385,8 @@ func allZero(b []byte) bool {
 
 // checkSection checks a section's hash, content and structure.
 func checkSection(s Section, lim limits.Set) error {
-	if sha256.Sum256(s.Data) != s.Hash {
-		return newErr(plxerr.SectionHashMismatch, "%s section %x", s.Kind, s.ID)
+	if err := checkHash(s); err != nil {
+		return err
 	}
 	if !s.Kind.Known() {
 		if format := ExecutableFormat(s.Data); format != "" {
