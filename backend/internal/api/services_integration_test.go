@@ -131,6 +131,8 @@ type worldConfig struct {
 	// Windows, when set, gives the DPoP windows of an environment, as the
 	// security configuration does.
 	Windows func(ctx context.Context, appID, environmentID string) (time.Duration, time.Duration, error)
+	// Checkpoints, when set, serves ListAuditCheckpoints.
+	Checkpoints api.CheckpointSource
 }
 
 // newWorldWith is newWorld with the configuration applied.
@@ -230,7 +232,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	}
 	h := &api.Handlers{
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events,
-		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig,
+		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
 	}
 	people := api.Authentication(authService, api.IdentityPublic, nil, limiter, set.Get(limits.APIRequestsPerMinute))
 	nonceKey := make([]byte, 32)

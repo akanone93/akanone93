@@ -152,6 +152,10 @@ func TestReadTLV(t *testing.T) {
 	}
 }
 
+// FuzzParseKeyDescription checks that no key description makes the parser
+// panic and that it returns a description or an error, never both or neither.
+//
+// Verifies: QA-004, SEC-002.
 func FuzzParseKeyDescription(f *testing.F) {
 	valid := encodeKD(validSpec())
 	f.Add(valid)

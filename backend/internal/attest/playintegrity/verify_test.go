@@ -500,6 +500,9 @@ func TestParseKeys(t *testing.T) {
 	}
 }
 
+// FuzzVerify checks that no token makes the verdict verifier panic.
+//
+// Verifies: QA-004, SEC-003.
 func FuzzVerify(f *testing.F) {
 	fx := newFixture(f)
 	good := fx.token(fx.verdict())

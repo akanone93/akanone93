@@ -59,6 +59,8 @@ func TestDecode(t *testing.T) {
 
 // FuzzDecode checks that no input makes the decoder panic or read
 // past its input.
+//
+// Verifies: QA-004.
 func FuzzDecode(f *testing.F) {
 	for _, seed := range [][]byte{{0xa1, 0x01, 0x02}, {0x9f}, {0x5b, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}} {
 		f.Add(seed)

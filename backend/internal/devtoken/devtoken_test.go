@@ -624,7 +624,7 @@ func TestIssueHonoursAClaimLifetime(t *testing.T) {
 
 // FuzzVerify checks that no input makes the verifier panic.
 //
-// Verifies: SEC-020.
+// Verifies: QA-004, SEC-020.
 func FuzzVerify(f *testing.F) {
 	signer := &fakeSigner{keys: map[signing.TokenClass][]*ecdsa.PrivateKey{}}
 	k, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
