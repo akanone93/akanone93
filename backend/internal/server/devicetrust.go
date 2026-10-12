@@ -18,12 +18,14 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/attest/appattest"
 	"github.com/nightCode42/plux3/backend/internal/attest/keyattest"
 	"github.com/nightCode42/plux3/backend/internal/attest/playintegrity"
+	"github.com/nightCode42/plux3/backend/internal/attest/statuslist"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/devtoken"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
+	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
@@ -57,6 +59,10 @@ type DeviceTrust struct {
 	// may have tightened (SEC-182); nil where the installation's apply.
 	// The nonce rotation and the replay policy stay the installation's.
 	Windows func(ctx context.Context, appID, environmentID string) (window, fallback time.Duration, err error)
+	// ReplayPolicy returns what the replay check does when the shared
+	// cache fails in one environment: its replayCacheFallback setting
+	// (SEC-023); nil where the installation's policy applies.
+	ReplayPolicy func(ctx context.Context, appID, environmentID string) (dpop.Fallback, error)
 }
 
 // tokenSignerFor narrows the signing backend to token signing for the api
@@ -163,10 +169,7 @@ func buildDeviceTrust(ctx context.Context, cfg *config.Config, db *storage.DB, s
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
-	fail := dpop.PerReplica
-	if policy.Text() == "failClosed" {
-		fail = dpop.FailClosed
-	}
+	fail := dpop.FallbackOf(policy.Text())
 	base := strings.TrimSuffix(cfg.Server.PublicBaseURL, "/")
 	return &DeviceTrust{
 		Tokens: &devtoken.Verifier{Keys: (&tokenKeys{signer: signer, now: time.Now}).Keys, Issuer: base, Audience: base},
@@ -176,7 +179,7 @@ func buildDeviceTrust(ctx context.Context, cfg *config.Config, db *storage.DB, s
 			log.WarnContext(ctx, "the DPoP replay cache is unavailable; this replica remembers proofs itself and applies the narrower issued-at window (SEC-023)",
 				slog.Any("error", err))
 		}, dpop.WithHealth(replayHealth(d.metrics))),
-		Window: window, FallbackWindow: fallback, Windows: windowsOf(d.configs),
+		Window: window, FallbackWindow: fallback, Windows: windowsOf(d.configs), ReplayPolicy: replayPolicyOf(d.configs),
 	}, nil
 }
 
@@ -193,6 +196,23 @@ func windowsOf(configs *seccfg.Service) func(context.Context, string, string) (t
 		}
 		return time.Duration(v.Get(settings.DPOPIatWindow).Int()) * time.Second,
 			time.Duration(v.Get(settings.DPOPIatWindowFallback).Int()) * time.Second, nil
+	}
+}
+
+// replayPolicyOf reads the replay cache's fallback policy of an
+// environment from its security configuration, so that a maximum-profile
+// environment fails closed while a standard one keeps working on its own
+// replica; nil when there is no store to read.
+func replayPolicyOf(configs *seccfg.Service) func(context.Context, string, string) (dpop.Fallback, error) {
+	if configs == nil {
+		return nil
+	}
+	return func(ctx context.Context, appID, environmentID string) (dpop.Fallback, error) {
+		v, _, err := configs.Effective(ctx, appID, environmentID)
+		if err != nil {
+			return dpop.FailClosed, fmt.Errorf("server: the security configuration: %w", err)
+		}
+		return dpop.FallbackOf(v.Get(settings.ReplayCacheFallback).Text()), nil
 	}
 }
 
@@ -220,25 +240,48 @@ type deviceDeps struct {
 
 // buildDeviceSide assembles the device service and the trust that
 // authenticates device calls.
-func buildDeviceSide(ctx context.Context, cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, d deviceDeps) (*device.Service, *DeviceTrust, error) {
+func buildDeviceSide(ctx context.Context, cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, d deviceDeps) (*device.Service, *DeviceTrust, *statuslist.List, error) {
 	if d.log == nil {
 		d.log = slog.Default()
 	}
-	devices, err := buildDevices(db, d.ids, shared, d.audit, cfg, d.signer, d.configs)
+	status, err := buildStatusList(cfg, shared, set)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
+	}
+	devices, err := buildDevices(db, d.ids, shared, d.audit, cfg, d.signer, d.configs, status, d.metrics)
+	if err != nil {
+		return nil, nil, nil, err
 	}
 	trust, err := buildDeviceTrust(ctx, cfg, db, shared, set, d)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
-	return devices, trust, nil
+	return devices, trust, status, nil
+}
+
+// statusListTimeout bounds one fetch of Google's attestation status list.
+const statusListTimeout = 20 * time.Second
+
+// buildStatusList builds the source of Google's attestation status list:
+// the operator's file where one is configured, otherwise Google's list,
+// fetched by the worker through the guarded client (SEC-002, DEP-040).
+func buildStatusList(cfg *config.Config, shared cache.Cache, set limits.Set) (*statuslist.List, error) {
+	l, err := statuslist.New(statuslist.Options{
+		File:     cfg.Attestation.Android.StatusListFile,
+		Client:   httpx.NewClient(httpx.Options{Timeout: statusListTimeout}),
+		Cache:    shared,
+		MaxBytes: set.Get(limits.AttestStatusListBytes),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
+	return l, nil
 }
 
 // buildDevices assembles the device service, whose registrations verify
 // attestation and whose refreshes issue access tokens.
-func buildDevices(db *storage.DB, gen interface{ New() (string, error) }, shared cache.Cache, auditLog *audit.Log, cfg *config.Config, signer signing.TokenSigner, configs *seccfg.Service) (*device.Service, error) {
-	attestors, err := buildAttestors()
+func buildDevices(db *storage.DB, gen interface{ New() (string, error) }, shared cache.Cache, auditLog *audit.Log, cfg *config.Config, signer signing.TokenSigner, configs *seccfg.Service, status keyattest.RevocationSource, metrics *observability.Metrics) (*device.Service, error) {
+	attestors, err := buildAttestors(status)
 	if err != nil {
 		return nil, err
 	}
@@ -250,6 +293,9 @@ func buildDevices(db *storage.DB, gen interface{ New() (string, error) }, shared
 		DB: db, IDs: gen, Cache: shared, Audit: auditLog, Attestors: attestors, AppTrust: trust,
 		AccessTokenLifetime: cfg.Auth.Device.AccessTokenTTL.Duration(),
 		DevelopmentProvider: cfg.Attestation.DevelopmentProvider,
+	}
+	if metrics != nil {
+		opts.OnAttestation = metrics.AttestationResult
 	}
 	if configs != nil {
 		opts.Config = func(ctx context.Context, appID, envID string) (device.Values, error) {
@@ -269,7 +315,7 @@ func buildDevices(db *storage.DB, gen interface{ New() (string, error) }, shared
 
 // buildAttestors builds the production verifiers of platform evidence,
 // anchored in the roots Google and Apple publish.
-func buildAttestors() (device.Attestors, error) {
+func buildAttestors(status keyattest.RevocationSource) (device.Attestors, error) {
 	androidRoots, err := keyattest.DefaultRoots()
 	if err != nil {
 		return device.Attestors{}, fmt.Errorf("server: %w", err)
@@ -278,6 +324,7 @@ func buildAttestors() (device.Attestors, error) {
 	if err != nil {
 		return device.Attestors{}, fmt.Errorf("server: %w", err)
 	}
+	key.Source = status
 	appleRoots, err := appattest.DefaultRoots()
 	if err != nil {
 		return device.Attestors{}, fmt.Errorf("server: %w", err)

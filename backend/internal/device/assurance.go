@@ -116,6 +116,10 @@ type Settings struct {
 	// ReattestationInterval is how long an attestation stays good before
 	// the device must attest again (SEC-006).
 	ReattestationInterval time.Duration
+	// AttestationOutageGrace is how long past its re-attestation interval a
+	// device keeps its assurance level while the attestation provider is
+	// unavailable; zero fails closed (SEC-009).
+	AttestationOutageGrace time.Duration
 	// AndroidRefreshRequiresIntegrity makes every Android refresh carry a
 	// Play Integrity token (SEC-025).
 	AndroidRefreshRequiresIntegrity bool
@@ -199,6 +203,11 @@ func (s *Settings) resolveTokens(read func(settings.Key) (settings.Value, error)
 	if err != nil {
 		return err
 	}
+	grace, err := read(settings.AttestationOutageGrace)
+	if err != nil {
+		return err
+	}
+	s.AttestationOutageGrace = time.Duration(grace.Int()) * time.Second
 	s.AccessTokenLifetime = time.Duration(lifetime.Int()) * time.Second
 	s.RegistrationChallengeTTL = time.Duration(challenge.Int()) * time.Second
 	s.ReattestationInterval = time.Duration(interval.Int()) * time.Second

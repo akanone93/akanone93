@@ -405,3 +405,36 @@ func TestReplayHealthIgnoresFailClosed(t *testing.T) {
 		t.Fatalf("err=%v heard=%v, want an error and silence", err, heard)
 	}
 }
+
+// Verifies: SEC-023.
+// The policy of one request overrides the one the Replay was built with, so
+// a maximum-profile environment fails closed on a replica that otherwise
+// falls back, and a standard one falls back on a replica built to refuse.
+func TestReplayCheckWithPolicyPerRequest(t *testing.T) {
+	ctx := context.Background()
+	f := newFakeCache()
+	f.fail(errCacheDown)
+
+	lenient := NewReplay(f, PerReplica, 10, nil, nil)
+	_, err := lenient.CheckWith(ctx, FailClosed, "k", "j1", replayTTL)
+	wantCode(t, err, plxerr.ReplayCacheUnavailable)
+	if degraded, err := lenient.CheckWith(ctx, PerReplica, "k", "j2", replayTTL); err != nil || !degraded {
+		t.Fatalf("per-replica policy: degraded=%v err=%v", degraded, err)
+	}
+
+	strict := NewReplay(f, FailClosed, 10, nil, nil)
+	if degraded, err := strict.CheckWith(ctx, PerReplica, "k", "j1", replayTTL); err != nil || !degraded {
+		t.Fatalf("per-request fallback: degraded=%v err=%v", degraded, err)
+	}
+	_, err = strict.Check(ctx, "k", "j3", replayTTL)
+	wantCode(t, err, plxerr.ReplayCacheUnavailable)
+}
+
+// Verifies: SEC-023.
+func TestFallbackOf(t *testing.T) {
+	for setting, want := range map[string]Fallback{"memory": PerReplica, "failClosed": FailClosed, "": FailClosed, "other": FailClosed} {
+		if got := FallbackOf(setting); got != want {
+			t.Errorf("FallbackOf(%q) = %v, want %v", setting, got, want)
+		}
+	}
+}

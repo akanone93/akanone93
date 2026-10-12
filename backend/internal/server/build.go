@@ -162,6 +162,7 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 	}
 	periodic := append(MaintenanceJobs(workers, services, log),
 		CheckpointJobs(workers, services, cfg.Audit.CheckpointInterval.Duration(), log)...)
+	periodic = append(periodic, AttestationStatusJobs(workers, services, log)...)
 	jobClient, err := jobs.New(jobs.Options{
 		Pool:     db.Pool(),
 		Workers:  workers,

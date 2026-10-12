@@ -234,3 +234,114 @@ func TestTracerExportsToACollector(t *testing.T) {
 func tracing(ctx context.Context) bool {
 	return trace.SpanContextFromContext(ctx).IsValid()
 }
+
+// scrape returns the text the metrics endpoint serves.
+func scrape(t *testing.T, m *Metrics) string {
+	t.Helper()
+	rec := httptest.NewRecorder()
+	m.Handler().ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/metrics", nil))
+	return rec.Body.String()
+}
+
+// Verifies: OBS-002, SEC-021, SEC-024.
+// Rejections are counted by a closed set of reasons; anything else is
+// "other", so a caller cannot grow the label.
+func TestDPoPRejectionsHaveBoundedReasons(t *testing.T) {
+	t.Parallel()
+	m := NewMetrics()
+	m.DPoPRejected(DPoPReplay)
+	m.DPoPRejected(DPoPReplay)
+	m.DPoPRejected(DPoPNonceRequired)
+	m.DPoPRejected("some-jti-" + strconv.Itoa(1))
+	body := scrape(t, m)
+	for _, want := range []string{
+		`plux_dpop_rejections_total{reason="replay"} 2`,
+		`plux_dpop_rejections_total{reason="nonce_required"} 1`,
+		`plux_dpop_rejections_total{reason="other"} 1`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("missing %q in\n%s", want, body)
+		}
+	}
+	if strings.Contains(body, "some-jti") {
+		t.Error("a free-form reason became a label value")
+	}
+}
+
+// Verifies: OBS-002, SEC-009.
+func TestAttestationResultsHaveBoundedLabels(t *testing.T) {
+	t.Parallel()
+	m := NewMetrics()
+	m.AttestationResult("android", AttestationVerified)
+	m.AttestationResult("android", AttestationUnavailable)
+	m.AttestationResult("ios", AttestationFailed)
+	m.AttestationResult("toaster", "maybe")
+	body := scrape(t, m)
+	for _, want := range []string{
+		`plux_attestation_results_total{platform="android",verdict="verified"} 1`,
+		`plux_attestation_results_total{platform="android",verdict="unavailable"} 1`,
+		`plux_attestation_results_total{platform="ios",verdict="failed"} 1`,
+		`plux_attestation_results_total{platform="other",verdict="other"} 1`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("missing %q in\n%s", want, body)
+		}
+	}
+}
+
+// Verifies: OBS-002, SEC-141.
+// The audit gauge is absent until a verification ran, then follows its
+// outcome.
+func TestAuditChainVerifiedGauge(t *testing.T) {
+	t.Parallel()
+	m := NewMetrics()
+	if strings.Contains(scrape(t, m), "plux_audit_chain_verified") {
+		t.Fatal("the gauge claims an outcome before any verification")
+	}
+	m.AuditChainVerified(true)
+	if !strings.Contains(scrape(t, m), "plux_audit_chain_verified 1") {
+		t.Error("a verified chain is not 1")
+	}
+	m.AuditChainVerified(false)
+	if !strings.Contains(scrape(t, m), "plux_audit_chain_verified 0") {
+		t.Error("a broken chain is not 0")
+	}
+}
+
+// Verifies: OBS-002, SEC-007.
+// The device gauge is read on scrape, at most once per interval, folds
+// stored levels into the four labels, and survives a failing read.
+func TestDevicesByAssuranceIsReadOnScrape(t *testing.T) {
+	t.Parallel()
+	m := NewMetrics()
+	reads := 0
+	var fail bool
+	m.DevicesByAssurance(func(context.Context) ([]DeviceAssurance, error) {
+		reads++
+		if fail {
+			return nil, context.DeadlineExceeded
+		}
+		return []DeviceAssurance{{"app-1", "AL3", 4}, {"app-1", "none", 2}, {"app-1", "AL0", 1}, {"app-2", "AL2", 7}}, nil
+	})
+	body := scrape(t, m)
+	for _, want := range []string{
+		`plux_devices_by_assurance{app="app-1",level="AL3"} 4`,
+		`plux_devices_by_assurance{app="app-1",level="AL0"} 3`,
+		`plux_devices_by_assurance{app="app-2",level="AL2"} 7`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("missing %q in\n%s", want, body)
+		}
+	}
+	_ = scrape(t, m)
+	if reads != 1 {
+		t.Errorf("two scrapes read %d times, want 1", reads)
+	}
+	// Replacing the reader refreshes at once; a failed read keeps the
+	// counts it had.
+	fail = true
+	m.DevicesByAssurance(func(context.Context) ([]DeviceAssurance, error) { return nil, context.DeadlineExceeded })
+	if !strings.Contains(scrape(t, m), `plux_devices_by_assurance{app="app-2",level="AL2"} 7`) {
+		t.Error("counts vanished after a failed read")
+	}
+}

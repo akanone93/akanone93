@@ -205,7 +205,7 @@ func (s *Service) verifySCAAndroid(ctx context.Context, appID string, key *ecdsa
 	if len(chain) == 0 {
 		return SCAKey{}, plxerr.New(plxerr.AttestationFailed, "the SCA key needs a key attestation chain")
 	}
-	res, err := s.attestors.KeyAttestation.Verify(chain, e.Challenge, keyattest.Policy{
+	res, err := s.attestors.KeyAttestation.Verify(ctx, chain, e.Challenge, keyattest.Policy{
 		PackageNames: trust.AndroidPackages, SigningCertDigests: trust.AndroidCertDigests,
 		RequireHardware: true, RequireUserAuth: true,
 	})

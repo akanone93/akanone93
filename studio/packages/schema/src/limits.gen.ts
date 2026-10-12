@@ -244,6 +244,16 @@ export const limits = [
     description: "Size of a Play Integrity token the server accepts.",
   },
   {
+    key: "attest.statusListBytes",
+    unit: "bytes",
+    default: 8388608,
+    warning: 0,
+    max: 33554432,
+    scopes: ["installation"],
+    phase: "P6",
+    description: "Size of the Android attestation status list the server fetches or reads.",
+  },
+  {
     key: "auth.failedSignIns",
     unit: "count",
     default: 10,

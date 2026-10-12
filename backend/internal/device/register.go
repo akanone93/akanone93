@@ -419,7 +419,7 @@ func (s *Service) verifyAgreementKey(ctx context.Context, sub subject, proof Pro
 	if s.attestors.KeyAttestation == nil || len(trust.AndroidPackages) == 0 {
 		return plxerr.New(plxerr.AttestationUnavailable, "Android attestation is not configured for this app")
 	}
-	res, err := s.attestors.KeyAttestation.Verify(chain, sub.challenge, keyattest.Policy{
+	res, err := s.attestors.KeyAttestation.Verify(ctx, chain, sub.challenge, keyattest.Policy{
 		PackageNames: trust.AndroidPackages, SigningCertDigests: trust.AndroidCertDigests,
 		RequireHardware: proof.KeyStorage.hardware(),
 	})
@@ -485,6 +485,41 @@ func (s *Service) trustOf(ctx context.Context, appID string) (TrustConfig, error
 // verify checks the evidence of whichever provider it names, then checks
 // the key storage the device claimed against what was proven.
 func (s *Service) verify(ctx context.Context, sub subject, e Evidence) (verified, error) {
+	v, err := s.verifyEvidence(ctx, sub, e)
+	if s.onAttestation != nil {
+		s.onAttestation(e.platform(), verdictOf(err))
+	}
+	return v, err
+}
+
+// platform names the platform the evidence is from, for the metrics.
+func (e Evidence) platform() string {
+	switch {
+	case e.Development != nil:
+		return "development"
+	case e.Android != nil:
+		return "android"
+	default:
+		return "ios"
+	}
+}
+
+// verdictOf classifies the outcome of a verification: evidence that
+// failed, a verification that could not be made, or neither.
+func verdictOf(err error) string {
+	switch code, _ := plxerr.CodeOf(err); {
+	case err == nil:
+		return AttestationVerified
+	case code == plxerr.AttestationUnavailable:
+		return AttestationUnavailable
+	default:
+		return AttestationFailed
+	}
+}
+
+// verifyEvidence checks the evidence of whichever provider it names, then
+// checks the key storage the device claimed against what was proven.
+func (s *Service) verifyEvidence(ctx context.Context, sub subject, e Evidence) (verified, error) {
 	var (
 		v   verified
 		err error
@@ -497,7 +532,7 @@ func (s *Service) verify(ctx context.Context, sub subject, e Evidence) (verified
 			return verified{}, err
 		}
 		if e.Android != nil {
-			v, err = s.verifyAndroid(sub, trust, *e.Android)
+			v, err = s.verifyAndroid(ctx, sub, trust, *e.Android)
 		} else {
 			v, err = s.verifyIOS(sub, trust, *e.IOS)
 		}
@@ -539,7 +574,7 @@ func (k KeyStorage) covers(claim KeyStorage) bool {
 // verifyAndroid checks a Key Attestation chain and a Play Integrity
 // token. The attested key must be the DPoP key itself, or the chain
 // would prove another key (SEC-003).
-func (s *Service) verifyAndroid(sub subject, trust TrustConfig, e AndroidEvidence) (verified, error) {
+func (s *Service) verifyAndroid(ctx context.Context, sub subject, trust TrustConfig, e AndroidEvidence) (verified, error) {
 	if s.attestors.KeyAttestation == nil || s.attestors.PlayIntegrity == nil ||
 		len(trust.AndroidPackages) == 0 || trust.PlayIntegrity == nil {
 		return verified{}, plxerr.New(plxerr.AttestationUnavailable, "Android attestation is not configured for this app")
@@ -547,7 +582,7 @@ func (s *Service) verifyAndroid(sub subject, trust TrustConfig, e AndroidEvidenc
 	if len(e.KeyAttestationChain) == 0 || e.PlayIntegrityToken == "" {
 		return verified{}, plxerr.New(plxerr.AttestationFailed, "Android evidence needs a key attestation chain and a Play Integrity token")
 	}
-	res, err := s.attestors.KeyAttestation.Verify(e.KeyAttestationChain, sub.challenge, keyattest.Policy{
+	res, err := s.attestors.KeyAttestation.Verify(ctx, e.KeyAttestationChain, sub.challenge, keyattest.Policy{
 		PackageNames: trust.AndroidPackages, SigningCertDigests: trust.AndroidCertDigests,
 		RequireHardware: sub.settings.requireHardware(),
 	})

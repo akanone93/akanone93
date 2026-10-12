@@ -2759,6 +2759,8 @@ auth:
     dpop: { iatWindow: "60s", nonceRotation: "5m", replayCache: { fallback: "memory" } }  # installation defaults; the replay cache uses cache.valkeyURL
 attestation:
   developmentProvider: false         # true only for development and test installations; production environments refuse it regardless (SEC-008)
+  android:
+    statusListFile: ""               # a copy of Google's attestation status list for installations that cannot reach Google (DEP-040); empty makes the worker fetch https://android.googleapis.com/attestation/status (SEC-002)
   apps:                              # per app, keyed by app ID; moves to the per-app security configuration API (SEC-182)
     "01d0c450-…":
       androidPackages: ["com.acme.app"]

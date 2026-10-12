@@ -68,6 +68,9 @@ const (
 	// AttestPlayIntegrityTokenBytes: Size of a Play Integrity token the server
 	// accepts. (SEC-003)
 	AttestPlayIntegrityTokenBytes Key = "attest.playIntegrityTokenBytes"
+	// AttestStatusListBytes: Size of the Android attestation status list the
+	// server fetches or reads. (SEC-002)
+	AttestStatusListBytes Key = "attest.statusListBytes"
 	// AuthFailedSignIns: Failed passwords or one-time codes one account may
 	// present in fifteen minutes before sign-in is refused. (SEC-100)
 	AuthFailedSignIns Key = "auth.failedSignIns"
@@ -319,6 +322,7 @@ var registry = [...]Definition{
 	{Key: AttestAppAttestObjectBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 262144, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of an App Attest attestation object or assertion."},
 	{Key: AttestKeyAttestationChainCerts, Unit: UnitCount, Default: 10, Warning: 0, Max: 16, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Certificates an Android Key Attestation chain may hold."},
 	{Key: AttestPlayIntegrityTokenBytes, Unit: UnitBytes, Default: 16384, Warning: 0, Max: 65536, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of a Play Integrity token the server accepts."},
+	{Key: AttestStatusListBytes, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 33554432, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of the Android attestation status list the server fetches or reads."},
 	{Key: AuthFailedSignIns, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused."},
 	{Key: BundleDeviceFunctionModuleSize, Unit: UnitBytes, Default: 4194304, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P7", Description: "Size of the WebAssembly module of the device-placed functions of one plugin."},
 	{Key: BundlePageSectionSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Size of one page section in a bundle."},

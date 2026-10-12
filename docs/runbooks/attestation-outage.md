@@ -19,11 +19,18 @@ against Apple's embedded root. So an "outage" is one of these:
 | Google rotated an attestation root | Server build | Android Key Attestation chains stop verifying (`PLX-6001`); the roots are embedded and need a server release |
 | The challenge store is down | Valkey | Registration fails; see [replay-cache outage](replay-cache-outage.md) |
 
-**As built (P6).** The setting `attestationOutageGrace` (24 h, 1 h, `0` fail closed) is in
-the registry but the server does not read it yet (`SEC-009`), and there is no grace
-period. The server does not fetch Google's certificate status list; the verifier supports
-one, but nothing loads it. Apple's fraud-metric receipt is not checked, so iOS stops at
-`AL2`. This runbook describes what happens today.
+**As built (P6).** The setting `attestationOutageGrace` (24 h, 1 h, `0` fail closed) applies
+when the attestation provider is unavailable. The only provider the server calls is Google's
+attestation status list, which the worker fetches every ten minutes, within the freshness
+Google allows, and shares through the cache; an installation without access to Google names a
+copy in `attestation.android.statusListFile`. While the server has no fresh list, a
+registration fails with `PLX-6009`, because a chain cannot be judged unrevoked. A device that
+re-attests during the outage keeps its last known level and attestation time, and can refresh,
+until `reattestationInterval` plus the grace has passed since it last attested; then it gets
+`PLX-6007`, and `PLX-6009` when it tries to re-attest. Under `maximum` (grace `0`) there is no
+grace. Evidence that fails verification, a missing app configuration and a first
+registration are never graced. Apple's fraud-metric receipt is not checked, so iOS stops at
+`AL2`.
 
 ## Signals
 
@@ -32,7 +39,7 @@ one, but nothing loads it. Apple's fraud-metric receipt is not checked, so iOS s
 | `plux_rpc_requests_total{service="plux.v1.DeviceService", method=~"RegisterAttestedDevice\|ReattestDevice", code!="ok"}` | Registration and re-attestation failures. A step change is the signal |
 | `plux_rpc_requests_total{service="plux.v1.TokenService", method="RefreshDeviceToken", code!="ok"}` | Devices that cannot refresh (after 24 h without re-attestation: `PLX-6007`) |
 | `plux_rpc_duration_seconds` for the same methods | Slowness points at the challenge store or database |
-| `plux_attestation_results_total{platform, verdict}` | Catalogued in Appendix G.1; not yet exported by the server. Check `/metrics`; until it appears use the RPC counters above |
+| `plux_attestation_results_total{platform, verdict}` | Verifications by platform (`android`, `ios`, `development`) and verdict (`verified`, `failed`, `unavailable`). A rise of `unavailable` is this runbook's signal |
 | `attestation_result` telemetry events | Provider, result, level, no device identifiers. Group by provider |
 | Server logs (JSON) | The one line with the incident ID of an internal failure; verification failures name the check that failed, never the evidence |
 | Device `onError` | `PLX-6009` and `PLX-6001` from the host app's error hook |

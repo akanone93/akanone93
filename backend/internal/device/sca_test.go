@@ -31,7 +31,7 @@ type scaKeyAttestor struct {
 	err    error
 }
 
-func (a *scaKeyAttestor) Verify(_ [][]byte, _ []byte, p keyattest.Policy) (keyattest.Result, error) {
+func (a *scaKeyAttestor) Verify(_ context.Context, _ [][]byte, _ []byte, p keyattest.Policy) (keyattest.Result, error) {
 	a.policy = p
 	if a.err != nil {
 		return keyattest.Result{}, a.err

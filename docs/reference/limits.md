@@ -28,6 +28,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `attest.appAttestObjectBytes` | bytes | 65536 | 80% | 262144 | installation | P6 | SEC-004 | Size of an App Attest attestation object or assertion. |
 | `attest.keyAttestationChainCerts` | count | 10 | 80% | 16 | installation | P6 | SEC-002 | Certificates an Android Key Attestation chain may hold. |
 | `attest.playIntegrityTokenBytes` | bytes | 16384 | 80% | 65536 | installation | P6 | SEC-003 | Size of a Play Integrity token the server accepts. |
+| `attest.statusListBytes` | bytes | 8388608 | 80% | 33554432 | installation | P6 | SEC-002 | Size of the Android attestation status list the server fetches or reads. |
 | `auth.failedSignIns` | count | 10 | 80% | 1000 | installation | P2 | SEC-100 | Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused. |
 | `bundle.deviceFunctionModuleSize` | bytes | 4194304 | 80% | 67108864 | installation, organization, app, plugin | P7 | FN-050 | Size of the WebAssembly module of the device-placed functions of one plugin. |
 | `bundle.pageSectionSize` | bytes | 1048576 | 80% | 16777216 | installation, organization, app, plugin | P1 | BND-010 | Size of one page section in a bundle. |

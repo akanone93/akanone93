@@ -118,6 +118,8 @@ telemetry:
   retentionDays: 30             # events older than this are purged by the maintenance sweep (SEC-160)
 attestation:
   developmentProvider: false    # true only for development and test installations; production environments refuse it (SEC-008)
+  android:
+    statusListFile: ""          # a copy of Google's attestation status list for installations that cannot reach Google (DEP-040); empty makes the worker fetch https://android.googleapis.com/attestation/status (SEC-002)
   apps:                         # per app ID, until the per-app security configuration carries it (ADR-0012)
     "01d0c450-…":
       androidPackages: ["com.acme.app"]
@@ -310,3 +312,21 @@ The first administrator is created with `plux-server bootstrap`; everyone
 else is invited by an organisation's owner. The API's credentials, the
 organisation header and the error each refusal returns are in
 [api.md](api.md) §4.
+
+On the same queue the worker keeps Google's Android attestation status list
+current (`SEC-002`). Every ten minutes it checks the list in the shared
+cache and, when it is half way through the freshness the response allows
+(its `Cache-Control: max-age`, clamped between five minutes and a day,
+an hour when absent) or the cache lost it, fetches it through the SSRF-safe
+client with a conditional request and publishes it to the cache, bounded by
+the limit `attest.statusListBytes`. The api role reads it from there, and
+every certificate serial of a Key Attestation chain is checked against it:
+a listed serial, whether `REVOKED` or `SUSPENDED`, refuses the chain. A list
+that is absent or has expired is not an empty list; registration then fails
+as an outage of the attestation provider, which the setting
+`attestationOutageGrace` governs (`SEC-009`, `PLX-6009`). An installation
+that cannot reach Google names a copy of the list in
+`attestation.android.statusListFile` (`DEP-040`): every replica reads the
+file itself, re-reads it when it changes and keeps the last good list while
+it is unreadable, and the worker fetches nothing. The file is checked when
+the configuration is validated.

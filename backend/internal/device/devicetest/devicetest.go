@@ -67,7 +67,7 @@ type KeyAttestor struct {
 }
 
 // Verify records the call and returns the configured outcome.
-func (f *KeyAttestor) Verify(chain [][]byte, challenge []byte, p keyattest.Policy) (keyattest.Result, error) {
+func (f *KeyAttestor) Verify(_ context.Context, chain [][]byte, challenge []byte, p keyattest.Policy) (keyattest.Result, error) {
 	f.Challenge, f.Policy = challenge, p
 	if f.Err != nil {
 		return keyattest.Result{}, f.Err

@@ -420,6 +420,23 @@
       "description": "Size of a Play Integrity token the server accepts."
     },
     {
+      "key": "attest.statusListBytes",
+      "unit": "bytes",
+      "default": 8388608,
+      "max": 33554432,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P6",
+      "requirements": [
+        "SEC-002"
+      ],
+      "description": "Size of the Android attestation status list the server fetches or reads."
+    },
+    {
       "key": "auth.failedSignIns",
       "unit": "count",
       "default": 10,

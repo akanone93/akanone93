@@ -68,12 +68,14 @@ level. You choose one per app and environment, in the app document
 | Inactivity lock on secure pages (`inactivityLock`) | off | on, 300 s | on, 120 s |
 | Registration challenge lifetime | 300 s | 300 s | 120 s |
 
-† **Defined, not applied yet.** The registry and the presets above are final, but the server
-does not read `attestationOutageGrace` yet (`SEC-009`), and it takes `replayCacheFallback`
-from the installation's default (`memory`), not from each environment, so `maximum` does not
-yet fail closed when the replay cache is down ([replay-cache outage](../runbooks/replay-cache-outage.md)).
-`riskMetricMaxAL3` waits for Apple's fraud-metric receipt, and `defaultFunctionAssurance`
-for functions (P7).
+† **Applied per environment.** `attestationOutageGrace` keeps a device's last known level for
+the grace after its attestation falls due, but only when its re-attestation met an outage of
+the attestation provider, such as an unavailable Android status list; failing evidence and a
+first registration are never graced, and `0` fails closed with `PLX-6009` ([attestation
+outage](../runbooks/attestation-outage.md)). `replayCacheFallback` is read from each
+environment, so `maximum` fails closed when the replay cache is down ([replay-cache
+outage](../runbooks/replay-cache-outage.md)). `riskMetricMaxAL3` waits for Apple's
+fraud-metric receipt, and `defaultFunctionAssurance` for functions (P7).
 
 The full list, with units, hard bounds and which settings travel to the device, is
 `schema/security/settings.json` and `plux security config show`. Settings that later phases

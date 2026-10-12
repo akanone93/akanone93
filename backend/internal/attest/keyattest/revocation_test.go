@@ -4,9 +4,13 @@
 package keyattest
 
 import (
+	"context"
+	"crypto/elliptic"
+	"errors"
 	"math/big"
 	"testing"
 
+	"github.com/nightCode42/plux3/backend/internal/attest"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
 
@@ -65,5 +69,58 @@ func TestParseRevocationsMalformed(t *testing.T) {
 			}
 			wantCode(t, err, plxerr.AttestationFailed)
 		})
+	}
+}
+
+// fixedSource is a RevocationSource with a fixed answer.
+type fixedSource struct {
+	list *Revocations
+	err  error
+}
+
+func (f fixedSource) Revocations(context.Context) (*Revocations, error) { return f.list, f.err }
+
+// Verifies: SEC-002, SEC-009.
+// A source supplies the list for every verification: a listed serial,
+// revoked or suspended, refuses the chain, and a source that has no list
+// makes it an outage of the provider, never an acceptance.
+func TestVerifierSource(t *testing.T) {
+	revoked, err := ParseRevocations([]byte(`{"entries":{"2":{"status":"REVOKED"}}}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	suspended, err := ParseRevocations([]byte(`{"entries":{"03":{"status":"SUSPENDED"}}}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	other, err := ParseRevocations([]byte(`{"entries":{"ffff":{"status":"REVOKED"}}}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	validKD := encodeKD(validSpec())
+	run := func(src RevocationSource) error {
+		p := newPKI(t, nil)
+		v := p.verifier(nil)
+		v.Source = src
+		_, err := v.Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
+		return err
+	}
+	if err := run(fixedSource{list: other}); err != nil {
+		t.Errorf("a list without these serials: %v", err)
+	}
+	wantCode(t, run(fixedSource{list: revoked}), plxerr.AttestationFailed)
+	wantCode(t, run(fixedSource{list: suspended}), plxerr.AttestationFailed)
+	err = run(fixedSource{err: errors.New("no list")})
+	wantCode(t, err, plxerr.AttestationUnavailable)
+	if !errors.Is(err, attest.ErrProviderUnavailable) {
+		t.Errorf("an unavailable list is not marked as the provider's outage: %v", err)
+	}
+
+	// The source wins over the fixed list.
+	p := newPKI(t, nil)
+	v := p.verifier(revoked)
+	v.Source = fixedSource{list: other}
+	if _, err := v.Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy()); err != nil {
+		t.Errorf("the fixed list applied beside a source: %v", err)
 	}
 }

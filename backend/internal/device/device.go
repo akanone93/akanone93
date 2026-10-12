@@ -85,7 +85,21 @@ type Options struct {
 	// off unless the installation enables it, and production environments
 	// refuse it regardless.
 	DevelopmentProvider bool
+	// OnAttestation, when set, hears the platform ("android", "ios" or
+	// "development") and the verdict (the Attestation constants) of every
+	// verification of evidence, for the metrics.
+	OnAttestation func(platform, verdict string)
 }
+
+// The verdicts OnAttestation hears.
+const (
+	// AttestationVerified is evidence that passed every check.
+	AttestationVerified = "verified"
+	// AttestationFailed is evidence that failed a check.
+	AttestationFailed = "failed"
+	// AttestationUnavailable is a verification that could not be made.
+	AttestationUnavailable = "unavailable"
+)
 
 // Service is the domain logic of devices.
 type Service struct {
@@ -105,7 +119,8 @@ type Service struct {
 	accessTokenLifetime time.Duration
 	developmentProvider bool
 	// production remembers which environments are production ones.
-	production *productionCache
+	production    *productionCache
+	onAttestation func(platform, verdict string)
 }
 
 // NewService returns the service.
@@ -124,7 +139,7 @@ func NewService(o Options) (*Service, error) {
 	return &Service{
 		db: o.DB, ids: o.IDs, now: now, random: random, cache: o.Cache, audit: o.Audit,
 		attestors: o.Attestors, appTrust: o.AppTrust, profiles: o.Profiles, config: o.Config, tokens: o.Tokens, production: &productionCache{},
-		accessTokenLifetime: o.AccessTokenLifetime, developmentProvider: o.DevelopmentProvider,
+		accessTokenLifetime: o.AccessTokenLifetime, developmentProvider: o.DevelopmentProvider, onAttestation: o.OnAttestation,
 	}, nil
 }
 
@@ -346,4 +361,36 @@ func maxUUID(c storage.Cursor) pgtype.UUID {
 		return u
 	}
 	return storage.MustUUID(c.ID)
+}
+
+// maxAssuranceGroups bounds how many (app, level) groups AssuranceCounts
+// returns, so the metric built on it has bounded cardinality.
+const maxAssuranceGroups = 4000
+
+// AssuranceCount is the number of devices of one app that hold one
+// assurance level.
+type AssuranceCount struct {
+	AppID string
+	Level string
+	Count int64
+}
+
+// AssuranceCounts counts the devices that are not revoked by app and
+// assurance level, across all organisations, for the metrics (SEC-007).
+// It reads aggregates only and returns at most maxAssuranceGroups groups.
+func (s *Service) AssuranceCounts(ctx context.Context) ([]AssuranceCount, error) {
+	var rows []dbgen.CountDevicesByAssuranceRow
+	err := s.db.InTx(ctx, storage.Tenant{Scope: storage.ScopeAuthentication}, func(ctx context.Context, tx pgx.Tx) error {
+		var err error
+		rows, err = dbgen.New(tx).CountDevicesByAssurance(ctx, maxAssuranceGroups)
+		return err //nolint:wrapcheck // wrapped below
+	})
+	if err != nil {
+		return nil, fmt.Errorf("device: count by assurance: %w", err)
+	}
+	out := make([]AssuranceCount, len(rows))
+	for i, r := range rows {
+		out[i] = AssuranceCount{AppID: storage.ID(r.AppID), Level: r.AssuranceLevel, Count: r.Devices}
+	}
+	return out, nil
 }

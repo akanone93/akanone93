@@ -99,8 +99,20 @@ type Attestation struct {
 	// that are not production ones. It is off by default, so a server
 	// trusts no device it cannot verify until an operator says so.
 	DevelopmentProvider bool `json:"developmentProvider"`
+	// Android configures what the server asks of Google beyond the app's
+	// own builds.
+	Android AndroidAttestation `json:"android"`
 	// Apps maps an app identifier (a UUID) to its builds.
 	Apps map[string]AppAttestation `json:"apps"`
+}
+
+// AndroidAttestation configures the Key Attestation verifier.
+type AndroidAttestation struct {
+	// StatusListFile is a copy of Google's attestation status list
+	// (https://android.googleapis.com/attestation/status) that the operator
+	// keeps current, for an installation that cannot reach Google
+	// (DEP-040). Empty makes the worker fetch the list (SEC-002).
+	StatusListFile string `json:"statusListFile"`
 }
 
 // AppAttestation is what the server trusts about one app's builds.

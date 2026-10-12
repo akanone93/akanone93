@@ -22,11 +22,17 @@ for integrators who call it as plain HTTP/JSON.
 | `PublishService` | Publish jobs with streamed progress | `SRV-050`, `SRV-051` |
 | `ReleaseService` | Plugin versions, app releases, promotion, rollback, changelog, compatibility by runtime and host build | `REL-001`–`REL-007`, `REL-080`, `REL-081` |
 | `ManifestService` | Signed manifest, sync plan, public keys | `REL-020`–`REL-024`, `REL-030`–`REL-033` |
-| `DeviceService` | Device registration and installed releases | `GOV-010`, `REL-080` |
-| `TokenService` | Short-lived device tokens | `GOV-010`, `SRV-065` |
+| `DeviceService` | Registration challenges, attested registration, re-attestation, revocation, SCA key enrolment, installed releases | `SEC-001`–`SEC-006`, `SEC-027`, `REL-080` |
+| `TokenService` | DPoP-bound device access tokens, their refresh, and the exchange of an end user's token for an upstream's | `SEC-020`, `SEC-025`, `SEC-026` |
+| `GatewayService` | `Call`: a request to a configured upstream made through the server, which holds the upstream's credentials | `SEC-030`, `SEC-031` |
+| `ScaService` | `CreateTransactionChallenge`: the single-use challenge a user's confirmation of a transaction is signed over | `SEC-027`, `SEC-028`, `SEC-032` |
+| `SecurityAdminService` | An environment's security configuration, upstreams, the user identity provider, and the signed audit checkpoints | `SEC-180`–`SEC-182`, `SEC-026`, `SEC-031`, `SEC-141` |
 | `TelemetryService` | Runtime event ingestion and listing | Appendix G.2, `SCH-012` |
 | `ControlService` | Kill switches and the mandatory-update flag | `REL-030` |
 | `NativeCatalogueService` | Host builds' native catalogues, immutable once uploaded; publishing checks plugins against them, and a build that cannot run a release gets a manifest of the newest release it can | `CLI-006`, `WGT-032`, `REL-080` |
+
+Besides the procedures, the api role serves the HTTP form of the gateway,
+`/gateway/v1/{upstream}/{path}` ([Gateway](#gateway)).
 
 Services listed in `SRV-003` for later phases — rollouts, experiments,
 functions, localisation, approvals, dev sessions, AI, payments, admin —
@@ -167,20 +173,130 @@ diagnostics are errors, so every problem is reported at once.
 | Studio | the `__Host-plux_session` cookie (`HttpOnly`, `Secure`, `SameSite=Strict`, `Path=/`) set by `StartPasswordLogin` or `CompleteMfa`, plus the session's CSRF token in `X-CSRF-Token` on **every** call made with it (`SEC-101`) |
 | CLI | `Authorization: Bearer plux_pat_…`: a personal access token, or one obtained by `plux login` through the OAuth 2.0 device authorization grant (`CLI-002`) |
 | CI | a bearer token exchanged by `ExchangeWorkloadIdentity` from the provider's OpenID Connect identity token, with no long-lived secret (`SRV-064`) |
-| Device | `Authorization: Bearer plux_dat_…`: a 15-minute token from `IssueDeviceToken`, exchanged for the `plux_dsec_…` credential `RegisterDevice` returned once; sender-constrained with DPoP and backed by attestation from P6 |
+| Device | `Authorization: DPoP <access token>` and a `DPoP` proof header: a short-lived RFC 9068 JWT bound to the device's hardware key, obtained by attested registration and `RefreshDeviceToken` ([Device authentication](#device-authentication)). The P2 `plux_dat_…` bearer tokens are gone; `RegisterDevice` and `IssueDeviceToken` answer `PLX-6008` |
 
-A request carrying both a cookie and a bearer token is refused. The
-procedures that take no credential authenticate by what they carry:
+A request carrying both a cookie and a bearer token is refused. The procedures that take no credential authenticate by what they carry:
 `AcceptInvitation`, `StartPasswordLogin`, `CompleteMfa`,
 `StartDeviceAuthorization`, `PollDeviceAuthorization`,
-`ExchangeWorkloadIdentity`, `RegisterDevice` and `IssueDeviceToken`.
+`ExchangeWorkloadIdentity`, `CreateRegistrationChallenge` and
+`RegisterAttestedDevice` (the last two carry attestation evidence bound to
+a challenge). `RegisterDevice` and `IssueDeviceToken` are declared but
+refused with `PLX-6008`, so the contract only grows.
 
-A device token opens exactly four procedures — `GetManifest`,
-`GetRootKeys`, `ReportInstalled` and `IngestEvents` — and those need one,
-except `GetRootKeys`, which people and CI may also call for an
-environment of an app they can read (`plux pull`). Every other procedure
-refuses a device token. A device's calls count against its own allowance,
+`SecurityAdminService` is for administrators: it takes the people's
+credentials above, never a device token.
+
+### Device authentication
+
+A device proves possession of a hardware-bound key on every call (`SEC-001`,
+`SEC-020`, `SEC-021`;
+[ADR-0012](../adr/0012-dpop-hardware-keys-and-attestation.md)).
+
+1. **Registration challenge.** `CreateRegistrationChallenge(app_id,
+   environment)` returns a random, single-use challenge, valid for the
+   setting `registrationChallengeTtl` (at most five minutes) and bound to
+   the app and environment (`SEC-005`). It needs no credential.
+2. **Attested registration.** `RegisterAttestedDevice` carries the
+   challenge, the device's DPoP public key as a JWK, where it claims the
+   key lives (`key_storage`), and `evidence`: an Android Key Attestation
+   chain with a Play Integrity token, an iOS App Attest attestation, or,
+   in non-production environments that allow it, development evidence. The
+   server verifies the evidence against the challenge and the thumbprints
+   of every key registered with it (`SEC-002`–`SEC-004`), computes the
+   assurance level `AL0` to `AL3` (`SEC-007`) and stores the key's
+   thumbprint. It returns the `Device`; the level is the server's, the
+   device never claims one. A software key is refused (`PLX-6003`) unless
+   the environment allows it, and a verification that cannot be made
+   because the attestation provider is unavailable follows
+   `attestationOutageGrace` (`PLX-6009`, `SEC-009`).
+3. **Access token.** `RefreshDeviceToken` issues the token and is also how
+   the first one is obtained. The DPoP proof alone authenticates it, and the
+   proof's key must be the named device's (`PLX-6013`). An iOS device adds
+   an App Attest assertion over the proof, an Android device a Play
+   Integrity token where `androidRefreshRequiresIntegrity` is set
+   (`SEC-025`). The response carries `access_token`, `expires_at`,
+   `token_type` (`DPoP`) and `assurance_level`. There is no refresh token. A
+   device whose attestation is older than `reattestationInterval` gets
+   `PLX-6007` and must re-attest first.
+4. **Re-attestation and revocation.** `ReattestDevice` takes a fresh
+   challenge and new evidence for the same DPoP key and recomputes the
+   level (`SEC-006`); like the refresh it is authenticated by the proof
+   alone. `EnrolScaKey` stores the key behind strong customer
+   authentication once its attestation is verified (`SEC-027`).
+   `RevokeDevice`, for administrators, withdraws a device: its tokens stop
+   working on every replica and it cannot refresh (`PLX-6006`).
+
+The **access token** is an RFC 9068 JWT (`typ: at+jwt`, ES256, signed by a
+key of the environment's class) with the claims `iss`, `aud` (both the
+server's public base URL), `sub` (the device), `client_id` (the app), `env`,
+`org`, `hb` (the host build), `al` (the assurance level), `cnf.jkt` (the
+key's thumbprint, RFC 7800), `iat`, `exp` and `jti`. Its lifetime is the
+setting `accessTokenLifetime`, never more than 15 minutes (`SEC-020`).
+
+A **DPoP proof** (RFC 9449) is an ES256 JWT with `typ: dpop+jwt` and the
+public key in its header. Its claims are `htm` (the HTTP method; `POST` for
+every Connect call), `htu` (the public base URL and the procedure's path),
+`iat`, a unique `jti`, the server's current `nonce`, and, on a call that
+presents an access token, `ath`, the token's hash (`SEC-021`, `SEC-022`). A
+proof is accepted once (`PLX-6011`) and only within the window
+`dpopIatWindow`, narrowed to `dpopIatWindowFallback` while the replay cache
+is degraded; an environment whose `replayCacheFallback` is `failClosed`
+refuses instead (`PLX-6015`, `SEC-023`).
+
+**Nonces.** Every response to a device call, successful or not, carries the
+server's current `DPoP-Nonce`. A proof without it, or with a stale one, is
+refused with `PLX-6012`, HTTP 401 and `WWW-Authenticate: DPoP
+error="use_dpop_nonce"`; the device retries once with the nonce of the
+response (`SEC-024`). Other refusals name their cause in the same header:
+`invalid_dpop_proof` (`PLX-6010`, `PLX-6011`, `PLX-6013`) and
+`invalid_token` (`PLX-6014`, `PLX-6006`).
+
+A device token opens these procedures and no others:
+
+| Procedure | Needs |
+|---|---|
+| `ManifestService.GetManifest`, `ManifestService.GetRootKeys`, `DeviceService.ReportInstalled`, `TelemetryService.IngestEvents` | token and proof |
+| `GatewayService.Call`, `ScaService.CreateTransactionChallenge`, `TokenService.ExchangeUserToken`, `DeviceService.EnrolScaKey` | token and proof |
+| `TokenService.RefreshDeviceToken`, `DeviceService.ReattestDevice` | proof alone |
+
+`GetRootKeys` is also open to people and CI for an environment of an app
+they can read (`plux pull`). Every other procedure refuses a device token. A
+device's calls count against its own allowance,
 `api.requestsPerMinutePerDevice` (`SRV-065`).
+
+### Gateway
+
+`GatewayService.Call` forwards one request to an upstream registered with
+`SecurityAdminService.CreateUpstream`: it names the upstream, an optional
+operation, the method, the path, the headers the upstream may receive and
+the body. The server applies the environment's security configuration and
+adds the upstream's credentials, which the device never sees (`SEC-030`,
+`SEC-031`). An operation that needs a confirmation takes
+`transaction_challenge_id` and `transaction_signature` (ES256, 64 bytes) from
+`ScaService.CreateTransactionChallenge` and the device's SCA key
+(`SEC-032`). An end user's token travels in the `Plux-User-Token` header;
+`TokenService.ExchangeUserToken` trades it, following RFC 8693, for a token
+scoped to one upstream audience (`SEC-026`).
+
+A body that must stream, a WebSocket or server-sent events use the HTTP
+route `/gateway/v1/{upstream}/{path}` instead: the method the device wants,
+the same `Authorization: DPoP` token and `DPoP` proof (with the request's own
+method and path as `htm` and `htu`), and the other typed fields as the
+headers `Plux-Operation`, `Plux-Plugin`, `Plux-User-Token`,
+`Plux-Challenge-Id` and `Plux-Transaction-Signature`. Both bodies are
+streamed; only a transaction's is read, up to `gateway.requestBytes`.
+
+### Security administration
+
+`SecurityAdminService` sets and reads an environment's security
+configuration (`SetSecurityConfig`, which takes `expected_version`, and
+`GetEffectiveSecurityConfig`), registers the upstreams of its gateway
+(`CreateUpstream`, `GetUpstream`, `ListUpstreams`, `UpdateUpstream`,
+`DeleteUpstream`), sets the identity provider whose user tokens may be
+exchanged (`SetUserIdentityProvider`, `GetUserIdentityProvider`,
+`DeleteUserIdentityProvider`) and lists the signed checkpoints over the
+audit log (`ListAuditCheckpoints`, `SEC-141`). A setting may only tighten
+the profile's preset (`PLX-6041`, `PLX-6042`).
 
 ### Manifest and sync plan
 
