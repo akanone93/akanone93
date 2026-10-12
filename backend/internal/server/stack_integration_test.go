@@ -5,10 +5,13 @@ package server
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"encoding/json"
 	"io/fs"
+	"maps"
 	"net"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -51,6 +54,9 @@ type stackOptions struct {
 	// extraYAML is added to the configuration as further top-level
 	// sections.
 	extraYAML string
+	// identityHTTP reads the identity providers' key sets, for a provider
+	// the test runs on loopback behind its own authority.
+	identityHTTP *http.Client
 }
 
 // deviceAddr is fixed when a device runs the flows (PLUX_E2E_DEVICE): the
@@ -117,7 +123,11 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 		"signing:\n  directory: \""+filepath.Join(dir, "keys")+"\"\n"+
 		"attestation:\n  developmentProvider: true\n"+o.extraYAML)
 	ctx, cancel := context.WithCancel(context.Background())
-	built, err := Build(ctx, cfg, discard(), "test")
+	var build []BuildOption
+	if o.identityHTTP != nil {
+		build = append(build, WithIdentityProviderClient(o.identityHTTP))
+	}
+	built, err := Build(ctx, cfg, discard(), "test", build...)
 	if err != nil {
 		cancel()
 		t.Fatalf("Build: %v", err)
@@ -217,13 +227,22 @@ func (s *stack) project(t *testing.T, fixture string) string {
 // data source of the project that goes through the gateway, named as the
 // source, at the base URL the environment gives the source, with the
 // source's operations: a release is refused without them (SEC-030,
-// SEC-031). A source that calls a public API declares `route: direct` in
-// its fixture instead.
-func (s *stack) registerUpstreams(t *testing.T, project, environment string) {
+// SEC-031). An operation is limited to its method and to the literal start
+// of its path, and an operation of a source with a transaction mapping is
+// registered as the transaction the document declares (SEC-028), so the
+// release check finds the registry and the document agree. A source that
+// calls a public API declares `route: direct` in its fixture instead.
+// Every upstream names audience in its assertions, when it is not empty.
+func (s *stack) registerUpstreams(t *testing.T, project, environment, audience string) {
 	t.Helper()
 	gatewayKinds := map[string]bool{"rest": true, "graphql": true, "websocket": true, "sse": true}
-	operations := map[string][]string{}
-	baseVariable := map[string]string{}
+	type operation struct{ method, path string }
+	type source struct {
+		baseVariable string
+		operations   map[string]operation
+		transaction  map[string]string
+	}
+	sources := map[string]source{}
 	values := map[string]string{}
 	err := filepath.WalkDir(project, func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() || filepath.Ext(path) != ".json" {
@@ -236,9 +255,10 @@ func (s *stack) registerUpstreams(t *testing.T, project, environment string) {
 		var doc struct {
 			DataSources []struct {
 				Name, Kind, Route string
+				Transaction       map[string]string
 				Config            struct {
 					BaseURL    string
-					Operations map[string]json.RawMessage
+					Operations map[string]struct{ Method, Path string }
 				}
 			}
 			Environments []struct {
@@ -263,40 +283,63 @@ func (s *stack) registerUpstreams(t *testing.T, project, environment string) {
 			if !gatewayKinds[src.Kind] || src.Route == "direct" {
 				continue
 			}
-			baseVariable[src.Name] = src.Config.BaseURL
-			for op := range src.Config.Operations {
-				operations[src.Name] = append(operations[src.Name], op)
+			entry := source{baseVariable: src.Config.BaseURL, operations: map[string]operation{}, transaction: src.Transaction}
+			for name, op := range src.Config.Operations {
+				entry.operations[name] = operation{method: op.Method, path: op.Path}
 			}
-			if _, ok := operations[src.Name]; !ok {
-				operations[src.Name] = nil
-			}
+			sources[src.Name] = entry
 		}
 		return nil
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	envs, err := s.svc.Tenancy.ListEnvironments(s.ctx, s.owner, s.app.ID, tenancy.Page{Size: 10})
-	if err != nil {
-		t.Fatal(err)
-	}
-	var envID string
-	for _, e := range envs {
-		if e.Key == environment {
-			envID = e.ID
-		}
-	}
-	for name, ops := range operations {
-		slices.Sort(ops)
+	envID := s.environmentID(t, environment)
+	for name, src := range sources {
 		u := gateway.Upstream{
-			AppID: s.app.ID, EnvironmentID: envID, Name: name, BaseURL: values[baseVariable[name]], Auth: gateway.Auth{Kind: gateway.AuthNone},
-			AllowPrivate: true, Methods: []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
+			AppID: s.app.ID, EnvironmentID: envID, Name: name, BaseURL: values[src.baseVariable], Auth: gateway.Auth{Kind: gateway.AuthNone},
+			AllowPrivate: true, Methods: []string{"GET", "POST", "PUT", "PATCH", "DELETE"}, Audience: audience,
 		}
-		for _, op := range slices.Compact(ops) {
-			u.Operations = append(u.Operations, gateway.Operation{Name: op})
+		for _, opName := range slices.Sorted(maps.Keys(src.operations)) {
+			op := src.operations[opName]
+			registered := gateway.Operation{Name: opName, Methods: []string{cmp.Or(strings.ToUpper(op.method), "POST")}}
+			// The literal start of the path: what comes before a placeholder.
+			prefix, _, _ := strings.Cut(op.path, "{")
+			registered.PathPrefix = strings.TrimSuffix(prefix, "/")
+			if m := src.transaction; m != nil && registered.Methods[0] != "GET" {
+				registered.Transaction = &gateway.Transaction{Amount: m["amount"], Currency: m["currency"], Payee: m["payee"], Summary: m["summary"]}
+			}
+			u.Operations = append(u.Operations, registered)
 		}
 		if _, err := s.svc.Gateway.Upstreams.Create(s.ctx, s.owner, u); err != nil {
 			t.Fatalf("register upstream %s: %v", name, err)
 		}
+	}
+}
+
+// environmentID is the ID of the app's environment with the key.
+func (s *stack) environmentID(t *testing.T, key string) string {
+	t.Helper()
+	envs, err := s.svc.Tenancy.ListEnvironments(s.ctx, s.owner, s.app.ID, tenancy.Page{Size: 10})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range envs {
+		if e.Key == key {
+			return e.ID
+		}
+	}
+	t.Fatalf("the app has no environment %q", key)
+	return ""
+}
+
+// setIdentityProvider registers the identity provider the environment's
+// users sign in at, as SecurityAdminService.SetUserIdentityProvider does
+// (SEC-026).
+func (s *stack) setIdentityProvider(t *testing.T, environment string, idp gateway.IdentityProvider) {
+	t.Helper()
+	idp.AppID, idp.EnvironmentID = s.app.ID, s.environmentID(t, environment)
+	if err := s.svc.Gateway.Upstreams.SetProvider(s.ctx, s.owner, idp); err != nil {
+		t.Fatalf("set the identity provider: %v", err)
 	}
 }

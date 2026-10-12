@@ -177,6 +177,29 @@ void bankFlows({
       : null;
 
   testWidgets(
+    'declining the confirmation sends nothing and leaves the balance (it '
+    'runs first: the backend keeps the exit flow\'s transfer) [DX-004] [SEC-027] [SEC-032]',
+    (tester) async {
+      problems.clear();
+      await signIn(tester);
+      await waitFor(tester, find.text('2500.00 EUR'));
+      await sendTransfer(tester);
+      await waitFor(tester, find.text('Confirm transaction'));
+      await tapSettled(tester, find.text('Cancel'));
+
+      await waitFor(tester, find.text('Transfer failed'));
+      expect(find.text('Transfer completed'), findsNothing);
+      await tapSettled(tester, find.text('Back to dashboard'));
+      await waitFor(tester, find.text('Your accounts'));
+      await waitFor(tester, find.text('2500.00 EUR'));
+      expect(find.text('2487.50 EUR'), findsNothing);
+      await stop(tester);
+    },
+    skip: skip != null || !confirmsTransfers,
+    timeout: const Timeout(Duration(minutes: 3)),
+  );
+
+  testWidgets(
     'the exit flow: sign in with the PIN and the code, see the accounts, '
     'confirm a validated transfer with the device key, read its result, and '
     'see the notification and the new balance on the dashboard [DX-004] '
@@ -230,29 +253,6 @@ void bankFlows({
       );
       await waitFor(tester, find.text('2487.50 EUR'));
       expect(problems, isEmpty, reason: problems.join('\n'));
-      await stop(tester);
-    },
-    skip: skip != null || !confirmsTransfers,
-    timeout: const Timeout(Duration(minutes: 3)),
-  );
-
-  testWidgets(
-    'declining the confirmation sends nothing and leaves the balance '
-    '[DX-004] [SEC-027] [SEC-032]',
-    (tester) async {
-      problems.clear();
-      await signIn(tester);
-      await waitFor(tester, find.text('2500.00 EUR'));
-      await sendTransfer(tester);
-      await waitFor(tester, find.text('Confirm transaction'));
-      await tapSettled(tester, find.text('Cancel'));
-
-      await waitFor(tester, find.text('Transfer failed'));
-      expect(find.text('Transfer completed'), findsNothing);
-      await tapSettled(tester, find.text('Back to dashboard'));
-      await waitFor(tester, find.text('Your accounts'));
-      await waitFor(tester, find.text('2500.00 EUR'));
-      expect(find.text('2487.50 EUR'), findsNothing);
       await stop(tester);
     },
     skip: skip != null || !confirmsTransfers,
