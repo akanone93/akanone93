@@ -106,6 +106,39 @@ connections() {
 	timeout 10 "$adb" devices 2>/dev/null | awk -v s="$serial" '$1 == s' | wc -l | tr -d ' '
 }
 
+# single: restarts adb's server and waits, at most a minute, until it lists
+# the emulator once in eight polls in a row.
+single() {
+	echo "adb lists $serial more than once; restarting adb's server"
+	timeout 10 "$adb" kill-server >/dev/null 2>&1 || true
+	timeout 10 "$adb" start-server >/dev/null 2>&1 || true
+	local n=0 until=$((SECONDS + 60))
+	while [ "$n" -lt 8 ] && [ "$SECONDS" -lt "$until" ]; do
+		if [ "$(connections)" = 1 ]; then n=$((n + 1)); else n=0; fi
+		sleep 2
+	done
+}
+
+# adbs <args>: adb for the emulator. A second registration can still
+# appear after the boot loop has seen one (run 38238286380); adb then
+# refuses the serial, so the server restarts and the command runs again,
+# at most three times.
+adbs() {
+	local attempt out
+	for attempt in 1 2 3; do
+		if out=$(timeout 60 "$adb" -s "$serial" "$@" 2>&1); then
+			[ -z "$out" ] || printf '%s\n' "$out"
+			return 0
+		fi
+		case $out in
+		*"more than one device"*) single ;;
+		*) printf '%s\n' "$out" >&2; return 1 ;;
+		esac
+	done
+	printf '%s\n' "$out" >&2
+	return 1
+}
+
 # Booted when sys.boot_completed is 1; never waits on a dead emulator or
 # longer than ten minutes of wall time (adb wait-for-device would wait
 # forever). The emulator can report its boot complete while adb's shell
@@ -129,18 +162,16 @@ while [ "$SECONDS" -lt "$deadline" ]; do
 		# A restart of adb's server can register the emulator twice under
 		# one serial, a moment after it is first listed again, and every
 		# later "adb -s" refuses it with "more than one device/emulator"
-		# (runs 38127865288, 38151817486): booted only once three polls in
-		# a row, six seconds, list a single entry.
+		# (runs 38127865288, 38151817486): booted only once eight polls in
+		# a row, sixteen seconds, list a single entry.
 		if [ "$(connections)" = 1 ]; then
 			stable=$((stable + 1))
-			if [ "$stable" -ge 3 ]; then
+			if [ "$stable" -ge 8 ]; then
 				booted=true; break
 			fi
 		else
 			stable=0
-			echo "adb lists $serial more than once; restarting adb's server"
-			timeout 10 "$adb" kill-server >/dev/null 2>&1 || true
-			timeout 10 "$adb" start-server >/dev/null 2>&1 || true
+			single
 		fi
 		sleep 2
 		continue
@@ -168,11 +199,11 @@ if ! wait "$prebuild"; then
 	echo "✗ building the driver or the app failed"; exit 1
 fi
 for s in window_animation_scale transition_animation_scale animator_duration_scale; do
-	"$adb" -s "$serial" shell settings put global "$s" 0
+	adbs shell settings put global "$s" 0
 done
-"$adb" -s "$serial" reverse "tcp:$port" "tcp:$port"
+adbs reverse "tcp:$port" "tcp:$port"
 for p in $refapi_port $reference_ports; do
-	"$adb" -s "$serial" reverse "tcp:$p" "tcp:$p"
+	adbs reverse "tcp:$p" "tcp:$p"
 done
 
 # The device log of a failed run is kept beside the flows' log (uploaded
