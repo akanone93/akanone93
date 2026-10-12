@@ -268,15 +268,38 @@ final class DataClient {
     throw f;
   }
 
-  /// Refuses what only a direct request can do — a stream or a file
-  /// transfer ([what]) — for a source routed through the gateway, whose
-  /// streaming route this runtime does not have, and for a direct source
-  /// the profile refuses. It never falls back to a direct request.
-  void requireDirect(DataSourceSpec s, DataCaller caller, String what) {
-    if (!viaGateway(s, caller)) return;
-    throw DataFailure.unavailable(
-      'source ${s.name} is routed through the gateway, which carries $what '
-      'only when the source declares route "direct"',
+  /// Authenticates a request of [s] to the gateway's HTTP route, the route
+  /// of everything whose body is not one message: a stream, an event stream,
+  /// a file (SEC-030). The base URL of a `plux` source lives on the server
+  /// (SEC-031), so the device names the upstream and the path only; the
+  /// connection itself is made by the caller, on the data isolate, with the
+  /// route's URL and headers. [pathAndQuery] begins with a slash. [hostToken]
+  /// is the auth delegate's token, when the source or the operation asks for
+  /// it, which the gateway exchanges for the user token (SEC-026).
+  Future<GatewayRoute> gatewayRoute(
+    DataSourceSpec s,
+    DataCaller caller,
+    String method,
+    String pathAndQuery, {
+    String operation = '',
+    String? hostToken,
+  }) {
+    final transport = gateway;
+    if (transport == null) {
+      throw DataFailure.unavailable(
+        'source ${s.name} is routed through the gateway, which this runtime '
+        'does not run',
+      );
+    }
+    return transport.route(
+      GatewayRouteRequest(
+        upstream: s.name,
+        method: method,
+        path: pathAndQuery,
+        operation: operation,
+        plugin: caller.pluginKey,
+        userToken: hostToken,
+      ),
     );
   }
 
@@ -423,56 +446,79 @@ final class DataClient {
     return query;
   }
 
-  /// The request that opens the stream of [s] for [caller]: the base URL
-  /// of the environment with the path filled from [params] and the rest
-  /// in the query, checked against the plugin's domains like any request
-  /// (DAT-030), with the auth delegate's token when the source asks for
-  /// it. WebSocket URLs use `wss` (`ws` where cleartext is allowed).
+  /// The request that opens the stream of [s] for [caller], with the path
+  /// filled from [params] and the rest in the query. A `direct` source
+  /// connects to the base URL of the environment, checked against the
+  /// plugin's domains like any request (DAT-030), with the auth delegate's
+  /// token when the source asks for it. A `plux` source connects to the
+  /// gateway's HTTP route with the device's proof for this connection
+  /// (SEC-030). WebSocket URLs use `wss` (`ws` where cleartext is allowed).
   Future<StreamRequest> streamRequest(
     DataSourceSpec s,
     DataCaller caller,
     Map<String, Object?> params, {
     String? lastEventId,
   }) async {
-    requireDirect(s, caller, 'streams');
+    final gateway = viaGateway(s, caller);
     final limits = this.limits();
-    final base = s.baseUrls[environment];
-    if (base == null) {
-      throw DataFailure.unavailable(
-        'source ${s.name} has no base URL for environment $environment',
-      );
-    }
-    final b = Uri.parse(base);
     final graphql = s.kind == DataKind.graphql;
     final (path, rest) = fillPath(s, s.path, params);
     final query = graphql ? <String, List<String>>{} : queryOf(rest);
-    final plain = b.replace(
-      path: '${b.path}$path',
-      queryParameters: query.isEmpty ? null : query,
-    );
-    checkDomain(plain, s, caller);
     final socket = s.kind != DataKind.sse;
-    final url = socket
-        ? plain.replace(scheme: plain.scheme == 'https' ? 'wss' : 'ws')
-        : plain;
     String? token;
     if (s.auth) {
       token = await auth.token();
       if (token == null) throw unauthorised(s, 'no signed-in user');
     }
+    final Uri url;
+    final Map<String, String> headers;
+    if (gateway) {
+      final route = await gatewayRoute(
+        s,
+        caller,
+        'GET',
+        Uri(
+          path: path,
+          queryParameters: query.isEmpty ? null : query,
+        ).toString(),
+        hostToken: token,
+      );
+      url = socket ? _asSocketUrl(route.url) : route.url;
+      headers = {...s.headers, ...route.headers};
+    } else {
+      final base = s.baseUrls[environment];
+      if (base == null) {
+        throw DataFailure.unavailable(
+          'source ${s.name} has no base URL for environment $environment',
+        );
+      }
+      final b = Uri.parse(base);
+      final plain = b.replace(
+        path: '${b.path}$path',
+        queryParameters: query.isEmpty ? null : query,
+      );
+      checkDomain(plain, s, caller);
+      url = socket ? _asSocketUrl(plain) : plain;
+      headers = {
+        ...s.headers,
+        if (token != null) 'authorization': 'Bearer $token',
+      };
+    }
     return StreamRequest(
       kind: socket ? StreamKind.webSocket : StreamKind.sse,
       url: url,
-      headers: {
-        ...s.headers,
-        if (token != null) 'authorization': 'Bearer $token',
-      },
+      headers: headers,
       protocols: graphql ? const [graphqlWsProtocol] : const [],
       lastEventId: lastEventId,
       maxMessageBytes: limits.streamMessageSize,
       connectTimeout: limits.requestTimeout,
     );
   }
+
+  /// [url] with the WebSocket scheme of its own: `wss` for `https`, `ws`
+  /// where cleartext is allowed.
+  static Uri _asSocketUrl(Uri url) =>
+      url.replace(scheme: url.scheme == 'https' ? 'wss' : 'ws');
 
   /// Refreshes the auth delegate's token after a refused connection;
   /// whether a token came back.
@@ -548,6 +594,7 @@ final class DataClient {
         if (gateway) {
           return _viaGateway(
             s,
+            caller,
             operation,
             method,
             url,
@@ -651,6 +698,7 @@ final class DataClient {
   /// involved, the sync isolate signs it with the device's key.
   Future<DataResponse> _viaGateway(
     DataSourceSpec s,
+    DataCaller caller,
     String? operation,
     String method,
     Uri url,
@@ -682,6 +730,7 @@ final class DataClient {
         maxRequestBytes: limits.requestSize,
         maxResponseBytes: limits.responseSize,
         timeout: limits.requestTimeout,
+        plugin: caller.pluginKey,
         userToken: userToken,
         confirmation: confirmation,
       ),

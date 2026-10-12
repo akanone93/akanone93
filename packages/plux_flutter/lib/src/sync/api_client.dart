@@ -750,6 +750,7 @@ final class PluxApiClient {
     required String path,
     required Map<String, String> headers,
     Uint8List? body,
+    String plugin = '',
     String? userToken,
     String challengeId = '',
     Uint8List? signature,
@@ -761,6 +762,7 @@ final class PluxApiClient {
       {
         'upstream': upstream,
         'operation': operation,
+        if (plugin.isNotEmpty) 'plugin': plugin,
         'method': method,
         'path': path,
         'headers': headers,
@@ -790,6 +792,51 @@ final class PluxApiClient {
     } on FormatException {
       throw const ApiError(0, 'unknown', 'the gateway sent a malformed body');
     }
+  }
+
+  /// The URL and headers of a request to the gateway's HTTP route,
+  /// `/gateway/v1/{upstream}/{path}` (SEC-030): the route that carries
+  /// streams and transfers. The headers authenticate this request alone:
+  /// `Authorization: DPoP` with [token] and a proof of [method] and the URL,
+  /// the Plux [userToken], the [operation] and, for a transaction, the
+  /// [challengeId] and the base64url [signature] (SEC-032). [pathAndQuery]
+  /// begins with a slash; its query is not part of the proof (RFC 9449).
+  Future<({Uri url, Map<String, String> headers})> gatewayRoute({
+    required DeviceToken token,
+    required String upstream,
+    required String method,
+    required String pathAndQuery,
+    String operation = '',
+    String plugin = '',
+    String? userToken,
+    String challengeId = '',
+    Uint8List? signature,
+  }) async {
+    final base = endpoint.toString();
+    final url = Uri.parse(
+      '$base${base.endsWith('/') ? '' : '/'}gateway/v1/$upstream$pathAndQuery',
+    );
+    final proof = await token.proofs.proof(
+      method: method,
+      uri: url,
+      accessToken: token.value,
+      nonce: _nonce,
+    );
+    return (
+      url: url,
+      headers: {
+        'Authorization': 'DPoP ${token.value}',
+        'DPoP': proof,
+        pluxUserTokenHeader: ?userToken,
+        if (operation.isNotEmpty) 'Plux-Operation': operation,
+        if (plugin.isNotEmpty) 'Plux-Plugin': plugin,
+        if (challengeId.isNotEmpty) 'Plux-Challenge-Id': challengeId,
+        if (signature != null && signature.isNotEmpty)
+          'Plux-Transaction-Signature': base64Url
+              .encode(signature)
+              .replaceAll('=', ''),
+      },
+    );
   }
 
   /// Asks for a single-use challenge bound to the hash of the canonical

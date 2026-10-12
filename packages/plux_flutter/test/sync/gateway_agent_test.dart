@@ -168,6 +168,113 @@ GatewayRequest _request({
 );
 
 void main() {
+  group('the route', () {
+    test('authenticates a stream with the token and a proof of that request, and sends no call [SEC-030] [SEC-021]', () async {
+      final rig = _Rig();
+      final route = await rig.agent.route(
+        const GatewayRouteRequest(
+          upstream: 'ledger',
+          method: 'GET',
+          path: '/notifications?after=3',
+          plugin: 'bank',
+        ),
+      );
+      expect(
+        route.url.toString(),
+        'https://plux.example/gateway/v1/ledger/notifications?after=3',
+      );
+      expect(route.headers['Authorization'], 'DPoP tok-1');
+      expect(route.headers['Plux-Plugin'], 'bank');
+      expect(route.headers, isNot(contains('Plux-User-Token')));
+      expect(route.headers, isNot(contains('Plux-Operation')));
+      final claims = jsonDecode(
+        utf8.decode(
+          base64Url.decode(
+            base64Url.normalize(route.headers['DPoP']!.split('.')[1]),
+          ),
+        ),
+      ) as Map<String, Object?>;
+      expect(claims['htm'], 'GET');
+      expect(
+        claims['htu'],
+        'https://plux.example/gateway/v1/ledger/notifications',
+        reason: 'the query is not part of the proof',
+      );
+      expect(
+        claims['ath'],
+        _b64url(sha256.convert(ascii.encode('tok-1')).bytes),
+      );
+      expect(rig.at(_callPath), isEmpty);
+    });
+
+    test('exchanges the host token once per upstream and carries the user token and the typed fields [SEC-026] [SEC-032]', () async {
+      final rig = _Rig();
+      final confirmation = Confirmation(
+        challengeId: 'ch-9',
+        signature: Uint8List.fromList(List.filled(64, 251)),
+        summary: const TransactionSummary(
+          amount: '1',
+          currency: 'EUR',
+          payee: 'x',
+        ),
+        expiresAt: DateTime.utc(2100),
+      );
+      final first = await rig.agent.route(
+        GatewayRouteRequest(
+          upstream: 'ledger',
+          method: 'POST',
+          path: '/files',
+          operation: 'upload',
+          userToken: 'host-1',
+          confirmation: confirmation,
+        ),
+      );
+      final second = await rig.agent.route(
+        const GatewayRouteRequest(
+          upstream: 'ledger',
+          method: 'GET',
+          path: '/notifications',
+          userToken: 'host-1',
+        ),
+      );
+      expect(rig.exchanges, 1);
+      expect(first.headers['Plux-User-Token'], 'utok-1');
+      expect(second.headers['Plux-User-Token'], 'utok-1');
+      expect(first.headers['Plux-Operation'], 'upload');
+      expect(first.headers['Plux-Challenge-Id'], 'ch-9');
+      expect(
+        first.headers['Plux-Transaction-Signature'],
+        _b64url(List.filled(64, 251)),
+        reason: 'unpadded base64url, as the route reads it',
+      );
+      expect(second.headers['DPoP'], isNot(first.headers['DPoP']));
+    });
+
+    test('a refused exchange is a data failure with its code and nothing is routed [SEC-026]', () async {
+      final rig = _Rig();
+      rig.script[_exchangePath] = [
+        () => _plx(401, 'unauthenticated', 'PLX-6016'),
+      ];
+      await expectLater(
+        rig.agent.route(
+          const GatewayRouteRequest(
+            upstream: 'ledger',
+            method: 'GET',
+            path: '/n',
+            userToken: 'bad',
+          ),
+        ),
+        throwsA(
+          isA<DataFailure>().having(
+            (f) => f.code,
+            'code',
+            PluxErrorCode.userTokenInvalid,
+          ),
+        ),
+      );
+    });
+  });
+
   group('the call', () {
     test('carries the device token and a DPoP proof bound to the gateway route and the token [SEC-020] [SEC-030]', () async {
       final rig = _Rig();
@@ -879,6 +986,10 @@ final class _AgentGateway implements GatewayTransport {
     order.add('call');
     return rig.agent.call(request);
   }
+
+  @override
+  Future<GatewayRoute> route(GatewayRouteRequest request) =>
+      rig.agent.route(request);
 }
 
 final class _Unused implements DataTransport {

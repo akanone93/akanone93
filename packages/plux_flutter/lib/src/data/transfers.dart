@@ -105,8 +105,8 @@ final class TransferClient {
       final upload = t.kind == TransferKind.upload;
       final path = upload ? _uploadPath(file) : _downloadPath(file);
       final request = _build(s, op, t, caller, input, path);
-      Future<TransferResult> attempt(String? token) =>
-          _start(request(token), cancel, onProgress);
+      Future<TransferResult> attempt(String? token) async =>
+          _start(await request(token), cancel, onProgress);
       String? token;
       if (op.auth) {
         token = await client.auth.token();
@@ -179,8 +179,9 @@ final class TransferClient {
   }
 
   /// The request of a transfer, for a token; checked against the domains
-  /// before it is built.
-  TransferRequest Function(String? token) _build(
+  /// before it is built. A `plux` source's transfer goes to the gateway's
+  /// HTTP route, with the device's proof for each attempt (SEC-030).
+  Future<TransferRequest> Function(String? token) _build(
     DataSourceSpec s,
     OperationSpec op,
     TransferSpec t,
@@ -188,14 +189,7 @@ final class TransferClient {
     Map<String, Object?> input,
     String path,
   ) {
-    client.requireDirect(s, caller, 'file transfers');
-    final base = s.baseUrls[client.environment];
-    if (base == null) {
-      throw DataFailure.unavailable(
-        'source ${s.name} has no base URL for environment '
-        '${client.environment}',
-      );
-    }
+    final gateway = client.viaGateway(s, caller);
     final upload = t.kind == TransferKind.upload;
     final multipart = upload && !t.raw;
     final values = {...input}..remove(t.fileParam);
@@ -203,12 +197,6 @@ final class TransferClient {
     final query = multipart
         ? <String, List<String>>{}
         : DataClient.queryOf(rest);
-    final b = Uri.parse(base);
-    final url = b.replace(
-      path: '${b.path}$filled',
-      queryParameters: query.isEmpty ? null : query,
-    );
-    client.checkDomain(url, s, caller);
     final limits = client.limits();
     final fields = <String, String>{
       if (multipart)
@@ -216,23 +204,59 @@ final class TransferClient {
           if (toJson(e.value) case final v?)
             e.key: v is String ? v : jsonEncode(v),
     };
-    return (token) => TransferRequest(
-      kind: t.kind,
-      method: op.method,
-      url: url,
-      headers: {
-        ...s.headers,
-        ...op.headers,
-        if (token != null) 'authorization': 'Bearer $token',
-      },
-      path: path,
-      raw: t.raw,
-      field: t.field,
-      contentType: t.contentType,
-      fields: fields,
-      maxBytes: upload ? limits.uploadSize : limits.downloadSize,
-      maxResponseBytes: limits.responseSize,
+    TransferRequest request(Uri url, Map<String, String> headers) =>
+        TransferRequest(
+          kind: t.kind,
+          method: op.method,
+          url: url,
+          headers: headers,
+          path: path,
+          raw: t.raw,
+          field: t.field,
+          contentType: t.contentType,
+          fields: fields,
+          maxBytes: upload ? limits.uploadSize : limits.downloadSize,
+          maxResponseBytes: limits.responseSize,
+        );
+    if (gateway) {
+      final target = Uri(
+        path: filled,
+        queryParameters: query.isEmpty ? null : query,
+      ).toString();
+      return (token) async {
+        final route = await client.gatewayRoute(
+          s,
+          caller,
+          op.method,
+          target,
+          operation: op.name,
+          hostToken: token,
+        );
+        return request(route.url, {
+          ...s.headers,
+          ...op.headers,
+          ...route.headers,
+        });
+      };
+    }
+    final base = s.baseUrls[client.environment];
+    if (base == null) {
+      throw DataFailure.unavailable(
+        'source ${s.name} has no base URL for environment '
+        '${client.environment}',
+      );
+    }
+    final b = Uri.parse(base);
+    final url = b.replace(
+      path: '${b.path}$filled',
+      queryParameters: query.isEmpty ? null : query,
     );
+    client.checkDomain(url, s, caller);
+    return (token) async => request(url, {
+      ...s.headers,
+      ...op.headers,
+      if (token != null) 'authorization': 'Bearer $token',
+    });
   }
 
   /// The file to upload: absolute, without `..`, and not from the
