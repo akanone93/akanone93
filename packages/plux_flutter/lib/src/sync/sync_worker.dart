@@ -158,6 +158,11 @@ final class _Record {
   final int maxBytes;
 }
 
+/// Ends the isolate once the commands sent before it are handled; no reply.
+final class _Close {
+  const _Close();
+}
+
 /// Categories whose buffered events are deleted; no reply.
 final class _Purge {
   const _Purge(this.categories);
@@ -335,8 +340,22 @@ final class SyncWorker implements GatewayTransport, ChallengeSource {
   /// Completes once the isolate has handled every message sent before.
   Future<void> settle() => _ask(_Settle.new);
 
-  /// Stops the isolate.
-  void close() => _isolate.kill(priority: Isolate.immediate);
+  /// Stops the isolate once the commands sent before are handled, so no
+  /// platform call is left waiting: a reply to a call from an isolate that
+  /// no longer exists aborts the app on Android. One that has not ended
+  /// within [grace] is killed.
+  Future<void> close({Duration grace = const Duration(seconds: 5)}) async {
+    final exited = ReceivePort();
+    _isolate.addOnExitListener(exited.sendPort);
+    _commands.send(const _Close());
+    try {
+      await exited.first.timeout(grace);
+    } on TimeoutException {
+      _isolate.kill(priority: Isolate.immediate);
+    } finally {
+      exited.close();
+    }
+  }
 }
 
 final class _Failure {
@@ -375,6 +394,8 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
   ready.send((commands.sendPort, settings));
   await for (final c in commands) {
     switch (c) {
+      case _Close():
+        Isolate.exit();
       case _Settle(:final reply):
         reply.send(null);
       case _Settings(:final reply):

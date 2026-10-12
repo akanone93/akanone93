@@ -120,23 +120,38 @@ deadline=$((SECONDS + 600))
 answer=
 restart_at=
 restarts=0
+# Consecutive polls that saw the boot complete under a single adb entry.
+stable=0
 while [ "$SECONDS" -lt "$deadline" ]; do
 	kill -0 "$emulator" 2>/dev/null || fail "the emulator exited while booting"
 	answer=$(timeout 10 "$adb" -s "$serial" shell getprop sys.boot_completed 2>&1 | tr -d '\r') || true
 	if [ "$answer" = 1 ]; then
 		# A restart of adb's server can register the emulator twice under
-		# one serial, which every later "adb -s" refuses with "more than one
-		# device/emulator" (run 38127865288): booted only with one entry.
+		# one serial, a moment after it is first listed again, and every
+		# later "adb -s" refuses it with "more than one device/emulator"
+		# (runs 38127865288, 38151817486): booted only once three polls in
+		# a row, six seconds, list a single entry.
 		if [ "$(connections)" = 1 ]; then
-			booted=true; break
+			stable=$((stable + 1))
+			if [ "$stable" -ge 3 ]; then
+				booted=true; break
+			fi
+		else
+			stable=0
+			echo "adb lists $serial more than once; restarting adb's server"
+			timeout 10 "$adb" kill-server >/dev/null 2>&1 || true
+			timeout 10 "$adb" start-server >/dev/null 2>&1 || true
 		fi
-		echo "adb lists $serial more than once; restarting adb's server"
-		timeout 10 "$adb" kill-server >/dev/null 2>&1 || true
-		timeout 10 "$adb" start-server >/dev/null 2>&1 || true
+		sleep 2
+		continue
 	fi
+	stable=0
 	if grep -q 'Boot completed' "$log"; then
 		if [ -z "$restart_at" ]; then
-			restart_at=$((SECONDS + 30))
+			# adbd can answer well after the emulator reports its boot on
+			# API 26 with a software GPU; a restart is the last resort, as it
+			# can register the emulator twice (above).
+			restart_at=$((SECONDS + 90))
 		elif [ "$SECONDS" -ge "$restart_at" ]; then
 			restarts=$((restarts + 1))
 			echo "adb has no answer from the booted emulator (last: ${answer:-nothing}); restarting adb's server ($restarts)"
@@ -160,4 +175,18 @@ for p in $refapi_port $reference_ports; do
 	"$adb" -s "$serial" reverse "tcp:$p" "tcp:$p"
 done
 
-PLUX_E2E_REFAPI_ADDR=127.0.0.1:$refapi_port PLUX_E2E_DEVICE=$serial make -C "$root" --no-print-directory e2e-starter 2>&1 | tee "$out/android-$api-$shard.log"
+# The device log of a failed run is kept beside the flows' log (uploaded
+# with build/e2e/*.log), and its crashes are printed: a flow that ends
+# with "did not complete" means the app died on the device, which only
+# the device log explains.
+"$adb" -s "$serial" logcat -G 16M >/dev/null 2>&1 || true
+"$adb" -s "$serial" logcat -c >/dev/null 2>&1 || true
+status=0
+PLUX_E2E_REFAPI_ADDR=127.0.0.1:$refapi_port PLUX_E2E_DEVICE=$serial make -C "$root" --no-print-directory e2e-starter 2>&1 | tee "$out/android-$api-$shard.log" || status=$?
+if [ "$status" != 0 ]; then
+	device_log=$out/logcat-$api-$shard.log
+	"$adb" -s "$serial" logcat -d -v threadtime >"$device_log" 2>&1 || true
+	echo "--- $device_log: crashes and Flutter errors (last 80)"
+	grep -E 'FATAL EXCEPTION|AndroidRuntime|F DEBUG|Abort message|E flutter|Fatal signal' "$device_log" | tail -n 80 || true
+	exit "$status"
+fi

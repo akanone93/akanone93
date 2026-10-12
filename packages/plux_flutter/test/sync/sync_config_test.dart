@@ -334,7 +334,7 @@ void main() {
           final again = await worker.loadSettings();
           expect(again, r.settings);
         } finally {
-          worker.close();
+          await worker.close();
         }
       },
     );
