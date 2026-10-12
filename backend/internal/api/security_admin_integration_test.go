@@ -78,10 +78,9 @@ func TestSecurityAdminService(t *testing.T) {
 	if _, err := w.secAdmin.GetEffectiveSecurityConfig(ctx, connect.NewRequest(&pluxv1.GetEffectiveSecurityConfigRequest{AppId: app, EnvironmentId: prod})); codeOf(err) != connect.CodeUnauthenticated {
 		t.Errorf("an anonymous read: %v", err)
 	}
-	// The gateway's upstreams and the audit checkpoints are other
-	// milestones' work.
-	if _, err := w.secAdmin.ListUpstreams(ctx, req(admin, &pluxv1.ListUpstreamsRequest{AppId: app, EnvironmentId: prod})); codeOf(err) != connect.CodeUnimplemented {
-		t.Errorf("ListUpstreams: %v", err)
+	// The gateway's upstream registry answers; nothing is registered yet.
+	if res, err := w.secAdmin.ListUpstreams(ctx, req(admin, &pluxv1.ListUpstreamsRequest{AppId: app, EnvironmentId: prod})); err != nil || len(res.Msg.GetUpstreams()) != 0 {
+		t.Errorf("ListUpstreams: %v, %v", res, err)
 	}
 	if _, err := w.secAdmin.ListAuditCheckpoints(ctx, req(admin, &pluxv1.ListAuditCheckpointsRequest{})); codeOf(err) != connect.CodeUnimplemented {
 		t.Errorf("ListAuditCheckpoints: %v", err)

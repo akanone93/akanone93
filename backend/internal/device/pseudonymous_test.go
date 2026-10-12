@@ -11,7 +11,7 @@ import (
 
 // hardwareIdentifier matches field names that would carry an identifier of
 // the hardware or the user across apps.
-var hardwareIdentifier = regexp.MustCompile(`(?i)imei|meid|serial|androidid|idfv|idfa|advertis|mac(addr|$)|hardware|udid`)
+var hardwareIdentifier = regexp.MustCompile(`(?i)imei|meid|serial|androidid|idfv|idfa|advertis|mac(addr|$)|hardware|udid`) //nolint:misspell // "advertis" matches advertising and advertiser identifiers.
 
 // Verifies: SEC-160.
 // A device is registered with a description of its software and with keys,

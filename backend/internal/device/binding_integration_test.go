@@ -93,7 +93,7 @@ func TestRegisterAndroidKeyChains(t *testing.T) {
 	register := func(t *testing.T, mutate func(*device.AttestedRegistration, *androidKeys)) error {
 		t.Helper()
 		k := newAndroidKeys(t, r)
-		reg := k.registration(r, r.challenge(t, "production"))
+		reg := k.registration(r, r.challenge(t, "production")) //nolint:contextcheck // the rig's helpers use their own background context.
 		if mutate != nil {
 			mutate(&reg, &k)
 		}

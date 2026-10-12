@@ -148,18 +148,11 @@ func (s *Service) RegisterAttested(ctx context.Context, r AttestedRegistration) 
 	if err := r.Evidence.matches(r.Platform); err != nil {
 		return Device{}, err
 	}
-	key, canonical, jkt, err := parseKey(r.DPoPKeyJWK)
+	k, err := parseRegistrationKeys(r)
 	if err != nil {
 		return Device{}, err
 	}
-	agreement, kaKey, kaJKT, err := parseAgreementKey(r.AgreementKeyJWK)
-	if err != nil {
-		return Device{}, err
-	}
-	scaJKT, err := registrationSCAThumbprint(r)
-	if err != nil {
-		return Device{}, err
-	}
+	key, canonical, jkt, agreement, kaKey, kaJKT := k.key, k.canonical, k.jkt, k.agreement, k.kaKey, k.kaJKT
 	found, err := s.findEnvironment(ctx, r.AppID, r.Environment)
 	if err != nil {
 		return Device{}, err
@@ -174,7 +167,7 @@ func (s *Service) RegisterAttested(ctx context.Context, r AttestedRegistration) 
 	}
 	sub := subject{
 		appID: appID, envID: envID, production: found.Production, challenge: r.Challenge,
-		key: key, jkt: jkt, kaJKT: kaJKT, scaJKT: scaJKT, claim: r.KeyStorage, settings: conf,
+		key: key, jkt: jkt, kaJKT: kaJKT, scaJKT: k.scaJKT, claim: r.KeyStorage, settings: conf,
 	}
 	v, err := s.verify(ctx, sub, r.Evidence)
 	if err != nil {
@@ -223,6 +216,32 @@ func (s *Service) RegisterAttested(ctx context.Context, r AttestedRegistration) 
 		return Device{}, fmt.Errorf("device: %w", err)
 	}
 	return d, nil
+}
+
+// registrationKeys are the keys a registration submits, parsed.
+type registrationKeys struct {
+	key       *ecdsa.PublicKey
+	canonical []byte
+	jkt       string
+	agreement []byte
+	kaKey     *ecdsa.PublicKey
+	kaJKT     string
+	scaJKT    string
+}
+
+// parseRegistrationKeys parses the DPoP, key-agreement and SCA keys of a
+// registration.
+func parseRegistrationKeys(r AttestedRegistration) (registrationKeys, error) {
+	var k registrationKeys
+	var err error
+	if k.key, k.canonical, k.jkt, err = parseKey(r.DPoPKeyJWK); err != nil {
+		return k, err
+	}
+	if k.agreement, k.kaKey, k.kaJKT, err = parseAgreementKey(r.AgreementKeyJWK); err != nil {
+		return k, err
+	}
+	k.scaJKT, err = registrationSCAThumbprint(r)
+	return k, err
 }
 
 // registeredSCA is a verified SCA key on its way into the database.
