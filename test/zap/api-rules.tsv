@@ -9,9 +9,8 @@
 # an API that serves ConnectRPC and no HTML, and say where the behaviour it
 # flags is deliberate.
 #
-# No rule is ignored yet: the scan has not been run against the stack (it
-# needs the ZAP image from ghcr.io, which the development sandbox cannot
-# reach). The first CI run lists what ZAP reports; each finding is then
-# fixed in the server or listed here with its reason, one line each:
+# Each finding of a CI run is fixed in the server or listed here with its
+# reason, one line each:
 #
 # 10000	IGNORE	(Rule name) why this is a false positive and where the behaviour is deliberate
+10049	IGNORE	(Storable and Cacheable Content) reports every response's cacheability, storable or not; the API answers Cache-Control: no-store unless a handler sets its own policy (backend/internal/server/server.go, wrap), so the "Non-Storable Content" it reports is the intended behaviour
