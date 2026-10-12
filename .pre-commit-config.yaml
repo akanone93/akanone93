@@ -89,10 +89,13 @@ repos:
         files: ^docs/requirements\.md$
         pass_filenames: false
 
+      # In a linked worktree git hands the hook GIT_DIR; the tests run git
+      # and flutter (which reads its own version with git) in other
+      # directories, so the repository's location is not passed on.
       - id: go-test
         name: go test
         language: system
-        entry: make -s go-test
+        entry: env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE make -s go-test
         files: \.go$
         pass_filenames: false
         stages: [pre-push]
