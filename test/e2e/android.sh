@@ -74,6 +74,14 @@ emulator=$!
 serial=emulator-5554
 trap '"$adb" -s "$serial" emu kill >/dev/null 2>&1 || kill "$emulator" 2>/dev/null || true' EXIT
 
+# The Go modules first, with retries: a runner's connection to the module
+# proxy can time out (runs 38238159276, 38260897809), and the build below
+# would fail the job on it before any flow ran.
+for attempt in 1 2 3; do
+	(cd "$root/backend" && go mod download && cd "$root/test/refapi" && go mod download) && break
+	[ "$attempt" = 3 ] && { echo "✗ the Go modules could not be downloaded"; exit 1; }
+	sleep $((attempt * 15))
+done
 prebuild_log=$out/prebuild-$api.log
 # Only what E2E_SHARD's flows build (mk/device.mk).
 shard=${E2E_SHARD:-all}
