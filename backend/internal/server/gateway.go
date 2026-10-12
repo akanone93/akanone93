@@ -50,6 +50,11 @@ type GatewayParts struct {
 	Gateway   *gateway.Gateway
 	Upstreams *gateway.Registry
 	Exchange  *gateway.Exchanger
+	// Configs administers server-held configuration values (DAT-090) and
+	// Resolver serves them to the gateway and to devices (DAT-092,
+	// DAT-094).
+	Configs  *gateway.Configs
+	Resolver *gateway.ConfigResolver
 	// Keys lists the public token keys the published key sets are made of.
 	Keys func(ctx context.Context) ([]signing.TokenKey, error)
 }
@@ -61,6 +66,7 @@ type gatewayDeps struct {
 	cache    cache.Cache
 	set      limits.Set
 	signer   signing.TokenSigner
+	crypter  signing.Crypter
 	ids      interface{ New() (string, error) }
 	audit    *audit.Log
 	tenancy  *tenancy.Service
@@ -87,6 +93,13 @@ func buildGateway(d gatewayDeps) (*GatewayParts, error) {
 		return nil, err
 	}
 	keys := d.trust.Tokens.Keys
+	configs, err := gateway.NewConfigs(gateway.ConfigOptions{
+		DB: d.db, Audit: d.audit, Crypter: d.crypter, Cache: d.cache, Limits: configLimits(d.tenancy, d.set),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
+	resolver := &gateway.ConfigResolver{Source: configs, Cache: d.cache}
 	users := &gateway.UserTokens{Signer: d.signer, Keys: keys, Issuer: base}
 	gw, err := gateway.New(gateway.Options{
 		Upstreams:  registry,
@@ -94,6 +107,7 @@ func buildGateway(d gatewayDeps) (*GatewayParts, error) {
 		Assertions: &gateway.Assertions{Signer: d.signer, Issuer: base},
 		Users:      users,
 		SCA:        &gateway.SCA{Cache: d.cache, Keys: d.devices},
+		Config:     resolver,
 		Limits:     appLimits(d.db, d.tenancy, d.set),
 		Count:      d.cache.Increment,
 		Production: d.devices.EnvironmentIsProduction,
@@ -107,7 +121,18 @@ func buildGateway(d gatewayDeps) (*GatewayParts, error) {
 		Lifetime: tokenLifetimeOf(d.configs, d.cfg), Tokens: users,
 		HTTP: httpx.NewClient(httpx.Options{Timeout: 10 * time.Second}),
 	}
-	return &GatewayParts{Gateway: gw, Upstreams: registry, Exchange: exchange, Keys: keys}, nil
+	return &GatewayParts{Gateway: gw, Upstreams: registry, Exchange: exchange, Configs: configs, Resolver: resolver, Keys: keys}, nil
+}
+
+// configLimits returns the limits in force for an app inside a
+// transaction, for the configuration store (LIM-002).
+func configLimits(ten *tenancy.Service, installation limits.Set) func(context.Context, pgx.Tx, string, string) (limits.Set, error) {
+	return func(ctx context.Context, tx pgx.Tx, organizationID, appID string) (limits.Set, error) {
+		if ten == nil {
+			return installation, nil
+		}
+		return ten.Effective(ctx, tx, organizationID, appID, "") //nolint:wrapcheck // a domain error
+	}
 }
 
 // observeGateway records a finished gateway call as an RPC of the
@@ -191,6 +216,7 @@ func (s *Server) registerGateway(parts *GatewayParts, h *api.Handlers, deviceAut
 	for _, register := range []func() (string, http.Handler){
 		func() (string, http.Handler) { return pluxv1connect.NewGatewayServiceHandler(h.GatewayService(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewScaServiceHandler(h.ScaService(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewConfigServiceHandler(h.ConfigService(), opts) },
 	} {
 		path, handler := register()
 		s.Register(path, handler)

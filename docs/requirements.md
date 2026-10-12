@@ -1,9 +1,9 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.4.2
+**Version:** 1.4.3
 **Status:** Draft — living document, revised as implementation proceeds
-**Date:** 2026-10-08
+**Date:** 2026-10-11
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
 
 > **Plux — Plugin Experience.** Build native Flutter screens visually, compile them into signed binary plugins, and ship them to every device in seconds — with high-assurance security, zero parse cost, and full control over who changes what.
@@ -1063,7 +1063,7 @@ PXL is a small, typed, side-effect-free expression language with CEL-like syntax
 |---|---|---|---|---|
 | `DAT-001` | P5 | MUST | Data source definitions **MUST** support REST (JSON), GraphQL, WebSocket, Server-Sent Events, Plux Functions, local database queries and static data. | WIP |
 | `DAT-002` | P5 | MUST | REST data sources **MUST** be importable from OpenAPI 3.x and GraphQL data sources from a schema, producing typed operations with request and response schemas usable by PXL and Studio. | DONE |
-| `DAT-003` | P5 | MUST | Base URLs and non-secret configuration **MUST** be per environment. Secrets (API keys) **MUST NOT** appear in bundles; calls requiring server-held secrets **MUST** go through a Plux Function or the host's auth delegate (`SEC-107`). | DONE |
+| `DAT-003` | P5 | MUST | Base URLs and non-secret configuration **MUST** be per environment. Secrets (API keys) **MUST NOT** appear in bundles; calls requiring server-held secrets **MUST** go through a Plux Function, the host's auth delegate (`SEC-107`) or the secure gateway's server-bound values (`DAT-091`). | DONE |
 | `DAT-004` | P5 | MUST | Responses **MUST** be mapped to typed models through declared selectors and PXL transforms; mapping failures are typed errors. | DONE |
 | `DAT-010` | P5 | MUST | Caching policies **MUST** include `networkOnly`, `cacheFirst`, `networkFirst` and `staleWhileRevalidate`, with TTLs, cache keys and optional encrypted persistence. | DONE |
 | `DAT-011` | P5 | MUST | Paginated sources (cursor, page, offset) **MUST** bind to lists for infinite scrolling with loading, end and error states. | DONE |
@@ -1072,6 +1072,14 @@ PXL is a small, typed, side-effect-free expression language with CEL-like syntax
 | `DAT-030` | P5 | MUST | Every outbound request **MUST** target a domain in the plugin's declared capabilities; requests to other domains **MUST** be blocked and reported (`SEC-080`). | DONE |
 | `DAT-031` | P5 | MUST | File uploads and downloads **MUST** support progress, cancellation and size limits. | DONE |
 | `DAT-080` | P5 | MUST | Every data source **MUST** support design-time mocks (static fixtures, generated examples from schemas, or recorded responses) with selectable states (`loading`, `empty`, `error`, `success`) for Studio, the Dev app and tests. | WIP |
+| `DAT-090` | P6 | MUST | The server **MUST** hold configuration values per app and environment, typed (string, integer, decimal as a string, boolean), each with a tier (`server-bound` or `live`), a `sensitive` flag and a version that rises with every change. Values **MUST** be created, changed and deleted only through the admin API and CLI, which require the app-management permission and write an audit entry for each change (`SEC-140`); a sensitive value **MUST** be encrypted at rest (`SEC-106`), never returned after it is set, and never logged, traced or labelled (`SEC-092`); only a `server-bound` value may be sensitive (ADR-0061). | SPEC |
+| `DAT-091` | P6 | MUST | A gateway operation **MAY** bind server-held values into the request it forwards, at locations its definition declares: a JSON Pointer into a JSON body, a header name, a path parameter or a query parameter. Only `server-bound` values may be bound. A device request that already sets a bound location **MUST** be refused (`PLX-6065`), and devices **MUST NOT** send placeholders or names of values; operations without bindings **MUST** keep streaming their bodies untouched (ADR-0061). | SPEC |
+| `DAT-092` | P6 | MUST | The gateway **MUST** resolve bound values at the time of the request with no stale read: each replica caches the values of an environment with their epoch, the epoch moves in the shared cache store with every change, and the gateway **MUST** check that epoch on every call that binds a value or carries a configuration version. A call whose epoch cannot be checked **MUST** be refused (`PLX-6069`). | SPEC |
+| `DAT-093` | P6 | MUST | For a transaction operation (`SEC-027`, `SEC-028`), bound values marked for display (for example the payee) **MUST** be resolved when the challenge is created, returned to the device for the confirmation sheet, and merged into the summary the user signs. If a displayed value has changed when the transaction is executed, the gateway **MUST** refuse the call (`PLX-6066`) and the runtime re-challenges transparently. | SPEC |
+| `DAT-094` | P6 | MUST | `live` values **MUST** be delivered to a device only over its DPoP-bound channel (`ConfigService.GetLiveConfig`), with the version of the snapshot; a sensitive value is never a `live` value. The runtime **MUST** hold them in memory only, never on disk, in telemetry or in traces. | SPEC |
+| `DAT-095` | P6 | MUST | Every response to a gateway call **MUST** carry `Plux-Config-Epoch`, the epoch of the app and environment; a device that sees a newer epoch than its own **MUST** refresh its `live` values in the background. | SPEC |
+| `DAT-096` | P6 | MUST | A device **MUST** send the version of the `live` configuration it holds in `Plux-Config-Version` with every gateway call. If a value marked `strict` has changed since that version, the gateway **MUST** refuse the call (`PLX-6067`) before it reaches the upstream, and the runtime **MUST** refresh the values and repeat the call once with the same idempotency key; the user sees an error only if the repeat fails. | SPEC |
+| `DAT-097` | P6 | MUST | While a device is offline, or when its `live` values cannot be refreshed, a read of a `strict` value **MUST** fail closed with `PLX-6068`, which a page can handle; a read of a value that is not `strict` returns the last value this process holds, which is never persisted. | SPEC |
 
 ### 14.5 Local database
 
@@ -2983,8 +2991,9 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Document ID | `SRS-PLUX-001` |
 | Version | 1.4.1 App. G.1 lists the replay cache's health metrics (`SEC-023`). |
 | Status | Draft (living document) |
-| Date | 2026-10-08 |
-| Supersedes | 1.4.1 |
+| Date | 2026-10-11 |
+| Supersedes | 1.4.2 |
+| 1.4.3 | 2026-10-11 | Server-held configuration (maintainer decision, 2026-10-11; ADR-0061), a follow-on milestone of P6: new `DAT-090`–`DAT-097` (§14.4) — typed configuration values per app and environment in two tiers, `server-bound` values the gateway binds into requests at declared locations and `live` values a device fetches over its DPoP-bound channel, with an epoch and a version on every gateway call so that no value is stale where it takes effect; `DAT-003` also allows the secure gateway's server-bound values for calls that need server-held secrets; the `bundled` tier is the existing environment variables (`GOV-010`) and may lag. |
 | 1.4.2 | 2026-10-08 | P6 S0–S6 delivered on `feat/p6-s2-device-trust`: `SEC-005`, `SEC-008`, `SEC-020`–`SEC-022`, `SEC-024`, `SEC-025`, `SEC-029`, `SEC-040`, `SEC-050`, `SEC-051`, `SEC-056`, `SEC-120`–`SEC-122`, `SEC-141`, `SEC-182` and `NAV-009` `DONE`; `SEC-000`, `SEC-001`–`SEC-004`, `SEC-006`, `SEC-007`, `SEC-023`, `SEC-041`–`SEC-043`, `SEC-180` and `NFR-012` `WIP` until the milestones, the real-device check (B2 layer 3) or the reference-device run named in plan p6 complete them. |
 | 1.4.1 | 2026-10-08 | App. H.1: attestation is configured per app (`attestation.apps`) with an installation-wide `developmentProvider` switch, and the replay cache uses `cache.valkeyURL`, which takes a Sentinel URL, instead of a separate Sentinel list (maintainer decisions; ADR-0012, Revision). |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |

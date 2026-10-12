@@ -343,6 +343,11 @@ const (
 	GatewayUpstreamFailed        Code = 6062
 	DirectDataSourceRefused      Code = 6063
 	GatewayRateLimited           Code = 6064
+	BoundLocationSetByDevice     Code = 6065
+	BoundValueChanged            Code = 6066
+	LiveConfigStale              Code = 6067
+	LiveConfigUnavailable        Code = 6068
+	ConfigStoreUnavailable       Code = 6069
 	SCASignatureInvalid          Code = 6070
 	SCAChallengeInvalid          Code = 6071
 	SCADynamicLinkingMismatch    Code = 6072

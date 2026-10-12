@@ -51,7 +51,9 @@ type projectConfig struct {
 // env is what every server command stands on.
 type env struct {
 	stdout, stderr io.Writer
-	creds          credentials
+	// stdin is where --value-stdin reads a value; replaceable in tests.
+	stdin io.Reader
+	creds credentials
 	// httpClient is replaceable in tests.
 	httpClient *http.Client
 }
@@ -62,7 +64,7 @@ func newEnv(stdout, stderr io.Writer) env {
 	if err != nil {
 		dir = "."
 	}
-	return env{stdout: stdout, stderr: stderr, creds: credentials{dir: filepath.Join(dir, "plux")}, httpClient: &http.Client{Timeout: 5 * time.Minute}}
+	return env{stdout: stdout, stderr: stderr, stdin: os.Stdin, creds: credentials{dir: filepath.Join(dir, "plux")}, httpClient: &http.Client{Timeout: 5 * time.Minute}}
 }
 
 // common are the flags of every server command.

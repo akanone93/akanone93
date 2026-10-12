@@ -35,6 +35,8 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `bundle.verifierDepth` | count | 64 | 80% | 256 | installation | P1 | BND-006, QA-004 | Maximum nesting of tables the FlatBuffers verifier accepts in one section. |
 | `bundle.verifierTables` | count | 1000000 | 80% | 10000000 | installation | P1 | BND-006, QA-004 | Maximum number of tables and vectors the FlatBuffers verifier visits in one section. |
 | `confidential.bundleBytes` | bytes | 16777216 | 80% | 268435456 | installation, organization, app | P6 | SEC-053, LIM-004 | Bytes of confidential content one confidential bundle may hold. |
+| `config.valueBytes` | bytes | 4096 | 80% | 65536 | installation, organization, app | P6 | DAT-090, LIM-004 | Bytes of one server-held configuration value. |
+| `config.valuesPerEnvironment` | count | 256 | 80% | 4096 | installation, organization, app | P6 | DAT-090, LIM-004 | Server-held configuration values one environment holds. |
 | `data.cacheBytes` | bytes | 16777216 | 80% | 268435456 | installation, organization, app | P5 | DAT-010, LIM-004 | Bytes the response cache of data sources keeps on the device; the least recently used entries are evicted beyond it. |
 | `data.cacheEntries` | count | 1000 | 80% | 100000 | installation, organization, app | P5 | DAT-010, LIM-004 | Responses the cache of data sources keeps on the device; the least recently used are evicted beyond it. |
 | `data.downloadSize` | bytes | 52428800 | 80% | 2147483648 | installation, organization, app | P5 | DAT-031, LIM-004 | Bytes one download may have; checked against the declared length before the transfer and counted during it, a larger one is stopped. |

@@ -197,3 +197,60 @@ func BenchmarkDeviceVerification(b *testing.B) {
 	}
 	p95(b, "verify-p95-ms", samples)
 }
+
+// BenchmarkConfigOverhead measures what server-held configuration adds to
+// a gateway call (DAT-092, ADR-0061, NFR-025): the check of the epoch,
+// which is one read of the cache store, and the whole authorisation of a
+// call that binds a value into its body.
+//
+// epoch-check-p95-ms is the time of Snapshot on a warm replica. The cache
+// store here is in memory; against Valkey it adds the network round trip of
+// one GET, which the budget of 0.2 ms p95 allows for on a local network.
+// bound-p95-ms is Begin and Finish of an operation with a JSON Pointer
+// binding, and unbound-p95-ms the same for one without, so their
+// difference is the cost of the binding itself.
+func BenchmarkConfigOverhead(b *testing.B) {
+	f := newFixture(b)
+	src := f.withConfig()
+	f.gw.o.Count = nil // the benchmark sends far more than a device may
+	src.set(b, bound("poolAccount", "POOL-42"))
+	ctx := context.Background()
+	body := []byte(`{"amount":"20.00","note":"rent"}`)
+
+	b.Run("epoch-check", func(b *testing.B) {
+		samples := make([]time.Duration, 0, b.N)
+		for b.Loop() {
+			start := time.Now()
+			if _, err := f.config.Snapshot(ctx, f.dev.OrganizationID, f.dev.AppID, f.dev.EnvironmentID); err != nil {
+				b.Fatal(err)
+			}
+			samples = append(samples, time.Since(start))
+		}
+		p95(b, "epoch-check-p95-ms", samples)
+	})
+
+	for _, tc := range []struct {
+		name, metric string
+		req          Request
+		body         []byte
+	}{
+		{"unbound", "unbound-p95-ms", Request{Upstream: "bank", Operation: "balance", Method: "GET", Target: "/accounts/1"}, nil},
+		{"bound", "bound-p95-ms", Request{Upstream: "bank", Operation: "pay", Method: "POST", Target: "/payments", Header: http.Header{"Content-Type": {"application/json"}}}, body},
+	} {
+		b.Run(tc.name, func(b *testing.B) {
+			samples := make([]time.Duration, 0, b.N)
+			for b.Loop() {
+				start := time.Now()
+				p, err := f.gw.Begin(ctx, f.dev, tc.req)
+				if err != nil {
+					b.Fatal(err)
+				}
+				if _, err := p.Finish(ctx, tc.body); err != nil {
+					b.Fatal(err)
+				}
+				samples = append(samples, time.Since(start))
+			}
+			p95(b, tc.metric, samples)
+		})
+	}
+}

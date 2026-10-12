@@ -16,6 +16,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -36,6 +37,9 @@ type world struct {
 	db       *storage.DB
 	tenancy  *tenancy.Service
 	registry *gateway.Registry
+	configs  *gateway.Configs
+	cache    *cache.Memory
+	log      *audit.Log
 	org      string
 	owner    auth.Principal
 	viewer   auth.Principal
@@ -59,6 +63,15 @@ func newWorld(t *testing.T) *world {
 	}
 	w := &world{db: db, envs: map[string]string{}}
 	if w.tenancy, err = tenancy.NewService(tenancy.Options{DB: db, Audit: log, Auth: authService, Crypter: backend, IDs: gen, SigningKeyPrefix: "targets"}); err != nil {
+		t.Fatal(err)
+	}
+	w.cache, w.log = cache.NewMemory(nil), log
+	if w.configs, err = gateway.NewConfigs(gateway.ConfigOptions{
+		DB: db, Audit: log, Crypter: backend, Cache: w.cache,
+		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
+			return w.tenancy.Effective(ctx, tx, org, app, "")
+		},
+	}); err != nil {
 		t.Fatal(err)
 	}
 	if w.registry, err = gateway.NewRegistry(gateway.RegistryOptions{DB: db, Audit: log, IDs: gen}); err != nil {

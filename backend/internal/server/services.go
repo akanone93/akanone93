@@ -307,7 +307,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		return nil, fmt.Errorf("server: %w", err)
 	}
 	gw, err := buildGateway(gatewayDeps{
-		cfg: cfg, db: db, cache: shared, set: set, signer: tokenSigner, ids: gen, audit: log, tenancy: tenancyService,
+		cfg: cfg, db: db, cache: shared, set: set, signer: tokenSigner, crypter: backend, ids: gen, audit: log, tenancy: tenancyService,
 		devices: devices, configs: configs, trust: trust, metrics: work.Metrics, secretOf: secrets{t: tenancyService},
 	})
 	if err != nil {
@@ -542,6 +542,7 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	}
 	if g := svc.Gateway; g != nil {
 		h.Gateway, h.Upstreams, h.Exchange = g.Gateway, g.Upstreams, g.Exchange
+		h.Configs, h.LiveConfig = g.Configs, g.Resolver
 	}
 	people := api.Authentication(svc.Auth, api.IdentityPublic, s.trusted, limiter, s.limits.Get(limits.APIRequestsPerMinute))
 	deviceAuth := s.deviceAuth(svc, limiter, people)
@@ -623,6 +624,7 @@ func (s *Server) RegisterGateway(svc *Services) error {
 	h := &api.Handlers{
 		Devices: svc.Devices, Pages: svc.Pages, Limiter: limiter, Limits: s.limits,
 		Gateway: svc.Gateway.Gateway, Upstreams: svc.Gateway.Upstreams, Exchange: svc.Gateway.Exchange,
+		LiveConfig: svc.Gateway.Resolver,
 	}
 	people := func(context.Context, api.Call, func(context.Context) error) error {
 		return plxerr.New(plxerr.PermissionDenied, "this role serves devices only")

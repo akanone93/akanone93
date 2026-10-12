@@ -108,6 +108,7 @@ type fixture struct {
 	users   *UserTokens
 	sca     *SCA
 	egress  *Egress
+	config  *ConfigResolver
 	dev     device.Identity
 	// scaKey is the private half of the device's SCA key.
 	scaKey *ecdsa.PrivateKey
@@ -170,7 +171,7 @@ func (f *fixture) build() {
 	gw, err := New(Options{
 		Upstreams: f.ups, Egress: f.egress,
 		Assertions: &Assertions{Signer: tokens, Issuer: testIssuer, Now: f.clock.Now},
-		Users:      f.users, SCA: f.sca,
+		Users:      f.users, SCA: f.sca, Config: f.config,
 		Limits: func(context.Context, device.Identity) (limits.Set, error) { return f.limits, nil },
 		Count: func(ctx context.Context, key string, ttl time.Duration) (int64, error) {
 			return f.cache.Increment(ctx, key, ttl)

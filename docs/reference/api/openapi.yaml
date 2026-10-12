@@ -1196,6 +1196,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListUsagesResponse'
+  /plux.v1.ConfigService/GetLiveConfig:
+    post:
+      tags:
+        - plux.v1.ConfigService
+      summary: GetLiveConfig
+      description: |-
+        GetLiveConfig returns every live value of the device's environment
+         with the version of the snapshot and the environment's epoch. It
+         never returns a server-bound or a sensitive value (DAT-094).
+      operationId: plux.v1.ConfigService.GetLiveConfig
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetLiveConfigRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetLiveConfigResponse'
   /plux.v1.ControlService/GetControl:
     post:
       tags:
@@ -5022,6 +5064,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.CreateUpstreamResponse'
+  /plux.v1.SecurityAdminService/DeleteConfigValue:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: DeleteConfigValue
+      operationId: plux.v1.SecurityAdminService.DeleteConfigValue
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteConfigValueRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteConfigValueResponse'
   /plux.v1.SecurityAdminService/DeleteUpstream:
     post:
       tags:
@@ -5098,6 +5178,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.DeleteUserIdentityProviderResponse'
+  /plux.v1.SecurityAdminService/GetConfigValue:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: GetConfigValue
+      description: |-
+        GetConfigValue returns one value; a sensitive value's content is
+         omitted (DAT-090).
+      operationId: plux.v1.SecurityAdminService.GetConfigValue
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetConfigValueRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetConfigValueResponse'
   /plux.v1.SecurityAdminService/GetEffectiveSecurityConfig:
     post:
       tags:
@@ -5257,6 +5378,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListAuditCheckpointsResponse'
+  /plux.v1.SecurityAdminService/ListConfigValues:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: ListConfigValues
+      operationId: plux.v1.SecurityAdminService.ListConfigValues
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListConfigValuesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListConfigValuesResponse'
   /plux.v1.SecurityAdminService/ListUpstreams:
     post:
       tags:
@@ -5295,6 +5454,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListUpstreamsResponse'
+  /plux.v1.SecurityAdminService/SetConfigValue:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: SetConfigValue
+      description: |-
+        SetConfigValue creates or changes a server-held configuration value
+         of an environment (DAT-090). It fails when expected_version is not
+         the value's current version.
+      operationId: plux.v1.SecurityAdminService.SetConfigValue
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetConfigValueRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SetConfigValueResponse'
   /plux.v1.SecurityAdminService/SetSecurityConfig:
     post:
       tags:
@@ -6737,6 +6938,158 @@ components:
           title: updated_at
       title: Component
       additionalProperties: false
+    plux.v1.ConfigBinding:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            header:
+              type: string
+              title: header
+              description: header is the name of a request header.
+          title: header
+        - type: object
+          properties:
+            jsonPointer:
+              type: string
+              title: json_pointer
+              description: json_pointer (RFC 6901) addresses a member of a JSON request body.
+          title: json_pointer
+        - type: object
+          properties:
+            pathParam:
+              type: string
+              title: path_param
+              description: |-
+                path_param names a path segment the gateway inserts directly after
+                 the operation's path prefix, in the order of the bindings.
+          title: path_param
+        - type: object
+          properties:
+            queryParam:
+              type: string
+              title: query_param
+              description: query_param is the name of a query parameter.
+          title: query_param
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - header
+              - required:
+                  - jsonPointer
+              - required:
+                  - pathParam
+              - required:
+                  - queryParam
+          - not:
+              oneOf:
+                - required:
+                    - header
+                - required:
+                    - jsonPointer
+                - required:
+                    - pathParam
+                - required:
+                    - queryParam
+      properties:
+        key:
+          type: string
+          title: key
+          description: key is the configuration value; its tier must be server-bound.
+        display:
+          type: boolean
+          title: display
+          description: |-
+            display marks a value of a transaction the user must see before they
+             confirm it: the gateway resolves it when the challenge is created,
+             returns it for the confirmation sheet and binds it into the signed
+             summary (DAT-093). It needs a json_pointer location that the
+             operation's transaction maps.
+        label:
+          type: string
+          title: label
+          description: |-
+            label is what the confirmation sheet calls a displayed value; empty
+             means key.
+      title: ConfigBinding
+      description: |-
+        ConfigBinding binds one server-held configuration value into the
+         outgoing request of an operation (DAT-091). The device never sends,
+         chooses or sees a bound value, and a request that sets the bound
+         location is refused.
+    plux.v1.ConfigTier:
+      type: string
+      title: ConfigTier
+      enum:
+        - CONFIG_TIER_UNSPECIFIED
+        - CONFIG_TIER_SERVER_BOUND
+        - CONFIG_TIER_LIVE
+      description: |-
+        ConfigTier says how a configuration value reaches the code that uses it
+         (DAT-090).
+    plux.v1.ConfigType:
+      type: string
+      title: ConfigType
+      enum:
+        - CONFIG_TYPE_UNSPECIFIED
+        - CONFIG_TYPE_STRING
+        - CONFIG_TYPE_INTEGER
+        - CONFIG_TYPE_DECIMAL
+        - CONFIG_TYPE_BOOLEAN
+      description: |-
+        ConfigType is the type of a configuration value, which is carried as
+         text.
+    plux.v1.ConfigValue:
+      type: object
+      properties:
+        key:
+          type: string
+          title: key
+          description: |-
+            key names the value: a letter followed by letters, digits and
+             underscores.
+        tier:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ConfigTier'
+          title: tier
+        sensitive:
+          type: boolean
+          title: sensitive
+          description: |-
+            sensitive values are sealed at rest and never returned (SEC-106);
+             only server-bound values may be sensitive.
+        strict:
+          type: boolean
+          title: strict
+          description: |-
+            strict marks a live value whose change refuses a gateway call made
+             with an older live-configuration version (DAT-096, DAT-097).
+        type:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ConfigType'
+          title: type
+        value:
+          type: string
+          title: value
+          description: |-
+            value is the text form of the value; it is omitted when the value is
+             sensitive and the message is a response.
+        version:
+          type: string
+          title: version
+          format: int64
+          description: version rises with every change of the value.
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+      title: ConfigValue
+      additionalProperties: false
+      description: |-
+        ConfigValue is one server-held configuration value of an environment
+         (DAT-090).
     plux.v1.ConfirmFactorRequest:
       type: object
       properties:
@@ -7123,6 +7476,23 @@ components:
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: expires_at
           description: expires_at is when the challenge stops being accepted.
+        transactionSummaryJcs:
+          type: string
+          title: transaction_summary_jcs
+          format: byte
+          description: |-
+            transaction_summary_jcs is the RFC 8785 canonical JSON the challenge
+             is bound to: the device's summary with the server-held values of the
+             operation's display bindings merged in. The SCA key signs the
+             challenge followed by these bytes (DAT-093).
+        displayed:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.DisplayedValue'
+          title: displayed
+          description: |-
+            displayed are the server-held values the confirmation sheet shows
+             beside the device's own summary (DAT-093).
       title: CreateTransactionChallengeResponse
       additionalProperties: false
     plux.v1.CreateUpstreamRequest:
@@ -7218,6 +7588,24 @@ components:
     plux.v1.DeleteChannelResponse:
       type: object
       title: DeleteChannelResponse
+      additionalProperties: false
+    plux.v1.DeleteConfigValueRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        key:
+          type: string
+          title: key
+      title: DeleteConfigValueRequest
+      additionalProperties: false
+    plux.v1.DeleteConfigValueResponse:
+      type: object
+      title: DeleteConfigValueResponse
       additionalProperties: false
     plux.v1.DeleteDocumentRequest:
       type: object
@@ -7494,6 +7882,22 @@ components:
       title: Diagnostic
       additionalProperties: false
       description: Diagnostic is a finding about a document (ADR-0018, Appendix F).
+    plux.v1.DisplayedValue:
+      type: object
+      properties:
+        label:
+          type: string
+          title: label
+          description: label names the value for the user.
+        value:
+          type: string
+          title: value
+          description: value is its text form.
+      title: DisplayedValue
+      additionalProperties: false
+      description: |-
+        DisplayedValue is a server-held value of a transaction that the user
+         sees before confirming it, such as the payee (DAT-093).
     plux.v1.Document:
       type: object
       properties:
@@ -7932,6 +8336,29 @@ components:
           format: byte
       title: GetComponentResponse
       additionalProperties: false
+    plux.v1.GetConfigValueRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        key:
+          type: string
+          title: key
+      title: GetConfigValueRequest
+      additionalProperties: false
+    plux.v1.GetConfigValueResponse:
+      type: object
+      properties:
+        value:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ConfigValue'
+          title: value
+      title: GetConfigValueResponse
+      additionalProperties: false
     plux.v1.GetControlRequest:
       type: object
       properties:
@@ -8056,6 +8483,36 @@ components:
             sha256 is the hash of effective_json, the value the manifest pins
              (SEC-182).
       title: GetEffectiveSecurityConfigResponse
+      additionalProperties: false
+    plux.v1.GetLiveConfigRequest:
+      type: object
+      title: GetLiveConfigRequest
+      additionalProperties: false
+    plux.v1.GetLiveConfigResponse:
+      type: object
+      properties:
+        version:
+          type: string
+          title: version
+          format: int64
+          description: |-
+            version is the live-configuration version of this snapshot: the
+             epoch at which a live value last changed. The device sends it in
+             Plux-Config-Version with every gateway call (DAT-096).
+        epoch:
+          type: string
+          title: epoch
+          format: int64
+          description: |-
+            epoch is the environment's configuration epoch when the snapshot was
+             read. A gateway response with a greater Plux-Config-Epoch tells the
+             device to fetch again (DAT-095).
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.LiveConfigValue'
+          title: values
+      title: GetLiveConfigResponse
       additionalProperties: false
     plux.v1.GetLockRequest:
       type: object
@@ -8966,6 +9423,42 @@ components:
           title: page
       title: ListComponentsResponse
       additionalProperties: false
+    plux.v1.ListConfigValuesRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListConfigValuesRequest
+      additionalProperties: false
+    plux.v1.ListConfigValuesResponse:
+      type: object
+      properties:
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ConfigValue'
+          title: values
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+        epoch:
+          type: string
+          title: epoch
+          format: int64
+          description: |-
+            epoch is the environment's configuration epoch, which rises with
+             every change (DAT-095).
+      title: ListConfigValuesResponse
+      additionalProperties: false
     plux.v1.ListDevicesRequest:
       type: object
       properties:
@@ -9592,6 +10085,34 @@ components:
           title: page
       title: ListWorkloadIdentitiesResponse
       additionalProperties: false
+    plux.v1.LiveConfigValue:
+      type: object
+      properties:
+        key:
+          type: string
+          title: key
+        type:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ConfigType'
+          title: type
+        strict:
+          type: boolean
+          title: strict
+          description: strict values fail closed while they cannot be refreshed (DAT-097).
+        value:
+          type: string
+          title: value
+          description: value is the text form of the value.
+        version:
+          type: string
+          title: version
+          format: int64
+          description: version is the value's own version.
+      title: LiveConfigValue
+      additionalProperties: false
+      description: |-
+        LiveConfigValue is a live value as a device receives it. Devices hold
+         it in memory only (DAT-094).
     plux.v1.Location:
       type: object
       properties:
@@ -10865,6 +11386,41 @@ components:
           title: limit
       title: SetAppLimitResponse
       additionalProperties: false
+    plux.v1.SetConfigValueRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        value:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ConfigValue'
+          title: value
+          description: value is the value to store; version and updated_at are ignored.
+        expectedVersion:
+          type:
+            - string
+            - "null"
+          title: expected_version
+          format: int64
+          description: |-
+            expected_version is the version the caller read; zero for a key that
+             does not exist yet. Omit it to set without the check.
+      title: SetConfigValueRequest
+      additionalProperties: false
+    plux.v1.SetConfigValueResponse:
+      type: object
+      properties:
+        value:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ConfigValue'
+          title: value
+          description: value is the stored value, without its content when it is sensitive.
+      title: SetConfigValueResponse
+      additionalProperties: false
     plux.v1.SetControlRequest:
       type: object
       properties:
@@ -11738,6 +12294,14 @@ components:
           description: |-
             plugins limits the operation to the plugins that declare the
              capability to call it (SEC-080); empty means any plugin of the app.
+        bindings:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ConfigBinding'
+          title: bindings
+          description: |-
+            bindings put server-held configuration values into the request the
+             gateway forwards, at locations only this definition names (DAT-091).
       title: UpstreamOperation
       additionalProperties: false
       description: |-
@@ -12002,6 +12566,15 @@ tags:
       ComponentService lists the components of an app and of its plugins and
        reports where each is used, so that changing one shows its blast radius.
        Component documents themselves are written through DocumentService.
+  - name: plux.v1.SecurityAdminService
+    description: |-
+      SecurityAdminService is the administrators' side of device security: an
+       environment's security configuration, the upstreams its gateway
+       reaches, and the signed audit checkpoints. Devices never call it.
+  - name: plux.v1.ConfigService
+    description: |-
+      ConfigService delivers the live server-held configuration of a device's
+       app and environment over the device's DPoP-bound channel (DAT-094).
   - name: plux.v1.ControlService
     description: |-
       ControlService sets the switches that reach devices with the next
@@ -12080,11 +12653,6 @@ tags:
     description: |-
       ReleaseService manages immutable plugin versions and app releases, their
        promotion between environments and their rollback (ADR-0020).
-  - name: plux.v1.SecurityAdminService
-    description: |-
-      SecurityAdminService is the administrators' side of device security: an
-       environment's security configuration, the upstreams its gateway
-       reaches, and the signed audit checkpoints. Devices never call it.
   - name: plux.v1.TelemetryService
     description: |-
       TelemetryService ingests the runtime's batched events (Appendix G.2).

@@ -123,6 +123,12 @@ const (
 	UserIdentityProviderSet     Action = "gateway.user_identity_provider_set"
 	UserIdentityProviderDeleted Action = "gateway.user_identity_provider_deleted"
 
+	// ConfigValueSet and ConfigValueDeleted: a server-held configuration
+	// value of an environment changed; the entry names the key and the
+	// version, never the value (DAT-090).
+	ConfigValueSet     Action = "config.value_set"
+	ConfigValueDeleted Action = "config.value_deleted"
+
 	// UpdateMetadataRootUploaded: an operator stored a root signed
 	// offline (SEC-051, SEC-140).
 	UpdateMetadataRootUploaded Action = "update_metadata.root_uploaded"
@@ -146,6 +152,7 @@ var actions = sorted(
 	SnapshotRestored, TemplateInstantiated, LockAcquired, LockTakenOver, LockReleased, LockRequested,
 	DeviceRevoked, SecurityConfigSet, UpdateMetadataRootUploaded,
 	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,
+	ConfigValueSet, ConfigValueDeleted,
 )
 
 // sorted returns its arguments in order.

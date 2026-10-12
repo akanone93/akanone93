@@ -99,4 +99,21 @@ message CreateTransactionChallengeResponse {
   bytes challenge = 2;
   // expires_at is when the challenge stops being accepted.
   google.protobuf.Timestamp expires_at = 3;
+  // transaction_summary_jcs is the RFC 8785 canonical JSON the challenge
+  // is bound to: the device's summary with the server-held values of the
+  // operation's display bindings merged in. The SCA key signs the
+  // challenge followed by these bytes (DAT-093).
+  bytes transaction_summary_jcs = 4;
+  // displayed are the server-held values the confirmation sheet shows
+  // beside the device's own summary (DAT-093).
+  repeated DisplayedValue displayed = 5;
+}
+
+// DisplayedValue is a server-held value of a transaction that the user
+// sees before confirming it, such as the payee (DAT-093).
+message DisplayedValue {
+  // label names the value for the user.
+  string label = 1;
+  // value is its text form.
+  string value = 2;
 }

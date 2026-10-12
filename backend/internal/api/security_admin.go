@@ -280,6 +280,9 @@ func upstreamFromProto(m *pluxv1.Upstream) gateway.Upstream {
 		if t := op.GetTransaction(); t != nil {
 			o.Transaction = &gateway.Transaction{Amount: t.GetAmount(), Currency: t.GetCurrency(), Payee: t.GetPayee(), Summary: t.GetSummary()}
 		}
+		for _, b := range op.GetBindings() {
+			o.Bindings = append(o.Bindings, bindingFromProto(b))
+		}
 		u.Operations = append(u.Operations, o)
 	}
 	return u
@@ -310,7 +313,43 @@ func upstreamProto(u gateway.Upstream) *pluxv1.Upstream {
 		if t := op.Transaction; t != nil {
 			o.Transaction = &pluxv1.UpstreamTransaction{Amount: t.Amount, Currency: t.Currency, Payee: t.Payee, Summary: t.Summary}
 		}
+		for _, b := range op.Bindings {
+			o.Bindings = append(o.Bindings, bindingProto(b))
+		}
 		m.Operations = append(m.Operations, o)
+	}
+	return m
+}
+
+// bindingFromProto converts a binding; one with no location is left with
+// none, which validation refuses.
+func bindingFromProto(m *pluxv1.ConfigBinding) gateway.Binding {
+	b := gateway.Binding{Key: m.GetKey(), Display: m.GetDisplay(), Label: m.GetLabel()}
+	switch l := m.GetLocation().(type) {
+	case *pluxv1.ConfigBinding_JsonPointer:
+		b.Location, b.Name = gateway.BindJSONPointer, l.JsonPointer
+	case *pluxv1.ConfigBinding_Header:
+		b.Location, b.Name = gateway.BindHeader, l.Header
+	case *pluxv1.ConfigBinding_PathParam:
+		b.Location, b.Name = gateway.BindPathParam, l.PathParam
+	case *pluxv1.ConfigBinding_QueryParam:
+		b.Location, b.Name = gateway.BindQueryParam, l.QueryParam
+	}
+	return b
+}
+
+// bindingProto converts a binding.
+func bindingProto(b gateway.Binding) *pluxv1.ConfigBinding {
+	m := &pluxv1.ConfigBinding{Key: b.Key, Display: b.Display, Label: b.Label}
+	switch b.Location {
+	case gateway.BindJSONPointer:
+		m.Location = &pluxv1.ConfigBinding_JsonPointer{JsonPointer: b.Name}
+	case gateway.BindHeader:
+		m.Location = &pluxv1.ConfigBinding_Header{Header: b.Name}
+	case gateway.BindPathParam:
+		m.Location = &pluxv1.ConfigBinding_PathParam{PathParam: b.Name}
+	case gateway.BindQueryParam:
+		m.Location = &pluxv1.ConfigBinding_QueryParam{QueryParam: b.Name}
 	}
 	return m
 }

@@ -128,6 +128,34 @@ type ChannelControl struct {
 	UpdatedAt         pgtype.Timestamptz
 }
 
+type ConfigEnvironment struct {
+	EnvironmentID  pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	Epoch          int64
+	LiveEpoch      int64
+	StrictEpoch    int64
+	UpdatedAt      pgtype.Timestamptz
+}
+
+type ConfigValue struct {
+	EnvironmentID  pgtype.UUID
+	Key            string
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	Tier           string
+	ValueType      string
+	Sensitive      bool
+	Strict         bool
+	Value          string
+	Ciphertext     []byte
+	WrappedKey     []byte
+	KeyID          *string
+	Version        int64
+	UpdatedBy      pgtype.UUID
+	UpdatedAt      pgtype.Timestamptz
+}
+
 type Delta struct {
 	OrganizationID pgtype.UUID
 	FromSha256     []byte

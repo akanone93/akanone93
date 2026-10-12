@@ -9,10 +9,12 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"connectrpc.com/connect"
 
+	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
@@ -44,12 +46,17 @@ func (s GatewayService) Call(ctx context.Context, req *connect.Request[pluxv1.Ca
 	for name, value := range m.GetHeaders() {
 		header.Add(name, value)
 	}
+	version, err := configVersion(req.Header())
+	if err != nil {
+		return nil, err
+	}
 	p, err := s.h.Gateway.Begin(ctx, d, gateway.Request{
 		Upstream: m.GetUpstream(), Operation: m.GetOperation(), Plugin: m.GetPlugin(), Method: m.GetMethod(), Target: m.GetPath(),
 		Header: header, UserToken: req.Header().Get(headerUserToken), ChallengeID: m.GetTransactionChallengeId(), Signature: m.GetTransactionSignature(),
+		ConfigVersion: version,
 	})
 	if err != nil {
-		return nil, err //nolint:wrapcheck // a domain error
+		return nil, withEpoch(ctx, s.h.Gateway, d, err)
 	}
 	var body []byte
 	if len(m.GetBody()) > 0 || p.NeedsBody() {
@@ -58,19 +65,30 @@ func (s GatewayService) Call(ctx context.Context, req *connect.Request[pluxv1.Ca
 			body = []byte{}
 		}
 	}
+	epoch, hasEpoch := p.ConfigEpoch()
+	refuse := func(err error) error {
+		if hasEpoch {
+			return &withHeader{err: err, header: epochHeader(epoch)}
+		}
+		return err
+	}
 	plan, err := p.Finish(ctx, body)
 	if err != nil {
-		return nil, err //nolint:wrapcheck // a domain error
+		return nil, refuse(err)
 	}
 	res, err := s.h.Gateway.Do(ctx, plan)
 	if err != nil {
-		return nil, err //nolint:wrapcheck // a domain error
+		return nil, refuse(err)
 	}
 	headers := make(map[string]string, len(res.Header))
 	for name, values := range res.Header {
 		headers[name] = strings.Join(values, ", ")
 	}
-	return connect.NewResponse(&pluxv1.CallResponse{Status: int32(res.Status), Headers: headers, Body: res.Body}), nil //nolint:gosec // an HTTP status
+	out := connect.NewResponse(&pluxv1.CallResponse{Status: int32(res.Status), Headers: headers, Body: res.Body}) //nolint:gosec // an HTTP status
+	if hasEpoch {
+		out.Header().Set(HeaderConfigEpoch, strconv.FormatInt(epoch, 10))
+	}
+	return out, nil
 }
 
 // ScaService serves the challenges of strong customer authentication
@@ -98,9 +116,13 @@ func (s ScaService) CreateTransactionChallenge(ctx context.Context, req *connect
 	}
 	c, err := s.h.Gateway.CreateChallenge(ctx, d, m.GetDataSource(), m.GetOperation(), m.GetTransactionSummaryJcs())
 	if err != nil {
-		return nil, err //nolint:wrapcheck // a domain error
+		return nil, withEpoch(ctx, s.h.Gateway, d, err)
 	}
-	return connect.NewResponse(&pluxv1.CreateTransactionChallengeResponse{ChallengeId: c.ID, Challenge: c.Bytes, ExpiresAt: ts(c.ExpiresAt)}), nil
+	out := &pluxv1.CreateTransactionChallengeResponse{ChallengeId: c.ID, Challenge: c.Bytes, ExpiresAt: ts(c.ExpiresAt), TransactionSummaryJcs: c.Summary}
+	for _, v := range c.Displayed {
+		out.Displayed = append(out.Displayed, &pluxv1.DisplayedValue{Label: v.Label, Value: v.Value})
+	}
+	return connect.NewResponse(out), nil
 }
 
 // The request headers the streaming route reads its typed fields from,
@@ -116,7 +138,41 @@ const (
 	headerUserToken   = "Plux-User-Token" //nolint:gosec // G101: a header name, not a credential
 	headerChallengeID = "Plux-Challenge-Id"
 	headerSignature   = "Plux-Transaction-Signature"
+
+	// headerConfigVersion carries the live-configuration version the
+	// device used (DAT-096); HeaderConfigEpoch carries the environment's
+	// configuration epoch on every response (DAT-095).
+	headerConfigVersion = "Plux-Config-Version"
+	HeaderConfigEpoch   = "Plux-Config-Epoch"
 )
+
+// configVersion reads Plux-Config-Version; absent means the device holds
+// no live configuration.
+func configVersion(h http.Header) (*int64, error) {
+	v := h.Get(headerConfigVersion)
+	if v == "" {
+		return nil, nil //nolint:nilnil // absent is a valid answer
+	}
+	n, err := strconv.ParseInt(v, 10, 64)
+	if err != nil || n < 0 {
+		return nil, plxerr.New(plxerr.InvalidFormat, "%s is a non-negative integer", headerConfigVersion)
+	}
+	return &n, nil
+}
+
+// epochHeader is the header every gateway response carries.
+func epochHeader(epoch int64) http.Header {
+	return http.Header{HeaderConfigEpoch: {strconv.FormatInt(epoch, 10)}}
+}
+
+// withEpoch attaches the configuration epoch to a refusal, when the
+// gateway can tell it (DAT-095).
+func withEpoch(ctx context.Context, g *gateway.Gateway, d device.Identity, err error) error {
+	if epoch, ok := g.ConfigEpoch(ctx, d); ok {
+		return &withHeader{err: err, header: epochHeader(epoch)}
+	}
+	return err
+}
 
 // GatewayRoute serves the HTTP form of the gateway, for bodies that must
 // stream, WebSocket and server-sent events: a device calls
@@ -147,15 +203,27 @@ func (g GatewayRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeGatewayError(w, err)
 		return
 	}
+	version, err := configVersion(r.Header)
+	if err != nil {
+		writeGatewayError(w, err)
+		return
+	}
 	req := gateway.Request{
 		Upstream: upstream, Operation: r.Header.Get(headerOperation), Plugin: r.Header.Get(headerPlugin),
 		Method: r.Method, Target: target, UserToken: r.Header.Get(headerUserToken),
 		ChallengeID: r.Header.Get(headerChallengeID), Signature: signature, Header: withoutTypedFields(r.Header),
+		ConfigVersion: version,
 	}
 	p, err := g.Gateway.Begin(r.Context(), d, req)
 	if err != nil {
+		if epoch, ok := g.Gateway.ConfigEpoch(r.Context(), d); ok {
+			w.Header().Set(HeaderConfigEpoch, strconv.FormatInt(epoch, 10))
+		}
 		writeGatewayError(w, err)
 		return
+	}
+	if epoch, ok := p.ConfigEpoch(); ok {
+		w.Header().Set(HeaderConfigEpoch, strconv.FormatInt(epoch, 10))
 	}
 	var body []byte
 	if p.NeedsBody() {
@@ -209,7 +277,7 @@ func decodeSignature(v string) ([]byte, error) {
 // that the gateway sees only what the device meant for the upstream.
 func withoutTypedFields(h http.Header) http.Header {
 	out := h.Clone()
-	for _, name := range []string{headerOperation, headerPlugin, headerUserToken, headerChallengeID, headerSignature} {
+	for _, name := range []string{headerOperation, headerPlugin, headerUserToken, headerChallengeID, headerSignature, headerConfigVersion} {
 		out.Del(name)
 	}
 	return out

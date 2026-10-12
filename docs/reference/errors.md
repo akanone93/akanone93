@@ -2098,6 +2098,46 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Slow down and retry after the indicated delay.
 
+### PLX-6065
+
+`BOUND_LOCATION_SET_BY_DEVICE` · error · Request sets a server-bound location
+
+**Cause.** The request sets a header, query parameter or body member that the operation binds to a server-held configuration value; only the server sets it (DAT-091).
+
+**Fix.** Remove the value from the request; the gateway adds it.
+
+### PLX-6066
+
+`BOUND_VALUE_CHANGED` · error · Server-held value changed since the challenge
+
+**Cause.** A server-held value the user confirmed in a transaction changed before the transaction was sent, so the confirmation no longer describes it (DAT-093).
+
+**Fix.** Request a new challenge and confirm the transaction again; the runtime does so transparently.
+
+### PLX-6067
+
+`LIVE_CONFIG_STALE` · error · Live configuration is stale
+
+**Cause.** A strict live configuration value changed after the version the call carries (DAT-096).
+
+**Fix.** Fetch the live configuration again and repeat the call; the runtime does so once.
+
+### PLX-6068
+
+`LIVE_CONFIG_UNAVAILABLE` · error · Live configuration unavailable
+
+**Cause.** A strict live configuration value was read while the device is offline or the values could not be refreshed (DAT-097).
+
+**Fix.** Go online and try again.
+
+### PLX-6069
+
+`CONFIG_STORE_UNAVAILABLE` · error · Configuration store unavailable
+
+**Cause.** The gateway could not check the current version of the server-held configuration, so it refuses the call instead of using a value that may be stale (DAT-092).
+
+**Fix.** Try again shortly.
+
 ### PLX-6070
 
 `SCA_SIGNATURE_INVALID` · error · Strong customer authentication signature invalid
