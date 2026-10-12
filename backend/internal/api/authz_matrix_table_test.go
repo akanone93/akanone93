@@ -295,13 +295,13 @@ var matrix = map[string]entry{
 	"SecurityAdminService/GetEffectiveSecurityConfig": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.GetEffectiveSecurityConfigRequest{AppId: f.app, EnvironmentId: f.dev}
 	})),
-	"SecurityAdminService/CreateUpstream": gateway(auth.AppManage, anyone(&pluxv1.CreateUpstreamRequest{Upstream: &pluxv1.Upstream{}})),
-	"SecurityAdminService/GetUpstream":    gateway(auth.AppRead, anyone(&pluxv1.GetUpstreamRequest{Id: unknownID})),
-	"SecurityAdminService/ListUpstreams": gateway(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+	"SecurityAdminService/CreateUpstream": gatewayRPC(auth.AppManage, anyone(&pluxv1.CreateUpstreamRequest{Upstream: &pluxv1.Upstream{}})),
+	"SecurityAdminService/GetUpstream":    gatewayRPC(auth.AppRead, anyone(&pluxv1.GetUpstreamRequest{Id: unknownID})),
+	"SecurityAdminService/ListUpstreams": gatewayRPC(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListUpstreamsRequest{AppId: f.app, EnvironmentId: f.dev}
 	})),
-	"SecurityAdminService/UpdateUpstream":       gateway(auth.AppManage, anyone(&pluxv1.UpdateUpstreamRequest{Upstream: &pluxv1.Upstream{Id: unknownID}})),
-	"SecurityAdminService/DeleteUpstream":       gateway(auth.AppManage, anyone(&pluxv1.DeleteUpstreamRequest{Id: unknownID})),
+	"SecurityAdminService/UpdateUpstream":       gatewayRPC(auth.AppManage, anyone(&pluxv1.UpdateUpstreamRequest{Upstream: &pluxv1.Upstream{Id: unknownID}})),
+	"SecurityAdminService/DeleteUpstream":       gatewayRPC(auth.AppManage, anyone(&pluxv1.DeleteUpstreamRequest{Id: unknownID})),
 	"SecurityAdminService/ListAuditCheckpoints": atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
 
 	// DeviceService, TelemetryService: the people's side
@@ -378,8 +378,8 @@ var variants = map[string]entry{
 	})),
 }
 
-// gateway is an entry for an RPC of the gateway's upstream registry, whose
+// gatewayRPC is an entry for an RPC of the gateway's upstream registry, whose
 // handlers arrive with the gateway and answer Unimplemented until then.
-func gateway(p auth.Permission, build func(*testing.T, *matrixFixture) proto.Message) entry {
+func gatewayRPC(p auth.Permission, build func(*testing.T, *matrixFixture) proto.Message) entry {
 	return entry{kind: needs, perm: p, build: build, unwired: true}
 }
