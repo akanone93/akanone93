@@ -32,6 +32,8 @@ final class _Rig
   Uint8List? signed;
   String? promptSubtitle;
   TransactionSummary? shown;
+  List<DisplayedValue> shownValues = const [];
+  List<DisplayedValue> serverValues = const [];
   Uint8List? challengedSummary;
 
   @override
@@ -46,6 +48,7 @@ final class _Rig
       id: 'ch-1',
       bytes: _challenge,
       expiresAt: expires,
+      displayed: serverValues,
     );
   }
 
@@ -56,9 +59,14 @@ final class _Rig
   }
 
   @override
-  Future<bool> confirm(BuildContext context, TransactionSummary summary) async {
+  Future<bool> confirm(
+    BuildContext context,
+    TransactionSummary summary, {
+    List<DisplayedValue> displayed = const [],
+  }) async {
     steps.add('sheet');
     shown = summary;
+    shownValues = displayed;
     return approve;
   }
 
@@ -201,6 +209,17 @@ void main() {
       dataSource: 'bank',
       operation: 'transfer',
       summary: _summary,
+    );
+
+    testWidgets(
+      'hands the values the server resolved to the sheet, after the summary [DAT-093]',
+      (tester) async {
+        await pumpScreen(tester);
+        rig.serverValues = const [DisplayedValue('Pool account', 'ACC-7')];
+        await make().confirm(request);
+        expect(rig.shownValues.single.label, 'Pool account');
+        expect(rig.shownValues.single.value, 'ACC-7');
+      },
     );
 
     testWidgets(
@@ -353,6 +372,40 @@ void main() {
         await tester.pumpAndSettle();
         expect(await result, isTrue);
         handle.dispose();
+      },
+    );
+
+    testWidgets(
+      'shows the values the server resolved, as it returned them [DAT-093]',
+      (tester) async {
+        late BuildContext screen;
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (c) {
+                screen = c;
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+        final result = const SheetTransactionConfirmer().confirm(
+          screen,
+          _summary,
+          displayed: const [
+            DisplayedValue('Pool account', 'ACC-7'),
+            DisplayedValue('Provider', 'Water Co'),
+          ],
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Pool account'), findsOneWidget);
+        expect(find.text('ACC-7'), findsOneWidget);
+        expect(find.text('Provider'), findsOneWidget);
+        expect(find.text('Water Co'), findsOneWidget);
+        expect(find.text('Ada "Lovelace"'), findsOneWidget);
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
+        expect(await result, isFalse);
       },
     );
 

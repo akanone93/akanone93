@@ -17,6 +17,7 @@ import 'package:cryptography/cryptography.dart' show SimpleKeyPair;
 import 'package:cryptography/dart.dart';
 import 'package:plux_flutter/src/assets/assets.dart';
 import 'package:plux_flutter/src/bundle/container.dart';
+import 'package:plux_flutter/src/data/live_config.dart';
 import 'package:plux_flutter/src/security/content_key.dart';
 import 'package:plux_flutter/src/security/device_keys.dart' show EcPublicKey;
 import 'package:plux_flutter/src/sync/api_client.dart' show installedDigest;
@@ -312,6 +313,35 @@ final class FakePluxServer {
   /// The `configVersion` of each manifest request, in order.
   final List<Object?> configVersionsSeen = [];
 
+  /// Whether `GatewayService.Call` answers (DAT-095, DAT-096); off, it is
+  /// not found, as for a server without a gateway.
+  bool gatewayEnabled = false;
+
+  /// The `live` values `ConfigService.GetLiveConfig` returns, in the form
+  /// of the API: key, type, value, strict (DAT-094).
+  List<Map<String, Object?>> liveValues = [];
+
+  /// The version of [liveValues].
+  int liveVersion = 1;
+
+  /// The epoch of the app and environment, which every gateway response
+  /// carries in `Plux-Config-Epoch` (DAT-095).
+  int liveEpoch = 1;
+
+  /// `GetLiveConfig` calls answered.
+  int liveFetches = 0;
+
+  /// While set, a gateway call naming a version below this one is refused
+  /// with the code of a stale configuration version (DAT-096).
+  int? refuseBelowVersion;
+
+  /// The `Plux-Config-Version` of each gateway call, in order; null when
+  /// the call sent none.
+  final List<int?> gatewayVersions = [];
+
+  /// The body of each gateway call that was served or refused, in order.
+  final List<Map<String, Object?>> gatewayBodies = [];
+
   /// Stops the server.
   Future<void> close() => _server.close(force: true);
 
@@ -417,6 +447,9 @@ final class FakePluxServer {
       final out = await _rpc(req.uri.path, body, req.headers);
       res.statusCode = out.$1;
       res.headers.contentType = ContentType.json;
+      if (req.uri.path == '/plux.v1.GatewayService/Call') {
+        res.headers.set(pluxConfigEpochHeader, '$liveEpoch');
+      }
       final text = jsonEncode(out.$2);
       if (req.uri.path.endsWith('GetManifest')) {
         manifestResponseSizes.add(utf8.encode(text).length);
@@ -549,6 +582,44 @@ final class FakePluxServer {
             .cast<Map<String, Object?>>();
         events.addAll(batch);
         return (200, {'accepted': batch.length});
+      case '/plux.v1.ConfigService/GetLiveConfig':
+        if (!authed) {
+          return (401, {'code': 'unauthenticated', 'message': 'no token'});
+        }
+        liveFetches++;
+        return (
+          200,
+          {
+            'version': '$liveVersion',
+            'epoch': '$liveEpoch',
+            'values': liveValues,
+          },
+        );
+      case '/plux.v1.GatewayService/Call' when gatewayEnabled:
+        if (!authed) {
+          return (401, {'code': 'unauthenticated', 'message': 'no token'});
+        }
+        final sent = int.tryParse(headers.value(pluxConfigVersionHeader) ?? '');
+        gatewayVersions.add(sent);
+        gatewayBodies.add(body);
+        if (refuseBelowVersion case final floor? when (sent ?? 0) < floor) {
+          return (
+            403,
+            {
+              'code': 'failed_precondition',
+              'message':
+                  'PLX-${ConfigCode.stale.number}: a strict value changed',
+            },
+          );
+        }
+        return (
+          200,
+          {
+            'status': 200,
+            'headers': {'Content-Type': 'application/json'},
+            'body': base64.encode(utf8.encode('{"ok":true}')),
+          },
+        );
       case '/plux.v1.ManifestService/GetRootKeys':
         if (!authed || metadata == null) {
           return (401, {'code': 'unauthenticated', 'message': 'no token'});

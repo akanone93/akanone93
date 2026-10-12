@@ -15,12 +15,17 @@ final class SheetTransactionConfirmer implements TransactionConfirmer {
   const SheetTransactionConfirmer();
 
   @override
-  Future<bool> confirm(BuildContext context, TransactionSummary summary) async {
+  Future<bool> confirm(
+    BuildContext context,
+    TransactionSummary summary, {
+    List<DisplayedValue> displayed = const [],
+  }) async {
     final confirmed = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (_) => TransactionConfirmSheet(summary: summary),
+      builder: (_) =>
+          TransactionConfirmSheet(summary: summary, displayed: displayed),
     );
     return confirmed ?? false;
   }
@@ -30,12 +35,21 @@ final class SheetTransactionConfirmer implements TransactionConfirmer {
 /// confirms and `false` when they cancel; dismissing it pops nothing, which
 /// is a cancellation.
 final class TransactionConfirmSheet extends StatelessWidget {
-  /// Creates the sheet for [summary].
-  const TransactionConfirmSheet({required this.summary, super.key});
+  /// Creates the sheet for [summary]; the [displayed] values the server
+  /// resolved (DAT-093) follow its rows.
+  const TransactionConfirmSheet({
+    required this.summary,
+    this.displayed = const [],
+    super.key,
+  });
 
   /// What the user confirms; every field is shown as it is, without
   /// formatting, since it is the very text that is signed.
   final TransactionSummary summary;
+
+  /// The values the server resolved for this transaction, shown as the
+  /// server returned them.
+  final List<DisplayedValue> displayed;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +76,7 @@ final class TransactionConfirmSheet extends StatelessWidget {
               _Row(label: 'Payee', value: summary.payee),
               if (summary.description case final description?)
                 _Row(label: 'Description', value: description),
+              for (final d in displayed) _Row(label: d.label, value: d.value),
               const SizedBox(height: 24),
               FilledButton(
                 onPressed: () => Navigator.of(context).pop(true),

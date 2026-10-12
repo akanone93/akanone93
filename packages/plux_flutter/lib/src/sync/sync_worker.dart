@@ -16,6 +16,7 @@ import 'package:http/http.dart' as http;
 import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/data/gateway.dart';
+import 'package:plux_flutter/src/data/live_config.dart';
 import 'package:plux_flutter/src/data/transport.dart' show DataResponse;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
@@ -152,6 +153,13 @@ final class _EnrolSca extends _Command {
   const _EnrolSca(super.reply);
 }
 
+/// Reads a `live` configuration value (DAT-094); replies a
+/// [LiveConfigValue] or a [DataFailure].
+final class _ReadConfig extends _Command {
+  const _ReadConfig(super.reply, this.key);
+  final String key;
+}
+
 /// Events to buffer; no reply (ADR-0034).
 final class _Record {
   const _Record(this.lines, this.maxBytes);
@@ -173,7 +181,8 @@ final class _Purge {
 /// The UI isolate's handle on the sync isolate. It also carries the device's
 /// requests to the gateway, because that isolate holds the token and the
 /// DPoP key (SEC-030).
-final class SyncWorker implements GatewayTransport, ChallengeSource {
+final class SyncWorker
+    implements GatewayTransport, ChallengeSource, ConfigSource {
   SyncWorker._(
     this._isolate,
     this._commands,
@@ -285,6 +294,10 @@ final class SyncWorker implements GatewayTransport, ChallengeSource {
   @override
   Future<DataResponse> call(GatewayRequest request) async =>
       await _ask((p) => _Gateway(p, request)) as DataResponse;
+
+  @override
+  Future<LiveConfigValue> read(String key) async =>
+      await _ask((p) => _ReadConfig(p, key)) as LiveConfigValue;
 
   @override
   Future<TransactionChallenge> challenge({
@@ -471,6 +484,8 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
             ),
           ),
         );
+      case _ReadConfig(:final reply, :final key):
+        unawaited(_serve(reply, () => engine.gateway.live.read(key)));
       case _EnrolSca(:final reply):
         unawaited(_serve(reply, engine.gateway.ensureEnrolled));
       case _Sync(:final reply):

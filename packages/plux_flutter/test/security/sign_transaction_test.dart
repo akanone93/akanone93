@@ -41,7 +41,11 @@ final class _Rig
   Future<bool> ensureEnrolled() async => true;
 
   @override
-  Future<bool> confirm(BuildContext context, TransactionSummary s) async {
+  Future<bool> confirm(
+    BuildContext context,
+    TransactionSummary s, {
+    List<DisplayedValue> displayed = const [],
+  }) async {
     shown.add(s);
     return approve;
   }

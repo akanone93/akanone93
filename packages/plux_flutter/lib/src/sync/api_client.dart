@@ -12,6 +12,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
+import 'package:plux_flutter/src/data/live_config.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/security/assurance.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
@@ -737,7 +738,10 @@ final class PluxApiClient {
   /// [userToken] — the Plux user token of the token exchange — travels in
   /// the `Plux-User-Token` header, outside the headers the upstream
   /// receives (SEC-026). A transaction carries the [challengeId] and the
-  /// [signature] of the SCA key (SEC-032).
+  /// [signature] of the SCA key (SEC-032). The [configVersion] of the `live`
+  /// configuration the device used travels in `Plux-Config-Version`
+  /// (DAT-096), and [onHeaders] sees the headers of the response, success or
+  /// refusal, for the `Plux-Config-Epoch` (DAT-095).
   Future<GatewayReply> gatewayCall({
     required DeviceToken token,
     required String upstream,
@@ -749,6 +753,8 @@ final class PluxApiClient {
     String? userToken,
     String challengeId = '',
     Uint8List? signature,
+    int? configVersion,
+    void Function(Map<String, String> headers)? onHeaders,
   }) async {
     final r = await _call(
       'plux.v1.GatewayService/Call',
@@ -764,7 +770,11 @@ final class PluxApiClient {
           'transactionSignature': base64.encode(signature),
       },
       token: token,
-      extraHeaders: {pluxUserTokenHeader: ?userToken},
+      extraHeaders: {
+        pluxUserTokenHeader: ?userToken,
+        if (configVersion != null) pluxConfigVersionHeader: '$configVersion',
+      },
+      onHeaders: onHeaders,
     );
     try {
       final h = r['headers'];
@@ -812,7 +822,44 @@ final class PluxApiClient {
         expires == null) {
       throw const ApiError(0, 'unknown', 'the server sent no challenge');
     }
-    return TransactionChallenge(id: id, bytes: challenge, expiresAt: expires);
+    final shown = r['displayed'];
+    return TransactionChallenge(
+      id: id,
+      bytes: challenge,
+      expiresAt: expires,
+      displayed: [
+        if (shown is List<Object?>)
+          for (final d in shown)
+            if (d is Map<String, Object?> &&
+                d['label'] is String &&
+                d['value'] is String)
+              DisplayedValue(d['label']! as String, d['value']! as String),
+      ],
+    );
+  }
+
+  /// The `live` configuration values of the app and environment
+  /// (DAT-094, `ConfigService.GetLiveConfig`), over the device's DPoP-bound
+  /// channel. Never cached by this client: the values are held in memory by
+  /// the caller only.
+  Future<LiveConfigSnapshot> getLiveConfig(
+    DeviceToken token, {
+    required String appId,
+    required String environment,
+  }) async {
+    final r = await _call('plux.v1.ConfigService/GetLiveConfig', {
+      'appId': appId,
+      'environment': environment,
+    }, token: token);
+    try {
+      return LiveConfigSnapshot.fromJson(r);
+    } on FormatException {
+      throw const ApiError(
+        0,
+        'unknown',
+        'the server sent malformed configuration',
+      );
+    }
   }
 
   /// Trades the host's end-user token [subjectToken] for a short-lived Plux
@@ -841,7 +888,8 @@ final class PluxApiClient {
 
   /// Posts one call. With [proofs] the request carries a DPoP proof (with
   /// the [token], when there is one, as `Authorization: DPoP`); [extend]
-  /// adds body members that depend on the proof. A 401 that asks for a
+  /// adds body members that depend on the proof; [onHeaders] sees the
+  /// response headers, names in lower case. A 401 that asks for a
   /// nonce is repeated once with a new proof carrying it (RFC 9449 §8).
   Future<Map<String, Object?>> _call(
     String procedure,
@@ -851,6 +899,7 @@ final class PluxApiClient {
     Future<Map<String, Object?>> Function(String proof)? extend,
     bool compress = false,
     Map<String, String> extraHeaders = const {},
+    void Function(Map<String, String> headers)? onHeaders,
   }) async {
     final uri = endpoint.resolve(procedure);
     final signer = proofs ?? token?.proofs;
@@ -887,6 +936,7 @@ final class PluxApiClient {
       } on Exception catch (e) {
         throw ApiError(0, 'unavailable', '$e');
       }
+      onHeaders?.call(res.headers);
       final nonce = res.headers['dpop-nonce'];
       if (nonce != null && nonce.isNotEmpty) _nonce = nonce;
       if (res.statusCode == 401 &&

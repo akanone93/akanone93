@@ -192,6 +192,24 @@ final class TransactionRequest {
   final TransactionSummary summary;
 }
 
+/// A value the server resolved for the transaction and shows the user next
+/// to the device's own summary, such as a payee the operation binds to
+/// server-held configuration (DAT-093). The server binds it into the
+/// challenge the SCA key signs; the device only shows it.
+final class DisplayedValue {
+  /// Creates the value.
+  const DisplayedValue(this.label, this.value);
+
+  /// What the value is, for the user.
+  final String label;
+
+  /// The value, exactly as the server returned it.
+  final String value;
+
+  @override
+  String toString() => 'DisplayedValue([redacted])';
+}
+
 /// A single-use challenge from the Plux server (SEC-027).
 final class TransactionChallenge {
   /// Creates the challenge.
@@ -199,6 +217,7 @@ final class TransactionChallenge {
     required this.id,
     required this.bytes,
     required this.expiresAt,
+    this.displayed = const [],
   });
 
   /// What the call through the gateway names the challenge by.
@@ -209,6 +228,9 @@ final class TransactionChallenge {
 
   /// When the server stops accepting the challenge.
   final DateTime expiresAt;
+
+  /// The values the server resolved for the user to see (DAT-093).
+  final List<DisplayedValue> displayed;
 }
 
 /// Asks the Plux server for challenges: the sync isolate holds the device's
@@ -260,8 +282,14 @@ final class Confirmation {
 abstract interface class TransactionConfirmer {
   /// Shows [summary], with the amount, the currency and the payee exactly as
   /// they are signed, on [context], and completes with whether the user
-  /// confirmed. Completes with false when the user dismisses it.
-  Future<bool> confirm(BuildContext context, TransactionSummary summary);
+  /// confirmed. The [displayed] values are the ones the server resolved
+  /// (DAT-093); they are shown as rows after the summary's. Completes with
+  /// false when the user dismisses it.
+  Future<bool> confirm(
+    BuildContext context,
+    TransactionSummary summary, {
+    List<DisplayedValue> displayed = const [],
+  });
 }
 
 /// Authorises a transaction request with a confirmation (SEC-027).
@@ -347,7 +375,13 @@ final class ScaService implements TransactionAuthoriser {
     );
     // The context may have gone while the challenge was on its way.
     if (!showOn.mounted) throw const ScaDeclined();
-    if (!await confirmer.confirm(showOn, summary)) throw const ScaDeclined();
+    if (!await confirmer.confirm(
+      showOn,
+      summary,
+      displayed: challenge.displayed,
+    )) {
+      throw const ScaDeclined();
+    }
     final Uint8List signature;
     try {
       signature = await signer.signWithUser(
