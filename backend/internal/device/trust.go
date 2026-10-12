@@ -61,7 +61,7 @@ func (s *Service) Reattest(ctx context.Context, deviceID string, challenge []byt
 		key: key, jkt: jkt, kaJKT: kaJKT, scaJKT: scaJKT, claim: KeyStorage(row.KeyStorage), settings: conf,
 	}, e)
 	if err != nil {
-		return Device{}, err
+		return s.graceOnOutage(ctx, row, conf, err)
 	}
 	provider := string(v.proof.Provider)
 	params := dbgen.UpdateDeviceAttestationParams{
