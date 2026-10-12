@@ -159,9 +159,20 @@ final class _Host {
   /// Closes the open page with its back button once the page's route
   /// transition has ended: a tap during the transition misses the button
   /// and leaves the page open, so no safe point comes (CI run 37623043856).
+  /// The button can take a moment to appear: a release staged while the
+  /// last page closed activates now, and the open page renders again with
+  /// it (SYN-004), so the wait is in real time, and bounded.
   Future<void> back() async {
     await tester.pump(_transition);
-    if (find.byType(BackButton).evaluate().isEmpty) fail(_noBackButton());
+    final end = DateTime.now().add(const Duration(seconds: 10));
+    while (find.byType(BackButton).evaluate().isEmpty) {
+      if (DateTime.now().isAfter(end)) fail(_noBackButton());
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await tester.pump(_transition);
     await tester.pageBack();
     await tester.pump(_transition);
   }
