@@ -161,8 +161,24 @@ final class _Host {
   /// and leaves the page open, so no safe point comes (CI run 37623043856).
   Future<void> back() async {
     await tester.pump(_transition);
+    if (find.byType(BackButton).evaluate().isEmpty) fail(_noBackButton());
     await tester.pageBack();
     await tester.pump(_transition);
+  }
+
+  /// Why the open page shows no back button: the route that holds each
+  /// text on screen, so a failure tells a page opened as the navigator's
+  /// first route from one still in its transition.
+  String _noBackButton() {
+    final routes = {
+      for (final e in find.byType(Text).evaluate())
+        if (ModalRoute.of(e) case final route?)
+          '${route.settings.name ?? route.runtimeType}'
+              '(first: ${route.isFirst}, current: ${route.isCurrent}, '
+              'canPop: ${route.navigator?.canPop()}, '
+              'animation: ${route.animation?.status})',
+    };
+    return 'no back button on screen; routes holding text: $routes';
   }
 
   /// Pumps until [finder] finds something, the screen has closed [pops]
