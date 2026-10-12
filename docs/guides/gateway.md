@@ -103,8 +103,9 @@ curl -sS "$PLUX_SERVER/plux.v1.SecurityAdminService/CreateUpstream" \
 
 Credentials are never in the upstream record. A `…Ref` names an **environment secret**
 (`AppService.SetSecret`), sealed at rest (`SEC-106`). An mTLS secret holds the client
-certificate and key. Rotate a credential by setting the secret again; the gateway picks up
-the change (a new connection per upstream version).
+certificate and key. Rotate a credential by setting the secret again. A replica keeps the connections it built for
+up to 5 minutes, so the change reaches every replica within that time; `UpdateUpstream` makes a
+new version and forces new connections at once.
 
 Use `GetUpstream`, `ListUpstreams`, `UpdateUpstream` and `DeleteUpstream` to manage the
 rest. A call to an unregistered name is refused with `PLX-6060`.

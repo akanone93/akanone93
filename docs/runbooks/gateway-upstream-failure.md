@@ -65,8 +65,9 @@ Work from the cheapest check.
   outbox replay when it returns. Do not mark the source `direct` as a workaround: a new
   release is needed, `maximum` refuses it, and a transaction can never be `direct`.
 - **Credential expired or rotated:** set the environment secret again (`AppService.SetSecret`
-  with the same key). The gateway opens secrets per call or per connection version, so no
-  restart is needed. Check the next call.
+  with the same key). A replica keeps the connections and tokens it built for up to 5 minutes, so the
+  change reaches every replica within 5 minutes; `UpdateUpstream` (any change) makes a new
+  version and forces new connections at once. No restart is needed.
 - **Slow upstream:** raise `timeoutMs` on that upstream (up to the registry maximum, 60 s), or
   tighten the operation's scope. Do not raise limits globally.
 - **Wrong destination:** correct `baseUrl`, or set `allowPrivateAddresses` for an upstream on a
