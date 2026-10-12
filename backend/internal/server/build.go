@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"strings"
 	"time"
 
@@ -28,11 +29,31 @@ type Built struct {
 	Close  func()
 }
 
+// BuildOption changes how Build assembles a process.
+type BuildOption func(*buildOptions)
+
+type buildOptions struct {
+	identityHTTP *http.Client
+}
+
+// WithIdentityProviderClient makes the gateway read the key sets of
+// customers' identity providers (SEC-026) with c instead of the SSRF-safe
+// client (SEC-105). It is for embedders and tests whose identity provider
+// sits on a private address or behind a private authority; a process that
+// serves customers never sets it.
+func WithIdentityProviderClient(c *http.Client) BuildOption {
+	return func(o *buildOptions) { o.identityHTTP = c }
+}
+
 // Build opens the dependencies the configured roles need and assembles
 // a Server. The role decides what is built at all: a process without
 // the worker role gets no job client that runs, and — from the next
 // milestone — no signing client (L-3, L-4, ADR-0006).
-func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version string) (*Built, error) {
+func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version string, opts ...BuildOption) (*Built, error) {
+	var o buildOptions
+	for _, apply := range opts {
+		apply(&o)
+	}
 	var closers []func()
 	closeAll := func() {
 		for i := len(closers) - 1; i >= 0; i-- {
@@ -89,7 +110,7 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 		return fail(err)
 	}
 
-	services, jobClient, err := buildWork(ctx, cfg, log, metrics, db, shared, limitSet, store)
+	services, jobClient, err := buildWork(ctx, cfg, log, metrics, db, shared, limitSet, store, o)
 	if err != nil {
 		return fail(err)
 	}
@@ -117,7 +138,7 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 
 // buildWork assembles the domain services and the job client that runs
 // their background work (SRV-024).
-func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metrics *observability.Metrics, db *storage.DB, shared cache.Cache, set limits.Set, store objects.Store) (*Services, *jobs.Client, error) {
+func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metrics *observability.Metrics, db *storage.DB, shared cache.Cache, set limits.Set, store objects.Store, o buildOptions) (*Services, *jobs.Client, error) {
 	backend, err := BuildSigning(cfg)
 	if err != nil {
 		return nil, nil, err
@@ -127,7 +148,7 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 			slog.String("directory", cfg.Signing.Directory))
 	}
 	queue := &JobQueue{}
-	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics}
+	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP}
 	if cfg.Has(config.RoleWorker) {
 		// Only the worker transcodes and signs: compiling the codecs costs
 		// seconds of CPU the api role need not pay, and the api role must
