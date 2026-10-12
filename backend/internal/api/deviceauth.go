@@ -116,6 +116,11 @@ type DeviceAuth struct {
 	// names, which an operator may have tightened (SEC-182); Window and
 	// FallbackWindow apply to calls without a token, and when it is nil.
 	Windows func(ctx context.Context, appID, environmentID string) (window, fallback time.Duration, err error)
+	// ReplayPolicy, when set, returns what the replay check does when the
+	// shared cache fails for the environment a token names: that
+	// environment's replayCacheFallback setting (SEC-023). Replay's own
+	// policy applies to calls without a token, and when it is nil.
+	ReplayPolicy func(ctx context.Context, appID, environmentID string) (dpop.Fallback, error)
 	// Now is the clock; nil uses time.Now.
 	Now func() time.Time
 	// Limiter and PerDevice rate limit a device on its own allowance
@@ -241,7 +246,13 @@ func (a DeviceAuth) authenticateWith(ctx context.Context, h http.Header, method,
 	if err != nil {
 		return device.Identity{}, err //nolint:wrapcheck // a domain error
 	}
-	if err := a.checkReplay(ctx, proof, window, fallback); err != nil {
+	policy := a.Replay.Policy()
+	if a.ReplayPolicy != nil {
+		if policy, err = a.ReplayPolicy(ctx, claims.AppID, claims.Environment); err != nil {
+			return device.Identity{}, err
+		}
+	}
+	if err := a.checkReplay(ctx, policy, proof, window, fallback); err != nil {
 		return device.Identity{}, err
 	}
 	revoked, err := a.Devices.IsRevoked(ctx, claims.JKT)
@@ -268,7 +279,7 @@ func (a DeviceAuth) authenticateProof(ctx context.Context, c Call) (context.Cont
 	if err != nil {
 		return ctx, err //nolint:wrapcheck // a domain error
 	}
-	if err := a.checkReplay(ctx, proof, a.Window, a.FallbackWindow); err != nil {
+	if err := a.checkReplay(ctx, a.Replay.Policy(), proof, a.Window, a.FallbackWindow); err != nil {
 		return ctx, err
 	}
 	if a.Limiter.Count != nil {
@@ -287,8 +298,8 @@ func (a DeviceAuth) authenticateProof(ctx context.Context, c Call) (context.Cont
 // remembered for as long as it could be accepted: it may be dated a
 // window ahead, and stays acceptable a window past its date. While the
 // shared cache is down the narrower fallback window applies (SEC-023).
-func (a DeviceAuth) checkReplay(ctx context.Context, p dpop.Proof, window, fallback time.Duration) error {
-	degraded, err := a.Replay.Check(ctx, p.JKT, p.JTI, 2*window+replayMargin)
+func (a DeviceAuth) checkReplay(ctx context.Context, policy dpop.Fallback, p dpop.Proof, window, fallback time.Duration) error {
+	degraded, err := a.Replay.CheckWith(ctx, policy, p.JKT, p.JTI, 2*window+replayMargin)
 	if err != nil {
 		return err //nolint:wrapcheck // a domain error
 	}

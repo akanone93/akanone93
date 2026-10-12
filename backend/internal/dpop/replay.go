@@ -82,6 +82,15 @@ type ReplayOption func(*Replay)
 // caller, not a fallback, so h hears nothing.
 func WithHealth(h Health) ReplayOption { return func(r *Replay) { r.health = &h } }
 
+// FallbackOf converts the replayCacheFallback setting ("memory" or
+// "failClosed") into the policy; any other value fails closed.
+func FallbackOf(setting string) Fallback {
+	if setting == "memory" {
+		return PerReplica
+	}
+	return FailClosed
+}
+
 // NewReplay returns a replay check over the shared cache. entries bounds
 // the fallback store (the limit dpop.replayCacheEntries); now supplies the
 // clock, time.Now when nil; onDegraded, when set, is called with the cache
@@ -122,6 +131,14 @@ func replayKey(jkt, jti string) string {
 // time window. With FailClosed a shared-cache failure is
 // ReplayCacheUnavailable.
 func (r *Replay) Check(ctx context.Context, jkt, jti string, ttl time.Duration) (degraded bool, err error) {
+	return r.CheckWith(ctx, r.policy, jkt, jti, ttl)
+}
+
+// CheckWith is Check under the fallback policy of one request: an
+// environment's replayCacheFallback setting decides whether a failing
+// shared cache is an error or engages the per-replica store (SEC-023). The
+// policy configured at construction applies to Check.
+func (r *Replay) CheckWith(ctx context.Context, policy Fallback, jkt, jti string, ttl time.Duration) (degraded bool, err error) {
 	if ttl <= 0 {
 		return false, errors.New("dpop: replay lifetime must be positive")
 	}
@@ -131,7 +148,7 @@ func (r *Replay) Check(ctx context.Context, jkt, jti string, ttl time.Duration) 
 		r.recovered()
 		return false, r.afterShared(key, fresh)
 	}
-	if r.policy != PerReplica {
+	if policy != PerReplica {
 		return false, plxerr.Wrap(plxerr.ReplayCacheUnavailable, cacheErr, "dpop replay cache unavailable")
 	}
 	r.fellBack()
@@ -141,6 +158,9 @@ func (r *Replay) Check(ctx context.Context, jkt, jti string, ttl time.Duration) 
 	}
 	return true, nil
 }
+
+// Policy returns the fallback policy the Replay was constructed with.
+func (r *Replay) Policy() Fallback { return r.policy }
 
 // fellBack tells the health observer that the fallback decided a check.
 func (r *Replay) fellBack() {

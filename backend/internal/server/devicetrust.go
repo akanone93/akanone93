@@ -57,6 +57,10 @@ type DeviceTrust struct {
 	// may have tightened (SEC-182); nil where the installation's apply.
 	// The nonce rotation and the replay policy stay the installation's.
 	Windows func(ctx context.Context, appID, environmentID string) (window, fallback time.Duration, err error)
+	// ReplayPolicy returns what the replay check does when the shared
+	// cache fails in one environment: its replayCacheFallback setting
+	// (SEC-023); nil where the installation's policy applies.
+	ReplayPolicy func(ctx context.Context, appID, environmentID string) (dpop.Fallback, error)
 }
 
 // tokenSignerFor narrows the signing backend to token signing for the api
@@ -163,10 +167,7 @@ func buildDeviceTrust(ctx context.Context, cfg *config.Config, db *storage.DB, s
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
-	fail := dpop.PerReplica
-	if policy.Text() == "failClosed" {
-		fail = dpop.FailClosed
-	}
+	fail := dpop.FallbackOf(policy.Text())
 	base := strings.TrimSuffix(cfg.Server.PublicBaseURL, "/")
 	return &DeviceTrust{
 		Tokens: &devtoken.Verifier{Keys: (&tokenKeys{signer: signer, now: time.Now}).Keys, Issuer: base, Audience: base},
@@ -176,7 +177,7 @@ func buildDeviceTrust(ctx context.Context, cfg *config.Config, db *storage.DB, s
 			log.WarnContext(ctx, "the DPoP replay cache is unavailable; this replica remembers proofs itself and applies the narrower issued-at window (SEC-023)",
 				slog.Any("error", err))
 		}, dpop.WithHealth(replayHealth(d.metrics))),
-		Window: window, FallbackWindow: fallback, Windows: windowsOf(d.configs),
+		Window: window, FallbackWindow: fallback, Windows: windowsOf(d.configs), ReplayPolicy: replayPolicyOf(d.configs),
 	}, nil
 }
 
@@ -193,6 +194,23 @@ func windowsOf(configs *seccfg.Service) func(context.Context, string, string) (t
 		}
 		return time.Duration(v.Get(settings.DPOPIatWindow).Int()) * time.Second,
 			time.Duration(v.Get(settings.DPOPIatWindowFallback).Int()) * time.Second, nil
+	}
+}
+
+// replayPolicyOf reads the replay cache's fallback policy of an
+// environment from its security configuration, so that a maximum-profile
+// environment fails closed while a standard one keeps working on its own
+// replica; nil when there is no store to read.
+func replayPolicyOf(configs *seccfg.Service) func(context.Context, string, string) (dpop.Fallback, error) {
+	if configs == nil {
+		return nil
+	}
+	return func(ctx context.Context, appID, environmentID string) (dpop.Fallback, error) {
+		v, _, err := configs.Effective(ctx, appID, environmentID)
+		if err != nil {
+			return dpop.FailClosed, fmt.Errorf("server: the security configuration: %w", err)
+		}
+		return dpop.FallbackOf(v.Get(settings.ReplayCacheFallback).Text()), nil
 	}
 }
 

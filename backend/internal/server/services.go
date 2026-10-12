@@ -603,7 +603,7 @@ func (s *Server) deviceAuth(svc *Services, limiter api.RateLimiter, people api.A
 	trust := svc.DeviceTrust
 	return api.DeviceAuth{
 		Devices: svc.Devices, Tokens: trust.Tokens, Proofs: trust.Proofs, Nonces: trust.Nonces, Replay: trust.Replay,
-		BaseURL: s.cfg.Server.PublicBaseURL, Window: trust.Window, FallbackWindow: trust.FallbackWindow, Windows: trust.Windows,
+		BaseURL: s.cfg.Server.PublicBaseURL, Window: trust.Window, FallbackWindow: trust.FallbackWindow, Windows: trust.Windows, ReplayPolicy: trust.ReplayPolicy,
 		Limiter: limiter, PerDevice: s.limits.Get(limits.APIRequestsPerMinutePerDevice), People: people,
 	}
 }
