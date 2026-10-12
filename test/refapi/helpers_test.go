@@ -6,11 +6,16 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"io"
 	"math"
 	"net"
@@ -25,13 +30,112 @@ import (
 // key the tests know.
 var handshakeKey = base64.StdEncoding.EncodeToString([]byte("the sample nonce"))
 
-// testServer starts the API over TLS, as httptest does, and returns it with
-// a client that trusts it.
-func testServer(t *testing.T, o Options) *httptest.Server {
+// testAPI is the API under test with the gateway it trusts.
+type testAPI struct {
+	*httptest.Server
+	gw  *testGateway
+	api *api
+}
+
+// testServer starts the API over TLS, as httptest does, trusting a test
+// gateway whose keys it publishes.
+func testServer(t *testing.T, o Options) *testAPI {
 	t.Helper()
-	srv := httptest.NewTLSServer(New(o))
+	gw := newTestGateway(t)
+	o.Gateway = gw.trust
+	srv := httptest.NewUnstartedServer(nil)
+	srv.StartTLS()
+	o.PublicURL = srv.URL
+	a, err := newAPI(o)
+	if err != nil {
+		srv.Close()
+		t.Fatal(err)
+	}
+	srv.Config.Handler = a.handler()
 	t.Cleanup(srv.Close)
-	return srv
+	return &testAPI{Server: srv, gw: gw, api: a}
+}
+
+// testGateway stands in for the Plux server: it publishes the keys that
+// verify assertions and mints assertions as the gateway does.
+type testGateway struct {
+	key   *ecdsa.PrivateKey
+	kid   string
+	trust GatewayTrust
+	now   func() time.Time
+}
+
+const (
+	testIssuer   = "https://plux.example"
+	testAudience = "refapi-test"
+)
+
+func newTestGateway(t *testing.T) *testGateway {
+	t.Helper()
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	g := &testGateway{key: key, kid: "gw-1", now: time.Now}
+	keys := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		k, err := publicJWK(&g.key.PublicKey, g.kid)
+		if err != nil {
+			t.Error(err)
+		}
+		_ = json.NewEncoder(w).Encode(jwkSet{Keys: []jwk{k}})
+	}))
+	t.Cleanup(keys.Close)
+	g.trust = GatewayTrust{JWKSURL: keys.URL + "/jwks", Issuer: testIssuer, Audience: testAudience, Client: keys.Client()}
+	return g
+}
+
+// who says what an assertion vouches for.
+type who string
+
+const (
+	nobody who = ""
+	// aDevice: a device, no user.
+	aDevice who = "device"
+	// aUser: a device and a verified user.
+	aUser who = "user"
+	// aConfirmedUser: a verified user who confirmed this transaction.
+	aConfirmedUser who = "sca"
+)
+
+// tamper changes an assertion's claims or header before it is signed.
+type tamper func(h *jwsHeader, c map[string]any)
+
+// assertion mints the assertion the gateway adds to a request.
+func (g *testGateway) assertion(t *testing.T, w who, method, uri, body string, tampers ...tamper) string {
+	t.Helper()
+	if w == nobody {
+		return ""
+	}
+	var bodySum []byte
+	if body != "" {
+		sum := sha256.Sum256([]byte(body))
+		bodySum = sum[:]
+	}
+	now := g.now()
+	claims := map[string]any{
+		"iss": testIssuer, "aud": testAudience, "sub": "device-1", "app": "app-1", "env": "env-1", "org": "org-1", "al": "AL0",
+		"rh": requestHash(method, uri, bodySum), "iat": now.Unix(), "exp": now.Add(time.Minute).Unix(), "jti": fmt.Sprintf("jti-%d", now.UnixNano()),
+	}
+	if w == aUser || w == aConfirmedUser {
+		claims["usr"] = map[string]any{"sub": demoSubject, "iss": "https://idp.example"}
+	}
+	if w == aConfirmedUser {
+		claims["sca"] = map[string]any{"cid": "challenge-1", "sh": "summary-hash-1"}
+	}
+	h := jwsHeader{Typ: assertionType, Kid: g.kid}
+	for _, tm := range tampers {
+		tm(&h, claims)
+	}
+	token, err := signES256(g.key, h, claims)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return token
 }
 
 // reply is a response read to its end.
@@ -57,8 +161,9 @@ func (r reply) errorCode(t *testing.T) string {
 	return e.Error.Code
 }
 
-// call sends a request and reads the whole response.
-func call(t *testing.T, srv *httptest.Server, method, path, token, body string, headers ...string) reply {
+// call sends a request the way the gateway forwards it, carrying the
+// assertion for w, and reads the whole response.
+func call(t *testing.T, srv *testAPI, method, path string, w who, body string, headers ...string) reply {
 	t.Helper()
 	req, err := http.NewRequestWithContext(t.Context(), method, srv.URL+path, strings.NewReader(body))
 	if err != nil {
@@ -67,12 +172,18 @@ func call(t *testing.T, srv *httptest.Server, method, path, token, body string, 
 	if body != "" {
 		req.Header.Set("Content-Type", "application/json")
 	}
-	if token != "" {
-		req.Header.Set("Authorization", "Bearer "+token)
+	if a := srv.gw.assertion(t, w, method, path, body); a != "" {
+		req.Header.Set(assertionHeader, a)
 	}
 	for i := 0; i+1 < len(headers); i += 2 {
 		req.Header.Set(headers[i], headers[i+1])
 	}
+	return send(t, srv, req)
+}
+
+// send performs req and reads the whole response.
+func send(t *testing.T, srv *testAPI, req *http.Request) reply {
+	t.Helper()
 	res, err := srv.Client().Do(req)
 	if err != nil {
 		t.Fatal(err)
@@ -85,18 +196,6 @@ func call(t *testing.T, srv *httptest.Server, method, path, token, body string, 
 	return reply{status: res.StatusCode, header: res.Header, body: data}
 }
 
-// signIn logs the demo user in and returns the token.
-func signIn(t *testing.T, srv *httptest.Server) string {
-	t.Helper()
-	r := call(t, srv, http.MethodPost, "/bank/v1/login", "", `{"username":"demo","password":"demo1234"}`)
-	if r.status != http.StatusOK {
-		t.Fatalf("login: %d %s", r.status, r.body)
-	}
-	var out struct{ Token string }
-	r.json(t, &out)
-	return out.Token
-}
-
 // testWS is a WebSocket client, enough to test the server with.
 type testWS struct {
 	conn net.Conn
@@ -105,7 +204,7 @@ type testWS struct {
 
 // dialWS connects to path and completes the handshake; it returns the
 // handshake's response too, whose status is 101 when it worked.
-func dialWS(t *testing.T, srv *httptest.Server, path string) (*testWS, *handshake) {
+func dialWS(t *testing.T, srv *testAPI, path string) (*testWS, *handshake) {
 	t.Helper()
 	pool := x509.NewCertPool()
 	pool.AddCert(srv.Certificate())
