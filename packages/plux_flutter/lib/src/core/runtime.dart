@@ -1200,7 +1200,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     _disposed = true;
     _healthy?.cancel();
     diagnostics.dispose();
-    _worker.close();
+    await _worker.close();
     await _events.close();
     await _hostEvents.close();
     active.value?.retire();
