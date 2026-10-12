@@ -9,11 +9,15 @@ import 'package:plux_bank/bank.dart';
 import 'bank_flows.dart';
 
 /// The flows on an emulator, simulator or device, against the server and the
-/// reference backend the app was built for (`--dart-define`s, BankConfig).
+/// reference backend the app was built for (`--dart-define`s, BankConfig),
+/// except the transfers, which need a person at the biometric prompt.
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   _holdPlatformSemantics();
-  bankFlows(config: BankConfig.fromEnvironment);
+  // The system prompt that unlocks the SCA key is a person's: the flows
+  // that confirm a transfer run on the development machine and in the
+  // real-device checklist.
+  bankFlows(config: BankConfig.fromEnvironment, confirmsTransfers: false);
 }
 
 /// Keeps the platform from turning semantics on or off while the flows

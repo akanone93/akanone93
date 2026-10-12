@@ -109,6 +109,8 @@ void main() {
       expect(p.authDelegate, host);
       expect(p.nativeActions.keys, ['bankSignIn']);
       expect(p.devicePackages.map((d) => d.name), ['plux_media']);
+      expect(p.strongCustomerAuthentication, isTrue);
+      expect(p.securityModules, [host.security]);
       expect(p.httpClient, isNull);
       expect(p.webSocketClient, isNull);
       expect(c.toPluxConfig(host: host, baseline: null).baseline, isNull);

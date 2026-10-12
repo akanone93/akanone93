@@ -127,7 +127,8 @@ final class BankConfig {
 
   /// The runtime's configuration: this app, its environment and channel,
   /// [host]'s auth delegate, native action and navigator, `plux_media` for
-  /// the identity check, and the [baseline] directory of the app's assets,
+  /// the identity check, [host]'s runtime self-protection, the key that
+  /// confirms transfers (SEC-027), and the [baseline] directory of the app's assets,
   /// where `plux pull` writes it; null starts without one.
   PluxConfig toPluxConfig({
     required BankHost host,
@@ -147,6 +148,8 @@ final class BankConfig {
     authDelegate: host,
     nativeActions: host.nativeActions,
     devicePackages: [PluxMedia()],
+    strongCustomerAuthentication: true,
+    securityModules: [host.security],
     httpClient: trustReferenceCa ? referenceHttpClient : null,
     webSocketClient: trustReferenceCa ? referenceWebSocketClient : null,
   );
