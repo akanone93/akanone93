@@ -466,6 +466,41 @@ func (s *Service) trustOf(ctx context.Context, appID string) (TrustConfig, error
 // verify checks the evidence of whichever provider it names, then checks
 // the key storage the device claimed against what was proven.
 func (s *Service) verify(ctx context.Context, sub subject, e Evidence) (verified, error) {
+	v, err := s.verifyEvidence(ctx, sub, e)
+	if s.onAttestation != nil {
+		s.onAttestation(e.platform(), verdictOf(err))
+	}
+	return v, err
+}
+
+// platform names the platform the evidence is from, for the metrics.
+func (e Evidence) platform() string {
+	switch {
+	case e.Development != nil:
+		return "development"
+	case e.Android != nil:
+		return "android"
+	default:
+		return "ios"
+	}
+}
+
+// verdictOf classifies the outcome of a verification: evidence that
+// failed, a verification that could not be made, or neither.
+func verdictOf(err error) string {
+	switch code, _ := plxerr.CodeOf(err); {
+	case err == nil:
+		return AttestationVerified
+	case code == plxerr.AttestationUnavailable:
+		return AttestationUnavailable
+	default:
+		return AttestationFailed
+	}
+}
+
+// verifyEvidence checks the evidence of whichever provider it names, then
+// checks the key storage the device claimed against what was proven.
+func (s *Service) verifyEvidence(ctx context.Context, sub subject, e Evidence) (verified, error) {
 	var (
 		v   verified
 		err error

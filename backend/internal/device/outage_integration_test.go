@@ -153,3 +153,75 @@ func TestOutageGraceIsOnlyForOutages(t *testing.T) {
 		t.Errorf("a first registration during an outage: %v", err)
 	}
 }
+
+// Verifies: SEC-009, OBS-002.
+// Every verification of evidence is reported with its platform and its
+// verdict: verified, failed, or unavailable.
+func TestAttestationResultsAreReported(t *testing.T) {
+	t.Parallel()
+	var got []string
+	r := newRigWith(t, func(o *device.Options) {
+		o.OnAttestation = func(platform, verdict string) { got = append(got, platform+"/"+verdict) }
+	})
+	key, jwk := devicetest.NewKey(t)
+	r.android(&key.PublicKey, keyattest.SecurityTrustedEnvironment, playintegrity.LabelStrong)
+	if _, err := r.register(t, "production", "android", jwk, device.KeyStorageTEE, androidEvidence()); err != nil {
+		t.Fatal(err)
+	}
+	r.key.Err = plxerr.New(plxerr.AttestationFailed, "revoked")
+	_, _ = r.register(t, "production", "android", jwk, device.KeyStorageTEE, androidEvidence())
+	r.key.Err = outage()
+	_, _ = r.register(t, "production", "android", jwk, device.KeyStorageTEE, androidEvidence())
+	want := []string{"android/verified", "android/failed", "android/unavailable"}
+	if len(got) != len(want) {
+		t.Fatalf("reported %v, want %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("reported %v, want %v", got, want)
+			break
+		}
+	}
+}
+
+// Verifies: SEC-007, OBS-002.
+// The counts by app and level leave revoked devices out.
+func TestAssuranceCounts(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	ctx := context.Background()
+	for range 2 {
+		key, jwk := devicetest.NewKey(t)
+		r.android(&key.PublicKey, keyattest.SecurityTrustedEnvironment, playintegrity.LabelStrong)
+		if _, err := r.register(t, "production", "android", jwk, device.KeyStorageTEE, androidEvidence()); err != nil {
+			t.Fatal(err)
+		}
+	}
+	key, jwk := devicetest.NewKey(t)
+	r.android(&key.PublicKey, keyattest.SecurityTrustedEnvironment)
+	gone, err := r.register(t, "production", "android", jwk, device.KeyStorageTEE, androidEvidence())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := r.svc.Revoke(ctx, r.owner, gone.ID, "lost"); err != nil {
+		t.Fatal(err)
+	}
+	_, devJWK := devicetest.NewKey(t)
+	if _, err := r.register(t, "development", "linux", devJWK, device.KeyStorageSoftware, developmentEvidence()); err != nil {
+		t.Fatal(err)
+	}
+
+	counts, err := r.svc.AssuranceCounts(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]int64{}
+	for _, c := range counts {
+		if c.AppID == r.app {
+			got[c.Level] += c.Count
+		}
+	}
+	if got["AL3"] != 2 || got["AL0"] != 1 || got["AL1"] != 0 || len(got) != 2 {
+		t.Errorf("counts = %v, want 2 AL3 and 1 AL0 for the app", got)
+	}
+}

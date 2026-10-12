@@ -192,14 +192,13 @@ func (c *Checkpointer) uncovered(ctx context.Context, tx pgx.Tx, organizationID 
 		if len(page) == 0 {
 			return head, head.Sequence > 0, nil
 		}
-		if page[0].Sequence != after+1 {
-			return Entry{}, false, fmt.Errorf("audit: sequence jumps from %d to %d: an entry is missing", after, page[0].Sequence)
-		}
-		if err := Verify(page, previous); err != nil {
-			return Entry{}, false, err
+		for _, e := range page {
+			if err := checkEntry(e, after, previous); err != nil {
+				return Entry{}, false, err
+			}
+			after, previous = e.Sequence, e.EntryHash
 		}
 		head = page[len(page)-1]
-		after, previous = head.Sequence, head.EntryHash
 	}
 }
 

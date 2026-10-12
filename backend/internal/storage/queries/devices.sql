@@ -234,3 +234,14 @@ SELECT count(*) FROM plugin_versions WHERE bundle_sha256 = $1;
 -- name: UpdateDeviceVersions :exec
 -- What a device's latest session_start reports it runs (REL-080).
 UPDATE devices SET runtime_version = $2, host_build = $3, os_version = $4 WHERE id = $1;
+
+-- name: CountDevicesByAssurance :many
+-- Counts the devices that are not revoked by app and assurance level, for
+-- the metric plux_devices_by_assurance. It reads aggregates across tenants
+-- in the authentication scope and returns at most max_rows groups.
+SELECT app_id, assurance_level, count(*) AS devices
+FROM devices
+WHERE revoked_at IS NULL
+GROUP BY app_id, assurance_level
+ORDER BY app_id, assurance_level
+LIMIT sqlc.arg(max_rows);

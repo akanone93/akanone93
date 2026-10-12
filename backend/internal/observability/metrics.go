@@ -5,6 +5,7 @@ package observability
 
 import (
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -30,6 +31,17 @@ type Metrics struct {
 
 	replayDegraded prometheus.Gauge
 	replayFallback prometheus.Counter
+
+	dpopRejections     *prometheus.CounterVec
+	attestationResults *prometheus.CounterVec
+
+	// auditVerified exists only once a verification has run, so that the
+	// metric never claims a chain holds before anyone looked.
+	auditMu       sync.Mutex
+	auditVerified prometheus.Gauge
+
+	devicesMu sync.Mutex
+	devices   *devicesByAssurance
 }
 
 // NewMetrics builds the registry with the process collectors and the
@@ -84,6 +96,15 @@ func NewMetrics() *Metrics {
 			Help: "DPoP replay checks the per-replica store decided because the shared cache failed.",
 		}),
 	}
+	m.dpopRejections = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "plux_dpop_rejections_total",
+		Help: "Device calls refused for their DPoP proof, by reason.",
+	}, []string{"reason"})
+	m.attestationResults = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "plux_attestation_results_total",
+		Help: "Attestation verifications by platform and verdict.",
+	}, []string{"platform", "verdict"})
+	r.MustRegister(m.dpopRejections, m.attestationResults)
 	r.MustRegister(m.rpcRequests, m.rpcDuration, m.manifestRequests, m.deltaBytes,
 		m.deltaGeneration, m.publishJobs, m.publishDuration, m.jobsQueueDepth,
 		m.replayDegraded, m.replayFallback)
@@ -148,3 +169,83 @@ func (m *Metrics) ReplayCacheFallback() {
 // ReplayCacheRecovered records that the shared DPoP replay cache answered
 // again after a fallback (SEC-023).
 func (m *Metrics) ReplayCacheRecovered() { m.replayDegraded.Set(0) }
+
+// DPoP rejection reasons: the closed set of plux_dpop_rejections_total's
+// reason label (SEC-021, SEC-023, SEC-024).
+const (
+	// DPoPNonceRequired is a proof without the server's current nonce.
+	DPoPNonceRequired = "nonce_required"
+	// DPoPProofInvalid is a malformed, wrongly signed, misbound or
+	// out-of-window proof.
+	DPoPProofInvalid = "proof_invalid"
+	// DPoPReplay is a proof that was used before.
+	DPoPReplay = "replay"
+	// DPoPBindingMismatch is a proof from another key than the token's.
+	DPoPBindingMismatch = "binding_mismatch"
+	// DPoPReplayCacheUnavailable is a proof refused because the replay
+	// cache is down and the environment fails closed.
+	DPoPReplayCacheUnavailable = "replay_cache_unavailable"
+)
+
+var dpopReasons = map[string]bool{
+	DPoPNonceRequired: true, DPoPProofInvalid: true, DPoPReplay: true,
+	DPoPBindingMismatch: true, DPoPReplayCacheUnavailable: true,
+}
+
+// DPoPRejected records one device call refused for its DPoP proof. A reason
+// outside the set above is counted as "other", so the label stays bounded.
+func (m *Metrics) DPoPRejected(reason string) {
+	if !dpopReasons[reason] {
+		reason = "other"
+	}
+	m.dpopRejections.WithLabelValues(reason).Inc()
+}
+
+// Attestation verdicts: the closed set of plux_attestation_results_total's
+// verdict label (SEC-009).
+const (
+	// AttestationVerified is evidence that passed every check.
+	AttestationVerified = "verified"
+	// AttestationFailed is evidence that failed a check.
+	AttestationFailed = "failed"
+	// AttestationUnavailable is a verification that could not be made:
+	// the provider is down or the app has no attestation configured.
+	AttestationUnavailable = "unavailable"
+)
+
+var (
+	attestationPlatforms = map[string]bool{"android": true, "ios": true, "development": true}
+	attestationVerdicts  = map[string]bool{AttestationVerified: true, AttestationFailed: true, AttestationUnavailable: true}
+)
+
+// AttestationResult records one verification of attestation evidence.
+// Values outside the sets of platforms and verdicts are counted as
+// "other".
+func (m *Metrics) AttestationResult(platform, verdict string) {
+	if !attestationPlatforms[platform] {
+		platform = "other"
+	}
+	if !attestationVerdicts[verdict] {
+		verdict = "other"
+	}
+	m.attestationResults.WithLabelValues(platform, verdict).Inc()
+}
+
+// AuditChainVerified records the outcome of the last verification of the
+// audit chains: true when no break was found (SEC-140, SEC-141).
+func (m *Metrics) AuditChainVerified(ok bool) {
+	m.auditMu.Lock()
+	defer m.auditMu.Unlock()
+	if m.auditVerified == nil {
+		m.auditVerified = prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "plux_audit_chain_verified",
+			Help: "1 when the last verification of the audit chains found no break, 0 when it found one.",
+		})
+		m.registry.MustRegister(m.auditVerified)
+	}
+	if ok {
+		m.auditVerified.Set(1)
+		return
+	}
+	m.auditVerified.Set(0)
+}

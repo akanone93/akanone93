@@ -44,6 +44,44 @@ func (q *Queries) CountDevices(ctx context.Context, organizationID pgtype.UUID) 
 	return count, err
 }
 
+const countDevicesByAssurance = `-- name: CountDevicesByAssurance :many
+SELECT app_id, assurance_level, count(*) AS devices
+FROM devices
+WHERE revoked_at IS NULL
+GROUP BY app_id, assurance_level
+ORDER BY app_id, assurance_level
+LIMIT $1
+`
+
+type CountDevicesByAssuranceRow struct {
+	AppID          pgtype.UUID
+	AssuranceLevel string
+	Devices        int64
+}
+
+// Counts the devices that are not revoked by app and assurance level, for
+// the metric plux_devices_by_assurance. It reads aggregates across tenants
+// in the authentication scope and returns at most max_rows groups.
+func (q *Queries) CountDevicesByAssurance(ctx context.Context, maxRows int32) ([]CountDevicesByAssuranceRow, error) {
+	rows, err := q.db.Query(ctx, countDevicesByAssurance, maxRows)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CountDevicesByAssuranceRow{}
+	for rows.Next() {
+		var i CountDevicesByAssuranceRow
+		if err := rows.Scan(&i.AppID, &i.AssuranceLevel, &i.Devices); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const countIncompatibleDevices = `-- name: CountIncompatibleDevices :one
 SELECT count(*) FROM devices
  WHERE app_id = $1

@@ -5,7 +5,10 @@ package server
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -14,6 +17,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
+	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/storagetest"
@@ -78,9 +82,14 @@ func TestAuditCheckpointJob(t *testing.T) {
 		}
 		return len(cps)
 	}
+	metrics := observability.NewMetrics()
+	svc.Metrics = metrics
 	w := &checkpointWorker{svc: svc, log: discard()}
 	if err := w.Work(ctx, nil); err != nil || count() != 0 {
 		t.Fatalf("an idle run: %d checkpoints, %v", count(), err)
+	}
+	if !strings.Contains(scrapeMetrics(t, metrics), "plux_audit_chain_verified 1") {
+		t.Error("a run that found no break did not report the chains as verified")
 	}
 	appendEntry()
 	appendEntry()
@@ -109,4 +118,35 @@ func TestAuditCheckpointJob(t *testing.T) {
 	if bad, err := VerifyAudit(ctx, svc, db, audit.PublicKeys{}, org); err != nil || bad.OK() {
 		t.Errorf("VerifyAudit without the audit key = %+v, %v; want a broken checkpoint", bad, err)
 	}
+
+	// A run that meets a tampered entry fails and reports the chain as
+	// broken (SEC-141).
+	appendEntry()
+	if err := db.InTx(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
+		for _, stmt := range []string{
+			`ALTER TABLE audit_log DISABLE TRIGGER audit_log_append_only`,
+			`UPDATE audit_log SET action = 'app.created' WHERE sequence = 4`,
+		} {
+			if _, err := tx.Exec(ctx, stmt); err != nil {
+				return err
+			}
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := w.Work(ctx, nil); err == nil {
+		t.Fatal("a run over a tampered chain succeeded")
+	}
+	if !strings.Contains(scrapeMetrics(t, metrics), "plux_audit_chain_verified 0") {
+		t.Error("a tampered chain was not reported")
+	}
+}
+
+// scrapeMetrics returns the text the metrics endpoint serves.
+func scrapeMetrics(t *testing.T, m *observability.Metrics) string {
+	t.Helper()
+	rec := httptest.NewRecorder()
+	m.Handler().ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/metrics", nil))
+	return rec.Body.String()
 }

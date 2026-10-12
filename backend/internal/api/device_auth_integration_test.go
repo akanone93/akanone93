@@ -423,3 +423,36 @@ func TestReattestOverTheAPI(t *testing.T) {
 		t.Errorf("a revoked device: %v", err)
 	}
 }
+
+// Verifies: SEC-024, SEC-023, SEC-022, OBS-002.
+// Every refusal about the proof is reported with its reason, for
+// plux_dpop_rejections_total; refusals of other kinds are not.
+func TestDeviceAuthenticationReportsRejections(t *testing.T) {
+	t.Parallel()
+	var reasons []string
+	f := newAuthFixture(t, func(a *api.DeviceAuth) { a.Rejected = func(r string) { reasons = append(reasons, r) } })
+	nonce := f.w.deviceAuth.Nonces.Current()
+	token := f.dev.token
+
+	good := header("DPoP "+token, f.proofFor(t, f.dev.key, token, nonce, nil))
+	if _, _, err := f.run(good); err != nil {
+		t.Fatal(err)
+	}
+	_, _, _ = f.run(good)
+	_, _, _ = f.run(header("DPoP "+token, f.proofFor(t, f.dev.key, token, "", nil)))
+	_, _, _ = f.run(header("DPoP "+token, "not-a-proof"))
+	_, _, _ = f.run(header("Bearer "+token, ""))
+	stranger, _ := devicetest.NewKey(t)
+	_, _, _ = f.run(header("DPoP "+token, f.proofFor(t, stranger, token, nonce, nil)))
+
+	want := []string{"replay", "nonce_required", "proof_invalid", "binding_mismatch"}
+	if len(reasons) != len(want) {
+		t.Fatalf("reasons = %v, want %v", reasons, want)
+	}
+	for i := range want {
+		if reasons[i] != want[i] {
+			t.Errorf("reasons = %v, want %v", reasons, want)
+			break
+		}
+	}
+}

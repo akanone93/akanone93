@@ -294,6 +294,9 @@ func buildDevices(db *storage.DB, gen interface{ New() (string, error) }, shared
 		AccessTokenLifetime: cfg.Auth.Device.AccessTokenTTL.Duration(),
 		DevelopmentProvider: cfg.Attestation.DevelopmentProvider,
 	}
+	if metrics != nil {
+		opts.OnAttestation = metrics.AttestationResult
+	}
 	if configs != nil {
 		opts.Config = func(ctx context.Context, appID, envID string) (device.Values, error) {
 			v, _, err := configs.Effective(ctx, appID, envID)

@@ -12,6 +12,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/devtoken"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
+	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
@@ -121,6 +122,9 @@ type DeviceAuth struct {
 	// environment's replayCacheFallback setting (SEC-023). Replay's own
 	// policy applies to calls without a token, and when it is nil.
 	ReplayPolicy func(ctx context.Context, appID, environmentID string) (dpop.Fallback, error)
+	// Rejected, when set, hears the reason of every call refused for its
+	// DPoP proof, for plux_dpop_rejections_total.
+	Rejected func(reason string)
 	// Now is the clock; nil uses time.Now.
 	Now func() time.Time
 	// Limiter and PerDevice rate limit a device on its own allowance
@@ -157,7 +161,7 @@ func DeviceAuthentication(a DeviceAuth) Around {
 		case DeviceProofOnly[c.Procedure]:
 			ctx, err := a.authenticateProof(ctx, c)
 			if err != nil {
-				return refuse(c, err)
+				return a.refuse(c, err)
 			}
 			return next(ctx)
 		case DeviceProcedures[c.Procedure] && (c.Procedure != pluxv1connect.ManifestServiceGetRootKeysProcedure || usesDPoP(c.Header)):
@@ -174,7 +178,7 @@ func DeviceAuthentication(a DeviceAuth) Around {
 func (a DeviceAuth) deviceCall(ctx context.Context, c Call, next func(context.Context) error) error {
 	d, err := a.authenticate(ctx, c)
 	if err != nil {
-		return refuse(c, err)
+		return a.refuse(c, err)
 	}
 	if a.Limiter.Count != nil {
 		retry, err := a.Limiter.Allow(ctx, "rate:device:"+d.DeviceID, a.PerDevice)
@@ -209,7 +213,7 @@ func (a DeviceAuth) AuthenticateRequest(ctx context.Context, w http.ResponseWrit
 	w.Header().Set(nonceHeader, a.Nonces.Current())
 	d, err := a.authenticateWith(ctx, r.Header, r.Method, a.url(r.URL.EscapedPath()))
 	if err != nil {
-		return device.Identity{}, refuse(Call{ResponseHeader: w.Header()}, err)
+		return device.Identity{}, a.refuse(Call{ResponseHeader: w.Header()}, err)
 	}
 	return d, nil
 }
@@ -365,10 +369,23 @@ func proofOf(h http.Header) (string, error) {
 	return values[0], nil
 }
 
+// dpopRejection names the reason, as plux_dpop_rejections_total labels it,
+// of each refusal that is about the DPoP proof.
+var dpopRejection = map[plxerr.Code]string{
+	plxerr.DPoPNonceRequired:      observability.DPoPNonceRequired,
+	plxerr.DPoPProofInvalid:       observability.DPoPProofInvalid,
+	plxerr.DPoPReplay:             observability.DPoPReplay,
+	plxerr.TokenBindingMismatch:   observability.DPoPBindingMismatch,
+	plxerr.ReplayCacheUnavailable: observability.DPoPReplayCacheUnavailable,
+}
+
 // refuse sets the challenge that names why a device call was refused and
 // returns the error.
-func refuse(c Call, err error) error {
+func (a DeviceAuth) refuse(c Call, err error) error {
 	code, _ := plxerr.CodeOf(err)
+	if reason, ok := dpopRejection[code]; ok && a.Rejected != nil {
+		a.Rejected(reason)
+	}
 	switch code {
 	case plxerr.DPoPNonceRequired:
 		c.ResponseHeader.Set(challengeHeader, `DPoP error="use_dpop_nonce"`)
