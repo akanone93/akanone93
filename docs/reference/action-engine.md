@@ -21,8 +21,9 @@ host installs it ([host app guide](../guides/host-app.md)); without it the step 
 `biometrics` capability: the user's confirmation takes the `success` branch, a failed or
 cancelled one the `failure` branch, and a device that cannot ask fails the step with
 `PLX-5403`. A run started by an event that carries a secret (a `SecureTextField` change, a
-`SecurePinPad` or `OtpInput` completion) records no values in its trace. Actions of later
-phases (`invokeFunction`, `signTransaction`, `startPayment`, `setLocale`) fail their step with
+`SecurePinPad` or `OtpInput` completion) records no values in its trace. `signTransaction` (P6)
+confirms a transaction with the SCA key ([SCA guide](../guides/sca.md)). Actions of later
+phases (`invokeFunction`, `startPayment`, `setLocale`) fail their step with
 `PLX-4010` (`custom`), which the step's `onError` can handle.
 
 ## 2. Runs
