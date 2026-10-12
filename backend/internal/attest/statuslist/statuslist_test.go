@@ -53,9 +53,9 @@ type server struct {
 	conditional  int
 }
 
-func newServer(t *testing.T, body string) *server {
+func newServer(t *testing.T) *server {
 	t.Helper()
-	s := &server{body: body, status: http.StatusOK, cacheControl: "public, max-age=3600"}
+	s := &server{body: listOne, status: http.StatusOK, cacheControl: "public, max-age=3600"}
 	s.Server = httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		s.mu.Lock()
 		defer s.mu.Unlock()
@@ -98,7 +98,7 @@ func fetchList(t *testing.T, s *server, shared cache.Cache, c *clock, maxBytes i
 func TestRefreshPublishesToTheSharedCache(t *testing.T) {
 	c := newClock()
 	shared := cache.NewMemory(c.now)
-	srv := newServer(t, listOne)
+	srv := newServer(t)
 	worker := fetchList(t, srv, shared, c, 1<<20)
 	replica := fetchList(t, srv, shared, c, 1<<20)
 	ctx := context.Background()
@@ -121,7 +121,7 @@ func TestRefreshPublishesToTheSharedCache(t *testing.T) {
 func TestRefreshHonoursTheHTTPCacheHeaders(t *testing.T) {
 	c := newClock()
 	shared := cache.NewMemory(c.now)
-	srv := newServer(t, listOne)
+	srv := newServer(t)
 	l := fetchList(t, srv, shared, c, 1<<20)
 	ctx := context.Background()
 
@@ -151,7 +151,7 @@ func TestRefreshHonoursTheHTTPCacheHeaders(t *testing.T) {
 func TestRefreshRepopulatesALostList(t *testing.T) {
 	c := newClock()
 	shared := cache.NewMemory(c.now)
-	srv := newServer(t, listOne)
+	srv := newServer(t)
 	l := fetchList(t, srv, shared, c, 1<<20)
 	ctx := context.Background()
 	if err := l.Refresh(ctx); err != nil {
@@ -174,7 +174,7 @@ func TestRefreshRepopulatesALostList(t *testing.T) {
 func TestAStaleListIsUnavailable(t *testing.T) {
 	c := newClock()
 	shared := cache.NewMemory(c.now)
-	srv := newServer(t, listOne)
+	srv := newServer(t)
 	l := fetchList(t, srv, shared, c, 1<<20)
 	ctx := context.Background()
 	if err := l.Refresh(ctx); err != nil {
@@ -201,7 +201,7 @@ func TestRefreshRefusesWhatIsNotAList(t *testing.T) {
 	} {
 		t.Run(name, func(t *testing.T) {
 			c := newClock()
-			srv := newServer(t, listOne)
+			srv := newServer(t)
 			srv.set(func() { tune(srv) })
 			l := fetchList(t, srv, cache.NewMemory(c.now), c, int64(len(listTwo)))
 			if err := l.Refresh(ctx); err == nil {
@@ -219,7 +219,7 @@ func TestRefreshRefusesWhatIsNotAList(t *testing.T) {
 func TestAFailedRefreshKeepsTheFreshList(t *testing.T) {
 	c := newClock()
 	shared := cache.NewMemory(c.now)
-	srv := newServer(t, listOne)
+	srv := newServer(t)
 	l := fetchList(t, srv, shared, c, 1<<20)
 	ctx := context.Background()
 	if err := l.Refresh(ctx); err != nil {
