@@ -50,3 +50,8 @@ SELECT count(*) FROM config_values WHERE environment_id = $1;
 -- name: DeleteConfigValue :one
 DELETE FROM config_values WHERE environment_id = $1 AND key = $2
 RETURNING *;
+
+-- name: EnsureConfigEnvironment :exec
+INSERT INTO config_environments (environment_id, organization_id, app_id)
+VALUES ($1, $2, $3)
+ON CONFLICT (environment_id) DO NOTHING;

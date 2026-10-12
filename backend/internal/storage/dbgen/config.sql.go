@@ -98,6 +98,23 @@ func (q *Queries) DeleteConfigValue(ctx context.Context, arg DeleteConfigValuePa
 	return i, err
 }
 
+const ensureConfigEnvironment = `-- name: EnsureConfigEnvironment :exec
+INSERT INTO config_environments (environment_id, organization_id, app_id)
+VALUES ($1, $2, $3)
+ON CONFLICT (environment_id) DO NOTHING
+`
+
+type EnsureConfigEnvironmentParams struct {
+	EnvironmentID  pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+}
+
+func (q *Queries) EnsureConfigEnvironment(ctx context.Context, arg EnsureConfigEnvironmentParams) error {
+	_, err := q.db.Exec(ctx, ensureConfigEnvironment, arg.EnvironmentID, arg.OrganizationID, arg.AppID)
+	return err
+}
+
 const getConfigEnvironment = `-- name: GetConfigEnvironment :one
 SELECT environment_id, organization_id, app_id, epoch, live_epoch, strict_epoch, updated_at FROM config_environments WHERE environment_id = $1
 `

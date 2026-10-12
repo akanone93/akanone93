@@ -360,6 +360,16 @@ type operationDoc struct {
 	Assurance   string          `json:"assurance,omitempty"`
 	Transaction *transactionDoc `json:"transaction,omitempty"`
 	Plugins     []string        `json:"plugins,omitempty"`
+	Bindings    []bindingDoc    `json:"bindings,omitempty"`
+}
+
+// bindingDoc is the stored form of Binding.
+type bindingDoc struct {
+	Key      string `json:"key"`
+	Location string `json:"location"`
+	Name     string `json:"name"`
+	Display  bool   `json:"display,omitempty"`
+	Label    string `json:"label,omitempty"`
 }
 
 // transactionDoc is the stored form of Transaction.
@@ -384,6 +394,9 @@ func encode(u Upstream) (authJSON, operationsJSON []byte, err error) {
 	ops := make([]operationDoc, len(u.Operations))
 	for i, op := range u.Operations {
 		ops[i] = operationDoc{Name: op.Name, Methods: op.Methods, PathPrefix: op.PathPrefix, Assurance: op.Assurance, Plugins: op.Plugins}
+		for _, b := range op.Bindings {
+			ops[i].Bindings = append(ops[i].Bindings, bindingDoc{Key: b.Key, Location: string(b.Location), Name: b.Name, Display: b.Display, Label: b.Label})
+		}
 		if t := op.Transaction; t != nil {
 			ops[i].Transaction = &transactionDoc{Amount: t.Amount, Currency: t.Currency, Payee: t.Payee, Summary: t.Summary}
 		}
@@ -441,6 +454,9 @@ func upstreamOf(row dbgen.GatewayUpstream) (Upstream, error) {
 	ops := make([]Operation, len(docs))
 	for i, d := range docs {
 		ops[i] = Operation{Name: d.Name, Methods: d.Methods, PathPrefix: d.PathPrefix, Assurance: d.Assurance, Plugins: d.Plugins}
+		for _, b := range d.Bindings {
+			ops[i].Bindings = append(ops[i].Bindings, Binding{Key: b.Key, Location: BindingLocation(b.Location), Name: b.Name, Display: b.Display, Label: b.Label})
+		}
 		if t := d.Transaction; t != nil {
 			ops[i].Transaction = &Transaction{Amount: t.Amount, Currency: t.Currency, Payee: t.Payee, Summary: t.Summary}
 		}

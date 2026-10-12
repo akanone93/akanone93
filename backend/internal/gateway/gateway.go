@@ -9,6 +9,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"time"
 
@@ -40,6 +41,9 @@ type Options struct {
 	// Count increments a counter in the shared cache and returns its new
 	// value; nil leaves the rate unlimited.
 	Count func(ctx context.Context, key string, window time.Duration) (int64, error)
+	// Config resolves server-held configuration values (DAT-091–DAT-096);
+	// nil leaves operations that bind values refused (PLX-6069).
+	Config *ConfigResolver
 	// Production says whether an environment is a production one.
 	Production func(ctx context.Context, environmentID string) (bool, error)
 	// Observe receives every finished call: the upstream, the status the
@@ -81,6 +85,9 @@ type Request struct {
 	// ChallengeID and Signature answer a transaction challenge.
 	ChallengeID string
 	Signature   []byte
+	// ConfigVersion is the live-configuration version the device used,
+	// from Plux-Config-Version; nil when it holds none (DAT-096).
+	ConfigVersion *int64
 }
 
 // forwardRequestHeaders are the request headers an upstream may receive
@@ -110,6 +117,13 @@ type Pending struct {
 	url  *url.URL
 	user *User
 	prod bool
+	// bound are the bindings of the operation with their values; header
+	// is what the header bindings set.
+	bound  []resolvedBinding
+	header http.Header
+	// epoch is the configuration epoch the call saw, when it was read.
+	epoch    int64
+	hasEpoch bool
 }
 
 // Plan is an authorised call, ready to be sent.
@@ -170,11 +184,18 @@ func (g *Gateway) Begin(ctx context.Context, d device.Identity, r Request) (*Pen
 	if err := checkTransactionShape(op, r); err != nil {
 		return nil, err
 	}
+	cfg, err := g.configure(ctx, d, up, op, r, target)
+	if err != nil {
+		return nil, err
+	}
 	prod, err := g.o.Production(ctx, d.EnvironmentID)
 	if err != nil {
 		return nil, err
 	}
-	p := &Pending{g: g, d: d, req: r, up: up, op: op, lim: lim, url: target, prod: prod}
+	p := &Pending{
+		g: g, d: d, req: r, up: up, op: op, lim: lim, url: cfg.target, prod: prod,
+		bound: cfg.bound, header: boundHeaders(cfg.bound), epoch: cfg.epoch, hasEpoch: cfg.hasEpoch,
+	}
 	if r.UserToken != "" {
 		if g.o.Users == nil {
 			return nil, userInvalid("unsupported")
@@ -344,9 +365,14 @@ func checkTransactionShape(op Operation, r Request) error {
 	return nil
 }
 
-// NeedsBody reports whether Finish needs the request body: only a
-// transaction's is read, to check its dynamic linking.
-func (p *Pending) NeedsBody() bool { return p.op.Transaction != nil }
+// NeedsBody reports whether Finish needs the request body: a
+// transaction's is read to check its dynamic linking, and one with
+// server-held values to put them in. Every other body streams untouched.
+func (p *Pending) NeedsBody() bool { return p.op.Transaction != nil || p.op.jsonBindings() }
+
+// ConfigEpoch returns the configuration epoch the call saw, for the
+// Plux-Config-Epoch header of the response (DAT-095).
+func (p *Pending) ConfigEpoch() (int64, bool) { return p.epoch, p.hasEpoch }
 
 // MaxRequest is the most bytes of request body the gateway forwards
 // (gateway.requestBytes).
@@ -364,6 +390,16 @@ func (p *Pending) Finish(ctx context.Context, body []byte) (*Plan, error) {
 		Audience: p.up.AudienceOrDefault(), DeviceID: p.d.DeviceID, AppID: p.d.AppID, EnvironmentID: p.d.EnvironmentID,
 		OrganizationID: p.d.OrganizationID, Assurance: p.d.Assurance, Production: p.prod, User: p.user,
 	}
+	if p.op.jsonBindings() {
+		injected, err := injectBody(body, p.bound)
+		if err != nil {
+			return nil, err
+		}
+		if int64(len(injected)) > p.MaxRequest() {
+			return nil, plxerr.New(plxerr.LimitExceeded, "the request body exceeds gateway.requestBytes = %d", p.MaxRequest())
+		}
+		body = injected
+	}
 	var bodySum []byte
 	if body != nil {
 		sum := sha256.Sum256(body)
@@ -373,7 +409,7 @@ func (p *Pending) Finish(ctx context.Context, body []byte) (*Plan, error) {
 		if g.o.SCA == nil {
 			return nil, plxerr.New(plxerr.TransactionRequiresGateway, "this server cannot verify transactions")
 		}
-		proof, err := g.o.SCA.Verify(ctx, p.d, p.up, p.op, p.req.ChallengeID, p.req.Signature, body, p.challengeLifetime())
+		proof, err := g.o.SCA.VerifyBound(ctx, p.d, p.up, p.op, p.req.ChallengeID, p.req.Signature, body, p.displayed(), p.challengeLifetime())
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
@@ -389,6 +425,9 @@ func (p *Pending) Finish(ctx context.Context, body []byte) (*Plan, error) {
 		return nil, err
 	}
 	header := allowedHeaders(p.req.Header)
+	for name, values := range p.header {
+		header[name] = slices.Clone(values)
+	}
 	header.Set(AssertionHeader, assertion)
 	if name, value, ok, err := g.o.Egress.Credential(ctx, p.up); err != nil {
 		return nil, err
@@ -444,7 +483,56 @@ func (g *Gateway) CreateChallenge(ctx context.Context, d device.Identity, upstre
 		return Challenge{}, err
 	}
 	life := time.Duration(lim.Get(limits.ScaChallengeLifetime)) * time.Millisecond
-	return g.o.SCA.Create(ctx, d, up, op, summary, life)
+	displayed, err := g.displayBindings(ctx, d, op)
+	if err != nil {
+		return Challenge{}, err
+	}
+	if len(displayed) == 0 {
+		return g.o.SCA.Create(ctx, d, up, op, summary, life)
+	}
+	merged, err := mergeSummary(summary, *op.Transaction, displayed)
+	if err != nil {
+		return Challenge{}, err
+	}
+	bound := make(map[string]string, len(displayed))
+	shown := make([]DisplayedValue, len(displayed))
+	for i, b := range displayed {
+		bound[b.Key] = b.Value.Text
+		shown[i] = DisplayedValue{Label: b.DisplayLabel(), Value: b.Value.Text}
+	}
+	c, err := g.o.SCA.CreateBound(ctx, d, up, op, merged, bound, life)
+	c.Displayed = shown
+	return c, err
+}
+
+// displayBindings resolves the bindings of a transaction that the user
+// sees (DAT-093). A sensitive value is never shown.
+func (g *Gateway) displayBindings(ctx context.Context, d device.Identity, op Operation) ([]resolvedBinding, error) {
+	var out []resolvedBinding
+	var snap *ConfigSnapshot
+	for _, b := range op.Bindings {
+		if !b.Display {
+			continue
+		}
+		if snap == nil {
+			if g.o.Config == nil {
+				return nil, plxerr.New(plxerr.ConfigStoreUnavailable, "this server holds no configuration for the transaction's displayed values")
+			}
+			var err error
+			if snap, err = g.o.Config.Snapshot(ctx, d.OrganizationID, d.AppID, d.EnvironmentID); err != nil {
+				return nil, err
+			}
+		}
+		v, err := snap.bound(b.Key)
+		if err != nil {
+			return nil, err
+		}
+		if v.Sensitive {
+			return nil, plxerr.New(plxerr.PreconditionFailed, "a sensitive configuration value cannot be shown to the user")
+		}
+		out = append(out, resolvedBinding{Binding: b, Value: v})
+	}
+	return out, nil
 }
 
 // Finished records a finished call for the metrics.

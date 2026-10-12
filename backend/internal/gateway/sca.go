@@ -15,6 +15,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"math/big"
 	"strconv"
 	"strings"
@@ -78,6 +79,17 @@ type Challenge struct {
 	ID        string
 	Bytes     []byte
 	ExpiresAt time.Time
+	// Summary is the canonical summary the challenge is bound to; the
+	// device signs the challenge followed by it.
+	Summary []byte
+	// Displayed are the server-held values the user is shown (DAT-093).
+	Displayed []DisplayedValue
+}
+
+// DisplayedValue is a server-held value of a transaction that the user
+// sees before they confirm it (DAT-093).
+type DisplayedValue struct {
+	Label, Value string
 }
 
 // record is what the cache keeps of a challenge.
@@ -89,6 +101,9 @@ type record struct {
 	Operation string `json:"o"`
 	Challenge []byte `json:"c"`
 	Summary   []byte `json:"s"`
+	// Bound are the displayed server-held values the summary carries, by
+	// key (DAT-093).
+	Bound map[string]string `json:"b,omitempty"`
 }
 
 func (s *SCA) now() time.Time {
@@ -103,6 +118,13 @@ func (s *SCA) now() time.Time {
 // must be RFC 8785 canonical JSON with the string members the operation's
 // mapping names: amount, currency and payee, and summary when mapped.
 func (s *SCA) Create(ctx context.Context, d device.Identity, u Upstream, op Operation, summary []byte, lifetime time.Duration) (Challenge, error) {
+	return s.CreateBound(ctx, d, u, op, summary, nil, lifetime)
+}
+
+// CreateBound is Create for a summary that carries server-held values the
+// user is shown: bound holds their text by key, and the challenge
+// remembers it so that a change before execution is noticed (DAT-093).
+func (s *SCA) CreateBound(ctx context.Context, d device.Identity, u Upstream, op Operation, summary []byte, bound map[string]string, lifetime time.Duration) (Challenge, error) {
 	if op.Transaction == nil {
 		return Challenge{}, plxerr.New(plxerr.InvalidFormat, "operation %q is not a transaction", op.Name)
 	}
@@ -129,7 +151,7 @@ func (s *SCA) Create(ctx context.Context, d device.Identity, u Upstream, op Oper
 	}
 	value, err := json.Marshal(record{
 		Device: d.DeviceID, App: d.AppID, Env: d.EnvironmentID, Upstream: u.Name, Operation: op.Name,
-		Challenge: challenge, Summary: summary,
+		Challenge: challenge, Summary: summary, Bound: bound,
 	})
 	if err != nil {
 		return Challenge{}, fmt.Errorf("gateway: encode a challenge: %w", err)
@@ -137,7 +159,7 @@ func (s *SCA) Create(ctx context.Context, d device.Identity, u Upstream, op Oper
 	if err := s.Cache.Set(ctx, challengeKey+id, value, lifetime); err != nil {
 		return Challenge{}, plxerr.Wrap(plxerr.UpstreamUnavailable, err, "the challenge store is unavailable")
 	}
-	return Challenge{ID: id, Bytes: challenge, ExpiresAt: s.now().Add(lifetime).UTC().Truncate(time.Second)}, nil
+	return Challenge{ID: id, Bytes: challenge, ExpiresAt: s.now().Add(lifetime).UTC().Truncate(time.Second), Summary: summary}, nil
 }
 
 // Verify accepts a transaction call: the challenge must be one this
@@ -147,6 +169,14 @@ func (s *SCA) Create(ctx context.Context, d device.Identity, u Upstream, op Oper
 // spends the challenge first, so a second call with it fails whatever the
 // first did. It returns what the assertion carries.
 func (s *SCA) Verify(ctx context.Context, d device.Identity, u Upstream, op Operation, challengeID string, signature, body []byte, lifetime time.Duration) (SCAProof, error) {
+	return s.VerifyBound(ctx, d, u, op, challengeID, signature, body, nil, lifetime)
+}
+
+// VerifyBound is Verify for an operation with displayed server-held
+// values: current holds their text by key as the gateway resolved it now,
+// and a difference from what the user confirmed refuses the call without
+// spending the challenge (DAT-093, PLX-6066).
+func (s *SCA) VerifyBound(ctx context.Context, d device.Identity, u Upstream, op Operation, challengeID string, signature, body []byte, current map[string]string, lifetime time.Duration) (SCAProof, error) {
 	if op.Transaction == nil {
 		return SCAProof{}, plxerr.New(plxerr.InvalidFormat, "operation %q is not a transaction", op.Name)
 	}
@@ -163,6 +193,9 @@ func (s *SCA) Verify(ctx context.Context, d device.Identity, u Upstream, op Oper
 	}
 	if rec.Device != d.DeviceID || rec.App != d.AppID || rec.Env != d.EnvironmentID || rec.Upstream != u.Name || rec.Operation != op.Name {
 		return SCAProof{}, plxerr.New(plxerr.SCAChallengeInvalid, "the challenge was issued for another device or operation")
+	}
+	if !maps.Equal(rec.Bound, current) {
+		return SCAProof{}, plxerr.New(plxerr.BoundValueChanged, "a server-held value of the transaction changed since the user confirmed it")
 	}
 	first, err := s.Cache.SetNX(ctx, usedKey+challengeID, []byte{1}, lifetime+usedMargin)
 	if err != nil {
@@ -311,4 +344,34 @@ func pointed(tree any, pointer string) (string, error) {
 		return v.String(), nil
 	}
 	return "", errors.New("gateway: the pointer finds neither a string nor a number")
+}
+
+// mergeSummary puts the server-held values of the displayed bindings into
+// the summary a device sent: the device's summary names the other members
+// of the transaction, and one that already names a bound member is
+// refused (DAT-091). The result is canonical JSON the user signs.
+func mergeSummary(raw []byte, t Transaction, displayed []resolvedBinding) ([]byte, error) {
+	tree, err := jcs.Parse(raw, jsonDepth)
+	if err != nil {
+		return nil, plxerr.New(plxerr.InvalidFormat, "the transaction summary is not valid JSON")
+	}
+	if canonical, err := jcs.Marshal(tree); err != nil || !bytes.Equal(canonical, raw) {
+		return nil, plxerr.New(plxerr.InvalidFormat, "the transaction summary is not in RFC 8785 canonical form")
+	}
+	obj, ok := tree.(map[string]any)
+	if !ok {
+		return nil, plxerr.New(plxerr.InvalidFormat, "the transaction summary is a JSON object")
+	}
+	for _, b := range displayed {
+		member := summaryMember(t, b.Name)
+		if _, set := obj[member]; set {
+			return nil, setByDevice(b.Binding)
+		}
+		obj[member] = b.Value.Text
+	}
+	merged, err := jcs.Marshal(obj)
+	if err != nil {
+		return nil, plxerr.New(plxerr.InvalidFormat, "the transaction summary cannot be encoded")
+	}
+	return merged, nil
 }

@@ -74,6 +74,9 @@ type Operation struct {
 	// Plugins limits the operation to these plugins (SEC-080); empty means
 	// any plugin of the app.
 	Plugins []string
+	// Bindings put server-held configuration values into the forwarded
+	// request (DAT-091).
+	Bindings []Binding
 }
 
 // Upstream is an API the gateway may reach for the devices of one
@@ -276,10 +279,12 @@ func (op Operation) validate(u Upstream) error {
 	if err := op.validatePolicy(); err != nil {
 		return err
 	}
-	if op.Transaction == nil {
-		return nil
+	if op.Transaction != nil {
+		if err := op.validateTransaction(u); err != nil {
+			return err
+		}
 	}
-	return op.validateTransaction(u)
+	return op.validateBindings(u)
 }
 
 // validatePolicy checks an operation's path, assurance and plugins.
