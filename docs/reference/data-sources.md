@@ -106,8 +106,12 @@ security profile refuses direct calls (`allowDirectDataSources`, off under `maxi
 `direct` source fails with `PLX-6063` at run time, is reported, and nothing is sent; the
 runtime never falls back from one route to the other. The offline outbox replays through the
 same route with the same `Idempotency-Key`. Streams (`websocket`, `sse`, GraphQL
-subscriptions) and file transfers have no gateway route yet: a `plux` source that uses them
-fails with `PLX-5108`, so declare them `direct` (where the profile allows it).
+subscriptions) and file transfers of a `plux` source connect to the gateway's HTTP route,
+`/gateway/v1/{upstream}/{path}` ([gateway guide](../guides/gateway.md) §7): the sync isolate
+signs a DPoP proof of that connection's method and URL (one per connection, reconnections
+included) and returns it with the exchanged user token and the typed `Plux-` headers, and the
+data isolate makes the connection, so nothing is streamed through the isolate that holds the
+key. A `direct` source connects to the origin.
 
 **User identity** (`SEC-026`). For a source or operation with `auth`, the gateway route does not
 send the host's token to the upstream. The runtime hands the auth delegate's token to the
