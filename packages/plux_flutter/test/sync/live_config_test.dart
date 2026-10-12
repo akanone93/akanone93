@@ -200,7 +200,7 @@ void main() {
           }
           expect(_contains(utf8.encode('x$_pool'), needle), isTrue);
         } finally {
-          worker.close();
+          await worker.close();
           Directory(root).deleteSync(recursive: true);
         }
       },

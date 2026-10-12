@@ -203,7 +203,7 @@ void main() {
         ),
       );
     } finally {
-      worker.close();
+      await worker.close();
       await server.close();
       Directory(root).deleteSync(recursive: true);
     }
