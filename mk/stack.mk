@@ -123,7 +123,12 @@ ZAP_OPTS   ?=
 
 # Verifies: QA-008.
 zap-api: ## Scan the running Compose stack's API with the ZAP baseline, ignoring only test/zap/api-rules.tsv; report in build/zap (QA-008)
-	@curl -fsS --cacert $(DEV_CA) $(ZAP_TARGET)/readyz >/dev/null || { echo "✗ no stack answering at $(ZAP_TARGET): run 'make compose-up' first"; exit 1; }
+	@# compose up --wait returns once the server's container runs, not once it answers: wait, at most two minutes.
+	@for i in $$(seq 60); do \
+		curl -fsS --cacert $(DEV_CA) $(ZAP_TARGET)/readyz >/dev/null 2>&1 && break; \
+		[ "$$i" = 60 ] && { echo "✗ no stack answering at $(ZAP_TARGET): run 'make compose-up' first"; exit 1; }; \
+		sleep 2; \
+	done
 	@mkdir -p $(ZAP_OUT) && chmod a+w $(ZAP_OUT) && cp test/zap/api-rules.tsv $(ZAP_OUT)/api-rules.tsv
 	@# The container shares the host's network to reach the stack's loopback port. Exit 0 is a clean scan; 1 a failed rule, 2 a warning, 3 an error: all but 0 fail.
 	docker run --rm --network host -v $(ZAP_OUT):/zap/wrk:rw $(ZAP_IMAGE) \
