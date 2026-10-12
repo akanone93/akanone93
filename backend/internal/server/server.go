@@ -223,14 +223,19 @@ func (s *Server) buildHTTP() error {
 // outermost, so that every response carries it (SEC-040).
 func (s *Server) wrap(h http.Handler) http.Handler {
 	bounded := httpx.MaxBytes(h, s.limits.Get(limits.APIRequestSize))
-	// The gateway's streaming route carries uploads far larger than an API
-	// message; it bounds its bodies itself, with gateway.requestBytes
-	// (SEC-031, LIM-001).
 	return httpx.HSTS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// The gateway's streaming route carries uploads far larger than an
+		// API message; it bounds its bodies itself, with
+		// gateway.requestBytes (SEC-031, LIM-001), and forwards the
+		// upstream's own caching policy.
 		if strings.HasPrefix(r.URL.Path, api.GatewayRoutePrefix) {
 			h.ServeHTTP(w, r)
 			return
 		}
+		// No cache stores an answer of the API — an RPC, an error, a 404 —
+		// unless its handler sets a policy of its own, as the bundle,
+		// metadata and key routes do (QA-008).
+		w.Header().Set("Cache-Control", "no-store")
 		bounded.ServeHTTP(w, r)
 	}), s.hsts)
 }
