@@ -43,7 +43,9 @@ A run they start records no values in its trace, and they never reach logs or te
 
 ```json
 {"type": "SecurePinPad", "props": {"length": 6, "randomizeLayout": true},
- "events": {"onCompleted": {"action": "01d0c450-…"}}}
+ "events": {"onCompleted": {"steps": [
+   {"id": "keep", "action": "setState",
+    "input": {"path": "page.unlock.pin", "value": {"$expr": "event"}}}]}}}
 ```
 
 ## 2. Secure pages
@@ -126,5 +128,4 @@ Overrides only tighten them ([configuration](configuration.md)).
 ## 7. Accessibility
 
 Secure widgets keep their roles and labels (`SecureTextField` and `OtpInput` are text fields,
-`SecurePinPad` and `BiometricButton` buttons). Masked values are announced as masked, not
-read out. The confirmation sheet of [SCA](sca.md) reads each row as a unit.
+`SecurePinPad` and `BiometricButton` buttons). Nothing of a masked value reaches screen readers. The confirmation sheet of [SCA](sca.md) reads each row as a unit.
