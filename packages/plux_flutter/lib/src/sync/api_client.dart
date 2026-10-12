@@ -823,6 +823,12 @@ final class PluxApiClient {
       throw const ApiError(0, 'unknown', 'the server sent no challenge');
     }
     final shown = r['displayed'];
+    Uint8List? summary;
+    try {
+      summary = base64.decode(r['transactionSummaryJcs'] as String? ?? '');
+    } on FormatException {
+      throw const ApiError(0, 'unknown', 'the server sent a malformed summary');
+    }
     return TransactionChallenge(
       id: id,
       bytes: challenge,
@@ -835,6 +841,7 @@ final class PluxApiClient {
                 d['value'] is String)
               DisplayedValue(d['label']! as String, d['value']! as String),
       ],
+      summaryJcs: summary.isEmpty ? null : summary,
     );
   }
 

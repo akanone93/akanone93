@@ -11,8 +11,6 @@
 /// `toString` (DAT-094, SCH-012).
 library;
 
-import 'package:plux_flutter/src/errors/plux_exception.dart';
-
 /// The type of a configuration value (DAT-090).
 enum LiveConfigType {
   /// A string.
@@ -171,80 +169,6 @@ const String pluxConfigVersionHeader = 'Plux-Config-Version';
 /// The header on every gateway response that carries the epoch of the app's
 /// configuration (DAT-095).
 const String pluxConfigEpochHeader = 'Plux-Config-Epoch';
-
-/// A code of the server-held configuration in the error catalogue.
-///
-/// The catalogue is generated (`make gen`), and the generated enum is read
-/// by name, so this works before and after the codes are generated; [assumed]
-/// is the number a test server answers with until they are.
-final class ConfigCode {
-  const ConfigCode._(this.name, this.assumed);
-
-  /// The enum name in [PluxErrorCode].
-  final String name;
-
-  /// The number to use while [name] is not in the generated catalogue.
-  final int assumed;
-
-  /// The catalogue's entry, or null while it is not generated.
-  PluxErrorCode? get registered {
-    for (final c in PluxErrorCode.values) {
-      if (c.name == name) return c;
-    }
-    return null;
-  }
-
-  /// The `PLX` number.
-  int get number => registered?.code ?? assumed;
-
-  /// The code to raise: the catalogue's entry, else the generic data
-  /// failure it stands in for.
-  PluxErrorCode get raised => registered ?? PluxErrorCode.dataNetworkFailed;
-
-  /// Whether [plx] is this code's number.
-  bool matches(int? plx) => plx != null && plx == number;
-
-  /// A gateway call sent a `live` value's version that is older than a
-  /// `strict` value's current one (DAT-096): refresh and retry once.
-  static const ConfigCode stale = ConfigCode._('liveConfigStale', 6076);
-
-  /// The `live` values cannot be had: offline, or the server cannot answer
-  /// (DAT-097).
-  static const ConfigCode unavailable = ConfigCode._(
-    'liveConfigUnavailable',
-    6077,
-  );
-
-  /// The server's configuration store is down, so it refuses the call
-  /// rather than guess a value (DAT-092).
-  static const ConfigCode storeUnavailable = ConfigCode._(
-    'configStoreUnavailable',
-    6078,
-  );
-
-  /// The device set a location the operation binds to a server-held value
-  /// (DAT-091).
-  static const ConfigCode boundLocationSet = ConfigCode._(
-    'boundLocationSetByDevice',
-    6074,
-  );
-
-  /// A bound value changed between the challenge and the execution
-  /// (DAT-093).
-  static const ConfigCode boundValueChanged = ConfigCode._(
-    'boundValueChangedSinceChallenge',
-    6075,
-  );
-
-  /// Every code of the server-held configuration.
-  static const List<ConfigCode> all = [
-    boundLocationSet,
-    boundValueChanged,
-    stale,
-    unavailable,
-    storeUnavailable,
-  ];
-}
 
 /// Where pages read `live` configuration values (DAT-094, DAT-097); the
 /// sync isolate holds the values, so a read is a request to it.

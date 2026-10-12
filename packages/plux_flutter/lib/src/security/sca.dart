@@ -32,6 +32,10 @@ final class ScaDeclined implements Exception {
 
 /// What the user confirms: the amount, currency and payee as displayed
 /// (SEC-028), and an optional human-readable description.
+///
+/// A payee the request leaves out is null: the operation binds it to a
+/// server-held value, which the server puts into the summary the user
+/// signs (DAT-093).
 final class TransactionSummary {
   /// Creates a summary; every field is shown exactly as given.
   const TransactionSummary({
@@ -48,7 +52,8 @@ final class TransactionSummary {
   /// strings: a value that does not read the same way on the server is not
   /// something the user can be asked to confirm. A field that is missing or
   /// of another type fails with [PluxErrorCode.scaDynamicLinkingMismatch]
-  /// before anything is asked or sent.
+  /// before anything is asked or sent, except a missing payee, which the
+  /// server fills from a binding or refuses the challenge for (DAT-093).
   factory TransactionSummary.read(
     Object? source, {
     required String amount,
@@ -70,7 +75,7 @@ final class TransactionSummary {
     return TransactionSummary(
       amount: field('amount', amount, number: true),
       currency: field('currency', currency),
-      payee: field('payee', payee),
+      payee: readPointer(source, payee) == null ? null : field('payee', payee),
       description: description == null ? null : field('summary', description),
     );
   }
@@ -81,21 +86,28 @@ final class TransactionSummary {
   /// The currency, as the request carries it (ISO 4217).
   final String currency;
 
-  /// The payee, as the request carries it.
-  final String payee;
+  /// The payee, as the request carries it; null when the server binds it
+  /// (DAT-093).
+  final String? payee;
 
   /// A human-readable description, or null.
   final String? description;
 
+  /// The members by their names in [jcs], null ones left out.
+  Map<String, String> get members => {
+    'amount': amount,
+    'currency': currency,
+    'payee': ?payee,
+    'summary': ?description,
+  };
+
   /// The summary as RFC 8785 canonical JSON (UTF-8): the object with the
-  /// members `amount`, `currency`, `payee` and, when there is one,
-  /// `summary`, in that order, which is the order of their UTF-16 code
-  /// units, with no insignificant whitespace. The server binds the
-  /// challenge to its hash (SEC-028).
+  /// members `amount`, `currency`, `payee` and `summary` that are not null,
+  /// in that order, which is the order of their UTF-16 code units, with no
+  /// insignificant whitespace. The server binds the challenge to its hash
+  /// (SEC-028).
   Uint8List get jcs => utf8.encode(
-    '{"amount":${_jsonString(amount)},"currency":${_jsonString(currency)},'
-    '"payee":${_jsonString(payee)}'
-    '${description == null ? '' : ',"summary":${_jsonString(description!)}'}}',
+    '{${[for (final m in members.entries) '"${m.key}":${_jsonString(m.value)}'].join(',')}}',
   );
 
   /// Whether [other] is the same transaction, byte for byte.
@@ -218,6 +230,7 @@ final class TransactionChallenge {
     required this.bytes,
     required this.expiresAt,
     this.displayed = const [],
+    this.summaryJcs,
   });
 
   /// What the call through the gateway names the challenge by.
@@ -231,6 +244,11 @@ final class TransactionChallenge {
 
   /// The values the server resolved for the user to see (DAT-093).
   final List<DisplayedValue> displayed;
+
+  /// The canonical summary the server bound the challenge to: the device's
+  /// with the [displayed] values put in (DAT-093); null when the server
+  /// returned none, which means the device's own.
+  final Uint8List? summaryJcs;
 }
 
 /// Asks the Plux server for challenges: the sync isolate holds the device's
@@ -268,7 +286,8 @@ final class Confirmation {
   /// The 64-byte ES256 signature (`r || s`).
   final Uint8List signature;
 
-  /// The summary the signature covers.
+  /// The device's summary of the transaction the user confirmed; the
+  /// signature covers it with the server-held values put in (DAT-093).
   final TransactionSummary summary;
 
   /// When the server stops accepting the challenge.
@@ -373,6 +392,7 @@ final class ScaService implements TransactionAuthoriser {
       operation: request.operation,
       summaryJcs: summary.jcs,
     );
+    final signed = _signed(summary, challenge);
     // The context may have gone while the challenge was on its way.
     if (!showOn.mounted) throw const ScaDeclined();
     if (!await confirmer.confirm(
@@ -386,9 +406,9 @@ final class ScaService implements TransactionAuthoriser {
     try {
       signature = await signer.signWithUser(
         alias,
-        scaSigningInput(challenge.bytes, summary.jcs),
+        scaSigningInput(challenge.bytes, signed.jcs),
         title: scaPromptTitle,
-        subtitle: '${summary.amount} ${summary.currency} to ${summary.payee}',
+        subtitle: '${signed.amount} ${signed.currency} to ${signed.payee}',
       );
     } on UserAuthenticationCancelled {
       throw const ScaDeclined();
@@ -433,4 +453,57 @@ final class ScaService implements TransactionAuthoriser {
 
   /// Forgets every held confirmation, at logout.
   void clear() => _held.clear();
+}
+
+/// The summary the SCA key signs for [challenge]: the server's, after
+/// checking that it is [device]'s with exactly the displayed values put in
+/// the members [device] leaves out, so the user sees all of what is signed
+/// and nothing else (SEC-028, DAT-093).
+TransactionSummary _signed(
+  TransactionSummary device,
+  TransactionChallenge challenge,
+) {
+  Never mismatch() => throw const PluxException(
+    PluxErrorCode.scaDynamicLinkingMismatch,
+    'the server bound the challenge to a summary the user is not shown; it '
+    'is not signed',
+  );
+  final raw = challenge.summaryJcs;
+  if (raw == null || raw.isEmpty) {
+    // Values shown that the signature would not cover.
+    if (challenge.displayed.isNotEmpty) mismatch();
+    return device;
+  }
+  final Object? json;
+  try {
+    json = jsonDecode(utf8.decode(raw));
+  } on FormatException {
+    mismatch();
+  }
+  if (json is! Map<String, Object?> ||
+      json.values.any((v) => v is! String) ||
+      json['amount'] is! String ||
+      json['currency'] is! String) {
+    mismatch();
+  }
+  final signed = TransactionSummary(
+    amount: json['amount']! as String,
+    currency: json['currency']! as String,
+    payee: json['payee'] as String?,
+    description: json['summary'] as String?,
+  );
+  // Byte for byte: no member beyond the four, and nothing that reads
+  // differently from what the sheet shows.
+  if (!_equal(signed.jcs, raw)) mismatch();
+  final shown = [for (final d in challenge.displayed) d.value];
+  for (final MapEntry(:key, :value) in signed.members.entries) {
+    final own = device.members[key];
+    if (own != null) {
+      if (own != value) mismatch();
+    } else if (!shown.remove(value)) {
+      mismatch();
+    }
+  }
+  if (shown.isNotEmpty) mismatch();
+  return signed;
 }

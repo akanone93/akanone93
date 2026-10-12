@@ -34,6 +34,7 @@ final class _Rig
   TransactionSummary? shown;
   List<DisplayedValue> shownValues = const [];
   List<DisplayedValue> serverValues = const [];
+  Uint8List? serverSummary;
   Uint8List? challengedSummary;
 
   @override
@@ -49,6 +50,7 @@ final class _Rig
       bytes: _challenge,
       expiresAt: expires,
       displayed: serverValues,
+      summaryJcs: serverSummary,
     );
   }
 
@@ -154,6 +156,26 @@ void main() {
       }
     });
 
+    test('leaves a payee the body does not carry to the server, and only a payee [DAT-093]', () {
+      final s = TransactionSummary.read(
+        {'amount': '5', 'currency': 'EUR'},
+        amount: '/amount',
+        currency: '/currency',
+        payee: '/to',
+      );
+      expect(s.payee, isNull);
+      expect(utf8.decode(s.jcs), '{"amount":"5","currency":"EUR"}');
+      expect(
+        () => TransactionSummary.read(
+          {'amount': '5', 'currency': 'EUR', 'to': 7},
+          amount: '/amount',
+          currency: '/currency',
+          payee: '/to',
+        ),
+        throwsA(isA<PluxException>()),
+      );
+    });
+
     test(
       'the signed input is the challenge followed by the summary [SEC-027]',
       () {
@@ -211,16 +233,92 @@ void main() {
       summary: _summary,
     );
 
+    const bound = TransactionRequest(
+      dataSource: 'bank',
+      operation: 'transfer',
+      summary: TransactionSummary(
+        amount: '12.50',
+        currency: 'EUR',
+        payee: null,
+      ),
+    );
+    Uint8List merged(String payee) =>
+        TransactionSummary(amount: '12.50', currency: 'EUR', payee: payee).jcs;
+
     testWidgets(
-      'hands the values the server resolved to the sheet, after the summary [DAT-093]',
+      'shows the values the server resolved and signs the summary it bound them into [DAT-093] [SEC-028]',
       (tester) async {
         await pumpScreen(tester);
-        rig.serverValues = const [DisplayedValue('Pool account', 'ACC-7')];
-        await make().confirm(request);
+        rig
+          ..serverValues = const [DisplayedValue('Pool account', 'ACC-7')]
+          ..serverSummary = merged('ACC-7');
+        final c = await make().confirm(bound);
+        expect(
+          rig.challengedSummary,
+          utf8.encode('{"amount":"12.50","currency":"EUR"}'),
+        );
+        expect(rig.shown, same(bound.summary));
         expect(rig.shownValues.single.label, 'Pool account');
         expect(rig.shownValues.single.value, 'ACC-7');
+        expect(rig.signed, scaSigningInput(_challenge, merged('ACC-7')));
+        expect(rig.promptSubtitle, '12.50 EUR to ACC-7');
+        expect(c.summary, same(bound.summary));
       },
     );
+
+    for (final (name, values, summary) in [
+      (
+        'a server value the user is not shown',
+        const <DisplayedValue>[],
+        '{"amount":"12.50","currency":"EUR","payee":"ACC-7"}',
+      ),
+      (
+        'a shown value the summary does not carry',
+        const [DisplayedValue('Pool account', 'ACC-8')],
+        '{"amount":"12.50","currency":"EUR","payee":"ACC-7"}',
+      ),
+      (
+        'a member of the device changed',
+        const [DisplayedValue('Pool account', 'ACC-7')],
+        '{"amount":"99.00","currency":"EUR","payee":"ACC-7"}',
+      ),
+      (
+        'a member beyond the summary\'s',
+        const [DisplayedValue('Pool account', 'ACC-7')],
+        '{"amount":"12.50","currency":"EUR","fee":"1","payee":"ACC-7"}',
+      ),
+      (
+        'a summary that is not canonical',
+        const [DisplayedValue('Pool account', 'ACC-7')],
+        '{"currency":"EUR","amount":"12.50","payee":"ACC-7"}',
+      ),
+      (
+        'shown values with no summary',
+        const [DisplayedValue('Pool account', 'ACC-7')],
+        '',
+      ),
+    ]) {
+      testWidgets('refuses before the sheet $name [DAT-093] [SEC-028]', (
+        tester,
+      ) async {
+        await pumpScreen(tester);
+        rig
+          ..serverValues = values
+          ..serverSummary = utf8.encode(summary);
+        await expectLater(
+          make().confirm(bound),
+          throwsA(
+            isA<PluxException>().having(
+              (e) => e.code,
+              'code',
+              PluxErrorCode.scaDynamicLinkingMismatch,
+            ),
+          ),
+        );
+        expect(rig.steps, ['challenge bank.transfer']);
+        expect(rig.signed, isNull);
+      });
+    }
 
     testWidgets(
       'asks for the challenge, shows the sheet, prompts, then signs challenge and summary, in that order [SEC-027] [SEC-028]',

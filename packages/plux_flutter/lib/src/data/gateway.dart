@@ -12,7 +12,6 @@ import 'dart:typed_data';
 
 import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/data/failure.dart';
-import 'package:plux_flutter/src/data/live_config.dart';
 import 'package:plux_flutter/src/data/transport.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/security/sca.dart';
@@ -141,15 +140,19 @@ const Set<PluxErrorCode> _known = {
   PluxErrorCode.transactionRequiresGateway,
 };
 
-bool _isConfig(PluxErrorCode c) => ConfigCode.all.any((k) => k.registered == c);
+bool _isConfig(PluxErrorCode c) => const {
+  PluxErrorCode.boundLocationSetByDevice,
+  PluxErrorCode.boundValueChanged,
+  PluxErrorCode.liveConfigStale,
+  PluxErrorCode.liveConfigUnavailable,
+  PluxErrorCode.configStoreUnavailable,
+}.contains(c);
 
 ActionErrorKind _kind(PluxErrorCode c) => switch (c) {
   PluxErrorCode.gatewayUpstreamFailed => ActionErrorKind.network,
   PluxErrorCode.gatewayRateLimited => ActionErrorKind.http,
-  _
-      when ConfigCode.unavailable.registered == c ||
-          ConfigCode.storeUnavailable.registered == c =>
-    ActionErrorKind.network,
+  PluxErrorCode.liveConfigUnavailable ||
+  PluxErrorCode.configStoreUnavailable => ActionErrorKind.network,
   PluxErrorCode.userTokenInvalid => ActionErrorKind.http,
   PluxErrorCode.gatewayUpstreamUnknown ||
   PluxErrorCode.gatewayDestinationRefused ||

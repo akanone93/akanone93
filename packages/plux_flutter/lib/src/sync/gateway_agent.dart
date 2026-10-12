@@ -113,7 +113,7 @@ final class GatewayAgent {
           auth.forgetToken();
           continue;
         }
-        if (!refreshed && ConfigCode.stale.matches(e.plxCode)) {
+        if (!refreshed && e.plxCode == PluxErrorCode.liveConfigStale.code) {
           refreshed = true;
           await live.refresh(afresh: true);
           continue;
@@ -129,10 +129,9 @@ final class GatewayAgent {
   /// code of unavailable configuration (DAT-097).
   Future<LiveConfigSnapshot> _fetchLive() async {
     for (var attempt = 0; ; attempt++) {
-      final token = await _token();
       try {
         return await api.getLiveConfig(
-          token,
+          await _token(),
           appId: auth.appId,
           environment: auth.environment,
         );
@@ -141,17 +140,25 @@ final class GatewayAgent {
           auth.forgetToken();
           continue;
         }
-        final f = _refused(e, 'the live configuration');
-        if (f.kind != ActionErrorKind.network) throw f;
-        throw DataFailure(
-          ActionErrorKind.network,
-          ConfigCode.unavailable.raised,
-          'the live configuration could not be fetched: the Plux server did '
-          'not answer',
-        );
+        throw _unavailable(_refused(e, 'the live configuration'));
+      } on DataFailure catch (f) {
+        // The device token could not be had.
+        throw _unavailable(f);
       }
     }
   }
+
+  /// [f], or the code of unavailable configuration when [f] is a failure to
+  /// reach the server (DAT-097).
+  static DataFailure _unavailable(DataFailure f) =>
+      f.kind != ActionErrorKind.network
+      ? f
+      : DataFailure(
+          ActionErrorKind.network,
+          PluxErrorCode.liveConfigUnavailable,
+          'the live configuration could not be fetched: the Plux server did '
+          'not answer',
+        );
 
   DataResponse _decode(GatewayRequest r, GatewayReply reply) {
     final bytes = reply.body.length;

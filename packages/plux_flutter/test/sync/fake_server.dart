@@ -18,6 +18,7 @@ import 'package:cryptography/dart.dart';
 import 'package:plux_flutter/src/assets/assets.dart';
 import 'package:plux_flutter/src/bundle/container.dart';
 import 'package:plux_flutter/src/data/live_config.dart';
+import 'package:plux_flutter/src/errors/plux_exception.dart' show PluxErrorCode;
 import 'package:plux_flutter/src/security/content_key.dart';
 import 'package:plux_flutter/src/security/device_keys.dart' show EcPublicKey;
 import 'package:plux_flutter/src/sync/api_client.dart' show installedDigest;
@@ -608,7 +609,7 @@ final class FakePluxServer {
             {
               'code': 'failed_precondition',
               'message':
-                  'PLX-${ConfigCode.stale.number}: a strict value changed',
+                  'PLX-${PluxErrorCode.liveConfigStale.code}: a strict value changed',
             },
           );
         }

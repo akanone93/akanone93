@@ -365,8 +365,9 @@ final class DataClient {
     bool withAuth, {
     void Function(int status)? onStatus,
     TransactionMapping? transaction,
-  }) {
+  }) async {
     final (filled, rest) = fillPath(s, path, values);
+    if (transaction != null) _keepMapped(s, transaction, values, rest);
     final inQuery = method == 'GET' || method == 'DELETE';
     final query = inQuery ? queryOf(rest) : <String, List<String>>{};
     return _exchange(
@@ -382,6 +383,40 @@ final class DataClient {
       onStatus: onStatus,
       transaction: transaction,
     );
+  }
+
+  /// Fails when a path placeholder took a value the [transaction] maps: the
+  /// summary is read from the body, so the user would confirm a summary
+  /// without it, and a payee missing from the body is one the server binds
+  /// (SEC-028, DAT-093).
+  static void _keepMapped(
+    DataSourceSpec s,
+    TransactionMapping transaction,
+    Map<String, Object?> values,
+    Map<String, Object?> rest,
+  ) {
+    for (final pointer in [
+      transaction.amount,
+      transaction.currency,
+      transaction.payee,
+      ?transaction.summary,
+    ]) {
+      final member = pointer
+          .split('/')
+          .elementAtOrNull(1)
+          ?.replaceAll('~1', '/')
+          .replaceAll('~0', '~');
+      if (member != null &&
+          values.containsKey(member) &&
+          !rest.containsKey(member)) {
+        throw DataFailure(
+          ActionErrorKind.validation,
+          PluxErrorCode.scaDynamicLinkingMismatch,
+          'a path parameter of ${s.name} takes $member, which the '
+          'transaction summary is read from; it is not sent',
+        );
+      }
+    }
   }
 
   /// Fills the placeholders of [path] from [values]; returns the path
@@ -692,7 +727,8 @@ final class DataClient {
   /// (SEC-027, SEC-028). The summary is read from the body, what the server
   /// reads it from, so what the user confirms is what is sent; a mapped
   /// field that is not in the body fails the request before anything is
-  /// asked.
+  /// asked, except a payee the operation binds to a server-held value
+  /// (DAT-093).
   Future<Confirmation> _confirm(
     DataSourceSpec s,
     String operation,

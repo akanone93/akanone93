@@ -73,7 +73,8 @@ final class TransactionConfirmSheet extends StatelessWidget {
               const SizedBox(height: 16),
               _Row(label: 'Amount', value: summary.amount),
               _Row(label: 'Currency', value: summary.currency),
-              _Row(label: 'Payee', value: summary.payee),
+              if (summary.payee case final payee?)
+                _Row(label: 'Payee', value: payee),
               if (summary.description case final description?)
                 _Row(label: 'Description', value: description),
               for (final d in displayed) _Row(label: d.label, value: d.value),

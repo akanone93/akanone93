@@ -124,7 +124,7 @@ void main() {
           isA<DataFailure>().having(
             (f) => f.code,
             'code',
-            ConfigCode.unavailable.raised,
+            PluxErrorCode.liveConfigUnavailable,
           ),
         ),
       );
@@ -136,7 +136,7 @@ void main() {
           isA<DataFailure>().having(
             (f) => f.code,
             'code',
-            ConfigCode.unavailable.raised,
+            PluxErrorCode.liveConfigUnavailable,
           ),
         ),
       );
@@ -254,7 +254,7 @@ void main() {
           isA<DataFailure>().having(
             (f) => f.code,
             'code',
-            ConfigCode.stale.registered ?? PluxErrorCode.dataHttpError,
+            PluxErrorCode.liveConfigStale,
           ),
         ),
       );
@@ -275,7 +275,7 @@ void main() {
           isA<DataFailure>().having(
             (f) => f.code,
             'code',
-            ConfigCode.unavailable.raised,
+            PluxErrorCode.liveConfigUnavailable,
           ),
         ),
       );
@@ -341,7 +341,7 @@ void main() {
           error = e;
         }
         final f = _failure(error);
-        expect(f.code, ConfigCode.unavailable.raised);
+        expect(f.code, PluxErrorCode.liveConfigUnavailable);
         expect(f.message, isNot(contains('0.0125')));
         expect(f.toActionError().code, f.code);
       },
@@ -374,7 +374,7 @@ void main() {
             isA<DataFailure>().having(
               (f) => f.code,
               'code',
-              ConfigCode.unavailable.raised,
+              PluxErrorCode.liveConfigUnavailable,
             ),
           ),
         );
@@ -391,7 +391,7 @@ void main() {
             isA<DataFailure>().having(
               (f) => f.code,
               'code',
-              ConfigCode.unavailable.raised,
+              PluxErrorCode.liveConfigUnavailable,
             ),
           ),
         );

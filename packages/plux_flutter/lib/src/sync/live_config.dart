@@ -16,6 +16,7 @@ import 'dart:async';
 import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/data/live_config.dart';
+import 'package:plux_flutter/src/errors/plux_exception.dart';
 
 /// Holds the `live` values of one app and environment.
 final class LiveConfig {
@@ -96,7 +97,7 @@ final class LiveConfig {
     if (value == null) {
       throw DataFailure(
         ActionErrorKind.custom,
-        ConfigCode.unavailable.raised,
+        PluxErrorCode.liveConfigUnavailable,
         'there is no live configuration value $key',
       );
     }
