@@ -317,6 +317,21 @@ var matrix = map[string]entry{
 	"SecurityAdminService/DeleteUserIdentityProvider": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteUserIdentityProviderRequest{AppId: f.app, EnvironmentId: f.dev}
 	})),
+	"SecurityAdminService/SetConfigValue": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetConfigValueRequest{AppId: f.app, EnvironmentId: f.dev, Value: &pluxv1.ConfigValue{
+			Key: "matrix", Tier: pluxv1.ConfigTier_CONFIG_TIER_LIVE, Type: pluxv1.ConfigType_CONFIG_TYPE_STRING, Value: "v",
+		}}
+	})),
+	"SecurityAdminService/GetConfigValue": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetConfigValueRequest{AppId: f.app, EnvironmentId: f.dev, Key: "matrix"}
+	})),
+	"SecurityAdminService/ListConfigValues": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListConfigValuesRequest{AppId: f.app, EnvironmentId: f.dev}
+	})),
+	"SecurityAdminService/DeleteConfigValue": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.DeleteConfigValueRequest{AppId: f.app, EnvironmentId: f.dev, Key: "absent"}
+	})),
+	"ConfigService/GetLiveConfig":               {kind: deviceRPC, build: anyone(&pluxv1.GetLiveConfigRequest{})},
 	"DeviceService/EnrolScaKey":                 {kind: deviceRPC, build: anyone(&pluxv1.EnrolScaKeyRequest{})},
 	"SecurityAdminService/ListAuditCheckpoints": atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
 
