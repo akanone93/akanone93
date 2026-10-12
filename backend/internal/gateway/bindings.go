@@ -64,13 +64,7 @@ func (op Operation) validateBindings(u Upstream) error {
 	seen := map[string]bool{}
 	var pointers []string
 	for _, b := range op.Bindings {
-		if !configKey.MatchString(b.Key) {
-			return invalid("a binding of operation %q names a configuration value: a letter followed by up to 63 letters, digits and underscores", op.Name)
-		}
-		if len(b.Label) > 64 {
-			return invalid("the label of a binding of operation %q is longer than 64 characters", op.Name)
-		}
-		if err := op.validateLocation(b, u); err != nil {
+		if err := op.validateBinding(b, u); err != nil {
 			return err
 		}
 		id := string(b.Location) + ":" + strings.ToLower(b.Name)
@@ -81,11 +75,6 @@ func (op Operation) validateBindings(u Upstream) error {
 		if b.Location == BindJSONPointer {
 			pointers = append(pointers, b.Name)
 		}
-		if b.Display {
-			if err := op.validateDisplay(b); err != nil {
-				return err
-			}
-		}
 	}
 	for i, a := range pointers {
 		for _, b := range pointers[i+1:] {
@@ -93,6 +82,24 @@ func (op Operation) validateBindings(u Upstream) error {
 				return invalid("operation %q binds a JSON Pointer inside another bound pointer", op.Name)
 			}
 		}
+	}
+	return nil
+}
+
+// validateBinding checks one binding: its key, label, location and, when
+// the user sees it, its place in the transaction.
+func (op Operation) validateBinding(b Binding, u Upstream) error {
+	if !configKey.MatchString(b.Key) {
+		return invalid("a binding of operation %q names a configuration value: a letter followed by up to 63 letters, digits and underscores", op.Name)
+	}
+	if len(b.Label) > 64 {
+		return invalid("the label of a binding of operation %q is longer than 64 characters", op.Name)
+	}
+	if err := op.validateLocation(b, u); err != nil {
+		return err
+	}
+	if b.Display {
+		return op.validateDisplay(b)
 	}
 	return nil
 }

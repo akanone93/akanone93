@@ -16,6 +16,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/device/devicetest"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/signing"
@@ -39,13 +40,16 @@ type routeFixture struct {
 	srv      *httptest.Server
 	upstream *httptest.Server
 	seen     chan http.Header
+	admin    caller
+	app      string
+	envs     map[string]string
 }
 
 func newRouteFixture(t *testing.T) *routeFixture {
 	t.Helper()
 	f := &routeFixture{w: newWorld(t), seen: make(chan http.Header, 8)}
-	_, app, _ := f.w.appOnly(t)
-	f.dev = f.w.registerDevelopment(t, app)
+	f.admin, f.app, f.envs = f.w.appOnly(t)
+	f.dev = f.w.registerDevelopment(t, f.app)
 	f.dev.refresh(t)
 
 	f.upstream = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -61,6 +65,10 @@ func newRouteFixture(t *testing.T) *routeFixture {
 	up := gateway.Upstream{
 		ID: "u", Name: "bank", BaseURL: f.upstream.URL + "/v1", Auth: gateway.Auth{Kind: gateway.AuthNone},
 		AllowPrivate: true, Methods: []string{"GET"}, Version: 1,
+		Operations: []gateway.Operation{{
+			Name: "fees", Methods: []string{"GET"}, PathPrefix: "/fees",
+			Bindings: []gateway.Binding{{Key: "poolAccount", Location: gateway.BindHeader, Name: "X-Account"}},
+		}},
 	}
 	gw, err := gateway.New(gateway.Options{
 		Upstreams:  routeUpstreams{up},
@@ -68,6 +76,7 @@ func newRouteFixture(t *testing.T) *routeFixture {
 		Assertions: &gateway.Assertions{Signer: signing.TokenOnly(backend), Issuer: f.w.base},
 		Limits:     func(context.Context, device.Identity) (limits.Set, error) { return limits.Defaults(), nil },
 		Production: f.w.devices.EnvironmentIsProduction,
+		Config:     f.w.resolver,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -164,6 +173,63 @@ func TestGatewayRoute(t *testing.T) {
 		if c.want == http.StatusOK {
 			<-f.seen
 		}
+	}
+	select {
+	case h := <-f.seen:
+		t.Errorf("a refused call reached the upstream: %v", h)
+	default:
+	}
+}
+
+// Verifies: DAT-091, DAT-095, DAT-096.
+// Through the streaming route, every response carries the configuration
+// epoch, a bound value reaches the upstream in its declared header, a
+// request that sets the header is refused, and a call made with an older
+// live version than a strict change is refused with PLX-6067 and the
+// epoch; a device that sends a malformed version is refused.
+func TestGatewayRouteConfiguration(t *testing.T) {
+	t.Parallel()
+	f := newRouteFixture(t)
+	ctx := t.Context()
+	admin, app, envs := f.admin, f.app, f.envs
+	set := func(v *pluxv1.ConfigValue) {
+		t.Helper()
+		must(f.w.secAdmin.SetConfigValue(ctx, req(admin, &pluxv1.SetConfigValueRequest{AppId: app, EnvironmentId: envs["development"], Value: v})))(t)
+	}
+	set(&pluxv1.ConfigValue{Key: "poolAccount", Tier: pluxv1.ConfigTier_CONFIG_TIER_SERVER_BOUND, Type: pluxv1.ConfigType_CONFIG_TYPE_STRING, Sensitive: true, Value: "POOL-7"})
+	set(&pluxv1.ConfigValue{Key: "feeRate", Tier: pluxv1.ConfigTier_CONFIG_TIER_LIVE, Type: pluxv1.ConfigType_CONFIG_TYPE_DECIMAL, Strict: true, Value: "0.015"})
+
+	res := f.get(t, "/gateway/v1/bank/accounts", nil)
+	if res.StatusCode != http.StatusOK || res.Header.Get(api.HeaderConfigEpoch) != "2" {
+		t.Fatalf("a plain call: %d, epoch %q", res.StatusCode, res.Header.Get(api.HeaderConfigEpoch))
+	}
+	<-f.seen
+
+	res = f.get(t, "/gateway/v1/bank/fees", nil)
+	if res.StatusCode != http.StatusOK || res.Header.Get(api.HeaderConfigEpoch) != "2" {
+		t.Fatalf("a bound call: %d %s, epoch %q", res.StatusCode, res.Body, res.Header.Get(api.HeaderConfigEpoch))
+	}
+	if seen := <-f.seen; seen.Get("X-Account") != "POOL-7" {
+		t.Errorf("X-Account at the upstream = %q", seen.Get("X-Account"))
+	}
+
+	res = f.get(t, "/gateway/v1/bank/fees", func(_ *devicetest.Proof, h http.Header) { h.Set("X-Account", "MINE") })
+	if res.StatusCode != http.StatusBadRequest || !strings.Contains(string(res.Body), "PLX-6065") || res.Header.Get(api.HeaderConfigEpoch) != "2" {
+		t.Errorf("a request that sets the bound header: %d %s epoch %q", res.StatusCode, res.Body, res.Header.Get(api.HeaderConfigEpoch))
+	}
+
+	// The device holds live version 0, older than the strict value.
+	res = f.get(t, "/gateway/v1/bank/accounts", func(_ *devicetest.Proof, h http.Header) { h.Set("Plux-Config-Version", "0") })
+	if res.StatusCode != http.StatusBadRequest || !strings.Contains(string(res.Body), "PLX-6067") || res.Header.Get(api.HeaderConfigEpoch) != "2" {
+		t.Errorf("an older live version: %d %s epoch %q", res.StatusCode, res.Body, res.Header.Get(api.HeaderConfigEpoch))
+	}
+	res = f.get(t, "/gateway/v1/bank/accounts", func(_ *devicetest.Proof, h http.Header) { h.Set("Plux-Config-Version", "2") })
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("the current live version: %d %s", res.StatusCode, res.Body)
+	}
+	<-f.seen
+	if seen := f.get(t, "/gateway/v1/bank/accounts", func(_ *devicetest.Proof, h http.Header) { h.Set("Plux-Config-Version", "x") }); seen.StatusCode != http.StatusBadRequest {
+		t.Errorf("a malformed live version: %d", seen.StatusCode)
 	}
 	select {
 	case h := <-f.seen:

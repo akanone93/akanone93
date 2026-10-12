@@ -64,60 +64,78 @@ func (c *Configs) Set(ctx context.Context, p auth.Principal, v ConfigValue, expe
 	var out ConfigValue
 	var published *epochWrite
 	err := c.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		env, err := environmentOf(ctx, q, v.AppID, v.EnvironmentID)
-		if err != nil {
-			return err
-		}
-		lim, err := c.o.Limits(ctx, tx, storage.ID(env.OrganizationID), v.AppID)
-		if err != nil {
-			return fmt.Errorf("gateway: %w", err)
-		}
-		if err := v.Validate(lim.Get(limits.ConfigValueBytes)); err != nil {
-			return err
-		}
-		before, err := lockEnvironment(ctx, q, env)
-		if err != nil {
-			return err
-		}
-		old, err := q.GetConfigValue(ctx, dbgen.GetConfigValueParams{EnvironmentID: env.ID, Key: v.Key})
-		exists := err == nil
-		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-			return fmt.Errorf("gateway: %w", err)
-		}
-		if err := checkExpected(expected, old.Version, exists); err != nil {
-			return err
-		}
-		if !exists {
-			n, err := q.CountConfigValues(ctx, env.ID)
-			if err != nil {
-				return fmt.Errorf("gateway: %w", err)
-			}
-			if n >= lim.Get(limits.ConfigValuesPerEnvironment) {
-				return plxerr.New(plxerr.LimitExceeded, "an environment holds at most config.valuesPerEnvironment = %d configuration values", lim.Get(limits.ConfigValuesPerEnvironment))
-			}
-		}
-		params, err := c.upsertParams(ctx, env, p, v)
-		if err != nil {
-			return err
-		}
-		row, err := q.UpsertConfigValue(ctx, params)
-		if err != nil {
-			return failure(err, "configuration value")
-		}
-		live := v.Tier == TierLive || (exists && old.Tier == string(TierLive))
-		strict := v.Strict || (exists && old.Strict)
-		if published, err = c.publish(ctx, q, env, before, live, strict); err != nil {
-			return err
-		}
-		out = configValueOf(row)
-		return c.record(ctx, tx, p, audit.ConfigValueSet, out)
+		var err error
+		out, published, err = c.set(ctx, tx, p, v, expected)
+		return err
 	})
 	if err != nil {
 		c.restore(ctx, published)
 		return ConfigValue{}, err
 	}
 	return out, nil
+}
+
+// set is Set inside its transaction. It returns the epoch it announced,
+// also when a later step failed, so that the caller can take it back.
+func (c *Configs) set(ctx context.Context, tx pgx.Tx, p auth.Principal, v ConfigValue, expected *int64) (ConfigValue, *epochWrite, error) {
+	q := dbgen.New(tx)
+	env, err := environmentOf(ctx, q, v.AppID, v.EnvironmentID)
+	if err != nil {
+		return ConfigValue{}, nil, err
+	}
+	lim, err := c.o.Limits(ctx, tx, storage.ID(env.OrganizationID), v.AppID)
+	if err != nil {
+		return ConfigValue{}, nil, fmt.Errorf("gateway: %w", err)
+	}
+	if err := v.Validate(lim.Get(limits.ConfigValueBytes)); err != nil {
+		return ConfigValue{}, nil, err
+	}
+	before, err := lockEnvironment(ctx, q, env)
+	if err != nil {
+		return ConfigValue{}, nil, err
+	}
+	old, err := q.GetConfigValue(ctx, dbgen.GetConfigValueParams{EnvironmentID: env.ID, Key: v.Key})
+	exists := err == nil
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return ConfigValue{}, nil, fmt.Errorf("gateway: %w", err)
+	}
+	if err := checkExpected(expected, old.Version, exists); err != nil {
+		return ConfigValue{}, nil, err
+	}
+	if !exists {
+		if err := c.checkRoom(ctx, q, env, lim); err != nil {
+			return ConfigValue{}, nil, err
+		}
+	}
+	params, err := c.upsertParams(ctx, env, p, v)
+	if err != nil {
+		return ConfigValue{}, nil, err
+	}
+	row, err := q.UpsertConfigValue(ctx, params)
+	if err != nil {
+		return ConfigValue{}, nil, failure(err, "configuration value")
+	}
+	live := v.Tier == TierLive || (exists && old.Tier == string(TierLive))
+	strict := v.Strict || (exists && old.Strict)
+	published, err := c.publish(ctx, q, env, before, live, strict)
+	if err != nil {
+		return ConfigValue{}, nil, err
+	}
+	out := configValueOf(row)
+	return out, published, c.record(ctx, tx, p, audit.ConfigValueSet, out)
+}
+
+// checkRoom refuses a new value in an environment that holds the most the
+// limits allow.
+func (*Configs) checkRoom(ctx context.Context, q *dbgen.Queries, env dbgen.Environment, lim limits.Set) error {
+	n, err := q.CountConfigValues(ctx, env.ID)
+	if err != nil {
+		return fmt.Errorf("gateway: %w", err)
+	}
+	if most := lim.Get(limits.ConfigValuesPerEnvironment); n >= most {
+		return plxerr.New(plxerr.LimitExceeded, "an environment holds at most config.valuesPerEnvironment = %d configuration values", most)
+	}
+	return nil
 }
 
 // checkExpected applies the caller's expected version.
