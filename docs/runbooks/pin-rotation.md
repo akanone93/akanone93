@@ -67,11 +67,10 @@ private half offline** until it is needed.
    `-previous root-v2.json`; check it with `root-verify -in root-v3.json -previous root-v2.json`;
    then `upload-root`. Omitting `-pins` keeps the pins the app embeds, so only include it when the
    set changes.
-5. **Wait.** Devices fetch roots when they sync. Wait until almost all active devices have
-   synced: devices on a release older than the root change fetch it at their next sync. Check
-   by the share of devices reporting the new pin set version in `pin_failure`-free
-   telemetry and by app versions in use. Devices that stay offline longer than this keep the
-   old set.
+5. **Wait.** Devices fetch roots when they sync, so devices that sync daily have the new set
+   within a day. Devices that stay offline longer keep the old set and still work with
+   certificates for A or B until they sync. Keep the certificate for A servable (or keep B in
+   use) for as long as you want to support the longest-offline device; a week is typical.
 6. **Retire A.** After step 5 you may stop serving certificates for A and destroy its key.
 7. **Next time.** B is in use, C is the backup, and a later root will add D.
 
@@ -98,9 +97,9 @@ current set.
 - **A corporate proxy or interception** on some networks: the failure is correct. Do not
   loosen pins.
 - **A root with wrong pins was uploaded** and devices already took it: devices accept only a
-  newer root with at least two pins. Publish a corrected newer root; devices that cannot
-  connect with the wrong set need the previous set to still match the server, so upload only
-  sets that include the key currently served.
+  newer root, with at least two pins. Publish a corrected, newer root. Devices that still
+  reach the server (the served key is in the wrong set only if you changed the server key too)
+  fetch it at their next sync. Check every new root against the live chain before `upload-root`.
 
 ## Prevention
 

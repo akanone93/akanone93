@@ -38,13 +38,14 @@ logs, and rotate first. Proving exposure comes second.
 Impact lasts as long as old verification keys are trusted. Access tokens live at most 15
 minutes, so the cut-off is fast once the old key is gone.
 
-1. **Add a new version.** With Vault Transit: `vault write -f transit/keys/plux-tokens-production/rotate`.
-   With PKCS#11 create a new key object under the next label in the token and update the
-   configured prefix as the backend documents. New tokens use the new key at once;
-   `TokenKeys` lists every version, oldest first, and the last signs.
-2. **Remove the compromised versions** so they stop verifying: trim the old versions in Vault
-   (`transit/keys/<name>/trim`, see Vault's documentation for its version constraints) or
-   delete the old PKCS#11 object. Until you do, forged tokens still verify.
+1. **Replace the key.** With Vault Transit: `vault write -f transit/keys/plux-tokens-production/rotate`
+   adds a version; new tokens use it at once and `TokenKeys` lists every version, oldest
+   first. With PKCS#11 the backend holds one key per class under one label
+   (`<prefix>-production`): replace the key object on the token with a new one. There is no
+   overlap, so all tokens signed by the old key stop verifying, and devices simply refresh.
+2. **Remove the compromised versions** so they stop verifying. In Vault, trim the old
+   versions (`transit/keys/<name>/trim`; see Vault's documentation for its version
+   constraints). Until you do, forged tokens still verify. PKCS#11 needs no extra step.
 3. **Wait for replicas.** Each replica caches the key list for 30 seconds
    (`tokenKeysTTL`). After that, tokens under the removed key are refused and devices
    refresh with a new one. Expect a short rise in `RefreshDeviceToken` traffic. Devices keep their
