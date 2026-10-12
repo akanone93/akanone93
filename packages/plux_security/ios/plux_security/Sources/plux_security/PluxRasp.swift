@@ -3,6 +3,7 @@
 
 import Darwin
 import Foundation
+import MachO
 import Security
 import UIKit
 
