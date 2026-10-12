@@ -112,3 +112,13 @@ The baseline is reset to that run's measurements. Known levers for R11: the bund
 table (every bundle carries all limits; plan B8), and flatc's generated `toString`s, about
 105 KB of AOT code (size journey, round 2). `RT-061`, `NFR-009` and `QA-007` are reworded
 accordingly (specification 1.3.1).
+
+## Revision (2026-10-12)
+
+Phase 6 (security hardening) took the runtime's overhead 17 to 25% over the committed
+baseline in CI run 38262547864: the App Bundle downloads at 3.48 to 3.85 MiB, the IPA at
+3.27 MiB and the APKs at 7.68 to 8.83 MiB, every one within its budget. The growth is the
+phase's Dart code and the native AES-GCM library ([size journey](../benchmarks/size.md),
+round 4). The maintainer decided to reset the baseline to that run's measurements, with
+the budgets and the 20% gate unchanged, and to use the levers this ADR's previous revision
+names in a size pass after the phase.

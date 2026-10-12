@@ -178,6 +178,40 @@ download (+39,474 B); the other files are unchanged.
 measures P5's growth from P4's state (`test/size/baseline.json`). Size optimization stays
 parked.
 
+## Round 4 — Phase 6, security hardening (2026-10-12)
+
+CI run 38262547864 (pull request #23, S7 to S13 on S0 to S6), against the baseline the
+Phase 5 revision of ADR-0036 committed.
+
+| Platform | Build | Added by `plux_flutter` | Previous baseline | Change | Budget |
+|---|---|---:|---:|---:|---:|
+| Android arm64-v8a | APK file | **8,048,197 B (7.68 MiB)** | 6.50 MiB | +18.1% | 10 MiB |
+| Android arm64-v8a | App Bundle download | **3,650,761 B (3.48 MiB)** | 2.79 MiB | +24.7% | 5 MiB |
+| Android armeabi-v7a | APK file | **9,258,917 B (8.83 MiB)** | 7.42 MiB | +19.0% | 10 MiB |
+| Android armeabi-v7a | App Bundle download | **4,042,233 B (3.85 MiB)** | 3.09 MiB | +24.6% | 5 MiB |
+| Android x86_64 | APK file | **8,276,983 B (7.89 MiB)** | 6.72 MiB | +17.5% | 10 MiB |
+| Android x86_64 | App Bundle download | **3,683,783 B (3.51 MiB)** | 2.82 MiB | +24.5% | 5 MiB |
+| iOS arm64 | IPA | **3,424,798 B (3.27 MiB)** | 2.71 MiB | +20.5% | 5 MiB |
+
+**Where the bytes go:** the Dart AOT code of P6 — encryption at rest, confidential bundles,
+the gateway and strong customer authentication, secure UI, server-held configuration and
+the device's attestation — is most of it (`libapp.so` / `App.framework`). `plux_native`,
+the native AES-GCM, adds 40 to 135 KB per ABI.
+
+**Findings:**
+
+1. **The App Bundle downloads and the IPA are 20 to 25% over the baseline**, so the 20% gate
+   fails; the APKs grow 17 to 19%.
+2. **Every build is well within its budget**: the largest App Bundle download is 3.85 MiB
+   (budget 5 MiB), the IPA 3.27 MiB (budget 5 MiB), the largest APK 8.83 MiB (budget
+   10 MiB).
+3. **Known levers are still unused**: the limits table every bundle carries (P5 plan B8) and
+   about 105 KB of flatc's generated `toString`s (round 2).
+
+**Decided by the maintainer** (2026-10-12, [ADR-0036](../adr/0036-size-budgets-per-build.md),
+Revision 2026-10-12): the baseline moves to this round, so the gate measures what comes
+after P6; the levers above go into a size pass after the phase.
+
 ## Adding a round
 
 Copy the shape of the latest round: the date and commit, what changed since the previous
