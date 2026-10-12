@@ -263,15 +263,15 @@
     "size-android": {
       "description": "What plux_flutter adds to the release APKs and App Bundle downloads (RT-061)",
       "go": ["tools/cmd/sizegate"],
-      "dart": ["test/size/plux"],
-      "paths": ["test/size/**", "mk/bench.mk"],
+      "dart": ["test/size/plux", "apps/starter", "apps/plux_bank"],
+      "paths": ["test/size/**", "test/release/**", "mk/bench.mk"],
       "exclude": ["**/*.md", "**/ios/**"]
     },
     "size-ios": {
       "description": "What plux_flutter adds to a release iOS app (RT-061)",
       "go": ["tools/cmd/sizegate"],
-      "dart": ["test/size/plux"],
-      "paths": ["test/size/**", "mk/bench.mk"],
+      "dart": ["test/size/plux", "apps/starter", "apps/plux_bank"],
+      "paths": ["test/size/**", "test/release/**", "mk/bench.mk"],
       "exclude": ["**/*.md", "**/android/**"]
     },
     "studio": {

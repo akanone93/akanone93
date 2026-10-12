@@ -92,6 +92,18 @@ func TestAuditCheckpointSettings(t *testing.T) {
 	}
 }
 
+// Verifies: SEC-160.
+// Telemetry is kept 30 days unless the operator sets telemetry.retentionDays.
+func TestTelemetryRetentionIsConfigurable(t *testing.T) {
+	t.Parallel()
+	if c := parse(t, minimal); c.Telemetry.RetentionDays != 30 {
+		t.Errorf("default = %d days, want 30", c.Telemetry.RetentionDays)
+	}
+	if c := parse(t, minimal+"telemetry:\n  retentionDays: 7\n"); c.Telemetry.RetentionDays != 7 {
+		t.Errorf("configured = %d days, want 7", c.Telemetry.RetentionDays)
+	}
+}
+
 // Verifies: SRV-008.
 func TestParseRejectsUnknownKeys(t *testing.T) {
 	t.Parallel()
@@ -157,6 +169,7 @@ func TestValidateReportsEveryProblem(t *testing.T) {
 		{"sample ratio out of range", minimal + "observability:\n  traceSampleRatio: 2\n", "between 0 and 1"},
 		{"later-phase telemetry store", minimal + "telemetry:\n  store: clickhouse\n", "arrives in P9"},
 		{"unknown telemetry store", minimal + "telemetry:\n  store: files\n", "telemetry.store"},
+		{"no telemetry retention", minimal + "telemetry:\n  retentionDays: 0\n", "telemetry.retentionDays"},
 		{"short snapshot retention", minimal + "retention:\n  snapshotDays: 10\n", "at least 90"},
 		{"short trash retention", minimal + "retention:\n  trashDays: 7\n", "at least 30"},
 		{"no audit retention", minimal + "retention:\n  auditYears: 0\n", "retention.auditYears"},

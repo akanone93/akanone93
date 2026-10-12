@@ -146,6 +146,27 @@ void main() {
       );
     }
 
+    test('the P6 security events are necessary: recorded without consent and '
+        'kept when consent is withdrawn [SEC-161]', () {
+      const security = ['rasp_detection', 'attestation_result', 'pin_failure'];
+      final r = recorder();
+      for (final name in security) {
+        expect(telemetryCategories[name], TelemetryCategory.necessary);
+        expect(r.record(name), isTrue, reason: name);
+        expect(r.rate(name), 1, reason: name);
+      }
+      r.consent = const PluxConsent(analytics: true, experiments: true);
+      r.consent = PluxConsent.necessaryOnly;
+      expect(
+        withdrawn.expand((c) => c),
+        isNot(contains(TelemetryCategory.necessary)),
+      );
+      for (final name in security) {
+        expect(r.record(name), isTrue, reason: name);
+      }
+      expect(posted.map((l) => l.event['name']), [...security, ...security]);
+    });
+
     test('without consent only operational events are recorded; withdrawing '
         'consent deletes the buffered ones [SEC-161] [ANL-003]', () {
       final r = recorder();

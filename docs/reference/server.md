@@ -115,6 +115,7 @@ observability:
   traceSampleRatio: 1.0
 telemetry:
   store: "postgres"             # clickhouse arrives in P9
+  retentionDays: 30             # events older than this are purged by the maintenance sweep (SEC-160)
 attestation:
   developmentProvider: false    # true only for development and test installations; production environments refuse it (SEC-008)
   apps:                         # per app ID, until the per-app security configuration carries it (ADR-0012)
@@ -292,7 +293,7 @@ deletes expired sessions, sign-in challenges and device grants. It also
 signs a fresh manifest for every channel whose newest one expires within
 two days (manifests live seven), deletes expired manifests other than
 each channel's newest, expired device tokens and telemetry events older
-than 30 days. River's
+than `telemetry.retentionDays` (30 by default, `SEC-160`). River's
 leader election makes one worker enqueue it however many replicas run.
 
 ## 10. Identity

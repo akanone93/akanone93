@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the benchmark and
 # size jobs on a pull request (ci/affected.json, ADR-0043).
 
-.PHONY: bench-runtime bench-runtime-ab bench-sync bench-steps bench-pxl bench-db bench-pull bench-dpop bench-confidential size-android size-ios
+.PHONY: bench-runtime bench-runtime-ab bench-sync bench-steps bench-pxl bench-db bench-pull bench-dpop bench-confidential size-android size-ios release-inspect
 
 ##@ Benchmarks and size (QA-007)
 
@@ -61,3 +61,10 @@ size-android: ## Check what plux_flutter adds to the release APKs and App Bundle
 # Verifies: RT-061, NFR-009.
 size-ios: ## Check what plux_flutter adds to a release iOS app for arm64 (RT-061; needs Xcode)
 	test/size/size.sh ios
+
+# The platform whose release builds `make release-inspect` builds: android or ios.
+PLATFORM ?= android
+
+# Verifies: SEC-074, DEV-050.
+release-inspect: ## Build the starter app and Plux Bank for release and fail on devtools code, dev-only logging, source maps or debug files (SEC-074; PLATFORM=android needs the Android SDK, ios needs Xcode)
+	test/release/inspect.sh --build $(PLATFORM)
