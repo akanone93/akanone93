@@ -617,14 +617,12 @@ final class DataClient {
           'data.requestSize = ${limits.requestSize}',
         );
       }
-      final Confirmation? confirmation = transaction == null
+      Future<Confirmation> confirm(TransactionMapping t) =>
+          _confirm(s, operation!, t, graphql ? _variables(body) : body);
+      var confirmation = transaction == null
           ? null
-          : await _confirm(
-              s,
-              operation!,
-              transaction,
-              graphql ? _variables(body) : body,
-            );
+          : await confirm(transaction);
+      var reconfirmed = false;
       Future<DataResponse> send(String? token) async {
         if (gateway) {
           return _viaGateway(
@@ -673,11 +671,22 @@ final class DataClient {
         if (token == null) throw unauthorised(s, 'no signed-in user');
       }
       // The gateway refuses a host token its identity provider rejects with
-      // PLX-6016: like a 401, the host refreshes it once (SEC-026).
+      // PLX-6016: like a 401, the host refreshes it once (SEC-026). A
+      // server-held value the user was shown changed before the call
+      // (PLX-6066): the user confirms the transaction with the new value,
+      // once, and it is sent with the new confirmation (DAT-093).
       Future<DataResponse> attempt(String? t) async {
         try {
           return await send(t);
         } on DataFailure catch (f) {
+          if (gateway &&
+              transaction != null &&
+              !reconfirmed &&
+              f.code == PluxErrorCode.boundValueChanged) {
+            reconfirmed = true;
+            confirmation = await confirm(transaction);
+            return attempt(t);
+          }
           if (!gateway || f.code != PluxErrorCode.userTokenInvalid) rethrow;
           return const DataResponse(401, null, 0);
         }

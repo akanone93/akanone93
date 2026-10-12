@@ -700,6 +700,44 @@ void main() {
       }
     });
 
+    test('a displayed server-held value that changed is confirmed again with the user, once [DAT-093]', () async {
+      for (final second in [false, true]) {
+        gateway.calls.clear();
+        authoriser.asked.clear();
+        const changed = DataFailure(
+          ActionErrorKind.permission,
+          PluxErrorCode.boundValueChanged,
+          'changed',
+        );
+        gateway.script.addAll([changed, if (second) changed]);
+        final services = make();
+        final spec = _source(transaction: _mapping);
+        final call = services.client.call(
+          spec,
+          spec.operations['transferFlat']!,
+          _caller,
+          input,
+        );
+        if (second) {
+          await expectLater(
+            call,
+            throwsA(
+              isA<DataFailure>().having(
+                (f) => f.code,
+                'code',
+                PluxErrorCode.boundValueChanged,
+              ),
+            ),
+          );
+        } else {
+          await call;
+        }
+        expect(authoriser.asked, hasLength(2));
+        expect(gateway.calls, hasLength(2));
+        expect(gateway.calls.last.confirmation, isNotNull);
+      }
+    });
+
     test('a 401 on a transaction is not retried: its confirmation is single use [SEC-032]', () async {
       gateway.script.add(const DataResponse(401, null, 0));
       final services = make();
