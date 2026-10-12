@@ -3733,6 +3733,15 @@ var actions = [...]Action{
 		Effects: []string{"navigation"},
 	},
 	{
+		Name: "readConfig", ID: 57, Phase: "P6", Category: "data", Description: "Reads a live server-held configuration value of the app's environment; a strict value is read from the server each time and fails closed when it cannot be (DAT-094, DAT-097).",
+		TypeParameters: []string{"T"},
+		Inputs: []Input{
+			{Name: "key", ID: 1, Type: "string", Required: true, Default: "", Ref: "", Description: "The key of the value."},
+		},
+		Output:  "T",
+		Effects: []string{"network"},
+	},
+	{
 		Name: "refreshData", ID: 17, Phase: "P5", Category: "data", Description: "Reloads a data source, bypassing its cache, or loads the next page of a paginated source.",
 		Inputs: []Input{
 			{Name: "source", ID: 1, Type: "string", Required: true, Default: "", Ref: "dataSource", Description: "The data source."},

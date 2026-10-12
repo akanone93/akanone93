@@ -2562,6 +2562,7 @@ Dialogs, bottom sheets and snack bars are page kinds and actions (Appendix D), n
 | `apiCall` | Data | Call a REST or GraphQL operation; typed output | P5 |
 | `refreshData` | Data | Refresh a data source | P5 |
 | `subscribe`, `unsubscribe` | Data | WebSocket / SSE stream control | P5 |
+| `readConfig` | Data | Read a live server-held configuration value; strict values fail closed (`DAT-094`, `DAT-097`) | P6 |
 | `dbInsert`, `dbUpdate`, `dbUpsert`, `dbDelete`, `dbQuery` | Local DB | Local database operations | P5 |
 | `kvGet`, `kvSet`, `kvRemove` | Local DB | Key-value store | P5 |
 | `invokeFunction` | Compute | Call a Plux Function with typed input/output — on the device or the server, according to the function's placement | P7 |

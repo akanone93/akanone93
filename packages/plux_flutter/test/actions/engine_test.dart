@@ -506,6 +506,7 @@ void main() {
         'pickFile',
         'pickImage',
         'pop',
+        'readConfig',
         'refreshData',
         'requestPermission',
         'resetForm',

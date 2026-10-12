@@ -1864,6 +1864,12 @@ const List<ActionDescriptor> actionDescriptors = [
     inputs: {'result': 1},
   ),
   ActionDescriptor(
+    'readConfig',
+    57,
+    phase: 'P6',
+    inputs: {'key': 1},
+  ),
+  ActionDescriptor(
     'refreshData',
     17,
     phase: 'P5',

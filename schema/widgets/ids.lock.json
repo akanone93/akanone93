@@ -99,6 +99,8 @@
     "action/pickImage/input/multiple": 1,
     "action/pop": 2,
     "action/pop/input/result": 1,
+    "action/readConfig": 57,
+    "action/readConfig/input/key": 1,
     "action/refreshData": 17,
     "action/refreshData/input/more": 2,
     "action/refreshData/input/source": 1,

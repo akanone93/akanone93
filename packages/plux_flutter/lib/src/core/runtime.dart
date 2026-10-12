@@ -36,6 +36,7 @@ import 'package:plux_flutter/src/core/host_events.dart';
 import 'package:plux_flutter/src/core/plux.dart';
 import 'package:plux_flutter/src/core/plux_view.dart';
 import 'package:plux_flutter/src/core/trigger_sources.dart';
+import 'package:plux_flutter/src/data/live_config.dart' show ConfigSource;
 import 'package:plux_flutter/src/data/services.dart';
 import 'package:plux_flutter/src/data/worker.dart';
 import 'package:plux_flutter/src/db/adapter.dart';
@@ -823,6 +824,7 @@ final class PluxRuntime with WidgetsBindingObserver {
         ),
         PluxDatabase: database,
         ScaService: _sca,
+        ConfigSource: _worker,
       },
       deviceGuard: _deviceGuard,
     )..ownerErrors = _ownerErrors,
