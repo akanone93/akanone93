@@ -196,14 +196,23 @@ final class FileCacheStore implements CacheStore {
     if (_cipher == null) return;
     final d = Directory(directory);
     if (!d.existsSync()) return;
-    await for (final f in d.list()) {
+    // A snapshot, and the stale files first: sealing an entry writes a
+    // temporary file of the same name and renames it away.
+    final files = (await d.list().toList()).whereType<File>().toList();
+    for (final f in files) {
       final name = f.uri.pathSegments.last;
-      if (f is File && name.startsWith('.') && name.endsWith('.tmp')) {
+      if (name.startsWith('.') && name.endsWith('.tmp')) {
         // A plain entry a crashed write left behind.
-        await f.delete();
-        continue;
+        try {
+          await f.delete();
+        } on PathNotFoundException {
+          // Gone already.
+        }
       }
-      if (f is! File || !RegExp(r'^[0-9a-f]{64}$').hasMatch(name)) continue;
+    }
+    for (final f in files) {
+      final name = f.uri.pathSegments.last;
+      if (!RegExp(r'^[0-9a-f]{64}$').hasMatch(name)) continue;
       final head = await f.openRead(0, 9).expand((b) => b).toList();
       if (head.length < 9 || head[8] == recordVersion) continue;
       await read(name);
