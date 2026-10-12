@@ -12,6 +12,7 @@ import 'package:plux_flutter/src/sync/sync_worker.dart';
 import 'package:plux_flutter/src/verify/bundle_verifier.dart';
 
 import '../store/store_test_support.dart';
+import 'fake_device.dart';
 import 'fake_server.dart';
 
 bool _all(String _) => true;
@@ -32,6 +33,8 @@ void main() {
         endpoint: server.endpoint,
         httpClient: http.Client.new,
         credentials: MemoryCredentialStore.new,
+        deviceKeys: FakeDeviceKeys.new,
+        attestation: FakeAttestation.new,
         sync: SyncConfig(
           appId: FakePluxServer.app,
           environment: FakePluxServer.environment,
@@ -78,7 +81,58 @@ void main() {
         reason: 'nothing is staged',
       );
     } finally {
-      worker.close();
+      await worker.close();
+      await server.close();
+      Directory(root).deleteSync(recursive: true);
+    }
+  });
+
+  test('closing waits for the commands sent before it, so no platform call '
+      'is left without its isolate [SYN-010]', () async {
+    final goldens = Goldens.load();
+    final server = await FakePluxServer.start();
+    final root = Directory.systemTemp.createTempSync('plux_worker').path;
+    server.release = FakeRelease(
+      10,
+      goldens.bundles['loan-calculator/demo.pxb']!,
+      {'loans': goldens.bundles['loan-calculator/loans.pxb']!},
+    );
+    final worker = await SyncWorker.start(
+      SyncWorkerConfig(
+        storeRoot: root,
+        endpoint: server.endpoint,
+        httpClient: http.Client.new,
+        credentials: MemoryCredentialStore.new,
+        deviceKeys: FakeDeviceKeys.new,
+        attestation: FakeAttestation.new,
+        sync: SyncConfig(
+          appId: FakePluxServer.app,
+          environment: FakePluxServer.environment,
+          channel: FakePluxServer.channel,
+          keys: [server.trustedKey],
+          device: const DeviceInfo(
+            platform: 'android',
+            osVersion: '14',
+            runtimeVersion: '0.1.0',
+            hostBuild: '1',
+          ),
+          supportsFeature: _all,
+          verifierLimits: const VerifierLimits(
+            maxDepth: 64,
+            maxVisits: 1000000,
+          ),
+        ),
+        baseline: (_) async => null,
+      ),
+    );
+    try {
+      // A sync in flight when the runtime is disposed ends with its
+      // answer; the isolate exits only afterwards.
+      final run = worker.sync((_) {});
+      await worker.close();
+      final r = await run.timeout(const Duration(seconds: 10));
+      expect(r.outcome, SyncOutcome.staged, reason: '${r.error}');
+    } finally {
       await server.close();
       Directory(root).deleteSync(recursive: true);
     }

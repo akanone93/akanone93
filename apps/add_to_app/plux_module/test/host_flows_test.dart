@@ -12,8 +12,11 @@ import 'package:plux_flutter/plux_flutter.dart';
 // ignore: implementation_imports
 import 'package:plux_flutter/src/core/runtime.dart' show RuntimeOverrides;
 // ignore: implementation_imports
+import 'package:plux_flutter/src/security/software_keys.dart'
+    show DevelopmentAttestation, SoftwareDeviceKeys;
+// ignore: implementation_imports
 import 'package:plux_flutter/src/sync/sync_engine.dart'
-    show MemoryCredentialStore;
+    show MemoryCredentialStore, MemorySecretStore;
 import 'package:plux_module/plux_module.dart';
 
 const _appId = String.fromEnvironment('PLUX_APP_ID');
@@ -97,7 +100,12 @@ final class _Host {
     final module = PluxModule(
       initialize: (c) => Plux.initializeWith(
         c,
-        const RuntimeOverrides(credentials: MemoryCredentialStore.new),
+        RuntimeOverrides(
+          credentials: MemoryCredentialStore.new,
+          configSecrets: MemorySecretStore.new,
+          deviceKeys: SoftwareDeviceKeys.new,
+          attestation: () => const DevelopmentAttestation('e2e'),
+        ),
       ),
       storageDirectory: dir.path,
     );
@@ -151,10 +159,37 @@ final class _Host {
   /// Closes the open page with its back button once the page's route
   /// transition has ended: a tap during the transition misses the button
   /// and leaves the page open, so no safe point comes (CI run 37623043856).
+  /// The button can take a moment to appear: a release staged while the
+  /// last page closed activates now, and the open page renders again with
+  /// it (SYN-004), so the wait is in real time, and bounded.
   Future<void> back() async {
+    await tester.pump(_transition);
+    final end = DateTime.now().add(const Duration(seconds: 10));
+    while (find.byType(BackButton).evaluate().isEmpty) {
+      if (DateTime.now().isAfter(end)) fail(_noBackButton());
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+    }
     await tester.pump(_transition);
     await tester.pageBack();
     await tester.pump(_transition);
+  }
+
+  /// Why the open page shows no back button: the route that holds each
+  /// text on screen, so a failure tells a page opened as the navigator's
+  /// first route from one still in its transition.
+  String _noBackButton() {
+    final routes = {
+      for (final e in find.byType(Text).evaluate())
+        if (ModalRoute.of(e) case final route?)
+          '${route.settings.name ?? route.runtimeType}'
+              '(first: ${route.isFirst}, current: ${route.isCurrent}, '
+              'canPop: ${route.navigator?.canPop()}, '
+              'animation: ${route.animation?.status})',
+    };
+    return 'no back button on screen; routes holding text: $routes';
   }
 
   /// Pumps until [finder] finds something, the screen has closed [pops]

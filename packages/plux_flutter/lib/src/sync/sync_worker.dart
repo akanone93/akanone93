@@ -14,8 +14,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/security/attestation.dart';
+import 'package:plux_flutter/src/security/device_keys.dart';
+import 'package:plux_flutter/src/security/security_config.dart';
 import 'package:plux_flutter/src/store/baseline.dart';
 import 'package:plux_flutter/src/store/directory_sync.dart';
+import 'package:plux_flutter/src/store/kv_store.dart' show SecretStore;
 import 'package:plux_flutter/src/store/pointer.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
@@ -34,6 +38,9 @@ final class SyncWorkerConfig {
     required this.sync,
     required this.httpClient,
     required this.credentials,
+    required this.deviceKeys,
+    required this.attestation,
+    this.configSecrets,
     this.parallelism = 4,
     this.baseline,
     this.rootIsolateToken,
@@ -54,6 +61,17 @@ final class SyncWorkerConfig {
 
   /// Creates the credential store, inside the isolate.
   final CredentialStore Function() credentials;
+
+  /// Creates the device keys, inside the isolate (SEC-001).
+  final DeviceKeys Function() deviceKeys;
+
+  /// Creates the platform attestation, inside the isolate (SEC-002).
+  final Attestation Function() attestation;
+
+  /// Creates the secret store that keeps the remote security
+  /// configuration, inside the isolate (SEC-182); without it the device
+  /// runs on the built-in defaults.
+  final SecretStore Function()? configSecrets;
 
   /// Downloads at once (SYN-010).
   final int parallelism;
@@ -91,6 +109,11 @@ final class _Settle extends _Command {
   const _Settle(super.reply);
 }
 
+/// Reads the security settings in force.
+final class _Settings extends _Command {
+  const _Settings(super.reply);
+}
+
 final class _Flush extends _Command {
   const _Flush(super.reply, this.perRequest);
   final int perRequest;
@@ -103,6 +126,11 @@ final class _Record {
   final int maxBytes;
 }
 
+/// Ends the isolate once the commands sent before it are handled; no reply.
+final class _Close {
+  const _Close();
+}
+
 /// Categories whose buffered events are deleted; no reply.
 final class _Purge {
   const _Purge(this.categories);
@@ -111,7 +139,12 @@ final class _Purge {
 
 /// The UI isolate's handle on the sync isolate.
 final class SyncWorker {
-  SyncWorker._(this._isolate, this._commands, this._baselineAssets);
+  SyncWorker._(
+    this._isolate,
+    this._commands,
+    this._baselineAssets,
+    this._startSettings,
+  );
 
   /// Starts the sync isolate. [baselineAssets] is the directory of the
   /// host's assets holding the baseline `plux pull` wrote, if any.
@@ -124,14 +157,17 @@ final class SyncWorker {
       config,
       ready.sendPort,
     ), debugName: 'plux-sync');
-    final commands = await ready.first as SendPort;
+    // The isolate answers with its command port and the settings it read,
+    // so the launch needs no round trip of its own for them (QA-007).
+    final (commands, settings) = await ready.first as (SendPort, Object?);
     ready.close();
-    return SyncWorker._(isolate, commands, baselineAssets);
+    return SyncWorker._(isolate, commands, baselineAssets, settings);
   }
 
   final Isolate _isolate;
   final SendPort _commands;
   final String? _baselineAssets;
+  final Object? _startSettings;
   Future<SyncResult>? _running;
 
   /// Syncs once, reporting events to [onEvent]; a sync already running is
@@ -175,6 +211,20 @@ final class SyncWorker {
       assets.close();
     }
   }
+
+  /// The security settings in force when the isolate started, as
+  /// [loadSettings] reads them; throws [StateError] when they could not be
+  /// read (SEC-182).
+  SecuritySettings? get startSettings => switch (_startSettings) {
+    final _Failure f => throw StateError(f.message),
+    final s => s as SecuritySettings?,
+  };
+
+  /// The security settings in force: the stored configuration once it has
+  /// verified against its hash again, else the built-in defaults; null
+  /// when the worker keeps no configuration (SEC-182).
+  Future<SecuritySettings?> loadSettings() async =>
+      await _ask(_Settings.new) as SecuritySettings?;
 
   /// Activates the staged release (SYN-004).
   Future<StorePointer> activate() => _store('activate');
@@ -224,8 +274,22 @@ final class SyncWorker {
   /// Completes once the isolate has handled every message sent before.
   Future<void> settle() => _ask(_Settle.new);
 
-  /// Stops the isolate.
-  void close() => _isolate.kill(priority: Isolate.immediate);
+  /// Stops the isolate once the commands sent before are handled, so no
+  /// platform call is left waiting: a reply to a call from an isolate that
+  /// no longer exists aborts the app on Android. One that has not ended
+  /// within [grace] is killed.
+  Future<void> close({Duration grace = const Duration(seconds: 5)}) async {
+    final exited = ReceivePort();
+    _isolate.addOnExitListener(exited.sendPort);
+    _commands.send(const _Close());
+    try {
+      await exited.first.timeout(grace);
+    } on TimeoutException {
+      _isolate.kill(priority: Isolate.immediate);
+    } finally {
+      exited.close();
+    }
+  }
 }
 
 final class _Failure {
@@ -249,14 +313,31 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
     api: api,
     downloader: Downloader(client, parallelism: config.parallelism),
     credentials: config.credentials(),
+    keys: config.deviceKeys(),
+    attestation: config.attestation(),
+    configSecrets: config.configSecrets?.call(),
   );
   final outbox = TelemetryOutbox(config.storeRoot);
   final commands = ReceivePort();
-  ready.send(commands.sendPort);
+  Object? settings;
+  try {
+    settings = await engine.loadSettings();
+  } on Object catch (e) {
+    settings = _Failure('$e');
+  }
+  ready.send((commands.sendPort, settings));
   await for (final c in commands) {
     switch (c) {
+      case _Close():
+        Isolate.exit();
       case _Settle(:final reply):
         reply.send(null);
+      case _Settings(:final reply):
+        try {
+          reply.send(await engine.loadSettings());
+        } on Object catch (e) {
+          reply.send(_Failure('$e'));
+        }
       case _Record(:final lines, :final maxBytes):
         try {
           outbox.append(lines, maxBytes);
