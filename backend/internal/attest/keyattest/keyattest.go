@@ -5,14 +5,17 @@ package keyattest
 
 import (
 	"bytes"
+	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/subtle"
 	"crypto/x509"
 	"encoding/asn1"
+	"errors"
 	"slices"
 	"time"
 
+	"github.com/nightCode42/plux3/backend/internal/attest"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 )
@@ -86,13 +89,26 @@ func (r Result) HardwareBacked() bool {
 type Verifier struct {
 	// Roots holds the trusted attestation roots.
 	Roots *x509.CertPool
-	// Revocations is the parsed status list; nil lists nothing.
+	// Revocations is a fixed status list; nil lists nothing. It applies
+	// only where Source is nil.
 	Revocations *Revocations
+	// Source, when set, supplies the current status list for every
+	// verification, and a list it cannot supply fails the verification as
+	// an outage of the provider (SEC-002, SEC-009).
+	Source RevocationSource
 	// Now returns the time at which certificate validity is judged.
 	Now func() time.Time
 	// MaxChain is the most certificates a chain may hold; zero means the
 	// registry default, attest.keyAttestationChainCerts (LIM-001).
 	MaxChain int64
+}
+
+// RevocationSource supplies the current attestation status list. An error
+// means the list is unavailable: the chain is then neither accepted nor
+// judged revoked, and the failure is reported as the provider's
+// (attest.ErrProviderUnavailable).
+type RevocationSource interface {
+	Revocations(ctx context.Context) (*Revocations, error)
 }
 
 // maxChain returns the effective chain length bound.
@@ -119,7 +135,7 @@ func NewVerifier(roots *x509.CertPool, revocations *Revocations, now func() time
 // Verify checks an attestation chain (DER certificates, leaf first) against
 // the challenge the server issued and the policy. On any failure it returns a
 // zero Result and a plxerr error naming the failed check.
-func (v *Verifier) Verify(chain [][]byte, challenge []byte, p Policy) (Result, error) {
+func (v *Verifier) Verify(ctx context.Context, chain [][]byte, challenge []byte, p Policy) (Result, error) {
 	if v == nil || v.Roots == nil || v.Now == nil {
 		return Result{}, plxerr.New(plxerr.AttestationFailed, "verifier is not configured")
 	}
@@ -130,7 +146,7 @@ func (v *Verifier) Verify(chain [][]byte, challenge []byte, p Policy) (Result, e
 	if err != nil {
 		return Result{}, err
 	}
-	if err := v.verifyChain(certs); err != nil {
+	if err := v.verifyChain(ctx, certs); err != nil {
 		return Result{}, err
 	}
 	key, err := leafKey(certs[0])
@@ -163,7 +179,7 @@ func parseChain(chain [][]byte) ([]*x509.Certificate, error) {
 
 // verifyChain builds the chain to a trusted root at the verifier's time and
 // rejects every listed serial number.
-func (v *Verifier) verifyChain(certs []*x509.Certificate) error {
+func (v *Verifier) verifyChain(ctx context.Context, certs []*x509.Certificate) error {
 	intermediates := x509.NewCertPool()
 	for _, c := range certs[1:] {
 		intermediates.AddCert(c)
@@ -177,8 +193,15 @@ func (v *Verifier) verifyChain(certs []*x509.Certificate) error {
 	if err != nil {
 		return plxerr.Wrap(plxerr.AttestationFailed, err, "certificate chain does not lead to a trusted root")
 	}
+	list := v.Revocations
+	if v.Source != nil {
+		var err error
+		if list, err = v.Source.Revocations(ctx); err != nil {
+			return plxerr.Wrap(plxerr.AttestationUnavailable, errors.Join(attest.ErrProviderUnavailable, err), "the attestation status list is unavailable")
+		}
+	}
 	for i, c := range certs {
-		if status, listed := v.Revocations.status(c.SerialNumber); listed {
+		if status, listed := list.status(c.SerialNumber); listed {
 			return plxerr.New(plxerr.AttestationFailed, "certificate %d is on the revocation list (%s)", i, status)
 		}
 	}

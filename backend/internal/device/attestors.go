@@ -17,7 +17,7 @@ import (
 // KeyAttestor verifies an Android Key Attestation chain; a
 // *keyattest.Verifier is one.
 type KeyAttestor interface {
-	Verify(chain [][]byte, challenge []byte, p keyattest.Policy) (keyattest.Result, error)
+	Verify(ctx context.Context, chain [][]byte, challenge []byte, p keyattest.Policy) (keyattest.Result, error)
 }
 
 // IntegrityChecker verifies a Play Integrity token with the keys of one

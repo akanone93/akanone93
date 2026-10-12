@@ -25,6 +25,7 @@ import (
 	"github.com/riverqueue/river"
 
 	"github.com/nightCode42/plux3/backend/internal/api"
+	"github.com/nightCode42/plux3/backend/internal/attest/statuslist"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/buildinfo"
@@ -71,6 +72,9 @@ type Services struct {
 	// SecurityConfig holds the environments' security configurations
 	// (SEC-182).
 	SecurityConfig *seccfg.Service
+	// AttestationStatus is Google's attestation status list, which the
+	// worker role keeps current (SEC-002).
+	AttestationStatus *statuslist.List
 	// DeviceTrust authenticates device calls; nil where the process does
 	// not run the api or the gateway role.
 	DeviceTrust *DeviceTrust
@@ -296,7 +300,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
-	devices, trust, err := buildDeviceSide(ctx, cfg, db, shared, set, deviceDeps{
+	devices, trust, status, err := buildDeviceSide(ctx, cfg, db, shared, set, deviceDeps{
 		crypter: backend, signer: tokenSigner, ids: gen, audit: log, log: work.Log, configs: configs, metrics: work.Metrics,
 	})
 	if err != nil {
@@ -325,6 +329,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
+		AttestationStatus: status,
 	}, nil
 }
 

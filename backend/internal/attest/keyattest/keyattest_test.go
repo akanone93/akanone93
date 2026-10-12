@@ -5,6 +5,7 @@ package keyattest
 
 import (
 	"bytes"
+	"context"
 	"crypto/elliptic"
 	"crypto/x509"
 	"crypto/x509/pkix"
@@ -37,7 +38,7 @@ func TestVerifyValid(t *testing.T) {
 			spec.attLevel, spec.kmLevel = tt.attLevel, tt.kmLevel
 			leaf := p.leaf(elliptic.P256(), encodeKD(spec))
 			for _, chain := range [][][]byte{p.chain(leaf), {leaf, p.intDER}} {
-				res, err := p.verifier(nil).Verify(chain, testChallenge, testPolicy())
+				res, err := p.verifier(nil).Verify(context.Background(), chain, testChallenge, testPolicy())
 				if err != nil {
 					t.Fatalf("Verify: %v", err)
 				}
@@ -66,7 +67,7 @@ func TestVerifyApplicationIDInHardwareList(t *testing.T) {
 	p := newPKI(t, nil)
 	spec := validSpec()
 	spec.appInHW = true
-	res, err := p.verifier(nil).Verify(p.chain(p.leaf(elliptic.P256(), encodeKD(spec))), testChallenge, testPolicy())
+	res, err := p.verifier(nil).Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), encodeKD(spec))), testChallenge, testPolicy())
 	if err != nil || res.PackageName != testPackage {
 		t.Fatalf("Verify = %+v, %v", res, err)
 	}
@@ -80,7 +81,7 @@ func TestVerifyOptionalPolicy(t *testing.T) {
 	spec.root = &rotSpec{locked: false, state: 2}
 	spec.digests = [][]byte{otherDigest()}
 	policy := Policy{PackageNames: []string{"other.app", testPackage}}
-	res, err := p.verifier(nil).Verify(p.chain(p.leaf(elliptic.P256(), encodeKD(spec))), testChallenge, policy)
+	res, err := p.verifier(nil).Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), encodeKD(spec))), testChallenge, policy)
 	if err != nil {
 		t.Fatalf("Verify: %v", err)
 	}
@@ -127,7 +128,7 @@ func TestVerifyPolicyFailures(t *testing.T) {
 			if tt.policy != nil {
 				tt.policy(&policy)
 			}
-			res, err := p.verifier(nil).Verify(p.chain(p.leaf(elliptic.P256(), encodeKD(spec))), testChallenge, policy)
+			res, err := p.verifier(nil).Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), encodeKD(spec))), testChallenge, policy)
 			wantCode(t, err, tt.want)
 			if res.PublicKey != nil || res.PackageName != "" {
 				t.Errorf("result on failure = %+v", res)
@@ -141,7 +142,7 @@ func TestVerifyEmptyChallengeRejected(t *testing.T) {
 	p := newPKI(t, nil)
 	spec := validSpec()
 	spec.challenge = nil
-	_, err := p.verifier(nil).Verify(p.chain(p.leaf(elliptic.P256(), encodeKD(spec))), nil, testPolicy())
+	_, err := p.verifier(nil).Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), encodeKD(spec))), nil, testPolicy())
 	wantCode(t, err, plxerr.AttestationFailed)
 }
 
@@ -162,60 +163,60 @@ func TestVerifyChainFailures(t *testing.T) {
 	}{
 		{"revoked intermediate", func(t *testing.T) error {
 			p := newPKI(t, nil)
-			_, err := p.verifier(revoked).Verify(p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
+			_, err := p.verifier(revoked).Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
 			return err
 		}},
 		{"suspended leaf", func(t *testing.T) error {
 			p := newPKI(t, nil)
-			_, err := p.verifier(suspendedLeaf).Verify(p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
+			_, err := p.verifier(suspendedLeaf).Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
 			return err
 		}},
 		{"expired chain", func(t *testing.T) error {
 			p := newPKI(t, nil)
 			v := p.verifier(nil)
 			v.Now = func() time.Time { return testNow.Add(48 * time.Hour) }
-			_, err := v.Verify(p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
+			_, err := v.Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
 			return err
 		}},
 		{"not yet valid chain", func(t *testing.T) error {
 			p := newPKI(t, nil)
 			v := p.verifier(nil)
 			v.Now = func() time.Time { return testNow.Add(-48 * time.Hour) }
-			_, err := v.Verify(p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
+			_, err := v.Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
 			return err
 		}},
 		{"unknown root", func(t *testing.T) error {
 			p, other := newPKI(t, nil), newPKI(t, nil)
-			_, err := other.verifier(nil).Verify(p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
+			_, err := other.verifier(nil).Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
 			return err
 		}},
 		{"extension missing", func(t *testing.T) error {
 			p := newPKI(t, nil)
-			_, err := p.verifier(nil).Verify(p.chain(p.leaf(elliptic.P256(), nil)), testChallenge, testPolicy())
+			_, err := p.verifier(nil).Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), nil)), testChallenge, testPolicy())
 			return err
 		}},
 		{"extension on intermediate", func(t *testing.T) error {
 			p := newPKI(t, []pkix.Extension{{Id: attestationOID, Value: validKD}})
-			_, err := p.verifier(nil).Verify(p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
+			_, err := p.verifier(nil).Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
 			return err
 		}},
 		{"extension only on intermediate", func(t *testing.T) error {
 			p := newPKI(t, []pkix.Extension{{Id: attestationOID, Value: validKD}})
-			_, err := p.verifier(nil).Verify(p.chain(p.leaf(elliptic.P256(), nil)), testChallenge, testPolicy())
+			_, err := p.verifier(nil).Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), nil)), testChallenge, testPolicy())
 			return err
 		}},
 		{"P-384 leaf", func(t *testing.T) error {
 			p := newPKI(t, nil)
-			_, err := p.verifier(nil).Verify(p.chain(p.leaf(elliptic.P384(), validKD)), testChallenge, testPolicy())
+			_, err := p.verifier(nil).Verify(context.Background(), p.chain(p.leaf(elliptic.P384(), validKD)), testChallenge, testPolicy())
 			return err
 		}},
 		{"single certificate", func(t *testing.T) error {
 			p := newPKI(t, nil)
-			_, err := p.verifier(nil).Verify([][]byte{p.leaf(elliptic.P256(), validKD)}, testChallenge, testPolicy())
+			_, err := p.verifier(nil).Verify(context.Background(), [][]byte{p.leaf(elliptic.P256(), validKD)}, testChallenge, testPolicy())
 			return err
 		}},
 		{"empty chain", func(t *testing.T) error {
-			_, err := newPKI(t, nil).verifier(nil).Verify(nil, testChallenge, testPolicy())
+			_, err := newPKI(t, nil).verifier(nil).Verify(context.Background(), nil, testChallenge, testPolicy())
 			return err
 		}},
 		{"chain too long", func(t *testing.T) error {
@@ -224,23 +225,23 @@ func TestVerifyChainFailures(t *testing.T) {
 			for range 10 {
 				chain = append(chain, p.intDER)
 			}
-			_, err := p.verifier(nil).Verify(chain, testChallenge, testPolicy())
+			_, err := p.verifier(nil).Verify(context.Background(), chain, testChallenge, testPolicy())
 			return err
 		}},
 		{"garbage certificate", func(t *testing.T) error {
 			p := newPKI(t, nil)
-			_, err := p.verifier(nil).Verify([][]byte{p.leaf(elliptic.P256(), validKD), []byte("not a certificate")}, testChallenge, testPolicy())
+			_, err := p.verifier(nil).Verify(context.Background(), [][]byte{p.leaf(elliptic.P256(), validKD), []byte("not a certificate")}, testChallenge, testPolicy())
 			return err
 		}},
 		{"unconfigured verifier", func(t *testing.T) error {
 			p := newPKI(t, nil)
-			_, err := (&Verifier{}).Verify(p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
+			_, err := (&Verifier{}).Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
 			return err
 		}},
 		{"nil verifier", func(t *testing.T) error {
 			p := newPKI(t, nil)
 			var v *Verifier
-			_, err := v.Verify(p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
+			_, err := v.Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), validKD)), testChallenge, testPolicy())
 			return err
 		}},
 	}
@@ -263,7 +264,7 @@ func TestVerifyMalformedKeyDescription(t *testing.T) {
 	for name, kd := range cases {
 		t.Run(name, func(t *testing.T) {
 			p := newPKI(t, nil)
-			_, err := p.verifier(nil).Verify(p.chain(p.leaf(elliptic.P256(), kd)), testChallenge, testPolicy())
+			_, err := p.verifier(nil).Verify(context.Background(), p.chain(p.leaf(elliptic.P256(), kd)), testChallenge, testPolicy())
 			wantCode(t, err, plxerr.AttestationFailed)
 		})
 	}
@@ -292,17 +293,17 @@ func TestVerifyChainLengthBound(t *testing.T) {
 
 	def, _ := limits.Lookup(limits.AttestKeyAttestationChainCerts)
 	tooLong := make([][]byte, def.Default+1)
-	if _, err := p.verifier(nil).Verify(tooLong, testChallenge, testPolicy()); err == nil {
+	if _, err := p.verifier(nil).Verify(context.Background(), tooLong, testChallenge, testPolicy()); err == nil {
 		t.Error("a chain beyond the registry default was accepted")
 	}
 
 	v := p.verifier(nil)
 	v.MaxChain = int64(len(chain)) - 1
-	_, err := v.Verify(chain, testChallenge, testPolicy())
+	_, err := v.Verify(context.Background(), chain, testChallenge, testPolicy())
 	wantCode(t, err, plxerr.AttestationFailed)
 
 	v.MaxChain = int64(len(chain))
-	if _, err := v.Verify(chain, testChallenge, testPolicy()); err != nil {
+	if _, err := v.Verify(context.Background(), chain, testChallenge, testPolicy()); err != nil {
 		t.Errorf("a chain at the configured bound: %v", err)
 	}
 }
@@ -333,7 +334,7 @@ func TestVerifyUserAuthentication(t *testing.T) {
 			spec := validSpec()
 			spec.userAuthType, spec.noAuthRequired = tt.authType, tt.noAuth
 			chain := p.chain(p.leaf(elliptic.P256(), encodeKD(spec)))
-			res, err := p.verifier(nil).Verify(chain, testChallenge, testPolicy())
+			res, err := p.verifier(nil).Verify(context.Background(), chain, testChallenge, testPolicy())
 			if err != nil {
 				t.Fatalf("Verify without the requirement: %v", err)
 			}
@@ -342,7 +343,7 @@ func TestVerifyUserAuthentication(t *testing.T) {
 			}
 			policy := testPolicy()
 			policy.RequireUserAuth = true
-			_, err = p.verifier(nil).Verify(chain, testChallenge, policy)
+			_, err = p.verifier(nil).Verify(context.Background(), chain, testChallenge, policy)
 			if tt.requireErr {
 				wantCode(t, err, plxerr.AttestationFailed)
 			} else if err != nil {

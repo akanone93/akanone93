@@ -18,12 +18,14 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/attest/appattest"
 	"github.com/nightCode42/plux3/backend/internal/attest/keyattest"
 	"github.com/nightCode42/plux3/backend/internal/attest/playintegrity"
+	"github.com/nightCode42/plux3/backend/internal/attest/statuslist"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/devtoken"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
+	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
@@ -238,25 +240,48 @@ type deviceDeps struct {
 
 // buildDeviceSide assembles the device service and the trust that
 // authenticates device calls.
-func buildDeviceSide(ctx context.Context, cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, d deviceDeps) (*device.Service, *DeviceTrust, error) {
+func buildDeviceSide(ctx context.Context, cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, d deviceDeps) (*device.Service, *DeviceTrust, *statuslist.List, error) {
 	if d.log == nil {
 		d.log = slog.Default()
 	}
-	devices, err := buildDevices(db, d.ids, shared, d.audit, cfg, d.signer, d.configs)
+	status, err := buildStatusList(cfg, shared, set)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
+	}
+	devices, err := buildDevices(db, d.ids, shared, d.audit, cfg, d.signer, d.configs, status, d.metrics)
+	if err != nil {
+		return nil, nil, nil, err
 	}
 	trust, err := buildDeviceTrust(ctx, cfg, db, shared, set, d)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
-	return devices, trust, nil
+	return devices, trust, status, nil
+}
+
+// statusListTimeout bounds one fetch of Google's attestation status list.
+const statusListTimeout = 20 * time.Second
+
+// buildStatusList builds the source of Google's attestation status list:
+// the operator's file where one is configured, otherwise Google's list,
+// fetched by the worker through the guarded client (SEC-002, DEP-040).
+func buildStatusList(cfg *config.Config, shared cache.Cache, set limits.Set) (*statuslist.List, error) {
+	l, err := statuslist.New(statuslist.Options{
+		File:     cfg.Attestation.Android.StatusListFile,
+		Client:   httpx.NewClient(httpx.Options{Timeout: statusListTimeout}),
+		Cache:    shared,
+		MaxBytes: set.Get(limits.AttestStatusListBytes),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
+	return l, nil
 }
 
 // buildDevices assembles the device service, whose registrations verify
 // attestation and whose refreshes issue access tokens.
-func buildDevices(db *storage.DB, gen interface{ New() (string, error) }, shared cache.Cache, auditLog *audit.Log, cfg *config.Config, signer signing.TokenSigner, configs *seccfg.Service) (*device.Service, error) {
-	attestors, err := buildAttestors()
+func buildDevices(db *storage.DB, gen interface{ New() (string, error) }, shared cache.Cache, auditLog *audit.Log, cfg *config.Config, signer signing.TokenSigner, configs *seccfg.Service, status keyattest.RevocationSource, metrics *observability.Metrics) (*device.Service, error) {
+	attestors, err := buildAttestors(status)
 	if err != nil {
 		return nil, err
 	}
@@ -287,7 +312,7 @@ func buildDevices(db *storage.DB, gen interface{ New() (string, error) }, shared
 
 // buildAttestors builds the production verifiers of platform evidence,
 // anchored in the roots Google and Apple publish.
-func buildAttestors() (device.Attestors, error) {
+func buildAttestors(status keyattest.RevocationSource) (device.Attestors, error) {
 	androidRoots, err := keyattest.DefaultRoots()
 	if err != nil {
 		return device.Attestors{}, fmt.Errorf("server: %w", err)
@@ -296,6 +321,7 @@ func buildAttestors() (device.Attestors, error) {
 	if err != nil {
 		return device.Attestors{}, fmt.Errorf("server: %w", err)
 	}
+	key.Source = status
 	appleRoots, err := appattest.DefaultRoots()
 	if err != nil {
 		return device.Attestors{}, fmt.Errorf("server: %w", err)

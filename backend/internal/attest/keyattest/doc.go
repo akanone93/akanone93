@@ -19,7 +19,9 @@
 //     authorisation list.
 //   - The package performs no I/O and reads no clock of its own. Time and the
 //     revocation list are injected; fetching and caching Google's status list
-//     is the caller's concern, this package only parses and applies it.
+//     is package statuslist's concern, this package only parses and applies
+//     it. A source that has no list fails the chain as an outage of the
+//     provider (attest.ErrProviderUnavailable), never as an empty list.
 //   - Error messages name the failed check only; keys, certificates and
 //     attestation blobs never appear in them (SEC-092).
 //

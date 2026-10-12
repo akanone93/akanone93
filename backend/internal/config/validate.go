@@ -21,6 +21,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nightCode42/plux3/backend/internal/attest/keyattest"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/security/settings"
 )
@@ -462,6 +463,14 @@ var appIDPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9
 // Console keys are decoded where they are used; here they only have to
 // come as a pair.
 func (c *Config) validateAttestation(p *problems) {
+	if f := c.Attestation.Android.StatusListFile; f != "" {
+		raw, err := os.ReadFile(f) //nolint:gosec // the operator names the file
+		if err != nil {
+			p.addf("attestation.android.statusListFile", "cannot be read: %v", err)
+		} else if _, err := keyattest.ParseRevocations(raw); err != nil {
+			p.addf("attestation.android.statusListFile", "is not an attestation status list")
+		}
+	}
 	for _, id := range slices.Sorted(maps.Keys(c.Attestation.Apps)) {
 		a := c.Attestation.Apps[id]
 		path := "attestation.apps[" + id + "]"

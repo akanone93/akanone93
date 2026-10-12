@@ -451,3 +451,25 @@ func TestGatewayUpstreamCAFile(t *testing.T) {
 		t.Errorf("default = %q", c.Gateway.UpstreamCAFile)
 	}
 }
+
+// Verifies: SEC-002, DEP-040.
+// An operator's status list file is read at startup and must be a list.
+func TestAttestationStatusListFile(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	good := filepath.Join(dir, "good.json")
+	bad := filepath.Join(dir, "bad.json")
+	if err := os.WriteFile(good, []byte(`{"entries":{"0a":{"status":"REVOKED"}}}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(bad, []byte(`[]`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if got := parse(t, minimal+"attestation:\n  android:\n    statusListFile: "+good+"\n").Attestation.Android.StatusListFile; got != good {
+		t.Errorf("statusListFile = %q", got)
+	}
+	mentions(t, []struct{ name, src, want string }{
+		{"missing", minimal + "attestation:\n  android:\n    statusListFile: " + filepath.Join(dir, "none.json") + "\n", "attestation.android.statusListFile"},
+		{"not a list", minimal + "attestation:\n  android:\n    statusListFile: " + bad + "\n", "not an attestation status list"},
+	})
+}
