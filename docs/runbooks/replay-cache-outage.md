@@ -15,11 +15,13 @@ Every device request records its proof ID (`jti`, scoped by the key thumbprint) 
 | `memory` | Each replica records proofs in a bounded in-memory store (`dpop.replayCacheEntries`, 1,000,000 by default), applies the narrower window `dpopIatWindowFallback` (15 s), logs a warning at most every 10 s, and raises the gauge below. Requests are never accepted unchecked | `standard`, `strict` |
 | `failClosed` | The request is refused with `PLX-6015` | `maximum` |
 
-**As built (P6).** The server builds one policy for the installation, from the `standard`
-default (`memory`). `maximum` does not yet fail closed per environment. Until it does, an
-installation that must fail closed during a cache outage can rely on `/readyz`: it reports
-`cache: unavailable`, so a load balancer that honours readiness stops sending traffic to
-the replicas. Revocation checks fall back to the database, so a revoked device stays refused.
+**As built (P6).** The policy is the environment's: each device call takes it from the
+effective `replayCacheFallback` of the environment its token names, so a `maximum`
+environment fails closed while a `standard` one beside it keeps working on its own replica.
+The `standard` default (`memory`) applies to calls that carry no token (registration and
+refresh), which name no environment yet. `/readyz` also reports `cache: unavailable`, so a
+load balancer that honours readiness stops sending traffic to the replicas. Revocation checks
+fall back to the database, so a revoked device stays refused.
 
 The fallback is weaker in one way: a proof captured while the shared cache is down can be
 replayed once to **each other replica** inside the 15-second window, because replicas do not
