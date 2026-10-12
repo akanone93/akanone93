@@ -418,9 +418,18 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
     settings = _Failure('$e');
   }
   ready.send((commands.sendPort, settings));
+  // Gateway work in flight, which a close waits for: a platform call left
+  // without its isolate aborts the app on Android.
+  final inFlight = <Future<void>>{};
+  void track(Future<void> work) {
+    inFlight.add(work);
+    unawaited(work.whenComplete(() => inFlight.remove(work)));
+  }
+
   await for (final c in commands) {
     switch (c) {
       case _Close():
+        await Future.wait(inFlight.toList());
         Isolate.exit();
       case _Settle(:final reply):
         reply.send(null);
@@ -467,14 +476,14 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
       // Gateway calls do not wait for a sync, or for each other: a sync can
       // take long, and a transaction waits for the user.
       case _Gateway(:final reply, :final request):
-        unawaited(_serve(reply, () => engine.gateway.call(request)));
+        track(_serve(reply, () => engine.gateway.call(request)));
       case _Challenge(
         :final reply,
         :final dataSource,
         :final operation,
         :final summary,
       ):
-        unawaited(
+        track(
           _serve(
             reply,
             () => engine.gateway.challenge(
@@ -485,9 +494,9 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
           ),
         );
       case _ReadConfig(:final reply, :final key):
-        unawaited(_serve(reply, () => engine.gateway.live.read(key)));
+        track(_serve(reply, () => engine.gateway.live.read(key)));
       case _EnrolSca(:final reply):
-        unawaited(_serve(reply, engine.gateway.ensureEnrolled));
+        track(_serve(reply, engine.gateway.ensureEnrolled));
       case _Sync(:final reply):
         reply.send(await engine.run(reply.send));
       case _Baseline(:final reply, :final assets):
