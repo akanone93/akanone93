@@ -123,17 +123,22 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 	if err != nil {
 		return fail(err)
 	}
-	switch {
-	case cfg.Has(config.RoleAPI):
-		if err := srv.RegisterAPI(services); err != nil {
-			return fail(err)
-		}
-	case cfg.Has(config.RoleGateway):
-		if err := srv.RegisterGateway(services); err != nil {
-			return fail(err)
-		}
+	if err := registerRole(cfg, srv, services); err != nil {
+		return fail(err)
 	}
 	return &Built{Server: srv, Close: closeAll}, nil
+}
+
+// registerRole mounts the handlers of the process's serving role: the
+// API's, or the gateway's alone.
+func registerRole(cfg *config.Config, srv *Server, services *Services) error {
+	switch {
+	case cfg.Has(config.RoleAPI):
+		return srv.RegisterAPI(services)
+	case cfg.Has(config.RoleGateway):
+		return srv.RegisterGateway(services)
+	}
+	return nil
 }
 
 // buildWork assembles the domain services and the job client that runs

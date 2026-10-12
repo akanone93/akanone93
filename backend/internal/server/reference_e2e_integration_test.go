@@ -269,8 +269,11 @@ func startReferenceAPI(t *testing.T, trust referenceAssertions) *referenceAPI {
 		addr = "127.0.0.1:0"
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	cmd := exec.CommandContext(ctx, bin, "-addr", addr, "-ca-out", caFile, "-track-step", "200ms",
-		"-assertion-jwks", trust.jwks, "-assertion-issuer", trust.issuer, "-assertion-audience", trust.audience) //nolint:gosec // G204: the binary the test built.
+	args := []string{
+		"-addr", addr, "-ca-out", caFile, "-track-step", "200ms",
+		"-assertion-jwks", trust.jwks, "-assertion-issuer", trust.issuer, "-assertion-audience", trust.audience,
+	}
+	cmd := exec.CommandContext(ctx, bin, args...) //nolint:gosec // G204: the binary the test built.
 	cmd.Cancel = func() error { return cmd.Process.Signal(os.Interrupt) }
 	cmd.WaitDelay = 5 * time.Second
 	stderr := &bytes.Buffer{}
