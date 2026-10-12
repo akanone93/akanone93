@@ -12,6 +12,7 @@ import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/data/client.dart';
 import 'package:plux_flutter/src/data/failure.dart';
+import 'package:plux_flutter/src/data/gateway.dart';
 import 'package:plux_flutter/src/data/services.dart';
 import 'package:plux_flutter/src/data/source.dart';
 import 'package:plux_flutter/src/data/spec.dart';
@@ -142,6 +143,26 @@ final class _Auth implements PluxAuthDelegate {
   void onLogout() {}
 }
 
+/// A gateway that only authenticates routes, to the local server.
+final class _Routes implements GatewayTransport {
+  _Routes(this.base);
+  final String base;
+  final List<GatewayRouteRequest> asked = [];
+
+  @override
+  Future<DataResponse> call(GatewayRequest request) =>
+      throw StateError('a transfer never travels as a unary call');
+
+  @override
+  Future<GatewayRoute> route(GatewayRouteRequest request) async {
+    asked.add(request);
+    return GatewayRoute(
+      Uri.parse('$base/gateway/v1/${request.upstream}${request.path}'),
+      {'Authorization': 'DPoP t', 'DPoP': 'proof-${asked.length}'},
+    );
+  }
+}
+
 final types = <String, NamedType>{
   'Total': NamedType.object('Total')
     ..fields!.addAll({'total': const PxlType(PxlKind.int)}),
@@ -183,6 +204,7 @@ void main() {
       own: [
         DataSourceController(
           spec: DataSourceSpec(
+            route: DataRoute.direct,
             id: 'files-id',
             name: 'files',
             kind: DataKind.rest,
@@ -454,6 +476,7 @@ void main() {
       own: [
         DataSourceController(
           spec: DataSourceSpec(
+            route: DataRoute.direct,
             id: 'blocked-id',
             name: 'blocked',
             kind: DataKind.rest,
@@ -570,5 +593,71 @@ void main() {
     await eventually(() => received.isNotEmpty, 'the message arrives');
     expect(jsonDecode(received.single), {'ping': true});
     await conn.close();
+  });
+
+  test('a transfer of a plux source goes to the gateway route with the device\'s proof and the host token for the exchange, never direct [SEC-030] [DAT-031]', () async {
+    final gateway = _Routes('http://127.0.0.1:${api.server.port}');
+    final routed = DataServices(
+      transport: ClientTransport(http.Client()),
+      authDelegate: _Auth.new,
+      environment: 'production',
+      record: (name, {fields = const {}, route = '', pluginKey = ''}) {},
+      report: reports.add,
+      ioEvents: events,
+      transferTransport: HttpTransferTransport(http.Client()),
+      runtimeRoot: root,
+      downloadDirectory: downloads,
+      gateway: gateway,
+      allowCleartext: true,
+    );
+    final s = DataScope(
+      services: routed,
+      own: [
+        DataSourceController(
+          spec: DataSourceSpec(
+            id: 'drive-id',
+            name: 'drive',
+            kind: DataKind.rest,
+            type: 'int',
+            baseUrls: const {},
+            path: '/count',
+            operations: {
+              'upload': const OperationSpec(
+                name: 'upload',
+                path: '/upload/{folder}',
+                auth: true,
+                output: 'Total',
+                transfer: TransferSpec(
+                  kind: TransferKind.upload,
+                  fileParam: 'path',
+                ),
+              ),
+            },
+          ),
+          context: routed,
+          caller: caller,
+          types: types,
+        ),
+      ],
+      shared: const [],
+      roots: () => const {},
+    );
+    addTearDown(s.dispose);
+    final file = write('doc.bin', 2000);
+    await s.callOperation('drive.upload', {
+      'folder': 'inbox',
+      'path': file.path,
+      'kind': 'x',
+    });
+    final r = gateway.asked.single;
+    expect(r.upstream, 'drive');
+    expect(r.operation, 'upload');
+    expect(r.method, 'POST');
+    expect(r.path, '/upload/inbox');
+    expect(r.plugin, 'files');
+    expect(r.userToken, 'stale');
+    final seen = api.seen.single;
+    expect(seen.uri.path, '/gateway/v1/drive/upload/inbox');
+    expect(seen.auth, 'DPoP t');
   });
 }

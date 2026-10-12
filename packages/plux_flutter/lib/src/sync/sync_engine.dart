@@ -21,7 +21,10 @@ import 'package:plux_flutter/src/delta/delta.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/mmap/mapped_file.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
+import 'package:plux_flutter/src/security/aead.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
+import 'package:plux_flutter/src/security/confidential.dart';
+import 'package:plux_flutter/src/security/content_key.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/security/pins.dart';
 import 'package:plux_flutter/src/security/security_config.dart';
@@ -32,6 +35,7 @@ import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
 import 'package:plux_flutter/src/sync/device_auth.dart';
 import 'package:plux_flutter/src/sync/downloader.dart';
+import 'package:plux_flutter/src/sync/gateway_agent.dart';
 import 'package:plux_flutter/src/sync/metadata_sync.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
 import 'package:plux_flutter/src/verify/bundle_verifier.dart';
@@ -97,6 +101,7 @@ final class SyncConfig {
     this.production = kReleaseMode,
     this.rootDocument,
     this.pins,
+    this.enrolSca = false,
   });
 
   /// The app.
@@ -146,6 +151,10 @@ final class SyncConfig {
   /// verified root replace them (SEC-041). It must be the very object the
   /// client was made with.
   final PinSet? pins;
+
+  /// Whether registration creates the SCA key and registers it with the
+  /// server (SEC-027): `PluxConfig.strongCustomerAuthentication`.
+  final bool enrolSca;
 }
 
 /// Runs syncs against one store.
@@ -160,7 +169,9 @@ final class SyncEngine {
     required this.keys,
     required this.attestation,
     SecretStore? configSecrets,
+    void Function(Map<String, Object?> fields)? onAttestation,
     DateTime Function()? clock,
+    this.aead = const DartAead(),
   }) : _clock = clock ?? DateTime.now,
        _configs = configSecrets == null
            ? null
@@ -177,8 +188,11 @@ final class SyncEngine {
       appId: config.appId,
       environment: config.environment,
       device: config.device,
+      enrolSca: config.enrolSca,
+      onAttestation: onAttestation,
       clock: _clock,
     );
+    gateway = GatewayAgent(api: api, auth: _auth, clock: _clock);
     _metadata = MetadataSync(
       api: api,
       store: MetadataStore(store.root),
@@ -214,8 +228,15 @@ final class SyncEngine {
   /// The platform's attestation services (SEC-002).
   final Attestation attestation;
 
+  /// The cipher that opens confidential bundles (SEC-053).
+  final Aead aead;
+
   final DateTime Function() _clock;
   late final DeviceAuth _auth;
+
+  /// The device's calls to the gateway, which share its token and DPoP key
+  /// (SEC-030).
+  late final GatewayAgent gateway;
   late final MetadataSync _metadata;
   final SecurityConfigStore? _configs;
 
@@ -400,6 +421,9 @@ final class SyncEngine {
             features: p.bundle.requiredFeatures,
           ),
       ];
+      final sealed = wanted.any((w) => w.confidential)
+          ? await _sealed(res, seq)
+          : null;
       final sizes = {for (final b in m.bundles) hexEncode(b.hash): b.size};
       final missing = [
         for (final w in wanted)
@@ -429,7 +453,7 @@ final class SyncEngine {
           progress,
         );
       }
-      final quota = _quota(app.hash);
+      final quota = await _quota(app, sealed);
       if (store.keptUsage() + total > quota) {
         store.collectGarbage();
         throw PluxException(
@@ -460,7 +484,13 @@ final class SyncEngine {
         total,
         (n) => total += n,
         progress,
+        sealed,
       );
+      // A confidential release is opened once here, on this isolate, so a
+      // key or a bundle that does not open never reaches activation.
+      for (final w in wanted.where((w) => w.confidential)) {
+        await sealed!.plain(w);
+      }
       final record = ReleaseRecord(
         sequence: seq,
         source: ReleaseSource.sync,
@@ -471,6 +501,7 @@ final class SyncEngine {
         killSwitches: control.killSwitches,
         appKillSwitch: control.appKillSwitch,
         message: control.message,
+        contentKey: sealed?.envelope,
       );
       store.stage(record);
       store.collectGarbage();
@@ -553,20 +584,22 @@ final class SyncEngine {
     int bundleBytes,
     void Function(int) planned,
     void Function(int) progress,
+    _Sealed? sealed,
   ) async {
     final sizes = <String, int>{};
     for (final b in bundles) {
-      final file = MappedFile.open(
-        store.objectPath(ObjectKind.bundles, b.hash),
-      );
+      final Uint8List? plain = b.confidential ? await sealed!.plain(b) : null;
+      final file = plain == null
+          ? MappedFile.open(store.objectPath(ObjectKind.bundles, b.hash))
+          : null;
       try {
-        for (final a in assetsOf(BundleContainer.parse(file.bytes))) {
+        for (final a in assetsOf(BundleContainer.parse(plain ?? file!.bytes))) {
           final files = preferredFiles(a, config.assets);
           if (files.isEmpty) continue;
           sizes[files.first] = fileSize(a, files.first);
         }
       } finally {
-        file.release();
+        file?.release();
       }
     }
     final missing = [
@@ -621,6 +654,9 @@ final class SyncEngine {
   /// Forgets the held token, after the server refused it.
   void forgetToken() => _auth.forgetToken();
 
+  /// Re-attests the device's key now, after a risk signal (SEC-006).
+  Future<void> reattest() => _auth.reattestNow();
+
   /// Obtains one bundle: by its delta when the plan offers one against
   /// the bundle this device holds, else — or when the rebuilt bundle is
   /// not the signed one — as the full bundle (SYN-011).
@@ -638,7 +674,10 @@ final class SyncEngine {
       );
     }
     final hash = hexDecode(w.hash);
+    // Ciphertext does not diff: a confidential bundle is always the whole
+    // download (ADR-0055).
     final canPatch =
+        !w.confidential &&
         step.action == 'delta' &&
         step.stepUrl != null &&
         installed != null &&
@@ -694,7 +733,13 @@ final class SyncEngine {
           'the bundle exceeds ${config.maxBundleSize} bytes',
         );
       }
-      _verify(file.readAsBytesSync(), hash);
+      if (w.confidential) {
+        // Signature and hashes over the ciphertext, nothing decrypted yet
+        // (SEC-052).
+        verifyConfidentialBundle(file.readAsBytesSync(), hash);
+      } else {
+        _verify(file.readAsBytesSync(), hash);
+      }
     } on PluxException {
       final f = File(part);
       if (f.existsSync()) f.deleteSync();
@@ -703,28 +748,63 @@ final class SyncEngine {
     store.commitObject(ObjectKind.bundles, w.hash, part);
   }
 
-  /// The disk quota of the release whose app bundle is [appHash] (SYN-012,
+  /// The disk quota of the release whose app bundle is [app] (SYN-012,
   /// LIM-004): the `device.diskQuota` its signed app bundle carries, or the
   /// registry's default, within the host's cap. The stored bundle is
-  /// verified again before its limits are read; one that fails is deleted,
-  /// so the next sync downloads it again.
-  int _quota(String appHash) {
+  /// verified again before its limits are read — a confidential one is
+  /// opened in memory — and one that fails is deleted, so the next sync
+  /// downloads it again.
+  Future<int> _quota(RecordBundle app, _Sealed? sealed) async {
     var quota = PluxLimit.deviceDiskQuota.defaultValue;
-    final path = store.objectPath(ObjectKind.bundles, appHash);
-    final file = MappedFile.open(path);
+    final path = store.objectPath(ObjectKind.bundles, app.hash);
     try {
-      final bundle = _verify(file.bytes, hexDecode(appHash));
-      final meta = fbs.Meta(bundle.ofKind(SectionKind.meta).single.data);
-      for (final l in meta.limits ?? const <fbs.Limit>[]) {
-        if (l.key == PluxLimit.deviceDiskQuota.key) quota = l.value;
+      final BundleContainer bundle;
+      MappedFile? file;
+      if (app.confidential) {
+        bundle = BundleContainer.parse(await sealed!.plain(app));
+      } else {
+        file = MappedFile.open(path);
+        bundle = _verify(file.bytes, hexDecode(app.hash));
+      }
+      try {
+        final meta = fbs.Meta(bundle.ofKind(SectionKind.meta).single.data);
+        for (final l in meta.limits ?? const <fbs.Limit>[]) {
+          if (l.key == PluxLimit.deviceDiskQuota.key) quota = l.value;
+        }
+      } finally {
+        file?.release();
       }
     } on PluxException {
-      file.release();
       File(path).deleteSync();
       rethrow;
     }
-    file.release();
     return math.min(quota, config.diskQuota);
+  }
+
+  /// The opened content key of a confidential release, once per sync.
+  Future<_Sealed> _sealed(ManifestResponse res, int sequence) async {
+    final key = res.contentKey;
+    if (key == null) {
+      throw const PluxException(
+        PluxErrorCode.confidentialKeyUnavailable,
+        'the server sent no content key for a confidential release',
+      );
+    }
+    final id = (await credentials.read())?.deviceId;
+    if (id == null) {
+      throw const PluxException(
+        PluxErrorCode.confidentialKeyUnavailable,
+        'the device has no registration to unwrap a content key for',
+      );
+    }
+    final envelope = WrappedContentKey(
+      ephemeralPublicKey: key.ephemeralPublicKey,
+      wrappedKey: key.wrappedKey,
+      deviceId: id,
+      app: config.appId,
+      environment: config.environment,
+    );
+    return _Sealed(this, envelope, sequence);
   }
 
   BundleContainer _verify(
@@ -742,4 +822,46 @@ final class SyncEngine {
 
 final class _Counter {
   int n = 0;
+}
+
+/// The confidential bundles of one sync, opened in memory on first use: the
+/// content key is unwrapped once, each bundle is decrypted once on a
+/// background isolate after its hashes matched the signed ones, and the plain
+/// container then passes the full verifier. Nothing is written to disk.
+final class _Sealed {
+  _Sealed(this._engine, this.envelope, this._sequence);
+
+  final SyncEngine _engine;
+
+  /// The wrapped key, as the record keeps it.
+  final WrappedContentKey envelope;
+  final int _sequence;
+  Uint8List? _key;
+  final Map<String, Uint8List> _plain = {};
+
+  /// The verified plain container of [w].
+  Future<Uint8List> plain(RecordBundle w) async {
+    final have = _plain[w.hash];
+    if (have != null) return have;
+    final key = _key ??= await unwrapContentKey(
+      envelope,
+      keys: _engine.keys,
+      alias: agreementKeyAlias(
+        _engine.config.appId,
+        _engine.config.environment,
+      ),
+      sequence: _sequence,
+    );
+    final opened = await decryptBundleFile(
+      _engine.store.objectPath(ObjectKind.bundles, w.hash),
+      hexDecode(w.hash),
+      key,
+      aead: _engine.aead,
+    );
+    _engine._verify(
+      opened,
+      bundleHash(opened, BundleContainer.parse(opened).sections.length),
+    );
+    return _plain[w.hash] = opened;
+  }
 }

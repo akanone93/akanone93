@@ -1,0 +1,17 @@
+# Strings that must not appear in the AOT snapshot of a release build (SEC-074, DEV-050).
+# kind<TAB>string; ASCII only, because the snapshot stores other text as UTF-16.
+# Each string must occur verbatim in the named source; the policy test checks
+# that, so a renamed string cannot leave a probe that passes vacuously.
+#
+# devtools: reachable only from the overlay body packages/plux_devtools builds
+#   when not kReleaseMode. PluxDevtools and its State stay in a release build
+#   (the widget returns its child), so their names are not probes.
+# logging: text of plux_flutter diagnostics that kDebugMode or kReleaseMode
+#   remove from release builds.
+devtools	Open Plux devtools
+devtools	Plux is not initialized
+devtools	describeSyncEvent
+devtools	_SyncTab
+devtools	_ReleaseTab
+devtools	_LogTab
+logging	where actions do not run

@@ -14,6 +14,7 @@
 /// refuses them (SEC-001, SEC-008).
 library;
 
+import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -80,6 +81,19 @@ final class SoftwareDeviceKeys implements DeviceKeys {
   }
 
   @override
+  Future<Uint8List> agree(String alias, EcPublicKey peer) async {
+    final d = _scalars[alias];
+    if (d == null) throw StateError('no software key under "$alias"');
+    final point = Uint8List.fromList([0x04, ...peer.x, ...peer.y]);
+    if (!isP256PublicKey(point)) {
+      throw ArgumentError.value(peer, 'peer', 'not a point of P-256');
+    }
+    final shared = p256Multiply(d, P256Point(p256Int(peer.x), p256Int(peer.y)));
+    if (shared == null) throw ArgumentError.value(peer, 'peer', 'bad point');
+    return p256Bytes32(shared.x);
+  }
+
+  @override
   Future<void> delete(String alias) async {
     _scalars.remove(alias);
   }
@@ -105,6 +119,82 @@ final class SoftwareDeviceKeys implements DeviceKeys {
   }
 }
 
+/// Software keys for host-side tests of a transaction (SEC-027), where the
+/// SCA key must be one key for both isolates of the runtime.
+///
+/// On a device the SCA key is the platform's: the sync isolate creates it
+/// at registration and the UI isolate signs with it after the user's
+/// biometric. Under `flutter test` each isolate would have a store of its
+/// own, and the key one made the other could not find. Here the SCA key of
+/// an alias is derived from the alias, so every instance holds the same
+/// key and a test needs no state shared between isolates; every other key
+/// is a [SoftwareDeviceKeys] key. [signWithUser] signs at once: the test
+/// presses the confirmation sheet's button, and there is no system prompt.
+///
+/// For tests and host tools only, like [SoftwareDeviceKeys]: the key is
+/// public knowledge to anyone who reads this file.
+final class SoftwareScaKeys implements DeviceKeys, UserAuthSigner {
+  /// Creates the store.
+  SoftwareScaKeys();
+
+  final SoftwareDeviceKeys _others = SoftwareDeviceKeys();
+  final _derived = <String, SoftwareDeviceKeys>{};
+
+  SoftwareDeviceKeys _sca(String alias) => _derived.putIfAbsent(alias, () {
+    final mac = Hmac(
+      sha256,
+      utf8.encode('plux-software-sca-key'),
+    ).convert(utf8.encode(alias)).bytes;
+    final d = p256Int(mac) % (p256Order - BigInt.one) + BigInt.one;
+    return SoftwareDeviceKeys.withScalar(alias, d);
+  });
+
+  @override
+  Future<DeviceKey> create(
+    String alias,
+    KeyPurpose purpose, {
+    Uint8List? challenge,
+    bool strongBox = true,
+  }) async => purpose == KeyPurpose.sca
+      ? (await _sca(alias).load(alias, purpose))!
+      : _others.create(
+          alias,
+          purpose,
+          challenge: challenge,
+          strongBox: strongBox,
+        );
+
+  @override
+  Future<DeviceKey?> load(String alias, KeyPurpose purpose) async =>
+      purpose == KeyPurpose.sca
+      ? _sca(alias).load(alias, purpose)
+      : _others.load(alias, purpose);
+
+  @override
+  Future<Uint8List> sign(String alias, Uint8List data) =>
+      _isSca(alias) ? _sca(alias).sign(alias, data) : _others.sign(alias, data);
+
+  @override
+  Future<Uint8List> signWithUser(
+    String alias,
+    Uint8List data, {
+    required String title,
+    required String subtitle,
+  }) => _sca(alias).sign(alias, data);
+
+  @override
+  Future<Uint8List> agree(String alias, EcPublicKey peer) =>
+      _others.agree(alias, peer);
+
+  @override
+  Future<void> delete(String alias) async {
+    _derived.remove(alias);
+    await _others.delete(alias);
+  }
+
+  bool _isSca(String alias) => _derived.containsKey(alias);
+}
+
 /// Attestation for tests and host tools: development evidence only, which
 /// production environments refuse (SEC-008).
 final class DevelopmentAttestation implements Attestation {
@@ -118,7 +208,18 @@ final class DevelopmentAttestation implements Attestation {
   Future<AttestationEvidence> attest({
     required Uint8List challenge,
     required String jkt,
+    required String kaJkt,
+    required String scaJkt,
     required List<Uint8List> keyAttestationChain,
+  }) async => DevelopmentEvidence(buildId);
+
+  @override
+  Future<AttestationEvidence> scaEnrolment({
+    required Uint8List challenge,
+    required String jkt,
+    required String kaJkt,
+    required String scaJkt,
+    required List<Uint8List> scaKeyChain,
   }) async => DevelopmentEvidence(buildId);
 
   @override

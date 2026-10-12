@@ -9,16 +9,19 @@ type NodeHints byte
 const (
 	NodeHintsRepaintBoundary NodeHints = 1
 	NodeHintsStatic          NodeHints = 2
+	NodeHintsMasked          NodeHints = 4
 )
 
 var EnumNamesNodeHints = map[NodeHints]string{
 	NodeHintsRepaintBoundary: "RepaintBoundary",
 	NodeHintsStatic:          "Static",
+	NodeHintsMasked:          "Masked",
 }
 
 var EnumValuesNodeHints = map[string]NodeHints{
 	"RepaintBoundary": NodeHintsRepaintBoundary,
 	"Static":          NodeHintsStatic,
+	"Masked":          NodeHintsMasked,
 }
 
 func (v NodeHints) String() string {

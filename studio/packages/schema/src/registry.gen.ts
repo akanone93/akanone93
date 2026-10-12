@@ -176,7 +176,7 @@ export interface ActionDescriptor {
 export type WidgetType = "ActionChip" | "Align" | "AppBar" | "AspectRatio" | "BackButton" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "Card" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConstrainedBox" | "Container" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTextField" | "CustomScrollView" | "DecoratedBox" | "Divider" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FilledButton" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Icon" | "IconButton" | "If" | "Image" | "IndexedStack" | "InkWell" | "InputChip" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "Match" | "OfflineBanner" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "Positioned" | "Radio" | "RadioListTile" | "RangeSlider" | "Responsive" | "RichText" | "Row" | "SafeArea" | "Scaffold" | "Scrollbar" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverToBoxAdapter" | "Slot" | "Spacer" | "Stack" | "Switch" | "SwitchListTile" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Tooltip" | "Transform" | "VerticalDivider" | "Wrap";
 
 /** An action name. */
-export type ActionName = "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
+export type ActionName = "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "readConfig" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
 
 /** Every widget descriptor, sorted by type name (WGT-001). */
 export const widgets: readonly WidgetDescriptor[] = [
@@ -400,7 +400,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "layer": 2,
     "phase": "P6",
     "revision": 1,
-    "runtimes": ["0.1.0"],
+    "runtimes": ["0.4.0"],
     "category": "interaction",
     "icon": "fingerprint",
     "description": "A button that triggers a biometric step-up (SEC-027).",
@@ -2182,7 +2182,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "layer": 2,
     "phase": "P6",
     "revision": 1,
-    "runtimes": ["0.1.0"],
+    "runtimes": ["0.4.0"],
     "category": "input",
     "icon": "photo_camera",
     "description": "ID document and selfie capture with framing guides and quality checks. Ships in `plux_media`.",
@@ -2423,7 +2423,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "layer": 2,
     "phase": "P6",
     "revision": 1,
-    "runtimes": ["0.1.0"],
+    "runtimes": ["0.4.0"],
     "category": "input",
     "icon": "pin",
     "description": "One-time code entry with platform autofill: SMS User Consent API on Android, one-time-code autofill on iOS (SEC-090).",
@@ -2872,7 +2872,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "layer": 2,
     "phase": "P6",
     "revision": 1,
-    "runtimes": ["0.1.0"],
+    "runtimes": ["0.4.0"],
     "category": "input",
     "icon": "dialpad",
     "description": "PIN entry with an optional randomised layout and haptic-only key feedback (SEC-090).",
@@ -2896,7 +2896,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "layer": 2,
     "phase": "P6",
     "revision": 1,
-    "runtimes": ["0.1.0"],
+    "runtimes": ["0.4.0"],
     "category": "input",
     "icon": "password",
     "description": "Hardened text entry: obscured, with no suggestions, autocorrect, clipboard or keyboard learning (SEC-090).",
@@ -6007,6 +6007,22 @@ export const actions: readonly ActionDescriptor[] = [
     ],
     "branches": [],
     "effects": ["navigation"]
+  },
+  {
+    "name": "readConfig",
+    "id": 57,
+    "phase": "P6",
+    "category": "data",
+    "description": "Reads a live server-held configuration value of the app's environment; a strict value is read from the server each time and fails closed when it cannot be (DAT-094, DAT-097).",
+    "typeParameters": [
+      {"name": "T", "description": "The type of the value: string for a string or a decimal, int for an integer, bool for a boolean."}
+    ],
+    "inputs": [
+      {"name": "key", "id": 1, "type": "string", "required": true, "description": "The key of the value."}
+    ],
+    "output": "T",
+    "branches": [],
+    "effects": ["network"]
   },
   {
     "name": "refreshData",

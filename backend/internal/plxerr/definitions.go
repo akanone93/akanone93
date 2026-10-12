@@ -1310,8 +1310,8 @@ var registry = []Definition{
 	},
 	{
 		ConfidentialKeyUnavailable, "CONFIDENTIAL_KEY_UNAVAILABLE", SeverityError, "Confidential key unavailable",
-		"The device may not receive the key that unlocks confidential content, because it does not meet the content's requirements (SEC-053).",
-		"Use a device that meets the content's assurance requirements.", false,
+		"The device cannot obtain or use the key that unlocks confidential content: its assurance is below confidentialMinAssurance, it registered no key-agreement key, or the key does not open the content because it was wrapped for another device or release, or was altered (SEC-053).",
+		"Use a device that meets the content's assurance requirements and has a key-agreement key; ask the operator to publish the release again if the key does not open it.", false,
 	},
 	{
 		GatewayUpstreamUnknown, "GATEWAY_UPSTREAM_UNKNOWN", SeverityError, "Gateway upstream unknown",
@@ -1337,6 +1337,31 @@ var registry = []Definition{
 		GatewayRateLimited, "GATEWAY_RATE_LIMITED", SeverityError, "Gateway rate limited",
 		"The device sent more gateway requests per minute than gateway.requestsPerMinutePerDevice allows (SEC-031).",
 		"Slow down and retry after the indicated delay.", false,
+	},
+	{
+		BoundLocationSetByDevice, "BOUND_LOCATION_SET_BY_DEVICE", SeverityError, "Request sets a server-bound location",
+		"The request sets a header, query parameter or body member that the operation binds to a server-held configuration value; only the server sets it (DAT-091).",
+		"Remove the value from the request; the gateway adds it.", false,
+	},
+	{
+		BoundValueChanged, "BOUND_VALUE_CHANGED", SeverityError, "Server-held value changed since the challenge",
+		"A server-held value the user confirmed in a transaction changed before the transaction was sent, so the confirmation no longer describes it (DAT-093).",
+		"Request a new challenge and confirm the transaction again; the runtime does so transparently.", false,
+	},
+	{
+		LiveConfigStale, "LIVE_CONFIG_STALE", SeverityError, "Live configuration is stale",
+		"A strict live configuration value changed after the version the call carries (DAT-096).",
+		"Fetch the live configuration again and repeat the call; the runtime does so once.", false,
+	},
+	{
+		LiveConfigUnavailable, "LIVE_CONFIG_UNAVAILABLE", SeverityError, "Live configuration unavailable",
+		"A strict live configuration value was read while the device is offline or the values could not be refreshed (DAT-097).",
+		"Go online and try again.", false,
+	},
+	{
+		ConfigStoreUnavailable, "CONFIG_STORE_UNAVAILABLE", SeverityError, "Configuration store unavailable",
+		"The gateway could not check the current version of the server-held configuration, so it refuses the call instead of using a value that may be stale (DAT-092).",
+		"Try again shortly.", false,
 	},
 	{
 		SCASignatureInvalid, "SCA_SIGNATURE_INVALID", SeverityError, "Strong customer authentication signature invalid",

@@ -1,0 +1,27 @@
+{
+  "$schema": "../json/registry/action.schema.json",
+  "name": "readConfig",
+  "id": 57,
+  "phase": "P6",
+  "category": "data",
+  "description": "Reads a live server-held configuration value of the app's environment; a strict value is read from the server each time and fails closed when it cannot be (DAT-094, DAT-097).",
+  "typeParameters": [
+    {
+      "name": "T",
+      "description": "The type of the value: string for a string or a decimal, int for an integer, bool for a boolean."
+    }
+  ],
+  "inputs": [
+    {
+      "name": "key",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The key of the value."
+    }
+  ],
+  "output": "T",
+  "effects": [
+    "network"
+  ]
+}

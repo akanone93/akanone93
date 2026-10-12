@@ -1,0 +1,59 @@
+{
+  "comment": "SHA-256(challenge || jkt || \".\" || kaJkt || \".\" || scaJkt); ADR-0012 Revisions (2026-10-11). Shared by the Go and Dart tests.",
+  "vectors": [
+    {
+      "name": "all keys",
+      "challengeHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "jkt": "dpop-jkt",
+      "kaJkt": "ka-jkt",
+      "scaJkt": "sca-jkt",
+      "hashHex": "797e68d876d672dcf283ab96bbe50450719bfd382a87528c903385adb691b79f",
+      "requestHash": "eX5o2HbWctzyg6uWu-UEUHGb_Tgqh1KMkDOFrbaRt58"
+    },
+    {
+      "name": "no agreement or SCA key",
+      "challengeHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "jkt": "dpop-jkt",
+      "kaJkt": "",
+      "scaJkt": "",
+      "hashHex": "92285688228040c400e607a8b657cc4bf8fe416d363a524195902bea67ad66d6",
+      "requestHash": "kihWiCKAQMQA5geotlfMS_j-QW02OlJBlZAr6metZtY"
+    },
+    {
+      "name": "agreement key only",
+      "challengeHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "jkt": "dpop-jkt",
+      "kaJkt": "ka-jkt",
+      "scaJkt": "",
+      "hashHex": "7e4d3a15e40f6b34ec56ff8f268eb21c6e2809a6d36ff8a474d50d2796658400",
+      "requestHash": "fk06FeQPazTsVv-PJo6yHG4oCabTb_ikdNUNJ5ZlhAA"
+    },
+    {
+      "name": "SCA key only",
+      "challengeHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "jkt": "dpop-jkt",
+      "kaJkt": "",
+      "scaJkt": "sca-jkt",
+      "hashHex": "40f6c359af38b3f6f9fe745b2f213f108bd843d40d6c09067526f4cced4715c8",
+      "requestHash": "QPbDWa84s_b5_nRbLyE_EIvYQ9QNbAkGdSb0zO1HFcg"
+    },
+    {
+      "name": "a thumbprint cannot move between fields",
+      "challengeHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "jkt": "dpop-jktka-jkt",
+      "kaJkt": "",
+      "scaJkt": "sca-jkt",
+      "hashHex": "b2f3bd55aa0036a557d9463e8de1044456a10c88dda20cc6d3bef3fb6c1aac2e",
+      "requestHash": "svO9VaoANqVX2UY-jeEERFahDIjdogzG077z-2warC4"
+    },
+    {
+      "name": "empty challenge",
+      "challengeHex": "",
+      "jkt": "dpop-jkt",
+      "kaJkt": "ka-jkt",
+      "scaJkt": "sca-jkt",
+      "hashHex": "6f8b09b1290134311c9565503d0aae3d77ebf4871e8db8f2b8958bbac7570a3f",
+      "requestHash": "b4sJsSkBNDEclWVQPQquPXfr9IcejbjyuJWLusdXCj8"
+    }
+  ]
+}

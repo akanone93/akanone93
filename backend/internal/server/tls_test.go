@@ -95,6 +95,32 @@ func TestEveryResponseCarriesHSTS(t *testing.T) {
 	}
 }
 
+// Verifies: QA-008.
+// An answer no cache may store, unless its handler says otherwise (ZAP
+// 10049); the gateway's streaming route keeps the upstream's policy alone.
+func TestResponsesAreNotStoredUnlessTheirHandlerSaysSo(t *testing.T) {
+	t.Parallel()
+	s := newServer(t, base)
+	s.Register("/boom", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		http.Error(w, "boom", http.StatusInternalServerError)
+	}))
+	s.Register("/cached", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Cache-Control", "public, max-age=60")
+	}))
+	s.Register("/gateway/v1/", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Add("Cache-Control", "private")
+	}))
+	for path, want := range map[string]string{
+		"/boom": "no-store", "/nowhere": "no-store", "/cached": "public, max-age=60", "/gateway/v1/bank/x": "private",
+	} {
+		rec := httptest.NewRecorder()
+		s.Handler().ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, path, nil))
+		if got := rec.Header().Values("Cache-Control"); len(got) != 1 || got[0] != want {
+			t.Errorf("%s: Cache-Control %q, want %q", path, got, want)
+		}
+	}
+}
+
 // Verifies: SEC-040.
 func TestHSTSFollowsTheConfiguration(t *testing.T) {
 	t.Parallel()

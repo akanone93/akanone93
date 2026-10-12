@@ -4,6 +4,7 @@
 import CryptoKit
 import Flutter
 import Foundation
+import LocalAuthentication
 import Security
 
 /// The device keys of the Plux runtime (SEC-001, SEC-021, ADR-0012): P-256
@@ -12,10 +13,13 @@ import Security
 /// is non-exportable; only its public point and signatures cross the channel.
 final class PluxKeys {
   private static let tagPrefix = "dev.plux.keys."
-  private static let purposes: Set<String> = ["dpop", "agreement"]
+  private static let purposes: Set<String> = ["dpop", "agreement", "sca"]
   private static let queue = DispatchQueue(label: "dev.plux.keys", qos: .userInitiated)
+  /// The system prompt of an "sca" key blocks until the user answers, so it has its own queue
+  /// and never holds up the DPoP proofs on `queue`.
+  private static let authQueue = DispatchQueue(label: "dev.plux.keys.auth", qos: .userInitiated)
 
-  /// Handles one of keyCreate, keyPublic, keySign and keyDelete. Keychain and
+  /// Handles one of keyCreate, keyPublic, keySign, keyAgree and keyDelete. Keychain and
   /// Secure Enclave work runs on a serial queue; `result` is called on the
   /// main queue.
   func handle(_ method: String, _ args: [String: Any], result: @escaping FlutterResult) {
@@ -33,6 +37,19 @@ final class PluxKeys {
         return result(Self.fail("PLUX_PLATFORM", "data"))
       }
       Self.run(result) { try Self.sign(alias, data) }
+    case "keyAgree":
+      guard let x = (args["x"] as? FlutterStandardTypedData)?.data,
+            let y = (args["y"] as? FlutterStandardTypedData)?.data, x.count == 32, y.count == 32
+      else { return result(Self.fail("PLUX_PLATFORM", "peer")) }
+      Self.run(result) { try Self.agree(alias, x, y) }
+    case "keySignAuth":
+      guard let data = (args["data"] as? FlutterStandardTypedData)?.data,
+            let title = args["title"] as? String else {
+        return result(Self.fail("PLUX_PLATFORM", "data"))
+      }
+      let subtitle = args["subtitle"] as? String ?? ""
+      let reason = subtitle.isEmpty ? title : "\(title): \(subtitle)"
+      Self.run(result, on: Self.authQueue) { try Self.sign(alias, data, reason: reason) }
     case "keyDelete":
       Self.run(result) {
         try Self.delete(alias)
@@ -54,8 +71,12 @@ final class PluxKeys {
     FlutterError(code: code, message: message, details: nil)
   }
 
-  private static func run(_ result: @escaping FlutterResult, _ work: @escaping () throws -> Any?) {
-    queue.async {
+  private static func run(
+    _ result: @escaping FlutterResult,
+    on target: DispatchQueue = queue,
+    _ work: @escaping () throws -> Any?
+  ) {
+    target.async {
       let value: Any?
       do {
         value = try work()
@@ -106,8 +127,12 @@ final class PluxKeys {
 
   /// The private key, its purpose label and whether it lives in the Secure
   /// Enclave, or nil when the alias has no key.
-  private static func lookup(_ alias: String) throws -> (key: SecKey, purpose: String, enclave: Bool)? {
+  private static func lookup(
+    _ alias: String,
+    context: LAContext? = nil
+  ) throws -> (key: SecKey, purpose: String, enclave: Bool)? {
     var q = query(alias)
+    if let context { q[kSecUseAuthenticationContext as String] = context }
     q[kSecReturnRef as String] = true
     q[kSecReturnAttributes as String] = true
     q[kSecMatchLimit as String] = kSecMatchLimitOne
@@ -143,8 +168,14 @@ final class PluxKeys {
     ]
     if enclave {
       var accessError: Unmanaged<CFError>?
+      // An "sca" key needs the enrolled biometrics for every signature and is invalidated
+      // when they change (SEC-027); it exists only on a device with a passcode.
+      let sca = purpose == "sca"
       guard let access = SecAccessControlCreateWithFlags(
-        kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly, .privateKeyUsage, &accessError)
+        kCFAllocatorDefault,
+        sca ? kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly : kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+        sca ? [.privateKeyUsage, .biometryCurrentSet] : .privateKeyUsage,
+        &accessError)
       else { throw platform("access", cfError: accessError) }
       privateAttrs[kSecAttrAccessControl as String] = access
       attrs[kSecAttrTokenID as String] = kSecAttrTokenIDSecureEnclave
@@ -186,16 +217,56 @@ final class PluxKeys {
 
   // MARK: - Signing
 
-  private static func sign(_ alias: String, _ data: Data) throws -> FlutterStandardTypedData {
+  /// Signs with a "dpop" key, or, with a `reason`, with an "sca" key after the system prompt
+  /// shows the reason and the user answers with the enrolled biometrics (SEC-027).
+  private static func sign(_ alias: String, _ data: Data, reason: String? = nil) throws -> FlutterStandardTypedData {
+    let context = reason.map { r -> LAContext in
+      let c = LAContext()
+      c.localizedReason = r
+      return c
+    }
+    guard let found = try lookup(alias, context: context) else {
+      throw KeyError(code: "PLUX_KEY_MISSING", message: "alias")
+    }
+    guard found.purpose == (reason == nil ? "dpop" : "sca") else { throw platform("purpose", 0) }
+    var signError: Unmanaged<CFError>?
+    guard let der = SecKeyCreateSignature(found.key, .ecdsaSignatureMessageX962SHA256, data as CFData, &signError) as Data?
+    else {
+      // errSecUserCanceled: the user dismissed the prompt.
+      if let e = signError, CFErrorGetCode(e.takeUnretainedValue()) == -128 {
+        throw KeyError(code: "PLUX_USER_CANCELLED", message: "cancelled")
+      }
+      throw platform("sign", cfError: signError)
+    }
+    guard let raw = derToRaw(der) else { throw platform("signature", 0) }
+    return FlutterStandardTypedData(bytes: raw)
+  }
+
+  // MARK: - Key agreement
+
+  /// The ECDH secret of the "agreement" key under `alias` and the peer public
+  /// point (x, y), 32 bytes (SEC-053). The key stays in the Secure Enclave or
+  /// Keychain; the secret is used once, to unwrap a content key.
+  private static func agree(_ alias: String, _ x: Data, _ y: Data) throws -> FlutterStandardTypedData {
     guard let found = try lookup(alias) else {
       throw KeyError(code: "PLUX_KEY_MISSING", message: "alias")
     }
-    guard found.purpose == "dpop" else { throw platform("purpose", 0) }
-    var signError: Unmanaged<CFError>?
-    guard let der = SecKeyCreateSignature(found.key, .ecdsaSignatureMessageX962SHA256, data as CFData, &signError) as Data?
-    else { throw platform("sign", cfError: signError) }
-    guard let raw = derToRaw(der) else { throw platform("signature", 0) }
-    return FlutterStandardTypedData(bytes: raw)
+    guard found.purpose == "agreement" else { throw platform("purpose", 0) }
+    let point = Data([0x04]) + x + y
+    let attrs: [String: Any] = [
+      kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
+      kSecAttrKeyClass as String: kSecAttrKeyClassPublic,
+      kSecAttrKeySizeInBits as String: 256,
+    ]
+    var peerError: Unmanaged<CFError>?
+    guard let peer = SecKeyCreateWithData(point as CFData, attrs as CFDictionary, &peerError) else {
+      throw platform("peer", cfError: peerError)
+    }
+    var agreeError: Unmanaged<CFError>?
+    guard let secret = SecKeyCopyKeyExchangeResult(
+      found.key, .ecdhKeyExchangeStandard, peer, [:] as CFDictionary, &agreeError) as Data?
+    else { throw platform("agree", cfError: agreeError) }
+    return FlutterStandardTypedData(bytes: secret)
   }
 
   /// Converts an ASN.1 DER ECDSA signature (SEQUENCE of two INTEGERs r, s)

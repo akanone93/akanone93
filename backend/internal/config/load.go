@@ -46,7 +46,7 @@ func Defaults() Config {
 			CI:     CIAuth{TokenTTL: Duration(60 * 60e9)},
 		},
 		Observability: Observability{LogLevel: "info", LogFormat: "json", TraceSampleRatio: 1},
-		Telemetry:     Telemetry{Store: "postgres"},
+		Telemetry:     Telemetry{Store: "postgres", RetentionDays: 30},
 		UpdateMetadata: UpdateMetadata{RootThreshold: 2, Expiry: MetadataExpiry{
 			Timestamp: Duration(24 * time.Hour), Snapshot: Duration(7 * 24 * time.Hour),
 			Targets: Duration(30 * 24 * time.Hour), Root: Duration(365 * 24 * time.Hour),
@@ -66,7 +66,7 @@ func Defaults() Config {
 // knownSections are the top-level keys this phase accepts.
 var knownSections = []string{
 	"server", "database", "objectStorage", "cache", "signing", "auth",
-	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata",
+	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata", "gateway",
 }
 
 // futureSections are sections of Appendix H that belong to a later phase.

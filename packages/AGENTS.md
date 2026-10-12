@@ -25,6 +25,7 @@ The runtime's design is recorded in ADRs; read the one for the area you change b
 | Local persistence, `plux_db_drift` (P5) | `plux_flutter/lib/src/db/`, `plux_db_drift` | [ADR-0049](../docs/adr/0049-local-persistence.md) |
 | Animation, `plux_lottie`, `plux_rive` (P5) | `plux_flutter/lib/src/anim/`, `plux_lottie`, `plux_rive` | [ADR-0050](../docs/adr/0050-animation-engine.md) |
 | Device actions, capabilities, `plux_media`, `plux_scanner`, `plux_location` (P5) | `plux_flutter/lib/src/actions/`, the device packages | [ADR-0051](../docs/adr/0051-device-actions-packages-and-capabilities.md) |
+| RASP, `plux_security` (P6) | `plux_security`, `plux_flutter/lib/src/security/rasp.dart` | [ADR-0057](../docs/adr/0057-plux-security-rasp.md) |
 
 `plux_native_scan` (P4) is a development-only tool like `plux_widget_api`: it runs in host projects through `dart run`, and no shipped package may depend on it. `plux_go_router` and `plux_auto_route` (P4) are optional adapters; their router is a dependency of the adapter alone, never of `plux_flutter`, and they use only `plux_flutter`'s public API. Their tests run the shared delegate suite of `plux_flutter/test/support/delegate_suite.dart`, which the runtime's own tests run against the default delegate, so every delegate passes the same navigation cases; the adapters reach it by a relative import, test code only.
 

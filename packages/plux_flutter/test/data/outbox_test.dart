@@ -160,6 +160,7 @@ void main() {
   );
 
   DataSourceSpec tasks({bool withAuth = false}) => DataSourceSpec(
+    route: DataRoute.direct,
     id: 'tasks-id',
     name: 'tasks',
     kind: DataKind.rest,

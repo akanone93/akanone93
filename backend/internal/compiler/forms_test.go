@@ -268,3 +268,177 @@ func TestInvalidForms(t *testing.T) {
 		})
 	}
 }
+
+// sensitiveForm tags the first field of the page's form sensitive.
+func sensitiveForm(t *testing.T, m fstest.MapFS) {
+	t.Helper()
+	edit(t, m, formsPage, func(doc map[string]any) { fieldOf(doc, 0)["sensitive"] = true })
+}
+
+// TestSensitiveFormFieldsAreEncoded checks that a form field tagged
+// sensitive is encoded as such, and that it needs runtime 0.4.0: rejected
+// under an older minRuntimeVersion, or raised as forms.sensitive.v1
+// (SCH-012, SEC-092, BND-008).
+// Verifies: SCH-012, SEC-092, BND-008.
+func TestSensitiveFormFieldsAreEncoded(t *testing.T) {
+	t.Parallel()
+	m := project(t, formsDir)
+	sensitiveForm(t, m)
+	wantDiag(t, compileFS(m), plxerr.RuntimeTooOld, formsPage, "/forms/0/fields/0/sensitive")
+
+	m = project(t, formsDir)
+	sensitiveForm(t, m)
+	edit(t, m, formsApp, func(doc map[string]any) { doc["requiredFeatures"] = "raise" })
+	res := compileFS(m)
+	if res.Diagnostics.HasErrors() {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	if !slices.Contains(res.Plugins[0].Features, "forms.sensitive.v1") {
+		t.Errorf("plugin features %v lack forms.sensitive.v1", res.Plugins[0].Features)
+	}
+
+	m = project(t, formsDir)
+	sensitiveForm(t, m)
+	edit(t, m, formsApp, func(doc map[string]any) { doc["minRuntimeVersion"] = "0.4.0" })
+	res = compileFS(m)
+	if res.Diagnostics.HasErrors() {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	var pg *fbs.Page
+	for _, s := range readAll(t, res)[1].Sections {
+		if s.Kind == bundle.SectionPage {
+			pg = fbs.GetRootAsPage(s.Data, 0)
+		}
+	}
+	var f fbs.Form
+	pg.Forms(&f, 0)
+	for i := range f.FieldsLength() {
+		var fd fbs.FormField
+		f.Fields(&fd, i)
+		if got := fd.Sensitive(); got != (i == 0) {
+			t.Errorf("field %d sensitive = %v", i, got)
+		}
+	}
+}
+
+// TestSensitiveFormFieldsStayOutOfAnalytics checks that analytics may not
+// read a form field tagged sensitive (SCH-012, SEC-092).
+// Verifies: SCH-012, SEC-092.
+func TestSensitiveFormFieldsStayOutOfAnalytics(t *testing.T) {
+	t.Parallel()
+	m := project(t, formsDir)
+	sensitiveForm(t, m)
+	edit(t, m, formsApp, func(doc map[string]any) { doc["minRuntimeVersion"] = "0.4.0" })
+	edit(t, m, formsPage, func(doc map[string]any) {
+		steps := formSteps(doc, 6)
+		doc["root"].(map[string]any)["slots"].(map[string]any)["body"].(map[string]any)["children"].([]any)[6].(map[string]any)["events"].(map[string]any)["onPressed"].(map[string]any)["steps"] = append(steps, map[string]any{
+			"action": "trackEvent",
+			"id":     "track",
+			"input": map[string]any{
+				"name":  "signup",
+				"props": map[string]any{"name": map[string]any{"$expr": "page.signup.values.name"}},
+			},
+		})
+	})
+	wantDiag(t, compileFS(m), plxerr.SensitiveValueExposed, formsPage, "/root/slots/body/children/6/events/onPressed/steps/1/input/props")
+}
+
+// TestSensitiveFormFieldsAreRedacted checks that the input of a step that
+// reads a form field tagged sensitive is marked, so that traces never
+// record it (ACT-031, SCH-012, SEC-092).
+// Verifies: ACT-031, SCH-012, SEC-092.
+func TestSensitiveFormFieldsAreRedacted(t *testing.T) {
+	t.Parallel()
+	m := project(t, formsDir)
+	sensitiveForm(t, m)
+	edit(t, m, formsApp, func(doc map[string]any) { doc["minRuntimeVersion"] = "0.4.0" })
+	edit(t, m, formsPage, func(doc map[string]any) {
+		body := doc["root"].(map[string]any)["slots"].(map[string]any)["body"].(map[string]any)
+		button := body["children"].([]any)[6].(map[string]any)
+		button["events"].(map[string]any)["onPressed"].(map[string]any)["steps"] = raw(t, `[
+			{"id": "peek", "action": "condition", "input": {"when": {"$expr": "page.signup.values.name == ''"}}, "branches": {"then": "plain", "else": "plain"}},
+			{"id": "plain", "action": "condition", "input": {"when": {"$expr": "page.signup.values.age == 17"}}}]`)
+	})
+	res := compileFS(m)
+	if res.Diagnostics.HasErrors() {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	redacted := map[string]int{}
+	for _, sec := range readAll(t, res)[1].Sections {
+		if sec.Kind != bundle.SectionActions {
+			continue
+		}
+		actions := fbs.GetRootAsActions(sec.Data, 0)
+		var g fbs.Graph
+		var st fbs.Step
+		for i := range actions.GraphsLength() {
+			actions.Graphs(&g, i)
+			if g.StepsLength() != 2 {
+				continue
+			}
+			for j := range g.StepsLength() {
+				g.Steps(&st, j)
+				redacted[[]string{"peek", "plain"}[j]] = st.RedactLength()
+			}
+		}
+	}
+	if redacted["peek"] != 1 || redacted["plain"] != 0 {
+		t.Errorf("redacted inputs %v", redacted)
+	}
+}
+
+// maskedNodes counts the nodes of the forms page marked for masking.
+func maskedNodes(t *testing.T, m fstest.MapFS) int {
+	t.Helper()
+	res := compileFS(m)
+	if res.Diagnostics.HasErrors() {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	var pg *fbs.Page
+	for _, s := range readAll(t, res)[1].Sections {
+		if s.Kind == bundle.SectionPage {
+			pg = fbs.GetRootAsPage(s.Data, 0)
+		}
+	}
+	masked := 0
+	var n fbs.Node
+	for i := range pg.NodesLength() {
+		pg.Nodes(&n, i)
+		if n.Hints()&byte(fbs.NodeHintsMasked) != 0 {
+			masked++
+		}
+	}
+	return masked
+}
+
+// TestSensitiveValuesAreMasked checks that a text display or input with a
+// prop bound to a sensitive value is marked for masking, and others are
+// not (SEC-092).
+// Verifies: SEC-092, SCH-012.
+func TestSensitiveValuesAreMasked(t *testing.T) {
+	t.Parallel()
+	m := project(t, formsDir)
+	edit(t, m, formsApp, func(doc map[string]any) { doc["minRuntimeVersion"] = "0.4.0" })
+	if got := maskedNodes(t, m); got != 0 {
+		t.Fatalf("%d masked nodes with nothing sensitive", got)
+	}
+	sensitiveForm(t, m)
+	// The page's own input and "value" text read the sensitive field.
+	base := maskedNodes(t, m)
+	if base != 2 {
+		t.Fatalf("%d masked nodes, want the page's TextFormField and Text", base)
+	}
+	edit(t, m, formsPage, func(doc map[string]any) {
+		body := at(t, doc, "root/slots/body")
+		body["children"] = append(body["children"].([]any),
+			raw(t, `{"id": "01f0c450-6c00-7000-8000-000000009101", "type": "Text",
+				"props": {"data": {"$expr": "page.signup.values.name"}}}`),
+			raw(t, `{"id": "01f0c450-6c00-7000-8000-000000009102", "type": "Text",
+				"props": {"data": {"$expr": "page.signup.values.email"}}}`),
+			raw(t, `{"id": "01f0c450-6c00-7000-8000-000000009103", "type": "TextField",
+				"props": {"value": {"$expr": "page.signup.values.name"}}}`))
+	})
+	if got := maskedNodes(t, m); got != base+2 {
+		t.Errorf("%d masked nodes, want %d: the Text and the TextField bound to the sensitive field", got, base+2)
+	}
+}

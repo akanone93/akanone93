@@ -48,7 +48,7 @@ func (k key) signature(msg []byte) updatemeta.Signature {
 	return updatemeta.Signature{KeyID: k.id(), Alg: k.alg, Sig: base64.StdEncoding.EncodeToString(k.sign(msg))}
 }
 
-func newEd25519(t *testing.T) key {
+func newEd25519(t testing.TB) key {
 	t.Helper()
 	pub, priv, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
@@ -57,7 +57,7 @@ func newEd25519(t *testing.T) key {
 	return key{alg: updatemeta.AlgEd25519, pub: pub, sign: func(m []byte) []byte { return ed25519.Sign(priv, m) }}
 }
 
-func newES256(t *testing.T) key {
+func newES256(t testing.TB) key {
 	t.Helper()
 	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -86,12 +86,12 @@ func newES256(t *testing.T) key {
 
 // offline makes the three offline root keys of a ceremony, one of them
 // ECDSA, as a hardware module would hold.
-func offline(t *testing.T) []key { t.Helper(); return []key{newEd25519(t), newES256(t), newEd25519(t)} }
+func offline(t testing.TB) []key { t.Helper(); return []key{newEd25519(t), newES256(t), newEd25519(t)} }
 
 // online makes the keys of the three online roles.
 type online struct{ targets, snapshot, timestamp key }
 
-func newOnline(t *testing.T) online {
+func newOnline(t testing.TB) online {
 	t.Helper()
 	return online{newEd25519(t), newEd25519(t), newEd25519(t)}
 }
@@ -120,7 +120,7 @@ func rootSigned(version int64, expires time.Time, root []key, on online) updatem
 }
 
 // signRoot signs a root with the given keys and returns the file.
-func signRoot(t *testing.T, r updatemeta.Root, signers ...key) []byte {
+func signRoot(t testing.TB, r updatemeta.Root, signers ...key) []byte {
 	t.Helper()
 	canonical, err := updatemeta.Canonical(r)
 	if err != nil {
@@ -147,7 +147,7 @@ type chain struct {
 }
 
 // manifestJSON is the part of a manifest the targets role reads.
-func manifestJSON(t *testing.T, version int64, expires time.Time) []byte {
+func manifestJSON(t testing.TB, version int64, expires time.Time) []byte {
 	t.Helper()
 	b, err := json.Marshal(map[string]any{
 		"type": "manifest", "specVersion": 1, "role": "targets", "version": version, "releaseSequence": 7,
@@ -166,7 +166,7 @@ func manifestJSON(t *testing.T, version int64, expires time.Time) []byte {
 // newChain builds root, targets, snapshot and timestamp with the lifetimes
 // of the specification, the online files signed through the file signing
 // backend as the worker does.
-func newChain(t *testing.T, on online, targets, timestamp int64) chain {
+func newChain(t testing.TB, on online, targets, timestamp int64) chain {
 	t.Helper()
 	const snapshot int64 = 3
 	root := rootSigned(1, at.Add(updatemeta.DefaultExpiry().Root), offline(t), on)
@@ -188,7 +188,7 @@ func newChain(t *testing.T, on online, targets, timestamp int64) chain {
 	}
 }
 
-func mustCanonical(t *testing.T, v any) []byte {
+func mustCanonical(t testing.TB, v any) []byte {
 	t.Helper()
 	b, err := updatemeta.Canonical(v)
 	if err != nil {

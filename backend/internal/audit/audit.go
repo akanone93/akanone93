@@ -110,6 +110,24 @@ const (
 	// SecurityConfigSet: an environment's security profile or overrides
 	// changed (SEC-182).
 	SecurityConfigSet Action = "security_config.set"
+	// SCAKeyEnrolled: a device enrolled the key that signs transaction
+	// confirmations (SEC-027).
+	SCAKeyEnrolled Action = "device.sca_key_enrolled"
+	// UpstreamCreated, UpstreamUpdated and UpstreamDeleted: an API the
+	// gateway may reach was registered, changed or removed (SEC-031).
+	UpstreamCreated Action = "gateway.upstream_created"
+	UpstreamUpdated Action = "gateway.upstream_updated"
+	UpstreamDeleted Action = "gateway.upstream_deleted"
+	// UserIdentityProviderSet and UserIdentityProviderDeleted: the
+	// identity provider of an environment's users changed (SEC-026).
+	UserIdentityProviderSet     Action = "gateway.user_identity_provider_set"
+	UserIdentityProviderDeleted Action = "gateway.user_identity_provider_deleted"
+
+	// ConfigValueSet and ConfigValueDeleted: a server-held configuration
+	// value of an environment changed; the entry names the key and the
+	// version, never the value (DAT-090).
+	ConfigValueSet     Action = "config.value_set"
+	ConfigValueDeleted Action = "config.value_deleted"
 
 	// UpdateMetadataRootUploaded: an operator stored a root signed
 	// offline (SEC-051, SEC-140).
@@ -133,6 +151,8 @@ var actions = sorted(
 	VersionPublished, PublishCancelled, ReleaseCreated, ReleasePromoted, ReleaseRolledBack, ReleasesPurged, ControlChanged, NativeCatalogueUploaded,
 	SnapshotRestored, TemplateInstantiated, LockAcquired, LockTakenOver, LockReleased, LockRequested,
 	DeviceRevoked, SecurityConfigSet, UpdateMetadataRootUploaded,
+	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,
+	ConfigValueSet, ConfigValueDeleted,
 )
 
 // sorted returns its arguments in order.

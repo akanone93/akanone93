@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/security/dpop.dart';
+import 'package:plux_flutter/src/security/p256.dart';
 import 'package:plux_flutter/src/security/software_keys.dart';
 
 BigInt _hex(String h) => BigInt.parse(h, radix: 16);
@@ -98,6 +99,7 @@ final _rfcUy = _hex(
 );
 
 void main() {
+  _scaKeysTests();
   test('create returns an on-curve software key without a chain', () async {
     final keys = SoftwareDeviceKeys();
     final key = await keys.create('a', KeyPurpose.dpop);
@@ -220,11 +222,78 @@ void main() {
     final evidence = await attestation.attest(
       challenge: Uint8List(32),
       jkt: 'jkt',
+      kaJkt: '',
+      scaJkt: '',
       keyAttestationChain: const [],
     );
     expect(evidence, isA<DevelopmentEvidence>());
     expect((evidence as DevelopmentEvidence).buildId, 'e2e');
     expect(await attestation.assertion(Uint8List(32)), isNull);
     expect(await attestation.integrityToken('hash'), isNull);
+  });
+
+  test('SEC-053 agree gives both sides the same secret', () async {
+    final keys = SoftwareDeviceKeys();
+    final a = await keys.create('a', KeyPurpose.agreement);
+    final b = await keys.create('b', KeyPurpose.agreement);
+    final ab = await keys.agree('a', b.publicKey);
+    final ba = await keys.agree('b', a.publicKey);
+    expect(ab, hasLength(32));
+    expect(ab, ba);
+    expect(await keys.agree('a', a.publicKey), isNot(ab));
+  });
+
+  test('SEC-053 agree refuses a point off the curve', () async {
+    final keys = SoftwareDeviceKeys();
+    await keys.create('a', KeyPurpose.agreement);
+    final off = EcPublicKey(Uint8List(32)..[31] = 1, Uint8List(32)..[31] = 1);
+    await expectLater(keys.agree('a', off), throwsArgumentError);
+  });
+}
+
+void _scaKeysTests() {
+  group('SoftwareScaKeys', () {
+    test('two instances hold the same SCA key for an alias, as the two isolates must [SEC-027]', () async {
+      final a = SoftwareScaKeys(), b = SoftwareScaKeys();
+      final made = await a.create('sca.x', KeyPurpose.sca);
+      final found = await b.load('sca.x', KeyPurpose.sca);
+      expect(found!.publicKey.thumbprint, made.publicKey.thumbprint);
+      expect(
+        (await b.load('sca.y', KeyPurpose.sca))!.publicKey.thumbprint,
+        isNot(made.publicKey.thumbprint),
+      );
+    });
+
+    test('a signature made by one instance verifies under the key the other registered [SEC-027]', () async {
+      final registered = await SoftwareScaKeys().create(
+        'sca.x',
+        KeyPurpose.sca,
+      );
+      final data = Uint8List.fromList(utf8.encode('challenge and summary'));
+      final signature = await SoftwareScaKeys().signWithUser(
+        'sca.x',
+        data,
+        title: 't',
+        subtitle: 's',
+      );
+      final pub = Uint8List.fromList([
+        4,
+        ...registered.publicKey.x,
+        ...registered.publicKey.y,
+      ]);
+      expect(p256Verify(pub, data, signature), isTrue);
+      expect(p256Verify(pub, Uint8List(3), signature), isFalse);
+    });
+
+    test('every other key is random and private to its instance', () async {
+      final a = SoftwareScaKeys(), b = SoftwareScaKeys();
+      await a.create('dpop.x', KeyPurpose.dpop);
+      expect(await b.load('dpop.x', KeyPurpose.dpop), isNull);
+      final other = await b.create('dpop.x', KeyPurpose.dpop);
+      expect(
+        other.publicKey.thumbprint,
+        isNot((await a.load('dpop.x', KeyPurpose.dpop))!.publicKey.thumbprint),
+      );
+    });
   });
 }

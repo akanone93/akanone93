@@ -39,6 +39,7 @@ The built-in actions of the action catalogue (spec Appendix D), generated from t
 | [pickFile](#pickfile) | device | P5 | Lets the user pick files. |
 | [pickImage](#pickimage) | device | P5 | Lets the user pick images from the photo library. |
 | [pop](#pop) | navigation | P4 | Pops the current page, optionally returning a typed result to the page that opened it. |
+| [readConfig](#readconfig) | data | P6 | Reads a live server-held configuration value of the app's environment; a strict value is read from the server each time and fails closed when it cannot be (DAT-094, DAT-097). |
 | [refreshData](#refreshdata) | data | P5 | Reloads a data source, bypassing its cache, or loads the next page of a paginated source. |
 | [requestPermission](#requestpermission) | device | P5 | Requests a device permission the plugin declares; takes the granted or denied branch. |
 | [resetForm](#resetform) | forms | P5 | Resets every field of a form to its initial value and clears its errors. |
@@ -534,6 +535,22 @@ Type parameters:
 | Input | ID | Type | Default | Description |
 |---|---|---|---|---|
 | `result` | 1 | `R?` | — | The result to return. |
+
+### readConfig
+
+Reads a live server-held configuration value of the app's environment; a strict value is read from the server each time and fails closed when it cannot be (DAT-094, DAT-097).
+
+ID 57 · data · P6 · effects: network
+
+Type parameters:
+
+- `T` — The type of the value: string for a string or a decimal, int for an integer, bool for a boolean.
+
+| Input | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `key` | 1 | `string`, required | — | The key of the value. |
+
+Output: `T`.
 
 ### refreshData
 

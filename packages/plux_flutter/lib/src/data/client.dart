@@ -8,6 +8,13 @@
 /// it once on 401 (HST-010), bounds request and response sizes and time
 /// by the limits registry (LIM-004), and records `api_call` telemetry with
 /// timing and status only (ANL-001, SCH-012).
+///
+/// A source's route decides where a request goes (SEC-030, ADR-0056): `plux`
+/// through the Plux gateway with the device's token and DPoP proof, `direct`
+/// to the origin as above, unless the security profile refuses direct calls
+/// (`PLX-6063`). A mutating operation of a source with a transaction mapping
+/// goes through the gateway only, with the user's confirmation (SEC-027,
+/// SEC-032).
 library;
 
 import 'dart:async';
@@ -19,6 +26,7 @@ import 'package:plux_flutter/src/assets/image_providers.dart'
     show domainAllowed;
 import 'package:plux_flutter/src/core/config.dart' show PluxAuthDelegate;
 import 'package:plux_flutter/src/data/failure.dart';
+import 'package:plux_flutter/src/data/gateway.dart';
 import 'package:plux_flutter/src/data/spec.dart';
 import 'package:plux_flutter/src/data/stream_session.dart'
     show graphqlWsProtocol;
@@ -28,6 +36,7 @@ import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/pxl/types.dart' show toJson;
 import 'package:plux_flutter/src/schema/limit_values.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
+import 'package:plux_flutter/src/security/sca.dart';
 
 /// The data limits in force (LIM-001): the app bundle's, else the
 /// registry defaults.
@@ -193,7 +202,12 @@ final class DataClient {
     required this.report,
     this.allowCleartext = false,
     this.onSuccess,
+    this.gateway,
+    this.authoriser,
+    this.allowDirect = _always,
   });
+
+  static bool _always() => true;
 
   /// Sends requests.
   final DataTransport transport;
@@ -219,6 +233,75 @@ final class DataClient {
   /// Called after each request that succeeded: the network works, so the
   /// outbox may replay (DAT-020).
   final void Function()? onSuccess;
+
+  /// Carries the requests of `plux` sources through the gateway (SEC-030);
+  /// without one they fail with `PLX-5108`, never going direct.
+  final GatewayTransport? gateway;
+
+  /// Confirms the transactions of mutating operations of sources with a
+  /// transaction mapping (SEC-027); without one they fail.
+  final TransactionAuthoriser? authoriser;
+
+  /// Whether the security profile allows `direct` sources
+  /// (`allowDirectDataSources`, SEC-030), read for every request.
+  final bool Function() allowDirect;
+
+  /// Whether the requests of [s] go through the gateway (SEC-030); false for
+  /// a `direct` source. A `direct` source is refused with `PLX-6063` when
+  /// the security profile forbids direct calls, and reported.
+  bool viaGateway(DataSourceSpec s, DataCaller caller) {
+    if (s.route == DataRoute.plux) return true;
+    if (allowDirect()) return false;
+    final f = DataFailure(
+      ActionErrorKind.permission,
+      PluxErrorCode.directDataSourceRefused,
+      'source ${s.name} calls its API directly, which the security profile '
+      'refuses (allowDirectDataSources): route it through the gateway',
+    );
+    report(
+      f.toException({
+        'plugin': caller.pluginKey,
+        'source': s.name,
+        if (caller.route.isNotEmpty) 'route': caller.route,
+      }),
+    );
+    throw f;
+  }
+
+  /// Authenticates a request of [s] to the gateway's HTTP route, the route
+  /// of everything whose body is not one message: a stream, an event stream,
+  /// a file (SEC-030). The base URL of a `plux` source lives on the server
+  /// (SEC-031), so the device names the upstream and the path only; the
+  /// connection itself is made by the caller, on the data isolate, with the
+  /// route's URL and headers. [pathAndQuery] begins with a slash. [hostToken]
+  /// is the auth delegate's token, when the source or the operation asks for
+  /// it, which the gateway exchanges for the user token (SEC-026).
+  Future<GatewayRoute> gatewayRoute(
+    DataSourceSpec s,
+    DataCaller caller,
+    String method,
+    String pathAndQuery, {
+    String operation = '',
+    String? hostToken,
+  }) {
+    final transport = gateway;
+    if (transport == null) {
+      throw DataFailure.unavailable(
+        'source ${s.name} is routed through the gateway, which this runtime '
+        'does not run',
+      );
+    }
+    return transport.route(
+      GatewayRouteRequest(
+        upstream: s.name,
+        method: method,
+        path: pathAndQuery,
+        operation: operation,
+        plugin: caller.pluginKey,
+        userToken: hostToken,
+      ),
+    );
+  }
 
   /// Loads [s] with its parameters [params] (already evaluated) and the
   /// pagination parameters [page]; completes with the response's JSON,
@@ -250,6 +333,9 @@ final class DataClient {
   /// Runs operation [op] of [s] with [input]; completes with the selected
   /// part of the response's JSON. [headers] are added to the request: the
   /// outbox's `Idempotency-Key` (DAT-020).
+  ///
+  /// A mutating operation of a source with a transaction mapping is a
+  /// transaction (SEC-028): the user confirms it first.
   Future<Object?> call(
     DataSourceSpec s,
     OperationSpec op,
@@ -257,32 +343,37 @@ final class DataClient {
     Map<String, Object?> input, {
     Map<String, String> headers = const {},
     void Function(int status)? onStatus,
-  }) => switch (s.kind) {
-    DataKind.graphql => _exchange(
-      s,
-      caller,
-      op.name,
-      'POST',
-      s.path,
-      const {},
-      {'query': op.query, 'variables': _json(input)},
-      {...s.headers, ...op.headers, ...headers},
-      op.auth,
-      graphql: true,
-      onStatus: onStatus,
-    ),
-    _ => _rest(
-      s,
-      caller,
-      op.name,
-      op.method,
-      op.path,
-      input,
-      {...s.headers, ...op.headers, ...headers},
-      op.auth,
-      onStatus: onStatus,
-    ),
-  };
+  }) {
+    final mapping = op.mutates(s.kind) ? s.transaction : null;
+    return switch (s.kind) {
+      DataKind.graphql => _exchange(
+        s,
+        caller,
+        op.name,
+        'POST',
+        s.path,
+        const {},
+        {'query': op.query, 'variables': _json(input)},
+        {...s.headers, ...op.headers, ...headers},
+        op.auth,
+        graphql: true,
+        onStatus: onStatus,
+        transaction: mapping,
+      ),
+      _ => _rest(
+        s,
+        caller,
+        op.name,
+        op.method,
+        op.path,
+        input,
+        {...s.headers, ...op.headers, ...headers},
+        op.auth,
+        onStatus: onStatus,
+        transaction: mapping,
+      ),
+    };
+  }
 
   /// A REST request: placeholders of [path] from [values], the rest in
   /// the query for GET and DELETE, else in a JSON body.
@@ -296,8 +387,10 @@ final class DataClient {
     Map<String, String> headers,
     bool withAuth, {
     void Function(int status)? onStatus,
-  }) {
+    TransactionMapping? transaction,
+  }) async {
     final (filled, rest) = fillPath(s, path, values);
+    if (transaction != null) _keepMapped(s, transaction, values, rest);
     final inQuery = method == 'GET' || method == 'DELETE';
     final query = inQuery ? queryOf(rest) : <String, List<String>>{};
     return _exchange(
@@ -311,7 +404,42 @@ final class DataClient {
       headers,
       withAuth,
       onStatus: onStatus,
+      transaction: transaction,
     );
+  }
+
+  /// Fails when a path placeholder took a value the [transaction] maps: the
+  /// summary is read from the body, so the user would confirm a summary
+  /// without it, and a payee missing from the body is one the server binds
+  /// (SEC-028, DAT-093).
+  static void _keepMapped(
+    DataSourceSpec s,
+    TransactionMapping transaction,
+    Map<String, Object?> values,
+    Map<String, Object?> rest,
+  ) {
+    for (final pointer in [
+      transaction.amount,
+      transaction.currency,
+      transaction.payee,
+      ?transaction.summary,
+    ]) {
+      final member = pointer
+          .split('/')
+          .elementAtOrNull(1)
+          ?.replaceAll('~1', '/')
+          .replaceAll('~0', '~');
+      if (member != null &&
+          values.containsKey(member) &&
+          !rest.containsKey(member)) {
+        throw DataFailure(
+          ActionErrorKind.validation,
+          PluxErrorCode.scaDynamicLinkingMismatch,
+          'a path parameter of ${s.name} takes $member, which the '
+          'transaction summary is read from; it is not sent',
+        );
+      }
+    }
   }
 
   /// Fills the placeholders of [path] from [values]; returns the path
@@ -353,55 +481,79 @@ final class DataClient {
     return query;
   }
 
-  /// The request that opens the stream of [s] for [caller]: the base URL
-  /// of the environment with the path filled from [params] and the rest
-  /// in the query, checked against the plugin's domains like any request
-  /// (DAT-030), with the auth delegate's token when the source asks for
-  /// it. WebSocket URLs use `wss` (`ws` where cleartext is allowed).
+  /// The request that opens the stream of [s] for [caller], with the path
+  /// filled from [params] and the rest in the query. A `direct` source
+  /// connects to the base URL of the environment, checked against the
+  /// plugin's domains like any request (DAT-030), with the auth delegate's
+  /// token when the source asks for it. A `plux` source connects to the
+  /// gateway's HTTP route with the device's proof for this connection
+  /// (SEC-030). WebSocket URLs use `wss` (`ws` where cleartext is allowed).
   Future<StreamRequest> streamRequest(
     DataSourceSpec s,
     DataCaller caller,
     Map<String, Object?> params, {
     String? lastEventId,
   }) async {
+    final gateway = viaGateway(s, caller);
     final limits = this.limits();
-    final base = s.baseUrls[environment];
-    if (base == null) {
-      throw DataFailure.unavailable(
-        'source ${s.name} has no base URL for environment $environment',
-      );
-    }
-    final b = Uri.parse(base);
     final graphql = s.kind == DataKind.graphql;
     final (path, rest) = fillPath(s, s.path, params);
     final query = graphql ? <String, List<String>>{} : queryOf(rest);
-    final plain = b.replace(
-      path: '${b.path}$path',
-      queryParameters: query.isEmpty ? null : query,
-    );
-    checkDomain(plain, s, caller);
     final socket = s.kind != DataKind.sse;
-    final url = socket
-        ? plain.replace(scheme: plain.scheme == 'https' ? 'wss' : 'ws')
-        : plain;
     String? token;
     if (s.auth) {
       token = await auth.token();
       if (token == null) throw unauthorised(s, 'no signed-in user');
     }
+    final Uri url;
+    final Map<String, String> headers;
+    if (gateway) {
+      final route = await gatewayRoute(
+        s,
+        caller,
+        'GET',
+        Uri(
+          path: path,
+          queryParameters: query.isEmpty ? null : query,
+        ).toString(),
+        hostToken: token,
+      );
+      url = socket ? _asSocketUrl(route.url) : route.url;
+      headers = {...s.headers, ...route.headers};
+    } else {
+      final base = s.baseUrls[environment];
+      if (base == null) {
+        throw DataFailure.unavailable(
+          'source ${s.name} has no base URL for environment $environment',
+        );
+      }
+      final b = Uri.parse(base);
+      final plain = b.replace(
+        path: '${b.path}$path',
+        queryParameters: query.isEmpty ? null : query,
+      );
+      checkDomain(plain, s, caller);
+      url = socket ? _asSocketUrl(plain) : plain;
+      headers = {
+        ...s.headers,
+        if (token != null) 'authorization': 'Bearer $token',
+      };
+    }
     return StreamRequest(
       kind: socket ? StreamKind.webSocket : StreamKind.sse,
       url: url,
-      headers: {
-        ...s.headers,
-        if (token != null) 'authorization': 'Bearer $token',
-      },
+      headers: headers,
       protocols: graphql ? const [graphqlWsProtocol] : const [],
       lastEventId: lastEventId,
       maxMessageBytes: limits.streamMessageSize,
       connectTimeout: limits.requestTimeout,
     );
   }
+
+  /// [url] with the WebSocket scheme of its own: `wss` for `https`, `ws`
+  /// where cleartext is allowed.
+  static Uri _asSocketUrl(Uri url) =>
+      url.replace(scheme: url.scheme == 'https' ? 'wss' : 'ws');
 
   /// Refreshes the auth delegate's token after a refused connection;
   /// whether a token came back.
@@ -419,24 +571,41 @@ final class DataClient {
     bool withAuth, {
     bool graphql = false,
     void Function(int status)? onStatus,
+    TransactionMapping? transaction,
   }) async {
     final limits = this.limits();
     final watch = Stopwatch()..start();
     var status = 0, bytes = 0;
     var result = 'error';
     try {
-      final base = s.baseUrls[environment];
-      if (base == null) {
-        throw DataFailure.unavailable(
-          'source ${s.name} has no base URL for environment $environment',
+      final gateway = viaGateway(s, caller);
+      if (transaction != null && !gateway) {
+        throw DataFailure(
+          ActionErrorKind.permission,
+          PluxErrorCode.transactionRequiresGateway,
+          '${s.name}.$operation is a transaction, which only the gateway '
+          'carries: route the source through it',
         );
       }
-      final b = Uri.parse(base);
-      final url = b.replace(
-        path: '${b.path}$path',
-        queryParameters: query.isEmpty ? null : query,
-      );
-      checkDomain(url, s, caller);
+      final Uri url;
+      if (gateway) {
+        // The base URL of a `plux` source lives on the server (SEC-031):
+        // the device sends the path and query only.
+        url = Uri(path: path, queryParameters: query.isEmpty ? null : query);
+      } else {
+        final base = s.baseUrls[environment];
+        if (base == null) {
+          throw DataFailure.unavailable(
+            'source ${s.name} has no base URL for environment $environment',
+          );
+        }
+        final b = Uri.parse(base);
+        url = b.replace(
+          path: '${b.path}$path',
+          queryParameters: query.isEmpty ? null : query,
+        );
+        checkDomain(url, s, caller);
+      }
       final encoded = body == null
           ? null
           : Uint8List.fromList(utf8.encode(jsonEncode(body)));
@@ -448,7 +617,27 @@ final class DataClient {
           'data.requestSize = ${limits.requestSize}',
         );
       }
+      Future<Confirmation> confirm(TransactionMapping t) =>
+          _confirm(s, operation!, t, graphql ? _variables(body) : body);
+      var confirmation = transaction == null
+          ? null
+          : await confirm(transaction);
+      var reconfirmed = false;
       Future<DataResponse> send(String? token) async {
+        if (gateway) {
+          return _viaGateway(
+            s,
+            caller,
+            operation,
+            method,
+            url,
+            headers,
+            encoded,
+            token,
+            confirmation,
+            limits,
+          );
+        }
         try {
           return await transport.send(
             DataRequest(
@@ -481,13 +670,36 @@ final class DataClient {
         token = await auth.token();
         if (token == null) throw unauthorised(s, 'no signed-in user');
       }
-      var res = await send(token);
-      if (res.status == 401 && withAuth) {
+      // The gateway refuses a host token its identity provider rejects with
+      // PLX-6016: like a 401, the host refreshes it once (SEC-026). A
+      // server-held value the user was shown changed before the call
+      // (PLX-6066): the user confirms the transaction with the new value,
+      // once, and it is sent with the new confirmation (DAT-093).
+      Future<DataResponse> attempt(String? t) async {
+        try {
+          return await send(t);
+        } on DataFailure catch (f) {
+          if (gateway &&
+              transaction != null &&
+              !reconfirmed &&
+              f.code == PluxErrorCode.boundValueChanged) {
+            reconfirmed = true;
+            confirmation = await confirm(transaction);
+            return attempt(t);
+          }
+          if (!gateway || f.code != PluxErrorCode.userTokenInvalid) rethrow;
+          return const DataResponse(401, null, 0);
+        }
+      }
+
+      var res = await attempt(token);
+      // A confirmation is single use: a transaction is never sent twice.
+      if (res.status == 401 && withAuth && confirmation == null) {
         token = await auth.refresh();
         if (token == null) {
           throw unauthorised(s, 'the token was not refreshed');
         }
-        res = await send(token);
+        res = await attempt(token);
         if (res.status == 401) {
           throw unauthorised(s, 'the refreshed token was refused');
         }
@@ -525,6 +737,102 @@ final class DataClient {
       );
     }
   }
+
+  /// The request through the gateway (SEC-030): the data isolate is not
+  /// involved, the sync isolate signs it with the device's key.
+  Future<DataResponse> _viaGateway(
+    DataSourceSpec s,
+    DataCaller caller,
+    String? operation,
+    String method,
+    Uri url,
+    Map<String, String> headers,
+    Uint8List? body,
+    String? userToken,
+    Confirmation? confirmation,
+    DataLimits limits,
+  ) {
+    final transport = gateway;
+    if (transport == null) {
+      throw DataFailure.unavailable(
+        'source ${s.name} is routed through the gateway, which this runtime '
+        'does not run',
+      );
+    }
+    return transport.call(
+      GatewayRequest(
+        upstream: s.name,
+        operation: operation ?? '',
+        method: method,
+        path: url.toString(),
+        headers: {
+          'accept': 'application/json',
+          if (body != null) 'content-type': 'application/json',
+          ...headers,
+        },
+        body: body,
+        maxRequestBytes: limits.requestSize,
+        maxResponseBytes: limits.responseSize,
+        timeout: limits.requestTimeout,
+        plugin: caller.pluginKey,
+        userToken: userToken,
+        confirmation: confirmation,
+      ),
+    );
+  }
+
+  /// The user's confirmation of the transaction the request [body] sends
+  /// (SEC-027, SEC-028). The summary is read from the body, what the server
+  /// reads it from, so what the user confirms is what is sent; a mapped
+  /// field that is not in the body fails the request before anything is
+  /// asked, except a payee the operation binds to a server-held value
+  /// (DAT-093).
+  Future<Confirmation> _confirm(
+    DataSourceSpec s,
+    String operation,
+    TransactionMapping mapping,
+    Object? body,
+  ) async {
+    final authoriser = this.authoriser;
+    if (authoriser == null) {
+      throw DataFailure.unavailable(
+        '${s.name}.$operation is a transaction, and this runtime cannot '
+        'confirm one',
+      );
+    }
+    try {
+      return await authoriser.authorise(
+        TransactionRequest(
+          dataSource: s.name,
+          operation: operation,
+          summary: TransactionSummary.read(
+            body,
+            amount: mapping.amount,
+            currency: mapping.currency,
+            payee: mapping.payee,
+            description: mapping.summary,
+          ),
+        ),
+      );
+    } on ScaDeclined {
+      throw DataFailure(
+        ActionErrorKind.cancelled,
+        PluxErrorCode.actionCancelled,
+        '${s.name}.$operation was declined by the user',
+      );
+    } on PluxException catch (e) {
+      throw DataFailure(
+        e.code == PluxErrorCode.scaDynamicLinkingMismatch
+            ? ActionErrorKind.permission
+            : ActionErrorKind.custom,
+        e.code,
+        e.message,
+      );
+    }
+  }
+
+  static Object? _variables(Object? body) =>
+      body is Map<String, Object?> ? body['variables'] : null;
 
   /// Blocks a request to a host the plugin does not declare, or over
   /// anything but HTTPS, before it leaves, and reports it (DAT-030).

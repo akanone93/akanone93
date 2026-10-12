@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -26,24 +25,53 @@ type Options struct {
 	// Heartbeat is how often the notification stream sends a comment line
 	// to keep the connection open.
 	Heartbeat time.Duration
+	// PublicURL is where the API is reachable, such as https://127.0.0.1:8443:
+	// the identity provider's issuer is built on it.
+	PublicURL string
+	// Gateway says which Plux gateway the bank trusts; the bank refuses
+	// every request while it is empty.
+	Gateway GatewayTrust
 }
 
 // api holds the state the handlers share.
 type api struct {
-	store *store
-	opts  Options
+	store  *store
+	opts   Options
+	idp    *identityProvider
+	verify *verifier
 }
 
 // New returns the reference API's handler: the Plux Bank API under /bank
 // and the Plux Express API under /express, over fresh seed data.
-func New(o Options) http.Handler {
-	a := &api{store: newStore(), opts: o}
+//
+// The bank endpoints trust only the Plux gateway's assertion (ADR-0056) and
+// the test identity provider issues the users' tokens at /idp.
+func New(o Options) (http.Handler, error) {
+	a, err := newAPI(o)
+	if err != nil {
+		return nil, err
+	}
+	return a.handler(), nil
+}
+
+// newAPI returns the API's state over fresh seed data.
+func newAPI(o Options) (*api, error) {
+	idp, err := newIdentityProvider(o.PublicURL)
+	if err != nil {
+		return nil, err
+	}
+	return &api{store: newStore(), opts: o, idp: idp, verify: newVerifier(o.Gateway)}, nil
+}
+
+// handler routes the API's endpoints.
+func (a *api) handler() http.Handler {
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /bank/v1/login", a.login)
-	mux.HandleFunc("GET /bank/v1/accounts", a.authed(a.listAccounts))
-	mux.HandleFunc("POST /bank/v1/transfers", a.authed(a.createTransfer))
-	mux.HandleFunc("POST /bank/graphql", a.authed(a.graphql))
-	mux.HandleFunc("GET /bank/v1/notifications", a.authed(a.notifications))
+	mux.HandleFunc("GET "+idpPath+"/jwks.json", a.idp.keys)
+	mux.HandleFunc("POST /bank/v1/login", a.gated(needDevice, a.login))
+	mux.HandleFunc("GET /bank/v1/accounts", a.gated(needUser, a.listAccounts))
+	mux.HandleFunc("POST /bank/v1/transfers", a.gated(needTransaction, a.createTransfer))
+	mux.HandleFunc("POST /bank/graphql", a.gated(needUser, a.graphql))
+	mux.HandleFunc("GET /bank/v1/notifications", a.gated(needUser, a.notifications))
 	mux.HandleFunc("GET /express/v1/products", a.listProducts)
 	mux.HandleFunc("GET /express/v1/products/{id}", a.getProduct)
 	mux.HandleFunc("POST /express/v1/orders", a.placeOrder)
@@ -113,13 +141,4 @@ func readJSON(w http.ResponseWriter, r *http.Request, v any) bool {
 		return false
 	}
 	return true
-}
-
-// bearer returns the token of an Authorization: Bearer header.
-func bearer(r *http.Request) (string, bool) {
-	scheme, token, ok := strings.Cut(r.Header.Get("Authorization"), " ")
-	if !ok || !strings.EqualFold(scheme, "Bearer") || token == "" {
-		return "", false
-	}
-	return token, true
 }

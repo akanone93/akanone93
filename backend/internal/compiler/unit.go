@@ -20,12 +20,17 @@ import (
 // resolve stage builds, the intermediate representation the later stages
 // refine, and the outputs.
 type unit struct {
+	// gateway are the data sources that go through the gateway.
+	gateway []GatewaySource
 	opts    Options
 	project *schema.Project
 	diags   plxerr.Diagnostics
 	// focus is the page file ValidatePage checks: the checking stages
 	// then skip every other page, component and flow. Empty in Compile.
 	focus string
+	// sensitiveByOwner caches the sensitive paths each page or component
+	// reads (SEC-092).
+	sensitiveByOwner map[owner][]string
 
 	// Built by resolve.
 	ids         map[string]plxerr.Location       // every entity ID, for duplicates

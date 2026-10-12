@@ -9,6 +9,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
@@ -53,7 +54,7 @@ http.Response _error(int status, String code, String message) =>
 
 /// A scripted server: answers per path from a queue, then by default.
 final class _Rig {
-  _Rig({this.platform = 'android'}) {
+  _Rig({this.platform = 'android', this.enrolSca = false}) {
     client = MockClient((req) async {
       final path = req.url.path;
       seen.add(
@@ -77,6 +78,7 @@ final class _Rig {
   }
 
   final String platform;
+  final bool enrolSca;
   late final http.Client client;
   late final PluxApiClient api;
   final List<_Seen> seen = [];
@@ -88,6 +90,7 @@ final class _Rig {
   var devices = 0;
   var lifetime = const Duration(minutes: 15);
   Object? assuranceLevel;
+  final reports = <Map<String, Object?>>[];
 
   DeviceAuth get auth => _auth ??= DeviceAuth(
     api: api,
@@ -102,6 +105,8 @@ final class _Rig {
       runtimeVersion: '0.1.0',
       hostBuild: '7',
     ),
+    enrolSca: enrolSca,
+    onAttestation: reports.add,
     clock: () => now,
   );
   DeviceAuth? _auth;
@@ -133,6 +138,8 @@ final class _Rig {
 
 String _alias() => dpopKeyAlias('app_1', 'production');
 
+String _agreementAlias() => agreementKeyAlias('app_1', 'production');
+
 void main() {
   group('registration', () {
     test(
@@ -162,6 +169,14 @@ void main() {
         expect(attested.challenge, _challenge);
         expect(attested.jkt, jkt);
         expect(attested.chain, rig.keys.chain);
+        // The evidence is bound to the key-agreement key too, which was
+        // created with the registration challenge (ADR-0012).
+        expect(rig.keys.agreementChallenges, [_challenge]);
+        expect(
+          attested.kaJkt,
+          rig.keys.stored[_agreementAlias()]!.publicKey.thumbprint,
+        );
+        expect(attested.scaJkt, isEmpty);
 
         final challenge = rig.seen[0];
         expect(challenge.body, {'appId': 'app_1', 'environment': 'production'});
@@ -183,6 +198,15 @@ void main() {
             utf8.encode(jsonEncode(key.publicKey.jwk)),
           ),
           'keyStorage': 'KEY_STORAGE_TEE',
+          'keyAgreementPublicKeyJwk': base64.encode(
+            utf8.encode(
+              jsonEncode(rig.keys.stored[_agreementAlias()]!.publicKey.jwk),
+            ),
+          ),
+          'keyAgreementKeyAttestationChain': [
+            base64.encode([1, 2, 3]),
+            base64.encode([4, 5]),
+          ],
           'evidence': {
             'android': {
               'keyAttestationChain': [
@@ -215,6 +239,40 @@ void main() {
         expect((stored!.deviceId, stored.jkt), ('dev-1', jkt));
       },
     );
+
+    test('the evidence is bound to the SCA key too, and the registration '
+        'carries its chain [SEC-027] [SEC-003]', () async {
+      final rig = _Rig(enrolSca: true)
+        ..keys.chain = [
+          Uint8List.fromList([1, 2, 3]),
+        ]
+        ..attestation.evidence = AndroidEvidence(
+          keyAttestationChain: [
+            Uint8List.fromList([1, 2, 3]),
+          ],
+          playIntegrityToken: 'integrity-token',
+        );
+      await rig.auth.token();
+      final sca = rig.keys.stored[scaKeyAlias('app_1', 'production')]!;
+      final attested = rig.attestation.attested.single;
+      expect(attested.scaJkt, sca.publicKey.thumbprint);
+      expect(attested.kaJkt, isNotEmpty);
+      expect(rig.keys.challenges, [_challenge, _challenge]);
+      final body = rig.at(_registerPath).single.body;
+      expect(
+        body['scaPublicKeyJwk'],
+        base64.encode(utf8.encode(jsonEncode(sca.publicKey.jwk))),
+      );
+      expect(
+        (body['scaEvidence']! as Map)['android'],
+        containsPair('keyAttestationChain', [
+          base64.encode([1, 2, 3]),
+        ]),
+      );
+      expect(body['keyAgreementKeyAttestationChain'], [
+        base64.encode([1, 2, 3]),
+      ]);
+    });
 
     test('iOS registers with an App Attest object and binds every refresh to '
         'its proof with an assertion [SEC-002] [SEC-025]', () async {
@@ -256,10 +314,17 @@ void main() {
 
     test('development evidence registers a software key, whatever the key '
         'storage, since it proves nothing about the key [SEC-008]', () async {
-      final rig = _Rig()..keys.storage = KeyStorage.secureEnclave;
+      final rig = _Rig()
+        ..keys.storage = KeyStorage.secureEnclave
+        ..keys.chain = [
+          Uint8List.fromList([1, 2, 3]),
+        ];
       await rig.auth.token();
       final register = rig.at(_registerPath).single.body;
       expect(register['keyStorage'], 'KEY_STORAGE_SOFTWARE');
+      // A Key Attestation chain goes only with Android evidence.
+      expect(register, contains('keyAgreementPublicKeyJwk'));
+      expect(register, isNot(contains('keyAgreementKeyAttestationChain')));
       expect(register['evidence'], {
         'development': {'buildId': 'build-1'},
       });
@@ -475,6 +540,97 @@ void main() {
     );
   });
 
+  group('attestation_result telemetry [SEC-003] [SEC-004] [SEC-006]', () {
+    test('a registration is reported with the level of its first token, and '
+        'the report names no device', () async {
+      final rig = _Rig()
+        ..assuranceLevel = 'AL2'
+        ..attestation.evidence = AndroidEvidence(
+          keyAttestationChain: [
+            Uint8List.fromList([1]),
+          ],
+          playIntegrityToken: 't',
+        );
+      await rig.auth.token();
+      expect(rig.reports, [
+        {
+          'provider': 'play_integrity',
+          'result': 'success',
+          'assurance_level': 2,
+        },
+      ]);
+      await rig.auth.token();
+      expect(rig.reports, hasLength(1), reason: 'reported once');
+    });
+
+    test(
+      'a refused registration is reported with the server\'s code',
+      () async {
+        final rig = _Rig(platform: 'ios')
+          ..attestation.evidence = IosEvidence(
+            keyId: Uint8List(32),
+            attestationObject: Uint8List.fromList([1]),
+          );
+        rig.script[_registerPath] = [
+          () =>
+              _error(403, 'permission_denied', 'PLX-6001: attestation failed'),
+        ];
+        await expectLater(rig.auth.token(), throwsA(isA<ApiError>()));
+        expect(rig.reports, [
+          {
+            'provider': 'app_attest',
+            'result': 'failure',
+            'assurance_level': 0,
+            'error_code': 'PLX-6001',
+          },
+        ]);
+      },
+    );
+
+    test(
+      'evidence the platform cannot produce is reported as a failure',
+      () async {
+        final rig = _Rig()
+          ..attestation.failure = const PluxException(
+            PluxErrorCode.attestationUnavailable,
+            'no service',
+          );
+        await expectLater(rig.auth.token(), throwsA(isA<PluxException>()));
+        expect(rig.reports.single, containsPair('result', 'failure'));
+        expect(rig.reports.single, containsPair('error_code', 'PLX-6009'));
+      },
+    );
+
+    test('a re-attestation is reported with the level that follows', () async {
+      final rig = _Rig()
+        ..attestation.token = 'integrity-2'
+        ..assuranceLevel = 'AL3';
+      await rig.auth.token();
+      rig.reports.clear();
+      await rig.auth.reattestNow();
+      await rig.auth.token();
+      expect(rig.reports, [
+        {
+          'provider': 'play_integrity',
+          'result': 'success',
+          'assurance_level': 3,
+        },
+      ]);
+    });
+
+    test('a refused re-attestation is reported at once', () async {
+      final rig = _Rig()..attestation.token = 'integrity-2';
+      await rig.auth.token();
+      rig.reports.clear();
+      rig.script[_reattestPath] = [
+        () => _error(403, 'permission_denied', 'PLX-6001: attestation failed'),
+      ];
+      await expectLater(rig.auth.reattestNow(), throwsA(isA<ApiError>()));
+      expect(rig.reports.single, containsPair('error_code', 'PLX-6001'));
+      expect(rig.reports.single, containsPair('result', 'failure'));
+    });
+  });
+
   group('server demands', () {
     test('PLX-6007 on Android: a challenge, a Play Integrity token bound to '
         'the key and challenge, then a new token [SEC-025]', () async {
@@ -493,8 +649,9 @@ void main() {
         _refreshPath,
       ]);
       final jkt = rig.keys.stored[_alias()]!.publicKey.thumbprint;
+      final kaJkt = rig.keys.stored[_agreementAlias()]!.publicKey.thumbprint;
       expect(rig.attestation.integrityHashes, [
-        _b64url(bindingHash(_challenge, jkt)),
+        _b64url(bindingHash(_challenge, jkt, kaJkt, '')),
       ]);
       final re = rig.at(_reattestPath).single;
       expect(re.body, {
@@ -512,6 +669,26 @@ void main() {
       expect(re.proof, isNotNull);
       expect(rig.keys.created, 1, reason: 'the same key is attested again');
       expect(rig.keys.deleted, isEmpty);
+    });
+
+    test('re-attestation on a risk signal offers fresh evidence for the '
+        'registered key and forgets the token [SEC-006] [SEC-025]', () async {
+      final rig = _Rig()..attestation.token = 'integrity-2';
+      await rig.auth.token();
+      rig.seen.clear();
+      await rig.auth.reattestNow();
+      expect(rig.paths, [_challengePath, _reattestPath]);
+      expect(rig.at(_reattestPath).single.body['deviceId'], 'dev-1');
+      await rig.auth.token();
+      expect(rig.paths.last, _refreshPath, reason: 'the token is exchanged');
+      expect(rig.keys.created, 1);
+    });
+
+    test('re-attestation does nothing for a device that is not registered '
+        '[SEC-006]', () async {
+      final rig = _Rig();
+      await rig.auth.reattestNow();
+      expect(rig.paths, isEmpty);
     });
 
     test('PLX-6007 on iOS re-attests with the registration evidence and no '
@@ -577,7 +754,7 @@ void main() {
         final token = await rig.auth.token();
         expect(token.value, 'tok-2');
         expect(rig.at(_registerPath), hasLength(2));
-        expect(rig.keys.deleted, [_alias()]);
+        expect(rig.keys.deleted, [_alias(), _agreementAlias()]);
         expect(rig.keys.created, 2);
         expect((await rig.credentials.read())!.deviceId, 'dev-2');
 

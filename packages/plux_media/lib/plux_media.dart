@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /// Media actions for Plux plugins (RT-060, SEC-080): `pickImage`,
-/// `capturePhoto` and `pickFile`.
+/// `capturePhoto` and `pickFile`, and the camera and quality checks behind
+/// the `KycCameraCapture` widget (SEC-090).
 ///
 /// Add [PluxMedia] to `PluxConfig.devicePackages`. A plugin that uses the
 /// actions declares the `photos`, `camera` or `files` device API in its
@@ -12,4 +13,5 @@
 /// `NSCameraUsageDescription`) and the camera permission itself.
 library;
 
+export 'src/kyc.dart' show KycQuality, KycThresholds;
 export 'src/media.dart' show FileBackend, ImageBackend, PickedEntry, PluxMedia;

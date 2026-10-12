@@ -70,7 +70,7 @@ func (s *Service) Refresh(ctx context.Context, r RefreshRequest) (AccessToken, e
 	if err != nil {
 		return AccessToken{}, err
 	}
-	if !row.AttestedAt.Valid || s.now().Sub(storage.Time(row.AttestedAt)) > conf.ReattestationInterval {
+	if !row.AttestedAt.Valid || (s.now().Sub(storage.Time(row.AttestedAt)) > conf.ReattestationInterval && !s.graceHeld(ctx, row, conf)) {
 		return AccessToken{}, plxerr.New(plxerr.ReattestationRequired, "the device must attest again before it can refresh")
 	}
 	counter, err := s.proveRefresh(ctx, row, conf, r)

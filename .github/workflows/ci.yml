@@ -540,6 +540,36 @@ jobs:
       - name: The shipped SVG compiler reproduces its golden; the image carries its notices
         run: make image-check
 
+  # The OWASP ZAP baseline scan of the API against the Compose stack
+  # (QA-008); the scan of Studio joins in P11. The same selection as the
+  # stack's own job: a server, image or deployment change can open a hole.
+  zap-api:
+    name: OWASP ZAP baseline (API)
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['zap-api']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build and start the single-node stack
+        run: make compose-up
+      # Verifies: QA-008.
+      - name: Scan the API; only test/zap/api-rules.tsv is ignored
+        run: make zap-api
+      - name: Stop the stack
+        if: always()
+        run: docker compose -f deploy/compose/compose.yaml down -v
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: zap-api-report
+          path: build/zap/zap-api.*
+          if-no-files-found: ignore
+
   # The release image is multi-arch; its arm64 half builds Skia and
   # plux-svgc natively here, so an arm64 break or a difference in the
   # worker's output between architectures shows before a release.
@@ -1176,6 +1206,9 @@ jobs:
       # Verifies: RT-061, NFR-009.
       - name: Release APKs and App Bundle, blank and with plux_flutter
         run: make size-android
+      # Verifies: SEC-074, DEV-050.
+      - name: Release APKs of the starter and Plux Bank hold no dev tooling
+        run: make release-inspect PLATFORM=android
       - name: Report
         if: always()
         run: cat build/size/android-compare.md build/size/android.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
@@ -1222,6 +1255,9 @@ jobs:
       # Verifies: RT-061, NFR-009.
       - name: Release app for arm64, blank and with plux_flutter, unsigned
         run: make size-ios
+      # Verifies: SEC-074, DEV-050.
+      - name: Release apps of the starter and Plux Bank hold no dev tooling
+        run: make release-inspect PLATFORM=ios
       - name: Report
         if: always()
         run: cat build/size/ios.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
@@ -1271,6 +1307,7 @@ jobs:
       - api-contract
       - go-test
       - compose
+      - zap-api
       - image-arm64
       - wasm-codecs
       - go-determinism

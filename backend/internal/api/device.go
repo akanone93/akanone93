@@ -13,6 +13,7 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/nightCode42/plux3/backend/internal/device"
+	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -62,12 +63,42 @@ func (s Device) RegisterAttestedDevice(ctx context.Context, req *connect.Request
 		AppID: m.GetAppId(), Environment: m.GetEnvironment(), Platform: m.GetPlatform(),
 		OSVersion: m.GetOsVersion(), RuntimeVersion: m.GetRuntimeVersion(), Build: m.GetHostBuild(),
 		Challenge: m.GetChallenge(), DPoPKeyJWK: m.GetDpopPublicKeyJwk(), KeyStorage: keyStorageOf(m.GetKeyStorage()),
-		Evidence: evidenceOf(m.GetEvidence()),
+		Evidence: evidenceOf(m.GetEvidence()), AgreementKeyJWK: m.GetKeyAgreementPublicKeyJwk(),
+		SCAKeyJWK: m.GetScaPublicKeyJwk(), SCAEvidence: optionalEvidence(m.GetScaEvidence()),
+		AgreementKeyChain: m.GetKeyAgreementKeyAttestationChain(),
 	})
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
 	}
 	return connect.NewResponse(&pluxv1.RegisterAttestedDeviceResponse{Device: deviceProto(d)}), nil
+}
+
+// optionalEvidence converts evidence that may be absent.
+func optionalEvidence(e *pluxv1.AttestationEvidence) *device.Evidence {
+	if e == nil {
+		return nil
+	}
+	out := evidenceOf(e)
+	return &out
+}
+
+// EnrolScaKey stores the device's strong customer authentication key
+// after verifying its attestation (SEC-027).
+func (s Device) EnrolScaKey(ctx context.Context, req *connect.Request[pluxv1.EnrolScaKeyRequest]) (*connect.Response[pluxv1.EnrolScaKeyResponse], error) {
+	d, err := deviceOf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	m := req.Msg
+	evidence := optionalEvidence(m.GetScaEvidence())
+	if evidence == nil {
+		return nil, plxerr.New(plxerr.MissingProperty, "the SCA key needs evidence")
+	}
+	key, err := s.h.Devices.EnrolSCAKey(ctx, d, device.SCAEnrolment{Challenge: m.GetChallenge(), KeyJWK: m.GetScaPublicKeyJwk(), Evidence: *evidence})
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	return connect.NewResponse(&pluxv1.EnrolScaKeyResponse{ScaJkt: key.JKT}), nil
 }
 
 // ReattestDevice replaces a device's attestation with a fresh one. The
@@ -178,7 +209,7 @@ func evidenceOf(e *pluxv1.AttestationEvidence) device.Evidence {
 		out.Android = &device.AndroidEvidence{KeyAttestationChain: a.GetKeyAttestationChain(), PlayIntegrityToken: a.GetPlayIntegrityToken()}
 	}
 	if i := e.GetIos(); i != nil {
-		out.IOS = &device.IOSEvidence{KeyID: i.GetAppAttestKeyId(), AttestationObject: i.GetAttestationObject()}
+		out.IOS = &device.IOSEvidence{KeyID: i.GetAppAttestKeyId(), AttestationObject: i.GetAttestationObject(), Assertion: i.GetAppAttestAssertion()}
 	}
 	if d := e.GetDevelopment(); d != nil {
 		out.Development = &device.DevelopmentEvidence{BuildID: d.GetBuildId()}
@@ -237,8 +268,6 @@ func deviceProto(d device.Device) *pluxv1.Device {
 
 // Token serves TokenService.
 type Token struct {
-	// Unimplemented answers ExchangeUserToken until its handler lands.
-	pluxv1connect.UnimplementedTokenServiceHandler
 	h *Handlers
 }
 
@@ -269,6 +298,27 @@ func (s Token) RefreshDeviceToken(ctx context.Context, req *connect.Request[plux
 		return nil, err //nolint:wrapcheck // a domain error
 	}
 	return connect.NewResponse(&pluxv1.RefreshDeviceTokenResponse{AccessToken: t.Value, ExpiresAt: ts(t.ExpiresAt), TokenType: "DPoP", AssuranceLevel: t.Assurance}), nil
+}
+
+// ExchangeUserToken trades the host's user token for the token the
+// gateway forwards, after verifying it against the customer's identity
+// provider (SEC-026, RFC 8693).
+func (s Token) ExchangeUserToken(ctx context.Context, req *connect.Request[pluxv1.ExchangeUserTokenRequest]) (*connect.Response[pluxv1.ExchangeUserTokenResponse], error) {
+	if s.h.Exchange == nil {
+		return nil, plxerr.New(plxerr.PreconditionFailed, "this server does not exchange user tokens")
+	}
+	d, err := deviceOf(ctx)
+	if err != nil {
+		return nil, err
+	}
+	m := req.Msg
+	out, err := s.h.Exchange.Exchange(ctx, d, m.GetSubjectToken(), m.GetSubjectTokenType(), m.GetAudience())
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	return connect.NewResponse(&pluxv1.ExchangeUserTokenResponse{
+		AccessToken: out.Token, IssuedTokenType: gateway.TokenTypeAccessToken, ExpiresAt: ts(out.ExpiresAt),
+	}), nil
 }
 
 // Manifest serves ManifestService.
@@ -312,6 +362,7 @@ func (s Manifest) GetManifest(ctx context.Context, req *connect.Request[pluxv1.G
 	}
 	served, err := s.h.Releases.GetManifest(ctx, release.ManifestRequest{
 		OrganizationID: d.OrganizationID, AppID: d.AppID, EnvironmentID: d.EnvironmentID, Channel: m.GetChannel(), HostBuild: d.HostBuild,
+		DeviceID:          d.DeviceID,
 		InstalledSequence: m.GetInstalledSequence(), Installed: installed, IfNoneMatch: m.GetIfNoneMatch(),
 		InstalledDigest: m.GetInstalledDigest(), ConfigVersion: m.GetConfigVersion(),
 	})
@@ -330,6 +381,9 @@ func (s Manifest) GetManifest(ctx context.Context, req *connect.Request[pluxv1.G
 	}
 	res.Msg.Manifest = manifestProto(d, served)
 	res.Msg.ConfigPatch, res.Msg.ConfigFullRequired = served.ConfigPatch, served.ConfigFullRequired
+	if k := served.ContentKey; k != nil {
+		res.Msg.ContentKey = &pluxv1.ContentKey{EphemeralPublicKey: k.EphemeralPublicKey, WrappedKey: k.Wrapped}
+	}
 	return res, nil
 }
 
@@ -508,6 +562,15 @@ func (s Telemetry) IngestEvents(ctx context.Context, req *connect.Request[pluxv1
 		if e.GetTime() == nil {
 			events[len(events)-1].Time = zeroTime
 		}
+	}
+	// A detection lowers the device's level before its event is stored: if
+	// this fails, the device keeps its buffer and reports again (SEC-071).
+	risk := make([]device.RiskEvent, 0, len(events))
+	for _, e := range events {
+		risk = append(risk, device.RiskEvent{Name: e.Name, Fields: e.Fields})
+	}
+	if err := s.h.Devices.RecordRiskEvents(ctx, d, risk); err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
 	}
 	n, diags, err := s.h.Events.Ingest(ctx, telemetry.Source{
 		OrganizationID: d.OrganizationID, AppID: d.AppID, EnvironmentID: d.EnvironmentID, DeviceID: d.DeviceID,

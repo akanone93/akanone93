@@ -128,6 +128,34 @@ type ChannelControl struct {
 	UpdatedAt         pgtype.Timestamptz
 }
 
+type ConfigEnvironment struct {
+	EnvironmentID  pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	Epoch          int64
+	LiveEpoch      int64
+	StrictEpoch    int64
+	UpdatedAt      pgtype.Timestamptz
+}
+
+type ConfigValue struct {
+	EnvironmentID  pgtype.UUID
+	Key            string
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	Tier           string
+	ValueType      string
+	Sensitive      bool
+	Strict         bool
+	Value          string
+	Ciphertext     []byte
+	WrappedKey     []byte
+	KeyID          *string
+	Version        int64
+	UpdatedBy      pgtype.UUID
+	UpdatedAt      pgtype.Timestamptz
+}
+
 type Delta struct {
 	OrganizationID pgtype.UUID
 	FromSha256     []byte
@@ -165,6 +193,9 @@ type Device struct {
 	AppAttestReceipt      []byte
 	RevokedAt             pgtype.Timestamptz
 	RevokedReason         string
+	RaspDetectedAt        pgtype.Timestamptz
+	RaspKinds             []string
+	AgreementPublicKey    []byte
 }
 
 type DeviceAuthorization struct {
@@ -187,6 +218,16 @@ type DeviceBundle struct {
 	OrganizationID pgtype.UUID
 	PluginKey      string
 	BundleSha256   []byte
+}
+
+type DeviceScaKey struct {
+	DeviceID            pgtype.UUID
+	OrganizationID      pgtype.UUID
+	PublicKey           []byte
+	Jkt                 string
+	KeyStorage          string
+	AttestationProvider string
+	EnrolledAt          pgtype.Timestamptz
 }
 
 type DeviceToken struct {
@@ -265,6 +306,26 @@ type EnvironmentVariable struct {
 	Key            string
 	Value          string
 	UpdatedAt      pgtype.Timestamptz
+}
+
+type GatewayUpstream struct {
+	ID                    pgtype.UUID
+	OrganizationID        pgtype.UUID
+	AppID                 pgtype.UUID
+	EnvironmentID         pgtype.UUID
+	Name                  string
+	BaseUrl               string
+	AuthKind              string
+	Auth                  []byte
+	AllowPrivateAddresses bool
+	TimeoutMs             int32
+	AllowedMethods        []string
+	RequiresAssurance     string
+	Operations            []byte
+	Audience              string
+	Version               int64
+	CreatedAt             pgtype.Timestamptz
+	UpdatedAt             pgtype.Timestamptz
 }
 
 type IdempotencyKey struct {
@@ -463,6 +524,23 @@ type Release struct {
 	CreatedBy        string
 	CreatedAt        pgtype.Timestamptz
 	NativeUses       []byte
+	Confidential     bool
+}
+
+type ReleaseConfidentialBundle struct {
+	ReleaseID      pgtype.UUID
+	OrganizationID pgtype.UUID
+	PluginKey      string
+	PlainSha256    []byte
+	BundleSha256   []byte
+	Size           int64
+}
+
+type ReleaseContentKey struct {
+	ReleaseID      pgtype.UUID
+	OrganizationID pgtype.UUID
+	Sealed         []byte
+	CreatedAt      pgtype.Timestamptz
 }
 
 type ReleaseVersion struct {
@@ -585,6 +663,17 @@ type UserIdentity struct {
 	Issuer    string
 	Subject   string
 	CreatedAt pgtype.Timestamptz
+}
+
+type UserIdentityProvider struct {
+	EnvironmentID  pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	Issuer         string
+	JwksUrl        string
+	Audiences      []string
+	ForwardClaims  []string
+	UpdatedAt      pgtype.Timestamptz
 }
 
 type WorkloadIdentity struct {

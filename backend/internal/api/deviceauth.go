@@ -12,6 +12,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/devtoken"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
+	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
@@ -23,6 +24,15 @@ var DeviceProcedures = map[string]bool{
 	pluxv1connect.DeviceServiceReportInstalledProcedure: true,
 	pluxv1connect.TelemetryServiceIngestEventsProcedure: true,
 	pluxv1connect.ManifestServiceGetRootKeysProcedure:   true,
+	// The gateway's procedures: a device calls its upstreams, confirms a
+	// transaction and exchanges its user's token with an access token and
+	// a proof like any other call (SEC-030, SEC-026, SEC-027).
+	pluxv1connect.GatewayServiceCallProcedure:                   true,
+	pluxv1connect.ScaServiceCreateTransactionChallengeProcedure: true,
+	pluxv1connect.TokenServiceExchangeUserTokenProcedure:        true,
+	pluxv1connect.DeviceServiceEnrolScaKeyProcedure:             true,
+	// The live configuration of the device's environment (DAT-094).
+	pluxv1connect.ConfigServiceGetLiveConfigProcedure: true,
 }
 
 // DeviceProofOnly are the procedures a device calls with a DPoP proof
@@ -109,6 +119,14 @@ type DeviceAuth struct {
 	// names, which an operator may have tightened (SEC-182); Window and
 	// FallbackWindow apply to calls without a token, and when it is nil.
 	Windows func(ctx context.Context, appID, environmentID string) (window, fallback time.Duration, err error)
+	// ReplayPolicy, when set, returns what the replay check does when the
+	// shared cache fails for the environment a token names: that
+	// environment's replayCacheFallback setting (SEC-023). Replay's own
+	// policy applies to calls without a token, and when it is nil.
+	ReplayPolicy func(ctx context.Context, appID, environmentID string) (dpop.Fallback, error)
+	// Rejected, when set, hears the reason of every call refused for its
+	// DPoP proof, for plux_dpop_rejections_total.
+	Rejected func(reason string)
 	// Now is the clock; nil uses time.Now.
 	Now func() time.Time
 	// Limiter and PerDevice rate limit a device on its own allowance
@@ -145,7 +163,7 @@ func DeviceAuthentication(a DeviceAuth) Around {
 		case DeviceProofOnly[c.Procedure]:
 			ctx, err := a.authenticateProof(ctx, c)
 			if err != nil {
-				return refuse(c, err)
+				return a.refuse(c, err)
 			}
 			return next(ctx)
 		case DeviceProcedures[c.Procedure] && (c.Procedure != pluxv1connect.ManifestServiceGetRootKeysProcedure || usesDPoP(c.Header)):
@@ -162,7 +180,7 @@ func DeviceAuthentication(a DeviceAuth) Around {
 func (a DeviceAuth) deviceCall(ctx context.Context, c Call, next func(context.Context) error) error {
 	d, err := a.authenticate(ctx, c)
 	if err != nil {
-		return refuse(c, err)
+		return a.refuse(c, err)
 	}
 	if a.Limiter.Count != nil {
 		retry, err := a.Limiter.Allow(ctx, "rate:device:"+d.DeviceID, a.PerDevice)
@@ -178,11 +196,38 @@ func (a DeviceAuth) deviceCall(ctx context.Context, c Call, next func(context.Co
 
 // authenticate checks the token and the proof of a device call.
 func (a DeviceAuth) authenticate(ctx context.Context, c Call) (device.Identity, error) {
-	token, err := dpopToken(c.Header)
+	return a.authenticateWith(ctx, c.Header, proofMethod, a.url(c.Procedure))
+}
+
+// url is the htu of a proof for a path of this server.
+func (a DeviceAuth) url(path string) string {
+	return strings.TrimSuffix(a.BaseURL, "/") + path
+}
+
+// AuthenticateRequest authenticates an HTTP request that is not a Connect
+// call, such as the gateway's streaming route: the same token, the same
+// proof, nonce, binding, replay and revocation checks, with the request's
+// own method and path as htm and htu. Like a Connect call, the response
+// carries the current DPoP nonce, and a refusal carries the challenge that
+// names what failed (SEC-021, SEC-024). The device's own rate is the
+// caller's to apply.
+func (a DeviceAuth) AuthenticateRequest(ctx context.Context, w http.ResponseWriter, r *http.Request) (device.Identity, error) {
+	w.Header().Set(nonceHeader, a.Nonces.Current())
+	d, err := a.authenticateWith(ctx, r.Header, r.Method, a.url(r.URL.EscapedPath()))
+	if err != nil {
+		return device.Identity{}, a.refuse(Call{ResponseHeader: w.Header()}, err)
+	}
+	return d, nil
+}
+
+// authenticateWith checks the token and the proof of a request made with
+// the method to the URL.
+func (a DeviceAuth) authenticateWith(ctx context.Context, h http.Header, method, url string) (device.Identity, error) {
+	token, err := dpopToken(h)
 	if err != nil {
 		return device.Identity{}, err
 	}
-	rawProof, err := proofOf(c.Header)
+	rawProof, err := proofOf(h)
 	if err != nil {
 		return device.Identity{}, err
 	}
@@ -201,13 +246,19 @@ func (a DeviceAuth) authenticate(ctx context.Context, c Call) (device.Identity, 
 			return device.Identity{}, err
 		}
 	}
-	expect := a.expect(c, token, window)
+	expect := dpop.Expect{Method: method, URL: url, AccessToken: token, Window: window}
 	expect.JKT = claims.JKT
 	proof, err := a.Proofs.Verify(rawProof, expect)
 	if err != nil {
 		return device.Identity{}, err //nolint:wrapcheck // a domain error
 	}
-	if err := a.checkReplay(ctx, proof, window, fallback); err != nil {
+	policy := a.Replay.Policy()
+	if a.ReplayPolicy != nil {
+		if policy, err = a.ReplayPolicy(ctx, claims.AppID, claims.Environment); err != nil {
+			return device.Identity{}, err
+		}
+	}
+	if err := a.checkReplay(ctx, policy, proof, window, fallback); err != nil {
 		return device.Identity{}, err
 	}
 	revoked, err := a.Devices.IsRevoked(ctx, claims.JKT)
@@ -230,11 +281,11 @@ func (a DeviceAuth) authenticateProof(ctx context.Context, c Call) (context.Cont
 	if err != nil {
 		return ctx, err
 	}
-	proof, err := a.Proofs.Verify(rawProof, a.expect(c, "", a.Window))
+	proof, err := a.Proofs.Verify(rawProof, dpop.Expect{Method: proofMethod, URL: a.url(c.Procedure), Window: a.Window})
 	if err != nil {
 		return ctx, err //nolint:wrapcheck // a domain error
 	}
-	if err := a.checkReplay(ctx, proof, a.Window, a.FallbackWindow); err != nil {
+	if err := a.checkReplay(ctx, a.Replay.Policy(), proof, a.Window, a.FallbackWindow); err != nil {
 		return ctx, err
 	}
 	if a.Limiter.Count != nil {
@@ -249,20 +300,12 @@ func (a DeviceAuth) authenticateProof(ctx context.Context, c Call) (context.Cont
 	return context.WithValue(ctx, proofKey{}, DeviceProof{JKT: proof.JKT, Raw: rawProof}), nil
 }
 
-// expect is what a call's proof must be bound to.
-func (a DeviceAuth) expect(c Call, token string, window time.Duration) dpop.Expect {
-	return dpop.Expect{
-		Method: proofMethod, URL: strings.TrimSuffix(a.BaseURL, "/") + c.Procedure,
-		AccessToken: token, Window: window,
-	}
-}
-
 // checkReplay refuses a proof that was used before. The proof is
 // remembered for as long as it could be accepted: it may be dated a
 // window ahead, and stays acceptable a window past its date. While the
 // shared cache is down the narrower fallback window applies (SEC-023).
-func (a DeviceAuth) checkReplay(ctx context.Context, p dpop.Proof, window, fallback time.Duration) error {
-	degraded, err := a.Replay.Check(ctx, p.JKT, p.JTI, 2*window+replayMargin)
+func (a DeviceAuth) checkReplay(ctx context.Context, policy dpop.Fallback, p dpop.Proof, window, fallback time.Duration) error {
+	degraded, err := a.Replay.CheckWith(ctx, policy, p.JKT, p.JTI, 2*window+replayMargin)
 	if err != nil {
 		return err //nolint:wrapcheck // a domain error
 	}
@@ -328,10 +371,23 @@ func proofOf(h http.Header) (string, error) {
 	return values[0], nil
 }
 
+// dpopRejection names the reason, as plux_dpop_rejections_total labels it,
+// of each refusal that is about the DPoP proof.
+var dpopRejection = map[plxerr.Code]string{
+	plxerr.DPoPNonceRequired:      observability.DPoPNonceRequired,
+	plxerr.DPoPProofInvalid:       observability.DPoPProofInvalid,
+	plxerr.DPoPReplay:             observability.DPoPReplay,
+	plxerr.TokenBindingMismatch:   observability.DPoPBindingMismatch,
+	plxerr.ReplayCacheUnavailable: observability.DPoPReplayCacheUnavailable,
+}
+
 // refuse sets the challenge that names why a device call was refused and
 // returns the error.
-func refuse(c Call, err error) error {
+func (a DeviceAuth) refuse(c Call, err error) error {
 	code, _ := plxerr.CodeOf(err)
+	if reason, ok := dpopRejection[code]; ok && a.Rejected != nil {
+		a.Rejected(reason)
+	}
 	switch code {
 	case plxerr.DPoPNonceRequired:
 		c.ResponseHeader.Set(challengeHeader, `DPoP error="use_dpop_nonce"`)

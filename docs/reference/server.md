@@ -10,6 +10,7 @@ starts and stops. The API it serves is in [api.md](api.md).
 | Role | Runs | Holds | Exposure |
 |---|---|---|---|
 | `api` | The ConnectRPC services, the manifest and artifact endpoints, health and metrics | database, object storage, cache | public, behind ingress |
+| `gateway` | Only the secure gateway: its services, its streaming route and its published keys, behind device authentication (`SEC-030`, [gateway.md](gateway.md)); the `api` role serves the gateway too | database, cache, token signing | public, behind ingress |
 | `worker` | The publish, delta, asset and retention jobs | database, object storage, signing keys | internal only |
 | `fnrunner` | WebAssembly function sandboxes (P7) | nothing | internal only, mTLS |
 
@@ -46,7 +47,7 @@ the phase it arrives in, rather than being silently accepted.
 
 ```yaml
 server:
-  roles: [api, worker]          # api | worker  (fnrunner arrives in P7)
+  roles: [api, worker]          # api | worker | gateway  (fnrunner arrives in P7)
   listen: ":8080"
   publicBaseURL: "https://plux.acme.example"
   shutdownGrace: "30s"
@@ -114,8 +115,11 @@ observability:
   traceSampleRatio: 1.0
 telemetry:
   store: "postgres"             # clickhouse arrives in P9
+  retentionDays: 30             # events older than this are purged by the maintenance sweep (SEC-160)
 attestation:
   developmentProvider: false    # true only for development and test installations; production environments refuse it (SEC-008)
+  android:
+    statusListFile: ""          # a copy of Google's attestation status list for installations that cannot reach Google (DEP-040); empty makes the worker fetch https://android.googleapis.com/attestation/status (SEC-002)
   apps:                         # per app ID, until the per-app security configuration carries it (ADR-0012)
     "01d0c450-…":
       androidPackages: ["com.acme.app"]
@@ -127,6 +131,8 @@ attestation:
 updateMetadata:                 # SEC-050, ADR-0054
   rootThreshold: 2
   expiry: { timestamp: "24h", snapshot: "168h", targets: "720h", root: "8760h" }
+gateway:
+  upstreamCAFile: ""            # PEM of private authorities the gateway trusts for its upstreams, besides the system's (SEC-031)
 audit:
   checkpointInterval: "1h"      # signed checkpoints over each organisation's audit chain (SEC-141)
 limits:                         # installation-level tightenings (LIM-001, LIM-002)
@@ -289,7 +295,7 @@ deletes expired sessions, sign-in challenges and device grants. It also
 signs a fresh manifest for every channel whose newest one expires within
 two days (manifests live seven), deletes expired manifests other than
 each channel's newest, expired device tokens and telemetry events older
-than 30 days. River's
+than `telemetry.retentionDays` (30 by default, `SEC-160`). River's
 leader election makes one worker enqueue it however many replicas run.
 
 ## 10. Identity
@@ -306,3 +312,21 @@ The first administrator is created with `plux-server bootstrap`; everyone
 else is invited by an organisation's owner. The API's credentials, the
 organisation header and the error each refusal returns are in
 [api.md](api.md) §4.
+
+On the same queue the worker keeps Google's Android attestation status list
+current (`SEC-002`). Every ten minutes it checks the list in the shared
+cache and, when it is half way through the freshness the response allows
+(its `Cache-Control: max-age`, clamped between five minutes and a day,
+an hour when absent) or the cache lost it, fetches it through the SSRF-safe
+client with a conditional request and publishes it to the cache, bounded by
+the limit `attest.statusListBytes`. The api role reads it from there, and
+every certificate serial of a Key Attestation chain is checked against it:
+a listed serial, whether `REVOKED` or `SUSPENDED`, refuses the chain. A list
+that is absent or has expired is not an empty list; registration then fails
+as an outage of the attestation provider, which the setting
+`attestationOutageGrace` governs (`SEC-009`, `PLX-6009`). An installation
+that cannot reach Google names a copy of the list in
+`attestation.android.statusListFile` (`DEP-040`): every replica reads the
+file itself, re-reads it when it changes and keeps the last good list while
+it is unreadable, and the worker fetches nothing. The file is checked when
+the configuration is validated.

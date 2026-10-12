@@ -17,10 +17,15 @@ import 'package:cryptography/cryptography.dart' show SimpleKeyPair;
 import 'package:cryptography/dart.dart';
 import 'package:plux_flutter/src/assets/assets.dart';
 import 'package:plux_flutter/src/bundle/container.dart';
+import 'package:plux_flutter/src/data/live_config.dart';
+import 'package:plux_flutter/src/errors/plux_exception.dart' show PluxErrorCode;
+import 'package:plux_flutter/src/security/content_key.dart';
+import 'package:plux_flutter/src/security/device_keys.dart' show EcPublicKey;
 import 'package:plux_flutter/src/sync/api_client.dart' show installedDigest;
 import 'package:plux_flutter/src/verify/jcs.dart';
 import 'package:plux_flutter/src/verify/manifest.dart';
 
+import 'confidential_support.dart';
 import 'fake_metadata.dart';
 
 /// The compiled golden bundles and the Go deltas between them.
@@ -84,6 +89,7 @@ final class FakeRelease {
     this.message = '',
     this.mandatory = false,
     this.requiredFeatures = const ['pxl.v1'],
+    this.sealed,
   });
 
   /// Its sequence.
@@ -109,6 +115,12 @@ final class FakeRelease {
 
   /// The features the manifest names for every bundle.
   final List<String> requiredFeatures;
+
+  /// When set, the release is confidential: the manifest names these sealed
+  /// bundles instead of [app] and [plugins], and the response carries the
+  /// content key wrapped for the key-agreement key the device registered
+  /// (SEC-053).
+  final SealedRelease? sealed;
 }
 
 /// What the next request to a path suffers.
@@ -228,6 +240,10 @@ final class FakePluxServer {
   /// Every request path, in order.
   final List<String> requests = [];
 
+  /// The `Authorization` and `DPoP` headers of every request that sent
+  /// them, for tests that look for them elsewhere (SEC-072).
+  final List<String> credentialsSeen = [];
+
   /// `Range` headers of object requests.
   final List<String> ranges = [];
 
@@ -243,11 +259,24 @@ final class FakePluxServer {
   /// Devices registered.
   int registrations = 0;
 
+  /// Whether a confidential release is served without its content key.
+  bool withholdContentKey = false;
+
+  /// When set, the release sequence the content key is wrapped for instead
+  /// of the manifest's.
+  int? contentKeySequence;
+
+  /// The key-agreement key of the last registration, if it sent one.
+  EcPublicKey? agreementKey;
+
   /// Registration challenges issued.
   int challenges = 0;
 
   /// Telemetry events received, in the order they arrived.
   final List<Map<String, Object?>> events = [];
+
+  /// Re-attestations received (SEC-006).
+  int reattestations = 0;
 
   /// Paths of requests whose body came compressed with gzip.
   final List<String> compressedRequests = [];
@@ -284,6 +313,35 @@ final class FakePluxServer {
 
   /// The `configVersion` of each manifest request, in order.
   final List<Object?> configVersionsSeen = [];
+
+  /// Whether `GatewayService.Call` answers (DAT-095, DAT-096); off, it is
+  /// not found, as for a server without a gateway.
+  bool gatewayEnabled = false;
+
+  /// The `live` values `ConfigService.GetLiveConfig` returns, in the form
+  /// of the API: key, type, value, strict (DAT-094).
+  List<Map<String, Object?>> liveValues = [];
+
+  /// The version of [liveValues].
+  int liveVersion = 1;
+
+  /// The epoch of the app and environment, which every gateway response
+  /// carries in `Plux-Config-Epoch` (DAT-095).
+  int liveEpoch = 1;
+
+  /// `GetLiveConfig` calls answered.
+  int liveFetches = 0;
+
+  /// While set, a gateway call naming a version below this one is refused
+  /// with the code of a stale configuration version (DAT-096).
+  int? refuseBelowVersion;
+
+  /// The `Plux-Config-Version` of each gateway call, in order; null when
+  /// the call sent none.
+  final List<int?> gatewayVersions = [];
+
+  /// The body of each gateway call that was served or refused, in order.
+  final List<Map<String, Object?>> gatewayBodies = [];
 
   /// Stops the server.
   Future<void> close() => _server.close(force: true);
@@ -390,6 +448,9 @@ final class FakePluxServer {
       final out = await _rpc(req.uri.path, body, req.headers);
       res.statusCode = out.$1;
       res.headers.contentType = ContentType.json;
+      if (req.uri.path == '/plux.v1.GatewayService/Call') {
+        res.headers.set(pluxConfigEpochHeader, '$liveEpoch');
+      }
       final text = jsonEncode(out.$2);
       if (req.uri.path.endsWith('GetManifest')) {
         manifestResponseSizes.add(utf8.encode(text).length);
@@ -457,6 +518,7 @@ final class FakePluxServer {
     // As the server does: a device token is a DPoP token, and a request
     // with it carries a proof (the fake does not check the signature).
     final auth = headers.value('authorization');
+    credentialsSeen.addAll([?auth, ?headers.value('dpop')]);
     final authed =
         auth != null &&
         auth.startsWith('DPoP plux_dat_') &&
@@ -473,6 +535,15 @@ final class FakePluxServer {
         );
       case '/plux.v1.DeviceService/RegisterAttestedDevice':
         registrations++;
+        final jwk = body['keyAgreementPublicKeyJwk'] as String?;
+        if (jwk != null) {
+          final j = jsonDecode(
+            utf8.decode(base64.decode(jwk)),
+          ) as Map<String, Object?>;
+          Uint8List coord(Object? v) =>
+              base64Url.decode(base64Url.normalize(v! as String));
+          agreementKey = EcPublicKey(coord(j['x']), coord(j['y']));
+        }
         return (
           200,
           {
@@ -501,6 +572,9 @@ final class FakePluxServer {
         );
       case '/plux.v1.DeviceService/ReportInstalled':
         return (200, <String, Object?>{});
+      case '/plux.v1.DeviceService/ReattestDevice':
+        reattestations++;
+        return (200, <String, Object?>{});
       case '/plux.v1.TelemetryService/IngestEvents':
         if (!authed) {
           return (401, {'code': 'unauthenticated', 'message': 'no token'});
@@ -509,6 +583,44 @@ final class FakePluxServer {
             .cast<Map<String, Object?>>();
         events.addAll(batch);
         return (200, {'accepted': batch.length});
+      case '/plux.v1.ConfigService/GetLiveConfig':
+        if (!authed) {
+          return (401, {'code': 'unauthenticated', 'message': 'no token'});
+        }
+        liveFetches++;
+        return (
+          200,
+          {
+            'version': '$liveVersion',
+            'epoch': '$liveEpoch',
+            'values': liveValues,
+          },
+        );
+      case '/plux.v1.GatewayService/Call' when gatewayEnabled:
+        if (!authed) {
+          return (401, {'code': 'unauthenticated', 'message': 'no token'});
+        }
+        final sent = int.tryParse(headers.value(pluxConfigVersionHeader) ?? '');
+        gatewayVersions.add(sent);
+        gatewayBodies.add(body);
+        if (refuseBelowVersion case final floor? when (sent ?? 0) < floor) {
+          return (
+            403,
+            {
+              'code': 'failed_precondition',
+              'message':
+                  'PLX-${PluxErrorCode.liveConfigStale.code}: a strict value changed',
+            },
+          );
+        }
+        return (
+          200,
+          {
+            'status': 200,
+            'headers': {'Content-Type': 'application/json'},
+            'body': base64.encode(utf8.encode('{"ok":true}')),
+          },
+        );
       case '/plux.v1.ManifestService/GetRootKeys':
         if (!authed || metadata == null) {
           return (401, {'code': 'unauthenticated', 'message': 'no token'});
@@ -543,6 +655,10 @@ final class FakePluxServer {
 
   Future<Map<String, Object?>> _manifest(Map<String, Object?> req) async {
     final r = release!;
+    final sealed = r.sealed;
+    Uint8List appBytes() => sealed?.bundles[''] ?? r.app;
+    Uint8List pluginBytes(String key) =>
+        sealed?.bundles[key] ?? r.plugins[key]!;
     configVersionsSeen.add(req['configVersion']);
     final deviceConfig = int.parse('${req['configVersion'] ?? 0}');
     final installed = {
@@ -559,9 +675,8 @@ final class FakePluxServer {
     final etag =
         '"${sha256.convert(utf8.encode('${r.sequence}|${r.killSwitches}|${r.appKillSwitch}|$configVersion')).toString().substring(0, 16)}"';
     final targets = {
-      '': Goldens.hashOf(r.app),
-      for (final MapEntry(:key, :value) in r.plugins.entries)
-        key: Goldens.hashOf(value),
+      '': Goldens.hashOf(appBytes()),
+      for (final key in r.plugins.keys) key: Goldens.hashOf(pluginBytes(key)),
     };
     final digest = req['installedDigest'] as String?;
     final holds = digest != null
@@ -577,7 +692,10 @@ final class FakePluxServer {
     Map<String, Object?> bundleJson(Uint8List b) => {
       'hash': 'sha256:${Goldens.hashOf(b)}',
       'size': b.length,
-      'requiredFeatures': r.requiredFeatures,
+      'requiredFeatures': [
+        ...r.requiredFeatures,
+        if (sealed != null) confidentialFeature,
+      ]..sort(),
       'minRuntime': '0.1.0',
     };
     final signedDoc = {
@@ -590,12 +708,10 @@ final class FakePluxServer {
       'releaseSequence': r.sequence,
       'issuedAt': '2026-09-28T00:00:00Z',
       'expires': expires.toUtc().toIso8601String().replaceFirst('.000', ''),
-      'appBundle': bundleJson(r.app),
+      'appBundle': bundleJson(appBytes()),
       'plugins': [
-        for (final MapEntry(:key, :value)
-            in (r.plugins.entries.toList()
-              ..sort((a, b) => a.key.compareTo(b.key))))
-          {'key': key, 'version': r.sequence, ...bundleJson(value)},
+        for (final key in (r.plugins.keys.toList()..sort()))
+          {'key': key, 'version': r.sequence, ...bundleJson(pluginBytes(key))},
       ],
       'control': {
         'killSwitches': r.killSwitches,
@@ -625,7 +741,9 @@ final class FakePluxServer {
       Map<String, Object?> step;
       if (have == hash) {
         step = {'action': 'keep'};
-      } else if (have != null && deltas.containsKey('$have→$hash')) {
+      } else if (sealed == null &&
+          have != null &&
+          deltas.containsKey('$have→$hash')) {
         final d = deltas['$have→$hash']!;
         step = {
           'action': 'delta',
@@ -645,8 +763,26 @@ final class FakePluxServer {
     }
 
     final patch = configPatches[deviceConfig];
+    final device = agreementKey;
+    final wrapped = sealed == null || device == null || withholdContentKey
+        ? null
+        : await wrapContentKeyFor(
+            sealed.contentKey,
+            device,
+            infoFor(
+              'dev_$registrations',
+              app,
+              environment,
+              contentKeySequence ?? r.sequence,
+            ),
+          );
     return {
       'etag': etag,
+      if (wrapped != null)
+        'contentKey': {
+          'ephemeralPublicKey': base64.encode(wrapped.ephemeralPublicKey),
+          'wrappedKey': base64.encode(wrapped.wrappedKey),
+        },
       if (pinsConfig && deviceConfig != configVersion && patch != null)
         'configPatch': base64.encode(utf8.encode(jsonEncode(patch))),
       if (pinsConfig && configFullRequiredFor.contains(deviceConfig))
@@ -663,13 +799,13 @@ final class FakePluxServer {
             'signature': base64.encode(sig.bytes),
           },
         ],
-        'appBundle': descriptor('', r.app),
+        'appBundle': descriptor('', appBytes()),
         'plugins': [
-          for (final MapEntry(:key, :value) in r.plugins.entries)
+          for (final key in r.plugins.keys)
             {
               'key': key,
               'version': '${r.sequence}',
-              'bundle': descriptor(key, value),
+              'bundle': descriptor(key, pluginBytes(key)),
             },
         ],
       },

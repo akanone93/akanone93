@@ -14,7 +14,7 @@ describe("widget and action registries", () => {
   });
 
   test("describe every action of Appendix D", () => {
-    expect(actions).toHaveLength(56);
+    expect(actions).toHaveLength(57);
     expect(action("emitEvent")?.category).toBe("component");
     expect(action("navigate")?.inputs.find((i) => i.name === "route")?.type).toBe("route");
     expect(action("switch")?.branchesFrom).toBe("cases");

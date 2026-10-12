@@ -11,6 +11,7 @@ import (
 
 	"github.com/riverqueue/river"
 
+	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
 )
 
@@ -34,14 +35,26 @@ type checkpointWorker struct {
 	log *slog.Logger
 }
 
+// chainVerified records whether the chains held when a checkpoint run
+// verified them; the metrics are the services' and may be absent.
+func (w *checkpointWorker) chainVerified(ok bool) {
+	if w.svc.Metrics != nil {
+		w.svc.Metrics.AuditChainVerified(ok)
+	}
+}
+
 // Work signs a checkpoint for every organisation with entries the last
 // one does not cover. An organisation that fails does not stop the
 // others; the job fails if any did, so River retries it.
 func (w *checkpointWorker) Work(ctx context.Context, _ *river.Job[AuditCheckpoint]) error {
 	var errs []error
 	signed := 0
+	var broken *audit.Break
 	err := w.svc.Tenancy.ForEachOrganization(ctx, func(org string) error {
 		cp, err := w.svc.Checkpointer.Checkpoint(ctx, org)
+		if errors.As(err, &broken) {
+			w.chainVerified(false)
+		}
 		errs = append(errs, err)
 		if cp != nil {
 			signed++
@@ -49,6 +62,9 @@ func (w *checkpointWorker) Work(ctx context.Context, _ *river.Job[AuditCheckpoin
 		return nil
 	})
 	errs = append(errs, err)
+	if broken == nil && errors.Join(errs...) == nil {
+		w.chainVerified(true)
+	}
 	if w.log != nil {
 		w.log.InfoContext(ctx, "audit checkpoints", slog.Int("signed", signed))
 	}

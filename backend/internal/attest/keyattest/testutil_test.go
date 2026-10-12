@@ -73,6 +73,10 @@ type kdSpec struct {
 	noAppID      bool
 	appInHW      bool
 	extraSoftTLV []byte
+	// userAuthType, when not nil, is the hardware-enforced userAuthType
+	// (tag 504); noAuthRequired adds tag 503.
+	userAuthType   *int64
+	noAuthRequired bool
 }
 
 // validSpec is a TEE-backed, locked, verified device running the test app.
@@ -184,6 +188,12 @@ func encodeKD(s kdSpec) []byte {
 
 	var hw []byte
 	hw = append(hw, tagged(702, func(b *cryptobyte.Builder) { b.AddASN1Int64(0) })...)
+	if s.noAuthRequired {
+		hw = append(hw, tagged(503, func(b *cryptobyte.Builder) { b.AddASN1NULL() })...)
+	}
+	if s.userAuthType != nil {
+		hw = append(hw, tagged(504, func(b *cryptobyte.Builder) { b.AddASN1Int64(*s.userAuthType) })...)
+	}
 	if s.root != nil {
 		hw = append(hw, explicitTLV(704, encodeRoot(*s.root))...)
 	}

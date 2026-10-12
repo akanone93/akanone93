@@ -14,6 +14,7 @@ how the Dart side behaves, not whether a phone meets the target.
 | Requirement | Target (reference device) | Command |
 |---|---|---|
 | `NFR-012`, `SEC-021` | DPoP proof creation ≤ 15 ms, p95 | `make bench-dpop` (host), the device command below (reference device) |
+| `NFR-013`, `SEC-053` | Decrypting a confidential bundle ≤ 10 ms per MiB, p95 | `make bench-confidential` (host, pure-Dart cipher: an upper bound), the platform cipher on the reference device |
 
 ## DPoP proof creation (`NFR-012`)
 
@@ -66,3 +67,17 @@ the AOT code a release app runs; the result is a pessimistic bound for the targe
 | Device | OS | Key storage | p50 (ms) | p95 (ms) | p99 (ms) | Date |
 |---|---|---|---:|---:|---:|---|
 | _to be run by the maintainer_ | | | | | | |
+
+## Confidential bundle decryption (`NFR-013`)
+
+**What is measured.** `decryptBundle` from start to the plain container: the signed bundle
+hash and every section hash checked against the ciphertext, every section opened with
+AES-256-GCM, the container laid out again. `make bench-confidential` runs
+`packages/plux_flutter/test/security/confidential_bench_test.dart` on a 4 MiB bundle of 16
+sections after two warm-up runs and reports milliseconds per MiB of plaintext over 20 runs.
+
+**Host result (2026-10-11, the container above, JIT, pure-Dart `DartAead`).** p50 160 ms per
+MiB, p95 216 ms per MiB, p99 221 ms per MiB. That is an upper bound and well over the budget:
+the budget assumes the platform cipher of ADR-0058 behind the `Aead` interface (hardware AES),
+which the runtime takes over from the pure-Dart cipher when the native implementation lands.
+The reference-device figure comes from the maintainer's run once it is wired in.

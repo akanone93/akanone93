@@ -77,6 +77,8 @@ enum PluxLimit {
   attestKeyAttestationChainCerts('attest.keyAttestationChainCerts', PluxLimitUnit.count, 10, 0, 16),
   /// Size of a Play Integrity token the server accepts.
   attestPlayIntegrityTokenBytes('attest.playIntegrityTokenBytes', PluxLimitUnit.bytes, 16384, 0, 65536),
+  /// Size of the Android attestation status list the server fetches or reads.
+  attestStatusListBytes('attest.statusListBytes', PluxLimitUnit.bytes, 8388608, 0, 33554432),
   /// Failed passwords or one-time codes one account may present in fifteen
   /// minutes before sign-in is refused.
   authFailedSignIns('auth.failedSignIns', PluxLimitUnit.count, 10, 0, 1000),
@@ -94,6 +96,10 @@ enum PluxLimit {
   bundleVerifierTables('bundle.verifierTables', PluxLimitUnit.count, 1000000, 0, 10000000),
   /// Bytes of confidential content one confidential bundle may hold.
   confidentialBundleBytes('confidential.bundleBytes', PluxLimitUnit.bytes, 16777216, 0, 268435456),
+  /// Bytes of one server-held configuration value.
+  configValueBytes('config.valueBytes', PluxLimitUnit.bytes, 4096, 0, 65536),
+  /// Server-held configuration values one environment holds.
+  configValuesPerEnvironment('config.valuesPerEnvironment', PluxLimitUnit.count, 256, 0, 4096),
   /// Bytes the response cache of data sources keeps on the device; the least
   /// recently used entries are evicted beyond it.
   dataCacheBytes('data.cacheBytes', PluxLimitUnit.bytes, 16777216, 0, 268435456),

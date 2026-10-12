@@ -790,6 +790,21 @@ enum PluxErrorCode {
   /// Gateway rate limited.
   gatewayRateLimited(6064, 'GATEWAY_RATE_LIMITED', 'Gateway rate limited'),
 
+  /// Request sets a server-bound location.
+  boundLocationSetByDevice(6065, 'BOUND_LOCATION_SET_BY_DEVICE', 'Request sets a server-bound location'),
+
+  /// Server-held value changed since the challenge.
+  boundValueChanged(6066, 'BOUND_VALUE_CHANGED', 'Server-held value changed since the challenge'),
+
+  /// Live configuration is stale.
+  liveConfigStale(6067, 'LIVE_CONFIG_STALE', 'Live configuration is stale'),
+
+  /// Live configuration unavailable.
+  liveConfigUnavailable(6068, 'LIVE_CONFIG_UNAVAILABLE', 'Live configuration unavailable'),
+
+  /// Configuration store unavailable.
+  configStoreUnavailable(6069, 'CONFIG_STORE_UNAVAILABLE', 'Configuration store unavailable'),
+
   /// Strong customer authentication signature invalid.
   scaSignatureInvalid(6070, 'SCA_SIGNATURE_INVALID', 'Strong customer authentication signature invalid'),
 

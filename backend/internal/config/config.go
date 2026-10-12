@@ -15,8 +15,12 @@ type Role string
 // The roles. A process runs any subset; a single-node install runs them
 // all.
 const (
-	RoleAPI      Role = "api"
-	RoleWorker   Role = "worker"
+	RoleAPI    Role = "api"
+	RoleWorker Role = "worker"
+	// RoleGateway serves the secure gateway alone, so that it can scale
+	// apart from the rest of the API (ADR-0006, ADR-0056). The api role
+	// serves the gateway as well.
+	RoleGateway  Role = "gateway"
 	RoleFnRunner Role = "fnrunner"
 )
 
@@ -38,6 +42,18 @@ type Config struct {
 	// UpdateMetadata sets the expiries and the root threshold of the
 	// update metadata (SEC-050, ADR-0054).
 	UpdateMetadata UpdateMetadata `json:"updateMetadata"`
+	// Gateway configures what the secure gateway trusts (SEC-031,
+	// ADR-0056).
+	Gateway Gateway `json:"gateway"`
+}
+
+// Gateway configures the secure gateway. Upstreams themselves are
+// registered per app and environment through the API.
+type Gateway struct {
+	// UpstreamCAFile is a PEM file of certificate authorities the gateway
+	// trusts for its upstreams in addition to the system's, for customers
+	// whose APIs use a private CA. Empty adds none.
+	UpstreamCAFile string `json:"upstreamCAFile"`
 }
 
 // Audit configures the audit log's signed checkpoints (SEC-141).
@@ -83,8 +99,20 @@ type Attestation struct {
 	// that are not production ones. It is off by default, so a server
 	// trusts no device it cannot verify until an operator says so.
 	DevelopmentProvider bool `json:"developmentProvider"`
+	// Android configures what the server asks of Google beyond the app's
+	// own builds.
+	Android AndroidAttestation `json:"android"`
 	// Apps maps an app identifier (a UUID) to its builds.
 	Apps map[string]AppAttestation `json:"apps"`
+}
+
+// AndroidAttestation configures the Key Attestation verifier.
+type AndroidAttestation struct {
+	// StatusListFile is a copy of Google's attestation status list
+	// (https://android.googleapis.com/attestation/status) that the operator
+	// keeps current, for an installation that cannot reach Google
+	// (DEP-040). Empty makes the worker fetch the list (SEC-002).
+	StatusListFile string `json:"statusListFile"`
 }
 
 // AppAttestation is what the server trusts about one app's builds.
@@ -389,6 +417,9 @@ type Observability struct {
 type Telemetry struct {
 	// Store is "postgres"; "clickhouse" arrives with ANL-010 in P9.
 	Store string `json:"store"`
+	// RetentionDays is how long events are kept before the maintenance
+	// sweep deletes them (SEC-160).
+	RetentionDays int `json:"retentionDays"`
 }
 
 // Retention is how long history is kept.
@@ -401,6 +432,11 @@ type Retention struct {
 
 // Has reports whether the process runs a role.
 func (c *Config) Has(r Role) bool { return slices.Contains(c.Server.Roles, r) }
+
+// ServesHTTP reports whether the process terminates the public listener:
+// the api role and the gateway role both do, and both authenticate
+// devices.
+func (c *Config) ServesHTTP() bool { return c.Has(RoleAPI) || c.Has(RoleGateway) }
 
 // String renders the configuration without its secrets, so that it can be
 // logged at start-up (OBS-003).

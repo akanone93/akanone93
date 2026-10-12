@@ -150,6 +150,27 @@
       ],
       "exclude": ["**/*.md"]
     },
+    "zap-api": {
+      "description": "The OWASP ZAP baseline scan of the API against the Compose stack, ignoring only test/zap/api-rules.tsv (QA-008)",
+      "go": ["backend/cmd/plux-server", "backend/cmd/plux"],
+      "goTest": [
+        "backend/internal/storage/...",
+        "backend/internal/cache/...",
+        "backend/internal/server/...",
+        "backend/internal/api/...",
+        "backend/internal/release/..."
+      ],
+      "paths": [
+        "backend/Dockerfile",
+        "deploy/**",
+        "scripts/release/**",
+        "packages/plux_svgc/**",
+        "schema/**",
+        "mk/stack.mk",
+        "test/zap/**"
+      ],
+      "exclude": ["**/*.md"]
+    },
     "image-arm64": {
       "description": "The server image built natively on arm64, its SVG compiler reproducing the amd64 golden",
       "go": ["backend/cmd/plux-server", "backend/cmd/plux"],
@@ -242,15 +263,15 @@
     "size-android": {
       "description": "What plux_flutter adds to the release APKs and App Bundle downloads (RT-061)",
       "go": ["tools/cmd/sizegate"],
-      "dart": ["test/size/plux"],
-      "paths": ["test/size/**", "mk/bench.mk"],
+      "dart": ["test/size/plux", "apps/starter", "apps/plux_bank"],
+      "paths": ["test/size/**", "test/release/**", "mk/bench.mk"],
       "exclude": ["**/*.md", "**/ios/**"]
     },
     "size-ios": {
       "description": "What plux_flutter adds to a release iOS app (RT-061)",
       "go": ["tools/cmd/sizegate"],
-      "dart": ["test/size/plux"],
-      "paths": ["test/size/**", "mk/bench.mk"],
+      "dart": ["test/size/plux", "apps/starter", "apps/plux_bank"],
+      "paths": ["test/size/**", "test/release/**", "mk/bench.mk"],
       "exclude": ["**/*.md", "**/android/**"]
     },
     "studio": {

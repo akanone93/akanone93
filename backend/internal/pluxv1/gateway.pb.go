@@ -28,11 +28,15 @@ const (
 type CallRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// upstream names a configured upstream of the device's app and
-	// environment (SEC-030).
+	// environment: the data source's name (SEC-030). The end user's token,
+	// when the call acts for one, travels in the Plux-User-Token request
+	// header (SEC-026).
 	Upstream string `protobuf:"bytes,1,opt,name=upstream,proto3" json:"upstream,omitempty"`
 	// operation names the allowed operation, so the server can apply its
 	// policy and require a transaction confirmation where one is set
-	// (SEC-031).
+	// (SEC-031). It is empty for a data source's load; the server then
+	// finds the operation by the method and path, and a path that belongs
+	// to a transaction still needs its confirmation.
 	Operation string `protobuf:"bytes,2,opt,name=operation,proto3" json:"operation,omitempty"`
 	// method is the HTTP method.
 	Method string `protobuf:"bytes,3,opt,name=method,proto3" json:"method,omitempty"`
@@ -50,10 +54,15 @@ type CallRequest struct {
 	// (SEC-032).
 	TransactionChallengeId string `protobuf:"bytes,7,opt,name=transaction_challenge_id,json=transactionChallengeId,proto3" json:"transaction_challenge_id,omitempty"`
 	// transaction_signature is the signature of the device's SCA key over
-	// the challenge and the transaction summary (SEC-032).
+	// the challenge followed by the transaction summary: ES256, 64 bytes,
+	// r then s (SEC-032).
 	TransactionSignature []byte `protobuf:"bytes,8,opt,name=transaction_signature,json=transactionSignature,proto3" json:"transaction_signature,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// plugin is the key of the plugin that makes the call, for the
+	// operation's plugin capability (SEC-080); empty when the operation
+	// names none.
+	Plugin        string `protobuf:"bytes,9,opt,name=plugin,proto3" json:"plugin,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CallRequest) Reset() {
@@ -140,6 +149,13 @@ func (x *CallRequest) GetTransactionSignature() []byte {
 		return x.TransactionSignature
 	}
 	return nil
+}
+
+func (x *CallRequest) GetPlugin() string {
+	if x != nil {
+		return x.Plugin
+	}
+	return ""
 }
 
 type CallResponse struct {
@@ -287,7 +303,15 @@ type CreateTransactionChallengeResponse struct {
 	// with the summary hash (SEC-027).
 	Challenge []byte `protobuf:"bytes,2,opt,name=challenge,proto3" json:"challenge,omitempty"`
 	// expires_at is when the challenge stops being accepted.
-	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	// transaction_summary_jcs is the RFC 8785 canonical JSON the challenge
+	// is bound to: the device's summary with the server-held values of the
+	// operation's display bindings merged in. The SCA key signs the
+	// challenge followed by these bytes (DAT-093).
+	TransactionSummaryJcs []byte `protobuf:"bytes,4,opt,name=transaction_summary_jcs,json=transactionSummaryJcs,proto3" json:"transaction_summary_jcs,omitempty"`
+	// displayed are the server-held values the confirmation sheet shows
+	// beside the device's own summary (DAT-093).
+	Displayed     []*DisplayedValue `protobuf:"bytes,5,rep,name=displayed,proto3" json:"displayed,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -343,11 +367,81 @@ func (x *CreateTransactionChallengeResponse) GetExpiresAt() *timestamppb.Timesta
 	return nil
 }
 
+func (x *CreateTransactionChallengeResponse) GetTransactionSummaryJcs() []byte {
+	if x != nil {
+		return x.TransactionSummaryJcs
+	}
+	return nil
+}
+
+func (x *CreateTransactionChallengeResponse) GetDisplayed() []*DisplayedValue {
+	if x != nil {
+		return x.Displayed
+	}
+	return nil
+}
+
+// DisplayedValue is a server-held value of a transaction that the user
+// sees before confirming it, such as the payee (DAT-093).
+type DisplayedValue struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// label names the value for the user.
+	Label string `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`
+	// value is its text form.
+	Value         string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DisplayedValue) Reset() {
+	*x = DisplayedValue{}
+	mi := &file_plux_v1_gateway_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DisplayedValue) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DisplayedValue) ProtoMessage() {}
+
+func (x *DisplayedValue) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_gateway_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DisplayedValue.ProtoReflect.Descriptor instead.
+func (*DisplayedValue) Descriptor() ([]byte, []int) {
+	return file_plux_v1_gateway_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *DisplayedValue) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+func (x *DisplayedValue) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
 var File_plux_v1_gateway_proto protoreflect.FileDescriptor
 
 const file_plux_v1_gateway_proto_rawDesc = "" +
 	"\n" +
-	"\x15plux/v1/gateway.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xef\x02\n" +
+	"\x15plux/v1/gateway.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x87\x03\n" +
 	"\vCallRequest\x12\x1a\n" +
 	"\bupstream\x18\x01 \x01(\tR\bupstream\x12\x1c\n" +
 	"\toperation\x18\x02 \x01(\tR\toperation\x12\x16\n" +
@@ -356,7 +450,8 @@ const file_plux_v1_gateway_proto_rawDesc = "" +
 	"\aheaders\x18\x05 \x03(\v2!.plux.v1.CallRequest.HeadersEntryR\aheaders\x12\x12\n" +
 	"\x04body\x18\x06 \x01(\fR\x04body\x128\n" +
 	"\x18transaction_challenge_id\x18\a \x01(\tR\x16transactionChallengeId\x123\n" +
-	"\x15transaction_signature\x18\b \x01(\fR\x14transactionSignature\x1a:\n" +
+	"\x15transaction_signature\x18\b \x01(\fR\x14transactionSignature\x12\x16\n" +
+	"\x06plugin\x18\t \x01(\tR\x06plugin\x1a:\n" +
 	"\fHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb4\x01\n" +
@@ -372,12 +467,17 @@ const file_plux_v1_gateway_proto_rawDesc = "" +
 	"\vdata_source\x18\x02 \x01(\tR\n" +
 	"dataSource\x12\x1c\n" +
 	"\toperation\x18\x03 \x01(\tR\toperation\x126\n" +
-	"\x17transaction_summary_jcs\x18\x04 \x01(\fR\x15transactionSummaryJcs\"\xa0\x01\n" +
+	"\x17transaction_summary_jcs\x18\x04 \x01(\fR\x15transactionSummaryJcs\"\x8f\x02\n" +
 	"\"CreateTransactionChallengeResponse\x12!\n" +
 	"\fchallenge_id\x18\x01 \x01(\tR\vchallengeId\x12\x1c\n" +
 	"\tchallenge\x18\x02 \x01(\fR\tchallenge\x129\n" +
 	"\n" +
-	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt2G\n" +
+	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x126\n" +
+	"\x17transaction_summary_jcs\x18\x04 \x01(\fR\x15transactionSummaryJcs\x125\n" +
+	"\tdisplayed\x18\x05 \x03(\v2\x17.plux.v1.DisplayedValueR\tdisplayed\"<\n" +
+	"\x0eDisplayedValue\x12\x14\n" +
+	"\x05label\x18\x01 \x01(\tR\x05label\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value2G\n" +
 	"\x0eGatewayService\x125\n" +
 	"\x04Call\x12\x14.plux.v1.CallRequest\x1a\x15.plux.v1.CallResponse\"\x002\x85\x01\n" +
 	"\n" +
@@ -396,29 +496,31 @@ func file_plux_v1_gateway_proto_rawDescGZIP() []byte {
 	return file_plux_v1_gateway_proto_rawDescData
 }
 
-var file_plux_v1_gateway_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_plux_v1_gateway_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_plux_v1_gateway_proto_goTypes = []any{
 	(*CallRequest)(nil),                        // 0: plux.v1.CallRequest
 	(*CallResponse)(nil),                       // 1: plux.v1.CallResponse
 	(*CreateTransactionChallengeRequest)(nil),  // 2: plux.v1.CreateTransactionChallengeRequest
 	(*CreateTransactionChallengeResponse)(nil), // 3: plux.v1.CreateTransactionChallengeResponse
-	nil,                           // 4: plux.v1.CallRequest.HeadersEntry
-	nil,                           // 5: plux.v1.CallResponse.HeadersEntry
-	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+	(*DisplayedValue)(nil),                     // 4: plux.v1.DisplayedValue
+	nil,                                        // 5: plux.v1.CallRequest.HeadersEntry
+	nil,                                        // 6: plux.v1.CallResponse.HeadersEntry
+	(*timestamppb.Timestamp)(nil),              // 7: google.protobuf.Timestamp
 }
 var file_plux_v1_gateway_proto_depIdxs = []int32{
-	4, // 0: plux.v1.CallRequest.headers:type_name -> plux.v1.CallRequest.HeadersEntry
-	5, // 1: plux.v1.CallResponse.headers:type_name -> plux.v1.CallResponse.HeadersEntry
-	6, // 2: plux.v1.CreateTransactionChallengeResponse.expires_at:type_name -> google.protobuf.Timestamp
-	0, // 3: plux.v1.GatewayService.Call:input_type -> plux.v1.CallRequest
-	2, // 4: plux.v1.ScaService.CreateTransactionChallenge:input_type -> plux.v1.CreateTransactionChallengeRequest
-	1, // 5: plux.v1.GatewayService.Call:output_type -> plux.v1.CallResponse
-	3, // 6: plux.v1.ScaService.CreateTransactionChallenge:output_type -> plux.v1.CreateTransactionChallengeResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	5, // 0: plux.v1.CallRequest.headers:type_name -> plux.v1.CallRequest.HeadersEntry
+	6, // 1: plux.v1.CallResponse.headers:type_name -> plux.v1.CallResponse.HeadersEntry
+	7, // 2: plux.v1.CreateTransactionChallengeResponse.expires_at:type_name -> google.protobuf.Timestamp
+	4, // 3: plux.v1.CreateTransactionChallengeResponse.displayed:type_name -> plux.v1.DisplayedValue
+	0, // 4: plux.v1.GatewayService.Call:input_type -> plux.v1.CallRequest
+	2, // 5: plux.v1.ScaService.CreateTransactionChallenge:input_type -> plux.v1.CreateTransactionChallengeRequest
+	1, // 6: plux.v1.GatewayService.Call:output_type -> plux.v1.CallResponse
+	3, // 7: plux.v1.ScaService.CreateTransactionChallenge:output_type -> plux.v1.CreateTransactionChallengeResponse
+	6, // [6:8] is the sub-list for method output_type
+	4, // [4:6] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_gateway_proto_init() }
@@ -432,7 +534,7 @@ func file_plux_v1_gateway_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_gateway_proto_rawDesc), len(file_plux_v1_gateway_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

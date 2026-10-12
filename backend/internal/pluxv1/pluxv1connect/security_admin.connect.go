@@ -57,9 +57,30 @@ const (
 	// SecurityAdminServiceDeleteUpstreamProcedure is the fully-qualified name of the
 	// SecurityAdminService's DeleteUpstream RPC.
 	SecurityAdminServiceDeleteUpstreamProcedure = "/plux.v1.SecurityAdminService/DeleteUpstream"
+	// SecurityAdminServiceSetUserIdentityProviderProcedure is the fully-qualified name of the
+	// SecurityAdminService's SetUserIdentityProvider RPC.
+	SecurityAdminServiceSetUserIdentityProviderProcedure = "/plux.v1.SecurityAdminService/SetUserIdentityProvider"
+	// SecurityAdminServiceGetUserIdentityProviderProcedure is the fully-qualified name of the
+	// SecurityAdminService's GetUserIdentityProvider RPC.
+	SecurityAdminServiceGetUserIdentityProviderProcedure = "/plux.v1.SecurityAdminService/GetUserIdentityProvider"
+	// SecurityAdminServiceDeleteUserIdentityProviderProcedure is the fully-qualified name of the
+	// SecurityAdminService's DeleteUserIdentityProvider RPC.
+	SecurityAdminServiceDeleteUserIdentityProviderProcedure = "/plux.v1.SecurityAdminService/DeleteUserIdentityProvider"
 	// SecurityAdminServiceListAuditCheckpointsProcedure is the fully-qualified name of the
 	// SecurityAdminService's ListAuditCheckpoints RPC.
 	SecurityAdminServiceListAuditCheckpointsProcedure = "/plux.v1.SecurityAdminService/ListAuditCheckpoints"
+	// SecurityAdminServiceSetConfigValueProcedure is the fully-qualified name of the
+	// SecurityAdminService's SetConfigValue RPC.
+	SecurityAdminServiceSetConfigValueProcedure = "/plux.v1.SecurityAdminService/SetConfigValue"
+	// SecurityAdminServiceGetConfigValueProcedure is the fully-qualified name of the
+	// SecurityAdminService's GetConfigValue RPC.
+	SecurityAdminServiceGetConfigValueProcedure = "/plux.v1.SecurityAdminService/GetConfigValue"
+	// SecurityAdminServiceListConfigValuesProcedure is the fully-qualified name of the
+	// SecurityAdminService's ListConfigValues RPC.
+	SecurityAdminServiceListConfigValuesProcedure = "/plux.v1.SecurityAdminService/ListConfigValues"
+	// SecurityAdminServiceDeleteConfigValueProcedure is the fully-qualified name of the
+	// SecurityAdminService's DeleteConfigValue RPC.
+	SecurityAdminServiceDeleteConfigValueProcedure = "/plux.v1.SecurityAdminService/DeleteConfigValue"
 )
 
 // SecurityAdminServiceClient is a client for the plux.v1.SecurityAdminService service.
@@ -76,10 +97,24 @@ type SecurityAdminServiceClient interface {
 	ListUpstreams(context.Context, *connect.Request[pluxv1.ListUpstreamsRequest]) (*connect.Response[pluxv1.ListUpstreamsResponse], error)
 	UpdateUpstream(context.Context, *connect.Request[pluxv1.UpdateUpstreamRequest]) (*connect.Response[pluxv1.UpdateUpstreamResponse], error)
 	DeleteUpstream(context.Context, *connect.Request[pluxv1.DeleteUpstreamRequest]) (*connect.Response[pluxv1.DeleteUpstreamResponse], error)
+	// SetUserIdentityProvider sets the customer identity provider whose user
+	// tokens an environment's devices may exchange (SEC-026).
+	SetUserIdentityProvider(context.Context, *connect.Request[pluxv1.SetUserIdentityProviderRequest]) (*connect.Response[pluxv1.SetUserIdentityProviderResponse], error)
+	GetUserIdentityProvider(context.Context, *connect.Request[pluxv1.GetUserIdentityProviderRequest]) (*connect.Response[pluxv1.GetUserIdentityProviderResponse], error)
+	DeleteUserIdentityProvider(context.Context, *connect.Request[pluxv1.DeleteUserIdentityProviderRequest]) (*connect.Response[pluxv1.DeleteUserIdentityProviderResponse], error)
 	// ListAuditCheckpoints lists the signed checkpoints over the audit
 	// log's hash chain, which let anyone verify that no entry was removed
 	// (SEC-141).
 	ListAuditCheckpoints(context.Context, *connect.Request[pluxv1.ListAuditCheckpointsRequest]) (*connect.Response[pluxv1.ListAuditCheckpointsResponse], error)
+	// SetConfigValue creates or changes a server-held configuration value
+	// of an environment (DAT-090). It fails when expected_version is not
+	// the value's current version.
+	SetConfigValue(context.Context, *connect.Request[pluxv1.SetConfigValueRequest]) (*connect.Response[pluxv1.SetConfigValueResponse], error)
+	// GetConfigValue returns one value; a sensitive value's content is
+	// omitted (DAT-090).
+	GetConfigValue(context.Context, *connect.Request[pluxv1.GetConfigValueRequest]) (*connect.Response[pluxv1.GetConfigValueResponse], error)
+	ListConfigValues(context.Context, *connect.Request[pluxv1.ListConfigValuesRequest]) (*connect.Response[pluxv1.ListConfigValuesResponse], error)
+	DeleteConfigValue(context.Context, *connect.Request[pluxv1.DeleteConfigValueRequest]) (*connect.Response[pluxv1.DeleteConfigValueResponse], error)
 }
 
 // NewSecurityAdminServiceClient constructs a client for the plux.v1.SecurityAdminService service.
@@ -135,10 +170,52 @@ func NewSecurityAdminServiceClient(httpClient connect.HTTPClient, baseURL string
 			connect.WithSchema(securityAdminServiceMethods.ByName("DeleteUpstream")),
 			connect.WithClientOptions(opts...),
 		),
+		setUserIdentityProvider: connect.NewClient[pluxv1.SetUserIdentityProviderRequest, pluxv1.SetUserIdentityProviderResponse](
+			httpClient,
+			baseURL+SecurityAdminServiceSetUserIdentityProviderProcedure,
+			connect.WithSchema(securityAdminServiceMethods.ByName("SetUserIdentityProvider")),
+			connect.WithClientOptions(opts...),
+		),
+		getUserIdentityProvider: connect.NewClient[pluxv1.GetUserIdentityProviderRequest, pluxv1.GetUserIdentityProviderResponse](
+			httpClient,
+			baseURL+SecurityAdminServiceGetUserIdentityProviderProcedure,
+			connect.WithSchema(securityAdminServiceMethods.ByName("GetUserIdentityProvider")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteUserIdentityProvider: connect.NewClient[pluxv1.DeleteUserIdentityProviderRequest, pluxv1.DeleteUserIdentityProviderResponse](
+			httpClient,
+			baseURL+SecurityAdminServiceDeleteUserIdentityProviderProcedure,
+			connect.WithSchema(securityAdminServiceMethods.ByName("DeleteUserIdentityProvider")),
+			connect.WithClientOptions(opts...),
+		),
 		listAuditCheckpoints: connect.NewClient[pluxv1.ListAuditCheckpointsRequest, pluxv1.ListAuditCheckpointsResponse](
 			httpClient,
 			baseURL+SecurityAdminServiceListAuditCheckpointsProcedure,
 			connect.WithSchema(securityAdminServiceMethods.ByName("ListAuditCheckpoints")),
+			connect.WithClientOptions(opts...),
+		),
+		setConfigValue: connect.NewClient[pluxv1.SetConfigValueRequest, pluxv1.SetConfigValueResponse](
+			httpClient,
+			baseURL+SecurityAdminServiceSetConfigValueProcedure,
+			connect.WithSchema(securityAdminServiceMethods.ByName("SetConfigValue")),
+			connect.WithClientOptions(opts...),
+		),
+		getConfigValue: connect.NewClient[pluxv1.GetConfigValueRequest, pluxv1.GetConfigValueResponse](
+			httpClient,
+			baseURL+SecurityAdminServiceGetConfigValueProcedure,
+			connect.WithSchema(securityAdminServiceMethods.ByName("GetConfigValue")),
+			connect.WithClientOptions(opts...),
+		),
+		listConfigValues: connect.NewClient[pluxv1.ListConfigValuesRequest, pluxv1.ListConfigValuesResponse](
+			httpClient,
+			baseURL+SecurityAdminServiceListConfigValuesProcedure,
+			connect.WithSchema(securityAdminServiceMethods.ByName("ListConfigValues")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteConfigValue: connect.NewClient[pluxv1.DeleteConfigValueRequest, pluxv1.DeleteConfigValueResponse](
+			httpClient,
+			baseURL+SecurityAdminServiceDeleteConfigValueProcedure,
+			connect.WithSchema(securityAdminServiceMethods.ByName("DeleteConfigValue")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -153,7 +230,14 @@ type securityAdminServiceClient struct {
 	listUpstreams              *connect.Client[pluxv1.ListUpstreamsRequest, pluxv1.ListUpstreamsResponse]
 	updateUpstream             *connect.Client[pluxv1.UpdateUpstreamRequest, pluxv1.UpdateUpstreamResponse]
 	deleteUpstream             *connect.Client[pluxv1.DeleteUpstreamRequest, pluxv1.DeleteUpstreamResponse]
+	setUserIdentityProvider    *connect.Client[pluxv1.SetUserIdentityProviderRequest, pluxv1.SetUserIdentityProviderResponse]
+	getUserIdentityProvider    *connect.Client[pluxv1.GetUserIdentityProviderRequest, pluxv1.GetUserIdentityProviderResponse]
+	deleteUserIdentityProvider *connect.Client[pluxv1.DeleteUserIdentityProviderRequest, pluxv1.DeleteUserIdentityProviderResponse]
 	listAuditCheckpoints       *connect.Client[pluxv1.ListAuditCheckpointsRequest, pluxv1.ListAuditCheckpointsResponse]
+	setConfigValue             *connect.Client[pluxv1.SetConfigValueRequest, pluxv1.SetConfigValueResponse]
+	getConfigValue             *connect.Client[pluxv1.GetConfigValueRequest, pluxv1.GetConfigValueResponse]
+	listConfigValues           *connect.Client[pluxv1.ListConfigValuesRequest, pluxv1.ListConfigValuesResponse]
+	deleteConfigValue          *connect.Client[pluxv1.DeleteConfigValueRequest, pluxv1.DeleteConfigValueResponse]
 }
 
 // SetSecurityConfig calls plux.v1.SecurityAdminService.SetSecurityConfig.
@@ -191,9 +275,44 @@ func (c *securityAdminServiceClient) DeleteUpstream(ctx context.Context, req *co
 	return c.deleteUpstream.CallUnary(ctx, req)
 }
 
+// SetUserIdentityProvider calls plux.v1.SecurityAdminService.SetUserIdentityProvider.
+func (c *securityAdminServiceClient) SetUserIdentityProvider(ctx context.Context, req *connect.Request[pluxv1.SetUserIdentityProviderRequest]) (*connect.Response[pluxv1.SetUserIdentityProviderResponse], error) {
+	return c.setUserIdentityProvider.CallUnary(ctx, req)
+}
+
+// GetUserIdentityProvider calls plux.v1.SecurityAdminService.GetUserIdentityProvider.
+func (c *securityAdminServiceClient) GetUserIdentityProvider(ctx context.Context, req *connect.Request[pluxv1.GetUserIdentityProviderRequest]) (*connect.Response[pluxv1.GetUserIdentityProviderResponse], error) {
+	return c.getUserIdentityProvider.CallUnary(ctx, req)
+}
+
+// DeleteUserIdentityProvider calls plux.v1.SecurityAdminService.DeleteUserIdentityProvider.
+func (c *securityAdminServiceClient) DeleteUserIdentityProvider(ctx context.Context, req *connect.Request[pluxv1.DeleteUserIdentityProviderRequest]) (*connect.Response[pluxv1.DeleteUserIdentityProviderResponse], error) {
+	return c.deleteUserIdentityProvider.CallUnary(ctx, req)
+}
+
 // ListAuditCheckpoints calls plux.v1.SecurityAdminService.ListAuditCheckpoints.
 func (c *securityAdminServiceClient) ListAuditCheckpoints(ctx context.Context, req *connect.Request[pluxv1.ListAuditCheckpointsRequest]) (*connect.Response[pluxv1.ListAuditCheckpointsResponse], error) {
 	return c.listAuditCheckpoints.CallUnary(ctx, req)
+}
+
+// SetConfigValue calls plux.v1.SecurityAdminService.SetConfigValue.
+func (c *securityAdminServiceClient) SetConfigValue(ctx context.Context, req *connect.Request[pluxv1.SetConfigValueRequest]) (*connect.Response[pluxv1.SetConfigValueResponse], error) {
+	return c.setConfigValue.CallUnary(ctx, req)
+}
+
+// GetConfigValue calls plux.v1.SecurityAdminService.GetConfigValue.
+func (c *securityAdminServiceClient) GetConfigValue(ctx context.Context, req *connect.Request[pluxv1.GetConfigValueRequest]) (*connect.Response[pluxv1.GetConfigValueResponse], error) {
+	return c.getConfigValue.CallUnary(ctx, req)
+}
+
+// ListConfigValues calls plux.v1.SecurityAdminService.ListConfigValues.
+func (c *securityAdminServiceClient) ListConfigValues(ctx context.Context, req *connect.Request[pluxv1.ListConfigValuesRequest]) (*connect.Response[pluxv1.ListConfigValuesResponse], error) {
+	return c.listConfigValues.CallUnary(ctx, req)
+}
+
+// DeleteConfigValue calls plux.v1.SecurityAdminService.DeleteConfigValue.
+func (c *securityAdminServiceClient) DeleteConfigValue(ctx context.Context, req *connect.Request[pluxv1.DeleteConfigValueRequest]) (*connect.Response[pluxv1.DeleteConfigValueResponse], error) {
+	return c.deleteConfigValue.CallUnary(ctx, req)
 }
 
 // SecurityAdminServiceHandler is an implementation of the plux.v1.SecurityAdminService service.
@@ -210,10 +329,24 @@ type SecurityAdminServiceHandler interface {
 	ListUpstreams(context.Context, *connect.Request[pluxv1.ListUpstreamsRequest]) (*connect.Response[pluxv1.ListUpstreamsResponse], error)
 	UpdateUpstream(context.Context, *connect.Request[pluxv1.UpdateUpstreamRequest]) (*connect.Response[pluxv1.UpdateUpstreamResponse], error)
 	DeleteUpstream(context.Context, *connect.Request[pluxv1.DeleteUpstreamRequest]) (*connect.Response[pluxv1.DeleteUpstreamResponse], error)
+	// SetUserIdentityProvider sets the customer identity provider whose user
+	// tokens an environment's devices may exchange (SEC-026).
+	SetUserIdentityProvider(context.Context, *connect.Request[pluxv1.SetUserIdentityProviderRequest]) (*connect.Response[pluxv1.SetUserIdentityProviderResponse], error)
+	GetUserIdentityProvider(context.Context, *connect.Request[pluxv1.GetUserIdentityProviderRequest]) (*connect.Response[pluxv1.GetUserIdentityProviderResponse], error)
+	DeleteUserIdentityProvider(context.Context, *connect.Request[pluxv1.DeleteUserIdentityProviderRequest]) (*connect.Response[pluxv1.DeleteUserIdentityProviderResponse], error)
 	// ListAuditCheckpoints lists the signed checkpoints over the audit
 	// log's hash chain, which let anyone verify that no entry was removed
 	// (SEC-141).
 	ListAuditCheckpoints(context.Context, *connect.Request[pluxv1.ListAuditCheckpointsRequest]) (*connect.Response[pluxv1.ListAuditCheckpointsResponse], error)
+	// SetConfigValue creates or changes a server-held configuration value
+	// of an environment (DAT-090). It fails when expected_version is not
+	// the value's current version.
+	SetConfigValue(context.Context, *connect.Request[pluxv1.SetConfigValueRequest]) (*connect.Response[pluxv1.SetConfigValueResponse], error)
+	// GetConfigValue returns one value; a sensitive value's content is
+	// omitted (DAT-090).
+	GetConfigValue(context.Context, *connect.Request[pluxv1.GetConfigValueRequest]) (*connect.Response[pluxv1.GetConfigValueResponse], error)
+	ListConfigValues(context.Context, *connect.Request[pluxv1.ListConfigValuesRequest]) (*connect.Response[pluxv1.ListConfigValuesResponse], error)
+	DeleteConfigValue(context.Context, *connect.Request[pluxv1.DeleteConfigValueRequest]) (*connect.Response[pluxv1.DeleteConfigValueResponse], error)
 }
 
 // NewSecurityAdminServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -265,10 +398,52 @@ func NewSecurityAdminServiceHandler(svc SecurityAdminServiceHandler, opts ...con
 		connect.WithSchema(securityAdminServiceMethods.ByName("DeleteUpstream")),
 		connect.WithHandlerOptions(opts...),
 	)
+	securityAdminServiceSetUserIdentityProviderHandler := connect.NewUnaryHandler(
+		SecurityAdminServiceSetUserIdentityProviderProcedure,
+		svc.SetUserIdentityProvider,
+		connect.WithSchema(securityAdminServiceMethods.ByName("SetUserIdentityProvider")),
+		connect.WithHandlerOptions(opts...),
+	)
+	securityAdminServiceGetUserIdentityProviderHandler := connect.NewUnaryHandler(
+		SecurityAdminServiceGetUserIdentityProviderProcedure,
+		svc.GetUserIdentityProvider,
+		connect.WithSchema(securityAdminServiceMethods.ByName("GetUserIdentityProvider")),
+		connect.WithHandlerOptions(opts...),
+	)
+	securityAdminServiceDeleteUserIdentityProviderHandler := connect.NewUnaryHandler(
+		SecurityAdminServiceDeleteUserIdentityProviderProcedure,
+		svc.DeleteUserIdentityProvider,
+		connect.WithSchema(securityAdminServiceMethods.ByName("DeleteUserIdentityProvider")),
+		connect.WithHandlerOptions(opts...),
+	)
 	securityAdminServiceListAuditCheckpointsHandler := connect.NewUnaryHandler(
 		SecurityAdminServiceListAuditCheckpointsProcedure,
 		svc.ListAuditCheckpoints,
 		connect.WithSchema(securityAdminServiceMethods.ByName("ListAuditCheckpoints")),
+		connect.WithHandlerOptions(opts...),
+	)
+	securityAdminServiceSetConfigValueHandler := connect.NewUnaryHandler(
+		SecurityAdminServiceSetConfigValueProcedure,
+		svc.SetConfigValue,
+		connect.WithSchema(securityAdminServiceMethods.ByName("SetConfigValue")),
+		connect.WithHandlerOptions(opts...),
+	)
+	securityAdminServiceGetConfigValueHandler := connect.NewUnaryHandler(
+		SecurityAdminServiceGetConfigValueProcedure,
+		svc.GetConfigValue,
+		connect.WithSchema(securityAdminServiceMethods.ByName("GetConfigValue")),
+		connect.WithHandlerOptions(opts...),
+	)
+	securityAdminServiceListConfigValuesHandler := connect.NewUnaryHandler(
+		SecurityAdminServiceListConfigValuesProcedure,
+		svc.ListConfigValues,
+		connect.WithSchema(securityAdminServiceMethods.ByName("ListConfigValues")),
+		connect.WithHandlerOptions(opts...),
+	)
+	securityAdminServiceDeleteConfigValueHandler := connect.NewUnaryHandler(
+		SecurityAdminServiceDeleteConfigValueProcedure,
+		svc.DeleteConfigValue,
+		connect.WithSchema(securityAdminServiceMethods.ByName("DeleteConfigValue")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/plux.v1.SecurityAdminService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -287,8 +462,22 @@ func NewSecurityAdminServiceHandler(svc SecurityAdminServiceHandler, opts ...con
 			securityAdminServiceUpdateUpstreamHandler.ServeHTTP(w, r)
 		case SecurityAdminServiceDeleteUpstreamProcedure:
 			securityAdminServiceDeleteUpstreamHandler.ServeHTTP(w, r)
+		case SecurityAdminServiceSetUserIdentityProviderProcedure:
+			securityAdminServiceSetUserIdentityProviderHandler.ServeHTTP(w, r)
+		case SecurityAdminServiceGetUserIdentityProviderProcedure:
+			securityAdminServiceGetUserIdentityProviderHandler.ServeHTTP(w, r)
+		case SecurityAdminServiceDeleteUserIdentityProviderProcedure:
+			securityAdminServiceDeleteUserIdentityProviderHandler.ServeHTTP(w, r)
 		case SecurityAdminServiceListAuditCheckpointsProcedure:
 			securityAdminServiceListAuditCheckpointsHandler.ServeHTTP(w, r)
+		case SecurityAdminServiceSetConfigValueProcedure:
+			securityAdminServiceSetConfigValueHandler.ServeHTTP(w, r)
+		case SecurityAdminServiceGetConfigValueProcedure:
+			securityAdminServiceGetConfigValueHandler.ServeHTTP(w, r)
+		case SecurityAdminServiceListConfigValuesProcedure:
+			securityAdminServiceListConfigValuesHandler.ServeHTTP(w, r)
+		case SecurityAdminServiceDeleteConfigValueProcedure:
+			securityAdminServiceDeleteConfigValueHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -326,6 +515,34 @@ func (UnimplementedSecurityAdminServiceHandler) DeleteUpstream(context.Context, 
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.SecurityAdminService.DeleteUpstream is not implemented"))
 }
 
+func (UnimplementedSecurityAdminServiceHandler) SetUserIdentityProvider(context.Context, *connect.Request[pluxv1.SetUserIdentityProviderRequest]) (*connect.Response[pluxv1.SetUserIdentityProviderResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.SecurityAdminService.SetUserIdentityProvider is not implemented"))
+}
+
+func (UnimplementedSecurityAdminServiceHandler) GetUserIdentityProvider(context.Context, *connect.Request[pluxv1.GetUserIdentityProviderRequest]) (*connect.Response[pluxv1.GetUserIdentityProviderResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.SecurityAdminService.GetUserIdentityProvider is not implemented"))
+}
+
+func (UnimplementedSecurityAdminServiceHandler) DeleteUserIdentityProvider(context.Context, *connect.Request[pluxv1.DeleteUserIdentityProviderRequest]) (*connect.Response[pluxv1.DeleteUserIdentityProviderResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.SecurityAdminService.DeleteUserIdentityProvider is not implemented"))
+}
+
 func (UnimplementedSecurityAdminServiceHandler) ListAuditCheckpoints(context.Context, *connect.Request[pluxv1.ListAuditCheckpointsRequest]) (*connect.Response[pluxv1.ListAuditCheckpointsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.SecurityAdminService.ListAuditCheckpoints is not implemented"))
+}
+
+func (UnimplementedSecurityAdminServiceHandler) SetConfigValue(context.Context, *connect.Request[pluxv1.SetConfigValueRequest]) (*connect.Response[pluxv1.SetConfigValueResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.SecurityAdminService.SetConfigValue is not implemented"))
+}
+
+func (UnimplementedSecurityAdminServiceHandler) GetConfigValue(context.Context, *connect.Request[pluxv1.GetConfigValueRequest]) (*connect.Response[pluxv1.GetConfigValueResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.SecurityAdminService.GetConfigValue is not implemented"))
+}
+
+func (UnimplementedSecurityAdminServiceHandler) ListConfigValues(context.Context, *connect.Request[pluxv1.ListConfigValuesRequest]) (*connect.Response[pluxv1.ListConfigValuesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.SecurityAdminService.ListConfigValues is not implemented"))
+}
+
+func (UnimplementedSecurityAdminServiceHandler) DeleteConfigValue(context.Context, *connect.Request[pluxv1.DeleteConfigValueRequest]) (*connect.Response[pluxv1.DeleteConfigValueResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.SecurityAdminService.DeleteConfigValue is not implemented"))
 }

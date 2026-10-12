@@ -148,6 +148,7 @@ const List<TableLayout> tableLayouts = [
     FieldLayout('type', 1, FieldKind.scalar, 4, 4, -1, required: false),
     FieldLayout('initial', 2, FieldKind.table, 0, 0, 68, required: false),
     FieldLayout('validators', 3, FieldKind.vectorTable, 0, 0, 21, required: false),
+    FieldLayout('sensitive', 4, FieldKind.scalar, 1, 1, -1, required: false),
   ]),
   // 21
   TableLayout('FormValidator', [

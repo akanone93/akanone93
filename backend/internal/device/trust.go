@@ -52,12 +52,16 @@ func (s *Service) Reattest(ctx context.Context, deviceID string, challenge []byt
 	if err := s.consumeChallenge(ctx, challenge, appID, envID, conf.RegistrationChallengeTTL); err != nil {
 		return Device{}, err
 	}
-	v, err := s.verify(ctx, subject{
-		appID: appID, envID: envID, production: production, challenge: challenge,
-		key: key, jkt: jkt, claim: KeyStorage(row.KeyStorage), settings: conf,
-	}, e)
+	kaJKT, scaJKT, err := s.registeredKeyThumbprints(ctx, row)
 	if err != nil {
 		return Device{}, err
+	}
+	v, err := s.verify(ctx, subject{
+		appID: appID, envID: envID, production: production, challenge: challenge,
+		key: key, jkt: jkt, kaJKT: kaJKT, scaJKT: scaJKT, claim: KeyStorage(row.KeyStorage), settings: conf,
+	}, e)
+	if err != nil {
+		return s.graceOnOutage(ctx, row, conf, err)
 	}
 	provider := string(v.proof.Provider)
 	params := dbgen.UpdateDeviceAttestationParams{
@@ -81,6 +85,30 @@ func (s *Service) Reattest(ctx context.Context, deviceID string, challenge []byt
 		return nil
 	})
 	return d, err //nolint:wrapcheck // InTx wraps its own failures
+}
+
+// registeredKeyThumbprints returns the thumbprints of the key-agreement
+// and SCA keys a device holds, empty for a key it does not have. A
+// re-attestation is bound to them like the registration was, so the fresh
+// evidence vouches for the same set of keys (SEC-004).
+func (s *Service) registeredKeyThumbprints(ctx context.Context, row dbgen.Device) (string, string, error) {
+	ka, err := storedAgreementThumbprint(row)
+	if err != nil {
+		return "", "", err
+	}
+	var sca string
+	err = s.db.InTx(ctx, storage.Tenant{OrganizationID: storage.ID(row.OrganizationID)}, func(ctx context.Context, tx pgx.Tx) error {
+		key, err := dbgen.New(tx).GetDeviceSCAKey(ctx, row.ID)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil
+		}
+		sca = key.Jkt
+		return err //nolint:wrapcheck // InTx wraps its own failures
+	})
+	if err != nil {
+		return "", "", fmt.Errorf("device: %w", err)
+	}
+	return ka, sca, nil
 }
 
 // deviceForReattestation reads a device, in the authentication scope: a

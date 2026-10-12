@@ -8,6 +8,7 @@ library;
 
 import 'dart:typed_data';
 
+import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/security/dpop.dart';
@@ -20,6 +21,9 @@ final class FakeDeviceKeys implements DeviceKeys {
 
   /// The challenge of each `create`, in order.
   final List<Uint8List?> challenges = [];
+
+  /// The challenge of each key-agreement `create`, in order.
+  final List<Uint8List?> agreementChallenges = [];
 
   /// The aliases deleted, in order.
   final List<String> deleted = [];
@@ -34,8 +38,9 @@ final class FakeDeviceKeys implements DeviceKeys {
   KeyStorage storage = KeyStorage.tee;
 
   var _created = 0;
+  var _agreements = 0;
 
-  /// The number of keys created.
+  /// The number of keys created, key-agreement keys apart.
   int get created => _created;
 
   @override
@@ -45,14 +50,20 @@ final class FakeDeviceKeys implements DeviceKeys {
     Uint8List? challenge,
     bool strongBox = true,
   }) async {
-    _created++;
-    challenges.add(challenge);
+    // Key-agreement keys are counted apart, so the tests of the DPoP flow
+    // keep counting the keys they care about.
+    final n = purpose == KeyPurpose.agreement
+        ? (200 + ++_agreements) % 256
+        : ++_created;
+    (purpose == KeyPurpose.agreement ? agreementChallenges : challenges).add(
+      challenge,
+    );
     final key = DeviceKey(
       alias: alias,
       purpose: purpose,
       publicKey: EcPublicKey(
-        Uint8List.fromList(List.filled(32, _created)),
-        Uint8List.fromList(List.filled(32, _created + 100)),
+        Uint8List.fromList(List.filled(32, n)),
+        Uint8List.fromList(List.filled(32, n % 100 + 100)),
       ),
       storage: storage,
     );
@@ -77,6 +88,10 @@ final class FakeDeviceKeys implements DeviceKeys {
   }
 
   @override
+  Future<Uint8List> agree(String alias, EcPublicKey peer) async =>
+      throw UnimplementedError('FakeDeviceKeys.agree');
+
+  @override
   Future<void> delete(String alias) async {
     deleted.add(alias);
     stored.remove(alias);
@@ -90,10 +105,29 @@ final class FakeAttestation implements Attestation {
     this.evidence = const DevelopmentEvidence('build-1'),
     this.assertionBytes,
     this.token,
+    this.scaEvidence = const DevelopmentEvidence('build-1'),
   });
+
+  /// What `scaEnrolment` returns.
+  AttestationEvidence scaEvidence;
+
+  /// The arguments of each `scaEnrolment`, in order.
+  final List<
+    ({
+      Uint8List challenge,
+      String jkt,
+      String kaJkt,
+      String scaJkt,
+      List<Uint8List> chain,
+    })
+  >
+  enrolments = [];
 
   /// What `attest` returns.
   AttestationEvidence evidence;
+
+  /// When set, `attest` throws it.
+  PluxException? failure;
 
   /// What `assertion` returns.
   Uint8List? assertionBytes;
@@ -102,7 +136,15 @@ final class FakeAttestation implements Attestation {
   String? token;
 
   /// The arguments of each `attest`, in order.
-  final List<({Uint8List challenge, String jkt, List<Uint8List> chain})>
+  final List<
+    ({
+      Uint8List challenge,
+      String jkt,
+      String kaJkt,
+      String scaJkt,
+      List<Uint8List> chain,
+    })
+  >
   attested = [];
 
   /// The client data hash of each `assertion`, in order.
@@ -115,10 +157,38 @@ final class FakeAttestation implements Attestation {
   Future<AttestationEvidence> attest({
     required Uint8List challenge,
     required String jkt,
+    required String kaJkt,
+    required String scaJkt,
     required List<Uint8List> keyAttestationChain,
   }) async {
-    attested.add((challenge: challenge, jkt: jkt, chain: keyAttestationChain));
+    final f = failure;
+    if (f != null) throw f;
+    attested.add((
+      challenge: challenge,
+      jkt: jkt,
+      kaJkt: kaJkt,
+      scaJkt: scaJkt,
+      chain: keyAttestationChain,
+    ));
     return evidence;
+  }
+
+  @override
+  Future<AttestationEvidence> scaEnrolment({
+    required Uint8List challenge,
+    required String jkt,
+    required String kaJkt,
+    required String scaJkt,
+    required List<Uint8List> scaKeyChain,
+  }) async {
+    enrolments.add((
+      challenge: challenge,
+      jkt: jkt,
+      kaJkt: kaJkt,
+      scaJkt: scaJkt,
+      chain: scaKeyChain,
+    ));
+    return scaEvidence;
   }
 
   @override

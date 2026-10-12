@@ -76,4 +76,25 @@ void main() {
       expect(decode(plugin, {'path': '/x'}).requiresAssurance, 0);
     },
   );
+
+  testWidgets(
+    'a source routes through the gateway unless its configuration says direct [SEC-030]',
+    (tester) async {
+      await tester.runAsync(
+        () => h.startFrom(g.bundles['loan-calculator/demo.pxb']!, {
+          'loans': g.bundles['loan-calculator/loans.pxb']!,
+        }),
+      );
+      final rt = h.runtime;
+      final plugin = (rt.renderer! as PluxRenderer).view(
+        rt.active.value!,
+        'loans',
+      );
+      expect(decode(plugin, {'path': '/x'}).route, DataRoute.plux);
+      expect(decode(plugin, {'route': 'plux'}).route, DataRoute.plux);
+      expect(decode(plugin, {'route': 'direct'}).route, DataRoute.direct);
+      expect(decode(plugin, {'route': 'sideways'}).route, DataRoute.plux);
+      expect(decode(plugin, {'path': '/x'}).transaction, isNull);
+    },
+  );
 }

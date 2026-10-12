@@ -92,6 +92,18 @@ func TestAuditCheckpointSettings(t *testing.T) {
 	}
 }
 
+// Verifies: SEC-160.
+// Telemetry is kept 30 days unless the operator sets telemetry.retentionDays.
+func TestTelemetryRetentionIsConfigurable(t *testing.T) {
+	t.Parallel()
+	if c := parse(t, minimal); c.Telemetry.RetentionDays != 30 {
+		t.Errorf("default = %d days, want 30", c.Telemetry.RetentionDays)
+	}
+	if c := parse(t, minimal+"telemetry:\n  retentionDays: 7\n"); c.Telemetry.RetentionDays != 7 {
+		t.Errorf("configured = %d days, want 7", c.Telemetry.RetentionDays)
+	}
+}
+
 // Verifies: SRV-008.
 func TestParseRejectsUnknownKeys(t *testing.T) {
 	t.Parallel()
@@ -157,6 +169,7 @@ func TestValidateReportsEveryProblem(t *testing.T) {
 		{"sample ratio out of range", minimal + "observability:\n  traceSampleRatio: 2\n", "between 0 and 1"},
 		{"later-phase telemetry store", minimal + "telemetry:\n  store: clickhouse\n", "arrives in P9"},
 		{"unknown telemetry store", minimal + "telemetry:\n  store: files\n", "telemetry.store"},
+		{"no telemetry retention", minimal + "telemetry:\n  retentionDays: 0\n", "telemetry.retentionDays"},
 		{"short snapshot retention", minimal + "retention:\n  snapshotDays: 10\n", "at least 90"},
 		{"short trash retention", minimal + "retention:\n  trashDays: 7\n", "at least 30"},
 		{"no audit retention", minimal + "retention:\n  auditYears: 0\n", "retention.auditYears"},
@@ -401,4 +414,62 @@ func TestUpdateMetadataSettings_SEC_050(t *testing.T) {
 	if msg := refuse(t, minimal+"signing:\n  keys: { targets: \"k\", snapshot: \"k\" }\n"); !strings.Contains(msg, "must differ from signing.keys") {
 		t.Errorf("two roles sharing a key prefix: %s", msg)
 	}
+}
+
+// Verifies: SEC-031.
+// The gateway role is a role of its own: it serves HTTP like the api role,
+// needs the same listener settings, and a gateway-only process needs the
+// shared cache.
+func TestGatewayRole(t *testing.T) {
+	t.Parallel()
+	c := parse(t, withServer("  roles: [gateway]\n  behindTLSProxy: true\n")+"cache:\n  backend: valkey\n  valkeyURL: \"rediss://v.example:6379\"\n")
+	if !c.Has(RoleGateway) || c.Has(RoleAPI) || !c.ServesHTTP() {
+		t.Errorf("roles %v, serves HTTP %v", c.Server.Roles, c.ServesHTTP())
+	}
+	if parse(t, minimal).ServesHTTP() != true {
+		t.Error("the api role does not serve HTTP")
+	}
+	mentions(t, []struct{ name, src, want string }{
+		{"gateway alone on the memory cache", withServer("  roles: [gateway]\n"), "single-node only"},
+	})
+}
+
+// Verifies: SEC-031.
+// The authorities the gateway trusts for its upstreams are a readable PEM
+// file or nothing.
+func TestGatewayUpstreamCAFile(t *testing.T) {
+	t.Parallel()
+	empty := filepath.Join(t.TempDir(), "ca.pem")
+	if err := os.WriteFile(empty, []byte("not a certificate"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	mentions(t, []struct{ name, src, want string }{
+		{"a file that is missing", minimal + "gateway:\n  upstreamCAFile: /nonexistent/ca.pem\n", "gateway.upstreamCAFile"},
+		{"a file with no certificate", minimal + "gateway:\n  upstreamCAFile: \"" + empty + "\"\n", "holds no PEM certificate"},
+	})
+	if c := parse(t, minimal); c.Gateway.UpstreamCAFile != "" {
+		t.Errorf("default = %q", c.Gateway.UpstreamCAFile)
+	}
+}
+
+// Verifies: SEC-002, DEP-040.
+// An operator's status list file is read at startup and must be a list.
+func TestAttestationStatusListFile(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	good := filepath.Join(dir, "good.json")
+	bad := filepath.Join(dir, "bad.json")
+	if err := os.WriteFile(good, []byte(`{"entries":{"0a":{"status":"REVOKED"}}}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(bad, []byte(`[]`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if got := parse(t, minimal+"attestation:\n  android:\n    statusListFile: "+good+"\n").Attestation.Android.StatusListFile; got != good {
+		t.Errorf("statusListFile = %q", got)
+	}
+	mentions(t, []struct{ name, src, want string }{
+		{"missing", minimal + "attestation:\n  android:\n    statusListFile: " + filepath.Join(dir, "none.json") + "\n", "attestation.android.statusListFile"},
+		{"not a list", minimal + "attestation:\n  android:\n    statusListFile: " + bad + "\n", "not an attestation status list"},
+	})
 }

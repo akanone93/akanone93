@@ -28,10 +28,26 @@ service SecurityAdminService {
   rpc UpdateUpstream(UpdateUpstreamRequest) returns (UpdateUpstreamResponse) {}
   rpc DeleteUpstream(DeleteUpstreamRequest) returns (DeleteUpstreamResponse) {}
 
+  // SetUserIdentityProvider sets the customer identity provider whose user
+  // tokens an environment's devices may exchange (SEC-026).
+  rpc SetUserIdentityProvider(SetUserIdentityProviderRequest) returns (SetUserIdentityProviderResponse) {}
+  rpc GetUserIdentityProvider(GetUserIdentityProviderRequest) returns (GetUserIdentityProviderResponse) {}
+  rpc DeleteUserIdentityProvider(DeleteUserIdentityProviderRequest) returns (DeleteUserIdentityProviderResponse) {}
+
   // ListAuditCheckpoints lists the signed checkpoints over the audit
   // log's hash chain, which let anyone verify that no entry was removed
   // (SEC-141).
   rpc ListAuditCheckpoints(ListAuditCheckpointsRequest) returns (ListAuditCheckpointsResponse) {}
+
+  // SetConfigValue creates or changes a server-held configuration value
+  // of an environment (DAT-090). It fails when expected_version is not
+  // the value's current version.
+  rpc SetConfigValue(SetConfigValueRequest) returns (SetConfigValueResponse) {}
+  // GetConfigValue returns one value; a sensitive value's content is
+  // omitted (DAT-090).
+  rpc GetConfigValue(GetConfigValueRequest) returns (GetConfigValueResponse) {}
+  rpc ListConfigValues(ListConfigValuesRequest) returns (ListConfigValuesResponse) {}
+  rpc DeleteConfigValue(DeleteConfigValueRequest) returns (DeleteConfigValueResponse) {}
 }
 
 message SetSecurityConfigRequest {
@@ -89,6 +105,88 @@ message Upstream {
   // timeout_ms bounds one call to the upstream; zero uses the registry's
   // default (LIM-001).
   int32 timeout_ms = 10;
+  // allowed_methods are the HTTP methods the gateway forwards to the
+  // upstream; at least one is required (SEC-031).
+  repeated string allowed_methods = 11;
+  // requires_assurance is the lowest assurance level ("AL0" to "AL3") any
+  // call to the upstream needs; empty means "AL0". An operation may ask
+  // for more, never less (SEC-007).
+  string requires_assurance = 12;
+  // operations are the named operations devices may call. When the list
+  // is not empty a call must name one of them; each narrows the upstream's
+  // methods and paths and carries the policy the gateway enforces for it
+  // (SEC-028, SEC-030).
+  repeated UpstreamOperation operations = 13;
+  // audience is the `aud` of the Plux assertion sent to the upstream;
+  // empty means base_url (SEC-031).
+  string audience = 14;
+}
+
+// UpstreamOperation is one operation of an upstream and the policy the
+// gateway enforces before it forwards a call to it.
+message UpstreamOperation {
+  // name is what CallRequest.operation names.
+  string name = 1;
+  // methods narrow the upstream's allowed methods; empty means all of
+  // them.
+  repeated string methods = 2;
+  // path_prefix is the path every call must start with, in segments;
+  // empty means any path under the base URL.
+  string path_prefix = 3;
+  // requires_assurance is the lowest assurance level this operation
+  // needs; empty means the upstream's (SEC-007).
+  string requires_assurance = 4;
+  // transaction, when set, makes the operation a transaction that needs
+  // strong customer authentication: the gateway refuses a call without a
+  // valid signature over the fields it names (SEC-028, SEC-032).
+  UpstreamTransaction transaction = 5;
+  // plugins limits the operation to the plugins that declare the
+  // capability to call it (SEC-080); empty means any plugin of the app.
+  repeated string plugins = 6;
+  // bindings put server-held configuration values into the request the
+  // gateway forwards, at locations only this definition names (DAT-091).
+  repeated ConfigBinding bindings = 7;
+}
+
+// ConfigBinding binds one server-held configuration value into the
+// outgoing request of an operation (DAT-091). The device never sends,
+// chooses or sees a bound value, and a request that sets the bound
+// location is refused.
+message ConfigBinding {
+  // key is the configuration value; its tier must be server-bound.
+  string key = 1;
+  // location is where the gateway puts the value.
+  oneof location {
+    // json_pointer (RFC 6901) addresses a member of a JSON request body.
+    string json_pointer = 2;
+    // header is the name of a request header.
+    string header = 3;
+    // path_param names a path segment the gateway inserts directly after
+    // the operation's path prefix, in the order of the bindings.
+    string path_param = 4;
+    // query_param is the name of a query parameter.
+    string query_param = 5;
+  }
+  // display marks a value of a transaction the user must see before they
+  // confirm it: the gateway resolves it when the challenge is created,
+  // returns it for the confirmation sheet and binds it into the signed
+  // summary (DAT-093). It needs a json_pointer location that the
+  // operation's transaction maps.
+  bool display = 6;
+  // label is what the confirmation sheet calls a displayed value; empty
+  // means key.
+  string label = 7;
+}
+
+// UpstreamTransaction maps the fields that dynamic linking signs to
+// positions in the request body, which must be JSON (SEC-028). Each is a
+// JSON Pointer (RFC 6901).
+message UpstreamTransaction {
+  string amount = 1;
+  string currency = 2;
+  string payee = 3;
+  // summary is optional: a human-readable summary the user also confirmed.
+  string summary = 4;
 }
 
 // UpstreamMtls authenticates with a client certificate.
@@ -154,6 +252,42 @@ message DeleteUpstreamRequest {
 }
 message DeleteUpstreamResponse {}
 
+// UserIdentityProvider is the customer identity provider an environment's
+// user tokens come from (SEC-026).
+message UserIdentityProvider {
+  string app_id = 1;
+  string environment_id = 2;
+  // issuer is the `iss` the provider's tokens carry.
+  string issuer = 3;
+  // jwks_url is where the provider publishes its signing keys. It is
+  // fetched through the SSRF-safe client and must be HTTPS.
+  string jwks_url = 4;
+  // audiences are the `aud` values accepted; a token must carry one.
+  repeated string audiences = 5;
+  // forward_claims are the claims of the user token the gateway passes to
+  // upstreams in the Plux assertion; `sub` always is.
+  repeated string forward_claims = 6;
+}
+
+message SetUserIdentityProviderRequest {
+  UserIdentityProvider provider = 1;
+}
+message SetUserIdentityProviderResponse {}
+
+message GetUserIdentityProviderRequest {
+  string app_id = 1;
+  string environment_id = 2;
+}
+message GetUserIdentityProviderResponse {
+  UserIdentityProvider provider = 1;
+}
+
+message DeleteUserIdentityProviderRequest {
+  string app_id = 1;
+  string environment_id = 2;
+}
+message DeleteUserIdentityProviderResponse {}
+
 // AuditCheckpoint is a signed point in the audit log's hash chain
 // (SEC-141).
 message AuditCheckpoint {
@@ -176,3 +310,95 @@ message ListAuditCheckpointsResponse {
   repeated AuditCheckpoint checkpoints = 1;
   PageResult page = 2;
 }
+
+// ConfigTier says how a configuration value reaches the code that uses it
+// (DAT-090).
+enum ConfigTier {
+  CONFIG_TIER_UNSPECIFIED = 0;
+  // CONFIG_TIER_SERVER_BOUND values are resolved by the gateway for every
+  // request and bound where an operation declares; devices never see
+  // them (DAT-091).
+  CONFIG_TIER_SERVER_BOUND = 1;
+  // CONFIG_TIER_LIVE values are fetched by the device over its DPoP-bound
+  // channel and held in memory only (DAT-094).
+  CONFIG_TIER_LIVE = 2;
+}
+
+// ConfigType is the type of a configuration value, which is carried as
+// text.
+enum ConfigType {
+  CONFIG_TYPE_UNSPECIFIED = 0;
+  CONFIG_TYPE_STRING = 1;
+  // CONFIG_TYPE_INTEGER is a base-10 integer that fits 64 bits.
+  CONFIG_TYPE_INTEGER = 2;
+  // CONFIG_TYPE_DECIMAL is an exact decimal number, carried as a string
+  // and bound as one.
+  CONFIG_TYPE_DECIMAL = 3;
+  // CONFIG_TYPE_BOOLEAN is "true" or "false".
+  CONFIG_TYPE_BOOLEAN = 4;
+}
+
+// ConfigValue is one server-held configuration value of an environment
+// (DAT-090).
+message ConfigValue {
+  // key names the value: a letter followed by letters, digits and
+  // underscores.
+  string key = 1;
+  ConfigTier tier = 2;
+  // sensitive values are sealed at rest and never returned (SEC-106);
+  // only server-bound values may be sensitive.
+  bool sensitive = 3;
+  // strict marks a live value whose change refuses a gateway call made
+  // with an older live-configuration version (DAT-096, DAT-097).
+  bool strict = 4;
+  ConfigType type = 5;
+  // value is the text form of the value; it is omitted when the value is
+  // sensitive and the message is a response.
+  string value = 6;
+  // version rises with every change of the value.
+  int64 version = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message SetConfigValueRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  // value is the value to store; version and updated_at are ignored.
+  ConfigValue value = 3;
+  // expected_version is the version the caller read; zero for a key that
+  // does not exist yet. Omit it to set without the check.
+  optional int64 expected_version = 4;
+}
+message SetConfigValueResponse {
+  // value is the stored value, without its content when it is sensitive.
+  ConfigValue value = 1;
+}
+
+message GetConfigValueRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string key = 3;
+}
+message GetConfigValueResponse {
+  ConfigValue value = 1;
+}
+
+message ListConfigValuesRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  Page page = 3;
+}
+message ListConfigValuesResponse {
+  repeated ConfigValue values = 1;
+  PageResult page = 2;
+  // epoch is the environment's configuration epoch, which rises with
+  // every change (DAT-095).
+  int64 epoch = 3;
+}
+
+message DeleteConfigValueRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string key = 3;
+}
+message DeleteConfigValueResponse {}

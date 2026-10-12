@@ -5,12 +5,14 @@ package config
 
 import (
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"maps"
 	"net/netip"
 	"net/url"
+	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
@@ -19,6 +21,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/nightCode42/plux3/backend/internal/attest/keyattest"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/security/settings"
 )
@@ -68,34 +71,35 @@ func (c *Config) Validate() error {
 	c.validateAssets(&p)
 	c.validateAttestation(&p)
 	c.validateUpdateMetadata(&p)
+	c.validateGateway(&p)
 	return errors.Join(p.errs...)
 }
 
 func (c *Config) validateServer(p *problems) {
 	if len(c.Server.Roles) == 0 {
-		p.addf("server.roles", "must name at least one of api, worker, fnrunner")
+		p.addf("server.roles", "must name at least one of api, worker, gateway, fnrunner")
 	}
 	seen := map[Role]bool{}
 	for i, r := range c.Server.Roles {
 		path := "server.roles[" + strconv.Itoa(i) + "]"
 		switch r {
-		case RoleAPI, RoleWorker:
+		case RoleAPI, RoleWorker, RoleGateway:
 		case RoleFnRunner:
 			p.addf(path, "the fnrunner role arrives in P7")
 		default:
-			p.addf(path, "%q is not one of api, worker", r)
+			p.addf(path, "%q is not one of api, worker, gateway", r)
 		}
 		if seen[r] {
 			p.addf(path, "%q is listed twice", r)
 		}
 		seen[r] = true
 	}
-	if c.Has(RoleAPI) {
+	if c.ServesHTTP() {
 		if c.Server.Listen == "" {
-			p.addf("server.listen", "must be set when the api role runs")
+			p.addf("server.listen", "must be set when the api or gateway role runs")
 		}
 		if c.Server.PublicBaseURL == "" {
-			p.addf("server.publicBaseURL", "must be set when the api role runs, so that the server can build the links it hands out")
+			p.addf("server.publicBaseURL", "must be set when the api or gateway role runs, so that the server can build the links it hands out")
 		} else {
 			checkURL(p, "server.publicBaseURL", c.Server.PublicBaseURL)
 		}
@@ -327,6 +331,7 @@ func (c *Config) validateTelemetry(p *problems) {
 	if p.oneOf("telemetry.store", c.Telemetry.Store, "postgres", "clickhouse") && c.Telemetry.Store == "clickhouse" {
 		p.addf("telemetry.store", "clickhouse arrives in P9 (ANL-010)")
 	}
+	p.positive("telemetry.retentionDays", int64(c.Telemetry.RetentionDays))
 }
 
 // validateLimits checks the installation-level tightenings against the
@@ -458,6 +463,14 @@ var appIDPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9
 // Console keys are decoded where they are used; here they only have to
 // come as a pair.
 func (c *Config) validateAttestation(p *problems) {
+	if f := c.Attestation.Android.StatusListFile; f != "" {
+		raw, err := os.ReadFile(f) //nolint:gosec // the operator names the file
+		if err != nil {
+			p.addf("attestation.android.statusListFile", "cannot be read: %v", err)
+		} else if _, err := keyattest.ParseRevocations(raw); err != nil {
+			p.addf("attestation.android.statusListFile", "is not an attestation status list")
+		}
+	}
 	for _, id := range slices.Sorted(maps.Keys(c.Attestation.Apps)) {
 		a := c.Attestation.Apps[id]
 		path := "attestation.apps[" + id + "]"
@@ -475,5 +488,20 @@ func (c *Config) validateAttestation(p *problems) {
 		if a.PlayIntegrityDecryptionKey != "" && len(a.AndroidPackages) == 0 {
 			p.addf(path+".androidPackages", "must name the app's packages when Play Integrity is configured")
 		}
+	}
+}
+
+// validateGateway checks the extra authorities the gateway trusts.
+func (c *Config) validateGateway(p *problems) {
+	if c.Gateway.UpstreamCAFile == "" {
+		return
+	}
+	pem, err := os.ReadFile(c.Gateway.UpstreamCAFile) //nolint:gosec // the operator names the file
+	if err != nil {
+		p.addf("gateway.upstreamCAFile", "cannot be read: %v", err)
+		return
+	}
+	if !x509.NewCertPool().AppendCertsFromPEM(pem) {
+		p.addf("gateway.upstreamCAFile", "holds no PEM certificate")
 	}
 }

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:drift/native.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plux_db_drift/plux_db_drift.dart';
 import 'package:plux_flutter/plux_flutter.dart';
@@ -232,5 +233,40 @@ void main() {
         PluxErrorCode.dbEncryptionRequired,
       );
     });
+  });
+
+  test('the database key of an encrypting profile is stored wrapped by secure '
+      'hardware, not in the clear [SEC-073] [DB-002]', () async {
+    if (!cipher) return;
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    const channel = MethodChannel('dev.plux/runtime');
+    final stored = <String, String>{};
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      final args = call.arguments as Map<Object?, Object?>;
+      switch (call.method) {
+        case 'secretRead':
+          return stored[args['name']];
+        case 'secretWrite':
+          stored[args['name']! as String] = args['value']! as String;
+          return null;
+        case 'secretDelete':
+          stored.remove(args['name']);
+          return null;
+        case 'dataKeyWrap':
+          return Uint8List.fromList([...(args['data']! as Uint8List).reversed]);
+        case 'dataKeyUnwrap':
+          return Uint8List.fromList([
+            ...(args['wrapped']! as Uint8List).reversed,
+          ]);
+      }
+      return null;
+    });
+    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+    final db = PluxDriftAdapter(path: '${dir.path}/wrapped.db');
+    await db.open(requireEncryption: true);
+    await db.close();
+    expect(stored['db-drift'], startsWith('hw1.'));
   });
 }

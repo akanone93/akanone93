@@ -1196,6 +1196,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListUsagesResponse'
+  /plux.v1.ConfigService/GetLiveConfig:
+    post:
+      tags:
+        - plux.v1.ConfigService
+      summary: GetLiveConfig
+      description: |-
+        GetLiveConfig returns every live value of the device's environment
+         with the version of the snapshot and the environment's epoch. It
+         never returns a server-bound or a sensitive value (DAT-094).
+      operationId: plux.v1.ConfigService.GetLiveConfig
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetLiveConfigRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetLiveConfigResponse'
   /plux.v1.ControlService/GetControl:
     post:
       tags:
@@ -1314,6 +1356,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.CreateRegistrationChallengeResponse'
+  /plux.v1.DeviceService/EnrolScaKey:
+    post:
+      tags:
+        - plux.v1.DeviceService
+      summary: EnrolScaKey
+      description: |-
+        EnrolScaKey stores the public half of the device's strong customer
+         authentication key after the server verifies its attestation, for a
+         device that created the key after it registered, or whose key was
+         invalidated, such as by a change of enrolled biometrics (SEC-027).
+      operationId: plux.v1.DeviceService.EnrolScaKey
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.EnrolScaKeyRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.EnrolScaKeyResponse'
   /plux.v1.DeviceService/GetDevice:
     post:
       tags:
@@ -4979,6 +5064,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.CreateUpstreamResponse'
+  /plux.v1.SecurityAdminService/DeleteConfigValue:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: DeleteConfigValue
+      operationId: plux.v1.SecurityAdminService.DeleteConfigValue
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteConfigValueRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteConfigValueResponse'
   /plux.v1.SecurityAdminService/DeleteUpstream:
     post:
       tags:
@@ -5017,6 +5140,85 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.DeleteUpstreamResponse'
+  /plux.v1.SecurityAdminService/DeleteUserIdentityProvider:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: DeleteUserIdentityProvider
+      operationId: plux.v1.SecurityAdminService.DeleteUserIdentityProvider
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteUserIdentityProviderRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteUserIdentityProviderResponse'
+  /plux.v1.SecurityAdminService/GetConfigValue:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: GetConfigValue
+      description: |-
+        GetConfigValue returns one value; a sensitive value's content is
+         omitted (DAT-090).
+      operationId: plux.v1.SecurityAdminService.GetConfigValue
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetConfigValueRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetConfigValueResponse'
   /plux.v1.SecurityAdminService/GetEffectiveSecurityConfig:
     post:
       tags:
@@ -5096,6 +5298,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetUpstreamResponse'
+  /plux.v1.SecurityAdminService/GetUserIdentityProvider:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: GetUserIdentityProvider
+      operationId: plux.v1.SecurityAdminService.GetUserIdentityProvider
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetUserIdentityProviderRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetUserIdentityProviderResponse'
   /plux.v1.SecurityAdminService/ListAuditCheckpoints:
     post:
       tags:
@@ -5138,6 +5378,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListAuditCheckpointsResponse'
+  /plux.v1.SecurityAdminService/ListConfigValues:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: ListConfigValues
+      operationId: plux.v1.SecurityAdminService.ListConfigValues
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListConfigValuesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListConfigValuesResponse'
   /plux.v1.SecurityAdminService/ListUpstreams:
     post:
       tags:
@@ -5176,6 +5454,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListUpstreamsResponse'
+  /plux.v1.SecurityAdminService/SetConfigValue:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: SetConfigValue
+      description: |-
+        SetConfigValue creates or changes a server-held configuration value
+         of an environment (DAT-090). It fails when expected_version is not
+         the value's current version.
+      operationId: plux.v1.SecurityAdminService.SetConfigValue
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetConfigValueRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SetConfigValueResponse'
   /plux.v1.SecurityAdminService/SetSecurityConfig:
     post:
       tags:
@@ -5218,6 +5538,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.SetSecurityConfigResponse'
+  /plux.v1.SecurityAdminService/SetUserIdentityProvider:
+    post:
+      tags:
+        - plux.v1.SecurityAdminService
+      summary: SetUserIdentityProvider
+      description: |-
+        SetUserIdentityProvider sets the customer identity provider whose user
+         tokens an environment's devices may exchange (SEC-026).
+      operationId: plux.v1.SecurityAdminService.SetUserIdentityProvider
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetUserIdentityProviderRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SetUserIdentityProviderResponse'
   /plux.v1.SecurityAdminService/UpdateUpstream:
     post:
       tags:
@@ -6245,14 +6606,18 @@ components:
           title: upstream
           description: |-
             upstream names a configured upstream of the device's app and
-             environment (SEC-030).
+             environment: the data source's name (SEC-030). The end user's token,
+             when the call acts for one, travels in the Plux-User-Token request
+             header (SEC-026).
         operation:
           type: string
           title: operation
           description: |-
             operation names the allowed operation, so the server can apply its
              policy and require a transaction confirmation where one is set
-             (SEC-031).
+             (SEC-031). It is empty for a data source's load; the server then
+             finds the operation by the method and path, and a path that belongs
+             to a transaction still needs its confirmation.
         method:
           type: string
           title: method
@@ -6291,7 +6656,15 @@ components:
           format: byte
           description: |-
             transaction_signature is the signature of the device's SCA key over
-             the challenge and the transaction summary (SEC-032).
+             the challenge followed by the transaction summary: ES256, 64 bytes,
+             r then s (SEC-032).
+        plugin:
+          type: string
+          title: plugin
+          description: |-
+            plugin is the key of the plugin that makes the call, for the
+             operation's plugin capability (SEC-080); empty when the operation
+             names none.
       title: CallRequest
       additionalProperties: false
     plux.v1.CallResponse:
@@ -6565,6 +6938,158 @@ components:
           title: updated_at
       title: Component
       additionalProperties: false
+    plux.v1.ConfigBinding:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            header:
+              type: string
+              title: header
+              description: header is the name of a request header.
+          title: header
+        - type: object
+          properties:
+            jsonPointer:
+              type: string
+              title: json_pointer
+              description: json_pointer (RFC 6901) addresses a member of a JSON request body.
+          title: json_pointer
+        - type: object
+          properties:
+            pathParam:
+              type: string
+              title: path_param
+              description: |-
+                path_param names a path segment the gateway inserts directly after
+                 the operation's path prefix, in the order of the bindings.
+          title: path_param
+        - type: object
+          properties:
+            queryParam:
+              type: string
+              title: query_param
+              description: query_param is the name of a query parameter.
+          title: query_param
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - header
+              - required:
+                  - jsonPointer
+              - required:
+                  - pathParam
+              - required:
+                  - queryParam
+          - not:
+              oneOf:
+                - required:
+                    - header
+                - required:
+                    - jsonPointer
+                - required:
+                    - pathParam
+                - required:
+                    - queryParam
+      properties:
+        key:
+          type: string
+          title: key
+          description: key is the configuration value; its tier must be server-bound.
+        display:
+          type: boolean
+          title: display
+          description: |-
+            display marks a value of a transaction the user must see before they
+             confirm it: the gateway resolves it when the challenge is created,
+             returns it for the confirmation sheet and binds it into the signed
+             summary (DAT-093). It needs a json_pointer location that the
+             operation's transaction maps.
+        label:
+          type: string
+          title: label
+          description: |-
+            label is what the confirmation sheet calls a displayed value; empty
+             means key.
+      title: ConfigBinding
+      description: |-
+        ConfigBinding binds one server-held configuration value into the
+         outgoing request of an operation (DAT-091). The device never sends,
+         chooses or sees a bound value, and a request that sets the bound
+         location is refused.
+    plux.v1.ConfigTier:
+      type: string
+      title: ConfigTier
+      enum:
+        - CONFIG_TIER_UNSPECIFIED
+        - CONFIG_TIER_SERVER_BOUND
+        - CONFIG_TIER_LIVE
+      description: |-
+        ConfigTier says how a configuration value reaches the code that uses it
+         (DAT-090).
+    plux.v1.ConfigType:
+      type: string
+      title: ConfigType
+      enum:
+        - CONFIG_TYPE_UNSPECIFIED
+        - CONFIG_TYPE_STRING
+        - CONFIG_TYPE_INTEGER
+        - CONFIG_TYPE_DECIMAL
+        - CONFIG_TYPE_BOOLEAN
+      description: |-
+        ConfigType is the type of a configuration value, which is carried as
+         text.
+    plux.v1.ConfigValue:
+      type: object
+      properties:
+        key:
+          type: string
+          title: key
+          description: |-
+            key names the value: a letter followed by letters, digits and
+             underscores.
+        tier:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ConfigTier'
+          title: tier
+        sensitive:
+          type: boolean
+          title: sensitive
+          description: |-
+            sensitive values are sealed at rest and never returned (SEC-106);
+             only server-bound values may be sensitive.
+        strict:
+          type: boolean
+          title: strict
+          description: |-
+            strict marks a live value whose change refuses a gateway call made
+             with an older live-configuration version (DAT-096, DAT-097).
+        type:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ConfigType'
+          title: type
+        value:
+          type: string
+          title: value
+          description: |-
+            value is the text form of the value; it is omitted when the value is
+             sensitive and the message is a response.
+        version:
+          type: string
+          title: version
+          format: int64
+          description: version rises with every change of the value.
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+      title: ConfigValue
+      additionalProperties: false
+      description: |-
+        ConfigValue is one server-held configuration value of an environment
+         (DAT-090).
     plux.v1.ConfirmFactorRequest:
       type: object
       properties:
@@ -6585,6 +7110,27 @@ components:
           title: factor
       title: ConfirmFactorResponse
       additionalProperties: false
+    plux.v1.ContentKey:
+      type: object
+      properties:
+        ephemeralPublicKey:
+          type: string
+          title: ephemeral_public_key
+          format: byte
+          description: |-
+            ephemeral_public_key is the server's one-time P-256 key, an
+             uncompressed SEC1 point of 65 bytes.
+        wrappedKey:
+          type: string
+          title: wrapped_key
+          format: byte
+          description: wrapped_key is the AES-KW output, 40 bytes.
+      title: ContentKey
+      additionalProperties: false
+      description: |-
+        ContentKey is a confidential release's content key wrapped to one
+         device's key-agreement key with ECDH-ES (P-256), HKDF-SHA-256 and AES-KW
+         (SEC-053, ADR-0055).
     plux.v1.Control:
       type: object
       properties:
@@ -6838,6 +7384,14 @@ components:
         notes:
           type: string
           title: notes
+        confidential:
+          type: boolean
+          title: confidential
+          description: |-
+            confidential asks for a confidential release, whose bundles are
+             delivered encrypted to eligible devices (SEC-053). The environment's
+             confidentialBundles setting decides whether it may be asked for
+             (optional) or is implied (required); under off it is refused.
       title: CreateReleaseRequest
       additionalProperties: false
     plux.v1.CreateReleaseResponse:
@@ -6922,6 +7476,23 @@ components:
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: expires_at
           description: expires_at is when the challenge stops being accepted.
+        transactionSummaryJcs:
+          type: string
+          title: transaction_summary_jcs
+          format: byte
+          description: |-
+            transaction_summary_jcs is the RFC 8785 canonical JSON the challenge
+             is bound to: the device's summary with the server-held values of the
+             operation's display bindings merged in. The SCA key signs the
+             challenge followed by these bytes (DAT-093).
+        displayed:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.DisplayedValue'
+          title: displayed
+          description: |-
+            displayed are the server-held values the confirmation sheet shows
+             beside the device's own summary (DAT-093).
       title: CreateTransactionChallengeResponse
       additionalProperties: false
     plux.v1.CreateUpstreamRequest:
@@ -7017,6 +7588,24 @@ components:
     plux.v1.DeleteChannelResponse:
       type: object
       title: DeleteChannelResponse
+      additionalProperties: false
+    plux.v1.DeleteConfigValueRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        key:
+          type: string
+          title: key
+      title: DeleteConfigValueRequest
+      additionalProperties: false
+    plux.v1.DeleteConfigValueResponse:
+      type: object
+      title: DeleteConfigValueResponse
       additionalProperties: false
     plux.v1.DeleteDocumentRequest:
       type: object
@@ -7126,6 +7715,21 @@ components:
     plux.v1.DeleteUpstreamResponse:
       type: object
       title: DeleteUpstreamResponse
+      additionalProperties: false
+    plux.v1.DeleteUserIdentityProviderRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+      title: DeleteUserIdentityProviderRequest
+      additionalProperties: false
+    plux.v1.DeleteUserIdentityProviderResponse:
+      type: object
+      title: DeleteUserIdentityProviderResponse
       additionalProperties: false
     plux.v1.DeleteWorkloadIdentityRequest:
       type: object
@@ -7278,6 +7882,22 @@ components:
       title: Diagnostic
       additionalProperties: false
       description: Diagnostic is a finding about a document (ADR-0018, Appendix F).
+    plux.v1.DisplayedValue:
+      type: object
+      properties:
+        label:
+          type: string
+          title: label
+          description: label names the value for the user.
+        value:
+          type: string
+          title: value
+          description: value is its text form.
+      title: DisplayedValue
+      additionalProperties: false
+      description: |-
+        DisplayedValue is a server-held value of a transaction that the user
+         sees before confirming it, such as the payee (DAT-093).
     plux.v1.Document:
       type: object
       properties:
@@ -7336,6 +7956,40 @@ components:
             $ref: '#/components/schemas/plux.v1.PatchOp'
           title: patch
       title: DocumentChange
+      additionalProperties: false
+    plux.v1.EnrolScaKeyRequest:
+      type: object
+      properties:
+        challenge:
+          type: string
+          title: challenge
+          format: byte
+          description: |-
+            challenge is a fresh challenge from CreateRegistrationChallenge; the
+             attestation of the key must be bound to it.
+        scaPublicKeyJwk:
+          type: string
+          title: sca_public_key_jwk
+          format: byte
+          description: sca_public_key_jwk is the SCA public key as a JWK (RFC 7517).
+        scaEvidence:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.AttestationEvidence'
+          title: sca_evidence
+          description: |-
+            sca_evidence is the attestation of the key: an Android Key Attestation
+             chain of the SCA key, or an App Attest attestation bound to its
+             thumbprint (SEC-027).
+      title: EnrolScaKeyRequest
+      additionalProperties: false
+    plux.v1.EnrolScaKeyResponse:
+      type: object
+      properties:
+        scaJkt:
+          type: string
+          title: sca_jkt
+          description: sca_jkt is the RFC 7638 thumbprint of the stored key.
+      title: EnrolScaKeyResponse
       additionalProperties: false
     plux.v1.EnrollTotpRequest:
       type: object
@@ -7682,6 +8336,29 @@ components:
           format: byte
       title: GetComponentResponse
       additionalProperties: false
+    plux.v1.GetConfigValueRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        key:
+          type: string
+          title: key
+      title: GetConfigValueRequest
+      additionalProperties: false
+    plux.v1.GetConfigValueResponse:
+      type: object
+      properties:
+        value:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ConfigValue'
+          title: value
+      title: GetConfigValueResponse
+      additionalProperties: false
     plux.v1.GetControlRequest:
       type: object
       properties:
@@ -7807,6 +8484,36 @@ components:
              (SEC-182).
       title: GetEffectiveSecurityConfigResponse
       additionalProperties: false
+    plux.v1.GetLiveConfigRequest:
+      type: object
+      title: GetLiveConfigRequest
+      additionalProperties: false
+    plux.v1.GetLiveConfigResponse:
+      type: object
+      properties:
+        version:
+          type: string
+          title: version
+          format: int64
+          description: |-
+            version is the live-configuration version of this snapshot: the
+             epoch at which a live value last changed. The device sends it in
+             Plux-Config-Version with every gateway call (DAT-096).
+        epoch:
+          type: string
+          title: epoch
+          format: int64
+          description: |-
+            epoch is the environment's configuration epoch when the snapshot was
+             read. A gateway response with a greater Plux-Config-Epoch tells the
+             device to fetch again (DAT-095).
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.LiveConfigValue'
+          title: values
+      title: GetLiveConfigResponse
+      additionalProperties: false
     plux.v1.GetLockRequest:
       type: object
       properties:
@@ -7908,6 +8615,15 @@ components:
           description: |-
             config_full_required is true when no patch can be given, so the
              device fetches the whole configuration (SEC-182).
+        contentKey:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ContentKey'
+          title: content_key
+          description: |-
+            content_key is the release's content key wrapped for this device;
+             set when the manifest names confidential bundles (SEC-053). It is
+             outside the signed part: the bundles' signed hashes cover ciphertext,
+             and a key that does not open them is refused by the device.
       title: GetManifestResponse
       additionalProperties: false
     plux.v1.GetNativeCatalogueRequest:
@@ -8137,6 +8853,26 @@ components:
             - $ref: '#/components/schemas/plux.v1.Upstream'
           title: upstream
       title: GetUpstreamResponse
+      additionalProperties: false
+    plux.v1.GetUserIdentityProviderRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+      title: GetUserIdentityProviderRequest
+      additionalProperties: false
+    plux.v1.GetUserIdentityProviderResponse:
+      type: object
+      properties:
+        provider:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.UserIdentityProvider'
+          title: provider
+      title: GetUserIdentityProviderResponse
       additionalProperties: false
     plux.v1.GrantAccessRequest:
       type: object
@@ -8371,6 +9107,15 @@ components:
           description: |-
             attestation_object is the CBOR attestation object App Attest
              returned for the challenge.
+        appAttestAssertion:
+          type: string
+          title: app_attest_assertion
+          format: byte
+          description: |-
+            app_attest_assertion is set only when enrolling an SCA key later
+             (EnrolScaKey): an assertion over the binding hash with the App Attest
+             key stored at registration, in which case app_attest_key_id and
+             attestation_object are empty.
       title: IosEvidence
       additionalProperties: false
       description: IosEvidence is the proof an iOS device offers (SEC-003).
@@ -8677,6 +9422,42 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListComponentsResponse
+      additionalProperties: false
+    plux.v1.ListConfigValuesRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListConfigValuesRequest
+      additionalProperties: false
+    plux.v1.ListConfigValuesResponse:
+      type: object
+      properties:
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ConfigValue'
+          title: values
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+        epoch:
+          type: string
+          title: epoch
+          format: int64
+          description: |-
+            epoch is the environment's configuration epoch, which rises with
+             every change (DAT-095).
+      title: ListConfigValuesResponse
       additionalProperties: false
     plux.v1.ListDevicesRequest:
       type: object
@@ -9304,6 +10085,34 @@ components:
           title: page
       title: ListWorkloadIdentitiesResponse
       additionalProperties: false
+    plux.v1.LiveConfigValue:
+      type: object
+      properties:
+        key:
+          type: string
+          title: key
+        type:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ConfigType'
+          title: type
+        strict:
+          type: boolean
+          title: strict
+          description: strict values fail closed while they cannot be refreshed (DAT-097).
+        value:
+          type: string
+          title: value
+          description: value is the text form of the value.
+        version:
+          type: string
+          title: version
+          format: int64
+          description: version is the value's own version.
+      title: LiveConfigValue
+      additionalProperties: false
+      description: |-
+        LiveConfigValue is a live value as a device receives it. Devices hold
+         it in memory only (DAT-094).
     plux.v1.Location:
       type: object
       properties:
@@ -10162,6 +10971,18 @@ components:
           description: |-
             sca_evidence is the attestation of the SCA key, in the same forms as
              evidence; set when sca_public_key_jwk is (SEC-027).
+        keyAgreementKeyAttestationChain:
+          type: array
+          items:
+            type: string
+            format: byte
+          title: key_agreement_key_attestation_chain
+          description: |-
+            key_agreement_key_attestation_chain is the Android Key Attestation
+             chain of the key-agreement key, leaf first, DER-encoded, created with
+             the registration challenge; empty on other platforms and when the
+             device has no such key. The binding hash covers the thumbprints of
+             the DPoP, key-agreement and SCA keys (SEC-004, ADR-0012).
       title: RegisterAttestedDeviceRequest
       additionalProperties: false
     plux.v1.RegisterAttestedDeviceResponse:
@@ -10253,6 +11074,12 @@ components:
           allOf:
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: created_at
+        confidential:
+          type: boolean
+          title: confidential
+          description: |-
+            confidential is true when the release's bundles are delivered
+             encrypted (SEC-053).
       title: Release
       additionalProperties: false
       description: |-
@@ -10559,6 +11386,41 @@ components:
           title: limit
       title: SetAppLimitResponse
       additionalProperties: false
+    plux.v1.SetConfigValueRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        value:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ConfigValue'
+          title: value
+          description: value is the value to store; version and updated_at are ignored.
+        expectedVersion:
+          type:
+            - string
+            - "null"
+          title: expected_version
+          format: int64
+          description: |-
+            expected_version is the version the caller read; zero for a key that
+             does not exist yet. Omit it to set without the check.
+      title: SetConfigValueRequest
+      additionalProperties: false
+    plux.v1.SetConfigValueResponse:
+      type: object
+      properties:
+        value:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ConfigValue'
+          title: value
+          description: value is the stored value, without its content when it is sensitive.
+      title: SetConfigValueResponse
+      additionalProperties: false
     plux.v1.SetControlRequest:
       type: object
       properties:
@@ -10705,6 +11567,19 @@ components:
           format: int64
           description: version is the new configuration version.
       title: SetSecurityConfigResponse
+      additionalProperties: false
+    plux.v1.SetUserIdentityProviderRequest:
+      type: object
+      properties:
+        provider:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.UserIdentityProvider'
+          title: provider
+      title: SetUserIdentityProviderRequest
+      additionalProperties: false
+    plux.v1.SetUserIdentityProviderResponse:
+      type: object
+      title: SetUserIdentityProviderResponse
       additionalProperties: false
     plux.v1.SetVariableRequest:
       type: object
@@ -11292,6 +12167,37 @@ components:
           description: |-
             timeout_ms bounds one call to the upstream; zero uses the registry's
              default (LIM-001).
+        allowedMethods:
+          type: array
+          items:
+            type: string
+          title: allowed_methods
+          description: |-
+            allowed_methods are the HTTP methods the gateway forwards to the
+             upstream; at least one is required (SEC-031).
+        requiresAssurance:
+          type: string
+          title: requires_assurance
+          description: |-
+            requires_assurance is the lowest assurance level ("AL0" to "AL3") any
+             call to the upstream needs; empty means "AL0". An operation may ask
+             for more, never less (SEC-007).
+        operations:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.UpstreamOperation'
+          title: operations
+          description: |-
+            operations are the named operations devices may call. When the list
+             is not empty a call must name one of them; each narrows the upstream's
+             methods and paths and carries the policy the gateway enforces for it
+             (SEC-028, SEC-030).
+        audience:
+          type: string
+          title: audience
+          description: |-
+            audience is the `aud` of the Plux assertion sent to the upstream;
+             empty means base_url (SEC-031).
       title: Upstream
       description: |-
         Upstream is an API the gateway may reach for an environment's devices
@@ -11345,6 +12251,84 @@ components:
       description: |-
         UpstreamOAuthClientCredentials authenticates with the OAuth 2.0 client
          credentials grant (RFC 6749 §4.4).
+    plux.v1.UpstreamOperation:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+          description: name is what CallRequest.operation names.
+        methods:
+          type: array
+          items:
+            type: string
+          title: methods
+          description: |-
+            methods narrow the upstream's allowed methods; empty means all of
+             them.
+        pathPrefix:
+          type: string
+          title: path_prefix
+          description: |-
+            path_prefix is the path every call must start with, in segments;
+             empty means any path under the base URL.
+        requiresAssurance:
+          type: string
+          title: requires_assurance
+          description: |-
+            requires_assurance is the lowest assurance level this operation
+             needs; empty means the upstream's (SEC-007).
+        transaction:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.UpstreamTransaction'
+          title: transaction
+          description: |-
+            transaction, when set, makes the operation a transaction that needs
+             strong customer authentication: the gateway refuses a call without a
+             valid signature over the fields it names (SEC-028, SEC-032).
+        plugins:
+          type: array
+          items:
+            type: string
+          title: plugins
+          description: |-
+            plugins limits the operation to the plugins that declare the
+             capability to call it (SEC-080); empty means any plugin of the app.
+        bindings:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ConfigBinding'
+          title: bindings
+          description: |-
+            bindings put server-held configuration values into the request the
+             gateway forwards, at locations only this definition names (DAT-091).
+      title: UpstreamOperation
+      additionalProperties: false
+      description: |-
+        UpstreamOperation is one operation of an upstream and the policy the
+         gateway enforces before it forwards a call to it.
+    plux.v1.UpstreamTransaction:
+      type: object
+      properties:
+        amount:
+          type: string
+          title: amount
+        currency:
+          type: string
+          title: currency
+        payee:
+          type: string
+          title: payee
+        summary:
+          type: string
+          title: summary
+          description: 'summary is optional: a human-readable summary the user also confirmed.'
+      title: UpstreamTransaction
+      additionalProperties: false
+      description: |-
+        UpstreamTransaction maps the fields that dynamic linking signs to
+         positions in the request body, which must be JSON (SEC-028). Each is a
+         JSON Pointer (RFC 6901).
     plux.v1.Usage:
       type: object
       properties:
@@ -11391,6 +12375,44 @@ components:
           title: last_login_at
       title: User
       additionalProperties: false
+    plux.v1.UserIdentityProvider:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        issuer:
+          type: string
+          title: issuer
+          description: issuer is the `iss` the provider's tokens carry.
+        jwksUrl:
+          type: string
+          title: jwks_url
+          description: |-
+            jwks_url is where the provider publishes its signing keys. It is
+             fetched through the SSRF-safe client and must be HTTPS.
+        audiences:
+          type: array
+          items:
+            type: string
+          title: audiences
+          description: audiences are the `aud` values accepted; a token must carry one.
+        forwardClaims:
+          type: array
+          items:
+            type: string
+          title: forward_claims
+          description: |-
+            forward_claims are the claims of the user token the gateway passes to
+             upstreams in the Plux assertion; `sub` always is.
+      title: UserIdentityProvider
+      additionalProperties: false
+      description: |-
+        UserIdentityProvider is the customer identity provider an environment's
+         user tokens come from (SEC-026).
     plux.v1.ValidateDraftRequest:
       type: object
       properties:
@@ -11544,6 +12566,15 @@ tags:
       ComponentService lists the components of an app and of its plugins and
        reports where each is used, so that changing one shows its blast radius.
        Component documents themselves are written through DocumentService.
+  - name: plux.v1.SecurityAdminService
+    description: |-
+      SecurityAdminService is the administrators' side of device security: an
+       environment's security configuration, the upstreams its gateway
+       reaches, and the signed audit checkpoints. Devices never call it.
+  - name: plux.v1.ConfigService
+    description: |-
+      ConfigService delivers the live server-held configuration of a device's
+       app and environment over the device's DPoP-bound channel (DAT-094).
   - name: plux.v1.ControlService
     description: |-
       ControlService sets the switches that reach devices with the next
@@ -11622,11 +12653,6 @@ tags:
     description: |-
       ReleaseService manages immutable plugin versions and app releases, their
        promotion between environments and their rollback (ADR-0020).
-  - name: plux.v1.SecurityAdminService
-    description: |-
-      SecurityAdminService is the administrators' side of device security: an
-       environment's security configuration, the upstreams its gateway
-       reaches, and the signed audit checkpoints. Devices never call it.
   - name: plux.v1.TelemetryService
     description: |-
       TelemetryService ingests the runtime's batched events (Appendix G.2).

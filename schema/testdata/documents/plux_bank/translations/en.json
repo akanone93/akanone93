@@ -26,7 +26,9 @@
     "01d0c450-6c00-7000-8000-000000000294": "Result",
     "01d0c450-6c00-7000-8000-000000000295": "Take a photo of your ID to verify your identity.",
     "01d0c450-6c00-7000-8000-000000000296": "Take photo",
-    "01d0c450-6c00-7000-8000-000000000297": "Identity check"
+    "01d0c450-6c00-7000-8000-000000000297": "Identity check",
+    "01d0c450-6c00-7000-8000-000000000298": "Enter your PIN",
+    "01d0c450-6c00-7000-8000-000000000299": "Code sent by SMS"
   },
   "schemaVersion": "1.0.0"
 }

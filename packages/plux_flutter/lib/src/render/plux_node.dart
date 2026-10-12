@@ -28,6 +28,8 @@ import 'package:plux_flutter/src/db/row_identity.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
+import 'package:plux_flutter/src/render/builders/secure.dart'
+    show isSensitiveEvent;
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
@@ -37,6 +39,7 @@ import 'package:plux_flutter/src/render/scope.dart';
 import 'package:plux_flutter/src/render/sections.dart';
 import 'package:plux_flutter/src/render/values.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
+import 'package:plux_flutter/src/secure/masking.dart';
 import 'package:plux_flutter/src/state/access.dart';
 import 'package:plux_flutter/src/state/scope_state.dart';
 
@@ -131,7 +134,12 @@ final class NodeContextImpl implements NodeContext, MotionSource {
     this.scope,
     this.index, {
     this.animated = const {},
+    this.masking = false,
   }) : node = scope.section.node(index);
+
+  /// Whether an input is built masked: obscured, with no suggestions or
+  /// selection menu (SEC-092).
+  final bool masking;
 
   /// The values animations give props, by permanent ID (ANI-001).
   final Map<int, Object?> animated;
@@ -174,8 +182,30 @@ final class NodeContextImpl implements NodeContext, MotionSource {
     }
     final builder = scope.builders[node.widget];
     if (builder == null) return _unknown('widget ${node.widget}');
+    if (_masked) {
+      // Both are built, so that the node subscribes to everything its
+      // bindings read; only one is shown.
+      final revealed = builder(this);
+      final hidden = isMaskedInput(node.widget)
+          ? builder(
+              NodeContextImpl(
+                context,
+                _ref,
+                scope,
+                index,
+                animated: animated,
+                masking: true,
+              ),
+            )
+          : null;
+      return MaskedNode(revealed: revealed, hidden: hidden);
+    }
     return builder(this);
   }
+
+  /// Whether the compiler marked the node as showing or editing a sensitive
+  /// value, which is masked until the user unmasks it (SEC-092).
+  bool get _masked => node.hints & maskedHint != 0 && isMaskable(node.widget);
 
   /// Subscribes the node to the page-state and app-state paths its
   /// bindings read, so a change of anything else does not rebuild it
@@ -353,6 +383,10 @@ final class NodeContextImpl implements NodeContext, MotionSource {
 
   @override
   T? decode<T>(int id, T? Function(Decoding d, Object? v) decoder) {
+    if (masking) {
+      final forced = maskedProp(node.widget, id);
+      if (forced != null) return forced as T?;
+    }
     final raw = _merged[id];
     final over = animated[id];
     if (raw == null && over == null) return null;
@@ -604,6 +638,7 @@ final class NodeContextImpl implements NodeContext, MotionSource {
         // Runs a component's nodes start end with its instance (ACT-004).
         owner: s.componentState,
         emitEvent: s.emitEvent,
+        sensitiveEvent: isSensitiveEvent(node.widget, id) || _masked,
         resolve: (v, roots) => toPxl(
           ValueResolver(
             plugin: s.plugin,

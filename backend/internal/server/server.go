@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/netip"
 	"slices"
+	"strings"
 	"time"
 
 	"connectrpc.com/connect"
@@ -111,7 +112,7 @@ func New(d Deps) (*Server, error) {
 		s.trusted = append(s.trusted, prefix)
 	}
 	s.registerChecks()
-	if s.cfg.Has(config.RoleAPI) {
+	if s.cfg.ServesHTTP() {
 		if err := s.buildHTTP(); err != nil {
 			return nil, err
 		}
@@ -221,7 +222,22 @@ func (s *Server) buildHTTP() error {
 // wrap applies the HTTP-level guards every request passes. HSTS is the
 // outermost, so that every response carries it (SEC-040).
 func (s *Server) wrap(h http.Handler) http.Handler {
-	return httpx.HSTS(httpx.MaxBytes(h, s.limits.Get(limits.APIRequestSize)), s.hsts)
+	bounded := httpx.MaxBytes(h, s.limits.Get(limits.APIRequestSize))
+	return httpx.HSTS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// The gateway's streaming route carries uploads far larger than an
+		// API message; it bounds its bodies itself, with
+		// gateway.requestBytes (SEC-031, LIM-001), and forwards the
+		// upstream's own caching policy.
+		if strings.HasPrefix(r.URL.Path, api.GatewayRoutePrefix) {
+			h.ServeHTTP(w, r)
+			return
+		}
+		// No cache stores an answer of the API — an RPC, an error, a 404 —
+		// unless its handler sets a policy of its own, as the bundle,
+		// metadata and key routes do (QA-008).
+		w.Header().Set("Cache-Control", "no-store")
+		bounded.ServeHTTP(w, r)
+	}), s.hsts)
 }
 
 // Run starts every component, serves until the context is cancelled,

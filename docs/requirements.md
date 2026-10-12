@@ -1,9 +1,9 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.4.2
+**Version:** 1.4.3
 **Status:** Draft — living document, revised as implementation proceeds
-**Date:** 2026-10-08
+**Date:** 2026-10-11
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
 
 > **Plux — Plugin Experience.** Build native Flutter screens visually, compile them into signed binary plugins, and ship them to every device in seconds — with high-assurance security, zero parse cost, and full control over who changes what.
@@ -462,6 +462,7 @@ internal/
   api/          ConnectRPC handlers — thin; translate to domain calls and errors
   auth/         Studio sessions, PATs, CI OIDC federation, RBAC evaluation
   device/       registration, attestation (android/, ios/), assurance levels
+  gateway/      secure gateway: upstream registry, assertions, user-token exchange, SCA verification (SEC-030–SEC-032)
   dpop/         DPoP proof validation, nonces, replay cache
   token/        sender-constrained access tokens, token exchange
   document/     drafts, snapshots, JSON Patch, locks, references graph
@@ -1062,7 +1063,7 @@ PXL is a small, typed, side-effect-free expression language with CEL-like syntax
 |---|---|---|---|---|
 | `DAT-001` | P5 | MUST | Data source definitions **MUST** support REST (JSON), GraphQL, WebSocket, Server-Sent Events, Plux Functions, local database queries and static data. | WIP |
 | `DAT-002` | P5 | MUST | REST data sources **MUST** be importable from OpenAPI 3.x and GraphQL data sources from a schema, producing typed operations with request and response schemas usable by PXL and Studio. | DONE |
-| `DAT-003` | P5 | MUST | Base URLs and non-secret configuration **MUST** be per environment. Secrets (API keys) **MUST NOT** appear in bundles; calls requiring server-held secrets **MUST** go through a Plux Function or the host's auth delegate (`SEC-107`). | DONE |
+| `DAT-003` | P5 | MUST | Base URLs and non-secret configuration **MUST** be per environment. Secrets (API keys) **MUST NOT** appear in bundles; calls requiring server-held secrets **MUST** go through a Plux Function, the host's auth delegate (`SEC-107`) or the secure gateway's server-bound values (`DAT-091`). | DONE |
 | `DAT-004` | P5 | MUST | Responses **MUST** be mapped to typed models through declared selectors and PXL transforms; mapping failures are typed errors. | DONE |
 | `DAT-010` | P5 | MUST | Caching policies **MUST** include `networkOnly`, `cacheFirst`, `networkFirst` and `staleWhileRevalidate`, with TTLs, cache keys and optional encrypted persistence. | DONE |
 | `DAT-011` | P5 | MUST | Paginated sources (cursor, page, offset) **MUST** bind to lists for infinite scrolling with loading, end and error states. | DONE |
@@ -1071,6 +1072,14 @@ PXL is a small, typed, side-effect-free expression language with CEL-like syntax
 | `DAT-030` | P5 | MUST | Every outbound request **MUST** target a domain in the plugin's declared capabilities; requests to other domains **MUST** be blocked and reported (`SEC-080`). | DONE |
 | `DAT-031` | P5 | MUST | File uploads and downloads **MUST** support progress, cancellation and size limits. | DONE |
 | `DAT-080` | P5 | MUST | Every data source **MUST** support design-time mocks (static fixtures, generated examples from schemas, or recorded responses) with selectable states (`loading`, `empty`, `error`, `success`) for Studio, the Dev app and tests. | WIP |
+| `DAT-090` | P6 | MUST | The server **MUST** hold configuration values per app and environment, typed (string, integer, decimal as a string, boolean), each with a tier (`server-bound` or `live`), a `sensitive` flag and a version that rises with every change. Values **MUST** be created, changed and deleted only through the admin API and CLI, which require the app-management permission and write an audit entry for each change (`SEC-140`); a sensitive value **MUST** be encrypted at rest (`SEC-106`), never returned after it is set, and never logged, traced or labelled (`SEC-092`); only a `server-bound` value may be sensitive (ADR-0061). | DONE |
+| `DAT-091` | P6 | MUST | A gateway operation **MAY** bind server-held values into the request it forwards, at locations its definition declares: a JSON Pointer into a JSON body, a header name, a path parameter or a query parameter. Only `server-bound` values may be bound. A device request that already sets a bound location **MUST** be refused (`PLX-6065`), and devices **MUST NOT** send placeholders or names of values; operations without bindings **MUST** keep streaming their bodies untouched (ADR-0061). | DONE |
+| `DAT-092` | P6 | MUST | The gateway **MUST** resolve bound values at the time of the request with no stale read: each replica caches the values of an environment with their epoch, the epoch moves in the shared cache store with every change, and the gateway **MUST** check that epoch on every call that binds a value or carries a configuration version. A call whose epoch cannot be checked **MUST** be refused (`PLX-6069`). | DONE |
+| `DAT-093` | P6 | MUST | For a transaction operation (`SEC-027`, `SEC-028`), bound values marked for display (for example the payee) **MUST** be resolved when the challenge is created, returned to the device for the confirmation sheet, and merged into the summary the user signs. If a displayed value has changed when the transaction is executed, the gateway **MUST** refuse the call (`PLX-6066`) and the runtime re-challenges transparently. | DONE |
+| `DAT-094` | P6 | MUST | `live` values **MUST** be delivered to a device only over its DPoP-bound channel (`ConfigService.GetLiveConfig`), with the version of the snapshot; a sensitive value is never a `live` value. The runtime **MUST** hold them in memory only, never on disk, in telemetry or in traces. | DONE |
+| `DAT-095` | P6 | MUST | Every response to a gateway call **MUST** carry `Plux-Config-Epoch`, the epoch of the app and environment; a device that sees a newer epoch than its own **MUST** refresh its `live` values in the background. | DONE |
+| `DAT-096` | P6 | MUST | A device **MUST** send the version of the `live` configuration it holds in `Plux-Config-Version` with every gateway call. If a value marked `strict` has changed since that version, the gateway **MUST** refuse the call (`PLX-6067`) before it reaches the upstream, and the runtime **MUST** refresh the values and repeat the call once with the same idempotency key; the user sees an error only if the repeat fails. | DONE |
+| `DAT-097` | P6 | MUST | While a device is offline, or when its `live` values cannot be refreshed, a read of a `strict` value **MUST** fail closed with `PLX-6068`, which a page can handle; a read of a value that is not `strict` returns the last value this process holds, which is never persisted. | DONE |
 
 ### 14.5 Local database
 
@@ -1146,13 +1155,13 @@ Security is the first priority (§1.4). Plux targets **OWASP MASVS v2 level L2 p
 |---|---|---|---|---|
 | `SEC-001` | P6 | MUST | On first launch the runtime **MUST** generate a non-exportable P-256 key pair in secure hardware — Android Keystore backed by StrongBox where available, otherwise TEE; iOS Secure Enclave — used for DPoP proofs. The private key **MUST** never exist outside secure hardware. Where the platform reports that no secure hardware can hold the key, the runtime **MAY** use a software key, which it **MUST** flag; the server **MUST** record the key's storage, accept a software key only where the profile's `allowSoftwareKeys` allows it (`standard` by default) and cap such a device at `AL1`, and refuse it otherwise (`PLX-6003`). Whether the DPoP key uses StrongBox is decided by measurement against `NFR-012`; if StrongBox misses it, the DPoP key **MUST** use the TEE and StrongBox holds the SCA key (`SEC-027`) where available (ADR-0012). | WIP |
 | `SEC-002` | P6 | MUST | On Android, registration **MUST** verify the **Key Attestation** certificate chain of the DPoP key up to Google's attestation roots, checking the challenge, security level (StrongBox/TEE), verified boot state, bootloader lock, package name and signing certificate digest, and checking the attestation revocation list. | WIP |
-| `SEC-003` | P6 | MUST | On Android, registration and token refresh **MUST** include a **Play Integrity** token (standard request) whose request hash binds the server challenge and the DPoP key thumbprint; the server **MUST** verify app integrity (`PLAY_RECOGNIZED`), device integrity verdicts and the request hash, with required verdict levels set by the security profile. | WIP |
-| `SEC-004` | P6 | MUST | On iOS, registration **MUST** use **App Attest**: verify the attestation object to Apple's App Attest root, the nonce (hash of the server challenge and the DPoP key thumbprint), App ID and environment, and store the attested key and counter. Sensitive requests **MUST** carry an App Attest **assertion** whose counter strictly increases. | WIP |
+| `SEC-003` | P6 | MUST | On Android, registration and token refresh **MUST** include a **Play Integrity** token (standard request) whose request hash binds the server challenge and the thumbprints of the DPoP key and of every other key the device registers (ADR-0012, Revisions 2026-10-11); the server **MUST** verify app integrity (`PLAY_RECOGNIZED`), device integrity verdicts and the request hash, with required verdict levels set by the security profile. | WIP |
+| `SEC-004` | P6 | MUST | On iOS, registration **MUST** use **App Attest**: verify the attestation object to Apple's App Attest root, the nonce (hash of the server challenge and the thumbprints of the DPoP key and of every other key the device registers (ADR-0012, Revisions 2026-10-11)), App ID and environment, and store the attested key and counter. Sensitive requests **MUST** carry an App Attest **assertion** whose counter strictly increases. | WIP |
 | `SEC-005` | P6 | MUST | Registration **MUST** follow a challenge–response flow: single-use server challenge (TTL ≤ 5 min) → attestation evidence → verification → device record (device ID, DPoP key thumbprint `jkt`, platform, app build, attestation results, assurance level). | DONE |
 | `SEC-006` | P6 | MUST | Devices **MUST** re-attest periodically (default every 24 h), on app update, and when risk signals appear (RASP detection, anomaly), and the server **MUST** be able to revoke a device, forcing re-registration. | WIP |
 | `SEC-007` | P6 | MUST | Attestation results **MUST** map to an **assurance level**: `AL0` unverified; `AL1` app integrity verified; `AL2` app integrity and hardware-backed key on a device meeting the device-integrity verdict the profile requires (Android `MEETS_BASIC_INTEGRITY` under `standard`, `MEETS_DEVICE_INTEGRITY` under `strict` and `maximum`, setting `androidDeviceVerdictAL2`; iOS a verified App Attest key and a Secure Enclave DPoP key); `AL3` AL2 plus strong device integrity (Play `MEETS_STRONG_INTEGRITY`, or Apple's fraud-metric receipt for the attested key at or below `riskMetricMaxAL3`) and no RASP findings. The server computes the level; the device never claims one. Pages (`requiresAssurance`), routes, data sources and functions **MUST** be able to require a minimum level, refused with `PLX-6002` ([device-trust.md](security/device-trust.md) §1). | WIP |
 | `SEC-008` | P6 | MUST | Debug builds, emulators and simulators **MUST** use an explicit development attestation provider that is accepted only by non-production environments; production environments **MUST** reject it. | DONE |
-| `SEC-009` | P6 | MUST | The behaviour when an attestation provider is unavailable **MUST** be policy-driven by the setting `attestationOutageGrace`: `0` fails closed (`maximum`, `PLX-6009`); a positive duration grants a grace period with the last known assurance level — 24 h under `standard`, 1 h under `strict`. | SPEC |
+| `SEC-009` | P6 | MUST | The behaviour when an attestation provider is unavailable **MUST** be policy-driven by the setting `attestationOutageGrace`: `0` fails closed (`maximum`, `PLX-6009`); a positive duration grants a grace period with the last known assurance level — 24 h under `standard`, 1 h under `strict`. | DONE |
 
 ### 15.3 Tokens and DPoP
 
@@ -1163,16 +1172,16 @@ Every device → server request is protected by an OAuth 2.0 access token that i
 | `SEC-020` | P6 | MUST | The server **MUST** issue short-lived access tokens (default 5 min, max 15 min) in the JWT profile of RFC 9068, signed by a server key, containing `cnf.jkt` = JWK SHA-256 thumbprint (RFC 7638) of the device's DPoP key, the device ID, app ID, environment and assurance level. | DONE |
 | `SEC-021` | P6 | MUST | Every device request (manifest, control, functions, telemetry, token refresh, dev session) **MUST** carry a DPoP proof: a JWT with header `typ: dpop+jwt`, `alg: ES256` and the public `jwk`, and claims `htm`, `htu`, `iat`, `jti`, `ath` (hash of the access token) and `nonce` when required. | DONE |
 | `SEC-022` | P6 | MUST | The server **MUST** reject a request unless: the proof signature verifies with the embedded key; the key's thumbprint equals the token's `cnf.jkt`; `htm` and the normalised `htu` match the request; `iat` is within the configured window (default ±60 s); `ath` matches; the nonce is valid; and `jti` has not been seen within the window. | DONE |
-| `SEC-023` | P6 | MUST | The `jti` replay cache **MUST** be shared across all `api` replicas (Valkey, with Sentinel failover and replicas) and **MUST** fail closed if unavailable under the `maximum` profile (`PLX-6015`). Under `standard` and `strict` each replica **MUST** fall back to its own in-memory cache with the narrower window `dpopIatWindowFallback` and raise a distinct alert; a request is never accepted unchecked (setting `replayCacheFallback`). | WIP |
+| `SEC-023` | P6 | MUST | The `jti` replay cache **MUST** be shared across all `api` replicas (Valkey, with Sentinel failover and replicas) and **MUST** fail closed if unavailable under the `maximum` profile (`PLX-6015`). Under `standard` and `strict` each replica **MUST** fall back to its own in-memory cache with the narrower window `dpopIatWindowFallback` and raise a distinct alert; a request is never accepted unchecked (setting `replayCacheFallback`). | DONE |
 | `SEC-024` | P6 | MUST | The server **MUST** issue DPoP nonces (`DPoP-Nonce` response header, `use_dpop_nonce` error) and rotate them at least every 5 minutes, so proofs cannot be pre-generated. | DONE |
 | `SEC-025` | P6 | MUST | Token refresh **MUST** require a fresh DPoP proof; refresh does not use long-lived bearer refresh tokens. On iOS every refresh **MUST** also carry an App Attest assertion. On Android the hardware-bound DPoP key is the proof of possession between re-attestations; a Play Integrity token **MUST** accompany the refresh at re-attestation (every `reattestationInterval`, default 24 h; on app update; on a risk signal; or when the server asks), and on every refresh where `androidRefreshRequiresIntegrity` is set. | DONE |
-| `SEC-026` | P6 | MUST | End-user identity **MUST** be kept separate from device identity: when a function or data source needs the user, the host's user token is exchanged or forwarded (OAuth 2.0 Token Exchange, RFC 8693) and verified by the server against the customer's IdP JWKS; functions receive verified user claims (`FN-002`). | SPEC |
-| `SEC-027` | P6 | MUST | Strong customer authentication **MUST** be supported: a second hardware key created with user-authentication-required (Android `setUserAuthenticationRequired` with biometric/device credential; iOS `.biometryCurrentSet` access control) signs transaction payloads. Its signature proves possession and inherence in one step. | SPEC |
-| `SEC-028` | P6 | MUST | Transaction signing **MUST** implement dynamic linking: the signed payload contains the amount, currency and payee (or equivalent transaction summary) exactly as displayed, and the Plux server — and only the Plux server — **MUST** verify the signature, the challenge and that the executed operation matches the signed payload before it forwards the operation (`SEC-032`). | SPEC |
+| `SEC-026` | P6 | MUST | End-user identity **MUST** be kept separate from device identity: when a function or data source needs the user, the host's user token is exchanged or forwarded (OAuth 2.0 Token Exchange, RFC 8693) and verified by the server against the customer's IdP JWKS; functions receive verified user claims (`FN-002`). | DONE |
+| `SEC-027` | P6 | MUST | Strong customer authentication **MUST** be supported: a second hardware key created with user-authentication-required (Android `setUserAuthenticationRequired` with biometric/device credential; iOS `.biometryCurrentSet` access control) signs transaction payloads. Its signature proves possession and inherence in one step. | WIP |
+| `SEC-028` | P6 | MUST | Transaction signing **MUST** implement dynamic linking: the signed payload contains the amount, currency and payee (or equivalent transaction summary) exactly as displayed, and the Plux server — and only the Plux server — **MUST** verify the signature, the challenge and that the executed operation matches the signed payload before it forwards the operation (`SEC-032`). | DONE |
 | `SEC-029` | P6 | MUST | A negative test suite **MUST** show rejection of: replayed proofs, reused `jti`, wrong `htu`/`htm`, stale `iat`, missing or stale nonce, token/key mismatch, expired tokens, tokens from another environment, and proofs signed by software keys when hardware keys are required. | DONE |
-| `SEC-030` | P6 | MUST | A device request to a data source's API **MUST** travel through the Plux gateway unless the data source opts into direct calls (`route: direct`). The profile setting `allowDirectDataSources` **MUST** be able to refuse direct calls (refused under `maximum` by default, `PLX-6063`); the compiler **MUST** warn when a direct data source requires an assurance level, which the server cannot enforce on a direct call. | SPEC |
-| `SEC-031` | P6 | MUST | The gateway **MUST** forward only to upstreams registered on the server for the app and environment, refusing other destinations and private addresses unless an upstream allows them (`SEC-105`); it **MUST** authenticate to each upstream (mutual TLS, OAuth 2.0 client credentials, or a key held encrypted, `SEC-106`) and add a signed Plux assertion carrying the device, app, environment, assurance level and verified user; it **MUST NOT** log or store request or response bodies. | SPEC |
-| `SEC-032` | P6 | MUST | A call that carries a transaction signature **MUST** be accepted only through the gateway: the server verifies the signature, the challenge and the dynamic linking before it forwards (`SEC-028`), and the upstream receives the server's verified assertion, not the device's signature to check (`PLX-6073`). | SPEC |
+| `SEC-030` | P6 | MUST | A device request to a data source's API **MUST** travel through the Plux gateway unless the data source opts into direct calls (`route: direct`). The profile setting `allowDirectDataSources` **MUST** be able to refuse direct calls (refused under `maximum` by default, `PLX-6063`); the compiler **MUST** warn when a direct data source requires an assurance level, which the server cannot enforce on a direct call. | DONE |
+| `SEC-031` | P6 | MUST | The gateway **MUST** forward only to upstreams registered on the server for the app and environment, refusing other destinations and private addresses unless an upstream allows them (`SEC-105`); it **MUST** authenticate to each upstream (mutual TLS, OAuth 2.0 client credentials, or a key held encrypted, `SEC-106`) and add a signed Plux assertion carrying the device, app, environment, assurance level and verified user; it **MUST NOT** log or store request or response bodies. | DONE |
+| `SEC-032` | P6 | MUST | A call that carries a transaction signature **MUST** be accepted only through the gateway: the server verifies the signature, the challenge and the dynamic linking before it forwards (`SEC-028`), and the upstream receives the server's verified assertion, not the device's signature to check (`PLX-6073`). | DONE |
 
 ### 15.4 Transport
 
@@ -1192,7 +1201,7 @@ The update channel follows the design of **The Update Framework (TUF)**: separat
 | `SEC-050` | P6 | MUST | Update metadata **MUST** use four roles: **root** (offline; delegates and rotates the others; threshold of *m* of *n* keys, 2 of 3 by default), **targets** (signs bundle hashes and release contents), **snapshot** (signs the set of current metadata versions) and **timestamp** (short expiry; signs the latest snapshot, preventing freeze attacks). Default expiries are `timestamp` 24 h, `snapshot` 7 days, `targets` 30 days and `root` 1 year, each a server setting. Expiry is enforced when the device syncs; an offline device keeps running its last good release. | DONE |
 | `SEC-051` | P3 | MUST | Host apps **MUST** embed the root public keys at build time (`plux init`, `plux pull`); the runtime **MUST** accept root rotations only when signed by the previous root threshold. | DONE |
 | `SEC-052` | P3 | MUST | The runtime **MUST** verify, before loading anything: metadata signatures and expiry, the manifest's release against the metadata, every bundle and section hash, and the FlatBuffers verifier (`BND-006`). Nothing unverified is ever parsed beyond the container header. | DONE |
-| `SEC-053` | P6 | MUST | **Confidential bundles** **MUST** be supported: each release is encrypted with AES-256-GCM using a per-release content key, delivered only to devices meeting the configured assurance level, wrapped to a device-held key-agreement key (ECDH P-256 in secure hardware). Hashes cover the ciphertext and are verified before decryption (`SEC-052`). Confidential releases are delivered without deltas. On the device, bundles are stored encrypted and decrypted into memory off the UI isolate, once per launch, on first use (ADR-0055). | SPEC |
+| `SEC-053` | P6 | MUST | **Confidential bundles** **MUST** be supported: each release is encrypted with AES-256-GCM using a per-release content key, delivered only to devices meeting the configured assurance level, wrapped to a device-held key-agreement key (ECDH P-256 in secure hardware). Hashes cover the ciphertext and are verified before decryption (`SEC-052`). Confidential releases are delivered without deltas. On the device, bundles are stored encrypted and decrypted into memory off the UI isolate, once per launch, on first use (ADR-0055). | WIP |
 | `SEC-054` | P1 | MUST | Bundles and manifests **MUST NOT** carry native code, Dart code or scripts. The only executable content permitted is PXL bytecode, action graphs and WebAssembly modules of device-placed functions, and each **MUST** run in a sandboxed interpreter with no direct access to platform APIs — only to host capabilities the plugin declared (`FN-012`). The runtime **MUST NOT** compile downloaded code to native instructions (no JIT, no AOT on device). | WIP |
 | `SEC-055` | P3 | MUST | The runtime **MUST** refuse any manifest whose release sequence is lower than the highest sequence it has accepted for that channel (anti-rollback); rollbacks are delivered as new sequences (`REL-006`). | DONE |
 | `SEC-056` | P6 | MUST | Signing keys for development environments **MUST** differ from production keys; a production runtime **MUST** reject bundles signed with development keys. | DONE |
@@ -1201,22 +1210,22 @@ The update channel follows the design of **The Update Framework (TUF)**: separat
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `SEC-070` | P6 | MUST | The `plux_security` package **MUST** detect: root/jailbreak, hooking frameworks (e.g. Frida, Xposed/LSPosed, Substrate), debugger attachment, emulator/simulator, app repackaging (signature mismatch), untrusted installer source, active screen mirroring or recording, overlay (tapjacking) attempts and accessibility services with suspicious capabilities (a common vector for financial malware). | SPEC |
-| `SEC-071` | P6 | MUST | Each detection **MUST** trigger a policy-defined response — `report`, `warn` (show a message), `degrade` (disable pages or functions requiring `AL3`), or `block` (show a blocking screen) — and be reported to the server, where it lowers the device's assurance level. | SPEC |
-| `SEC-072` | P6 | MUST | Tokens, keys and secure state **MUST** be stored only in Keystore/Keychain-protected storage; nothing sensitive may be stored in plain shared preferences, files or logs. | SPEC |
-| `SEC-073` | P6 | MUST | The local database, response cache, outbox, `persisted` state and key-value store **MUST** be encrypted at rest under the `strict` and `maximum` profiles (setting `encryptLocalStores`), with keys wrapped by secure hardware and unwrapped once per launch (ADR-0058). | SPEC |
-| `SEC-074` | P6 | MUST | Release builds **MUST** contain no Plux dev tooling, verbose logging or source maps; this **MUST** be enforced by compile-time constants and verified by a test inspecting a release build (`DEV-050`). | SPEC |
+| `SEC-070` | P6 | MUST | The `plux_security` package **MUST** detect: root/jailbreak, hooking frameworks (e.g. Frida, Xposed/LSPosed, Substrate), debugger attachment, emulator/simulator, app repackaging (signature mismatch), untrusted installer source, active screen mirroring or recording, overlay (tapjacking) attempts and accessibility services with suspicious capabilities (a common vector for financial malware). | WIP |
+| `SEC-071` | P6 | MUST | Each detection **MUST** trigger a policy-defined response — `report`, `warn` (show a message), `degrade` (disable pages or functions requiring `AL3`), or `block` (show a blocking screen) — and be reported to the server, where it lowers the device's assurance level. | WIP |
+| `SEC-072` | P6 | MUST | Tokens, keys and secure state **MUST** be stored only in Keystore/Keychain-protected storage; nothing sensitive may be stored in plain shared preferences, files or logs. | WIP |
+| `SEC-073` | P6 | MUST | The local database, response cache, outbox, `persisted` state and key-value store **MUST** be encrypted at rest under the `strict` and `maximum` profiles (setting `encryptLocalStores`), with keys wrapped by secure hardware and unwrapped once per launch (ADR-0058). | DONE |
+| `SEC-074` | P6 | MUST | Release builds **MUST** contain no Plux dev tooling, verbose logging or source maps; this **MUST** be enforced by compile-time constants and verified by a test inspecting a release build (`DEV-050`). | WIP |
 | `SEC-080` | P5 | MUST | Plugins **MUST** only perform operations covered by their declared capabilities (network domains, functions, device APIs such as camera, location, contacts, biometrics, native routes); the host **MUST** approve the capability set per app, and undeclared operations **MUST** be blocked and reported. The approved set is the app document's optional `capabilities`, checked when a release is published; `PluxConfig.allowedCapabilities` lets the host narrow it further at run time. Governance approval of the set arrives with the approval engine in P9 (ADR-0051). | WIP |
 
 ### 15.7 Secure UI
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `SEC-090` | P6 | MUST | Secure input widgets **MUST** be provided: `SecureTextField` (no suggestions, autocorrect, clipboard or keyboard learning; obscured), `SecurePinPad` (optional randomised layout, no key-press animation leakage, haptic feedback only) and `OtpInput` (SMS User Consent API on Android, one-time-code autofill on iOS, manual entry, configurable length and alphabet, paste with a format check, and a completion event). | SPEC |
-| `SEC-091` | P6 | MUST | Pages marked `secure` **MUST** block screenshots and screen recording (Android `FLAG_SECURE`; iOS protection against capture with a covering view when capture is detected) and **MUST** be blurred in the app switcher. | SPEC |
-| `SEC-092` | P6 | MUST | Fields tagged `sensitive` **MUST** be masked in any display that is not explicitly unmasked by the user, and excluded from telemetry, traces, crash reports and session replay (`SCH-012`). | SPEC |
-| `SEC-093` | P6 | MUST | Android views on `secure` pages **MUST** filter touches when obscured by overlays. | SPEC |
-| `SEC-094` | P6 | SHOULD | Secure pages **SHOULD** support an inactivity lock that requires biometric or device-credential re-authentication after a configurable idle time. | SPEC |
+| `SEC-090` | P6 | MUST | Secure input widgets **MUST** be provided: `SecureTextField` (no suggestions, autocorrect, clipboard or keyboard learning; obscured), `SecurePinPad` (optional randomised layout, no key-press animation leakage, haptic feedback only) and `OtpInput` (SMS User Consent API on Android, one-time-code autofill on iOS, manual entry, configurable length and alphabet, paste with a format check, and a completion event). | DONE |
+| `SEC-091` | P6 | MUST | Pages marked `secure` **MUST** block screenshots and screen recording (Android `FLAG_SECURE`; iOS protection against capture with a covering view when capture is detected) and **MUST** be blurred in the app switcher. | WIP |
+| `SEC-092` | P6 | MUST | Fields tagged `sensitive` **MUST** be masked in any display that is not explicitly unmasked by the user, and excluded from telemetry, traces, crash reports and session replay (`SCH-012`). | DONE |
+| `SEC-093` | P6 | MUST | Android views on `secure` pages **MUST** filter touches when obscured by overlays. | WIP |
+| `SEC-094` | P6 | SHOULD | Secure pages **SHOULD** support an inactivity lock that requires biometric or device-credential re-authentication after a configurable idle time. | DONE |
 
 ### 15.8 Server, Studio and API security
 
@@ -1254,7 +1263,7 @@ The update channel follows the design of **The Update Framework (TUF)**: separat
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `SEC-160` | P6 | MUST | Plux **MUST** be designed for compliance with the EU GDPR (DSGVO) and comparable national data-protection laws (§31): data minimisation, purpose limitation, pseudonymous device identifiers, configurable retention, and documented processing activities. | SPEC |
+| `SEC-160` | P6 | MUST | Plux **MUST** be designed for compliance with the EU GDPR (DSGVO) and comparable national data-protection laws (§31): data minimisation, purpose limitation, pseudonymous device identifiers, configurable retention, and documented processing activities. | WIP |
 | `SEC-161` | P6 | MUST | Telemetry and analytics **MUST** be gated by a host-provided consent state (`setConsent`), with categories (`necessary`, `analytics`, `experiments`, `replay`); only `necessary` operational telemetry is sent without consent, and it contains no personal data. | WIP |
 | `SEC-162` | P9 | MUST | Administrators **MUST** be able to export and erase all data associated with a device or pseudonymous user ID (data subject requests) and see where personal data is stored. | SPEC |
 | `SEC-163` | P9 | MUST | By default no data **MUST** leave a self-hosted installation except calls the customer configures (attestation verification, AI provider, push, webhooks); a documented egress list **MUST** be maintained (`DEP-040`). | SPEC |
@@ -1290,14 +1299,14 @@ Security profiles bundle settings so that operators do not need to understand fi
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `SEC-180` | P6 | MUST | The profiles above **MUST** be implemented as presets; every setting **MUST** be visible in the effective configuration of each release, through the API, the CLI and the release's metadata (P6), and in Studio (P11). | WIP |
-| `SEC-181` | P6 | MUST | A plugin or page **MUST** be able to tighten, but never loosen, the app's effective security settings. | SPEC |
+| `SEC-181` | P6 | MUST | A plugin or page **MUST** be able to tighten, but never loosen, the app's effective security settings. | DONE |
 | `SEC-182` | P6 | MUST | Every security setting **MUST** have a built-in default on the device and the server, generated from one source (`schema/security/settings.json`). Operators **MUST** be able to change settings per app and environment, within each setting's hard bounds and only tightening the profile's preset (`PLX-6041`). Changes **MUST** reach the device on the manifest request it already makes, as an RFC 7396 merge patch from the version it holds, bound to the signed manifest by a hash (`PLX-6040`); nothing is sent when nothing changed, and server-only settings never travel to the device (ADR-0053). | DONE |
 
 ### 15.13 Security verification
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `SEC-190` | P6 | MUST | The mobile runtime **MUST** be tested against the OWASP MASTG test cases applicable to MASVS L2 and MASVS-RESILIENCE, with results recorded per release. | SPEC |
+| `SEC-190` | P6 | MUST | The mobile runtime **MUST** be tested against the OWASP MASTG test cases applicable to MASVS L2 and MASVS-RESILIENCE, with results recorded per release. | WIP |
 | `SEC-191` | P9 | MUST | An independent penetration test of the server, Studio and runtime **MUST** be completed before Plux 1.0, with findings tracked to closure. | SPEC |
 | `SEC-192` | P0 | MUST | `SECURITY.md` **MUST** define a coordinated vulnerability disclosure process with a response SLA. | DONE |
 
@@ -1911,7 +1920,7 @@ This section concerns how Plux itself is verified. §22.2 covers the testing too
 | `QA-005` | P2 | MUST | Integration tests **MUST** run the server against real PostgreSQL, object storage and Valkey (Testcontainers or Compose). | DONE |
 | `QA-006` | P3 | MUST | End-to-end tests **MUST** run the example host apps on Android emulators and iOS simulators in CI (Patrol or `integration_test`), and on a real-device farm nightly including at least one low-end Android device. | WIP |
 | `QA-007` | P3 | MUST | Performance benchmarks **MUST** run in CI and fail on regressions beyond 10% (20% for the runtime's size overhead, ADR-0036): runtime (init, page build, first frame, frame times, PXL, action overhead) in profile mode on reference devices; sync (bytes and time on simulated 3G); server (k6 load tests for manifest, functions, telemetry); Studio (Lighthouse CI and canvas frame-time tests). | WIP |
-| `QA-008` | P6 | MUST | Security tests **MUST** include the DPoP and attestation negative suite (`SEC-029`), bundle tampering and rollback attacks, MASTG checks (`SEC-190`), OWASP ZAP baseline scans of Studio and the API, and authorisation matrix tests for every role and permission. | SPEC |
+| `QA-008` | P6 | MUST | Security tests **MUST** include the DPoP and attestation negative suite (`SEC-029`), bundle tampering and rollback attacks, MASTG checks (`SEC-190`), OWASP ZAP baseline scans of Studio and the API, and authorisation matrix tests for every role and permission. | WIP |
 | `QA-009` | P3 | MUST | Failure-injection tests **MUST** cover network loss mid-download, corrupted and truncated deltas, disk full, process kill during activation, server errors and clock skew, and **MUST** prove the runtime always keeps a working release. | DONE |
 | `QA-010` | P3 | MUST | Compatibility tests **MUST** run the last three released runtime versions against the current server and new bundles, and the current runtime against bundles from the last three compiler versions. | WIP |
 | `QA-011` | P8 | MUST | Accessibility tests **MUST** run automated semantics checks for all Layer 1 and Layer 2 widgets and scripted screen-reader passes for the reference apps before each release. | SPEC |
@@ -1967,13 +1976,13 @@ This section concerns how Plux itself is verified. §22.2 covers the testing too
 | `NFR-010` | P5 | MUST | PXL typical binding evaluation | ≤ 2 µs p95 (`PXL-004`) | WIP |
 | `NFR-011` | P5 | MUST | Action interpreter overhead | ≤ 20 µs per step p95 (`ACT-008`) | WIP |
 | `NFR-012` | P6 | MUST | DPoP proof creation on the device | ≤ 15 ms p95 (mid-tier) (`SEC-021`) | WIP |
-| `NFR-013` | P6 | MUST | Decrypting a confidential bundle on the device | ≤ 10 ms per MiB p95 (mid-tier) (`SEC-053`); encrypted local stores within 10% of the plain stores in the P5 database and state benchmarks (`SEC-073`) | SPEC |
+| `NFR-013` | P6 | MUST | Decrypting a confidential bundle on the device | ≤ 10 ms per MiB p95 (mid-tier) (`SEC-053`); encrypted local stores within 10% of the plain stores in the P5 database and state benchmarks (`SEC-073`) | WIP |
 | `NFR-020` | P2 | MUST | Manifest endpoint throughput | ≥ 5,000 req/s per `api` replica at p99 ≤ 50 ms (cache hit) | DONE |
 | `NFR-021` | P2 | MUST | Publish of a 50-page plugin with deltas | ≤ 15 s p95 (`SRV-053`) | DONE |
 | `NFR-022` | P7 | MUST | Function invocation overhead | warm ≤ 1 ms p99; first after deploy ≤ 50 ms p99 (`FN-023`) | SPEC |
 | `NFR-023` | P9 | MUST | Scale of one HA installation (with CDN) | ≥ 1,000,000 active devices, ≥ 100 apps | SPEC |
 | `NFR-024` | P9 | MUST | Kill-switch / control propagation | ≤ 60 s p95 for online devices | SPEC |
-| `NFR-025` | P6 | MUST | Gateway overhead and device-request verification at the server | gateway ≤ 5 ms p95 added per request, excluding the upstream's time, at 1,000 req/s per `api` replica (`SEC-031`); DPoP and access-token verification ≤ 1 ms p95 (`SEC-022`) | SPEC |
+| `NFR-025` | P6 | MUST | Gateway overhead and device-request verification at the server | gateway ≤ 5 ms p95 added per request, excluding the upstream's time, at 1,000 req/s per `api` replica (`SEC-031`); DPoP and access-token verification ≤ 1 ms p95 (`SEC-022`) | WIP |
 | `NFR-030` | P10 | MUST | Edit → paired device | ≤ 500 ms p95 (`DEV-010`) | SPEC |
 | `NFR-031` | P11 | MUST | Studio canvas frame rate | 60 fps with 100 screens / 200 plugins (`STU-120`) | SPEC |
 | `NFR-032` | P11 | MUST | Studio property change → canvas | ≤ 50 ms p95 (`STU-121`) | SPEC |
@@ -2553,6 +2562,7 @@ Dialogs, bottom sheets and snack bars are page kinds and actions (Appendix D), n
 | `apiCall` | Data | Call a REST or GraphQL operation; typed output | P5 |
 | `refreshData` | Data | Refresh a data source | P5 |
 | `subscribe`, `unsubscribe` | Data | WebSocket / SSE stream control | P5 |
+| `readConfig` | Data | Read a live server-held configuration value; strict values fail closed (`DAT-094`, `DAT-097`) | P6 |
 | `dbInsert`, `dbUpdate`, `dbUpsert`, `dbDelete`, `dbQuery` | Local DB | Local database operations | P5 |
 | `kvGet`, `kvSet`, `kvRemove` | Local DB | Key-value store | P5 |
 | `invokeFunction` | Compute | Call a Plux Function with typed input/output — on the device or the server, according to the function's placement | P7 |
@@ -2723,7 +2733,7 @@ Every error and diagnostic has a stable code `PLX-NNNN` (`DX-003`). Codes are gr
 
 ```yaml
 server:
-  roles: [api, worker, fnrunner]     # or a subset per deployment
+  roles: [api, worker, gateway, fnrunner]  # or a subset per deployment
   listen: ":8080"
   publicBaseURL: "https://plux.acme.example"
 database:
@@ -2750,6 +2760,8 @@ auth:
     dpop: { iatWindow: "60s", nonceRotation: "5m", replayCache: { fallback: "memory" } }  # installation defaults; the replay cache uses cache.valkeyURL
 attestation:
   developmentProvider: false         # true only for development and test installations; production environments refuse it regardless (SEC-008)
+  android:
+    statusListFile: ""               # a copy of Google's attestation status list for installations that cannot reach Google (DEP-040); empty makes the worker fetch https://android.googleapis.com/attestation/status (SEC-002)
   apps:                              # per app, keyed by app ID; moves to the per-app security configuration API (SEC-182)
     "01d0c450-…":
       androidPackages: ["com.acme.app"]
@@ -2763,10 +2775,12 @@ securityConfig:                      # installation defaults; per app and enviro
 updateMetadata:
   rootThreshold: 2
   expiry: { timestamp: "24h", snapshot: "168h", targets: "720h", root: "8760h" }
+# The api role serves the secure gateway, and the gateway role
+# serves it alone (server.roles, ADR-0006). Upstreams are registered per app and environment
+# through the API (SEC-031); the gateway's sizes, timeout and rate, and the lifetime of an SCA
+# challenge, are the limits gateway.* and sca.challengeLifetime (§30.4).
 gateway:
-  enabled: true                      # upstreams are registered per app and environment (SEC-031)
-sca:
-  challengeTTL: "5m"
+  upstreamCAFile: ""                 # PEM of private authorities the gateway trusts for its upstreams, besides the system's (SEC-031)
 functions:
   defaults: { timeout: "2s", memory: "64MiB", maxHTTPCalls: 10 }
   device: { enabled: true, timeout: "500ms", memory: "32MiB" }
@@ -2980,8 +2994,9 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Document ID | `SRS-PLUX-001` |
 | Version | 1.4.1 App. G.1 lists the replay cache's health metrics (`SEC-023`). |
 | Status | Draft (living document) |
-| Date | 2026-10-08 |
-| Supersedes | 1.4.1 |
+| Date | 2026-10-11 |
+| Supersedes | 1.4.2 |
+| 1.4.3 | 2026-10-11 | Server-held configuration (maintainer decision, 2026-10-11; ADR-0061), a follow-on milestone of P6: new `DAT-090`–`DAT-097` (§14.4) — typed configuration values per app and environment in two tiers, `server-bound` values the gateway binds into requests at declared locations and `live` values a device fetches over its DPoP-bound channel, with an epoch and a version on every gateway call so that no value is stale where it takes effect; `DAT-003` also allows the secure gateway's server-bound values for calls that need server-held secrets; the `bundled` tier is the existing environment variables (`GOV-010`) and may lag. |
 | 1.4.2 | 2026-10-08 | P6 S0–S6 delivered on `feat/p6-s2-device-trust`: `SEC-005`, `SEC-008`, `SEC-020`–`SEC-022`, `SEC-024`, `SEC-025`, `SEC-029`, `SEC-040`, `SEC-050`, `SEC-051`, `SEC-056`, `SEC-120`–`SEC-122`, `SEC-141`, `SEC-182` and `NAV-009` `DONE`; `SEC-000`, `SEC-001`–`SEC-004`, `SEC-006`, `SEC-007`, `SEC-023`, `SEC-041`–`SEC-043`, `SEC-180` and `NFR-012` `WIP` until the milestones, the real-device check (B2 layer 3) or the reference-device run named in plan p6 complete them. |
 | 1.4.1 | 2026-10-08 | App. H.1: attestation is configured per app (`attestation.apps`) with an installation-wide `developmentProvider` switch, and the replay cache uses `cache.valkeyURL`, which takes a Sentinel URL, instead of a separate Sentinel list (maintainer decisions; ADR-0012, Revision). |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |

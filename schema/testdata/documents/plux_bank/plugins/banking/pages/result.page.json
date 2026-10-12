@@ -188,5 +188,8 @@
   },
   "route": "result",
   "schemaVersion": "1.0.0",
-  "title": "Result"
+  "title": "Result",
+  "security": {
+    "secure": true
+  }
 }

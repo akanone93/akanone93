@@ -97,6 +97,10 @@ void main() {
                 path.startsWith('db/') ||
                 path.startsWith('animation/')
             ? '0.2.0'
+            // The features project has a secure page, which needs 0.4.0
+            // (security.secureui.v1).
+            : path.startsWith('features/')
+            ? '0.4.0'
             : '0.3.0',
         reason: path,
       );

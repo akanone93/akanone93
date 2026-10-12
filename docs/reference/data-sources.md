@@ -92,5 +92,57 @@ first, then counted during the transfer (`PLX-5130`; `PLX-5131` for a file that 
 read). A transfer is a step, so it is also bounded by `action.stepTimeout`; raise that
 limit for large files.
 
+## Routing, user identity and transactions
+
+These are the device's side of the secure gateway ([ADR-0056](../adr/0056-secure-gateway-and-sca.md)).
+
+**Route** (`SEC-030`). A source's `route` is `plux` (the default) or `direct`. A `plux` request
+leaves the device for the Plux server (`GatewayService.Call`) with the device's access token
+and a DPoP proof, made on the sync isolate; the server forwards it to the upstream it has
+registered for the source, so the bundle carries no base URL for it and `networkDomains` do not
+apply. The request names the upstream by the source's name and the operation by its name
+(empty for a load). A `direct` request goes to the origin as described above. Where the
+security profile refuses direct calls (`allowDirectDataSources`, off under `maximum`), a
+`direct` source fails with `PLX-6063` at run time, is reported, and nothing is sent; the
+runtime never falls back from one route to the other. The offline outbox replays through the
+same route with the same `Idempotency-Key`. Streams (`websocket`, `sse`, GraphQL
+subscriptions) and file transfers of a `plux` source connect to the gateway's HTTP route,
+`/gateway/v1/{upstream}/{path}` ([gateway guide](../guides/gateway.md) §7): the sync isolate
+signs a DPoP proof of that connection's method and URL (one per connection, reconnections
+included) and returns it with the exchanged user token and the typed `Plux-` headers, and the
+data isolate makes the connection, so nothing is streamed through the isolate that holds the
+key. A `direct` source connects to the origin.
+
+**User identity** (`SEC-026`). For a source or operation with `auth`, the gateway route does not
+send the host's token to the upstream. The runtime hands the auth delegate's token to the
+sync isolate, which exchanges it with the Plux server (RFC 8693, audience = the source's
+name), keeps the Plux user token in memory until shortly before it expires, and sends it in the
+`Plux-User-Token` header of the gateway call; the upstream sees the verified user in the
+server's assertion. A token the identity provider rejects (`PLX-6016`) or a `401` is refreshed
+once through the delegate.
+
+**Transactions** (`SEC-027`, `SEC-028`, `SEC-032`). A source with a `transaction` mapping
+treats every mutating operation as a transaction. Before it is sent the runtime reads the
+amount, currency and payee from the **request body** by the mapping's JSON Pointers (from the
+`variables` of a GraphQL request), asks the server for a single-use challenge bound to the
+RFC 8785 canonical JSON of `{"amount","currency","payee"[,"summary"]}`, shows that text on a
+confirmation sheet, asks for the user's biometric or device credential, and signs
+`challenge ‖ summary` with the SCA key (ES256, so the signature is over
+`SHA-256(challenge ‖ summary)`). The call carries `transaction_challenge_id` and
+`transaction_signature`. A mapped field that is not in the body (a path placeholder took it)
+fails the request before anything is asked (`PLX-6072`); a transaction on a `direct` source
+fails with `PLX-6073`; a transaction is never queued in the outbox and never repeated after a
+`401`. The `signTransaction` action (`transaction` = `"<source>.<operation>"`, `amount`,
+`payee`) runs the same steps ahead of the `apiCall` and holds the confirmation for the call
+that sends the same transaction: a different one fails with `PLX-6072`, and the
+confirmation is spent either way. Its output is the challenge ID; the `declined` branch is
+taken when the user declines.
+
+The SCA key is made at registration when `PluxConfig.strongCustomerAuthentication` is set
+(a device registered earlier registers again, once, the first time it signs). It needs a
+screen lock; where it cannot be made the device registers without it and a transaction
+fails with `PLX-6017`. On Android the host activity must be a `FlutterFragmentActivity`; on
+iOS `Info.plist` needs `NSFaceIDUsageDescription`.
+
 **Local database sources.** A source of kind `database` watches a query over a local collection
 (`DB-006`): see the [database guide](../guides/database.md).

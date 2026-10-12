@@ -124,12 +124,12 @@ void main() {
 
   Iterable<PluxErrorCode> codes() => h.errors.map((e) => e.code);
 
-  // The steps that failed with PLX-4010; the fixture's persisted exposed
-  // state entry reports the code once at start, for its state (ADR-0023).
+  // The runs that ended with PLX-5400: the fixture's biometricAuth steps
+  // need a `biometrics` capability its plugin does not declare (SEC-080).
   Iterable<PluxException> laterSteps() => h.errors.where(
     (e) =>
-        e.code == PluxErrorCode.actionsNotAvailable &&
-        !e.details.containsKey('state'),
+        e.code == PluxErrorCode.deviceCapabilityBlocked &&
+        e.details.containsKey('step'),
   );
 
   BuildContext ctx() => navigator.currentContext!;
@@ -230,7 +230,7 @@ void main() {
   );
 
   testWidgets(
-    'an action of a later phase fails with PLX-4010: onError recovers, otherwise the run ends and is reported [RT-021]',
+    'a step the plugin lacks the capability for fails with PLX-5400: onError recovers, otherwise the run ends and is reported [RT-021] [SEC-080]',
     (tester) async {
       await start(tester);
       await tap(tester, 'Later action handled');

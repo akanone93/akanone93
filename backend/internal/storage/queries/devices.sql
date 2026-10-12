@@ -29,8 +29,9 @@ RETURNING *;
 INSERT INTO devices (id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build,
                      secret_hash, assurance_level, dpop_jkt, dpop_public_key, key_storage,
                      attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at,
-                     app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, ''::bytea, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+                     app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt,
+                     agreement_public_key)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, ''::bytea, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
 RETURNING *;
 
 -- name: UpdateDeviceAttestation :one
@@ -44,7 +45,20 @@ UPDATE devices
        app_attest_public_key = COALESCE(sqlc.narg(app_attest_public_key)::bytea, app_attest_public_key),
        app_attest_counter = CASE WHEN sqlc.narg(app_attest_key_id)::bytea IS NULL THEN app_attest_counter
                                  ELSE sqlc.arg(app_attest_counter)::bigint END,
-       app_attest_receipt = COALESCE(sqlc.narg(app_attest_receipt)::bytea, app_attest_receipt)
+       app_attest_receipt = COALESCE(sqlc.narg(app_attest_receipt)::bytea, app_attest_receipt),
+       rasp_detected_at = NULL, rasp_kinds = '{}'
+ WHERE id = sqlc.arg(id) AND revoked_at IS NULL
+RETURNING *;
+
+-- name: RecordDeviceRASP :one
+-- Notes the kinds of detection that suggest a modified environment and
+-- caps the device's level at the given one until it attests again
+-- (SEC-071). A level at or below the cap is left alone.
+UPDATE devices
+   SET rasp_detected_at = sqlc.arg(detected_at),
+       rasp_kinds = ARRAY(SELECT DISTINCT k FROM unnest(rasp_kinds || sqlc.arg(kinds)::text[]) AS k ORDER BY k),
+       assurance_level = CASE WHEN assurance_level = ANY (sqlc.arg(capped)::text[]) THEN sqlc.arg(cap)::text
+                              ELSE assurance_level END
  WHERE id = sqlc.arg(id) AND revoked_at IS NULL
 RETURNING *;
 
@@ -220,3 +234,14 @@ SELECT count(*) FROM plugin_versions WHERE bundle_sha256 = $1;
 -- name: UpdateDeviceVersions :exec
 -- What a device's latest session_start reports it runs (REL-080).
 UPDATE devices SET runtime_version = $2, host_build = $3, os_version = $4 WHERE id = $1;
+
+-- name: CountDevicesByAssurance :many
+-- Counts the devices that are not revoked by app and assurance level, for
+-- the metric plux_devices_by_assurance. It reads aggregates across tenants
+-- in the authentication scope and returns at most max_rows groups.
+SELECT app_id, assurance_level, count(*) AS devices
+FROM devices
+WHERE revoked_at IS NULL
+GROUP BY app_id, assurance_level
+ORDER BY app_id, assurance_level
+LIMIT sqlc.arg(max_rows);

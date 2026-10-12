@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// The handlers of `apiCall`, `refreshData`, `subscribe` and `unsubscribe`
-/// (DAT-001, DAT-011, DAT-012), run on
+/// The handlers of `apiCall`, `refreshData`, `subscribe`, `unsubscribe`
+/// (DAT-001, DAT-011, DAT-012) and `readConfig` (DAT-094, DAT-097), run on
 /// the page's [DataActions] through `StepContext.data`. A failure is an
 /// [ActionError] with its kind, so `onError` handles it — and an
 /// engine-level optimistic hook (ACT-007) can roll back on it: the handler
@@ -12,6 +12,7 @@ library;
 import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/actions/handlers.dart';
 import 'package:plux_flutter/src/data/failure.dart';
+import 'package:plux_flutter/src/data/live_config.dart';
 import 'package:plux_flutter/src/data/services.dart';
 import 'package:plux_flutter/src/data/transfers.dart' show CancelToken;
 
@@ -41,6 +42,22 @@ final Map<String, ActionHandler> dataHandlers = {
         cancel: cancel,
       ),
     );
+  }),
+  'readConfig': FunctionHandler((c, i) async {
+    final key = i['key'];
+    if (key is! String || key.isEmpty) {
+      throw const ActionError.validation('readConfig: key is not a string');
+    }
+    final config =
+        c.service<ConfigSource>() ??
+        (throw DataFailure.unavailable(
+          'readConfig: this runtime has no live configuration',
+        ).toActionError());
+    try {
+      return StepDone((await config.read(key)).value);
+    } on DataFailure catch (f) {
+      throw f.toActionError();
+    }
   }),
   'refreshData': FunctionHandler((c, i) async {
     final source = i['source'];

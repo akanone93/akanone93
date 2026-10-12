@@ -1,8 +1,9 @@
 name: plux_bank
 description: >-
   Plux Bank, a reference host app (DX-004): sign-in, accounts, validated
-  transfers and an identity check, published from the plux_bank fixture and
-  rendered by the Plux runtime. The end-to-end tests drive it.
+  transfers confirmed with the device's key and an identity check, published
+  from the plux_bank fixture and rendered by the Plux runtime. The end-to-end
+  tests drive it.
 version: 0.1.0
 publish_to: none
 
@@ -18,6 +19,7 @@ dependencies:
   http: ^1.6.0
   plux_flutter: ^0.4.0
   plux_media: ^0.1.0
+  plux_security: ^0.1.0
 
 dev_dependencies:
   flutter_test:

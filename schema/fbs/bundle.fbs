@@ -225,7 +225,10 @@ table SlotFill {
 // single enum value and fails on combined flags.
 enum NodeHints : ubyte (bit_flags) {
   RepaintBoundary,
-  Static
+  Static,
+  // The node shows or edits a value that reads a sensitive path: the
+  // runtime masks it until the user unmasks it (SEC-092).
+  Masked
 }
 
 // A node of a flat node array (BND-015). `widget` is the permanent widget
@@ -536,6 +539,10 @@ table FormField {
   type: uint;
   initial: Value;
   validators: [FormValidator];
+  // Whether the value is sensitive: never logged, traced or sent to
+  // analytics, and masked in any display the user did not unmask
+  // (SCH-012, SEC-092).
+  sensitive: bool;
 }
 
 // A form of a page or component; its state is the scope entry `name`.

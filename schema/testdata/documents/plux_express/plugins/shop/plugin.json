@@ -30,6 +30,7 @@
         }
       ],
       "name": "products",
+      "route": "direct",
       "type": "list<Product>"
     },
     {
@@ -53,6 +54,7 @@
         "totalCents": 398
       },
       "name": "orders",
+      "route": "plux",
       "type": "OrderResult"
     },
     {
@@ -73,6 +75,7 @@
         "status": "on_the_way"
       },
       "name": "tracking",
+      "route": "plux",
       "type": "Tracking"
     },
     {
@@ -101,6 +104,7 @@
         }
       ],
       "name": "courier",
+      "route": "plux",
       "type": "list<Job>"
     }
   ],

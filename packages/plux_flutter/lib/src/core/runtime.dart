@@ -28,6 +28,7 @@ import 'package:plux_flutter/src/assets/icon_fonts.dart';
 import 'package:plux_flutter/src/assets/image_providers.dart';
 import 'package:plux_flutter/src/core/active_release.dart';
 import 'package:plux_flutter/src/core/app_state.dart';
+import 'package:plux_flutter/src/core/confidential_bundles.dart';
 import 'package:plux_flutter/src/core/config.dart';
 import 'package:plux_flutter/src/core/fallback.dart';
 import 'package:plux_flutter/src/core/features.dart';
@@ -35,6 +36,7 @@ import 'package:plux_flutter/src/core/host_events.dart';
 import 'package:plux_flutter/src/core/plux.dart';
 import 'package:plux_flutter/src/core/plux_view.dart';
 import 'package:plux_flutter/src/core/trigger_sources.dart';
+import 'package:plux_flutter/src/data/live_config.dart' show ConfigSource;
 import 'package:plux_flutter/src/data/services.dart';
 import 'package:plux_flutter/src/data/worker.dart';
 import 'package:plux_flutter/src/db/adapter.dart';
@@ -58,10 +60,18 @@ import 'package:plux_flutter/src/render/renderer.dart';
 import 'package:plux_flutter/src/runtime_info.dart';
 import 'package:plux_flutter/src/schema/limit_values.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
+import 'package:plux_flutter/src/secure/secure_ui.dart';
+import 'package:plux_flutter/src/security/aead.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
+import 'package:plux_flutter/src/security/confirm_sheet.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
+import 'package:plux_flutter/src/security/key_wrap.dart';
 import 'package:plux_flutter/src/security/pins.dart';
+import 'package:plux_flutter/src/security/platform_aead.dart';
 import 'package:plux_flutter/src/security/platform_attestation.dart';
+import 'package:plux_flutter/src/security/rasp.dart';
+import 'package:plux_flutter/src/security/record_cipher.dart';
+import 'package:plux_flutter/src/security/sca.dart';
 import 'package:plux_flutter/src/security/security_config.dart';
 import 'package:plux_flutter/src/state/persistence.dart';
 import 'package:plux_flutter/src/state/providers.dart';
@@ -70,6 +80,7 @@ import 'package:plux_flutter/src/store/kv_store.dart';
 import 'package:plux_flutter/src/store/metadata_state.dart';
 import 'package:plux_flutter/src/store/pointer.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
+import 'package:plux_flutter/src/store/sealed_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
 import 'package:plux_flutter/src/sync/metadata_sync.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
@@ -111,6 +122,11 @@ final class RuntimeOverrides {
     this.random,
     this.secrets,
     this.configSecrets,
+    this.encryptLocalStores,
+    this.keyWrapper,
+    this.aead,
+    this.secure = const SecurePlatforms(),
+    this.userAuthSigner,
   });
 
   /// Creates the credential store on the sync isolate.
@@ -143,6 +159,27 @@ final class RuntimeOverrides {
   /// Creates, on the sync isolate, the secret store that keeps the remote
   /// security configuration (SEC-182); the platform's when null.
   final SecretStore Function()? configSecrets;
+
+  /// Whether the local stores are encrypted (SEC-073), instead of what the
+  /// stored security configuration says.
+  final bool? encryptLocalStores;
+
+  /// The hardware key that wraps the stores' data keys; the platform's
+  /// when null.
+  final KeyWrapper Function()? keyWrapper;
+
+  /// The AES-256-GCM of the encrypted stores and of confidential bundles
+  /// (SEC-053, SEC-073); the platform's, else Dart's, when null.
+  final Aead? aead;
+
+  /// The platform calls of the secure UI (ADR-0059): the screen
+  /// protection and the biometric prompt; the platform channel's by
+  /// default.
+  final SecurePlatforms secure;
+
+  /// Creates the signer of the SCA key that asks the user (SEC-027); the
+  /// platform's when null.
+  final UserAuthSigner Function()? userAuthSigner;
 }
 
 /// The runtime.
@@ -157,6 +194,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     this._root,
     this.assets,
     this._httpClient,
+    this._encrypt,
   ) {
     active.addListener(() => unawaited(_loadFonts(active.value)));
     active.addListener(() {
@@ -172,6 +210,34 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// Creates the HTTP client of the data layer and of images, pinned to the
   /// Plux server (SEC-041).
   final http.Client Function() _httpClient;
+
+  /// Whether the local stores are encrypted with hardware-wrapped keys
+  /// (`encryptLocalStores`, SEC-073). Read once at start: a configuration
+  /// that tightens it applies, and migrates the stores, on the next launch.
+  final bool _encrypt;
+
+  /// Whether the stored security configuration, or [overrides], turns on
+  /// the encryption of local stores. A configuration that cannot be read
+  /// is the built-in `standard` profile's.
+  static Future<bool> _encryptsStores(
+    PluxConfig config,
+    RuntimeOverrides overrides,
+  ) async {
+    final forced = overrides.encryptLocalStores;
+    if (forced != null) return forced;
+    final stored = await SecurityConfigStore(
+      overrides.secrets?.call() ?? const PlatformSecretStore(),
+      config.appId,
+      config.environment,
+    ).read();
+    final settings = stored == null
+        ? SecuritySettings.builtIn
+        : SecuritySettings.fromDocument(
+            stored.document,
+            version: stored.version,
+          );
+    return settings.flag(SecuritySetting.encryptLocalStores);
+  }
 
   /// Starts the runtime: opens the store, starts the sync isolate, imports
   /// the baseline when there is no release, counts the launch, and syncs
@@ -248,6 +314,7 @@ final class PluxRuntime with WidgetsBindingObserver {
               runtimeVersion: PluxRuntimeInfo.version,
               hostBuild: config.hostBuild,
             ),
+            enrolSca: config.strongCustomerAuthentication,
             supportsFeature: features.supports,
             verifierLimits: limits,
             diskQuota: config.diskQuota ?? PluxLimit.deviceDiskQuota.max,
@@ -266,6 +333,7 @@ final class PluxRuntime with WidgetsBindingObserver {
         root,
         assets,
         httpClient,
+        await _encryptsStores(config, overrides),
       );
       await rt.statePersistence.load();
       final startup = await rt._startup();
@@ -293,6 +361,17 @@ final class PluxRuntime with WidgetsBindingObserver {
   final SyncWorker _worker;
   final VerifierLimits _limits;
   final String _root;
+
+  /// The confidential bundles of the active release, opened once per
+  /// launch off the UI isolate (SEC-053).
+  /// The confidential bundles of the active release, opened once per
+  /// launch off the UI isolate with the platform's AES-256-GCM (SEC-053).
+  late final ConfidentialBundles _confidential = ConfidentialBundles(
+    keys: (overrides.deviceKeys ?? PlatformDeviceKeys.new)(),
+    appId: config.appId,
+    environment: config.environment,
+    aead: overrides.aead ?? platformAead,
+  );
 
   /// Which file of each asset this device uses (ADR-0027 Revision).
   final AssetDevice assets;
@@ -399,8 +478,55 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// server computed it and the latest token carried it (SEC-007). `AL0`
   /// until a token arrived, and again at once when the server refuses the
   /// device with `PLX-6002` or `PLX-6006`. Pages, routes and data sources
-  /// that ask for more are refused; read-only.
+  /// that ask for more are refused; read-only. A security module's
+  /// `degrade` response caps it ([limitAssurance]).
   final ValueNotifier<int> assurance = ValueNotifier(0);
+  var _assuranceCeiling = 3;
+
+  /// Caps the level at [ceiling] (0 to 3): the level falls to it at once
+  /// and no later token lifts it higher (SEC-071).
+  void limitAssurance(int ceiling) {
+    _assuranceCeiling = ceiling;
+    if (assurance.value > ceiling) assurance.value = ceiling;
+  }
+
+  /// What the attached security modules (SEC-070) can reach.
+  late final PluxSecurityHost securityHost = RuntimeSecurityHost(
+    settings: settings,
+    assurance: assurance,
+    record: (name, fields) {
+      if (_disposed) return;
+      telemetry.record(name, fields: fields);
+      unawaited(flushTelemetry());
+    },
+    limit: (ceiling) {
+      if (!_disposed) limitAssurance(ceiling);
+    },
+    reattest: _reattest,
+  );
+
+  Future<void> _reattest() async {
+    if (_disposed) return;
+    try {
+      await _worker.reattest();
+    } on Object catch (e) {
+      developer.log('re-attestation: $e', name: 'plux');
+    }
+  }
+
+  /// Attaches the app's security modules.
+  void attachSecurity() {
+    for (final m in config.securityModules) {
+      m.attach(securityHost);
+    }
+  }
+
+  /// Detaches them, before the runtime goes.
+  void detachSecurity() {
+    for (final m in config.securityModules) {
+      m.detach();
+    }
+  }
 
   late final LazyDataWorker _dataWorker = LazyDataWorker(
     () => DataWorker.start(
@@ -410,7 +536,8 @@ final class PluxRuntime with WidgetsBindingObserver {
       cacheDirectory: '$_root/data',
       // The encrypted cache's key, kept like the secure state store's
       // (DAT-010, plan p5 D6).
-      keys: SecretCacheKeys(_secrets, 'data-cache.$_keyId'),
+      keys: SecretCacheKeys(_keySecrets, 'data-cache.$_keyId'),
+      sealed: _encrypt,
     ),
   );
 
@@ -433,27 +560,72 @@ final class PluxRuntime with WidgetsBindingObserver {
     downloadDirectory: '$_root/downloads',
     database: database,
     assurance: () => assurance.value,
+    gateway: _worker,
+    authoriser: _sca,
+    allowDirect: () =>
+        settings.value.flag(SecuritySetting.allowDirectDataSources),
+  );
+
+  /// Strong customer authentication (SEC-027, ADR-0056): challenge,
+  /// confirmation sheet, the system prompt and the SCA key's signature. The
+  /// sheet shows on the app's navigator when the step has no screen of its
+  /// own.
+  late final ScaService _sca = ScaService(
+    challenges: _worker,
+    keys: overrides.deviceKeys?.call() ?? const PlatformDeviceKeys(),
+    signer: overrides.userAuthSigner?.call() ?? const PlatformDeviceKeys(),
+    confirmer: const SheetTransactionConfirmer(),
+    alias: scaKeyAlias(config.appId, config.environment),
+    context: () => navigatorKey?.currentState?.overlay?.context,
   );
 
   /// The offline outbox's store: encrypted under a key of this
   /// installation kept by the platform's secure storage, like the secure
   /// state store's (DAT-020, plan p5 D6). Its size follows the active app
   /// bundle's `data.outboxBytes`.
-  late final EncryptedFileStore _outboxStore = () {
-    final store = EncryptedFileStore(
-      path: '$_root/data/outbox.pxk',
-      secrets: _secrets,
-      keyName: 'data-outbox.$_keyId',
-      label: 'data-outbox/$_keyId',
-      maxBytes: PluxLimit.dataOutboxBytes.defaultValue,
-    );
+  late final PluxKeyValueStore _outboxStore = () {
+    final path = '$_root/data/outbox.pxk';
+    final id = _keyId;
+    final PluxKeyValueStore store = _encrypt
+        ? SealedFileStore(
+            path: path,
+            name: 'data-outbox/$id',
+            secrets: _keySecrets,
+            keyName: 'dk-outbox.$id',
+            maxBytes: PluxLimit.dataOutboxBytes.defaultValue,
+            cipher: _cipher,
+            legacySecrets: _secrets,
+            legacyKeyName: 'data-outbox.$id',
+            legacyLabel: 'data-outbox/$id',
+          )
+        : EncryptedFileStore(
+            path: path,
+            secrets: _secrets,
+            keyName: 'data-outbox.$id',
+            label: 'data-outbox/$id',
+            maxBytes: PluxLimit.dataOutboxBytes.defaultValue,
+          );
     active.addListener(() {
-      store.maxBytes =
-          active.value?.limits[PluxLimit.dataOutboxBytes.key] ??
-          PluxLimit.dataOutboxBytes.defaultValue;
+      _setMaxBytes(
+        store,
+        active.value?.limits[PluxLimit.dataOutboxBytes.key] ??
+            PluxLimit.dataOutboxBytes.defaultValue,
+      );
     });
     return store;
   }();
+
+  static void _setMaxBytes(PluxKeyValueStore store, int bytes) {
+    switch (store) {
+      case SealedFileStore():
+        store.maxBytes = bytes;
+      case EncryptedFileStore():
+        store.maxBytes = bytes;
+      case PlainFileStore():
+        store.maxBytes = bytes;
+      default:
+    }
+  }
 
   /// The host says whether the network is available
   /// (`Plux.setNetworkAvailable`, decision D13): streams waiting to
@@ -465,6 +637,7 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// cached response, so the next user never sees the previous user's
   /// data, then tells the host's auth delegate.
   Future<void> logout() async {
+    _sca.clear();
     await _dataServices.clearCache();
     environment().authDelegate?.onLogout();
   }
@@ -477,6 +650,21 @@ final class PluxRuntime with WidgetsBindingObserver {
   late final SecretStore _secrets =
       overrides.secrets?.call() ?? const PlatformSecretStore();
 
+  /// Where the data keys of the encrypted stores are kept (SEC-073): in
+  /// [_secrets], wrapped by secure hardware, when the stores are encrypted;
+  /// otherwise the platform's secret store itself.
+  late final SecretStore _keySecrets = _encrypt
+      ? HardwareWrappedSecretStore(
+          _secrets,
+          overrides.keyWrapper?.call() ?? const PlatformKeyWrapper(),
+        )
+      : _secrets;
+
+  /// The cipher of the encrypted stores' records (ADR-0058).
+  late final RecordCipher _cipher = RecordCipher(
+    overrides.aead ?? platformAead,
+  );
+
   /// The name part of this installation's keys.
   String get _keyId =>
       '${_safe(config.appId)}.${_safe(config.environment)}'.toLowerCase();
@@ -488,22 +676,49 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// memory for the session.
   late final StatePersistence statePersistence = () {
     final id = _keyId;
-    final persisted = PlainFileStore(
-      path: '$_root/plux-state/persisted.json',
-      maxBytes: PluxLimit.statePersistedBytes.defaultValue,
-    );
-    final secure = EncryptedFileStore(
-      path: '$_root/plux-state/secure.pxk',
-      secrets: _secrets,
-      keyName: 'state-secure.$id',
-      label: 'plux-state/secure/$id',
-      maxBytes: PluxLimit.stateSecureBytes.defaultValue,
-    );
+    final PluxKeyValueStore persisted;
+    final PluxKeyValueStore secure;
+    if (_encrypt) {
+      // Both stores keep their files, which a `standard` launch wrote plain
+      // and encrypted, and migrate them in place (SEC-073).
+      persisted = SealedFileStore(
+        path: '$_root/plux-state/persisted.json',
+        name: 'plux-state/persisted/$id',
+        secrets: _keySecrets,
+        keyName: 'dk-persisted.$id',
+        maxBytes: PluxLimit.statePersistedBytes.defaultValue,
+        cipher: _cipher,
+        plainMigration: true,
+      );
+      secure = SealedFileStore(
+        path: '$_root/plux-state/secure.pxk',
+        name: 'plux-state/secure/$id',
+        secrets: _keySecrets,
+        keyName: 'dk-secure.$id',
+        maxBytes: PluxLimit.stateSecureBytes.defaultValue,
+        cipher: _cipher,
+        legacySecrets: _secrets,
+        legacyKeyName: 'state-secure.$id',
+        legacyLabel: 'plux-state/secure/$id',
+      );
+    } else {
+      persisted = PlainFileStore(
+        path: '$_root/plux-state/persisted.json',
+        maxBytes: PluxLimit.statePersistedBytes.defaultValue,
+      );
+      secure = EncryptedFileStore(
+        path: '$_root/plux-state/secure.pxk',
+        secrets: _secrets,
+        keyName: 'state-secure.$id',
+        label: 'plux-state/secure/$id',
+        maxBytes: PluxLimit.stateSecureBytes.defaultValue,
+      );
+    }
     // The limits of the active app bundle (LIM-001).
     active.addListener(() {
       final limits = active.value?.limits ?? const <String, int>{};
-      persisted.maxBytes = limits.valueOf(PluxLimit.statePersistedBytes);
-      secure.maxBytes = limits.valueOf(PluxLimit.stateSecureBytes);
+      _setMaxBytes(persisted, limits.valueOf(PluxLimit.statePersistedBytes));
+      _setMaxBytes(secure, limits.valueOf(PluxLimit.stateSecureBytes));
     });
     return StatePersistence(
       persisted: persisted,
@@ -519,13 +734,25 @@ final class PluxRuntime with WidgetsBindingObserver {
   late final PluxDatabaseAdapter _dbAdapter =
       config.databaseAdapter ??
       BuiltInDatabaseAdapter(
-        store: EncryptedFileStore(
-          path: '$_root/plux-db/kv.pxk',
-          secrets: _secrets,
-          keyName: 'db-kv.$_keyId',
-          label: 'plux-db/kv/$_keyId',
-          maxBytes: PluxLimit.dbKvBytes.max * 4,
-        ),
+        store: _encrypt
+            ? SealedFileStore(
+                path: '$_root/plux-db/kv.pxk',
+                name: 'plux-db/kv/$_keyId',
+                secrets: _keySecrets,
+                keyName: 'dk-kv.$_keyId',
+                maxBytes: PluxLimit.dbKvBytes.max * 4,
+                cipher: _cipher,
+                legacySecrets: _secrets,
+                legacyKeyName: 'db-kv.$_keyId',
+                legacyLabel: 'plux-db/kv/$_keyId',
+              )
+            : EncryptedFileStore(
+                path: '$_root/plux-db/kv.pxk',
+                secrets: _secrets,
+                keyName: 'db-kv.$_keyId',
+                label: 'plux-db/kv/$_keyId',
+                maxBytes: PluxLimit.dbKvBytes.max * 4,
+              ),
         encrypted: true,
         report: _report,
       );
@@ -556,6 +783,15 @@ final class PluxRuntime with WidgetsBindingObserver {
     next: HostEventTriggers(triggers),
   );
 
+  /// What secure pages and widgets run on (ADR-0059): the screen
+  /// protection, the inactivity lock over [settings] and the biometric
+  /// prompt, shared by every page.
+  late final SecureUi secureUi = SecureUi(
+    settings: settings,
+    report: _report,
+    platforms: overrides.secure,
+  );
+
   /// Turns page sections into widgets (ADR-0031).
   late PageRenderer? renderer = PluxRenderer(
     config: config,
@@ -567,6 +803,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     assets: assets,
     verified: _verified,
     data: _dataServices,
+    secureUi: secureUi,
     actions: ActionServices(
       router: router,
       emit: emitHostEvent,
@@ -583,8 +820,11 @@ final class PluxRuntime with WidgetsBindingObserver {
         ...deviceServices(
           packages: config.devicePackages,
           openLink: handleDeepLink,
+          biometrics: overrides.secure.biometrics,
         ),
         PluxDatabase: database,
+        ScaService: _sca,
+        ConfigSource: _worker,
       },
       deviceGuard: _deviceGuard,
     )..ownerErrors = _ownerErrors,
@@ -957,7 +1197,7 @@ final class PluxRuntime with WidgetsBindingObserver {
         ),
       );
     }
-    _load();
+    await _load();
     // Before the first sync, so the flush after it carries the session's
     // start with the release the device runs.
     _startSession();
@@ -996,7 +1236,9 @@ final class PluxRuntime with WidgetsBindingObserver {
       try {
         final r = await _worker.sync(_emit);
         if (r.settings != null) settings.value = r.settings!;
-        if (r.assurance != null) assurance.value = r.assurance!;
+        if (r.assurance != null) {
+          assurance.value = math.min(r.assurance!, _assuranceCeiling);
+        }
         if (r.configError != null) _report(r.configError!);
         if (r.outcome == SyncOutcome.staged) _onStaged();
         // The radio is awake: record the result and send what is buffered
@@ -1034,7 +1276,7 @@ final class PluxRuntime with WidgetsBindingObserver {
       final from = active.value?.sequence;
       final p = await _worker.revert();
       if (from != null && p.active != from) {
-        _load();
+        await _load();
         _emit(SyncRolledBack(from, p.active!));
         _report(
           PluxException(
@@ -1063,15 +1305,18 @@ final class PluxRuntime with WidgetsBindingObserver {
   Future<void> _activate() async {
     if (_reopen().staged == null) return;
     await _worker.activate();
-    _load();
+    await _load();
     final seq = active.value?.sequence;
     if (seq != null) _emit(SyncActivated(seq));
   }
 
   StorePointer _reopen() => ReleaseStore.open(_store.root).pointer;
 
-  /// Maps the active release from the store's current pointer.
-  void _load() {
+  /// Maps the active release from the store's current pointer. The
+  /// confidential bundles of the release are decrypted into memory first,
+  /// off the UI isolate, once per launch (SEC-053); a release whose key or
+  /// bundle does not open is reported and leaves no active release.
+  Future<void> _load() async {
     final store = ReleaseStore.open(_store.root);
     final seq = store.pointer.active;
     final record = seq == null ? null : store.record(seq);
@@ -1080,11 +1325,17 @@ final class PluxRuntime with WidgetsBindingObserver {
       active.value = null;
     } else {
       try {
+        final decrypted = await _confidential.open(record, store);
+        _confidential.retain({
+          for (final b in record.bundles)
+            if (b.confidential) b.hash,
+        });
         active.value = ActiveRelease.open(
           store,
           record,
           _limits,
           report: _report,
+          decrypted: decrypted,
         );
       } on PluxException catch (e) {
         _report(e);
@@ -1181,7 +1432,9 @@ final class PluxRuntime with WidgetsBindingObserver {
 
   /// Stops the sync isolate and releases every mapping.
   Future<void> dispose() async {
+    detachSecurity();
     disconnect();
+    secureUi.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _flushEvery?.cancel();
     if (_inForeground) _endStretch();

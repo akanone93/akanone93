@@ -112,6 +112,10 @@ type Result struct {
 	// ("" for the app): publishing compares them with the previous
 	// release's (DB-005, CheckCollections).
 	Collections map[string]CollectionSet
+	// GatewaySources are the data sources that go through the Plux gateway,
+	// sorted: the server checks them against the upstreams registered for
+	// the environment before it creates a release (SEC-030, SEC-031).
+	GatewaySources []GatewaySource
 }
 
 // stage is one step of the pipeline (CMP-003). Checking stages run even
@@ -174,6 +178,7 @@ func Compile(fsys fs.FS, opts Options) (res *Result) {
 		res.StoredState = u.storedOf()
 		res.DeviceUses = u.sortedDeviceUses()
 		res.Collections = u.collectionsOf()
+		res.GatewaySources = u.sortedGatewaySources()
 	}
 	return res
 }

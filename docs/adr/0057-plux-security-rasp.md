@@ -56,3 +56,29 @@ Licence cost, closed code inside a security-critical path, and an extra vendor.
 ### Option 3: inside the runtime
 
 Every app would pay the size and permissions, including apps that do not need it.
+
+## Revisions (2026-10-11)
+
+Found while building S9; the decision above stands, these change how it is carried out.
+
+- **The detector interface lives in `plux_security`.** `PluxRaspDetector` (with
+  `PlatformRaspDetector` and a `FakeRaspDetector` for tests) belongs to the package that
+  has the detectors. `plux_flutter` exposes the seam instead: `PluxConfig.securityModules`
+  takes `PluxSecurityModule`s, and an attached module gets a `PluxSecurityHost` through
+  which it reports `rasp_detection`, caps the assurance level (`degrade` caps at `AL2`,
+  `block` at `AL0`) and asks for re-attestation. Without a module nothing is detected.
+- **Responses and the scan interval are settings (B5).** Every kind has a response
+  setting: `raspRootHookingResponse` for root and hooking, and `raspDebuggerResponse`,
+  `raspEmulatorResponse`, `raspRepackagingResponse`, `raspInstallerResponse`,
+  `raspScreenCaptureResponse`, `raspOverlayResponse` and `raspAccessibilityResponse`;
+  `raspScanInterval` sets the scan interval. All travel to the device. The app's
+  `PluxRaspPolicy` and `PluxSecurity(scanInterval:)` may only tighten them.
+- **The server lowers the level.** No new RPC: the device sends `rasp_detection` over the
+  DPoP-bound `IngestEvents`, and the server records, in the same call and before the event
+  is stored, a detection of a modified environment (root, hooking, debugger, repackaging,
+  untrusted installer, emulator) on the device row (`rasp_detected_at`, `rasp_kinds`) and
+  caps its level at `AL1`. The access token issued next carries the cap. A clean
+  `ReattestDevice` recomputes the level from its evidence and clears the record. Screen
+  capture, overlays and accessibility services follow the moment and lower nothing on the
+  server. Tokens already issued keep their level until they expire (at most 15 minutes);
+  the runtime caps its own level at once.

@@ -2,9 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
+import 'package:plux_flutter/src/data/failure.dart';
+import 'package:plux_flutter/src/data/gateway.dart';
+import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
@@ -133,6 +137,73 @@ void main() {
       final r = await run.timeout(const Duration(seconds: 10));
       expect(r.outcome, SyncOutcome.staged, reason: '${r.error}');
     } finally {
+      await server.close();
+      Directory(root).deleteSync(recursive: true);
+    }
+  });
+
+  test('carries gateway calls and challenges on the sync isolate, with typed failures across the boundary [SEC-030] [SEC-027]', () async {
+    final server = await FakePluxServer.start();
+    final root = Directory.systemTemp.createTempSync('plux_worker').path;
+    final worker = await SyncWorker.start(
+      SyncWorkerConfig(
+        storeRoot: root,
+        endpoint: server.endpoint,
+        httpClient: http.Client.new,
+        credentials: MemoryCredentialStore.new,
+        deviceKeys: FakeDeviceKeys.new,
+        attestation: FakeAttestation.new,
+        sync: SyncConfig(
+          appId: FakePluxServer.app,
+          environment: FakePluxServer.environment,
+          channel: FakePluxServer.channel,
+          keys: [server.trustedKey],
+          device: const DeviceInfo(
+            platform: 'android',
+            osVersion: '14',
+            runtimeVersion: '0.1.0',
+            hostBuild: '1',
+          ),
+          supportsFeature: _all,
+          verifierLimits: const VerifierLimits(
+            maxDepth: 64,
+            maxVisits: 1000000,
+          ),
+        ),
+        baseline: (_) async => null,
+      ),
+    );
+    try {
+      // The fake server has no gateway: the refusal comes back typed, not
+      // as an untyped isolate error.
+      await expectLater(
+        worker.call(
+          GatewayRequest(
+            upstream: 'ledger',
+            operation: '',
+            method: 'GET',
+            path: '/balance',
+            headers: const {},
+            body: null,
+            maxRequestBytes: 1024,
+            maxResponseBytes: 1024,
+            timeout: const Duration(seconds: 10),
+          ),
+        ),
+        throwsA(isA<DataFailure>()),
+      );
+      await expectLater(
+        worker.challenge(
+          dataSource: 'bank',
+          operation: 'transfer',
+          summaryJcs: Uint8List.fromList([123, 125]),
+        ),
+        throwsA(
+          isA<PluxException>().having((e) => e.message, 'message', isNotEmpty),
+        ),
+      );
+    } finally {
+      await worker.close();
       await server.close();
       Directory(root).deleteSync(recursive: true);
     }

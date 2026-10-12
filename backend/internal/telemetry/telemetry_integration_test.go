@@ -149,7 +149,7 @@ func TestIngestListPurge(t *testing.T) {
 	}); err != nil || runtime != "1.2.0" || host != "42" || osVersion != "18.1" {
 		t.Errorf("the device runs %q %q %q (%v)", runtime, host, osVersion, err)
 	}
-	now = now.Add(telemetry.Retention + time.Hour)
+	now = now.Add(telemetry.DefaultRetention + time.Hour)
 	if n, err := svc.Purge(ctx, o.ID); err != nil || n != 5 {
 		t.Errorf("Purge: %d %v", n, err)
 	}

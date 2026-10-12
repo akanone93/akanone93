@@ -264,6 +264,41 @@ func TestDeviceAuthenticationDegradedReplayCache(t *testing.T) {
 	}
 }
 
+// Verifies: SEC-023.
+// The policy of the token's environment decides, not the replica's: a
+// maximum-profile environment refuses while the cache is down although the
+// replica falls back, and a standard one falls back on a replica that
+// otherwise refuses.
+func TestDeviceAuthenticationReplayPolicyPerEnvironment(t *testing.T) {
+	t.Parallel()
+	broken := brokenCache{Cache: cache.NewMemory(nil)}
+	policy := func(p dpop.Fallback, asked *int) func(context.Context, string, string) (dpop.Fallback, error) {
+		return func(context.Context, string, string) (dpop.Fallback, error) { *asked++; return p, nil }
+	}
+	var asked int
+	maximum := newAuthFixture(t, func(a *api.DeviceAuth) {
+		a.Replay = dpop.NewReplay(broken, dpop.PerReplica, 100, nil, nil)
+		a.ReplayPolicy = policy(dpop.FailClosed, &asked)
+	})
+	proof := maximum.proofFor(t, maximum.dev.key, maximum.dev.token, maximum.w.deviceAuth.Nonces.Current(), nil)
+	if _, _, err := maximum.run(header("DPoP "+maximum.dev.token, proof)); code(err) != plxerr.ReplayCacheUnavailable {
+		t.Errorf("a maximum environment with the cache down: %v", err)
+	}
+	if asked != 1 {
+		t.Errorf("the environment's policy was asked %d times", asked)
+	}
+
+	var askedStandard int
+	standard := newAuthFixture(t, func(a *api.DeviceAuth) {
+		a.Replay = dpop.NewReplay(broken, dpop.FailClosed, 100, nil, nil)
+		a.ReplayPolicy = policy(dpop.PerReplica, &askedStandard)
+	})
+	proof = standard.proofFor(t, standard.dev.key, standard.dev.token, standard.w.deviceAuth.Nonces.Current(), nil)
+	if _, _, err := standard.run(header("DPoP "+standard.dev.token, proof)); err != nil {
+		t.Errorf("a standard environment with the cache down: %v", err)
+	}
+}
+
 // Verifies: SEC-024, SEC-021.
 // Over HTTP a call without the server's nonce is refused with 401 and
 // the nonce to use, and the retry succeeds, carrying a nonce again.
@@ -386,5 +421,38 @@ func TestReattestOverTheAPI(t *testing.T) {
 	must(w.device.RevokeDevice(ctx, req(admin, &pluxv1.RevokeDeviceRequest{DeviceId: dev.id})))(t)
 	if _, err := w.device.ReattestDevice(ctx, proven(t, dev, procedure, body())); reasonOf(t, err) != "DEVICE_REVOKED" {
 		t.Errorf("a revoked device: %v", err)
+	}
+}
+
+// Verifies: SEC-024, SEC-023, SEC-022, OBS-002.
+// Every refusal about the proof is reported with its reason, for
+// plux_dpop_rejections_total; refusals of other kinds are not.
+func TestDeviceAuthenticationReportsRejections(t *testing.T) {
+	t.Parallel()
+	var reasons []string
+	f := newAuthFixture(t, func(a *api.DeviceAuth) { a.Rejected = func(r string) { reasons = append(reasons, r) } })
+	nonce := f.w.deviceAuth.Nonces.Current()
+	token := f.dev.token
+
+	good := header("DPoP "+token, f.proofFor(t, f.dev.key, token, nonce, nil))
+	if _, _, err := f.run(good); err != nil {
+		t.Fatal(err)
+	}
+	_, _, _ = f.run(good)
+	_, _, _ = f.run(header("DPoP "+token, f.proofFor(t, f.dev.key, token, "", nil)))
+	_, _, _ = f.run(header("DPoP "+token, "not-a-proof"))
+	_, _, _ = f.run(header("Bearer "+token, ""))
+	stranger, _ := devicetest.NewKey(t)
+	_, _, _ = f.run(header("DPoP "+token, f.proofFor(t, stranger, token, nonce, nil)))
+
+	want := []string{"replay", "nonce_required", "proof_invalid", "binding_mismatch"}
+	if len(reasons) != len(want) {
+		t.Fatalf("reasons = %v, want %v", reasons, want)
+	}
+	for i := range want {
+		if reasons[i] != want[i] {
+			t.Errorf("reasons = %v, want %v", reasons, want)
+			break
+		}
 	}
 }

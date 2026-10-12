@@ -4,6 +4,7 @@
 package device
 
 import (
+	"bytes"
 	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
@@ -18,6 +19,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/nightCode42/plux3/backend/internal/attest/appattest"
+	"github.com/nightCode42/plux3/backend/internal/attest/binding"
 	"github.com/nightCode42/plux3/backend/internal/attest/keyattest"
 	"github.com/nightCode42/plux3/backend/internal/attest/playintegrity"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
@@ -52,6 +54,10 @@ type IOSEvidence struct {
 	// AttestationObject is the CBOR attestation object App Attest
 	// returned.
 	AttestationObject []byte
+	// Assertion is an App Attest assertion over the binding hash, made
+	// with the key attested at registration; it is the evidence of an SCA
+	// key enrolled after registration and is empty otherwise.
+	Assertion []byte
 }
 
 // DevelopmentEvidence marks a development build (SEC-004).
@@ -82,6 +88,18 @@ type AttestedRegistration struct {
 	KeyStorage KeyStorage
 	// Evidence is the attestation of the key.
 	Evidence Evidence
+	// SCAKeyJWK is the device's strong customer authentication key as a
+	// JSON Web Key, and SCAEvidence its attestation; both empty for a
+	// device that enrols the key later (SEC-027).
+	SCAKeyJWK   []byte
+	SCAEvidence *Evidence
+	// AgreementKeyJWK is the device's key-agreement public key as a JSON
+	// Web Key, for confidential bundles (SEC-053); empty when it has none.
+	AgreementKeyJWK []byte
+	// AgreementKeyChain is the Android Key Attestation chain of the
+	// key-agreement key, DER certificates, leaf first; set on Android when
+	// the device has the key and on no other platform.
+	AgreementKeyChain [][]byte
 }
 
 // subject is what an evidence check needs to know about the device and
@@ -92,8 +110,17 @@ type subject struct {
 	challenge    []byte
 	key          *ecdsa.PublicKey
 	jkt          string
-	claim        KeyStorage
-	settings     Settings
+	// kaJKT and scaJKT are the thumbprints of the device's key-agreement
+	// and SCA keys, empty for a key it does not have; the evidence is bound
+	// to them with the DPoP key's (SEC-004).
+	kaJKT, scaJKT string
+	claim         KeyStorage
+	settings      Settings
+}
+
+// bindingHash is the value the platform evidence must be bound to.
+func (sub subject) bindingHash() [32]byte {
+	return binding.Hash(sub.challenge, sub.jkt, sub.kaJKT, sub.scaJKT)
 }
 
 // appAttestRecord is what is kept of an App Attest attestation.
@@ -121,10 +148,11 @@ func (s *Service) RegisterAttested(ctx context.Context, r AttestedRegistration) 
 	if err := r.Evidence.matches(r.Platform); err != nil {
 		return Device{}, err
 	}
-	key, canonical, jkt, err := parseKey(r.DPoPKeyJWK)
+	k, err := parseRegistrationKeys(r)
 	if err != nil {
 		return Device{}, err
 	}
+	key, canonical, jkt, agreement, kaKey, kaJKT := k.key, k.canonical, k.jkt, k.agreement, k.kaKey, k.kaJKT
 	found, err := s.findEnvironment(ctx, r.AppID, r.Environment)
 	if err != nil {
 		return Device{}, err
@@ -139,9 +167,16 @@ func (s *Service) RegisterAttested(ctx context.Context, r AttestedRegistration) 
 	}
 	sub := subject{
 		appID: appID, envID: envID, production: found.Production, challenge: r.Challenge,
-		key: key, jkt: jkt, claim: r.KeyStorage, settings: conf,
+		key: key, jkt: jkt, kaJKT: kaJKT, scaJKT: k.scaJKT, claim: r.KeyStorage, settings: conf,
 	}
 	v, err := s.verify(ctx, sub, r.Evidence)
+	if err != nil {
+		return Device{}, err
+	}
+	if err := s.verifyAgreementKey(ctx, sub, v.proof, kaKey, r); err != nil {
+		return Device{}, err
+	}
+	sca, err := s.verifyRegistrationSCA(ctx, appID, found.Production, r)
 	if err != nil {
 		return Device{}, err
 	}
@@ -155,6 +190,7 @@ func (s *Service) RegisterAttested(ctx context.Context, r AttestedRegistration) 
 		RuntimeVersion: r.RuntimeVersion, HostBuild: r.Build, AssuranceLevel: string(Assess(v.proof, conf)),
 		DpopJkt: &jkt, DpopPublicKey: canonical, KeyStorage: string(v.proof.KeyStorage),
 		AttestationVerdicts: v.verdicts, AttestationRiskMetric: v.risk, AttestedAt: storage.Timestamp(s.now()),
+		AgreementPublicKey: agreement,
 	}
 	provider := string(v.proof.Provider)
 	params.AttestationProvider = &provider
@@ -168,7 +204,10 @@ func (s *Service) RegisterAttested(ctx context.Context, r AttestedRegistration) 
 			return fmt.Errorf("device: register: %w", err)
 		}
 		d = deviceOf(row)
-		return nil
+		if sca == nil {
+			return nil
+		}
+		return putSCAKey(ctx, tx, row.ID, row.OrganizationID, sca.der, sca.key)
 	})
 	if isUniqueViolation(err) {
 		return Device{}, plxerr.New(plxerr.AttestationFailed, "a device with this key is already registered")
@@ -177,6 +216,80 @@ func (s *Service) RegisterAttested(ctx context.Context, r AttestedRegistration) 
 		return Device{}, fmt.Errorf("device: %w", err)
 	}
 	return d, nil
+}
+
+// registrationKeys are the keys a registration submits, parsed.
+type registrationKeys struct {
+	key       *ecdsa.PublicKey
+	canonical []byte
+	jkt       string
+	agreement []byte
+	kaKey     *ecdsa.PublicKey
+	kaJKT     string
+	scaJKT    string
+}
+
+// parseRegistrationKeys parses the DPoP, key-agreement and SCA keys of a
+// registration.
+func parseRegistrationKeys(r AttestedRegistration) (registrationKeys, error) {
+	var k registrationKeys
+	var err error
+	if k.key, k.canonical, k.jkt, err = parseKey(r.DPoPKeyJWK); err != nil {
+		return k, err
+	}
+	if k.agreement, k.kaKey, k.kaJKT, err = parseAgreementKey(r.AgreementKeyJWK); err != nil {
+		return k, err
+	}
+	k.scaJKT, err = registrationSCAThumbprint(r)
+	return k, err
+}
+
+// registeredSCA is a verified SCA key on its way into the database.
+type registeredSCA struct {
+	key SCAKey
+	der []byte
+}
+
+// verifyRegistrationSCA verifies the SCA key a registration brings, when
+// it brings one (SEC-027). A key without evidence, and evidence without a
+// key, are refused.
+func (s *Service) verifyRegistrationSCA(ctx context.Context, appID string, production bool, r AttestedRegistration) (*registeredSCA, error) {
+	if len(r.SCAKeyJWK) == 0 && r.SCAEvidence == nil {
+		return nil, nil //nolint:nilnil // the device has no SCA key yet
+	}
+	if len(r.SCAKeyJWK) == 0 || r.SCAEvidence == nil {
+		return nil, plxerr.New(plxerr.AttestationFailed, "an SCA key and its evidence come together")
+	}
+	if err := r.SCAEvidence.matches(r.Platform); err != nil {
+		return nil, err
+	}
+	key, err := s.registrationSCAKey(ctx, appID, production, r)
+	if err != nil {
+		return nil, err
+	}
+	der, err := x509.MarshalPKIXPublicKey(key.Public)
+	if err != nil {
+		return nil, fmt.Errorf("device: encode the SCA key: %w", err)
+	}
+	return &registeredSCA{key: key, der: der}, nil
+}
+
+// registrationSCAKey verifies the SCA key of a registration. An iOS device
+// reuses the registration's own App Attest evidence for the key, which
+// cannot be attested apart from the DPoP key: the request that carries
+// the key was made by the attested app, and the key is stored with the
+// Secure Enclave as its storage. Any other evidence is verified for the
+// SCA key itself (SEC-027).
+func (s *Service) registrationSCAKey(ctx context.Context, appID string, production bool, r AttestedRegistration) (SCAKey, error) {
+	if ios, reg := r.SCAEvidence.IOS, r.Evidence.IOS; ios != nil && reg != nil &&
+		bytes.Equal(ios.KeyID, reg.KeyID) && bytes.Equal(ios.AttestationObject, reg.AttestationObject) {
+		key, _, jkt, err := parseKey(r.SCAKeyJWK)
+		if err != nil {
+			return SCAKey{}, plxerr.New(plxerr.InvalidFormat, "the SCA key is not an EC P-256 public key in JWK form")
+		}
+		return SCAKey{Public: key, JKT: jkt, Storage: KeyStorageSecureEnclave, Provider: scaProviderAppAttest}, nil
+	}
+	return s.verifySCA(ctx, appID, production, SCAEnrolment{Challenge: r.Challenge, KeyJWK: r.SCAKeyJWK, Evidence: *r.SCAEvidence})
 }
 
 // checkDescription validates what a device says about itself.
@@ -214,23 +327,109 @@ func (e Evidence) matches(platform string) error {
 // JWK in the form the server keeps (the key's members and no others) and
 // the RFC 7638 thumbprint.
 func parseKey(raw []byte) (*ecdsa.PublicKey, []byte, string, error) {
-	var jwk jose.JSONWebKey
-	if err := json.Unmarshal(raw, &jwk); err != nil || !jwk.Valid() || !jwk.IsPublic() {
-		return nil, nil, "", plxerr.New(plxerr.InvalidFormat, "the DPoP key is not a public key in JWK form")
-	}
-	pub, ok := jwk.Key.(*ecdsa.PublicKey)
-	if !ok || pub.Curve != elliptic.P256() {
-		return nil, nil, "", plxerr.New(plxerr.InvalidFormat, "the DPoP key is not an EC P-256 key")
+	pub, canonical, err := parseP256(raw, "DPoP key")
+	if err != nil {
+		return nil, nil, "", err
 	}
 	jkt, err := dpop.Thumbprint(pub)
 	if err != nil {
 		return nil, nil, "", err //nolint:wrapcheck // a domain error
 	}
+	return pub, canonical, jkt, nil
+}
+
+// parseP256 reads an EC P-256 public key from a JWK; what names the key
+// in messages. It returns the key and the JWK in the form the server
+// keeps (the key's members and no others).
+func parseP256(raw []byte, what string) (*ecdsa.PublicKey, []byte, error) {
+	var jwk jose.JSONWebKey
+	if err := json.Unmarshal(raw, &jwk); err != nil || !jwk.Valid() || !jwk.IsPublic() {
+		return nil, nil, plxerr.New(plxerr.InvalidFormat, "the %s is not a public key in JWK form", what)
+	}
+	pub, ok := jwk.Key.(*ecdsa.PublicKey)
+	if !ok || pub.Curve != elliptic.P256() {
+		return nil, nil, plxerr.New(plxerr.InvalidFormat, "the %s is not an EC P-256 key", what)
+	}
 	canonical, err := json.Marshal(jose.JSONWebKey{Key: pub})
 	if err != nil {
-		return nil, nil, "", fmt.Errorf("device: encode the DPoP key: %w", err)
+		return nil, nil, fmt.Errorf("device: encode the %s: %w", what, err)
 	}
-	return pub, canonical, jkt, nil
+	return pub, canonical, nil
+}
+
+// parseAgreementKey reads the key-agreement key a registration offers
+// (SEC-053): the JWK in the form the server keeps, the key and its
+// thumbprint; all empty for a device that has none.
+func parseAgreementKey(raw []byte) ([]byte, *ecdsa.PublicKey, string, error) {
+	if len(raw) == 0 {
+		return nil, nil, "", nil
+	}
+	pub, canonical, err := parseP256(raw, "key-agreement key")
+	if err != nil {
+		return nil, nil, "", err
+	}
+	jkt, err := dpop.Thumbprint(pub)
+	if err != nil {
+		return nil, nil, "", err //nolint:wrapcheck // a domain error
+	}
+	return canonical, pub, jkt, nil
+}
+
+// registrationSCAThumbprint is the thumbprint of the SCA key a
+// registration brings, empty when it brings none.
+func registrationSCAThumbprint(r AttestedRegistration) (string, error) {
+	if len(r.SCAKeyJWK) == 0 {
+		return "", nil
+	}
+	_, _, jkt, err := parseKey(r.SCAKeyJWK)
+	if err != nil {
+		return "", plxerr.New(plxerr.InvalidFormat, "the SCA key is not an EC P-256 public key in JWK form")
+	}
+	return jkt, nil
+}
+
+// verifyAgreementKey checks that the key-agreement key of a registration
+// is as well protected as the DPoP key. The binding already covers the
+// key's thumbprint; on Android the key's own Key Attestation chain, made
+// with the registration challenge, must also prove that it is the key the
+// chain attests, and that it lives in hardware wherever the DPoP key does,
+// so a rooted device cannot register a software key beside an attested
+// one (SEC-004, SEC-053).
+func (s *Service) verifyAgreementKey(ctx context.Context, sub subject, proof Proof, key *ecdsa.PublicKey, r AttestedRegistration) error {
+	chain := r.AgreementKeyChain
+	if key == nil {
+		if len(chain) > 0 {
+			return plxerr.New(plxerr.AttestationFailed, "a key attestation chain came without a key-agreement key")
+		}
+		return nil
+	}
+	if r.Evidence.Android == nil {
+		if len(chain) > 0 {
+			return plxerr.New(plxerr.AttestationFailed, "the evidence is not from the android platform")
+		}
+		return nil
+	}
+	if len(chain) == 0 {
+		return plxerr.New(plxerr.AttestationFailed, "the key-agreement key needs a key attestation chain")
+	}
+	trust, err := s.trustOf(ctx, sub.appID)
+	if err != nil {
+		return err
+	}
+	if s.attestors.KeyAttestation == nil || len(trust.AndroidPackages) == 0 {
+		return plxerr.New(plxerr.AttestationUnavailable, "Android attestation is not configured for this app")
+	}
+	res, err := s.attestors.KeyAttestation.Verify(ctx, chain, sub.challenge, keyattest.Policy{
+		PackageNames: trust.AndroidPackages, SigningCertDigests: trust.AndroidCertDigests,
+		RequireHardware: proof.KeyStorage.hardware(),
+	})
+	if err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	if res.PublicKey == nil || !res.PublicKey.Equal(key) {
+		return plxerr.New(plxerr.AttestationFailed, "the attested key is not the key-agreement key")
+	}
+	return nil
 }
 
 // settingsFor resolves the security settings of an environment.
@@ -286,6 +485,41 @@ func (s *Service) trustOf(ctx context.Context, appID string) (TrustConfig, error
 // verify checks the evidence of whichever provider it names, then checks
 // the key storage the device claimed against what was proven.
 func (s *Service) verify(ctx context.Context, sub subject, e Evidence) (verified, error) {
+	v, err := s.verifyEvidence(ctx, sub, e)
+	if s.onAttestation != nil {
+		s.onAttestation(e.platform(), verdictOf(err))
+	}
+	return v, err
+}
+
+// platform names the platform the evidence is from, for the metrics.
+func (e Evidence) platform() string {
+	switch {
+	case e.Development != nil:
+		return "development"
+	case e.Android != nil:
+		return "android"
+	default:
+		return "ios"
+	}
+}
+
+// verdictOf classifies the outcome of a verification: evidence that
+// failed, a verification that could not be made, or neither.
+func verdictOf(err error) string {
+	switch code, _ := plxerr.CodeOf(err); {
+	case err == nil:
+		return AttestationVerified
+	case code == plxerr.AttestationUnavailable:
+		return AttestationUnavailable
+	default:
+		return AttestationFailed
+	}
+}
+
+// verifyEvidence checks the evidence of whichever provider it names, then
+// checks the key storage the device claimed against what was proven.
+func (s *Service) verifyEvidence(ctx context.Context, sub subject, e Evidence) (verified, error) {
 	var (
 		v   verified
 		err error
@@ -298,7 +532,7 @@ func (s *Service) verify(ctx context.Context, sub subject, e Evidence) (verified
 			return verified{}, err
 		}
 		if e.Android != nil {
-			v, err = s.verifyAndroid(sub, trust, *e.Android)
+			v, err = s.verifyAndroid(ctx, sub, trust, *e.Android)
 		} else {
 			v, err = s.verifyIOS(sub, trust, *e.IOS)
 		}
@@ -340,7 +574,7 @@ func (k KeyStorage) covers(claim KeyStorage) bool {
 // verifyAndroid checks a Key Attestation chain and a Play Integrity
 // token. The attested key must be the DPoP key itself, or the chain
 // would prove another key (SEC-003).
-func (s *Service) verifyAndroid(sub subject, trust TrustConfig, e AndroidEvidence) (verified, error) {
+func (s *Service) verifyAndroid(ctx context.Context, sub subject, trust TrustConfig, e AndroidEvidence) (verified, error) {
 	if s.attestors.KeyAttestation == nil || s.attestors.PlayIntegrity == nil ||
 		len(trust.AndroidPackages) == 0 || trust.PlayIntegrity == nil {
 		return verified{}, plxerr.New(plxerr.AttestationUnavailable, "Android attestation is not configured for this app")
@@ -348,7 +582,7 @@ func (s *Service) verifyAndroid(sub subject, trust TrustConfig, e AndroidEvidenc
 	if len(e.KeyAttestationChain) == 0 || e.PlayIntegrityToken == "" {
 		return verified{}, plxerr.New(plxerr.AttestationFailed, "Android evidence needs a key attestation chain and a Play Integrity token")
 	}
-	res, err := s.attestors.KeyAttestation.Verify(e.KeyAttestationChain, sub.challenge, keyattest.Policy{
+	res, err := s.attestors.KeyAttestation.Verify(ctx, e.KeyAttestationChain, sub.challenge, keyattest.Policy{
 		PackageNames: trust.AndroidPackages, SigningCertDigests: trust.AndroidCertDigests,
 		RequireHardware: sub.settings.requireHardware(),
 	})
@@ -359,7 +593,7 @@ func (s *Service) verifyAndroid(sub subject, trust TrustConfig, e AndroidEvidenc
 		return verified{}, plxerr.New(plxerr.AttestationFailed, "the attested key is not the DPoP key")
 	}
 	verdict, err := s.attestors.PlayIntegrity.Verify(*trust.PlayIntegrity, e.PlayIntegrityToken, playintegrity.Expect{
-		PackageName: res.PackageName, RequestHash: playintegrity.RequestHash(sub.challenge, sub.jkt),
+		PackageName: res.PackageName, RequestHash: binding.RequestHash(sub.challenge, sub.jkt, sub.kaJKT, sub.scaJKT),
 		CertDigests: trust.AndroidCertDigests, MaxAge: integrityMaxAge,
 	})
 	if err != nil {
@@ -391,7 +625,7 @@ func androidStorage(r keyattest.Result) KeyStorage {
 }
 
 // verifyIOS checks an App Attest attestation bound to the challenge and
-// the DPoP key's thumbprint. App Attest does not say where the DPoP key
+// the thumbprints of the device's keys. App Attest does not say where the DPoP key
 // lives, so the device's claim stands: a Secure Enclave claim earns AL2,
 // anything else AL1 (SEC-007).
 func (s *Service) verifyIOS(sub subject, trust TrustConfig, e IOSEvidence) (verified, error) {
@@ -405,7 +639,7 @@ func (s *Service) verifyIOS(sub subject, trust TrustConfig, e IOSEvidence) (veri
 	if trust.AppAttestProduction {
 		env = appattest.Production
 	}
-	att, err := s.attestors.AppAttest.VerifyAttestation(e.AttestationObject, e.KeyID, appattest.ClientDataHash(sub.challenge, sub.jkt), trust.IOSAppID, env)
+	att, err := s.attestors.AppAttest.VerifyAttestation(e.AttestationObject, e.KeyID, sub.bindingHash(), trust.IOSAppID, env)
 	if err != nil {
 		return verified{}, err //nolint:wrapcheck // a domain error
 	}

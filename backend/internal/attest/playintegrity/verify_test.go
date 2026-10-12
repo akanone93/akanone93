@@ -20,6 +20,7 @@ import (
 
 	"github.com/go-jose/go-jose/v4"
 
+	"github.com/nightCode42/plux3/backend/internal/attest/binding"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 )
@@ -52,7 +53,7 @@ func newFixture(t testing.TB) *fixture {
 	return &fixture{
 		t: t, aes: aes, signer: signer,
 		keys:    Keys{Decryption: aes, Verification: &signer.PublicKey},
-		hash:    RequestHash([]byte("challenge"), "jkt-thumbprint"),
+		hash:    binding.RequestHash([]byte("challenge"), "jkt-thumbprint", "", ""),
 		certDig: dig[:],
 	}
 }
@@ -243,7 +244,7 @@ func TestVerifyRejects(t *testing.T) {
 		}},
 		{name: "request hash", token: func(f *fixture) string {
 			p := f.verdict()
-			set(p, "requestDetails", "requestHash", RequestHash([]byte("other"), "jkt-thumbprint"))
+			set(p, "requestDetails", "requestHash", binding.RequestHash([]byte("other"), "jkt-thumbprint", "", ""))
 			return f.token(p)
 		}},
 		{name: "stale timestamp", token: func(f *fixture) string {
@@ -436,17 +437,6 @@ func TestStrongest(t *testing.T) {
 	}
 }
 
-func TestRequestHash(t *testing.T) {
-	sum := sha256.Sum256([]byte("chal" + "jkt"))
-	want := base64.RawURLEncoding.EncodeToString(sum[:])
-	if got := RequestHash([]byte("chal"), "jkt"); got != want {
-		t.Errorf("RequestHash = %q, want %q", got, want)
-	}
-	if RequestHash([]byte("chal"), "jkt") == RequestHash([]byte("chal"), "jkt2") {
-		t.Error("thumbprint does not influence the hash")
-	}
-}
-
 func TestParseKeys(t *testing.T) {
 	signer, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -500,6 +490,9 @@ func TestParseKeys(t *testing.T) {
 	}
 }
 
+// FuzzVerify checks that no token makes the verdict verifier panic.
+//
+// Verifies: QA-004, SEC-003.
 func FuzzVerify(f *testing.F) {
 	fx := newFixture(f)
 	good := fx.token(fx.verdict())

@@ -7,8 +7,11 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/base64"
 	"io/fs"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -16,6 +19,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
@@ -28,21 +32,25 @@ type referenceApp struct {
 	addr    string
 }
 
-// Verifies: DX-004, QA-006.
+// Verifies: DX-004, QA-006, SEC-026, SEC-027, SEC-030.
 // Plux Bank's exit flow (apps/plux_bank/integration_test/bank_flows.dart)
-// against this server and the reference backend: login, accounts,
-// a validated transfer, its result and the server-sent notification on the
+// against this server and the reference backend, under the maximum profile:
+// every source through the gateway, the sign-in token exchanged for the user
+// the test identity provider vouches for, the transfer confirmed with the
+// device's SCA key and accepted by a backend that trusts only the gateway's
+// assertion, and the notification streamed through the gateway to the
 // dashboard. See runReferenceApp.
 func TestPluxBankAgainstTheServer(t *testing.T) {
 	runReferenceApp(t, referenceApp{fixture: "plux_bank", dir: "plux_bank", addr: deviceAddr("127.0.0.1:18097")})
 }
 
-// Verifies: DX-004, QA-006.
+// Verifies: DX-004, QA-006, SEC-030.
 // Plux Express's flows (apps/plux_express/integration_test/express_flows.dart)
-// against this server and the reference backend: the paginated catalogue,
-// the persisted cart, an order tracked over a WebSocket to its delivery,
-// and a courier's confirmation queued offline and replayed once. See
-// runReferenceApp.
+// against this server and the reference backend, under the standard profile
+// with a direct source (the catalogue) beside gateway sources: the
+// paginated catalogue, the persisted cart, an order tracked over a WebSocket
+// through the gateway to its delivery, and a courier's confirmation queued
+// offline and replayed once. See runReferenceApp.
 func TestPluxExpressAgainstTheServer(t *testing.T) {
 	runReferenceApp(t, referenceApp{fixture: "plux_express", dir: "plux_express", addr: deviceAddr("127.0.0.1:18098")})
 }
@@ -65,10 +73,34 @@ func runReferenceApp(t *testing.T, app referenceApp) {
 		t.Skip("set PLUX_E2E_FLUTTER to the flutter executable (make e2e-starter)")
 	}
 	dir := filepath.Join("..", "..", "..", "apps", app.dir)
-	ref := startReferenceAPI(t)
-	st := startStack(t, app.addr)
+	// The reference backend verifies the gateway's assertions with the keys
+	// this server publishes, so it needs to know where the server will be
+	// before either starts. The environment is not a production one, so
+	// its assertions are signed with the development class of key.
+	addr := app.addr
+	if strings.HasSuffix(addr, ":0") {
+		addr = freeAddr(t)
+	}
+	server := "http://" + addr
+	ref := startReferenceAPI(t, referenceAssertions{jwks: server + JWKSPath + "development", issuer: server, audience: referenceAudience})
+	// The gateway trusts the reference backend's test CA, as a customer's
+	// private CA is trusted (gateway.upstreamCAFile), and so does its read
+	// of the identity provider's keys.
+	st := startStackWith(t, addr, stackOptions{
+		extraYAML:    "gateway:\n  upstreamCAFile: \"" + ref.caFile + "\"\n",
+		identityHTTP: ref.client(t),
+	})
 	project := st.project(t, app.fixture)
 	pointAtReferenceAPI(t, project, ref.url)
+	// What goes through the gateway has its upstream registered, at the
+	// base URL the environment gives the source (SEC-031), and the
+	// environment's users sign in at the reference backend's identity
+	// provider (SEC-026). A source that declares route direct (Express's
+	// public catalogue) calls the backend itself.
+	st.registerUpstreams(t, project, "staging", referenceAudience)
+	st.setIdentityProvider(t, "staging", gateway.IdentityProvider{
+		Issuer: ref.url + "/idp", JWKSURL: ref.url + "/idp/jwks.json", Audiences: []string{"plux"},
+	})
 
 	var pub struct {
 		OK      bool
@@ -178,22 +210,49 @@ func eventsByEnvironment(t *testing.T, st *stack) map[string]map[string]int {
 	return out
 }
 
+// referenceAudience is the audience the reference upstreams are registered
+// with and the reference backend expects in an assertion.
+const referenceAudience = "refapi"
+
+// referenceAssertions says which gateway the reference backend trusts.
+type referenceAssertions struct{ jwks, issuer, audience string }
+
 // referenceAPI is a running reference backend.
 type referenceAPI struct {
 	// url is its base URL, https://127.0.0.1:PORT.
 	url string
 	// ca is the PEM of the certificate authority it generated, in base64.
-	ca     string
+	ca string
+	// caFile is where the PEM of that authority is written.
+	caFile string
 	stderr *bytes.Buffer
 }
 
 // log is what the backend wrote to its standard error.
 func (r *referenceAPI) log() string { return r.stderr.String() }
 
+// client is an HTTP client that trusts the backend's test authority, as the
+// gateway does for a customer's identity provider on a private authority.
+func (r *referenceAPI) client(t *testing.T) *http.Client {
+	t.Helper()
+	pem, err := os.ReadFile(r.caFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pool := x509.NewCertPool()
+	if !pool.AppendCertsFromPEM(pem) {
+		t.Fatal("the reference backend's authority is no PEM certificate")
+	}
+	return &http.Client{
+		Timeout:   10 * time.Second,
+		Transport: &http.Transport{TLSClientConfig: &tls.Config{RootCAs: pool, MinVersion: tls.VersionTLS12}},
+	}
+}
+
 // startReferenceAPI builds test/refapi, starts it as the e2e flows do
-// (-ca-out and a short -track-step) and waits for the line that announces
-// where it listens. It stops with the test.
-func startReferenceAPI(t *testing.T) *referenceAPI {
+// (-ca-out, a short -track-step and the gateway it trusts) and waits for the
+// line that announces where it listens. It stops with the test.
+func startReferenceAPI(t *testing.T, trust referenceAssertions) *referenceAPI {
 	t.Helper()
 	module := filepath.Join("..", "..", "..", "test", "refapi")
 	dir := t.TempDir()
@@ -210,7 +269,11 @@ func startReferenceAPI(t *testing.T) *referenceAPI {
 		addr = "127.0.0.1:0"
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	cmd := exec.CommandContext(ctx, bin, "-addr", addr, "-ca-out", caFile, "-track-step", "200ms") //nolint:gosec // G204: the binary the test built.
+	args := []string{
+		"-addr", addr, "-ca-out", caFile, "-track-step", "200ms",
+		"-assertion-jwks", trust.jwks, "-assertion-issuer", trust.issuer, "-assertion-audience", trust.audience,
+	}
+	cmd := exec.CommandContext(ctx, bin, args...) //nolint:gosec // G204: the binary the test built.
 	cmd.Cancel = func() error { return cmd.Process.Signal(os.Interrupt) }
 	cmd.WaitDelay = 5 * time.Second
 	stderr := &bytes.Buffer{}
@@ -248,6 +311,7 @@ func startReferenceAPI(t *testing.T) *referenceAPI {
 	return &referenceAPI{
 		url:    strings.TrimSpace(strings.TrimPrefix(line, prefix)),
 		ca:     base64.StdEncoding.EncodeToString(pem),
+		caFile: caFile,
 		stderr: stderr,
 	}
 }

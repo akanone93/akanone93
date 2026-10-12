@@ -20,21 +20,36 @@ it only in end-to-end mode, through `PluxConfig.httpClient` and `PluxConfig.webS
 | `-ca-out` | required | File the CA certificate (PEM) is written to |
 | `-track-step` | `2s` | Pause between the status steps of an order's tracking stream |
 | `-heartbeat` | `15s` | Interval of the notification stream's heartbeat comments |
+| `-assertion-jwks` | none | URL of the Plux server's assertion keys, `/.well-known/plux/gateway-jwks/{production,development}`; the bank refuses every request without it |
+| `-assertion-issuer` | none | The Plux server's public base URL: the `iss` of its assertions |
+| `-assertion-audience` | `refapi` | The `aud` the upstreams were registered with |
 
 Once it is listening it prints exactly one line, `refapi listening on https://HOST:PORT`, and
 shuts down on SIGINT or SIGTERM.
 
 ## Plux Bank (`/bank`)
 
-Login with `demo` / `demo1234`; every other endpoint needs `Authorization: Bearer <token>`.
+The bank is a **customer backend behind the Plux gateway** ([gateway guide](../../docs/guides/gateway.md)).
+It trusts one thing about its caller: the `Plux-Assertion` the gateway adds (ES256, `typ`
+`plux-assertion+jwt`, checked against the server's published keys for `iss`, `aud`, time and the
+request hash `rh`). Without a valid assertion every bank endpoint answers `401 unauthorised`; a
+bearer token or a device credential is never looked at. An endpoint then asks the assertion for the
+verified user (`usr`, else `403 user_required`) and a transfer for the proof that the user
+confirmed it (`sca`, else `403 sca_required`); the bank keeps the proof's challenge ID and summary
+hash with the payment.
 
-| Endpoint | |
-|---|---|
-| `POST /bank/v1/login` | `{"token","expiresIn"}`; `401` for other credentials |
-| `GET /bank/v1/accounts` | `{"items":[{id,name,iban,balanceCents,currency}]}` |
-| `POST /bank/v1/transfers` | `201 {"id","status","balanceCents"}`; `422` for an unknown account, an amount that is not positive or is over the balance, a malformed IBAN; idempotent on `Idempotency-Key` |
-| `POST /bank/graphql` | The queries `accounts` and `transactions(accountId, first, after)` only — a fixture's server, not a GraphQL engine |
-| `GET /bank/v1/notifications` | Server-sent `transfer` events with `id:`; resumes from `Last-Event-ID`; heartbeat comments |
+Users sign in at a **test identity provider** in the same process: `POST /bank/v1/login` checks
+`demo` / PIN `246810` / code `123456` (the one-time password an SMS would carry) and returns an ES256 JWT (`iss` = `<url>/idp`, `aud` = `plux`, `sub` =
+`user-demo`); its keys are at `GET /idp/jwks.json`. An environment registers it with
+`SetUserIdentityProvider`, and the gateway exchanges the host's token for the user it names.
+
+| Endpoint | Needs | |
+|---|---|---|
+| `POST /bank/v1/login` | a device | Body `{username,pin,otp}`; `{"token","expiresIn"}`; `401` for other credentials |
+| `GET /bank/v1/accounts` | a user | `{"items":[{id,name,iban,balanceCents,currency}]}` |
+| `POST /bank/v1/transfers` | a confirmed user | Body `{fromAccountId,toIban,amount,currency,reference}`, the amount a decimal string (`"12.50"`); `201 {"id","status","balanceCents"}`; `422` for an unknown account, an amount that is not positive, over the balance or malformed, another currency, a malformed IBAN; idempotent on `Idempotency-Key` (else on the assertion's `jti`) |
+| `POST /bank/graphql` | a user | The queries `accounts` and `transactions(accountId, first, after)` only — a fixture's server, not a GraphQL engine |
+| `GET /bank/v1/notifications` | a user | Server-sent `transfer` events with `id:`; resumes from `Last-Event-ID`; heartbeat comments |
 
 ## Plux Express (`/express`, no auth)
 
@@ -53,6 +68,6 @@ Errors are `{"error":{"code","message"}}`.
 ## In the end-to-end tests
 
 `backend/internal/server/reference_e2e_integration_test.go` builds this module, starts it with
-`-ca-out <tmp>/ca.pem -track-step 200ms`, reads the listen line, and passes the CA (base64) and
+`-ca-out <tmp>/ca.pem -track-step 200ms` and the server's assertion flags, reads the listen line, and passes the CA (base64) and
 the URL to the apps' flows as `PLUX_REFAPI_CA` and `PLUX_REFAPI_URL`. Run the module's own tests
 with `go test -race ./...` from this directory.

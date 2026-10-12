@@ -35,6 +35,11 @@ service DeviceService {
   // RevokeDevice withdraws a device's trust: its tokens stop working and
   // it can no longer refresh them. Administrators only (SEC-006).
   rpc RevokeDevice(RevokeDeviceRequest) returns (RevokeDeviceResponse) {}
+  // EnrolScaKey stores the public half of the device's strong customer
+  // authentication key after the server verifies its attestation, for a
+  // device that created the key after it registered, or whose key was
+  // invalidated, such as by a change of enrolled biometrics (SEC-027).
+  rpc EnrolScaKey(EnrolScaKeyRequest) returns (EnrolScaKeyResponse) {}
 }
 
 message Device {
@@ -114,6 +119,11 @@ message IosEvidence {
   // attestation_object is the CBOR attestation object App Attest
   // returned for the challenge.
   bytes attestation_object = 2;
+  // app_attest_assertion is set only when enrolling an SCA key later
+  // (EnrolScaKey): an assertion over the binding hash with the App Attest
+  // key stored at registration, in which case app_attest_key_id and
+  // attestation_object are empty.
+  bytes app_attest_assertion = 3;
 }
 
 // DevelopmentEvidence marks a development build. The server accepts it
@@ -173,6 +183,12 @@ message RegisterAttestedDeviceRequest {
   // sca_evidence is the attestation of the SCA key, in the same forms as
   // evidence; set when sca_public_key_jwk is (SEC-027).
   AttestationEvidence sca_evidence = 13;
+  // key_agreement_key_attestation_chain is the Android Key Attestation
+  // chain of the key-agreement key, leaf first, DER-encoded, created with
+  // the registration challenge; empty on other platforms and when the
+  // device has no such key. The binding hash covers the thumbprints of
+  // the DPoP, key-agreement and SCA keys (SEC-004, ADR-0012).
+  repeated bytes key_agreement_key_attestation_chain = 14;
 }
 message RegisterAttestedDeviceResponse {
   Device device = 1;
@@ -188,6 +204,22 @@ message ReattestDeviceRequest {
 }
 message ReattestDeviceResponse {
   Device device = 1;
+}
+
+message EnrolScaKeyRequest {
+  // challenge is a fresh challenge from CreateRegistrationChallenge; the
+  // attestation of the key must be bound to it.
+  bytes challenge = 1;
+  // sca_public_key_jwk is the SCA public key as a JWK (RFC 7517).
+  bytes sca_public_key_jwk = 2;
+  // sca_evidence is the attestation of the key: an Android Key Attestation
+  // chain of the SCA key, or an App Attest attestation bound to its
+  // thumbprint (SEC-027).
+  AttestationEvidence sca_evidence = 3;
+}
+message EnrolScaKeyResponse {
+  // sca_jkt is the RFC 7638 thumbprint of the stored key.
+  string sca_jkt = 1;
 }
 
 message RevokeDeviceRequest {

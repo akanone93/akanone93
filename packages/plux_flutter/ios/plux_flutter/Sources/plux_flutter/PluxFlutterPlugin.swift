@@ -8,19 +8,23 @@ import Security
 /// The platform services of the Plux runtime (ADR-0029): where the release
 /// store lives, and secrets kept in the Keychain, readable only on this
 /// device after its first unlock, so that no secret is ever written in the
-/// clear. The device keys (SEC-001) are served by PluxKeys, App Attest
+/// clear. The device keys (SEC-001) are served by PluxKeys, the key that wraps
+/// the encrypted stores' data keys (SEC-073) by PluxDataKeys, App Attest
 /// (SEC-004) by PluxAttestation, the pinned HTTP/2 client of the Plux
 /// server (SEC-041) by PluxPinnedHttp. The device actions that need the platform,
-/// the share sheet and permission prompts, run here too (SEC-080). Bundle
-/// data never crosses this channel.
+/// the share sheet, permission prompts, the biometric prompt and the cover of
+/// secure pages, run here too (SEC-080, SEC-091, SEC-094). Bundle data never
+/// crosses this channel.
 public class PluxFlutterPlugin: NSObject, FlutterPlugin {
   private static let service = "dev.plux.secrets"
   private let device = PluxDevice()
   private let keys = PluxKeys()
+  private let dataKeys = PluxDataKeys()
   private let attestation = PluxAttestation()
   private let http = PluxPinnedHttp()
 
   public static func register(with registrar: FlutterPluginRegistrar) {
+    PluxAead.retain()
     let channel = FlutterMethodChannel(name: "dev.plux/runtime", binaryMessenger: registrar.messenger())
     registrar.addMethodCallDelegate(PluxFlutterPlugin(), channel: channel)
   }
@@ -41,8 +45,10 @@ public class PluxFlutterPlugin: NSObject, FlutterPlugin {
       guard let name = Self.name(args) else { return result(Self.badName) }
       _ = SecItemDelete(query(name) as CFDictionary)
       result(nil)
-    case "keyCreate", "keyPublic", "keySign", "keyDelete":
+    case "keyCreate", "keyPublic", "keySign", "keySignAuth", "keyAgree", "keyDelete":
       keys.handle(call.method, args, result: result)
+    case "dataKeyWrap", "dataKeyUnwrap":
+      dataKeys.handle(call.method, args, result: result)
     case "attestationSupported", "appAttestKey", "appAttestAttest", "appAttestAssert":
       attestation.handle(call.method, args, result: result)
     case "httpOpen", "httpRead", "httpClose":
@@ -51,6 +57,10 @@ public class PluxFlutterPlugin: NSObject, FlutterPlugin {
       device.share(args, result: result)
     case "permissionRequest":
       device.requestPermission(args, result: result)
+    case "secureScreen":
+      device.secureScreen(args, result: result)
+    case "biometricAuth":
+      device.biometricAuth(args, result: result)
     default:
       result(FlutterMethodNotImplemented)
     }

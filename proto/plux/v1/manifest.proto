@@ -175,6 +175,22 @@ message GetManifestResponse {
   // config_full_required is true when no patch can be given, so the
   // device fetches the whole configuration (SEC-182).
   bool config_full_required = 6;
+  // content_key is the release's content key wrapped for this device;
+  // set when the manifest names confidential bundles (SEC-053). It is
+  // outside the signed part: the bundles' signed hashes cover ciphertext,
+  // and a key that does not open them is refused by the device.
+  ContentKey content_key = 7;
+}
+
+// ContentKey is a confidential release's content key wrapped to one
+// device's key-agreement key with ECDH-ES (P-256), HKDF-SHA-256 and AES-KW
+// (SEC-053, ADR-0055).
+message ContentKey {
+  // ephemeral_public_key is the server's one-time P-256 key, an
+  // uncompressed SEC1 point of 65 bytes.
+  bytes ephemeral_public_key = 1;
+  // wrapped_key is the AES-KW output, 40 bytes.
+  bytes wrapped_key = 2;
 }
 
 message GetRootKeysRequest {

@@ -17,6 +17,7 @@ import 'package:plux_flutter/src/device/types.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/navigation/delegate.dart';
+import 'package:plux_flutter/src/security/rasp.dart';
 import 'package:plux_flutter/src/verify/manifest.dart';
 
 /// How `Plux.initialize` treats the network (SYN-003).
@@ -97,6 +98,14 @@ final class PluxUser {
 
 /// Supplies the end user's access token to data sources and functions
 /// (HST-010). Plux never implements end-user login; it is used from P4.
+///
+/// Through the gateway (SEC-030) the token is the *subject* of a token
+/// exchange (SEC-026, RFC 8693): the runtime trades it with the Plux server,
+/// which verifies it against the customer's identity provider and issues a
+/// short-lived token for the upstream; the upstream sees the verified user in
+/// the server's assertion, never the raw token. The exchanged token is kept
+/// in memory only. A token the provider rejects is refreshed once, as a
+/// `401` is.
 abstract interface class PluxAuthDelegate {
   /// Whether a user is signed in. Guards and other expressions read it as
   /// `user.authenticated` (ADR-0040); it is read on every evaluation, so
@@ -222,6 +231,8 @@ final class PluxConfig {
     this.devicePackages = const [],
     this.allowedCapabilities,
     this.databaseAdapter,
+    this.securityModules = const [],
+    this.strongCustomerAuthentication = false,
   }) : assert(downloadParallelism > 0, 'at least one download at a time'),
        assert(
          hostBuild.length <= 64,
@@ -406,4 +417,22 @@ final class PluxConfig {
   /// key-value entries and a plugin that declares a collection reports
   /// `PLX-5201`.
   final PluxDatabaseAdapter? databaseAdapter;
+
+  /// The security modules the app installs, such as `PluxSecurity()` of
+  /// `plux_security` (RT-060, SEC-070, ADR-0057): each is attached once the
+  /// runtime is up and detached when it is disposed. Without one nothing
+  /// is detected, and a device never reaches `AL3`.
+  final List<PluxSecurityModule> securityModules;
+
+  /// Whether the device registers a second hardware key that signs
+  /// transaction confirmations (SEC-027, ADR-0056). The key needs the user's
+  /// biometric or device credential for every signature, so it can be made
+  /// only on a device with a screen lock; where it cannot be made, the
+  /// device registers without it and transactions fail with `PLX-6017`.
+  /// Set it for an app whose data sources declare a `transaction`; on Android
+  /// the host activity must be a `FlutterFragmentActivity`, since the system
+  /// prompt needs a `FragmentActivity`, and on iOS the app's `Info.plist`
+  /// needs `NSFaceIDUsageDescription`. A device registered before the flag
+  /// was set registers again with the key the first time it signs.
+  final bool strongCustomerAuthentication;
 }

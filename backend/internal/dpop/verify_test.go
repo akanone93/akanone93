@@ -545,6 +545,9 @@ func TestCheckBinding(t *testing.T) {
 	}
 }
 
+// FuzzVerify checks that no proof makes the verifier panic.
+//
+// Verifies: QA-004, SEC-021.
 func FuzzVerify(f *testing.F) {
 	key := newKey(f)
 	good := signRaw(f, key, goodHeader(key), goodClaims())

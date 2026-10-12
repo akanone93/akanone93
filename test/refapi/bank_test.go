@@ -6,6 +6,10 @@ package main
 import (
 	"bufio"
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"encoding/json"
 	"net/http"
 	"strings"
 	"testing"
@@ -20,15 +24,16 @@ func TestLogin(t *testing.T) {
 		status int
 		code   string
 	}{
-		{"the demo user", `{"username":"demo","password":"demo1234"}`, http.StatusOK, ""},
-		{"a wrong password", `{"username":"demo","password":"nope"}`, http.StatusUnauthorized, "invalid_credentials"},
-		{"a wrong username", `{"username":"eve","password":"demo1234"}`, http.StatusUnauthorized, "invalid_credentials"},
+		{"the demo user", `{"username":"demo","pin":"246810","otp":"123456"}`, http.StatusOK, ""},
+		{"a wrong PIN", `{"username":"demo","pin":"000000","otp":"123456"}`, http.StatusUnauthorized, "invalid_credentials"},
+		{"a wrong code", `{"username":"demo","pin":"246810","otp":"654321"}`, http.StatusUnauthorized, "invalid_credentials"},
+		{"a wrong username", `{"username":"eve","pin":"246810","otp":"123456"}`, http.StatusUnauthorized, "invalid_credentials"},
 		{"empty credentials", `{}`, http.StatusUnauthorized, "invalid_credentials"},
 		{"a body that is no JSON", `not json`, http.StatusBadRequest, "bad_request"},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := call(t, srv, http.MethodPost, "/bank/v1/login", "", tc.body)
+			r := call(t, srv, http.MethodPost, "/bank/v1/login", aDevice, tc.body)
 			if r.status != tc.status {
 				t.Fatalf("status %d, want %d: %s", r.status, tc.status, r.body)
 			}
@@ -50,38 +55,147 @@ func TestLogin(t *testing.T) {
 	}
 }
 
+// loginToken signs the demo user in and returns the token.
+func loginToken(t *testing.T, srv *testAPI) string {
+	t.Helper()
+	r := call(t, srv, http.MethodPost, "/bank/v1/login", aDevice, `{"username":"demo","pin":"246810","otp":"123456"}`)
+	if r.status != http.StatusOK {
+		t.Fatalf("login: %d %s", r.status, r.body)
+	}
+	var out struct{ Token string }
+	r.json(t, &out)
+	return out.Token
+}
+
 func TestLoginIssuesADifferentTokenEachTime(t *testing.T) {
 	srv := testServer(t, Options{})
-	if a, b := signIn(t, srv), signIn(t, srv); a == b {
+	if a, b := loginToken(t, srv), loginToken(t, srv); a == b {
 		t.Fatal("two logins share a token")
 	}
 }
 
-func TestBankEndpointsNeedAToken(t *testing.T) {
+// Verifies: SEC-026.
+// The identity provider's token verifies against the key set it publishes,
+// which is what the Plux server does before it exchanges the token, and
+// carries the issuer and audience an environment registers.
+func TestIdentityProviderTokenVerifiesWithItsPublishedKeys(t *testing.T) {
 	srv := testServer(t, Options{})
-	for _, ep := range []struct{ method, path string }{
+	token := loginToken(t, srv)
+	jws, err := parseJWS(token)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r := call(t, srv, http.MethodGet, idpPath+"/jwks.json", nobody, "")
+	var set jwkSet
+	r.json(t, &set)
+	if r.status != http.StatusOK || len(set.Keys) != 1 || set.Keys[0].Kid != jws.header.Kid {
+		t.Fatalf("keys answered %d %s for the key %q", r.status, r.body, jws.header.Kid)
+	}
+	pub, err := set.Keys[0].key()
+	if err != nil || !jws.verify(pub) {
+		t.Fatalf("the token does not verify: %v", err)
+	}
+	var c idpClaims
+	if err := json.Unmarshal(jws.payload, &c); err != nil {
+		t.Fatal(err)
+	}
+	if c.Iss != srv.URL+idpPath || c.Aud != idpAudience || c.Sub != demoSubject || c.EXP <= c.IAT {
+		t.Fatalf("claims %+v", c)
+	}
+}
+
+// Verifies: SEC-031, SEC-026.
+// The bank trusts the gateway's assertion and nothing else about the caller.
+func TestBankEndpointsTrustOnlyTheGatewaysAssertion(t *testing.T) {
+	srv := testServer(t, Options{})
+	other, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	const body = `{"fromAccountId":"acct-001","toIban":"DE44500105175407324931","amount":"1.00","currency":"EUR"}`
+	endpoints := []struct{ method, path string }{
+		{http.MethodPost, "/bank/v1/login"},
 		{http.MethodGet, "/bank/v1/accounts"},
 		{http.MethodPost, "/bank/v1/transfers"},
 		{http.MethodPost, "/bank/graphql"},
 		{http.MethodGet, "/bank/v1/notifications"},
-	} {
-		for name, token := range map[string]string{"without a token": "", "with an unknown token": "forged"} {
+	}
+	cases := map[string]func(ep struct{ method, path string }) string{
+		"no assertion":        func(struct{ method, path string }) string { return "" },
+		"a bearer token only": func(struct{ method, path string }) string { return "" },
+		"an assertion signed with another key": func(ep struct{ method, path string }) string {
+			g := &testGateway{key: other, kid: srv.gw.kid, now: time.Now}
+			return g.assertion(t, aConfirmedUser, ep.method, ep.path, body)
+		},
+		"an unknown key": func(ep struct{ method, path string }) string {
+			return srv.gw.assertion(t, aConfirmedUser, ep.method, ep.path, body, func(h *jwsHeader, _ map[string]any) { h.Kid = "nope" })
+		},
+		"another type (an access token)": func(ep struct{ method, path string }) string {
+			return srv.gw.assertion(t, aConfirmedUser, ep.method, ep.path, body, func(h *jwsHeader, _ map[string]any) { h.Typ = "at+jwt" })
+		},
+		"another issuer": func(ep struct{ method, path string }) string {
+			return srv.gw.assertion(t, aConfirmedUser, ep.method, ep.path, body, func(_ *jwsHeader, c map[string]any) { c["iss"] = "https://evil.example" })
+		},
+		"another audience": func(ep struct{ method, path string }) string {
+			return srv.gw.assertion(t, aConfirmedUser, ep.method, ep.path, body, func(_ *jwsHeader, c map[string]any) { c["aud"] = "other" })
+		},
+		"an expired assertion": func(ep struct{ method, path string }) string {
+			return srv.gw.assertion(t, aConfirmedUser, ep.method, ep.path, body, func(_ *jwsHeader, c map[string]any) {
+				c["iat"], c["exp"] = time.Now().Add(-10*time.Minute).Unix(), time.Now().Add(-9*time.Minute).Unix()
+			})
+		},
+		"an assertion minted for another request": func(ep struct{ method, path string }) string {
+			return srv.gw.assertion(t, aConfirmedUser, ep.method, ep.path+"/elsewhere", body)
+		},
+	}
+	for name, mint := range cases {
+		for _, ep := range endpoints {
 			t.Run(ep.method+" "+ep.path+" "+name, func(t *testing.T) {
-				r := call(t, srv, ep.method, ep.path, token, `{}`)
-				if r.status != http.StatusUnauthorized {
-					t.Fatalf("status %d, want 401", r.status)
+				req, err := http.NewRequestWithContext(t.Context(), ep.method, srv.URL+ep.path, strings.NewReader(body))
+				if err != nil {
+					t.Fatal(err)
 				}
-				if got := r.errorCode(t); got != "unauthorised" {
-					t.Fatalf("error code %q", got)
+				if a := mint(ep); a != "" {
+					req.Header.Set(assertionHeader, a)
+				}
+				req.Header.Set("Authorization", "Bearer "+loginToken(t, srv))
+				r := send(t, srv, req)
+				if r.status != http.StatusUnauthorized || r.errorCode(t) != "unauthorised" {
+					t.Fatalf("status %d %s, want 401 unauthorised", r.status, r.body)
 				}
 			})
 		}
 	}
 }
 
+// Verifies: SEC-026, SEC-032.
+// An endpoint asks the assertion for the user, and a transfer for the
+// confirmation the gateway verified.
+func TestBankEndpointsAskTheAssertionForTheUserAndTheConfirmation(t *testing.T) {
+	srv := testServer(t, Options{})
+	const body = `{"fromAccountId":"acct-001","toIban":"DE44500105175407324931","amount":"1.00","currency":"EUR"}`
+	for _, ep := range []string{"/bank/v1/accounts", "/bank/graphql", "/bank/v1/notifications", "/bank/v1/transfers"} {
+		method, sent := http.MethodGet, ""
+		if ep == "/bank/graphql" || ep == "/bank/v1/transfers" {
+			method, sent = http.MethodPost, body
+		}
+		r := call(t, srv, method, ep, aDevice, sent)
+		if r.status != http.StatusForbidden || r.errorCode(t) != "user_required" {
+			t.Fatalf("%s for a device without a user: %d %s", ep, r.status, r.body)
+		}
+	}
+	r := call(t, srv, http.MethodPost, "/bank/v1/transfers", aUser, body)
+	if r.status != http.StatusForbidden || r.errorCode(t) != "sca_required" {
+		t.Fatalf("a transfer without a confirmation: %d %s", r.status, r.body)
+	}
+	if r := call(t, srv, http.MethodGet, "/bank/v1/accounts", aUser, ""); r.status != http.StatusOK {
+		t.Fatalf("accounts for a user: %d", r.status)
+	}
+}
+
 func TestAccounts(t *testing.T) {
 	srv := testServer(t, Options{})
-	r := call(t, srv, http.MethodGet, "/bank/v1/accounts", signIn(t, srv), "")
+	r := call(t, srv, http.MethodGet, "/bank/v1/accounts", aUser, "")
 	if r.status != http.StatusOK {
 		t.Fatalf("status %d", r.status)
 	}
@@ -104,21 +218,23 @@ func TestCreateTransfer(t *testing.T) {
 		status int
 		code   string
 	}{
-		{"a transfer", `{"fromAccountId":"acct-001","toIban":"` + other + `","amountCents":1000,"reference":"Lunch"}`, http.StatusCreated, ""},
-		{"an IBAN with spaces and lowercase", `{"fromAccountId":"acct-001","toIban":"de44 5001 0517 5407 3249 31","amountCents":1000}`, http.StatusCreated, ""},
-		{"the whole balance", `{"fromAccountId":"acct-001","toIban":"` + other + `","amountCents":250000}`, http.StatusCreated, ""},
-		{"an unknown account", `{"fromAccountId":"acct-999","toIban":"` + other + `","amountCents":1000}`, http.StatusUnprocessableEntity, "unknown_account"},
-		{"a zero amount", `{"fromAccountId":"acct-001","toIban":"` + other + `","amountCents":0}`, http.StatusUnprocessableEntity, "invalid_amount"},
-		{"a negative amount", `{"fromAccountId":"acct-001","toIban":"` + other + `","amountCents":-5}`, http.StatusUnprocessableEntity, "invalid_amount"},
-		{"an amount over the balance", `{"fromAccountId":"acct-001","toIban":"` + other + `","amountCents":250001}`, http.StatusUnprocessableEntity, "insufficient_funds"},
-		{"an IBAN of the wrong shape", `{"fromAccountId":"acct-001","toIban":"12345","amountCents":1000}`, http.StatusUnprocessableEntity, "invalid_iban"},
-		{"no IBAN", `{"fromAccountId":"acct-001","amountCents":1000}`, http.StatusUnprocessableEntity, "invalid_iban"},
+		{"a transfer", `{"fromAccountId":"acct-001","toIban":"` + other + `","amount":"10.00","currency":"EUR","reference":"Lunch"}`, http.StatusCreated, ""},
+		{"an IBAN with spaces and lowercase", `{"fromAccountId":"acct-001","toIban":"de44 5001 0517 5407 3249 31","amount":"10.00","currency":"EUR"}`, http.StatusCreated, ""},
+		{"the whole balance", `{"fromAccountId":"acct-001","toIban":"` + other + `","amount":"2500.00","currency":"EUR"}`, http.StatusCreated, ""},
+		{"an unknown account", `{"fromAccountId":"acct-999","toIban":"` + other + `","amount":"10.00","currency":"EUR"}`, http.StatusUnprocessableEntity, "unknown_account"},
+		{"a zero amount", `{"fromAccountId":"acct-001","toIban":"` + other + `","amount":"0.00","currency":"EUR"}`, http.StatusUnprocessableEntity, "invalid_amount"},
+		{"a negative amount", `{"fromAccountId":"acct-001","toIban":"` + other + `","amount":"-0.05","currency":"EUR"}`, http.StatusUnprocessableEntity, "invalid_amount"},
+		{"an amount over the balance", `{"fromAccountId":"acct-001","toIban":"` + other + `","amount":"2500.01","currency":"EUR"}`, http.StatusUnprocessableEntity, "insufficient_funds"},
+		{"an IBAN of the wrong shape", `{"fromAccountId":"acct-001","toIban":"12345","amount":"10.00","currency":"EUR"}`, http.StatusUnprocessableEntity, "invalid_iban"},
+		{"another currency than the account's", `{"fromAccountId":"acct-001","toIban":"` + other + `","amount":"10.00","currency":"USD"}`, http.StatusUnprocessableEntity, "invalid_currency"},
+		{"an amount with three decimals", `{"fromAccountId":"acct-001","toIban":"` + other + `","amount":"10.001","currency":"EUR"}`, http.StatusUnprocessableEntity, "invalid_amount"},
+		{"no IBAN", `{"fromAccountId":"acct-001","amount":"10.00","currency":"EUR"}`, http.StatusUnprocessableEntity, "invalid_iban"},
 		{"a body that is no JSON", `[`, http.StatusBadRequest, "bad_request"},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			srv := testServer(t, Options{})
-			r := call(t, srv, http.MethodPost, "/bank/v1/transfers", signIn(t, srv), tc.body)
+			r := call(t, srv, http.MethodPost, "/bank/v1/transfers", aConfirmedUser, tc.body)
 			if r.status != tc.status {
 				t.Fatalf("status %d, want %d: %s", r.status, tc.status, r.body)
 			}
@@ -139,9 +255,9 @@ func TestCreateTransfer(t *testing.T) {
 
 func TestTransferBooksTheMoney(t *testing.T) {
 	srv := testServer(t, Options{})
-	token := signIn(t, srv)
+	token := aConfirmedUser
 	r := call(t, srv, http.MethodPost, "/bank/v1/transfers", token,
-		`{"fromAccountId":"acct-001","toIban":"DE02120300000000202051","amountCents":4000,"reference":"To savings"}`)
+		`{"fromAccountId":"acct-001","toIban":"DE02120300000000202051","amount":"40.00","currency":"EUR","reference":"To savings"}`)
 	var out transferResult
 	r.json(t, &out)
 	if out.BalanceCents != 246_000 {
@@ -156,8 +272,8 @@ func TestTransferBooksTheMoney(t *testing.T) {
 
 func TestTransferIsIdempotentOnItsKey(t *testing.T) {
 	srv := testServer(t, Options{})
-	token := signIn(t, srv)
-	body := `{"fromAccountId":"acct-001","toIban":"DE44500105175407324931","amountCents":5000}`
+	token := aConfirmedUser
+	body := `{"fromAccountId":"acct-001","toIban":"DE44500105175407324931","amount":"50.00","currency":"EUR"}`
 	first := call(t, srv, http.MethodPost, "/bank/v1/transfers", token, body, "Idempotency-Key", "key-1")
 	replay := call(t, srv, http.MethodPost, "/bank/v1/transfers", token, body, "Idempotency-Key", "key-1")
 	other := call(t, srv, http.MethodPost, "/bank/v1/transfers", token, body, "Idempotency-Key", "key-2")
@@ -182,7 +298,7 @@ func TestTransferIsIdempotentOnItsKey(t *testing.T) {
 
 func TestGraphQLAccounts(t *testing.T) {
 	srv := testServer(t, Options{})
-	token := signIn(t, srv)
+	token := aUser
 	for _, query := range []string{
 		`query Accounts { accounts { id name iban balanceCents currency } }`,
 		`{ accounts { id } }`,
@@ -201,7 +317,7 @@ func TestGraphQLAccounts(t *testing.T) {
 
 func TestGraphQLTransactionsPaginate(t *testing.T) {
 	srv := testServer(t, Options{})
-	token := signIn(t, srv)
+	token := aUser
 	const query = `query Transactions($accountId: String!, $first: Int!, $after: String) { transactions(accountId: $accountId, first: $first, after: $after) { items { id } next more } }`
 	var seen []string
 	var after any
@@ -239,7 +355,7 @@ func TestGraphQLTransactionsPaginate(t *testing.T) {
 
 func TestGraphQLErrors(t *testing.T) {
 	srv := testServer(t, Options{})
-	token := signIn(t, srv)
+	token := aUser
 	tests := []struct {
 		name    string
 		body    string
@@ -296,10 +412,10 @@ func (s *sseStream) block(t *testing.T) string {
 
 func TestNotificationsStreamTransfersAndResume(t *testing.T) {
 	srv := testServer(t, Options{})
-	token := signIn(t, srv)
+	token := aConfirmedUser
 	transfer := func() {
 		r := call(t, srv, http.MethodPost, "/bank/v1/transfers", token,
-			`{"fromAccountId":"acct-001","toIban":"DE44500105175407324931","amountCents":100}`)
+			`{"fromAccountId":"acct-001","toIban":"DE44500105175407324931","amount":"1.00","currency":"EUR"}`)
 		if r.status != http.StatusCreated {
 			t.Fatalf("transfer: %d %s", r.status, r.body)
 		}
@@ -311,7 +427,7 @@ func TestNotificationsStreamTransfersAndResume(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set(assertionHeader, srv.gw.assertion(t, token, http.MethodGet, "/bank/v1/notifications", ""))
 		if lastID != "" {
 			req.Header.Set("Last-Event-ID", lastID)
 		}
@@ -360,14 +476,14 @@ func TestNotificationsStreamTransfersAndResume(t *testing.T) {
 
 func TestNotificationsSendHeartbeats(t *testing.T) {
 	srv := testServer(t, Options{Heartbeat: 5 * time.Millisecond})
-	token := signIn(t, srv)
+	token := aConfirmedUser
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, srv.URL+"/bank/v1/notifications", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set(assertionHeader, srv.gw.assertion(t, token, http.MethodGet, "/bank/v1/notifications", ""))
 	res, err := srv.Client().Do(req)
 	if err != nil {
 		t.Fatal(err)
@@ -375,5 +491,36 @@ func TestNotificationsSendHeartbeats(t *testing.T) {
 	defer res.Body.Close()
 	if got := (&sseStream{br: bufio.NewReader(res.Body)}).block(t); got != ": heartbeat" {
 		t.Fatalf("the first block is %q", got)
+	}
+}
+
+func TestParseAmount(t *testing.T) {
+	for in, want := range map[string]int64{"0": 0, "12": 1200, "12.5": 1250, "12.50": 1250, "0.05": 5, "999999999.99": 99999999999} {
+		if got, ok := parseAmount(in); !ok || got != want {
+			t.Errorf("parseAmount(%q) = %d, %v, want %d", in, got, ok, want)
+		}
+	}
+	for _, in := range []string{"", "-1", "1.", ".5", "1.234", "1e3", "1 000", "9999999999", "12,50"} {
+		if _, ok := parseAmount(in); ok {
+			t.Errorf("parseAmount(%q) was accepted", in)
+		}
+	}
+}
+
+// Verifies: SEC-032.
+// The bank keeps the gateway's proof of the user's confirmation with the
+// payment, and nothing of a signature.
+func TestTransferKeepsTheConfirmationAsEvidence(t *testing.T) {
+	srv := testServer(t, Options{})
+	r := call(t, srv, http.MethodPost, "/bank/v1/transfers", aConfirmedUser,
+		`{"fromAccountId":"acct-001","toIban":"DE44500105175407324931","amount":"3.00","currency":"EUR"}`)
+	if r.status != http.StatusCreated {
+		t.Fatalf("transfer: %d %s", r.status, r.body)
+	}
+	srv.api.store.mu.Lock()
+	defer srv.api.store.mu.Unlock()
+	want := transferEvidence{TransferID: "tr-0001", User: demoSubject, Device: "device-1", ChallengeID: "challenge-1", SummaryHash: "summary-hash-1"}
+	if got := srv.api.store.bank.evidence; len(got) != 1 || got[0] != want {
+		t.Fatalf("evidence %+v, want %+v", got, want)
 	}
 }

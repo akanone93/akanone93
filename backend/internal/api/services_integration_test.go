@@ -29,6 +29,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/devtoken"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
+	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/release"
@@ -103,6 +104,11 @@ type world struct {
 	manifest pluxv1connect.ManifestServiceClient
 	native   pluxv1connect.NativeCatalogueServiceClient
 	secAdmin pluxv1connect.SecurityAdminServiceClient
+	config   pluxv1connect.ConfigServiceClient
+	// configs and resolver are the server-held configuration store and its
+	// reader, as the server wires them.
+	configs  *gateway.Configs
+	resolver *gateway.ConfigResolver
 	control  pluxv1connect.ControlServiceClient
 	events   pluxv1connect.TelemetryServiceClient
 	devices  *device.Service
@@ -131,6 +137,8 @@ type worldConfig struct {
 	// Windows, when set, gives the DPoP windows of an environment, as the
 	// security configuration does.
 	Windows func(ctx context.Context, appID, environmentID string) (time.Duration, time.Duration, error)
+	// Checkpoints, when set, serves ListAuditCheckpoints.
+	Checkpoints api.CheckpointSource
 }
 
 // newWorldWith is newWorld with the configuration applied.
@@ -228,9 +236,24 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	upstreams, err := gateway.NewRegistry(gateway.RegistryOptions{DB: db, Audit: log, IDs: gen})
+	if err != nil {
+		t.Fatal(err)
+	}
+	configs, err := gateway.NewConfigs(gateway.ConfigOptions{
+		DB: db, Audit: log, Crypter: backend, Cache: shared,
+		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, app, "")
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	resolver := &gateway.ConfigResolver{Source: configs, Cache: shared, Now: cfg.Now}
 	h := &api.Handlers{
+		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events,
-		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig,
+		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
 	}
 	people := api.Authentication(authService, api.IdentityPublic, nil, limiter, set.Get(limits.APIRequestsPerMinute))
 	nonceKey := make([]byte, 32)
@@ -272,6 +295,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 			return pluxv1connect.NewSecurityAdminServiceHandler(h.SecurityAdmin(), opts)
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewTelemetryServiceHandler(h.Telemetry(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewConfigServiceHandler(h.ConfigService(), opts) },
 	} {
 		path, handler := r()
 		mux.Handle(path, handler)
@@ -298,6 +322,9 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		native:   pluxv1connect.NewNativeCatalogueServiceClient(srv.Client(), srv.URL),
 		control:  pluxv1connect.NewControlServiceClient(srv.Client(), srv.URL),
 		secAdmin: pluxv1connect.NewSecurityAdminServiceClient(srv.Client(), srv.URL),
+		config:   pluxv1connect.NewConfigServiceClient(srv.Client(), srv.URL),
+		configs:  configs,
+		resolver: resolver,
 		events:   pluxv1connect.NewTelemetryServiceClient(srv.Client(), srv.URL),
 		devices:  devices,
 		fakes:    fakes,
