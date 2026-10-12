@@ -84,7 +84,9 @@ compose-seed: compose-secrets ## Start the stack and, on first run, seed an admi
 
 # Verifies: QA-005.
 compose-test: compose-secrets ## Run the Go integration and end-to-end tests against the stack's PostgreSQL, SeaweedFS and Valkey (QA-005)
-	$(COMPOSE) -f $(COMPOSE_DIR)/compose.test.yaml up -d --wait postgres seaweedfs s3-bucket valkey
+	$(COMPOSE) -f $(COMPOSE_DIR)/compose.test.yaml up -d --wait postgres seaweedfs valkey
+	@# The bucket job runs to its end here: `up --wait` fails on a named service that has exited, even with status 0.
+	$(COMPOSE) -f $(COMPOSE_DIR)/compose.test.yaml run --rm s3-bucket
 	. ./$(COMPOSE_DIR)/.secrets/postgres.env && . ./$(COMPOSE_DIR)/.secrets/plux-server.env && cd backend && \
 		PLUX_TEST_DATABASE_URL="postgres://plux:$$PLUX_APP_PASSWORD@127.0.0.1:55432/plux?sslmode=disable" \
 		PLUX_TEST_S3_ENDPOINT=http://127.0.0.1:58333 PLUX_TEST_S3_BUCKET=plux \
