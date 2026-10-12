@@ -8,6 +8,8 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -95,8 +97,16 @@ func TestCreate(t *testing.T) { //nolint:paralleltest // the environment is proc
 		t.Setenv("GIT_AUTHOR_EMAIL", "ada@example.com")
 		t.Setenv("GIT_COMMITTER_NAME", "Ada")
 		t.Setenv("GIT_COMMITTER_EMAIL", "ada@example.com")
+		// Run from a git hook, git exports where its repository is; the
+		// project must not be added to that repository's index.
+		caller := filepath.Join(t.TempDir(), "caller.git")
+		t.Setenv("GIT_DIR", caller)
+		t.Setenv("GIT_INDEX_FILE", filepath.Join(caller, "index"))
 		if code, stdout, stderr := cli(t, t.TempDir(), append(base, "--git", remote, "--branch", "shell", "demo")...); code != exitOK {
 			t.Fatalf("git: %d %s %s", code, stdout, stderr)
+		}
+		if _, err := os.Stat(caller); !errors.Is(err, fs.ErrNotExist) {
+			t.Errorf("git wrote into the caller's repository: %v", err)
 		}
 		files, err := exec.CommandContext(t.Context(), "git", "--git-dir", remote, "ls-tree", "-r", "--name-only", "shell").Output() //nolint:gosec // G204: the test's own directory
 		if err != nil || !strings.Contains(string(files), "plux.shell.json") {

@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/nightCode42/plux3/backend/internal/bundle"
 	"github.com/nightCode42/plux3/backend/internal/bundle/fbs"
@@ -270,9 +271,30 @@ func deliver(ctx context.Context, files []generator.File, pkg, out, zipFile, rem
 	} {
 		cmd := exec.CommandContext(ctx, "git", args...) //nolint:gosec // G204: git with fixed subcommands and the developer's remote and branch
 		cmd.Dir = dir
+		cmd.Env = ownRepository(os.Environ())
 		if msg, err := cmd.CombinedOutput(); err != nil {
 			return "", fmt.Errorf("git %s: %w\n%s", args[0], err, msg)
 		}
 	}
 	return remote + " " + branch, nil
+}
+
+// ownRepository is env without the variables that point git at a
+// repository (`git rev-parse --local-env-vars`), which a git hook exports:
+// the project is committed in its own work tree, never in the repository
+// of whatever runs plux.
+func ownRepository(env []string) []string {
+	out := make([]string, 0, len(env))
+	for _, kv := range env {
+		name, _, _ := strings.Cut(kv, "=")
+		switch name {
+		case "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_CONFIG", "GIT_CONFIG_PARAMETERS", "GIT_CONFIG_COUNT",
+			"GIT_OBJECT_DIRECTORY", "GIT_DIR", "GIT_WORK_TREE", "GIT_IMPLICIT_WORK_TREE", "GIT_GRAFT_FILE",
+			"GIT_INDEX_FILE", "GIT_NO_REPLACE_OBJECTS", "GIT_REPLACE_REF_BASE", "GIT_PREFIX",
+			"GIT_SHALLOW_FILE", "GIT_COMMON_DIR":
+			continue
+		}
+		out = append(out, kv)
+	}
+	return out
 }
