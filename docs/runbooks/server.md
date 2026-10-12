@@ -40,7 +40,7 @@ for that ID first — it is on the one log line that has the cause.
 | A new release or rollback reaches devices up to a second late | The per-replica manifest cache (1 s) | Expected (`REL-006` allows a minute). |
 | Delta requests fail with `PLX-3011` or `PLX-3012` | A stored delta or base bundle is corrupt or truncated | Check object storage integrity. Deltas are content-addressed and computed again on the first request that misses one, so deleting a corrupt delta object is safe. (The runtime's fallback to a full bundle arrives in P3.) |
 | Many `PLX-8040` responses | Rate limits, per address, account or device | If clients sit behind a proxy, list the proxy in `server.trustedProxies`, or every client shares its address. Never trust a range clients can send from. Limits tighten through `limits:`; they never exceed the registry maximum. |
-| A device secret was leaked | Device credentials are not hardware-bound, and P2 has no revocation call; both arrive in P6 | Access tokens expire within 15 minutes, but the secret keeps minting new ones. Until P6 there is no per-device remedy; a device can only read its app's manifests and bundles and send telemetry — see the P2 residual risks in the [threat model](../security/threat-model.md). |
+| A device is lost, stolen or suspected compromised | Devices hold hardware-bound keys, and an administrator can revoke one | `RevokeDevice` withdraws its trust at once on every replica; see the [device revocation runbook](device-revocation.md) |
 
 ## Editing and data
 
