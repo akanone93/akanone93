@@ -47,9 +47,14 @@ type Handlers struct {
 	// Gateway serves GatewayService and ScaService (SEC-030–SEC-032); nil
 	// leaves them unmounted. Upstreams and Exchange serve the upstream
 	// registry and ExchangeUserToken.
-	Gateway     *gateway.Gateway
-	Upstreams   *gateway.Registry
-	Exchange    *gateway.Exchanger
+	Gateway   *gateway.Gateway
+	Upstreams *gateway.Registry
+	Exchange  *gateway.Exchanger
+	// Configs administers server-held configuration values and LiveConfig
+	// serves the live ones to devices (DAT-090, DAT-094); nil answers
+	// Unimplemented.
+	Configs     *gateway.Configs
+	LiveConfig  *gateway.ConfigResolver
 	Idempotency *idempotency.Store
 	Pages       *Pages
 	// Limiter counts calls per principal and organisation when an

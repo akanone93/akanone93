@@ -14,6 +14,7 @@ package api
 import (
 	"errors"
 	"fmt"
+	"net/http"
 
 	"connectrpc.com/connect"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -94,6 +95,11 @@ var codes = map[plxerr.Code]connect.Code{
 	plxerr.GatewayUpstreamFailed:        connect.CodeUnavailable,
 	plxerr.DirectDataSourceRefused:      connect.CodePermissionDenied,
 	plxerr.GatewayRateLimited:           connect.CodeResourceExhausted,
+	plxerr.BoundLocationSetByDevice:     connect.CodeInvalidArgument,
+	plxerr.BoundValueChanged:            connect.CodeFailedPrecondition,
+	plxerr.LiveConfigStale:              connect.CodeFailedPrecondition,
+	plxerr.LiveConfigUnavailable:        connect.CodeUnavailable,
+	plxerr.ConfigStoreUnavailable:       connect.CodeUnavailable,
 	plxerr.SCASignatureInvalid:          connect.CodePermissionDenied,
 	plxerr.SCAChallengeInvalid:          connect.CodeInvalidArgument,
 	plxerr.SCADynamicLinkingMismatch:    connect.CodePermissionDenied,
@@ -125,6 +131,33 @@ func Error(err error, incident string) error {
 	if err == nil {
 		return nil
 	}
+	out := toConnect(err, incident)
+	var carrier *withHeader
+	if errors.As(err, &carrier) {
+		var ce *connect.Error
+		if errors.As(out, &ce) {
+			for name, values := range carrier.header {
+				for _, v := range values {
+					ce.Meta().Add(name, v)
+				}
+			}
+		}
+	}
+	return out
+}
+
+// withHeader is an error that also carries response headers, such as the
+// configuration epoch every gateway response has (DAT-095).
+type withHeader struct {
+	err    error
+	header http.Header
+}
+
+func (e *withHeader) Error() string { return e.err.Error() }
+func (e *withHeader) Unwrap() error { return e.err }
+
+// toConnect turns a domain error into a Connect error.
+func toConnect(err error, incident string) error {
 	var connErr *connect.Error
 	if errors.As(err, &connErr) {
 		return connErr

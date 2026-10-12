@@ -30,6 +30,8 @@ var DeviceProcedures = map[string]bool{
 	pluxv1connect.ScaServiceCreateTransactionChallengeProcedure: true,
 	pluxv1connect.TokenServiceExchangeUserTokenProcedure:        true,
 	pluxv1connect.DeviceServiceEnrolScaKeyProcedure:             true,
+	// The live configuration of the device's environment (DAT-094).
+	pluxv1connect.ConfigServiceGetLiveConfigProcedure: true,
 }
 
 // DeviceProofOnly are the procedures a device calls with a DPoP proof
