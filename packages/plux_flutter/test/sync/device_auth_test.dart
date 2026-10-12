@@ -314,10 +314,17 @@ void main() {
 
     test('development evidence registers a software key, whatever the key '
         'storage, since it proves nothing about the key [SEC-008]', () async {
-      final rig = _Rig()..keys.storage = KeyStorage.secureEnclave;
+      final rig = _Rig()
+        ..keys.storage = KeyStorage.secureEnclave
+        ..keys.chain = [
+          Uint8List.fromList([1, 2, 3]),
+        ];
       await rig.auth.token();
       final register = rig.at(_registerPath).single.body;
       expect(register['keyStorage'], 'KEY_STORAGE_SOFTWARE');
+      // A Key Attestation chain goes only with Android evidence.
+      expect(register, contains('keyAgreementPublicKeyJwk'));
+      expect(register, isNot(contains('keyAgreementKeyAttestationChain')));
       expect(register['evidence'], {
         'development': {'buildId': 'build-1'},
       });
