@@ -64,10 +64,6 @@ type entry struct {
 	// call replaces build for streaming RPCs, which the JSON POST cannot
 	// drive; it returns the error the stream ended with.
 	call func(t *testing.T, f *matrixFixture, c caller) error
-	// unwired marks an RPC whose handler this server does not have yet: a
-	// role that holds the permission may get Unimplemented, and so may one
-	// that does not.
-	unwired bool
 	// ownSession makes each role call as a new person of that role, because
 	// the RPC ends or changes the sessions of the person it is called by.
 	ownSession bool
@@ -86,7 +82,6 @@ type matrixFixture struct {
 	w       *world
 	callers map[auth.Role]caller
 	// spares are second sessions, for the RPCs that end the one they use.
-	spares   map[auth.Role]caller
 	org      string
 	app      string
 	prod     string
@@ -98,7 +93,6 @@ type matrixFixture struct {
 	snaps    []string
 	device   string
 	job      string
-	asset    string
 	count    int
 }
 
@@ -266,6 +260,20 @@ func (f *matrixFixture) freshAsset(t *testing.T) string {
 	}
 	res, err := stream.CloseAndReceive()
 	return must(res, err)(t).GetAsset().GetId()
+}
+
+// upstream returns a valid upstream of the development environment.
+func (f *matrixFixture) upstream(id string) *pluxv1.Upstream {
+	return &pluxv1.Upstream{
+		Id: id, AppId: f.app, EnvironmentId: f.dev, Name: "bank" + strings.ReplaceAll(f.name(), "k", ""),
+		BaseUrl: "https://bank.example.com/v1", AllowedMethods: []string{"GET"},
+	}
+}
+
+// freshUpstream registers an upstream as the owner and returns it.
+func (f *matrixFixture) freshUpstream(t *testing.T) *pluxv1.Upstream {
+	t.Helper()
+	return must(f.w.secAdmin.CreateUpstream(context.Background(), req(f.owner(), &pluxv1.CreateUpstreamRequest{Upstream: f.upstream("")})))(t).GetUpstream()
 }
 
 // freshTrash puts a new app in the trash and returns the item.
@@ -475,7 +483,6 @@ func TestAuthorisationMatrix_QA_008(t *testing.T) {
 				switch {
 				case allowed && (got == connect.CodePermissionDenied || (got == connect.CodeUnauthenticated && !e.answersUnauthenticated)):
 					t.Errorf("%s holds %q and was refused: %v", role, e.perm, got)
-				case !allowed && got == connect.CodeUnimplemented && e.unwired:
 				case !allowed && got != connect.CodePermissionDenied:
 					t.Errorf("%s does not hold %q and got %v, want PermissionDenied", role, e.perm, got)
 				}

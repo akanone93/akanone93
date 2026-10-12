@@ -29,6 +29,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/devtoken"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
+	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/release"
@@ -230,8 +231,13 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	upstreams, err := gateway.NewRegistry(gateway.RegistryOptions{DB: db, Audit: log, IDs: gen})
+	if err != nil {
+		t.Fatal(err)
+	}
 	h := &api.Handlers{
-		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events,
+		Upstreams: upstreams,
+		Auth:      authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
 	}
 	people := api.Authentication(authService, api.IdentityPublic, nil, limiter, set.Get(limits.APIRequestsPerMinute))

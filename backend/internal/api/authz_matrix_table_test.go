@@ -295,13 +295,29 @@ var matrix = map[string]entry{
 	"SecurityAdminService/GetEffectiveSecurityConfig": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.GetEffectiveSecurityConfigRequest{AppId: f.app, EnvironmentId: f.dev}
 	})),
-	"SecurityAdminService/CreateUpstream": gateway(auth.AppManage, anyone(&pluxv1.CreateUpstreamRequest{Upstream: &pluxv1.Upstream{}})),
-	"SecurityAdminService/GetUpstream":    gateway(auth.AppRead, anyone(&pluxv1.GetUpstreamRequest{Id: unknownID})),
-	"SecurityAdminService/ListUpstreams": gateway(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+	"SecurityAdminService/CreateUpstream": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateUpstreamRequest{Upstream: f.upstream("")}
+	}),
+	"SecurityAdminService/GetUpstream": atPerm(auth.AppRead, anyone(&pluxv1.GetUpstreamRequest{Id: unknownID})),
+	"SecurityAdminService/ListUpstreams": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ListUpstreamsRequest{AppId: f.app, EnvironmentId: f.dev}
 	})),
-	"SecurityAdminService/UpdateUpstream":       gateway(auth.AppManage, anyone(&pluxv1.UpdateUpstreamRequest{Upstream: &pluxv1.Upstream{Id: unknownID}})),
-	"SecurityAdminService/DeleteUpstream":       gateway(auth.AppManage, anyone(&pluxv1.DeleteUpstreamRequest{Id: unknownID})),
+	"SecurityAdminService/UpdateUpstream": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.UpdateUpstreamRequest{Upstream: f.upstream(f.freshUpstream(t).GetId())}
+	}),
+	"SecurityAdminService/DeleteUpstream": atPerm(auth.AppManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.DeleteUpstreamRequest{Id: f.freshUpstream(t).GetId()}
+	}),
+	"SecurityAdminService/SetUserIdentityProvider": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetUserIdentityProviderRequest{Provider: &pluxv1.UserIdentityProvider{AppId: f.app, EnvironmentId: f.dev}}
+	})),
+	"SecurityAdminService/GetUserIdentityProvider": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetUserIdentityProviderRequest{AppId: f.app, EnvironmentId: f.dev}
+	})),
+	"SecurityAdminService/DeleteUserIdentityProvider": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.DeleteUserIdentityProviderRequest{AppId: f.app, EnvironmentId: f.dev}
+	})),
+	"DeviceService/EnrolScaKey":                 {kind: deviceRPC, build: anyone(&pluxv1.EnrolScaKeyRequest{})},
 	"SecurityAdminService/ListAuditCheckpoints": atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
 
 	// DeviceService, TelemetryService: the people's side
@@ -376,10 +392,4 @@ var variants = map[string]entry{
 	"PluginService/AcquireLock (force)": atPerm(auth.PluginLockOverride, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.AcquireLockRequest{AppId: f.app, PluginId: f.plugin, Session: "tab-3", Force: true}
 	})),
-}
-
-// gateway is an entry for an RPC of the gateway's upstream registry, whose
-// handlers arrive with the gateway and answer Unimplemented until then.
-func gateway(p auth.Permission, build func(*testing.T, *matrixFixture) proto.Message) entry {
-	return entry{kind: needs, perm: p, build: build, unwired: true}
 }
