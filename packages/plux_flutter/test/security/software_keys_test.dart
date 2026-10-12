@@ -220,6 +220,8 @@ void main() {
     final evidence = await attestation.attest(
       challenge: Uint8List(32),
       jkt: 'jkt',
+      kaJkt: '',
+      scaJkt: '',
       keyAttestationChain: const [],
     );
     expect(evidence, isA<DevelopmentEvidence>());

@@ -35,13 +35,13 @@ func agreementJWK(t *testing.T) (*ecdsa.PrivateKey, []byte) {
 // Verifies: SEC-053.
 func TestParseAgreementKey(t *testing.T) {
 	t.Parallel()
-	if got, err := parseAgreementKey(nil); err != nil || got != nil {
-		t.Errorf("no key: %q, %v", got, err)
+	if got, key, jkt, err := parseAgreementKey(nil); err != nil || got != nil || key != nil || jkt != "" {
+		t.Errorf("no key: %q, %v, %q, %v", got, key, jkt, err)
 	}
 	_, raw := agreementJWK(t)
-	got, err := parseAgreementKey(raw)
-	if err != nil || len(got) == 0 {
-		t.Fatalf("a valid key: %q, %v", got, err)
+	got, key, jkt, err := parseAgreementKey(raw)
+	if err != nil || len(got) == 0 || key == nil || jkt == "" {
+		t.Fatalf("a valid key: %q, %v, %q, %v", got, key, jkt, err)
 	}
 	other, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 	if err != nil {
@@ -56,7 +56,7 @@ func TestParseAgreementKey(t *testing.T) {
 		t.Fatal(err)
 	}
 	for name, bad := range map[string][]byte{"not JSON": []byte("x"), "a P-384 key": p384, "a private key": private} {
-		if _, err := parseAgreementKey(bad); err == nil {
+		if _, _, _, err := parseAgreementKey(bad); err == nil {
 			t.Errorf("%s was accepted", name)
 		} else if c, _ := plxerr.CodeOf(err); c != plxerr.InvalidFormat {
 			t.Errorf("%s: %v", name, err)
@@ -70,7 +70,7 @@ func TestParseAgreementKey(t *testing.T) {
 func TestRecipientOf(t *testing.T) {
 	t.Parallel()
 	key, jwk := agreementJWK(t)
-	canonical, err := parseAgreementKey(jwk)
+	canonical, _, _, err := parseAgreementKey(jwk)
 	if err != nil {
 		t.Fatal(err)
 	}

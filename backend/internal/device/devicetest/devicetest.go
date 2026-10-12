@@ -54,8 +54,11 @@ func JWK(t testing.TB, pub *ecdsa.PublicKey) []byte {
 // one, it refuses a key that is not hardware-backed when the policy
 // demands it.
 type KeyAttestor struct {
-	// Result is returned for every chain.
+	// Result is returned for every chain whose leaf is not in Results.
 	Result keyattest.Result
+	// Results holds the outcome for chains by their leaf certificate, to
+	// tell the chains of a registration's several keys apart.
+	Results map[string]keyattest.Result
 	// Err, when set, is returned instead of Result.
 	Err error
 	// Challenge and Policy are those of the last call.
@@ -64,15 +67,24 @@ type KeyAttestor struct {
 }
 
 // Verify records the call and returns the configured outcome.
-func (f *KeyAttestor) Verify(_ [][]byte, challenge []byte, p keyattest.Policy) (keyattest.Result, error) {
+func (f *KeyAttestor) Verify(chain [][]byte, challenge []byte, p keyattest.Policy) (keyattest.Result, error) {
 	f.Challenge, f.Policy = challenge, p
 	if f.Err != nil {
 		return keyattest.Result{}, f.Err
 	}
-	if p.RequireHardware && !f.Result.HardwareBacked() {
+	res := f.Result
+	if len(chain) > 0 {
+		if r, ok := f.Results[string(chain[0])]; ok {
+			res = r
+		}
+	}
+	if p.RequireHardware && !res.HardwareBacked() {
 		return keyattest.Result{}, plxerr.New(plxerr.KeyNotHardwareBacked, "key is not protected by a TEE or StrongBox")
 	}
-	return f.Result, nil
+	if p.RequireUserAuth && !res.UserAuthRequired {
+		return keyattest.Result{}, plxerr.New(plxerr.AttestationFailed, "key does not require user authentication")
+	}
+	return res, nil
 }
 
 // IntegrityChecker is a fake Play Integrity verifier.

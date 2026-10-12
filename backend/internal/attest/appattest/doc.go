@@ -8,8 +8,8 @@
 // An attestation proves that a key lives in the Secure Enclave of a
 // genuine Apple device running the expected app. VerifyAttestation checks
 // the certificate chain against Apple's App Attestation root, the nonce
-// that binds the attestation to the server's challenge and the DPoP key
-// (ClientDataHash), the key identifier, the relying-party hash of the
+// that binds the attestation to the server's challenge and the device's keys
+// (binding.Hash), the key identifier, the relying-party hash of the
 // application identifier, the zero counter and the environment in the
 // authenticator data. An assertion proves possession of the attested key
 // for one request; VerifyAssertion checks its signature, application

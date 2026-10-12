@@ -432,6 +432,12 @@ final class PluxApiClient {
         'keyAgreementPublicKeyJwk': base64.encode(
           utf8.encode(jsonEncode(agreementKey.publicKey.jwk)),
         ),
+      // On Android the key-agreement key's own Key Attestation chain: the
+      // server requires hardware for it wherever the DPoP key is hardware.
+      if (agreementKey != null && agreementKey.attestationChain.isNotEmpty)
+        'keyAgreementKeyAttestationChain': [
+          for (final c in agreementKey.attestationChain) base64.encode(c),
+        ],
       // The key that signs transaction confirmations, with its own
       // evidence (SEC-027).
       if (scaKey != null && scaEvidence != null) ...{
@@ -447,6 +453,29 @@ final class PluxApiClient {
       throw const ApiError(0, 'unknown', 'the server sent no device');
     }
     return id;
+  }
+
+  /// Enrols the SCA key [scaKey] of a registered device (SEC-027), bound to
+  /// the fresh [challenge] by [evidence]; the key's thumbprint as the server
+  /// stored it.
+  Future<String> enrolScaKey({
+    required DeviceToken token,
+    required Uint8List challenge,
+    required DeviceKey scaKey,
+    required AttestationEvidence evidence,
+  }) async {
+    final r = await _call('plux.v1.DeviceService/EnrolScaKey', {
+      'challenge': base64.encode(challenge),
+      'scaPublicKeyJwk': base64.encode(
+        utf8.encode(jsonEncode(scaKey.publicKey.jwk)),
+      ),
+      'scaEvidence': _evidence(evidence),
+    }, token: token);
+    final jkt = r['scaJkt'];
+    if (jkt is! String || jkt.isEmpty) {
+      throw const ApiError(0, 'unknown', 'the server sent no SCA key');
+    }
+    return jkt;
   }
 
   /// Offers fresh evidence for the registered key of [deviceId] after the
@@ -911,6 +940,9 @@ Map<String, Object?> _evidence(AttestationEvidence e) => switch (e) {
       'appAttestKeyId': base64.encode(e.keyId),
       'attestationObject': base64.encode(e.attestationObject),
     },
+  },
+  IosAssertionEvidence() => {
+    'ios': {'appAttestAssertion': base64.encode(e.assertion)},
   },
   DevelopmentEvidence() => {
     'development': {'buildId': e.buildId},

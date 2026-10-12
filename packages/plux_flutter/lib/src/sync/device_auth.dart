@@ -36,6 +36,7 @@ final class DeviceAuth {
     required this.environment,
     required this.device,
     bool enrolSca = false,
+    this.onAttestation,
     DateTime Function()? clock,
   }) : _sca = enrolSca,
        _clock = clock ?? DateTime.now;
@@ -60,6 +61,12 @@ final class DeviceAuth {
 
   /// What the device reports about itself at registration.
   final DeviceInfo device;
+
+  /// Told the fields of an `attestation_result` telemetry event after each
+  /// registration, re-attestation and SCA enrolment, whether it succeeded or
+  /// not: `provider`, `result` (`success` or `failure`), `assurance_level`
+  /// and, on a failure, `error_code`. Nothing that identifies the device.
+  final void Function(Map<String, Object?> fields)? onAttestation;
 
   final DateTime Function() _clock;
 
@@ -102,20 +109,121 @@ final class DeviceAuth {
   }
 
   /// Whether the device has an SCA key registered with the server, and if
-  /// it has none, registers it again with one (SEC-027): the server has no
-  /// call that adds a key to a registered device, and a key that the
-  /// platform invalidated (a new fingerprint was enrolled) is gone. Tried
-  /// once per launch; false when the platform cannot create the key, for
-  /// example when the device has no screen lock.
+  /// it has none, enrols one (SEC-027): a key that the platform invalidated
+  /// (a new fingerprint was enrolled) is gone. A registered device enrols
+  /// the new key with `EnrolScaKey`, bound to a fresh challenge; only a
+  /// device with no registration at all registers again. Tried once per
+  /// launch; false when the platform cannot create the key, for example
+  /// when the device has no screen lock.
   Future<bool> ensureSca() async {
     if (await _scaKey() != null) return true;
     if (_scaTried) return false;
     _scaTried = true;
     _sca = true;
-    _token = null;
-    await _forget();
-    await _register();
-    return await _scaKey() != null;
+    final session = await _session();
+    if (session == null) {
+      _token = null;
+      await _forget();
+      await _register();
+      return await _scaKey() != null;
+    }
+    return _enrolSca(session);
+  }
+
+  Future<bool> _enrolSca(_Session s) async {
+    // A token first: obtaining it may register the device again, with an
+    // SCA key, which settles the matter.
+    final access = await token();
+    if (await _scaKey() != null) return true;
+    final challenge = await api.registrationChallenge(
+      appId: appId,
+      environment: environment,
+    );
+    final sca = await _createSca(challenge);
+    if (sca == null) return false;
+    var provider = _platformProvider;
+    try {
+      final evidence = await attestation.scaEnrolment(
+        challenge: challenge,
+        jkt: s.key.publicKey.thumbprint,
+        kaJkt: (await _loadAgreementKey())?.publicKey.thumbprint ?? '',
+        scaJkt: sca.publicKey.thumbprint,
+        scaKeyChain: sca.attestationChain,
+      );
+      provider = _providerOf(evidence);
+      await api.enrolScaKey(
+        token: access,
+        challenge: challenge,
+        scaKey: sca,
+        evidence: evidence,
+      );
+    } on Object catch (e) {
+      // A key the server did not accept must not look enrolled.
+      await keys.delete(_scaAlias);
+      _report(provider, _assurance, error: e);
+      rethrow;
+    }
+    _report(provider, _assurance);
+    return true;
+  }
+
+  /// The provider the platform attests with, when no evidence says.
+  String get _platformProvider => switch (device.platform) {
+    'android' => 'play_integrity',
+    'ios' => 'app_attest',
+    _ => 'development',
+  };
+
+  static String _providerOf(AttestationEvidence e) => switch (e) {
+    AndroidEvidence() => 'play_integrity',
+    IosEvidence() || IosAssertionEvidence() => 'app_attest',
+    DevelopmentEvidence() => 'development',
+  };
+
+  /// The provider and outcome of a registration or re-attestation whose
+  /// assurance level the next token names.
+  String? _awaiting;
+
+  void _report(String provider, int assurance, {Object? error}) {
+    final sink = onAttestation;
+    if (sink == null) return;
+    sink({
+      'provider': provider,
+      'result': error == null ? 'success' : 'failure',
+      'assurance_level': assurance,
+      if (error != null) 'error_code': _errorCode(error),
+    });
+  }
+
+  static String _errorCode(Object e) => switch (e) {
+    ApiError(:final plxCode?) => 'PLX-${plxCode.toString().padLeft(4, '0')}',
+    ApiError(:final code) => code,
+    PluxException(:final code) => code.id,
+    _ => 'unknown',
+  };
+
+  /// Reports a registration or re-attestation of [provider] with the level
+  /// of the token that follows it; one still waiting is reported first.
+  void _await(String provider) {
+    final earlier = _awaiting;
+    if (earlier != null) _report(earlier, _assurance);
+    _awaiting = provider;
+  }
+
+  void _settle(int assurance, {Object? error}) {
+    final provider = _awaiting;
+    if (provider == null) return;
+    _awaiting = null;
+    _report(provider, assurance, error: error);
+  }
+
+  Future<DeviceKey?> _loadAgreementKey() async {
+    try {
+      return await keys.load(_agreementAlias, KeyPurpose.agreement);
+    } on PluxException catch (e) {
+      if (e.code != PluxErrorCode.deviceKeyUnavailable) rethrow;
+      return null;
+    }
   }
 
   Future<DeviceKey?> _scaKey() async {
@@ -158,8 +266,10 @@ final class DeviceAuth {
     try {
       final t = await _obtainToken();
       _assurance = t.assurance;
+      _settle(t.assurance);
       return t;
     } on ApiError catch (e) {
+      _settle(_assurance, error: e);
       if (e.plxCode == PluxErrorCode.assuranceInsufficient.code ||
           e.plxCode == PluxErrorCode.deviceRevoked.code) {
         lowerAssurance();
@@ -246,12 +356,17 @@ final class DeviceAuth {
     if (_sca) await keys.delete(_scaAlias);
   }
 
-  /// Creates the key-agreement key for confidential bundles (SEC-053). A
+  /// Creates the key-agreement key for confidential bundles (SEC-053), with
+  /// its own Key Attestation for the registration [challenge] on Android. A
   /// platform that cannot make one (Android before API 31) registers the
   /// device without it: it then receives no content keys.
-  Future<DeviceKey?> _createAgreementKey() async {
+  Future<DeviceKey?> _createAgreementKey(Uint8List challenge) async {
     try {
-      return await keys.create(_agreementAlias, KeyPurpose.agreement);
+      return await keys.create(
+        _agreementAlias,
+        KeyPurpose.agreement,
+        challenge: challenge,
+      );
     } on PluxException catch (e) {
       if (e.code != PluxErrorCode.deviceKeyUnavailable) rethrow;
       return null;
@@ -261,6 +376,18 @@ final class DeviceAuth {
   /// Creates a new DPoP key for a challenge and registers it with the
   /// platform's evidence.
   Future<_Session> _register() async {
+    var provider = _platformProvider;
+    try {
+      final session = await _registerWith((p) => provider = p);
+      _await(provider);
+      return session;
+    } on Object catch (e) {
+      _report(provider, _assurance, error: e);
+      rethrow;
+    }
+  }
+
+  Future<_Session> _registerWith(void Function(String provider) named) async {
     final challenge = await api.registrationChallenge(
       appId: appId,
       environment: environment,
@@ -271,13 +398,17 @@ final class DeviceAuth {
       KeyPurpose.dpop,
       challenge: challenge,
     );
-    final agreementKey = await _createAgreementKey();
+    final agreementKey = await _createAgreementKey(challenge);
     final sca = _sca ? await _createSca(challenge) : null;
+    // The evidence vouches for every key the device registers (ADR-0012).
     final evidence = await attestation.attest(
       challenge: challenge,
       jkt: key.publicKey.thumbprint,
+      kaJkt: agreementKey?.publicKey.thumbprint ?? '',
+      scaJkt: sca?.publicKey.thumbprint ?? '',
       keyAttestationChain: key.attestationChain,
     );
+    named(_providerOf(evidence));
     final id = await api.registerAttestedDevice(
       appId: appId,
       environment: environment,
@@ -301,16 +432,32 @@ final class DeviceAuth {
   );
 
   /// Offers new evidence for the registered key (SEC-025): Android a Play
-  /// Integrity token bound to the challenge and the key, the other
+  /// Integrity token bound to the challenge and the device's keys, the other
   /// platforms the evidence of registration without a key attestation.
   Future<void> _reattest(_Session s) async {
+    var provider = _platformProvider;
+    try {
+      await _reattestWith(s, (p) => provider = p);
+      _await(provider);
+    } on Object catch (e) {
+      _report(provider, _assurance, error: e);
+      rethrow;
+    }
+  }
+
+  Future<void> _reattestWith(
+    _Session s,
+    void Function(String provider) named,
+  ) async {
     final jkt = s.key.publicKey.thumbprint;
     final challenge = await api.registrationChallenge(
       appId: appId,
       environment: environment,
     );
+    final kaJkt = (await _loadAgreementKey())?.publicKey.thumbprint ?? '';
+    final scaJkt = (await _scaKey())?.publicKey.thumbprint ?? '';
     final binding = base64Url
-        .encode(bindingHash(challenge, jkt))
+        .encode(bindingHash(challenge, jkt, kaJkt, scaJkt))
         .replaceAll('=', '');
     final token = device.platform == 'android'
         ? await attestation.integrityToken(binding)
@@ -323,8 +470,11 @@ final class DeviceAuth {
         : await attestation.attest(
             challenge: challenge,
             jkt: jkt,
+            kaJkt: kaJkt,
+            scaJkt: scaJkt,
             keyAttestationChain: const [],
           );
+    named(_providerOf(evidence));
     await api.reattestDevice(
       deviceId: s.deviceId,
       challenge: challenge,

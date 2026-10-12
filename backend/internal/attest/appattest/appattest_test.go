@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/nightCode42/plux3/backend/internal/attest/binding"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 )
@@ -166,7 +167,7 @@ func (a attestation) build(t *testing.T, p pki) vector {
 		keyID = bytes.Clone(keyID)
 		keyID[0] ^= 1
 	}
-	hash := ClientDataHash([]byte("challenge"), "jkt-thumbprint")
+	hash := binding.Hash([]byte("challenge"), "jkt-thumbprint", "", "")
 	appID := testAppID
 	if a.appID != "" {
 		appID = a.appID
@@ -396,17 +397,6 @@ func TestCheckAuthDataShort(t *testing.T) {
 }
 
 // Verifies: SEC-004.
-// ClientDataHash is SHA-256 over the challenge followed by the
-// thumbprint.
-func TestClientDataHash(t *testing.T) {
-	t.Parallel()
-	want := sha256.Sum256([]byte("abcjkt"))
-	if got := ClientDataHash([]byte("abc"), "jkt"); got != want {
-		t.Errorf("ClientDataHash = %x, want %x", got, want)
-	}
-}
-
-// Verifies: SEC-004.
 // The embedded root parses and is the Apple App Attestation Root CA.
 func TestDefaultRoots(t *testing.T) {
 	t.Parallel()
@@ -482,7 +472,7 @@ func (a assertion) build(t *testing.T, key *ecdsa.PrivateKey, hash [32]byte) []b
 func TestVerifyAssertion(t *testing.T) {
 	t.Parallel()
 	key := newKey(t)
-	hash := ClientDataHash([]byte("challenge"), "jkt")
+	hash := binding.Hash([]byte("challenge"), "jkt", "", "")
 	otherHash := [32]byte{9}
 	tests := []struct {
 		name string

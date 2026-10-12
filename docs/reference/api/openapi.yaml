@@ -8650,6 +8650,15 @@ components:
           description: |-
             attestation_object is the CBOR attestation object App Attest
              returned for the challenge.
+        appAttestAssertion:
+          type: string
+          title: app_attest_assertion
+          format: byte
+          description: |-
+            app_attest_assertion is set only when enrolling an SCA key later
+             (EnrolScaKey): an assertion over the binding hash with the App Attest
+             key stored at registration, in which case app_attest_key_id and
+             attestation_object are empty.
       title: IosEvidence
       additionalProperties: false
       description: IosEvidence is the proof an iOS device offers (SEC-003).
@@ -10441,6 +10450,18 @@ components:
           description: |-
             sca_evidence is the attestation of the SCA key, in the same forms as
              evidence; set when sca_public_key_jwk is (SEC-027).
+        keyAgreementKeyAttestationChain:
+          type: array
+          items:
+            type: string
+            format: byte
+          title: key_agreement_key_attestation_chain
+          description: |-
+            key_agreement_key_attestation_chain is the Android Key Attestation
+             chain of the key-agreement key, leaf first, DER-encoded, created with
+             the registration challenge; empty on other platforms and when the
+             device has no such key. The binding hash covers the thumbprints of
+             the DPoP, key-agreement and SCA keys (SEC-004, ADR-0012).
       title: RegisterAttestedDeviceRequest
       additionalProperties: false
     plux.v1.RegisterAttestedDeviceResponse:

@@ -60,10 +60,10 @@ on every request, which exhausts Play Integrity quotas and still leaves bearer t
    `registrationChallengeTtl`, ≤ 5 min), stored hashed.
 2. The device sends `RegisterAttestedDevice`: its public JWK, key storage, and evidence:
    - **Android:** the Key Attestation chain of the DPoP key, generated with the challenge;
-     a Play Integrity standard-request token whose request hash is
-     `SHA-256(challenge ‖ jkt)`.
-   - **iOS:** an App Attest key ID and attestation object whose `clientDataHash` is
-     `SHA-256(challenge ‖ jkt)`.
+     a Play Integrity standard-request token whose request hash is the base64url of the
+     binding hash (Revisions, 2026-10-11).
+   - **iOS:** an App Attest key ID and attestation object whose `clientDataHash` is the
+     binding hash (Revisions, 2026-10-11).
    - **Development:** the development provider (`SEC-008`), refused by production
      environments with `PLX-6004`.
 3. The server verifies, computes the assurance level, stores the device record (ID, `jkt`,
@@ -220,3 +220,37 @@ Simple, but Play Integrity's quota and latency rule it out, and tokens stay repl
   proof dated ahead stays acceptable for two windows. Revocation is published to the shared
   cache (`device:revoked:<jkt>`, kept for the longest token lifetime), so every replica
   refuses a revoked device at once.
+
+## Revisions (2026-10-11)
+
+- **Binding covers every device key (maintainer, 2026-10-11).** The value the platform
+  evidence is bound to is `binding = SHA-256(challenge ‖ jkt ‖ "." ‖ ka_jkt ‖ "." ‖ sca_jkt)`,
+  where `jkt`, `ka_jkt` and `sca_jkt` are the RFC 7638 thumbprints of the DPoP key, the
+  key-agreement key (ADR-0055) and the SCA key (ADR-0056); a key the device does not have
+  contributes the empty string, and the separators stay so that no thumbprint can move into
+  its neighbour's field. Play Integrity's `requestHash` is `base64url(binding)` and App
+  Attest's `clientDataHash` is `binding`. This replaces the "Binding" bullet of the S2
+  revision (`SHA-256(challenge ‖ jkt)`): a rooted device whose DPoP key is attested can no
+  longer register a software key-agreement or SCA key beside it. There is one
+  implementation per language, `backend/internal/attest/binding` and `bindingHash` in
+  `plux_flutter`, which share the vectors in `schema/testdata/attest/binding.json`.
+- **Android chains for the other keys.** The key-agreement key and the SCA key are each
+  created with Key Attestation under the registration challenge, and their chains are sent
+  (`RegisterAttestedDeviceRequest.key_agreement_key_attestation_chain`; the SCA key's chain
+  is `sca_evidence`). The server verifies them like the DPoP key's: trusted root, challenge,
+  package and signing digests, and a leaf key equal to the submitted JWK. The SCA key must
+  be in hardware and require user authentication; the key-agreement key must be in hardware
+  whenever the DPoP key proved to be (`PLX-6003` otherwise).
+- **Enrolling an SCA key later (`EnrolScaKey`).** Android sends the new key's chain. iOS
+  sends an App Attest assertion (`IosEvidence.app_attest_assertion`) with the key stored at
+  registration over `binding(fresh challenge, jkt, ka_jkt, new sca_jkt)`; its counter
+  advances like a refresh's. The earlier fresh attestation per SCA key is gone.
+- **Re-attestation** is bound to the keys the device registered (the stored `ka_jkt` and
+  `sca_jkt`), so a fresh verdict vouches for the same set.
+- Development evidence carries no platform proof and is covered by nothing beyond the
+  challenge; it is refused in production (`SEC-008`).
+- **Runtime.** A registered device that lacks an SCA key (none yet, or the platform
+  invalidated it) enrols a new one with `EnrolScaKey` as above instead of registering again;
+  only a device with no registration registers. Each registration, re-attestation and SCA
+  enrolment is reported as the `necessary` `attestation_result` event (`provider`, `result`,
+  `assurance_level`, `error_code` on a failure), naming no device (ADR-0034).

@@ -137,9 +137,10 @@ later in `DeviceService.EnrolScaKey`. Android: the Key Attestation chain of the 
 itself, which must be hardware-backed and name a user authentication type
 (`noAuthRequired` absent). iOS: App Attest cannot attest a Secure Enclave key, so a
 registration reuses its own App Attest evidence for the key, and a later enrolment brings an
-attestation whose client data hash binds the key's thumbprint. A registration that reuses
-its evidence leaves the SCA key bound to the attested request only; binding its thumbprint
-into the registration's client data hash would close that (a device change).
+App Attest assertion with the registered key over the binding hash. Since 2026-10-11 the
+registration's client data hash and request hash cover the SCA key's thumbprint as well as
+the DPoP and key-agreement keys' ([ADR-0012](0012-dpop-hardware-keys-and-attestation.md),
+Revisions 2026-10-11).
 
 **Streaming route.** `/gateway/v1/{upstream}/{path}` with the HTTP method the call needs,
 `Authorization: DPoP <token>` and a proof whose `htm` and `htu` are that request's method

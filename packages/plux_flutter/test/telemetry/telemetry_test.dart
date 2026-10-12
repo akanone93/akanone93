@@ -69,6 +69,28 @@ void main() {
       expect(clipText('short'), 'short');
     });
 
+    test('an attestation_result line is necessary and carries only provider, '
+        'result, level and code [SEC-003]', () {
+      final line = attestationResultLine({
+        'provider': 'app_attest',
+        'result': 'failure',
+        'assurance_level': 1,
+        'error_code': 'PLX-6001',
+      }, DateTime.utc(2026, 10, 11));
+      expect(line.category, TelemetryCategory.necessary);
+      expect(line.event['name'], 'attestation_result');
+      final fields = jsonDecode(
+        utf8.decode(base64.decode(line.event['fields']! as String)),
+      );
+      expect(fields, {
+        'assurance_level': 1,
+        'error_code': 'PLX-6001',
+        'provider': 'app_attest',
+        'result': 'failure',
+      });
+      expect(TelemetryLine.parse(line.encode())?.category, line.category);
+    });
+
     test('every catalogued event has a category; operational ones need no '
         'consent [SEC-161]', () {
       expect(

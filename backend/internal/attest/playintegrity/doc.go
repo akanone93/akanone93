@@ -17,7 +17,8 @@
 //   - A token is decrypted and its signature verified before any verdict
 //     field is read or trusted.
 //   - The verdict must name the expected package, carry the expected request
-//     hash (the challenge bound to the DPoP key thumbprint, see RequestHash),
+//     hash (the challenge bound to the thumbprints of the device's keys, see
+//     binding.RequestHash),
 //     be fresh, and describe a Play-recognised app.
 //   - Errors name the failed check only; they never contain keys, tokens or
 //     verdict content (SEC-092).

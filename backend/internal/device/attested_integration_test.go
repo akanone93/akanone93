@@ -17,6 +17,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/nightCode42/plux3/backend/internal/attest/appattest"
+	"github.com/nightCode42/plux3/backend/internal/attest/binding"
 	"github.com/nightCode42/plux3/backend/internal/attest/keyattest"
 	"github.com/nightCode42/plux3/backend/internal/attest/playintegrity"
 	"github.com/nightCode42/plux3/backend/internal/audit"
@@ -114,6 +115,22 @@ func (r *rig) android(key *ecdsa.PublicKey, level keyattest.SecurityLevel, label
 	r.play.Verdict = playintegrity.Verdict{Device: labels, AppRecognised: true}
 }
 
+// The leaf certificates the fake key attestor tells the chains of the
+// key-agreement and SCA keys apart by.
+var (
+	agreementLeaf = []byte{0xa1}
+	scaLeaf       = []byte{0xa2}
+)
+
+// androidKey makes the fakes vouch for a chain led by leaf: it attests pub
+// at the given security level, and demands user authentication.
+func (r *rig) androidKey(leaf []byte, pub *ecdsa.PublicKey, level keyattest.SecurityLevel) {
+	if r.key.Results == nil {
+		r.key.Results = map[string]keyattest.Result{}
+	}
+	r.key.Results[string(leaf)] = keyattest.Result{AttestationLevel: level, KeyMintLevel: level, PackageName: androidPackage, PublicKey: pub, UserAuthRequired: true}
+}
+
 func androidEvidence() device.Evidence {
 	return device.Evidence{Android: &device.AndroidEvidence{KeyAttestationChain: [][]byte{{1}, {2}}, PlayIntegrityToken: "token"}}
 }
@@ -173,7 +190,7 @@ func TestRegisterAndroid(t *testing.T) {
 		len(r.key.Policy.PackageNames) != 1 || r.key.Policy.PackageNames[0] != androidPackage {
 		t.Errorf("key attestation was asked %x %+v", r.key.Challenge, r.key.Policy)
 	}
-	if want := playintegrity.RequestHash(challenge, jkt); r.play.Expect.RequestHash != want ||
+	if want := binding.RequestHash(challenge, jkt, "", ""); r.play.Expect.RequestHash != want ||
 		r.play.Expect.PackageName != androidPackage || r.play.Expect.MaxAge != 10*time.Minute {
 		t.Errorf("Play Integrity was asked %+v", r.play.Expect)
 	}
@@ -336,7 +353,7 @@ func TestRegisterIOS(t *testing.T) {
 	if d.AssuranceLevel != "AL2" || d.KeyStorage != device.KeyStorageSecureEnclave || d.Provider != device.ProviderAppAttest || d.DPoPJKT != jkt {
 		t.Errorf("RegisterAttested = %+v", d)
 	}
-	if r.apple.ClientDataHash != appattest.ClientDataHash(challenge, jkt) || r.apple.AppID != iosAppID || r.apple.Environment != appattest.Development {
+	if r.apple.ClientDataHash != binding.Hash(challenge, jkt, "", "") || r.apple.AppID != iosAppID || r.apple.Environment != appattest.Development {
 		t.Errorf("App Attest was asked %x %q %v", r.apple.ClientDataHash, r.apple.AppID, r.apple.Environment)
 	}
 	r.assertAppAttest(t, d.ID, []byte("key"), []byte("receipt"))
@@ -727,10 +744,11 @@ func TestConfidentialRecipient(t *testing.T) {
 	key, jwk := devicetest.NewKey(t)
 	agreement, agreementJWK := devicetest.NewKey(t)
 	r.android(&key.PublicKey, keyattest.SecurityTrustedEnvironment, playintegrity.LabelDevice)
+	r.androidKey(agreementLeaf, &agreement.PublicKey, keyattest.SecurityTrustedEnvironment)
 	d, err := r.svc.RegisterAttested(ctx, device.AttestedRegistration{
 		AppID: r.app, Environment: "production", Platform: "android", OSVersion: "15", RuntimeVersion: "1.0.0", Build: "42",
 		Challenge: r.challenge(t, "production"), DPoPKeyJWK: jwk, KeyStorage: device.KeyStorageTEE, Evidence: androidEvidence(),
-		AgreementKeyJWK: agreementJWK,
+		AgreementKeyJWK: agreementJWK, AgreementKeyChain: [][]byte{agreementLeaf, {2}},
 	})
 	if err != nil {
 		t.Fatal(err)

@@ -87,6 +87,8 @@ final class PlatformAttestation implements Attestation {
   Future<AttestationEvidence> attest({
     required Uint8List challenge,
     required String jkt,
+    required String kaJkt,
+    required String scaJkt,
     required List<Uint8List> keyAttestationChain,
   }) async {
     if (!_release) {
@@ -100,7 +102,13 @@ final class PlatformAttestation implements Attestation {
                 cloudProjectNumber == null)) {
           return DevelopmentEvidence(buildId);
         }
-        return await _attest(challenge, jkt, keyAttestationChain);
+        return await _attest(
+          challenge,
+          jkt,
+          kaJkt,
+          scaJkt,
+          keyAttestationChain,
+        );
       } on PluxException catch (e) {
         if (e.details['platformCode'] == _unsupported) {
           return DevelopmentEvidence(buildId);
@@ -108,15 +116,17 @@ final class PlatformAttestation implements Attestation {
         rethrow;
       }
     }
-    return _attest(challenge, jkt, keyAttestationChain);
+    return _attest(challenge, jkt, kaJkt, scaJkt, keyAttestationChain);
   }
 
   Future<AttestationEvidence> _attest(
     Uint8List challenge,
     String jkt,
+    String kaJkt,
+    String scaJkt,
     List<Uint8List> chain,
   ) async {
-    final hash = bindingHash(challenge, jkt);
+    final hash = bindingHash(challenge, jkt, kaJkt, scaJkt);
     switch (_platform) {
       case TargetPlatform.android:
         if (chain.isEmpty) {
@@ -156,6 +166,64 @@ final class PlatformAttestation implements Attestation {
           PluxErrorCode.attestationUnavailable,
           'this platform has no attestation service',
         );
+    }
+  }
+
+  @override
+  Future<AttestationEvidence> scaEnrolment({
+    required Uint8List challenge,
+    required String jkt,
+    required String kaJkt,
+    required String scaJkt,
+    required List<Uint8List> scaKeyChain,
+  }) async {
+    try {
+      if (!_release &&
+          (!await _supported() ||
+              (_platform == TargetPlatform.android &&
+                  cloudProjectNumber == null))) {
+        return DevelopmentEvidence(buildId);
+      }
+      switch (_platform) {
+        case TargetPlatform.android:
+          if (scaKeyChain.isEmpty) {
+            throw const PluxException(
+              PluxErrorCode.attestationUnavailable,
+              'the SCA key has no key attestation chain',
+            );
+          }
+          // The server verifies the SCA key's own chain; the installation
+          // was vouched for by the registration's Play Integrity token.
+          return AndroidEvidence(
+            keyAttestationChain: List.unmodifiable(scaKeyChain),
+            playIntegrityToken: '',
+          );
+        case TargetPlatform.iOS:
+          final signed = await assertion(
+            bindingHash(challenge, jkt, kaJkt, scaJkt),
+          );
+          if (signed == null) {
+            if (!_release) return DevelopmentEvidence(buildId);
+            throw const PluxException(
+              PluxErrorCode.attestationUnavailable,
+              'the device has no App Attest key to vouch for the SCA key',
+            );
+          }
+          return IosAssertionEvidence(signed);
+        case TargetPlatform.fuchsia ||
+            TargetPlatform.linux ||
+            TargetPlatform.macOS ||
+            TargetPlatform.windows:
+          throw const PluxException(
+            PluxErrorCode.attestationUnavailable,
+            'this platform has no attestation service',
+          );
+      }
+    } on PluxException catch (e) {
+      if (!_release && e.details['platformCode'] == _unsupported) {
+        return DevelopmentEvidence(buildId);
+      }
+      rethrow;
     }
   }
 
