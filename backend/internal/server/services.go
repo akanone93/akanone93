@@ -108,6 +108,9 @@ type WorkDeps struct {
 	// Metrics receives the device side's metrics, the DPoP replay cache's
 	// health among them; nil records none.
 	Metrics *observability.Metrics
+	// IdentityHTTP reads identity providers' key sets; nil is the
+	// SSRF-safe client (SEC-105).
+	IdentityHTTP *http.Client
 }
 
 // scanner returns the configured malware scanner, or nil (SRV-060).
@@ -325,6 +328,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	gw, err := buildGateway(gatewayDeps{
 		cfg: cfg, db: db, cache: shared, set: set, signer: tokenSigner, crypter: backend, ids: gen, audit: log, tenancy: tenancyService,
 		devices: devices, configs: configs, trust: trust, metrics: work.Metrics, secretOf: secrets{t: tenancyService},
+		identityHTTP: work.IdentityHTTP,
 	})
 	if err != nil {
 		return nil, err

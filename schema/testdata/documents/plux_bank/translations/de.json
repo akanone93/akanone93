@@ -26,7 +26,9 @@
     "01d0c450-6c00-7000-8000-000000000294": "Ergebnis",
     "01d0c450-6c00-7000-8000-000000000295": "Fotografieren Sie Ihren Ausweis, um Ihre Identität zu prüfen.",
     "01d0c450-6c00-7000-8000-000000000296": "Foto aufnehmen",
-    "01d0c450-6c00-7000-8000-000000000297": "Identitätsprüfung"
+    "01d0c450-6c00-7000-8000-000000000297": "Identitätsprüfung",
+    "01d0c450-6c00-7000-8000-000000000298": "PIN eingeben",
+    "01d0c450-6c00-7000-8000-000000000299": "Per SMS gesendeter Code"
   },
   "schemaVersion": "1.0.0"
 }

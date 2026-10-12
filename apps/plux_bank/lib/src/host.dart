@@ -3,16 +3,38 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:plux_flutter/plux_flutter.dart';
+import 'package:plux_security/plux_security.dart';
 
 /// The host's side of Plux in the bank: the session token plugin pages
-/// authenticate with, and the native action that hands it over. `main`
-/// creates one and gives it to both the runtime's configuration and the app.
+/// authenticate with, and the native action that hands it over, and the
+/// runtime self-protection the `maximum` profile asks for. `main` creates
+/// one and gives it to both the runtime's configuration and the app.
 ///
 /// The token lives in memory only: nothing writes it to disk, and the end
 /// of the session (`logout`, `Plux.wipeData`) drops it.
 final class BankHost implements PluxAuthDelegate {
+  /// Creates the host. Tests give [detector] a fake; the app scans the
+  /// device with the platform's checks.
+  BankHost({PluxRaspDetector? detector})
+    : security = PluxSecurity(
+        detector: detector ?? const PlatformRaspDetector(),
+        policy: const PluxRaspPolicy(responses: _blocking),
+      );
+
+  /// A bank does not run on a device that is rooted or hooked (SEC-071):
+  /// the app asks for `block` for both, whatever the environment's profile
+  /// says, as the document does for root and hooking.
+  static const _blocking = {
+    PluxDetectionKind.root: PluxRaspResponse.block,
+    PluxDetectionKind.hooking: PluxRaspResponse.block,
+  };
+
   /// The app's navigator, where plugin pages open and close.
   final navigatorKey = GlobalKey<NavigatorState>();
+
+  /// Detects a hostile device and answers by policy (SEC-070, SEC-071);
+  /// the runtime attaches it and [BankApp] shows its blocking screen.
+  final PluxSecurity security;
 
   String? _token;
 

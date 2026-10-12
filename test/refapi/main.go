@@ -21,6 +21,9 @@ import (
 	"time"
 )
 
+// defaultAudience is the audience the reference upstreams are registered with.
+const defaultAudience = "refapi"
+
 func main() {
 	if err := runUntilSignal(); err != nil {
 		fmt.Fprintln(os.Stderr, "refapi:", err)
@@ -44,6 +47,9 @@ func run(ctx context.Context, args []string, stdout io.Writer) error {
 	caOut := fs.String("ca-out", "", "file to write the CA certificate (PEM, public) to")
 	trackStep := fs.Duration("track-step", defaultTrackStep, "pause between the status steps of an order's tracking stream")
 	heartbeat := fs.Duration("heartbeat", defaultHeartbeat, "interval of the notification stream's heartbeat comments")
+	jwks := fs.String("assertion-jwks", "", "URL of the Plux server's assertion keys (/.well-known/plux/gateway-jwks/{production,development}); the bank refuses every request without it")
+	issuer := fs.String("assertion-issuer", "", "the Plux server's public base URL: the `iss` of its assertions")
+	audience := fs.String("assertion-audience", defaultAudience, "the `aud` the upstreams were registered with")
 	if err := fs.Parse(args); err != nil {
 		return fmt.Errorf("parsing flags: %w", err)
 	}
@@ -71,5 +77,13 @@ func run(ctx context.Context, args []string, stdout io.Writer) error {
 		_ = ln.Close()
 		return fmt.Errorf("announcing the address: %w", err)
 	}
-	return Serve(ctx, ln, New(Options{TrackStep: *trackStep, Heartbeat: *heartbeat}), cfg)
+	handler, err := New(Options{
+		TrackStep: *trackStep, Heartbeat: *heartbeat, PublicURL: "https://" + ln.Addr().String(),
+		Gateway: GatewayTrust{JWKSURL: *jwks, Issuer: *issuer, Audience: *audience},
+	})
+	if err != nil {
+		_ = ln.Close()
+		return err
+	}
+	return Serve(ctx, ln, handler, cfg)
 }

@@ -80,6 +80,32 @@ final class GatewayAgent {
     ),
   );
 
+  /// Authenticates [r] for the gateway's HTTP route (SEC-030): a token and
+  /// a proof of this one request, and the exchanged user token. The caller
+  /// opens the connection. A token the server no longer accepts shows when
+  /// the connection is refused with a 401, and the next route is made with
+  /// a replaced token.
+  Future<GatewayRoute> route(GatewayRouteRequest r) async {
+    final token = await _token();
+    final user = r.userToken;
+    final userToken = user == null
+        ? null
+        : await _userToken(token, r.upstream, user);
+    final c = r.confirmation;
+    final (:url, :headers) = await api.gatewayRoute(
+      token: token,
+      upstream: r.upstream,
+      method: r.method,
+      pathAndQuery: r.path,
+      operation: r.operation,
+      plugin: r.plugin,
+      userToken: userToken,
+      challengeId: c?.challengeId ?? '',
+      signature: c?.signature,
+    );
+    return GatewayRoute(url, headers);
+  }
+
   Future<DataResponse> _call(GatewayRequest r) async {
     var reauthenticated = false;
     var refreshed = false;
@@ -99,6 +125,7 @@ final class GatewayAgent {
           path: r.path,
           headers: r.headers,
           body: r.body,
+          plugin: r.plugin,
           userToken: userToken,
           challengeId: r.confirmation?.challengeId ?? '',
           signature: r.confirmation?.signature,

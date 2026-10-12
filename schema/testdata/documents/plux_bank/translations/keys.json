@@ -120,6 +120,16 @@
       "description": "Identity check",
       "id": "01d0c450-6c00-7000-8000-000000000297",
       "key": "kyc.title"
+    },
+    {
+      "description": "Enter your PIN",
+      "id": "01d0c450-6c00-7000-8000-000000000298",
+      "key": "login.pin"
+    },
+    {
+      "description": "Code sent by SMS",
+      "id": "01d0c450-6c00-7000-8000-000000000299",
+      "key": "login.otp"
     }
   ],
   "kind": "translationKeys",

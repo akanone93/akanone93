@@ -38,7 +38,7 @@
   "id": "01d0c450-6c00-7000-8000-000000000200",
   "key": "bank",
   "kind": "app",
-  "minRuntimeVersion": "0.3.0",
+  "minRuntimeVersion": "0.4.0",
   "name": "Plux Bank",
   "nativeCatalogue": "01d0c450-6c00-7000-8000-000000000202",
   "plugins": [
@@ -46,6 +46,12 @@
   ],
   "requiredFeatures": "raise",
   "schemaVersion": "1.0.0",
+  "security": {
+    "settings": {
+      "allowDirectDataSources": false,
+      "raspRootHookingResponse": "block"
+    }
+  },
   "securityProfile": "maximum",
   "supportedLocales": [
     "en",
@@ -66,7 +72,12 @@
           "type": "string"
         },
         {
-          "name": "password",
+          "name": "pin",
+          "type": "string",
+          "sensitive": true
+        },
+        {
+          "name": "otp",
           "type": "string",
           "sensitive": true
         }
@@ -144,8 +155,12 @@
           "type": "string"
         },
         {
-          "name": "amountCents",
-          "type": "int"
+          "name": "amount",
+          "type": "string"
+        },
+        {
+          "name": "currency",
+          "type": "string"
         },
         {
           "name": "reference",

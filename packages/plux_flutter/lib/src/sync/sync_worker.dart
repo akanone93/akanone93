@@ -138,6 +138,13 @@ final class _Gateway extends _Command {
   final GatewayRequest request;
 }
 
+/// The authentication of a request to the gateway's HTTP route (SEC-030);
+/// replies a [GatewayRoute] or a [DataFailure].
+final class _GatewayRoute extends _Command {
+  const _GatewayRoute(super.reply, this.request);
+  final GatewayRouteRequest request;
+}
+
 /// A challenge for a transaction (SEC-027); replies a
 /// [TransactionChallenge] or a [DataFailure].
 final class _Challenge extends _Command {
@@ -294,6 +301,10 @@ final class SyncWorker
   @override
   Future<DataResponse> call(GatewayRequest request) async =>
       await _ask((p) => _Gateway(p, request)) as DataResponse;
+
+  @override
+  Future<GatewayRoute> route(GatewayRouteRequest request) async =>
+      await _ask((p) => _GatewayRoute(p, request)) as GatewayRoute;
 
   @override
   Future<LiveConfigValue> read(String key) async =>
@@ -477,6 +488,8 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
       // take long, and a transaction waits for the user.
       case _Gateway(:final reply, :final request):
         track(_serve(reply, () => engine.gateway.call(request)));
+      case _GatewayRoute(:final reply, :final request):
+        track(_serve(reply, () => engine.gateway.route(request)));
       case _Challenge(
         :final reply,
         :final dataSource,

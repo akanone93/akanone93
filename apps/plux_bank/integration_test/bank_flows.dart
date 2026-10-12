@@ -53,6 +53,8 @@ Future<void> pumpUntil(
 /// moves its widgets, and a tap aimed at a moving widget can miss it.
 Future<void> tapSettled(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
   await tester.tap(finder);
 }
 
@@ -65,6 +67,27 @@ Future<void> typeInto(WidgetTester tester, String label, String text) async {
   await tester.pump(const Duration(milliseconds: 100));
 }
 
+/// Presses the digits of [pin] on the secure pad, which is not the system
+/// keyboard: its keys are buttons labelled by their digit (SEC-090).
+Future<void> enterPin(WidgetTester tester, String pin) async {
+  for (final digit in pin.split('')) {
+    await tapSettled(tester, find.text(digit));
+  }
+}
+
+/// Types [code] into the one-time-code field (SEC-090).
+Future<void> enterCode(WidgetTester tester, String code) async {
+  final field = find.widgetWithText(TextField, 'One-time code');
+  await pumpUntil(tester, field);
+  await tester.ensureVisible(field);
+  await tester.enterText(field, code);
+  await tester.pump(const Duration(milliseconds: 100));
+}
+
+/// The demo user's PIN and one-time code (test/refapi).
+const demoPin = '246810';
+const demoCode = '123456';
+
 /// Registers the flows. [config] is the app's configuration; the flows are
 /// skipped without one. [storage] gives the release store's directory for
 /// each launch, null for the platform's, as a device does. [initialize]
@@ -72,10 +95,17 @@ Future<void> typeInto(WidgetTester tester, String label, String text) async {
 /// key store; the host run replaces the key store, which has no platform
 /// side there. The flows start without the app's embedded baseline: their
 /// first launch syncs from the server.
+///
+/// The transfers are strong customer authentication (SEC-027): the user
+/// confirms them on the sheet and the device's SCA key signs them. A run
+/// with [confirmsTransfers] false has no key to sign with: the system
+/// prompt is a person's, so the flows that send a transfer are skipped, and
+/// the real-device checklist covers them.
 void bankFlows({
   required BankConfig? Function() config,
   Future<String?> Function()? storage,
   Future<PluxStartup> Function(PluxConfig) initialize = Plux.initialize,
+  bool confirmsTransfers = true,
 }) {
   final problems = <PluxException>[];
 
@@ -114,16 +144,32 @@ void bankFlows({
     await tester.runAsync(Plux.dispose);
   }
 
-  /// Starts the app, waits for the sign-in page and signs in with
-  /// [password].
-  Future<void> signIn(WidgetTester tester, {required String password}) async {
+  /// Starts the app, waits for the sign-in page and signs in with [pin]
+  /// and [code].
+  Future<void> signIn(
+    WidgetTester tester, {
+    String pin = demoPin,
+    String code = demoCode,
+  }) async {
     final dir = await tester.runAsync(() async => storage?.call());
     final started = await launch(tester, dir);
     expect(started.ready, isTrue, reason: '${started.error}');
     await waitFor(tester, find.text('Welcome back'));
     await typeInto(tester, 'Username', 'demo');
-    await typeInto(tester, 'Password', password);
+    await enterPin(tester, pin);
+    await enterCode(tester, code);
     await tapSettled(tester, find.text('Sign in'));
+  }
+
+  /// Fills the transfer form and sends it; the confirmation sheet comes
+  /// next.
+  Future<void> sendTransfer(WidgetTester tester) async {
+    await tapSettled(tester, find.text('New transfer'));
+    await waitFor(tester, find.text('Available: 2500.00 EUR'));
+    await typeInto(tester, 'Recipient IBAN', 'DE44500105175407324931');
+    await typeInto(tester, 'Amount (EUR)', '12.50');
+    await typeInto(tester, 'Reference', 'Lunch');
+    await tapSettled(tester, find.text('Send money'));
   }
 
   final skip = config() == null
@@ -131,15 +177,40 @@ void bankFlows({
       : null;
 
   testWidgets(
-    'the exit flow: sign in, see the accounts, make a validated transfer, '
-    'read its result, and see the notification and the new balance on the '
-    'dashboard [DX-004] [DAT-001] [DAT-011] [DAT-012] [DAT-020] [STA-020]',
+    'declining the confirmation sends nothing and leaves the balance (it '
+    'runs first: the backend keeps the exit flow\'s transfer) [DX-004] [SEC-027] [SEC-032]',
     (tester) async {
       problems.clear();
-      await signIn(tester, password: 'demo1234');
+      await signIn(tester);
+      await waitFor(tester, find.text('2500.00 EUR'));
+      await sendTransfer(tester);
+      await waitFor(tester, find.text('Confirm transaction'));
+      await tapSettled(tester, find.text('Cancel'));
+
+      await waitFor(tester, find.text('Transfer failed'));
+      expect(find.text('Transfer completed'), findsNothing);
+      await tapSettled(tester, find.text('Back to dashboard'));
+      await waitFor(tester, find.text('Your accounts'));
+      await waitFor(tester, find.text('2500.00 EUR'));
+      expect(find.text('2487.50 EUR'), findsNothing);
+      await stop(tester);
+    },
+    skip: skip != null || !confirmsTransfers,
+    timeout: const Timeout(Duration(minutes: 3)),
+  );
+
+  testWidgets(
+    'the exit flow: sign in with the PIN and the code, see the accounts, '
+    'confirm a validated transfer with the device key, read its result, and '
+    'see the notification and the new balance on the dashboard [DX-004] '
+    '[DAT-001] [DAT-011] [DAT-012] [DAT-020] [STA-020] [SEC-027] [SEC-030] '
+    '[SEC-090]',
+    (tester) async {
+      problems.clear();
+      await signIn(tester);
 
       // The dashboard: the accounts over GraphQL and the first page of
-      // transactions.
+      // transactions, both through the gateway for the signed-in user.
       await waitFor(tester, find.text('Your accounts'));
       await waitFor(tester, find.text('Checking'));
       expect(find.text('2500.00 EUR'), findsOneWidget);
@@ -154,18 +225,28 @@ void bankFlows({
       await tapSettled(tester, find.text('Send money'));
       await waitFor(tester, find.text('Enter a valid IBAN'));
 
-      // A valid transfer: the result page, then the dashboard.
+      // A valid transfer is a transaction: the sheet shows what the SCA
+      // key will sign, the amount, the currency and the payee, and the
+      // transfer is sent only once the user confirms it.
       await typeInto(tester, 'Recipient IBAN', 'DE44500105175407324931');
       await typeInto(tester, 'Reference', 'Lunch');
       await tapSettled(tester, find.text('Send money'));
+      await waitFor(tester, find.text('Confirm transaction'));
+      expect(find.text('12.50'), findsWidgets);
+      expect(find.text('EUR'), findsOneWidget);
+      expect(find.text('DE44500105175407324931'), findsWidgets);
+      expect(find.text('Transfer completed'), findsNothing);
+      await tapSettled(tester, find.text('Confirm'));
+
+      // The result page, then the dashboard.
       await waitFor(tester, find.text('Transfer completed'));
       expect(find.text('Amount: 12.50 EUR'), findsOneWidget);
       expect(find.text('New balance: 2487.50 EUR'), findsOneWidget);
 
       await tapSettled(tester, find.text('Back to dashboard'));
       await waitFor(tester, find.text('Your accounts'));
-      // The server-sent event of the transfer, and the accounts it
-      // refreshed.
+      // The server-sent event of the transfer, streamed through the
+      // gateway, and the accounts it refreshed.
       await waitFor(
         tester,
         find.text('Transfer of 12.50 EUR sent. New balance: 2487.50 EUR'),
@@ -174,17 +255,17 @@ void bankFlows({
       expect(problems, isEmpty, reason: problems.join('\n'));
       await stop(tester);
     },
-    skip: skip != null,
+    skip: skip != null || !confirmsTransfers,
     timeout: const Timeout(Duration(minutes: 3)),
   );
 
   testWidgets(
-    'a wrong password shows the error on the sign-in page and signs nobody '
-    'in [DX-004] [HST-010]',
+    'a wrong PIN shows the error on the sign-in page and signs nobody in '
+    '[DX-004] [HST-010]',
     (tester) async {
       problems.clear();
-      await signIn(tester, password: 'not the password');
-      await waitFor(tester, find.text('Wrong username or password.'));
+      await signIn(tester, pin: '000000');
+      await waitFor(tester, find.text('Wrong username, PIN or code.'));
       expect(find.text('Your accounts'), findsNothing);
       await stop(tester);
     },
@@ -197,7 +278,7 @@ void bankFlows({
     '[DX-004] [STA-020]',
     (tester) async {
       problems.clear();
-      await signIn(tester, password: 'demo1234');
+      await signIn(tester);
       await waitFor(tester, find.text('Checking'));
       await tapSettled(tester, find.text('New transfer'));
       await waitFor(tester, find.textContaining('Available: '));

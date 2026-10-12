@@ -14,6 +14,7 @@ import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/data/gateway.dart';
 import 'package:plux_flutter/src/data/services.dart';
 import 'package:plux_flutter/src/data/source.dart';
+import 'package:plux_flutter/src/data/stream_transport.dart';
 import 'package:plux_flutter/src/data/spec.dart';
 import 'package:plux_flutter/src/data/transport.dart';
 import 'package:plux_flutter/src/security/sca.dart';
@@ -24,7 +25,19 @@ import 'io_support.dart';
 /// Answers gateway calls as told and records them.
 final class _Gateway implements GatewayTransport {
   final List<GatewayRequest> calls = [];
+  final List<GatewayRouteRequest> routes = [];
   final List<Object> script = [];
+
+  @override
+  Future<GatewayRoute> route(GatewayRouteRequest request) async {
+    routes.add(request);
+    return GatewayRoute(
+      Uri.parse(
+        'https://plux.example/gateway/v1/${request.upstream}${request.path}',
+      ),
+      {'Authorization': 'DPoP t', 'DPoP': 'proof-${routes.length}'},
+    );
+  }
 
   @override
   Future<DataResponse> call(GatewayRequest request) async {
@@ -339,8 +352,50 @@ void main() {
       expect(direct, isEmpty);
     });
 
-    test('streams and file transfers of a plux source are refused, not sent direct [SEC-030]', () async {
+    test('a stream of a plux source connects to the gateway route with the device\'s proof, never direct [SEC-030]', () async {
       final services = make();
+      final sse = await services.client.streamRequest(
+        _source(kind: DataKind.sse),
+        _caller,
+        const {},
+      );
+      expect(sse.kind, StreamKind.sse);
+      expect(
+        sse.url.toString(),
+        'https://plux.example/gateway/v1/ledger/balance',
+      );
+      expect(sse.headers, {
+        'x-app': 'bank',
+        'Authorization': 'DPoP t',
+        'DPoP': 'proof-1',
+      });
+      final ws = await services.client.streamRequest(
+        _source(kind: DataKind.webSocket, auth: true),
+        _caller,
+        const {},
+        lastEventId: null,
+      );
+      expect(ws.kind, StreamKind.webSocket);
+      expect(ws.url.scheme, 'wss');
+      expect(ws.headers.keys, isNot(contains('authorization')));
+      final r = gateway.routes.last;
+      expect(r.method, 'GET');
+      expect(r.userToken, 'host-token');
+      expect(r.plugin, 'bank');
+      expect(direct, isEmpty);
+      expect(gateway.calls, isEmpty);
+    });
+
+    test('every connection of a stream asks for a proof of its own [SEC-030] [SEC-021]', () async {
+      final services = make();
+      final spec = _source(kind: DataKind.sse);
+      final a = await services.client.streamRequest(spec, _caller, const {});
+      final b = await services.client.streamRequest(spec, _caller, const {});
+      expect(a.headers['DPoP'], isNot(b.headers['DPoP']));
+    });
+
+    test('a stream of a plux source without a gateway fails and never goes direct [SEC-030]', () async {
+      final services = make(withGateway: false);
       await expectLater(
         services.client.streamRequest(
           _source(kind: DataKind.sse),
@@ -357,6 +412,29 @@ void main() {
       );
       expect(direct, isEmpty);
     });
+
+    test(
+      'a stream of a direct source the profile refuses sends nothing [SEC-030]',
+      () async {
+        allowDirect = false;
+        final services = make();
+        await expectLater(
+          services.client.streamRequest(
+            _source(kind: DataKind.sse, route: DataRoute.direct),
+            _caller,
+            const {},
+          ),
+          throwsA(
+            isA<DataFailure>().having(
+              (f) => f.code,
+              'code',
+              PluxErrorCode.directDataSourceRefused,
+            ),
+          ),
+        );
+        expect(gateway.routes, isEmpty);
+      },
+    );
 
     test('a gateway failure keeps its registered code [SEC-031]', () async {
       final services = make();

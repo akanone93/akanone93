@@ -75,6 +75,9 @@ type gatewayDeps struct {
 	trust    *DeviceTrust
 	metrics  *observability.Metrics
 	secretOf gateway.SecretReader
+	// identityHTTP reads identity providers' key sets; nil is the
+	// SSRF-safe client.
+	identityHTTP *http.Client
 }
 
 // buildGateway assembles the gateway for a process with the api or the
@@ -116,10 +119,14 @@ func buildGateway(d gatewayDeps) (*GatewayParts, error) {
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
+	identityHTTP := d.identityHTTP
+	if identityHTTP == nil {
+		identityHTTP = httpx.NewClient(httpx.Options{Timeout: 10 * time.Second})
+	}
 	exchange := &gateway.Exchanger{
 		Providers: registry.ProviderFor, Upstreams: registry.Resolve, Production: d.devices.EnvironmentIsProduction,
 		Lifetime: tokenLifetimeOf(d.configs, d.cfg), Tokens: users,
-		HTTP: httpx.NewClient(httpx.Options{Timeout: 10 * time.Second}),
+		HTTP: identityHTTP,
 	}
 	return &GatewayParts{Gateway: gw, Upstreams: registry, Exchange: exchange, Configs: configs, Resolver: resolver, Keys: keys}, nil
 }

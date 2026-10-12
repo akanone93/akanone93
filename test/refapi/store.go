@@ -4,8 +4,6 @@
 package main
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
 	"sync"
 	"time"
@@ -27,15 +25,6 @@ func newStore() *store {
 
 // epoch is the instant the seed data is dated from.
 var epoch = time.Date(2026, time.January, 15, 9, 0, 0, 0, time.UTC)
-
-// newToken returns a random bearer token.
-func newToken() (string, error) {
-	var b [16]byte
-	if _, err := rand.Read(b[:]); err != nil {
-		return "", fmt.Errorf("generating a token: %w", err)
-	}
-	return hex.EncodeToString(b[:]), nil
-}
 
 // account is a bank account.
 type account struct {
@@ -74,13 +63,23 @@ type notification struct {
 	BalanceCents int64  `json:"balanceCents"`
 }
 
+// transferEvidence is what the bank keeps with a payment to show the user
+// confirmed it: the gateway's proof (SEC-032), never a signature.
+type transferEvidence struct {
+	TransferID  string
+	User        string
+	Device      string
+	ChallengeID string
+	SummaryHash string
+}
+
 // bankData is the bank's state.
 type bankData struct {
-	tokens       map[string]struct{}
 	accounts     []*account
 	transactions map[string][]transaction // by account, newest first
 	transfers    map[string]transferResult
 	transferSeq  int
+	evidence     []transferEvidence
 	events       []notification
 	signal       chan struct{} // closed when an event is appended
 }
@@ -89,7 +88,6 @@ type bankData struct {
 // the first.
 func seedBank() bankData {
 	d := bankData{
-		tokens: map[string]struct{}{},
 		accounts: []*account{
 			{ID: "acct-001", Name: "Checking", IBAN: "DE89370400440532013000", BalanceCents: 250_000, Currency: "EUR"},
 			{ID: "acct-002", Name: "Savings", IBAN: "DE02120300000000202051", BalanceCents: 1_200_000, Currency: "EUR"},

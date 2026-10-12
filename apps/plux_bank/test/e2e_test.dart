@@ -11,8 +11,13 @@ import 'package:plux_flutter/plux_flutter.dart';
 // ignore: implementation_imports
 import 'package:plux_flutter/src/core/runtime.dart' show RuntimeOverrides;
 // ignore: implementation_imports
+import 'package:plux_flutter/src/secure/platform.dart'
+    show BiometricOutcome, BiometricPlatform, SecureScreenPlatform;
+// ignore: implementation_imports
+import 'package:plux_flutter/src/secure/secure_ui.dart' show SecurePlatforms;
+// ignore: implementation_imports
 import 'package:plux_flutter/src/security/software_keys.dart'
-    show DevelopmentAttestation, SoftwareDeviceKeys;
+    show DevelopmentAttestation, SoftwareScaKeys;
 // ignore: implementation_imports
 import 'package:plux_flutter/src/sync/sync_engine.dart'
     show MemoryCredentialStore, MemorySecretStore;
@@ -33,6 +38,21 @@ final class _MemorySecrets implements SecretStore {
 
   @override
   Future<void> delete(String name) async => _values.remove(name);
+}
+
+/// The platform's screen protection, which `flutter test` has no side of.
+final class _Screen implements SecureScreenPlatform {
+  @override
+  Future<void> setProtected({required bool enabled}) async {}
+}
+
+/// The platform's biometric prompt, which `flutter test` has no side of.
+final class _Biometrics implements BiometricPlatform {
+  @override
+  Future<BiometricOutcome> authenticate({
+    required String reason,
+    required bool allowDeviceCredential,
+  }) async => BiometricOutcome.success;
 }
 
 /// The flows on the development machine, against the server and the
@@ -58,9 +78,13 @@ void main() {
       RuntimeOverrides(
         credentials: MemoryCredentialStore.new,
         configSecrets: MemorySecretStore.new,
-        deviceKeys: SoftwareDeviceKeys.new,
+        // One SCA key for both isolates, as the platform's key store is
+        // (the confirmation sheet's button stands for the biometric).
+        deviceKeys: SoftwareScaKeys.new,
+        userAuthSigner: SoftwareScaKeys.new,
         attestation: () => const DevelopmentAttestation('e2e'),
         secrets: _MemorySecrets.new,
+        secure: SecurePlatforms(screen: _Screen(), biometrics: _Biometrics()),
       ),
     ),
   );

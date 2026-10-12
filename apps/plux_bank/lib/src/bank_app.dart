@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:plux_bank/src/config.dart';
 import 'package:plux_bank/src/host.dart';
 import 'package:plux_flutter/plux_flutter.dart';
+import 'package:plux_security/plux_security.dart';
 
 /// The app: a native shell around the published login page, which signs in,
 /// hands the token to [BankHost] and navigates on to the dashboard.
@@ -33,6 +34,9 @@ final class BankApp extends StatelessWidget {
       title: 'Plux Bank',
       navigatorKey: host.navigatorKey,
       debugShowCheckedModeBanner: false,
+      // The blocking screen covers every route (SEC-071).
+      builder: (context, child) =>
+          PluxSecurityGate(security: host.security, child: child!),
       theme: ThemeData(colorSchemeSeed: const Color(0xFF0B3D91)),
       darkTheme: ThemeData(
         colorSchemeSeed: const Color(0xFF0B3D91),
