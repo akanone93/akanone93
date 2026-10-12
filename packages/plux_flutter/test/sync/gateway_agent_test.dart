@@ -536,6 +536,40 @@ void main() {
   });
 
   group('a transaction, from the challenge to the call', () {
+    test('the challenge carries the values the server resolved for display [DAT-093]', () async {
+      final rig = _Rig(sca: true);
+      rig.script[_scaPath] = [
+        () => _json({
+          'challengeId': 'ch-2',
+          'challenge': base64.encode(_scaChallenge),
+          'expiresAt': '2100-01-01T00:00:00Z',
+          'displayed': [
+            {'label': 'Pool account', 'value': 'ACC-7'},
+            {'label': 7, 'value': 'dropped: no label'},
+          ],
+        }),
+        () => _json({
+          'challengeId': 'ch-3',
+          'challenge': base64.encode(_scaChallenge),
+          'expiresAt': '2100-01-01T00:00:00Z',
+        }),
+      ];
+      final c = await rig.agent.challenge(
+        dataSource: 'bank',
+        operation: 'transfer',
+        summaryJcs: Uint8List.fromList([123, 125]),
+      );
+      expect(c.displayed.map((d) => (d.label, d.value)), [
+        ('Pool account', 'ACC-7'),
+      ]);
+      final none = await rig.agent.challenge(
+        dataSource: 'bank',
+        operation: 'transfer',
+        summaryJcs: Uint8List.fromList([123, 125]),
+      );
+      expect(none.displayed, isEmpty);
+    });
+
     testWidgets(
       'runs challenge, sheet, system prompt, signature and then the gateway call, in that order [SEC-027] [SEC-028] [SEC-032]',
       (tester) async {
