@@ -24,9 +24,10 @@ func TestLogin(t *testing.T) {
 		status int
 		code   string
 	}{
-		{"the demo user", `{"username":"demo","password":"demo1234"}`, http.StatusOK, ""},
-		{"a wrong password", `{"username":"demo","password":"nope"}`, http.StatusUnauthorized, "invalid_credentials"},
-		{"a wrong username", `{"username":"eve","password":"demo1234"}`, http.StatusUnauthorized, "invalid_credentials"},
+		{"the demo user", `{"username":"demo","pin":"246810","otp":"123456"}`, http.StatusOK, ""},
+		{"a wrong PIN", `{"username":"demo","pin":"000000","otp":"123456"}`, http.StatusUnauthorized, "invalid_credentials"},
+		{"a wrong code", `{"username":"demo","pin":"246810","otp":"654321"}`, http.StatusUnauthorized, "invalid_credentials"},
+		{"a wrong username", `{"username":"eve","pin":"246810","otp":"123456"}`, http.StatusUnauthorized, "invalid_credentials"},
 		{"empty credentials", `{}`, http.StatusUnauthorized, "invalid_credentials"},
 		{"a body that is no JSON", `not json`, http.StatusBadRequest, "bad_request"},
 	}
@@ -57,7 +58,7 @@ func TestLogin(t *testing.T) {
 // loginToken signs the demo user in and returns the token.
 func loginToken(t *testing.T, srv *testAPI) string {
 	t.Helper()
-	r := call(t, srv, http.MethodPost, "/bank/v1/login", aDevice, `{"username":"demo","password":"demo1234"}`)
+	r := call(t, srv, http.MethodPost, "/bank/v1/login", aDevice, `{"username":"demo","pin":"246810","otp":"123456"}`)
 	if r.status != http.StatusOK {
 		t.Fatalf("login: %d %s", r.status, r.body)
 	}

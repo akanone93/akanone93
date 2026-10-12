@@ -13,10 +13,12 @@ import (
 	"time"
 )
 
-// The reference user: constant test credentials, never real ones.
+// The reference user: constant test credentials, never real ones. The code
+// stands for the one-time password an SMS would carry.
 const (
 	demoUsername = "demo"
-	demoPassword = "demo1234"
+	demoPIN      = "246810"
+	demoOTP      = "123456"
 )
 
 // ibanShape is the shape of an IBAN: two letters, two check digits and up
@@ -77,15 +79,17 @@ const demoSubject = "user-demo"
 func (a *api) login(w http.ResponseWriter, r *http.Request) {
 	var in struct {
 		Username string `json:"username"`
-		Password string `json:"password"`
+		PIN      string `json:"pin"`
+		OTP      string `json:"otp"`
 	}
 	if !readJSON(w, r, &in) {
 		return
 	}
 	user := subtle.ConstantTimeCompare([]byte(in.Username), []byte(demoUsername))
-	pass := subtle.ConstantTimeCompare([]byte(in.Password), []byte(demoPassword))
-	if user&pass != 1 {
-		writeError(w, http.StatusUnauthorized, "invalid_credentials", "the username or password is wrong")
+	pin := subtle.ConstantTimeCompare([]byte(in.PIN), []byte(demoPIN))
+	otp := subtle.ConstantTimeCompare([]byte(in.OTP), []byte(demoOTP))
+	if user&pin&otp != 1 {
+		writeError(w, http.StatusUnauthorized, "invalid_credentials", "the username, PIN or code is wrong")
 		return
 	}
 	token, err := a.idp.issue(demoSubject, "Demo User")

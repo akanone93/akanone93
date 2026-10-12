@@ -15,12 +15,23 @@
         },
         {
           "initial": "",
-          "name": "password",
+          "name": "pin",
           "type": "string",
           "validators": [
             {
               "kind": "required",
-              "message": "Enter your password"
+              "message": "Enter your PIN"
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "otp",
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required",
+              "message": "Enter the code"
             }
           ]
         }
@@ -129,50 +140,89 @@
                 "type": "SizedBox"
               },
               {
+                "id": "01d0c450-6c00-7000-8000-000000002100",
+                "props": {
+                  "data": {
+                    "$t": "01d0c450-6c00-7000-8000-000000000298"
+                  }
+                },
+                "testId": "pin-caption",
+                "type": "Text"
+              },
+              {
                 "events": {
-                  "onChanged": {
+                  "onCompleted": {
                     "steps": [
                       {
                         "action": "setState",
                         "id": "write",
                         "input": {
-                          "path": "page.login.values.password",
+                          "path": "page.login.values.pin",
                           "value": {
                             "$expr": "event"
                           }
                         }
                       }
                     ]
-                  },
-                  "onEditingComplete": {
+                  }
+                },
+                "id": "01d0c450-6c00-7000-8000-000000002101",
+                "props": {
+                  "length": 6
+                },
+                "testId": "pin",
+                "type": "SecurePinPad",
+                "semantics": {
+                  "label": {
+                    "$t": "01d0c450-6c00-7000-8000-000000000298"
+                  }
+                }
+              },
+              {
+                "id": "01d0c450-6c00-7000-8000-000000002102",
+                "props": {
+                  "height": 8.0
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01d0c450-6c00-7000-8000-000000002103",
+                "props": {
+                  "data": {
+                    "$t": "01d0c450-6c00-7000-8000-000000000299"
+                  }
+                },
+                "testId": "otp-caption",
+                "type": "Text"
+              },
+              {
+                "events": {
+                  "onCompleted": {
                     "steps": [
                       {
                         "action": "setState",
-                        "id": "touch",
+                        "id": "write",
                         "input": {
-                          "path": "page.login.touched.password",
-                          "value": true
+                          "path": "page.login.values.otp",
+                          "value": {
+                            "$expr": "event"
+                          }
                         }
                       }
                     ]
                   }
                 },
-                "id": "01d0c450-6c00-7000-8000-000000002004",
+                "id": "01d0c450-6c00-7000-8000-000000002104",
                 "props": {
-                  "autocorrect": false,
-                  "decoration": {
-                    "labelText": {
-                      "$t": "01d0c450-6c00-7000-8000-000000000282"
-                    }
-                  },
-                  "enableSuggestions": false,
-                  "obscureText": true,
-                  "value": {
-                    "$expr": "page.login.values.password"
-                  }
+                  "length": 6
                 },
-                "testId": "password",
-                "type": "TextFormField"
+                "testId": "otp",
+                "type": "OtpInput",
+                "semantics": {
+                  "label": {
+                    "$t": "01d0c450-6c00-7000-8000-000000000299"
+                  }
+                }
               },
               {
                 "id": "01d0c450-6c00-7000-8000-000000002005",
@@ -219,8 +269,11 @@
                         "id": "call",
                         "input": {
                           "input": {
-                            "password": {
-                              "$expr": "steps.submit.output.password"
+                            "otp": {
+                              "$expr": "steps.submit.output.otp"
+                            },
+                            "pin": {
+                              "$expr": "steps.submit.output.pin"
                             },
                             "username": {
                               "$expr": "steps.submit.output.username"
@@ -264,7 +317,7 @@
                         "id": "invalid",
                         "input": {
                           "path": "page.error",
-                          "value": "Enter your username and password."
+                          "value": "Enter your username, PIN and code."
                         }
                       }
                     ]
@@ -308,5 +361,8 @@
       "type": "string"
     }
   ],
-  "title": "Sign in"
+  "title": "Sign in",
+  "security": {
+    "secure": true
+  }
 }

@@ -94,19 +94,22 @@ final class Account {
 /// The type `LoginInput`.
 final class LoginInput {
   /// Creates a value.
-  const LoginInput({required this.password, required this.username});
+  const LoginInput({required this.otp, required this.pin, required this.username});
 
   /// The value of JSON form [json].
-  factory LoginInput.fromJson(Map<String, Object?> json) => LoginInput(password: json['password'] as String, username: json['username'] as String);
+  factory LoginInput.fromJson(Map<String, Object?> json) => LoginInput(otp: json['otp'] as String, pin: json['pin'] as String, username: json['username'] as String);
 
-  /// The field `password`.
-  final String password;
+  /// The field `otp`.
+  final String otp;
+
+  /// The field `pin`.
+  final String pin;
 
   /// The field `username`.
   final String username;
 
   /// The JSON form.
-  Map<String, Object?> toJson() => {'password': password, 'username': username};
+  Map<String, Object?> toJson() => {'otp': otp, 'pin': pin, 'username': username};
 }
 
 /// The type `LoginResult`.
@@ -181,13 +184,16 @@ final class Transaction {
 /// The type `TransferInput`.
 final class TransferInput {
   /// Creates a value.
-  const TransferInput({required this.amountCents, required this.fromAccountId, required this.reference, required this.toIban});
+  const TransferInput({required this.amount, required this.currency, required this.fromAccountId, required this.reference, required this.toIban});
 
   /// The value of JSON form [json].
-  factory TransferInput.fromJson(Map<String, Object?> json) => TransferInput(amountCents: json['amountCents'] as int, fromAccountId: json['fromAccountId'] as String, reference: json['reference'] as String, toIban: json['toIban'] as String);
+  factory TransferInput.fromJson(Map<String, Object?> json) => TransferInput(amount: json['amount'] as String, currency: json['currency'] as String, fromAccountId: json['fromAccountId'] as String, reference: json['reference'] as String, toIban: json['toIban'] as String);
 
-  /// The field `amountCents`.
-  final int amountCents;
+  /// The field `amount`.
+  final String amount;
+
+  /// The field `currency`.
+  final String currency;
 
   /// The field `fromAccountId`.
   final String fromAccountId;
@@ -199,7 +205,7 @@ final class TransferInput {
   final String toIban;
 
   /// The JSON form.
-  Map<String, Object?> toJson() => {'amountCents': amountCents, 'fromAccountId': fromAccountId, 'reference': reference, 'toIban': toIban};
+  Map<String, Object?> toJson() => {'amount': amount, 'currency': currency, 'fromAccountId': fromAccountId, 'reference': reference, 'toIban': toIban};
 }
 
 /// The type `TransferResult`.

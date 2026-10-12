@@ -39,13 +39,13 @@ confirmed it (`sca`, else `403 sca_required`); the bank keeps the proof's challe
 hash with the payment.
 
 Users sign in at a **test identity provider** in the same process: `POST /bank/v1/login` checks
-`demo` / `demo1234` and returns an ES256 JWT (`iss` = `<url>/idp`, `aud` = `plux`, `sub` =
+`demo` / PIN `246810` / code `123456` (the one-time password an SMS would carry) and returns an ES256 JWT (`iss` = `<url>/idp`, `aud` = `plux`, `sub` =
 `user-demo`); its keys are at `GET /idp/jwks.json`. An environment registers it with
 `SetUserIdentityProvider`, and the gateway exchanges the host's token for the user it names.
 
 | Endpoint | Needs | |
 |---|---|---|
-| `POST /bank/v1/login` | a device | `{"token","expiresIn"}`; `401` for other credentials |
+| `POST /bank/v1/login` | a device | Body `{username,pin,otp}`; `{"token","expiresIn"}`; `401` for other credentials |
 | `GET /bank/v1/accounts` | a user | `{"items":[{id,name,iban,balanceCents,currency}]}` |
 | `POST /bank/v1/transfers` | a confirmed user | Body `{fromAccountId,toIban,amount,currency,reference}`, the amount a decimal string (`"12.50"`); `201 {"id","status","balanceCents"}`; `422` for an unknown account, an amount that is not positive, over the balance or malformed, another currency, a malformed IBAN; idempotent on `Idempotency-Key` (else on the assertion's `jti`) |
 | `POST /bank/graphql` | a user | The queries `accounts` and `transactions(accountId, first, after)` only — a fixture's server, not a GraphQL engine |
