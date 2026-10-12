@@ -420,3 +420,21 @@ func TestGatewayRole(t *testing.T) {
 		{"gateway alone on the memory cache", withServer("  roles: [gateway]\n"), "single-node only"},
 	})
 }
+
+// Verifies: SEC-031.
+// The authorities the gateway trusts for its upstreams are a readable PEM
+// file or nothing.
+func TestGatewayUpstreamCAFile(t *testing.T) {
+	t.Parallel()
+	empty := filepath.Join(t.TempDir(), "ca.pem")
+	if err := os.WriteFile(empty, []byte("not a certificate"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	mentions(t, []struct{ name, src, want string }{
+		{"a file that is missing", minimal + "gateway:\n  upstreamCAFile: /nonexistent/ca.pem\n", "gateway.upstreamCAFile"},
+		{"a file with no certificate", minimal + "gateway:\n  upstreamCAFile: \"" + empty + "\"\n", "holds no PEM certificate"},
+	})
+	if c := parse(t, minimal); c.Gateway.UpstreamCAFile != "" {
+		t.Errorf("default = %q", c.Gateway.UpstreamCAFile)
+	}
+}

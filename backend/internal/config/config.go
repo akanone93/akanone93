@@ -42,6 +42,18 @@ type Config struct {
 	// UpdateMetadata sets the expiries and the root threshold of the
 	// update metadata (SEC-050, ADR-0054).
 	UpdateMetadata UpdateMetadata `json:"updateMetadata"`
+	// Gateway configures what the secure gateway trusts (SEC-031,
+	// ADR-0056).
+	Gateway Gateway `json:"gateway"`
+}
+
+// Gateway configures the secure gateway. Upstreams themselves are
+// registered per app and environment through the API.
+type Gateway struct {
+	// UpstreamCAFile is a PEM file of certificate authorities the gateway
+	// trusts for its upstreams in addition to the system's, for customers
+	// whose APIs use a private CA. Empty adds none.
+	UpstreamCAFile string `json:"upstreamCAFile"`
 }
 
 // Audit configures the audit log's signed checkpoints (SEC-141).

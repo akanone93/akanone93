@@ -6,16 +6,20 @@ package server
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"io/fs"
 	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/cache"
+	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/storagetest"
@@ -44,6 +48,9 @@ type stackOptions struct {
 	// serverYAML is added to the configuration's server section, as
 	// indented lines.
 	serverYAML string
+	// extraYAML is added to the configuration as further top-level
+	// sections.
+	extraYAML string
 }
 
 // deviceAddr is fixed when a device runs the flows (PLUX_E2E_DEVICE): the
@@ -108,7 +115,7 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 	cfg := testConfig(t, "server:\n  roles: [api, worker]\n  listen: \""+addr+"\"\n  publicBaseURL: \""+public+"\"\n"+o.serverYAML+
 		"database:\n  url: \""+url+"\"\n"+stores+
 		"signing:\n  directory: \""+filepath.Join(dir, "keys")+"\"\n"+
-		"attestation:\n  developmentProvider: true\n")
+		"attestation:\n  developmentProvider: true\n"+o.extraYAML)
 	ctx, cancel := context.WithCancel(context.Background())
 	built, err := Build(ctx, cfg, discard(), "test")
 	if err != nil {
@@ -204,4 +211,92 @@ func (s *stack) project(t *testing.T, fixture string) string {
 	copyTree(t, filepath.Join("..", "..", "..", "schema", "testdata", "documents", fixture), project)
 	s.run(t, 0, "init", "--server", s.server, "--org", s.org, "--app", "demo", "-C", project, "--json")
 	return project
+}
+
+// registerUpstreams registers, for the environment, an upstream for every
+// data source of the project that goes through the gateway, named as the
+// source, at the base URL the environment gives the source, with the
+// source's operations: a release is refused without them (SEC-030,
+// SEC-031). A source that calls a public API declares `route: direct` in
+// its fixture instead.
+func (s *stack) registerUpstreams(t *testing.T, project, environment string) {
+	t.Helper()
+	gatewayKinds := map[string]bool{"rest": true, "graphql": true, "websocket": true, "sse": true}
+	operations := map[string][]string{}
+	baseVariable := map[string]string{}
+	values := map[string]string{}
+	err := filepath.WalkDir(project, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || filepath.Ext(path) != ".json" {
+			return err
+		}
+		data, err := os.ReadFile(path) //nolint:gosec // G304: inside the project the test copied.
+		if err != nil {
+			return err
+		}
+		var doc struct {
+			DataSources []struct {
+				Name, Kind, Route string
+				Config            struct {
+					BaseURL    string
+					Operations map[string]json.RawMessage
+				}
+			}
+			Environments []struct {
+				Key    string
+				Values map[string]any
+			}
+		}
+		if json.Unmarshal(data, &doc) != nil {
+			return nil //nolint:nilerr // a JSON file that is not a document has no sources
+		}
+		for _, e := range doc.Environments {
+			if e.Key != environment {
+				continue
+			}
+			for k, v := range e.Values {
+				if text, ok := v.(string); ok {
+					values[k] = text
+				}
+			}
+		}
+		for _, src := range doc.DataSources {
+			if !gatewayKinds[src.Kind] || src.Route == "direct" {
+				continue
+			}
+			baseVariable[src.Name] = src.Config.BaseURL
+			for op := range src.Config.Operations {
+				operations[src.Name] = append(operations[src.Name], op)
+			}
+			if _, ok := operations[src.Name]; !ok {
+				operations[src.Name] = nil
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	envs, err := s.svc.Tenancy.ListEnvironments(s.ctx, s.owner, s.app.ID, tenancy.Page{Size: 10})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var envID string
+	for _, e := range envs {
+		if e.Key == environment {
+			envID = e.ID
+		}
+	}
+	for name, ops := range operations {
+		slices.Sort(ops)
+		u := gateway.Upstream{
+			AppID: s.app.ID, EnvironmentID: envID, Name: name, BaseURL: values[baseVariable[name]], Auth: gateway.Auth{Kind: gateway.AuthNone},
+			AllowPrivate: true, Methods: []string{"GET", "POST", "PUT", "PATCH", "DELETE"},
+		}
+		for _, op := range slices.Compact(ops) {
+			u.Operations = append(u.Operations, gateway.Operation{Name: op})
+		}
+		if _, err := s.svc.Gateway.Upstreams.Create(s.ctx, s.owner, u); err != nil {
+			t.Fatalf("register upstream %s: %v", name, err)
+		}
+	}
 }

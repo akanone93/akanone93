@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -26,6 +27,10 @@ type referenceApp struct {
 	fixture string
 	dir     string
 	addr    string
+	// direct makes every data source of the published copy call the
+	// reference backend directly, and the profile one that allows it; the
+	// others keep the gateway for their request and response sources.
+	direct bool
 }
 
 // Verifies: DX-004, QA-006.
@@ -34,7 +39,7 @@ type referenceApp struct {
 // a validated transfer, its result and the server-sent notification on the
 // dashboard. See runReferenceApp.
 func TestPluxBankAgainstTheServer(t *testing.T) {
-	runReferenceApp(t, referenceApp{fixture: "plux_bank", dir: "plux_bank", addr: deviceAddr("127.0.0.1:18097")})
+	runReferenceApp(t, referenceApp{fixture: "plux_bank", dir: "plux_bank", addr: deviceAddr("127.0.0.1:18097"), direct: true})
 }
 
 // Verifies: DX-004, QA-006.
@@ -66,9 +71,19 @@ func runReferenceApp(t *testing.T, app referenceApp) {
 	}
 	dir := filepath.Join("..", "..", "..", "apps", app.dir)
 	ref := startReferenceAPI(t)
-	st := startStack(t, app.addr)
+	// The gateway trusts the reference backend's test CA, as a customer's
+	// private CA is trusted (gateway.upstreamCAFile).
+	st := startStackWith(t, app.addr, stackOptions{extraYAML: "gateway:\n  upstreamCAFile: \"" + ref.caFile + "\"\n"})
 	project := st.project(t, app.fixture)
 	pointAtReferenceAPI(t, project, ref.url)
+	// The runtime's gateway carries request and response sources; streams
+	// go direct. Plux Bank also signs in with an opaque token the gateway
+	// has no identity provider for, so its copy goes direct throughout, under
+	// a profile that allows it (the maximum profile refuses direct sources,
+	// SEC-030). What goes through the gateway has its upstream registered,
+	// at the base URL the environment gives the source (SEC-031).
+	routeDirect(t, project, app.direct)
+	st.registerUpstreams(t, project, "staging")
 
 	var pub struct {
 		OK      bool
@@ -183,7 +198,9 @@ type referenceAPI struct {
 	// url is its base URL, https://127.0.0.1:PORT.
 	url string
 	// ca is the PEM of the certificate authority it generated, in base64.
-	ca     string
+	ca string
+	// caFile is where the PEM of that authority is written.
+	caFile string
 	stderr *bytes.Buffer
 }
 
@@ -248,6 +265,7 @@ func startReferenceAPI(t *testing.T) *referenceAPI {
 	return &referenceAPI{
 		url:    strings.TrimSpace(strings.TrimPrefix(line, prefix)),
 		ca:     base64.StdEncoding.EncodeToString(pem),
+		caFile: caFile,
 		stderr: stderr,
 	}
 }
@@ -289,3 +307,50 @@ func pointAtReferenceAPI(t *testing.T, project, url string) {
 
 // flowsTail is how many lines of a failed run's output the driver prints.
 const flowsTail = 300
+
+// routeDirect declares data sources of the project's copy direct: the
+// streams, or, with all, every network source and a profile that allows
+// them.
+func routeDirect(t *testing.T, project string, all bool) {
+	t.Helper()
+	err := filepath.WalkDir(project, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || filepath.Ext(path) != ".json" {
+			return err
+		}
+		data, err := os.ReadFile(path) //nolint:gosec // G304: inside the project the test copied.
+		if err != nil {
+			return err
+		}
+		var doc map[string]any
+		if json.Unmarshal(data, &doc) != nil {
+			return nil //nolint:nilerr // a JSON file that is not a document has no sources
+		}
+		changed := false
+		if all && doc["securityProfile"] == "maximum" {
+			doc["securityProfile"], changed = "strict", true
+		}
+		sources, _ := doc["dataSources"].([]any)
+		for _, raw := range sources {
+			src, _ := raw.(map[string]any)
+			switch src["kind"] {
+			case "websocket", "sse":
+				src["route"], changed = "direct", true
+			case "rest", "graphql":
+				if all {
+					src["route"], changed = "direct", true
+				}
+			}
+		}
+		if !changed {
+			return nil
+		}
+		out, err := json.MarshalIndent(doc, "", "  ")
+		if err != nil {
+			return err
+		}
+		return os.WriteFile(path, out, 0o600)
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}

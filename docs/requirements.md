@@ -2764,10 +2764,12 @@ securityConfig:                      # installation defaults; per app and enviro
 updateMetadata:
   rootThreshold: 2
   expiry: { timestamp: "24h", snapshot: "168h", targets: "720h", root: "8760h" }
-# The secure gateway has no section of its own: the api role serves it, and the gateway role
+# The api role serves the secure gateway, and the gateway role
 # serves it alone (server.roles, ADR-0006). Upstreams are registered per app and environment
 # through the API (SEC-031); the gateway's sizes, timeout and rate, and the lifetime of an SCA
 # challenge, are the limits gateway.* and sca.challengeLifetime (§30.4).
+gateway:
+  upstreamCAFile: ""                 # PEM of private authorities the gateway trusts for its upstreams, besides the system's (SEC-031)
 functions:
   defaults: { timeout: "2s", memory: "64MiB", maxHTTPCalls: 10 }
   device: { enabled: true, timeout: "500ms", memory: "32MiB" }

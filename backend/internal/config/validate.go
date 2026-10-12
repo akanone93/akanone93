@@ -5,12 +5,14 @@ package config
 
 import (
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"maps"
 	"net/netip"
 	"net/url"
+	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
@@ -68,6 +70,7 @@ func (c *Config) Validate() error {
 	c.validateAssets(&p)
 	c.validateAttestation(&p)
 	c.validateUpdateMetadata(&p)
+	c.validateGateway(&p)
 	return errors.Join(p.errs...)
 }
 
@@ -475,5 +478,20 @@ func (c *Config) validateAttestation(p *problems) {
 		if a.PlayIntegrityDecryptionKey != "" && len(a.AndroidPackages) == 0 {
 			p.addf(path+".androidPackages", "must name the app's packages when Play Integrity is configured")
 		}
+	}
+}
+
+// validateGateway checks the extra authorities the gateway trusts.
+func (c *Config) validateGateway(p *problems) {
+	if c.Gateway.UpstreamCAFile == "" {
+		return
+	}
+	pem, err := os.ReadFile(c.Gateway.UpstreamCAFile) //nolint:gosec // the operator names the file
+	if err != nil {
+		p.addf("gateway.upstreamCAFile", "cannot be read: %v", err)
+		return
+	}
+	if !x509.NewCertPool().AppendCertsFromPEM(pem) {
+		p.addf("gateway.upstreamCAFile", "holds no PEM certificate")
 	}
 }

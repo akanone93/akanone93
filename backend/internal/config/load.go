@@ -66,7 +66,7 @@ func Defaults() Config {
 // knownSections are the top-level keys this phase accepts.
 var knownSections = []string{
 	"server", "database", "objectStorage", "cache", "signing", "auth",
-	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata",
+	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata", "gateway",
 }
 
 // futureSections are sections of Appendix H that belong to a later phase.

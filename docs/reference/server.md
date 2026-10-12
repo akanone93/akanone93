@@ -128,6 +128,8 @@ attestation:
 updateMetadata:                 # SEC-050, ADR-0054
   rootThreshold: 2
   expiry: { timestamp: "24h", snapshot: "168h", targets: "720h", root: "8760h" }
+gateway:
+  upstreamCAFile: ""            # PEM of private authorities the gateway trusts for its upstreams, besides the system's (SEC-031)
 audit:
   checkpointInterval: "1h"      # signed checkpoints over each organisation's audit chain (SEC-141)
 limits:                         # installation-level tightenings (LIM-001, LIM-002)

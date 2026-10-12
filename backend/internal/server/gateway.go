@@ -5,8 +5,11 @@ package server
 
 import (
 	"context"
+	"crypto/x509"
+	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -79,11 +82,15 @@ func buildGateway(d gatewayDeps) (*GatewayParts, error) {
 		return nil, fmt.Errorf("server: %w", err)
 	}
 	base := strings.TrimSuffix(d.cfg.Server.PublicBaseURL, "/")
+	egress, err := newEgress(d)
+	if err != nil {
+		return nil, err
+	}
 	keys := d.trust.Tokens.Keys
 	users := &gateway.UserTokens{Signer: d.signer, Keys: keys, Issuer: base}
 	gw, err := gateway.New(gateway.Options{
 		Upstreams:  registry,
-		Egress:     gateway.NewEgress(d.secretOf, nil),
+		Egress:     egress,
 		Assertions: &gateway.Assertions{Signer: d.signer, Issuer: base},
 		Users:      users,
 		SCA:        &gateway.SCA{Cache: d.cache, Keys: d.devices},
@@ -229,4 +236,27 @@ type secrets struct{ t *tenancy.Service }
 // OpenSecret opens a secret of an environment.
 func (s secrets) OpenSecret(ctx context.Context, organizationID, environmentID, key string) ([]byte, error) {
 	return s.t.OpenEnvironmentSecret(ctx, organizationID, environmentID, key) //nolint:wrapcheck // a domain error
+}
+
+// newEgress builds the gateway's connections to upstreams, trusting the
+// system's authorities and, if configured, the file of extra ones
+// (gateway.upstreamCAFile).
+func newEgress(d gatewayDeps) (*gateway.Egress, error) {
+	e := gateway.NewEgress(d.secretOf, nil)
+	file := d.cfg.Gateway.UpstreamCAFile
+	if file == "" {
+		return e, nil
+	}
+	pem, err := os.ReadFile(file) //nolint:gosec // the operator names the file
+	if err != nil {
+		return nil, fmt.Errorf("server: gateway.upstreamCAFile: %w", err)
+	}
+	pool, err := x509.SystemCertPool()
+	if err != nil || pool == nil {
+		pool = x509.NewCertPool()
+	}
+	if !pool.AppendCertsFromPEM(pem) {
+		return nil, errors.New("server: gateway.upstreamCAFile holds no PEM certificate")
+	}
+	return e.WithRoots(pool), nil
 }
