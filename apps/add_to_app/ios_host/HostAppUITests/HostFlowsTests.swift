@@ -10,8 +10,33 @@ import XCTest
 /// runtime's settings as TEST_RUNNER_PLUX_* variables, which reach this
 /// runner without the prefix and the app through its launch environment.
 final class HostFlowsTests: XCTestCase {
+  /// Set while waitFor waits; see record(_:).
+  private var waiting = false
+
   override func setUp() {
     continueAfterFailure = false
+  }
+
+  // A debug build runs Dart on the app's main thread, which Flutter shares
+  // with UIKit on iOS, so on a slow simulator the first page's frame can
+  // hold that thread past XCTest's 30-second limit for a query (39 s after
+  // "Open welcome" in CI run 38278383954), and XCTest fails the query. While
+  // waitFor waits, that failure only means the label is not on screen yet:
+  // waitFor queries again, and still fails once its minute is over.
+  override func record(_ issue: XCTIssue) {
+    if waiting, Self.mainThreadBusy(issue) {
+      print("HostFlowsTests: the app's main thread was busy; waiting on")
+      return
+    }
+    super.record(issue)
+  }
+
+  private static func mainThreadBusy(_ issue: XCTIssue) -> Bool {
+    if let error = issue.associatedError {
+      let e = error as NSError
+      if e.domain == "com.apple.dt.xctest.automation-support.error", e.code == 6 { return true }
+    }
+    return issue.compactDescription.contains("main thread busy")
   }
 
   /// A native screen opens a Plux page, rendered from the baseline with
@@ -74,7 +99,14 @@ final class HostFlowsTests: XCTestCase {
   @discardableResult
   private func waitFor(_ app: XCUIApplication, _ label: String, exact: Bool = false) -> XCUIElement {
     let found = element(app, label, exact: exact)
-    if !found.waitForExistence(timeout: 60) {
+    let deadline = Date().addingTimeInterval(60)
+    var shown = false
+    waiting = true
+    while !shown, Date() < deadline {
+      shown = found.waitForExistence(timeout: deadline.timeIntervalSinceNow)
+    }
+    waiting = false
+    if !shown {
       XCTFail("nothing on screen reads \"\(label)\"; it reads: \(labels(app))")
     }
     return found
