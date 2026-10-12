@@ -49,12 +49,38 @@ Future<void> pumpUntil(
   }
 }
 
+/// Scrolls the page until [finder] is built: on a phone, with the keyboard
+/// up, a page's lazily built list has not yet built what lies below the
+/// screen.
+Future<void> reveal(WidgetTester tester, Finder finder) async {
+  if (finder.evaluate().isNotEmpty) return;
+  await tester.scrollUntilVisible(
+    finder,
+    120,
+    scrollable: find
+        .byWidgetPredicate(
+          (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+        )
+        .first,
+  );
+}
+
+/// Pumps frames until nothing is scheduled, for at most two seconds: a
+/// page transition ends well within that, while a progress indicator of a
+/// list still loading never does, and must not fail the step.
+Future<void> settle(WidgetTester tester) async {
+  for (var i = 0; i < 40 && tester.binding.hasScheduledFrame; i++) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
+}
+
 /// Taps [finder] once the screen has settled: a page still sliding in
 /// moves its widgets, and a tap aimed at a moving widget can miss it.
 Future<void> tapSettled(WidgetTester tester, Finder finder) async {
-  await tester.pumpAndSettle();
+  await settle(tester);
+  await reveal(tester, finder);
   await tester.ensureVisible(finder);
-  await tester.pumpAndSettle();
+  await settle(tester);
   await tester.tap(finder);
 }
 
@@ -64,6 +90,9 @@ Future<void> typeInto(WidgetTester tester, String label, String text) async {
   final field = find.widgetWithText(TextFormField, label);
   await pumpUntil(tester, field);
   await tester.enterText(field, text);
+  await tester.pump(const Duration(milliseconds: 100));
+  // Done typing, as a user would be: the keyboard goes down.
+  FocusManager.instance.primaryFocus?.unfocus();
   await tester.pump(const Duration(milliseconds: 100));
 }
 
@@ -78,6 +107,7 @@ Future<void> enterPin(WidgetTester tester, String pin) async {
 /// Types [code] into the one-time-code field (SEC-090).
 Future<void> enterCode(WidgetTester tester, String code) async {
   final field = find.widgetWithText(TextField, 'One-time code');
+  await reveal(tester, field);
   await pumpUntil(tester, field);
   await tester.ensureVisible(field);
   await tester.enterText(field, code);
