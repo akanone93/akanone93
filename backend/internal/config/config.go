@@ -26,6 +26,11 @@ const (
 	// internet: a CONNECT-only proxy that applies each function's domain
 	// allowlist and the SSRF rules (FN-013, FN-017, ADR-0064).
 	RoleEgress Role = "egress"
+	// RoleBuilder compiles uploaded function sources into WebAssembly
+	// modules in a sandbox. It holds no database, object-store or signing
+	// credential: the worker hands it a source and signs what it returns
+	// (FN-016, ADR-0063).
+	RoleBuilder Role = "builder"
 )
 
 // Config is the whole configuration (Appendix H.1).
@@ -51,6 +56,49 @@ type Config struct {
 	Gateway Gateway `json:"gateway"`
 	// Egress configures the egress role (FN-017, ADR-0064).
 	Egress Egress `json:"egress"`
+	// Builder configures the builder role, and the worker's route to it
+	// (FN-016, ADR-0063).
+	Builder Builder `json:"builder"`
+}
+
+// Builder configures the builder role. The role's fields are read only when
+// the process runs it; Address is read by the worker role.
+type Builder struct {
+	// Listen is the address of the mutual-TLS listener the worker connects
+	// to.
+	Listen string `json:"listen"`
+	// InternalTLS is the role's identity: the internal CA that must have
+	// signed every client's certificate, and the role's own certificate and
+	// key (SEC-043).
+	InternalTLS InternalTLS `json:"internalTLS"`
+	// Address is the base URL of the builder role, such as
+	// "https://builder:8443". The worker role builds functions through it
+	// with the identity of server.internalTLS; empty means this process
+	// cannot build.
+	Address string `json:"address"`
+	// Sandbox is "namespaces", which runs every build in new user, network,
+	// mount and PID namespaces and refuses to build where the kernel denies
+	// them, or "none", which builds without a sandbox for development only
+	// (ADR-0063).
+	Sandbox string `json:"sandbox"`
+	// Cargo and Rustc are the pinned toolchain's executables; empty means
+	// "cargo" and "rustc" on PATH.
+	Cargo string `json:"cargo"`
+	Rustc string `json:"rustc"`
+	// WasmOpt is the command that runs the pinned wasm-opt, program first,
+	// for example ["bun", "/opt/binaryen/node_modules/binaryen/bin/wasm-opt"].
+	WasmOpt []string `json:"wasmOpt"`
+	// SDKDir is the pinned SDK crate plux-fn (its Cargo.toml and src/).
+	SDKDir string `json:"sdkDir"`
+	// Concurrency is the number of builds the role runs at once; the next is
+	// refused as unavailable.
+	Concurrency int `json:"concurrency"`
+	// WorkDir is the parent of the scratch directories of builds; empty
+	// means the system's temporary directory.
+	WorkDir string `json:"workDir"`
+	// Identity names this builder in the provenance of its modules; empty
+	// means the host name.
+	Identity string `json:"identity"`
 }
 
 // Egress configures the egress role, the forward proxy through which
@@ -365,6 +413,10 @@ type SigningKeys struct {
 	// One key serves the installation: the checkpoints name it, so it can
 	// be rotated without invalidating the old ones.
 	Audit string `json:"audit"`
+	// FunctionArtifact is the key that signs the statement of every
+	// function build; fnrunner verifies it before it compiles a module
+	// (FN-009, ADR-0063). One key serves the installation.
+	FunctionArtifact string `json:"functionArtifact"`
 	// Snapshot and Timestamp are the prefixes of the snapshot and
 	// timestamp keys, named like the targets key. Every environment has
 	// its own key per role, so a development key never signs for
@@ -497,12 +549,13 @@ type Retention struct {
 // Has reports whether the process runs a role.
 func (c *Config) Has(r Role) bool { return slices.Contains(c.Server.Roles, r) }
 
-// OnlyEgress reports whether egress is the process's only role. Such a
-// process holds no database, cache, object-storage or signing
-// credential: it is the one role with a route to the internet, so it is
-// given nothing worth stealing (ADR-0064).
+// OnlyEgress reports whether egress or builder is the process's only role.
+// Such a process holds no database, cache, object-storage or signing
+// credential: one is the only role with a route to the internet and the
+// other runs the compiler on uploaded sources, so neither is given anything
+// worth stealing (ADR-0063, ADR-0064).
 func (c *Config) OnlyEgress() bool {
-	return len(c.Server.Roles) == 1 && c.Server.Roles[0] == RoleEgress
+	return len(c.Server.Roles) == 1 && (c.Server.Roles[0] == RoleEgress || c.Server.Roles[0] == RoleBuilder)
 }
 
 // ServesHTTP reports whether the process terminates the public listener:

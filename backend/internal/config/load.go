@@ -35,7 +35,7 @@ func Defaults() Config {
 			SignedURLTTL: Duration(15 * 60e9),
 		},
 		Cache:   Cache{Backend: "memory"},
-		Signing: Signing{Backend: "file", Directory: "data/keys", Keys: SigningKeys{Targets: "targets", Snapshot: "snapshot", Timestamp: "timestamp", Audit: "audit"}},
+		Signing: Signing{Backend: "file", Directory: "data/keys", Keys: SigningKeys{Targets: "targets", Snapshot: "snapshot", Timestamp: "timestamp", Audit: "audit", FunctionArtifact: "function-artifact"}},
 		Auth: Auth{
 			Studio: StudioAuth{
 				AllowPasswordLogin: true,
@@ -61,6 +61,8 @@ func Defaults() Config {
 			MaxTunnelDuration: Duration(5 * time.Minute), MaxTunnelBytes: 64 << 20,
 			MaxTunnels: 1024, Ports: []int{443, 80},
 		},
+		// ADR-0063: builds in namespaces, one at a time.
+		Builder: Builder{Sandbox: "namespaces", Concurrency: 1},
 		Retention: Retention{
 			AuditYears:             10,
 			DevelopmentReleaseDays: 90,
@@ -73,7 +75,7 @@ func Defaults() Config {
 // knownSections are the top-level keys this phase accepts.
 var knownSections = []string{
 	"server", "database", "objectStorage", "cache", "signing", "auth",
-	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata", "gateway", "egress",
+	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata", "gateway", "egress", "builder",
 }
 
 // futureSections are sections of Appendix H that belong to a later phase.

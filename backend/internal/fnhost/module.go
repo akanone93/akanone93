@@ -32,7 +32,9 @@ type Module struct {
 	sha256     [sha256.Size]byte
 	placement  Placement
 	initialise bool
-	minPages   uint32
+	// exportsSchemas is true for a module built with the feature plux-schema.
+	exportsSchemas bool
+	minPages       uint32
 }
 
 // SHA256 returns the digest of the module's bytes, the identity a release
@@ -116,8 +118,11 @@ func checkExports(m *Module) error {
 		if !(signature{params: def.ParamTypes(), results: def.ResultTypes()}).equal(spec.params, spec.results) {
 			return plxerr.New(plxerr.FunctionModuleInvalid, "the export %s has the wrong signature", spec.name)
 		}
-		if spec.name == exportInitialise {
+		switch spec.name {
+		case exportInitialise:
 			m.initialise = true
+		case exportSchemas:
+			m.exportsSchemas = true
 		}
 	}
 	return nil

@@ -73,22 +73,23 @@ func (c *Config) Validate() error {
 	c.validateUpdateMetadata(&p)
 	c.validateGateway(&p)
 	c.validateEgress(&p)
+	c.validateBuilder(&p)
 	return errors.Join(p.errs...)
 }
 
 func (c *Config) validateServer(p *problems) {
 	if len(c.Server.Roles) == 0 {
-		p.addf("server.roles", "must name at least one of api, worker, gateway, egress, fnrunner")
+		p.addf("server.roles", "must name at least one of api, worker, gateway, egress, builder, fnrunner")
 	}
 	seen := map[Role]bool{}
 	for i, r := range c.Server.Roles {
 		path := "server.roles[" + strconv.Itoa(i) + "]"
 		switch r {
-		case RoleAPI, RoleWorker, RoleGateway, RoleEgress:
+		case RoleAPI, RoleWorker, RoleGateway, RoleEgress, RoleBuilder:
 		case RoleFnRunner:
 			p.addf(path, "the fnrunner role arrives in P7")
 		default:
-			p.addf(path, "%q is not one of api, worker, gateway, egress", r)
+			p.addf(path, "%q is not one of api, worker, gateway, egress, builder", r)
 		}
 		if seen[r] {
 			p.addf(path, "%q is listed twice", r)
@@ -245,6 +246,9 @@ func (c *Config) validateUpdateMetadata(p *problems) {
 	}
 	if !keyPattern.MatchString(c.Signing.Keys.Audit) {
 		p.addf("signing.keys.audit", "must be lower-case letters, digits and hyphens")
+	}
+	if !keyPattern.MatchString(c.Signing.Keys.FunctionArtifact) {
+		p.addf("signing.keys.functionArtifact", "must be lower-case letters, digits and hyphens")
 	}
 }
 
