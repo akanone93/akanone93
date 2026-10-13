@@ -12,10 +12,15 @@ license = "Apache-2.0"
 publish = false
 
 [workspace.dependencies]
-plux-fn = { path = "plux-fn" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 schemars = "1.2"
+
+# FN-001: function crates depend on the published name `plux-fn = "0.1"`. The crate is
+# not on crates.io, so every build workspace, this one included, resolves that name to
+# the SDK the builder pins (ADR-0063).
+[patch.crates-io]
+plux-fn = { path = "plux-fn" }
 
 # E7: the release profile is part of the reproducible-build contract (FN-019).
 [profile.release]

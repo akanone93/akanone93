@@ -13,7 +13,7 @@ publish.workspace = true
 crate-type = ["cdylib"]
 
 [dependencies]
-plux-fn.workspace = true
+plux-fn = "0.1"
 fee = { path = "../../fee" }
 
 [features]

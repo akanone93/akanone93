@@ -5,12 +5,15 @@
 name = "plux-fn"
 version = "0.1.0"
 description = "Guest-side SDK for Plux Functions (ABI v1)."
-edition.workspace = true
-rust-version.workspace = true
-license.workspace = true
-publish.workspace = true
+edition = "2024"
+rust-version = "1.97"
+license = "Apache-2.0"
+publish = false
 
+# The crate does not inherit from the SDK workspace: the builder copies it into a
+# generated workspace that carries no `[workspace.package]` or `[workspace.dependencies]`
+# (ADR-0063). Keep these requirements equal to the ones in the SDK workspace.
 [dependencies]
-serde.workspace = true
-serde_json.workspace = true
-schemars.workspace = true
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+schemars = "1.2"
