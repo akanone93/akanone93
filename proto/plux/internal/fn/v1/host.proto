@@ -92,7 +92,9 @@ message FunctionHostServiceInvokeRequest {
   string function = 2;
   // input is the UTF-8 JSON input.
   bytes input = 3;
-  // depth is the nesting depth of the calling invocation (FN-011).
+  // depth is the nesting depth the nested invocation runs at: the
+  // caller's depth plus one. The api refuses it above function.callDepth
+  // (FN-011).
   uint32 depth = 4;
   // traceparent carries the W3C trace context (FN-032).
   string traceparent = 5;

@@ -168,7 +168,7 @@ func (r *Runner) invoke(ctx context.Context, msg *fnpb.FunctionRunnerServiceInvo
 		r.metrics.invocations.WithLabelValues(resultOf(err)).Inc()
 		return nil, toConnect(err)
 	}
-	out, stats, err := r.run(ctx, msg, index)
+	out, stats, logs, err := r.run(ctx, msg, index)
 	r.metrics.duration.Observe(r.opts.Clock().Sub(start).Seconds())
 	if err != nil {
 		r.metrics.invocations.WithLabelValues(resultOf(err)).Inc()
@@ -182,6 +182,7 @@ func (r *Runner) invoke(ctx context.Context, msg *fnpb.FunctionRunnerServiceInvo
 	resp := &fnpb.FunctionRunnerServiceInvokeResponse{
 		MemoryPeakBytes: stats.PeakMemoryBytes,
 		HttpCalls:       uint32(stats.HTTPCalls), //nolint:gosec // G115: bounded by the http-calls limit
+		Logs:            logs,
 	}
 	if out.Business != nil {
 		raw, merr := json.Marshal(out.Business)
@@ -211,14 +212,14 @@ func (r *Runner) logFailure(ctx context.Context, msg *fnpb.FunctionRunnerService
 
 // run resolves the module and runs the call. The stats are nil when no
 // instance ran.
-func (r *Runner) run(ctx context.Context, msg *fnpb.FunctionRunnerServiceInvokeRequest, index uint32) (fnhost.Outcome, *fnhost.Stats, error) {
+func (r *Runner) run(ctx context.Context, msg *fnpb.FunctionRunnerServiceInvokeRequest, index uint32) (fnhost.Outcome, *fnhost.Stats, []*fnpb.FunctionLog, error) {
 	call, err := r.buildCall(msg, index)
 	if err != nil {
-		return fnhost.Outcome{}, nil, err
+		return fnhost.Outcome{}, nil, nil, err
 	}
 	e, err := r.module(ctx, msg.GetModuleSha256(), msg.GetGrant())
 	if err != nil {
-		return fnhost.Outcome{}, nil, err
+		return fnhost.Outcome{}, nil, nil, err
 	}
 	defer r.cache.release(ctx, e)
 	host := &remoteHost{
@@ -227,11 +228,27 @@ func (r *Runner) run(ctx context.Context, msg *fnpb.FunctionRunnerServiceInvokeR
 	}
 	defer host.close()
 	call.Host = host
+	logs := &logCollector{now: r.opts.Clock}
+	call.Log = logs.add
 	out, stats, err := r.engine.Invoke(ctx, e.module, call)
 	if err != nil {
-		return out, &stats, fmt.Errorf("fnrunner.Invoke: %w", err)
+		return out, &stats, logs.lines, fmt.Errorf("fnrunner.Invoke: %w", err)
 	}
-	return out, &stats, nil
+	return out, &stats, logs.lines, nil
+}
+
+// logCollector keeps the lines a function logs for the response (FN-032);
+// fnhost bounds them by function.logBytes. It is used by one invocation.
+type logCollector struct {
+	now   func() time.Time
+	lines []*fnpb.FunctionLog
+}
+
+// add records one line.
+func (c *logCollector) add(rec fnhost.LogRecord) {
+	c.lines = append(c.lines, &fnpb.FunctionLog{
+		Level: uint32(rec.Level), Message: rec.Message, TimeUnixNano: c.now().UnixNano(), //nolint:gosec // G115: a small enum
+	})
 }
 
 // buildCall turns the request into a call of the function host.
@@ -261,6 +278,8 @@ func (r *Runner) buildCall(msg *fnpb.FunctionRunnerServiceInvokeRequest, index u
 			App: msg.GetApp(), Environment: msg.GetEnvironment(), AssuranceLevel: msg.GetAssuranceLevel(),
 		},
 		Depth: clampInt(uint64(msg.GetDepth())),
+		// FN-002: env_get reads only the variables the declaration names.
+		Env: msg.GetEnv(),
 	}
 	if caps.GetClaims() && len(msg.GetClaims()) > 0 {
 		call.Claims = json.RawMessage(msg.GetClaims())

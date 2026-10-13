@@ -559,7 +559,9 @@ type FunctionHostServiceInvokeRequest struct {
 	Function string `protobuf:"bytes,2,opt,name=function,proto3" json:"function,omitempty"`
 	// input is the UTF-8 JSON input.
 	Input []byte `protobuf:"bytes,3,opt,name=input,proto3" json:"input,omitempty"`
-	// depth is the nesting depth of the calling invocation (FN-011).
+	// depth is the nesting depth the nested invocation runs at: the
+	// caller's depth plus one. The api refuses it above function.callDepth
+	// (FN-011).
 	Depth uint32 `protobuf:"varint,4,opt,name=depth,proto3" json:"depth,omitempty"`
 	// traceparent carries the W3C trace context (FN-032).
 	Traceparent   string `protobuf:"bytes,5,opt,name=traceparent,proto3" json:"traceparent,omitempty"`

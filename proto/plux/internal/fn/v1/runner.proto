@@ -82,6 +82,9 @@ message FunctionRunnerServiceInvokeRequest {
   string app = 11;
   string environment = 12;
   string assurance_level = 13;
+  // env holds the environment variables the function's declaration names,
+  // resolved for its environment; env_get reads only these (FN-002).
+  map<string, string> env = 14;
 }
 
 message FunctionRunnerServiceInvokeResponse {
@@ -96,4 +99,18 @@ message FunctionRunnerServiceInvokeResponse {
   uint64 memory_peak_bytes = 3;
   // http_calls is the number of outbound calls made.
   uint32 http_calls = 4;
+  // logs are the lines the function wrote, bounded by function.logBytes,
+  // for the function's logs (FN-032). They may carry what the function
+  // chose to log, so they are stored as function logs and never written to
+  // the server's own log.
+  repeated FunctionLog logs = 5;
+}
+
+// FunctionLog is one line a function logged.
+message FunctionLog {
+  // level is 0 debug, 1 info, 2 warning, 3 error.
+  uint32 level = 1;
+  string message = 2;
+  // time_unix_nano is when the line was written.
+  int64 time_unix_nano = 3;
 }

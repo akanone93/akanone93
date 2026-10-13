@@ -317,8 +317,11 @@ type FunctionRunnerServiceInvokeRequest struct {
 	App            string `protobuf:"bytes,11,opt,name=app,proto3" json:"app,omitempty"`
 	Environment    string `protobuf:"bytes,12,opt,name=environment,proto3" json:"environment,omitempty"`
 	AssuranceLevel string `protobuf:"bytes,13,opt,name=assurance_level,json=assuranceLevel,proto3" json:"assurance_level,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// env holds the environment variables the function's declaration names,
+	// resolved for its environment; env_get reads only these (FN-002).
+	Env           map[string]string `protobuf:"bytes,14,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *FunctionRunnerServiceInvokeRequest) Reset() {
@@ -442,6 +445,13 @@ func (x *FunctionRunnerServiceInvokeRequest) GetAssuranceLevel() string {
 	return ""
 }
 
+func (x *FunctionRunnerServiceInvokeRequest) GetEnv() map[string]string {
+	if x != nil {
+		return x.Env
+	}
+	return nil
+}
+
 type FunctionRunnerServiceInvokeResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Result:
@@ -452,7 +462,12 @@ type FunctionRunnerServiceInvokeResponse struct {
 	// memory_peak_bytes is the highest linear memory the instance used.
 	MemoryPeakBytes uint64 `protobuf:"varint,3,opt,name=memory_peak_bytes,json=memoryPeakBytes,proto3" json:"memory_peak_bytes,omitempty"`
 	// http_calls is the number of outbound calls made.
-	HttpCalls     uint32 `protobuf:"varint,4,opt,name=http_calls,json=httpCalls,proto3" json:"http_calls,omitempty"`
+	HttpCalls uint32 `protobuf:"varint,4,opt,name=http_calls,json=httpCalls,proto3" json:"http_calls,omitempty"`
+	// logs are the lines the function wrote, bounded by function.logBytes,
+	// for the function's logs (FN-032). They may carry what the function
+	// chose to log, so they are stored as function logs and never written to
+	// the server's own log.
+	Logs          []*FunctionLog `protobuf:"bytes,5,rep,name=logs,proto3" json:"logs,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -526,6 +541,13 @@ func (x *FunctionRunnerServiceInvokeResponse) GetHttpCalls() uint32 {
 	return 0
 }
 
+func (x *FunctionRunnerServiceInvokeResponse) GetLogs() []*FunctionLog {
+	if x != nil {
+		return x.Logs
+	}
+	return nil
+}
+
 type isFunctionRunnerServiceInvokeResponse_Result interface {
 	isFunctionRunnerServiceInvokeResponse_Result()
 }
@@ -544,6 +566,69 @@ type FunctionRunnerServiceInvokeResponse_BusinessError struct {
 func (*FunctionRunnerServiceInvokeResponse_Output) isFunctionRunnerServiceInvokeResponse_Result() {}
 
 func (*FunctionRunnerServiceInvokeResponse_BusinessError) isFunctionRunnerServiceInvokeResponse_Result() {
+}
+
+// FunctionLog is one line a function logged.
+type FunctionLog struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// level is 0 debug, 1 info, 2 warning, 3 error.
+	Level   uint32 `protobuf:"varint,1,opt,name=level,proto3" json:"level,omitempty"`
+	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	// time_unix_nano is when the line was written.
+	TimeUnixNano  int64 `protobuf:"varint,3,opt,name=time_unix_nano,json=timeUnixNano,proto3" json:"time_unix_nano,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FunctionLog) Reset() {
+	*x = FunctionLog{}
+	mi := &file_plux_internal_fn_v1_runner_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FunctionLog) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FunctionLog) ProtoMessage() {}
+
+func (x *FunctionLog) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_fn_v1_runner_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FunctionLog.ProtoReflect.Descriptor instead.
+func (*FunctionLog) Descriptor() ([]byte, []int) {
+	return file_plux_internal_fn_v1_runner_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *FunctionLog) GetLevel() uint32 {
+	if x != nil {
+		return x.Level
+	}
+	return 0
+}
+
+func (x *FunctionLog) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *FunctionLog) GetTimeUnixNano() int64 {
+	if x != nil {
+		return x.TimeUnixNano
+	}
+	return 0
 }
 
 var File_plux_internal_fn_v1_runner_proto protoreflect.FileDescriptor
@@ -572,7 +657,7 @@ const file_plux_internal_fn_v1_runner_proto_rawDesc = "" +
 	"\x02kv\x18\x02 \x01(\bR\x02kv\x12\x18\n" +
 	"\asecrets\x18\x03 \x03(\tR\asecrets\x12\x1c\n" +
 	"\tfunctions\x18\x04 \x03(\tR\tfunctions\x12\x16\n" +
-	"\x06claims\x18\x05 \x01(\bR\x06claims\"\xde\x03\n" +
+	"\x06claims\x18\x05 \x01(\bR\x06claims\"\xea\x04\n" +
 	"\"FunctionRunnerServiceInvokeRequest\x12\x1a\n" +
 	"\bfunction\x18\x01 \x01(\tR\bfunction\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\rR\aversion\x12#\n" +
@@ -587,14 +672,23 @@ const file_plux_internal_fn_v1_runner_proto_rawDesc = "" +
 	" \x01(\tR\vtraceparent\x12\x10\n" +
 	"\x03app\x18\v \x01(\tR\x03app\x12 \n" +
 	"\venvironment\x18\f \x01(\tR\venvironment\x12'\n" +
-	"\x0fassurance_level\x18\r \x01(\tR\x0eassuranceLevel\"\xbd\x01\n" +
+	"\x0fassurance_level\x18\r \x01(\tR\x0eassuranceLevel\x12R\n" +
+	"\x03env\x18\x0e \x03(\v2@.plux.internal.fn.v1.FunctionRunnerServiceInvokeRequest.EnvEntryR\x03env\x1a6\n" +
+	"\bEnvEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf3\x01\n" +
 	"#FunctionRunnerServiceInvokeResponse\x12\x18\n" +
 	"\x06output\x18\x01 \x01(\fH\x00R\x06output\x12'\n" +
 	"\x0ebusiness_error\x18\x02 \x01(\fH\x00R\rbusinessError\x12*\n" +
 	"\x11memory_peak_bytes\x18\x03 \x01(\x04R\x0fmemoryPeakBytes\x12\x1d\n" +
 	"\n" +
-	"http_calls\x18\x04 \x01(\rR\thttpCallsB\b\n" +
-	"\x06result2\xee\x01\n" +
+	"http_calls\x18\x04 \x01(\rR\thttpCalls\x124\n" +
+	"\x04logs\x18\x05 \x03(\v2 .plux.internal.fn.v1.FunctionLogR\x04logsB\b\n" +
+	"\x06result\"c\n" +
+	"\vFunctionLog\x12\x14\n" +
+	"\x05level\x18\x01 \x01(\rR\x05level\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12$\n" +
+	"\x0etime_unix_nano\x18\x03 \x01(\x03R\ftimeUnixNano2\xee\x01\n" +
 	"\x15FunctionRunnerService\x12V\n" +
 	"\aPrepare\x12#.plux.internal.fn.v1.PrepareRequest\x1a$.plux.internal.fn.v1.PrepareResponse\"\x00\x12}\n" +
 	"\x06Invoke\x127.plux.internal.fn.v1.FunctionRunnerServiceInvokeRequest\x1a8.plux.internal.fn.v1.FunctionRunnerServiceInvokeResponse\"\x00B9Z7github.com/nightCode42/plux3/backend/internal/fnpb;fnpbb\x06proto3"
@@ -611,7 +705,7 @@ func file_plux_internal_fn_v1_runner_proto_rawDescGZIP() []byte {
 	return file_plux_internal_fn_v1_runner_proto_rawDescData
 }
 
-var file_plux_internal_fn_v1_runner_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_plux_internal_fn_v1_runner_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_plux_internal_fn_v1_runner_proto_goTypes = []any{
 	(*PrepareRequest)(nil),                      // 0: plux.internal.fn.v1.PrepareRequest
 	(*PrepareResponse)(nil),                     // 1: plux.internal.fn.v1.PrepareResponse
@@ -619,19 +713,23 @@ var file_plux_internal_fn_v1_runner_proto_goTypes = []any{
 	(*Capabilities)(nil),                        // 3: plux.internal.fn.v1.Capabilities
 	(*FunctionRunnerServiceInvokeRequest)(nil),  // 4: plux.internal.fn.v1.FunctionRunnerServiceInvokeRequest
 	(*FunctionRunnerServiceInvokeResponse)(nil), // 5: plux.internal.fn.v1.FunctionRunnerServiceInvokeResponse
+	(*FunctionLog)(nil),                         // 6: plux.internal.fn.v1.FunctionLog
+	nil,                                         // 7: plux.internal.fn.v1.FunctionRunnerServiceInvokeRequest.EnvEntry
 }
 var file_plux_internal_fn_v1_runner_proto_depIdxs = []int32{
 	2, // 0: plux.internal.fn.v1.FunctionRunnerServiceInvokeRequest.limits:type_name -> plux.internal.fn.v1.InvocationLimits
 	3, // 1: plux.internal.fn.v1.FunctionRunnerServiceInvokeRequest.capabilities:type_name -> plux.internal.fn.v1.Capabilities
-	0, // 2: plux.internal.fn.v1.FunctionRunnerService.Prepare:input_type -> plux.internal.fn.v1.PrepareRequest
-	4, // 3: plux.internal.fn.v1.FunctionRunnerService.Invoke:input_type -> plux.internal.fn.v1.FunctionRunnerServiceInvokeRequest
-	1, // 4: plux.internal.fn.v1.FunctionRunnerService.Prepare:output_type -> plux.internal.fn.v1.PrepareResponse
-	5, // 5: plux.internal.fn.v1.FunctionRunnerService.Invoke:output_type -> plux.internal.fn.v1.FunctionRunnerServiceInvokeResponse
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	7, // 2: plux.internal.fn.v1.FunctionRunnerServiceInvokeRequest.env:type_name -> plux.internal.fn.v1.FunctionRunnerServiceInvokeRequest.EnvEntry
+	6, // 3: plux.internal.fn.v1.FunctionRunnerServiceInvokeResponse.logs:type_name -> plux.internal.fn.v1.FunctionLog
+	0, // 4: plux.internal.fn.v1.FunctionRunnerService.Prepare:input_type -> plux.internal.fn.v1.PrepareRequest
+	4, // 5: plux.internal.fn.v1.FunctionRunnerService.Invoke:input_type -> plux.internal.fn.v1.FunctionRunnerServiceInvokeRequest
+	1, // 6: plux.internal.fn.v1.FunctionRunnerService.Prepare:output_type -> plux.internal.fn.v1.PrepareResponse
+	5, // 7: plux.internal.fn.v1.FunctionRunnerService.Invoke:output_type -> plux.internal.fn.v1.FunctionRunnerServiceInvokeResponse
+	6, // [6:8] is the sub-list for method output_type
+	4, // [4:6] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_plux_internal_fn_v1_runner_proto_init() }
@@ -649,7 +747,7 @@ func file_plux_internal_fn_v1_runner_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_internal_fn_v1_runner_proto_rawDesc), len(file_plux_internal_fn_v1_runner_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
