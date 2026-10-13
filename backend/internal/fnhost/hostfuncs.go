@@ -69,7 +69,7 @@ func bind(f hostFunc) api.GoModuleFunc {
 func serverOnly(f hostFunc) hostFunc {
 	return func(ctx context.Context, st *callState, mod api.Module, stack []uint64) {
 		if st.module.placement == PlacementDevice {
-			stack[0] = status(statusDenied)
+			stack[0] = status(st.deny())
 			return
 		}
 		f(ctx, st, mod, stack)
@@ -116,7 +116,7 @@ func hostEnvGet(ctx context.Context, st *callState, mod api.Module, stack []uint
 func hostKVGet(ctx context.Context, st *callState, mod api.Module, stack []uint64) {
 	key := string(st.read(ctx, mod, stack[0], stack[1]))
 	if !st.call.Grants.KV {
-		stack[0] = status(statusDenied)
+		stack[0] = status(st.deny())
 		return
 	}
 	value, err := st.call.Host.KVGet(ctx, key)
@@ -127,7 +127,7 @@ func hostKVPut(ctx context.Context, st *callState, mod api.Module, stack []uint6
 	key := string(st.read(ctx, mod, stack[0], stack[1]))
 	value := st.read(ctx, mod, stack[2], stack[3])
 	if !st.call.Grants.KV {
-		stack[0] = status(statusDenied)
+		stack[0] = status(st.deny())
 		return
 	}
 	stack[0] = statusFor(st.call.Host.KVPut(ctx, key, value))
@@ -136,7 +136,7 @@ func hostKVPut(ctx context.Context, st *callState, mod api.Module, stack []uint6
 func hostKVDelete(ctx context.Context, st *callState, mod api.Module, stack []uint64) {
 	key := string(st.read(ctx, mod, stack[0], stack[1]))
 	if !st.call.Grants.KV {
-		stack[0] = status(statusDenied)
+		stack[0] = status(st.deny())
 		return
 	}
 	stack[0] = statusFor(st.call.Host.KVDelete(ctx, key))
@@ -154,7 +154,7 @@ func statusFor(err error) uint64 {
 func hostSecretGet(ctx context.Context, st *callState, mod api.Module, stack []uint64) {
 	name := string(st.read(ctx, mod, stack[0], stack[1]))
 	if !slices.Contains(st.call.Grants.Secrets, name) {
-		stack[0] = status(statusDenied)
+		stack[0] = status(st.deny())
 		return
 	}
 	value, err := st.call.Host.Secret(ctx, name)
@@ -163,7 +163,7 @@ func hostSecretGet(ctx context.Context, st *callState, mod api.Module, stack []u
 
 func hostClaims(ctx context.Context, st *callState, mod api.Module, stack []uint64) {
 	if !st.call.Grants.Claims {
-		stack[0] = status(statusDenied)
+		stack[0] = status(st.deny())
 		return
 	}
 	if len(st.call.Claims) == 0 {
@@ -205,7 +205,7 @@ func hostHTTPRequest(ctx context.Context, st *callState, mod api.Module, stack [
 func (st *callState) httpAdmission(req HTTPRequest) int32 {
 	allow := st.call.Grants.HTTPDomains
 	if len(allow) == 0 {
-		return statusDenied
+		return st.deny()
 	}
 	u, err := url.Parse(req.URL)
 	if err != nil || !domainAllowed(allow, u.Hostname()) {
@@ -244,7 +244,7 @@ func hostInvokeFunction(ctx context.Context, st *callState, mod api.Module, stac
 	name := string(st.read(ctx, mod, stack[0], stack[1]))
 	input := st.read(ctx, mod, stack[2], stack[3])
 	if !slices.Contains(st.call.Grants.Functions, name) {
-		stack[0] = status(statusDenied)
+		stack[0] = status(st.deny())
 		return
 	}
 	if st.call.Depth+1 > st.call.Limits.CallDepth {

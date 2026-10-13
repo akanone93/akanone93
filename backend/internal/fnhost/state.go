@@ -35,6 +35,15 @@ type callState struct {
 	httpCalls int
 	// fault is why a host function ended the call; classify reports it.
 	fault error
+	// denied records that a capability was refused (FN-012), so that a trap
+	// which follows is reported as PLX-7003 rather than a generic trap.
+	denied bool
+}
+
+// deny records a refused capability and returns the status the guest sees.
+func (st *callState) deny() int32 {
+	st.denied = true
+	return statusDenied
 }
 
 type stateKey struct{}
@@ -172,6 +181,8 @@ func classify(st *callState, err error) error {
 		return plxerr.New(plxerr.FunctionMemoryExceeded, "the function exceeded its memory limit of %d bytes", st.memory.limit)
 	case st.fault != nil:
 		return st.fault
+	case st.denied:
+		return plxerr.Wrap(plxerr.FunctionCapabilityDenied, err, "the function stopped after a capability it was not granted was refused: %s", firstLine(err))
 	default:
 		return plxerr.Wrap(plxerr.FunctionTrapped, err, "the function trapped: %s", firstLine(err))
 	}
