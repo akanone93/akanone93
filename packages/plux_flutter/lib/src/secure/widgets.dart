@@ -11,6 +11,8 @@ library;
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:plux_flutter/src/secure/otp.dart';
@@ -332,6 +334,12 @@ final class _PinKey extends StatelessWidget {
 /// on. Characters outside the [format]'s alphabet, or past its length, are
 /// dropped; pasted or autofilled text is accepted only if all of it fits
 /// the format. [onCompleted] fires once the code has all its characters.
+///
+/// On Android, when the field gains focus empty, [sms] waits for the user
+/// to share the code's SMS (the SMS User Consent API, no SMS permission,
+/// SEC-090); the first run of exactly the format's length in the message
+/// fills the field as if typed. The wait ends when the field loses focus or
+/// goes. A failed call leaves the field as it was.
 final class OtpInputView extends StatefulWidget {
   /// Creates the field over [controller].
   const OtpInputView({
@@ -342,6 +350,7 @@ final class OtpInputView extends StatefulWidget {
     this.autofill = true,
     this.label = 'One-time code',
     this.onActivity,
+    this.sms,
   });
 
   /// Holds the code.
@@ -349,6 +358,10 @@ final class OtpInputView extends StatefulWidget {
 
   /// The code's length and alphabet.
   final OtpFormat format;
+
+  /// The SMS User Consent API, used on Android when [autofill] is on; null
+  /// to go without.
+  final SmsConsentPlatform? sms;
 
   /// Called with the code once it is complete.
   final ValueChanged<String>? onCompleted;
@@ -367,8 +380,66 @@ final class OtpInputView extends StatefulWidget {
 }
 
 final class _OtpInputViewState extends State<OtpInputView> {
+  final FocusNode _focus = FocusNode();
   bool _complete = false;
   bool _refused = false;
+  bool _waiting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(_focusChanged);
+  }
+
+  @override
+  void dispose() {
+    _focus.removeListener(_focusChanged);
+    _cancelSms();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  void _focusChanged() {
+    if (!_focus.hasFocus) {
+      _cancelSms();
+    } else if (widget.controller.text.isEmpty) {
+      unawaited(_awaitSms());
+    }
+  }
+
+  void _cancelSms() {
+    if (!_waiting) return;
+    _waiting = false;
+    unawaited(widget.sms?.cancel());
+  }
+
+  Future<void> _awaitSms() async {
+    final sms = widget.sms;
+    if (sms == null ||
+        !widget.autofill ||
+        _waiting ||
+        defaultTargetPlatform != TargetPlatform.android) {
+      return;
+    }
+    _waiting = true;
+    final String? message;
+    try {
+      message = await sms.awaitSmsConsent();
+    } on Object {
+      // The field stays as it is; the user types the code.
+      _waiting = false;
+      return;
+    }
+    if (!_waiting || !mounted) return;
+    _waiting = false;
+    final code = message == null ? null : widget.format.extract(message);
+    if (code == null || widget.controller.text.isNotEmpty) return;
+    widget.controller.value = TextEditingValue(
+      text: code,
+      selection: TextSelection.collapsed(offset: code.length),
+    );
+    _changed(code);
+  }
 
   void _changed(String text) {
     widget.onActivity?.call();
@@ -386,6 +457,7 @@ final class _OtpInputViewState extends State<OtpInputView> {
     final numeric = widget.format.charset == OtpCharset.numeric;
     return TextField(
       controller: widget.controller,
+      focusNode: _focus,
       autofillHints: widget.autofill ? const [AutofillHints.oneTimeCode] : null,
       keyboardType: numeric
           ? TextInputType.number

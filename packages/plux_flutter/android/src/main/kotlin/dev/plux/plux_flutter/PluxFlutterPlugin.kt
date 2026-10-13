@@ -37,13 +37,16 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
     private lateinit var dataKeys: PluxDataKeys
     private lateinit var attestation: PluxAttestation
     private lateinit var http: PluxPinnedHttp
+    private lateinit var sms: PluxSmsConsent
     private var activityBinding: ActivityPluginBinding? = null
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activityBinding = binding
         device.activity = binding.activity
         keys.activity = binding.activity
+        sms.activity = binding.activity
         binding.addRequestPermissionsResultListener(device)
+        binding.addActivityResultListener(sms)
     }
 
     override fun onDetachedFromActivityForConfigChanges() = onDetachedFromActivity()
@@ -53,6 +56,8 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
 
     override fun onDetachedFromActivity() {
         activityBinding?.removeRequestPermissionsResultListener(device)
+        activityBinding?.removeActivityResultListener(sms)
+        sms.detach()
         activityBinding = null
         device.activity = null
         keys.activity = null
@@ -66,6 +71,7 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
         dataKeys = PluxDataKeys()
         attestation = PluxAttestation(context)
         http = PluxPinnedHttp(context)
+        sms = PluxSmsConsent()
         channel = MethodChannel(binding.binaryMessenger, CHANNEL)
         channel.setMethodCallHandler(this)
     }
@@ -97,6 +103,7 @@ class PluxFlutterPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCall
                 "keySignAuth" -> keys.handleAuth(call, result)
                 "attestationSupported", "integrityToken" -> attestation.handle(call, result)
                 "httpOpen", "httpRead", "httpClose" -> http.handle(call, result)
+                "smsConsent", "smsConsentCancel" -> sms.handle(call, result)
                 "share" -> device.share(call, result)
                 "permissionRequest" -> device.requestPermission(call, result)
                 "secureScreen" -> device.secureScreen(call, result)

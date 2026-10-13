@@ -107,6 +107,7 @@ Widget buildOtpInput(NodeContext c) {
           ? (code) => c.fire(onCompleted, code)
           : null,
       onActivity: _activity(c),
+      sms: const ChannelSmsConsentPlatform(),
     ),
   );
 }
