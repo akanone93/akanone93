@@ -41,6 +41,15 @@ Rules that hold on both platforms:
 - A page, route, data source or function that requires a level the device lacks is refused
   with `PLX-6002`, never silently degraded.
 
+**A stale Android status list under `maximum`.** The server judges an Android Key
+Attestation chain unrevoked against Google's attestation status list, which the worker caches
+within the freshness Google allows. While the cached list is past its freshness, new Android
+registrations are refused with `PLX-6009` under `maximum`, because the chain cannot be judged
+unrevoked and `maximum` allows no gap (grace `0`). This is intended: `maximum` is for banking
+and financial apps, where only attested devices may use the app. No override exists. The
+operator restores the list fetch (see the [attestation outage
+runbook](../runbooks/attestation-outage.md)); registrations resume with the next fresh list.
+
 ## 2. Devices without secure hardware
 
 `SEC-001` requires the DPoP key to be generated in secure hardware. `SEC-029` speaks of

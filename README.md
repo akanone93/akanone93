@@ -46,7 +46,7 @@ Plux is a **mobile plugin system, built on Flutter**. Your app becomes a host, a
 2. **Compile and sign.** The **Plux Server** validates every change, compiles it into signed **FlatBuffers** bundles, and computes a binary delta against every older version.
 3. **Deliver and render.** The **`plux_flutter`** runtime inside your app syncs every plugin at start-up. It verifies every signature and hash before parsing anything, and draws the result as real Flutter widgets, online or offline.
 
-Logic that declarative actions can't express runs as **Plux Functions**: Go compiled to WebAssembly, sandboxed on the server or on the device.
+Logic that declarative actions can't express runs as **Plux Functions**: Rust compiled to WebAssembly, sandboxed on the server or on the device.
 
 It is built for teams that need to move fast **and** prove what they shipped: banks, fintechs, super-apps, and anyone with a regulated release process.
 
