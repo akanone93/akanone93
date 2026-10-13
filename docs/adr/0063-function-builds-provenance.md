@@ -65,9 +65,23 @@ server logs a distinct warning on start and with every build (security default r
 procedural macro must be on an allowlist, by crate name and exact version, checked against
 `Cargo.lock` and the vendored checksums. Initial list: `proc-macro2`, `quote`, `syn`,
 `unicode-ident`, `serde`, `serde_derive`, `serde_json`, `schemars`, `schemars_derive`,
-`rust_decimal`, `libm`, `thiserror`, `thiserror-impl`, `itoa`, `ryu`, `memchr`. Anything else
-fails with `PLX-7202`. Extending the list needs the maintainer, as a change to a security
-control. The sandbox is the second line behind it, not a substitute.
+`rust_decimal`, `libm`, `thiserror`, `thiserror-impl`, `itoa`, `ryu`, `memchr`, and — found
+by the first real build (W2, 2026-10-13) as required dependencies of crates already on the list
+— `serde_core`, `ref-cast`, `ref-cast-impl` (`schemars`), `zmij` (`serde_json`) and
+`num-traits` (`rust_decimal`). The list lives in `backend/internal/builder/allowlist.json` with
+the exact versions of `sdk/fn/Cargo.lock`. Only crates that are actually built for
+`wasm32-wasip1` are checked (`cargo metadata` intersected with `cargo tree -e normal,build
+--target wasm32-wasip1`), so optional dependencies that are never compiled do not count.
+Anything else fails with `PLX-7202`. Extending the list needs the maintainer, as a change to a
+security control. The sandbox is the second line behind it, not a substitute.
+
+**Build details found in the first build.** `strip = true` removes the module's target-features
+section, so `wasm-opt` is told the features the Rust target emits (`--enable-bulk-memory`,
+`--enable-bulk-memory-opt`, `--enable-sign-ext`, `--enable-nontrapping-float-to-int`,
+`--enable-mutable-globals`); both hosts support them. The pinned SDK is a path crate that never
+appears in the lock file, so the provenance records its own SHA-256 (`sdkSha256`). The sandbox
+uses user, network, mount and PID namespaces with resource limits; mounting the sources
+read-only inside the private mount namespace is a follow-up hardening step.
 
 **Artifact statement and signature.** The builder writes the module, the schemas and the
 provenance (`FN-005`: source hash, dependency list with checksums, toolchain and Binaryen

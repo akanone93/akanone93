@@ -11567,6 +11567,13 @@ components:
           type: string
           title: builder_identity
           description: builder_identity names the builder instance (FN-005, FN-009).
+        sdkSha256:
+          type: string
+          title: sdk_sha256
+          description: |-
+            sdk_sha256 is the SHA-256 of the pinned SDK the module was linked
+             with; the SDK is a path crate, so the lock file does not record it
+             (FN-005).
       title: Provenance
       additionalProperties: false
       description: Provenance is the build record signed with the artifact (FN-005).

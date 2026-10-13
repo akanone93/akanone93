@@ -140,6 +140,10 @@ message Provenance {
   google.protobuf.Timestamp build_time = 5;
   // builder_identity names the builder instance (FN-005, FN-009).
   string builder_identity = 6;
+  // sdk_sha256 is the SHA-256 of the pinned SDK the module was linked
+  // with; the SDK is a path crate, so the lock file does not record it
+  // (FN-005).
+  string sdk_sha256 = 7;
 }
 
 // Dependency is one vendored crate of a build (FN-005).

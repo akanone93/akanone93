@@ -499,8 +499,12 @@ type Provenance struct {
 	BuildTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=build_time,json=buildTime,proto3" json:"build_time,omitempty"`
 	// builder_identity names the builder instance (FN-005, FN-009).
 	BuilderIdentity string `protobuf:"bytes,6,opt,name=builder_identity,json=builderIdentity,proto3" json:"builder_identity,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// sdk_sha256 is the SHA-256 of the pinned SDK the module was linked
+	// with; the SDK is a path crate, so the lock file does not record it
+	// (FN-005).
+	SdkSha256     string `protobuf:"bytes,7,opt,name=sdk_sha256,json=sdkSha256,proto3" json:"sdk_sha256,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Provenance) Reset() {
@@ -571,6 +575,13 @@ func (x *Provenance) GetBuildTime() *timestamppb.Timestamp {
 func (x *Provenance) GetBuilderIdentity() string {
 	if x != nil {
 		return x.BuilderIdentity
+	}
+	return ""
+}
+
+func (x *Provenance) GetSdkSha256() string {
+	if x != nil {
+		return x.SdkSha256
 	}
 	return ""
 }
@@ -2122,7 +2133,7 @@ const file_plux_v1_function_proto_rawDesc = "" +
 	"\n" +
 	"created_by\x18\r \x01(\v2\x0e.plux.v1.ActorR\tcreatedBy\x129\n" +
 	"\n" +
-	"created_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\x98\x02\n" +
+	"created_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xb7\x02\n" +
 	"\n" +
 	"Provenance\x12#\n" +
 	"\rsource_sha256\x18\x01 \x01(\tR\fsourceSha256\x127\n" +
@@ -2131,7 +2142,9 @@ const file_plux_v1_function_proto_rawDesc = "" +
 	"\x10wasm_opt_version\x18\x04 \x01(\tR\x0ewasmOptVersion\x129\n" +
 	"\n" +
 	"build_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tbuildTime\x12)\n" +
-	"\x10builder_identity\x18\x06 \x01(\tR\x0fbuilderIdentity\"V\n" +
+	"\x10builder_identity\x18\x06 \x01(\tR\x0fbuilderIdentity\x12\x1d\n" +
+	"\n" +
+	"sdk_sha256\x18\a \x01(\tR\tsdkSha256\"V\n" +
 	"\n" +
 	"Dependency\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
