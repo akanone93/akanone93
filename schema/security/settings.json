@@ -183,6 +183,22 @@
       "description": "The assurance level a Plux Function requires when it declares none."
     },
     {
+      "key": "deviceFunctions",
+      "type": "bool",
+      "tighter": "false",
+      "defaults": {
+        "standard": true,
+        "strict": true,
+        "maximum": false
+      },
+      "travelsToDevice": true,
+      "phase": "P7",
+      "requirements": [
+        "FN-055"
+      ],
+      "description": "Whether Plux Functions placed on the device may run there; when false, the device refuses them and the app calls the server instead."
+    },
+    {
       "key": "dpopIatWindow",
       "type": "seconds",
       "tighter": "lower",

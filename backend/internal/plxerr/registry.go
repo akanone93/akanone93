@@ -352,7 +352,45 @@ const (
 	SCAChallengeInvalid          Code = 6071
 	SCADynamicLinkingMismatch    Code = 6072
 	TransactionRequiresGateway   Code = 6073
+	FraudReceiptUnavailable      Code = 6080
+	ImportedKeyInvalid           Code = 6081
 	RASPDetection                Code = 6100
+
+	// Functions (PLX-7000–7999).
+
+	FunctionTimeout                  Code = 7001
+	FunctionMemoryExceeded           Code = 7002
+	FunctionCapabilityDenied         Code = 7003
+	FunctionOutputTooLarge           Code = 7004
+	FunctionCallDepthExceeded        Code = 7005
+	FunctionHTTPCallsExceeded        Code = 7006
+	FunctionTrapped                  Code = 7007
+	FunctionInputInvalid             Code = 7008
+	FunctionOutputInvalid            Code = 7009
+	FunctionEgressRefused            Code = 7010
+	IdempotencyKeyConflict           Code = 7011
+	FunctionNotFound                 Code = 7012
+	FunctionAliasNotFound            Code = 7013
+	DeviceFunctionsDisabled          Code = 7014
+	FunctionRateLimited              Code = 7015
+	FunctionKVLimitExceeded          Code = 7016
+	FunctionABIUnsupported           Code = 7017
+	FunctionModuleInvalid            Code = 7018
+	FunctionArtifactSignatureInvalid Code = 7019
+	FunctionTestsFailed              Code = 7020
+	FunctionCancelled                Code = 7021
+	FunctionInputTooLarge            Code = 7022
+	DeviceFunctionServerCapability   Code = 7030
+	FunctionReferenceUnresolved      Code = 7031
+	FunctionTypeMismatch             Code = 7032
+	FunctionBusinessError            Code = 7100
+	FunctionBuildFailed              Code = 7200
+	FunctionDependencyNotVendored    Code = 7201
+	FunctionBuildScriptRefused       Code = 7202
+	FunctionBuildLimitExceeded       Code = 7203
+	FunctionSchemaDerivationFailed   Code = 7204
+	FunctionDeclarationMismatch      Code = 7205
+	FunctionBuildNotReproducible     Code = 7206
 
 	// Governance (PLX-8000–8999).
 
