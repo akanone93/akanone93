@@ -344,6 +344,13 @@ type FunctionBuild struct {
 	FinishedAt        pgtype.Timestamptz
 }
 
+type FunctionDeclaration struct {
+	BuildID        pgtype.UUID
+	OrganizationID pgtype.UUID
+	Declaration    []byte
+	CreatedAt      pgtype.Timestamptz
+}
+
 type FunctionKv struct {
 	OrganizationID pgtype.UUID
 	AppID          pgtype.UUID
@@ -634,6 +641,17 @@ type ReleaseContentKey struct {
 	OrganizationID pgtype.UUID
 	Sealed         []byte
 	CreatedAt      pgtype.Timestamptz
+}
+
+type ReleaseFunction struct {
+	ReleaseID      pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	Name           string
+	Version        int32
+	ModuleSha256   []byte
+	Placement      string
 }
 
 type ReleaseVersion struct {
