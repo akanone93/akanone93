@@ -77,6 +77,16 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 		return fail(err)
 	}
 
+	if cfg.OnlyEgress() {
+		// The one role with a route to the internet holds no database,
+		// cache, storage or signing credential (ADR-0064).
+		srv, err := New(Deps{Config: cfg, Log: log, Metrics: metrics, Tracer: tracer})
+		if err != nil {
+			return fail(err)
+		}
+		return &Built{Server: srv, Close: closeAll}, nil
+	}
+
 	db, err := storage.Open(ctx, storage.Options{
 		URL:            cfg.Database.URL.Value(),
 		MaxConnections: cfg.Database.MaxConnections,

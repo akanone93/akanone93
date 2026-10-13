@@ -54,6 +54,13 @@ func Defaults() Config {
 		// Where the server image installs them (backend/Dockerfile).
 		Assets: Assets{SVGCompiler: "/usr/local/bin/plux-svgc", PathOps: "/usr/local/lib/plux/libpath_ops.so"},
 		Audit:  Audit{CheckpointInterval: Duration(3600e9)},
+		// FN-017: 10 s to connect, 60 s idle, 5 min and 64 MiB per tunnel,
+		// 1024 tunnels, and only the web's ports.
+		Egress: Egress{
+			ConnectTimeout: Duration(10 * time.Second), IdleTimeout: Duration(time.Minute),
+			MaxTunnelDuration: Duration(5 * time.Minute), MaxTunnelBytes: 64 << 20,
+			MaxTunnels: 1024, Ports: []int{443, 80},
+		},
 		Retention: Retention{
 			AuditYears:             10,
 			DevelopmentReleaseDays: 90,
@@ -66,7 +73,7 @@ func Defaults() Config {
 // knownSections are the top-level keys this phase accepts.
 var knownSections = []string{
 	"server", "database", "objectStorage", "cache", "signing", "auth",
-	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata", "gateway",
+	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata", "gateway", "egress",
 }
 
 // futureSections are sections of Appendix H that belong to a later phase.
