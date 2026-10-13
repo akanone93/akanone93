@@ -88,6 +88,7 @@
         "mk/go.mk",
         "coverage.json",
         "schema/**",
+        "sdk/**",
         "docs/requirements.md",
         "SECURITY.md",
         "cliff.toml",
