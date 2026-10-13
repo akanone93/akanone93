@@ -347,6 +347,7 @@ func TestPlaceOf(t *testing.T) {
 		"assets/index.json":                           {Kind: KindAssetIndex},
 		"components/card.component.json":              {Kind: KindComponent, Key: "card"},
 		"templates/hero.template.json":                {Kind: KindTemplate, Key: "hero"},
+		"functions/billing.charge/function.json":      {Kind: KindFunction, Key: "billing.charge"},
 		"plugins/loans/plugin.json":                   {Kind: KindPlugin, Plugin: "loans"},
 		"plugins/loans/pages/home.page.json":          {Kind: KindPage, Plugin: "loans", Key: "home"},
 		"plugins/loans/components/row.component.json": {Kind: KindComponent, Plugin: "loans", Key: "row"},
@@ -360,10 +361,43 @@ func TestPlaceOf(t *testing.T) {
 	for _, p := range []string{
 		"", "/app.json", "./app.json", "a/../app.json", "assets/logo.png", "plugins/loans/pages/home.json",
 		"plugins/Loans/plugin.json", "plugins/loans/pages/Home.page.json", "components/a.b.component.json",
-		"plugins/loans/other/x.json", "readme.md", "plugins\\loans\\plugin.json",
+		"plugins/loans/other/x.json", "functions/charge/function.json", "functions/Billing.charge/function.json", "readme.md", "plugins\\loans\\plugin.json",
 	} {
 		if got, ok := PlaceOf(p); ok {
 			t.Errorf("PlaceOf(%q) = %+v; want not a document", p, got)
 		}
 	}
+}
+
+// functionDoc is a minimal valid function document for the loader tests.
+const functionDoc = `{"schemaVersion":"1.0.0","kind":"function","id":"0192f5a0-0000-7000-8000-000000000001","name":"billing.charge","placement":"server"}`
+
+// TestLoadsFunctionDocuments_FN_008 checks that functions/<name>/function.json
+// is a document place: it is validated, decoded, and must sit in a directory
+// named after the function.
+// Verifies: FN-008, SCH-006.
+func TestLoadsFunctionDocuments_FN_008(t *testing.T) {
+	t.Parallel()
+	fsys := exampleFS(t)
+	fsys["functions/billing.charge/function.json"] = &fstest.MapFile{Data: []byte(functionDoc)}
+	p, diags := newLoader(t).Load(fsys)
+	if len(diags) != 0 {
+		t.Fatalf("unexpected diagnostics:\n%s", list(diags))
+	}
+	if len(p.Functions) != 1 || p.Functions[0].Doc == nil || p.Functions[0].Doc.Name != "billing.charge" {
+		t.Fatalf("function not loaded: %+v", p.Functions)
+	}
+
+	fsys["functions/billing.charge/function.json"] = &fstest.MapFile{Data: []byte(strings.Replace(functionDoc, `"server"`, `"cloud"`, 1))}
+	_, diags = newLoader(t).Load(fsys)
+	wantDiagnostic(t, diags, plxerr.InvalidEnumValue, "functions/billing.charge/function.json", "/placement")
+
+	fsys["functions/billing.charge/function.json"] = &fstest.MapFile{Data: []byte(strings.Replace(functionDoc, "billing.charge", "billing.refund", 1))}
+	_, diags = newLoader(t).Load(fsys)
+	wantDiagnostic(t, diags, plxerr.InvalidProjectLayout, "functions/billing.charge/function.json", "/name")
+
+	delete(fsys, "functions/billing.charge/function.json")
+	fsys["functions/billing.charge/src/lib.rs"] = &fstest.MapFile{Data: []byte("//")}
+	_, diags = newLoader(t).Load(fsys)
+	wantDiagnostic(t, diags, plxerr.InvalidProjectLayout, "functions/billing.charge/function.json", "")
 }

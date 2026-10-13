@@ -82,8 +82,11 @@ func (s *Service) prepare(d draft, lim limits.Set, path string, data []byte, ifR
 	c.entityID, _ = src.Tree["id"].(string)
 	c.entityKey, _ = src.Tree["key"].(string)
 	name := c.entityKey
-	if place.Kind == schema.KindTranslations {
+	switch place.Kind {
+	case schema.KindTranslations:
 		name, _ = src.Tree["locale"].(string)
+	case schema.KindFunction:
+		name, _ = src.Tree["name"].(string)
 	}
 	if place.Key != "" && name != place.Key {
 		return change{}, diags, plxerr.New(plxerr.InvalidProjectLayout, "%s must be named after its key %q", path, name)

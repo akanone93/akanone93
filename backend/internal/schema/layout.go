@@ -90,6 +90,35 @@ func hasInvalidPage(pl Plugin) bool {
 	return slices.ContainsFunc(pl.Pages, func(p Loaded[PageDocument]) bool { return p.Doc == nil })
 }
 
+// loadFunctions loads functions/<name>/function.json for every directory
+// under functions/. The directory is named after the function, so the
+// compiler and the file layout agree on what a function is called (FN-008).
+func (r *run) loadFunctions(p *Project) {
+	entries, err := fs.ReadDir(r.fsys, "functions")
+	if errors.Is(err, fs.ErrNotExist) {
+		return
+	}
+	if err != nil {
+		r.report(plxerr.FileSystemError, "functions", "", "read directory: %v", err)
+		return
+	}
+	for _, e := range entries {
+		if !e.IsDir() || strings.HasPrefix(e.Name(), ".") {
+			continue
+		}
+		file := path.Join("functions", e.Name(), "function.json")
+		if _, err := fs.Stat(r.fsys, file); err != nil {
+			r.report(plxerr.InvalidProjectLayout, file, "", "the function directory has no function.json")
+			continue
+		}
+		fn := load[FunctionDocument](r, file, KindFunction)
+		if fn.Doc != nil && fn.Doc.Name != e.Name() {
+			r.report(plxerr.InvalidProjectLayout, file, "/name", "function name %q must match its directory %q", fn.Doc.Name, e.Name())
+		}
+		p.Functions = append(p.Functions, fn)
+	}
+}
+
 // loadAssets reads every file the asset index lists.
 func (r *run) loadAssets(p *Project) {
 	if p.Assets == nil || p.Assets.Doc == nil {
@@ -157,6 +186,8 @@ func PlaceOf(p string) (Place, bool) {
 		return keyed(parts[1], ".component.json", Place{Kind: KindComponent})
 	case len(parts) == 2 && parts[0] == "templates":
 		return keyed(parts[1], ".template.json", Place{Kind: KindTemplate})
+	case len(parts) == 3 && parts[0] == "functions" && parts[2] == "function.json":
+		return Place{Kind: KindFunction, Key: parts[1]}, ValidFunctionName(parts[1])
 	case len(parts) == 3 && parts[0] == "plugins" && parts[2] == "plugin.json":
 		return Place{Kind: KindPlugin, Plugin: parts[1]}, validKey(parts[1])
 	case len(parts) == 4 && parts[0] == "plugins" && validKey(parts[1]):
@@ -192,6 +223,14 @@ var keyPattern = regexp.MustCompile(`^[a-z][a-z0-9]*(-[a-z0-9]+)*$`)
 
 // ValidKey reports whether a string is a document key (SCH-002).
 func ValidKey(s string) bool { return len(s) <= 64 && keyPattern.MatchString(s) }
+
+// functionNamePattern is the form of a function name, as
+// function.schema.json defines it.
+var functionNamePattern = regexp.MustCompile(`^[a-z][a-zA-Z0-9]*(\.[a-z][a-zA-Z0-9]*)+$`)
+
+// ValidFunctionName reports whether a string is a dotted function name
+// (FN-006).
+func ValidFunctionName(s string) bool { return len(s) <= 128 && functionNamePattern.MatchString(s) }
 
 // validKey is ValidKey.
 func validKey(s string) bool { return ValidKey(s) }
