@@ -31,4 +31,16 @@ class ActionClock {
 
   /// A value in [0, 1) that scales a backoff's jitter.
   double random() => math.Random().nextDouble();
+
+  /// A random UUID (version 4) from the secure generator: the idempotency
+  /// key of an `invokeFunction` step (FN-020).
+  String uuid() {
+    final r = math.Random.secure();
+    final b = List<int>.generate(16, (_) => r.nextInt(256));
+    b[6] = (b[6] & 0x0f) | 0x40;
+    b[8] = (b[8] & 0x3f) | 0x80;
+    final h = b.map((x) => x.toRadixString(16).padLeft(2, '0')).join();
+    return '${h.substring(0, 8)}-${h.substring(8, 12)}-${h.substring(12, 16)}-'
+        '${h.substring(16, 20)}-${h.substring(20)}';
+  }
 }

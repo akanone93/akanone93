@@ -32,7 +32,7 @@ final outcome = await engine.invoke(
   (`PLX-7001`, `7002`, `7022`, `7004`).
 - **Cancellation.** A `FunctionCancellation` token ends a running or queued invocation with `PLX-7021`.
 - **Refusal at load.** A module that imports a server-only function (`http_request`, `secret_get`,
-  `claims`, `invoke_function`) is refused with `PLX-7018`; an unknown import or an unsupported
+  `claims`, `invoke_function`) is refused with `PLX-7018`; an unknown import or a wrong signature with `PLX-7018`, an unsupported
   `plux_abi_version` with `PLX-7017` (`FN-052`, ADR-0062).
 - **Host.** The guest reaches `log`, the clock, the invocation context, `env_get` and the plugin's
   key-value namespace through a `DeviceFunctionHost`. The engine calls it on the worker isolate, so

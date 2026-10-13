@@ -142,7 +142,7 @@ void main() {
 
   test('an action of a later phase fails its step with PLX-4010, which onError handles [RT-021]', () async {
     final r = await run([
-      GraphStep(id: 'toast', action: id('invokeFunction'), onError: 1),
+      GraphStep(id: 'toast', action: id('setLocale'), onError: 1),
       GraphStep(
         id: 'recover',
         action: id('emitHostEvent'),
@@ -157,13 +157,13 @@ void main() {
     expect(r.outcome, RunOutcome.ok);
     final error = events.single.$2['error']! as Map;
     expect(error['kind'], 'custom');
-    expect(error['message'], contains('invokeFunction arrives in P7'));
+    expect(error['message'], contains('setLocale arrives in P8'));
     expect(reports, isEmpty);
   });
 
   test('an unhandled error ends the run and is reported with its graph and step [RT-021]', () async {
     final r = await run([
-      GraphStep(id: 'toast', action: id('invokeFunction'), next: 1),
+      GraphStep(id: 'toast', action: id('setLocale'), next: 1),
       GraphStep(
         id: 'never',
         action: id('emitHostEvent'),
@@ -457,12 +457,12 @@ void main() {
     },
   );
 
-  test('the engine runs every action Appendix D tags up to P4, the P5 ones and the P6 ones delivered so far, and refuses the rest (ADR-0039)', () {
+  test('the engine runs every action Appendix D tags up to P4, the P5 ones, the P6 ones delivered so far and invokeFunction of P7, and refuses the rest (ADR-0039)', () {
     for (final d in actionDescriptors) {
       final handler = handlerFor(d);
       if (runsInThisRuntime(d) || stateHandlers.containsKey(d.name)) {
         expect(handler, isNot(isA<RefusingHandler>()), reason: d.name);
-        expect(int.parse(d.phase.substring(1)), lessThanOrEqualTo(6));
+        expect(int.parse(d.phase.substring(1)), lessThanOrEqualTo(7));
       } else {
         expect(handler, isA<RefusingHandler>(), reason: d.name);
         expect(d.phase, isNot('P4'), reason: d.name);
@@ -493,6 +493,7 @@ void main() {
         'forEach',
         'getLocation',
         'haptic',
+        'invokeFunction',
         'kvGet',
         'kvRemove',
         'kvSet',

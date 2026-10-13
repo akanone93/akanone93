@@ -263,6 +263,29 @@ final class GatewayAgent {
     }
   }
 
+  /// Invokes the server-placed [function] at [version] (FN-020); [input] is
+  /// UTF-8 JSON. A token the server no longer accepts is not retried here:
+  /// the idempotency key makes a repeat by the action's retry policy safe.
+  Future<FunctionInvokeReply> invokeFunction({
+    required String function,
+    required int version,
+    required Uint8List input,
+    required String idempotencyKey,
+  }) async {
+    final token = await _token();
+    try {
+      return await api.invokeFunction(
+        token: token,
+        function: function,
+        version: version,
+        input: input,
+        idempotencyKey: idempotencyKey,
+      );
+    } on ApiError catch (e) {
+      throw _refused(e, 'the call of function $function');
+    }
+  }
+
   /// Whether the device has an SCA key registered with the server,
   /// registering it again with one when it has none.
   Future<bool> ensureEnrolled() async {

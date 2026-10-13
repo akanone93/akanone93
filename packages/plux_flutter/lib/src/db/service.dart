@@ -443,6 +443,12 @@ final class PluxDatabase {
     });
   }
 
+  /// Every entry of plugin [plugin]'s key-value store.
+  Future<Map<String, Object?>> kvAll(String plugin) async {
+    final (_, ns) = await _kv(plugin);
+    return adapter.kvAll(ns);
+  }
+
   /// Removes [key]; true if it existed.
   Future<bool> kvRemove(String plugin, String key) async {
     final (_, ns) = await _kv(plugin);

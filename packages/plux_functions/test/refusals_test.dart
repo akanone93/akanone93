@@ -65,10 +65,10 @@ void main() {
     },
   );
 
-  test('[FN-052] an unknown import is refused with PLX-7017', () async {
+  test('[FN-052] an unknown import is refused with PLX-7018', () async {
     await expectLater(
       engine.load(key: 'unknown', bytes: _hex(_importsUnknown)),
-      throwsA(plux(PluxErrorCode.functionAbiUnsupported)),
+      throwsA(plux(PluxErrorCode.functionModuleInvalid)),
     );
   });
 
@@ -112,7 +112,7 @@ void main() {
   });
 
   test(
-    '[FN-050] a module that returns an empty result fails with PLX-7009',
+    '[FN-050] a module that returns an empty result fails with PLX-7007',
     () async {
       final module = await engine.load(key: 'valid', bytes: _hex(_valid));
       final scratch = Directory.systemTemp.createTempSync(
@@ -127,7 +127,7 @@ void main() {
           limits: roomy,
           host: TestHost(directory: scratch.path),
         ),
-        throwsA(plux(PluxErrorCode.functionOutputInvalid)),
+        throwsA(plux(PluxErrorCode.functionTrapped)),
       );
     },
   );

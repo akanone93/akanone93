@@ -4,6 +4,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -318,4 +319,57 @@ void main() {
       );
     },
   );
+
+  test('[FN-020] invokes a server function with the idempotency key and reads its output or business error', () async {
+    final bodies = <Map<String, Object?>>[];
+    var business = false;
+    final api = PluxApiClient(
+      MockClient((request) async {
+        expect(request.url.path, '/plux.v1.FunctionService/Invoke');
+        expect(request.headers['Authorization'], startsWith('DPoP '));
+        expect(request.headers['DPoP'], isNotEmpty);
+        bodies.add(jsonDecode(request.body) as Map<String, Object?>);
+        return http.Response(
+          jsonEncode(
+            business
+                ? {
+                    'businessError': {
+                      'code': 'C',
+                      'messageKey': 'k',
+                      'params': base64.encode(utf8.encode('{"a":1}')),
+                    },
+                  }
+                : {'output': base64.encode(utf8.encode('{"v":2}'))},
+          ),
+          200,
+        );
+      }),
+      Uri.parse('https://plux.example/'),
+    );
+    final token = fakeToken('tok');
+    final ok = await api.invokeFunction(
+      token: token,
+      function: 'fee.compute',
+      version: 7,
+      input: Uint8List.fromList(utf8.encode('{}')),
+      idempotencyKey: 'key-1',
+    );
+    expect(utf8.decode(ok.output!), '{"v":2}');
+    expect(bodies.single['function'], 'fee.compute');
+    expect(bodies.single['version'], 7);
+    expect(bodies.single['idempotencyKey'], 'key-1');
+    expect(utf8.decode(base64.decode(bodies.single['input']! as String)), '{}');
+    business = true;
+    final failed = await api.invokeFunction(
+      token: token,
+      function: 'fee.compute',
+      version: 7,
+      input: Uint8List(0),
+      idempotencyKey: 'key-1',
+    );
+    expect(failed.output, isNull);
+    expect(failed.code, 'C');
+    expect(failed.messageKey, 'k');
+    expect(failed.params, {'a': 1});
+  });
 }

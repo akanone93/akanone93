@@ -47,6 +47,8 @@ import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/device/services.dart';
 import 'package:plux_flutter/src/devtools_api/diagnostics.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/functions/engine.dart';
+import 'package:plux_flutter/src/functions/invoke_function.dart';
 import 'package:plux_flutter/src/native_catalogue/host.dart';
 import 'package:plux_flutter/src/navigation/deep_links.dart';
 import 'package:plux_flutter/src/navigation/delegate.dart';
@@ -838,12 +840,67 @@ final class PluxRuntime with WidgetsBindingObserver {
           biometrics: overrides.secure.biometrics,
         ),
         PluxDatabase: database,
+        FunctionRuntime: _functions,
         ScaService: _sca,
         ConfigSource: _worker,
       },
       deviceGuard: _deviceGuard,
     )..ownerErrors = _ownerErrors,
   );
+
+  /// What `invokeFunction` steps run with (FN-020, FN-050 to FN-055): the
+  /// plugin's grants and device module from the active release, the
+  /// `deviceFunctions` setting, the delivered limits, the plugin's key-value
+  /// namespace and the channel to the server.
+  late final FunctionRuntime _functions = FunctionRuntime(
+    resolve: _resolveFunction,
+    deviceEnabled: () => settings.value.flag(SecuritySetting.deviceFunctions),
+    limits: () => active.value?.limits ?? const <String, int>{},
+    context: () => PluxFunctionContext(
+      app: config.appId,
+      environment: config.environment,
+      assuranceLevel: 'AL${assurance.value}',
+    ),
+    kvSnapshot: (plugin) async => {
+      for (final e in (await database.kvAll(plugin)).entries)
+        if (e.value case final String v) e.key: v,
+    },
+    kvApply: (plugin, key, value) async {
+      if (value == null) {
+        await database.kvRemove(plugin, key);
+      } else {
+        await database.kvSet(plugin, key, value);
+      }
+    },
+    engine: config.functionEngine,
+    server: _worker,
+  );
+
+  FunctionTarget? _resolveFunction(String plugin, String function) {
+    final release = active.value;
+    if (release == null) return null;
+    final granted = (release.meta(plugin).capabilities?.functions ?? const [])
+        .any((g) => g.function == function);
+    if (!granted) return null;
+    final module = release.deviceModule(plugin);
+    final device = module?.functions
+        ?.where((f) => f.name == function)
+        .firstOrNull;
+    if (module == null || device == null) {
+      // Seam: the release does not carry the pinned version of a server
+      // function on the device yet, so the call names version 0 (FN-006).
+      return ServerFunctionTarget(name: function, version: 0);
+    }
+    return DeviceFunctionTarget(
+      name: function,
+      version: device.version,
+      moduleHash: hexEncode(module.hash ?? const []),
+      module: () => Uint8List.fromList(module.module ?? const []),
+      index: device.index,
+      timeoutMs: device.timeoutMs,
+      memoryBytes: device.memoryBytes,
+    );
+  }
 
   /// Checks the device operations of plugin runs against the capabilities
   /// each plugin declares in the active release, and the host's

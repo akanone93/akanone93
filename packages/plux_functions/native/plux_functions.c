@@ -756,13 +756,41 @@ static const char *const server_imports[] = {
     "http_request", "secret_get", "claims", "invoke_function",
 };
 
-static int is_wasi_import(const char *name) {
-	for (size_t i = 0; i < COUNT(wasi_preview1); i++) {
-		if (strcmp(name, wasi_preview1[i].symbol) == 0) {
-			return 1;
+/* Whether [type] has the signature written in WAMR's native notation, such
+ * as "(ii)I": i is i32, I is i64, and what follows ")" is the result. */
+static int signature_matches(wasm_func_type_t type, const char *signature) {
+	const char *cursor = signature;
+	if (*cursor++ != '(') {
+		return 0;
+	}
+	uint32_t index = 0;
+	for (; *cursor != ')' && *cursor != '\0'; cursor++, index++) {
+		wasm_valkind_t kind = *cursor == 'i' ? WASM_I32 : WASM_I64;
+		if ((*cursor != 'i' && *cursor != 'I') ||
+		    index >= wasm_func_type_get_param_count(type) ||
+		    wasm_func_type_get_param_valkind(type, index) != kind) {
+			return 0;
 		}
 	}
-	return 0;
+	if (*cursor++ != ')' || index != wasm_func_type_get_param_count(type)) {
+		return 0;
+	}
+	if (*cursor == '\0') {
+		return wasm_func_type_get_result_count(type) == 0;
+	}
+	wasm_valkind_t result = *cursor == 'i' ? WASM_I32 : WASM_I64;
+	return wasm_func_type_get_result_count(type) == 1 &&
+	       wasm_func_type_get_result_valkind(type, 0) == result;
+}
+
+static const char *symbol_signature(const NativeSymbol *table, size_t count,
+                                    const char *name) {
+	for (size_t i = 0; i < count; i++) {
+		if (strcmp(name, table[i].symbol) == 0) {
+			return table[i].signature;
+		}
+	}
+	return NULL;
 }
 
 /* Returns 0 or the PLX code that refuses the module. */
@@ -778,8 +806,9 @@ static int32_t check_module(wasm_module_t module, char *error,
 			         "import %s.%s is not a function", import.module_name,
 			         import.name);
 			set_error(error, capacity, message);
-			return PF_ABI_UNSUPPORTED;
+			return PF_MODULE_INVALID;
 		}
+		const char *signature = NULL;
 		if (strcmp(import.module_name, "plux_v1") == 0) {
 			if (in_list(import.name, server_imports, COUNT(server_imports))) {
 				snprintf(message, sizeof(message),
@@ -789,17 +818,24 @@ static int32_t check_module(wasm_module_t module, char *error,
 				return PF_MODULE_INVALID;
 			}
 			if (in_list(import.name, device_imports, COUNT(device_imports))) {
-				continue;
+				signature = symbol_signature(plux_v1, COUNT(plux_v1), import.name);
 			}
 		} else if (strcmp(import.module_name, "wasi_snapshot_preview1") == 0) {
-			if (is_wasi_import(import.name)) {
-				continue;
-			}
+			signature = symbol_signature(wasi_preview1, COUNT(wasi_preview1),
+			                             import.name);
 		}
-		snprintf(message, sizeof(message), "unknown import %s.%s",
-		         import.module_name, import.name);
+		if (signature == NULL) {
+			snprintf(message, sizeof(message), "unknown import %s.%s",
+			         import.module_name, import.name);
+		} else if (!signature_matches(import.u.func_type, signature)) {
+			snprintf(message, sizeof(message),
+			         "import %s.%s has the wrong signature", import.module_name,
+			         import.name);
+		} else {
+			continue;
+		}
 		set_error(error, capacity, message);
-		return PF_ABI_UNSUPPORTED;
+		return PF_MODULE_INVALID;
 	}
 	int has_memory = 0, has_version = 0, has_alloc = 0, has_invoke = 0;
 	int32_t exports = wasm_runtime_get_export_count(module);
@@ -810,9 +846,13 @@ static int32_t check_module(wasm_module_t module, char *error,
 		    strcmp(export.name, "memory") == 0) {
 			has_memory = 1;
 		} else if (export.kind == WASM_IMPORT_EXPORT_KIND_FUNC) {
-			has_version |= strcmp(export.name, "plux_abi_version") == 0;
-			has_alloc |= strcmp(export.name, "plux_alloc") == 0;
-			has_invoke |= strcmp(export.name, "plux_invoke") == 0;
+			if (strcmp(export.name, "plux_abi_version") == 0) {
+				has_version = signature_matches(export.u.func_type, "()i");
+			} else if (strcmp(export.name, "plux_alloc") == 0) {
+				has_alloc = signature_matches(export.u.func_type, "(i)i");
+			} else if (strcmp(export.name, "plux_invoke") == 0) {
+				has_invoke = signature_matches(export.u.func_type, "(iii)I");
+			}
 		}
 	}
 	if (!(has_memory && has_version && has_alloc && has_invoke)) {
@@ -963,7 +1003,7 @@ static int32_t run_guest(pf_module *module, uint32_t index,
 		*out = duplicate(run.memory_denied ? "the invocation exceeded its memory limit"
 		                                   : "the module could not take the input",
 		                 out_length);
-		status = run.memory_denied ? PF_MEMORY_EXCEEDED : PF_OUTPUT_INVALID;
+		status = run.memory_denied ? PF_MEMORY_EXCEEDED : PF_TRAPPED;
 		goto done;
 	}
 	if (input_length > 0) {
@@ -996,8 +1036,9 @@ static int32_t run_guest(pf_module *module, uint32_t index,
 	uint32_t result_ptr = (uint32_t)(packed >> 32);
 	uint32_t result_len = (uint32_t)(packed & 0xffffffffu);
 	if (result_len < 1 || !in_range(inst, result_ptr, result_len)) {
+		/* FN-015: a result that cannot be read is a trap, as on every host. */
 		*out = duplicate("the module returned a malformed result", out_length);
-		status = PF_OUTPUT_INVALID;
+		status = PF_TRAPPED;
 		goto done;
 	}
 	if (result_len - 1 > limits->output_bytes) {
@@ -1011,7 +1052,7 @@ static int32_t run_guest(pf_module *module, uint32_t index,
 		uint32_t body_len = result_len - 1;
 		if (tag > 3) {
 			*out = duplicate("the module returned an unknown result tag", out_length);
-			status = PF_OUTPUT_INVALID;
+			status = PF_TRAPPED;
 			goto done;
 		}
 		if (tag >= 2 && body_len > PF_MESSAGE_MAX) {
