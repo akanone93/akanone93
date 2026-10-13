@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "plux-fn"
+version = "0.1.0"
+description = "Guest-side SDK for Plux Functions (ABI v1)."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+schemars.workspace = true

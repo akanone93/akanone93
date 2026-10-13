@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+[workspace]
+resolver = "3"
+members = ["plux-fn", "examples/loan", "examples/fee", "examples/modules/*"]
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.97"
+license = "Apache-2.0"
+publish = false
+
+[workspace.dependencies]
+plux-fn = { path = "plux-fn" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+schemars = "1.2"
+
+# E7: the release profile is part of the reproducible-build contract (FN-019).
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
