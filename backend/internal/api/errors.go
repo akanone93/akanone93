@@ -116,6 +116,25 @@ var codes = map[plxerr.Code]connect.Code{
 	plxerr.FunctionTestsFailed:              connect.CodeFailedPrecondition,
 	plxerr.FunctionDeclarationMismatch:      connect.CodeFailedPrecondition,
 
+	// Invoking a function (FN-020, FN-022): the system errors a device
+	// sees as a code with a generic message.
+	plxerr.FunctionTimeout:           connect.CodeDeadlineExceeded,
+	plxerr.FunctionMemoryExceeded:    connect.CodeResourceExhausted,
+	plxerr.FunctionCapabilityDenied:  connect.CodePermissionDenied,
+	plxerr.FunctionOutputTooLarge:    connect.CodeResourceExhausted,
+	plxerr.FunctionCallDepthExceeded: connect.CodeResourceExhausted,
+	plxerr.FunctionHTTPCallsExceeded: connect.CodeResourceExhausted,
+	plxerr.FunctionTrapped:           connect.CodeAborted,
+	plxerr.FunctionInputInvalid:      connect.CodeInvalidArgument,
+	plxerr.FunctionOutputInvalid:     connect.CodeAborted,
+	plxerr.FunctionEgressRefused:     connect.CodePermissionDenied,
+	plxerr.IdempotencyKeyConflict:    connect.CodeAlreadyExists,
+	plxerr.FunctionRateLimited:       connect.CodeResourceExhausted,
+	plxerr.FunctionABIUnsupported:    connect.CodeFailedPrecondition,
+	plxerr.FunctionModuleInvalid:     connect.CodeFailedPrecondition,
+	plxerr.FunctionCancelled:         connect.CodeCanceled,
+	plxerr.FunctionInputTooLarge:     connect.CodeInvalidArgument,
+
 	// The server failed.
 	plxerr.InternalServerError: connect.CodeInternal,
 	plxerr.UpstreamUnavailable: connect.CodeUnavailable,

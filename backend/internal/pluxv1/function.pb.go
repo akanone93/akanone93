@@ -93,8 +93,15 @@ type FunctionServiceInvokeRequest struct {
 	// idempotency_key lets a retry return the stored result without running
 	// the function again within `function.idempotencyWindow` (FN-021).
 	IdempotencyKey string `protobuf:"bytes,4,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// transaction_challenge_id names the challenge that transaction_signature
+	// answers; required when the function declares `sca` (FN-020, SEC-027).
+	TransactionChallengeId string `protobuf:"bytes,5,opt,name=transaction_challenge_id,json=transactionChallengeId,proto3" json:"transaction_challenge_id,omitempty"`
+	// transaction_signature is the signature of the device's SCA key over the
+	// challenge followed by the transaction summary: ES256, 64 bytes, r then
+	// s (SEC-027).
+	TransactionSignature []byte `protobuf:"bytes,6,opt,name=transaction_signature,json=transactionSignature,proto3" json:"transaction_signature,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *FunctionServiceInvokeRequest) Reset() {
@@ -153,6 +160,20 @@ func (x *FunctionServiceInvokeRequest) GetIdempotencyKey() string {
 		return x.IdempotencyKey
 	}
 	return ""
+}
+
+func (x *FunctionServiceInvokeRequest) GetTransactionChallengeId() string {
+	if x != nil {
+		return x.TransactionChallengeId
+	}
+	return ""
+}
+
+func (x *FunctionServiceInvokeRequest) GetTransactionSignature() []byte {
+	if x != nil {
+		return x.TransactionSignature
+	}
+	return nil
 }
 
 type FunctionServiceInvokeResponse struct {
@@ -2096,12 +2117,14 @@ var File_plux_v1_function_proto protoreflect.FileDescriptor
 
 const file_plux_v1_function_proto_rawDesc = "" +
 	"\n" +
-	"\x16plux/v1/function.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\x93\x01\n" +
+	"\x16plux/v1/function.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\x82\x02\n" +
 	"\x1cFunctionServiceInvokeRequest\x12\x1a\n" +
 	"\bfunction\x18\x01 \x01(\tR\bfunction\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\rR\aversion\x12\x14\n" +
 	"\x05input\x18\x03 \x01(\fR\x05input\x12'\n" +
-	"\x0fidempotency_key\x18\x04 \x01(\tR\x0eidempotencyKey\"\xc2\x01\n" +
+	"\x0fidempotency_key\x18\x04 \x01(\tR\x0eidempotencyKey\x128\n" +
+	"\x18transaction_challenge_id\x18\x05 \x01(\tR\x16transactionChallengeId\x123\n" +
+	"\x15transaction_signature\x18\x06 \x01(\fR\x14transactionSignature\"\xc2\x01\n" +
 	"\x1dFunctionServiceInvokeResponse\x12\x18\n" +
 	"\x06output\x18\x01 \x01(\fH\x00R\x06output\x12G\n" +
 	"\x0ebusiness_error\x18\x02 \x01(\v2\x1e.plux.v1.FunctionBusinessErrorH\x00R\rbusinessError\x12\x18\n" +

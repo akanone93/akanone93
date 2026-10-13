@@ -193,6 +193,15 @@ func (s *Server) addressLimit() api.Around {
 	})
 }
 
+// InternalInterceptors returns the chain for a service on the internal
+// listener: recovery, request ID, tracing, metrics and error translation.
+// It has no address limit and no authentication of its own, because the
+// listener requires a certificate of the internal CA (SEC-043) and the
+// service authorises each call itself.
+func (s *Server) InternalInterceptors() []connect.Interceptor {
+	return api.Interceptors(api.Deps{Log: s.log, Metrics: s.metrics, Tracer: s.tracer})
+}
+
 // Register adds a Connect service handler to the api role's mux.
 func (s *Server) Register(path string, h http.Handler) { s.mux.Handle(path, h) }
 

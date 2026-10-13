@@ -62,6 +62,18 @@ type Call struct {
 	Procedure string
 	// Request is the request's deterministic encoding.
 	Request []byte
+	// Window is how long the key is remembered; zero means TTL. A call
+	// whose retention is a setting of its own, such as a function
+	// invocation's, sets it (FN-021).
+	Window time.Duration
+}
+
+// window is how long the call's key is remembered.
+func (c Call) window() time.Duration {
+	if c.Window > 0 {
+		return c.Window
+	}
+	return TTL
 }
 
 // valid refuses a key that is empty, too long or not printable ASCII.
@@ -112,7 +124,7 @@ func (s *Store) Begin(ctx context.Context, c Call) ([]byte, bool, error) {
 		}
 		_, err := q.BeginIdempotent(ctx, dbgen.BeginIdempotentParams{
 			Subject: c.Subject, Key: c.Key, Procedure: c.Procedure, RequestHash: c.hash(),
-			ExpiresAt: storage.Timestamp(s.now().Add(TTL)),
+			ExpiresAt: storage.Timestamp(s.now().Add(c.window())),
 		})
 		if err == nil {
 			return nil

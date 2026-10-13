@@ -74,6 +74,7 @@ func (c *Config) Validate() error {
 	c.validateGateway(&p)
 	c.validateEgress(&p)
 	c.validateFnRunner(&p)
+	c.validateFunctions(&p)
 	return errors.Join(p.errs...)
 }
 

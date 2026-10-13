@@ -192,6 +192,23 @@ func (r *ConfigResolver) Snapshot(ctx context.Context, organizationID, appID, en
 	return s, nil
 }
 
+// ServerValue returns the text of a server-bound value of an environment,
+// sensitive or not, as of the environment's current epoch (ADR-0061). It is
+// for the server's own readers that were granted the value by name, such as
+// a function's secret; found is false when the key is not set or is not
+// server-bound, so that a live value is never served as a secret.
+func (r *ConfigResolver) ServerValue(ctx context.Context, organizationID, appID, environmentID, key string) (string, bool, error) {
+	snap, err := r.Snapshot(ctx, organizationID, appID, environmentID)
+	if err != nil {
+		return "", false, err
+	}
+	v, ok := snap.values[key]
+	if !ok || v.Tier != TierServerBound {
+		return "", false, nil
+	}
+	return v.Text, true, nil
+}
+
 func newSnapshot(c StoredConfig, now time.Time) *ConfigSnapshot {
 	s := &ConfigSnapshot{Epoch: c.Epoch, LiveEpoch: c.LiveEpoch, StrictEpoch: c.StrictEpoch, values: make(map[string]StoredValue, len(c.Values)), loaded: now}
 	for _, v := range c.Values {

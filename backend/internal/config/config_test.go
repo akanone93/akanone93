@@ -109,7 +109,7 @@ func TestParseRejectsUnknownKeys(t *testing.T) {
 	t.Parallel()
 	mentions(t, []struct{ name, src, want string }{
 		{"unknown section", minimal + "nonsense: {}\n", `unknown section "nonsense"`},
-		{"later phase", minimal + "functions:\n  defaults: {}\n", `"functions" arrives in P7`},
+		{"later phase", minimal + "ai:\n  enabled: true\n", `"ai" arrives in P12`},
 		{"unknown key", withServer("  nonsense: 1\n"), "nonsense"},
 		{"not yaml", "server: [", "not valid YAML"},
 		{"repeated section", minimal + db, "already set"},

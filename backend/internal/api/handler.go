@@ -58,9 +58,15 @@ type Handlers struct {
 	LiveConfig *gateway.ConfigResolver
 	// Functions administers functions (FN-006, FN-016); nil leaves
 	// FunctionAdminService unmounted.
-	Functions   *function.Service
-	Idempotency *idempotency.Store
-	Pages       *Pages
+	Functions *function.Service
+	// FunctionHosting serves FunctionHostService to the function runner on
+	// the internal listener (ADR-0064); nil leaves it unmounted.
+	FunctionHosting *function.Host
+	// FunctionInvoker serves FunctionService to devices (FN-020); nil
+	// leaves it unmounted.
+	FunctionInvoker *function.Invoker
+	Idempotency     *idempotency.Store
+	Pages           *Pages
 	// Limiter counts calls per principal and organisation when an
 	// organisation tightens api.requestsPerMinute (SRV-065, LIM-002).
 	Limiter RateLimiter

@@ -35,6 +35,13 @@ message FunctionServiceInvokeRequest {
   // idempotency_key lets a retry return the stored result without running
   // the function again within `function.idempotencyWindow` (FN-021).
   string idempotency_key = 4;
+  // transaction_challenge_id names the challenge that transaction_signature
+  // answers; required when the function declares `sca` (FN-020, SEC-027).
+  string transaction_challenge_id = 5;
+  // transaction_signature is the signature of the device's SCA key over the
+  // challenge followed by the transaction summary: ES256, 64 bytes, r then
+  // s (SEC-027).
+  bytes transaction_signature = 6;
 }
 
 message FunctionServiceInvokeResponse {
