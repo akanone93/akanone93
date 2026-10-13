@@ -79,8 +79,16 @@ func (x *GetModuleRequest) GetModuleSha256() string {
 }
 
 type GetModuleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Module        []byte                 `protobuf:"bytes,1,opt,name=module,proto3" json:"module,omitempty"`
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Module []byte                 `protobuf:"bytes,1,opt,name=module,proto3" json:"module,omitempty"`
+	// statement is the builder's canonical artifact statement, a JSON
+	// document that names the module's SHA-256 (FN-009, ADR-0063).
+	Statement []byte `protobuf:"bytes,2,opt,name=statement,proto3" json:"statement,omitempty"`
+	// signature is the Ed25519 signature over statement (FN-009).
+	Signature []byte `protobuf:"bytes,3,opt,name=signature,proto3" json:"signature,omitempty"`
+	// key_id names the key in the runner's configured set that verifies the
+	// signature (FN-009).
+	KeyId         string `protobuf:"bytes,4,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -120,6 +128,27 @@ func (x *GetModuleResponse) GetModule() []byte {
 		return x.Module
 	}
 	return nil
+}
+
+func (x *GetModuleResponse) GetStatement() []byte {
+	if x != nil {
+		return x.Statement
+	}
+	return nil
+}
+
+func (x *GetModuleResponse) GetSignature() []byte {
+	if x != nil {
+		return x.Signature
+	}
+	return nil
+}
+
+func (x *GetModuleResponse) GetKeyId() string {
+	if x != nil {
+		return x.KeyId
+	}
+	return ""
 }
 
 type KvGetRequest struct {
@@ -654,9 +683,12 @@ const file_plux_internal_fn_v1_host_proto_rawDesc = "" +
 	"\x1eplux/internal/fn/v1/host.proto\x12\x13plux.internal.fn.v1\x1a plux/internal/fn/v1/runner.proto\"M\n" +
 	"\x10GetModuleRequest\x12\x14\n" +
 	"\x05grant\x18\x01 \x01(\tR\x05grant\x12#\n" +
-	"\rmodule_sha256\x18\x02 \x01(\tR\fmoduleSha256\"+\n" +
+	"\rmodule_sha256\x18\x02 \x01(\tR\fmoduleSha256\"~\n" +
 	"\x11GetModuleResponse\x12\x16\n" +
-	"\x06module\x18\x01 \x01(\fR\x06module\"6\n" +
+	"\x06module\x18\x01 \x01(\fR\x06module\x12\x1c\n" +
+	"\tstatement\x18\x02 \x01(\fR\tstatement\x12\x1c\n" +
+	"\tsignature\x18\x03 \x01(\fR\tsignature\x12\x15\n" +
+	"\x06key_id\x18\x04 \x01(\tR\x05keyId\"6\n" +
 	"\fKvGetRequest\x12\x14\n" +
 	"\x05grant\x18\x01 \x01(\tR\x05grant\x12\x10\n" +
 	"\x03key\x18\x02 \x01(\tR\x03key\";\n" +

@@ -61,6 +61,12 @@ func Defaults() Config {
 			MaxTunnelDuration: Duration(5 * time.Minute), MaxTunnelBytes: 64 << 20,
 			MaxTunnels: 1024, Ports: []int{443, 80},
 		},
+		// FN-011: 512 MiB is the registry maximum of function.memory; the
+		// response body of an outbound call is capped at 1 MiB.
+		FnRunner: FnRunner{
+			MaxModules: 64, MaxModuleBytes: 256 << 20, MaxConcurrent: 64,
+			MaxMemoryBytes: 512 << 20, HTTPResponseBytes: 1 << 20,
+		},
 		Retention: Retention{
 			AuditYears:             10,
 			DevelopmentReleaseDays: 90,
@@ -73,7 +79,7 @@ func Defaults() Config {
 // knownSections are the top-level keys this phase accepts.
 var knownSections = []string{
 	"server", "database", "objectStorage", "cache", "signing", "auth",
-	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata", "gateway", "egress",
+	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata", "gateway", "egress", "fnrunner",
 }
 
 // futureSections are sections of Appendix H that belong to a later phase.

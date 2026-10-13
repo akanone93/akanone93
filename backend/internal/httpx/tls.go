@@ -86,13 +86,28 @@ func InternalServerTLS(o InternalTLSOptions) (*tls.Config, error) {
 	}, nil
 }
 
+// InternalClientTLS returns the TLS configuration with which this role calls
+// another role: TLS 1.3, this role's certificate, and only the internal CA
+// trusted (SEC-043).
+func InternalClientTLS(o InternalTLSOptions) (*tls.Config, error) {
+	pool, cert, err := internalIdentity(o)
+	if err != nil {
+		return nil, err
+	}
+	return &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      pool,
+		MinVersion:   tls.VersionTLS13,
+	}, nil
+}
+
 // NewInternalClient returns an HTTP client for calling another role: it
 // presents this role's certificate and trusts only the internal CA
 // (SEC-043). Unlike NewClient it may reach private addresses, because
 // the roles of an installation live on them; the server's certificate
 // is what is trusted, not the address. It is safe for concurrent use.
 func NewInternalClient(o InternalTLSOptions, timeout time.Duration) (*http.Client, error) {
-	pool, cert, err := internalIdentity(o)
+	tlsConfig, err := InternalClientTLS(o)
 	if err != nil {
 		return nil, err
 	}
@@ -102,11 +117,7 @@ func NewInternalClient(o InternalTLSOptions, timeout time.Duration) (*http.Clien
 	return &http.Client{
 		Timeout: timeout,
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				Certificates: []tls.Certificate{cert},
-				RootCAs:      pool,
-				MinVersion:   tls.VersionTLS13,
-			},
+			TLSClientConfig:       tlsConfig,
 			ForceAttemptHTTP2:     true,
 			MaxIdleConns:          32,
 			IdleConnTimeout:       90 * time.Second,

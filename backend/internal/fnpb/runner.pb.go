@@ -117,13 +117,15 @@ func (*PrepareResponse) Descriptor() ([]byte, []int) {
 // InvocationLimits bound one invocation (FN-011). Zero is not unlimited:
 // api always sends resolved values from the limits registry (LIM-001).
 type InvocationLimits struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TimeoutMs     uint32                 `protobuf:"varint,1,opt,name=timeout_ms,json=timeoutMs,proto3" json:"timeout_ms,omitempty"`
-	MemoryBytes   uint64                 `protobuf:"varint,2,opt,name=memory_bytes,json=memoryBytes,proto3" json:"memory_bytes,omitempty"`
-	OutputBytes   uint64                 `protobuf:"varint,3,opt,name=output_bytes,json=outputBytes,proto3" json:"output_bytes,omitempty"`
-	HttpCalls     uint32                 `protobuf:"varint,4,opt,name=http_calls,json=httpCalls,proto3" json:"http_calls,omitempty"`
-	CallDepth     uint32                 `protobuf:"varint,5,opt,name=call_depth,json=callDepth,proto3" json:"call_depth,omitempty"`
-	LogBytes      uint64                 `protobuf:"varint,6,opt,name=log_bytes,json=logBytes,proto3" json:"log_bytes,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	TimeoutMs   uint32                 `protobuf:"varint,1,opt,name=timeout_ms,json=timeoutMs,proto3" json:"timeout_ms,omitempty"`
+	MemoryBytes uint64                 `protobuf:"varint,2,opt,name=memory_bytes,json=memoryBytes,proto3" json:"memory_bytes,omitempty"`
+	OutputBytes uint64                 `protobuf:"varint,3,opt,name=output_bytes,json=outputBytes,proto3" json:"output_bytes,omitempty"`
+	HttpCalls   uint32                 `protobuf:"varint,4,opt,name=http_calls,json=httpCalls,proto3" json:"http_calls,omitempty"`
+	CallDepth   uint32                 `protobuf:"varint,5,opt,name=call_depth,json=callDepth,proto3" json:"call_depth,omitempty"`
+	LogBytes    uint64                 `protobuf:"varint,6,opt,name=log_bytes,json=logBytes,proto3" json:"log_bytes,omitempty"`
+	// input_bytes is the largest input the runner accepts (PLX-7022).
+	InputBytes    uint64 `protobuf:"varint,7,opt,name=input_bytes,json=inputBytes,proto3" json:"input_bytes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -196,6 +198,13 @@ func (x *InvocationLimits) GetCallDepth() uint32 {
 func (x *InvocationLimits) GetLogBytes() uint64 {
 	if x != nil {
 		return x.LogBytes
+	}
+	return 0
+}
+
+func (x *InvocationLimits) GetInputBytes() uint64 {
+	if x != nil {
+		return x.InputBytes
 	}
 	return 0
 }
@@ -302,9 +311,14 @@ type FunctionRunnerServiceInvokeRequest struct {
 	Depth uint32 `protobuf:"varint,9,opt,name=depth,proto3" json:"depth,omitempty"`
 	// traceparent carries the W3C trace context of the calling request
 	// (FN-032).
-	Traceparent   string `protobuf:"bytes,10,opt,name=traceparent,proto3" json:"traceparent,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Traceparent string `protobuf:"bytes,10,opt,name=traceparent,proto3" json:"traceparent,omitempty"`
+	// app, environment and assurance_level are what the function's context()
+	// reports and what the egress role logs for a tunnel (FN-012, FN-017).
+	App            string `protobuf:"bytes,11,opt,name=app,proto3" json:"app,omitempty"`
+	Environment    string `protobuf:"bytes,12,opt,name=environment,proto3" json:"environment,omitempty"`
+	AssuranceLevel string `protobuf:"bytes,13,opt,name=assurance_level,json=assuranceLevel,proto3" json:"assurance_level,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *FunctionRunnerServiceInvokeRequest) Reset() {
@@ -403,6 +417,27 @@ func (x *FunctionRunnerServiceInvokeRequest) GetDepth() uint32 {
 func (x *FunctionRunnerServiceInvokeRequest) GetTraceparent() string {
 	if x != nil {
 		return x.Traceparent
+	}
+	return ""
+}
+
+func (x *FunctionRunnerServiceInvokeRequest) GetApp() string {
+	if x != nil {
+		return x.App
+	}
+	return ""
+}
+
+func (x *FunctionRunnerServiceInvokeRequest) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
+func (x *FunctionRunnerServiceInvokeRequest) GetAssuranceLevel() string {
+	if x != nil {
+		return x.AssuranceLevel
 	}
 	return ""
 }
@@ -519,7 +554,7 @@ const file_plux_internal_fn_v1_runner_proto_rawDesc = "" +
 	"\x0ePrepareRequest\x12#\n" +
 	"\rmodule_sha256\x18\x01 \x01(\tR\fmoduleSha256\x12\x14\n" +
 	"\x05grant\x18\x02 \x01(\tR\x05grant\"\x11\n" +
-	"\x0fPrepareResponse\"\xd2\x01\n" +
+	"\x0fPrepareResponse\"\xf3\x01\n" +
 	"\x10InvocationLimits\x12\x1d\n" +
 	"\n" +
 	"timeout_ms\x18\x01 \x01(\rR\ttimeoutMs\x12!\n" +
@@ -529,13 +564,15 @@ const file_plux_internal_fn_v1_runner_proto_rawDesc = "" +
 	"http_calls\x18\x04 \x01(\rR\thttpCalls\x12\x1d\n" +
 	"\n" +
 	"call_depth\x18\x05 \x01(\rR\tcallDepth\x12\x1b\n" +
-	"\tlog_bytes\x18\x06 \x01(\x04R\blogBytes\"\x91\x01\n" +
+	"\tlog_bytes\x18\x06 \x01(\x04R\blogBytes\x12\x1f\n" +
+	"\vinput_bytes\x18\a \x01(\x04R\n" +
+	"inputBytes\"\x91\x01\n" +
 	"\fCapabilities\x12!\n" +
 	"\fhttp_domains\x18\x01 \x03(\tR\vhttpDomains\x12\x0e\n" +
 	"\x02kv\x18\x02 \x01(\bR\x02kv\x12\x18\n" +
 	"\asecrets\x18\x03 \x03(\tR\asecrets\x12\x1c\n" +
 	"\tfunctions\x18\x04 \x03(\tR\tfunctions\x12\x16\n" +
-	"\x06claims\x18\x05 \x01(\bR\x06claims\"\x81\x03\n" +
+	"\x06claims\x18\x05 \x01(\bR\x06claims\"\xde\x03\n" +
 	"\"FunctionRunnerServiceInvokeRequest\x12\x1a\n" +
 	"\bfunction\x18\x01 \x01(\tR\bfunction\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\rR\aversion\x12#\n" +
@@ -547,7 +584,10 @@ const file_plux_internal_fn_v1_runner_proto_rawDesc = "" +
 	"\x05grant\x18\b \x01(\tR\x05grant\x12\x14\n" +
 	"\x05depth\x18\t \x01(\rR\x05depth\x12 \n" +
 	"\vtraceparent\x18\n" +
-	" \x01(\tR\vtraceparent\"\xbd\x01\n" +
+	" \x01(\tR\vtraceparent\x12\x10\n" +
+	"\x03app\x18\v \x01(\tR\x03app\x12 \n" +
+	"\venvironment\x18\f \x01(\tR\venvironment\x12'\n" +
+	"\x0fassurance_level\x18\r \x01(\tR\x0eassuranceLevel\"\xbd\x01\n" +
 	"#FunctionRunnerServiceInvokeResponse\x12\x18\n" +
 	"\x06output\x18\x01 \x01(\fH\x00R\x06output\x12'\n" +
 	"\x0ebusiness_error\x18\x02 \x01(\fH\x00R\rbusinessError\x12*\n" +
