@@ -89,7 +89,7 @@ func TestKeyValueFailuresMapToStatuses_FN_012(t *testing.T) {
 	}
 }
 
-// Verifies: FN-012, ADR-0061.
+// Verifies: FN-012.
 // A secret is returned only for a name granted to the function, travels with
 // the grant, and is never logged.
 func TestSecretsAreGrantedByName_FN_012(t *testing.T) {
