@@ -10,7 +10,7 @@ license.workspace = true
 publish.workspace = true
 
 [dependencies]
-plux-fn.workspace = true
+plux-fn = "0.1"
 serde.workspace = true
 serde_json.workspace = true
 schemars.workspace = true
