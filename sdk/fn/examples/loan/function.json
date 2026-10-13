@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "kind": "function",
+  "id": "5d8812bb-f625-45f4-9227-27f61a272b58",
+  "name": "loan.calculateSchedule",
+  "placement": "device",
+  "capabilities": {},
+  "tests": [
+    {
+      "name": "three months at 12 percent",
+      "input": {
+        "principal": "1000",
+        "annualRate": "0.12",
+        "months": 3
+      },
+      "output": {
+        "monthlyPayment": "340.02",
+        "schedule": [
+          {
+            "month": 1,
+            "payment": "340.02",
+            "principal": "330.02",
+            "interest": "10.00",
+            "balance": "669.98"
+          },
+          {
+            "month": 2,
+            "payment": "340.02",
+            "principal": "333.32",
+            "interest": "6.70",
+            "balance": "336.66"
+          },
+          {
+            "month": 3,
+            "payment": "340.03",
+            "principal": "336.66",
+            "interest": "3.37",
+            "balance": "0.00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "zero rate splits evenly",
+      "input": {
+        "principal": "1000",
+        "annualRate": "0",
+        "months": 3
+      },
+      "output": {
+        "monthlyPayment": "333.33",
+        "schedule": [
+          {
+            "month": 1,
+            "payment": "333.33",
+            "principal": "333.33",
+            "interest": "0.00",
+            "balance": "666.67"
+          },
+          {
+            "month": 2,
+            "payment": "333.33",
+            "principal": "333.33",
+            "interest": "0.00",
+            "balance": "333.34"
+          },
+          {
+            "month": 3,
+            "payment": "333.34",
+            "principal": "333.34",
+            "interest": "0.00",
+            "balance": "0.00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "six months at 6 percent",
+      "input": {
+        "principal": "5000",
+        "annualRate": "0.06",
+        "months": 6
+      },
+      "output": {
+        "monthlyPayment": "847.98",
+        "schedule": [
+          {
+            "month": 1,
+            "payment": "847.98",
+            "principal": "822.98",
+            "interest": "25.00",
+            "balance": "4177.02"
+          },
+          {
+            "month": 2,
+            "payment": "847.98",
+            "principal": "827.09",
+            "interest": "20.89",
+            "balance": "3349.93"
+          },
+          {
+            "month": 3,
+            "payment": "847.98",
+            "principal": "831.23",
+            "interest": "16.75",
+            "balance": "2518.70"
+          },
+          {
+            "month": 4,
+            "payment": "847.98",
+            "principal": "835.39",
+            "interest": "12.59",
+            "balance": "1683.31"
+          },
+          {
+            "month": 5,
+            "payment": "847.98",
+            "principal": "839.56",
+            "interest": "8.42",
+            "balance": "843.75"
+          },
+          {
+            "month": 6,
+            "payment": "847.97",
+            "principal": "843.75",
+            "interest": "4.22",
+            "balance": "0.00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "principal below the minimum",
+      "input": {
+        "principal": "999.99",
+        "annualRate": "0.05",
+        "months": 12
+      },
+      "error": {
+        "code": "PRINCIPAL_TOO_SMALL"
+      }
+    },
+    {
+      "name": "rate above one",
+      "input": {
+        "principal": "1000",
+        "annualRate": "1.5",
+        "months": 12
+      },
+      "error": {
+        "code": "RATE_OUT_OF_RANGE"
+      }
+    },
+    {
+      "name": "term above 360 months",
+      "input": {
+        "principal": "1000",
+        "annualRate": "0.05",
+        "months": 361
+      },
+      "error": {
+        "code": "MONTHS_OUT_OF_RANGE"
+      }
+    }
+  ]
+}
