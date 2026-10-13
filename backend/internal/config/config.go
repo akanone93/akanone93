@@ -142,8 +142,32 @@ type Attestation struct {
 	// Android configures what the server asks of Google beyond the app's
 	// own builds.
 	Android AndroidAttestation `json:"android"`
+	// Apple configures what the server asks of Apple beyond the app's own
+	// builds.
+	Apple AppleAttestation `json:"apple"`
 	// Apps maps an app identifier (a UUID) to its builds.
 	Apps map[string]AppAttestation `json:"apps"`
+}
+
+// AppleAttestation configures the services of Apple the server calls.
+type AppleAttestation struct {
+	// FraudReceipt configures the App Attest fraud-metric receipt, which
+	// lifts iOS devices to AL3 (SEC-007, ADR-0065).
+	FraudReceipt FraudReceipt `json:"fraudReceipt"`
+}
+
+// FraudReceipt configures the request of Apple's fraud-metric receipt. It
+// is off by default. The App Store Connect private key is not configured
+// here: an operator imports it once under the role
+// apple-appattest-receipt (SEC-123).
+type FraudReceipt struct {
+	// Enabled turns the feature on; it needs KeyID and TeamID.
+	Enabled bool `json:"enabled"`
+	// KeyID is the ID of the App Store Connect key, ten uppercase
+	// alphanumerics.
+	KeyID string `json:"keyID"`
+	// TeamID is the Apple Developer Team ID, ten uppercase alphanumerics.
+	TeamID string `json:"teamID"`
 }
 
 // AndroidAttestation configures the Key Attestation verifier.
