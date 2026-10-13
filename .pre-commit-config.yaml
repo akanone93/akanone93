@@ -21,13 +21,13 @@ repos:
     rev: v6.0.0
     hooks:
       # flatc's Dart output is checked by regeneration (make gen-check), and
-      # vendored zstd and icon font licences by their import scripts
-      # (ADR-0030, ADR-0032), as they are.
+      # vendored zstd, WAMR and icon font licences by their import scripts
+      # (ADR-0030, ADR-0032, ADR-0011), as they are.
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
-        exclude: '(_generated\.dart|^packages/plux_flutter/native/zstd/.*|^backend/internal/icons/fonts/LICENSE-.*)$'
+        exclude: '(_generated\.dart|^packages/plux_flutter/native/zstd/.*|^packages/plux_functions/native/wamr/.*|^backend/internal/icons/fonts/LICENSE-.*)$'
       - id: end-of-file-fixer
-        exclude: '(_generated\.dart|^packages/plux_flutter/native/zstd/.*|^backend/internal/icons/fonts/LICENSE-.*)$'
+        exclude: '(_generated\.dart|^packages/plux_flutter/native/zstd/.*|^packages/plux_functions/native/wamr/.*|^backend/internal/icons/fonts/LICENSE-.*)$'
       - id: mixed-line-ending
         args: [--fix=lf]
       - id: check-yaml
@@ -43,7 +43,10 @@ repos:
         # The Material Symbols variable font the server subsets is pinned by
         # icons.lock (ADR-0032 § Icons, option (a)); server-only, devices get
         # per-bundle subsets; maintainer-approved exception, 2026-09-29.
-        exclude: ^(backend/internal/compiler/media/codecs/[a-z]+\.wasm|backend/internal/icons/fonts/MaterialSymbolsOutlined\.ttf)$
+        # WAMR's validating loader, vendored unmodified and pinned by
+        # SHA256SUMS (ADR-0011, plan p7 §2.5 E10); lead decision under plan
+        # p7 §2.4 P1, 2026-10-13, for the maintainer's confirmation.
+        exclude: ^(backend/internal/compiler/media/codecs/[a-z]+\.wasm|backend/internal/icons/fonts/MaterialSymbolsOutlined\.ttf|packages/plux_functions/native/wamr/core/iwasm/interpreter/wasm_loader\.c)$
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
       - id: detect-private-key
