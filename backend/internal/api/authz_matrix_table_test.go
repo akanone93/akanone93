@@ -335,6 +335,39 @@ var matrix = map[string]entry{
 	"DeviceService/EnrolScaKey":                 {kind: deviceRPC, build: anyone(&pluxv1.EnrolScaKeyRequest{})},
 	"SecurityAdminService/ListAuditCheckpoints": atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
 
+	// FunctionAdminService
+	"FunctionAdminService/UploadSource": {kind: needs, perm: auth.FunctionDeploy, call: func(t *testing.T, f *matrixFixture, c caller) error {
+		_, err := f.w.uploadSource(t, c, f.app, f.dev, "matrix.fn", "archive")
+		return err
+	}},
+	"FunctionAdminService/Build": atPerm(auth.FunctionDeploy, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.BuildRequest{SourceId: f.freshSource(t)}
+	}),
+	"FunctionAdminService/GetBuild": atPerm(auth.FunctionRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.GetBuildRequest{BuildId: f.freshFunctionBuild(t, f.dev)}
+	}),
+	"FunctionAdminService/GetFunction": atPerm(auth.FunctionRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetFunctionRequest{AppId: f.app, EnvironmentId: f.dev, Name: "matrix.fn"}
+	})),
+	"FunctionAdminService/ListFunctions": atPerm(auth.FunctionRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListFunctionsRequest{AppId: f.app, EnvironmentId: f.dev}
+	})),
+	"FunctionAdminService/ListVersions": atPerm(auth.FunctionRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListVersionsRequest{AppId: f.app, EnvironmentId: f.dev, Name: "matrix.fn"}
+	})),
+	"FunctionAdminService/Deploy": atPerm(auth.FunctionDeploy, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.DeployRequest{BuildId: f.freshFunctionBuild(t, f.dev)}
+	}),
+	"FunctionAdminService/SetAlias": atPerm(auth.FunctionDeploy, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetAliasRequest{AppId: f.app, EnvironmentId: f.dev, Name: "matrix.fn", Alias: &pluxv1.Alias{Name: "stable", Version: 1}}
+	})),
+	"FunctionAdminService/ListLogs": atPerm(auth.FunctionRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListLogsRequest{AppId: f.app, EnvironmentId: f.dev, Name: "matrix.fn"}
+	})),
+	"FunctionAdminService/GetMetrics": atPerm(auth.FunctionRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetMetricsRequest{AppId: f.app, EnvironmentId: f.dev, Name: "matrix.fn"}
+	})),
+
 	// DeviceService, TelemetryService: the people's side
 	"DeviceService/GetDevice": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message { return &pluxv1.GetDeviceRequest{Id: f.device} })),
 	"DeviceService/ListDevices": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
@@ -403,6 +436,14 @@ var matrix = map[string]entry{
 // variants are calls of an RPC that need more than the RPC's own entry
 // declares.
 var variants = map[string]entry{
+	// Deploying to a production environment is the stand-in for an
+	// approval until P9, with a second factor (FN-007).
+	"FunctionAdminService/Deploy (production)": atPerm(auth.FunctionDeployProduction, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.DeployRequest{BuildId: f.freshFunctionBuild(t, f.prod)}
+	}),
+	"FunctionAdminService/SetAlias (production)": atPerm(auth.FunctionDeployProduction, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetAliasRequest{AppId: f.app, EnvironmentId: f.prod, Name: "matrix.fn", Alias: &pluxv1.Alias{Name: "stable", Version: 1}}
+	})),
 	// Taking a lock another session holds is a separate permission.
 	"PluginService/AcquireLock (force)": atPerm(auth.PluginLockOverride, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.AcquireLockRequest{AppId: f.app, PluginId: f.plugin, Session: "tab-3", Force: true}

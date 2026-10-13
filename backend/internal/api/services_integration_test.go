@@ -29,6 +29,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/devtoken"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
+	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
@@ -110,9 +111,14 @@ type world struct {
 	configs  *gateway.Configs
 	resolver *gateway.ConfigResolver
 	control  pluxv1connect.ControlServiceClient
-	events   pluxv1connect.TelemetryServiceClient
-	devices  *device.Service
-	fakes    *deviceFakes
+	// functions is the function service, and fn the fakes it runs builds
+	// with, as the worker role would.
+	functions     *function.Service
+	functionAdmin pluxv1connect.FunctionAdminServiceClient
+	fn            *functionFakes
+	events        pluxv1connect.TelemetryServiceClient
+	devices       *device.Service
+	fakes         *deviceFakes
 	// base is the URL the world is served at, which proofs are bound to.
 	base string
 	// deviceAuth is the device authentication in front of the handlers.
@@ -250,7 +256,18 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		t.Fatal(err)
 	}
 	resolver := &gateway.ConfigResolver{Source: configs, Cache: shared, Now: cfg.Now}
+	fn := &functionFakes{}
+	functions, err := function.NewService(function.Options{
+		DB: db, Audit: log, Objects: files, IDs: gen, Jobs: fn, Builder: fn, Signer: fn,
+		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, app, "")
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	h := &api.Handlers{
+		Functions: functions,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
@@ -296,6 +313,9 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewTelemetryServiceHandler(h.Telemetry(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewConfigServiceHandler(h.ConfigService(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
+		},
 	} {
 		path, handler := r()
 		mux.Handle(path, handler)
@@ -323,12 +343,16 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		control:  pluxv1connect.NewControlServiceClient(srv.Client(), srv.URL),
 		secAdmin: pluxv1connect.NewSecurityAdminServiceClient(srv.Client(), srv.URL),
 		config:   pluxv1connect.NewConfigServiceClient(srv.Client(), srv.URL),
-		configs:  configs,
-		resolver: resolver,
-		events:   pluxv1connect.NewTelemetryServiceClient(srv.Client(), srv.URL),
-		devices:  devices,
-		fakes:    fakes,
-		base:     base,
+
+		functions:     functions,
+		functionAdmin: pluxv1connect.NewFunctionAdminServiceClient(srv.Client(), srv.URL),
+		fn:            fn,
+		configs:       configs,
+		resolver:      resolver,
+		events:        pluxv1connect.NewTelemetryServiceClient(srv.Client(), srv.URL),
+		devices:       devices,
+		fakes:         fakes,
+		base:          base,
 
 		deviceAuth: deviceAuth,
 		issuer:     issuer,
