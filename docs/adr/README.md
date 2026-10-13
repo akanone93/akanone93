@@ -20,7 +20,7 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0008](0008-riverpod-runtime-state-engine.md) | Riverpod as the runtime state engine | P3 | Accepted |
 | [0009](0009-pxl-typed-expression-language.md) | PXL: a typed expression language compiled to bytecode | P1 | Accepted |
 | [0010](0010-layered-widget-model.md) | Layered widget model with a descriptor registry | P1 | Accepted |
-| 0011 | Plux Functions: standard Go compiled to WebAssembly; explicit placement | P7 | Planned |
+| [0011](0011-plux-functions-rust-wasm.md) | Plux Functions: Rust compiled to WebAssembly; explicit placement | P7 | Accepted |
 | [0012](0012-dpop-hardware-keys-and-attestation.md) | DPoP with hardware-backed keys plus platform attestation | P6 | Accepted |
 | 0013 | Plux Canvas: TypeScript WebGL2 design surface with a conformance suite | P11 | Planned |
 | 0014 | Studio on Bun with a backend-for-frontend; React and shadcn/ui | P11 | Planned |
@@ -71,5 +71,9 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0059](0059-secure-ui.md) | Secure UI: secure widgets, secure pages, overlay filtering and inactivity lock | P6 | Accepted |
 | [0060](0060-signing-backends-and-audit-checkpoints.md) | Signing backends and audit checkpoints | P6 | Accepted |
 | [0061](0061-server-held-configuration.md) | Server-held configuration: server-bound and live values, the epoch and the version check | P6 | Accepted |
+| [0062](0062-function-host-abi.md) | The function host ABI: one JSON-based interface for both placements | P7 | Proposed |
+| [0063](0063-function-builds-provenance.md) | Function builds on the server: the builder role, provenance and versions | P7 | Proposed |
+| [0064](0064-function-isolation.md) | Function isolation: runner, egress, key-value store and limits | P7 | Proposed |
+| [0065](0065-imported-signing-keys-apple-receipt.md) | Imported signing keys and Apple's fraud-metric receipt | P7 | Proposed |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.
