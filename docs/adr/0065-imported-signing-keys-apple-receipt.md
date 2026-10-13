@@ -52,6 +52,12 @@ The PKCS#8 bytes are parsed and validated (EC, P-256; otherwise `PLX-6081`), the
 
 The plaintext file is deleted by the operator after import; the import tooling says so.
 
+**Scope in P7.** P7 delivers the `imported` backend over every configured backend (its
+`Crypter` holds the wrapping key, so the HSM or Vault still guards the key at rest). Native
+import into PKCS#11 and Vault Transit, which keeps the key out of process memory entirely, is
+the preferred path where available and follows as its own change; until then the decrypted key
+exists only inside `signing/` for the duration of one signature.
+
 **Receipt client.** For the iOS attested key it requests Apple's fraud-metric receipt,
 signed with **ES256** in a JWT (`kid` is the key ID, `iss` the Team ID, `iat` current time,
 short expiry), against `data.appattest.apple.com` in production and

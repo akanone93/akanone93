@@ -38,8 +38,10 @@ Chosen option: **1, with host-allocated buffers written through the guest's allo
 `plux_alloc(len: i32) -> i32` and `plux_invoke(index: i32, ptr: i32, len: i32) -> i64`.
 `index` selects an entry in the module's dispatch table (a module links one or more
 functions). The result is packed `(ptr << 32) | len` and points to `tag || UTF-8 JSON`:
-**tag 0** is the output, **tag 1** a business error `{code, messageKey, params}` (`FN-022`).
-A trap, a limit or a malformed result is a system error, classified by the host.
+**tag 0** is the output, **tag 1** a business error `{code, messageKey, params}` (`FN-022`),
+**tag 2** the guest's refusal of its input (`{message}`, `PLX-7008`) and **tag 3** its failure to
+encode the output (`{message}`, `PLX-7009`). A trap, a limit or a malformed result is a system
+error, classified by the host.
 
 **Imports**, all from the module `plux_v1`. Each returns an `i32` status or an `i64` packed
 result, negative for a status:
@@ -51,7 +53,9 @@ result, negative for a status:
 
 Statuses: `-1` not found, `-2` capability denied, `-3` limit exceeded, `-4` egress refused,
 `-5` upstream failed, `-6` invalid argument, `-7` unavailable. A host returns a buffer by
-calling the guest's `plux_alloc` and writing into it; the guest owns and frees it.
+calling the guest's `plux_alloc` and writing into it; the guest owns it. Every invocation gets a
+fresh instance (`FN-010`, `FN-053`), so nothing is freed across the boundary: the instance's
+memory is discarded with it, and the ABI needs no `plux_free`.
 
 **Refusal rules.** A device host refuses a module that imports a server-only function
 (`PLX-7018`); every host refuses an unknown import and an unsupported `plux_abi_version`
