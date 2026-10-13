@@ -473,3 +473,25 @@ func TestAttestationStatusListFile(t *testing.T) {
 		{"not a list", minimal + "attestation:\n  android:\n    statusListFile: " + bad + "\n", "not an attestation status list"},
 	})
 }
+
+// Verifies: SEC-007.
+// The fraud-metric receipt is off by default; enabling it needs a key ID
+// and a Team ID of ten uppercase alphanumerics each.
+func TestFraudReceiptConfig_SEC_007(t *testing.T) {
+	t.Parallel()
+	if f := parse(t, minimal).Attestation.Apple.FraudReceipt; f.Enabled || f.KeyID != "" || f.TeamID != "" {
+		t.Errorf("default = %+v, want off", f)
+	}
+	on := "attestation:\n  apple:\n    fraudReceipt:\n      enabled: true\n      keyID: ABCDE12345\n      teamID: TEAM123456\n"
+	if f := parse(t, minimal+on).Attestation.Apple.FraudReceipt; !f.Enabled || f.KeyID != "ABCDE12345" || f.TeamID != "TEAM123456" {
+		t.Errorf("configured = %+v", f)
+	}
+	fr := func(body string) string { return minimal + "attestation:\n  apple:\n    fraudReceipt:\n" + body }
+	mentions(t, []struct{ name, src, want string }{
+		{"enabled without key ID", fr("      enabled: true\n      teamID: TEAM123456\n"), "fraudReceipt.keyID"},
+		{"enabled without team ID", fr("      enabled: true\n      keyID: ABCDE12345\n"), "fraudReceipt.teamID"},
+		{"short key ID", fr("      keyID: ABC\n"), "ten uppercase letters and digits"},
+		{"lower-case team ID", fr("      teamID: team123456\n"), "ten uppercase letters and digits"},
+		{"unknown key", fr("      secret: x\n"), "secret"},
+	})
+}

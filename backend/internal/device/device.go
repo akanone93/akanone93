@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -89,6 +90,9 @@ type Options struct {
 	// "development") and the verdict (the Attestation constants) of every
 	// verification of evidence, for the metrics.
 	OnAttestation func(platform, verdict string)
+	// Log receives the warning that Apple's fraud-metric receipt could
+	// not be had; nil discards it.
+	Log *slog.Logger
 }
 
 // The verdicts OnAttestation hears.
@@ -121,6 +125,7 @@ type Service struct {
 	// production remembers which environments are production ones.
 	production    *productionCache
 	onAttestation func(platform, verdict string)
+	log           *slog.Logger
 }
 
 // NewService returns the service.
@@ -136,8 +141,13 @@ func NewService(o Options) (*Service, error) {
 	if random == nil {
 		random = rand.Reader
 	}
+	log := o.Log
+	if log == nil {
+		log = slog.New(slog.DiscardHandler)
+	}
 	return &Service{
-		db: o.DB, ids: o.IDs, now: now, random: random, cache: o.Cache, audit: o.Audit,
+		log: log,
+		db:  o.DB, ids: o.IDs, now: now, random: random, cache: o.Cache, audit: o.Audit,
 		attestors: o.Attestors, appTrust: o.AppTrust, profiles: o.Profiles, config: o.Config, tokens: o.Tokens, production: &productionCache{},
 		accessTokenLifetime: o.AccessTokenLifetime, developmentProvider: o.DevelopmentProvider, onAttestation: o.OnAttestation,
 	}, nil

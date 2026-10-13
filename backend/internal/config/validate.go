@@ -463,6 +463,7 @@ var appIDPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9
 // Console keys are decoded where they are used; here they only have to
 // come as a pair.
 func (c *Config) validateAttestation(p *problems) {
+	c.validateFraudReceipt(p)
 	if f := c.Attestation.Android.StatusListFile; f != "" {
 		raw, err := os.ReadFile(f) //nolint:gosec // the operator names the file
 		if err != nil {
@@ -488,6 +489,30 @@ func (c *Config) validateAttestation(p *problems) {
 		if a.PlayIntegrityDecryptionKey != "" && len(a.AndroidPackages) == 0 {
 			p.addf(path+".androidPackages", "must name the app's packages when Play Integrity is configured")
 		}
+	}
+}
+
+// appleIDPattern is the form of an Apple Team ID and of an App Store
+// Connect key ID.
+var appleIDPattern = regexp.MustCompile(`^[0-9A-Z]{10}$`)
+
+// validateFraudReceipt checks the fraud-metric receipt settings: enabled
+// needs both identifiers, and any identifier given must be well formed
+// (SEC-007).
+func (c *Config) validateFraudReceipt(p *problems) {
+	f := c.Attestation.Apple.FraudReceipt
+	const path = "attestation.apple.fraudReceipt"
+	if f.Enabled && f.KeyID == "" {
+		p.addf(path+".keyID", "is required when the fraud receipt is enabled")
+	}
+	if f.Enabled && f.TeamID == "" {
+		p.addf(path+".teamID", "is required when the fraud receipt is enabled")
+	}
+	if f.KeyID != "" && !appleIDPattern.MatchString(f.KeyID) {
+		p.addf(path+".keyID", "must be ten uppercase letters and digits")
+	}
+	if f.TeamID != "" && !appleIDPattern.MatchString(f.TeamID) {
+		p.addf(path+".teamID", "must be ten uppercase letters and digits")
 	}
 }
 

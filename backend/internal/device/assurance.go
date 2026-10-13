@@ -96,6 +96,13 @@ type Proof struct {
 	// DeviceVerdict is the strongest Play Integrity device label
 	// (ProviderPlayIntegrity only).
 	DeviceVerdict playintegrity.DeviceLabel
+	// FraudReceipt is true when Apple's fraud-metric receipt for the
+	// attested key was obtained and verified (ProviderAppAttest only,
+	// SEC-007, ADR-0065).
+	FraudReceipt bool
+	// RiskMetric is the metric that receipt carries; meaningful only with
+	// FraudReceipt.
+	RiskMetric int
 }
 
 // Settings are the security settings registration and assessment depend
@@ -129,6 +136,9 @@ type Settings struct {
 	// ConfidentialMinAssurance is the lowest assurance level a device must
 	// hold to receive the content key of a confidential bundle (SEC-053).
 	ConfidentialMinAssurance Level
+	// RiskMetricMaxAL3 is the highest Apple fraud-metric risk metric that
+	// still qualifies an iOS device for AL3 (SEC-007).
+	RiskMetricMaxAL3 int
 }
 
 // SettingsFor resolves the settings of a profile from the registry's
@@ -171,7 +181,14 @@ func resolveSettings(p settings.Profile, read func(settings.Key) (settings.Value
 	if err != nil {
 		return Settings{}, err
 	}
-	out := Settings{Profile: p, AllowSoftwareKeys: allow.Bool(), AndroidDeviceVerdictAL2: label, MinAssuranceForSync: Level(minimum.Text()), ConfidentialMinAssurance: Level(confidential.Text())}
+	riskMax, err := read(settings.RiskMetricMaxAL3)
+	if err != nil {
+		return Settings{}, err
+	}
+	out := Settings{
+		Profile: p, AllowSoftwareKeys: allow.Bool(), AndroidDeviceVerdictAL2: label, MinAssuranceForSync: Level(minimum.Text()),
+		ConfidentialMinAssurance: Level(confidential.Text()), RiskMetricMaxAL3: int(riskMax.Int()),
+	}
 	if out.MinAssuranceForSync.Rank() < 0 {
 		return Settings{}, fmt.Errorf("device: the setting %s names no assurance level", settings.MinAssuranceForSync)
 	}
@@ -255,20 +272,28 @@ func verdictRank(l playintegrity.DeviceLabel) int {
 // at AL1 whatever else is proven. A RASP finding is not part of a proof:
 // the runtime reports it afterwards (RecordRiskEvents), which caps the
 // stored level at AL1 until the next clean attestation recomputes it
-// here. Apple's fraud-metric receipt is not checked yet, so an iOS device
-// never reaches AL3.
+// here. An iOS device earns AL3 when its key is in the Secure Enclave and
+// Apple's fraud-metric receipt verified with a risk metric no higher than
+// riskMetricMaxAL3; without a receipt it stays at AL2 (ADR-0065).
 func Assess(p Proof, s Settings) Level {
 	switch p.Provider {
 	case ProviderPlayIntegrity:
 		return assessAndroid(p, s)
 	case ProviderAppAttest:
-		if p.KeyStorage == KeyStorageSecureEnclave {
-			return AL2
-		}
-		return AL1
+		return assessIOS(p, s)
 	default:
 		return AL0
 	}
+}
+
+func assessIOS(p Proof, s Settings) Level {
+	if p.KeyStorage != KeyStorageSecureEnclave {
+		return AL1
+	}
+	if p.FraudReceipt && p.RiskMetric >= 0 && p.RiskMetric <= s.RiskMetricMaxAL3 {
+		return AL3
+	}
+	return AL2
 }
 
 func assessAndroid(p Proof, s Settings) Level {

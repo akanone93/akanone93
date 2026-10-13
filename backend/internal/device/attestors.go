@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/nightCode42/plux3/backend/internal/attest/appattest"
+	"github.com/nightCode42/plux3/backend/internal/attest/appattest/receipt"
 	"github.com/nightCode42/plux3/backend/internal/attest/keyattest"
 	"github.com/nightCode42/plux3/backend/internal/attest/playintegrity"
 	"github.com/nightCode42/plux3/backend/internal/security/settings"
@@ -30,6 +31,13 @@ type IntegrityChecker interface {
 // *appattest.Verifier is one.
 type AppAttestor interface {
 	VerifyAttestation(object, keyID []byte, clientDataHash [32]byte, appID string, env appattest.Environment) (appattest.Attestation, error)
+}
+
+// FraudReceiptClient refreshes the fraud-metric receipt of an attested App
+// Attest key and verifies it (SEC-007, ADR-0065); a *receipt.Client is one.
+// Every failure is PLX-6080 and leaves the device at AL2.
+type FraudReceiptClient interface {
+	Refresh(ctx context.Context, receipt []byte, env appattest.Environment, want receipt.Expect) (receipt.Receipt, error)
 }
 
 // AppAssertor verifies an App Attest assertion, the proof of possession
@@ -57,6 +65,11 @@ type Attestors struct {
 	AppAttest      AppAttestor
 	// AppAssertions verifies the assertions of iOS refreshes.
 	AppAssertions AppAssertor
+	// FraudReceipt fetches Apple's fraud-metric receipt, which lifts an
+	// iOS device from AL2 to AL3. Nil leaves iOS devices at AL2 and is the
+	// default: the feature needs an imported App Store Connect key
+	// (ADR-0065).
+	FraudReceipt FraudReceiptClient
 }
 
 // PlayIntegrityChecker opens Play Integrity tokens with the keys it is
