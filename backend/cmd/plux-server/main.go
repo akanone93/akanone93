@@ -36,6 +36,7 @@ Commands:
   bootstrap         Create the first installation administrator
   audit verify      Verify the audit chains and their signed checkpoints
   metadata          Update metadata: print the online keys, upload an offline-signed root
+  keys              Imported signing keys: import an issuer's .p8 sealed, show its metadata
   seed              Development only: an administrator, organisation, app and token
   version           Print version information
   help              Show this help
@@ -45,6 +46,10 @@ Flags:
   -email <address>  The administrator's email address (bootstrap only)
   -org <id>         Verify one organisation only (audit verify)
   -json             Print the result as JSON (audit verify)
+  -role <role>      The imported key's role (keys import, keys show)
+  -key-id <id>      The issuer's key identifier (keys import)
+  -team-id <id>     The issuer's Team ID (keys import)
+  -file <path>      The PKCS#8 private key file (keys import)
 
 Every value may also come from the environment; run
 'plux-server config validate -h' for the variables that are read.
@@ -89,6 +94,8 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 		return seed(ctx, args[1:], stdout, stderr)
 	case "metadata":
 		return metadataCommand(ctx, args[1:], stdout, stderr)
+	case "keys":
+		return keysCommand(ctx, args[1:], stdout, stderr)
 	case "bootstrap":
 		return bootstrap(ctx, args[1:], stdout, stderr)
 	case "audit":

@@ -339,6 +339,18 @@ type IdempotencyKey struct {
 	ExpiresAt   pgtype.Timestamptz
 }
 
+type ImportedKey struct {
+	Role            string
+	KeyID           string
+	TeamID          string
+	WrappedDataKey  []byte
+	WrapKeyID       string
+	Nonce           []byte
+	Ciphertext      []byte
+	PublicKeySha256 []byte
+	CreatedAt       pgtype.Timestamptz
+}
+
 type InstallationSecret struct {
 	Name      string
 	Sealed    []byte
