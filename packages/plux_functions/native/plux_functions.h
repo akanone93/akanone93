@@ -78,7 +78,7 @@ PF_API void *pf_alloc(size_t size);
 PF_API void pf_free(void *ptr);
 
 /*
- * Loads and checks a module: imports and exports (PLX-7017, PLX-7018) and
+ * Loads and checks a module: imports and exports (PLX-7018) and
  * plux_abi_version() == 1 (PLX-7017). Returns null and sets *status to a PLX
  * code with a short diagnostic in error on refusal. The bytes are copied.
  */

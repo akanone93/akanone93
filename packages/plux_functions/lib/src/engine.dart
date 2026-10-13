@@ -103,9 +103,9 @@ final class FunctionEngine {
   /// Loads [bytes] once per [key] and checks it: imports, exports and ABI
   /// version. A second call with the same key returns the loaded module.
   ///
-  /// Throws [PluxException] with `PLX-7018` (invalid module, or one that
-  /// imports a server-only function) or `PLX-7017` (unknown import or
-  /// unsupported ABI).
+  /// Throws [PluxException] with `PLX-7018` (invalid module: an import or
+  /// export that is unknown or has the wrong signature, or one that imports a
+  /// server-only function) or `PLX-7017` (unsupported ABI version).
   Future<FunctionModule> load({
     required String key,
     required Uint8List bytes,
@@ -145,7 +145,7 @@ final class FunctionEngine {
   /// Completes with the function's [FunctionOutput] or the
   /// [FunctionBusinessError] it returned. Throws [PluxException] for a
   /// failure of the platform: `PLX-7001` timeout, `PLX-7002` memory,
-  /// `PLX-7004` output too large, `PLX-7007` trap, `PLX-7008` the guest
+  /// `PLX-7004` output too large, `PLX-7007` trap or a result that cannot be read, `PLX-7008` the guest
   /// refused its input, `PLX-7009` its output is not valid, `PLX-7021`
   /// cancelled, `PLX-7022` input too large.
   ///
