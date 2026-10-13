@@ -58,6 +58,13 @@ import into PKCS#11 and Vault Transit, which keeps the key out of process memory
 the preferred path where available and follows as its own change; until then the decrypted key
 exists only inside `signing/` for the duration of one signature.
 
+**Where it runs.** Registration and re-attestation run on the `api` role, which holds no signer
+(L-3). The device service is therefore given an adapter that signs with the `apple-appattest-receipt`
+key only and refuses every other role; Apple's call is bounded to 3 s, after which the device
+registers at `AL2` (`PLX-6080`) rather than wait. The JWT travels as `Authorization: Bearer <jwt>`,
+the request body is the base64 receipt, and the default root pool is the App Attestation root —
+the three points the maintainer's first run with the real key confirms.
+
 **Receipt client.** For the iOS attested key it requests Apple's fraud-metric receipt,
 signed with **ES256** in a JWT (`kid` is the key ID, `iss` the Team ID, `iat` current time,
 short expiry), against `data.appattest.apple.com` in production and

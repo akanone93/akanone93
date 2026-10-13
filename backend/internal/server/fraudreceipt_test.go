@@ -4,6 +4,7 @@
 package server
 
 import (
+	"context"
 	"testing"
 
 	"github.com/nightCode42/plux3/backend/internal/attest/appattest/receipt/receipttest"
@@ -25,5 +26,25 @@ func TestBuildFraudReceipt_SEC_007(t *testing.T) {
 	}
 	if c, err := buildFraudReceipt(cfg, receipttest.NewSigner(t)); c == nil || err != nil {
 		t.Errorf("enabled = %v, %v, want a client", c, err)
+	}
+}
+
+// TestReceiptSignerRefusesOtherRoles checks that the adapter handed to the
+// api role can sign with Apple's key only, never with another imported key.
+// Verifies: SEC-123.
+func TestReceiptSignerRefusesOtherRoles_SEC_123(t *testing.T) {
+	_, err := receiptSigner{}.SignES256(context.Background(), "some-other-role", make([]byte, 32))
+	if err == nil {
+		t.Fatal("signed with a role other than the Apple receipt key")
+	}
+}
+
+// TestFraudReceiptOffByDefault checks that no client is built, and no key
+// store opened, while the feature is off.
+// Verifies: SEC-007.
+func TestFraudReceiptOffByDefault_SEC_007(t *testing.T) {
+	c, err := fraudReceiptFor(&config.Config{}, nil, nil)
+	if err != nil || c != nil {
+		t.Fatalf("fraudReceiptFor with the feature off = %v, %v; want nil, nil", c, err)
 	}
 }

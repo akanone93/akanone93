@@ -248,7 +248,11 @@ func buildDeviceSide(ctx context.Context, cfg *config.Config, db *storage.DB, sh
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	devices, err := buildDevices(db, d.ids, shared, d.audit, cfg, d.signer, d.configs, status, d.metrics)
+	fraud, err := fraudReceiptFor(cfg, db, d.crypter)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	devices, err := buildDevices(db, d.ids, shared, d.audit, cfg, d.signer, d.configs, status, d.metrics, fraud, d.log)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -280,11 +284,12 @@ func buildStatusList(cfg *config.Config, shared cache.Cache, set limits.Set) (*s
 
 // buildDevices assembles the device service, whose registrations verify
 // attestation and whose refreshes issue access tokens.
-func buildDevices(db *storage.DB, gen interface{ New() (string, error) }, shared cache.Cache, auditLog *audit.Log, cfg *config.Config, signer signing.TokenSigner, configs *seccfg.Service, status keyattest.RevocationSource, metrics *observability.Metrics) (*device.Service, error) {
+func buildDevices(db *storage.DB, gen interface{ New() (string, error) }, shared cache.Cache, auditLog *audit.Log, cfg *config.Config, signer signing.TokenSigner, configs *seccfg.Service, status keyattest.RevocationSource, metrics *observability.Metrics, fraud device.FraudReceiptClient, log *slog.Logger) (*device.Service, error) {
 	attestors, err := buildAttestors(status)
 	if err != nil {
 		return nil, err
 	}
+	attestors.FraudReceipt = fraud
 	trust, err := appTrust(cfg)
 	if err != nil {
 		return nil, err
@@ -293,6 +298,7 @@ func buildDevices(db *storage.DB, gen interface{ New() (string, error) }, shared
 		DB: db, IDs: gen, Cache: shared, Audit: auditLog, Attestors: attestors, AppTrust: trust,
 		AccessTokenLifetime: cfg.Auth.Device.AccessTokenTTL.Duration(),
 		DevelopmentProvider: cfg.Attestation.DevelopmentProvider,
+		Log:                 log,
 	}
 	if metrics != nil {
 		opts.OnAttestation = metrics.AttestationResult
