@@ -122,6 +122,20 @@ precedence = "override"
 SPDX-FileCopyrightText = "Meta Platforms, Inc. and affiliates"
 SPDX-License-Identifier = "BSD-3-Clause"
 
+# WebAssembly Micro Runtime 2.4.3, the fast interpreter subset, vendored for
+# the device function engine (E9, E10 of docs/plans/p7.md). Its sources carry
+# their own SPDX headers; the entries below cover the files that do not.
+# native/wamr/import.sh re-creates the subset and checks SHA256SUMS.
+[[annotations]]
+path = [
+    "packages/plux_functions/native/wamr/LICENSE",
+    "packages/plux_functions/native/wamr/SHA256SUMS",
+    "packages/plux_functions/native/wamr/core/iwasm/include/wasm_c_api.h",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Intel Corporation and WAMR contributors"
+SPDX-License-Identifier = "Apache-2.0 WITH LLVM-exception"
+
 # The starter and reference apps' Android and iOS projects, as `flutter create` wrote
 # them from the Flutter SDK's templates (launcher icons and launch images
 # included); files Plux changes carry their own headers.
