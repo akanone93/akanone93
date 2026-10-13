@@ -84,9 +84,15 @@ fn range_error(code: &str, key: &str) -> BusinessError {
 }
 
 fn calculate_schedule(_ctx: &DeviceContext, input: Input) -> Result<Output, BusinessError> {
-    if input.principal < MIN_PRINCIPAL || input.principal > MAX_PRINCIPAL {
+    if input.principal < MIN_PRINCIPAL {
         return Err(range_error("PRINCIPAL_TOO_SMALL", "loan.principalTooSmall")
             .with_param("min", MIN_PRINCIPAL.to_string()));
+    }
+    // The upper bound keeps every intermediate value inside rust_decimal's
+    // range, so a large principal is refused rather than trapping.
+    if input.principal > MAX_PRINCIPAL {
+        return Err(range_error("PRINCIPAL_TOO_LARGE", "loan.principalTooLarge")
+            .with_param("max", MAX_PRINCIPAL.to_string()));
     }
     if input.annual_rate < Decimal::ZERO || input.annual_rate > Decimal::ONE {
         return Err(range_error("RATE_OUT_OF_RANGE", "loan.rateOutOfRange")
@@ -206,7 +212,7 @@ mod tests {
         assert_eq!(code(terms("999.99", "0.05", 12)), "PRINCIPAL_TOO_SMALL");
         assert_eq!(
             code(terms("1000000000001", "0.05", 12)),
-            "PRINCIPAL_TOO_SMALL"
+            "PRINCIPAL_TOO_LARGE"
         );
         assert_eq!(code(terms("1000", "-0.01", 12)), "RATE_OUT_OF_RANGE");
         assert_eq!(code(terms("1000", "1.01", 12)), "RATE_OUT_OF_RANGE");

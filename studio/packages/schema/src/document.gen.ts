@@ -588,6 +588,8 @@ export interface FunctionTestCase {
   readonly name: string;
   /** The JSON input passed to the function. */
   readonly input: JsonValue;
+  /** The verified user claims the case is invoked with (server placement, `SEC-026`); none when absent. */
+  readonly claims?: JsonValue;
   /** The JSON output the function must return. */
   readonly output?: JsonValue;
   /** The business error the function must return. */

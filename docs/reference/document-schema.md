@@ -525,6 +525,7 @@ Per-function limits that tighten the registry values (FN-011, LIM-002).
 |---|---|---|---|
 | `name` | string | yes |  |
 | `input` | JSON value | yes | The JSON input passed to the function. |
+| `claims` | JSON value |  | The verified user claims the case is invoked with (server placement, `SEC-026`); none when absent. |
 | `output` | JSON value |  | The JSON output the function must return. |
 | `error` | [FunctionTestError](#functiontesterror) |  | The business error the function must return. |
 

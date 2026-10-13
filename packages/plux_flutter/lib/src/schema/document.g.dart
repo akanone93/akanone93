@@ -1687,7 +1687,7 @@ final class FunctionLimits {
 }
 
 final class FunctionTestCase {
-  const FunctionTestCase({required this.name, required this.input, this.output, this.error});
+  const FunctionTestCase({required this.name, required this.input, this.claims, this.output, this.error});
 
   /// Decodes a JSON object.
   factory FunctionTestCase.fromJson(Object json) {
@@ -1695,6 +1695,7 @@ final class FunctionTestCase {
     return FunctionTestCase(
       name: m['name']! as String,
       input: m['input'],
+      claims: m.containsKey('claims') ? JsonValue(m['claims']) : null,
       output: m.containsKey('output') ? JsonValue(m['output']) : null,
       error: m['error'] == null ? null : FunctionTestError.fromJson(m['error']!),
     );
@@ -1703,6 +1704,9 @@ final class FunctionTestCase {
   final String name;
   /// The JSON input passed to the function.
   final Object? input;
+  /// The verified user claims the case is invoked with (server placement,
+  /// `SEC-026`); none when absent.
+  final JsonValue? claims;
   /// The JSON output the function must return.
   final JsonValue? output;
   /// The business error the function must return.
@@ -1712,6 +1716,7 @@ final class FunctionTestCase {
   Map<String, Object?> toJson() => {
         'name': name,
         'input': input,
+        if (claims != null) 'claims': claims!.value,
         if (output != null) 'output': output!.value,
         if (error != null) 'error': error!.toJson(),
       };

@@ -163,6 +163,11 @@
           "description": "The JSON input passed to the function.",
           "x-plux-raw": true
         },
+        "claims": {
+          "type": "object",
+          "description": "The verified user claims the case is invoked with (server placement, `SEC-026`); none when absent.",
+          "x-plux-raw": true
+        },
         "output": {
           "description": "The JSON output the function must return.",
           "x-plux-raw": true

@@ -901,6 +901,9 @@ type FunctionTestCase struct {
 	Name string `json:"name"`
 	// Input: The JSON input passed to the function.
 	Input json.RawMessage `json:"input"`
+	// Claims: The verified user claims the case is invoked with (server
+	// placement, `SEC-026`); none when absent.
+	Claims json.RawMessage `json:"claims,omitempty"`
 	// Output: The JSON output the function must return.
 	Output json.RawMessage `json:"output,omitempty"`
 	// Error: The business error the function must return.
