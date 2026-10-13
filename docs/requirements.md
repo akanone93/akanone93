@@ -1,9 +1,9 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.4.3
+**Version:** 1.5.0
 **Status:** Draft — living document, revised as implementation proceeds
-**Date:** 2026-10-11
+**Date:** 2026-10-13
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
 
 > **Plux — Plugin Experience.** Build native Flutter screens visually, compile them into signed binary plugins, and ship them to every device in seconds — with high-assurance security, zero parse cost, and full control over who changes what.
@@ -78,7 +78,7 @@ Plux removes the trade-off:
 - The **Plux Server** validates, compiles and **signs** every published plugin into a **FlatBuffers binary**, and computes **binary deltas against every older version**.
 - Teams can build a **complete app without code**: creating an app in Studio generates a ready-to-build Flutter project, and every screen and flow after that is built in Studio (§22.4). Existing apps instead add the package and adopt Plux one screen — or one widget — at a time.
 - The **`plux_flutter`** package — added to any new or existing Flutter app with `flutter pub get` — downloads **all plugins at app start** (deltas only), caches them, verifies them, and renders them as **native Flutter widgets with zero parse cost**. Any plugin screen can navigate to any other plugin screen or to any native screen.
-- Logic that declarative actions cannot express — a loan amortisation schedule, a fee engine, an eligibility rule — runs as **Plux Functions**: unrestricted Go code compiled to WebAssembly and executed in a sandbox — on the server for trusted results, or on the device for offline logic.
+- Logic that declarative actions cannot express — a loan amortisation schedule, a fee engine, an eligibility rule — runs as **Plux Functions**: unrestricted Rust code compiled to WebAssembly and executed in a sandbox — on the server for trusted results, or on the device for offline logic.
 - Every request from a device is **bound to a hardware-backed key (DPoP)** and **backed by platform attestation**, so an operator can trust that the caller is its genuine, unmodified app on a genuine device.
 
 ### 1.3 Design goals
@@ -353,7 +353,7 @@ flowchart LR
 | **P4** | **Routing and host integration** | The action-graph engine core with the navigation and host actions (Appendix D); route addressing; plugin → plugin and plugin → native navigation; native → plugin screen by app-wide route name; **mixed screens**: native slots inside plugin pages and `PluxView` inside native screens, with shared exposed state; typed parameters and results; `go_router`/`auto_route` discovery; deep links; guards; one-place registration of native routes, widgets and actions without changes to existing code; `plux native scan`; `plux codegen` typed routes; **`plux create`** generated projects for no-code apps. | The example host app mixes native and plugin content in both directions — across screens and within one screen — with typed routes; a generated project builds and runs unchanged; unknown routes and bad parameters fail safely. |
 | **P5** | **Actions, state, data, local DB, animation** | Action catalogue completion on the P4 engine core (Appendix D); PXL VM; Riverpod-based scoped state with fine-grained rebuilds; forms and validators; data sources (REST, GraphQL, WebSocket, SSE) with caching, pagination and offline outbox; local database adapter layer (Drift default, others pluggable); animations (implicit, timelines, transitions, Hero, Lottie, Rive). | A complete multi-page flow (login → dashboard → form → result) built from JSON alone runs on device with API calls, local persistence and animations, meeting §30 performance targets. |
 | **P6** | **Security hardening** | Hardware-backed device keys; Play Integrity, Android Key Attestation and App Attest; device registration and assurance levels; **DPoP (RFC 9449)** on every request with nonces and replay protection; sender-constrained tokens; certificate pinning; TUF-style update metadata and key rotation; confidential (encrypted) bundles; RASP; secure widgets; encrypted local storage; security profiles; audit log; threat model; OWASP MASVS L2 + resilience checklist. | Security test suite passes: replayed, forged, mis-bound and expired requests are rejected; tampered and rolled-back bundles are rejected; MASVS checklist complete with evidence. |
-| **P7** | **Plux Functions** | Interface-only Go SDK; standard-Go WASM build pipeline; `fnrunner` role on `wazero` with resource limits and deny-by-default capabilities; **on-device execution** through a sandboxed WASM interpreter for functions placed on the device; typed schemas for binding; versioning and aliases; server invocation protected by DPoP and assurance levels; `plux fn` CLI. | A loan calculator runs on the device offline and on the server with a trusted result; limit, fuzz and isolation tests pass on both; latency targets met. |
+| **P7** | **Plux Functions** | Interface-only Rust SDK crate (`plux-fn`); `wasm32-wasip1` build pipeline with `wasm-opt`, run by the `builder` role from uploaded source and vendored crates, artifacts signed with a function-artifact key; `fnrunner` role on `wazero` with resource limits and deny-by-default capabilities, reaching the network only through the `egress` proxy; **on-device execution** through the WAMR WebAssembly interpreter for functions placed on the device; typed schemas derived from the Rust types for binding; versions and aliases; server invocation protected by DPoP, assurance levels and SCA; `plux fn` CLI. | A loan calculator runs on the device offline and on the server with a trusted result; limit, fuzz and isolation tests pass on both; latency targets met. |
 | **P8** | **Localisation and accessibility** | ICU MessageFormat and CLDR; English, German, Arabic and Amharic at launch; non-Gregorian calendar support (Ethiopian first); RTL; runtime locale switch; translation workflow and import/export; WCAG 2.2 AA checks at publish; accessibility report. | One plugin runs in all launch locales and RTL; publish-time accessibility checks pass on reference apps. |
 | **P9** | **Enterprise and operations** | Teams, roles and custom roles; SSO (OIDC, SAML) and SCIM; generic approval engine with four-eyes and step-up; break-glass; change freezes; environments and promotion; staged rollouts, targeting, scheduling, health-based auto-pause and rollback; kill switch; experiment and feature-flag engine; telemetry ingestion and dashboards; observability stack; Helm chart; HA; backups; air-gapped install; license files. | A self-hosted HA install passes a scripted regulated-industry audit walkthrough: approvals, rollout, kill switch, rollback, audit export and "what did the user see" reconstruction. |
 | **P10** | **Dev app and live debugging** | The ten-minute quick start (`HST-034`, `DX-001`); Plux Dev app; QR pairing; live draft push with incremental compile; streaming of logs, action traces (process flow), state, network, function calls, sync and performance; on-device inspect mode; mocks and network simulation; `plux_devtools` for developers' own host apps (debug builds only). | Edit-to-device latency target met; a Studio-less developer can debug a flow using the CLI viewer; devtools proven absent from release builds. |
@@ -388,11 +388,13 @@ flowchart LR
 
 ### 5.4 Forward-compatibility rules
 
-> **BND-000** `P3` **MUST** — From the first tagged runtime release (end of P3), the bundle format and manifest format **MUST** evolve additively only: fields may be added, never removed, renumbered, retyped or given new semantics. Deprecated fields keep their slots. A bundle that needs a capability unknown to an older runtime **MUST** declare it in `required_features` (`BND-008`) so that the older runtime refuses it gracefully and keeps its last compatible release.
+The rules below take effect with the first release, 0.0.1. Until then the bundle format, the document schema and the API **MAY** change incompatibly; every incompatible change is called out in its pull request.
+
+> **BND-000** `P3` **MUST** — From the first release, **0.0.1**, made once the flow from Studio to an app works end to end (plan p7 §2.2 C6), the bundle format and manifest format **MUST** evolve additively only: fields may be added, never removed, renumbered, retyped or given new semantics. Deprecated fields keep their slots. A bundle that needs a capability unknown to an older runtime **MUST** declare it in `required_features` (`BND-008`) so that the older runtime refuses it gracefully and keeps its last compatible release.
 
 > **SCH-000** `P1` **MUST** — The document schema **MUST** carry an explicit `schemaVersion`. Every schema change **MUST** come with an automatic, tested forward migration. Documents are never silently reinterpreted.
 
-> **SRV-000** `P2` **MUST** — The public API contract under `proto/plux/v1/` **MUST** be checked with `buf breaking` against the last tagged release; breaking changes require a new API version package (`v2`) and a deprecation period of at least two minor releases.
+> **SRV-000** `P2` **MUST** — The public API contract under `proto/plux/v1/` **MUST** be checked with `buf breaking` against the last release from 0.0.1 on; breaking changes require a new API version package (`v2`) and a deprecation period of at least two minor releases.
 
 Rationale: an app installed from the store today must keep working, unmodified, against every future Plux server and every future bundle — or refuse cleanly and keep running its last good release. This is what makes over-the-air UI safe for regulated industries.
 
@@ -455,7 +457,9 @@ The server is a **modular monolith**: one Go module and one binary, `plux-server
 |---|---|---|
 | `api` | All ConnectRPC services, manifest and control endpoints, device registration, token issuance, telemetry ingestion, dev-session relay. | Public (behind ingress). |
 | `worker` | Publish pipeline jobs: compile, sign (via KMS), delta generation, asset processing, thumbnails, visual diffs, exports, scheduled rollouts, experiment statistics, retention jobs. | Internal only. |
-| `fnrunner` | Executes Plux Functions in WASM sandboxes. Holds no database credentials. Egress only through an allowlisting proxy. | Internal only, mTLS. |
+| `fnrunner` | Executes Plux Functions in WASM sandboxes. Holds no database credentials. Reaches the network only through the `egress` role. | Internal only, mTLS. |
+| `builder` | Builds functions from uploaded source and vendored crates with the pinned Rust toolchain and `wasm-opt`: no network, bounded CPU, memory and time. Holds no database credentials and no signing keys; it hands artifact and provenance to `signing/` through the `worker`. | Internal only, mTLS. |
+| `egress` | Forward proxy (HTTP and `CONNECT`) and the only route out of `fnrunner`: per-function domain allowlist and refusal of private addresses. | Internal only, mTLS; outbound to the internet. |
 
 ```
 internal/
@@ -474,8 +478,10 @@ internal/
   release/      plugin versions, app releases, channels, promotion, manifests
   rollout/      targeting, bucketing, schedules, health gates, kill switch
   experiment/   assignment, exposure, statistics, feature flags
-  function/     function registry, build pipeline, invocation routing
+  function/     function registry, build orchestration, versions and aliases, invocation routing
+  builder/      Rust build pipeline: vendored sources, pinned toolchain, wasm-opt, no network
   fnrunner/     wazero host, capabilities, limits
+  egress/       forward proxy: per-function allowlist, private-address refusals
   approval/     policy engine, approvals, break-glass, freezes
   audit/        hash-chained audit log, SIEM export
   l10n/         translation keys, workflow, import/export
@@ -568,7 +574,7 @@ sequenceDiagram
 | L-1 | ConnectRPC handlers contain no business logic; they authenticate, authorise, translate and delegate. |
 | L-2 | Domain modules depend on interfaces, never on transport or on another module's storage. |
 | L-3 | Only `signing/` touches private keys, and only through the KMS abstraction. |
-| L-4 | `fnrunner` never receives database credentials or signing capabilities. |
+| L-4 | `fnrunner`, `builder` and `egress` never receive database credentials or signing capabilities. |
 | L-5 | The compiler is a pure library with no I/O except through injected interfaces, so it runs identically in the server, the CLI and tests. |
 | L-6 | In the runtime, nothing on the UI isolate performs network I/O, decompression, patching or hashing of more than 64 KiB. |
 | L-7 | Studio never talks to the database or object storage directly; all access goes through the API with the user's permissions. |
@@ -1190,7 +1196,7 @@ Every device → server request is protected by an OAuth 2.0 access token that i
 | `SEC-040` | P6 | MUST | All external traffic **MUST** use TLS 1.3 (TLS 1.2 with AEAD ciphers only when explicitly allowed by configuration) and HSTS. | DONE |
 | `SEC-041` | P6 | MUST | The runtime **MUST** pin the SPKI hashes of the Plux server's certificate chain with at least two pins (one a backup key not in use), taken from `PluxConfig.pins` at build time and updated only through signed update metadata (`SEC-050`); a mismatch **MUST** fail closed and be reported (`PLX-6020`). | WIP |
 | `SEC-042` | P6 | SHOULD | Customer API domains **SHOULD** support optional pinning configured in the app document. | WIP |
-| `SEC-043` | P6 | MUST | Traffic between `api`, `worker` and `fnrunner` **MUST** use mutual TLS with certificates from an internal CA or the platform's service mesh, and connections to PostgreSQL and Valkey **MUST** use TLS. P6 delivers TLS 1.3 and HSTS at the edge, TLS to PostgreSQL and Valkey and mutual TLS between `api` and `worker`; `fnrunner` follows in P7. | WIP |
+| `SEC-043` | P6 | MUST | Traffic between `api`, `worker`, `fnrunner`, `builder` and `egress` **MUST** use mutual TLS with certificates from an internal CA or the platform's service mesh, and connections to PostgreSQL and Valkey **MUST** use TLS. P6 delivers TLS 1.3 and HSTS at the edge, TLS to PostgreSQL and Valkey and mutual TLS between `api` and `worker`; `fnrunner`, `builder` and `egress` follow in P7. | WIP |
 
 ### 15.5 Update integrity
 
@@ -1249,6 +1255,7 @@ The update channel follows the design of **The Update Framework (TUF)**: separat
 | `SEC-120` | P2 | MUST | All signing and encryption keys **MUST** be accessed through a signing abstraction with backends for PKCS#11 HSMs (through a separate helper process), cloud HSM and KMS products reached through their PKCS#11 libraries (AWS CloudHSM, Google Cloud HSM, Azure Managed HSM), and HashiCorp Vault Transit. File-based keys are allowed only in development (ADR-0060). | DONE |
 | `SEC-121` | P6 | MUST | Root keys **MUST** be offline and used only in documented key ceremonies (`docs/runbooks/key-ceremony.md`) with an *m*-of-*n* threshold (2 of 3 by default); online role keys **MUST** be rotatable without an app store release. | DONE |
 | `SEC-122` | P6 | MUST | Metadata **MUST** carry algorithm identifiers to allow future algorithm migration (crypto agility), including a path to post-quantum signatures. | DONE |
+| `SEC-123` | P7 | MUST | `signing/` **MUST** import externally issued private keys (such as the Apple developer key for the fraud-metric receipt, `SEC-007`) into an imported-key backend; they **MUST** be used only through the signing abstraction and **MUST NOT** leave it in clear (ADR-0065). | SPEC |
 
 ### 15.10 Audit
 
@@ -1313,11 +1320,11 @@ Security profiles bundle settings so that operators do not need to understand fi
 ---
 ## 16. Plux Functions — the Compute Layer
 
-Declarative actions and PXL bindings cover UI logic. Business logic that needs real computation — a loan amortisation schedule, a fee engine, an eligibility check, a price calculation, data aggregation — runs as **Plux Functions**: **unrestricted Go**, written in Studio or in a repository, using the full standard library and any pure-Go module declared in `go.mod`. The only restrictions come from the sandbox, not from a limited library.
+Declarative actions and PXL bindings cover UI logic. Business logic that needs real computation — a loan amortisation schedule, a fee engine, an eligibility check, a price calculation, data aggregation — runs as **Plux Functions**: **unrestricted Rust**, written in Studio or in a repository, using the full standard library and any crate declared in `Cargo.toml` that compiles for `wasm32-wasip1`. The only restrictions come from the sandbox, not from a limited library.
 
 Functions are compiled to WebAssembly (ADR-0011) for two reasons:
 
-1. **Isolation without containers.** A native Go binary cannot be sandboxed inside a host process (Go's `plugin` package cannot be unloaded and gives no memory isolation), and running each function as its own process or container costs hundreds of milliseconds per cold start and makes tenant isolation and resource limits harder. WebAssembly gives memory-safe isolation, deny-by-default capabilities, millisecond instantiation and hard CPU and memory limits in one process.
+1. **Isolation without containers.** A native binary cannot be sandboxed inside a host process (a dynamically loaded library cannot be unloaded and gives no memory isolation), and running each function as its own process or container costs hundreds of milliseconds per cold start and makes tenant isolation and resource limits harder. WebAssembly gives memory-safe isolation, deny-by-default capabilities, millisecond instantiation and hard CPU and memory limits in one process.
 2. **One artifact, two placements.** The same compiled module runs on the server or on the device.
 
 Each function declares exactly one **placement**:
@@ -1325,33 +1332,40 @@ Each function declares exactly one **placement**:
 | Placement | Runs in | Use for | Trust |
 |---|---|---|---|
 | `server` | `fnrunner` role on `wazero` | Trusted results, secrets, calls to external APIs, anything the backend must rely on | Results are authoritative |
-| `device` | Sandboxed WebAssembly interpreter inside the runtime | Offline and low-latency logic: live calculators, previews, validation, formatting | Results are for display only; the server never trusts them |
+| `device` | Sandboxed WebAssembly interpreter (WAMR) inside the runtime | Offline and low-latency logic: live calculators, previews, validation, formatting | Results are for display only; the server never trusts them |
 
-```go
-package loan
+```rust
+// functions/loan/src/lib.rs
+use plux_fn::{BusinessError, DeviceContext};
+use rust_decimal::Decimal;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-import (
-    "math/big"
-
-    "plux.dev/sdk/fn"
-)
-
-type Input struct {
-    Principal  string `json:"principal"  plux:"decimal,min=1000"`
-    AnnualRate string `json:"annualRate" plux:"decimal,min=0,max=1"`
-    Months     int    `json:"months"     plux:"min=1,max=360"`
+#[derive(Deserialize, JsonSchema)]
+struct Input {
+    principal: Decimal,
+    annual_rate: Decimal,
+    months: u32,
 }
 
-type Output struct {
-    MonthlyPayment string        `json:"monthlyPayment" plux:"money"`
-    Schedule       []Installment `json:"schedule"`
+#[derive(Serialize, JsonSchema)]
+struct Output {
+    monthly_payment: Decimal,
+    schedule: Vec<Installment>,
 }
 
-//plux:function name=loan.calculateSchedule placement=device
-func CalculateSchedule(ctx fn.Context, in Input) (Output, error) {
-    // Any Go code: standard library, math/big, third-party modules…
-    principal, _ := new(big.Rat).SetString(in.Principal)
-    return amortise(principal, in.AnnualRate, in.Months)
+fn calculate_schedule(ctx: &DeviceContext, input: Input) -> Result<Output, BusinessError> {
+    // Any Rust code: the standard library, rust_decimal, other crates…
+    amortise(ctx, input.principal, input.annual_rate, input.months)
+}
+
+plux_fn::function!(calculate_schedule);
+```
+
+```json
+{
+  "name": "loan.calculateSchedule",
+  "placement": "device"
 }
 ```
 
@@ -1359,36 +1373,41 @@ func CalculateSchedule(ctx fn.Context, in Input) (Output, error) {
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `FN-001` | P7 | MUST | Functions **MUST** be written in Go and compiled with the **standard Go toolchain** to WebAssembly (`GOOS=wasip1`, exported with `go:wasmexport`), pinned per release, and post-processed with a WebAssembly optimiser to reduce size. TinyGo is not used: full standard-library, reflection and `encoding/json` compatibility matters more than module size (ADR-0011). | SPEC |
-| `FN-002` | P7 | MUST | The SDK (`plux.dev/sdk/fn`) **MUST** be **interface-only**: a typed handler signature and a context exposing logging, verified user claims (`SEC-026`, server placement), device assurance level, app and environment IDs, environment variables, named secrets (server placement), a per-app key-value store, an HTTP client routed through the host (server placement), a clock and input/output schema declaration. It **MUST NOT** restrict which Go packages a function may use. | SPEC |
-| `FN-003` | P7 | MUST | Functions **MUST** be able to use any standard-library package and any third-party Go module declared in `go.mod` that compiles for `wasip1`; dependencies are vendored and recorded in the function's provenance. | SPEC |
-| `FN-004` | P7 | MUST | Input and output schemas **MUST** be derived from the Go types (with validation tags) at build time and published with the function, so that Studio binds inputs and outputs with type checking and the compiler validates `invokeFunction` steps (`ACT-001`). | SPEC |
+| `FN-001` | P7 | MUST | Functions **MUST** be written in Rust and compiled to WebAssembly for the `wasm32-wasip1` target with a toolchain pinned per release (Rust 1.97.0), and post-processed with `wasm-opt` (Binaryen, pinned) to reduce size (ADR-0011). | SPEC |
+| `FN-002` | P7 | MUST | The SDK crate `plux-fn` (`github.com/nightCode42/plux3/sdk/fn`) **MUST** be **interface-only**: a typed handler signature and a context exposing logging, verified user claims (`SEC-026`, server placement), device assurance level, app and environment IDs, environment variables, named secrets (server placement), a per-app key-value store, an HTTP client routed through the host (server placement), a clock and input/output schema declaration. The device and server context types differ, so a device handler cannot reach server-only capabilities at compile time. It **MUST NOT** restrict which crates a function may use. | SPEC |
+| `FN-003` | P7 | MUST | Functions **MUST** be able to use any standard-library item and any crate declared in `Cargo.toml` that compiles for `wasm32-wasip1`; dependencies are vendored (`cargo vendor`), a lock file is required, and both are recorded in the function's provenance. | SPEC |
+| `FN-004` | P7 | MUST | Input and output schemas **MUST** be derived from the Rust types (`schemars`) at build time and published with the function, so that Studio binds inputs and outputs with type checking and the compiler validates `invokeFunction` steps (`ACT-001`). | SPEC |
 | `FN-005` | P7 | MUST | Builds **MUST** record provenance: source hash, dependency list, toolchain version, build time and builder identity; artifacts are signed. | SPEC |
 | `FN-006` | P7 | MUST | Function versions **MUST** be immutable; aliases (e.g. `@prod`, `@stable`) **MAY** point to versions. App releases **MUST** capture the resolved version of every referenced function, so a release's behaviour is reproducible. | SPEC |
-| `FN-007` | P7 | MUST | Deploying a function to production **MUST** go through the approval engine (`GOV-020`). | SPEC |
+| `FN-007` | P7 | MUST | Deploying a function to production **MUST** go through the approval engine (`GOV-020`, P9). Until that engine exists, it **MUST** require a dedicated RBAC permission with step-up authentication (the stand-in already used for release promotion); P9 replaces the stand-in. | SPEC |
 | `FN-008` | P7 | MUST | Each function **MUST** declare exactly one placement, `server` or `device`; the compiler **MUST** reject device-placed functions that request server-only capabilities (secrets, HTTP, user claims). | SPEC |
+| `FN-009` | P7 | MUST | Only artifacts built by the `builder` role and signed with the function-artifact key **MUST** be deployable; `fnrunner` **MUST** verify the signature before it compiles a module. | SPEC |
+| `FN-016` | P7 | MUST | The `builder` role **MUST** build with the pinned toolchain and `wasm-opt`, from vendored sources only (`--locked --offline`), with no network and bounded CPU, memory and time; build scripts and procedural macros run only from an allowlist. It holds no database credentials and no signing keys (L-4). | SPEC |
+| `FN-017` | P7 | MUST | The `egress` role **MUST** be a standard-library forward proxy (HTTP and `CONNECT`) and the only route out of `fnrunner`, enforcing the function's domain allowlist and the gateway's private-address refusals. | SPEC |
+| `FN-018` | P7 | MUST | The server key-value store **MUST** be PostgreSQL with one namespace per app, environment and function, under row-level security and bounded by limits from the registry (`function.kv*`); `fnrunner` **MUST** reach it only through host calls served by `api`. Device functions use the plugin's key-value namespace. | SPEC |
+| `FN-019` | P7 | MUST | Function builds **MUST** be reproducible: the same source, lock file and toolchain give a byte-identical module (`CMP-002`, `CI-006`). | SPEC |
 
 ### 16.2 Execution and isolation
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `FN-010` | P7 | MUST | Server-placed functions **MUST** execute on `wazero`, with modules compiled ahead of time at deploy and cached, and a fresh instance (fresh linear memory) per invocation, so no state leaks between invocations or tenants. | SPEC |
-| `FN-011` | P7 | MUST | Each invocation **MUST** be bounded by wall time (default 2 s, max 30 s), memory (default 64 MiB, max 512 MiB), output size (default 1 MiB), outbound HTTP calls (default 10) and nested function calls (depth ≤ 3), within the limits framework (§30.4). | SPEC |
+| `FN-011` | P7 | MUST | Each invocation **MUST** be bounded by wall time (default 2 s, max 30 s), memory (default 64 MiB, max 512 MiB), output size (default 1 MiB), outbound HTTP calls (default 10) and nested function calls (depth ≤ 3), within the limits framework (§30.4; registry keys `function.*`). | SPEC |
 | `FN-012` | P7 | MUST | Capabilities **MUST** be deny-by-default and granted by declaration: HTTP to allowlisted domains, the app's key-value namespace, named secrets and other functions. There is no filesystem, raw socket, process or environment access. | SPEC |
-| `FN-013` | P7 | MUST | The `fnrunner` role **MUST** hold no database credentials and no signing keys, and **MUST** reach the network only through an egress proxy enforcing each function's allowlist (layering rule L-4). | SPEC |
+| `FN-013` | P7 | MUST | The `fnrunner` role **MUST** hold no database credentials and no signing keys, and **MUST** reach the network only through the `egress` role, which enforces each function's allowlist (layering rule L-4). | SPEC |
 | `FN-014` | P7 | MAY | Server functions declared `pure` **MAY** have results cached by input hash for a declared TTL. | SPEC |
-| `FN-015` | P7 | MUST | The host ABI between the function hosts (server and device) and function modules **MUST** be language-neutral (no Go-specific types at the boundary), versioned, identical for both placements, and documented in `docs/functions/abi.md`. | SPEC |
+| `FN-015` | P7 | MUST | The host ABI between the function hosts (server and device) and function modules **MUST** be language-neutral (no language-specific types at the boundary), versioned, identical for both placements, and documented in `docs/functions/abi.md` (ADR-0062). | SPEC |
 
 ### 16.3 Device placement
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `FN-050` | P7 | MUST | Device-placed functions **MUST** run in an **interpreter-only** WebAssembly engine embedded through FFI (candidates: `wasmi`, WAMR in interpreter mode, wasmtime's Pulley interpreter — chosen in ADR-0011), never compiled to native code on the device, consistent with store policies (`SEC-054`). | SPEC |
+| `FN-050` | P7 | MUST | Device-placed functions **MUST** run in WAMR in interpreter mode, embedded through FFI in the optional package `plux_functions` (`RT-060`); `wasmi` is the measured alternative (ADR-0011). Modules are never compiled to native code on the device, consistent with store policies (`SEC-054`). | SPEC |
 | `FN-051` | P7 | MUST | Device-placed modules **MUST** be delivered inside the plugin bundle, signed and verified like every other section (`SEC-052`), and all device functions of a plugin **MUST** be compiled into one module to share runtime overhead. | SPEC |
 | `FN-052` | P7 | MUST | Device-placed functions **MUST** have no network, no secrets and no access to device APIs; they receive only their declared input and the capabilities `log`, `clock` and the plugin's key-value namespace. | SPEC |
 | `FN-053` | P7 | MUST | Device invocations **MUST** run off the UI isolate with the same time and memory limits as server functions (device defaults: 500 ms, 32 MiB) and **MUST** be cancellable. | SPEC |
 | `FN-054` | P7 | MUST | Results of device-placed functions **MUST NOT** be accepted by the server as evidence for any decision; flows that need a trusted result call a server-placed function (which may run the same code). | SPEC |
-| `FN-055` | P7 | MUST | Device placement **MUST** be disabled by default under the `maximum` security profile and enableable per function with approval. | SPEC |
+| `FN-055` | P7 | MUST | Device placement **MUST** be disabled by default under the `maximum` security profile (security setting `deviceFunctions`) and enableable per function; until the approval engine (`GOV-020`, P9) exists, enabling it requires a dedicated RBAC permission with step-up authentication, and P9 replaces that stand-in with approval. | SPEC |
 | `FN-056` | P7 | MUST | Device module size **MUST** be governed by the limits framework (default 4 MiB per plugin module), and a typical calculation (≤ 10,000 arithmetic operations) **MUST** complete in ≤ 20 ms p95 on the mid-tier reference device. | SPEC |
 
 ### 16.4 Server invocation
@@ -1406,11 +1425,14 @@ func CalculateSchedule(ctx fn.Context, in Input) (Output, error) {
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `FN-030` | P7 | MUST | `plux fn test` **MUST** run the function's Go unit tests natively and then run the same test cases against the compiled WASM module — on `wazero` and on the device interpreter for device-placed functions — failing if results differ. | SPEC |
-| `FN-031` | P7 | MUST | Test cases (input → expected output or error) **MUST** be storable with the function and runnable in Studio and CI; a function with failing tests **MUST NOT** be deployable to production. | SPEC |
-| `FN-032` | P7 | MUST | Per-function metrics (invocations, errors by kind, latency percentiles, memory peak, cache hits) and logs **MUST** be available in Studio and Prometheus; server invocation traces **MUST** link to the calling device request, and device invocations **MUST** appear in dev-session traces (`DEV-020`). | SPEC |
-| `FN-033` | P11 | MUST | Studio **MUST** provide a Go editor (Monaco) with `gopls`-backed completion, diagnostics and formatting (served through a language-server bridge in the `worker`), starter templates (loan schedule, fee calculator, eligibility, currency conversion), dependency management and a test runner. | SPEC |
-| `FN-040` | P15 | MAY | Additional source languages that compile to WASM (e.g. Rust, AssemblyScript) **MAY** be supported later, using the language-neutral ABI of `FN-015`. | SPEC |
+| `FN-030` | P7 | MUST | `plux fn test` **MUST** run the function's Rust unit tests natively (`cargo test`) and then run the same test cases against the compiled WASM module — on `wazero` and, for device-placed functions, on the device interpreter — failing if results differ. | SPEC |
+| `FN-031` | P7 | MUST | Test cases (input → expected output or error) **MUST** be storable with the function and runnable in CI and by `plux fn test`; a function with failing tests **MUST NOT** be deployable to production. | SPEC |
+| `FN-032` | P7 | MUST | Per-function metrics (invocations, errors by kind, latency percentiles, memory peak, cache hits) and logs **MUST** be available through the API, the CLI and Prometheus; server invocation traces **MUST** link to the calling device request. | SPEC |
+| `FN-033` | P11 | MUST | Studio **MUST** provide a Rust editor (Monaco) with `rust-analyzer`-backed completion, diagnostics and formatting (served through a language-server bridge in the `worker`), starter templates (loan schedule, fee calculator, eligibility, currency conversion), dependency management and a test runner. | SPEC |
+| `FN-034` | P11 | MUST | Stored test cases **MUST** be runnable in Studio (split from `FN-031`). | SPEC |
+| `FN-035` | P11 | MUST | Per-function metrics and logs **MUST** be shown in Studio (split from `FN-032`). | SPEC |
+| `FN-036` | P10 | MUST | Device invocations **MUST** appear in dev-session traces (`DEV-020`; split from `FN-032`). | SPEC |
+| `FN-040` | P15 | MAY | Go and other languages that compile to WASM **MAY** be supported later, using the language-neutral ABI of `FN-015`. | SPEC |
 
 ---
 
@@ -1697,7 +1719,7 @@ The screen editor is the canvas of §21.6 with a screen selected for editing and
 | `STU-060` | P11 | MUST | A floating **action bar at the top centre** **MUST** provide: undo/redo, zoom, device frame, theme, locale, text scale, **send to device** (choose paired device), validation status (opens Problems), history, AI assistant, and **Publish** (primary action, opens the release flow, `STU-100`). | SPEC |
 | `STU-061` | P11 | MUST | A floating **left panel** **MUST** provide tabs: **Insert** (Layer 1, Layer 2 and custom widgets, components and templates, searchable, drag-and-drop); **Layers** (tree view with drag-to-reorder and reparent, rename, hide, lock, multi-select); **Screens**; **Assets**; **State** (app/plugin/page state, computed values, forms); **Data** (data sources, mocks, collections); and **Selection** (details of the current multi-selection). | SPEC |
 | `STU-062` | P11 | MUST | A floating **right panel** **MUST** provide tabs: **Properties** (grouped editors generated from widget descriptors: layout, style, content, behaviour, responsive overrides, bindings with PXL autocompletion, token pickers, translation pickers); **Actions** (events of the selection and their action graphs); **JSON** (compact JSON of the selection); **Code** (functions used by the selection); **Localisation** (strings of the selection); **Accessibility**; **Performance** (node count, estimated cost, budget status); and **Docs** (widget documentation). | SPEC |
-| `STU-063` | P11 | MUST | Heavy editors — **JSON editor**, **Go function editor**, **action graph editor**, **localisation table**, **state designer**, **data source designer** (with OpenAPI import), **DB schema designer** and **theme editor** — **MUST** be launched from the right panel and open as **full-screen overlays**. Opening an overlay **MUST NOT** unmount or re-render the canvas: the canvas is paused and preserved, and closing the overlay restores zoom, scroll and selection exactly. | SPEC |
+| `STU-063` | P11 | MUST | Heavy editors — **JSON editor**, **Rust function editor**, **action graph editor**, **localisation table**, **state designer**, **data source designer** (with OpenAPI import), **DB schema designer** and **theme editor** — **MUST** be launched from the right panel and open as **full-screen overlays**. Opening an overlay **MUST NOT** unmount or re-render the canvas: the canvas is paused and preserved, and closing the overlay restores zoom, scroll and selection exactly. | SPEC |
 | `STU-064` | P11 | MUST | The JSON editor **MUST** validate against the schema as the user types, show diagnostics inline, offer a diff against the last published version, and apply edits only when valid. | SPEC |
 | `STU-065` | P11 | MUST | The action graph editor **MUST** be a node-based editor with typed ports, the action catalogue (built-in, custom, functions, flows), inline PXL editing with autocompletion, and validation of every path. | SPEC |
 | `STU-066` | P11 | MUST | A resizable, collapsible **bottom drawer** **MUST** provide tabs fed by paired devices (`DEV-020`): **Problems** (validation), **Logs**, **Process flow** (visual timeline and graph of action runs; clicking a step selects the node or action in the editor), **State**, **Network**, **Functions** (with server-side logs), **Sync**, **Performance** and **Console** (PXL against device state). The drawer **MUST** support choosing the source device, filters, search, pause and export. | SPEC |
@@ -1743,7 +1765,7 @@ The screen editor is the canvas of §21.6 with a screen selected for editing and
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `STU-110` | P11 | MUST | The **Functions** area **MUST** list functions with versions, aliases, required assurance, capabilities, tests and metrics, and open the Go editor overlay (`FN-033`). | SPEC |
+| `STU-110` | P11 | MUST | The **Functions** area **MUST** list functions with versions, aliases, required assurance, capabilities, tests and metrics, and open the Rust editor overlay (`FN-033`). | SPEC |
 | `STU-111` | P11 | MUST | The **Localisation** area **MUST** show a keys × locales grid with status colours, a missing-translation heatmap per plugin, screenshot context per key, filters, bulk actions, import/export and pseudo-localisation. | SPEC |
 | `STU-112` | P11 | MUST | The **Design system** area **MUST** edit tokens, themes (light, dark, high contrast), brand overlays, typography per script, icon sets, and the organisation's locked component library; it **SHOULD** import tokens from Figma variables exports in DTCG format. | SPEC |
 | `STU-113` | P11 | MUST | The **Data** area **MUST** manage API definitions per environment (with OpenAPI and GraphQL import), mocks, and local database collections with migration previews. | SPEC |
@@ -2008,8 +2030,8 @@ Every size and resource in Plux is governed by one limits framework. Limits are 
 |---|---|
 | **Release and bundles** | Total app release size; per-plugin bundle size; per-page section size; total and per-asset bytes; fonts; device function module size |
 | **Counts** | Plugins per app; pages per plugin; nodes per page; components; locales; translation keys; functions; data sources; experiments |
-| **Device** | Disk quota for releases; memory cache; local database size; outbox size; telemetry buffer; image cache |
-| **Server** | Function time, memory, output and HTTP calls; publish frequency; AI usage; API rate limits; storage and retention |
+| **Device** | Device function time and memory; disk quota for releases; memory cache; local database size; outbox size; telemetry buffer; image cache |
+| **Server** | Function time, memory, input and output size, HTTP calls, call depth, key-value store and rate limits; function builds; publish frequency; AI usage; API rate limits; storage and retention |
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
@@ -2067,7 +2089,7 @@ Significant decisions are recorded as ADRs in `docs/adr/` using MADR. These ADRs
 | 0008 | Riverpod as the runtime state engine | P3 |
 | 0009 | PXL: a typed expression language compiled to bytecode instead of embedding a scripting engine | P1 |
 | 0010 | Layered widget model instead of one-to-one mirroring of Flutter | P1 |
-| 0011 | Plux Functions: standard Go compiled to WebAssembly; `wazero` on the server, an interpreter on the device; explicit placement | P7 |
+| 0011 | Plux Functions: Rust compiled to WebAssembly; `wazero` on the server, WAMR interpreted on the device; explicit placement | P7 |
 | 0012 | DPoP with hardware-backed keys plus platform attestation for device trust | P6 |
 | 0013 | Plux Canvas: TypeScript WebGL2 design surface with a Flutter-compatible layout engine and conformance suite | P11 |
 | 0014 | Studio on Bun with a backend-for-frontend; React and shadcn/ui | P11 |
@@ -2082,6 +2104,10 @@ Significant decisions are recorded as ADRs in `docs/adr/` using MADR. These ADRs
 | 0023 | Mixed native/plugin screens: native slots and `PluxView` with shared exposed state | P4 |
 | 0024 | No-code generated projects and shell-update detection | P4 |
 | 0025 | Document schema toolchain: JSON Schema validation library, RFC 8785 canonicalisation and in-house code generation | P1 |
+| 0062 | The Plux Functions host ABI (`FN-015`): imports, exports, memory, errors and versioning | P7 |
+| 0063 | Function builds, provenance and signing: the `builder` role, vendoring, reproducibility, the function-artifact key | P7 |
+| 0064 | Function isolation: `fnrunner`, the `egress` role, limits, key-value host calls, threat-model delta | P7 |
+| 0065 | Imported signing keys in `signing/` and the Apple fraud-metric receipt | P7 |
 
 ---
 
@@ -2119,11 +2145,11 @@ plux/
 │   ├── fbs/                   # FlatBuffers IDL for bundles
 │   └── testdata/              # cross-language conformance vectors
 ├── proto/plux/v1/             # API contract
-├── backend/                   # Go module: plux-server, plux CLI, compiler, Functions SDK
+├── backend/                   # Go module: plux-server, plux CLI, compiler
 │   ├── cmd/plux-server/
 │   ├── cmd/plux/
-│   ├── internal/              # modules listed in §6.3
-│   └── sdk/fn/                # Functions SDK
+│   └── internal/              # modules listed in §6.3
+├── sdk/fn/                    # Functions SDK: the Rust crate plux-fn
 ├── tools/                     # Go module, standard library only: reqtrace (spec lint, traceability), covgate, policy checks
 ├── packages/                  # Dart packages (pub workspace members)
 │   ├── plux_flutter/          # core runtime
@@ -2157,7 +2183,7 @@ plux/
 | Decision | Outcome | Record |
 |---|---|---|
 | Delta algorithm | Section-level content addressing plus zstd `--patch-from` for changed sections. One small library on the device serves both transport compression and patching; decoding is fast and memory-light; bsdiff is slow, memory-hungry and tuned for executables rather than structured data. Benchmarks against bsdiff and HDiffPatch remain as verification (`QA-007`). | ADR-0003 |
-| Functions toolchain | Standard Go (`GOOS=wasip1`, `go:wasmexport`), not TinyGo: full standard library, reflection and `encoding/json` compatibility outweigh module size, which is controlled by optimisation, one module per plugin, and limits. | ADR-0011 |
+| Functions toolchain | Rust (`wasm32-wasip1`) with `wasm-opt`: modules are far smaller and faster than Go's, as measured in plan p7 §2.3, and the full standard library and the crate ecosystem remain available. Go and TinyGo were rejected for module size and start time. | ADR-0011 |
 | Function placement | Each function runs on the `server` or on the `device`, never both implicitly. | ADR-0011 |
 | Studio canvas | Plux Canvas: a TypeScript WebGL2 design surface with a Flutter-compatible layout engine and a conformance suite; no Flutter Web build. The device is the source of truth. | ADR-0013 |
 | Default AI provider | OpenAI-compatible API as the primary interface; recommended free defaults are a local Ollama model and a free hosted model; any paid provider can be configured. | ADR-0017 |
@@ -2603,7 +2629,7 @@ Dialogs, bottom sheets and snack bars are page kinds and actions (Appendix D), n
 | A node's `visible` condition | `user.tier == "gold"` | Show only to gold customers |
 | A list item's subtitle | `item.status ?? "pending"` | Fallback when a value is missing |
 
-PXL is deliberately small: no loops, no assignments, no I/O, and every evaluation is bounded. Anything that needs real programming is written as a **Plux Function in unrestricted Go** (§16). The functions below are PXL built-ins available in bindings; they do not limit what Go functions can do.
+PXL is deliberately small: no loops, no assignments, no I/O, and every evaluation is bounded. Anything that needs real programming is written as a **Plux Function in unrestricted Rust** (§16). The functions below are PXL built-ins available in bindings; they do not limit what Go functions can do.
 
 ### E.1 Grammar (abridged, EBNF)
 
@@ -2673,8 +2699,8 @@ Every error and diagnostic has a stable code `PLX-NNNN` (`DX-003`). Codes are gr
 | `PLX-3000`–`3999` | Release and sync | `PLX-3001` manifest signature invalid · `PLX-3002` manifest expired · `PLX-3003` rollback attempt rejected · `PLX-3010` unsupported required feature · `PLX-3011` hash mismatch after patch · `PLX-3020` automatic revert to last known good · `PLX-3030` disk quota exceeded |
 | `PLX-4000`–`4999` | Runtime rendering and navigation | `PLX-4001` build error in node · `PLX-4003` unknown widget type · `PLX-4100` unknown route · `PLX-4101` invalid route parameters · `PLX-4102` navigation refused by a guard · `PLX-4103` deep link not mapped · `PLX-4200` native route not registered · `PLX-4201` native slot not registered · `PLX-4202` custom action not registered · `PLX-4203` exposed state written with the wrong type |
 | `PLX-5000`–`5999` | Actions, data and local DB | `PLX-5001` action timeout · `PLX-5002` step limit exceeded · `PLX-5100` request to undeclared domain blocked · `PLX-5200` DB migration failed · `PLX-5300` outbox replay conflict |
-| `PLX-6000`–`6999` | Security | `PLX-6001` attestation failed · `PLX-6002` assurance level insufficient · `PLX-6003` key not hardware-backed · `PLX-6004` development provider in production · `PLX-6006` device revoked · `PLX-6010` DPoP proof invalid · `PLX-6011` DPoP replay detected · `PLX-6012` DPoP nonce required · `PLX-6013` token binding mismatch · `PLX-6015` replay cache unavailable · `PLX-6020` certificate pin mismatch · `PLX-6040` security configuration hash mismatch · `PLX-6041` setting loosens the profile · `PLX-6050` confidential bundle key unavailable · `PLX-6060`–`6064` gateway refusals · `PLX-6070`–`6073` SCA failures · `PLX-6100` RASP detection |
-| `PLX-7000`–`7999` | Functions | `PLX-7001` function timeout · `PLX-7002` memory limit exceeded · `PLX-7003` capability denied · `PLX-7100` business error (carries function-defined code) |
+| `PLX-6000`–`6999` | Security | `PLX-6001` attestation failed · `PLX-6002` assurance level insufficient · `PLX-6003` key not hardware-backed · `PLX-6004` development provider in production · `PLX-6006` device revoked · `PLX-6010` DPoP proof invalid · `PLX-6011` DPoP replay detected · `PLX-6012` DPoP nonce required · `PLX-6013` token binding mismatch · `PLX-6015` replay cache unavailable · `PLX-6020` certificate pin mismatch · `PLX-6040` security configuration hash mismatch · `PLX-6041` setting loosens the profile · `PLX-6050` confidential bundle key unavailable · `PLX-6060`–`6064` gateway refusals · `PLX-6070`–`6073` SCA failures · `PLX-6080` fraud receipt unavailable · `PLX-6081` imported key invalid · `PLX-6100` RASP detection |
+| `PLX-7000`–`7999` | Functions | `PLX-7001` timeout · `PLX-7002` memory limit exceeded · `PLX-7003` capability denied · `PLX-7004` output too large · `PLX-7005` call depth exceeded · `PLX-7010` egress refused · `PLX-7011` idempotency key conflict · `PLX-7014` device functions disabled · `PLX-7100` business error (carries function-defined code) · `PLX-7200` build failed · `PLX-7202` build script refused (further codes in the registry, ADR-0018) |
 | `PLX-8000`–`8999` | Governance | `PLX-8001` approval required · `PLX-8002` approval invalidated by content change · `PLX-8010` change freeze active · `PLX-8020` editing lock held by another user · `PLX-8030` permission denied |
 | `PLX-9000`–`9999` | Studio, CLI and AI | `PLX-9001` AI output invalid after repair attempts · `PLX-9100` CLI configuration invalid · `PLX-9200` dev session expired |
 
@@ -2947,7 +2973,7 @@ Studio, the documentation site and the reference apps use these tokens (`STU-016
 | `HST` | 12 | `ACT` | 13 | `PXL` | 8 |
 | `STA` | 8 | `DAT` | 11 | `DB` | 9 |
 | `ANI` | 8 | `THM` | 5 | `AST` | 3 |
-| `SEC` | 72 | `FN` | 32 | `I18N` | 13 |
+| `SEC` | 73 | `FN` | 40 | `I18N` | 13 |
 | `A11Y` | 8 | `GOV` | 19 | `ABT` | 7 |
 | `OBS` | 5 | `ANL` | 9 | `DEV` | 15 |
 | `STU` | 83 | `CLI` | 8 | `TST` | 5 |
@@ -2955,7 +2981,7 @@ Studio, the documentation site and the reference apps use these tokens (`STU-016
 | `PAY` | 8 | `COL` | 6 | `SAAS` | 7 |
 | `DEP` | 12 | `QA` | 15 | `CI` | 9 |
 | `NFR` | 25 | `LIM` | 6 |  |  |
-| | | | | **Total** | **636** |
+| | | | | **Total** | **645** |
 
 Four requirements are `WITHDRAWN` (`RT-050`, `RT-051`, `SAAS-004`, `SAAS-009`) and are kept for traceability.
 
@@ -2970,16 +2996,16 @@ Four requirements are `WITHDRAWN` (`RT-050`, `RT-051`, `SAAS-004`, `SAAS-009`) a
 | P4 | Routing, host integration and no-code generation | 29 | 0 | 0 | 29 |
 | P5 | Actions, state, data, DB, animation | 55 | 4 | 0 | 59 |
 | P6 | Security hardening | 51 | 2 | 0 | 53 |
-| P7 | Plux Functions | 29 | 0 | 1 | 30 |
+| P7 | Plux Functions | 35 | 0 | 1 | 36 |
 | P8 | Localisation and accessibility | 21 | 1 | 0 | 22 |
 | P9 | Enterprise and operations | 53 | 4 | 1 | 58 |
-| P10 | Dev app and debugging | 17 | 2 | 0 | 19 |
-| P11 | Studio | 88 | 2 | 0 | 90 |
+| P10 | Dev app and debugging | 18 | 2 | 0 | 20 |
+| P11 | Studio | 90 | 2 | 0 | 92 |
 | P12 | AI generation | 13 | 4 | 0 | 17 |
 | P13 | Payments | 8 | 0 | 0 | 8 |
 | P14 | Collaboration | 4 | 2 | 0 | 6 |
 | P15 | Multi-tenant operation | 6 | 1 | 1 | 8 |
-| | **Total** | **612** | **28** | **3** | **643** |
+| | **Total** | **621** | **28** | **3** | **652** |
 
 > **Note.** These tables are indicative; the authoritative counts are those produced by the traceability report (`QA-070`), which supersedes any hand-maintained figure here.
 
@@ -2992,10 +3018,11 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.4.1 App. G.1 lists the replay cache's health metrics (`SEC-023`). |
+| Version | 1.5.0 |
 | Status | Draft (living document) |
-| Date | 2026-10-11 |
-| Supersedes | 1.4.2 |
+| Date | 2026-10-13 |
+| Supersedes | 1.4.3 |
+| 1.5.0 | 2026-10-13 | Phase 7 decisions (maintainer, 2026-10-13; P7 plan §2.1 D1–D9, §2.2 C1 and C6, §2.5): Plux Functions are written in **Rust** (D1) — the §5.1 P7 row, §16 with its example, `FN-001`–`FN-004`, `FN-030`, `FN-033` and `FN-040` rewritten, with the SDK crate `plux-fn` at `github.com/nightCode42/plux3/sdk/fn` (D4), the repository layout (§33), the technology decision (§34) and the Go-editor wording (`STU-063`, `STU-110`) updated; `FN-050` names WAMR in interpreter mode in the optional package `plux_functions` (D2); builds run on the server in a new `builder` role (D3, `FN-016`) with a `wasm-opt` step (D9), only signed builder artifacts are deployable (`FN-009`) and builds are reproducible (`FN-019`); our own `egress` forward proxy (D5, `FN-017`); the server key-value store (D8, `FN-018`); until the approval engine (`GOV-020`, P9) `FN-007` and `FN-055` require a dedicated RBAC permission with step-up (D6); `FN-031` and `FN-032` split (D7) with new `FN-034`, `FN-035` (P11) and `FN-036` (P10); `FN-011` names the registry keys; new `SEC-123` (imported signing keys, C1); `SEC-043` covers `builder` and `egress`; §6.3 gains the `builder` and `egress` roles and L-4 names them; §5.4 anchors additive-only evolution (`BND-000`, `SCH-000`, `SRV-000`) to the first release, 0.0.1 (C6); §30.4, Appendix F (functions range, `PLX-6080`, `PLX-6081`) and Appendix K updated; ADR-0011 accepted for Rust and ADR-0062 (host ABI), ADR-0063 (builds and provenance), ADR-0064 (isolation) and ADR-0065 (imported keys and the Apple receipt) proposed. |
 | 1.4.3 | 2026-10-11 | Server-held configuration (maintainer decision, 2026-10-11; ADR-0061), a follow-on milestone of P6: new `DAT-090`–`DAT-097` (§14.4) — typed configuration values per app and environment in two tiers, `server-bound` values the gateway binds into requests at declared locations and `live` values a device fetches over its DPoP-bound channel, with an epoch and a version on every gateway call so that no value is stale where it takes effect; `DAT-003` also allows the secure gateway's server-bound values for calls that need server-held secrets; the `bundled` tier is the existing environment variables (`GOV-010`) and may lag. |
 | 1.4.2 | 2026-10-08 | P6 S0–S6 delivered on `feat/p6-s2-device-trust`: `SEC-005`, `SEC-008`, `SEC-020`–`SEC-022`, `SEC-024`, `SEC-025`, `SEC-029`, `SEC-040`, `SEC-050`, `SEC-051`, `SEC-056`, `SEC-120`–`SEC-122`, `SEC-141`, `SEC-182` and `NAV-009` `DONE`; `SEC-000`, `SEC-001`–`SEC-004`, `SEC-006`, `SEC-007`, `SEC-023`, `SEC-041`–`SEC-043`, `SEC-180` and `NFR-012` `WIP` until the milestones, the real-device check (B2 layer 3) or the reference-device run named in plan p6 complete them. |
 | 1.4.1 | 2026-10-08 | App. H.1: attestation is configured per app (`attestation.apps`) with an installation-wide `developmentProvider` switch, and the replay cache uses `cache.valkeyURL`, which takes a Sentinel URL, instead of a separate Sentinel list (maintainer decisions; ADR-0012, Revision). |
