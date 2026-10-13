@@ -34,9 +34,10 @@
 // exists for developer machines and for the `builder.sandbox: none`
 // development setting, whose caller logs the distinct warning.
 //
-// The result is an [Artifact] with its provenance (FN-005). Its Statement is
-// the canonical JSON that `signing/` signs; the builder holds no key and no
-// database credential (L-4).
+// The result is an [Artifact] with its provenance (FN-005). The builder does
+// not build or sign the artifact statement: the function domain does, once, so
+// that the bytes the worker signs are the bytes `fnrunner` verifies (FN-009);
+// the builder holds no key and no database credential (L-4).
 //
 // Determinism (FN-019): the workspace layout, the manifests, the environment
 // and the order of functions are fixed by the input; no wall clock or random

@@ -1,0 +1,96 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.internal.fn.v1;
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/fnpb;fnpb";
+
+// BuilderService is served by the builder role and called by the worker over
+// mutual TLS (FN-016, ADR-0063, ADR-0064). It is internal: it is not part of
+// the public API contract and carries no compatibility promise beyond the
+// roles of one release. The builder holds no database credentials, no
+// object-store credentials and no signing keys (L-4): the worker hands it the
+// source archive and signs what it returns.
+service BuilderService {
+  // Build compiles one function's source archive into a module, reads its
+  // schemas, runs the stored test cases of its document and returns the
+  // module with its provenance. A source that does not build is a response
+  // with error diagnostics and no module; only a failure of the builder
+  // itself is an RPC error.
+  rpc Build(BuildRequest) returns (BuildResponse) {}
+}
+
+message BuildRequest {
+  // build_id names the build in the builder's logs.
+  string build_id = 1;
+  // source is the whole gzip-compressed tar archive: Cargo.toml, Cargo.lock,
+  // src/, vendor/ and function.json at its root. It travels in the request,
+  // not as a pre-signed object-store URL, so that the builder needs no route
+  // to the object store; the request is bounded by the registry maximum of
+  // function.sourceArchiveSize.
+  bytes source = 2;
+  // source_sha256 is the hex SHA-256 of source, which the builder verifies.
+  string source_sha256 = 3;
+  // name is the function's dotted name; function.json must declare it
+  // (PLX-7205).
+  string name = 4;
+  // placement is the placement asked for, or empty for the one function.json
+  // declares (PLX-7205).
+  string placement = 5;
+  BuildLimits limits = 6;
+}
+
+// BuildLimits are the limits of the app in force for the build, resolved from
+// the registry by the worker (LIM-001). The builder applies the smaller of
+// each and its own ceiling.
+message BuildLimits {
+  uint32 timeout_ms = 1;
+  uint64 memory_bytes = 2;
+}
+
+message BuildResponse {
+  // module is the optimised module; empty when the build failed.
+  bytes module = 1;
+  int32 abi_version = 2;
+  string placement = 3;
+  repeated BuiltFunction functions = 4;
+  BuildProvenance provenance = 5;
+  // declaration is the canonical JSON of function.json.
+  bytes declaration = 6;
+  // diagnostics_json is a JSON array of diagnostics (ADR-0018), the same
+  // encoding the server stores.
+  bytes diagnostics_json = 7;
+  repeated BuildTestResult test_results = 8;
+}
+
+message BuiltFunction {
+  string name = 1;
+  // input_schema and output_schema are canonical JSON (RFC 8785).
+  string input_schema = 2;
+  string output_schema = 3;
+}
+
+message BuildProvenance {
+  string source_sha256 = 1;
+  string sdk_sha256 = 2;
+  repeated BuildDependency dependencies = 3;
+  string toolchain = 4;
+  string wasm_opt_version = 5;
+  // build_time is RFC 3339, in UTC.
+  string build_time = 6;
+  string builder_identity = 7;
+}
+
+message BuildDependency {
+  string name = 1;
+  string version = 2;
+  string checksum = 3;
+}
+
+message BuildTestResult {
+  string name = 1;
+  bool passed = 2;
+  string message = 3;
+}

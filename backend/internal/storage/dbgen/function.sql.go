@@ -33,7 +33,7 @@ const failFunctionBuild = `-- name: FailFunctionBuild :one
 UPDATE function_builds
    SET state = 'failed', diagnostics = $2, test_results = $3,
        finished_at = $4
- WHERE id = $1 AND state = 'running'
+ WHERE id = $1 AND state IN ('queued', 'running')
 RETURNING id, organization_id, app_id, environment_id, source_id, name, placement, state, diagnostics, test_results, module_key, module_sha256, abi_version, functions_manifest, provenance, statement, signature, key_id, created_by, created_at, started_at, finished_at
 `
 

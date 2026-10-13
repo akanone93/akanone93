@@ -51,12 +51,18 @@ type fakeBuilder struct {
 	out   function.BuildOutput
 	err   error
 	calls []function.BuildInput
+	// delegate, when set, answers instead of the canned output: the
+	// end-to-end test puts the real builder client here.
+	delegate function.Builder
 }
 
-func (f *fakeBuilder) Build(_ context.Context, in function.BuildInput) (function.BuildOutput, error) {
+func (f *fakeBuilder) Build(ctx context.Context, in function.BuildInput) (function.BuildOutput, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.calls = append(f.calls, in)
+	if f.delegate != nil {
+		return f.delegate.Build(ctx, in)
+	}
 	return f.out, f.err
 }
 
@@ -71,15 +77,20 @@ type fakeSigner struct {
 	mu         sync.Mutex
 	statements [][]byte
 	err        error
+	// delegate, when set, signs instead of the SHA-256 stand-in.
+	delegate function.ArtifactSigner
 }
 
-func (f *fakeSigner) SignStatement(_ context.Context, statement []byte) ([]byte, string, error) {
+func (f *fakeSigner) SignStatement(ctx context.Context, statement []byte) ([]byte, string, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	if f.err != nil {
 		return nil, "", f.err
 	}
 	f.statements = append(f.statements, bytes.Clone(statement))
+	if f.delegate != nil {
+		return f.delegate.SignStatement(ctx, statement)
+	}
 	sum := sha256.Sum256(statement)
 	return sum[:], "function-artifact-1", nil
 }
@@ -111,6 +122,7 @@ func (r *recorder) last(t *testing.T) function.BuildJob {
 // apps, against a fresh schema.
 type world struct {
 	db        *storage.DB
+	store     objects.Store
 	svc       *function.Service
 	tenancy   *tenancy.Service
 	auth      *auth.Service
@@ -155,6 +167,7 @@ func newWorld(t *testing.T, enqueue func(*world) function.Enqueuer, mutate func(
 	if err != nil {
 		t.Fatal(err)
 	}
+	w.store = store
 	w.enqueuer = w.queue
 	if enqueue != nil {
 		w.enqueuer = enqueue(w)

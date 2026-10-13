@@ -113,6 +113,12 @@ type WorkDeps struct {
 	// Log receives the warnings of the services; nil uses the default
 	// logger.
 	Log *slog.Logger
+	// Builder compiles function sources on the builder role; only the
+	// worker role is given one, and only where builder.address is set.
+	Builder function.Builder
+	// FunctionKey is the key reference that signs the statements of
+	// function builds (signing.keys.functionArtifact).
+	FunctionKey string
 	// Metrics receives the device side's metrics, the DPoP replay cache's
 	// health among them; nil records none.
 	Metrics *observability.Metrics

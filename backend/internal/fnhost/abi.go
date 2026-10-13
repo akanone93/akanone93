@@ -20,6 +20,10 @@ const (
 // constructors; the American spelling is the name in the ABI.
 const exportInitialise = "_initialize" //nolint:misspell // the ABI's export name
 
+// exportSchemas is the export of a module built with the feature plux-schema
+// (FN-004, ADR-0063).
+const exportSchemas = "plux_schemas"
+
 // Result tags of plux_invoke and of invoke_function.
 const (
 	tagOutput        = 0
@@ -99,7 +103,7 @@ func requiredExports() []exportSpec {
 		{name: "plux_abi_version", results: []api.ValueType{i32}},
 		{name: "plux_alloc", params: []api.ValueType{i32}, results: []api.ValueType{i32}},
 		{name: "plux_invoke", params: []api.ValueType{i32, i32, i32}, results: []api.ValueType{i64}},
-		{name: "plux_schemas", params: []api.ValueType{i32}, results: []api.ValueType{i64}, optional: true},
+		{name: exportSchemas, params: []api.ValueType{i32}, results: []api.ValueType{i64}, optional: true},
 		{name: exportInitialise, optional: true},
 	}
 }

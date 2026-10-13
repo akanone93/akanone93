@@ -45,6 +45,28 @@ func WithIdentityProviderClient(c *http.Client) BuildOption {
 	return func(o *buildOptions) { o.identityHTTP = c }
 }
 
+// newTracer starts the process's tracing.
+func newTracer(ctx context.Context, cfg *config.Config, version string) (*observability.Tracer, error) {
+	return observability.NewTracer(ctx, observability.TraceOptions{ //nolint:wrapcheck // reported as is by Build
+		Endpoint:    cfg.Observability.OTLPEndpoint,
+		SampleRatio: cfg.Observability.TraceSampleRatio,
+		Service:     "plux-server",
+		Role:        RoleLabel(cfg),
+		Version:     version,
+	})
+}
+
+// newNoDataServer assembles a process whose only roles are egress or builder:
+// it holds no database, cache, storage or signing credential (ADR-0063,
+// ADR-0064).
+func newNoDataServer(cfg *config.Config, log *slog.Logger, metrics *observability.Metrics, tracer *observability.Tracer) (*Server, error) {
+	limitSet, err := cfg.LimitSet()
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
+	return New(Deps{Config: cfg, Log: log, Metrics: metrics, Tracer: tracer, Limits: limitSet})
+}
+
 // Build opens the dependencies the configured roles need and assembles
 // a Server. The role decides what is built at all: a process without
 // the worker role gets no job client that runs, and — from the next
@@ -66,21 +88,15 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 	}
 
 	metrics := observability.NewMetrics()
-	tracer, err := observability.NewTracer(ctx, observability.TraceOptions{
-		Endpoint:    cfg.Observability.OTLPEndpoint,
-		SampleRatio: cfg.Observability.TraceSampleRatio,
-		Service:     "plux-server",
-		Role:        RoleLabel(cfg),
-		Version:     version,
-	})
+	tracer, err := newTracer(ctx, cfg, version)
 	if err != nil {
 		return fail(err)
 	}
 
 	if cfg.NoDataAccess() {
-		// fnrunner and egress hold no database, cache, storage or
-		// signing credential (FN-013, ADR-0064).
-		srv, err := New(Deps{Config: cfg, Log: log, Metrics: metrics, Tracer: tracer})
+		// fnrunner, egress and builder hold no database, cache, storage or
+		// signing credential (FN-013, FN-016, ADR-0063, ADR-0064).
+		srv, err := newNoDataServer(cfg, log, metrics, tracer)
 		if err != nil {
 			return fail(err)
 		}
@@ -179,6 +195,9 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 		deps.SVG = svgCompiler(ctx, cfg, log)
 		deps.Signer = backend
 		deps.ProductionSigning = backend.AllowedInProduction()
+		if err := attachBuilder(cfg, store, &deps); err != nil {
+			return nil, nil, err
+		}
 	}
 	services, err := BuildServices(ctx, cfg, db, shared, set, backend, deps)
 	if pinger, ok := backend.(interface{ Ping(context.Context) error }); ok && err == nil {
@@ -195,6 +214,9 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 		jobs.AddWorker(workers, &publishWorker{svc: services})
 		jobs.AddWorker(workers, &manifestWorker{svc: services})
 		jobs.AddWorker(workers, &deltaWorker{svc: services})
+	}
+	if services.Functions != nil && deps.Builder != nil && deps.Signer != nil {
+		jobs.AddWorker(workers, &functionBuildWorker{runner: services.Functions, log: log})
 	}
 	periodic := append(MaintenanceJobs(workers, services, log),
 		CheckpointJobs(workers, services, cfg.Audit.CheckpointInterval.Duration(), log)...)

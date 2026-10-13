@@ -29,7 +29,7 @@ RETURNING *;
 UPDATE function_builds
    SET state = 'failed', diagnostics = sqlc.arg(diagnostics), test_results = sqlc.arg(test_results),
        finished_at = sqlc.arg(finished_at)
- WHERE id = $1 AND state = 'running'
+ WHERE id = $1 AND state IN ('queued', 'running')
 RETURNING *;
 
 -- name: SucceedFunctionBuild :one

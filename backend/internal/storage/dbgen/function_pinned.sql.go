@@ -45,17 +45,6 @@ func (q *Queries) GetEnvironmentVariablesByKey(ctx context.Context, arg GetEnvir
 	return items, nil
 }
 
-const getFunctionDeclaration = `-- name: GetFunctionDeclaration :one
-SELECT declaration FROM function_declarations WHERE build_id = $1
-`
-
-func (q *Queries) GetFunctionDeclaration(ctx context.Context, buildID pgtype.UUID) ([]byte, error) {
-	row := q.db.QueryRow(ctx, getFunctionDeclaration, buildID)
-	var declaration []byte
-	err := row.Scan(&declaration)
-	return declaration, err
-}
-
 const getPinnedFunction = `-- name: GetPinnedFunction :one
 SELECT rf.module_sha256, rf.placement
   FROM release_functions rf

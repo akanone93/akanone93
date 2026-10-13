@@ -90,11 +90,11 @@ func (s *Service) LoadInvocable(ctx context.Context, organizationID, appID, envi
 		if out.Version, err = versionOf(row); err != nil {
 			return err
 		}
-		raw, err := q.GetFunctionDeclaration(ctx, row.BuildID)
+		decl, err := q.GetFunctionDeclaration(ctx, row.BuildID)
 		if err != nil {
 			return fmt.Errorf("function: read the declaration of version %d of %s: %w", version, name, err)
 		}
-		if err := json.Unmarshal(raw, &out.Declaration); err != nil {
+		if err := json.Unmarshal(decl.Declaration, &out.Declaration); err != nil {
 			return fmt.Errorf("function: read the declaration of version %d of %s: %w", version, name, err)
 		}
 		return nil

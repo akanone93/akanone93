@@ -42,8 +42,10 @@ type Builder interface {
 	Build(ctx context.Context, in BuildInput) (BuildOutput, error)
 }
 
-// BuildInput is what the builder is given. The builder reads the archive
-// from the object store itself; nothing else of the tenant reaches it.
+// BuildInput is what the builder is given. The Builder implementation fetches
+// the archive from the object store by its key; the builder role itself holds
+// no object-store credential and nothing else of the tenant reaches it
+// (ADR-0063).
 type BuildInput struct {
 	BuildID         string
 	SourceObjectKey string
@@ -69,11 +71,14 @@ type Export struct {
 // BuildOutput is what the builder returns.
 type BuildOutput struct {
 	// Module is the optimised module; empty when the build failed.
-	Module      []byte
-	ABIVersion  int32
-	Placement   Placement
-	Functions   []Export
-	Provenance  Provenance
+	Module     []byte
+	ABIVersion int32
+	Placement  Placement
+	Functions  []Export
+	Provenance Provenance
+	// Declaration is the canonical JSON of the function document the source
+	// carried (FN-008); the worker stores it with a succeeded build.
+	Declaration []byte
 	Diagnostics plxerr.Diagnostics
 	TestResults []TestResult
 }
@@ -231,8 +236,9 @@ type claimed struct {
 // artifact statement signed and stores the module (FN-009, FN-016). A
 // build that already finished is left alone, so a retried job is safe. A
 // failure of the builder or the signer returns an error and leaves the
-// build running for the retry; a build the builder refuses with a PLX
-// code, or one whose result breaks a rule, fails with that diagnostic.
+// build running for the retry, which FailBuild ends when the last retry
+// has failed; a build the builder refuses with a PLX code, or one whose
+// result breaks a rule, fails with that diagnostic.
 func (s *Service) RunBuild(ctx context.Context, job BuildJob) error {
 	if s.o.Builder == nil || s.o.Signer == nil {
 		return fmt.Errorf("function: this process cannot run builds: it has no builder or no signer")
@@ -244,7 +250,7 @@ func (s *Service) RunBuild(ctx context.Context, job BuildJob) error {
 	in := BuildInput{
 		BuildID: job.BuildID, SourceObjectKey: c.source.ObjectKey, SourceSHA256: hex.EncodeToString(c.source.Sha256),
 		Name: c.build.Name, Placement: Placement(c.build.Placement),
-		Timeout:     time.Duration(c.lim.Get(limits.FunctionBuildTimeout)) * time.Second,
+		Timeout:     time.Duration(c.lim.Get(limits.FunctionBuildTimeout)) * time.Millisecond,
 		MemoryBytes: c.lim.Get(limits.FunctionBuildMemory), ModuleBytes: c.lim.Get(limits.FunctionModuleSize),
 	}
 	out, err := s.o.Builder.Build(ctx, in)
@@ -261,6 +267,34 @@ func (s *Service) RunBuild(ctx context.Context, job BuildJob) error {
 		return s.fail(ctx, job, out.Diagnostics, out.TestResults)
 	}
 	return s.succeed(ctx, job, c, out)
+}
+
+// FailBuild ends a build whose job gave up: after the last retry the build
+// is failed with a diagnostic, so that none stays queued or running for
+// ever (FN-016). The diagnostic says that the build could not run and how
+// often it was tried; the cause stays in the server log, because a failure
+// of the builder or the signer can name internal addresses. A build that
+// has finished is left alone.
+func (s *Service) FailBuild(ctx context.Context, job BuildJob, attempts int) error {
+	id, err := parseID(job.BuildID, "build")
+	if err != nil {
+		return err
+	}
+	finished := false
+	err = s.inTenant(ctx, storage.Tenant{OrganizationID: job.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
+		row, err := dbgen.New(tx).GetFunctionBuildForUpdate(ctx, id)
+		if err != nil {
+			return failure(err, "function build")
+		}
+		finished = BuildState(row.State) == BuildSucceeded || BuildState(row.State) == BuildFailed
+		return nil
+	})
+	if err != nil || finished {
+		return err
+	}
+	diag := plxerr.NewDiagnostic(plxerr.FunctionBuildFailed, plxerr.Location{},
+		"the build could not be run: the builder or the signer failed on each of %d attempts; see the server log", attempts)
+	return s.fail(ctx, job, plxerr.Diagnostics{diag}, nil)
 }
 
 // diagnosticOf describes an error that carries a PLX code.
@@ -416,8 +450,19 @@ func (s *Service) succeed(ctx context.Context, job BuildJob, c claimed, out Buil
 		return err
 	}
 	return s.inTenant(ctx, storage.Tenant{OrganizationID: job.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error {
-		if _, err := dbgen.New(tx).SucceedFunctionBuild(ctx, params); err != nil {
+		q := dbgen.New(tx)
+		row, err := q.SucceedFunctionBuild(ctx, params)
+		if err != nil {
 			return failure(err, "function build")
+		}
+		if len(out.Declaration) > 0 {
+			// FN-008: what a version may do is as immutable as its module,
+			// so the declaration of the build is kept with it.
+			if _, err := q.InsertFunctionDeclaration(ctx, dbgen.InsertFunctionDeclarationParams{
+				BuildID: id, OrganizationID: row.OrganizationID, Declaration: out.Declaration,
+			}); err != nil {
+				return failure(err, "function declaration")
+			}
 		}
 		return s.recordFinished(ctx, tx, job, c.build.Name, "succeeded, module "+hex.EncodeToString(sum[:]))
 	})

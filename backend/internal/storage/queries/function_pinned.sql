@@ -9,8 +9,5 @@ SELECT rf.module_sha256, rf.placement
  WHERE rf.app_id = $1 AND rf.environment_id = $2 AND rf.name = $3 AND rf.version = $4
  LIMIT 1;
 
--- name: GetFunctionDeclaration :one
-SELECT declaration FROM function_declarations WHERE build_id = $1;
-
 -- name: GetEnvironmentVariablesByKey :many
 SELECT key, value FROM environment_variables WHERE environment_id = $1 AND key = ANY(sqlc.arg(keys)::text[]);
