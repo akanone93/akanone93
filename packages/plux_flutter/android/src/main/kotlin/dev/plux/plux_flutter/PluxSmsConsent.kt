@@ -32,6 +32,9 @@ class PluxSmsConsent : PluginRegistry.ActivityResultListener {
     private var pending: MethodChannel.Result? = null
     private var receiver: BroadcastReceiver? = null
 
+    /** The context [receiver] is registered with, kept so it is unregistered there. */
+    private var registeredOn: Context? = null
+
     fun handle(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "smsConsent" -> start(result)
@@ -73,10 +76,15 @@ class PluxSmsConsent : PluginRegistry.ActivityResultListener {
             }
         }
         receiver = listener
+        // The application context outlives a configuration change of the
+        // activity, so the receiver is always unregistered where it was
+        // registered.
+        val context = host.applicationContext
+        registeredOn = context
         // The documented pattern: the sender is Play Services, which holds
         // SEND_PERMISSION, so only it can deliver to this receiver.
         ContextCompat.registerReceiver(
-            host,
+            context,
             listener,
             IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION),
             SmsRetriever.SEND_PERMISSION,
@@ -104,9 +112,11 @@ class PluxSmsConsent : PluginRegistry.ActivityResultListener {
 
     private fun unregister() {
         val listener = receiver ?: return
+        val context = registeredOn
         receiver = null
+        registeredOn = null
         try {
-            activity?.unregisterReceiver(listener)
+            context?.unregisterReceiver(listener)
         } catch (e: IllegalArgumentException) {
             // Already unregistered.
         }
