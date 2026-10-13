@@ -54,6 +54,9 @@ type Config struct {
 	Gateway Gateway `json:"gateway"`
 	// Egress configures the egress role (FN-017, ADR-0064).
 	Egress Egress `json:"egress"`
+	// Functions configures how the api role reaches the function runner
+	// (FN-020, ADR-0064).
+	Functions Functions `json:"functions"`
 	// FnRunner configures the fnrunner role (FN-009 to FN-013,
 	// ADR-0064).
 	FnRunner FnRunner `json:"fnrunner"`

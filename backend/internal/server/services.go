@@ -76,9 +76,10 @@ type Services struct {
 	// Functions administers functions (FN-006, FN-016); nil where the
 	// installation has no object store.
 	Functions *function.Service
-	// FunctionHost is the api role's side of the function runner's host
-	// service; nil where the process is not the api role (ADR-0064).
-	FunctionHost *function.Host
+	// FunctionRuntime is the api role's side of server functions: the
+	// runner's host service and the invoker behind FunctionService; nil
+	// where the process is not the api role (ADR-0064).
+	FunctionRuntime *functionRuntime
 	// AttestationStatus is Google's attestation status list, which the
 	// worker role keeps current (SEC-002).
 	AttestationStatus *statuslist.List
@@ -352,7 +353,10 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	functionHost, _, err := buildFunctionHost(ctx, cfg, db, backend, functions, gw)
+	fnRuntime, err := buildFunctionRuntime(ctx, functionDeps{
+		cfg: cfg, db: db, crypter: backend, cache: shared, set: set, service: functions, gateway: gw,
+		tenancy: tenancyService, configs: configs, devices: devices, keys: store,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -360,7 +364,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
-		AttestationStatus: status, Metrics: work.Metrics, Functions: functions, FunctionHost: functionHost,
+		AttestationStatus: status, Metrics: work.Metrics, Functions: functions, FunctionRuntime: fnRuntime,
 	}, nil
 }
 
@@ -571,10 +575,13 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	h := &api.Handlers{
 		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
 		Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
-		FunctionHosting: svc.FunctionHost, Limiter: limiter, Limits: s.limits,
+		Limiter: limiter, Limits: s.limits,
 	}
 	if svc.AuditCheckpoints != nil {
 		h.AuditCheckpoints = svc.AuditCheckpoints
+	}
+	if rt := svc.FunctionRuntime; rt != nil {
+		h.FunctionHosting, h.FunctionInvoker = rt.host, rt.invoker
 	}
 	if g := svc.Gateway; g != nil {
 		h.Gateway, h.Upstreams, h.Exchange = g.Gateway, g.Upstreams, g.Exchange
@@ -629,6 +636,9 @@ func (s *Server) RegisterAPI(svc *Services) error {
 		s.Register(path, handler)
 	}
 	s.registerFunctionHost(h)
+	if h.FunctionInvoker != nil {
+		s.Register(pluxv1connect.NewFunctionServiceHandler(h.FunctionService(), opts))
+	}
 	if svc.Gateway != nil {
 		s.registerGateway(svc.Gateway, h, deviceAuth, opts)
 	}

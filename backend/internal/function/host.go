@@ -9,6 +9,7 @@ import (
 	"errors"
 	"slices"
 
+	"github.com/nightCode42/plux3/backend/internal/fnpb"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
 
@@ -24,6 +25,8 @@ type HostOptions struct {
 	Service *Service
 	Grants  *Grants
 	Secrets SecretReader
+	// Invoker runs nested calls; nil refuses them.
+	Invoker *Invoker
 }
 
 // Host is the domain side of FunctionHostService: what the function runner
@@ -140,7 +143,17 @@ func (h *Host) Secret(ctx context.Context, g Grant, name string) ([]byte, bool, 
 	}
 	value, found, err := h.o.Secrets.Secret(ctx, c.OrganizationID, c.AppID, c.EnvironmentID, name)
 	if err != nil || !found {
-		return nil, false, err
+		return nil, false, err //nolint:wrapcheck // a domain error
 	}
 	return []byte(value), true, nil
+}
+
+// Invoke runs a function for the function the grant names: a nested call,
+// authorised by the caller's declared capabilities and bounded by
+// function.callDepth (FN-012, PLX-7005).
+func (h *Host) Invoke(ctx context.Context, g Grant, callee string, input []byte, depth uint32, traceparent string) (*fnpb.FunctionRunnerServiceInvokeResponse, error) {
+	if h.o.Invoker == nil {
+		return nil, plxerr.New(plxerr.FunctionCapabilityDenied, "this server runs no nested calls")
+	}
+	return h.o.Invoker.Nested(ctx, g, callee, input, depth, traceparent)
 }

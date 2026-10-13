@@ -31,6 +31,8 @@ var DeviceProcedures = map[string]bool{
 	pluxv1connect.ScaServiceCreateTransactionChallengeProcedure: true,
 	pluxv1connect.TokenServiceExchangeUserTokenProcedure:        true,
 	pluxv1connect.DeviceServiceEnrolScaKeyProcedure:             true,
+	// A device invokes a server function with its token and proof (FN-020).
+	pluxv1connect.FunctionServiceInvokeProcedure: true,
 	// The live configuration of the device's environment (DAT-094).
 	pluxv1connect.ConfigServiceGetLiveConfigProcedure: true,
 }

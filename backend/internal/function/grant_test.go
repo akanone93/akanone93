@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"fmt"
 	"log/slog"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -42,7 +43,7 @@ func testGrants(t *testing.T, key byte, clock *fixedClock) *Grants {
 func sampleClaims() GrantClaims {
 	return GrantClaims{
 		OrganizationID: "org", AppID: "app", EnvironmentID: "env", Function: "payments.charge",
-		Version: 3, ModuleSHA256: strings.Repeat("ab", 32), Depth: 1,
+		Version: 3, ModuleSHA256: strings.Repeat("ab", 32), Depth: 1, Assurance: "AL2", UserClaims: []byte(`{"sub":"u1"}`),
 	}
 }
 
@@ -61,7 +62,7 @@ func TestGrantRoundTrip_FN_012(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got != issued || got.Function != "payments.charge" || got.Version != 3 || got.Depth != 1 || got.AppID != "app" || got.EnvironmentID != "env" {
+	if !reflect.DeepEqual(got, issued) || got.Assurance != "AL2" || string(got.UserClaims) != `{"sub":"u1"}` || got.Function != "payments.charge" || got.Version != 3 || got.Depth != 1 || got.AppID != "app" || got.EnvironmentID != "env" {
 		t.Errorf("claims = %+v, issued %+v", got, issued)
 	}
 	if want := (KVScope{OrganizationID: "org", AppID: "app", EnvironmentID: "env", Function: "payments.charge"}); got.KVScope() != want {
@@ -155,7 +156,7 @@ func TestGrantNeverPrinted_FN_012(t *testing.T) {
 	}
 	var out strings.Builder
 	slog.New(slog.NewTextHandler(&out, nil)).Info("invoke", "grant", token)
-	out.WriteString(fmt.Sprintf(" %v %s %#v %+v", token, token, token, struct{ G Grant }{token}))
+	fmt.Fprintf(&out, " %v %s %#v %+v", token, token, token, struct{ G Grant }{token})
 	if strings.Contains(out.String(), string(token)) || strings.Contains(out.String(), strings.SplitN(string(token), ".", 2)[0]) {
 		t.Errorf("a grant was printed: %s", out.String())
 	}

@@ -5,21 +5,29 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/audit"
+	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/config"
+	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/fnpb/fnpbconnect"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
+	"github.com/nightCode42/plux3/backend/internal/seccfg"
+	"github.com/nightCode42/plux3/backend/internal/security/settings"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
+	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
 
@@ -61,27 +69,122 @@ func (s serverSecrets) Secret(ctx context.Context, organizationID, appID, enviro
 	return s.r.ServerValue(ctx, organizationID, appID, environmentID, name) //nolint:wrapcheck // a domain error
 }
 
-// buildFunctionHost assembles the api role's side of the function runner's
-// host service, or returns nil where the process is not the api role or
-// has no function service. The grants' secret is created on first use and
-// shared by every replica (ADR-0064).
-func buildFunctionHost(ctx context.Context, cfg *config.Config, db *storage.DB, crypter signing.Crypter, svc *function.Service, gw *GatewayParts) (*function.Host, *function.Grants, error) {
-	if svc == nil || !cfg.Has(config.RoleAPI) {
-		return nil, nil, nil
+// functionDeps are what the api role's function runtime is built on.
+type functionDeps struct {
+	cfg     *config.Config
+	db      *storage.DB
+	crypter signing.Crypter
+	cache   cache.Cache
+	set     limits.Set
+	service *function.Service
+	gateway *GatewayParts
+	tenancy *tenancy.Service
+	configs *seccfg.Service
+	devices *device.Service
+	keys    *idempotency.Store
+}
+
+// functionRuntime is the api role's side of server functions.
+type functionRuntime struct {
+	host    *function.Host
+	invoker *function.Invoker
+}
+
+// buildFunctionRuntime assembles the api role's side of server functions:
+// the host service the runner calls, and, where the runner's URL is
+// configured, the invoker behind FunctionService. It returns nil where the
+// process is not the api role or has no function service. The grants'
+// secret is created on first use and shared by every replica (ADR-0064).
+func buildFunctionRuntime(ctx context.Context, d functionDeps) (*functionRuntime, error) {
+	if d.service == nil || !d.cfg.Has(config.RoleAPI) {
+		return nil, nil //nolint:nilnil // the process serves no functions
 	}
-	grants, err := function.OpenGrants(ctx, db, crypter, nil)
+	grants, err := function.OpenGrants(ctx, d.db, d.crypter, nil)
 	if err != nil {
-		return nil, nil, fmt.Errorf("server: %w", err)
+		return nil, fmt.Errorf("server: %w", err)
 	}
-	o := function.HostOptions{Service: svc, Grants: grants}
-	if gw != nil && gw.Resolver != nil {
-		o.Secrets = serverSecrets{r: gw.Resolver}
+	o := function.HostOptions{Service: d.service, Grants: grants}
+	if d.gateway != nil && d.gateway.Resolver != nil {
+		o.Secrets = serverSecrets{r: d.gateway.Resolver}
 	}
-	host, err := function.NewHost(o)
+	rt := &functionRuntime{}
+	if d.cfg.Functions.RunnerURL != "" {
+		if rt.invoker, err = buildInvoker(d, grants); err != nil {
+			return nil, err
+		}
+		o.Invoker = rt.invoker
+	}
+	if rt.host, err = function.NewHost(o); err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
+	return rt, nil
+}
+
+// runnerTimeout is the backstop of a call to the runner; the invocation's
+// own deadline ends a call sooner.
+const runnerTimeout = 2 * time.Minute
+
+// buildInvoker assembles the invoker that calls the runner over mutual TLS
+// with the api role's internal identity (SEC-043, FN-020).
+func buildInvoker(d functionDeps, grants *function.Grants) (*function.Invoker, error) {
+	t := d.cfg.Server.InternalTLS
+	client, err := httpx.NewInternalClient(httpx.InternalTLSOptions{CAFile: t.CAFile, CertFile: t.CertFile, KeyFile: t.KeyFile}, runnerTimeout)
 	if err != nil {
-		return nil, nil, fmt.Errorf("server: %w", err)
+		return nil, fmt.Errorf("server: functions: %w", err)
 	}
-	return host, grants, nil
+	appSet := appLimits(d.db, d.tenancy, d.set)
+	o := function.InvokerOptions{
+		Declarations: d.service, Resolver: d.service, Pins: d.service, Environment: d.service, Grants: grants,
+		Runner: function.ConnectRunner{Client: fnpbconnect.NewFunctionRunnerServiceClient(client, d.cfg.Functions.RunnerURL)},
+		Keys:   d.keys,
+		Limits: func(ctx context.Context, organizationID, appID string) (limits.Set, error) {
+			return appSet(ctx, device.Identity{OrganizationID: organizationID, AppID: appID})
+		},
+		Count: d.cache.Increment,
+		DefaultAssurance: func(ctx context.Context, appID, environmentID string) (string, error) {
+			values, _, err := d.configs.Effective(ctx, appID, environmentID)
+			if err != nil {
+				return "", err //nolint:wrapcheck // a domain error
+			}
+			return values.Get(settings.DefaultFunctionAssurance).Text(), nil
+		},
+		Attestations: d.devices,
+	}
+	if d.gateway != nil && d.gateway.Exchange != nil {
+		o.Users = functionUsers{tokens: d.gateway.Exchange.Tokens, production: d.devices.EnvironmentIsProduction}
+	}
+	inv, err := function.NewInvoker(o)
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
+	return inv, nil
+}
+
+// functionUsers verifies the user token a device presents to a function
+// (SEC-026). The token is bound to the device, the app, the environment
+// and the audience the exchange named, which for a function is its name.
+type functionUsers struct {
+	tokens     *gateway.UserTokens
+	production func(ctx context.Context, environmentID string) (bool, error)
+}
+
+// VerifyUser returns the verified user as JSON.
+func (u functionUsers) VerifyUser(ctx context.Context, token string, d device.Identity, name string) ([]byte, error) {
+	production, err := u.production(ctx, d.EnvironmentID)
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	user, err := u.tokens.Verify(ctx, token, gateway.BoundTo{
+		DeviceID: d.DeviceID, AppID: d.AppID, EnvironmentID: d.EnvironmentID, Upstream: name, Production: production,
+	})
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	raw, err := json.Marshal(user)
+	if err != nil {
+		return nil, fmt.Errorf("server: encode the user's claims: %w", err)
+	}
+	return raw, nil
 }
 
 // hostEnvelopeBytes is the room, beyond the largest function input, that a

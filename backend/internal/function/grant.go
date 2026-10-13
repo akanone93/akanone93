@@ -68,6 +68,13 @@ type GrantClaims struct {
 	// call (FN-012).
 	Depth     uint32
 	ExpiresAt time.Time
+	// Assurance is the assurance level of the device that started the call
+	// chain, which nested calls carry on (SEC-007).
+	Assurance string
+	// UserClaims are the verified user claims as JSON, present only when
+	// the function declares the claims capability; a nested call hands
+	// them to a callee that declares it too (SEC-026).
+	UserClaims []byte
 	// Nonce makes every grant unique.
 	Nonce [grantNonceBytes]byte
 }
@@ -124,6 +131,9 @@ func (g *Grants) Issue(c GrantClaims, timeout time.Duration) (Grant, GrantClaims
 	if c.AppID == "" || c.EnvironmentID == "" || c.Function == "" || c.OrganizationID == "" {
 		return "", GrantClaims{}, errors.New("function: a grant needs an organisation, app, environment and function")
 	}
+	if len(c.UserClaims) > maxUserClaims {
+		return "", GrantClaims{}, errors.New("function: the user claims are too large for a grant")
+	}
 	life := min(timeout+GrantMargin, MaxGrantLifetime)
 	c.ExpiresAt = g.now().Add(life).UTC().Truncate(time.Millisecond)
 	if _, err := io.ReadFull(g.random, c.Nonce[:]); err != nil {
@@ -158,8 +168,12 @@ func (g *Grants) Verify(token Grant) (GrantClaims, error) {
 	return c, nil
 }
 
-// maxGrantSize bounds the token the verifier looks at.
-const maxGrantSize = 2048
+const (
+	// maxUserClaims bounds the claims a grant carries.
+	maxUserClaims = 16 << 10
+	// maxGrantSize bounds the token the verifier looks at.
+	maxGrantSize = 32 << 10
+)
 
 // mac authenticates a payload under the installation secret.
 func (g *Grants) mac(payload []byte) []byte {
@@ -174,7 +188,7 @@ func (g *Grants) mac(payload []byte) []byte {
 // that no field can run into the next.
 func encodeClaims(c GrantClaims) []byte {
 	b := []byte{grantFormat}
-	for _, s := range []string{c.OrganizationID, c.AppID, c.EnvironmentID, c.Function, c.ModuleSHA256} {
+	for _, s := range []string{c.OrganizationID, c.AppID, c.EnvironmentID, c.Function, c.ModuleSHA256, c.Assurance, string(c.UserClaims)} {
 		b = binary.AppendUvarint(b, uint64(len(s)))
 		b = append(b, s...)
 	}
@@ -191,14 +205,18 @@ func decodeClaims(b []byte) (GrantClaims, error) {
 		return c, errors.New("function: unknown grant format")
 	}
 	r := bytes.NewReader(b[1:])
-	for _, dst := range []*string{&c.OrganizationID, &c.AppID, &c.EnvironmentID, &c.Function, &c.ModuleSHA256} {
+	var claims string
+	for _, dst := range []*string{&c.OrganizationID, &c.AppID, &c.EnvironmentID, &c.Function, &c.ModuleSHA256, &c.Assurance, &claims} {
 		n, err := binary.ReadUvarint(r)
-		if err != nil || n > uint64(r.Len()) {
+		if err != nil || n > uint64(r.Len()) { //nolint:gosec // Len is never negative
 			return c, errors.New("function: malformed grant")
 		}
 		s := make([]byte, n)
 		_, _ = io.ReadFull(r, s)
 		*dst = string(s)
+	}
+	if claims != "" {
+		c.UserClaims = []byte(claims)
 	}
 	version, errV := binary.ReadUvarint(r)
 	depth, errD := binary.ReadUvarint(r)

@@ -62,6 +62,9 @@ type Handlers struct {
 	// FunctionHosting serves FunctionHostService to the function runner on
 	// the internal listener (ADR-0064); nil leaves it unmounted.
 	FunctionHosting *function.Host
+	// FunctionInvoker serves FunctionService to devices (FN-020); nil
+	// leaves it unmounted.
+	FunctionInvoker *function.Invoker
 	Idempotency     *idempotency.Store
 	Pages           *Pages
 	// Limiter counts calls per principal and organisation when an

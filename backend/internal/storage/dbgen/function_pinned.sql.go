@@ -11,6 +11,40 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const getEnvironmentVariablesByKey = `-- name: GetEnvironmentVariablesByKey :many
+SELECT key, value FROM environment_variables WHERE environment_id = $1 AND key = ANY($2::text[])
+`
+
+type GetEnvironmentVariablesByKeyParams struct {
+	EnvironmentID pgtype.UUID
+	Keys          []string
+}
+
+type GetEnvironmentVariablesByKeyRow struct {
+	Key   string
+	Value string
+}
+
+func (q *Queries) GetEnvironmentVariablesByKey(ctx context.Context, arg GetEnvironmentVariablesByKeyParams) ([]GetEnvironmentVariablesByKeyRow, error) {
+	rows, err := q.db.Query(ctx, getEnvironmentVariablesByKey, arg.EnvironmentID, arg.Keys)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetEnvironmentVariablesByKeyRow{}
+	for rows.Next() {
+		var i GetEnvironmentVariablesByKeyRow
+		if err := rows.Scan(&i.Key, &i.Value); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getFunctionDeclaration = `-- name: GetFunctionDeclaration :one
 SELECT declaration FROM function_declarations WHERE build_id = $1
 `
@@ -26,7 +60,7 @@ const getPinnedFunction = `-- name: GetPinnedFunction :one
 SELECT rf.module_sha256, rf.placement
   FROM release_functions rf
   JOIN releases r ON r.id = rf.release_id
-  JOIN channels c ON c.environment_id = r.environment_id AND c.release_sequence = r.sequence
+  JOIN channels c ON c.environment_id = rf.environment_id AND c.release_sequence = r.sequence
  WHERE rf.app_id = $1 AND rf.environment_id = $2 AND rf.name = $3 AND rf.version = $4
  LIMIT 1
 `
@@ -44,7 +78,8 @@ type GetPinnedFunctionRow struct {
 }
 
 // The pin of a function version by an active release: a release that a
-// channel of the environment currently points at (FN-006, ADR-0063).
+// channel of the environment currently points at, and that records the
+// version for the environment (FN-006, ADR-0063).
 func (q *Queries) GetPinnedFunction(ctx context.Context, arg GetPinnedFunctionParams) (GetPinnedFunctionRow, error) {
 	row := q.db.QueryRow(ctx, getPinnedFunction,
 		arg.AppID,

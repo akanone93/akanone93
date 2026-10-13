@@ -57,6 +57,9 @@ type Declaration struct {
 	Attestation bool `json:"attestation"`
 	// SCA requires strong customer authentication (SEC-027).
 	SCA bool `json:"sca"`
+	// Env names the environment variables the function reads; the
+	// invocation passes their values for its environment.
+	Env []string `json:"env"`
 }
 
 // Invocable is a version with its declaration: what a host call or an
@@ -161,4 +164,30 @@ func (s *Service) Pinned(ctx context.Context, organizationID, appID, environment
 		return nil
 	})
 	return pin, found, err
+}
+
+// EnvironmentVariables returns the values of the named environment
+// variables of an environment; a name it holds no value for is absent from
+// the result.
+func (s *Service) EnvironmentVariables(ctx context.Context, organizationID, appID, environmentID string, names []string) (map[string]string, error) {
+	out := make(map[string]string, len(names))
+	if len(names) == 0 {
+		return out, nil
+	}
+	err := s.inTenant(ctx, storage.Tenant{OrganizationID: organizationID}, func(ctx context.Context, tx pgx.Tx) error {
+		q := dbgen.New(tx)
+		env, err := environmentOf(ctx, q, appID, environmentID)
+		if err != nil {
+			return err
+		}
+		rows, err := q.GetEnvironmentVariablesByKey(ctx, dbgen.GetEnvironmentVariablesByKeyParams{EnvironmentID: env.ID, Keys: names})
+		if err != nil {
+			return fmt.Errorf("function: read environment variables: %w", err)
+		}
+		for _, r := range rows {
+			out[r.Key] = r.Value
+		}
+		return nil
+	})
+	return out, err
 }
