@@ -52,6 +52,7 @@ import 'package:plux_flutter/src/navigation/deep_links.dart';
 import 'package:plux_flutter/src/navigation/delegate.dart';
 import 'package:plux_flutter/src/navigation/guards.dart';
 import 'package:plux_flutter/src/navigation/router.dart';
+import 'package:plux_flutter/src/platform/pinned_http.dart';
 import 'package:plux_flutter/src/platform/platform_services.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
 import 'package:plux_flutter/src/render/owner_actions.dart';
@@ -195,6 +196,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     this.assets,
     this._httpClient,
     this._encrypt,
+    this._sockets,
   ) {
     active.addListener(() => unawaited(_loadFonts(active.value)));
     active.addListener(() {
@@ -210,6 +212,10 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// Creates the HTTP client of the data layer and of images, pinned to the
   /// Plux server (SEC-041).
   final http.Client Function() _httpClient;
+
+  /// Chooses the pinned client of WebSocket streams (SEC-041); null when the
+  /// host supplied its own client, which is then the host's to pin.
+  final WebSocketClients? _sockets;
 
   /// Whether the local stores are encrypted with hardware-wrapped keys
   /// (`encryptLocalStores`, SEC-073). Read once at start: a configuration
@@ -334,6 +340,14 @@ final class PluxRuntime with WidgetsBindingObserver {
         assets,
         httpClient,
         await _encryptsStores(config, overrides),
+        config.httpClient == null && config.webSocketClient == null
+            ? WebSocketClients(
+                serverHost: config.endpoint.scheme == 'https'
+                    ? config.endpoint.host
+                    : null,
+                serverPins: pinSet?.pins,
+              )
+            : null,
       );
       await rt.statePersistence.load();
       final startup = await rt._startup();
@@ -533,6 +547,7 @@ final class PluxRuntime with WidgetsBindingObserver {
       httpClient: _httpClient,
       rootIsolateToken: RootIsolateToken.instance,
       webSocketClient: config.webSocketClient,
+      pinnedSockets: _sockets,
       cacheDirectory: '$_root/data',
       // The encrypted cache's key, kept like the secure state store's
       // (DAT-010, plan p5 D6).
