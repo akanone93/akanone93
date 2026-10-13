@@ -107,7 +107,7 @@ The P5 rows marked approved were accepted by the maintainer with the P5 plan (B2
 
 | Source | Used for | Licence | Record |
 |---|---|---|---|
-| WAMR (`bytecodealliance/wasm-micro-runtime`), interpreter build, vendored in `packages/plux_functions` with its hash | Device engine for `device` functions (`FN-050`) | Apache-2.0 WITH LLVM-exception | ADR-0011; Approved (maintainer, 2026-10-13, P7 plan §4.4), not yet in use |
+| WAMR 2.4.3 (`bytecodealliance/wasm-micro-runtime`), interpreter subset vendored in `packages/plux_functions` with a SHA-256 per file, checked in CI against the upstream `WAMR-2.4.3` archive (E10) | Device engine for `device` functions (`FN-050`) | Apache-2.0 WITH LLVM-exception | ADR-0011; Approved (maintainer, 2026-10-13, P7 plan §4.4), not yet in use |
 | zstd v1.5.7 (`lib/common`, `lib/decompress`), vendored in `packages/plux_flutter/native/zstd/` | Delta patching and transport decompression on the device | BSD-3-Clause | [ADR-0030](../adr/0030-native-code-in-plux-flutter.md) |
 | Skia path operations at the revision the pinned Flutter uses, with the Flutter engine's `path_ops` wrapper, built for `plux-svgc` | Mask, clip and overdraw optimisation of SVGs at publish time | BSD-3-Clause | [ADR-0027](../adr/0027-asset-pipeline.md) Revision |
 | ZXing-C++ (version fixed in S10), vendored in `plux_scanner` | Offline barcode fallback where Play services is missing (B21) | Apache-2.0 | [ADR-0051](../adr/0051-device-actions-packages-and-capabilities.md) Revision; approved (maintainer, 2026-10-07, P6 S0) |
@@ -151,7 +151,7 @@ Planned for P11 (ADR-0014): React, TanStack Router and Query, shadcn/ui on Radix
 |---|---|---|
 | Go toolchain | `toolchain` in `go.mod` | Build |
 | Rust toolchain (`rustc`, `cargo`, target `wasm32-wasip1`) | 1.97.0 in `sdk/fn/rust-toolchain.toml` | Builds Plux Functions (CI, builder image, developer machines); not linked into Plux. Approved (maintainer, 2026-10-13, P7 plan §4.4), not yet in use |
-| Binaryen `wasm-opt` (Apache-2.0) | Pinned version in the builder image and Makefile | Optimises function modules; output checked byte-identical in F1 (D9, `CMP-002`, `CI-006`). Approved (maintainer, 2026-10-13, P7 plan §4.4), not yet in use |
+| Binaryen `wasm-opt` (Apache-2.0) | `version_132`, the npm package `binaryen@132.0.0` pinned by its integrity hash and run with the pinned Bun: one platform-independent build everywhere (plan p7 §2.5 E10) | Optimises function modules; output checked byte-identical in F1 (D9, `CMP-002`, `CI-006`). Approved (maintainer, 2026-10-13, P7 plan §4.4), not yet in use |
 | Flutter | Makefile, CI | Build and test |
 | SoftHSM2 | CI image (P6, S5) | PKCS#11 tests of the signing helper (BSD-2-Clause; ADR-0060; approved 2026-10-07, not yet in use) |
 | Bun | `studio/package.json`, Makefile, CI | Studio runtime and tests |
