@@ -207,6 +207,9 @@ type Resolved struct {
 	Version      int32
 	ModuleSHA256 []byte
 	Placement    Placement
+	// TestsPassed is false for a version whose stored test cases failed
+	// (FN-031): a release refuses it.
+	TestsPassed bool
 }
 
 // inOrg runs f in a transaction bound to the principal's organisation.

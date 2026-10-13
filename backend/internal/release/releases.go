@@ -68,8 +68,11 @@ type Release struct {
 	// Confidential is true when the release is delivered encrypted
 	// (SEC-053).
 	Confidential bool
-	CreatedBy    audit.Actor
-	CreatedAt    time.Time
+	// Functions are the function versions the release pins (FN-006),
+	// sorted by name.
+	Functions []ReleaseFunction
+	CreatedBy audit.Actor
+	CreatedAt time.Time
 }
 
 // CreateRelease creates an app release in an environment from a version
@@ -107,7 +110,8 @@ func (s *Service) CreateRelease(ctx context.Context, p auth.Principal, appID, en
 			diags = missing
 			return err
 		}
-		if diags, err = s.validateSet(ctx, tx, p, appID, env.ID, versions); err != nil || diags.HasErrors() {
+		var grants []functionGrant
+		if diags, grants, err = s.validateSet(ctx, tx, p, appID, env.ID, versions); err != nil || diags.HasErrors() {
 			return err
 		}
 		confidential, err := s.confidentialFor(ctx, tx, p.OrganizationID, env, versions, o.confidential)
@@ -115,6 +119,10 @@ func (s *Service) CreateRelease(ctx context.Context, p auth.Principal, appID, en
 			return err
 		}
 		out, err = s.insertRelease(ctx, tx, p, env, versions, 0, notes, confidential)
+		if err != nil {
+			return err
+		}
+		out.Functions, err = s.pinFunctions(ctx, tx, env, storage.MustUUID(out.ID), grants)
 		return err
 	})
 	return out, diags, err
@@ -186,31 +194,31 @@ func (*Service) versionFor(ctx context.Context, q *dbgen.Queries, app, plugin pg
 // that every bundle it produces is the one each version stored, and that
 // the data sources that go through the gateway are matched by the
 // environment's registered upstreams (SEC-030, SEC-031).
-func (s *Service) validateSet(ctx context.Context, tx pgx.Tx, p auth.Principal, appID string, environment pgtype.UUID, versions []dbgen.PluginVersion) (plxerr.Diagnostics, error) {
+func (s *Service) validateSet(ctx context.Context, tx pgx.Tx, p auth.Principal, appID string, environment pgtype.UUID, versions []dbgen.PluginVersion) (plxerr.Diagnostics, []functionGrant, error) {
 	sources := make([]string, 0, len(versions))
 	for _, v := range versions {
 		sources = append(sources, storage.ID(v.SourceSnapshotID))
 	}
 	fsys, err := s.o.Documents.SourceFiles(ctx, tx, appID, sources)
 	if err != nil {
-		return nil, err //nolint:wrapcheck // a domain error
+		return nil, nil, err //nolint:wrapcheck // a domain error
 	}
 	opts, err := s.compileOptions(ctx, tx, p.OrganizationID, appID, "")
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	res := compiler.Compile(fsys, opts)
 	diags := res.Diagnostics
 	if diags.HasErrors() {
-		return diags, nil
+		return diags, nil, nil
 	}
 	if s.o.Gateway != nil {
 		upstreams, err := s.o.Gateway.UpstreamsOf(ctx, tx, storage.ID(environment))
 		if err != nil {
-			return nil, err //nolint:wrapcheck // a domain error
+			return nil, nil, err //nolint:wrapcheck // a domain error
 		}
 		if gw := gateway.CheckSources(res.GatewaySources, upstreams); len(gw) > 0 {
-			return append(diags, gw...), nil
+			return append(diags, gw...), nil, nil
 		}
 	}
 	produced := map[string]*compiler.Bundle{"": res.App}
@@ -224,7 +232,7 @@ func (s *Service) validateSet(ctx context.Context, tx pgx.Tx, p auth.Principal, 
 				"%s version %d was compiled against other sources than this release's; publish it again", nameOf(v), v.Version))
 		}
 	}
-	return diags, nil
+	return diags, grantsOf(res), nil
 }
 
 // nameOf names a version's bundle in messages.
@@ -340,7 +348,7 @@ func (s *Service) GetRelease(ctx context.Context, p auth.Principal, appID string
 		for _, v := range vs {
 			versions = append(versions, versionOf(v))
 		}
-		return nil
+		return withFunctions(ctx, q, &out, row.ID)
 	})
 	return out, versions, err
 }
@@ -388,12 +396,21 @@ func (s *Service) ListReleases(ctx context.Context, p auth.Principal, appID, env
 		if err != nil {
 			return failure(err, "release")
 		}
-		for _, r := range rows {
+		ids := make([]pgtype.UUID, len(rows))
+		for i, r := range rows {
+			ids[i] = r.ID
 			vs, err := q.ListReleaseVersions(ctx, r.ID)
 			if err != nil {
 				return failure(err, "release")
 			}
 			out = append(out, releaseOf(r, vs))
+		}
+		pinned, err := functionsOf(ctx, q, ids...)
+		if err != nil {
+			return err
+		}
+		for i := range out {
+			out[i].Functions = pinned[out[i].ID]
 		}
 		return nil
 	})
@@ -482,7 +499,7 @@ func (s *Service) PromoteRelease(ctx context.Context, p auth.Principal, appID st
 			return err
 		}
 		out = releaseOf(row, vs)
-		return nil
+		return withFunctions(ctx, q, &out, row.ID)
 	})
 	return out, err
 }
@@ -547,6 +564,12 @@ func (s *Service) RollbackRelease(ctx context.Context, p auth.Principal, appID, 
 		row, err := q.GetRelease(ctx, dbgen.GetReleaseParams{AppID: app, Sequence: out.Sequence})
 		if err != nil {
 			return failure(err, "release")
+		}
+		if err := copyFunctions(ctx, q, row.ID, earlier.ID); err != nil {
+			return err
+		}
+		if err := withFunctions(ctx, q, &out, row.ID); err != nil {
+			return err
 		}
 		return s.point(ctx, tx, p, env, channelKey, row)
 	})
