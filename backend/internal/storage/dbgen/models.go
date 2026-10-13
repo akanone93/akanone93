@@ -308,6 +308,87 @@ type EnvironmentVariable struct {
 	UpdatedAt      pgtype.Timestamptz
 }
 
+type FunctionAlias struct {
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	Name           string
+	Alias          string
+	Version        int32
+	UpdatedBy      pgtype.UUID
+	UpdatedAt      pgtype.Timestamptz
+}
+
+type FunctionBuild struct {
+	ID                pgtype.UUID
+	OrganizationID    pgtype.UUID
+	AppID             pgtype.UUID
+	EnvironmentID     pgtype.UUID
+	SourceID          pgtype.UUID
+	Name              string
+	Placement         string
+	State             string
+	Diagnostics       []byte
+	TestResults       []byte
+	ModuleKey         *string
+	ModuleSha256      []byte
+	AbiVersion        *int32
+	FunctionsManifest []byte
+	Provenance        []byte
+	Statement         []byte
+	Signature         []byte
+	KeyID             *string
+	CreatedBy         pgtype.UUID
+	CreatedAt         pgtype.Timestamptz
+	StartedAt         pgtype.Timestamptz
+	FinishedAt        pgtype.Timestamptz
+}
+
+type FunctionKv struct {
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	FunctionName   string
+	Key            string
+	Value          []byte
+	UpdatedAt      pgtype.Timestamptz
+}
+
+type FunctionSource struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	Name           string
+	ObjectKey      string
+	Sha256         []byte
+	SizeBytes      int64
+	CreatedBy      pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
+}
+
+type FunctionVersion struct {
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	Name           string
+	Version        int32
+	BuildID        pgtype.UUID
+	Placement      string
+	ModuleKey      string
+	ModuleSha256   []byte
+	AbiVersion     int32
+	InputSchema    string
+	OutputSchema   string
+	Provenance     []byte
+	Statement      []byte
+	Signature      []byte
+	KeyID          string
+	TestsPassed    bool
+	CreatedBy      pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
+}
+
 type GatewayUpstream struct {
 	ID                    pgtype.UUID
 	OrganizationID        pgtype.UUID

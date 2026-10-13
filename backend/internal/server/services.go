@@ -33,6 +33,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
@@ -72,6 +73,9 @@ type Services struct {
 	// SecurityConfig holds the environments' security configurations
 	// (SEC-182).
 	SecurityConfig *seccfg.Service
+	// Functions administers functions (FN-006, FN-016); nil where the
+	// installation has no object store.
+	Functions *function.Service
 	// AttestationStatus is Google's attestation status list, which the
 	// worker role keeps current (SEC-002).
 	AttestationStatus *statuslist.List
@@ -341,11 +345,15 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
+	functions, err := buildFunctions(db, work, log, tenancyService, gen)
+	if err != nil {
+		return nil, err
+	}
 	return &Services{
 		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
-		AttestationStatus: status, Metrics: work.Metrics,
+		AttestationStatus: status, Metrics: work.Metrics, Functions: functions,
 	}, nil
 }
 
@@ -555,7 +563,7 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	}
 	h := &api.Handlers{
 		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
-		Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig,
+		Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
 		Limiter: limiter, Limits: s.limits,
 	}
 	if svc.AuditCheckpoints != nil {
@@ -602,6 +610,11 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	if svc.SecurityConfig != nil {
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewSecurityAdminServiceHandler(h.SecurityAdmin(), opts)
+		})
+	}
+	if svc.Functions != nil {
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
 		})
 	}
 	for _, register := range registrations {

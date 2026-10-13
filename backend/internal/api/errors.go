@@ -106,6 +106,16 @@ var codes = map[plxerr.Code]connect.Code{
 	plxerr.TransactionRequiresGateway:   connect.CodeFailedPrecondition,
 	plxerr.RASPDetection:                connect.CodePermissionDenied,
 
+	// Functions (FN-006, FN-009, FN-016, FN-018, FN-031).
+	plxerr.FunctionNotFound:                 connect.CodeNotFound,
+	plxerr.FunctionAliasNotFound:            connect.CodeNotFound,
+	plxerr.FunctionKVLimitExceeded:          connect.CodeResourceExhausted,
+	plxerr.FunctionBuildLimitExceeded:       connect.CodeResourceExhausted,
+	plxerr.FunctionBuildFailed:              connect.CodeFailedPrecondition,
+	plxerr.FunctionArtifactSignatureInvalid: connect.CodeFailedPrecondition,
+	plxerr.FunctionTestsFailed:              connect.CodeFailedPrecondition,
+	plxerr.FunctionDeclarationMismatch:      connect.CodeFailedPrecondition,
+
 	// The server failed.
 	plxerr.InternalServerError: connect.CodeInternal,
 	plxerr.UpstreamUnavailable: connect.CodeUnavailable,

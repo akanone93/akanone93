@@ -17,6 +17,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/release"
@@ -53,8 +54,11 @@ type Handlers struct {
 	// Configs administers server-held configuration values and LiveConfig
 	// serves the live ones to devices (DAT-090, DAT-094); nil answers
 	// Unimplemented.
-	Configs     *gateway.Configs
-	LiveConfig  *gateway.ConfigResolver
+	Configs    *gateway.Configs
+	LiveConfig *gateway.ConfigResolver
+	// Functions administers functions (FN-006, FN-016); nil leaves
+	// FunctionAdminService unmounted.
+	Functions   *function.Service
 	Idempotency *idempotency.Store
 	Pages       *Pages
 	// Limiter counts calls per principal and organisation when an
