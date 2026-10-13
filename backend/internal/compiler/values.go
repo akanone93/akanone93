@@ -200,7 +200,7 @@ func (u *unit) exprValue(c vctx, t *texpr) *value {
 		}
 		u.diags = append(u.diags, diags...)
 	}
-	u.report(c.code, c.file, c.ptr+"/$expr", "expected %s, the expression is %s", t, e.typ)
+	u.report(u.mismatchCode(c, e), c.file, c.ptr+"/$expr", "expected %s, the expression is %s", t, e.typ)
 	return nil
 }
 

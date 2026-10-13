@@ -158,6 +158,8 @@ func (u *unit) specialInput(g *graph, action, input string, raw json.RawMessage,
 		return u.componentEventPayload(g, raw, c), true
 	case [2]string{"callFlow", "input"}:
 		return u.flowInput(g, raw, c), true
+	case [2]string{"invokeFunction", "input"}:
+		return u.functionInput(g, raw, c), true
 	}
 	return nil, false
 }
@@ -208,6 +210,9 @@ func (u *unit) checkInputs(g *graph, a *registry.Action, input map[string]json.R
 
 // checkInput checks one input.
 func (u *unit) checkInput(g *graph, a *registry.Action, in registry.Input, raw json.RawMessage, c vctx, bind map[string]*texpr) *value {
+	if in.Ref == "function" {
+		return u.checkFunctionRef(g, in, raw, c)
+	}
 	if in.Ref != "" {
 		return u.checkRef(g, in, raw, c)
 	}

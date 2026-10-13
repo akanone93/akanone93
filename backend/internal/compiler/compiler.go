@@ -44,6 +44,13 @@ type Options struct {
 	// which the compiler has checked are the set's (THM-005); nil adds no
 	// icon fonts. The server supplies it (package icons/fonts).
 	IconFont func(set icons.Set, names []string) ([]byte, error)
+	// Functions describes the functions of the app and environment being
+	// compiled (FN-004, FN-008); nil checks only that an invokeFunction
+	// step names a function its plugin grants.
+	Functions FunctionCatalogue
+	// DeviceModules supplies the linked device module of a plugin that
+	// grants device-placed functions (FN-051); nil packs none.
+	DeviceModules DeviceModules
 }
 
 // AssetVariant is a transcoded form of an asset file.
@@ -132,6 +139,7 @@ var pipeline = []stage{
 	{"resolve", resolve, true},
 	{"typecheck", typecheck, true},
 	{"semantic", semantic, true},
+	{"functions", functions, true},
 	{"policy", policy, true},
 	{"optimise", optimise, false},
 	{"lower", lower, false},

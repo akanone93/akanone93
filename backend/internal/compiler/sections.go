@@ -73,6 +73,7 @@ func encode(u *unit) {
 			o.add(bundle.SectionComponent, uuidBytes(c.doc.ID), u.componentSection(o, c))
 		}
 		u.timelinesSection(o, pl.pages)
+		u.wasmSection(o, pl)
 		u.actionsSection(o, pl.lowered)
 		u.schemasSection(o, u.types.plugin[pl], pl.state, pl.sources, pl.doc.Collections, pl.doc.DroppedCollections, nil, nil)
 		u.pluginOuts = append(u.pluginOuts, o)
