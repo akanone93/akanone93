@@ -164,6 +164,10 @@ const (
 	// DefaultFunctionAssurance: The assurance level a Plux Function requires
 	// when it declares none. (SEC-007)
 	DefaultFunctionAssurance Key = "defaultFunctionAssurance"
+	// DeviceFunctions: Whether Plux Functions placed on the device may run
+	// there; when false, the device refuses them and the app calls the server
+	// instead. (FN-055)
+	DeviceFunctions Key = "deviceFunctions"
 	// DPOPIatWindow: How far a DPoP proof's issued-at time may differ from the
 	// server clock. (SEC-022)
 	DPOPIatWindow Key = "dpopIatWindow"
@@ -297,6 +301,12 @@ func All() []Setting {
 			Defaults:        Defaults{Standard: TextValue("AL1"), Strict: TextValue("AL2"), Maximum: TextValue("AL3")},
 			TravelsToDevice: false, Phase: "P6", Requirements: []string{"SEC-007"},
 			Description: "The assurance level a Plux Function requires when it declares none.",
+		},
+		{
+			Key: DeviceFunctions, Type: TypeBool, Tighter: TighterFalse,
+			Defaults:        Defaults{Standard: BoolValue(true), Strict: BoolValue(true), Maximum: BoolValue(false)},
+			TravelsToDevice: true, Phase: "P7", Requirements: []string{"FN-055"},
+			Description: "Whether Plux Functions placed on the device may run there; when false, the device refuses them and the app calls the server instead.",
 		},
 		{
 			Key: DPOPIatWindow, Type: TypeSeconds, Tighter: TighterLower,

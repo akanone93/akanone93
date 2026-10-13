@@ -64,6 +64,8 @@ enum PluxLimit {
   apiRequestsPerMinutePerAddress('api.requestsPerMinutePerAddress', PluxLimitUnit.count, 300, 0, 100000),
   /// API calls one registered device may make per minute.
   apiRequestsPerMinutePerDevice('api.requestsPerMinutePerDevice', PluxLimitUnit.count, 120, 0, 10000),
+  /// Functions per app.
+  appFunctions('app.functions', PluxLimitUnit.count, 100, 0, 1000),
   /// Plugins per app.
   appPlugins('app.plugins', PluxLimitUnit.count, 200, 0, 1000),
   /// Size of one asset file, checked at upload and again at publish.
@@ -177,6 +179,49 @@ enum PluxLimit {
   dpopProofBytes('dpop.proofBytes', PluxLimitUnit.bytes, 8192, 0, 32768),
   /// Proof identifiers the DPoP replay cache holds.
   dpopReplayCacheEntries('dpop.replayCacheEntries', PluxLimitUnit.count, 1000000, 0, 100000000),
+  /// Memory one function build may use.
+  functionBuildMemory('function.buildMemory', PluxLimitUnit.bytes, 4294967296, 0, 17179869184),
+  /// Wall-clock time one function build may run.
+  functionBuildTimeout('function.buildTimeout', PluxLimitUnit.milliseconds, 600000, 0, 3600000),
+  /// Depth of nested function-to-function calls within one invocation.
+  functionCallDepth('function.callDepth', PluxLimitUnit.count, 3, 0, 3),
+  /// Linear memory one device function invocation may use.
+  functionDeviceMemory('function.deviceMemory', PluxLimitUnit.bytes, 33554432, 0, 134217728),
+  /// Wall-clock time one device function invocation may run.
+  functionDeviceTimeout('function.deviceTimeout', PluxLimitUnit.milliseconds, 500, 0, 5000),
+  /// Outbound HTTP calls one server function invocation may make.
+  functionHttpCalls('function.httpCalls', PluxLimitUnit.count, 10, 0, 100),
+  /// How long the server keeps an idempotency record; the server refuses less
+  /// than 24 hours.
+  functionIdempotencyWindow('function.idempotencyWindow', PluxLimitUnit.milliseconds, 86400000, 0, 604800000),
+  /// Size of the JSON input of one function invocation.
+  functionInputSize('function.inputSize', PluxLimitUnit.bytes, 1048576, 0, 16777216),
+  /// Invocations per minute of one function.
+  functionInvocationsPerMinute('function.invocationsPerMinute', PluxLimitUnit.count, 600, 0, 100000),
+  /// Function invocations per minute of one app.
+  functionInvocationsPerMinutePerApp('function.invocationsPerMinutePerApp', PluxLimitUnit.count, 6000, 0, 1000000),
+  /// Function invocations per minute of one device.
+  functionInvocationsPerMinutePerDevice('function.invocationsPerMinutePerDevice', PluxLimitUnit.count, 60, 0, 10000),
+  /// Total size of the key-value store of one function.
+  functionKvBytes('function.kvBytes', PluxLimitUnit.bytes, 10485760, 0, 1073741824),
+  /// Keys in the key-value store of one function.
+  functionKvKeys('function.kvKeys', PluxLimitUnit.count, 10000, 0, 1000000),
+  /// Size of one value in the function key-value store.
+  functionKvValueBytes('function.kvValueBytes', PluxLimitUnit.bytes, 65536, 0, 1048576),
+  /// Log output one function invocation may retain.
+  functionLogBytes('function.logBytes', PluxLimitUnit.bytes, 65536, 0, 1048576),
+  /// Linear memory one server function invocation may use.
+  functionMemory('function.memory', PluxLimitUnit.bytes, 67108864, 0, 536870912),
+  /// Size of the WebAssembly module of one server function.
+  functionModuleSize('function.moduleSize', PluxLimitUnit.bytes, 16777216, 0, 67108864),
+  /// Size of the JSON output of one function invocation.
+  functionOutputSize('function.outputSize', PluxLimitUnit.bytes, 1048576, 0, 16777216),
+  /// Size of an uploaded function source archive, including vendored sources.
+  functionSourceArchiveSize('function.sourceArchiveSize', PluxLimitUnit.bytes, 67108864, 0, 536870912),
+  /// Stored test cases of one function.
+  functionTestCases('function.testCases', PluxLimitUnit.count, 100, 0, 1000),
+  /// Wall-clock time one server function invocation may run.
+  functionTimeout('function.timeout', PluxLimitUnit.milliseconds, 2000, 0, 30000),
   /// Bytes of request body the gateway forwards to an upstream.
   gatewayRequestBytes('gateway.requestBytes', PluxLimitUnit.bytes, 1048576, 0, 33554432),
   /// Gateway requests one device may send per minute.

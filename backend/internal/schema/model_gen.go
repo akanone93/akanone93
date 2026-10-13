@@ -19,6 +19,7 @@ const (
 	KindApp             DocumentKind = "app"
 	KindAssetIndex      DocumentKind = "assetIndex"
 	KindComponent       DocumentKind = "component"
+	KindFunction        DocumentKind = "function"
 	KindNativeCatalogue DocumentKind = "nativeCatalogue"
 	KindPage            DocumentKind = "page"
 	KindPlugin          DocumentKind = "plugin"
@@ -38,6 +39,7 @@ var documentSchemas = [...]struct {
 	{KindApp, "app.schema.json"},
 	{KindAssetIndex, "asset-index.schema.json"},
 	{KindComponent, "component.schema.json"},
+	{KindFunction, "function.schema.json"},
 	{KindNativeCatalogue, "native-catalogue.schema.json"},
 	{KindPage, "page.schema.json"},
 	{KindPlugin, "plugin.schema.json"},
@@ -813,6 +815,67 @@ func (v FormValidatorKind) Valid() bool {
 	return false
 }
 
+// FunctionCapabilities — Host capabilities the function declares;
+// everything not declared is denied (FN-012). A device function may declare
+// only `kv` and `functions` that are themselves device-placed (FN-052).
+type FunctionCapabilities struct {
+	// HTTP: Domains the function may call through the egress proxy (FN-017).
+	HTTP []string `json:"http,omitempty"`
+	// KV: Whether the function may use its key-value namespace (FN-018).
+	KV *bool `json:"kv,omitempty"`
+	// Secrets: Names of the secrets the function may read (FN-012).
+	Secrets []string `json:"secrets,omitempty"`
+	// Functions: Names of the functions this function may call (FN-012).
+	Functions []string `json:"functions,omitempty"`
+	// Claims: Whether the function may read the verified user claims (SEC-026).
+	Claims *bool `json:"claims,omitempty"`
+}
+
+// FunctionDocument — A Plux Function: its name, placement, capabilities,
+// limits, required assurance and test cases (FN-008, FN-011, FN-012, FN-031).
+// The input and output schemas are derived from the function's types at build
+// time (FN-004) and never written here. File:
+// `functions/<name>/function.json`.
+type FunctionDocument struct {
+	// SchemaVersion: Version of the document schema (SCH-000). Older documents
+	// are migrated before validation.
+	SchemaVersion string `json:"schemaVersion"`
+	Kind          string `json:"kind"`
+	// ID: Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+	ID string `json:"id"`
+	// Name: The dotted function name that plugin grants and `invokeFunction`
+	// actions refer to (FN-006).
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	// Placement: Where the function runs; exactly one (FN-008).
+	Placement Placement `json:"placement"`
+	// Capabilities: Host capabilities the function declares; everything not
+	// declared is denied (FN-012). A device function may declare only `kv` and
+	// `functions` that are themselves device-placed (FN-052).
+	Capabilities *FunctionCapabilities `json:"capabilities,omitempty"`
+	// Limits: Per-function limits that tighten the registry values (FN-011,
+	// LIM-002).
+	Limits *FunctionLimits `json:"limits,omitempty"`
+	// Assurance: The assurance level a device must hold to invoke the function;
+	// the `defaultFunctionAssurance` setting applies when absent (SEC-007).
+	Assurance AssuranceLevel `json:"assurance,omitempty"`
+	// Attestation: Whether the invocation requires a fresh attestation of the
+	// device.
+	Attestation *bool `json:"attestation,omitempty"`
+	// Sca: Whether the invocation requires strong customer authentication
+	// (SEC-027).
+	Sca *bool `json:"sca,omitempty"`
+	// Pure: Whether the function is free of side effects, so its results may be
+	// cached by input hash (FN-014).
+	Pure *bool `json:"pure,omitempty"`
+	// CacheTtlSeconds: How long the result of a pure function may be cached
+	// (FN-014).
+	CacheTtlSeconds *int64 `json:"cacheTtlSeconds,omitempty"`
+	// Tests: Stored test cases, run by `plux fn test` and in CI; a failing case
+	// blocks deployment to production (FN-031).
+	Tests []FunctionTestCase `json:"tests,omitempty"`
+}
+
 // FunctionGrant — A function the plugin may call, with an optional alias
 // (FN-006).
 type FunctionGrant struct {
@@ -821,6 +884,32 @@ type FunctionGrant struct {
 	Function          string         `json:"function"`
 	Alias             string         `json:"alias,omitempty"`
 	RequiresAssurance AssuranceLevel `json:"requiresAssurance,omitempty"`
+}
+
+// FunctionLimits — Per-function limits that tighten the registry values
+// (FN-011, LIM-002).
+type FunctionLimits struct {
+	TimeoutMs   *int64 `json:"timeoutMs,omitempty"`
+	MemoryBytes *int64 `json:"memoryBytes,omitempty"`
+	OutputBytes *int64 `json:"outputBytes,omitempty"`
+	HTTPCalls   *int64 `json:"httpCalls,omitempty"`
+}
+
+// FunctionTestCase — is generated from
+// function.schema.json#/$defs/testCase.
+type FunctionTestCase struct {
+	Name string `json:"name"`
+	// Input: The JSON input passed to the function.
+	Input json.RawMessage `json:"input"`
+	// Output: The JSON output the function must return.
+	Output json.RawMessage `json:"output,omitempty"`
+	// Error: The business error the function must return.
+	Error *FunctionTestError `json:"error,omitempty"`
+}
+
+// FunctionTestError — The business error the function must return.
+type FunctionTestError struct {
+	Code string `json:"code"`
 }
 
 // HostBuild — The host app build the catalogue describes.
@@ -1175,6 +1264,24 @@ const (
 func (v Persistence) Valid() bool {
 	switch v {
 	case PersistenceMemory, PersistenceSession, PersistencePersisted, PersistenceSecure:
+		return true
+	}
+	return false
+}
+
+// Placement — is generated from function.schema.json#/$defs/placement.
+type Placement string
+
+// Values of Placement.
+const (
+	PlacementServer Placement = "server"
+	PlacementDevice Placement = "device"
+)
+
+// Valid reports whether v is one of the values of Placement.
+func (v Placement) Valid() bool {
+	switch v {
+	case PlacementServer, PlacementDevice:
 		return true
 	}
 	return false

@@ -122,8 +122,40 @@ func (rcv *WasmModule) MutateModule(j int, n byte) bool {
 	return false
 }
 
+func (rcv *WasmModule) AbiVersion() uint32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.GetUint32(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *WasmModule) MutateAbiVersion(n uint32) bool {
+	return rcv._tab.MutateUint32Slot(10, n)
+}
+
+func (rcv *WasmModule) Functions(obj *DeviceFunction, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *WasmModule) FunctionsLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
 func WasmModuleStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+	builder.StartObject(5)
 }
 func WasmModuleAddId(builder *flatbuffers.Builder, id flatbuffers.UOffsetT) {
 	builder.PrependStructSlot(0, flatbuffers.UOffsetT(id), 0)
@@ -139,6 +171,15 @@ func WasmModuleAddModule(builder *flatbuffers.Builder, module flatbuffers.UOffse
 }
 func WasmModuleStartModuleVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(1, numElems, 1)
+}
+func WasmModuleAddAbiVersion(builder *flatbuffers.Builder, abiVersion uint32) {
+	builder.PrependUint32Slot(3, abiVersion, 0)
+}
+func WasmModuleAddFunctions(builder *flatbuffers.Builder, functions flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(functions), 0)
+}
+func WasmModuleStartFunctionsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func WasmModuleEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

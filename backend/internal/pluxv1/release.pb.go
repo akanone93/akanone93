@@ -211,7 +211,10 @@ type Release struct {
 	CreatedAt  *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// confidential is true when the release's bundles are delivered
 	// encrypted (SEC-053).
-	Confidential  bool `protobuf:"varint,11,opt,name=confidential,proto3" json:"confidential,omitempty"`
+	Confidential bool `protobuf:"varint,11,opt,name=confidential,proto3" json:"confidential,omitempty"`
+	// functions are the function versions the release pins, so a device
+	// invokes exactly the version its release was built against (FN-006).
+	Functions     []*ReleaseFunction `protobuf:"bytes,12,rep,name=functions,proto3" json:"functions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -323,6 +326,86 @@ func (x *Release) GetConfidential() bool {
 	return false
 }
 
+func (x *Release) GetFunctions() []*ReleaseFunction {
+	if x != nil {
+		return x.Functions
+	}
+	return nil
+}
+
+// ReleaseFunction is one function version a release references (FN-006).
+type ReleaseFunction struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// name is the dotted function name.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// version is the immutable function version the release resolved.
+	Version uint32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	// module_sha256 is the hex SHA-256 of the version's module (FN-005).
+	ModuleSha256 string `protobuf:"bytes,3,opt,name=module_sha256,json=moduleSha256,proto3" json:"module_sha256,omitempty"`
+	// placement is "server" or "device" (FN-008).
+	Placement     string `protobuf:"bytes,4,opt,name=placement,proto3" json:"placement,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReleaseFunction) Reset() {
+	*x = ReleaseFunction{}
+	mi := &file_plux_v1_release_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReleaseFunction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReleaseFunction) ProtoMessage() {}
+
+func (x *ReleaseFunction) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_release_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReleaseFunction.ProtoReflect.Descriptor instead.
+func (*ReleaseFunction) Descriptor() ([]byte, []int) {
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ReleaseFunction) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ReleaseFunction) GetVersion() uint32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *ReleaseFunction) GetModuleSha256() string {
+	if x != nil {
+		return x.ModuleSha256
+	}
+	return ""
+}
+
+func (x *ReleaseFunction) GetPlacement() string {
+	if x != nil {
+		return x.Placement
+	}
+	return ""
+}
+
 type ChangelogEntry struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// kind is "page", "action", "dataSource", "function" or "translation".
@@ -337,7 +420,7 @@ type ChangelogEntry struct {
 
 func (x *ChangelogEntry) Reset() {
 	*x = ChangelogEntry{}
-	mi := &file_plux_v1_release_proto_msgTypes[2]
+	mi := &file_plux_v1_release_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -349,7 +432,7 @@ func (x *ChangelogEntry) String() string {
 func (*ChangelogEntry) ProtoMessage() {}
 
 func (x *ChangelogEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[2]
+	mi := &file_plux_v1_release_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -362,7 +445,7 @@ func (x *ChangelogEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangelogEntry.ProtoReflect.Descriptor instead.
 func (*ChangelogEntry) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{2}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ChangelogEntry) GetKind() string {
@@ -411,7 +494,7 @@ type Compatibility struct {
 
 func (x *Compatibility) Reset() {
 	*x = Compatibility{}
-	mi := &file_plux_v1_release_proto_msgTypes[3]
+	mi := &file_plux_v1_release_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -423,7 +506,7 @@ func (x *Compatibility) String() string {
 func (*Compatibility) ProtoMessage() {}
 
 func (x *Compatibility) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[3]
+	mi := &file_plux_v1_release_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -436,7 +519,7 @@ func (x *Compatibility) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Compatibility.ProtoReflect.Descriptor instead.
 func (*Compatibility) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{3}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Compatibility) GetMinRuntime() string {
@@ -492,7 +575,7 @@ type IncompatibleHostBuild struct {
 
 func (x *IncompatibleHostBuild) Reset() {
 	*x = IncompatibleHostBuild{}
-	mi := &file_plux_v1_release_proto_msgTypes[4]
+	mi := &file_plux_v1_release_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -504,7 +587,7 @@ func (x *IncompatibleHostBuild) String() string {
 func (*IncompatibleHostBuild) ProtoMessage() {}
 
 func (x *IncompatibleHostBuild) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[4]
+	mi := &file_plux_v1_release_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -517,7 +600,7 @@ func (x *IncompatibleHostBuild) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IncompatibleHostBuild.ProtoReflect.Descriptor instead.
 func (*IncompatibleHostBuild) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{4}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *IncompatibleHostBuild) GetHostBuild() string {
@@ -558,7 +641,7 @@ type GetPluginVersionRequest struct {
 
 func (x *GetPluginVersionRequest) Reset() {
 	*x = GetPluginVersionRequest{}
-	mi := &file_plux_v1_release_proto_msgTypes[5]
+	mi := &file_plux_v1_release_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -570,7 +653,7 @@ func (x *GetPluginVersionRequest) String() string {
 func (*GetPluginVersionRequest) ProtoMessage() {}
 
 func (x *GetPluginVersionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[5]
+	mi := &file_plux_v1_release_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -583,7 +666,7 @@ func (x *GetPluginVersionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPluginVersionRequest.ProtoReflect.Descriptor instead.
 func (*GetPluginVersionRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{5}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetPluginVersionRequest) GetPluginId() string {
@@ -609,7 +692,7 @@ type GetPluginVersionResponse struct {
 
 func (x *GetPluginVersionResponse) Reset() {
 	*x = GetPluginVersionResponse{}
-	mi := &file_plux_v1_release_proto_msgTypes[6]
+	mi := &file_plux_v1_release_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -621,7 +704,7 @@ func (x *GetPluginVersionResponse) String() string {
 func (*GetPluginVersionResponse) ProtoMessage() {}
 
 func (x *GetPluginVersionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[6]
+	mi := &file_plux_v1_release_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -634,7 +717,7 @@ func (x *GetPluginVersionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPluginVersionResponse.ProtoReflect.Descriptor instead.
 func (*GetPluginVersionResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{6}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetPluginVersionResponse) GetVersion() *PluginVersion {
@@ -654,7 +737,7 @@ type ListPluginVersionsRequest struct {
 
 func (x *ListPluginVersionsRequest) Reset() {
 	*x = ListPluginVersionsRequest{}
-	mi := &file_plux_v1_release_proto_msgTypes[7]
+	mi := &file_plux_v1_release_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -666,7 +749,7 @@ func (x *ListPluginVersionsRequest) String() string {
 func (*ListPluginVersionsRequest) ProtoMessage() {}
 
 func (x *ListPluginVersionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[7]
+	mi := &file_plux_v1_release_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -679,7 +762,7 @@ func (x *ListPluginVersionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPluginVersionsRequest.ProtoReflect.Descriptor instead.
 func (*ListPluginVersionsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{7}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListPluginVersionsRequest) GetPluginId() string {
@@ -706,7 +789,7 @@ type ListPluginVersionsResponse struct {
 
 func (x *ListPluginVersionsResponse) Reset() {
 	*x = ListPluginVersionsResponse{}
-	mi := &file_plux_v1_release_proto_msgTypes[8]
+	mi := &file_plux_v1_release_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -718,7 +801,7 @@ func (x *ListPluginVersionsResponse) String() string {
 func (*ListPluginVersionsResponse) ProtoMessage() {}
 
 func (x *ListPluginVersionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[8]
+	mi := &file_plux_v1_release_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -731,7 +814,7 @@ func (x *ListPluginVersionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPluginVersionsResponse.ProtoReflect.Descriptor instead.
 func (*ListPluginVersionsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{8}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListPluginVersionsResponse) GetVersions() []*PluginVersion {
@@ -767,7 +850,7 @@ type CreateReleaseRequest struct {
 
 func (x *CreateReleaseRequest) Reset() {
 	*x = CreateReleaseRequest{}
-	mi := &file_plux_v1_release_proto_msgTypes[9]
+	mi := &file_plux_v1_release_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -779,7 +862,7 @@ func (x *CreateReleaseRequest) String() string {
 func (*CreateReleaseRequest) ProtoMessage() {}
 
 func (x *CreateReleaseRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[9]
+	mi := &file_plux_v1_release_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -792,7 +875,7 @@ func (x *CreateReleaseRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateReleaseRequest.ProtoReflect.Descriptor instead.
 func (*CreateReleaseRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{9}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *CreateReleaseRequest) GetAppId() string {
@@ -840,7 +923,7 @@ type CreateReleaseResponse struct {
 
 func (x *CreateReleaseResponse) Reset() {
 	*x = CreateReleaseResponse{}
-	mi := &file_plux_v1_release_proto_msgTypes[10]
+	mi := &file_plux_v1_release_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -852,7 +935,7 @@ func (x *CreateReleaseResponse) String() string {
 func (*CreateReleaseResponse) ProtoMessage() {}
 
 func (x *CreateReleaseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[10]
+	mi := &file_plux_v1_release_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -865,7 +948,7 @@ func (x *CreateReleaseResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateReleaseResponse.ProtoReflect.Descriptor instead.
 func (*CreateReleaseResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{10}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CreateReleaseResponse) GetRelease() *Release {
@@ -892,7 +975,7 @@ type GetReleaseRequest struct {
 
 func (x *GetReleaseRequest) Reset() {
 	*x = GetReleaseRequest{}
-	mi := &file_plux_v1_release_proto_msgTypes[11]
+	mi := &file_plux_v1_release_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -904,7 +987,7 @@ func (x *GetReleaseRequest) String() string {
 func (*GetReleaseRequest) ProtoMessage() {}
 
 func (x *GetReleaseRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[11]
+	mi := &file_plux_v1_release_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -917,7 +1000,7 @@ func (x *GetReleaseRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReleaseRequest.ProtoReflect.Descriptor instead.
 func (*GetReleaseRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{11}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetReleaseRequest) GetAppId() string {
@@ -944,7 +1027,7 @@ type GetReleaseResponse struct {
 
 func (x *GetReleaseResponse) Reset() {
 	*x = GetReleaseResponse{}
-	mi := &file_plux_v1_release_proto_msgTypes[12]
+	mi := &file_plux_v1_release_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -956,7 +1039,7 @@ func (x *GetReleaseResponse) String() string {
 func (*GetReleaseResponse) ProtoMessage() {}
 
 func (x *GetReleaseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[12]
+	mi := &file_plux_v1_release_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -969,7 +1052,7 @@ func (x *GetReleaseResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReleaseResponse.ProtoReflect.Descriptor instead.
 func (*GetReleaseResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{12}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetReleaseResponse) GetRelease() *Release {
@@ -997,7 +1080,7 @@ type ListReleasesRequest struct {
 
 func (x *ListReleasesRequest) Reset() {
 	*x = ListReleasesRequest{}
-	mi := &file_plux_v1_release_proto_msgTypes[13]
+	mi := &file_plux_v1_release_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1009,7 +1092,7 @@ func (x *ListReleasesRequest) String() string {
 func (*ListReleasesRequest) ProtoMessage() {}
 
 func (x *ListReleasesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[13]
+	mi := &file_plux_v1_release_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1022,7 +1105,7 @@ func (x *ListReleasesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListReleasesRequest.ProtoReflect.Descriptor instead.
 func (*ListReleasesRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{13}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListReleasesRequest) GetAppId() string {
@@ -1056,7 +1139,7 @@ type ListReleasesResponse struct {
 
 func (x *ListReleasesResponse) Reset() {
 	*x = ListReleasesResponse{}
-	mi := &file_plux_v1_release_proto_msgTypes[14]
+	mi := &file_plux_v1_release_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1068,7 +1151,7 @@ func (x *ListReleasesResponse) String() string {
 func (*ListReleasesResponse) ProtoMessage() {}
 
 func (x *ListReleasesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[14]
+	mi := &file_plux_v1_release_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1081,7 +1164,7 @@ func (x *ListReleasesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListReleasesResponse.ProtoReflect.Descriptor instead.
 func (*ListReleasesResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{14}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListReleasesResponse) GetReleases() []*Release {
@@ -1110,7 +1193,7 @@ type PromoteReleaseRequest struct {
 
 func (x *PromoteReleaseRequest) Reset() {
 	*x = PromoteReleaseRequest{}
-	mi := &file_plux_v1_release_proto_msgTypes[15]
+	mi := &file_plux_v1_release_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1122,7 +1205,7 @@ func (x *PromoteReleaseRequest) String() string {
 func (*PromoteReleaseRequest) ProtoMessage() {}
 
 func (x *PromoteReleaseRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[15]
+	mi := &file_plux_v1_release_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1135,7 +1218,7 @@ func (x *PromoteReleaseRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PromoteReleaseRequest.ProtoReflect.Descriptor instead.
 func (*PromoteReleaseRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{15}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *PromoteReleaseRequest) GetAppId() string {
@@ -1175,7 +1258,7 @@ type PromoteReleaseResponse struct {
 
 func (x *PromoteReleaseResponse) Reset() {
 	*x = PromoteReleaseResponse{}
-	mi := &file_plux_v1_release_proto_msgTypes[16]
+	mi := &file_plux_v1_release_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1187,7 +1270,7 @@ func (x *PromoteReleaseResponse) String() string {
 func (*PromoteReleaseResponse) ProtoMessage() {}
 
 func (x *PromoteReleaseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[16]
+	mi := &file_plux_v1_release_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1200,7 +1283,7 @@ func (x *PromoteReleaseResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PromoteReleaseResponse.ProtoReflect.Descriptor instead.
 func (*PromoteReleaseResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{16}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *PromoteReleaseResponse) GetRelease() *Release {
@@ -1224,7 +1307,7 @@ type RollbackReleaseRequest struct {
 
 func (x *RollbackReleaseRequest) Reset() {
 	*x = RollbackReleaseRequest{}
-	mi := &file_plux_v1_release_proto_msgTypes[17]
+	mi := &file_plux_v1_release_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1236,7 +1319,7 @@ func (x *RollbackReleaseRequest) String() string {
 func (*RollbackReleaseRequest) ProtoMessage() {}
 
 func (x *RollbackReleaseRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[17]
+	mi := &file_plux_v1_release_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1249,7 +1332,7 @@ func (x *RollbackReleaseRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RollbackReleaseRequest.ProtoReflect.Descriptor instead.
 func (*RollbackReleaseRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{17}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *RollbackReleaseRequest) GetAppId() string {
@@ -1296,7 +1379,7 @@ type RollbackReleaseResponse struct {
 
 func (x *RollbackReleaseResponse) Reset() {
 	*x = RollbackReleaseResponse{}
-	mi := &file_plux_v1_release_proto_msgTypes[18]
+	mi := &file_plux_v1_release_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1308,7 +1391,7 @@ func (x *RollbackReleaseResponse) String() string {
 func (*RollbackReleaseResponse) ProtoMessage() {}
 
 func (x *RollbackReleaseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[18]
+	mi := &file_plux_v1_release_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1321,7 +1404,7 @@ func (x *RollbackReleaseResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RollbackReleaseResponse.ProtoReflect.Descriptor instead.
 func (*RollbackReleaseResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{18}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *RollbackReleaseResponse) GetRelease() *Release {
@@ -1343,7 +1426,7 @@ type GetChangelogRequest struct {
 
 func (x *GetChangelogRequest) Reset() {
 	*x = GetChangelogRequest{}
-	mi := &file_plux_v1_release_proto_msgTypes[19]
+	mi := &file_plux_v1_release_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1355,7 +1438,7 @@ func (x *GetChangelogRequest) String() string {
 func (*GetChangelogRequest) ProtoMessage() {}
 
 func (x *GetChangelogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[19]
+	mi := &file_plux_v1_release_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1368,7 +1451,7 @@ func (x *GetChangelogRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChangelogRequest.ProtoReflect.Descriptor instead.
 func (*GetChangelogRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{19}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetChangelogRequest) GetAppId() string {
@@ -1402,7 +1485,7 @@ type GetChangelogResponse struct {
 
 func (x *GetChangelogResponse) Reset() {
 	*x = GetChangelogResponse{}
-	mi := &file_plux_v1_release_proto_msgTypes[20]
+	mi := &file_plux_v1_release_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1414,7 +1497,7 @@ func (x *GetChangelogResponse) String() string {
 func (*GetChangelogResponse) ProtoMessage() {}
 
 func (x *GetChangelogResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[20]
+	mi := &file_plux_v1_release_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1427,7 +1510,7 @@ func (x *GetChangelogResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChangelogResponse.ProtoReflect.Descriptor instead.
 func (*GetChangelogResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{20}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetChangelogResponse) GetEntries() []*ChangelogEntry {
@@ -1454,7 +1537,7 @@ type GetCompatibilityRequest struct {
 
 func (x *GetCompatibilityRequest) Reset() {
 	*x = GetCompatibilityRequest{}
-	mi := &file_plux_v1_release_proto_msgTypes[21]
+	mi := &file_plux_v1_release_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1466,7 +1549,7 @@ func (x *GetCompatibilityRequest) String() string {
 func (*GetCompatibilityRequest) ProtoMessage() {}
 
 func (x *GetCompatibilityRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[21]
+	mi := &file_plux_v1_release_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1479,7 +1562,7 @@ func (x *GetCompatibilityRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCompatibilityRequest.ProtoReflect.Descriptor instead.
 func (*GetCompatibilityRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{21}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetCompatibilityRequest) GetAppId() string {
@@ -1505,7 +1588,7 @@ type GetCompatibilityResponse struct {
 
 func (x *GetCompatibilityResponse) Reset() {
 	*x = GetCompatibilityResponse{}
-	mi := &file_plux_v1_release_proto_msgTypes[22]
+	mi := &file_plux_v1_release_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1517,7 +1600,7 @@ func (x *GetCompatibilityResponse) String() string {
 func (*GetCompatibilityResponse) ProtoMessage() {}
 
 func (x *GetCompatibilityResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_release_proto_msgTypes[22]
+	mi := &file_plux_v1_release_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1530,7 +1613,7 @@ func (x *GetCompatibilityResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCompatibilityResponse.ProtoReflect.Descriptor instead.
 func (*GetCompatibilityResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_release_proto_rawDescGZIP(), []int{22}
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetCompatibilityResponse) GetCompatibility() *Compatibility {
@@ -1566,7 +1649,7 @@ const file_plux_v1_release_proto_rawDesc = "" +
 	"\x12source_snapshot_id\x18\x0e \x01(\tR\x10sourceSnapshotId\x121\n" +
 	"\fpublished_by\x18\x0f \x01(\v2\x0e.plux.v1.ActorR\vpublishedBy\x129\n" +
 	"\n" +
-	"created_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\x93\x03\n" +
+	"created_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xcb\x03\n" +
 	"\aRelease\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12\x1a\n" +
@@ -1582,7 +1665,13 @@ const file_plux_v1_release_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\"\n" +
-	"\fconfidential\x18\v \x01(\bR\fconfidential\"o\n" +
+	"\fconfidential\x18\v \x01(\bR\fconfidential\x126\n" +
+	"\tfunctions\x18\f \x03(\v2\x18.plux.v1.ReleaseFunctionR\tfunctions\"\x82\x01\n" +
+	"\x0fReleaseFunction\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
+	"\aversion\x18\x02 \x01(\rR\aversion\x12#\n" +
+	"\rmodule_sha256\x18\x03 \x01(\tR\fmoduleSha256\x12\x1c\n" +
+	"\tplacement\x18\x04 \x01(\tR\tplacement\"o\n" +
 	"\x0eChangelogEntry\x12\x12\n" +
 	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x16\n" +
 	"\x06change\x18\x02 \x01(\tR\x06change\x12\x1d\n" +
@@ -1692,83 +1781,85 @@ func file_plux_v1_release_proto_rawDescGZIP() []byte {
 	return file_plux_v1_release_proto_rawDescData
 }
 
-var file_plux_v1_release_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_plux_v1_release_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_plux_v1_release_proto_goTypes = []any{
 	(*PluginVersion)(nil),              // 0: plux.v1.PluginVersion
 	(*Release)(nil),                    // 1: plux.v1.Release
-	(*ChangelogEntry)(nil),             // 2: plux.v1.ChangelogEntry
-	(*Compatibility)(nil),              // 3: plux.v1.Compatibility
-	(*IncompatibleHostBuild)(nil),      // 4: plux.v1.IncompatibleHostBuild
-	(*GetPluginVersionRequest)(nil),    // 5: plux.v1.GetPluginVersionRequest
-	(*GetPluginVersionResponse)(nil),   // 6: plux.v1.GetPluginVersionResponse
-	(*ListPluginVersionsRequest)(nil),  // 7: plux.v1.ListPluginVersionsRequest
-	(*ListPluginVersionsResponse)(nil), // 8: plux.v1.ListPluginVersionsResponse
-	(*CreateReleaseRequest)(nil),       // 9: plux.v1.CreateReleaseRequest
-	(*CreateReleaseResponse)(nil),      // 10: plux.v1.CreateReleaseResponse
-	(*GetReleaseRequest)(nil),          // 11: plux.v1.GetReleaseRequest
-	(*GetReleaseResponse)(nil),         // 12: plux.v1.GetReleaseResponse
-	(*ListReleasesRequest)(nil),        // 13: plux.v1.ListReleasesRequest
-	(*ListReleasesResponse)(nil),       // 14: plux.v1.ListReleasesResponse
-	(*PromoteReleaseRequest)(nil),      // 15: plux.v1.PromoteReleaseRequest
-	(*PromoteReleaseResponse)(nil),     // 16: plux.v1.PromoteReleaseResponse
-	(*RollbackReleaseRequest)(nil),     // 17: plux.v1.RollbackReleaseRequest
-	(*RollbackReleaseResponse)(nil),    // 18: plux.v1.RollbackReleaseResponse
-	(*GetChangelogRequest)(nil),        // 19: plux.v1.GetChangelogRequest
-	(*GetChangelogResponse)(nil),       // 20: plux.v1.GetChangelogResponse
-	(*GetCompatibilityRequest)(nil),    // 21: plux.v1.GetCompatibilityRequest
-	(*GetCompatibilityResponse)(nil),   // 22: plux.v1.GetCompatibilityResponse
-	nil,                                // 23: plux.v1.CreateReleaseRequest.PluginVersionsEntry
-	(*Actor)(nil),                      // 24: plux.v1.Actor
-	(*timestamppb.Timestamp)(nil),      // 25: google.protobuf.Timestamp
-	(*Page)(nil),                       // 26: plux.v1.Page
-	(*PageResult)(nil),                 // 27: plux.v1.PageResult
-	(*Diagnostic)(nil),                 // 28: plux.v1.Diagnostic
+	(*ReleaseFunction)(nil),            // 2: plux.v1.ReleaseFunction
+	(*ChangelogEntry)(nil),             // 3: plux.v1.ChangelogEntry
+	(*Compatibility)(nil),              // 4: plux.v1.Compatibility
+	(*IncompatibleHostBuild)(nil),      // 5: plux.v1.IncompatibleHostBuild
+	(*GetPluginVersionRequest)(nil),    // 6: plux.v1.GetPluginVersionRequest
+	(*GetPluginVersionResponse)(nil),   // 7: plux.v1.GetPluginVersionResponse
+	(*ListPluginVersionsRequest)(nil),  // 8: plux.v1.ListPluginVersionsRequest
+	(*ListPluginVersionsResponse)(nil), // 9: plux.v1.ListPluginVersionsResponse
+	(*CreateReleaseRequest)(nil),       // 10: plux.v1.CreateReleaseRequest
+	(*CreateReleaseResponse)(nil),      // 11: plux.v1.CreateReleaseResponse
+	(*GetReleaseRequest)(nil),          // 12: plux.v1.GetReleaseRequest
+	(*GetReleaseResponse)(nil),         // 13: plux.v1.GetReleaseResponse
+	(*ListReleasesRequest)(nil),        // 14: plux.v1.ListReleasesRequest
+	(*ListReleasesResponse)(nil),       // 15: plux.v1.ListReleasesResponse
+	(*PromoteReleaseRequest)(nil),      // 16: plux.v1.PromoteReleaseRequest
+	(*PromoteReleaseResponse)(nil),     // 17: plux.v1.PromoteReleaseResponse
+	(*RollbackReleaseRequest)(nil),     // 18: plux.v1.RollbackReleaseRequest
+	(*RollbackReleaseResponse)(nil),    // 19: plux.v1.RollbackReleaseResponse
+	(*GetChangelogRequest)(nil),        // 20: plux.v1.GetChangelogRequest
+	(*GetChangelogResponse)(nil),       // 21: plux.v1.GetChangelogResponse
+	(*GetCompatibilityRequest)(nil),    // 22: plux.v1.GetCompatibilityRequest
+	(*GetCompatibilityResponse)(nil),   // 23: plux.v1.GetCompatibilityResponse
+	nil,                                // 24: plux.v1.CreateReleaseRequest.PluginVersionsEntry
+	(*Actor)(nil),                      // 25: plux.v1.Actor
+	(*timestamppb.Timestamp)(nil),      // 26: google.protobuf.Timestamp
+	(*Page)(nil),                       // 27: plux.v1.Page
+	(*PageResult)(nil),                 // 28: plux.v1.PageResult
+	(*Diagnostic)(nil),                 // 29: plux.v1.Diagnostic
 }
 var file_plux_v1_release_proto_depIdxs = []int32{
-	24, // 0: plux.v1.PluginVersion.published_by:type_name -> plux.v1.Actor
-	25, // 1: plux.v1.PluginVersion.created_at:type_name -> google.protobuf.Timestamp
-	24, // 2: plux.v1.Release.created_by:type_name -> plux.v1.Actor
-	25, // 3: plux.v1.Release.created_at:type_name -> google.protobuf.Timestamp
-	4,  // 4: plux.v1.Compatibility.incompatible_host_builds:type_name -> plux.v1.IncompatibleHostBuild
-	0,  // 5: plux.v1.GetPluginVersionResponse.version:type_name -> plux.v1.PluginVersion
-	26, // 6: plux.v1.ListPluginVersionsRequest.page:type_name -> plux.v1.Page
-	0,  // 7: plux.v1.ListPluginVersionsResponse.versions:type_name -> plux.v1.PluginVersion
-	27, // 8: plux.v1.ListPluginVersionsResponse.page:type_name -> plux.v1.PageResult
-	23, // 9: plux.v1.CreateReleaseRequest.plugin_versions:type_name -> plux.v1.CreateReleaseRequest.PluginVersionsEntry
-	1,  // 10: plux.v1.CreateReleaseResponse.release:type_name -> plux.v1.Release
-	28, // 11: plux.v1.CreateReleaseResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	1,  // 12: plux.v1.GetReleaseResponse.release:type_name -> plux.v1.Release
-	0,  // 13: plux.v1.GetReleaseResponse.versions:type_name -> plux.v1.PluginVersion
-	26, // 14: plux.v1.ListReleasesRequest.page:type_name -> plux.v1.Page
-	1,  // 15: plux.v1.ListReleasesResponse.releases:type_name -> plux.v1.Release
-	27, // 16: plux.v1.ListReleasesResponse.page:type_name -> plux.v1.PageResult
-	1,  // 17: plux.v1.PromoteReleaseResponse.release:type_name -> plux.v1.Release
-	1,  // 18: plux.v1.RollbackReleaseResponse.release:type_name -> plux.v1.Release
-	2,  // 19: plux.v1.GetChangelogResponse.entries:type_name -> plux.v1.ChangelogEntry
-	3,  // 20: plux.v1.GetCompatibilityResponse.compatibility:type_name -> plux.v1.Compatibility
-	5,  // 21: plux.v1.ReleaseService.GetPluginVersion:input_type -> plux.v1.GetPluginVersionRequest
-	7,  // 22: plux.v1.ReleaseService.ListPluginVersions:input_type -> plux.v1.ListPluginVersionsRequest
-	9,  // 23: plux.v1.ReleaseService.CreateRelease:input_type -> plux.v1.CreateReleaseRequest
-	11, // 24: plux.v1.ReleaseService.GetRelease:input_type -> plux.v1.GetReleaseRequest
-	13, // 25: plux.v1.ReleaseService.ListReleases:input_type -> plux.v1.ListReleasesRequest
-	15, // 26: plux.v1.ReleaseService.PromoteRelease:input_type -> plux.v1.PromoteReleaseRequest
-	17, // 27: plux.v1.ReleaseService.RollbackRelease:input_type -> plux.v1.RollbackReleaseRequest
-	19, // 28: plux.v1.ReleaseService.GetChangelog:input_type -> plux.v1.GetChangelogRequest
-	21, // 29: plux.v1.ReleaseService.GetCompatibility:input_type -> plux.v1.GetCompatibilityRequest
-	6,  // 30: plux.v1.ReleaseService.GetPluginVersion:output_type -> plux.v1.GetPluginVersionResponse
-	8,  // 31: plux.v1.ReleaseService.ListPluginVersions:output_type -> plux.v1.ListPluginVersionsResponse
-	10, // 32: plux.v1.ReleaseService.CreateRelease:output_type -> plux.v1.CreateReleaseResponse
-	12, // 33: plux.v1.ReleaseService.GetRelease:output_type -> plux.v1.GetReleaseResponse
-	14, // 34: plux.v1.ReleaseService.ListReleases:output_type -> plux.v1.ListReleasesResponse
-	16, // 35: plux.v1.ReleaseService.PromoteRelease:output_type -> plux.v1.PromoteReleaseResponse
-	18, // 36: plux.v1.ReleaseService.RollbackRelease:output_type -> plux.v1.RollbackReleaseResponse
-	20, // 37: plux.v1.ReleaseService.GetChangelog:output_type -> plux.v1.GetChangelogResponse
-	22, // 38: plux.v1.ReleaseService.GetCompatibility:output_type -> plux.v1.GetCompatibilityResponse
-	30, // [30:39] is the sub-list for method output_type
-	21, // [21:30] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	25, // 0: plux.v1.PluginVersion.published_by:type_name -> plux.v1.Actor
+	26, // 1: plux.v1.PluginVersion.created_at:type_name -> google.protobuf.Timestamp
+	25, // 2: plux.v1.Release.created_by:type_name -> plux.v1.Actor
+	26, // 3: plux.v1.Release.created_at:type_name -> google.protobuf.Timestamp
+	2,  // 4: plux.v1.Release.functions:type_name -> plux.v1.ReleaseFunction
+	5,  // 5: plux.v1.Compatibility.incompatible_host_builds:type_name -> plux.v1.IncompatibleHostBuild
+	0,  // 6: plux.v1.GetPluginVersionResponse.version:type_name -> plux.v1.PluginVersion
+	27, // 7: plux.v1.ListPluginVersionsRequest.page:type_name -> plux.v1.Page
+	0,  // 8: plux.v1.ListPluginVersionsResponse.versions:type_name -> plux.v1.PluginVersion
+	28, // 9: plux.v1.ListPluginVersionsResponse.page:type_name -> plux.v1.PageResult
+	24, // 10: plux.v1.CreateReleaseRequest.plugin_versions:type_name -> plux.v1.CreateReleaseRequest.PluginVersionsEntry
+	1,  // 11: plux.v1.CreateReleaseResponse.release:type_name -> plux.v1.Release
+	29, // 12: plux.v1.CreateReleaseResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	1,  // 13: plux.v1.GetReleaseResponse.release:type_name -> plux.v1.Release
+	0,  // 14: plux.v1.GetReleaseResponse.versions:type_name -> plux.v1.PluginVersion
+	27, // 15: plux.v1.ListReleasesRequest.page:type_name -> plux.v1.Page
+	1,  // 16: plux.v1.ListReleasesResponse.releases:type_name -> plux.v1.Release
+	28, // 17: plux.v1.ListReleasesResponse.page:type_name -> plux.v1.PageResult
+	1,  // 18: plux.v1.PromoteReleaseResponse.release:type_name -> plux.v1.Release
+	1,  // 19: plux.v1.RollbackReleaseResponse.release:type_name -> plux.v1.Release
+	3,  // 20: plux.v1.GetChangelogResponse.entries:type_name -> plux.v1.ChangelogEntry
+	4,  // 21: plux.v1.GetCompatibilityResponse.compatibility:type_name -> plux.v1.Compatibility
+	6,  // 22: plux.v1.ReleaseService.GetPluginVersion:input_type -> plux.v1.GetPluginVersionRequest
+	8,  // 23: plux.v1.ReleaseService.ListPluginVersions:input_type -> plux.v1.ListPluginVersionsRequest
+	10, // 24: plux.v1.ReleaseService.CreateRelease:input_type -> plux.v1.CreateReleaseRequest
+	12, // 25: plux.v1.ReleaseService.GetRelease:input_type -> plux.v1.GetReleaseRequest
+	14, // 26: plux.v1.ReleaseService.ListReleases:input_type -> plux.v1.ListReleasesRequest
+	16, // 27: plux.v1.ReleaseService.PromoteRelease:input_type -> plux.v1.PromoteReleaseRequest
+	18, // 28: plux.v1.ReleaseService.RollbackRelease:input_type -> plux.v1.RollbackReleaseRequest
+	20, // 29: plux.v1.ReleaseService.GetChangelog:input_type -> plux.v1.GetChangelogRequest
+	22, // 30: plux.v1.ReleaseService.GetCompatibility:input_type -> plux.v1.GetCompatibilityRequest
+	7,  // 31: plux.v1.ReleaseService.GetPluginVersion:output_type -> plux.v1.GetPluginVersionResponse
+	9,  // 32: plux.v1.ReleaseService.ListPluginVersions:output_type -> plux.v1.ListPluginVersionsResponse
+	11, // 33: plux.v1.ReleaseService.CreateRelease:output_type -> plux.v1.CreateReleaseResponse
+	13, // 34: plux.v1.ReleaseService.GetRelease:output_type -> plux.v1.GetReleaseResponse
+	15, // 35: plux.v1.ReleaseService.ListReleases:output_type -> plux.v1.ListReleasesResponse
+	17, // 36: plux.v1.ReleaseService.PromoteRelease:output_type -> plux.v1.PromoteReleaseResponse
+	19, // 37: plux.v1.ReleaseService.RollbackRelease:output_type -> plux.v1.RollbackReleaseResponse
+	21, // 38: plux.v1.ReleaseService.GetChangelog:output_type -> plux.v1.GetChangelogResponse
+	23, // 39: plux.v1.ReleaseService.GetCompatibility:output_type -> plux.v1.GetCompatibilityResponse
+	31, // [31:40] is the sub-list for method output_type
+	22, // [22:31] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_release_proto_init() }
@@ -1783,7 +1874,7 @@ func file_plux_v1_release_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_release_proto_rawDesc), len(file_plux_v1_release_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   24,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
