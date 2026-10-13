@@ -22,6 +22,10 @@ const (
 	// serves the gateway as well.
 	RoleGateway  Role = "gateway"
 	RoleFnRunner Role = "fnrunner"
+	// RoleEgress is the only route from the function runner to the
+	// internet: a CONNECT-only proxy that applies each function's domain
+	// allowlist and the SSRF rules (FN-013, FN-017, ADR-0064).
+	RoleEgress Role = "egress"
 )
 
 // Config is the whole configuration (Appendix H.1).
@@ -45,6 +49,42 @@ type Config struct {
 	// Gateway configures what the secure gateway trusts (SEC-031,
 	// ADR-0056).
 	Gateway Gateway `json:"gateway"`
+	// Egress configures the egress role (FN-017, ADR-0064).
+	Egress Egress `json:"egress"`
+}
+
+// Egress configures the egress role, the forward proxy through which
+// functions reach the internet (FN-013, FN-017). It is read only when the
+// process runs the role.
+type Egress struct {
+	// Listen is the address of the mutual-TLS listener fnrunner connects
+	// to.
+	Listen string `json:"listen"`
+	// InternalTLS is the role's identity: the internal CA that must have
+	// signed every client's certificate, and the role's own certificate
+	// and key (SEC-043).
+	InternalTLS InternalTLS `json:"internalTLS"`
+	// ConnectTimeout bounds the name resolution and the connection to the
+	// destination, each.
+	ConnectTimeout Duration `json:"connectTimeout"`
+	// IdleTimeout closes a tunnel that carries no byte in either
+	// direction for this long.
+	IdleTimeout Duration `json:"idleTimeout"`
+	// MaxTunnelDuration closes a tunnel that has been open this long,
+	// however active it is.
+	MaxTunnelDuration Duration `json:"maxTunnelDuration"`
+	// MaxTunnelBytes closes a tunnel once this many bytes have crossed it
+	// in one direction.
+	MaxTunnelBytes int64 `json:"maxTunnelBytes"`
+	// MaxTunnels bounds the tunnels open at once; the next is refused with
+	// 503.
+	MaxTunnels int `json:"maxTunnels"`
+	// Ports are the destination ports a function may reach.
+	Ports []int `json:"ports"`
+	// AllowLoopback lets functions reach loopback addresses. It is for
+	// tests and development only; a production installation refuses it
+	// and every other start with it set logs a warning.
+	AllowLoopback bool `json:"allowLoopback"`
 }
 
 // Gateway configures the secure gateway. Upstreams themselves are
@@ -432,6 +472,14 @@ type Retention struct {
 
 // Has reports whether the process runs a role.
 func (c *Config) Has(r Role) bool { return slices.Contains(c.Server.Roles, r) }
+
+// OnlyEgress reports whether egress is the process's only role. Such a
+// process holds no database, cache, object-storage or signing
+// credential: it is the one role with a route to the internet, so it is
+// given nothing worth stealing (ADR-0064).
+func (c *Config) OnlyEgress() bool {
+	return len(c.Server.Roles) == 1 && c.Server.Roles[0] == RoleEgress
+}
 
 // ServesHTTP reports whether the process terminates the public listener:
 // the api role and the gateway role both do, and both authenticate

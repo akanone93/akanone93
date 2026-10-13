@@ -120,6 +120,11 @@ func New(d Deps) (*Server, error) {
 	if s.cfg.Has(config.RoleWorker) && s.jobs != nil {
 		s.components = append(s.components, jobComponent{client: s.jobs})
 	}
+	if s.cfg.Has(config.RoleEgress) {
+		if err := s.buildEgress(); err != nil {
+			return nil, err
+		}
+	}
 	return s, nil
 }
 

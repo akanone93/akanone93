@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 )
 
 // prod is a production configuration that passes every transport rule:
@@ -139,4 +140,39 @@ func TestInternalTLSIsChecked(t *testing.T) {
 		{"half an identity", withServer("  internalTLS:\n    caFile: /ca.crt\n    certFile: /r.crt\n"), "caFile, certFile and keyFile must be set together"},
 		{"a listener without the api role", withServer("  roles: [worker]\n  internalListen: \":8443\"\n" + internal), "needs the api role"},
 	})
+}
+
+// Verifies: FN-017.
+func TestEgressRoleIsValidated(t *testing.T) {
+	t.Parallel()
+	tlsFiles := "egress:\n  listen: \":8444\"\n  internalTLS:\n    caFile: /ca.crt\n    certFile: /e.crt\n    keyFile: /e.key\n"
+	roles := "  roles: [egress]\n"
+	c := parse(t, withServer(roles)+tlsFiles)
+	e := c.Egress
+	if !c.Has(RoleEgress) || e.ConnectTimeout.Duration() != 10*time.Second || e.IdleTimeout.Duration() != time.Minute ||
+		e.MaxTunnelDuration.Duration() != 5*time.Minute || e.MaxTunnelBytes != 64<<20 || e.MaxTunnels != 1024 ||
+		len(e.Ports) != 2 || e.Ports[0] != 443 || e.Ports[1] != 80 || e.AllowLoopback {
+		t.Errorf("egress defaults = %+v", e)
+	}
+	if w := c.Warnings(); len(w) != 0 {
+		t.Errorf("secure defaults warn: %v", w)
+	}
+	mentions(t, []struct{ name, src, want string }{
+		{"no listener", withServer(roles) + "egress:\n  internalTLS:\n    caFile: /ca.crt\n    certFile: /e.crt\n    keyFile: /e.key\n", "egress.listen"},
+		{"no mutual TLS", withServer(roles) + "egress:\n  listen: \":8444\"\n", "egress.internalTLS"},
+		{"no ports", withServer(roles) + tlsFiles + "  ports: []\n", "egress.ports"},
+		{"bad port", withServer(roles) + tlsFiles + "  ports: [70000]\n", "is not a TCP port"},
+		{"no tunnels", withServer(roles) + tlsFiles + "  maxTunnels: 0\n", "egress.maxTunnels"},
+		{"loopback in production", withServer("  production: true\n  behindTLSProxy: true\n"+roles) + tlsFiles + "  allowLoopback: true\n", "egress.allowLoopback"},
+	})
+}
+
+// Verifies: FN-017.
+func TestEgressLoopbackWarns(t *testing.T) {
+	t.Parallel()
+	src := withServer("  roles: [egress]\n") + "egress:\n  listen: \":8444\"\n  allowLoopback: true\n  internalTLS:\n    caFile: /ca.crt\n    certFile: /e.crt\n    keyFile: /e.key\n"
+	w := parse(t, src).Warnings()
+	if len(w) != 1 || !strings.Contains(w[0], "egress.allowLoopback") {
+		t.Errorf("warnings = %v", w)
+	}
 }
