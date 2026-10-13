@@ -558,7 +558,7 @@ func (t *typer) graph(g *graph, s *scope) {
 	for _, st := range g.steps {
 		name := "PluxStep" + upperFirst(st.ID)
 		out := [][2]string{{"error", "PluxActionError?"}}
-		if o := t.stepOutput(g, st); o != "" {
+		if o := t.stepOutput(g, st, steps); o != "" {
 			out = append(out, [2]string{"output", o})
 		}
 		steps[name] = objectType(out)
@@ -666,7 +666,10 @@ func branchTargets(st schema.Step) []string {
 // stepOutput is the output type of a step when it is known without
 // inference: a concrete action output, made nullable because the step
 // may not have run.
-func (t *typer) stepOutput(g *graph, st schema.Step) string {
+func (t *typer) stepOutput(g *graph, st schema.Step, synth map[string]pxl.TypeSpec) string {
+	if st.Action == "invokeFunction" {
+		return t.functionOutput(g, st, synth)
+	}
 	if st.Action == "callFlow" {
 		f, _ := t.u.flowRef(g.plugin, literalString(st.Input["flow"]))
 		if f == nil || f.doc.Output == "" {

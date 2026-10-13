@@ -307,7 +307,7 @@ func ResolveVersionTx(ctx context.Context, tx pgx.Tx, appID, environmentID, name
 	if err != nil {
 		return Resolved{}, err
 	}
-	return Resolved{Name: name, Version: row.Version, ModuleSHA256: row.ModuleSha256, Placement: Placement(row.Placement)}, nil
+	return Resolved{Name: name, Version: row.Version, ModuleSHA256: row.ModuleSha256, Placement: Placement(row.Placement), TestsPassed: row.TestsPassed}, nil
 }
 
 // resolveAlias reads the version an alias points at.

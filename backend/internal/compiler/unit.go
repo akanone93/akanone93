@@ -76,6 +76,9 @@ type unit struct {
 	// dataConfigs are the decoded configurations of REST and GraphQL
 	// sources, by source ID (ADR-0048).
 	dataConfigs map[string]*parsedConfig
+	// fnSteps are the invokeFunction steps whose output a function schema
+	// types, by file (ACT-001).
+	fnSteps map[string]map[string]bool
 
 	// Encoding state and outputs.
 	appOut     *out

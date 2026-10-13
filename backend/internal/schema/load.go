@@ -64,7 +64,10 @@ type Project struct {
 	AssetFiles map[string][]byte
 	Components []Loaded[ComponentDocument]
 	Templates  []Loaded[TemplateDocument]
-	Plugins    []Plugin
+	// Functions holds the function documents, one per
+	// functions/<name>/function.json, in directory order (FN-008).
+	Functions []Loaded[FunctionDocument]
+	Plugins   []Plugin
 }
 
 // Loader reads projects. It is safe for concurrent use.
@@ -98,6 +101,7 @@ func (l *Loader) Load(fsys fs.FS) (*Project, plxerr.Diagnostics) {
 	}
 	p.Components = loadAll[ComponentDocument](r, "components", ".component.json", KindComponent)
 	p.Templates = loadAll[TemplateDocument](r, "templates", ".template.json", KindTemplate)
+	r.loadFunctions(p)
 	r.loadAssets(p)
 	r.loadPlugins(p)
 	r.checkTranslations(p)

@@ -2534,10 +2534,11 @@ class FunctionGrant {
   Uuid? get id => Uuid.reader.vTableGetNullable(_bc, _bcOffset, 4);
   String? get function => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
   String? get alias => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 8);
+  int get version => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 10, 0);
 
   @override
   String toString() {
-    return 'FunctionGrant{id: ${id}, function: ${function}, alias: ${alias}}';
+    return 'FunctionGrant{id: ${id}, function: ${function}, alias: ${alias}, version: ${version}}';
   }
 }
 
@@ -2555,7 +2556,7 @@ class FunctionGrantBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(3);
+    fbBuilder.startTable(4);
   }
 
   int addId(int offset) {
@@ -2570,6 +2571,10 @@ class FunctionGrantBuilder {
     fbBuilder.addOffset(2, offset);
     return fbBuilder.offset;
   }
+  int addVersion(int? version) {
+    fbBuilder.addUint32(3, version);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -2580,15 +2585,18 @@ class FunctionGrantObjectBuilder extends fb.ObjectBuilder {
   final UuidObjectBuilder? _id;
   final String? _function;
   final String? _alias;
+  final int? _version;
 
   FunctionGrantObjectBuilder({
     UuidObjectBuilder? id,
     String? function,
     String? alias,
+    int? version,
   })
       : _id = id,
         _function = function,
-        _alias = alias;
+        _alias = alias,
+        _version = version;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -2597,12 +2605,13 @@ class FunctionGrantObjectBuilder extends fb.ObjectBuilder {
         : fbBuilder.writeString(_function!);
     final int? aliasOffset = _alias == null ? null
         : fbBuilder.writeString(_alias!);
-    fbBuilder.startTable(3);
+    fbBuilder.startTable(4);
     if (_id != null) {
       fbBuilder.addStruct(0, _id!.finish(fbBuilder));
     }
     fbBuilder.addOffset(1, functionOffset);
     fbBuilder.addOffset(2, aliasOffset);
+    fbBuilder.addUint32(3, _version);
     return fbBuilder.endTable();
   }
 
