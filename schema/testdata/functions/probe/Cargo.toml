@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "plux-fn-probe"
+version = "0.0.0"
+edition = "2024"
+publish = false
+license = "Apache-2.0"
+description = "Conformance probe for the Plux Function host ABI v1 (ADR-0062)"
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+# Omits every server-only import (http_request, secret_get, claims,
+# invoke_function), so the module loads on a device host (FN-052).
+device = []
+
+[dependencies]
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
