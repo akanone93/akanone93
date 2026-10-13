@@ -121,7 +121,9 @@ final class DataWorker
   /// Starts the data isolate with the client [httpClient] creates (a
   /// top-level or static function) and its cache under [cacheDirectory].
   /// WebSockets connect with the `dart:io` client [webSocketClient] creates
-  /// (also top-level or static), or `dart:io`'s default when null.
+  /// (also top-level or static), or [pinnedSockets] chooses it: pinned for
+  /// the Plux server and the pinned customer domains, `dart:io`'s default
+  /// otherwise (SEC-041).
   /// [rootIsolateToken] lets the isolate use platform channels, which the
   /// pinned HTTP client of the Plux server needs (SEC-041). With [sealed]
   /// (the `encryptLocalStores` setting, SEC-073) every cached response is
@@ -131,6 +133,7 @@ final class DataWorker
     required http.Client Function() httpClient,
     required String cacheDirectory,
     HttpClient Function()? webSocketClient,
+    WebSocketClients? pinnedSockets,
     DataCacheKeyProvider? keys,
     RootIsolateToken? rootIsolateToken,
     bool sealed = false,
@@ -139,6 +142,7 @@ final class DataWorker
     final isolate = await Isolate.spawn(_main, (
       httpClient,
       webSocketClient,
+      pinnedSockets,
       cacheDirectory,
       ready.sendPort,
       rootIsolateToken,
@@ -327,6 +331,7 @@ Future<void> _main(
   (
     http.Client Function(),
     HttpClient Function()?,
+    WebSocketClients?,
     String,
     SendPort,
     RootIsolateToken?,
@@ -334,11 +339,15 @@ Future<void> _main(
   )
   args,
 ) async {
-  final (client, socketClient, dir, ready, token, sealed) = args;
+  final (client, socketClient, sockets, dir, ready, token, sealed) = args;
   if (token != null) BackgroundIsolateBinaryMessenger.ensureInitialized(token);
   final http = client();
   final transport = ClientTransport(http);
-  final streams = SocketStreamTransport(http, webSocketClient: socketClient);
+  final streams = SocketStreamTransport(
+    http,
+    webSocketClient: socketClient,
+    pinned: sockets,
+  );
   final transfers = HttpTransferTransport(http);
   var plain = FileCacheStore('$dir/plain');
   FileCacheStore? secure;
@@ -377,7 +386,7 @@ Future<void> _main(
         }
         return null;
       }(),
-      _PinDomains(:final pins) => _pinDomains(http, pins),
+      _PinDomains(:final pins) => _pinDomains(http, sockets, pins),
       _Close() => transport.close(),
       final _Store s => _store(
         s.secure
@@ -403,9 +412,14 @@ Future<void> _main(
   }
 }
 
-Future<void> _pinDomains(Object client, Map<String, List<String>> pins) async {
+Future<void> _pinDomains(
+  Object client,
+  DomainPinned? sockets,
+  Map<String, List<String>> pins,
+) async {
   // A host's own client (PluxConfig.httpClient) is the host's to pin.
   if (client is DomainPinned) client.pinDomains(pins);
+  sockets?.pinDomains(pins);
 }
 
 /// Runs one stream connection on the data isolate: the frames go to the

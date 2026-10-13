@@ -20,6 +20,7 @@ import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/data/sse.dart';
 import 'package:plux_flutter/src/data/transport.dart' show describeUrl;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/platform/pinned_http.dart';
 
 /// The kinds of stream connection.
 enum StreamKind {
@@ -154,18 +155,22 @@ final class SocketStreamTransport implements StreamTransport {
   /// Creates the transport; [client] reads SSE responses. WebSockets
   /// connect with the `dart:io` client [webSocketClient] creates, or
   /// `dart:io`'s default when null; a [connector] replaces the connection
-  /// altogether.
+  /// altogether. Without a [webSocketClient] of the host, [pinned] chooses
+  /// the pinned client of a host the Plux server or the app pins (SEC-041,
+  /// SEC-042); a host's own client is the host's to pin.
   SocketStreamTransport(
     this.client, {
     WebSocketConnector? connector,
     HttpClient Function()? webSocketClient,
+    WebSocketClients? pinned,
   }) : _connect =
            connector ??
            ((url, {protocols, headers}) => WebSocket.connect(
              url,
              protocols: protocols,
              headers: headers,
-             customClient: webSocketClient?.call(),
+             customClient:
+                 webSocketClient?.call() ?? pinned?.clientFor(Uri.parse(url)),
            ));
 
   /// The HTTP client SSE responses are read with.
@@ -199,6 +204,15 @@ final class SocketStreamTransport implements StreamTransport {
       throw _network(r.url, 'the TLS handshake failed');
     } on HttpException catch (e) {
       throw _network(r.url, e.message);
+    } on PluxException catch (e) {
+      // A pinned host whose certificate matches no pin, or whose pins are
+      // not valid (SEC-041, SEC-042): the stream fails closed with the
+      // code of the HTTP path, which is not retried.
+      throw DataFailure(
+        ActionErrorKind.network,
+        e.code,
+        'the stream at ${describeUrl(r.url)} failed: ${e.message}',
+      );
     }
   }
 
