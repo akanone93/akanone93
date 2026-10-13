@@ -32,6 +32,15 @@ grace. Evidence that fails verification, a missing app configuration and a first
 registration are never graced. Apple's fraud-metric receipt is not checked, so iOS stops at
 `AL2`.
 
+**Under `maximum`, a stale status list blocks new Android registrations.** When the cached
+status list is past its freshness, new Android registrations under `maximum` fail with
+`PLX-6009`. This is intended, not a defect: `maximum` is for banking and financial apps, which
+allow no gap, and only attested devices use the app. No override or grace exists. The operator
+restores the list fetch: check that the worker can reach Google's status list endpoint, or
+refresh the file named in `attestation.android.statusListFile`. Registrations resume as soon as
+a fresh list is cached. Devices already registered are unaffected until their re-attestation
+falls due.
+
 ## Signals
 
 | Where | What to look at |

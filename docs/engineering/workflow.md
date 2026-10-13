@@ -94,10 +94,10 @@ Hooks are never bypassed with `--no-verify`. A wrong hook is fixed in its own pu
 - A release is a **signed, annotated tag** named `<component>/v<semver>`, created by the maintainer only:
 
 ```bash
-git tag -s backend/v0.1.0 -m "backend v0.1.0"
-git push origin backend/v0.1.0
+git tag -s backend/v0.0.1 -m "backend v0.0.1"
+git push origin backend/v0.0.1
 ```
 
 - The release workflow verifies that the tag is annotated, that GitHub verifies its signature, and that the version matches the component manifest; it then generates release notes from Conventional Commits (`make release-notes COMPONENT=backend`) and publishes the GitHub release.
 - Before tagging `plux_flutter`, bump `version` in its `pubspec.yaml` and `PluxRuntimeInfo.version` in the same PR.
-- Each phase ends with tagged releases of the components it changed, once its Definition of Done is met.
+- No component is tagged until a working end-to-end flow from Studio to the app exists. The first release is 0.0.1; from then on, each phase ends with tagged releases of the components it changed, once its Definition of Done is met.

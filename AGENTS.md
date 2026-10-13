@@ -6,7 +6,7 @@ This file is the binding working agreement for every contributor — human or AI
 
 ## 1. What this project is
 
-**Plux is a server-driven UI and plugin platform for Flutter.** Developers design apps, plugins, pages and actions in Plux Studio; the Plux Server validates, compiles and signs them into FlatBuffers bundles with binary deltas; the `plux_flutter` runtime syncs every plugin at app start, verifies it, and renders it as native widgets. Logic that declarative actions cannot express runs as Plux Functions — Go compiled to WebAssembly, on the server or on the device. Every device request is bound to a hardware key with DPoP and backed by platform attestation.
+**Plux is a server-driven UI and plugin platform for Flutter.** Developers design apps, plugins, pages and actions in Plux Studio; the Plux Server validates, compiles and signs them into FlatBuffers bundles with binary deltas; the `plux_flutter` runtime syncs every plugin at app start, verifies it, and renders it as native widgets. Logic that declarative actions cannot express runs as Plux Functions — Rust compiled to WebAssembly, on the server or on the device. Every device request is bound to a hardware key with DPoP and backed by platform attestation.
 
 The project is judged on two things: whether its claims are **provably true** — every requirement verified by a test, every performance number by a benchmark — and whether an experienced engineer can **read it end to end and understand why it is built the way it is**. When goals conflict, resolve them in this order (spec §1.4):
 
@@ -108,10 +108,10 @@ These are not guidelines. A change that breaks one is not mergeable.
 
 ### Architecture
 
-- The layering rules L-1 to L-7 (spec §6.7) hold: handlers contain no business logic; only `signing/` touches private keys; `fnrunner` never receives database credentials or signing capabilities; the compiler is a pure library; nothing on the Flutter UI isolate does network I/O, decompression, patching or large hashing.
+- The layering rules L-1 to L-7 (spec §6.7) hold: handlers contain no business logic; only `signing/` touches private keys; `fnrunner`, `builder` and `egress` never receive database credentials or signing capabilities (L-4); the compiler is a pure library; nothing on the Flutter UI isolate does network I/O, decompression, patching or large hashing.
 - **Determinism:** the compiler produces byte-identical output for the same input (`CMP-002`); release builds are reproducible (`CI-006`). No wall clock, randomness, map iteration order or environment data may reach an artifact.
 - **Verify before load:** the runtime never parses anything beyond a container header before its signature and hashes are verified (`SEC-052`).
-- **Additive evolution only** for the bundle format, manifest, document schema and API once their phase is tagged (`BND-000`, `SCH-000`, `SRV-000`).
+- **Additive evolution only** for the bundle format, manifest, document schema and API once the first release, **0.0.1**, exists (`BND-000`, `SCH-000`, `SRV-000`). The first release is made once a working end-to-end flow from Studio to the app exists. Until then the formats may change incompatibly, but changes stay additive by habit and every incompatible change is called out in its pull request.
 - **No downloaded executable code** except PXL bytecode, action graphs and sandboxed WebAssembly run by an interpreter (`SEC-054`).
 - **Deny by default:** capabilities, permissions, network domains and function access are granted explicitly (`SEC-080`, `SEC-102`, `FN-012`).
 - **Limits come from the registry** (`LIM-001`); no size or count limit is hard-coded.
@@ -152,7 +152,7 @@ These are not guidelines. A change that breaks one is not mergeable.
 
 ## 7. Stop and ask the maintainer before
 
-- Changing anything in `schema/`, `proto/` or the bundle and manifest formats once their phase is tagged.
+- Changing anything in `schema/`, `proto/` or the bundle and manifest formats once the first release (0.0.1) exists; before it, call out every incompatible change in its pull request.
 - Changing signing, key handling, DPoP, attestation, or any security default, control or test.
 - Adding, removing or upgrading a dependency beyond a patch release.
 - Changing a coverage floor, a performance budget, a limit default, or a CI gate.
