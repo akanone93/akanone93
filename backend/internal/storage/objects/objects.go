@@ -35,10 +35,14 @@ const (
 	KindDelta  Kind = "deltas"
 	KindAsset  Kind = "assets"
 	KindExport Kind = "exports"
+	// KindSource holds uploaded function source archives (FN-016).
+	KindSource Kind = "sources"
+	// KindModule holds built function modules (FN-005).
+	KindModule Kind = "modules"
 )
 
 // kinds lists the valid kinds, for validation and for tests.
-var kinds = []Kind{KindBundle, KindDelta, KindAsset, KindExport}
+var kinds = []Kind{KindBundle, KindDelta, KindAsset, KindExport, KindSource, KindModule}
 
 // hexDigest matches a lower-case SHA-256.
 var hexDigest = regexp.MustCompile(`^[0-9a-f]{64}$`)
