@@ -10,10 +10,10 @@ Per-requirement implementation status is **not** tracked here; it lives only in 
 
 | Item | Value |
 |---|---|
-| Phase | P7 — Plux Functions: planned and approved ([plans/p7.md](plans/p7.md), 2026-10-13); F0 has not started. P6 is merged (#18, #23); `main` is green after #24 |
-| Active branch | `feat/phase-7`, to be created from `main` by the session that starts F0 (plan §0) |
-| Active work | F0: spec 1.5.0, ADR-0011 accepted and ADRs 0062–0065 proposed, contracts, dependency rows, the doc changes of plan §2.2 C2 and C6 |
-| Requirement IDs | P7: `FN-001`–`FN-056`, `NFR-022` (plan §3); P6 carry-overs `SEC-007`, `SEC-041`, `SEC-090` (plan §2.2); device-only requirements stay `WIP` until the maintainer's device run (plan §2.2 C5) |
+| Phase | P7 — Plux Functions ([plans/p7.md](plans/p7.md)); F0 merged 2026-10-13; F1–F8 in progress by parallel agents (plan §2.4 P1–P4) |
+| Active branch | `feat/phase-7` (plan §2.4 P4); agent work merges into it from `p7/*` worktree branches |
+| Active work | Wave 1–2: Rust SDK, function host, imported keys and Apple receipt, egress, builder pipeline, device engine, function domain. CI and the full gates run once at the phase end (P2) |
+| Requirement IDs | P7: `FN-001`–`FN-056`, `NFR-022`, new `FN-009`, `FN-016`–`FN-019`, `SEC-123` (plan §2.5 E1); P6 carry-overs `SEC-007`, `SEC-041`, `SEC-090` |
 
 ## Next up
 
