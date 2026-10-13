@@ -434,13 +434,13 @@ flowchart TB
 
 | Concern | Choice | Notes |
 |---|---|---|
-| Backend language | Go (latest stable) | `log/slog`, generics, `go:wasmexport`. |
+| Backend language | Go (latest stable) | `log/slog`, generics. |
 | API | ConnectRPC + Protocol Buffers, managed with `buf` | One handler serves gRPC, gRPC-Web and Connect JSON over HTTP/1.1 and HTTP/2. Generated clients for Go, TypeScript (Connect-ES) and Dart. |
 | Primary database | PostgreSQL (16+) | `pgx`, `sqlc`, versioned migrations, row-level security as defence in depth. |
 | Job queue | PostgreSQL-backed (River) | No extra infrastructure for self-hosters. |
 | Object storage | S3 API (any S3-compatible store for self-host; SeaweedFS in the Compose stack) | Bundles, deltas, assets, thumbnails, exports. |
 | Shared cache | Valkey (Redis-compatible) | DPoP `jti` replay cache, nonces, rate limits. In-memory fallback for single-node. |
-| Function runtime | WebAssembly compiled with standard Go (`GOOS=wasip1`); `wazero` on the server; a sandboxed interpreter on the device | One artifact, two placements (ADR-0011). |
+| Function runtime | WebAssembly compiled from Rust (`wasm32-wasip1`) and optimised with `wasm-opt`; `wazero` on the server; the WAMR interpreter on the device | One artifact, two placements (ADR-0011). |
 | Mobile runtime | Flutter (latest stable), Dart 3, Riverpod 3 | FFI for `mmap` and `zstd`. Impeller renderer. |
 | Bundle format | FlatBuffers | Zero-copy reads, forward-compatible evolution. |
 | Local database | Drift on SQLite (SQLCipher) by default | Adapter interface for ObjectBox, Hive CE, Sembast and custom stores. |
@@ -2629,7 +2629,7 @@ Dialogs, bottom sheets and snack bars are page kinds and actions (Appendix D), n
 | A node's `visible` condition | `user.tier == "gold"` | Show only to gold customers |
 | A list item's subtitle | `item.status ?? "pending"` | Fallback when a value is missing |
 
-PXL is deliberately small: no loops, no assignments, no I/O, and every evaluation is bounded. Anything that needs real programming is written as a **Plux Function in unrestricted Rust** (§16). The functions below are PXL built-ins available in bindings; they do not limit what Go functions can do.
+PXL is deliberately small: no loops, no assignments, no I/O, and every evaluation is bounded. Anything that needs real programming is written as a **Plux Function in unrestricted Rust** (§16). The functions below are PXL built-ins available in bindings; they do not limit what Rust functions can do.
 
 ### E.1 Grammar (abridged, EBNF)
 
