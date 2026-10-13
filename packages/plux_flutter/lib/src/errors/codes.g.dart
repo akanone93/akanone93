@@ -817,8 +817,113 @@ enum PluxErrorCode {
   /// Transaction requires the gateway.
   transactionRequiresGateway(6073, 'TRANSACTION_REQUIRES_GATEWAY', 'Transaction requires the gateway'),
 
+  /// Fraud receipt unavailable.
+  fraudReceiptUnavailable(6080, 'FRAUD_RECEIPT_UNAVAILABLE', 'Fraud receipt unavailable'),
+
+  /// Imported key invalid.
+  importedKeyInvalid(6081, 'IMPORTED_KEY_INVALID', 'Imported key invalid'),
+
   /// Runtime tampering detected.
   raspDetection(6100, 'RASP_DETECTION', 'Runtime tampering detected'),
+
+  /// Function timed out.
+  functionTimeout(7001, 'FUNCTION_TIMEOUT', 'Function timed out'),
+
+  /// Function memory exceeded.
+  functionMemoryExceeded(7002, 'FUNCTION_MEMORY_EXCEEDED', 'Function memory exceeded'),
+
+  /// Function capability denied.
+  functionCapabilityDenied(7003, 'FUNCTION_CAPABILITY_DENIED', 'Function capability denied'),
+
+  /// Function output too large.
+  functionOutputTooLarge(7004, 'FUNCTION_OUTPUT_TOO_LARGE', 'Function output too large'),
+
+  /// Function call depth exceeded.
+  functionCallDepthExceeded(7005, 'FUNCTION_CALL_DEPTH_EXCEEDED', 'Function call depth exceeded'),
+
+  /// Function HTTP calls exceeded.
+  functionHttpCallsExceeded(7006, 'FUNCTION_HTTP_CALLS_EXCEEDED', 'Function HTTP calls exceeded'),
+
+  /// Function trapped.
+  functionTrapped(7007, 'FUNCTION_TRAPPED', 'Function trapped'),
+
+  /// Function input invalid.
+  functionInputInvalid(7008, 'FUNCTION_INPUT_INVALID', 'Function input invalid'),
+
+  /// Function output invalid.
+  functionOutputInvalid(7009, 'FUNCTION_OUTPUT_INVALID', 'Function output invalid'),
+
+  /// Function egress refused.
+  functionEgressRefused(7010, 'FUNCTION_EGRESS_REFUSED', 'Function egress refused'),
+
+  /// Idempotency key reused with different input.
+  idempotencyKeyConflict(7011, 'IDEMPOTENCY_KEY_CONFLICT', 'Idempotency key reused with different input'),
+
+  /// Function not found.
+  functionNotFound(7012, 'FUNCTION_NOT_FOUND', 'Function not found'),
+
+  /// Function alias not found.
+  functionAliasNotFound(7013, 'FUNCTION_ALIAS_NOT_FOUND', 'Function alias not found'),
+
+  /// Device functions disabled.
+  deviceFunctionsDisabled(7014, 'DEVICE_FUNCTIONS_DISABLED', 'Device functions disabled'),
+
+  /// Function rate limited.
+  functionRateLimited(7015, 'FUNCTION_RATE_LIMITED', 'Function rate limited'),
+
+  /// Function key-value limit exceeded.
+  functionKvLimitExceeded(7016, 'FUNCTION_KV_LIMIT_EXCEEDED', 'Function key-value limit exceeded'),
+
+  /// Function ABI unsupported.
+  functionAbiUnsupported(7017, 'FUNCTION_ABI_UNSUPPORTED', 'Function ABI unsupported'),
+
+  /// Function module invalid.
+  functionModuleInvalid(7018, 'FUNCTION_MODULE_INVALID', 'Function module invalid'),
+
+  /// Function artifact signature invalid.
+  functionArtifactSignatureInvalid(7019, 'FUNCTION_ARTIFACT_SIGNATURE_INVALID', 'Function artifact signature invalid'),
+
+  /// Function tests failed.
+  functionTestsFailed(7020, 'FUNCTION_TESTS_FAILED', 'Function tests failed'),
+
+  /// Function cancelled.
+  functionCancelled(7021, 'FUNCTION_CANCELLED', 'Function cancelled'),
+
+  /// Function input too large.
+  functionInputTooLarge(7022, 'FUNCTION_INPUT_TOO_LARGE', 'Function input too large'),
+
+  /// Device function requests a server capability.
+  deviceFunctionServerCapability(7030, 'DEVICE_FUNCTION_SERVER_CAPABILITY', 'Device function requests a server capability'),
+
+  /// Function reference unresolved.
+  functionReferenceUnresolved(7031, 'FUNCTION_REFERENCE_UNRESOLVED', 'Function reference unresolved'),
+
+  /// Function type mismatch.
+  functionTypeMismatch(7032, 'FUNCTION_TYPE_MISMATCH', 'Function type mismatch'),
+
+  /// Function business error.
+  functionBusinessError(7100, 'FUNCTION_BUSINESS_ERROR', 'Function business error'),
+
+  /// Function build failed.
+  functionBuildFailed(7200, 'FUNCTION_BUILD_FAILED', 'Function build failed'),
+
+  /// Function dependency not vendored.
+  functionDependencyNotVendored(7201, 'FUNCTION_DEPENDENCY_NOT_VENDORED', 'Function dependency not vendored'),
+
+  /// Function build script refused.
+  functionBuildScriptRefused(7202, 'FUNCTION_BUILD_SCRIPT_REFUSED', 'Function build script refused'),
+
+  /// Function build limit exceeded.
+  functionBuildLimitExceeded(7203, 'FUNCTION_BUILD_LIMIT_EXCEEDED', 'Function build limit exceeded'),
+
+  /// Function schema derivation failed.
+  functionSchemaDerivationFailed(7204, 'FUNCTION_SCHEMA_DERIVATION_FAILED', 'Function schema derivation failed'),
+
+  /// Function declaration mismatch.
+  functionDeclarationMismatch(7205, 'FUNCTION_DECLARATION_MISMATCH', 'Function declaration mismatch'),
+
+  /// Function build not reproducible.
+  functionBuildNotReproducible(7206, 'FUNCTION_BUILD_NOT_REPRODUCIBLE', 'Function build not reproducible'),
 
   /// Second factor required.
   multiFactorRequired(8011, 'MULTI_FACTOR_REQUIRED', 'Second factor required'),

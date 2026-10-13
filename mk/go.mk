@@ -15,7 +15,7 @@ GO_MODULES    := backend tools test/refapi
 GEN_PATHS     := backend tools docs/reference packages studio/packages schema
 PROTO_DIR     := proto
 PROTO_GO_DIR  := backend/internal/pluxv1
-PROTO_INTERNAL_GO_DIR := backend/internal/pkcs11pb
+PROTO_INTERNAL_GO_DIR := backend/internal/pkcs11pb backend/internal/fnpb
 PROTO_API_DIR := docs/reference/api
 # The base of `buf breaking`: the last tagged release of the contract
 # (SRV-000). Override to compare with another ref.

@@ -50,6 +50,8 @@ const (
 	// APIRequestsPerMinutePerDevice: API calls one registered device may make
 	// per minute. (SRV-065)
 	APIRequestsPerMinutePerDevice Key = "api.requestsPerMinutePerDevice"
+	// AppFunctions: Functions per app. (LIM-001)
+	AppFunctions Key = "app.functions"
 	// AppPlugins: Plugins per app. (SCH-005)
 	AppPlugins Key = "app.plugins"
 	// AssetFileSize: Size of one asset file, checked at upload and again at
@@ -192,6 +194,64 @@ const (
 	// DPOPReplayCacheEntries: Proof identifiers the DPoP replay cache holds.
 	// (SEC-023, LIM-004)
 	DPOPReplayCacheEntries Key = "dpop.replayCacheEntries"
+	// FunctionBuildMemory: Memory one function build may use. (FN-016)
+	FunctionBuildMemory Key = "function.buildMemory"
+	// FunctionBuildTimeout: Wall-clock time one function build may run. (FN-016)
+	FunctionBuildTimeout Key = "function.buildTimeout"
+	// FunctionCallDepth: Depth of nested function-to-function calls within one
+	// invocation. (FN-011)
+	FunctionCallDepth Key = "function.callDepth"
+	// FunctionDeviceMemory: Linear memory one device function invocation may
+	// use. (FN-053)
+	FunctionDeviceMemory Key = "function.deviceMemory"
+	// FunctionDeviceTimeout: Wall-clock time one device function invocation may
+	// run. (FN-053)
+	FunctionDeviceTimeout Key = "function.deviceTimeout"
+	// FunctionHTTPCalls: Outbound HTTP calls one server function invocation may
+	// make. (FN-011)
+	FunctionHTTPCalls Key = "function.httpCalls"
+	// FunctionIdempotencyWindow: How long the server keeps an idempotency
+	// record; the server refuses less than 24 hours. (FN-021)
+	FunctionIdempotencyWindow Key = "function.idempotencyWindow"
+	// FunctionInputSize: Size of the JSON input of one function invocation.
+	// (FN-011)
+	FunctionInputSize Key = "function.inputSize"
+	// FunctionInvocationsPerMinute: Invocations per minute of one function.
+	// (FN-024)
+	FunctionInvocationsPerMinute Key = "function.invocationsPerMinute"
+	// FunctionInvocationsPerMinutePerApp: Function invocations per minute of one
+	// app. (FN-024)
+	FunctionInvocationsPerMinutePerApp Key = "function.invocationsPerMinutePerApp"
+	// FunctionInvocationsPerMinutePerDevice: Function invocations per minute of
+	// one device. (FN-024)
+	FunctionInvocationsPerMinutePerDevice Key = "function.invocationsPerMinutePerDevice"
+	// FunctionKVBytes: Total size of the key-value store of one function.
+	// (FN-018)
+	FunctionKVBytes Key = "function.kvBytes"
+	// FunctionKVKeys: Keys in the key-value store of one function. (FN-018)
+	FunctionKVKeys Key = "function.kvKeys"
+	// FunctionKVValueBytes: Size of one value in the function key-value store.
+	// (FN-018)
+	FunctionKVValueBytes Key = "function.kvValueBytes"
+	// FunctionLogBytes: Log output one function invocation may retain. (FN-032)
+	FunctionLogBytes Key = "function.logBytes"
+	// FunctionMemory: Linear memory one server function invocation may use.
+	// (FN-011)
+	FunctionMemory Key = "function.memory"
+	// FunctionModuleSize: Size of the WebAssembly module of one server function.
+	// (FN-010)
+	FunctionModuleSize Key = "function.moduleSize"
+	// FunctionOutputSize: Size of the JSON output of one function invocation.
+	// (FN-011)
+	FunctionOutputSize Key = "function.outputSize"
+	// FunctionSourceArchiveSize: Size of an uploaded function source archive,
+	// including vendored sources. (FN-016)
+	FunctionSourceArchiveSize Key = "function.sourceArchiveSize"
+	// FunctionTestCases: Stored test cases of one function. (FN-031)
+	FunctionTestCases Key = "function.testCases"
+	// FunctionTimeout: Wall-clock time one server function invocation may run.
+	// (FN-011)
+	FunctionTimeout Key = "function.timeout"
 	// GatewayRequestBytes: Bytes of request body the gateway forwards to an
 	// upstream. (SEC-031, LIM-004)
 	GatewayRequestBytes Key = "gateway.requestBytes"
@@ -316,6 +376,7 @@ var registry = [...]Definition{
 	{Key: APIRequestsPerMinute, Unit: UnitCount, Default: 600, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P2", Description: "API calls one authenticated principal (a user or a token) may make per minute."},
 	{Key: APIRequestsPerMinutePerAddress, Unit: UnitCount, Default: 300, Warning: 0, Max: 100000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "API calls one client address may make per minute, whoever is calling."},
 	{Key: APIRequestsPerMinutePerDevice, Unit: UnitCount, Default: 120, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P2", Description: "API calls one registered device may make per minute."},
+	{Key: AppFunctions, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P7", Description: "Functions per app."},
 	{Key: AppPlugins, Unit: UnitCount, Default: 200, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Plugins per app."},
 	{Key: AssetFileSize, Unit: UnitBytes, Default: 10485760, Warning: 0, Max: 104857600, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P2", Description: "Size of one asset file, checked at upload and again at publish."},
 	{Key: AssetImagePixels, Unit: UnitCount, Default: 40000000, Warning: 0, Max: 100000000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Pixels of one image asset, width times height, checked before it is decoded so that a small file cannot expand into a huge image."},
@@ -363,6 +424,27 @@ var registry = [...]Definition{
 	{Key: DPOPJtiBytes, Unit: UnitBytes, Default: 64, Warning: 0, Max: 256, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Length of a DPoP proof identifier."},
 	{Key: DPOPProofBytes, Unit: UnitBytes, Default: 8192, Warning: 0, Max: 32768, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of a DPoP proof."},
 	{Key: DPOPReplayCacheEntries, Unit: UnitCount, Default: 1000000, Warning: 0, Max: 100000000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Proof identifiers the DPoP replay cache holds."},
+	{Key: FunctionBuildMemory, Unit: UnitBytes, Default: 4294967296, Warning: 0, Max: 17179869184, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Memory one function build may use."},
+	{Key: FunctionBuildTimeout, Unit: UnitMilliseconds, Default: 600000, Warning: 0, Max: 3600000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Wall-clock time one function build may run."},
+	{Key: FunctionCallDepth, Unit: UnitCount, Default: 3, Warning: 0, Max: 3, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Depth of nested function-to-function calls within one invocation."},
+	{Key: FunctionDeviceMemory, Unit: UnitBytes, Default: 33554432, Warning: 0, Max: 134217728, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerRuntime, Phase: "P7", Description: "Linear memory one device function invocation may use."},
+	{Key: FunctionDeviceTimeout, Unit: UnitMilliseconds, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerRuntime, Phase: "P7", Description: "Wall-clock time one device function invocation may run."},
+	{Key: FunctionHTTPCalls, Unit: UnitCount, Default: 10, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Outbound HTTP calls one server function invocation may make."},
+	{Key: FunctionIdempotencyWindow, Unit: UnitMilliseconds, Default: 86400000, Warning: 0, Max: 604800000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P7", Description: "How long the server keeps an idempotency record; the server refuses less than 24 hours."},
+	{Key: FunctionInputSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Size of the JSON input of one function invocation."},
+	{Key: FunctionInvocationsPerMinute, Unit: UnitCount, Default: 600, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Invocations per minute of one function."},
+	{Key: FunctionInvocationsPerMinutePerApp, Unit: UnitCount, Default: 6000, Warning: 0, Max: 1000000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Function invocations per minute of one app."},
+	{Key: FunctionInvocationsPerMinutePerDevice, Unit: UnitCount, Default: 60, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Function invocations per minute of one device."},
+	{Key: FunctionKVBytes, Unit: UnitBytes, Default: 10485760, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Total size of the key-value store of one function."},
+	{Key: FunctionKVKeys, Unit: UnitCount, Default: 10000, Warning: 0, Max: 1000000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Keys in the key-value store of one function."},
+	{Key: FunctionKVValueBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Size of one value in the function key-value store."},
+	{Key: FunctionLogBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Log output one function invocation may retain."},
+	{Key: FunctionMemory, Unit: UnitBytes, Default: 67108864, Warning: 0, Max: 536870912, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Linear memory one server function invocation may use."},
+	{Key: FunctionModuleSize, Unit: UnitBytes, Default: 16777216, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Size of the WebAssembly module of one server function."},
+	{Key: FunctionOutputSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Size of the JSON output of one function invocation."},
+	{Key: FunctionSourceArchiveSize, Unit: UnitBytes, Default: 67108864, Warning: 0, Max: 536870912, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Size of an uploaded function source archive, including vendored sources."},
+	{Key: FunctionTestCases, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P7", Description: "Stored test cases of one function."},
+	{Key: FunctionTimeout, Unit: UnitMilliseconds, Default: 2000, Warning: 0, Max: 30000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Wall-clock time one server function invocation may run."},
 	{Key: GatewayRequestBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 33554432, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of request body the gateway forwards to an upstream."},
 	{Key: GatewayRequestsPerMinutePerDevice, Unit: UnitCount, Default: 600, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Gateway requests one device may send per minute."},
 	{Key: GatewayResponseBytes, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of upstream response body the gateway returns to a device."},

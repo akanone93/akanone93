@@ -7,7 +7,7 @@
 export type JsonValue = null | boolean | number | string | readonly JsonValue[] | { readonly [key: string]: JsonValue };
 
 /** The `kind` of every document type (SCH-006). */
-export type DocumentKind = "actionGraph" | "app" | "assetIndex" | "component" | "nativeCatalogue" | "page" | "plugin" | "scenarios" | "template" | "theme" | "translationKeys" | "translations";
+export type DocumentKind = "actionGraph" | "app" | "assetIndex" | "component" | "function" | "nativeCatalogue" | "page" | "plugin" | "scenarios" | "template" | "theme" | "translationKeys" | "translations";
 
 /** A named action graph: page-scoped when `page` is set, otherwise a plugin flow callable with typed inputs (§14.1, ACT-061). File: `plugins/<plugin>/actions/<key>.graph.json`. */
 export interface ActionGraphDocument {
@@ -515,6 +515,54 @@ export interface FormValidator {
 /** A built-in validator of a form field (STA-020, ADR-0047). */
 export type FormValidatorKind = "required" | "length" | "range" | "regex" | "email" | "phone" | "iban" | "dateRange" | "decimalPrecision" | "custom" | "async";
 
+/** Host capabilities the function declares; everything not declared is denied (FN-012). A device function may declare only `kv` and `functions` that are themselves device-placed (FN-052). */
+export interface FunctionCapabilities {
+  /** Domains the function may call through the egress proxy (FN-017). */
+  readonly http?: readonly string[];
+  /** Whether the function may use its key-value namespace (FN-018). */
+  readonly kv?: boolean;
+  /** Names of the secrets the function may read (FN-012). */
+  readonly secrets?: readonly string[];
+  /** Names of the functions this function may call (FN-012). */
+  readonly functions?: readonly string[];
+  /** Whether the function may read the verified user claims (SEC-026). */
+  readonly claims?: boolean;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** A Plux Function: its name, placement, capabilities, limits, required assurance and test cases (FN-008, FN-011, FN-012, FN-031). The input and output schemas are derived from the function's types at build time (FN-004) and never written here. File: `functions/<name>/function.json`. */
+export interface FunctionDocument {
+  /** Version of the document schema (SCH-000). Older documents are migrated before validation. */
+  readonly schemaVersion: string;
+  readonly kind: "function";
+  /** Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). */
+  readonly id: string;
+  /** The dotted function name that plugin grants and `invokeFunction` actions refer to (FN-006). */
+  readonly name: string;
+  readonly description?: string;
+  /** Where the function runs; exactly one (FN-008). */
+  readonly placement: Placement;
+  /** Host capabilities the function declares; everything not declared is denied (FN-012). A device function may declare only `kv` and `functions` that are themselves device-placed (FN-052). */
+  readonly capabilities?: FunctionCapabilities;
+  /** Per-function limits that tighten the registry values (FN-011, LIM-002). */
+  readonly limits?: FunctionLimits;
+  /** The assurance level a device must hold to invoke the function; the `defaultFunctionAssurance` setting applies when absent (SEC-007). */
+  readonly assurance?: AssuranceLevel;
+  /** Whether the invocation requires a fresh attestation of the device. */
+  readonly attestation?: boolean;
+  /** Whether the invocation requires strong customer authentication (SEC-027). */
+  readonly sca?: boolean;
+  /** Whether the function is free of side effects, so its results may be cached by input hash (FN-014). */
+  readonly pure?: boolean;
+  /** How long the result of a pure function may be cached (FN-014). */
+  readonly cacheTtlSeconds?: number;
+  /** Stored test cases, run by `plux fn test` and in CI; a failing case blocks deployment to production (FN-031). */
+  readonly tests?: readonly FunctionTestCase[];
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
 /** A function the plugin may call, with an optional alias (FN-006). */
 export interface FunctionGrant {
   /** Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). */
@@ -522,6 +570,35 @@ export interface FunctionGrant {
   readonly function: string;
   readonly alias?: string;
   readonly requiresAssurance?: AssuranceLevel;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** Per-function limits that tighten the registry values (FN-011, LIM-002). */
+export interface FunctionLimits {
+  readonly timeoutMs?: number;
+  readonly memoryBytes?: number;
+  readonly outputBytes?: number;
+  readonly httpCalls?: number;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+export interface FunctionTestCase {
+  readonly name: string;
+  /** The JSON input passed to the function. */
+  readonly input: JsonValue;
+  /** The JSON output the function must return. */
+  readonly output?: JsonValue;
+  /** The business error the function must return. */
+  readonly error?: FunctionTestError;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** The business error the function must return. */
+export interface FunctionTestError {
+  readonly code: string;
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
@@ -795,6 +872,8 @@ export interface Param {
 
 /** Where a state entry lives (STA-003). */
 export type Persistence = "memory" | "session" | "persisted" | "secure";
+
+export type Placement = "server" | "device";
 
 /** A plugin: its pages, state, collections and requested capabilities (SCH-021). File: `plugins/<key>/plugin.json`. */
 export interface PluginDocument {

@@ -970,11 +970,31 @@ table AssetIndex {
 
 
 
+// One exported function of the device module (FN-051).
+table DeviceFunction {
+  // Dotted function name, as in the function document.
+  name: string;
+  // Index passed to the module's dispatch export `plux_invoke` (FN-015).
+  index: uint;
+  // Function version pinned by the release (FN-006).
+  version: uint;
+  // Wall-time limit in milliseconds; 0 means the registry default
+  // `function.deviceTimeout` (FN-053).
+  timeout_ms: uint;
+  // Memory limit in bytes; 0 means the registry default
+  // `function.deviceMemory` (FN-053).
+  memory_bytes: uint;
+}
+
 table WasmModule {
   id: Uuid;
   // SHA-256 of the module.
   hash: [ubyte];
   module: [ubyte];
+  // Host ABI version the module targets (FN-015).
+  abi_version: uint;
+  // The functions the module exports, sorted by name (FN-051).
+  functions: [DeviceFunction];
 }
 
 // ── Section sourcemap ─────────────────────────────────────────────────────

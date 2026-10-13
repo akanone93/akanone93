@@ -310,6 +310,26 @@
       "description": "API calls one registered device may make per minute."
     },
     {
+      "key": "app.functions",
+      "unit": "count",
+      "default": 100,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "compiler",
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "LIM-001"
+      ],
+      "description": "Functions per app."
+    },
+    {
       "key": "app.plugins",
       "unit": "count",
       "default": 200,
@@ -1229,6 +1249,408 @@
         "LIM-004"
       ],
       "description": "Proof identifiers the DPoP replay cache holds."
+    },
+    {
+      "key": "function.buildMemory",
+      "unit": "bytes",
+      "default": 4294967296,
+      "max": 17179869184,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-016"
+      ],
+      "description": "Memory one function build may use."
+    },
+    {
+      "key": "function.buildTimeout",
+      "unit": "milliseconds",
+      "default": 600000,
+      "max": 3600000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-016"
+      ],
+      "description": "Wall-clock time one function build may run."
+    },
+    {
+      "key": "function.callDepth",
+      "unit": "count",
+      "default": 3,
+      "max": 3,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-011"
+      ],
+      "description": "Depth of nested function-to-function calls within one invocation."
+    },
+    {
+      "key": "function.deviceMemory",
+      "unit": "bytes",
+      "default": 33554432,
+      "max": 134217728,
+      "scopes": [
+        "installation",
+        "organization",
+        "app",
+        "plugin"
+      ],
+      "enforcedBy": [
+        "compiler",
+        "runtime"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-053"
+      ],
+      "description": "Linear memory one device function invocation may use."
+    },
+    {
+      "key": "function.deviceTimeout",
+      "unit": "milliseconds",
+      "default": 500,
+      "max": 5000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app",
+        "plugin"
+      ],
+      "enforcedBy": [
+        "compiler",
+        "runtime"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-053"
+      ],
+      "description": "Wall-clock time one device function invocation may run."
+    },
+    {
+      "key": "function.httpCalls",
+      "unit": "count",
+      "default": 10,
+      "max": 100,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-011"
+      ],
+      "description": "Outbound HTTP calls one server function invocation may make."
+    },
+    {
+      "key": "function.idempotencyWindow",
+      "unit": "milliseconds",
+      "default": 86400000,
+      "max": 604800000,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-021"
+      ],
+      "description": "How long the server keeps an idempotency record; the server refuses less than 24 hours."
+    },
+    {
+      "key": "function.inputSize",
+      "unit": "bytes",
+      "default": 1048576,
+      "max": 16777216,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-011"
+      ],
+      "description": "Size of the JSON input of one function invocation."
+    },
+    {
+      "key": "function.invocationsPerMinute",
+      "unit": "count",
+      "default": 600,
+      "max": 100000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-024"
+      ],
+      "description": "Invocations per minute of one function."
+    },
+    {
+      "key": "function.invocationsPerMinutePerApp",
+      "unit": "count",
+      "default": 6000,
+      "max": 1000000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-024"
+      ],
+      "description": "Function invocations per minute of one app."
+    },
+    {
+      "key": "function.invocationsPerMinutePerDevice",
+      "unit": "count",
+      "default": 60,
+      "max": 10000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-024"
+      ],
+      "description": "Function invocations per minute of one device."
+    },
+    {
+      "key": "function.kvBytes",
+      "unit": "bytes",
+      "default": 10485760,
+      "max": 1073741824,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-018"
+      ],
+      "description": "Total size of the key-value store of one function."
+    },
+    {
+      "key": "function.kvKeys",
+      "unit": "count",
+      "default": 10000,
+      "max": 1000000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-018"
+      ],
+      "description": "Keys in the key-value store of one function."
+    },
+    {
+      "key": "function.kvValueBytes",
+      "unit": "bytes",
+      "default": 65536,
+      "max": 1048576,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-018"
+      ],
+      "description": "Size of one value in the function key-value store."
+    },
+    {
+      "key": "function.logBytes",
+      "unit": "bytes",
+      "default": 65536,
+      "max": 1048576,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-032"
+      ],
+      "description": "Log output one function invocation may retain."
+    },
+    {
+      "key": "function.memory",
+      "unit": "bytes",
+      "default": 67108864,
+      "max": 536870912,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-011"
+      ],
+      "description": "Linear memory one server function invocation may use."
+    },
+    {
+      "key": "function.moduleSize",
+      "unit": "bytes",
+      "default": 16777216,
+      "max": 67108864,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-010"
+      ],
+      "description": "Size of the WebAssembly module of one server function."
+    },
+    {
+      "key": "function.outputSize",
+      "unit": "bytes",
+      "default": 1048576,
+      "max": 16777216,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-011"
+      ],
+      "description": "Size of the JSON output of one function invocation."
+    },
+    {
+      "key": "function.sourceArchiveSize",
+      "unit": "bytes",
+      "default": 67108864,
+      "max": 536870912,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-016"
+      ],
+      "description": "Size of an uploaded function source archive, including vendored sources."
+    },
+    {
+      "key": "function.testCases",
+      "unit": "count",
+      "default": 100,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "compiler",
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-031"
+      ],
+      "description": "Stored test cases of one function."
+    },
+    {
+      "key": "function.timeout",
+      "unit": "milliseconds",
+      "default": 2000,
+      "max": 30000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P7",
+      "requirements": [
+        "FN-011"
+      ],
+      "description": "Wall-clock time one server function invocation may run."
     },
     {
       "key": "gateway.requestBytes",

@@ -2170,6 +2170,22 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Send the request through the gateway.
 
+### PLX-6080
+
+`FRAUD_RECEIPT_UNAVAILABLE` · error · Fraud receipt unavailable
+
+**Cause.** The platform fraud-signal receipt that the request needs could not be obtained or is no longer valid, so the server cannot rely on it (SEC-123).
+
+**Fix.** Request a new receipt on the device and repeat the call.
+
+### PLX-6081
+
+`IMPORTED_KEY_INVALID` · error · Imported key invalid
+
+**Cause.** An externally issued private key offered for import is malformed, of an unsupported type, or does not match its declared public part, so signing refuses it (SEC-123).
+
+**Fix.** Export the key again from its issuer in the documented format and import it once more.
+
 ### PLX-6100
 
 `RASP_DETECTION` · error · Runtime tampering detected
@@ -2177,6 +2193,272 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 **Cause.** The runtime reported a tampering signal, such as a debugger, hook or modified binary, and the installation refuses the call (SEC-071).
 
 **Fix.** Use an unmodified app on an unmodified device.
+
+## Functions (PLX-7000–7999)
+
+### PLX-7001
+
+`FUNCTION_TIMEOUT` · error · Function timed out
+
+**Cause.** The invocation ran longer than the wall-time limit of the function (FN-011, FN-053).
+
+**Fix.** Make the function do less work per call, or raise `function.timeout` or `function.deviceTimeout` within the registry maximum.
+
+### PLX-7002
+
+`FUNCTION_MEMORY_EXCEEDED` · error · Function memory exceeded
+
+**Cause.** The module tried to grow its linear memory beyond the memory limit of the function (FN-011, FN-053).
+
+**Fix.** Reduce the memory the function needs, or raise `function.memory` or `function.deviceMemory` within the registry maximum.
+
+### PLX-7003
+
+`FUNCTION_CAPABILITY_DENIED` · error · Function capability denied
+
+**Cause.** The function called a host capability it did not declare in its document or that the caller's grant does not cover; capabilities are deny-by-default (FN-012).
+
+**Fix.** Declare the capability in `function.json` and grant it to the calling plugin, or remove the call.
+
+### PLX-7004
+
+`FUNCTION_OUTPUT_TOO_LARGE` · error · Function output too large
+
+**Cause.** The function returned more bytes than the output limit allows (FN-011).
+
+**Fix.** Return less data, page the result, or raise `function.outputSize` within the registry maximum.
+
+### PLX-7005
+
+`FUNCTION_CALL_DEPTH_EXCEEDED` · error · Function call depth exceeded
+
+**Cause.** Functions called other functions more deeply than the call-depth limit allows (FN-011).
+
+**Fix.** Flatten the call chain or merge functions; the depth limit cannot be raised above its maximum.
+
+### PLX-7006
+
+`FUNCTION_HTTP_CALLS_EXCEEDED` · error · Function HTTP calls exceeded
+
+**Cause.** One invocation made more outbound HTTP calls than the limit allows (FN-011).
+
+**Fix.** Reduce or batch the outbound calls, or raise `function.httpCalls` within the registry maximum.
+
+### PLX-7007
+
+`FUNCTION_TRAPPED` · error · Function trapped
+
+**Cause.** The module trapped, for example on a panic, an unreachable instruction or an out-of-bounds access, and the host discarded the instance (FN-010, FN-022).
+
+**Fix.** Reproduce the failure with `plux fn test` and fix the fault in the function.
+
+### PLX-7008
+
+`FUNCTION_INPUT_INVALID` · error · Function input invalid
+
+**Cause.** The input does not conform to the input schema derived from the function's types (FN-004, FN-022).
+
+**Fix.** Send input that matches the published input schema.
+
+### PLX-7009
+
+`FUNCTION_OUTPUT_INVALID` · error · Function output invalid
+
+**Cause.** The function returned output that does not conform to its output schema, or that is not valid UTF-8 JSON (FN-004, FN-015).
+
+**Fix.** Fix the function so that it returns a value of its declared output type.
+
+### PLX-7010
+
+`FUNCTION_EGRESS_REFUSED` · error · Function egress refused
+
+**Cause.** The egress proxy refused an outbound call because the destination is outside the function's domain allowlist or resolves to a private address (FN-012, FN-017).
+
+**Fix.** Add the domain to the function's `capabilities.http` list, or call a public destination.
+
+### PLX-7011
+
+`IDEMPOTENCY_KEY_CONFLICT` · error · Idempotency key reused with different input
+
+**Cause.** The idempotency key was already used for this function with a different input, so the server will not replay the stored result (FN-021).
+
+**Fix.** Use a new idempotency key for a new request, or resend the original input.
+
+### PLX-7012
+
+`FUNCTION_NOT_FOUND` · error · Function not found
+
+**Cause.** No function with this name and version exists in the app and environment, or no active release of the app pins the requested version (FN-006, FN-020).
+
+**Fix.** Check the name and version, deploy the function, or publish a release that pins it.
+
+### PLX-7013
+
+`FUNCTION_ALIAS_NOT_FOUND` · error · Function alias not found
+
+**Cause.** The alias does not exist for this function in the app and environment (FN-006).
+
+**Fix.** Create the alias with `SetAlias`, or use an existing alias or version.
+
+### PLX-7014
+
+`DEVICE_FUNCTIONS_DISABLED` · error · Device functions disabled
+
+**Cause.** The security profile has `deviceFunctions` set to false, so the device does not run device-placed functions (FN-055).
+
+**Fix.** Enable `deviceFunctions` for the app, or place the function on the server.
+
+### PLX-7015
+
+`FUNCTION_RATE_LIMITED` · error · Function rate limited
+
+**Cause.** The invocation rate of the function, the app or the device exceeded its quota (FN-024).
+
+**Fix.** Retry after the interval in the response, or raise the quota within the registry maximum.
+
+### PLX-7016
+
+`FUNCTION_KV_LIMIT_EXCEEDED` · error · Function key-value limit exceeded
+
+**Cause.** A write would exceed the key count, total size or value size limit of the function's key-value store (FN-018).
+
+**Fix.** Delete entries, store smaller values, or raise `function.kvBytes`, `function.kvKeys` or `function.kvValueBytes` within the registry maximum.
+
+### PLX-7017
+
+`FUNCTION_ABI_UNSUPPORTED` · error · Function ABI unsupported
+
+**Cause.** The module reports an ABI version the host does not support, or imports a host function the host does not provide (FN-015).
+
+**Fix.** Rebuild the function with an SDK that targets a supported ABI version.
+
+### PLX-7018
+
+`FUNCTION_MODULE_INVALID` · error · Function module invalid
+
+**Cause.** The module is not valid WebAssembly, lacks a required export, or imports a server-only host function on a device (FN-015, FN-052).
+
+**Fix.** Rebuild the module with the Plux builder, and keep device functions free of server-only capabilities.
+
+### PLX-7019
+
+`FUNCTION_ARTIFACT_SIGNATURE_INVALID` · error · Function artifact signature invalid
+
+**Cause.** The signature over the function artifact statement does not verify against the function-artifact key, so the host refuses to compile the module (FN-009).
+
+**Fix.** Deploy a module built by the Plux builder; never upload a module built elsewhere.
+
+### PLX-7020
+
+`FUNCTION_TESTS_FAILED` · error · Function tests failed
+
+**Cause.** A stored test case of the function failed, which blocks deployment to production (FN-031).
+
+**Fix.** Run `plux fn test`, fix the function or the expectation, and build again.
+
+### PLX-7021
+
+`FUNCTION_CANCELLED` · error · Function cancelled
+
+**Cause.** The caller cancelled the invocation or disconnected before it finished (FN-053).
+
+**Fix.** No action is needed; repeat the call if the result is still wanted.
+
+### PLX-7022
+
+`FUNCTION_INPUT_TOO_LARGE` · error · Function input too large
+
+**Cause.** The input is larger than the input-size limit allows (FN-011).
+
+**Fix.** Send less data, or raise `function.inputSize` within the registry maximum.
+
+### PLX-7030
+
+`DEVICE_FUNCTION_SERVER_CAPABILITY` · error · Device function requests a server capability
+
+**Cause.** A function placed on the device declares `http`, `secrets`, `claims` or another server-only capability (FN-008, FN-052).
+
+**Fix.** Place the function on the server, or remove the capability from its document.
+
+### PLX-7031
+
+`FUNCTION_REFERENCE_UNRESOLVED` · error · Function reference unresolved
+
+**Cause.** An action or grant names a function that no function document in the project defines (FN-006).
+
+**Fix.** Correct the function name or add its `functions/<name>/function.json`.
+
+### PLX-7032
+
+`FUNCTION_TYPE_MISMATCH` · error · Function type mismatch
+
+**Cause.** The values an `invokeFunction` action passes or reads do not match the function's input or output schema (ACT-001, FN-004).
+
+**Fix.** Change the action's bindings to match the schemas, or change the function's types.
+
+### PLX-7100
+
+`FUNCTION_BUSINESS_ERROR` · error · Function business error
+
+**Cause.** The function returned a business error declared in its own code, which carries a code, a message key and parameters for the action graph (FN-022).
+
+**Fix.** Handle the error in the action graph's error path; the code and message key come from the function.
+
+### PLX-7200
+
+`FUNCTION_BUILD_FAILED` · error · Function build failed
+
+**Cause.** The build did not produce a module; the diagnostics name the compiler or linker error (FN-016).
+
+**Fix.** Fix the reported errors and build again.
+
+### PLX-7201
+
+`FUNCTION_DEPENDENCY_NOT_VENDORED` · error · Function dependency not vendored
+
+**Cause.** The source archive lacks a dependency under `vendor/`, and builds are offline and locked (FN-016).
+
+**Fix.** Run `cargo vendor` and include the result in the archive.
+
+### PLX-7202
+
+`FUNCTION_BUILD_SCRIPT_REFUSED` · error · Function build script refused
+
+**Cause.** A dependency uses a build script or procedural macro that is not on the builder's allowlist (FN-016).
+
+**Fix.** Remove the dependency, or ask the operator to review and allowlist it.
+
+### PLX-7203
+
+`FUNCTION_BUILD_LIMIT_EXCEEDED` · error · Function build limit exceeded
+
+**Cause.** The build exceeded its time or memory limit, or the module or archive exceeded its size limit (FN-010, FN-016).
+
+**Fix.** Reduce the crate or its dependencies, or raise `function.buildTimeout`, `function.buildMemory`, `function.moduleSize` or `function.sourceArchiveSize` within the registry maximum.
+
+### PLX-7204
+
+`FUNCTION_SCHEMA_DERIVATION_FAILED` · error · Function schema derivation failed
+
+**Cause.** The builder could not read the input and output schemas from the module (FN-004).
+
+**Fix.** Make the handler's input and output types derive their schemas, then build again.
+
+### PLX-7205
+
+`FUNCTION_DECLARATION_MISMATCH` · error · Function declaration mismatch
+
+**Cause.** The placement or name that the crate asserts differs from the function document (FN-008, FN-016).
+
+**Fix.** Make the crate and `function.json` agree on the name and placement.
+
+### PLX-7206
+
+`FUNCTION_BUILD_NOT_REPRODUCIBLE` · error · Function build not reproducible
+
+**Cause.** Two builds of the same source, lock file and toolchain produced different modules (FN-019).
+
+**Fix.** Remove the source of nondeterminism, such as embedded paths, times or random values, and build again.
 
 ## Governance (PLX-8000–8999)
 

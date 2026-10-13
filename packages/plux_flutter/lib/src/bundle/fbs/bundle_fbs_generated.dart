@@ -8226,6 +8226,115 @@ class AssetIndexObjectBuilder extends fb.ObjectBuilder {
     return fbBuilder.buffer;
   }
 }
+class DeviceFunction {
+  DeviceFunction._(this._bc, this._bcOffset);
+  factory DeviceFunction(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<DeviceFunction> reader = _DeviceFunctionReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  String? get name => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
+  int get index => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 6, 0);
+  int get version => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 8, 0);
+  int get timeoutMs => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 10, 0);
+  int get memoryBytes => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 12, 0);
+
+  @override
+  String toString() {
+    return 'DeviceFunction{name: ${name}, index: ${index}, version: ${version}, timeoutMs: ${timeoutMs}, memoryBytes: ${memoryBytes}}';
+  }
+}
+
+class _DeviceFunctionReader extends fb.TableReader<DeviceFunction> {
+  const _DeviceFunctionReader();
+
+  @override
+  DeviceFunction createObject(fb.BufferContext bc, int offset) => 
+    DeviceFunction._(bc, offset);
+}
+
+class DeviceFunctionBuilder {
+  DeviceFunctionBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(5);
+  }
+
+  int addNameOffset(int? offset) {
+    fbBuilder.addOffset(0, offset);
+    return fbBuilder.offset;
+  }
+  int addIndex(int? index) {
+    fbBuilder.addUint32(1, index);
+    return fbBuilder.offset;
+  }
+  int addVersion(int? version) {
+    fbBuilder.addUint32(2, version);
+    return fbBuilder.offset;
+  }
+  int addTimeoutMs(int? timeoutMs) {
+    fbBuilder.addUint32(3, timeoutMs);
+    return fbBuilder.offset;
+  }
+  int addMemoryBytes(int? memoryBytes) {
+    fbBuilder.addUint32(4, memoryBytes);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class DeviceFunctionObjectBuilder extends fb.ObjectBuilder {
+  final String? _name;
+  final int? _index;
+  final int? _version;
+  final int? _timeoutMs;
+  final int? _memoryBytes;
+
+  DeviceFunctionObjectBuilder({
+    String? name,
+    int? index,
+    int? version,
+    int? timeoutMs,
+    int? memoryBytes,
+  })
+      : _name = name,
+        _index = index,
+        _version = version,
+        _timeoutMs = timeoutMs,
+        _memoryBytes = memoryBytes;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    final int? nameOffset = _name == null ? null
+        : fbBuilder.writeString(_name!);
+    fbBuilder.startTable(5);
+    fbBuilder.addOffset(0, nameOffset);
+    fbBuilder.addUint32(1, _index);
+    fbBuilder.addUint32(2, _version);
+    fbBuilder.addUint32(3, _timeoutMs);
+    fbBuilder.addUint32(4, _memoryBytes);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
 class WasmModule {
   WasmModule._(this._bc, this._bcOffset);
   factory WasmModule(List<int> bytes) {
@@ -8241,10 +8350,12 @@ class WasmModule {
   Uuid? get id => Uuid.reader.vTableGetNullable(_bc, _bcOffset, 4);
   List<int>? get hash => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 6);
   List<int>? get module => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 8);
+  int get abiVersion => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 10, 0);
+  List<DeviceFunction>? get functions => const fb.ListReader<DeviceFunction>(DeviceFunction.reader).vTableGetNullable(_bc, _bcOffset, 12);
 
   @override
   String toString() {
-    return 'WasmModule{id: ${id}, hash: ${hash}, module: ${module}}';
+    return 'WasmModule{id: ${id}, hash: ${hash}, module: ${module}, abiVersion: ${abiVersion}, functions: ${functions}}';
   }
 }
 
@@ -8262,7 +8373,7 @@ class WasmModuleBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(3);
+    fbBuilder.startTable(5);
   }
 
   int addId(int offset) {
@@ -8277,6 +8388,14 @@ class WasmModuleBuilder {
     fbBuilder.addOffset(2, offset);
     return fbBuilder.offset;
   }
+  int addAbiVersion(int? abiVersion) {
+    fbBuilder.addUint32(3, abiVersion);
+    return fbBuilder.offset;
+  }
+  int addFunctionsOffset(int? offset) {
+    fbBuilder.addOffset(4, offset);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -8287,15 +8406,21 @@ class WasmModuleObjectBuilder extends fb.ObjectBuilder {
   final UuidObjectBuilder? _id;
   final List<int>? _hash;
   final List<int>? _module;
+  final int? _abiVersion;
+  final List<DeviceFunctionObjectBuilder>? _functions;
 
   WasmModuleObjectBuilder({
     UuidObjectBuilder? id,
     List<int>? hash,
     List<int>? module,
+    int? abiVersion,
+    List<DeviceFunctionObjectBuilder>? functions,
   })
       : _id = id,
         _hash = hash,
-        _module = module;
+        _module = module,
+        _abiVersion = abiVersion,
+        _functions = functions;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -8304,12 +8429,16 @@ class WasmModuleObjectBuilder extends fb.ObjectBuilder {
         : fbBuilder.writeListUint8(_hash!);
     final int? moduleOffset = _module == null ? null
         : fbBuilder.writeListUint8(_module!);
-    fbBuilder.startTable(3);
+    final int? functionsOffset = _functions == null ? null
+        : fbBuilder.writeList(_functions!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
+    fbBuilder.startTable(5);
     if (_id != null) {
       fbBuilder.addStruct(0, _id!.finish(fbBuilder));
     }
     fbBuilder.addOffset(1, hashOffset);
     fbBuilder.addOffset(2, moduleOffset);
+    fbBuilder.addUint32(3, _abiVersion);
+    fbBuilder.addOffset(4, functionsOffset);
     return fbBuilder.endTable();
   }
 

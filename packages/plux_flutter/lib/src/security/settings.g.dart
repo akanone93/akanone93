@@ -40,6 +40,9 @@ enum SecuritySetting {
   /// Whether refreshing an Android access token requires a fresh Play Integrity
   /// verdict.
   androidRefreshRequiresIntegrity('androidRefreshRequiresIntegrity', SecuritySettingType.boolean, false, false, false),
+  /// Whether Plux Functions placed on the device may run there; when false, the
+  /// device refuses them and the app calls the server instead.
+  deviceFunctions('deviceFunctions', SecuritySettingType.boolean, true, true, false),
   /// Whether the device encrypts its local databases and caches at rest.
   encryptLocalStores('encryptLocalStores', SecuritySettingType.boolean, false, true, true),
   /// Whether the app locks itself after a period of inactivity.

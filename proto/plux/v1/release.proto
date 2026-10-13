@@ -75,6 +75,21 @@ message Release {
   // confidential is true when the release's bundles are delivered
   // encrypted (SEC-053).
   bool confidential = 11;
+  // functions are the function versions the release pins, so a device
+  // invokes exactly the version its release was built against (FN-006).
+  repeated ReleaseFunction functions = 12;
+}
+
+// ReleaseFunction is one function version a release references (FN-006).
+message ReleaseFunction {
+  // name is the dotted function name.
+  string name = 1;
+  // version is the immutable function version the release resolved.
+  uint32 version = 2;
+  // module_sha256 is the hex SHA-256 of the version's module (FN-005).
+  string module_sha256 = 3;
+  // placement is "server" or "device" (FN-008).
+  string placement = 4;
 }
 
 message ChangelogEntry {

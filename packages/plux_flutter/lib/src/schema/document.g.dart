@@ -1507,6 +1507,126 @@ enum FormValidatorKind {
   String toJson() => json;
 }
 
+/// Host capabilities the function declares; everything not declared is denied
+/// (FN-012). A device function may declare only `kv` and `functions` that are
+/// themselves device-placed (FN-052).
+final class FunctionCapabilities {
+  const FunctionCapabilities({this.http, this.kv, this.secrets, this.functions, this.claims});
+
+  /// Decodes a JSON object.
+  factory FunctionCapabilities.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return FunctionCapabilities(
+      http: m['http'] == null ? null : [for (final e in m['http']! as List<Object?>) e! as String],
+      kv: m['kv'] == null ? null : m['kv']! as bool,
+      secrets: m['secrets'] == null ? null : [for (final e in m['secrets']! as List<Object?>) e! as String],
+      functions: m['functions'] == null ? null : [for (final e in m['functions']! as List<Object?>) e! as String],
+      claims: m['claims'] == null ? null : m['claims']! as bool,
+    );
+  }
+
+  /// Domains the function may call through the egress proxy (FN-017).
+  final List<String>? http;
+  /// Whether the function may use its key-value namespace (FN-018).
+  final bool? kv;
+  /// Names of the secrets the function may read (FN-012).
+  final List<String>? secrets;
+  /// Names of the functions this function may call (FN-012).
+  final List<String>? functions;
+  /// Whether the function may read the verified user claims (SEC-026).
+  final bool? claims;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        if (http != null) 'http': [for (final e in http!) e],
+        if (kv != null) 'kv': kv!,
+        if (secrets != null) 'secrets': [for (final e in secrets!) e],
+        if (functions != null) 'functions': [for (final e in functions!) e],
+        if (claims != null) 'claims': claims!,
+      };
+}
+
+/// A Plux Function: its name, placement, capabilities, limits, required
+/// assurance and test cases (FN-008, FN-011, FN-012, FN-031). The input and
+/// output schemas are derived from the function's types at build time (FN-004)
+/// and never written here. File: `functions/<name>/function.json`.
+final class FunctionDocument {
+  const FunctionDocument({required this.schemaVersion, required this.kind, required this.id, required this.name, this.description, required this.placement, this.capabilities, this.limits, this.assurance, this.attestation, this.sca, this.pure, this.cacheTtlSeconds, this.tests});
+
+  /// Decodes a JSON object.
+  factory FunctionDocument.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return FunctionDocument(
+      schemaVersion: m['schemaVersion']! as String,
+      kind: m['kind']! as String,
+      id: m['id']! as String,
+      name: m['name']! as String,
+      description: m['description'] == null ? null : m['description']! as String,
+      placement: Placement.fromJson(m['placement']!),
+      capabilities: m['capabilities'] == null ? null : FunctionCapabilities.fromJson(m['capabilities']!),
+      limits: m['limits'] == null ? null : FunctionLimits.fromJson(m['limits']!),
+      assurance: m['assurance'] == null ? null : AssuranceLevel.fromJson(m['assurance']!),
+      attestation: m['attestation'] == null ? null : m['attestation']! as bool,
+      sca: m['sca'] == null ? null : m['sca']! as bool,
+      pure: m['pure'] == null ? null : m['pure']! as bool,
+      cacheTtlSeconds: m['cacheTtlSeconds'] == null ? null : (m['cacheTtlSeconds']! as num).toInt(),
+      tests: m['tests'] == null ? null : [for (final e in m['tests']! as List<Object?>) FunctionTestCase.fromJson(e!)],
+    );
+  }
+
+  /// Version of the document schema (SCH-000). Older documents are migrated
+  /// before validation.
+  final String schemaVersion;
+  final String kind;
+  /// Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+  final String id;
+  /// The dotted function name that plugin grants and `invokeFunction` actions
+  /// refer to (FN-006).
+  final String name;
+  final String? description;
+  /// Where the function runs; exactly one (FN-008).
+  final Placement placement;
+  /// Host capabilities the function declares; everything not declared is denied
+  /// (FN-012). A device function may declare only `kv` and `functions` that are
+  /// themselves device-placed (FN-052).
+  final FunctionCapabilities? capabilities;
+  /// Per-function limits that tighten the registry values (FN-011, LIM-002).
+  final FunctionLimits? limits;
+  /// The assurance level a device must hold to invoke the function; the
+  /// `defaultFunctionAssurance` setting applies when absent (SEC-007).
+  final AssuranceLevel? assurance;
+  /// Whether the invocation requires a fresh attestation of the device.
+  final bool? attestation;
+  /// Whether the invocation requires strong customer authentication (SEC-027).
+  final bool? sca;
+  /// Whether the function is free of side effects, so its results may be cached
+  /// by input hash (FN-014).
+  final bool? pure;
+  /// How long the result of a pure function may be cached (FN-014).
+  final int? cacheTtlSeconds;
+  /// Stored test cases, run by `plux fn test` and in CI; a failing case blocks
+  /// deployment to production (FN-031).
+  final List<FunctionTestCase>? tests;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'schemaVersion': schemaVersion,
+        'kind': kind,
+        'id': id,
+        'name': name,
+        if (description != null) 'description': description!,
+        'placement': placement.toJson(),
+        if (capabilities != null) 'capabilities': capabilities!.toJson(),
+        if (limits != null) 'limits': limits!.toJson(),
+        if (assurance != null) 'assurance': assurance!.toJson(),
+        if (attestation != null) 'attestation': attestation!,
+        if (sca != null) 'sca': sca!,
+        if (pure != null) 'pure': pure!,
+        if (cacheTtlSeconds != null) 'cacheTtlSeconds': cacheTtlSeconds!,
+        if (tests != null) 'tests': [for (final e in tests!) e.toJson()],
+      };
+}
+
 /// A function the plugin may call, with an optional alias (FN-006).
 final class FunctionGrant {
   const FunctionGrant({required this.id, required this.function, this.alias, this.requiresAssurance});
@@ -1534,6 +1654,86 @@ final class FunctionGrant {
         'function': function,
         if (alias != null) 'alias': alias!,
         if (requiresAssurance != null) 'requiresAssurance': requiresAssurance!.toJson(),
+      };
+}
+
+/// Per-function limits that tighten the registry values (FN-011, LIM-002).
+final class FunctionLimits {
+  const FunctionLimits({this.timeoutMs, this.memoryBytes, this.outputBytes, this.httpCalls});
+
+  /// Decodes a JSON object.
+  factory FunctionLimits.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return FunctionLimits(
+      timeoutMs: m['timeoutMs'] == null ? null : (m['timeoutMs']! as num).toInt(),
+      memoryBytes: m['memoryBytes'] == null ? null : (m['memoryBytes']! as num).toInt(),
+      outputBytes: m['outputBytes'] == null ? null : (m['outputBytes']! as num).toInt(),
+      httpCalls: m['httpCalls'] == null ? null : (m['httpCalls']! as num).toInt(),
+    );
+  }
+
+  final int? timeoutMs;
+  final int? memoryBytes;
+  final int? outputBytes;
+  final int? httpCalls;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        if (timeoutMs != null) 'timeoutMs': timeoutMs!,
+        if (memoryBytes != null) 'memoryBytes': memoryBytes!,
+        if (outputBytes != null) 'outputBytes': outputBytes!,
+        if (httpCalls != null) 'httpCalls': httpCalls!,
+      };
+}
+
+final class FunctionTestCase {
+  const FunctionTestCase({required this.name, required this.input, this.output, this.error});
+
+  /// Decodes a JSON object.
+  factory FunctionTestCase.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return FunctionTestCase(
+      name: m['name']! as String,
+      input: m['input'],
+      output: m.containsKey('output') ? JsonValue(m['output']) : null,
+      error: m['error'] == null ? null : FunctionTestError.fromJson(m['error']!),
+    );
+  }
+
+  final String name;
+  /// The JSON input passed to the function.
+  final Object? input;
+  /// The JSON output the function must return.
+  final JsonValue? output;
+  /// The business error the function must return.
+  final FunctionTestError? error;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'name': name,
+        'input': input,
+        if (output != null) 'output': output!.value,
+        if (error != null) 'error': error!.toJson(),
+      };
+}
+
+/// The business error the function must return.
+final class FunctionTestError {
+  const FunctionTestError({required this.code});
+
+  /// Decodes a JSON object.
+  factory FunctionTestError.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return FunctionTestError(
+      code: m['code']! as String,
+    );
+  }
+
+  final String code;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        'code': code,
       };
 }
 
@@ -2288,6 +2488,23 @@ enum Persistence {
   /// Decodes a JSON value.
   factory Persistence.fromJson(Object json) =>
       values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown Persistence', json));
+
+  /// The JSON value.
+  final String json;
+
+  /// Encodes the JSON value.
+  String toJson() => json;
+}
+
+enum Placement {
+  server('server'),
+  device('device');
+
+  const Placement(this.json);
+
+  /// Decodes a JSON value.
+  factory Placement.fromJson(Object json) =>
+      values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown Placement', json));
 
   /// The JSON value.
   final String json;
