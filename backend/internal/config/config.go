@@ -20,7 +20,10 @@ const (
 	// RoleGateway serves the secure gateway alone, so that it can scale
 	// apart from the rest of the API (ADR-0006, ADR-0056). The api role
 	// serves the gateway as well.
-	RoleGateway  Role = "gateway"
+	RoleGateway Role = "gateway"
+	// RoleFnRunner runs function modules in WebAssembly sandboxes. It
+	// holds no database, storage or signing credential (FN-013,
+	// ADR-0064).
 	RoleFnRunner Role = "fnrunner"
 	// RoleEgress is the only route from the function runner to the
 	// internet: a CONNECT-only proxy that applies each function's domain
@@ -51,6 +54,9 @@ type Config struct {
 	Gateway Gateway `json:"gateway"`
 	// Egress configures the egress role (FN-017, ADR-0064).
 	Egress Egress `json:"egress"`
+	// FnRunner configures the fnrunner role (FN-009 to FN-013,
+	// ADR-0064).
+	FnRunner FnRunner `json:"fnrunner"`
 }
 
 // Egress configures the egress role, the forward proxy through which
@@ -497,12 +503,21 @@ type Retention struct {
 // Has reports whether the process runs a role.
 func (c *Config) Has(r Role) bool { return slices.Contains(c.Server.Roles, r) }
 
-// OnlyEgress reports whether egress is the process's only role. Such a
-// process holds no database, cache, object-storage or signing
-// credential: it is the one role with a route to the internet, so it is
-// given nothing worth stealing (ADR-0064).
-func (c *Config) OnlyEgress() bool {
-	return len(c.Server.Roles) == 1 && c.Server.Roles[0] == RoleEgress
+// NoDataAccess reports whether every role of the process is fnrunner or
+// egress. Such a process holds no database, cache, object-storage or
+// signing credential: one runs tenant code and the other has the only
+// route to the internet, so neither is given anything worth stealing
+// (FN-013, ADR-0064).
+func (c *Config) NoDataAccess() bool {
+	if len(c.Server.Roles) == 0 {
+		return false
+	}
+	for _, r := range c.Server.Roles {
+		if r != RoleEgress && r != RoleFnRunner {
+			return false
+		}
+	}
+	return true
 }
 
 // ServesHTTP reports whether the process terminates the public listener:

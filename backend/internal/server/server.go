@@ -125,6 +125,11 @@ func New(d Deps) (*Server, error) {
 			return nil, err
 		}
 	}
+	if s.cfg.Has(config.RoleFnRunner) {
+		if err := s.buildFnRunner(); err != nil {
+			return nil, err
+		}
+	}
 	return s, nil
 }
 

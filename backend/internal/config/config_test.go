@@ -125,7 +125,7 @@ func TestValidateReportsEveryProblem(t *testing.T) {
 		{"no public base URL", db, "server.publicBaseURL"},
 		{"relative base URL", "server:\n  publicBaseURL: \"/api\"\n" + db, "is not an absolute URL"},
 		{"unknown role", withServer("  roles: [api, nonsense]\n"), "is not one of api, worker"},
-		{"later-phase role", withServer("  roles: [api, worker, fnrunner]\n"), "fnrunner role arrives in P7"},
+		{"fnrunner without its section", withServer("  roles: [api, worker, fnrunner]\n"), "fnrunner.artifactKeys"},
 		{"repeated role", withServer("  roles: [api, api, worker]\n"), "listed twice"},
 		{"no roles", withServer("  roles: []\n"), "at least one"},
 		{"no listen address", withServer("  listen: \"\"\n"), "server.listen"},

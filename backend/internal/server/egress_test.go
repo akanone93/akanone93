@@ -23,7 +23,7 @@ func TestEgressRoleRunsAlone_FN_017(t *testing.T) {
 	addr := freeAddr(t)
 	cfg := testConfig(t, "server:\n  roles: [egress]\n  shutdownGrace: 5s\negress:\n  listen: \""+addr+"\"\n"+
 		"  internalTLS:\n    caFile: "+certFile+"\n    certFile: "+certFile+"\n    keyFile: "+keyFile+"\n")
-	if !cfg.OnlyEgress() || cfg.Database.URL != "" {
+	if !cfg.NoDataAccess() || cfg.Database.URL != "" {
 		t.Fatalf("configuration = %+v", cfg.Server.Roles)
 	}
 	built, err := Build(context.Background(), cfg, discard(), "test")

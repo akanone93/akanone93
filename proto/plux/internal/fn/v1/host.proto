@@ -42,6 +42,14 @@ message GetModuleRequest {
 }
 message GetModuleResponse {
   bytes module = 1;
+  // statement is the builder's canonical artifact statement, a JSON
+  // document that names the module's SHA-256 (FN-009, ADR-0063).
+  bytes statement = 2;
+  // signature is the Ed25519 signature over statement (FN-009).
+  bytes signature = 3;
+  // key_id names the key in the runner's configured set that verifies the
+  // signature (FN-009).
+  string key_id = 4;
 }
 
 message KvGetRequest {

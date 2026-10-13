@@ -73,6 +73,7 @@ func (c *Config) Validate() error {
 	c.validateUpdateMetadata(&p)
 	c.validateGateway(&p)
 	c.validateEgress(&p)
+	c.validateFnRunner(&p)
 	return errors.Join(p.errs...)
 }
 
@@ -84,11 +85,9 @@ func (c *Config) validateServer(p *problems) {
 	for i, r := range c.Server.Roles {
 		path := "server.roles[" + strconv.Itoa(i) + "]"
 		switch r {
-		case RoleAPI, RoleWorker, RoleGateway, RoleEgress:
-		case RoleFnRunner:
-			p.addf(path, "the fnrunner role arrives in P7")
+		case RoleAPI, RoleWorker, RoleGateway, RoleEgress, RoleFnRunner:
 		default:
-			p.addf(path, "%q is not one of api, worker, gateway, egress", r)
+			p.addf(path, "%q is not one of api, worker, gateway, egress, fnrunner", r)
 		}
 		if seen[r] {
 			p.addf(path, "%q is listed twice", r)
@@ -114,8 +113,8 @@ func (c *Config) validateServer(p *problems) {
 }
 
 func (c *Config) validateDatabase(p *problems) {
-	if c.OnlyEgress() {
-		return // the egress role holds no database credential (ADR-0064)
+	if c.NoDataAccess() {
+		return // fnrunner and egress hold no database credential (ADR-0064)
 	}
 	if c.Database.URL == "" {
 		p.addf("database.url", "must be set (or PLUX_DATABASE_URL)")
@@ -165,7 +164,7 @@ func (c *Config) validateCache(p *problems) {
 	if c.Cache.Backend == "valkey" && c.Cache.ValkeyURL == "" {
 		p.addf("cache.valkeyURL", "must be set for the valkey backend (or PLUX_CACHE_VALKEY_URL)")
 	}
-	if c.Cache.Backend == "memory" && (c.OnlyEgress() || c.Has(RoleAPI) && c.Has(RoleWorker)) {
+	if c.Cache.Backend == "memory" && (c.NoDataAccess() || c.Has(RoleAPI) && c.Has(RoleWorker)) {
 		return // single-node: the in-memory cache is correct
 	}
 	if c.Cache.Backend == "memory" {

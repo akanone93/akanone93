@@ -77,9 +77,9 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 		return fail(err)
 	}
 
-	if cfg.OnlyEgress() {
-		// The one role with a route to the internet holds no database,
-		// cache, storage or signing credential (ADR-0064).
+	if cfg.NoDataAccess() {
+		// fnrunner and egress hold no database, cache, storage or
+		// signing credential (FN-013, ADR-0064).
 		srv, err := New(Deps{Config: cfg, Log: log, Metrics: metrics, Tracer: tracer})
 		if err != nil {
 			return fail(err)
