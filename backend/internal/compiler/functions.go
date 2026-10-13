@@ -384,6 +384,23 @@ func (u *unit) checkGrant(pl *plugin, i int) {
 	}
 }
 
+// grantVersions lists, for each function grant of a plugin in document
+// order, the version the catalogue resolves it to (FN-006), so that the
+// device sends the version the release pins. It is nil without a
+// catalogue, and 0 for a grant the catalogue does not know.
+func (u *unit) grantVersions(pl *plugin) []uint32 {
+	if u.opts.Functions == nil || pl.doc.Capabilities == nil {
+		return nil
+	}
+	out := make([]uint32, len(pl.doc.Capabilities.Functions))
+	for i := range pl.doc.Capabilities.Functions {
+		if info := u.functionInfo(&pl.doc.Capabilities.Functions[i]); info != nil {
+			out[i] = info.Version
+		}
+	}
+	return out
+}
+
 // deviceFunctionsOf lists the device-placed functions a plugin grants,
 // sorted by name, with their descriptions. Grants of one function under
 // several aliases count once.

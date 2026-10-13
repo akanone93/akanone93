@@ -177,6 +177,7 @@ const List<TableLayout> tableLayouts = [
     FieldLayout('id', 0, FieldKind.struct, 16, 8, -1, required: false),
     FieldLayout('function', 1, FieldKind.string, 0, 0, -1, required: false),
     FieldLayout('alias', 2, FieldKind.string, 0, 0, -1, required: false),
+    FieldLayout('version', 3, FieldKind.scalar, 4, 4, -1, required: false),
   ]),
   // 24
   TableLayout('Graph', [

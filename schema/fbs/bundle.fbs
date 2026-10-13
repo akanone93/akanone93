@@ -292,6 +292,10 @@ table FunctionGrant {
   id: Uuid;
   function: string;
   alias: string;
+  // The function version the release pins for this grant (FN-006); the
+  // device sends it to FunctionService.Invoke. 0 only in development
+  // bundles compiled without a function catalogue.
+  version: uint;
 }
 
 // What the plugin may use (SEC-080, SEC-102).

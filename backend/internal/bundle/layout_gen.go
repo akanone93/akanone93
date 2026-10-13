@@ -150,6 +150,7 @@ var tableLayouts = [...]tableLayout{
 		{name: "id", id: 0, kind: fieldStruct, size: 16, align: 8, table: -1, required: false},
 		{name: "function", id: 1, kind: fieldString, size: 0, align: 0, table: -1, required: false},
 		{name: "alias", id: 2, kind: fieldString, size: 0, align: 0, table: -1, required: false},
+		{name: "version", id: 3, kind: fieldScalar, size: 4, align: 4, table: -1, required: false},
 	}},
 	24: {name: "Graph", fields: []fieldLayout{
 		{name: "id", id: 0, kind: fieldStruct, size: 16, align: 8, table: -1, required: false},

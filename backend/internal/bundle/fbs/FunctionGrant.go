@@ -70,8 +70,20 @@ func (rcv *FunctionGrant) Alias() []byte {
 	return nil
 }
 
+func (rcv *FunctionGrant) Version() uint32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.GetUint32(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *FunctionGrant) MutateVersion(n uint32) bool {
+	return rcv._tab.MutateUint32Slot(10, n)
+}
+
 func FunctionGrantStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+	builder.StartObject(4)
 }
 func FunctionGrantAddId(builder *flatbuffers.Builder, id flatbuffers.UOffsetT) {
 	builder.PrependStructSlot(0, flatbuffers.UOffsetT(id), 0)
@@ -81,6 +93,9 @@ func FunctionGrantAddFunction(builder *flatbuffers.Builder, function flatbuffers
 }
 func FunctionGrantAddAlias(builder *flatbuffers.Builder, alias flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(alias), 0)
+}
+func FunctionGrantAddVersion(builder *flatbuffers.Builder, version uint32) {
+	builder.PrependUint32Slot(3, version, 0)
 }
 func FunctionGrantEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

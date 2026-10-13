@@ -438,3 +438,30 @@ func TestDeviceModuleFailures_FN_051(t *testing.T) {
 	opts.Limits = tight
 	wantDiag(t, Compile(m(), opts), plxerr.LimitExceeded, pluginFile, "")
 }
+
+// TestGrantsCarryTheResolvedVersion_FN_006 checks that the capabilities of
+// the plugin's meta section record the version the catalogue resolves each
+// function grant to, and 0 without a catalogue.
+// Verifies: FN-006.
+func TestGrantsCarryTheResolvedVersion_FN_006(t *testing.T) {
+	t.Parallel()
+	versions := func(res *Result) map[string]uint32 {
+		meta := readAll(t, res)[1].Meta
+		caps := meta.Capabilities(nil)
+		out := map[string]uint32{}
+		var g fbs.FunctionGrant
+		for i := range caps.FunctionsLength() {
+			caps.Functions(&g, i)
+			out[string(g.Function())] = g.Version()
+		}
+		return out
+	}
+	with := Compile(withFunctions(t, "loans.quote", "loans.alpha"), deviceOptions(nil))
+	if got := versions(with); got["loans.quote"] != 3 || got["loans.alpha"] != 2 || len(got) != 2 {
+		t.Errorf("versions with a catalogue = %v", got)
+	}
+	without := compileFS(withFunctions(t, "loans.quote", "loans.alpha"))
+	if got := versions(without); got["loans.quote"] != 0 || got["loans.alpha"] != 0 {
+		t.Errorf("versions without a catalogue = %v", got)
+	}
+}
