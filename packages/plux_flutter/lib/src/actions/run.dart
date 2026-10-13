@@ -242,7 +242,10 @@ final class ActionRun {
 
   /// Cancels the run: its pending step is abandoned and nothing after it
   /// runs (ACT-004).
-  void cancel() => _token.cancel();
+  void cancel() {
+    _token.cancel();
+    scope.abandon();
+  }
 
   late StepContext _ctx = context;
   RunVariables? _vars;
@@ -333,6 +336,9 @@ final class ActionRun {
       Map<String, Object?> inputs = const {};
       var attempts = 1;
       OptimisticLog? optimistic;
+      final execution = descriptor?.name == 'invokeFunction'
+          ? StepExecution(context.clock.uuid)
+          : null;
       for (;;) {
         try {
           inputs = _inputs(f, step, descriptor);
@@ -346,9 +352,9 @@ final class ActionRun {
           final work = handler is StructuralHandler
               ? _structural(handler.action, f, step, inputs, token)
               : handler.run(
-                  step.branches.isEmpty
+                  step.branches.isEmpty && execution == null
                       ? _ctx
-                      : _ctx.forStep(step.branches.keys),
+                      : _ctx.forStep(step.branches.keys, execution),
                   inputs,
                 );
           if (work is StepResult) {

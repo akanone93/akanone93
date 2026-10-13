@@ -137,6 +137,35 @@ final class GatewayReply {
   final Uint8List body;
 }
 
+/// The answer of `FunctionService.Invoke`: the function's output, or the
+/// business error it returned (FN-022).
+final class FunctionInvokeReply {
+  /// The function's output, UTF-8 JSON.
+  const FunctionInvokeReply.output(Uint8List this.output)
+    : code = null,
+      messageKey = null,
+      params = null;
+
+  /// A business error the function returned.
+  const FunctionInvokeReply.business({
+    required String this.code,
+    required String this.messageKey,
+    required Map<String, Object?> this.params,
+  }) : output = null;
+
+  /// The output, or null for a business error.
+  final Uint8List? output;
+
+  /// The function-defined error code.
+  final String? code;
+
+  /// The message key.
+  final String? messageKey;
+
+  /// The message values.
+  final Map<String, Object?>? params;
+}
+
 /// A Plux user token (SEC-026): the host's end-user token exchanged for one
 /// scoped to an upstream, kept in memory only and never logged.
 final class UserToken {
@@ -794,6 +823,44 @@ final class PluxApiClient {
       );
     } on FormatException {
       throw const ApiError(0, 'unknown', 'the gateway sent a malformed body');
+    }
+  }
+
+  /// Invokes a server-placed function (FN-020, `FunctionService.Invoke`) over
+  /// the DPoP-bound channel. [idempotencyKey] makes a repeat of the same
+  /// step run once on the server. The reply is the function's output, or the
+  /// business error it returned.
+  Future<FunctionInvokeReply> invokeFunction({
+    required DeviceToken token,
+    required String function,
+    required int version,
+    required Uint8List input,
+    required String idempotencyKey,
+  }) async {
+    final r = await _call('plux.v1.FunctionService/Invoke', {
+      'function': function,
+      'version': version,
+      'input': base64.encode(input),
+      'idempotencyKey': idempotencyKey,
+    }, token: token);
+    try {
+      final e = r['businessError'];
+      if (e is Map<String, Object?>) {
+        final params = e['params'];
+        final decoded = params is String && params.isNotEmpty
+            ? jsonDecode(utf8.decode(base64.decode(params)))
+            : const <String, Object?>{};
+        return FunctionInvokeReply.business(
+          code: e['code']! as String,
+          messageKey: e['messageKey']! as String,
+          params: decoded as Map<String, Object?>,
+        );
+      }
+      return FunctionInvokeReply.output(
+        base64.decode(r['output'] as String? ?? ''),
+      );
+    } on Object {
+      throw const ApiError(0, 'unknown', 'the server sent a malformed result');
     }
   }
 

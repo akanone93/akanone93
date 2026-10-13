@@ -16,3 +16,4 @@ export 'src/host.dart' show DeviceFunctionHost, FunctionLogLevel, HostStatus;
 export 'src/limits.dart' show FunctionLimits;
 export 'src/outcome.dart'
     show FunctionBusinessError, FunctionOutcome, FunctionOutput;
+export 'src/plux_functions.dart' show PluxFunctions, RuntimeFunctionHost;

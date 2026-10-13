@@ -19,6 +19,7 @@ import 'package:plux_flutter/src/data/gateway.dart';
 import 'package:plux_flutter/src/data/live_config.dart';
 import 'package:plux_flutter/src/data/transport.dart' show DataResponse;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/functions/invoke_function.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
 import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
@@ -154,6 +155,22 @@ final class _Challenge extends _Command {
   final Uint8List summary;
 }
 
+/// A call of a server-placed function (FN-020); replies a
+/// [FunctionInvokeReply] or a [DataFailure].
+final class _InvokeFunction extends _Command {
+  const _InvokeFunction(
+    super.reply,
+    this.function,
+    this.version,
+    this.input,
+    this.key,
+  );
+  final String function;
+  final int version;
+  final Uint8List input;
+  final String key;
+}
+
 /// Makes sure the device has an SCA key registered (SEC-027); replies a bool
 /// or a [DataFailure].
 final class _EnrolSca extends _Command {
@@ -189,7 +206,7 @@ final class _Purge {
 /// requests to the gateway, because that isolate holds the token and the
 /// DPoP key (SEC-030).
 final class SyncWorker
-    implements GatewayTransport, ChallengeSource, ConfigSource {
+    implements GatewayTransport, ChallengeSource, ConfigSource, FunctionServer {
   SyncWorker._(
     this._isolate,
     this._commands,
@@ -322,6 +339,26 @@ final class SyncWorker
     } on DataFailure catch (f) {
       throw PluxException(f.code, f.message);
     }
+  }
+
+  @override
+  Future<FunctionServerReply> invoke({
+    required String function,
+    required int version,
+    required Uint8List input,
+    required String idempotencyKey,
+  }) async {
+    final r = await _ask(
+      (p) => _InvokeFunction(p, function, version, input, idempotencyKey),
+    ) as FunctionInvokeReply;
+    final json = r.output;
+    return json != null
+        ? FunctionServerOutput(json)
+        : FunctionServerBusinessError(
+            code: r.code!,
+            messageKey: r.messageKey!,
+            params: r.params!,
+          );
   }
 
   @override
@@ -503,6 +540,24 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
               dataSource: dataSource,
               operation: operation,
               summaryJcs: summary,
+            ),
+          ),
+        );
+      case _InvokeFunction(
+        :final reply,
+        :final function,
+        :final version,
+        :final input,
+        :final key,
+      ):
+        track(
+          _serve(
+            reply,
+            () => engine.gateway.invokeFunction(
+              function: function,
+              version: version,
+              input: input,
+              idempotencyKey: key,
             ),
           ),
         );

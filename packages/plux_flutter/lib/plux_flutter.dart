@@ -61,6 +61,16 @@ export 'src/device/types.dart'
 export 'src/devtools_api/diagnostics.dart'
     show PluxDiagnostic, PluxDiagnostics, PluxPluginInfo, PluxReleaseInfo;
 export 'src/errors/plux_exception.dart' show PluxErrorCode, PluxException;
+export 'src/functions/engine.dart'
+    show
+        PluxFunctionBusinessError,
+        PluxFunctionCancel,
+        PluxFunctionContext,
+        PluxFunctionEngine,
+        PluxFunctionKv,
+        PluxFunctionLimits,
+        PluxFunctionOutput,
+        PluxFunctionResult;
 export 'src/native_catalogue/registration.dart'
     show
         PluxNativeAction,

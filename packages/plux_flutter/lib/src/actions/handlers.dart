@@ -22,6 +22,7 @@ import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/device/handlers.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/forms/handlers.dart';
+import 'package:plux_flutter/src/functions/invoke_function.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
 import 'package:plux_flutter/src/security/handlers.dart';
 import 'package:plux_flutter/src/state/access.dart';
@@ -160,6 +161,25 @@ final class RunScope {
   final OptimisticLog optimistic;
 
   final List<void Function(bool succeeded)> _ends = [];
+  final List<void Function()> _abandons = [];
+
+  /// Calls [f] when the run is cancelled or ends while the caller still
+  /// waits: how a step that holds a resource, such as a device function
+  /// invocation, learns that nobody awaits its result (ACT-004, FN-053).
+  /// Returns a function that withdraws [f]; call it when the work is done.
+  void Function() onAbandon(void Function() f) {
+    _abandons.add(f);
+    return () => _abandons.remove(f);
+  }
+
+  /// Tells the waiting steps that the run is cancelled; the engine calls it.
+  void abandon() {
+    final waiting = [..._abandons];
+    _abandons.clear();
+    for (final f in waiting) {
+      f();
+    }
+  }
 
   /// Calls [f] when the run ends, with whether it succeeded: how
   /// `submitForm` learns the outcome of the submission it started.
@@ -167,6 +187,7 @@ final class RunScope {
 
   /// Ends the run's scope; the engine calls it once.
   void end({required bool succeeded}) {
+    abandon();
     final ends = [..._ends];
     _ends.clear();
     for (final f in ends) {
@@ -224,6 +245,7 @@ final class StepContext {
     this.wiredBranches = const [],
     this.device,
     this.pluginKey = '',
+    this.execution,
   });
 
   /// This context with [state] (STA-001).
@@ -275,8 +297,12 @@ final class StepContext {
   final Iterable<String> wiredBranches;
 
   /// This context for a step that wires [branches].
-  StepContext forStep(Iterable<String> branches) =>
-      _copy(wiredBranches: branches);
+  StepContext forStep(Iterable<String> branches, [StepExecution? execution]) =>
+      _copy(wiredBranches: branches, execution: execution);
+
+  /// The identity of the running step's execution, which its retries share;
+  /// null where the engine does not provide one.
+  final StepExecution? execution;
 
   /// The data of the run's page, for `apiCall` and `refreshData`
   /// (ADR-0048); null where no data layer runs.
@@ -317,6 +343,7 @@ final class StepContext {
     RunScope? run,
     Iterable<String>? wiredBranches,
     String? pluginKey,
+    StepExecution? execution,
   }) => StepContext(
     navigator: navigator,
     emit: emit,
@@ -334,7 +361,23 @@ final class StepContext {
     wiredBranches: wiredBranches ?? this.wiredBranches,
     device: device,
     pluginKey: pluginKey ?? this.pluginKey,
+    execution: execution ?? this.execution,
   );
+}
+
+/// One execution of a step: every attempt of its retry policy belongs to it,
+/// and a loop's next iteration is another execution. A handler that must
+/// make a repeated call recognisable to its server, such as
+/// `invokeFunction` (FN-020), keys it by [key].
+final class StepExecution {
+  /// Creates an execution whose key is made by [generate] on first use.
+  StepExecution(this._generate);
+
+  final String Function() _generate;
+  String? _key;
+
+  /// A random UUID (version 4), the same for every attempt.
+  String get key => _key ??= _generate();
 }
 
 /// What a step produced.
@@ -434,6 +477,7 @@ final Map<String, ActionHandler> builtInHandlers = {
   ...animationHandlers,
   ...dbHandlers,
   ...securityHandlers,
+  ...functionHandlers,
 };
 
 /// A handler written as a function, for handler tables outside this
