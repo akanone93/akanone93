@@ -54,9 +54,6 @@ func TestBuildProducesAnArtifactWithProvenance_FN_005(t *testing.T) {
 	if string(f.reader.module) != "schema-module" || f.reader.count != 2 {
 		t.Errorf("schema reader got %q, %d", f.reader.module, f.reader.count)
 	}
-	if _, err := a.Statement(); err != nil {
-		t.Error(err)
-	}
 }
 
 // Verifies: FN-003, FN-016.

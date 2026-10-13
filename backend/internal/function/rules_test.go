@@ -169,7 +169,7 @@ func TestStatementIsCanonical_FN_005(t *testing.T) {
 	st := statement{
 		Version: statementVersion, Name: "a.b", Placement: PlacementServer, ABIVersion: 1,
 		ModuleSHA256: strings.Repeat("a", 64), InputSchemaSHA: digest([]byte("{}")), OutputSchemaSHA: digest([]byte("{}")),
-		Provenance: Provenance{SourceSHA256: strings.Repeat("b", 64), Dependencies: []Dependency{}, Toolchain: "1.97.0"},
+		Provenance: Provenance{SourceSHA256: strings.Repeat("b", 64), SDKSHA256: strings.Repeat("c", 64), Dependencies: []Dependency{}, Toolchain: "1.97.0"},
 	}
 	first, err := encodeStatement(st)
 	if err != nil {
@@ -181,6 +181,9 @@ func TestStatementIsCanonical_FN_005(t *testing.T) {
 	}
 	if !bytes.HasPrefix(first, []byte(`{"abiVersion":1,"inputSchemaSha256":`)) {
 		t.Errorf("keys are not in canonical order: %s", first)
+	}
+	if !bytes.Contains(first, []byte(`"sdkSha256":"`+strings.Repeat("c", 64)+`"`)) {
+		t.Errorf("the statement does not carry the SDK hash: %s", first)
 	}
 }
 

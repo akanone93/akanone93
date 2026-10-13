@@ -132,9 +132,12 @@ type Dependency struct {
 }
 
 // Provenance records how a module was built (FN-005). BuildTime is
-// recorded, never embedded in the module (FN-019).
+// recorded, never embedded in the module (FN-019). SDKSHA256 is the hash of
+// the pinned SDK crate the build linked, which no lock file records
+// (ADR-0063).
 type Provenance struct {
 	SourceSHA256    string       `json:"sourceSha256"`
+	SDKSHA256       string       `json:"sdkSha256"`
 	Dependencies    []Dependency `json:"dependencies"`
 	Toolchain       string       `json:"toolchain"`
 	WasmOptVersion  string       `json:"wasmOptVersion"`

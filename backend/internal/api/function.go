@@ -291,7 +291,7 @@ func buildStateProto(s function.BuildState) pluxv1.BuildState {
 // functionVersionProto converts a version for the wire.
 func functionVersionProto(v function.Version) *pluxv1.FunctionVersion {
 	prov := &pluxv1.Provenance{
-		SourceSha256: v.Provenance.SourceSHA256, Toolchain: v.Provenance.Toolchain, WasmOptVersion: v.Provenance.WasmOptVersion,
+		SourceSha256: v.Provenance.SourceSHA256, SdkSha256: v.Provenance.SDKSHA256, Toolchain: v.Provenance.Toolchain, WasmOptVersion: v.Provenance.WasmOptVersion,
 		BuildTime: ts(v.Provenance.BuildTime), BuilderIdentity: v.Provenance.BuilderIdentity,
 	}
 	for _, d := range v.Provenance.Dependencies {
