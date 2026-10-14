@@ -49,6 +49,10 @@ type Options struct {
 	Signer ArtifactSigner
 	// Limits returns the limits in force for an app (LIM-001).
 	Limits func(ctx context.Context, tx pgx.Tx, organizationID, appID string) (limits.Set, error)
+	// DeviceFunctions returns the environment's effective security setting
+	// deviceFunctions (FN-055); nil reads it as false, the deny-by-default
+	// answer (SEC-080).
+	DeviceFunctions func(ctx context.Context, appID, environmentID string) (bool, error)
 	// Now is the clock; nil uses time.Now.
 	Now func() time.Time
 }
