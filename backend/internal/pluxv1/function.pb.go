@@ -100,8 +100,19 @@ type FunctionServiceInvokeRequest struct {
 	// challenge followed by the transaction summary: ES256, 64 bytes, r then
 	// s (SEC-027).
 	TransactionSignature []byte `protobuf:"bytes,6,opt,name=transaction_signature,json=transactionSignature,proto3" json:"transaction_signature,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// app_attest_assertion is an iOS device's App Attest assertion over
+	// SHA-256("plux-fn-invoke-v1" || function || "@" || uint32be(version) ||
+	// SHA-256(input) || jti), where jti is the identifier of the request's
+	// DPoP proof; required when the function declares `attestation` (FN-020,
+	// SEC-004).
+	AppAttestAssertion []byte `protobuf:"bytes,7,opt,name=app_attest_assertion,json=appAttestAssertion,proto3" json:"app_attest_assertion,omitempty"`
+	// play_integrity_token is an Android device's Play Integrity
+	// standard-request token whose requestHash is that value, base64url
+	// without padding; required when the function declares `attestation`
+	// (FN-020, SEC-003).
+	PlayIntegrityToken string `protobuf:"bytes,8,opt,name=play_integrity_token,json=playIntegrityToken,proto3" json:"play_integrity_token,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *FunctionServiceInvokeRequest) Reset() {
@@ -174,6 +185,20 @@ func (x *FunctionServiceInvokeRequest) GetTransactionSignature() []byte {
 		return x.TransactionSignature
 	}
 	return nil
+}
+
+func (x *FunctionServiceInvokeRequest) GetAppAttestAssertion() []byte {
+	if x != nil {
+		return x.AppAttestAssertion
+	}
+	return nil
+}
+
+func (x *FunctionServiceInvokeRequest) GetPlayIntegrityToken() string {
+	if x != nil {
+		return x.PlayIntegrityToken
+	}
+	return ""
 }
 
 type FunctionServiceInvokeResponse struct {
@@ -2117,14 +2142,16 @@ var File_plux_v1_function_proto protoreflect.FileDescriptor
 
 const file_plux_v1_function_proto_rawDesc = "" +
 	"\n" +
-	"\x16plux/v1/function.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\x82\x02\n" +
+	"\x16plux/v1/function.proto\x12\aplux.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x14plux/v1/common.proto\"\xe6\x02\n" +
 	"\x1cFunctionServiceInvokeRequest\x12\x1a\n" +
 	"\bfunction\x18\x01 \x01(\tR\bfunction\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\rR\aversion\x12\x14\n" +
 	"\x05input\x18\x03 \x01(\fR\x05input\x12'\n" +
 	"\x0fidempotency_key\x18\x04 \x01(\tR\x0eidempotencyKey\x128\n" +
 	"\x18transaction_challenge_id\x18\x05 \x01(\tR\x16transactionChallengeId\x123\n" +
-	"\x15transaction_signature\x18\x06 \x01(\fR\x14transactionSignature\"\xc2\x01\n" +
+	"\x15transaction_signature\x18\x06 \x01(\fR\x14transactionSignature\x120\n" +
+	"\x14app_attest_assertion\x18\a \x01(\fR\x12appAttestAssertion\x120\n" +
+	"\x14play_integrity_token\x18\b \x01(\tR\x12playIntegrityToken\"\xc2\x01\n" +
 	"\x1dFunctionServiceInvokeResponse\x12\x18\n" +
 	"\x06output\x18\x01 \x01(\fH\x00R\x06output\x12G\n" +
 	"\x0ebusiness_error\x18\x02 \x01(\v2\x1e.plux.v1.FunctionBusinessErrorH\x00R\rbusinessError\x12\x18\n" +

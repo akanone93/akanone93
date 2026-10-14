@@ -89,6 +89,18 @@ message CreateTransactionChallengeRequest {
   // user confirms; the server binds the challenge to its hash, so the
   // confirmed transaction cannot be swapped (SEC-028).
   bytes transaction_summary_jcs = 4;
+  // function names a server function whose invocation the user confirms
+  // (FN-020, SEC-027). When set, data_source and operation are empty,
+  // function_version and input_sha256 are required, and
+  // transaction_summary_jcs is a canonical JSON object of strings the user
+  // is shown; the server adds the function, the version and the input hash
+  // to it, and returns the result for the device to sign.
+  string function = 5;
+  // function_version is the pinned version of the function.
+  uint32 function_version = 6;
+  // input_sha256 is the SHA-256 of the invocation's input; the invocation
+  // is refused unless its input has this hash (SEC-028).
+  bytes input_sha256 = 7;
 }
 message CreateTransactionChallengeResponse {
   // challenge_id is what CallRequest.transaction_challenge_id

@@ -296,6 +296,12 @@ table FunctionGrant {
   // device sends it to FunctionService.Invoke. 0 only in development
   // bundles compiled without a function catalogue.
   version: uint;
+  // Whether the function declares `attestation` and `sca` (FN-020): the
+  // device then adds platform evidence and a confirmed transaction to
+  // every invocation. Filled from the function catalogue, appended after
+  // version, so older readers ignore them.
+  requires_attestation: bool;
+  requires_sca: bool;
 }
 
 // What the plugin may use (SEC-080, SEC-102).

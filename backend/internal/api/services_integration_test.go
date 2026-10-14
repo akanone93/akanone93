@@ -109,6 +109,7 @@ type world struct {
 	native   pluxv1connect.NativeCatalogueServiceClient
 	secAdmin pluxv1connect.SecurityAdminServiceClient
 	config   pluxv1connect.ConfigServiceClient
+	sca      pluxv1connect.ScaServiceClient
 	// configs and resolver are the server-held configuration store and its
 	// reader, as the server wires them.
 	configs  *gateway.Configs
@@ -337,6 +338,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		func() (string, http.Handler) {
 			return pluxv1connect.NewFunctionServiceHandler(h.FunctionService(), opts)
 		},
+		func() (string, http.Handler) { return pluxv1connect.NewScaServiceHandler(h.ScaService(), opts) },
 		func() (string, http.Handler) {
 			return fnpbconnect.NewFunctionHostServiceHandler(h.FunctionHost(), connect.WithInterceptors(api.Interceptors(api.Deps{})...))
 		},
@@ -367,6 +369,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		control:  pluxv1connect.NewControlServiceClient(srv.Client(), srv.URL),
 		secAdmin: pluxv1connect.NewSecurityAdminServiceClient(srv.Client(), srv.URL),
 		config:   pluxv1connect.NewConfigServiceClient(srv.Client(), srv.URL),
+		sca:      pluxv1connect.NewScaServiceClient(srv.Client(), srv.URL),
 
 		functions:     functions,
 		functionAdmin: pluxv1connect.NewFunctionAdminServiceClient(srv.Client(), srv.URL),

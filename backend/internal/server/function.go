@@ -202,6 +202,9 @@ func buildInvoker(d functionDeps, grants *function.Grants) (*function.Invoker, e
 		},
 		Attestations: d.devices,
 	}
+	if d.gateway != nil && d.gateway.SCA != nil {
+		o.SCA = functionSCA{sca: d.gateway.SCA}
+	}
 	if d.gateway != nil && d.gateway.Exchange != nil {
 		o.Users = functionUsers{tokens: d.gateway.Exchange.Tokens, production: d.devices.EnvironmentIsProduction}
 	}
@@ -210,6 +213,27 @@ func buildInvoker(d functionDeps, grants *function.Grants) (*function.Invoker, e
 		return nil, fmt.Errorf("server: %w", err)
 	}
 	return inv, nil
+}
+
+// functionSCA lets the invoker use the gateway's strong customer
+// authentication: a function invocation is a transaction whose operation is
+// the function and its version and whose bound body is the input (FN-020,
+// SEC-027, SEC-028).
+type functionSCA struct{ sca *gateway.SCA }
+
+// CreateInvocationChallenge issues the challenge for an input.
+func (f functionSCA) CreateInvocationChallenge(ctx context.Context, d device.Identity, name string, version int32, inputSHA256, summary []byte, lifetime time.Duration) (function.SCAChallenge, error) {
+	c, err := f.sca.CreateInvocation(ctx, d, gateway.FunctionTransaction{Name: name, Version: version}, inputSHA256, summary, lifetime)
+	if err != nil {
+		return function.SCAChallenge{}, err //nolint:wrapcheck // a domain error
+	}
+	return function.SCAChallenge{ID: c.ID, Bytes: c.Bytes, ExpiresAt: c.ExpiresAt, Summary: c.Summary}, nil
+}
+
+// VerifyInvocation spends the challenge and checks the signature and that
+// the input is the one the user confirmed.
+func (f functionSCA) VerifyInvocation(ctx context.Context, d device.Identity, p function.SCAProof, lifetime time.Duration) error {
+	return f.sca.VerifyInvocation(ctx, d, gateway.FunctionTransaction{Name: p.Function, Version: p.Version}, p.Input, p.ChallengeID, p.Signature, lifetime) //nolint:wrapcheck // a domain error
 }
 
 // functionUsers verifies the user token a device presents to a function

@@ -38,6 +38,10 @@ type FunctionInfo struct {
 	InputSchema, OutputSchema json.RawMessage
 	// Version is the version the name and alias resolve to (FN-006).
 	Version uint32
+	// RequiresAttestation and RequiresSCA say that the function declares
+	// `attestation` and `sca` (FN-020); the bundle's grant carries them, so
+	// that the device knows before it calls which evidence to add.
+	RequiresAttestation, RequiresSCA bool
 }
 
 // FunctionCatalogue answers what the compiler needs to know about
@@ -384,21 +388,28 @@ func (u *unit) checkGrant(pl *plugin, i int) {
 	}
 }
 
-// grantVersions lists, for each function grant of a plugin in document
-// order, the version the catalogue resolves it to (FN-006), so that the
-// device sends the version the release pins. It is nil without a
-// catalogue, and 0 for a grant the catalogue does not know.
-func (u *unit) grantVersions(pl *plugin) []uint32 {
+// grantInfos lists, for each function grant of a plugin in document order,
+// what the catalogue resolves it to: the version (FN-006), so that the
+// device sends the version the release pins, and whether the function
+// declares attestation and sca (FN-020). It is nil without a catalogue,
+// and zero for a grant the catalogue does not know.
+func (u *unit) grantInfos(pl *plugin) []grantInfo {
 	if u.opts.Functions == nil || pl.doc.Capabilities == nil {
 		return nil
 	}
-	out := make([]uint32, len(pl.doc.Capabilities.Functions))
+	out := make([]grantInfo, len(pl.doc.Capabilities.Functions))
 	for i := range pl.doc.Capabilities.Functions {
 		if info := u.functionInfo(&pl.doc.Capabilities.Functions[i]); info != nil {
-			out[i] = info.Version
+			out[i] = grantInfo{Version: info.Version, RequiresAttestation: info.RequiresAttestation, RequiresSCA: info.RequiresSCA}
 		}
 	}
 	return out
+}
+
+// grantInfo is what a bundle's function grant carries beyond the document.
+type grantInfo struct {
+	Version                          uint32
+	RequiresAttestation, RequiresSCA bool
 }
 
 // deviceFunctionsOf lists the device-placed functions a plugin grants,

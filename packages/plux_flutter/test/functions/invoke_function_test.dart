@@ -76,6 +76,9 @@ final class _FakeServer implements FunctionServer {
     required int version,
     required Uint8List input,
     required String idempotencyKey,
+    bool attest = false,
+    String challengeId = '',
+    Uint8List? signature,
   }) async {
     calls.add((
       function: function,

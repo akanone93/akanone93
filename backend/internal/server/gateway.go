@@ -57,6 +57,9 @@ type GatewayParts struct {
 	Resolver *gateway.ConfigResolver
 	// Keys lists the public token keys the published key sets are made of.
 	Keys func(ctx context.Context) ([]signing.TokenKey, error)
+	// SCA issues and verifies the challenges of strong customer
+	// authentication, which a function invocation shares (FN-020).
+	SCA *gateway.SCA
 }
 
 // gatewayDeps are what the gateway is built on.
@@ -104,12 +107,13 @@ func buildGateway(d gatewayDeps) (*GatewayParts, error) {
 	}
 	resolver := &gateway.ConfigResolver{Source: configs, Cache: d.cache}
 	users := &gateway.UserTokens{Signer: d.signer, Keys: keys, Issuer: base}
+	sca := &gateway.SCA{Cache: d.cache, Keys: d.devices}
 	gw, err := gateway.New(gateway.Options{
 		Upstreams:  registry,
 		Egress:     egress,
 		Assertions: &gateway.Assertions{Signer: d.signer, Issuer: base},
 		Users:      users,
-		SCA:        &gateway.SCA{Cache: d.cache, Keys: d.devices},
+		SCA:        sca,
 		Config:     resolver,
 		Limits:     appLimits(d.db, d.tenancy, d.set),
 		Count:      d.cache.Increment,
@@ -128,7 +132,7 @@ func buildGateway(d gatewayDeps) (*GatewayParts, error) {
 		Lifetime: tokenLifetimeOf(d.configs, d.cfg), Tokens: users,
 		HTTP: identityHTTP,
 	}
-	return &GatewayParts{Gateway: gw, Upstreams: registry, Exchange: exchange, Configs: configs, Resolver: resolver, Keys: keys}, nil
+	return &GatewayParts{Gateway: gw, Upstreams: registry, Exchange: exchange, Configs: configs, Resolver: resolver, Keys: keys, SCA: sca}, nil
 }
 
 // configLimits returns the limits in force for an app inside a

@@ -465,3 +465,37 @@ func TestGrantsCarryTheResolvedVersion_FN_006(t *testing.T) {
 		t.Errorf("versions without a catalogue = %v", got)
 	}
 }
+
+// TestGrantsCarryTheTrustRequirements_FN_020 checks that each function
+// grant of the plugin's meta section records whether the function declares
+// attestation and sca, from the catalogue, and neither without one, so
+// that the device knows the evidence to add before it calls.
+// Verifies: FN-020.
+func TestGrantsCarryTheTrustRequirements_FN_020(t *testing.T) {
+	t.Parallel()
+	flags := func(res *Result) map[string][2]bool {
+		meta := readAll(t, res)[1].Meta
+		caps := meta.Capabilities(nil)
+		out := map[string][2]bool{}
+		var g fbs.FunctionGrant
+		for i := range caps.FunctionsLength() {
+			caps.Functions(&g, i)
+			out[string(g.Function())] = [2]bool{g.RequiresAttestation(), g.RequiresSca()}
+		}
+		return out
+	}
+	quote := serverQuote()
+	quote.RequiresAttestation, quote.RequiresSCA = true, true
+	opts := catalogueOf(map[string]FunctionInfo{
+		"loans.quote": quote,
+		"loans.alpha": {Placement: schema.PlacementServer, Version: 2, RequiresSCA: true},
+	}, true)
+	want := map[string][2]bool{"loans.quote": {true, true}, "loans.alpha": {false, true}}
+	got := flags(Compile(withFunctions(t, "loans.quote", "loans.alpha"), opts))
+	if len(got) != 2 || got["loans.quote"] != want["loans.quote"] || got["loans.alpha"] != want["loans.alpha"] {
+		t.Errorf("flags with a catalogue = %v, want %v", got, want)
+	}
+	if got := flags(compileFS(withFunctions(t, "loans.quote", "loans.alpha"))); got["loans.quote"] != [2]bool{} || got["loans.alpha"] != [2]bool{} {
+		t.Errorf("flags without a catalogue = %v", got)
+	}
+}

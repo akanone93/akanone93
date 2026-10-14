@@ -268,6 +268,91 @@ abstract interface class ChallengeSource {
   Future<bool> ensureEnrolled();
 }
 
+/// A server function invocation the runtime asks the user to confirm
+/// (FN-020, SEC-027): the function, its version and the input, exactly as
+/// they will be sent.
+final class InvocationRequest {
+  /// Creates the request; [input] is the UTF-8 JSON the call carries.
+  const InvocationRequest({
+    required this.function,
+    required this.version,
+    required this.input,
+  });
+
+  /// The function's dotted name.
+  final String function;
+
+  /// The pinned version.
+  final int version;
+
+  /// The input; the user is shown it as it is.
+  final Uint8List input;
+
+  @override
+  String toString() => 'InvocationRequest([redacted])';
+}
+
+/// Asks the Plux server for the challenge that confirms a function
+/// invocation; the sync isolate holds the device's token and DPoP key, so
+/// the request is made there (L-6).
+abstract interface class InvocationChallenges {
+  /// A challenge for invoking [function] at [version] with [input]
+  /// (`ScaService.CreateTransactionChallenge`). The implementation hashes
+  /// the input off the UI isolate and returns the challenge only if its
+  /// summary names that function, version and hash (SEC-028).
+  Future<TransactionChallenge> invocationChallenge({
+    required String function,
+    required int version,
+    required Uint8List input,
+    required Uint8List summaryJcs,
+  });
+}
+
+/// Checks that the summary the server bound [challenge] to is the one
+/// invocation of [function] at [version] with an input whose SHA-256 is
+/// [inputSha256], and nothing else: exactly the members `function`,
+/// `version` and `inputSha256` (SEC-028). Throws
+/// [PluxErrorCode.scaDynamicLinkingMismatch] otherwise.
+void checkInvocationSummary(
+  TransactionChallenge challenge,
+  String function,
+  int version,
+  Uint8List inputSha256,
+) {
+  Never mismatch() => throw const PluxException(
+    PluxErrorCode.scaDynamicLinkingMismatch,
+    'the server bound the challenge to an invocation the user is not shown; '
+    'it is not signed',
+  );
+  final raw = challenge.summaryJcs;
+  if (raw == null || raw.isEmpty) mismatch();
+  final Object? json;
+  try {
+    json = jsonDecode(utf8.decode(raw));
+  } on FormatException {
+    mismatch();
+  }
+  if (json is! Map<String, Object?> ||
+      json.length != 3 ||
+      json['function'] != function ||
+      json['version'] != '$version' ||
+      json['inputSha256'] !=
+          base64Url.encode(inputSha256).replaceAll('=', '')) {
+    mismatch();
+  }
+}
+
+/// Shows the user a function invocation and learns whether they confirm it.
+abstract interface class InvocationConfirmer {
+  /// Shows [request], the function, the version and the input exactly as
+  /// they are bound, on [context], and completes with whether the user
+  /// confirmed. Completes with false when the user dismisses it.
+  Future<bool> confirmInvocation(
+    BuildContext context,
+    InvocationRequest request,
+  );
+}
+
 /// A confirmed transaction: the challenge and the SCA key's signature over
 /// it and the summary, which the call through the gateway carries
 /// (`CallRequest.transaction_challenge_id` and `transaction_signature`).
@@ -337,6 +422,8 @@ final class ScaService implements TransactionAuthoriser {
     required this.confirmer,
     required this.alias,
     required this.context,
+    this.invocations,
+    this.invocationConfirmer,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now;
 
@@ -357,6 +444,14 @@ final class ScaService implements TransactionAuthoriser {
 
   /// The context the confirmation sheet shows on, or null.
   final BuildContext? Function() context;
+
+  /// Where the challenges of function invocations come from, or null where
+  /// the runtime cannot confirm one.
+  final InvocationChallenges? invocations;
+
+  /// Shows a function invocation, or null where the runtime cannot confirm
+  /// one.
+  final InvocationConfirmer? invocationConfirmer;
 
   final DateTime Function() _clock;
   final Map<String, Confirmation> _held = {};
@@ -417,6 +512,75 @@ final class ScaService implements TransactionAuthoriser {
       challengeId: challenge.id,
       signature: signature,
       summary: summary,
+      expiresAt: challenge.expiresAt,
+    );
+  }
+
+  /// Confirms the invocation [request] of a function that declares `sca`
+  /// (FN-020, SEC-027): the user is shown the function, the version and the
+  /// input, and the SCA key signs the challenge with the summary that binds
+  /// exactly those. Like [confirm] it fails with [ScaDeclined] when the user
+  /// declines and with [PluxErrorCode.deviceKeyUnavailable] when the device
+  /// has no SCA key or no screen to show it on. Nothing is held: a
+  /// confirmation is for the one call that follows.
+  Future<Confirmation> confirmInvocation(
+    InvocationRequest request, {
+    BuildContext? on,
+  }) async {
+    final source = invocations;
+    final confirmer = invocationConfirmer;
+    if (source == null || confirmer == null) {
+      throw const PluxException(
+        PluxErrorCode.deviceKeyUnavailable,
+        'this runtime cannot confirm a function invocation',
+      );
+    }
+    final showOn = on ?? context();
+    if (showOn == null || !showOn.mounted) {
+      throw const PluxException(
+        PluxErrorCode.deviceKeyUnavailable,
+        'there is no screen to show the invocation on, so it is not signed',
+      );
+    }
+    if (await keys.load(alias, KeyPurpose.sca) == null &&
+        !(await challenges.ensureEnrolled())) {
+      throw const PluxException(
+        PluxErrorCode.deviceKeyUnavailable,
+        'this device has no strong customer authentication key',
+      );
+    }
+    final challenge = await source.invocationChallenge(
+      function: request.function,
+      version: request.version,
+      input: request.input,
+      summaryJcs: utf8.encode('{}'),
+    );
+    final signed = challenge.summaryJcs;
+    if (signed == null || signed.isEmpty) {
+      throw const PluxException(
+        PluxErrorCode.scaDynamicLinkingMismatch,
+        'the server bound the challenge to no summary; it is not signed',
+      );
+    }
+    if (!showOn.mounted) throw const ScaDeclined();
+    if (!await confirmer.confirmInvocation(showOn, request)) {
+      throw const ScaDeclined();
+    }
+    final Uint8List signature;
+    try {
+      signature = await signer.signWithUser(
+        alias,
+        scaSigningInput(challenge.bytes, signed),
+        title: scaPromptTitle,
+        subtitle: '${request.function} v${request.version}',
+      );
+    } on UserAuthenticationCancelled {
+      throw const ScaDeclined();
+    }
+    return Confirmation(
+      challengeId: challenge.id,
+      signature: signature,
+      summary: const TransactionSummary(amount: '0', currency: '', payee: null),
       expiresAt: challenge.expiresAt,
     );
   }

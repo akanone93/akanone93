@@ -10,6 +10,8 @@ import 'package:plux_flutter/src/security/attestation.dart';
 
 /// The vectors the server's `attest/binding` package reproduces too.
 const _vectors = '../../schema/testdata/attest/binding.json';
+const _invocationVectors =
+    '../../schema/testdata/attest/invocation_binding.json';
 
 Uint8List _unhex(String s) => Uint8List.fromList([
   for (var i = 0; i < s.length; i += 2)
@@ -50,6 +52,46 @@ void main() {
       bindingHash(c, 'dk', '', 's'),
     ]) {
       expect(other, isNot(base));
+    }
+  });
+
+  final invocation = jsonDecode(
+    File(_invocationVectors).readAsStringSync(),
+  ) as Map<String, Object?>;
+  for (final v
+      in (invocation['vectors']! as List).cast<Map<String, Object?>>()) {
+    test('invocation binding vector "${v['name']}" [FN-020] [SEC-004]', () {
+      final hash = invocationBinding(
+        function: v['function']! as String,
+        version: v['version']! as int,
+        input: Uint8List.fromList(utf8.encode(v['input']! as String)),
+        jti: v['jti']! as String,
+      );
+      expect(_hex(hash), v['hashHex']);
+      expect(base64Url.encode(hash).replaceAll('=', ''), v['requestHash']);
+    });
+  }
+
+  test('every input of the invocation binding changes it [FN-020]', () {
+    Uint8List bind({
+      String function = 'a.b',
+      int version = 1,
+      String input = 'x',
+      String jti = 'j',
+    }) => invocationBinding(
+      function: function,
+      version: version,
+      input: Uint8List.fromList(utf8.encode(input)),
+      jti: jti,
+    );
+    final base = _hex(bind());
+    for (final other in [
+      bind(function: 'a.c'),
+      bind(version: 2),
+      bind(input: 'y'),
+      bind(jti: 'k'),
+    ]) {
+      expect(_hex(other), isNot(base));
     }
   });
 }

@@ -7928,6 +7928,27 @@ components:
             transaction_summary_jcs is the RFC 8785 canonical JSON of what the
              user confirms; the server binds the challenge to its hash, so the
              confirmed transaction cannot be swapped (SEC-028).
+        function:
+          type: string
+          title: function
+          description: |-
+            function names a server function whose invocation the user confirms
+             (FN-020, SEC-027). When set, data_source and operation are empty,
+             function_version and input_sha256 are required, and
+             transaction_summary_jcs is a canonical JSON object of strings the user
+             is shown; the server adds the function, the version and the input hash
+             to it, and returns the result for the device to sign.
+        functionVersion:
+          type: integer
+          title: function_version
+          description: function_version is the pinned version of the function.
+        inputSha256:
+          type: string
+          title: input_sha256
+          format: byte
+          description: |-
+            input_sha256 is the SHA-256 of the invocation's input; the invocation
+             is refused unless its input has this hash (SEC-028).
       title: CreateTransactionChallengeRequest
       additionalProperties: false
     plux.v1.CreateTransactionChallengeResponse:
@@ -8828,6 +8849,24 @@ components:
             transaction_signature is the signature of the device's SCA key over the
              challenge followed by the transaction summary: ES256, 64 bytes, r then
              s (SEC-027).
+        appAttestAssertion:
+          type: string
+          title: app_attest_assertion
+          format: byte
+          description: |-
+            app_attest_assertion is an iOS device's App Attest assertion over
+             SHA-256("plux-fn-invoke-v1" || function || "@" || uint32be(version) ||
+             SHA-256(input) || jti), where jti is the identifier of the request's
+             DPoP proof; required when the function declares `attestation` (FN-020,
+             SEC-004).
+        playIntegrityToken:
+          type: string
+          title: play_integrity_token
+          description: |-
+            play_integrity_token is an Android device's Play Integrity
+             standard-request token whose requestHash is that value, base64url
+             without padding; required when the function declares `attestation`
+             (FN-020, SEC-003).
       title: FunctionServiceInvokeRequest
       additionalProperties: false
     plux.v1.FunctionServiceInvokeResponse:

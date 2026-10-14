@@ -263,14 +263,54 @@ final class GatewayAgent {
     }
   }
 
+  /// A challenge to confirm the invocation of [function] at [version] with
+  /// [input] (FN-020, SEC-027). The input is hashed here, off the UI
+  /// isolate, and the challenge is returned only if the summary the server
+  /// bound it to names exactly that function, version and hash (SEC-028).
+  Future<TransactionChallenge> invocationChallenge({
+    required String function,
+    required int version,
+    required Uint8List input,
+    required Uint8List summaryJcs,
+  }) async {
+    final token = await _token();
+    final hash = Uint8List.fromList(sha256.convert(input).bytes);
+    try {
+      final challenge = await api.invocationChallenge(
+        token: token,
+        deviceId: await auth.deviceId(),
+        function: function,
+        version: version,
+        inputSha256: hash,
+        summaryJcs: summaryJcs,
+      );
+      try {
+        checkInvocationSummary(challenge, function, version, hash);
+      } on PluxException catch (e) {
+        throw DataFailure(ActionErrorKind.permission, e.code, e.message);
+      }
+      return challenge;
+    } on ApiError catch (e) {
+      throw _refused(e, 'the confirmation challenge of function $function');
+    }
+  }
+
   /// Invokes the server-placed [function] at [version] (FN-020); [input] is
   /// UTF-8 JSON. A token the server no longer accepts is not retried here:
   /// the idempotency key makes a repeat by the action's retry policy safe.
+  ///
+  /// With [attest] the call carries platform evidence bound to the function,
+  /// the version, the input and the request's proof (SEC-003, SEC-004), made
+  /// here, off the UI isolate. [challengeId] and [signature] are the
+  /// confirmed transaction of a function that declares `sca` (SEC-027).
   Future<FunctionInvokeReply> invokeFunction({
     required String function,
     required int version,
     required Uint8List input,
     required String idempotencyKey,
+    bool attest = false,
+    String challengeId = '',
+    Uint8List? signature,
   }) async {
     final token = await _token();
     try {
@@ -280,6 +320,9 @@ final class GatewayAgent {
         version: version,
         input: input,
         idempotencyKey: idempotencyKey,
+        challengeId: challengeId,
+        signature: signature,
+        evidence: attest ? auth.invocationEvidence : null,
       );
     } on ApiError catch (e) {
       throw _refused(e, 'the call of function $function');

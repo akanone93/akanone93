@@ -5,7 +5,10 @@ package api_test
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"net/http"
@@ -17,6 +20,7 @@ import (
 	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5"
 
+	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/fnpb"
 	"github.com/nightCode42/plux3/backend/internal/fnpb/fnpbconnect"
@@ -61,20 +65,54 @@ func (r *apiRunner) last() *fnpb.FunctionRunnerServiceInvokeRequest {
 	return r.reqs[len(r.reqs)-1]
 }
 
-// apiSCA accepts a signature equal to "valid".
+// apiSCA is the gateway's strong customer authentication behind the
+// invoker, as the server assembles it, with an SCA key the test holds.
 type apiSCA struct {
-	mu     sync.Mutex
-	proofs []function.SCAProof
+	sca *gateway.SCA
+	key *ecdsa.PrivateKey
 }
 
-func (s *apiSCA) VerifyInvocation(_ context.Context, _ device.Identity, p function.SCAProof) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.proofs = append(s.proofs, p)
-	if string(p.Signature) != "valid" {
-		return plxerr.New(plxerr.SCASignatureInvalid, "the signature does not verify")
+// apiSCAKeys answers with the one SCA key of the test for every device.
+type apiSCAKeys struct{ key *ecdsa.PrivateKey }
+
+func (k apiSCAKeys) SCAKey(context.Context, device.Identity) (device.SCAKey, error) {
+	return device.SCAKey{Public: &k.key.PublicKey, JKT: "sca-jkt", Storage: device.KeyStorageStrongBox}, nil
+}
+
+func newAPISCA(t testing.TB) *apiSCA {
+	t.Helper()
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatal(err)
 	}
-	return nil
+	return &apiSCA{sca: &gateway.SCA{Cache: cache.NewMemory(time.Now), Keys: apiSCAKeys{key: key}}, key: key}
+}
+
+func (s *apiSCA) CreateInvocationChallenge(ctx context.Context, d device.Identity, name string, version int32, inputSHA256, summary []byte, lifetime time.Duration) (function.SCAChallenge, error) {
+	c, err := s.sca.CreateInvocation(ctx, d, gateway.FunctionTransaction{Name: name, Version: version}, inputSHA256, summary, lifetime)
+	if err != nil {
+		return function.SCAChallenge{}, err //nolint:wrapcheck // the code is what the test reads
+	}
+	return function.SCAChallenge{ID: c.ID, Bytes: c.Bytes, ExpiresAt: c.ExpiresAt, Summary: c.Summary}, nil
+}
+
+func (s *apiSCA) VerifyInvocation(ctx context.Context, d device.Identity, p function.SCAProof, lifetime time.Duration) error {
+	return s.sca.VerifyInvocation(ctx, d, gateway.FunctionTransaction{Name: p.Function, Version: p.Version}, p.Input, p.ChallengeID, p.Signature, lifetime) //nolint:wrapcheck // the code is what the test reads
+}
+
+// sign answers a challenge as the device's SCA key would: ES256 over the
+// challenge followed by the summary, r then s.
+func (s *apiSCA) sign(t testing.TB, challenge, summary []byte) []byte {
+	t.Helper()
+	digest := sha256.Sum256(gateway.SigningInput(challenge, summary))
+	r, sv, err := ecdsa.Sign(rand.Reader, s.key, digest[:])
+	if err != nil {
+		t.Fatal(err)
+	}
+	sig := make([]byte, gateway.SignatureSize)
+	r.FillBytes(sig[:32])
+	sv.FillBytes(sig[32:])
+	return sig
 }
 
 // apiUsers verifies the token "good" and returns claims.
@@ -156,7 +194,7 @@ func (f *fnRuntime) tighten(t testing.TB, k limits.Key, v int64) {
 
 func newFnRuntime(t *testing.T, d fnRuntimeDeps) *fnRuntime {
 	t.Helper()
-	f := &fnRuntime{runner: &apiRunner{}, sca: &apiSCA{}, limits: d.set}
+	f := &fnRuntime{runner: &apiRunner{}, sca: newAPISCA(t), limits: d.set}
 	key := make([]byte, 32)
 	if _, err := rand.Read(key); err != nil {
 		t.Fatal(err)
@@ -340,52 +378,19 @@ func TestFunctionInvokeRefusesDevicePlacement_FN_054(t *testing.T) {
 	}
 }
 
-// Verifies: FN-020, SEC-007, SEC-027, SEC-004.
-// The declared assurance, a fresh attestation and a confirmed transaction
-// are required where the function declares them.
+// Verifies: FN-020, SEC-007.
+// The declared assurance is required, and the profile's default applies to
+// a function that declares none. Attestation and SCA have their own tests.
 func TestFunctionInvokeRequirements_FN_020(t *testing.T) {
 	t.Parallel()
 	f := newInvokeFixture(t)
 	high := f.deployPinned(t, "needs.assurance", `{"name":"needs.assurance","placement":"server","assurance":"AL2"}`)
 	standard := f.deployPinned(t, "default.assurance", `{"name":"default.assurance","placement":"server"}`)
-	attested := f.deployPinned(t, "needs.attestation", `{"name":"needs.attestation","placement":"server","assurance":"AL0","attestation":true}`)
-	sca := f.deployPinned(t, "needs.sca", `{"name":"needs.sca","placement":"server","assurance":"AL0","sca":true}`)
-
 	for name, v := range map[string]*pluxv1.FunctionVersion{"declared AL2": high, "the default of the profile": standard} {
 		_, err := f.invoke(t, invokeOf(v, `{}`))
 		if codeOf(err) != connect.CodePermissionDenied || reasonOf(t, err) != "ASSURANCE_INSUFFICIENT" {
 			t.Errorf("%s for an AL0 device: %v", name, err)
 		}
-	}
-	if _, err := f.invoke(t, invokeOf(attested, `{}`)); err != nil {
-		t.Errorf("a freshly attested device: %v", err)
-	}
-	f.exec(t, `UPDATE devices SET attested_at = now() - interval '400 days' WHERE id = $1`, f.dev.id)
-	if _, err := f.invoke(t, invokeOf(attested, `{}`)); reasonOf(t, err) != "REATTESTATION_REQUIRED" {
-		t.Errorf("a stale attestation: %v", err)
-	}
-	f.exec(t, `UPDATE devices SET attested_at = NULL WHERE id = $1`, f.dev.id)
-	if _, err := f.invoke(t, invokeOf(attested, `{}`)); reasonOf(t, err) != "REATTESTATION_REQUIRED" {
-		t.Errorf("no attestation at all: %v", err)
-	}
-
-	m := invokeOf(sca, `{"amount":"5"}`)
-	if _, err := f.invoke(t, m); reasonOf(t, err) != "SCA_CHALLENGE_INVALID" {
-		t.Errorf("no challenge: %v", err)
-	}
-	m.TransactionChallengeId, m.TransactionSignature = "ch-1", []byte("forged")
-	if _, err := f.invoke(t, m); reasonOf(t, err) != "SCA_SIGNATURE_INVALID" {
-		t.Errorf("a forged signature: %v", err)
-	}
-	if f.w.fnrt.runner.calls() != 1 {
-		t.Errorf("runner calls = %d, want only the freshly attested one", f.w.fnrt.runner.calls())
-	}
-	m.TransactionSignature = []byte("valid")
-	if _, err := f.invoke(t, m); err != nil {
-		t.Errorf("a confirmed transaction: %v", err)
-	}
-	if p := f.w.fnrt.sca.proofs[len(f.w.fnrt.sca.proofs)-1]; p.ChallengeID != "ch-1" || p.Function != "needs.sca" || string(p.Input) != `{"amount":"5"}` {
-		t.Errorf("proof = %+v", p)
 	}
 }
 

@@ -592,6 +592,8 @@ final class PluxRuntime with WidgetsBindingObserver {
     keys: overrides.deviceKeys?.call() ?? const PlatformDeviceKeys(),
     signer: overrides.userAuthSigner?.call() ?? const PlatformDeviceKeys(),
     confirmer: const SheetTransactionConfirmer(),
+    invocations: _worker,
+    invocationConfirmer: const SheetInvocationConfirmer(),
     alias: scaKeyAlias(config.appId, config.environment),
     context: () => navigatorKey?.currentState?.overlay?.context,
   );
@@ -890,7 +892,12 @@ final class PluxRuntime with WidgetsBindingObserver {
     if (module == null || device == null) {
       // FN-006: the server runs only the version this release pins, which
       // the compiler wrote into the plugin's grant.
-      return ServerFunctionTarget(name: function, version: grant.version);
+      return ServerFunctionTarget(
+        name: function,
+        version: grant.version,
+        requiresAttestation: grant.requiresAttestation,
+        requiresSca: grant.requiresSca,
+      );
     }
     return DeviceFunctionTarget(
       name: function,
