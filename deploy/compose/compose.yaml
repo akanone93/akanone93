@@ -5,9 +5,13 @@
 #
 #   make compose-up        # generates secrets on first run, then starts it
 #
-# plux-server runs every role; PostgreSQL, SeaweedFS (S3), Valkey, the
-# OpenTelemetry Collector, Prometheus and Grafana run beside it. Optional
-# profiles add Keycloak (an OpenID Connect provider) and Ollama. Studio
+# plux-server runs the api and worker roles; PostgreSQL, SeaweedFS (S3),
+# Valkey, the OpenTelemetry Collector, Prometheus and Grafana run beside it.
+# The function roles run as their own containers (FN-013, FN-016): fnrunner
+# and egress always, builder under the `functions` profile because its image
+# carries the Rust toolchain. None holds a database, storage or signing
+# credential (L-4); they talk over mutual TLS (SEC-043). Optional profiles
+# add Keycloak (an OpenID Connect provider) and Ollama. Studio
 # joins the stack in P11. Images are pinned by digest. The API serves
 # TLS 1.3 with HSTS on https://localhost:8080 under a development
 # certificate that init-secrets.sh issues (README.md, "Development TLS").
@@ -25,13 +29,26 @@ x-hardened: &hardened
   # service opts out; none does.
   security_opt: ["no-new-privileges:true"]
 
+# The server image also runs the fnrunner and egress roles; the services share
+# one build, so it happens once.
+x-server-build: &server-build
+  context: ../..
+  dockerfile: backend/Dockerfile
+  target: server
+
+# The function roles reach each other and the api role on `functions`, which
+# is internal: Docker gives it no route out of the host. Only plux-egress is
+# also on `outbound`, so the internet is reachable from the function runner
+# through the egress proxy alone (ADR-0064). `default` carries everything else.
+networks:
+  functions:
+    internal: true
+  outbound: {}
+
 services:
   plux-server:
     <<: *hardened
-    build:
-      context: ../..
-      dockerfile: backend/Dockerfile
-      target: server
+    build: *server-build
     image: plux-server:local
     user: "65532:65532"
     depends_on:
@@ -42,9 +59,81 @@ services:
     volumes:
       - ./plux-server.yaml:/etc/plux/plux.yaml:ro
       - plux-keys:/var/lib/plux/keys
+      # The function-artifact key, made by init-secrets.sh so that
+      # plux-fnrunner can be configured with its public half.
+      - ./.secrets/function-artifact.ed25519:/var/lib/plux/keys/function-artifact.ed25519:ro
       - ./.secrets/tls:/etc/plux/tls:ro
+      - ./.secrets/internal/plux-server:/etc/plux/internal:ro
     tmpfs: [/tmp]
+    networks: [default, functions]
     ports: ["127.0.0.1:8080:8080"]
+    restart: unless-stopped
+
+  # Runs server functions on wazero (FN-009 to FN-013). It gets modules and
+  # the key-value store from plux-server's internal listener, and reaches the
+  # internet through plux-egress only. It has no database, storage or signing
+  # credential, no keys volume and no network but `functions`; it holds only
+  # its own certificate and the public key of the function-artifact key
+  # (.secrets/plux-fnrunner.yaml).
+  plux-fnrunner:
+    <<: *hardened
+    build: *server-build
+    image: plux-server:local
+    user: "65532:65532"
+    depends_on:
+      plux-egress: { condition: service_started }
+    volumes:
+      - ./.secrets/plux-fnrunner.yaml:/etc/plux/plux.yaml:ro
+      - ./.secrets/internal/plux-fnrunner:/etc/plux/internal:ro
+    tmpfs: [/tmp]
+    networks: [functions]
+    restart: unless-stopped
+
+  # The only route from plux-fnrunner to the internet (FN-013, FN-017): a
+  # CONNECT-only proxy that applies each function's domain allowlist and the
+  # SSRF rules. No credential; its own certificate only.
+  plux-egress:
+    <<: *hardened
+    build: *server-build
+    image: plux-server:local
+    user: "65532:65532"
+    volumes:
+      - ./plux-egress.yaml:/etc/plux/plux.yaml:ro
+      - ./.secrets/internal/plux-egress:/etc/plux/internal:ro
+    tmpfs: [/tmp]
+    networks: [functions, outbound]
+    restart: unless-stopped
+
+  # Compiles uploaded function sources (FN-016, ADR-0063), under the
+  # `functions` profile: `docker compose --profile functions up -d`. The
+  # image is large (Rust toolchain, Bun, Binaryen). No credential and no
+  # network but `functions`. The builds run in a sandbox of user, network,
+  # mount and PID namespaces. That needs one privilege beyond the hardened
+  # defaults, the seccomp rule below, and a scratch directory that can run
+  # what cargo builds; README.md ("Function builder") says why.
+  plux-builder:
+    <<: *hardened
+    profiles: [functions]
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile
+      target: builder
+    image: plux-builder:local
+    user: "65532:65532"
+    security_opt:
+      - "no-new-privileges:true"
+      # Docker's default seccomp profile plus one rule: clone may create user,
+      # network, mount and PID namespaces. No capability is added.
+      - "seccomp=./seccomp-builder.json"
+    volumes:
+      - ./plux-builder.yaml:/etc/plux/plux.yaml:ro
+      - ./.secrets/internal/plux-builder:/etc/plux/internal:ro
+    tmpfs:
+      - /tmp
+      # Scratch for builds: cargo's output includes executables (build scripts,
+      # procedural macros) that run from here, so it is not noexec.
+      - /var/lib/plux/build:exec,nosuid,nodev,uid=65532,gid=65532,mode=0700,size=2g
+    networks: [functions]
     restart: unless-stopped
 
   postgres:
