@@ -34,6 +34,24 @@ metadata and transport. Not released yet.
 - **Testing:** `SoftwareDeviceKeys`, `DevelopmentAttestation` and `MemorySecretStore` for
   host-side tests; release code never selects them.
 
+Phase 7 adds Plux Functions to the same unreleased version:
+
+- **`invokeFunction` (FN-008, FN-020, FN-022):** a step calls a function by the placement the
+  compiler resolved: a device function runs on the engine `PluxConfig.functionEngine`
+  registers (`plux_functions`), off the UI isolate; a server function goes through
+  `FunctionService.Invoke` with the version its release pinned, an idempotency key stable
+  across retries, per-request App Attest or Play Integrity evidence where the function
+  declares `attestation`, and an SCA confirmation where it declares `sca`. Business errors
+  reach the error branch with their code, key and parameters.
+- **Device functions (FN-050–FN-055):** the bundle's `wasm` section is verified before load;
+  a bundle that carries one requires `section.wasm.v1`, supported when an engine is
+  registered; device limits come from the registry, cancellation stops a run, and
+  `deviceFunctions` turns placement off (`PLX-7014`).
+- **User claims (SEC-026, HST-010):** the auth delegate's token is exchanged for the
+  audience `function:<name>` and sent as `Plux-User-Token`, refreshed once on `PLX-6016`.
+- **Fixes:** the built-in database adapter closes after an operation made in a test's
+  fake-async zone.
+
 ## 0.3.0
 
 The runtime of Plux Phase 5: actions, state, data, local database and animation. Not
