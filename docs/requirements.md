@@ -2813,12 +2813,12 @@ gateway:
 # are the limits function.* (§30.4); device placement is the security setting deviceFunctions
 # (FN-055).
 functions:
-  runnerURL: "https://fnrunner:8443" # the api role's route to fnrunner; empty: no server functions
+  runnerURL: "https://fnrunner:8445" # the api role's route to fnrunner; empty: no server functions
 fnrunner:
-  listen: ":8443"
+  listen: ":8445"
   internalTLS: { caFile: "/etc/plux/internal/ca.crt", certFile: "/etc/plux/internal/fnrunner.crt", keyFile: "/etc/plux/internal/fnrunner.key" }
-  apiURL: "https://api:8444"         # the api role's internal listener (FunctionHostService)
-  egressAddr: "egress:3129"
+  apiURL: "https://api:8443"         # the api role's server.internalListen (FunctionHostService)
+  egressAddr: "egress:8444"
   artifactKeys:                      # public keys of function artifacts, from configuration only (FN-009)
     - { keyID: "function-2026", publicKey: "…" }  # raw Ed25519, base64
   cacheDir: ""                       # empty keeps compiled modules in memory
@@ -2828,7 +2828,7 @@ fnrunner:
   maxMemoryBytes: 536870912          # 512 MiB, the registry maximum of function.memory (FN-011)
   httpResponseBytes: 1048576         # body of an outbound response a function reads
 egress:                              # CONNECT-only forward proxy with SSRF checks (FN-017)
-  listen: ":3129"
+  listen: ":8444"
   internalTLS: { caFile: "…", certFile: "…", keyFile: "…" }
   connectTimeout: "10s"
   idleTimeout: "60s"
@@ -2838,9 +2838,9 @@ egress:                              # CONNECT-only forward proxy with SSRF chec
   ports: [443, 80]
   allowLoopback: false               # tests and development only; production refuses it
 builder:                             # compiles Rust sources to WebAssembly (FN-016, FN-019)
-  listen: ":8445"                    # read by the builder role
+  listen: ":8446"                    # read by the builder role
   internalTLS: { caFile: "…", certFile: "…", keyFile: "…" }
-  address: "https://builder:8445"    # read by the worker role; empty: this installation cannot build
+  address: "https://builder:8446"    # read by the worker role; empty: this installation cannot build
   sandbox: "namespaces"              # namespaces | none (development only, warns)
   cargo: ""                          # empty: cargo and rustc of the pinned toolchain on PATH
   rustc: ""
