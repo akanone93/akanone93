@@ -72,7 +72,8 @@ message ExchangeUserTokenRequest {
   string subject_token = 1;
   // subject_token_type is the RFC 8693 token type URN of subject_token.
   string subject_token_type = 2;
-  // audience is the upstream the new token is for (RFC 8693 `audience`).
+  // audience is what the new token is for (RFC 8693 `audience`): a gateway
+  // upstream, or `function:<name>` for a server function (SEC-026).
   string audience = 3;
 }
 message ExchangeUserTokenResponse {

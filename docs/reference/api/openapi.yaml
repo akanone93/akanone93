@@ -8676,7 +8676,9 @@ components:
         audience:
           type: string
           title: audience
-          description: audience is the upstream the new token is for (RFC 8693 `audience`).
+          description: |-
+            audience is what the new token is for (RFC 8693 `audience`): a gateway
+             upstream, or `function:<name>` for a server function (SEC-026).
       title: ExchangeUserTokenRequest
       additionalProperties: false
     plux.v1.ExchangeUserTokenResponse:
