@@ -142,6 +142,7 @@ validates its remote and branch now; the size baseline moves to round 3.
 
 | Decision | Owner | Notes |
 |---|---|---|
+| P7 real-device run | Maintainer | [real-device-checklist.md](security/real-device-checklist.md) P7 items: F1 the Plux Bank fee function's success path (SCA, App Attest/Play Integrity evidence, tier claim; CI only checks the refusal of a development device), F2 the Express loan timings that decide WAMR against `wasmi` (`FN-056`, M8), F3–F4 device confirmations; plus the P6 items carried in the same file. |
 | Legal review of ADR-0022 and the CLA | Maintainer | Before accepting external contributions and before the first public release. |
 | CLA signing automation | Maintainer | e.g. CLA Assistant with signatures stored in a separate branch; needed before external pull requests are merged (`GOV-034`). |
 | Android hosts need `android.uniquePackageNames=false` | Maintainer (follow-up) | Needed on Android Gradle plugin 9 while Play Services Cronet ships `cronet-api` and `cronet-shared` with one namespace, `org.chromium.net`; documented in the host guide, set in the starter and size apps. Agreed: report it upstream to `cronet_http` (dart-lang/http) and drop the line when it is fixed. |

@@ -116,8 +116,9 @@ attestation provider** (`SEC-008`):
 - It is accepted only by environments whose type is not `production`; a production
   environment refuses it (`PLX-6004`, `DEV_PROVIDER_IN_PRODUCTION`). A test proves
   the refusal.
-- A device registered with it gets `AL0`, unless the environment's settings raise it for
-  testing, which a production environment cannot do.
+- A device registered with it gets `AL0`, and it makes no per-request platform evidence, so
+  anything that requires `AL1` or above, or attestation, is refused to it: the reference
+  apps' flows check that refusal, and the success path is Layer 3's (P7 plan §2.6 M12).
 
 This layer proves the whole flow end to end on emulators and simulators: registration,
 DPoP on every request, nonces, token refresh, revocation, re-attestation, assurance
@@ -131,7 +132,7 @@ overlay filtering. The maintainer runs these on one mid-tier Android phone (a Pi
 newer, with Google Play) and one iPhone (iOS 17 or newer), as with the P5 reference-device
 run.
 
-- **The checklist** is `docs/security/real-device-checklist.md` (milestone S11). Each item
+- **The checklist** is [real-device-checklist.md](real-device-checklist.md). Each item
   names its requirement, the steps, the expected result and where the evidence goes.
 - **The setup** is a Play Console internal test track, a Google Cloud project linked to it,
   and an Apple Developer team with App Attest enabled. The steps are in the checklist.
