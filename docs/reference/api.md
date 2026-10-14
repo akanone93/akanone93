@@ -276,7 +276,10 @@ adds the upstream's credentials, which the device never sees (`SEC-030`,
 `ScaService.CreateTransactionChallenge` and the device's SCA key
 (`SEC-032`). An end user's token travels in the `Plux-User-Token` header;
 `TokenService.ExchangeUserToken` trades it, following RFC 8693, for a token
-scoped to one upstream audience (`SEC-026`).
+scoped to one audience (`SEC-026`): an upstream registered for the environment,
+or `function:<name>` for a server function that has a version in it, which
+receives the verified claims (`FN-002`). A token for one audience is refused at
+every other.
 
 A body that must stream, a WebSocket or server-sent events use the HTTP
 route `/gateway/v1/{upstream}/{path}` instead: the method the device wants,

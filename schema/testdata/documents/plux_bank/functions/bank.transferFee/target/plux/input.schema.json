@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","description":"The transfer to price.","properties":{"amount":{"description":"Amount as a decimal string with at most two decimal places.","type":"string"}},"required":["amount"],"title":"Input","type":"object"}

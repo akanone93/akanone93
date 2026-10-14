@@ -300,3 +300,110 @@ func TestKeySetCaching(t *testing.T) {
 		t.Errorf("an unknown key made the server read the key set %d times", n)
 	}
 }
+
+// bound is what a verifier of the device's tokens binds a user token to.
+func (f *fixture) bound(audience string) BoundTo {
+	return BoundTo{DeviceID: f.dev.DeviceID, AppID: f.dev.AppID, EnvironmentID: f.dev.EnvironmentID, Upstream: audience}
+}
+
+// Verifies: SEC-026, FN-002.
+// The audience function:<name> is accepted when a version of the function
+// exists in the device's environment, with no upstream of that name; the
+// token it gives is for that function and for nothing else.
+func TestExchangeForFunctionAudience(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	p := newIdP(t)
+	x := f.exchanger(p)
+	var asked []string
+	x.Functions = func(_ context.Context, d device.Identity, name string) error {
+		if d.EnvironmentID != f.dev.EnvironmentID {
+			t.Errorf("the function was looked up in environment %q, not the device's", d.EnvironmentID)
+		}
+		asked = append(asked, name)
+		if name != "bank.transferFee" {
+			return plxerr.New(plxerr.FunctionNotFound, "no function %s is deployed in this environment", name)
+		}
+		return nil
+	}
+	subject := p.token("ec1", jose.ES256, f.clock.Now(), nil)
+
+	res, err := x.Exchange(t.Context(), f.dev, subject, TokenTypeJWT, FunctionAudience("bank.transferFee"))
+	if err != nil {
+		t.Fatalf("Exchange: %v", err)
+	}
+	user, err := f.users.Verify(t.Context(), res.Token, f.bound(FunctionAudience("bank.transferFee")))
+	if err != nil {
+		t.Fatalf("a function refused its own token: %v", err)
+	}
+	if user.Subject != "user-7" || user.Claims["email"] != "ada@example.com" {
+		t.Errorf("user = %+v", user)
+	}
+	if len(asked) != 1 || asked[0] != "bank.transferFee" {
+		t.Errorf("functions looked up = %v, want [bank.transferFee]", asked)
+	}
+
+	// The token is for this function only: not for another function, not for
+	// the function's bare name and not for an upstream.
+	for _, audience := range []string{FunctionAudience("bank.other"), "bank.transferFee", "bank"} {
+		if _, err := f.users.Verify(t.Context(), res.Token, f.bound(audience)); code(err) != plxerr.UserTokenInvalid {
+			t.Errorf("the token for the function was accepted for %q: %v", audience, err)
+		}
+	}
+	// And the gateway does not forward it to an upstream.
+	if _, err := f.gw.Begin(t.Context(), f.dev, Request{Upstream: "bank", Operation: "balance", Method: "GET", Target: "/accounts", UserToken: res.Token}); code(err) != plxerr.UserTokenInvalid {
+		t.Errorf("an upstream call with a function's token: %v", err)
+	}
+}
+
+// Verifies: SEC-026, FN-002.
+// A function does not take the token for an upstream.
+func TestFunctionRefusesUpstreamToken(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	p := newIdP(t)
+	res, err := f.exchanger(p).Exchange(t.Context(), f.dev, p.token("ec1", jose.ES256, f.clock.Now(), nil), TokenTypeJWT, "bank")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, audience := range []string{FunctionAudience("bank"), FunctionAudience("bank.transferFee")} {
+		if _, err := f.users.Verify(t.Context(), res.Token, f.bound(audience)); code(err) != plxerr.UserTokenInvalid {
+			t.Errorf("the token for the upstream was accepted for %q: %v", audience, err)
+		}
+	}
+}
+
+// Verifies: SEC-026, FN-002.
+// The exchange for a function is refused when the function has no version in
+// the environment, when the server runs no functions, and when the audience
+// names none; an upstream audience is not looked up as a function.
+func TestExchangeForFunctionAudienceRefusals(t *testing.T) {
+	t.Parallel()
+	f := newFixture(t)
+	p := newIdP(t)
+	subject := p.token("ec1", jose.ES256, f.clock.Now(), nil)
+
+	withoutFunctions := f.exchanger(p)
+	if _, err := withoutFunctions.Exchange(t.Context(), f.dev, subject, TokenTypeJWT, FunctionAudience("bank.transferFee")); code(err) != plxerr.PreconditionFailed {
+		t.Errorf("a server without functions: %v", err)
+	}
+
+	x := f.exchanger(p)
+	lookups := 0
+	x.Functions = func(context.Context, device.Identity, string) error {
+		lookups++
+		return plxerr.New(plxerr.FunctionNotFound, "no such function")
+	}
+	if _, err := x.Exchange(t.Context(), f.dev, subject, TokenTypeJWT, FunctionAudience("bank.missing")); code(err) != plxerr.FunctionNotFound {
+		t.Errorf("a function with no version: %v", err)
+	}
+	if _, err := x.Exchange(t.Context(), f.dev, subject, TokenTypeJWT, FunctionAudiencePrefix); code(err) != plxerr.InvalidFormat {
+		t.Errorf("an audience without a name: %v", err)
+	}
+	if _, err := x.Exchange(t.Context(), f.dev, subject, TokenTypeJWT, "bank"); err != nil {
+		t.Errorf("an upstream audience: %v", err)
+	}
+	if lookups != 1 {
+		t.Errorf("functions looked up %d times, want once, for the audience that named one", lookups)
+	}
+}

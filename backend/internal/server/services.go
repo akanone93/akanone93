@@ -342,15 +342,15 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
-	gw, err := buildGateway(gatewayDeps{
-		cfg: cfg, db: db, cache: shared, set: set, signer: tokenSigner, crypter: backend, ids: gen, audit: log, tenancy: tenancyService,
-		devices: devices, configs: configs, trust: trust, metrics: work.Metrics, secretOf: secrets{t: tenancyService},
-		identityHTTP: work.IdentityHTTP,
-	})
+	functions, err := buildFunctions(db, work, log, tenancyService, configs, gen, time.Duration(cfg.Telemetry.RetentionDays)*24*time.Hour)
 	if err != nil {
 		return nil, err
 	}
-	functions, err := buildFunctions(db, work, log, tenancyService, configs, gen, time.Duration(cfg.Telemetry.RetentionDays)*24*time.Hour)
+	gw, err := buildGateway(gatewayDeps{
+		cfg: cfg, db: db, cache: shared, set: set, signer: tokenSigner, crypter: backend, ids: gen, audit: log, tenancy: tenancyService,
+		devices: devices, configs: configs, trust: trust, metrics: work.Metrics, secretOf: secrets{t: tenancyService},
+		identityHTTP: work.IdentityHTTP, functions: functions,
+	})
 	if err != nil {
 		return nil, err
 	}

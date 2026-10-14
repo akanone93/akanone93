@@ -252,46 +252,23 @@ func newEngine(ctx context.Context, set limits.Set, interpreter bool) (*fnhost.E
 	})
 }
 
-// buildFunction vendors, validates and builds a function without a sandbox,
-// and writes the module, its schemas and the provenance to target/plux/.
-// It is for development only: the server rebuilds in its sandbox (FN-016).
-func (e env) buildFunction(ctx context.Context, project, name, sdkFlag string, verify bool) (*builtFunction, error) {
-	if err := checkFunctionName(name); err != nil {
-		return nil, err
-	}
-	dir := crateDir(project, name)
+// localBuilder sets up the unsandboxed builder of the development commands:
+// the SDK, the optimiser and the host that reads the schemas. closeFn
+// releases the host.
+func (e env) localBuilder(ctx context.Context, sdkFlag string, set limits.Set) (b *builder.Builder, closeFn func(), err error) {
 	sdk, err := resolveSDK(sdkFlag)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	wasmOpt, err := resolveWasmOpt(ctx, e.stderr)
 	if err != nil {
-		return nil, err
-	}
-	if err := e.vendorCrate(ctx, dir); err != nil {
-		return nil, err
-	}
-	files, err := collectSource(dir)
-	if err != nil {
-		return nil, err
-	}
-	set := limits.Defaults()
-	decl, diags, err := readDeclaration(files, name, set)
-	if err != nil {
-		return nil, err
-	}
-	if decl == nil {
-		for _, d := range diags {
-			_, _ = fmt.Fprintln(e.stderr, d.String())
-		}
-		return nil, errors.New("function.json is invalid")
+		return nil, nil, err
 	}
 	engine, err := newEngine(ctx, set, false)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	defer func() { _ = engine.Close(context.WithoutCancel(ctx)) }()
-	b, err := builder.New(builder.Config{
+	b, err = builder.New(builder.Config{
 		Sandbox: builder.NoSandbox{}, Clock: time.Now, Identity: "plux-cli", SDKDir: sdk, WasmOpt: wasmOpt,
 		Schemas: builder.NewWasmSchemaReader(engine, fnhost.Limits{
 			Timeout: time.Duration(set.Get(limits.FunctionTimeout)) * time.Millisecond, MemoryBytes: uint64(set.Get(limits.FunctionMemory)), //nolint:gosec // G115: registry values are non-negative.
@@ -300,13 +277,61 @@ func (e env) buildFunction(ctx context.Context, project, name, sdkFlag string, v
 		Limits: builder.Limits{Wall: devBuildWall, Memory: devBuildMemory, OutputBytes: devBuildOutput}, SourceBytes: devSourceBudget,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("set up the build: %w", err)
+		_ = engine.Close(context.WithoutCancel(ctx))
+		return nil, nil, fmt.Errorf("set up the build: %w", err)
+	}
+	return b, func() { _ = engine.Close(context.WithoutCancel(ctx)) }, nil
+}
+
+// readCrate vendors the dependencies of a function's crate and reads its
+// source and validated declaration.
+func (e env) readCrate(ctx context.Context, project, name string, set limits.Set) (fstest.MapFS, *builder.Declaration, error) {
+	if err := checkFunctionName(name); err != nil {
+		return nil, nil, err
+	}
+	dir := crateDir(project, name)
+	if err := e.vendorCrate(ctx, dir); err != nil {
+		return nil, nil, err
+	}
+	files, err := collectSource(dir)
+	if err != nil {
+		return nil, nil, err
+	}
+	decl, diags, err := readDeclaration(files, name, set)
+	if err != nil {
+		return nil, nil, err
+	}
+	if decl == nil {
+		for _, d := range diags {
+			_, _ = fmt.Fprintln(e.stderr, d.String())
+		}
+		return nil, nil, errors.New("function.json is invalid")
+	}
+	return files, decl, nil
+}
+
+// buildFunction vendors, validates and builds a function without a sandbox,
+// and writes the module, its schemas and the provenance to target/plux/.
+// It is for development only: the server rebuilds in its sandbox (FN-016).
+func (e env) buildFunction(ctx context.Context, project, name, sdkFlag string, verify bool) (*builtFunction, error) {
+	if err := checkFunctionName(name); err != nil {
+		return nil, err
+	}
+	set := limits.Defaults()
+	b, closeBuilder, err := e.localBuilder(ctx, sdkFlag, set)
+	if err != nil {
+		return nil, err
+	}
+	defer closeBuilder()
+	files, decl, err := e.readCrate(ctx, project, name, set)
+	if err != nil {
+		return nil, err
 	}
 	artifact, err := b.Build(ctx, []builder.FunctionSource{decl.Source(files)}, builder.Options{Verify: verify})
 	if err != nil {
 		return nil, fmt.Errorf("build %s: %w", name, err)
 	}
-	out := filepath.Join(dir, filepath.FromSlash(outputDir))
+	out := builtDir(project, name)
 	if err := writeBuildOutput(out, artifact); err != nil {
 		return nil, err
 	}
@@ -341,7 +366,7 @@ func writeBuildOutput(dir string, a *builder.Artifact) error {
 	}
 	outputs := map[string][]byte{moduleName: a.Module, "provenance.json": append(prov, '\n')}
 	if len(a.Functions) == 1 {
-		outputs["input.schema.json"], outputs["output.schema.json"] = a.Functions[0].InputSchema, a.Functions[0].OutputSchema
+		outputs[inputSchemaFile], outputs[outputSchemaFile] = a.Functions[0].InputSchema, a.Functions[0].OutputSchema
 	}
 	for n, data := range outputs {
 		if err := os.WriteFile(filepath.Join(dir, n), data, 0o600); err != nil {

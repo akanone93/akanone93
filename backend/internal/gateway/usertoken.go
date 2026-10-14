@@ -46,7 +46,8 @@ type UserTokens struct {
 // BoundTo is what a user token must be bound to.
 type BoundTo struct {
 	DeviceID, AppID, EnvironmentID string
-	// Upstream is the name of the upstream the call goes to.
+	// Upstream is the audience of the call: the name of the upstream, or
+	// FunctionAudience(name) for a server function.
 	Upstream   string
 	Production bool
 }

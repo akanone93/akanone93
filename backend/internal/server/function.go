@@ -244,7 +244,9 @@ func (f functionSCA) VerifyInvocation(ctx context.Context, d device.Identity, p 
 
 // functionUsers verifies the user token a device presents to a function
 // (SEC-026). The token is bound to the device, the app, the environment
-// and the audience the exchange named, which for a function is its name.
+// and the audience the exchange named, which for a function is
+// function:<name> (gateway.FunctionAudience), so that a token for an
+// upstream is of no use to a function.
 type functionUsers struct {
 	tokens     *gateway.UserTokens
 	production func(ctx context.Context, environmentID string) (bool, error)
@@ -257,7 +259,7 @@ func (u functionUsers) VerifyUser(ctx context.Context, token string, d device.Id
 		return nil, err //nolint:wrapcheck // a domain error
 	}
 	user, err := u.tokens.Verify(ctx, token, gateway.BoundTo{
-		DeviceID: d.DeviceID, AppID: d.AppID, EnvironmentID: d.EnvironmentID, Upstream: name, Production: production,
+		DeviceID: d.DeviceID, AppID: d.AppID, EnvironmentID: d.EnvironmentID, Upstream: gateway.FunctionAudience(name), Production: production,
 	})
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error

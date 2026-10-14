@@ -80,6 +80,24 @@ func options(dev bool) compiler.Options {
 	return opts
 }
 
+// compileProject compiles a project directory offline (CLI-005) with the
+// function catalogue of its functions/ directory. modules supplies the
+// device modules; nil packs none, which is enough where the bundles are
+// not kept.
+func compileProject(dir string, dev bool, modules compiler.DeviceModules) (*compiler.Result, error) {
+	cat, err := loadLocalCatalogue(dir)
+	if err != nil {
+		return nil, err
+	}
+	opts := options(dev)
+	opts.Functions = cat
+	opts.DeviceModules = modules
+	if modules == nil {
+		opts.DeviceModules = unlinkedModules{}
+	}
+	return compiler.Compile(os.DirFS(dir), opts), nil
+}
+
 // validate checks a project directory offline (CLI-005).
 func validate(args []string, stdout, stderr io.Writer) int {
 	set := flag.NewFlagSet("validate", flag.ContinueOnError)
@@ -93,11 +111,14 @@ func validate(args []string, stdout, stderr io.Writer) int {
 	if code, ok := flags(set, args, stderr); !ok {
 		return code
 	}
-	fsys, ok := project("validate", set.Arg(0), stderr)
-	if !ok {
+	if _, ok := project("validate", set.Arg(0), stderr); !ok {
 		return exitUsage
 	}
-	res := compiler.Compile(fsys, options(false))
+	res, err := compileProject(set.Arg(0), false, nil)
+	if err != nil {
+		_, _ = fmt.Fprintf(stderr, "%s validate: %v\n", name, err)
+		return exitFailed
+	}
 	return finish(res.Diagnostics, nil, *jsonOut, stdout, stderr)
 }
 
@@ -123,11 +144,17 @@ func build(args []string, stdout, stderr io.Writer) int {
 		set.Usage()
 		return exitUsage
 	}
-	fsys, ok := project("build", set.Arg(0), stderr)
-	if !ok {
+	if _, ok := project("build", set.Arg(0), stderr); !ok {
 		return exitUsage
 	}
-	res := compiler.Compile(fsys, options(*dev))
+	e := env{stdout: stdout, stderr: stderr}
+	ctx, cancel := e.context()
+	defer cancel()
+	res, err := compileProject(set.Arg(0), *dev, localModules{e: e, ctx: ctx, project: set.Arg(0)})
+	if err != nil {
+		_, _ = fmt.Fprintf(stderr, "%s build: %v\n", name, err)
+		return exitFailed
+	}
 	if res.Diagnostics.HasErrors() {
 		return finish(res.Diagnostics, nil, *jsonOut, stdout, stderr)
 	}

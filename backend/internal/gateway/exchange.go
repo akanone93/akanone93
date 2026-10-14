@@ -10,6 +10,7 @@ import (
 	"errors"
 	"net/http"
 	"slices"
+	"strings"
 	"sync"
 	"time"
 
@@ -26,6 +27,15 @@ const (
 	TokenTypeAccessToken = "urn:ietf:params:oauth:token-type:access_token" //nolint:gosec // G101: an RFC 8693 token type URN, not a credential
 	TokenTypeIDToken     = "urn:ietf:params:oauth:token-type:id_token"     //nolint:gosec // G101: an RFC 8693 token type URN, not a credential
 )
+
+// FunctionAudiencePrefix starts the audience of a token for a server
+// function (SEC-026, FN-002). An upstream name never holds a colon, so no
+// token for an upstream is a token for a function, or the other way round.
+const FunctionAudiencePrefix = "function:"
+
+// FunctionAudience is the audience of the user token a server function
+// verifies.
+func FunctionAudience(name string) string { return FunctionAudiencePrefix + name }
 
 const (
 	// maxSubjectToken bounds the host's token.
@@ -58,6 +68,10 @@ type Exchanger struct {
 	Providers func(ctx context.Context, organizationID, environmentID string) (IdentityProvider, error)
 	// Upstreams checks that the audience names a registered upstream.
 	Upstreams func(ctx context.Context, organizationID, environmentID, name string) (Upstream, error)
+	// Functions checks that a version of the function exists in the
+	// device's environment, for an audience of the form function:<name>;
+	// nil refuses such an audience.
+	Functions func(ctx context.Context, d device.Identity, name string) error
 	// Production says whether an environment is a production one.
 	Production func(ctx context.Context, environmentID string) (bool, error)
 	// Lifetime returns how long a user token lives for a device; the
@@ -94,8 +108,9 @@ func (x *Exchanger) now() time.Time {
 	return time.Now()
 }
 
-// Exchange verifies subjectToken and issues a user token for the device
-// and the upstream named by audience.
+// Exchange verifies subjectToken and issues a user token for the device and
+// the audience: an upstream registered for the environment, or, as
+// function:<name>, a function with a version in the device's environment.
 func (x *Exchanger) Exchange(ctx context.Context, d device.Identity, subjectToken, subjectType, audience string) (Exchanged, error) {
 	switch subjectType {
 	case TokenTypeJWT, TokenTypeAccessToken, TokenTypeIDToken:
@@ -109,7 +124,7 @@ func (x *Exchanger) Exchange(ctx context.Context, d device.Identity, subjectToke
 	if err != nil {
 		return Exchanged{}, err
 	}
-	if _, err := x.Upstreams(ctx, d.OrganizationID, d.EnvironmentID, audience); err != nil {
+	if err := x.checkAudience(ctx, d, audience); err != nil {
 		return Exchanged{}, err
 	}
 	claims, expires, err := x.verify(ctx, idp, subjectToken)
@@ -136,6 +151,23 @@ func (x *Exchanger) Exchange(ctx context.Context, d device.Identity, subjectToke
 		return Exchanged{}, err
 	}
 	return Exchanged{Token: token, ExpiresAt: expires.UTC().Truncate(time.Second)}, nil
+}
+
+// checkAudience checks that the audience names something the device may
+// present a user token to.
+func (x *Exchanger) checkAudience(ctx context.Context, d device.Identity, audience string) error {
+	name, isFunction := strings.CutPrefix(audience, FunctionAudiencePrefix)
+	if !isFunction {
+		_, err := x.Upstreams(ctx, d.OrganizationID, d.EnvironmentID, audience)
+		return err
+	}
+	if x.Functions == nil {
+		return plxerr.New(plxerr.PreconditionFailed, "this server does not run functions")
+	}
+	if name == "" {
+		return plxerr.New(plxerr.InvalidFormat, "the audience %q names no function", audience)
+	}
+	return x.Functions(ctx, d, name)
 }
 
 // verify checks the host's token against the provider and returns its
