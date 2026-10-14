@@ -39,6 +39,11 @@ type Config struct {
 	// CacheDir, when set, persists compiled code between processes so a
 	// deployed module is compiled once (FN-010).
 	CacheDir string
+	// Interpreter runs modules in wazero's interpreter instead of its
+	// compiler. The device runs functions in an interpreter (FN-050); the
+	// CLI uses this engine as its stand-in, the shared ABI vectors keeping
+	// both equivalent (FN-015).
+	Interpreter bool
 }
 
 // Engine hosts function modules. It is safe for concurrent use: Compile and
@@ -63,7 +68,11 @@ func NewEngine(ctx context.Context, cfg Config) (*Engine, error) {
 	if cfg.MaxMemoryBytes > maxAddressable {
 		return nil, errors.New("fnhost.NewEngine: MaxMemoryBytes exceeds 2 GiB, the largest a packed pointer can address")
 	}
-	rc := wazero.NewRuntimeConfigCompiler().WithCloseOnContextDone(true)
+	rc := wazero.NewRuntimeConfigCompiler()
+	if cfg.Interpreter {
+		rc = wazero.NewRuntimeConfigInterpreter()
+	}
+	rc = rc.WithCloseOnContextDone(true)
 	e := &Engine{clock: cfg.Clock, random: &lockedReader{r: cfg.Random}, maxMem: cfg.MaxMemoryBytes}
 	if cfg.CacheDir != "" {
 		cache, err := wazero.NewCompilationCacheWithDir(cfg.CacheDir)

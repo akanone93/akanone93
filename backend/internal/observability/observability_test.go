@@ -354,7 +354,7 @@ func TestFunctionInvocationMetrics_FN_032(t *testing.T) {
 	m.Invoked("ok", time.Millisecond, true)
 	m.Invoked("function_timeout", time.Second, false)
 	rec := httptest.NewRecorder()
-	m.Handler().ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/metrics", nil))
+	m.Handler().ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/metrics", nil))
 	body := rec.Body.String()
 	for _, want := range []string{
 		`plux_function_requests_total{result="ok"} 2`, `plux_function_requests_total{result="function_timeout"} 1`,

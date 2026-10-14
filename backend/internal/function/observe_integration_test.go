@@ -108,7 +108,8 @@ func TestFunctionMetrics_FN_032(t *testing.T) {
 	obs := func(result string, micros int64, replayed bool) {
 		w.svc.Observe(ctx, function.Observation{
 			OrganizationID: w.org, AppID: w.app, EnvironmentID: w.envs["development"], Function: "bank.fee", Version: 1,
-			Result: result, Duration: time.Duration(micros) * time.Microsecond, MemoryPeakBytes: uint64(micros) * 1024, Replayed: replayed,
+			Result: result, Duration: time.Duration(micros) * time.Microsecond, MemoryPeakBytes: uint64(micros) * 1024, //nolint:gosec // G115: the test's own positive values
+			Replayed: replayed,
 		})
 	}
 	for n := int64(1); n <= 100; n++ {
