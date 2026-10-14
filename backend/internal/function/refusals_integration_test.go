@@ -26,7 +26,7 @@ type failureLog struct {
 	records []string
 }
 
-func (l *failureLog) Enabled(context.Context, slog.Level) bool { return true }
+func (*failureLog) Enabled(context.Context, slog.Level) bool { return true }
 
 func (l *failureLog) Handle(_ context.Context, r slog.Record) error {
 	var b strings.Builder
