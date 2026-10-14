@@ -193,7 +193,8 @@ void bankFlows({
 
   testWidgets(
     'declining the confirmation sends nothing and leaves the balance (it '
-    'runs first: the backend keeps the exit flow\'s transfer) [DX-004] [SEC-027] [SEC-032]',
+    'runs before the exit flow: the backend keeps that flow\'s transfer) '
+    '[DX-004] [SEC-027] [SEC-032]',
     (tester) async {
       problems.clear();
       await signIn(tester);
@@ -208,6 +209,45 @@ void bankFlows({
       await waitFor(tester, find.text('Your accounts'));
       await waitFor(tester, find.text('2500.00 EUR'));
       expect(find.text('2487.50 EUR'), findsNothing);
+      await stop(tester);
+    },
+    skip: skip != null || !confirmsTransfers,
+    timeout: const Timeout(Duration(minutes: 3)),
+  );
+
+  testWidgets(
+    'the fee of a transfer is computed by the server function after the '
+    'user confirms the invocation with the device key, and declining '
+    'computes nothing [DX-004] [FN-020] [FN-022] [SEC-027]',
+    (tester) async {
+      // Like the decline flow, it runs before the exit flow, whose transfer
+      // the backend keeps: it expects the opening balance.
+      problems.clear();
+      await signIn(tester);
+      await waitFor(tester, find.text('Checking'));
+      await tapSettled(tester, find.text('New transfer'));
+      await waitFor(tester, find.text('Available: 2500.00 EUR'));
+      await typeInto(tester, 'Amount (EUR)', '12.50');
+
+      // The function declares sca: the sheet shows the function and the
+      // input exactly as the SCA key signs them, and the call is made only
+      // once the user confirms (the standard tier's fee is 0.1 percent,
+      // at least 0.50).
+      await tapSettled(tester, find.text('Show fee'));
+      await waitFor(tester, find.text('Confirm transaction'));
+      expect(find.text('bank.transferFee'), findsOneWidget);
+      expect(find.textContaining('12.50'), findsWidgets);
+      expect(find.textContaining('Fee: '), findsNothing);
+      await tapSettled(tester, find.text('Confirm'));
+      await waitFor(tester, find.text('Fee: 0.50 EUR'));
+
+      // Declining sends nothing and clears the fee.
+      await tapSettled(tester, find.text('Show fee'));
+      await waitFor(tester, find.text('Confirm transaction'));
+      await tapSettled(tester, find.text('Cancel'));
+      await waitFor(tester, find.text('Fee unavailable: declined'));
+      expect(find.textContaining('Fee: '), findsNothing);
+      expect(problems, isEmpty, reason: problems.join('\n'));
       await stop(tester);
     },
     skip: skip != null || !confirmsTransfers,
@@ -267,43 +307,6 @@ void bankFlows({
         find.text('Transfer of 12.50 EUR sent. New balance: 2487.50 EUR'),
       );
       await waitFor(tester, find.text('2487.50 EUR'));
-      expect(problems, isEmpty, reason: problems.join('\n'));
-      await stop(tester);
-    },
-    skip: skip != null || !confirmsTransfers,
-    timeout: const Timeout(Duration(minutes: 3)),
-  );
-
-  testWidgets(
-    'the fee of a transfer is computed by the server function after the '
-    'user confirms the invocation with the device key, and declining '
-    'computes nothing [DX-004] [FN-020] [FN-022] [SEC-027]',
-    (tester) async {
-      problems.clear();
-      await signIn(tester);
-      await waitFor(tester, find.text('Checking'));
-      await tapSettled(tester, find.text('New transfer'));
-      await waitFor(tester, find.text('Available: 2500.00 EUR'));
-      await typeInto(tester, 'Amount (EUR)', '12.50');
-
-      // The function declares sca: the sheet shows the function and the
-      // input exactly as the SCA key signs them, and the call is made only
-      // once the user confirms (the standard tier's fee is 0.1 percent,
-      // at least 0.50).
-      await tapSettled(tester, find.text('Show fee'));
-      await waitFor(tester, find.text('Confirm transaction'));
-      expect(find.text('bank.transferFee'), findsOneWidget);
-      expect(find.textContaining('12.50'), findsWidgets);
-      expect(find.textContaining('Fee: '), findsNothing);
-      await tapSettled(tester, find.text('Confirm'));
-      await waitFor(tester, find.text('Fee: 0.50 EUR'));
-
-      // Declining sends nothing and clears the fee.
-      await tapSettled(tester, find.text('Show fee'));
-      await waitFor(tester, find.text('Confirm transaction'));
-      await tapSettled(tester, find.text('Cancel'));
-      await waitFor(tester, find.text('Fee unavailable: declined'));
-      expect(find.textContaining('Fee: '), findsNothing);
       expect(problems, isEmpty, reason: problems.join('\n'));
       await stop(tester);
     },

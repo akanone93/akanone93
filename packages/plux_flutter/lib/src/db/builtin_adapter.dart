@@ -43,9 +43,6 @@ final class BuiltInDatabaseAdapter implements PluxDatabaseAdapter {
 
   Map<String, Map<String, Object?>> _data = {};
   bool _open = false;
-  // Null while nothing ran: a future, even a completed one, delivers its
-  // result in a microtask of the zone that created it, so a first future made
-  // in a widget test's fake-async zone would stall a later caller's chain.
   Future<void>? _tail;
 
   @override
@@ -83,19 +80,50 @@ final class BuiltInDatabaseAdapter implements PluxDatabaseAdapter {
     await _serial(() => _open = false);
   }
 
+  // The queue's links are made in the root zone, whichever zone the caller is
+  // in: a future delivers its result in a microtask of the zone that created
+  // it, so a link made in a widget test's fake-async zone would never complete
+  // while the test waits in the real zone (`runAsync`), and every later
+  // operation, `close` included, would queue behind it for good. [fn], its
+  // result and the caller's result stay in the caller's zone, so that the
+  // body of a transaction keeps its zone's values and an error never crosses
+  // from one error zone into another, where it would go unhandled.
   Future<R> _serial<R>(FutureOr<R> Function() fn) {
+    final caller = Zone.current;
     final done = Completer<R>();
-    final previous = _tail ?? Future<void>.value();
-    _tail = done.future.then((_) {}, onError: (Object _) {});
-    unawaited(
-      previous.then((_) async {
-        try {
-          done.complete(await fn());
-        } on Object catch (e, s) {
-          done.completeError(e, s);
-        }
-      }),
-    );
+    final turn = Zone.root.run(Completer<void>.new);
+    final previous = _tail;
+    _tail = turn.future;
+    void finish(void Function() settle) {
+      settle();
+      turn.complete();
+    }
+
+    Zone.root.run(() {
+      unawaited(
+        (previous ?? Future<void>.value()).then((_) {
+          final FutureOr<R> result;
+          try {
+            result = caller.run(fn);
+          } on Object catch (e, s) {
+            finish(() => done.completeError(e, s));
+            return;
+          }
+          if (result case final Future<R> pending) {
+            // Observed in the caller's zone: an error crosses no error zone.
+            caller.run(
+              () => pending.then<void>(
+                (v) => finish(() => done.complete(v)),
+                onError: (Object e, StackTrace s) =>
+                    finish(() => done.completeError(e, s)),
+              ),
+            );
+          } else {
+            finish(() => done.complete(result));
+          }
+        }),
+      );
+    });
     return done.future;
   }
 
