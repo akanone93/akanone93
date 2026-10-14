@@ -38,12 +38,15 @@ type ReleaseFunction struct {
 // that selects its version; an empty alias selects the newest.
 type functionGrant struct {
 	name, alias string
+	// compiled is the version the compilation resolved the grant to, which
+	// the bundle carries; 0 when it compiled without a catalogue.
+	compiled uint32
 }
 
 // grantsOf lists the functions the plugins of a compilation grant, once
 // each and sorted, so that a release resolves them in a fixed order
 // (CMP-002).
-func grantsOf(res *compiler.Result) []functionGrant {
+func grantsOf(res *compiler.Result, cat compiler.FunctionCatalogue) []functionGrant {
 	if res == nil || res.Project == nil {
 		return nil
 	}
@@ -53,7 +56,13 @@ func grantsOf(res *compiler.Result) []functionGrant {
 			continue
 		}
 		for _, g := range pl.Doc.Capabilities.Functions {
-			out = append(out, functionGrant{name: g.Function, alias: g.Alias})
+			grant := functionGrant{name: g.Function, alias: g.Alias}
+			if cat != nil {
+				if info, ok := cat.Function(g.Function, g.Alias); ok {
+					grant.compiled = info.Version
+				}
+			}
+			out = append(out, grant)
 		}
 	}
 	slices.SortFunc(out, func(a, b functionGrant) int {
@@ -76,6 +85,9 @@ func (s *Service) pinFunctions(ctx context.Context, tx pgx.Tx, env dbgen.Environ
 		r, err := function.ResolveVersionTx(ctx, tx, storage.ID(env.AppID), storage.ID(env.ID), g.name, g.alias)
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
+		}
+		if g.compiled != 0 && uint32(max(r.Version, 0)) != g.compiled { //nolint:gosec // G115: clamped to non-negative.
+			return nil, plxerr.New(plxerr.ReleaseInconsistent, "function %s was deployed as version %d while the release was created, after its bundles were compiled against version %d; create the release again", g.name, r.Version, g.compiled)
 		}
 		if !r.TestsPassed && env.Production {
 			return nil, plxerr.New(plxerr.FunctionTestsFailed, "version %d of function %s failed its tests and cannot be released", r.Version, g.name)

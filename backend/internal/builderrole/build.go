@@ -26,12 +26,11 @@ import (
 
 // Build implements fnpbconnect.BuilderServiceHandler (FN-016).
 func (s *Service) Build(ctx context.Context, req *connect.Request[fnpb.BuildRequest]) (*connect.Response[fnpb.BuildResponse], error) {
-	select {
-	case s.slots <- struct{}{}:
-		defer func() { <-s.slots }()
-	default:
-		return nil, connect.NewError(connect.CodeResourceExhausted, errors.New("the builder is running as many builds as it may; retry later"))
+	done, err := s.acquire()
+	if err != nil {
+		return nil, err
 	}
+	defer done()
 	in := req.Msg
 	log := s.log.With(slog.String("build", in.GetBuildId()), slog.String("function", in.GetName()))
 	if s.o.Unsandboxed {
@@ -46,6 +45,17 @@ func (s *Service) Build(ctx context.Context, req *connect.Request[fnpb.BuildRequ
 	log.InfoContext(ctx, "build finished", slog.Int("moduleBytes", len(resp.GetModule())),
 		slog.Bool("diagnostics", len(resp.GetDiagnosticsJson()) > 0), slog.Duration("took", time.Since(start)))
 	return connect.NewResponse(resp), nil
+}
+
+// acquire takes one of the role's build slots, or refuses when all are in use.
+// The returned function gives the slot back.
+func (s *Service) acquire() (func(), error) {
+	select {
+	case s.slots <- struct{}{}:
+		return func() { <-s.slots }, nil
+	default:
+		return nil, connect.NewError(connect.CodeResourceExhausted, errors.New("the builder is running as many builds as it may; retry later"))
+	}
 }
 
 // build runs one request. A source that does not build is a response with

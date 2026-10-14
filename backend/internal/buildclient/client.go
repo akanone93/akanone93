@@ -137,3 +137,53 @@ func provenanceOf(p *fnpb.BuildProvenance) (function.Provenance, error) {
 	}
 	return prov, nil
 }
+
+var _ function.Linker = (*Client)(nil)
+
+// Link implements function.Linker: it sends the stored sources of a plugin's
+// device-placed functions to the builder role and converts the response
+// (FN-051). Failures of the role, of the network or of the object store are
+// errors; sources that do not link are a LinkOutput with error diagnostics.
+func (c *Client) Link(ctx context.Context, in function.LinkInput) (function.LinkOutput, error) {
+	sources := make([]*fnpb.LinkSource, 0, len(in.Sources))
+	for _, src := range in.Sources {
+		data, _, err := c.objects.Get(ctx, src.SourceObjectKey)
+		if err != nil {
+			return function.LinkOutput{}, fmt.Errorf("buildclient.Link: read the source of %s: %w", src.Name, err)
+		}
+		if sum := sha256.Sum256(data); !strings.EqualFold(hex.EncodeToString(sum[:]), src.SourceSHA256) {
+			return function.LinkOutput{}, fmt.Errorf("buildclient.Link: the stored source of %s does not match its recorded SHA-256", src.Name)
+		}
+		sources = append(sources, &fnpb.LinkSource{Name: src.Name, Source: data, SourceSha256: src.SourceSHA256})
+	}
+	if in.Timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, in.Timeout*BuildSteps+transferSlack)
+		defer cancel()
+	}
+	resp, err := c.rpc.Link(ctx, connect.NewRequest(&fnpb.LinkRequest{
+		LinkId: in.LinkID, Sources: sources,
+		Limits: &fnpb.BuildLimits{TimeoutMs: uint32(min(in.Timeout.Milliseconds(), 1<<32-1)), MemoryBytes: uint64(max(in.MemoryBytes, 0))}, //nolint:gosec // G115: bounded and non-negative.
+	}))
+	if err != nil {
+		return function.LinkOutput{}, fmt.Errorf("buildclient.Link: %w", err)
+	}
+	return linkOutputOf(resp.Msg)
+}
+
+// linkOutputOf converts a response; output that is inconsistent is an error.
+func linkOutputOf(r *fnpb.LinkResponse) (function.LinkOutput, error) {
+	out := function.LinkOutput{Module: r.GetModule(), ABIVersion: r.GetAbiVersion(), Index: map[string]uint32{}}
+	if raw := r.GetDiagnosticsJson(); len(raw) > 0 {
+		if err := json.Unmarshal(raw, &out.Diagnostics); err != nil {
+			return function.LinkOutput{}, fmt.Errorf("buildclient.Link: read the diagnostics: %w", err)
+		}
+	}
+	for _, f := range r.GetFunctions() {
+		out.Index[f.GetName()] = f.GetIndex()
+	}
+	if len(out.Module) == 0 && !out.Diagnostics.HasErrors() {
+		return function.LinkOutput{}, errors.New("buildclient.Link: the builder returned neither a module nor an error diagnostic")
+	}
+	return out, nil
+}

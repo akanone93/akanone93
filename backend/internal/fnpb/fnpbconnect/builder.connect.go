@@ -38,6 +38,8 @@ const (
 const (
 	// BuilderServiceBuildProcedure is the fully-qualified name of the BuilderService's Build RPC.
 	BuilderServiceBuildProcedure = "/plux.internal.fn.v1.BuilderService/Build"
+	// BuilderServiceLinkProcedure is the fully-qualified name of the BuilderService's Link RPC.
+	BuilderServiceLinkProcedure = "/plux.internal.fn.v1.BuilderService/Link"
 )
 
 // BuilderServiceClient is a client for the plux.internal.fn.v1.BuilderService service.
@@ -48,6 +50,15 @@ type BuilderServiceClient interface {
 	// with error diagnostics and no module; only a failure of the builder
 	// itself is an RPC error.
 	Build(context.Context, *connect.Request[fnpb.BuildRequest]) (*connect.Response[fnpb.BuildResponse], error)
+	// Link compiles the source archives of several device-placed functions into
+	// the one module a plugin carries (FN-051, plan P7 E5). It runs the same
+	// pipeline as Build without the stored test cases and without the second,
+	// verifying build: each function was built and tested on its own, and the
+	// linked module is a pure function of the sources, so the same set always
+	// yields the same bytes. A set that does not link is a response with error
+	// diagnostics and no module; only a failure of the builder itself is an RPC
+	// error.
+	Link(context.Context, *connect.Request[fnpb.LinkRequest]) (*connect.Response[fnpb.LinkResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the plux.internal.fn.v1.BuilderService service.
@@ -67,17 +78,29 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("Build")),
 			connect.WithClientOptions(opts...),
 		),
+		link: connect.NewClient[fnpb.LinkRequest, fnpb.LinkResponse](
+			httpClient,
+			baseURL+BuilderServiceLinkProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("Link")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // builderServiceClient implements BuilderServiceClient.
 type builderServiceClient struct {
 	build *connect.Client[fnpb.BuildRequest, fnpb.BuildResponse]
+	link  *connect.Client[fnpb.LinkRequest, fnpb.LinkResponse]
 }
 
 // Build calls plux.internal.fn.v1.BuilderService.Build.
 func (c *builderServiceClient) Build(ctx context.Context, req *connect.Request[fnpb.BuildRequest]) (*connect.Response[fnpb.BuildResponse], error) {
 	return c.build.CallUnary(ctx, req)
+}
+
+// Link calls plux.internal.fn.v1.BuilderService.Link.
+func (c *builderServiceClient) Link(ctx context.Context, req *connect.Request[fnpb.LinkRequest]) (*connect.Response[fnpb.LinkResponse], error) {
+	return c.link.CallUnary(ctx, req)
 }
 
 // BuilderServiceHandler is an implementation of the plux.internal.fn.v1.BuilderService service.
@@ -88,6 +111,15 @@ type BuilderServiceHandler interface {
 	// with error diagnostics and no module; only a failure of the builder
 	// itself is an RPC error.
 	Build(context.Context, *connect.Request[fnpb.BuildRequest]) (*connect.Response[fnpb.BuildResponse], error)
+	// Link compiles the source archives of several device-placed functions into
+	// the one module a plugin carries (FN-051, plan P7 E5). It runs the same
+	// pipeline as Build without the stored test cases and without the second,
+	// verifying build: each function was built and tested on its own, and the
+	// linked module is a pure function of the sources, so the same set always
+	// yields the same bytes. A set that does not link is a response with error
+	// diagnostics and no module; only a failure of the builder itself is an RPC
+	// error.
+	Link(context.Context, *connect.Request[fnpb.LinkRequest]) (*connect.Response[fnpb.LinkResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -103,10 +135,18 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("Build")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceLinkHandler := connect.NewUnaryHandler(
+		BuilderServiceLinkProcedure,
+		svc.Link,
+		connect.WithSchema(builderServiceMethods.ByName("Link")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.internal.fn.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceBuildProcedure:
 			builderServiceBuildHandler.ServeHTTP(w, r)
+		case BuilderServiceLinkProcedure:
+			builderServiceLinkHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -118,4 +158,8 @@ type UnimplementedBuilderServiceHandler struct{}
 
 func (UnimplementedBuilderServiceHandler) Build(context.Context, *connect.Request[fnpb.BuildRequest]) (*connect.Response[fnpb.BuildResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.internal.fn.v1.BuilderService.Build is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) Link(context.Context, *connect.Request[fnpb.LinkRequest]) (*connect.Response[fnpb.LinkResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.internal.fn.v1.BuilderService.Link is not implemented"))
 }

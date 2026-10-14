@@ -14,7 +14,6 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/builder"
 	"github.com/nightCode42/plux3/backend/internal/builderrole"
 	"github.com/nightCode42/plux3/backend/internal/config"
-	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage/objects"
@@ -106,7 +105,7 @@ const buildEnvelopeBytes = 4 << 20
 // mutual TLS of server.internalTLS (FN-016, SEC-043). The HTTP client's own
 // timeout is the longest build the registry allows; each build also has its
 // own deadline.
-func buildBuilderClient(cfg *config.Config, store objects.Store) (function.Builder, error) {
+func buildBuilderClient(cfg *config.Config, store objects.Store) (*buildclient.Client, error) {
 	t := cfg.Server.InternalTLS
 	def, _ := limits.Lookup(limits.FunctionBuildTimeout)
 	moduleDef, _ := limits.Lookup(limits.FunctionModuleSize)
@@ -136,6 +135,6 @@ func attachBuilder(cfg *config.Config, store objects.Store, deps *WorkDeps) erro
 	if err != nil {
 		return err
 	}
-	deps.Builder, deps.FunctionKey = client, cfg.Signing.Keys.FunctionArtifact
+	deps.Builder, deps.Linker, deps.FunctionKey = client, client, cfg.Signing.Keys.FunctionArtifact
 	return nil
 }

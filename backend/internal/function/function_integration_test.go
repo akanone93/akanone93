@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -140,6 +141,10 @@ type world struct {
 	envs      map[string]string
 	otherEnvs map[string]string
 	enqueuer  function.Enqueuer
+	linker    *fakeLinker
+	opts      function.Options
+	// deviceFunctions is the security setting deviceFunctions.
+	deviceFunctions atomic.Bool
 }
 
 // newWorld builds the world; enqueue is the service's job queue, or nil
@@ -153,7 +158,7 @@ func newWorld(t *testing.T, enqueue func(*world) function.Enqueuer, mutate func(
 	}
 	gen := ids{g: uuid7.NewGenerator(time.Now, rand.Reader)}
 	log := audit.NewLog(gen, nil)
-	w := &world{db: db, envs: map[string]string{}, otherEnvs: map[string]string{}, builder: &fakeBuilder{}, signer: &fakeSigner{}, queue: &recorder{}, limits: limits.Defaults()}
+	w := &world{db: db, envs: map[string]string{}, otherEnvs: map[string]string{}, builder: &fakeBuilder{}, linker: &fakeLinker{}, signer: &fakeSigner{}, queue: &recorder{}, limits: limits.Defaults()}
 	if mutate != nil {
 		mutate(&w.limits)
 	}
@@ -172,14 +177,29 @@ func newWorld(t *testing.T, enqueue func(*world) function.Enqueuer, mutate func(
 	if enqueue != nil {
 		w.enqueuer = enqueue(w)
 	}
-	if w.svc, err = function.NewService(function.Options{
-		DB: db, Audit: log, Objects: store, IDs: gen, Jobs: w.enqueuer, Builder: w.builder, Signer: w.signer,
-		Limits: func(context.Context, pgx.Tx, string, string) (limits.Set, error) { return w.limits, nil },
-	}); err != nil {
-		t.Fatal(err)
+	w.opts = function.Options{
+		DB: db, Audit: log, Objects: store, IDs: gen, Jobs: w.enqueuer, Builder: w.builder, Signer: w.signer, Linker: w.linker,
+		DeviceFunctions: func(context.Context, string, string) (bool, error) { return w.deviceFunctions.Load(), nil },
+		Limits:          func(context.Context, pgx.Tx, string, string) (limits.Set, error) { return w.limits, nil },
 	}
+	w.svc = w.service(t, nil)
 	w.populate(t)
 	return w
+}
+
+// service returns a function service over the world's database and store,
+// with its options changed by mutate, which may be nil.
+func (w *world) service(t *testing.T, mutate func(*function.Options)) *function.Service {
+	t.Helper()
+	o := w.opts
+	if mutate != nil {
+		mutate(&o)
+	}
+	svc, err := function.NewService(o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return svc
 }
 
 // populate creates the organisation, its people and its apps.

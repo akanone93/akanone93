@@ -39,10 +39,14 @@ const (
 	KindSource Kind = "sources"
 	// KindModule holds built function modules (FN-005).
 	KindModule Kind = "modules"
+	// KindLinked holds the modules that link a plugin's device-placed
+	// functions, keyed by the digest of the functions and versions they
+	// link (FN-051).
+	KindLinked Kind = "linked"
 )
 
 // kinds lists the valid kinds, for validation and for tests.
-var kinds = []Kind{KindBundle, KindDelta, KindAsset, KindExport, KindSource, KindModule}
+var kinds = []Kind{KindBundle, KindDelta, KindAsset, KindExport, KindSource, KindModule, KindLinked}
 
 // hexDigest matches a lower-case SHA-256.
 var hexDigest = regexp.MustCompile(`^[0-9a-f]{64}$`)
