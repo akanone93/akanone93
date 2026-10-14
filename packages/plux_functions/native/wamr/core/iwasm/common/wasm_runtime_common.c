@@ -415,39 +415,19 @@ runtime_exception_handler(EXCEPTION_POINTERS *exce_info)
 }
 #endif /* end of BH_PLATFORM_WINDOWS */
 
-#ifdef BH_PLATFORM_WINDOWS
-static PVOID runtime_exception_handler_handle = NULL;
-static int32 runtime_exception_handler_ref_count = 0;
-static korp_mutex runtime_exception_handler_lock = NULL;
-#endif
-
 static bool
 runtime_signal_init()
 {
 #ifndef BH_PLATFORM_WINDOWS
     return os_thread_signal_init(runtime_signal_handler) == 0 ? true : false;
 #else
-    os_mutex_lock(&runtime_exception_handler_lock);
-
-    if (os_thread_signal_init() != 0) {
-        os_mutex_unlock(&runtime_exception_handler_lock);
+    if (os_thread_signal_init() != 0)
         return false;
-    }
 
-    if (runtime_exception_handler_ref_count == 0) {
-        runtime_exception_handler_handle =
-            AddVectoredExceptionHandler(1, runtime_exception_handler);
-    }
-
-    if (!runtime_exception_handler_handle) {
+    if (!AddVectoredExceptionHandler(1, runtime_exception_handler)) {
         os_thread_signal_destroy();
-        os_mutex_unlock(&runtime_exception_handler_lock);
         return false;
     }
-
-    runtime_exception_handler_ref_count++;
-
-    os_mutex_unlock(&runtime_exception_handler_lock);
 #endif
     return true;
 }
@@ -456,25 +436,7 @@ static void
 runtime_signal_destroy()
 {
 #ifdef BH_PLATFORM_WINDOWS
-    os_mutex_lock(&runtime_exception_handler_lock);
-
-    if (runtime_exception_handler_ref_count > 0) {
-        runtime_exception_handler_ref_count--;
-    }
-
-    if (runtime_exception_handler_ref_count == 0
-        && runtime_exception_handler_handle) {
-        if (RemoveVectoredExceptionHandler(runtime_exception_handler_handle)) {
-            runtime_exception_handler_handle = NULL;
-        }
-        else {
-            /* Keep the handle so future init/destroy cycles can retry remove.
-             * Clearing it here may leave a live callback registered forever. */
-            runtime_exception_handler_ref_count = 1;
-        }
-    }
-
-    os_mutex_unlock(&runtime_exception_handler_lock);
+    RemoveVectoredExceptionHandler(runtime_exception_handler);
 #endif
     os_thread_signal_destroy();
 }
@@ -620,7 +582,7 @@ fail1:
 static bool
 wasm_runtime_exec_env_check(WASMExecEnv *exec_env)
 {
-    return exec_env && exec_env->module_inst
+    return exec_env && exec_env->module_inst && exec_env->wasm_stack_size > 0
            && exec_env->wasm_stack.top_boundary
                   == exec_env->wasm_stack.bottom + exec_env->wasm_stack_size
            && exec_env->wasm_stack.top <= exec_env->wasm_stack.top_boundary;
@@ -1661,34 +1623,25 @@ wasm_runtime_get_max_mem(uint32 max_memory_pages, uint32 module_init_page_count,
 WASMModuleInstanceCommon *
 wasm_runtime_instantiate_internal(WASMModuleCommon *module,
                                   WASMModuleInstanceCommon *parent,
-                                  WASMExecEnv *exec_env_main,
-                                  const struct InstantiationArgs2 *args,
+                                  WASMExecEnv *exec_env_main, uint32 stack_size,
+                                  uint32 heap_size, uint32 max_memory_pages,
                                   char *error_buf, uint32 error_buf_size)
 {
 #if WASM_ENABLE_INTERP != 0
     if (module->module_type == Wasm_Module_Bytecode)
         return (WASMModuleInstanceCommon *)wasm_instantiate(
             (WASMModule *)module, (WASMModuleInstance *)parent, exec_env_main,
-            args, error_buf, error_buf_size);
+            stack_size, heap_size, max_memory_pages, error_buf, error_buf_size);
 #endif
 #if WASM_ENABLE_AOT != 0
     if (module->module_type == Wasm_Module_AoT)
         return (WASMModuleInstanceCommon *)aot_instantiate(
             (AOTModule *)module, (AOTModuleInstance *)parent, exec_env_main,
-            args, error_buf, error_buf_size);
+            stack_size, heap_size, max_memory_pages, error_buf, error_buf_size);
 #endif
     set_error_buf(error_buf, error_buf_size,
                   "Instantiate module failed, invalid module type");
     return NULL;
-}
-
-void
-wasm_runtime_instantiation_args_set_defaults(struct InstantiationArgs2 *args)
-{
-    memset(args, 0, sizeof(*args));
-#if WASM_ENABLE_LIBC_WASI != 0
-    wasi_args_set_defaults(&args->wasi);
-#endif
 }
 
 WASMModuleInstanceCommon *
@@ -1696,13 +1649,15 @@ wasm_runtime_instantiate(WASMModuleCommon *module, uint32 stack_size,
                          uint32 heap_size, char *error_buf,
                          uint32 error_buf_size)
 {
-    struct InstantiationArgs2 args;
-    wasm_runtime_instantiation_args_set_defaults(&args);
-    wasm_runtime_instantiation_args_set_default_stack_size(&args, stack_size);
-    wasm_runtime_instantiation_args_set_host_managed_heap_size(&args,
-                                                               heap_size);
-    return wasm_runtime_instantiate_internal(module, NULL, NULL, &args,
-                                             error_buf, error_buf_size);
+    return wasm_runtime_instantiate_internal(module, NULL, NULL, stack_size,
+                                             heap_size, 0, error_buf,
+                                             error_buf_size);
+}
+
+static void
+instantiation_args_set_defaults(struct InstantiationArgs2 *args)
+{
+    memset(args, 0, sizeof(*args));
 }
 
 WASMModuleInstanceCommon *
@@ -1711,7 +1666,7 @@ wasm_runtime_instantiate_ex(WASMModuleCommon *module,
                             uint32 error_buf_size)
 {
     struct InstantiationArgs2 v2;
-    wasm_runtime_instantiation_args_set_defaults(&v2);
+    instantiation_args_set_defaults(&v2);
     v2.v1 = *args;
     return wasm_runtime_instantiate_ex2(module, &v2, error_buf, error_buf_size);
 }
@@ -1723,7 +1678,7 @@ wasm_runtime_instantiation_args_create(struct InstantiationArgs2 **p)
     if (args == NULL) {
         return false;
     }
-    wasm_runtime_instantiation_args_set_defaults(args);
+    instantiation_args_set_defaults(args);
     *p = args;
     return true;
 }
@@ -1755,98 +1710,15 @@ wasm_runtime_instantiation_args_set_max_memory_pages(
     p->v1.max_memory_pages = v;
 }
 
-void
-wasm_runtime_instantiation_args_set_custom_data(struct InstantiationArgs2 *p,
-                                                void *custom_data)
-{
-    p->custom_data = custom_data;
-}
-
-#if WASM_ENABLE_LIBC_WASI != 0
-void
-wasm_runtime_instantiation_args_set_wasi_arg(struct InstantiationArgs2 *p,
-                                             char *argv[], int argc)
-{
-    WASIArguments *wasi_args = &p->wasi;
-
-    wasi_args->argv = argv;
-    wasi_args->argc = (uint32)argc;
-    wasi_args->set_by_user = true;
-}
-
-void
-wasm_runtime_instantiation_args_set_wasi_env(struct InstantiationArgs2 *p,
-                                             const char *env[],
-                                             uint32 env_count)
-{
-    WASIArguments *wasi_args = &p->wasi;
-
-    wasi_args->env = env;
-    wasi_args->env_count = env_count;
-    wasi_args->set_by_user = true;
-}
-
-void
-wasm_runtime_instantiation_args_set_wasi_dir(struct InstantiationArgs2 *p,
-                                             const char *dir_list[],
-                                             uint32 dir_count,
-                                             const char *map_dir_list[],
-                                             uint32 map_dir_count)
-{
-    WASIArguments *wasi_args = &p->wasi;
-
-    wasi_args->dir_list = dir_list;
-    wasi_args->dir_count = dir_count;
-    wasi_args->map_dir_list = map_dir_list;
-    wasi_args->map_dir_count = map_dir_count;
-    wasi_args->set_by_user = true;
-}
-
-void
-wasm_runtime_instantiation_args_set_wasi_stdio(struct InstantiationArgs2 *p,
-                                               int64 stdinfd, int64 stdoutfd,
-                                               int64 stderrfd)
-{
-    WASIArguments *wasi_args = &p->wasi;
-
-    wasi_args->stdio[0] = (os_raw_file_handle)stdinfd;
-    wasi_args->stdio[1] = (os_raw_file_handle)stdoutfd;
-    wasi_args->stdio[2] = (os_raw_file_handle)stderrfd;
-    wasi_args->set_by_user = true;
-}
-
-void
-wasm_runtime_instantiation_args_set_wasi_addr_pool(struct InstantiationArgs2 *p,
-                                                   const char *addr_pool[],
-                                                   uint32 addr_pool_size)
-{
-    WASIArguments *wasi_args = &p->wasi;
-
-    wasi_args->addr_pool = addr_pool;
-    wasi_args->addr_count = addr_pool_size;
-    wasi_args->set_by_user = true;
-}
-
-void
-wasm_runtime_instantiation_args_set_wasi_ns_lookup_pool(
-    struct InstantiationArgs2 *p, const char *ns_lookup_pool[],
-    uint32 ns_lookup_pool_size)
-{
-    WASIArguments *wasi_args = &p->wasi;
-
-    wasi_args->ns_lookup_pool = ns_lookup_pool;
-    wasi_args->ns_lookup_count = ns_lookup_pool_size;
-    wasi_args->set_by_user = true;
-}
-#endif /* WASM_ENABLE_LIBC_WASI != 0 */
-
 WASMModuleInstanceCommon *
 wasm_runtime_instantiate_ex2(WASMModuleCommon *module,
                              const struct InstantiationArgs2 *args,
                              char *error_buf, uint32 error_buf_size)
 {
-    return wasm_runtime_instantiate_internal(module, NULL, NULL, args,
-                                             error_buf, error_buf_size);
+    return wasm_runtime_instantiate_internal(
+        module, NULL, NULL, args->v1.default_stack_size,
+        args->v1.host_managed_heap_size, args->v1.max_memory_pages, error_buf,
+        error_buf_size);
 }
 
 void
@@ -2036,25 +1908,21 @@ wasm_runtime_dump_module_mem_consumption(const WASMModuleCommon *module)
     }
 #endif
 
-    LOG_VERBOSE("WASM module memory consumption, total size: %u",
-                mem_conspn.total_size);
-    LOG_VERBOSE("    module struct size: %u", mem_conspn.module_struct_size);
-    LOG_VERBOSE("    types size: %u", mem_conspn.types_size);
-    LOG_VERBOSE("    imports size: %u", mem_conspn.imports_size);
-    LOG_VERBOSE("    funcs size: %u", mem_conspn.functions_size);
-    LOG_VERBOSE("    tables size: %u", mem_conspn.tables_size);
-    LOG_VERBOSE("    memories size: %u", mem_conspn.memories_size);
-    LOG_VERBOSE("    globals size: %u", mem_conspn.globals_size);
-    LOG_VERBOSE("    exports size: %u", mem_conspn.exports_size);
-    LOG_VERBOSE("    table segs size: %u", mem_conspn.table_segs_size);
-    LOG_VERBOSE("    data segs size: %u", mem_conspn.data_segs_size);
-    LOG_VERBOSE("    const strings size: %u", mem_conspn.const_strs_size);
-#if WASM_ENABLE_LOAD_CUSTOM_SECTION != 0
-    LOG_VERBOSE("    custom sections size: %u",
-                mem_conspn.custom_sections_size);
-#endif
+    os_printf("WASM module memory consumption, total size: %u\n",
+              mem_conspn.total_size);
+    os_printf("    module struct size: %u\n", mem_conspn.module_struct_size);
+    os_printf("    types size: %u\n", mem_conspn.types_size);
+    os_printf("    imports size: %u\n", mem_conspn.imports_size);
+    os_printf("    funcs size: %u\n", mem_conspn.functions_size);
+    os_printf("    tables size: %u\n", mem_conspn.tables_size);
+    os_printf("    memories size: %u\n", mem_conspn.memories_size);
+    os_printf("    globals size: %u\n", mem_conspn.globals_size);
+    os_printf("    exports size: %u\n", mem_conspn.exports_size);
+    os_printf("    table segs size: %u\n", mem_conspn.table_segs_size);
+    os_printf("    data segs size: %u\n", mem_conspn.data_segs_size);
+    os_printf("    const strings size: %u\n", mem_conspn.const_strs_size);
 #if WASM_ENABLE_AOT != 0
-    LOG_VERBOSE("    aot code size: %u", mem_conspn.aot_code_size);
+    os_printf("    aot code size: %u\n", mem_conspn.aot_code_size);
 #endif
 }
 
@@ -2077,16 +1945,16 @@ wasm_runtime_dump_module_inst_mem_consumption(
     }
 #endif
 
-    LOG_VERBOSE("WASM module inst memory consumption, total size: %lu",
-                mem_conspn.total_size);
-    LOG_VERBOSE("    module inst struct size: %u",
-                mem_conspn.module_inst_struct_size);
-    LOG_VERBOSE("    memories size: %lu", mem_conspn.memories_size);
-    LOG_VERBOSE("        app heap size: %u", mem_conspn.app_heap_size);
-    LOG_VERBOSE("    tables size: %u", mem_conspn.tables_size);
-    LOG_VERBOSE("    functions size: %u", mem_conspn.functions_size);
-    LOG_VERBOSE("    globals size: %u", mem_conspn.globals_size);
-    LOG_VERBOSE("    exports size: %u", mem_conspn.exports_size);
+    os_printf("WASM module inst memory consumption, total size: %lu\n",
+              mem_conspn.total_size);
+    os_printf("    module inst struct size: %u\n",
+              mem_conspn.module_inst_struct_size);
+    os_printf("    memories size: %lu\n", mem_conspn.memories_size);
+    os_printf("        app heap size: %u\n", mem_conspn.app_heap_size);
+    os_printf("    tables size: %u\n", mem_conspn.tables_size);
+    os_printf("    functions size: %u\n", mem_conspn.functions_size);
+    os_printf("    globals size: %u\n", mem_conspn.globals_size);
+    os_printf("    exports size: %u\n", mem_conspn.exports_size);
 }
 
 void
@@ -2095,14 +1963,14 @@ wasm_runtime_dump_exec_env_mem_consumption(const WASMExecEnv *exec_env)
     uint32 total_size =
         offsetof(WASMExecEnv, wasm_stack_u.bottom) + exec_env->wasm_stack_size;
 
-    LOG_VERBOSE("Exec env memory consumption, total size: %u", total_size);
-    LOG_VERBOSE("    exec env struct size: %u",
-                offsetof(WASMExecEnv, wasm_stack_u.bottom));
+    os_printf("Exec env memory consumption, total size: %u\n", total_size);
+    os_printf("    exec env struct size: %u\n",
+              offsetof(WASMExecEnv, wasm_stack_u.bottom));
 #if WASM_ENABLE_INTERP != 0 && WASM_ENABLE_FAST_INTERP == 0
-    LOG_VERBOSE("        block addr cache size: %u",
-                sizeof(exec_env->block_addr_cache));
+    os_printf("        block addr cache size: %u\n",
+              sizeof(exec_env->block_addr_cache));
 #endif
-    LOG_VERBOSE("    stack size: %u", exec_env->wasm_stack_size);
+    os_printf("    stack size: %u\n", exec_env->wasm_stack_size);
 }
 
 uint32
@@ -2163,20 +2031,20 @@ wasm_runtime_dump_mem_consumption(WASMExecEnv *exec_env)
                  + exec_env->wasm_stack_size + module_mem_consps.total_size
                  + module_inst_mem_consps.total_size;
 
-    LOG_VERBOSE("Memory consumption summary (bytes):");
+    os_printf("\nMemory consumption summary (bytes):\n");
     wasm_runtime_dump_module_mem_consumption(module_common);
     wasm_runtime_dump_module_inst_mem_consumption(module_inst_common);
     wasm_runtime_dump_exec_env_mem_consumption(exec_env);
-    LOG_VERBOSE("Total memory consumption of module, module inst and "
-                "exec env: %" PRIu64,
-                total_size);
-    LOG_VERBOSE("Total interpreter stack used: %u",
-                exec_env->max_wasm_stack_used);
+    os_printf("\nTotal memory consumption of module, module inst and "
+              "exec env: %" PRIu64 "\n",
+              total_size);
+    os_printf("Total interpreter stack used: %u\n",
+              exec_env->max_wasm_stack_used);
 
     if (max_aux_stack_used != (uint32)-1)
-        LOG_VERBOSE("Total auxiliary stack used: %u", max_aux_stack_used);
+        os_printf("Total auxiliary stack used: %u\n", max_aux_stack_used);
     else
-        LOG_VERBOSE("Total aux stack used: no enough info to profile");
+        os_printf("Total aux stack used: no enough info to profile\n");
 
     /*
      * Report the native stack usage estimation.
@@ -2188,13 +2056,13 @@ wasm_runtime_dump_mem_consumption(WASMExecEnv *exec_env)
      * It doesn't cover host func implementations, signal handlers, etc.
      */
     if (exec_env->native_stack_top_min != (void *)UINTPTR_MAX)
-        LOG_VERBOSE("Native stack left: %zd",
-                    exec_env->native_stack_top_min
-                        - exec_env->native_stack_boundary);
+        os_printf("Native stack left: %zd\n",
+                  exec_env->native_stack_top_min
+                      - exec_env->native_stack_boundary);
     else
-        LOG_VERBOSE("Native stack left: no enough info to profile");
+        os_printf("Native stack left: no enough info to profile\n");
 
-    LOG_VERBOSE("Total app heap used: %u", app_heap_peak_size);
+    os_printf("Total app heap used: %u\n", app_heap_peak_size);
 }
 #endif /* end of (WASM_ENABLE_MEMORY_PROFILING != 0) \
                  || (WASM_ENABLE_MEMORY_TRACING != 0) */
@@ -3570,21 +3438,6 @@ wasm_runtime_module_dup_data(WASMModuleInstanceCommon *module_inst,
 
 #if WASM_ENABLE_LIBC_WASI != 0
 
-void
-wasi_args_set_defaults(WASIArguments *args)
-{
-    memset(args, 0, sizeof(*args));
-#if WASM_ENABLE_UVWASI == 0
-    args->stdio[0] = os_invalid_raw_handle();
-    args->stdio[1] = os_invalid_raw_handle();
-    args->stdio[2] = os_invalid_raw_handle();
-#else
-    args->stdio[0] = os_get_invalid_handle();
-    args->stdio[1] = os_get_invalid_handle();
-    args->stdio[2] = os_get_invalid_handle();
-#endif /* WASM_ENABLE_UVWASI == 0 */
-}
-
 static WASIArguments *
 get_wasi_args_from_module(wasm_module_t module)
 {
@@ -3624,7 +3477,6 @@ wasm_runtime_set_wasi_args_ex(WASMModuleCommon *module, const char *dir_list[],
     wasi_args->stdio[0] = (os_raw_file_handle)stdinfd;
     wasi_args->stdio[1] = (os_raw_file_handle)stdoutfd;
     wasi_args->stdio[2] = (os_raw_file_handle)stderrfd;
-    wasi_args->set_by_user = true;
 
 #if WASM_ENABLE_MULTI_MODULE != 0
 #if WASM_ENABLE_INTERP != 0
@@ -3655,7 +3507,6 @@ wasm_runtime_set_wasi_addr_pool(wasm_module_t module, const char *addr_pool[],
     if (wasi_args) {
         wasi_args->addr_pool = addr_pool;
         wasi_args->addr_count = addr_pool_size;
-        wasi_args->set_by_user = true;
     }
 }
 
@@ -3669,7 +3520,6 @@ wasm_runtime_set_wasi_ns_lookup_pool(wasm_module_t module,
     if (wasi_args) {
         wasi_args->ns_lookup_pool = ns_lookup_pool;
         wasi_args->ns_lookup_count = ns_lookup_pool_size;
-        wasi_args->set_by_user = true;
     }
 }
 
@@ -3947,8 +3797,7 @@ wasm_runtime_init_wasi(WASMModuleInstanceCommon *module_inst,
 
     /* addr_pool(textual) -> apool */
     for (i = 0; i < addr_pool_size; i++) {
-        char *cp, *address, *mask, *nextptr, *endptr;
-        long mask_val;
+        char *cp, *address, *mask;
         bool ret = false;
 
         cp = bh_strdup(addr_pool[i]);
@@ -3958,35 +3807,18 @@ wasm_runtime_init_wasi(WASMModuleInstanceCommon *module_inst,
             goto fail;
         }
 
-        address = bh_strtok_r(cp, "/", &nextptr);
-        mask = bh_strtok_r(NULL, "/", &nextptr);
+        address = strtok(cp, "/");
+        mask = strtok(NULL, "/");
 
         if (!mask) {
             snprintf(error_buf, error_buf_size,
                      "Invalid address pool entry: %s, must be in the format of "
                      "ADDRESS/MASK",
                      addr_pool[i]);
-            wasm_runtime_free(cp);
             goto fail;
         }
 
-        errno = 0;
-        mask_val = strtol(mask, &endptr, 10);
-
-        if (mask == endptr || *endptr != '\0') {
-            snprintf(error_buf, error_buf_size,
-                     "Invalid address pool entry: mask must be a number");
-            wasm_runtime_free(cp);
-            goto fail;
-        }
-        if (errno != 0 || mask_val < 0) {
-            snprintf(error_buf, error_buf_size,
-                     "Init wasi environment failed: invalid mask number");
-            wasm_runtime_free(cp);
-            goto fail;
-        }
-
-        ret = addr_pool_insert(apool, address, (uint8)mask_val);
+        ret = addr_pool_insert(apool, address, (uint8)atoi(mask));
         wasm_runtime_free(cp);
         if (!ret) {
             set_error_buf(error_buf, error_buf_size,
@@ -7819,8 +7651,9 @@ delete_loading_module:
 bool
 wasm_runtime_sub_module_instantiate(WASMModuleCommon *module,
                                     WASMModuleInstanceCommon *module_inst,
-                                    const struct InstantiationArgs2 *args,
-                                    char *error_buf, uint32 error_buf_size)
+                                    uint32 stack_size, uint32 heap_size,
+                                    uint32 max_memory_pages, char *error_buf,
+                                    uint32 error_buf_size)
 {
     bh_list *sub_module_inst_list = NULL;
     WASMRegisteredModule *sub_module_list_node = NULL;
@@ -7848,7 +7681,8 @@ wasm_runtime_sub_module_instantiate(WASMModuleCommon *module,
         WASMModuleCommon *sub_module = sub_module_list_node->module;
         WASMModuleInstanceCommon *sub_module_inst = NULL;
         sub_module_inst = wasm_runtime_instantiate_internal(
-            sub_module, NULL, NULL, args, error_buf, error_buf_size);
+            sub_module, NULL, NULL, stack_size, heap_size, max_memory_pages,
+            error_buf, error_buf_size);
         if (!sub_module_inst) {
             LOG_DEBUG("instantiate %s failed",
                       sub_module_list_node->module_name);
@@ -8023,16 +7857,6 @@ wasm_runtime_get_module_name(wasm_module_t module)
     return "";
 }
 
-#if defined(__GNUC__) || defined(__clang__)
-/* In few places we use addresses of local variables for estimating used stack
-   size. This logic conficts with ASAN, since it uses fake stack for local
-   variables storage.
-*/
-#define NO_SANITIZE_ADDRESS __attribute__((no_sanitize_address))
-#else
-#define NO_SANITIZE_ADDRESS
-#endif
-
 /*
  * wasm_runtime_detect_native_stack_overflow
  *
@@ -8042,7 +7866,6 @@ wasm_runtime_get_module_name(wasm_module_t module)
  *
  * - update native_stack_top_min.
  */
-NO_SANITIZE_ADDRESS
 bool
 wasm_runtime_detect_native_stack_overflow(WASMExecEnv *exec_env)
 {
@@ -8065,7 +7888,6 @@ wasm_runtime_detect_native_stack_overflow(WASMExecEnv *exec_env)
     return true;
 }
 
-NO_SANITIZE_ADDRESS
 bool
 wasm_runtime_detect_native_stack_overflow_size(WASMExecEnv *exec_env,
                                                uint32 requested_size)
@@ -8159,18 +7981,3 @@ wasm_runtime_check_and_update_last_used_shared_heap(
     return false;
 }
 #endif
-
-WASMModuleInstanceExtraCommon *
-GetModuleInstanceExtraCommon(WASMModuleInstance *module_inst)
-{
-#if WASM_ENABLE_AOT != 0
-    if (module_inst->module_type == Wasm_Module_AoT) {
-        return &((AOTModuleInstanceExtra *)module_inst->e)->common;
-    }
-    else {
-        return &module_inst->e->common;
-    }
-#else
-    return &module_inst->e->common;
-#endif
-}

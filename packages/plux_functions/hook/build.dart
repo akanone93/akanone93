@@ -149,6 +149,9 @@ void main(List<String> args) async {
       ],
       libraries: [
         if (os == OS.linux) ...['pthread', 'm'],
+        // WAMR's Android platform layer logs through liblog
+        // (__android_log_vprint in platform_init.c).
+        if (os == OS.android) 'log',
       ],
       optimizationLevel: OptimizationLevel.o3,
     ).run(input: input, output: output);

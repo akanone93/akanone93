@@ -423,22 +423,6 @@ WASM_RUNTIME_API_EXTERN void *
 wasm_runtime_malloc(unsigned int size);
 
 /**
- * Allocate memory with specified alignment from runtime memory environment.
- * This function mimics aligned_alloc() behavior in WebAssembly context.
- *
- * Note: Only supported in POOL memory mode. Other modes will return NULL.
- * Note: Allocated memory cannot be reallocated with wasm_runtime_realloc().
- *
- * @param size bytes need to allocate (must be multiple of alignment)
- * @param alignment alignment requirement (must be power of 2, >= 8, <= page
- * size)
- *
- * @return the pointer to aligned memory allocated, or NULL on failure
- */
-WASM_RUNTIME_API_EXTERN void *
-wasm_runtime_aligned_alloc(unsigned int size, unsigned int alignment);
-
-/**
  * Reallocate memory from runtime memory environment
  *
  * @param ptr the original memory
@@ -779,42 +763,6 @@ wasm_runtime_instantiation_args_set_host_managed_heap_size(
 WASM_RUNTIME_API_EXTERN void
 wasm_runtime_instantiation_args_set_max_memory_pages(
     struct InstantiationArgs2 *p, uint32_t v);
-
-WASM_RUNTIME_API_EXTERN void
-wasm_runtime_instantiation_args_set_custom_data(struct InstantiationArgs2 *p,
-                                                void *custom_data);
-
-WASM_RUNTIME_API_EXTERN void
-wasm_runtime_instantiation_args_set_wasi_arg(struct InstantiationArgs2 *p,
-                                             char *argv[], int argc);
-
-WASM_RUNTIME_API_EXTERN void
-wasm_runtime_instantiation_args_set_wasi_env(struct InstantiationArgs2 *p,
-                                             const char *env[],
-                                             uint32_t env_count);
-
-WASM_RUNTIME_API_EXTERN void
-wasm_runtime_instantiation_args_set_wasi_dir(struct InstantiationArgs2 *p,
-                                             const char *dir_list[],
-                                             uint32_t dir_count,
-                                             const char *map_dir_list[],
-                                             uint32_t map_dir_count);
-
-WASM_RUNTIME_API_EXTERN void
-wasm_runtime_instantiation_args_set_wasi_stdio(struct InstantiationArgs2 *p,
-                                               int64_t stdinfd,
-                                               int64_t stdoutfd,
-                                               int64_t stderrfd);
-
-WASM_RUNTIME_API_EXTERN void
-wasm_runtime_instantiation_args_set_wasi_addr_pool(struct InstantiationArgs2 *p,
-                                                   const char *addr_pool[],
-                                                   uint32_t addr_pool_size);
-
-WASM_RUNTIME_API_EXTERN void
-wasm_runtime_instantiation_args_set_wasi_ns_lookup_pool(
-    struct InstantiationArgs2 *p, const char *ns_lookup_pool[],
-    uint32_t ns_lookup_pool_size);
 
 /**
  * Instantiate a WASM module, with specified instantiation arguments
@@ -1578,14 +1526,6 @@ wasm_runtime_get_native_addr_range(wasm_module_inst_t module_inst,
 /**
  * Get the number of import items for a WASM module
  *
- * Typical usage scenario:
- * Combine this function with wasm_runtime_get_import_count() to traverse
- * all import items in a module. Use import_type.kind to filter and identify
- * different types of import items.
- *
- * Example usage (as wasm_runtime_for_each_import_func() in
- * samples/import-func-callback)
- *
  * @param module the WASM module
  *
  * @return the number of imports (zero for none), or -1 for failure
@@ -1595,14 +1535,6 @@ wasm_runtime_get_import_count(const wasm_module_t module);
 
 /**
  * Get information about a specific WASM module import
- *
- * Typical usage scenario:
- * Combine this function with wasm_runtime_get_import_count() to traverse
- * all import items in a module. Use import_type.kind to filter and identify
- * different types of import items.
- *
- * Example usage (as wasm_runtime_for_each_import_func() in
- * samples/import-func-callback)
  *
  * @param module the WASM module
  * @param import_index the desired import index
@@ -1792,15 +1724,11 @@ wasm_table_type_get_max_size(const wasm_table_type_t table_type);
  *               auto check its boundary before calling the native function.
  *               If it is followed by '~', the checked length of the pointer
  *               is gotten from the following parameter, if not, the checked
- *               length of the pointer is 1. The runtime will also convert
- *               the app pointer to a native pointer, thus there is no need
- *               to manually call `wasm_runtime_addr_app_to_native`.
+ *               length of the pointer is 1.
  *          '~': the parameter is the pointer's length with i32 type, and must
  *               follow after '*'
  *          '$': the parameter is a string (i32 in WASM), and runtime will
- *               auto check its boundary before calling the native function.
- *               Like '*', the runtime will also convert the app pointer to a
- *               native pointer.
+ *               auto check its boundary before calling the native function
  * @param n_native_symbols specifies the number of native symbols in the array
  *
  * @return true if success, false otherwise
@@ -2456,17 +2384,6 @@ wasm_runtime_chain_shared_heaps(wasm_shared_heap_t head,
  */
 wasm_shared_heap_t
 wasm_runtime_unchain_shared_heaps(wasm_shared_heap_t head, bool entire_chain);
-
-/**
- * Reset shared heap chain. For each shared heap in the chain, if it is a
- * pre-allocated shared heap, its memory region will be zeroed. For a
- * WAMR-managed shared heap, it will be destroyed and reinitialized.
- *
- * @param shared_heap The head of the shared heap chain.
- * @return true if success, false otherwise.
- */
-WASM_RUNTIME_API_EXTERN bool
-wasm_runtime_reset_shared_heap_chain(wasm_shared_heap_t shared_heap);
 
 /**
  * Attach a shared heap, it can be the head of shared heap chain, in that case,

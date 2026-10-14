@@ -13,6 +13,15 @@
 # The tree is the root of the upstream repository: it holds core/ and
 # LICENSE. Review the diff before committing. Only the files below are
 # copied; AOT, JIT, WASI libraries, sockets and files stay out (FN-052).
+#
+# The tree must be the upstream tag, commit
+# 0e47872fb4e57833dbeccf7c312a406fa2dac2bc, never a repackaged copy (a
+# crate or a fork carries other code under the same version number). Where
+# github.com is unreachable, the Go module proxy serves that commit's tree
+# byte for byte:
+#   https://proxy.golang.org/github.com/bytecodealliance/wasm-micro-runtime/@v/v0.0.0-20251014063036-0e47872fb4e5.zip
+# The CI job "Vendored WAMR matches upstream" checks the result against the
+# tag archive.
 set -eu
 
 TAG=WAMR-2.4.3

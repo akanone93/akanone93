@@ -84,7 +84,7 @@ SET_LINEAR_MEMORY_SIZE(WASMMemoryInstance *memory, uint64 size)
 #if WASM_ENABLE_SHARED_HEAP != 0
 bool
 is_app_addr_in_shared_heap(WASMModuleInstanceCommon *module_inst,
-                           bool is_memory64, uint64 app_offset, uint64 bytes);
+                           bool is_memory64, uint64 app_offset, uint32 bytes);
 
 WASMSharedHeap *
 wasm_runtime_create_shared_heap(SharedHeapInitArgs *init_args);
@@ -94,9 +94,6 @@ wasm_runtime_chain_shared_heaps(WASMSharedHeap *head, WASMSharedHeap *body);
 
 WASMSharedHeap *
 wasm_runtime_unchain_shared_heaps(WASMSharedHeap *head, bool entire_chain);
-
-bool
-wasm_runtime_reset_shared_heap_chain(WASMSharedHeap *shared_heap);
 
 bool
 wasm_runtime_attach_shared_heap(WASMModuleInstanceCommon *module_inst,

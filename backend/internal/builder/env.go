@@ -63,9 +63,10 @@ func buildEnv(getenv func(string) string, p envPaths) []string {
 	if p.RustupHome != "" {
 		env["RUSTUP_HOME"] = p.RustupHome
 	}
-	if t := getenv("RUSTUP_TOOLCHAIN"); t != "" {
-		env["RUSTUP_TOOLCHAIN"] = t
-	}
+	// rustup resolves `cargo` and `rustc` to the pinned toolchain whatever
+	// the host's default is; checkRustc still refuses any other (FN-001).
+	// A toolchain installed without rustup ignores the variable.
+	env["RUSTUP_TOOLCHAIN"] = RustVersion
 	out := make([]string, 0, len(env))
 	for k, v := range env {
 		out = append(out, k+"="+v)

@@ -85,12 +85,14 @@ reading behind each:
   mostly register allocation). Plan §2.3 measured 50 ms for an 82 KB Rust module, so a budget
   that included the compile would sit at the compile time of a small module with no margin for a
   larger one. `FN-023` says "first invocation after deploy"; the test reads it as the design
-  does, with the deploy's `Prepare` done, and reports the cold path beside it. Which reading
-  `FN-023` intends is the maintainer's to confirm. The cold path stays over 50 ms and is what a
+  does, with the deploy's `Prepare` done, and reports the cold path beside it; the maintainer
+  confirmed that reading (P7 plan §2.6 M9). The cold path stays over 50 ms and is what a
   replica that `Prepare` did not reach pays once, since the api role's call lands on one
   replica of the runner.
 - **Noise.** The p99 of 100 first-call samples is the slowest sample, and the host was shared.
-  The reference deployment's number replaces these.
+  CI's reference runner gates the budgets, the warm one on the median of five rounds (M10).
+
+> **Correction (2026-10-14).** The WAMR side of the comparison below ran on a vendored copy that came from a repackaged crate (`wamrx-sys` 0.3.0), not the upstream `WAMR-2.4.3` tag; CI's upstream check caught it and the engine was re-vendored from the tag (commit `0e47872f`). The comparison is to be repeated on the upstream engine, on the reference device (real-device checklist F2).
 
 ## WAMR 2.4.3 against `wasmi` on the host (D2)
 

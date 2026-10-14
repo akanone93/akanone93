@@ -29,6 +29,8 @@ static bh_list cluster_list_head;
 static bh_list *const cluster_list = &cluster_list_head;
 static korp_mutex cluster_list_lock;
 
+static korp_mutex _exception_lock;
+
 typedef void (*list_visitor)(void *, void *);
 
 static uint32 cluster_max_thread_num = CLUSTER_MAX_THREAD_NUM;
@@ -49,6 +51,10 @@ thread_manager_init()
         return false;
     if (os_mutex_init(&cluster_list_lock) != 0)
         return false;
+    if (os_mutex_init(&_exception_lock) != 0) {
+        os_mutex_destroy(&cluster_list_lock);
+        return false;
+    }
     return true;
 }
 
@@ -63,6 +69,7 @@ thread_manager_destroy()
         cluster = next;
     }
     wasm_cluster_cancel_all_callbacks();
+    os_mutex_destroy(&_exception_lock);
     os_mutex_destroy(&cluster_list_lock);
 }
 
@@ -494,20 +501,19 @@ wasm_cluster_spawn_exec_env(WASMExecEnv *exec_env)
     uint32 aux_stack_size;
     uint64 aux_stack_start;
     uint32 stack_size = 8192;
-    struct InstantiationArgs2 args;
 
     if (!module_inst || !(module = wasm_exec_env_get_module(exec_env))) {
         return NULL;
     }
 
-    wasm_runtime_instantiation_args_set_defaults(&args);
-    wasm_runtime_instantiation_args_set_default_stack_size(&args, stack_size);
-    wasm_runtime_instantiation_args_set_custom_data(
-        &args, wasm_runtime_get_custom_data(module_inst));
     if (!(new_module_inst = wasm_runtime_instantiate_internal(
-              module, module_inst, exec_env, &args, NULL, 0))) {
+              module, module_inst, exec_env, stack_size, 0, 0, NULL, 0))) {
         return NULL;
     }
+
+    /* Set custom_data to new module instance */
+    wasm_runtime_set_custom_data_internal(
+        new_module_inst, wasm_runtime_get_custom_data(module_inst));
 
     wasm_native_inherit_contexts(new_module_inst, module_inst);
 
@@ -1531,13 +1537,19 @@ wasm_cluster_is_thread_terminated(WASMExecEnv *exec_env)
 void
 exception_lock(WASMModuleInstance *module_inst)
 {
-    os_mutex_lock(&GetModuleInstanceExtraCommon(module_inst)->exception_lock);
+    /*
+     * Note: this lock could be per module instance if desirable.
+     * We can revisit on AOT version bump.
+     * It probably doesn't matter though because the exception handling
+     * logic should not be executed too frequently anyway.
+     */
+    os_mutex_lock(&_exception_lock);
 }
 
 void
 exception_unlock(WASMModuleInstance *module_inst)
 {
-    os_mutex_unlock(&GetModuleInstanceExtraCommon(module_inst)->exception_lock);
+    os_mutex_unlock(&_exception_lock);
 }
 
 void

@@ -162,73 +162,10 @@ runtime_malloc(uint64 size)
     return mem;
 }
 
-static void
-destroy_runtime_managed_shared_heap(WASMSharedHeap *heap)
-{
-    uint64 map_size;
-
-    mem_allocator_destroy(heap->heap_handle);
-    wasm_runtime_free(heap->heap_handle);
-    heap->heap_handle = NULL;
-
-#ifndef OS_ENABLE_HW_BOUND_CHECK
-    map_size = heap->size;
-#else
-    map_size = 8 * (uint64)BH_GB;
-#endif
-    wasm_munmap_linear_memory(heap->base_addr, heap->size, map_size);
-    heap->base_addr = NULL;
-}
-
-static bool
-create_runtime_managed_shared_heap(WASMSharedHeap *heap,
-                                   uint64 heap_struct_size)
-{
-    uint64 map_size;
-
-    heap->heap_handle = runtime_malloc(mem_allocator_get_heap_struct_size());
-    if (!heap->heap_handle) {
-        heap->base_addr = NULL;
-        return false;
-    }
-
-#ifndef OS_ENABLE_HW_BOUND_CHECK
-    map_size = heap->size;
-#else
-    /* Totally 8G is mapped, the opcode load/store address range is 0 to 8G:
-     *   ea = i + memarg.offset
-     * both i and memarg.offset are u32 in range 0 to 4G
-     * so the range of ea is 0 to 8G
-     */
-    map_size = 8 * (uint64)BH_GB;
-#endif
-
-    if (!(heap->base_addr = wasm_mmap_linear_memory(map_size, heap->size))) {
-        goto fail1;
-    }
-    if (!mem_allocator_create_with_struct_and_pool(
-            heap->heap_handle, heap_struct_size, heap->base_addr, heap->size)) {
-        LOG_WARNING("init share heap failed");
-        goto fail2;
-    }
-
-    LOG_VERBOSE("Create runtime managed shared heap %p with size %u",
-                heap->base_addr, (uint32)heap->size);
-    return true;
-
-fail2:
-    wasm_munmap_linear_memory(heap->base_addr, heap->size, map_size);
-fail1:
-    wasm_runtime_free(heap->heap_handle);
-    heap->heap_handle = NULL;
-    heap->base_addr = NULL;
-    return false;
-}
-
 WASMSharedHeap *
 wasm_runtime_create_shared_heap(SharedHeapInitArgs *init_args)
 {
-    uint64 heap_struct_size = sizeof(WASMSharedHeap);
+    uint64 heap_struct_size = sizeof(WASMSharedHeap), map_size;
     uint32 size = init_args->size;
     WASMSharedHeap *heap;
 
@@ -241,11 +178,6 @@ wasm_runtime_create_shared_heap(SharedHeapInitArgs *init_args)
     }
 
     size = align_uint(size, os_getpagesize());
-    if (size != init_args->size) {
-        LOG_WARNING("Shared heap size aligned from %u to %u", init_args->size,
-                    size);
-    }
-
     if (size > APP_HEAP_SIZE_MAX || size < APP_HEAP_SIZE_MIN) {
         LOG_WARNING("Invalid size of shared heap");
         goto fail2;
@@ -267,12 +199,31 @@ wasm_runtime_create_shared_heap(SharedHeapInitArgs *init_args)
 
         heap->heap_handle = NULL;
         heap->base_addr = init_args->pre_allocated_addr;
-        LOG_VERBOSE("Create preallocated shared heap %p with size %u",
-                    heap->base_addr, size);
     }
     else {
-        if (!create_runtime_managed_shared_heap(heap, heap_struct_size)) {
+        if (!(heap->heap_handle =
+                  runtime_malloc(mem_allocator_get_heap_struct_size()))) {
             goto fail2;
+        }
+
+#ifndef OS_ENABLE_HW_BOUND_CHECK
+        map_size = size;
+#else
+        /* Totally 8G is mapped, the opcode load/store address range is 0 to 8G:
+         *   ea = i + memarg.offset
+         * both i and memarg.offset are u32 in range 0 to 4G
+         * so the range of ea is 0 to 8G
+         */
+        map_size = 8 * (uint64)BH_GB;
+#endif
+
+        if (!(heap->base_addr = wasm_mmap_linear_memory(map_size, size))) {
+            goto fail3;
+        }
+        if (!mem_allocator_create_with_struct_and_pool(
+                heap->heap_handle, heap_struct_size, heap->base_addr, size)) {
+            LOG_WARNING("init share heap failed");
+            goto fail4;
         }
     }
 
@@ -287,6 +238,10 @@ wasm_runtime_create_shared_heap(SharedHeapInitArgs *init_args)
     os_mutex_unlock(&shared_heap_list_lock);
     return heap;
 
+fail4:
+    wasm_munmap_linear_memory(heap->base_addr, size, map_size);
+fail3:
+    wasm_runtime_free(heap->heap_handle);
 fail2:
     wasm_runtime_free(heap);
 fail1:
@@ -378,40 +333,6 @@ wasm_runtime_unchain_shared_heaps(WASMSharedHeap *head, bool entire_chain)
     }
     os_mutex_unlock(&shared_heap_list_lock);
     return cur;
-}
-
-bool
-wasm_runtime_reset_shared_heap_chain(WASMSharedHeap *shared_heap)
-{
-    uint64 heap_struct_size = sizeof(WASMSharedHeap);
-    WASMSharedHeap *cur;
-
-    if (!shared_heap) {
-        return false;
-    }
-
-    os_mutex_lock(&shared_heap_list_lock);
-    if (shared_heap->attached_count != 0) {
-        os_mutex_unlock(&shared_heap_list_lock);
-        return false;
-    }
-
-    for (cur = shared_heap; cur; cur = cur->chain_next) {
-        if (cur->heap_handle) {
-            destroy_runtime_managed_shared_heap(cur);
-
-            if (!create_runtime_managed_shared_heap(cur, heap_struct_size)) {
-                os_mutex_unlock(&shared_heap_list_lock);
-                return false;
-            }
-        }
-        else {
-            memset(cur->base_addr, 0, (size_t)cur->size);
-        }
-    }
-
-    os_mutex_unlock(&shared_heap_list_lock);
-    return true;
 }
 
 static uint8 *
@@ -588,8 +509,6 @@ wasm_runtime_attach_shared_heap_internal(WASMModuleInstanceCommon *module_inst,
     os_mutex_lock(&shared_heap_list_lock);
     shared_heap->attached_count++;
     os_mutex_unlock(&shared_heap_list_lock);
-    LOG_VERBOSE("Shared heap %p is attached to module instance %p", shared_heap,
-                module_inst);
     return true;
 }
 
@@ -651,7 +570,6 @@ wasm_runtime_detach_shared_heap_internal(WASMModuleInstanceCommon *module_inst)
         e->shared_heap_base_addr_adj = NULL;
     }
 #endif /* end of WASM_ENABLE_AOT != 0 */
-    LOG_VERBOSE("Shared heap is detached from module instance %p", module_inst);
 }
 
 void
@@ -691,12 +609,12 @@ wasm_runtime_get_shared_heap(WASMModuleInstanceCommon *module_inst_comm)
 
 bool
 is_app_addr_in_shared_heap(WASMModuleInstanceCommon *module_inst,
-                           bool is_memory64, uint64 app_offset, uint64 bytes)
+                           bool is_memory64, uint64 app_offset, uint32 bytes)
 {
     WASMSharedHeap *heap = get_shared_heap(module_inst), *cur;
     uint64 shared_heap_start, shared_heap_end;
 
-    if (!heap || bytes > APP_HEAP_SIZE_MAX) {
+    if (!heap) {
         goto fail;
     }
 
@@ -740,12 +658,12 @@ fail:
 
 static bool
 is_native_addr_in_shared_heap(WASMModuleInstanceCommon *module_inst,
-                              bool is_memory64, uint8 *addr, uint64 bytes)
+                              bool is_memory64, uint8 *addr, uint32 bytes)
 {
     WASMSharedHeap *cur, *heap = get_shared_heap(module_inst);
     uintptr_t base_addr, addr_int, end_addr;
 
-    if (!heap || bytes > APP_HEAP_SIZE_MAX) {
+    if (!heap) {
         goto fail;
     }
 
@@ -801,9 +719,10 @@ wasm_runtime_shared_heap_malloc(WASMModuleInstanceCommon *module_inst,
         *p_native_addr = native_addr;
     }
 
-    return (memory->is_memory64 ? shared_heap->start_off_mem64
-                                : shared_heap->start_off_mem32)
-           + (uintptr_t)((uint8 *)native_addr - shared_heap->base_addr);
+    return memory->is_memory64
+               ? shared_heap->start_off_mem64
+               : shared_heap->start_off_mem32
+                     + ((uint8 *)native_addr - shared_heap->base_addr);
 }
 
 void
@@ -904,7 +823,14 @@ destroy_shared_heaps()
         cur = heap;
         heap = heap->next;
         if (cur->heap_handle) {
-            destroy_runtime_managed_shared_heap(cur);
+            mem_allocator_destroy(cur->heap_handle);
+            wasm_runtime_free(cur->heap_handle);
+#ifndef OS_ENABLE_HW_BOUND_CHECK
+            map_size = cur->size;
+#else
+            map_size = 8 * (uint64)BH_GB;
+#endif
+            wasm_munmap_linear_memory(cur->base_addr, cur->size, map_size);
         }
         wasm_runtime_free(cur);
     }
@@ -1030,24 +956,6 @@ wasm_runtime_free_internal(void *ptr)
     }
 }
 
-static inline void *
-wasm_runtime_aligned_alloc_internal(unsigned int size, unsigned int alignment)
-{
-    if (memory_mode == MEMORY_MODE_UNKNOWN) {
-        LOG_ERROR("wasm_runtime_aligned_alloc failed: memory hasn't been "
-                  "initialized.\n");
-        return NULL;
-    }
-
-    if (memory_mode != MEMORY_MODE_POOL) {
-        LOG_ERROR("wasm_runtime_aligned_alloc failed: only supported in POOL "
-                  "memory mode.\n");
-        return NULL;
-    }
-
-    return mem_allocator_malloc_aligned(pool_allocator, size, alignment);
-}
-
 void *
 wasm_runtime_malloc(unsigned int size)
 {
@@ -1068,35 +976,6 @@ wasm_runtime_malloc(unsigned int size)
 #endif
 
     return wasm_runtime_malloc_internal(size);
-}
-
-void *
-wasm_runtime_aligned_alloc(unsigned int size, unsigned int alignment)
-{
-    if (alignment == 0) {
-        LOG_WARNING(
-            "warning: wasm_runtime_aligned_alloc with zero alignment\n");
-        return NULL;
-    }
-
-    if (size == 0) {
-        LOG_WARNING("warning: wasm_runtime_aligned_alloc with size zero\n");
-        /* Allocate at least alignment bytes (smallest multiple of alignment) */
-        size = alignment;
-#if BH_ENABLE_GC_VERIFY != 0
-        exit(-1);
-#endif
-    }
-
-#if WASM_ENABLE_FUZZ_TEST != 0
-    if (size >= WASM_MEM_ALLOC_MAX_SIZE) {
-        LOG_WARNING(
-            "warning: wasm_runtime_aligned_alloc with too large size\n");
-        return NULL;
-    }
-#endif
-
-    return wasm_runtime_aligned_alloc_internal(size, alignment);
 }
 
 void *

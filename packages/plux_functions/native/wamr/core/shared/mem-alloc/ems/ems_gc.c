@@ -6,9 +6,7 @@
 #include "ems_gc.h"
 #include "ems_gc_internal.h"
 
-#ifndef GB // Some platforms define already, causing build warnings.
 #define GB (1 << 30UL)
-#endif
 
 #define MARK_NODE_OBJ_CNT 256
 
@@ -308,12 +306,8 @@ reclaim_instance_heap(gc_heap_t *heap)
         return GC_SUCCESS;
     ret = gct_vm_begin_rootset_enumeration(heap->cluster, heap);
 #endif
-    if (!ret) {
-        if (heap->root_set) {
-            rollback_mark(heap);
-        }
+    if (!ret)
         return GC_ERROR;
-    }
 
 #if BH_ENABLE_GC_VERIFY != 0
     /* no matter whether the enumeration is successful or not, the data

@@ -400,7 +400,8 @@ check_array_type(const WASMModule *module, uint32 type_index, char *error_buf,
                           error_buf_size)) {
         return false;
     }
-    if (module->types[type_index]->type_flag != WASM_TYPE_ARRAY) {
+    if (module->types[type_index] == NULL
+        || module->types[type_index]->type_flag != WASM_TYPE_ARRAY) {
         set_error_buf(error_buf, error_buf_size, "unknown array type");
         return false;
     }
@@ -423,7 +424,8 @@ check_function_type(const WASMModule *module, uint32 type_index,
     }
 
 #if WASM_ENABLE_GC != 0
-    if (module->types[type_index]->type_flag != WASM_TYPE_FUNC) {
+    if (module->types[type_index] == NULL
+        || module->types[type_index]->type_flag != WASM_TYPE_FUNC) {
         set_error_buf(error_buf, error_buf_size, "unknown function type");
         return false;
     }
@@ -701,7 +703,7 @@ destroy_init_expr(WASMModule *module, InitializerExpression *expr)
 #endif
 
 #if WASM_ENABLE_EXTENDED_CONST_EXPR != 0
-    /* free left expr and right exprs for binary operand */
+    // free left expr and right exprs for binary oprand
     if (!is_expr_binary_op(expr->init_expr_type)) {
         return;
     }
@@ -737,7 +739,7 @@ load_init_expr(WASMModule *module, const uint8 **p_buf, const uint8 *buf_end,
     uint8 flag, *p_float;
     uint32 i;
     ConstExprContext const_expr_ctx = { 0 };
-    WASMValue cur_value = { 0 };
+    WASMValue cur_value;
 #if WASM_ENABLE_GC != 0
     uint32 opcode1, type_idx;
     uint8 opcode;
@@ -872,8 +874,7 @@ load_init_expr(WASMModule *module, const uint8 **p_buf, const uint8 *buf_end,
             {
 
                 InitializerExpression *l_expr, *r_expr;
-                WASMValue l_value = { 0 };
-                WASMValue r_value = { 0 };
+                WASMValue l_value, r_value;
                 uint8 l_flag, r_flag;
                 uint8 value_type;
 
@@ -1004,12 +1005,6 @@ load_init_expr(WASMModule *module, const uint8 **p_buf, const uint8 *buf_end,
                 uint8 type1;
                 CHECK_BUF(p, p_end, 1);
                 type1 = read_uint8(p);
-                if (type1 != VALUE_TYPE_FUNCREF
-                    && type1 != VALUE_TYPE_EXTERNREF) {
-                    set_error_buf(error_buf, error_buf_size,
-                                  "invalid reference type");
-                    goto fail;
-                }
                 cur_value.ref_index = NULL_REF;
                 if (!push_const_expr_stack(&const_expr_ctx, flag, type1,
                                            &cur_value,
@@ -1262,8 +1257,9 @@ load_init_expr(WASMModule *module, const uint8 **p_buf, const uint8 *buf_end,
                                               error_buf_size)) {
                             goto fail;
                         }
-                        if (module->types[type_idx]->type_flag
-                            != WASM_TYPE_STRUCT) {
+                        if (module->types[type_idx] == NULL
+                            || module->types[type_idx]->type_flag
+                                   != WASM_TYPE_STRUCT) {
                             set_error_buf(error_buf, error_buf_size,
                                           "unknown struct type");
                             goto fail;
@@ -1400,7 +1396,7 @@ load_init_expr(WASMModule *module, const uint8 **p_buf, const uint8 *buf_end,
                         }
                         else {
                             /* WASM_OP_ARRAY_NEW_DEFAULT */
-                            WASMValue len_val = { 0 };
+                            WASMValue len_val;
                             uint32 len;
 
                             /* POP(i32) */
@@ -1806,11 +1802,6 @@ resolve_func_type(const uint8 **p_buf, const uint8 *buf_end, WASMModule *module,
         return false;
     }
     if (ref_type_map_count > 0) {
-        if (ref_type_map_count > UINT16_MAX) {
-            set_error_buf(error_buf, error_buf_size,
-                          "ref type count too large");
-            return false;
-        }
         total_size = sizeof(WASMRefTypeMap) * (uint64)ref_type_map_count;
         if (!(type->ref_type_maps =
                   loader_malloc(total_size, error_buf, error_buf_size))) {
@@ -1927,11 +1918,6 @@ resolve_struct_type(const uint8 **p_buf, const uint8 *buf_end,
         if (need_ref_type_map)
             ref_type_map_count++;
 
-        if (wasm_is_reftype_anyref(ref_type.ref_type)) {
-            LOG_ERROR("Not support using anyref in struct fields");
-            return false;
-        }
-
         if (wasm_is_type_reftype(ref_type.ref_type))
             ref_field_count++;
 
@@ -1955,11 +1941,6 @@ resolve_struct_type(const uint8 **p_buf, const uint8 *buf_end,
         return false;
     }
     if (ref_type_map_count > 0) {
-        if (ref_type_map_count > UINT16_MAX) {
-            set_error_buf(error_buf, error_buf_size,
-                          "ref type count too large");
-            return false;
-        }
         total_size = sizeof(WASMRefTypeMap) * (uint64)ref_type_map_count;
         if (!(type->ref_type_maps =
                   loader_malloc(total_size, error_buf, error_buf_size))) {
@@ -1981,10 +1962,6 @@ resolve_struct_type(const uint8 **p_buf, const uint8 *buf_end,
         if (!resolve_value_type(&p, p_end, module, type_count,
                                 &need_ref_type_map, &ref_type, true, error_buf,
                                 error_buf_size)) {
-            goto fail;
-        }
-        if (!is_valid_field_type(ref_type.ref_type)) {
-            set_error_buf(error_buf, error_buf_size, "invalid field type");
             goto fail;
         }
         type->fields[i].field_type = ref_type.ref_type;
@@ -2048,11 +2025,6 @@ resolve_array_type(const uint8 **p_buf, const uint8 *buf_end,
 
     if (!resolve_value_type(&p, p_end, module, type_count, &need_ref_type_map,
                             &ref_type, true, error_buf, error_buf_size)) {
-        return false;
-    }
-
-    if (wasm_is_reftype_anyref(ref_type.ref_type)) {
-        LOG_ERROR("Not support using anyref in array element type");
         return false;
     }
 
@@ -2525,13 +2497,6 @@ load_type_section(const uint8 *buf, const uint8 *buf_end, WASMModule *module,
             return false;
         }
 #endif /* end of WASM_ENABLE_GC == 0 */
-    }
-
-    for (i = 0; i < module->type_count; i++) {
-        if (module->types[i] == NULL) {
-            set_error_buf_v(error_buf, error_buf_size, "unknown type %d", i);
-            return false;
-        }
     }
 
     if (p != p_end) {
@@ -3925,9 +3890,6 @@ load_function_section(const uint8 *buf, const uint8 *buf_end,
 
             /* Resolve local set count */
             p_code_end = p_code + code_size;
-#if WASM_ENABLE_BRANCH_HINTS != 0
-            uint8 *p_body_start = (uint8 *)p_code;
-#endif
             local_count = 0;
             read_leb_uint32(p_code, buf_code_end, local_set_count);
             p_code_save = p_code;
@@ -3987,11 +3949,6 @@ load_function_section(const uint8 *buf, const uint8 *buf_end,
             }
 #if WASM_ENABLE_GC != 0
             if (ref_type_map_count > 0) {
-                if (ref_type_map_count > UINT16_MAX) {
-                    set_error_buf(error_buf, error_buf_size,
-                                  "ref type count too large");
-                    return false;
-                }
                 total_size =
                     sizeof(WASMRefTypeMap) * (uint64)ref_type_map_count;
                 if (!(func->local_ref_type_maps = loader_malloc(
@@ -4008,9 +3965,6 @@ load_function_section(const uint8 *buf, const uint8 *buf_end,
             if (local_count > 0)
                 func->local_types = (uint8 *)func + sizeof(WASMFunction);
             func->code_size = code_size;
-#if WASM_ENABLE_BRANCH_HINTS != 0
-            func->code_body_begin = p_body_start;
-#endif
             /*
              * we shall make a copy of code body [p_code, p_code + code_size]
              * when we are worrying about inappropriate releasing behaviour.
@@ -5583,142 +5537,6 @@ fail:
 }
 #endif
 
-#if WASM_ENABLE_BRANCH_HINTS != 0
-/**
- * Count the number of branch instructions for the specified function.
- */
-static uint32
-calculate_num_branch_instructions(const WASMFunction *func)
-{
-    const uint8 *code = func->code;
-    const uint8 *code_end = code + func->code_size;
-    uint32 max_hints = 0;
-
-    while (code < code_end) {
-        uint8 opcode = *code++;
-
-        if (opcode == WASM_OP_IF || opcode == WASM_OP_BR_IF) {
-            max_hints++;
-        }
-    }
-
-    return max_hints;
-}
-
-static bool
-handle_branch_hint_section(const uint8 *buf, const uint8 *buf_end,
-                           WASMModule *module, char *error_buf,
-                           uint32 error_buf_size)
-{
-    if (module->function_hints == NULL) {
-        module->function_hints = loader_malloc(
-            sizeof(struct WASMCompilationHint) * module->function_count,
-            error_buf, error_buf_size);
-    }
-    uint32 numFunctionHints = 0;
-    read_leb_uint32(buf, buf_end, numFunctionHints);
-    for (uint32 i = 0; i < numFunctionHints; ++i) {
-        uint32 func_idx;
-        read_leb_uint32(buf, buf_end, func_idx);
-        if (!check_function_index(module, func_idx, error_buf,
-                                  error_buf_size)) {
-            goto fail;
-        }
-        if (func_idx < module->import_function_count) {
-            set_error_buf(error_buf, error_buf_size,
-                          "branch hint for imported function is not allowed");
-            goto fail;
-        }
-
-        struct WASMCompilationHint *current_hint =
-            (struct WASMCompilationHint *)&module
-                ->function_hints[func_idx - module->import_function_count];
-        while (current_hint->next != NULL) {
-            current_hint = current_hint->next;
-        }
-
-        uint32 num_hints;
-        read_leb_uint32(buf, buf_end, num_hints);
-
-        /* Ensure that num_hints doesn't exceed the actual number of branch
-         * instructions */
-        WASMFunction *func =
-            module->functions[func_idx - module->import_function_count];
-        uint32 max_branch_instructions =
-            calculate_num_branch_instructions(func);
-        if (num_hints > max_branch_instructions) {
-            set_error_buf_v(
-                error_buf, error_buf_size,
-                "invalid number of branch hints: expected at most %u, got %u",
-                max_branch_instructions, num_hints);
-            goto fail;
-        }
-
-        struct WASMCompilationHintBranchHint *new_hints = loader_malloc(
-            sizeof(struct WASMCompilationHintBranchHint) * num_hints, error_buf,
-            error_buf_size);
-        if (!new_hints) {
-            goto fail;
-        }
-        for (uint32 j = 0; j < num_hints; ++j) {
-            struct WASMCompilationHintBranchHint *new_hint = &new_hints[j];
-            new_hint->next = NULL;
-            new_hint->type = WASM_COMPILATION_BRANCH_HINT;
-            read_leb_uint32(buf, buf_end, new_hint->offset);
-
-            /* Validate offset is within the function's code bounds */
-            if (new_hint->offset >= func->code_size) {
-                set_error_buf_v(
-                    error_buf, error_buf_size,
-                    "invalid branch hint offset: %u exceeds function "
-                    "code size %u",
-                    new_hint->offset, func->code_size);
-                goto fail;
-            }
-
-            uint32 size;
-            read_leb_uint32(buf, buf_end, size);
-            if (size != 1) {
-                set_error_buf_v(error_buf, error_buf_size,
-                                "invalid branch hint size, expected 1, got %d.",
-                                size);
-                /* Do not free new_hints here - any hints already linked into
-                 * the module structure will be freed during module cleanup.
-                 * Freeing here would cause a double-free. */
-                goto fail;
-            }
-
-            CHECK_BUF(buf, buf_end, 1);
-            uint8 data = *buf++;
-            if (data == 0x00)
-                new_hint->is_likely = false;
-            else if (data == 0x01)
-                new_hint->is_likely = true;
-            else {
-                set_error_buf_v(error_buf, error_buf_size,
-                                "invalid branch hint, expected 0 or 1, got %d",
-                                data);
-                /* Do not free new_hints here - any hints already linked into
-                 * the module structure will be freed during module cleanup.
-                 * Freeing here would cause a double-free. */
-                goto fail;
-            }
-
-            current_hint->next = (struct WASMCompilationHint *)new_hint;
-            current_hint = (struct WASMCompilationHint *)new_hint;
-        }
-    }
-    if (buf != buf_end) {
-        set_error_buf(error_buf, error_buf_size,
-                      "invalid branch hint section, not filled until end");
-        goto fail;
-    }
-    return true;
-fail:
-    return false;
-}
-#endif
-
 static bool
 load_user_section(const uint8 *buf, const uint8 *buf_end, WASMModule *module,
                   bool is_load_from_file_buf, char *error_buf,
@@ -5765,24 +5583,6 @@ load_user_section(const uint8 *buf, const uint8 *buf_end, WASMModule *module,
             return false;
         }
         LOG_VERBOSE("Load custom name section success.");
-    }
-#endif
-
-#if WASM_ENABLE_BRANCH_HINTS != 0
-    if (name_len == 25
-        && memcmp((const char *)p, "metadata.code.branch_hint", 25) == 0) {
-        p += name_len;
-        if (!handle_branch_hint_section(p, p_end, module, error_buf,
-                                        error_buf_size)) {
-            return false;
-        }
-        LOG_VERBOSE("Load branch hint section success.");
-    }
-#else
-    if (name_len == 25
-        && memcmp((const char *)p, "metadata.code.branch_hint", 25) == 0) {
-        LOG_WARNING("Found branch hint section, but branch hints are disabled "
-                    "in this build, skipping.");
     }
 #endif
 
@@ -5940,9 +5740,6 @@ init_llvm_jit_functions_stage1(WASMModule *module, char *error_buf,
 #if WASM_ENABLE_BULK_MEMORY != 0
     option.enable_bulk_memory = true;
 #endif
-#if WASM_ENABLE_BULK_MEMORY_OPT != 0
-    option.enable_bulk_memory_opt = true;
-#endif
 #if WASM_ENABLE_THREAD_MGR != 0
     option.enable_thread_mgr = true;
 #endif
@@ -5956,9 +5753,6 @@ init_llvm_jit_functions_stage1(WASMModule *module, char *error_buf,
     option.enable_ref_types = true;
 #elif WASM_ENABLE_GC != 0
     option.enable_gc = true;
-#endif
-#if WASM_ENABLE_CALL_INDIRECT_OVERLONG != 0
-    option.enable_call_indirect_overlong = true;
 #endif
     option.enable_aux_stack_check = true;
 #if WASM_ENABLE_PERF_PROFILING != 0 || WASM_ENABLE_DUMP_CALL_STACK != 0 \
@@ -6895,7 +6689,15 @@ create_module(char *name, char *error_buf, uint32 error_buf_size)
 #endif
 
 #if WASM_ENABLE_LIBC_WASI != 0
-    wasi_args_set_defaults(&module->wasi_args);
+#if WASM_ENABLE_UVWASI == 0
+    module->wasi_args.stdio[0] = os_invalid_raw_handle();
+    module->wasi_args.stdio[1] = os_invalid_raw_handle();
+    module->wasi_args.stdio[2] = os_invalid_raw_handle();
+#else
+    module->wasi_args.stdio[0] = os_get_invalid_handle();
+    module->wasi_args.stdio[1] = os_get_invalid_handle();
+    module->wasi_args.stdio[2] = os_get_invalid_handle();
+#endif /* WASM_ENABLE_UVWASI == 0 */
 #endif /* WASM_ENABLE_LIBC_WASI != 0 */
 
     (void)ret;
@@ -7571,17 +7373,7 @@ wasm_loader_unload(WASMModule *module)
     }
 #endif
 #endif
-#if WASM_ENABLE_BRANCH_HINTS != 0
-    for (i = 0; i < module->function_count; i++) {
-        // be carefull when adding more hints. This only works as long as
-        // the hint structs have been allocated all at once as an array.
-        // With only branch-hints at the moment, this is the case.
-        if (module->function_hints != NULL && module->function_hints[i] != NULL)
-            wasm_runtime_free(module->function_hints[i]);
-    }
-    if (module->function_hints != NULL)
-        wasm_runtime_free(module->function_hints);
-#endif
+
     wasm_runtime_free(module);
 }
 
@@ -7816,7 +7608,7 @@ wasm_loader_find_block_addr(WASMExecEnv *exec_env, BlockAddr *block_addr_cache,
             case WASM_OP_RETURN_CALL_INDIRECT:
 #endif
                 skip_leb_uint32(p, p_end); /* typeidx */
-#if WASM_ENABLE_CALL_INDIRECT_OVERLONG != 0 || WASM_ENABLE_GC != 0
+#if WASM_ENABLE_REF_TYPES != 0 || WASM_ENABLE_GC != 0
                 skip_leb_uint32(p, p_end); /* tableidx */
 #else
                 u8 = read_uint8(p); /* 0x00 */
@@ -8241,8 +8033,6 @@ wasm_loader_find_block_addr(WASMExecEnv *exec_env, BlockAddr *block_addr_cache,
                     case WASM_OP_DATA_DROP:
                         skip_leb_uint32(p, p_end);
                         break;
-#endif /* WASM_ENABLE_BULK_MEMORY */
-#if WASM_ENABLE_BULK_MEMORY_OPT != 0
                     case WASM_OP_MEMORY_COPY:
                         skip_leb_memidx(p, p_end);
                         skip_leb_memidx(p, p_end);
@@ -8250,7 +8040,7 @@ wasm_loader_find_block_addr(WASMExecEnv *exec_env, BlockAddr *block_addr_cache,
                     case WASM_OP_MEMORY_FILL:
                         skip_leb_memidx(p, p_end);
                         break;
-#endif /* WASM_ENABLE_BULK_MEMORY_OPT */
+#endif /* WASM_ENABLE_BULK_MEMORY */
 #if WASM_ENABLE_REF_TYPES != 0
                     case WASM_OP_TABLE_INIT:
                     case WASM_OP_TABLE_COPY:
@@ -8609,14 +8399,6 @@ static bool
 check_offset_pop(WASMLoaderContext *ctx, uint32 cells)
 {
     if (ctx->frame_offset - cells < ctx->frame_offset_bottom)
-        return false;
-    return true;
-}
-
-static bool
-check_dynamic_offset_pop(WASMLoaderContext *ctx, uint32 cells)
-{
-    if (ctx->dynamic_offset < 0 || (uint32)ctx->dynamic_offset < cells)
         return false;
     return true;
 }
@@ -9790,16 +9572,6 @@ preserve_local_for_block(WASMLoaderContext *loader_ctx, uint8 opcode,
 
     /* preserve locals before blocks to ensure that "tee/set_local" inside
         blocks will not influence the value of these locals */
-    uint32 frame_offset_cell =
-        (uint32)(loader_ctx->frame_offset - loader_ctx->frame_offset_bottom);
-    uint32 frame_ref_cell =
-        (uint32)(loader_ctx->frame_ref - loader_ctx->frame_ref_bottom);
-    if (frame_offset_cell < loader_ctx->stack_cell_num
-        || frame_ref_cell < loader_ctx->stack_cell_num) {
-        set_error_buf(error_buf, error_buf_size, "stack cell num error");
-        return false;
-    }
-
     while (i < loader_ctx->stack_cell_num) {
         int16 cur_offset = loader_ctx->frame_offset_bottom[i];
         uint8 cur_type = loader_ctx->frame_ref_bottom[i];
@@ -10069,8 +9841,7 @@ wasm_loader_pop_frame_offset(WASMLoaderContext *ctx, uint8 type,
         return true;
 
     ctx->frame_offset -= cell_num_to_pop;
-    if (check_dynamic_offset_pop(ctx, cell_num_to_pop)
-        && (*(ctx->frame_offset) > ctx->start_dynamic_offset)
+    if ((*(ctx->frame_offset) > ctx->start_dynamic_offset)
         && (*(ctx->frame_offset) < ctx->max_dynamic_offset))
         ctx->dynamic_offset -= cell_num_to_pop;
 
@@ -12140,25 +11911,9 @@ re_scan:
                     WASMFuncType *wasm_type = block_type.u.type;
 
                     BranchBlock *cur_block = loader_ctx->frame_csp - 1;
-#if WASM_ENABLE_GC != 0
-                    WASMRefType *ref_type;
-                    uint32 j = 0;
-#endif
 #if WASM_ENABLE_FAST_INTERP != 0
                     uint32 cell_num;
                     available_params = block_type.u.type->param_count;
-#endif
-#if WASM_ENABLE_GC != 0
-                    /* find the index of the last param
-                     * in wasm_type->ref_type_maps as j */
-                    for (i = 0; i < block_type.u.type->param_count; i++) {
-                        if (wasm_is_type_multi_byte_type(wasm_type->types[i])) {
-                            j += 1;
-                        }
-                    }
-                    if (j > 0) {
-                        j -= 1;
-                    }
 #endif
                     for (i = 0; i < block_type.u.type->param_count; i++) {
 
@@ -12172,33 +11927,14 @@ re_scan:
 #endif
                             break;
                         }
-#if WASM_ENABLE_GC != 0
-                        if (wasm_is_type_multi_byte_type(
-                                wasm_type
-                                    ->types[wasm_type->param_count - i - 1])) {
-                            bh_assert(wasm_type->ref_type_maps[j].index
-                                      == wasm_type->param_count - i - 1);
-                            ref_type = wasm_type->ref_type_maps[j].ref_type;
-                            bh_memcpy_s(&wasm_ref_type, sizeof(WASMRefType),
-                                        ref_type,
-                                        wasm_reftype_struct_size(ref_type));
-                            j--;
-                        }
-#endif
 
-                        uint8 *frame_ref_before_pop = loader_ctx->frame_ref;
                         POP_TYPE(
                             wasm_type->types[wasm_type->param_count - i - 1]);
 #if WASM_ENABLE_FAST_INTERP != 0
                         /* decrease the frame_offset pointer accordingly to keep
-                         * consistent with frame_ref stack. Use the actual
-                         * popped cell count instead of
-                         * wasm_value_type_cell_num() because when the stack top
-                         * is VALUE_TYPE_ANY, wasm_loader_pop_frame_ref always
-                         * pops exactly 1 cell regardless of the expected type
-                         */
-                        cell_num = (uint32)(frame_ref_before_pop
-                                            - loader_ctx->frame_ref);
+                         * consistent with frame_ref stack */
+                        cell_num = wasm_value_type_cell_num(
+                            wasm_type->types[wasm_type->param_count - i - 1]);
                         loader_ctx->frame_offset -= cell_num;
 
                         if (loader_ctx->frame_offset
@@ -12949,7 +12685,9 @@ re_scan:
                                           error_buf, error_buf_size)) {
                         goto fail;
                     }
-                    if (module->types[type_idx1]->type_flag != WASM_TYPE_FUNC) {
+                    if (module->types[type_idx1] == NULL
+                        || module->types[type_idx1]->type_flag
+                               != WASM_TYPE_FUNC) {
                         set_error_buf(error_buf, error_buf_size,
                                       "unknown function type");
                         goto fail;
@@ -12966,7 +12704,9 @@ re_scan:
                                           error_buf, error_buf_size)) {
                         goto fail;
                     }
-                    if (module->types[type_idx]->type_flag != WASM_TYPE_FUNC) {
+                    if (module->types[type_idx] == NULL
+                        || module->types[type_idx]->type_flag
+                               != WASM_TYPE_FUNC) {
                         set_error_buf(error_buf, error_buf_size,
                                       "unknown function type");
                         goto fail;
@@ -13120,7 +12860,7 @@ re_scan:
 #endif
 
                 pb_read_leb_uint32(p, p_end, type_idx);
-#if WASM_ENABLE_CALL_INDIRECT_OVERLONG != 0 || WASM_ENABLE_GC != 0
+#if WASM_ENABLE_REF_TYPES != 0 || WASM_ENABLE_GC != 0
 #if WASM_ENABLE_WAMR_COMPILER != 0
                 if (p + 1 < p_end && *p != 0x00) {
                     /*
@@ -14802,8 +14542,9 @@ re_scan:
                                               error_buf_size)) {
                             goto fail;
                         }
-                        if (module->types[type_idx]->type_flag
-                            != WASM_TYPE_STRUCT) {
+                        if (module->types[type_idx] == NULL
+                            || module->types[type_idx]->type_flag
+                                   != WASM_TYPE_STRUCT) {
                             set_error_buf(error_buf, error_buf_size,
                                           "unknown struct type");
                             goto fail;
@@ -14889,8 +14630,9 @@ re_scan:
                                               error_buf_size)) {
                             goto fail;
                         }
-                        if (module->types[type_idx]->type_flag
-                            != WASM_TYPE_STRUCT) {
+                        if (module->types[type_idx] == NULL
+                            || module->types[type_idx]->type_flag
+                                   != WASM_TYPE_STRUCT) {
                             set_error_buf(error_buf, error_buf_size,
                                           "unknown struct type");
                             goto fail;
@@ -15806,11 +15548,8 @@ re_scan:
                         emit_uint32(loader_ctx, data_seg_idx);
 #endif
                         if (module->import_memory_count == 0
-                            && module->memory_count == 0) {
-                            set_error_buf(error_buf, error_buf_size,
-                                          "unknown memory 0");
-                            goto fail;
-                        }
+                            && module->memory_count == 0)
+                            goto fail_unknown_memory;
 
                         pb_read_leb_uint32(p, p_end, memidx);
                         check_memidx(module, memidx);
@@ -15859,12 +15598,6 @@ re_scan:
 #endif
                         break;
                     }
-                    fail_data_cnt_sec_require:
-                        set_error_buf(error_buf, error_buf_size,
-                                      "data count section required");
-                        goto fail;
-#endif /* WASM_ENABLE_BULK_MEMORY */
-#if WASM_ENABLE_BULK_MEMORY_OPT != 0
                     case WASM_OP_MEMORY_COPY:
                     {
                         CHECK_BUF(p, p_end, sizeof(int16));
@@ -15875,11 +15608,8 @@ re_scan:
                         check_memidx(module, memidx);
 
                         if (module->import_memory_count == 0
-                            && module->memory_count == 0) {
-                            set_error_buf(error_buf, error_buf_size,
-                                          "unknown memory 0");
-                            goto fail;
-                        }
+                            && module->memory_count == 0)
+                            goto fail_unknown_memory;
 
                         POP_MEM_OFFSET();
                         POP_MEM_OFFSET();
@@ -15898,9 +15628,7 @@ re_scan:
                         check_memidx(module, memidx);
                         if (module->import_memory_count == 0
                             && module->memory_count == 0) {
-                            set_error_buf(error_buf, error_buf_size,
-                                          "unknown memory 0");
-                            goto fail;
+                            goto fail_unknown_memory;
                         }
                         POP_MEM_OFFSET();
                         POP_I32();
@@ -15913,7 +15641,16 @@ re_scan:
 #endif
                         break;
                     }
-#endif /* WASM_ENABLE_BULK_MEMORY_OPT */
+
+                    fail_unknown_memory:
+                        set_error_buf(error_buf, error_buf_size,
+                                      "unknown memory 0");
+                        goto fail;
+                    fail_data_cnt_sec_require:
+                        set_error_buf(error_buf, error_buf_size,
+                                      "data count section required");
+                        goto fail;
+#endif /* WASM_ENABLE_BULK_MEMORY */
 #if WASM_ENABLE_REF_TYPES != 0 || WASM_ENABLE_GC != 0
                     case WASM_OP_TABLE_INIT:
                     {

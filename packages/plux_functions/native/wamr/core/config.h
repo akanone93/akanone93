@@ -84,7 +84,7 @@
 #endif
 
 #define AOT_MAGIC_NUMBER 0x746f6100
-#define AOT_CURRENT_VERSION 6
+#define AOT_CURRENT_VERSION 5
 
 #ifndef WASM_ENABLE_JIT
 #define WASM_ENABLE_JIT 0
@@ -212,10 +212,6 @@
 /* Bulk memory operation */
 #ifndef WASM_ENABLE_BULK_MEMORY
 #define WASM_ENABLE_BULK_MEMORY 0
-#endif
-
-#ifndef WASM_ENABLE_BULK_MEMORY_OPT
-#define WASM_ENABLE_BULK_MEMORY_OPT 0
 #endif
 
 /* Shared memory */
@@ -581,14 +577,6 @@ unless used elsewhere */
 
 #ifndef WASM_ENABLE_REF_TYPES
 #define WASM_ENABLE_REF_TYPES 0
-#endif
-
-#ifndef WASM_ENABLE_CALL_INDIRECT_OVERLONG
-#define WASM_ENABLE_CALL_INDIRECT_OVERLONG 0
-#endif
-
-#ifndef WASM_ENABLE_BRANCH_HINTS
-#define WASM_ENABLE_BRANCH_HINTS 0
 #endif
 
 #ifndef WASM_ENABLE_GC

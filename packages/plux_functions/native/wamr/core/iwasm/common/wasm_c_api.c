@@ -2206,15 +2206,12 @@ check_loaded_module(Vector *modules, char *binary_hash)
             return NULL;
         }
 
-        os_mutex_lock(&module->lock);
-        bool is_valid =
-            (module->ref_count > 0
-             && memcmp(module->hash, binary_hash, SHA256_DIGEST_LENGTH) == 0);
-        os_mutex_unlock(&module->lock);
+        if (!module->ref_count)
+            /* deleted */
+            continue;
 
-        if (is_valid) {
+        if (memcmp(module->hash, binary_hash, SHA256_DIGEST_LENGTH) == 0)
             return module;
-        }
     }
     return NULL;
 }
@@ -2459,13 +2456,8 @@ wasm_module_imports(const wasm_module_t *module, own wasm_importtype_vec_t *out)
         return;
     }
 
-    wasm_module_ex_t *module_ex = module_to_module_ext((wasm_module_t *)module);
-    os_mutex_lock(&module_ex->lock);
-    if (module_ex->ref_count == 0) {
-        os_mutex_unlock(&module_ex->lock);
+    if (((const wasm_module_ex_t *)(module))->ref_count == 0)
         return;
-    }
-    os_mutex_unlock(&module_ex->lock);
 
 #if WASM_ENABLE_INTERP != 0
     if ((*module)->module_type == Wasm_Module_Bytecode) {
@@ -2704,13 +2696,8 @@ wasm_module_exports(const wasm_module_t *module, wasm_exporttype_vec_t *out)
         return;
     }
 
-    wasm_module_ex_t *module_ex = module_to_module_ext((wasm_module_t *)module);
-    os_mutex_lock(&module_ex->lock);
-    if (module_ex->ref_count == 0) {
-        os_mutex_unlock(&module_ex->lock);
+    if (((const wasm_module_ex_t *)(module))->ref_count == 0)
         return;
-    }
-    os_mutex_unlock(&module_ex->lock);
 
 #if WASM_ENABLE_INTERP != 0
     if ((*module)->module_type == Wasm_Module_Bytecode) {
@@ -2904,13 +2891,10 @@ wasm_module_serialize(wasm_module_t *module, own wasm_byte_vec_t *out)
     if (!module || !out)
         return;
 
-    module_ex = module_to_module_ext(module);
-    os_mutex_lock(&module_ex->lock);
-    if (module_ex->ref_count == 0) {
-        os_mutex_unlock(&module_ex->lock);
+    if (((const wasm_module_ex_t *)(module))->ref_count == 0)
         return;
-    }
-    os_mutex_unlock(&module_ex->lock);
+
+    module_ex = module_to_module_ext(module);
     comp_ctx = ((WASMModule *)(module_ex->module_comm_rt))->comp_ctx;
     comp_data = ((WASMModule *)(module_ex->module_comm_rt))->comp_data;
     bh_assert(comp_ctx != NULL && comp_data != NULL);
@@ -3475,16 +3459,9 @@ failed:
         wasm_runtime_free(argv);
 
 #if WASM_ENABLE_DUMP_CALL_STACK != 0 && WASM_ENABLE_THREAD_MGR != 0
-    WASMCluster *cluster = NULL;
-    if (exec_env) {
-        cluster = wasm_exec_env_get_cluster(exec_env);
-    }
-    if (cluster) {
-        cluster_frames = &cluster->exception_frames;
-    }
-    if (cluster_frames) {
-        wasm_cluster_traverse_lock(exec_env);
-    }
+    WASMCluster *cluster = wasm_exec_env_get_cluster(exec_env);
+    cluster_frames = &cluster->exception_frames;
+    wasm_cluster_traverse_lock(exec_env);
 #endif
 
     wasm_trap_t *trap = wasm_trap_new_internal(
@@ -3492,9 +3469,7 @@ failed:
         wasm_runtime_get_exception(func->inst_comm_rt), cluster_frames);
 
 #if WASM_ENABLE_DUMP_CALL_STACK != 0 && WASM_ENABLE_THREAD_MGR != 0
-    if (cluster_frames) {
-        wasm_cluster_traverse_unlock(exec_env);
-    }
+    wasm_cluster_traverse_unlock(exec_env);
 #endif
     return trap;
 }

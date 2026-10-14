@@ -335,14 +335,14 @@ memory_instantiate(WASMModuleInstance *module_inst, WASMModuleInstance *parent,
             /* If only one page and at most one page, we just append
                the app heap to the end of linear memory, enlarge the
                num_bytes_per_page, and don't change the page count */
-            if (heap_size > UINT32_MAX - num_bytes_per_page) {
+            heap_offset = num_bytes_per_page;
+            num_bytes_per_page += heap_size;
+            if (num_bytes_per_page < heap_size) {
                 set_error_buf(error_buf, error_buf_size,
                               "failed to insert app heap into linear memory, "
                               "try using `--heap-size=0` option");
                 return NULL;
             }
-            heap_offset = num_bytes_per_page;
-            num_bytes_per_page += heap_size;
         }
         else if (heap_size > 0) {
             if (init_page_count == max_page_count && init_page_count == 0) {
@@ -2421,8 +2421,8 @@ wasm_set_running_mode(WASMModuleInstance *module_inst, RunningMode running_mode)
  */
 WASMModuleInstance *
 wasm_instantiate(WASMModule *module, WASMModuleInstance *parent,
-                 WASMExecEnv *exec_env_main,
-                 const struct InstantiationArgs2 *args, char *error_buf,
+                 WASMExecEnv *exec_env_main, uint32 stack_size,
+                 uint32 heap_size, uint32 max_memory_pages, char *error_buf,
                  uint32 error_buf_size)
 {
     WASMModuleInstance *module_inst;
@@ -2440,9 +2440,6 @@ wasm_instantiate(WASMModule *module, WASMModuleInstance *parent,
     bool ret = false;
 #endif
     const bool is_sub_inst = parent != NULL;
-    uint32 stack_size = args->v1.default_stack_size;
-    uint32 heap_size = args->v1.host_managed_heap_size;
-    uint32 max_memory_pages = args->v1.max_memory_pages;
 
     if (!module)
         return NULL;
@@ -2512,21 +2509,13 @@ wasm_instantiate(WASMModule *module, WASMModuleInstance *parent,
     module_inst->module = module;
     module_inst->e =
         (WASMModuleInstanceExtra *)((uint8 *)module_inst + extra_info_offset);
-    wasm_runtime_set_custom_data_internal(
-        (WASMModuleInstanceCommon *)module_inst, args->custom_data);
-#if WASM_ENABLE_THREAD_MGR != 0
-    if (os_mutex_init(&module_inst->e->common.exception_lock) != 0) {
-        wasm_runtime_free(module_inst);
-        return NULL;
-    }
-#endif
 
 #if WASM_ENABLE_MULTI_MODULE != 0
     module_inst->e->sub_module_inst_list =
         &module_inst->e->sub_module_inst_list_head;
     ret = wasm_runtime_sub_module_instantiate(
         (WASMModuleCommon *)module, (WASMModuleInstanceCommon *)module_inst,
-        args, error_buf, error_buf_size);
+        stack_size, heap_size, max_memory_pages, error_buf, error_buf_size);
     if (!ret) {
         LOG_DEBUG("build a sub module list failed");
         goto fail;
@@ -3284,25 +3273,17 @@ wasm_instantiate(WASMModule *module, WASMModuleInstance *parent,
 #if WASM_ENABLE_LIBC_WASI != 0
     /* The sub-instance will get the wasi_ctx from main-instance */
     if (!is_sub_inst) {
-        const WASIArguments *wasi_args = &args->wasi;
-        if (module->wasi_args.set_by_user) {
-            if (wasi_args->set_by_user) {
-                set_error_buf(error_buf, error_buf_size,
-                              "WASI configuration was given via both of module "
-                              "and InstantiationArgs2");
-                goto fail;
-            }
-            wasi_args = &module->wasi_args;
-        }
         if (!wasm_runtime_init_wasi(
-                (WASMModuleInstanceCommon *)module_inst, wasi_args->dir_list,
-                wasi_args->dir_count, wasi_args->map_dir_list,
-                wasi_args->map_dir_count, wasi_args->env, wasi_args->env_count,
-                wasi_args->addr_pool, wasi_args->addr_count,
-                wasi_args->ns_lookup_pool, wasi_args->ns_lookup_count,
-                wasi_args->argv, wasi_args->argc, wasi_args->stdio[0],
-                wasi_args->stdio[1], wasi_args->stdio[2], error_buf,
-                error_buf_size)) {
+                (WASMModuleInstanceCommon *)module_inst,
+                module->wasi_args.dir_list, module->wasi_args.dir_count,
+                module->wasi_args.map_dir_list, module->wasi_args.map_dir_count,
+                module->wasi_args.env, module->wasi_args.env_count,
+                module->wasi_args.addr_pool, module->wasi_args.addr_count,
+                module->wasi_args.ns_lookup_pool,
+                module->wasi_args.ns_lookup_count, module->wasi_args.argv,
+                module->wasi_args.argc, module->wasi_args.stdio[0],
+                module->wasi_args.stdio[1], module->wasi_args.stdio[2],
+                error_buf, error_buf_size)) {
             goto fail;
         }
     }
@@ -3509,9 +3490,6 @@ wasm_deinstantiate(WASMModuleInstance *module_inst, bool is_sub_inst)
     bh_bitmap_delete(module_inst->e->common.elem_dropped);
 #endif
 
-#if WASM_ENABLE_THREAD_MGR != 0
-    os_mutex_destroy(&module_inst->e->common.exception_lock);
-#endif
     wasm_runtime_free(module_inst);
 }
 
@@ -3629,7 +3607,6 @@ call_wasm_with_hw_bound_check(WASMModuleInstance *module_inst,
        native stack to run the following codes before actually calling
        the aot function in invokeNative function. */
     if (!wasm_runtime_detect_native_stack_overflow(exec_env)) {
-        wasm_runtime_set_exec_env_tls(NULL);
         return;
     }
 
@@ -3767,16 +3744,16 @@ wasm_dump_perf_profiling(const WASMModuleInstance *module_inst)
             os_printf(
                 "  func %s, execution time: %.3f ms, execution count: %" PRIu32
                 " times, children execution time: %.3f ms\n",
-                func_name, func_inst->total_exec_time / 1000.0,
+                func_name, func_inst->total_exec_time / 1000.0f,
                 func_inst->total_exec_cnt,
-                func_inst->children_exec_time / 1000.0);
+                func_inst->children_exec_time / 1000.0f);
         else
             os_printf("  func %" PRIu32
                       ", execution time: %.3f ms, execution count: %" PRIu32
                       " times, children execution time: %.3f ms\n",
-                      i, func_inst->total_exec_time / 1000.0,
+                      i, func_inst->total_exec_time / 1000.0f,
                       func_inst->total_exec_cnt,
-                      func_inst->children_exec_time / 1000.0);
+                      func_inst->children_exec_time / 1000.0f);
     }
 }
 
@@ -3788,7 +3765,7 @@ wasm_summarize_wasm_execute_time(const WASMModuleInstance *inst)
     unsigned i;
     for (i = 0; i < inst->e->function_count; i++) {
         WASMFunctionInstance *func = inst->e->functions + i;
-        ret += (func->total_exec_time - func->children_exec_time) / 1000.0;
+        ret += (func->total_exec_time - func->children_exec_time) / 1000.0f;
     }
 
     return ret;
@@ -3803,7 +3780,7 @@ wasm_get_wasm_func_exec_time(const WASMModuleInstance *inst,
         char *name_in_wasm = get_func_name_from_index(inst, i);
         if (name_in_wasm && strcmp(name_in_wasm, func_name) == 0) {
             WASMFunctionInstance *func = inst->e->functions + i;
-            return (func->total_exec_time - func->children_exec_time) / 1000.0;
+            return (func->total_exec_time - func->children_exec_time) / 1000.0f;
         }
     }
 
@@ -4216,17 +4193,6 @@ wasm_get_module_mem_consumption(const WASMModule *module,
         }
     }
 
-#if WASM_ENABLE_LOAD_CUSTOM_SECTION != 0
-    {
-        WASMCustomSection *section = module->custom_section_list;
-        while (section) {
-            mem_conspn->custom_sections_size +=
-                sizeof(WASMCustomSection) + section->content_len;
-            section = section->next;
-        }
-    }
-#endif
-
     mem_conspn->total_size += mem_conspn->module_struct_size;
     mem_conspn->total_size += mem_conspn->types_size;
     mem_conspn->total_size += mem_conspn->imports_size;
@@ -4238,9 +4204,6 @@ wasm_get_module_mem_consumption(const WASMModule *module,
     mem_conspn->total_size += mem_conspn->table_segs_size;
     mem_conspn->total_size += mem_conspn->data_segs_size;
     mem_conspn->total_size += mem_conspn->const_strs_size;
-#if WASM_ENABLE_LOAD_CUSTOM_SECTION != 0
-    mem_conspn->total_size += mem_conspn->custom_sections_size;
-#endif
 }
 
 void
