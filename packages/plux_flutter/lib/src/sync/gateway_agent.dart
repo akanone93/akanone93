@@ -34,6 +34,9 @@ import 'package:plux_flutter/src/sync/api_client.dart';
 import 'package:plux_flutter/src/sync/device_auth.dart';
 import 'package:plux_flutter/src/sync/live_config.dart';
 
+/// The audience of the user token a server function receives (SEC-026).
+String functionAudience(String function) => 'function:$function';
+
 /// Sends the gateway calls of one device.
 ///
 /// Failures are [DataFailure]s, which cross the isolate boundary as they
@@ -303,16 +306,24 @@ final class GatewayAgent {
   /// the version, the input and the request's proof (SEC-003, SEC-004), made
   /// here, off the UI isolate. [challengeId] and [signature] are the
   /// confirmed transaction of a function that declares `sca` (SEC-027).
+  ///
+  /// With the host's [userToken] the call carries the Plux user token
+  /// exchanged for the audience `function:<name>` (SEC-026), kept and
+  /// replaced as the gateway's are; without it, none.
   Future<FunctionInvokeReply> invokeFunction({
     required String function,
     required int version,
     required Uint8List input,
     required String idempotencyKey,
+    String? userToken,
     bool attest = false,
     String challengeId = '',
     Uint8List? signature,
   }) async {
     final token = await _token();
+    final exchanged = userToken == null
+        ? null
+        : await _userToken(token, functionAudience(function), userToken);
     try {
       return await api.invokeFunction(
         token: token,
@@ -320,6 +331,7 @@ final class GatewayAgent {
         version: version,
         input: input,
         idempotencyKey: idempotencyKey,
+        userToken: exchanged,
         challengeId: challengeId,
         signature: signature,
         evidence: attest ? auth.invocationEvidence : null,

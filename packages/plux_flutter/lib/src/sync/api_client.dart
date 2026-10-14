@@ -836,12 +836,17 @@ final class PluxApiClient {
   /// `attestation` needs [evidence], which is asked for once per proof, with
   /// the binding over the function, the version, the input and the proof's
   /// identifier (FN-020, SEC-004).
+  ///
+  /// [userToken], the Plux user token of the exchange for the audience
+  /// `function:<name>` (SEC-026), travels in `Plux-User-Token`; a function
+  /// that declares `claims` reads the verified user from it.
   Future<FunctionInvokeReply> invokeFunction({
     required DeviceToken token,
     required String function,
     required int version,
     required Uint8List input,
     required String idempotencyKey,
+    String? userToken,
     String challengeId = '',
     Uint8List? signature,
     Future<InvocationEvidence> Function(Uint8List binding)? evidence,
@@ -858,6 +863,7 @@ final class PluxApiClient {
           'transactionSignature': base64.encode(signature),
       },
       token: token,
+      extraHeaders: {pluxUserTokenHeader: ?userToken},
       extend: evidence == null
           ? null
           : (proof) async {

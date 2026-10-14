@@ -180,6 +180,7 @@ final class _InvokeFunction extends _Command {
     this.version,
     this.input,
     this.key,
+    this.userToken,
     this.attest,
     this.challengeId,
     this.signature,
@@ -188,6 +189,7 @@ final class _InvokeFunction extends _Command {
   final int version;
   final Uint8List input;
   final String key;
+  final String? userToken;
   final bool attest;
   final String challengeId;
   final Uint8List? signature;
@@ -390,6 +392,7 @@ final class SyncWorker
     required int version,
     required Uint8List input,
     required String idempotencyKey,
+    String? userToken,
     bool attest = false,
     String challengeId = '',
     Uint8List? signature,
@@ -401,6 +404,7 @@ final class SyncWorker
         version,
         input,
         idempotencyKey,
+        userToken,
         attest,
         challengeId,
         signature,
@@ -622,6 +626,7 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
         :final version,
         :final input,
         :final key,
+        :final userToken,
         :final attest,
         :final challengeId,
         :final signature,
@@ -634,6 +639,7 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
               version: version,
               input: input,
               idempotencyKey: key,
+              userToken: userToken,
               attest: attest,
               challengeId: challengeId,
               signature: signature,

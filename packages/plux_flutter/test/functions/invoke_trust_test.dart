@@ -39,6 +39,7 @@ final class _Server implements FunctionServer {
     required int version,
     required Uint8List input,
     required String idempotencyKey,
+    String? userToken,
     bool attest = false,
     String challengeId = '',
     Uint8List? signature,

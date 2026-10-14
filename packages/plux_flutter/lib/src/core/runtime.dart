@@ -36,6 +36,7 @@ import 'package:plux_flutter/src/core/host_events.dart';
 import 'package:plux_flutter/src/core/plux.dart';
 import 'package:plux_flutter/src/core/plux_view.dart';
 import 'package:plux_flutter/src/core/trigger_sources.dart';
+import 'package:plux_flutter/src/data/client.dart' show AuthSession;
 import 'package:plux_flutter/src/data/live_config.dart' show ConfigSource;
 import 'package:plux_flutter/src/data/services.dart';
 import 'package:plux_flutter/src/data/worker.dart';
@@ -876,6 +877,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     },
     engine: config.functionEngine,
     server: _worker,
+    auth: AuthSession(() => environment().authDelegate),
   );
 
   FunctionTarget? _resolveFunction(String plugin, String function) {

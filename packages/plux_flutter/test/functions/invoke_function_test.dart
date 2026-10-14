@@ -12,6 +12,7 @@ import 'package:plux_flutter/src/actions/engine.dart';
 import 'package:plux_flutter/src/actions/graph.dart';
 import 'package:plux_flutter/src/actions/handlers.dart';
 import 'package:plux_flutter/src/actions/run.dart';
+import 'package:plux_flutter/src/data/client.dart' show AuthSession;
 import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/functions/invoke_function.dart';
 
@@ -65,9 +66,33 @@ final class _FakeEngine implements PluxFunctionEngine {
   }
 }
 
+final class _FakeDelegate implements PluxAuthDelegate {
+  _FakeDelegate(this.token, {this.next});
+  String? token;
+  String? next;
+  int refreshes = 0;
+
+  @override
+  bool get isAuthenticated => token != null;
+
+  @override
+  Future<String?> accessToken() async => token;
+
+  @override
+  Future<String?> refresh() async {
+    refreshes++;
+    return token = next;
+  }
+
+  @override
+  void onLogout() {}
+}
+
 final class _FakeServer implements FunctionServer {
-  final List<({String function, int version, String key, String input})> calls =
-      [];
+  final List<
+    ({String function, int version, String key, String input, String? user})
+  >
+  calls = [];
   final List<Object> script = [];
 
   @override
@@ -76,6 +101,7 @@ final class _FakeServer implements FunctionServer {
     required int version,
     required Uint8List input,
     required String idempotencyKey,
+    String? userToken,
     bool attest = false,
     String challengeId = '',
     Uint8List? signature,
@@ -85,6 +111,7 @@ final class _FakeServer implements FunctionServer {
       version: version,
       key: idempotencyKey,
       input: utf8.decode(input),
+      user: userToken,
     ));
     final next = script.isEmpty
         ? FunctionServerOutput(_bytes('{"server":true}'))
@@ -103,26 +130,28 @@ void main() {
   late int moduleReads;
   late List<(String, Object?)> events;
 
-  FunctionRuntime runtime({bool withEngine = true}) => FunctionRuntime(
-    resolve: (plugin, name) => plugin == 'shop' ? targets[name] : null,
-    deviceEnabled: () => deviceEnabled,
-    limits: () => const {},
-    context: () => const PluxFunctionContext(
-      app: 'a',
-      environment: 'production',
-      assuranceLevel: 'AL1',
-    ),
-    kvSnapshot: (_) async => Map.of(kv),
-    kvApply: (_, k, v) async {
-      if (v == null) {
-        kv.remove(k);
-      } else {
-        kv[k] = v;
-      }
-    },
-    engine: withEngine ? engine : null,
-    server: server,
-  );
+  FunctionRuntime runtime({bool withEngine = true, PluxAuthDelegate? auth}) =>
+      FunctionRuntime(
+        resolve: (plugin, name) => plugin == 'shop' ? targets[name] : null,
+        deviceEnabled: () => deviceEnabled,
+        limits: () => const {},
+        context: () => const PluxFunctionContext(
+          app: 'a',
+          environment: 'production',
+          assuranceLevel: 'AL1',
+        ),
+        kvSnapshot: (_) async => Map.of(kv),
+        kvApply: (_, k, v) async {
+          if (v == null) {
+            kv.remove(k);
+          } else {
+            kv[k] = v;
+          }
+        },
+        engine: withEngine ? engine : null,
+        server: server,
+        auth: auth == null ? null : AuthSession(() => auth),
+      );
 
   ActionHost host(FunctionRuntime rt) {
     final h = ActionHost(
@@ -360,6 +389,71 @@ void main() {
     expect(server.calls.single.version, 7);
     expect(server.calls.single.input, '{"a":1}');
     expect(engine.loads, 0);
+  });
+
+  const invalid = DataFailure(
+    ActionErrorKind.http,
+    PluxErrorCode.userTokenInvalid,
+    'the exchange of the user token was refused',
+  );
+
+  test('[SEC-026] [FN-020] a server function is called with the host token of the signed-in user', () async {
+    final delegate = _FakeDelegate('host-1');
+    final r = await run(runtime(auth: delegate), 'fee.compute');
+    expect(r?.outcome, RunOutcome.ok);
+    expect(server.calls.single.user, 'host-1');
+    expect(delegate.refreshes, 0);
+  });
+
+  test('[SEC-026] [FN-020] with no delegate or no signed-in user the call carries no token', () async {
+    await run(runtime(), 'fee.compute');
+    events.clear();
+    await run(runtime(auth: _FakeDelegate(null)), 'fee.compute');
+    expect(server.calls, hasLength(2));
+    expect(server.calls.map((c) => c.user), [null, null]);
+  });
+
+  test(
+    '[SEC-026] a device function never involves the delegate or the server',
+    () async {
+      final delegate = _FakeDelegate('host-1');
+      await run(runtime(auth: delegate), 'loan.quote');
+      expect(server.calls, isEmpty);
+      expect(delegate.refreshes, 0);
+    },
+  );
+
+  test('[SEC-026] [FN-020] PLX-6016 refreshes the host token once and repeats the call once with the same idempotency key', () async {
+    final delegate = _FakeDelegate('host-1', next: 'host-2');
+    server.script.add(invalid);
+    final r = await run(runtime(auth: delegate), 'fee.compute');
+    expect(r?.outcome, RunOutcome.ok);
+    expect(delegate.refreshes, 1);
+    expect(server.calls.map((c) => c.user), ['host-1', 'host-2']);
+    expect(server.calls.map((c) => c.key).toSet(), hasLength(1));
+  });
+
+  test(
+    '[SEC-026] a second PLX-6016 is the step\'s error, with no third call',
+    () async {
+      final delegate = _FakeDelegate('host-1', next: 'host-2');
+      server.script.addAll([invalid, invalid]);
+      await run(runtime(auth: delegate), 'fee.compute');
+      expect(server.calls, hasLength(2));
+      expect(delegate.refreshes, 1);
+      final error = seen()['error']! as Map<String, Object?>;
+      expect(error['kind'], 'http');
+    },
+  );
+
+  test('[SEC-026] when the host cannot refresh its token the PLX-6016 is the step\'s error', () async {
+    final delegate = _FakeDelegate('host-1');
+    server.script.add(invalid);
+    await run(runtime(auth: delegate), 'fee.compute');
+    expect(server.calls, hasLength(1));
+    expect(delegate.refreshes, 1);
+    final error = seen()['error']! as Map<String, Object?>;
+    expect(error['kind'], 'http');
   });
 
   test('[FN-020] a server function works without the device package or with device functions off', () async {

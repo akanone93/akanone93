@@ -30,6 +30,7 @@ const _registerPath = '/plux.v1.DeviceService/RegisterAttestedDevice';
 const _enrolPath = '/plux.v1.DeviceService/EnrolScaKey';
 const _refreshPath = '/plux.v1.TokenService/RefreshDeviceToken';
 const _callPath = '/plux.v1.GatewayService/Call';
+const _invokePath = '/plux.v1.FunctionService/Invoke';
 const _exchangePath = '/plux.v1.TokenService/ExchangeUserToken';
 const _scaPath = '/plux.v1.ScaService/CreateTransactionChallenge';
 
@@ -127,6 +128,7 @@ final class _Rig {
       'headers': {'Content-Type': 'application/json'},
       'body': base64.encode(utf8.encode('{"ok":true}')),
     }),
+    _invokePath => _json({'output': base64.encode(utf8.encode('{"v":1}'))}),
     _exchangePath => _json({
       'accessToken': 'utok-${++exchanges}',
       'issuedTokenType': 'urn:ietf:params:oauth:token-type:access_token',
@@ -539,6 +541,93 @@ void main() {
       rig.now = rig.now.add(const Duration(minutes: 5));
       await rig.agent.call(_request(userToken: 'other-user'));
       expect(rig.at(_exchangePath), hasLength(4), reason: 'near expiry');
+    });
+
+    Future<void> invoke(
+      _Rig rig, {
+      String? userToken,
+      String name = 'fee.compute',
+    }) => rig.agent.invokeFunction(
+      function: name,
+      version: 7,
+      input: Uint8List.fromList(utf8.encode('{}')),
+      idempotencyKey: 'key-1',
+      userToken: userToken,
+    );
+
+    test('a server function receives the host token exchanged for the audience function:<name> in Plux-User-Token [SEC-026] [FN-020]', () async {
+      final rig = _Rig();
+      await invoke(rig, userToken: 'host-jwt');
+      final x = rig.at(_exchangePath).single;
+      expect(x.body['audience'], 'function:fee.compute');
+      expect(x.body['subjectToken'], 'host-jwt');
+      final call = rig.at(_invokePath).single;
+      expect(call.headers['plux-user-token'], 'utok-1');
+      expect(jsonEncode(call.body), isNot(contains('host-jwt')));
+      expect(jsonEncode(call.body), isNot(contains('utok-1')));
+      expect(call.headers.values.join(), isNot(contains('host-jwt')));
+      expect(
+        rig.paths.indexOf(_exchangePath),
+        lessThan(rig.paths.indexOf(_invokePath)),
+      );
+    });
+
+    test('a function with no signed-in user is called with no exchange and no Plux-User-Token [SEC-026] [FN-020]', () async {
+      final rig = _Rig();
+      await invoke(rig);
+      expect(rig.at(_exchangePath), isEmpty);
+      expect(
+        rig.at(_invokePath).single.headers,
+        isNot(contains('plux-user-token')),
+      );
+    });
+
+    test('the exchange for a function is kept per function and exchanged again for another one or after a refusal [SEC-026]', () async {
+      final rig = _Rig();
+      await invoke(rig, userToken: 'host-jwt');
+      await invoke(rig, userToken: 'host-jwt');
+      expect(rig.at(_exchangePath), hasLength(1));
+      await invoke(rig, userToken: 'host-jwt', name: 'fee.other');
+      expect(rig.at(_exchangePath), hasLength(2));
+      expect(rig.at(_exchangePath).last.body['audience'], 'function:fee.other');
+      rig.script[_invokePath] = [
+        () => _plx(401, 'unauthenticated', 'PLX-6016'),
+      ];
+      await expectLater(
+        invoke(rig, userToken: 'host-jwt'),
+        throwsA(
+          isA<DataFailure>().having(
+            (f) => f.code,
+            'code',
+            PluxErrorCode.userTokenInvalid,
+          ),
+        ),
+      );
+      await invoke(rig, userToken: 'fresh-jwt');
+      expect(
+        rig.at(_exchangePath),
+        hasLength(3),
+        reason: 'the refusal cleared them',
+      );
+      expect(rig.at(_exchangePath).last.body['subjectToken'], 'fresh-jwt');
+    });
+
+    test('a host token the exchange refuses fails the call with PLX-6016 and nothing reaches the server function [SEC-026]', () async {
+      final rig = _Rig();
+      rig.script[_exchangePath] = [
+        () => _plx(401, 'unauthenticated', 'PLX-6016'),
+      ];
+      await expectLater(
+        invoke(rig, userToken: 'bad'),
+        throwsA(
+          isA<DataFailure>().having(
+            (f) => f.code,
+            'code',
+            PluxErrorCode.userTokenInvalid,
+          ),
+        ),
+      );
+      expect(rig.at(_invokePath), isEmpty);
     });
 
     test('a source that is not auth sends none, and an invalid host token is PLX-6016 [SEC-026]', () async {

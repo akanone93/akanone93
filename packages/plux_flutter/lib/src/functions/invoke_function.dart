@@ -14,6 +14,7 @@ import 'dart:typed_data';
 
 import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/actions/handlers.dart';
+import 'package:plux_flutter/src/data/client.dart' show AuthSession;
 import 'package:plux_flutter/src/data/failure.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/functions/engine.dart';
@@ -124,6 +125,11 @@ abstract interface class FunctionServer {
   /// Invokes [function] at [version]; calls with the same [idempotencyKey]
   /// run once on the server within `function.idempotencyWindow`.
   ///
+  /// With the host's end-user token [userToken] the call carries the Plux
+  /// user token exchanged for the audience `function:<name>`, where the
+  /// device holds the keys; a function that declares `claims` reads the
+  /// verified user from it (SEC-026). Without it the call carries none.
+  ///
   /// With [attest] the call carries platform evidence bound to the function,
   /// the version, the input and the request's DPoP proof; the evidence is
   /// made where the proof is, off the UI isolate (SEC-003, SEC-004).
@@ -134,6 +140,7 @@ abstract interface class FunctionServer {
     required int version,
     required Uint8List input,
     required String idempotencyKey,
+    String? userToken,
     bool attest = false,
     String challengeId = '',
     Uint8List? signature,
@@ -154,6 +161,7 @@ final class FunctionRuntime {
     required this.kvApply,
     this.engine,
     this.server,
+    this.auth,
   });
 
   /// The function [function] that [plugin] calls, or null when the plugin
@@ -182,6 +190,10 @@ final class FunctionRuntime {
 
   /// The server channel, or null where no runtime provides one.
   final FunctionServer? server;
+
+  /// The host's auth delegate, which supplies the end-user token for server
+  /// functions (SEC-026, HST-010); null where the runtime has none.
+  final AuthSession? auth;
 
   final Map<String, Future<Object>> _modules = {};
 
@@ -354,19 +366,39 @@ Future<StepResult> _onServer(
   final confirmation = target.requiresSca
       ? await _confirm(c, target, input)
       : null;
-  final FunctionServerReply reply;
-  try {
-    reply = await server.invoke(
-      function: target.name,
-      version: target.version,
-      input: input,
-      idempotencyKey: key,
-      attest: target.requiresAttestation,
-      challengeId: confirmation?.challengeId ?? '',
-      signature: confirmation?.signature,
-    );
-  } on DataFailure catch (f) {
-    throw f.toActionError();
+  // SEC-026: the end user's token goes with the call when a user is signed
+  // in; the device exchanges it for the audience of this function.
+  var user = await rt.auth?.token();
+  var refreshed = false;
+  FunctionServerReply reply;
+  while (true) {
+    try {
+      reply = await server.invoke(
+        function: target.name,
+        version: target.version,
+        input: input,
+        idempotencyKey: key,
+        userToken: user,
+        attest: target.requiresAttestation,
+        challengeId: confirmation?.challengeId ?? '',
+        signature: confirmation?.signature,
+      );
+      break;
+    } on DataFailure catch (f) {
+      // The identity provider rejected the host's token (PLX-6016): like a
+      // 401 it is refreshed once and the call repeated with the same key,
+      // so the server runs it once. A confirmed transaction is single use
+      // and is never sent twice (as for data sources).
+      if (user != null &&
+          !refreshed &&
+          confirmation == null &&
+          f.code == PluxErrorCode.userTokenInvalid) {
+        refreshed = true;
+        user = await rt.auth?.refresh();
+        if (user != null) continue;
+      }
+      throw f.toActionError();
+    }
   }
   return switch (reply) {
     FunctionServerOutput(:final json) => StepDone(_decode(json)),
