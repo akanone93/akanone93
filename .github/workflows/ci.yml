@@ -1197,7 +1197,8 @@ jobs:
           retention-days: 14
 
   # The sync benchmark: the runtime syncs the fifty-plugin benchmark app
-  # through the spec's slow network against a server built from source.
+  # through the spec's slow network against a server built from source. The
+  # function runner's invocation overhead (NFR-022) is measured here too.
   bench-sync:
     name: Sync benchmark
     needs: changes
@@ -1245,6 +1246,9 @@ jobs:
       # Verifies: QA-007, NFR-007.
       - name: Sync on the simulated slow network
         run: make bench-sync
+      # Verifies: NFR-022, FN-023.
+      - name: Function invocation overhead
+        run: make bench-fn
       - name: Report
         if: always()
         run: cat "$PLUX_BENCH_SYNC_OUT" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
