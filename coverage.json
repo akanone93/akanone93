@@ -3,10 +3,17 @@
     "floor": 80,
     "packages": {
       "backend/internal/approval": 85,
+      "backend/internal/buildclient": 85,
+      "backend/internal/builder": 85,
+      "backend/internal/builderrole": 85,
       "backend/internal/bundle": 85,
       "backend/internal/compiler": 85,
       "backend/internal/delta": 85,
       "backend/internal/dpop": 85,
+      "backend/internal/egress": 85,
+      "backend/internal/fnhost": 85,
+      "backend/internal/fnrunner": 85,
+      "backend/internal/function": 85,
       "backend/internal/pxl": 85
     }
   },
