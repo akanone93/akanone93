@@ -40,8 +40,8 @@ hash with the payment.
 
 Users sign in at a **test identity provider** in the same process: `POST /bank/v1/login` checks
 `demo` / PIN `246810` / code `123456` (the one-time password an SMS would carry) and returns an ES256 JWT (`iss` = `<url>/idp`, `aud` = `plux`, `sub` =
-`user-demo`); its keys are at `GET /idp/jwks.json`. An environment registers it with
-`SetUserIdentityProvider`, and the gateway exchanges the host's token for the user it names.
+`user-demo`, `tier` = `standard`); its keys are at `GET /idp/jwks.json`. An environment registers it with
+`SetUserIdentityProvider` (forwarding the `tier` claim, which `bank.transferFee` reads), and the gateway exchanges the host's token for the user it names.
 
 | Endpoint | Needs | |
 |---|---|---|

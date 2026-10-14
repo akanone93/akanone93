@@ -67,15 +67,18 @@ type idpClaims struct {
 	Aud  string `json:"aud"`
 	Sub  string `json:"sub"`
 	Name string `json:"name"`
+	// Tier is the customer tier the bank's function prices a transfer by
+	// (bank.transferFee); the environment forwards it with ForwardClaims.
+	Tier string `json:"tier"`
 	IAT  int64  `json:"iat"`
 	EXP  int64  `json:"exp"`
 }
 
-// issue signs a token for the user sub.
-func (p *identityProvider) issue(sub, name string) (string, error) {
+// issue signs a token for the user sub of the customer tier tier.
+func (p *identityProvider) issue(sub, name, tier string) (string, error) {
 	now := p.now()
 	return signES256(p.key, jwsHeader{Typ: "JWT", Kid: p.kid}, idpClaims{
-		Iss: p.issuer, Aud: idpAudience, Sub: sub, Name: name, IAT: now.Unix(), EXP: now.Add(idpTokenTTL).Unix(),
+		Iss: p.issuer, Aud: idpAudience, Sub: sub, Name: name, Tier: tier, IAT: now.Unix(), EXP: now.Add(idpTokenTTL).Unix(),
 	})
 }
 

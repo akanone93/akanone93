@@ -22,6 +22,8 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/cache"
+	"github.com/nightCode42/plux3/backend/internal/fnpb/fnpbconnect"
+	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -42,6 +44,12 @@ type stack struct {
 	app    tenancy.App
 	token  string
 	cli    string
+	// runner is the fnrunner role of a stack that runs functions, as the
+	// api role's internal identity calls it; nil otherwise.
+	runner fnpbconnect.FunctionRunnerServiceClient
+	// grants mints the grants the api role would mint, for a test that
+	// calls the runner itself; nil without functions.
+	grants *function.Grants
 }
 
 // stackOptions change how startStackWith configures the server.
@@ -57,6 +65,19 @@ type stackOptions struct {
 	// identityHTTP reads the identity providers' key sets, for a provider
 	// the test runs on loopback behind its own authority.
 	identityHTTP *http.Client
+	// functions makes the stack run server functions: the fnrunner and
+	// egress roles beside the server, over mutual TLS from a test
+	// authority, and the worker's builder replaced by the given one.
+	functions *stackFunctions
+}
+
+// stackFunctions stands in for the builder role of a stack that runs
+// functions (FN-016, FN-051): the worker calls Builder and Linker as it
+// calls the role, signs what they return and deploys it as it deploys a
+// build.
+type stackFunctions struct {
+	Builder function.Builder
+	Linker  function.Linker
 }
 
 // deviceAddr is fixed when a device runs the flows (PLUX_E2E_DEVICE): the
@@ -118,12 +139,19 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 	if valkey := os.Getenv("PLUX_TEST_VALKEY_URL"); valkey != "" {
 		stores += "cache:\n  backend: valkey\n  valkeyURL: \"" + valkey + "\"\n"
 	}
+	var build []BuildOption
+	var roles functionRoles
+	if o.functions != nil {
+		roles = newFunctionRoles(t, signingDirOf(dir))
+		o.serverYAML += roles.serverYAML()
+		o.extraYAML += roles.extraYAML()
+		build = append(build, WithFunctionBuilder(o.functions.Builder, o.functions.Linker))
+	}
 	cfg := testConfig(t, "server:\n  roles: [api, worker]\n  listen: \""+addr+"\"\n  publicBaseURL: \""+public+"\"\n"+o.serverYAML+
 		"database:\n  url: \""+url+"\"\n"+stores+
-		"signing:\n  directory: \""+filepath.Join(dir, "keys")+"\"\n"+
+		"signing:\n  directory: \""+signingDirOf(dir)+"\"\n"+
 		"attestation:\n  developmentProvider: true\n"+o.extraYAML)
 	ctx, cancel := context.WithCancel(context.Background())
-	var build []BuildOption
 	if o.identityHTTP != nil {
 		build = append(build, WithIdentityProviderClient(o.identityHTTP))
 	}
@@ -142,6 +170,11 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 		cancel()
 		t.Fatalf("the server stopped while starting: %v", err)
 	default:
+	}
+
+	var runner fnpbconnect.FunctionRunnerServiceClient
+	if o.functions != nil {
+		runner = roles.startRunner(t)
 	}
 
 	// An administrator with a token, an organisation and an app, made
@@ -184,12 +217,19 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 		t.Fatal(err)
 	}
 
+	var grants *function.Grants
+	if o.functions != nil {
+		if grants, err = function.OpenGrants(ctx, db, backend, nil); err != nil {
+			t.Fatal(err)
+		}
+	}
+
 	// The CLI, built from source, run as a user would with PLUX_TOKEN.
 	cli := filepath.Join(dir, "plux")
 	if out, err := exec.CommandContext(ctx, "go", "build", "-o", cli, "../../cmd/plux").CombinedOutput(); err != nil { //nolint:gosec // G204: a path the test chose.
 		t.Fatalf("go build: %v\n%s", err, out)
 	}
-	return &stack{ctx: ctx, server: server, dir: dir, svc: svc, owner: owner, org: org.ID, app: app, token: minted.Secret, cli: cli}
+	return &stack{ctx: ctx, server: server, dir: dir, svc: svc, owner: owner, org: org.ID, app: app, token: minted.Secret, cli: cli, runner: runner, grants: grants}
 }
 
 // run runs the CLI with args and fails the test unless it exits with want;

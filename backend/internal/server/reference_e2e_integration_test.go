@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
@@ -55,11 +56,26 @@ func TestPluxExpressAgainstTheServer(t *testing.T) {
 	runReferenceApp(t, referenceApp{fixture: "plux_express", dir: "plux_express", addr: deviceAddr("127.0.0.1:18098")})
 }
 
-// runReferenceApp builds and starts the reference backend (test/refapi),
-// publishes the app's fixture with its environments pointed at that
-// backend, and runs the app's flows against both. It runs only when
-// PLUX_E2E_FLUTTER names the flutter executable (make e2e-starter);
-// PLUX_E2E_DEVICE names an emulator or simulator, as for the starter.
+// referenceRun is a reference app's stack, published and promoted: what
+// the flows of the app run against.
+type referenceRun struct {
+	app     referenceApp
+	st      *stack
+	ref     *referenceAPI
+	project string
+	// release is the sequence of the release the publish made.
+	release int64
+	// roots are the environment's root keys as keyID:publicKey.
+	roots []string
+	// functions are the versions deployed before the publish, by name.
+	functions map[string]*pluxv1.FunctionVersion
+}
+
+// startReferenceApp builds and starts the reference backend (test/refapi),
+// starts the stack with the roles that run functions, deploys the app's
+// functions with the artefacts of sdk/fn/examples (the worker's builder is
+// replaced by them; see exampleFunctions), and publishes the app's fixture
+// with its environments pointed at that backend.
 //
 // The fixtures' environments name refapi.invalid, which no device resolves:
 // the copy of the project the test publishes names the backend's loopback
@@ -67,12 +83,8 @@ func TestPluxExpressAgainstTheServer(t *testing.T) {
 // the PLUX_REFAPI_CA define). PLUX_E2E_REFAPI_ADDR fixes the address the
 // backend listens on, for runs where a device reaches it through a port
 // forward.
-func runReferenceApp(t *testing.T, app referenceApp) {
-	flutter := os.Getenv("PLUX_E2E_FLUTTER")
-	if flutter == "" {
-		t.Skip("set PLUX_E2E_FLUTTER to the flutter executable (make e2e-starter)")
-	}
-	dir := filepath.Join("..", "..", "..", "apps", app.dir)
+func startReferenceApp(t *testing.T, app referenceApp) *referenceRun {
+	t.Helper()
 	// The reference backend verifies the gateway's assertions with the keys
 	// this server publishes, so it needs to know where the server will be
 	// before either starts. The environment is not a production one, so
@@ -86,21 +98,28 @@ func runReferenceApp(t *testing.T, app referenceApp) {
 	// The gateway trusts the reference backend's test CA, as a customer's
 	// private CA is trusted (gateway.upstreamCAFile), and so does its read
 	// of the identity provider's keys.
+	examples := loadExampleFunctions(t)
 	st := startStackWith(t, addr, stackOptions{
 		extraYAML:    "gateway:\n  upstreamCAFile: \"" + ref.caFile + "\"\n",
 		identityHTTP: ref.client(t),
+		functions:    &stackFunctions{Builder: examples, Linker: examples},
 	})
 	project := st.project(t, app.fixture)
 	pointAtReferenceAPI(t, project, ref.url)
 	// What goes through the gateway has its upstream registered, at the
 	// base URL the environment gives the source (SEC-031), and the
 	// environment's users sign in at the reference backend's identity
-	// provider (SEC-026). A source that declares route direct (Express's
-	// public catalogue) calls the backend itself.
+	// provider (SEC-026), which vouches for the tier of the customer
+	// besides the subject: the claim a function prices a transfer by is
+	// forwarded to what the user token carries.
 	st.registerUpstreams(t, project, "staging", referenceAudience)
 	st.setIdentityProvider(t, "staging", gateway.IdentityProvider{
 		Issuer: ref.url + "/idp", JWKSURL: ref.url + "/idp/jwks.json", Audiences: []string{"plux"},
+		ForwardClaims: []string{"tier"},
 	})
+	// The functions the app's plugins grant exist before the release does
+	// (PLX-7012).
+	deployed := st.deployExampleFunctions(t, project, "staging")
 
 	var pub struct {
 		OK      bool
@@ -118,6 +137,21 @@ func runReferenceApp(t *testing.T, app referenceApp) {
 	for _, k := range keys.Keys {
 		roots = append(roots, k.KeyID+":"+k.PublicKey)
 	}
+	return &referenceRun{app: app, st: st, ref: ref, project: project, release: pub.Release, roots: roots, functions: deployed}
+}
+
+// runReferenceApp starts the app's stack (startReferenceApp) and runs the
+// app's flows against it. It runs only when PLUX_E2E_FLUTTER names the
+// flutter executable (make e2e-starter); PLUX_E2E_DEVICE names an emulator
+// or simulator, as for the starter.
+func runReferenceApp(t *testing.T, app referenceApp) {
+	flutter := os.Getenv("PLUX_E2E_FLUTTER")
+	if flutter == "" {
+		t.Skip("set PLUX_E2E_FLUTTER to the flutter executable (make e2e-starter)")
+	}
+	dir := filepath.Join("..", "..", "..", "apps", app.dir)
+	run := startReferenceApp(t, app)
+	st, ref, roots := run.st, run.ref, run.roots
 
 	defines := []string{
 		"--dart-define=PLUX_ENDPOINT=" + st.server,
