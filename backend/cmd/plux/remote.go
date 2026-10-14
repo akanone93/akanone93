@@ -56,6 +56,15 @@ type env struct {
 	creds credentials
 	// httpClient is replaceable in tests.
 	httpClient *http.Client
+	// pollInterval is how long plux fn deploy waits between looking at a
+	// build, doubling up to eight times; zero means half a second.
+	pollInterval time.Duration
+	// ctx ends long-running commands such as plux fn logs --follow; nil
+	// means an interrupt ends them.
+	ctx context.Context
+	// vendor runs `cargo vendor` in a crate; nil runs cargo. Replaceable in
+	// tests, which must not reach the network.
+	vendor func(ctx context.Context, dir string) error
 }
 
 // newEnv returns the environment of a real run.
@@ -64,7 +73,7 @@ func newEnv(stdout, stderr io.Writer) env {
 	if err != nil {
 		dir = "."
 	}
-	return env{stdout: stdout, stderr: stderr, stdin: os.Stdin, creds: credentials{dir: filepath.Join(dir, "plux")}, httpClient: &http.Client{Timeout: 5 * time.Minute}}
+	return env{stdout: stdout, stderr: stderr, stdin: os.Stdin, creds: credentials{dir: filepath.Join(dir, "plux")}, httpClient: &http.Client{Timeout: 5 * time.Minute}, pollInterval: 500 * time.Millisecond}
 }
 
 // common are the flags of every server command.
@@ -135,6 +144,7 @@ type clients struct {
 	publish  pluxv1connect.PublishServiceClient
 	release  pluxv1connect.ReleaseServiceClient
 	manifest pluxv1connect.ManifestServiceClient
+	fn       pluxv1connect.FunctionAdminServiceClient
 	http     *http.Client
 	server   string
 	token    string
@@ -159,6 +169,7 @@ func (e env) connect(c common, needToken bool) (*clients, error) {
 		publish:  pluxv1connect.NewPublishServiceClient(e.httpClient, c.server, opts),
 		release:  pluxv1connect.NewReleaseServiceClient(e.httpClient, c.server, opts),
 		manifest: pluxv1connect.NewManifestServiceClient(e.httpClient, c.server, opts),
+		fn:       pluxv1connect.NewFunctionAdminServiceClient(e.httpClient, c.server, opts),
 		http:     e.httpClient, server: c.server, token: token,
 	}, nil
 }

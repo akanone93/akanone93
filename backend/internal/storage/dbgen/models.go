@@ -351,6 +351,20 @@ type FunctionDeclaration struct {
 	CreatedAt      pgtype.Timestamptz
 }
 
+type FunctionInvocation struct {
+	ID              int64
+	OrganizationID  pgtype.UUID
+	AppID           pgtype.UUID
+	EnvironmentID   pgtype.UUID
+	Function        string
+	Version         int32
+	Result          string
+	DurationMicros  int64
+	MemoryPeakBytes int64
+	Replayed        bool
+	FinishedAt      pgtype.Timestamptz
+}
+
 type FunctionKv struct {
 	OrganizationID pgtype.UUID
 	AppID          pgtype.UUID
@@ -359,6 +373,20 @@ type FunctionKv struct {
 	Key            string
 	Value          []byte
 	UpdatedAt      pgtype.Timestamptz
+}
+
+type FunctionLog struct {
+	ID             int64
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	Function       string
+	Version        int32
+	InvocationID   pgtype.UUID
+	Level          string
+	Message        string
+	TraceID        string
+	LoggedAt       pgtype.Timestamptz
 }
 
 type FunctionSource struct {

@@ -10554,6 +10554,11 @@ components:
           allOf:
             - $ref: '#/components/schemas/plux.v1.Page'
           title: page
+        since:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: since
+          description: since limits the logs to lines written at or after this time (FN-032).
       title: ListLogsRequest
       additionalProperties: false
     plux.v1.ListLogsResponse:

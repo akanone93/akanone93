@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5"
@@ -172,8 +173,23 @@ func TestFunctionAdminService_FN_006(t *testing.T) {
 	if _, err := w.functionAdmin.Deploy(ctx, req(owner, &pluxv1.DeployRequest{BuildId: prod})); err != nil {
 		t.Errorf("the owner deploying to production: %v", err)
 	}
-	if _, err := w.functionAdmin.ListLogs(ctx, req(viewer, &pluxv1.ListLogsRequest{AppId: f.app, EnvironmentId: f.dev, Name: apiFunction})); codeOf(err) != connect.CodeUnimplemented {
-		t.Errorf("ListLogs: %v", err)
+	w.functions.Record(ctx, function.LogMeta{OrganizationID: f.org, AppID: f.app, EnvironmentID: f.dev, Function: apiFunction, Version: 2},
+		[]function.LogLine{{Level: 1, Message: "first", Time: time.Now().Add(-time.Second)}, {Level: 3, Message: "second", Time: time.Now()}})
+	w.functions.Observe(ctx, function.Observation{OrganizationID: f.org, AppID: f.app, EnvironmentID: f.dev, Function: apiFunction, Version: 2, Result: "ok", Duration: 3 * time.Millisecond})
+	w.functions.Observe(ctx, function.Observation{OrganizationID: f.org, AppID: f.app, EnvironmentID: f.dev, Function: apiFunction, Version: 2, Result: "function_timeout"})
+	logs := must(w.functionAdmin.ListLogs(ctx, req(viewer, &pluxv1.ListLogsRequest{AppId: f.app, EnvironmentId: f.dev, Name: apiFunction, Version: 2, Page: &pluxv1.Page{PageSize: 1}})))(t)
+	if len(logs.GetLines()) != 1 || logs.GetLines()[0].GetMessage() != "second" || logs.GetLines()[0].GetLevel() != "error" || logs.GetPage().GetNextPageToken() == "" {
+		t.Fatalf("ListLogs first page = %v", logs)
+	}
+	more := must(w.functionAdmin.ListLogs(ctx, req(viewer, &pluxv1.ListLogsRequest{
+		AppId: f.app, EnvironmentId: f.dev, Name: apiFunction, Version: 2, Page: &pluxv1.Page{PageSize: 1, PageToken: logs.GetPage().GetNextPageToken()},
+	})))(t)
+	if len(more.GetLines()) != 1 || more.GetLines()[0].GetMessage() != "first" {
+		t.Errorf("ListLogs second page = %v", more)
+	}
+	metrics := must(w.functionAdmin.GetMetrics(ctx, req(viewer, &pluxv1.GetMetricsRequest{AppId: f.app, EnvironmentId: f.dev, Name: apiFunction, WindowSeconds: 600})))(t)
+	if metrics.GetInvocations() != 2 || metrics.GetErrorsByKind()["function_timeout"] != 1 || metrics.GetLatencyP99Micros() == 0 {
+		t.Errorf("GetMetrics = %v", metrics)
 	}
 	if _, err := w.uploadSource(t, dev, f.app, f.dev, apiFunction, strings.Repeat("x", 4)); err != nil {
 		t.Errorf("a second upload: %v", err)
