@@ -323,7 +323,7 @@
                             "input": {
                               "path": "page.feeError",
                               "value": {
-                                "$expr": "\"Fee unavailable: \" + (steps.fee.error?.code ?? \"declined\")"
+                                "$expr": "\"Fee unavailable: \" + (steps.fee.error?.code ?? (steps.fee.error?.kind == \"cancelled\" ? \"declined\" : \"refused\"))"
                               }
                             }
                           }

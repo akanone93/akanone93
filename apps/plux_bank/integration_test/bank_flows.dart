@@ -216,12 +216,23 @@ void bankFlows({
   );
 
   testWidgets(
-    'the fee of a transfer is computed by the server function after the '
-    'user confirms the invocation with the device key, and declining '
-    'computes nothing [DX-004] [FN-020] [FN-022] [SEC-027]',
+    'the trusted fee function refuses a development device: the server '
+    'refuses the transaction challenge, and the page shows the refusal, '
+    'never a fee [DX-004] [FN-020] [SEC-027]',
     (tester) async {
       // Like the decline flow, it runs before the exit flow, whose transfer
       // the backend keeps: it expects the opening balance.
+      //
+      // This host registers with the development provider, which never
+      // rises above AL0 and cannot make App Attest or Play Integrity
+      // evidence (SEC-008). bank.transferFee requires the environment's
+      // defaultFunctionAssurance (AL1 under standard) and attestation, so
+      // the server refuses the call (PLX-6002): the flow proves that a
+      // trusted calculation is out of reach of an unattested device. The
+      // success path, with SCA, evidence and the user's tier claim, is
+      // verified by the Go integration tests against recorded App Attest
+      // and Play Integrity vectors, and by the maintainer's reference-device
+      // run (P7 plan §2.6 M12).
       problems.clear();
       await signIn(tester);
       await waitFor(tester, find.text('Checking'));
@@ -229,23 +240,13 @@ void bankFlows({
       await waitFor(tester, find.text('Available: 2500.00 EUR'));
       await typeInto(tester, 'Amount (EUR)', '12.50');
 
-      // The function declares sca: the sheet shows the function and the
-      // input exactly as the SCA key signs them, and the call is made only
-      // once the user confirms (the standard tier's fee is 0.1 percent,
-      // at least 0.50).
+      // The function declares sca, so the device first asks the server for
+      // a challenge bound to the function and the input; the server refuses
+      // it to an AL0 device, before any confirmation sheet, and the page
+      // shows the refusal, never a fee and never the user's own decline.
       await tapSettled(tester, find.text('Show fee'));
-      await waitFor(tester, find.text('Confirm transaction'));
-      expect(find.text('bank.transferFee'), findsOneWidget);
-      expect(find.textContaining('12.50'), findsWidgets);
-      expect(find.textContaining('Fee: '), findsNothing);
-      await tapSettled(tester, find.text('Confirm'));
-      await waitFor(tester, find.text('Fee: 0.50 EUR'));
-
-      // Declining sends nothing and clears the fee.
-      await tapSettled(tester, find.text('Show fee'));
-      await waitFor(tester, find.text('Confirm transaction'));
-      await tapSettled(tester, find.text('Cancel'));
-      await waitFor(tester, find.text('Fee unavailable: declined'));
+      await waitFor(tester, find.text('Fee unavailable: refused'));
+      expect(find.text('Confirm transaction'), findsNothing);
       expect(find.textContaining('Fee: '), findsNothing);
       expect(problems, isEmpty, reason: problems.join('\n'));
       await stop(tester);
