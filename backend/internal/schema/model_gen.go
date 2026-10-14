@@ -825,7 +825,8 @@ type FunctionCapabilities struct {
 	KV *bool `json:"kv,omitempty"`
 	// Secrets: Names of the secrets the function may read (FN-012).
 	Secrets []string `json:"secrets,omitempty"`
-	// Functions: Names of the functions this function may call (FN-012).
+	// Functions: Names of the functions this function may call (FN-012); server
+	// placement only — a device function may call none (FN-052).
 	Functions []string `json:"functions,omitempty"`
 	// Claims: Whether the function may read the verified user claims (SEC-026).
 	Claims *bool `json:"claims,omitempty"`
@@ -853,6 +854,9 @@ type FunctionDocument struct {
 	// declared is denied (FN-012). A device function may declare only `kv` and
 	// `functions` that are themselves device-placed (FN-052).
 	Capabilities *FunctionCapabilities `json:"capabilities,omitempty"`
+	// Env: Environment variables of the app's environment the function may read
+	// with env_get (FN-002); server placement only (FN-052).
+	Env []string `json:"env,omitempty"`
 	// Limits: Per-function limits that tighten the registry values (FN-011,
 	// LIM-002).
 	Limits *FunctionLimits `json:"limits,omitempty"`

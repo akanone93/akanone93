@@ -879,17 +879,18 @@ final class PluxRuntime with WidgetsBindingObserver {
   FunctionTarget? _resolveFunction(String plugin, String function) {
     final release = active.value;
     if (release == null) return null;
-    final granted = (release.meta(plugin).capabilities?.functions ?? const [])
-        .any((g) => g.function == function);
-    if (!granted) return null;
+    final grant = (release.meta(plugin).capabilities?.functions ?? const [])
+        .where((g) => g.function == function)
+        .firstOrNull;
+    if (grant == null) return null;
     final module = release.deviceModule(plugin);
     final device = module?.functions
         ?.where((f) => f.name == function)
         .firstOrNull;
     if (module == null || device == null) {
-      // Seam: the release does not carry the pinned version of a server
-      // function on the device yet, so the call names version 0 (FN-006).
-      return ServerFunctionTarget(name: function, version: 0);
+      // FN-006: the server runs only the version this release pins, which
+      // the compiler wrote into the plugin's grant.
+      return ServerFunctionTarget(name: function, version: grant.version);
     }
     return DeviceFunctionTarget(
       name: function,

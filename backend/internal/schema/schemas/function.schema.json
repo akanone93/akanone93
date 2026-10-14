@@ -67,7 +67,7 @@
         },
         "functions": {
           "type": "array",
-          "description": "Names of the functions this function may call (FN-012).",
+          "description": "Names of the functions this function may call (FN-012); server placement only — a device function may call none (FN-052).",
           "items": {
             "type": "string",
             "pattern": "^[a-z][a-zA-Z0-9]*(\\.[a-z][a-zA-Z0-9]*)+$",
@@ -85,6 +85,16 @@
       },
       "additionalProperties": false,
       "x-plux-type": "FunctionCapabilities"
+    },
+    "env": {
+      "type": "array",
+      "description": "Environment variables of the app's environment the function may read with env_get (FN-002); server placement only (FN-052).",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_]*$",
+        "maxLength": 128
+      },
+      "uniqueItems": true
     },
     "limits": {
       "type": "object",

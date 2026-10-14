@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": "1.0.0",
   "kind": "function",
-  "id": "5d8812bb-f625-45f4-9227-27f61a272b58",
+  "id": "01a137b5-6b90-70d0-9fe6-5cdd42ab1ed8",
   "name": "loan.calculateSchedule",
   "placement": "device",
   "capabilities": {},

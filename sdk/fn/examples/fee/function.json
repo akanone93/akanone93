@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": "1.0.0",
   "kind": "function",
-  "id": "94662393-d109-4bcf-a454-818ab471e664",
+  "id": "01a137b5-6b91-728a-b602-f8bbfb8dee11",
   "name": "bank.transferFee",
   "placement": "server",
   "capabilities": {

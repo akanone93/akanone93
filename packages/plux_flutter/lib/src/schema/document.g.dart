@@ -1531,7 +1531,8 @@ final class FunctionCapabilities {
   final bool? kv;
   /// Names of the secrets the function may read (FN-012).
   final List<String>? secrets;
-  /// Names of the functions this function may call (FN-012).
+  /// Names of the functions this function may call (FN-012); server placement
+  /// only — a device function may call none (FN-052).
   final List<String>? functions;
   /// Whether the function may read the verified user claims (SEC-026).
   final bool? claims;
@@ -1551,7 +1552,7 @@ final class FunctionCapabilities {
 /// output schemas are derived from the function's types at build time (FN-004)
 /// and never written here. File: `functions/<name>/function.json`.
 final class FunctionDocument {
-  const FunctionDocument({required this.schemaVersion, required this.kind, required this.id, required this.name, this.description, required this.placement, this.capabilities, this.limits, this.assurance, this.attestation, this.sca, this.pure, this.cacheTtlSeconds, this.tests});
+  const FunctionDocument({required this.schemaVersion, required this.kind, required this.id, required this.name, this.description, required this.placement, this.capabilities, this.env, this.limits, this.assurance, this.attestation, this.sca, this.pure, this.cacheTtlSeconds, this.tests});
 
   /// Decodes a JSON object.
   factory FunctionDocument.fromJson(Object json) {
@@ -1564,6 +1565,7 @@ final class FunctionDocument {
       description: m['description'] == null ? null : m['description']! as String,
       placement: Placement.fromJson(m['placement']!),
       capabilities: m['capabilities'] == null ? null : FunctionCapabilities.fromJson(m['capabilities']!),
+      env: m['env'] == null ? null : [for (final e in m['env']! as List<Object?>) e! as String],
       limits: m['limits'] == null ? null : FunctionLimits.fromJson(m['limits']!),
       assurance: m['assurance'] == null ? null : AssuranceLevel.fromJson(m['assurance']!),
       attestation: m['attestation'] == null ? null : m['attestation']! as bool,
@@ -1590,6 +1592,9 @@ final class FunctionDocument {
   /// (FN-012). A device function may declare only `kv` and `functions` that are
   /// themselves device-placed (FN-052).
   final FunctionCapabilities? capabilities;
+  /// Environment variables of the app's environment the function may read with
+  /// env_get (FN-002); server placement only (FN-052).
+  final List<String>? env;
   /// Per-function limits that tighten the registry values (FN-011, LIM-002).
   final FunctionLimits? limits;
   /// The assurance level a device must hold to invoke the function; the
@@ -1617,6 +1622,7 @@ final class FunctionDocument {
         if (description != null) 'description': description!,
         'placement': placement.toJson(),
         if (capabilities != null) 'capabilities': capabilities!.toJson(),
+        if (env != null) 'env': [for (final e in env!) e],
         if (limits != null) 'limits': limits!.toJson(),
         if (assurance != null) 'assurance': assurance!.toJson(),
         if (attestation != null) 'attestation': attestation!,

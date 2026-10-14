@@ -473,7 +473,7 @@ Host capabilities the function declares; everything not declared is denied (FN-0
 | `http` | list of string |  | Domains the function may call through the egress proxy (FN-017). |
 | `kv` | boolean |  | Whether the function may use its key-value namespace (FN-018). |
 | `secrets` | list of string |  | Names of the secrets the function may read (FN-012). |
-| `functions` | list of string |  | Names of the functions this function may call (FN-012). |
+| `functions` | list of string |  | Names of the functions this function may call (FN-012); server placement only — a device function may call none (FN-052). |
 | `claims` | boolean |  | Whether the function may read the verified user claims (SEC-026). |
 
 ### FunctionDocument
@@ -489,6 +489,7 @@ A Plux Function: its name, placement, capabilities, limits, required assurance a
 | `description` | string |  |  |
 | `placement` | [Placement](#placement) | yes | Where the function runs; exactly one (FN-008). |
 | `capabilities` | [FunctionCapabilities](#functioncapabilities) |  | Host capabilities the function declares; everything not declared is denied (FN-012). A device function may declare only `kv` and `functions` that are themselves device-placed (FN-052). |
+| `env` | list of string |  | Environment variables of the app's environment the function may read with env_get (FN-002); server placement only (FN-052). |
 | `limits` | [FunctionLimits](#functionlimits) |  | Per-function limits that tighten the registry values (FN-011, LIM-002). |
 | `assurance` | [AssuranceLevel](#assurancelevel) |  | The assurance level a device must hold to invoke the function; the `defaultFunctionAssurance` setting applies when absent (SEC-007). |
 | `attestation` | boolean |  | Whether the invocation requires a fresh attestation of the device. |
