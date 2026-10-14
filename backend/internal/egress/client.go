@@ -98,7 +98,10 @@ func handshake(ctx context.Context, conn net.Conn, timeout time.Duration, addr, 
 		return nil, fmt.Errorf("egress.Dial: send CONNECT: %w", err)
 	}
 	br := bufio.NewReader(conn)
-	resp, err := http.ReadResponse(br, &http.Request{Method: http.MethodConnect})
+	// After a 200 to CONNECT the parser's body would be the tunnel itself, so
+	// it is neither read nor closed; the connection is the tunnel. Refusals
+	// are read and closed in replyError.
+	resp, err := http.ReadResponse(br, &http.Request{Method: http.MethodConnect}) //nolint:bodyclose // see above
 	if err != nil {
 		return nil, fmt.Errorf("egress.Dial: read the answer: %w", err)
 	}
@@ -115,6 +118,7 @@ func handshake(ctx context.Context, conn net.Conn, timeout time.Duration, addr, 
 
 // replyError maps a refusal to a sentinel error.
 func replyError(resp *http.Response) error {
+	defer func() { _ = resp.Body.Close() }()
 	reason, _ := io.ReadAll(io.LimitReader(resp.Body, maxReplyBytes))
 	text := strings.TrimSpace(string(reason))
 	switch resp.StatusCode {

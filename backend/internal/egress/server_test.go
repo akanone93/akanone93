@@ -6,7 +6,6 @@ package egress
 import (
 	"context"
 	"crypto/tls"
-	"io"
 	"net"
 	"net/http"
 	"net/netip"
@@ -273,7 +272,7 @@ func TestRefusalIsLoggedWithoutPayload_FN_017(t *testing.T) {
 		HeaderAllow + ": *.example.com\r\n" + HeaderFunction + ": " + testFunction + "\r\n" +
 		"Authorization: Bearer s3cret-token\r\nCookie: session=abc\r\n\r\n"
 	resp, _, _ := h.rawConnect(t, req)
-	body, _ := io.ReadAll(resp.Body)
+	body := resp.Body
 	if resp.StatusCode != 403 || strings.Contains(string(body), "evil.org") {
 		t.Fatalf("status %d, body %q: the answer must not echo the destination", resp.StatusCode, body)
 	}
@@ -320,7 +319,7 @@ func TestStopClosesOpenTunnels_FN_017(t *testing.T) {
 	if _, err := br.ReadByte(); err == nil {
 		t.Error("the tunnel survived Stop")
 	}
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	ln, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
 	}

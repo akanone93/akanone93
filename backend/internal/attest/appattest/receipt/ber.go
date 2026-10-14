@@ -235,7 +235,7 @@ func appendIdentifier(dst []byte, el element) []byte {
 // appendLength appends the minimal definite length.
 func appendLength(dst []byte, n int) []byte {
 	if n < 0x80 {
-		return append(dst, byte(n))
+		return append(dst, byte(n&0x7f))
 	}
 	var tmp [8]byte
 	i := len(tmp)

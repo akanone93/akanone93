@@ -46,7 +46,7 @@ func newReceiptRig(t *testing.T) *receiptRig {
 		if rr.rig == nil {
 			return time.Now()
 		}
-		return rr.rig.now
+		return rr.now
 	}
 	rr.sim = receipttest.New(t, receipttest.Config{
 		Authority: authority, JWTKey: signer.Public(), KeyID: "ABCDE12345", TeamID: "TEAMID1234", AppID: iosAppID, Key: &appKey.PublicKey, Now: clock,
@@ -169,7 +169,7 @@ func TestRegisterIOSRiskBoundary_SEC_007(t *testing.T) {
 			if risk > c.limit {
 				want = "AL2"
 			}
-			if d.AssuranceLevel != want || d.RiskMetric != int32(risk) {
+			if d.AssuranceLevel != want || int(d.RiskMetric) != risk {
 				t.Errorf("%s with risk %d: level %s risk %d, want %s", c.profile, risk, d.AssuranceLevel, d.RiskMetric, want)
 			}
 		}

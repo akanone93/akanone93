@@ -195,7 +195,7 @@ func guardedDialer(policy httpx.Policy, timeout time.Duration) ContextDialer {
 }
 
 // Name identifies the server as a component of the process.
-func (s *Server) Name() string { return "egress" }
+func (*Server) Name() string { return "egress" }
 
 // Start listens and serves in the background. It returns once the socket
 // is open.
@@ -394,7 +394,7 @@ func (s *Server) connect(ctx context.Context, w http.ResponseWriter, t target) (
 	defer cancel()
 	for _, a := range addrs {
 		// The validated address is dialled, never the name again.
-		addr := netip.AddrPortFrom(a.Unmap(), uint16(t.port)).String()
+		addr := net.JoinHostPort(a.Unmap().String(), strconv.Itoa(t.port))
 		if conn, err := s.opts.Dialer.DialContext(dctx, "tcp", addr); err == nil {
 			return conn, true
 		}
@@ -436,7 +436,7 @@ func (s *Server) tunnel(w http.ResponseWriter, t target, upstream net.Conn) {
 }
 
 // reply writes a short plain-text answer.
-func (s *Server) reply(w http.ResponseWriter, status int, reason string) {
+func (*Server) reply(w http.ResponseWriter, status int, reason string) {
 	h := w.Header()
 	h.Set("Content-Type", "text/plain; charset=utf-8")
 	h.Set("Connection", "close")
@@ -487,7 +487,8 @@ func validFunction(v string) bool {
 	}
 	for i := range len(v) {
 		b := v[i]
-		if !(b >= 'a' && b <= 'z' || b >= 'A' && b <= 'Z' || b >= '0' && b <= '9' || strings.IndexByte("-_./@+:", b) >= 0) {
+		letterOrDigit := b >= 'a' && b <= 'z' || b >= 'A' && b <= 'Z' || b >= '0' && b <= '9'
+		if !letterOrDigit && strings.IndexByte("-_./@+:", b) < 0 {
 			return false
 		}
 	}

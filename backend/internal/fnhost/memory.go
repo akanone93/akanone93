@@ -142,7 +142,7 @@ func (m *cappedMemory) Reallocate(size uint64) []byte {
 
 // Free implements experimental.LinearMemory. It keeps the buffer: see
 // release.
-func (m *cappedMemory) Free() {}
+func (*cappedMemory) Free() {}
 
 // release gives the buffer back to the pool, cleared. The caller must have
 // closed the instance and be sure the guest no longer runs.

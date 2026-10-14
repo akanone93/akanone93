@@ -113,17 +113,17 @@ func serverOnlyCapabilities(c *schema.FunctionCapabilities) []string {
 
 // grantOf finds the grant a name refers to in a plugin: the granted
 // function, or the alias of a grant.
-func grantOf(pl *plugin, name string) (int, *schema.FunctionGrant) {
+func grantOf(pl *plugin, name string) *schema.FunctionGrant {
 	if pl == nil || pl.doc.Capabilities == nil {
-		return -1, nil
+		return nil
 	}
 	for i := range pl.doc.Capabilities.Functions {
 		g := &pl.doc.Capabilities.Functions[i]
 		if g.Function == name || g.Alias == name {
-			return i, g
+			return g
 		}
 	}
-	return -1, nil
+	return nil
 }
 
 // functionInfo asks the catalogue about a grant; nil without a catalogue
@@ -142,7 +142,7 @@ func (u *unit) functionInfo(g *schema.FunctionGrant) *FunctionInfo {
 // stepFunction is the function an invokeFunction step calls, or nil when
 // the reference is not resolved (which checkFunctionRef reports).
 func (u *unit) stepFunction(g *graph, st schema.Step) *FunctionInfo {
-	_, grant := grantOf(g.plugin, literalString(st.Input["function"]))
+	grant := grantOf(g.plugin, literalString(st.Input["function"]))
 	if grant == nil {
 		return nil
 	}
@@ -158,7 +158,7 @@ func (u *unit) checkFunctionRef(g *graph, in registry.Input, raw json.RawMessage
 		u.report(c.code, c.file, c.ptr, "input %q names a %s and is written as a literal string", in.Name, in.Ref)
 		return nil
 	}
-	_, grant := grantOf(g.plugin, name)
+	grant := grantOf(g.plugin, name)
 	if grant == nil {
 		u.report(plxerr.FunctionReferenceUnresolved, c.file, c.ptr, "function %q is not granted by the plugin's capabilities.functions", name)
 		return nil

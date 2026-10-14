@@ -17,11 +17,11 @@ const fnInput = `{"amount":"125.50","payee":"DE89370400440532013000"}`
 
 var fnTx = FunctionTransaction{Name: "payments.transfer", Version: 3}
 
-// invocationChallenge issues the challenge of fnTx for input.
-func (f *fixture) invocationChallenge(input string) Challenge {
+// invocationChallenge issues the challenge of fnTx for fnInput.
+func (f *fixture) invocationChallenge(ctx context.Context) Challenge {
 	f.t.Helper()
-	sum := sha256.Sum256([]byte(input))
-	c, err := f.sca.CreateInvocation(context.Background(), f.dev, fnTx, sum[:], []byte(`{"summary":"Transfer 125.50 EUR"}`), 5*time.Minute)
+	sum := sha256.Sum256([]byte(fnInput))
+	c, err := f.sca.CreateInvocation(ctx, f.dev, fnTx, sum[:], []byte(`{"summary":"Transfer 125.50 EUR"}`), 5*time.Minute)
 	if err != nil {
 		f.t.Fatalf("CreateInvocation: %v", err)
 	}
@@ -35,14 +35,14 @@ func (f *fixture) invocationChallenge(input string) Challenge {
 func TestInvocationChallengeIsBoundToTheInput_SEC_027(t *testing.T) {
 	t.Parallel()
 	f := newFixture(t)
-	c := f.invocationChallenge(fnInput)
+	ctx := t.Context()
+	c := f.invocationChallenge(ctx)
 	sum := sha256.Sum256([]byte(fnInput))
 	want := `{"function":"payments.transfer","inputSha256":"` + base64.RawURLEncoding.EncodeToString(sum[:]) + `","summary":"Transfer 125.50 EUR","version":"3"}`
 	if string(c.Summary) != want {
 		t.Fatalf("summary = %s, want %s", c.Summary, want)
 	}
 	sig := f.signTransaction(c, c.Summary)
-	ctx := context.Background()
 	if err := f.sca.VerifyInvocation(ctx, f.dev, fnTx, []byte(fnInput), c.ID, sig, 5*time.Minute); err != nil {
 		t.Fatalf("a confirmed invocation: %v", err)
 	}
@@ -56,48 +56,47 @@ func TestInvocationChallengeIsBoundToTheInput_SEC_027(t *testing.T) {
 // with the gateway's codes, and a challenge for another input is spent.
 func TestInvocationConfirmationRefusals_SEC_027(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
 	tests := []struct {
 		name string
-		do   func(f *fixture) error
+		do   func(ctx context.Context, f *fixture) error
 		want plxerr.Code
 	}{
-		{"another input", func(f *fixture) error {
-			c := f.invocationChallenge(fnInput)
+		{"another input", func(ctx context.Context, f *fixture) error {
+			c := f.invocationChallenge(ctx)
 			return f.sca.VerifyInvocation(ctx, f.dev, fnTx, []byte(`{"amount":"9999.00","payee":"DE89370400440532013000"}`), c.ID, f.signTransaction(c, c.Summary), time.Minute)
 		}, plxerr.SCADynamicLinkingMismatch},
-		{"another version", func(f *fixture) error {
-			c := f.invocationChallenge(fnInput)
+		{"another version", func(ctx context.Context, f *fixture) error {
+			c := f.invocationChallenge(ctx)
 			return f.sca.VerifyInvocation(ctx, f.dev, FunctionTransaction{Name: fnTx.Name, Version: 4}, []byte(fnInput), c.ID, f.signTransaction(c, c.Summary), time.Minute)
 		}, plxerr.SCAChallengeInvalid},
-		{"another function", func(f *fixture) error {
-			c := f.invocationChallenge(fnInput)
+		{"another function", func(ctx context.Context, f *fixture) error {
+			c := f.invocationChallenge(ctx)
 			return f.sca.VerifyInvocation(ctx, f.dev, FunctionTransaction{Name: "payments.refund", Version: 3}, []byte(fnInput), c.ID, f.signTransaction(c, c.Summary), time.Minute)
 		}, plxerr.SCAChallengeInvalid},
-		{"another device", func(f *fixture) error {
-			c := f.invocationChallenge(fnInput)
+		{"another device", func(ctx context.Context, f *fixture) error {
+			c := f.invocationChallenge(ctx)
 			other := f.dev
 			other.DeviceID = "dev-2"
 			return f.sca.VerifyInvocation(ctx, other, fnTx, []byte(fnInput), c.ID, f.signTransaction(c, c.Summary), time.Minute)
 		}, plxerr.SCAChallengeInvalid},
-		{"a signature over another summary", func(f *fixture) error {
-			c := f.invocationChallenge(fnInput)
+		{"a signature over another summary", func(ctx context.Context, f *fixture) error {
+			c := f.invocationChallenge(ctx)
 			return f.sca.VerifyInvocation(ctx, f.dev, fnTx, []byte(fnInput), c.ID, f.signTransaction(c, []byte(`{"summary":"Transfer 1 EUR"}`)), time.Minute)
 		}, plxerr.SCASignatureInvalid},
-		{"a short signature", func(f *fixture) error {
-			c := f.invocationChallenge(fnInput)
+		{"a short signature", func(ctx context.Context, f *fixture) error {
+			c := f.invocationChallenge(ctx)
 			return f.sca.VerifyInvocation(ctx, f.dev, fnTx, []byte(fnInput), c.ID, []byte("short"), time.Minute)
 		}, plxerr.SCASignatureInvalid},
-		{"no challenge", func(f *fixture) error {
+		{"no challenge", func(ctx context.Context, f *fixture) error {
 			return f.sca.VerifyInvocation(ctx, f.dev, fnTx, []byte(fnInput), "", nil, time.Minute)
 		}, plxerr.SCAChallengeInvalid},
-		{"an expired challenge", func(f *fixture) error {
-			c := f.invocationChallenge(fnInput)
+		{"an expired challenge", func(ctx context.Context, f *fixture) error {
+			c := f.invocationChallenge(ctx)
 			f.clock.Advance(6 * time.Minute)
 			return f.sca.VerifyInvocation(ctx, f.dev, fnTx, []byte(fnInput), c.ID, f.signTransaction(c, c.Summary), time.Minute)
 		}, plxerr.SCAChallengeInvalid},
-		{"a transaction challenge of an upstream", func(f *fixture) error {
-			c := f.challenge()
+		{"a transaction challenge of an upstream", func(ctx context.Context, f *fixture) error {
+			c := f.challenge() //nolint:contextcheck // the fixture's helper uses its own background context.
 			return f.sca.VerifyInvocation(ctx, f.dev, fnTx, []byte(fnInput), c.ID, f.signTransaction(c, c.Summary), time.Minute)
 		}, plxerr.SCAChallengeInvalid},
 	}
@@ -105,7 +104,7 @@ func TestInvocationConfirmationRefusals_SEC_027(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			f := newFixture(t)
-			if got := code(tc.do(f)); got != tc.want {
+			if got := code(tc.do(t.Context(), f)); got != tc.want {
 				t.Errorf("code = %d, want %d", got, tc.want)
 			}
 		})

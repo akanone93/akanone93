@@ -47,6 +47,16 @@ func portOf(t *testing.T, rawURL string) int {
 	return n
 }
 
+// getRequest builds a GET request bound to the test's context.
+func getRequest(t *testing.T, target string) *http.Request {
+	t.Helper()
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, target, http.NoBody)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return req
+}
+
 // Verifies: FN-013, FN-017.
 // HTTPS to a destination goes through a CONNECT tunnel with TLS end to
 // end: the destination's certificate is verified by the caller, and the
@@ -54,7 +64,7 @@ func portOf(t *testing.T, rawURL string) int {
 func TestTransportReachesAnHTTPSUpstream_FN_017(t *testing.T) {
 	t.Parallel()
 	upstream := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = io.WriteString(w, "hello from "+r.Host)
+		_, _ = io.WriteString(w, "hello from "+r.Host) //nolint:gosec // G705: a test upstream echoing the Host header to the test client; no browser renders it.
 	}))
 	defer upstream.Close()
 	port := portOf(t, upstream.URL)
@@ -67,7 +77,7 @@ func TestTransportReachesAnHTTPSUpstream_FN_017(t *testing.T) {
 	tr.TLSClientConfig.RootCAs = pool // httptest's certificate names example.com
 
 	client := &http.Client{Transport: tr, Timeout: 10 * time.Second}
-	resp, err := client.Get("https://example.com:" + strconv.Itoa(port) + "/")
+	resp, err := client.Do(getRequest(t, "https://example.com:"+strconv.Itoa(port)+"/"))
 	if err != nil {
 		t.Fatalf("GET: %v", err)
 	}
@@ -90,7 +100,7 @@ func TestTransportReachesAnHTTPSUpstream_FN_017(t *testing.T) {
 func TestTransportTunnelsPlainHTTP_FN_017(t *testing.T) {
 	t.Parallel()
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = io.WriteString(w, "plain "+r.URL.Path)
+		_, _ = io.WriteString(w, "plain "+r.URL.Path) //nolint:gosec // G705: a test upstream echoing the path to the test client; no browser renders it.
 	}))
 	defer upstream.Close()
 	port := portOf(t, upstream.URL)
@@ -99,7 +109,7 @@ func TestTransportTunnelsPlainHTTP_FN_017(t *testing.T) {
 	tr := h.clientDialer().Transport([]string{"*.com"}, testFunction)
 	defer tr.CloseIdleConnections()
 	client := &http.Client{Transport: tr, Timeout: 10 * time.Second}
-	resp, err := client.Get("http://example.com:" + strconv.Itoa(port) + "/path")
+	resp, err := client.Do(getRequest(t, "http://example.com:"+strconv.Itoa(port)+"/path"))
 	if err != nil {
 		t.Fatalf("GET: %v", err)
 	}
@@ -120,7 +130,10 @@ func TestTransportRefusalIsErrRefused_FN_017(t *testing.T) {
 
 	tr := h.clientDialer().Transport([]string{"other.example.org"}, testFunction)
 	defer tr.CloseIdleConnections()
-	_, err := (&http.Client{Transport: tr, Timeout: 10 * time.Second}).Get("http://example.com:" + strconv.Itoa(port) + "/")
+	resp, err := (&http.Client{Transport: tr, Timeout: 10 * time.Second}).Do(getRequest(t, "http://example.com:"+strconv.Itoa(port)+"/"))
+	if resp != nil {
+		_ = resp.Body.Close()
+	}
 	if !errors.Is(err, ErrRefused) || !strings.Contains(err.Error(), "PLX-7010") {
 		t.Fatalf("err = %v, want ErrRefused carrying PLX-7010", err)
 	}
@@ -162,7 +175,7 @@ func TestDialerMapsProxyAnswers_FN_017(t *testing.T) {
 // Verifies: FN-017.
 func TestDialerKeepsBytesTheDestinationSendsFirst_FN_017(t *testing.T) {
 	t.Parallel()
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	ln, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
 	}

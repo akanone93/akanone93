@@ -16,6 +16,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"math/big"
 	"net"
@@ -249,10 +250,18 @@ func (h *harness) clientDialer() *Dialer {
 	return &Dialer{Addr: h.addr, TLS: h.pki.clientConfig(&h.client), Timeout: 5 * time.Second}
 }
 
+// connectReply is the proxy's answer to a CONNECT request, with its body
+// read and closed.
+type connectReply struct {
+	StatusCode int
+	Header     http.Header
+	Body       []byte
+}
+
 // rawConnect opens a mutual-TLS connection, writes the request text as
 // is and reads one response. The connection is returned for the cases
 // where it is a tunnel.
-func (h *harness) rawConnect(t *testing.T, request string) (*http.Response, net.Conn, *bufio.Reader) {
+func (h *harness) rawConnect(t *testing.T, request string) (connectReply, net.Conn, *bufio.Reader) {
 	t.Helper()
 	d := tls.Dialer{NetDialer: &net.Dialer{Timeout: 5 * time.Second}, Config: h.pki.clientConfig(&h.client)}
 	conn, err := d.DialContext(context.Background(), "tcp", h.addr)
@@ -269,7 +278,21 @@ func (h *harness) rawConnect(t *testing.T, request string) (*http.Response, net.
 	if err != nil {
 		t.Fatalf("read the response: %v", err)
 	}
-	return resp, conn, br
+	reply := connectReply{StatusCode: resp.StatusCode, Header: resp.Header}
+	if resp.StatusCode == http.StatusOK {
+		// The parser reads what follows a tunnel's 200 as its body; it is the
+		// tunnel itself, left to the caller.
+		return reply, conn, br
+	}
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 4096))
+	if err != nil {
+		t.Fatalf("read the response body: %v", err)
+	}
+	if err := resp.Body.Close(); err != nil {
+		t.Fatalf("close the response body: %v", err)
+	}
+	reply.Body = body
+	return reply, conn, br
 }
 
 // connectRequest renders a CONNECT request with the two headers.

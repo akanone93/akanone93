@@ -257,7 +257,7 @@ func TestExampleArtefactsAreWhatTheBuilderMakes_FN_019(t *testing.T) {
 
 	for _, ex := range examples {
 		t.Run(ex.name, func(t *testing.T) {
-			key, digest := stored(ctx, t, store, exampleSources(t, root, ex))
+			key, digest := stored(ctx, t, store, exampleSources(t, root, ex)) //nolint:contextcheck // the helper runs its commands under the test's own t.Context()
 			out, err := client.Build(ctx, function.BuildInput{
 				BuildID: "examples", SourceObjectKey: key, SourceSHA256: digest, Name: ex.name,
 				Timeout:     time.Duration(lim.Get(limits.FunctionBuildTimeout)) * time.Millisecond,

@@ -153,7 +153,7 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !s.authorised(r) {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 	body, err := io.ReadAll(io.LimitReader(r.Body, 1<<20))
@@ -178,7 +178,7 @@ func (s *Server) answer(w http.ResponseWriter, r *http.Request, mode Mode, enc E
 	case ModeNotModified:
 		w.WriteHeader(http.StatusNotModified)
 	case ModeUnauthorized:
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 	case ModeTooManyRequests:
 		w.Header().Set("Retry-After", "60")
 		http.Error(w, "too many requests", http.StatusTooManyRequests)

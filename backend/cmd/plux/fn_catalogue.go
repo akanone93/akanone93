@@ -52,7 +52,7 @@ func (c *localCatalogue) Function(name, _ string) (compiler.FunctionInfo, bool) 
 }
 
 // DeviceFunctionsEnabled implements compiler.FunctionCatalogue.
-func (c *localCatalogue) DeviceFunctionsEnabled() bool { return true }
+func (*localCatalogue) DeviceFunctionsEnabled() bool { return true }
 
 // builtDir is where `plux fn build` wrote the output of a function.
 func builtDir(project, name string) string {
@@ -82,11 +82,8 @@ func loadLocalCatalogue(project string) (*localCatalogue, error) {
 		if !entry.IsDir() {
 			continue
 		}
-		info, name, ok, err := readLocalFunction(project, entry.Name())
-		switch {
-		case err != nil:
-			return nil, err
-		case !ok:
+		info, name, ok := readLocalFunction(project, entry.Name())
+		if !ok {
 			continue
 		}
 		if info.InputSchema == nil {
@@ -104,10 +101,10 @@ func loadLocalCatalogue(project string) (*localCatalogue, error) {
 // readLocalFunction describes the function in functions/<dir>/. ok is false
 // when the directory holds no readable function document. The schemas are
 // nil when the function was not built.
-func readLocalFunction(project, dir string) (info compiler.FunctionInfo, name string, ok bool, err error) {
+func readLocalFunction(project, dir string) (info compiler.FunctionInfo, name string, ok bool) {
 	data, err := os.ReadFile(filepath.Join(project, "functions", dir, builder.DeclarationFile)) //nolint:gosec // G304: the developer's own project.
 	if err != nil {
-		return info, "", false, nil //nolint:nilerr // a directory without a document is not a function.
+		return info, "", false
 	}
 	var doc struct {
 		schema.FunctionDocument
@@ -115,7 +112,7 @@ func readLocalFunction(project, dir string) (info compiler.FunctionInfo, name st
 		SCA         bool `json:"sca"`
 	}
 	if json.Unmarshal(data, &doc) != nil || doc.Name == "" {
-		return info, "", false, nil
+		return info, "", false
 	}
 	info = compiler.FunctionInfo{
 		Placement: doc.Placement, Capabilities: doc.Capabilities, Limits: doc.Limits, Version: localVersion,
@@ -125,10 +122,10 @@ func readLocalFunction(project, dir string) (info compiler.FunctionInfo, name st
 	in, inErr := os.ReadFile(filepath.Join(built, inputSchemaFile))    //nolint:gosec // G304: the developer's own build output.
 	out, outErr := os.ReadFile(filepath.Join(built, outputSchemaFile)) //nolint:gosec // G304: the developer's own build output.
 	if inErr != nil || outErr != nil {
-		return info, doc.Name, true, nil
+		return info, doc.Name, true
 	}
 	info.InputSchema, info.OutputSchema = in, out
-	return info, doc.Name, true, nil
+	return info, doc.Name, true
 }
 
 // unlinkedModules stands in for the device modules where the bundles are

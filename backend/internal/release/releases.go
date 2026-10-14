@@ -70,7 +70,7 @@ type Release struct {
 	Confidential bool
 	// Functions are the function versions the release pins (FN-006),
 	// sorted by name.
-	Functions []ReleaseFunction
+	Functions []Function
 	CreatedBy audit.Actor
 	CreatedAt time.Time
 }

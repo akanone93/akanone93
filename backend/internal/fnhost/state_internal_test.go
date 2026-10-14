@@ -21,7 +21,7 @@ func TestTrapAfterDenialIsCapabilityDenied_FN_012(t *testing.T) {
 	if s := st.deny(); s != statusDenied {
 		t.Fatalf("deny returned %d", s)
 	}
-	if got, _ := plxerr.CodeOf(classify(st, errors.New("wasm error: unreachable\nwasm stack trace:"))); got != plxerr.FunctionCapabilityDenied {
+	if got, _ := plxerr.CodeOf(classify(st, errors.New("wasm error: unreachable\nwasm stack trace:\n\t.run()"))); got != plxerr.FunctionCapabilityDenied {
 		t.Fatalf("after a denial: %v, want FUNCTION_CAPABILITY_DENIED", got)
 	}
 }

@@ -12,11 +12,10 @@ import (
 	"sync"
 	"testing"
 	"time"
-	"unsafe"
 )
 
 // data returns the address of a buffer's backing array.
-func data(b []byte) *byte { return unsafe.SliceData(b[:1]) }
+func data(b []byte) *byte { return &b[:1][0] }
 
 func allZero(b []byte) bool {
 	return !bytes.ContainsFunc(b[:cap(b)], func(r rune) bool { return r != 0 })

@@ -109,6 +109,17 @@ func NewMetrics() *Metrics {
 		Name: "plux_attestation_results_total",
 		Help: "Attestation verifications by platform and verdict.",
 	}, []string{"platform", "verdict"})
+	m.newFunctionMetrics()
+	r.MustRegister(m.dpopRejections, m.attestationResults)
+	r.MustRegister(m.rpcRequests, m.rpcDuration, m.manifestRequests, m.deltaBytes,
+		m.deltaGeneration, m.publishJobs, m.publishDuration, m.jobsQueueDepth,
+		m.replayDegraded, m.replayFallback)
+	return m
+}
+
+// newFunctionMetrics creates and registers the metrics of the api role's
+// function invocations.
+func (m *Metrics) newFunctionMetrics() {
 	// The api role's series are named apart from the fnrunner's
 	// plux_function_invocations_total, which shares this registry when one
 	// process runs both roles.
@@ -131,11 +142,7 @@ func NewMetrics() *Metrics {
 		Name: "plux_function_replays_total",
 		Help: "Function invocations answered with the stored result of an idempotency key.",
 	})
-	r.MustRegister(m.dpopRejections, m.attestationResults, m.functionRequests, m.functionSeconds, m.functionReplays, m.functionPrepares)
-	r.MustRegister(m.rpcRequests, m.rpcDuration, m.manifestRequests, m.deltaBytes,
-		m.deltaGeneration, m.publishJobs, m.publishDuration, m.jobsQueueDepth,
-		m.replayDegraded, m.replayFallback)
-	return m
+	m.registry.MustRegister(m.functionRequests, m.functionSeconds, m.functionReplays, m.functionPrepares)
 }
 
 // Handler serves the metrics endpoint.

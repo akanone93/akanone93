@@ -9,7 +9,6 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/json"
 	"testing"
 
@@ -31,18 +30,17 @@ const (
 // invokeWithID calls FunctionService.Invoke as the device with a proof
 // whose identifier the test chooses, so that it can compute what the
 // platform evidence is bound to.
-func (f *invokeFixture) invokeWithID(t *testing.T, m *pluxv1.FunctionServiceInvokeRequest, jti string) (*pluxv1.FunctionServiceInvokeResponse, error) {
+func (f *invokeFixture) invokeWithID(t *testing.T, m *pluxv1.FunctionServiceInvokeRequest, jti string) error {
 	t.Helper()
 	r := connect.NewRequest(m)
 	r.Header().Set("Authorization", "DPoP "+f.dev.token)
 	r.Header().Set("DPoP", devicetest.SignProof(t, f.dev.key, devicetest.Proof{
 		Method: "POST", URL: f.w.base + pluxv1connect.FunctionServiceInvokeProcedure, AccessToken: f.dev.token, Nonce: f.dev.nonce, ID: jti,
 	}))
-	res, err := f.fn.Invoke(t.Context(), r)
-	if err != nil {
-		return nil, err //nolint:wrapcheck // the code is what the test reads
+	if _, err := f.fn.Invoke(t.Context(), r); err != nil {
+		return err //nolint:wrapcheck // the code is what the test reads
 	}
-	return res.Msg, nil
+	return nil
 }
 
 // asIOS makes the device an iOS device with an attested App Attest key.
@@ -64,8 +62,6 @@ func (f *invokeFixture) asAndroid(t *testing.T) {
 	t.Helper()
 	f.exec(t, `UPDATE devices SET platform = 'android', app_attest_public_key = NULL WHERE id = $1`, f.dev.id)
 }
-
-func requestHash(h [32]byte) string { return base64.RawURLEncoding.EncodeToString(h[:]) }
 
 // Verifies: FN-020, SEC-004.
 // A function that declares attestation runs on iOS only with an App Attest
@@ -89,7 +85,7 @@ func TestFunctionInvokeAppAttest_FN_020(t *testing.T) {
 	}
 
 	// A device with no platform evidence cannot satisfy the function.
-	if _, err := f.invokeWithID(t, with(inputA), "jti-linux"); reasonOf(t, err) != "ATTESTATION_FAILED" {
+	if err := f.invokeWithID(t, with(inputA), "jti-linux"); reasonOf(t, err) != "ATTESTATION_FAILED" {
 		t.Errorf("a device that cannot attest: %v", err)
 	}
 
@@ -97,7 +93,7 @@ func TestFunctionInvokeAppAttest_FN_020(t *testing.T) {
 	assert.Counter = 1
 	want := bind(inputA, "jti-1")
 	assert.Want = &want
-	if _, err := f.invokeWithID(t, with(inputA), "jti-1"); err != nil {
+	if err := f.invokeWithID(t, with(inputA), "jti-1"); err != nil {
 		t.Fatalf("a valid assertion: %v", err)
 	}
 	if assert.ClientDataHash != want || assert.AppID != "TEAMID.com.example.app" || assert.LastCounter != 0 {
@@ -109,35 +105,35 @@ func TestFunctionInvokeAppAttest_FN_020(t *testing.T) {
 
 	// The counter does not advance: a replayed assertion is refused.
 	want = bind(inputA, "jti-2")
-	if _, err := f.invokeWithID(t, with(inputA), "jti-2"); reasonOf(t, err) != "ATTESTATION_FAILED" {
+	if err := f.invokeWithID(t, with(inputA), "jti-2"); reasonOf(t, err) != "ATTESTATION_FAILED" {
 		t.Errorf("a replayed counter: %v", err)
 	}
 
 	// An assertion over another input is refused, and spends no counter.
 	assert.Counter = 2
 	want = bind(inputA, "jti-3")
-	if _, err := f.invokeWithID(t, with(inputB), "jti-3"); reasonOf(t, err) != "ATTESTATION_FAILED" {
+	if err := f.invokeWithID(t, with(inputB), "jti-3"); reasonOf(t, err) != "ATTESTATION_FAILED" {
 		t.Errorf("an assertion over another input: %v", err)
 	}
-	if _, err := f.invokeWithID(t, invokeOf(attested, inputA), "jti-4"); reasonOf(t, err) != "ATTESTATION_FAILED" {
+	if err := f.invokeWithID(t, invokeOf(attested, inputA), "jti-4"); reasonOf(t, err) != "ATTESTATION_FAILED" {
 		t.Errorf("no assertion: %v", err)
 	}
 	if runner.calls() != 1 {
 		t.Errorf("a refused call reached the runner (%d calls)", runner.calls())
 	}
 	want = bind(inputA, "jti-5")
-	if _, err := f.invokeWithID(t, with(inputA), "jti-5"); err != nil {
+	if err := f.invokeWithID(t, with(inputA), "jti-5"); err != nil {
 		t.Errorf("the counter was spent by a refused call: %v", err)
 	}
 
 	// The proof identifier is single-use, so the evidence bound to it is.
 	assert.Counter = 3
 	want = bind(inputA, "jti-6")
-	if _, err := f.invokeWithID(t, with(inputA), "jti-6"); err != nil {
+	if err := f.invokeWithID(t, with(inputA), "jti-6"); err != nil {
 		t.Fatalf("a fresh proof: %v", err)
 	}
 	assert.Counter = 4
-	if _, err := f.invokeWithID(t, with(inputA), "jti-6"); reasonOf(t, err) != "DPOP_REPLAY" {
+	if err := f.invokeWithID(t, with(inputA), "jti-6"); reasonOf(t, err) != "DPOP_REPLAY" {
 		t.Errorf("a reused jti: %v", err)
 	}
 
@@ -166,7 +162,7 @@ func TestFunctionInvokePlayIntegrity_FN_020(t *testing.T) {
 	}
 
 	play.RequestHash = hash(inputA, "jti-1")
-	if _, err := f.invokeWithID(t, with(inputA), "jti-1"); err != nil {
+	if err := f.invokeWithID(t, with(inputA), "jti-1"); err != nil {
 		t.Fatalf("a bound token: %v", err)
 	}
 	if play.Expect.RequestHash != play.RequestHash || play.Expect.PackageName != "com.example.app" {
@@ -176,30 +172,30 @@ func TestFunctionInvokePlayIntegrity_FN_020(t *testing.T) {
 	before := runner.calls()
 
 	play.RequestHash = hash(inputA, "jti-2")
-	if _, err := f.invokeWithID(t, with(inputB), "jti-2"); reasonOf(t, err) != "ATTESTATION_FAILED" {
+	if err := f.invokeWithID(t, with(inputB), "jti-2"); reasonOf(t, err) != "ATTESTATION_FAILED" {
 		t.Errorf("a token over another input: %v", err)
 	}
 	play.RequestHash = hash(inputA, "another-jti")
-	if _, err := f.invokeWithID(t, with(inputA), "jti-3"); reasonOf(t, err) != "ATTESTATION_FAILED" {
+	if err := f.invokeWithID(t, with(inputA), "jti-3"); reasonOf(t, err) != "ATTESTATION_FAILED" {
 		t.Errorf("a token bound to another proof: %v", err)
 	}
 	play.RequestHash = hash(inputA, "jti-4")
-	if _, err := f.invokeWithID(t, invokeOf(attested, inputA), "jti-4"); reasonOf(t, err) != "ATTESTATION_FAILED" {
+	if err := f.invokeWithID(t, invokeOf(attested, inputA), "jti-4"); reasonOf(t, err) != "ATTESTATION_FAILED" {
 		t.Errorf("no token: %v", err)
 	}
 	if runner.calls() != before {
 		t.Error("a refused call reached the runner")
 	}
-	if _, err := f.invokeWithID(t, with(inputA), "jti-1"); reasonOf(t, err) != "DPOP_REPLAY" {
+	if err := f.invokeWithID(t, with(inputA), "jti-1"); reasonOf(t, err) != "DPOP_REPLAY" {
 		t.Errorf("a reused jti: %v", err)
 	}
 }
 
 // challengeFor asks for the SCA challenge of an invocation as the device
-// does and signs it with the device's SCA key.
-func (f *invokeFixture) challengeFor(t *testing.T, v *pluxv1.FunctionVersion, input string) (*pluxv1.CreateTransactionChallengeResponse, []byte, error) {
+// does, for inputA, and signs it with the device's SCA key.
+func (f *invokeFixture) challengeFor(t *testing.T, v *pluxv1.FunctionVersion) (*pluxv1.CreateTransactionChallengeResponse, []byte, error) {
 	t.Helper()
-	sum := sha256.Sum256([]byte(input))
+	sum := sha256.Sum256([]byte(inputA))
 	res, err := f.w.sca.CreateTransactionChallenge(t.Context(), bound(t, f.dev, pluxv1connect.ScaServiceCreateTransactionChallengeProcedure,
 		&pluxv1.CreateTransactionChallengeRequest{
 			Function: v.GetName(), FunctionVersion: v.GetVersion(), InputSha256: sum[:], TransactionSummaryJcs: []byte(`{"summary":"Pay 5 EUR"}`),
@@ -228,7 +224,7 @@ func TestFunctionInvokeSCA_SEC_027(t *testing.T) {
 		return m
 	}
 
-	c, sig, err := f.challengeFor(t, sca, inputA)
+	c, sig, err := f.challengeFor(t, sca)
 	if err != nil {
 		t.Fatalf("CreateTransactionChallenge: %v", err)
 	}
@@ -247,14 +243,14 @@ func TestFunctionInvokeSCA_SEC_027(t *testing.T) {
 		t.Errorf("a spent challenge: %v", err)
 	}
 
-	other, otherSig, err := f.challengeFor(t, sca, inputA)
+	other, otherSig, err := f.challengeFor(t, sca)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if _, err := f.invoke(t, confirmed(other, otherSig, inputB)); reasonOf(t, err) != "SCA_DYNAMIC_LINKING_MISMATCH" {
 		t.Errorf("a challenge for another input: %v", err)
 	}
-	forged, _, err := f.challengeFor(t, sca, inputA)
+	forged, _, err := f.challengeFor(t, sca)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -270,11 +266,11 @@ func TestFunctionInvokeSCA_SEC_027(t *testing.T) {
 
 	// A challenge is issued only for a function that declares sca, and
 	// for a function alone.
-	if _, _, err := f.challengeFor(t, plain, inputA); reasonOf(t, err) != "PRECONDITION_FAILED" {
+	if _, _, err := f.challengeFor(t, plain); reasonOf(t, err) != "PRECONDITION_FAILED" {
 		t.Errorf("a challenge for a function without sca: %v", err)
 	}
 	missing := &pluxv1.FunctionVersion{Name: "no.such", Version: 1}
-	if _, _, err := f.challengeFor(t, missing, inputA); reasonOf(t, err) != "FUNCTION_NOT_FOUND" {
+	if _, _, err := f.challengeFor(t, missing); reasonOf(t, err) != "FUNCTION_NOT_FOUND" {
 		t.Errorf("a challenge for an unknown function: %v", err)
 	}
 	sum := sha256.Sum256([]byte(inputA))

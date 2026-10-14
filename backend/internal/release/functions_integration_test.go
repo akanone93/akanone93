@@ -68,7 +68,7 @@ type deployed struct {
 
 // moduleOf is the module hash a test version carries.
 func moduleOf(d deployed) []byte {
-	sum := sha256.Sum256([]byte(d.name + "@" + string(rune('0'+d.version))))
+	sum := sha256.Sum256([]byte(d.name + "@" + string('0'+d.version)))
 	return sum[:]
 }
 
@@ -128,7 +128,7 @@ func (f *fixture) publishAll(t *testing.T) {
 	f.publish(t, f.loans, false)
 }
 
-func wantPinned(t *testing.T, got []release.ReleaseFunction, want ...deployed) {
+func wantPinned(t *testing.T, got []release.Function, want ...deployed) {
 	t.Helper()
 	if len(got) != len(want) {
 		t.Fatalf("pinned %+v, want %d functions", got, len(want))

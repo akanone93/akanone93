@@ -269,7 +269,7 @@ func readProject(dir string) (map[string][]byte, error) {
 // build output: below functions/<name>/ and not the document function.json.
 func inFunctionCrate(path string) bool {
 	parts := strings.Split(path, "/")
-	return len(parts) >= 3 && parts[0] == "functions" && !(len(parts) == 3 && parts[2] == "function.json")
+	return len(parts) >= 3 && parts[0] == "functions" && (len(parts) != 3 || parts[2] != "function.json")
 }
 
 // isScenario reports whether path names a Plux Test scenario file.

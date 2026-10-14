@@ -22,10 +22,10 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 )
 
-// ReleaseFunction is one function version a release pins (FN-006): the
+// Function is one function version a release pins (FN-006): the
 // version an alias, or the newest version, resolved to when the release was
 // created.
-type ReleaseFunction struct {
+type Function struct {
 	// Name is the dotted function name.
 	Name string
 	// Version is the immutable function version.
@@ -80,9 +80,9 @@ func grantsOf(res *compiler.Result, cat compiler.FunctionCatalogue) []functionGr
 // tests failed (PLX-7020, FN-031) refuses the release. Two plugins that reach one function through aliases that
 // stand for different versions leave the release without one behaviour, so
 // that is refused as well.
-func (s *Service) pinFunctions(ctx context.Context, tx pgx.Tx, env dbgen.Environment, releaseID pgtype.UUID, grants []functionGrant) ([]ReleaseFunction, error) {
+func (*Service) pinFunctions(ctx context.Context, tx pgx.Tx, env dbgen.Environment, releaseID pgtype.UUID, grants []functionGrant) ([]Function, error) {
 	q := dbgen.New(tx)
-	var pinned []ReleaseFunction
+	var pinned []Function
 	for _, g := range grants {
 		r, err := function.ResolveVersionTx(ctx, tx, storage.ID(env.AppID), storage.ID(env.ID), g.name, g.alias)
 		if err != nil {
@@ -94,7 +94,7 @@ func (s *Service) pinFunctions(ctx context.Context, tx pgx.Tx, env dbgen.Environ
 		if !r.TestsPassed && env.Production {
 			return nil, plxerr.New(plxerr.FunctionTestsFailed, "version %d of function %s failed its tests and cannot be released", r.Version, g.name)
 		}
-		if i := slices.IndexFunc(pinned, func(p ReleaseFunction) bool { return p.Name == g.name }); i >= 0 {
+		if i := slices.IndexFunc(pinned, func(p Function) bool { return p.Name == g.name }); i >= 0 {
 			if pinned[i].Version != r.Version {
 				return nil, plxerr.New(plxerr.ReleaseInconsistent, "plugins reach function %s as versions %d and %d; a release pins one", g.name, pinned[i].Version, r.Version)
 			}
@@ -107,7 +107,7 @@ func (s *Service) pinFunctions(ctx context.Context, tx pgx.Tx, env dbgen.Environ
 		if err != nil {
 			return nil, failure(err, "release")
 		}
-		pinned = append(pinned, ReleaseFunction{Name: g.name, Version: r.Version, ModuleSHA256: hex.EncodeToString(r.ModuleSHA256), Placement: string(r.Placement)})
+		pinned = append(pinned, Function{Name: g.name, Version: r.Version, ModuleSHA256: hex.EncodeToString(r.ModuleSHA256), Placement: string(r.Placement)})
 	}
 	return pinned, nil
 }
@@ -150,15 +150,15 @@ func copyFunctions(ctx context.Context, q *dbgen.Queries, to, from pgtype.UUID) 
 }
 
 // functionsOf reads the function versions the releases pin, by release ID.
-func functionsOf(ctx context.Context, q *dbgen.Queries, ids ...pgtype.UUID) (map[string][]ReleaseFunction, error) {
+func functionsOf(ctx context.Context, q *dbgen.Queries, ids ...pgtype.UUID) (map[string][]Function, error) {
 	rows, err := q.ListReleaseFunctions(ctx, ids)
 	if err != nil {
 		return nil, fmt.Errorf("release: list pinned functions: %w", err)
 	}
-	out := map[string][]ReleaseFunction{}
+	out := map[string][]Function{}
 	for _, r := range rows {
 		id := storage.ID(r.ReleaseID)
-		out[id] = append(out[id], ReleaseFunction{Name: r.Name, Version: r.Version, ModuleSHA256: hex.EncodeToString(r.ModuleSha256), Placement: r.Placement})
+		out[id] = append(out[id], Function{Name: r.Name, Version: r.Version, ModuleSHA256: hex.EncodeToString(r.ModuleSha256), Placement: r.Placement})
 	}
 	return out, nil
 }

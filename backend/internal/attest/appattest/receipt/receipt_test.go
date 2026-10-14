@@ -33,14 +33,13 @@ var testNow = time.Date(2026, 10, 13, 12, 0, 0, 0, time.UTC)
 
 // rig is a client wired to a simulator for each Apple host.
 type rig struct {
-	signer      *receipttest.Signer
-	prod, dev   *receipttest.Server
-	authority   *receipttest.Authority
-	deviceKey   *ecdsa.PrivateKey
-	client      *receipt.Client
-	want        receipt.Expect
-	initial     []byte
-	clockOffset time.Duration
+	signer    *receipttest.Signer
+	prod, dev *receipttest.Server
+	authority *receipttest.Authority
+	deviceKey *ecdsa.PrivateKey
+	client    *receipt.Client
+	want      receipt.Expect
+	initial   []byte
 }
 
 func newRig(t *testing.T, tweak func(*receipt.Config)) *rig {

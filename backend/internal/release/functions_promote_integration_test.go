@@ -17,16 +17,16 @@ import (
 )
 
 // promoteFunction copies a function version from the development
-// environment to another one, as plux fn promote does (FN-006); passed
+// environment to production, as plux fn promote does (FN-006); passed
 // overrides tests_passed of the copy.
-func (f *fixture) promoteFunction(t *testing.T, to, name string, version int32, passed bool) {
+func (f *fixture) promoteFunction(t *testing.T, name string, version int32, passed bool) {
 	t.Helper()
-	f.copyFunction(t, to, name, version, passed, nil)
+	f.copyFunction(t, name, version, passed, nil)
 }
 
 // copyFunction is promoteFunction with the module hash of the copy replaced
 // when module is not nil.
-func (f *fixture) copyFunction(t *testing.T, to, name string, version int32, passed bool, module []byte) {
+func (f *fixture) copyFunction(t *testing.T, name string, version int32, passed bool, module []byte) {
 	t.Helper()
 	err := f.db.InTx(context.Background(), storage.Tenant{OrganizationID: f.org}, func(ctx context.Context, tx pgx.Tx) error {
 		_, err := tx.Exec(ctx, `INSERT INTO function_versions (organization_id, app_id, environment_id, name, version, build_id, placement,
@@ -34,7 +34,7 @@ func (f *fixture) copyFunction(t *testing.T, to, name string, version int32, pas
 		  SELECT organization_id, app_id, $1::uuid, name, version, build_id, placement, module_key, coalesce($6::bytea, module_sha256), abi_version,
 		    input_schema, output_schema, provenance, statement, signature, key_id, $2
 		    FROM function_versions WHERE environment_id = $3::uuid AND name = $4 AND version = $5`,
-			f.envs[to].ID, passed, f.envs["development"].ID, name, version, module)
+			f.envs["production"].ID, passed, f.envs["development"].ID, name, version, module)
 		return err
 	})
 	if err != nil {
@@ -69,11 +69,11 @@ func TestReleasePromotionNeedsFunctionPromotion_FN_006_FN_007(t *testing.T) {
 			t.Errorf("the refusal %q does not mention %q", err, want)
 		}
 	}
-	f.promoteFunction(t, "production", "loans.quote", 1, true)
+	f.promoteFunction(t, "loans.quote", 1, true)
 	if _, err := f.rel.PromoteRelease(ctx, f.owner, f.app, rel.Sequence, prod, ""); code(err) != plxerr.FunctionNotFound || !strings.Contains(err.Error(), "loans.rate") {
 		t.Errorf("promoting a release with one function missing: %v", err)
 	}
-	f.promoteFunction(t, "production", "loans.rate", 1, true)
+	f.promoteFunction(t, "loans.rate", 1, true)
 	promoted, err := f.rel.PromoteRelease(ctx, f.owner, f.app, rel.Sequence, prod, "")
 	if err != nil {
 		t.Fatalf("promoting a release after its functions: %v", err)
@@ -94,7 +94,7 @@ func TestReleasePromotionComparesTheModule_FN_006(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	f.copyFunction(t, "production", "loans.quote", 1, true, bytes.Repeat([]byte{2}, 32))
+	f.copyFunction(t, "loans.quote", 1, true, bytes.Repeat([]byte{2}, 32))
 	if _, err := f.rel.PromoteRelease(ctx, f.owner, f.app, rel.Sequence, f.envs["production"].ID, ""); code(err) != plxerr.FunctionNotFound {
 		t.Errorf("promoting a release over another module: %v", err)
 	}
@@ -114,7 +114,7 @@ func TestReleasePromotionRefusesFailedTests_FN_031(t *testing.T) {
 	if err != nil {
 		t.Fatalf("a development release with failing tests: %v", err)
 	}
-	f.promoteFunction(t, "production", "loans.quote", 1, false)
+	f.promoteFunction(t, "loans.quote", 1, false)
 	if _, err := f.rel.PromoteRelease(ctx, f.owner, f.app, rel.Sequence, f.envs["production"].ID, ""); code(err) != plxerr.FunctionTestsFailed {
 		t.Errorf("promoting a release with failing tests to production: %v", err)
 	}
@@ -142,14 +142,14 @@ func TestRollbackAndPinsInPromotedEnvironment_FN_006(t *testing.T) {
 	}
 
 	// Production holds only version 2, so the first release cannot return.
-	f.promoteFunction(t, "production", "loans.quote", 2, true)
+	f.promoteFunction(t, "loans.quote", 2, true)
 	if _, err := f.rel.PromoteRelease(ctx, f.owner, f.app, second.Sequence, prod, ""); err != nil {
 		t.Fatalf("promoting the second release: %v", err)
 	}
 	if _, err := f.rel.RollbackRelease(ctx, f.owner, f.app, prod, "", first.Sequence, ""); code(err) != plxerr.FunctionNotFound {
 		t.Fatalf("rolling back to a release whose function was not promoted: %v", err)
 	}
-	f.promoteFunction(t, "production", "loans.quote", 1, true)
+	f.promoteFunction(t, "loans.quote", 1, true)
 	back, err := f.rel.RollbackRelease(ctx, f.owner, f.app, prod, "", first.Sequence, "")
 	if err != nil {
 		t.Fatalf("rolling back after the promotion: %v", err)

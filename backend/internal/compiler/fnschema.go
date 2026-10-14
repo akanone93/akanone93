@@ -372,30 +372,43 @@ func (t *fnType) acceptsObject(from *pxl.Type) bool {
 	}
 	switch t.kind {
 	case fnMap:
-		for _, f := range sortedKeys(n.Fields) {
-			if !t.elem.accepts(n.Fields[f]) {
-				return false
-			}
-		}
-		return true
+		return t.acceptsAsMap(n)
 	case fnObject:
-		for _, f := range sortedKeys(t.required) {
-			if _, ok := n.Fields[f]; !ok {
-				return false
-			}
-		}
-		for _, f := range sortedKeys(n.Fields) {
-			ft, known := t.fields[f]
-			switch {
-			case !known:
-				if t.closed {
-					return false
-				}
-			case !ft.accepts(n.Fields[f]):
-				return false
-			}
-		}
-		return true
+		return t.acceptsAsRecord(n)
 	}
 	return false
+}
+
+// acceptsAsMap checks that every field of an object value is accepted by
+// the map's element type.
+func (t *fnType) acceptsAsMap(n *pxl.NamedType) bool {
+	for _, f := range sortedKeys(n.Fields) {
+		if !t.elem.accepts(n.Fields[f]) {
+			return false
+		}
+	}
+	return true
+}
+
+// acceptsAsRecord checks an object value against an object type: every
+// required field is present and every field is known and accepted, unless
+// the type is open.
+func (t *fnType) acceptsAsRecord(n *pxl.NamedType) bool {
+	for _, f := range sortedKeys(t.required) {
+		if _, ok := n.Fields[f]; !ok {
+			return false
+		}
+	}
+	for _, f := range sortedKeys(n.Fields) {
+		ft, known := t.fields[f]
+		switch {
+		case !known:
+			if t.closed {
+				return false
+			}
+		case !ft.accepts(n.Fields[f]):
+			return false
+		}
+	}
+	return true
 }

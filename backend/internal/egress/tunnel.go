@@ -91,21 +91,10 @@ func (t *tunnel) copy(dst, src net.Conn, direction string) string {
 		n, err := src.Read(buf)
 		if n > 0 {
 			t.last.Store(t.now().UnixNano())
-			allowed, over := n, false
-			if total+int64(n) > t.limits.MaxBytes {
-				allowed, over = int(t.limits.MaxBytes-total), true
-			}
-			if allowed > 0 {
-				_ = dst.SetWriteDeadline(t.now().Add(t.limits.Idle))
-				written, werr := dst.Write(buf[:allowed])
-				total += int64(written)
-				t.count(direction, int64(written))
-				if werr != nil {
-					return endClosed
-				}
-			}
-			if over {
-				return endBytes
+			written, end := t.forward(dst, buf[:n], t.limits.MaxBytes-total, direction)
+			total += written
+			if end != "" {
+				return end
 			}
 		}
 		if err == nil {
@@ -121,6 +110,30 @@ func (t *tunnel) copy(dst, src net.Conn, direction string) string {
 	}
 }
 
+// forward writes one chunk to dst, truncated to room bytes. It returns the
+// bytes written and, when the tunnel must end, the reason; otherwise the
+// reason is empty.
+func (t *tunnel) forward(dst net.Conn, chunk []byte, room int64, direction string) (int64, string) {
+	over := int64(len(chunk)) > room
+	if over {
+		chunk = chunk[:room]
+	}
+	var written int64
+	if len(chunk) > 0 {
+		_ = dst.SetWriteDeadline(t.now().Add(t.limits.Idle))
+		n, err := dst.Write(chunk)
+		written = int64(n)
+		t.count(direction, written)
+		if err != nil {
+			return written, endClosed
+		}
+	}
+	if over {
+		return written, endBytes
+	}
+	return written, ""
+}
+
 // idleFor is the time since the latest byte in either direction.
 func (t *tunnel) idleFor() time.Duration {
 	return t.now().Sub(time.Unix(0, t.last.Load()))
@@ -134,4 +147,4 @@ type bufferedConn struct {
 }
 
 // Read returns buffered bytes first.
-func (c *bufferedConn) Read(p []byte) (int, error) { return c.r.Read(p) }
+func (c *bufferedConn) Read(p []byte) (int, error) { return c.r.Read(p) } //nolint:wrapcheck // net.Conn contract: callers compare io.EOF and timeouts.

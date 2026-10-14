@@ -8,6 +8,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/x509"
 	"errors"
+	"fmt"
 	"log/slog"
 	"strconv"
 	"time"
@@ -159,7 +160,7 @@ func parsePayload(content []byte) (payload, error) {
 	}
 	in := cryptobyte.String(der)
 	var set cryptobyte.String
-	if !(in.ReadASN1(&set, cbasn1.SET) || in.ReadASN1(&set, cbasn1.SEQUENCE)) || !in.Empty() {
+	if (!in.ReadASN1(&set, cbasn1.SET) && !in.ReadASN1(&set, cbasn1.SEQUENCE)) || !in.Empty() {
 		return payload{}, errMalformed
 	}
 	fields := map[int64][]byte{}
@@ -240,7 +241,11 @@ func textValue(b []byte) string {
 // INTEGER. The two cannot be confused: an INTEGER starts with 0x02.
 func parseRisk(b []byte) (int, error) {
 	if len(b) > 0 && len(b) <= 9 && allDigits(b) {
-		return strconv.Atoi(string(b))
+		n, err := strconv.Atoi(string(b))
+		if err != nil {
+			return 0, fmt.Errorf("the risk metric is not a number: %w", err)
+		}
+		return n, nil
 	}
 	in := cryptobyte.String(b)
 	var n int64

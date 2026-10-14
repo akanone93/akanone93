@@ -388,7 +388,7 @@ func releaseProto(r release.Release) *pluxv1.Release {
 	}
 }
 
-func releaseFunctionsProto(fns []release.ReleaseFunction) []*pluxv1.ReleaseFunction {
+func releaseFunctionsProto(fns []release.Function) []*pluxv1.ReleaseFunction {
 	out := make([]*pluxv1.ReleaseFunction, len(fns))
 	for i, f := range fns {
 		out[i] = &pluxv1.ReleaseFunction{Name: f.Name, Version: uint32(f.Version), ModuleSha256: f.ModuleSHA256, Placement: f.Placement} //nolint:gosec // G115: versions are positive.

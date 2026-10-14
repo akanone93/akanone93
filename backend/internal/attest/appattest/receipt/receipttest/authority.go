@@ -339,13 +339,13 @@ func tlv(tag byte, body []byte) []byte {
 	n := len(body)
 	switch {
 	case n < 0x80:
-		out = append(out, byte(n))
+		out = append(out, byte(n&0x7f))
 	case n < 0x100:
-		out = append(out, 0x81, byte(n))
+		out = append(out, 0x81, byte(n&0xff))
 	case n < 0x10000:
-		out = append(out, 0x82, byte(n>>8), byte(n))
+		out = append(out, 0x82, byte(n>>8&0xff), byte(n&0xff))
 	default:
-		out = append(out, 0x83, byte(n>>16), byte(n>>8), byte(n))
+		out = append(out, 0x83, byte(n>>16&0xff), byte(n>>8&0xff), byte(n&0xff))
 	}
 	return append(out, body...)
 }
