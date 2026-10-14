@@ -44,6 +44,12 @@ type Config struct {
 	// CLI uses this engine as its stand-in, the shared ABI vectors keeping
 	// both equivalent (FN-015).
 	Interpreter bool
+	// MemoryPoolBuffers is how many guest memories of at most
+	// PooledBufferMaxBytes the engine keeps, cleared, for the next
+	// instances instead of allocating each afresh (NFR-022). Zero keeps
+	// none. The runner passes its concurrency bound: no more instances than
+	// that are ever live.
+	MemoryPoolBuffers int
 }
 
 // Engine hosts function modules. It is safe for concurrent use: Compile and
@@ -54,6 +60,7 @@ type Engine struct {
 	clock    func() time.Time
 	random   io.Reader
 	maxMem   uint64
+	pool     *memoryPool
 	wasi     map[string]signature
 	closeMu  sync.Once
 	closeErr error
@@ -73,7 +80,7 @@ func NewEngine(ctx context.Context, cfg Config) (*Engine, error) {
 		rc = wazero.NewRuntimeConfigInterpreter()
 	}
 	rc = rc.WithCloseOnContextDone(true)
-	e := &Engine{clock: cfg.Clock, random: &lockedReader{r: cfg.Random}, maxMem: cfg.MaxMemoryBytes}
+	e := &Engine{clock: cfg.Clock, random: &lockedReader{r: cfg.Random}, maxMem: cfg.MaxMemoryBytes, pool: newMemoryPool(cfg.MemoryPoolBuffers)}
 	if cfg.CacheDir != "" {
 		cache, err := wazero.NewCompilationCacheWithDir(cfg.CacheDir)
 		if err != nil {

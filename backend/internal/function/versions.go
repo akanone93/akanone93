@@ -59,7 +59,11 @@ func (s *Service) Deploy(ctx context.Context, p auth.Principal, buildID, alias s
 		out, err = s.insertVersion(ctx, tx, p, row, alias, testsPassed(build))
 		return err
 	})
-	return out, err
+	if err != nil {
+		return out, err
+	}
+	s.prepare(ctx, p.OrganizationID, out)
+	return out, nil
 }
 
 // insertVersion assigns the next number of the function in its app under
@@ -179,7 +183,11 @@ func (s *Service) Promote(ctx context.Context, p auth.Principal, appID, fromEnvI
 		out, err = s.copyVersion(ctx, tx, p, src, to, alias)
 		return err
 	})
-	return out, err
+	if err != nil {
+		return out, err
+	}
+	s.prepare(ctx, p.OrganizationID, out)
+	return out, nil
 }
 
 // copyVersion stores a copy of a version in the target environment under

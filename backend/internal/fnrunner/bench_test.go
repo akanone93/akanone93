@@ -90,15 +90,18 @@ func firstSamples(t *testing.T, opts Options, prepare *fnpb.PrepareRequest, call
 // the limits are the registry defaults.
 //
 // Warm is the runner's Invoke with the module compiled and cached and a fresh
-// instance per call (FN-010). First after deploy starts from an empty
-// compiled-module cache: the call fetches the artifact from the api role over
-// the pinned mutual-TLS connection, verifies it (FN-009), compiles it and
-// runs. Two variants are reported beside it and not gated: the first call
-// after Prepare has compiled the module (the deploy path of FN-010), and the
-// first call of a runner that starts with a populated compilation cache (a
-// restart, or a second replica). The transport in front of the runner
-// (ConnectRPC from the api role) is part of none of them. The test runs only
-// with PLUX_BENCH_FN=1 and prints the result as JSON (make bench-fn).
+// instance per call (FN-010) on pooled guest memory. First after deploy is
+// what the design promises (plan p7 section 5.3): the deploy asked the runner
+// to Prepare the module, which fetched, verified and compiled it, and the
+// first call after that is timed. Two variants are reported beside it and not
+// gated: the cold path, in which a runner with an empty cache fetches the
+// artifact from the api role over the pinned mutual-TLS connection, verifies
+// it (FN-009), compiles it and runs (a deploy whose Prepare failed, or a
+// replica the Prepare did not reach), and the first call of a runner that
+// starts with a populated compilation cache (a restart, or a second
+// replica). The transport in front of the runner (ConnectRPC from the api
+// role) is part of none of them. The test runs only with PLUX_BENCH_FN=1 and
+// prints the result as JSON (make bench-fn).
 func TestFunctionInvocationOverhead_NFR_022(t *testing.T) {
 	if os.Getenv("PLUX_BENCH_FN") != "1" {
 		t.Skip("set PLUX_BENCH_FN=1 to measure (make bench-fn)")
@@ -150,9 +153,9 @@ func TestFunctionInvocationOverhead_NFR_022(t *testing.T) {
 		Requirement       string      `json:"requirement"`
 		Warm              percentiles `json:"warm"`
 		FirstAfterDeploy  percentiles `json:"firstAfterDeploy"`
-		FirstAfterPrepare percentiles `json:"firstAfterPrepare"`
+		FirstCold         percentiles `json:"firstCold"`
 		FirstCompileCache percentiles `json:"firstWithCompilationCache"`
-	}{"NFR-022", summarise(warm), summarise(cold), summarise(afterPrepare), summarise(cached)}
+	}{"NFR-022", summarise(warm), summarise(afterPrepare), summarise(cold), summarise(cached)}
 	raw, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
 		t.Fatal(err)

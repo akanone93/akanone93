@@ -31,7 +31,7 @@ func (e *Engine) Invoke(ctx context.Context, m *Module, c Call) (Outcome, Stats,
 	}
 	st := &callState{
 		engine: e, module: m, call: &c,
-		memory: &cappedMemory{limit: c.Limits.MemoryBytes},
+		memory: &cappedMemory{limit: c.Limits.MemoryBytes, pool: e.pool},
 		budget: &logBudget{limit: c.Limits.LogBytes, sink: c.Log},
 	}
 	out, err := e.invoke(ctx, st)
@@ -62,6 +62,7 @@ func (e *Engine) invoke(ctx context.Context, st *callState) (Outcome, error) {
 	ctx, cancel := context.WithTimeout(ctx, c.Limits.Timeout)
 	defer cancel()
 	ctx = st.attach(ctx)
+	defer st.memory.release() // after the instance closed: deferred first
 	mod, err := e.instantiate(ctx, st)
 	if err != nil {
 		return Outcome{}, classify(st, err)

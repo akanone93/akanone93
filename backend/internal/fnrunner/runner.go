@@ -88,6 +88,9 @@ func New(ctx context.Context, opts Options) (*Runner, error) {
 	}
 	engine, err := fnhost.NewEngine(ctx, fnhost.Config{
 		Clock: opts.Clock, Random: opts.Random, MaxMemoryBytes: opts.MaxMemoryBytes, CacheDir: opts.CacheDir,
+		// NFR-022: at most MaxConcurrent instances are ever live, so that many
+		// guest memories are worth keeping, cleared, for the next calls.
+		MemoryPoolBuffers: opts.MaxConcurrent,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("fnrunner.New: %w", err)

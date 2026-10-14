@@ -79,7 +79,7 @@ func (w *functionBuildWorker) Work(ctx context.Context, job *river.Job[function.
 // installation has no object store to keep sources and modules in. The
 // service has no Builder and no ArtifactSigner here: the worker role that
 // runs builds is given them where it is assembled.
-func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.Service, configs *seccfg.Service, gen interface{ New() (string, error) }, retention time.Duration) (*function.Service, error) {
+func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.Service, configs *seccfg.Service, gen interface{ New() (string, error) }, retention time.Duration, link *runnerLink) (*function.Service, error) {
 	if work.Objects == nil {
 		return nil, nil //nolint:nilnil // the installation runs no functions
 	}
@@ -93,7 +93,7 @@ func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.
 		}
 		signer = s
 	}
-	svc, err := function.NewService(function.Options{
+	o := function.Options{
 		DB: db, Audit: log, Objects: work.Objects, IDs: gen, Jobs: functionQueue{work.Queue},
 		Builder: work.Builder, Signer: signer, Linker: work.Linker, Retention: retention, Log: work.Log,
 		DeviceFunctions: func(ctx context.Context, appID, environmentID string) (bool, error) {
@@ -106,11 +106,48 @@ func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.
 		Limits: func(ctx context.Context, tx pgx.Tx, organizationID, appID string) (limits.Set, error) {
 			return ten.Effective(ctx, tx, organizationID, appID, "") //nolint:wrapcheck // a domain error
 		},
-	})
+	}
+	if link != nil {
+		// FN-023: a deploy asks the runner to compile the module, so the
+		// first invocation finds it compiled.
+		o.Preparer = function.ConnectPreparer{Client: link.client, Grants: link.grants}
+		if work.Metrics != nil {
+			o.PrepareMetrics = work.Metrics
+		}
+	}
+	svc, err := function.NewService(o)
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
 	return svc, nil
+}
+
+// runnerLink is the api role's connection to the function runner: the
+// client that calls it over mutual TLS with the role's internal identity
+// (SEC-043, FN-020) and the grants that authorise what it fetches back.
+type runnerLink struct {
+	client fnpbconnect.FunctionRunnerServiceClient
+	grants *function.Grants
+}
+
+// buildRunnerLink opens the grants and the runner client, or returns nil
+// where the process is not the api role, keeps no functions or has no
+// runner URL configured. The grants' secret is created on first use and
+// shared by every replica (ADR-0064).
+func buildRunnerLink(ctx context.Context, cfg *config.Config, db *storage.DB, crypter signing.Crypter, work WorkDeps) (*runnerLink, error) {
+	if work.Objects == nil || !cfg.Has(config.RoleAPI) || cfg.Functions.RunnerURL == "" {
+		return nil, nil //nolint:nilnil // the process calls no runner
+	}
+	grants, err := function.OpenGrants(ctx, db, crypter, nil)
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
+	t := cfg.Server.InternalTLS
+	client, err := httpx.NewInternalClient(httpx.InternalTLSOptions{CAFile: t.CAFile, CertFile: t.CertFile, KeyFile: t.KeyFile}, runnerTimeout)
+	if err != nil {
+		return nil, fmt.Errorf("server: functions: %w", err)
+	}
+	return &runnerLink{client: fnpbconnect.NewFunctionRunnerServiceClient(client, cfg.Functions.RunnerURL), grants: grants}, nil
 }
 
 // serverSecrets reads the secrets a function declares from the
@@ -130,6 +167,8 @@ type functionDeps struct {
 	cache   cache.Cache
 	set     limits.Set
 	service *function.Service
+	// link is the connection to the runner, nil where none is configured.
+	link    *runnerLink
 	gateway *GatewayParts
 	tenancy *tenancy.Service
 	configs *seccfg.Service
@@ -153,21 +192,28 @@ func buildFunctionRuntime(ctx context.Context, d functionDeps) (*functionRuntime
 	if d.service == nil || !d.cfg.Has(config.RoleAPI) {
 		return nil, nil //nolint:nilnil // the process serves no functions
 	}
-	grants, err := function.OpenGrants(ctx, d.db, d.crypter, nil)
-	if err != nil {
-		return nil, fmt.Errorf("server: %w", err)
+	var grants *function.Grants
+	if d.link != nil {
+		grants = d.link.grants
+	} else {
+		var err error
+		if grants, err = function.OpenGrants(ctx, d.db, d.crypter, nil); err != nil {
+			return nil, fmt.Errorf("server: %w", err)
+		}
 	}
 	o := function.HostOptions{Service: d.service, Grants: grants}
 	if d.gateway != nil && d.gateway.Resolver != nil {
 		o.Secrets = serverSecrets{r: d.gateway.Resolver}
 	}
 	rt := &functionRuntime{}
-	if d.cfg.Functions.RunnerURL != "" {
-		if rt.invoker, err = buildInvoker(d, grants); err != nil {
+	if d.link != nil {
+		inv, err := buildInvoker(d, d.link)
+		if err != nil {
 			return nil, err
 		}
-		o.Invoker = rt.invoker
+		rt.invoker, o.Invoker = inv, inv
 	}
+	var err error
 	if rt.host, err = function.NewHost(o); err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
@@ -178,18 +224,13 @@ func buildFunctionRuntime(ctx context.Context, d functionDeps) (*functionRuntime
 // own deadline ends a call sooner.
 const runnerTimeout = 2 * time.Minute
 
-// buildInvoker assembles the invoker that calls the runner over mutual TLS
-// with the api role's internal identity (SEC-043, FN-020).
-func buildInvoker(d functionDeps, grants *function.Grants) (*function.Invoker, error) {
-	t := d.cfg.Server.InternalTLS
-	client, err := httpx.NewInternalClient(httpx.InternalTLSOptions{CAFile: t.CAFile, CertFile: t.CertFile, KeyFile: t.KeyFile}, runnerTimeout)
-	if err != nil {
-		return nil, fmt.Errorf("server: functions: %w", err)
-	}
+// buildInvoker assembles the invoker that calls the runner over the link
+// (SEC-043, FN-020).
+func buildInvoker(d functionDeps, link *runnerLink) (*function.Invoker, error) {
 	appSet := appLimits(d.db, d.tenancy, d.set)
 	o := function.InvokerOptions{
-		Declarations: d.service, Resolver: d.service, Pins: d.service, Environment: d.service, Grants: grants,
-		Runner: function.ConnectRunner{Client: fnpbconnect.NewFunctionRunnerServiceClient(client, d.cfg.Functions.RunnerURL)},
+		Declarations: d.service, Resolver: d.service, Pins: d.service, Environment: d.service, Grants: link.grants,
+		Runner: function.ConnectRunner{Client: link.client},
 		Keys:   d.keys,
 		Limits: func(ctx context.Context, organizationID, appID string) (limits.Set, error) {
 			return appSet(ctx, device.Identity{OrganizationID: organizationID, AppID: appID})
