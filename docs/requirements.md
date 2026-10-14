@@ -2759,7 +2759,7 @@ Every error and diagnostic has a stable code `PLX-NNNN` (`DX-003`). Codes are gr
 
 ```yaml
 server:
-  roles: [api, worker, gateway, fnrunner]  # or a subset per deployment
+  roles: [api, worker, gateway]      # also fnrunner, egress, builder; a subset per deployment
   listen: ":8080"
   publicBaseURL: "https://plux.acme.example"
 database:
@@ -2807,10 +2807,48 @@ updateMetadata:
 # challenge, are the limits gateway.* and sca.challengeLifetime (§30.4).
 gateway:
   upstreamCAFile: ""                 # PEM of private authorities the gateway trusts for its upstreams, besides the system's (SEC-031)
+# Plux Functions (§16, ADR-0063, ADR-0064). The roles fnrunner, egress and builder hold no
+# database, cache, object-storage or signing access (L-4) and speak mutual TLS with a
+# certificate of the internal CA (SEC-043). A function's own timeout, memory and call limits
+# are the limits function.* (§30.4); device placement is the security setting deviceFunctions
+# (FN-055).
 functions:
-  defaults: { timeout: "2s", memory: "64MiB", maxHTTPCalls: 10 }
-  device: { enabled: true, timeout: "500ms", memory: "32MiB" }
-  egressProxy: "http://fn-egress:3128"
+  runnerURL: "https://fnrunner:8443" # the api role's route to fnrunner; empty: no server functions
+fnrunner:
+  listen: ":8443"
+  internalTLS: { caFile: "/etc/plux/internal/ca.crt", certFile: "/etc/plux/internal/fnrunner.crt", keyFile: "/etc/plux/internal/fnrunner.key" }
+  apiURL: "https://api:8444"         # the api role's internal listener (FunctionHostService)
+  egressAddr: "egress:3129"
+  artifactKeys:                      # public keys of function artifacts, from configuration only (FN-009)
+    - { keyID: "function-2026", publicKey: "…" }  # raw Ed25519, base64
+  cacheDir: ""                       # empty keeps compiled modules in memory
+  maxModules: 64
+  maxModuleBytes: 268435456          # 256 MiB of module bytes behind the compiled cache
+  maxConcurrent: 64
+  maxMemoryBytes: 536870912          # 512 MiB, the registry maximum of function.memory (FN-011)
+  httpResponseBytes: 1048576         # body of an outbound response a function reads
+egress:                              # CONNECT-only forward proxy with SSRF checks (FN-017)
+  listen: ":3129"
+  internalTLS: { caFile: "…", certFile: "…", keyFile: "…" }
+  connectTimeout: "10s"
+  idleTimeout: "60s"
+  maxTunnelDuration: "5m"
+  maxTunnelBytes: 67108864           # per direction
+  maxTunnels: 1024
+  ports: [443, 80]
+  allowLoopback: false               # tests and development only; production refuses it
+builder:                             # compiles Rust sources to WebAssembly (FN-016, FN-019)
+  listen: ":8445"                    # read by the builder role
+  internalTLS: { caFile: "…", certFile: "…", keyFile: "…" }
+  address: "https://builder:8445"    # read by the worker role; empty: this installation cannot build
+  sandbox: "namespaces"              # namespaces | none (development only, warns)
+  cargo: ""                          # empty: cargo and rustc of the pinned toolchain on PATH
+  rustc: ""
+  wasmOpt: ["bun", "/opt/binaryen/node_modules/binaryen/bin/wasm-opt"]  # Binaryen 132
+  sdkDir: "/opt/plux/sdk/plux-fn"
+  concurrency: 1
+  workDir: ""
+  identity: ""                       # empty: the host name, recorded in provenance (FN-005)
 ai:
   enabled: true
   provider: "ollama"
@@ -3022,7 +3060,7 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Status | Draft (living document) |
 | Date | 2026-10-14 |
 | Supersedes | 1.5.0 |
-| 1.5.1 | 2026-10-14 | Function versions are numbered per app and reach another environment only by promotion; a release promotion is refused until every function version it pins is promoted there (maintainer, 2026-10-14; `FN-006`; ADR-0063). |
+| 1.5.1 | 2026-10-14 | Function versions are numbered per app and reach another environment only by promotion; a release promotion is refused until every function version it pins is promoted there (maintainer, 2026-10-14; `FN-006`; ADR-0063). Appendix H.1 gains the `functions`, `fnrunner`, `egress` and `builder` configuration (P7 plan §2.6 M6). |
 | 1.5.0 | 2026-10-13 | Phase 7 decisions (maintainer, 2026-10-13; P7 plan §2.1 D1–D9, §2.2 C1 and C6, §2.5): Plux Functions are written in **Rust** (D1) — the §5.1 P7 row, §16 with its example, `FN-001`–`FN-004`, `FN-030`, `FN-033` and `FN-040` rewritten, with the SDK crate `plux-fn` at `github.com/nightCode42/plux3/sdk/fn` (D4), the repository layout (§33), the technology decision (§34) and the Go-editor wording (`STU-063`, `STU-110`) updated; `FN-050` names WAMR in interpreter mode in the optional package `plux_functions` (D2); builds run on the server in a new `builder` role (D3, `FN-016`) with a `wasm-opt` step (D9), only signed builder artifacts are deployable (`FN-009`) and builds are reproducible (`FN-019`); our own `egress` forward proxy (D5, `FN-017`); the server key-value store (D8, `FN-018`); until the approval engine (`GOV-020`, P9) `FN-007` and `FN-055` require a dedicated RBAC permission with step-up (D6); `FN-031` and `FN-032` split (D7) with new `FN-034`, `FN-035` (P11) and `FN-036` (P10); `FN-011` names the registry keys; new `SEC-123` (imported signing keys, C1); `SEC-043` covers `builder` and `egress`; §6.3 gains the `builder` and `egress` roles and L-4 names them; §5.4 anchors additive-only evolution (`BND-000`, `SCH-000`, `SRV-000`) to the first release, 0.0.1 (C6); §30.4, Appendix F (functions range, `PLX-6080`, `PLX-6081`) and Appendix K updated; ADR-0011 accepted for Rust and ADR-0062 (host ABI), ADR-0063 (builds and provenance), ADR-0064 (isolation) and ADR-0065 (imported keys and the Apple receipt) proposed. |
 | 1.4.3 | 2026-10-11 | Server-held configuration (maintainer decision, 2026-10-11; ADR-0061), a follow-on milestone of P6: new `DAT-090`–`DAT-097` (§14.4) — typed configuration values per app and environment in two tiers, `server-bound` values the gateway binds into requests at declared locations and `live` values a device fetches over its DPoP-bound channel, with an epoch and a version on every gateway call so that no value is stale where it takes effect; `DAT-003` also allows the secure gateway's server-bound values for calls that need server-held secrets; the `bundled` tier is the existing environment variables (`GOV-010`) and may lag. |
 | 1.4.2 | 2026-10-08 | P6 S0–S6 delivered on `feat/p6-s2-device-trust`: `SEC-005`, `SEC-008`, `SEC-020`–`SEC-022`, `SEC-024`, `SEC-025`, `SEC-029`, `SEC-040`, `SEC-050`, `SEC-051`, `SEC-056`, `SEC-120`–`SEC-122`, `SEC-141`, `SEC-182` and `NAV-009` `DONE`; `SEC-000`, `SEC-001`–`SEC-004`, `SEC-006`, `SEC-007`, `SEC-023`, `SEC-041`–`SEC-043`, `SEC-180` and `NFR-012` `WIP` until the milestones, the real-device check (B2 layer 3) or the reference-device run named in plan p6 complete them. |
