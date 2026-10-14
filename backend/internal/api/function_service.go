@@ -66,7 +66,9 @@ func (s FunctionService) Invoke(ctx context.Context, req *connect.Request[pluxv1
 	res, err := s.h.FunctionInvoker.Invoke(ctx,
 		function.Caller{Device: d, UserToken: req.Header().Get(headerUserToken), Traceparent: traceparentOf(req.Header())},
 		function.Call{
-			Function: m.GetFunction(), Version: int32(m.GetVersion()), //nolint:gosec // bounded above Input: m.GetInput(), IdempotencyKey: m.GetIdempotencyKey(),
+			Function: m.GetFunction(),
+			Version:  int32(m.GetVersion()), //nolint:gosec // bounded above
+			Input:    m.GetInput(), IdempotencyKey: m.GetIdempotencyKey(),
 			ChallengeID: m.GetTransactionChallengeId(), Signature: m.GetTransactionSignature(),
 		})
 	if err != nil {
