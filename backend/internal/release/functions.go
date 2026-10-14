@@ -4,9 +4,11 @@
 package release
 
 import (
+	"bytes"
 	"cmp"
 	"context"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"slices"
 
@@ -108,6 +110,33 @@ func (s *Service) pinFunctions(ctx context.Context, tx pgx.Tx, env dbgen.Environ
 		pinned = append(pinned, ReleaseFunction{Name: g.name, Version: r.Version, ModuleSHA256: hex.EncodeToString(r.ModuleSHA256), Placement: string(r.Placement)})
 	}
 	return pinned, nil
+}
+
+// requirePromoted refuses to point a channel of env at a release unless
+// every function version the release pins is held by env: the same name,
+// the same version and the same module (FN-006). A version reaches another
+// environment only by plux fn promote, which copies it without a rebuild,
+// so a release never runs a build its environment was not given. In a
+// production environment a version whose tests failed is refused as well
+// (FN-031).
+func requirePromoted(ctx context.Context, q *dbgen.Queries, env dbgen.Environment, releaseID pgtype.UUID) error {
+	pins, err := q.ListReleaseFunctions(ctx, []pgtype.UUID{releaseID})
+	if err != nil {
+		return fmt.Errorf("release: list pinned functions: %w", err)
+	}
+	for _, pin := range pins {
+		held, err := q.GetFunctionVersion(ctx, dbgen.GetFunctionVersionParams{EnvironmentID: env.ID, Name: pin.Name, Version: pin.Version})
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("release: read a function version: %w", err)
+		}
+		if err != nil || !bytes.Equal(held.ModuleSha256, pin.ModuleSha256) {
+			return plxerr.New(plxerr.FunctionNotFound, "the release pins version %d of function %s, which environment %s does not hold; run plux fn promote %s@%d --from <environment> --to %s first", pin.Version, pin.Name, env.Key, pin.Name, pin.Version, env.Key)
+		}
+		if env.Production && !held.TestsPassed {
+			return plxerr.New(plxerr.FunctionTestsFailed, "version %d of function %s failed its tests and cannot be released to the production environment %s", pin.Version, pin.Name, env.Key)
+		}
+	}
+	return nil
 }
 
 // copyFunctions gives a release the function versions of an earlier one: a

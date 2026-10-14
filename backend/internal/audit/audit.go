@@ -130,13 +130,15 @@ const (
 	ConfigValueDeleted Action = "config.value_deleted"
 
 	// FunctionSourceUploaded, FunctionBuildRequested, FunctionBuildFinished,
-	// FunctionDeployed and FunctionAliasSet: a function's source was
-	// stored, a build was queued or finished, a version was deployed or
-	// an alias moved (FN-006, FN-016).
+	// FunctionDeployed, FunctionPromoted and FunctionAliasSet: a function's
+	// source was stored, a build was queued or finished, a version was
+	// deployed, a version was copied to another environment or an alias
+	// moved (FN-006, FN-016).
 	FunctionSourceUploaded Action = "function.source_uploaded"
 	FunctionBuildRequested Action = "function.build_requested"
 	FunctionBuildFinished  Action = "function.build_finished"
 	FunctionDeployed       Action = "function.deployed"
+	FunctionPromoted       Action = "function.promoted"
 	FunctionAliasSet       Action = "function.alias_set"
 
 	// UpdateMetadataRootUploaded: an operator stored a root signed
@@ -163,7 +165,7 @@ var actions = sorted(
 	DeviceRevoked, SecurityConfigSet, UpdateMetadataRootUploaded,
 	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,
 	ConfigValueSet, ConfigValueDeleted,
-	FunctionSourceUploaded, FunctionBuildRequested, FunctionBuildFinished, FunctionDeployed, FunctionAliasSet,
+	FunctionSourceUploaded, FunctionBuildRequested, FunctionBuildFinished, FunctionDeployed, FunctionPromoted, FunctionAliasSet,
 )
 
 // sorted returns its arguments in order.

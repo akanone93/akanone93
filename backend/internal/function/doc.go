@@ -17,12 +17,17 @@
 //
 // Invariants:
 //
-//   - Only a succeeded build that carries a signature and whose stored
-//     test cases all passed becomes a version (FN-009, FN-031).
+//   - Only a succeeded build that carries a signature becomes a version
+//     (FN-009). Failing stored test cases block a deploy, a promotion and
+//     a release only in a production environment; elsewhere the version
+//     is deployed and marked as failing its tests (FN-031).
 //   - A version is immutable: the database refuses an update of its row
 //     (FN-006). Aliases move; versions never do.
 //   - Version numbers are assigned inside the deploy transaction, one
-//     above the highest of the function in its app and environment.
+//     above the highest of the function in its app, whatever the
+//     environment, so a number names one signed build everywhere. A
+//     version reaches another environment only by Promote, which copies
+//     the row without a rebuild (FN-006).
 //   - Every table is bound to its organisation by row-level security, the
 //     key-value store included (FN-018, SRV-022).
 //   - Deploying to a production environment needs function.deploy.production,

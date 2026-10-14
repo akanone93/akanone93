@@ -281,6 +281,49 @@ func (e env) fnAlias(args []string) int {
 	return e.emit(c.json, res.Msg.GetAliases(), aliasText(res.Msg.GetAliases()))
 }
 
+// fnPromote copies a version to another environment without rebuilding it
+// (FN-006, FN-007, FN-031).
+func (e env) fnPromote(args []string) int {
+	var c common
+	set := flag.NewFlagSet("fn promote", flag.ContinueOnError)
+	c.register(set, true)
+	from := set.String("from", "", "the `environment` key that holds the version")
+	to := set.String("to", "", "the `environment` key that receives the version")
+	alias := set.String("alias", "", "point this `alias` at the version in the target")
+	pos, code, ok := parseFn(set, args, e.stderr, "Usage: plux fn promote <name>@<version> --from <env> --to <env> [--alias name] [-C dir] [--app id] [--json]\n\nCopies a version to another environment without rebuilding it: the number, the module and the signature stay the same. A release can be promoted to an environment once every function version it pins is there. Production needs a second factor: sign in again with plux login when the server asks.", 1)
+	if !ok {
+		return code
+	}
+	name, number, found := strings.Cut(pos[0], "@")
+	version, err := strconv.ParseUint(number, 10, 32)
+	if !found || err != nil || version == 0 {
+		return e.fail("fn promote", usageError("name the function as <name>@<version>, with a positive version"))
+	}
+	if *from == "" || *to == "" {
+		return e.fail("fn promote", usageError("--from and --to name the environments"))
+	}
+	t, err := e.fnConnect(c, *from)
+	if err != nil {
+		return e.fail("fn promote", err)
+	}
+	toID, err := environmentID(context.Background(), t.cl, t.app, *to)
+	if err != nil {
+		return e.fail("fn promote", err)
+	}
+	res, err := t.cl.fn.PromoteFunction(context.Background(), connect.NewRequest(&pluxv1.PromoteFunctionRequest{
+		AppId: t.app, FromEnvironmentId: t.envID, ToEnvironmentId: toID, Name: name, Version: uint32(version), Alias: *alias, Session: cliSession,
+	}))
+	if err != nil {
+		return e.fail("fn promote", stepUp(err))
+	}
+	v := res.Msg.GetVersion()
+	text := fmt.Sprintf("promoted %s version %d from %s to %s (%s, module %s)", name, v.GetVersion(), *from, *to, v.GetPlacement(), shortHash(v.GetModuleSha256()))
+	if *alias != "" {
+		text += ", alias " + *alias
+	}
+	return e.emit(c.json, v, text)
+}
+
 // aliasText lists aliases as "name -> version".
 func aliasText(as []*pluxv1.Alias) string {
 	lines := make([]string, 0, len(as))

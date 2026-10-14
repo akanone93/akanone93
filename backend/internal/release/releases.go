@@ -479,7 +479,9 @@ func (*Service) pluginRow(ctx context.Context, q *dbgen.Queries, p auth.Principa
 
 // PromoteRelease points a channel of an environment at a release. It
 // copies no bytes and recompiles nothing (REL-004, REL-005); a release
-// promoted to a production environment is kept for ever (REL-007).
+// promoted to a production environment is kept for ever (REL-007). Every
+// function version the release pins must have been promoted to the
+// environment first (FN-006).
 func (s *Service) PromoteRelease(ctx context.Context, p auth.Principal, appID string, sequence int64, envID, channelKey string) (Release, error) {
 	if err := authorize(p, auth.ReleasePromote, appID); err != nil {
 		return Release{}, err
@@ -493,6 +495,9 @@ func (s *Service) PromoteRelease(ctx context.Context, p auth.Principal, appID st
 		}
 		row, vs, err := s.releaseRow(ctx, q, appID, sequence)
 		if err != nil {
+			return err
+		}
+		if err := requirePromoted(ctx, q, env, row.ID); err != nil {
 			return err
 		}
 		if err := s.point(ctx, tx, p, env, channelKey, row); err != nil {
@@ -550,6 +555,9 @@ func (s *Service) RollbackRelease(ctx context.Context, p auth.Principal, appID, 
 		}
 		earlier, vs, err := s.releaseRow(ctx, q, appID, toSequence)
 		if err != nil {
+			return err
+		}
+		if err := requirePromoted(ctx, q, env, earlier.ID); err != nil {
 			return err
 		}
 		if notes == "" {

@@ -2433,6 +2433,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListVersionsResponse'
+  /plux.v1.FunctionAdminService/PromoteFunction:
+    post:
+      tags:
+        - plux.v1.FunctionAdminService
+      summary: PromoteFunction
+      description: |-
+        PromoteFunction copies a version to another environment of the app
+         without rebuilding it, keeping its number, module and signature. A
+         production target refuses a version whose tests failed (FN-006,
+         FN-007, FN-031).
+      operationId: plux.v1.FunctionAdminService.PromoteFunction
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.PromoteFunctionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.PromoteFunctionResponse'
   /plux.v1.FunctionAdminService/SetAlias:
     post:
       tags:
@@ -11565,6 +11608,45 @@ components:
             secret is the token's value, returned exactly once, on the first
              poll after approval.
       title: PollDeviceAuthorizationResponse
+      additionalProperties: false
+    plux.v1.PromoteFunctionRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        fromEnvironmentId:
+          type: string
+          title: from_environment_id
+          description: from_environment_id is the environment that holds the version.
+        toEnvironmentId:
+          type: string
+          title: to_environment_id
+          description: to_environment_id is the environment that receives the copy.
+        name:
+          type: string
+          title: name
+        version:
+          type: integer
+          title: version
+        alias:
+          type: string
+          title: alias
+          description: alias, when set, is pointed at the version in the target (FN-006).
+        session:
+          type: string
+          title: session
+      title: PromoteFunctionRequest
+      additionalProperties: false
+    plux.v1.PromoteFunctionResponse:
+      type: object
+      properties:
+        version:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FunctionVersion'
+          title: version
+          description: version is the version as the target environment holds it.
+      title: PromoteFunctionResponse
       additionalProperties: false
     plux.v1.PromoteReleaseRequest:
       type: object

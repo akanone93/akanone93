@@ -61,6 +61,9 @@ const (
 	// FunctionAdminServiceDeployProcedure is the fully-qualified name of the FunctionAdminService's
 	// Deploy RPC.
 	FunctionAdminServiceDeployProcedure = "/plux.v1.FunctionAdminService/Deploy"
+	// FunctionAdminServicePromoteFunctionProcedure is the fully-qualified name of the
+	// FunctionAdminService's PromoteFunction RPC.
+	FunctionAdminServicePromoteFunctionProcedure = "/plux.v1.FunctionAdminService/PromoteFunction"
 	// FunctionAdminServiceSetAliasProcedure is the fully-qualified name of the FunctionAdminService's
 	// SetAlias RPC.
 	FunctionAdminServiceSetAliasProcedure = "/plux.v1.FunctionAdminService/SetAlias"
@@ -175,6 +178,11 @@ type FunctionAdminServiceClient interface {
 	// point an alias at it. A build with failing tests is refused (FN-006,
 	// FN-031).
 	Deploy(context.Context, *connect.Request[pluxv1.DeployRequest]) (*connect.Response[pluxv1.DeployResponse], error)
+	// PromoteFunction copies a version to another environment of the app
+	// without rebuilding it, keeping its number, module and signature. A
+	// production target refuses a version whose tests failed (FN-006,
+	// FN-007, FN-031).
+	PromoteFunction(context.Context, *connect.Request[pluxv1.PromoteFunctionRequest]) (*connect.Response[pluxv1.PromoteFunctionResponse], error)
 	// SetAlias points an alias at an existing version (FN-006).
 	SetAlias(context.Context, *connect.Request[pluxv1.SetAliasRequest]) (*connect.Response[pluxv1.SetAliasResponse], error)
 	// ListLogs returns the retained log lines of a function (FN-032).
@@ -237,6 +245,12 @@ func NewFunctionAdminServiceClient(httpClient connect.HTTPClient, baseURL string
 			connect.WithSchema(functionAdminServiceMethods.ByName("Deploy")),
 			connect.WithClientOptions(opts...),
 		),
+		promoteFunction: connect.NewClient[pluxv1.PromoteFunctionRequest, pluxv1.PromoteFunctionResponse](
+			httpClient,
+			baseURL+FunctionAdminServicePromoteFunctionProcedure,
+			connect.WithSchema(functionAdminServiceMethods.ByName("PromoteFunction")),
+			connect.WithClientOptions(opts...),
+		),
 		setAlias: connect.NewClient[pluxv1.SetAliasRequest, pluxv1.SetAliasResponse](
 			httpClient,
 			baseURL+FunctionAdminServiceSetAliasProcedure,
@@ -260,16 +274,17 @@ func NewFunctionAdminServiceClient(httpClient connect.HTTPClient, baseURL string
 
 // functionAdminServiceClient implements FunctionAdminServiceClient.
 type functionAdminServiceClient struct {
-	uploadSource  *connect.Client[pluxv1.UploadSourceRequest, pluxv1.UploadSourceResponse]
-	build         *connect.Client[pluxv1.BuildRequest, pluxv1.BuildResponse]
-	getBuild      *connect.Client[pluxv1.GetBuildRequest, pluxv1.GetBuildResponse]
-	getFunction   *connect.Client[pluxv1.GetFunctionRequest, pluxv1.GetFunctionResponse]
-	listFunctions *connect.Client[pluxv1.ListFunctionsRequest, pluxv1.ListFunctionsResponse]
-	listVersions  *connect.Client[pluxv1.ListVersionsRequest, pluxv1.ListVersionsResponse]
-	deploy        *connect.Client[pluxv1.DeployRequest, pluxv1.DeployResponse]
-	setAlias      *connect.Client[pluxv1.SetAliasRequest, pluxv1.SetAliasResponse]
-	listLogs      *connect.Client[pluxv1.ListLogsRequest, pluxv1.ListLogsResponse]
-	getMetrics    *connect.Client[pluxv1.GetMetricsRequest, pluxv1.GetMetricsResponse]
+	uploadSource    *connect.Client[pluxv1.UploadSourceRequest, pluxv1.UploadSourceResponse]
+	build           *connect.Client[pluxv1.BuildRequest, pluxv1.BuildResponse]
+	getBuild        *connect.Client[pluxv1.GetBuildRequest, pluxv1.GetBuildResponse]
+	getFunction     *connect.Client[pluxv1.GetFunctionRequest, pluxv1.GetFunctionResponse]
+	listFunctions   *connect.Client[pluxv1.ListFunctionsRequest, pluxv1.ListFunctionsResponse]
+	listVersions    *connect.Client[pluxv1.ListVersionsRequest, pluxv1.ListVersionsResponse]
+	deploy          *connect.Client[pluxv1.DeployRequest, pluxv1.DeployResponse]
+	promoteFunction *connect.Client[pluxv1.PromoteFunctionRequest, pluxv1.PromoteFunctionResponse]
+	setAlias        *connect.Client[pluxv1.SetAliasRequest, pluxv1.SetAliasResponse]
+	listLogs        *connect.Client[pluxv1.ListLogsRequest, pluxv1.ListLogsResponse]
+	getMetrics      *connect.Client[pluxv1.GetMetricsRequest, pluxv1.GetMetricsResponse]
 }
 
 // UploadSource calls plux.v1.FunctionAdminService.UploadSource.
@@ -305,6 +320,11 @@ func (c *functionAdminServiceClient) ListVersions(ctx context.Context, req *conn
 // Deploy calls plux.v1.FunctionAdminService.Deploy.
 func (c *functionAdminServiceClient) Deploy(ctx context.Context, req *connect.Request[pluxv1.DeployRequest]) (*connect.Response[pluxv1.DeployResponse], error) {
 	return c.deploy.CallUnary(ctx, req)
+}
+
+// PromoteFunction calls plux.v1.FunctionAdminService.PromoteFunction.
+func (c *functionAdminServiceClient) PromoteFunction(ctx context.Context, req *connect.Request[pluxv1.PromoteFunctionRequest]) (*connect.Response[pluxv1.PromoteFunctionResponse], error) {
+	return c.promoteFunction.CallUnary(ctx, req)
 }
 
 // SetAlias calls plux.v1.FunctionAdminService.SetAlias.
@@ -345,6 +365,11 @@ type FunctionAdminServiceHandler interface {
 	// point an alias at it. A build with failing tests is refused (FN-006,
 	// FN-031).
 	Deploy(context.Context, *connect.Request[pluxv1.DeployRequest]) (*connect.Response[pluxv1.DeployResponse], error)
+	// PromoteFunction copies a version to another environment of the app
+	// without rebuilding it, keeping its number, module and signature. A
+	// production target refuses a version whose tests failed (FN-006,
+	// FN-007, FN-031).
+	PromoteFunction(context.Context, *connect.Request[pluxv1.PromoteFunctionRequest]) (*connect.Response[pluxv1.PromoteFunctionResponse], error)
 	// SetAlias points an alias at an existing version (FN-006).
 	SetAlias(context.Context, *connect.Request[pluxv1.SetAliasRequest]) (*connect.Response[pluxv1.SetAliasResponse], error)
 	// ListLogs returns the retained log lines of a function (FN-032).
@@ -403,6 +428,12 @@ func NewFunctionAdminServiceHandler(svc FunctionAdminServiceHandler, opts ...con
 		connect.WithSchema(functionAdminServiceMethods.ByName("Deploy")),
 		connect.WithHandlerOptions(opts...),
 	)
+	functionAdminServicePromoteFunctionHandler := connect.NewUnaryHandler(
+		FunctionAdminServicePromoteFunctionProcedure,
+		svc.PromoteFunction,
+		connect.WithSchema(functionAdminServiceMethods.ByName("PromoteFunction")),
+		connect.WithHandlerOptions(opts...),
+	)
 	functionAdminServiceSetAliasHandler := connect.NewUnaryHandler(
 		FunctionAdminServiceSetAliasProcedure,
 		svc.SetAlias,
@@ -437,6 +468,8 @@ func NewFunctionAdminServiceHandler(svc FunctionAdminServiceHandler, opts ...con
 			functionAdminServiceListVersionsHandler.ServeHTTP(w, r)
 		case FunctionAdminServiceDeployProcedure:
 			functionAdminServiceDeployHandler.ServeHTTP(w, r)
+		case FunctionAdminServicePromoteFunctionProcedure:
+			functionAdminServicePromoteFunctionHandler.ServeHTTP(w, r)
 		case FunctionAdminServiceSetAliasProcedure:
 			functionAdminServiceSetAliasHandler.ServeHTTP(w, r)
 		case FunctionAdminServiceListLogsProcedure:
@@ -478,6 +511,10 @@ func (UnimplementedFunctionAdminServiceHandler) ListVersions(context.Context, *c
 
 func (UnimplementedFunctionAdminServiceHandler) Deploy(context.Context, *connect.Request[pluxv1.DeployRequest]) (*connect.Response[pluxv1.DeployResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FunctionAdminService.Deploy is not implemented"))
+}
+
+func (UnimplementedFunctionAdminServiceHandler) PromoteFunction(context.Context, *connect.Request[pluxv1.PromoteFunctionRequest]) (*connect.Response[pluxv1.PromoteFunctionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.FunctionAdminService.PromoteFunction is not implemented"))
 }
 
 func (UnimplementedFunctionAdminServiceHandler) SetAlias(context.Context, *connect.Request[pluxv1.SetAliasRequest]) (*connect.Response[pluxv1.SetAliasResponse], error) {

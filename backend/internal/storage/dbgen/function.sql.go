@@ -673,16 +673,18 @@ func (q *Queries) LockFunction(ctx context.Context, scope string) error {
 const nextFunctionVersion = `-- name: NextFunctionVersion :one
 SELECT (coalesce(max(version), 0) + 1)::int AS version
   FROM function_versions
- WHERE environment_id = $1 AND name = $2
+ WHERE app_id = $1 AND name = $2
 `
 
 type NextFunctionVersionParams struct {
-	EnvironmentID pgtype.UUID
-	Name          string
+	AppID pgtype.UUID
+	Name  string
 }
 
+// A version number is counted per function per app, so that one number
+// names one signed build in every environment (FN-006).
 func (q *Queries) NextFunctionVersion(ctx context.Context, arg NextFunctionVersionParams) (int32, error) {
-	row := q.db.QueryRow(ctx, nextFunctionVersion, arg.EnvironmentID, arg.Name)
+	row := q.db.QueryRow(ctx, nextFunctionVersion, arg.AppID, arg.Name)
 	var version int32
 	err := row.Scan(&version)
 	return version, err

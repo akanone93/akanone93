@@ -4,6 +4,7 @@
 package function
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -61,18 +62,20 @@ func (s *Service) Deploy(ctx context.Context, p auth.Principal, buildID, alias s
 	return out, err
 }
 
-// insertVersion assigns the next number under the function's lock, stores
-// the version and the alias, and audits the deploy.
+// insertVersion assigns the next number of the function in its app under
+// the function's lock, stores the version and the alias, and audits the
+// deploy. The number is counted across the app's environments, so one
+// number names one signed build everywhere (FN-006).
 func (s *Service) insertVersion(ctx context.Context, tx pgx.Tx, p auth.Principal, row dbgen.FunctionBuild, alias string, passed bool) (Version, error) {
 	q := dbgen.New(tx)
 	info, err := manifestEntry(row)
 	if err != nil {
 		return Version{}, err
 	}
-	if err := q.LockFunction(ctx, lockScope("deploy", row.EnvironmentID, row.Name)); err != nil {
+	if err := q.LockFunction(ctx, lockScope("deploy", row.AppID, row.Name)); err != nil {
 		return Version{}, fmt.Errorf("function: lock a function: %w", err)
 	}
-	next, err := q.NextFunctionVersion(ctx, dbgen.NextFunctionVersionParams{EnvironmentID: row.EnvironmentID, Name: row.Name})
+	next, err := q.NextFunctionVersion(ctx, dbgen.NextFunctionVersionParams{AppID: row.AppID, Name: row.Name})
 	if err != nil {
 		return Version{}, fmt.Errorf("function: next version: %w", err)
 	}
@@ -101,9 +104,11 @@ func (s *Service) insertVersion(ctx context.Context, tx pgx.Tx, p auth.Principal
 }
 
 // lockScope names a lock that serialises the work of one kind on one
-// function: its deploys, or the writes of its key-value store.
-func lockScope(kind string, environment pgtype.UUID, name string) string {
-	return "function:" + kind + ":" + storage.ID(environment) + ":" + name
+// function: its deploys and promotions, which number versions per app, or
+// the writes of its key-value store, which is per environment. scope is
+// the app or the environment.
+func lockScope(kind string, scope pgtype.UUID, name string) string {
+	return "function:" + kind + ":" + storage.ID(scope) + ":" + name
 }
 
 // aliasParams builds the row of an alias that points at a version.
@@ -126,6 +131,109 @@ func manifestEntry(row dbgen.FunctionBuild) (Export, error) {
 		return Export{}, plxerr.New(plxerr.FunctionDeclarationMismatch, "the build does not export the function %s", row.Name)
 	}
 	return info, nil
+}
+
+// Promote copies a version of a function from one environment of an app to
+// another without rebuilding it, so the target holds the same number, the
+// same module and the same signature (FN-006). It needs the permission a
+// deploy needs in the target, because the copy changes what the target can
+// release. A production target refuses a version whose tests failed
+// (FN-031). Promoting a version the target already holds is a no-op, and
+// alias, when set, is pointed at the version either way.
+func (s *Service) Promote(ctx context.Context, p auth.Principal, appID, fromEnvID, toEnvID, name string, version int32, alias string) (Version, error) {
+	if err := ValidateName(name); err != nil {
+		return Version{}, err
+	}
+	if alias != "" {
+		if err := ValidateAlias(alias); err != nil {
+			return Version{}, err
+		}
+	}
+	if version < 1 {
+		return Version{}, plxerr.New(plxerr.InvalidFormat, "a function version is a positive number")
+	}
+	var out Version
+	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+		q := dbgen.New(tx)
+		from, err := environmentOf(ctx, q, appID, fromEnvID)
+		if err != nil {
+			return err
+		}
+		to, err := environmentOf(ctx, q, appID, toEnvID)
+		if err != nil {
+			return err
+		}
+		if from.ID == to.ID {
+			return plxerr.New(plxerr.InvalidFormat, "the source and the target of a promotion are the same environment")
+		}
+		if err := authorize(p, deployPermission(to.Production), appID); err != nil {
+			return err
+		}
+		src, err := q.GetFunctionVersion(ctx, dbgen.GetFunctionVersionParams{EnvironmentID: from.ID, Name: name, Version: version})
+		if err != nil {
+			return versionMissing(err, name, version)
+		}
+		if !src.TestsPassed && to.Production {
+			return plxerr.New(plxerr.FunctionTestsFailed, "version %d of function %s failed its tests and cannot be promoted to a production environment", version, name)
+		}
+		out, err = s.copyVersion(ctx, tx, p, src, to, alias)
+		return err
+	})
+	return out, err
+}
+
+// copyVersion stores a copy of a version in the target environment under
+// the function's lock, or finds the copy a promotion made earlier, then
+// points the alias at it and audits what changed.
+func (s *Service) copyVersion(ctx context.Context, tx pgx.Tx, p auth.Principal, src dbgen.FunctionVersion, to dbgen.Environment, alias string) (Version, error) {
+	q := dbgen.New(tx)
+	if err := q.LockFunction(ctx, lockScope("deploy", src.AppID, src.Name)); err != nil {
+		return Version{}, fmt.Errorf("function: lock a function: %w", err)
+	}
+	target := storage.ID(to.ID) + "/" + src.Name
+	v, err := q.GetFunctionVersion(ctx, dbgen.GetFunctionVersionParams{EnvironmentID: to.ID, Name: src.Name, Version: src.Version})
+	held := err == nil
+	switch {
+	case held:
+		if !bytes.Equal(v.ModuleSha256, src.ModuleSha256) {
+			return Version{}, plxerr.New(plxerr.PreconditionFailed, "the target environment holds version %d of function %s with a different module", src.Version, src.Name)
+		}
+		if alias == "" {
+			return versionOf(v)
+		}
+	case errors.Is(err, pgx.ErrNoRows):
+		v, err = q.InsertFunctionVersion(ctx, dbgen.InsertFunctionVersionParams{
+			OrganizationID: src.OrganizationID, AppID: src.AppID, EnvironmentID: to.ID, Name: src.Name,
+			Version: src.Version, BuildID: src.BuildID, Placement: src.Placement, ModuleKey: src.ModuleKey,
+			ModuleSha256: src.ModuleSha256, AbiVersion: src.AbiVersion, InputSchema: src.InputSchema,
+			OutputSchema: src.OutputSchema, Provenance: src.Provenance, Statement: src.Statement, Signature: src.Signature,
+			KeyID: src.KeyID, TestsPassed: src.TestsPassed, CreatedBy: createdBy(p),
+		})
+		if err != nil {
+			return Version{}, failure(err, "function version")
+		}
+		detail := fmt.Sprintf("function %s, version %d, from environment %s, module %x", src.Name, src.Version, storage.ID(src.EnvironmentID), src.ModuleSha256)
+		if alias != "" {
+			detail += ", alias " + alias
+		}
+		if err := s.record(ctx, tx, p, audit.FunctionPromoted, "function", target, detail); err != nil {
+			return Version{}, err
+		}
+	default:
+		return Version{}, fmt.Errorf("function: read a version: %w", err)
+	}
+	if alias != "" {
+		if _, err := q.UpsertFunctionAlias(ctx, aliasParams(p, v, alias)); err != nil {
+			return Version{}, failure(err, "function alias")
+		}
+		if held {
+			detail := fmt.Sprintf("function %s, alias %s, version %d", src.Name, alias, src.Version)
+			if err := s.record(ctx, tx, p, audit.FunctionAliasSet, "function", target, detail); err != nil {
+				return Version{}, err
+			}
+		}
+	}
+	return versionOf(v)
 }
 
 // SetAlias points an alias at an existing version and returns the

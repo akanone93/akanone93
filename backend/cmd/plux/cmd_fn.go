@@ -34,6 +34,7 @@ Commands:
   test <name>                     Run cargo test, then every stored case on the built module
   invoke <name> --input json      Run the built module locally with the declared limits
   deploy <name>                   Upload the source, build it on the server and deploy the version
+  promote <name>@<version>        Copy a version to another environment without rebuilding it
   alias <name> <alias> <version>  Point an alias at a version
   versions <name>                 List the versions and their aliases
   logs <name>                     Show the retained logs of a function
@@ -46,7 +47,7 @@ func (e env) fn(args []string) int {
 	if len(args) > 0 {
 		sub := map[string]func([]string) int{
 			"new": e.fnNew, "build": e.fnBuild, "test": e.fnTest, "invoke": e.fnInvoke,
-			"deploy": e.fnDeploy, "alias": e.fnAlias, "versions": e.fnVersions, "logs": e.fnLogs,
+			"deploy": e.fnDeploy, "promote": e.fnPromote, "alias": e.fnAlias, "versions": e.fnVersions, "logs": e.fnLogs,
 		}
 		if f, ok := sub[args[0]]; ok {
 			return f(args[1:])

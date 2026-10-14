@@ -358,6 +358,9 @@ var matrix = map[string]entry{
 	"FunctionAdminService/Deploy": atPerm(auth.FunctionDeploy, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeployRequest{BuildId: f.freshFunctionBuild(t, f.dev)}
 	}),
+	"FunctionAdminService/PromoteFunction": atPerm(auth.FunctionDeploy, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.PromoteFunctionRequest{AppId: f.app, FromEnvironmentId: f.prod, ToEnvironmentId: f.dev, Name: "matrix.fn", Version: 1}
+	})),
 	"FunctionAdminService/SetAlias": atPerm(auth.FunctionDeploy, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.SetAliasRequest{AppId: f.app, EnvironmentId: f.dev, Name: "matrix.fn", Alias: &pluxv1.Alias{Name: "stable", Version: 1}}
 	})),
@@ -442,6 +445,9 @@ var variants = map[string]entry{
 	"FunctionAdminService/Deploy (production)": atPerm(auth.FunctionDeployProduction, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeployRequest{BuildId: f.freshFunctionBuild(t, f.prod)}
 	}),
+	"FunctionAdminService/PromoteFunction (production)": atPerm(auth.FunctionDeployProduction, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.PromoteFunctionRequest{AppId: f.app, FromEnvironmentId: f.dev, ToEnvironmentId: f.prod, Name: "matrix.fn", Version: 1}
+	})),
 	"FunctionAdminService/SetAlias (production)": atPerm(auth.FunctionDeployProduction, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.SetAliasRequest{AppId: f.app, EnvironmentId: f.prod, Name: "matrix.fn", Alias: &pluxv1.Alias{Name: "stable", Version: 1}}
 	})),

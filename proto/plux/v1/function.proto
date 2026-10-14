@@ -105,6 +105,11 @@ service FunctionAdminService {
   // point an alias at it. A build with failing tests is refused (FN-006,
   // FN-031).
   rpc Deploy(DeployRequest) returns (DeployResponse) {}
+  // PromoteFunction copies a version to another environment of the app
+  // without rebuilding it, keeping its number, module and signature. A
+  // production target refuses a version whose tests failed (FN-006,
+  // FN-007, FN-031).
+  rpc PromoteFunction(PromoteFunctionRequest) returns (PromoteFunctionResponse) {}
   // SetAlias points an alias at an existing version (FN-006).
   rpc SetAlias(SetAliasRequest) returns (SetAliasResponse) {}
   // ListLogs returns the retained log lines of a function (FN-032).
@@ -279,6 +284,23 @@ message DeployRequest {
   string session = 3;
 }
 message DeployResponse {
+  FunctionVersion version = 1;
+}
+
+message PromoteFunctionRequest {
+  string app_id = 1;
+  // from_environment_id is the environment that holds the version.
+  string from_environment_id = 2;
+  // to_environment_id is the environment that receives the copy.
+  string to_environment_id = 3;
+  string name = 4;
+  uint32 version = 5;
+  // alias, when set, is pointed at the version in the target (FN-006).
+  string alias = 6;
+  string session = 7;
+}
+message PromoteFunctionResponse {
+  // version is the version as the target environment holds it.
   FunctionVersion version = 1;
 }
 
