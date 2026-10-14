@@ -204,10 +204,11 @@ func (e *Engine) checkVersion(ctx context.Context, m *Module) error {
 	st := &callState{
 		engine: e, module: m,
 		call:   &Call{Host: unavailableHost{}},
-		memory: &cappedMemory{limit: e.maxMem},
+		memory: &cappedMemory{limit: e.maxMem, pool: e.pool},
 		budget: &logBudget{},
 	}
 	ctx = st.attach(ctx)
+	defer st.memory.release() // after the instance closed: deferred first
 	mod, err := e.instantiate(ctx, st)
 	if err != nil {
 		return plxerr.Wrap(plxerr.FunctionModuleInvalid, err, "the module does not instantiate")

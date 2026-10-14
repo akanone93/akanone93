@@ -31,44 +31,64 @@ metrics. The limits are the registry defaults (64 MiB, 2 s). `wazero` 1.12.0, co
 number. Times are wall clock around `Runner.invoke`; the pinned connection to the api role is
 established before the first sample.
 
+What the server does to meet the two budgets:
+
+- **At deploy.** After `function.Service.Deploy` or `Promote` has committed a server-placed
+  version, the api role calls `FunctionRunnerService.Prepare` with a grant scoped to that
+  version. The runner fetches the module, verifies it (`FN-009`), compiles it and keeps the
+  compiled form (plan p7 section 5.3). The call is best effort: bounded by 10 s, logged and
+  counted (`plux_function_prepares_total{result}`) when it fails, and never fails the deploy,
+  because the first invocation then fetches and compiles the module itself.
+- **Per call.** An instance is still fresh for every call (`FN-010`), but its linear memory
+  comes from a pool of at most `maxConcurrent` buffers of up to 4 MiB. A buffer goes back to the
+  pool after the instance closed and the call returned, with every byte the instance could have
+  written cleared first, so nothing crosses from one invocation to the next. The memory limit of
+  the invocation is enforced on the buffer as before (`FN-011`).
+
 | Measurement | Samples | What it times |
 |---|---:|---|
-| `warm` | 2,000 after 200 warm-up | A call on a compiled, cached module, one at a time. |
-| `firstAfterDeploy` | 100 | A new runner with an empty cache: fetch from the api role, verify (`FN-009`), compile, then the call. Gated. |
-| `firstAfterPrepare` | 100 | A new runner after `Prepare` compiled the module (the deploy path of `FN-010`): the first call. Not gated. |
+| `warm` | 2,000 after 200 warm-up | A call on a compiled, cached module, one at a time. Gated. |
+| `firstAfterDeploy` | 100 | A new runner after `Prepare` compiled the module (what the deploy does): the first call. Gated. |
+| `firstCold` | 100 | A new runner with an empty cache: fetch from the api role, verify, compile, then the call. A deploy whose `Prepare` failed, or a replica it did not reach. Not gated. |
 | `firstWithCompilationCache` | 100 | A new runner whose `CacheDir` already holds the compiled code (a restart or a second replica). Not gated. |
 
 The test prints the four as JSON (p50, p99 and maximum, in microseconds) and fails when `warm`
 p99 exceeds 1 ms or `firstAfterDeploy` p99 exceeds 50 ms. The CI sync benchmark job runs it
 after `bench-sync`.
 
-Three consecutive runs with the default garbage collector:
+Three consecutive runs (load average 3 to 5 on 4 cores):
 
-| Measurement | p50 (µs) | p99 (µs) | Budget p99 |
-|---|---|---|---|
-| `warm` | 232 to 432 | 6,395 to 9,972 | 1,000 |
-| `firstAfterDeploy` | 56,099 to 73,464 | 81,822 to 116,367 | 50,000 |
-| `firstAfterPrepare` | 406 to 448 | 5,884 to 10,829 | none |
-| `firstWithCompilationCache` | 8,718 to 12,740 | 17,147 to 31,718 | none |
+| Measurement | Run 1 p50 / p99 (µs) | Run 2 p50 / p99 (µs) | Run 3 p50 / p99 (µs) | Budget p99 |
+|---|---|---|---|---|
+| `warm` | 99 / 804 | 75 / 582 | 83 / 860 | 1,000 |
+| `firstAfterDeploy` | 214 / 931 | 235 / 592 | 283 / 1,336 | 50,000 |
+| `firstCold` | 55,178 / 82,784 | 57,793 / 101,981 | 66,396 / 216,639 | none |
+| `firstWithCompilationCache` | 8,684 / 19,735 | 7,913 / 17,932 | 8,823 / 20,894 | none |
 
-**Verdict: both budgets are missed on this host.** Three observations bear on what to do about
-it before the reference deployment is measured.
+Before the change, with a fresh allocation of the guest's memory for every call and nothing
+compiled at deploy, the same host gave warm p50 232 to 432 µs and p99 6,395 to 9,972 µs, and
+the first call after a deploy 56,099 to 73,464 µs at p50 and 81,822 to 116,367 µs at p99.
 
-- **Warm p50 is within budget, the tail is the collector.** Every call allocates the guest's
-  initial linear memory (1.1 MiB, 17 pages, a Rust module's default stack) and discards it, so
-  with a small live heap the collector runs every few calls. A diagnostic run with `GOGC=off`
-  gave warm p50 63 µs and p99 556 µs, under the budget even on the busy host; `GOGC=400` gave
-  254 µs and 2,692 µs. A production server's larger live heap lowers the collector's
-  frequency per allocation, so the benchmark probably overstates the tail, but only the
-  reference deployment shows by how much. Reusing the instance memory across calls would
-  remove the allocation, at the price of zeroing it by hand to keep `FN-010`.
-- **First after deploy is the compile.** 50 to 70 ms of the median is `wazero` compiling the
-  75 KB probe (the profile puts 55% of the run in `CompileModule`, mostly register allocation).
-  Plan §2.3 measured 50 ms for an 82 KB Rust module, so the budget sits at the compile time
-  of a small module, with no margin for a larger one. After `Prepare` has compiled it, or with a
-  populated compilation cache, the first call costs 0.4 ms and 9 to 13 ms. Which of the three
-  `FN-023` means by "first invocation after deploy" is the maintainer's reading to confirm; the
-  test gates the strictest.
+**Verdict: both budgets are met on this host, the warm one with a margin of 14 to 42 %.** The
+reading behind each:
+
+- **Warm.** The tail was the garbage collector. Every call allocated the guest's initial linear
+  memory (1.1 MiB, 17 pages, a Rust module's default stack) and dropped it, so with a small
+  live heap the collector ran every few calls (a `GOGC=off` diagnostic had given p99 556 µs).
+  With the memory pooled the p99 is 582 to 860 µs, near that diagnostic figure; what remains is
+  clearing the 1.1 MiB buffer and the host's other tenants. The maximum of a
+  run still reaches 1.4 to 8.3 ms on single calls, which a p99 over 2,000 samples does not
+  count. The margin is thin on a busy host, so the reference deployment's number is the one
+  that counts.
+- **First after deploy is a cache lookup once `Prepare` ran.** The 50 to 70 ms of the cold path
+  is `wazero` compiling the 75 KB probe (the profile puts 55 % of the run in `CompileModule`,
+  mostly register allocation). Plan §2.3 measured 50 ms for an 82 KB Rust module, so a budget
+  that included the compile would sit at the compile time of a small module with no margin for a
+  larger one. `FN-023` says "first invocation after deploy"; the test reads it as the design
+  does, with the deploy's `Prepare` done, and reports the cold path beside it. Which reading
+  `FN-023` intends is the maintainer's to confirm. The cold path stays over 50 ms and is what a
+  replica that `Prepare` did not reach pays once, since the api role's call lands on one
+  replica of the runner.
 - **Noise.** The p99 of 100 first-call samples is the slowest sample, and the host was shared.
   The reference deployment's number replaces these.
 
