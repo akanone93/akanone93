@@ -60,6 +60,15 @@ precedence = "override"
 SPDX-FileCopyrightText = ["The Rust Project Developers", "2026 Plux contributors"]
 SPDX-License-Identifier = "Apache-2.0 AND MIT"
 
+# The example functions' modules (sdk/fn/examples/modules/*/dist), built by
+# the Plux builder; like the probe they link the Rust standard library and the
+# crates of sdk/fn/Cargo.lock (MIT or Apache-2.0).
+[[annotations]]
+path = "sdk/fn/examples/modules/*/dist/module.wasm"
+precedence = "override"
+SPDX-FileCopyrightText = ["The Rust Project Developers", "2026 Plux contributors"]
+SPDX-License-Identifier = "Apache-2.0 AND MIT"
+
 # Public attestation roots pinned by ADR-0012, reproduced unmodified so the
 # verifiers can check device attestations; their fingerprints are tested.
 [[annotations]]
