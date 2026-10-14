@@ -190,6 +190,16 @@
       "paths": ["backend/internal/compiler/media/codecs/**", "mk/codecs.mk"],
       "skipOnPush": true
     },
+    "functions": {
+      "description": "The Rust SDK formatted, linted and tested, and the example functions built by the builder role twice and compared (FN-016, FN-019; P7 plan §2.6 M4)",
+      "paths": ["sdk/**", "backend/internal/builder/**", "backend/internal/function/rust_*", "mk/functions.mk", "!**/*.md"],
+      "make": ["rust-check", "rust-e2e"]
+    },
+    "wamr": {
+      "description": "The vendored WAMR subset re-created from the upstream 2.4.3 release and compared with the commit (P7 plan §2.6 M2, M4)",
+      "paths": ["packages/plux_functions/native/wamr/**", "mk/functions.mk"],
+      "make": ["wamr-check"]
+    },
     "dart": {
       "description": "Format, analysis and tests with coverage floors of every Dart package; the tests read the shared vectors in schema/",
       "go": ["tools/cmd/covgate"],
