@@ -31,6 +31,7 @@ functions run on the phone and are not affected by this runbook.
 | Latency in the runner | `histogram_quantile(0.99, sum by (le)(rate(plux_function_duration_seconds_bucket[5m])))` |
 | Memory peaks | `histogram_quantile(0.99, sum by (le)(rate(plux_function_memory_peak_bytes_bucket[5m])))` |
 | Module cache | `sum by (result)(rate(plux_function_module_cache_total[5m]))`, with `result` of `hit`, `miss` and `refused` |
+| Compiles at deploy | `sum by (result)(rate(plux_function_prepares_total[1h]))`: the api asks the runner to compile each server version it deploys or promotes; failures here mean the first calls compile the module themselves, slower but correct (`FN-023`) |
 
 `result` is `ok`, `business_error`, or the lower-case reason of the error (`function_timeout`,
 `function_trapped`, `rate_limited`, `upstream_unavailable`, `function_artifact_signature_invalid`).
