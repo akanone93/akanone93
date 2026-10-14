@@ -34,6 +34,19 @@ type fakeRole struct {
 	resp *fnpb.BuildResponse
 	err  error
 	seen []*fnpb.BuildRequest
+
+	link     *fnpb.LinkResponse
+	linkSeen []*fnpb.LinkRequest
+}
+
+func (f *fakeRole) Link(_ context.Context, req *connect.Request[fnpb.LinkRequest]) (*connect.Response[fnpb.LinkResponse], error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.linkSeen = append(f.linkSeen, req.Msg)
+	if f.err != nil {
+		return nil, f.err
+	}
+	return connect.NewResponse(f.link), nil
 }
 
 func (f *fakeRole) Build(_ context.Context, req *connect.Request[fnpb.BuildRequest]) (*connect.Response[fnpb.BuildResponse], error) {
@@ -182,5 +195,59 @@ func TestSignerSignsTheStatementWithTheFunctionArtifactKey_FN_009(t *testing.T) 
 	}
 	if _, err := NewSigner(nil, "x"); err == nil {
 		t.Error("a signer without a backend was accepted")
+	}
+}
+
+// linkIn is a link of the rig's one source.
+func (r *rig) linkIn() function.LinkInput {
+	return function.LinkInput{
+		LinkID: "l1", Timeout: 10 * time.Minute, MemoryBytes: 4 << 30,
+		Sources: []function.LinkSource{{Name: "bank.transferFee", SourceObjectKey: r.in.SourceObjectKey, SourceSHA256: r.in.SourceSHA256}},
+	}
+}
+
+// Verifies: FN-051.
+func TestLinkSendsTheStoredSourcesAndConvertsTheResponse_FN_051(t *testing.T) {
+	r := newRig(t)
+	r.role.link = &fnpb.LinkResponse{
+		Module: []byte("wasm"), AbiVersion: 1,
+		Functions: []*fnpb.LinkedFunction{{Name: "bank.transferFee", Index: 0}, {Name: "bank.other", Index: 1}},
+	}
+	out, err := r.client.Link(t.Context(), r.linkIn())
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := r.role.linkSeen[0]
+	if len(req.GetSources()) != 1 || string(req.GetSources()[0].GetSource()) != string(r.source) || req.GetSources()[0].GetName() != "bank.transferFee" ||
+		req.GetLimits().GetTimeoutMs() != 600000 || req.GetLimits().GetMemoryBytes() != 4<<30 {
+		t.Errorf("request = %v", req)
+	}
+	if string(out.Module) != "wasm" || out.ABIVersion != 1 || out.Index["bank.other"] != 1 || len(out.Index) != 2 {
+		t.Errorf("output = %+v", out)
+	}
+}
+
+// Verifies: FN-051.
+func TestLinkReturnsDiagnosticsAndRefusesInconsistentOutput_FN_051(t *testing.T) {
+	r := newRig(t)
+	raw, _ := json.Marshal(plxerr.Diagnostics{plxerr.NewDiagnostic(plxerr.FunctionBuildFailed, plxerr.Location{}, "error[E0308]")})
+	r.role.link = &fnpb.LinkResponse{DiagnosticsJson: raw}
+	if out, err := r.client.Link(t.Context(), r.linkIn()); err != nil || len(out.Module) != 0 || !out.Diagnostics.HasErrors() {
+		t.Errorf("output = %+v, %v", out, err)
+	}
+	r.role.link = &fnpb.LinkResponse{}
+	if _, err := r.client.Link(t.Context(), r.linkIn()); err == nil {
+		t.Error("a response with neither a module nor an error was accepted")
+	}
+	r.role.err = connect.NewError(connect.CodeInternal, errors.New("boom"))
+	if _, err := r.client.Link(t.Context(), r.linkIn()); err == nil {
+		t.Error("a role failure was not an error")
+	}
+	r.role.err = nil
+	in := r.linkIn()
+	in.Sources[0].SourceSHA256 = hex.EncodeToString(make([]byte, 32))
+	before := len(r.role.linkSeen)
+	if _, err := r.client.Link(t.Context(), in); err == nil || len(r.role.linkSeen) != before {
+		t.Errorf("a source that does not match its recorded hash was sent: %v", err)
 	}
 }

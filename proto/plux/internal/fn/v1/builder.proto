@@ -20,6 +20,16 @@ service BuilderService {
   // with error diagnostics and no module; only a failure of the builder
   // itself is an RPC error.
   rpc Build(BuildRequest) returns (BuildResponse) {}
+
+  // Link compiles the source archives of several device-placed functions into
+  // the one module a plugin carries (FN-051, plan P7 E5). It runs the same
+  // pipeline as Build without the stored test cases and without the second,
+  // verifying build: each function was built and tested on its own, and the
+  // linked module is a pure function of the sources, so the same set always
+  // yields the same bytes. A set that does not link is a response with error
+  // diagnostics and no module; only a failure of the builder itself is an RPC
+  // error.
+  rpc Link(LinkRequest) returns (LinkResponse) {}
 }
 
 message BuildRequest {
@@ -93,4 +103,40 @@ message BuildTestResult {
   string name = 1;
   bool passed = 2;
   string message = 3;
+}
+
+message LinkRequest {
+  // link_id names the link in the builder's logs.
+  string link_id = 1;
+  // sources are the archives to link, one per function. Their total size is
+  // bounded by the registry maximum of function.sourceArchiveSize.
+  repeated LinkSource sources = 2;
+  BuildLimits limits = 3;
+}
+
+message LinkSource {
+  // name is the function's dotted name; its function.json must declare it
+  // with the device placement (PLX-7205).
+  string name = 1;
+  // source is the whole gzip-compressed tar archive, as in BuildRequest.
+  bytes source = 2;
+  // source_sha256 is the hex SHA-256 of source, which the builder verifies.
+  string source_sha256 = 3;
+}
+
+message LinkResponse {
+  // module is the linked module; empty when the link failed.
+  bytes module = 1;
+  int32 abi_version = 2;
+  // functions lists the module's functions with the index each dispatch
+  // export takes.
+  repeated LinkedFunction functions = 3;
+  BuildProvenance provenance = 4;
+  // diagnostics_json is a JSON array of diagnostics (ADR-0018).
+  bytes diagnostics_json = 5;
+}
+
+message LinkedFunction {
+  string name = 1;
+  uint32 index = 2;
 }

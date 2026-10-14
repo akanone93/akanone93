@@ -552,6 +552,265 @@ func (x *BuildTestResult) GetMessage() string {
 	return ""
 }
 
+type LinkRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// link_id names the link in the builder's logs.
+	LinkId string `protobuf:"bytes,1,opt,name=link_id,json=linkId,proto3" json:"link_id,omitempty"`
+	// sources are the archives to link, one per function. Their total size is
+	// bounded by the registry maximum of function.sourceArchiveSize.
+	Sources       []*LinkSource `protobuf:"bytes,2,rep,name=sources,proto3" json:"sources,omitempty"`
+	Limits        *BuildLimits  `protobuf:"bytes,3,opt,name=limits,proto3" json:"limits,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LinkRequest) Reset() {
+	*x = LinkRequest{}
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LinkRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LinkRequest) ProtoMessage() {}
+
+func (x *LinkRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LinkRequest.ProtoReflect.Descriptor instead.
+func (*LinkRequest) Descriptor() ([]byte, []int) {
+	return file_plux_internal_fn_v1_builder_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *LinkRequest) GetLinkId() string {
+	if x != nil {
+		return x.LinkId
+	}
+	return ""
+}
+
+func (x *LinkRequest) GetSources() []*LinkSource {
+	if x != nil {
+		return x.Sources
+	}
+	return nil
+}
+
+func (x *LinkRequest) GetLimits() *BuildLimits {
+	if x != nil {
+		return x.Limits
+	}
+	return nil
+}
+
+type LinkSource struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// name is the function's dotted name; its function.json must declare it
+	// with the device placement (PLX-7205).
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// source is the whole gzip-compressed tar archive, as in BuildRequest.
+	Source []byte `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+	// source_sha256 is the hex SHA-256 of source, which the builder verifies.
+	SourceSha256  string `protobuf:"bytes,3,opt,name=source_sha256,json=sourceSha256,proto3" json:"source_sha256,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LinkSource) Reset() {
+	*x = LinkSource{}
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LinkSource) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LinkSource) ProtoMessage() {}
+
+func (x *LinkSource) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LinkSource.ProtoReflect.Descriptor instead.
+func (*LinkSource) Descriptor() ([]byte, []int) {
+	return file_plux_internal_fn_v1_builder_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *LinkSource) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *LinkSource) GetSource() []byte {
+	if x != nil {
+		return x.Source
+	}
+	return nil
+}
+
+func (x *LinkSource) GetSourceSha256() string {
+	if x != nil {
+		return x.SourceSha256
+	}
+	return ""
+}
+
+type LinkResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// module is the linked module; empty when the link failed.
+	Module     []byte `protobuf:"bytes,1,opt,name=module,proto3" json:"module,omitempty"`
+	AbiVersion int32  `protobuf:"varint,2,opt,name=abi_version,json=abiVersion,proto3" json:"abi_version,omitempty"`
+	// functions lists the module's functions with the index each dispatch
+	// export takes.
+	Functions  []*LinkedFunction `protobuf:"bytes,3,rep,name=functions,proto3" json:"functions,omitempty"`
+	Provenance *BuildProvenance  `protobuf:"bytes,4,opt,name=provenance,proto3" json:"provenance,omitempty"`
+	// diagnostics_json is a JSON array of diagnostics (ADR-0018).
+	DiagnosticsJson []byte `protobuf:"bytes,5,opt,name=diagnostics_json,json=diagnosticsJson,proto3" json:"diagnostics_json,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *LinkResponse) Reset() {
+	*x = LinkResponse{}
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LinkResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LinkResponse) ProtoMessage() {}
+
+func (x *LinkResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LinkResponse.ProtoReflect.Descriptor instead.
+func (*LinkResponse) Descriptor() ([]byte, []int) {
+	return file_plux_internal_fn_v1_builder_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *LinkResponse) GetModule() []byte {
+	if x != nil {
+		return x.Module
+	}
+	return nil
+}
+
+func (x *LinkResponse) GetAbiVersion() int32 {
+	if x != nil {
+		return x.AbiVersion
+	}
+	return 0
+}
+
+func (x *LinkResponse) GetFunctions() []*LinkedFunction {
+	if x != nil {
+		return x.Functions
+	}
+	return nil
+}
+
+func (x *LinkResponse) GetProvenance() *BuildProvenance {
+	if x != nil {
+		return x.Provenance
+	}
+	return nil
+}
+
+func (x *LinkResponse) GetDiagnosticsJson() []byte {
+	if x != nil {
+		return x.DiagnosticsJson
+	}
+	return nil
+}
+
+type LinkedFunction struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Index         uint32                 `protobuf:"varint,2,opt,name=index,proto3" json:"index,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LinkedFunction) Reset() {
+	*x = LinkedFunction{}
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LinkedFunction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LinkedFunction) ProtoMessage() {}
+
+func (x *LinkedFunction) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_internal_fn_v1_builder_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LinkedFunction.ProtoReflect.Descriptor instead.
+func (*LinkedFunction) Descriptor() ([]byte, []int) {
+	return file_plux_internal_fn_v1_builder_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *LinkedFunction) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *LinkedFunction) GetIndex() uint32 {
+	if x != nil {
+		return x.Index
+	}
+	return 0
+}
+
 var File_plux_internal_fn_v1_builder_proto protoreflect.FileDescriptor
 
 const file_plux_internal_fn_v1_builder_proto_rawDesc = "" +
@@ -601,9 +860,31 @@ const file_plux_internal_fn_v1_builder_proto_rawDesc = "" +
 	"\x0fBuildTestResult\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
 	"\x06passed\x18\x02 \x01(\bR\x06passed\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage2b\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\x9b\x01\n" +
+	"\vLinkRequest\x12\x17\n" +
+	"\alink_id\x18\x01 \x01(\tR\x06linkId\x129\n" +
+	"\asources\x18\x02 \x03(\v2\x1f.plux.internal.fn.v1.LinkSourceR\asources\x128\n" +
+	"\x06limits\x18\x03 \x01(\v2 .plux.internal.fn.v1.BuildLimitsR\x06limits\"]\n" +
+	"\n" +
+	"LinkSource\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
+	"\x06source\x18\x02 \x01(\fR\x06source\x12#\n" +
+	"\rsource_sha256\x18\x03 \x01(\tR\fsourceSha256\"\xfb\x01\n" +
+	"\fLinkResponse\x12\x16\n" +
+	"\x06module\x18\x01 \x01(\fR\x06module\x12\x1f\n" +
+	"\vabi_version\x18\x02 \x01(\x05R\n" +
+	"abiVersion\x12A\n" +
+	"\tfunctions\x18\x03 \x03(\v2#.plux.internal.fn.v1.LinkedFunctionR\tfunctions\x12D\n" +
+	"\n" +
+	"provenance\x18\x04 \x01(\v2$.plux.internal.fn.v1.BuildProvenanceR\n" +
+	"provenance\x12)\n" +
+	"\x10diagnostics_json\x18\x05 \x01(\fR\x0fdiagnosticsJson\":\n" +
+	"\x0eLinkedFunction\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05index\x18\x02 \x01(\rR\x05index2\xb1\x01\n" +
 	"\x0eBuilderService\x12P\n" +
-	"\x05Build\x12!.plux.internal.fn.v1.BuildRequest\x1a\".plux.internal.fn.v1.BuildResponse\"\x00B9Z7github.com/nightCode42/plux3/backend/internal/fnpb;fnpbb\x06proto3"
+	"\x05Build\x12!.plux.internal.fn.v1.BuildRequest\x1a\".plux.internal.fn.v1.BuildResponse\"\x00\x12M\n" +
+	"\x04Link\x12 .plux.internal.fn.v1.LinkRequest\x1a!.plux.internal.fn.v1.LinkResponse\"\x00B9Z7github.com/nightCode42/plux3/backend/internal/fnpb;fnpbb\x06proto3"
 
 var (
 	file_plux_internal_fn_v1_builder_proto_rawDescOnce sync.Once
@@ -617,7 +898,7 @@ func file_plux_internal_fn_v1_builder_proto_rawDescGZIP() []byte {
 	return file_plux_internal_fn_v1_builder_proto_rawDescData
 }
 
-var file_plux_internal_fn_v1_builder_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_plux_internal_fn_v1_builder_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_plux_internal_fn_v1_builder_proto_goTypes = []any{
 	(*BuildRequest)(nil),    // 0: plux.internal.fn.v1.BuildRequest
 	(*BuildLimits)(nil),     // 1: plux.internal.fn.v1.BuildLimits
@@ -626,20 +907,30 @@ var file_plux_internal_fn_v1_builder_proto_goTypes = []any{
 	(*BuildProvenance)(nil), // 4: plux.internal.fn.v1.BuildProvenance
 	(*BuildDependency)(nil), // 5: plux.internal.fn.v1.BuildDependency
 	(*BuildTestResult)(nil), // 6: plux.internal.fn.v1.BuildTestResult
+	(*LinkRequest)(nil),     // 7: plux.internal.fn.v1.LinkRequest
+	(*LinkSource)(nil),      // 8: plux.internal.fn.v1.LinkSource
+	(*LinkResponse)(nil),    // 9: plux.internal.fn.v1.LinkResponse
+	(*LinkedFunction)(nil),  // 10: plux.internal.fn.v1.LinkedFunction
 }
 var file_plux_internal_fn_v1_builder_proto_depIdxs = []int32{
-	1, // 0: plux.internal.fn.v1.BuildRequest.limits:type_name -> plux.internal.fn.v1.BuildLimits
-	3, // 1: plux.internal.fn.v1.BuildResponse.functions:type_name -> plux.internal.fn.v1.BuiltFunction
-	4, // 2: plux.internal.fn.v1.BuildResponse.provenance:type_name -> plux.internal.fn.v1.BuildProvenance
-	6, // 3: plux.internal.fn.v1.BuildResponse.test_results:type_name -> plux.internal.fn.v1.BuildTestResult
-	5, // 4: plux.internal.fn.v1.BuildProvenance.dependencies:type_name -> plux.internal.fn.v1.BuildDependency
-	0, // 5: plux.internal.fn.v1.BuilderService.Build:input_type -> plux.internal.fn.v1.BuildRequest
-	2, // 6: plux.internal.fn.v1.BuilderService.Build:output_type -> plux.internal.fn.v1.BuildResponse
-	6, // [6:7] is the sub-list for method output_type
-	5, // [5:6] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	1,  // 0: plux.internal.fn.v1.BuildRequest.limits:type_name -> plux.internal.fn.v1.BuildLimits
+	3,  // 1: plux.internal.fn.v1.BuildResponse.functions:type_name -> plux.internal.fn.v1.BuiltFunction
+	4,  // 2: plux.internal.fn.v1.BuildResponse.provenance:type_name -> plux.internal.fn.v1.BuildProvenance
+	6,  // 3: plux.internal.fn.v1.BuildResponse.test_results:type_name -> plux.internal.fn.v1.BuildTestResult
+	5,  // 4: plux.internal.fn.v1.BuildProvenance.dependencies:type_name -> plux.internal.fn.v1.BuildDependency
+	8,  // 5: plux.internal.fn.v1.LinkRequest.sources:type_name -> plux.internal.fn.v1.LinkSource
+	1,  // 6: plux.internal.fn.v1.LinkRequest.limits:type_name -> plux.internal.fn.v1.BuildLimits
+	10, // 7: plux.internal.fn.v1.LinkResponse.functions:type_name -> plux.internal.fn.v1.LinkedFunction
+	4,  // 8: plux.internal.fn.v1.LinkResponse.provenance:type_name -> plux.internal.fn.v1.BuildProvenance
+	0,  // 9: plux.internal.fn.v1.BuilderService.Build:input_type -> plux.internal.fn.v1.BuildRequest
+	7,  // 10: plux.internal.fn.v1.BuilderService.Link:input_type -> plux.internal.fn.v1.LinkRequest
+	2,  // 11: plux.internal.fn.v1.BuilderService.Build:output_type -> plux.internal.fn.v1.BuildResponse
+	9,  // 12: plux.internal.fn.v1.BuilderService.Link:output_type -> plux.internal.fn.v1.LinkResponse
+	11, // [11:13] is the sub-list for method output_type
+	9,  // [9:11] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_plux_internal_fn_v1_builder_proto_init() }
@@ -653,7 +944,7 @@ func file_plux_internal_fn_v1_builder_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_internal_fn_v1_builder_proto_rawDesc), len(file_plux_internal_fn_v1_builder_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

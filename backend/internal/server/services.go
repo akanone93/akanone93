@@ -116,6 +116,9 @@ type WorkDeps struct {
 	// Builder compiles function sources on the builder role; only the
 	// worker role is given one, and only where builder.address is set.
 	Builder function.Builder
+	// Linker links the device functions of a plugin into one module on the
+	// builder role (FN-051); set with Builder.
+	Linker function.Linker
 	// FunctionKey is the key reference that signs the statements of
 	// function builds (signing.keys.functionArtifact).
 	FunctionKey string
@@ -347,15 +350,15 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	releases, err := buildReleases(cfg, db, set, work, releaseDeps{ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw)})
+	functions, err := buildFunctions(db, work, log, tenancyService, configs, gen)
+	if err != nil {
+		return nil, err
+	}
+	releases, err := buildReleases(cfg, db, set, work, releaseDeps{ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw), functions: functions})
 	if err != nil {
 		return nil, err
 	}
 	checkpointer, err := buildCheckpointer(cfg, db, log, gen, work.Signer)
-	if err != nil {
-		return nil, err
-	}
-	functions, err := buildFunctions(db, work, log, tenancyService, gen)
 	if err != nil {
 		return nil, err
 	}
@@ -471,6 +474,9 @@ type releaseDeps struct {
 	// gateway is the upstream registry the release check reads; nil where
 	// the process serves no gateway.
 	gateway *gateway.Registry
+	// functions supplies the function catalogue and device modules a
+	// compilation uses; nil where the installation runs no functions.
+	functions *function.Service
 }
 
 // buildReleases assembles the release service, or returns nil when the
@@ -483,7 +489,7 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 		DB: db, Audit: deps.audit, Tenancy: deps.tenancy, Documents: deps.documents, Objects: work.Objects, IDs: deps.ids,
 		Jobs: publishQueue{work.Queue}, Signer: work.Signer, ProductionSigning: work.ProductionSigning, Limits: set,
 		Devices: deps.devices, Gateway: deps.gateway, SecurityConfig: deps.configs, PublicBaseURL: cfg.Server.PublicBaseURL,
-		Crypter: deps.crypter, Recipients: deps.devices,
+		Crypter: deps.crypter, Recipients: deps.devices, Functions: functionsOf(deps.functions),
 		CompilerVersion: buildinfo.Get().Version, DevelopmentDays: cfg.Retention.DevelopmentReleaseDays,
 		Metadata: metadataOptions(cfg),
 	})
@@ -495,6 +501,15 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 	// again, so that they pin the new version (SEC-182).
 	deps.configs.OnChange(releases.EnqueueEnvironmentManifests)
 	return releases, nil
+}
+
+// functionsOf returns the service as the release service's supplier of
+// functions, or nil, not a typed nil, where there is none.
+func functionsOf(svc *function.Service) release.Functions {
+	if svc == nil {
+		return nil
+	}
+	return svc
 }
 
 // metadataOptions are the update-metadata settings of the configuration

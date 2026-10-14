@@ -78,7 +78,7 @@ func (w *functionBuildWorker) Work(ctx context.Context, job *river.Job[function.
 // installation has no object store to keep sources and modules in. The
 // service has no Builder and no ArtifactSigner here: the worker role that
 // runs builds is given them where it is assembled.
-func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.Service, gen interface{ New() (string, error) }) (*function.Service, error) {
+func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.Service, configs *seccfg.Service, gen interface{ New() (string, error) }) (*function.Service, error) {
 	if work.Objects == nil {
 		return nil, nil //nolint:nilnil // the installation runs no functions
 	}
@@ -94,7 +94,14 @@ func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.
 	}
 	svc, err := function.NewService(function.Options{
 		DB: db, Audit: log, Objects: work.Objects, IDs: gen, Jobs: functionQueue{work.Queue},
-		Builder: work.Builder, Signer: signer,
+		Builder: work.Builder, Signer: signer, Linker: work.Linker,
+		DeviceFunctions: func(ctx context.Context, appID, environmentID string) (bool, error) {
+			values, _, err := configs.Effective(ctx, appID, environmentID)
+			if err != nil {
+				return false, err //nolint:wrapcheck // a domain error
+			}
+			return values.Get(settings.DeviceFunctions).Bool(), nil
+		},
 		Limits: func(ctx context.Context, tx pgx.Tx, organizationID, appID string) (limits.Set, error) {
 			return ten.Effective(ctx, tx, organizationID, appID, "") //nolint:wrapcheck // a domain error
 		},

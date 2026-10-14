@@ -203,7 +203,7 @@ func (s *Service) validateSet(ctx context.Context, tx pgx.Tx, p auth.Principal, 
 	if err != nil {
 		return nil, nil, err //nolint:wrapcheck // a domain error
 	}
-	opts, err := s.compileOptions(ctx, tx, p.OrganizationID, appID, "")
+	opts, err := s.compileOptions(ctx, tx, p.OrganizationID, appID, storage.ID(environment), "")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -232,7 +232,7 @@ func (s *Service) validateSet(ctx context.Context, tx pgx.Tx, p auth.Principal, 
 				"%s version %d was compiled against other sources than this release's; publish it again", nameOf(v), v.Version))
 		}
 	}
-	return diags, grantsOf(res), nil
+	return diags, grantsOf(res, opts.Functions), nil
 }
 
 // nameOf names a version's bundle in messages.

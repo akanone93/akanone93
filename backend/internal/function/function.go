@@ -53,6 +53,10 @@ type Options struct {
 	// deviceFunctions (FN-055); nil reads it as false, the deny-by-default
 	// answer (SEC-080).
 	DeviceFunctions func(ctx context.Context, appID, environmentID string) (bool, error)
+	// Linker links the device functions of a plugin into one module on the
+	// builder role; the worker role sets it. Nil refuses to link, and a
+	// module that was linked before is still read from the cache (FN-051).
+	Linker Linker
 	// Now is the clock; nil uses time.Now.
 	Now func() time.Time
 }

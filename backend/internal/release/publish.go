@@ -477,7 +477,10 @@ var errCancelled = errors.New("release: the publish was cancelled")
 // current drafts if they have none, so the version is compiled against
 // what a release would hold (REL-003).
 func (s *Service) compileJob(ctx context.Context, p auth.Principal, row dbgen.PublishJob) (compiled, error) {
-	var out compiled
+	var (
+		out  compiled
+		opts compiler.Options
+	)
 	appID := storage.ID(row.AppID)
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		sources, err := s.sourcesFor(ctx, tx, row)
@@ -488,7 +491,7 @@ func (s *Service) compileJob(ctx context.Context, p auth.Principal, row dbgen.Pu
 		if err != nil {
 			return err //nolint:wrapcheck // a domain error
 		}
-		opts, err := s.compileOptions(ctx, tx, p.OrganizationID, appID, storage.ID(row.PluginID))
+		opts, err = s.compileOptions(ctx, tx, p.OrganizationID, appID, storage.ID(row.EnvironmentID), storage.ID(row.PluginID))
 		if err != nil {
 			return err
 		}
@@ -500,12 +503,14 @@ func (s *Service) compileJob(ctx context.Context, p auth.Principal, row dbgen.Pu
 			}
 			out.key = pl.Key
 		}
-		out.result = compiler.Compile(fsys, opts)
 		return nil
 	})
 	if err != nil {
 		return compiled{}, err
 	}
+	// FN-051: compiling links the device functions of the plugins on the
+	// builder, which takes minutes, so it runs after the transaction ends.
+	out.result = compiler.Compile(out.fsys, opts)
 	return out, s.progress(ctx, p, row, "compile")
 }
 
@@ -553,8 +558,10 @@ func (s *Service) sourcesFor(ctx context.Context, tx pgx.Tx, row dbgen.PublishJo
 }
 
 // compileOptions are the options of a publish or release: release mode,
-// the app's (or plugin's) limits, and the asset pipeline's variants.
-func (s *Service) compileOptions(ctx context.Context, tx pgx.Tx, orgID, appID, pluginID string) (compiler.Options, error) {
+// the app's (or plugin's) limits, the asset pipeline's variants, and the
+// functions deployed in the environment with the modules that link a
+// plugin's device functions (FN-006, FN-051, ACT-001).
+func (s *Service) compileOptions(ctx context.Context, tx pgx.Tx, orgID, appID, environmentID, pluginID string) (compiler.Options, error) {
 	lim, err := s.o.Tenancy.Effective(ctx, tx, orgID, appID, pluginID)
 	if err != nil {
 		return compiler.Options{}, fmt.Errorf("release: %w", err)
@@ -565,6 +572,12 @@ func (s *Service) compileOptions(ctx context.Context, tx pgx.Tx, orgID, appID, p
 	}
 	opts := compiler.DefaultOptions()
 	opts.Limits, opts.Version, opts.AssetVariants, opts.IconFont = lim, s.o.CompilerVersion, variants, fonts.Build
+	if s.o.Functions != nil {
+		if opts.Functions, err = s.o.Functions.Catalogue(ctx, orgID, appID, environmentID); err != nil {
+			return compiler.Options{}, fmt.Errorf("release: %w", err)
+		}
+		opts.DeviceModules = s.o.Functions.DeviceModules(ctx, orgID, appID, environmentID)
+	}
 	return opts, nil
 }
 
