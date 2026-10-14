@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:plux_express/src/host.dart';
 import 'package:plux_express/src/reference_ca.dart';
 import 'package:plux_flutter/plux_flutter.dart';
+import 'package:plux_functions/plux_functions.dart';
 
 /// Where the bank app finds its Plux server and app, from `--dart-define`s
 /// (`make dev` writes them from the seeded stack):
@@ -142,6 +143,8 @@ final class ExpressConfig {
     storageDirectory: storageDirectory,
     onError: onError,
     baseline: baseline,
+    // The instalment calculation runs on the device (FN-050, FN-055).
+    functionEngine: PluxFunctions(),
     navigatorKey: host.navigatorKey,
     httpClient: trustReferenceCa ? referenceHttpClient : null,
     webSocketClient: trustReferenceCa ? referenceWebSocketClient : null,

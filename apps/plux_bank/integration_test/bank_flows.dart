@@ -275,6 +275,43 @@ void bankFlows({
   );
 
   testWidgets(
+    'the fee of a transfer is computed by the server function after the '
+    'user confirms the invocation with the device key, and declining '
+    'computes nothing [DX-004] [FN-020] [FN-022] [SEC-027]',
+    (tester) async {
+      problems.clear();
+      await signIn(tester);
+      await waitFor(tester, find.text('Checking'));
+      await tapSettled(tester, find.text('New transfer'));
+      await waitFor(tester, find.text('Available: 2500.00 EUR'));
+      await typeInto(tester, 'Amount (EUR)', '12.50');
+
+      // The function declares sca: the sheet shows the function and the
+      // input exactly as the SCA key signs them, and the call is made only
+      // once the user confirms (the standard tier's fee is 0.1 percent,
+      // at least 0.50).
+      await tapSettled(tester, find.text('Show fee'));
+      await waitFor(tester, find.text('Confirm transaction'));
+      expect(find.text('bank.transferFee'), findsOneWidget);
+      expect(find.textContaining('12.50'), findsWidgets);
+      expect(find.textContaining('Fee: '), findsNothing);
+      await tapSettled(tester, find.text('Confirm'));
+      await waitFor(tester, find.text('Fee: 0.50 EUR'));
+
+      // Declining sends nothing and clears the fee.
+      await tapSettled(tester, find.text('Show fee'));
+      await waitFor(tester, find.text('Confirm transaction'));
+      await tapSettled(tester, find.text('Cancel'));
+      await waitFor(tester, find.text('Fee unavailable: declined'));
+      expect(find.textContaining('Fee: '), findsNothing);
+      expect(problems, isEmpty, reason: problems.join('\n'));
+      await stop(tester);
+    },
+    skip: skip != null || !confirmsTransfers,
+    timeout: const Timeout(Duration(minutes: 3)),
+  );
+
+  testWidgets(
     'a wrong PIN shows the error on the sign-in page and signs nobody in '
     '[DX-004] [HST-010]',
     (tester) async {
