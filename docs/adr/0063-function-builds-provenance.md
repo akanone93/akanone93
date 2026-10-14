@@ -91,8 +91,15 @@ SHA-256s and provenance — is canonical JSON, signed through `signing/` with a 
 database credential and hands its output to the worker (L-2). `fnrunner` verifies the
 signature before it compiles a module (`FN-009`, `PLX-7019`).
 
-**Versions and aliases.** A version is an integer per function, app and environment,
-assigned at deploy and immutable (`FN-006`). Aliases match `^[a-z][a-z0-9-]*$`, as in
+**Versions and aliases.** A version is an integer per function and app, assigned at deploy
+and immutable (`FN-006`), so one number names one signed build in every environment. A
+version reaches another environment only by **promotion** (`plux fn promote`), which copies
+the version — module, signature, provenance — without a rebuild; promotion to a production
+environment needs the production deploy permission and passing tests. Secrets, egress
+domains, the key-value store, limits and aliases stay per environment. Promoting a release
+to an environment is refused until every function version it pins has been promoted there
+(maintainer, 2026-10-14: the bundles a release reuses name version numbers, so the number
+must mean the same build wherever the release goes). Aliases match `^[a-z][a-z0-9-]*$`, as in
 `FunctionGrant`, and point to versions. A release records the name, version, module SHA-256
 and placement of every function its plugins reference; a device invocation sends the version
 its release pinned, and the server refuses a version no active release of the app pins. A

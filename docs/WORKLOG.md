@@ -142,7 +142,6 @@ validates its remote and branch now; the size baseline moves to round 3.
 
 | Decision | Owner | Notes |
 |---|---|---|
-| Promotion of releases that pin server functions | Maintainer (P7) | Function versions are numbered per environment, and promotion reuses the bundles, so a promoted release names a version production does not pin. Option A (lead's recommendation): identify server functions by module SHA-256 and require the target environment to have deployed the same signed artifact; option B: app-wide versions with per-environment aliases. Blocks F6's promotion path. |
 | Legal review of ADR-0022 and the CLA | Maintainer | Before accepting external contributions and before the first public release. |
 | CLA signing automation | Maintainer | e.g. CLA Assistant with signatures stored in a separate branch; needed before external pull requests are merged (`GOV-034`). |
 | Android hosts need `android.uniquePackageNames=false` | Maintainer (follow-up) | Needed on Android Gradle plugin 9 while Play Services Cronet ships `cronet-api` and `cronet-shared` with one namespace, `org.chromium.net`; documented in the host guide, set in the starter and size apps. Agreed: report it upstream to `cronet_http` (dart-lang/http) and drop the line when it is fixed. |

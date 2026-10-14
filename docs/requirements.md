@@ -1,9 +1,9 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.5.0
+**Version:** 1.5.1
 **Status:** Draft — living document, revised as implementation proceeds
-**Date:** 2026-10-13
+**Date:** 2026-10-14
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
 
 > **Plux — Plugin Experience.** Build native Flutter screens visually, compile them into signed binary plugins, and ship them to every device in seconds — with high-assurance security, zero parse cost, and full control over who changes what.
@@ -1378,7 +1378,7 @@ plux_fn::function!(calculate_schedule);
 | `FN-003` | P7 | MUST | Functions **MUST** be able to use any standard-library item and any crate declared in `Cargo.toml` that compiles for `wasm32-wasip1`; dependencies are vendored (`cargo vendor`), a lock file is required, and both are recorded in the function's provenance. | SPEC |
 | `FN-004` | P7 | MUST | Input and output schemas **MUST** be derived from the Rust types (`schemars`) at build time and published with the function, so that Studio binds inputs and outputs with type checking and the compiler validates `invokeFunction` steps (`ACT-001`). | SPEC |
 | `FN-005` | P7 | MUST | Builds **MUST** record provenance: source hash, dependency list, toolchain version, build time and builder identity; artifacts are signed. | SPEC |
-| `FN-006` | P7 | MUST | Function versions **MUST** be immutable; aliases (e.g. `@prod`, `@stable`) **MAY** point to versions. App releases **MUST** capture the resolved version of every referenced function, so a release's behaviour is reproducible. | SPEC |
+| `FN-006` | P7 | MUST | Function versions **MUST** be immutable and numbered per function across the app, so one number names one signed build in every environment; aliases (e.g. `@prod`, `@stable`) **MAY** point to versions, per environment. A version **MUST** reach another environment only by promotion, which copies it without a rebuild. App releases **MUST** capture the resolved version of every referenced function, so a release's behaviour is reproducible, and promoting a release to an environment **MUST** be refused unless every function version it pins was promoted there first. | SPEC |
 | `FN-007` | P7 | MUST | Deploying a function to production **MUST** go through the approval engine (`GOV-020`, P9). Until that engine exists, it **MUST** require a dedicated RBAC permission with step-up authentication (the stand-in already used for release promotion); P9 replaces the stand-in. | SPEC |
 | `FN-008` | P7 | MUST | Each function **MUST** declare exactly one placement, `server` or `device`; the compiler **MUST** reject device-placed functions that request server-only capabilities (secrets, HTTP, user claims). | SPEC |
 | `FN-009` | P7 | MUST | Only artifacts built by the `builder` role and signed with the function-artifact key **MUST** be deployable; `fnrunner` **MUST** verify the signature before it compiles a module. | SPEC |
@@ -3018,10 +3018,11 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.5.0 |
+| Version | 1.5.1 |
 | Status | Draft (living document) |
-| Date | 2026-10-13 |
-| Supersedes | 1.4.3 |
+| Date | 2026-10-14 |
+| Supersedes | 1.5.0 |
+| 1.5.1 | 2026-10-14 | Function versions are numbered per app and reach another environment only by promotion; a release promotion is refused until every function version it pins is promoted there (maintainer, 2026-10-14; `FN-006`; ADR-0063). |
 | 1.5.0 | 2026-10-13 | Phase 7 decisions (maintainer, 2026-10-13; P7 plan §2.1 D1–D9, §2.2 C1 and C6, §2.5): Plux Functions are written in **Rust** (D1) — the §5.1 P7 row, §16 with its example, `FN-001`–`FN-004`, `FN-030`, `FN-033` and `FN-040` rewritten, with the SDK crate `plux-fn` at `github.com/nightCode42/plux3/sdk/fn` (D4), the repository layout (§33), the technology decision (§34) and the Go-editor wording (`STU-063`, `STU-110`) updated; `FN-050` names WAMR in interpreter mode in the optional package `plux_functions` (D2); builds run on the server in a new `builder` role (D3, `FN-016`) with a `wasm-opt` step (D9), only signed builder artifacts are deployable (`FN-009`) and builds are reproducible (`FN-019`); our own `egress` forward proxy (D5, `FN-017`); the server key-value store (D8, `FN-018`); until the approval engine (`GOV-020`, P9) `FN-007` and `FN-055` require a dedicated RBAC permission with step-up (D6); `FN-031` and `FN-032` split (D7) with new `FN-034`, `FN-035` (P11) and `FN-036` (P10); `FN-011` names the registry keys; new `SEC-123` (imported signing keys, C1); `SEC-043` covers `builder` and `egress`; §6.3 gains the `builder` and `egress` roles and L-4 names them; §5.4 anchors additive-only evolution (`BND-000`, `SCH-000`, `SRV-000`) to the first release, 0.0.1 (C6); §30.4, Appendix F (functions range, `PLX-6080`, `PLX-6081`) and Appendix K updated; ADR-0011 accepted for Rust and ADR-0062 (host ABI), ADR-0063 (builds and provenance), ADR-0064 (isolation) and ADR-0065 (imported keys and the Apple receipt) proposed. |
 | 1.4.3 | 2026-10-11 | Server-held configuration (maintainer decision, 2026-10-11; ADR-0061), a follow-on milestone of P6: new `DAT-090`–`DAT-097` (§14.4) — typed configuration values per app and environment in two tiers, `server-bound` values the gateway binds into requests at declared locations and `live` values a device fetches over its DPoP-bound channel, with an epoch and a version on every gateway call so that no value is stale where it takes effect; `DAT-003` also allows the secure gateway's server-bound values for calls that need server-held secrets; the `bundled` tier is the existing environment variables (`GOV-010`) and may lag. |
 | 1.4.2 | 2026-10-08 | P6 S0–S6 delivered on `feat/p6-s2-device-trust`: `SEC-005`, `SEC-008`, `SEC-020`–`SEC-022`, `SEC-024`, `SEC-025`, `SEC-029`, `SEC-040`, `SEC-050`, `SEC-051`, `SEC-056`, `SEC-120`–`SEC-122`, `SEC-141`, `SEC-182` and `NAV-009` `DONE`; `SEC-000`, `SEC-001`–`SEC-004`, `SEC-006`, `SEC-007`, `SEC-023`, `SEC-041`–`SEC-043`, `SEC-180` and `NFR-012` `WIP` until the milestones, the real-device check (B2 layer 3) or the reference-device run named in plan p6 complete them. |
