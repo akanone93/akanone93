@@ -95,8 +95,9 @@ signature before it compiles a module (`FN-009`, `PLX-7019`).
 and immutable (`FN-006`), so one number names one signed build in every environment. A
 version reaches another environment only by **promotion** (`plux fn promote`), which copies
 the version — module, signature, provenance — without a rebuild; promotion to a production
-environment needs the production deploy permission and passing tests. Secrets, egress
-domains, the key-value store, limits and aliases stay per environment. Promoting a release
+environment needs the production deploy permission and passing tests. The declared
+capabilities, the HTTP domains among them, belong to the version; secrets, environment
+variables, the key-value store, limits and aliases stay per environment. Promoting a release
 to an environment is refused until every function version it pins has been promoted there
 (maintainer, 2026-10-14: the bundles a release reuses name version numbers, so the number
 must mean the same build wherever the release goes). Aliases match `^[a-z][a-z0-9-]*$`, as in
