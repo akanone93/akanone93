@@ -110,6 +110,7 @@ void main() {
       expect(p.authDelegate, isNull);
       expect(p.httpClient, isNull);
       expect(p.webSocketClient, isNull);
+      expect(p.functionEngine?.name, 'plux_functions');
       expect(c.toPluxConfig(host: host, baseline: null).baseline, isNull);
     });
 
