@@ -92,7 +92,7 @@ reading behind each:
 - **Noise.** The p99 of 100 first-call samples is the slowest sample, and the host was shared.
   CI's reference runner gates the budgets, the warm one on the median of five rounds (M10).
 
-> **Correction (2026-10-14).** The WAMR side of the comparison below ran on a vendored copy that came from a repackaged crate (`wamrx-sys` 0.3.0), not the upstream `WAMR-2.4.3` tag; CI's upstream check caught it and the engine was re-vendored from the tag (commit `0e47872f`). The comparison is to be repeated on the upstream engine, on the reference device (real-device checklist F2).
+> **Correction (2026-10-14).** The first WAMR measurement below ran on a vendored copy from a repackaged crate (`wamrx-sys` 0.3.0), not the upstream `WAMR-2.4.3` tag; the engine was re-vendored from the tag (commit `0e47872f`) and measured again on the same host, three runs of 200 calls of the 360-month schedule each: upstream WAMR 12.8–13.2 ms p50, 17.8–23.4 ms p95; the old copy 12.7–13.9 ms p50, 18.6–19.5 ms p95; `wasmi` 2.0.0 3.8–5.6 ms p50, 6.4–8.0 ms p95. Both WAMR libraries strip to 200,328 bytes, `wasmi` to 2,329,296. The upstream engine performs as the copy did; the reference device decides (real-device checklist F2).
 
 ## WAMR 2.4.3 against `wasmi` on the host (D2)
 

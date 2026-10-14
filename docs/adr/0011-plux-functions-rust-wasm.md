@@ -151,7 +151,7 @@ calculation of up to 10,000 arithmetic operations:
 | Stripped native library | 200 KB | 2.3 MB |
 | 360-month schedule, p50 / p95 | 12.6–14.6 ms / 20.2–24.4 ms | 2.8–2.9 ms / 4.3–4.7 ms |
 
-(The WAMR figures were taken on a vendored copy later found to come from a repackaged crate rather than the upstream tag; it was re-vendored from the tag on 2026-10-14, and the reference-device run measures the upstream engine.) `wasmi` is about 4.5 times faster on this call and about 11 times larger, and it would bring a
+(The first WAMR figures were taken on a vendored copy later found to come from a repackaged crate rather than the upstream tag; re-vendored from the tag and measured again on the same host, upstream WAMR ran at 12.8–13.2 ms p50 and `wasmi` at 3.8–5.6 ms, the same picture.) `wasmi` is about 4.5 times faster on this call and about 11 times larger, and it would bring a
 Rust toolchain into every app build (D10). The maintainer keeps WAMR for now (P7 plan §2.6
 M8). The measurement on the mid-tier reference device decides: if WAMR misses `FN-056`'s
 20 ms p95 for a typical calculation and `wasmi` meets it, this decision is reopened with the
