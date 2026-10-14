@@ -20,6 +20,7 @@ import 'package:plux_flutter/src/functions/engine.dart';
 import 'package:plux_flutter/src/pxl/types.dart' show toJson;
 import 'package:plux_flutter/src/schema/limit_values.dart';
 import 'package:plux_flutter/src/schema/limits.g.dart';
+import 'package:plux_flutter/src/security/sca.dart';
 
 /// A function a plugin may call, resolved against the plugin's grants and
 /// the active release.
@@ -68,8 +69,20 @@ final class DeviceFunctionTarget extends FunctionTarget {
 final class ServerFunctionTarget extends FunctionTarget {
   /// Creates the target; [version] is 0 while the release does not carry the
   /// pinned version (FN-006).
-  const ServerFunctionTarget({required String name, required int version})
-    : super(name, version);
+  const ServerFunctionTarget({
+    required String name,
+    required int version,
+    this.requiresAttestation = false,
+    this.requiresSca = false,
+  }) : super(name, version);
+
+  /// Whether the function declares `attestation`: every call carries
+  /// platform evidence bound to it (FN-020, SEC-003, SEC-004).
+  final bool requiresAttestation;
+
+  /// Whether the function declares `sca`: every call carries a transaction
+  /// the user confirmed (FN-020, SEC-027).
+  final bool requiresSca;
 }
 
 /// How the server answered an invocation.
@@ -110,11 +123,20 @@ final class FunctionServerBusinessError extends FunctionServerReply {
 abstract interface class FunctionServer {
   /// Invokes [function] at [version]; calls with the same [idempotencyKey]
   /// run once on the server within `function.idempotencyWindow`.
+  ///
+  /// With [attest] the call carries platform evidence bound to the function,
+  /// the version, the input and the request's DPoP proof; the evidence is
+  /// made where the proof is, off the UI isolate (SEC-003, SEC-004).
+  /// [challengeId] and [signature] are the confirmed transaction of a
+  /// function that declares `sca` (SEC-027).
   Future<FunctionServerReply> invoke({
     required String function,
     required int version,
     required Uint8List input,
     required String idempotencyKey,
+    bool attest = false,
+    String challengeId = '',
+    Uint8List? signature,
   });
 }
 
@@ -329,6 +351,9 @@ Future<StepResult> _onServer(
   }
   // FN-020: one key per execution of the step, reused by its retries.
   final key = c.execution?.key ?? c.clock.uuid();
+  final confirmation = target.requiresSca
+      ? await _confirm(c, target, input)
+      : null;
   final FunctionServerReply reply;
   try {
     reply = await server.invoke(
@@ -336,6 +361,9 @@ Future<StepResult> _onServer(
       version: target.version,
       input: input,
       idempotencyKey: key,
+      attest: target.requiresAttestation,
+      challengeId: confirmation?.challengeId ?? '',
+      signature: confirmation?.signature,
     );
   } on DataFailure catch (f) {
     throw f.toActionError();
@@ -348,6 +376,49 @@ Future<StepResult> _onServer(
       reply.params,
     ),
   };
+}
+
+/// FN-020, SEC-027: a function that declares `sca` is called only with a
+/// transaction the user confirmed, which binds the function, the version and
+/// the input. A device without an SCA key, or a user who declines, fails the
+/// step.
+Future<Confirmation> _confirm(
+  StepContext c,
+  ServerFunctionTarget target,
+  Uint8List input,
+) async {
+  final sca = c.service<ScaService>();
+  if (sca == null) {
+    throw const ActionError(
+      ActionErrorKind.custom,
+      PluxErrorCode.actionsNotAvailable,
+      'invokeFunction: this runtime cannot confirm a transaction',
+    );
+  }
+  try {
+    return await sca.confirmInvocation(
+      InvocationRequest(
+        function: target.name,
+        version: target.version,
+        input: input,
+      ),
+      on: c.device?.context?.call(),
+    );
+  } on ScaDeclined {
+    throw const ActionError(
+      ActionErrorKind.cancelled,
+      PluxErrorCode.actionCancelled,
+      'invokeFunction: the user declined the transaction',
+    );
+  } on PluxException catch (e) {
+    throw ActionError(
+      e.code == PluxErrorCode.deviceKeyUnavailable
+          ? ActionErrorKind.custom
+          : ActionErrorKind.permission,
+      e.code,
+      'invokeFunction: ${e.message}',
+    );
+  }
 }
 
 Object? _decode(Uint8List json) {

@@ -34,6 +34,50 @@ Uint8List bindingHash(
   sha256.convert([...challenge, ...utf8.encode('$jkt.$kaJkt.$scaJkt')]).bytes,
 );
 
+/// SHA-256("plux-fn-invoke-v1" ‖ [function] ‖ "@" ‖ uint32be([version]) ‖
+/// SHA-256([input]) ‖ [jti]): what the platform evidence of a server function
+/// invocation is bound to (FN-020, SEC-004). [jti] is the identifier of the
+/// request's DPoP proof, which the server accepts once. It is App Attest's
+/// client data hash and, base64url without padding, Play Integrity's request
+/// hash; the one implementation of the binding, matching the server's
+/// `attest/binding` package and the vectors in
+/// `schema/testdata/attest/invocation_binding.json`.
+Uint8List invocationBinding({
+  required String function,
+  required int version,
+  required Uint8List input,
+  required String jti,
+}) {
+  final v = ByteData(4)..setUint32(0, version);
+  return Uint8List.fromList(
+    sha256.convert([
+      ...utf8.encode('plux-fn-invoke-v1'),
+      ...utf8.encode(function),
+      ...utf8.encode('@'),
+      ...v.buffer.asUint8List(),
+      ...sha256.convert(input).bytes,
+      ...utf8.encode(jti),
+    ]).bytes,
+  );
+}
+
+/// The platform evidence of one function invocation: an App Attest assertion
+/// on iOS, a Play Integrity token on Android, and neither where the device
+/// has no such service, which the server then refuses (PLX-6001).
+final class InvocationEvidence {
+  /// Creates the evidence.
+  const InvocationEvidence({this.assertion, this.integrityToken});
+
+  /// The iOS assertion over [invocationBinding]; never logged (SEC-092).
+  final Uint8List? assertion;
+
+  /// The Android token whose request hash is the binding; never logged.
+  final String? integrityToken;
+
+  @override
+  String toString() => 'InvocationEvidence([redacted])';
+}
+
 /// The evidence a device offers for its DPoP key: exactly one form.
 sealed class AttestationEvidence {
   const AttestationEvidence();

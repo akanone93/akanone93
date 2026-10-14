@@ -155,6 +155,22 @@ final class _Challenge extends _Command {
   final Uint8List summary;
 }
 
+/// A request for the challenge that confirms a function invocation
+/// (FN-020, SEC-027); replies a [TransactionChallenge] or a [DataFailure].
+final class _InvocationChallenge extends _Command {
+  const _InvocationChallenge(
+    super.reply,
+    this.function,
+    this.version,
+    this.input,
+    this.summary,
+  );
+  final String function;
+  final int version;
+  final Uint8List input;
+  final Uint8List summary;
+}
+
 /// A call of a server-placed function (FN-020); replies a
 /// [FunctionInvokeReply] or a [DataFailure].
 final class _InvokeFunction extends _Command {
@@ -164,11 +180,17 @@ final class _InvokeFunction extends _Command {
     this.version,
     this.input,
     this.key,
+    this.attest,
+    this.challengeId,
+    this.signature,
   );
   final String function;
   final int version;
   final Uint8List input;
   final String key;
+  final bool attest;
+  final String challengeId;
+  final Uint8List? signature;
 }
 
 /// Makes sure the device has an SCA key registered (SEC-027); replies a bool
@@ -206,7 +228,12 @@ final class _Purge {
 /// requests to the gateway, because that isolate holds the token and the
 /// DPoP key (SEC-030).
 final class SyncWorker
-    implements GatewayTransport, ChallengeSource, ConfigSource, FunctionServer {
+    implements
+        GatewayTransport,
+        ChallengeSource,
+        InvocationChallenges,
+        ConfigSource,
+        FunctionServer {
   SyncWorker._(
     this._isolate,
     this._commands,
@@ -342,14 +369,42 @@ final class SyncWorker
   }
 
   @override
+  Future<TransactionChallenge> invocationChallenge({
+    required String function,
+    required int version,
+    required Uint8List input,
+    required Uint8List summaryJcs,
+  }) async {
+    try {
+      return await _ask(
+        (p) => _InvocationChallenge(p, function, version, input, summaryJcs),
+      ) as TransactionChallenge;
+    } on DataFailure catch (f) {
+      throw PluxException(f.code, f.message);
+    }
+  }
+
+  @override
   Future<FunctionServerReply> invoke({
     required String function,
     required int version,
     required Uint8List input,
     required String idempotencyKey,
+    bool attest = false,
+    String challengeId = '',
+    Uint8List? signature,
   }) async {
     final r = await _ask(
-      (p) => _InvokeFunction(p, function, version, input, idempotencyKey),
+      (p) => _InvokeFunction(
+        p,
+        function,
+        version,
+        input,
+        idempotencyKey,
+        attest,
+        challengeId,
+        signature,
+      ),
     ) as FunctionInvokeReply;
     final json = r.output;
     return json != null
@@ -543,12 +598,33 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
             ),
           ),
         );
+      case _InvocationChallenge(
+        :final reply,
+        :final function,
+        :final version,
+        :final input,
+        :final summary,
+      ):
+        track(
+          _serve(
+            reply,
+            () => engine.gateway.invocationChallenge(
+              function: function,
+              version: version,
+              input: input,
+              summaryJcs: summary,
+            ),
+          ),
+        );
       case _InvokeFunction(
         :final reply,
         :final function,
         :final version,
         :final input,
         :final key,
+        :final attest,
+        :final challengeId,
+        :final signature,
       ):
         track(
           _serve(
@@ -558,6 +634,9 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
               version: version,
               input: input,
               idempotencyKey: key,
+              attest: attest,
+              challengeId: challengeId,
+              signature: signature,
             ),
           ),
         );

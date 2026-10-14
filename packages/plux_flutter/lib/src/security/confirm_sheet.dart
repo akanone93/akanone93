@@ -3,8 +3,12 @@
 
 /// The sheet on which the user confirms a transaction (SEC-027, SEC-028): the
 /// amount, the currency and the payee exactly as the SCA key will sign them,
-/// each as one labelled row a screen reader reads as a unit.
+/// each as one labelled row a screen reader reads as a unit; and the sheet
+/// for a server function invocation (FN-020): the function, its version and
+/// the input.
 library;
+
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:plux_flutter/src/security/sca.dart';
@@ -28,6 +32,81 @@ final class SheetTransactionConfirmer implements TransactionConfirmer {
           TransactionConfirmSheet(summary: summary, displayed: displayed),
     );
     return confirmed ?? false;
+  }
+}
+
+/// Shows [InvocationConfirmSheet] as a modal bottom sheet.
+final class SheetInvocationConfirmer implements InvocationConfirmer {
+  /// Creates the confirmer.
+  const SheetInvocationConfirmer();
+
+  @override
+  Future<bool> confirmInvocation(
+    BuildContext context,
+    InvocationRequest request,
+  ) async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => InvocationConfirmSheet(request: request),
+    );
+    return confirmed ?? false;
+  }
+}
+
+/// The content of the sheet that confirms a function invocation: the
+/// function, the version and the input as the call sends them, since the
+/// SCA key signs a summary that binds exactly these (SEC-028). It pops
+/// `true` when the user confirms and `false` when they cancel.
+final class InvocationConfirmSheet extends StatelessWidget {
+  /// Creates the sheet for [request].
+  const InvocationConfirmSheet({required this.request, super.key});
+
+  /// What the user confirms.
+  final InvocationRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Semantics(
+      scopesRoute: true,
+      namesRoute: true,
+      explicitChildNodes: true,
+      label: scaPromptTitle,
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Semantics(
+                header: true,
+                child: Text(scaPromptTitle, style: theme.textTheme.titleLarge),
+              ),
+              const SizedBox(height: 16),
+              _Row(label: 'Function', value: request.function),
+              _Row(label: 'Version', value: '${request.version}'),
+              _Row(
+                label: 'Input',
+                value: utf8.decode(request.input, allowMalformed: true),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Confirm'),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
