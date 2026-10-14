@@ -35,6 +35,7 @@ type Metrics struct {
 	functionRequests *prometheus.CounterVec
 	functionSeconds  prometheus.Histogram
 	functionReplays  prometheus.Counter
+	functionPrepares *prometheus.CounterVec
 
 	dpopRejections     *prometheus.CounterVec
 	attestationResults *prometheus.CounterVec
@@ -120,11 +121,17 @@ func NewMetrics() *Metrics {
 		Help:    "Time from a device's function invocation to the api role's answer.",
 		Buckets: []float64{0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30},
 	})
+	m.functionPrepares = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "plux_function_prepares_total",
+		Help: "Requests from the api role to compile a deployed function module ahead of its first invocation, by result: ok or failed.",
+	}, []string{"result"})
+	m.functionPrepares.WithLabelValues("ok")
+	m.functionPrepares.WithLabelValues("failed")
 	m.functionReplays = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "plux_function_replays_total",
 		Help: "Function invocations answered with the stored result of an idempotency key.",
 	})
-	r.MustRegister(m.dpopRejections, m.attestationResults, m.functionRequests, m.functionSeconds, m.functionReplays)
+	r.MustRegister(m.dpopRejections, m.attestationResults, m.functionRequests, m.functionSeconds, m.functionReplays, m.functionPrepares)
 	r.MustRegister(m.rpcRequests, m.rpcDuration, m.manifestRequests, m.deltaBytes,
 		m.deltaGeneration, m.publishJobs, m.publishDuration, m.jobsQueueDepth,
 		m.replayDegraded, m.replayFallback)
@@ -280,4 +287,10 @@ func (m *Metrics) Invoked(result string, d time.Duration, replayed bool) {
 	if replayed {
 		m.functionReplays.Inc()
 	}
+}
+
+// Prepared records one request to the runner to compile a deployed
+// module (FN-023) by its result, ok or failed.
+func (m *Metrics) Prepared(result string) {
+	m.functionPrepares.WithLabelValues(result).Inc()
 }

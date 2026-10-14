@@ -58,6 +58,12 @@ type Options struct {
 	// builder role; the worker role sets it. Nil refuses to link, and a
 	// module that was linked before is still read from the cache (FN-051).
 	Linker Linker
+	// Preparer asks the runner to compile a server-placed version after it
+	// was deployed or promoted (FN-023); the api role sets it. Nil prepares
+	// nothing, and the first invocation compiles the module.
+	Preparer Preparer
+	// PrepareMetrics counts the preparations; nil counts nothing.
+	PrepareMetrics PrepareMetrics
 	// Now is the clock; nil uses time.Now.
 	Now func() time.Time
 	// Retention is how long function logs and invocation records are kept

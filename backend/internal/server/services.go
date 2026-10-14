@@ -350,7 +350,11 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	functions, err := buildFunctions(db, work, log, tenancyService, configs, gen, time.Duration(cfg.Telemetry.RetentionDays)*24*time.Hour)
+	runnerLink, err := buildRunnerLink(ctx, cfg, db, backend, work)
+	if err != nil {
+		return nil, err
+	}
+	functions, err := buildFunctions(db, work, log, tenancyService, configs, gen, time.Duration(cfg.Telemetry.RetentionDays)*24*time.Hour, runnerLink)
 	if err != nil {
 		return nil, err
 	}
@@ -363,7 +367,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		return nil, err
 	}
 	fnRuntime, err := buildFunctionRuntime(ctx, functionDeps{
-		cfg: cfg, db: db, crypter: backend, cache: shared, set: set, service: functions, gateway: gw,
+		cfg: cfg, db: db, crypter: backend, cache: shared, set: set, service: functions, link: runnerLink, gateway: gw,
 		tenancy: tenancyService, configs: configs, devices: devices, keys: store, metrics: work.Metrics,
 	})
 	if err != nil {
