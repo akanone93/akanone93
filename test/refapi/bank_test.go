@@ -99,7 +99,7 @@ func TestIdentityProviderTokenVerifiesWithItsPublishedKeys(t *testing.T) {
 	if err := json.Unmarshal(jws.payload, &c); err != nil {
 		t.Fatal(err)
 	}
-	if c.Iss != srv.URL+idpPath || c.Aud != idpAudience || c.Sub != demoSubject || c.EXP <= c.IAT {
+	if c.Iss != srv.URL+idpPath || c.Aud != idpAudience || c.Sub != demoSubject || c.Tier != demoTier || c.EXP <= c.IAT {
 		t.Fatalf("claims %+v", c)
 	}
 }

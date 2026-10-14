@@ -73,6 +73,10 @@ func assertionOf(r *http.Request) *assertion {
 // demoSubject is the subject of the demo user at the identity provider.
 const demoSubject = "user-demo"
 
+// demoTier is the customer tier of the demo user: the standard one, whose
+// transfers cost 0.1 percent (sdk/fn/examples/fee).
+const demoTier = "standard"
+
 // login signs the demo user in at the identity provider and returns the
 // token it issued. The bank keeps no session: the token is what the host
 // hands the Plux runtime, which has the gateway exchange it.
@@ -92,7 +96,7 @@ func (a *api) login(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusUnauthorized, "invalid_credentials", "the username, PIN or code is wrong")
 		return
 	}
-	token, err := a.idp.issue(demoSubject, "Demo User")
+	token, err := a.idp.issue(demoSubject, "Demo User", demoTier)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal", "a token could not be issued")
 		return
