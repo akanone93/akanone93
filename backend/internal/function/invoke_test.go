@@ -796,3 +796,47 @@ func TestNewInvokerRefusesAGap_FN_020(t *testing.T) {
 		t.Error("an empty invoker was built")
 	}
 }
+
+type seenObs struct {
+	obs     []function.Observation
+	results []string
+	replays []bool
+}
+
+func (s *seenObs) Observe(_ context.Context, o function.Observation) { s.obs = append(s.obs, o) }
+
+func (s *seenObs) Invoked(result string, _ time.Duration, replayed bool) {
+	s.results, s.replays = append(s.results, result), append(s.replays, replayed)
+}
+
+// Verifies: FN-032.
+// Every call is counted by its result; a run is stored with the runner's
+// memory peak, a replay is stored as a replay, and a refused call is counted
+// but never stored.
+func TestInvokeObservations_FN_032(t *testing.T) {
+	t.Parallel()
+	seen := &seenObs{}
+	r := newRig(t, func(_ *rig, o *function.InvokerOptions) { o.Observer, o.Metrics = seen, seen })
+	r.cat.add(charge, 1, function.PlacementServer, function.Declaration{})
+	r.runner.reply = func(*fnpb.FunctionRunnerServiceInvokeRequest) (*fnpb.FunctionRunnerServiceInvokeResponse, error) {
+		return &fnpb.FunctionRunnerServiceInvokeResponse{
+			Result: &fnpb.FunctionRunnerServiceInvokeResponse_Output{Output: []byte(`{}`)}, MemoryPeakBytes: 4096,
+		}, nil
+	}
+	if _, err := r.keyed(charge, `{}`, "k1"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := r.keyed(charge, `{}`, "k1"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := r.call("payments.unknown", 1, `{}`); err == nil {
+		t.Fatal("an unpinned function ran")
+	}
+	if len(seen.obs) != 2 || seen.obs[0].Replayed || seen.obs[0].MemoryPeakBytes != 4096 || seen.obs[0].Result != function.ResultOK ||
+		!seen.obs[1].Replayed || seen.obs[1].Function != charge || seen.obs[1].AppID != "app" {
+		t.Errorf("stored observations: %+v", seen.obs)
+	}
+	if got := fmt.Sprint(seen.results, seen.replays); got != "[ok ok function_not_found] [false true false]" {
+		t.Errorf("counted: %s", got)
+	}
+}

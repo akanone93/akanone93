@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 	"time"
 
 	"google.golang.org/protobuf/proto"
@@ -128,6 +129,12 @@ type InvokerOptions struct {
 	Users        Users
 	// Logs may be nil, which drops the logs.
 	Logs FunctionLogSink
+	// Observer may be nil, which drops the invocation records (FN-032).
+	Observer InvocationObserver
+	// Metrics may be nil, which counts nothing (FN-032).
+	Metrics InvokeMetrics
+	// Now is the clock of the durations; nil uses time.Now.
+	Now func() time.Time
 }
 
 // Invoker runs server functions for devices and for other functions. It
@@ -139,6 +146,9 @@ func NewInvoker(o InvokerOptions) (*Invoker, error) {
 	if o.Declarations == nil || o.Resolver == nil || o.Pins == nil || o.Environment == nil || o.Grants == nil || o.Runner == nil ||
 		o.Keys == nil || o.Limits == nil || o.DefaultAssurance == nil {
 		return nil, errors.New("function: an invoker needs declarations, a resolver, pins, environment variables, grants, a runner, idempotency keys, limits and the default assurance")
+	}
+	if o.Now == nil {
+		o.Now = time.Now
 	}
 	return &Invoker{o: o}, nil
 }
@@ -185,6 +195,16 @@ type Result struct {
 // idempotency key, then SCA. A device-placed version is refused, and no
 // call accepts a result from a device (FN-054).
 func (i *Invoker) Invoke(ctx context.Context, c Caller, call Call) (Result, error) {
+	start := i.o.Now()
+	res, err := i.invoke(ctx, c, call)
+	if i.o.Metrics != nil {
+		i.o.Metrics.Invoked(resultName(res, err), i.o.Now().Sub(start), err == nil && res.Replayed)
+	}
+	return res, err
+}
+
+// invoke is Invoke without the bookkeeping.
+func (i *Invoker) invoke(ctx context.Context, c Caller, call Call) (Result, error) {
 	d := c.Device
 	lim, err := i.o.Limits(ctx, d.OrganizationID, d.AppID)
 	if err != nil {
@@ -309,6 +329,9 @@ func (i *Invoker) keyed(ctx context.Context, c Caller, call Call, inv Invocable,
 	if done {
 		res, err := decodeStored(stored)
 		res.Version, res.Replayed = call.Version, true
+		if err == nil {
+			i.observe(ctx, runSpec{org: c.Device.OrganizationID, app: c.Device.AppID, env: c.Device.EnvironmentID, inv: inv}, resultName(res, nil), 0, 0, true)
+		}
 		return res, err
 	}
 	res, err := i.confirmed(ctx, c, call, inv, lim)
@@ -344,14 +367,48 @@ func (i *Invoker) confirmed(ctx context.Context, c Caller, call Call, inv Invoca
 	if err != nil {
 		return Result{}, err
 	}
-	resp, err := i.run(ctx, lim, runSpec{
+	spec := runSpec{
 		org: c.Device.OrganizationID, app: c.Device.AppID, env: c.Device.EnvironmentID, inv: inv, input: call.Input,
 		assurance: c.Device.Assurance, claims: claims, traceparent: c.Traceparent,
-	})
+	}
+	start := i.o.Now()
+	resp, err := i.run(ctx, lim, spec)
+	took := i.o.Now().Sub(start)
 	if err != nil {
+		i.observe(ctx, spec, resultName(Result{}, err), took, 0, false)
 		return Result{}, err
 	}
-	return resultOf(resp, call.Version)
+	res, err := resultOf(resp, call.Version)
+	i.observe(ctx, spec, resultName(res, err), took, resp.GetMemoryPeakBytes(), false)
+	return res, err
+}
+
+// observe hands a finished run, or a replay, to the observer (FN-032).
+func (i *Invoker) observe(ctx context.Context, s runSpec, result string, took time.Duration, memoryPeak uint64, replayed bool) {
+	if i.o.Observer == nil {
+		return
+	}
+	v := s.inv.Version
+	i.o.Observer.Observe(ctx, Observation{
+		OrganizationID: s.org, AppID: s.app, EnvironmentID: s.env, Function: v.Name, Version: v.Version,
+		Result: result, Duration: took, MemoryPeakBytes: memoryPeak, Replayed: replayed,
+	})
+}
+
+// resultName is the label an invocation is counted under: ok, business_error
+// or the lower-case reason of the system error (FN-032).
+func resultName(r Result, err error) string {
+	switch {
+	case err != nil:
+		code, _ := plxerr.CodeOf(err)
+		if def, ok := plxerr.Lookup(code); ok {
+			return strings.ToLower(string(def.Reason))
+		}
+		return "internal_server_error"
+	case r.Business != nil:
+		return ResultBusinessError
+	}
+	return ResultOK
 }
 
 // userClaims verifies the user token and returns the claims the function

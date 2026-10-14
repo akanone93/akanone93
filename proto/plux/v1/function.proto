@@ -289,6 +289,8 @@ message ListLogsRequest {
   // version limits the logs to one version when non-zero.
   uint32 version = 4;
   Page page = 5;
+  // since limits the logs to lines written at or after this time (FN-032).
+  google.protobuf.Timestamp since = 6;
 }
 message ListLogsResponse {
   repeated FunctionLogLine lines = 1;

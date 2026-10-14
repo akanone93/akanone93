@@ -1744,8 +1744,10 @@ type ListLogsRequest struct {
 	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	// version limits the logs to one version when non-zero.
-	Version       uint32 `protobuf:"varint,4,opt,name=version,proto3" json:"version,omitempty"`
-	Page          *Page  `protobuf:"bytes,5,opt,name=page,proto3" json:"page,omitempty"`
+	Version uint32 `protobuf:"varint,4,opt,name=version,proto3" json:"version,omitempty"`
+	Page    *Page  `protobuf:"bytes,5,opt,name=page,proto3" json:"page,omitempty"`
+	// since limits the logs to lines written at or after this time (FN-032).
+	Since         *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=since,proto3" json:"since,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1811,6 +1813,13 @@ func (x *ListLogsRequest) GetVersion() uint32 {
 func (x *ListLogsRequest) GetPage() *Page {
 	if x != nil {
 		return x.Page
+	}
+	return nil
+}
+
+func (x *ListLogsRequest) GetSince() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Since
 	}
 	return nil
 }
@@ -2237,13 +2246,14 @@ const file_plux_v1_function_proto_rawDesc = "" +
 	"\x05alias\x18\x04 \x01(\v2\x0e.plux.v1.AliasR\x05alias\x12\x18\n" +
 	"\asession\x18\x05 \x01(\tR\asession\"<\n" +
 	"\x10SetAliasResponse\x12(\n" +
-	"\aaliases\x18\x01 \x03(\v2\x0e.plux.v1.AliasR\aaliases\"\xa0\x01\n" +
+	"\aaliases\x18\x01 \x03(\v2\x0e.plux.v1.AliasR\aaliases\"\xd2\x01\n" +
 	"\x0fListLogsRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x18\n" +
 	"\aversion\x18\x04 \x01(\rR\aversion\x12!\n" +
-	"\x04page\x18\x05 \x01(\v2\r.plux.v1.PageR\x04page\"k\n" +
+	"\x04page\x18\x05 \x01(\v2\r.plux.v1.PageR\x04page\x120\n" +
+	"\x05since\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x05since\"k\n" +
 	"\x10ListLogsResponse\x12.\n" +
 	"\x05lines\x18\x01 \x03(\v2\x18.plux.v1.FunctionLogLineR\x05lines\x12'\n" +
 	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\xa6\x01\n" +
@@ -2369,37 +2379,38 @@ var file_plux_v1_function_proto_depIdxs = []int32{
 	7,  // 20: plux.v1.SetAliasRequest.alias:type_name -> plux.v1.Alias
 	7,  // 21: plux.v1.SetAliasResponse.aliases:type_name -> plux.v1.Alias
 	35, // 22: plux.v1.ListLogsRequest.page:type_name -> plux.v1.Page
-	28, // 23: plux.v1.ListLogsResponse.lines:type_name -> plux.v1.FunctionLogLine
-	36, // 24: plux.v1.ListLogsResponse.page:type_name -> plux.v1.PageResult
-	33, // 25: plux.v1.FunctionLogLine.time:type_name -> google.protobuf.Timestamp
-	31, // 26: plux.v1.GetMetricsResponse.errors_by_kind:type_name -> plux.v1.GetMetricsResponse.ErrorsByKindEntry
-	1,  // 27: plux.v1.FunctionService.Invoke:input_type -> plux.v1.FunctionServiceInvokeRequest
-	10, // 28: plux.v1.FunctionAdminService.UploadSource:input_type -> plux.v1.UploadSourceRequest
-	12, // 29: plux.v1.FunctionAdminService.Build:input_type -> plux.v1.BuildRequest
-	14, // 30: plux.v1.FunctionAdminService.GetBuild:input_type -> plux.v1.GetBuildRequest
-	16, // 31: plux.v1.FunctionAdminService.GetFunction:input_type -> plux.v1.GetFunctionRequest
-	18, // 32: plux.v1.FunctionAdminService.ListFunctions:input_type -> plux.v1.ListFunctionsRequest
-	20, // 33: plux.v1.FunctionAdminService.ListVersions:input_type -> plux.v1.ListVersionsRequest
-	22, // 34: plux.v1.FunctionAdminService.Deploy:input_type -> plux.v1.DeployRequest
-	24, // 35: plux.v1.FunctionAdminService.SetAlias:input_type -> plux.v1.SetAliasRequest
-	26, // 36: plux.v1.FunctionAdminService.ListLogs:input_type -> plux.v1.ListLogsRequest
-	29, // 37: plux.v1.FunctionAdminService.GetMetrics:input_type -> plux.v1.GetMetricsRequest
-	2,  // 38: plux.v1.FunctionService.Invoke:output_type -> plux.v1.FunctionServiceInvokeResponse
-	11, // 39: plux.v1.FunctionAdminService.UploadSource:output_type -> plux.v1.UploadSourceResponse
-	13, // 40: plux.v1.FunctionAdminService.Build:output_type -> plux.v1.BuildResponse
-	15, // 41: plux.v1.FunctionAdminService.GetBuild:output_type -> plux.v1.GetBuildResponse
-	17, // 42: plux.v1.FunctionAdminService.GetFunction:output_type -> plux.v1.GetFunctionResponse
-	19, // 43: plux.v1.FunctionAdminService.ListFunctions:output_type -> plux.v1.ListFunctionsResponse
-	21, // 44: plux.v1.FunctionAdminService.ListVersions:output_type -> plux.v1.ListVersionsResponse
-	23, // 45: plux.v1.FunctionAdminService.Deploy:output_type -> plux.v1.DeployResponse
-	25, // 46: plux.v1.FunctionAdminService.SetAlias:output_type -> plux.v1.SetAliasResponse
-	27, // 47: plux.v1.FunctionAdminService.ListLogs:output_type -> plux.v1.ListLogsResponse
-	30, // 48: plux.v1.FunctionAdminService.GetMetrics:output_type -> plux.v1.GetMetricsResponse
-	38, // [38:49] is the sub-list for method output_type
-	27, // [27:38] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	33, // 23: plux.v1.ListLogsRequest.since:type_name -> google.protobuf.Timestamp
+	28, // 24: plux.v1.ListLogsResponse.lines:type_name -> plux.v1.FunctionLogLine
+	36, // 25: plux.v1.ListLogsResponse.page:type_name -> plux.v1.PageResult
+	33, // 26: plux.v1.FunctionLogLine.time:type_name -> google.protobuf.Timestamp
+	31, // 27: plux.v1.GetMetricsResponse.errors_by_kind:type_name -> plux.v1.GetMetricsResponse.ErrorsByKindEntry
+	1,  // 28: plux.v1.FunctionService.Invoke:input_type -> plux.v1.FunctionServiceInvokeRequest
+	10, // 29: plux.v1.FunctionAdminService.UploadSource:input_type -> plux.v1.UploadSourceRequest
+	12, // 30: plux.v1.FunctionAdminService.Build:input_type -> plux.v1.BuildRequest
+	14, // 31: plux.v1.FunctionAdminService.GetBuild:input_type -> plux.v1.GetBuildRequest
+	16, // 32: plux.v1.FunctionAdminService.GetFunction:input_type -> plux.v1.GetFunctionRequest
+	18, // 33: plux.v1.FunctionAdminService.ListFunctions:input_type -> plux.v1.ListFunctionsRequest
+	20, // 34: plux.v1.FunctionAdminService.ListVersions:input_type -> plux.v1.ListVersionsRequest
+	22, // 35: plux.v1.FunctionAdminService.Deploy:input_type -> plux.v1.DeployRequest
+	24, // 36: plux.v1.FunctionAdminService.SetAlias:input_type -> plux.v1.SetAliasRequest
+	26, // 37: plux.v1.FunctionAdminService.ListLogs:input_type -> plux.v1.ListLogsRequest
+	29, // 38: plux.v1.FunctionAdminService.GetMetrics:input_type -> plux.v1.GetMetricsRequest
+	2,  // 39: plux.v1.FunctionService.Invoke:output_type -> plux.v1.FunctionServiceInvokeResponse
+	11, // 40: plux.v1.FunctionAdminService.UploadSource:output_type -> plux.v1.UploadSourceResponse
+	13, // 41: plux.v1.FunctionAdminService.Build:output_type -> plux.v1.BuildResponse
+	15, // 42: plux.v1.FunctionAdminService.GetBuild:output_type -> plux.v1.GetBuildResponse
+	17, // 43: plux.v1.FunctionAdminService.GetFunction:output_type -> plux.v1.GetFunctionResponse
+	19, // 44: plux.v1.FunctionAdminService.ListFunctions:output_type -> plux.v1.ListFunctionsResponse
+	21, // 45: plux.v1.FunctionAdminService.ListVersions:output_type -> plux.v1.ListVersionsResponse
+	23, // 46: plux.v1.FunctionAdminService.Deploy:output_type -> plux.v1.DeployResponse
+	25, // 47: plux.v1.FunctionAdminService.SetAlias:output_type -> plux.v1.SetAliasResponse
+	27, // 48: plux.v1.FunctionAdminService.ListLogs:output_type -> plux.v1.ListLogsResponse
+	30, // 49: plux.v1.FunctionAdminService.GetMetrics:output_type -> plux.v1.GetMetricsResponse
+	39, // [39:50] is the sub-list for method output_type
+	28, // [28:39] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_function_proto_init() }

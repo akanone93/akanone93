@@ -355,13 +355,13 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	functions, err := buildFunctions(db, work, log, tenancyService, gen)
+	functions, err := buildFunctions(db, work, log, tenancyService, gen, time.Duration(cfg.Telemetry.RetentionDays)*24*time.Hour)
 	if err != nil {
 		return nil, err
 	}
 	fnRuntime, err := buildFunctionRuntime(ctx, functionDeps{
 		cfg: cfg, db: db, crypter: backend, cache: shared, set: set, service: functions, gateway: gw,
-		tenancy: tenancyService, configs: configs, devices: devices, keys: store,
+		tenancy: tenancyService, configs: configs, devices: devices, keys: store, metrics: work.Metrics,
 	})
 	if err != nil {
 		return nil, err
@@ -766,6 +766,11 @@ func (w *maintenanceWorker) Work(ctx context.Context, _ *river.Job[Maintenance])
 		}
 		if _, err := w.svc.Events.Purge(ctx, org); err != nil {
 			return err //nolint:wrapcheck // a domain error
+		}
+		if w.svc.Functions != nil {
+			if _, err := w.svc.Functions.PurgeObservations(ctx, org); err != nil {
+				return err //nolint:wrapcheck // a domain error
+			}
 		}
 		if _, err := w.svc.Documents.RequeueSVGs(ctx, org); err != nil {
 			return err //nolint:wrapcheck // a domain error

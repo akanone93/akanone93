@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"regexp"
 	"time"
 
@@ -51,6 +52,12 @@ type Options struct {
 	Limits func(ctx context.Context, tx pgx.Tx, organizationID, appID string) (limits.Set, error)
 	// Now is the clock; nil uses time.Now.
 	Now func() time.Time
+	// Retention is how long function logs and invocation records are kept
+	// (FN-032); zero means DefaultRetention.
+	Retention time.Duration
+	// Log receives the failures of recording logs and invocations, which
+	// never fail an invocation; nil discards them.
+	Log *slog.Logger
 }
 
 // Service stores functions and administers them. It is safe for
@@ -65,6 +72,9 @@ func NewService(o Options) (*Service, error) {
 	}
 	if o.Now == nil {
 		o.Now = time.Now
+	}
+	if o.Retention <= 0 {
+		o.Retention = DefaultRetention
 	}
 	return &Service{o: o}, nil
 }

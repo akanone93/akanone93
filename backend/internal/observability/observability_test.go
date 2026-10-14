@@ -345,3 +345,23 @@ func TestDevicesByAssuranceIsReadOnScrape(t *testing.T) {
 		t.Error("counts vanished after a failed read")
 	}
 }
+
+// Verifies: FN-032.
+func TestFunctionInvocationMetrics_FN_032(t *testing.T) {
+	t.Parallel()
+	m := NewMetrics()
+	m.Invoked("ok", 20*time.Millisecond, false)
+	m.Invoked("ok", time.Millisecond, true)
+	m.Invoked("function_timeout", time.Second, false)
+	rec := httptest.NewRecorder()
+	m.Handler().ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/metrics", nil))
+	body := rec.Body.String()
+	for _, want := range []string{
+		`plux_function_requests_total{result="ok"} 2`, `plux_function_requests_total{result="function_timeout"} 1`,
+		`plux_function_request_seconds_count 3`, `plux_function_replays_total 1`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("metrics lack %q", want)
+		}
+	}
+}

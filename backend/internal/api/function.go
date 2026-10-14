@@ -7,6 +7,8 @@ import (
 	"context"
 	"errors"
 	"io"
+	"strconv"
+	"time"
 
 	"connectrpc.com/connect"
 
@@ -18,8 +20,8 @@ import (
 )
 
 // FunctionAdmin serves FunctionAdminService: sources, builds, versions and
-// aliases of Plux Functions (FN-006, FN-016). ListLogs and GetMetrics
-// answer Unimplemented until the observability milestone (FN-032).
+// aliases of Plux Functions (FN-006, FN-016), with their logs and metrics
+// (FN-032).
 type FunctionAdmin struct {
 	pluxv1connect.UnimplementedFunctionAdminServiceHandler
 	h *Handlers
@@ -251,6 +253,66 @@ func (s FunctionAdmin) SetAlias(ctx context.Context, req *connect.Request[pluxv1
 			return nil, err //nolint:wrapcheck // a domain error
 		}
 		return &pluxv1.SetAliasResponse{Aliases: aliasProtos(aliases)}, nil
+	})
+}
+
+// ListLogs lists the retained log lines of a function, newest first
+// (FN-032).
+func (s FunctionAdmin) ListLogs(ctx context.Context, req *connect.Request[pluxv1.ListLogsRequest]) (*connect.Response[pluxv1.ListLogsResponse], error) {
+	if s.h.Functions == nil {
+		return s.UnimplementedFunctionAdminServiceHandler.ListLogs(ctx, req) //nolint:wrapcheck // the generated Unimplemented answer
+	}
+	return read(ctx, func(ctx context.Context) (*pluxv1.ListLogsResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		m := req.Msg
+		page := m.GetPage()
+		scope := m.GetAppId() + "/" + m.GetEnvironmentId() + "/" + m.GetName() + "/" + strconv.FormatUint(uint64(m.GetVersion()), 10) + "/" + m.GetSince().AsTime().Format(time.RFC3339Nano)
+		after, size, err := s.h.Pages.Request(req.Spec().Procedure, scope, page)
+		if err != nil {
+			return nil, err
+		}
+		q := function.LogQuery{AppID: m.GetAppId(), EnvironmentID: m.GetEnvironmentId(), Name: m.GetName(), Version: int32(m.GetVersion())} //nolint:gosec // bounded by the version column
+		if m.GetSince() != nil {
+			q.Since = m.GetSince().AsTime()
+		}
+		lines, last, err := s.h.Functions.ListLogs(ctx, p, q, after, size)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		out := &pluxv1.ListLogsResponse{Page: &pluxv1.PageResult{}}
+		for _, l := range lines {
+			out.Lines = append(out.Lines, &pluxv1.FunctionLogLine{Time: ts(l.Time), Version: uint32(l.Version), Level: l.Level, Message: l.Message, TraceId: l.TraceID}) //nolint:gosec // positive by the version column
+		}
+		out.Page.NextPageToken = s.h.Pages.Next(req.Spec().Procedure, scope, page, len(lines), size, last)
+		return out, nil
+	})
+}
+
+// GetMetrics returns the invocation counts, errors by kind, latency
+// percentiles, memory peak and cache hits of a function over a window
+// (FN-032).
+func (s FunctionAdmin) GetMetrics(ctx context.Context, req *connect.Request[pluxv1.GetMetricsRequest]) (*connect.Response[pluxv1.GetMetricsResponse], error) {
+	if s.h.Functions == nil {
+		return s.UnimplementedFunctionAdminServiceHandler.GetMetrics(ctx, req) //nolint:wrapcheck // the generated Unimplemented answer
+	}
+	return read(ctx, func(ctx context.Context) (*pluxv1.GetMetricsResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		m := req.Msg
+		got, err := s.h.Functions.Metrics(ctx, p, m.GetAppId(), m.GetEnvironmentId(), m.GetName(), time.Duration(m.GetWindowSeconds())*time.Second)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.GetMetricsResponse{
+			Invocations: got.Invocations, ErrorsByKind: got.ErrorsByKind,
+			LatencyP50Micros: uint64(got.LatencyP50.Microseconds()), LatencyP95Micros: uint64(got.LatencyP95.Microseconds()), //nolint:gosec // non-negative
+			LatencyP99Micros: uint64(got.LatencyP99.Microseconds()), MemoryPeakBytes: got.MemoryPeakBytes, CacheHits: got.CacheHits, //nolint:gosec // non-negative
+		}, nil
 	})
 }
 

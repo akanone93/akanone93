@@ -26,6 +26,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
+	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
 	"github.com/nightCode42/plux3/backend/internal/security/settings"
@@ -78,7 +79,7 @@ func (w *functionBuildWorker) Work(ctx context.Context, job *river.Job[function.
 // installation has no object store to keep sources and modules in. The
 // service has no Builder and no ArtifactSigner here: the worker role that
 // runs builds is given them where it is assembled.
-func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.Service, gen interface{ New() (string, error) }) (*function.Service, error) {
+func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.Service, gen interface{ New() (string, error) }, retention time.Duration) (*function.Service, error) {
 	if work.Objects == nil {
 		return nil, nil //nolint:nilnil // the installation runs no functions
 	}
@@ -94,7 +95,7 @@ func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.
 	}
 	svc, err := function.NewService(function.Options{
 		DB: db, Audit: log, Objects: work.Objects, IDs: gen, Jobs: functionQueue{work.Queue},
-		Builder: work.Builder, Signer: signer,
+		Builder: work.Builder, Signer: signer, Retention: retention, Log: work.Log,
 		Limits: func(ctx context.Context, tx pgx.Tx, organizationID, appID string) (limits.Set, error) {
 			return ten.Effective(ctx, tx, organizationID, appID, "") //nolint:wrapcheck // a domain error
 		},
@@ -127,6 +128,7 @@ type functionDeps struct {
 	configs *seccfg.Service
 	devices *device.Service
 	keys    *idempotency.Store
+	metrics *observability.Metrics
 }
 
 // functionRuntime is the api role's side of server functions.
@@ -194,6 +196,10 @@ func buildInvoker(d functionDeps, grants *function.Grants) (*function.Invoker, e
 			return values.Get(settings.DefaultFunctionAssurance).Text(), nil
 		},
 		Attestations: d.devices,
+		Logs:         d.service, Observer: d.service,
+	}
+	if d.metrics != nil {
+		o.Metrics = d.metrics
 	}
 	if d.gateway != nil && d.gateway.Exchange != nil {
 		o.Users = functionUsers{tokens: d.gateway.Exchange.Tokens, production: d.devices.EnvironmentIsProduction}
