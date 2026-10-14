@@ -1417,7 +1417,7 @@ plux_fn::function!(calculate_schedule);
 | `FN-020` | P7 | MUST | Devices **MUST** invoke server functions through `FunctionService.Invoke` with DPoP and a valid access token; the server **MUST** enforce the function's required assurance level and, where declared, a fresh App Attest assertion or Play Integrity request binding (`SEC-004`, `SEC-003`) and SCA signature (`SEC-027`). | SPEC |
 | `FN-021` | P7 | MUST | Invocations **MUST** accept an idempotency key; retries with the same key **MUST** return the same result without re-execution for 24 h. | SPEC |
 | `FN-022` | P7 | MUST | Errors **MUST** distinguish **business errors** (declared by the function with a code and a localisable message key, surfaced to action graphs) from **system errors** (timeouts, limits, crashes), which are reported and shown generically. | SPEC |
-| `FN-023` | P7 | MUST | Warm invocation overhead **MUST** be ≤ 1 ms p99 and first invocation after deploy ≤ 50 ms p99 on the reference deployment, excluding the function's own work. | SPEC |
+| `FN-023` | P7 | MUST | Warm invocation overhead **MUST** be ≤ 1 ms p99 and first invocation after deploy — after the deploy-time compile on `fnrunner` — ≤ 50 ms p99 on the CI reference runner (as `CMP-050`), excluding the function's own work. | SPEC |
 | `FN-024` | P7 | MUST | Rate limits and quotas **MUST** apply per function, per app and per device. | SPEC |
 | `FN-025` | P9 | SHOULD | Server functions **SHOULD** also be triggerable by schedules (cron) and by signed inbound webhooks (e.g. payment provider callbacks, `PAY-006`). | SPEC |
 
@@ -2001,7 +2001,7 @@ This section concerns how Plux itself is verified. §22.2 covers the testing too
 | `NFR-013` | P6 | MUST | Decrypting a confidential bundle on the device | ≤ 10 ms per MiB p95 (mid-tier) (`SEC-053`); encrypted local stores within 10% of the plain stores in the P5 database and state benchmarks (`SEC-073`) | WIP |
 | `NFR-020` | P2 | MUST | Manifest endpoint throughput | ≥ 5,000 req/s per `api` replica at p99 ≤ 50 ms (cache hit) | DONE |
 | `NFR-021` | P2 | MUST | Publish of a 50-page plugin with deltas | ≤ 15 s p95 (`SRV-053`) | DONE |
-| `NFR-022` | P7 | MUST | Function invocation overhead | warm ≤ 1 ms p99; first after deploy ≤ 50 ms p99 (`FN-023`) | SPEC |
+| `NFR-022` | P7 | MUST | Function invocation overhead | warm ≤ 1 ms p99 (median of five rounds); first after deploy, after the deploy-time compile, ≤ 50 ms p99, on the CI reference runner (`FN-023`) | SPEC |
 | `NFR-023` | P9 | MUST | Scale of one HA installation (with CDN) | ≥ 1,000,000 active devices, ≥ 100 apps | SPEC |
 | `NFR-024` | P9 | MUST | Kill-switch / control propagation | ≤ 60 s p95 for online devices | SPEC |
 | `NFR-025` | P6 | MUST | Gateway overhead and device-request verification at the server | gateway ≤ 5 ms p95 added per request, excluding the upstream's time, at 1,000 req/s per `api` replica (`SEC-031`); DPoP and access-token verification ≤ 1 ms p95 (`SEC-022`) | WIP |
@@ -2724,9 +2724,16 @@ Every error and diagnostic has a stable code `PLX-NNNN` (`DX-003`). Codes are gr
 | `plux_dpop_replay_cache_degraded` | gauge | — (1 while a replica uses its in-memory fallback, `SEC-023`) |
 | `plux_dpop_replay_cache_fallback_total` | counter | — |
 | `plux_devices_by_assurance` | gauge | app, level |
-| `plux_function_invocations_total` | counter | function, result |
-| `plux_function_duration_seconds` | histogram | function |
-| `plux_function_memory_bytes` | histogram | function |
+| `plux_function_requests_total` | counter | result (api role: `ok`, `business_error` or the error's reason) |
+| `plux_function_request_seconds` | histogram | — (api role, from the device's request to the answer) |
+| `plux_function_replays_total` | counter | — (answers from a stored idempotency key, `FN-021`) |
+| `plux_function_prepares_total` | counter | result (deploy-time compiles, `FN-023`) |
+| `plux_function_invocations_total` | counter | result (`fnrunner`) |
+| `plux_function_duration_seconds` | histogram | — (`fnrunner`) |
+| `plux_function_memory_peak_bytes` | histogram | — (`fnrunner`) |
+| `plux_function_module_cache_total` | counter | result (`hit`, `miss`, `refused`) |
+| `plux_egress_tunnels_total` | counter | result |
+| `plux_egress_bytes_total` | counter | direction |
 | `plux_approvals_pending` | gauge | app, environment |
 | `plux_rollout_health_gate_trips_total` | counter | app, gate |
 | `plux_control_propagation_seconds` | histogram | app |
@@ -3060,7 +3067,7 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Status | Draft (living document) |
 | Date | 2026-10-14 |
 | Supersedes | 1.5.0 |
-| 1.5.1 | 2026-10-14 | Function versions are numbered per app and reach another environment only by promotion; a release promotion is refused until every function version it pins is promoted there (maintainer, 2026-10-14; `FN-006`; ADR-0063). Appendix H.1 gains the `functions`, `fnrunner`, `egress` and `builder` configuration (P7 plan §2.6 M6). |
+| 1.5.1 | 2026-10-14 | Function versions are numbered per app and reach another environment only by promotion; a release promotion is refused until every function version it pins is promoted there (maintainer, 2026-10-14; `FN-006`; ADR-0063). Appendix H.1 gains the `functions`, `fnrunner`, `egress` and `builder` configuration (P7 plan §2.6 M6). `FN-023` and `NFR-022` measure the first invocation after the deploy-time compile, on the CI reference runner, the warm gate on the median of five rounds (M9, M10; ADR-0064). Appendix G.1 lists the function and egress metrics as implemented: no `function` label, so a tenant's functions add no Prometheus series; per-function numbers come from the stored invocations (`FN-032`) (M11). |
 | 1.5.0 | 2026-10-13 | Phase 7 decisions (maintainer, 2026-10-13; P7 plan §2.1 D1–D9, §2.2 C1 and C6, §2.5): Plux Functions are written in **Rust** (D1) — the §5.1 P7 row, §16 with its example, `FN-001`–`FN-004`, `FN-030`, `FN-033` and `FN-040` rewritten, with the SDK crate `plux-fn` at `github.com/nightCode42/plux3/sdk/fn` (D4), the repository layout (§33), the technology decision (§34) and the Go-editor wording (`STU-063`, `STU-110`) updated; `FN-050` names WAMR in interpreter mode in the optional package `plux_functions` (D2); builds run on the server in a new `builder` role (D3, `FN-016`) with a `wasm-opt` step (D9), only signed builder artifacts are deployable (`FN-009`) and builds are reproducible (`FN-019`); our own `egress` forward proxy (D5, `FN-017`); the server key-value store (D8, `FN-018`); until the approval engine (`GOV-020`, P9) `FN-007` and `FN-055` require a dedicated RBAC permission with step-up (D6); `FN-031` and `FN-032` split (D7) with new `FN-034`, `FN-035` (P11) and `FN-036` (P10); `FN-011` names the registry keys; new `SEC-123` (imported signing keys, C1); `SEC-043` covers `builder` and `egress`; §6.3 gains the `builder` and `egress` roles and L-4 names them; §5.4 anchors additive-only evolution (`BND-000`, `SCH-000`, `SRV-000`) to the first release, 0.0.1 (C6); §30.4, Appendix F (functions range, `PLX-6080`, `PLX-6081`) and Appendix K updated; ADR-0011 accepted for Rust and ADR-0062 (host ABI), ADR-0063 (builds and provenance), ADR-0064 (isolation) and ADR-0065 (imported keys and the Apple receipt) proposed. |
 | 1.4.3 | 2026-10-11 | Server-held configuration (maintainer decision, 2026-10-11; ADR-0061), a follow-on milestone of P6: new `DAT-090`–`DAT-097` (§14.4) — typed configuration values per app and environment in two tiers, `server-bound` values the gateway binds into requests at declared locations and `live` values a device fetches over its DPoP-bound channel, with an epoch and a version on every gateway call so that no value is stale where it takes effect; `DAT-003` also allows the secure gateway's server-bound values for calls that need server-held secrets; the `bundled` tier is the existing environment variables (`GOV-010`) and may lag. |
 | 1.4.2 | 2026-10-08 | P6 S0–S6 delivered on `feat/p6-s2-device-trust`: `SEC-005`, `SEC-008`, `SEC-020`–`SEC-022`, `SEC-024`, `SEC-025`, `SEC-029`, `SEC-040`, `SEC-050`, `SEC-051`, `SEC-056`, `SEC-120`–`SEC-122`, `SEC-141`, `SEC-182` and `NAV-009` `DONE`; `SEC-000`, `SEC-001`–`SEC-004`, `SEC-006`, `SEC-007`, `SEC-023`, `SEC-041`–`SEC-043`, `SEC-180` and `NFR-012` `WIP` until the milestones, the real-device check (B2 layer 3) or the reference-device run named in plan p6 complete them. |

@@ -138,3 +138,15 @@ the grant.
 Stronger boundary, but start-up cost of tens of milliseconds to seconds per call against
 `FN-023`'s 1 ms budget and a large operational burden. Rejected; revisited if a deployment
 needs hard multi-tenancy beyond wasm.
+
+## Revision (2026-10-14, P7 F4)
+
+`fnrunner` compiles a server module when the api role deploys or promotes its version
+(`Prepare`), so "the first invocation after deploy" of `FN-023` is the first call after that
+compile (maintainer, P7 plan §2.6 M9). A call that reaches a runner without the module compiled
+(the compile failed, a restart without a compilation cache, another replica) compiles it
+first; that cold path is measured and reported, not gated. Each instance's linear memory comes
+from a bounded pool of buffers that are cleared before reuse, so the per-call allocation no
+longer drives the garbage collector, and no byte crosses from one invocation to the next
+(`FN-010`). The budgets are gated on the CI reference runner, as `CMP-050`'s are, the warm one
+on the median of five rounds (M10).

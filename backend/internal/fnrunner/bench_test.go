@@ -4,6 +4,7 @@
 package fnrunner
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -24,10 +25,15 @@ const (
 )
 
 // Samples per measurement. A p99 over 2,000 warm calls rests on the 20
-// slowest; over 100 first calls, on the slowest one.
+// slowest; over 100 first calls, on the slowest one. The warm calls are
+// measured in benchWarmRounds rounds and the gate reads the median round's
+// p99, so one round disturbed by a neighbour on a shared CI runner (the
+// reference runner, as for CMP-050) does not fail it, while a regression,
+// which slows every round, does.
 const (
 	benchWarmUp       = 200
 	benchWarmCalls    = 2000
+	benchWarmRounds   = 5
 	benchFirstSamples = 100
 )
 
@@ -137,10 +143,15 @@ func TestFunctionInvocationOverhead_NFR_022(t *testing.T) {
 	for range benchWarmUp {
 		invoke(h.runner)
 	}
-	warm := make([]time.Duration, benchWarmCalls)
-	for i := range warm {
-		warm[i] = invoke(h.runner)
+	rounds := make([]percentiles, benchWarmRounds)
+	for r := range rounds {
+		warm := make([]time.Duration, benchWarmCalls)
+		for i := range warm {
+			warm[i] = invoke(h.runner)
+		}
+		rounds[r] = summarise(warm)
 	}
+	slices.SortFunc(rounds, func(a, b percentiles) int { return cmp.Compare(a.P99us, b.P99us) })
 
 	cold := firstSamples(t, opts, nil, invoke)
 	afterPrepare := firstSamples(t, opts, prepare, invoke)
@@ -150,12 +161,13 @@ func TestFunctionInvocationOverhead_NFR_022(t *testing.T) {
 	cached := firstSamples(t, withCache, nil, invoke)
 
 	report := struct {
-		Requirement       string      `json:"requirement"`
-		Warm              percentiles `json:"warm"`
-		FirstAfterDeploy  percentiles `json:"firstAfterDeploy"`
-		FirstCold         percentiles `json:"firstCold"`
-		FirstCompileCache percentiles `json:"firstWithCompilationCache"`
-	}{"NFR-022", summarise(warm), summarise(afterPrepare), summarise(cold), summarise(cached)}
+		Requirement       string        `json:"requirement"`
+		Warm              percentiles   `json:"warm"`
+		WarmRounds        []percentiles `json:"warmRounds"`
+		FirstAfterDeploy  percentiles   `json:"firstAfterDeploy"`
+		FirstCold         percentiles   `json:"firstCold"`
+		FirstCompileCache percentiles   `json:"firstWithCompilationCache"`
+	}{"NFR-022", rounds[len(rounds)/2], rounds, summarise(afterPrepare), summarise(cold), summarise(cached)}
 	raw, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
 		t.Fatal(err)
@@ -163,7 +175,7 @@ func TestFunctionInvocationOverhead_NFR_022(t *testing.T) {
 	fmt.Printf("%s\n", raw)
 
 	if got := time.Duration(report.Warm.P99us * 1e3); got > benchWarmBudgetP99 {
-		t.Errorf("warm p99 = %v, budget %v (NFR-022)", got, benchWarmBudgetP99)
+		t.Errorf("warm p99 (median of %d rounds) = %v, budget %v (NFR-022)", benchWarmRounds, got, benchWarmBudgetP99)
 	}
 	if got := time.Duration(report.FirstAfterDeploy.P99us * 1e3); got > benchFirstBudgetP99 {
 		t.Errorf("first-after-deploy p99 = %v, budget %v (NFR-022)", got, benchFirstBudgetP99)
