@@ -47,9 +47,11 @@ RETURNING *;
 SELECT pg_advisory_xact_lock(hashtextextended(sqlc.arg(scope)::text, 0));
 
 -- name: NextFunctionVersion :one
+-- A version number is counted per function per app, so that one number
+-- names one signed build in every environment (FN-006).
 SELECT (coalesce(max(version), 0) + 1)::int AS version
   FROM function_versions
- WHERE environment_id = $1 AND name = $2;
+ WHERE app_id = $1 AND name = $2;
 
 -- name: InsertFunctionVersion :one
 INSERT INTO function_versions

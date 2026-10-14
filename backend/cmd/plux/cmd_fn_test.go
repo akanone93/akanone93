@@ -40,6 +40,7 @@ type fakeFunctions struct {
 	upload    *pluxv1.UploadSourceRequest
 	deploy    *pluxv1.DeployRequest
 	alias     *pluxv1.SetAliasRequest
+	promote   *pluxv1.PromoteFunctionRequest
 	logs      []*pluxv1.FunctionLogLine
 	logReqs   []*pluxv1.ListLogsRequest
 }
@@ -78,6 +79,16 @@ func (f *fakeFunctions) Deploy(_ context.Context, r *connect.Request[pluxv1.Depl
 		return nil, f.deployErr
 	}
 	return connect.NewResponse(&pluxv1.DeployResponse{Version: &pluxv1.FunctionVersion{Name: "bank.fee", Version: 4, Placement: "server", ModuleSha256: strings.Repeat("ab", 32)}}), nil
+}
+
+func (f *fakeFunctions) PromoteFunction(_ context.Context, r *connect.Request[pluxv1.PromoteFunctionRequest]) (*connect.Response[pluxv1.PromoteFunctionResponse], error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.promote = r.Msg
+	if f.deployErr != nil {
+		return nil, f.deployErr
+	}
+	return connect.NewResponse(&pluxv1.PromoteFunctionResponse{Version: &pluxv1.FunctionVersion{Name: r.Msg.GetName(), Version: r.Msg.GetVersion(), Placement: "server", ModuleSha256: strings.Repeat("ab", 32)}}), nil
 }
 
 func (f *fakeFunctions) SetAlias(_ context.Context, r *connect.Request[pluxv1.SetAliasRequest]) (*connect.Response[pluxv1.SetAliasResponse], error) {
@@ -342,6 +353,37 @@ func TestFnDeployRefusals_FN_031(t *testing.T) { //nolint:paralleltest // the en
 type errString string
 
 func (e errString) Error() string { return string(e) }
+
+// Verifies: FN-006, FN-007.
+// plux fn promote names the version as name@version, resolves both
+// environment keys, passes the alias, and reports the copy.
+func TestFnPromote_FN_006(t *testing.T) { //nolint:paralleltest // the environment is process-wide
+	r := newFnRig(t)
+	if code := r.run("promote", "bank.fee@2", "--from", "development", "--to", "production", "--alias", "stable"); code != exitOK {
+		t.Fatalf("promote: %d %s", code, r.err.String())
+	}
+	if r.out.String() != "promoted bank.fee version 2 from development to production (server, module abababababab), alias stable\n" {
+		t.Errorf("output %q", r.out.String())
+	}
+	if m := r.f.promote; m.GetAppId() != "a1" || m.GetName() != "bank.fee" || m.GetVersion() != 2 || m.GetFromEnvironmentId() != "e-dev" || m.GetToEnvironmentId() != "e-prod" || m.GetAlias() != "stable" {
+		t.Errorf("request %v", m)
+	}
+	if code := r.run("promote", "bank.fee@2", "--from", "development", "--to", "production", "--json"); code != exitOK || !strings.Contains(r.out.String(), `"version": 2`) {
+		t.Errorf("promote --json: %d %s", code, r.out.String())
+	}
+	for _, bad := range [][]string{
+		{"promote", "bank.fee", "--from", "development", "--to", "production"},
+		{"promote", "bank.fee@zero", "--from", "development", "--to", "production"},
+		{"promote", "bank.fee@0", "--from", "development", "--to", "production"},
+		{"promote", "bank.fee@2", "--to", "production"},
+		{"promote", "bank.fee@2", "--from", "development"},
+		{"promote"},
+	} {
+		if code := r.run(bad...); code != exitUsage {
+			t.Errorf("%v: %d, want usage", bad, code)
+		}
+	}
+}
 
 // Verifies: FN-006.
 func TestFnAliasAndVersions_FN_006(t *testing.T) { //nolint:paralleltest // the environment is process-wide

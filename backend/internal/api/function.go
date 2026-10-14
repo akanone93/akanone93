@@ -237,6 +237,26 @@ func (s FunctionAdmin) Deploy(ctx context.Context, req *connect.Request[pluxv1.D
 	})
 }
 
+// PromoteFunction copies a version to another environment of the app
+// without rebuilding it (FN-006, FN-007, FN-031).
+func (s FunctionAdmin) PromoteFunction(ctx context.Context, req *connect.Request[pluxv1.PromoteFunctionRequest]) (*connect.Response[pluxv1.PromoteFunctionResponse], error) {
+	if s.h.Functions == nil {
+		return s.UnimplementedFunctionAdminServiceHandler.PromoteFunction(ctx, req) //nolint:wrapcheck // the generated Unimplemented answer
+	}
+	return mutate(ctx, s.h, req, func(ctx context.Context) (*pluxv1.PromoteFunctionResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		m := req.Msg
+		v, err := s.h.Functions.Promote(ctx, p, m.GetAppId(), m.GetFromEnvironmentId(), m.GetToEnvironmentId(), m.GetName(), int32(m.GetVersion()), m.GetAlias()) //nolint:gosec // bounded by the version column
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.PromoteFunctionResponse{Version: functionVersionProto(v)}, nil
+	})
+}
+
 // SetAlias points an alias at an existing version (FN-006).
 func (s FunctionAdmin) SetAlias(ctx context.Context, req *connect.Request[pluxv1.SetAliasRequest]) (*connect.Response[pluxv1.SetAliasResponse], error) {
 	if s.h.Functions == nil {
