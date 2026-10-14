@@ -13,6 +13,9 @@ One runbook per alert and per failure mode introduced in a phase (DoD-9, `OBS-00
 | [Key compromise](key-compromise.md) | Token key, online metadata keys, audit and wrap keys, content keys; root keys through the ceremony (`SEC-120`, `SEC-121`) | P6 |
 | [Pin rotation](pin-rotation.md) | Rotating the server's TLS key and the SPKI pins through signed root metadata (`SEC-041`) | P6 |
 | [Gateway upstream failure](gateway-upstream-failure.md) | A customer API behind the gateway is down, slow or rejecting it (`SEC-030`, `SEC-031`) | P6 |
+| [Function outage](function-outage.md) | `fnrunner` down, unreachable, overloaded or refusing modules (`FN-009`–`FN-013`) | P7 |
+| [Function egress refusals](function-egress-refusals.md) | A function's outbound HTTP is refused by the allowlist or the private-address rules (`FN-012`, `FN-017`) | P7 |
+| [Function builder failure](function-builder-failure.md) | Function builds fail, hang or are refused by the `builder` role (`FN-016`, `FN-019`) | P7 |
 
 ## Signals
 
