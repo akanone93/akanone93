@@ -42,6 +42,17 @@ message FunctionServiceInvokeRequest {
   // challenge followed by the transaction summary: ES256, 64 bytes, r then
   // s (SEC-027).
   bytes transaction_signature = 6;
+  // app_attest_assertion is an iOS device's App Attest assertion over
+  // SHA-256("plux-fn-invoke-v1" || function || "@" || uint32be(version) ||
+  // SHA-256(input) || jti), where jti is the identifier of the request's
+  // DPoP proof; required when the function declares `attestation` (FN-020,
+  // SEC-004).
+  bytes app_attest_assertion = 7;
+  // play_integrity_token is an Android device's Play Integrity
+  // standard-request token whose requestHash is that value, base64url
+  // without padding; required when the function declares `attestation`
+  // (FN-020, SEC-003).
+  string play_integrity_token = 8;
 }
 
 message FunctionServiceInvokeResponse {

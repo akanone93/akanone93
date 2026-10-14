@@ -47,7 +47,7 @@ func traceparentOf(h http.Header) string {
 // authenticated device (FN-020). The device's identity, assurance and
 // token binding come from the same authentication as GatewayService.Call;
 // the domain checks the pin, the placement, the assurance, the
-// attestation, the idempotency key and SCA before the module runs. A
+// platform evidence bound to the request, the idempotency key and SCA before the module runs. A
 // business error is part of the response (FN-022); a system error is a
 // Connect error with its PLX code and a generic message. Nothing in this
 // API accepts a result computed on a device (FN-054).
@@ -63,13 +63,15 @@ func (s FunctionService) Invoke(ctx context.Context, req *connect.Request[pluxv1
 	if m.GetVersion() == 0 || m.GetVersion() > math.MaxInt32 {
 		return nil, plxerr.New(plxerr.FunctionNotFound, "no such function version")
 	}
+	proofID, _ := ProofIDFrom(ctx)
 	res, err := s.h.FunctionInvoker.Invoke(ctx,
-		function.Caller{Device: d, UserToken: req.Header().Get(headerUserToken), Traceparent: traceparentOf(req.Header())},
+		function.Caller{Device: d, UserToken: req.Header().Get(headerUserToken), Traceparent: traceparentOf(req.Header()), ProofID: proofID},
 		function.Call{
 			Function: m.GetFunction(),
 			Version:  int32(m.GetVersion()), //nolint:gosec // bounded above
 			Input:    m.GetInput(), IdempotencyKey: m.GetIdempotencyKey(),
 			ChallengeID: m.GetTransactionChallengeId(), Signature: m.GetTransactionSignature(),
+			AppAttestAssertion: m.GetAppAttestAssertion(), PlayIntegrityToken: m.GetPlayIntegrityToken(),
 		})
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error

@@ -232,8 +232,20 @@ type CreateTransactionChallengeRequest struct {
 	// user confirms; the server binds the challenge to its hash, so the
 	// confirmed transaction cannot be swapped (SEC-028).
 	TransactionSummaryJcs []byte `protobuf:"bytes,4,opt,name=transaction_summary_jcs,json=transactionSummaryJcs,proto3" json:"transaction_summary_jcs,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	// function names a server function whose invocation the user confirms
+	// (FN-020, SEC-027). When set, data_source and operation are empty,
+	// function_version and input_sha256 are required, and
+	// transaction_summary_jcs is a canonical JSON object of strings the user
+	// is shown; the server adds the function, the version and the input hash
+	// to it, and returns the result for the device to sign.
+	Function string `protobuf:"bytes,5,opt,name=function,proto3" json:"function,omitempty"`
+	// function_version is the pinned version of the function.
+	FunctionVersion uint32 `protobuf:"varint,6,opt,name=function_version,json=functionVersion,proto3" json:"function_version,omitempty"`
+	// input_sha256 is the SHA-256 of the invocation's input; the invocation
+	// is refused unless its input has this hash (SEC-028).
+	InputSha256   []byte `protobuf:"bytes,7,opt,name=input_sha256,json=inputSha256,proto3" json:"input_sha256,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateTransactionChallengeRequest) Reset() {
@@ -290,6 +302,27 @@ func (x *CreateTransactionChallengeRequest) GetOperation() string {
 func (x *CreateTransactionChallengeRequest) GetTransactionSummaryJcs() []byte {
 	if x != nil {
 		return x.TransactionSummaryJcs
+	}
+	return nil
+}
+
+func (x *CreateTransactionChallengeRequest) GetFunction() string {
+	if x != nil {
+		return x.Function
+	}
+	return ""
+}
+
+func (x *CreateTransactionChallengeRequest) GetFunctionVersion() uint32 {
+	if x != nil {
+		return x.FunctionVersion
+	}
+	return 0
+}
+
+func (x *CreateTransactionChallengeRequest) GetInputSha256() []byte {
+	if x != nil {
+		return x.InputSha256
 	}
 	return nil
 }
@@ -461,13 +494,16 @@ const file_plux_v1_gateway_proto_rawDesc = "" +
 	"\x04body\x18\x03 \x01(\fR\x04body\x1a:\n" +
 	"\fHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb7\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa1\x02\n" +
 	"!CreateTransactionChallengeRequest\x12\x1b\n" +
 	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId\x12\x1f\n" +
 	"\vdata_source\x18\x02 \x01(\tR\n" +
 	"dataSource\x12\x1c\n" +
 	"\toperation\x18\x03 \x01(\tR\toperation\x126\n" +
-	"\x17transaction_summary_jcs\x18\x04 \x01(\fR\x15transactionSummaryJcs\"\x8f\x02\n" +
+	"\x17transaction_summary_jcs\x18\x04 \x01(\fR\x15transactionSummaryJcs\x12\x1a\n" +
+	"\bfunction\x18\x05 \x01(\tR\bfunction\x12)\n" +
+	"\x10function_version\x18\x06 \x01(\rR\x0ffunctionVersion\x12!\n" +
+	"\finput_sha256\x18\a \x01(\fR\vinputSha256\"\x8f\x02\n" +
 	"\"CreateTransactionChallengeResponse\x12!\n" +
 	"\fchallenge_id\x18\x01 \x01(\tR\vchallengeId\x12\x1c\n" +
 	"\tchallenge\x18\x02 \x01(\fR\tchallenge\x129\n" +

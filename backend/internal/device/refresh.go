@@ -146,6 +146,13 @@ func (s *Service) verifyAssertion(ctx context.Context, row dbgen.Device, r Refre
 	if len(r.AppAttestAssertion) == 0 {
 		return nil, plxerr.New(plxerr.AttestationFailed, "an iOS refresh needs an App Attest assertion")
 	}
+	return s.checkAssertion(ctx, row, r.AppAttestAssertion, sha256.Sum256([]byte(r.Proof)))
+}
+
+// checkAssertion verifies an App Attest assertion over clientDataHash with
+// the device's attested key, against the stored counter. It returns the
+// assertion's counter, which the caller stores with a compare-and-set.
+func (s *Service) checkAssertion(ctx context.Context, row dbgen.Device, assertion []byte, clientDataHash [32]byte) (*uint32, error) {
 	trust, err := s.trustOf(ctx, storage.ID(row.AppID))
 	if err != nil {
 		return nil, err
@@ -161,7 +168,7 @@ func (s *Service) verifyAssertion(ctx context.Context, row dbgen.Device, r Refre
 	if row.AppAttestCounter < 0 || row.AppAttestCounter > int64(^uint32(0)) {
 		return nil, plxerr.New(plxerr.AttestationFailed, "the stored App Attest counter is out of range")
 	}
-	counter, err := s.attestors.AppAssertions.VerifyAssertion(r.AppAttestAssertion, pub, sha256.Sum256([]byte(r.Proof)), trust.IOSAppID, uint32(row.AppAttestCounter))
+	counter, err := s.attestors.AppAssertions.VerifyAssertion(assertion, pub, clientDataHash, trust.IOSAppID, uint32(row.AppAttestCounter))
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
 	}
@@ -176,6 +183,13 @@ func (s *Service) verifyRefreshIntegrity(ctx context.Context, row dbgen.Device, 
 	if r.PlayIntegrityToken == "" {
 		return plxerr.New(plxerr.AttestationFailed, "this environment needs a Play Integrity token with every Android refresh")
 	}
+	sum := sha256.Sum256([]byte(r.Proof))
+	return s.checkIntegrity(ctx, row, r.PlayIntegrityToken, base64.RawURLEncoding.EncodeToString(sum[:]))
+}
+
+// checkIntegrity verifies a Play Integrity standard-request token whose
+// requestHash must equal requestHash, for any of the app's packages.
+func (s *Service) checkIntegrity(ctx context.Context, row dbgen.Device, token, requestHash string) error {
 	trust, err := s.trustOf(ctx, storage.ID(row.AppID))
 	if err != nil {
 		return err
@@ -183,12 +197,10 @@ func (s *Service) verifyRefreshIntegrity(ctx context.Context, row dbgen.Device, 
 	if s.attestors.PlayIntegrity == nil || trust.PlayIntegrity == nil || len(trust.AndroidPackages) == 0 {
 		return plxerr.New(plxerr.AttestationUnavailable, "Android attestation is not configured for this app")
 	}
-	sum := sha256.Sum256([]byte(r.Proof))
-	hash := base64.RawURLEncoding.EncodeToString(sum[:])
 	var last error
 	for _, pkg := range trust.AndroidPackages {
-		_, last = s.attestors.PlayIntegrity.Verify(*trust.PlayIntegrity, r.PlayIntegrityToken, playintegrity.Expect{
-			PackageName: pkg, RequestHash: hash, CertDigests: trust.AndroidCertDigests, MaxAge: integrityMaxAge,
+		_, last = s.attestors.PlayIntegrity.Verify(*trust.PlayIntegrity, token, playintegrity.Expect{
+			PackageName: pkg, RequestHash: requestHash, CertDigests: trust.AndroidCertDigests, MaxAge: integrityMaxAge,
 		})
 		if last == nil {
 			return nil
@@ -198,20 +210,27 @@ func (s *Service) verifyRefreshIntegrity(ctx context.Context, row dbgen.Device, 
 }
 
 // recordRefresh notes that the device was seen. With an App Attest
-// counter it also stores it, only while the stored counter is still the
-// one the assertion was checked against: of two refreshes that carry the
-// same assertion, one loses (SEC-025).
+// counter it stores that instead (see recordAssertion).
 func (s *Service) recordRefresh(ctx context.Context, row dbgen.Device, counter *uint32) error {
+	if counter != nil {
+		return s.recordAssertion(ctx, row, *counter)
+	}
 	return s.db.InTx(ctx, storage.Tenant{OrganizationID: storage.ID(row.OrganizationID)}, func(ctx context.Context, tx pgx.Tx) error { //nolint:wrapcheck // InTx wraps its own failures
-		q := dbgen.New(tx)
-		if counter == nil {
-			if err := q.TouchDevice(ctx, row.ID); err != nil {
-				return fmt.Errorf("device: %w", err)
-			}
-			return nil
+		if err := dbgen.New(tx).TouchDevice(ctx, row.ID); err != nil {
+			return fmt.Errorf("device: %w", err)
 		}
-		changed, err := q.AdvanceAppAttestCounter(ctx, dbgen.AdvanceAppAttestCounterParams{
-			ID: row.ID, Previous: row.AppAttestCounter, Counter: int64(*counter),
+		return nil
+	})
+}
+
+// recordAssertion stores the counter of a verified App Attest assertion,
+// only while the stored counter is still the one the assertion was checked
+// against: of two requests that carry the same assertion, one loses
+// (SEC-025).
+func (s *Service) recordAssertion(ctx context.Context, row dbgen.Device, counter uint32) error {
+	return s.db.InTx(ctx, storage.Tenant{OrganizationID: storage.ID(row.OrganizationID)}, func(ctx context.Context, tx pgx.Tx) error { //nolint:wrapcheck // InTx wraps its own failures
+		changed, err := dbgen.New(tx).AdvanceAppAttestCounter(ctx, dbgen.AdvanceAppAttestCounterParams{
+			ID: row.ID, Previous: row.AppAttestCounter, Counter: int64(counter),
 		})
 		if err != nil {
 			return fmt.Errorf("device: %w", err)

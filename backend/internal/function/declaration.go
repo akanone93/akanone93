@@ -53,7 +53,7 @@ type Declaration struct {
 	// Assurance is the level a device must hold; empty means the
 	// environment's defaultFunctionAssurance applies (SEC-007).
 	Assurance string `json:"assurance"`
-	// Attestation requires a fresh attestation of the device.
+	// Attestation requires platform evidence bound to each request (FN-020).
 	Attestation bool `json:"attestation"`
 	// SCA requires strong customer authentication (SEC-027).
 	SCA bool `json:"sca"`

@@ -16,6 +16,7 @@ import (
 	"connectrpc.com/connect"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 
+	"github.com/nightCode42/plux3/backend/internal/attest/binding"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/fnpb"
 	"github.com/nightCode42/plux3/backend/internal/fnpb/fnpbconnect"
@@ -174,18 +175,35 @@ func (c *counter) count(_ context.Context, key string, _ time.Duration) (int64, 
 	return c.n[key], nil
 }
 
-type fakeAttest struct{ err error }
-
-func (f fakeAttest) RequireFreshAttestation(context.Context, device.Identity) error { return f.err }
-
-type fakeSCA struct {
-	err    error
-	proofs []function.SCAProof
+// fakeAttest records the evidence it was asked to verify.
+type fakeAttest struct {
+	err   error
+	asked *[]device.InvocationEvidence
 }
 
-func (f *fakeSCA) VerifyInvocation(_ context.Context, _ device.Identity, p function.SCAProof) error {
-	f.proofs = append(f.proofs, p)
+func (f fakeAttest) VerifyInvocationEvidence(_ context.Context, _ device.Identity, e device.InvocationEvidence) error {
+	if f.asked != nil {
+		*f.asked = append(*f.asked, e)
+	}
 	return f.err
+}
+
+type fakeSCA struct {
+	err       error
+	proofs    []function.SCAProof
+	lifetimes []time.Duration
+	asked     []string
+}
+
+func (f *fakeSCA) VerifyInvocation(_ context.Context, _ device.Identity, p function.SCAProof, lifetime time.Duration) error {
+	f.proofs = append(f.proofs, p)
+	f.lifetimes = append(f.lifetimes, lifetime)
+	return f.err
+}
+
+func (f *fakeSCA) CreateInvocationChallenge(_ context.Context, _ device.Identity, fn string, version int32, inputSHA256, _ []byte, lifetime time.Duration) (function.SCAChallenge, error) {
+	f.asked = append(f.asked, fmt.Sprintf("%s@%d:%x:%s", fn, version, inputSHA256, lifetime))
+	return function.SCAChallenge{ID: "ch"}, f.err
 }
 
 type fakeUsers struct {
@@ -354,30 +372,81 @@ func TestInvokeAssurance_FN_020(t *testing.T) {
 	}
 }
 
-// Verifies: FN-020, SEC-004.
-// A function that declares attestation runs only for a device that
-// attested recently; with no way to check, it is refused.
+// Verifies: FN-020, SEC-003, SEC-004.
+// A function that declares attestation runs only with platform evidence
+// the verifier accepts, bound to the function, the version, the input and
+// the DPoP proof's identifier; one that does not declare it needs none,
+// and a server that cannot verify refuses.
 func TestInvokeAttestation_FN_020(t *testing.T) {
 	t.Parallel()
-	stale := plxerr.New(plxerr.ReattestationRequired, "stale")
-	r := newRig(t, func(_ *rig, o *function.InvokerOptions) { o.Attestations = fakeAttest{err: stale} })
+	ctx := context.Background()
+	var asked []device.InvocationEvidence
+	failed := plxerr.New(plxerr.AttestationFailed, "bad evidence")
+	r := newRig(t, func(_ *rig, o *function.InvokerOptions) { o.Attestations = fakeAttest{err: failed, asked: &asked} })
 	r.cat.add("attested.fn", 1, function.PlacementServer, function.Declaration{Attestation: true})
 	r.cat.add("plain.fn", 1, function.PlacementServer, function.Declaration{})
-	if _, err := r.call("attested.fn", 1, `{}`); code(err) != plxerr.ReattestationRequired {
-		t.Errorf("a stale attestation: %v", err)
+	call := function.Call{Function: "attested.fn", Version: 1, Input: []byte(`{"a":1}`), AppAttestAssertion: []byte("assertion"), PlayIntegrityToken: "token"}
+	if _, err := r.inv.Invoke(ctx, function.Caller{Device: r.dev, ProofID: "jti-1"}, call); code(err) != plxerr.AttestationFailed {
+		t.Errorf("evidence the verifier refuses: %v", err)
 	}
-	if _, err := r.call("plain.fn", 1, `{}`); err != nil {
-		t.Errorf("a function without the flag: %v", err)
+	if len(asked) != 1 {
+		t.Fatalf("evidence asked %d times", len(asked))
+	}
+	want := binding.InvocationHash("attested.fn", 1, []byte(`{"a":1}`), "jti-1")
+	if asked[0].Binding != want || string(asked[0].AppAttestAssertion) != "assertion" || asked[0].PlayIntegrityToken != "token" {
+		t.Errorf("the verifier was asked %+v, want the binding %x", asked[0], want)
+	}
+	if r.runner.calls() != 0 {
+		t.Error("the runner ran with refused evidence")
+	}
+	if _, err := r.inv.Invoke(ctx, function.Caller{Device: r.dev}, call); code(err) != plxerr.AttestationFailed || len(asked) != 1 {
+		t.Errorf("a request with no DPoP proof identifier: %v", err)
+	}
+	if _, err := r.call("plain.fn", 1, `{}`); err != nil || len(asked) != 1 {
+		t.Errorf("a function without the flag asked for evidence: %v", err)
 	}
 	none := newRig(t, func(_ *rig, o *function.InvokerOptions) { o.Attestations = nil })
 	none.cat.add("attested.fn", 1, function.PlacementServer, function.Declaration{Attestation: true})
-	if _, err := none.call("attested.fn", 1, `{}`); code(err) != plxerr.ReattestationRequired {
-		t.Errorf("no checker: %v", err)
+	if _, err := none.inv.Invoke(ctx, function.Caller{Device: none.dev, ProofID: "jti"}, call); code(err) != plxerr.AttestationUnavailable {
+		t.Errorf("no verifier: %v", err)
 	}
 	ok := newRig(t, nil)
 	ok.cat.add("attested.fn", 1, function.PlacementServer, function.Declaration{Attestation: true})
-	if _, err := ok.call("attested.fn", 1, `{}`); err != nil {
-		t.Errorf("a fresh attestation: %v", err)
+	if _, err := ok.inv.Invoke(ctx, function.Caller{Device: ok.dev, ProofID: "jti"}, call); err != nil {
+		t.Errorf("accepted evidence: %v", err)
+	}
+}
+
+// Verifies: FN-020, SEC-027.
+// A challenge is issued only for a pinned function that declares sca, for
+// the hash of the input and the lifetime of the registry.
+func TestInvokeChallenge_FN_020(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	r := newRig(t, nil)
+	r.cat.add("sca.fn", 1, function.PlacementServer, function.Declaration{SCA: true})
+	r.cat.add("plain.fn", 1, function.PlacementServer, function.Declaration{})
+	hash := sha256.Sum256([]byte(`{"a":1}`))
+	req := function.ChallengeRequest{Function: "sca.fn", Version: 1, InputSHA256: hash[:], Summary: []byte(`{"summary":"Pay"}`)}
+	if c, err := r.inv.CreateChallenge(ctx, r.dev, req); err != nil || c.ID != "ch" {
+		t.Fatalf("a challenge: %+v %v", c, err)
+	}
+	if want := fmt.Sprintf("sca.fn@1:%x:5m0s", hash); len(r.sca.asked) != 1 || r.sca.asked[0] != want {
+		t.Errorf("asked %v, want %s", r.sca.asked, want)
+	}
+	req.Function = "plain.fn"
+	if _, err := r.inv.CreateChallenge(ctx, r.dev, req); code(err) != plxerr.PreconditionFailed {
+		t.Errorf("a function without sca: %v", err)
+	}
+	req.Function = "sca.nope"
+	if _, err := r.inv.CreateChallenge(ctx, r.dev, req); code(err) != plxerr.FunctionNotFound {
+		t.Errorf("an unknown function: %v", err)
+	}
+	none := newRig(t, func(_ *rig, o *function.InvokerOptions) { o.SCA = nil })
+	none.cat.add("sca.fn", 1, function.PlacementServer, function.Declaration{SCA: true})
+	req.Function = "sca.fn"
+	if _, err := none.inv.CreateChallenge(ctx, none.dev, req); code(err) != plxerr.TransactionRequiresGateway {
+		t.Errorf("no verifier: %v", err)
 	}
 }
 
@@ -403,6 +472,9 @@ func TestInvokeSCA_FN_020(t *testing.T) {
 	r.sca.err = nil
 	if _, err := r.inv.Invoke(ctx, c, function.Call{Function: "sca.fn", Version: 1, Input: []byte(`{"a":1}`), ChallengeID: "c2", Signature: []byte("s")}); err != nil {
 		t.Fatalf("a good signature: %v", err)
+	}
+	if got := r.sca.lifetimes[len(r.sca.lifetimes)-1]; got != 5*time.Minute {
+		t.Errorf("challenge lifetime = %v, want sca.challengeLifetime", got)
 	}
 	if p := r.sca.proofs[len(r.sca.proofs)-1]; p.Function != "sca.fn" || p.Version != 1 || string(p.Input) != `{"a":1}` || p.ChallengeID != "c2" {
 		t.Errorf("proof = %+v", p)

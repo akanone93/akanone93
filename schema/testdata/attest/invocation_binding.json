@@ -1,0 +1,32 @@
+{
+  "comment": "SHA-256(\"plux-fn-invoke-v1\" || function || \"@\" || uint32be(version) || SHA-256(input) || jti); FN-020, SEC-004. The App Attest client data hash and, base64url without padding, the Play Integrity requestHash. Shared by the Go and Dart tests.",
+  "vectors": [
+    {
+      "name": "with input",
+      "function": "payments.charge",
+      "version": 3,
+      "input": "{\"amount\":\"12.50\"}",
+      "jti": "jti-0001",
+      "hashHex": "ab0092a6a2ae227d5393474990b10e7a268aafafff9f238e6fb7609c9731af56",
+      "requestHash": "qwCSpqKuIn1Tk0dJkLEOeiaKr6__nyOOb7dgnJcxr1Y"
+    },
+    {
+      "name": "empty input",
+      "function": "payments.charge",
+      "version": 3,
+      "input": "",
+      "jti": "jti-0001",
+      "hashHex": "d156b4cffe4c95e115b3f41a04e4d5bc438cfdd59b3307f1e76514158c4d4b51",
+      "requestHash": "0Va0z_5MleEVs_QaBOTVvEOM_dWbMwfx52UUFYxNS1E"
+    },
+    {
+      "name": "two-digit version",
+      "function": "ledger.post",
+      "version": 12,
+      "input": "{\"a\":1}",
+      "jti": "Yq3_9x",
+      "hashHex": "9cfae0d8a847c367ef0cff4914f14cf520ebc028cd4e97f0f90d7668c7f75872",
+      "requestHash": "nPrg2KhHw2fvDP9JFPFM9SDrwCjNTpfw-Q12aMf3WHI"
+    }
+  ]
+}

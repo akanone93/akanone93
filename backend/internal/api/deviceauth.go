@@ -76,6 +76,18 @@ type deviceKey struct{}
 // proofKey carries the verified proof of a proof-only call.
 type proofKey struct{}
 
+// proofIDKey carries the identifier of the DPoP proof of a call with an
+// access token.
+type proofIDKey struct{}
+
+// ProofIDFrom returns the jti of the verified DPoP proof of a device call.
+// The replay check has made it single-use, which is what binds the
+// platform evidence of a function invocation to this request (FN-020).
+func ProofIDFrom(ctx context.Context) (string, bool) {
+	id, ok := ctx.Value(proofIDKey{}).(string)
+	return id, ok && id != ""
+}
+
 // DeviceFrom returns the authenticated device, when there is one.
 func DeviceFrom(ctx context.Context) (device.Identity, bool) {
 	d, ok := ctx.Value(deviceKey{}).(device.Identity)
@@ -180,7 +192,7 @@ func DeviceAuthentication(a DeviceAuth) Around {
 
 // deviceCall authenticates a call made with an access token and runs it.
 func (a DeviceAuth) deviceCall(ctx context.Context, c Call, next func(context.Context) error) error {
-	d, err := a.authenticate(ctx, c)
+	d, proof, err := a.authenticate(ctx, c)
 	if err != nil {
 		return a.refuse(c, err)
 	}
@@ -193,11 +205,12 @@ func (a DeviceAuth) deviceCall(ctx context.Context, c Call, next func(context.Co
 			return err
 		}
 	}
+	ctx = context.WithValue(ctx, proofIDKey{}, proof.JTI)
 	return next(context.WithValue(ctx, deviceKey{}, d))
 }
 
 // authenticate checks the token and the proof of a device call.
-func (a DeviceAuth) authenticate(ctx context.Context, c Call) (device.Identity, error) {
+func (a DeviceAuth) authenticate(ctx context.Context, c Call) (device.Identity, dpop.Proof, error) {
 	return a.authenticateWith(ctx, c.Header, proofMethod, a.url(c.Procedure))
 }
 
@@ -215,7 +228,7 @@ func (a DeviceAuth) url(path string) string {
 // caller's to apply.
 func (a DeviceAuth) AuthenticateRequest(ctx context.Context, w http.ResponseWriter, r *http.Request) (device.Identity, error) {
 	w.Header().Set(nonceHeader, a.Nonces.Current())
-	d, err := a.authenticateWith(ctx, r.Header, r.Method, a.url(r.URL.EscapedPath()))
+	d, _, err := a.authenticateWith(ctx, r.Header, r.Method, a.url(r.URL.EscapedPath()))
 	if err != nil {
 		return device.Identity{}, a.refuse(Call{ResponseHeader: w.Header()}, err)
 	}
@@ -223,57 +236,57 @@ func (a DeviceAuth) AuthenticateRequest(ctx context.Context, w http.ResponseWrit
 }
 
 // authenticateWith checks the token and the proof of a request made with
-// the method to the URL.
-func (a DeviceAuth) authenticateWith(ctx context.Context, h http.Header, method, url string) (device.Identity, error) {
+// the method to the URL, and returns the verified proof with the device.
+func (a DeviceAuth) authenticateWith(ctx context.Context, h http.Header, method, url string) (device.Identity, dpop.Proof, error) {
 	token, err := dpopToken(h)
 	if err != nil {
-		return device.Identity{}, err
+		return device.Identity{}, dpop.Proof{}, err
 	}
 	rawProof, err := proofOf(h)
 	if err != nil {
-		return device.Identity{}, err
+		return device.Identity{}, dpop.Proof{}, err
 	}
 	claims, err := a.Tokens.VerifyFor(ctx, token, a.production)
 	if err != nil {
-		return device.Identity{}, err //nolint:wrapcheck // a domain error
+		return device.Identity{}, dpop.Proof{}, err //nolint:wrapcheck // a domain error
 	}
 	if claims.JKT == "" {
-		return device.Identity{}, plxerr.New(plxerr.TokenBindingMismatch, "access token is not bound to a device key")
+		return device.Identity{}, dpop.Proof{}, plxerr.New(plxerr.TokenBindingMismatch, "access token is not bound to a device key")
 	}
 	// The proof's key is checked against the token's binding before
 	// anything else in the proof is trusted (ADR-0012).
 	window, fallback := a.Window, a.FallbackWindow
 	if a.Windows != nil {
 		if window, fallback, err = a.Windows(ctx, claims.AppID, claims.Environment); err != nil {
-			return device.Identity{}, err
+			return device.Identity{}, dpop.Proof{}, err
 		}
 	}
 	expect := dpop.Expect{Method: method, URL: url, AccessToken: token, Window: window}
 	expect.JKT = claims.JKT
 	proof, err := a.Proofs.Verify(rawProof, expect)
 	if err != nil {
-		return device.Identity{}, err //nolint:wrapcheck // a domain error
+		return device.Identity{}, dpop.Proof{}, err //nolint:wrapcheck // a domain error
 	}
 	policy := a.Replay.Policy()
 	if a.ReplayPolicy != nil {
 		if policy, err = a.ReplayPolicy(ctx, claims.AppID, claims.Environment); err != nil {
-			return device.Identity{}, err
+			return device.Identity{}, dpop.Proof{}, err
 		}
 	}
 	if err := a.checkReplay(ctx, policy, proof, window, fallback); err != nil {
-		return device.Identity{}, err
+		return device.Identity{}, dpop.Proof{}, err
 	}
 	revoked, err := a.Devices.IsRevoked(ctx, claims.JKT)
 	if err != nil {
-		return device.Identity{}, err //nolint:wrapcheck // a domain error
+		return device.Identity{}, dpop.Proof{}, err //nolint:wrapcheck // a domain error
 	}
 	if revoked {
-		return device.Identity{}, plxerr.New(plxerr.DeviceRevoked, "the device was revoked")
+		return device.Identity{}, dpop.Proof{}, plxerr.New(plxerr.DeviceRevoked, "the device was revoked")
 	}
 	return device.Identity{
 		DeviceID: claims.DeviceID, OrganizationID: claims.OrganizationID, AppID: claims.AppID,
 		EnvironmentID: claims.Environment, HostBuild: claims.HostBuild, Assurance: claims.Assurance,
-	}, nil
+	}, proof, nil
 }
 
 // authenticateProof checks the proof of a call that carries no token and

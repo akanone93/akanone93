@@ -14,6 +14,7 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
+	"github.com/nightCode42/plux3/backend/internal/attest/binding"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/fnpb"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -46,10 +47,11 @@ type Runner interface {
 	Run(ctx context.Context, req *fnpb.FunctionRunnerServiceInvokeRequest) (*fnpb.FunctionRunnerServiceInvokeResponse, error)
 }
 
-// Attestations checks that a device attested recently (FN-020);
+// Attestations verifies the per-request platform evidence of an
+// invocation that declares `attestation` (FN-020, SEC-003, SEC-004);
 // *device.Service is one.
 type Attestations interface {
-	RequireFreshAttestation(ctx context.Context, d device.Identity) error
+	VerifyInvocationEvidence(ctx context.Context, d device.Identity, e device.InvocationEvidence) error
 }
 
 // SCAProof is what a device presents to confirm an invocation that
@@ -62,10 +64,28 @@ type SCAProof struct {
 	Signature   []byte
 }
 
-// SCAVerifier verifies the strong customer authentication of an
-// invocation.
+// SCAChallenge is a challenge for the device to sign (SEC-027): it signs
+// Bytes followed by Summary.
+type SCAChallenge struct {
+	ID        string
+	Bytes     []byte
+	ExpiresAt time.Time
+	// Summary is the canonical JSON the challenge is bound to: what the
+	// user is shown, with the function, the version and the input hash.
+	Summary []byte
+}
+
+// SCAVerifier issues and verifies the strong customer authentication of
+// an invocation. A function invocation is a transaction whose operation is
+// the function and its version and whose bound body is the input
+// (SEC-027, SEC-028); *gateway.SCA backs it through the server package.
 type SCAVerifier interface {
-	VerifyInvocation(ctx context.Context, d device.Identity, p SCAProof) error
+	// CreateInvocationChallenge issues the challenge for an input, given
+	// by its SHA-256, and the summary the device shows the user.
+	CreateInvocationChallenge(ctx context.Context, d device.Identity, function string, version int32, inputSHA256, summary []byte, lifetime time.Duration) (SCAChallenge, error)
+	// VerifyInvocation spends the challenge a call names and checks the
+	// signature and that the input is the one the user confirmed.
+	VerifyInvocation(ctx context.Context, d device.Identity, p SCAProof, lifetime time.Duration) error
 }
 
 // Users verifies the user token a device presents and returns the user's
@@ -151,6 +171,10 @@ type Caller struct {
 	UserToken string
 	// Traceparent is the W3C trace context of the request (FN-032).
 	Traceparent string
+	// ProofID is the jti of the request's DPoP proof, which the replay
+	// check has made single-use; the platform evidence of an invocation
+	// is bound to it (FN-020).
+	ProofID string
 }
 
 // Call is one invocation a device asks for (FN-020).
@@ -161,6 +185,12 @@ type Call struct {
 	IdempotencyKey string
 	ChallengeID    string
 	Signature      []byte
+	// AppAttestAssertion is an iOS device's assertion over the invocation's
+	// binding, and PlayIntegrityToken an Android device's token bound to
+	// it; the function declares `attestation` to require one (FN-020,
+	// SEC-003, SEC-004).
+	AppAttestAssertion []byte
+	PlayIntegrityToken string
 }
 
 // BusinessError is an error the function declared itself (FN-022).
@@ -181,8 +211,8 @@ type Result struct {
 
 // Invoke runs a server function for a device (FN-020). Every check runs
 // before the module does, cheapest first: the device's rate, the pin by an
-// active release, the placement, the assurance, the attestation, the
-// idempotency key, then SCA. A device-placed version is refused, and no
+// active release, the placement, the assurance, the platform evidence of
+// the request, the idempotency key, then SCA. A device-placed version is refused, and no
 // call accepts a result from a device (FN-054).
 func (i *Invoker) Invoke(ctx context.Context, c Caller, call Call) (Result, error) {
 	d := c.Device
@@ -198,6 +228,9 @@ func (i *Invoker) Invoke(ctx context.Context, c Caller, call Call) (Result, erro
 	}
 	inv, err := i.authorised(ctx, d, call)
 	if err != nil {
+		return Result{}, err
+	}
+	if err := i.attested(ctx, c, call, inv.Declaration); err != nil {
 		return Result{}, err
 	}
 	for _, r := range []struct {
@@ -229,8 +262,7 @@ func (i *Invoker) rate(ctx context.Context, key string, limit int64) error {
 }
 
 // authorised checks everything that needs neither the idempotency record
-// nor the signature: the pin, the placement, the assurance and the
-// attestation.
+// nor the signature: the pin, the placement and the assurance.
 func (i *Invoker) authorised(ctx context.Context, d device.Identity, call Call) (Invocable, error) {
 	if call.Version <= 0 || ValidateName(call.Function) != nil {
 		return Invocable{}, plxerr.New(plxerr.FunctionNotFound, "no such function version")
@@ -253,15 +285,29 @@ func (i *Invoker) authorised(ctx context.Context, d device.Identity, call Call) 
 	if err := i.checkAssurance(ctx, d, inv.Declaration); err != nil {
 		return Invocable{}, err
 	}
-	if inv.Declaration.Attestation {
-		if i.o.Attestations == nil {
-			return Invocable{}, plxerr.New(plxerr.ReattestationRequired, "this server cannot check the freshness of an attestation")
-		}
-		if err := i.o.Attestations.RequireFreshAttestation(ctx, d); err != nil {
-			return Invocable{}, err //nolint:wrapcheck // a domain error
-		}
-	}
 	return inv, nil
+}
+
+// attested requires a function that declares `attestation` to carry fresh
+// platform evidence bound to this request: an App Attest assertion or a
+// Play Integrity token over the function, the version, the input and the
+// DPoP proof's identifier (FN-020, SEC-003, SEC-004). A function that does
+// not declare it needs none.
+func (i *Invoker) attested(ctx context.Context, c Caller, call Call, decl Declaration) error {
+	if !decl.Attestation {
+		return nil
+	}
+	if i.o.Attestations == nil {
+		return plxerr.New(plxerr.AttestationUnavailable, "this server cannot verify the attestation of a request")
+	}
+	if c.ProofID == "" {
+		return plxerr.New(plxerr.AttestationFailed, "the request carries no DPoP proof to bind the attestation to")
+	}
+	return i.o.Attestations.VerifyInvocationEvidence(ctx, c.Device, device.InvocationEvidence{ //nolint:wrapcheck // a domain error
+		Binding:            binding.InvocationHash(call.Function, uint32(call.Version), call.Input, c.ProofID), //nolint:gosec // versions are positive
+		AppAttestAssertion: call.AppAttestAssertion,
+		PlayIntegrityToken: call.PlayIntegrityToken,
+	})
 }
 
 // checkAssurance requires the assurance level the function declares, or
@@ -336,7 +382,7 @@ func (i *Invoker) confirmed(ctx context.Context, c Caller, call Call, inv Invoca
 		}
 		if err := i.o.SCA.VerifyInvocation(ctx, c.Device, SCAProof{
 			Function: call.Function, Version: call.Version, Input: call.Input, ChallengeID: call.ChallengeID, Signature: call.Signature,
-		}); err != nil {
+		}, challengeLifetime(lim)); err != nil {
 			return Result{}, err //nolint:wrapcheck // a domain error
 		}
 	}
@@ -352,6 +398,49 @@ func (i *Invoker) confirmed(ctx context.Context, c Caller, call Call, inv Invoca
 		return Result{}, err
 	}
 	return resultOf(resp, call.Version)
+}
+
+// challengeLifetime is sca.challengeLifetime of an app (LIM-001).
+func challengeLifetime(lim limits.Set) time.Duration {
+	return time.Duration(lim.Get(limits.ScaChallengeLifetime)) * time.Millisecond
+}
+
+// ChallengeRequest asks for the challenge of a function invocation.
+type ChallengeRequest struct {
+	Function string
+	Version  int32
+	// InputSHA256 is the SHA-256 of the input the user confirms.
+	InputSHA256 []byte
+	// Summary is the canonical JSON object of strings the device shows the
+	// user.
+	Summary []byte
+}
+
+// CreateChallenge issues the SCA challenge of a function invocation
+// (FN-020, SEC-027). The function must be pinned, server-placed, within
+// the device's assurance and declare `sca`; a call that confirms an
+// invocation the function does not ask to confirm is a mistake the device
+// learns of here rather than by a challenge nobody checks.
+func (i *Invoker) CreateChallenge(ctx context.Context, d device.Identity, r ChallengeRequest) (SCAChallenge, error) {
+	inv, err := i.authorised(ctx, d, Call{Function: r.Function, Version: r.Version})
+	if err != nil {
+		return SCAChallenge{}, err
+	}
+	if !inv.Declaration.SCA {
+		return SCAChallenge{}, plxerr.New(plxerr.PreconditionFailed, "the function %s does not declare sca", r.Function)
+	}
+	if i.o.SCA == nil {
+		return SCAChallenge{}, plxerr.New(plxerr.TransactionRequiresGateway, "this server cannot verify transactions")
+	}
+	lim, err := i.o.Limits(ctx, d.OrganizationID, d.AppID)
+	if err != nil {
+		return SCAChallenge{}, err
+	}
+	c, err := i.o.SCA.CreateInvocationChallenge(ctx, d, r.Function, r.Version, r.InputSHA256, r.Summary, challengeLifetime(lim))
+	if err != nil {
+		return SCAChallenge{}, err //nolint:wrapcheck // a domain error
+	}
+	return c, nil
 }
 
 // userClaims verifies the user token and returns the claims the function
