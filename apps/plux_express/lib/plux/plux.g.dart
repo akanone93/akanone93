@@ -55,6 +55,10 @@ abstract final class PluxScreens {
   static PluxScreen<void> courier() =>
       PluxScreen<void>._('courier', {}, (_) {});
 
+  /// The page `instalments`.
+  static PluxScreen<void> instalments() =>
+      PluxScreen<void>._('instalments', {}, (_) {});
+
   /// The page `order`.
   static PluxScreen<void> order({required String orderId}) =>
       PluxScreen<void>._('order', {'orderId': orderId}, (_) {});

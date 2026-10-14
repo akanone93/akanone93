@@ -25,7 +25,6 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/nightCode42/plux3/backend/internal/bundle"
-	"github.com/nightCode42/plux3/backend/internal/compiler"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/jcs"
@@ -200,7 +199,10 @@ func (e env) doctorChecks(c *common, project bool) []check {
 
 // validateDir compiles a project and reports whether it has errors.
 func validateDir(dir string) error {
-	res := compiler.Compile(os.DirFS(dir), options(false))
+	res, err := compileProject(dir, false, nil)
+	if err != nil {
+		return err
+	}
 	if res.Diagnostics.HasErrors() {
 		return fmt.Errorf("%d errors; run plux validate", res.Diagnostics.Count(plxerr.SeverityError))
 	}
@@ -225,8 +227,10 @@ func (e env) ready(ctx context.Context, server string) error {
 }
 
 // readProject reads the project's documents: every file except plux.json,
-// hidden ones and Plux Test scenarios, which plux test runs locally and the
-// server does not keep (TST-001).
+// hidden ones, Plux Test scenarios, which plux test runs locally and the
+// server does not keep (TST-001), and the crate and build output of a
+// function, which plux fn deploy sends instead; only functions/<name>/
+// function.json is a document.
 func readProject(dir string) (map[string][]byte, error) {
 	out := map[string][]byte{}
 	err := fs.WalkDir(os.DirFS(dir), ".", func(path string, d fs.DirEntry, err error) error {
@@ -234,6 +238,12 @@ func readProject(dir string) (map[string][]byte, error) {
 			return err
 		}
 		if strings.HasPrefix(d.Name(), ".") && path != "." {
+			if d.IsDir() {
+				return fs.SkipDir
+			}
+			return nil
+		}
+		if inFunctionCrate(path) {
 			if d.IsDir() {
 				return fs.SkipDir
 			}
@@ -253,6 +263,13 @@ func readProject(dir string) (map[string][]byte, error) {
 		return nil, fmt.Errorf("read the project: %w", err)
 	}
 	return out, nil
+}
+
+// inFunctionCrate reports whether path is part of a function's crate or its
+// build output: below functions/<name>/ and not the document function.json.
+func inFunctionCrate(path string) bool {
+	parts := strings.Split(path, "/")
+	return len(parts) >= 3 && parts[0] == "functions" && !(len(parts) == 3 && parts[2] == "function.json")
 }
 
 // isScenario reports whether path names a Plux Test scenario file.

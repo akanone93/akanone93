@@ -150,7 +150,10 @@ func hostPackages(list, projectDir string) ([]string, error) {
 		if err != nil || !st.IsDir() {
 			return nil, usageError(projectDir + " is not a directory")
 		}
-		res := compiler.Compile(os.DirFS(projectDir), options(false))
+		res, err := compileProject(projectDir, false, nil)
+		if err != nil {
+			return nil, err
+		}
 		if i := slices.IndexFunc(res.Diagnostics, func(d plxerr.Diagnostic) bool { return d.Severity == plxerr.SeverityError }); i >= 0 {
 			return nil, fmt.Errorf("the project in %s has errors, the first %s: run plux validate %s", projectDir, res.Diagnostics[i], projectDir)
 		}

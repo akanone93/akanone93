@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","description":"The fee.","properties":{"fee":{"description":"Fee as a decimal string with two decimal places.","type":"string"}},"required":["fee"],"title":"Output","type":"object"}
