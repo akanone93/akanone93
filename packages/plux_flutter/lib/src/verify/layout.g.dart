@@ -178,6 +178,8 @@ const List<TableLayout> tableLayouts = [
     FieldLayout('function', 1, FieldKind.string, 0, 0, -1, required: false),
     FieldLayout('alias', 2, FieldKind.string, 0, 0, -1, required: false),
     FieldLayout('version', 3, FieldKind.scalar, 4, 4, -1, required: false),
+    FieldLayout('requires_attestation', 4, FieldKind.scalar, 1, 1, -1, required: false),
+    FieldLayout('requires_sca', 5, FieldKind.scalar, 1, 1, -1, required: false),
   ]),
   // 24
   TableLayout('Graph', [

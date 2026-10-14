@@ -1192,7 +1192,7 @@ func (u *unit) metaSection(o *out) {
 // pins of its customer domains (SEC-042). 0 when an app declares none.
 func (u *unit) capabilitiesOf(b *flatbuffers.Builder, o *out) flatbuffers.UOffsetT {
 	if o.pl != nil {
-		return capabilitiesTable(b, o.pl.doc.Capabilities, nil, u.grantVersions(o.pl))
+		return capabilitiesTable(b, o.pl.doc.Capabilities, nil, u.grantInfos(o.pl))
 	}
 	c := u.project.App.Doc.Capabilities
 	if c == nil {
@@ -1350,7 +1350,7 @@ func componentEntries(b *flatbuffers.Builder, pl *plugin) flatbuffers.UOffsetT {
 // capabilitiesTable writes what a plugin may use (SEC-080, SEC-102), and
 // for the app also the pins of its customer API domains (SEC-042), by
 // domain and sorted, so equal documents give equal bytes (CMP-002).
-func capabilitiesTable(b *flatbuffers.Builder, c *schema.Capabilities, pins map[string][]string, versions []uint32) flatbuffers.UOffsetT {
+func capabilitiesTable(b *flatbuffers.Builder, c *schema.Capabilities, pins map[string][]string, grants []grantInfo) flatbuffers.UOffsetT {
 	if c == nil {
 		c = &schema.Capabilities{}
 	}
@@ -1363,8 +1363,10 @@ func capabilitiesTable(b *flatbuffers.Builder, c *schema.Capabilities, pins map[
 		fbs.FunctionGrantAddId(b, fbs.CreateUuid(b, hi, lo))
 		fbs.FunctionGrantAddFunction(b, fn)
 		fbs.FunctionGrantAddAlias(b, alias)
-		if i < len(versions) {
-			fbs.FunctionGrantAddVersion(b, versions[i])
+		if i < len(grants) {
+			fbs.FunctionGrantAddVersion(b, grants[i].Version)
+			fbs.FunctionGrantAddRequiresAttestation(b, grants[i].RequiresAttestation)
+			fbs.FunctionGrantAddRequiresSca(b, grants[i].RequiresSCA)
 		}
 		fnOffs[i] = fbs.FunctionGrantEnd(b)
 	}

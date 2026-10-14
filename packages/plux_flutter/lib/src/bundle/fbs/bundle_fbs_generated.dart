@@ -2535,10 +2535,12 @@ class FunctionGrant {
   String? get function => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
   String? get alias => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 8);
   int get version => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 10, 0);
+  bool get requiresAttestation => const fb.BoolReader().vTableGet(_bc, _bcOffset, 12, false);
+  bool get requiresSca => const fb.BoolReader().vTableGet(_bc, _bcOffset, 14, false);
 
   @override
   String toString() {
-    return 'FunctionGrant{id: ${id}, function: ${function}, alias: ${alias}, version: ${version}}';
+    return 'FunctionGrant{id: ${id}, function: ${function}, alias: ${alias}, version: ${version}, requiresAttestation: ${requiresAttestation}, requiresSca: ${requiresSca}}';
   }
 }
 
@@ -2556,7 +2558,7 @@ class FunctionGrantBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(4);
+    fbBuilder.startTable(6);
   }
 
   int addId(int offset) {
@@ -2575,6 +2577,14 @@ class FunctionGrantBuilder {
     fbBuilder.addUint32(3, version);
     return fbBuilder.offset;
   }
+  int addRequiresAttestation(bool? requiresAttestation) {
+    fbBuilder.addBool(4, requiresAttestation);
+    return fbBuilder.offset;
+  }
+  int addRequiresSca(bool? requiresSca) {
+    fbBuilder.addBool(5, requiresSca);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -2586,17 +2596,23 @@ class FunctionGrantObjectBuilder extends fb.ObjectBuilder {
   final String? _function;
   final String? _alias;
   final int? _version;
+  final bool? _requiresAttestation;
+  final bool? _requiresSca;
 
   FunctionGrantObjectBuilder({
     UuidObjectBuilder? id,
     String? function,
     String? alias,
     int? version,
+    bool? requiresAttestation,
+    bool? requiresSca,
   })
       : _id = id,
         _function = function,
         _alias = alias,
-        _version = version;
+        _version = version,
+        _requiresAttestation = requiresAttestation,
+        _requiresSca = requiresSca;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -2605,13 +2621,15 @@ class FunctionGrantObjectBuilder extends fb.ObjectBuilder {
         : fbBuilder.writeString(_function!);
     final int? aliasOffset = _alias == null ? null
         : fbBuilder.writeString(_alias!);
-    fbBuilder.startTable(4);
+    fbBuilder.startTable(6);
     if (_id != null) {
       fbBuilder.addStruct(0, _id!.finish(fbBuilder));
     }
     fbBuilder.addOffset(1, functionOffset);
     fbBuilder.addOffset(2, aliasOffset);
     fbBuilder.addUint32(3, _version);
+    fbBuilder.addBool(4, _requiresAttestation);
+    fbBuilder.addBool(5, _requiresSca);
     return fbBuilder.endTable();
   }
 
