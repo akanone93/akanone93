@@ -70,7 +70,7 @@ func signedBuild() Build {
 // deployable.
 func TestDeployable_FN_009_FN_031(t *testing.T) {
 	t.Parallel()
-	if err := checkDeployable(signedBuild()); err != nil {
+	if err := checkDeployable(signedBuild(), true); err != nil {
 		t.Fatalf("a good build: %v", err)
 	}
 	cases := map[string]struct {
@@ -89,7 +89,7 @@ func TestDeployable_FN_009_FN_031(t *testing.T) {
 	for name, c := range cases {
 		b := signedBuild()
 		c.edit(&b)
-		if got := code(checkDeployable(b)); got != c.want {
+		if got := code(checkDeployable(b, true)); got != c.want {
 			t.Errorf("%s: code %v, want %v", name, got, c.want)
 		}
 	}
@@ -230,4 +230,22 @@ func hexString(b []byte) string {
 		out = append(out, digits[c>>4], digits[c&0xf])
 	}
 	return string(out)
+}
+
+// Verifies: FN-031.
+// Outside production a build with a failing stored test case deploys, and
+// the version records that its tests failed; in production it is refused.
+func TestFailingTestsBlockOnlyProduction_FN_031(t *testing.T) {
+	t.Parallel()
+	b := signedBuild()
+	b.TestResults = append(b.TestResults, TestResult{Name: "bad", Passed: false})
+	if err := checkDeployable(b, false); err != nil {
+		t.Errorf("development: %v, want deployable", err)
+	}
+	if testsPassed(b) {
+		t.Error("testsPassed = true for a build with a failing case")
+	}
+	if got := code(checkDeployable(b, true)); got != plxerr.FunctionTestsFailed {
+		t.Errorf("production: %v, want FUNCTION_TESTS_FAILED", got)
+	}
 }

@@ -65,8 +65,8 @@ func grantsOf(res *compiler.Result) []functionGrant {
 // pinFunctions resolves every granted function in the transaction that
 // records the release and stores what it resolved (FN-006). A function
 // that is not deployed in the environment (PLX-7012), an alias that does
-// not exist (PLX-7013) or a version whose tests failed (PLX-7020) refuses
-// the release. Two plugins that reach one function through aliases that
+// not exist (PLX-7013) or, in a production environment, a version whose
+// tests failed (PLX-7020, FN-031) refuses the release. Two plugins that reach one function through aliases that
 // stand for different versions leave the release without one behaviour, so
 // that is refused as well.
 func (s *Service) pinFunctions(ctx context.Context, tx pgx.Tx, env dbgen.Environment, releaseID pgtype.UUID, grants []functionGrant) ([]ReleaseFunction, error) {
@@ -77,7 +77,7 @@ func (s *Service) pinFunctions(ctx context.Context, tx pgx.Tx, env dbgen.Environ
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		if !r.TestsPassed {
+		if !r.TestsPassed && env.Production {
 			return nil, plxerr.New(plxerr.FunctionTestsFailed, "version %d of function %s failed its tests and cannot be released", r.Version, g.name)
 		}
 		if i := slices.IndexFunc(pinned, func(p ReleaseFunction) bool { return p.Name == g.name }); i >= 0 {

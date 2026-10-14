@@ -200,7 +200,9 @@ func TestReleasePinsFunctions_FN_006(t *testing.T) {
 
 // Verifies: FN-006.
 // A release is refused, and nothing of it recorded, when a function it
-// references is not deployed, has no such alias, or failed its tests.
+// references is not deployed or has no such alias. Failing tests refuse a
+// release only in a production environment (FN-031), so the development
+// release here is not refused for them.
 func TestReleaseRefusesUnresolvableFunctions_FN_006(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
@@ -211,7 +213,6 @@ func TestReleaseRefusesUnresolvableFunctions_FN_006(t *testing.T) {
 	}{
 		{"not deployed", [][2]string{{"loans.quote", ""}}, nil, plxerr.FunctionNotFound},
 		{"no such alias", [][2]string{{"loans.quote", "stable"}}, []deployed{{"loans.quote", 1, "server", true, ""}}, plxerr.FunctionAliasNotFound},
-		{"tests failed", [][2]string{{"loans.quote", ""}}, []deployed{{"loans.quote", 1, "server", false, ""}}, plxerr.FunctionTestsFailed},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {

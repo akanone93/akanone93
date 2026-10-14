@@ -52,10 +52,10 @@ func (s *Service) Deploy(ctx context.Context, p auth.Principal, buildID, alias s
 		if err != nil {
 			return err
 		}
-		if err := checkDeployable(build); err != nil {
+		if err := checkDeployable(build, env.Production); err != nil {
 			return err
 		}
-		out, err = s.insertVersion(ctx, tx, p, row, alias)
+		out, err = s.insertVersion(ctx, tx, p, row, alias, testsPassed(build))
 		return err
 	})
 	return out, err
@@ -63,7 +63,7 @@ func (s *Service) Deploy(ctx context.Context, p auth.Principal, buildID, alias s
 
 // insertVersion assigns the next number under the function's lock, stores
 // the version and the alias, and audits the deploy.
-func (s *Service) insertVersion(ctx context.Context, tx pgx.Tx, p auth.Principal, row dbgen.FunctionBuild, alias string) (Version, error) {
+func (s *Service) insertVersion(ctx context.Context, tx pgx.Tx, p auth.Principal, row dbgen.FunctionBuild, alias string, passed bool) (Version, error) {
 	q := dbgen.New(tx)
 	info, err := manifestEntry(row)
 	if err != nil {
@@ -81,7 +81,7 @@ func (s *Service) insertVersion(ctx context.Context, tx pgx.Tx, p auth.Principal
 		Version: next, BuildID: row.ID, Placement: row.Placement, ModuleKey: deref(row.ModuleKey),
 		ModuleSha256: row.ModuleSha256, AbiVersion: derefInt(row.AbiVersion), InputSchema: info.InputSchema,
 		OutputSchema: info.OutputSchema, Provenance: row.Provenance, Statement: row.Statement, Signature: row.Signature,
-		KeyID: deref(row.KeyID), TestsPassed: true, CreatedBy: createdBy(p),
+		KeyID: deref(row.KeyID), TestsPassed: passed, CreatedBy: createdBy(p),
 	})
 	if err != nil {
 		return Version{}, failure(err, "function version")

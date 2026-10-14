@@ -1425,7 +1425,7 @@ plux_fn::function!(calculate_schedule);
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `FN-030` | P7 | MUST | `plux fn test` **MUST** run the function's Rust unit tests natively (`cargo test`) and then run the same test cases against the compiled WASM module — on `wazero` and, for device-placed functions, on the device interpreter — failing if results differ. | SPEC |
+| `FN-030` | P7 | MUST | `plux fn test` **MUST** run the function's Rust unit tests natively (`cargo test`) and then run the same test cases against the compiled WASM module — on `wazero` and, for device-placed functions, on an interpreter: the CLI uses `wazero`'s interpreter as the stand-in for the device engine, which the shared ABI conformance vectors keep equivalent (`FN-015`) — failing if results differ. | SPEC |
 | `FN-031` | P7 | MUST | Test cases (input → expected output or error) **MUST** be storable with the function and runnable in CI and by `plux fn test`; a function with failing tests **MUST NOT** be deployable to production. | SPEC |
 | `FN-032` | P7 | MUST | Per-function metrics (invocations, errors by kind, latency percentiles, memory peak, cache hits) and logs **MUST** be available through the API, the CLI and Prometheus; server invocation traces **MUST** link to the calling device request. | SPEC |
 | `FN-033` | P11 | MUST | Studio **MUST** provide a Rust editor (Monaco) with `rust-analyzer`-backed completion, diagnostics and formatting (served through a language-server bridge in the `worker`), starter templates (loan schedule, fee calculator, eligibility, currency conversion), dependency management and a test runner. | SPEC |

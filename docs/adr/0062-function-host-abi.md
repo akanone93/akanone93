@@ -58,8 +58,9 @@ fresh instance (`FN-010`, `FN-053`), so nothing is freed across the boundary: th
 memory is discarded with it, and the ABI needs no `plux_free`.
 
 **Refusal rules.** A device host refuses a module that imports a server-only function
-(`PLX-7018`); every host refuses an unknown import and an unsupported `plux_abi_version`
-(`PLX-7017`). Refusal happens at load, before any code runs. A capability not granted to a
+(`PLX-7018`); every host refuses an unknown import, an import or export with the wrong
+signature, and a missing required export as an invalid module (`PLX-7018`), and an unsupported
+`plux_abi_version` as `PLX-7017` (maintainer, 2026-10-14). Refusal happens at load, before any code runs. A capability not granted to a
 function returns `-2`, and the SDK maps it to `PLX-7003`.
 
 **WASI shim.** The target is `wasm32-wasip1`, so a module imports a few WASI functions. The

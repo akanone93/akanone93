@@ -36,9 +36,12 @@ func deployPermission(production bool) auth.Permission {
 }
 
 // checkDeployable decides whether a build may become a version: it must
-// have succeeded, carry the builder's signed artifact statement (FN-009)
-// and have passed every stored test case (FN-031).
-func checkDeployable(b Build) error {
+// have succeeded and carry the builder's signed artifact statement
+// (FN-009). In a production environment it must also have passed every
+// stored test case (FN-031); elsewhere a version with failing tests is
+// deployed, marked as such, so that developers can iterate (maintainer,
+// 2026-10-14).
+func checkDeployable(b Build, production bool) error {
 	switch b.State {
 	case BuildSucceeded:
 	case BuildFailed:
@@ -49,12 +52,25 @@ func checkDeployable(b Build) error {
 	if !b.Signed || b.KeyID == "" {
 		return plxerr.New(plxerr.FunctionArtifactSignatureInvalid, "the build carries no signature of the function-artifact key; only artifacts the builder signed can be deployed")
 	}
+	if !production {
+		return nil
+	}
 	for _, r := range b.TestResults {
 		if !r.Passed {
 			return plxerr.New(plxerr.FunctionTestsFailed, "the stored test case %q failed; a function with failing tests cannot be deployed", r.Name)
 		}
 	}
 	return nil
+}
+
+// testsPassed reports whether every stored test case of a build passed.
+func testsPassed(b Build) bool {
+	for _, r := range b.TestResults {
+		if !r.Passed {
+			return false
+		}
+	}
+	return true
 }
 
 // kvUsage is what a function's key-value store holds.
