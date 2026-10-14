@@ -111,11 +111,13 @@ final class BuiltInDatabaseAdapter implements PluxDatabaseAdapter {
           }
           if (result case final Future<R> pending) {
             // Observed in the caller's zone: an error crosses no error zone.
-            caller.run(
-              () => pending.then<void>(
-                (v) => finish(() => done.complete(v)),
-                onError: (Object e, StackTrace s) =>
-                    finish(() => done.completeError(e, s)),
+            unawaited(
+              caller.run(
+                () => pending.then<void>(
+                  (v) => finish(() => done.complete(v)),
+                  onError: (Object e, StackTrace s) =>
+                      finish(() => done.completeError(e, s)),
+                ),
               ),
             );
           } else {
