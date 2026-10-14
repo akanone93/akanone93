@@ -9,7 +9,9 @@
 /// forms' `forms.v1` (ADR-0047) and `forms.sensitive.v1`, `security.secureui.v1`, the device actions' `device.v1`,
 /// confidential bundles' `security.confidential.v1` (SEC-053, ADR-0055),
 /// animation's `anim.v1`, `anim.timelines.v1` and `anim.transitions.v1`
-/// (ANI-001–ANI-006, NAV-010), the local database's `db.v1` (ADR-0049), and
+/// (ANI-001–ANI-006, NAV-010), the local database's `db.v1` (ADR-0049), the
+/// device-function section `section.wasm.v1` when the host registers a
+/// function engine (FN-050, FN-051), and
 /// registry revisions — `widget.<Type>.v<n>`,
 /// `type.<Name>.v<n>`, `enum.<Name>.v<n>` — up to the revision this
 /// runtime's generated registry knows, for widgets it can build.
@@ -22,10 +24,17 @@ import 'package:plux_flutter/src/security/content_key.dart';
 final class RuntimeFeatures {
   /// Creates the answer for a runtime that builds the widgets [canBuild]
   /// accepts; by default, every widget of the registry.
-  RuntimeFeatures({bool Function(String type)? canBuild})
-    : _canBuild = canBuild ?? ((_) => true);
+  RuntimeFeatures({
+    bool Function(String type)? canBuild,
+    this.deviceFunctions = false,
+  }) : _canBuild = canBuild ?? ((_) => true);
 
   final bool Function(String type) _canBuild;
+
+  /// Whether the host registered a function engine (`plux_functions`), so
+  /// this runtime can run the device-placed functions of a bundle's wasm
+  /// section (FN-050, FN-051).
+  final bool deviceFunctions;
 
   static final Map<String, int> _widgets = {
     for (final w in widgetDescriptors) w.type: w.revision,
@@ -108,8 +117,15 @@ final class RuntimeFeatures {
   /// protection, requires it, first in 0.4.0.
   static const Set<String> secureUi = {'security.secureui.v1'};
 
+  /// Device-placed functions (FN-051): a bundle whose plugin calls one
+  /// carries the linked module in a wasm section and requires it. Without
+  /// an engine the bundle is refused before download, as for any feature
+  /// this runtime lacks (BND-008).
+  static const Set<String> functions = {'section.wasm.v1'};
+
   /// Whether [feature] is supported.
   bool supports(String feature) {
+    if (functions.contains(feature)) return deviceFunctions;
     if (forms.contains(feature) ||
         security.contains(feature) ||
         secureUi.contains(feature) ||

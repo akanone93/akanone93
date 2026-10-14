@@ -391,5 +391,21 @@ func TestExampleDeclarationsAreTheFixtures(t *testing.T) {
 		if !reflect.DeepEqual(want, got) {
 			t.Errorf("%s: the artefact declares %v, the %s fixture %v", name, got, fixture, want)
 		}
+		// The fixture's offline build output, which plux validate and build
+		// read (CLI-005), is the module the builder role makes, byte for byte.
+		local, err := os.ReadFile(filepath.Join("..", "..", "..", "schema", "testdata", "documents", fixture, "functions", name, "target", "plux", "module.wasm"))
+		if errors.Is(err, fs.ErrNotExist) {
+			continue // a server function needs no module offline
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		built, err := os.ReadFile(filepath.Join(examplesDir, "modules", exampleModules[name].module, "dist", "module.wasm"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !bytes.Equal(local, built) {
+			t.Errorf("%s: the %s fixture's module.wasm differs from the builder's artefact; rebuild it with plux fn build", name, fixture)
+		}
 	}
 }

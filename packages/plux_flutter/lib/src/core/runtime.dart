@@ -268,7 +268,9 @@ final class PluxRuntime with WidgetsBindingObserver {
       final httpClient =
           config.httpClient ??
           PlatformHttpClients(config.endpoint, pinSet).create;
-      final features = RuntimeFeatures();
+      final features = RuntimeFeatures(
+        deviceFunctions: config.functionEngine != null,
+      );
       final base = config.storageDirectory ?? await platformStorageDirectory();
       final root =
           '$base/${_safe(config.appId)}/${_safe(config.environment)}/${_safe(config.channel)}';
