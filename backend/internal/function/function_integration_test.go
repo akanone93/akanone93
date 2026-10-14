@@ -401,8 +401,16 @@ func TestDeployRefusals_FN_031(t *testing.T) {
 	if b.State != function.BuildSucceeded || len(b.TestResults) != 2 {
 		t.Fatalf("build = %+v", b)
 	}
-	if _, err := w.svc.Deploy(ctx, w.developer, b.ID, ""); code(err) != plxerr.FunctionTestsFailed {
-		t.Errorf("deploying a build with a failing test: %v", err)
+	// FN-031: outside production the version deploys, marked as failing.
+	v, err := w.svc.Deploy(ctx, w.developer, b.ID, "")
+	if err != nil || v.TestsPassed {
+		t.Errorf("deploying a build with a failing test in development: %+v %v", v, err)
+	}
+	// In production the same build is refused.
+	w.builder.set(failing, nil)
+	pb := w.built(t, "production", fnName)
+	if _, err := w.svc.Deploy(ctx, w.owner, pb.ID, ""); code(err) != plxerr.FunctionTestsFailed {
+		t.Errorf("deploying a build with a failing test in production: %v", err)
 	}
 
 	broken := function.BuildOutput{Diagnostics: plxerr.Diagnostics{plxerr.NewDiagnostic(plxerr.FunctionBuildFailed, plxerr.Location{}, "error[E0308]")}}
