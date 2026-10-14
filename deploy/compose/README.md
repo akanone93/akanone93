@@ -1,15 +1,18 @@
 # Compose stack
 
-A complete single-node Plux installation (`DEP-002`): `plux-server` running every role,
-with PostgreSQL, SeaweedFS (the S3 store), Valkey, the OpenTelemetry Collector,
-Prometheus and Grafana beside it. Every image is pinned by digest. Studio joins the stack
+A complete single-node Plux installation (`DEP-002`): `plux-server` running the `api` and
+`worker` roles, with PostgreSQL, SeaweedFS (the S3 store), Valkey, the OpenTelemetry
+Collector, Prometheus and Grafana beside it. The roles that run tenant code are separate
+containers that hold no database, storage or signing credential (`FN-013`, `FN-016`):
+`plux-fnrunner` and `plux-egress` always, `plux-builder` under the `functions` profile (see
+[Function roles](#function-roles)). Every image is pinned by digest. Studio joins the stack
 in P11.
 
 ## Use
 
 | Command | What it does |
 |---|---|
-| `make compose-up` | Generates credentials on first run, builds the server image and starts the stack |
+| `make compose-up` | Generates credentials on first run, builds the server image and starts the stack; `COMPOSE_PROFILES=functions make compose-up` also builds and starts the function builder |
 | `make dev` | The same with hot reload of the server (`compose watch`); on first run seeds an administrator and the loan calculator promoted to `staging` |
 | `make compose-seed` | Starts the stack and seeds it once, without watching |
 | `make compose-test` | Runs the Go integration and end-to-end tests against the stack's PostgreSQL, SeaweedFS and Valkey (`QA-005`) |
@@ -17,8 +20,8 @@ in P11.
 
 Addresses, all bound to `127.0.0.1`: server <https://localhost:8080> (TLS 1.3, see [Development TLS](#development-tls)), Grafana
 <http://localhost:3000>, Prometheus <http://localhost:9090>. The optional profiles
-`keycloak` (an OpenID Connect provider on port 8180) and `ollama` start with
-`docker compose --profile <name> …`.
+`keycloak` (an OpenID Connect provider on port 8180), `ollama` and `functions` (the function
+builder) start with `docker compose --profile <name> …`.
 
 ## Secrets
 
@@ -34,6 +37,97 @@ neither a superuser nor `BYPASSRLS`, so row-level security binds it, and the ser
 to start as a role that it would not bind (`SRV-022`). A stack created before this change
 connects as a superuser and no longer starts: delete `.secrets/` and the volumes
 (`docker compose -f deploy/compose/compose.yaml down -v`) and run `make compose-up` again.
+
+## Function roles
+
+Server functions (`FN-020`) run on three more roles of the same binary, each in its own
+container so that a compromise of tenant code or of a compiler reaches nothing worth
+stealing (`ADR-0063`, `ADR-0064`). None has a database URL, an object-store key, a keys
+volume or the Vault token; each mounts only its own configuration and its own certificate.
+
+| Service | Role | Listens on | Image | Reaches |
+|---|---|---|---|---|
+| `plux-fnrunner` | `fnrunner`: runs function modules on wazero (`FN-009` to `FN-013`) | `:8445`, mutual TLS | `plux-server:local` | `plux-server:8443` (modules and key-value store), `plux-egress:8444` |
+| `plux-egress` | `egress`: CONNECT-only proxy with the per-function domain allowlist and the SSRF rules (`FN-017`) | `:8444`, mutual TLS | `plux-server:local` | the internet, ports 443 and 80 |
+| `plux-builder` | `builder`: compiles uploaded Rust sources (`FN-016`); profile `functions` | `:8446`, mutual TLS | `plux-builder:local` | nothing |
+
+`plux-server` calls the runner at `functions.runnerURL` and the builder at `builder.address`
+(`plux-server.yaml`) and serves `FunctionHostService` to the runner on `server.internalListen`
+(`:8443`). Without the `functions` profile the builder is absent: everything else works and
+builds fail as unavailable.
+
+Networks: `functions` is an `internal` Docker network, which has no route out of the host.
+`plux-fnrunner` and `plux-builder` are on it alone; `plux-server` is on it and on `default`;
+only `plux-egress` is also on `outbound`, a normal network. The function runner therefore
+reaches the internet through the egress proxy and nothing else, and cannot reach PostgreSQL,
+SeaweedFS or Valkey. Each role's configuration is a file beside this one
+(`plux-egress.yaml`, `plux-builder.yaml`, `plux-fnrunner.yaml`); the runner's is completed in
+`.secrets/` with its trusted key (below). The roles log JSON to standard output; they export
+no telemetry in this stack.
+
+### Internal TLS
+
+The roles talk over mutual TLS 1.3 (`SEC-043`): every listener demands a client certificate
+and every client trusts only the internal CA. `init-secrets.sh` creates, idempotently and
+like the development TLS certificate (renewed within 30 days of expiry, keys kept):
+
+| File | What |
+|---|---|
+| `.secrets/ca/internal-ca.crt`, `internal-ca.key` | The internal CA, ECDSA P-256, valid 1 year. It is not the development CA above, which people install in their operating system: trusting that one must never vouch for a role. Its name constraints allow only `plux-server`, `plux-fnrunner`, `plux-egress` and `plux-builder`. The key is mounted nowhere. |
+| `.secrets/internal/<service>/tls.crt`, `tls.key`, `ca.crt` | One identity per service, valid 90 days, with the service name as its only name and both `serverAuth` and `clientAuth` (every role is a server and a client). A service mounts its own directory at `/etc/plux/internal`, so it cannot read another's key. |
+
+After a renewal restart the service (`docker compose -f deploy/compose/compose.yaml restart
+plux-fnrunner`). When the CA expires, delete `.secrets/ca/internal-ca.*` and
+`.secrets/internal` and run `make compose-up`; nothing needs trusting on the host.
+
+### The function-artifact key
+
+Only artifacts that the builder produced and the worker signed with the function-artifact
+key are deployable, and `fnrunner` checks the signature against public keys from its own
+configuration, never from the api role (`FN-009`). The file signing backend would create
+that key inside the `plux-keys` volume on first use, so its public half could not be in
+`fnrunner`'s configuration beforehand. `init-secrets.sh` therefore makes the key itself:
+
+- `.secrets/function-artifact.ed25519` is the private key in the backend's file format (the
+  32-byte seed followed by the public key). `plux-server` mounts it read-only as
+  `/var/lib/plux/keys/function-artifact.ed25519`, where the backend finds it.
+- `.secrets/plux-fnrunner.yaml` is `plux-fnrunner.yaml` plus `fnrunner.artifactKeys` with
+  the public key and its identifier (the first 16 bytes of its SHA-256, hexadecimal), and is
+  rewritten by every run of the script.
+
+The file backend never signs for an environment marked production (`SEC-056`); a production
+installation signs through Vault Transit or an HSM and lists that key's public half in
+`fnrunner.artifactKeys`.
+
+### Function builder
+
+`plux-builder` runs every build in new user, network, mount and PID namespaces
+(`builder.sandbox: namespaces`, `backend/internal/builder/sandbox_linux.go`); where the
+kernel denies them it refuses to build, and the unsandboxed `none` setting is not used here.
+It starts with the hardened defaults of the other services (`read_only`, `cap_drop: [ALL]`,
+`no-new-privileges`, user `65532`, no credential, the `functions` network only) and has
+exactly two additions:
+
+| Addition | Why it is needed |
+|---|---|
+| `seccomp=./seccomp-builder.json` | The sandbox starts each compiler process with `clone(2)` and `CLONE_NEWUSER`, `CLONE_NEWNET`, `CLONE_NEWNS` and `CLONE_NEWPID`. Docker's default profile allows `clone` only without a namespace flag unless the container has `CAP_SYS_ADMIN`, so the call fails with `EPERM` and the builder refuses to build. The profile is Docker's default (`moby/profiles`, `seccomp/default.json`, SHA-256 `6416b47770785a41ac59073cdc77d9fe98517df2799dc83ef207e622de3053f6`) plus one rule that allows `clone` when `CLONE_NEWIPC`, `CLONE_NEWUTS` and `CLONE_NEWCGROUP` are clear, so those three stay denied. No capability is added: creating a user namespace needs none, and the root-like capabilities a process holds inside it apply to that namespace only. The filter is inherited by the sandboxed processes, so `mount`, `unshare` and `setns` stay denied inside it. |
+| `tmpfs` `/var/lib/plux/build` with `exec` | Each build unpacks into a scratch directory under `builder.workDir`, and cargo runs build scripts and procedural macros (compiled for the build host) from there. Docker mounts a `tmpfs` `noexec` by default. The mount is memory-backed, `nosuid`, `nodev`, mode `0700`, owned by the builder's user, limited to 2 GiB, and gone with the container. |
+
+Not granted: `privileged`, `cap_add`, `seccomp=unconfined`, `apparmor=unconfined`, the host's
+PID, network or IPC namespace, the Docker socket, any volume with data, and any network but
+`functions`, which has no route out. The sandbox gives builds no network inside the
+container either, and cargo runs offline on vendored crates.
+
+The host kernel must allow unprivileged user namespaces for the container's user
+(`user.max_user_namespaces` above 0; on Debian `kernel.unprivileged_userns_clone=1`). Some
+distributions restrict them further, for example Ubuntu 24.04 with
+`kernel.apparmor_restrict_unprivileged_userns=1`; then the builder logs that its sandbox is
+unavailable and refuses every build. Allow it for the container's AppArmor profile or relax
+the sysctl on a development machine; do not switch the sandbox off.
+
+The image (`backend/Dockerfile`, target `builder`) pins Rust 1.97.0 with `wasm32-wasip1`,
+Bun 1.3.11 running the npm package `binaryen@132.0.0`, and the SDK crate `sdk/fn/plux-fn`
+at `/opt/plux/sdk/plux-fn`, the same pins as `plux fn build` and `sdk/fn/rust-toolchain.toml`.
 
 ## Development TLS
 
@@ -95,8 +189,10 @@ The runtime wants at least two distinct pins; make the second from a spare key w
 | File | Purpose |
 |---|---|
 | `compose.yaml` | The stack |
-| `plux-server.yaml` | The server's configuration inside the stack, including `server.tls` |
-| `init-secrets.sh` | Generates the credentials and the development CA and certificate |
+| `plux-server.yaml` | The server's configuration inside the stack, including `server.tls`, the internal listener and the routes to the function roles |
+| `plux-fnrunner.yaml`, `plux-egress.yaml`, `plux-builder.yaml` | The configuration of the function roles; the first is completed in `.secrets/` |
+| `seccomp-builder.json` | The builder's seccomp profile: Docker's default plus the `clone` rule for the build sandbox |
+| `init-secrets.sh` | Generates the credentials, the development CA and certificate, the internal CA and identities, and the function-artifact key |
 | `compose.dev.yaml` | Overlay for `make dev`: rebuilds and restarts the server on source changes |
 | `compose.test.yaml` | Overlay for `make compose-test`: publishes the stores on high local ports |
 | `compose.load.yaml`, `plux-server.load.yaml` | Overlay for the load test (`NFR-020`): trusts Docker's private ranges as proxies so the generator can name each device's address. **Never use it outside a load test.** |

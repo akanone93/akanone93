@@ -3,12 +3,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Generates the Compose stack's credentials into .secrets/ on first run,
-# and its development TLS certificate (see dev_tls below).
+# its development TLS certificate (dev_tls below), the mutual-TLS identities
+# of the roles (internal_tls) and the function-artifact key (function_key).
 # Nothing here is ever committed (.gitignore), and nothing has a default:
 # every password is 32 random bytes from the operating system.
 set -eu
 cd "$(dirname "$0")"
 umask 077
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
 
 credentials() {
   mkdir .secrets
@@ -44,8 +47,6 @@ dev_tls() {
   fi
   command -v openssl >/dev/null 2>&1 || { echo "init-secrets.sh: openssl is required to create the development TLS certificate" >&2; exit 1; }
   mkdir -p .secrets/ca .secrets/tls
-  tmp=$(mktemp -d)
-  trap 'rm -rf "$tmp"' EXIT
   month=2592000
   renew=0
   if [ ! -s .secrets/ca/ca.crt ] || ! openssl x509 -checkend "$month" -noout -in .secrets/ca/ca.crt >/dev/null; then
@@ -104,5 +105,104 @@ CNF
   echo "Issued the development server certificate .secrets/tls/server.crt (valid 90 days; restart plux-server to load a renewed one)."
 }
 
+# The roles api/worker (plux-server), fnrunner, egress and builder talk over
+# mutual TLS 1.3 (SEC-043): each presents a certificate signed by one
+# internal CA and trusts no other. The CA is separate from the development
+# CA above, which people install in their operating system: trusting that
+# one must never vouch for a role. The internal CA (1 year) is name-
+# constrained to the four service names, so even its key could not vouch for
+# any other host; its key stays in .secrets/ca and is mounted nowhere. Each
+# role gets a directory with only its own certificate (90 days, serverAuth
+# and clientAuth, because every role is both) and key, and the CA certificate,
+# so a role cannot read another role's key. Keys are kept across renewals.
+internal_tls() {
+  command -v openssl >/dev/null 2>&1 || { echo "init-secrets.sh: openssl is required to create the internal TLS identities" >&2; exit 1; }
+  mkdir -p .secrets/ca .secrets/internal
+  month=2592000
+  renew=0
+  if [ ! -s .secrets/ca/internal-ca.crt ] || ! openssl x509 -checkend "$month" -noout -in .secrets/ca/internal-ca.crt >/dev/null; then
+    cat > "$tmp/internal-ca.cnf" <<'CNF'
+[req]
+distinguished_name = dn
+prompt = no
+x509_extensions = ext
+[dn]
+O = Plux development
+CN = Plux internal CA
+[ext]
+basicConstraints = critical,CA:TRUE,pathlen:0
+keyUsage = critical,keyCertSign,cRLSign
+subjectKeyIdentifier = hash
+nameConstraints = critical,permitted;DNS:plux-server,permitted;DNS:plux-fnrunner,permitted;DNS:plux-egress,permitted;DNS:plux-builder
+CNF
+    openssl ecparam -name prime256v1 -genkey -noout -out .secrets/ca/internal-ca.key
+    openssl req -new -x509 -sha256 -days 365 -key .secrets/ca/internal-ca.key -config "$tmp/internal-ca.cnf" -out .secrets/ca/internal-ca.crt
+    renew=1
+    echo "Generated the internal CA .secrets/ca/internal-ca.crt (valid 1 year); it is not for installing anywhere."
+  fi
+  for svc in plux-server plux-fnrunner plux-egress plux-builder; do
+    dir=.secrets/internal/$svc
+    mkdir -p "$dir"
+    # The roles run as another user than the one running this script; the
+    # directory above (.secrets, mode 0700) keeps other users out.
+    chmod 755 .secrets/internal "$dir"
+    if [ "$renew" = 0 ] && [ -s "$dir/tls.crt" ] && openssl x509 -checkend "$month" -noout -in "$dir/tls.crt" >/dev/null; then
+      continue
+    fi
+    cat > "$tmp/$svc.cnf" <<CNF
+[req]
+distinguished_name = dn
+prompt = no
+[dn]
+CN = $svc
+[ext]
+basicConstraints = critical,CA:FALSE
+keyUsage = critical,digitalSignature
+extendedKeyUsage = serverAuth,clientAuth
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid
+subjectAltName = DNS:$svc
+CNF
+    [ -s "$dir/tls.key" ] || openssl ecparam -name prime256v1 -genkey -noout -out "$dir/tls.key"
+    openssl req -new -key "$dir/tls.key" -config "$tmp/$svc.cnf" -out "$tmp/$svc.csr"
+    openssl x509 -req -sha256 -days 90 -in "$tmp/$svc.csr" -CA .secrets/ca/internal-ca.crt -CAkey .secrets/ca/internal-ca.key \
+      -CAcreateserial -extfile "$tmp/$svc.cnf" -extensions ext -out "$dir/tls.crt" 2>/dev/null
+    cp .secrets/ca/internal-ca.crt "$dir/ca.crt"
+    chmod 644 "$dir/tls.key" "$dir/tls.crt" "$dir/ca.crt"
+    echo "Issued the internal certificate $dir/tls.crt (valid 90 days; restart $svc to load a renewed one)."
+  done
+}
+
+# The key that signs function artifacts (FN-009, ADR-0063). The file signing
+# backend would generate it inside the plux-keys volume on first use, but
+# fnrunner takes the public keys it trusts from its own configuration only
+# and never from the api role, so the key is made here, where both halves are
+# known: plux-server mounts the private key as the backend's file
+# function-artifact.ed25519 (64 bytes: seed, then public key), and fnrunner's
+# configuration, plux-fnrunner.yaml in .secrets/, lists the public key under
+# the identifier the backend gives it. The key is for this development stack
+# only: the file backend never signs for a production environment (SEC-056).
+function_key() {
+  command -v openssl >/dev/null 2>&1 || { echo "init-secrets.sh: openssl is required to create the function-artifact key" >&2; exit 1; }
+  key=.secrets/function-artifact.ed25519
+  if [ ! -s "$key" ]; then
+    openssl genpkey -algorithm ed25519 -outform DER -out "$tmp/function.der"
+    openssl pkey -inform DER -in "$tmp/function.der" -pubout -outform DER -out "$tmp/function.pub.der"
+    # PKCS#8 and SubjectPublicKeyInfo end in the raw 32-byte seed and public key.
+    { tail -c 32 "$tmp/function.der"; tail -c 32 "$tmp/function.pub.der"; } > "$key"
+    chmod 644 "$key"
+    echo "Generated the function-artifact key $key."
+  fi
+  # The identifier is the first 16 bytes of the public key's SHA-256, in
+  # hexadecimal (signing.KeyID).
+  keyid=$(tail -c 32 "$key" | openssl dgst -sha256 -binary | head -c 16 | od -An -tx1 | tr -d ' \n')
+  pub=$(tail -c 32 "$key" | openssl base64 -A)
+  # plux-fnrunner.yaml ends with the fnrunner section, which this continues.
+  { cat plux-fnrunner.yaml; printf '  artifactKeys:\n    - keyID: "%s"\n      publicKey: "%s"\n' "$keyid" "$pub"; } > .secrets/plux-fnrunner.yaml
+  chmod 644 .secrets/plux-fnrunner.yaml
+}
+
 [ -d .secrets ] || credentials
 dev_tls
+internal_tls
+function_key

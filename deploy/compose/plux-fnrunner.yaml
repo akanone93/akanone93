@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# plux-server configuration of the fnrunner role (FN-009 to FN-013): it runs
+# function modules on wazero. It holds no database, storage or signing
+# credential (L-4), receives modules from the api role over mutual TLS and
+# reaches the internet only through the egress role. init-secrets.sh copies
+# this file to .secrets/plux-fnrunner.yaml and adds fnrunner.artifactKeys,
+# the public key of the function-artifact key; the fnrunner section is
+# therefore last, and the file is not valid without that addition.
+server:
+  roles: [fnrunner]
+  shutdownGrace: "30s"
+observability:
+  logFormat: "json"
+fnrunner:
+  listen: ":8445"
+  internalTLS:
+    caFile: "/etc/plux/internal/ca.crt"
+    certFile: "/etc/plux/internal/tls.crt"
+    keyFile: "/etc/plux/internal/tls.key"
+  apiURL: "https://plux-server:8443"
+  egressAddr: "plux-egress:8444"

@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# plux-server configuration of the egress role (FN-013, FN-017): the only
+# route from the function runner to the internet, a CONNECT-only proxy that
+# applies each function's domain allowlist and refuses private, loopback and
+# link-local destinations. It listens on mutual TLS and holds no credential.
+# Limits, timeouts and ports are the defaults (443 and 80).
+server:
+  roles: [egress]
+  shutdownGrace: "30s"
+observability:
+  logFormat: "json"
+egress:
+  listen: ":8444"
+  internalTLS:
+    caFile: "/etc/plux/internal/ca.crt"
+    certFile: "/etc/plux/internal/tls.crt"
+    keyFile: "/etc/plux/internal/tls.key"

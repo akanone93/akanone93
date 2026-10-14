@@ -1,16 +1,22 @@
 # SPDX-FileCopyrightText: 2026 Plux contributors
 # SPDX-License-Identifier: Apache-2.0
 
-# Images of plux-server and the plux CLI (DEP-001, SEC-108). Both are
-# static, cgo-free binaries running as the nonroot user on distroless
-# images; the build uses the same flags as `make go-build`, so an image
-# holds the same bytes as the released binary (CI-006). The server image
-# also carries plux-svgc and its library, so it is based on distroless
-# "base-nossl" (glibc) rather than "static". Each image carries the
-# third-party notices of what it ships under /usr/share/doc.
+# Images of plux-server, the plux CLI and the function builder (DEP-001,
+# SEC-108). plux-server and plux are static, cgo-free binaries running as the
+# nonroot user on distroless images; the build uses the same flags as
+# `make go-build`, so an image holds the same bytes as the released binary
+# (CI-006). The server image also carries plux-svgc and its library, so it is
+# based on distroless "base-nossl" (glibc) rather than "static". It runs the
+# api and worker roles and, as separate containers, the fnrunner and egress
+# roles, which hold no credential and need nothing more. The builder image
+# runs the builder role (FN-016, ADR-0063): the same binary on Debian, with
+# the pinned Rust toolchain, Bun and Binaryen that compile uploaded function
+# sources. Each image carries the third-party notices of what it ships under
+# /usr/share/doc.
 #
 #   docker buildx build -f backend/Dockerfile --target server .
 #   docker buildx build -f backend/Dockerfile --target cli .
+#   docker buildx build -f backend/Dockerfile --target builder .
 #
 # Base images are pinned by digest and updated by Dependabot.
 
@@ -81,3 +87,38 @@ COPY --from=build /out/plux /usr/local/bin/plux
 COPY --from=build /out/notices/plux /usr/share/doc/plux/
 USER nonroot:nonroot
 ENTRYPOINT ["/usr/local/bin/plux"]
+
+# The pinned Bun (the Makefile's BUN_VERSION), which runs the pinned Binaryen
+# release below; the same pair `plux fn build` installs on a developer's
+# machine (E10 of docs/plans/p7.md).
+FROM oven/bun:1.3.11-slim@sha256:478281fdd196871c7e51ba6a820b7803a8ae97042ec86cdbc2e1c6b6626442d9 AS bun
+
+# Binaryen 132 from npm, run by Bun: wasm-opt for every function module
+# (FN-001). Installed exactly, so a different release is never picked up.
+FROM bun AS binaryen
+WORKDIR /opt/binaryen
+RUN bun add --exact binaryen@132.0.0
+
+# The builder role: the pinned Rust toolchain (sdk/fn/rust-toolchain.toml)
+# with the wasm32-wasip1 target, a C linker for procedural macros and build
+# scripts (both run on the build host, inside the sandbox), Bun, Binaryen and
+# the SDK crate the builder pins. Debian rather than distroless, because
+# cargo and rustc need a complete userland. It runs as an unprivileged user
+# and holds no credential for the database, the object store or the signing
+# keys (L-4).
+FROM rust:1.97.0-slim-bookworm@sha256:6d220bf85c74e842a79da63997af8d2e74455c0b8847d8bb3a5888572334991d AS builder
+RUN rustup target add wasm32-wasip1 \
+ && useradd --uid 65532 --user-group --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin nonroot \
+ && install -d -o 65532 -g 65532 -m 0700 /var/lib/plux/build
+COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
+COPY --from=binaryen /opt/binaryen /opt/binaryen
+COPY sdk/fn/plux-fn /opt/plux/sdk/plux-fn
+COPY --from=build /out/plux-server /usr/local/bin/plux-server
+COPY --from=build /out/notices/plux-server /usr/share/doc/plux-server/
+# The builder checks `rustc --version` against the pin (FN-001); this keeps
+# rustup from choosing any other toolchain.
+ENV RUSTUP_TOOLCHAIN=1.97.0
+USER nonroot:nonroot
+EXPOSE 8446
+ENTRYPOINT ["/usr/local/bin/plux-server"]
+CMD ["serve", "--config", "/etc/plux/plux.yaml"]
