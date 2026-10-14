@@ -15,6 +15,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/config"
+	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
 	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -34,6 +35,8 @@ type BuildOption func(*buildOptions)
 
 type buildOptions struct {
 	identityHTTP *http.Client
+	builder      function.Builder
+	linker       function.Linker
 }
 
 // WithIdentityProviderClient makes the gateway read the key sets of
@@ -43,6 +46,17 @@ type buildOptions struct {
 // serves customers never sets it.
 func WithIdentityProviderClient(c *http.Client) BuildOption {
 	return func(o *buildOptions) { o.identityHTTP = c }
+}
+
+// WithFunctionBuilder gives the worker role b to build function sources and
+// l to link the device functions of a plugin, in place of the route to the
+// builder role that builder.address configures (FN-016, FN-051). The worker
+// still signs what they return with the function-artifact key, and the
+// service still judges it. It is for embedders and tests that stand in for
+// the builder role with artefacts built before; a process that serves
+// customers never sets it.
+func WithFunctionBuilder(b function.Builder, l function.Linker) BuildOption {
+	return func(o *buildOptions) { o.builder, o.linker = b, l }
 }
 
 // newTracer starts the process's tracing.
@@ -197,6 +211,9 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 		deps.ProductionSigning = backend.AllowedInProduction()
 		if err := attachBuilder(cfg, store, &deps); err != nil {
 			return nil, nil, err
+		}
+		if o.builder != nil {
+			deps.Builder, deps.Linker, deps.FunctionKey = o.builder, o.linker, cfg.Signing.Keys.FunctionArtifact
 		}
 	}
 	services, err := BuildServices(ctx, cfg, db, shared, set, backend, deps)
