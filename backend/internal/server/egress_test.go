@@ -48,7 +48,7 @@ func TestEgressRoleRunsAlone_FN_017(t *testing.T) {
 			t.Fatal(err)
 		}
 		c.Certificates = []tls.Certificate{cert}
-		conn, err := tls.Dial("tcp", addr, c)
+		conn, err := (&tls.Dialer{Config: c}).DialContext(t.Context(), "tcp", addr)
 		if err == nil {
 			_ = conn.SetDeadline(time.Now().Add(5 * time.Second))
 			_, _ = fmt.Fprint(conn, "GET / HTTP/1.1\r\nHost: x\r\n\r\n")
@@ -66,7 +66,7 @@ func TestEgressRoleRunsAlone_FN_017(t *testing.T) {
 	if !strings.HasPrefix(answer, "HTTP/1.1 405") {
 		t.Errorf("answer = %q", answer)
 	}
-	if conn, err := tls.Dial("tcp", addr, client); err == nil {
+	if conn, err := (&tls.Dialer{Config: client}).DialContext(t.Context(), "tcp", addr); err == nil {
 		_ = conn.SetDeadline(time.Now().Add(5 * time.Second))
 		_, _ = fmt.Fprint(conn, "GET / HTTP/1.1\r\nHost: x\r\n\r\n")
 		if n, err := conn.Read(make([]byte, 1)); err == nil || n != 0 {

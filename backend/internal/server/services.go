@@ -741,71 +741,88 @@ type maintenanceWorker struct {
 	log *slog.Logger
 }
 
+// sweepTotals counts what one sweep did, for its log line.
+type sweepTotals struct {
+	snapshots, released, signed int
+	resign                      []error
+}
+
 // Work runs one sweep. Each part runs even if another fails, and the
 // job fails if any did, so River retries it.
 func (w *maintenanceWorker) Work(ctx context.Context, _ *river.Job[Maintenance]) error {
 	var errs []error
 	purged, err := w.svc.Tenancy.PurgeExpired(ctx, 100)
 	errs = append(errs, err)
-	snapshots := 0
-	released := 0
-	signed := 0
-	var resign []error
+	var t sweepTotals
 	err = w.svc.Tenancy.ForEachOrganization(ctx, func(org string) error {
-		if w.svc.Releases != nil {
-			n, err := w.svc.Releases.PurgeReleases(ctx, org)
-			released += n
-			if err != nil {
-				return err //nolint:wrapcheck // a domain error
-			}
-			// Signing failures of one organisation, such as an expired
-			// root, are reported without stopping the sweep of the others;
-			// the job still fails, so River retries it.
-			m, err := w.svc.Releases.RefreshManifests(ctx, org)
-			signed += m
-			resign = append(resign, err)
-			// The timestamp and snapshot are re-signed before they
-			// expire (SEC-050).
-			m, err = w.svc.Releases.RefreshMetadata(ctx, org)
-			signed += m
-			resign = append(resign, err)
-			if _, err := w.svc.Releases.PurgeManifests(ctx, org); err != nil {
-				return err //nolint:wrapcheck // a domain error
-			}
-			if _, err := w.svc.Releases.PurgeMetadata(ctx, org); err != nil {
-				return err //nolint:wrapcheck // a domain error
-			}
-		}
-		if _, err := w.svc.Devices.ExpireTokens(ctx, org); err != nil {
-			return err //nolint:wrapcheck // a domain error
-		}
-		if _, err := w.svc.Events.Purge(ctx, org); err != nil {
-			return err //nolint:wrapcheck // a domain error
-		}
-		if w.svc.Functions != nil {
-			if _, err := w.svc.Functions.PurgeObservations(ctx, org); err != nil {
-				return err //nolint:wrapcheck // a domain error
-			}
-		}
-		if _, err := w.svc.Documents.RequeueSVGs(ctx, org); err != nil {
-			return err //nolint:wrapcheck // a domain error
-		}
-		n, err := w.svc.Documents.PurgeSnapshots(ctx, org)
-		snapshots += n
-		return err //nolint:wrapcheck // a domain error
+		return w.sweepOrganization(ctx, org, &t)
 	})
 	errs = append(errs, err)
-	errs = append(errs, resign...)
+	errs = append(errs, t.resign...)
 	keys, err := w.svc.Idempotency.Expire(ctx)
 	errs = append(errs, err)
 	creds, err := w.svc.Auth.Expire(ctx)
 	errs = append(errs, err)
 	if w.log != nil {
 		w.log.InfoContext(ctx, "maintenance sweep",
-			slog.Int("trashPurged", purged), slog.Int("snapshotsPurged", snapshots), slog.Int("releasesPurged", released), slog.Int("manifestsSigned", signed), slog.Int64("idempotencyKeysExpired", keys),
+			slog.Int("trashPurged", purged), slog.Int("snapshotsPurged", t.snapshots), slog.Int("releasesPurged", t.released), slog.Int("manifestsSigned", t.signed), slog.Int64("idempotencyKeysExpired", keys),
 			slog.Int64("credentialsExpired", creds))
 	}
 	return errors.Join(errs...)
+}
+
+// sweepOrganization runs the sweep's parts for one organisation.
+func (w *maintenanceWorker) sweepOrganization(ctx context.Context, org string, t *sweepTotals) error {
+	if w.svc.Releases != nil {
+		if err := w.sweepReleases(ctx, org, t); err != nil {
+			return err
+		}
+	}
+	if _, err := w.svc.Devices.ExpireTokens(ctx, org); err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	if _, err := w.svc.Events.Purge(ctx, org); err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	if w.svc.Functions != nil {
+		if _, err := w.svc.Functions.PurgeObservations(ctx, org); err != nil {
+			return err //nolint:wrapcheck // a domain error
+		}
+	}
+	if _, err := w.svc.Documents.RequeueSVGs(ctx, org); err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	n, err := w.svc.Documents.PurgeSnapshots(ctx, org)
+	t.snapshots += n
+	return err //nolint:wrapcheck // a domain error
+}
+
+// sweepReleases purges releases and re-signs the manifests and update
+// metadata of one organisation.
+func (w *maintenanceWorker) sweepReleases(ctx context.Context, org string, t *sweepTotals) error {
+	n, err := w.svc.Releases.PurgeReleases(ctx, org)
+	t.released += n
+	if err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	// Signing failures of one organisation, such as an expired root, are
+	// reported without stopping the sweep of the others; the job still
+	// fails, so River retries it.
+	m, err := w.svc.Releases.RefreshManifests(ctx, org)
+	t.signed += m
+	t.resign = append(t.resign, err)
+	// The timestamp and snapshot are re-signed before they expire
+	// (SEC-050).
+	m, err = w.svc.Releases.RefreshMetadata(ctx, org)
+	t.signed += m
+	t.resign = append(t.resign, err)
+	if _, err := w.svc.Releases.PurgeManifests(ctx, org); err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	if _, err := w.svc.Releases.PurgeMetadata(ctx, org); err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	return nil
 }
 
 // MaintenanceJobs registers the sweep's worker and returns its schedule.
