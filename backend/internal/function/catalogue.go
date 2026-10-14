@@ -172,6 +172,8 @@ func (c *catalogue) addVersion(ctx context.Context, q *dbgen.Queries, row dbgen.
 	var doc struct {
 		Capabilities *schema.FunctionCapabilities `json:"capabilities"`
 		Limits       *schema.FunctionLimits       `json:"limits"`
+		Attestation  bool                         `json:"attestation"`
+		SCA          bool                         `json:"sca"`
 	}
 	if err := json.Unmarshal(decl.Declaration, &doc); err != nil {
 		return fmt.Errorf("function.Catalogue: read the declaration of version %d of %s: %w", row.Version, row.Name, err)
@@ -180,6 +182,9 @@ func (c *catalogue) addVersion(ctx context.Context, q *dbgen.Queries, row dbgen.
 		Placement: schema.Placement(row.Placement), Capabilities: doc.Capabilities, Limits: doc.Limits,
 		InputSchema: json.RawMessage(row.InputSchema), OutputSchema: json.RawMessage(row.OutputSchema),
 		Version: versionNumber(row),
+		// FN-020: the grant tells the device in advance which evidence the
+		// server will demand.
+		RequiresAttestation: doc.Attestation, RequiresSCA: doc.SCA,
 	}
 	return nil
 }
