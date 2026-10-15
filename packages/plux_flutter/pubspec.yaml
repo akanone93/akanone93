@@ -15,7 +15,7 @@ resolution: workspace
 
 dependencies:
   code_assets: ^1.2.1
-  cronet_http: ^1.9.0
+  cronet_http: ^1.10.0
   crypto: ^3.0.7
   cryptography: ^2.9.0
   cupertino_http: ^3.1.0
