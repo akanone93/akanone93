@@ -6,6 +6,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/services.dart' show MissingPluginException;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:plux_flutter/src/bundle/container.dart';
@@ -24,6 +25,19 @@ import 'package:plux_flutter/src/verify/bundle_verifier.dart';
 import '../store/store_test_support.dart';
 import 'fake_device.dart';
 import 'fake_server.dart';
+
+/// A credential store whose platform channel is not implemented.
+final class _MissingPluginCredentials implements CredentialStore {
+  @override
+  Future<DeviceCredential?> read() =>
+      Future.error(MissingPluginException('no secretRead'));
+
+  @override
+  Future<void> write(DeviceCredential credential) async {}
+
+  @override
+  Future<void> clear() async {}
+}
 
 void main() {
   final goldens = Goldens.load();
@@ -45,7 +59,7 @@ void main() {
   late String root;
   late http.Client client;
   late List<Duration> sleeps;
-  late MemoryCredentialStore credentials;
+  late CredentialStore credentials;
   late FakeDeviceKeys keys;
   var now = DateTime.utc(2026, 9, 28, 12);
 
@@ -142,6 +156,19 @@ void main() {
           .publicKey
           .thumbprint,
     );
+  });
+
+  // Verifies: SYN-013.
+  test('a failure of an unexpected type fails the sync, naming only its type, instead of escaping [SYN-013]', () async {
+    credentials = _MissingPluginCredentials();
+    server.release = FakeRelease(10, demo, {'loans': loans});
+    final (r, events) = await sync();
+    expect(r.outcome, SyncOutcome.failed);
+    expect(r.error!.code, PluxErrorCode.syncFailed);
+    expect(r.error!.message, contains('MissingPluginException'));
+    expect(r.error!.message, isNot(contains('secretRead')));
+    expect(events.last, isA<SyncFailed>());
+    expect(ReleaseStore.open(root).pointer.staged, isNull);
   });
 
   test(
