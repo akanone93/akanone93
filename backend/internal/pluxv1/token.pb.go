@@ -315,7 +315,8 @@ type ExchangeUserTokenRequest struct {
 	SubjectToken string `protobuf:"bytes,1,opt,name=subject_token,json=subjectToken,proto3" json:"subject_token,omitempty"`
 	// subject_token_type is the RFC 8693 token type URN of subject_token.
 	SubjectTokenType string `protobuf:"bytes,2,opt,name=subject_token_type,json=subjectTokenType,proto3" json:"subject_token_type,omitempty"`
-	// audience is the upstream the new token is for (RFC 8693 `audience`).
+	// audience is what the new token is for (RFC 8693 `audience`): a gateway
+	// upstream, or `function:<name>` for a server function (SEC-026).
 	Audience      string `protobuf:"bytes,3,opt,name=audience,proto3" json:"audience,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

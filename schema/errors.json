@@ -2200,12 +2200,292 @@
       "fix": "Send the request through the gateway."
     },
     {
+      "code": "PLX-6080",
+      "reason": "FRAUD_RECEIPT_UNAVAILABLE",
+      "severity": "error",
+      "title": "Fraud receipt unavailable",
+      "cause": "The platform fraud-signal receipt that the request needs could not be obtained or is no longer valid, so the server cannot rely on it (SEC-123).",
+      "fix": "Request a new receipt on the device and repeat the call."
+    },
+    {
+      "code": "PLX-6081",
+      "reason": "IMPORTED_KEY_INVALID",
+      "severity": "error",
+      "title": "Imported key invalid",
+      "cause": "An externally issued private key offered for import is malformed, of an unsupported type, or does not match its declared public part, so signing refuses it (SEC-123).",
+      "fix": "Export the key again from its issuer in the documented format and import it once more."
+    },
+    {
       "code": "PLX-6100",
       "reason": "RASP_DETECTION",
       "severity": "error",
       "title": "Runtime tampering detected",
       "cause": "The runtime reported a tampering signal, such as a debugger, hook or modified binary, and the installation refuses the call (SEC-071).",
       "fix": "Use an unmodified app on an unmodified device."
+    },
+    {
+      "code": "PLX-7001",
+      "reason": "FUNCTION_TIMEOUT",
+      "severity": "error",
+      "title": "Function timed out",
+      "cause": "The invocation ran longer than the wall-time limit of the function (FN-011, FN-053).",
+      "fix": "Make the function do less work per call, or raise `function.timeout` or `function.deviceTimeout` within the registry maximum."
+    },
+    {
+      "code": "PLX-7002",
+      "reason": "FUNCTION_MEMORY_EXCEEDED",
+      "severity": "error",
+      "title": "Function memory exceeded",
+      "cause": "The module tried to grow its linear memory beyond the memory limit of the function (FN-011, FN-053).",
+      "fix": "Reduce the memory the function needs, or raise `function.memory` or `function.deviceMemory` within the registry maximum."
+    },
+    {
+      "code": "PLX-7003",
+      "reason": "FUNCTION_CAPABILITY_DENIED",
+      "severity": "error",
+      "title": "Function capability denied",
+      "cause": "The function called a host capability it did not declare in its document or that the caller's grant does not cover; capabilities are deny-by-default (FN-012).",
+      "fix": "Declare the capability in `function.json` and grant it to the calling plugin, or remove the call."
+    },
+    {
+      "code": "PLX-7004",
+      "reason": "FUNCTION_OUTPUT_TOO_LARGE",
+      "severity": "error",
+      "title": "Function output too large",
+      "cause": "The function returned more bytes than the output limit allows (FN-011).",
+      "fix": "Return less data, page the result, or raise `function.outputSize` within the registry maximum."
+    },
+    {
+      "code": "PLX-7005",
+      "reason": "FUNCTION_CALL_DEPTH_EXCEEDED",
+      "severity": "error",
+      "title": "Function call depth exceeded",
+      "cause": "Functions called other functions more deeply than the call-depth limit allows (FN-011).",
+      "fix": "Flatten the call chain or merge functions; the depth limit cannot be raised above its maximum."
+    },
+    {
+      "code": "PLX-7006",
+      "reason": "FUNCTION_HTTP_CALLS_EXCEEDED",
+      "severity": "error",
+      "title": "Function HTTP calls exceeded",
+      "cause": "One invocation made more outbound HTTP calls than the limit allows (FN-011).",
+      "fix": "Reduce or batch the outbound calls, or raise `function.httpCalls` within the registry maximum."
+    },
+    {
+      "code": "PLX-7007",
+      "reason": "FUNCTION_TRAPPED",
+      "severity": "error",
+      "title": "Function trapped",
+      "cause": "The module trapped, for example on a panic, an unreachable instruction or an out-of-bounds access, and the host discarded the instance (FN-010, FN-022).",
+      "fix": "Reproduce the failure with `plux fn test` and fix the fault in the function."
+    },
+    {
+      "code": "PLX-7008",
+      "reason": "FUNCTION_INPUT_INVALID",
+      "severity": "error",
+      "title": "Function input invalid",
+      "cause": "The input does not conform to the input schema derived from the function's types (FN-004, FN-022).",
+      "fix": "Send input that matches the published input schema."
+    },
+    {
+      "code": "PLX-7009",
+      "reason": "FUNCTION_OUTPUT_INVALID",
+      "severity": "error",
+      "title": "Function output invalid",
+      "cause": "The function returned output that does not conform to its output schema, or that is not valid UTF-8 JSON (FN-004, FN-015).",
+      "fix": "Fix the function so that it returns a value of its declared output type."
+    },
+    {
+      "code": "PLX-7010",
+      "reason": "FUNCTION_EGRESS_REFUSED",
+      "severity": "error",
+      "title": "Function egress refused",
+      "cause": "The egress proxy refused an outbound call because the destination is outside the function's domain allowlist or resolves to a private address (FN-012, FN-017).",
+      "fix": "Add the domain to the function's `capabilities.http` list, or call a public destination."
+    },
+    {
+      "code": "PLX-7011",
+      "reason": "IDEMPOTENCY_KEY_CONFLICT",
+      "severity": "error",
+      "title": "Idempotency key reused with different input",
+      "cause": "The idempotency key was already used for this function with a different input, so the server will not replay the stored result (FN-021).",
+      "fix": "Use a new idempotency key for a new request, or resend the original input."
+    },
+    {
+      "code": "PLX-7012",
+      "reason": "FUNCTION_NOT_FOUND",
+      "severity": "error",
+      "title": "Function not found",
+      "cause": "No function with this name and version exists in the app and environment, or no active release of the app pins the requested version (FN-006, FN-020).",
+      "fix": "Check the name and version, deploy the function, or publish a release that pins it."
+    },
+    {
+      "code": "PLX-7013",
+      "reason": "FUNCTION_ALIAS_NOT_FOUND",
+      "severity": "error",
+      "title": "Function alias not found",
+      "cause": "The alias does not exist for this function in the app and environment (FN-006).",
+      "fix": "Create the alias with `SetAlias`, or use an existing alias or version."
+    },
+    {
+      "code": "PLX-7014",
+      "reason": "DEVICE_FUNCTIONS_DISABLED",
+      "severity": "error",
+      "title": "Device functions disabled",
+      "cause": "The security profile has `deviceFunctions` set to false, so the device does not run device-placed functions (FN-055).",
+      "fix": "Enable `deviceFunctions` for the app, or place the function on the server."
+    },
+    {
+      "code": "PLX-7015",
+      "reason": "FUNCTION_RATE_LIMITED",
+      "severity": "error",
+      "title": "Function rate limited",
+      "cause": "The invocation rate of the function, the app or the device exceeded its quota (FN-024).",
+      "fix": "Retry after the interval in the response, or raise the quota within the registry maximum."
+    },
+    {
+      "code": "PLX-7016",
+      "reason": "FUNCTION_KV_LIMIT_EXCEEDED",
+      "severity": "error",
+      "title": "Function key-value limit exceeded",
+      "cause": "A write would exceed the key count, total size or value size limit of the function's key-value store (FN-018).",
+      "fix": "Delete entries, store smaller values, or raise `function.kvBytes`, `function.kvKeys` or `function.kvValueBytes` within the registry maximum."
+    },
+    {
+      "code": "PLX-7017",
+      "reason": "FUNCTION_ABI_UNSUPPORTED",
+      "severity": "error",
+      "title": "Function ABI unsupported",
+      "cause": "The module reports an ABI version the host does not support, or imports a host function the host does not provide (FN-015).",
+      "fix": "Rebuild the function with an SDK that targets a supported ABI version."
+    },
+    {
+      "code": "PLX-7018",
+      "reason": "FUNCTION_MODULE_INVALID",
+      "severity": "error",
+      "title": "Function module invalid",
+      "cause": "The module is not valid WebAssembly, lacks a required export, or imports a server-only host function on a device (FN-015, FN-052).",
+      "fix": "Rebuild the module with the Plux builder, and keep device functions free of server-only capabilities."
+    },
+    {
+      "code": "PLX-7019",
+      "reason": "FUNCTION_ARTIFACT_SIGNATURE_INVALID",
+      "severity": "error",
+      "title": "Function artifact signature invalid",
+      "cause": "The signature over the function artifact statement does not verify against the function-artifact key, so the host refuses to compile the module (FN-009).",
+      "fix": "Deploy a module built by the Plux builder; never upload a module built elsewhere."
+    },
+    {
+      "code": "PLX-7020",
+      "reason": "FUNCTION_TESTS_FAILED",
+      "severity": "error",
+      "title": "Function tests failed",
+      "cause": "A stored test case of the function failed, which blocks deployment to production (FN-031).",
+      "fix": "Run `plux fn test`, fix the function or the expectation, and build again."
+    },
+    {
+      "code": "PLX-7021",
+      "reason": "FUNCTION_CANCELLED",
+      "severity": "error",
+      "title": "Function cancelled",
+      "cause": "The caller cancelled the invocation or disconnected before it finished (FN-053).",
+      "fix": "No action is needed; repeat the call if the result is still wanted."
+    },
+    {
+      "code": "PLX-7022",
+      "reason": "FUNCTION_INPUT_TOO_LARGE",
+      "severity": "error",
+      "title": "Function input too large",
+      "cause": "The input is larger than the input-size limit allows (FN-011).",
+      "fix": "Send less data, or raise `function.inputSize` within the registry maximum."
+    },
+    {
+      "code": "PLX-7030",
+      "reason": "DEVICE_FUNCTION_SERVER_CAPABILITY",
+      "severity": "error",
+      "title": "Device function requests a server capability",
+      "cause": "A function placed on the device declares `http`, `secrets`, `claims` or another server-only capability (FN-008, FN-052).",
+      "fix": "Place the function on the server, or remove the capability from its document."
+    },
+    {
+      "code": "PLX-7031",
+      "reason": "FUNCTION_REFERENCE_UNRESOLVED",
+      "severity": "error",
+      "title": "Function reference unresolved",
+      "cause": "An action or grant names a function that no function document in the project defines (FN-006).",
+      "fix": "Correct the function name or add its `functions/\u003cname\u003e/function.json`."
+    },
+    {
+      "code": "PLX-7032",
+      "reason": "FUNCTION_TYPE_MISMATCH",
+      "severity": "error",
+      "title": "Function type mismatch",
+      "cause": "The values an `invokeFunction` action passes or reads do not match the function's input or output schema (ACT-001, FN-004).",
+      "fix": "Change the action's bindings to match the schemas, or change the function's types."
+    },
+    {
+      "code": "PLX-7100",
+      "reason": "FUNCTION_BUSINESS_ERROR",
+      "severity": "error",
+      "title": "Function business error",
+      "cause": "The function returned a business error declared in its own code, which carries a code, a message key and parameters for the action graph (FN-022).",
+      "fix": "Handle the error in the action graph's error path; the code and message key come from the function."
+    },
+    {
+      "code": "PLX-7200",
+      "reason": "FUNCTION_BUILD_FAILED",
+      "severity": "error",
+      "title": "Function build failed",
+      "cause": "The build did not produce a module; the diagnostics name the compiler or linker error (FN-016).",
+      "fix": "Fix the reported errors and build again."
+    },
+    {
+      "code": "PLX-7201",
+      "reason": "FUNCTION_DEPENDENCY_NOT_VENDORED",
+      "severity": "error",
+      "title": "Function dependency not vendored",
+      "cause": "The source archive lacks a dependency under `vendor/`, and builds are offline and locked (FN-016).",
+      "fix": "Run `cargo vendor` and include the result in the archive."
+    },
+    {
+      "code": "PLX-7202",
+      "reason": "FUNCTION_BUILD_SCRIPT_REFUSED",
+      "severity": "error",
+      "title": "Function build script refused",
+      "cause": "A dependency uses a build script or procedural macro that is not on the builder's allowlist (FN-016).",
+      "fix": "Remove the dependency, or ask the operator to review and allowlist it."
+    },
+    {
+      "code": "PLX-7203",
+      "reason": "FUNCTION_BUILD_LIMIT_EXCEEDED",
+      "severity": "error",
+      "title": "Function build limit exceeded",
+      "cause": "The build exceeded its time or memory limit, or the module or archive exceeded its size limit (FN-010, FN-016).",
+      "fix": "Reduce the crate or its dependencies, or raise `function.buildTimeout`, `function.buildMemory`, `function.moduleSize` or `function.sourceArchiveSize` within the registry maximum."
+    },
+    {
+      "code": "PLX-7204",
+      "reason": "FUNCTION_SCHEMA_DERIVATION_FAILED",
+      "severity": "error",
+      "title": "Function schema derivation failed",
+      "cause": "The builder could not read the input and output schemas from the module (FN-004).",
+      "fix": "Make the handler's input and output types derive their schemas, then build again."
+    },
+    {
+      "code": "PLX-7205",
+      "reason": "FUNCTION_DECLARATION_MISMATCH",
+      "severity": "error",
+      "title": "Function declaration mismatch",
+      "cause": "The placement or name that the crate asserts differs from the function document (FN-008, FN-016).",
+      "fix": "Make the crate and `function.json` agree on the name and placement."
+    },
+    {
+      "code": "PLX-7206",
+      "reason": "FUNCTION_BUILD_NOT_REPRODUCIBLE",
+      "severity": "error",
+      "title": "Function build not reproducible",
+      "cause": "Two builds of the same source, lock file and toolchain produced different modules (FN-019).",
+      "fix": "Remove the source of nondeterminism, such as embedded paths, times or random values, and build again."
     },
     {
       "code": "PLX-8011",

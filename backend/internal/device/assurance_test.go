@@ -173,3 +173,48 @@ func TestLevelRank(t *testing.T) {
 		t.Error("an unknown level ranks as a level")
 	}
 }
+
+// Verifies: SEC-007.
+// An iOS device reaches AL3 only with a Secure Enclave key and a verified
+// receipt whose risk metric is at most riskMetricMaxAL3: 5 under standard,
+// 3 under strict, 1 under maximum. Android proofs ignore the receipt.
+func TestAssessFraudReceipt_SEC_007(t *testing.T) {
+	t.Parallel()
+	for _, c := range []struct {
+		profile settings.Profile
+		limit   int
+	}{{settings.Standard, 5}, {settings.Strict, 3}, {settings.Maximum, 1}} {
+		conf := mustSettings(t, c.profile)
+		if conf.RiskMetricMaxAL3 != c.limit {
+			t.Fatalf("%s: riskMetricMaxAL3 = %d, want %d", c.profile, conf.RiskMetricMaxAL3, c.limit)
+		}
+		ios := func(storage KeyStorage, receipt bool, risk int) Proof {
+			return Proof{Provider: ProviderAppAttest, KeyStorage: storage, FraudReceipt: receipt, RiskMetric: risk}
+		}
+		for _, k := range []struct {
+			name  string
+			proof Proof
+			want  Level
+		}{
+			{"risk 0", ios(KeyStorageSecureEnclave, true, 0), AL3},
+			{"risk at the limit", ios(KeyStorageSecureEnclave, true, c.limit), AL3},
+			{"risk above the limit", ios(KeyStorageSecureEnclave, true, c.limit+1), AL2},
+			{"negative risk", ios(KeyStorageSecureEnclave, true, -1), AL2},
+			{"no receipt", ios(KeyStorageSecureEnclave, false, 0), AL2},
+			{"software key with a good receipt", ios(KeyStorageSoftware, true, 0), AL1},
+			{"android ignores the receipt", Proof{Provider: ProviderPlayIntegrity, KeyStorage: KeyStorageTEE, AppRecognised: true, DeviceVerdict: playintegrity.LabelDevice, FraudReceipt: true}, AL2},
+		} {
+			if got := Assess(k.proof, conf); got != k.want {
+				t.Errorf("%s, %s: Assess = %s, want %s", c.profile, k.name, got, k.want)
+			}
+		}
+	}
+	zero := mustSettings(t, settings.Maximum)
+	zero.RiskMetricMaxAL3 = 0
+	if got := Assess(Proof{Provider: ProviderAppAttest, KeyStorage: KeyStorageSecureEnclave, FraudReceipt: true, RiskMetric: 1}, zero); got != AL2 {
+		t.Errorf("a limit of 0 with risk 1 = %s, want AL2", got)
+	}
+	if got := Assess(Proof{Provider: ProviderAppAttest, KeyStorage: KeyStorageSecureEnclave, FraudReceipt: true}, zero); got != AL3 {
+		t.Errorf("a limit of 0 with risk 0 = %s, want AL3", got)
+	}
+}

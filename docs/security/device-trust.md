@@ -41,6 +41,15 @@ Rules that hold on both platforms:
 - A page, route, data source or function that requires a level the device lacks is refused
   with `PLX-6002`, never silently degraded.
 
+**A stale Android status list under `maximum`.** The server judges an Android Key
+Attestation chain unrevoked against Google's attestation status list, which the worker caches
+within the freshness Google allows. While the cached list is past its freshness, new Android
+registrations are refused with `PLX-6009` under `maximum`, because the chain cannot be judged
+unrevoked and `maximum` allows no gap (grace `0`). This is intended: `maximum` is for banking
+and financial apps, where only attested devices may use the app. No override exists. The
+operator restores the list fetch (see the [attestation outage
+runbook](../runbooks/attestation-outage.md)); registrations resume with the next fresh list.
+
 ## 2. Devices without secure hardware
 
 `SEC-001` requires the DPoP key to be generated in secure hardware. `SEC-029` speaks of
@@ -107,8 +116,9 @@ attestation provider** (`SEC-008`):
 - It is accepted only by environments whose type is not `production`; a production
   environment refuses it (`PLX-6004`, `DEV_PROVIDER_IN_PRODUCTION`). A test proves
   the refusal.
-- A device registered with it gets `AL0`, unless the environment's settings raise it for
-  testing, which a production environment cannot do.
+- A device registered with it gets `AL0`, and it makes no per-request platform evidence, so
+  anything that requires `AL1` or above, or attestation, is refused to it: the reference
+  apps' flows check that refusal, and the success path is Layer 3's (P7 plan §2.6 M12).
 
 This layer proves the whole flow end to end on emulators and simulators: registration,
 DPoP on every request, nonces, token refresh, revocation, re-attestation, assurance
@@ -122,7 +132,7 @@ overlay filtering. The maintainer runs these on one mid-tier Android phone (a Pi
 newer, with Google Play) and one iPhone (iOS 17 or newer), as with the P5 reference-device
 run.
 
-- **The checklist** is `docs/security/real-device-checklist.md` (milestone S11). Each item
+- **The checklist** is [real-device-checklist.md](real-device-checklist.md). Each item
   names its requirement, the steps, the expected result and where the evidence goes.
 - **The setup** is a Play Console internal test track, a Google Cloud project linked to it,
   and an Apple Developer team with App Attest enabled. The steps are in the checklist.

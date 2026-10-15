@@ -17,7 +17,7 @@ How Go code in Plux (`backend/`, `tools/`) is written. The baseline is [Effectiv
 - Two modules, joined by the root `go.work`: `backend` (server, CLI, compiler, SDK) and `tools` (repository tooling, standard library only). The toolchain is pinned by the `toolchain` line in each `go.mod`.
 - `cmd/<binary>` contains only wiring. Command logic sits behind a testable `run(args, stdout, stderr) int` or a component constructor.
 - `internal/<module>` holds the implementation, one package per module listed in spec §6.3. Package names are short, lower-case nouns — never `util`, `common`, `helpers` or `misc`.
-- Layering (spec §6.7) is one-directional: handlers → domain modules → storage. Only `signing/` touches keys; `fnrunner` imports no storage or signing packages.
+- Layering (spec §6.7) is one-directional: handlers → domain modules → storage. Only `signing/` touches keys; `fnrunner`, `builder` and `egress` import no storage or signing packages (L-4).
 - Interfaces are defined where they are **used**, and kept small — usually one to three methods.
 - An import cycle is a design error, fixed by restructuring, never by a shared "common" package.
 

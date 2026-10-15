@@ -307,17 +307,22 @@ void main() {
         PluxErrorCode.dataOutboxRejected,
       ]),
     );
-    await eventually(() => sched.active.isNotEmpty, 'the backoff timer');
+    // The first queued mutation armed a timer while the network was down;
+    // the replay pass cancels it and arms its own once the 503 has been seen.
+    // Waiting for "any timer" would take the stale one for the pass's, so
+    // wait for the second timer to exist.
+    await eventually(() => sched.timers.length == 2, 'the backoff timer');
+    expect(sched.timers.first.cancelled, isTrue, reason: 'the queueing timer');
     expect(services.outbox!.length, 1, reason: 'the 503 keeps its entry');
     expect(sched.delays.last, const Duration(seconds: 5));
 
     api.script.add(503);
-    sched.active.first.fire();
-    await eventually(() => api.seen.length == 4, 'the retry');
-    await eventually(() => sched.active.isNotEmpty, 'the next timer');
+    sched.active.single.fire();
+    await eventually(() => sched.timers.length == 3, 'the next timer');
+    expect(api.seen.length, 4, reason: 'the retry');
     expect(sched.delays.last, const Duration(seconds: 10), reason: 'doubled');
     api.script.add(412);
-    sched.active.first.fire();
+    sched.active.single.fire();
     await eventually(() => events.seen.length == 3, 'the 412');
     expect(events.seen.last, 'conflict tasks');
     expect(services.outbox!.length, 0);

@@ -40,6 +40,8 @@ const (
 	QueueAsset = "asset"
 	// QueueMaintenance runs retention and other periodic work (REL-007).
 	QueueMaintenance = "maintenance"
+	// QueueFunction runs function builds on the builder role (FN-016).
+	QueueFunction = "function"
 )
 
 // queues are the queues a worker serves, with how many jobs each runs at
@@ -49,6 +51,7 @@ var queues = map[string]river.QueueConfig{
 	QueueDelta:       {MaxWorkers: 8},
 	QueueAsset:       {MaxWorkers: 4},
 	QueueMaintenance: {MaxWorkers: 1},
+	QueueFunction:    {MaxWorkers: 2},
 }
 
 // Workers is the set of job types a worker process runs. It wraps

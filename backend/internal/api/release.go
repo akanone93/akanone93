@@ -384,5 +384,14 @@ func releaseProto(r release.Release) *pluxv1.Release {
 		Id: r.ID, AppId: r.AppID, Sequence: r.Sequence, PluginVersionIds: r.VersionIDs,
 		AppBundleSha256: r.AppBundleSHA256, AppBundleSize: r.AppBundleSize, RollbackOf: r.RollbackOf,
 		Notes: r.Notes, CreatedBy: actorProto(r.CreatedBy), CreatedAt: ts(r.CreatedAt), Confidential: r.Confidential,
+		Functions: releaseFunctionsProto(r.Functions),
 	}
+}
+
+func releaseFunctionsProto(fns []release.Function) []*pluxv1.ReleaseFunction {
+	out := make([]*pluxv1.ReleaseFunction, len(fns))
+	for i, f := range fns {
+		out[i] = &pluxv1.ReleaseFunction{Name: f.Name, Version: uint32(f.Version), ModuleSha256: f.ModuleSHA256, Placement: f.Placement} //nolint:gosec // G115: versions are positive.
+	}
+	return out
 }

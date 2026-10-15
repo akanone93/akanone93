@@ -95,11 +95,17 @@ type IntegrityChecker struct {
 	Err error
 	// Expect is the expectation of the last call.
 	Expect playintegrity.Expect
+	// RequestHash, when set, is the only requestHash a token is bound to:
+	// like the real verifier, the fake refuses a call that expects another.
+	RequestHash string
 }
 
 // Verify records the call and returns the configured outcome.
 func (f *IntegrityChecker) Verify(_ playintegrity.Keys, _ string, e playintegrity.Expect) (playintegrity.Verdict, error) {
 	f.Expect = e
+	if f.RequestHash != "" && e.RequestHash != f.RequestHash {
+		return playintegrity.Verdict{}, plxerr.New(plxerr.AttestationFailed, "play integrity: the token is bound to another request")
+	}
 	return f.Verdict, f.Err
 }
 
@@ -128,6 +134,9 @@ type AppAssertor struct {
 	Counter uint32
 	// Err, when set, is returned instead of the counter.
 	Err error
+	// Want, when set, is the only client data hash an assertion is over:
+	// like the real verifier, the fake refuses a call that expects another.
+	Want *[32]byte
 	// ClientDataHash, AppID and LastCounter are those of the last call.
 	ClientDataHash [32]byte
 	AppID          string
@@ -139,6 +148,9 @@ func (f *AppAssertor) VerifyAssertion(_ []byte, _ *ecdsa.PublicKey, clientDataHa
 	f.ClientDataHash, f.AppID, f.LastCounter = clientDataHash, appID, lastCounter
 	if f.Err != nil {
 		return 0, f.Err
+	}
+	if f.Want != nil && *f.Want != clientDataHash {
+		return 0, plxerr.New(plxerr.AttestationFailed, "the assertion is over another client data hash")
 	}
 	if f.Counter <= lastCounter {
 		return 0, plxerr.New(plxerr.AttestationFailed, "the assertion counter did not advance")

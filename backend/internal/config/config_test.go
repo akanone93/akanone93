@@ -109,7 +109,7 @@ func TestParseRejectsUnknownKeys(t *testing.T) {
 	t.Parallel()
 	mentions(t, []struct{ name, src, want string }{
 		{"unknown section", minimal + "nonsense: {}\n", `unknown section "nonsense"`},
-		{"later phase", minimal + "functions:\n  defaults: {}\n", `"functions" arrives in P7`},
+		{"later phase", minimal + "ai:\n  enabled: true\n", `"ai" arrives in P12`},
 		{"unknown key", withServer("  nonsense: 1\n"), "nonsense"},
 		{"not yaml", "server: [", "not valid YAML"},
 		{"repeated section", minimal + db, "already set"},
@@ -125,7 +125,7 @@ func TestValidateReportsEveryProblem(t *testing.T) {
 		{"no public base URL", db, "server.publicBaseURL"},
 		{"relative base URL", "server:\n  publicBaseURL: \"/api\"\n" + db, "is not an absolute URL"},
 		{"unknown role", withServer("  roles: [api, nonsense]\n"), "is not one of api, worker"},
-		{"later-phase role", withServer("  roles: [api, worker, fnrunner]\n"), "fnrunner role arrives in P7"},
+		{"fnrunner without its section", withServer("  roles: [api, worker, fnrunner]\n"), "fnrunner.artifactKeys"},
 		{"repeated role", withServer("  roles: [api, api, worker]\n"), "listed twice"},
 		{"no roles", withServer("  roles: []\n"), "at least one"},
 		{"no listen address", withServer("  listen: \"\"\n"), "server.listen"},
@@ -471,5 +471,27 @@ func TestAttestationStatusListFile(t *testing.T) {
 	mentions(t, []struct{ name, src, want string }{
 		{"missing", minimal + "attestation:\n  android:\n    statusListFile: " + filepath.Join(dir, "none.json") + "\n", "attestation.android.statusListFile"},
 		{"not a list", minimal + "attestation:\n  android:\n    statusListFile: " + bad + "\n", "not an attestation status list"},
+	})
+}
+
+// Verifies: SEC-007.
+// The fraud-metric receipt is off by default; enabling it needs a key ID
+// and a Team ID of ten uppercase alphanumerics each.
+func TestFraudReceiptConfig_SEC_007(t *testing.T) {
+	t.Parallel()
+	if f := parse(t, minimal).Attestation.Apple.FraudReceipt; f.Enabled || f.KeyID != "" || f.TeamID != "" {
+		t.Errorf("default = %+v, want off", f)
+	}
+	on := "attestation:\n  apple:\n    fraudReceipt:\n      enabled: true\n      keyID: ABCDE12345\n      teamID: TEAM123456\n"
+	if f := parse(t, minimal+on).Attestation.Apple.FraudReceipt; !f.Enabled || f.KeyID != "ABCDE12345" || f.TeamID != "TEAM123456" {
+		t.Errorf("configured = %+v", f)
+	}
+	fr := func(body string) string { return minimal + "attestation:\n  apple:\n    fraudReceipt:\n" + body }
+	mentions(t, []struct{ name, src, want string }{
+		{"enabled without key ID", fr("      enabled: true\n      teamID: TEAM123456\n"), "fraudReceipt.keyID"},
+		{"enabled without team ID", fr("      enabled: true\n      keyID: ABCDE12345\n"), "fraudReceipt.teamID"},
+		{"short key ID", fr("      keyID: ABC\n"), "ten uppercase letters and digits"},
+		{"lower-case team ID", fr("      teamID: team123456\n"), "ten uppercase letters and digits"},
+		{"unknown key", fr("      secret: x\n"), "secret"},
 	})
 }

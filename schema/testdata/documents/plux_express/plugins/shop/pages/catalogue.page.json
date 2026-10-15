@@ -65,6 +65,33 @@
               },
               "testId": "open-courier",
               "type": "TextButton"
+            },
+            {
+              "events": {
+                "onPressed": {
+                  "steps": [
+                    {
+                      "action": "navigate",
+                      "id": "go",
+                      "input": {
+                        "route": "instalments"
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": "01d0c450-6c00-7000-8000-000000004100",
+              "slots": {
+                "child": {
+                  "id": "01d0c450-6c00-7000-8000-000000004101",
+                  "props": {
+                    "data": "Instalments"
+                  },
+                  "type": "Text"
+                }
+              },
+              "testId": "open-instalments",
+              "type": "TextButton"
             }
           ],
           "title": {

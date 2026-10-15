@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -15,6 +16,7 @@ import (
 	"connectrpc.com/connect"
 
 	"github.com/nightCode42/plux3/backend/internal/device"
+	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
@@ -114,6 +116,9 @@ func (s ScaService) CreateTransactionChallenge(ctx context.Context, req *connect
 	if m.GetDeviceId() != "" && m.GetDeviceId() != d.DeviceID {
 		return nil, plxerr.New(plxerr.PermissionDenied, "a device asks for its own challenges only")
 	}
+	if m.GetFunction() != "" {
+		return s.functionChallenge(ctx, d, m)
+	}
 	c, err := s.h.Gateway.CreateChallenge(ctx, d, m.GetDataSource(), m.GetOperation(), m.GetTransactionSummaryJcs())
 	if err != nil {
 		return nil, withEpoch(ctx, s.h.Gateway, d, err)
@@ -123,6 +128,31 @@ func (s ScaService) CreateTransactionChallenge(ctx context.Context, req *connect
 		out.Displayed = append(out.Displayed, &pluxv1.DisplayedValue{Label: v.Label, Value: v.Value})
 	}
 	return connect.NewResponse(out), nil
+}
+
+// functionChallenge issues the challenge of a function invocation, a
+// transaction whose operation is the function and its version and whose
+// bound body is the input (FN-020, SEC-027, SEC-028).
+func (s ScaService) functionChallenge(ctx context.Context, d device.Identity, m *pluxv1.CreateTransactionChallengeRequest) (*connect.Response[pluxv1.CreateTransactionChallengeResponse], error) {
+	if s.h.FunctionInvoker == nil {
+		return nil, connect.NewError(connect.CodeUnimplemented, errors.New("this server runs no server functions"))
+	}
+	if m.GetDataSource() != "" || m.GetOperation() != "" {
+		return nil, plxerr.New(plxerr.InvalidFormat, "a challenge is for a function or for an upstream's operation, not both")
+	}
+	if m.GetFunctionVersion() == 0 || m.GetFunctionVersion() > math.MaxInt32 {
+		return nil, plxerr.New(plxerr.FunctionNotFound, "no such function version")
+	}
+	c, err := s.h.FunctionInvoker.CreateChallenge(ctx, d, function.ChallengeRequest{
+		Function: m.GetFunction(), Version: int32(m.GetFunctionVersion()), //nolint:gosec // bounded above
+		InputSHA256: m.GetInputSha256(), Summary: m.GetTransactionSummaryJcs(),
+	})
+	if err != nil {
+		return nil, err //nolint:wrapcheck // a domain error
+	}
+	return connect.NewResponse(&pluxv1.CreateTransactionChallengeResponse{
+		ChallengeId: c.ID, Challenge: c.Bytes, ExpiresAt: ts(c.ExpiresAt), TransactionSummaryJcs: c.Summary,
+	}), nil
 }
 
 // The request headers the streaming route reads its typed fields from,

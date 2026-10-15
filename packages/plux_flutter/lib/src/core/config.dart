@@ -15,6 +15,7 @@ import 'package:http/http.dart' as http;
 import 'package:plux_flutter/src/db/adapter.dart';
 import 'package:plux_flutter/src/device/types.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/functions/engine.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/navigation/delegate.dart';
 import 'package:plux_flutter/src/security/rasp.dart';
@@ -229,6 +230,7 @@ final class PluxConfig {
     this.nativeActions = const {},
     this.router,
     this.devicePackages = const [],
+    this.functionEngine,
     this.allowedCapabilities,
     this.databaseAdapter,
     this.securityModules = const [],
@@ -403,6 +405,12 @@ final class PluxConfig {
   /// plugin that uses another fails its step with `PLX-5401`. Each package
   /// is recorded in the native catalogue by `plux native scan`.
   final List<PluxDevicePackage> devicePackages;
+
+  /// The device function engine, `PluxFunctions()` of `plux_functions`
+  /// (FN-050, E9): functions placed on the device run only when it is
+  /// registered; without it a device-placed `invokeFunction` step fails with
+  /// `PLX-5401`. Server-placed functions need no package.
+  final PluxFunctionEngine? functionEngine;
 
   /// Narrows the device APIs plugins may use to these, such as `camera` or
   /// `location`, at run time (SEC-080): an operation outside the set is

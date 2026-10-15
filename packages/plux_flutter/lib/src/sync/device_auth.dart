@@ -424,6 +424,21 @@ final class DeviceAuth {
     return _Session(id, key, _proofs(key));
   }
 
+  /// The platform evidence of one function invocation (FN-020, SEC-003,
+  /// SEC-004): on Android a Play Integrity token whose request hash is
+  /// base64url([binding]), elsewhere an App Attest assertion over [binding].
+  /// A device without the service answers with neither, and the server
+  /// refuses the call.
+  Future<InvocationEvidence> invocationEvidence(Uint8List binding) async {
+    if (device.platform == 'android') {
+      final token = await attestation.integrityToken(
+        base64Url.encode(binding).replaceAll('=', ''),
+      );
+      return InvocationEvidence(integrityToken: token);
+    }
+    return InvocationEvidence(assertion: await attestation.assertion(binding));
+  }
+
   Future<DeviceToken> _refresh(_Session s) => api.refreshToken(
     deviceId: s.deviceId,
     proofs: s.proofs,

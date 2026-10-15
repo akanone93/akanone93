@@ -4,7 +4,7 @@
 # Included by the Makefile. A change to this file runs the benchmark and
 # size jobs on a pull request (ci/affected.json, ADR-0043).
 
-.PHONY: bench-runtime bench-runtime-ab bench-sync bench-steps bench-pxl bench-db bench-pull bench-dpop bench-confidential size-android size-ios release-inspect
+.PHONY: bench-runtime bench-runtime-ab bench-sync bench-fn bench-steps bench-pxl bench-db bench-pull bench-dpop bench-confidential size-android size-ios release-inspect
 
 ##@ Benchmarks and size (QA-007)
 
@@ -28,6 +28,10 @@ bench-runtime-ab: ## Compare the runtime benchmark with BASE's runtime; fail on 
 bench-sync: ## Sync the benchmark app on the simulated slow network against a server built from source (needs PLUX_TEST_DATABASE_URL)
 	@test -n "$${PLUX_TEST_DATABASE_URL:-}" || { echo "✗ set PLUX_TEST_DATABASE_URL: run 'make test-db' and export what it prints (docs/engineering/testing.md)"; exit 1; }
 	cd backend && PLUX_E2E_FLUTTER="$$(command -v flutter)" $(GO) test -count=1 -timeout 30m -run TestSyncOnSlowNetwork -v ./internal/server
+
+# Verifies: NFR-022, FN-023.
+bench-fn: ## Measure the overhead of a server function invocation, warm and first after deploy (NFR-022; prints JSON; fails over budget)
+	cd backend && PLUX_BENCH_FN=1 $(GO) test -count=1 -timeout 10m -run TestFunctionInvocationOverhead -v ./internal/fnrunner
 
 # The engine's cost per step, an early measurement of NFR-011 (recorded in
 # docs/benchmarks/p4-routing.md, not gated: the gate arrives in P5).

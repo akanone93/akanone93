@@ -22,6 +22,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `api.requestsPerMinute` | count | 600 | 80% | 100000 | installation, organization | P2 | SRV-065 | API calls one authenticated principal (a user or a token) may make per minute. |
 | `api.requestsPerMinutePerAddress` | count | 300 | 80% | 100000 | installation | P2 | SRV-065 | API calls one client address may make per minute, whoever is calling. |
 | `api.requestsPerMinutePerDevice` | count | 120 | 80% | 10000 | installation, organization, app | P2 | SRV-065 | API calls one registered device may make per minute. |
+| `app.functions` | count | 100 | 80% | 1000 | installation, organization, app | P7 | LIM-001 | Functions per app. |
 | `app.plugins` | count | 200 | 80% | 1000 | installation, organization, app | P1 | SCH-005 | Plugins per app. |
 | `asset.fileSize` | bytes | 10485760 | 80% | 104857600 | installation, organization, app | P2 | SRV-060, AST-003 | Size of one asset file, checked at upload and again at publish. |
 | `asset.imagePixels` | count | 40000000 | 80% | 100000000 | installation | P2 | SRV-060, CMP-030 | Pixels of one image asset, width times height, checked before it is decoded so that a small file cannot expand into a huge image. |
@@ -69,6 +70,27 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `dpop.jtiBytes` | bytes | 64 | 80% | 256 | installation | P6 | SEC-021 | Length of a DPoP proof identifier. |
 | `dpop.proofBytes` | bytes | 8192 | 80% | 32768 | installation | P6 | SEC-021 | Size of a DPoP proof. |
 | `dpop.replayCacheEntries` | count | 1000000 | 80% | 100000000 | installation | P6 | SEC-023, LIM-004 | Proof identifiers the DPoP replay cache holds. |
+| `function.buildMemory` | bytes | 4294967296 | 80% | 17179869184 | installation, organization, app | P7 | FN-016 | Memory one function build may use. |
+| `function.buildTimeout` | milliseconds | 600000 | 80% | 3600000 | installation, organization, app | P7 | FN-016 | Wall-clock time one function build may run. |
+| `function.callDepth` | count | 3 | 80% | 3 | installation, organization, app | P7 | FN-011 | Depth of nested function-to-function calls within one invocation. |
+| `function.deviceMemory` | bytes | 33554432 | 80% | 134217728 | installation, organization, app, plugin | P7 | FN-053 | Linear memory one device function invocation may use. |
+| `function.deviceTimeout` | milliseconds | 500 | 80% | 5000 | installation, organization, app, plugin | P7 | FN-053 | Wall-clock time one device function invocation may run. |
+| `function.httpCalls` | count | 10 | 80% | 100 | installation, organization, app | P7 | FN-011 | Outbound HTTP calls one server function invocation may make. |
+| `function.idempotencyWindow` | milliseconds | 86400000 | 80% | 604800000 | installation | P7 | FN-021 | How long the server keeps an idempotency record; the server refuses less than 24 hours. |
+| `function.inputSize` | bytes | 1048576 | 80% | 16777216 | installation, organization, app | P7 | FN-011 | Size of the JSON input of one function invocation. |
+| `function.invocationsPerMinute` | count | 600 | 80% | 100000 | installation, organization, app | P7 | FN-024 | Invocations per minute of one function. |
+| `function.invocationsPerMinutePerApp` | count | 6000 | 80% | 1000000 | installation, organization, app | P7 | FN-024 | Function invocations per minute of one app. |
+| `function.invocationsPerMinutePerDevice` | count | 60 | 80% | 10000 | installation, organization, app | P7 | FN-024 | Function invocations per minute of one device. |
+| `function.kvBytes` | bytes | 10485760 | 80% | 1073741824 | installation, organization, app | P7 | FN-018 | Total size of the key-value store of one function. |
+| `function.kvKeys` | count | 10000 | 80% | 1000000 | installation, organization, app | P7 | FN-018 | Keys in the key-value store of one function. |
+| `function.kvValueBytes` | bytes | 65536 | 80% | 1048576 | installation, organization, app | P7 | FN-018 | Size of one value in the function key-value store. |
+| `function.logBytes` | bytes | 65536 | 80% | 1048576 | installation, organization, app | P7 | FN-032 | Log output one function invocation may retain. |
+| `function.memory` | bytes | 67108864 | 80% | 536870912 | installation, organization, app | P7 | FN-011 | Linear memory one server function invocation may use. |
+| `function.moduleSize` | bytes | 16777216 | 80% | 67108864 | installation, organization, app | P7 | FN-010 | Size of the WebAssembly module of one server function. |
+| `function.outputSize` | bytes | 1048576 | 80% | 16777216 | installation, organization, app | P7 | FN-011 | Size of the JSON output of one function invocation. |
+| `function.sourceArchiveSize` | bytes | 67108864 | 80% | 536870912 | installation, organization, app | P7 | FN-016 | Size of an uploaded function source archive, including vendored sources. |
+| `function.testCases` | count | 100 | 80% | 1000 | installation, organization, app | P7 | FN-031 | Stored test cases of one function. |
+| `function.timeout` | milliseconds | 2000 | 80% | 30000 | installation, organization, app | P7 | FN-011 | Wall-clock time one server function invocation may run. |
 | `gateway.requestBytes` | bytes | 1048576 | 80% | 33554432 | installation, organization, app | P6 | SEC-031, LIM-004 | Bytes of request body the gateway forwards to an upstream. |
 | `gateway.requestsPerMinutePerDevice` | count | 600 | 80% | 10000 | installation, organization, app | P6 | SEC-031, LIM-004 | Gateway requests one device may send per minute. |
 | `gateway.responseBytes` | bytes | 8388608 | 80% | 67108864 | installation, organization, app | P6 | SEC-031, LIM-004 | Bytes of upstream response body the gateway returns to a device. |

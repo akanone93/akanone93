@@ -36,11 +36,21 @@ const (
 	KeysManage         Permission = "keys.manage"
 	AuditRead          Permission = "audit.read"
 	TrashManage        Permission = "trash.manage"
+	// FunctionRead reads functions, their versions and builds (FN-006).
+	FunctionRead Permission = "function.read"
+	// FunctionDeploy uploads, builds and deploys functions outside
+	// production (FN-006).
+	FunctionDeploy Permission = "function.deploy"
+	// FunctionDeployProduction deploys a function to a production
+	// environment. It is the stand-in for the approval engine until P9
+	// (FN-007), so it requires a second factor.
+	FunctionDeployProduction Permission = "function.deploy.production"
 )
 
 // permissions is the catalogue, sorted.
 var permissions = []Permission{
-	AppManage, AppRead, AuditRead, EnvironmentManage, KeysManage, LimitsManage,
+	AppManage, AppRead, AuditRead, EnvironmentManage, FunctionDeploy,
+	FunctionDeployProduction, FunctionRead, KeysManage, LimitsManage,
 	MembersManage, OrganizationManage, OrganizationRead, PluginEdit,
 	PluginLockOverride, PluginRead, ReleasePromote, ReleasePublish,
 	SecretsManage, TokensManage, TrashManage,
@@ -52,8 +62,9 @@ func Permissions() []Permission { return slices.Clone(permissions) }
 // appPermissions are the permissions that make sense on one app; an
 // app-level grant carries only these, whatever its role (GOV-001).
 var appPermissions = []Permission{
-	AppManage, AppRead, EnvironmentManage, PluginEdit, PluginLockOverride,
-	PluginRead, ReleasePromote, ReleasePublish, SecretsManage, TrashManage,
+	AppManage, AppRead, EnvironmentManage, FunctionDeploy, FunctionDeployProduction,
+	FunctionRead, PluginEdit, PluginLockOverride, PluginRead, ReleasePromote,
+	ReleasePublish, SecretsManage, TrashManage,
 }
 
 // Role is a named set of permissions. P2 defines the four roles a
@@ -79,13 +90,14 @@ const (
 var grants = map[Role][]Permission{
 	RoleOwner: permissions,
 	RoleAdmin: {
-		AppManage, AppRead, AuditRead, EnvironmentManage, LimitsManage,
+		AppManage, AppRead, AuditRead, EnvironmentManage, FunctionDeploy,
+		FunctionDeployProduction, FunctionRead, LimitsManage,
 		OrganizationManage, OrganizationRead, PluginEdit, PluginLockOverride,
 		PluginRead, ReleasePromote, ReleasePublish, SecretsManage, TokensManage,
 		TrashManage,
 	},
-	RoleDeveloper: {AppRead, OrganizationRead, PluginEdit, PluginRead, ReleasePublish},
-	RoleViewer:    {AppRead, OrganizationRead, PluginRead},
+	RoleDeveloper: {AppRead, FunctionDeploy, FunctionRead, OrganizationRead, PluginEdit, PluginRead, ReleasePublish},
+	RoleViewer:    {AppRead, FunctionRead, OrganizationRead, PluginRead},
 }
 
 // Roles returns every role, in order.
@@ -113,9 +125,11 @@ func RolePermissions(r Role) []Permission { return slices.Clone(grants[r]) }
 // stepUp lists the permissions that require a second factor (SEC-100):
 // publishing, approving (promotion, until approvals arrive in P9),
 // managing keys and managing members — and, beyond the requirement,
-// secrets and tokens, which carry the same power by other means.
+// secrets and tokens, which carry the same power by other means. Deploying
+// a function to production is the stand-in for an approval until P9
+// (FN-007).
 var stepUp = []Permission{
-	KeysManage, MembersManage, ReleasePromote, ReleasePublish, SecretsManage, TokensManage,
+	FunctionDeployProduction, KeysManage, MembersManage, ReleasePromote, ReleasePublish, SecretsManage, TokensManage,
 }
 
 // NeedsSecondFactor reports whether a permission may be used only after

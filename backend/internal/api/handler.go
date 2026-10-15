@@ -17,6 +17,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/release"
@@ -53,10 +54,19 @@ type Handlers struct {
 	// Configs administers server-held configuration values and LiveConfig
 	// serves the live ones to devices (DAT-090, DAT-094); nil answers
 	// Unimplemented.
-	Configs     *gateway.Configs
-	LiveConfig  *gateway.ConfigResolver
-	Idempotency *idempotency.Store
-	Pages       *Pages
+	Configs    *gateway.Configs
+	LiveConfig *gateway.ConfigResolver
+	// Functions administers functions (FN-006, FN-016); nil leaves
+	// FunctionAdminService unmounted.
+	Functions *function.Service
+	// FunctionHosting serves FunctionHostService to the function runner on
+	// the internal listener (ADR-0064); nil leaves it unmounted.
+	FunctionHosting *function.Host
+	// FunctionInvoker serves FunctionService to devices (FN-020); nil
+	// leaves it unmounted.
+	FunctionInvoker *function.Invoker
+	Idempotency     *idempotency.Store
+	Pages           *Pages
 	// Limiter counts calls per principal and organisation when an
 	// organisation tightens api.requestsPerMinute (SRV-065, LIM-002).
 	Limiter RateLimiter

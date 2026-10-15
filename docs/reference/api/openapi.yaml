@@ -2110,6 +2110,456 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ValidatePageResponse'
+  /plux.v1.FunctionAdminService/Build:
+    post:
+      tags:
+        - plux.v1.FunctionAdminService
+      summary: Build
+      description: |-
+        Build starts a build of an uploaded source on the builder role
+         (FN-016, FN-019).
+      operationId: plux.v1.FunctionAdminService.Build
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.BuildRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.BuildResponse'
+  /plux.v1.FunctionAdminService/Deploy:
+    post:
+      tags:
+        - plux.v1.FunctionAdminService
+      summary: Deploy
+      description: |-
+        Deploy turns a successful build into a new immutable version and may
+         point an alias at it. A build with failing tests is refused (FN-006,
+         FN-031).
+      operationId: plux.v1.FunctionAdminService.Deploy
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeployRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeployResponse'
+  /plux.v1.FunctionAdminService/GetBuild:
+    post:
+      tags:
+        - plux.v1.FunctionAdminService
+      summary: GetBuild
+      description: |-
+        GetBuild returns the state, diagnostics and test results of a build
+         (FN-016, FN-031).
+      operationId: plux.v1.FunctionAdminService.GetBuild
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetBuildRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetBuildResponse'
+  /plux.v1.FunctionAdminService/GetFunction:
+    post:
+      tags:
+        - plux.v1.FunctionAdminService
+      summary: GetFunction
+      description: |-
+        GetFunction returns a function with its aliases and latest version
+         (FN-006).
+      operationId: plux.v1.FunctionAdminService.GetFunction
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetFunctionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetFunctionResponse'
+  /plux.v1.FunctionAdminService/GetMetrics:
+    post:
+      tags:
+        - plux.v1.FunctionAdminService
+      summary: GetMetrics
+      description: |-
+        GetMetrics returns invocation counts, errors by kind, latency
+         percentiles, memory peak and cache hits (FN-032).
+      operationId: plux.v1.FunctionAdminService.GetMetrics
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetMetricsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetMetricsResponse'
+  /plux.v1.FunctionAdminService/ListFunctions:
+    post:
+      tags:
+        - plux.v1.FunctionAdminService
+      summary: ListFunctions
+      description: ListFunctions lists the functions of an app and environment (FN-006).
+      operationId: plux.v1.FunctionAdminService.ListFunctions
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListFunctionsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListFunctionsResponse'
+  /plux.v1.FunctionAdminService/ListLogs:
+    post:
+      tags:
+        - plux.v1.FunctionAdminService
+      summary: ListLogs
+      description: ListLogs returns the retained log lines of a function (FN-032).
+      operationId: plux.v1.FunctionAdminService.ListLogs
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListLogsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListLogsResponse'
+  /plux.v1.FunctionAdminService/ListVersions:
+    post:
+      tags:
+        - plux.v1.FunctionAdminService
+      summary: ListVersions
+      description: ListVersions lists the immutable versions of a function (FN-006).
+      operationId: plux.v1.FunctionAdminService.ListVersions
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListVersionsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListVersionsResponse'
+  /plux.v1.FunctionAdminService/PromoteFunction:
+    post:
+      tags:
+        - plux.v1.FunctionAdminService
+      summary: PromoteFunction
+      description: |-
+        PromoteFunction copies a version to another environment of the app
+         without rebuilding it, keeping its number, module and signature. A
+         production target refuses a version whose tests failed (FN-006,
+         FN-007, FN-031).
+      operationId: plux.v1.FunctionAdminService.PromoteFunction
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.PromoteFunctionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.PromoteFunctionResponse'
+  /plux.v1.FunctionAdminService/SetAlias:
+    post:
+      tags:
+        - plux.v1.FunctionAdminService
+      summary: SetAlias
+      description: SetAlias points an alias at an existing version (FN-006).
+      operationId: plux.v1.FunctionAdminService.SetAlias
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetAliasRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SetAliasResponse'
+  /plux.v1.FunctionAdminService/UploadSource: {}
+  /plux.v1.FunctionService/Invoke:
+    post:
+      tags:
+        - plux.v1.FunctionService
+      summary: Invoke
+      description: |-
+        Invoke runs one version of a function with a JSON input. The server
+         checks the DPoP binding, the access token, the function's required
+         assurance and the grant of the calling plugin before it runs the
+         module (FN-012, FN-020), and refuses a version that no active release
+         of the app pins (FN-006).
+      operationId: plux.v1.FunctionService.Invoke
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.FunctionServiceInvokeRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.FunctionServiceInvokeResponse'
   /plux.v1.GatewayService/Call:
     post:
       tags:
@@ -6190,6 +6640,19 @@ components:
              exactly once and expires after seven days.
       title: AddMemberResponse
       additionalProperties: false
+    plux.v1.Alias:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+          description: name matches `^[a-z][a-z0-9-]*$`.
+        version:
+          type: integer
+          title: version
+      title: Alias
+      additionalProperties: false
+      description: Alias points a name at a version of a function (FN-006).
     plux.v1.AndroidEvidence:
       type: object
       properties:
@@ -6568,6 +7031,61 @@ components:
              JSON serialisation, for navigator.credentials.create().
       title: BeginWebAuthnRegistrationResponse
       additionalProperties: false
+    plux.v1.Build:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        state:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.BuildState'
+          title: state
+          description: state is the build's progress.
+        diagnostics:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Diagnostic'
+          title: diagnostics
+          description: diagnostics are the compiler and builder findings (FN-016).
+        testResults:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.FunctionTestResult'
+          title: test_results
+          description: |-
+            test_results are the stored test cases run against the module
+             (FN-031).
+      title: Build
+      additionalProperties: false
+      description: Build is one build of an uploaded source (FN-016).
+    plux.v1.BuildRequest:
+      type: object
+      properties:
+        sourceId:
+          type: string
+          title: source_id
+      title: BuildRequest
+      additionalProperties: false
+    plux.v1.BuildResponse:
+      type: object
+      properties:
+        build:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Build'
+          title: build
+      title: BuildResponse
+      additionalProperties: false
+    plux.v1.BuildState:
+      type: string
+      title: BuildState
+      enum:
+        - BUILD_STATE_UNSPECIFIED
+        - BUILD_STATE_QUEUED
+        - BUILD_STATE_RUNNING
+        - BUILD_STATE_SUCCEEDED
+        - BUILD_STATE_FAILED
+      description: BuildState is the progress of a build (FN-016).
     plux.v1.BundleDescriptor:
       type: object
       properties:
@@ -7453,6 +7971,27 @@ components:
             transaction_summary_jcs is the RFC 8785 canonical JSON of what the
              user confirms; the server binds the challenge to its hash, so the
              confirmed transaction cannot be swapped (SEC-028).
+        function:
+          type: string
+          title: function
+          description: |-
+            function names a server function whose invocation the user confirms
+             (FN-020, SEC-027). When set, data_source and operation are empty,
+             function_version and input_sha256 are required, and
+             transaction_summary_jcs is a canonical JSON object of strings the user
+             is shown; the server adds the function, the version and the input hash
+             to it, and returns the result for the device to sign.
+        functionVersion:
+          type: integer
+          title: function_version
+          description: function_version is the pinned version of the function.
+        inputSha256:
+          type: string
+          title: input_sha256
+          format: byte
+          description: |-
+            input_sha256 is the SHA-256 of the invocation's input; the invocation
+             is refused unless its input has this hash (SEC-028).
       title: CreateTransactionChallengeRequest
       additionalProperties: false
     plux.v1.CreateTransactionChallengeResponse:
@@ -7754,6 +8293,46 @@ components:
     plux.v1.DenyDeviceAuthorizationResponse:
       type: object
       title: DenyDeviceAuthorizationResponse
+      additionalProperties: false
+    plux.v1.Dependency:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+        version:
+          type: string
+          title: version
+        checksum:
+          type: string
+          title: checksum
+          description: checksum is the crate's hex SHA-256 from the lock file.
+      title: Dependency
+      additionalProperties: false
+      description: Dependency is one vendored crate of a build (FN-005).
+    plux.v1.DeployRequest:
+      type: object
+      properties:
+        buildId:
+          type: string
+          title: build_id
+        alias:
+          type: string
+          title: alias
+          description: alias, when set, is pointed at the new version (FN-006).
+        session:
+          type: string
+          title: session
+      title: DeployRequest
+      additionalProperties: false
+    plux.v1.DeployResponse:
+      type: object
+      properties:
+        version:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FunctionVersion'
+          title: version
+      title: DeployResponse
       additionalProperties: false
     plux.v1.DevelopmentEvidence:
       type: object
@@ -8097,7 +8676,9 @@ components:
         audience:
           type: string
           title: audience
-          description: audience is the upstream the new token is for (RFC 8693 `audience`).
+          description: |-
+            audience is what the new token is for (RFC 8693 `audience`): a gateway
+             upstream, or `function:<name>` for a server function (SEC-026).
       title: ExchangeUserTokenRequest
       additionalProperties: false
     plux.v1.ExchangeUserTokenResponse:
@@ -8230,6 +8811,234 @@ components:
           title: factor
       title: FinishWebAuthnRegistrationResponse
       additionalProperties: false
+    plux.v1.FunctionBusinessError:
+      type: object
+      properties:
+        code:
+          type: string
+          title: code
+          description: code is the function's own error code.
+        messageKey:
+          type: string
+          title: message_key
+          description: message_key is the localisable message key (FN-022).
+        params:
+          type: string
+          title: params
+          format: byte
+          description: params is a UTF-8 JSON object of message parameters.
+      title: FunctionBusinessError
+      additionalProperties: false
+      description: |-
+        FunctionBusinessError is an outcome the function's own code declares,
+         surfaced to the calling action graph (FN-022).
+    plux.v1.FunctionLogLine:
+      type: object
+      properties:
+        time:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: time
+        version:
+          type: integer
+          title: version
+        level:
+          type: string
+          title: level
+          description: level is "debug", "info", "warn" or "error".
+        message:
+          type: string
+          title: message
+        traceId:
+          type: string
+          title: trace_id
+          description: trace_id links the line to the calling request's trace (FN-032).
+      title: FunctionLogLine
+      additionalProperties: false
+      description: FunctionLogLine is one retained log line of an invocation (FN-032).
+    plux.v1.FunctionServiceInvokeRequest:
+      type: object
+      properties:
+        function:
+          type: string
+          title: function
+          description: function is the dotted function name (FN-006).
+        version:
+          type: integer
+          title: version
+          description: version is the function version the device's release pinned (FN-006).
+        input:
+          type: string
+          title: input
+          format: byte
+          description: |-
+            input is the UTF-8 JSON input, validated against the input schema
+             (FN-004) and bounded by `function.inputSize` (FN-011).
+        idempotencyKey:
+          type: string
+          title: idempotency_key
+          description: |-
+            idempotency_key lets a retry return the stored result without running
+             the function again within `function.idempotencyWindow` (FN-021).
+        transactionChallengeId:
+          type: string
+          title: transaction_challenge_id
+          description: |-
+            transaction_challenge_id names the challenge that transaction_signature
+             answers; required when the function declares `sca` (FN-020, SEC-027).
+        transactionSignature:
+          type: string
+          title: transaction_signature
+          format: byte
+          description: |-
+            transaction_signature is the signature of the device's SCA key over the
+             challenge followed by the transaction summary: ES256, 64 bytes, r then
+             s (SEC-027).
+        appAttestAssertion:
+          type: string
+          title: app_attest_assertion
+          format: byte
+          description: |-
+            app_attest_assertion is an iOS device's App Attest assertion over
+             SHA-256("plux-fn-invoke-v1" || function || "@" || uint32be(version) ||
+             SHA-256(input) || jti), where jti is the identifier of the request's
+             DPoP proof; required when the function declares `attestation` (FN-020,
+             SEC-004).
+        playIntegrityToken:
+          type: string
+          title: play_integrity_token
+          description: |-
+            play_integrity_token is an Android device's Play Integrity
+             standard-request token whose requestHash is that value, base64url
+             without padding; required when the function declares `attestation`
+             (FN-020, SEC-003).
+      title: FunctionServiceInvokeRequest
+      additionalProperties: false
+    plux.v1.FunctionServiceInvokeResponse:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            businessError:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.FunctionBusinessError'
+              title: business_error
+              description: business_error is an error the function declared itself (FN-022).
+          title: business_error
+        - type: object
+          properties:
+            output:
+              type: string
+              title: output
+              format: byte
+              description: output is the UTF-8 JSON output of the function (FN-004).
+          title: output
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - businessError
+              - required:
+                  - output
+          - not:
+              oneOf:
+                - required:
+                    - businessError
+                - required:
+                    - output
+      properties:
+        version:
+          type: integer
+          title: version
+          description: version is the function version that ran (FN-006).
+        replayed:
+          type: boolean
+          title: replayed
+          description: |-
+            replayed is true when the response came from the idempotency record
+             and the function did not run again (FN-021).
+      title: FunctionServiceInvokeResponse
+    plux.v1.FunctionTestResult:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+        passed:
+          type: boolean
+          title: passed
+        message:
+          type: string
+          title: message
+          description: message explains a failure.
+      title: FunctionTestResult
+      additionalProperties: false
+      description: FunctionTestResult is the outcome of one stored test case (FN-031).
+    plux.v1.FunctionVersion:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        name:
+          type: string
+          title: name
+          description: name is the dotted function name.
+        version:
+          type: integer
+          title: version
+          description: version is the integer assigned at deploy (FN-006).
+        placement:
+          type: string
+          title: placement
+          description: placement is "server" or "device" (FN-008).
+        moduleSha256:
+          type: string
+          title: module_sha256
+          description: module_sha256 is the hex SHA-256 of the module (FN-005).
+        abiVersion:
+          type: integer
+          title: abi_version
+          description: abi_version is the host ABI version the module targets (FN-015).
+        inputSchema:
+          type: string
+          title: input_schema
+          description: input_schema is the JSON Schema derived from the input type (FN-004).
+        outputSchema:
+          type: string
+          title: output_schema
+          description: output_schema is the JSON Schema derived from the output type (FN-004).
+        provenance:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Provenance'
+          title: provenance
+          description: provenance records how the module was built (FN-005).
+        signature:
+          type: string
+          title: signature
+          format: byte
+          description: |-
+            signature is the signature over the artifact statement, made with the
+             function-artifact key (FN-009).
+        testsPassed:
+          type: boolean
+          title: tests_passed
+          description: tests_passed is true when every stored test case passed (FN-031).
+        createdBy:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Actor'
+          title: created_by
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+      title: FunctionVersion
+      additionalProperties: false
+      description: FunctionVersion is one immutable version of a function (FN-006).
     plux.v1.GetAppRequest:
       type: object
       properties:
@@ -8263,6 +9072,23 @@ components:
             - $ref: '#/components/schemas/plux.v1.Asset'
           title: asset
       title: GetAssetResponse
+      additionalProperties: false
+    plux.v1.GetBuildRequest:
+      type: object
+      properties:
+        buildId:
+          type: string
+          title: build_id
+      title: GetBuildRequest
+      additionalProperties: false
+    plux.v1.GetBuildResponse:
+      type: object
+      properties:
+        build:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Build'
+          title: build
+      title: GetBuildResponse
       additionalProperties: false
     plux.v1.GetChangelogRequest:
       type: object
@@ -8484,6 +9310,35 @@ components:
              (SEC-182).
       title: GetEffectiveSecurityConfigResponse
       additionalProperties: false
+    plux.v1.GetFunctionRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        name:
+          type: string
+          title: name
+      title: GetFunctionRequest
+      additionalProperties: false
+    plux.v1.GetFunctionResponse:
+      type: object
+      properties:
+        latest:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FunctionVersion'
+          title: latest
+          description: latest is the highest deployed version.
+        aliases:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Alias'
+          title: aliases
+      title: GetFunctionResponse
+      additionalProperties: false
     plux.v1.GetLiveConfigRequest:
       type: object
       title: GetLiveConfigRequest
@@ -8625,6 +9480,68 @@ components:
              outside the signed part: the bundles' signed hashes cover ciphertext,
              and a key that does not open them is refused by the device.
       title: GetManifestResponse
+      additionalProperties: false
+    plux.v1.GetMetricsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        name:
+          type: string
+          title: name
+        windowSeconds:
+          type: integer
+          title: window_seconds
+          description: window_seconds is the span of time the metrics cover.
+      title: GetMetricsRequest
+      additionalProperties: false
+    plux.v1.GetMetricsResponse:
+      type: object
+      properties:
+        invocations:
+          type: string
+          title: invocations
+          format: int64
+        errorsByKind:
+          type: object
+          title: errors_by_kind
+          additionalProperties:
+            type: string
+            title: value
+            format: int64
+          description: errors_by_kind maps a reason, such as FUNCTION_TIMEOUT, to its count.
+        latencyP50Micros:
+          type: string
+          title: latency_p50_micros
+          format: int64
+          description: |-
+            latency_p50_micros, latency_p95_micros and latency_p99_micros are
+             latency percentiles in microseconds.
+        latencyP95Micros:
+          type: string
+          title: latency_p95_micros
+          format: int64
+        latencyP99Micros:
+          type: string
+          title: latency_p99_micros
+          format: int64
+        memoryPeakBytes:
+          type: string
+          title: memory_peak_bytes
+          format: int64
+          description: memory_peak_bytes is the highest linear memory any invocation used.
+        cacheHits:
+          type: string
+          title: cache_hits
+          format: int64
+          description: |-
+            cache_hits counts results served from the pure-function cache
+             (FN-014).
+      title: GetMetricsResponse
       additionalProperties: false
     plux.v1.GetNativeCatalogueRequest:
       type: object
@@ -9606,6 +10523,36 @@ components:
           title: page
       title: ListFactorsResponse
       additionalProperties: false
+    plux.v1.ListFunctionsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListFunctionsRequest
+      additionalProperties: false
+    plux.v1.ListFunctionsResponse:
+      type: object
+      properties:
+        functions:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.FunctionVersion'
+          title: functions
+          description: functions holds the latest version of each function.
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListFunctionsResponse
+      additionalProperties: false
     plux.v1.ListHostBuildsRequest:
       type: object
       properties:
@@ -9631,6 +10578,47 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListHostBuildsResponse
+      additionalProperties: false
+    plux.v1.ListLogsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        name:
+          type: string
+          title: name
+        version:
+          type: integer
+          title: version
+          description: version limits the logs to one version when non-zero.
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+        since:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: since
+          description: since limits the logs to lines written at or after this time (FN-032).
+      title: ListLogsRequest
+      additionalProperties: false
+    plux.v1.ListLogsResponse:
+      type: object
+      properties:
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.FunctionLogLine'
+          title: lines
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListLogsResponse
       additionalProperties: false
     plux.v1.ListMembersRequest:
       type: object
@@ -10058,6 +11046,38 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListVariablesResponse
+      additionalProperties: false
+    plux.v1.ListVersionsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        name:
+          type: string
+          title: name
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListVersionsRequest
+      additionalProperties: false
+    plux.v1.ListVersionsResponse:
+      type: object
+      properties:
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.FunctionVersion'
+          title: versions
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListVersionsResponse
       additionalProperties: false
     plux.v1.ListWorkloadIdentitiesRequest:
       type: object
@@ -10591,6 +11611,45 @@ components:
              poll after approval.
       title: PollDeviceAuthorizationResponse
       additionalProperties: false
+    plux.v1.PromoteFunctionRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        fromEnvironmentId:
+          type: string
+          title: from_environment_id
+          description: from_environment_id is the environment that holds the version.
+        toEnvironmentId:
+          type: string
+          title: to_environment_id
+          description: to_environment_id is the environment that receives the copy.
+        name:
+          type: string
+          title: name
+        version:
+          type: integer
+          title: version
+        alias:
+          type: string
+          title: alias
+          description: alias, when set, is pointed at the version in the target (FN-006).
+        session:
+          type: string
+          title: session
+      title: PromoteFunctionRequest
+      additionalProperties: false
+    plux.v1.PromoteFunctionResponse:
+      type: object
+      properties:
+        version:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FunctionVersion'
+          title: version
+          description: version is the version as the target environment holds it.
+      title: PromoteFunctionResponse
+      additionalProperties: false
     plux.v1.PromoteReleaseRequest:
       type: object
       properties:
@@ -10618,6 +11677,48 @@ components:
           title: release
       title: PromoteReleaseResponse
       additionalProperties: false
+    plux.v1.Provenance:
+      type: object
+      properties:
+        sourceSha256:
+          type: string
+          title: source_sha256
+          description: source_sha256 is the hex SHA-256 of the source archive.
+        dependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Dependency'
+          title: dependencies
+          description: dependencies are the vendored crates the build used.
+        toolchain:
+          type: string
+          title: toolchain
+          description: toolchain is the pinned compiler version (FN-016).
+        wasmOptVersion:
+          type: string
+          title: wasm_opt_version
+          description: wasm_opt_version is the pinned optimiser version (FN-016).
+        buildTime:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: build_time
+          description: |-
+            build_time is the time the build ran; it is recorded, never embedded
+             in the module (FN-019).
+        builderIdentity:
+          type: string
+          title: builder_identity
+          description: builder_identity names the builder instance (FN-005, FN-009).
+        sdkSha256:
+          type: string
+          title: sdk_sha256
+          description: |-
+            sdk_sha256 is the SHA-256 of the pinned SDK the module was linked
+             with; the SDK is a path crate, so the lock file does not record it
+             (FN-005).
+      title: Provenance
+      additionalProperties: false
+      description: Provenance is the build record signed with the artifact (FN-005).
     plux.v1.PublicKey:
       type: object
       properties:
@@ -11080,11 +12181,41 @@ components:
           description: |-
             confidential is true when the release's bundles are delivered
              encrypted (SEC-053).
+        functions:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ReleaseFunction'
+          title: functions
+          description: |-
+            functions are the function versions the release pins, so a device
+             invokes exactly the version its release was built against (FN-006).
       title: Release
       additionalProperties: false
       description: |-
         Release is an immutable set of plugin versions plus one app bundle
          (REL-002).
+    plux.v1.ReleaseFunction:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+          description: name is the dotted function name.
+        version:
+          type: integer
+          title: version
+          description: version is the immutable function version the release resolved.
+        moduleSha256:
+          type: string
+          title: module_sha256
+          description: module_sha256 is the hex SHA-256 of the version's module (FN-005).
+        placement:
+          type: string
+          title: placement
+          description: placement is "server" or "device" (FN-008).
+      title: ReleaseFunction
+      additionalProperties: false
+      description: ReleaseFunction is one function version a release references (FN-006).
     plux.v1.ReleaseLockRequest:
       type: object
       properties:
@@ -11362,6 +12493,37 @@ components:
          body: the edge sets it as a __Host- prefixed, HttpOnly, Secure,
          SameSite=Strict cookie, and state-changing calls must echo csrf_token
          in the X-CSRF-Token header (SEC-101).
+    plux.v1.SetAliasRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        name:
+          type: string
+          title: name
+        alias:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Alias'
+          title: alias
+        session:
+          type: string
+          title: session
+      title: SetAliasRequest
+      additionalProperties: false
+    plux.v1.SetAliasResponse:
+      type: object
+      properties:
+        aliases:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Alias'
+          title: aliases
+      title: SetAliasResponse
+      additionalProperties: false
     plux.v1.SetAppLimitRequest:
       type: object
       properties:
@@ -12093,6 +13255,44 @@ components:
              the same content.
       title: UploadNativeCatalogueResponse
       additionalProperties: false
+    plux.v1.UploadSourceRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        name:
+          type: string
+          title: name
+          description: name is the dotted function name the archive builds (FN-006).
+        session:
+          type: string
+          title: session
+        chunk:
+          type: string
+          title: chunk
+          format: byte
+          description: |-
+            chunk is a part of the archive of the crate and its `vendor/`
+             directory (FN-016).
+      title: UploadSourceRequest
+      additionalProperties: false
+    plux.v1.UploadSourceResponse:
+      type: object
+      properties:
+        sourceId:
+          type: string
+          title: source_id
+          description: source_id identifies the stored archive.
+        sourceSha256:
+          type: string
+          title: source_sha256
+          description: source_sha256 is the hex SHA-256 of the archive (FN-005).
+      title: UploadSourceResponse
+      additionalProperties: false
     plux.v1.Upstream:
       type: object
       anyOf:
@@ -12596,6 +13796,18 @@ tags:
        write appends a snapshot (SRV-031); writing requires the editing lock
        (SRV-040). Content travels as canonical JSON bytes, never as protobuf
        structures, so a document's hash is a property of the bytes (SCH-003).
+  - name: plux.v1.FunctionService
+    description: |-
+      FunctionService lets an attested device invoke a server-placed Plux
+       Function (FN-020). Business errors the function declares travel in the
+       response as FunctionBusinessError; system errors (timeouts, limits,
+       capability denials, unknown functions) travel as Connect errors that
+       carry a PLX code from the error catalogue (FN-022).
+  - name: plux.v1.FunctionAdminService
+    description: |-
+      FunctionAdminService manages function sources, builds and versions for
+       the CLI and Studio. Deploying to production goes through the approval
+       engine (FN-007).
   - name: plux.v1.GatewayService
     description: |-
       GatewayService lets an attested device reach an upstream API through the

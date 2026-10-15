@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "function",
+  "id": "01a137b5-6b91-728a-b602-f8bbfb8dee11",
+  "name": "bank.transferFee",
+  "placement": "server",
+  "attestation": true,
+  "sca": true,
+  "capabilities": {
+    "claims": true
+  },
+  "tests": [
+    {
+      "name": "standard floor",
+      "claims": {
+        "tier": "standard"
+      },
+      "input": {
+        "amount": "100.00"
+      },
+      "output": {
+        "fee": "0.50"
+      }
+    },
+    {
+      "name": "standard 0.1 percent",
+      "claims": {
+        "tier": "standard"
+      },
+      "input": {
+        "amount": "12345.67"
+      },
+      "output": {
+        "fee": "12.35"
+      }
+    },
+    {
+      "name": "standard cap",
+      "claims": {
+        "tier": "standard"
+      },
+      "input": {
+        "amount": "1000000"
+      },
+      "output": {
+        "fee": "25.00"
+      }
+    },
+    {
+      "name": "premium pays nothing",
+      "claims": {
+        "tier": "premium"
+      },
+      "input": {
+        "amount": "12345.67"
+      },
+      "output": {
+        "fee": "0.00"
+      }
+    },
+    {
+      "name": "zero amount",
+      "claims": {
+        "tier": "standard"
+      },
+      "input": {
+        "amount": "0"
+      },
+      "error": {
+        "code": "AMOUNT_INVALID"
+      }
+    },
+    {
+      "name": "more than two decimals",
+      "claims": {
+        "tier": "standard"
+      },
+      "input": {
+        "amount": "1.001"
+      },
+      "error": {
+        "code": "AMOUNT_INVALID"
+      }
+    },
+    {
+      "name": "claim missing",
+      "input": {
+        "amount": "100"
+      },
+      "error": {
+        "code": "TIER_UNKNOWN"
+      }
+    },
+    {
+      "name": "unknown tier",
+      "claims": {
+        "tier": "gold"
+      },
+      "input": {
+        "amount": "100"
+      },
+      "error": {
+        "code": "TIER_UNKNOWN"
+      }
+    }
+  ]
+}

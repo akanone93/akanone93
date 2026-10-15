@@ -1,0 +1,347 @@
+{
+  "id": "01d0c450-6c00-7000-8000-000000000315",
+  "key": "instalments",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01d0c450-6c00-7000-8000-00000000400d",
+    "slots": {
+      "appBar": {
+        "id": "01d0c450-6c00-7000-8000-00000000400e",
+        "slots": {
+          "title": {
+            "id": "01d0c450-6c00-7000-8000-00000000400f",
+            "props": {
+              "data": "Instalments"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01d0c450-6c00-7000-8000-000000004010",
+        "props": {
+          "padding": {
+            "all": 16.0
+          }
+        },
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "write",
+                        "input": {
+                          "path": "page.principal",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01d0c450-6c00-7000-8000-000000004000",
+                "props": {
+                  "decoration": {
+                    "labelText": "Amount (EUR)"
+                  },
+                  "keyboardType": "number",
+                  "value": {
+                    "$expr": "page.principal"
+                  }
+                },
+                "testId": "principal",
+                "type": "TextField"
+              },
+              {
+                "id": "01d0c450-6c00-7000-8000-000000004001",
+                "props": {
+                  "data": {
+                    "$expr": "\"Term: \" + string(page.months) + \" months at 12 % a year\""
+                  }
+                },
+                "testId": "term",
+                "type": "Text"
+              },
+              {
+                "children": [
+                  {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "set",
+                            "input": {
+                              "path": "page.months",
+                              "value": 3
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01d0c450-6c00-7000-8000-000000004002",
+                    "slots": {
+                      "child": {
+                        "id": "01d0c450-6c00-7000-8000-000000004003",
+                        "props": {
+                          "data": "3 months"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "term-3",
+                    "type": "TextButton"
+                  },
+                  {
+                    "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "set",
+                            "input": {
+                              "path": "page.months",
+                              "value": 6
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01d0c450-6c00-7000-8000-000000004004",
+                    "slots": {
+                      "child": {
+                        "id": "01d0c450-6c00-7000-8000-000000004005",
+                        "props": {
+                          "data": "6 months"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "term-6",
+                    "type": "TextButton"
+                  }
+                ],
+                "id": "01d0c450-6c00-7000-8000-000000004006",
+                "props": {
+                  "mainAxisAlignment": "spaceEvenly"
+                },
+                "type": "Row"
+              },
+              {
+                "events": {
+                  "onPressed": {
+                    "steps": [
+                      {
+                        "action": "invokeFunction",
+                        "id": "calc",
+                        "input": {
+                          "function": "loan.calculateSchedule",
+                          "input": {
+                            "annualRate": "0.12",
+                            "months": {
+                              "$expr": "page.months"
+                            },
+                            "principal": {
+                              "$expr": "page.principal"
+                            }
+                          }
+                        },
+                        "onError": "failed",
+                        "onSuccess": "payment"
+                      },
+                      {
+                        "action": "setState",
+                        "id": "payment",
+                        "input": {
+                          "path": "page.payment",
+                          "value": {
+                            "$expr": "steps.calc.output?.monthlyPayment ?? \"\""
+                          }
+                        },
+                        "next": "count"
+                      },
+                      {
+                        "action": "setState",
+                        "id": "count",
+                        "input": {
+                          "path": "page.count",
+                          "value": {
+                            "$expr": "size(steps.calc.output?.schedule ?? [])"
+                          }
+                        },
+                        "next": "interest"
+                      },
+                      {
+                        "action": "setState",
+                        "id": "interest",
+                        "input": {
+                          "path": "page.firstInterest",
+                          "value": {
+                            "$expr": "(steps.calc.output?.schedule ?? [])[0]?.interest ?? \"\""
+                          }
+                        },
+                        "next": "clear"
+                      },
+                      {
+                        "action": "setState",
+                        "id": "clear",
+                        "input": {
+                          "path": "page.error",
+                          "value": ""
+                        },
+                        "next": "done"
+                      },
+                      {
+                        "action": "stop",
+                        "id": "done"
+                      },
+                      {
+                        "action": "setState",
+                        "id": "failed",
+                        "input": {
+                          "path": "page.payment",
+                          "value": ""
+                        },
+                        "next": "reason"
+                      },
+                      {
+                        "action": "setState",
+                        "id": "reason",
+                        "input": {
+                          "path": "page.error",
+                          "value": {
+                            "$expr": "\"Not calculated: \" + (steps.calc.error?.code ?? \"\")"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01d0c450-6c00-7000-8000-000000004007",
+                "slots": {
+                  "child": {
+                    "id": "01d0c450-6c00-7000-8000-000000004008",
+                    "props": {
+                      "data": "Calculate on this device"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "calculate",
+                "type": "FilledButton"
+              },
+              {
+                "id": "01d0c450-6c00-7000-8000-000000004009",
+                "props": {
+                  "data": {
+                    "$expr": "\"Monthly payment: \" + page.payment + \" EUR\""
+                  }
+                },
+                "testId": "payment",
+                "type": "Text",
+                "visible": {
+                  "$expr": "page.payment != \"\""
+                }
+              },
+              {
+                "id": "01d0c450-6c00-7000-8000-00000000400a",
+                "props": {
+                  "data": {
+                    "$expr": "\"Instalments: \" + string(page.count)"
+                  }
+                },
+                "testId": "count",
+                "type": "Text",
+                "visible": {
+                  "$expr": "page.payment != \"\""
+                }
+              },
+              {
+                "id": "01d0c450-6c00-7000-8000-00000000400b",
+                "props": {
+                  "data": {
+                    "$expr": "\"Interest in the first month: \" + page.firstInterest + \" EUR\""
+                  }
+                },
+                "testId": "first-interest",
+                "type": "Text",
+                "visible": {
+                  "$expr": "page.payment != \"\""
+                }
+              },
+              {
+                "id": "01d0c450-6c00-7000-8000-00000000400c",
+                "props": {
+                  "data": {
+                    "$expr": "page.error"
+                  }
+                },
+                "testId": "calc-error",
+                "type": "Text",
+                "visible": {
+                  "$expr": "page.error != \"\""
+                }
+              }
+            ],
+            "id": "01d0c450-6c00-7000-8000-000000004011",
+            "props": {
+              "crossAxisAlignment": "stretch",
+              "spacing": 8.0
+            },
+            "type": "Column"
+          }
+        },
+        "type": "Padding"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "instalments",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": "1000",
+      "id": "01d0c450-6c00-7000-8000-000000000341",
+      "name": "principal",
+      "type": "string"
+    },
+    {
+      "default": 3,
+      "id": "01d0c450-6c00-7000-8000-000000000342",
+      "name": "months",
+      "type": "int"
+    },
+    {
+      "default": "",
+      "id": "01d0c450-6c00-7000-8000-000000000343",
+      "name": "payment",
+      "type": "string"
+    },
+    {
+      "default": 0,
+      "id": "01d0c450-6c00-7000-8000-000000000344",
+      "name": "count",
+      "type": "int"
+    },
+    {
+      "default": "",
+      "id": "01d0c450-6c00-7000-8000-000000000345",
+      "name": "firstInterest",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01d0c450-6c00-7000-8000-000000000346",
+      "name": "error",
+      "type": "string"
+    }
+  ],
+  "title": "Instalments"
+}

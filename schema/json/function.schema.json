@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plux.dev/schema/v1/function.schema.json",
+  "title": "Plux function document",
+  "description": "A Plux Function: its name, placement, capabilities, limits, required assurance and test cases (FN-008, FN-011, FN-012, FN-031). The input and output schemas are derived from the function's types at build time (FN-004) and never written here. File: `functions/<name>/function.json`.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "kind",
+    "id",
+    "name",
+    "placement"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "kind": {
+      "const": "function"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-zA-Z0-9]*(\\.[a-z][a-zA-Z0-9]*)+$",
+      "maxLength": 128,
+      "description": "The dotted function name that plugin grants and `invokeFunction` actions refer to (FN-006)."
+    },
+    "description": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "placement": {
+      "$ref": "#/$defs/placement",
+      "description": "Where the function runs; exactly one (FN-008)."
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "Host capabilities the function declares; everything not declared is denied (FN-012). A device function may declare only `kv` and `functions` that are themselves device-placed (FN-052).",
+      "properties": {
+        "http": {
+          "type": "array",
+          "description": "Domains the function may call through the egress proxy (FN-017).",
+          "items": {
+            "type": "string",
+            "pattern": "^(\\*\\.)?[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$",
+            "maxLength": 253
+          },
+          "uniqueItems": true
+        },
+        "kv": {
+          "type": "boolean",
+          "description": "Whether the function may use its key-value namespace (FN-018)."
+        },
+        "secrets": {
+          "type": "array",
+          "description": "Names of the secrets the function may read (FN-012).",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$",
+            "maxLength": 64
+          },
+          "uniqueItems": true
+        },
+        "functions": {
+          "type": "array",
+          "description": "Names of the functions this function may call (FN-012); server placement only — a device function may call none (FN-052).",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-zA-Z0-9]*(\\.[a-z][a-zA-Z0-9]*)+$",
+            "maxLength": 128
+          },
+          "uniqueItems": true
+        },
+        "claims": {
+          "type": "boolean",
+          "description": "Whether the function may read the verified user claims (SEC-026)."
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false,
+      "x-plux-type": "FunctionCapabilities"
+    },
+    "env": {
+      "type": "array",
+      "description": "Environment variables of the app's environment the function may read with env_get (FN-002); server placement only (FN-052).",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_]*$",
+        "maxLength": 128
+      },
+      "uniqueItems": true
+    },
+    "limits": {
+      "type": "object",
+      "description": "Per-function limits that tighten the registry values (FN-011, LIM-002).",
+      "properties": {
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "memoryBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "outputBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "httpCalls": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false,
+      "x-plux-type": "FunctionLimits"
+    },
+    "assurance": {
+      "$ref": "common.schema.json#/$defs/assuranceLevel",
+      "description": "The assurance level a device must hold to invoke the function; the `defaultFunctionAssurance` setting applies when absent (SEC-007)."
+    },
+    "attestation": {
+      "type": "boolean",
+      "description": "Whether the invocation requires a fresh attestation of the device."
+    },
+    "sca": {
+      "type": "boolean",
+      "description": "Whether the invocation requires strong customer authentication (SEC-027)."
+    },
+    "pure": {
+      "type": "boolean",
+      "description": "Whether the function is free of side effects, so its results may be cached by input hash (FN-014)."
+    },
+    "cacheTtlSeconds": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "How long the result of a pure function may be cached (FN-014)."
+    },
+    "tests": {
+      "type": "array",
+      "description": "Stored test cases, run by `plux fn test` and in CI; a failing case blocks deployment to production (FN-031).",
+      "items": {
+        "$ref": "#/$defs/testCase"
+      }
+    }
+  },
+  "patternProperties": {
+    "^x-": true
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "testCase": {
+      "type": "object",
+      "required": [
+        "name",
+        "input"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "input": {
+          "description": "The JSON input passed to the function.",
+          "x-plux-raw": true
+        },
+        "claims": {
+          "type": "object",
+          "description": "The verified user claims the case is invoked with (server placement, `SEC-026`); none when absent.",
+          "x-plux-raw": true
+        },
+        "output": {
+          "description": "The JSON output the function must return.",
+          "x-plux-raw": true
+        },
+        "error": {
+          "type": "object",
+          "description": "The business error the function must return.",
+          "required": [
+            "code"
+          ],
+          "properties": {
+            "code": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          "additionalProperties": false,
+          "x-plux-type": "FunctionTestError"
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "output"
+          ],
+          "not": {
+            "required": [
+              "error"
+            ]
+          }
+        },
+        {
+          "required": [
+            "error"
+          ],
+          "not": {
+            "required": [
+              "output"
+            ]
+          }
+        }
+      ],
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false,
+      "x-plux-type": "FunctionTestCase"
+    },
+    "placement": {
+      "enum": [
+        "server",
+        "device"
+      ]
+    }
+  }
+}

@@ -137,6 +137,12 @@ func (s *SCA) CreateBound(ctx context.Context, d device.Identity, u Upstream, op
 	if _, err := parseSummary(summary, *op.Transaction); err != nil {
 		return Challenge{}, err
 	}
+	return s.issue(ctx, d, u.Name, op.Name, summary, bound, lifetime)
+}
+
+// issue stores a single-use challenge for the device, bound to what it is
+// for and to the summary.
+func (s *SCA) issue(ctx context.Context, d device.Identity, upstream, operation string, summary []byte, bound map[string]string, lifetime time.Duration) (Challenge, error) {
 	id, err := randomID(s.Random)
 	if err != nil {
 		return Challenge{}, err
@@ -150,7 +156,7 @@ func (s *SCA) CreateBound(ctx context.Context, d device.Identity, u Upstream, op
 		return Challenge{}, fmt.Errorf("gateway: draw a challenge: %w", err)
 	}
 	value, err := json.Marshal(record{
-		Device: d.DeviceID, App: d.AppID, Env: d.EnvironmentID, Upstream: u.Name, Operation: op.Name,
+		Device: d.DeviceID, App: d.AppID, Env: d.EnvironmentID, Upstream: upstream, Operation: operation,
 		Challenge: challenge, Summary: summary, Bound: bound,
 	})
 	if err != nil {
@@ -180,44 +186,65 @@ func (s *SCA) VerifyBound(ctx context.Context, d device.Identity, u Upstream, op
 	if op.Transaction == nil {
 		return SCAProof{}, plxerr.New(plxerr.InvalidFormat, "operation %q is not a transaction", op.Name)
 	}
-	if challengeID == "" || len(challengeID) > 64 {
-		return SCAProof{}, plxerr.New(plxerr.SCAChallengeInvalid, "the call names no challenge")
-	}
-	raw, found, err := s.Cache.Get(ctx, challengeKey+challengeID)
+	rec, err := s.spend(ctx, d, challengeID, u.Name, op.Name, current, lifetime)
 	if err != nil {
-		return SCAProof{}, plxerr.Wrap(plxerr.UpstreamUnavailable, err, "the challenge store is unavailable")
-	}
-	var rec record
-	if !found || json.Unmarshal(raw, &rec) != nil {
-		return SCAProof{}, plxerr.New(plxerr.SCAChallengeInvalid, "the challenge is unknown or has expired")
-	}
-	if rec.Device != d.DeviceID || rec.App != d.AppID || rec.Env != d.EnvironmentID || rec.Upstream != u.Name || rec.Operation != op.Name {
-		return SCAProof{}, plxerr.New(plxerr.SCAChallengeInvalid, "the challenge was issued for another device or operation")
-	}
-	if !maps.Equal(rec.Bound, current) {
-		return SCAProof{}, plxerr.New(plxerr.BoundValueChanged, "a server-held value of the transaction changed since the user confirmed it")
-	}
-	first, err := s.Cache.SetNX(ctx, usedKey+challengeID, []byte{1}, lifetime+usedMargin)
-	if err != nil {
-		return SCAProof{}, plxerr.Wrap(plxerr.UpstreamUnavailable, err, "the challenge store is unavailable")
-	}
-	if !first {
-		return SCAProof{}, plxerr.New(plxerr.SCAChallengeInvalid, "the challenge was already used")
+		return SCAProof{}, err
 	}
 	if err := checkLinking(body, *op.Transaction, rec.Summary); err != nil {
 		return SCAProof{}, err
 	}
+	if err := s.checkSignature(ctx, d, rec, signature); err != nil {
+		return SCAProof{}, err
+	}
+	sum := sha256.Sum256(rec.Summary)
+	return SCAProof{ChallengeID: challengeID, SummaryHash: base64.RawURLEncoding.EncodeToString(sum[:])}, nil
+}
+
+// spend finds the challenge a call names, checks that it was issued to
+// this device for this upstream and operation, and spends it. It spends it
+// before anything else of the call is checked, so a second call with it
+// fails whatever the first did.
+func (s *SCA) spend(ctx context.Context, d device.Identity, challengeID, upstream, operation string, current map[string]string, lifetime time.Duration) (record, error) {
+	if challengeID == "" || len(challengeID) > 64 {
+		return record{}, plxerr.New(plxerr.SCAChallengeInvalid, "the call names no challenge")
+	}
+	raw, found, err := s.Cache.Get(ctx, challengeKey+challengeID)
+	if err != nil {
+		return record{}, plxerr.Wrap(plxerr.UpstreamUnavailable, err, "the challenge store is unavailable")
+	}
+	var rec record
+	if !found || json.Unmarshal(raw, &rec) != nil {
+		return record{}, plxerr.New(plxerr.SCAChallengeInvalid, "the challenge is unknown or has expired")
+	}
+	if rec.Device != d.DeviceID || rec.App != d.AppID || rec.Env != d.EnvironmentID || rec.Upstream != upstream || rec.Operation != operation {
+		return record{}, plxerr.New(plxerr.SCAChallengeInvalid, "the challenge was issued for another device or operation")
+	}
+	if !maps.Equal(rec.Bound, current) {
+		return record{}, plxerr.New(plxerr.BoundValueChanged, "a server-held value of the transaction changed since the user confirmed it")
+	}
+	first, err := s.Cache.SetNX(ctx, usedKey+challengeID, []byte{1}, lifetime+usedMargin)
+	if err != nil {
+		return record{}, plxerr.Wrap(plxerr.UpstreamUnavailable, err, "the challenge store is unavailable")
+	}
+	if !first {
+		return record{}, plxerr.New(plxerr.SCAChallengeInvalid, "the challenge was already used")
+	}
+	return rec, nil
+}
+
+// checkSignature verifies the device's signature over the challenge
+// followed by the summary with its SCA key.
+func (s *SCA) checkSignature(ctx context.Context, d device.Identity, rec record, signature []byte) error {
 	key, err := s.Keys.SCAKey(ctx, d)
 	if err != nil {
-		return SCAProof{}, plxerr.New(plxerr.SCASignatureInvalid, "the device has no SCA key")
+		return plxerr.New(plxerr.SCASignatureInvalid, "the device has no SCA key")
 	}
 	digest := sha256.Sum256(SigningInput(rec.Challenge, rec.Summary))
 	if len(signature) != SignatureSize ||
 		!ecdsa.Verify(key.Public, digest[:], new(big.Int).SetBytes(signature[:SignatureSize/2]), new(big.Int).SetBytes(signature[SignatureSize/2:])) {
-		return SCAProof{}, plxerr.New(plxerr.SCASignatureInvalid, "the signature does not verify with the device's SCA key")
+		return plxerr.New(plxerr.SCASignatureInvalid, "the signature does not verify with the device's SCA key")
 	}
-	sum := sha256.Sum256(rec.Summary)
-	return SCAProof{ChallengeID: challengeID, SummaryHash: base64.RawURLEncoding.EncodeToString(sum[:])}, nil
+	return nil
 }
 
 // summary is a parsed transaction summary.

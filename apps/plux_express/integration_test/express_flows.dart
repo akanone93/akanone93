@@ -260,4 +260,52 @@ void expressFlows({
     skip: skip != null,
     timeout: const Timeout(Duration(minutes: 3)),
   );
+
+  testWidgets(
+    'the instalments are calculated by the device function while the host '
+    'reports the network gone, and a business error of the function reaches '
+    'the page [DX-004] [FN-050] [FN-051] [FN-022]',
+    (tester) async {
+      problems.clear();
+      // The flows test the app, not the platform keyboard, which on a device
+      // can echo a field's earlier text back after enterText replaced it.
+      if (!tester.testTextInput.isRegistered) {
+        tester.testTextInput.register();
+        addTearDown(tester.testTextInput.unregister);
+      }
+      await launch(tester);
+      await waitFor(tester, find.text('Product 01'));
+
+      // The function is placed on the device: with the network gone the
+      // result still appears, from the module the release carried. The
+      // placement is the compiler's (FN-008), not the step's.
+      host.setOnline(online: false);
+      await tapSettled(tester, find.text('Instalments'));
+      await waitFor(tester, find.text('Calculate on this device'));
+      await tapSettled(tester, find.text('Calculate on this device'));
+      await waitFor(tester, find.text('Monthly payment: 340.02 EUR'));
+      expect(find.text('Instalments: 3'), findsOneWidget);
+      expect(
+        find.text('Interest in the first month: 10.00 EUR'),
+        findsOneWidget,
+      );
+
+      await tapSettled(tester, find.text('6 months'));
+      await tapSettled(tester, find.text('Calculate on this device'));
+      await waitFor(tester, find.text('Instalments: 6'));
+
+      // Below the function's minimum it returns a business error, whose
+      // code the page shows; the earlier result is cleared.
+      final amount = find.widgetWithText(TextField, 'Amount (EUR)');
+      await tester.enterText(amount, '999.99');
+      await tester.pump(const Duration(milliseconds: 100));
+      await tapSettled(tester, find.text('Calculate on this device'));
+      await waitFor(tester, find.text('Not calculated: PRINCIPAL_TOO_SMALL'));
+      expect(find.textContaining('Monthly payment'), findsNothing);
+      expect(problems, isEmpty, reason: problems.join('\n'));
+      await stop(tester);
+    },
+    skip: skip != null,
+    timeout: const Timeout(Duration(minutes: 3)),
+  );
 }

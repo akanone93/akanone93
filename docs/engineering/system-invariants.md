@@ -15,7 +15,7 @@ Phase tags mark when a rule becomes binding.
 
 ## 2. Contracts evolve additively
 
-- From the first tagged runtime (end of P3), bundle and manifest formats change additively only; needed capabilities are declared in `required_features` so older runtimes refuse cleanly (`BND-000`, `BND-008`, `BND-018`).
+- From the first release (0.0.1, made once a working end-to-end flow from Studio to the app exists), bundle and manifest formats change additively only; before it they may change incompatibly, stay additive by habit, and every incompatible change is called out in its pull request; needed capabilities are declared in `required_features` so older runtimes refuse cleanly (`BND-000`, `BND-008`, `BND-018`).
 - Every document schema change ships with a tested forward migration (`SCH-000`, `SCH-043`).
 - The API contract is checked with `buf breaking`; breaking changes need a new version package (`SRV-000`).
 - Widget, prop, action and enum IDs in bundles are permanent and never reused (`BND-011`).
@@ -41,9 +41,10 @@ Phase tags mark when a rule becomes binding.
 
 ## 5. Functions
 
+- Functions are written in Rust and compiled to WebAssembly (`wasm32-wasip1`); the module is built on the server by the `builder` role and signed by `signing/` with the function-artifact key. Only server builds are deployable (`FN-001`, `FN-005`, `FN-009`, `FN-016`).
 - Each function runs in exactly one placement, `server` or `device` (`FN-008`).
 - Every invocation gets fresh linear memory and hard limits on time, memory, output and calls (`FN-010`, `FN-011`).
-- `fnrunner` holds no database credentials or signing keys (`FN-013`).
+- `fnrunner`, `builder` and `egress` hold no database credentials or signing keys (`FN-013`, L-4). The `builder` runs with no network. `fnrunner` reaches the network only through `egress`, which enforces each function's domain allowlist and refuses private addresses; it reaches the key-value store only through a host call served by the `api` side (`FN-017`, `FN-018`).
 - Device results are for display only; the server never trusts them (`FN-054`).
 
 ## 6. Fault isolation

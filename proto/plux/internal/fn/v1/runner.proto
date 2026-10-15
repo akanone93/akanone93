@@ -1,0 +1,116 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.internal.fn.v1;
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/fnpb;fnpb";
+
+// FunctionRunnerService is served by the fnrunner role and called by api
+// over mutual TLS (FN-013, ADR-0064). It is internal: it is not part of
+// the public API contract and carries no compatibility promise beyond the
+// roles of one release. fnrunner holds no database credentials and no
+// signing keys; everything it needs arrives here or through
+// FunctionHostService.
+service FunctionRunnerService {
+  // Prepare makes the runner fetch, verify and compile a module and keep
+  // the compiled form, so the first invocation is fast (FN-010, FN-023).
+  rpc Prepare(PrepareRequest) returns (PrepareResponse) {}
+  // Invoke runs one invocation in a fresh instance under the given limits
+  // and capabilities (FN-010, FN-011, FN-012).
+  rpc Invoke(FunctionRunnerServiceInvokeRequest) returns (FunctionRunnerServiceInvokeResponse) {}
+}
+
+message PrepareRequest {
+  // module_sha256 is the hex SHA-256 of the module to compile (FN-010).
+  string module_sha256 = 1;
+  // grant authorises the module fetch through FunctionHostService.
+  string grant = 2;
+}
+message PrepareResponse {}
+
+// InvocationLimits bound one invocation (FN-011). Zero is not unlimited:
+// api always sends resolved values from the limits registry (LIM-001).
+message InvocationLimits {
+  uint32 timeout_ms = 1;
+  uint64 memory_bytes = 2;
+  uint64 output_bytes = 3;
+  uint32 http_calls = 4;
+  uint32 call_depth = 5;
+  uint64 log_bytes = 6;
+  // input_bytes is the largest input the runner accepts (PLX-7022).
+  uint64 input_bytes = 7;
+}
+
+// Capabilities are what the function may use; everything absent is denied
+// (FN-012).
+message Capabilities {
+  // http_domains is the allowlist the egress role applies (FN-017).
+  repeated string http_domains = 1;
+  bool kv = 2;
+  // secrets are the names of the secrets the function may read.
+  repeated string secrets = 3;
+  // functions are the names of the functions it may call.
+  repeated string functions = 4;
+  bool claims = 5;
+}
+
+message FunctionRunnerServiceInvokeRequest {
+  // function is the dotted function name.
+  string function = 1;
+  uint32 version = 2;
+  // module_sha256 identifies the artifact to run (FN-010).
+  string module_sha256 = 3;
+  // input is the UTF-8 JSON input.
+  bytes input = 4;
+  InvocationLimits limits = 5;
+  Capabilities capabilities = 6;
+  // claims is the verified user claims as UTF-8 JSON, empty when the
+  // function may not read them (SEC-026).
+  bytes claims = 7;
+  // grant is the opaque per-invocation grant, valid for at most 60 seconds
+  // and scoped to app, environment, function and version (ADR-0064).
+  string grant = 8;
+  // depth is the nesting depth of this call (FN-011).
+  uint32 depth = 9;
+  // traceparent carries the W3C trace context of the calling request
+  // (FN-032).
+  string traceparent = 10;
+  // app, environment and assurance_level are what the function's context()
+  // reports and what the egress role logs for a tunnel (FN-012, FN-017).
+  string app = 11;
+  string environment = 12;
+  string assurance_level = 13;
+  // env holds the environment variables the function's declaration names,
+  // resolved for its environment; env_get reads only these (FN-002).
+  map<string, string> env = 14;
+}
+
+message FunctionRunnerServiceInvokeResponse {
+  oneof result {
+    // output is the UTF-8 JSON output.
+    bytes output = 1;
+    // business_error is the function's own error as UTF-8 JSON
+    // `{code, messageKey, params}` (FN-022).
+    bytes business_error = 2;
+  }
+  // memory_peak_bytes is the highest linear memory the instance used.
+  uint64 memory_peak_bytes = 3;
+  // http_calls is the number of outbound calls made.
+  uint32 http_calls = 4;
+  // logs are the lines the function wrote, bounded by function.logBytes,
+  // for the function's logs (FN-032). They may carry what the function
+  // chose to log, so they are stored as function logs and never written to
+  // the server's own log.
+  repeated FunctionLog logs = 5;
+}
+
+// FunctionLog is one line a function logged.
+message FunctionLog {
+  // level is 0 debug, 1 info, 2 warning, 3 error.
+  uint32 level = 1;
+  string message = 2;
+  // time_unix_nano is when the line was written.
+  int64 time_unix_nano = 3;
+}

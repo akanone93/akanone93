@@ -137,6 +137,35 @@ final class GatewayReply {
   final Uint8List body;
 }
 
+/// The answer of `FunctionService.Invoke`: the function's output, or the
+/// business error it returned (FN-022).
+final class FunctionInvokeReply {
+  /// The function's output, UTF-8 JSON.
+  const FunctionInvokeReply.output(Uint8List this.output)
+    : code = null,
+      messageKey = null,
+      params = null;
+
+  /// A business error the function returned.
+  const FunctionInvokeReply.business({
+    required String this.code,
+    required String this.messageKey,
+    required Map<String, Object?> this.params,
+  }) : output = null;
+
+  /// The output, or null for a business error.
+  final Uint8List? output;
+
+  /// The function-defined error code.
+  final String? code;
+
+  /// The message key.
+  final String? messageKey;
+
+  /// The message values.
+  final Map<String, Object?>? params;
+}
+
 /// A Plux user token (SEC-026): the host's end-user token exchanged for one
 /// scoped to an upstream, kept in memory only and never logged.
 final class UserToken {
@@ -797,6 +826,83 @@ final class PluxApiClient {
     }
   }
 
+  /// Invokes a server-placed function (FN-020, `FunctionService.Invoke`) over
+  /// the DPoP-bound channel. [idempotencyKey] makes a repeat of the same
+  /// step run once on the server. The reply is the function's output, or the
+  /// business error it returned.
+  ///
+  /// A function that declares `sca` needs the [challengeId] and the
+  /// [signature] of the confirmed transaction; one that declares
+  /// `attestation` needs [evidence], which is asked for once per proof, with
+  /// the binding over the function, the version, the input and the proof's
+  /// identifier (FN-020, SEC-004).
+  ///
+  /// [userToken], the Plux user token of the exchange for the audience
+  /// `function:<name>` (SEC-026), travels in `Plux-User-Token`; a function
+  /// that declares `claims` reads the verified user from it.
+  Future<FunctionInvokeReply> invokeFunction({
+    required DeviceToken token,
+    required String function,
+    required int version,
+    required Uint8List input,
+    required String idempotencyKey,
+    String? userToken,
+    String challengeId = '',
+    Uint8List? signature,
+    Future<InvocationEvidence> Function(Uint8List binding)? evidence,
+  }) async {
+    final r = await _call(
+      'plux.v1.FunctionService/Invoke',
+      {
+        'function': function,
+        'version': version,
+        'input': base64.encode(input),
+        'idempotencyKey': idempotencyKey,
+        if (challengeId.isNotEmpty) 'transactionChallengeId': challengeId,
+        if (signature != null && signature.isNotEmpty)
+          'transactionSignature': base64.encode(signature),
+      },
+      token: token,
+      extraHeaders: {pluxUserTokenHeader: ?userToken},
+      extend: evidence == null
+          ? null
+          : (proof) async {
+              final e = await evidence(
+                invocationBinding(
+                  function: function,
+                  version: version,
+                  input: input,
+                  jti: _jtiOf(proof),
+                ),
+              );
+              return {
+                if (e.assertion != null)
+                  'appAttestAssertion': base64.encode(e.assertion!),
+                'playIntegrityToken': ?e.integrityToken,
+              };
+            },
+    );
+    try {
+      final e = r['businessError'];
+      if (e is Map<String, Object?>) {
+        final params = e['params'];
+        final decoded = params is String && params.isNotEmpty
+            ? jsonDecode(utf8.decode(base64.decode(params)))
+            : const <String, Object?>{};
+        return FunctionInvokeReply.business(
+          code: e['code']! as String,
+          messageKey: e['messageKey']! as String,
+          params: decoded as Map<String, Object?>,
+        );
+      }
+      return FunctionInvokeReply.output(
+        base64.decode(r['output'] as String? ?? ''),
+      );
+    } on Object {
+      throw const ApiError(0, 'unknown', 'the server sent a malformed result');
+    }
+  }
+
   /// The URL and headers of a request to the gateway's HTTP route,
   /// `/gateway/v1/{upstream}/{path}` (SEC-030): the route that carries
   /// streams and transfers. The headers authenticate this request alone:
@@ -850,13 +956,41 @@ final class PluxApiClient {
     required String dataSource,
     required String operation,
     required Uint8List summaryJcs,
-  }) async {
-    final r = await _call('plux.v1.ScaService/CreateTransactionChallenge', {
-      'deviceId': deviceId,
-      'dataSource': dataSource,
-      'operation': operation,
-      'transactionSummaryJcs': base64.encode(summaryJcs),
-    }, token: token);
+  }) => _challenge(token, {
+    'deviceId': deviceId,
+    'dataSource': dataSource,
+    'operation': operation,
+    'transactionSummaryJcs': base64.encode(summaryJcs),
+  });
+
+  /// Asks for a single-use challenge to confirm the invocation of the server
+  /// [function] at [version] with an input whose SHA-256 is [inputSha256]
+  /// (FN-020, SEC-027). The server adds the function, the version and the
+  /// hash to [summaryJcs] and returns the result for the SCA key to sign.
+  Future<TransactionChallenge> invocationChallenge({
+    required DeviceToken token,
+    required String deviceId,
+    required String function,
+    required int version,
+    required Uint8List inputSha256,
+    required Uint8List summaryJcs,
+  }) => _challenge(token, {
+    'deviceId': deviceId,
+    'function': function,
+    'functionVersion': version,
+    'inputSha256': base64.encode(inputSha256),
+    'transactionSummaryJcs': base64.encode(summaryJcs),
+  });
+
+  Future<TransactionChallenge> _challenge(
+    DeviceToken token,
+    Map<String, Object?> body,
+  ) async {
+    final r = await _call(
+      'plux.v1.ScaService/CreateTransactionChallenge',
+      body,
+      token: token,
+    );
     final id = r['challengeId'];
     final expires = DateTime.tryParse(r['expiresAt'] as String? ?? '');
     Uint8List? challenge;
@@ -941,6 +1075,14 @@ final class PluxApiClient {
       access,
       DateTime.tryParse(r['expiresAt'] as String? ?? '') ?? now,
     );
+  }
+
+  /// The `jti` claim of a compact JWS DPoP [proof] this client signed.
+  static String _jtiOf(String proof) {
+    final claims = jsonDecode(
+      utf8.decode(base64Url.decode(base64Url.normalize(proof.split('.')[1]))),
+    );
+    return (claims as Map<String, Object?>)['jti']! as String;
   }
 
   /// Posts one call. With [proofs] the request carries a DPoP proof (with

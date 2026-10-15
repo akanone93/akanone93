@@ -3,6 +3,12 @@
     "deviceApis": [
       "camera"
     ],
+    "functions": [
+      {
+        "function": "bank.transferFee",
+        "id": "01d0c450-6c00-7000-8000-000000003102"
+      }
+    ],
     "networkDomains": [
       "refapi.invalid"
     ]

@@ -120,6 +120,21 @@ func New(d Deps) (*Server, error) {
 	if s.cfg.Has(config.RoleWorker) && s.jobs != nil {
 		s.components = append(s.components, jobComponent{client: s.jobs})
 	}
+	if s.cfg.Has(config.RoleEgress) {
+		if err := s.buildEgress(); err != nil {
+			return nil, err
+		}
+	}
+	if s.cfg.Has(config.RoleFnRunner) {
+		if err := s.buildFnRunner(); err != nil {
+			return nil, err
+		}
+	}
+	if s.cfg.Has(config.RoleBuilder) {
+		if err := s.buildBuilder(); err != nil {
+			return nil, err
+		}
+	}
 	return s, nil
 }
 
@@ -181,6 +196,15 @@ func (s *Server) addressLimit() api.Around {
 		addr := api.ClientAddress(c.PeerAddress, c.Header, s.trusted)
 		return limiter.Allow(ctx, "rate:address:"+addr, limit)
 	})
+}
+
+// InternalInterceptors returns the chain for a service on the internal
+// listener: recovery, request ID, tracing, metrics and error translation.
+// It has no address limit and no authentication of its own, because the
+// listener requires a certificate of the internal CA (SEC-043) and the
+// service authorises each call itself.
+func (s *Server) InternalInterceptors() []connect.Interceptor {
+	return api.Interceptors(api.Deps{Log: s.log, Metrics: s.metrics, Tracer: s.tracer})
 }
 
 // Register adds a Connect service handler to the api role's mux.

@@ -15,6 +15,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/config"
+	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
 	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -34,6 +35,8 @@ type BuildOption func(*buildOptions)
 
 type buildOptions struct {
 	identityHTTP *http.Client
+	builder      function.Builder
+	linker       function.Linker
 }
 
 // WithIdentityProviderClient makes the gateway read the key sets of
@@ -43,6 +46,39 @@ type buildOptions struct {
 // serves customers never sets it.
 func WithIdentityProviderClient(c *http.Client) BuildOption {
 	return func(o *buildOptions) { o.identityHTTP = c }
+}
+
+// WithFunctionBuilder gives the worker role b to build function sources and
+// l to link the device functions of a plugin, in place of the route to the
+// builder role that builder.address configures (FN-016, FN-051). The worker
+// still signs what they return with the function-artifact key, and the
+// service still judges it. It is for embedders and tests that stand in for
+// the builder role with artefacts built before; a process that serves
+// customers never sets it.
+func WithFunctionBuilder(b function.Builder, l function.Linker) BuildOption {
+	return func(o *buildOptions) { o.builder, o.linker = b, l }
+}
+
+// newTracer starts the process's tracing.
+func newTracer(ctx context.Context, cfg *config.Config, version string) (*observability.Tracer, error) {
+	return observability.NewTracer(ctx, observability.TraceOptions{ //nolint:wrapcheck // reported as is by Build
+		Endpoint:    cfg.Observability.OTLPEndpoint,
+		SampleRatio: cfg.Observability.TraceSampleRatio,
+		Service:     "plux-server",
+		Role:        RoleLabel(cfg),
+		Version:     version,
+	})
+}
+
+// newNoDataServer assembles a process whose only roles are egress or builder:
+// it holds no database, cache, storage or signing credential (ADR-0063,
+// ADR-0064).
+func newNoDataServer(cfg *config.Config, log *slog.Logger, metrics *observability.Metrics, tracer *observability.Tracer) (*Server, error) {
+	limitSet, err := cfg.LimitSet()
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
+	return New(Deps{Config: cfg, Log: log, Metrics: metrics, Tracer: tracer, Limits: limitSet})
 }
 
 // Build opens the dependencies the configured roles need and assembles
@@ -66,15 +102,19 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 	}
 
 	metrics := observability.NewMetrics()
-	tracer, err := observability.NewTracer(ctx, observability.TraceOptions{
-		Endpoint:    cfg.Observability.OTLPEndpoint,
-		SampleRatio: cfg.Observability.TraceSampleRatio,
-		Service:     "plux-server",
-		Role:        RoleLabel(cfg),
-		Version:     version,
-	})
+	tracer, err := newTracer(ctx, cfg, version)
 	if err != nil {
 		return fail(err)
+	}
+
+	if cfg.NoDataAccess() {
+		// fnrunner, egress and builder hold no database, cache, storage or
+		// signing credential (FN-013, FN-016, ADR-0063, ADR-0064).
+		srv, err := newNoDataServer(cfg, log, metrics, tracer)
+		if err != nil {
+			return fail(err)
+		}
+		return &Built{Server: srv, Close: closeAll}, nil
 	}
 
 	db, err := storage.Open(ctx, storage.Options{
@@ -169,6 +209,12 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 		deps.SVG = svgCompiler(ctx, cfg, log)
 		deps.Signer = backend
 		deps.ProductionSigning = backend.AllowedInProduction()
+		if err := attachBuilder(cfg, store, &deps); err != nil {
+			return nil, nil, err
+		}
+		if o.builder != nil {
+			deps.Builder, deps.Linker, deps.FunctionKey = o.builder, o.linker, cfg.Signing.Keys.FunctionArtifact
+		}
 	}
 	services, err := BuildServices(ctx, cfg, db, shared, set, backend, deps)
 	if pinger, ok := backend.(interface{ Ping(context.Context) error }); ok && err == nil {
@@ -185,6 +231,9 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 		jobs.AddWorker(workers, &publishWorker{svc: services})
 		jobs.AddWorker(workers, &manifestWorker{svc: services})
 		jobs.AddWorker(workers, &deltaWorker{svc: services})
+	}
+	if services.Functions != nil && deps.Builder != nil && deps.Signer != nil {
+		jobs.AddWorker(workers, &functionBuildWorker{runner: services.Functions, log: log})
 	}
 	periodic := append(MaintenanceJobs(workers, services, log),
 		CheckpointJobs(workers, services, cfg.Audit.CheckpointInterval.Duration(), log)...)

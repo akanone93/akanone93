@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "fee"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+plux-fn = "0.1"
+serde.workspace = true
+serde_json.workspace = true
+schemars.workspace = true

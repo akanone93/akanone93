@@ -308,6 +308,122 @@ type EnvironmentVariable struct {
 	UpdatedAt      pgtype.Timestamptz
 }
 
+type FunctionAlias struct {
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	Name           string
+	Alias          string
+	Version        int32
+	UpdatedBy      pgtype.UUID
+	UpdatedAt      pgtype.Timestamptz
+}
+
+type FunctionBuild struct {
+	ID                pgtype.UUID
+	OrganizationID    pgtype.UUID
+	AppID             pgtype.UUID
+	EnvironmentID     pgtype.UUID
+	SourceID          pgtype.UUID
+	Name              string
+	Placement         string
+	State             string
+	Diagnostics       []byte
+	TestResults       []byte
+	ModuleKey         *string
+	ModuleSha256      []byte
+	AbiVersion        *int32
+	FunctionsManifest []byte
+	Provenance        []byte
+	Statement         []byte
+	Signature         []byte
+	KeyID             *string
+	CreatedBy         pgtype.UUID
+	CreatedAt         pgtype.Timestamptz
+	StartedAt         pgtype.Timestamptz
+	FinishedAt        pgtype.Timestamptz
+}
+
+type FunctionDeclaration struct {
+	BuildID        pgtype.UUID
+	OrganizationID pgtype.UUID
+	Declaration    []byte
+	CreatedAt      pgtype.Timestamptz
+}
+
+type FunctionInvocation struct {
+	ID              int64
+	OrganizationID  pgtype.UUID
+	AppID           pgtype.UUID
+	EnvironmentID   pgtype.UUID
+	Function        string
+	Version         int32
+	Result          string
+	DurationMicros  int64
+	MemoryPeakBytes int64
+	Replayed        bool
+	FinishedAt      pgtype.Timestamptz
+}
+
+type FunctionKv struct {
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	FunctionName   string
+	Key            string
+	Value          []byte
+	UpdatedAt      pgtype.Timestamptz
+}
+
+type FunctionLog struct {
+	ID             int64
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	Function       string
+	Version        int32
+	InvocationID   pgtype.UUID
+	Level          string
+	Message        string
+	TraceID        string
+	LoggedAt       pgtype.Timestamptz
+}
+
+type FunctionSource struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	Name           string
+	ObjectKey      string
+	Sha256         []byte
+	SizeBytes      int64
+	CreatedBy      pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
+}
+
+type FunctionVersion struct {
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	Name           string
+	Version        int32
+	BuildID        pgtype.UUID
+	Placement      string
+	ModuleKey      string
+	ModuleSha256   []byte
+	AbiVersion     int32
+	InputSchema    string
+	OutputSchema   string
+	Provenance     []byte
+	Statement      []byte
+	Signature      []byte
+	KeyID          string
+	TestsPassed    bool
+	CreatedBy      pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
+}
+
 type GatewayUpstream struct {
 	ID                    pgtype.UUID
 	OrganizationID        pgtype.UUID
@@ -337,6 +453,18 @@ type IdempotencyKey struct {
 	State       string
 	CreatedAt   pgtype.Timestamptz
 	ExpiresAt   pgtype.Timestamptz
+}
+
+type ImportedKey struct {
+	Role            string
+	KeyID           string
+	TeamID          string
+	WrappedDataKey  []byte
+	WrapKeyID       string
+	Nonce           []byte
+	Ciphertext      []byte
+	PublicKeySha256 []byte
+	CreatedAt       pgtype.Timestamptz
 }
 
 type InstallationSecret struct {
@@ -541,6 +669,17 @@ type ReleaseContentKey struct {
 	OrganizationID pgtype.UUID
 	Sealed         []byte
 	CreatedAt      pgtype.Timestamptz
+}
+
+type ReleaseFunction struct {
+	ReleaseID      pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	Name           string
+	Version        int32
+	ModuleSha256   []byte
+	Placement      string
 }
 
 type ReleaseVersion struct {

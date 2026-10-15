@@ -54,7 +54,7 @@ BIN_DIR       := bin
 FLATC_DIR     ?= $(HOME)/.cache/plux/flatc-$(FLATC_VERSION)
 FLATC         ?= $(FLATC_DIR)/flatc
 
-MK_FRAGMENTS := go codecs dart bench studio stack device repo
+MK_FRAGMENTS := go codecs functions dart bench studio stack device repo
 
 .PHONY: help setup hooks-install check check-changed test build gen-check clean \
 	install-go-tools install-golangci-lint install-govulncheck install-gitleaks install-actionlint install-buf install-sqlc install-python-tools install-flatc

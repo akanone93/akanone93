@@ -1,0 +1,104 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.internal.fn.v1;
+
+import "plux/internal/fn/v1/runner.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/fnpb;fnpb";
+
+// FunctionHostService is served by api and called by fnrunner over mutual
+// TLS (FN-013, ADR-0064). It gives the runner the few things it may not
+// reach itself: modules, the key-value store, secrets and nested
+// invocations. Every call carries the per-invocation grant, and api
+// authorises it against the grant's app, environment, function and
+// version before it acts (FN-012). The service is internal and carries no
+// compatibility promise beyond the roles of one release.
+service FunctionHostService {
+  // GetModule returns a module by its SHA-256 (FN-010).
+  rpc GetModule(GetModuleRequest) returns (GetModuleResponse) {}
+  // KvGet reads a key of the function's namespace (FN-018).
+  rpc KvGet(KvGetRequest) returns (KvGetResponse) {}
+  // KvPut writes a key of the function's namespace within the limits of
+  // the registry (FN-018).
+  rpc KvPut(KvPutRequest) returns (KvPutResponse) {}
+  // KvDelete removes a key of the function's namespace (FN-018).
+  rpc KvDelete(KvDeleteRequest) returns (KvDeleteResponse) {}
+  // GetSecret returns the environment's value of a secret the function is
+  // granted by name (FN-012, ADR-0061).
+  rpc GetSecret(GetSecretRequest) returns (GetSecretResponse) {}
+  // Invoke runs another function for a nested call, counting against the
+  // depth limit (FN-011, FN-012).
+  rpc Invoke(FunctionHostServiceInvokeRequest) returns (FunctionHostServiceInvokeResponse) {}
+}
+
+message GetModuleRequest {
+  // grant is the per-invocation grant (ADR-0064).
+  string grant = 1;
+  // module_sha256 is the hex SHA-256 of the module.
+  string module_sha256 = 2;
+}
+message GetModuleResponse {
+  bytes module = 1;
+  // statement is the builder's canonical artifact statement, a JSON
+  // document that names the module's SHA-256 (FN-009, ADR-0063).
+  bytes statement = 2;
+  // signature is the Ed25519 signature over statement (FN-009).
+  bytes signature = 3;
+  // key_id names the key in the runner's configured set that verifies the
+  // signature (FN-009).
+  string key_id = 4;
+}
+
+message KvGetRequest {
+  string grant = 1;
+  string key = 2;
+}
+message KvGetResponse {
+  bool found = 1;
+  bytes value = 2;
+}
+
+message KvPutRequest {
+  string grant = 1;
+  string key = 2;
+  bytes value = 3;
+}
+message KvPutResponse {}
+
+message KvDeleteRequest {
+  string grant = 1;
+  string key = 2;
+}
+message KvDeleteResponse {
+  bool deleted = 1;
+}
+
+message GetSecretRequest {
+  string grant = 1;
+  string name = 2;
+}
+message GetSecretResponse {
+  bool found = 1;
+  // value is the secret; the runner never logs or stores it (SEC-092).
+  bytes value = 2;
+}
+
+message FunctionHostServiceInvokeRequest {
+  string grant = 1;
+  // function is the dotted name of the function to call.
+  string function = 2;
+  // input is the UTF-8 JSON input.
+  bytes input = 3;
+  // depth is the nesting depth the nested invocation runs at: the
+  // caller's depth plus one. The api refuses it above function.callDepth
+  // (FN-011).
+  uint32 depth = 4;
+  // traceparent carries the W3C trace context (FN-032).
+  string traceparent = 5;
+}
+message FunctionHostServiceInvokeResponse {
+  FunctionRunnerServiceInvokeResponse result = 1;
+}

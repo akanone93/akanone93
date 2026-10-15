@@ -82,6 +82,53 @@ final class ChannelBiometricPlatform implements BiometricPlatform {
   }
 }
 
+/// The platform's one-time-code delivery by SMS (`OtpInput`, SEC-090): the
+/// SMS User Consent API on Android, which asks the user to share one
+/// message and needs no SMS permission.
+abstract interface class SmsConsentPlatform {
+  /// Waits for an SMS the user agrees to share and completes with its text,
+  /// or null when the user declines, nothing arrives in time, or [cancel]
+  /// ends the wait. Fails with a [PluxDeviceException] when the call
+  /// itself fails. The text holds a secret and is never logged (SEC-092).
+  Future<String?> awaitSmsConsent();
+
+  /// Ends a wait that [awaitSmsConsent] started; harmless when none runs.
+  Future<void> cancel();
+}
+
+/// The runtime's platform channel, `dev.plux/runtime`, implemented by
+/// `PluxSmsConsent` on Android; iOS fills codes through the keyboard.
+final class ChannelSmsConsentPlatform implements SmsConsentPlatform {
+  /// Creates the platform.
+  const ChannelSmsConsentPlatform();
+
+  @override
+  Future<String?> awaitSmsConsent() async {
+    try {
+      return await _channel.invokeMethod<String>('smsConsent');
+    } on PlatformException catch (e) {
+      throw PluxDeviceException.unavailable(
+        'the SMS consent failed: ${e.code}',
+      );
+    } on MissingPluginException {
+      throw const PluxDeviceException.unavailable(
+        'this platform has no SMS consent',
+      );
+    }
+  }
+
+  @override
+  Future<void> cancel() async {
+    try {
+      await _channel.invokeMethod<void>('smsConsentCancel');
+    } on PlatformException {
+      // Nothing to end.
+    } on MissingPluginException {
+      // Nothing to end.
+    }
+  }
+}
+
 /// The platform's protection of the screen while a secure page shows.
 abstract interface class SecureScreenPlatform {
   /// Turns the protection on or off. On Android it sets `FLAG_SECURE`, which

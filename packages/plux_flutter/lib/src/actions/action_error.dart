@@ -47,6 +47,8 @@ final class ActionError implements Exception {
     this.message, {
     this.status,
     this.errorCode,
+    this.messageKey,
+    this.params,
   });
 
   /// A `cancelled` error: the run, or a branch of a `parallel` step, was
@@ -78,6 +80,13 @@ final class ActionError implements Exception {
   /// error.
   final String? errorCode;
 
+  /// The localisation key of a business error's message (FN-022); null for
+  /// any other error.
+  final String? messageKey;
+
+  /// The values a business error's message interpolates (FN-022).
+  final Map<String, Object?>? params;
+
   /// The value of `steps.<id>.error` and of an error handler's `event`, a
   /// `PluxActionError`.
   Map<String, Object?> toPxl() => {
@@ -85,6 +94,8 @@ final class ActionError implements Exception {
     'message': message,
     'code': errorCode,
     'status': status,
+    if (messageKey != null) 'messageKey': messageKey,
+    if (params != null) 'params': params,
   };
 
   /// The error as the runtime reports it, with structured [details].

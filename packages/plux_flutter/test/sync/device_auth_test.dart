@@ -305,6 +305,35 @@ void main() {
       );
     });
 
+    test(
+      'the evidence of an invocation is an assertion on iOS and a token '
+      'on Android, both over the binding [FN-020] [SEC-003] [SEC-004]',
+      () async {
+        final binding = Uint8List.fromList(List.generate(32, (i) => i));
+        final ios = _Rig(platform: 'ios')
+          ..attestation.assertionBytes = Uint8List.fromList([4, 5]);
+        final a = await ios.auth.invocationEvidence(binding);
+        expect(a.assertion, [4, 5]);
+        expect(a.integrityToken, isNull);
+        expect(ios.attestation.assertedHashes.last, binding);
+        final android = _Rig()..attestation.token = 'integrity';
+        final t = await android.auth.invocationEvidence(binding);
+        expect(t.integrityToken, 'integrity');
+        expect(t.assertion, isNull);
+        expect(
+          android.attestation.integrityHashes.last,
+          base64Url.encode(binding).replaceAll('=', ''),
+        );
+        final none = await _Rig(platform: 'ios').auth
+            .invocationEvidence(binding);
+        expect(
+          none.assertion,
+          isNull,
+          reason: 'the server refuses it, PLX-6001',
+        );
+      },
+    );
+
     test('a null assertion adds nothing to the refresh [SEC-025]', () async {
       final rig = _Rig(platform: 'ios');
       await rig.auth.token();

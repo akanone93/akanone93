@@ -51,6 +51,24 @@ precedence = "override"
 SPDX-FileCopyrightText = ["2010 Google Inc.", "2016 Alliance for Open Media", "2019 Joe Drago"]
 SPDX-License-Identifier = "BSD-3-Clause AND BSD-2-Clause AND LicenseRef-WebM-Patent-Grant AND LicenseRef-AOM-Patent-License-1.0"
 
+# The function ABI conformance probe (FN-015), built from
+# schema/testdata/functions/probe by its build.sh. The modules link the Rust
+# standard library (MIT OR Apache-2.0), so they carry both licences.
+[[annotations]]
+path = ["schema/testdata/functions/probe.wasm", "schema/testdata/functions/probe-device.wasm"]
+precedence = "override"
+SPDX-FileCopyrightText = ["The Rust Project Developers", "2026 Plux contributors"]
+SPDX-License-Identifier = "Apache-2.0 AND MIT"
+
+# The example functions' modules (sdk/fn/examples/modules/*/dist), built by
+# the Plux builder; like the probe they link the Rust standard library and the
+# crates of sdk/fn/Cargo.lock (MIT or Apache-2.0).
+[[annotations]]
+path = "sdk/fn/examples/modules/*/dist/module.wasm"
+precedence = "override"
+SPDX-FileCopyrightText = ["The Rust Project Developers", "2026 Plux contributors"]
+SPDX-License-Identifier = "Apache-2.0 AND MIT"
+
 # Public attestation roots pinned by ADR-0012, reproduced unmodified so the
 # verifiers can check device attestations; their fingerprints are tested.
 [[annotations]]
@@ -112,6 +130,29 @@ path = [
 precedence = "override"
 SPDX-FileCopyrightText = "Meta Platforms, Inc. and affiliates"
 SPDX-License-Identifier = "BSD-3-Clause"
+
+# WebAssembly Micro Runtime 2.4.3, the fast interpreter subset, vendored for
+# the device function engine (E9, E10 of docs/plans/p7.md). Its sources carry
+# their own SPDX headers; the entries below cover the files that do not.
+# native/wamr/import.sh re-creates the subset and checks SHA256SUMS.
+[[annotations]]
+path = [
+    "packages/plux_functions/native/wamr/LICENSE",
+    "packages/plux_functions/native/wamr/SHA256SUMS",
+    "packages/plux_functions/native/wamr/core/iwasm/include/wasm_c_api.h",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Intel Corporation and WAMR contributors"
+SPDX-License-Identifier = "Apache-2.0 WITH LLVM-exception"
+
+# Docker's default seccomp profile (moby/profiles, seccomp/default.json) with
+# one added rule that lets the function builder create the namespaces of its
+# build sandbox (deploy/compose/README.md, "Function builder"; FN-016).
+[[annotations]]
+path = "deploy/compose/seccomp-builder.json"
+precedence = "override"
+SPDX-FileCopyrightText = ["Moby contributors", "2026 Plux contributors"]
+SPDX-License-Identifier = "Apache-2.0"
 
 # The starter and reference apps' Android and iOS projects, as `flutter create` wrote
 # them from the Flutter SDK's templates (launcher icons and launch images

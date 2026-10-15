@@ -33,6 +33,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
@@ -72,6 +73,13 @@ type Services struct {
 	// SecurityConfig holds the environments' security configurations
 	// (SEC-182).
 	SecurityConfig *seccfg.Service
+	// Functions administers functions (FN-006, FN-016); nil where the
+	// installation has no object store.
+	Functions *function.Service
+	// FunctionRuntime is the api role's side of server functions: the
+	// runner's host service and the invoker behind FunctionService; nil
+	// where the process is not the api role (ADR-0064).
+	FunctionRuntime *functionRuntime
 	// AttestationStatus is Google's attestation status list, which the
 	// worker role keeps current (SEC-002).
 	AttestationStatus *statuslist.List
@@ -105,6 +113,15 @@ type WorkDeps struct {
 	// Log receives the warnings of the services; nil uses the default
 	// logger.
 	Log *slog.Logger
+	// Builder compiles function sources on the builder role; only the
+	// worker role is given one, and only where builder.address is set.
+	Builder function.Builder
+	// Linker links the device functions of a plugin into one module on the
+	// builder role (FN-051); set with Builder.
+	Linker function.Linker
+	// FunctionKey is the key reference that signs the statements of
+	// function builds (signing.keys.functionArtifact).
+	FunctionKey string
 	// Metrics receives the device side's metrics, the DPoP replay cache's
 	// health among them; nil records none.
 	Metrics *observability.Metrics
@@ -325,15 +342,23 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
+	runnerLink, err := buildRunnerLink(ctx, cfg, db, backend, work)
+	if err != nil {
+		return nil, err
+	}
+	functions, err := buildFunctions(db, work, log, tenancyService, configs, gen, time.Duration(cfg.Telemetry.RetentionDays)*24*time.Hour, runnerLink)
+	if err != nil {
+		return nil, err
+	}
 	gw, err := buildGateway(gatewayDeps{
 		cfg: cfg, db: db, cache: shared, set: set, signer: tokenSigner, crypter: backend, ids: gen, audit: log, tenancy: tenancyService,
 		devices: devices, configs: configs, trust: trust, metrics: work.Metrics, secretOf: secrets{t: tenancyService},
-		identityHTTP: work.IdentityHTTP,
+		identityHTTP: work.IdentityHTTP, functions: functions,
 	})
 	if err != nil {
 		return nil, err
 	}
-	releases, err := buildReleases(cfg, db, set, work, releaseDeps{ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw)})
+	releases, err := buildReleases(cfg, db, set, work, releaseDeps{ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw), functions: functions})
 	if err != nil {
 		return nil, err
 	}
@@ -341,11 +366,18 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
+	fnRuntime, err := buildFunctionRuntime(ctx, functionDeps{
+		cfg: cfg, db: db, crypter: backend, cache: shared, set: set, service: functions, link: runnerLink, gateway: gw,
+		tenancy: tenancyService, configs: configs, devices: devices, keys: store, metrics: work.Metrics,
+	})
+	if err != nil {
+		return nil, err
+	}
 	return &Services{
 		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
-		AttestationStatus: status, Metrics: work.Metrics,
+		AttestationStatus: status, Metrics: work.Metrics, Functions: functions, FunctionRuntime: fnRuntime,
 	}, nil
 }
 
@@ -446,6 +478,9 @@ type releaseDeps struct {
 	// gateway is the upstream registry the release check reads; nil where
 	// the process serves no gateway.
 	gateway *gateway.Registry
+	// functions supplies the function catalogue and device modules a
+	// compilation uses; nil where the installation runs no functions.
+	functions *function.Service
 }
 
 // buildReleases assembles the release service, or returns nil when the
@@ -458,7 +493,7 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 		DB: db, Audit: deps.audit, Tenancy: deps.tenancy, Documents: deps.documents, Objects: work.Objects, IDs: deps.ids,
 		Jobs: publishQueue{work.Queue}, Signer: work.Signer, ProductionSigning: work.ProductionSigning, Limits: set,
 		Devices: deps.devices, Gateway: deps.gateway, SecurityConfig: deps.configs, PublicBaseURL: cfg.Server.PublicBaseURL,
-		Crypter: deps.crypter, Recipients: deps.devices,
+		Crypter: deps.crypter, Recipients: deps.devices, Functions: functionsOf(deps.functions),
 		CompilerVersion: buildinfo.Get().Version, DevelopmentDays: cfg.Retention.DevelopmentReleaseDays,
 		Metadata: metadataOptions(cfg),
 	})
@@ -470,6 +505,15 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 	// again, so that they pin the new version (SEC-182).
 	deps.configs.OnChange(releases.EnqueueEnvironmentManifests)
 	return releases, nil
+}
+
+// functionsOf returns the service as the release service's supplier of
+// functions, or nil, not a typed nil, where there is none.
+func functionsOf(svc *function.Service) release.Functions {
+	if svc == nil {
+		return nil
+	}
+	return svc
 }
 
 // metadataOptions are the update-metadata settings of the configuration
@@ -555,11 +599,14 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	}
 	h := &api.Handlers{
 		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
-		Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig,
+		Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
 		Limiter: limiter, Limits: s.limits,
 	}
 	if svc.AuditCheckpoints != nil {
 		h.AuditCheckpoints = svc.AuditCheckpoints
+	}
+	if rt := svc.FunctionRuntime; rt != nil {
+		h.FunctionHosting, h.FunctionInvoker = rt.host, rt.invoker
 	}
 	if g := svc.Gateway; g != nil {
 		h.Gateway, h.Upstreams, h.Exchange = g.Gateway, g.Upstreams, g.Exchange
@@ -604,9 +651,18 @@ func (s *Server) RegisterAPI(svc *Services) error {
 			return pluxv1connect.NewSecurityAdminServiceHandler(h.SecurityAdmin(), opts)
 		})
 	}
+	if svc.Functions != nil {
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
+		})
+	}
 	for _, register := range registrations {
 		path, handler := register()
 		s.Register(path, handler)
+	}
+	s.registerFunctionHost(h)
+	if h.FunctionInvoker != nil {
+		s.Register(pluxv1connect.NewFunctionServiceHandler(h.FunctionService(), opts))
 	}
 	if svc.Gateway != nil {
 		s.registerGateway(svc.Gateway, h, deviceAuth, opts)
@@ -689,66 +745,88 @@ type maintenanceWorker struct {
 	log *slog.Logger
 }
 
+// sweepTotals counts what one sweep did, for its log line.
+type sweepTotals struct {
+	snapshots, released, signed int
+	resign                      []error
+}
+
 // Work runs one sweep. Each part runs even if another fails, and the
 // job fails if any did, so River retries it.
 func (w *maintenanceWorker) Work(ctx context.Context, _ *river.Job[Maintenance]) error {
 	var errs []error
 	purged, err := w.svc.Tenancy.PurgeExpired(ctx, 100)
 	errs = append(errs, err)
-	snapshots := 0
-	released := 0
-	signed := 0
-	var resign []error
+	var t sweepTotals
 	err = w.svc.Tenancy.ForEachOrganization(ctx, func(org string) error {
-		if w.svc.Releases != nil {
-			n, err := w.svc.Releases.PurgeReleases(ctx, org)
-			released += n
-			if err != nil {
-				return err //nolint:wrapcheck // a domain error
-			}
-			// Signing failures of one organisation, such as an expired
-			// root, are reported without stopping the sweep of the others;
-			// the job still fails, so River retries it.
-			m, err := w.svc.Releases.RefreshManifests(ctx, org)
-			signed += m
-			resign = append(resign, err)
-			// The timestamp and snapshot are re-signed before they
-			// expire (SEC-050).
-			m, err = w.svc.Releases.RefreshMetadata(ctx, org)
-			signed += m
-			resign = append(resign, err)
-			if _, err := w.svc.Releases.PurgeManifests(ctx, org); err != nil {
-				return err //nolint:wrapcheck // a domain error
-			}
-			if _, err := w.svc.Releases.PurgeMetadata(ctx, org); err != nil {
-				return err //nolint:wrapcheck // a domain error
-			}
-		}
-		if _, err := w.svc.Devices.ExpireTokens(ctx, org); err != nil {
-			return err //nolint:wrapcheck // a domain error
-		}
-		if _, err := w.svc.Events.Purge(ctx, org); err != nil {
-			return err //nolint:wrapcheck // a domain error
-		}
-		if _, err := w.svc.Documents.RequeueSVGs(ctx, org); err != nil {
-			return err //nolint:wrapcheck // a domain error
-		}
-		n, err := w.svc.Documents.PurgeSnapshots(ctx, org)
-		snapshots += n
-		return err //nolint:wrapcheck // a domain error
+		return w.sweepOrganization(ctx, org, &t)
 	})
 	errs = append(errs, err)
-	errs = append(errs, resign...)
+	errs = append(errs, t.resign...)
 	keys, err := w.svc.Idempotency.Expire(ctx)
 	errs = append(errs, err)
 	creds, err := w.svc.Auth.Expire(ctx)
 	errs = append(errs, err)
 	if w.log != nil {
 		w.log.InfoContext(ctx, "maintenance sweep",
-			slog.Int("trashPurged", purged), slog.Int("snapshotsPurged", snapshots), slog.Int("releasesPurged", released), slog.Int("manifestsSigned", signed), slog.Int64("idempotencyKeysExpired", keys),
+			slog.Int("trashPurged", purged), slog.Int("snapshotsPurged", t.snapshots), slog.Int("releasesPurged", t.released), slog.Int("manifestsSigned", t.signed), slog.Int64("idempotencyKeysExpired", keys),
 			slog.Int64("credentialsExpired", creds))
 	}
 	return errors.Join(errs...)
+}
+
+// sweepOrganization runs the sweep's parts for one organisation.
+func (w *maintenanceWorker) sweepOrganization(ctx context.Context, org string, t *sweepTotals) error {
+	if w.svc.Releases != nil {
+		if err := w.sweepReleases(ctx, org, t); err != nil {
+			return err
+		}
+	}
+	if _, err := w.svc.Devices.ExpireTokens(ctx, org); err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	if _, err := w.svc.Events.Purge(ctx, org); err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	if w.svc.Functions != nil {
+		if _, err := w.svc.Functions.PurgeObservations(ctx, org); err != nil {
+			return err //nolint:wrapcheck // a domain error
+		}
+	}
+	if _, err := w.svc.Documents.RequeueSVGs(ctx, org); err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	n, err := w.svc.Documents.PurgeSnapshots(ctx, org)
+	t.snapshots += n
+	return err //nolint:wrapcheck // a domain error
+}
+
+// sweepReleases purges releases and re-signs the manifests and update
+// metadata of one organisation.
+func (w *maintenanceWorker) sweepReleases(ctx context.Context, org string, t *sweepTotals) error {
+	n, err := w.svc.Releases.PurgeReleases(ctx, org)
+	t.released += n
+	if err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	// Signing failures of one organisation, such as an expired root, are
+	// reported without stopping the sweep of the others; the job still
+	// fails, so River retries it.
+	m, err := w.svc.Releases.RefreshManifests(ctx, org)
+	t.signed += m
+	t.resign = append(t.resign, err)
+	// The timestamp and snapshot are re-signed before they expire
+	// (SEC-050).
+	m, err = w.svc.Releases.RefreshMetadata(ctx, org)
+	t.signed += m
+	t.resign = append(t.resign, err)
+	if _, err := w.svc.Releases.PurgeManifests(ctx, org); err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	if _, err := w.svc.Releases.PurgeMetadata(ctx, org); err != nil {
+		return err //nolint:wrapcheck // a domain error
+	}
+	return nil
 }
 
 // MaintenanceJobs registers the sweep's worker and returns its schedule.

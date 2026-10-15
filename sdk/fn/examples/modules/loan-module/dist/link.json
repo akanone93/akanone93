@@ -1,0 +1,6 @@
+{
+  "abiVersion": 1,
+  "index": {
+    "loan.calculateSchedule": 0
+  }
+}

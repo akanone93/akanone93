@@ -44,9 +44,9 @@ When two good options conflict, the one higher in this list wins (spec §1.4):
 |---|---|---|
 | Plux Schema | Versioned document model; single source for validation and code generation | P1 |
 | Plux Compiler | Deterministic Go library: validate, type-check, optimise, encode, hash | P1 |
-| Plux Server | `api`, `worker`, `fnrunner` roles: documents, publish, releases, devices, functions | P2 |
+| Plux Server | `api`, `worker`, `fnrunner` roles (P7 adds `builder` and `egress`): documents, publish, releases, devices, functions | P2 |
 | `plux_flutter` | Runtime: sync, verify, render, navigate, act, secure | P3 |
-| Plux Functions | Sandboxed Go/WASM on server or device | P7 |
+| Plux Functions | Sandboxed Rust/WASM on server or device | P7 |
 | Plux Dev app | Live device preview and debugging | P10 |
 | Plux Studio | Visual design, governance and administration | P11 |
 | Plux CLI | Developer and CI entry point | P2 onwards |

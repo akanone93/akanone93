@@ -18,6 +18,15 @@ server:
     maxAge: "10m"
     includeSubDomains: false
   shutdownGrace: "30s"
+  # The listener for the other roles (SEC-043): mutual TLS 1.3, and only a
+  # certificate of the internal CA is accepted. It serves the function host
+  # service that plux-fnrunner calls for modules and the key-value store.
+  # init-secrets.sh issues the identity (README.md, "Internal TLS").
+  internalListen: ":8443"
+  internalTLS:
+    caFile: "/etc/plux/internal/ca.crt"
+    certFile: "/etc/plux/internal/tls.crt"
+    keyFile: "/etc/plux/internal/tls.key"
 database:
   migrateOnStart: true
 objectStorage:
@@ -41,3 +50,11 @@ attestation:
 observability:
   logFormat: "json"
   otlpEndpoint: "http://otel-collector:4318"
+# Server functions (FN-020): the api role invokes them on plux-fnrunner, and
+# the worker builds uploaded sources on plux-builder, which runs under the
+# `functions` profile. Without it, builds fail as unavailable and every other
+# feature works.
+functions:
+  runnerURL: "https://plux-fnrunner:8445"
+builder:
+  address: "https://plux-builder:8446"

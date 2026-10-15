@@ -191,3 +191,48 @@ final class PinRoutingClient extends http.BaseClient implements DomainPinned {
     _other.close();
   }
 }
+
+/// Chooses the `dart:io` client a WebSocket connects with, so that streams
+/// are pinned like every other request (SEC-041, SEC-042): the pins of the
+/// Plux server for its own host (the gateway is served from there), the
+/// pins of a customer domain the active release pins, and no client of its
+/// own, hence `dart:io`'s default, for any other host.
+///
+/// A client is made for each connection, so a change of pins reaches the
+/// next connection and no pooled connection outlives the pins it was
+/// accepted under. The instance holds plain values only and is sent to the
+/// data isolate.
+final class WebSocketClients implements DomainPinned {
+  /// Creates the chooser. [serverHost] is the host of the Plux server and
+  /// [serverPins] its pins; with either null the server is not pinned (a
+  /// development server over plain HTTP, or a build without pins).
+  WebSocketClients({String? serverHost, Iterable<String>? serverPins})
+    : _serverHost = serverHost?.toLowerCase(),
+      _serverPins = serverPins == null ? null : List.of(serverPins);
+
+  final String? _serverHost;
+  final List<String>? _serverPins;
+  final Map<String, List<String>> _domains = {};
+
+  /// The context the pinned clients trust, for tests whose server uses its
+  /// own authority; null for the platform's trust store.
+  SecurityContext? trustContext;
+
+  @override
+  void pinDomains(Map<String, List<String>> pins) {
+    _domains
+      ..clear()
+      ..addAll({for (final e in pins.entries) e.key.toLowerCase(): e.value});
+  }
+
+  /// The pinned client for a WebSocket to [url], or null when the host is
+  /// not pinned. Throws a [PluxException] when the pins of the host are not
+  /// valid, so that the connection fails closed (SEC-042).
+  HttpClient? clientFor(Uri url) {
+    final host = url.host.toLowerCase();
+    final domain = _domains[host];
+    final pins = domain ?? (host == _serverHost ? _serverPins : null);
+    if (pins == null) return null;
+    return pinnedHttpClient(PinSet(pins), context: trustContext);
+  }
+}

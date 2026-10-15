@@ -24,6 +24,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/compiler"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -67,6 +68,15 @@ type Devices interface {
 	Incompatible(ctx context.Context, tx pgx.Tx, appID, minRuntime string, hostBuilds []string) (int64, error)
 }
 
+// Functions supplies what compiling a plugin needs of the functions of an
+// app and environment: the catalogue of what is deployed, and the module
+// that links a plugin's device functions (FN-006, FN-051). *function.Service
+// is one.
+type Functions interface {
+	Catalogue(ctx context.Context, organizationID, appID, environmentID string) (compiler.FunctionCatalogue, error)
+	DeviceModules(ctx context.Context, organizationID, appID, environmentID string) compiler.DeviceModules
+}
+
 // Options configures a Service.
 type Options struct {
 	DB        *storage.DB
@@ -102,6 +112,10 @@ type Options struct {
 	// Recipients decides which devices receive a content key; nil serves
 	// no confidential manifest.
 	Recipients Recipients
+	// Functions supplies the function catalogue and the device modules a
+	// compilation packs. Nil compiles without functions: grants are then not
+	// resolved, which is for installations that run none.
+	Functions Functions
 	// Limits are the installation's limits.
 	Limits limits.Set
 	// CompilerVersion is recorded in every bundle (CMP-005).

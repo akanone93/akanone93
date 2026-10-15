@@ -12,6 +12,7 @@ Every Plux document is JSON validated by the JSON Schema 2020-12 files in `schem
 | `app` | [AppDocument](#appdocument) | `schema/json/app.schema.json` | An app: its plugins, theme, locales, environments, shared data and policies (SCH-020). File: `app.json`. |
 | `assetIndex` | [AssetIndexDocument](#assetindexdocument) | `schema/json/asset-index.schema.json` | The assets of an app, stored under `assets/` and referenced by identifier (§14.8). File: `assets/index.json`. |
 | `component` | [ComponentDocument](#componentdocument) | `schema/json/component.schema.json` | A reusable component with typed props, slots, events and internal state (SCH-030). File: `components/<key>.component.json` (app-shared) or `plugins/<plugin>/components/<key>.component.json`. |
+| `function` | [FunctionDocument](#functiondocument) | `schema/json/function.schema.json` | A Plux Function: its name, placement, capabilities, limits, required assurance and test cases (FN-008, FN-011, FN-012, FN-031). The input and output schemas are derived from the function's types at build time (FN-004) and never written here. File: `functions/<name>/function.json`. |
 | `nativeCatalogue` | [NativeCatalogueDocument](#nativecataloguedocument) | `schema/json/native-catalogue.schema.json` | The native routes, native slots and custom actions of one host app build (SCH-032). File: `native-catalogue.json`. |
 | `page` | [PageDocument](#pagedocument) | `schema/json/page.schema.json` | A page: route, parameters, state, data, lifecycle and node tree (SCH-022). File: `plugins/<plugin>/pages/<key>.page.json`. |
 | `plugin` | [PluginDocument](#plugindocument) | `schema/json/plugin.schema.json` | A plugin: its pages, state, collections and requested capabilities (SCH-021). File: `plugins/<key>/plugin.json`. |
@@ -463,6 +464,40 @@ A built-in validator of a form field (STA-020, ADR-0047).
 
 One of `required`, `length`, `range`, `regex`, `email`, `phone`, `iban`, `dateRange`, `decimalPrecision`, `custom`, `async`.
 
+### FunctionCapabilities
+
+Host capabilities the function declares; everything not declared is denied (FN-012). A device function may declare only `kv` and `functions` that are themselves device-placed (FN-052).
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `http` | list of string |  | Domains the function may call through the egress proxy (FN-017). |
+| `kv` | boolean |  | Whether the function may use its key-value namespace (FN-018). |
+| `secrets` | list of string |  | Names of the secrets the function may read (FN-012). |
+| `functions` | list of string |  | Names of the functions this function may call (FN-012); server placement only — a device function may call none (FN-052). |
+| `claims` | boolean |  | Whether the function may read the verified user claims (SEC-026). |
+
+### FunctionDocument
+
+A Plux Function: its name, placement, capabilities, limits, required assurance and test cases (FN-008, FN-011, FN-012, FN-031). The input and output schemas are derived from the function's types at build time (FN-004) and never written here. File: `functions/<name>/function.json`.
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `schemaVersion` | string | yes | Version of the document schema (SCH-000). Older documents are migrated before validation. |
+| `kind` | `"function"` | yes |  |
+| `id` | string | yes | Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). |
+| `name` | string | yes | The dotted function name that plugin grants and `invokeFunction` actions refer to (FN-006). |
+| `description` | string |  |  |
+| `placement` | [Placement](#placement) | yes | Where the function runs; exactly one (FN-008). |
+| `capabilities` | [FunctionCapabilities](#functioncapabilities) |  | Host capabilities the function declares; everything not declared is denied (FN-012). A device function may declare only `kv` and `functions` that are themselves device-placed (FN-052). |
+| `env` | list of string |  | Environment variables of the app's environment the function may read with env_get (FN-002); server placement only (FN-052). |
+| `limits` | [FunctionLimits](#functionlimits) |  | Per-function limits that tighten the registry values (FN-011, LIM-002). |
+| `assurance` | [AssuranceLevel](#assurancelevel) |  | The assurance level a device must hold to invoke the function; the `defaultFunctionAssurance` setting applies when absent (SEC-007). |
+| `attestation` | boolean |  | Whether the invocation requires a fresh attestation of the device. |
+| `sca` | boolean |  | Whether the invocation requires strong customer authentication (SEC-027). |
+| `pure` | boolean |  | Whether the function is free of side effects, so its results may be cached by input hash (FN-014). |
+| `cacheTtlSeconds` | integer |  | How long the result of a pure function may be cached (FN-014). |
+| `tests` | list of [FunctionTestCase](#functiontestcase) |  | Stored test cases, run by `plux fn test` and in CI; a failing case blocks deployment to production (FN-031). |
+
 ### FunctionGrant
 
 A function the plugin may call, with an optional alias (FN-006).
@@ -473,6 +508,35 @@ A function the plugin may call, with an optional alias (FN-006).
 | `function` | string | yes |  |
 | `alias` | string |  |  |
 | `requiresAssurance` | [AssuranceLevel](#assurancelevel) |  |  |
+
+### FunctionLimits
+
+Per-function limits that tighten the registry values (FN-011, LIM-002).
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `timeoutMs` | integer |  |  |
+| `memoryBytes` | integer |  |  |
+| `outputBytes` | integer |  |  |
+| `httpCalls` | integer |  |  |
+
+### FunctionTestCase
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `name` | string | yes |  |
+| `input` | JSON value | yes | The JSON input passed to the function. |
+| `claims` | JSON value |  | The verified user claims the case is invoked with (server placement, `SEC-026`); none when absent. |
+| `output` | JSON value |  | The JSON output the function must return. |
+| `error` | [FunctionTestError](#functiontesterror) |  | The business error the function must return. |
+
+### FunctionTestError
+
+The business error the function must return.
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `code` | string | yes |  |
 
 ### HostBuild
 
@@ -709,6 +773,10 @@ A typed parameter with an optional default and design-time mock (SCH-022, SCH-02
 Where a state entry lives (STA-003).
 
 One of `memory`, `session`, `persisted`, `secure`.
+
+### Placement
+
+One of `server`, `device`.
 
 ### PluginDocument
 

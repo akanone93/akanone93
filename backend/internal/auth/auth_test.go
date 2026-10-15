@@ -4,6 +4,7 @@
 package auth_test
 
 import (
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -158,5 +159,32 @@ func TestRolesAndAuthorisation(t *testing.T) {
 	var nobody auth.Principal
 	if err := nobody.Authorize(auth.AppRead); code(err) != plxerr.AuthenticationRequired {
 		t.Errorf("a principal with no organisation: %v", err)
+	}
+}
+
+// Verifies: FN-006, FN-007.
+// The function permissions are granted as the release permissions are:
+// reading to every role, deploying to those who publish, deploying to
+// production to those who promote, and only the last needs a second
+// factor.
+func TestFunctionPermissions_FN_007(t *testing.T) {
+	t.Parallel()
+	holds := func(r auth.Role, p auth.Permission) bool { return slices.Contains(auth.RolePermissions(r), p) }
+	for _, r := range auth.Roles() {
+		if !holds(r, auth.FunctionRead) {
+			t.Errorf("%s cannot read functions", r)
+		}
+		if holds(r, auth.FunctionDeploy) != holds(r, auth.ReleasePublish) {
+			t.Errorf("%s: function.deploy is not granted as release.publish", r)
+		}
+		if holds(r, auth.FunctionDeployProduction) != holds(r, auth.ReleasePromote) {
+			t.Errorf("%s: function.deploy.production is not granted as release.promote", r)
+		}
+	}
+	if !auth.NeedsSecondFactor(auth.FunctionDeployProduction) || auth.NeedsSecondFactor(auth.FunctionDeploy) || auth.NeedsSecondFactor(auth.FunctionRead) {
+		t.Error("only function.deploy.production needs a second factor")
+	}
+	if !slices.IsSorted(auth.Permissions()) {
+		t.Error("the catalogue is not sorted")
 	}
 }

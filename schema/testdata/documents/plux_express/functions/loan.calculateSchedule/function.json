@@ -1,0 +1,9 @@
+{
+  "capabilities": {},
+  "description": "The loan schedule for an amount, a rate and a term (sdk/fn/examples/loan).",
+  "id": "01a137b5-6b90-70d0-9fe6-5cdd42ab1ed8",
+  "kind": "function",
+  "name": "loan.calculateSchedule",
+  "placement": "device",
+  "schemaVersion": "1.0.0"
+}

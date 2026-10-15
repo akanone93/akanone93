@@ -239,6 +239,7 @@ var nonTenantTables = map[string]string{ //nolint:gosec // table names, not cred
 	"user_identities":       "a provider identity belongs to a person, who may be in many organisations",
 	"oidc_logins":           "a sign-in in progress has no person yet",
 	"installation_secrets":  "keys of the installation itself, sealed",
+	"imported_keys":         "keys an issuer generated for the installation, sealed",
 	"idempotency_keys":      "keyed by the credential's subject, which may act in no organisation; responses are sealed",
 	"plux_migrations":       "schema bookkeeping",
 }

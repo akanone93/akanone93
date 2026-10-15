@@ -268,3 +268,31 @@ Maintainer decision (2026-10-07), with a target of 13 to 15 minutes for the devi
   seconds. A
   miss is a clean build, as before. Incremental builds are Xcode's and Gradle's own, which
   track inputs by content.
+
+## Revision (2026-10-13, P7: Plux Functions)
+
+Phase 7 adds Rust (the SDK and the example functions, [ADR-0011](0011-plux-functions-rust-wasm.md)),
+three Go roles (`fnrunner`, `egress`, `builder`) and a C engine on the device. The affected-only
+rules in `ci/affected.json` grow to cover them; no gate is loosened.
+
+- **Rust job.** A job with the toolchain pinned in `sdk/fn/rust-toolchain.toml` builds the SDK
+  and the example functions **twice** and compares the bytes (`FN-019`, `CI-006`), runs
+  `cargo test`, and runs the stored test cases against the built module. `wasm-opt` is
+  Binaryen `version_132` from the integrity-pinned npm package `binaryen@132.0.0`, run with
+  the pinned Bun, so the same optimiser runs in CI, in the builder image and on developer
+  machines ([ADR-0063](0063-function-builds-provenance.md)). Cargo registry and target
+  directories are cached like Go's: restored on every run, saved by passing push, scheduled
+  or manual runs, keyed by the lock file and the toolchain.
+- **Paths.** `sdk/fn/**`, the example function directories (`functions/**`-style paths under
+  the examples) and `docs/functions/**` select the Rust job; the builder image, the
+  `fnrunner`, `egress` and builder packages and their internal protos select the Go jobs and
+  the Compose test; the device engine package (`packages/plux_functions/**`, with its
+  vendored WAMR and the SHA-256 check against the upstream `WAMR-2.4.3` archive) selects the
+  Dart and device jobs. A change to `schema/testdata/functions` selects both hosts.
+- **Fuzzing.** The fuzz targets (ABI payloads, the module loader, the egress request parser)
+  run briefly in each pull request that touches their packages and for longer in the nightly
+  run.
+- **Benchmarks.** The `NFR-022` benchmark runs in the existing sync benchmark job. Device
+  function numbers (module size, start, a typical call for WAMR, and `wasmi` for the
+  side-by-side of ADR-0011) are taken in the existing Android and iOS jobs; **no new emulator
+  boots**, so the device jobs stay inside the 13 to 15 minute target.

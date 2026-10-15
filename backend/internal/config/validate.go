@@ -72,22 +72,24 @@ func (c *Config) Validate() error {
 	c.validateAttestation(&p)
 	c.validateUpdateMetadata(&p)
 	c.validateGateway(&p)
+	c.validateEgress(&p)
+	c.validateFnRunner(&p)
+	c.validateFunctions(&p)
+	c.validateBuilder(&p)
 	return errors.Join(p.errs...)
 }
 
 func (c *Config) validateServer(p *problems) {
 	if len(c.Server.Roles) == 0 {
-		p.addf("server.roles", "must name at least one of api, worker, gateway, fnrunner")
+		p.addf("server.roles", "must name at least one of api, worker, gateway, egress, builder, fnrunner")
 	}
 	seen := map[Role]bool{}
 	for i, r := range c.Server.Roles {
 		path := "server.roles[" + strconv.Itoa(i) + "]"
 		switch r {
-		case RoleAPI, RoleWorker, RoleGateway:
-		case RoleFnRunner:
-			p.addf(path, "the fnrunner role arrives in P7")
+		case RoleAPI, RoleWorker, RoleGateway, RoleEgress, RoleFnRunner, RoleBuilder:
 		default:
-			p.addf(path, "%q is not one of api, worker, gateway", r)
+			p.addf(path, "%q is not one of api, worker, gateway, egress, fnrunner, builder", r)
 		}
 		if seen[r] {
 			p.addf(path, "%q is listed twice", r)
@@ -113,6 +115,9 @@ func (c *Config) validateServer(p *problems) {
 }
 
 func (c *Config) validateDatabase(p *problems) {
+	if c.NoDataAccess() {
+		return // fnrunner and egress hold no database credential (ADR-0064)
+	}
 	if c.Database.URL == "" {
 		p.addf("database.url", "must be set (or PLUX_DATABASE_URL)")
 	} else if u, err := url.Parse(c.Database.URL.Value()); err != nil {
@@ -161,7 +166,7 @@ func (c *Config) validateCache(p *problems) {
 	if c.Cache.Backend == "valkey" && c.Cache.ValkeyURL == "" {
 		p.addf("cache.valkeyURL", "must be set for the valkey backend (or PLUX_CACHE_VALKEY_URL)")
 	}
-	if c.Cache.Backend == "memory" && c.Has(RoleAPI) && c.Has(RoleWorker) {
+	if c.Cache.Backend == "memory" && (c.NoDataAccess() || c.Has(RoleAPI) && c.Has(RoleWorker)) {
 		return // single-node: the in-memory cache is correct
 	}
 	if c.Cache.Backend == "memory" {
@@ -241,6 +246,9 @@ func (c *Config) validateUpdateMetadata(p *problems) {
 	}
 	if !keyPattern.MatchString(c.Signing.Keys.Audit) {
 		p.addf("signing.keys.audit", "must be lower-case letters, digits and hyphens")
+	}
+	if !keyPattern.MatchString(c.Signing.Keys.FunctionArtifact) {
+		p.addf("signing.keys.functionArtifact", "must be lower-case letters, digits and hyphens")
 	}
 }
 
@@ -463,6 +471,7 @@ var appIDPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9
 // Console keys are decoded where they are used; here they only have to
 // come as a pair.
 func (c *Config) validateAttestation(p *problems) {
+	c.validateFraudReceipt(p)
 	if f := c.Attestation.Android.StatusListFile; f != "" {
 		raw, err := os.ReadFile(f) //nolint:gosec // the operator names the file
 		if err != nil {
@@ -488,6 +497,30 @@ func (c *Config) validateAttestation(p *problems) {
 		if a.PlayIntegrityDecryptionKey != "" && len(a.AndroidPackages) == 0 {
 			p.addf(path+".androidPackages", "must name the app's packages when Play Integrity is configured")
 		}
+	}
+}
+
+// appleIDPattern is the form of an Apple Team ID and of an App Store
+// Connect key ID.
+var appleIDPattern = regexp.MustCompile(`^[0-9A-Z]{10}$`)
+
+// validateFraudReceipt checks the fraud-metric receipt settings: enabled
+// needs both identifiers, and any identifier given must be well formed
+// (SEC-007).
+func (c *Config) validateFraudReceipt(p *problems) {
+	f := c.Attestation.Apple.FraudReceipt
+	const path = "attestation.apple.fraudReceipt"
+	if f.Enabled && f.KeyID == "" {
+		p.addf(path+".keyID", "is required when the fraud receipt is enabled")
+	}
+	if f.Enabled && f.TeamID == "" {
+		p.addf(path+".teamID", "is required when the fraud receipt is enabled")
+	}
+	if f.KeyID != "" && !appleIDPattern.MatchString(f.KeyID) {
+		p.addf(path+".keyID", "must be ten uppercase letters and digits")
+	}
+	if f.TeamID != "" && !appleIDPattern.MatchString(f.TeamID) {
+		p.addf(path+".teamID", "must be ten uppercase letters and digits")
 	}
 }
 

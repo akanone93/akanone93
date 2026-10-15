@@ -268,6 +268,116 @@
                   },
                   {
                     "events": {
+                      "onPressed": {
+                        "steps": [
+                          {
+                            "action": "invokeFunction",
+                            "id": "fee",
+                            "input": {
+                              "function": "bank.transferFee",
+                              "input": {
+                                "amount": {
+                                  "$expr": "page.transfer.values.amount"
+                                }
+                              }
+                            },
+                            "onError": "failed",
+                            "onSuccess": "show"
+                          },
+                          {
+                            "action": "setState",
+                            "id": "show",
+                            "input": {
+                              "path": "page.fee",
+                              "value": {
+                                "$expr": "steps.fee.output.fee"
+                              }
+                            },
+                            "next": "clear"
+                          },
+                          {
+                            "action": "setState",
+                            "id": "clear",
+                            "input": {
+                              "path": "page.feeError",
+                              "value": ""
+                            },
+                            "next": "done"
+                          },
+                          {
+                            "action": "stop",
+                            "id": "done"
+                          },
+                          {
+                            "action": "setState",
+                            "id": "failed",
+                            "input": {
+                              "path": "page.fee",
+                              "value": ""
+                            },
+                            "next": "reason"
+                          },
+                          {
+                            "action": "setState",
+                            "id": "reason",
+                            "input": {
+                              "path": "page.feeError",
+                              "value": {
+                                "$expr": "\"Fee unavailable: \" + (steps.fee.error?.code ?? (steps.fee.error?.kind == \"cancelled\" ? \"declined\" : \"refused\"))"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01d0c450-6c00-7000-8000-000000003000",
+                    "slots": {
+                      "child": {
+                        "id": "01d0c450-6c00-7000-8000-000000003001",
+                        "props": {
+                          "data": "Show fee"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "show-fee",
+                    "type": "OutlinedButton"
+                  },
+                  {
+                    "id": "01d0c450-6c00-7000-8000-000000003002",
+                    "props": {
+                      "data": {
+                        "$expr": "\"Fee: \" + page.fee + \" EUR\""
+                      }
+                    },
+                    "testId": "fee",
+                    "type": "Text",
+                    "visible": {
+                      "$expr": "page.fee != \"\""
+                    }
+                  },
+                  {
+                    "id": "01d0c450-6c00-7000-8000-000000003003",
+                    "props": {
+                      "data": {
+                        "$expr": "page.feeError"
+                      }
+                    },
+                    "testId": "fee-error",
+                    "type": "Text",
+                    "visible": {
+                      "$expr": "page.feeError != \"\""
+                    }
+                  },
+                  {
+                    "id": "01d0c450-6c00-7000-8000-000000003004",
+                    "props": {
+                      "height": 8.0
+                    },
+                    "type": "SizedBox"
+                  },
+                  {
+                    "events": {
                       "onChanged": {
                         "steps": [
                           {
@@ -441,8 +551,22 @@
   },
   "route": "transfer",
   "schemaVersion": "1.0.0",
-  "title": "Transfer",
   "security": {
     "secure": true
-  }
+  },
+  "state": [
+    {
+      "default": "",
+      "id": "01d0c450-6c00-7000-8000-000000003100",
+      "name": "fee",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01d0c450-6c00-7000-8000-000000003101",
+      "name": "feeError",
+      "type": "string"
+    }
+  ],
+  "title": "Transfer"
 }

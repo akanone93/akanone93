@@ -1,0 +1,365 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+import "plux/v1/common.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// FunctionService lets an attested device invoke a server-placed Plux
+// Function (FN-020). Business errors the function declares travel in the
+// response as FunctionBusinessError; system errors (timeouts, limits,
+// capability denials, unknown functions) travel as Connect errors that
+// carry a PLX code from the error catalogue (FN-022).
+service FunctionService {
+  // Invoke runs one version of a function with a JSON input. The server
+  // checks the DPoP binding, the access token, the function's required
+  // assurance and the grant of the calling plugin before it runs the
+  // module (FN-012, FN-020), and refuses a version that no active release
+  // of the app pins (FN-006).
+  rpc Invoke(FunctionServiceInvokeRequest) returns (FunctionServiceInvokeResponse) {}
+}
+
+message FunctionServiceInvokeRequest {
+  // function is the dotted function name (FN-006).
+  string function = 1;
+  // version is the function version the device's release pinned (FN-006).
+  uint32 version = 2;
+  // input is the UTF-8 JSON input, validated against the input schema
+  // (FN-004) and bounded by `function.inputSize` (FN-011).
+  bytes input = 3;
+  // idempotency_key lets a retry return the stored result without running
+  // the function again within `function.idempotencyWindow` (FN-021).
+  string idempotency_key = 4;
+  // transaction_challenge_id names the challenge that transaction_signature
+  // answers; required when the function declares `sca` (FN-020, SEC-027).
+  string transaction_challenge_id = 5;
+  // transaction_signature is the signature of the device's SCA key over the
+  // challenge followed by the transaction summary: ES256, 64 bytes, r then
+  // s (SEC-027).
+  bytes transaction_signature = 6;
+  // app_attest_assertion is an iOS device's App Attest assertion over
+  // SHA-256("plux-fn-invoke-v1" || function || "@" || uint32be(version) ||
+  // SHA-256(input) || jti), where jti is the identifier of the request's
+  // DPoP proof; required when the function declares `attestation` (FN-020,
+  // SEC-004).
+  bytes app_attest_assertion = 7;
+  // play_integrity_token is an Android device's Play Integrity
+  // standard-request token whose requestHash is that value, base64url
+  // without padding; required when the function declares `attestation`
+  // (FN-020, SEC-003).
+  string play_integrity_token = 8;
+}
+
+message FunctionServiceInvokeResponse {
+  oneof result {
+    // output is the UTF-8 JSON output of the function (FN-004).
+    bytes output = 1;
+    // business_error is an error the function declared itself (FN-022).
+    FunctionBusinessError business_error = 2;
+  }
+  // version is the function version that ran (FN-006).
+  uint32 version = 3;
+  // replayed is true when the response came from the idempotency record
+  // and the function did not run again (FN-021).
+  bool replayed = 4;
+}
+
+// FunctionBusinessError is an outcome the function's own code declares,
+// surfaced to the calling action graph (FN-022).
+message FunctionBusinessError {
+  // code is the function's own error code.
+  string code = 1;
+  // message_key is the localisable message key (FN-022).
+  string message_key = 2;
+  // params is a UTF-8 JSON object of message parameters.
+  bytes params = 3;
+}
+
+// FunctionAdminService manages function sources, builds and versions for
+// the CLI and Studio. Deploying to production goes through the approval
+// engine (FN-007).
+service FunctionAdminService {
+  // UploadSource streams a source archive. The first message carries the
+  // metadata and no bytes. The archive holds the crate and its `vendor/`
+  // directory and is bounded by `function.sourceArchiveSize` (FN-016).
+  rpc UploadSource(stream UploadSourceRequest) returns (UploadSourceResponse) {}
+  // Build starts a build of an uploaded source on the builder role
+  // (FN-016, FN-019).
+  rpc Build(BuildRequest) returns (BuildResponse) {}
+  // GetBuild returns the state, diagnostics and test results of a build
+  // (FN-016, FN-031).
+  rpc GetBuild(GetBuildRequest) returns (GetBuildResponse) {}
+  // GetFunction returns a function with its aliases and latest version
+  // (FN-006).
+  rpc GetFunction(GetFunctionRequest) returns (GetFunctionResponse) {}
+  // ListFunctions lists the functions of an app and environment (FN-006).
+  rpc ListFunctions(ListFunctionsRequest) returns (ListFunctionsResponse) {}
+  // ListVersions lists the immutable versions of a function (FN-006).
+  rpc ListVersions(ListVersionsRequest) returns (ListVersionsResponse) {}
+  // Deploy turns a successful build into a new immutable version and may
+  // point an alias at it. A build with failing tests is refused (FN-006,
+  // FN-031).
+  rpc Deploy(DeployRequest) returns (DeployResponse) {}
+  // PromoteFunction copies a version to another environment of the app
+  // without rebuilding it, keeping its number, module and signature. A
+  // production target refuses a version whose tests failed (FN-006,
+  // FN-007, FN-031).
+  rpc PromoteFunction(PromoteFunctionRequest) returns (PromoteFunctionResponse) {}
+  // SetAlias points an alias at an existing version (FN-006).
+  rpc SetAlias(SetAliasRequest) returns (SetAliasResponse) {}
+  // ListLogs returns the retained log lines of a function (FN-032).
+  rpc ListLogs(ListLogsRequest) returns (ListLogsResponse) {}
+  // GetMetrics returns invocation counts, errors by kind, latency
+  // percentiles, memory peak and cache hits (FN-032).
+  rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse) {}
+}
+
+// FunctionVersion is one immutable version of a function (FN-006).
+message FunctionVersion {
+  string app_id = 1;
+  string environment_id = 2;
+  // name is the dotted function name.
+  string name = 3;
+  // version is the integer assigned at deploy (FN-006).
+  uint32 version = 4;
+  // placement is "server" or "device" (FN-008).
+  string placement = 5;
+  // module_sha256 is the hex SHA-256 of the module (FN-005).
+  string module_sha256 = 6;
+  // abi_version is the host ABI version the module targets (FN-015).
+  uint32 abi_version = 7;
+  // input_schema is the JSON Schema derived from the input type (FN-004).
+  string input_schema = 8;
+  // output_schema is the JSON Schema derived from the output type (FN-004).
+  string output_schema = 9;
+  // provenance records how the module was built (FN-005).
+  Provenance provenance = 10;
+  // signature is the signature over the artifact statement, made with the
+  // function-artifact key (FN-009).
+  bytes signature = 11;
+  // tests_passed is true when every stored test case passed (FN-031).
+  bool tests_passed = 12;
+  Actor created_by = 13;
+  google.protobuf.Timestamp created_at = 14;
+}
+
+// Provenance is the build record signed with the artifact (FN-005).
+message Provenance {
+  // source_sha256 is the hex SHA-256 of the source archive.
+  string source_sha256 = 1;
+  // dependencies are the vendored crates the build used.
+  repeated Dependency dependencies = 2;
+  // toolchain is the pinned compiler version (FN-016).
+  string toolchain = 3;
+  // wasm_opt_version is the pinned optimiser version (FN-016).
+  string wasm_opt_version = 4;
+  // build_time is the time the build ran; it is recorded, never embedded
+  // in the module (FN-019).
+  google.protobuf.Timestamp build_time = 5;
+  // builder_identity names the builder instance (FN-005, FN-009).
+  string builder_identity = 6;
+  // sdk_sha256 is the SHA-256 of the pinned SDK the module was linked
+  // with; the SDK is a path crate, so the lock file does not record it
+  // (FN-005).
+  string sdk_sha256 = 7;
+}
+
+// Dependency is one vendored crate of a build (FN-005).
+message Dependency {
+  string name = 1;
+  string version = 2;
+  // checksum is the crate's hex SHA-256 from the lock file.
+  string checksum = 3;
+}
+
+// Alias points a name at a version of a function (FN-006).
+message Alias {
+  // name matches `^[a-z][a-z0-9-]*$`.
+  string name = 1;
+  uint32 version = 2;
+}
+
+// FunctionTestResult is the outcome of one stored test case (FN-031).
+message FunctionTestResult {
+  string name = 1;
+  bool passed = 2;
+  // message explains a failure.
+  string message = 3;
+}
+
+// Build is one build of an uploaded source (FN-016).
+message Build {
+  string id = 1;
+  // state is the build's progress.
+  BuildState state = 2;
+  // diagnostics are the compiler and builder findings (FN-016).
+  repeated Diagnostic diagnostics = 3;
+  // test_results are the stored test cases run against the module
+  // (FN-031).
+  repeated FunctionTestResult test_results = 4;
+}
+
+// BuildState is the progress of a build (FN-016).
+enum BuildState {
+  BUILD_STATE_UNSPECIFIED = 0;
+  BUILD_STATE_QUEUED = 1;
+  BUILD_STATE_RUNNING = 2;
+  BUILD_STATE_SUCCEEDED = 3;
+  BUILD_STATE_FAILED = 4;
+}
+
+message UploadSourceRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  // name is the dotted function name the archive builds (FN-006).
+  string name = 3;
+  string session = 4;
+  // chunk is a part of the archive of the crate and its `vendor/`
+  // directory (FN-016).
+  bytes chunk = 5;
+}
+message UploadSourceResponse {
+  // source_id identifies the stored archive.
+  string source_id = 1;
+  // source_sha256 is the hex SHA-256 of the archive (FN-005).
+  string source_sha256 = 2;
+}
+
+message BuildRequest {
+  string source_id = 1;
+}
+message BuildResponse {
+  Build build = 1;
+}
+
+message GetBuildRequest {
+  string build_id = 1;
+}
+message GetBuildResponse {
+  Build build = 1;
+}
+
+message GetFunctionRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string name = 3;
+}
+message GetFunctionResponse {
+  // latest is the highest deployed version.
+  FunctionVersion latest = 1;
+  repeated Alias aliases = 2;
+}
+
+message ListFunctionsRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  Page page = 3;
+}
+message ListFunctionsResponse {
+  // functions holds the latest version of each function.
+  repeated FunctionVersion functions = 1;
+  PageResult page = 2;
+}
+
+message ListVersionsRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string name = 3;
+  Page page = 4;
+}
+message ListVersionsResponse {
+  repeated FunctionVersion versions = 1;
+  PageResult page = 2;
+}
+
+message DeployRequest {
+  string build_id = 1;
+  // alias, when set, is pointed at the new version (FN-006).
+  string alias = 2;
+  string session = 3;
+}
+message DeployResponse {
+  FunctionVersion version = 1;
+}
+
+message PromoteFunctionRequest {
+  string app_id = 1;
+  // from_environment_id is the environment that holds the version.
+  string from_environment_id = 2;
+  // to_environment_id is the environment that receives the copy.
+  string to_environment_id = 3;
+  string name = 4;
+  uint32 version = 5;
+  // alias, when set, is pointed at the version in the target (FN-006).
+  string alias = 6;
+  string session = 7;
+}
+message PromoteFunctionResponse {
+  // version is the version as the target environment holds it.
+  FunctionVersion version = 1;
+}
+
+message SetAliasRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string name = 3;
+  Alias alias = 4;
+  string session = 5;
+}
+message SetAliasResponse {
+  repeated Alias aliases = 1;
+}
+
+message ListLogsRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string name = 3;
+  // version limits the logs to one version when non-zero.
+  uint32 version = 4;
+  Page page = 5;
+  // since limits the logs to lines written at or after this time (FN-032).
+  google.protobuf.Timestamp since = 6;
+}
+message ListLogsResponse {
+  repeated FunctionLogLine lines = 1;
+  PageResult page = 2;
+}
+
+// FunctionLogLine is one retained log line of an invocation (FN-032).
+message FunctionLogLine {
+  google.protobuf.Timestamp time = 1;
+  uint32 version = 2;
+  // level is "debug", "info", "warn" or "error".
+  string level = 3;
+  string message = 4;
+  // trace_id links the line to the calling request's trace (FN-032).
+  string trace_id = 5;
+}
+
+message GetMetricsRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string name = 3;
+  // window_seconds is the span of time the metrics cover.
+  uint32 window_seconds = 4;
+}
+message GetMetricsResponse {
+  uint64 invocations = 1;
+  // errors_by_kind maps a reason, such as FUNCTION_TIMEOUT, to its count.
+  map<string, uint64> errors_by_kind = 2;
+  // latency_p50_micros, latency_p95_micros and latency_p99_micros are
+  // latency percentiles in microseconds.
+  uint64 latency_p50_micros = 3;
+  uint64 latency_p95_micros = 4;
+  uint64 latency_p99_micros = 5;
+  // memory_peak_bytes is the highest linear memory any invocation used.
+  uint64 memory_peak_bytes = 6;
+  // cache_hits counts results served from the pure-function cache
+  // (FN-014).
+  uint64 cache_hits = 7;
+}

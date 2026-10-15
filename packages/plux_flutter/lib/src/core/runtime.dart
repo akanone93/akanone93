@@ -36,6 +36,7 @@ import 'package:plux_flutter/src/core/host_events.dart';
 import 'package:plux_flutter/src/core/plux.dart';
 import 'package:plux_flutter/src/core/plux_view.dart';
 import 'package:plux_flutter/src/core/trigger_sources.dart';
+import 'package:plux_flutter/src/data/client.dart' show AuthSession;
 import 'package:plux_flutter/src/data/live_config.dart' show ConfigSource;
 import 'package:plux_flutter/src/data/services.dart';
 import 'package:plux_flutter/src/data/worker.dart';
@@ -47,11 +48,14 @@ import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/device/services.dart';
 import 'package:plux_flutter/src/devtools_api/diagnostics.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/functions/engine.dart';
+import 'package:plux_flutter/src/functions/invoke_function.dart';
 import 'package:plux_flutter/src/native_catalogue/host.dart';
 import 'package:plux_flutter/src/navigation/deep_links.dart';
 import 'package:plux_flutter/src/navigation/delegate.dart';
 import 'package:plux_flutter/src/navigation/guards.dart';
 import 'package:plux_flutter/src/navigation/router.dart';
+import 'package:plux_flutter/src/platform/pinned_http.dart';
 import 'package:plux_flutter/src/platform/platform_services.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
 import 'package:plux_flutter/src/render/owner_actions.dart';
@@ -195,6 +199,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     this.assets,
     this._httpClient,
     this._encrypt,
+    this._sockets,
   ) {
     active.addListener(() => unawaited(_loadFonts(active.value)));
     active.addListener(() {
@@ -210,6 +215,10 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// Creates the HTTP client of the data layer and of images, pinned to the
   /// Plux server (SEC-041).
   final http.Client Function() _httpClient;
+
+  /// Chooses the pinned client of WebSocket streams (SEC-041); null when the
+  /// host supplied its own client, which is then the host's to pin.
+  final WebSocketClients? _sockets;
 
   /// Whether the local stores are encrypted with hardware-wrapped keys
   /// (`encryptLocalStores`, SEC-073). Read once at start: a configuration
@@ -259,7 +268,9 @@ final class PluxRuntime with WidgetsBindingObserver {
       final httpClient =
           config.httpClient ??
           PlatformHttpClients(config.endpoint, pinSet).create;
-      final features = RuntimeFeatures();
+      final features = RuntimeFeatures(
+        deviceFunctions: config.functionEngine != null,
+      );
       final base = config.storageDirectory ?? await platformStorageDirectory();
       final root =
           '$base/${_safe(config.appId)}/${_safe(config.environment)}/${_safe(config.channel)}';
@@ -334,6 +345,14 @@ final class PluxRuntime with WidgetsBindingObserver {
         assets,
         httpClient,
         await _encryptsStores(config, overrides),
+        config.httpClient == null && config.webSocketClient == null
+            ? WebSocketClients(
+                serverHost: config.endpoint.scheme == 'https'
+                    ? config.endpoint.host
+                    : null,
+                serverPins: pinSet?.pins,
+              )
+            : null,
       );
       await rt.statePersistence.load();
       final startup = await rt._startup();
@@ -533,6 +552,7 @@ final class PluxRuntime with WidgetsBindingObserver {
       httpClient: _httpClient,
       rootIsolateToken: RootIsolateToken.instance,
       webSocketClient: config.webSocketClient,
+      pinnedSockets: _sockets,
       cacheDirectory: '$_root/data',
       // The encrypted cache's key, kept like the secure state store's
       // (DAT-010, plan p5 D6).
@@ -575,6 +595,8 @@ final class PluxRuntime with WidgetsBindingObserver {
     keys: overrides.deviceKeys?.call() ?? const PlatformDeviceKeys(),
     signer: overrides.userAuthSigner?.call() ?? const PlatformDeviceKeys(),
     confirmer: const SheetTransactionConfirmer(),
+    invocations: _worker,
+    invocationConfirmer: const SheetInvocationConfirmer(),
     alias: scaKeyAlias(config.appId, config.environment),
     context: () => navigatorKey?.currentState?.overlay?.context,
   );
@@ -823,12 +845,74 @@ final class PluxRuntime with WidgetsBindingObserver {
           biometrics: overrides.secure.biometrics,
         ),
         PluxDatabase: database,
+        FunctionRuntime: _functions,
         ScaService: _sca,
         ConfigSource: _worker,
       },
       deviceGuard: _deviceGuard,
     )..ownerErrors = _ownerErrors,
   );
+
+  /// What `invokeFunction` steps run with (FN-020, FN-050 to FN-055): the
+  /// plugin's grants and device module from the active release, the
+  /// `deviceFunctions` setting, the delivered limits, the plugin's key-value
+  /// namespace and the channel to the server.
+  late final FunctionRuntime _functions = FunctionRuntime(
+    resolve: _resolveFunction,
+    deviceEnabled: () => settings.value.flag(SecuritySetting.deviceFunctions),
+    limits: () => active.value?.limits ?? const <String, int>{},
+    context: () => PluxFunctionContext(
+      app: config.appId,
+      environment: config.environment,
+      assuranceLevel: 'AL${assurance.value}',
+    ),
+    kvSnapshot: (plugin) async => {
+      for (final e in (await database.kvAll(plugin)).entries)
+        if (e.value case final String v) e.key: v,
+    },
+    kvApply: (plugin, key, value) async {
+      if (value == null) {
+        await database.kvRemove(plugin, key);
+      } else {
+        await database.kvSet(plugin, key, value);
+      }
+    },
+    engine: config.functionEngine,
+    server: _worker,
+    auth: AuthSession(() => environment().authDelegate),
+  );
+
+  FunctionTarget? _resolveFunction(String plugin, String function) {
+    final release = active.value;
+    if (release == null) return null;
+    final grant = (release.meta(plugin).capabilities?.functions ?? const [])
+        .where((g) => g.function == function)
+        .firstOrNull;
+    if (grant == null) return null;
+    final module = release.deviceModule(plugin);
+    final device = module?.functions
+        ?.where((f) => f.name == function)
+        .firstOrNull;
+    if (module == null || device == null) {
+      // FN-006: the server runs only the version this release pins, which
+      // the compiler wrote into the plugin's grant.
+      return ServerFunctionTarget(
+        name: function,
+        version: grant.version,
+        requiresAttestation: grant.requiresAttestation,
+        requiresSca: grant.requiresSca,
+      );
+    }
+    return DeviceFunctionTarget(
+      name: function,
+      version: device.version,
+      moduleHash: hexEncode(module.hash ?? const []),
+      module: () => Uint8List.fromList(module.module ?? const []),
+      index: device.index,
+      timeoutMs: device.timeoutMs,
+      memoryBytes: device.memoryBytes,
+    );
+  }
 
   /// Checks the device operations of plugin runs against the capabilities
   /// each plugin declares in the active release, and the host's

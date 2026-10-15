@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -66,6 +67,23 @@ void main() {
         );
         expect(closed, isTrue);
       });
+    });
+
+    // The same after an operation ran in the fake zone, as a device function
+    // reading the key-value namespace from a tapped button does.
+    testWidgets('closes after an operation made in the fake-async zone', (
+      tester,
+    ) async {
+      final db = make();
+      await tester.runAsync(() => db.open(requireEncryption: true));
+      unawaited(db.kvAll('plugin.a'));
+      final closed = await tester.runAsync(
+        () => db
+            .close()
+            .then((_) => true)
+            .timeout(const Duration(seconds: 5), onTimeout: () => false),
+      );
+      expect(closed, isTrue);
     });
 
     runAdapterConformance(

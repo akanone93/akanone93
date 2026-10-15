@@ -241,6 +241,15 @@ final class ActiveRelease {
     return b._meta = fbs.Meta(s.data);
   }
 
+  /// The device module of plugin [key]: the `wasm` section of its bundle,
+  /// checked on first use (FN-051), or null when the plugin has none.
+  fbs.WasmModule? deviceModule(String key) {
+    final sections = bundle(key).container.ofKind(SectionKind.wasm);
+    if (sections.isEmpty) return null;
+    gate.check(sections.first);
+    return fbs.WasmModule(sections.first.data);
+  }
+
   /// The stored file of the release's asset file [hash], or null when the
   /// release does not list it or the store lacks it (AST-001).
   String? assetPath(String hash) {

@@ -12,6 +12,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
+	"math"
 	"time"
 
 	"github.com/go-jose/go-jose/v4"
@@ -19,6 +21,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/nightCode42/plux3/backend/internal/attest/appattest"
+	"github.com/nightCode42/plux3/backend/internal/attest/appattest/receipt"
 	"github.com/nightCode42/plux3/backend/internal/attest/binding"
 	"github.com/nightCode42/plux3/backend/internal/attest/keyattest"
 	"github.com/nightCode42/plux3/backend/internal/attest/playintegrity"
@@ -534,7 +537,7 @@ func (s *Service) verifyEvidence(ctx context.Context, sub subject, e Evidence) (
 		if e.Android != nil {
 			v, err = s.verifyAndroid(ctx, sub, trust, *e.Android)
 		} else {
-			v, err = s.verifyIOS(sub, trust, *e.IOS)
+			v, err = s.verifyIOS(ctx, sub, trust, *e.IOS)
 		}
 	}
 	if err != nil {
@@ -627,8 +630,12 @@ func androidStorage(r keyattest.Result) KeyStorage {
 // verifyIOS checks an App Attest attestation bound to the challenge and
 // the thumbprints of the device's keys. App Attest does not say where the DPoP key
 // lives, so the device's claim stands: a Secure Enclave claim earns AL2,
-// anything else AL1 (SEC-007).
-func (s *Service) verifyIOS(sub subject, trust TrustConfig, e IOSEvidence) (verified, error) {
+// anything else AL1. With a fraud-metric receipt client configured, the
+// attestation's receipt is refreshed at Apple; a Secure Enclave key whose
+// receipt verifies with a low enough risk metric earns AL3. Apple being
+// unreachable or its receipt not verifying never fails the attestation: it
+// is logged as PLX-6080 and the device stays at AL2 (SEC-007, ADR-0065).
+func (s *Service) verifyIOS(ctx context.Context, sub subject, trust TrustConfig, e IOSEvidence) (verified, error) {
 	if s.attestors.AppAttest == nil || trust.IOSAppID == "" {
 		return verified{}, plxerr.New(plxerr.AttestationUnavailable, "iOS attestation is not configured for this app")
 	}
@@ -651,11 +658,38 @@ func (s *Service) verifyIOS(sub subject, trust TrustConfig, e IOSEvidence) (veri
 	if sub.claim == KeyStorageSecureEnclave {
 		storageOf = KeyStorageSecureEnclave
 	}
-	return verified{
+	out := verified{
 		proof:     Proof{Provider: ProviderAppAttest, KeyStorage: storageOf},
 		verdicts:  []string{},
 		appAttest: &appAttestRecord{keyID: e.KeyID, publicKey: der, receipt: att.Receipt, counter: int64(att.Counter)},
-	}, nil
+	}
+	if storageOf != KeyStorageSecureEnclave {
+		return out, nil
+	}
+	if got, ok := s.refreshReceipt(ctx, trust, att, env); ok {
+		out.proof.FraudReceipt, out.proof.RiskMetric = true, got.RiskMetric
+		out.risk = int32(min(got.RiskMetric, math.MaxInt32)) //nolint:gosec // G115: bounded by the min
+		out.appAttest.receipt = got.Raw
+	}
+	return out, nil
+}
+
+// refreshReceipt asks Apple for the fraud-metric receipt of an attested
+// key. It reports false, after logging PLX-6080 once, when no receipt
+// could be had; the caller then proceeds without one.
+func (s *Service) refreshReceipt(ctx context.Context, trust TrustConfig, att appattest.Attestation, env appattest.Environment) (receipt.Receipt, bool) {
+	if s.attestors.FraudReceipt == nil || len(att.Receipt) == 0 {
+		return receipt.Receipt{}, false
+	}
+	got, err := s.attestors.FraudReceipt.Refresh(ctx, att.Receipt, env, receipt.Expect{AppID: trust.IOSAppID, Key: att.PublicKey})
+	if err != nil {
+		// The message of a PLX-6080 names the failed check and holds no
+		// key, token or receipt (SEC-092); the code is what is logged.
+		s.log.WarnContext(ctx, "Apple's fraud-metric receipt is unavailable; the device stays at AL2",
+			slog.String("code", plxerr.FraudReceiptUnavailable.String()), slog.String("app", trust.IOSAppID))
+		return receipt.Receipt{}, false
+	}
+	return got, true
 }
 
 // verifyDevelopment accepts a development build, in an environment that

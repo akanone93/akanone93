@@ -20,8 +20,20 @@ const (
 	// RoleGateway serves the secure gateway alone, so that it can scale
 	// apart from the rest of the API (ADR-0006, ADR-0056). The api role
 	// serves the gateway as well.
-	RoleGateway  Role = "gateway"
+	RoleGateway Role = "gateway"
+	// RoleFnRunner runs function modules in WebAssembly sandboxes. It
+	// holds no database, storage or signing credential (FN-013,
+	// ADR-0064).
 	RoleFnRunner Role = "fnrunner"
+	// RoleEgress is the only route from the function runner to the
+	// internet: a CONNECT-only proxy that applies each function's domain
+	// allowlist and the SSRF rules (FN-013, FN-017, ADR-0064).
+	RoleEgress Role = "egress"
+	// RoleBuilder compiles uploaded function sources into WebAssembly
+	// modules in a sandbox. It holds no database, object-store or signing
+	// credential: the worker hands it a source and signs what it returns
+	// (FN-016, ADR-0063).
+	RoleBuilder Role = "builder"
 )
 
 // Config is the whole configuration (Appendix H.1).
@@ -45,6 +57,91 @@ type Config struct {
 	// Gateway configures what the secure gateway trusts (SEC-031,
 	// ADR-0056).
 	Gateway Gateway `json:"gateway"`
+	// Egress configures the egress role (FN-017, ADR-0064).
+	Egress Egress `json:"egress"`
+	// Functions configures how the api role reaches the function runner
+	// (FN-020, ADR-0064).
+	Functions Functions `json:"functions"`
+	// FnRunner configures the fnrunner role (FN-009 to FN-013,
+	// ADR-0064).
+	FnRunner FnRunner `json:"fnrunner"`
+	// Builder configures the builder role, and the worker's route to it
+	// (FN-016, ADR-0063).
+	Builder Builder `json:"builder"`
+}
+
+// Builder configures the builder role. The role's fields are read only when
+// the process runs it; Address is read by the worker role.
+type Builder struct {
+	// Listen is the address of the mutual-TLS listener the worker connects
+	// to.
+	Listen string `json:"listen"`
+	// InternalTLS is the role's identity: the internal CA that must have
+	// signed every client's certificate, and the role's own certificate and
+	// key (SEC-043).
+	InternalTLS InternalTLS `json:"internalTLS"`
+	// Address is the base URL of the builder role, such as
+	// "https://builder:8443". The worker role builds functions through it
+	// with the identity of server.internalTLS; empty means this process
+	// cannot build.
+	Address string `json:"address"`
+	// Sandbox is "namespaces", which runs every build in new user, network,
+	// mount and PID namespaces and refuses to build where the kernel denies
+	// them, or "none", which builds without a sandbox for development only
+	// (ADR-0063).
+	Sandbox string `json:"sandbox"`
+	// Cargo and Rustc are the pinned toolchain's executables; empty means
+	// "cargo" and "rustc" on PATH.
+	Cargo string `json:"cargo"`
+	Rustc string `json:"rustc"`
+	// WasmOpt is the command that runs the pinned wasm-opt, program first,
+	// for example ["bun", "/opt/binaryen/node_modules/binaryen/bin/wasm-opt"].
+	WasmOpt []string `json:"wasmOpt"`
+	// SDKDir is the pinned SDK crate plux-fn (its Cargo.toml and src/).
+	SDKDir string `json:"sdkDir"`
+	// Concurrency is the number of builds the role runs at once; the next is
+	// refused as unavailable.
+	Concurrency int `json:"concurrency"`
+	// WorkDir is the parent of the scratch directories of builds; empty
+	// means the system's temporary directory.
+	WorkDir string `json:"workDir"`
+	// Identity names this builder in the provenance of its modules; empty
+	// means the host name.
+	Identity string `json:"identity"`
+}
+
+// Egress configures the egress role, the forward proxy through which
+// functions reach the internet (FN-013, FN-017). It is read only when the
+// process runs the role.
+type Egress struct {
+	// Listen is the address of the mutual-TLS listener fnrunner connects
+	// to.
+	Listen string `json:"listen"`
+	// InternalTLS is the role's identity: the internal CA that must have
+	// signed every client's certificate, and the role's own certificate
+	// and key (SEC-043).
+	InternalTLS InternalTLS `json:"internalTLS"`
+	// ConnectTimeout bounds the name resolution and the connection to the
+	// destination, each.
+	ConnectTimeout Duration `json:"connectTimeout"`
+	// IdleTimeout closes a tunnel that carries no byte in either
+	// direction for this long.
+	IdleTimeout Duration `json:"idleTimeout"`
+	// MaxTunnelDuration closes a tunnel that has been open this long,
+	// however active it is.
+	MaxTunnelDuration Duration `json:"maxTunnelDuration"`
+	// MaxTunnelBytes closes a tunnel once this many bytes have crossed it
+	// in one direction.
+	MaxTunnelBytes int64 `json:"maxTunnelBytes"`
+	// MaxTunnels bounds the tunnels open at once; the next is refused with
+	// 503.
+	MaxTunnels int `json:"maxTunnels"`
+	// Ports are the destination ports a function may reach.
+	Ports []int `json:"ports"`
+	// AllowLoopback lets functions reach loopback addresses. It is for
+	// tests and development only; a production installation refuses it
+	// and every other start with it set logs a warning.
+	AllowLoopback bool `json:"allowLoopback"`
 }
 
 // Gateway configures the secure gateway. Upstreams themselves are
@@ -102,8 +199,32 @@ type Attestation struct {
 	// Android configures what the server asks of Google beyond the app's
 	// own builds.
 	Android AndroidAttestation `json:"android"`
+	// Apple configures what the server asks of Apple beyond the app's own
+	// builds.
+	Apple AppleAttestation `json:"apple"`
 	// Apps maps an app identifier (a UUID) to its builds.
 	Apps map[string]AppAttestation `json:"apps"`
+}
+
+// AppleAttestation configures the services of Apple the server calls.
+type AppleAttestation struct {
+	// FraudReceipt configures the App Attest fraud-metric receipt, which
+	// lifts iOS devices to AL3 (SEC-007, ADR-0065).
+	FraudReceipt FraudReceipt `json:"fraudReceipt"`
+}
+
+// FraudReceipt configures the request of Apple's fraud-metric receipt. It
+// is off by default. The App Store Connect private key is not configured
+// here: an operator imports it once under the role
+// apple-appattest-receipt (SEC-123).
+type FraudReceipt struct {
+	// Enabled turns the feature on; it needs KeyID and TeamID.
+	Enabled bool `json:"enabled"`
+	// KeyID is the ID of the App Store Connect key, ten uppercase
+	// alphanumerics.
+	KeyID string `json:"keyID"`
+	// TeamID is the Apple Developer Team ID, ten uppercase alphanumerics.
+	TeamID string `json:"teamID"`
 }
 
 // AndroidAttestation configures the Key Attestation verifier.
@@ -301,6 +422,10 @@ type SigningKeys struct {
 	// One key serves the installation: the checkpoints name it, so it can
 	// be rotated without invalidating the old ones.
 	Audit string `json:"audit"`
+	// FunctionArtifact is the key that signs the statement of every
+	// function build; fnrunner verifies it before it compiles a module
+	// (FN-009, ADR-0063). One key serves the installation.
+	FunctionArtifact string `json:"functionArtifact"`
 	// Snapshot and Timestamp are the prefixes of the snapshot and
 	// timestamp keys, named like the targets key. Every environment has
 	// its own key per role, so a development key never signs for
@@ -432,6 +557,23 @@ type Retention struct {
 
 // Has reports whether the process runs a role.
 func (c *Config) Has(r Role) bool { return slices.Contains(c.Server.Roles, r) }
+
+// NoDataAccess reports whether every role of the process is fnrunner,
+// egress or builder. Such a process holds no database, cache, object-storage or
+// signing credential: one runs tenant code, one has the only route to the internet
+// and one runs the compiler on uploaded sources, so neither is given anything worth stealing
+// (FN-013, FN-016, ADR-0063, ADR-0064).
+func (c *Config) NoDataAccess() bool {
+	if len(c.Server.Roles) == 0 {
+		return false
+	}
+	for _, r := range c.Server.Roles {
+		if r != RoleEgress && r != RoleFnRunner && r != RoleBuilder {
+			return false
+		}
+	}
+	return true
+}
 
 // ServesHTTP reports whether the process terminates the public listener:
 // the api role and the gateway role both do, and both authenticate

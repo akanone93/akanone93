@@ -61,6 +61,9 @@ dependencies {
     implementation("androidx.biometric:biometric:1.1.0")
     // Play Integrity standard requests (SEC-003, ADR-0012).
     implementation("com.google.android.play:integrity:1.6.0")
+    // SMS User Consent for OtpInput (SEC-090): the user shares one message;
+    // no SMS permission is declared.
+    implementation("com.google.android.gms:play-services-auth-api-phone:18.1.0")
     // The Cronet API of the pinned HTTP/2 client (SEC-041). cronet_http
     // ships the implementation and these same versions into the app;
     // compileOnly adds nothing to the runtime and must follow its pins.

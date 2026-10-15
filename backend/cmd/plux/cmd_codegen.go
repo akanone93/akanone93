@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 
 	"github.com/nightCode42/plux3/backend/internal/codegen"
-	"github.com/nightCode42/plux3/backend/internal/compiler"
 )
 
 // generatedFile is where plux codegen writes, relative to the host app.
@@ -38,11 +37,14 @@ func codegenCmd(args []string, stdout, stderr io.Writer) int {
 	if code, ok := flags(set, args, stderr); !ok {
 		return code
 	}
-	fsys, ok := project("codegen", set.Arg(0), stderr)
-	if !ok {
+	if _, ok := project("codegen", set.Arg(0), stderr); !ok {
 		return exitUsage
 	}
-	res := compiler.Compile(fsys, options(false))
+	res, err := compileProject(set.Arg(0), false, nil)
+	if err != nil {
+		_, _ = fmt.Fprintf(stderr, "%s codegen: %v\n", name, err)
+		return exitFailed
+	}
 	if res.Diagnostics.HasErrors() {
 		return finish(res.Diagnostics, nil, false, stdout, stderr)
 	}

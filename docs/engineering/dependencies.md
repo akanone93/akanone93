@@ -37,7 +37,7 @@ Every third-party dependency is a long-term commitment: code we ship but did not
 | `github.com/prometheus/client_golang` | Metrics (`OBS-002`) | Apache-2.0 | [0006](../adr/0006-modular-monolith-with-roles.md) | In use (`backend`) |
 | `sigs.k8s.io/yaml` | The server configuration file, decoded strictly as JSON (`SRV-008`) | Apache-2.0, BSD-3-Clause | [0007](../adr/0007-postgresql-and-object-storage.md) | In use (`backend`) |
 | `golang.org/x/crypto` (argon2) | Argon2id password hashing (`SEC-100`) | BSD-3-Clause | [0026](../adr/0026-identity-tenancy-and-access.md) | In use (`backend`) |
-| `github.com/tetratelabs/wazero` | Runs the WebAssembly image codecs, with no cgo (`CMP-030`) | Apache-2.0 | [0027](../adr/0027-asset-pipeline.md) | In use (`backend`) |
+| `github.com/tetratelabs/wazero` | Runs the WebAssembly image codecs, with no cgo (`CMP-030`), and `fnrunner` (P7) | Apache-2.0 | [0027](../adr/0027-asset-pipeline.md) | In use (`backend`) |
 | libwebp v1.5.0, libavif v1.3.0, libaom v3.12.1 (C, built to WebAssembly) | WebP and AVIF encoding; the modules are committed and rebuilt by `make wasm-codecs` | BSD-3-Clause; BSD-2-Clause with the AOM Patent License 1.0 | [0027](../adr/0027-asset-pipeline.md) | In use (`backend`, embedded) |
 | `github.com/getkin/kin-openapi` | `plux import openapi` and `plux mock` (`DAT-002`, `TST-004`); CLI only | MIT | [0052](../adr/0052-plux-test-and-import-tools.md) | Approved (maintainer, 2026-10-04, P5 plan B2), not yet in use; checked in its ADR before use (P5 R9) |
 | `github.com/vektah/gqlparser/v2` | `plux import graphql` (`DAT-002`); CLI only | MIT | [0052](../adr/0052-plux-test-and-import-tools.md) | Approved (maintainer, 2026-10-04, P5 plan B2), not yet in use; checked in its ADR before use (P5 R9) |
@@ -84,6 +84,7 @@ Valkey is reached with a small RESP client in `backend/internal/cache`, so no Re
 | `sqlcipher_flutter_libs`, or the SQLCipher build option of the pinned `sqlite3` | SQLCipher for `plux_db_drift` (`DB-002`, [ADR-0049](../adr/0049-local-persistence.md)) | MIT; SQLCipher Community Edition under a BSD-style licence | Approved (maintainer, 2026-10-04, P5 plan B2), not yet in use; checked in its ADR before use (P5 R6) |
 | `lottie` | `LottieView` in `plux_lottie` only ([ADR-0050](../adr/0050-animation-engine.md)) | MIT | Approved (maintainer, 2026-10-04, P5 plan B2), not yet in use; checked in its ADR before use (P5 R7) |
 | `rive` (Rive's official runtime) | `RiveView` in `plux_rive` only; how its native library is supplied is checked first ([ADR-0050](../adr/0050-animation-engine.md)) | MIT | Approved (maintainer, 2026-10-04, P5 plan B2), not yet in use; checked in its ADR before use (P5 R7) |
+| `com.google.android.gms:play-services-auth-api-phone` (Android library of `plux_flutter`) | SMS User Consent for `OtpInput` autofill, with no SMS permission (`SEC-090`) | Android SDK licence | Approved (maintainer, 2026-10-13, P7 plan C4), not yet in use |
 
 Transitive packages these bring, all published by the Dart and Flutter teams or the Riverpod author and all BSD-3-Clause or MIT: `state_notifier`, `listen`, `uuid`, `fixnum` (Riverpod); `http_parser`, `http_profile`, `web`, `web_socket` (HTTP); `jni`, `jni_flutter`, `jni_util`, `package_config`, `plugin_platform_interface` (Cronet); `objective_c`, `ffi` (`URLSession`, `cryptography`); `vector_graphics_codec`; and, at build time only, `logging`, `pub_semver`, `record_use`, `yaml`, `glob`, `file`. `flutter_riverpod` declares `flutter_test` as a dependency; nothing in `plux_flutter/lib` imports it, so release builds do not contain it.
 
@@ -93,10 +94,20 @@ The P5 rows marked approved were accepted by the maintainer with the P5 plan (B2
 
 `vector_graphics_compiler` brings, into `plux-svgc` only: `args` and `path_parsing` (Dart and Flutter teams, BSD-3-Clause), and `xml` with `petitparser` (Lukas Renggli, MIT), which it pins to audited versions; the maintainer approved these transitive dependencies on 2026-09-29. `plux_svgc` is outside the pub workspace with its own `pubspec.lock`, because the server image builds it with the Dart SDK alone.
 
+### Rust (`sdk/fn/`, function crates)
+
+| Crate | Used for | Licence | ADR | Status |
+|---|---|---|---|---|
+| `serde` (with `serde_derive`) | Typed input and output of Plux Functions in the Rust SDK crate | MIT, Apache-2.0 | 0011 | Approved (maintainer, 2026-10-13, P7 plan §4.4), not yet in use |
+| `serde_json` | JSON encoding of function input and output | MIT, Apache-2.0 | 0011 | Approved (maintainer, 2026-10-13, P7 plan §4.4), not yet in use |
+| `schemars` | Input and output schemas generated from Rust types (`FN-004`) | MIT | 0011 | Approved (maintainer, 2026-10-13, P7 plan §4.4), not yet in use |
+| `rust_decimal` | Decimal arithmetic in function examples and templates only, never in the SDK crate | MIT | 0011 | Approved (lead, 2026-10-13, P7 plan §2.4 P1), not yet in use |
+
 ### Native code built from source
 
 | Source | Used for | Licence | Record |
 |---|---|---|---|
+| WAMR 2.4.3 (`bytecodealliance/wasm-micro-runtime`), interpreter subset vendored in `packages/plux_functions` with a SHA-256 per file, checked in CI against the upstream `WAMR-2.4.3` archive (E10) | Device engine for `device` functions (`FN-050`) | Apache-2.0 WITH LLVM-exception | ADR-0011; Approved (maintainer, 2026-10-13, P7 plan §4.4), not yet in use |
 | zstd v1.5.7 (`lib/common`, `lib/decompress`), vendored in `packages/plux_flutter/native/zstd/` | Delta patching and transport decompression on the device | BSD-3-Clause | [ADR-0030](../adr/0030-native-code-in-plux-flutter.md) |
 | Skia path operations at the revision the pinned Flutter uses, with the Flutter engine's `path_ops` wrapper, built for `plux-svgc` | Mask, clip and overdraw optimisation of SVGs at publish time | BSD-3-Clause | [ADR-0027](../adr/0027-asset-pipeline.md) Revision |
 | ZXing-C++ (version fixed in S10), vendored in `plux_scanner` | Offline barcode fallback where Play services is missing (B21) | Apache-2.0 | [ADR-0051](../adr/0051-device-actions-packages-and-capabilities.md) Revision; approved (maintainer, 2026-10-07, P6 S0) |
@@ -139,6 +150,8 @@ Planned for P11 (ADR-0014): React, TanStack Router and Query, shadcn/ui on Radix
 | Tool | Pinned in | Used for |
 |---|---|---|
 | Go toolchain | `toolchain` in `go.mod` | Build |
+| Rust toolchain (`rustc`, `cargo`, target `wasm32-wasip1`) | 1.97.0 in `sdk/fn/rust-toolchain.toml` | Builds Plux Functions (CI, builder image, developer machines); not linked into Plux. Approved (maintainer, 2026-10-13, P7 plan §4.4), not yet in use |
+| Binaryen `wasm-opt` (Apache-2.0) | `version_132`, the npm package `binaryen@132.0.0` pinned by its integrity hash and run with the pinned Bun: one platform-independent build everywhere (plan p7 §2.5 E10) | Optimises function modules; output checked byte-identical in F1 (D9, `CMP-002`, `CI-006`). Approved (maintainer, 2026-10-13, P7 plan §4.4), not yet in use |
 | Flutter | Makefile, CI | Build and test |
 | SoftHSM2 | CI image (P6, S5) | PKCS#11 tests of the signing helper (BSD-2-Clause; ADR-0060; approved 2026-10-07, not yet in use) |
 | Bun | `studio/package.json`, Makefile, CI | Studio runtime and tests |

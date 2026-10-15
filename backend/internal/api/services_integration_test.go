@@ -29,6 +29,8 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/devtoken"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
+	"github.com/nightCode42/plux3/backend/internal/fnpb/fnpbconnect"
+	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
@@ -36,7 +38,9 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
+	"github.com/nightCode42/plux3/backend/internal/security/settings"
 	"github.com/nightCode42/plux3/backend/internal/signing"
+	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
 	"github.com/nightCode42/plux3/backend/internal/storage/objects"
 	"github.com/nightCode42/plux3/backend/internal/storage/storagetest"
@@ -105,14 +109,25 @@ type world struct {
 	native   pluxv1connect.NativeCatalogueServiceClient
 	secAdmin pluxv1connect.SecurityAdminServiceClient
 	config   pluxv1connect.ConfigServiceClient
+	sca      pluxv1connect.ScaServiceClient
 	// configs and resolver are the server-held configuration store and its
 	// reader, as the server wires them.
 	configs  *gateway.Configs
 	resolver *gateway.ConfigResolver
 	control  pluxv1connect.ControlServiceClient
-	events   pluxv1connect.TelemetryServiceClient
-	devices  *device.Service
-	fakes    *deviceFakes
+	// functions is the function service, and fn the fakes it runs builds
+	// with, as the worker role would.
+	functions     *function.Service
+	functionAdmin pluxv1connect.FunctionAdminServiceClient
+	fn            *functionFakes
+	// fnrt is the api role's side of server functions: the invoker behind
+	// FunctionService, the host service the runner calls and the fakes
+	// that stand in for the runner, the SCA verifier and the clock.
+	fnrt    *fnRuntime
+	db      *storage.DB
+	events  pluxv1connect.TelemetryServiceClient
+	devices *device.Service
+	fakes   *deviceFakes
 	// base is the URL the world is served at, which proofs are bound to.
 	base string
 	// deviceAuth is the device authentication in front of the handlers.
@@ -250,7 +265,28 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		t.Fatal(err)
 	}
 	resolver := &gateway.ConfigResolver{Source: configs, Cache: shared, Now: cfg.Now}
+	fn := &functionFakes{}
+	functions, err := function.NewService(function.Options{
+		DB: db, Audit: log, Objects: files, IDs: gen, Jobs: fn, Builder: fn, Signer: fn,
+		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, app, "")
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fnrt := newFnRuntime(t, fnRuntimeDeps{
+		db: db, backend: backend, service: functions, keys: store, devices: devices, resolver: resolver, set: set, count: shared.Increment,
+		defaultAssurance: func(ctx context.Context, appID, environmentID string) (string, error) {
+			values, _, err := secConfig.Effective(ctx, appID, environmentID)
+			if err != nil {
+				return "", err
+			}
+			return values.Get(settings.DefaultFunctionAssurance).Text(), nil
+		},
+	})
 	h := &api.Handlers{
+		Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
@@ -296,6 +332,16 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewTelemetryServiceHandler(h.Telemetry(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewConfigServiceHandler(h.ConfigService(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
+		},
+		func() (string, http.Handler) {
+			return pluxv1connect.NewFunctionServiceHandler(h.FunctionService(), opts)
+		},
+		func() (string, http.Handler) { return pluxv1connect.NewScaServiceHandler(h.ScaService(), opts) },
+		func() (string, http.Handler) {
+			return fnpbconnect.NewFunctionHostServiceHandler(h.FunctionHost(), connect.WithInterceptors(api.Interceptors(api.Deps{})...))
+		},
 	} {
 		path, handler := r()
 		mux.Handle(path, handler)
@@ -323,12 +369,19 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		control:  pluxv1connect.NewControlServiceClient(srv.Client(), srv.URL),
 		secAdmin: pluxv1connect.NewSecurityAdminServiceClient(srv.Client(), srv.URL),
 		config:   pluxv1connect.NewConfigServiceClient(srv.Client(), srv.URL),
-		configs:  configs,
-		resolver: resolver,
-		events:   pluxv1connect.NewTelemetryServiceClient(srv.Client(), srv.URL),
-		devices:  devices,
-		fakes:    fakes,
-		base:     base,
+		sca:      pluxv1connect.NewScaServiceClient(srv.Client(), srv.URL),
+
+		functions:     functions,
+		functionAdmin: pluxv1connect.NewFunctionAdminServiceClient(srv.Client(), srv.URL),
+		fn:            fn,
+		fnrt:          fnrt,
+		db:            db,
+		configs:       configs,
+		resolver:      resolver,
+		events:        pluxv1connect.NewTelemetryServiceClient(srv.Client(), srv.URL),
+		devices:       devices,
+		fakes:         fakes,
+		base:          base,
 
 		deviceAuth: deviceAuth,
 		issuer:     issuer,

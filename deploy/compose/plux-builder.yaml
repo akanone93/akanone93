@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# plux-server configuration of the builder role (FN-016, ADR-0063): it
+# compiles uploaded function sources with the pinned toolchain that the
+# builder image ships (backend/Dockerfile, target builder). It holds no
+# credential and signs nothing: the worker signs what it returns. Every
+# build runs in new user, network, mount and PID namespaces; the role
+# refuses to build where the kernel denies them, and sandbox: none is not
+# set here (README.md, "Function builder").
+server:
+  roles: [builder]
+  shutdownGrace: "30s"
+observability:
+  logFormat: "json"
+builder:
+  listen: ":8446"
+  internalTLS:
+    caFile: "/etc/plux/internal/ca.crt"
+    certFile: "/etc/plux/internal/tls.crt"
+    keyFile: "/etc/plux/internal/tls.key"
+  sandbox: "namespaces"
+  sdkDir: "/opt/plux/sdk/plux-fn"
+  wasmOpt: ["bun", "/opt/binaryen/node_modules/binaryen/bin/wasm-opt"]
+  workDir: "/var/lib/plux/build"
+  concurrency: 1
+  identity: "compose-builder"

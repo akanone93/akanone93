@@ -1,6 +1,6 @@
 # backend — Agent Notes
 
-The Go module `github.com/nightCode42/plux3/backend`: the Plux Server (`plux-server`, spec §11), the `plux` CLI (§22.1), the compiler (§9) and, from P7, the Functions SDK (§16). Read [go-standards.md](../docs/engineering/go-standards.md) and the root [AGENTS.md](../AGENTS.md) before editing.
+The Go module `github.com/nightCode42/plux3/backend`: the Plux Server (`plux-server`, spec §11), the `plux` CLI (§22.1), the compiler (§9) and, from P7, the server side of Plux Functions (§16; the function SDK is a Rust crate in `sdk/fn/`). Read [go-standards.md](../docs/engineering/go-standards.md) and the root [AGENTS.md](../AGENTS.md) before editing.
 
 ## Layout
 

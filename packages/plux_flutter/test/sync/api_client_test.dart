@@ -4,11 +4,13 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/security/attestation.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
 import 'package:plux_flutter/src/sync/downloader.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
@@ -318,4 +320,188 @@ void main() {
       );
     },
   );
+
+  test('[FN-020] invokes a server function with the idempotency key and reads its output or business error', () async {
+    final bodies = <Map<String, Object?>>[];
+    var business = false;
+    final api = PluxApiClient(
+      MockClient((request) async {
+        expect(request.url.path, '/plux.v1.FunctionService/Invoke');
+        expect(request.headers['Authorization'], startsWith('DPoP '));
+        expect(request.headers['DPoP'], isNotEmpty);
+        bodies.add(jsonDecode(request.body) as Map<String, Object?>);
+        return http.Response(
+          jsonEncode(
+            business
+                ? {
+                    'businessError': {
+                      'code': 'C',
+                      'messageKey': 'k',
+                      'params': base64.encode(utf8.encode('{"a":1}')),
+                    },
+                  }
+                : {'output': base64.encode(utf8.encode('{"v":2}'))},
+          ),
+          200,
+        );
+      }),
+      Uri.parse('https://plux.example/'),
+    );
+    final token = fakeToken('tok');
+    final ok = await api.invokeFunction(
+      token: token,
+      function: 'fee.compute',
+      version: 7,
+      input: Uint8List.fromList(utf8.encode('{}')),
+      idempotencyKey: 'key-1',
+    );
+    expect(utf8.decode(ok.output!), '{"v":2}');
+    expect(bodies.single['function'], 'fee.compute');
+    expect(bodies.single['version'], 7);
+    expect(bodies.single['idempotencyKey'], 'key-1');
+    expect(utf8.decode(base64.decode(bodies.single['input']! as String)), '{}');
+    business = true;
+    final failed = await api.invokeFunction(
+      token: token,
+      function: 'fee.compute',
+      version: 7,
+      input: Uint8List(0),
+      idempotencyKey: 'key-1',
+    );
+    expect(failed.output, isNull);
+    expect(failed.code, 'C');
+    expect(failed.messageKey, 'k');
+    expect(failed.params, {'a': 1});
+  });
+
+  test('[FN-020] the evidence of an invocation is bound to the function, '
+      'version, input and the proof\'s jti, and a retry with a new proof '
+      'asks again', () async {
+    final bodies = <Map<String, Object?>>[];
+    final proofs = <String>[];
+    var calls = 0;
+    final api = PluxApiClient(
+      MockClient((request) async {
+        bodies.add(jsonDecode(request.body) as Map<String, Object?>);
+        proofs.add(request.headers['DPoP']!);
+        if (calls++ == 0) {
+          return http.Response(
+            '{}',
+            401,
+            headers: {
+              'www-authenticate': 'DPoP error="use_dpop_nonce"',
+              'dpop-nonce': 'n-2',
+            },
+          );
+        }
+        return http.Response(jsonEncode({'output': ''}), 200);
+      }),
+      Uri.parse('https://plux.example/'),
+    );
+    final input = Uint8List.fromList(utf8.encode('{"amount":"5"}'));
+    final bound = <Uint8List>[];
+    await api.invokeFunction(
+      token: fakeToken('tok'),
+      function: 'pay.charge',
+      version: 3,
+      input: input,
+      idempotencyKey: 'k',
+      challengeId: 'ch-1',
+      signature: Uint8List.fromList(List.filled(64, 7)),
+      evidence: (binding) async {
+        bound.add(binding);
+        return InvocationEvidence(
+          assertion: Uint8List.fromList([1, 2, 3]),
+          integrityToken: 'token',
+        );
+      },
+    );
+    expect(bodies, hasLength(2));
+    expect(bound, hasLength(2));
+    for (var i = 0; i < 2; i++) {
+      final payload = jsonDecode(
+        utf8.decode(
+          base64Url.decode(base64Url.normalize(proofs[i].split('.')[1])),
+        ),
+      ) as Map<String, Object?>;
+      expect(
+        bound[i],
+        invocationBinding(
+          function: 'pay.charge',
+          version: 3,
+          input: input,
+          jti: payload['jti']! as String,
+        ),
+      );
+      expect(bodies[i]['appAttestAssertion'], base64.encode([1, 2, 3]));
+      expect(bodies[i]['playIntegrityToken'], 'token');
+      expect(bodies[i]['transactionChallengeId'], 'ch-1');
+      expect(
+        base64.decode(bodies[i]['transactionSignature']! as String),
+        List.filled(64, 7),
+      );
+    }
+    expect(bound[0], isNot(bound[1]), reason: 'a new proof, a new binding');
+  });
+
+  test('[FN-020] a function that declares nothing sends no evidence or '
+      'transaction', () async {
+    late Map<String, Object?> body;
+    final api = PluxApiClient(
+      MockClient((request) async {
+        body = jsonDecode(request.body) as Map<String, Object?>;
+        return http.Response(jsonEncode({'output': ''}), 200);
+      }),
+      Uri.parse('https://plux.example/'),
+    );
+    await api.invokeFunction(
+      token: fakeToken('tok'),
+      function: 'fee.compute',
+      version: 7,
+      input: Uint8List(0),
+      idempotencyKey: 'k',
+    );
+    expect(body.keys, isNot(contains('appAttestAssertion')));
+    expect(body.keys, isNot(contains('playIntegrityToken')));
+    expect(body.keys, isNot(contains('transactionChallengeId')));
+    expect(body.keys, isNot(contains('transactionSignature')));
+  });
+
+  test('[SEC-027] a challenge for an invocation names the function, the '
+      'version and the hash of the input', () async {
+    late Map<String, Object?> body;
+    final api = PluxApiClient(
+      MockClient((request) async {
+        expect(
+          request.url.path,
+          '/plux.v1.ScaService/CreateTransactionChallenge',
+        );
+        body = jsonDecode(request.body) as Map<String, Object?>;
+        return http.Response(
+          jsonEncode({
+            'challengeId': 'c1',
+            'challenge': base64.encode([1, 2, 3]),
+            'expiresAt': '2100-01-01T00:00:00Z',
+            'transactionSummaryJcs': base64.encode(utf8.encode('{}')),
+          }),
+          200,
+        );
+      }),
+      Uri.parse('https://plux.example/'),
+    );
+    final c = await api.invocationChallenge(
+      token: fakeToken('tok'),
+      deviceId: 'dev',
+      function: 'pay.charge',
+      version: 3,
+      inputSha256: Uint8List.fromList(List.filled(32, 9)),
+      summaryJcs: Uint8List.fromList(utf8.encode('{}')),
+    );
+    expect(c.id, 'c1');
+    expect(body['function'], 'pay.charge');
+    expect(body['functionVersion'], 3);
+    expect(base64.decode(body['inputSha256']! as String), List.filled(32, 9));
+    expect(body.containsKey('dataSource'), isFalse);
+    expect(body.containsKey('operation'), isFalse);
+  });
 }

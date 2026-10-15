@@ -1,0 +1,13 @@
+{
+  "attestation": true,
+  "capabilities": {
+    "claims": true
+  },
+  "description": "The fee of a transfer, computed on the server from the verified tier claim (sdk/fn/examples/fee).",
+  "id": "01a137b5-6b91-728a-b602-f8bbfb8dee11",
+  "kind": "function",
+  "name": "bank.transferFee",
+  "placement": "server",
+  "sca": true,
+  "schemaVersion": "1.0.0"
+}

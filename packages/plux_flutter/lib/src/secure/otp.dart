@@ -58,6 +58,25 @@ final class OtpFormat {
     final code = out.toString();
     return code.length <= length ? code : null;
   }
+
+  /// The first run of exactly [length] characters of the [charset] in
+  /// [message], delimited by characters outside it, or null when there is
+  /// none. A longer or shorter run is not a code of this format, so a phone
+  /// number or an amount in the same message is not mistaken for one. Used
+  /// on the text of an SMS (SEC-090); the result is never logged (SEC-092).
+  String? extract(String message) {
+    final units = message.codeUnits;
+    var start = -1;
+    for (var i = 0; i <= units.length; i++) {
+      final inside = i < units.length && charset.allows(units[i]);
+      if (inside && start < 0) start = i;
+      if (!inside && start >= 0) {
+        if (i - start == length) return message.substring(start, i);
+        start = -1;
+      }
+    }
+    return null;
+  }
 }
 
 /// Refuses edits that would put text outside the [format] into a code

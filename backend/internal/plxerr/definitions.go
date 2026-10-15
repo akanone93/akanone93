@@ -1384,9 +1384,186 @@ var registry = []Definition{
 		"Send the request through the gateway.", false,
 	},
 	{
+		FraudReceiptUnavailable, "FRAUD_RECEIPT_UNAVAILABLE", SeverityError, "Fraud receipt unavailable",
+		"The platform fraud-signal receipt that the request needs could not be obtained or is no longer valid, so the server cannot rely on it (SEC-123).",
+		"Request a new receipt on the device and repeat the call.", false,
+	},
+	{
+		ImportedKeyInvalid, "IMPORTED_KEY_INVALID", SeverityError, "Imported key invalid",
+		"An externally issued private key offered for import is malformed, of an unsupported type, or does not match its declared public part, so signing refuses it (SEC-123).",
+		"Export the key again from its issuer in the documented format and import it once more.", false,
+	},
+	{
 		RASPDetection, "RASP_DETECTION", SeverityError, "Runtime tampering detected",
 		"The runtime reported a tampering signal, such as a debugger, hook or modified binary, and the installation refuses the call (SEC-071).",
 		"Use an unmodified app on an unmodified device.", false,
+	},
+
+	// Functions.
+	{
+		FunctionTimeout, "FUNCTION_TIMEOUT", SeverityError, "Function timed out",
+		"The invocation ran longer than the wall-time limit of the function (FN-011, FN-053).",
+		"Make the function do less work per call, or raise `function.timeout` or `function.deviceTimeout` within the registry maximum.", false,
+	},
+	{
+		FunctionMemoryExceeded, "FUNCTION_MEMORY_EXCEEDED", SeverityError, "Function memory exceeded",
+		"The module tried to grow its linear memory beyond the memory limit of the function (FN-011, FN-053).",
+		"Reduce the memory the function needs, or raise `function.memory` or `function.deviceMemory` within the registry maximum.", false,
+	},
+	{
+		FunctionCapabilityDenied, "FUNCTION_CAPABILITY_DENIED", SeverityError, "Function capability denied",
+		"The function called a host capability it did not declare in its document or that the caller's grant does not cover; capabilities are deny-by-default (FN-012).",
+		"Declare the capability in `function.json` and grant it to the calling plugin, or remove the call.", false,
+	},
+	{
+		FunctionOutputTooLarge, "FUNCTION_OUTPUT_TOO_LARGE", SeverityError, "Function output too large",
+		"The function returned more bytes than the output limit allows (FN-011).",
+		"Return less data, page the result, or raise `function.outputSize` within the registry maximum.", false,
+	},
+	{
+		FunctionCallDepthExceeded, "FUNCTION_CALL_DEPTH_EXCEEDED", SeverityError, "Function call depth exceeded",
+		"Functions called other functions more deeply than the call-depth limit allows (FN-011).",
+		"Flatten the call chain or merge functions; the depth limit cannot be raised above its maximum.", false,
+	},
+	{
+		FunctionHTTPCallsExceeded, "FUNCTION_HTTP_CALLS_EXCEEDED", SeverityError, "Function HTTP calls exceeded",
+		"One invocation made more outbound HTTP calls than the limit allows (FN-011).",
+		"Reduce or batch the outbound calls, or raise `function.httpCalls` within the registry maximum.", false,
+	},
+	{
+		FunctionTrapped, "FUNCTION_TRAPPED", SeverityError, "Function trapped",
+		"The module trapped, for example on a panic, an unreachable instruction or an out-of-bounds access, and the host discarded the instance (FN-010, FN-022).",
+		"Reproduce the failure with `plux fn test` and fix the fault in the function.", false,
+	},
+	{
+		FunctionInputInvalid, "FUNCTION_INPUT_INVALID", SeverityError, "Function input invalid",
+		"The input does not conform to the input schema derived from the function's types (FN-004, FN-022).",
+		"Send input that matches the published input schema.", false,
+	},
+	{
+		FunctionOutputInvalid, "FUNCTION_OUTPUT_INVALID", SeverityError, "Function output invalid",
+		"The function returned output that does not conform to its output schema, or that is not valid UTF-8 JSON (FN-004, FN-015).",
+		"Fix the function so that it returns a value of its declared output type.", false,
+	},
+	{
+		FunctionEgressRefused, "FUNCTION_EGRESS_REFUSED", SeverityError, "Function egress refused",
+		"The egress proxy refused an outbound call because the destination is outside the function's domain allowlist or resolves to a private address (FN-012, FN-017).",
+		"Add the domain to the function's `capabilities.http` list, or call a public destination.", false,
+	},
+	{
+		IdempotencyKeyConflict, "IDEMPOTENCY_KEY_CONFLICT", SeverityError, "Idempotency key reused with different input",
+		"The idempotency key was already used for this function with a different input, so the server will not replay the stored result (FN-021).",
+		"Use a new idempotency key for a new request, or resend the original input.", false,
+	},
+	{
+		FunctionNotFound, "FUNCTION_NOT_FOUND", SeverityError, "Function not found",
+		"No function with this name and version exists in the app and environment, or no active release of the app pins the requested version (FN-006, FN-020).",
+		"Check the name and version, deploy the function, or publish a release that pins it.", false,
+	},
+	{
+		FunctionAliasNotFound, "FUNCTION_ALIAS_NOT_FOUND", SeverityError, "Function alias not found",
+		"The alias does not exist for this function in the app and environment (FN-006).",
+		"Create the alias with `SetAlias`, or use an existing alias or version.", false,
+	},
+	{
+		DeviceFunctionsDisabled, "DEVICE_FUNCTIONS_DISABLED", SeverityError, "Device functions disabled",
+		"The security profile has `deviceFunctions` set to false, so the device does not run device-placed functions (FN-055).",
+		"Enable `deviceFunctions` for the app, or place the function on the server.", false,
+	},
+	{
+		FunctionRateLimited, "FUNCTION_RATE_LIMITED", SeverityError, "Function rate limited",
+		"The invocation rate of the function, the app or the device exceeded its quota (FN-024).",
+		"Retry after the interval in the response, or raise the quota within the registry maximum.", false,
+	},
+	{
+		FunctionKVLimitExceeded, "FUNCTION_KV_LIMIT_EXCEEDED", SeverityError, "Function key-value limit exceeded",
+		"A write would exceed the key count, total size or value size limit of the function's key-value store (FN-018).",
+		"Delete entries, store smaller values, or raise `function.kvBytes`, `function.kvKeys` or `function.kvValueBytes` within the registry maximum.", false,
+	},
+	{
+		FunctionABIUnsupported, "FUNCTION_ABI_UNSUPPORTED", SeverityError, "Function ABI unsupported",
+		"The module reports an ABI version the host does not support, or imports a host function the host does not provide (FN-015).",
+		"Rebuild the function with an SDK that targets a supported ABI version.", false,
+	},
+	{
+		FunctionModuleInvalid, "FUNCTION_MODULE_INVALID", SeverityError, "Function module invalid",
+		"The module is not valid WebAssembly, lacks a required export, or imports a server-only host function on a device (FN-015, FN-052).",
+		"Rebuild the module with the Plux builder, and keep device functions free of server-only capabilities.", false,
+	},
+	{
+		FunctionArtifactSignatureInvalid, "FUNCTION_ARTIFACT_SIGNATURE_INVALID", SeverityError, "Function artifact signature invalid",
+		"The signature over the function artifact statement does not verify against the function-artifact key, so the host refuses to compile the module (FN-009).",
+		"Deploy a module built by the Plux builder; never upload a module built elsewhere.", false,
+	},
+	{
+		FunctionTestsFailed, "FUNCTION_TESTS_FAILED", SeverityError, "Function tests failed",
+		"A stored test case of the function failed, which blocks deployment to production (FN-031).",
+		"Run `plux fn test`, fix the function or the expectation, and build again.", false,
+	},
+	{
+		FunctionCancelled, "FUNCTION_CANCELLED", SeverityError, "Function cancelled",
+		"The caller cancelled the invocation or disconnected before it finished (FN-053).",
+		"No action is needed; repeat the call if the result is still wanted.", false,
+	},
+	{
+		FunctionInputTooLarge, "FUNCTION_INPUT_TOO_LARGE", SeverityError, "Function input too large",
+		"The input is larger than the input-size limit allows (FN-011).",
+		"Send less data, or raise `function.inputSize` within the registry maximum.", false,
+	},
+	{
+		DeviceFunctionServerCapability, "DEVICE_FUNCTION_SERVER_CAPABILITY", SeverityError, "Device function requests a server capability",
+		"A function placed on the device declares `http`, `secrets`, `claims` or another server-only capability (FN-008, FN-052).",
+		"Place the function on the server, or remove the capability from its document.", false,
+	},
+	{
+		FunctionReferenceUnresolved, "FUNCTION_REFERENCE_UNRESOLVED", SeverityError, "Function reference unresolved",
+		"An action or grant names a function that no function document in the project defines (FN-006).",
+		"Correct the function name or add its `functions/<name>/function.json`.", false,
+	},
+	{
+		FunctionTypeMismatch, "FUNCTION_TYPE_MISMATCH", SeverityError, "Function type mismatch",
+		"The values an `invokeFunction` action passes or reads do not match the function's input or output schema (ACT-001, FN-004).",
+		"Change the action's bindings to match the schemas, or change the function's types.", false,
+	},
+	{
+		FunctionBusinessError, "FUNCTION_BUSINESS_ERROR", SeverityError, "Function business error",
+		"The function returned a business error declared in its own code, which carries a code, a message key and parameters for the action graph (FN-022).",
+		"Handle the error in the action graph's error path; the code and message key come from the function.", false,
+	},
+	{
+		FunctionBuildFailed, "FUNCTION_BUILD_FAILED", SeverityError, "Function build failed",
+		"The build did not produce a module; the diagnostics name the compiler or linker error (FN-016).",
+		"Fix the reported errors and build again.", false,
+	},
+	{
+		FunctionDependencyNotVendored, "FUNCTION_DEPENDENCY_NOT_VENDORED", SeverityError, "Function dependency not vendored",
+		"The source archive lacks a dependency under `vendor/`, and builds are offline and locked (FN-016).",
+		"Run `cargo vendor` and include the result in the archive.", false,
+	},
+	{
+		FunctionBuildScriptRefused, "FUNCTION_BUILD_SCRIPT_REFUSED", SeverityError, "Function build script refused",
+		"A dependency uses a build script or procedural macro that is not on the builder's allowlist (FN-016).",
+		"Remove the dependency, or ask the operator to review and allowlist it.", false,
+	},
+	{
+		FunctionBuildLimitExceeded, "FUNCTION_BUILD_LIMIT_EXCEEDED", SeverityError, "Function build limit exceeded",
+		"The build exceeded its time or memory limit, or the module or archive exceeded its size limit (FN-010, FN-016).",
+		"Reduce the crate or its dependencies, or raise `function.buildTimeout`, `function.buildMemory`, `function.moduleSize` or `function.sourceArchiveSize` within the registry maximum.", false,
+	},
+	{
+		FunctionSchemaDerivationFailed, "FUNCTION_SCHEMA_DERIVATION_FAILED", SeverityError, "Function schema derivation failed",
+		"The builder could not read the input and output schemas from the module (FN-004).",
+		"Make the handler's input and output types derive their schemas, then build again.", false,
+	},
+	{
+		FunctionDeclarationMismatch, "FUNCTION_DECLARATION_MISMATCH", SeverityError, "Function declaration mismatch",
+		"The placement or name that the crate asserts differs from the function document (FN-008, FN-016).",
+		"Make the crate and `function.json` agree on the name and placement.", false,
+	},
+	{
+		FunctionBuildNotReproducible, "FUNCTION_BUILD_NOT_REPRODUCIBLE", SeverityError, "Function build not reproducible",
+		"Two builds of the same source, lock file and toolchain produced different modules (FN-019).",
+		"Remove the source of nondeterminism, such as embedded paths, times or random values, and build again.", false,
 	},
 
 	// Governance.

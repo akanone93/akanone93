@@ -32,6 +32,11 @@ type Metrics struct {
 	replayDegraded prometheus.Gauge
 	replayFallback prometheus.Counter
 
+	functionRequests *prometheus.CounterVec
+	functionSeconds  prometheus.Histogram
+	functionReplays  prometheus.Counter
+	functionPrepares *prometheus.CounterVec
+
 	dpopRejections     *prometheus.CounterVec
 	attestationResults *prometheus.CounterVec
 
@@ -104,11 +109,40 @@ func NewMetrics() *Metrics {
 		Name: "plux_attestation_results_total",
 		Help: "Attestation verifications by platform and verdict.",
 	}, []string{"platform", "verdict"})
+	m.newFunctionMetrics()
 	r.MustRegister(m.dpopRejections, m.attestationResults)
 	r.MustRegister(m.rpcRequests, m.rpcDuration, m.manifestRequests, m.deltaBytes,
 		m.deltaGeneration, m.publishJobs, m.publishDuration, m.jobsQueueDepth,
 		m.replayDegraded, m.replayFallback)
 	return m
+}
+
+// newFunctionMetrics creates and registers the metrics of the api role's
+// function invocations.
+func (m *Metrics) newFunctionMetrics() {
+	// The api role's series are named apart from the fnrunner's
+	// plux_function_invocations_total, which shares this registry when one
+	// process runs both roles.
+	m.functionRequests = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "plux_function_requests_total",
+		Help: "Function invocations as the api role answered them, by result: ok, business_error or the lower-case reason of the error.",
+	}, []string{"result"})
+	m.functionSeconds = prometheus.NewHistogram(prometheus.HistogramOpts{
+		Name:    "plux_function_request_seconds",
+		Help:    "Time from a device's function invocation to the api role's answer.",
+		Buckets: []float64{0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30},
+	})
+	m.functionPrepares = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "plux_function_prepares_total",
+		Help: "Requests from the api role to compile a deployed function module ahead of its first invocation, by result: ok or failed.",
+	}, []string{"result"})
+	m.functionPrepares.WithLabelValues("ok")
+	m.functionPrepares.WithLabelValues("failed")
+	m.functionReplays = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "plux_function_replays_total",
+		Help: "Function invocations answered with the stored result of an idempotency key.",
+	})
+	m.registry.MustRegister(m.functionRequests, m.functionSeconds, m.functionReplays, m.functionPrepares)
 }
 
 // Handler serves the metrics endpoint.
@@ -248,4 +282,22 @@ func (m *Metrics) AuditChainVerified(ok bool) {
 		return
 	}
 	m.auditVerified.Set(0)
+}
+
+// Invoked records one function invocation as the api role answered it
+// (FN-032): its result, its time end to end, and whether the answer was the
+// stored one of an idempotency key. The series carry no app, user, function
+// or input.
+func (m *Metrics) Invoked(result string, d time.Duration, replayed bool) {
+	m.functionRequests.WithLabelValues(result).Inc()
+	m.functionSeconds.Observe(d.Seconds())
+	if replayed {
+		m.functionReplays.Inc()
+	}
+}
+
+// Prepared records one request to the runner to compile a deployed
+// module (FN-023) by its result, ok or failed.
+func (m *Metrics) Prepared(result string) {
+	m.functionPrepares.WithLabelValues(result).Inc()
 }
