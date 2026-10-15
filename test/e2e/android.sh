@@ -38,6 +38,16 @@ port=18094
 refapi_port=18096
 reference_ports="18097 18098"
 mkdir -p "$out"
+# phase <name>: records how long the step before it took, in the log and,
+# in CI, in the job summary, so the slow part of a run is visible.
+phase_at=$SECONDS
+phase() {
+	local took=$((SECONDS - phase_at))
+	phase_at=$SECONDS
+	echo "⏱ $1: ${took}s"
+	[ -z "${GITHUB_STEP_SUMMARY:-}" ] || echo "| $1 | ${took}s |" >>"$GITHUB_STEP_SUMMARY"
+}
+[ -z "${GITHUB_STEP_SUMMARY:-}" ] || printf '#### Android %s end-to-end phases (%s)\n\n| Phase | Seconds |\n|---|---:|\n' "$api" "${E2E_SHARD:-all}" >>"$GITHUB_STEP_SUMMARY"
 
 yes | "$tools/sdkmanager" --licenses >/dev/null || true
 # A download that arrives broken ("Error on ZipFile unknown archive", CI
@@ -54,6 +64,7 @@ for wait in 0 15 45; do
 	installed=false
 done
 $installed || { tail -n 20 "$out/sdkmanager.log"; echo "✗ the Android SDK packages did not install"; exit 1; }
+phase "install the SDK packages"
 # One AVD home for avdmanager and the emulator, whatever the runner sets.
 export ANDROID_AVD_HOME=${ANDROID_AVD_HOME:-$HOME/.android/avd}
 mkdir -p "$ANDROID_AVD_HOME"
@@ -82,6 +93,7 @@ for attempt in 1 2 3; do
 	[ "$attempt" = 3 ] && { echo "✗ the Go modules could not be downloaded"; exit 1; }
 	sleep $((attempt * 15))
 done
+phase "start the emulator, download the Go modules"
 prebuild_log=$out/prebuild-$api.log
 # Only what E2E_SHARD's flows build (mk/device.mk).
 shard=${E2E_SHARD:-all}
@@ -202,10 +214,12 @@ while [ "$SECONDS" -lt "$deadline" ]; do
 	sleep 2
 done
 $booted || fail "the emulator did not boot in 10 minutes (adb's last answer: ${answer:-nothing})"
+phase "boot the emulator (the prebuild runs alongside)"
 if ! wait "$prebuild"; then
 	echo "--- $prebuild_log (last 80 lines)"; tail -n 80 "$prebuild_log" || true
 	echo "✗ building the driver or the app failed"; exit 1
 fi
+phase "finish the prebuild after the boot"
 for s in window_animation_scale transition_animation_scale animator_duration_scale; do
 	adbs shell settings put global "$s" 0
 done
@@ -222,6 +236,7 @@ done
 "$adb" -s "$serial" logcat -c >/dev/null 2>&1 || true
 status=0
 PLUX_E2E_REFAPI_ADDR=127.0.0.1:$refapi_port PLUX_E2E_DEVICE=$serial make -C "$root" --no-print-directory e2e-starter 2>&1 | tee "$out/android-$api-$shard.log" || status=$?
+phase "the flows (builds, installs and runs)"
 if [ "$status" != 0 ]; then
 	device_log=$out/logcat-$api-$shard.log
 	"$adb" -s "$serial" logcat -d -v threadtime >"$device_log" 2>&1 || true

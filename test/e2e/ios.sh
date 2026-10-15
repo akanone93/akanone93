@@ -20,6 +20,16 @@ set -euo pipefail
 root=$(git rev-parse --show-toplevel)
 out=${E2E_OUT:-$root/build/e2e}
 mkdir -p "$out"
+# phase <name>: records how long the step before it took, in the log and,
+# in CI, in the job summary, so the slow part of a run is visible.
+phase_at=$SECONDS
+phase() {
+	local took=$((SECONDS - phase_at))
+	phase_at=$SECONDS
+	echo "⏱ $1: ${took}s"
+	[ -z "${GITHUB_STEP_SUMMARY:-}" ] || echo "| $1 | ${took}s |" >>"$GITHUB_STEP_SUMMARY"
+}
+[ -z "${GITHUB_STEP_SUMMARY:-}" ] || printf '#### iOS end-to-end phases (%s)\n\n| Phase | Seconds |\n|---|---:|\n' "${E2E_SHARD:-all}" >>"$GITHUB_STEP_SUMMARY"
 # GitHub's macOS images have CocoaPods; elsewhere Homebrew installs it.
 command -v pod >/dev/null || brew install --quiet cocoapods
 
@@ -42,6 +52,7 @@ echo "Simulator: $type on $runtime"
 udid=$(xcrun simctl create plux-e2e "$type" "$runtime")
 trap 'xcrun simctl shutdown "$udid" >/dev/null 2>&1 || true; xcrun simctl delete "$udid" >/dev/null 2>&1 || true' EXIT
 xcrun simctl boot "$udid"
+phase "create the simulator"
 # While the simulator boots, a few minutes on a cold runner: the server's
 # tests, and the apps of E2E_SHARD's flows (mk/device.mk) built as the flows
 # build them, so the flows' own builds, with their defines, reuse the native
@@ -63,6 +74,7 @@ for attempt in 1 2 3; do
 	[ "$attempt" = 3 ] && { echo "✗ the Go modules could not be downloaded"; exit 1; }
 	sleep $((attempt * 15))
 done
+phase "download the Go modules"
 prebuild_log=$out/prebuild-ios.log
 (
 	cd "$root/backend" && go test -count=1 -run '^$' ./internal/server
@@ -72,16 +84,19 @@ prebuild_log=$out/prebuild-ios.log
 ) >"$prebuild_log" 2>&1 &
 prebuild=$!
 xcrun simctl bootstatus "$udid" -b >/dev/null
+phase "boot the simulator (the prebuild runs alongside)"
 if ! wait "$prebuild"; then
 	echo "--- $prebuild_log (last 80 lines)"; tail -n 80 "$prebuild_log" || true
 	echo "✗ building the server's tests or the app failed"; exit 1
 fi
+phase "finish the prebuild after the boot"
 
 status=0
 xcresult=$out/ios.xcresult
 rm -rf "$xcresult"
 PLUX_E2E_DEVICE_TIMEOUT=30m PLUX_E2E_XCTEST=1 PLUX_E2E_XCRESULT=$xcresult PLUX_E2E_DEVICE=$udid \
 	make -C "$root" --no-print-directory e2e-starter 2>&1 | tee "$out/ios.log" || status=$?
+phase "the flows (builds, installs and runs)"
 if [ "$status" -ne 0 ]; then
 	# Why the flows failed, from the test results, and the apps' own logs.
 	# The starter's flows, the generated project's launch test and each

@@ -296,3 +296,56 @@ rules in `ci/affected.json` grow to cover them; no gate is loosened.
   function numbers (module size, start, a typical call for WAMR, and `wasmi` for the
   side-by-side of ADR-0011) are taken in the existing Android and iOS jobs; **no new emulator
   boots**, so the device jobs stay inside the 13 to 15 minute target.
+
+## Revision 2 (2026-10-15: fewer, fuller jobs within the free runners)
+
+The full suite had grown to 28–34 minutes (main runs 38676803220, 38687827974). Run
+38676803220 ran 46 jobs, 318 job-minutes, 95 of them on macOS. The repository is public on a
+personal account, so GitHub runs at most 20 jobs at once, 5 of them on macOS; the run reached
+20 and kept jobs queued for up to 12 minutes (the Dart job waited 11). At that cap no schedule
+finishes the suite in under about 16 minutes (318 / 20), or the macOS jobs in under 19
+(95 / 5); the work itself has to shrink. Maintainer decision (2026-10-15): aim for every run
+under 10 minutes, with no paid runners or plan, merging jobs where that helps, no gate
+removed.
+
+Where the time went, and what this revision does:
+
+- **The runtime benchmark's start-up part** took 28 minutes: each of its 22 runs took a
+  constant 66 seconds (11.5 seconds in the first timings above) while measuring about
+  0.1 seconds of work. Every `Plux.dispose()` appears to wait out the sync isolate's 1-second
+  settle and 5-second close timeouts, and the part disposes eleven times per run. That is the
+  runtime's to fix, in its own pull request; the method and the gate do not change. Here,
+  each of the five parts (start-up, opening, the native control, scrolling, the list) runs
+  as its own job, so the longest job is one part's runs, not three parts'. Each job still
+  runs both runtimes alternately on one runner, and the policy test still checks that the
+  jobs together measure every part once.
+- **Thirteen small jobs become steps of three.** *Repository checks* runs every
+  repository-wide check (hygiene, secrets, specification and traceability, workflow lint,
+  licensing, links, the documentation site, the SBOM, and on pull requests the commit
+  messages and the dependency review) and, each when its selection does, Studio, the
+  vendored WAMR check and govulncheck. *Go lint* runs the API contract's check, which needs
+  the same tools; *Compose* runs the ZAP baseline on the stack it has just started, before
+  its integration tests, instead of building and starting the stack a second time. A
+  hosted selection names its host in `ci/affected.json` (`"ci"`), so a change to the host's
+  block of `ci.yml` selects it, and CI OK passes a skipped host only when the selection
+  skipped everything it hosts. Every step of *Repository checks* runs unless the run was
+  cancelled, so one failing check does not hide another.
+- **Size (Android)** runs its two halves, the size comparison and the release inspection,
+  as two jobs, and restores the device jobs' Gradle cache under the key they save it with;
+  it read a key (`gradle-…`) that no job has saved since the device shards.
+- **Dart tests** run three packages at once (`DART_TEST_JOBS`), `plux_flutter` and
+  `plux_native_scan` first. Run one after another on a four-core container, the 20 packages
+  took 927 seconds, 267 of them `plux_flutter`'s and most of the rest each package's start
+  and compile, which overlap well. Three at a time took 292 seconds on the same container, with
+  the same results and coverage.
+- **Tool caches** are keyed on the pins in the `Makefile` and the toolchain, not on the
+  whole `Makefile`, so an unrelated recipe change no longer rebuilds golangci-lint, buf,
+  sqlc and flatc (3.5 minutes in run 38676803220).
+- **Measurements for the next step.** The device scripts write how long each phase took
+  (SDK, boot, prebuild, flows) to the job summary, and the device jobs print the size of the
+  directories they cache. In run 38676803220 the iOS starter shard spent about 14 of its
+  21 minutes before its flows started, and its cache restore took no time on pull requests,
+  which suggests the iOS caches do not survive the repository's 10 GB quota; these numbers
+  decide what the iOS and Android jobs change next.
+
+The selection, the rules for who writes a cache, and every make target are unchanged.

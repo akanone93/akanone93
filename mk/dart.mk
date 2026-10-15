@@ -36,8 +36,21 @@ dart-analyze: ## Analyze Dart code with strict rules; infos are fatal
 dart-test: ## Run Dart and Flutter tests
 	@for p in $(DART_PACKAGES); do (cd $$p && flutter test); done
 
-dart-cover: ## Run Dart tests with coverage and enforce floors (QA-001)
-	@for p in $(DART_PACKAGES); do (cd $$p && flutter test --coverage); done
+# How many packages' tests run at once. Most packages spend their time
+# starting and compiling rather than testing, so they overlap well; the
+# longest start first, so the rest finish in their shadow (ADR-0043,
+# Revision 2). Each package's output goes to build/dart-test/ and is
+# printed when its tests fail.
+DART_TEST_JOBS  ?= 3
+DART_TEST_FIRST := packages/plux_flutter packages/plux_native_scan
+DART_TEST_ORDER := $(DART_TEST_FIRST) $(filter-out $(DART_TEST_FIRST),$(DART_PACKAGES))
+
+dart-cover: ## Run Dart tests with coverage and enforce floors (QA-001; DART_TEST_JOBS packages at once)
+	@mkdir -p build/dart-test
+	@printf '%s\n' $(DART_TEST_ORDER) | xargs -P $(DART_TEST_JOBS) -I{} bash -c '\
+		log=build/dart-test/$$(printf %s "{}" | tr / _).log; start=$$SECONDS; \
+		if (cd "{}" && flutter test --coverage) >"$$log" 2>&1; then echo "✓ {} ($$((SECONDS - start)) s)"; \
+		else cat "$$log"; echo "✗ {}: flutter test failed (output in $$log)"; exit 1; fi'
 	$(COVGATE) -kind dart $(addsuffix /coverage/lcov.info,$(DART_PACKAGES))
 
 WIDGETS_API := cd packages/plux_widget_api && dart run bin/extract.dart --root ../.. --flutter-version $(FLUTTER_VERSION)
