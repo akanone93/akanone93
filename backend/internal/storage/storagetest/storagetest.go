@@ -119,7 +119,13 @@ func OpenWith(t testing.TB, migrations []storage.Migration) *storage.DB {
 	if err != nil {
 		t.Fatalf("open: %v", err)
 	}
-	if err := db.Migrate(ctx, migrations); err != nil {
+	// Migrations run under one advisory lock for the whole database
+	// (SRV-021), so every test of every package in parallel waits its
+	// turn: the wait grows with the number of tests and migrations, not
+	// with this test. It gets a budget of its own.
+	migrateCtx, cancelMigrate := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancelMigrate()
+	if err := db.Migrate(migrateCtx, migrations); err != nil {
 		db.Close()
 		t.Fatalf("migrate: %v", err)
 	}
