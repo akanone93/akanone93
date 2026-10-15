@@ -155,7 +155,7 @@ jobs:
           if [ -f reqtrace.md ]; then
             cat reqtrace.md >> "$GITHUB_STEP_SUMMARY"
           fi
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: traceability-report
@@ -245,7 +245,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Generate CycloneDX SBOM
-        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
           path: .
           format: cyclonedx-json
@@ -563,7 +563,7 @@ jobs:
       - name: Stop the stack
         if: always()
         run: docker compose -f deploy/compose/compose.yaml down -v
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: zap-api-report
@@ -705,7 +705,7 @@ jobs:
           sha256sum aom-build/config/*.h
           grep -E '^#define (CONFIG|HAVE|ARCH)_' aom-build/config/aom_config.h
           grep -E '^(CMAKE_C_COMPILER|CMAKE_AR|CMAKE_RANLIB|CMAKE_C_FLAGS)[:=]' aom-build/CMakeCache.txt avif-build/CMakeCache.txt || true
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: rebuilt-codecs
@@ -992,7 +992,7 @@ jobs:
             /usr/local/lib/android/sdk/emulator
             /usr/local/lib/android/sdk/system-images/android-${{ matrix.api }}
           key: ${{ steps.android-sdk.outputs.cache-primary-key }}
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: e2e-android-${{ matrix.api }}-${{ matrix.shard }}
@@ -1085,7 +1085,7 @@ jobs:
             apps/*/.dart_tool/flutter_build
             apps/add_to_app/ios_host/Pods
           key: ${{ steps.xcode-cache.outputs.cache-primary-key }}
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: e2e-ios-${{ matrix.shard }}
@@ -1186,7 +1186,7 @@ jobs:
         run: |
           echo "#### Runtime benchmark: $SHARD" >> "$GITHUB_STEP_SUMMARY"
           cat build/bench-runtime/report.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: bench-runtime-${{ matrix.scenarios }}
@@ -1294,7 +1294,7 @@ jobs:
       - name: Report
         if: always()
         run: cat build/size/android-compare.md build/size/android.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: size-android
