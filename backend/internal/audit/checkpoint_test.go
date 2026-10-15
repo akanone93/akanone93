@@ -70,7 +70,7 @@ func TestCheckpointSignatureRoundTrip(t *testing.T) {
 		{"entry hash", func(c *audit.Checkpoint) { c.EntryHash = strings.Repeat("cd", 32) }, keys},
 		{"organisation", func(c *audit.Checkpoint) { c.OrganizationID = "0198f6a2-0000-7000-8000-000000000002" }, keys},
 		{"time", func(c *audit.Checkpoint) { c.CreatedAt = c.CreatedAt.Add(time.Microsecond) }, keys},
-		{"signature", func(c *audit.Checkpoint) { c.Signature = append([]byte{0}, c.Signature[1:]...) }, keys},
+		{"signature", func(c *audit.Checkpoint) { c.Signature = append([]byte{^c.Signature[0]}, c.Signature[1:]...) }, keys},
 		{"algorithm", func(c *audit.Checkpoint) { c.Algorithm = "rsa" }, keys},
 		{"unknown key", func(*audit.Checkpoint) {}, audit.PublicKeys{cp.KeyID: other}},
 		{"no key", func(*audit.Checkpoint) {}, audit.PublicKeys{}},
