@@ -349,3 +349,30 @@ Where the time went, and what this revision does:
   decide what the iOS and Android jobs change next.
 
 The selection, the rules for who writes a cache, and every make target are unchanged.
+
+**Second round (same day), from run 38734273378.** That run took about 40 minutes, for two
+reasons. A full run on `main` (38731273394) held most of the account's 20 slots for its first
+12 minutes, so only 1 to 7 of its jobs ran at a time: runs of the repository share the slots.
+And the iOS caches missed entirely: at about 2 GB a shard (DerivedData 0.8–1.4 GB, the apps'
+build outputs 0.7 GB) they do not fit beside the others in the repository's 10 GB, so each
+shard built cold. The iOS `express+generated` shard took 27 minutes: about 3 of set-up,
+1.2 of Go modules, 8.6 of prebuild (the plugins' native code compiled from scratch), 6.2 for
+Plux Express and 7.8 for the generated project, which `plux create` makes in a new directory
+every run. A model of the run (measured durations, 20 slots, 5 on macOS, GitHub's arbitrary
+order) put the floor at about 22 minutes while iOS stays cold, and showed that a run with
+more jobs than slots finishes late whenever a long job happens to start last. So:
+
+- **Long jobs first.** The short jobs need Repository checks as well as Detect changes, so
+  the long ones take the slots first; the short ones fill the slots the long ones leave.
+  They run whether or not Repository checks passed.
+- **iOS: one job per flow,** five; the sixth macOS job (the size check, or Go determinism's
+  macOS leg) takes the first free slot.
+- **iOS: Xcode's compilation cache instead of DerivedData.** `flutter build ios` passes
+  `FLUTTER_XCODE_<SETTING>` variables to `xcodebuild` as build settings; the Go driver now
+  passes the same to its own `xcodebuild` runs, so both builds of a flow use the same
+  settings and the second does not rebuild. CI turns on `COMPILATION_CACHE_ENABLE_CACHING`
+  with its store in `~/Library/Caches/plux-xcode-cas`, cached per shard with any shard's as
+  the fallback. The cache is content-addressed: a hit is the output of the same compile.
+  DerivedData and the apps' build outputs are no longer cached.
+- **One Go cache per runner OS,** keyed on `backend/go.sum`; thirteen set-ups used three
+  keys per OS, each a copy of the module cache.

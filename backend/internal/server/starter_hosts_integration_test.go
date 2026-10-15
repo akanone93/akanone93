@@ -233,6 +233,7 @@ func iosHost(ctx context.Context, t *testing.T, host, device string, flows []hos
 		"-workspace", "HostApp.xcworkspace", "-scheme", "HostApp", "-configuration", "Debug",
 		"-destination", "platform=iOS Simulator,id=" + device, "-derivedDataPath", derived,
 	}
+	xcodebuild = append(xcodebuild, xcodeSettings()...)
 	run("xcodebuild", append([]string{"build-for-testing"}, xcodebuild...)...)
 	// A new install: the offline flow starts without the runtime's state.
 	_ = exec.CommandContext(ctx, "xcrun", "simctl", "uninstall", device, "dev.plux.addtoapp.host").Run() //nolint:gosec // G204: the simulator the developer named.

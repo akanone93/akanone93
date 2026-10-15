@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -142,6 +143,22 @@ func deviceTimeout(t *testing.T) time.Duration {
 	return d
 }
 
+// xcodeSettings are the build settings named by the environment's
+// FLUTTER_XCODE_<SETTING> variables, which flutter build ios passes to
+// xcodebuild: an xcodebuild run here builds with the same settings as the
+// flutter build before it, so it does not rebuild for a difference. CI
+// turns on Xcode's compilation cache this way (ADR-0043, Revision 2).
+func xcodeSettings() []string {
+	var settings []string
+	for _, kv := range os.Environ() {
+		if setting, ok := strings.CutPrefix(kv, "FLUTTER_XCODE_"); ok && strings.Contains(setting, "=") {
+			settings = append(settings, setting)
+		}
+	}
+	slices.Sort(settings)
+	return settings
+}
+
 // deviceSteps are the commands that run the flows on device, and the line
 // their output holds when every flow passed.
 func deviceSteps(flutter, device string, defines []string) (steps [][]string, succeeded string) {
@@ -170,6 +187,7 @@ func deviceSteps(flutter, device string, defines []string) (steps [][]string, su
 	if bundle := os.Getenv("PLUX_E2E_XCRESULT"); bundle != "" {
 		xcodebuild = append(xcodebuild, "-resultBundlePath", bundle)
 	}
+	xcodebuild = append(xcodebuild, xcodeSettings()...)
 	return [][]string{
 		append([]string{flutter, "build", "ios", "--simulator", "--debug", "--target=integration_test/app_test.dart"}, defines...),
 		xcodebuild,

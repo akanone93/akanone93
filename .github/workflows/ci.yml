@@ -11,6 +11,13 @@
 #   - "CI OK" depends on every job and is the single required status check of
 #     the main ruleset; it passes a skipped job only when the selection
 #     skipped it, so path filtering never blocks a merge.
+#   - The account runs at most 20 jobs at once (5 on macOS), in no order
+#     GitHub guarantees, so the long jobs start first: the short ones
+#     (needs: [changes, repo]) wait for Repository checks, about two
+#     minutes, and then fill the slots the long ones leave (ADR-0043,
+#     Revision 2). They run whether or not Repository checks passed.
+#   - One Go cache per runner OS, keyed on backend/go.sum, so the
+#     repository's 10 GB of caches is left to the device builds.
 #   - Every job runs the same Makefile target a developer runs locally.
 #   - Compiler output is checked against the goldens on Linux, macOS and
 #     Windows (CMP-002); fuzzing runs on a schedule in fuzz.yml.
@@ -117,9 +124,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: |
-            backend/go.mod
-            tools/go.mod
+          cache-dependency-path: backend/go.sum
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: ${{ env.BUN_VERSION }}
@@ -322,8 +327,8 @@ jobs:
   # tools.
   go-lint:
     name: Go lint and API contract
-    needs: changes
-    if: fromJSON(needs.changes.outputs.jobs)['go-lint'] || fromJSON(needs.changes.outputs.jobs)['api-contract']
+    needs: [changes, repo]
+    if: ${{ !cancelled() && needs.changes.result == 'success' && (fromJSON(needs.changes.outputs.jobs)['go-lint'] || fromJSON(needs.changes.outputs.jobs)['api-contract']) }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -338,9 +343,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: |
-            backend/go.mod
-            tools/go.mod
+          cache-dependency-path: backend/go.sum
       # The pinned Go tools, built once per pin set and toolchain instead of
       # on every run: keyed on the pins in the Makefile and the toolchain
       # line of go.mod, so an unrelated recipe change does not rebuild them.
@@ -424,9 +427,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: |
-            backend/go.mod
-            tools/go.mod
+          cache-dependency-path: backend/go.sum
       # The tests connect as a role row-level security binds, as the
       # server must (SRV-022); the image's own user is a superuser.
       - name: Create the application role
@@ -465,9 +466,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: |
-            backend/go.mod
-            tools/go.mod
+          cache-dependency-path: backend/go.sum
       # Verifies: DEP-002.
       - name: Build and start the single-node stack
         run: make compose-up
@@ -512,8 +511,8 @@ jobs:
   # worker's output between architectures shows before a release.
   image-arm64:
     name: Server image (arm64)
-    needs: changes
-    if: fromJSON(needs.changes.outputs.jobs)['image-arm64']
+    needs: [changes, repo]
+    if: ${{ !cancelled() && needs.changes.result == 'success' && (fromJSON(needs.changes.outputs.jobs)['image-arm64']) }}
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
     permissions:
@@ -528,8 +527,8 @@ jobs:
 
   go-determinism:
     name: Go determinism (${{ matrix.os }})
-    needs: changes
-    if: fromJSON(needs.changes.outputs.jobs)['go-determinism']
+    needs: [changes, repo]
+    if: ${{ !cancelled() && needs.changes.result == 'success' && (fromJSON(needs.changes.outputs.jobs)['go-determinism']) }}
     strategy:
       fail-fast: false
       matrix:
@@ -545,9 +544,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: |
-            backend/go.mod
-            tools/go.mod
+          cache-dependency-path: backend/go.sum
       # macOS ships GNU Make 3.81, which ignores .SHELLFLAGS; the Makefile
       # needs 4 or later.
       - name: Use GNU Make 4 (macOS)
@@ -565,8 +562,8 @@ jobs:
 
   go-build:
     name: Go build
-    needs: changes
-    if: fromJSON(needs.changes.outputs.jobs)['go-build']
+    needs: [changes, repo]
+    if: ${{ !cancelled() && needs.changes.result == 'success' && (fromJSON(needs.changes.outputs.jobs)['go-build']) }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -587,8 +584,8 @@ jobs:
 
   wasm-codecs:
     name: Image codecs reproduce
-    needs: changes
-    if: fromJSON(needs.changes.outputs.jobs)['wasm-codecs']
+    needs: [changes, repo]
+    if: ${{ !cancelled() && needs.changes.result == 'success' && (fromJSON(needs.changes.outputs.jobs)['wasm-codecs']) }}
     runs-on: ubuntu-24.04 # build.sh pins the toolchain of Ubuntu 24.04
     timeout-minutes: 45
     permissions:
@@ -631,8 +628,8 @@ jobs:
 
   functions:
     name: Rust SDK and function builds
-    needs: changes
-    if: fromJSON(needs.changes.outputs.jobs)['functions']
+    needs: [changes, repo]
+    if: ${{ !cancelled() && needs.changes.result == 'success' && (fromJSON(needs.changes.outputs.jobs)['functions']) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -662,9 +659,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: |
-            backend/go.mod
-            tools/go.mod
+          cache-dependency-path: backend/go.sum
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: ${{ env.BUN_VERSION }}
@@ -729,8 +724,8 @@ jobs:
   # and servers, which needs the tags.
   starter-e2e:
     name: Starter app end-to-end
-    needs: changes
-    if: fromJSON(needs.changes.outputs.jobs)['starter-e2e']
+    needs: [changes, repo]
+    if: ${{ !cancelled() && needs.changes.result == 'success' && (fromJSON(needs.changes.outputs.jobs)['starter-e2e']) }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -759,7 +754,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: backend/go.mod
+          cache-dependency-path: backend/go.sum
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
@@ -825,7 +820,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: backend/go.mod
+          cache-dependency-path: backend/go.sum
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
@@ -923,14 +918,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Four, not five: GitHub runs at most five macOS jobs at once, and
-        # the iOS size job is the fifth (run 37630248033 queued a sixth
-        # for six minutes). The two shortest flows share a job.
-        shard: [starter, hosts, bank, express+generated]
+        # One per flow. GitHub runs at most five macOS jobs at once; the
+        # iOS size job (which also hosts the macOS determinism check) is a
+        # sixth and takes the first free slot. express and generated
+        # shared a job of 22 to 27 minutes, the slowest of the suite
+        # (runs 38676803220, 38734273378; ADR-0043, Revision 2).
+        shard: [starter, hosts, bank, express, generated]
     env:
       PLUX_TEST_DATABASE_URL: postgres://plux:plux@127.0.0.1:5432/plux_test?sslmode=disable
-      # The add-to-app host's build, kept where the cache below finds it.
+      # The add-to-app host's build directory.
       PLUX_E2E_DERIVED_DATA: /Users/runner/Library/Developer/Xcode/DerivedData/plux-hosts
+      # Xcode's compilation cache, on for every iOS build of the flows:
+      # flutter build ios passes FLUTTER_XCODE_* to xcodebuild as build
+      # settings, and the Go driver passes the same to its own xcodebuild
+      # runs (xcodeSettings). The cache is content-addressed, so a hit is
+      # the output of the same compile; it holds the plugins' native code
+      # that every cold build compiled again (ADR-0043, Revision 2).
+      FLUTTER_XCODE_COMPILATION_CACHE_ENABLE_CACHING: "YES"
+      FLUTTER_XCODE_COMPILATION_CACHE_CAS_PATH: /Users/runner/Library/Caches/plux-xcode-cas
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -938,7 +943,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: backend/go.mod
+          cache-dependency-path: backend/go.sum
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
@@ -961,9 +966,12 @@ jobs:
           psql -d postgres -c "CREATE DATABASE plux_test;"
           psql -d plux_test -c \
             "CREATE ROLE plux LOGIN NOSUPERUSER NOBYPASSRLS PASSWORD 'plux'; GRANT CONNECT, CREATE, TEMPORARY ON DATABASE plux_test TO plux; ALTER SCHEMA public OWNER TO plux;"
-      # Xcode's builds, the pods and the shard's Flutter build outputs
-      # (ADR-0043, Revision), keyed on Xcode as well: a build from another
-      # Xcode is never reused.
+      # The compilation cache and CocoaPods' downloads, keyed on Xcode as
+      # well: another Xcode's cache is never reused. Not DerivedData or the
+      # apps' build outputs: at about 2 GB a shard they did not fit the
+      # repository's 10 GB of caches and every restore missed (run
+      # 38734273378). A shard falls back to another shard's cache, which
+      # holds the same plugins' compiles.
       - name: Xcode version
         id: xcode
         run: echo "version=$(xcodebuild -version | head -n 1 | tr ' ' '-')" >> "$GITHUB_OUTPUT"
@@ -971,14 +979,12 @@ jobs:
         id: xcode-cache
         with:
           path: |
-            ~/Library/Developer/Xcode/DerivedData
+            ~/Library/Caches/plux-xcode-cas
             ~/Library/Caches/CocoaPods
-            apps/*/ios/Pods
-            apps/*/build
-            apps/*/.dart_tool/flutter_build
-            apps/add_to_app/ios_host/Pods
-          key: e2e-ios-${{ matrix.shard }}-${{ steps.xcode.outputs.version }}-${{ env.FLUTTER_VERSION }}-${{ hashFiles('pubspec.lock', 'apps/*/pubspec.lock', 'apps/*/ios/Podfile', 'apps/*/ios/Podfile.lock', 'apps/add_to_app/ios_host/Podfile', 'apps/add_to_app/ios_host/Podfile.lock', 'packages/*/ios/**', 'packages/*/darwin/**') }}
-          restore-keys: e2e-ios-${{ matrix.shard }}-${{ steps.xcode.outputs.version }}-${{ env.FLUTTER_VERSION }}-
+          key: e2e-ios-cas-${{ steps.xcode.outputs.version }}-${{ env.FLUTTER_VERSION }}-${{ matrix.shard }}-${{ hashFiles('pubspec.lock', 'apps/*/pubspec.lock', 'apps/*/ios/Podfile', 'apps/*/ios/Podfile.lock', 'apps/add_to_app/ios_host/Podfile', 'apps/add_to_app/ios_host/Podfile.lock', 'packages/*/ios/**', 'packages/*/darwin/**') }}
+          restore-keys: |
+            e2e-ios-cas-${{ steps.xcode.outputs.version }}-${{ env.FLUTTER_VERSION }}-${{ matrix.shard }}-
+            e2e-ios-cas-${{ steps.xcode.outputs.version }}-${{ env.FLUTTER_VERSION }}-
       # Verifies: QA-006, RT-002, HST-033.
       - name: The shard's flows on the simulator
         env:
@@ -990,7 +996,7 @@ jobs:
         if: always()
         run: |
           echo "Cache hit: ${CACHE_HIT:-none}"
-          du -sh ~/Library/Developer/Xcode/DerivedData ~/Library/Caches/CocoaPods apps/*/ios/Pods apps/*/build apps/*/.dart_tool/flutter_build apps/add_to_app/ios_host/Pods 2>/dev/null || true
+          du -sh ~/Library/Caches/plux-xcode-cas ~/Library/Caches/CocoaPods ~/Library/Developer/Xcode/DerivedData 2>/dev/null || true
         env:
           CACHE_HIT: ${{ steps.xcode-cache.outputs.cache-hit }}
       # Saved by a passing run that is not a pull request (branch-scoped,
@@ -999,12 +1005,8 @@ jobs:
         if: github.event_name != 'pull_request' && steps.xcode-cache.outputs.cache-hit != 'true'
         with:
           path: |
-            ~/Library/Developer/Xcode/DerivedData
+            ~/Library/Caches/plux-xcode-cas
             ~/Library/Caches/CocoaPods
-            apps/*/ios/Pods
-            apps/*/build
-            apps/*/.dart_tool/flutter_build
-            apps/add_to_app/ios_host/Pods
           key: ${{ steps.xcode-cache.outputs.cache-primary-key }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
@@ -1054,7 +1056,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: tools/go.mod
+          cache-dependency-path: backend/go.sum
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
@@ -1157,7 +1159,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: backend/go.mod
+          cache-dependency-path: backend/go.sum
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
@@ -1202,7 +1204,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: tools/go.mod
+          cache-dependency-path: backend/go.sum
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
@@ -1257,7 +1259,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: tools/go.mod
+          cache-dependency-path: backend/go.sum
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
