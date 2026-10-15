@@ -328,8 +328,10 @@ jobs:
           #                 rive_native, geolocator*, file_picker*,
           #                 android_file_picker, windows_file_picker;
           #                 sqlcipher_flutter_libs, with OpenSSL's Apache-2.0
-          #   MPL-2.0       dbus, gsettings
+          #   MPL-2.0       dbus, gsettings; riverqueue/river/rivershared,
+          #                 with a vendored MIT levenshtein package
           allow-dependencies-licenses: >-
+            pkg:golang/github.com/riverqueue/river/rivershared,
             pkg:golang/golang.org/x/net, pkg:golang/golang.org/x/sync,
             pkg:golang/golang.org/x/sys, pkg:golang/golang.org/x/text,
             pkg:pub/_fe_analyzer_shared, pkg:pub/analyzer,
