@@ -7,6 +7,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show MissingPluginException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -16,6 +17,7 @@ import 'package:plux_flutter/src/core/runtime.dart';
 import 'package:plux_flutter/src/render/page_renderer.dart';
 import 'package:plux_flutter/src/state/providers.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
+import 'package:plux_flutter/src/sync/api_client.dart' show DeviceCredential;
 import 'package:plux_flutter/src/sync/sync_engine.dart';
 
 import '../support/entering.dart';
@@ -45,6 +47,22 @@ final class _TestRenderer with AllowsEveryGuard implements PageRenderer {
 }
 
 http.Client _client() => http.Client();
+
+/// A credential store whose platform channel is not implemented, as on a
+/// desktop: every read throws, outside the failures a sync names.
+final class _MissingPluginCredentials implements CredentialStore {
+  _MissingPluginCredentials();
+
+  @override
+  Future<DeviceCredential?> read() =>
+      Future.error(MissingPluginException('no secretRead'));
+
+  @override
+  Future<void> write(DeviceCredential credential) async {}
+
+  @override
+  Future<void> clear() async {}
+}
 
 final _hostValue = Provider<int>((ref) => 0);
 
@@ -113,12 +131,13 @@ void main() {
     PluxConfig c, {
     Map<String, Uint8List>? baseline,
     Duration healthy = const Duration(hours: 1),
+    CredentialStore Function() credentials = MemoryCredentialStore.new,
   }) async {
     final files = baseline ?? const <String, Uint8List>{};
     final s = await Plux.initializeWith(
       c,
       RuntimeOverrides(
-        credentials: MemoryCredentialStore.new,
+        credentials: credentials,
         configSecrets: MemorySecretStore.new,
         deviceKeys: FakeDeviceKeys.new,
         attestation: FakeAttestation.new,
@@ -267,6 +286,36 @@ void main() {
       expect(startup!.sequence, 10, reason: '${startup.error} $errors');
       expect(Plux.container.read(activeReleaseProvider)!.sequence, 10);
       expect(Plux.container.read(syncStatusProvider), isA<SyncActivated>());
+    },
+  );
+
+  // Verifies: SYN-013.
+  testWidgets(
+    'a sync that fails in an unexpected way is published as failed, and the sync isolate still answers a dispose at once [SYN-013]',
+    (tester) async {
+      await tester.runAsync(() async {
+        server.release = null;
+        await start(
+          config(),
+          baseline: await server.baseline(5, demo, {'loans': loans}),
+          credentials: _MissingPluginCredentials.new,
+        );
+      });
+      await settle(
+        tester,
+        () => Plux.container.read(syncStatusProvider) is SyncFailed,
+      );
+      final failed = Plux.container.read(syncStatusProvider)! as SyncFailed;
+      expect(failed.error.code, PluxErrorCode.syncFailed);
+      expect(failed.error.message, contains('MissingPluginException'));
+      expect(failed.error.message, isNot(contains('secretRead')));
+
+      final elapsed = await tester.runAsync(() async {
+        final watch = Stopwatch()..start();
+        await Plux.dispose();
+        return watch.elapsed;
+      });
+      expect(elapsed, lessThan(const Duration(seconds: 1)));
     },
   );
 

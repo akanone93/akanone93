@@ -534,6 +534,20 @@ final class SyncEngine {
         started,
         bytes.n,
       );
+    } on Object catch (e) {
+      // An unexpected failure must not end the sync isolate: its loop would
+      // stop answering settle and close, and every later call. Only the
+      // type is named, since nothing the message says is known to be free
+      // of request content (SCH-012).
+      return _failed(
+        emit,
+        PluxException(
+          PluxErrorCode.syncFailed,
+          'the sync failed: ${e.runtimeType}',
+        ),
+        started,
+        bytes.n,
+      );
     }
   }
 

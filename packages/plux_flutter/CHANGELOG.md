@@ -50,7 +50,12 @@ Phase 7 adds Plux Functions to the same unreleased version:
 - **User claims (SEC-026, HST-010):** the auth delegate's token is exchanged for the
   audience `function:<name>` and sent as `Plux-User-Token`, refreshed once on `PLX-6016`.
 - **Fixes:** the built-in database adapter closes after an operation made in a test's
-  fake-async zone.
+  fake-async zone. An unexpected failure in a sync, such as a platform call that fails
+  with `MissingPluginException` on a desktop or a keystore `PlatformException`, is now a
+  failed sync (`PLX-3050`, naming only the error's type) instead of ending the
+  sync isolate. Before, the sync never finished and no later sync ran, a first start with
+  no baseline never returned, and `Plux.dispose()` waited out its 1 s settle and 5 s
+  close timeouts (SYN-013).
 
 ## 0.3.0
 
