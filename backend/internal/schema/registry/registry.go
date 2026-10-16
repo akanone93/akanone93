@@ -46,6 +46,12 @@ const (
 	RoleHeader
 	RoleList
 	RoleProgress
+	RoleTab
+	RoleMenu
+	RoleMenuItem
+	RoleLink
+	RoleGroup
+	RoleAlert
 )
 
 // Widget is a widget descriptor (WGT-001).
