@@ -1,0 +1,75 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "SearchField",
+  "id": 172,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "search",
+  "description": "A search box that reports the query once typing pauses, with optional suggestions.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 120,
+  "accessibility": {
+    "role": "textField",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "value",
+      "id": 1,
+      "type": "string",
+      "default": "",
+      "description": "The text in the field."
+    },
+    {
+      "name": "hint",
+      "id": 2,
+      "type": "string?",
+      "translatable": true,
+      "description": "The placeholder."
+    },
+    {
+      "name": "debounceMs",
+      "id": 3,
+      "type": "int",
+      "default": 300,
+      "constraints": {
+        "min": 0,
+        "max": 5000
+      },
+      "description": "How long typing must pause before `onSearch` fires, in milliseconds."
+    },
+    {
+      "name": "suggestions",
+      "id": 4,
+      "type": "list<string>",
+      "default": [],
+      "description": "Suggestions shown below the field while it has text."
+    }
+  ],
+  "events": [
+    {
+      "name": "onSearch",
+      "id": 1,
+      "payload": "string",
+      "description": "Fires with the query after typing pauses for `debounceMs`."
+    },
+    {
+      "name": "onSuggestionSelected",
+      "id": 2,
+      "payload": "string",
+      "description": "Fires with the suggestion the person picked."
+    }
+  ]
+}

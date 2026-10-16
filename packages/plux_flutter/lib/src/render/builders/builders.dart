@@ -124,9 +124,12 @@ Widget _slot(NodeContext c) {
 
 // ── Collections (WGT-012) ──────────────────────────────────────────────────
 
-/// What a collection shows: its items, or the slot of its status.
-final class _Collection {
-  _Collection(
+/// What a collection shows: its items, or the slot of its status. Shared with
+/// the Layer 2 `InfiniteList`.
+final class ItemCollection {
+  /// Reads collection [c] through the permanent IDs of its props, slots
+  /// and events.
+  ItemCollection(
     this.c, {
     required this.items,
     required this.status,
@@ -138,7 +141,11 @@ final class _Collection {
     required this.error,
   });
 
+  /// The node.
   final NodeContext c;
+
+  /// The IDs of the props `items`, `status` and `hasMore`, the event
+  /// `onEndReached`, and the slots `item`, `empty`, `loading` and `error`.
   final int items,
       status,
       hasMore,
@@ -148,6 +155,7 @@ final class _Collection {
       loading,
       error;
 
+  /// The items; empty when the prop is absent.
   late final List<Object?> values = switch (c.prop(items)) {
     final List<Object?> v => v,
     _ => const [],
@@ -231,7 +239,7 @@ SliverGridDelegate _gridDelegate(
 }
 
 Widget _listView(NodeContext c) {
-  final l = _Collection(
+  final l = ItemCollection(
     c,
     items: ListViewProps.items,
     status: ListViewProps.status,
@@ -279,7 +287,7 @@ Widget _listView(NodeContext c) {
 }
 
 Widget _gridView(NodeContext c) {
-  final l = _Collection(
+  final l = ItemCollection(
     c,
     items: GridViewProps.items,
     status: GridViewProps.status,
@@ -334,7 +342,7 @@ Widget _gridView(NodeContext c) {
 }
 
 Widget _pageView(NodeContext c) {
-  final l = _Collection(
+  final l = ItemCollection(
     c,
     items: PageViewProps.items,
     status: PageViewProps.status,
@@ -373,7 +381,7 @@ Widget _pageView(NodeContext c) {
 }
 
 Widget _sliverList(NodeContext c) {
-  final l = _Collection(
+  final l = ItemCollection(
     c,
     items: SliverListProps.items,
     status: SliverListProps.status,
@@ -401,7 +409,7 @@ Widget _sliverList(NodeContext c) {
 }
 
 Widget _sliverGrid(NodeContext c) {
-  final l = _Collection(
+  final l = ItemCollection(
     c,
     items: SliverGridProps.items,
     status: SliverGridProps.status,

@@ -1,0 +1,35 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "StatusTimeline",
+  "id": 180,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "feedback",
+  "icon": "timeline",
+  "description": "A vertical timeline of steps, each done, current, pending or failed; the current step is announced.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 70,
+  "accessibility": {
+    "role": "list",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "steps",
+      "id": 1,
+      "type": "list<TimelineStep>",
+      "required": true,
+      "description": "The steps, in order."
+    }
+  ]
+}

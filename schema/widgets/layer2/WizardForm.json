@@ -1,0 +1,99 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "WizardForm",
+  "id": 176,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "linear_scale",
+  "description": "A multi-step form: one child per step, a progress indicator, and Back, Next and Submit buttons that validate the step through the enclosing form.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 160,
+  "accessibility": {
+    "role": "none",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "titles",
+      "id": 1,
+      "type": "list<string>",
+      "required": true,
+      "description": "The title of each step, in order."
+    },
+    {
+      "name": "currentStep",
+      "id": 2,
+      "type": "int",
+      "default": 0,
+      "constraints": {
+        "min": 0
+      },
+      "description": "The zero-based step shown."
+    },
+    {
+      "name": "stepFields",
+      "id": 3,
+      "type": "list<string>",
+      "default": [],
+      "description": "For each step, the comma-separated form fields it holds; Next validates those fields through the enclosing `FormScope`."
+    },
+    {
+      "name": "backLabel",
+      "id": 4,
+      "type": "string",
+      "default": "Back",
+      "translatable": true,
+      "description": "The Back button's text."
+    },
+    {
+      "name": "nextLabel",
+      "id": 5,
+      "type": "string",
+      "default": "Next",
+      "translatable": true,
+      "description": "The Next button's text."
+    },
+    {
+      "name": "submitLabel",
+      "id": 6,
+      "type": "string",
+      "default": "Submit",
+      "translatable": true,
+      "description": "The Submit button's text, on the last step."
+    }
+  ],
+  "events": [
+    {
+      "name": "onNext",
+      "id": 1,
+      "payload": "int",
+      "description": "Fires with the step now shown, once the current step is valid."
+    },
+    {
+      "name": "onBack",
+      "id": 2,
+      "payload": "int",
+      "description": "Fires with the step now shown when the person goes back."
+    },
+    {
+      "name": "onSubmit",
+      "id": 3,
+      "description": "Fires when the last step is valid and the person submits."
+    }
+  ],
+  "children": {
+    "min": 1
+  }
+}
