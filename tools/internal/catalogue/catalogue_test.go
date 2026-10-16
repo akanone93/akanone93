@@ -20,6 +20,7 @@ func TestParseWidgetRow(t *testing.T) {
 		{"pair", "| `Container` | P3 | `Row` | P4 |", []Entry{{"Container", 3}, {"Row", 4}}},
 		{"parens", "| `GridView` (item template) | P3 | `Image` (asset, network) | P5 |", []Entry{{"GridView", 3}, {"Image", 5}}},
 		{"slash", "| `RichText` / `Text.rich` | P3 | `Text` | P3 |", []Entry{{"RichText", 3}, {"Text", 3}}},
+		{"slash both widgets", "| `TextField` / `TextFormField` | P3 |", []Entry{{"TextField", 3}, {"TextFormField", 3}}},
 		{"multi name cell", "| `TabBar`, `TabBarView` | P4 | `Tab` | P4 |", []Entry{{"TabBar", 4}, {"TabBarView", 4}, {"Tab", 4}}},
 		{"c1 purpose ignored", "| `If` | Conditional with `Then` slots | P3 |", []Entry{{"If", 3}}},
 		{"c9 shape", "| `LineChart`, `BarChart` | Charts | P5 | `plux_charts` |", []Entry{{"LineChart", 5}, {"BarChart", 5}}},
@@ -66,7 +67,7 @@ func TestBuilderDetection(t *testing.T) {
 		t.Errorf("ids = %v", ids)
 	}
 	b := NewBuilders(ids)
-	b.ScanHandWritten("WidgetIds.listView: _listView,\nWidgetIds.if_: _if,\n_widget('SecureTextField')\n")
+	b.ScanHandWritten("WidgetIds.listView: _listView,\nWidgetIds.if_: _if,\n_widget('SecureTextField')\nformScopeWidgetId: _formScope,\n")
 	for _, tc := range []struct {
 		name string
 		id   int
@@ -76,6 +77,7 @@ func TestBuilderDetection(t *testing.T) {
 		{"ListView", 1, true},
 		{"If", 2, true},
 		{"SecureTextField", 3, true},
+		{"FormScope", 5, true},
 		{"TabBar", 4, false},
 	} {
 		if got := b.Has(tc.name, tc.id); got != tc.want {

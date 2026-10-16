@@ -55,8 +55,9 @@ func phaseOf(cell string) (int, bool) {
 
 // ParseWidgetRow extracts the widgets of one Appendix C table row. A name
 // cell is the first cell or the cell right after a phase cell; it is paired
-// with the next phase cell. Text in parentheses and names after a "/" are
-// ignored.
+// with the next phase cell. Text in parentheses is ignored; every backticked
+// identifier counts, "/" alternatives included, except dotted ones such as
+// `Text.rich`.
 func ParseWidgetRow(line string) []Entry {
 	var out []Entry
 	var pending []string
@@ -75,9 +76,6 @@ func ParseWidgetRow(line string) []Entry {
 		}
 		expectName = false
 		c = parens.ReplaceAllString(c, "")
-		if i := strings.Index(c, "/"); i >= 0 {
-			c = c[:i]
-		}
 		for _, m := range widgetName.FindAllStringSubmatch(c, -1) {
 			pending = append(pending, m[1])
 		}
@@ -185,6 +183,7 @@ func loadDescriptors(dir string, key func(descriptorJSON) string, out map[string
 var (
 	generatedLine = regexp.MustCompile(`^\s*(\d+):\s*[A-Za-z_]\w*,`)
 	widgetIDsRef  = regexp.MustCompile(`WidgetIds\.([a-z]\w*)`)
+	widgetIDConst = regexp.MustCompile(`\b([a-z]\w*)WidgetId\b`)
 	stringLiteral = regexp.MustCompile(`'([A-Z][A-Za-z0-9]*)'`)
 	actionKey     = regexp.MustCompile(`'([a-z][A-Za-z0-9]*)'\s*:`)
 )
@@ -255,6 +254,9 @@ func (b *Builders) ScanHandWritten(src string) {
 	for _, m := range widgetIDsRef.FindAllStringSubmatch(src, -1) {
 		b.refs[m[1]] = true
 	}
+	for _, m := range widgetIDConst.FindAllStringSubmatch(src, -1) {
+		b.refs[m[1]] = true
+	}
 }
 
 // Has reports whether a widget is built.
@@ -319,12 +321,14 @@ func Check(root string, phase int) ([]string, error) {
 		}
 	}
 	handlers := map[string]bool{}
-	if err := handWrittenDart(filepath.Join(root, "packages", "plux_flutter", "lib", "src", "actions"), func(src string) {
-		for _, m := range actionKey.FindAllStringSubmatch(src, -1) {
-			handlers[m[1]] = true
+	for _, p := range pkgs {
+		if err := handWrittenDart(p, func(src string) {
+			for _, m := range actionKey.FindAllStringSubmatch(src, -1) {
+				handlers[m[1]] = true
+			}
+		}); err != nil {
+			return nil, err
 		}
-	}); err != nil {
-		return nil, err
 	}
 
 	var out []string
