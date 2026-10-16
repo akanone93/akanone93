@@ -12,7 +12,7 @@ import (
 // A11yReport is the compiler's part of a release's accessibility report
 // (A11Y-008): every check run, every unwaived violation and every waiver.
 // The server adds the author and the release; the JSON form is described
-// by schema/json/a11y-report.schema.json. It is deterministic: the same
+// by schema/json/reports/a11y-report.schema.json. It is deterministic: the same
 // project always yields the same report.
 type A11yReport struct {
 	// Checks has one entry per check, sorted by name.

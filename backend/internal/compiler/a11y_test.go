@@ -481,7 +481,7 @@ func TestReportIsDeterministicAndValid_A11Y_008(t *testing.T) {
 		t.Errorf("want one contrast violation in the added nodes, got %+v", first.Violations)
 	}
 
-	path := filepath.Join("..", "..", "..", "schema", "json", "a11y-report.schema.json")
+	path := filepath.Join("..", "..", "..", "schema", "json", "reports", "a11y-report.schema.json")
 	f, err := os.Open(path) //nolint:gosec // G304: the repository's schema.
 	if err != nil {
 		t.Fatal(err)
