@@ -1138,15 +1138,14 @@ jobs:
             ~/.gradle/wrapper
           key: e2e-gradle-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-${{ hashFiles('pubspec.lock', 'apps/*/pubspec.lock', 'apps/*/android/**/*.gradle.kts', 'apps/*/android/gradle/wrapper/gradle-wrapper.properties', 'apps/add_to_app/android_host/**/*.gradle.kts', 'packages/*/android/**') }}
           restore-keys: e2e-gradle-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-
-      # The emulator and the API 35 system image: downloading them in ten
-      # jobs at once broke an archive in run 37644772933. Android 26, which
-      # runs only daily, manually and for pull requests that change Android
-      # files, downloads its image: its 1.3 GB cache pushed the repository
-      # past its 10 GB, which evicted every other cache (ADR-0043, Revision
-      # 2026-10-16).
+      # The emulator and the system image: downloading them in ten jobs at
+      # once broke an archive in run 37644772933. Every API level restores
+      # its cache, so the emulator stays the cached one (a fresh download
+      # brought an emulator adb listed twice on Android 26); only API 35
+      # saves, as Android 26's 1.3 GB pushed the repository past its 10 GB
+      # (ADR-0043, Revision 2026-10-16).
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: android-sdk
-        if: matrix.api == 35
         with:
           path: |
             /usr/local/lib/android/sdk/emulator
