@@ -25,6 +25,8 @@ How TypeScript in Plux Studio (`studio/`) is written. Biome ([studio/biome.json]
 
 ## 4. React (from P11)
 
+How Studio is structured, styled, localised, tested and verified by agents is [studio-development.md](studio-development.md); the rules below are the TypeScript-level summary.
+
 - Function components and hooks only. Server state lives in TanStack Query, local UI state in component state or a small store (`STU-004`).
 - Components are accessible by construction: semantic elements, labels, keyboard support and visible focus (`STU-011`).
 - The canvas keeps rendering off React's render path; React renders panels and chrome, Plux Canvas renders the scene (`STU-003`).

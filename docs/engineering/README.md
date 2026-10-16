@@ -10,6 +10,7 @@ How Plux is built. The [specification](../requirements.md) says *what* the syste
 | [go-standards.md](go-standards.md) | Go: layout, naming, comments, size limits, errors, concurrency |
 | [dart-standards.md](dart-standards.md) | Dart and Flutter: API design, state, isolates, widgets, documentation |
 | [typescript-standards.md](typescript-standards.md) | TypeScript and Studio: strictness, modules, React, Biome |
+| [studio-development.md](studio-development.md) | Studio: structure, design system, localisation and RTL, canvas, testing, performance, agent context rules |
 | [error-handling.md](error-handling.md) | The unified error model and error codes across components |
 | [testing.md](testing.md) | Test strategy, conventions per language, traceability, coverage |
 | [dependencies.md](dependencies.md) | Dependency policy and allowlists per ecosystem |

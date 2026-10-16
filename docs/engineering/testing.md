@@ -17,7 +17,7 @@ How Plux is tested. The strategy and thresholds are specified in spec §28; this
 |---|---|---|
 | Unit, property, fuzz (Go) | next to the code, `*_test.go` | every change: `make go-cover` (with `-race`) |
 | Unit and widget (Dart) | `packages/<pkg>/test/*_test.dart` | every change: `make dart-cover` |
-| Unit (TypeScript) | next to the code, `*.test.ts` | every change: `make studio-cover` |
+| Unit and component (TypeScript) | next to the code, `*.test.ts`, `*.test.tsx`; Studio's levels in [studio-development.md](studio-development.md) §12 | every change: `make studio-cover` |
 | Repository policy | `tools/internal/policy` | every change |
 | Integration, one package against real infrastructure | next to the code, `*_integration_test.go` | from P2, every pull request (`QA-005`) |
 | Integration, several components together | `test/integration/` | from P2, every pull request (`QA-005`) |

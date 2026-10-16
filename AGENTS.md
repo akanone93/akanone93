@@ -81,7 +81,7 @@ The maintainer decides. The chosen document change lands in the **same pull requ
 | Anything at all | This file, `docs/WORKLOG.md`, the current phase in spec §5 |
 | Go code (`backend/`, `tools/`) | `backend/AGENTS.md` or `tools/AGENTS.md`, [go-standards.md](docs/engineering/go-standards.md) |
 | Dart or Flutter code (`packages/`, `apps/`) | `packages/AGENTS.md`, [dart-standards.md](docs/engineering/dart-standards.md) |
-| Studio (`studio/`) | `studio/AGENTS.md`, [typescript-standards.md](docs/engineering/typescript-standards.md), spec §21 |
+| Studio (`studio/`) | `studio/AGENTS.md`, [studio-development.md](docs/engineering/studio-development.md), [typescript-standards.md](docs/engineering/typescript-standards.md), spec §21 |
 | Contracts (`schema/`, `proto/`, bundle format) | `schema/README.md`, spec §7–§9, [system-invariants.md](docs/engineering/system-invariants.md) §2 |
 | Errors and error codes | [error-handling.md](docs/engineering/error-handling.md), spec Appendix F |
 | Security in any form | [security-practices.md](docs/engineering/security-practices.md), spec §15 |
@@ -160,6 +160,7 @@ These are not guidelines. A change that breaks one is not mergeable.
 - Deviating from, or reinterpreting, a requirement or any other document — including when the document looks wrong. Present it as described in §3.
 - Resolving an ambiguity in the spec or a conflict between sources of truth.
 - Deleting tests, data or history, or rewriting published commits.
+- Using screenshots or other images of the UI while working on Studio ([studio-development.md](docs/engineering/studio-development.md) §13.1).
 
 When you stop, state the question, the options, and your recommendation with its trade-off.
 
