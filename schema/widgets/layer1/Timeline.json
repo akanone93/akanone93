@@ -11,7 +11,7 @@
       "runtime": "0.5.0"
     }
   ],
-  "category": "animation",
+  "category": "structure",
   "icon": "timeline",
   "description": "Plays a page timeline for its subtree: it starts the named timeline when shown, and optionally restarts it when it ends (ANI-002).",
   "platforms": [
