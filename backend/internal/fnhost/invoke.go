@@ -72,7 +72,25 @@ func (e *Engine) invoke(ctx context.Context, st *callState) (Outcome, error) {
 	if err != nil {
 		return Outcome{}, classify(st, err)
 	}
+	if err := expired(ctx); err != nil {
+		return Outcome{}, err
+	}
 	return decodeResult(mod, packed, c.Limits.OutputBytes)
+}
+
+// expired reports a guest that returned after its deadline or cancellation,
+// before the runtime closed it: a host call bounded by the invocation, such
+// as an HTTP request, ends with the deadline and hands the guest an error it
+// can still answer. The invocation exceeded its time limit all the same
+// (FN-011).
+func expired(ctx context.Context) error {
+	switch err := ctx.Err(); {
+	case errors.Is(err, context.DeadlineExceeded):
+		return plxerr.New(plxerr.FunctionTimeout, "the function exceeded its time limit")
+	case err != nil:
+		return plxerr.New(plxerr.FunctionCancelled, "the invocation was cancelled")
+	}
+	return nil
 }
 
 // run initialises the instance, passes the input through plux_alloc and
