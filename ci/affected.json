@@ -6,7 +6,7 @@
     "dart names Dart packages: their pub workspace dependencies are followed, without the dependencies' tests, examples and Markdown.",
     "exclude removes files from all of a job's roots. make lists what `make check-changed` runs for the job.",
     "everything: a change runs every job. noJob: files no selectable job reads (documentation, local scripts, the nightly load test, inputs of the always-on checks); alone they run only the always-on jobs.",
-    "A changed file in neither list nor any job's roots runs every job. Pushes to main, the merge queue, the daily run and manual runs run every job."
+    "A changed file in neither list nor any job's roots runs every job. Pushes to main and the merge queue run every job except those marked skipOnPush; the daily run and manual runs run every job."
   ],
   "always": [
     "changes",
@@ -79,7 +79,7 @@
       "make": ["proto-check"]
     },
     "go-test": {
-      "description": "Go tests of both modules with the race detector and coverage floors; tests also read schema/, the generated Dart and TypeScript, the benchmark's baseline, and (the policy tests) the workflows, manifests, packages' READMEs, changelogs and examples, and the specification",
+      "description": "Go tests of both modules with the race detector, and with coverage floors, in two parallel jobs; tests also read schema/, the generated Dart and TypeScript, the benchmark's baseline, and (the policy tests) the workflows, manifests, packages' READMEs, changelogs and examples, and the specification",
       "paths": [
         "backend/**",
         "tools/**",
@@ -108,10 +108,10 @@
         "**/pubspec.yaml",
         "**/package.json"
       ],
-      "make": ["go-cover"]
+      "make": ["go-test-race", "go-cover"]
     },
     "go-determinism": {
-      "description": "The compiler reproduces the committed goldens byte for byte on Linux, macOS and Windows (CMP-002)",
+      "description": "The compiler reproduces the committed goldens byte for byte on Linux, macOS and Windows (CMP-002); on macOS in the size-ios job, which runs when either is selected",
       "goTest": ["backend/internal/pxl", "backend/internal/bundle", "backend/internal/compiler", "backend/cmd/plux"],
       "paths": ["schema/**", "mk/go.mk"],
       "exclude": ["**/*.md"],
@@ -235,8 +235,9 @@
       "exclude": ["**/*.md", "**/ios/**"]
     },
     "e2e-android-26": {
-      "description": "The Android 26 emulator: on pushes to main, the daily and manual runs, and pull requests that change Android-specific files or dependencies (maintainer, 2026-10-01)",
+      "description": "The Android 26 emulator: on the daily and manual runs, and pull requests that change Android-specific files or dependencies (maintainer, 2026-10-01); not on pushes to main (2026-10-16)",
       "ci": "e2e-android",
+      "skipOnPush": true,
       "paths": [
         "apps/starter/android/**",
         "apps/plux_bank/android/**",
@@ -252,10 +253,11 @@
       ]
     },
     "e2e-ios": {
-      "description": "The starter app's flows and the Swift add-to-app host's on the newest iOS simulator under XCTest: on pull requests for the runtime, the starter app and their dependencies, iOS-specific files and the flows' fixture, not for server-only changes, which the Android 35 job runs on a device (maintainer, 2026-10-01)",
+      "description": "The starter app's flows and the Swift add-to-app host's on the newest iOS simulator under XCTest: on pull requests for the runtime, the starter app and their dependencies, iOS-specific files and the flows' fixture, not for server-only changes, which the Android 35 job runs on a device (maintainer, 2026-10-01); on the daily and manual runs, not on pushes to main (2026-10-16)",
       "dart": ["apps/starter", "apps/add_to_app/plux_module", "apps/plux_bank", "apps/plux_express"],
       "paths": ["test/e2e/ios.sh", "test/refapi/**", "schema/testdata/documents/starter/**", "schema/testdata/documents/plux_bank/**", "schema/testdata/documents/plux_express/**", "mk/device.mk", "backend/internal/generator/templates/ios/**", "apps/add_to_app/ios_host/**"],
-      "exclude": ["**/*.md", "**/android/**"]
+      "exclude": ["**/*.md", "**/android/**"],
+      "skipOnPush": true
     },
     "bench-runtime": {
       "description": "The runtime benchmark against the base's runtime (QA-007)",
@@ -279,7 +281,7 @@
       "exclude": ["**/*.md", "**/ios/**"]
     },
     "size-ios": {
-      "description": "What plux_flutter adds to a release iOS app (RT-061)",
+      "description": "What plux_flutter adds to a release iOS app (RT-061); its job also checks the compiler's goldens on macOS (go-determinism)",
       "go": ["tools/cmd/sizegate"],
       "dart": ["test/size/plux", "apps/starter", "apps/plux_bank"],
       "paths": ["test/size/**", "test/release/**", "mk/bench.mk"],

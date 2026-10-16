@@ -23,7 +23,7 @@ in this repository; "P6" and "P11" mark controls that belong to a later phase.
 | V12 Secure communication | TLS | TLS terminated in front of the server (Compose: localhost only; production: load balancer or ingress); outbound calls use TLS with system roots | `deploy/compose/compose.yaml`, `internal/httpx` |
 | V13 Configuration | Secrets, dependencies, hardening | Strict configuration refusing unknown keys and unsafe values; secrets only from the environment; allowlisted and vulnerability-scanned dependencies (`govulncheck`); distroless non-root images (`SEC-108`) | `internal/config` tests, CI `go-vuln`, `backend/Dockerfile` |
 | V14 Data protection | Sensitive data | Redacting logger, fixed metric labels, sensitive-looking telemetry fields refused, secrets never returned after creation, retention sweeps | `internal/observability`, `internal/telemetry`, `internal/tenancy` tests |
-| V15 Secure coding and architecture | Dependencies, SSRF, concurrency | Layering rules (spec §6.7); SSRF-safe client (`SEC-105`); `-race` in CI; fuzz targets for every parser | CI `go-cover`, nightly fuzz |
+| V15 Secure coding and architecture | Dependencies, SSRF, concurrency | Layering rules (spec §6.7); SSRF-safe client (`SEC-105`); `-race` in CI; fuzz targets for every parser | CI `go-test-race`, nightly fuzz |
 | V16 Logging and error handling | Security events, errors | Append-only audit chain (`SEC-140`); errors mapped to stable codes, internal failures reported only as an incident ID (`SRV-006`) | `internal/audit`, `internal/api` tests |
 | V17 WebRTC | — | Not used | — |
 

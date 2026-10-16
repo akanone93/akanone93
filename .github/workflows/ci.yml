@@ -4,8 +4,9 @@
 #   - On a pull request, each job runs only when the change can affect it:
 #     tools/cmd/affected reads ci/affected.json, follows the Go and Dart
 #     dependency graphs and this file's job blocks, and runs everything
-#     when in doubt. Pushes to main, the merge queue, the daily run and
-#     manual runs run every job.
+#     when in doubt. Pushes to main and the merge queue run every job
+#     except the iOS and Android 26 device flows; the daily run and manual
+#     runs run every job (ADR-0043, Revision 2026-10-16).
 #   - Repository jobs (hygiene, secrets, specification, workflows, licensing,
 #     links, docs site, SBOM) always run; they are fast.
 #   - "CI OK" depends on every job and is the single required status check of
@@ -15,9 +16,16 @@
 #   - Compiler output is checked against the goldens on Linux, macOS and
 #     Windows (CMP-002); fuzzing runs on a schedule in fuzz.yml.
 #   - Actions are pinned to full commit SHAs; permissions are read-only unless
-#     a job needs more; checkouts never persist credentials. The tool,
-#     Gradle and package caches are restored by every run and saved only by
-#     runs that are not pull requests (ADR-0043).
+#     a job needs more; checkouts never persist credentials.
+#   - Caches are restored by every run and saved only by runs that are not
+#     pull requests, each by one named job, so the repository's 10 GB stay
+#     enough and a pull request never writes one (ADR-0043, Revision
+#     2026-10-16): Go's modules and builds, one per OS (Linux: the Android
+#     35 starter shard; macOS: the iOS starter shard; Windows: Go
+#     determinism); Flutter and the pub cache (Linux: Dart and Flutter;
+#     macOS: Size (iOS)); Gradle and the Android 35 system image (the
+#     Android 35 starter shard); the pinned tools, keyed on their pins (Go
+#     lint); the benchmark's package archives.
 
 name: CI
 
@@ -31,6 +39,11 @@ on:
   schedule:
     - cron: "17 5 * * *" # daily: newly published vulnerabilities
   workflow_dispatch:
+    inputs:
+      as-push:
+        description: Select the jobs a push to main runs, leaving out the daily-only ones (iOS, Android 26)
+        type: boolean
+        default: false
 
 permissions: {}
 
@@ -78,7 +91,8 @@ jobs:
       - name: Select the jobs the change affects
         id: select
         env:
-          EVENT: ${{ github.event_name }}
+          # A manual run with as-push selects as a push to main does.
+          EVENT: ${{ github.event_name == 'workflow_dispatch' && inputs.as-push && 'push' || github.event_name }}
         run: |
           base=()
           if [ "$EVENT" = pull_request ]; then base=(-base HEAD^1 -head HEAD); fi
@@ -388,27 +402,46 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: |
-            backend/go.mod
-            tools/go.mod
-      # The pinned Go tools, built once per pin set (the Makefile) and
-      # toolchain (go.mod) instead of on every run.
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
+      # The pinned Go tools, built once per set of pins and the toolchain
+      # that builds them, and flatc, built from source at its pinned commit
+      # (ADR-0002): keyed on the pins alone, so neither a dependency update
+      # nor another change to the Makefile rebuilds them.
+      - name: Tool pins
+        id: pins
+        run: |
+          echo "go-tools=$(make -s go-tool-pins | sha256sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
+          echo "flatc=$(make -s flatc-pin)" >> "$GITHUB_OUTPUT"
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: go-tools
         with:
           path: ~/go/bin
-          key: go-tools-${{ runner.os }}-${{ hashFiles('Makefile', 'backend/go.mod') }}
+          key: go-tools-${{ runner.os }}-${{ steps.pins.outputs.go-tools }}
       - if: steps.go-tools.outputs.cache-hit != 'true'
         run: make install-golangci-lint install-buf install-sqlc
       - name: Format, lint, tidiness
         run: make go-fmt-check go-lint go-tidy-check
-      # flatc is built from source at its pinned commit (ADR-0002); the
-      # cache is keyed by the Makefile, which holds the pin.
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: flatc
         with:
           path: ~/.cache/plux
-          key: flatc-${{ runner.os }}-${{ hashFiles('Makefile') }}
+          key: flatc-${{ runner.os }}-${{ steps.pins.outputs.flatc }}
       - run: make install-flatc
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: github.event_name != 'pull_request' && steps.flatc.outputs.cache-hit != 'true'
+        with:
+          path: ~/.cache/plux
+          key: ${{ steps.flatc.outputs.cache-primary-key }}
       # `make gen` also regenerates the API contract's Go code (ADR-0005)
       # and the server's query code from its SQL (ADR-0007), with the tools
       # installed above.
@@ -442,20 +475,41 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: backend/go.mod
-      - run: make install-buf
+          cache: false
+      # buf and its plugins from Go lint's cache of the pinned tools.
+      - name: Tool pins
+        id: pins
+        run: echo "go-tools=$(make -s go-tool-pins | sha256sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: go-tools
+        with:
+          path: ~/go/bin
+          key: go-tools-${{ runner.os }}-${{ steps.pins.outputs.go-tools }}
+      - if: steps.go-tools.outputs.cache-hit != 'true'
+        run: make install-buf
       # Verifies: SRV-000, SRV-002.
       - name: Lint, format and breaking-change check
         run: make proto-check
 
+  # The race detector and coverage run in two parallel jobs: together
+  # the two instrumentations cost more than each alone (ADR-0043,
+  # Revision 2026-10-16); coverage is the same either way.
   go-test:
-    name: Go test
+    name: Go test (${{ matrix.part }})
     needs: changes
     if: fromJSON(needs.changes.outputs.jobs)['go-test']
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - part: race detector
+            target: go-test-race
+          - part: coverage
+            target: go-cover
     # Integration tests run against real infrastructure, never fakes
     # (QA-005). Without PLUX_TEST_DATABASE_URL they skip, so the same
     # command is useful on a developer's machine.
@@ -482,9 +536,17 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: |
-            backend/go.mod
-            tools/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
       # The tests connect as a role row-level security binds, as the
       # server must (SRV-022); the image's own user is a superuser.
       - name: Create the application role
@@ -494,10 +556,13 @@ jobs:
           psql -h 127.0.0.1 -U postgres -d plux_test -v ON_ERROR_STOP=1 -c \
             "CREATE ROLE plux LOGIN NOSUPERUSER NOBYPASSRLS PASSWORD 'plux'; GRANT CONNECT, CREATE, TEMPORARY ON DATABASE plux_test TO plux; ALTER SCHEMA public OWNER TO plux;"
       # Verifies: QA-001.
-      - name: Tests with race detector and coverage floors
-        run: make go-cover | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Tests with the race detector, or with coverage floors
+        env:
+          TARGET: ${{ matrix.target }}
+        run: make "$TARGET" | tee -a "$GITHUB_STEP_SUMMARY"
       # ubuntu-latest is the reference runner of the timing budgets.
       - name: Compiler timing budgets
+        if: matrix.target == 'go-cover'
         run: make go-budgets | tee -a "$GITHUB_STEP_SUMMARY"
 
   compose:
@@ -515,7 +580,17 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: backend/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
       # Verifies: DEP-002.
       - name: Build and start the single-node stack
         run: make compose-up
@@ -591,6 +666,9 @@ jobs:
       - name: Build the image; the shipped SVG compiler reproduces the amd64 golden
         run: make image-check
 
+  # On Linux and Windows here; on macOS in the Size (iOS) job, so the macOS
+  # jobs fit GitHub's five concurrent macOS runners (ADR-0043, Revision
+  # 2026-10-16).
   go-determinism:
     name: Go determinism (${{ matrix.os }})
     needs: changes
@@ -598,7 +676,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     permissions:
@@ -610,16 +688,18 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: |
-            backend/go.mod
-            tools/go.mod
-      # macOS ships GNU Make 3.81, which ignores .SHELLFLAGS; the Makefile
-      # needs 4 or later.
-      - name: Use GNU Make 4 (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew install --quiet make
-          echo "$(brew --prefix)/opt/make/libexec/gnubin" >> "$GITHUB_PATH"
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: go-cache
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
       - name: Install make (Windows)
         if: runner.os == 'Windows'
         run: command -v make || choco install make --no-progress
@@ -627,6 +707,16 @@ jobs:
       # committed goldens, byte for byte.
       - name: Goldens are reproduced
         run: make go-determinism
+      # Windows' Go caches: this is the only job on Windows.
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: github.event_name != 'pull_request' && runner.os == 'Windows' && steps.go-cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: ${{ steps.go-cache.outputs.cache-primary-key }}
 
   go-build:
     name: Go build
@@ -747,9 +837,17 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: |
-            backend/go.mod
-            tools/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: ${{ env.BUN_VERSION }}
@@ -806,11 +904,30 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      # Flutter and the pub cache, one each per OS (header): the action
+      # names them without installing (dry run), every run restores them,
+      # then the action finds the SDK in place.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        id: flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          dry-run: true
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: flutter-cache
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.CACHE-KEY }}
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pub-cache
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
-          cache: true
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
@@ -818,11 +935,23 @@ jobs:
       # Verifies: CI-003.
       - name: Lockfile is committed
         run: make dart-lock-check
-      - name: Format, analyze, test with coverage floors
+      - name: Format, analyze, test with coverage floors (three packages at a time)
         run: make dart-fmt-check dart-analyze dart-cover | tee -a "$GITHUB_STEP_SUMMARY"
       # Verifies: WGT-003.
       - name: Flutter snapshot matches the pinned SDK
         run: make widgets-api-check
+      # Linux's Flutter and pub cache: this job resolves the whole pub
+      # workspace (dart-lock-check).
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: github.event_name != 'pull_request' && steps.flutter-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter-cache.outputs.cache-primary-key }}
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: github.event_name != 'pull_request' && steps.pub-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.pub-cache.outputs.cache-primary-key }}
 
   # The starter app's flows against a server built from source, under
   # flutter test on the runner (the device jobs below run them on an
@@ -860,12 +989,41 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: backend/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
+      # Flutter and the pub cache, one each per OS (header): the action
+      # names them without installing (dry run), every run restores them,
+      # then the action finds the SDK in place.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        id: flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          dry-run: true
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: flutter-cache
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.CACHE-KEY }}
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pub-cache
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
-          cache: true
       - name: Create the application role
         env:
           PGPASSWORD: postgres
@@ -881,12 +1039,15 @@ jobs:
   # (test/e2e/README.md). No emulator action: the runner's Android SDK
   # tools, and Xcode's simctl. Each flow runs as its own job (E2E_SHARD,
   # mk/device.mk): the starter, a generated project, the add-to-app hosts,
-  # Plux Bank and Plux Express. Build caches are restored on every run and
-  # saved by a passing push, scheduled or manual run, keyed on the
-  # toolchain and the lockfiles. GitHub scopes a cache to the branch that
-  # saved it: main's caches reach every branch, a branch's reach only that
-  # branch, and pull requests never save, so no branch or pull request can
-  # write a cache main reads (maintainer, 2026-10-07; ADR-0043, Revision).
+  # Plux Bank and Plux Express. Android 26 and iOS do not run on pushes to
+  # main or in the merge queue: a pull request that can affect them runs
+  # them, and so do the daily and manual runs (ADR-0043, Revision
+  # 2026-10-16). Caches are restored on every run and saved by a passing
+  # run that is not a pull request, keyed on the toolchain and the
+  # lockfiles. GitHub scopes a cache to the branch that saved it: main's
+  # caches reach every branch, a branch's reach only that branch, and pull
+  # requests never save, so no branch or pull request can write a cache
+  # main reads (maintainer, 2026-10-07; ADR-0043, Revision).
   e2e-android:
     name: Device end-to-end (Android ${{ matrix.api }}, ${{ matrix.shard }})
     needs: changes
@@ -926,16 +1087,49 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: backend/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: go-cache
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
+      # Flutter and the pub cache, one each per OS (header): the action
+      # names them without installing (dry run), every run restores them,
+      # then the action finds the SDK in place.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        id: flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          dry-run: true
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: flutter-cache
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.CACHE-KEY }}
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pub-cache
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
-          cache: true
-      # Gradle's distribution and caches, one for every shard (ADR-0043):
-      # each build downloads and transforms the same dependencies. The
-      # shards are short enough without their build outputs, which would
-      # crowd the repository's cache quota.
+      # Gradle's distribution and caches, one for every shard and the size
+      # jobs (ADR-0043): each build downloads and transforms the same
+      # dependencies. The shards are short enough without their build
+      # outputs, which would crowd the repository's cache quota. A changed
+      # lockfile starts from the previous cache: run 37644772933 started
+      # with none, and Maven Central answered ten parallel builds with 429
+      # Too Many Requests.
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: gradle
         with:
@@ -943,16 +1137,16 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: e2e-gradle-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-${{ hashFiles('pubspec.lock', 'apps/*/pubspec.lock', 'apps/*/android/**/*.gradle.kts', 'apps/*/android/gradle/wrapper/gradle-wrapper.properties', 'apps/add_to_app/android_host/**/*.gradle.kts', 'packages/*/android/**') }}
-          # main's Gradle cache from before the shards (key gradle-…) is the
-          # fallback: run 37644772933 started with none, and Maven Central
-          # answered ten parallel builds with 429 Too Many Requests.
-          restore-keys: |
-            e2e-gradle-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-
-            gradle-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-
-      # The emulator and its system image, per API level: downloading them
-      # in ten jobs at once broke an archive in run 37644772933.
+          restore-keys: e2e-gradle-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-
+      # The emulator and the API 35 system image: downloading them in ten
+      # jobs at once broke an archive in run 37644772933. Android 26, which
+      # runs only daily, manually and for pull requests that change Android
+      # files, downloads its image: its 1.3 GB cache pushed the repository
+      # past its 10 GB, which evicted every other cache (ADR-0043, Revision
+      # 2026-10-16).
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: android-sdk
+        if: matrix.api == 35
         with:
           path: |
             /usr/local/lib/android/sdk/emulator
@@ -978,7 +1172,17 @@ jobs:
         run: make e2e-android ANDROID_API="$API"
       # Saved by a passing run that is not a pull request (branch-scoped,
       # above), by the shard whose build has the most dependencies (the
-      # starter, with every plugin).
+      # starter, with every plugin), which also builds the server's tests and
+      # the CLI that every Linux job with Go builds.
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: github.event_name != 'pull_request' && matrix.api == 35 && matrix.shard == 'starter' && steps.go-cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: ${{ steps.go-cache.outputs.cache-primary-key }}
       - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: github.event_name != 'pull_request' && matrix.api == 35 && matrix.shard == 'starter' && steps.gradle.outputs.cache-hit != 'true'
         with:
@@ -986,9 +1190,8 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ steps.gradle.outputs.cache-primary-key }}
-      # One shard per API level saves the SDK packages, as for Gradle.
       - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        if: github.event_name != 'pull_request' && matrix.shard == 'starter' && steps.android-sdk.outputs.cache-hit != 'true'
+        if: github.event_name != 'pull_request' && matrix.api == 35 && matrix.shard == 'starter' && steps.android-sdk.outputs.cache-hit != 'true'
         with:
           path: |
             /usr/local/lib/android/sdk/emulator
@@ -1019,8 +1222,6 @@ jobs:
         shard: [starter, hosts, bank, express+generated]
     env:
       PLUX_TEST_DATABASE_URL: postgres://plux:plux@127.0.0.1:5432/plux_test?sslmode=disable
-      # The add-to-app host's build, kept where the cache below finds it.
-      PLUX_E2E_DERIVED_DATA: /Users/runner/Library/Developer/Xcode/DerivedData/plux-hosts
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -1028,12 +1229,42 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: backend/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: go-cache
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
+      # Flutter and the pub cache, one each per OS (header): the action
+      # names them without installing (dry run), every run restores them,
+      # then the action finds the SDK in place.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        id: flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          dry-run: true
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: flutter-cache
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.CACHE-KEY }}
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pub-cache
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
-          cache: true
       # macOS ships GNU Make 3.81, which ignores .SHELLFLAGS; the Makefile
       # needs 4 or later.
       - name: Use GNU Make 4 (macOS)
@@ -1051,42 +1282,27 @@ jobs:
           psql -d postgres -c "CREATE DATABASE plux_test;"
           psql -d plux_test -c \
             "CREATE ROLE plux LOGIN NOSUPERUSER NOBYPASSRLS PASSWORD 'plux'; GRANT CONNECT, CREATE, TEMPORARY ON DATABASE plux_test TO plux; ALTER SCHEMA public OWNER TO plux;"
-      # Xcode's builds, the pods and the shard's Flutter build outputs
-      # (ADR-0043, Revision), keyed on Xcode as well: a build from another
-      # Xcode is never reused.
-      - name: Xcode version
-        id: xcode
-        run: echo "version=$(xcodebuild -version | head -n 1 | tr ' ' '-')" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        id: xcode-cache
-        with:
-          path: |
-            ~/Library/Developer/Xcode/DerivedData
-            ~/Library/Caches/CocoaPods
-            apps/*/ios/Pods
-            apps/*/build
-            apps/*/.dart_tool/flutter_build
-            apps/add_to_app/ios_host/Pods
-          key: e2e-ios-${{ matrix.shard }}-${{ steps.xcode.outputs.version }}-${{ env.FLUTTER_VERSION }}-${{ hashFiles('pubspec.lock', 'apps/*/pubspec.lock', 'apps/*/ios/Podfile', 'apps/*/ios/Podfile.lock', 'apps/add_to_app/ios_host/Podfile', 'apps/add_to_app/ios_host/Podfile.lock', 'packages/*/ios/**', 'packages/*/darwin/**') }}
-          restore-keys: e2e-ios-${{ matrix.shard }}-${{ steps.xcode.outputs.version }}-${{ env.FLUTTER_VERSION }}-
+      # No Xcode build cache: a fresh checkout gives every source file a new
+      # modification time, so a restored DerivedData was rebuilt anyway; a
+      # restored cache never made a shard faster (runs 38776124984,
+      # 38782704836) and the four took 2.2 GB of the repository's 10 GB
+      # (ADR-0043, Revision 2026-10-16).
       # Verifies: QA-006, RT-002, HST-033.
       - name: The shard's flows on the simulator
         env:
           E2E_SHARD: ${{ matrix.shard }}
         run: make e2e-ios
-      # Saved by a passing run that is not a pull request (branch-scoped,
-      # above).
+      # macOS's Go caches, saved by the starter's shard, which builds the
+      # server's tests and the CLI as the other shards do.
       - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        if: github.event_name != 'pull_request' && steps.xcode-cache.outputs.cache-hit != 'true'
+        if: github.event_name != 'pull_request' && matrix.shard == 'starter' && steps.go-cache.outputs.cache-hit != 'true'
         with:
           path: |
-            ~/Library/Developer/Xcode/DerivedData
-            ~/Library/Caches/CocoaPods
-            apps/*/ios/Pods
-            apps/*/build
-            apps/*/.dart_tool/flutter_build
-            apps/add_to_app/ios_host/Pods
-          key: ${{ steps.xcode-cache.outputs.cache-primary-key }}
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: ${{ steps.go-cache.outputs.cache-primary-key }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
@@ -1115,13 +1331,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Balanced by the time a run of each part takes (ADR-0043).
-          - shard: start-up
-            scenarios: startup
-          - shard: open
-            scenarios: open
-          - shard: native control, scroll and list
-            scenarios: native,scroll,list
+          # Balanced by the time a run of each part takes (ADR-0043,
+          # Revision 2026-10-16): since the sync isolate's fix (#32), a run
+          # of start-up takes under a second and one of opening about 8 s;
+          # the list, scrolled end to end, is the longest part.
+          - shard: start-up and open
+            scenarios: startup,open
+          - shard: native control and scroll
+            scenarios: native,scroll
+          - shard: list
+            scenarios: list
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -1130,12 +1349,41 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: tools/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
+      # Flutter and the pub cache, one each per OS (header): the action
+      # names them without installing (dry run), every run restores them,
+      # then the action finds the SDK in place.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        id: flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          dry-run: true
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: flutter-cache
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.CACHE-KEY }}
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pub-cache
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
-          cache: true
       # The packages' archives: three parts download the same 38 MB, and
       # the runners' mirror has taken 16 minutes for them (run 36894816035).
       # apt still installs what the current index names.
@@ -1151,7 +1399,7 @@ jobs:
             clang cmake ninja-build pkg-config libgtk-3-dev xvfb
           sudo chown -R "$(id -u):$(id -g)" ~/apt-archives
       - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        if: github.event_name != 'pull_request' && matrix.scenarios == 'startup' && steps.apt.outputs.cache-hit != 'true'
+        if: github.event_name != 'pull_request' && matrix.scenarios == 'startup,open' && steps.apt.outputs.cache-hit != 'true'
         with:
           path: ~/apt-archives
           key: ${{ steps.apt.outputs.cache-primary-key }}
@@ -1233,12 +1481,41 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: backend/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
+      # Flutter and the pub cache, one each per OS (header): the action
+      # names them without installing (dry run), every run restores them,
+      # then the action finds the SDK in place.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        id: flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          dry-run: true
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: flutter-cache
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.CACHE-KEY }}
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pub-cache
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
-          cache: true
       - name: Create the application role
         env:
           PGPASSWORD: postgres
@@ -1256,15 +1533,26 @@ jobs:
         run: cat "$PLUX_BENCH_SYNC_OUT" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
 
   # What plux_flutter adds to release builds: the blank app of test/size
-  # with and without it (RT-061, ADR-0036).
+  # with and without it (RT-061, ADR-0036); and, in a parallel job, the
+  # release builds of the starter app and Plux Bank checked for dev tooling
+  # (SEC-074), which took a third of the job alone (ADR-0043, Revision
+  # 2026-10-16).
   size-android:
-    name: Size (Android)
+    name: ${{ matrix.name }}
     needs: changes
     if: fromJSON(needs.changes.outputs.jobs)['size-android']
     runs-on: ubuntu-latest
     timeout-minutes: 40
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Size (Android)
+            part: size
+          - name: Release inspect (Android)
+            part: release
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -1272,32 +1560,63 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: tools/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
+      # Flutter and the pub cache, one each per OS (header): the action
+      # names them without installing (dry run), every run restores them,
+      # then the action finds the SDK in place.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        id: flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          dry-run: true
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: flutter-cache
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.CACHE-KEY }}
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pub-cache
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
-          cache: true
-      # The device job's Gradle cache: the same Flutter, plugins and
-      # Gradle distribution.
+      # The device jobs' Gradle cache: the same Flutter, plugins and
+      # Gradle distribution, and the same key (e2e-android).
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-${{ hashFiles('pubspec.lock', 'apps/starter/android/**/*.gradle.kts', 'apps/starter/android/gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: gradle-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-
+          key: e2e-gradle-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-${{ hashFiles('pubspec.lock', 'apps/*/pubspec.lock', 'apps/*/android/**/*.gradle.kts', 'apps/*/android/gradle/wrapper/gradle-wrapper.properties', 'apps/add_to_app/android_host/**/*.gradle.kts', 'packages/*/android/**') }}
+          restore-keys: e2e-gradle-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-
       # Verifies: RT-061, NFR-009.
       - name: Release APKs and App Bundle, blank and with plux_flutter
+        if: matrix.part == 'size'
         run: make size-android
       # Verifies: SEC-074, DEV-050.
       - name: Release APKs of the starter and Plux Bank hold no dev tooling
+        if: matrix.part == 'release'
         run: make release-inspect PLATFORM=android
       - name: Report
-        if: always()
+        if: always() && matrix.part == 'size'
         run: cat build/size/android-compare.md build/size/android.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: always()
+        if: always() && matrix.part == 'size'
         with:
           name: size-android
           path: |
@@ -1308,14 +1627,22 @@ jobs:
             build/size/code-size/
           retention-days: 14
 
+  # The fifth macOS job beside the four iOS device shards (GitHub runs five
+  # macOS jobs at once): the size of the iOS build, when the runtime's
+  # shipped code can change it, and the compiler's goldens on macOS
+  # (CMP-002), which Go determinism checks on Linux and Windows. The goldens
+  # run whenever the job does, so a change to this block is checked by the
+  # pull request that makes it (ADR-0043, Revision 2026-10-16).
   size-ios:
-    name: Size (iOS)
+    name: Size (iOS), Go determinism (macOS)
     needs: changes
-    if: fromJSON(needs.changes.outputs.jobs)['size-ios']
+    if: fromJSON(needs.changes.outputs.jobs)['size-ios'] || fromJSON(needs.changes.outputs.jobs)['go-determinism']
     runs-on: macos-latest
     timeout-minutes: 40
     permissions:
       contents: read
+    env:
+      SIZE: ${{ fromJSON(needs.changes.outputs.jobs)['size-ios'] }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -1323,28 +1650,80 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: backend/go.mod
-          cache-dependency-path: tools/go.mod
-      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: stable
-          cache: true
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
       # macOS ships GNU Make 3.81, which ignores .SHELLFLAGS; the Makefile
       # needs 4 or later.
       - name: Use GNU Make 4 (macOS)
-        if: runner.os == 'macOS'
         run: |
           brew install --quiet make
           echo "$(brew --prefix)/opt/make/libexec/gnubin" >> "$GITHUB_PATH"
+      # Verifies: CMP-002.
+      - name: Goldens are reproduced
+        run: make go-determinism
+      # Flutter and the pub cache, one each per OS (header): the action
+      # names them without installing (dry run), every run restores them,
+      # then the action finds the SDK in place.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        id: flutter
+        if: env.SIZE == 'true'
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          dry-run: true
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: flutter-cache
+        if: env.SIZE == 'true'
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.CACHE-KEY }}
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pub-cache
+        if: env.SIZE == 'true'
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        if: env.SIZE == 'true'
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
       # Verifies: RT-061, NFR-009.
       - name: Release app for arm64, blank and with plux_flutter, unsigned
+        if: env.SIZE == 'true'
         run: make size-ios
       # Verifies: SEC-074, DEV-050.
       - name: Release apps of the starter and Plux Bank hold no dev tooling
+        if: env.SIZE == 'true'
         run: make release-inspect PLATFORM=ios
       - name: Report
-        if: always()
+        if: always() && env.SIZE == 'true'
         run: cat build/size/ios.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+      # macOS's Flutter and pub cache: the whole pub workspace first, so the
+      # device shards find every package.
+      - name: Resolve the pub workspace
+        if: github.event_name != 'pull_request' && env.SIZE == 'true' && (steps.flutter-cache.outputs.cache-hit != 'true' || steps.pub-cache.outputs.cache-hit != 'true')
+        run: make dart-get
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: github.event_name != 'pull_request' && env.SIZE == 'true' && steps.flutter-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter-cache.outputs.cache-primary-key }}
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: github.event_name != 'pull_request' && env.SIZE == 'true' && steps.pub-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.pub-cache.outputs.cache-primary-key }}
 
   # ── Studio ───────────────────────────────────────────────────────────────
 
@@ -1428,6 +1807,7 @@ jobs:
           echo "$NEEDS" | jq -e --argjson sel "${JOBS:-null}" --arg event "$EVENT" --arg author "$AUTHOR" '
             def skippable($job):
               if $job == "e2e-android" then ($sel["e2e-android"] or $sel["e2e-android-26"]) == false
+              elif $job == "size-ios" then ($sel["size-ios"] or $sel["go-determinism"]) == false
               elif $job == "commits" then $event != "pull_request" or $author == "dependabot[bot]"
               elif $job == "dependency-review" then $event != "pull_request"
               else $sel[$job] == false end;

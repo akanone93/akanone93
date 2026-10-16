@@ -57,7 +57,8 @@ FLATC         ?= $(FLATC_DIR)/flatc
 MK_FRAGMENTS := go codecs functions dart bench studio stack device repo
 
 .PHONY: help setup hooks-install check check-changed test build gen-check clean \
-	install-go-tools install-golangci-lint install-govulncheck install-gitleaks install-actionlint install-buf install-sqlc install-python-tools install-flatc
+	install-go-tools install-golangci-lint install-govulncheck install-gitleaks install-actionlint install-buf install-sqlc install-python-tools install-flatc \
+	go-tool-pins flatc-pin
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage: make \033[36m<target>\033[0m\n"} \
@@ -103,6 +104,15 @@ install-python-tools: ## Install the pinned pre-commit, zizmor and reuse
 	else \
 		python3 -m pip install --user --quiet $(PYTHON_TOOLS) || { echo "✗ pip refused; install pipx (e.g. apt install pipx) and rerun" >&2; exit 1; }; \
 	fi
+
+# What CI keys its caches of the pinned tools on: the pins, and for the
+# Go tools the toolchain that builds them, never whole files, so a change
+# elsewhere in the Makefile or a dependency update keeps them (ci.yml).
+go-tool-pins: ## Print the pins of the Go tools install-golangci-lint, install-buf and install-sqlc build
+	@echo "$(GO_TOOLCHAIN) golangci-lint@$(GOLANGCI_LINT_VERSION) buf@$(BUF_VERSION) protoc-gen-go@$(PROTOC_GEN_GO_VERSION) protoc-gen-connect-go@$(PROTOC_GEN_CONNECT_GO_VERSION) protoc-gen-connect-openapi@$(PROTOC_GEN_CONNECT_OPENAPI_VERSION) sqlc@$(SQLC_VERSION)"
+
+flatc-pin: ## Print the pinned flatc release and commit install-flatc builds
+	@echo "$(FLATC_VERSION)-$(FLATC_COMMIT)"
 
 # Builds only the flatc target (needs git, CMake and a C++ compiler); the
 # tag is checked against the pinned commit before anything is built.

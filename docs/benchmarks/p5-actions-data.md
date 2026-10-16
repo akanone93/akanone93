@@ -76,7 +76,7 @@ change the frames.
 Profile build, Linux, under `xvfb` with software rendering (llvmpipe). Raster is bound by the
 software rasterizer, so the janky share says nothing about a phone's GPU; the build time,
 which is Plux's part, is a fifth of the frame budget. No frame passed 32 ms. The scenario
-also runs in CI's "native control, scroll and list" shard, A/B against the base.
+also runs in CI's "list" shard, A/B against the base.
 
 ## Watched query (`DB-007`)
 

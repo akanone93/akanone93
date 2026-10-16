@@ -296,3 +296,69 @@ rules in `ci/affected.json` grow to cover them; no gate is loosened.
   function numbers (module size, start, a typical call for WAMR, and `wasmi` for the
   side-by-side of ADR-0011) are taken in the existing Android and iOS jobs; **no new emulator
   boots**, so the device jobs stay inside the 13 to 15 minute target.
+
+## Revision (2026-10-16, CI under the free plan's limits)
+
+The last full run on `main` before this revision, 38776124984, took 29.8 minutes: 49 jobs,
+307 job-minutes, 84 of them on macOS. A public repository on a personal account gets at
+most 20 jobs at once, 5 of them on macOS, and 10 GB of caches, past which GitHub evicts the
+least recently used. The maintainer approved the changes below (2026-10-16); no check is
+removed, and the jobs that leave the pushes still run every day and on the pull requests
+that can affect them.
+
+- **Where the time went.** The iOS starter shard set the length: it waited 5.6 minutes for
+  a macOS runner, because six macOS jobs started for five runners, then ran 23.7 minutes.
+  The runtime benchmark's start-up part took 27.3 minutes, 22 runs of 66.3 seconds, the
+  sync isolate stall that #32 fixed: in run 38782704836 a run of start-up took 0.37 s with
+  the fix against 66.3 s without, of opening 7.9 s against 13.9 s, and of the control,
+  scrolling and the list 26.8 s against 32.8 s. The caches thrashed: about 13 GB were saved
+  per run of `main`, so the Flutter SDK missed in 7 of 9 jobs checked, the Android system
+  image in 3 of 3, Go's modules in Go test and the pinned tools in Go lint (218 s
+  rebuilding them), and Size (Android) restored a key no job had saved since the device
+  jobs were sharded, so its first release build took 292 s against 45 s for the next.
+- **Pushes leave the iOS and Android 26 device flows to the daily run.** They are marked
+  `skipOnPush` in `ci/affected.json`, as the codec rebuild is. A pull request that can
+  affect them still runs them before it merges; for one that cannot, by the selection's
+  rules, they ran only after the merge, on the push, and now run the next day (the daily
+  and manual runs run every job). A push then needs no macOS runner but the size job's. A
+  manual run with the input `as-push` selects as a push does, to time one before a merge.
+- **Five macOS jobs for five runners.** Go determinism on macOS runs in the Size (iOS)
+  job, whenever that job runs; Go determinism runs on Linux and Windows on its own.
+- **Caches within 10 GB, written by one job each.** Every run restores; one named job per
+  cache saves, only in runs that are not pull requests: Go's module and build caches, one
+  per OS (Linux: the Android 35 starter shard; macOS: the iOS starter shard; Windows: Go
+  determinism), with `setup-go`'s own cache off, because it saves from whichever job ends
+  first, under a key per set of files, and in pull requests too; Flutter and the pub cache,
+  one each per OS (Linux: Dart and Flutter; macOS: Size (iOS)), the action naming them
+  without installing and then finding the SDK in place, under the keys it used before.
+  The Xcode build caches are gone: a fresh checkout gives every source file a new
+  modification time, so Xcode rebuilt anyway, and no restored cache made a shard faster
+  (express and generated: 5.7 minutes before the tests without one, still building at 8.1
+  minutes with one). Android 26 no longer caches its system image (1.3 GB). The pinned Go
+  tools and `flatc` are keyed on their pins and the toolchain (`make go-tool-pins`,
+  `make flatc-pin`), not on the whole Makefile and `go.mod`, so a dependency update no
+  longer rebuilds them; API contract restores the same tools. Size (Android) restores the
+  device jobs' Gradle cache.
+- **Go test in two parallel jobs.** The race detector and coverage instrument the same
+  code twice: on a four-core machine like the runners, the suite took 357 s with both,
+  293 s with the race detector alone and 177 s with coverage alone, against PostgreSQL,
+  with the same coverage (59.9% of statements either way). `go-test-race` and `go-cover` are
+  separate targets and separate jobs; `make go-check` runs both.
+- **Dart three packages at a time.** `dart-cover` tested twenty packages one after
+  another; three at a time took 251 s against 750 s on the same machine, every test
+  passing. Each package's output is printed whole once all have finished.
+- **The runtime benchmark's parts, rebalanced.** With #32 a run of start-up takes under a
+  second, so start-up and opening share a job; the list, scrolled end to end, is the
+  longest part and runs alone; the control and scrolling share the third.
+- **Release inspect on Android in its own job**, beside the size check; it took 211 s of
+  the job's 13.5 minutes.
+- **The generator converts the source icon once**, not once for each of its 23 sizes. The
+  output is byte for byte the same; its tests took 151 s instead of 176 s with the race
+  detector and coverage.
+
+The limit that remains is the iOS shards: about 2.7 minutes of setup and 4 to 11 minutes
+of simulator boot and a cold Xcode build of the shard's app before the first test, on any
+GitHub-hosted runner. Pull requests that change the runtime still wait for them; a push to
+`main` no longer does. Not done, because their effect is not yet measured: timing the
+iOS prebuild step by step, an emulator snapshot, which would add about 1.5 GB of cache,
+and shorter page transitions in the benchmark, which would change what QA-007 measures.

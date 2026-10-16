@@ -110,3 +110,49 @@ func TestApplyLimitsFailsOnAGoneProcess(t *testing.T) {
 		t.Error("expected prlimit to fail for a process that does not exist")
 	}
 }
+
+// TestLinuxSandboxLimitsHoldFromTheStart checks that the tool's first
+// instruction already runs under its memory and CPU-time limits: Bun reserves
+// tens of GiB of address space as it starts unless a limit is in force then,
+// and a limit set later made every allocation fail.
+// Verifies: FN-016.
+func TestLinuxSandboxLimitsHoldFromTheStart_FN_016(t *testing.T) {
+	requireNamespaces(t)
+	s := LinuxSandbox{}
+	res, err := s.Run(t.Context(), Command{
+		Path: "/bin/cat", Args: []string{"/proc/self/limits"}, Env: []string{"PATH=/usr/bin:/bin"},
+		Limits: Limits{Memory: 96 << 20, CPUTime: 3 * time.Second, Wall: 20 * time.Second},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	limits := string(res.Stdout)
+	for _, want := range []string{"Max address space         100663296            100663296", "Max cpu time              3                    4"} {
+		if !strings.Contains(limits, want) {
+			t.Errorf("the tool did not start under %q (exit %d, stderr %q):\n%s", want, res.ExitCode, res.Stderr, limits)
+		}
+	}
+	res, err = s.Run(t.Context(), Command{Path: "/bin/echo", Args: []string{"a b", "$HOME"}, Limits: Limits{Memory: 96 << 20}})
+	if err != nil || string(res.Stdout) != "a b $HOME\n" {
+		t.Errorf("the arguments did not reach the tool unchanged: %q, %v", res.Stdout, err)
+	}
+}
+
+// TestLimitedCommandSetsTheLimitsBeforeTheTool checks the wrapper itself, as
+// the race it closes cannot be forced: the shell sets the soft CPU limit,
+// then the hard one and the address space, then replaces itself with the
+// tool and its arguments; a command without those limits is unchanged.
+// Verifies: FN-016.
+func TestLimitedCommandSetsTheLimitsBeforeTheTool_FN_016(t *testing.T) {
+	t.Parallel()
+	cmd := Command{Path: "/usr/bin/bun", Args: []string{"wasm-opt", "--version"}, Limits: Limits{CPUTime: 1500 * time.Millisecond, Memory: 1 << 30, Wall: time.Minute}}
+	got := limitedCommand(cmd)
+	want := []string{"-c", `ulimit -S -t 2 && ulimit -H -t 3 && ulimit -v 1048576 && exec "$0" "$@"`, "/usr/bin/bun", "wasm-opt", "--version"}
+	if got.Path != "/bin/sh" || strings.Join(got.Args, "\x00") != strings.Join(want, "\x00") || got.Limits != cmd.Limits {
+		t.Errorf("limitedCommand = %q %q", got.Path, got.Args)
+	}
+	plain := Command{Path: "/bin/true", Limits: Limits{Wall: time.Minute}}
+	if got := limitedCommand(plain); got.Path != plain.Path || len(got.Args) != 0 {
+		t.Errorf("a command without CPU or memory limits was wrapped: %q %q", got.Path, got.Args)
+	}
+}

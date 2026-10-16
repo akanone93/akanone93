@@ -55,15 +55,22 @@ func defaultIcon(bg color.NRGBA) image.Image {
 	return img
 }
 
+// premultiplied copies the square img into 16-bit premultiplied pixels at
+// the origin, the form resize reads; icons converts the source once for
+// all of its sizes.
+func premultiplied(img image.Image) *image.RGBA64 {
+	b := img.Bounds()
+	src := image.NewRGBA64(image.Rect(0, 0, b.Dx(), b.Dx()))
+	draw.Draw(src, src.Bounds(), img, b.Min, draw.Src)
+	return src
+}
+
 // resize scales the square src to side×side by area averaging: each
 // target pixel is the coverage-weighted mean of the source pixels under
 // it, computed in integers so every machine produces the same bytes. With
 // opaque, it is composited over bg first (iOS icons have no alpha).
-func resize(img image.Image, side int, opaque bool, bg color.NRGBA) ([]byte, error) {
-	b := img.Bounds()
-	s := b.Dx()
-	src := image.NewRGBA64(image.Rect(0, 0, s, s))
-	draw.Draw(src, src.Bounds(), img, b.Min, draw.Src)
+func resize(src *image.RGBA64, side int, opaque bool, bg color.NRGBA) ([]byte, error) {
+	s := src.Bounds().Dx()
 	// Source pixel i covers [i*side, (i+1)*side), target pixel x covers
 	// [x*s, (x+1)*s), both in units of 1/(s*side) of the image.
 	type span struct{ first, last int }

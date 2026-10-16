@@ -324,8 +324,9 @@ func icons(source []byte, bg color.NRGBA, files map[string]File) error {
 			return err
 		}
 	}
+	src := premultiplied(img)
 	add := func(p string, side int, opaque bool) error {
-		data, err := resize(img, side, opaque, bg)
+		data, err := resize(src, side, opaque, bg)
 		if err != nil {
 			return err
 		}

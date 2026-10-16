@@ -213,7 +213,7 @@ func androidHost(ctx context.Context, t *testing.T, hosts, device string, flows 
 // each test launches the app anew. The runtime's settings reach the tests
 // as TEST_RUNNER_PLUX_* variables, and PLUX_E2E_XCRESULT, when set, names
 // the result bundles. PLUX_E2E_DERIVED_DATA, when set, keeps Xcode's build
-// there, so CI can restore it between runs; otherwise it is the test's own.
+// there, so it outlives the test; otherwise it is the test's own.
 func iosHost(ctx context.Context, t *testing.T, host, device string, flows []hostFlow, settings map[string]string) {
 	t.Helper()
 	run := func(name string, args ...string) {

@@ -15,7 +15,7 @@ How Plux is tested. The strategy and thresholds are specified in spec §28; this
 
 | Level | Location | Runs |
 |---|---|---|
-| Unit, property, fuzz (Go) | next to the code, `*_test.go` | every change: `make go-cover` (with `-race`) |
+| Unit, property, fuzz (Go) | next to the code, `*_test.go` | every change: `make go-test-race` (the race detector) and `make go-cover` (coverage floors), two parallel jobs in CI |
 | Unit and widget (Dart) | `packages/<pkg>/test/*_test.dart` | every change: `make dart-cover` |
 | Unit (TypeScript) | next to the code, `*.test.ts` | every change: `make studio-cover` |
 | Repository policy | `tools/internal/policy` | every change |

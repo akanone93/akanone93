@@ -12,7 +12,7 @@ import (
 )
 
 // Runtimes created at the same moment do not race; `go test -race` (make
-// go-cover in CI) fails this test without the warm-up.
+// go-test-race in CI) fails this test without the warm-up.
 func TestNewRuntimeConcurrently(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()

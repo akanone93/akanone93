@@ -45,7 +45,7 @@ make bench-runtime-ab SCENARIOS=open    # the same, measuring one part of each r
 `SCENARIOS` (the app's `PLUX_BENCH_SCENARIOS`) limits every run to some of its parts:
 `startup` (initialize and memory), `open` (the catalog page), `native` (the control)
 and `scroll` (the feed) and `list` (the 1,000-item list), comma-separated; all of them by default. CI compares the parts
-in three parallel jobs — start-up, opening, the control with scrolling and the list — each running both
+in three parallel jobs — start-up with opening, the control with scrolling, and the list — each running both
 runtimes alternately on one runner with the method below, and a policy test checks that
 together they measure every part ([ADR-0043](../../../docs/adr/0043-affected-only-ci.md)).
 
