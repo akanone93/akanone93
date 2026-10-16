@@ -2608,6 +2608,22 @@
       "fix": "Retry later. If it persists, the operator checks the service and the server's outbound network."
     },
     {
+      "code": "PLX-8092",
+      "reason": "TRANSLATION_STATE_FORBIDDEN",
+      "severity": "error",
+      "title": "Translation state not allowed",
+      "cause": "The save sets a message to approved, or changes the text of a message that stays approved, and the caller does not hold translations.approve (I18N-008).",
+      "fix": "Ask a member who holds translations.approve to approve the message, or save it at another state; a changed text of a message without that permission is saved as translated."
+    },
+    {
+      "code": "PLX-8093",
+      "reason": "TRANSLATION_DOCUMENT_FORBIDDEN",
+      "severity": "error",
+      "title": "Document not editable with translations.edit",
+      "cause": "A caller who holds translations.edit but not app.manage may save only the messages and states of an existing translations document (translations/\u003clocale\u003e.json); the save touches another document, another property, or creates the document (I18N-008).",
+      "fix": "Save only messages and states of an existing translations document, or ask for app.manage."
+    },
+    {
       "code": "PLX-9100",
       "reason": "CLI_CONFIGURATION_INVALID",
       "severity": "error",

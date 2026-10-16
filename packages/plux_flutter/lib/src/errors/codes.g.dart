@@ -970,6 +970,12 @@ enum PluxErrorCode {
   /// A service the server depends on is unavailable.
   upstreamUnavailable(8091, 'UPSTREAM_UNAVAILABLE', 'A service the server depends on is unavailable'),
 
+  /// Translation state not allowed.
+  translationStateForbidden(8092, 'TRANSLATION_STATE_FORBIDDEN', 'Translation state not allowed'),
+
+  /// Document not editable with translations.edit.
+  translationDocumentForbidden(8093, 'TRANSLATION_DOCUMENT_FORBIDDEN', 'Document not editable with translations.edit'),
+
   /// Invalid CLI configuration.
   cliConfigurationInvalid(9100, 'CLI_CONFIGURATION_INVALID', 'Invalid CLI configuration'),
 
