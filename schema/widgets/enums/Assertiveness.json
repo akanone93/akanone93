@@ -1,0 +1,23 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "Assertiveness",
+  "id": 77,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.1.0"
+    }
+  ],
+  "description": "How urgently a screen reader announces a message (A11Y-006).",
+  "values": [
+    {
+      "name": "polite",
+      "id": 1
+    },
+    {
+      "name": "assertive",
+      "id": 2
+    }
+  ]
+}

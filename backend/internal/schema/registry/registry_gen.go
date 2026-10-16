@@ -2960,6 +2960,10 @@ var enums = [...]Enum{
 		{Name: "seek", ID: 4, Revision: 1, Deprecated: nil, Description: "Jump to a position."},
 		{Name: "stop", ID: 5, Revision: 1, Deprecated: nil, Description: "Stop and return to the start."},
 	}},
+	{Name: "Assertiveness", ID: 77, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "How urgently a screen reader announces a message (A11Y-006).", Values: []EnumValue{
+		{Name: "polite", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "assertive", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+	}},
 	{Name: "AutovalidateMode", ID: 1, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum AutovalidateMode.", Values: []EnumValue{
 		{Name: "disabled", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "always", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
@@ -3438,6 +3442,14 @@ var enums = [...]Enum{
 
 // actions holds every action, sorted by name. It is read-only.
 var actions = [...]Action{
+	{
+		Name: "announce", ID: 58, Phase: "P8", Category: "feedback", Description: "Has the screen reader announce a message without moving focus (A11Y-006).",
+		Inputs: []Input{
+			{Name: "message", ID: 1, Type: "string", Required: true, Default: "", Ref: "", Description: "The translated message to announce."},
+			{Name: "assertiveness", ID: 2, Type: "Assertiveness", Required: false, Default: "\"polite\"", Ref: "", Description: "Whether the announcement waits for the current speech or interrupts it."},
+		},
+		Effects: []string{"ui"},
+	},
 	{
 		Name: "apiCall", ID: 16, Phase: "P5", Category: "data", Description: "Calls a declared REST or GraphQL operation and returns its typed response.",
 		TypeParameters: []string{"I", "O", "T"},

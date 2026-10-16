@@ -55,6 +55,7 @@ const (
 	EnforcerServer
 	EnforcerRuntime
 	EnforcerStudio
+	EnforcerCli
 )
 
 // Definition is one entry of the registry.

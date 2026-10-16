@@ -1213,6 +1213,12 @@ const List<EnumDescriptor> enumDescriptors = [
     values: {'play': 1, 'pause': 2, 'reverse': 3, 'seek': 4, 'stop': 5},
   ),
   EnumDescriptor(
+    'Assertiveness',
+    77,
+    revision: 1,
+    values: {'polite': 1, 'assertive': 2},
+  ),
+  EnumDescriptor(
     'AutovalidateMode',
     1,
     revision: 1,
@@ -1666,6 +1672,12 @@ const List<EnumDescriptor> enumDescriptors = [
 
 /// Every action, sorted by name.
 const List<ActionDescriptor> actionDescriptors = [
+  ActionDescriptor(
+    'announce',
+    58,
+    phase: 'P8',
+    inputs: {'message': 1, 'assertiveness': 2},
+  ),
   ActionDescriptor(
     'apiCall',
     16,

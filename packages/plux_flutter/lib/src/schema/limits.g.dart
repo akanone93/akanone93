@@ -24,6 +24,8 @@ enum PluxLimitUnit {
 
 /// Every limit, with its installation default and hard maximum.
 enum PluxLimit {
+  /// Accessibility waivers one plugin may declare.
+  a11yWaiversPerPlugin('a11y.waiversPerPlugin', PluxLimitUnit.count, 50, 0, 1000),
   /// Items one forEach step may iterate over.
   actionForEachItems('action.forEachItems', PluxLimitUnit.count, 1000, 0, 100000),
   /// Triggers a handler with the queue policy may hold while its run is in
@@ -66,8 +68,12 @@ enum PluxLimit {
   apiRequestsPerMinutePerDevice('api.requestsPerMinutePerDevice', PluxLimitUnit.count, 120, 0, 10000),
   /// Functions per app.
   appFunctions('app.functions', PluxLimitUnit.count, 100, 0, 1000),
+  /// Locales one app may declare.
+  appLocales('app.locales', PluxLimitUnit.count, 50, 0, 300),
   /// Plugins per app.
   appPlugins('app.plugins', PluxLimitUnit.count, 200, 0, 1000),
+  /// Translation keys one app may declare.
+  appTranslationKeys('app.translationKeys', PluxLimitUnit.count, 10000, 0, 100000),
   /// Size of one asset file, checked at upload and again at publish.
   assetFileSize('asset.fileSize', PluxLimitUnit.bytes, 10485760, 0, 104857600),
   /// Pixels of one image asset, width times height, checked before it is
@@ -230,6 +236,12 @@ enum PluxLimit {
   gatewayResponseBytes('gateway.responseBytes', PluxLimitUnit.bytes, 8388608, 0, 67108864),
   /// Milliseconds the gateway waits for an upstream to answer.
   gatewayTimeout('gateway.timeout', PluxLimitUnit.milliseconds, 10000, 0, 60000),
+  /// Golden baseline images one plugin may store.
+  goldenBaselineBytesPerPlugin('golden.baselineBytesPerPlugin', PluxLimitUnit.bytes, 268435456, 0, 4294967296),
+  /// Golden cases one run may contain.
+  goldenCasesPerRun('golden.casesPerRun', PluxLimitUnit.count, 500, 0, 10000),
+  /// Size of one golden image.
+  goldenImageBytes('golden.imageBytes', PluxLimitUnit.bytes, 2097152, 0, 16777216),
   /// Size of a response the server reads when it fetches a URL, such as an
   /// identity provider's keys.
   httpResponseSize('http.responseSize', PluxLimitUnit.bytes, 1048576, 0, 67108864),
@@ -304,6 +316,10 @@ enum PluxLimit {
   telemetryBufferBytes('telemetry.bufferBytes', PluxLimitUnit.bytes, 262144, 0, 4194304),
   /// Runtime events one telemetry request may carry.
   telemetryEventsPerRequest('telemetry.eventsPerRequest', PluxLimitUnit.count, 500, 0, 5000),
+  /// Size of one translation import file.
+  translationImportSize('translation.importSize', PluxLimitUnit.bytes, 16777216, 0, 134217728),
+  /// Size of one translation message.
+  translationMessageSize('translation.messageSize', PluxLimitUnit.bytes, 4096, 0, 65536),
   /// Size of one update metadata file (root, snapshot or timestamp) a device
   /// accepts and the server serves.
   updateMetadataBytes('updateMetadata.bytes', PluxLimitUnit.bytes, 1048576, 0, 4194304);

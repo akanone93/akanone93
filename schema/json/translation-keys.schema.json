@@ -54,6 +54,9 @@
             "items": {
               "$ref": "common.schema.json#/$defs/field"
             }
+          },
+          "screenshot": {
+            "$ref": "common.schema.json#/$defs/assetRef"
           }
         },
         "patternProperties": {

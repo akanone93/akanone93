@@ -6,6 +6,7 @@ The built-in actions of the action catalogue (spec Appendix D), generated from t
 
 | Action | Category | Phase | Description |
 |---|---|---|---|
+| [announce](#announce) | feedback | P8 | Has the screen reader announce a message without moving focus (A11Y-006). |
 | [apiCall](#apicall) | data | P5 | Calls a declared REST or GraphQL operation and returns its typed response. |
 | [biometricAuth](#biometricauth) | security | P6 | Asks the user to confirm with a biometric or the device credential; takes the success or failure branch. |
 | [callFlow](#callflow) | control | P5 | Runs a reusable named action graph with typed input and returns its output (ACT-061). |
@@ -63,6 +64,17 @@ The built-in actions of the action catalogue (spec Appendix D), generated from t
 | [trackEvent](#trackevent) | analytics | P5 | Records a custom telemetry event with typed properties. |
 | [unsubscribe](#unsubscribe) | data | P5 | Closes a stream opened by subscribe. |
 | [validateForm](#validateform) | forms | P5 | Validates every field of a form and shows the errors; takes the valid or invalid branch. |
+
+### announce
+
+Has the screen reader announce a message without moving focus (A11Y-006).
+
+ID 58 · feedback · P8 · effects: ui
+
+| Input | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `message` | 1 | `string`, required | — | The translated message to announce. |
+| `assertiveness` | 2 | `Assertiveness` | `"polite"` | Whether the announcement waits for the current speech or interrupts it. |
 
 ### apiCall
 

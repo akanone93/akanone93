@@ -335,6 +335,42 @@ class _NodeHintsReader extends fb.Reader<NodeHints> {
       NodeHints.fromValue(const fb.Uint8Reader().read(bc, offset));
 }
 
+enum TextDirectionOverride {
+  Inherit(0),
+  Ltr(1),
+  Rtl(2);
+
+  final int value;
+  const TextDirectionOverride(this.value);
+
+  factory TextDirectionOverride.fromValue(int value) {
+    switch (value) {
+      case 0: return TextDirectionOverride.Inherit;
+      case 1: return TextDirectionOverride.Ltr;
+      case 2: return TextDirectionOverride.Rtl;
+      default: throw StateError('Invalid value $value for bit flag enum');
+    }
+  }
+
+  static TextDirectionOverride? _createOrNull(int? value) =>
+      value == null ? null : TextDirectionOverride.fromValue(value);
+
+  static const int minValue = 0;
+  static const int maxValue = 2;
+  static const fb.Reader<TextDirectionOverride> reader = _TextDirectionOverrideReader();
+}
+
+class _TextDirectionOverrideReader extends fb.Reader<TextDirectionOverride> {
+  const _TextDirectionOverrideReader();
+
+  @override
+  int get size => 1;
+
+  @override
+  TextDirectionOverride read(fb.BufferContext bc, int offset) =>
+      TextDirectionOverride.fromValue(const fb.Uint8Reader().read(bc, offset));
+}
+
 enum BundleKind {
   Unknown(0),
   Plugin(1),
@@ -1924,10 +1960,14 @@ class Semantics {
   bool get button => const fb.BoolReader().vTableGet(_bc, _bcOffset, 12, false);
   bool get liveRegion => const fb.BoolReader().vTableGet(_bc, _bcOffset, 14, false);
   bool get exclude => const fb.BoolReader().vTableGet(_bc, _bcOffset, 16, false);
+  double get focusOrder => const fb.Float32Reader().vTableGet(_bc, _bcOffset, 18, -1.0);
+  bool get group => const fb.BoolReader().vTableGet(_bc, _bcOffset, 20, false);
+  int get headingLevel => const fb.Uint8Reader().vTableGet(_bc, _bcOffset, 22, 0);
+  bool get decorative => const fb.BoolReader().vTableGet(_bc, _bcOffset, 24, false);
 
   @override
   String toString() {
-    return 'Semantics{label: ${label}, hint: ${hint}, value: ${value}, header: ${header}, button: ${button}, liveRegion: ${liveRegion}, exclude: ${exclude}}';
+    return 'Semantics{label: ${label}, hint: ${hint}, value: ${value}, header: ${header}, button: ${button}, liveRegion: ${liveRegion}, exclude: ${exclude}, focusOrder: ${focusOrder}, group: ${group}, headingLevel: ${headingLevel}, decorative: ${decorative}}';
   }
 }
 
@@ -1945,7 +1985,7 @@ class SemanticsBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(7);
+    fbBuilder.startTable(11);
   }
 
   int addLabelOffset(int? offset) {
@@ -1976,6 +2016,22 @@ class SemanticsBuilder {
     fbBuilder.addBool(6, exclude);
     return fbBuilder.offset;
   }
+  int addFocusOrder(double? focusOrder) {
+    fbBuilder.addFloat32(7, focusOrder);
+    return fbBuilder.offset;
+  }
+  int addGroup(bool? group) {
+    fbBuilder.addBool(8, group);
+    return fbBuilder.offset;
+  }
+  int addHeadingLevel(int? headingLevel) {
+    fbBuilder.addUint8(9, headingLevel);
+    return fbBuilder.offset;
+  }
+  int addDecorative(bool? decorative) {
+    fbBuilder.addBool(10, decorative);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -1990,6 +2046,10 @@ class SemanticsObjectBuilder extends fb.ObjectBuilder {
   final bool? _button;
   final bool? _liveRegion;
   final bool? _exclude;
+  final double? _focusOrder;
+  final bool? _group;
+  final int? _headingLevel;
+  final bool? _decorative;
 
   SemanticsObjectBuilder({
     ValueObjectBuilder? label,
@@ -1999,6 +2059,10 @@ class SemanticsObjectBuilder extends fb.ObjectBuilder {
     bool? button,
     bool? liveRegion,
     bool? exclude,
+    double? focusOrder,
+    bool? group,
+    int? headingLevel,
+    bool? decorative,
   })
       : _label = label,
         _hint = hint,
@@ -2006,7 +2070,11 @@ class SemanticsObjectBuilder extends fb.ObjectBuilder {
         _header = header,
         _button = button,
         _liveRegion = liveRegion,
-        _exclude = exclude;
+        _exclude = exclude,
+        _focusOrder = focusOrder,
+        _group = group,
+        _headingLevel = headingLevel,
+        _decorative = decorative;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -2014,7 +2082,7 @@ class SemanticsObjectBuilder extends fb.ObjectBuilder {
     final int? labelOffset = _label?.getOrCreateOffset(fbBuilder);
     final int? hintOffset = _hint?.getOrCreateOffset(fbBuilder);
     final int? valueOffset = _value?.getOrCreateOffset(fbBuilder);
-    fbBuilder.startTable(7);
+    fbBuilder.startTable(11);
     fbBuilder.addOffset(0, labelOffset);
     fbBuilder.addOffset(1, hintOffset);
     fbBuilder.addOffset(2, valueOffset);
@@ -2022,6 +2090,10 @@ class SemanticsObjectBuilder extends fb.ObjectBuilder {
     fbBuilder.addBool(4, _button);
     fbBuilder.addBool(5, _liveRegion);
     fbBuilder.addBool(6, _exclude);
+    fbBuilder.addFloat32(7, _focusOrder);
+    fbBuilder.addBool(8, _group);
+    fbBuilder.addUint8(9, _headingLevel);
+    fbBuilder.addBool(10, _decorative);
     return fbBuilder.endTable();
   }
 
@@ -2143,10 +2215,11 @@ class Node {
   List<int>? get typeArguments => const fb.ListReader<int>(fb.Uint32Reader()).vTableGetNullable(_bc, _bcOffset, 30);
   int get nativeSlot => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 32, 0);
   NodeAnimation? get animation => NodeAnimation.reader.vTableGetNullable(_bc, _bcOffset, 34);
+  TextDirectionOverride get direction => TextDirectionOverride.fromValue(const fb.Uint8Reader().vTableGet(_bc, _bcOffset, 36, 0));
 
   @override
   String toString() {
-    return 'Node{id: ${id}, widget: ${widget}, component: ${component}, componentVersion: ${componentVersion}, props: ${props}, handlers: ${handlers}, children: ${children}, slots: ${slots}, visible: ${visible}, semantics: ${semantics}, testId: ${testId}, overrides: ${overrides}, hints: ${hints}, typeArguments: ${typeArguments}, nativeSlot: ${nativeSlot}, animation: ${animation}}';
+    return 'Node{id: ${id}, widget: ${widget}, component: ${component}, componentVersion: ${componentVersion}, props: ${props}, handlers: ${handlers}, children: ${children}, slots: ${slots}, visible: ${visible}, semantics: ${semantics}, testId: ${testId}, overrides: ${overrides}, hints: ${hints}, typeArguments: ${typeArguments}, nativeSlot: ${nativeSlot}, animation: ${animation}, direction: ${direction}}';
   }
 }
 
@@ -2164,7 +2237,7 @@ class NodeBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(16);
+    fbBuilder.startTable(17);
   }
 
   int addId(int offset) {
@@ -2231,6 +2304,10 @@ class NodeBuilder {
     fbBuilder.addOffset(15, offset);
     return fbBuilder.offset;
   }
+  int addDirection(TextDirectionOverride? direction) {
+    fbBuilder.addUint8(16, direction?.value);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -2254,6 +2331,7 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
   final List<int>? _typeArguments;
   final int? _nativeSlot;
   final NodeAnimationObjectBuilder? _animation;
+  final TextDirectionOverride? _direction;
 
   NodeObjectBuilder({
     UuidObjectBuilder? id,
@@ -2272,6 +2350,7 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
     List<int>? typeArguments,
     int? nativeSlot,
     NodeAnimationObjectBuilder? animation,
+    TextDirectionOverride? direction,
   })
       : _id = id,
         _widget = widget,
@@ -2288,7 +2367,8 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
         _hints = hints,
         _typeArguments = typeArguments,
         _nativeSlot = nativeSlot,
-        _animation = animation;
+        _animation = animation,
+        _direction = direction;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -2308,7 +2388,7 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
     final int? typeArgumentsOffset = _typeArguments == null ? null
         : fbBuilder.writeListUint32(_typeArguments!);
     final int? animationOffset = _animation?.getOrCreateOffset(fbBuilder);
-    fbBuilder.startTable(16);
+    fbBuilder.startTable(17);
     if (_id != null) {
       fbBuilder.addStruct(0, _id!.finish(fbBuilder));
     }
@@ -2329,6 +2409,7 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
     fbBuilder.addOffset(13, typeArgumentsOffset);
     fbBuilder.addUint32(14, _nativeSlot);
     fbBuilder.addOffset(15, animationOffset);
+    fbBuilder.addUint8(16, _direction?.value);
     return fbBuilder.endTable();
   }
 

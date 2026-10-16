@@ -3,6 +3,26 @@
   "$comment": "The limits registry (LIM-001, spec §30.4). Every size and count in Plux is read from here; nothing is hard-coded. Generated code: make gen.",
   "limits": [
     {
+      "key": "a11y.waiversPerPlugin",
+      "unit": "count",
+      "default": 50,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app",
+        "plugin"
+      ],
+      "enforcedBy": [
+        "compiler"
+      ],
+      "phase": "P8",
+      "requirements": [
+        "A11Y-008"
+      ],
+      "description": "Accessibility waivers one plugin may declare."
+    },
+    {
       "key": "action.forEachItems",
       "unit": "count",
       "default": 1000,
@@ -330,6 +350,26 @@
       "description": "Functions per app."
     },
     {
+      "key": "app.locales",
+      "unit": "count",
+      "default": 50,
+      "max": 300,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "compiler",
+        "server"
+      ],
+      "phase": "P8",
+      "requirements": [
+        "I18N-002"
+      ],
+      "description": "Locales one app may declare."
+    },
+    {
       "key": "app.plugins",
       "unit": "count",
       "default": 200,
@@ -348,6 +388,26 @@
         "SCH-005"
       ],
       "description": "Plugins per app."
+    },
+    {
+      "key": "app.translationKeys",
+      "unit": "count",
+      "default": 10000,
+      "max": 100000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "compiler",
+        "server"
+      ],
+      "phase": "P8",
+      "requirements": [
+        "I18N-007"
+      ],
+      "description": "Translation keys one app may declare."
     },
     {
       "key": "asset.fileSize",
@@ -1733,6 +1793,65 @@
       "description": "Milliseconds the gateway waits for an upstream to answer."
     },
     {
+      "key": "golden.baselineBytesPerPlugin",
+      "unit": "bytes",
+      "default": 268435456,
+      "max": 4294967296,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P8",
+      "requirements": [
+        "TST-003"
+      ],
+      "description": "Golden baseline images one plugin may store."
+    },
+    {
+      "key": "golden.casesPerRun",
+      "unit": "count",
+      "default": 500,
+      "max": 10000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "cli"
+      ],
+      "phase": "P8",
+      "requirements": [
+        "TST-003"
+      ],
+      "description": "Golden cases one run may contain."
+    },
+    {
+      "key": "golden.imageBytes",
+      "unit": "bytes",
+      "default": 2097152,
+      "max": 16777216,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "cli"
+      ],
+      "phase": "P8",
+      "requirements": [
+        "TST-003"
+      ],
+      "description": "Size of one golden image."
+    },
+    {
       "key": "http.responseSize",
       "unit": "bytes",
       "default": 1048576,
@@ -2357,6 +2476,46 @@
         "SEC-104"
       ],
       "description": "Runtime events one telemetry request may carry."
+    },
+    {
+      "key": "translation.importSize",
+      "unit": "bytes",
+      "default": 16777216,
+      "max": 134217728,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server",
+        "cli"
+      ],
+      "phase": "P8",
+      "requirements": [
+        "I18N-009"
+      ],
+      "description": "Size of one translation import file."
+    },
+    {
+      "key": "translation.messageSize",
+      "unit": "bytes",
+      "default": 4096,
+      "max": 65536,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "compiler",
+        "server"
+      ],
+      "phase": "P8",
+      "requirements": [
+        "I18N-001"
+      ],
+      "description": "Size of one translation message."
     },
     {
       "key": "updateMetadata.bytes",

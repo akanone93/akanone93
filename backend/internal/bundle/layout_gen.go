@@ -269,6 +269,7 @@ var tableLayouts = [...]tableLayout{
 		{name: "type_arguments", id: 13, kind: fieldVectorScalar, size: 4, align: 4, table: -1, required: false},
 		{name: "native_slot", id: 14, kind: fieldScalar, size: 4, align: 4, table: -1, required: false},
 		{name: "animation", id: 15, kind: fieldTable, size: 0, align: 0, table: 39, required: false},
+		{name: "direction", id: 16, kind: fieldScalar, size: 1, align: 1, table: -1, required: false},
 	}},
 	39: {name: "NodeAnimation", fields: []fieldLayout{
 		{name: "duration_us", id: 0, kind: fieldScalar, size: 8, align: 8, table: -1, required: false},
@@ -365,6 +366,10 @@ var tableLayouts = [...]tableLayout{
 		{name: "button", id: 4, kind: fieldScalar, size: 1, align: 1, table: -1, required: false},
 		{name: "live_region", id: 5, kind: fieldScalar, size: 1, align: 1, table: -1, required: false},
 		{name: "exclude", id: 6, kind: fieldScalar, size: 1, align: 1, table: -1, required: false},
+		{name: "focus_order", id: 7, kind: fieldScalar, size: 4, align: 4, table: -1, required: false},
+		{name: "group", id: 8, kind: fieldScalar, size: 1, align: 1, table: -1, required: false},
+		{name: "heading_level", id: 9, kind: fieldScalar, size: 1, align: 1, table: -1, required: false},
+		{name: "decorative", id: 10, kind: fieldScalar, size: 1, align: 1, table: -1, required: false},
 	}},
 	52: {name: "Shell", fields: []fieldLayout{
 		{name: "key", id: 0, kind: fieldString, size: 0, align: 0, table: -1, required: false},

@@ -96,11 +96,21 @@
             "text",
             "header",
             "list",
-            "progress"
+            "progress",
+            "tab",
+            "menu",
+            "menuItem",
+            "link",
+            "group",
+            "alert"
           ]
         },
         "interactive": {
           "type": "boolean"
+        },
+        "minTarget": {
+          "type": "boolean",
+          "description": "True when the widget is held to the minimum touch target (A11Y-004)."
         }
       },
       "additionalProperties": false
@@ -162,6 +172,10 @@
           },
           "description": {
             "$ref": "common.schema.json#/$defs/description"
+          },
+          "translatable": {
+            "type": "boolean",
+            "description": "True for a string prop whose text is shown to the user and belongs in translations (I18N-007, PLX-1609)."
           }
         },
         "additionalProperties": false
@@ -270,6 +284,11 @@
     },
     "deprecated": {
       "$ref": "common.schema.json#/$defs/deprecation"
+    },
+    "package": {
+      "type": "string",
+      "pattern": "^plux_[a-z_]+$",
+      "description": "The optional package that provides the widget; absent for the runtime."
     }
   },
   "additionalProperties": false,
