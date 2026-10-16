@@ -75,5 +75,6 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0063](0063-function-builds-provenance.md) | Function builds on the server: the builder role, provenance and versions | P7 | Proposed |
 | [0064](0064-function-isolation.md) | Function isolation: runner, egress, key-value store and limits | P7 | Proposed |
 | [0065](0065-imported-signing-keys-apple-receipt.md) | Imported signing keys and Apple's fraud-metric receipt | P7 | Proposed |
+| [0066](0066-studio-ui-languages.md) | Studio's own UI ships in English, German and Arabic | P11 | Accepted |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.

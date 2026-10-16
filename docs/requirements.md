@@ -1,9 +1,9 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.5.1
+**Version:** 1.5.2
 **Status:** Draft — living document, revised as implementation proceeds
-**Date:** 2026-10-14
+**Date:** 2026-10-16
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
 
 > **Plux — Plugin Experience.** Build native Flutter screens visually, compile them into signed binary plugins, and ship them to every device in seconds — with high-assurance security, zero parse cost, and full control over who changes what.
@@ -1615,7 +1615,7 @@ Users sign in (SSO or account with MFA), choose an organisation, and land on Hom
 | **Releases** | Publish, rollouts, rollback, kill switch |
 | **Approvals** | Inbox, history, policies |
 | **Experiments** | A/B tests and feature flags |
-| **Functions** | Go editor, tests, versions, metrics |
+| **Functions** | Rust editor, tests, versions, metrics |
 | **Localisation** | Keys × locales, translation workflow |
 | **Design system** | Tokens, themes, brands, component library, templates |
 | **Data** | API definitions, mocks, local collections |
@@ -1640,7 +1640,7 @@ Users sign in (SSO or account with MFA), choose an organisation, and land on Hom
 |---|---|---|---|---|
 | `STU-010` | P11 | MUST | Studio's visual language **MUST** be light and whitish by default, with generously rounded corners (radius tokens 12–20 px), **floating panels** with soft shadows over the canvas, restrained colour used for meaning (selection, status, arrows), and a dark theme; users switch between light, dark and system. | SPEC |
 | `STU-011` | P11 | MUST | Studio **MUST** itself meet WCAG 2.2 AA: full keyboard operability, visible focus, screen-reader labels and sufficient contrast in both themes. | SPEC |
-| `STU-012` | P11 | MUST | Studio's own UI **MUST** be localised, at least in English and German, with right-to-left support. | SPEC |
+| `STU-012` | P11 | MUST | Studio's own UI **MUST** be localised, at least in English, German and Arabic (`ar`, proving right-to-left layout), with right-to-left support (ADR-0066). | SPEC |
 | `STU-013` | P11 | MUST | A global **command palette** (⌘K / Ctrl+K) **MUST** search and jump to apps, plugins, screens, nodes, components, templates, translation keys, functions and commands; a shortcut sheet (`?`) **MUST** list all keyboard shortcuts. | SPEC |
 | `STU-014` | P11 | MUST | The shell **MUST** provide an organisation switcher, notifications inbox, help and documentation links, and profile settings (theme, language, density, shortcuts). | SPEC |
 | `STU-015` | P11 | MUST | First-run onboarding **MUST** offer a guided checklist (create or import a sample app → pair a device → edit → publish) and importable sample apps (*Plux Bank*, *Plux Express*, *Starter*). | SPEC |
@@ -2108,6 +2108,7 @@ Significant decisions are recorded as ADRs in `docs/adr/` using MADR. These ADRs
 | 0063 | Function builds, provenance and signing: the `builder` role, vendoring, reproducibility, the function-artifact key | P7 |
 | 0064 | Function isolation: `fnrunner`, the `egress` role, limits, key-value host calls, threat-model delta | P7 |
 | 0065 | Imported signing keys in `signing/` and the Apple fraud-metric receipt | P7 |
+| 0066 | Studio's own UI languages: English, German and Arabic | P11 |
 
 ---
 
@@ -3063,10 +3064,11 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.5.1 |
+| Version | 1.5.2 |
 | Status | Draft (living document) |
-| Date | 2026-10-14 |
-| Supersedes | 1.5.0 |
+| Date | 2026-10-16 |
+| Supersedes | 1.5.1 |
+| 1.5.2 | 2026-10-16 | `STU-012`: Studio's own UI is localised in English, German and Arabic, Arabic proving right-to-left layout (maintainer, 2026-10-16; ADR-0066). §21's area table names the Functions area's editor Rust, as `STU-110` and §16 do since 1.5.0. |
 | 1.5.1 | 2026-10-14 | Function versions are numbered per app and reach another environment only by promotion; a release promotion is refused until every function version it pins is promoted there (maintainer, 2026-10-14; `FN-006`; ADR-0063). Appendix H.1 gains the `functions`, `fnrunner`, `egress` and `builder` configuration (P7 plan §2.6 M6). `FN-023` and `NFR-022` measure the first invocation after the deploy-time compile, on the CI reference runner, the warm gate on the median of five rounds (M9, M10; ADR-0064). Appendix G.1 lists the function and egress metrics as implemented: no `function` label, so a tenant's functions add no Prometheus series; per-function numbers come from the stored invocations (`FN-032`) (M11). Statuses at the P7 exit: `FN-001`–`FN-013`, `FN-015`–`FN-024`, `FN-030`–`FN-032`, `FN-050`–`FN-055`, `NFR-022`, `SEC-123`, and the P7 parts of `HST-010` and `SEC-043` → `DONE`; `FN-056` `WIP` until the reference-device run; `FN-014` (`MAY`) not taken. |
 | 1.5.0 | 2026-10-13 | Phase 7 decisions (maintainer, 2026-10-13; P7 plan §2.1 D1–D9, §2.2 C1 and C6, §2.5): Plux Functions are written in **Rust** (D1) — the §5.1 P7 row, §16 with its example, `FN-001`–`FN-004`, `FN-030`, `FN-033` and `FN-040` rewritten, with the SDK crate `plux-fn` at `github.com/nightCode42/plux3/sdk/fn` (D4), the repository layout (§33), the technology decision (§34) and the Go-editor wording (`STU-063`, `STU-110`) updated; `FN-050` names WAMR in interpreter mode in the optional package `plux_functions` (D2); builds run on the server in a new `builder` role (D3, `FN-016`) with a `wasm-opt` step (D9), only signed builder artifacts are deployable (`FN-009`) and builds are reproducible (`FN-019`); our own `egress` forward proxy (D5, `FN-017`); the server key-value store (D8, `FN-018`); until the approval engine (`GOV-020`, P9) `FN-007` and `FN-055` require a dedicated RBAC permission with step-up (D6); `FN-031` and `FN-032` split (D7) with new `FN-034`, `FN-035` (P11) and `FN-036` (P10); `FN-011` names the registry keys; new `SEC-123` (imported signing keys, C1); `SEC-043` covers `builder` and `egress`; §6.3 gains the `builder` and `egress` roles and L-4 names them; §5.4 anchors additive-only evolution (`BND-000`, `SCH-000`, `SRV-000`) to the first release, 0.0.1 (C6); §30.4, Appendix F (functions range, `PLX-6080`, `PLX-6081`) and Appendix K updated; ADR-0011 accepted for Rust and ADR-0062 (host ABI), ADR-0063 (builds and provenance), ADR-0064 (isolation) and ADR-0065 (imported keys and the Apple receipt) proposed. |
 | 1.4.3 | 2026-10-11 | Server-held configuration (maintainer decision, 2026-10-11; ADR-0061), a follow-on milestone of P6: new `DAT-090`–`DAT-097` (§14.4) — typed configuration values per app and environment in two tiers, `server-bound` values the gateway binds into requests at declared locations and `live` values a device fetches over its DPoP-bound channel, with an epoch and a version on every gateway call so that no value is stale where it takes effect; `DAT-003` also allows the secure gateway's server-bound values for calls that need server-held secrets; the `bundled` tier is the existing environment variables (`GOV-010`) and may lag. |

@@ -2,7 +2,7 @@
 
 How Plux Studio (`studio/`) is built: structure, design system, localisation and direction, state, canvas, testing, performance, security, and the rules that keep agents' context and token use small. It is binding for every contributor, human or agent. The specification says *what* Studio does (spec §21, `STU-001`–`STU-123`); [typescript-standards.md](typescript-standards.md) says how TypeScript is written; this document says how Studio is put together.
 
-The stack is fixed by `STU-001`: Bun, strict TypeScript, React, TanStack Router and Query, shadcn/ui on Radix, Tailwind CSS, Monaco and Connect-ES. ADR-0014 (planned) records it; until that ADR is accepted and the packages are on the [allowlist](dependencies.md), none of them is installed.
+The stack is fixed by `STU-001`: Bun, strict TypeScript, React, TanStack Router and Query, shadcn/ui on Radix, Tailwind CSS, Monaco and Connect-ES. A package is installed only once it is on the [allowlist](dependencies.md).
 
 Rules are numbered so a review can cite them ("studio-development §6.3"). A rule that no longer serves the project is changed here in a pull request, never ignored.
 
@@ -19,17 +19,19 @@ Rules are numbered so a review can cite them ("studio-development §6.3"). A rul
 
 ## 2. Architecture
 
+Studio lives entirely under `studio/`: its apps in `studio/apps/` and its TypeScript packages in `studio/packages/`. The root `packages/` holds the Dart and Flutter packages and is never used for Studio code.
+
 | Path | Owns | May import |
 |---|---|---|
-| `apps/web/` | The React single-page application: shell, routes, areas, panels, overlays | every `packages/*` |
-| `apps/bff/` | The Bun backend-for-frontend: OIDC with PKCE, sessions, CSRF, CSP nonces, API proxy (`STU-002`, `SEC-101`) | `packages/schema`, `packages/i18n` (server-side locale negotiation) |
-| `packages/canvas/` | Plux Canvas: WebGL2 scene graph, layout engine, hit-testing, arrows (`STU-003`, `STU-005`, §21.5) | `packages/brand`, `packages/schema` |
-| `packages/ui/` | Shared components on shadcn/ui and Radix, the component catalogue (§5) | `packages/brand`, `packages/i18n` |
-| `packages/i18n/` | Studio's own message catalogues, locale negotiation, direction, formatting (§7) | nothing in `studio/` |
-| `packages/brand/` | Brand tokens (spec Appendix J) and contrast utilities | nothing in `studio/` |
-| `packages/schema/` | Generated contracts: document types, limits, registries (`*.gen.ts`) | nothing in `studio/` |
+| `studio/apps/web/` | The React single-page application: shell, routes, areas, panels, overlays | every `packages/*` |
+| `studio/apps/bff/` | The Bun backend-for-frontend: OIDC with PKCE, sessions, CSRF, CSP nonces, API proxy (`STU-002`, `SEC-101`) | `packages/schema`, `packages/i18n` (server-side locale negotiation) |
+| `studio/packages/canvas/` | Plux Canvas: WebGL2 scene graph, layout engine, hit-testing, arrows (`STU-003`, `STU-005`, §21.5) | `packages/brand`, `packages/schema` |
+| `studio/packages/ui/` | Shared components on shadcn/ui and Radix, the component catalogue (§5) | `packages/brand`, `packages/i18n` |
+| `studio/packages/i18n/` | Studio's own message catalogues, locale negotiation, direction, formatting (§7) | nothing in `studio/` |
+| `studio/packages/brand/` | Brand tokens (spec Appendix J) and contrast utilities | nothing in `studio/` |
+| `studio/packages/schema/` | Generated contracts: document types, limits, registries (`*.gen.ts`) | nothing in `studio/` |
 
-2.1. **Imports flow downwards only.** `packages/*` never import from `apps/*`; `packages/canvas` never imports React or `packages/ui`. A policy check enforces the table with the first P11 package.
+2.1. **Imports flow downwards only.** `studio/packages/*` never import from `studio/apps/*`; `studio/packages/canvas` never imports React or `studio/packages/ui`. A policy check enforces the table with the first P11 package.
 
 2.2. **Studio never reaches the database or object storage** (layering rule L-7). Every call goes browser → BFF → API through the generated Connect-ES clients; no hand-written `fetch` to the API.
 
@@ -37,7 +39,7 @@ Rules are numbered so a review can cite them ("studio-development §6.3"). A rul
 
 2.4. **Spec map.** Each area of spec §21 has exactly one home:
 
-| Spec | Area | Home in `apps/web/src/areas/` |
+| Spec | Area | Home in `studio/apps/web/src/areas/` |
 |---|---|---|
 | §21.2 | Shell, command palette, profile settings | `shell/` |
 | §21.3 | Apps grid | `apps-grid/` |
@@ -57,8 +59,8 @@ Rules are numbered so a review can cite them ("studio-development §6.3"). A rul
 areas/<area>/<feature>/
   README.md            purpose, requirement IDs, public API, files — at most 40 lines
   index.ts             the only export point
-  <Feature>.tsx        the root component
-  <part>.tsx           sub-components, one per file
+  <Feature>.tsx        the root component, with its private sub-components
+  <part>.tsx           a sub-component, once it is reused or its own unit
   use<Thing>.ts        hooks: data, commands, derived state
   <feature>.messages.ts  message descriptors for this feature (§7.4)
   <feature>.test.tsx   component tests (§12)
@@ -68,16 +70,17 @@ areas/<area>/<feature>/
 
 3.2. **The README is the map.** It lists the requirement IDs the feature implements, what it exports, and one line per file. It is updated in the same change as the code; a stale README is a bug.
 
-3.3. **Size limits.** A limit that is exceeded is met by splitting, never by an exemption comment.
+3.3. **Size guidelines.** These are recommendations, not gates. Code that belongs together may stay in one file; split when a part is reused, tested on its own, or the file becomes hard to navigate. A reviewer may ask for a split beyond these sizes, and the author says why the code stays together.
 
-| Item | Limit |
+| Item | Recommended size |
 |---|---|
-| Source file (not tests, not `*.gen.ts`) | 300 lines |
-| Component function | 120 lines, including JSX |
-| Other functions | 60 lines |
-| Props of a component | 8; more means the component does two jobs or needs a grouped prop |
-| JSX nesting inside one component | 6 levels |
-| Cognitive complexity | Biome `noExcessiveCognitiveComplexity` (already an error) |
+| Source file (not tests, not `*.gen.ts`) | about 300 lines |
+| Component function | about 120 lines, including JSX |
+| Other functions | about 60 lines |
+| Props of a component | about 8; more often means the component does two jobs or needs a grouped prop |
+| JSX nesting inside one component | about 6 levels |
+
+The one enforced limit is Biome's `noExcessiveCognitiveComplexity`, already an error in `studio/biome.json`.
 
 3.4. **Names.** Components `PascalCase.tsx`; hooks `useCamelCase.ts`; pure modules `kebab-case.ts`; tests next to the file with `.test.ts(x)`. Names say what a thing is in the product's vocabulary (spec §35 glossary): `BundledArrow`, not `CurvyLine2`.
 
@@ -95,7 +98,7 @@ areas/<area>/<feature>/
 
 4.5. **Contrast is computed, not eyeballed.** Every text/background and UI-component token pair is checked with the `@plux/brand` contrast utilities in both themes: 4.5:1 for text, 3:1 for large text and components (`STU-011`). The check is a unit test over the token tables.
 
-4.6. **Typography.** The wordmark uses Sora SemiBold (Appendix J). The UI typeface and its script coverage (Latin, Arabic, Ethiopic) are one decision recorded with ADR-0014; until then no font is added.
+4.6. **Typography.** The wordmark uses Sora SemiBold (Appendix J). The UI typeface covers the scripts of every Studio locale (Latin and Arabic) from the same font family, so English and Arabic text share weights and metrics.
 
 4.7. **Motion** comes from duration and easing tokens (arrow expansion 150–200 ms, `STU-044`). Every animation honours `prefers-reduced-motion` by reducing to an instant change.
 
@@ -103,7 +106,7 @@ areas/<area>/<feature>/
 
 5.1. **Reuse before writing.** Before creating a component, search the catalogue (§5.2). A second component that does the job of an existing one is rejected in review.
 
-5.2. **The catalogue.** `packages/ui/CATALOGUE.md` lists every shared component: name, one-line purpose, props, variants, keyboard behaviour, and when *not* to use it. A new or changed shared component updates its entry in the same change; a policy check compares the entries with the package's exports.
+5.2. **The catalogue.** `studio/packages/ui/CATALOGUE.md` lists every shared component: name, one-line purpose, props, variants, keyboard behaviour, and when *not* to use it. A new or changed shared component updates its entry in the same change; a policy check compares the entries with the package's exports.
 
 5.3. **Components render; they do not decide.** Business rules — safety rules (§21.8), validation, permissions, link derivation — live in `model.ts` or hooks and are unit-tested without React. A component that contains an `if` on product rules is split.
 
@@ -135,7 +138,7 @@ areas/<area>/<feature>/
 
 Studio's own interface is localised and runs left-to-right and right-to-left (`STU-012`); the language is chosen in profile settings (`STU-014`). This section covers Studio's chrome. Localising the *apps users build* is spec §17 and is previewed on the canvas (§8.5).
 
-7.1. **Locales.** English (`en`) is the source locale and German (`de`) is required (`STU-012`). An RTL locale is needed to prove RTL support; Arabic (`ar`) is proposed, matching the product's RTL launch locale (`I18N-002`). Adding a locale is data only: a catalogue file and an entry in the locale list, no code change.
+7.1. **Locales.** Studio ships in English (`en`, the source locale), German (`de`) and Arabic (`ar`), which proves right-to-left layout (`STU-012`, [ADR-0066](../adr/0066-studio-ui-languages.md)); Arabic is also the product's RTL launch locale (`I18N-002`). Adding a locale is data only: a catalogue file and an entry in the locale list, no code change.
 
 7.2. **No literal UI text.** Every user-visible string — labels, placeholders, `aria-label`, `title`, tooltips, toasts, errors, empty states, document titles — comes from the message catalogue. A lint rule rejects string literals in JSX text and accessibility attributes with the first component. Product names (Plux, Plux Canvas) and user content are the only exceptions.
 
@@ -236,18 +239,15 @@ Studio's own interface is localised and runs left-to-right and right-to-left (`S
 
 12.7. **Coverage floors** for `studio` are in `coverage.json` and are never lowered (`QA-001`).
 
-12.8. **Test tooling is a dependency decision.** The DOM environment for component tests and the browser driver for end-to-end tests are chosen with ADR-0014 and added to the allowlist before use.
-
 ## 13. Agent rules: context and token budget
 
 Frontend work is where agents waste the most context: screenshots, page dumps from browser tools, and reading whole component trees. These rules keep Studio work cheap and verifiable. They apply to every agent session that touches `studio/`, and to humans directing agents.
 
 13.1. **No screenshots without approval.** An agent does not take, request or read screenshots, screen recordings, rendered images of the UI, or image files (PNG, JPEG, WebP, GIF, AVIF) while working on Studio. An exception needs the maintainer's explicit approval **in the current session**, stating what the image is for; approval covers that one purpose only. Cases where asking is reasonable:
-   - the maintainer asks for a visual review;
    - a canvas rendering defect that cannot be observed through the scene model (§9.2);
    - a CI visual-regression failure whose numbers do not explain it (§12.6).
 
-   Even with approval: one image at the smallest size that shows the problem, cropped to the region, never a full-page capture.
+   Even with approval: one image at the smallest size that shows the problem, cropped to the region, never a full-page capture. Visual review is the maintainer's: they pull the branch and run Studio locally.
 
 13.2. **Verification is textual.** An agent proves a UI change with, in order of preference: unit tests, component tests (§12), scene-model assertions, end-to-end tests with role-based assertions, and the accessibility tree as text.
 
@@ -257,7 +257,7 @@ Frontend work is where agents waste the most context: screenshots, page dumps fr
 
 13.5. **Quiet commands.** Run `make` targets and tests with reporters that print failures only; on failure, read the first error before rerunning. Do not paste long logs back into the conversation.
 
-13.6. **Reuse first, by catalogue.** Read `packages/ui/CATALOGUE.md` before writing markup; a shared component is used by name instead of re-writing its classes.
+13.6. **Reuse first, by catalogue.** Read `studio/packages/ui/CATALOGUE.md` before writing markup; a shared component is used by name instead of re-writing its classes.
 
 13.7. **Design input as text.** Designs reach agents as text: tokens, the catalogue, written specs, measurements and annotated wireframes in Markdown or SVG source. An image mock-up is converted to such text by a human before an agent works from it, or falls under §13.1.
 
@@ -268,9 +268,9 @@ Frontend work is where agents waste the most context: screenshots, page dumps fr
 In addition to [workflow.md](workflow.md) §6:
 
 - [ ] `make studio-check` passes; any benchmark the change affects ran and is within budget.
-- [ ] Tests name their requirement IDs and run in `en`, `en-XA` and `ar-XB`.
+- [ ] Tests name their requirement IDs and run in `en`, `en-XA` and `ar-XB`; strings exist in `en`, `de` and `ar`.
 - [ ] No literal UI string, raw style value or physical-direction property was added.
-- [ ] Every new string has a key, English text and a translator description; German is provided or tracked.
+- [ ] Every new string has a key, English text and a translator description; German and Arabic are provided or tracked.
 - [ ] The feature README and, for shared components, the catalogue are current.
 - [ ] New commands are in the command registry with a shortcut-collision check.
 - [ ] Keyboard-only use and screen-reader names are covered by tests.
