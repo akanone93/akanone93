@@ -1,0 +1,86 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "AnimatedSwitcher",
+  "id": 147,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "AnimatedSwitcher",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "animation",
+  "icon": "swap_horiz",
+  "description": "Cross-fades between its old and new child when the child changes.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "duration",
+      "id": 1,
+      "type": "duration",
+      "required": true,
+      "flutter": "duration",
+      "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."
+    },
+    {
+      "name": "reverseDuration",
+      "id": 2,
+      "type": "duration",
+      "flutter": "reverseDuration",
+      "description": "The length of the reverse animation in milliseconds."
+    },
+    {
+      "name": "switchInCurve",
+      "id": 3,
+      "type": "Curve",
+      "default": "linear",
+      "flutter": "switchInCurve"
+    },
+    {
+      "name": "switchOutCurve",
+      "id": 4,
+      "type": "Curve",
+      "default": "linear",
+      "flutter": "switchOutCurve"
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "flutter": "child"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "transitionBuilder",
+      "reason": "builder→template"
+    },
+    {
+      "flutter": "layoutBuilder",
+      "reason": "builder→template"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "DismissDirection",
+  "id": 105,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "Mirrors the Flutter enum DismissDirection.",
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "enum": "DismissDirection"
+  },
+  "values": [
+    {
+      "name": "vertical",
+      "id": 1
+    },
+    {
+      "name": "horizontal",
+      "id": 2
+    },
+    {
+      "name": "endToStart",
+      "id": 3
+    },
+    {
+      "name": "startToEnd",
+      "id": 4
+    },
+    {
+      "name": "up",
+      "id": 5
+    },
+    {
+      "name": "down",
+      "id": 6
+    },
+    {
+      "name": "none",
+      "id": 7
+    }
+  ]
+}

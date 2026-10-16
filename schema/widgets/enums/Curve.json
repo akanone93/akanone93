@@ -1,0 +1,55 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "Curve",
+  "id": 108,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "An animation curve by name; the same curves as the node-level animation (ANI-001, ANI-002).",
+  "values": [
+    {
+      "name": "linear",
+      "id": 1
+    },
+    {
+      "name": "easeIn",
+      "id": 2
+    },
+    {
+      "name": "easeOut",
+      "id": 3
+    },
+    {
+      "name": "easeInOut",
+      "id": 4
+    },
+    {
+      "name": "fastOutSlowIn",
+      "id": 5
+    },
+    {
+      "name": "decelerate",
+      "id": 6
+    },
+    {
+      "name": "bounceIn",
+      "id": 7
+    },
+    {
+      "name": "bounceOut",
+      "id": 8
+    },
+    {
+      "name": "elasticOut",
+      "id": 9
+    },
+    {
+      "name": "overshoot",
+      "id": 10
+    }
+  ]
+}

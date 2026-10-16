@@ -1,0 +1,90 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "SlideTransition",
+  "id": 151,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "SlideTransition",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "animation",
+  "icon": "trending_flat",
+  "description": "Slides its child by a track of a page timeline, in multiples of the child's size along `axis`.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "timeline",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The name of a timeline of the page."
+    },
+    {
+      "name": "track",
+      "id": 2,
+      "type": "int",
+      "default": 0,
+      "constraints": {
+        "min": 0
+      },
+      "description": "The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value."
+    },
+    {
+      "name": "axis",
+      "id": 3,
+      "type": "Axis",
+      "default": "horizontal"
+    },
+    {
+      "name": "transformHitTests",
+      "id": 4,
+      "type": "bool",
+      "default": true,
+      "flutter": "transformHitTests"
+    },
+    {
+      "name": "textDirection",
+      "id": 5,
+      "type": "TextDirection",
+      "flutter": "textDirection"
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "flutter": "child"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "position",
+      "reason": "controller→state",
+      "note": "Driven by the timeline track."
+    }
+  ]
+}

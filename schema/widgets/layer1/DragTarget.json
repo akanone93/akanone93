@@ -1,0 +1,105 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "DragTarget",
+  "id": 135,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "DragTarget",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "interaction",
+  "icon": "move_to_inbox",
+  "description": "Accepts a `Draggable`'s payload dropped on it; its child is highlighted while a candidate hovers.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 30,
+  "accessibility": {
+    "role": "none",
+    "interactive": true
+  },
+  "typeParameters": [
+    "T"
+  ],
+  "props": [
+    {
+      "name": "accepts",
+      "id": 1,
+      "type": "T",
+      "description": "When set, only a `Draggable` whose `data` equals it is accepted."
+    },
+    {
+      "name": "highlightColor",
+      "id": 2,
+      "type": "color",
+      "description": "Tints the child while an acceptable candidate hovers over it."
+    },
+    {
+      "name": "hitTestBehavior",
+      "id": 3,
+      "type": "HitTestBehavior",
+      "default": "translucent",
+      "flutter": "hitTestBehavior"
+    }
+  ],
+  "events": [
+    {
+      "name": "onAccept",
+      "id": 1,
+      "payload": "T",
+      "flutter": [
+        "onAccept",
+        "onAcceptWithDetails"
+      ],
+      "description": "Fired with the dropped `data`."
+    },
+    {
+      "name": "onLeave",
+      "id": 2,
+      "flutter": "onLeave",
+      "description": "Fired when a candidate leaves without being dropped."
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "required": true,
+      "flutter": "builder",
+      "description": "The content; it is highlighted while a candidate hovers."
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "onWillAccept",
+      "reason": "callback→event",
+      "note": "Acceptance is declared with `accepts`."
+    },
+    {
+      "flutter": "onWillAcceptWithDetails",
+      "reason": "callback→event",
+      "note": "Acceptance is declared with `accepts`."
+    },
+    {
+      "flutter": "onMove",
+      "reason": "deferred"
+    }
+  ]
+}
