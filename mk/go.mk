@@ -6,7 +6,11 @@
 
 .PHONY: gen proto sqlc sqlc-check go-check proto-check proto-lint proto-format-check proto-breaking go-fmt go-fmt-check \
 	go-lint go-tidy go-tidy-check go-gen-check registry-lock-check go-test go-test-race go-cover \
-	go-determinism go-budgets go-fuzz currencies-check phone-metadata go-vuln go-build go-reproducible
+	go-determinism go-budgets go-fuzz currencies-check phone-metadata go-vuln go-build go-reproducible catalogue-check
+
+# Phase and flags of `make catalogue-check`; report-only until the catch-up ends.
+CATALOGUE_PHASE ?= P8
+CATALOGUE_FLAGS ?= -report
 
 # How long `make go-fuzz` runs each fuzz target.
 FUZZTIME      ?= 30s
@@ -129,6 +133,9 @@ registry-lock-check: ## Fail if a permanent ID recorded in the lock at LOCK_BASE
 		git show "$(LOCK_BASE):schema/widgets/ids.lock.json" > "$$base"; \
 		$(GO) run ./tools/cmd/schemagen -root . -lock-base "$$base"; \
 	else echo "registry-lock-check: no lock at $(LOCK_BASE); nothing to compare"; fi
+
+catalogue-check: ## Fail when Appendix C/D and the widget and action registries disagree (plan p8 §5.12)
+	cd tools && $(GO) run ./cmd/catalogue -root .. -phase $(CATALOGUE_PHASE) $(CATALOGUE_FLAGS)
 
 go-test: ## Run Go unit tests
 	@for m in $(GO_MODULES); do (cd $$m && $(GO) test ./...); done
