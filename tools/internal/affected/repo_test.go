@@ -148,6 +148,35 @@ func TestProjectGeneratedFilesRunGoLint(t *testing.T) {
 	}
 }
 
+// TestProjectPushesLeaveOnlyTheDailyJobs checks which jobs a push to main
+// and the merge queue leave to the daily and manual runs: the iOS and
+// Android 26 device flows and the codec rebuild (ADR-0043, Revision
+// 2026-10-16); and that the daily and manual runs run every job.
+// Verifies: CI-002.
+func TestProjectPushesLeaveOnlyTheDailyJobs_CI_002(t *testing.T) {
+	t.Parallel()
+	rules := projectRules(t)
+	for _, event := range []string{"push", "merge_group"} {
+		var skipped []string
+		for name, on := range rules.Select(Change{Event: event}).Jobs {
+			if !on {
+				skipped = append(skipped, name)
+			}
+		}
+		slices.Sort(skipped)
+		if want := []string{"e2e-android-26", "e2e-ios", "wasm-codecs"}; !slices.Equal(skipped, want) {
+			t.Errorf("a %s skips %v, want %v", event, skipped, want)
+		}
+	}
+	for _, event := range []string{"schedule", "workflow_dispatch"} {
+		for name, on := range rules.Select(Change{Event: event}).Jobs {
+			if !on {
+				t.Errorf("a %s run skips %s", event, name)
+			}
+		}
+	}
+}
+
 // TestProjectPastChangesRunTheRightJobs checks the selection against real
 // changes from the repository's history and typical changes, each with
 // the exact jobs it must run.

@@ -194,7 +194,7 @@ End every task with:
 - `make setup` installs the pinned tools (built with the project's Go toolchain) and the git hooks. Flutter and Bun are installed separately at the versions pinned in the Makefile.
 - Toolchain versions: Go from the `toolchain` line in `backend/go.mod`; Flutter and Bun in the Makefile and `.github/workflows/ci.yml`; changed together, in one PR ([ci.md](docs/engineering/ci.md)).
 - The repository uses LF line endings only (`.gitattributes`). On Windows, prefer an editor over `sed -i`, which can write CRLF.
-- The race detector needs cgo; if it is unavailable locally, `make go-test` runs without it and CI runs `make go-cover` with `-race`.
+- The race detector needs cgo; if it is unavailable locally, `make go-test` runs without it, and CI runs `make go-test-race` beside `make go-cover`.
 
 ---
 

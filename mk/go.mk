@@ -80,7 +80,7 @@ sqlc-check: ## Fail if a query does not type-check against the migrations
 
 ##@ Go (backend, tools)
 
-go-check: go-fmt-check go-lint go-tidy-check go-gen-check registry-lock-check proto-check go-cover go-vuln go-build go-reproducible ## All Go gates
+go-check: go-fmt-check go-lint go-tidy-check go-gen-check registry-lock-check proto-check go-test-race go-cover go-vuln go-build go-reproducible ## All Go gates
 
 proto-check: proto-lint proto-format-check proto-breaking ## All API contract gates (SRV-000, SRV-002)
 
@@ -133,11 +133,15 @@ registry-lock-check: ## Fail if a permanent ID recorded in the lock at LOCK_BASE
 go-test: ## Run Go unit tests
 	@for m in $(GO_MODULES); do (cd $$m && $(GO) test ./...); done
 
-go-test-race: ## Run Go unit tests with the race detector (needs cgo)
+# The race detector and coverage run as two passes, and as two parallel jobs
+# in CI: together the instrumentations cost more than each pass alone
+# (ADR-0043, Revision 2026-10-16). Coverage is the same with or without the
+# race detector.
+go-test-race: ## Run Go tests with the race detector (needs cgo)
 	@for m in $(GO_MODULES); do (cd $$m && CGO_ENABLED=1 $(GO) test -race ./...); done
 
-go-cover: ## Run Go tests with race detector and coverage; enforce floors (QA-001)
-	@for m in $(GO_MODULES); do (cd $$m && CGO_ENABLED=1 $(GO) test -race -covermode=atomic -coverprofile=coverage.out ./...); done
+go-cover: ## Run Go tests with coverage; enforce floors (QA-001)
+	@for m in $(GO_MODULES); do (cd $$m && $(GO) test -covermode=atomic -coverprofile=coverage.out ./...); done
 	$(COVGATE) -kind go $(addsuffix /coverage.out,$(GO_MODULES))
 
 # Verifies: CMP-002.

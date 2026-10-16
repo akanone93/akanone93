@@ -63,7 +63,8 @@ go run ./cmd/plux publish …                 # also: keys, pull, release
 - Unit tests only: `make test`.
 - Go: `make go-test-race`, `make go-cover` (with coverage floors),
   `make go-fuzz FUZZTIME=30s`, `make go-determinism`.
-- Dart: `make dart-test`, `make dart-cover`, or `flutter test` in a package.
+- Dart: `make dart-test`, `make dart-cover` (three packages at a time; `DART_JOBS=1` for one),
+  or `flutter test` in a package.
 - Against the real stack (Docker): `make compose-test`.
 
 How tests are organised: [testing](../engineering/testing.md).

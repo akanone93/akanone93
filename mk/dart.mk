@@ -36,8 +36,20 @@ dart-analyze: ## Analyze Dart code with strict rules; infos are fatal
 dart-test: ## Run Dart and Flutter tests
 	@for p in $(DART_PACKAGES); do (cd $$p && flutter test); done
 
-dart-cover: ## Run Dart tests with coverage and enforce floors (QA-001)
-	@for p in $(DART_PACKAGES); do (cd $$p && flutter test --coverage); done
+# How many packages dart-cover tests at once. Each package's output is kept
+# and printed whole, in package order, once all have finished; a line per
+# package reports it as it finishes. plux_flutter, the longest, starts first.
+DART_JOBS ?= 3
+
+dart-cover: ## Run Dart tests with coverage, DART_JOBS packages at a time; enforce floors (QA-001)
+	@logs=$$(mktemp -d); trap 'rm -rf "$$logs"' EXIT; \
+	printf '%s\n' $(filter packages/plux_flutter,$(DART_PACKAGES)) $(filter-out packages/plux_flutter,$(DART_PACKAGES)) | \
+		xargs -P $(DART_JOBS) -I{} bash -c 'log="$$1/$$(tr / _ <<<"$$2").log"; start=$$SECONDS; \
+			if (cd "$$2" && flutter test --coverage) >"$$log" 2>&1; then echo "✓ $$2 ($$((SECONDS - start)) s)"; \
+			else echo "✗ $$2 ($$((SECONDS - start)) s)"; touch "$$log.failed"; fi' _ "$$logs" {}; \
+	failed=; for p in $(DART_PACKAGES); do log="$$logs/$$(tr / _ <<<"$$p").log"; \
+		echo "── $$p"; cat "$$log"; if [ -e "$$log.failed" ]; then failed="$$failed $$p"; fi; done; \
+	if [ -n "$$failed" ]; then echo "✗ flutter test failed in:$$failed"; exit 1; fi
 	$(COVGATE) -kind dart $(addsuffix /coverage/lcov.info,$(DART_PACKAGES))
 
 WIDGETS_API := cd packages/plux_widget_api && dart run bin/extract.dart --root ../.. --flutter-version $(FLUTTER_VERSION)
