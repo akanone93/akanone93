@@ -17,7 +17,7 @@ How the pipeline is built and why. The requirements are spec §29 (`CI-001`–`C
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
-| [ci.yml](../../.github/workflows/ci.yml) | Pull requests, pushes to `main`, merge queue, daily, manual | Every quality gate |
+| [ci.yml](../../.github/workflows/ci.yml) | Pull requests, pushes to `main`, merge queue, daily, manual | Every quality gate; a manual run with `as-push` selects the jobs a push to `main` runs |
 | [fuzz.yml](../../.github/workflows/fuzz.yml) | Nightly, manual (time per target as input) | `make go-fuzz`: every Go fuzz target for 5 minutes; failing inputs are kept as an artifact (`QA-004`, `CMP-052`) |
 | [scorecard.yml](../../.github/workflows/scorecard.yml) | Pushes to `main`, weekly, ruleset changes | OpenSSF Scorecard; results in code scanning |
 | [load.yml](../../.github/workflows/load.yml) | Nightly, manual (rate as input) | Starts the Compose stack with the load overlay, seeds it and runs `test/load/manifest.js` with k6; results in the job summary (`NFR-020`; the reference numbers are in [p2-backend.md](../benchmarks/p2-backend.md)) |

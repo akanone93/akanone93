@@ -320,7 +320,8 @@ that can affect them.
   `skipOnPush` in `ci/affected.json`, as the codec rebuild is. A pull request that can
   affect them still runs them before it merges; for one that cannot, by the selection's
   rules, they ran only after the merge, on the push, and now run the next day (the daily
-  and manual runs run every job). A push then needs no macOS runner but the size job's.
+  and manual runs run every job). A push then needs no macOS runner but the size job's. A
+  manual run with the input `as-push` selects as a push does, to time one before a merge.
 - **Five macOS jobs for five runners.** Go determinism on macOS runs in the Size (iOS)
   job, whenever that job runs; Go determinism runs on Linux and Windows on its own.
 - **Caches within 10 GB, written by one job each.** Every run restores; one named job per

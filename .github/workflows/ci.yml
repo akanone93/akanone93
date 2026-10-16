@@ -39,6 +39,11 @@ on:
   schedule:
     - cron: "17 5 * * *" # daily: newly published vulnerabilities
   workflow_dispatch:
+    inputs:
+      as-push:
+        description: Select the jobs a push to main runs, leaving out the daily-only ones (iOS, Android 26)
+        type: boolean
+        default: false
 
 permissions: {}
 
@@ -86,7 +91,8 @@ jobs:
       - name: Select the jobs the change affects
         id: select
         env:
-          EVENT: ${{ github.event_name }}
+          # A manual run with as-push selects as a push to main does.
+          EVENT: ${{ github.event_name == 'workflow_dispatch' && inputs.as-push && 'push' || github.event_name }}
         run: |
           base=()
           if [ "$EVENT" = pull_request ]; then base=(-base HEAD^1 -head HEAD); fi
