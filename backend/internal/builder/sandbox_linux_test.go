@@ -129,7 +129,7 @@ func TestLinuxSandboxLimitsHoldFromTheStart_FN_016(t *testing.T) {
 	limits := string(res.Stdout)
 	for _, want := range []string{"Max address space         100663296            100663296", "Max cpu time              3                    4"} {
 		if !strings.Contains(limits, want) {
-			t.Errorf("the tool did not start under %q:\n%s", want, limits)
+			t.Errorf("the tool did not start under %q (exit %d, stderr %q):\n%s", want, res.ExitCode, res.Stderr, limits)
 		}
 	}
 	res, err = s.Run(t.Context(), Command{Path: "/bin/echo", Args: []string{"a b", "$HOME"}, Limits: Limits{Memory: 96 << 20}})
@@ -139,15 +139,15 @@ func TestLinuxSandboxLimitsHoldFromTheStart_FN_016(t *testing.T) {
 }
 
 // TestLimitedCommandSetsTheLimitsBeforeTheTool checks the wrapper itself, as
-// the race it closes cannot be forced: the shell sets the hard CPU limit,
-// then the soft one and the address space, then replaces itself with the
+// the race it closes cannot be forced: the shell sets the soft CPU limit,
+// then the hard one and the address space, then replaces itself with the
 // tool and its arguments; a command without those limits is unchanged.
 // Verifies: FN-016.
 func TestLimitedCommandSetsTheLimitsBeforeTheTool_FN_016(t *testing.T) {
 	t.Parallel()
 	cmd := Command{Path: "/usr/bin/bun", Args: []string{"wasm-opt", "--version"}, Limits: Limits{CPUTime: 1500 * time.Millisecond, Memory: 1 << 30, Wall: time.Minute}}
 	got := limitedCommand(cmd)
-	want := []string{"-c", `ulimit -H -t 3 && ulimit -S -t 2 && ulimit -v 1048576 && exec "$0" "$@"`, "/usr/bin/bun", "wasm-opt", "--version"}
+	want := []string{"-c", `ulimit -S -t 2 && ulimit -H -t 3 && ulimit -v 1048576 && exec "$0" "$@"`, "/usr/bin/bun", "wasm-opt", "--version"}
 	if got.Path != "/bin/sh" || strings.Join(got.Args, "\x00") != strings.Join(want, "\x00") || got.Limits != cmd.Limits {
 		t.Errorf("limitedCommand = %q %q", got.Path, got.Args)
 	}

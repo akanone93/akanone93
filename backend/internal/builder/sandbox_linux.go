@@ -44,7 +44,8 @@ func limitedCommand(cmd Command) Command {
 	var set []string
 	if cmd.Limits.CPUTime > 0 {
 		secs := uint64((cmd.Limits.CPUTime + time.Second - 1) / time.Second)
-		set = append(set, fmt.Sprintf("ulimit -H -t %d", secs+1), fmt.Sprintf("ulimit -S -t %d", secs))
+		// Soft first: a hard limit below the current soft one is refused.
+		set = append(set, fmt.Sprintf("ulimit -S -t %d", secs), fmt.Sprintf("ulimit -H -t %d", secs+1))
 	}
 	if cmd.Limits.Memory > 0 {
 		set = append(set, fmt.Sprintf("ulimit -v %d", (cmd.Limits.Memory+1023)/1024))
