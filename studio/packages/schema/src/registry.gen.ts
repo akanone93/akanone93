@@ -9,7 +9,7 @@ import type { JsonValue } from "./document.gen.ts";
 export type Platform = "android" | "ios";
 
 /** The accessibility role of a widget (A11Y-002). */
-export type AccessibilityRole = "none" | "button" | "checkbox" | "radio" | "switch" | "slider" | "textField" | "image" | "text" | "header" | "list" | "progress";
+export type AccessibilityRole = "none" | "button" | "checkbox" | "radio" | "switch" | "slider" | "textField" | "image" | "text" | "header" | "list" | "progress" | "tab" | "menu" | "menuItem" | "link" | "group" | "alert";
 
 /** A category of the action catalogue (Appendix D). */
 export type ActionCategory = "navigation" | "feedback" | "state" | "forms" | "data" | "localDb" | "compute" | "control" | "analytics" | "app" | "device" | "security" | "animation" | "component" | "host" | "plux" | "payments";
