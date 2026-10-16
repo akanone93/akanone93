@@ -98,6 +98,7 @@ profile strict, version 3, device configuration sha256 ab00000000000000000000000
 
 SETTING                          VALUE                   SOURCE
 accessTokenLifetime              300                     profile
+accessibilityBlocksPublish       true                    profile
 allowDirectDataSources           true                    profile
 allowSoftwareKeys                false                   profile
 androidDeviceVerdictAL2          MEETS_DEVICE_INTEGRITY  profile
