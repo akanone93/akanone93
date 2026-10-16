@@ -120,3 +120,13 @@ func TestCheckRealRepository(t *testing.T) {
 		t.Error("findings not sorted")
 	}
 }
+
+func TestScanStructuralActions(t *testing.T) {
+	src := "enum StructuralAction {\n  /// doc; with semicolon\n  forEach,\n\n  parallel, // x\n  callFlow;\n  const StructuralAction();\n}\n"
+	if got, want := ScanStructuralActions(src), []string{"forEach", "parallel", "callFlow"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got := ScanStructuralActions("enum Other { a }"); got != nil {
+		t.Errorf("got %v", got)
+	}
+}

@@ -186,6 +186,9 @@ var (
 	widgetIDConst = regexp.MustCompile(`\b([a-z]\w*)WidgetId\b`)
 	stringLiteral = regexp.MustCompile(`'([A-Z][A-Za-z0-9]*)'`)
 	actionKey     = regexp.MustCompile(`'([a-z][A-Za-z0-9]*)'\s*:`)
+	enumBody      = regexp.MustCompile(`(?s)\benum\s+StructuralAction\s*\{(.*?)(?:;|\})`)
+	lineComment   = regexp.MustCompile(`//[^\n]*`)
+	identifier    = regexp.MustCompile(`[A-Za-z_]\w*`)
 )
 
 var dartReserved = map[string]bool{
@@ -208,6 +211,16 @@ func ConstName(typeName string) string {
 		n += "_"
 	}
 	return n
+}
+
+// ScanStructuralActions returns the members of `enum StructuralAction`, whose
+// actions the interpreter dispatches by enum value instead of by name key.
+func ScanStructuralActions(src string) []string {
+	m := enumBody.FindStringSubmatch(lineComment.ReplaceAllString(src, ""))
+	if m == nil {
+		return nil
+	}
+	return identifier.FindAllString(m[1], -1)
 }
 
 // Builders is the set of widget IDs and type names known to the renderer.
@@ -325,6 +338,9 @@ func Check(root string, phase int) ([]string, error) {
 		if err := handWrittenDart(p, func(src string) {
 			for _, m := range actionKey.FindAllStringSubmatch(src, -1) {
 				handlers[m[1]] = true
+			}
+			for _, n := range ScanStructuralActions(src) {
+				handlers[n] = true
 			}
 		}); err != nil {
 			return nil, err
