@@ -1,0 +1,2289 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E, HH:mm",
+        "EHms": "E, HH:mm:ss",
+        "Ed": "E, d.",
+        "Eh": "E h\u202fa",
+        "Ehm": "E, h:mm\u202fa",
+        "Ehms": "E, h:mm:ss\u202fa",
+        "GGGGGyMMdd": "dd.MM.y. GGGGG",
+        "Gy": "y. 'g'. G",
+        "GyM": "G M.y.",
+        "GyMEd": "E, d.M.y., G",
+        "GyMMM": "y. 'g'. MMM G",
+        "GyMMMEd": "E, y. 'g'. d. MMM G",
+        "GyMMMMEEEEd": "EEEE, y. 'gada' d. MMMM G",
+        "GyMMMMd": "y. 'gada' d. MMMM G",
+        "GyMMMd": "y. 'g'. d. MMM G",
+        "GyMd": "dd-MM-y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, dd.MM.",
+        "MMM": "LLL",
+        "MMMEd": "E, d. MMM",
+        "MMMMEd": "E, d. MMMM",
+        "MMMMd": "d. MMMM",
+        "MMMd": "d. MMM",
+        "Md": "dd.MM.",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y. 'g'. G",
+        "yyyy": "y. 'g'. G",
+        "yyyyM": "MM.y. G",
+        "yyyyMEd": "E, d.M.y. G",
+        "yyyyMMM": "y. 'g'. MMM G",
+        "yyyyMMMEd": "E, y. 'g'. d. MMM G",
+        "yyyyMMMM": "y. 'g'. MMMM G",
+        "yyyyMMMd": "y. 'g'. d. MMM G",
+        "yyyyMd": "d.MM.y. G"
+      },
+      "dateFormats": {
+        "full": "EEEE, y. 'gada' d. MMMM G",
+        "long": "y. 'gada' d. MMMM G",
+        "medium": "y. 'gada' d. MMM G",
+        "short": "dd.MM.y. GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'plkst'. {0}",
+        "long": "{1} 'plkst'. {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "priekšp.",
+            "pm": "pēcp."
+          },
+          "wide": {
+            "am": "priekšpusdienā",
+            "pm": "pēcpusdienā"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "priekšp.",
+            "pm": "pēcpusd."
+          },
+          "wide": {
+            "am": "priekšpusdiena",
+            "pm": "pēcpusdiena"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["svētd.", "pirmd.", "otrd.", "trešd.", "ceturtd.", "piektd.", "sestd."],
+          "short": ["Sv", "Pr", "Ot", "Tr", "Ce", "Pk", "Se"],
+          "wide": ["svētdiena", "pirmdiena", "otrdiena", "trešdiena", "ceturtdiena", "piektdiena", "sestdiena"]
+        },
+        "standAlone": {
+          "abbreviated": ["Svētd.", "Pirmd.", "Otrd.", "Trešd.", "Ceturtd.", "Piektd.", "Sestd."],
+          "short": ["Sv", "Pr", "Ot", "Tr", "Ce", "Pk", "Se"],
+          "wide": ["Svētdiena", "Pirmdiena", "Otrdiena", "Trešdiena", "Ceturtdiena", "Piektdiena", "Sestdiena"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["meskerems", "tekemts", "hedars", "tahsass", "ters", "jakatīts", "magabits", "miāzija", "genbots", "senē", "hamlē", "nahasē", "epagomens"],
+          "wide": ["meskerems", "tekemts", "hedars", "tahsass", "ters", "jakatīts", "magabits", "miāzija", "genbots", "senē", "hamlē", "nahasē", "epagomens"]
+        },
+        "standAlone": {
+          "abbreviated": ["meskerems", "tekemts", "hedars", "tahsass", "ters", "jakatīts", "magabits", "miāzija", "genbots", "senē", "hamlē", "nahasē", "epagomens"],
+          "wide": ["meskerems", "tekemts", "hedars", "tahsass", "ters", "jakatīts", "magabits", "miāzija", "genbots", "senē", "hamlē", "nahasē", "epagomens"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E, HH:mm",
+        "EHms": "E, HH:mm:ss",
+        "Ed": "E, d.",
+        "Eh": "E h\u202fa",
+        "Ehm": "E, h:mm\u202fa",
+        "Ehms": "E, h:mm:ss\u202fa",
+        "Gy": "G y. 'g'.",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "G y. 'g'. MMM",
+        "GyMMMEd": "E, G y. 'g'. d. MMM",
+        "GyMMMd": "G y. 'g'. d. MMM",
+        "GyMd": "GGGGG dd-MM-y",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, dd.MM.",
+        "MMM": "LLL",
+        "MMMEd": "E, d. MMM",
+        "MMMMEd": "E, d. MMMM",
+        "MMMMd": "d. MMMM",
+        "MMMd": "d. MMM",
+        "Md": "dd.MM.",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "mmss": "mm:ss",
+        "ms": "mm:ss",
+        "y": "y. 'g'.",
+        "yM": "MM.y.",
+        "yMEd": "E, d.MM.y.",
+        "yMMM": "y. 'g'. MMM",
+        "yMMMEd": "E, y. 'g'. d. MMM",
+        "yMMMM": "y. 'g'. MMMM",
+        "yMMMMEEEEd": "EEEE, y. 'gada' d. MMMM",
+        "yMMMMd": "y. 'gada' d. MMMM",
+        "yMMMd": "y. 'g'. d. MMM",
+        "yMd": "d.MM.y.",
+        "yyMMdd": "dd.MM.yy"
+      },
+      "dateFormats": {
+        "full": "EEEE, y. 'gada' d. MMMM",
+        "long": "y. 'gada' d. MMMM",
+        "medium": "y. 'gada' d. MMM",
+        "short": "dd.MM.yy"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "priekšp.",
+            "pm": "pēcp."
+          },
+          "narrow": {
+            "am": "priekšp.",
+            "pm": "pēcp."
+          },
+          "wide": {
+            "am": "priekšpusdienā",
+            "pm": "pēcpusdienā"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "priekšp.",
+            "pm": "pēcpusd."
+          },
+          "narrow": {
+            "am": "priekšp.",
+            "pm": "pēcpusd."
+          },
+          "wide": {
+            "am": "priekšpusdiena",
+            "pm": "pēcpusdiena"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["svētd.", "pirmd.", "otrd.", "trešd.", "ceturtd.", "piektd.", "sestd."],
+          "narrow": ["S", "P", "O", "T", "C", "P", "S"],
+          "short": ["Sv", "Pr", "Ot", "Tr", "Ce", "Pk", "Se"],
+          "wide": ["svētdiena", "pirmdiena", "otrdiena", "trešdiena", "ceturtdiena", "piektdiena", "sestdiena"]
+        },
+        "standAlone": {
+          "abbreviated": ["Svētd.", "Pirmd.", "Otrd.", "Trešd.", "Ceturtd.", "Piektd.", "Sestd."],
+          "narrow": ["S", "P", "O", "T", "C", "P", "S"],
+          "short": ["Sv", "Pr", "Ot", "Tr", "Ce", "Pk", "Se"],
+          "wide": ["Svētdiena", "Pirmdiena", "Otrdiena", "Trešdiena", "Ceturtdiena", "Piektdiena", "Sestdiena"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["p.m.ē.", "m.ē."],
+        "narrow": ["p.m.ē.", "m.ē."],
+        "wide": ["pirms mūsu ēras", "mūsu ērā"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["janv.", "febr.", "marts", "apr.", "maijs", "jūn.", "jūl.", "aug.", "sept.", "okt.", "nov.", "dec."],
+          "narrow": ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+          "wide": ["janvāris", "februāris", "marts", "aprīlis", "maijs", "jūnijs", "jūlijs", "augusts", "septembris", "oktobris", "novembris", "decembris"]
+        },
+        "standAlone": {
+          "abbreviated": ["janv.", "febr.", "marts", "apr.", "maijs", "jūn.", "jūl.", "aug.", "sept.", "okt.", "nov.", "dec."],
+          "narrow": ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+          "wide": ["janvāris", "februāris", "marts", "aprīlis", "maijs", "jūnijs", "jūlijs", "augusts", "septembris", "oktobris", "novembris", "decembris"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E, HH:mm",
+        "EHms": "E, HH:mm:ss",
+        "Ed": "E, d.",
+        "Eh": "E h\u202fa",
+        "Ehm": "E, h:mm\u202fa",
+        "Ehms": "E, h:mm:ss\u202fa",
+        "GGGGGyMMdd": "dd.MM.y. GGGGG",
+        "Gy": "y. 'g'. G",
+        "GyM": "G M.y.",
+        "GyMEd": "E, d.M.y., G",
+        "GyMMM": "y. 'g'. MMM G",
+        "GyMMMEd": "E, y. 'g'. d. MMM G",
+        "GyMMMMEEEEd": "EEEE, y. 'gada' d. MMMM G",
+        "GyMMMMd": "y. 'gada' d. MMMM G",
+        "GyMMMd": "y. 'g'. d. MMM G",
+        "GyMd": "dd-MM-y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, dd.MM.",
+        "MMM": "LLL",
+        "MMMEd": "E, d. MMM",
+        "MMMMEd": "E, d. MMMM",
+        "MMMMd": "d. MMMM",
+        "MMMd": "d. MMM",
+        "Md": "dd.MM.",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y. 'g'. G",
+        "yyyy": "y. 'g'. G",
+        "yyyyM": "MM.y. G",
+        "yyyyMEd": "E, d.M.y. G",
+        "yyyyMMM": "y. 'g'. MMM G",
+        "yyyyMMMEd": "E, y. 'g'. d. MMM G",
+        "yyyyMMMM": "y. 'g'. MMMM G",
+        "yyyyMMMd": "y. 'g'. d. MMM G",
+        "yyyyMd": "d.MM.y. G"
+      },
+      "dateFormats": {
+        "full": "EEEE, y. 'gada' d. MMMM G",
+        "long": "y. 'gada' d. MMMM G",
+        "medium": "y. 'gada' d. MMM G",
+        "short": "dd.MM.y. GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'plkst'. {0}",
+        "long": "{1} 'plkst'. {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "priekšp.",
+            "pm": "pēcp."
+          },
+          "wide": {
+            "am": "priekšpusdienā",
+            "pm": "pēcpusdienā"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "priekšp.",
+            "pm": "pēcpusd."
+          },
+          "wide": {
+            "am": "priekšpusdiena",
+            "pm": "pēcpusdiena"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["svētd.", "pirmd.", "otrd.", "trešd.", "ceturtd.", "piektd.", "sestd."],
+          "short": ["Sv", "Pr", "Ot", "Tr", "Ce", "Pk", "Se"],
+          "wide": ["svētdiena", "pirmdiena", "otrdiena", "trešdiena", "ceturtdiena", "piektdiena", "sestdiena"]
+        },
+        "standAlone": {
+          "abbreviated": ["Svētd.", "Pirmd.", "Otrd.", "Trešd.", "Ceturtd.", "Piektd.", "Sestd."],
+          "short": ["Sv", "Pr", "Ot", "Tr", "Ce", "Pk", "Se"],
+          "wide": ["Svētdiena", "Pirmdiena", "Otrdiena", "Trešdiena", "Ceturtdiena", "Piektdiena", "Sestdiena"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AH", "BH"],
+        "wide": ["pēc hidžras", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["muharams", "safars", "1. rabī", "2. rabī", "1. džumādā", "2. džumādā", "radžabs", "šabans", "ramadāns", "šauvals", "du al-kidā", "du al-hidžā"]
+        },
+        "standAlone": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["muharams", "safars", "1. rabī", "2. rabī", "1. džumādā", "2. džumādā", "radžabs", "šabans", "ramadāns", "šauvals", "du al-kidā", "du al-hidžā"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E, HH:mm",
+        "EHms": "E, HH:mm:ss",
+        "Ed": "E, d.",
+        "Eh": "E h\u202fa",
+        "Ehm": "E, h:mm\u202fa",
+        "Ehms": "E, h:mm:ss\u202fa",
+        "GGGGGyMMdd": "dd.MM.y. GGGGG",
+        "Gy": "y. 'g'. G",
+        "GyM": "G M.y.",
+        "GyMEd": "E, d.M.y., G",
+        "GyMMM": "y. 'g'. MMM G",
+        "GyMMMEd": "E, y. 'g'. d. MMM G",
+        "GyMMMMEEEEd": "EEEE, y. 'gada' d. MMMM G",
+        "GyMMMMd": "y. 'gada' d. MMMM G",
+        "GyMMMd": "y. 'g'. d. MMM G",
+        "GyMd": "dd-MM-y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, dd.MM.",
+        "MMM": "LLL",
+        "MMMEd": "E, d. MMM",
+        "MMMMEd": "E, d. MMMM",
+        "MMMMd": "d. MMMM",
+        "MMMd": "d. MMM",
+        "Md": "dd.MM.",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y. 'g'. G",
+        "yyyy": "y. 'g'. G",
+        "yyyyM": "MM.y. G",
+        "yyyyMEd": "E, d.M.y. G",
+        "yyyyMMM": "y. 'g'. MMM G",
+        "yyyyMMMEd": "E, y. 'g'. d. MMM G",
+        "yyyyMMMM": "y. 'g'. MMMM G",
+        "yyyyMMMd": "y. 'g'. d. MMM G",
+        "yyyyMd": "d.MM.y. G"
+      },
+      "dateFormats": {
+        "full": "EEEE, y. 'gada' d. MMMM G",
+        "long": "y. 'gada' d. MMMM G",
+        "medium": "y. 'gada' d. MMM G",
+        "short": "dd.MM.y. GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'plkst'. {0}",
+        "long": "{1} 'plkst'. {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "priekšp.",
+            "pm": "pēcp."
+          },
+          "wide": {
+            "am": "priekšpusdienā",
+            "pm": "pēcpusdienā"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "priekšp.",
+            "pm": "pēcpusd."
+          },
+          "wide": {
+            "am": "priekšpusdiena",
+            "pm": "pēcpusdiena"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["svētd.", "pirmd.", "otrd.", "trešd.", "ceturtd.", "piektd.", "sestd."],
+          "short": ["Sv", "Pr", "Ot", "Tr", "Ce", "Pk", "Se"],
+          "wide": ["svētdiena", "pirmdiena", "otrdiena", "trešdiena", "ceturtdiena", "piektdiena", "sestdiena"]
+        },
+        "standAlone": {
+          "abbreviated": ["Svētd.", "Pirmd.", "Otrd.", "Trešd.", "Ceturtd.", "Piektd.", "Sestd."],
+          "short": ["Sv", "Pr", "Ot", "Tr", "Ce", "Pk", "Se"],
+          "wide": ["Svētdiena", "Pirmdiena", "Otrdiena", "Trešdiena", "Ceturtdiena", "Piektdiena", "Sestdiena"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["pers. gads"],
+        "wide": ["persiešu gads"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["farvardīns", "ordibehešts", "hordāds", "tīrs", "mordāds", "šahrivērs", "mehrs", "abans", "azers", "dejs", "bahmans", "esfands"],
+          "wide": ["farvardīns", "ordibehešts", "hordāds", "tīrs", "mordāds", "šahrivērs", "mehrs", "abans", "azers", "dejs", "bahmans", "esfands"]
+        },
+        "standAlone": {
+          "abbreviated": ["farvardīns", "ordibehešts", "hordāds", "tīrs", "mordāds", "šahrivērs", "mehrs", "abans", "azers", "dejs", "bahmans", "esfands"],
+          "wide": ["farvardīns", "ordibehešts", "hordāds", "tīrs", "mordāds", "šahrivērs", "mehrs", "abans", "azers", "dejs", "bahmans", "esfands"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    }
+  },
+  "currencies": {
+    "AED": {
+      "name": "Apvienoto Arābu Emirātu dirhēms",
+      "plural": {
+        "one": "AAE dirhēms",
+        "other": "AAE dirhēmi",
+        "zero": "AAE dirhēmi"
+      }
+    },
+    "AFN": {
+      "name": "Afganistānas afgāns",
+      "narrow": "؋",
+      "plural": {
+        "other": "Afganistānas afgāni",
+        "zero": "Afganistānas afgāni"
+      }
+    },
+    "ALL": {
+      "name": "Albānijas leks",
+      "plural": {
+        "other": "Albānijas leki",
+        "zero": "Albānijas leki"
+      }
+    },
+    "AMD": {
+      "name": "Armēnijas drams",
+      "narrow": "֏",
+      "plural": {
+        "other": "Armēnijas drami",
+        "zero": "Armēnijas drami"
+      }
+    },
+    "ANG": {
+      "name": "Nīderlandes Antiļu guldenis",
+      "plural": {
+        "other": "Nīderlandes Antiļu guldeņi",
+        "zero": "Nīderlandes Antiļu guldeņi"
+      }
+    },
+    "AOA": {
+      "name": "Angolas kvanza",
+      "narrow": "Kz",
+      "plural": {
+        "other": "Angolas kvanzas",
+        "zero": "Angolas kvanzas"
+      }
+    },
+    "ARS": {
+      "name": "Argentīnas peso",
+      "narrow": "$"
+    },
+    "ATS": {
+      "name": "Austrijas šiliņš"
+    },
+    "AUD": {
+      "name": "Austrālijas dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Austrālijas dolāri",
+        "zero": "Austrālijas dolāri"
+      },
+      "symbol": "AU$"
+    },
+    "AWG": {
+      "name": "Arubas guldenis",
+      "plural": {
+        "other": "Arubas guldeņi",
+        "zero": "Arubas guldeņi"
+      }
+    },
+    "AZM": {
+      "name": "Azerbaidžānas manats (1993–2006)",
+      "plural": {
+        "other": "Azerbaidžānas manati (1993–2006)",
+        "zero": "Azerbaidžānas manati (1993–2006)"
+      }
+    },
+    "AZN": {
+      "name": "Azerbaidžānas manats",
+      "narrow": "₼",
+      "plural": {
+        "other": "Azerbaidžānas manati",
+        "zero": "Azerbaidžānas manati"
+      }
+    },
+    "BAM": {
+      "name": "Bosnijas un Hercogovinas konvertējamā marka",
+      "narrow": "KM",
+      "plural": {
+        "other": "Bosnijas un Hercogovinas konvertējamās markas",
+        "zero": "Bosnijas un Hercogovinas konvertējamās markas"
+      }
+    },
+    "BBD": {
+      "name": "Barbadosas dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Barbadosas dolāri",
+        "zero": "Barbadosas dolāri"
+      }
+    },
+    "BDT": {
+      "name": "Bangladešas taka",
+      "narrow": "৳",
+      "plural": {
+        "other": "Bangladešas takas",
+        "zero": "Bangladešas takas"
+      }
+    },
+    "BEF": {
+      "name": "Beļģijas franks",
+      "plural": {
+        "other": "Beļģijas franki",
+        "zero": "Beļģijas franki"
+      }
+    },
+    "BGN": {
+      "name": "Bulgārijas leva",
+      "plural": {
+        "other": "Bulgārijas levas",
+        "zero": "Bulgārijas levas"
+      }
+    },
+    "BHD": {
+      "name": "Bahreinas dinārs",
+      "plural": {
+        "other": "Bahreinas dināri",
+        "zero": "Bahreinas dināri"
+      }
+    },
+    "BIF": {
+      "name": "Burundi franks",
+      "plural": {
+        "other": "Burundi franki",
+        "zero": "Burundi franki"
+      }
+    },
+    "BMD": {
+      "name": "Bermudu dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Bermudu dolāri",
+        "zero": "Bermudu dolāri"
+      }
+    },
+    "BND": {
+      "name": "Brunejas dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Brunejas dolāri",
+        "zero": "Brunejas dolāri"
+      }
+    },
+    "BOB": {
+      "name": "Bolīvijas boliviano",
+      "narrow": "Bs"
+    },
+    "BRL": {
+      "name": "Brazīlijas reāls",
+      "plural": {
+        "other": "Brazīlijas reāli",
+        "zero": "Brazīlijas reāli"
+      },
+      "symbol": "R$"
+    },
+    "BSD": {
+      "name": "Bahamu dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Bahamu dolāri",
+        "zero": "Bahamu dolāri"
+      }
+    },
+    "BTN": {
+      "name": "Butānas ngultrums",
+      "plural": {
+        "other": "Butānas ngultrumi",
+        "zero": "Butānas ngultrumi"
+      }
+    },
+    "BWP": {
+      "name": "Botsvanas pula",
+      "narrow": "P",
+      "plural": {
+        "other": "Botsvanas pulas",
+        "zero": "Botsvanas pulas"
+      }
+    },
+    "BYN": {
+      "name": "Baltkrievijas rubelis",
+      "narrow": "р.",
+      "plural": {
+        "other": "Baltkrievijas rubeļi",
+        "zero": "Baltkrievijas rubeļi"
+      }
+    },
+    "BYR": {
+      "name": "Baltkrievijas rubelis (2000–2016)",
+      "plural": {
+        "other": "Baltkrievijas rubeļi (2000–2016)",
+        "zero": "Baltkrievijas rubeļi (2000–2016)"
+      }
+    },
+    "BZD": {
+      "name": "Belizas dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Belizas dolāri",
+        "zero": "Belizas dolāri"
+      }
+    },
+    "CAD": {
+      "name": "Kanādas dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Kanādas dolāri",
+        "zero": "Kanādas dolāri"
+      },
+      "symbol": "CA$"
+    },
+    "CDF": {
+      "name": "KDR franks",
+      "plural": {
+        "other": "KDR franki",
+        "zero": "KDR franki"
+      }
+    },
+    "CHF": {
+      "name": "Šveices franks",
+      "plural": {
+        "other": "Šveices franki",
+        "zero": "Šveices franki"
+      }
+    },
+    "CLP": {
+      "name": "Čīles peso",
+      "narrow": "$"
+    },
+    "CNH": {
+      "name": "Ķīnas juaņa (ofšors)",
+      "plural": {
+        "other": "Ķīnas juaņas (ofšors)"
+      }
+    },
+    "CNY": {
+      "name": "Ķīnas juaņs",
+      "narrow": "¥",
+      "plural": {
+        "other": "Ķīnas juaņi",
+        "zero": "Ķīnas juaņi"
+      },
+      "symbol": "CN¥"
+    },
+    "COP": {
+      "name": "Kolumbijas peso",
+      "narrow": "$"
+    },
+    "COU": {
+      "name": "Kolumbijas reāls"
+    },
+    "CRC": {
+      "name": "Kostarikas kolons",
+      "narrow": "₡",
+      "plural": {
+        "other": "Kostarikas koloni",
+        "zero": "Kostarikas koloni"
+      }
+    },
+    "CUC": {
+      "name": "Kubas konvertējamais peso",
+      "narrow": "$",
+      "plural": {
+        "other": "Kubas konvertējamie peso",
+        "zero": "Kubas konvertējamie peso"
+      }
+    },
+    "CUP": {
+      "name": "Kubas peso",
+      "narrow": "$"
+    },
+    "CVE": {
+      "name": "Kaboverdes eskudo"
+    },
+    "CYP": {
+      "name": "Kipras mārciņa"
+    },
+    "CZK": {
+      "name": "Čehijas krona",
+      "narrow": "Kč",
+      "plural": {
+        "other": "Čehijas kronas",
+        "zero": "Čehijas kronas"
+      }
+    },
+    "DEM": {
+      "name": "Vācijas marka"
+    },
+    "DJF": {
+      "name": "Džibutijas franks",
+      "plural": {
+        "other": "Džibutijas franki",
+        "zero": "Džibutijas franki"
+      }
+    },
+    "DKK": {
+      "name": "Dānijas krona",
+      "narrow": "kr",
+      "plural": {
+        "other": "Dānijas kronas",
+        "zero": "Dānijas kronas"
+      }
+    },
+    "DOP": {
+      "name": "Dominikānas peso",
+      "narrow": "$"
+    },
+    "DZD": {
+      "name": "Alžīrijas dinārs",
+      "plural": {
+        "other": "Alžīrijas dināri",
+        "zero": "Alžīrijas dināri"
+      }
+    },
+    "EEK": {
+      "name": "Igaunijas krona"
+    },
+    "EGP": {
+      "name": "Ēģiptes mārciņa",
+      "narrow": "E£",
+      "plural": {
+        "other": "Ēģiptes mārciņas",
+        "zero": "Ēģiptes mārciņas"
+      }
+    },
+    "ERN": {
+      "name": "Eritrejas nakfa",
+      "plural": {
+        "other": "Eritrejas nakfas",
+        "zero": "Eritrejas nakfas"
+      }
+    },
+    "ESP": {
+      "name": "Spānijas peseta",
+      "narrow": "₧"
+    },
+    "ETB": {
+      "name": "Etiopijas birs",
+      "plural": {
+        "other": "Etiopijas biri",
+        "zero": "Etiopijas biri"
+      }
+    },
+    "EUR": {
+      "name": "eiro",
+      "symbol": "€"
+    },
+    "FIM": {
+      "name": "Somijas marka"
+    },
+    "FJD": {
+      "name": "Fidži dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Fidži dolāri",
+        "zero": "Fidži dolāri"
+      }
+    },
+    "FKP": {
+      "name": "Folklenda Salu mārciņa",
+      "narrow": "£",
+      "plural": {
+        "other": "Folklenda Salu mārciņas",
+        "zero": "Folklenda Salu mārciņas"
+      }
+    },
+    "FRF": {
+      "name": "Francijas franks"
+    },
+    "GBP": {
+      "name": "Lielbritānijas mārciņa",
+      "plural": {
+        "other": "Lielbritānijas mārciņas",
+        "zero": "Lielbritānijas mārciņas"
+      },
+      "symbol": "£"
+    },
+    "GEL": {
+      "name": "Gruzijas lari",
+      "narrow": "₾"
+    },
+    "GHS": {
+      "name": "Ganas sedi"
+    },
+    "GIP": {
+      "name": "Gibraltāra mārciņa",
+      "narrow": "£",
+      "plural": {
+        "other": "Gibraltāra mārciņas",
+        "zero": "Gibraltāra mārciņas"
+      }
+    },
+    "GMD": {
+      "name": "Gambijas dalasi"
+    },
+    "GNF": {
+      "name": "Gvinejas franks",
+      "narrow": "FG",
+      "plural": {
+        "other": "Gvinejas franki",
+        "zero": "Gvinejas franki"
+      }
+    },
+    "GRD": {
+      "name": "Grieķijas drahma"
+    },
+    "GTQ": {
+      "name": "Gvatemalas ketsals",
+      "narrow": "Q",
+      "plural": {
+        "other": "Gvatemalas ketsali",
+        "zero": "Gvatemalas ketsali"
+      }
+    },
+    "GYD": {
+      "name": "Gajānas dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Gajānas dolāri",
+        "zero": "Gajānas dolāri"
+      }
+    },
+    "HKD": {
+      "name": "Honkongas dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Honkongas dolāri",
+        "zero": "Honkongas dolāri"
+      },
+      "symbol": "HK$"
+    },
+    "HNL": {
+      "name": "Hondurasas lempīra",
+      "narrow": "L",
+      "plural": {
+        "other": "Hondurasas lempīras",
+        "zero": "Hondurasas lempīras"
+      }
+    },
+    "HRK": {
+      "name": "Horvātijas kuna",
+      "narrow": "kn",
+      "plural": {
+        "other": "Horvātijas kunas",
+        "zero": "Horvātijas kunas"
+      }
+    },
+    "HTG": {
+      "name": "Haiti gurds",
+      "plural": {
+        "other": "Haiti gurdi",
+        "zero": "Haiti gurdi"
+      }
+    },
+    "HUF": {
+      "name": "Ungārijas forints",
+      "narrow": "Ft",
+      "plural": {
+        "other": "Ungārijas forinti",
+        "zero": "Ungārijas forinti"
+      }
+    },
+    "IDR": {
+      "name": "Indonēzijas rūpija",
+      "narrow": "Rp",
+      "plural": {
+        "other": "Indonēzijas rūpijas",
+        "zero": "Indonēzijas rūpijas"
+      }
+    },
+    "IEP": {
+      "name": "Īrijas mārciņa"
+    },
+    "ILS": {
+      "name": "Izraēlas šekelis",
+      "plural": {
+        "other": "Izraēlas šekeļi",
+        "zero": "Izraēlas šekeļi"
+      },
+      "symbol": "₪"
+    },
+    "INR": {
+      "name": "Indijas rūpija",
+      "plural": {
+        "other": "Indijas rūpijas",
+        "zero": "Indijas rūpijas"
+      },
+      "symbol": "₹"
+    },
+    "IQD": {
+      "name": "Irākas dinārs",
+      "plural": {
+        "other": "Irākas dināri",
+        "zero": "Irākas dināri"
+      }
+    },
+    "IRR": {
+      "name": "Irānas riāls",
+      "plural": {
+        "other": "Irānas riāli",
+        "zero": "Irānas riāli"
+      }
+    },
+    "ISK": {
+      "name": "Islandes krona",
+      "narrow": "kr",
+      "plural": {
+        "other": "Islandes kronas",
+        "zero": "Islandes kronas"
+      }
+    },
+    "ITL": {
+      "name": "Itālijas lira"
+    },
+    "JMD": {
+      "name": "Jamaikas dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Jamaikas dolāri",
+        "zero": "Jamaikas dolāri"
+      }
+    },
+    "JOD": {
+      "name": "Jordānas dinārs",
+      "plural": {
+        "other": "Jordānas dināri",
+        "zero": "Jordānas dināri"
+      }
+    },
+    "JPY": {
+      "name": "Japānas jena",
+      "plural": {
+        "other": "Japānas jenas",
+        "zero": "Japānas jenas"
+      },
+      "symbol": "¥"
+    },
+    "KES": {
+      "name": "Kenijas šiliņš",
+      "plural": {
+        "other": "Kenijas šiliņi",
+        "zero": "Kenijas šiliņi"
+      }
+    },
+    "KGS": {
+      "name": "Kirgizstānas soms",
+      "narrow": "⃀",
+      "plural": {
+        "other": "Kirgizstānas somi",
+        "zero": "Kirgizstānas somi"
+      }
+    },
+    "KHR": {
+      "name": "Kambodžas riels",
+      "narrow": "៛",
+      "plural": {
+        "other": "Kambodžas rieli",
+        "zero": "Kambodžas rieli"
+      }
+    },
+    "KMF": {
+      "name": "Komoru franks",
+      "narrow": "CF",
+      "plural": {
+        "other": "Komoru franki",
+        "zero": "Komoru franki"
+      }
+    },
+    "KPW": {
+      "name": "Ziemeļkorejas vona",
+      "narrow": "₩",
+      "plural": {
+        "other": "Ziemeļkorejas vonas",
+        "zero": "Ziemeļkorejas vonas"
+      }
+    },
+    "KRW": {
+      "name": "Dienvidkorejas vona",
+      "plural": {
+        "other": "Dienvidkorejas vonas",
+        "zero": "Dienvidkorejas vonas"
+      },
+      "symbol": "₩"
+    },
+    "KWD": {
+      "name": "Kuveitas dinārs",
+      "plural": {
+        "other": "Kuveitas dināri",
+        "zero": "Kuveitas dināri"
+      }
+    },
+    "KYD": {
+      "name": "Kaimanu salu dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Kaimanu salu dolāri",
+        "zero": "Kaimanu salu dolāri"
+      }
+    },
+    "KZT": {
+      "name": "Kazahstānas tenge",
+      "narrow": "₸",
+      "plural": {
+        "other": "Kazahstānas tenges",
+        "zero": "Kazahstānas tenges"
+      }
+    },
+    "LAK": {
+      "name": "Laosas kips",
+      "narrow": "₭",
+      "plural": {
+        "other": "Laosas kipi",
+        "zero": "Laosas kipi"
+      }
+    },
+    "LBP": {
+      "name": "Libānas mārciņa",
+      "narrow": "L£",
+      "plural": {
+        "other": "Libānas mārciņas",
+        "zero": "Libānas mārciņas"
+      }
+    },
+    "LKR": {
+      "name": "Šrilankas rūpija",
+      "narrow": "Rs",
+      "plural": {
+        "other": "Šrilankas rūpijas",
+        "zero": "Šrilankas rūpijas"
+      }
+    },
+    "LRD": {
+      "name": "Libērijas dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Libērijas dolāri",
+        "zero": "Libērijas dolāri"
+      }
+    },
+    "LSL": {
+      "name": "Lesoto loti"
+    },
+    "LTL": {
+      "name": "Lietuvas lits",
+      "narrow": "Lt",
+      "plural": {
+        "other": "Lietuvas liti",
+        "zero": "Lietuvas liti"
+      }
+    },
+    "LUF": {
+      "name": "Luksemburgas franks"
+    },
+    "LVL": {
+      "name": "Latvijas lats",
+      "plural": {
+        "other": "Latvijas lati",
+        "zero": "Latvijas lati"
+      },
+      "symbol": "Ls"
+    },
+    "LVR": {
+      "name": "Latvijas rublis"
+    },
+    "LYD": {
+      "name": "Lībijas dinārs",
+      "plural": {
+        "other": "Lībijas dināri",
+        "zero": "Lībijas dināri"
+      }
+    },
+    "MAD": {
+      "name": "Marokas dirhēms",
+      "plural": {
+        "other": "Marokas dirhēmi",
+        "zero": "Marokas dirhēmi"
+      }
+    },
+    "MDL": {
+      "name": "Moldovas leja",
+      "plural": {
+        "other": "Moldovas lejas",
+        "zero": "Moldovas lejas"
+      }
+    },
+    "MGA": {
+      "name": "Madagaskaras ariari",
+      "narrow": "Ar"
+    },
+    "MKD": {
+      "name": "Maķedonijas denārs",
+      "plural": {
+        "other": "Maķedonijas denāri",
+        "zero": "Maķedonijas denāri"
+      }
+    },
+    "MLF": {
+      "name": "CFA (Āfrikas) franks"
+    },
+    "MMK": {
+      "name": "Mjanmas kjats",
+      "narrow": "K",
+      "plural": {
+        "other": "Mjanmas kjati",
+        "zero": "Mjanmas kjati"
+      }
+    },
+    "MNT": {
+      "name": "Mongolijas tugriks",
+      "narrow": "₮",
+      "plural": {
+        "other": "Mongolijas tugriki",
+        "zero": "Mongolijas tugriki"
+      }
+    },
+    "MOP": {
+      "name": "Makao pataka",
+      "plural": {
+        "other": "Makao patakas",
+        "zero": "Makao patakas"
+      }
+    },
+    "MRO": {
+      "name": "Mauritānijas ugija (1973–2017)",
+      "plural": {
+        "other": "Mauritānijas ugijas (1973–2017)",
+        "zero": "Mauritānijas ugijas (1973–2017)"
+      }
+    },
+    "MRU": {
+      "name": "Mauritānijas ugija",
+      "plural": {
+        "other": "Mauritānijas ugijas",
+        "zero": "Mauritānijas ugijas"
+      }
+    },
+    "MTL": {
+      "name": "Maltas lira"
+    },
+    "MTP": {
+      "name": "Maltas mārciņa"
+    },
+    "MUR": {
+      "name": "Maurīcijas rūpija",
+      "narrow": "Rs",
+      "plural": {
+        "other": "Maurīcijas rūpijas",
+        "zero": "Maurīcijas rūpijas"
+      }
+    },
+    "MVR": {
+      "name": "Maldīvijas rūfija",
+      "plural": {
+        "other": "Maldīvijas rūfijas",
+        "zero": "Maldīvijas rūfijas"
+      }
+    },
+    "MWK": {
+      "name": "Malāvijas kvača",
+      "plural": {
+        "other": "Malāvijas kvačas",
+        "zero": "Malāvijas kvačas"
+      }
+    },
+    "MXN": {
+      "name": "Meksikas peso",
+      "narrow": "$",
+      "symbol": "MX$"
+    },
+    "MYR": {
+      "name": "Malaizijas ringits",
+      "narrow": "RM",
+      "plural": {
+        "other": "Malaizijas ringiti",
+        "zero": "Malaizijas ringiti"
+      }
+    },
+    "MZE": {
+      "name": "Mozambikas eskudo"
+    },
+    "MZM": {
+      "name": "Mozambikas vecais metikals",
+      "plural": {
+        "other": "Mozambikas vecie metikali",
+        "zero": "Mozambikas vecie metikali"
+      }
+    },
+    "MZN": {
+      "name": "Mozambikas metikals",
+      "plural": {
+        "other": "Mozambikas metikali",
+        "zero": "Mozambikas metikali"
+      }
+    },
+    "NAD": {
+      "name": "Namībijas dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Namībijas dolāri",
+        "zero": "Namībijas dolāri"
+      }
+    },
+    "NGN": {
+      "name": "Nigērijas naira",
+      "narrow": "₦",
+      "plural": {
+        "other": "Nigērijas nairas",
+        "zero": "Nigērijas nairas"
+      }
+    },
+    "NIO": {
+      "name": "Nikaragvas kordoba",
+      "narrow": "C$",
+      "plural": {
+        "other": "Nikaragvas kordobas",
+        "zero": "Nikaragvas kordobas"
+      }
+    },
+    "NLG": {
+      "name": "Nīderlandes guldenis"
+    },
+    "NOK": {
+      "name": "Norvēģijas krona",
+      "narrow": "kr",
+      "plural": {
+        "other": "Norvēģijas kronas",
+        "zero": "Norvēģijas kronas"
+      }
+    },
+    "NPR": {
+      "name": "Nepālas rūpija",
+      "narrow": "Rs",
+      "plural": {
+        "other": "Nepālas rūpijas",
+        "zero": "Nepālas rūpijas"
+      }
+    },
+    "NZD": {
+      "name": "Jaunzēlandes dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Jaunzēlandes dolāri",
+        "zero": "Jaunzēlandes dolāri"
+      },
+      "symbol": "NZ$"
+    },
+    "OMR": {
+      "name": "Omānas riāls",
+      "plural": {
+        "other": "Omānas riāli",
+        "zero": "Omānas riāli"
+      }
+    },
+    "PAB": {
+      "name": "Panamas balboa"
+    },
+    "PEN": {
+      "name": "Peru sols",
+      "plural": {
+        "other": "Peru soli",
+        "zero": "Peru soli"
+      }
+    },
+    "PGK": {
+      "name": "Papua-Jaungvinejas kina",
+      "plural": {
+        "other": "Papua-Jaungvinejas kinas",
+        "zero": "Papua-Jaungvinejas kinas"
+      }
+    },
+    "PHP": {
+      "name": "Filipīnu peso",
+      "narrow": "₱"
+    },
+    "PKR": {
+      "name": "Pakistānas rūpija",
+      "narrow": "Rs",
+      "plural": {
+        "other": "Pakistānas rūpijas",
+        "zero": "Pakistānas rūpijas"
+      }
+    },
+    "PLN": {
+      "name": "Polijas zlots",
+      "narrow": "zł",
+      "plural": {
+        "other": "Polijas zloti",
+        "zero": "Polijas zloti"
+      }
+    },
+    "PTE": {
+      "name": "Portugāles eskudo"
+    },
+    "PYG": {
+      "name": "Paragvajas guarani",
+      "narrow": "₲"
+    },
+    "QAR": {
+      "name": "Kataras riāls",
+      "plural": {
+        "other": "Kataras riāli",
+        "zero": "Kataras riāli"
+      }
+    },
+    "ROL": {
+      "name": "Rumānijas vecā leja",
+      "plural": {
+        "one": "Rumānijas vecā leva",
+        "other": "Rumānijas vecās levas",
+        "zero": "Rumānijas vecās levas"
+      }
+    },
+    "RON": {
+      "name": "Rumānijas leja",
+      "narrow": "lei",
+      "plural": {
+        "other": "Rumānijas lejas",
+        "zero": "Rumānijas lejas"
+      }
+    },
+    "RSD": {
+      "name": "Serbijas dinārs",
+      "plural": {
+        "other": "Serbijas dināri",
+        "zero": "Serbijas dināri"
+      }
+    },
+    "RUB": {
+      "name": "Krievijas rublis",
+      "narrow": "₽",
+      "plural": {
+        "other": "Krievijas rubļi",
+        "zero": "Krievijas rubļi"
+      }
+    },
+    "RWF": {
+      "name": "Ruandas franks",
+      "narrow": "RF",
+      "plural": {
+        "other": "Ruandas franki",
+        "zero": "Ruandas franki"
+      }
+    },
+    "SAR": {
+      "name": "Saūda Arābijas riāls",
+      "plural": {
+        "one": "Saūda riāls",
+        "other": "Saūda riāli",
+        "zero": "Saūda riāli"
+      }
+    },
+    "SBD": {
+      "name": "Zālamana Salu dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Zālamana Salu dolāri",
+        "zero": "Zālamana Salu dolāri"
+      }
+    },
+    "SCR": {
+      "name": "Seišelu salu rūpija",
+      "plural": {
+        "other": "Seišelu salu rūpijas",
+        "zero": "Seišelu salu rūpijas"
+      }
+    },
+    "SDG": {
+      "name": "Sudānas mārciņa",
+      "plural": {
+        "other": "Sudānas mārciņas",
+        "zero": "Sudānas mārciņas"
+      }
+    },
+    "SEK": {
+      "name": "Zviedrijas krona",
+      "narrow": "kr",
+      "plural": {
+        "other": "Zviedrijas kronas",
+        "zero": "Zviedrijas kronas"
+      }
+    },
+    "SGD": {
+      "name": "Singapūras dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Singapūras dolāri",
+        "zero": "Singapūras dolāri"
+      }
+    },
+    "SHP": {
+      "name": "Sv.Helēnas salas mārciņa",
+      "narrow": "£",
+      "plural": {
+        "other": "Sv.Helēnas salas mārciņas",
+        "zero": "Sv.Helēnas salas mārciņas"
+      }
+    },
+    "SIT": {
+      "name": "Slovēnijas tolars"
+    },
+    "SKK": {
+      "name": "Slovakijas krona"
+    },
+    "SLE": {
+      "name": "Sjerraleones leone",
+      "plural": {
+        "other": "Sjerraleones leones",
+        "zero": "Sjerraleones leones"
+      }
+    },
+    "SLL": {
+      "name": "Sjerraleones leone (1964—2022)",
+      "plural": {
+        "other": "Sjerraleones leones (1964—2022)",
+        "zero": "Sjerraleones leones (1964—2022)"
+      }
+    },
+    "SOS": {
+      "name": "Somālijas šiliņš",
+      "plural": {
+        "other": "Somālijas šiliņi",
+        "zero": "Somālijas šiliņi"
+      }
+    },
+    "SRD": {
+      "name": "Surinamas dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Surinamas dolāri",
+        "zero": "Surinamas dolāri"
+      }
+    },
+    "SRG": {
+      "name": "Surinamas guldenis"
+    },
+    "SSP": {
+      "name": "Dienvidsudānas mārciņa",
+      "narrow": "£",
+      "plural": {
+        "other": "Dienvidsudānas mārciņas",
+        "zero": "Dienvidsudānas mārciņas"
+      }
+    },
+    "STD": {
+      "name": "Santome un Prinsipi dobra (1977–2017)",
+      "plural": {
+        "other": "Santome un Prinsipi dobras (1977–2017)",
+        "zero": "Santome un Prinsipi dobras (1977–2017)"
+      }
+    },
+    "STN": {
+      "name": "Santome un Prinsipi dobra",
+      "narrow": "Db",
+      "plural": {
+        "other": "Santome un Prinsipi dobras",
+        "zero": "Santome un Prinsipi dobras"
+      }
+    },
+    "SVC": {
+      "name": "Salvadoras kolons"
+    },
+    "SYP": {
+      "name": "Sīrijas mārciņa",
+      "narrow": "£",
+      "plural": {
+        "other": "Sīrijas mārciņas",
+        "zero": "Sīrijas mārciņas"
+      }
+    },
+    "SZL": {
+      "name": "Svazilendas lilangeni"
+    },
+    "THB": {
+      "name": "Taizemes bāts",
+      "plural": {
+        "other": "Taizemes bāti",
+        "zero": "Taizemes bāti"
+      },
+      "symbol": "฿"
+    },
+    "TJS": {
+      "name": "Tadžikistānas somons",
+      "plural": {
+        "other": "Tadžikistānas somoni",
+        "zero": "Tadžikistānas somoni"
+      }
+    },
+    "TMM": {
+      "name": "Turkmenistānas manats (1993–2009)",
+      "plural": {
+        "other": "Turkmenistānas manati (1993–2009)",
+        "zero": "Turkmenistānas manati (1993–2009)"
+      }
+    },
+    "TMT": {
+      "name": "Turkmenistānas manats",
+      "plural": {
+        "other": "Turkmenistānas manati",
+        "zero": "Turkmenistānas manati"
+      }
+    },
+    "TND": {
+      "name": "Tunisijas dinārs",
+      "plural": {
+        "other": "Tunisijas dināri",
+        "zero": "Tunisijas dināri"
+      }
+    },
+    "TOP": {
+      "name": "Tongas paanga",
+      "narrow": "T$",
+      "plural": {
+        "other": "Tongas paangas",
+        "zero": "Tongas paangas"
+      }
+    },
+    "TRL": {
+      "name": "Turcijas lira (1922–2005)",
+      "plural": {
+        "other": "Turcijas liras (1922–2005)",
+        "zero": "Turcijas liras (1922–2005)"
+      }
+    },
+    "TRY": {
+      "name": "Turcijas lira",
+      "narrow": "₺",
+      "plural": {
+        "other": "Turcijas liras",
+        "zero": "Turcijas liras"
+      }
+    },
+    "TTD": {
+      "name": "Trinidādas un Tobāgo dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Trinidādas un Tobāgo dolāri",
+        "zero": "Trinidādas un Tobāgo dolāri"
+      }
+    },
+    "TWD": {
+      "name": "Taivānas jaunais dolārs",
+      "plural": {
+        "other": "Taivānas jaunie dolāri",
+        "zero": "Taivānas jaunie dolāri"
+      },
+      "symbol": "NT$"
+    },
+    "TZS": {
+      "name": "Tanzānijas šiliņš",
+      "plural": {
+        "other": "Tanzānijas šiliņi",
+        "zero": "Tanzānijas šiliņi"
+      }
+    },
+    "UAH": {
+      "name": "Ukrainas grivna",
+      "narrow": "₴",
+      "plural": {
+        "other": "Ukrainas grivnas",
+        "zero": "Ukrainas grivnas"
+      }
+    },
+    "UGX": {
+      "name": "Ugandas šiliņš",
+      "plural": {
+        "other": "Ugandas šiliņi",
+        "zero": "Ugandas šiliņi"
+      }
+    },
+    "USD": {
+      "name": "ASV dolārs",
+      "plural": {
+        "other": "ASV dolāri",
+        "zero": "ASV dolāri"
+      },
+      "symbol": "$"
+    },
+    "UYU": {
+      "name": "Urugvajas peso",
+      "narrow": "$"
+    },
+    "UZS": {
+      "name": "Uzbekistānas sums",
+      "plural": {
+        "other": "Uzbekistānas sumi",
+        "zero": "Uzbekistānas sumi"
+      }
+    },
+    "VEB": {
+      "name": "Venecuēlas bolivārs (1871–2008)",
+      "plural": {
+        "other": "Venecuēlas bolivāri (1871–2008)",
+        "zero": "Venecuēlas bolivāri (1871–2008)"
+      }
+    },
+    "VEF": {
+      "name": "Venecuēlas bolivārs (2008–2018)",
+      "narrow": "Bs",
+      "plural": {
+        "other": "Venecuēlas bolivāri (2008–2018)",
+        "zero": "Venecuēlas bolivāri (2008–2018)"
+      }
+    },
+    "VES": {
+      "name": "Venecuēlas bolivārs",
+      "plural": {
+        "other": "Venecuēlas bolivāri",
+        "zero": "Venecuēlas bolivāri"
+      }
+    },
+    "VND": {
+      "name": "Vjetnamas dongi",
+      "symbol": "₫"
+    },
+    "VUV": {
+      "name": "Vanuatu vatu"
+    },
+    "WST": {
+      "name": "Samoa tala",
+      "plural": {
+        "other": "Samoa talas",
+        "zero": "Samoa talas"
+      }
+    },
+    "XAF": {
+      "name": "Centrālāfrikas CFA franks",
+      "plural": {
+        "other": "Centrālāfrikas CFA franki",
+        "zero": "Centrālāfrikas CFA franki"
+      },
+      "symbol": "FCFA"
+    },
+    "XAG": {
+      "name": "sudrabs"
+    },
+    "XAU": {
+      "name": "zelts"
+    },
+    "XBA": {
+      "name": "Eiropas norēķinu vienība EURCO",
+      "plural": {
+        "other": "Eiropas norēķinu vienības EURCO",
+        "zero": "Eiropas norēķinu vienības EURCO"
+      }
+    },
+    "XBB": {
+      "name": "Eiropas naudas vienība"
+    },
+    "XBC": {
+      "name": "Eiropas norēķinu vienība (XBC)",
+      "plural": {
+        "other": "Eiropas norēķinu vienības (XBC)",
+        "zero": "Eiropas norēķinu vienības (XBC)"
+      }
+    },
+    "XBD": {
+      "name": "Eiropas norēķinu vienība (XBD)",
+      "plural": {
+        "other": "Eiropas norēķinu vienības (XBD)",
+        "zero": "Eiropas norēķinu vienības (XBD)"
+      }
+    },
+    "XCD": {
+      "name": "Austrumkarību dolārs",
+      "narrow": "$",
+      "plural": {
+        "other": "Austrumkarību dolāri",
+        "zero": "Austrumkarību dolāri"
+      },
+      "symbol": "EC$"
+    },
+    "XCG": {
+      "name": "Karību guldenis",
+      "symbol": "Cg."
+    },
+    "XDR": {
+      "name": "Speciālās aizņēmuma tiesības"
+    },
+    "XEU": {
+      "name": "Eiropas norēķinu vienība"
+    },
+    "XFO": {
+      "name": "Francijas zelta franks"
+    },
+    "XFU": {
+      "name": "Francijas UIC franks"
+    },
+    "XOF": {
+      "name": "Rietumāfrikas CFA franks",
+      "plural": {
+        "other": "Rietumāfrikas CFA franki",
+        "zero": "Rietumāfrikas CFA franki"
+      },
+      "symbol": "F\u202fCFA"
+    },
+    "XPD": {
+      "name": "pallādijs"
+    },
+    "XPF": {
+      "name": "CFP franks",
+      "plural": {
+        "other": "CFP franki",
+        "zero": "CFP franki"
+      },
+      "symbol": "CFPF"
+    },
+    "XPT": {
+      "name": "platīns"
+    },
+    "XTS": {
+      "name": "Testa valūtas kods",
+      "plural": {
+        "one": "testa valūtas kods",
+        "other": "testa valūtas kods",
+        "zero": "testa valūtas kods"
+      }
+    },
+    "XXX": {
+      "name": "Nezināma valūta",
+      "plural": {
+        "one": "(nezināma valūta)",
+        "other": "(nezināma valūta)",
+        "zero": "(nezināma valūta)"
+      },
+      "symbol": "¤"
+    },
+    "YER": {
+      "name": "Jemenas riāls",
+      "plural": {
+        "other": "Jemenas riāli",
+        "zero": "Jemenas riāli"
+      }
+    },
+    "ZAR": {
+      "name": "Dienvidāfrikas rends",
+      "narrow": "R",
+      "plural": {
+        "other": "Dienvidāfrikas rendi",
+        "zero": "Dienvidāfrikas rendi"
+      }
+    },
+    "ZMK": {
+      "name": "Zambijas kvača (1968–2012)",
+      "plural": {
+        "other": "Zambijas kvačas (1968–2012)",
+        "zero": "Zambijas kvačas (1968–2012)"
+      }
+    },
+    "ZMW": {
+      "name": "Zambijas kvača",
+      "narrow": "ZK",
+      "plural": {
+        "other": "Zambijas kvačas",
+        "zero": "Zambijas kvačas"
+      }
+    },
+    "ZWD": {
+      "name": "Zimbabves dolārs"
+    },
+    "ZWG": {
+      "name": "Zimbabves zelts"
+    },
+    "ZWL": {
+      "name": "Zimbabves dolārs (2009)",
+      "plural": {
+        "one": "Zimbabves dollārs (2009)",
+        "other": "Zimbabves dollāri (2009)",
+        "zero": "Zimbabves dollāri (2009)"
+      }
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "lv",
+  "minimumGroupingDigits": 2,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "#,##0.00\u00a0¤",
+      "compactShort": {
+        "1000": {
+          "one": "0\u00a0tūkst'.'",
+          "other": "0\u00a0tūkst'.'"
+        },
+        "10000": {
+          "one": "00\u00a0tūkst'.'",
+          "other": "00\u00a0tūkst'.'"
+        },
+        "100000": {
+          "one": "000\u00a0tūkst'.'",
+          "other": "000\u00a0tūkst'.'"
+        },
+        "1000000": {
+          "one": "0\u00a0milj'.'",
+          "other": "0\u00a0milj'.'"
+        },
+        "10000000": {
+          "one": "00\u00a0milj'.'",
+          "other": "00\u00a0milj'.'"
+        },
+        "100000000": {
+          "one": "000\u00a0milj'.'",
+          "other": "000\u00a0milj'.'"
+        },
+        "1000000000": {
+          "one": "0\u00a0mljrd'.'",
+          "other": "0\u00a0mljrd'.'"
+        },
+        "10000000000": {
+          "one": "00\u00a0mljrd'.'",
+          "other": "00\u00a0mljrd'.'"
+        },
+        "100000000000": {
+          "one": "000\u00a0mljrd'.'",
+          "other": "000\u00a0mljrd'.'"
+        },
+        "1000000000000": {
+          "one": "0\u00a0trilj'.'",
+          "other": "0\u00a0trilj'.'"
+        },
+        "10000000000000": {
+          "one": "00\u00a0trilj'.'",
+          "other": "00\u00a0trilj'.'"
+        },
+        "100000000000000": {
+          "one": "000\u00a0trilj'.'",
+          "other": "000\u00a0trilj'.'"
+        }
+      },
+      "currency": "#,##0.00\u00a0¤",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ",",
+        "exponential": "E",
+        "group": "\u00a0",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "NS",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {
+      "one": "n % 10 = 1 and n % 100 != 11 or v = 2 and f % 10 = 1 and f % 100 != 11 or v != 2 and f % 10 = 1",
+      "zero": "n % 10 = 0 or n % 100 = 11..19 or v = 2 and f % 100 = 11..19"
+    },
+    "ordinal": {}
+  },
+  "territories": {
+    "AC": "Debesbraukšanas sala",
+    "AD": "Andora",
+    "AE": "Apvienotie Arābu Emirāti",
+    "AF": "Afganistāna",
+    "AG": "Antigva un Barbuda",
+    "AI": "Angilja",
+    "AL": "Albānija",
+    "AM": "Armēnija",
+    "AO": "Angola",
+    "AQ": "Antarktika",
+    "AR": "Argentīna",
+    "AS": "ASV Samoa",
+    "AT": "Austrija",
+    "AU": "Austrālija",
+    "AW": "Aruba",
+    "AX": "Olandes salas",
+    "AZ": "Azerbaidžāna",
+    "BA": "Bosnija un Hercegovina",
+    "BB": "Barbadosa",
+    "BD": "Bangladeša",
+    "BE": "Beļģija",
+    "BF": "Burkinafaso",
+    "BG": "Bulgārija",
+    "BH": "Bahreina",
+    "BI": "Burundija",
+    "BJ": "Benina",
+    "BL": "Senbartelmī",
+    "BM": "Bermudu salas",
+    "BN": "Bruneja",
+    "BO": "Bolīvija",
+    "BQ": "Nīderlandes Karību salas",
+    "BR": "Brazīlija",
+    "BS": "Bahamu salas",
+    "BT": "Butāna",
+    "BV": "Buvē sala",
+    "BW": "Botsvāna",
+    "BY": "Baltkrievija",
+    "BZ": "Beliza",
+    "CA": "Kanāda",
+    "CC": "Kokosu (Kīlinga) salas",
+    "CD": "Kongo (Kinšasa)",
+    "CF": "Centrālāfrikas Republika",
+    "CG": "Kongo (Brazavila)",
+    "CH": "Šveice",
+    "CI": "Kotdivuāra",
+    "CK": "Kuka salas",
+    "CL": "Čīle",
+    "CM": "Kamerūna",
+    "CN": "Ķīna",
+    "CO": "Kolumbija",
+    "CP": "Klipertona sala",
+    "CQ": "Sarka",
+    "CR": "Kostarika",
+    "CU": "Kuba",
+    "CV": "Kaboverde",
+    "CW": "Kirasao",
+    "CX": "Ziemsvētku sala",
+    "CY": "Kipra",
+    "CZ": "Čehija",
+    "DE": "Vācija",
+    "DG": "Djego Garsijas atols",
+    "DJ": "Džibutija",
+    "DK": "Dānija",
+    "DM": "Dominika",
+    "DO": "Dominikāna",
+    "DZ": "Alžīrija",
+    "EA": "Seūta un Melilja",
+    "EC": "Ekvadora",
+    "EE": "Igaunija",
+    "EG": "Ēģipte",
+    "EH": "Rietumsahāra",
+    "ER": "Eritreja",
+    "ES": "Spānija",
+    "ET": "Etiopija",
+    "EU": "Eiropas Savienība",
+    "EZ": "Eirozona",
+    "FI": "Somija",
+    "FJ": "Fidži",
+    "FK": "Folklenda salas",
+    "FM": "Mikronēzija",
+    "FO": "Fēru salas",
+    "FR": "Francija",
+    "GA": "Gabona",
+    "GB": "Apvienotā Karaliste",
+    "GD": "Grenāda",
+    "GE": "Gruzija",
+    "GF": "Francijas Gviāna",
+    "GG": "Gērnsija",
+    "GH": "Gana",
+    "GI": "Gibraltārs",
+    "GL": "Grenlande",
+    "GM": "Gambija",
+    "GN": "Gvineja",
+    "GP": "Gvadelupa",
+    "GQ": "Ekvatoriālā Gvineja",
+    "GR": "Grieķija",
+    "GS": "Dienviddžordžija un Dienvidsendviču salas",
+    "GT": "Gvatemala",
+    "GU": "Guama",
+    "GW": "Gvineja-Bisava",
+    "GY": "Gajāna",
+    "HK": "Ķīnas īpašās pārvaldes apgabals Honkonga",
+    "HM": "Hērda sala un Makdonalda salas",
+    "HN": "Hondurasa",
+    "HR": "Horvātija",
+    "HT": "Haiti",
+    "HU": "Ungārija",
+    "IC": "Kanāriju salas",
+    "ID": "Indonēzija",
+    "IE": "Īrija",
+    "IL": "Izraēla",
+    "IM": "Menas sala",
+    "IN": "Indija",
+    "IO": "Indijas okeāna Britu teritorija",
+    "IQ": "Irāka",
+    "IR": "Irāna",
+    "IS": "Islande",
+    "IT": "Itālija",
+    "JE": "Džērsija",
+    "JM": "Jamaika",
+    "JO": "Jordānija",
+    "JP": "Japāna",
+    "KE": "Kenija",
+    "KG": "Kirgizstāna",
+    "KH": "Kambodža",
+    "KI": "Kiribati",
+    "KM": "Komoru salas",
+    "KN": "Sentkitsa un Nevisa",
+    "KP": "Ziemeļkoreja",
+    "KR": "Dienvidkoreja",
+    "KW": "Kuveita",
+    "KY": "Kaimanu salas",
+    "KZ": "Kazahstāna",
+    "LA": "Laosa",
+    "LB": "Libāna",
+    "LC": "Sentlūsija",
+    "LI": "Lihtenšteina",
+    "LK": "Šrilanka",
+    "LR": "Libērija",
+    "LS": "Lesoto",
+    "LT": "Lietuva",
+    "LU": "Luksemburga",
+    "LV": "Latvija",
+    "LY": "Lībija",
+    "MA": "Maroka",
+    "MC": "Monako",
+    "MD": "Moldova",
+    "ME": "Melnkalne",
+    "MF": "Senmartēna",
+    "MG": "Madagaskara",
+    "MH": "Māršala salas",
+    "MK": "Ziemeļmaķedonija",
+    "ML": "Mali",
+    "MM": "Mjanma (Birma)",
+    "MN": "Mongolija",
+    "MO": "ĶTR īpašais administratīvais reģions Makao",
+    "MP": "Ziemeļu Marianas salas",
+    "MQ": "Martinika",
+    "MR": "Mauritānija",
+    "MS": "Montserrata",
+    "MT": "Malta",
+    "MU": "Maurīcija",
+    "MV": "Maldīvija",
+    "MW": "Malāvija",
+    "MX": "Meksika",
+    "MY": "Malaizija",
+    "MZ": "Mozambika",
+    "NA": "Namībija",
+    "NC": "Jaunkaledonija",
+    "NE": "Nigēra",
+    "NF": "Norfolkas sala",
+    "NG": "Nigērija",
+    "NI": "Nikaragva",
+    "NL": "Nīderlande",
+    "NO": "Norvēģija",
+    "NP": "Nepāla",
+    "NR": "Nauru",
+    "NU": "Niue",
+    "NZ": "Jaunzēlande",
+    "OM": "Omāna",
+    "PA": "Panama",
+    "PE": "Peru",
+    "PF": "Francijas Polinēzija",
+    "PG": "Papua-Jaungvineja",
+    "PH": "Filipīnas",
+    "PK": "Pakistāna",
+    "PL": "Polija",
+    "PM": "Senpjēra un Mikelona",
+    "PN": "Pitkērnas salas",
+    "PR": "Puertoriko",
+    "PS": "Palestīnas teritorijas",
+    "PT": "Portugāle",
+    "PW": "Palau",
+    "PY": "Paragvaja",
+    "QA": "Katara",
+    "QO": "Okeānijas attālās salas",
+    "RE": "Reinjona",
+    "RO": "Rumānija",
+    "RS": "Serbija",
+    "RU": "Krievija",
+    "RW": "Ruanda",
+    "SA": "Saūda Arābija",
+    "SB": "Zālamana salas",
+    "SC": "Seišelu salas",
+    "SD": "Sudāna",
+    "SE": "Zviedrija",
+    "SG": "Singapūra",
+    "SH": "Sv.Helēnas sala",
+    "SI": "Slovēnija",
+    "SJ": "Svalbāra un Jana Majena sala",
+    "SK": "Slovākija",
+    "SL": "Sjerraleone",
+    "SM": "Sanmarīno",
+    "SN": "Senegāla",
+    "SO": "Somālija",
+    "SR": "Surinama",
+    "SS": "Dienvidsudāna",
+    "ST": "Santome un Prinsipi",
+    "SV": "Salvadora",
+    "SX": "Sintmārtena",
+    "SY": "Sīrija",
+    "SZ": "Svatini",
+    "TA": "Tristana da Kuņjas salu teritorijas",
+    "TC": "Tērksas un Kaikosas salas",
+    "TD": "Čada",
+    "TF": "Francijas Dienvidjūru teritorija",
+    "TG": "Togo",
+    "TH": "Taizeme",
+    "TJ": "Tadžikistāna",
+    "TK": "Tokelau",
+    "TL": "Austrumtimora",
+    "TM": "Turkmenistāna",
+    "TN": "Tunisija",
+    "TO": "Tonga",
+    "TR": "Turcija",
+    "TT": "Trinidāda un Tobāgo",
+    "TV": "Tuvalu",
+    "TW": "Taivāna",
+    "TZ": "Tanzānija",
+    "UA": "Ukraina",
+    "UG": "Uganda",
+    "UM": "ASV Mazās Aizjūras salas",
+    "UN": "Apvienoto Nāciju Organizācija",
+    "US": "Amerikas Savienotās Valstis",
+    "UY": "Urugvaja",
+    "UZ": "Uzbekistāna",
+    "VA": "Vatikāns",
+    "VC": "Sentvinsenta un Grenadīnas",
+    "VE": "Venecuēla",
+    "VG": "Britu Virdžīnas",
+    "VI": "ASV Virdžīnas",
+    "VN": "Vjetnama",
+    "VU": "Vanuatu",
+    "WF": "Volisa un Futunas salas",
+    "WS": "Samoa",
+    "XA": "pseidoakcenti",
+    "XB": "pseidodivvirzienu",
+    "XK": "Kosova",
+    "YE": "Jemena",
+    "YT": "Majota",
+    "ZA": "Dienvidāfrikas Republika",
+    "ZM": "Zambija",
+    "ZW": "Zimbabve"
+  }
+}

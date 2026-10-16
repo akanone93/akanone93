@@ -1,0 +1,1570 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyMMdd": "y-MM-dd GGGGG",
+        "Gy": "y G",
+        "GyM": "MM-y G",
+        "GyMEd": "E, dd-MM-y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E d MMM y G",
+        "GyMMMMEEEEdd": "EEEE dd MMMM y G",
+        "GyMMMMdd": "dd MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMMMdd": "dd MMM y G",
+        "GyMd": "M/d/y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, d/M",
+        "MMM": "LLL",
+        "MMMEd": "E d MMM",
+        "MMMMEd": "E d MMMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "d/M",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "hh:mm\u202fa",
+        "hms": "hh:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "M/y GGGGG",
+        "yyyyMEd": "E d/M/y G",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E d MMM y G",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "d/M/y GGGGG"
+      },
+      "dateFormats": {
+        "full": "EEEE dd MMMM y G",
+        "long": "dd MMMM y G",
+        "medium": "dd MMM y G",
+        "short": "y-MM-dd GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'om' {0}",
+        "long": "{1} 'om' {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "vm.",
+            "pm": "nm."
+          },
+          "wide": {
+            "am": "vm.",
+            "pm": "nm."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "vm.",
+            "pm": "nm."
+          },
+          "wide": {
+            "am": "vm.",
+            "pm": "nm."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "short": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "wide": ["Sondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrydag", "Saterdag"]
+        },
+        "standAlone": {
+          "abbreviated": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "short": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "wide": ["Sondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrydag", "Saterdag"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        },
+        "standAlone": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E hh:mm\u202fa",
+        "Ehms": "E hh:mm:ss\u202fa",
+        "Gy": "y G",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E dd MMM y G",
+        "GyMMMd": "dd MMM y G",
+        "GyMd": "G y-MM-dd",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E d/M",
+        "MMM": "LLL",
+        "MMMEd": "E d MMM",
+        "MMMMEd": "E d MMMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "dd-MM",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "MM-y",
+        "yMEd": "E y-MM-dd",
+        "yMMM": "MMM y",
+        "yMMMEd": "E d MMM y",
+        "yMMMM": "MMMM y",
+        "yMMMMEEEEdd": "EEEE dd MMMM y",
+        "yMMMMdd": "dd MMMM y",
+        "yMMMd": "d MMM y",
+        "yMMMdd": "dd MMM y",
+        "yMMdd": "y-MM-dd",
+        "yMd": "y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "EEEE dd MMMM y",
+        "long": "dd MMMM y",
+        "medium": "dd MMM y",
+        "short": "y-MM-dd"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'om' {0}",
+        "long": "{1} 'om' {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "vm.",
+            "pm": "nm."
+          },
+          "narrow": {
+            "am": "v",
+            "pm": "n"
+          },
+          "wide": {
+            "am": "vm.",
+            "pm": "nm."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "vm.",
+            "pm": "nm."
+          },
+          "narrow": {
+            "am": "vm.",
+            "pm": "nm."
+          },
+          "wide": {
+            "am": "vm.",
+            "pm": "nm."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "narrow": ["S", "M", "D", "W", "D", "V", "S"],
+          "short": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "wide": ["Sondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrydag", "Saterdag"]
+        },
+        "standAlone": {
+          "abbreviated": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "narrow": ["S", "M", "D", "W", "D", "V", "S"],
+          "short": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "wide": ["Sondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrydag", "Saterdag"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["v.C.", "n.C."],
+        "narrow": ["v.C.", "n.C."],
+        "wide": ["voor Christus", "ná Christus"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Jan.", "Feb.", "Mrt.", "Apr.", "Mei", "Jun.", "Jul.", "Aug.", "Sep.", "Okt.", "Nov.", "Des."],
+          "narrow": ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+          "wide": ["Januarie", "Februarie", "Maart", "April", "Mei", "Junie", "Julie", "Augustus", "September", "Oktober", "November", "Desember"]
+        },
+        "standAlone": {
+          "abbreviated": ["Jan.", "Feb.", "Mrt.", "Apr.", "Mei", "Jun.", "Jul.", "Aug.", "Sep.", "Okt.", "Nov.", "Des."],
+          "narrow": ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+          "wide": ["Januarie", "Februarie", "Maart", "April", "Mei", "Junie", "Julie", "Augustus", "September", "Oktober", "November", "Desember"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyMMdd": "y-MM-dd GGGGG",
+        "Gy": "y G",
+        "GyM": "MM-y G",
+        "GyMEd": "E, dd-MM-y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E d MMM y G",
+        "GyMMMMEEEEdd": "EEEE dd MMMM y G",
+        "GyMMMMdd": "dd MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMMMdd": "dd MMM y G",
+        "GyMd": "M/d/y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, d/M",
+        "MMM": "LLL",
+        "MMMEd": "E d MMM",
+        "MMMMEd": "E d MMMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "d/M",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "hh:mm\u202fa",
+        "hms": "hh:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "M/y GGGGG",
+        "yyyyMEd": "E d/M/y G",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E d MMM y G",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "d/M/y GGGGG"
+      },
+      "dateFormats": {
+        "full": "EEEE dd MMMM y G",
+        "long": "dd MMMM y G",
+        "medium": "dd MMM y G",
+        "short": "y-MM-dd GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'om' {0}",
+        "long": "{1} 'om' {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "vm.",
+            "pm": "nm."
+          },
+          "wide": {
+            "am": "vm.",
+            "pm": "nm."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "vm.",
+            "pm": "nm."
+          },
+          "wide": {
+            "am": "vm.",
+            "pm": "nm."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "short": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "wide": ["Sondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrydag", "Saterdag"]
+        },
+        "standAlone": {
+          "abbreviated": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "short": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "wide": ["Sondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrydag", "Saterdag"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AH", "BH"],
+        "wide": ["AH", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        },
+        "standAlone": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyMMdd": "y-MM-dd GGGGG",
+        "Gy": "y G",
+        "GyM": "MM-y G",
+        "GyMEd": "E, dd-MM-y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E d MMM y G",
+        "GyMMMMEEEEdd": "EEEE dd MMMM y G",
+        "GyMMMMdd": "dd MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMMMdd": "dd MMM y G",
+        "GyMd": "M/d/y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, d/M",
+        "MMM": "LLL",
+        "MMMEd": "E d MMM",
+        "MMMMEd": "E d MMMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "d/M",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "hh:mm\u202fa",
+        "hms": "hh:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "M/y GGGGG",
+        "yyyyMEd": "E d/M/y G",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E d MMM y G",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "d/M/y GGGGG"
+      },
+      "dateFormats": {
+        "full": "EEEE dd MMMM y G",
+        "long": "dd MMMM y G",
+        "medium": "dd MMM y G",
+        "short": "y-MM-dd GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'om' {0}",
+        "long": "{1} 'om' {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "vm.",
+            "pm": "nm."
+          },
+          "wide": {
+            "am": "vm.",
+            "pm": "nm."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "vm.",
+            "pm": "nm."
+          },
+          "wide": {
+            "am": "vm.",
+            "pm": "nm."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "short": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "wide": ["Sondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrydag", "Saterdag"]
+        },
+        "standAlone": {
+          "abbreviated": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "short": ["So.", "Ma.", "Di.", "Wo.", "Do.", "Vr.", "Sa."],
+          "wide": ["Sondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrydag", "Saterdag"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AP"],
+        "wide": ["AP"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        },
+        "standAlone": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    }
+  },
+  "currencies": {
+    "AED": {
+      "name": "Verenigde Arabiese Emirate-dirham",
+      "plural": {
+        "one": "VAE-dirham",
+        "other": "VAE-dirham"
+      }
+    },
+    "AFN": {
+      "name": "Afgaanse afgani",
+      "narrow": "؋"
+    },
+    "ALL": {
+      "name": "Albanese lek"
+    },
+    "AMD": {
+      "name": "Armeense dram",
+      "narrow": "֏"
+    },
+    "ANG": {
+      "name": "Nederlands-Antilliaanse gulde"
+    },
+    "AOA": {
+      "name": "Angolese kwanza",
+      "narrow": "Kz"
+    },
+    "ARS": {
+      "name": "Argentynse peso",
+      "narrow": "$"
+    },
+    "AUD": {
+      "name": "Australiese dollar",
+      "narrow": "$",
+      "symbol": "A$"
+    },
+    "AWG": {
+      "name": "Arubaanse floryn"
+    },
+    "AZN": {
+      "name": "Azerbeidjaanse manat",
+      "narrow": "₼"
+    },
+    "BAM": {
+      "name": "Bosnies-Herzegowiniese omskakelbare marka",
+      "narrow": "KM"
+    },
+    "BBD": {
+      "name": "Barbados-dollar",
+      "narrow": "$"
+    },
+    "BDT": {
+      "name": "Bangladesjiese taka",
+      "narrow": "৳"
+    },
+    "BGN": {
+      "name": "Bulgaarse lev"
+    },
+    "BHD": {
+      "name": "Bahreinse dinar"
+    },
+    "BIF": {
+      "name": "Burundiese frank"
+    },
+    "BMD": {
+      "name": "Bermuda-dollar",
+      "narrow": "$"
+    },
+    "BND": {
+      "name": "Broeneise dollar",
+      "narrow": "$"
+    },
+    "BOB": {
+      "name": "Boliviaanse boliviano",
+      "narrow": "Bs"
+    },
+    "BRL": {
+      "name": "Brasilliaanse reaal",
+      "plural": {
+        "one": "Brasillianse reaal",
+        "other": "Brasillianse reaal"
+      },
+      "symbol": "R$"
+    },
+    "BSD": {
+      "name": "Bahamiaanse dollar",
+      "narrow": "$"
+    },
+    "BTN": {
+      "name": "Bhoetanese ngoeltroem"
+    },
+    "BWP": {
+      "name": "Botswana-pula",
+      "narrow": "P"
+    },
+    "BYN": {
+      "name": "Belarussiese roebel",
+      "narrow": "р."
+    },
+    "BYR": {
+      "name": "Belo-Russiese roebel (2000–2016)"
+    },
+    "BZD": {
+      "name": "Beliziese dollar",
+      "narrow": "$"
+    },
+    "CAD": {
+      "name": "Kanadese dollar",
+      "narrow": "$"
+    },
+    "CDF": {
+      "name": "Kongolese frank"
+    },
+    "CHF": {
+      "name": "Switserse frank"
+    },
+    "CLP": {
+      "name": "Chileense peso",
+      "narrow": "$"
+    },
+    "CNH": {
+      "name": "Chinese joean (buiteland)"
+    },
+    "CNY": {
+      "name": "Chinese joean",
+      "narrow": "¥",
+      "symbol": "CN¥"
+    },
+    "COP": {
+      "name": "Colombiaanse peso",
+      "narrow": "$"
+    },
+    "CRC": {
+      "name": "Costa Ricaanse colón",
+      "narrow": "₡"
+    },
+    "CUC": {
+      "name": "Kubaanse omskakelbare peso",
+      "narrow": "$"
+    },
+    "CUP": {
+      "name": "Kubaanse peso",
+      "narrow": "$"
+    },
+    "CVE": {
+      "name": "Kaap Verdiese escudo"
+    },
+    "CZK": {
+      "name": "Tsjeggiese kroon",
+      "narrow": "Kč"
+    },
+    "DJF": {
+      "name": "Djiboeti-frank"
+    },
+    "DKK": {
+      "name": "Deense kroon",
+      "narrow": "kr"
+    },
+    "DOP": {
+      "name": "Dominikaanse peso",
+      "narrow": "$"
+    },
+    "DZD": {
+      "name": "Algeriese dinar"
+    },
+    "EGP": {
+      "name": "Egiptiese pond",
+      "narrow": "E£"
+    },
+    "ERN": {
+      "name": "Eritrese nakfa"
+    },
+    "ESP": {
+      "narrow": "₧"
+    },
+    "ETB": {
+      "name": "Etiopiese birr"
+    },
+    "EUR": {
+      "name": "euro",
+      "symbol": "€"
+    },
+    "FJD": {
+      "name": "Fidjiaanse dollar",
+      "narrow": "$"
+    },
+    "FKP": {
+      "name": "Falkland-eilandse pond",
+      "narrow": "£"
+    },
+    "GBP": {
+      "name": "Britse pond",
+      "symbol": "£"
+    },
+    "GEL": {
+      "name": "Georgiese lari",
+      "narrow": "₾"
+    },
+    "GHC": {
+      "name": "Ghanese cedi (1979–2007)"
+    },
+    "GHS": {
+      "name": "Ghanese cedi",
+      "narrow": "GH₵"
+    },
+    "GIP": {
+      "name": "Gibraltarese pond",
+      "narrow": "£"
+    },
+    "GMD": {
+      "name": "Gambiese dalasi"
+    },
+    "GNF": {
+      "name": "Guinese frank",
+      "narrow": "FG"
+    },
+    "GNS": {
+      "name": "Guinese syli"
+    },
+    "GTQ": {
+      "name": "Guatemalaanse kwetsal",
+      "narrow": "Q"
+    },
+    "GYD": {
+      "name": "Guyanese dollar",
+      "narrow": "$"
+    },
+    "HKD": {
+      "name": "Hongkongse dollar",
+      "narrow": "$",
+      "symbol": "HK$"
+    },
+    "HNL": {
+      "name": "Hondurese lempira",
+      "narrow": "L"
+    },
+    "HRK": {
+      "name": "Kroatiese kuna",
+      "narrow": "kn"
+    },
+    "HTG": {
+      "name": "Haïtiaanse gourde"
+    },
+    "HUF": {
+      "name": "Hongaarse florint",
+      "narrow": "Ft"
+    },
+    "IDR": {
+      "name": "Indonesiese roepia",
+      "narrow": "Rp"
+    },
+    "ILS": {
+      "name": "Israeliese nuwe sikkel",
+      "symbol": "₪"
+    },
+    "INR": {
+      "name": "Indiese roepee",
+      "symbol": "₹"
+    },
+    "IQD": {
+      "name": "Irakse dinar"
+    },
+    "IRR": {
+      "name": "Iranse rial"
+    },
+    "ISK": {
+      "name": "Yslandse kroon",
+      "narrow": "kr"
+    },
+    "ITL": {
+      "name": "Italiaanse lier"
+    },
+    "JMD": {
+      "name": "Jamaikaanse dollar",
+      "narrow": "$"
+    },
+    "JOD": {
+      "name": "Jordaniese dinar"
+    },
+    "JPY": {
+      "name": "Japannese jen",
+      "narrow": "¥",
+      "symbol": "JP¥"
+    },
+    "KES": {
+      "name": "Keniaanse sjieling"
+    },
+    "KGS": {
+      "name": "Kirgisiese som",
+      "narrow": "⃀"
+    },
+    "KHR": {
+      "name": "Kambodjaanse riel",
+      "narrow": "៛"
+    },
+    "KMF": {
+      "name": "Comoraanse frank",
+      "narrow": "CF"
+    },
+    "KPW": {
+      "name": "Noord-Koreaanse won",
+      "narrow": "₩"
+    },
+    "KRW": {
+      "name": "Suid-Koreaanse won",
+      "symbol": "₩"
+    },
+    "KWD": {
+      "name": "Koeweitse dinar"
+    },
+    "KYD": {
+      "name": "Cayman-eilandse dollar",
+      "narrow": "$"
+    },
+    "KZT": {
+      "name": "Kazakse tenge",
+      "narrow": "₸"
+    },
+    "LAK": {
+      "name": "Laosiaanse kip",
+      "narrow": "₭"
+    },
+    "LBP": {
+      "name": "Libanese pond",
+      "narrow": "L£"
+    },
+    "LKR": {
+      "name": "Sri Lankaanse roepee",
+      "narrow": "Rs"
+    },
+    "LRD": {
+      "name": "Liberiese dollar",
+      "narrow": "$"
+    },
+    "LSL": {
+      "name": "Lesotho-loti"
+    },
+    "LTL": {
+      "name": "Litause litas",
+      "narrow": "Lt"
+    },
+    "LVL": {
+      "name": "Lettiese lats",
+      "narrow": "Ls"
+    },
+    "LYD": {
+      "name": "Libiese dinar"
+    },
+    "MAD": {
+      "name": "Marokkaanse dirham"
+    },
+    "MDL": {
+      "name": "Moldowiese leu"
+    },
+    "MGA": {
+      "name": "Malgassiese ariary",
+      "narrow": "Ar"
+    },
+    "MKD": {
+      "name": "Macedoniese denar"
+    },
+    "MMK": {
+      "name": "Mianmese kyat",
+      "narrow": "K"
+    },
+    "MNT": {
+      "name": "Mongoolse toegrik",
+      "narrow": "₮"
+    },
+    "MOP": {
+      "name": "Macaose pataca"
+    },
+    "MRO": {
+      "name": "Mauritaniese ouguiya (1973–2017)"
+    },
+    "MRU": {
+      "name": "Mauritaniese ouguiya"
+    },
+    "MUR": {
+      "name": "Mauritiaanse roepee",
+      "narrow": "Rs"
+    },
+    "MVR": {
+      "name": "Malediviese rufia"
+    },
+    "MWK": {
+      "name": "Malawiese kwacha"
+    },
+    "MXN": {
+      "name": "Meksikaanse peso",
+      "narrow": "$"
+    },
+    "MYR": {
+      "name": "Maleisiese ringgit",
+      "narrow": "RM"
+    },
+    "MZM": {
+      "name": "Mosambiekse metical (1980–2006)"
+    },
+    "MZN": {
+      "name": "Mosambiekse metical"
+    },
+    "NAD": {
+      "name": "Namibiese dollar",
+      "narrow": "$"
+    },
+    "NGN": {
+      "name": "Nigeriese naira",
+      "narrow": "₦"
+    },
+    "NIO": {
+      "name": "Nicaraguaanse córdoba",
+      "narrow": "C$"
+    },
+    "NOK": {
+      "name": "Noorse kroon",
+      "narrow": "kr"
+    },
+    "NPR": {
+      "name": "Nepalese roepee",
+      "narrow": "Rs"
+    },
+    "NZD": {
+      "name": "Nieu-Seelandse dollar",
+      "narrow": "$",
+      "symbol": "NZ$"
+    },
+    "OMR": {
+      "name": "Omaanse rial"
+    },
+    "PAB": {
+      "name": "Panamese balboa"
+    },
+    "PEN": {
+      "name": "Peruaanse sol"
+    },
+    "PGK": {
+      "name": "Papoea-Nieu-Guinese kina"
+    },
+    "PHP": {
+      "name": "Filippynse peso",
+      "narrow": "₱"
+    },
+    "PKR": {
+      "name": "Pakistanse roepee",
+      "narrow": "Rs"
+    },
+    "PLN": {
+      "name": "Poolse zloty",
+      "narrow": "zł"
+    },
+    "PYG": {
+      "name": "Paraguaanse guarani",
+      "narrow": "₲"
+    },
+    "QAR": {
+      "name": "Katarrese rial",
+      "plural": {
+        "one": "Katarese rial",
+        "other": "Katarese rial"
+      }
+    },
+    "RON": {
+      "name": "Roemeense leu",
+      "narrow": "leu"
+    },
+    "RSD": {
+      "name": "Serwiese dinar"
+    },
+    "RUB": {
+      "name": "Russiese roebel",
+      "narrow": "₽"
+    },
+    "RWF": {
+      "name": "Rwandese frank",
+      "narrow": "RF"
+    },
+    "SAR": {
+      "name": "Saoedi-Arabiese riyal"
+    },
+    "SBD": {
+      "name": "Salomonseilandse dollar",
+      "narrow": "$"
+    },
+    "SCR": {
+      "name": "Seychellese roepee"
+    },
+    "SDG": {
+      "name": "Soedannese pond"
+    },
+    "SDP": {
+      "name": "Soedannese pond (1957–1998)"
+    },
+    "SEK": {
+      "name": "Sweedse kroon",
+      "narrow": "kr"
+    },
+    "SGD": {
+      "name": "Singapoer-dollar",
+      "narrow": "$"
+    },
+    "SHP": {
+      "name": "Sint Helena-pond",
+      "narrow": "£"
+    },
+    "SLE": {
+      "name": "Sierra Leoniese leone"
+    },
+    "SLL": {
+      "name": "Sierra Leoniese leone (1964–2022)"
+    },
+    "SOS": {
+      "name": "Somaliese sjieling"
+    },
+    "SRD": {
+      "name": "Surinaamse dollar",
+      "narrow": "$"
+    },
+    "SSP": {
+      "name": "Suid-Soedanese pond",
+      "narrow": "£"
+    },
+    "STD": {
+      "name": "São Tomé en Príncipe dobra (1977–2017)"
+    },
+    "STN": {
+      "name": "São Tomé en Príncipe-dobra",
+      "narrow": "Db"
+    },
+    "SYP": {
+      "name": "Siriese pond",
+      "narrow": "£"
+    },
+    "SZL": {
+      "name": "Swazilandse lilangeni"
+    },
+    "THB": {
+      "name": "Thaise baht",
+      "symbol": "฿"
+    },
+    "TJS": {
+      "name": "Tadjikse somoni"
+    },
+    "TMT": {
+      "name": "Turkmeense manat"
+    },
+    "TND": {
+      "name": "Tunisiese dinar"
+    },
+    "TOP": {
+      "name": "Tongaanse pa’anga",
+      "narrow": "T$"
+    },
+    "TRL": {
+      "name": "Turkse lier (1922–2005)"
+    },
+    "TRY": {
+      "name": "Turkse lira",
+      "narrow": "₺"
+    },
+    "TTD": {
+      "name": "Trinidad en Tobago-dollar",
+      "narrow": "$"
+    },
+    "TWD": {
+      "name": "Nuwe Taiwanese dollar",
+      "symbol": "NT$"
+    },
+    "TZS": {
+      "name": "Tanzaniese sjieling"
+    },
+    "UAH": {
+      "name": "Oekraïnse hriwna",
+      "narrow": "₴"
+    },
+    "UGX": {
+      "name": "Ugandese sjieling"
+    },
+    "USD": {
+      "name": "VSA-dollar",
+      "narrow": "$"
+    },
+    "UYU": {
+      "name": "Uruguaanse peso",
+      "narrow": "$"
+    },
+    "UZS": {
+      "name": "Oezbekiese som"
+    },
+    "VEF": {
+      "name": "Venezolaanse bolivar",
+      "narrow": "Bs",
+      "plural": {
+        "one": "Venezolaanse bolívar (2008–2018)",
+        "other": "Venezolaanse bolívare (2008–2018)"
+      }
+    },
+    "VES": {
+      "name": "Venezolaanse bolívar"
+    },
+    "VND": {
+      "name": "Viëtnamese dong",
+      "symbol": "₫"
+    },
+    "VUV": {
+      "name": "Vanuatuse vatu"
+    },
+    "WST": {
+      "name": "Samoaanse tala"
+    },
+    "XAF": {
+      "name": "Sentraal Afrikaanse CFA-frank",
+      "symbol": "FCFA"
+    },
+    "XCD": {
+      "name": "Oos-Karibiese dollar",
+      "narrow": "$",
+      "symbol": "EC$"
+    },
+    "XCG": {
+      "name": "Karibiese gulde",
+      "symbol": "Cg."
+    },
+    "XOF": {
+      "name": "Wes-Afrikaanse CFA-frank",
+      "symbol": "F\u202fCFA"
+    },
+    "XPF": {
+      "name": "CFP-frank",
+      "symbol": "CFPF"
+    },
+    "XXX": {
+      "name": "Onbekende geldeenheid",
+      "plural": {
+        "one": "(onbekende geldeenheid)",
+        "other": "(onbekende geldeenheid)"
+      },
+      "symbol": "¤"
+    },
+    "YER": {
+      "name": "Jemenitiese rial"
+    },
+    "ZAR": {
+      "name": "Suid-Afrikaanse rand",
+      "symbol": "R"
+    },
+    "ZMK": {
+      "name": "Zambiese kwacha (1968–2012)"
+    },
+    "ZMW": {
+      "name": "Zambiese kwacha",
+      "narrow": "ZK"
+    },
+    "ZWD": {
+      "name": "Zimbabwiese dollar"
+    },
+    "ZWG": {
+      "name": "Zimbabwiese goud"
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "af",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "¤#,##0.00;(¤#,##0.00)",
+      "compactShort": {
+        "1000": {
+          "one": "0\u00a0k",
+          "other": "0\u00a0k"
+        },
+        "10000": {
+          "one": "00\u00a0k",
+          "other": "00\u00a0k"
+        },
+        "100000": {
+          "one": "000\u00a0k",
+          "other": "000\u00a0k"
+        },
+        "1000000": {
+          "one": "0\u00a0m",
+          "other": "0\u00a0m"
+        },
+        "10000000": {
+          "one": "00\u00a0m",
+          "other": "00\u00a0m"
+        },
+        "100000000": {
+          "one": "000\u00a0m",
+          "other": "000\u00a0m"
+        },
+        "1000000000": {
+          "one": "0\u00a0mjd",
+          "other": "0\u00a0mjd"
+        },
+        "10000000000": {
+          "one": "00\u00a0mjd",
+          "other": "00\u00a0mjd"
+        },
+        "100000000000": {
+          "one": "000\u00a0mjd",
+          "other": "000\u00a0mjd"
+        },
+        "1000000000000": {
+          "one": "0\u00a0bn",
+          "other": "0\u00a0bn"
+        },
+        "10000000000000": {
+          "one": "00\u00a0bn",
+          "other": "00\u00a0bn"
+        },
+        "100000000000000": {
+          "one": "000\u00a0bn",
+          "other": "000\u00a0bn"
+        }
+      },
+      "currency": "¤#,##0.00",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ",",
+        "exponential": "E",
+        "group": "\u00a0",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "NaN",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {
+      "one": "n = 1"
+    },
+    "ordinal": {}
+  },
+  "territories": {
+    "AC": "Ascensioneiland",
+    "AD": "Andorra",
+    "AE": "Verenigde Arabiese Emirate",
+    "AF": "Afganistan",
+    "AG": "Antigua en Barbuda",
+    "AI": "Anguilla",
+    "AL": "Albanië",
+    "AM": "Armenië",
+    "AO": "Angola",
+    "AQ": "Antarktika",
+    "AR": "Argentinië",
+    "AS": "Amerikaanse Samoa",
+    "AT": "Oostenryk",
+    "AU": "Australië",
+    "AW": "Aruba",
+    "AX": "Ålandeilande",
+    "AZ": "Azerbeidjan",
+    "BA": "Bosnië en Herzegowina",
+    "BB": "Barbados",
+    "BD": "Bangladesj",
+    "BE": "België",
+    "BF": "Burkina Faso",
+    "BG": "Bulgarye",
+    "BH": "Bahrein",
+    "BI": "Burundi",
+    "BJ": "Benin",
+    "BL": "Sint Barthélemy",
+    "BM": "Bermuda",
+    "BN": "Broenei",
+    "BO": "Bolivië",
+    "BQ": "Karibiese Nederland",
+    "BR": "Brasilië",
+    "BS": "Bahamas",
+    "BT": "Bhoetan",
+    "BV": "Bouvet-eiland",
+    "BW": "Botswana",
+    "BY": "Belarus",
+    "BZ": "Belize",
+    "CA": "Kanada",
+    "CC": "Kokoseilande",
+    "CD": "Demokratiese Republiek van die Kongo",
+    "CF": "Sentraal-Afrikaanse Republiek",
+    "CG": "Kongo-Brazzaville",
+    "CH": "Switserland",
+    "CI": "Ivoorkus",
+    "CK": "Cookeilande",
+    "CL": "Chili",
+    "CM": "Kameroen",
+    "CN": "China",
+    "CO": "Colombië",
+    "CP": "Clippertoneiland",
+    "CQ": "Sark",
+    "CR": "Costa Rica",
+    "CU": "Kuba",
+    "CV": "Kaap Verde",
+    "CW": "Curaçao",
+    "CX": "Kerseiland",
+    "CY": "Siprus",
+    "CZ": "Tsjeggië",
+    "DE": "Duitsland",
+    "DG": "Diego Garcia",
+    "DJ": "Djiboeti",
+    "DK": "Denemarke",
+    "DM": "Dominica",
+    "DO": "Dominikaanse Republiek",
+    "DZ": "Algerië",
+    "EA": "Ceuta en Melilla",
+    "EC": "Ecuador",
+    "EE": "Estland",
+    "EG": "Egipte",
+    "EH": "Wes-Sahara",
+    "ER": "Eritrea",
+    "ES": "Spanje",
+    "ET": "Ethiopië",
+    "EU": "Europese Unie",
+    "EZ": "Eurosone",
+    "FI": "Finland",
+    "FJ": "Fidji",
+    "FK": "Falklandeilande",
+    "FM": "Mikronesië",
+    "FO": "Faroëreilande",
+    "FR": "Frankryk",
+    "GA": "Gaboen",
+    "GB": "Verenigde Koninkryk",
+    "GD": "Grenada",
+    "GE": "Georgië",
+    "GF": "Frans-Guyana",
+    "GG": "Guernsey",
+    "GH": "Ghana",
+    "GI": "Gibraltar",
+    "GL": "Groenland",
+    "GM": "Gambië",
+    "GN": "Guinee",
+    "GP": "Guadeloupe",
+    "GQ": "Ekwatoriaal-Guinee",
+    "GR": "Griekeland",
+    "GS": "Suid-Georgië en die Suidelike Sandwicheilande",
+    "GT": "Guatemala",
+    "GU": "Guam",
+    "GW": "Guinee-Bissau",
+    "GY": "Guyana",
+    "HK": "Hongkong SAS China",
+    "HM": "Heardeiland en McDonaldeilande",
+    "HN": "Honduras",
+    "HR": "Kroasië",
+    "HT": "Haïti",
+    "HU": "Hongarye",
+    "IC": "Kanariese Eilande",
+    "ID": "Indonesië",
+    "IE": "Ierland",
+    "IL": "Israel",
+    "IM": "Eiland Man",
+    "IN": "Indië",
+    "IO": "Brits-Indiese Oseaangebied",
+    "IQ": "Irak",
+    "IR": "Iran",
+    "IS": "Ysland",
+    "IT": "Italië",
+    "JE": "Jersey",
+    "JM": "Jamaika",
+    "JO": "Jordanië",
+    "JP": "Japan",
+    "KE": "Kenia",
+    "KG": "Kirgistan",
+    "KH": "Kambodja",
+    "KI": "Kiribati",
+    "KM": "Comore",
+    "KN": "Sint Kitts en Nevis",
+    "KP": "Noord-Korea",
+    "KR": "Suid-Korea",
+    "KW": "Koeweit",
+    "KY": "Kaaimanseilande",
+    "KZ": "Kazakstan",
+    "LA": "Laos",
+    "LB": "Libanon",
+    "LC": "Sint Lucia",
+    "LI": "Liechtenstein",
+    "LK": "Sri Lanka",
+    "LR": "Liberië",
+    "LS": "Lesotho",
+    "LT": "Litaue",
+    "LU": "Luxemburg",
+    "LV": "Letland",
+    "LY": "Libië",
+    "MA": "Marokko",
+    "MC": "Monaco",
+    "MD": "Moldowa",
+    "ME": "Montenegro",
+    "MF": "Sint Martin",
+    "MG": "Madagaskar",
+    "MH": "Marshalleilande",
+    "MK": "Noord-Macedonië",
+    "ML": "Mali",
+    "MM": "Mianmar (Birma)",
+    "MN": "Mongolië",
+    "MO": "Macau SAS China",
+    "MP": "Noord-Mariane-eilande",
+    "MQ": "Martinique",
+    "MR": "Mauritanië",
+    "MS": "Montserrat",
+    "MT": "Malta",
+    "MU": "Mauritius",
+    "MV": "Maledive",
+    "MW": "Malawi",
+    "MX": "Meksiko",
+    "MY": "Maleisië",
+    "MZ": "Mosambiek",
+    "NA": "Namibië",
+    "NC": "Nieu-Kaledonië",
+    "NE": "Niger",
+    "NF": "Norfolkeiland",
+    "NG": "Nigerië",
+    "NI": "Nicaragua",
+    "NL": "Nederland",
+    "NO": "Noorweë",
+    "NP": "Nepal",
+    "NR": "Nauru",
+    "NU": "Niue",
+    "NZ": "Nieu-Seeland",
+    "OM": "Oman",
+    "PA": "Panama",
+    "PE": "Peru",
+    "PF": "Frans-Polinesië",
+    "PG": "Papoea-Nieu-Guinee",
+    "PH": "Filippyne",
+    "PK": "Pakistan",
+    "PL": "Pole",
+    "PM": "Sint Pierre en Miquelon",
+    "PN": "Pitcairneilande",
+    "PR": "Puerto Rico",
+    "PS": "Palestynse Grondgebiede",
+    "PT": "Portugal",
+    "PW": "Palau",
+    "PY": "Paraguay",
+    "QA": "Katar",
+    "QO": "Afgeleë Oseanië",
+    "RE": "Réunion",
+    "RO": "Roemenië",
+    "RS": "Serwië",
+    "RU": "Rusland",
+    "RW": "Rwanda",
+    "SA": "Saoedi-Arabië",
+    "SB": "Salomonseilande",
+    "SC": "Seychelle",
+    "SD": "Soedan",
+    "SE": "Swede",
+    "SG": "Singapoer",
+    "SH": "Sint Helena",
+    "SI": "Slowenië",
+    "SJ": "Spitsbergen en Jan Mayen",
+    "SK": "Slowakye",
+    "SL": "Sierra Leone",
+    "SM": "San Marino",
+    "SN": "Senegal",
+    "SO": "Somalië",
+    "SR": "Suriname",
+    "SS": "Suid-Soedan",
+    "ST": "São Tomé en Príncipe",
+    "SV": "El Salvador",
+    "SX": "Sint Maarten",
+    "SY": "Sirië",
+    "SZ": "Eswatini",
+    "TA": "Tristan da Cunha",
+    "TC": "Turks- en Caicoseilande",
+    "TD": "Tsjad",
+    "TF": "Franse Suidelike Gebiede",
+    "TG": "Togo",
+    "TH": "Thailand",
+    "TJ": "Tadjikistan",
+    "TK": "Tokelau",
+    "TL": "Oos-Timor",
+    "TM": "Turkmenistan",
+    "TN": "Tunisië",
+    "TO": "Tonga",
+    "TR": "Turkye",
+    "TT": "Trinidad en Tobago",
+    "TV": "Tuvalu",
+    "TW": "Taiwan",
+    "TZ": "Tanzanië",
+    "UA": "Oekraïne",
+    "UG": "Uganda",
+    "UM": "Klein afgeleë eilande van die VSA",
+    "UN": "Verenigde Nasies",
+    "US": "Verenigde State van Amerika",
+    "UY": "Uruguay",
+    "UZ": "Oesbekistan",
+    "VA": "Vatikaanstad",
+    "VC": "Sint Vincent en die Grenadine",
+    "VE": "Venezuela",
+    "VG": "Britse Maagde-eilande",
+    "VI": "VSA se Maagde-eilande",
+    "VN": "Viëtnam",
+    "VU": "Vanuatu",
+    "WF": "Wallis en Futuna",
+    "WS": "Samoa",
+    "XA": "Pseudoaksente",
+    "XB": "Pseudotweerigting",
+    "XK": "Kosovo",
+    "YE": "Jemen",
+    "YT": "Mayotte",
+    "ZA": "Suid-Afrika",
+    "ZM": "Zambië",
+    "ZW": "Zimbabwe"
+  }
+}
