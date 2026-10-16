@@ -427,7 +427,7 @@ func (s Plugin) AcquireLock(ctx context.Context, req *connect.Request[pluxv1.Acq
 			return nil, err
 		}
 		m := req.Msg
-		l, preserved, err := s.h.Documents.AcquireLock(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), m.GetForce())
+		l, preserved, err := s.h.Documents.AcquireScopedLock(ctx, p, m.GetAppId(), m.GetPluginId(), m.GetSession(), m.GetScope(), m.GetForce())
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
@@ -442,7 +442,7 @@ func (s Plugin) RenewLock(ctx context.Context, req *connect.Request[pluxv1.Renew
 		if err != nil {
 			return nil, err
 		}
-		l, err := s.h.Documents.RenewLock(ctx, p, req.Msg.GetAppId(), req.Msg.GetPluginId(), req.Msg.GetSession())
+		l, err := s.h.Documents.RenewScopedLock(ctx, p, req.Msg.GetAppId(), req.Msg.GetPluginId(), req.Msg.GetSession(), req.Msg.GetScope())
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
@@ -457,7 +457,7 @@ func (s Plugin) ReleaseLock(ctx context.Context, req *connect.Request[pluxv1.Rel
 		if err != nil {
 			return nil, err
 		}
-		if err := s.h.Documents.ReleaseLock(ctx, p, req.Msg.GetAppId(), req.Msg.GetPluginId(), req.Msg.GetSession()); err != nil {
+		if err := s.h.Documents.ReleaseScopedLock(ctx, p, req.Msg.GetAppId(), req.Msg.GetPluginId(), req.Msg.GetSession(), req.Msg.GetScope()); err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
 		return &pluxv1.ReleaseLockResponse{}, nil
@@ -472,7 +472,7 @@ func (s Plugin) RequestLock(ctx context.Context, req *connect.Request[pluxv1.Req
 		if err != nil {
 			return nil, err
 		}
-		l, err := s.h.Documents.RequestLock(ctx, p, req.Msg.GetAppId(), req.Msg.GetPluginId())
+		l, err := s.h.Documents.RequestScopedLock(ctx, p, req.Msg.GetAppId(), req.Msg.GetPluginId(), req.Msg.GetScope())
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
@@ -487,7 +487,7 @@ func (s Plugin) GetLock(ctx context.Context, req *connect.Request[pluxv1.GetLock
 		if err != nil {
 			return nil, err
 		}
-		l, err := s.h.Documents.GetLock(ctx, p, req.Msg.GetAppId(), req.Msg.GetPluginId())
+		l, err := s.h.Documents.GetScopedLock(ctx, p, req.Msg.GetAppId(), req.Msg.GetPluginId(), req.Msg.GetScope())
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
@@ -739,7 +739,7 @@ func pluginProto(p document.Plugin) *pluxv1.Plugin {
 
 func lockProto(l document.Lock) *pluxv1.Lock {
 	out := &pluxv1.Lock{
-		AppId: l.AppID, PluginId: l.PluginID, Holder: actorProto(l.Holder), Session: l.Session,
+		AppId: l.AppID, PluginId: l.PluginID, Scope: l.Scope, Holder: actorProto(l.Holder), Session: l.Session,
 		AcquiredAt: ts(l.AcquiredAt), ExpiresAt: ts(l.ExpiresAt),
 	}
 	for _, a := range l.RequestedBy {

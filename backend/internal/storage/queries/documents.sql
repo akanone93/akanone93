@@ -186,16 +186,16 @@ DELETE FROM snapshots WHERE id = $1;
 SELECT DISTINCT draft_id FROM snapshots WHERE NOT keep AND created_at < sqlc.arg(before)::timestamptz LIMIT sqlc.arg(page_size);
 
 -- name: GetLockForUpdate :one
-SELECT * FROM locks WHERE draft_id = $1 FOR UPDATE;
+SELECT * FROM locks WHERE draft_id = $1 AND scope = $2 FOR UPDATE;
 
 -- name: GetLock :one
-SELECT * FROM locks WHERE draft_id = $1;
+SELECT * FROM locks WHERE draft_id = $1 AND scope = $2;
 
 -- name: PutLock :one
-INSERT INTO locks (draft_id, organization_id, holder_kind, holder_id, holder_display, session,
+INSERT INTO locks (draft_id, scope, organization_id, holder_kind, holder_id, holder_display, session,
                    expires_at, previous_session, previous_holder)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-ON CONFLICT (draft_id) DO UPDATE
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+ON CONFLICT (draft_id, scope) DO UPDATE
    SET holder_kind = EXCLUDED.holder_kind, holder_id = EXCLUDED.holder_id,
        holder_display = EXCLUDED.holder_display, session = EXCLUDED.session,
        acquired_at = now(), heartbeat_at = now(), expires_at = EXCLUDED.expires_at,
@@ -204,16 +204,19 @@ ON CONFLICT (draft_id) DO UPDATE
 RETURNING *;
 
 -- name: RenewLock :one
-UPDATE locks SET heartbeat_at = now(), expires_at = $2 WHERE draft_id = $1 RETURNING *;
+UPDATE locks SET heartbeat_at = now(), expires_at = $3 WHERE draft_id = $1 AND scope = $2 RETURNING *;
 
 -- name: DeleteLock :execrows
+DELETE FROM locks WHERE draft_id = $1 AND scope = $2;
+
+-- name: DeleteLocksOfDraft :execrows
 DELETE FROM locks WHERE draft_id = $1;
 
 -- name: RequestLock :one
 UPDATE locks
    SET requested_by = CASE WHEN requested_by @> sqlc.arg(requester)::jsonb THEN requested_by
                            ELSE requested_by || sqlc.arg(requester)::jsonb END
- WHERE draft_id = $1
+ WHERE draft_id = $1 AND scope = $2
 RETURNING *;
 
 -- name: GetDraftByID :one

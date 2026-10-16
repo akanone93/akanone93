@@ -6576,6 +6576,12 @@ components:
           description: |-
             force takes the lock from its holder; it needs plugin.lock.override,
              snapshots the holder's unsaved work and is audited (SRV-041).
+        scope:
+          type: string
+          title: scope
+          description: |-
+            scope names a locale lock, "translations/<locale>"; empty is the draft
+             lock (I18N-008).
       title: AcquireLockRequest
       additionalProperties: false
     plux.v1.AcquireLockResponse:
@@ -9378,6 +9384,10 @@ components:
         pluginId:
           type: string
           title: plugin_id
+        scope:
+          type: string
+          title: scope
+          description: scope is as in AcquireLockRequest.
       title: GetLockRequest
       additionalProperties: false
     plux.v1.GetLockResponse:
@@ -11184,6 +11194,12 @@ components:
             $ref: '#/components/schemas/plux.v1.Actor'
           title: requested_by
           description: requested_by lists users who asked for the lock since it was taken.
+        scope:
+          type: string
+          title: scope
+          description: |-
+            scope is empty for the draft's own lock and "translations/<locale>" for
+             the lock of one locale's translations document (I18N-008).
       title: Lock
       additionalProperties: false
       description: Lock is an exclusive editing lock (SRV-040, ADR-0015).
@@ -11292,7 +11308,7 @@ components:
           type: string
           title: role
           description: |-
-            role is "owner", "admin", "developer" or "viewer" for a direct
+            role is "owner", "admin", "developer", "translator" or "viewer" for a direct
              membership (SEC-102), and "member" for a team membership: a team's
              members hold the roles the team is granted on apps (GOV-001).
         addedAt:
@@ -12228,6 +12244,10 @@ components:
         session:
           type: string
           title: session
+        scope:
+          type: string
+          title: scope
+          description: scope is as in AcquireLockRequest.
       title: ReleaseLockRequest
       additionalProperties: false
     plux.v1.ReleaseLockResponse:
@@ -12264,6 +12284,10 @@ components:
         session:
           type: string
           title: session
+        scope:
+          type: string
+          title: scope
+          description: scope is as in AcquireLockRequest.
       title: RenewLockRequest
       additionalProperties: false
     plux.v1.RenewLockResponse:
@@ -12300,6 +12324,10 @@ components:
         pluginId:
           type: string
           title: plugin_id
+        scope:
+          type: string
+          title: scope
+          description: scope is as in AcquireLockRequest.
       title: RequestLockRequest
       additionalProperties: false
     plux.v1.RequestLockResponse:

@@ -187,7 +187,7 @@ func (s *Service) DeletePlugin(ctx context.Context, p auth.Principal, pluginID s
 		if _, err := q.SoftDeletePlugin(ctx, d.plugin.ID); err != nil {
 			return failure(err, "plugin")
 		}
-		if _, err := q.DeleteLock(ctx, d.row.ID); err != nil {
+		if _, err := q.DeleteLocksOfDraft(ctx, d.row.ID); err != nil {
 			return fmt.Errorf("document: release the lock: %w", err)
 		}
 		if out, err = s.o.Tenancy.Trash(ctx, tx, p, "plugin", pluginID, d.app, d.plugin.Name); err != nil {

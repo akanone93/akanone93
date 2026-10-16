@@ -495,6 +495,7 @@ type Lock struct {
 	PreviousSession string
 	PreviousHolder  string
 	RequestedBy     []byte
+	Scope           string
 }
 
 type Manifest struct {

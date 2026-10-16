@@ -15,19 +15,60 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 )
 
 // Lock is a draft's exclusive editing lock (SRV-040).
 type Lock struct {
-	AppID       string
-	PluginID    string
+	AppID    string
+	PluginID string
+	// Scope is empty for the draft's own lock and "translations/<locale>"
+	// for the lock of one locale's translations document (I18N-008).
+	Scope       string
 	Holder      audit.Actor
 	Session     string
 	AcquiredAt  time.Time
 	ExpiresAt   time.Time
 	RequestedBy []audit.Actor
+}
+
+// translationsScopePrefix starts the scope of a locale's lock.
+const translationsScopePrefix = "translations/"
+
+// TranslationsScope is the lock scope of one locale's translations
+// document, which translators edit beside the draft's own lock (I18N-008).
+func TranslationsScope(locale string) string { return translationsScopePrefix + locale }
+
+// scopeOf returns the lock scope that saving a document needs: that of its
+// locale for a translations document of the app, the draft's own otherwise.
+func scopeOf(path string) string {
+	if place, ok := schema.PlaceOf(path); ok && place.Kind == schema.KindTranslations && place.Plugin == "" {
+		return TranslationsScope(place.Key)
+	}
+	return ""
+}
+
+// checkScope refuses a lock scope that is not the draft's own or the lock
+// of a locale of the app-level translations.
+func (d draft) checkScope(scope string) error {
+	if scope == "" {
+		return nil
+	}
+	if d.plugin == nil && scopeOf(scope+".json") == scope {
+		return nil
+	}
+	return plxerr.New(plxerr.InvalidFormat, "%q is not a lock scope; it is empty or translations/<locale> of the app", scope)
+}
+
+// lockPermission is what taking or asking for a lock needs: the draft's
+// edit permission, or, for a locale's lock, app.manage or translations.edit.
+func (d draft) lockPermission(p auth.Principal, scope string) auth.Permission {
+	if scope == "" || p.HoldsOnApp(auth.AppManage, d.app) {
+		return d.editPermission()
+	}
+	return auth.TranslationsEdit
 }
 
 // Held reports whether the lock is in force at a moment.
@@ -54,6 +95,13 @@ func checkSession(session string) error {
 // parties (SRV-041). The holder's own other session may take its lock
 // back without the permission.
 func (s *Service) AcquireLock(ctx context.Context, p auth.Principal, appID, pluginID, session string, force bool) (Lock, string, error) {
+	return s.AcquireScopedLock(ctx, p, appID, pluginID, session, "", force)
+}
+
+// AcquireScopedLock is AcquireLock for a lock scope: empty for the draft's
+// own lock, translations/<locale> for one locale of the app's translations,
+// which is held beside the draft lock (I18N-008).
+func (s *Service) AcquireScopedLock(ctx context.Context, p auth.Principal, appID, pluginID, session, scope string, force bool) (Lock, string, error) {
 	if err := checkSession(session); err != nil {
 		return Lock{}, "", err
 	}
@@ -67,13 +115,16 @@ func (s *Service) AcquireLock(ctx context.Context, p auth.Principal, appID, plug
 		if err != nil {
 			return err
 		}
-		if err := authorize(p, d.editPermission(), appID); err != nil {
+		if err := d.checkScope(scope); err != nil {
+			return err
+		}
+		if err := authorize(p, d.lockPermission(p, scope), appID); err != nil {
 			return err
 		}
 		if _, err := q.GetDraftForUpdate(ctx, d.row.ID); err != nil {
 			return failure(err, "draft")
 		}
-		out, preserved, err = s.takeLock(ctx, tx, q, d, p, session, force)
+		out, preserved, err = s.takeLock(ctx, tx, q, d, p, session, scope, force)
 		return err
 	})
 	return out, preserved, err
@@ -81,8 +132,8 @@ func (s *Service) AcquireLock(ctx context.Context, p auth.Principal, appID, plug
 
 // takeLock takes the lock of a resolved draft whose row the caller holds
 // locked, snapshotting it first when it is taken over.
-func (s *Service) takeLock(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d draft, p auth.Principal, session string, force bool) (Lock, string, error) {
-	current, held, err := s.currentLock(ctx, q, d)
+func (s *Service) takeLock(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d draft, p auth.Principal, session, scope string, force bool) (Lock, string, error) {
+	current, held, err := s.currentLock(ctx, q, d, scope)
 	if err != nil {
 		return Lock{}, "", err
 	}
@@ -104,7 +155,7 @@ func (s *Service) takeLock(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d d
 		previousSession, previousHolder = current.Session, current.Holder.ID
 	}
 	row, err := q.PutLock(ctx, dbgen.PutLockParams{
-		DraftID: d.row.ID, OrganizationID: d.row.OrganizationID,
+		DraftID: d.row.ID, Scope: scope, OrganizationID: d.row.OrganizationID,
 		HolderKind: p.Kind, HolderID: p.ID, HolderDisplay: p.Display, Session: session,
 		ExpiresAt:       storage.Timestamp(s.now().Add(LockTTL)),
 		PreviousSession: previousSession, PreviousHolder: previousHolder,
@@ -113,9 +164,15 @@ func (s *Service) takeLock(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d d
 		return Lock{}, "", fmt.Errorf("document: take the lock: %w", err)
 	}
 	e := audit.Entry{Action: audit.LockAcquired, TargetKind: "draft", TargetID: storage.ID(d.row.ID)}
+	if scope != "" {
+		e.Detail = "lock " + scope
+	}
 	if takeover {
 		e.Action = audit.LockTakenOver
 		e.Detail = "took the lock from " + current.Holder.Kind + " " + current.Holder.ID + "; their draft is snapshot " + preserved
+		if scope != "" {
+			e.Detail = "took the lock " + scope + " from " + current.Holder.Kind + " " + current.Holder.ID + "; their draft is snapshot " + preserved
+		}
 	}
 	return lockOf(row, d), preserved, s.recordEntry(ctx, tx, p, e)
 }
@@ -123,6 +180,11 @@ func (s *Service) takeLock(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d d
 // RenewLock is the holder's heartbeat; it returns who has asked for the
 // lock since it was taken, which is how the holder is told (SRV-041).
 func (s *Service) RenewLock(ctx context.Context, p auth.Principal, appID, pluginID, session string) (Lock, error) {
+	return s.RenewScopedLock(ctx, p, appID, pluginID, session, "")
+}
+
+// RenewScopedLock is RenewLock for a lock scope (see AcquireScopedLock).
+func (s *Service) RenewScopedLock(ctx context.Context, p auth.Principal, appID, pluginID, session, scope string) (Lock, error) {
 	var out Lock
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
@@ -130,10 +192,13 @@ func (s *Service) RenewLock(ctx context.Context, p auth.Principal, appID, plugin
 		if err != nil {
 			return err
 		}
-		if err := s.holds(ctx, q, d, p, session); err != nil {
+		if err := d.checkScope(scope); err != nil {
 			return err
 		}
-		row, err := q.RenewLock(ctx, dbgen.RenewLockParams{DraftID: d.row.ID, ExpiresAt: storage.Timestamp(s.now().Add(LockTTL))})
+		if err := s.holds(ctx, q, d, p, session, scope); err != nil {
+			return err
+		}
+		row, err := q.RenewLock(ctx, dbgen.RenewLockParams{DraftID: d.row.ID, Scope: scope, ExpiresAt: storage.Timestamp(s.now().Add(LockTTL))})
 		if err != nil {
 			return fmt.Errorf("document: renew the lock: %w", err)
 		}
@@ -145,25 +210,42 @@ func (s *Service) RenewLock(ctx context.Context, p auth.Principal, appID, plugin
 
 // ReleaseLock gives the lock up.
 func (s *Service) ReleaseLock(ctx context.Context, p auth.Principal, appID, pluginID, session string) error {
+	return s.ReleaseScopedLock(ctx, p, appID, pluginID, session, "")
+}
+
+// ReleaseScopedLock is ReleaseLock for a lock scope (see AcquireScopedLock).
+func (s *Service) ReleaseScopedLock(ctx context.Context, p auth.Principal, appID, pluginID, session, scope string) error {
 	return s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		d, err := s.resolve(ctx, q, p, appID, pluginID)
 		if err != nil {
 			return err
 		}
-		if err := s.holds(ctx, q, d, p, session); err != nil {
+		if err := d.checkScope(scope); err != nil {
 			return err
 		}
-		if _, err := q.DeleteLock(ctx, d.row.ID); err != nil {
+		if err := s.holds(ctx, q, d, p, session, scope); err != nil {
+			return err
+		}
+		if _, err := q.DeleteLock(ctx, dbgen.DeleteLockParams{DraftID: d.row.ID, Scope: scope}); err != nil {
 			return fmt.Errorf("document: release the lock: %w", err)
 		}
-		return s.record(ctx, tx, p, audit.LockReleased, "draft", storage.ID(d.row.ID), "", "")
+		e := audit.Entry{Action: audit.LockReleased, TargetKind: "draft", TargetID: storage.ID(d.row.ID)}
+		if scope != "" {
+			e.Detail = "lock " + scope
+		}
+		return s.recordEntry(ctx, tx, p, e)
 	})
 }
 
 // RequestLock asks the holder for the lock; the holder sees the request
 // on their next heartbeat (SRV-041).
 func (s *Service) RequestLock(ctx context.Context, p auth.Principal, appID, pluginID string) (Lock, error) {
+	return s.RequestScopedLock(ctx, p, appID, pluginID, "")
+}
+
+// RequestScopedLock is RequestLock for a lock scope (see AcquireScopedLock).
+func (s *Service) RequestScopedLock(ctx context.Context, p auth.Principal, appID, pluginID, scope string) (Lock, error) {
 	var out Lock
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
@@ -171,10 +253,13 @@ func (s *Service) RequestLock(ctx context.Context, p auth.Principal, appID, plug
 		if err != nil {
 			return err
 		}
-		if err := authorize(p, d.editPermission(), appID); err != nil {
+		if err := d.checkScope(scope); err != nil {
 			return err
 		}
-		current, held, err := s.currentLock(ctx, q, d)
+		if err := authorize(p, d.lockPermission(p, scope), appID); err != nil {
+			return err
+		}
+		current, held, err := s.currentLock(ctx, q, d, scope)
 		if err != nil {
 			return err
 		}
@@ -185,7 +270,7 @@ func (s *Service) RequestLock(ctx context.Context, p auth.Principal, appID, plug
 		if err != nil {
 			return fmt.Errorf("document: %w", err)
 		}
-		row, err := q.RequestLock(ctx, dbgen.RequestLockParams{DraftID: d.row.ID, Requester: requester})
+		row, err := q.RequestLock(ctx, dbgen.RequestLockParams{DraftID: d.row.ID, Scope: scope, Requester: requester})
 		if err != nil {
 			return fmt.Errorf("document: request the lock: %w", err)
 		}
@@ -200,6 +285,11 @@ func (s *Service) RequestLock(ctx context.Context, p auth.Principal, appID, plug
 
 // GetLock returns a draft's lock; an unheld lock has an empty session.
 func (s *Service) GetLock(ctx context.Context, p auth.Principal, appID, pluginID string) (Lock, error) {
+	return s.GetScopedLock(ctx, p, appID, pluginID, "")
+}
+
+// GetScopedLock is GetLock for a lock scope (see AcquireScopedLock).
+func (s *Service) GetScopedLock(ctx context.Context, p auth.Principal, appID, pluginID, scope string) (Lock, error) {
 	var out Lock
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
@@ -207,14 +297,17 @@ func (s *Service) GetLock(ctx context.Context, p auth.Principal, appID, pluginID
 		if err != nil {
 			return err
 		}
-		current, held, err := s.currentLock(ctx, q, d)
+		if err := d.checkScope(scope); err != nil {
+			return err
+		}
+		current, held, err := s.currentLock(ctx, q, d, scope)
 		if err != nil {
 			return err
 		}
 		if held {
 			out = current
 		} else {
-			out = Lock{AppID: d.app, PluginID: d.pluginID()}
+			out = Lock{AppID: d.app, PluginID: d.pluginID(), Scope: scope}
 		}
 		return nil
 	})
@@ -222,8 +315,8 @@ func (s *Service) GetLock(ctx context.Context, p auth.Principal, appID, pluginID
 }
 
 // currentLock reads a draft's lock and whether it is in force.
-func (s *Service) currentLock(ctx context.Context, q *dbgen.Queries, d draft) (Lock, bool, error) {
-	row, err := q.GetLockForUpdate(ctx, d.row.ID)
+func (s *Service) currentLock(ctx context.Context, q *dbgen.Queries, d draft, scope string) (Lock, bool, error) {
+	row, err := q.GetLockForUpdate(ctx, dbgen.GetLockForUpdateParams{DraftID: d.row.ID, Scope: scope})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Lock{}, false, nil
 	}
@@ -235,8 +328,8 @@ func (s *Service) currentLock(ctx context.Context, q *dbgen.Queries, d draft) (L
 }
 
 // holds refuses a principal and session that do not hold the lock.
-func (s *Service) holds(ctx context.Context, q *dbgen.Queries, d draft, p auth.Principal, session string) error {
-	current, held, err := s.currentLock(ctx, q, d)
+func (s *Service) holds(ctx context.Context, q *dbgen.Queries, d draft, p auth.Principal, session, scope string) error {
+	current, held, err := s.currentLock(ctx, q, d, scope)
 	if err != nil {
 		return err
 	}
@@ -269,7 +362,7 @@ func lockOf(row dbgen.Lock, d draft) Lock {
 	var requested []audit.Actor
 	_ = json.Unmarshal(row.RequestedBy, &requested)
 	return Lock{
-		AppID: d.app, PluginID: d.pluginID(),
+		AppID: d.app, PluginID: d.pluginID(), Scope: row.Scope,
 		Holder:     audit.Actor{Kind: row.HolderKind, ID: row.HolderID, Display: row.HolderDisplay},
 		Session:    row.Session,
 		AcquiredAt: storage.Time(row.AcquiredAt), ExpiresAt: storage.Time(row.ExpiresAt),
