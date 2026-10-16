@@ -147,7 +147,7 @@ validates its remote and branch now; the size baseline moves to round 3.
 
 | Decision | Owner | Notes |
 |---|---|---|
-| P8 plan and approvals | Maintainer | All 17 planning decisions are answered ([plans/p8.md](plans/p8.md) §2.1). Open: acceptance of the plan; A1, new dependencies and packages after the research of plan §2.6 (`flutter_map` in `plux_maps`, `google_maps_flutter` in `plux_maps_google`, `video_player` in a new `plux_player` for video and audio, `qr` in `plux_scanner`, `markdown` in a new `plux_markdown`; scanning widgets reuse `mobile_scanner`); A2, CLDR 48.2.3's 104 modern-coverage locales (§2.4). Also: P6's scanner decision B21 (unbundled ML Kit, ZXing-C++ fallback) is unbuilt; the plan proposes finishing it in K3. |
+| P8 plan | Maintainer | All 17 planning decisions answered ([plans/p8.md](plans/p8.md) §2.1); A1 (new packages and dependencies, §2.6) and A2 (CLDR 48.2.3, 104 modern locales) accepted 2026-10-16; P6's unbuilt scanner decision B21 is finished in K3. Open: acceptance of the plan as a whole. |
 | P7 real-device run | Maintainer | [real-device-checklist.md](security/real-device-checklist.md) P7 items: F1 the Plux Bank fee function's success path (SCA, App Attest/Play Integrity evidence, tier claim; CI only checks the refusal of a development device), F2 the Express loan timings that decide WAMR against `wasmi` (`FN-056`, M8), F3–F4 device confirmations; plus the P6 items carried in the same file. |
 | Legal review of ADR-0022 and the CLA | Maintainer | Before accepting external contributions and before the first public release. |
 | CLA signing automation | Maintainer | e.g. CLA Assistant with signatures stored in a separate branch; needed before external pull requests are merged (`GOV-034`). |
