@@ -30,6 +30,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [CloseButton](#closebutton) | 1 | input | P3 | A close button that pops the current route. |
 | [ColoredBox](#coloredbox) | 1 | layout | P3 | Paints a colour behind its child. |
 | [Column](#column) | 1 | layout | P3 | Lays out its children vertically. |
+| [ConsentCheckbox](#consentcheckbox) | 2 | input | P5 | A checkbox that records consent to a versioned document, with a link to read it. |
 | [ConstrainedBox](#constrainedbox) | 1 | layout | P3 | Imposes additional constraints on its child. |
 | [Container](#container) | 1 | layout | P3 | A box with optional padding, margin, size constraints, alignment, colour and decoration. |
 | [CupertinoActivityIndicator](#cupertinoactivityindicator) | 1 | cupertino | P3 | An iOS-style activity indicator. |
@@ -50,6 +51,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [Expanded](#expanded) | 1 | layout | P3 | Makes its child fill the available space along the main axis of a Row, Column or Flex. |
 | [ExpansionTile](#expansiontile) | 1 | display | P3 | A list tile that expands to reveal its children. |
 | [FilledButton](#filledbutton) | 1 | input | P3 | A Material filled button; `tonal` selects the filled-tonal style. |
+| [FilterBar](#filterbar) | 2 | input | P5 | A horizontally scrolling row of filter chips. |
 | [FilterChip](#filterchip) | 1 | display | P3 | A chip that filters content by a tag or description. |
 | [FittedBox](#fittedbox) | 1 | layout | P3 | Scales and positions its child within itself according to `fit`. |
 | [Flex](#flex) | 1 | layout | P3 | Lays out its children along a configurable axis. |
@@ -65,6 +67,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [If](#if) | 1 | structure | P3 | Renders its `then` slot while `condition` is true, otherwise its optional `else` slot. |
 | [Image](#image) | 1 | display | P3 | An image from a bundled asset or a URL, with loading and error states. |
 | [IndexedStack](#indexedstack) | 1 | layout | P3 | Shows the child at `index` from a stack of children. |
+| [InfiniteList](#infinitelist) | 2 | scrolling | P5 | A lazily built, paginated list of `item` templates over `items`, with empty, loading and error states (WGT-012). |
 | [InkWell](#inkwell) | 1 | interaction | P3 | A rectangular area that responds to touch with a Material ink splash. |
 | [InputChip](#inputchip) | 1 | display | P3 | A chip representing a complex piece of information, such as a contact. |
 | [KycCameraCapture](#kyccameracapture) | 2 | input | P6 | ID document and selfie capture with framing guides and quality checks. Ships in `plux_media`. |
@@ -74,12 +77,14 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [ListView](#listview) | 1 | scrolling | P3 | A lazily built, scrollable list of `item` templates over `items`, with empty, loading and error states (WGT-012). |
 | [Match](#match) | 1 | structure | P3 | Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`. |
 | [OfflineBanner](#offlinebanner) | 2 | feedback | P3 | A banner shown while the device is offline. |
+| [OnboardingPager](#onboardingpager) | 2 | navigation | P5 | Swipeable onboarding pages with page indicators and a Done button on the last page. |
 | [Opacity](#opacity) | 1 | layout | P3 | Makes its child partially transparent. |
 | [OtpInput](#otpinput) | 2 | input | P6 | One-time code entry with platform autofill: SMS User Consent API on Android, one-time-code autofill on iOS (SEC-090). |
 | [OutlinedButton](#outlinedbutton) | 1 | input | P3 | A Material outlined button. |
 | [Padding](#padding) | 1 | layout | P3 | Insets its child by the given padding. |
 | [PageView](#pageview) | 1 | scrolling | P3 | Pages through `item` templates over `items`, one page at a time (WGT-012). |
 | [Positioned](#positioned) | 1 | layout | P3 | Positions its child inside a Stack. |
+| [ProfileHeader](#profileheader) | 2 | layout | P5 | A person's avatar, name and subtitle with an actions row. |
 | [Radio](#radio) | 1 | input | P3 | A Material radio button, selected when `groupValue` equals `value`. |
 | [RadioListTile](#radiolisttile) | 1 | input | P3 | A list tile with a radio button. |
 | [RangeSlider](#rangeslider) | 1 | input | P3 | Selects a range from a continuous or discrete set of values. |
@@ -89,10 +94,12 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [SafeArea](#safearea) | 1 | layout | P3 | Insets its child to avoid system intrusions such as the status bar and notch. |
 | [Scaffold](#scaffold) | 1 | structure | P3 | The basic Material page structure: app bar, body, floating action button, bottom bar. |
 | [Scrollbar](#scrollbar) | 1 | scrolling | P3 | Shows a Material scrollbar for its scrollable child. |
+| [SearchField](#searchfield) | 2 | input | P5 | A search box that reports the query once typing pauses, with optional suggestions. |
 | [SecurePinPad](#securepinpad) | 2 | input | P6 | PIN entry with an optional randomised layout and haptic-only key feedback (SEC-090). |
 | [SecureTextField](#securetextfield) | 2 | input | P6 | Hardened text entry: obscured, with no suggestions, autocorrect, clipboard or keyboard learning (SEC-090). |
 | [SegmentedButton](#segmentedbutton) | 1 | input | P3 | Selects one or more options from a small set of segments. |
 | [SelectableText](#selectabletext) | 1 | display | P3 | Text the user can select and copy. |
+| [SettingsList](#settingslist) | 2 | layout | P5 | Settings rows grouped under section headers. |
 | [SingleChildScrollView](#singlechildscrollview) | 1 | scrolling | P3 | Makes a single child scrollable. |
 | [SizedBox](#sizedbox) | 1 | layout | P3 | A box with a fixed width and height, or a spacer. |
 | [SkeletonLoader](#skeletonloader) | 2 | feedback | P3 | Shimmering placeholder blocks shown while content loads. |
@@ -104,8 +111,10 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [SliverPadding](#sliverpadding) | 1 | scrolling | P3 | Insets a sliver by the given padding. |
 | [SliverToBoxAdapter](#slivertoboxadapter) | 1 | scrolling | P3 | Places an ordinary widget inside a CustomScrollView. |
 | [Slot](#slot) | 1 | structure | P3 | Inside a component, the place where an instance's slot fill is rendered; `fallback` renders when the instance leaves it empty. |
+| [SortSheet](#sortsheet) | 2 | input | P5 | A list of radio rows to choose a sort order from; a page of kind bottom sheet hosts it. |
 | [Spacer](#spacer) | 1 | layout | P3 | Takes up flexible empty space in a Row, Column or Flex. |
 | [Stack](#stack) | 1 | layout | P3 | Places its children on top of each other. |
+| [StatusTimeline](#statustimeline) | 2 | feedback | P5 | A vertical timeline of steps, each done, current, pending or failed; the current step is announced. |
 | [Switch](#switch) | 1 | input | P3 | A Material on/off switch. |
 | [SwitchListTile](#switchlisttile) | 1 | input | P3 | A list tile with a switch. |
 | [Text](#text) | 1 | display | P3 | A run of text with a single style. |
@@ -115,6 +124,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [Tooltip](#tooltip) | 1 | display | P3 | Shows a text label when its child is long-pressed or hovered. |
 | [Transform](#transform) | 1 | layout | P3 | Rotates, scales, translates or flips its child before painting. |
 | [VerticalDivider](#verticaldivider) | 1 | display | P3 | A thin vertical line with padding on either side. |
+| [WizardForm](#wizardform) | 2 | input | P5 | A multi-step form: one child per step, a progress indicator, and Back, Next and Submit buttons that validate the step through the enclosing form. |
 | [Wrap](#wrap) | 1 | layout | P3 | Lays out its children in runs, wrapping to the next run when a run is full. |
 
 ### ActionChip
@@ -634,6 +644,25 @@ ID 25 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Column` · andr
 | `spacing` | 7 | `double` | `0.0` | Must be at least 0. |
 
 Takes a list of `children`.
+
+### ConsentCheckbox
+
+A checkbox that records consent to a versioned document, with a link to read it.
+
+ID 171 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60 µs · role checkbox · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — | What the person consents to. |
+| `documentVersion` | 2 | `string`, required | — | The version of the document the consent covers. |
+| `linkLabel` | 3 | `string?` | — | The text of the link that opens the document. |
+| `value` | 4 | `bool` | `false` | Whether consent is given. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `bool` | Fires with the new value when the person toggles the checkbox. |
+| `onAccepted` | 2 | `string` | Fires with `documentVersion` when consent is given, so the page records the accepted version. |
+| `onLinkTap` | 3 | — | Fires when the person taps the link. |
 
 ### ConstrainedBox
 
@@ -1155,6 +1184,20 @@ ID 79 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `FilledButton`, 
 |---|---|---|---|
 | `child` | 1 | one node |  |
 
+### FilterBar
+
+A horizontally scrolling row of filter chips.
+
+ID 173 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 90 µs · role list · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `filters` | 1 | `list<ChoiceItem>`, required | — | The chips. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onToggle` | 1 | `ChoiceItem` | Fires with the chip's `id`, `label` and its new `selected` when the person taps it. |
+
 ### FilterChip
 
 A chip that filters content by a tag or description.
@@ -1580,6 +1623,30 @@ ID 29 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `IndexedStack` �
 
 Takes a list of `children`.
 
+### InfiniteList
+
+A lazily built, paginated list of `item` templates over `items`, with empty, loading and error states (WGT-012).
+
+ID 175 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 50 µs · role list · type parameters T
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `items` | 1 | `list<T>`, required | — | The items loaded so far; the template repeats over them as `item` and `index`. |
+| `status` | 2 | `ListStatus` | `"ready"` | Loading, error or ready; selects the `loading` or `error` slot. |
+| `hasMore` | 3 | `bool` | `false` | More items can be loaded; `onEndReached` fires near the end. |
+| `padding` | 4 | `EdgeInsets` | — | Space around the items. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEndReached` | 1 | — | Fires once when the last item comes into view and `hasMore` is true. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `item` | 1 | an item template, required | The template built for each item, lazily. |
+| `empty` | 2 | one node | Shown when `items` is empty. |
+| `loading` | 3 | one node | Shown while `status` is loading. |
+| `error` | 4 | one node | Shown while `status` is error. |
+
 ### InkWell
 
 A rectangular area that responds to touch with a Material ink splash.
@@ -1834,6 +1901,25 @@ ID 102 · Layer 2 · P3 · revision 1 (runtime 0.1.0) · android, ios · cost 15
 | `message` | 1 | `string`, required | — | The text shown while offline. |
 | `visible` | 2 | `bool` | `true` | Whether the banner can show: while true it shows whenever the device is offline; false hides it. |
 
+### OnboardingPager
+
+Swipeable onboarding pages with page indicators and a Done button on the last page.
+
+ID 177 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 140 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `currentPage` | 1 | `int` | `0` | The zero-based page shown. Must be at least 0. |
+| `nextLabel` | 2 | `string` | `"Next"` | The Next button's text. |
+| `doneLabel` | 3 | `string` | `"Done"` | The Done button's text, on the last page. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onPageChanged` | 1 | `int` | Fires with the page now shown. |
+| `onDone` | 2 | — | Fires when the person finishes the last page. |
+
+Takes a list of `children` (at least 1).
+
 ### Opacity
 
 Makes its child partially transparent.
@@ -1953,6 +2039,23 @@ ID 28 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Positioned` · 
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node, required |  |
+
+### ProfileHeader
+
+A person's avatar, name and subtitle with an actions row.
+
+ID 179 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 50 µs · role header
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `name` | 1 | `string`, required | — | The person's name. |
+| `subtitle` | 2 | `string?` | — | A line below the name. |
+| `avatar` | 3 | `ImageSource?` | — | The avatar image; the name's initial shows when absent or failing. |
+| `radius` | 4 | `double` | `32.0` | The avatar's radius. Must be at least 8. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `actions` | 1 | one node | Buttons below the name. |
 
 ### Radio
 
@@ -2189,6 +2292,24 @@ ID 45 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Scrollbar` · a
 |---|---|---|---|
 | `child` | 1 | one node, required |  |
 
+### SearchField
+
+A search box that reports the query once typing pauses, with optional suggestions.
+
+ID 172 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 120 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `string` | `""` | The text in the field. |
+| `hint` | 2 | `string?` | — | The placeholder. |
+| `debounceMs` | 3 | `int` | `300` | How long typing must pause before `onSearch` fires, in milliseconds. Must be at least 0 and at most 5000. |
+| `suggestions` | 4 | `list<string>` | `[]` | Suggestions shown below the field while it has text. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSearch` | 1 | `string` | Fires with the query after typing pauses for `debounceMs`. |
+| `onSuggestionSelected` | 2 | `string` | Fires with the suggestion the person picked. |
+
 ### SecurePinPad
 
 PIN entry with an optional randomised layout and haptic-only key feedback (SEC-090).
@@ -2280,6 +2401,18 @@ ID 48 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `SelectableText`
 | Event | ID | Payload | Description |
 |---|---|---|---|
 | `onTap` | 1 | — |  |
+
+### SettingsList
+
+Settings rows grouped under section headers.
+
+ID 178 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60 µs · role list
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `sections` | 1 | `list<SettingsSection>`, required | — | The groups; the children are divided among them in order by `count`. |
+
+Takes a list of `children`.
 
 ### SingleChildScrollView
 
@@ -2524,6 +2657,22 @@ ID 5 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · android, ios · cost 1 µ
 |---|---|---|---|
 | `fallback` | 1 | one node | Rendered when the instance does not fill the slot. |
 
+### SortSheet
+
+A list of radio rows to choose a sort order from; a page of kind bottom sheet hosts it.
+
+ID 174 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 80 µs · role radio · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `title` | 1 | `string?` | — | A header above the rows. |
+| `options` | 2 | `list<ChoiceItem>`, required | — | The orders offered; their `selected` is ignored in favour of `selected`. |
+| `selected` | 3 | `string?` | — | The `id` of the chosen option. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` | Fires with the `id` of the option the person chose. |
+
 ### Spacer
 
 Takes up flexible empty space in a Row, Column or Flex.
@@ -2548,6 +2697,16 @@ ID 27 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Stack` · andro
 | `clipBehavior` | 4 | `Clip` | `"hardEdge"` |  |
 
 Takes a list of `children`.
+
+### StatusTimeline
+
+A vertical timeline of steps, each done, current, pending or failed; the current step is announced.
+
+ID 180 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 70 µs · role list
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `steps` | 1 | `list<TimelineStep>`, required | — | The steps, in order. |
 
 ### Switch
 
@@ -2892,6 +3051,29 @@ ID 53 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `VerticalDivider
 | `color` | 5 | `color` | — |  |
 | `radius` | 6 | `BorderRadius` | — |  |
 
+### WizardForm
+
+A multi-step form: one child per step, a progress indicator, and Back, Next and Submit buttons that validate the step through the enclosing form.
+
+ID 176 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 160 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `titles` | 1 | `list<string>`, required | — | The title of each step, in order. |
+| `currentStep` | 2 | `int` | `0` | The zero-based step shown. Must be at least 0. |
+| `stepFields` | 3 | `list<string>` | `[]` | For each step, the comma-separated form fields it holds; Next validates those fields through the enclosing `FormScope`. |
+| `backLabel` | 4 | `string` | `"Back"` | The Back button's text. |
+| `nextLabel` | 5 | `string` | `"Next"` | The Next button's text. |
+| `submitLabel` | 6 | `string` | `"Submit"` | The Submit button's text, on the last step. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onNext` | 1 | `int` | Fires with the step now shown, once the current step is valid. |
+| `onBack` | 2 | `int` | Fires with the step now shown when the person goes back. |
+| `onSubmit` | 3 | — | Fires when the last step is valid and the person submits. |
+
+Takes a list of `children` (at least 1).
+
 ### Wrap
 
 Lays out its children in runs, wrapping to the next run when a run is full.
@@ -3059,6 +3241,18 @@ ID 9 · revision 1 · Flutter `ButtonStyle`
 | `animationDuration` | 19 | `duration` | — |  |
 | `enableFeedback` | 20 | `bool` | — |  |
 | `alignment` | 21 | `Alignment` | — |  |
+
+### ChoiceItem
+
+One choice of a FilterBar or SortSheet.
+
+ID 62 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `id` | 1 | `string`, required | — | The stable identifier the events report. |
+| `label` | 2 | `string`, required | — | The text shown. |
+| `selected` | 3 | `bool` | `false` | Whether the choice is on. |
 
 ### DropdownMenuEntry
 
@@ -3326,6 +3520,17 @@ ID 36 · revision 1
 | `value` | 1 | `string`, required | — | The decoded text. |
 | `format` | 2 | `BarcodeFormat`, required | — | The format that was read. |
 
+### SettingsSection
+
+One group of rows of a SettingsList.
+
+ID 64 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `title` | 1 | `string`, required | — | The section header. |
+| `count` | 2 | `int`, required | — | How many of the list's children, in order, belong to the section. |
+
 ### Shadow
 
 A shadow cast by text or an icon.
@@ -3406,6 +3611,18 @@ ID 26 · revision 1 · Flutter `TextStyle`
 | `fontFamily` | 18 | `string` | — |  |
 | `fontFamilyFallback` | 19 | `list<string>` | — |  |
 | `overflow` | 20 | `TextOverflow` | — |  |
+
+### TimelineStep
+
+One step of a StatusTimeline.
+
+ID 63 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — | The step's name. |
+| `detail` | 2 | `string?` | — | A line below the label, such as a time or a reason. |
+| `state` | 3 | `TimelineStepState` | `"pending"` | Where the step stands. |
 
 ### WidgetStateBorderSide
 
@@ -4488,6 +4705,19 @@ ID 62 · revision 1 · Flutter `TileMode`
 | `repeated` | 2 |  |
 | `mirror` | 3 |  |
 | `decal` | 4 |  |
+
+### TimelineStepState
+
+Where a StatusTimeline step stands.
+
+ID 125 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `done` | 1 |  |
+| `current` | 2 |  |
+| `pending` | 3 |  |
+| `failed` | 4 |  |
 
 ### TooltipTriggerMode
 
