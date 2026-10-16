@@ -224,6 +224,7 @@ func (ix *index) checkValueType(vt *ValueType, p *problems) {
 var (
 	roles = []string{
 		"none", "button", "checkbox", "radio", "switch", "slider", "textField", "image", "text", "header", "list", "progress",
+		"tab", "menu", "menuItem", "link", "group", "alert",
 	}
 	categories = []string{
 		"navigation", "feedback", "state", "forms", "data", "localDb", "compute", "control", "analytics", "app",
