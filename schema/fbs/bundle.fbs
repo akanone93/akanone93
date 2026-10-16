@@ -212,6 +212,12 @@ table Semantics {
   button: bool;
   live_region: bool;
   exclude: bool;
+  // Reading order among siblings; -1 when unset (A11Y-006).
+  focus_order: float = -1;
+  group: bool;
+  // Heading level 1 to 6; 0 when the node is no heading.
+  heading_level: ubyte;
+  decorative: bool;
 }
 
 // A slot filled with nodes, as indices into the section's node array.
@@ -230,6 +236,9 @@ enum NodeHints : ubyte (bit_flags) {
   // runtime masks it until the user unmasks it (SEC-092).
   Masked
 }
+
+// Text direction a node forces on its subtree (I18N-005).
+enum TextDirectionOverride : ubyte { Inherit = 0, Ltr, Rtl }
 
 // A node of a flat node array (BND-015). `widget` is the permanent widget
 // ID, or zero for a component instance, which names `component` and
@@ -256,6 +265,7 @@ table Node {
   // The node's animations: implicit, enter and exit, hero (ANI-001,
   // ANI-003, ANI-004); null when it declares none.
   animation: NodeAnimation;
+  direction: TextDirectionOverride;
 }
 
 // ── Section meta ──────────────────────────────────────────────────────────

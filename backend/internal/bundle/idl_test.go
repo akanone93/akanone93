@@ -23,12 +23,13 @@ func TestIndicesAndCountsAre32Bit(t *testing.T) {
 	}
 	// Fields reviewed as not being indices or counts.
 	notCounts := map[string]bool{
-		"offset":   true, // a UTC offset in minutes
-		"unscaled": true, // decimal digits
-		"code":     true, // PXL bytecode
-		"hash":     true, // SHA-256
-		"module":   true, // WebAssembly bytes
-		"hints":    true, // NodeHints bits
+		"offset":        true, // a UTC offset in minutes
+		"unscaled":      true, // decimal digits
+		"code":          true, // PXL bytecode
+		"hash":          true, // SHA-256
+		"module":        true, // WebAssembly bytes
+		"hints":         true, // NodeHints bits
+		"heading_level": true, // a heading level from 1 to 6
 	}
 	field := regexp.MustCompile(`^\s*([a-z_]+)\s*:\s*\[?(byte|ubyte|int8|uint8|short|ushort|int16|uint16)\]?\s*[;(]`)
 	found := 0

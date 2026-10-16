@@ -311,6 +311,7 @@ const List<TableLayout> tableLayouts = [
     FieldLayout('type_arguments', 13, FieldKind.vectorScalar, 4, 4, -1, required: false),
     FieldLayout('native_slot', 14, FieldKind.scalar, 4, 4, -1, required: false),
     FieldLayout('animation', 15, FieldKind.table, 0, 0, 39, required: false),
+    FieldLayout('direction', 16, FieldKind.scalar, 1, 1, -1, required: false),
   ]),
   // 39
   TableLayout('NodeAnimation', [
@@ -420,6 +421,10 @@ const List<TableLayout> tableLayouts = [
     FieldLayout('button', 4, FieldKind.scalar, 1, 1, -1, required: false),
     FieldLayout('live_region', 5, FieldKind.scalar, 1, 1, -1, required: false),
     FieldLayout('exclude', 6, FieldKind.scalar, 1, 1, -1, required: false),
+    FieldLayout('focus_order', 7, FieldKind.scalar, 4, 4, -1, required: false),
+    FieldLayout('group', 8, FieldKind.scalar, 1, 1, -1, required: false),
+    FieldLayout('heading_level', 9, FieldKind.scalar, 1, 1, -1, required: false),
+    FieldLayout('decorative', 10, FieldKind.scalar, 1, 1, -1, required: false),
   ]),
   // 52
   TableLayout('Shell', [

@@ -128,8 +128,56 @@ func (rcv *Semantics) MutateExclude(n bool) bool {
 	return rcv._tab.MutateBoolSlot(16, n)
 }
 
+func (rcv *Semantics) FocusOrder() float32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(18))
+	if o != 0 {
+		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
+	}
+	return -1.0
+}
+
+func (rcv *Semantics) MutateFocusOrder(n float32) bool {
+	return rcv._tab.MutateFloat32Slot(18, n)
+}
+
+func (rcv *Semantics) Group() bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+	if o != 0 {
+		return rcv._tab.GetBool(o + rcv._tab.Pos)
+	}
+	return false
+}
+
+func (rcv *Semantics) MutateGroup(n bool) bool {
+	return rcv._tab.MutateBoolSlot(20, n)
+}
+
+func (rcv *Semantics) HeadingLevel() byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+	if o != 0 {
+		return rcv._tab.GetByte(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Semantics) MutateHeadingLevel(n byte) bool {
+	return rcv._tab.MutateByteSlot(22, n)
+}
+
+func (rcv *Semantics) Decorative() bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(24))
+	if o != 0 {
+		return rcv._tab.GetBool(o + rcv._tab.Pos)
+	}
+	return false
+}
+
+func (rcv *Semantics) MutateDecorative(n bool) bool {
+	return rcv._tab.MutateBoolSlot(24, n)
+}
+
 func SemanticsStart(builder *flatbuffers.Builder) {
-	builder.StartObject(7)
+	builder.StartObject(11)
 }
 func SemanticsAddLabel(builder *flatbuffers.Builder, label flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(label), 0)
@@ -151,6 +199,18 @@ func SemanticsAddLiveRegion(builder *flatbuffers.Builder, liveRegion bool) {
 }
 func SemanticsAddExclude(builder *flatbuffers.Builder, exclude bool) {
 	builder.PrependBoolSlot(6, exclude, false)
+}
+func SemanticsAddFocusOrder(builder *flatbuffers.Builder, focusOrder float32) {
+	builder.PrependFloat32Slot(7, focusOrder, -1.0)
+}
+func SemanticsAddGroup(builder *flatbuffers.Builder, group bool) {
+	builder.PrependBoolSlot(8, group, false)
+}
+func SemanticsAddHeadingLevel(builder *flatbuffers.Builder, headingLevel byte) {
+	builder.PrependByteSlot(9, headingLevel, 0)
+}
+func SemanticsAddDecorative(builder *flatbuffers.Builder, decorative bool) {
+	builder.PrependBoolSlot(10, decorative, false)
 }
 func SemanticsEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
