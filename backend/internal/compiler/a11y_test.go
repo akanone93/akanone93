@@ -201,24 +201,6 @@ func TestUnresolvableColoursAreNotChecked_A11Y_003(t *testing.T) {
 }
 
 // Verifies: A11Y-003.
-func TestExpressionColourIsReportedOnce_A11Y_003(t *testing.T) {
-	t.Parallel()
-	box := `{"id": "%ID%", "type": "Container", "props": {"color": {"$expr": "page.accent"}}, "slots": {"child": ` + text("", "") + `}}`
-	m := a11yProject(t, "standard", "#000000", "#FFFFFF", "["+box+"]")
-	edit(t, m, calculatorPage, func(doc map[string]any) {
-		doc["state"] = append(doc["state"].([]any), raw(t, `{"name": "accent", "type": "color", "scope": "page", "initial": "#112233"}`))
-	})
-	res := compileFS(m)
-	if res.Diagnostics.HasErrors() {
-		t.Skipf("fixture state cannot take the colour: %s", list(res.Diagnostics))
-	}
-	if got := findings(res, plxerr.ContrastNotChecked); len(got) != 1 || got[0].Severity != plxerr.SeverityInfo {
-		t.Errorf("want one info PLX-1409:\n%s", list(res.Diagnostics))
-	}
-	if res.Accessibility.NotChecked != 1 {
-		t.Errorf("NotChecked = %d", res.Accessibility.NotChecked)
-	}
-}
 
 // Verifies: A11Y-002.
 func TestImageAlternative_A11Y_002(t *testing.T) {
@@ -529,5 +511,20 @@ func TestReportIsDeterministicAndValid_A11Y_008(t *testing.T) {
 	bad, _ := jsonschema.UnmarshalJSON(strings.NewReader(`{"checks": [], "violations": [], "waivers": []}`))
 	if sch.Validate(bad) == nil {
 		t.Error("the schema accepts a report without notChecked")
+	}
+}
+
+// Verifies: A11Y-003.
+func TestNotCheckedIsAnInfoOrCountedOnly_A11Y_003(t *testing.T) {
+	t.Parallel()
+	u := &unit{}
+	n := &node{owner: owner{page: &page{file: "p.page.json"}}, ptr: "/root"}
+	u.notChecked(n, "text: the colour is an expression", false)
+	u.notChecked(n, "text: token \"color.onSurface\" is not in the app's theme", true)
+	if len(u.diags) != 1 || u.diags[0].Code != plxerr.ContrastNotChecked || u.diags[0].Severity != plxerr.SeverityInfo {
+		t.Errorf("want one info PLX-1409:\n%s", list(u.diags))
+	}
+	if u.a11y.notChecked != 2 {
+		t.Errorf("notChecked = %d, want both counted", u.a11y.notChecked)
 	}
 }
