@@ -25,6 +25,8 @@ type unit struct {
 	opts    Options
 	project *schema.Project
 	diags   plxerr.Diagnostics
+	// a11y collects the accessibility checks' findings (A11Y-008).
+	a11y a11yState
 	// focus is the page file ValidatePage checks: the checking stages
 	// then skip every other page, component and flow. Empty in Compile.
 	focus string
