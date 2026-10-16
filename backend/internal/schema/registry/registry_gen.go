@@ -114,6 +114,19 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "BackdropFilter", ID: 112, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "blur_on", Description: "Blurs everything painted behind its child (WGT-020).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "filter", ID: 1, Type: "BlurFilter", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "blendMode", ID: 2, Type: "BlendMode", Required: false, Default: "\"srcOver\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "enabled", ID: 3, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
 		Type: "Badge", ID: 62, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "display", Icon: "notifications", Description: "A small label, typically a count, on top of its child.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 10, Role: RoleNone, Interactive: false,
@@ -723,6 +736,39 @@ var widgets = [...]Widget{
 		},
 		Slots: []Slot{
 			{Name: "slivers", ID: 1, List: true, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "DataTable", ID: 117, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "table_rows", Description: "A Material table with headings, sorting and optional row selection (WGT-020).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleNone, Interactive: true,
+		Props: []Prop{
+			{Name: "columns", ID: 1, Type: "list<DataColumn>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "rows", ID: 2, Type: "list<list<string>>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "One list of cell texts per row, each as long as `columns`; bind it with `$expr`."},
+			{Name: "selectedRows", ID: 3, Type: "list<int>", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Positions of the selected rows."},
+			{Name: "sortColumnIndex", ID: 4, Type: "int", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "sortAscending", ID: 5, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "showCheckboxColumn", ID: 6, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Shows the selection checkboxes when `onSelectChanged` is handled."},
+			{Name: "decoration", ID: 7, Type: "BoxDecoration", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "dataRowColor", ID: 8, Type: "WidgetStateColor", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "dataRowMinHeight", ID: 9, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "dataRowMaxHeight", ID: 10, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "dataTextStyle", ID: 11, Type: "TextStyle", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "headingRowColor", ID: 12, Type: "WidgetStateColor", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "headingRowHeight", ID: 13, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "headingTextStyle", ID: 14, Type: "TextStyle", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "horizontalMargin", ID: 15, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "columnSpacing", ID: 16, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "showBottomBorder", ID: 17, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "dividerThickness", ID: 18, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "checkboxHorizontalMargin", ID: 19, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "border", ID: 20, Type: "BorderSide", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "clipBehavior", ID: 21, Type: "Clip", Required: false, Default: "\"none\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onSort", ID: 1, Payload: "IndexFlag", Revision: 1, Deprecated: nil, Description: "Fired when a sortable heading is tapped; `index` is the column, `value` whether the order is ascending. The page stores both and re-sorts `rows`."},
+			{Name: "onSelectChanged", ID: 2, Payload: "IndexFlag", Revision: 1, Deprecated: nil, Description: "Fired when a row is selected or deselected; `index` is the row, `value` whether it is selected."},
+			{Name: "onSelectAll", ID: 3, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -1504,6 +1550,51 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "MaterialBanner", ID: 119, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "campaign", Description: "A banner with a message, an optional leading widget and actions (WGT-020).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "contentTextStyle", ID: 1, Type: "TextStyle", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "elevation", ID: 2, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "backgroundColor", ID: 3, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "surfaceTintColor", ID: 4, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "shadowColor", ID: 5, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "dividerColor", ID: 6, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "padding", ID: 7, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "margin", ID: 8, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "leadingPadding", ID: 9, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "forceActionsBelow", ID: 10, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "overflowAlignment", ID: 11, Type: "OverflowBarAlignment", Required: false, Default: "\"end\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "minActionBarHeight", ID: 12, Type: "double", Required: false, Default: "52.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onVisible", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "content", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "leading", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "actions", ID: 3, List: true, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "NestedScrollView", ID: 115, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "scrolling", Icon: "vertical_split", Description: "A scroll view whose `headerSlivers` scroll together with a scrollable `body` (WGT-020).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "scrollDirection", ID: 1, Type: "Axis", Required: false, Default: "\"vertical\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "reverse", ID: 2, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "physics", ID: 3, Type: "ScrollPhysics", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "dragStartBehavior", ID: 4, Type: "DragStartBehavior", Required: false, Default: "\"start\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "floatHeaderSlivers", ID: 5, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "clipBehavior", ID: 6, Type: "Clip", Required: false, Default: "\"hardEdge\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "hitTestBehavior", ID: 7, Type: "HitTestBehavior", Required: false, Default: "\"opaque\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "headerSlivers", ID: 1, List: true, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "The slivers above the body, such as a `SliverAppBar`."},
+			{Name: "body", ID: 2, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: "The scrollable body, such as a `ListView`."},
+		},
+	},
+	{
 		Type: "OfflineBanner", ID: 102, Layer: 2, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "feedback", Icon: "cloud_off", Description: "A banner shown while the device is offline.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 15, Role: RoleNone, Interactive: false,
@@ -1708,6 +1799,63 @@ var widgets = [...]Widget{
 			{Name: "onChanged", ID: 1, Payload: "RangeValues", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "onChangeStart", ID: 2, Payload: "RangeValues", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "onChangeEnd", ID: 3, Payload: "RangeValues", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "RefreshIndicator", ID: 113, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "interaction", Icon: "refresh", Description: "Pull-to-refresh over a scrollable child; `onRefresh` runs its handlers (WGT-020).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "displacement", ID: 1, Type: "double", Required: false, Default: "40.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "edgeOffset", ID: 2, Type: "double", Required: false, Default: "0.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "color", ID: 3, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "backgroundColor", ID: 4, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "semanticsLabel", ID: 5, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "semanticsValue", ID: 6, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "strokeWidth", ID: 7, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "triggerMode", ID: 8, Type: "RefreshIndicatorTriggerMode", Required: false, Default: "\"onEdge\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "elevation", ID: 9, Type: "double", Required: false, Default: "2.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onRefresh", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the user pulls to refresh. The indicator hides when the handlers have been started."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "ReorderableListView", ID: 114, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "scrolling", Icon: "reorder", Description: "A list whose `item` templates the user can drag into a new order; the page updates its list on `onReorder` (WGT-012).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleList, Interactive: true,
+		TypeParameters: []string{"T"},
+		Props: []Prop{
+			{Name: "items", ID: 1, Type: "list<T>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The list the template repeats over; bind it with `$expr`. The item is available as `item`, its position as `index`."},
+			{Name: "scrollDirection", ID: 2, Type: "Axis", Required: false, Default: "\"vertical\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "reverse", ID: 3, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "physics", ID: 4, Type: "ScrollPhysics", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "shrinkWrap", ID: 5, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "padding", ID: 6, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "buildDefaultDragHandles", ID: 7, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "itemExtent", ID: 8, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "anchor", ID: 9, Type: "double", Required: false, Default: "0.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "dragStartBehavior", ID: 11, Type: "DragStartBehavior", Required: false, Default: "\"start\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "keyboardDismissBehavior", ID: 12, Type: "ScrollViewKeyboardDismissBehavior", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "clipBehavior", ID: 13, Type: "Clip", Required: false, Default: "\"hardEdge\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "autoScrollerVelocityScalar", ID: 14, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "status", ID: 15, Type: "ListStatus", Required: false, Default: "\"ready\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Loading, error or ready; selects the `loading` or `error` slot (WGT-012)."},
+		},
+		Events: []Event{
+			{Name: "onReorder", ID: 1, Payload: "map<string,int>", Revision: 1, Deprecated: nil, Description: "Fired when an item is dropped; the payload holds `oldIndex` and `newIndex`, the final position of the item. The page moves the item in its list."},
+			{Name: "onReorderStart", ID: 2, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onReorderEnd", ID: 3, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "item", ID: 1, List: false, Required: true, Template: true, Revision: 1, Deprecated: nil, Description: "The template built for each item, lazily."},
+			{Name: "header", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "footer", ID: 3, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "empty", ID: 4, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown when `items` is empty."},
+			{Name: "loading", ID: 5, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown while `status` is loading."},
+			{Name: "error", ID: 6, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown while `status` is error."},
 		},
 	},
 	{
@@ -2093,6 +2241,20 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "SliverPersistentHeader", ID: 116, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "scrolling", Icon: "vertical_align_top", Description: "A sliver header between `minExtent` and `maxExtent` tall that can stay pinned or float (WGT-020).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleHeader, Interactive: false,
+		Props: []Prop{
+			{Name: "pinned", ID: 1, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "floating", ID: 2, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "minExtent", ID: 3, Type: "double", Required: true, Default: "", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The height when collapsed."},
+			{Name: "maxExtent", ID: 4, Type: "double", Required: true, Default: "", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The height when expanded."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: "The header content; it is given the current height."},
+		},
+	},
+	{
 		Type: "SliverToBoxAdapter", ID: 42, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "scrolling", Icon: "crop_free", Description: "Places an ordinary widget inside a CustomScrollView.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 4, Role: RoleNone, Interactive: false,
@@ -2128,6 +2290,33 @@ var widgets = [...]Widget{
 			{Name: "textDirection", ID: 2, Type: "TextDirection", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 			{Name: "fit", ID: 3, Type: "StackFit", Required: false, Default: "\"loose\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 			{Name: "clipBehavior", ID: 4, Type: "Clip", Required: false, Default: "\"hardEdge\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Children: &Children{Min: 0, Max: 0},
+	},
+	{
+		Type: "Stepper", ID: 118, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "structure", Icon: "checklist", Description: "A sequence of steps; the child at each step's index is its content (WGT-020).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleNone, Interactive: true,
+		Props: []Prop{
+			{Name: "steps", ID: 1, Type: "list<StepItem>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "type", ID: 2, Type: "StepperType", Required: false, Default: "\"vertical\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "currentStep", ID: 3, Type: "int", Required: false, Default: "0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The open step; bind it to a state key and update it from the events."},
+			{Name: "physics", ID: 4, Type: "ScrollPhysics", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "elevation", ID: 5, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "margin", ID: 6, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "connectorColor", ID: 7, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "connectorThickness", ID: 8, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "stepIconHeight", ID: 9, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "stepIconWidth", ID: 10, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "stepIconMargin", ID: 11, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "clipBehavior", ID: 12, Type: "Clip", Required: false, Default: "\"none\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "headerPadding", ID: 13, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "contentPadding", ID: 14, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onStepTapped", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onStepContinue", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onStepCancel", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Children: &Children{Min: 0, Max: 0},
 	},
@@ -2214,6 +2403,21 @@ var widgets = [...]Widget{
 			{Name: "subtitle", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "secondary", ID: 3, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
+	},
+	{
+		Type: "Table", ID: 111, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "layout", Icon: "table_chart", Description: "A grid of cells; `children` fill it row by row, `columns` to a row (WGT-020).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "columns", ID: 1, Type: "int", Required: false, Default: "1", Constraints: Constraints{Min: Bound{Value: 1, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Cells per row; the children are laid out row-major and the last row is padded with empty cells."},
+			{Name: "columnWidths", ID: 2, Type: "list<ColumnWidth>", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The width rule of each column by position; columns beyond the list use `defaultColumnWidth`."},
+			{Name: "defaultColumnWidth", ID: 3, Type: "ColumnWidth", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "textDirection", ID: 4, Type: "TextDirection", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "border", ID: 5, Type: "BorderSide", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Draws the outside and the lines between all cells."},
+			{Name: "defaultVerticalAlignment", ID: 6, Type: "TableCellVerticalAlignment", Required: false, Default: "\"top\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "textBaseline", ID: 7, Type: "TextBaseline", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Children: &Children{Min: 0, Max: 0},
 	},
 	{
 		Type: "Text", ID: 46, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
@@ -2493,6 +2697,14 @@ var valueTypes = [...]ValueType{
 		},
 	},
 	{
+		Name: "BlurFilter", ID: 47, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "A Gaussian blur of what is behind a widget (BackdropFilter).",
+		Fields: []Field{
+			{Name: "sigmaX", ID: 1, Type: "double", Required: false, Default: "0", Revision: 1, Deprecated: nil, Description: "Blur standard deviation along x, in logical pixels."},
+			{Name: "sigmaY", ID: 2, Type: "double", Required: false, Default: "0", Revision: 1, Deprecated: nil, Description: "Blur standard deviation along y, in logical pixels."},
+			{Name: "tileMode", ID: 3, Type: "TileMode", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "How the blur treats the edges; absent means the Flutter default."},
+		},
+	},
+	{
 		Name: "Border", ID: 2, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "A border around a box: the same side everywhere, or one per edge.",
 		Fields: []Field{
 			{Name: "all", ID: 1, Type: "BorderSide", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "The side used on every edge."},
@@ -2592,6 +2804,21 @@ var valueTypes = [...]ValueType{
 		},
 	},
 	{
+		Name: "ColumnWidth", ID: 48, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "The width rule of one table column.",
+		Fields: []Field{
+			{Name: "kind", ID: 1, Type: "ColumnWidthKind", Required: false, Default: "\"flex\"", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "value", ID: 2, Type: "double", Required: false, Default: "1", Revision: 1, Deprecated: nil, Description: "The flex factor, the logical pixels or the fraction of the table, by `kind`; ignored for `intrinsic`."},
+		},
+	},
+	{
+		Name: "DataColumn", ID: 49, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "A column heading of a DataTable.",
+		Fields: []Field{
+			{Name: "label", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The heading text."},
+			{Name: "numeric", ID: 2, Type: "bool", Required: false, Default: "false", Revision: 1, Deprecated: nil, Description: "Right-aligns the column, for numbers."},
+			{Name: "tooltip", ID: 3, Type: "string", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "Shown on long press of the heading."},
+		},
+	},
+	{
 		Name: "DropdownMenuEntry", ID: 10, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "One entry of a DropdownMenu.",
 		Fields: []Field{
 			{Name: "value", ID: 1, Type: "string", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
@@ -2683,6 +2910,13 @@ var valueTypes = [...]ValueType{
 			{Name: "asset", ID: 1, Type: "asset", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "A bundled asset."},
 			{Name: "url", ID: 2, Type: "string", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "An HTTPS URL on a domain the plugin declares (SEC-080)."},
 			{Name: "thumbHash", ID: 3, Type: "string", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "A ThumbHash of the image, base64-encoded, shown blurred until the image loads (RT-014)."},
+		},
+	},
+	{
+		Name: "IndexFlag", ID: 51, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "An index and a flag: the payload of a DataTable sort (column, ascending) or row selection (row, selected).",
+		Fields: []Field{
+			{Name: "index", ID: 1, Type: "int", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "value", ID: 2, Type: "bool", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -2819,6 +3053,16 @@ var valueTypes = [...]ValueType{
 		Fields: []Field{
 			{Name: "width", ID: 1, Type: "double", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "height", ID: 2, Type: "double", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Name: "StepItem", ID: 50, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "One step of a Stepper; its content is the child at the same index.",
+		Fields: []Field{
+			{Name: "title", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "subtitle", ID: 2, Type: "string", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "label", ID: 3, Type: "string", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "Shown in place of the step number."},
+			{Name: "state", ID: 4, Type: "StepState", Required: false, Default: "\"indexed\"", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "isActive", ID: 5, Type: "bool", Required: false, Default: "false", Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -3066,6 +3310,12 @@ var enums = [...]Enum{
 		{Name: "antiAlias", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "antiAliasWithSaveLayer", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
 	}},
+	{Name: "ColumnWidthKind", ID: 100, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "How a table column takes its width: a share of the free space, a fixed size, a fraction of the table, or the widest cell.", Values: []EnumValue{
+		{Name: "flex", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "fixed", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "fraction", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "intrinsic", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
+	}},
 	{Name: "CrossAxisAlignment", ID: 12, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum CrossAxisAlignment.", Values: []EnumValue{
 		{Name: "start", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "end", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
@@ -3248,11 +3498,20 @@ var enums = [...]Enum{
 		{Name: "numeric", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "alphanumeric", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 	}},
+	{Name: "OverflowBarAlignment", ID: 98, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum OverflowBarAlignment.", Values: []EnumValue{
+		{Name: "start", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "end", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "center", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+	}},
 	{Name: "OverlayVisibilityMode", ID: 38, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum OverlayVisibilityMode.", Values: []EnumValue{
 		{Name: "never", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "editing", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "notEditing", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "always", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "RefreshIndicatorTriggerMode", ID: 96, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum RefreshIndicatorTriggerMode.", Values: []EnumValue{
+		{Name: "anywhere", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "onEdge", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 	}},
 	{Name: "ScrollPhysics", ID: 39, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "How a scrollable responds to input.", Values: []EnumValue{
 		{Name: "platform", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
@@ -3310,10 +3569,29 @@ var enums = [...]Enum{
 		{Name: "expand", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "passthrough", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 	}},
+	{Name: "StepState", ID: 99, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum StepState.", Values: []EnumValue{
+		{Name: "indexed", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "editing", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "complete", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "disabled", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "error", ID: 5, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "StepperType", ID: 97, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum StepperType.", Values: []EnumValue{
+		{Name: "vertical", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "horizontal", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+	}},
 	{Name: "StrokeCap", ID: 49, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum StrokeCap.", Values: []EnumValue{
 		{Name: "butt", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "round", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "square", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "TableCellVerticalAlignment", ID: 95, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum TableCellVerticalAlignment.", Values: []EnumValue{
+		{Name: "top", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "middle", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "bottom", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "baseline", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "fill", ID: 5, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "intrinsicHeight", ID: 6, Revision: 1, Deprecated: nil, Description: ""},
 	}},
 	{Name: "TextAlign", ID: 50, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum TextAlign.", Values: []EnumValue{
 		{Name: "left", ID: 1, Revision: 1, Deprecated: nil, Description: ""},

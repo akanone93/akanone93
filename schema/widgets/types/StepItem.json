@@ -1,0 +1,44 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "StepItem",
+  "id": 50,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "One step of a Stepper; its content is the child at the same index.",
+  "fields": [
+    {
+      "name": "title",
+      "id": 1,
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "subtitle",
+      "id": 2,
+      "type": "string"
+    },
+    {
+      "name": "label",
+      "id": 3,
+      "type": "string",
+      "description": "Shown in place of the step number."
+    },
+    {
+      "name": "state",
+      "id": 4,
+      "type": "StepState",
+      "default": "indexed"
+    },
+    {
+      "name": "isActive",
+      "id": 5,
+      "type": "bool",
+      "default": false
+    }
+  ]
+}

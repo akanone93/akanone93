@@ -1,0 +1,35 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "BlurFilter",
+  "id": 47,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "A Gaussian blur of what is behind a widget (BackdropFilter).",
+  "fields": [
+    {
+      "name": "sigmaX",
+      "id": 1,
+      "type": "double",
+      "default": 0,
+      "description": "Blur standard deviation along x, in logical pixels."
+    },
+    {
+      "name": "sigmaY",
+      "id": 2,
+      "type": "double",
+      "default": 0,
+      "description": "Blur standard deviation along y, in logical pixels."
+    },
+    {
+      "name": "tileMode",
+      "id": 3,
+      "type": "TileMode",
+      "description": "How the blur treats the edges; absent means the Flutter default."
+    }
+  ]
+}

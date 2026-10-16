@@ -1,0 +1,120 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "NestedScrollView",
+  "id": 115,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "NestedScrollView",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "scrolling",
+  "icon": "vertical_split",
+  "description": "A scroll view whose `headerSlivers` scroll together with a scrollable `body` (WGT-020).",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 40,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "scrollDirection",
+      "id": 1,
+      "type": "Axis",
+      "default": "vertical",
+      "flutter": "scrollDirection"
+    },
+    {
+      "name": "reverse",
+      "id": 2,
+      "type": "bool",
+      "default": false,
+      "flutter": "reverse"
+    },
+    {
+      "name": "physics",
+      "id": 3,
+      "type": "ScrollPhysics",
+      "flutter": "physics"
+    },
+    {
+      "name": "dragStartBehavior",
+      "id": 4,
+      "type": "DragStartBehavior",
+      "default": "start",
+      "flutter": "dragStartBehavior"
+    },
+    {
+      "name": "floatHeaderSlivers",
+      "id": 5,
+      "type": "bool",
+      "default": false,
+      "flutter": "floatHeaderSlivers"
+    },
+    {
+      "name": "clipBehavior",
+      "id": 6,
+      "type": "Clip",
+      "default": "hardEdge",
+      "flutter": "clipBehavior"
+    },
+    {
+      "name": "hitTestBehavior",
+      "id": 7,
+      "type": "HitTestBehavior",
+      "default": "opaque",
+      "flutter": "hitTestBehavior"
+    }
+  ],
+  "slots": [
+    {
+      "name": "headerSlivers",
+      "id": 1,
+      "list": true,
+      "flutter": "headerSliverBuilder",
+      "description": "The slivers above the body, such as a `SliverAppBar`."
+    },
+    {
+      "name": "body",
+      "id": 2,
+      "required": true,
+      "flutter": "body",
+      "description": "The scrollable body, such as a `ListView`."
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "controller",
+      "reason": "controller\u2192state",
+      "note": "The runtime owns the controller and binds it to state."
+    },
+    {
+      "flutter": "restorationId",
+      "reason": "non-serialisable",
+      "note": "State restoration is managed by the runtime."
+    },
+    {
+      "flutter": "scrollBehavior",
+      "reason": "non-serialisable"
+    }
+  ]
+}

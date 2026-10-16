@@ -1,0 +1,43 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "TableCellVerticalAlignment",
+  "id": 95,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "Mirrors the Flutter enum TableCellVerticalAlignment.",
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "enum": "TableCellVerticalAlignment"
+  },
+  "values": [
+    {
+      "name": "top",
+      "id": 1
+    },
+    {
+      "name": "middle",
+      "id": 2
+    },
+    {
+      "name": "bottom",
+      "id": 3
+    },
+    {
+      "name": "baseline",
+      "id": 4
+    },
+    {
+      "name": "fill",
+      "id": 5
+    },
+    {
+      "name": "intrinsicHeight",
+      "id": 6
+    }
+  ]
+}

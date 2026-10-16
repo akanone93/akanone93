@@ -3363,6 +3363,155 @@
         ]
       }
     },
+    "package:flutter/material.dart#DataTable": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "columns",
+            "type": "List<DataColumn>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "sortColumnIndex",
+            "type": "int?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "sortAscending",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "onSelectAll",
+            "type": "void Function(bool?)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "decoration",
+            "type": "Decoration?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "dataRowColor",
+            "type": "WidgetStateProperty<Color?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "dataRowHeight",
+            "type": "double?",
+            "required": false,
+            "named": true,
+            "deprecated": true
+          },
+          {
+            "name": "dataRowMinHeight",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "dataRowMaxHeight",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "dataTextStyle",
+            "type": "TextStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "headingRowColor",
+            "type": "WidgetStateProperty<Color?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "headingRowHeight",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "headingTextStyle",
+            "type": "TextStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "horizontalMargin",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "columnSpacing",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "showCheckboxColumn",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "showBottomBorder",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "dividerThickness",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "rows",
+            "type": "List<DataRow>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "checkboxHorizontalMargin",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "border",
+            "type": "TableBorder?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "clipBehavior",
+            "type": "Clip",
+            "required": false,
+            "named": true,
+            "default": "Clip.none"
+          }
+        ]
+      }
+    },
     "package:flutter/material.dart#Divider": {
       "constructors": {
         "": [
@@ -6008,6 +6157,123 @@
         ]
       }
     },
+    "package:flutter/material.dart#MaterialBanner": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "content",
+            "type": "Widget",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "contentTextStyle",
+            "type": "TextStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "actions",
+            "type": "List<Widget>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "elevation",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "leading",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "backgroundColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "surfaceTintColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "shadowColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "dividerColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "padding",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "margin",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "leadingPadding",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "forceActionsBelow",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "overflowAlignment",
+            "type": "OverflowBarAlignment",
+            "required": false,
+            "named": true,
+            "default": "OverflowBarAlignment.end"
+          },
+          {
+            "name": "animation",
+            "type": "Animation<double>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onVisible",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "minActionBarHeight",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "52.0"
+          }
+        ]
+      }
+    },
     "package:flutter/material.dart#OutlineInputBorder": {
       "constructors": {
         "": [
@@ -7029,6 +7295,297 @@
             "type": "double",
             "required": true,
             "named": false
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#RefreshIndicator": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "displacement",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "40.0"
+          },
+          {
+            "name": "edgeOffset",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "0.0"
+          },
+          {
+            "name": "onRefresh",
+            "type": "Future<void> Function()",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "color",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "backgroundColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "notificationPredicate",
+            "type": "bool Function(ScrollNotification)",
+            "required": false,
+            "named": true,
+            "default": "defaultScrollNotificationPredicate"
+          },
+          {
+            "name": "semanticsLabel",
+            "type": "String?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "semanticsValue",
+            "type": "String?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "strokeWidth",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "RefreshProgressIndicator.defaultStrokeWidth"
+          },
+          {
+            "name": "triggerMode",
+            "type": "RefreshIndicatorTriggerMode",
+            "required": false,
+            "named": true,
+            "default": "RefreshIndicatorTriggerMode.onEdge"
+          },
+          {
+            "name": "elevation",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "2.0"
+          },
+          {
+            "name": "child",
+            "type": "Widget",
+            "required": true,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#ReorderableListView": {
+      "constructors": {
+        "builder": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "itemBuilder",
+            "type": "Widget Function(BuildContext, int)",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "itemCount",
+            "type": "int",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onReorder",
+            "type": "void Function(int, int)?",
+            "required": false,
+            "named": true,
+            "deprecated": true
+          },
+          {
+            "name": "onReorderItem",
+            "type": "void Function(int, int)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onReorderStart",
+            "type": "void Function(int)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onReorderEnd",
+            "type": "void Function(int)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "itemExtent",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "itemExtentBuilder",
+            "type": "double? Function(int, SliverLayoutDimensions)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "prototypeItem",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "proxyDecorator",
+            "type": "Widget Function(Widget, int, Animation<double>)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "buildDefaultDragHandles",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "padding",
+            "type": "EdgeInsets?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "header",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "footer",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "scrollDirection",
+            "type": "Axis",
+            "required": false,
+            "named": true,
+            "default": "Axis.vertical"
+          },
+          {
+            "name": "reverse",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "scrollController",
+            "type": "ScrollController?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "primary",
+            "type": "bool?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "physics",
+            "type": "ScrollPhysics?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "shrinkWrap",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "anchor",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "0.0"
+          },
+          {
+            "name": "cacheExtent",
+            "type": "double?",
+            "required": false,
+            "named": true,
+            "deprecated": true
+          },
+          {
+            "name": "scrollCacheExtent",
+            "type": "ScrollCacheExtent?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "dragStartBehavior",
+            "type": "DragStartBehavior",
+            "required": false,
+            "named": true,
+            "default": "DragStartBehavior.start"
+          },
+          {
+            "name": "keyboardDismissBehavior",
+            "type": "ScrollViewKeyboardDismissBehavior?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "restorationId",
+            "type": "String?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "clipBehavior",
+            "type": "Clip",
+            "required": false,
+            "named": true,
+            "default": "Clip.hardEdge"
+          },
+          {
+            "name": "autoScrollerVelocityScalar",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "dragBoundaryProvider",
+            "type": "DragBoundaryDelegate<Rect>? Function(BuildContext)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "mouseCursor",
+            "type": "MouseCursor?",
+            "required": false,
+            "named": true
           }
         ]
       }
@@ -8102,6 +8659,141 @@
           },
           {
             "name": "actionsPadding",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#Stepper": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "steps",
+            "type": "List<Step>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "controller",
+            "type": "ScrollController?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "physics",
+            "type": "ScrollPhysics?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "type",
+            "type": "StepperType",
+            "required": false,
+            "named": true,
+            "default": "StepperType.vertical"
+          },
+          {
+            "name": "currentStep",
+            "type": "int",
+            "required": false,
+            "named": true,
+            "default": "0"
+          },
+          {
+            "name": "onStepTapped",
+            "type": "void Function(int)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onStepContinue",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onStepCancel",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "controlsBuilder",
+            "type": "Widget Function(BuildContext, ControlsDetails)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "elevation",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "margin",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "connectorColor",
+            "type": "WidgetStateProperty<Color>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "connectorThickness",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "stepIconBuilder",
+            "type": "Widget? Function(int, StepState)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "stepIconHeight",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "stepIconWidth",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "stepIconMargin",
+            "type": "EdgeInsets?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "clipBehavior",
+            "type": "Clip",
+            "required": false,
+            "named": true,
+            "default": "Clip.none"
+          },
+          {
+            "name": "headerPadding",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "contentPadding",
             "type": "EdgeInsetsGeometry?",
             "required": false,
             "named": true
@@ -11268,6 +11960,56 @@
         ]
       }
     },
+    "package:flutter/widgets.dart#BackdropFilter": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "filter",
+            "type": "ImageFilter?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "filterConfig",
+            "type": "ImageFilterConfig?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "blendMode",
+            "type": "BlendMode",
+            "required": false,
+            "named": true,
+            "default": "BlendMode.srcOver"
+          },
+          {
+            "name": "enabled",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "backdropGroupKey",
+            "type": "BackdropKey?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
     "package:flutter/widgets.dart#Baseline": {
       "constructors": {
         "": [
@@ -13248,6 +13990,96 @@
         ]
       }
     },
+    "package:flutter/widgets.dart#NestedScrollView": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "controller",
+            "type": "ScrollController?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "scrollDirection",
+            "type": "Axis",
+            "required": false,
+            "named": true,
+            "default": "Axis.vertical"
+          },
+          {
+            "name": "reverse",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "physics",
+            "type": "ScrollPhysics?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "headerSliverBuilder",
+            "type": "List<Widget> Function(BuildContext, bool)",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "body",
+            "type": "Widget",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "dragStartBehavior",
+            "type": "DragStartBehavior",
+            "required": false,
+            "named": true,
+            "default": "DragStartBehavior.start"
+          },
+          {
+            "name": "floatHeaderSlivers",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "clipBehavior",
+            "type": "Clip",
+            "required": false,
+            "named": true,
+            "default": "Clip.hardEdge"
+          },
+          {
+            "name": "hitTestBehavior",
+            "type": "HitTestBehavior",
+            "required": false,
+            "named": true,
+            "default": "HitTestBehavior.opaque"
+          },
+          {
+            "name": "restorationId",
+            "type": "String?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "scrollBehavior",
+            "type": "ScrollBehavior?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
     "package:flutter/widgets.dart#Opacity": {
       "constructors": {
         "": [
@@ -13902,6 +14734,38 @@
         ]
       }
     },
+    "package:flutter/widgets.dart#SliverPersistentHeader": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "delegate",
+            "type": "SliverPersistentHeaderDelegate",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "pinned",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "floating",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          }
+        ]
+      }
+    },
     "package:flutter/widgets.dart#SliverToBoxAdapter": {
       "constructors": {
         "": [
@@ -13981,6 +14845,63 @@
             "required": false,
             "named": true,
             "default": "const <Widget>[]"
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#Table": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "children",
+            "type": "List<TableRow>",
+            "required": false,
+            "named": true,
+            "default": "const <TableRow>[]"
+          },
+          {
+            "name": "columnWidths",
+            "type": "Map<int, TableColumnWidth>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "defaultColumnWidth",
+            "type": "TableColumnWidth",
+            "required": false,
+            "named": true,
+            "default": "const FlexColumnWidth()"
+          },
+          {
+            "name": "textDirection",
+            "type": "TextDirection?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "border",
+            "type": "TableBorder?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "defaultVerticalAlignment",
+            "type": "TableCellVerticalAlignment",
+            "required": false,
+            "named": true,
+            "default": "TableCellVerticalAlignment.top"
+          },
+          {
+            "name": "textBaseline",
+            "type": "TextBaseline?",
+            "required": false,
+            "named": true
           }
         ]
       }
@@ -14947,6 +15868,25 @@
         "name": "shrinkWrap"
       }
     ],
+    "package:flutter/material.dart#OverflowBarAlignment": [
+      {
+        "name": "start"
+      },
+      {
+        "name": "end"
+      },
+      {
+        "name": "center"
+      }
+    ],
+    "package:flutter/material.dart#RefreshIndicatorTriggerMode": [
+      {
+        "name": "anywhere"
+      },
+      {
+        "name": "onEdge"
+      }
+    ],
     "package:flutter/material.dart#ScrollViewKeyboardDismissBehavior": [
       {
         "name": "manual"
@@ -15037,6 +15977,31 @@
       },
       {
         "name": "passthrough"
+      }
+    ],
+    "package:flutter/material.dart#StepState": [
+      {
+        "name": "indexed"
+      },
+      {
+        "name": "editing"
+      },
+      {
+        "name": "complete"
+      },
+      {
+        "name": "disabled"
+      },
+      {
+        "name": "error"
+      }
+    ],
+    "package:flutter/material.dart#StepperType": [
+      {
+        "name": "vertical"
+      },
+      {
+        "name": "horizontal"
       }
     ],
     "package:flutter/material.dart#StrokeCap": [
@@ -15272,6 +16237,26 @@
       },
       {
         "name": "truncateAfterCompositionEnds"
+      }
+    ],
+    "package:flutter/widgets.dart#TableCellVerticalAlignment": [
+      {
+        "name": "top"
+      },
+      {
+        "name": "middle"
+      },
+      {
+        "name": "bottom"
+      },
+      {
+        "name": "baseline"
+      },
+      {
+        "name": "fill"
+      },
+      {
+        "name": "intrinsicHeight"
       }
     ]
   }

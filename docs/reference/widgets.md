@@ -13,6 +13,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [AppBar](#appbar) | 1 | structure | P3 | A Material top app bar. |
 | [AspectRatio](#aspectratio) | 1 | layout | P3 | Sizes its child to a specific aspect ratio. |
 | [BackButton](#backbutton) | 1 | input | P3 | A back-arrow button that pops the current route. |
+| [BackdropFilter](#backdropfilter) | 1 | display | P5 | Blurs everything painted behind its child (WGT-020). |
 | [Badge](#badge) | 1 | display | P3 | A small label, typically a count, on top of its child. |
 | [Baseline](#baseline) | 1 | layout | P3 | Positions its child according to the child's baseline. |
 | [BiometricButton](#biometricbutton) | 2 | interaction | P6 | A button that triggers a biometric step-up (SEC-027). |
@@ -41,6 +42,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [CupertinoSwitch](#cupertinoswitch) | 1 | cupertino | P3 | An iOS-style switch. |
 | [CupertinoTextField](#cupertinotextfield) | 1 | cupertino | P3 | An iOS-style text input whose text is bound to `value`. |
 | [CustomScrollView](#customscrollview) | 1 | scrolling | P3 | A scroll view composed of slivers. |
+| [DataTable](#datatable) | 1 | display | P5 | A Material table with headings, sorting and optional row selection (WGT-020). |
 | [DecoratedBox](#decoratedbox) | 1 | layout | P3 | Paints a decoration behind or in front of its child. |
 | [Divider](#divider) | 1 | display | P3 | A thin horizontal line with padding on either side. |
 | [DropdownMenu](#dropdownmenu) | 1 | input | P3 | A Material 3 dropdown menu with optional text filtering. |
@@ -73,6 +75,8 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [ListTile](#listtile) | 1 | display | P3 | A fixed-height row with leading and trailing content and one to three lines of text. |
 | [ListView](#listview) | 1 | scrolling | P3 | A lazily built, scrollable list of `item` templates over `items`, with empty, loading and error states (WGT-012). |
 | [Match](#match) | 1 | structure | P3 | Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`. |
+| [MaterialBanner](#materialbanner) | 1 | display | P5 | A banner with a message, an optional leading widget and actions (WGT-020). |
+| [NestedScrollView](#nestedscrollview) | 1 | scrolling | P5 | A scroll view whose `headerSlivers` scroll together with a scrollable `body` (WGT-020). |
 | [OfflineBanner](#offlinebanner) | 2 | feedback | P3 | A banner shown while the device is offline. |
 | [Opacity](#opacity) | 1 | layout | P3 | Makes its child partially transparent. |
 | [OtpInput](#otpinput) | 2 | input | P6 | One-time code entry with platform autofill: SMS User Consent API on Android, one-time-code autofill on iOS (SEC-090). |
@@ -83,6 +87,8 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [Radio](#radio) | 1 | input | P3 | A Material radio button, selected when `groupValue` equals `value`. |
 | [RadioListTile](#radiolisttile) | 1 | input | P3 | A list tile with a radio button. |
 | [RangeSlider](#rangeslider) | 1 | input | P3 | Selects a range from a continuous or discrete set of values. |
+| [RefreshIndicator](#refreshindicator) | 1 | interaction | P5 | Pull-to-refresh over a scrollable child; `onRefresh` runs its handlers (WGT-020). |
+| [ReorderableListView](#reorderablelistview) | 1 | scrolling | P5 | A list whose `item` templates the user can drag into a new order; the page updates its list on `onReorder` (WGT-012). |
 | [Responsive](#responsive) | 1 | structure | P3 | Renders a different subtree per window-size class: `compact`, `medium` (600–839 dp) and `expanded` (≥ 840 dp). |
 | [RichText](#richtext) | 1 | display | P3 | Text built from styled spans (Flutter `Text.rich`). |
 | [Row](#row) | 1 | layout | P3 | Lays out its children horizontally. |
@@ -102,12 +108,15 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [SliverGrid](#slivergrid) | 1 | scrolling | P3 | A lazily built grid of `item` templates inside a CustomScrollView (WGT-012). |
 | [SliverList](#sliverlist) | 1 | scrolling | P3 | A lazily built list of `item` templates inside a CustomScrollView (WGT-012). |
 | [SliverPadding](#sliverpadding) | 1 | scrolling | P3 | Insets a sliver by the given padding. |
+| [SliverPersistentHeader](#sliverpersistentheader) | 1 | scrolling | P5 | A sliver header between `minExtent` and `maxExtent` tall that can stay pinned or float (WGT-020). |
 | [SliverToBoxAdapter](#slivertoboxadapter) | 1 | scrolling | P3 | Places an ordinary widget inside a CustomScrollView. |
 | [Slot](#slot) | 1 | structure | P3 | Inside a component, the place where an instance's slot fill is rendered; `fallback` renders when the instance leaves it empty. |
 | [Spacer](#spacer) | 1 | layout | P3 | Takes up flexible empty space in a Row, Column or Flex. |
 | [Stack](#stack) | 1 | layout | P3 | Places its children on top of each other. |
+| [Stepper](#stepper) | 1 | structure | P5 | A sequence of steps; the child at each step's index is its content (WGT-020). |
 | [Switch](#switch) | 1 | input | P3 | A Material on/off switch. |
 | [SwitchListTile](#switchlisttile) | 1 | input | P3 | A list tile with a switch. |
+| [Table](#table) | 1 | layout | P5 | A grid of cells; `children` fill it row by row, `columns` to a row (WGT-020). |
 | [Text](#text) | 1 | display | P3 | A run of text with a single style. |
 | [TextButton](#textbutton) | 1 | input | P3 | A Material text button. |
 | [TextField](#textfield) | 1 | input | P3 | A Material text input whose text is bound to `value`. |
@@ -238,6 +247,22 @@ ID 84 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `BackButton` · 
 | Event | ID | Payload | Description |
 |---|---|---|---|
 | `onPressed` | 1 | — |  |
+
+### BackdropFilter
+
+Blurs everything painted behind its child (WGT-020).
+
+ID 112 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `BackdropFilter` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `filter` | 1 | `BlurFilter` | — |  |
+| `blendMode` | 2 | `BlendMode` | `"srcOver"` |  |
+| `enabled` | 3 | `bool` | `true` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
 
 ### Badge
 
@@ -940,6 +965,42 @@ ID 35 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `CustomScrollVie
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `slivers` | 1 | a list of nodes |  |
+
+### DataTable
+
+A Material table with headings, sorting and optional row selection (WGT-020).
+
+ID 117 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `DataTable` · android, ios · cost 60 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `columns` | 1 | `list<DataColumn>`, required | — |  |
+| `rows` | 2 | `list<list<string>>`, required | — | One list of cell texts per row, each as long as `columns`; bind it with `$expr`. |
+| `selectedRows` | 3 | `list<int>` | — | Positions of the selected rows. |
+| `sortColumnIndex` | 4 | `int` | — |  |
+| `sortAscending` | 5 | `bool` | `true` |  |
+| `showCheckboxColumn` | 6 | `bool` | `true` | Shows the selection checkboxes when `onSelectChanged` is handled. |
+| `decoration` | 7 | `BoxDecoration` | — |  |
+| `dataRowColor` | 8 | `WidgetStateColor` | — |  |
+| `dataRowMinHeight` | 9 | `double` | — |  |
+| `dataRowMaxHeight` | 10 | `double` | — |  |
+| `dataTextStyle` | 11 | `TextStyle` | — |  |
+| `headingRowColor` | 12 | `WidgetStateColor` | — |  |
+| `headingRowHeight` | 13 | `double` | — |  |
+| `headingTextStyle` | 14 | `TextStyle` | — |  |
+| `horizontalMargin` | 15 | `double` | — |  |
+| `columnSpacing` | 16 | `double` | — |  |
+| `showBottomBorder` | 17 | `bool` | `false` |  |
+| `dividerThickness` | 18 | `double` | — |  |
+| `checkboxHorizontalMargin` | 19 | `double` | — |  |
+| `border` | 20 | `BorderSide` | — |  |
+| `clipBehavior` | 21 | `Clip` | `"none"` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSort` | 1 | `IndexFlag` | Fired when a sortable heading is tapped; `index` is the column, `value` whether the order is ascending. The page stores both and re-sorts `rows`. |
+| `onSelectChanged` | 2 | `IndexFlag` | Fired when a row is selected or deselected; `index` is the row, `value` whether it is selected. |
+| `onSelectAll` | 3 | `bool` |  |
 
 ### DecoratedBox
 
@@ -1823,6 +1884,58 @@ ID 2 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · android, ios · cost 3 µ
 | `branches` | 1 | a list of nodes, required | One subtree per case, in the order of `cases`. |
 | `otherwise` | 2 | one node | Rendered when no case matches. |
 
+### MaterialBanner
+
+A banner with a message, an optional leading widget and actions (WGT-020).
+
+ID 119 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `MaterialBanner` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `contentTextStyle` | 1 | `TextStyle` | — |  |
+| `elevation` | 2 | `double` | — |  |
+| `backgroundColor` | 3 | `color` | — |  |
+| `surfaceTintColor` | 4 | `color` | — |  |
+| `shadowColor` | 5 | `color` | — |  |
+| `dividerColor` | 6 | `color` | — |  |
+| `padding` | 7 | `EdgeInsets` | — |  |
+| `margin` | 8 | `EdgeInsets` | — |  |
+| `leadingPadding` | 9 | `EdgeInsets` | — |  |
+| `forceActionsBelow` | 10 | `bool` | `false` |  |
+| `overflowAlignment` | 11 | `OverflowBarAlignment` | `"end"` |  |
+| `minActionBarHeight` | 12 | `double` | `52.0` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onVisible` | 1 | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `content` | 1 | one node, required |  |
+| `leading` | 2 | one node |  |
+| `actions` | 3 | a list of nodes, required |  |
+
+### NestedScrollView
+
+A scroll view whose `headerSlivers` scroll together with a scrollable `body` (WGT-020).
+
+ID 115 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `NestedScrollView` · android, ios · cost 40 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `scrollDirection` | 1 | `Axis` | `"vertical"` |  |
+| `reverse` | 2 | `bool` | `false` |  |
+| `physics` | 3 | `ScrollPhysics` | — |  |
+| `dragStartBehavior` | 4 | `DragStartBehavior` | `"start"` |  |
+| `floatHeaderSlivers` | 5 | `bool` | `false` |  |
+| `clipBehavior` | 6 | `Clip` | `"hardEdge"` |  |
+| `hitTestBehavior` | 7 | `HitTestBehavior` | `"opaque"` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `headerSlivers` | 1 | a list of nodes | The slivers above the body, such as a `SliverAppBar`. |
+| `body` | 2 | one node, required | The scrollable body, such as a `ListView`. |
+
 ### OfflineBanner
 
 A banner shown while the device is offline.
@@ -2060,6 +2173,70 @@ ID 75 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `RangeSlider` ·
 | `onChanged` | 1 | `RangeValues` |  |
 | `onChangeStart` | 2 | `RangeValues` |  |
 | `onChangeEnd` | 3 | `RangeValues` |  |
+
+### RefreshIndicator
+
+Pull-to-refresh over a scrollable child; `onRefresh` runs its handlers (WGT-020).
+
+ID 113 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `RefreshIndicator` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `displacement` | 1 | `double` | `40.0` |  |
+| `edgeOffset` | 2 | `double` | `0.0` |  |
+| `color` | 3 | `color` | — |  |
+| `backgroundColor` | 4 | `color` | — |  |
+| `semanticsLabel` | 5 | `string` | — |  |
+| `semanticsValue` | 6 | `string` | — |  |
+| `strokeWidth` | 7 | `double` | — |  |
+| `triggerMode` | 8 | `RefreshIndicatorTriggerMode` | `"onEdge"` |  |
+| `elevation` | 9 | `double` | `2.0` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onRefresh` | 1 | — | Fired when the user pulls to refresh. The indicator hides when the handlers have been started. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+
+### ReorderableListView
+
+A list whose `item` templates the user can drag into a new order; the page updates its list on `onReorder` (WGT-012).
+
+ID 114 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `ReorderableListView.builder` · android, ios · cost 40 µs · role list · interactive · type parameters T
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `items` | 1 | `list<T>`, required | — | The list the template repeats over; bind it with `$expr`. The item is available as `item`, its position as `index`. |
+| `scrollDirection` | 2 | `Axis` | `"vertical"` |  |
+| `reverse` | 3 | `bool` | `false` |  |
+| `physics` | 4 | `ScrollPhysics` | — |  |
+| `shrinkWrap` | 5 | `bool` | `false` |  |
+| `padding` | 6 | `EdgeInsets` | — |  |
+| `buildDefaultDragHandles` | 7 | `bool` | `true` |  |
+| `itemExtent` | 8 | `double` | — |  |
+| `anchor` | 9 | `double` | `0.0` |  |
+| `dragStartBehavior` | 11 | `DragStartBehavior` | `"start"` |  |
+| `keyboardDismissBehavior` | 12 | `ScrollViewKeyboardDismissBehavior` | — |  |
+| `clipBehavior` | 13 | `Clip` | `"hardEdge"` |  |
+| `autoScrollerVelocityScalar` | 14 | `double` | — |  |
+| `status` | 15 | `ListStatus` | `"ready"` | Loading, error or ready; selects the `loading` or `error` slot (WGT-012). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onReorder` | 1 | `map<string,int>` | Fired when an item is dropped; the payload holds `oldIndex` and `newIndex`, the final position of the item. The page moves the item in its list. |
+| `onReorderStart` | 2 | `int` |  |
+| `onReorderEnd` | 3 | `int` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `item` | 1 | an item template, required | The template built for each item, lazily. |
+| `header` | 2 | one node |  |
+| `footer` | 3 | one node |  |
+| `empty` | 4 | one node | Shown when `items` is empty. |
+| `loading` | 5 | one node | Shown while `status` is loading. |
+| `error` | 6 | one node | Shown while `status` is error. |
 
 ### Responsive
 
@@ -2500,6 +2677,23 @@ ID 43 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `SliverPadding` 
 |---|---|---|---|
 | `sliver` | 1 | one node |  |
 
+### SliverPersistentHeader
+
+A sliver header between `minExtent` and `maxExtent` tall that can stay pinned or float (WGT-020).
+
+ID 116 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `SliverPersistentHeader` · android, ios · cost 20 µs · role header
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `pinned` | 1 | `bool` | `false` |  |
+| `floating` | 2 | `bool` | `false` |  |
+| `minExtent` | 3 | `double`, required | — | The height when collapsed. Must be at least 0. |
+| `maxExtent` | 4 | `double`, required | — | The height when expanded. Must be at least 0. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required | The header content; it is given the current height. |
+
 ### SliverToBoxAdapter
 
 Places an ordinary widget inside a CustomScrollView.
@@ -2546,6 +2740,37 @@ ID 27 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Stack` · andro
 | `textDirection` | 2 | `TextDirection` | — |  |
 | `fit` | 3 | `StackFit` | `"loose"` |  |
 | `clipBehavior` | 4 | `Clip` | `"hardEdge"` |  |
+
+Takes a list of `children`.
+
+### Stepper
+
+A sequence of steps; the child at each step's index is its content (WGT-020).
+
+ID 118 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Stepper` · android, ios · cost 60 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `steps` | 1 | `list<StepItem>`, required | — |  |
+| `type` | 2 | `StepperType` | `"vertical"` |  |
+| `currentStep` | 3 | `int` | `0` | The open step; bind it to a state key and update it from the events. |
+| `physics` | 4 | `ScrollPhysics` | — |  |
+| `elevation` | 5 | `double` | — |  |
+| `margin` | 6 | `EdgeInsets` | — |  |
+| `connectorColor` | 7 | `color` | — |  |
+| `connectorThickness` | 8 | `double` | — |  |
+| `stepIconHeight` | 9 | `double` | — |  |
+| `stepIconWidth` | 10 | `double` | — |  |
+| `stepIconMargin` | 11 | `EdgeInsets` | — |  |
+| `clipBehavior` | 12 | `Clip` | `"none"` |  |
+| `headerPadding` | 13 | `EdgeInsets` | — |  |
+| `contentPadding` | 14 | `EdgeInsets` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onStepTapped` | 1 | `int` |  |
+| `onStepContinue` | 2 | — |  |
+| `onStepCancel` | 3 | — |  |
 
 Takes a list of `children`.
 
@@ -2639,6 +2864,24 @@ ID 73 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `SwitchListTile`
 | `title` | 1 | one node |  |
 | `subtitle` | 2 | one node |  |
 | `secondary` | 3 | one node |  |
+
+### Table
+
+A grid of cells; `children` fill it row by row, `columns` to a row (WGT-020).
+
+ID 111 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Table` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `columns` | 1 | `int` | `1` | Cells per row; the children are laid out row-major and the last row is padded with empty cells. Must be at least 1. |
+| `columnWidths` | 2 | `list<ColumnWidth>` | — | The width rule of each column by position; columns beyond the list use `defaultColumnWidth`. |
+| `defaultColumnWidth` | 3 | `ColumnWidth` | — |  |
+| `textDirection` | 4 | `TextDirection` | — |  |
+| `border` | 5 | `BorderSide` | — | Draws the outside and the lines between all cells. |
+| `defaultVerticalAlignment` | 6 | `TableCellVerticalAlignment` | `"top"` |  |
+| `textBaseline` | 7 | `TextBaseline` | — |  |
+
+Takes a list of `children`.
 
 ### Text
 
@@ -2930,6 +3173,18 @@ ID 1 · revision 1 · Flutter `Alignment`, `AlignmentDirectional`
 
 Constants: `topLeft`, `topCenter`, `topRight`, `centerLeft`, `center`, `centerRight`, `bottomLeft`, `bottomCenter`, `bottomRight`, `topStart`, `topEnd`, `centerStart`, `centerEnd`, `bottomStart`, `bottomEnd`.
 
+### BlurFilter
+
+A Gaussian blur of what is behind a widget (BackdropFilter).
+
+ID 47 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `sigmaX` | 1 | `double` | `0` | Blur standard deviation along x, in logical pixels. |
+| `sigmaY` | 2 | `double` | `0` | Blur standard deviation along y, in logical pixels. |
+| `tileMode` | 3 | `TileMode` | — | How the blur treats the edges; absent means the Flutter default. |
+
 ### Border
 
 A border around a box: the same side everywhere, or one per edge.
@@ -3060,6 +3315,29 @@ ID 9 · revision 1 · Flutter `ButtonStyle`
 | `enableFeedback` | 20 | `bool` | — |  |
 | `alignment` | 21 | `Alignment` | — |  |
 
+### ColumnWidth
+
+The width rule of one table column.
+
+ID 48 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `kind` | 1 | `ColumnWidthKind` | `"flex"` |  |
+| `value` | 2 | `double` | `1` | The flex factor, the logical pixels or the fraction of the table, by `kind`; ignored for `intrinsic`. |
+
+### DataColumn
+
+A column heading of a DataTable.
+
+ID 49 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — | The heading text. |
+| `numeric` | 2 | `bool` | `false` | Right-aligns the column, for numbers. |
+| `tooltip` | 3 | `string` | — | Shown on long press of the heading. |
+
 ### DropdownMenuEntry
 
 One entry of a DropdownMenu.
@@ -3182,6 +3460,17 @@ ID 15 · revision 1
 | `asset` | 1 | `asset` | — | A bundled asset. |
 | `url` | 2 | `string` | — | An HTTPS URL on a domain the plugin declares (SEC-080). |
 | `thumbHash` | 3 | `string` | — | A ThumbHash of the image, base64-encoded, shown blurred until the image loads (RT-014). |
+
+### IndexFlag
+
+An index and a flag: the payload of a DataTable sort (column, ascending) or row selection (row, selected).
+
+ID 51 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `index` | 1 | `int`, required | — |  |
+| `value` | 2 | `bool`, required | — |  |
 
 ### InputBorder
 
@@ -3361,6 +3650,20 @@ ID 24 · revision 1 · Flutter `Size`
 |---|---|---|---|---|
 | `width` | 1 | `double` | — |  |
 | `height` | 2 | `double` | — |  |
+
+### StepItem
+
+One step of a Stepper; its content is the child at the same index.
+
+ID 50 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `title` | 1 | `string`, required | — |  |
+| `subtitle` | 2 | `string` | — |  |
+| `label` | 3 | `string` | — | Shown in place of the step number. |
+| `state` | 4 | `StepState` | `"indexed"` |  |
+| `isActive` | 5 | `bool` | `false` |  |
 
 ### TextSpan
 
@@ -3738,6 +4041,19 @@ ID 11 · revision 1 · Flutter `Clip`
 | `hardEdge` | 2 |  |
 | `antiAlias` | 3 |  |
 | `antiAliasWithSaveLayer` | 4 |  |
+
+### ColumnWidthKind
+
+How a table column takes its width: a share of the free space, a fixed size, a fraction of the table, or the widest cell.
+
+ID 100 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `flex` | 1 |  |
+| `fixed` | 2 |  |
+| `fraction` | 3 |  |
+| `intrinsic` | 4 |  |
 
 ### CrossAxisAlignment
 
@@ -4145,6 +4461,18 @@ ID 75 · revision 1
 | `numeric` | 1 |  |
 | `alphanumeric` | 2 |  |
 
+### OverflowBarAlignment
+
+Mirrors the Flutter enum OverflowBarAlignment.
+
+ID 98 · revision 1 · Flutter `OverflowBarAlignment`
+
+| Value | ID | Description |
+|---|---|---|
+| `start` | 1 |  |
+| `end` | 2 |  |
+| `center` | 3 |  |
+
 ### OverlayVisibilityMode
 
 Mirrors the Flutter enum OverlayVisibilityMode.
@@ -4157,6 +4485,17 @@ ID 38 · revision 1 · Flutter `OverlayVisibilityMode`
 | `editing` | 2 |  |
 | `notEditing` | 3 |  |
 | `always` | 4 |  |
+
+### RefreshIndicatorTriggerMode
+
+Mirrors the Flutter enum RefreshIndicatorTriggerMode.
+
+ID 96 · revision 1 · Flutter `RefreshIndicatorTriggerMode`
+
+| Value | ID | Description |
+|---|---|---|
+| `anywhere` | 1 |  |
+| `onEdge` | 2 |  |
 
 ### ScrollPhysics
 
@@ -4284,6 +4623,31 @@ ID 48 · revision 1 · Flutter `StackFit`
 | `expand` | 2 |  |
 | `passthrough` | 3 |  |
 
+### StepState
+
+Mirrors the Flutter enum StepState.
+
+ID 99 · revision 1 · Flutter `StepState`
+
+| Value | ID | Description |
+|---|---|---|
+| `indexed` | 1 |  |
+| `editing` | 2 |  |
+| `complete` | 3 |  |
+| `disabled` | 4 |  |
+| `error` | 5 |  |
+
+### StepperType
+
+Mirrors the Flutter enum StepperType.
+
+ID 97 · revision 1 · Flutter `StepperType`
+
+| Value | ID | Description |
+|---|---|---|
+| `vertical` | 1 |  |
+| `horizontal` | 2 |  |
+
 ### StrokeCap
 
 Mirrors the Flutter enum StrokeCap.
@@ -4295,6 +4659,21 @@ ID 49 · revision 1 · Flutter `StrokeCap`
 | `butt` | 1 |  |
 | `round` | 2 |  |
 | `square` | 3 |  |
+
+### TableCellVerticalAlignment
+
+Mirrors the Flutter enum TableCellVerticalAlignment.
+
+ID 95 · revision 1 · Flutter `TableCellVerticalAlignment`
+
+| Value | ID | Description |
+|---|---|---|
+| `top` | 1 |  |
+| `middle` | 2 |  |
+| `bottom` | 3 |  |
+| `baseline` | 4 |  |
+| `fill` | 5 |  |
+| `intrinsicHeight` | 6 |  |
 
 ### TextAlign
 

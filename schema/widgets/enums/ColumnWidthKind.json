@@ -1,0 +1,31 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "ColumnWidthKind",
+  "id": 100,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "How a table column takes its width: a share of the free space, a fixed size, a fraction of the table, or the widest cell.",
+  "values": [
+    {
+      "name": "flex",
+      "id": 1
+    },
+    {
+      "name": "fixed",
+      "id": 2
+    },
+    {
+      "name": "fraction",
+      "id": 3
+    },
+    {
+      "name": "intrinsic",
+      "id": 4
+    }
+  ]
+}

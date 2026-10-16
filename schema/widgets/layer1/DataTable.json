@@ -1,0 +1,203 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "DataTable",
+  "id": 117,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "class": "DataTable",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "display",
+  "icon": "table_rows",
+  "description": "A Material table with headings, sorting and optional row selection (WGT-020).",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 60,
+  "accessibility": {
+    "role": "none",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "columns",
+      "id": 1,
+      "type": "list<DataColumn>",
+      "required": true,
+      "flutter": "columns"
+    },
+    {
+      "name": "rows",
+      "id": 2,
+      "type": "list<list<string>>",
+      "required": true,
+      "flutter": "rows",
+      "description": "One list of cell texts per row, each as long as `columns`; bind it with `$expr`."
+    },
+    {
+      "name": "selectedRows",
+      "id": 3,
+      "type": "list<int>",
+      "flutter": "rows",
+      "description": "Positions of the selected rows."
+    },
+    {
+      "name": "sortColumnIndex",
+      "id": 4,
+      "type": "int",
+      "flutter": "sortColumnIndex"
+    },
+    {
+      "name": "sortAscending",
+      "id": 5,
+      "type": "bool",
+      "default": true,
+      "flutter": "sortAscending"
+    },
+    {
+      "name": "showCheckboxColumn",
+      "id": 6,
+      "type": "bool",
+      "default": true,
+      "flutter": "showCheckboxColumn",
+      "description": "Shows the selection checkboxes when `onSelectChanged` is handled."
+    },
+    {
+      "name": "decoration",
+      "id": 7,
+      "type": "BoxDecoration",
+      "flutter": "decoration"
+    },
+    {
+      "name": "dataRowColor",
+      "id": 8,
+      "type": "WidgetStateColor",
+      "flutter": "dataRowColor"
+    },
+    {
+      "name": "dataRowMinHeight",
+      "id": 9,
+      "type": "double",
+      "flutter": "dataRowMinHeight"
+    },
+    {
+      "name": "dataRowMaxHeight",
+      "id": 10,
+      "type": "double",
+      "flutter": "dataRowMaxHeight"
+    },
+    {
+      "name": "dataTextStyle",
+      "id": 11,
+      "type": "TextStyle",
+      "flutter": "dataTextStyle"
+    },
+    {
+      "name": "headingRowColor",
+      "id": 12,
+      "type": "WidgetStateColor",
+      "flutter": "headingRowColor"
+    },
+    {
+      "name": "headingRowHeight",
+      "id": 13,
+      "type": "double",
+      "flutter": "headingRowHeight"
+    },
+    {
+      "name": "headingTextStyle",
+      "id": 14,
+      "type": "TextStyle",
+      "flutter": "headingTextStyle"
+    },
+    {
+      "name": "horizontalMargin",
+      "id": 15,
+      "type": "double",
+      "flutter": "horizontalMargin"
+    },
+    {
+      "name": "columnSpacing",
+      "id": 16,
+      "type": "double",
+      "flutter": "columnSpacing"
+    },
+    {
+      "name": "showBottomBorder",
+      "id": 17,
+      "type": "bool",
+      "default": false,
+      "flutter": "showBottomBorder"
+    },
+    {
+      "name": "dividerThickness",
+      "id": 18,
+      "type": "double",
+      "flutter": "dividerThickness"
+    },
+    {
+      "name": "checkboxHorizontalMargin",
+      "id": 19,
+      "type": "double",
+      "flutter": "checkboxHorizontalMargin"
+    },
+    {
+      "name": "border",
+      "id": 20,
+      "type": "BorderSide",
+      "flutter": "border"
+    },
+    {
+      "name": "clipBehavior",
+      "id": 21,
+      "type": "Clip",
+      "default": "none",
+      "flutter": "clipBehavior"
+    }
+  ],
+  "events": [
+    {
+      "name": "onSort",
+      "id": 1,
+      "payload": "IndexFlag",
+      "description": "Fired when a sortable heading is tapped; `index` is the column, `value` whether the order is ascending. The page stores both and re-sorts `rows`."
+    },
+    {
+      "name": "onSelectChanged",
+      "id": 2,
+      "payload": "IndexFlag",
+      "description": "Fired when a row is selected or deselected; `index` is the row, `value` whether it is selected."
+    },
+    {
+      "name": "onSelectAll",
+      "id": 3,
+      "payload": "bool",
+      "flutter": "onSelectAll"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "dataRowHeight",
+      "reason": "deprecated",
+      "note": "Use `dataRowMinHeight` and `dataRowMaxHeight`."
+    }
+  ]
+}

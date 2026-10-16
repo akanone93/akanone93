@@ -1,0 +1,758 @@
+{
+  "id": "01c0c450-6c00-7000-8a1b-000000000001",
+  "key": "scrolling",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01c0c450-6c00-7000-8a1b-00000000013a",
+    "slots": {
+      "appBar": {
+        "id": "01c0c450-6c00-7000-8a1b-000000000137",
+        "slots": {
+          "title": {
+            "id": "01c0c450-6c00-7000-8a1b-000000000136",
+            "props": {
+              "data": "scrolling"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01c0c450-6c00-7000-8a1b-000000000139",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "children": [
+                  {
+                    "id": "01c0c450-6c00-7000-8a1b-000000000101",
+                    "props": {
+                      "data": "a1"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01c0c450-6c00-7000-8a1b-000000000102",
+                    "props": {
+                      "data": "b1"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01c0c450-6c00-7000-8a1b-000000000103",
+                    "props": {
+                      "data": "a2"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01c0c450-6c00-7000-8a1b-000000000104",
+                    "props": {
+                      "data": "b2"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01c0c450-6c00-7000-8a1b-000000000105",
+                    "props": {
+                      "data": "a3"
+                    },
+                    "type": "Text"
+                  }
+                ],
+                "id": "01c0c450-6c00-7000-8a1b-000000000106",
+                "props": {
+                  "border": {
+                    "color": "#FF9E9E9E",
+                    "width": 1.0
+                  },
+                  "columnWidths": [
+                    {
+                      "kind": "fixed",
+                      "value": 80.0
+                    },
+                    {
+                      "kind": "flex",
+                      "value": 1.0
+                    }
+                  ],
+                  "columns": 2
+                },
+                "testId": "table",
+                "type": "Table"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1b-00000000010c",
+                "props": {
+                  "height": 80.0
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01c0c450-6c00-7000-8a1b-000000000108",
+                        "slots": {
+                          "child": {
+                            "id": "01c0c450-6c00-7000-8a1b-000000000107",
+                            "props": {
+                              "data": "behind the blur"
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "Center"
+                      },
+                      {
+                        "id": "01c0c450-6c00-7000-8a1b-00000000010a",
+                        "props": {
+                          "filter": {
+                            "sigmaX": 4.0,
+                            "sigmaY": 4.0
+                          }
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01c0c450-6c00-7000-8a1b-000000000109",
+                            "props": {
+                              "color": "#33FFFFFF"
+                            },
+                            "type": "ColoredBox"
+                          }
+                        },
+                        "testId": "backdrop",
+                        "type": "BackdropFilter"
+                      }
+                    ],
+                    "id": "01c0c450-6c00-7000-8a1b-00000000010b",
+                    "type": "Stack"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1b-00000000010d",
+                "props": {
+                  "data": {
+                    "$expr": "\"refreshed \" + string(page.refreshed)"
+                  }
+                },
+                "testId": "refreshed",
+                "type": "Text"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1b-000000000111",
+                "props": {
+                  "height": 120.0
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onRefresh": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "s",
+                            "input": {
+                              "path": "page.refreshed",
+                              "value": {
+                                "$expr": "page.refreshed + 1"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a1b-000000000110",
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a1b-00000000010f",
+                        "props": {
+                          "items": {
+                            "$expr": "page.items"
+                          }
+                        },
+                        "slots": {
+                          "item": {
+                            "id": "01c0c450-6c00-7000-8a1b-00000000010e",
+                            "props": {
+                              "data": {
+                                "$expr": "item"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "ListView"
+                      }
+                    },
+                    "testId": "refresh",
+                    "type": "RefreshIndicator"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1b-000000000112",
+                "props": {
+                  "data": {
+                    "$expr": "\"moved \" + page.moved"
+                  }
+                },
+                "testId": "moved",
+                "type": "Text"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1b-000000000116",
+                "props": {
+                  "height": 180.0
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onReorder": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "s",
+                            "input": {
+                              "path": "page.moved",
+                              "value": {
+                                "$expr": "string(event.oldIndex) + \">\" + string(event.newIndex)"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a1b-000000000115",
+                    "props": {
+                      "items": {
+                        "$expr": "page.order"
+                      }
+                    },
+                    "slots": {
+                      "item": {
+                        "id": "01c0c450-6c00-7000-8a1b-000000000114",
+                        "slots": {
+                          "title": {
+                            "id": "01c0c450-6c00-7000-8a1b-000000000113",
+                            "props": {
+                              "data": {
+                                "$expr": "item"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "ListTile"
+                      }
+                    },
+                    "testId": "reorder",
+                    "type": "ReorderableListView"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1b-00000000011e",
+                "props": {
+                  "height": 200.0
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1b-00000000011d",
+                    "slots": {
+                      "body": {
+                        "id": "01c0c450-6c00-7000-8a1b-00000000011c",
+                        "props": {
+                          "items": {
+                            "$expr": "page.items"
+                          }
+                        },
+                        "slots": {
+                          "item": {
+                            "id": "01c0c450-6c00-7000-8a1b-00000000011b",
+                            "props": {
+                              "data": {
+                                "$expr": "item"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "ListView"
+                      },
+                      "headerSlivers": [
+                        {
+                          "id": "01c0c450-6c00-7000-8a1b-00000000011a",
+                          "slots": {
+                            "child": {
+                              "id": "01c0c450-6c00-7000-8a1b-000000000119",
+                              "props": {
+                                "color": "#FFE8DEF8"
+                              },
+                              "slots": {
+                                "child": {
+                                  "id": "01c0c450-6c00-7000-8a1b-000000000118",
+                                  "props": {
+                                    "padding": {
+                                      "all": 12.0
+                                    }
+                                  },
+                                  "slots": {
+                                    "child": {
+                                      "id": "01c0c450-6c00-7000-8a1b-000000000117",
+                                      "props": {
+                                        "data": "nested header"
+                                      },
+                                      "type": "Text"
+                                    }
+                                  },
+                                  "type": "Padding"
+                                }
+                              },
+                              "type": "ColoredBox"
+                            }
+                          },
+                          "type": "SliverToBoxAdapter"
+                        }
+                      ]
+                    },
+                    "testId": "nested",
+                    "type": "NestedScrollView"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1b-000000000126",
+                "props": {
+                  "height": 200.0
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1b-000000000125",
+                    "slots": {
+                      "slivers": [
+                        {
+                          "id": "01c0c450-6c00-7000-8a1b-000000000122",
+                          "props": {
+                            "maxExtent": 80.0,
+                            "minExtent": 40.0,
+                            "pinned": true
+                          },
+                          "slots": {
+                            "child": {
+                              "id": "01c0c450-6c00-7000-8a1b-000000000121",
+                              "props": {
+                                "color": "#FFD0BCFF"
+                              },
+                              "slots": {
+                                "child": {
+                                  "id": "01c0c450-6c00-7000-8a1b-000000000120",
+                                  "slots": {
+                                    "child": {
+                                      "id": "01c0c450-6c00-7000-8a1b-00000000011f",
+                                      "props": {
+                                        "data": "pinned header"
+                                      },
+                                      "type": "Text"
+                                    }
+                                  },
+                                  "type": "Center"
+                                }
+                              },
+                              "type": "ColoredBox"
+                            }
+                          },
+                          "testId": "persistent",
+                          "type": "SliverPersistentHeader"
+                        },
+                        {
+                          "id": "01c0c450-6c00-7000-8a1b-000000000124",
+                          "props": {
+                            "items": {
+                              "$expr": "page.items"
+                            }
+                          },
+                          "slots": {
+                            "item": {
+                              "id": "01c0c450-6c00-7000-8a1b-000000000123",
+                              "props": {
+                                "data": {
+                                  "$expr": "item"
+                                }
+                              },
+                              "type": "Text"
+                            }
+                          },
+                          "type": "SliverList"
+                        }
+                      ]
+                    },
+                    "type": "CustomScrollView"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1b-000000000127",
+                "props": {
+                  "data": {
+                    "$expr": "\"sort \" + string(page.sortCol) + \" \" + string(page.asc)"
+                  }
+                },
+                "testId": "sorted",
+                "type": "Text"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1b-000000000128",
+                "props": {
+                  "data": {
+                    "$expr": "\"selected \" + page.selected"
+                  }
+                },
+                "testId": "selection",
+                "type": "Text"
+              },
+              {
+                "events": {
+                  "onSelectChanged": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "s",
+                        "input": {
+                          "path": "page.selected",
+                          "value": {
+                            "$expr": "string(event.index) + \":\" + string(event.value)"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "onSort": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "c",
+                        "input": {
+                          "path": "page.sortCol",
+                          "value": {
+                            "$expr": "event.index"
+                          }
+                        },
+                        "onSuccess": "a"
+                      },
+                      {
+                        "action": "setState",
+                        "id": "a",
+                        "input": {
+                          "path": "page.asc",
+                          "value": {
+                            "$expr": "event.value"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1b-000000000129",
+                "props": {
+                  "columns": [
+                    {
+                      "label": "Name"
+                    },
+                    {
+                      "label": "Qty",
+                      "numeric": true
+                    }
+                  ],
+                  "rows": {
+                    "$expr": "page.rows"
+                  },
+                  "sortAscending": {
+                    "$expr": "page.asc"
+                  },
+                  "sortColumnIndex": {
+                    "$expr": "page.sortCol"
+                  }
+                },
+                "semantics": {
+                  "label": "fruit table"
+                },
+                "testId": "datatable",
+                "type": "DataTable"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1b-00000000012a",
+                "props": {
+                  "data": {
+                    "$expr": "\"step \" + string(page.step)"
+                  }
+                },
+                "testId": "step",
+                "type": "Text"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1b-00000000012f",
+                "props": {
+                  "height": 320.0
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01c0c450-6c00-7000-8a1b-00000000012b",
+                        "props": {
+                          "data": "content one"
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01c0c450-6c00-7000-8a1b-00000000012c",
+                        "props": {
+                          "data": "content two"
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01c0c450-6c00-7000-8a1b-00000000012d",
+                        "props": {
+                          "data": "content three"
+                        },
+                        "type": "Text"
+                      }
+                    ],
+                    "events": {
+                      "onStepCancel": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "s",
+                            "input": {
+                              "path": "page.step",
+                              "value": {
+                                "$expr": "page.step - 1"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "onStepContinue": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "s",
+                            "input": {
+                              "path": "page.step",
+                              "value": {
+                                "$expr": "page.step + 1"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "onStepTapped": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "s",
+                            "input": {
+                              "path": "page.step",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a1b-00000000012e",
+                    "props": {
+                      "currentStep": {
+                        "$expr": "page.step"
+                      },
+                      "steps": [
+                        {
+                          "subtitle": "first",
+                          "title": "One"
+                        },
+                        {
+                          "title": "Two"
+                        },
+                        {
+                          "state": "complete",
+                          "title": "Three"
+                        }
+                      ]
+                    },
+                    "testId": "stepper",
+                    "type": "Stepper"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1b-000000000130",
+                "props": {
+                  "data": {
+                    "$expr": "\"banner \" + page.banner"
+                  }
+                },
+                "testId": "banner-state",
+                "type": "Text"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1b-000000000135",
+                "slots": {
+                  "actions": [
+                    {
+                      "events": {
+                        "onPressed": {
+                          "steps": [
+                            {
+                              "action": "setState",
+                              "id": "s",
+                              "input": {
+                                "path": "page.banner",
+                                "value": "dismissed"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "id": "01c0c450-6c00-7000-8a1b-000000000134",
+                      "slots": {
+                        "child": {
+                          "id": "01c0c450-6c00-7000-8a1b-000000000133",
+                          "props": {
+                            "data": "dismiss"
+                          },
+                          "type": "Text"
+                        }
+                      },
+                      "testId": "banner-dismiss",
+                      "type": "TextButton"
+                    }
+                  ],
+                  "content": {
+                    "id": "01c0c450-6c00-7000-8a1b-000000000131",
+                    "props": {
+                      "data": "Connection restored"
+                    },
+                    "type": "Text"
+                  },
+                  "leading": {
+                    "id": "01c0c450-6c00-7000-8a1b-000000000132",
+                    "props": {
+                      "icon": {
+                        "name": "info"
+                      }
+                    },
+                    "type": "Icon"
+                  }
+                },
+                "testId": "banner",
+                "type": "MaterialBanner"
+              }
+            ],
+            "id": "01c0c450-6c00-7000-8a1b-000000000138",
+            "type": "Column"
+          }
+        },
+        "type": "SingleChildScrollView"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "scrolling",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": 0,
+      "id": "01c0c450-6c00-7000-8a1b-00000000013b",
+      "name": "refreshed",
+      "type": "int"
+    },
+    {
+      "default": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h"
+      ],
+      "id": "01c0c450-6c00-7000-8a1b-00000000013c",
+      "name": "items",
+      "type": "list<string>"
+    },
+    {
+      "default": [
+        "first",
+        "second",
+        "third"
+      ],
+      "id": "01c0c450-6c00-7000-8a1b-00000000013d",
+      "name": "order",
+      "type": "list<string>"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a1b-00000000013e",
+      "name": "moved",
+      "type": "string"
+    },
+    {
+      "default": [
+        [
+          "Pears",
+          "3"
+        ],
+        [
+          "Apples",
+          "12"
+        ]
+      ],
+      "id": "01c0c450-6c00-7000-8a1b-00000000013f",
+      "name": "rows",
+      "type": "list<list<string>>"
+    },
+    {
+      "default": 1,
+      "id": "01c0c450-6c00-7000-8a1b-000000000140",
+      "name": "sortCol",
+      "type": "int"
+    },
+    {
+      "default": true,
+      "id": "01c0c450-6c00-7000-8a1b-000000000141",
+      "name": "asc",
+      "type": "bool"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a1b-000000000142",
+      "name": "selected",
+      "type": "string"
+    },
+    {
+      "default": 0,
+      "id": "01c0c450-6c00-7000-8a1b-000000000143",
+      "name": "step",
+      "type": "int"
+    },
+    {
+      "default": "shown",
+      "id": "01c0c450-6c00-7000-8a1b-000000000144",
+      "name": "banner",
+      "type": "string"
+    }
+  ],
+  "title": "scrolling"
+}
