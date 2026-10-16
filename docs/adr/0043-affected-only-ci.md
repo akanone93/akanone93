@@ -362,3 +362,16 @@ GitHub-hosted runner. Pull requests that change the runtime still wait for them;
 `main` no longer does. Not done, because their effect is not yet measured: timing the
 iOS prebuild step by step, an emulator snapshot, which would add about 1.5 GB of cache,
 and shorter page transitions in the benchmark, which would change what QA-007 measures.
+
+## Revision (2026-10-16, P8: localisation and accessibility)
+
+Plan p8 §7, put to the maintainer with the plan (D11, accepted 2026-10-16):
+
+- A Linux `goldens` job runs the reference apps' golden suites with the pinned Flutter and the
+  vendored fonts ([ADR-0070](0070-golden-tests.md)); it boots no emulator.
+- The accessibility-tree passes (`QA-011`) run inside the existing Android and iOS device flows.
+- `make catalogue-check` joins the lint job once the catch-up ends
+  ([ADR-0071](0071-catalogue-completion.md)).
+- `schema/l10n/**`, `tools/cmd/cldrdata`, `backend/internal/l10n/**`, `lib/src/l10n/**`,
+  `schema/goldens/**`, the golden harness and the new packages join `ci/affected.json`, with the
+  policy test that every path maps to a job.

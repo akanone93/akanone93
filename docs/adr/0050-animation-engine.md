@@ -177,3 +177,12 @@ framework it wraps, and a dependency in every host app.
 Writing a timeline's value to state each frame would reuse the binding path, but every
 reading node would rebuild sixty or more times a second, and state watchers would fire per
 frame.
+
+## Revision (2026-10-16, P8: Lottie and Rive as catalogue widgets)
+
+P5 shipped `plux_lottie` and `plux_rive` as native slots (`PluxLottie.slots`, the Rive slot) where
+this ADR says the packages register catalogue widgets. P8 aligns the code with the decision
+([ADR-0071](0071-catalogue-completion.md)): `LottieView` and `RiveView` get descriptors in
+`schema/widgets/layer2` with `package` set and register their builders through
+`PluxWidgetPackage`; the props and reduce-motion behaviour stay as above. The slots remain,
+deprecated, for one minor release, so host apps that use them keep working.
