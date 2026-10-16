@@ -1,9 +1,9 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.5.1
+**Version:** 1.6.0
 **Status:** Draft — living document, revised as implementation proceeds
-**Date:** 2026-10-14
+**Date:** 2026-10-16
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
 
 > **Plux — Plugin Experience.** Build native Flutter screens visually, compile them into signed binary plugins, and ship them to every device in seconds — with high-assurance security, zero parse cost, and full control over who changes what.
@@ -961,7 +961,7 @@ The Studio canvas no longer uses a Flutter Web build of the runtime (ADR-0013); 
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `RT-060` | P3 | MUST | Optional capabilities **MUST** ship as separate packages so apps pay only for what they use: `plux_flutter` (core), `plux_db_drift`, `plux_lottie`, `plux_rive`, `plux_maps`, `plux_charts`, `plux_media`, `plux_scanner`, `plux_location`, `plux_security` (RASP), `plux_payments`, `plux_devtools` (debug only). The on-device function interpreter **MUST** be part of an optional package (`plux_functions`) so apps that do not place functions on the device do not ship it. | WIP |
+| `RT-060` | P3 | MUST | Optional capabilities **MUST** ship as separate packages so apps pay only for what they use: `plux_flutter` (core), `plux_db_drift`, `plux_lottie`, `plux_rive`, `plux_maps` (with `plux_maps_google`), `plux_charts`, `plux_media`, `plux_player`, `plux_markdown`, `plux_scanner`, `plux_location`, `plux_security` (RASP), `plux_payments`, `plux_devtools` (debug only). The on-device function interpreter **MUST** be part of an optional package (`plux_functions`) so apps that do not place functions on the device do not ship it. | WIP |
 | `RT-061` | P3 | MUST | The core package **MUST** add, per ABI (arm64-v8a, armeabi-v7a, x86_64), ≤ 5 MiB to what Google Play downloads from a release App Bundle and ≤ 10 MiB to a release APK, and ≤ 5 MiB to an iOS IPA (thinned, arm64), measured in CI against a blank Flutter app (ADR-0036). | DONE |
 
 ---
@@ -1292,7 +1292,7 @@ Security profiles bundle settings so that operators do not need to understand fi
 | Screenshot blocking (`screenshotBlockingDefault`) | per page | per page | default on |
 | Session replay | opt-in | off | off (cannot enable) |
 | Publish approvals (production) | 1 | 2 (four-eyes) | 2 from distinct teams + compliance |
-| Accessibility errors block publish | – | ✔ | ✔ |
+| Accessibility errors block publish (`accessibilityBlocksPublish`) | – | ✔ | ✔ |
 | Plux tests required for release | – | optional | ✔ |
 | Device-placed functions | ✔ | ✔ | disabled by default |
 | Software DPoP keys (`allowSoftwareKeys`, `SEC-001`) | accepted, capped at AL1 | refused | refused |
@@ -1440,16 +1440,20 @@ plux_fn::function!(calculate_schedule);
 
 ### 17.1 Localisation
 
+**Locale data.** Plural rules, number, currency and date formats and calendar names come from a pinned CLDR release (`cldr-json`), reduced by a generator in `tools/` to one committed file per locale for every locale CLDR rates at `modern` coverage. The compiler places the data of an app's supported locales in its app bundle, beside the messages; the runtime carries only the formatting engines. Flutter's own widget strings (Material, Cupertino, Widgets) come the same way from the pinned Flutter SDK's ARB files, so no locale needs `flutter_localizations` ([ADR-0066](adr/0066-localisation-engine.md)).
+
+**Calendars.** Gregorian, Ethiopian, Islamic Umm al-Qura and Persian share one calendar-system interface in Go and Dart, converting through the Julian day number and checked against shared vectors ([ADR-0067](adr/0067-calendar-systems.md)).
+
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `I18N-001` | P8 | MUST | Translatable text **MUST** use ICU MessageFormat with plural, select and gender forms; plural rules, number, date, time and currency formats **MUST** come from CLDR. | SPEC |
-| `I18N-002` | P8 | MUST | Launch locales **MUST** be English (`en`), German (`de-DE`), Arabic (`ar`, proving right-to-left layout) and Amharic (`am-ET`, proving a non-Latin script and a non-Gregorian calendar). Any CLDR locale **MUST** be addable without code changes. | SPEC |
-| `I18N-003` | P8 | MUST | Date display and date pickers **MUST** support **non-Gregorian calendars** alongside the Gregorian calendar (per-app and per-field choice, with conversion) through a calendar-system interface; the Ethiopian calendar **MUST** ship at launch, and further systems (e.g. Islamic Hijri, Persian) **SHOULD** follow. Native numerals **MAY** be rendered where configured. | SPEC |
+| `I18N-001` | P8 | MUST | Translatable text **MUST** use ICU MessageFormat — `plural` with `offset` and exact (`=n`) matches, `selectordinal`, `select` (gender is a `select` on a gender argument), and `number`, `date` and `time` arguments with CLDR styles and skeletons — and every message **MUST** be validated at publish against its key's declared arguments; plural rules, number, date, time and currency formats **MUST** come from CLDR ([ADR-0066](adr/0066-localisation-engine.md)). | SPEC |
+| `I18N-002` | P8 | MUST | Launch locales **MUST** be English (`en`), German (`de-DE`), Arabic (`ar`, proving right-to-left layout) and Amharic (`am-ET`, proving a non-Latin script and a non-Gregorian calendar). Any locale in the pinned CLDR data **MUST** be addable without code changes; the data covers every locale CLDR rates at `modern` coverage and grows by regenerating it (§17.1). | SPEC |
+| `I18N-003` | P8 | MUST | Date display and date pickers **MUST** support **non-Gregorian calendars** alongside the Gregorian calendar (per-app and per-field choice, with conversion) through a calendar-system interface; the Ethiopian, Islamic Umm al-Qura (1300–1600 AH from a pinned table, tabular Islamic arithmetic outside it) and Persian calendars **MUST** ship at launch, and further systems **SHOULD** follow. Latin digits are the default; native numerals **MAY** be rendered where configured ([ADR-0067](adr/0067-calendar-systems.md)). | SPEC |
 | `I18N-004` | P8 | MUST | Layouts **MUST** mirror automatically for RTL locales; nodes **MAY** override directionality (e.g. for phone numbers and IBANs). | SPEC |
 | `I18N-005` | P8 | MUST | The runtime **MUST** follow the host's locale by default and switch locale at runtime without restart. | SPEC |
-| `I18N-006` | P8 | MUST | Missing translations **MUST** fall back along a chain (e.g. `de-AT` → `de` → app default locale) and be reported in development and telemetry; the key itself is never shown to end users in release builds. | SPEC |
+| `I18N-006` | P8 | MUST | Missing translations **MUST** fall back along a chain (e.g. `de-AT` → `de` → app default locale) and be reported in development builds and in telemetry as the sampled `l10n_missing` event (Appendix G.2); the key itself is never shown to end users in release builds. | SPEC |
 | `I18N-007` | P8 | MUST | Text props authored in Studio **MUST** be extracted to translation keys automatically; keys are referenced by ID; unused keys are detected; per-key metadata includes description, screenshot context (captured from the canvas) and maximum length. | SPEC |
-| `I18N-008` | P8 | MUST | Translation workflow **MUST** track per-locale status (`new`, `translated`, `reviewed`, `approved`), support a translator role, and optionally require approval before a release uses a translation. | SPEC |
+| `I18N-008` | P8 | MUST | Translation workflow **MUST** track per-locale status (`new`, `translated`, `reviewed`, `approved`) in the translations document, support a translator role (`translations.edit`; approving needs `translations.approve`) editing under a lock per locale separate from the app-level lock of `SRV-042`, and optionally require approval before a release uses a translation (`localisation.requireApprovedTranslations`: unapproved translations are left out and fall back, and the release's localisation report lists them) ([ADR-0068](adr/0068-translation-workflow.md)). | SPEC |
 | `I18N-009` | P8 | MUST | Translations **MUST** be importable and exportable as XLIFF 2.0, ARB, JSON and CSV. | SPEC |
 | `I18N-010` | P8 | MUST | Studio **MUST** offer pseudo-localisation (accented, expanded by 30–40%, RTL pseudo-locale) to find truncation and hard-coded text before translation. | SPEC |
 | `I18N-011` | P8 | MUST | Money **MUST** format per locale and currency (e.g. `EUR` as "1.234,56 €" in German, `USD` as "$1,234.56" in US English). | SPEC |
@@ -1463,13 +1467,13 @@ Plux targets **WCAG 2.2 level AA** and the harmonised European standard **EN 301
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `A11Y-001` | P8 | MUST | Every Layer 1 and Layer 2 widget **MUST** expose correct semantics (role, label, value, state, actions) to TalkBack and VoiceOver. | SPEC |
-| `A11Y-002` | P8 | MUST | The compiler **MUST** require an accessible name for every interactive node (explicit or derived from visible text) and an alternative text or `decorative` flag for every image; violations are errors under the `strict` and `maximum` profiles and warnings otherwise. | SPEC |
-| `A11Y-003` | P8 | MUST | The compiler **MUST** check text/background contrast from theme tokens (4.5:1 for normal text, 3:1 for large text and UI components) in light and dark themes. | SPEC |
-| `A11Y-004` | P8 | MUST | Touch targets **MUST** be at least 48 × 48 dp on Android and 44 × 44 pt on iOS; smaller targets produce diagnostics. | SPEC |
+| `A11Y-002` | P8 | MUST | The compiler **MUST** require an accessible name for every interactive node (explicit or derived from visible text) and an alternative text or `decorative` flag for every image; violations are errors under the `strict` and `maximum` profiles and warnings otherwise. With `accessibilityBlocksPublish` (on under `strict` and `maximum`), an unwaived accessibility error refuses the publish (`PLX-3060`, [ADR-0069](adr/0069-accessibility-checks-and-report.md)). | SPEC |
+| `A11Y-003` | P8 | MUST | The compiler **MUST** check text/background contrast from theme tokens (4.5:1 for normal text, 3:1 for large text and UI components) in light, dark and high-contrast themes, with `A11Y-002`'s severity; colours unknown before run time are reported as not checked. | SPEC |
+| `A11Y-004` | P8 | MUST | Touch targets **MUST** be at least 48 × 48 dp on Android and 44 × 44 pt on iOS; smaller fixed targets produce diagnostics with `A11Y-002`'s severity (below 44 × 44 always, below 48 × 48 when the release targets Android). | SPEC |
 | `A11Y-005` | P8 | MUST | Pages **MUST** remain usable at 200% text scale; the Dev app and Studio **MUST** provide a text-scale preview, and the compiler **SHOULD** flag fixed-height containers holding text. | SPEC |
 | `A11Y-006` | P8 | MUST | Documents **MUST** support explicit focus order, semantic grouping, headings and live-region announcements for dynamic content (errors, status changes). | SPEC |
 | `A11Y-007` | P8 | MUST | The runtime **MUST** honour reduce motion, bold text, high contrast and screen-reader-active settings. | SPEC |
-| `A11Y-008` | P8 | MUST | Each release **MUST** produce an accessibility report (checks run, violations, waivers with justification) exportable for compliance documentation. | SPEC |
+| `A11Y-008` | P8 | MUST | Each release **MUST** produce an accessibility report (checks run, violations, waivers with justification), exportable as JSON and HTML through the API and the CLI for compliance documentation. A waiver names one check and carries a justification; under `maximum` it needs the `a11y.waive` permission. | SPEC |
 
 ---
 
@@ -1480,7 +1484,7 @@ Plux targets **WCAG 2.2 level AA** and the harmonised European standard **EN 301
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `GOV-001` | P2 | MUST | The hierarchy **MUST** be Installation → Organization → Teams, with apps owned by an organization and access granted to teams or users per app. | DONE |
-| `GOV-002` | P9 | MUST | Predefined roles **MUST** include Owner, Admin, Release Manager, Developer, Designer, Translator, Reviewer, Compliance Officer, Auditor (read-only including audit log) and Viewer. Custom roles **MUST** be composable from a documented permission catalogue (e.g. `plugin.edit`, `release.publish:production`, `approval.grant`, `function.deploy`, `secrets.manage`, `keys.manage`, `members.manage`, `audit.read`). | SPEC |
+| `GOV-002` | P9 | MUST | Predefined roles **MUST** include Owner, Admin, Release Manager, Developer, Designer, Translator, Reviewer, Compliance Officer, Auditor (read-only including audit log) and Viewer. Custom roles **MUST** be composable from a documented permission catalogue (e.g. `plugin.edit`, `release.publish:production`, `approval.grant`, `function.deploy`, `secrets.manage`, `keys.manage`, `members.manage`, `audit.read`). The Translator role and the `translations.edit` and `translations.approve` permissions exist from P8 (ADR-0068). | SPEC |
 | `GOV-003` | P9 | MUST | Permissions **MUST** be scopable by environment (e.g. publish to staging but not production) and by app. | SPEC |
 | `GOV-004` | P9 | MUST | Single sign-on **MUST** support OIDC and SAML 2.0, with group-to-role mapping and just-in-time provisioning; SCIM 2.0 **MUST** support provisioning and deprovisioning of users and groups. | SPEC |
 | `GOV-005` | P9 | MUST | Administrators **MUST** be able to view and revoke active sessions and tokens and set session idle and absolute timeouts. | SPEC |
@@ -1805,7 +1809,7 @@ The screen editor is the canvas of §21.6 with a screen selected for editing and
 |---|---|---|---|---|
 | `TST-001` | P5 | MUST | **Plux Test** **MUST** let developers define declarative test scenarios per page or flow — given parameters, state and data-source mocks; steps (tap by `testId`, enter text, scroll, wait for, trigger event); expectations (visible, text equals, navigated to route, action or function called with arguments, state value) — in YAML or in Studio. | WIP |
 | `TST-002` | P5 | MUST | `plux test` **MUST** run scenarios headlessly in CI using Flutter's test harness with the real runtime, and report results in JUnit XML and to Studio. | WIP |
-| `TST-003` | P8 | MUST | Golden (visual regression) tests **MUST** render pages per device frame, locale, theme and text scale, compare them with approved baselines, and optionally block publication on unapproved differences. | SPEC |
+| `TST-003` | P8 | MUST | Golden (visual regression) tests **MUST** render pages per device frame, locale, theme and text scale with the real runtime (`plux golden`, Linux as the canonical renderer), compare them with approved baselines held by the server, and optionally block publication on unapproved differences (`goldens.blockPublish`, [ADR-0070](adr/0070-golden-tests.md)). | SPEC |
 | `TST-004` | P5 | SHOULD | Mock servers **SHOULD** be generated from imported OpenAPI definitions for local development and tests. | DONE |
 | `TST-005` | P9 | MUST | Release policies **MUST** be able to require passing Plux tests and golden tests before production (mandatory under the `maximum` profile). | SPEC |
 
@@ -1945,7 +1949,7 @@ This section concerns how Plux itself is verified. §22.2 covers the testing too
 | `QA-008` | P6 | MUST | Security tests **MUST** include the DPoP and attestation negative suite (`SEC-029`), bundle tampering and rollback attacks, MASTG checks (`SEC-190`), OWASP ZAP baseline scans of Studio and the API, and authorisation matrix tests for every role and permission. | WIP |
 | `QA-009` | P3 | MUST | Failure-injection tests **MUST** cover network loss mid-download, corrupted and truncated deltas, disk full, process kill during activation, server errors and clock skew, and **MUST** prove the runtime always keeps a working release. | DONE |
 | `QA-010` | P3 | MUST | Compatibility tests **MUST** run the last three released runtime versions against the current server and new bundles, and the current runtime against bundles from the last three compiler versions. | WIP |
-| `QA-011` | P8 | MUST | Accessibility tests **MUST** run automated semantics checks for all Layer 1 and Layer 2 widgets and scripted screen-reader passes for the reference apps before each release. | SPEC |
+| `QA-011` | P8 | MUST | Accessibility tests **MUST** run automated semantics checks for all Layer 1 and Layer 2 widgets, and scripted passes over the platform accessibility tree (UiAutomator on Android, XCUITest on iOS) for the reference apps on emulators and simulators in CI; live TalkBack and VoiceOver passes are on the real-device checklist before each release. | SPEC |
 | `QA-070` | P0 | MUST | Every `MUST` requirement **MUST** be traceable to at least one automated test; a traceability report mapping requirement IDs to tests **MUST** be generated in CI. | DONE |
 | `QA-071` | P0 | MUST | Tests **MUST** reference the requirements they verify in their names or a structured comment (e.g. `TestDPoPRejectsReplayedJTI_SEC_022`, `testWidgets('… [SYN-005]')`), so the mapping is generated from code. | DONE |
 | `QA-072` | P0 | MUST | A pull request that implements a requirement **MUST** update its `Status` in the same change. | WIP |
@@ -2108,6 +2112,12 @@ Significant decisions are recorded as ADRs in `docs/adr/` using MADR. These ADRs
 | 0063 | Function builds, provenance and signing: the `builder` role, vendoring, reproducibility, the function-artifact key | P7 |
 | 0064 | Function isolation: `fnrunner`, the `egress` role, limits, key-value host calls, threat-model delta | P7 |
 | 0065 | Imported signing keys in `signing/` and the Apple fraud-metric receipt | P7 |
+| 0066 | Localisation engine: CLDR data per app locale in the bundle, MessageFormat, Flutter's widget strings without `flutter_localizations` | P8 |
+| 0067 | Calendar systems: Gregorian, Ethiopian, Islamic Umm al-Qura and Persian behind one interface | P8 |
+| 0068 | Translation workflow: statuses in the document, roles and permissions, XLIFF/ARB/JSON/CSV | P8 |
+| 0069 | Accessibility checks at publish, waivers, the report and runtime semantics | P8 |
+| 0070 | Golden tests: harness, canonical renderer, server baselines and the publish gate | P8 |
+| 0071 | Catalogue completion: the widget catch-up, widget packages and `catalogue-check` | P8 |
 
 ---
 
@@ -2537,10 +2547,10 @@ Dialogs, bottom sheets and snack bars are page kinds and actions (Appendix D), n
 | `MaskedText` | Masked display (card, account, phone) with reveal | P5 | core |
 | `PhoneInput` | E.164 entry, default region from the device locale, country picker | P5 | core |
 | `IbanInput` | IBAN entry with checksum validation and grouping | P5 | core |
-| `DualCalendarDatePicker` | Gregorian and non-Gregorian calendar date picker | P8 | core |
+| `DualCalendarDatePicker` | Date picker in the Gregorian, Ethiopian, Islamic Umm al-Qura or Persian calendar, with an optional second calendar | P8 | core |
 | `CountryPicker`, `CurrencyPicker` | Searchable pickers | P5 | core |
 | `ConsentCheckbox` | Versioned consent with linked legal text, records accepted version | P5 | core |
-| `TermsViewer`, `MarkdownView` | Rich legal and content text | P5 | core |
+| `TermsViewer`, `MarkdownView` | Rich legal and content text | P5 | `plux_markdown` |
 | `BiometricButton` | Triggers biometric step-up (`SEC-027`) | P6 | core |
 | `SkeletonLoader` | Shimmer placeholders | P3 | core |
 | `EmptyState`, `ErrorState`, `OfflineBanner` | Standard states | P3 | core |
@@ -2562,11 +2572,11 @@ Dialogs, bottom sheets and snack bars are page kinds and actions (Appendix D), n
 | `FileUploader` | Pick, preview and upload files with progress | P5 | core |
 | `PaymentMethodSelector`, `PaymentSummary`, `Receipt` | Payment UI (`PAY-007`) | P13 | `plux_payments` |
 | `LineChart`, `BarChart`, `PieChart`, `Sparkline` | Charts | P5 | `plux_charts` |
-| `MapView` (markers, routes), `OrderTrackerMap` | Maps with provider abstraction (OpenStreetMap, Mapbox, Google) | P5 | `plux_maps` |
+| `MapView` (markers, routes), `OrderTrackerMap` | Maps with provider abstraction (OpenStreetMap, Mapbox, Google) | P5 | `plux_maps`; Google through `plux_maps_google` |
 | `QrScanner`, `BarcodeScanner`, `QrCodeView` | Scanning and display | P5 | `plux_scanner` |
 | `KycCameraCapture` | ID document and selfie capture with framing guides and quality checks | P6 | `plux_media` |
 | `SignaturePad` | Handwritten signature capture | P5 | `plux_media` |
-| `VideoPlayer`, `AudioPlayer` | Media playback | P5 | `plux_media` |
+| `VideoPlayer`, `AudioPlayer` | Media playback | P5 | `plux_player` |
 | `LottieView` | dotLottie playback | P5 | `plux_lottie` |
 | `RiveView` | Rive with state-machine bindings | P5 | `plux_rive` |
 
@@ -2601,6 +2611,7 @@ Dialogs, bottom sheets and snack bars are page kinds and actions (Appendix D), n
 | `stop` | Control | End the run with an optional result or error | P4 |
 | `trackEvent` | Analytics | Custom telemetry event | P5 |
 | `setLocale`, `setThemeMode` | App | Change locale or theme mode | P8 |
+| `announce` | App | Announce a translated message through the platform's screen reader (`A11Y-006`) | P8 |
 | `copyToClipboard`, `share` | Device | Clipboard (blocked on secure pages) and share sheet | P5 |
 | `requestPermission` | Device | Request a declared device permission | P5 |
 | `pickImage`, `capturePhoto`, `pickFile` | Device | Media and files | P5 |
@@ -2668,7 +2679,7 @@ The complete grammar — including the receiver-style macros `map`, `filter`, `a
 | `form.<name>` | Form values, errors and status |
 | `flags.<key>` | Feature flags |
 | `env.<key>` | Non-secret environment variables |
-| `device` | Platform, OS version, locale, text scale, dark mode, window size class, assurance level |
+| `device` | Platform, OS version, locale, text direction, calendar, text scale, dark mode, window size class, assurance level, and the reduce-motion, bold-text, high-contrast and screen-reader settings (`A11Y-007`) |
 | `user` | Host-provided user context attributes, and `user.authenticated`, whether the host's auth delegate has a signed-in user (`HST-010`) |
 | `now` | Current time (frozen per evaluation for determinism) |
 
@@ -2702,7 +2713,7 @@ Every error and diagnostic has a stable code `PLX-NNNN` (`DX-003`). Codes are gr
 | `PLX-6000`–`6999` | Security | `PLX-6001` attestation failed · `PLX-6002` assurance level insufficient · `PLX-6003` key not hardware-backed · `PLX-6004` development provider in production · `PLX-6006` device revoked · `PLX-6010` DPoP proof invalid · `PLX-6011` DPoP replay detected · `PLX-6012` DPoP nonce required · `PLX-6013` token binding mismatch · `PLX-6015` replay cache unavailable · `PLX-6020` certificate pin mismatch · `PLX-6040` security configuration hash mismatch · `PLX-6041` setting loosens the profile · `PLX-6050` confidential bundle key unavailable · `PLX-6060`–`6064` gateway refusals · `PLX-6070`–`6073` SCA failures · `PLX-6080` fraud receipt unavailable · `PLX-6081` imported key invalid · `PLX-6100` RASP detection |
 | `PLX-7000`–`7999` | Functions | `PLX-7001` timeout · `PLX-7002` memory limit exceeded · `PLX-7003` capability denied · `PLX-7004` output too large · `PLX-7005` call depth exceeded · `PLX-7010` egress refused · `PLX-7011` idempotency key conflict · `PLX-7014` device functions disabled · `PLX-7100` business error (carries function-defined code) · `PLX-7200` build failed · `PLX-7202` build script refused (further codes in the registry, ADR-0018) |
 | `PLX-8000`–`8999` | Governance | `PLX-8001` approval required · `PLX-8002` approval invalidated by content change · `PLX-8010` change freeze active · `PLX-8020` editing lock held by another user · `PLX-8030` permission denied |
-| `PLX-9000`–`9999` | Studio, CLI and AI | `PLX-9001` AI output invalid after repair attempts · `PLX-9100` CLI configuration invalid · `PLX-9200` dev session expired |
+| `PLX-9000`–`9999` | Studio, CLI and AI | `PLX-9001` AI output invalid after repair attempts · `PLX-9100` CLI configuration invalid · `PLX-9300` golden harness failed · `PLX-9200` dev session expired |
 
 ---
 
@@ -2757,6 +2768,7 @@ Every error and diagnostic has a stable code `PLX-NNNN` (`DX-003`). Codes are gr
 | `attestation_result` | provider, result, assurance level (no device identifiers) |
 | `pin_failure` | host, pin set version |
 | `custom` (`trackEvent`) | name, declared non-sensitive properties |
+| `l10n_missing` | translation key, requested locale, resolved locale (sampled; `I18N-006`) |
 
 ---
 
@@ -3063,15 +3075,10 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.5.1 |
+| Version | 1.6.0 |
 | Status | Draft (living document) |
-| Date | 2026-10-14 |
-| Supersedes | 1.5.0 |
-| 1.5.1 | 2026-10-14 | Function versions are numbered per app and reach another environment only by promotion; a release promotion is refused until every function version it pins is promoted there (maintainer, 2026-10-14; `FN-006`; ADR-0063). Appendix H.1 gains the `functions`, `fnrunner`, `egress` and `builder` configuration (P7 plan §2.6 M6). `FN-023` and `NFR-022` measure the first invocation after the deploy-time compile, on the CI reference runner, the warm gate on the median of five rounds (M9, M10; ADR-0064). Appendix G.1 lists the function and egress metrics as implemented: no `function` label, so a tenant's functions add no Prometheus series; per-function numbers come from the stored invocations (`FN-032`) (M11). Statuses at the P7 exit: `FN-001`–`FN-013`, `FN-015`–`FN-024`, `FN-030`–`FN-032`, `FN-050`–`FN-055`, `NFR-022`, `SEC-123`, and the P7 parts of `HST-010` and `SEC-043` → `DONE`; `FN-056` `WIP` until the reference-device run; `FN-014` (`MAY`) not taken. |
-| 1.5.0 | 2026-10-13 | Phase 7 decisions (maintainer, 2026-10-13; P7 plan §2.1 D1–D9, §2.2 C1 and C6, §2.5): Plux Functions are written in **Rust** (D1) — the §5.1 P7 row, §16 with its example, `FN-001`–`FN-004`, `FN-030`, `FN-033` and `FN-040` rewritten, with the SDK crate `plux-fn` at `github.com/nightCode42/plux3/sdk/fn` (D4), the repository layout (§33), the technology decision (§34) and the Go-editor wording (`STU-063`, `STU-110`) updated; `FN-050` names WAMR in interpreter mode in the optional package `plux_functions` (D2); builds run on the server in a new `builder` role (D3, `FN-016`) with a `wasm-opt` step (D9), only signed builder artifacts are deployable (`FN-009`) and builds are reproducible (`FN-019`); our own `egress` forward proxy (D5, `FN-017`); the server key-value store (D8, `FN-018`); until the approval engine (`GOV-020`, P9) `FN-007` and `FN-055` require a dedicated RBAC permission with step-up (D6); `FN-031` and `FN-032` split (D7) with new `FN-034`, `FN-035` (P11) and `FN-036` (P10); `FN-011` names the registry keys; new `SEC-123` (imported signing keys, C1); `SEC-043` covers `builder` and `egress`; §6.3 gains the `builder` and `egress` roles and L-4 names them; §5.4 anchors additive-only evolution (`BND-000`, `SCH-000`, `SRV-000`) to the first release, 0.0.1 (C6); §30.4, Appendix F (functions range, `PLX-6080`, `PLX-6081`) and Appendix K updated; ADR-0011 accepted for Rust and ADR-0062 (host ABI), ADR-0063 (builds and provenance), ADR-0064 (isolation) and ADR-0065 (imported keys and the Apple receipt) proposed. |
-| 1.4.3 | 2026-10-11 | Server-held configuration (maintainer decision, 2026-10-11; ADR-0061), a follow-on milestone of P6: new `DAT-090`–`DAT-097` (§14.4) — typed configuration values per app and environment in two tiers, `server-bound` values the gateway binds into requests at declared locations and `live` values a device fetches over its DPoP-bound channel, with an epoch and a version on every gateway call so that no value is stale where it takes effect; `DAT-003` also allows the secure gateway's server-bound values for calls that need server-held secrets; the `bundled` tier is the existing environment variables (`GOV-010`) and may lag. |
-| 1.4.2 | 2026-10-08 | P6 S0–S6 delivered on `feat/p6-s2-device-trust`: `SEC-005`, `SEC-008`, `SEC-020`–`SEC-022`, `SEC-024`, `SEC-025`, `SEC-029`, `SEC-040`, `SEC-050`, `SEC-051`, `SEC-056`, `SEC-120`–`SEC-122`, `SEC-141`, `SEC-182` and `NAV-009` `DONE`; `SEC-000`, `SEC-001`–`SEC-004`, `SEC-006`, `SEC-007`, `SEC-023`, `SEC-041`–`SEC-043`, `SEC-180` and `NFR-012` `WIP` until the milestones, the real-device check (B2 layer 3) or the reference-device run named in plan p6 complete them. |
-| 1.4.1 | 2026-10-08 | App. H.1: attestation is configured per app (`attestation.apps`) with an installation-wide `developmentProvider` switch, and the replay cache uses `cache.valkeyURL`, which takes a Sentinel URL, instead of a separate Sentinel list (maintainer decisions; ADR-0012, Revision). |
+| Date | 2026-10-16 |
+| Supersedes | 1.5.1 |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |
 
 ### Revision history
@@ -3096,3 +3103,9 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | 1.3.1 | 2026-10-05 | `RT-061`, `NFR-009`: the App Bundle download and the thinned IPA budgets rise to ≤ 5 MiB each, the APK stays ≤ 10 MiB; `QA-007`: the size gate fails on growth beyond 20% over the committed overhead, other benchmarks stay at 10% (maintainer decision, P5 plan §2.1 B7; ADR-0036, Revision 2026-10-05). |
 | 1.3.2 | 2026-10-06 | Phase 5 delivered: P5 requirement statuses updated — `ACT-001`–`ACT-007`, `ACT-020`, `ACT-031`, `ACT-061`, `STA-001`–`STA-004`, `STA-010`, `STA-020`, `STA-030`, `STA-040`, `DAT-002`–`DAT-004`, `DAT-010`–`DAT-012`, `DAT-020`, `DAT-030`, `DAT-031`, `DB-001`, `DB-004`–`DB-006`, `DB-008`, `DB-009`, `ANI-001`–`ANI-008`, `HST-013`, `TST-004` `DONE`, with the cross-phase `HST-001`, `HST-021`, `RT-021`, `NAV-010`, `WGT-012`, `WGT-021`, `LIM-004` and `RT-015`; `ACT-008`, `NFR-011`, `PXL-004`, `NFR-010`, `NFR-004` and `DB-007` `WIP` until the reference-device run, and `ACT-030`, `DAT-001`, `DAT-080`, `DB-002`, `DB-003`, `SEC-080`, `TST-001`, `TST-002` and `DX-004` `WIP` until the phases the P5 plan names complete them (§3.2). |
 | 1.4.0 | 2026-10-07 | Phase 6 decisions (maintainer, 2026-10-07; P6 plan §2.1 B1–B21 and §2.2 Q1–Q3): `SEC-001` software keys flagged, accepted only where `allowSoftwareKeys` allows and capped at `AL1`, StrongBox for the DPoP key decided by measurement; `SEC-007` the iOS mapping and the Android verdict per profile; `SEC-009` the grace per profile in the text; `SEC-023` the in-memory fallback under `standard` and `strict`; `SEC-025` the refresh evidence per platform; `SEC-028` verification only by the Plux server; new `SEC-030`–`SEC-032` (the secure gateway) and `SEC-182` (remote security configuration); `SEC-041` pins from `PluxConfig` and signed metadata; `SEC-043` the P6 and P7 parts; `SEC-050`, `SEC-121` thresholds and expiries; `SEC-053` no deltas, decryption into memory; `SEC-073` the stores covered; `SEC-090` `OtpInput`'s options, re-tagged P6 in Appendix C; `SEC-120` the backends; `SEC-180` Studio in P11; §15.12 the P6 settings; new `NFR-012`, `NFR-013`, `NFR-025`; Appendices F, G, H and K (ADR-0012, ADR-0053–ADR-0060). The header date now matches the revision history. |
+| 1.4.1 | 2026-10-08 | App. H.1: attestation is configured per app (`attestation.apps`) with an installation-wide `developmentProvider` switch, and the replay cache uses `cache.valkeyURL`, which takes a Sentinel URL, instead of a separate Sentinel list (maintainer decisions; ADR-0012, Revision). |
+| 1.4.2 | 2026-10-08 | P6 S0–S6 delivered on `feat/p6-s2-device-trust`: `SEC-005`, `SEC-008`, `SEC-020`–`SEC-022`, `SEC-024`, `SEC-025`, `SEC-029`, `SEC-040`, `SEC-050`, `SEC-051`, `SEC-056`, `SEC-120`–`SEC-122`, `SEC-141`, `SEC-182` and `NAV-009` `DONE`; `SEC-000`, `SEC-001`–`SEC-004`, `SEC-006`, `SEC-007`, `SEC-023`, `SEC-041`–`SEC-043`, `SEC-180` and `NFR-012` `WIP` until the milestones, the real-device check (B2 layer 3) or the reference-device run named in plan p6 complete them. |
+| 1.4.3 | 2026-10-11 | Server-held configuration (maintainer decision, 2026-10-11; ADR-0061), a follow-on milestone of P6: new `DAT-090`–`DAT-097` (§14.4) — typed configuration values per app and environment in two tiers, `server-bound` values the gateway binds into requests at declared locations and `live` values a device fetches over its DPoP-bound channel, with an epoch and a version on every gateway call so that no value is stale where it takes effect; `DAT-003` also allows the secure gateway's server-bound values for calls that need server-held secrets; the `bundled` tier is the existing environment variables (`GOV-010`) and may lag. |
+| 1.5.0 | 2026-10-13 | Phase 7 decisions (maintainer, 2026-10-13; P7 plan §2.1 D1–D9, §2.2 C1 and C6, §2.5): Plux Functions are written in **Rust** (D1) — the §5.1 P7 row, §16 with its example, `FN-001`–`FN-004`, `FN-030`, `FN-033` and `FN-040` rewritten, with the SDK crate `plux-fn` at `github.com/nightCode42/plux3/sdk/fn` (D4), the repository layout (§33), the technology decision (§34) and the Go-editor wording (`STU-063`, `STU-110`) updated; `FN-050` names WAMR in interpreter mode in the optional package `plux_functions` (D2); builds run on the server in a new `builder` role (D3, `FN-016`) with a `wasm-opt` step (D9), only signed builder artifacts are deployable (`FN-009`) and builds are reproducible (`FN-019`); our own `egress` forward proxy (D5, `FN-017`); the server key-value store (D8, `FN-018`); until the approval engine (`GOV-020`, P9) `FN-007` and `FN-055` require a dedicated RBAC permission with step-up (D6); `FN-031` and `FN-032` split (D7) with new `FN-034`, `FN-035` (P11) and `FN-036` (P10); `FN-011` names the registry keys; new `SEC-123` (imported signing keys, C1); `SEC-043` covers `builder` and `egress`; §6.3 gains the `builder` and `egress` roles and L-4 names them; §5.4 anchors additive-only evolution (`BND-000`, `SCH-000`, `SRV-000`) to the first release, 0.0.1 (C6); §30.4, Appendix F (functions range, `PLX-6080`, `PLX-6081`) and Appendix K updated; ADR-0011 accepted for Rust and ADR-0062 (host ABI), ADR-0063 (builds and provenance), ADR-0064 (isolation) and ADR-0065 (imported keys and the Apple receipt) proposed. |
+| 1.5.1 | 2026-10-14 | Function versions are numbered per app and reach another environment only by promotion; a release promotion is refused until every function version it pins is promoted there (maintainer, 2026-10-14; `FN-006`; ADR-0063). Appendix H.1 gains the `functions`, `fnrunner`, `egress` and `builder` configuration (P7 plan §2.6 M6). `FN-023` and `NFR-022` measure the first invocation after the deploy-time compile, on the CI reference runner, the warm gate on the median of five rounds (M9, M10; ADR-0064). Appendix G.1 lists the function and egress metrics as implemented: no `function` label, so a tenant's functions add no Prometheus series; per-function numbers come from the stored invocations (`FN-032`) (M11). Statuses at the P7 exit: `FN-001`–`FN-013`, `FN-015`–`FN-024`, `FN-030`–`FN-032`, `FN-050`–`FN-055`, `NFR-022`, `SEC-123`, and the P7 parts of `HST-010` and `SEC-043` → `DONE`; `FN-056` `WIP` until the reference-device run; `FN-014` (`MAY`) not taken. |
+| 1.6.0 | 2026-10-16 | Phase 8 decisions (maintainer, 2026-10-16; P8 plan §2.1 D1–D17, §2.4 A1–A2): `I18N-001` names the MessageFormat subset; `I18N-002` covers the pinned CLDR data at `modern` coverage; `I18N-003` names the Ethiopian, Umm al-Qura and Persian calendars and Latin digits by default; `I18N-006` the `l10n_missing` event; `I18N-008` statuses in the document, the translator role and permissions, a lock per locale and approval-only releases; `A11Y-002`–`A11Y-004` severities and `accessibilityBlocksPublish` (§15.12); `A11Y-008` waivers and JSON/HTML reports; `QA-011` accessibility-tree passes in CI and live screen readers on the device checklist; `TST-003` `plux golden` and the optional gate; `GOV-002` notes the P8 translator role; `RT-060` adds `plux_player`, `plux_markdown`, `plux_maps_google`; §17.1 locale data and calendars; Appendix C package columns, Appendix D `announce`, Appendix E `device` fields, Appendix F `PLX-9300`, Appendix G.2 `l10n_missing`; §32 ADRs 0066–0071. The 1.4.1–1.5.1 rows move from the field table into this history, unchanged. |

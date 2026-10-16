@@ -75,5 +75,11 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0063](0063-function-builds-provenance.md) | Function builds on the server: the builder role, provenance and versions | P7 | Proposed |
 | [0064](0064-function-isolation.md) | Function isolation: runner, egress, key-value store and limits | P7 | Proposed |
 | [0065](0065-imported-signing-keys-apple-receipt.md) | Imported signing keys and Apple's fraud-metric receipt | P7 | Proposed |
+| [0066](0066-localisation-engine.md) | Localisation engine: CLDR data per app locale in the bundle, MessageFormat, Flutter's widget strings | P8 | Proposed |
+| [0067](0067-calendar-systems.md) | Calendar systems: Gregorian, Ethiopian, Umm al-Qura and Persian behind one interface | P8 | Proposed |
+| [0068](0068-translation-workflow.md) | Translation workflow: statuses in the document, roles, formats | P8 | Proposed |
+| [0069](0069-accessibility-checks-and-report.md) | Accessibility checks at publish, waivers, report and runtime semantics | P8 | Proposed |
+| [0070](0070-golden-tests.md) | Golden tests: harness, canonical renderer, server baselines, publish gate | P8 | Proposed |
+| [0071](0071-catalogue-completion.md) | Catalogue completion: the widget catch-up, widget packages and `catalogue-check` | P8 | Proposed |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.
