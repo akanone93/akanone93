@@ -162,6 +162,9 @@
       "items": {
         "$ref": "common.schema.json#/$defs/timeline"
       }
+    },
+    "a11yWaivers": {
+      "$ref": "common.schema.json#/$defs/a11yWaivers"
     }
   },
   "patternProperties": {

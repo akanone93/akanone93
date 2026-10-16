@@ -36,6 +36,16 @@
         "type": "string",
         "maxLength": 65536
       }
+    },
+    "states": {
+      "type": "object",
+      "description": "Review state of each message, by translation-key identifier (I18N-008).",
+      "propertyNames": {
+        "$ref": "common.schema.json#/$defs/id"
+      },
+      "additionalProperties": {
+        "$ref": "common.schema.json#/$defs/translationState"
+      }
     }
   },
   "patternProperties": {

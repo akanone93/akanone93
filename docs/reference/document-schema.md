@@ -103,6 +103,8 @@ An app: its plugins, theme, locales, environments, shared data and policies (SCH
 | `telemetry` | [TelemetryPolicy](#telemetrypolicy) |  | What the runtime reports (ANL-003, ADR-0034). |
 | `push` | [PushPolicy](#pushpolicy) |  | Push notifications (NAV-008, ADR-0040): whether the app uses them, so a generated project carries the platform configuration, and the payload key under which a notification names `{route, params}` for `Plux.handlePushPayload`. |
 | `triggers` | [Triggers](#triggers) |  | Triggers besides widget events and page lifecycle (ACT-002), and the owner's error handler (ACT-020). A page's runs are cancelled with the page; a plugin's and the app's run while the release is active. |
+| `localisation` | [LocalisationSettings](#localisationsettings) |  | Calendars, numbering systems and translation policy (I18N-010, I18N-011, I18N-008, I18N-013). |
+| `goldens` | [GoldenSettings](#goldensettings) |  | Golden-image test policy (TST-003). |
 
 ### AppSecurity
 
@@ -147,6 +149,7 @@ An asset file.
 | `file` | string | yes | Path under `assets/`. |
 | `mediaType` | [MediaType](#mediatype) | yes | Media type of an asset. |
 | `description` | string |  | Human-readable description. |
+| `locales` | map of string |  | Per-locale variants of the file (I18N-012). |
 
 ### AssetIndexDocument
 
@@ -170,6 +173,12 @@ Asset reference (SCH-011).
 ### AssuranceLevel
 
 One of `AL0`, `AL1`, `AL2`, `AL3`.
+
+### Calendar
+
+A calendar system (I18N-010).
+
+One of `gregorian`, `ethiopic`, `islamic-umalqura`, `persian`.
 
 ### Capabilities
 
@@ -538,6 +547,32 @@ The business error the function must return.
 |---|---|---|---|
 | `code` | string | yes |  |
 
+### GoldenMatrix
+
+What a golden run renders.
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `frames` | list of string |  |  |
+| `themes` | list of [GoldenTheme](#goldentheme) |  |  |
+| `textScales` | list of number |  |  |
+| `locales` | list of string |  |  |
+
+### GoldenSettings
+
+Golden-image test policy (TST-003).
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `blockPublish` | boolean |  | Whether publishing needs an approved golden run. |
+| `matrix` | [GoldenMatrix](#goldenmatrix) |  | What a golden run renders. |
+
+### GoldenTheme
+
+A theme a golden run renders.
+
+One of `light`, `dark`.
+
 ### HostBuild
 
 The host app build the catalogue describes.
@@ -595,6 +630,18 @@ Lifecycle handlers (SCH-022).
 | `onResume` | [EventHandler](#eventhandler) |  | A trigger's handler: a reference to an action graph or an inline graph (SCH-023). |
 | `onLeave` | [EventHandler](#eventhandler) |  | A trigger's handler: a reference to an action graph or an inline graph (SCH-023). |
 | `onDispose` | [EventHandler](#eventhandler) |  | A trigger's handler: a reference to an action graph or an inline graph (SCH-023). |
+
+### LocalisationSettings
+
+Calendars, numbering systems and translation policy (I18N-010, I18N-011, I18N-008, I18N-013).
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `calendar` | [Calendar](#calendar) |  | The calendar dates are shown in; `gregorian` when absent. |
+| `secondaryCalendar` | [Calendar](#calendar) |  | A second calendar shown beside the first; none when absent. |
+| `numberingSystem` | map of [NumberingSystem](#numberingsystem) |  | Numbering system per locale; `latn` when absent. |
+| `requireApprovedTranslations` | boolean |  | Whether publishing needs every message at `approved`. |
+| `pseudoLocales` | boolean |  | Whether pseudo-locales are offered; refused in production environments (PLX-1614). |
 
 ### MediaType
 
@@ -696,6 +743,9 @@ A node of a page or component tree: a widget or a component instance (SCH-023).
 | `testId` | string |  | Stable identifier for tests (WGT-013). |
 | `responsive` | [Responsive](#responsive) |  | Prop overrides per window size class; `compact` is the base and overrides cascade (WGT-010). |
 | `animation` | [NodeAnimation](#nodeanimation) |  | The animations of a node (ANI-001, ANI-003, ANI-004): `durationMs` animates the node's animatable props (numbers and colours) whenever their bound value changes; `enter` and `exit` play when the node is inserted or its visibility changes; `hero` is the tag of a shared-element transition. |
+| `direction` | [TextDirection](#textdirection) |  | Text direction of a subtree (I18N-005). |
+| `localeOverrides` | map of map of JSON value |  | Prop overrides per locale (I18N-012). |
+| `a11yWaivers` | map of string |  | Accessibility checks waived, each with its justification (A11Y-008). |
 
 ### NodeAnimation
 
@@ -711,6 +761,12 @@ The animations of a node (ANI-001, ANI-003, ANI-004): `durationMs` animates the 
 | `exit` | [AnimTransition](#animtransition) |  | An enter or exit transition of a node (ANI-003). |
 | `hero` | JSON value |  | The hero tag, a string. |
 | `reduceMotion` | [ReduceMotion](#reducemotion) |  | What an animation does when the platform asks to reduce motion (ANI-007): `skip` jumps to the final state, `shorten` plays at a quarter of the duration, `ignore` plays as declared (for motion that carries meaning). |
+
+### NumberingSystem
+
+`latn` for Western digits, `native` for the locale's own (I18N-011).
+
+One of `latn`, `native`.
 
 ### PageDocument
 
@@ -737,6 +793,7 @@ A page: route, parameters, state, data, lifecycle and node tree (SCH-022). File:
 | `root` | [Node](#node) | yes | A node of a page or component tree: a widget or a component instance (SCH-023). |
 | `forms` | list of [Form](#form) |  | The forms of the page (STA-020). |
 | `animations` | list of [Timeline](#timeline) |  |  |
+| `a11yWaivers` | map of string |  | Accessibility checks waived, each with its justification (A11Y-008). |
 
 ### PageKind
 
@@ -1010,6 +1067,10 @@ Accessibility semantics of a node (A11Y-002).
 | `button` | boolean |  |  |
 | `liveRegion` | boolean |  |  |
 | `excludeSemantics` | boolean |  |  |
+| `focusOrder` | number |  |  |
+| `group` | boolean |  |  |
+| `headingLevel` | integer |  |  |
+| `decorative` | boolean |  |  |
 
 ### Shell
 
@@ -1182,6 +1243,12 @@ Who can insert the template (SCH-031).
 
 One of `private`, `organization`, `public`.
 
+### TextDirection
+
+Text direction of a subtree (I18N-005).
+
+One of `ltr`, `rtl`, `inherit`.
+
 ### ThemeDocument
 
 Design tokens for light and dark modes (THM-001, THM-002). File: `theme.json`.
@@ -1278,6 +1345,7 @@ A translation key.
 | `description` | string |  | Human-readable description. |
 | `maxLength` | integer |  |  |
 | `args` | list of [Field](#field) |  |  |
+| `screenshot` | [AssetRef](#assetref) |  | Asset reference (SCH-011). |
 
 ### TranslationKeysDocument
 
@@ -1290,6 +1358,12 @@ The translation keys of an app, referenced by identifier (I18N-007). File: `tran
 | `id` | string | yes | Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). |
 | `keys` | list of [TranslationKey](#translationkey) | yes |  |
 
+### TranslationState
+
+Review state of a message (I18N-008).
+
+One of `new`, `translated`, `reviewed`, `approved`.
+
 ### TranslationsDocument
 
 The messages of one locale, by translation-key identifier, in ICU MessageFormat (I18N-001). File: `translations/<locale>.json`.
@@ -1301,6 +1375,7 @@ The messages of one locale, by translation-key identifier, in ICU MessageFormat 
 | `id` | string | yes | Immutable UUIDv7 identifier in canonical lower-case form (SCH-002). |
 | `locale` | string | yes | BCP 47 language tag: language, optional script, optional region. |
 | `messages` | map of string | yes |  |
+| `states` | map of [TranslationState](#translationstate) |  | Review state of each message, by translation-key identifier (I18N-008). |
 
 ### Triggers
 

@@ -3542,6 +3542,17 @@ ID 73 · revision 1
 | `seek` | 4 | Jump to a position. |
 | `stop` | 5 | Stop and return to the start. |
 
+### Assertiveness
+
+How urgently a screen reader announces a message (A11Y-006).
+
+ID 77 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `polite` | 1 |  |
+| `assertive` | 2 |  |
+
 ### AutovalidateMode
 
 Mirrors the Flutter enum AutovalidateMode.

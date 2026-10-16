@@ -6,6 +6,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 
 | Key | Unit | Default | Warning | Maximum | Scopes | Phase | Requirements | Description |
 |---|---|---|---|---|---|---|---|---|
+| `a11y.waiversPerPlugin` | count | 50 | 80% | 1000 | installation, organization, app, plugin | P8 | A11Y-008 | Accessibility waivers one plugin may declare. |
 | `action.forEachItems` | count | 1000 | 80% | 100000 | installation, organization, app, plugin | P5 | ACT-005 | Items one forEach step may iterate over. |
 | `action.queueLength` | count | 32 | 80% | 1000 | installation, organization, app | P5 | ACT-003 | Triggers a handler with the queue policy may hold while its run is in progress; a trigger beyond it is dropped and reported. |
 | `action.runTimeout` | milliseconds | 120000 | 80% | 3600000 | installation, organization, app, plugin | P4 | ACT-005 | Time one action run may take. |
@@ -23,7 +24,9 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `api.requestsPerMinutePerAddress` | count | 300 | 80% | 100000 | installation | P2 | SRV-065 | API calls one client address may make per minute, whoever is calling. |
 | `api.requestsPerMinutePerDevice` | count | 120 | 80% | 10000 | installation, organization, app | P2 | SRV-065 | API calls one registered device may make per minute. |
 | `app.functions` | count | 100 | 80% | 1000 | installation, organization, app | P7 | LIM-001 | Functions per app. |
+| `app.locales` | count | 50 | 80% | 300 | installation, organization, app | P8 | I18N-002 | Locales one app may declare. |
 | `app.plugins` | count | 200 | 80% | 1000 | installation, organization, app | P1 | SCH-005 | Plugins per app. |
+| `app.translationKeys` | count | 10000 | 80% | 100000 | installation, organization, app | P8 | I18N-007 | Translation keys one app may declare. |
 | `asset.fileSize` | bytes | 10485760 | 80% | 104857600 | installation, organization, app | P2 | SRV-060, AST-003 | Size of one asset file, checked at upload and again at publish. |
 | `asset.imagePixels` | count | 40000000 | 80% | 100000000 | installation | P2 | SRV-060, CMP-030 | Pixels of one image asset, width times height, checked before it is decoded so that a small file cannot expand into a huge image. |
 | `attest.appAttestObjectBytes` | bytes | 65536 | 80% | 262144 | installation | P6 | SEC-004 | Size of an App Attest attestation object or assertion. |
@@ -95,6 +98,9 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `gateway.requestsPerMinutePerDevice` | count | 600 | 80% | 10000 | installation, organization, app | P6 | SEC-031, LIM-004 | Gateway requests one device may send per minute. |
 | `gateway.responseBytes` | bytes | 8388608 | 80% | 67108864 | installation, organization, app | P6 | SEC-031, LIM-004 | Bytes of upstream response body the gateway returns to a device. |
 | `gateway.timeout` | milliseconds | 10000 | 80% | 60000 | installation, organization, app | P6 | SEC-031, LIM-004 | Milliseconds the gateway waits for an upstream to answer. |
+| `golden.baselineBytesPerPlugin` | bytes | 268435456 | 80% | 4294967296 | installation, organization, app | P8 | TST-003 | Golden baseline images one plugin may store. |
+| `golden.casesPerRun` | count | 500 | 80% | 10000 | installation, organization, app | P8 | TST-003 | Golden cases one run may contain. |
+| `golden.imageBytes` | bytes | 2097152 | 80% | 16777216 | installation, organization, app | P8 | TST-003 | Size of one golden image. |
 | `http.responseSize` | bytes | 1048576 | 80% | 67108864 | installation | P2 | SEC-104, SEC-105 | Size of a response the server reads when it fetches a URL, such as an identity provider's keys. |
 | `page.animations` | count | 30 | 10 | 200 | installation, organization, app, plugin | P1 | CMP-040 | Animations that can run at the same time on one page. |
 | `page.buildCost` | microseconds | 16000 | 8000 | 100000 | installation, organization, app, plugin | P1 | CMP-040 | Estimated build time of a page on the mid-tier reference device, the sum of its widgets' cost hints. |
@@ -125,4 +131,6 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `state.secureBytes` | bytes | 65536 | 80% | 1048576 | installation, organization, app | P5 | STA-003, LIM-004 | Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported. |
 | `telemetry.bufferBytes` | bytes | 262144 | 80% | 4194304 | installation, organization, app | P3 | ANL-002 | The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first. |
 | `telemetry.eventsPerRequest` | count | 500 | 80% | 5000 | installation, organization, app | P2 | SEC-104 | Runtime events one telemetry request may carry. |
+| `translation.importSize` | bytes | 16777216 | 80% | 134217728 | installation, organization, app | P8 | I18N-009 | Size of one translation import file. |
+| `translation.messageSize` | bytes | 4096 | 80% | 65536 | installation, organization, app | P8 | I18N-001 | Size of one translation message. |
 | `updateMetadata.bytes` | bytes | 1048576 | 80% | 4194304 | installation | P6 | SEC-050 | Size of one update metadata file (root, snapshot or timestamp) a device accepts and the server serves. |

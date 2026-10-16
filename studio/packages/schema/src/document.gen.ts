@@ -109,6 +109,10 @@ export interface AppDocument {
   readonly push?: PushPolicy;
   /** Triggers besides widget events and page lifecycle (ACT-002), and the owner's error handler (ACT-020). A page's runs are cancelled with the page; a plugin's and the app's run while the release is active. */
   readonly triggers?: Triggers;
+  /** Calendars, numbering systems and translation policy (I18N-010, I18N-011, I18N-008, I18N-013). */
+  readonly localisation?: LocalisationSettings;
+  /** Golden-image test policy (TST-003). */
+  readonly goldens?: GoldenSettings;
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
@@ -158,6 +162,8 @@ export interface AssetEntry {
   readonly mediaType: MediaType;
   /** Human-readable description. */
   readonly description?: string;
+  /** Per-locale variants of the file (I18N-012). */
+  readonly locales?: { readonly [key: string]: string };
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
@@ -183,6 +189,9 @@ export interface AssetRef {
 }
 
 export type AssuranceLevel = "AL0" | "AL1" | "AL2" | "AL3";
+
+/** A calendar system (I18N-010). */
+export type Calendar = "gregorian" | "ethiopic" | "islamic-umalqura" | "persian";
 
 /** Capabilities the plugin requests; everything else is denied (SEC-080). */
 export interface Capabilities {
@@ -607,6 +616,29 @@ export interface FunctionTestError {
   readonly [extension: `x-${string}`]: unknown;
 }
 
+/** What a golden run renders. */
+export interface GoldenMatrix {
+  readonly frames?: readonly string[];
+  readonly themes?: readonly GoldenTheme[];
+  readonly textScales?: readonly number[];
+  readonly locales?: readonly string[];
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** Golden-image test policy (TST-003). */
+export interface GoldenSettings {
+  /** Whether publishing needs an approved golden run. */
+  readonly blockPublish?: boolean;
+  /** What a golden run renders. */
+  readonly matrix?: GoldenMatrix;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** A theme a golden run renders. */
+export type GoldenTheme = "light" | "dark";
+
 /** The host app build the catalogue describes. */
 export interface HostBuild {
   readonly appId?: string;
@@ -665,6 +697,22 @@ export interface Lifecycle {
   readonly onLeave?: EventHandler;
   /** A trigger's handler: a reference to an action graph or an inline graph (SCH-023). */
   readonly onDispose?: EventHandler;
+  /** Extension properties are preserved and ignored by the compiler (SCH-004). */
+  readonly [extension: `x-${string}`]: unknown;
+}
+
+/** Calendars, numbering systems and translation policy (I18N-010, I18N-011, I18N-008, I18N-013). */
+export interface LocalisationSettings {
+  /** The calendar dates are shown in; `gregorian` when absent. */
+  readonly calendar?: Calendar;
+  /** A second calendar shown beside the first; none when absent. */
+  readonly secondaryCalendar?: Calendar;
+  /** Numbering system per locale; `latn` when absent. */
+  readonly numberingSystem?: { readonly [key: string]: NumberingSystem };
+  /** Whether publishing needs every message at `approved`. */
+  readonly requireApprovedTranslations?: boolean;
+  /** Whether pseudo-locales are offered; refused in production environments (PLX-1614). */
+  readonly pseudoLocales?: boolean;
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
@@ -779,6 +827,12 @@ export interface Node {
   readonly responsive?: Responsive;
   /** The animations of a node (ANI-001, ANI-003, ANI-004): `durationMs` animates the node's animatable props (numbers and colours) whenever their bound value changes; `enter` and `exit` play when the node is inserted or its visibility changes; `hero` is the tag of a shared-element transition. */
   readonly animation?: NodeAnimation;
+  /** Text direction of a subtree (I18N-005). */
+  readonly direction?: TextDirection;
+  /** Prop overrides per locale (I18N-012). */
+  readonly localeOverrides?: { readonly [key: string]: { readonly [key: string]: JsonValue } };
+  /** Accessibility checks waived, each with its justification (A11Y-008). */
+  readonly a11yWaivers?: { readonly [key: string]: string };
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
@@ -802,6 +856,9 @@ export interface NodeAnimation {
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
+
+/** `latn` for Western digits, `native` for the locale's own (I18N-011). */
+export type NumberingSystem = "latn" | "native";
 
 /** A page: route, parameters, state, data, lifecycle and node tree (SCH-022). File: `plugins/<plugin>/pages/<key>.page.json`. */
 export interface PageDocument {
@@ -838,6 +895,8 @@ export interface PageDocument {
   /** The forms of the page (STA-020). */
   readonly forms?: readonly Form[];
   readonly animations?: readonly Timeline[];
+  /** Accessibility checks waived, each with its justification (A11Y-008). */
+  readonly a11yWaivers?: { readonly [key: string]: string };
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
@@ -1127,6 +1186,10 @@ export interface Semantics {
   readonly button?: boolean;
   readonly liveRegion?: boolean;
   readonly excludeSemantics?: boolean;
+  readonly focusOrder?: number;
+  readonly group?: boolean;
+  readonly headingLevel?: number;
+  readonly decorative?: boolean;
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
@@ -1326,6 +1389,9 @@ export interface TemplateParameter {
 /** Who can insert the template (SCH-031). */
 export type TemplateVisibility = "private" | "organization" | "public";
 
+/** Text direction of a subtree (I18N-005). */
+export type TextDirection = "ltr" | "rtl" | "inherit";
+
 /** Design tokens for light and dark modes (THM-001, THM-002). File: `theme.json`. */
 export interface ThemeDocument {
   /** Version of the document schema (SCH-000). Older documents are migrated before validation. */
@@ -1430,6 +1496,8 @@ export interface TranslationKey {
   readonly description?: string;
   readonly maxLength?: number;
   readonly args?: readonly Field[];
+  /** Asset reference (SCH-011). */
+  readonly screenshot?: AssetRef;
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }
@@ -1446,6 +1514,9 @@ export interface TranslationKeysDocument {
   readonly [extension: `x-${string}`]: unknown;
 }
 
+/** Review state of a message (I18N-008). */
+export type TranslationState = "new" | "translated" | "reviewed" | "approved";
+
 /** The messages of one locale, by translation-key identifier, in ICU MessageFormat (I18N-001). File: `translations/<locale>.json`. */
 export interface TranslationsDocument {
   /** Version of the document schema (SCH-000). Older documents are migrated before validation. */
@@ -1456,6 +1527,8 @@ export interface TranslationsDocument {
   /** BCP 47 language tag: language, optional script, optional region. */
   readonly locale: string;
   readonly messages: { readonly [key: string]: string };
+  /** Review state of each message, by translation-key identifier (I18N-008). */
+  readonly states?: { readonly [key: string]: TranslationState };
   /** Extension properties are preserved and ignored by the compiler (SCH-004). */
   readonly [extension: `x-${string}`]: unknown;
 }

@@ -1033,6 +1033,21 @@
         },
         "excludeSemantics": {
           "type": "boolean"
+        },
+        "focusOrder": {
+          "type": "number",
+          "minimum": 0
+        },
+        "group": {
+          "type": "boolean"
+        },
+        "headingLevel": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "decorative": {
+          "type": "boolean"
         }
       },
       "patternProperties": {
@@ -1153,6 +1168,22 @@
         },
         "animation": {
           "$ref": "#/$defs/nodeAnimation"
+        },
+        "direction": {
+          "$ref": "#/$defs/textDirection"
+        },
+        "localeOverrides": {
+          "type": "object",
+          "description": "Prop overrides per locale (I18N-012).",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/locale"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/props"
+          }
+        },
+        "a11yWaivers": {
+          "$ref": "#/$defs/a11yWaivers"
         }
       },
       "patternProperties": {
@@ -1752,6 +1783,72 @@
         "drag"
       ],
       "description": "What moves a driven timeline (ANI-006)."
+    },
+    "a11yWaivers": {
+      "type": "object",
+      "x-plux-type": "A11yWaivers",
+      "description": "Accessibility checks waived, each with its justification (A11Y-008).",
+      "propertyNames": {
+        "$ref": "#/$defs/a11yCheck"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 10,
+        "description": "Why the check does not apply."
+      }
+    },
+    "calendar": {
+      "enum": [
+        "gregorian",
+        "ethiopic",
+        "islamic-umalqura",
+        "persian"
+      ],
+      "description": "A calendar system (I18N-010)."
+    },
+    "numberingSystem": {
+      "enum": [
+        "latn",
+        "native"
+      ],
+      "description": "`latn` for Western digits, `native` for the locale's own (I18N-011)."
+    },
+    "translationState": {
+      "enum": [
+        "new",
+        "translated",
+        "reviewed",
+        "approved"
+      ],
+      "description": "Review state of a message (I18N-008)."
+    },
+    "textDirection": {
+      "enum": [
+        "ltr",
+        "rtl",
+        "inherit"
+      ],
+      "description": "Text direction of a subtree (I18N-005)."
+    },
+    "a11yCheck": {
+      "enum": [
+        "accessibleName",
+        "imageAlternative",
+        "contrast",
+        "touchTarget",
+        "fixedHeightText",
+        "focusOrder",
+        "headingLevel",
+        "liveRegion"
+      ],
+      "description": "An accessibility check that can be waived (A11Y-008)."
+    },
+    "goldenTheme": {
+      "enum": [
+        "light",
+        "dark"
+      ],
+      "description": "A theme a golden run renders."
     }
   }
 }

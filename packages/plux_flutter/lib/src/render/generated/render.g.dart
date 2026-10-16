@@ -31,6 +31,13 @@ String? nameAnimationCommand(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a Assertiveness, from its permanent value ID or name.
+String? nameAssertiveness(Decoding d, Object? v) => switch (v) {
+  1 || 'polite' => 'polite',
+  2 || 'assertive' => 'assertive',
+  _ => null,
+};
+
 /// The member name of a AutovalidateMode, from its permanent value ID or name.
 String? nameAutovalidateMode(Decoding d, Object? v) => switch (v) {
   1 || 'disabled' => 'disabled',

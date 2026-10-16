@@ -41,8 +41,8 @@ type limitsFile struct {
 var (
 	limitUnits    = []string{"bytes", "count", "microseconds", "milliseconds", "operations", "codepoints"}
 	limitScopes   = []string{"installation", "organization", "app", "plugin"}
-	limitEnforcer = []string{"compiler", "server", "runtime", "studio"}
-	limitKey      = regexp.MustCompile(`^[a-z][a-zA-Z]*\.[a-z][a-zA-Z]*$`)
+	limitEnforcer = []string{"compiler", "server", "runtime", "studio", "cli"}
+	limitKey      = regexp.MustCompile(`^[a-z][a-zA-Z0-9]*\.[a-z][a-zA-Z]*$`)
 	requirementID = regexp.MustCompile(`^[A-Z0-9]+-[0-9]{3}$`)
 	phaseTag      = regexp.MustCompile(`^P([0-9]|1[0-5])$`)
 )

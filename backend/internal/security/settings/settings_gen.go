@@ -140,6 +140,9 @@ type Key string
 const (
 	// AccessTokenLifetime: How long an access token stays valid. (SEC-020)
 	AccessTokenLifetime Key = "accessTokenLifetime"
+	// AccessibilityBlocksPublish: Whether accessibility errors that are not
+	// waived block publishing a release. (A11Y-002, A11Y-008)
+	AccessibilityBlocksPublish Key = "accessibilityBlocksPublish"
 	// AllowDirectDataSources: Whether plugins may call data sources directly
 	// from the device instead of through the server. (SEC-030)
 	AllowDirectDataSources Key = "allowDirectDataSources"
@@ -248,6 +251,12 @@ func All() []Setting {
 			Defaults:        Defaults{Standard: IntValue(300), Strict: IntValue(300), Maximum: IntValue(300)},
 			TravelsToDevice: false, Phase: "P6", Requirements: []string{"SEC-020"},
 			Description: "How long an access token stays valid.",
+		},
+		{
+			Key: AccessibilityBlocksPublish, Type: TypeBool, Tighter: TighterTrue,
+			Defaults:        Defaults{Standard: BoolValue(false), Strict: BoolValue(true), Maximum: BoolValue(true)},
+			TravelsToDevice: false, Phase: "P8", Requirements: []string{"A11Y-002", "A11Y-008"},
+			Description: "Whether accessibility errors that are not waived block publishing a release.",
 		},
 		{
 			Key: AllowDirectDataSources, Type: TypeBool, Tighter: TighterFalse,

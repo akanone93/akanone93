@@ -1,0 +1,27 @@
+{
+  "$schema": "../json/registry/action.schema.json",
+  "name": "announce",
+  "id": 58,
+  "phase": "P8",
+  "category": "feedback",
+  "description": "Has the screen reader announce a message without moving focus (A11Y-006).",
+  "inputs": [
+    {
+      "name": "message",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The translated message to announce."
+    },
+    {
+      "name": "assertiveness",
+      "id": 2,
+      "type": "Assertiveness",
+      "default": "polite",
+      "description": "Whether the announcement waits for the current speech or interrupts it."
+    }
+  ],
+  "effects": [
+    "ui"
+  ]
+}
