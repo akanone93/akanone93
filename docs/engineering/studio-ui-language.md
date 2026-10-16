@@ -2,21 +2,22 @@
 
 How Plux Studio looks and behaves: colour, shape, type, motion, and every area page by page. [studio-development.md](studio-development.md) says how Studio is built; this document says what it should feel like and why.
 
-**In one line:** a calm, white workspace where the evidence is always one glance away.
+**In one line:** a calm, white, compact workspace where the screen being built comes first and the evidence is always one glance away.
 
 Studio's users include banks, ministries and regulated companies. They do not buy excitement; they buy the feeling that nothing can go wrong unnoticed. Studio's creativity therefore goes into clarity, trust and flow, not decoration: a quiet, well-lit workspace, few colours, everything in its place, and a handful of careful details people notice on day three, not on first sight.
 
-The direction follows `STU-010` (light and whitish, 12–20 px radii, floating panels with soft shadows, colour for meaning), `STU-011` (WCAG 2.2 AA), `STU-012` (English, German, Arabic, with RTL) and the brand tokens of spec Appendix J (`STU-016`).
+The direction builds on `STU-011` (WCAG 2.2 AA), `STU-012` (English, German, Arabic, with RTL) and the neutral and status tokens of spec Appendix J (`STU-016`). It departs from `STU-010` and Appendix J as written in three ways — small radii, docked panels and a light-blue accent instead of violet — listed in §9.
 
 ---
 
 ## 1. Principles
 
 1. **White is the material.** Studio is about 85% white and near-white. Colour is rare, so when it appears it means something.
-2. **One accent, one meaning.** Plux Violet means *you*: your selection, your focus, the one primary action on the screen. Nothing else is violet.
-3. **Evidence is never hidden.** Who changed it, who approved it, what is signed, which environment — always visible in one quiet line, and a click away in full.
-4. **Calm by default, dense on demand.** Comfortable spacing for occasional users, compact density for power users, the same layout in both.
-5. **No surprises.** Destructive and production actions look and feel different from everyday actions, every time, everywhere.
+2. **The work comes first.** Compact chrome, docked panels and small radii give the screen being built as much room as possible; nothing covers the canvas by default.
+3. **One accent, one meaning.** Light blue means *you*: your selection, your focus, the one primary action on the screen. Nothing else is blue.
+4. **Evidence is never hidden.** Who changed it, who approved it, what is signed, which environment — always visible in one quiet line, and a click away in full.
+5. **Compact by default, roomier on request.** Compact density for everyone who builds screens all day; a comfortable option for occasional users; the same layout in both.
+6. **No surprises.** Destructive and production actions look and feel different from everyday actions, every time, everywhere.
 
 ## 2. Colour
 
@@ -31,8 +32,9 @@ The direction follows `STU-010` (light and whitish, 12–20 px radii, floating p
 | `text.secondary` | `#4F5568` | Labels and metadata, 7.4:1 |
 | `text.tertiary` | `#80869A` | Placeholders, disabled text, and input borders, which must reach 3:1 (3.6:1) |
 | `line.subtle` | `#E3E6ED` | Dividers and panel edges; decorative only |
-| `accent` | `#5B3DF5` | Selection, focus ring, primary button, 6.1:1 on white (`brand.violet`) |
-| `accent.subtle` | `#EEEAFE` | Selected rows, active tab (`brand.violet.subtle`) |
+| `accent` | `#2E8FE8` | Light blue: selection, focus ring, primary button, arrows; 3.4:1 on white, 3.2:1 on `bg.app` (component contrast) |
+| `accent.subtle` | `#E8F3FF` | Selected rows, active tabs, lane labels |
+| `accent.on` | `#0F1222` | Text and icons on an `accent` fill, 5.5:1; never white, which would reach only 3.4:1 |
 
 ### Status
 
@@ -47,7 +49,7 @@ Each status is a soft fill or icon with dark text, never coloured text on white 
 
 ### Dark
 
-The same structure on `#0B0D17` (`brand.surface` dark) with panels `#141726`, using Appendix J's dark values — text `#F5F6FA`, violet `#8B74FF`, mint `#38D9A9`, amber `#FFC53D` — and danger `#FF7066`. Every text pair reaches at least 5:1.
+The same structure on `#0B0D17` (`brand.surface` dark) with panels `#141726`, using Appendix J's dark values — text `#F5F6FA`, mint `#38D9A9`, amber `#FFC53D` — with the accent `#6CB8FF` (9.2:1; text on it `#0B0D17`), `accent.subtle` `#132A45`, and danger `#FF7066`. Every text pair reaches at least 5:1.
 
 ### Environment colour
 
@@ -57,19 +59,19 @@ Every screen shows which environment the user acts on, as a 2 px band along the 
 |---|---|---|
 | Development | none — the normal state | none |
 | Staging | amber | `STAGING` |
-| Production | violet | `PRODUCTION`, next to every action that reaches it |
+| Production | ink (`text.primary`) | `PRODUCTION`, next to every action that reaches it |
 
 "I didn't know I was in production" must be impossible.
 
 ## 3. Shape, depth and space
 
-- **Radius:** 12 px for controls, 16 px for panels and cards, 20 px for large dialogs and overlays. Tables and their rows stay square inside their rounded container: data reads as data.
-- **Depth:** three levels only.
-  - *Flat* — pages and tables.
-  - *Raised* — floating panels and cards, with a soft ink-tinted shadow (`0 1px 2px` at 4% and `0 8px 24px` at 6%).
-  - *Overlay* — dialogs and full-screen editors, with a stronger shadow and the content behind dimmed to 40%.
-  Nothing else casts a shadow.
-- **Space:** a 4 px grid. Comfortable density: 44 px rows, 16 px panel padding. Compact density: 32 px rows, 12 px padding. Data pages cap at 1,440 px and centre on wide screens.
+- **Radius:** 4 px for controls, inputs, chips and table containers; 6 px for cards, menus, dialogs and overlays. Nothing is more rounded than 6 px except avatars and status dots.
+- **Docked, not floating.** The action bar, the start and end panels and the bottom drawer are docked to the edges of the editor and separated from the canvas by a single hairline; the canvas fills the space between them and is never covered by default. Panels resize by dragging their edge and collapse to a 40 px icon rail.
+- **Floating as an option.** In profile settings, a user may switch to floating panels over the canvas. Floating panels sit on a strong background blur (about 24 px) with a near-opaque white fill, so the canvas behind is only a soft impression and never competes with the panel's content. Off by default.
+- **Depth:** two levels only.
+  - *Flat* — the shell, docked panels, pages and tables: hairlines, no shadows.
+  - *Overlay* — menus, popovers, dialogs and full-screen editors: one small shadow (`0 4px 12px` at 8%, ink-tinted), with the content behind dimmed to 40% for dialogs.
+- **Space:** a 4 px grid. Compact density (default): 28 px rows in panels and trees, 32 px rows in tables, 8 px panel padding, 12 px controls' horizontal padding. Comfortable density: 36 px and 40 px rows, 12 px padding. Data pages cap at 1,440 px and centre on wide screens.
 - **Lines over boxes.** Inside panels, sections are separated by space and one hairline, not by nested boxes.
 
 ## 4. Typography
@@ -133,14 +135,14 @@ Cards: the plugin-canvas snapshot on the top 60%; below it the name, team and de
 
 ### App canvas (`STU-030`–`STU-048`)
 
-`bg.app` with a barely visible dot grid. Plugins are raised white cards (16 px radius) with icon, name, screen count, version and status; native routes are dashed cards tagged "Native". Arrows are 1.5 px in `text.tertiary` with the count in a small white pill; on hover a bundle expands into labelled lanes and turns violet, and everything unrelated fades to 30%. Frames (`STU-035`) are lightly tinted titled regions. A minimap and zoom controls sit in the bottom corner.
+`bg.app` with a barely visible dot grid. Plugins are white cards (6 px radius, hairline border) with icon, name, screen count, version and status; native routes are dashed cards tagged "Native". Arrows are 1.5 px in `text.tertiary` with the count in a small white badge; on hover a bundle expands into labelled lanes and turns light blue, and everything unrelated fades to 30%. Frames (`STU-035`) are lightly tinted titled regions. A minimap and zoom controls sit in the bottom corner.
 
 ### Plugin canvas and screen editor (`STU-050`–`STU-069`)
 
 - **Device frames** have thin light-grey bezels so the content dominates; the screen name sits above each frame, with problems as a small danger count.
 - **Ghost screens** are 40% opacity with a dashed outline and an "Opens Cards › Card details" label.
-- **Action bar** (floating at the top centre): undo and redo, zoom, device, theme, locale, text scale, send to device, problem count, history, AI assistant, and **Publish** — the only filled violet button on the screen.
-- **Panels** float on both sides (16 px radius), with text-labelled tabs.
+- **Action bar** (docked along the top, 40 px): undo and redo, zoom, device, theme, locale, text scale, send to device, problem count, history, AI assistant, and **Publish** — the only filled light-blue button on the screen, with dark text.
+- **Panels** are docked on both sides (240 px by default, resizable, collapsible to an icon rail), with text-labelled tabs.
 - **Properties** are grouped and collapsible; defaults show in `text.tertiary`, changed values in `text.primary` with a "changed from default" dot; token-bound values show the token name and a swatch.
 - **Preview chip.** When the preview is not the default, a chip under the action bar says so — `Previewing: العربية · Dark · 200% · Error state ✕` — and resets it in one click.
 - **Overlays** (JSON, Rust, action graph, localisation table, theme and the others) are full-screen white sheets with a title bar and "Back to canvas"; the canvas stays paused behind them (`STU-063`).
@@ -180,7 +182,7 @@ API definitions as tables per environment: endpoint, method, authentication, moc
 
 ### Analytics (`STU-114`)
 
-A few large figures at the top — crash-free rate, active devices, adoption of the latest release, p95 render time — then charts in one main colour (`text.primary` at 80%), with violet only for the highlighted series and releases as thin labelled vertical markers. Errors link straight to their node in the editor.
+A few large figures at the top — crash-free rate, active devices, adoption of the latest release, p95 render time — then charts in one main colour (`text.primary` at 80%), with light blue only for the highlighted series and releases as thin labelled vertical markers. Errors link straight to their node in the editor.
 
 ### Devices and security (`STU-115`)
 
@@ -202,7 +204,7 @@ A centred white dialog with a large search field; results grouped as Screens, Pl
 
 ### Settings and profile (`STU-014`)
 
-One page: language with a live preview, theme (Light, Dark, System), density (Comfortable, Compact), shortcuts, and active sessions with "Sign out other sessions".
+One page: language with a live preview, theme (Light, Dark, System), density (Compact, Comfortable), shortcuts, and active sessions with "Sign out other sessions".
 
 ## 8. Right-to-left
 
@@ -213,6 +215,11 @@ One page: language with a live preview, theme (Light, Dark, System), density (Co
 
 ## 9. Relation to the specification
 
-- The direction follows `STU-010`, `STU-011`, `STU-012`, `STU-016` and Appendix J as written.
-- The danger colour (`#D92D20` light, `#FF7066` dark) is not yet an Appendix J token; it becomes one before the first Studio component uses it.
+- The direction follows `STU-011`, `STU-012` and the neutral and status tokens of Appendix J.
+- It departs from the specification as written, which changes in its own pull request:
+  - `STU-010` asks for radius tokens of 12–20 px and floating panels with soft shadows over the canvas; this document uses 4–6 px radii, docked panels, and floating panels over a blurred canvas only as an option.
+  - `STU-060`–`STU-062` describe a floating action bar and floating panels; here they are docked.
+  - Appendix J gives Plux Violet to primary actions, selection and arrows; here light blue (`#2E8FE8`, `#6CB8FF` dark) does that job, and violet stays the colour of the brand mark only.
+  - Figures 21-1 and 21-2 still show violet and floating panels.
+- The light-blue accent (`#2E8FE8` light, `#6CB8FF` dark) and the danger colour (`#D92D20` light, `#FF7066` dark) are not yet Appendix J tokens; they become tokens before the first Studio component uses them.
 - The interface typeface is chosen with the Studio stack decisions; until then this document names its requirements only.

@@ -88,13 +88,13 @@ The one enforced limit is Biome's `noExcessiveCognitiveComplexity`, already an e
 
 ## 4. Design system
 
-4.1. **Three token layers.** Brand tokens (`@plux/brand`, spec Appendix J) → semantic tokens (`surface.canvas`, `text.primary`, `accent.selection`, `status.warning`, `radius.panel`, `elevation.floating`) → component tokens where a component needs its own. Components use semantic or component tokens, never brand tokens directly, so a theme or a brand overlay changes one layer.
+4.1. **Three token layers.** Brand tokens (`@plux/brand`, spec Appendix J) → semantic tokens (`surface.canvas`, `text.primary`, `accent.selection`, `status.warning`, `radius.panel`, `elevation.overlay`) → component tokens where a component needs its own. Components use semantic or component tokens, never brand tokens directly, so a theme or a brand overlay changes one layer.
 
 4.2. **No raw values.** No hex, `rgb()`, `hsl()`, pixel, `rem` or shadow literals in components, and no Tailwind arbitrary values (`bg-[#…]`, `p-[13px]`, `rounded-[…]`). The Tailwind theme is generated from the tokens, so only token-backed utilities exist. A lint rule enforces this with the first component.
 
-4.3. **The visual language is specified** (`STU-010`): light and whitish by default, a dark theme, and a system setting; radius tokens 12–20 px; floating panels with soft shadows over the canvas; colour only for meaning (selection, status, arrows). A new colour use states its meaning in the token's name.
+4.3. **The visual language is compact** ([studio-ui-language.md](studio-ui-language.md)): light and whitish by default, a dark theme, and a system setting; radius tokens 4–6 px; the action bar, panels and bottom drawer docked around the canvas, separated by hairlines rather than shadows; light blue as the single accent; colour only for meaning (selection, status, arrows). Floating panels over a strongly blurred canvas are an option, off by default. A new colour use states its meaning in the token's name. This differs from `STU-010` and Appendix J as written; the specification follows in its own change.
 
-4.4. **Themes and density** (`STU-014`): light, dark and system; comfortable and compact density as token sets, not conditional class names. A high-contrast theme exists for the canvas preview (`STU-112`) and is offered for the shell.
+4.4. **Themes and density** (`STU-014`): light, dark and system; compact density by default and comfortable as the option, both as token sets, not conditional class names. A high-contrast theme exists for the canvas preview (`STU-112`) and is offered for the shell.
 
 4.5. **Contrast is computed, not eyeballed.** Every text/background and UI-component token pair is checked with the `@plux/brand` contrast utilities in both themes: 4.5:1 for text, 3:1 for large text and components (`STU-011`). The check is a unit test over the token tables.
 
@@ -168,7 +168,7 @@ Studio's own interface is localised and runs left-to-right and right-to-left (`S
 
 8.5. **The canvas does not mirror with the chrome.** The infinite canvas is a spatial design surface: its coordinates, the positions of screens and plugin boxes, rulers, zoom and keyboard nudging stay physical whatever the Studio language. What a device frame *shows* follows the **preview locale** (`STU-058`): an Arabic Studio user previewing an English screen sees it left-to-right, and the reverse. Studio direction and preview direction are two independent settings and are never derived from each other.
 
-8.6. **Panels mirror.** Floating left and right panels swap sides in RTL; the spec's "left panel" and "right panel" (`STU-061`, `STU-062`) mean *start* and *end* panels.
+8.6. **Panels mirror.** The docked left and right panels swap sides in RTL; the spec's "left panel" and "right panel" (`STU-061`, `STU-062`) mean *start* and *end* panels.
 
 8.7. **Numbers, code and identifiers stay LTR.** JSON, PXL, Rust, IDs, URLs, version numbers and keyboard shortcuts are rendered in an LTR-isolated span inside RTL text. Monaco editors are always LTR.
 
