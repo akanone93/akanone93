@@ -14,7 +14,7 @@ import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/core/config.dart' show PluxConsent;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/l10n/calendar/calendar.dart';
-import 'package:plux_flutter/src/l10n/cldr_index.dart';
+import 'package:plux_flutter/src/l10n/cldr_index.g.dart';
 import 'package:plux_flutter/src/l10n/l10n.dart';
 import 'package:plux_flutter/src/l10n/locale_controller.dart';
 import 'package:plux_flutter/src/state/providers.dart';

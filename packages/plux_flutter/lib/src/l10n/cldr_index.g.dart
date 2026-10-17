@@ -1,10 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: Apache-2.0
 
+// GENERATED CODE - DO NOT MODIFY BY HAND. Run 'make gen'
+// (tools/cmd/cldrindexdart, from schema/l10n/cldr/index.json).
+
 /// The part of `schema/l10n/cldr/index.json` that locale resolution needs,
 /// embedded so the runtime resolves a requested locale against a release's
-/// supported locales without reading a file (ADR-0066 § Resolution). A test
-/// compares both tables with the file, so they cannot drift (I18N-003).
+/// supported locales without reading a file (ADR-0066 § Resolution).
 library;
 
 import 'package:plux_flutter/src/l10n/resolve.dart';

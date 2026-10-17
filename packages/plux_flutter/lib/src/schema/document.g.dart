@@ -538,7 +538,7 @@ enum AssuranceLevel {
 enum Calendar {
   gregorian('gregorian'),
   ethiopic('ethiopic'),
-  islamicUmalqura('islamic-umalqura'),
+  islamicUmalqura('islamicUmalqura'),
   persian('persian');
 
   const Calendar(this.json);

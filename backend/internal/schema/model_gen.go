@@ -320,7 +320,7 @@ type Calendar string
 const (
 	CalendarGregorian       Calendar = "gregorian"
 	CalendarEthiopic        Calendar = "ethiopic"
-	CalendarIslamicUmalqura Calendar = "islamic-umalqura"
+	CalendarIslamicUmalqura Calendar = "islamicUmalqura"
 	CalendarPersian         Calendar = "persian"
 )
 

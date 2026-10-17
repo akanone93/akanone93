@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 	"testing/fstest"
 
@@ -323,5 +324,108 @@ func TestTextFontsAreSubsetToTheLocalesScripts(t *testing.T) {
 	}
 	if !found {
 		t.Fatal("the font is not indexed")
+	}
+}
+
+// Verifies: I18N-003.
+// A document's camelCase calendar names map to the CLDR keys the locale data
+// is keyed by.
+func TestCLDRCalendarKeys(t *testing.T) {
+	t.Parallel()
+	for in, want := range map[string]string{
+		"islamicUmalqura": "islamic-umalqura",
+		"ethiopic":        "ethiopic",
+		"persian":         "persian",
+		"gregorian":       "gregorian",
+	} {
+		if got := cldrCalendar(in); got != want {
+			t.Errorf("cldrCalendar(%q) = %q, want %q", in, got, want)
+		}
+	}
+	m := fixture(t)
+	edit(t, m, appFile, func(doc map[string]any) {
+		doc["localisation"] = map[string]any{"calendar": "islamicUmalqura"}
+	})
+	res := compileFS(m)
+	if res.Diagnostics.HasErrors() {
+		t.Fatal(list(res.Diagnostics))
+	}
+	var data struct {
+		Calendars map[string]json.RawMessage `json:"calendars"`
+	}
+	if err := json.Unmarshal(localeSection(t, res, "en").DataBytes(), &data); err != nil {
+		t.Fatal(err)
+	}
+	if data.Calendars["islamic-umalqura"] == nil {
+		t.Error("the locale data lacks the Umm al-Qura calendar")
+	}
+}
+
+// Verifies: I18N-003, I18N-011.
+// The app's localisation settings reach the app bundle's meta, numbering
+// systems sorted by locale; an app without them has no table.
+func TestMetaCarriesLocalisation(t *testing.T) {
+	t.Parallel()
+	meta := func(res *Result) *fbs.Meta {
+		if res.Diagnostics.HasErrors() {
+			t.Fatal(list(res.Diagnostics))
+		}
+		for _, s := range readAll(t, res)[0].Sections {
+			if s.Kind == bundle.SectionMeta {
+				return fbs.GetRootAsMeta(s.Data, 0)
+			}
+		}
+		t.Fatal("no meta section")
+		return nil
+	}
+	if meta(compileFS(fixture(t))).Localisation(nil) != nil {
+		t.Error("an app without localisation has a table")
+	}
+	m := fixture(t)
+	edit(t, m, appFile, func(doc map[string]any) {
+		doc["localisation"] = map[string]any{
+			"calendar":          "ethiopic",
+			"secondaryCalendar": "islamicUmalqura",
+			"numberingSystem":   map[string]any{"de": "latn", "ar": "native", "am": "native"},
+		}
+	})
+	res := compileFS(m)
+	l := meta(res).Localisation(nil)
+	if l == nil || string(l.Calendar()) != "ethiopic" || string(l.SecondaryCalendar()) != "islamicUmalqura" {
+		t.Fatalf("localisation = %v", l)
+	}
+	var got []string
+	var e fbs.NumberingSystemEntry
+	for i := range l.NumberingSystemsLength() {
+		if !l.NumberingSystems(&e, i) {
+			t.Fatal("entry unreadable")
+		}
+		got = append(got, string(e.Locale())+"="+string(e.System()))
+	}
+	if want := []string{"am=native", "ar=native", "de=latn"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("numbering systems = %v, want %v", got, want)
+	}
+	if !bytes.Equal(res.App.Data, compileFS(m).App.Data) {
+		t.Error("two compilations differ")
+	}
+}
+
+// Verifies: I18N-002, ACT-020.
+// The locale's flutter strings carry the runtime's own strings as the "plux"
+// group, from the locale's parent chain, else the default locale's.
+func TestLocaleCarriesRuntimeStrings(t *testing.T) {
+	t.Parallel()
+	res := compileFS(fixture(t))
+	if res.Diagnostics.HasErrors() {
+		t.Fatal(list(res.Diagnostics))
+	}
+	for tag, want := range map[string]string{"en": "Content unavailable", "de-DE": "Inhalt nicht verfügbar", "am-ET": "ይዘቱ አይገኝም"} {
+		var flutter map[string]map[string]string
+		if err := json.Unmarshal(localeSection(t, res, tag).FlutterBytes(), &flutter); err != nil {
+			t.Fatal(err)
+		}
+		if got := flutter["plux"]["plux.fallback.unavailable"]; got != want {
+			t.Errorf("%s: plux.fallback.unavailable = %q, want %q", tag, got, want)
+		}
 	}
 }

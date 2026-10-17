@@ -178,7 +178,7 @@ One of `AL0`, `AL1`, `AL2`, `AL3`.
 
 A calendar system (I18N-010).
 
-One of `gregorian`, `ethiopic`, `islamic-umalqura`, `persian`.
+One of `gregorian`, `ethiopic`, `islamicUmalqura`, `persian`.
 
 ### Capabilities
 

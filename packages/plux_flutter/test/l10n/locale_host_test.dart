@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:plux_flutter/src/l10n/cldr_index.dart';
+import 'package:plux_flutter/src/l10n/cldr_index.g.dart';
 import 'package:plux_flutter/src/l10n/locale_controller.dart';
 import 'package:plux_flutter/src/l10n/locale_host.dart';
 import 'package:plux_flutter/src/l10n/scope.dart';
