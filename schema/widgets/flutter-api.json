@@ -1921,6 +1921,82 @@
         ]
       }
     },
+    "package:flutter/material.dart#Autocomplete": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "optionsBuilder",
+            "type": "FutureOr<Iterable<T>> Function(TextEditingValue)",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "displayStringForOption",
+            "type": "String Function(T)",
+            "required": false,
+            "named": true,
+            "default": "RawAutocomplete.defaultStringForOption"
+          },
+          {
+            "name": "fieldViewBuilder",
+            "type": "Widget Function(BuildContext, TextEditingController, FocusNode, void Function())",
+            "required": false,
+            "named": true,
+            "default": "_defaultFieldViewBuilder"
+          },
+          {
+            "name": "focusNode",
+            "type": "FocusNode?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onSelected",
+            "type": "void Function(T)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "optionsMaxHeight",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "200.0"
+          },
+          {
+            "name": "optionsViewBuilder",
+            "type": "Widget Function(BuildContext, void Function(T), Iterable<T>)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "optionsViewOpenDirection",
+            "type": "OptionsViewOpenDirection",
+            "required": false,
+            "named": true,
+            "default": "OptionsViewOpenDirection.down"
+          },
+          {
+            "name": "textEditingController",
+            "type": "TextEditingController?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "initialValue",
+            "type": "TextEditingValue?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
     "package:flutter/material.dart#BackButton": {
       "constructors": {
         "": [
@@ -2100,6 +2176,155 @@
             "type": "double?",
             "required": false,
             "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#BottomNavigationBar": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "items",
+            "type": "List<BottomNavigationBarItem>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onTap",
+            "type": "void Function(int)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "currentIndex",
+            "type": "int",
+            "required": false,
+            "named": true,
+            "default": "0"
+          },
+          {
+            "name": "elevation",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "type",
+            "type": "BottomNavigationBarType?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "fixedColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "backgroundColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "iconSize",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "24.0"
+          },
+          {
+            "name": "selectedItemColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "unselectedItemColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "selectedIconTheme",
+            "type": "IconThemeData?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "unselectedIconTheme",
+            "type": "IconThemeData?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "selectedFontSize",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "14.0"
+          },
+          {
+            "name": "unselectedFontSize",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "12.0"
+          },
+          {
+            "name": "selectedLabelStyle",
+            "type": "TextStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "unselectedLabelStyle",
+            "type": "TextStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "showSelectedLabels",
+            "type": "bool?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "showUnselectedLabels",
+            "type": "bool?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "mouseCursor",
+            "type": "MouseCursor?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "enableFeedback",
+            "type": "bool?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "landscapeLayout",
+            "type": "BottomNavigationBarLandscapeLayout?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "useLegacyColorScheme",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
           }
         ]
       }
@@ -2293,6 +2518,74 @@
             "type": "Widget Function(BuildContext, Set<WidgetState>, Widget?)?",
             "required": false,
             "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#CalendarDatePicker": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "initialDate",
+            "type": "DateTime?",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "firstDate",
+            "type": "DateTime",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "lastDate",
+            "type": "DateTime",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "currentDate",
+            "type": "DateTime?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onDateChanged",
+            "type": "void Function(DateTime)",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onDisplayedMonthChanged",
+            "type": "void Function(DateTime)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "initialCalendarMode",
+            "type": "DatePickerMode",
+            "required": false,
+            "named": true,
+            "default": "DatePickerMode.day"
+          },
+          {
+            "name": "selectableDayPredicate",
+            "type": "bool Function(DateTime)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "calendarDelegate",
+            "type": "CalendarDelegate<DateTime>",
+            "required": false,
+            "named": true,
+            "default": "const GregorianCalendarDelegate()"
           }
         ]
       }
@@ -3836,6 +4129,72 @@
           {
             "name": "radius",
             "type": "BorderRadiusGeometry?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#Drawer": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "backgroundColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "elevation",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "shadowColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "surfaceTintColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "shape",
+            "type": "ShapeBorder?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "width",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "semanticLabel",
+            "type": "String?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "clipBehavior",
+            "type": "Clip?",
             "required": false,
             "named": true
           }
@@ -6439,6 +6798,484 @@
         ]
       }
     },
+    "package:flutter/material.dart#MenuAnchor": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "controller",
+            "type": "MenuController?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "childFocusNode",
+            "type": "FocusNode?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "style",
+            "type": "MenuStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "alignmentOffset",
+            "type": "Offset?",
+            "required": false,
+            "named": true,
+            "default": "Offset.zero"
+          },
+          {
+            "name": "reservedPadding",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "layerLink",
+            "type": "LayerLink?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "clipBehavior",
+            "type": "Clip",
+            "required": false,
+            "named": true,
+            "default": "Clip.hardEdge"
+          },
+          {
+            "name": "anchorTapClosesMenu",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false",
+            "deprecated": true
+          },
+          {
+            "name": "consumeOutsideTap",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "onOpen",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onClose",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "crossAxisUnconstrained",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "useRootOverlay",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "animated",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "onAnimationStatusChanged",
+            "type": "void Function(AnimationStatus)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "menuChildren",
+            "type": "List<Widget>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "builder",
+            "type": "Widget Function(BuildContext, MenuController, Widget?)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#NavigationBar": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "animationDuration",
+            "type": "Duration?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "selectedIndex",
+            "type": "int",
+            "required": false,
+            "named": true,
+            "default": "0"
+          },
+          {
+            "name": "destinations",
+            "type": "List<Widget>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onDestinationSelected",
+            "type": "void Function(int)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "backgroundColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "elevation",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "shadowColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "surfaceTintColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "indicatorColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "indicatorShape",
+            "type": "ShapeBorder?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "height",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "labelBehavior",
+            "type": "NavigationDestinationLabelBehavior?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "overlayColor",
+            "type": "WidgetStateProperty<Color?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "labelTextStyle",
+            "type": "WidgetStateProperty<TextStyle?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "labelPadding",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "maintainBottomViewPadding",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#NavigationDrawer": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "children",
+            "type": "List<Widget>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "header",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "footer",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "backgroundColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "shadowColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "surfaceTintColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "elevation",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "indicatorColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "indicatorShape",
+            "type": "ShapeBorder?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onDestinationSelected",
+            "type": "void Function(int)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "selectedIndex",
+            "type": "int?",
+            "required": false,
+            "named": true,
+            "default": "0"
+          },
+          {
+            "name": "tilePadding",
+            "type": "EdgeInsetsGeometry",
+            "required": false,
+            "named": true,
+            "default": "const EdgeInsets.symmetric(horizontal: 12.0)"
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#NavigationRail": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "backgroundColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "extended",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "leading",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "trailing",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "destinations",
+            "type": "List<NavigationRailDestination>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "selectedIndex",
+            "type": "int?",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onDestinationSelected",
+            "type": "void Function(int)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "elevation",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "groupAlignment",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "labelType",
+            "type": "NavigationRailLabelType?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "unselectedLabelTextStyle",
+            "type": "TextStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "selectedLabelTextStyle",
+            "type": "TextStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "unselectedIconTheme",
+            "type": "IconThemeData?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "selectedIconTheme",
+            "type": "IconThemeData?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "minWidth",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "minExtendedWidth",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "useIndicator",
+            "type": "bool?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "indicatorColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "indicatorShape",
+            "type": "ShapeBorder?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "leadingAtTop",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "trailingAtBottom",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "scrollable",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "mainAxisAlignment",
+            "type": "MainAxisAlignment?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
     "package:flutter/material.dart#OutlineInputBorder": {
       "constructors": {
         "": [
@@ -6534,6 +7371,203 @@
             "name": "child",
             "type": "Widget?",
             "required": true,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#PopupMenuButton": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "itemBuilder",
+            "type": "List<PopupMenuEntry<T>> Function(BuildContext)",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "initialValue",
+            "type": "T?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onOpened",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onSelected",
+            "type": "void Function(T)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onCanceled",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "tooltip",
+            "type": "String?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "elevation",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "shadowColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "surfaceTintColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "padding",
+            "type": "EdgeInsetsGeometry",
+            "required": false,
+            "named": true,
+            "default": "const EdgeInsets.all(8.0)"
+          },
+          {
+            "name": "menuPadding",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "borderRadius",
+            "type": "BorderRadius?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "splashRadius",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "icon",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "iconSize",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "offset",
+            "type": "Offset",
+            "required": false,
+            "named": true,
+            "default": "Offset.zero"
+          },
+          {
+            "name": "enabled",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "shape",
+            "type": "ShapeBorder?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "color",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "iconColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "enableFeedback",
+            "type": "bool?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "constraints",
+            "type": "BoxConstraints?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "position",
+            "type": "PopupMenuPosition?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "clipBehavior",
+            "type": "Clip",
+            "required": false,
+            "named": true,
+            "default": "Clip.none"
+          },
+          {
+            "name": "useRootNavigator",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "popUpAnimationStyle",
+            "type": "AnimationStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "routeSettings",
+            "type": "RouteSettings?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "style",
+            "type": "ButtonStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "requestFocus",
+            "type": "bool?",
+            "required": false,
             "named": true
           }
         ]
@@ -7707,6 +8741,402 @@
           {
             "name": "scrollbarOrientation",
             "type": "ScrollbarOrientation?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#SearchAnchor": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "isFullScreen",
+            "type": "bool?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "searchController",
+            "type": "SearchController?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewBuilder",
+            "type": "Widget Function(Iterable<Widget>)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewLeading",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewTrailing",
+            "type": "Iterable<Widget>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewHintText",
+            "type": "String?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewBackgroundColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewElevation",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewSurfaceTintColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewSide",
+            "type": "BorderSide?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewShape",
+            "type": "OutlinedBorder?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewBarPadding",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "headerHeight",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "headerTextStyle",
+            "type": "TextStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "headerHintStyle",
+            "type": "TextStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "dividerColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewConstraints",
+            "type": "BoxConstraints?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewPadding",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "shrinkWrap",
+            "type": "bool?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "textCapitalization",
+            "type": "TextCapitalization?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewOnChanged",
+            "type": "void Function(String)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewOnSubmitted",
+            "type": "void Function(String)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewOnClose",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "viewOnOpen",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "builder",
+            "type": "Widget Function(BuildContext, SearchController)",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "suggestionsBuilder",
+            "type": "FutureOr<Iterable<Widget>> Function(BuildContext, SearchController)",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "textInputAction",
+            "type": "TextInputAction?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "keyboardType",
+            "type": "TextInputType?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "enabled",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "smartDashesType",
+            "type": "SmartDashesType?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "smartQuotesType",
+            "type": "SmartQuotesType?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#SearchBar": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "controller",
+            "type": "TextEditingController?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "focusNode",
+            "type": "FocusNode?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "hintText",
+            "type": "String?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "leading",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "trailing",
+            "type": "Iterable<Widget>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onTap",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onTapOutside",
+            "type": "void Function(PointerDownEvent)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onChanged",
+            "type": "void Function(String)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onSubmitted",
+            "type": "void Function(String)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "constraints",
+            "type": "BoxConstraints?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "elevation",
+            "type": "WidgetStateProperty<double?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "backgroundColor",
+            "type": "WidgetStateProperty<Color?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "shadowColor",
+            "type": "WidgetStateProperty<Color?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "surfaceTintColor",
+            "type": "WidgetStateProperty<Color?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "overlayColor",
+            "type": "WidgetStateProperty<Color?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "side",
+            "type": "WidgetStateProperty<BorderSide?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "shape",
+            "type": "WidgetStateProperty<OutlinedBorder?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "padding",
+            "type": "WidgetStateProperty<EdgeInsetsGeometry?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "textStyle",
+            "type": "WidgetStateProperty<TextStyle?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "hintStyle",
+            "type": "WidgetStateProperty<TextStyle?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "textCapitalization",
+            "type": "TextCapitalization?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "enabled",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "autoFocus",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "textInputAction",
+            "type": "TextInputAction?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "keyboardType",
+            "type": "TextInputType?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "scrollPadding",
+            "type": "EdgeInsets",
+            "required": false,
+            "named": true,
+            "default": "const EdgeInsets.all(20.0)"
+          },
+          {
+            "name": "contextMenuBuilder",
+            "type": "Widget Function(BuildContext, EditableTextState)?",
+            "required": false,
+            "named": true,
+            "default": "_defaultContextMenuBuilder"
+          },
+          {
+            "name": "readOnly",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "smartDashesType",
+            "type": "SmartDashesType?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "smartQuotesType",
+            "type": "SmartQuotesType?",
             "required": false,
             "named": true
           }
@@ -9444,6 +10874,260 @@
             "required": false,
             "named": true,
             "default": "false"
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#TabBar": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "tabs",
+            "type": "List<Widget>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "controller",
+            "type": "TabController?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "scrollController",
+            "type": "TabBarScrollController?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "isScrollable",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "padding",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "indicatorColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "automaticIndicatorColorAdjustment",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "indicatorWeight",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "2.0"
+          },
+          {
+            "name": "indicatorPadding",
+            "type": "EdgeInsetsGeometry",
+            "required": false,
+            "named": true,
+            "default": "EdgeInsets.zero"
+          },
+          {
+            "name": "indicator",
+            "type": "Decoration?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "indicatorSize",
+            "type": "TabBarIndicatorSize?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "dividerColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "dividerHeight",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "labelColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "labelStyle",
+            "type": "TextStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "labelPadding",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "unselectedLabelColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "unselectedLabelStyle",
+            "type": "TextStyle?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "dragStartBehavior",
+            "type": "DragStartBehavior",
+            "required": false,
+            "named": true,
+            "default": "DragStartBehavior.start"
+          },
+          {
+            "name": "overlayColor",
+            "type": "WidgetStateProperty<Color?>?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "mouseCursor",
+            "type": "MouseCursor?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "enableFeedback",
+            "type": "bool?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onTap",
+            "type": "void Function(int)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onHover",
+            "type": "void Function(bool, int)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onFocusChange",
+            "type": "void Function(bool, int)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "physics",
+            "type": "ScrollPhysics?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "splashFactory",
+            "type": "InteractiveInkFeatureFactory?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "splashBorderRadius",
+            "type": "BorderRadius?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "tabAlignment",
+            "type": "TabAlignment?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "textScaler",
+            "type": "TextScaler?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "indicatorAnimation",
+            "type": "TabIndicatorAnimation?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/material.dart#TabBarView": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "children",
+            "type": "List<Widget>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "controller",
+            "type": "TabController?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "physics",
+            "type": "ScrollPhysics?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "dragStartBehavior",
+            "type": "DragStartBehavior",
+            "required": false,
+            "named": true,
+            "default": "DragStartBehavior.start"
+          },
+          {
+            "name": "viewportFraction",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "1.0"
+          },
+          {
+            "name": "clipBehavior",
+            "type": "Clip",
+            "required": false,
+            "named": true,
+            "default": "Clip.hardEdge"
           }
         ]
       }
@@ -16482,6 +18166,14 @@
         "name": "solid"
       }
     ],
+    "package:flutter/material.dart#BottomNavigationBarType": [
+      {
+        "name": "fixed"
+      },
+      {
+        "name": "shifting"
+      }
+    ],
     "package:flutter/material.dart#BoxFit": [
       {
         "name": "fill"
@@ -16717,6 +18409,28 @@
         "name": "shrinkWrap"
       }
     ],
+    "package:flutter/material.dart#NavigationDestinationLabelBehavior": [
+      {
+        "name": "alwaysShow"
+      },
+      {
+        "name": "alwaysHide"
+      },
+      {
+        "name": "onlyShowSelected"
+      }
+    ],
+    "package:flutter/material.dart#NavigationRailLabelType": [
+      {
+        "name": "none"
+      },
+      {
+        "name": "selected"
+      },
+      {
+        "name": "all"
+      }
+    ],
     "package:flutter/material.dart#ScrollViewKeyboardDismissBehavior": [
       {
         "name": "manual"
@@ -16818,6 +18532,14 @@
       },
       {
         "name": "square"
+      }
+    ],
+    "package:flutter/material.dart#TabBarIndicatorSize": [
+      {
+        "name": "tab"
+      },
+      {
+        "name": "label"
       }
     ],
     "package:flutter/material.dart#TextAlign": [

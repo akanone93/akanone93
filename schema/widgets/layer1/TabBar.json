@@ -1,0 +1,221 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "TabBar",
+  "id": 126,
+  "layer": 1,
+  "phase": "P4",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "class": "TabBar",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "navigation",
+  "icon": "tab",
+  "description": "A row of tabs; the selected one is `selectedIndex`, and tapping a tab fires `onTap` with its index.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "tab",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "tabs",
+      "id": 1,
+      "type": "list<TabItem>",
+      "required": true
+    },
+    {
+      "name": "selectedIndex",
+      "id": 2,
+      "type": "int",
+      "default": 0,
+      "description": "The selected tab; bind it to the state key a TabBarView shares."
+    },
+    {
+      "name": "isScrollable",
+      "id": 3,
+      "type": "bool",
+      "default": false,
+      "flutter": "isScrollable"
+    },
+    {
+      "name": "indicatorColor",
+      "id": 4,
+      "type": "color",
+      "flutter": "indicatorColor"
+    },
+    {
+      "name": "indicatorSize",
+      "id": 5,
+      "type": "TabBarIndicatorSize",
+      "flutter": "indicatorSize"
+    },
+    {
+      "name": "dividerColor",
+      "id": 6,
+      "type": "color",
+      "flutter": "dividerColor"
+    },
+    {
+      "name": "labelColor",
+      "id": 7,
+      "type": "color",
+      "flutter": "labelColor"
+    },
+    {
+      "name": "unselectedLabelColor",
+      "id": 8,
+      "type": "color",
+      "flutter": "unselectedLabelColor"
+    }
+  ],
+  "events": [
+    {
+      "name": "onTap",
+      "id": 1,
+      "payload": "int",
+      "flutter": "onTap"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "tabs",
+      "reason": "deferred",
+      "note": "Replaced by the `tabs` prop."
+    },
+    {
+      "flutter": "controller",
+      "reason": "controller→state",
+      "note": "The runtime owns it and binds it to state."
+    },
+    {
+      "flutter": "scrollController",
+      "reason": "controller→state",
+      "note": "The runtime owns it and binds it to state."
+    },
+    {
+      "flutter": "padding",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "automaticIndicatorColorAdjustment",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "indicatorWeight",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "indicatorPadding",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "indicator",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "dividerHeight",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "labelStyle",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "labelPadding",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "unselectedLabelStyle",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "dragStartBehavior",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "overlayColor",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "mouseCursor",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "enableFeedback",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "onHover",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "onFocusChange",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "physics",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "splashFactory",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "splashBorderRadius",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "tabAlignment",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "textScaler",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "indicatorAnimation",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    }
+  ]
+}

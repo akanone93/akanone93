@@ -1,0 +1,31 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "NavigationRailLabelType",
+  "id": 85,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "Mirrors the Flutter enum NavigationRailLabelType.",
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "enum": "NavigationRailLabelType"
+  },
+  "values": [
+    {
+      "name": "none",
+      "id": 1
+    },
+    {
+      "name": "selected",
+      "id": 2
+    },
+    {
+      "name": "all",
+      "id": 3
+    }
+  ]
+}

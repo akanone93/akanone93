@@ -1,0 +1,27 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "TabItem",
+  "id": 43,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "One tab of a TabBar.",
+  "fields": [
+    {
+      "name": "label",
+      "id": 1,
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "icon",
+      "id": 2,
+      "type": "IconData",
+      "description": "Icon above the label."
+    }
+  ]
+}
