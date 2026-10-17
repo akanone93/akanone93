@@ -7,6 +7,8 @@
 /// roots.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +38,8 @@ import 'package:plux_flutter/src/data/spec.dart';
 import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/forms/form_state.dart';
+import 'package:plux_flutter/src/l10n/locale_controller.dart';
+import 'package:plux_flutter/src/l10n/locale_host.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/navigation/guards.dart';
 import 'package:plux_flutter/src/navigation/page_navigator.dart';
@@ -921,7 +925,11 @@ final class PluxRenderer implements PageRenderer, RenderServices {
       return null;
     }
     if (a != null) {
-      for (final hash in preferredFiles(a, assets)) {
+      for (final hash in preferredFiles(
+        a,
+        assets,
+        locales: scope.localeChain,
+      )) {
         final path = scope.release.assetPath(hash);
         if (path != null) return PluxAssetImage(path, hash, _verified);
       }
@@ -1170,8 +1178,10 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
           false,
       presenter: (error) {
         if (!mounted) return;
-        ScaffoldMessenger.maybeOf(context)
-            ?.showSnackBar(SnackBar(content: Text(fallbackMessage(error))));
+        final strings = ref.read(localeControllerProvider).strings;
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(content: Text(fallbackMessage(error, strings))),
+        );
       },
     );
   }();
@@ -1438,10 +1448,18 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     final env = ref.watch(environmentProvider);
     final media = MediaQuery.maybeOf(context);
     _reduceMotion = media?.disableAnimations ?? false;
+    final locales = ref.watch(localeControllerProvider);
+    final haveRelease = ref.watch(localeReleaseProvider) != null;
+    // Not before the release's locale is decoded: a page never shows in the
+    // wrong formats and is never built twice for it (I18N-005).
+    if (haveRelease && locales.loading) return const SizedBox.shrink();
+    // A locale set with Plux.setLocale or PluxConfig sets the direction; one
+    // that follows the host leaves the host's direction in force.
+    final ownDirection = haveRelease && env.locale != null;
     final locale =
         env.locale ??
         Localizations.maybeLocaleOf(context) ??
-        const Locale('en');
+        (haveRelease ? locales.locale : const Locale('en'));
     final source = widget.renderer.config.themeSource;
     final host = Theme.of(context);
     // The mode the host sets with Plux.setThemeMode; otherwise the host
@@ -1463,7 +1481,10 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       boldText: media?.boldText ?? false,
       highContrast: media?.highContrast ?? false,
       screenReader: media?.accessibleNavigation ?? false,
-      textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
+      textDirection: ownDirection
+          ? locales.direction
+          : Directionality.maybeOf(context) ?? TextDirection.ltr,
+      calendar: locales.calendar,
     );
     Map<String, Object?> roots() => {
       _component ? 'props' : 'params': _params,
@@ -1506,14 +1527,31 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     final tags = [
       locale.toLanguageTag(),
       locale.languageCode,
+      if (haveRelease) ...locales.chain,
       widget.release.meta('').defaultLocale ?? '',
     ];
+    // The translations a locale further down the chain supplied for this
+    // build; debug builds mark their text (I18N-006).
+    final fellBack = <UuidKey>{};
     String? translation(UuidKey key) {
       for (final tag in tags) {
         if (tag.isEmpty) continue;
         // Plugin translations first, then the app's.
         final m = _plugin.message(tag, key) ?? _app.message(tag, key);
-        if (m != null) return m;
+        if (m != null) {
+          if (haveRelease && tag != tags.first && tag != locales.tag) {
+            fellBack.add(key);
+            // After the build: reporting must not rebuild what builds.
+            final requested = locales.tag;
+            final controller = ref.read(localeControllerProvider.notifier);
+            scheduleMicrotask(() {
+              if (mounted) {
+                controller.missing(uuidString(key), requested, tag);
+              }
+            });
+          }
+          return m;
+        }
       }
       return null;
     }
@@ -1535,7 +1573,8 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       token: (path) => theme.role(path) ?? tokens.read(path, appResolver),
       translation: translation,
       translationAst: translationAst,
-      localeContext: widget.renderer.localeContext,
+      localeContext: locales.pxl ?? widget.renderer.localeContext,
+      translationFellBack: (key) => kDebugMode && fellBack.contains(key),
       onMessageError: (problem) => widget.renderer.report(
         PluxException(PluxErrorCode.messageFormatFailed, problem),
       ),
@@ -1560,6 +1599,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       componentState: _component ? _instance : null,
       emitEvent: _component ? _emitToHost : null,
       animations: _animations,
+      localeChain: haveRelease ? locales.chain : const [],
     );
     final plugin = widget.page.plugin;
     Widget page = PluxBoundary(
@@ -1595,7 +1635,11 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     if (theme.cupertino case final cupertino?) {
       page = CupertinoTheme(data: cupertino, child: page);
     }
-    return Theme(data: theme.material, child: page);
+    return PluxLocaleHost(
+      state: locales,
+      ownDirection: ownDirection,
+      child: Theme(data: theme.material, child: page),
+    );
   }
 
   ({
@@ -1690,6 +1734,7 @@ Map<String, Object?> deviceRoot({
   bool highContrast = false,
   bool screenReader = false,
   TextDirection textDirection = TextDirection.ltr,
+  String calendar = 'gregorian',
 }) => {
   'platform': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
   'osVersion': '',
@@ -1709,6 +1754,7 @@ Map<String, Object?> deviceRoot({
   'highContrast': highContrast,
   'screenReader': screenReader,
   'textDirection': textDirection == TextDirection.rtl ? 'rtl' : 'ltr',
+  'calendar': calendar,
 };
 
 /// What a guard may navigate: nothing. A guard decides with the result it

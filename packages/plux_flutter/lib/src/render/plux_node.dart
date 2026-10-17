@@ -700,6 +700,7 @@ final class NodeContextImpl implements NodeContext, MotionSource {
             translation: s.resolver.translation,
             translationAst: s.resolver.translationAst,
             localeContext: s.resolver.localeContext,
+            translationFellBack: s.resolver.translationFellBack,
             onMessageError: s.resolver.onMessageError,
             limits: s.resolver.limits,
           ).resolve(v, s.plugin.string),
@@ -825,6 +826,7 @@ final class NodeContextImpl implements NodeContext, MotionSource {
       translation: scope.resolver.translation,
       translationAst: scope.resolver.translationAst,
       localeContext: scope.resolver.localeContext,
+      translationFellBack: scope.resolver.translationFellBack,
       onMessageError: scope.resolver.onMessageError,
       limits: scope.resolver.limits,
     );
@@ -907,6 +909,7 @@ final class NodeContextImpl implements NodeContext, MotionSource {
                       translation: outer.resolver.translation,
                       translationAst: outer.resolver.translationAst,
                       localeContext: outer.resolver.localeContext,
+                      translationFellBack: outer.resolver.translationFellBack,
                       onMessageError: outer.resolver.onMessageError,
                       limits: outer.resolver.limits,
                     ).resolve(v, bundle.string),
@@ -944,6 +947,7 @@ final class NodeContextImpl implements NodeContext, MotionSource {
               translation: outer.resolver.translation,
               translationAst: outer.resolver.translationAst,
               localeContext: outer.resolver.localeContext,
+              translationFellBack: outer.resolver.translationFellBack,
               onMessageError: outer.resolver.onMessageError,
               limits: outer.resolver.limits,
             ),
@@ -959,6 +963,7 @@ final class NodeContextImpl implements NodeContext, MotionSource {
             actions: outer.actions,
             componentState: instance,
             emitEvent: emit,
+            localeChain: outer.localeChain,
           );
           return RenderScopeWidget(scope: inner, child: const PluxNode(0));
         },

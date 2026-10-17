@@ -9,10 +9,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_flutter/src/l10n/l10n.dart';
-import 'package:plux_flutter/src/l10n/scope.dart';
+import 'package:plux_flutter/src/l10n/locale_controller.dart';
 import 'package:plux_flutter/src/render/scope.dart';
 
 import '../support/harness.dart';
+import '../support/locale_bundle.dart';
 
 PluxLocaleData _load(String id) => PluxLocaleData.fromJson(
   jsonDecode(File('../../schema/l10n/cldr/$id.json').readAsStringSync())
@@ -51,29 +52,31 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.runAsync(() async {
-      await h.startFrom(g.bundles['widgets/widgets.pxb']!, {
-        'gallery': g.bundles['widgets/gallery.pxb']!,
-      }, themeSource: PluxThemeSource.plux);
+      // The locale comes from the release, as in an app: the bundle carries
+      // its data and the runtime switches to it.
+      final app = g.bundles['widgets/widgets.pxb']!;
+      await h.startFrom(
+        locale == null ? app : withLocales(app, const {}, verbatim: {locale}),
+        {'gallery': g.bundles['widgets/gallery.pxb']!},
+        themeSource: PluxThemeSource.plux,
+      );
       await h.loadIconFonts();
+      if (locale != null) {
+        Plux.setLocale(localeOfTag(tag.isEmpty ? locale : tag));
+        await Plux.container.read(localeControllerProvider.notifier).settled();
+      }
     });
-    final data = locale == null ? null : _load(locale);
     await tester.pumpWidget(
       MaterialApp(
         debugShowCheckedModeBanner: false,
-        builder: (context, child) {
-          Widget w = Directionality(
-            textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
-            child: MediaQuery(
-              data: MediaQuery.of(context)
-                  .copyWith(textScaler: TextScaler.linear(scale)),
-              child: child!,
-            ),
-          );
-          if (locale != null) {
-            w = PluxLocaleScope(data: data, tag: tag, child: w);
-          }
-          return w;
-        },
+        builder: (context, child) => Directionality(
+          textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+          child: MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(scale)),
+            child: child!,
+          ),
+        ),
         home: PluxScope(child: PluxView('money')),
       ),
     );
@@ -118,11 +121,12 @@ void main() {
     }
   });
 
-  testWidgets('without a locale scope amounts use the built-in English '
-      'format [I18N-011]', (tester) async {
+  testWidgets('the default locale writes amounts with the locale data of '
+      'the release [I18N-011]', (tester) async {
     await open(tester);
-    expect(find.text('EUR 1,234.56'), findsWidgets);
-    expect(find.text('-USD 50.00'), findsOneWidget);
+    expect(find.text('€1,234.56'), findsWidgets);
+    // The release's data holds the currencies the app uses; USD is not one.
+    expect(find.text('-USD\u00a050.00'), findsOneWidget);
   });
 
   testWidgets('de-DE writes 1.234,56 € and types with the German '

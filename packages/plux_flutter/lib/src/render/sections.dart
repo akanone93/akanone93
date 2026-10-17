@@ -255,18 +255,30 @@ final class BundleView {
     return ast == null || ast.isEmpty ? null : ast;
   }
 
-  fbs.Message? _message(String tag, UuidKey key) {
-    final locale = _locales.putIfAbsent(tag, () {
-      final id = Uint8List(16)..setAll(0, tag.codeUnits.take(16));
-      for (final s in bundle.container.ofKind(SectionKind.l10n)) {
-        if (_sameBytes(s.id, id)) {
-          gate.check(s);
-          return fbs.Locale(s.data);
-        }
+  fbs.Locale? _locale(String tag) => _locales.putIfAbsent(tag, () {
+    final id = Uint8List(16)..setAll(0, tag.codeUnits.take(16));
+    for (final s in bundle.container.ofKind(SectionKind.l10n)) {
+      if (_sameBytes(s.id, id)) {
+        gate.check(s);
+        return fbs.Locale(s.data);
       }
-      return null;
-    });
-    final list = locale?.messages;
+    }
+    return null;
+  });
+
+  /// The locale data and Flutter strings the bundle carries for locale
+  /// [tag] (I18N-004, I18N-011), copied so they can be sent to another
+  /// isolate; null when the bundle has no section for [tag].
+  ({Uint8List? data, Uint8List? flutter})? localeBlobs(String tag) {
+    final locale = _locale(tag);
+    if (locale == null) return null;
+    Uint8List? copy(List<int>? b) =>
+        b == null || b.isEmpty ? null : Uint8List.fromList(b);
+    return (data: copy(locale.data), flutter: copy(locale.flutter));
+  }
+
+  fbs.Message? _message(String tag, UuidKey key) {
+    final list = _locale(tag)?.messages;
     if (list == null) return null;
     final i = _search(list.length, (i) {
       final k = list[i].key;

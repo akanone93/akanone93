@@ -19,6 +19,8 @@ final class PluxLocaleScope extends InheritedWidget {
     required this.data,
     required this.tag,
     required super.child,
+    this.calendar,
+    this.secondaryCalendar,
     super.key,
   });
 
@@ -28,6 +30,21 @@ final class PluxLocaleScope extends InheritedWidget {
   /// The BCP 47 tag the locale was requested with; its region, when it has
   /// one, is the default region of a phone number.
   final String tag;
+
+  /// The app's `localisation.calendar`, or null for the Gregorian one.
+  final String? calendar;
+
+  /// The app's `localisation.secondaryCalendar`, or null.
+  final String? secondaryCalendar;
+
+  /// The app's calendar in scope at [context], or null.
+  static String? calendarOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<PluxLocaleScope>()?.calendar;
+
+  /// The app's secondary calendar in scope at [context], or null.
+  static String? secondaryCalendarOf(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<PluxLocaleScope>()
+      ?.secondaryCalendar;
 
   /// The locale data in scope at [context], or null when there is none.
   static PluxLocaleData? dataOf(BuildContext context) =>
@@ -39,5 +56,8 @@ final class PluxLocaleScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(PluxLocaleScope oldWidget) =>
-      oldWidget.data != data || oldWidget.tag != tag;
+      oldWidget.data != data ||
+      oldWidget.tag != tag ||
+      oldWidget.calendar != calendar ||
+      oldWidget.secondaryCalendar != secondaryCalendar;
 }

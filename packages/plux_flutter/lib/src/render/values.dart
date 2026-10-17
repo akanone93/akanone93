@@ -47,6 +47,7 @@ final class ValueResolver {
     required this.limits,
     this.translationAst,
     this.localeContext,
+    this.translationFellBack,
     this.onMessageError,
   });
 
@@ -64,6 +65,11 @@ final class ValueResolver {
 
   /// Limits of one evaluation.
   final vm.PxlLimits limits;
+
+  /// Whether the translation [key] came from a locale further down the
+  /// fallback chain than the requested one; debug builds mark such text
+  /// visibly (I18N-006).
+  final bool Function(UuidKey key)? translationFellBack;
 
   /// A translation's pre-parsed MessageFormat AST by key, or null (I18N-001).
   final List<int>? Function(UuidKey key)? translationAst;
@@ -172,13 +178,14 @@ final class ValueResolver {
       for (final e in v.entries ?? const <fbs.Entry>[])
         strings(e.key): toPxl(resolve(e.value, strings, reads)),
     };
-    return formatMessage(
+    final text = formatMessage(
       pattern,
       args,
       ast: translationAst?.call(uuidOf(key)),
       locale: localeContext?.locale,
       onError: onMessageError,
     );
+    return translationFellBack?.call(uuidOf(key)) ?? false ? '⚠ $text' : text;
   }
 
   static Decimal _decimal(fbs.Value v) {

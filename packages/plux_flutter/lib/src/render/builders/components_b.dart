@@ -21,6 +21,7 @@ import 'package:plux_flutter/src/assets/icon_fonts.dart';
 import 'package:plux_flutter/src/data/services.dart' show DataScope;
 import 'package:plux_flutter/src/device/types.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/l10n/runtime_strings.dart';
 import 'package:plux_flutter/src/pxl/types.dart' show toJson;
 import 'package:plux_flutter/src/pxl/values.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
@@ -205,7 +206,9 @@ Widget buildProductCard(NodeContext c) {
         c.missing('ProductCard.price'),
     originalPrice: c.decode(_product.p('originalPrice'), asString),
     badge: c.decode(_product.p('badge'), asString),
-    addLabel: c.decode(_product.p('addToCartLabel'), asString) ?? 'Add to cart',
+    addLabel:
+        c.decode(_product.p('addToCartLabel'), asString) ??
+        RuntimeStrings.of(c.context)['plux.product.addToCart'],
     onTap: c.handles(onTap) ? () => c.fire(onTap) : null,
     onAdd: c.handles(onAdd) ? () => c.fire(onAdd) : null,
   );
@@ -352,9 +355,11 @@ Widget buildQuantityStepper(NodeContext c) {
   final step = (c.decode(_stepper.p('step'), asInt) ?? 1).clamp(1, 1 << 30);
   final value = c.decode(_stepper.p('value'), asInt) ?? 1;
   final decrease =
-      c.decode(_stepper.p('decreaseLabel'), asString) ?? 'Decrease';
+      c.decode(_stepper.p('decreaseLabel'), asString) ??
+      RuntimeStrings.of(c.context)['plux.stepper.decrease'];
   final increase =
-      c.decode(_stepper.p('increaseLabel'), asString) ?? 'Increase';
+      c.decode(_stepper.p('increaseLabel'), asString) ??
+      RuntimeStrings.of(c.context)['plux.stepper.increase'];
   final hi = max < min ? min : max;
   return c.controlled<int>(_stepper.e('onChanged'), value.clamp(min, hi), (
     v,
@@ -814,7 +819,9 @@ Widget buildRatingBar(NodeContext c) {
       (c.decode(_ratingBar.p('value'), asDouble) ??
               c.missing('RatingBar.value'))
           .clamp(0.0, max.toDouble());
-  final of = c.decode(_ratingBar.p('ofLabel'), asString) ?? 'of';
+  final of =
+      c.decode(_ratingBar.p('ofLabel'), asString) ??
+      RuntimeStrings.of(c.context)['plux.rating.of'];
   final shown = value == value.roundToDouble()
       ? '${value.round()}'
       : value.toStringAsFixed(1);
@@ -1068,8 +1075,12 @@ Widget buildFileUploader(NodeContext c) {
   final onUploaded = _uploader.e('onUploaded');
   final onFailed = _uploader.e('onFailed');
   return FileUploaderView(
-    label: c.decode(_uploader.p('label'), asString) ?? 'Choose file',
-    uploadLabel: c.decode(_uploader.p('uploadLabel'), asString) ?? 'Upload',
+    label:
+        c.decode(_uploader.p('label'), asString) ??
+        RuntimeStrings.of(c.context)['plux.uploader.choose'],
+    uploadLabel:
+        c.decode(_uploader.p('uploadLabel'), asString) ??
+        RuntimeStrings.of(c.context)['plux.uploader.upload'],
     maxBytes: c.decode(_uploader.p('maxBytes'), asInt),
     pick: picker == null || device == null
         ? null

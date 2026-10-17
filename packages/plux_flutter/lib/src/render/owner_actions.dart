@@ -26,6 +26,7 @@ import 'package:plux_flutter/src/core/app_state.dart';
 import 'package:plux_flutter/src/data/services.dart';
 import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/l10n/locale_controller.dart';
 import 'package:plux_flutter/src/navigation/page_navigator.dart';
 import 'package:plux_flutter/src/render/page_actions.dart';
 import 'package:plux_flutter/src/render/renderer.dart';
@@ -198,8 +199,10 @@ final class ReleaseOwners {
       presenter: (error) {
         final c = navigator()?.currentContext;
         if (c == null || !c.mounted) return;
-        ScaffoldMessenger.maybeOf(c)
-            ?.showSnackBar(SnackBar(content: Text(fallbackMessage(error))));
+        final strings = container.read(localeControllerProvider).strings;
+        ScaffoldMessenger.maybeOf(c)?.showSnackBar(
+          SnackBar(content: Text(fallbackMessage(error, strings))),
+        );
       },
     );
     final actions = PageActions(
