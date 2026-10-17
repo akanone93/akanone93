@@ -1,0 +1,57 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "IbanInput",
+  "id": 163,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "account_balance",
+  "description": "An IBAN entry shown in groups of four, with the mod-97 check.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 80,
+  "accessibility": {
+    "role": "textField",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "label",
+      "id": 1,
+      "type": "string?",
+      "translatable": true,
+      "description": "The field's label."
+    },
+    {
+      "name": "value",
+      "id": 2,
+      "type": "string?",
+      "description": "The IBAN without spaces."
+    },
+    {
+      "name": "invalidMessage",
+      "id": 3,
+      "type": "string?",
+      "translatable": true,
+      "description": "The error shown for an invalid IBAN."
+    }
+  ],
+  "events": [
+    {
+      "name": "onChanged",
+      "id": 1,
+      "payload": "string",
+      "description": "Fires with the IBAN without spaces when it is valid, and with an empty string when it is not."
+    }
+  ]
+}

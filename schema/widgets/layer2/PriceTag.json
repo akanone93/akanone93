@@ -1,0 +1,48 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "PriceTag",
+  "id": 166,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "commerce",
+  "icon": "sell",
+  "description": "A price, with the original price struck through and announced as the former price.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 40,
+  "accessibility": {
+    "role": "text",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "price",
+      "id": 1,
+      "type": "money",
+      "required": true,
+      "description": "The current price."
+    },
+    {
+      "name": "originalPrice",
+      "id": 2,
+      "type": "money?",
+      "description": "The price before a reduction."
+    },
+    {
+      "name": "wasLabel",
+      "id": 3,
+      "type": "string?",
+      "translatable": true,
+      "description": "What screen readers say before the original price."
+    }
+  ]
+}

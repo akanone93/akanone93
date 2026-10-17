@@ -1,0 +1,71 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "MaskedText",
+  "id": 161,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "visibility_off",
+  "description": "A sensitive number with all but its last digits hidden; the hidden digits never reach screen readers.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 50,
+  "accessibility": {
+    "role": "text",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "value",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The full value."
+    },
+    {
+      "name": "mask",
+      "id": 2,
+      "type": "MaskKind",
+      "default": "card",
+      "description": "How the value is hidden."
+    },
+    {
+      "name": "visibleDigits",
+      "id": 3,
+      "type": "int",
+      "default": 4,
+      "description": "How many trailing digits stay visible."
+    },
+    {
+      "name": "revealable",
+      "id": 4,
+      "type": "bool",
+      "default": false,
+      "description": "A button shows the whole value."
+    },
+    {
+      "name": "revealLabel",
+      "id": 5,
+      "type": "string?",
+      "translatable": true,
+      "description": "The label of the reveal button."
+    }
+  ],
+  "events": [
+    {
+      "name": "onReveal",
+      "id": 1,
+      "description": "Fires when the person reveals the value."
+    }
+  ]
+}

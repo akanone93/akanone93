@@ -119,6 +119,13 @@ final _Tables _tables = () {
 /// Whether [region], two ASCII letters in either case, has metadata.
 bool isPhoneRegion(String region) => _tables.region(region) != null;
 
+/// The country calling code of [region] (44 for GB), or null when the
+/// region has no metadata.
+int? phoneCallingCode(String region) => _tables.region(region)?.code;
+
+/// The regions that have metadata, as upper-case ISO 3166 codes, sorted.
+List<String> phoneRegions() => _tables.byRegion.keys.toList()..sort();
+
 /// Whether [number] is a valid phone number, read with [region] as the
 /// default for numbers without a country calling code (schema/pxl/phone.md
 /// §3). An unknown region validates only international numbers.

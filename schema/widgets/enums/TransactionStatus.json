@@ -1,0 +1,35 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "TransactionStatus",
+  "id": 143,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "The state of a transaction.",
+  "values": [
+    {
+      "name": "pending",
+      "id": 1,
+      "description": "Not yet settled."
+    },
+    {
+      "name": "completed",
+      "id": 2,
+      "description": "Settled."
+    },
+    {
+      "name": "failed",
+      "id": 3,
+      "description": "Declined or failed."
+    },
+    {
+      "name": "reversed",
+      "id": 4,
+      "description": "Reversed after settling."
+    }
+  ]
+}

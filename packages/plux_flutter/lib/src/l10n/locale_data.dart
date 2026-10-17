@@ -149,6 +149,12 @@ final class PluxLocaleData {
   /// The cardinal categories the locale uses, in CLDR order, `other` last.
   List<PluralCategory> get categories => _cardinal.categories;
 
+  /// The ISO 3166 and other territory codes the locale names, sorted.
+  List<String> get territoryCodes => _territories.keys.toList()..sort();
+
+  /// The ISO 4217 codes the locale names, sorted.
+  List<String> get currencyCodes => _currencies.keys.toList()..sort();
+
   /// The locale's name for an ISO 3166 region code, or null.
   String? territoryName(String code) => _territories[code];
 

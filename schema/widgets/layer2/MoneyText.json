@@ -1,0 +1,55 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "MoneyText",
+  "id": 160,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "attach_money",
+  "description": "An amount written for the locale and currency, read aloud with the currency's name.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 40,
+  "accessibility": {
+    "role": "text",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "value",
+      "id": 1,
+      "type": "money",
+      "required": true,
+      "description": "The amount."
+    },
+    {
+      "name": "display",
+      "id": 2,
+      "type": "MoneyDisplay",
+      "default": "symbol",
+      "description": "How the currency is written."
+    },
+    {
+      "name": "signDisplay",
+      "id": 3,
+      "type": "SignDisplay",
+      "default": "auto",
+      "description": "When a sign is shown."
+    },
+    {
+      "name": "style",
+      "id": 4,
+      "type": "TextStyle?",
+      "description": "The text style."
+    }
+  ]
+}

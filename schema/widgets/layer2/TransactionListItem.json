@@ -1,0 +1,78 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "TransactionListItem",
+  "id": 168,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "commerce",
+  "icon": "receipt_long",
+  "description": "A transaction row: title, subtitle, signed amount in a credit or debit colour, status and date.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 60,
+  "accessibility": {
+    "role": "button",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "title",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "translatable": true,
+      "description": "What the transaction was."
+    },
+    {
+      "name": "subtitle",
+      "id": 2,
+      "type": "string?",
+      "translatable": true,
+      "description": "A line below the title."
+    },
+    {
+      "name": "amount",
+      "id": 3,
+      "type": "money",
+      "required": true,
+      "description": "The signed amount; negative is a debit."
+    },
+    {
+      "name": "status",
+      "id": 4,
+      "type": "TransactionStatus",
+      "default": "completed",
+      "description": "The state of the transaction."
+    },
+    {
+      "name": "date",
+      "id": 5,
+      "type": "dateTime?",
+      "description": "When it happened."
+    },
+    {
+      "name": "statusLabel",
+      "id": 6,
+      "type": "string?",
+      "translatable": true,
+      "description": "The status written for the person; the status name when absent."
+    }
+  ],
+  "events": [
+    {
+      "name": "onTap",
+      "id": 1,
+      "description": "Fires when the row is tapped."
+    }
+  ]
+}

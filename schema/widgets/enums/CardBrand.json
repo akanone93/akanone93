@@ -1,0 +1,40 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "CardBrand",
+  "id": 144,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "The network of a payment card.",
+  "values": [
+    {
+      "name": "visa",
+      "id": 1,
+      "description": "Visa."
+    },
+    {
+      "name": "mastercard",
+      "id": 2,
+      "description": "Mastercard."
+    },
+    {
+      "name": "amex",
+      "id": 3,
+      "description": "American Express."
+    },
+    {
+      "name": "discover",
+      "id": 4,
+      "description": "Discover."
+    },
+    {
+      "name": "other",
+      "id": 5,
+      "description": "Any other network."
+    }
+  ]
+}
