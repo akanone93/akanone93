@@ -1,0 +1,58 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "PieChart",
+  "id": 195,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "pie_chart",
+  "description": "A pie of labelled slices. Screen readers get a text summary per slice, and `showTable` adds a data table.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 400,
+  "accessibility": {
+    "role": "image",
+    "interactive": false
+  },
+  "package": "plux_charts",
+  "props": [
+    {
+      "name": "slices",
+      "id": 1,
+      "type": "list<PieSlice>",
+      "required": true,
+      "description": "The slices."
+    },
+    {
+      "name": "title",
+      "id": 2,
+      "type": "string?",
+      "translatable": true,
+      "description": "A heading above the chart, also its spoken name."
+    },
+    {
+      "name": "summaryTemplate",
+      "id": 3,
+      "type": "string",
+      "default": "{label}: {value}, {percent} percent",
+      "translatable": true,
+      "description": "What a screen reader hears for each slice; `{label}`, `{value}` and `{percent}` are replaced."
+    },
+    {
+      "name": "showTable",
+      "id": 4,
+      "type": "bool",
+      "default": false,
+      "description": "Whether a table of the values is shown below the chart."
+    }
+  ]
+}

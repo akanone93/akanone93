@@ -1,0 +1,113 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "LottieView",
+  "id": 205,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "animation",
+  "description": "A Lottie or dotLottie animation from an https address, controlled by props (ANI-005).",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 1200,
+  "accessibility": {
+    "role": "image",
+    "interactive": false
+  },
+  "package": "plux_lottie",
+  "props": [
+    {
+      "name": "url",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "constraints": {
+        "pattern": "^https://"
+      },
+      "description": "The https address of the `.json` or `.lottie` file."
+    },
+    {
+      "name": "animate",
+      "id": 2,
+      "type": "bool",
+      "default": true,
+      "description": "Whether it plays."
+    },
+    {
+      "name": "repeat",
+      "id": 3,
+      "type": "bool",
+      "default": true,
+      "description": "Whether it plays again when it ends."
+    },
+    {
+      "name": "reverse",
+      "id": 4,
+      "type": "bool",
+      "default": false,
+      "description": "Whether every second play runs backwards."
+    },
+    {
+      "name": "progress",
+      "id": 5,
+      "type": "double?",
+      "constraints": {
+        "min": 0,
+        "max": 1
+      },
+      "description": "The frame to show, 0 to 1; when set it does not play."
+    },
+    {
+      "name": "fit",
+      "id": 6,
+      "type": "string",
+      "default": "contain",
+      "description": "How it fits its box, a `BoxFit` name."
+    },
+    {
+      "name": "width",
+      "id": 7,
+      "type": "double?",
+      "description": "The width, or the animation's own."
+    },
+    {
+      "name": "height",
+      "id": 8,
+      "type": "double?",
+      "description": "The height, or the animation's own."
+    },
+    {
+      "name": "reduceMotion",
+      "id": 9,
+      "type": "string",
+      "default": "skip",
+      "constraints": {
+        "pattern": "^(skip|shorten|ignore)$"
+      },
+      "description": "What it does under reduce motion: `skip` shows the last frame, `shorten` plays four times as fast, `ignore` plays as declared."
+    },
+    {
+      "name": "semanticLabel",
+      "id": 10,
+      "type": "string?",
+      "translatable": true,
+      "description": "What the animation shows; without one it is hidden from screen readers."
+    }
+  ],
+  "events": [
+    {
+      "name": "onCompleted",
+      "id": 1,
+      "description": "Fires when an animation that does not repeat ends."
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "MarkdownView",
+  "id": 192,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "markdown",
+  "description": "Formatted text from Markdown: headings, paragraphs, emphasis, lists, quotes, code and links. Raw HTML is shown as text; images are bundle assets.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 500,
+  "accessibility": {
+    "role": "text",
+    "interactive": false
+  },
+  "package": "plux_markdown",
+  "props": [
+    {
+      "name": "source",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "translatable": true,
+      "description": "The Markdown text."
+    }
+  ],
+  "events": [
+    {
+      "name": "onLink",
+      "id": 1,
+      "payload": "string",
+      "description": "Fires with the address of a tapped link; wire it to the `openUrl` action. The widget never opens a link itself."
+    }
+  ]
+}

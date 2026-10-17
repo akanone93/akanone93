@@ -1,0 +1,84 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "SignaturePad",
+  "id": 202,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "draw",
+  "description": "A box the user signs in with a finger. `onChanged` fires with SVG path data or a base64 PNG, and with an empty string when cleared.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 800,
+  "accessibility": {
+    "role": "image",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_media",
+  "props": [
+    {
+      "name": "format",
+      "id": 1,
+      "type": "string",
+      "default": "svg",
+      "constraints": {
+        "pattern": "^(svg|png)$"
+      },
+      "description": "`svg` for path data, `png` for a base64 PNG."
+    },
+    {
+      "name": "strokeWidth",
+      "id": 2,
+      "type": "double",
+      "default": 2.0,
+      "constraints": {
+        "min": 0.5,
+        "max": 12
+      },
+      "description": "The pen width."
+    },
+    {
+      "name": "height",
+      "id": 3,
+      "type": "double",
+      "default": 160.0,
+      "constraints": {
+        "min": 80
+      },
+      "description": "The pad's height."
+    },
+    {
+      "name": "clearLabel",
+      "id": 4,
+      "type": "string",
+      "default": "Clear",
+      "translatable": true,
+      "description": "The clear button's label."
+    },
+    {
+      "name": "semanticLabel",
+      "id": 5,
+      "type": "string?",
+      "translatable": true,
+      "description": "What the signature is for, spoken for the pad."
+    }
+  ],
+  "events": [
+    {
+      "name": "onChanged",
+      "id": 1,
+      "payload": "string",
+      "description": "Fires after each stroke with the signature, and with an empty string when cleared."
+    }
+  ]
+}

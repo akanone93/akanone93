@@ -173,7 +173,7 @@ export interface ActionDescriptor {
 }
 
 /** A widget type name. */
-export type WidgetType = "ActionChip" | "Align" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "Autocomplete" | "BackButton" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "BottomNavigationBar" | "CalendarDatePicker" | "Card" | "Carousel" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoContextMenu" | "CupertinoDatePicker" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoNavigationBar" | "CupertinoPicker" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTabBar" | "CupertinoTextField" | "CustomScrollView" | "DataScope" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "Drawer" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "Match" | "MenuAnchor" | "NativeSlot" | "NavigationBar" | "NavigationDrawer" | "NavigationRail" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "PopupMenuButton" | "Positioned" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "Responsive" | "RichText" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchAnchor" | "SearchBar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Stack" | "StatusTimeline" | "Switch" | "SwitchListTile" | "TabBar" | "TabBarView" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "Transform" | "VerticalDivider" | "WizardForm" | "Wrap";
+export type WidgetType = "ActionChip" | "Align" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "AudioPlayer" | "Autocomplete" | "BackButton" | "Badge" | "BarChart" | "Baseline" | "BiometricButton" | "BottomAppBar" | "BottomNavigationBar" | "CalendarDatePicker" | "Card" | "Carousel" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoContextMenu" | "CupertinoDatePicker" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoNavigationBar" | "CupertinoPicker" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTabBar" | "CupertinoTextField" | "CustomScrollView" | "DataScope" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "Drawer" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LineChart" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "LottieView" | "MarkdownView" | "Match" | "MenuAnchor" | "NativeSlot" | "NavigationBar" | "NavigationDrawer" | "NavigationRail" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "PieChart" | "PopupMenuButton" | "Positioned" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "Responsive" | "RichText" | "RiveView" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchAnchor" | "SearchBar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SignaturePad" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Sparkline" | "Stack" | "StatusTimeline" | "Switch" | "SwitchListTile" | "TabBar" | "TabBarView" | "TermsViewer" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "Transform" | "VerticalDivider" | "VideoPlayer" | "WizardForm" | "Wrap";
 
 /** An action name. */
 export type ActionName = "announce" | "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "readConfig" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
@@ -634,6 +634,35 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "AudioPlayer",
+    "id": 204,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "headphones",
+    "description": "Audio from an https address with play and pause and a progress bar. It never starts by itself under reduce motion.",
+    "platforms": ["android", "ios"],
+    "cost": 1000,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "url", "id": 1, "type": "string", "required": true, "constraints": {"pattern": "^https://"}, "revision": 1, "bindable": true, "description": "The https address of the audio."},
+      {"name": "title", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The title shown, and spoken for the player."},
+      {"name": "autoplay", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether it starts by itself; ignored under reduce motion."},
+      {"name": "loop", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether it starts again when it ends."},
+      {"name": "playLabel", "id": 5, "type": "string", "required": false, "default": "Play", "revision": 1, "bindable": true, "description": "The play button's label."},
+      {"name": "pauseLabel", "id": 6, "type": "string", "required": false, "default": "Pause", "revision": 1, "bindable": true, "description": "The pause button's label."},
+      {"name": "positionLabel", "id": 7, "type": "string", "required": false, "default": "Position", "revision": 1, "bindable": true, "description": "The progress bar's label."}
+    ],
+    "events": [
+      {"name": "onEnded", "id": 1, "revision": 1, "description": "Fires when playback ends."},
+      {"name": "onError", "id": 2, "revision": 1, "description": "Fires when the audio cannot be played."}
+    ],
+    "slots": []
+  },
+  {
     "type": "Autocomplete",
     "id": 124,
     "layer": 1,
@@ -711,6 +740,30 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "label", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
       {"name": "child", "id": 2, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "BarChart",
+    "id": 194,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "bar_chart",
+    "description": "Bars per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table.",
+    "platforms": ["android", "ios"],
+    "cost": 400,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "series", "id": 1, "type": "list<ChartSeries>", "required": true, "revision": 1, "bindable": true, "description": "The series; they share the labels."},
+      {"name": "labels", "id": 2, "type": "list<string>?", "required": false, "revision": 1, "bindable": true, "description": "The label of each position along the horizontal axis."},
+      {"name": "title", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A heading above the chart, also its spoken name."},
+      {"name": "summaryTemplate", "id": 4, "type": "string", "required": false, "default": "{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}", "revision": 1, "bindable": true, "description": "What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."},
+      {"name": "showTable", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether a table of the values is shown below the chart."}
+    ],
+    "events": [],
+    "slots": []
   },
   {
     "type": "Baseline",
@@ -3185,6 +3238,30 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "LineChart",
+    "id": 193,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "show_chart",
+    "description": "A line per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table.",
+    "platforms": ["android", "ios"],
+    "cost": 400,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "series", "id": 1, "type": "list<ChartSeries>", "required": true, "revision": 1, "bindable": true, "description": "The series; they share the labels."},
+      {"name": "labels", "id": 2, "type": "list<string>?", "required": false, "revision": 1, "bindable": true, "description": "The label of each position along the horizontal axis."},
+      {"name": "title", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A heading above the chart, also its spoken name."},
+      {"name": "summaryTemplate", "id": 4, "type": "string", "required": false, "default": "{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}", "revision": 1, "bindable": true, "description": "What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."},
+      {"name": "showTable", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether a table of the values is shown below the chart."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
     "type": "LinearProgressIndicator",
     "id": 65,
     "layer": 1,
@@ -3334,6 +3411,59 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "icon", "id": 5, "type": "IconData?", "required": false, "revision": 1, "bindable": true, "description": "A leading icon."}
     ],
     "events": [],
+    "slots": []
+  },
+  {
+    "type": "LottieView",
+    "id": 205,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "animation",
+    "description": "A Lottie or dotLottie animation from an https address, controlled by props (ANI-005).",
+    "platforms": ["android", "ios"],
+    "cost": 1200,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "url", "id": 1, "type": "string", "required": true, "constraints": {"pattern": "^https://"}, "revision": 1, "bindable": true, "description": "The https address of the `.json` or `.lottie` file."},
+      {"name": "animate", "id": 2, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Whether it plays."},
+      {"name": "repeat", "id": 3, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Whether it plays again when it ends."},
+      {"name": "reverse", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether every second play runs backwards."},
+      {"name": "progress", "id": 5, "type": "double?", "required": false, "constraints": {"min": 0, "max": 1}, "revision": 1, "bindable": true, "description": "The frame to show, 0 to 1; when set it does not play."},
+      {"name": "fit", "id": 6, "type": "string", "required": false, "default": "contain", "revision": 1, "bindable": true, "description": "How it fits its box, a `BoxFit` name."},
+      {"name": "width", "id": 7, "type": "double?", "required": false, "revision": 1, "bindable": true, "description": "The width, or the animation's own."},
+      {"name": "height", "id": 8, "type": "double?", "required": false, "revision": 1, "bindable": true, "description": "The height, or the animation's own."},
+      {"name": "reduceMotion", "id": 9, "type": "string", "required": false, "default": "skip", "constraints": {"pattern": "^(skip|shorten|ignore)$"}, "revision": 1, "bindable": true, "description": "What it does under reduce motion: `skip` shows the last frame, `shorten` plays four times as fast, `ignore` plays as declared."},
+      {"name": "semanticLabel", "id": 10, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the animation shows; without one it is hidden from screen readers."}
+    ],
+    "events": [
+      {"name": "onCompleted", "id": 1, "revision": 1, "description": "Fires when an animation that does not repeat ends."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "MarkdownView",
+    "id": 192,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "markdown",
+    "description": "Formatted text from Markdown: headings, paragraphs, emphasis, lists, quotes, code and links. Raw HTML is shown as text; images are bundle assets.",
+    "platforms": ["android", "ios"],
+    "cost": 500,
+    "accessibility": {"role": "text", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "source", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The Markdown text."}
+    ],
+    "events": [
+      {"name": "onLink", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the address of a tapped link; wire it to the `openUrl` action. The widget never opens a link itself."}
+    ],
     "slots": []
   },
   {
@@ -3686,6 +3816,29 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "loading", "id": 3, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is loading."},
       {"name": "error", "id": 4, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is error."}
     ]
+  },
+  {
+    "type": "PieChart",
+    "id": 195,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "pie_chart",
+    "description": "A pie of labelled slices. Screen readers get a text summary per slice, and `showTable` adds a data table.",
+    "platforms": ["android", "ios"],
+    "cost": 400,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "slices", "id": 1, "type": "list<PieSlice>", "required": true, "revision": 1, "bindable": true, "description": "The slices."},
+      {"name": "title", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A heading above the chart, also its spoken name."},
+      {"name": "summaryTemplate", "id": 3, "type": "string", "required": false, "default": "{label}: {value}, {percent} percent", "revision": 1, "bindable": true, "description": "What a screen reader hears for each slice; `{label}`, `{value}` and `{percent}` are replaced."},
+      {"name": "showTable", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether a table of the values is shown below the chart."}
+    ],
+    "events": [],
+    "slots": []
   },
   {
     "type": "PopupMenuButton",
@@ -4082,6 +4235,37 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "selectionColor", "id": 12, "type": "color", "required": false, "revision": 1, "bindable": true}
     ],
     "events": [],
+    "slots": []
+  },
+  {
+    "type": "RiveView",
+    "id": 206,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "animation",
+    "description": "A Rive file from an https address whose state machine inputs follow Plux state (ANI-005).",
+    "platforms": ["android", "ios"],
+    "cost": 1500,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "url", "id": 1, "type": "string", "required": true, "constraints": {"pattern": "^https://"}, "revision": 1, "bindable": true, "description": "The https address of the `.riv` file."},
+      {"name": "artboard", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The artboard to show, or the file's default."},
+      {"name": "stateMachine", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The state machine to run, or the artboard's default."},
+      {"name": "inputs", "id": 4, "type": "map<string,double>?", "required": false, "revision": 1, "bindable": true, "description": "Number inputs of the state machine by name."},
+      {"name": "flags", "id": 5, "type": "map<string,bool>?", "required": false, "revision": 1, "bindable": true, "description": "Boolean inputs of the state machine by name."},
+      {"name": "triggers", "id": 6, "type": "map<string,double>?", "required": false, "revision": 1, "bindable": true, "description": "Triggers by name; each fires whenever its value changes."},
+      {"name": "fit", "id": 7, "type": "string", "required": false, "default": "contain", "revision": 1, "bindable": true, "description": "How it fits its box, a Rive `Fit` name."},
+      {"name": "reduceMotion", "id": 8, "type": "string", "required": false, "default": "skip", "constraints": {"pattern": "^(skip|ignore)$"}, "revision": 1, "bindable": true, "description": "`skip` freezes the animation under reduce motion, `ignore` keeps it playing."},
+      {"name": "semanticLabel", "id": 9, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the animation shows; without one it is hidden from screen readers."}
+    ],
+    "events": [
+      {"name": "onLoaded", "id": 1, "revision": 1, "description": "Fires when the file is loaded."},
+      {"name": "onFailed", "id": 2, "revision": 1, "description": "Fires when the file cannot be loaded."}
+    ],
     "slots": []
   },
   {
@@ -4483,6 +4667,32 @@ export const widgets: readonly WidgetDescriptor[] = [
     "children": {}
   },
   {
+    "type": "SignaturePad",
+    "id": 202,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "draw",
+    "description": "A box the user signs in with a finger. `onChanged` fires with SVG path data or a base64 PNG, and with an empty string when cleared.",
+    "platforms": ["android", "ios"],
+    "cost": 800,
+    "accessibility": {"role": "image", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "format", "id": 1, "type": "string", "required": false, "default": "svg", "constraints": {"pattern": "^(svg|png)$"}, "revision": 1, "bindable": true, "description": "`svg` for path data, `png` for a base64 PNG."},
+      {"name": "strokeWidth", "id": 2, "type": "double", "required": false, "default": 2.0, "constraints": {"min": 0.5, "max": 12}, "revision": 1, "bindable": true, "description": "The pen width."},
+      {"name": "height", "id": 3, "type": "double", "required": false, "default": 160.0, "constraints": {"min": 80}, "revision": 1, "bindable": true, "description": "The pad's height."},
+      {"name": "clearLabel", "id": 4, "type": "string", "required": false, "default": "Clear", "revision": 1, "bindable": true, "description": "The clear button's label."},
+      {"name": "semanticLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the signature is for, spoken for the pad."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "string", "revision": 1, "description": "Fires after each stroke with the signature, and with an empty string when cleared."}
+    ],
+    "slots": []
+  },
+  {
     "type": "SingleChildScrollView",
     "id": 34,
     "layer": 1,
@@ -4882,6 +5092,28 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": []
   },
   {
+    "type": "Sparkline",
+    "id": 196,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "ssid_chart",
+    "description": "A small line of values with no axes, for lists and cards; screen readers get one text summary.",
+    "platforms": ["android", "ios"],
+    "cost": 150,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "values", "id": 1, "type": "list<double>", "required": true, "revision": 1, "bindable": true, "description": "The values."},
+      {"name": "semanticLabel", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the values are, spoken before the summary."},
+      {"name": "summaryTemplate", "id": 3, "type": "string", "required": false, "default": "{count} values, first {first}, last {last}, lowest {min}, highest {max}", "revision": 1, "bindable": true, "description": "What a screen reader hears; `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
     "type": "Stack",
     "id": 27,
     "layer": 1,
@@ -5082,6 +5314,32 @@ export const widgets: readonly WidgetDescriptor[] = [
     ],
     "slots": [],
     "children": {}
+  },
+  {
+    "type": "TermsViewer",
+    "id": 191,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "gavel",
+    "description": "Terms in Markdown that scroll, with an accept button that enables once the end was reached.",
+    "platforms": ["android", "ios"],
+    "cost": 600,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "source", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The terms as Markdown."},
+      {"name": "version", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The version of the terms, sent with `onAccepted`."},
+      {"name": "acceptLabel", "id": 3, "type": "string", "required": false, "default": "Accept", "revision": 1, "bindable": true, "description": "The accept button's label."},
+      {"name": "scrollHint", "id": 4, "type": "string", "required": false, "default": "Scroll to the end to accept", "revision": 1, "bindable": true, "description": "Shown, and spoken, while the end has not been reached."}
+    ],
+    "events": [
+      {"name": "onAccepted", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the version when the user accepts."},
+      {"name": "onLink", "id": 2, "payload": "string", "revision": 1, "description": "Fires with the address of a tapped link; wire it to the `openUrl` action."}
+    ],
+    "slots": []
   },
   {
     "type": "Text",
@@ -5416,6 +5674,38 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": []
   },
   {
+    "type": "VideoPlayer",
+    "id": 203,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "videocam",
+    "description": "A video from an https address with play and pause, a progress bar and optional captions. It never starts by itself under reduce motion.",
+    "platforms": ["android", "ios"],
+    "cost": 1500,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "url", "id": 1, "type": "string", "required": true, "constraints": {"pattern": "^https://"}, "revision": 1, "bindable": true, "description": "The https address of the video."},
+      {"name": "captions", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "Captions as WebVTT text."},
+      {"name": "autoplay", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether it starts by itself; ignored under reduce motion."},
+      {"name": "loop", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether it starts again when it ends."},
+      {"name": "aspectRatio", "id": 5, "type": "double", "required": false, "default": 1.7777778, "constraints": {"min": 0.2, "max": 5}, "revision": 1, "bindable": true, "description": "Width over height."},
+      {"name": "semanticLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the video is, spoken for the player."},
+      {"name": "playLabel", "id": 7, "type": "string", "required": false, "default": "Play", "revision": 1, "bindable": true, "description": "The play button's label."},
+      {"name": "pauseLabel", "id": 8, "type": "string", "required": false, "default": "Pause", "revision": 1, "bindable": true, "description": "The pause button's label."},
+      {"name": "captionsLabel", "id": 9, "type": "string", "required": false, "default": "Captions", "revision": 1, "bindable": true, "description": "The captions switch's label."},
+      {"name": "positionLabel", "id": 10, "type": "string", "required": false, "default": "Position", "revision": 1, "bindable": true, "description": "The progress bar's label."}
+    ],
+    "events": [
+      {"name": "onEnded", "id": 1, "revision": 1, "description": "Fires when playback ends."},
+      {"name": "onError", "id": 2, "revision": 1, "description": "Fires when the video cannot be played."}
+    ],
+    "slots": []
+  },
+  {
     "type": "WizardForm",
     "id": 176,
     "layer": 2,
@@ -5642,6 +5932,18 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
       {"name": "animationDuration", "id": 19, "type": "duration", "required": false, "revision": 1},
       {"name": "enableFeedback", "id": 20, "type": "bool", "required": false, "revision": 1},
       {"name": "alignment", "id": 21, "type": "Alignment", "required": false, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
+    "name": "ChartSeries",
+    "id": 76,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One named series of a LineChart or BarChart.",
+    "fields": [
+      {"name": "name", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The series' name, spoken in its summary."},
+      {"name": "values", "id": 2, "type": "list<double>", "required": true, "revision": 1, "description": "The values, one per label."}
     ],
     "constants": []
   },
@@ -5955,6 +6257,18 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
       {"name": "name", "id": 2, "type": "string", "required": true, "revision": 1, "description": "The file name."},
       {"name": "mimeType", "id": 3, "type": "string", "required": true, "revision": 1, "description": "The media type, such as image/jpeg."},
       {"name": "sizeBytes", "id": 4, "type": "int", "required": true, "revision": 1, "description": "The size in bytes."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "PieSlice",
+    "id": 77,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One slice of a PieChart.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The slice's name."},
+      {"name": "value", "id": 2, "type": "double", "required": true, "revision": 1, "description": "The slice's size; negative values count as zero."}
     ],
     "constants": []
   },

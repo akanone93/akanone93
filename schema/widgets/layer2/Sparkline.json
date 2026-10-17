@@ -1,0 +1,51 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "Sparkline",
+  "id": 196,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "ssid_chart",
+  "description": "A small line of values with no axes, for lists and cards; screen readers get one text summary.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 150,
+  "accessibility": {
+    "role": "image",
+    "interactive": false
+  },
+  "package": "plux_charts",
+  "props": [
+    {
+      "name": "values",
+      "id": 1,
+      "type": "list<double>",
+      "required": true,
+      "description": "The values."
+    },
+    {
+      "name": "semanticLabel",
+      "id": 2,
+      "type": "string?",
+      "translatable": true,
+      "description": "What the values are, spoken before the summary."
+    },
+    {
+      "name": "summaryTemplate",
+      "id": 3,
+      "type": "string",
+      "default": "{count} values, first {first}, last {last}, lowest {min}, highest {max}",
+      "translatable": true,
+      "description": "What a screen reader hears; `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."
+    }
+  ]
+}

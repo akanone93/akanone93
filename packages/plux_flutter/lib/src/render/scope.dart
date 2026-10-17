@@ -88,6 +88,14 @@ abstract interface class RenderServices {
   /// or the catalogue declares none (WGT-033, ADR-0041).
   ({PluxNativeSlot slot, NativeSlotDecl decl, Map<String, NamedType> types})?
   nativeSlot(RenderScope scope, String type);
+
+  /// The package that provides widget [id], from its descriptor; null when
+  /// the widget is the runtime's or unknown.
+  String? missingPackage(int id);
+
+  /// Whether this is the first time the missing package of widget [id] is
+  /// reported: `PLX-4403` is reported once per widget type.
+  bool firstMissingReport(int id);
 }
 
 /// Reports a problem with a node's path (RT-020).

@@ -1,0 +1,64 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "BarChart",
+  "id": 194,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "bar_chart",
+  "description": "Bars per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 400,
+  "accessibility": {
+    "role": "image",
+    "interactive": false
+  },
+  "package": "plux_charts",
+  "props": [
+    {
+      "name": "series",
+      "id": 1,
+      "type": "list<ChartSeries>",
+      "required": true,
+      "description": "The series; they share the labels."
+    },
+    {
+      "name": "labels",
+      "id": 2,
+      "type": "list<string>?",
+      "description": "The label of each position along the horizontal axis."
+    },
+    {
+      "name": "title",
+      "id": 3,
+      "type": "string?",
+      "translatable": true,
+      "description": "A heading above the chart, also its spoken name."
+    },
+    {
+      "name": "summaryTemplate",
+      "id": 4,
+      "type": "string",
+      "default": "{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}",
+      "translatable": true,
+      "description": "What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."
+    },
+    {
+      "name": "showTable",
+      "id": 5,
+      "type": "bool",
+      "default": false,
+      "description": "Whether a table of the values is shown below the chart."
+    }
+  ]
+}

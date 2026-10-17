@@ -103,7 +103,11 @@ final class PluxRenderer implements PageRenderer, RenderServices {
     VerifiedAssets? verified,
     int? cacheEntries,
     int? cacheBytes,
-  }) : statePersistence = statePersistence ?? StatePersistence.inMemory(),
+  }) : builders = {
+         ...nodeBuilders,
+         for (final p in config.widgetPackages) ...p.builders,
+       },
+       statePersistence = statePersistence ?? StatePersistence.inMemory(),
        _verified = verified ?? VerifiedAssets(),
        cache = SectionCache(
          maxEntries:
@@ -114,6 +118,27 @@ final class PluxRenderer implements PageRenderer, RenderServices {
 
   /// The configuration.
   final PluxConfig config;
+
+  /// The builders by permanent widget ID: the runtime's, then those of
+  /// the registered widget packages, which win on a clash.
+  final Map<int, NodeBuilder> builders;
+
+  final Set<int> _missingReported = {};
+
+  @override
+  String? missingPackage(int id) {
+    if (_missingReported.contains(id)) return null;
+    for (final d in widgetDescriptors) {
+      if (d.id == id) {
+        final package = d.package;
+        return package;
+      }
+    }
+    return null;
+  }
+
+  @override
+  bool firstMissingReport(int id) => _missingReported.add(id);
 
   /// Creates the HTTP client images are fetched with; the platform's, or
   /// the configuration's, when null.
@@ -1487,7 +1512,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       section: _section,
       resolver: resolver,
       roots: roots,
-      builders: nodeBuilders,
+      builders: widget.renderer.builders,
       cache: widget.renderer.cache,
       report: _report,
       services: widget.renderer,

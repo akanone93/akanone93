@@ -1,0 +1,105 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "RiveView",
+  "id": 206,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "animation",
+  "description": "A Rive file from an https address whose state machine inputs follow Plux state (ANI-005).",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 1500,
+  "accessibility": {
+    "role": "image",
+    "interactive": false
+  },
+  "package": "plux_rive",
+  "props": [
+    {
+      "name": "url",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "constraints": {
+        "pattern": "^https://"
+      },
+      "description": "The https address of the `.riv` file."
+    },
+    {
+      "name": "artboard",
+      "id": 2,
+      "type": "string?",
+      "description": "The artboard to show, or the file's default."
+    },
+    {
+      "name": "stateMachine",
+      "id": 3,
+      "type": "string?",
+      "description": "The state machine to run, or the artboard's default."
+    },
+    {
+      "name": "inputs",
+      "id": 4,
+      "type": "map<string,double>?",
+      "description": "Number inputs of the state machine by name."
+    },
+    {
+      "name": "flags",
+      "id": 5,
+      "type": "map<string,bool>?",
+      "description": "Boolean inputs of the state machine by name."
+    },
+    {
+      "name": "triggers",
+      "id": 6,
+      "type": "map<string,double>?",
+      "description": "Triggers by name; each fires whenever its value changes."
+    },
+    {
+      "name": "fit",
+      "id": 7,
+      "type": "string",
+      "default": "contain",
+      "description": "How it fits its box, a Rive `Fit` name."
+    },
+    {
+      "name": "reduceMotion",
+      "id": 8,
+      "type": "string",
+      "default": "skip",
+      "constraints": {
+        "pattern": "^(skip|ignore)$"
+      },
+      "description": "`skip` freezes the animation under reduce motion, `ignore` keeps it playing."
+    },
+    {
+      "name": "semanticLabel",
+      "id": 9,
+      "type": "string?",
+      "translatable": true,
+      "description": "What the animation shows; without one it is hidden from screen readers."
+    }
+  ],
+  "events": [
+    {
+      "name": "onLoaded",
+      "id": 1,
+      "description": "Fires when the file is loaded."
+    },
+    {
+      "name": "onFailed",
+      "id": 2,
+      "description": "Fires when the file cannot be loaded."
+    }
+  ]
+}
