@@ -4,6 +4,8 @@
 /// What a widget builder reads its node through (ADR-0031).
 library;
 
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:plux_flutter/src/render/decoding.dart';
@@ -58,6 +60,23 @@ abstract interface class NodeContext implements Decoding {
   /// A remote image at [url] under the same rule as [remoteClient]; null,
   /// reported (PLX-6030), when blocked.
   ImageProvider<Object>? remoteImage(String url);
+
+  /// The bytes at [url] fetched through the pinned client under the same
+  /// rule as [remoteClient], at most the asset size limit; null, reported,
+  /// when blocked or the fetch failed.
+  Future<Uint8List?> remoteBytes(String url);
+
+  /// Where the platform player may read the media at [url] from: the
+  /// address itself, or with `pinnedMediaOnly` (SEC-041) a temporary file
+  /// the pinned client downloaded, at most the asset size limit. Null,
+  /// reported, when the domain is not declared (PLX-6030) or the download
+  /// failed.
+  Future<Uri?> mediaSource(String url);
+
+  /// Null when the plugin may use device API [api]; else the standard
+  /// refusal to return instead of opening the camera, files or location,
+  /// reported (PLX-5400) (SEC-080, X1.1).
+  Widget? deviceRefusal(String api);
 
   /// Reports that an image of the node failed to load.
   void imageFailed(Object error);

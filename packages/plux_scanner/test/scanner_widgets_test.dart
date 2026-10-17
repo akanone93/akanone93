@@ -64,7 +64,10 @@ final class FakeProbe implements ScannerProbe {
 
 /// A node with props by permanent ID and the events its handlers take.
 final class FakeNode implements NodeContext {
-  FakeNode(this.context, this.props, {this.events = const {}});
+  FakeNode(this.context, this.props, {this.events = const {}, this.refusal});
+
+  /// What the runtime answers when the plugin lacks the camera API.
+  final Widget? refusal;
 
   @override
   final BuildContext context;
@@ -89,6 +92,9 @@ final class FakeNode implements NodeContext {
 
   @override
   void fire(int id, [Object? payload]) => fired.add((id, payload));
+
+  @override
+  Widget? deviceRefusal(String api) => api == 'camera' ? refusal : null;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -525,5 +531,25 @@ void main() {
         await p.requestModel();
       },
     );
+  });
+
+  // Verifies: SEC-080, RT-060.
+  testWidgets('a plugin without the camera API gets the refusal and no '
+      'session opens', (tester) async {
+    final package = PluxScannerWidgets(config: config());
+    for (final id in [199, 200]) {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => package.builders[id]!(
+              FakeNode(context, {}, refusal: const Text('refused')),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.text('refused'), findsOneWidget);
+    }
+    expect(sessions, isEmpty);
   });
 }

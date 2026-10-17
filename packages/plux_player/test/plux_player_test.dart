@@ -89,6 +89,14 @@ final class FakeNode implements NodeContext {
   @override
   void fire(int id, [Object? payload]) {}
 
+  final List<String> asked = [];
+
+  @override
+  Future<Uri?> mediaSource(String url) async {
+    asked.add(url);
+    return Uri.parse(url).host == 'example.com' ? Uri.parse(url) : null;
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -320,5 +328,61 @@ void main() {
     expect(v.onError, isNull);
     expect((audio as PluxAudioPlayer).title, 'Song');
     expect((audio as PluxAudioPlayer).autoplay, isFalse);
+  });
+
+  testWidgets('a source the node refuses never plays; one it allows does '
+      '[WGT-020] [SEC-080] [SEC-041] [AST-002]', (tester) async {
+    var errors = 0;
+    late FakeNode node;
+    await tester.pumpWidget(
+      Builder(
+        builder: (context) {
+          node = FakeNode(context, {1: 'https://evil.example.net/a.mp4'});
+          return app(
+            PluxVideoPlayer(
+              url: 'https://evil.example.net/a.mp4',
+              onError: () => errors++,
+              controllerFactory: factory,
+              resolve: node.mediaSource,
+            ),
+          );
+        },
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    expect(errors, 1);
+    expect(urls, isEmpty);
+    expect(node.asked, ['https://evil.example.net/a.mp4']);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpWidget(
+      app(
+        PluxVideoPlayer(
+          url: 'https://example.com/a.mp4',
+          controllerFactory: factory,
+          resolve: node.mediaSource,
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    expect(urls, [Uri.parse('https://example.com/a.mp4')]);
+  });
+
+  testWidgets('the builders hand the node as the source resolver '
+      '[WGT-020] [SEC-041]', (tester) async {
+    late Widget video;
+    await tester.pumpWidget(
+      Builder(
+        builder: (context) {
+          video = const PluxPlayer().builders[203]!(
+            FakeNode(context, {1: 'https://example.com/a.mp4'}),
+          );
+          return const SizedBox();
+        },
+      ),
+    );
+    expect((video as PluxVideoPlayer).resolve, isNotNull);
   });
 }

@@ -1,13 +1,17 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_flutter/src/bundle/container.dart';
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
+import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
 
 import '../support/harness.dart';
@@ -40,6 +44,20 @@ Uint8List _galleryWith(List<fbs.NodeObjectBuilder> nodes) {
   }
   return encodeBundle(BundleKinds.plugin, sections);
 }
+
+/// What the mock client of this file was asked for; the client is made by a
+/// top-level function because the runtime sends its factory to the sync
+/// worker.
+final List<String> _asked = [];
+
+http.Client _mockClient() => MockClient.streaming((r, body) async {
+  _asked.add(r.url.toString());
+  return http.StreamedResponse(
+    Stream.value(Uint8List.fromList([1, 2, 3])),
+    200,
+    contentLength: 3,
+  );
+});
 
 final class _Package implements PluxWidgetPackage {
   _Package(this.builders);
@@ -144,5 +162,129 @@ void main() {
       h.errors.where((e) => e.code == PluxErrorCode.outboundRequestBlocked),
       hasLength(6),
     );
+  });
+
+  testWidgets('a widget of a plugin without the device API gets the '
+      'standard refusal and nothing opens [SEC-080][RT-060]', (tester) async {
+    var opened = 0;
+    await show(tester, [
+      _Package({
+        line.id: (c) {
+          final refusal = c.deviceRefusal('location');
+          if (refusal != null) return refusal;
+          opened++;
+          return const SizedBox();
+        },
+        bar.id: (c) => const SizedBox(),
+      }),
+    ]);
+    expect(opened, 0);
+    expect(
+      h.errors.where((e) => e.code == PluxErrorCode.deviceCapabilityBlocked),
+      isNotEmpty,
+    );
+    expect(DeviceGuard.widgetApiOf['QrScanner'], 'camera');
+    expect(DeviceGuard.widgetApiOf['FileUploader'], 'files');
+  });
+
+  group('media and remote bytes', () {
+    Future<List<Object?>> run(
+      WidgetTester tester,
+      Future<Object?> Function(NodeContext c) ask, {
+      required String profile,
+    }) async {
+      final out = <Object?>[];
+      late NodeContext node;
+      await tester.runAsync(
+        () => h.startFrom(
+          Harness.goldens.bundles['widgets/widgets.pxb']!,
+          {
+            'gallery': _galleryWith([
+              fbs.NodeObjectBuilder(widget: column.id, children: [1, 2]),
+              fbs.NodeObjectBuilder(widget: line.id),
+              fbs.NodeObjectBuilder(widget: bar.id),
+            ]),
+          },
+          client: _mockClient,
+          widgetPackages: [
+            _Package({
+              line.id: (c) {
+                node = c;
+                return const SizedBox();
+              },
+              bar.id: (c) => const SizedBox(),
+            }),
+          ],
+        ),
+      );
+      await tester.pumpWidget(
+        const MaterialApp(home: PluxScope(child: PluxView('layout'))),
+      );
+      h.runtime.settings.value = SecuritySettings.fromDocument({
+        'profile': profile,
+      });
+      out.add(await tester.runAsync<Object?>(() => ask(node)));
+      return out;
+    }
+
+    testWidgets('under maximum the media is downloaded through the pinned '
+        'client to a temporary file [SEC-041][SEC-080][AST-002]', (
+      tester,
+    ) async {
+      _asked.clear();
+      final out = await run(
+        tester,
+        (c) => c.mediaSource('https://example.com/a.mp4'),
+        profile: 'maximum',
+      );
+      expect(_asked, ['https://example.com/a.mp4']);
+      final uri = out.single! as Uri;
+      expect(uri.scheme, 'file');
+      expect(File.fromUri(uri).readAsBytesSync(), [1, 2, 3]);
+      File.fromUri(uri).parent.deleteSync(recursive: true);
+    });
+
+    testWidgets('under standard the platform player gets the address and '
+        'nothing is downloaded [SEC-041]', (tester) async {
+      _asked.clear();
+      final out = await run(
+        tester,
+        (c) => c.mediaSource('https://example.com/a.mp4'),
+        profile: 'standard',
+      );
+      expect(_asked, isEmpty);
+      expect(out.single, Uri.parse('https://example.com/a.mp4'));
+    });
+
+    testWidgets('an undeclared domain is refused with PLX-6030 and nothing '
+        'is loaded [SEC-080][AST-002]', (tester) async {
+      _asked.clear();
+      final out = await run(
+        tester,
+        (c) async => [
+          await c.mediaSource('https://evil.example.net/a.mp4'),
+          await c.remoteBytes('https://evil.example.net/a.json'),
+        ],
+        profile: 'maximum',
+      );
+      expect(out.single, [null, null]);
+      expect(_asked, isEmpty);
+      expect(
+        h.errors.where((e) => e.code == PluxErrorCode.outboundRequestBlocked),
+        hasLength(2),
+      );
+    });
+
+    testWidgets('remoteBytes fetches a declared domain through the pinned '
+        'client [SEC-041][AST-002]', (tester) async {
+      _asked.clear();
+      final out = await run(
+        tester,
+        (c) => c.remoteBytes('https://example.com/a.json'),
+        profile: 'standard',
+      );
+      expect(out.single, [1, 2, 3]);
+      expect(_asked, ['https://example.com/a.json']);
+    });
   });
 }

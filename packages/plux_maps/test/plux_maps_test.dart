@@ -18,7 +18,11 @@ final class FakeNode implements NodeContext {
     this.props, {
     this.handled = const {},
     this.allowed = 'tiles.example.com',
+    this.refusal,
   });
+
+  /// What the runtime answers when the plugin lacks the location API.
+  final Widget? refusal;
 
   @override
   final BuildContext context;
@@ -51,6 +55,9 @@ final class FakeNode implements NodeContext {
     asked.add(url);
     return Uri.parse(url).host == allowed ? MemoryImage(transparentTile) : null;
   }
+
+  @override
+  Widget? deviceRefusal(String api) => api == 'location' ? refusal : null;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -340,5 +347,33 @@ void main() {
     expect(mid, isNot(before));
     expect(mid, isNot(end));
     expect(end.dx, greaterThan(before.dx));
+  });
+
+  // Verifies: SEC-080, RT-060.
+  testWidgets('showing the user needs the location API; a plain map does '
+      'not', (tester) async {
+    late Widget shown;
+    late Widget plain;
+    await tester.pumpWidget(
+      Builder(
+        builder: (context) {
+          const maps = PluxMaps();
+          final refusal = const Text('refused');
+          shown = maps.builders[PluxMapIds.mapView]!(
+            FakeNode(
+              context,
+              _mapProps(tiles: false)..[10] = true,
+              refusal: refusal,
+            ),
+          );
+          plain = maps.builders[PluxMapIds.mapView]!(
+            FakeNode(context, _mapProps(tiles: false), refusal: refusal),
+          );
+          return const SizedBox();
+        },
+      ),
+    );
+    expect(shown, isA<Text>());
+    expect(plain, isA<PluxMapView>());
   });
 }

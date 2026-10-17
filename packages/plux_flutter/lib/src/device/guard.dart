@@ -92,6 +92,36 @@ final class DeviceGuard {
     'biometricAuth': 'biometrics',
   };
 
+  /// The device API each widget needs (X1.1, SEC-080). `MapView` and
+  /// `OrderTrackerMap` need location only when they show the user's
+  /// position; their builders ask for it then.
+  static const Map<String, String> widgetApiOf = {
+    'QrScanner': 'camera',
+    'BarcodeScanner': 'camera',
+    'KycCameraCapture': 'camera',
+    'FileUploader': 'files',
+    'MapView': 'location',
+    'OrderTrackerMap': 'location',
+  };
+
+  /// The refusal (`PLX-5400`) of device API [api] to a widget of [plugin],
+  /// or null when the plugin declares it and the host allows it.
+  PluxException? refusal(String plugin, String api) {
+    final String why;
+    if (!capabilities(plugin).deviceApis.contains(api)) {
+      why = 'the plugin does not declare the device API $api';
+    } else if (allowed != null && !allowed!.contains(api)) {
+      why = 'the host does not allow the device API $api';
+    } else {
+      return null;
+    }
+    return PluxException(
+      PluxErrorCode.deviceCapabilityBlocked,
+      'widget blocked: $why',
+      details: {'plugin': plugin, 'api': api},
+    );
+  }
+
   /// Admits a step running [action] with [inputs] for [plugin], or fails
   /// with a `permission` [ActionError] (`PLX-5400`) after reporting it.
   void admit(String plugin, String action, Map<String, Object?> inputs) {

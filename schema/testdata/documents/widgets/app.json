@@ -1,8 +1,9 @@
 {
   "capabilities": {
     "deviceApis": [
-      "haptics",
-      "files"
+      "camera",
+      "files",
+      "haptics"
     ]
   },
   "defaultLocale": "en",

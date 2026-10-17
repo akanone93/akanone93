@@ -9,6 +9,7 @@
 library;
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart' as vp;
@@ -23,7 +24,12 @@ typedef PluxPlayerControllerFactory = vp.VideoPlayerController Function(
 vp.VideoPlayerController _network(
   Uri url,
   Future<vp.ClosedCaptionFile>? captions,
-) => vp.VideoPlayerController.networkUrl(url, closedCaptionFile: captions);
+) => url.scheme == 'file'
+    ? vp.VideoPlayerController.file(
+        File.fromUri(url),
+        closedCaptionFile: captions,
+      )
+    : vp.VideoPlayerController.networkUrl(url, closedCaptionFile: captions);
 
 /// Whether [url] may be played: only https addresses, so that nobody on the
 /// network can change what plays.
@@ -60,6 +66,7 @@ final class PluxVideoPlayer extends StatelessWidget {
     this.onEnded,
     this.onError,
     this.controllerFactory = _network,
+    this.resolve,
     super.key,
   });
 
@@ -102,6 +109,11 @@ final class PluxVideoPlayer extends StatelessWidget {
   /// Makes the controller; tests put a fake here.
   final PluxPlayerControllerFactory controllerFactory;
 
+  /// Where to read the media at the url from, when the host decides (a
+  /// pinned download, SEC-041); null for the url itself. A null result
+  /// means the media may not play.
+  final Future<Uri?> Function(String url)? resolve;
+
   @override
   Widget build(BuildContext context) => _MediaPlayer(
     video: true,
@@ -118,6 +130,7 @@ final class PluxVideoPlayer extends StatelessWidget {
     onEnded: onEnded,
     onError: onError,
     controllerFactory: controllerFactory,
+    resolve: resolve,
   );
 }
 
@@ -135,6 +148,7 @@ final class PluxAudioPlayer extends StatelessWidget {
     this.onEnded,
     this.onError,
     this.controllerFactory = _network,
+    this.resolve,
     super.key,
   });
 
@@ -168,6 +182,11 @@ final class PluxAudioPlayer extends StatelessWidget {
   /// Makes the controller; tests put a fake here.
   final PluxPlayerControllerFactory controllerFactory;
 
+  /// Where to read the media at the url from, when the host decides (a
+  /// pinned download, SEC-041); null for the url itself. A null result
+  /// means the media may not play.
+  final Future<Uri?> Function(String url)? resolve;
+
   @override
   Widget build(BuildContext context) => _MediaPlayer(
     video: false,
@@ -182,6 +201,7 @@ final class PluxAudioPlayer extends StatelessWidget {
     onEnded: onEnded,
     onError: onError,
     controllerFactory: controllerFactory,
+    resolve: resolve,
   );
 }
 
@@ -199,6 +219,7 @@ final class _MediaPlayer extends StatefulWidget {
     required this.onEnded,
     required this.onError,
     required this.controllerFactory,
+    this.resolve,
     this.captions,
     this.aspectRatio = 16 / 9,
   });
@@ -218,6 +239,11 @@ final class _MediaPlayer extends StatefulWidget {
   final VoidCallback? onError;
   final PluxPlayerControllerFactory controllerFactory;
 
+  /// Where to read the media at the url from, when the host decides (a
+  /// pinned download, SEC-041); null for the url itself. A null result
+  /// means the media may not play.
+  final Future<Uri?> Function(String url)? resolve;
+
   @override
   State<_MediaPlayer> createState() => _MediaPlayerState();
 }
@@ -228,6 +254,7 @@ final class _MediaPlayerState extends State<_MediaPlayer> {
   bool _captionsOn = true;
   bool _completed = false;
   bool _started = false;
+  Uri? _downloaded;
 
   @override
   void didChangeDependencies() {
@@ -260,6 +287,12 @@ final class _MediaPlayerState extends State<_MediaPlayer> {
     _controller = null;
     c?.removeListener(_changed);
     unawaited(c?.dispose());
+    final file = _downloaded;
+    _downloaded = null;
+    if (file != null) {
+      final dir = File.fromUri(file).parent;
+      if (dir.existsSync()) dir.deleteSync(recursive: true);
+    }
     _failed = false;
     _completed = false;
   }
@@ -279,9 +312,19 @@ final class _MediaPlayerState extends State<_MediaPlayer> {
       });
       return;
     }
+    final resolve = widget.resolve;
+    final source = resolve == null
+        ? Uri.parse(widget.url)
+        : await resolve(widget.url);
+    if (!mounted) return;
+    if (source == null) {
+      _fail();
+      return;
+    }
+    _downloaded = resolve != null && source.scheme == 'file' ? source : null;
     final text = widget.captions;
     final controller = widget.controllerFactory(
-      Uri.parse(widget.url),
+      source,
       widget.video && text != null && text.isNotEmpty
           ? Future.value(vp.WebVTTCaptionFile(text))
           : null,

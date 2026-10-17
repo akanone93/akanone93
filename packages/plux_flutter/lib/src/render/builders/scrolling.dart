@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
+import 'package:plux_flutter/src/render/keep_scope.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
 
 /// The permanent ID of `Table`.
@@ -220,6 +221,10 @@ Widget _reorderableListView(NodeContext c) {
     itemCount: values.length,
     itemBuilder: (context, i) =>
         KeyedSubtree(key: ValueKey(i), child: c.item(1, values[i], i)),
+    proxyDecorator: (child, _, _) => keepScope(
+      c.context,
+      Material(elevation: 4, color: Colors.transparent, child: child),
+    ),
     onReorderItem: (from, to) {
       if (c.handles(1)) c.fire(1, {'oldIndex': from, 'newIndex': to});
     },

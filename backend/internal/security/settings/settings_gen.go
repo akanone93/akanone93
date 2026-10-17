@@ -192,6 +192,10 @@ const (
 	// MinAssuranceForSync: The lowest assurance level a device must hold to sync
 	// plugins. (SEC-007)
 	MinAssuranceForSync Key = "minAssuranceForSync"
+	// PinnedMediaOnly: Whether video and audio are downloaded through the pinned
+	// client to a temporary file before they play, because the platform players
+	// cannot pin certificates. (SEC-041, SEC-080, AST-002)
+	PinnedMediaOnly Key = "pinnedMediaOnly"
 	// RaspAccessibilityResponse: How the runtime responds when an accessibility
 	// service that can read the screen and perform gestures is enabled.
 	// (SEC-071)
@@ -363,6 +367,12 @@ func All() []Setting {
 			Defaults:        Defaults{Standard: TextValue("AL0"), Strict: TextValue("AL1"), Maximum: TextValue("AL2")},
 			TravelsToDevice: true, Phase: "P6", Requirements: []string{"SEC-007"},
 			Description: "The lowest assurance level a device must hold to sync plugins.",
+		},
+		{
+			Key: PinnedMediaOnly, Type: TypeBool, Tighter: TighterTrue,
+			Defaults:        Defaults{Standard: BoolValue(false), Strict: BoolValue(false), Maximum: BoolValue(true)},
+			TravelsToDevice: true, Phase: "P8", Requirements: []string{"SEC-041", "SEC-080", "AST-002"},
+			Description: "Whether video and audio are downloaded through the pinned client to a temporary file before they play, because the platform players cannot pin certificates.",
 		},
 		{
 			Key: RaspAccessibilityResponse, Type: TypeEnum, Tighter: TighterOrder,

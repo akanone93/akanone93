@@ -77,6 +77,8 @@ Widget _scanner(
   PluxScannerConfig config, {
   required bool barcode,
 }) {
+  final refused = c.deviceRefusal('camera');
+  if (refused != null) return refused;
   // `BarcodeScanner` has `formats` first, so its other props shift by one.
   final o = barcode ? 1 : 0;
   final formats = barcode

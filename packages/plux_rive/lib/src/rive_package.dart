@@ -6,6 +6,8 @@
 /// the descriptor in `schema/widgets/layer2`; a test compares them.
 library;
 
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_rive/src/plux_rive.dart';
@@ -38,12 +40,14 @@ Map<String, Object?> _map(Object? v) => switch (v) {
 
 Widget _riveView(NodeContext c) {
   final url = c.decode(1, asString) ?? c.missing('RiveView.url');
-  if (!url.startsWith('https://')) return const SizedBox.shrink();
+  // Fetched through the pinned client, from an HTTPS domain the plugin
+  // declares only (SEC-080, SEC-041, AST-002).
   final label = c.decode(9, asString);
   final view = PluxRiveView(
-    // The Rive renderer draws the animation; the loader reads the URL once
-    // and caches the file for the widget's life.
-    loader: () => rive.FileLoader.fromUrl(url, riveFactory: rive.Factory.rive),
+    // The Rive renderer draws the animation; the loader decodes the bytes
+    // the pinned client fetched, once, and caches the file for the widget's
+    // life.
+    loader: () => _FetchedFileLoader(() => c.remoteBytes(url)),
     cacheKey: url,
     artboard: c.decode(2, asString),
     stateMachine: c.decode(3, asString),
@@ -62,4 +66,26 @@ Widget _riveView(NodeContext c) {
           excludeSemantics: true,
           child: view,
         );
+}
+
+/// A Rive file decoded from the bytes the pinned client fetched; the load
+/// fails (and the view reports it) when they cannot be had.
+final class _FetchedFileLoader extends rive.FileLoader {
+  _FetchedFileLoader(this._fetch)
+    : super.fromUrl('', riveFactory: rive.Factory.rive);
+
+  final Future<Uint8List?> Function() _fetch;
+  Future<rive.File>? _file;
+
+  @override
+  Future<rive.File> file() => _file ??= _load();
+
+  Future<rive.File> _load() async {
+    final bytes = await _fetch();
+    final file = bytes == null
+        ? null
+        : await rive.File.decode(bytes, riveFactory: rive.Factory.rive);
+    if (file == null) throw const FormatException('the file is not available');
+    return file;
+  }
 }

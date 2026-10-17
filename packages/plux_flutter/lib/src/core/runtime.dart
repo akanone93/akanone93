@@ -828,6 +828,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     verified: _verified,
     data: _dataServices,
     secureUi: secureUi,
+    pinnedMedia: () => settings.value.flag(SecuritySetting.pinnedMediaOnly),
     actions: ActionServices(
       router: router,
       emit: emitHostEvent,

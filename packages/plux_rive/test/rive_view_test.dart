@@ -3,6 +3,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,6 +17,13 @@ final class FakeNode implements NodeContext {
   final BuildContext context;
   final Map<int, Object?> props;
   final List<int>? fired;
+  final List<String> asked = [];
+
+  @override
+  Future<Uint8List?> remoteBytes(String url) async {
+    asked.add(url);
+    return null;
+  }
 
   @override
   Object? prop(int id) => props[id];
@@ -82,9 +90,24 @@ void main() {
     );
   });
 
-  testWidgets('only https addresses play [WGT-020] [SEC-054]', (tester) async {
-    final built = await build(tester, {1: 'http://example.com/a.riv'});
-    expect(built, isA<SizedBox>());
+  testWidgets('the file loads through the pinned, domain-checked fetch and '
+      'fails when it is refused [WGT-020] [SEC-080] [SEC-041] [AST-002]', (
+    tester,
+  ) async {
+    late FakeNode node;
+    late Widget built;
+    await tester.pumpWidget(
+      Builder(
+        builder: (context) {
+          node = FakeNode(context, {1: 'https://evil.example.net/a.riv'});
+          built = const PluxRiveWidgets().builders[PluxRiveIds.riveView]!(node);
+          return const SizedBox();
+        },
+      ),
+    );
+    final view = (built as ExcludeSemantics).child! as PluxRiveView;
+    await expectLater(view.loader().file(), throwsFormatException);
+    expect(node.asked, ['https://evil.example.net/a.riv']);
   });
 
   testWidgets('numbers, flags and triggers reach the state machine inputs '

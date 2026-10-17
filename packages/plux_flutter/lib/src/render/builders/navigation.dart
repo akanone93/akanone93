@@ -14,6 +14,7 @@ import 'package:plux_flutter/src/pxl/values.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
+import 'package:plux_flutter/src/render/keep_scope.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
 
 /// The permanent ID of `PopupMenuButton`.
@@ -167,7 +168,7 @@ Widget _popupMenuButton(NodeContext c) {
         PopupMenuItem<String>(
           value: e.value,
           enabled: e.enabled,
-          child: _menuRow(e),
+          child: keepScope(c.context, _menuRow(e)),
         ),
     ],
     initialValue: c.decode(2, asString),
@@ -249,12 +250,15 @@ Widget _searchAnchor(NodeContext c) {
       return [
         for (final s in suggestions)
           if (s.toLowerCase().contains(query))
-            ListTile(
-              title: Text(s),
-              onTap: () {
-                controller.closeView(s);
-                if (c.handles(1)) c.fire(1, s);
-              },
+            keepScope(
+              c.context,
+              ListTile(
+                title: Text(s),
+                onTap: () {
+                  controller.closeView(s);
+                  if (c.handles(1)) c.fire(1, s);
+                },
+              ),
             ),
       ];
     },
@@ -273,6 +277,28 @@ Widget _autocomplete(NodeContext c) {
     optionsMaxHeight: c.decode(3, asDouble) ?? 200.0,
     initialValue: TextEditingValue(text: c.decode(4, asString) ?? ''),
     onSelected: c.handles(1) ? (v) => c.fire(1, v) : null,
+    optionsViewBuilder: (context, onSelected, opts) => keepScope(
+      c.context,
+      Align(
+        alignment: Alignment.topLeft,
+        child: Material(
+          elevation: 4,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: c.decode(3, asDouble) ?? 200.0,
+            ),
+            child: ListView(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              children: [
+                for (final o in opts)
+                  ListTile(title: Text(o), onTap: () => onSelected(o)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
     fieldViewBuilder: (context, controller, focusNode, onSubmitted) =>
         TextField(
           controller: controller,
