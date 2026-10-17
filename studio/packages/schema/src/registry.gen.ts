@@ -173,7 +173,7 @@ export interface ActionDescriptor {
 }
 
 /** A widget type name. */
-export type WidgetType = "ActionChip" | "Align" | "AppBar" | "AspectRatio" | "BackButton" | "BackdropFilter" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "Card" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConstrainedBox" | "Container" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTextField" | "CustomScrollView" | "DataTable" | "DecoratedBox" | "Divider" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FilledButton" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Icon" | "IconButton" | "If" | "Image" | "IndexedStack" | "InkWell" | "InputChip" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "Match" | "MaterialBanner" | "NestedScrollView" | "OfflineBanner" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "Positioned" | "Radio" | "RadioListTile" | "RangeSlider" | "RefreshIndicator" | "ReorderableListView" | "Responsive" | "RichText" | "Row" | "SafeArea" | "Scaffold" | "Scrollbar" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverPersistentHeader" | "SliverToBoxAdapter" | "Slot" | "Spacer" | "Stack" | "Stepper" | "Switch" | "SwitchListTile" | "Table" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Tooltip" | "Transform" | "VerticalDivider" | "Wrap";
+export type WidgetType = "ActionChip" | "Align" | "AppBar" | "AspectRatio" | "BackButton" | "BackdropFilter" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "Card" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTextField" | "CustomScrollView" | "DataTable" | "DecoratedBox" | "Divider" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Icon" | "IconButton" | "If" | "Image" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "Match" | "MaterialBanner" | "NestedScrollView" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "Positioned" | "ProfileHeader" | "Radio" | "RadioListTile" | "RangeSlider" | "RefreshIndicator" | "ReorderableListView" | "Responsive" | "RichText" | "Row" | "SafeArea" | "Scaffold" | "Scrollbar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverPersistentHeader" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Stack" | "StatusTimeline" | "Stepper" | "Switch" | "SwitchListTile" | "Table" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Tooltip" | "Transform" | "VerticalDivider" | "WizardForm" | "Wrap";
 
 /** An action name. */
 export type ActionName = "announce" | "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "readConfig" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
@@ -892,6 +892,33 @@ export const widgets: readonly WidgetDescriptor[] = [
     "children": {}
   },
   {
+    "type": "ConsentCheckbox",
+    "id": 171,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "fact_check",
+    "description": "A checkbox that records consent to a versioned document, with a link to read it.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "checkbox", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What the person consents to."},
+      {"name": "documentVersion", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The version of the document the consent covers."},
+      {"name": "linkLabel", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The text of the link that opens the document."},
+      {"name": "value", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether consent is given."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "bool", "revision": 1, "description": "Fires with the new value when the person toggles the checkbox."},
+      {"name": "onAccepted", "id": 2, "payload": "string", "revision": 1, "description": "Fires with `documentVersion` when consent is given, so the page records the accepted version."},
+      {"name": "onLinkTap", "id": 3, "revision": 1, "description": "Fires when the person taps the link."}
+    ],
+    "slots": []
+  },
+  {
     "type": "ConstrainedBox",
     "id": 11,
     "layer": 1,
@@ -1602,6 +1629,28 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "FilterBar",
+    "id": 173,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "filter_list",
+    "description": "A horizontally scrolling row of filter chips.",
+    "platforms": ["android", "ios"],
+    "cost": 90,
+    "accessibility": {"role": "list", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "filters", "id": 1, "type": "list<ChoiceItem>", "required": true, "revision": 1, "bindable": true, "description": "The chips."}
+    ],
+    "events": [
+      {"name": "onToggle", "id": 1, "payload": "ChoiceItem", "revision": 1, "description": "Fires with the chip's `id`, `label` and its new `selected` when the person taps it."}
+    ],
+    "slots": []
+  },
+  {
     "type": "FilterChip",
     "id": 60,
     "layer": 1,
@@ -2141,6 +2190,36 @@ export const widgets: readonly WidgetDescriptor[] = [
     "children": {}
   },
   {
+    "type": "InfiniteList",
+    "id": 175,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "scrolling",
+    "icon": "view_list",
+    "description": "A lazily built, paginated list of `item` templates over `items`, with empty, loading and error states (WGT-012).",
+    "platforms": ["android", "ios"],
+    "cost": 50,
+    "accessibility": {"role": "list", "interactive": false},
+    "typeParameters": ["T"],
+    "props": [
+      {"name": "items", "id": 1, "type": "list<T>", "required": true, "revision": 1, "bindable": true, "description": "The items loaded so far; the template repeats over them as `item` and `index`."},
+      {"name": "status", "id": 2, "type": "ListStatus", "required": false, "default": "ready", "revision": 1, "bindable": true, "description": "Loading, error or ready; selects the `loading` or `error` slot."},
+      {"name": "hasMore", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "More items can be loaded; `onEndReached` fires near the end."},
+      {"name": "padding", "id": 4, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true, "description": "Space around the items."}
+    ],
+    "events": [
+      {"name": "onEndReached", "id": 1, "revision": 1, "description": "Fires once when the last item comes into view and `hasMore` is true."}
+    ],
+    "slots": [
+      {"name": "item", "id": 1, "list": false, "required": true, "template": true, "revision": 1, "description": "The template built for each item, lazily."},
+      {"name": "empty", "id": 2, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown when `items` is empty."},
+      {"name": "loading", "id": 3, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is loading."},
+      {"name": "error", "id": 4, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is error."}
+    ]
+  },
+  {
     "type": "InkWell",
     "id": 90,
     "layer": 1,
@@ -2529,6 +2608,32 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": []
   },
   {
+    "type": "OnboardingPager",
+    "id": 177,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "slideshow",
+    "description": "Swipeable onboarding pages with page indicators and a Done button on the last page.",
+    "platforms": ["android", "ios"],
+    "cost": 140,
+    "accessibility": {"role": "none", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "currentPage", "id": 1, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The zero-based page shown."},
+      {"name": "nextLabel", "id": 2, "type": "string", "required": false, "default": "Next", "revision": 1, "bindable": true, "description": "The Next button's text."},
+      {"name": "doneLabel", "id": 3, "type": "string", "required": false, "default": "Done", "revision": 1, "bindable": true, "description": "The Done button's text, on the last page."}
+    ],
+    "events": [
+      {"name": "onPageChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the page now shown."},
+      {"name": "onDone", "id": 2, "revision": 1, "description": "Fires when the person finishes the last page."}
+    ],
+    "slots": [],
+    "children": {"min": 1}
+  },
+  {
     "type": "Opacity",
     "id": 22,
     "layer": 1,
@@ -2690,6 +2795,31 @@ export const widgets: readonly WidgetDescriptor[] = [
     "events": [],
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "ProfileHeader",
+    "id": 179,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "layout",
+    "icon": "account_circle",
+    "description": "A person's avatar, name and subtitle with an actions row.",
+    "platforms": ["android", "ios"],
+    "cost": 50,
+    "accessibility": {"role": "header", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "name", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The person's name."},
+      {"name": "subtitle", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line below the name."},
+      {"name": "avatar", "id": 3, "type": "ImageSource?", "required": false, "revision": 1, "bindable": true, "description": "The avatar image; the name's initial shows when absent or failing."},
+      {"name": "radius", "id": 4, "type": "double", "required": false, "default": 32.0, "constraints": {"min": 8}, "revision": 1, "bindable": true, "description": "The avatar's radius."}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "actions", "id": 1, "list": false, "required": false, "template": false, "revision": 1, "description": "Buttons below the name."}
     ]
   },
   {
@@ -3077,6 +3207,32 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "SearchField",
+    "id": 172,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "search",
+    "description": "A search box that reports the query once typing pauses, with optional suggestions.",
+    "platforms": ["android", "ios"],
+    "cost": 120,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "string", "required": false, "default": "", "revision": 1, "bindable": true, "description": "The text in the field."},
+      {"name": "hint", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The placeholder."},
+      {"name": "debounceMs", "id": 3, "type": "int", "required": false, "default": 300, "constraints": {"min": 0, "max": 5000}, "revision": 1, "bindable": true, "description": "How long typing must pause before `onSearch` fires, in milliseconds."},
+      {"name": "suggestions", "id": 4, "type": "list<string>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "Suggestions shown below the field while it has text."}
+    ],
+    "events": [
+      {"name": "onSearch", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the query after typing pauses for `debounceMs`."},
+      {"name": "onSuggestionSelected", "id": 2, "payload": "string", "revision": 1, "description": "Fires with the suggestion the person picked."}
+    ],
+    "slots": []
+  },
+  {
     "type": "SecurePinPad",
     "id": 105,
     "layer": 2,
@@ -3197,6 +3353,27 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "onTap", "id": 1, "revision": 1}
     ],
     "slots": []
+  },
+  {
+    "type": "SettingsList",
+    "id": 178,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "layout",
+    "icon": "settings",
+    "description": "Settings rows grouped under section headers.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "list", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "sections", "id": 1, "type": "list<SettingsSection>", "required": true, "revision": 1, "bindable": true, "description": "The groups; the children are divided among them in order by `count`."}
+    ],
+    "events": [],
+    "slots": [],
+    "children": {}
   },
   {
     "type": "SingleChildScrollView",
@@ -3553,6 +3730,30 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "SortSheet",
+    "id": 174,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "sort",
+    "description": "A list of radio rows to choose a sort order from; a page of kind bottom sheet hosts it.",
+    "platforms": ["android", "ios"],
+    "cost": 80,
+    "accessibility": {"role": "radio", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "title", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A header above the rows."},
+      {"name": "options", "id": 2, "type": "list<ChoiceItem>", "required": true, "revision": 1, "bindable": true, "description": "The orders offered; their `selected` is ignored in favour of `selected`."},
+      {"name": "selected", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The `id` of the chosen option."}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the `id` of the option the person chose."}
+    ],
+    "slots": []
+  },
+  {
     "type": "Spacer",
     "id": 33,
     "layer": 1,
@@ -3595,6 +3796,26 @@ export const widgets: readonly WidgetDescriptor[] = [
     "events": [],
     "slots": [],
     "children": {}
+  },
+  {
+    "type": "StatusTimeline",
+    "id": 180,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "feedback",
+    "icon": "timeline",
+    "description": "A vertical timeline of steps, each done, current, pending or failed; the current step is announced.",
+    "platforms": ["android", "ios"],
+    "cost": 70,
+    "accessibility": {"role": "list", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "steps", "id": 1, "type": "list<TimelineStep>", "required": true, "revision": 1, "bindable": true, "description": "The steps, in order."}
+    ],
+    "events": [],
+    "slots": []
   },
   {
     "type": "Stepper",
@@ -4075,6 +4296,36 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": []
   },
   {
+    "type": "WizardForm",
+    "id": 176,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "linear_scale",
+    "description": "A multi-step form: one child per step, a progress indicator, and Back, Next and Submit buttons that validate the step through the enclosing form.",
+    "platforms": ["android", "ios"],
+    "cost": 160,
+    "accessibility": {"role": "none", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "titles", "id": 1, "type": "list<string>", "required": true, "revision": 1, "bindable": true, "description": "The title of each step, in order."},
+      {"name": "currentStep", "id": 2, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The zero-based step shown."},
+      {"name": "stepFields", "id": 3, "type": "list<string>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "For each step, the comma-separated form fields it holds; Next validates those fields through the enclosing `FormScope`."},
+      {"name": "backLabel", "id": 4, "type": "string", "required": false, "default": "Back", "revision": 1, "bindable": true, "description": "The Back button's text."},
+      {"name": "nextLabel", "id": 5, "type": "string", "required": false, "default": "Next", "revision": 1, "bindable": true, "description": "The Next button's text."},
+      {"name": "submitLabel", "id": 6, "type": "string", "required": false, "default": "Submit", "revision": 1, "bindable": true, "description": "The Submit button's text, on the last step."}
+    ],
+    "events": [
+      {"name": "onNext", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the step now shown, once the current step is valid."},
+      {"name": "onBack", "id": 2, "payload": "int", "revision": 1, "description": "Fires with the step now shown when the person goes back."},
+      {"name": "onSubmit", "id": 3, "revision": 1, "description": "Fires when the last step is valid and the person submits."}
+    ],
+    "slots": [],
+    "children": {"min": 1}
+  },
+  {
     "type": "Wrap",
     "id": 30,
     "layer": 1,
@@ -4284,6 +4535,19 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
       {"name": "animationDuration", "id": 19, "type": "duration", "required": false, "revision": 1},
       {"name": "enableFeedback", "id": 20, "type": "bool", "required": false, "revision": 1},
       {"name": "alignment", "id": 21, "type": "Alignment", "required": false, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
+    "name": "ChoiceItem",
+    "id": 62,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One choice of a FilterBar or SortSheet.",
+    "fields": [
+      {"name": "id", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The stable identifier the events report."},
+      {"name": "label", "id": 2, "type": "string", "required": true, "revision": 1, "description": "The text shown."},
+      {"name": "selected", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "description": "Whether the choice is on."}
     ],
     "constants": []
   },
@@ -4608,6 +4872,18 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "constants": []
   },
   {
+    "name": "SettingsSection",
+    "id": 64,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One group of rows of a SettingsList.",
+    "fields": [
+      {"name": "title", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The section header."},
+      {"name": "count", "id": 2, "type": "int", "required": true, "revision": 1, "description": "How many of the list's children, in order, belong to the section."}
+    ],
+    "constants": []
+  },
+  {
     "name": "Shadow",
     "id": 22,
     "revision": 1,
@@ -4705,6 +4981,19 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
       {"name": "fontFamily", "id": 18, "type": "string", "required": false, "revision": 1},
       {"name": "fontFamilyFallback", "id": 19, "type": "list<string>", "required": false, "revision": 1},
       {"name": "overflow", "id": 20, "type": "TextOverflow", "required": false, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
+    "name": "TimelineStep",
+    "id": 63,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One step of a StatusTimeline.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The step's name."},
+      {"name": "detail", "id": 2, "type": "string?", "required": false, "revision": 1, "description": "A line below the label, such as a time or a reason."},
+      {"name": "state", "id": 3, "type": "TimelineStepState", "required": false, "default": "pending", "revision": 1, "description": "Where the step stands."}
     ],
     "constants": []
   },
@@ -5873,6 +6162,19 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "repeated", "id": 2, "revision": 1},
       {"name": "mirror", "id": 3, "revision": 1},
       {"name": "decal", "id": 4, "revision": 1}
+    ]
+  },
+  {
+    "name": "TimelineStepState",
+    "id": 125,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Where a StatusTimeline step stands.",
+    "values": [
+      {"name": "done", "id": 1, "revision": 1},
+      {"name": "current", "id": 2, "revision": 1},
+      {"name": "pending", "id": 3, "revision": 1},
+      {"name": "failed", "id": 4, "revision": 1}
     ]
   },
   {

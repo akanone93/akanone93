@@ -1246,6 +1246,15 @@ TileMode? decodeTileMode(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a TimelineStepState, from its permanent value ID or name.
+String? nameTimelineStepState(Decoding d, Object? v) => switch (v) {
+  1 || 'done' => 'done',
+  2 || 'current' => 'current',
+  3 || 'pending' => 'pending',
+  4 || 'failed' => 'failed',
+  _ => null,
+};
+
 /// The member name of a TooltipTriggerMode, from its permanent value ID or name.
 String? nameTooltipTriggerMode(Decoding d, Object? v) => switch (v) {
   1 || 'manual' => 'manual',

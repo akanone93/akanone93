@@ -123,6 +123,9 @@ type Result struct {
 	// sorted: the server checks them against the upstreams registered for
 	// the environment before it creates a release (SEC-030, SEC-031).
 	GatewaySources []GatewaySource
+	// Accessibility is the accessibility report of the compilation
+	// (A11Y-008); nil when the policy stage did not run.
+	Accessibility *A11yReport
 }
 
 // stage is one step of the pipeline (CMP-003). Checking stages run even
@@ -175,6 +178,7 @@ func Compile(fsys fs.FS, opts Options) (res *Result) {
 	u.diags.Sort()
 	res.Diagnostics = u.diags
 	res.Graph = u.graph
+	res.Accessibility = u.a11y.report()
 	if project != nil && project.NativeCatalogue != nil {
 		res.Natives = project.NativeCatalogue.Doc
 	}

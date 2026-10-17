@@ -1,4 +1,7 @@
 {
+  "a11yWaivers": {
+    "fixedHeightText": "Scrollable widgets need a bounded height in this fixture page."
+  },
   "id": "01c0c450-6c00-7000-8a1b-000000000001",
   "key": "scrolling",
   "kind": "page",
@@ -650,6 +653,9 @@
                       "icon": {
                         "name": "info"
                       }
+                    },
+                    "semantics": {
+                      "label": "information"
                     },
                     "type": "Icon"
                   }

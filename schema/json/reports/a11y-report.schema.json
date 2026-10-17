@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plux.dev/schema/a11y-report.schema.json",
+  "title": "Plux accessibility report",
+  "description": "The compiler's accessibility report of a release: checks run, violations and waivers (A11Y-008, ADR-0069).",
+  "type": "object",
+  "required": [
+    "checks",
+    "violations",
+    "waivers",
+    "notChecked"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "checks": {
+      "type": "array",
+      "description": "One entry per check, sorted by name.",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "scope",
+          "run",
+          "violations"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "enum": [
+              "accessibleName",
+              "contrast",
+              "fixedHeightText",
+              "focusOrder",
+              "headingLevel",
+              "imageAlternative",
+              "liveRegion",
+              "touchTarget"
+            ]
+          },
+          "scope": {
+            "enum": [
+              "node",
+              "group",
+              "page"
+            ]
+          },
+          "run": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Subjects the check examined."
+          },
+          "violations": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Unwaived findings of the check."
+          }
+        }
+      }
+    },
+    "violations": {
+      "type": "array",
+      "description": "Unwaived findings, sorted by file, path and check.",
+      "items": {
+        "type": "object",
+        "required": [
+          "check",
+          "code",
+          "severity",
+          "file",
+          "path",
+          "message"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "check": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^PLX-[0-9]{4}$"
+          },
+          "severity": {
+            "enum": [
+              "info",
+              "warning",
+              "error"
+            ]
+          },
+          "file": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string",
+            "description": "JSON Pointer of the node in the file."
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "waivers": {
+      "type": "array",
+      "description": "Valid waivers the documents declare, sorted by file and path.",
+      "items": {
+        "type": "object",
+        "required": [
+          "check",
+          "file",
+          "path",
+          "justification"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "check": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "justification": {
+            "type": "string",
+            "minLength": 10
+          }
+        }
+      }
+    },
+    "notChecked": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Nodes whose colours the compiler could not resolve (PLX-1409)."
+    }
+  }
+}

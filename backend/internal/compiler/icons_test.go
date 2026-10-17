@@ -45,6 +45,11 @@ func TestIconFontsAreIndexed(t *testing.T) {
 	t.Parallel()
 	m := fixture(t)
 	setProp(amountNode, "decoration", `{"icon": {"name": "home"}, "suffixIcon": {"name": "left_chevron", "set": "cupertino"}, "prefixIcon": {"name": "search"}}`)(t, m)
+	// The decoration no longer names the field, which the strict profile
+	// of the fixture reports as an error (A11Y-002).
+	onPage(func(t *testing.T, doc map[string]any) {
+		at(t, doc, amountNode)["semantics"] = map[string]any{"label": "Amount"}
+	})(t, m)
 	opts := DefaultOptions()
 	asked := map[icons.Set][]string{}
 	opts.IconFont = func(set icons.Set, names []string) ([]byte, error) {
