@@ -173,7 +173,7 @@ export interface ActionDescriptor {
 }
 
 /** A widget type name. */
-export type WidgetType = "ActionChip" | "Align" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "BackButton" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "Card" | "Carousel" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTextField" | "CustomScrollView" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "Match" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "Positioned" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "Responsive" | "RichText" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Stack" | "StatusTimeline" | "Switch" | "SwitchListTile" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "Transform" | "VerticalDivider" | "WizardForm" | "Wrap";
+export type WidgetType = "ActionChip" | "Align" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "BackButton" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "Card" | "Carousel" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTextField" | "CustomScrollView" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "DropdownMenu" | "DualCalendarDatePicker" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "Match" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "Positioned" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "Responsive" | "RichText" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Stack" | "StatusTimeline" | "Switch" | "SwitchListTile" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "Transform" | "VerticalDivider" | "WizardForm" | "Wrap";
 
 /** An action name. */
 export type ActionName = "announce" | "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "readConfig" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
@@ -1837,6 +1837,32 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "label", "id": 3, "list": false, "required": false, "template": false, "revision": 1},
       {"name": "selectedTrailingIcon", "id": 4, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "DualCalendarDatePicker",
+    "id": 207,
+    "layer": 2,
+    "phase": "P8",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "calendar_month",
+    "description": "A month grid in one calendar with the day numbers of a second calendar beside them; Gregorian beside Hijri, Ethiopic or Persian (I18N-003).",
+    "platforms": ["android", "ios"],
+    "cost": 120,
+    "accessibility": {"role": "none", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "date?", "required": false, "revision": 1, "bindable": true, "description": "The selected date."},
+      {"name": "firstDate", "id": 2, "type": "date?", "required": false, "revision": 1, "bindable": true, "description": "The earliest date that can be chosen; the start of 1900 when absent."},
+      {"name": "lastDate", "id": 3, "type": "date?", "required": false, "revision": 1, "bindable": true, "description": "The latest date that can be chosen; the end of 2100 when absent."},
+      {"name": "calendar", "id": 4, "type": "CalendarSystem?", "required": false, "revision": 1, "bindable": true, "description": "The calendar of the grid; the app's `localisation.calendar` when absent."},
+      {"name": "secondaryCalendar", "id": 5, "type": "CalendarSystem?", "required": false, "revision": 1, "bindable": true, "description": "The calendar of the small day numbers; the app's `localisation.secondaryCalendar` when absent, and none if that is absent too."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "date", "revision": 1, "description": "Fires with the date chosen."}
+    ],
+    "slots": []
   },
   {
     "type": "ElevatedButton",
@@ -5833,6 +5859,19 @@ export const enums: readonly EnumDescriptor[] = [
     "values": [
       {"name": "dark", "id": 1, "revision": 1},
       {"name": "light", "id": 2, "revision": 1}
+    ]
+  },
+  {
+    "name": "CalendarSystem",
+    "id": 175,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "A calendar system a date is shown in (I18N-003).",
+    "values": [
+      {"name": "gregorian", "id": 1, "revision": 1},
+      {"name": "ethiopic", "id": 2, "revision": 1},
+      {"name": "islamicUmalqura", "id": 3, "revision": 1},
+      {"name": "persian", "id": 4, "revision": 1}
     ]
   },
   {
