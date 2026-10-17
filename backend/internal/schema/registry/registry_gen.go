@@ -338,6 +338,24 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "AudioPlayer", ID: 204, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "headphones", Description: "Audio from an https address with play and pause and a progress bar. It never starts by itself under reduce motion.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 1000, Role: RoleGroup, Interactive: true,
+		Props: []Prop{
+			{Name: "url", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{Pattern: "^https://"}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The https address of the audio."},
+			{Name: "title", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The title shown, and spoken for the player."},
+			{Name: "autoplay", ID: 3, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether it starts by itself; ignored under reduce motion."},
+			{Name: "loop", ID: 4, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether it starts again when it ends."},
+			{Name: "playLabel", ID: 5, Type: "string", Required: false, Default: "\"Play\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The play button's label."},
+			{Name: "pauseLabel", ID: 6, Type: "string", Required: false, Default: "\"Pause\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The pause button's label."},
+			{Name: "positionLabel", ID: 7, Type: "string", Required: false, Default: "\"Position\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The progress bar's label."},
+		},
+		Events: []Event{
+			{Name: "onEnded", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when playback ends."},
+			{Name: "onError", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the audio cannot be played."},
+		},
+	},
+	{
 		Type: "Autocomplete", ID: 124, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
 		Category: "navigation", Icon: "checklist", Description: "A text field that offers the `options` containing the typed text, ignoring case.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleTextField, Interactive: true,
@@ -394,6 +412,18 @@ var widgets = [...]Widget{
 		Slots: []Slot{
 			{Name: "label", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "child", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "BarChart", ID: 194, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "bar_chart", Description: "Bars per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 400, Role: RoleImage, Interactive: false,
+		Props: []Prop{
+			{Name: "series", ID: 1, Type: "list<ChartSeries>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The series; they share the labels."},
+			{Name: "labels", ID: 2, Type: "list<string>?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The label of each position along the horizontal axis."},
+			{Name: "title", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A heading above the chart, also its spoken name."},
+			{Name: "summaryTemplate", ID: 4, Type: "string", Required: false, Default: "\"{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."},
+			{Name: "showTable", ID: 5, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether a table of the values is shown below the chart."},
 		},
 	},
 	{
@@ -2153,6 +2183,18 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "LineChart", ID: 193, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "show_chart", Description: "A line per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 400, Role: RoleImage, Interactive: false,
+		Props: []Prop{
+			{Name: "series", ID: 1, Type: "list<ChartSeries>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The series; they share the labels."},
+			{Name: "labels", ID: 2, Type: "list<string>?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The label of each position along the horizontal axis."},
+			{Name: "title", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A heading above the chart, also its spoken name."},
+			{Name: "summaryTemplate", ID: 4, Type: "string", Required: false, Default: "\"{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."},
+			{Name: "showTable", ID: 5, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether a table of the values is shown below the chart."},
+		},
+	},
+	{
 		Type: "LinearProgressIndicator", ID: 65, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "display", Icon: "linear_scale", Description: "A linear progress indicator, determinate or indeterminate.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 15, Role: RoleProgress, Interactive: false,
@@ -2259,6 +2301,37 @@ var widgets = [...]Widget{
 			{Name: "status", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The current status text, such as `On the way`."},
 			{Name: "minutesLabel", ID: 4, Type: "string", Required: false, Default: "\"min\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The unit shown after the minutes."},
 			{Name: "icon", ID: 5, Type: "IconData?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A leading icon."},
+		},
+	},
+	{
+		Type: "LottieView", ID: 205, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "animation", Description: "A Lottie or dotLottie animation from an https address, controlled by props (ANI-005).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 1200, Role: RoleImage, Interactive: false,
+		Props: []Prop{
+			{Name: "url", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{Pattern: "^https://"}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The https address of the `.json` or `.lottie` file."},
+			{Name: "animate", ID: 2, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether it plays."},
+			{Name: "repeat", ID: 3, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether it plays again when it ends."},
+			{Name: "reverse", ID: 4, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether every second play runs backwards."},
+			{Name: "progress", ID: 5, Type: "double?", Required: false, Default: "", Constraints: Constraints{Min: Bound{Value: 0, Set: true}, Max: Bound{Value: 1, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The frame to show, 0 to 1; when set it does not play."},
+			{Name: "fit", ID: 6, Type: "string", Required: false, Default: "\"contain\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "How it fits its box, a `BoxFit` name."},
+			{Name: "width", ID: 7, Type: "double?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The width, or the animation's own."},
+			{Name: "height", ID: 8, Type: "double?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The height, or the animation's own."},
+			{Name: "reduceMotion", ID: 9, Type: "string", Required: false, Default: "\"skip\"", Constraints: Constraints{Pattern: "^(skip|shorten|ignore)$"}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What it does under reduce motion: `skip` shows the last frame, `shorten` plays four times as fast, `ignore` plays as declared."},
+			{Name: "semanticLabel", ID: 10, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What the animation shows; without one it is hidden from screen readers."},
+		},
+		Events: []Event{
+			{Name: "onCompleted", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when an animation that does not repeat ends."},
+		},
+	},
+	{
+		Type: "MarkdownView", ID: 192, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "markdown", Description: "Formatted text from Markdown: headings, paragraphs, emphasis, lists, quotes, code and links. Raw HTML is shown as text; images are bundle assets.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 500, Role: RoleText, Interactive: false,
+		Props: []Prop{
+			{Name: "source", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The Markdown text."},
+		},
+		Events: []Event{
+			{Name: "onLink", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the address of a tapped link; wire it to the `openUrl` action. The widget never opens a link itself."},
 		},
 	},
 	{
@@ -2572,6 +2645,17 @@ var widgets = [...]Widget{
 		},
 		Events: []Event{
 			{Name: "onChanged", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the E.164 number when it is valid, and with an empty string when it is not."},
+		},
+	},
+	{
+		Type: "PieChart", ID: 195, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "pie_chart", Description: "A pie of labelled slices. Screen readers get a text summary per slice, and `showTable` adds a data table.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 400, Role: RoleImage, Interactive: false,
+		Props: []Prop{
+			{Name: "slices", ID: 1, Type: "list<PieSlice>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The slices."},
+			{Name: "title", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A heading above the chart, also its spoken name."},
+			{Name: "summaryTemplate", ID: 3, Type: "string", Required: false, Default: "\"{label}: {value}, {percent} percent\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What a screen reader hears for each slice; `{label}`, `{value}` and `{percent}` are replaced."},
+			{Name: "showTable", ID: 4, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether a table of the values is shown below the chart."},
 		},
 	},
 	{
@@ -2895,6 +2979,26 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "RiveView", ID: 206, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "animation", Description: "A Rive file from an https address whose state machine inputs follow Plux state (ANI-005).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 1500, Role: RoleImage, Interactive: false,
+		Props: []Prop{
+			{Name: "url", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{Pattern: "^https://"}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The https address of the `.riv` file."},
+			{Name: "artboard", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The artboard to show, or the file's default."},
+			{Name: "stateMachine", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The state machine to run, or the artboard's default."},
+			{Name: "inputs", ID: 4, Type: "map<string,double>?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Number inputs of the state machine by name."},
+			{Name: "flags", ID: 5, Type: "map<string,bool>?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Boolean inputs of the state machine by name."},
+			{Name: "triggers", ID: 6, Type: "map<string,double>?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Triggers by name; each fires whenever its value changes."},
+			{Name: "fit", ID: 7, Type: "string", Required: false, Default: "\"contain\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "How it fits its box, a Rive `Fit` name."},
+			{Name: "reduceMotion", ID: 8, Type: "string", Required: false, Default: "\"skip\"", Constraints: Constraints{Pattern: "^(skip|ignore)$"}, Revision: 1, Deprecated: nil, Bindable: true, Description: "`skip` freezes the animation under reduce motion, `ignore` keeps it playing."},
+			{Name: "semanticLabel", ID: 9, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What the animation shows; without one it is hidden from screen readers."},
+		},
+		Events: []Event{
+			{Name: "onLoaded", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the file is loaded."},
+			{Name: "onFailed", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the file cannot be loaded."},
+		},
+	},
+	{
 		Type: "RotationTransition", ID: 153, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
 		Category: "animation", Icon: "autorenew", Description: "Rotates its child by a track of a page timeline, in turns.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
@@ -3138,6 +3242,21 @@ var widgets = [...]Widget{
 			{Name: "sections", ID: 1, Type: "list<SettingsSection>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The groups; the children are divided among them in order by `count`."},
 		},
 		Children: &Children{Min: 0, Max: 0},
+	},
+	{
+		Type: "SignaturePad", ID: 202, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "draw", Description: "A box the user signs in with a finger. `onChanged` fires with SVG path data or a base64 PNG, and with an empty string when cleared.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 800, Role: RoleImage, Interactive: true,
+		Props: []Prop{
+			{Name: "format", ID: 1, Type: "string", Required: false, Default: "\"svg\"", Constraints: Constraints{Pattern: "^(svg|png)$"}, Revision: 1, Deprecated: nil, Bindable: true, Description: "`svg` for path data, `png` for a base64 PNG."},
+			{Name: "strokeWidth", ID: 2, Type: "double", Required: false, Default: "2.0", Constraints: Constraints{Min: Bound{Value: 0.5, Set: true}, Max: Bound{Value: 12, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The pen width."},
+			{Name: "height", ID: 3, Type: "double", Required: false, Default: "160.0", Constraints: Constraints{Min: Bound{Value: 80, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The pad's height."},
+			{Name: "clearLabel", ID: 4, Type: "string", Required: false, Default: "\"Clear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The clear button's label."},
+			{Name: "semanticLabel", ID: 5, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What the signature is for, spoken for the pad."},
+		},
+		Events: []Event{
+			{Name: "onChanged", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires after each stroke with the signature, and with an empty string when cleared."},
+		},
 	},
 	{
 		Type: "SingleChildScrollView", ID: 34, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
@@ -3401,6 +3520,16 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "Sparkline", ID: 196, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "ssid_chart", Description: "A small line of values with no axes, for lists and cards; screen readers get one text summary.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 150, Role: RoleImage, Interactive: false,
+		Props: []Prop{
+			{Name: "values", ID: 1, Type: "list<double>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The values."},
+			{Name: "semanticLabel", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What the values are, spoken before the summary."},
+			{Name: "summaryTemplate", ID: 3, Type: "string", Required: false, Default: "\"{count} values, first {first}, last {last}, lowest {min}, highest {max}\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What a screen reader hears; `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."},
+		},
+	},
+	{
 		Type: "Stack", ID: 27, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "layout", Icon: "layers", Description: "Places its children on top of each other.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 8, Role: RoleNone, Interactive: false,
@@ -3576,6 +3705,21 @@ var widgets = [...]Widget{
 			{Name: "textBaseline", ID: 7, Type: "TextBaseline", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 		},
 		Children: &Children{Min: 0, Max: 0},
+	},
+	{
+		Type: "TermsViewer", ID: 191, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "gavel", Description: "Terms in Markdown that scroll, with an accept button that enables once the end was reached.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 600, Role: RoleGroup, Interactive: true,
+		Props: []Prop{
+			{Name: "source", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The terms as Markdown."},
+			{Name: "version", ID: 2, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The version of the terms, sent with `onAccepted`."},
+			{Name: "acceptLabel", ID: 3, Type: "string", Required: false, Default: "\"Accept\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The accept button's label."},
+			{Name: "scrollHint", ID: 4, Type: "string", Required: false, Default: "\"Scroll to the end to accept\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Shown, and spoken, while the end has not been reached."},
+		},
+		Events: []Event{
+			{Name: "onAccepted", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the version when the user accepts."},
+			{Name: "onLink", ID: 2, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the address of a tapped link; wire it to the `openUrl` action."},
+		},
 	},
 	{
 		Type: "Text", ID: 46, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
@@ -3838,6 +3982,27 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "VideoPlayer", ID: 203, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "videocam", Description: "A video from an https address with play and pause, a progress bar and optional captions. It never starts by itself under reduce motion.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 1500, Role: RoleGroup, Interactive: true,
+		Props: []Prop{
+			{Name: "url", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{Pattern: "^https://"}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The https address of the video."},
+			{Name: "captions", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Captions as WebVTT text."},
+			{Name: "autoplay", ID: 3, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether it starts by itself; ignored under reduce motion."},
+			{Name: "loop", ID: 4, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether it starts again when it ends."},
+			{Name: "aspectRatio", ID: 5, Type: "double", Required: false, Default: "1.7777778", Constraints: Constraints{Min: Bound{Value: 0.2, Set: true}, Max: Bound{Value: 5, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Width over height."},
+			{Name: "semanticLabel", ID: 6, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What the video is, spoken for the player."},
+			{Name: "playLabel", ID: 7, Type: "string", Required: false, Default: "\"Play\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The play button's label."},
+			{Name: "pauseLabel", ID: 8, Type: "string", Required: false, Default: "\"Pause\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The pause button's label."},
+			{Name: "captionsLabel", ID: 9, Type: "string", Required: false, Default: "\"Captions\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The captions switch's label."},
+			{Name: "positionLabel", ID: 10, Type: "string", Required: false, Default: "\"Position\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The progress bar's label."},
+		},
+		Events: []Event{
+			{Name: "onEnded", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when playback ends."},
+			{Name: "onError", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the video cannot be played."},
+		},
+	},
+	{
 		Type: "WizardForm", ID: 176, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
 		Category: "input", Icon: "linear_scale", Description: "A multi-step form: one child per step, a progress indicator, and Back, Next and Submit buttons that validate the step through the enclosing form.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 160, Role: RoleNone, Interactive: true,
@@ -4014,6 +4179,13 @@ var valueTypes = [...]ValueType{
 		Fields: []Field{
 			{Name: "label", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "What the line is."},
 			{Name: "amount", ID: 2, Type: "money", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The line's amount."},
+		},
+	},
+	{
+		Name: "ChartSeries", ID: 76, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "One named series of a LineChart or BarChart.",
+		Fields: []Field{
+			{Name: "name", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The series' name, spoken in its summary."},
+			{Name: "values", ID: 2, Type: "list<double>", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The values, one per label."},
 		},
 	},
 	{
@@ -4262,6 +4434,13 @@ var valueTypes = [...]ValueType{
 			{Name: "name", ID: 2, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The file name."},
 			{Name: "mimeType", ID: 3, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The media type, such as image/jpeg."},
 			{Name: "sizeBytes", ID: 4, Type: "int", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The size in bytes."},
+		},
+	},
+	{
+		Name: "PieSlice", ID: 77, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "One slice of a PieChart.",
+		Fields: []Field{
+			{Name: "label", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The slice's name."},
+			{Name: "value", ID: 2, Type: "double", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The slice's size; negative values count as zero."},
 		},
 	},
 	{

@@ -25,10 +25,12 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [AnimatedSwitcher](#animatedswitcher) | 1 | animation | P5 | Cross-fades between its old and new child when the child changes. |
 | [AppBar](#appbar) | 1 | structure | P3 | A Material top app bar. |
 | [AspectRatio](#aspectratio) | 1 | layout | P3 | Sizes its child to a specific aspect ratio. |
+| [AudioPlayer](#audioplayer) | 2 | display | P5 | Audio from an https address with play and pause and a progress bar. It never starts by itself under reduce motion. |
 | [Autocomplete](#autocomplete) | 1 | navigation | P5 | A text field that offers the `options` containing the typed text, ignoring case. |
 | [BackButton](#backbutton) | 1 | input | P3 | A back-arrow button that pops the current route. |
 | [BackdropFilter](#backdropfilter) | 1 | display | P5 | Blurs everything painted behind its child (WGT-020). |
 | [Badge](#badge) | 1 | display | P3 | A small label, typically a count, on top of its child. |
+| [BarChart](#barchart) | 2 | display | P5 | Bars per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table. |
 | [Baseline](#baseline) | 1 | layout | P3 | Positions its child according to the child's baseline. |
 | [BiometricButton](#biometricbutton) | 2 | interaction | P6 | A button that triggers a biometric step-up (SEC-027). |
 | [BottomAppBar](#bottomappbar) | 1 | structure | P3 | A Material bottom app bar. |
@@ -112,10 +114,13 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [InteractiveViewer](#interactiveviewer) | 1 | interaction | P5 | Pans and zooms its child with gestures. |
 | [KycCameraCapture](#kyccameracapture) | 2 | input | P6 | ID document and selfie capture with framing guides and quality checks. Ships in `plux_media`. |
 | [LimitedBox](#limitedbox) | 1 | layout | P3 | Limits its size only when it is unconstrained. |
+| [LineChart](#linechart) | 2 | display | P5 | A line per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table. |
 | [LinearProgressIndicator](#linearprogressindicator) | 1 | display | P3 | A linear progress indicator, determinate or indeterminate. |
 | [ListTile](#listtile) | 1 | display | P3 | A fixed-height row with leading and trailing content and one to three lines of text. |
 | [ListView](#listview) | 1 | scrolling | P3 | A lazily built, scrollable list of `item` templates over `items`, with empty, loading and error states (WGT-012). |
 | [LiveEtaCard](#liveetacard) | 2 | feedback | P5 | A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced. |
+| [LottieView](#lottieview) | 2 | display | P5 | A Lottie or dotLottie animation from an https address, controlled by props (ANI-005). |
+| [MarkdownView](#markdownview) | 2 | display | P5 | Formatted text from Markdown: headings, paragraphs, emphasis, lists, quotes, code and links. Raw HTML is shown as text; images are bundle assets. |
 | [MaskedText](#maskedtext) | 2 | display | P5 | A sensitive number with all but its last digits hidden; the hidden digits never reach screen readers. |
 | [Match](#match) | 1 | structure | P3 | Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`. |
 | [MaterialBanner](#materialbanner) | 1 | display | P5 | A banner with a message, an optional leading widget and actions (WGT-020). |
@@ -135,6 +140,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [PageView](#pageview) | 1 | scrolling | P3 | Pages through `item` templates over `items`, one page at a time (WGT-012). |
 | [PaymentCard](#paymentcard) | 2 | commerce | P5 | A payment card: brand, masked number, expiry and holder; flipping shows the back. |
 | [PhoneInput](#phoneinput) | 2 | input | P5 | A phone number entry in E.164 with a country picker and validation. |
+| [PieChart](#piechart) | 2 | display | P5 | A pie of labelled slices. Screen readers get a text summary per slice, and `showTable` adds a data table. |
 | [PopupMenuButton](#popupmenubutton) | 1 | navigation | P5 | A button that opens a menu of `items`; choosing one fires `onSelected` with its value. |
 | [Positioned](#positioned) | 1 | layout | P3 | Positions its child inside a Stack. |
 | [PriceTag](#pricetag) | 2 | commerce | P5 | A price, with the original price struck through and announced as the former price. |
@@ -151,6 +157,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [ReorderableListView](#reorderablelistview) | 1 | scrolling | P5 | A list whose `item` templates the user can drag into a new order; the page updates its list on `onReorder` (WGT-012). |
 | [Responsive](#responsive) | 1 | structure | P3 | Renders a different subtree per window-size class: `compact`, `medium` (600–839 dp) and `expanded` (≥ 840 dp). |
 | [RichText](#richtext) | 1 | display | P3 | Text built from styled spans (Flutter `Text.rich`). |
+| [RiveView](#riveview) | 2 | display | P5 | A Rive file from an https address whose state machine inputs follow Plux state (ANI-005). |
 | [RotationTransition](#rotationtransition) | 1 | animation | P5 | Rotates its child by a track of a page timeline, in turns. |
 | [Row](#row) | 1 | layout | P3 | Lays out its children horizontally. |
 | [SafeArea](#safearea) | 1 | layout | P3 | Insets its child to avoid system intrusions such as the status bar and notch. |
@@ -165,6 +172,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [SegmentedButton](#segmentedbutton) | 1 | input | P3 | Selects one or more options from a small set of segments. |
 | [SelectableText](#selectabletext) | 1 | display | P3 | Text the user can select and copy. |
 | [SettingsList](#settingslist) | 2 | layout | P5 | Settings rows grouped under section headers. |
+| [SignaturePad](#signaturepad) | 2 | input | P5 | A box the user signs in with a finger. `onChanged` fires with SVG path data or a base64 PNG, and with an empty string when cleared. |
 | [SingleChildScrollView](#singlechildscrollview) | 1 | scrolling | P3 | Makes a single child scrollable. |
 | [SizedBox](#sizedbox) | 1 | layout | P3 | A box with a fixed width and height, or a spacer. |
 | [SkeletonLoader](#skeletonloader) | 2 | feedback | P3 | Shimmering placeholder blocks shown while content loads. |
@@ -180,6 +188,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [Slot](#slot) | 1 | structure | P3 | Inside a component, the place where an instance's slot fill is rendered; `fallback` renders when the instance leaves it empty. |
 | [SortSheet](#sortsheet) | 2 | input | P5 | A list of radio rows to choose a sort order from; a page of kind bottom sheet hosts it. |
 | [Spacer](#spacer) | 1 | layout | P3 | Takes up flexible empty space in a Row, Column or Flex. |
+| [Sparkline](#sparkline) | 2 | display | P5 | A small line of values with no axes, for lists and cards; screen readers get one text summary. |
 | [Stack](#stack) | 1 | layout | P3 | Places its children on top of each other. |
 | [StatusTimeline](#statustimeline) | 2 | feedback | P5 | A vertical timeline of steps, each done, current, pending or failed; the current step is announced. |
 | [Stepper](#stepper) | 1 | structure | P5 | A sequence of steps; the child at each step's index is its content (WGT-020). |
@@ -188,6 +197,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [TabBar](#tabbar) | 1 | navigation | P4 | A row of tabs; the selected one is `selectedIndex`, and tapping a tab fires `onTap` with its index. |
 | [TabBarView](#tabbarview) | 1 | navigation | P4 | Shows the child at `index`, and pages between children by swiping; `onIndexChanged` reports the page. |
 | [Table](#table) | 1 | layout | P5 | A grid of cells; `children` fill it row by row, `columns` to a row (WGT-020). |
+| [TermsViewer](#termsviewer) | 2 | display | P5 | Terms in Markdown that scroll, with an accept button that enables once the end was reached. |
 | [Text](#text) | 1 | display | P3 | A run of text with a single style. |
 | [TextButton](#textbutton) | 1 | input | P3 | A Material text button. |
 | [TextField](#textfield) | 1 | input | P3 | A Material text input whose text is bound to `value`. |
@@ -197,6 +207,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [TransactionListItem](#transactionlistitem) | 2 | commerce | P5 | A transaction row: title, subtitle, signed amount in a credit or debit colour, status and date. |
 | [Transform](#transform) | 1 | layout | P3 | Rotates, scales, translates or flips its child before painting. |
 | [VerticalDivider](#verticaldivider) | 1 | display | P3 | A thin vertical line with padding on either side. |
+| [VideoPlayer](#videoplayer) | 2 | display | P5 | A video from an https address with play and pause, a progress bar and optional captions. It never starts by itself under reduce motion. |
 | [WizardForm](#wizardform) | 2 | input | P5 | A multi-step form: one child per step, a progress indicator, and Back, Next and Submit buttons that validate the step through the enclosing form. |
 | [Wrap](#wrap) | 1 | layout | P3 | Lays out its children in runs, wrapping to the next run when a run is full. |
 
@@ -592,6 +603,27 @@ ID 14 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `AspectRatio` ·
 |---|---|---|---|
 | `child` | 1 | one node |  |
 
+### AudioPlayer
+
+Audio from an https address with play and pause and a progress bar. It never starts by itself under reduce motion.
+
+ID 204 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 1000 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `url` | 1 | `string`, required | — | The https address of the audio. Must be matches `^https://`. |
+| `title` | 2 | `string?` | — | The title shown, and spoken for the player. |
+| `autoplay` | 3 | `bool` | `false` | Whether it starts by itself; ignored under reduce motion. |
+| `loop` | 4 | `bool` | `false` | Whether it starts again when it ends. |
+| `playLabel` | 5 | `string` | `"Play"` | The play button's label. |
+| `pauseLabel` | 6 | `string` | `"Pause"` | The pause button's label. |
+| `positionLabel` | 7 | `string` | `"Position"` | The progress bar's label. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnded` | 1 | — | Fires when playback ends. |
+| `onError` | 2 | — | Fires when the audio cannot be played. |
+
 ### Autocomplete
 
 A text field that offers the `options` containing the typed text, ignoring case.
@@ -662,6 +694,20 @@ ID 62 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Badge` · andro
 |---|---|---|---|
 | `label` | 1 | one node |  |
 | `child` | 2 | one node |  |
+
+### BarChart
+
+Bars per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table.
+
+ID 194 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 400 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `series` | 1 | `list<ChartSeries>`, required | — | The series; they share the labels. |
+| `labels` | 2 | `list<string>?` | — | The label of each position along the horizontal axis. |
+| `title` | 3 | `string?` | — | A heading above the chart, also its spoken name. |
+| `summaryTemplate` | 4 | `string` | `"{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}"` | What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced. |
+| `showTable` | 5 | `bool` | `false` | Whether a table of the values is shown below the chart. |
 
 ### Baseline
 
@@ -2688,6 +2734,20 @@ ID 12 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `LimitedBox` · 
 |---|---|---|---|
 | `child` | 1 | one node |  |
 
+### LineChart
+
+A line per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table.
+
+ID 193 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 400 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `series` | 1 | `list<ChartSeries>`, required | — | The series; they share the labels. |
+| `labels` | 2 | `list<string>?` | — | The label of each position along the horizontal axis. |
+| `title` | 3 | `string?` | — | A heading above the chart, also its spoken name. |
+| `summaryTemplate` | 4 | `string` | `"{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}"` | What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced. |
+| `showTable` | 5 | `bool` | `false` | Whether a table of the values is shown below the chart. |
+
 ### LinearProgressIndicator
 
 A linear progress indicator, determinate or indeterminate.
@@ -2807,6 +2867,43 @@ ID 181 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60
 | `status` | 3 | `string?` | — | The current status text, such as `On the way`. |
 | `minutesLabel` | 4 | `string` | `"min"` | The unit shown after the minutes. |
 | `icon` | 5 | `IconData?` | — | A leading icon. |
+
+### LottieView
+
+A Lottie or dotLottie animation from an https address, controlled by props (ANI-005).
+
+ID 205 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 1200 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `url` | 1 | `string`, required | — | The https address of the `.json` or `.lottie` file. Must be matches `^https://`. |
+| `animate` | 2 | `bool` | `true` | Whether it plays. |
+| `repeat` | 3 | `bool` | `true` | Whether it plays again when it ends. |
+| `reverse` | 4 | `bool` | `false` | Whether every second play runs backwards. |
+| `progress` | 5 | `double?` | — | The frame to show, 0 to 1; when set it does not play. Must be at least 0 and at most 1. |
+| `fit` | 6 | `string` | `"contain"` | How it fits its box, a `BoxFit` name. |
+| `width` | 7 | `double?` | — | The width, or the animation's own. |
+| `height` | 8 | `double?` | — | The height, or the animation's own. |
+| `reduceMotion` | 9 | `string` | `"skip"` | What it does under reduce motion: `skip` shows the last frame, `shorten` plays four times as fast, `ignore` plays as declared. Must be matches `^(skip\|shorten\|ignore)$`. |
+| `semanticLabel` | 10 | `string?` | — | What the animation shows; without one it is hidden from screen readers. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onCompleted` | 1 | — | Fires when an animation that does not repeat ends. |
+
+### MarkdownView
+
+Formatted text from Markdown: headings, paragraphs, emphasis, lists, quotes, code and links. Raw HTML is shown as text; images are bundle assets.
+
+ID 192 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 500 µs · role text
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `source` | 1 | `string`, required | — | The Markdown text. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onLink` | 1 | `string` | Fires with the address of a tapped link; wire it to the `openUrl` action. The widget never opens a link itself. |
 
 ### MaskedText
 
@@ -3181,6 +3278,19 @@ ID 162 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 10
 |---|---|---|---|
 | `onChanged` | 1 | `string` | Fires with the E.164 number when it is valid, and with an empty string when it is not. |
 
+### PieChart
+
+A pie of labelled slices. Screen readers get a text summary per slice, and `showTable` adds a data table.
+
+ID 195 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 400 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `slices` | 1 | `list<PieSlice>`, required | — | The slices. |
+| `title` | 2 | `string?` | — | A heading above the chart, also its spoken name. |
+| `summaryTemplate` | 3 | `string` | `"{label}: {value}, {percent} percent"` | What a screen reader hears for each slice; `{label}`, `{value}` and `{percent}` are replaced. |
+| `showTable` | 4 | `bool` | `false` | Whether a table of the values is shown below the chart. |
+
 ### PopupMenuButton
 
 A button that opens a menu of `items`; choosing one fires `onSelected` with its value.
@@ -3548,6 +3658,29 @@ ID 47 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Text.rich` · a
 | `textWidthBasis` | 11 | `TextWidthBasis` | — |  |
 | `selectionColor` | 12 | `color` | — |  |
 
+### RiveView
+
+A Rive file from an https address whose state machine inputs follow Plux state (ANI-005).
+
+ID 206 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 1500 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `url` | 1 | `string`, required | — | The https address of the `.riv` file. Must be matches `^https://`. |
+| `artboard` | 2 | `string?` | — | The artboard to show, or the file's default. |
+| `stateMachine` | 3 | `string?` | — | The state machine to run, or the artboard's default. |
+| `inputs` | 4 | `map<string,double>?` | — | Number inputs of the state machine by name. |
+| `flags` | 5 | `map<string,bool>?` | — | Boolean inputs of the state machine by name. |
+| `triggers` | 6 | `map<string,double>?` | — | Triggers by name; each fires whenever its value changes. |
+| `fit` | 7 | `string` | `"contain"` | How it fits its box, a Rive `Fit` name. |
+| `reduceMotion` | 8 | `string` | `"skip"` | `skip` freezes the animation under reduce motion, `ignore` keeps it playing. Must be matches `^(skip\|ignore)$`. |
+| `semanticLabel` | 9 | `string?` | — | What the animation shows; without one it is hidden from screen readers. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onLoaded` | 1 | — | Fires when the file is loaded. |
+| `onFailed` | 2 | — | Fires when the file cannot be loaded. |
+
 ### RotationTransition
 
 Rotates its child by a track of a page timeline, in turns.
@@ -3837,6 +3970,24 @@ ID 178 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60
 | `sections` | 1 | `list<SettingsSection>`, required | — | The groups; the children are divided among them in order by `count`. |
 
 Takes a list of `children`.
+
+### SignaturePad
+
+A box the user signs in with a finger. `onChanged` fires with SVG path data or a base64 PNG, and with an empty string when cleared.
+
+ID 202 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 800 µs · role image · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `format` | 1 | `string` | `"svg"` | `svg` for path data, `png` for a base64 PNG. Must be matches `^(svg\|png)$`. |
+| `strokeWidth` | 2 | `double` | `2.0` | The pen width. Must be at least 0.5 and at most 12. |
+| `height` | 3 | `double` | `160.0` | The pad's height. Must be at least 80. |
+| `clearLabel` | 4 | `string` | `"Clear"` | The clear button's label. |
+| `semanticLabel` | 5 | `string?` | — | What the signature is for, spoken for the pad. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `string` | Fires after each stroke with the signature, and with an empty string when cleared. |
 
 ### SingleChildScrollView
 
@@ -4142,6 +4293,18 @@ ID 33 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Spacer` · andr
 |---|---|---|---|---|
 | `flex` | 1 | `int` | `1` | Must be at least 1. |
 
+### Sparkline
+
+A small line of values with no axes, for lists and cards; screen readers get one text summary.
+
+ID 196 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 150 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `values` | 1 | `list<double>`, required | — | The values. |
+| `semanticLabel` | 2 | `string?` | — | What the values are, spoken before the summary. |
+| `summaryTemplate` | 3 | `string` | `"{count} values, first {first}, last {last}, lowest {min}, highest {max}"` | What a screen reader hears; `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced. |
+
 ### Stack
 
 Places its children on top of each other.
@@ -4344,6 +4507,24 @@ ID 111 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Table` · andr
 | `textBaseline` | 7 | `TextBaseline` | — |  |
 
 Takes a list of `children`.
+
+### TermsViewer
+
+Terms in Markdown that scroll, with an accept button that enables once the end was reached.
+
+ID 191 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 600 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `source` | 1 | `string`, required | — | The terms as Markdown. |
+| `version` | 2 | `string`, required | — | The version of the terms, sent with `onAccepted`. |
+| `acceptLabel` | 3 | `string` | `"Accept"` | The accept button's label. |
+| `scrollHint` | 4 | `string` | `"Scroll to the end to accept"` | Shown, and spoken, while the end has not been reached. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onAccepted` | 1 | `string` | Fires with the version when the user accepts. |
+| `onLink` | 2 | `string` | Fires with the address of a tapped link; wire it to the `openUrl` action. |
 
 ### Text
 
@@ -4632,6 +4813,30 @@ ID 53 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `VerticalDivider
 | `color` | 5 | `color` | — |  |
 | `radius` | 6 | `BorderRadius` | — |  |
 
+### VideoPlayer
+
+A video from an https address with play and pause, a progress bar and optional captions. It never starts by itself under reduce motion.
+
+ID 203 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 1500 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `url` | 1 | `string`, required | — | The https address of the video. Must be matches `^https://`. |
+| `captions` | 2 | `string?` | — | Captions as WebVTT text. |
+| `autoplay` | 3 | `bool` | `false` | Whether it starts by itself; ignored under reduce motion. |
+| `loop` | 4 | `bool` | `false` | Whether it starts again when it ends. |
+| `aspectRatio` | 5 | `double` | `1.7777778` | Width over height. Must be at least 0.2 and at most 5. |
+| `semanticLabel` | 6 | `string?` | — | What the video is, spoken for the player. |
+| `playLabel` | 7 | `string` | `"Play"` | The play button's label. |
+| `pauseLabel` | 8 | `string` | `"Pause"` | The pause button's label. |
+| `captionsLabel` | 9 | `string` | `"Captions"` | The captions switch's label. |
+| `positionLabel` | 10 | `string` | `"Position"` | The progress bar's label. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnded` | 1 | — | Fires when playback ends. |
+| `onError` | 2 | — | Fires when the video cannot be played. |
+
 ### WizardForm
 
 A multi-step form: one child per step, a progress indicator, and Back, Next and Submit buttons that validate the step through the enclosing form.
@@ -4845,6 +5050,17 @@ ID 69 · revision 1
 |---|---|---|---|---|
 | `label` | 1 | `string`, required | — | What the line is. |
 | `amount` | 2 | `money`, required | — | The line's amount. |
+
+### ChartSeries
+
+One named series of a LineChart or BarChart.
+
+ID 76 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `name` | 1 | `string`, required | — | The series' name, spoken in its summary. |
+| `values` | 2 | `list<double>`, required | — | The values, one per label. |
 
 ### ChoiceItem
 
@@ -5173,6 +5389,17 @@ ID 34 · revision 1
 | `name` | 2 | `string`, required | — | The file name. |
 | `mimeType` | 3 | `string`, required | — | The media type, such as image/jpeg. |
 | `sizeBytes` | 4 | `int`, required | — | The size in bytes. |
+
+### PieSlice
+
+One slice of a PieChart.
+
+ID 77 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — | The slice's name. |
+| `value` | 2 | `double`, required | — | The slice's size; negative values count as zero. |
 
 ### Radius
 

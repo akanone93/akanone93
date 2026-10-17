@@ -17,6 +17,7 @@ final class WidgetDescriptor {
     this.props = const {},
     this.events = const {},
     this.slots = const {},
+    this.package,
   });
 
   /// The type name used in documents.
@@ -39,6 +40,10 @@ final class WidgetDescriptor {
 
   /// Slot IDs by name.
   final Map<String, int> slots;
+
+  /// The optional package whose builder renders the widget; null for the
+  /// runtime's own (PLX-4403).
+  final String? package;
 }
 
 /// A value type and the permanent IDs of its fields.
@@ -245,6 +250,15 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'child': 1},
   ),
   WidgetDescriptor(
+    'AudioPlayer',
+    204,
+    layer: 2,
+    revision: 1,
+    package: 'plux_player',
+    props: {'url': 1, 'title': 2, 'autoplay': 3, 'loop': 4, 'playLabel': 5, 'pauseLabel': 6, 'positionLabel': 7},
+    events: {'onEnded': 1, 'onError': 2},
+  ),
+  WidgetDescriptor(
     'Autocomplete',
     124,
     layer: 1,
@@ -275,6 +289,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'backgroundColor': 1, 'textColor': 2, 'smallSize': 3, 'largeSize': 4, 'textStyle': 5, 'padding': 6, 'alignment': 7, 'offset': 8, 'isLabelVisible': 9},
     slots: {'label': 1, 'child': 2},
+  ),
+  WidgetDescriptor(
+    'BarChart',
+    194,
+    layer: 2,
+    revision: 1,
+    package: 'plux_charts',
+    props: {'series': 1, 'labels': 2, 'title': 3, 'summaryTemplate': 4, 'showTable': 5},
   ),
   WidgetDescriptor(
     'Baseline',
@@ -961,6 +983,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'child': 1},
   ),
   WidgetDescriptor(
+    'LineChart',
+    193,
+    layer: 2,
+    revision: 1,
+    package: 'plux_charts',
+    props: {'series': 1, 'labels': 2, 'title': 3, 'summaryTemplate': 4, 'showTable': 5},
+  ),
+  WidgetDescriptor(
     'LinearProgressIndicator',
     65,
     layer: 1,
@@ -991,6 +1021,24 @@ const List<WidgetDescriptor> widgetDescriptors = [
     layer: 2,
     revision: 1,
     props: {'title': 1, 'etaMinutes': 2, 'status': 3, 'minutesLabel': 4, 'icon': 5},
+  ),
+  WidgetDescriptor(
+    'LottieView',
+    205,
+    layer: 2,
+    revision: 1,
+    package: 'plux_lottie',
+    props: {'url': 1, 'animate': 2, 'repeat': 3, 'reverse': 4, 'progress': 5, 'fit': 6, 'width': 7, 'height': 8, 'reduceMotion': 9, 'semanticLabel': 10},
+    events: {'onCompleted': 1},
+  ),
+  WidgetDescriptor(
+    'MarkdownView',
+    192,
+    layer: 2,
+    revision: 1,
+    package: 'plux_markdown',
+    props: {'source': 1},
+    events: {'onLink': 1},
   ),
   WidgetDescriptor(
     'MaskedText',
@@ -1148,6 +1196,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     events: {'onChanged': 1},
   ),
   WidgetDescriptor(
+    'PieChart',
+    195,
+    layer: 2,
+    revision: 1,
+    package: 'plux_charts',
+    props: {'slices': 1, 'title': 2, 'summaryTemplate': 3, 'showTable': 4},
+  ),
+  WidgetDescriptor(
     'PopupMenuButton',
     120,
     layer: 1,
@@ -1276,6 +1332,15 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'textSpan': 1, 'style': 2, 'textAlign': 3, 'textDirection': 4, 'locale': 5, 'softWrap': 6, 'overflow': 7, 'maxLines': 8, 'semanticsLabel': 9, 'semanticsIdentifier': 10, 'textWidthBasis': 11, 'selectionColor': 12},
   ),
   WidgetDescriptor(
+    'RiveView',
+    206,
+    layer: 2,
+    revision: 1,
+    package: 'plux_rive',
+    props: {'url': 1, 'artboard': 2, 'stateMachine': 3, 'inputs': 4, 'flags': 5, 'triggers': 6, 'fit': 7, 'reduceMotion': 8, 'semanticLabel': 9},
+    events: {'onLoaded': 1, 'onFailed': 2},
+  ),
+  WidgetDescriptor(
     'RotationTransition',
     153,
     layer: 1,
@@ -1387,6 +1452,15 @@ const List<WidgetDescriptor> widgetDescriptors = [
     layer: 2,
     revision: 1,
     props: {'sections': 1},
+  ),
+  WidgetDescriptor(
+    'SignaturePad',
+    202,
+    layer: 2,
+    revision: 1,
+    package: 'plux_media',
+    props: {'format': 1, 'strokeWidth': 2, 'height': 3, 'clearLabel': 4, 'semanticLabel': 5},
+    events: {'onChanged': 1},
   ),
   WidgetDescriptor(
     'SingleChildScrollView',
@@ -1509,6 +1583,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'flex': 1},
   ),
   WidgetDescriptor(
+    'Sparkline',
+    196,
+    layer: 2,
+    revision: 1,
+    package: 'plux_charts',
+    props: {'values': 1, 'semanticLabel': 2, 'summaryTemplate': 3},
+  ),
+  WidgetDescriptor(
     'Stack',
     27,
     layer: 1,
@@ -1569,6 +1651,15 @@ const List<WidgetDescriptor> widgetDescriptors = [
     layer: 1,
     revision: 1,
     props: {'columns': 1, 'columnWidths': 2, 'defaultColumnWidth': 3, 'textDirection': 4, 'border': 5, 'defaultVerticalAlignment': 6, 'textBaseline': 7},
+  ),
+  WidgetDescriptor(
+    'TermsViewer',
+    191,
+    layer: 2,
+    revision: 1,
+    package: 'plux_markdown',
+    props: {'source': 1, 'version': 2, 'acceptLabel': 3, 'scrollHint': 4},
+    events: {'onAccepted': 1, 'onLink': 2},
   ),
   WidgetDescriptor(
     'Text',
@@ -1641,6 +1732,15 @@ const List<WidgetDescriptor> widgetDescriptors = [
     layer: 1,
     revision: 1,
     props: {'width': 1, 'thickness': 2, 'indent': 3, 'endIndent': 4, 'color': 5, 'radius': 6},
+  ),
+  WidgetDescriptor(
+    'VideoPlayer',
+    203,
+    layer: 2,
+    revision: 1,
+    package: 'plux_player',
+    props: {'url': 1, 'captions': 2, 'autoplay': 3, 'loop': 4, 'aspectRatio': 5, 'semanticLabel': 6, 'playLabel': 7, 'pauseLabel': 8, 'captionsLabel': 9, 'positionLabel': 10},
+    events: {'onEnded': 1, 'onError': 2},
   ),
   WidgetDescriptor(
     'WizardForm',
@@ -1726,6 +1826,12 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     69,
     revision: 1,
     fields: {'label': 1, 'amount': 2},
+  ),
+  ValueTypeDescriptor(
+    'ChartSeries',
+    76,
+    revision: 1,
+    fields: {'name': 1, 'values': 2},
   ),
   ValueTypeDescriptor(
     'ChoiceItem',
@@ -1852,6 +1958,12 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     34,
     revision: 1,
     fields: {'handle': 1, 'name': 2, 'mimeType': 3, 'sizeBytes': 4},
+  ),
+  ValueTypeDescriptor(
+    'PieSlice',
+    77,
+    revision: 1,
+    fields: {'label': 1, 'value': 2},
   ),
   ValueTypeDescriptor(
     'Radius',
