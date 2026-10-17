@@ -970,7 +970,7 @@ ID 35 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `CustomScrollVie
 
 A Material table with headings, sorting and optional row selection (WGT-020).
 
-ID 117 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `DataTable` · android, ios · cost 60 µs · role none · interactive
+ID 117 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `DataTable` · android, ios · cost 60 µs · role group · interactive
 
 | Prop | ID | Type | Default | Description |
 |---|---|---|---|---|
@@ -1888,7 +1888,7 @@ ID 2 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · android, ios · cost 3 µ
 
 A banner with a message, an optional leading widget and actions (WGT-020).
 
-ID 119 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `MaterialBanner` · android, ios · cost 20 µs · role none
+ID 119 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `MaterialBanner` · android, ios · cost 20 µs · role alert
 
 | Prop | ID | Type | Default | Description |
 |---|---|---|---|---|
@@ -2747,7 +2747,7 @@ Takes a list of `children`.
 
 A sequence of steps; the child at each step's index is its content (WGT-020).
 
-ID 118 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Stepper` · android, ios · cost 60 µs · role none · interactive
+ID 118 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Stepper` · android, ios · cost 60 µs · role group · interactive
 
 | Prop | ID | Type | Default | Description |
 |---|---|---|---|---|
@@ -2869,7 +2869,7 @@ ID 73 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `SwitchListTile`
 
 A grid of cells; `children` fill it row by row, `columns` to a row (WGT-020).
 
-ID 111 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Table` · android, ios · cost 20 µs · role none
+ID 111 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Table` · android, ios · cost 20 µs · role group
 
 | Prop | ID | Type | Default | Description |
 |---|---|---|---|---|

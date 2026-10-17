@@ -741,7 +741,7 @@ var widgets = [...]Widget{
 	{
 		Type: "DataTable", ID: 117, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
 		Category: "display", Icon: "table_rows", Description: "A Material table with headings, sorting and optional row selection (WGT-020).",
-		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleNone, Interactive: true,
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleGroup, Interactive: true,
 		Props: []Prop{
 			{Name: "columns", ID: 1, Type: "list<DataColumn>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 			{Name: "rows", ID: 2, Type: "list<list<string>>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "One list of cell texts per row, each as long as `columns`; bind it with `$expr`."},
@@ -1552,7 +1552,7 @@ var widgets = [...]Widget{
 	{
 		Type: "MaterialBanner", ID: 119, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
 		Category: "display", Icon: "campaign", Description: "A banner with a message, an optional leading widget and actions (WGT-020).",
-		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleAlert, Interactive: false,
 		Props: []Prop{
 			{Name: "contentTextStyle", ID: 1, Type: "TextStyle", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 			{Name: "elevation", ID: 2, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
@@ -2296,7 +2296,7 @@ var widgets = [...]Widget{
 	{
 		Type: "Stepper", ID: 118, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
 		Category: "structure", Icon: "checklist", Description: "A sequence of steps; the child at each step's index is its content (WGT-020).",
-		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleNone, Interactive: true,
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleGroup, Interactive: true,
 		Props: []Prop{
 			{Name: "steps", ID: 1, Type: "list<StepItem>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 			{Name: "type", ID: 2, Type: "StepperType", Required: false, Default: "\"vertical\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
@@ -2407,7 +2407,7 @@ var widgets = [...]Widget{
 	{
 		Type: "Table", ID: 111, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
 		Category: "layout", Icon: "table_chart", Description: "A grid of cells; `children` fill it row by row, `columns` to a row (WGT-020).",
-		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleGroup, Interactive: false,
 		Props: []Prop{
 			{Name: "columns", ID: 1, Type: "int", Required: false, Default: "1", Constraints: Constraints{Min: Bound{Value: 1, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Cells per row; the children are laid out row-major and the last row is padded with empty cells."},
 			{Name: "columnWidths", ID: 2, Type: "list<ColumnWidth>", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The width rule of each column by position; columns beyond the list use `defaultColumnWidth`."},

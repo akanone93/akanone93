@@ -1291,7 +1291,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "description": "A Material table with headings, sorting and optional row selection (WGT-020).",
     "platforms": ["android", "ios"],
     "cost": 60,
-    "accessibility": {"role": "none", "interactive": true, "minTarget": true},
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
       {"name": "columns", "id": 1, "type": "list<DataColumn>", "required": true, "revision": 1, "bindable": true},
@@ -2453,7 +2453,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "description": "A banner with a message, an optional leading widget and actions (WGT-020).",
     "platforms": ["android", "ios"],
     "cost": 20,
-    "accessibility": {"role": "none", "interactive": false},
+    "accessibility": {"role": "alert", "interactive": false},
     "typeParameters": [],
     "props": [
       {"name": "contentTextStyle", "id": 1, "type": "TextStyle", "required": false, "revision": 1, "bindable": true},
@@ -3608,7 +3608,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "description": "A sequence of steps; the child at each step's index is its content (WGT-020).",
     "platforms": ["android", "ios"],
     "cost": 60,
-    "accessibility": {"role": "none", "interactive": true, "minTarget": true},
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
       {"name": "steps", "id": 1, "type": "list<StepItem>", "required": true, "revision": 1, "bindable": true},
@@ -3751,7 +3751,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "description": "A grid of cells; `children` fill it row by row, `columns` to a row (WGT-020).",
     "platforms": ["android", "ios"],
     "cost": 20,
-    "accessibility": {"role": "none", "interactive": false},
+    "accessibility": {"role": "group", "interactive": false},
     "typeParameters": [],
     "props": [
       {"name": "columns", "id": 1, "type": "int", "required": false, "default": 1, "constraints": {"min": 1}, "revision": 1, "bindable": true, "description": "Cells per row; the children are laid out row-major and the last row is padded with empty cells."},

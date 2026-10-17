@@ -27,7 +27,7 @@
   ],
   "cost": 60,
   "accessibility": {
-    "role": "none",
+    "role": "group",
     "interactive": true,
     "minTarget": true
   },

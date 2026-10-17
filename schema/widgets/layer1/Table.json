@@ -27,7 +27,7 @@
   ],
   "cost": 20,
   "accessibility": {
-    "role": "none",
+    "role": "group",
     "interactive": false
   },
   "props": [
