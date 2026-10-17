@@ -638,6 +638,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'leadingIcon': 1, 'trailingIcon': 2, 'label': 3, 'selectedTrailingIcon': 4},
   ),
   WidgetDescriptor(
+    'DualCalendarDatePicker',
+    207,
+    layer: 2,
+    revision: 1,
+    props: {'value': 1, 'firstDate': 2, 'lastDate': 3, 'calendar': 4, 'secondaryCalendar': 5},
+    events: {'onChanged': 1},
+  ),
+  WidgetDescriptor(
     'ElevatedButton',
     78,
     layer: 1,
@@ -1957,6 +1965,12 @@ const List<EnumDescriptor> enumDescriptors = [
     10,
     revision: 1,
     values: {'dark': 1, 'light': 2},
+  ),
+  EnumDescriptor(
+    'CalendarSystem',
+    175,
+    revision: 1,
+    values: {'gregorian': 1, 'ethiopic': 2, 'islamicUmalqura': 3, 'persian': 4},
   ),
   EnumDescriptor(
     'Clip',

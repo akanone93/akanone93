@@ -73,6 +73,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [Draggable](#draggable) | 1 | interaction | P5 | Lets the user drag its child, carrying a typed `data` payload to a `DragTarget`. |
 | [Drawer](#drawer) | 1 | navigation | P4 | A panel that slides in from the edge; fill `Scaffold.drawer` or `Scaffold.endDrawer` with it. |
 | [DropdownMenu](#dropdownmenu) | 1 | input | P3 | A Material 3 dropdown menu with optional text filtering. |
+| [DualCalendarDatePicker](#dualcalendardatepicker) | 2 | input | P8 | A month grid in one calendar with the day numbers of a second calendar beside them; Gregorian beside Hijri, Ethiopic or Persian (I18N-003). |
 | [ElevatedButton](#elevatedbutton) | 1 | input | P3 | A Material elevated button. |
 | [EmptyState](#emptystate) | 2 | feedback | P3 | A standard empty state: icon, title, message and an optional action. |
 | [ErrorState](#errorstate) | 2 | feedback | P3 | A standard error state: icon, title, message and an optional retry action. |
@@ -1722,6 +1723,24 @@ ID 76 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `DropdownMenu` �
 | `trailingIcon` | 2 | one node |  |
 | `label` | 3 | one node |  |
 | `selectedTrailingIcon` | 4 | one node |  |
+
+### DualCalendarDatePicker
+
+A month grid in one calendar with the day numbers of a second calendar beside them; Gregorian beside Hijri, Ethiopic or Persian (I18N-003).
+
+ID 207 · Layer 2 · P8 · revision 1 (runtime 0.5.0) · android, ios · cost 120 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `date?` | — | The selected date. |
+| `firstDate` | 2 | `date?` | — | The earliest date that can be chosen; the start of 1900 when absent. |
+| `lastDate` | 3 | `date?` | — | The latest date that can be chosen; the end of 2100 when absent. |
+| `calendar` | 4 | `CalendarSystem?` | — | The calendar of the grid; the app's `localisation.calendar` when absent. |
+| `secondaryCalendar` | 5 | `CalendarSystem?` | — | The calendar of the small day numbers; the app's `localisation.secondaryCalendar` when absent, and none if that is absent too. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `date` | Fires with the date chosen. |
 
 ### ElevatedButton
 
@@ -5439,6 +5458,19 @@ ID 10 · revision 1 · Flutter `Brightness`
 |---|---|---|
 | `dark` | 1 |  |
 | `light` | 2 |  |
+
+### CalendarSystem
+
+A calendar system a date is shown in (I18N-003).
+
+ID 175 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `gregorian` | 1 |  |
+| `ethiopic` | 2 |  |
+| `islamicUmalqura` | 3 |  |
+| `persian` | 4 |  |
 
 ### Clip
 

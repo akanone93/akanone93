@@ -45,7 +45,7 @@ func TestSourcesMatchSchemas(t *testing.T) {
 func TestTablesAreComplete(t *testing.T) {
 	t.Parallel()
 	inline := map[string]bool{"coalesce": true, "ifNull": true, "isNull": true, "typeOf": true}
-	implemented := map[string]bool{"core": true, "regex": true, "phone": true, "format": true, "l10n": true}
+	implemented := map[string]bool{"core": true, "regex": true, "phone": true, "format": true, "l10n": true, "calendar": true}
 	// format.phone needs libphonenumber's national formats, which the
 	// metadata of the phone group does not carry.
 	deferred := map[string]bool{"format.phone": true}

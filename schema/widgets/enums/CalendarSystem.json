@@ -1,0 +1,31 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "CalendarSystem",
+  "id": 175,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "A calendar system a date is shown in (I18N-003).",
+  "values": [
+    {
+      "name": "gregorian",
+      "id": 1
+    },
+    {
+      "name": "ethiopic",
+      "id": 2
+    },
+    {
+      "name": "islamicUmalqura",
+      "id": 3
+    },
+    {
+      "name": "persian",
+      "id": 4
+    }
+  ]
+}

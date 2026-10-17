@@ -1328,6 +1328,21 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "DualCalendarDatePicker", ID: 207, Layer: 2, Phase: "P8", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "calendar_month", Description: "A month grid in one calendar with the day numbers of a second calendar beside them; Gregorian beside Hijri, Ethiopic or Persian (I18N-003).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 120, Role: RoleNone, Interactive: true,
+		Props: []Prop{
+			{Name: "value", ID: 1, Type: "date?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The selected date."},
+			{Name: "firstDate", ID: 2, Type: "date?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The earliest date that can be chosen; the start of 1900 when absent."},
+			{Name: "lastDate", ID: 3, Type: "date?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The latest date that can be chosen; the end of 2100 when absent."},
+			{Name: "calendar", ID: 4, Type: "CalendarSystem?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The calendar of the grid; the app's `localisation.calendar` when absent."},
+			{Name: "secondaryCalendar", ID: 5, Type: "CalendarSystem?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The calendar of the small day numbers; the app's `localisation.secondaryCalendar` when absent, and none if that is absent too."},
+		},
+		Events: []Event{
+			{Name: "onChanged", ID: 1, Payload: "date", Revision: 1, Deprecated: nil, Description: "Fires with the date chosen."},
+		},
+	},
+	{
 		Type: "ElevatedButton", ID: 78, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "input", Icon: "smart_button", Description: "A Material elevated button.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 30, Role: RoleButton, Interactive: true,
@@ -4404,6 +4419,12 @@ var enums = [...]Enum{
 	{Name: "Brightness", ID: 10, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum Brightness.", Values: []EnumValue{
 		{Name: "dark", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "light", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "CalendarSystem", ID: 175, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "A calendar system a date is shown in (I18N-003).", Values: []EnumValue{
+		{Name: "gregorian", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "ethiopic", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "islamicUmalqura", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "persian", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
 	}},
 	{Name: "Clip", ID: 11, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum Clip.", Values: []EnumValue{
 		{Name: "none", ID: 1, Revision: 1, Deprecated: nil, Description: ""},

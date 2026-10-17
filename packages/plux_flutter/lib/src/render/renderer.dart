@@ -46,6 +46,7 @@ import 'package:plux_flutter/src/pxl/vm.dart';
 import 'package:plux_flutter/src/render/builders/animation.dart';
 import 'package:plux_flutter/src/render/builders/builders.dart';
 import 'package:plux_flutter/src/render/builders/navigation.dart';
+import 'package:plux_flutter/src/render/builders/calendar.dart';
 import 'package:plux_flutter/src/render/builders/components_a.dart';
 import 'package:plux_flutter/src/render/builders/components_b.dart';
 import 'package:plux_flutter/src/render/builders/cupertino_more.dart';
@@ -85,6 +86,7 @@ final Map<int, NodeBuilder> nodeBuilders = {
   ...scrollingBuilders,
   ...animationBuilders,
   ...componentsBBuilders,
+  ...calendarBuilders,
 };
 
 /// Renders pages of the active release.

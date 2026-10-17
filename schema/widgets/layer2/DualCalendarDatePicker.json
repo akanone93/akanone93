@@ -1,0 +1,67 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "DualCalendarDatePicker",
+  "id": 207,
+  "layer": 2,
+  "phase": "P8",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "calendar_month",
+  "description": "A month grid in one calendar with the day numbers of a second calendar beside them; Gregorian beside Hijri, Ethiopic or Persian (I18N-003).",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 120,
+  "accessibility": {
+    "role": "none",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "value",
+      "id": 1,
+      "type": "date?",
+      "description": "The selected date."
+    },
+    {
+      "name": "firstDate",
+      "id": 2,
+      "type": "date?",
+      "description": "The earliest date that can be chosen; the start of 1900 when absent."
+    },
+    {
+      "name": "lastDate",
+      "id": 3,
+      "type": "date?",
+      "description": "The latest date that can be chosen; the end of 2100 when absent."
+    },
+    {
+      "name": "calendar",
+      "id": 4,
+      "type": "CalendarSystem?",
+      "description": "The calendar of the grid; the app's `localisation.calendar` when absent."
+    },
+    {
+      "name": "secondaryCalendar",
+      "id": 5,
+      "type": "CalendarSystem?",
+      "description": "The calendar of the small day numbers; the app's `localisation.secondaryCalendar` when absent, and none if that is absent too."
+    }
+  ],
+  "events": [
+    {
+      "name": "onChanged",
+      "id": 1,
+      "payload": "date",
+      "description": "Fires with the date chosen."
+    }
+  ]
+}
