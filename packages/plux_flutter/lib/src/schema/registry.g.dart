@@ -245,6 +245,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     events: {'onPressed': 1},
   ),
   WidgetDescriptor(
+    'BackdropFilter',
+    112,
+    layer: 1,
+    revision: 1,
+    props: {'filter': 1, 'blendMode': 2, 'enabled': 3},
+    slots: {'child': 1},
+  ),
+  WidgetDescriptor(
     'Badge',
     62,
     layer: 1,
@@ -561,6 +569,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'status': 1, 'isEmpty': 2},
     slots: {'success': 1, 'loading': 2, 'empty': 3, 'error': 4},
+  ),
+  WidgetDescriptor(
+    'DataTable',
+    117,
+    layer: 1,
+    revision: 1,
+    props: {'columns': 1, 'rows': 2, 'selectedRows': 3, 'sortColumnIndex': 4, 'sortAscending': 5, 'showCheckboxColumn': 6, 'decoration': 7, 'dataRowColor': 8, 'dataRowMinHeight': 9, 'dataRowMaxHeight': 10, 'dataTextStyle': 11, 'headingRowColor': 12, 'headingRowHeight': 13, 'headingTextStyle': 14, 'horizontalMargin': 15, 'columnSpacing': 16, 'showBottomBorder': 17, 'dividerThickness': 18, 'checkboxHorizontalMargin': 19, 'border': 20, 'clipBehavior': 21},
+    events: {'onSort': 1, 'onSelectChanged': 2, 'onSelectAll': 3},
   ),
   WidgetDescriptor(
     'DecoratedBox',
@@ -928,6 +944,15 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'branches': 1, 'otherwise': 2},
   ),
   WidgetDescriptor(
+    'MaterialBanner',
+    119,
+    layer: 1,
+    revision: 1,
+    props: {'contentTextStyle': 1, 'elevation': 2, 'backgroundColor': 3, 'surfaceTintColor': 4, 'shadowColor': 5, 'dividerColor': 6, 'padding': 7, 'margin': 8, 'leadingPadding': 9, 'forceActionsBelow': 10, 'overflowAlignment': 11, 'minActionBarHeight': 12},
+    events: {'onVisible': 1},
+    slots: {'content': 1, 'leading': 2, 'actions': 3},
+  ),
+  WidgetDescriptor(
     'MenuAnchor',
     121,
     layer: 1,
@@ -968,6 +993,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'destinations': 1, 'selectedIndex': 2, 'extended': 3, 'labelType': 4, 'backgroundColor': 5, 'elevation': 6, 'groupAlignment': 7, 'minWidth': 8, 'minExtendedWidth': 9, 'useIndicator': 10, 'indicatorColor': 11},
     events: {'onDestinationSelected': 1},
     slots: {'leading': 1, 'trailing': 2},
+  ),
+  WidgetDescriptor(
+    'NestedScrollView',
+    115,
+    layer: 1,
+    revision: 1,
+    props: {'scrollDirection': 1, 'reverse': 2, 'physics': 3, 'dragStartBehavior': 4, 'floatHeaderSlivers': 5, 'clipBehavior': 6, 'hitTestBehavior': 7},
+    slots: {'headerSlivers': 1, 'body': 2},
   ),
   WidgetDescriptor(
     'OfflineBanner',
@@ -1114,6 +1147,24 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'value': 1, 'max': 2, 'starLabel': 3},
     events: {'onChanged': 1},
+  ),
+  WidgetDescriptor(
+    'RefreshIndicator',
+    113,
+    layer: 1,
+    revision: 1,
+    props: {'displacement': 1, 'edgeOffset': 2, 'color': 3, 'backgroundColor': 4, 'semanticsLabel': 5, 'semanticsValue': 6, 'strokeWidth': 7, 'triggerMode': 8, 'elevation': 9},
+    events: {'onRefresh': 1},
+    slots: {'child': 1},
+  ),
+  WidgetDescriptor(
+    'ReorderableListView',
+    114,
+    layer: 1,
+    revision: 1,
+    props: {'items': 1, 'scrollDirection': 2, 'reverse': 3, 'physics': 4, 'shrinkWrap': 5, 'padding': 6, 'buildDefaultDragHandles': 7, 'itemExtent': 8, 'anchor': 9, 'dragStartBehavior': 11, 'keyboardDismissBehavior': 12, 'clipBehavior': 13, 'autoScrollerVelocityScalar': 14, 'status': 15},
+    events: {'onReorder': 1, 'onReorderStart': 2, 'onReorderEnd': 3},
+    slots: {'item': 1, 'header': 2, 'footer': 3, 'empty': 4, 'loading': 5, 'error': 6},
   ),
   WidgetDescriptor(
     'Responsive',
@@ -1325,6 +1376,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'sliver': 1},
   ),
   WidgetDescriptor(
+    'SliverPersistentHeader',
+    116,
+    layer: 1,
+    revision: 1,
+    props: {'pinned': 1, 'floating': 2, 'minExtent': 3, 'maxExtent': 4},
+    slots: {'child': 1},
+  ),
+  WidgetDescriptor(
     'SliverToBoxAdapter',
     42,
     layer: 1,
@@ -1369,6 +1428,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'steps': 1},
   ),
   WidgetDescriptor(
+    'Stepper',
+    118,
+    layer: 1,
+    revision: 1,
+    props: {'steps': 1, 'type': 2, 'currentStep': 3, 'physics': 4, 'elevation': 5, 'margin': 6, 'connectorColor': 7, 'connectorThickness': 8, 'stepIconHeight': 9, 'stepIconWidth': 10, 'stepIconMargin': 11, 'clipBehavior': 12, 'headerPadding': 13, 'contentPadding': 14},
+    events: {'onStepTapped': 1, 'onStepContinue': 2, 'onStepCancel': 3},
+  ),
+  WidgetDescriptor(
     'Switch',
     72,
     layer: 1,
@@ -1400,6 +1467,13 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'index': 1, 'viewportFraction': 2},
     events: {'onIndexChanged': 1},
+  ),
+  WidgetDescriptor(
+    'Table',
+    111,
+    layer: 1,
+    revision: 1,
+    props: {'columns': 1, 'columnWidths': 2, 'defaultColumnWidth': 3, 'textDirection': 4, 'border': 5, 'defaultVerticalAlignment': 6, 'textBaseline': 7},
   ),
   WidgetDescriptor(
     'Text',
@@ -1491,6 +1565,12 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     fields: {'x': 1, 'y': 2, 'start': 3},
   ),
   ValueTypeDescriptor(
+    'BlurFilter',
+    47,
+    revision: 1,
+    fields: {'sigmaX': 1, 'sigmaY': 2, 'tileMode': 3},
+  ),
+  ValueTypeDescriptor(
     'Border',
     2,
     revision: 1,
@@ -1545,10 +1625,22 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     fields: {'id': 1, 'label': 2, 'selected': 3},
   ),
   ValueTypeDescriptor(
+    'ColumnWidth',
+    48,
+    revision: 1,
+    fields: {'kind': 1, 'value': 2},
+  ),
+  ValueTypeDescriptor(
     'ContextMenuAction',
     58,
     revision: 1,
     fields: {'label': 1, 'icon': 2, 'destructive': 3},
+  ),
+  ValueTypeDescriptor(
+    'DataColumn',
+    49,
+    revision: 1,
+    fields: {'label': 1, 'numeric': 2, 'tooltip': 3},
   ),
   ValueTypeDescriptor(
     'Destination',
@@ -1615,6 +1707,12 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     15,
     revision: 1,
     fields: {'asset': 1, 'url': 2, 'thumbHash': 3},
+  ),
+  ValueTypeDescriptor(
+    'IndexFlag',
+    51,
+    revision: 1,
+    fields: {'index': 1, 'value': 2},
   ),
   ValueTypeDescriptor(
     'InputBorder',
@@ -1693,6 +1791,12 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     24,
     revision: 1,
     fields: {'width': 1, 'height': 2},
+  ),
+  ValueTypeDescriptor(
+    'StepItem',
+    50,
+    revision: 1,
+    fields: {'title': 1, 'subtitle': 2, 'label': 3, 'state': 4, 'isActive': 5},
   ),
   ValueTypeDescriptor(
     'TabBarItem',
@@ -1859,6 +1963,12 @@ const List<EnumDescriptor> enumDescriptors = [
     11,
     revision: 1,
     values: {'none': 1, 'hardEdge': 2, 'antiAlias': 3, 'antiAliasWithSaveLayer': 4},
+  ),
+  EnumDescriptor(
+    'ColumnWidthKind',
+    100,
+    revision: 1,
+    values: {'flex': 1, 'fixed': 2, 'fraction': 3, 'intrinsic': 4},
   ),
   EnumDescriptor(
     'CountdownFormat',
@@ -2095,6 +2205,12 @@ const List<EnumDescriptor> enumDescriptors = [
     values: {'numeric': 1, 'alphanumeric': 2},
   ),
   EnumDescriptor(
+    'OverflowBarAlignment',
+    98,
+    revision: 1,
+    values: {'start': 1, 'end': 2, 'center': 3},
+  ),
+  EnumDescriptor(
     'OverlayVisibilityMode',
     38,
     revision: 1,
@@ -2105,6 +2221,12 @@ const List<EnumDescriptor> enumDescriptors = [
     107,
     revision: 1,
     values: {'free': 1, 'horizontal': 2, 'vertical': 3, 'aligned': 4},
+  ),
+  EnumDescriptor(
+    'RefreshIndicatorTriggerMode',
+    96,
+    revision: 1,
+    values: {'anywhere': 1, 'onEdge': 2},
   ),
   EnumDescriptor(
     'ScrollPhysics',
@@ -2167,6 +2289,18 @@ const List<EnumDescriptor> enumDescriptors = [
     values: {'loose': 1, 'expand': 2, 'passthrough': 3},
   ),
   EnumDescriptor(
+    'StepState',
+    99,
+    revision: 1,
+    values: {'indexed': 1, 'editing': 2, 'complete': 3, 'disabled': 4, 'error': 5},
+  ),
+  EnumDescriptor(
+    'StepperType',
+    97,
+    revision: 1,
+    values: {'vertical': 1, 'horizontal': 2},
+  ),
+  EnumDescriptor(
     'StrokeCap',
     49,
     revision: 1,
@@ -2177,6 +2311,12 @@ const List<EnumDescriptor> enumDescriptors = [
     88,
     revision: 1,
     values: {'tab': 1, 'label': 2},
+  ),
+  EnumDescriptor(
+    'TableCellVerticalAlignment',
+    95,
+    revision: 1,
+    values: {'top': 1, 'middle': 2, 'bottom': 3, 'baseline': 4, 'fill': 5, 'intrinsicHeight': 6},
   ),
   EnumDescriptor(
     'TextAlign',

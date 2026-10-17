@@ -1,0 +1,79 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "BackdropFilter",
+  "id": 112,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "BackdropFilter",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "display",
+  "icon": "blur_on",
+  "description": "Blurs everything painted behind its child (WGT-020).",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "filter",
+      "id": 1,
+      "type": "BlurFilter",
+      "flutter": "filter"
+    },
+    {
+      "name": "blendMode",
+      "id": 2,
+      "type": "BlendMode",
+      "default": "srcOver",
+      "flutter": "blendMode"
+    },
+    {
+      "name": "enabled",
+      "id": 3,
+      "type": "bool",
+      "default": true,
+      "flutter": "enabled"
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "flutter": "child"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "filterConfig",
+      "reason": "non-serialisable",
+      "note": "An engine object; `filter` covers blurs."
+    },
+    {
+      "flutter": "backdropGroupKey",
+      "reason": "non-serialisable",
+      "note": "Backdrop groups are a runtime concern."
+    }
+  ]
+}

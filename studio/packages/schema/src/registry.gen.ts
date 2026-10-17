@@ -173,7 +173,7 @@ export interface ActionDescriptor {
 }
 
 /** A widget type name. */
-export type WidgetType = "ActionChip" | "Align" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "Autocomplete" | "BackButton" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "BottomNavigationBar" | "CalendarDatePicker" | "Card" | "Carousel" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoContextMenu" | "CupertinoDatePicker" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoNavigationBar" | "CupertinoPicker" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTabBar" | "CupertinoTextField" | "CustomScrollView" | "DataScope" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "Drawer" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "Match" | "MenuAnchor" | "NativeSlot" | "NavigationBar" | "NavigationDrawer" | "NavigationRail" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "PopupMenuButton" | "Positioned" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "Responsive" | "RichText" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchAnchor" | "SearchBar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Stack" | "StatusTimeline" | "Switch" | "SwitchListTile" | "TabBar" | "TabBarView" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "Transform" | "VerticalDivider" | "WizardForm" | "Wrap";
+export type WidgetType = "ActionChip" | "Align" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "Autocomplete" | "BackButton" | "BackdropFilter" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "BottomNavigationBar" | "CalendarDatePicker" | "Card" | "Carousel" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoContextMenu" | "CupertinoDatePicker" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoNavigationBar" | "CupertinoPicker" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTabBar" | "CupertinoTextField" | "CustomScrollView" | "DataScope" | "DataTable" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "Drawer" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "Match" | "MaterialBanner" | "MenuAnchor" | "NativeSlot" | "NavigationBar" | "NavigationDrawer" | "NavigationRail" | "NestedScrollView" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "PopupMenuButton" | "Positioned" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "RefreshIndicator" | "ReorderableListView" | "Responsive" | "RichText" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchAnchor" | "SearchBar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverPersistentHeader" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Stack" | "StatusTimeline" | "Stepper" | "Switch" | "SwitchListTile" | "TabBar" | "TabBarView" | "Table" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "Transform" | "VerticalDivider" | "WizardForm" | "Wrap";
 
 /** An action name. */
 export type ActionName = "announce" | "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "readConfig" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
@@ -680,6 +680,30 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "onPressed", "id": 1, "revision": 1}
     ],
     "slots": []
+  },
+  {
+    "type": "BackdropFilter",
+    "id": 112,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "blur_on",
+    "description": "Blurs everything painted behind its child (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "filter", "id": 1, "type": "BlurFilter", "required": false, "revision": 1, "bindable": true},
+      {"name": "blendMode", "id": 2, "type": "BlendMode", "required": false, "default": "srcOver", "revision": 1, "bindable": true},
+      {"name": "enabled", "id": 3, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
   },
   {
     "type": "Badge",
@@ -1904,6 +1928,50 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "empty", "id": 3, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown when `isEmpty` is true."},
       {"name": "error", "id": 4, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is error."}
     ]
+  },
+  {
+    "type": "DataTable",
+    "id": 117,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "table_rows",
+    "description": "A Material table with headings, sorting and optional row selection (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "columns", "id": 1, "type": "list<DataColumn>", "required": true, "revision": 1, "bindable": true},
+      {"name": "rows", "id": 2, "type": "list<list<string>>", "required": true, "revision": 1, "bindable": true, "description": "One list of cell texts per row, each as long as `columns`; bind it with `$expr`."},
+      {"name": "selectedRows", "id": 3, "type": "list<int>", "required": false, "revision": 1, "bindable": true, "description": "Positions of the selected rows."},
+      {"name": "sortColumnIndex", "id": 4, "type": "int", "required": false, "revision": 1, "bindable": true},
+      {"name": "sortAscending", "id": 5, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "showCheckboxColumn", "id": 6, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Shows the selection checkboxes when `onSelectChanged` is handled."},
+      {"name": "decoration", "id": 7, "type": "BoxDecoration", "required": false, "revision": 1, "bindable": true},
+      {"name": "dataRowColor", "id": 8, "type": "WidgetStateColor", "required": false, "revision": 1, "bindable": true},
+      {"name": "dataRowMinHeight", "id": 9, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "dataRowMaxHeight", "id": 10, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "dataTextStyle", "id": 11, "type": "TextStyle", "required": false, "revision": 1, "bindable": true},
+      {"name": "headingRowColor", "id": 12, "type": "WidgetStateColor", "required": false, "revision": 1, "bindable": true},
+      {"name": "headingRowHeight", "id": 13, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "headingTextStyle", "id": 14, "type": "TextStyle", "required": false, "revision": 1, "bindable": true},
+      {"name": "horizontalMargin", "id": 15, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "columnSpacing", "id": 16, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "showBottomBorder", "id": 17, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "dividerThickness", "id": 18, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "checkboxHorizontalMargin", "id": 19, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "border", "id": 20, "type": "BorderSide", "required": false, "revision": 1, "bindable": true},
+      {"name": "clipBehavior", "id": 21, "type": "Clip", "required": false, "default": "none", "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onSort", "id": 1, "payload": "IndexFlag", "revision": 1, "description": "Fired when a sortable heading is tapped; `index` is the column, `value` whether the order is ascending. The page stores both and re-sorts `rows`."},
+      {"name": "onSelectChanged", "id": 2, "payload": "IndexFlag", "revision": 1, "description": "Fired when a row is selected or deselected; `index` is the row, `value` whether it is selected."},
+      {"name": "onSelectAll", "id": 3, "payload": "bool", "revision": 1}
+    ],
+    "slots": []
   },
   {
     "type": "DecoratedBox",
@@ -3361,6 +3429,43 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "MaterialBanner",
+    "id": 119,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "campaign",
+    "description": "A banner with a message, an optional leading widget and actions (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "alert", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "contentTextStyle", "id": 1, "type": "TextStyle", "required": false, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 2, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "surfaceTintColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "shadowColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "dividerColor", "id": 6, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "padding", "id": 7, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "margin", "id": 8, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "leadingPadding", "id": 9, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "forceActionsBelow", "id": 10, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "overflowAlignment", "id": 11, "type": "OverflowBarAlignment", "required": false, "default": "end", "revision": 1, "bindable": true},
+      {"name": "minActionBarHeight", "id": 12, "type": "double", "required": false, "default": 52.0, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onVisible", "id": 1, "revision": 1}
+    ],
+    "slots": [
+      {"name": "content", "id": 1, "list": false, "required": true, "template": false, "revision": 1},
+      {"name": "leading", "id": 2, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "actions", "id": 3, "list": true, "required": true, "template": false, "revision": 1}
+    ]
+  },
+  {
     "type": "MenuAnchor",
     "id": 121,
     "layer": 1,
@@ -3501,6 +3606,35 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "leading", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
       {"name": "trailing", "id": 2, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "NestedScrollView",
+    "id": 115,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "scrolling",
+    "icon": "vertical_split",
+    "description": "A scroll view whose `headerSlivers` scroll together with a scrollable `body` (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "scrollDirection", "id": 1, "type": "Axis", "required": false, "default": "vertical", "revision": 1, "bindable": true},
+      {"name": "reverse", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "physics", "id": 3, "type": "ScrollPhysics", "required": false, "revision": 1, "bindable": true},
+      {"name": "dragStartBehavior", "id": 4, "type": "DragStartBehavior", "required": false, "default": "start", "revision": 1, "bindable": true},
+      {"name": "floatHeaderSlivers", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "clipBehavior", "id": 6, "type": "Clip", "required": false, "default": "hardEdge", "revision": 1, "bindable": true},
+      {"name": "hitTestBehavior", "id": 7, "type": "HitTestBehavior", "required": false, "default": "opaque", "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "headerSlivers", "id": 1, "list": true, "required": false, "template": false, "revision": 1, "description": "The slivers above the body, such as a `SliverAppBar`."},
+      {"name": "body", "id": 2, "list": false, "required": true, "template": false, "revision": 1, "description": "The scrollable body, such as a `ListView`."}
     ]
   },
   {
@@ -4030,6 +4164,82 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "onChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the rating chosen."}
     ],
     "slots": []
+  },
+  {
+    "type": "RefreshIndicator",
+    "id": 113,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "interaction",
+    "icon": "refresh",
+    "description": "Pull-to-refresh over a scrollable child; `onRefresh` runs its handlers (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "displacement", "id": 1, "type": "double", "required": false, "default": 40.0, "revision": 1, "bindable": true},
+      {"name": "edgeOffset", "id": 2, "type": "double", "required": false, "default": 0.0, "revision": 1, "bindable": true},
+      {"name": "color", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticsLabel", "id": 5, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticsValue", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "strokeWidth", "id": 7, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "triggerMode", "id": 8, "type": "RefreshIndicatorTriggerMode", "required": false, "default": "onEdge", "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 9, "type": "double", "required": false, "default": 2.0, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onRefresh", "id": 1, "revision": 1, "description": "Fired when the user pulls to refresh. The indicator hides when the handlers have been started."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "ReorderableListView",
+    "id": 114,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "scrolling",
+    "icon": "reorder",
+    "description": "A list whose `item` templates the user can drag into a new order; the page updates its list on `onReorder` (WGT-012).",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "list", "interactive": true, "minTarget": true},
+    "typeParameters": ["T"],
+    "props": [
+      {"name": "items", "id": 1, "type": "list<T>", "required": true, "revision": 1, "bindable": true, "description": "The list the template repeats over; bind it with `$expr`. The item is available as `item`, its position as `index`."},
+      {"name": "scrollDirection", "id": 2, "type": "Axis", "required": false, "default": "vertical", "revision": 1, "bindable": true},
+      {"name": "reverse", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "physics", "id": 4, "type": "ScrollPhysics", "required": false, "revision": 1, "bindable": true},
+      {"name": "shrinkWrap", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "padding", "id": 6, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "buildDefaultDragHandles", "id": 7, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "itemExtent", "id": 8, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "anchor", "id": 9, "type": "double", "required": false, "default": 0.0, "revision": 1, "bindable": true},
+      {"name": "dragStartBehavior", "id": 11, "type": "DragStartBehavior", "required": false, "default": "start", "revision": 1, "bindable": true},
+      {"name": "keyboardDismissBehavior", "id": 12, "type": "ScrollViewKeyboardDismissBehavior", "required": false, "revision": 1, "bindable": true},
+      {"name": "clipBehavior", "id": 13, "type": "Clip", "required": false, "default": "hardEdge", "revision": 1, "bindable": true},
+      {"name": "autoScrollerVelocityScalar", "id": 14, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "status", "id": 15, "type": "ListStatus", "required": false, "default": "ready", "revision": 1, "bindable": true, "description": "Loading, error or ready; selects the `loading` or `error` slot (WGT-012)."}
+    ],
+    "events": [
+      {"name": "onReorder", "id": 1, "payload": "map<string,int>", "revision": 1, "description": "Fired when an item is dropped; the payload holds `oldIndex` and `newIndex`, the final position of the item. The page moves the item in its list."},
+      {"name": "onReorderStart", "id": 2, "payload": "int", "revision": 1},
+      {"name": "onReorderEnd", "id": 3, "payload": "int", "revision": 1}
+    ],
+    "slots": [
+      {"name": "item", "id": 1, "list": false, "required": true, "template": true, "revision": 1, "description": "The template built for each item, lazily."},
+      {"name": "header", "id": 2, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "footer", "id": 3, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "empty", "id": 4, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown when `items` is empty."},
+      {"name": "loading", "id": 5, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is loading."},
+      {"name": "error", "id": 6, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is error."}
+    ]
   },
   {
     "type": "Responsive",
@@ -4796,6 +5006,31 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "SliverPersistentHeader",
+    "id": 116,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "scrolling",
+    "icon": "vertical_align_top",
+    "description": "A sliver header between `minExtent` and `maxExtent` tall that can stay pinned or float (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "header", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "pinned", "id": 1, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "floating", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "minExtent", "id": 3, "type": "double", "required": true, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The height when collapsed."},
+      {"name": "maxExtent", "id": 4, "type": "double", "required": true, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The height when expanded."}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1, "description": "The header content; it is given the current height."}
+    ]
+  },
+  {
     "type": "SliverToBoxAdapter",
     "id": 42,
     "layer": 1,
@@ -4924,6 +5159,44 @@ export const widgets: readonly WidgetDescriptor[] = [
     ],
     "events": [],
     "slots": []
+  },
+  {
+    "type": "Stepper",
+    "id": 118,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "structure",
+    "icon": "checklist",
+    "description": "A sequence of steps; the child at each step's index is its content (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "steps", "id": 1, "type": "list<StepItem>", "required": true, "revision": 1, "bindable": true},
+      {"name": "type", "id": 2, "type": "StepperType", "required": false, "default": "vertical", "revision": 1, "bindable": true},
+      {"name": "currentStep", "id": 3, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true, "description": "The open step; bind it to a state key and update it from the events."},
+      {"name": "physics", "id": 4, "type": "ScrollPhysics", "required": false, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 5, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "margin", "id": 6, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "connectorColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "connectorThickness", "id": 8, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "stepIconHeight", "id": 9, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "stepIconWidth", "id": 10, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "stepIconMargin", "id": 11, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "clipBehavior", "id": 12, "type": "Clip", "required": false, "default": "none", "revision": 1, "bindable": true},
+      {"name": "headerPadding", "id": 13, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "contentPadding", "id": 14, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onStepTapped", "id": 1, "payload": "int", "revision": 1},
+      {"name": "onStepContinue", "id": 2, "revision": 1},
+      {"name": "onStepCancel", "id": 3, "revision": 1}
+    ],
+    "slots": [],
+    "children": {}
   },
   {
     "type": "Switch",
@@ -5080,6 +5353,33 @@ export const widgets: readonly WidgetDescriptor[] = [
     "events": [
       {"name": "onIndexChanged", "id": 1, "payload": "int", "revision": 1}
     ],
+    "slots": [],
+    "children": {}
+  },
+  {
+    "type": "Table",
+    "id": 111,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "layout",
+    "icon": "table_chart",
+    "description": "A grid of cells; `children` fill it row by row, `columns` to a row (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "group", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "columns", "id": 1, "type": "int", "required": false, "default": 1, "constraints": {"min": 1}, "revision": 1, "bindable": true, "description": "Cells per row; the children are laid out row-major and the last row is padded with empty cells."},
+      {"name": "columnWidths", "id": 2, "type": "list<ColumnWidth>", "required": false, "revision": 1, "bindable": true, "description": "The width rule of each column by position; columns beyond the list use `defaultColumnWidth`."},
+      {"name": "defaultColumnWidth", "id": 3, "type": "ColumnWidth", "required": false, "revision": 1, "bindable": true},
+      {"name": "textDirection", "id": 4, "type": "TextDirection", "required": false, "revision": 1, "bindable": true},
+      {"name": "border", "id": 5, "type": "BorderSide", "required": false, "revision": 1, "bindable": true, "description": "Draws the outside and the lines between all cells."},
+      {"name": "defaultVerticalAlignment", "id": 6, "type": "TableCellVerticalAlignment", "required": false, "default": "top", "revision": 1, "bindable": true},
+      {"name": "textBaseline", "id": 7, "type": "TextBaseline", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [],
     "slots": [],
     "children": {}
   },
@@ -5508,6 +5808,19 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     ]
   },
   {
+    "name": "BlurFilter",
+    "id": 47,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "A Gaussian blur of what is behind a widget (BackdropFilter).",
+    "fields": [
+      {"name": "sigmaX", "id": 1, "type": "double", "required": false, "default": 0, "revision": 1, "description": "Blur standard deviation along x, in logical pixels."},
+      {"name": "sigmaY", "id": 2, "type": "double", "required": false, "default": 0, "revision": 1, "description": "Blur standard deviation along y, in logical pixels."},
+      {"name": "tileMode", "id": 3, "type": "TileMode", "required": false, "revision": 1, "description": "How the blur treats the edges; absent means the Flutter default."}
+    ],
+    "constants": []
+  },
+  {
     "name": "Border",
     "id": 2,
     "revision": 1,
@@ -5659,6 +5972,18 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "constants": []
   },
   {
+    "name": "ColumnWidth",
+    "id": 48,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "The width rule of one table column.",
+    "fields": [
+      {"name": "kind", "id": 1, "type": "ColumnWidthKind", "required": false, "default": "flex", "revision": 1},
+      {"name": "value", "id": 2, "type": "double", "required": false, "default": 1, "revision": 1, "description": "The flex factor, the logical pixels or the fraction of the table, by `kind`; ignored for `intrinsic`."}
+    ],
+    "constants": []
+  },
+  {
     "name": "ContextMenuAction",
     "id": 58,
     "revision": 1,
@@ -5668,6 +5993,19 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
       {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1},
       {"name": "icon", "id": 2, "type": "IconData", "required": false, "revision": 1, "description": "Icon after the label."},
       {"name": "destructive", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "description": "Drawn in the destructive colour."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "DataColumn",
+    "id": 49,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "A column heading of a DataTable.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The heading text."},
+      {"name": "numeric", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "description": "Right-aligns the column, for numbers."},
+      {"name": "tooltip", "id": 3, "type": "string", "required": false, "revision": 1, "description": "Shown on long press of the heading."}
     ],
     "constants": []
   },
@@ -5839,6 +6177,18 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
       {"name": "asset", "id": 1, "type": "asset", "required": false, "revision": 1, "description": "A bundled asset."},
       {"name": "url", "id": 2, "type": "string", "required": false, "revision": 1, "description": "An HTTPS URL on a domain the plugin declares (SEC-080)."},
       {"name": "thumbHash", "id": 3, "type": "string", "required": false, "revision": 1, "description": "A ThumbHash of the image, base64-encoded, shown blurred until the image loads (RT-014)."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "IndexFlag",
+    "id": 51,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "An index and a flag: the payload of a DataTable sort (column, ascending) or row selection (row, selected).",
+    "fields": [
+      {"name": "index", "id": 1, "type": "int", "required": true, "revision": 1},
+      {"name": "value", "id": 2, "type": "bool", "required": true, "revision": 1}
     ],
     "constants": []
   },
@@ -6055,6 +6405,21 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "fields": [
       {"name": "width", "id": 1, "type": "double", "required": false, "revision": 1},
       {"name": "height", "id": 2, "type": "double", "required": false, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
+    "name": "StepItem",
+    "id": 50,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One step of a Stepper; its content is the child at the same index.",
+    "fields": [
+      {"name": "title", "id": 1, "type": "string", "required": true, "revision": 1},
+      {"name": "subtitle", "id": 2, "type": "string", "required": false, "revision": 1},
+      {"name": "label", "id": 3, "type": "string", "required": false, "revision": 1, "description": "Shown in place of the step number."},
+      {"name": "state", "id": 4, "type": "StepState", "required": false, "default": "indexed", "revision": 1},
+      {"name": "isActive", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1}
     ],
     "constants": []
   },
@@ -6492,6 +6857,19 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "hardEdge", "id": 2, "revision": 1},
       {"name": "antiAlias", "id": 3, "revision": 1},
       {"name": "antiAliasWithSaveLayer", "id": 4, "revision": 1}
+    ]
+  },
+  {
+    "name": "ColumnWidthKind",
+    "id": 100,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "How a table column takes its width: a share of the free space, a fixed size, a fraction of the table, or the widest cell.",
+    "values": [
+      {"name": "flex", "id": 1, "revision": 1},
+      {"name": "fixed", "id": 2, "revision": 1},
+      {"name": "fraction", "id": 3, "revision": 1},
+      {"name": "intrinsic", "id": 4, "revision": 1}
     ]
   },
   {
@@ -6996,6 +7374,18 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "OverflowBarAlignment",
+    "id": 98,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum OverflowBarAlignment.",
+    "values": [
+      {"name": "start", "id": 1, "revision": 1},
+      {"name": "end", "id": 2, "revision": 1},
+      {"name": "center", "id": 3, "revision": 1}
+    ]
+  },
+  {
     "name": "OverlayVisibilityMode",
     "id": 38,
     "revision": 1,
@@ -7019,6 +7409,17 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "horizontal", "id": 2, "revision": 1},
       {"name": "vertical", "id": 3, "revision": 1},
       {"name": "aligned", "id": 4, "revision": 1}
+    ]
+  },
+  {
+    "name": "RefreshIndicatorTriggerMode",
+    "id": 96,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum RefreshIndicatorTriggerMode.",
+    "values": [
+      {"name": "anywhere", "id": 1, "revision": 1},
+      {"name": "onEdge", "id": 2, "revision": 1}
     ]
   },
   {
@@ -7148,6 +7549,31 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "StepState",
+    "id": 99,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum StepState.",
+    "values": [
+      {"name": "indexed", "id": 1, "revision": 1},
+      {"name": "editing", "id": 2, "revision": 1},
+      {"name": "complete", "id": 3, "revision": 1},
+      {"name": "disabled", "id": 4, "revision": 1},
+      {"name": "error", "id": 5, "revision": 1}
+    ]
+  },
+  {
+    "name": "StepperType",
+    "id": 97,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum StepperType.",
+    "values": [
+      {"name": "vertical", "id": 1, "revision": 1},
+      {"name": "horizontal", "id": 2, "revision": 1}
+    ]
+  },
+  {
     "name": "StrokeCap",
     "id": 49,
     "revision": 1,
@@ -7168,6 +7594,21 @@ export const enums: readonly EnumDescriptor[] = [
     "values": [
       {"name": "tab", "id": 1, "revision": 1},
       {"name": "label", "id": 2, "revision": 1}
+    ]
+  },
+  {
+    "name": "TableCellVerticalAlignment",
+    "id": 95,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum TableCellVerticalAlignment.",
+    "values": [
+      {"name": "top", "id": 1, "revision": 1},
+      {"name": "middle", "id": 2, "revision": 1},
+      {"name": "bottom", "id": 3, "revision": 1},
+      {"name": "baseline", "id": 4, "revision": 1},
+      {"name": "fill", "id": 5, "revision": 1},
+      {"name": "intrinsicHeight", "id": 6, "revision": 1}
     ]
   },
   {

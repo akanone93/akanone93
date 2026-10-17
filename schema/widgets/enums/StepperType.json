@@ -1,0 +1,27 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "StepperType",
+  "id": 97,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "Mirrors the Flutter enum StepperType.",
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "enum": "StepperType"
+  },
+  "values": [
+    {
+      "name": "vertical",
+      "id": 1
+    },
+    {
+      "name": "horizontal",
+      "id": 2
+    }
+  ]
+}
