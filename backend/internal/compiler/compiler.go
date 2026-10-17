@@ -51,6 +51,9 @@ type Options struct {
 	// DeviceModules supplies the linked device module of a plugin that
 	// grants device-placed functions (FN-051); nil packs none.
 	DeviceModules DeviceModules
+	// Production is true when the build is for a production environment:
+	// pseudo-locales are refused there (PLX-1614).
+	Production bool
 }
 
 // AssetVariant is a transcoded form of an asset file.
@@ -126,6 +129,9 @@ type Result struct {
 	// Accessibility is the accessibility report of the compilation
 	// (A11Y-008); nil when the policy stage did not run.
 	Accessibility *A11yReport
+	// Localisation is the localisation report (I18N-008); nil when the
+	// compilation failed or the app declares no translation keys.
+	Localisation *L10nReport
 }
 
 // stage is one step of the pipeline (CMP-003). Checking stages run even
@@ -186,6 +192,9 @@ func Compile(fsys fs.FS, opts Options) (res *Result) {
 		res.Project = project
 	}
 	if !u.diags.HasErrors() {
+		if project != nil && project.App.Doc != nil {
+			res.Localisation = u.l10nReport()
+		}
 		res.App, res.Plugins, res.Files = u.app, u.outputs, u.files
 		res.StoredState = u.storedOf()
 		res.DeviceUses = u.sortedDeviceUses()

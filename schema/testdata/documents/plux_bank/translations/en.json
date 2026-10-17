@@ -3,9 +3,9 @@
   "kind": "translations",
   "locale": "en",
   "messages": {
+    "01a14abf-1709-759b-b4e9-13dd4dda6b95": "Show fee",
     "01d0c450-6c00-7000-8000-000000000280": "Welcome back",
     "01d0c450-6c00-7000-8000-000000000281": "Username",
-    "01d0c450-6c00-7000-8000-000000000282": "Password",
     "01d0c450-6c00-7000-8000-000000000283": "Sign in",
     "01d0c450-6c00-7000-8000-000000000284": "Plux Bank",
     "01d0c450-6c00-7000-8000-000000000285": "No transactions yet.",

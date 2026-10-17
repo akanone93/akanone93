@@ -12,11 +12,6 @@
       "key": "login.username"
     },
     {
-      "description": "Password",
-      "id": "01d0c450-6c00-7000-8000-000000000282",
-      "key": "login.password"
-    },
-    {
       "description": "Sign in",
       "id": "01d0c450-6c00-7000-8000-000000000283",
       "key": "login.submit"
@@ -130,6 +125,11 @@
       "description": "Code sent by SMS",
       "id": "01d0c450-6c00-7000-8000-000000000299",
       "key": "login.otp"
+    },
+    {
+      "description": "Extracted from data of a Text on transfer.",
+      "id": "01a14abf-1709-759b-b4e9-13dd4dda6b95",
+      "key": "banking.transfer.show-fee"
     }
   ],
   "kind": "translationKeys",

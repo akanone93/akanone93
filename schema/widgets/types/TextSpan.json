@@ -24,7 +24,8 @@
       "name": "text",
       "id": 1,
       "type": "string",
-      "flutter": "text"
+      "flutter": "text",
+      "translatable": true
     },
     {
       "name": "children",

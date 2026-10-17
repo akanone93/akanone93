@@ -26,7 +26,7 @@ type ReportKind string
 const (
 	// ReportAccessibility is the accessibility report (A11Y-008).
 	ReportAccessibility ReportKind = "accessibility"
-	// ReportLocalisation is the localisation report (I18N-009).
+	// ReportLocalisation is the localisation report (I18N-008).
 	ReportLocalisation ReportKind = "localisation"
 )
 
@@ -61,6 +61,12 @@ func reportProducers() map[ReportKind]func(*compiler.Result) (any, error) {
 			}
 			return res.Accessibility, nil
 		},
+		ReportLocalisation: func(res *compiler.Result) (any, error) {
+			if res.Localisation == nil {
+				return nil, nil
+			}
+			return res.Localisation, nil
+		},
 	}
 }
 
@@ -71,6 +77,7 @@ func reportProducers() map[ReportKind]func(*compiler.Result) (any, error) {
 func reportRenderers() map[ReportKind]func(report []byte) ([]byte, error) {
 	return map[ReportKind]func([]byte) ([]byte, error){
 		ReportAccessibility: renderA11yHTML,
+		ReportLocalisation:  renderL10nHTML,
 	}
 }
 

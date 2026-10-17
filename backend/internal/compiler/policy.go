@@ -44,6 +44,7 @@ func policy(u *unit) {
 		}
 	}
 	u.accessibility()
+	u.localisation()
 	if u.focus == "" {
 		u.lintEnvironments()
 		u.lintAssets()

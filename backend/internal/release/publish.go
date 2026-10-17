@@ -575,6 +575,15 @@ func (s *Service) compileOptions(ctx context.Context, tx pgx.Tx, orgID, appID, e
 	}
 	opts := compiler.DefaultOptions()
 	opts.Limits, opts.Version, opts.AssetVariants, opts.IconFont = lim, s.o.CompilerVersion, variants, fonts.Build
+	eid, err := parseID(environmentID, "environment")
+	if err != nil {
+		return compiler.Options{}, err
+	}
+	env, err := dbgen.New(tx).GetEnvironment(ctx, eid)
+	if err != nil {
+		return compiler.Options{}, failure(err, "environment")
+	}
+	opts.Production = env.Production
 	if s.o.Functions != nil {
 		if opts.Functions, err = s.o.Functions.Catalogue(ctx, orgID, appID, environmentID); err != nil {
 			return compiler.Options{}, fmt.Errorf("release: %w", err)

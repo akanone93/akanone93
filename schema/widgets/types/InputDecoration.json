@@ -37,7 +37,8 @@
       "name": "labelText",
       "id": 3,
       "type": "string",
-      "flutter": "labelText"
+      "flutter": "labelText",
+      "translatable": true
     },
     {
       "name": "labelStyle",
@@ -181,7 +182,8 @@
       "name": "prefixText",
       "id": 26,
       "type": "string",
-      "flutter": "prefixText"
+      "flutter": "prefixText",
+      "translatable": true
     },
     {
       "name": "prefixStyle",
@@ -206,7 +208,8 @@
       "name": "suffixText",
       "id": 30,
       "type": "string",
-      "flutter": "suffixText"
+      "flutter": "suffixText",
+      "translatable": true
     },
     {
       "name": "suffixStyle",
@@ -230,7 +233,8 @@
       "name": "counterText",
       "id": 34,
       "type": "string",
-      "flutter": "counterText"
+      "flutter": "counterText",
+      "translatable": true
     },
     {
       "name": "counterStyle",
@@ -309,7 +313,8 @@
       "name": "semanticCounterText",
       "id": 47,
       "type": "string",
-      "flutter": "semanticCounterText"
+      "flutter": "semanticCounterText",
+      "translatable": true
     },
     {
       "name": "alignLabelWithHint",

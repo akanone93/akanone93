@@ -38,7 +38,7 @@ Commands:
   native      scan | sync the host app's native catalogue
   fn          new | build | test | invoke | deploy | alias | versions | logs of Plux Functions
   security    config show | set | diff an environment's security configuration
-  l10n        pull | push | export | import | status of an app's translations
+  l10n        pull | push | export | import | status | extract | pseudo of an app's translations
   config      set | get | list | delete an environment's server-held configuration values
   create      Generate the Flutter project of a no-code app
   completion  Print a shell completion script (bash, zsh, fish, powershell)
