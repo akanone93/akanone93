@@ -173,13 +173,39 @@ export interface ActionDescriptor {
 }
 
 /** A widget type name. */
-export type WidgetType = "ActionChip" | "Align" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "Autocomplete" | "BackButton" | "BackdropFilter" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "BottomNavigationBar" | "CalendarDatePicker" | "Card" | "Carousel" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoContextMenu" | "CupertinoDatePicker" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoNavigationBar" | "CupertinoPicker" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTabBar" | "CupertinoTextField" | "CustomScrollView" | "DataScope" | "DataTable" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "Drawer" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "Match" | "MaterialBanner" | "MenuAnchor" | "NativeSlot" | "NavigationBar" | "NavigationDrawer" | "NavigationRail" | "NestedScrollView" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "PopupMenuButton" | "Positioned" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "RefreshIndicator" | "ReorderableListView" | "Responsive" | "RichText" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchAnchor" | "SearchBar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverPersistentHeader" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Stack" | "StatusTimeline" | "Stepper" | "Switch" | "SwitchListTile" | "TabBar" | "TabBarView" | "Table" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "Transform" | "VerticalDivider" | "WizardForm" | "Wrap";
+export type WidgetType = "AccountCard" | "ActionChip" | "Align" | "AmountInput" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "Autocomplete" | "BackButton" | "BackdropFilter" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "BottomNavigationBar" | "CalendarDatePicker" | "Card" | "Carousel" | "CartSummary" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CountryPicker" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoContextMenu" | "CupertinoDatePicker" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoNavigationBar" | "CupertinoPicker" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTabBar" | "CupertinoTextField" | "CurrencyPicker" | "CustomScrollView" | "DataScope" | "DataTable" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "Drawer" | "DropdownMenu" | "DualCalendarDatePicker" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "IbanInput" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "MaskedText" | "Match" | "MaterialBanner" | "MenuAnchor" | "MoneyText" | "NativeSlot" | "NavigationBar" | "NavigationDrawer" | "NavigationRail" | "NestedScrollView" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "PaymentCard" | "PhoneInput" | "PopupMenuButton" | "Positioned" | "PriceTag" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "RefreshIndicator" | "ReorderableListView" | "Responsive" | "RichText" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchAnchor" | "SearchBar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverPersistentHeader" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Stack" | "StatusTimeline" | "Stepper" | "Switch" | "SwitchListTile" | "TabBar" | "TabBarView" | "Table" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "TransactionListItem" | "Transform" | "VerticalDivider" | "WizardForm" | "Wrap";
 
 /** An action name. */
 export type ActionName = "announce" | "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "readConfig" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
 
 /** Every widget descriptor, sorted by type name (WGT-001). */
 export const widgets: readonly WidgetDescriptor[] = [
+  {
+    "type": "AccountCard",
+    "id": 169,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "account_balance_wallet",
+    "description": "An account with its masked number and balance; flipping shows the back.",
+    "platforms": ["android", "ios"],
+    "cost": 90,
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "name", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The account's name."},
+      {"name": "maskedNumber", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The account number, masked."},
+      {"name": "balance", "id": 3, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The balance."},
+      {"name": "flipped", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the back is shown."},
+      {"name": "backLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The text on the back."}
+    ],
+    "events": [
+      {"name": "onFlip", "id": 1, "payload": "bool", "revision": 1, "description": "Fires with the side the person asked for."}
+    ],
+    "slots": []
+  },
   {
     "type": "ActionChip",
     "id": 61,
@@ -245,6 +271,33 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "AmountInput",
+    "id": 159,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "payments",
+    "description": "A money entry field: the locale's group and decimal separators, the currency's minor units, and a range.",
+    "platforms": ["android", "ios"],
+    "cost": 90,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "label", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The field's label."},
+      {"name": "currency", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The ISO 4217 code of the amount."},
+      {"name": "value", "id": 3, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The amount shown."},
+      {"name": "min", "id": 4, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The smallest amount accepted."},
+      {"name": "max", "id": 5, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The largest amount accepted."},
+      {"name": "rangeMessage", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The error shown when the amount is outside the range."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "money", "revision": 1, "description": "Fires with the amount whenever the typed text is a valid amount."}
+    ],
+    "slots": []
   },
   {
     "type": "AnimatedAlign",
@@ -928,6 +981,37 @@ export const widgets: readonly WidgetDescriptor[] = [
     "children": {"min": 1}
   },
   {
+    "type": "CartSummary",
+    "id": 167,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "shopping_cart",
+    "description": "The lines, subtotal, tax and total of a cart, with a checkout action.",
+    "platforms": ["android", "ios"],
+    "cost": 100,
+    "accessibility": {"role": "group", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "lines", "id": 1, "type": "list<CartLine>", "required": true, "revision": 1, "bindable": true, "description": "The cart's lines."},
+      {"name": "subtotal", "id": 2, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The sum of the lines."},
+      {"name": "tax", "id": 3, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The tax."},
+      {"name": "total", "id": 4, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The amount due."},
+      {"name": "subtotalLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The subtotal row's label."},
+      {"name": "taxLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tax row's label."},
+      {"name": "totalLabel", "id": 7, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The total row's label."},
+      {"name": "checkoutLabel", "id": 8, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label of the built-in checkout button."}
+    ],
+    "events": [
+      {"name": "onCheckout", "id": 1, "revision": 1, "description": "Fires when the person starts checkout."}
+    ],
+    "slots": [
+      {"name": "checkout", "id": 1, "list": false, "required": false, "template": false, "revision": 1, "description": "Replaces the built-in checkout button."}
+    ]
+  },
+  {
     "type": "Center",
     "id": 9,
     "layer": 1,
@@ -1423,6 +1507,29 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": []
   },
   {
+    "type": "CountryPicker",
+    "id": 164,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "flag",
+    "description": "A searchable list of countries named in the locale, with flags.",
+    "platforms": ["android", "ios"],
+    "cost": 90,
+    "accessibility": {"role": "list", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The ISO 3166 code selected."},
+      {"name": "searchHint", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The hint of the search field."}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the ISO 3166 code of the chosen country."}
+    ],
+    "slots": []
+  },
+  {
     "type": "CupertinoActivityIndicator",
     "id": 95,
     "layer": 1,
@@ -1871,6 +1978,30 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "CurrencyPicker",
+    "id": 165,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "currency_exchange",
+    "description": "A searchable list of currencies named in the locale.",
+    "platforms": ["android", "ios"],
+    "cost": 90,
+    "accessibility": {"role": "list", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The ISO 4217 code selected."},
+      {"name": "currencies", "id": 2, "type": "list<string>?", "required": false, "revision": 1, "bindable": true, "description": "The codes offered; every currency of the locale when absent."},
+      {"name": "searchHint", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The hint of the search field."}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the ISO 4217 code of the chosen currency."}
+    ],
+    "slots": []
+  },
+  {
     "type": "CustomScrollView",
     "id": 35,
     "layer": 1,
@@ -2192,6 +2323,32 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "label", "id": 3, "list": false, "required": false, "template": false, "revision": 1},
       {"name": "selectedTrailingIcon", "id": 4, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "DualCalendarDatePicker",
+    "id": 207,
+    "layer": 2,
+    "phase": "P8",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "calendar_month",
+    "description": "A month grid in one calendar with the day numbers of a second calendar beside them; Gregorian beside Hijri, Ethiopic or Persian (I18N-003).",
+    "platforms": ["android", "ios"],
+    "cost": 120,
+    "accessibility": {"role": "none", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "date?", "required": false, "revision": 1, "bindable": true, "description": "The selected date."},
+      {"name": "firstDate", "id": 2, "type": "date?", "required": false, "revision": 1, "bindable": true, "description": "The earliest date that can be chosen; the start of 1900 when absent."},
+      {"name": "lastDate", "id": 3, "type": "date?", "required": false, "revision": 1, "bindable": true, "description": "The latest date that can be chosen; the end of 2100 when absent."},
+      {"name": "calendar", "id": 4, "type": "CalendarSystem?", "required": false, "revision": 1, "bindable": true, "description": "The calendar of the grid; the app's `localisation.calendar` when absent."},
+      {"name": "secondaryCalendar", "id": 5, "type": "CalendarSystem?", "required": false, "revision": 1, "bindable": true, "description": "The calendar of the small day numbers; the app's `localisation.secondaryCalendar` when absent, and none if that is absent too."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "date", "revision": 1, "description": "Fires with the date chosen."}
+    ],
+    "slots": []
   },
   {
     "type": "ElevatedButton",
@@ -2851,6 +3008,30 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "IbanInput",
+    "id": 163,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "account_balance",
+    "description": "An IBAN entry shown in groups of four, with the mod-97 check.",
+    "platforms": ["android", "ios"],
+    "cost": 80,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "label", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The field's label."},
+      {"name": "value", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The IBAN without spaces."},
+      {"name": "invalidMessage", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The error shown for an invalid IBAN."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the IBAN without spaces when it is valid, and with an empty string when it is not."}
+    ],
+    "slots": []
+  },
+  {
     "type": "Icon",
     "id": 49,
     "layer": 1,
@@ -3405,6 +3586,32 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": []
   },
   {
+    "type": "MaskedText",
+    "id": 161,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "visibility_off",
+    "description": "A sensitive number with all but its last digits hidden; the hidden digits never reach screen readers.",
+    "platforms": ["android", "ios"],
+    "cost": 50,
+    "accessibility": {"role": "text", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The full value."},
+      {"name": "mask", "id": 2, "type": "MaskKind", "required": false, "default": "card", "revision": 1, "bindable": true, "description": "How the value is hidden."},
+      {"name": "visibleDigits", "id": 3, "type": "int", "required": false, "default": 4, "revision": 1, "bindable": true, "description": "How many trailing digits stay visible."},
+      {"name": "revealable", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "A button shows the whole value."},
+      {"name": "revealLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label of the reveal button."}
+    ],
+    "events": [
+      {"name": "onReveal", "id": 1, "revision": 1, "description": "Fires when the person reveals the value."}
+    ],
+    "slots": []
+  },
+  {
     "type": "Match",
     "id": 2,
     "layer": 1,
@@ -3491,6 +3698,29 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1, "description": "The anchor the menu opens from; tapping it toggles the menu."}
     ]
+  },
+  {
+    "type": "MoneyText",
+    "id": 160,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "attach_money",
+    "description": "An amount written for the locale and currency, read aloud with the currency's name.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "text", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The amount."},
+      {"name": "display", "id": 2, "type": "MoneyDisplay", "required": false, "default": "symbol", "revision": 1, "bindable": true, "description": "How the currency is written."},
+      {"name": "signDisplay", "id": 3, "type": "SignDisplay", "required": false, "default": "auto", "revision": 1, "bindable": true, "description": "When a sign is shown."},
+      {"name": "style", "id": 4, "type": "TextStyle?", "required": false, "revision": 1, "bindable": true, "description": "The text style."}
+    ],
+    "events": [],
+    "slots": []
   },
   {
     "type": "NativeSlot",
@@ -3822,6 +4052,58 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "PaymentCard",
+    "id": 170,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "credit_card",
+    "description": "A payment card: brand, masked number, expiry and holder; flipping shows the back.",
+    "platforms": ["android", "ios"],
+    "cost": 90,
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "brand", "id": 1, "type": "CardBrand", "required": false, "default": "other", "revision": 1, "bindable": true, "description": "The card network."},
+      {"name": "maskedNumber", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The card number, masked."},
+      {"name": "expiry", "id": 3, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The expiry, as printed."},
+      {"name": "holder", "id": 4, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The holder's name."},
+      {"name": "flipped", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the back is shown."},
+      {"name": "backLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The text on the back."}
+    ],
+    "events": [
+      {"name": "onFlip", "id": 1, "payload": "bool", "revision": 1, "description": "Fires with the side the person asked for."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "PhoneInput",
+    "id": 162,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "phone",
+    "description": "A phone number entry in E.164 with a country picker and validation.",
+    "platforms": ["android", "ios"],
+    "cost": 100,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "label", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The field's label."},
+      {"name": "value", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The number in E.164 form."},
+      {"name": "region", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The default ISO 3166 region; the locale's region when absent."},
+      {"name": "invalidMessage", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The error shown for an invalid number."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the E.164 number when it is valid, and with an empty string when it is not."}
+    ],
+    "slots": []
+  },
+  {
     "type": "PopupMenuButton",
     "id": 120,
     "layer": 1,
@@ -3882,6 +4164,28 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "PriceTag",
+    "id": 166,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "sell",
+    "description": "A price, with the original price struck through and announced as the former price.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "text", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "price", "id": 1, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The current price."},
+      {"name": "originalPrice", "id": 2, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The price before a reduction."},
+      {"name": "wasLabel", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What screen readers say before the original price."}
+    ],
+    "events": [],
+    "slots": []
   },
   {
     "type": "ProductCard",
@@ -5659,6 +5963,33 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "TransactionListItem",
+    "id": 168,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "receipt_long",
+    "description": "A transaction row: title, subtitle, signed amount in a credit or debit colour, status and date.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "title", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What the transaction was."},
+      {"name": "subtitle", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line below the title."},
+      {"name": "amount", "id": 3, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The signed amount; negative is a debit."},
+      {"name": "status", "id": 4, "type": "TransactionStatus", "required": false, "default": "completed", "revision": 1, "bindable": true, "description": "The state of the transaction."},
+      {"name": "date", "id": 5, "type": "dateTime?", "required": false, "revision": 1, "bindable": true, "description": "When it happened."},
+      {"name": "statusLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The status written for the person; the status name when absent."}
+    ],
+    "events": [
+      {"name": "onTap", "id": 1, "revision": 1, "description": "Fires when the row is tapped."}
+    ],
+    "slots": []
+  },
+  {
     "type": "Transform",
     "id": 17,
     "layer": 1,
@@ -5955,6 +6286,18 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
       {"name": "animationDuration", "id": 19, "type": "duration", "required": false, "revision": 1},
       {"name": "enableFeedback", "id": 20, "type": "bool", "required": false, "revision": 1},
       {"name": "alignment", "id": 21, "type": "Alignment", "required": false, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
+    "name": "CartLine",
+    "id": 69,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One line of a CartSummary.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "description": "What the line is."},
+      {"name": "amount", "id": 2, "type": "money", "required": true, "revision": 1, "description": "The line's amount."}
     ],
     "constants": []
   },
@@ -6847,6 +7190,33 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "CalendarSystem",
+    "id": 175,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "A calendar system a date is shown in (I18N-003).",
+    "values": [
+      {"name": "gregorian", "id": 1, "revision": 1},
+      {"name": "ethiopic", "id": 2, "revision": 1},
+      {"name": "islamicUmalqura", "id": 3, "revision": 1},
+      {"name": "persian", "id": 4, "revision": 1}
+    ]
+  },
+  {
+    "name": "CardBrand",
+    "id": 144,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "The network of a payment card.",
+    "values": [
+      {"name": "visa", "id": 1, "revision": 1, "description": "Visa."},
+      {"name": "mastercard", "id": 2, "revision": 1, "description": "Mastercard."},
+      {"name": "amex", "id": 3, "revision": 1, "description": "American Express."},
+      {"name": "discover", "id": 4, "revision": 1, "description": "Discover."},
+      {"name": "other", "id": 5, "revision": 1, "description": "Any other network."}
+    ]
+  },
+  {
     "name": "Clip",
     "id": 11,
     "revision": 1,
@@ -7303,6 +7673,19 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "MaskKind",
+    "id": 142,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "How MaskedText hides its value.",
+    "values": [
+      {"name": "card", "id": 1, "revision": 1, "description": "Groups of four, the last digits visible."},
+      {"name": "account", "id": 2, "revision": 1, "description": "The last digits visible."},
+      {"name": "phone", "id": 3, "revision": 1, "description": "The last digits visible, separators kept."},
+      {"name": "custom", "id": 4, "revision": 1, "description": "Every character but the last digits hidden."}
+    ]
+  },
+  {
     "name": "MaterialTapTargetSize",
     "id": 36,
     "revision": 1,
@@ -7323,6 +7706,18 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "none", "id": 1, "revision": 1},
       {"name": "enforced", "id": 2, "revision": 1},
       {"name": "truncateAfterCompositionEnds", "id": 3, "revision": 1}
+    ]
+  },
+  {
+    "name": "MoneyDisplay",
+    "id": 140,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "How MoneyText writes the currency.",
+    "values": [
+      {"name": "symbol", "id": 1, "revision": 1, "description": "The locale's symbol."},
+      {"name": "narrowSymbol", "id": 2, "revision": 1, "description": "The narrow symbol."},
+      {"name": "code", "id": 3, "revision": 1, "description": "The ISO 4217 code."}
     ]
   },
   {
@@ -7488,6 +7883,19 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "onDrag", "id": 4, "revision": 1},
       {"name": "alwaysVisible", "id": 5, "revision": 1},
       {"name": "never", "id": 6, "revision": 1}
+    ]
+  },
+  {
+    "name": "SignDisplay",
+    "id": 141,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "When MoneyText shows a sign.",
+    "values": [
+      {"name": "auto", "id": 1, "revision": 1, "description": "A minus for negative amounts only."},
+      {"name": "always", "id": 2, "revision": 1, "description": "A sign on every amount."},
+      {"name": "never", "id": 3, "revision": 1, "description": "No sign."},
+      {"name": "exceptZero", "id": 4, "revision": 1, "description": "A sign on every amount but zero."}
     ]
   },
   {
@@ -7827,6 +8235,19 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "manual", "id": 1, "revision": 1},
       {"name": "longPress", "id": 2, "revision": 1},
       {"name": "tap", "id": 3, "revision": 1}
+    ]
+  },
+  {
+    "name": "TransactionStatus",
+    "id": 143,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "The state of a transaction.",
+    "values": [
+      {"name": "pending", "id": 1, "revision": 1, "description": "Not yet settled."},
+      {"name": "completed", "id": 2, "revision": 1, "description": "Settled."},
+      {"name": "failed", "id": 3, "revision": 1, "description": "Declined or failed."},
+      {"name": "reversed", "id": 4, "revision": 1, "description": "Reversed after settling."}
     ]
   },
   {

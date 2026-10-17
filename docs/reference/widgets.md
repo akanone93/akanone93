@@ -8,8 +8,10 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 
 | Type | Layer | Category | Phase | Description |
 |---|---|---|---|---|
+| [AccountCard](#accountcard) | 2 | commerce | P5 | An account with its masked number and balance; flipping shows the back. |
 | [ActionChip](#actionchip) | 1 | display | P3 | A chip that triggers an action related to primary content. |
 | [Align](#align) | 1 | layout | P3 | Aligns its child within itself and optionally sizes itself based on the child. |
+| [AmountInput](#amountinput) | 2 | input | P5 | A money entry field: the locale's group and decimal separators, the currency's minor units, and a range. |
 | [AnimatedAlign](#animatedalign) | 1 | animation | P5 | Animates its child's alignment. |
 | [AnimatedContainer](#animatedcontainer) | 1 | animation | P5 | A `Container` that animates to new values of its props. |
 | [AnimatedCrossFade](#animatedcrossfade) | 1 | animation | P5 | Cross-fades between two children, sizing to the one shown. |
@@ -34,6 +36,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [CalendarDatePicker](#calendardatepicker) | 1 | navigation | P5 | A month grid for picking a date in the Gregorian calendar. |
 | [Card](#card) | 1 | display | P3 | A Material card: a panel with slightly rounded corners and an elevation shadow. |
 | [Carousel](#carousel) | 2 | layout | P5 | Pages of children swiped horizontally, with page indicators and optional autoplay. Autoplay stops when the device reduces motion. |
+| [CartSummary](#cartsummary) | 2 | commerce | P5 | The lines, subtotal, tax and total of a cart, with a checkout action. |
 | [Center](#center) | 1 | layout | P3 | Centres its child within itself. |
 | [Checkbox](#checkbox) | 1 | input | P3 | A Material checkbox. |
 | [CheckboxListTile](#checkboxlisttile) | 1 | input | P3 | A list tile with a checkbox. |
@@ -50,6 +53,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [ConstrainedBox](#constrainedbox) | 1 | layout | P3 | Imposes additional constraints on its child. |
 | [Container](#container) | 1 | layout | P3 | A box with optional padding, margin, size constraints, alignment, colour and decoration. |
 | [CountdownTimer](#countdowntimer) | 2 | commerce | P5 | The time left until `endsAt`, updated once a second. |
+| [CountryPicker](#countrypicker) | 2 | input | P5 | A searchable list of countries named in the locale, with flags. |
 | [CupertinoActivityIndicator](#cupertinoactivityindicator) | 1 | cupertino | P3 | An iOS-style activity indicator. |
 | [CupertinoButton](#cupertinobutton) | 1 | cupertino | P3 | An iOS-style button. |
 | [CupertinoContextMenu](#cupertinocontextmenu) | 1 | cupertino | P5 | Shows `actions` when `child` is long-pressed; choosing one fires `onAction` with its index. |
@@ -63,6 +67,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [CupertinoSwitch](#cupertinoswitch) | 1 | cupertino | P3 | An iOS-style switch. |
 | [CupertinoTabBar](#cupertinotabbar) | 1 | cupertino | P4 | An iOS-style tab bar; bind `currentIndex` to a state key and `onTap` to the action that changes it. |
 | [CupertinoTextField](#cupertinotextfield) | 1 | cupertino | P3 | An iOS-style text input whose text is bound to `value`. |
+| [CurrencyPicker](#currencypicker) | 2 | input | P5 | A searchable list of currencies named in the locale. |
 | [CustomScrollView](#customscrollview) | 1 | scrolling | P3 | A scroll view composed of slivers. |
 | [DataScope](#datascope) | 1 | structure | P5 | Shows one of `loading`, `empty`, `error` or `success` for a data source. Bind `status` to `data.<source>.status` and `empty` to a test of `data.<source>.value`; the subtree reads the source as `data.<source>`. |
 | [DataTable](#datatable) | 1 | display | P5 | A Material table with headings, sorting and optional row selection (WGT-020). |
@@ -94,6 +99,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [GestureDetector](#gesturedetector) | 1 | interaction | P3 | Detects taps, long presses, drags and scale gestures on its child. |
 | [GridView](#gridview) | 1 | scrolling | P3 | A lazily built, scrollable grid of `item` templates over `items` (WGT-012). |
 | [Hero](#hero) | 1 | animation | P5 | Marks its child as a shared element that flies between pages with the same `tag`. |
+| [IbanInput](#ibaninput) | 2 | input | P5 | An IBAN entry shown in groups of four, with the mod-97 check. |
 | [Icon](#icon) | 1 | display | P3 | An icon from the Material or Cupertino icon set. |
 | [IconButton](#iconbutton) | 1 | input | P3 | A Material icon button. |
 | [If](#if) | 1 | structure | P3 | Renders its `then` slot while `condition` is true, otherwise its optional `else` slot. |
@@ -110,9 +116,11 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [ListTile](#listtile) | 1 | display | P3 | A fixed-height row with leading and trailing content and one to three lines of text. |
 | [ListView](#listview) | 1 | scrolling | P3 | A lazily built, scrollable list of `item` templates over `items`, with empty, loading and error states (WGT-012). |
 | [LiveEtaCard](#liveetacard) | 2 | feedback | P5 | A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced. |
+| [MaskedText](#maskedtext) | 2 | display | P5 | A sensitive number with all but its last digits hidden; the hidden digits never reach screen readers. |
 | [Match](#match) | 1 | structure | P3 | Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`. |
 | [MaterialBanner](#materialbanner) | 1 | display | P5 | A banner with a message, an optional leading widget and actions (WGT-020). |
 | [MenuAnchor](#menuanchor) | 1 | navigation | P5 | Opens a menu of `items` from its anchor `child`; choosing one fires `onSelected` with its value. |
+| [MoneyText](#moneytext) | 2 | display | P5 | An amount written for the locale and currency, read aloud with the currency's name. |
 | [NativeSlot](#nativeslot) | 1 | structure | P4 | Places a host-app native slot, named by the literal `name`, with the props and events that slot declares. Equivalent to a node whose `type` is that name. |
 | [NavigationBar](#navigationbar) | 1 | navigation | P4 | A bar of destinations along the bottom; choosing one fires `onDestinationSelected` with its index. |
 | [NavigationDrawer](#navigationdrawer) | 1 | navigation | P4 | A drawer of destinations; choosing one fires `onDestinationSelected` with its index. |
@@ -125,8 +133,11 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [OutlinedButton](#outlinedbutton) | 1 | input | P3 | A Material outlined button. |
 | [Padding](#padding) | 1 | layout | P3 | Insets its child by the given padding. |
 | [PageView](#pageview) | 1 | scrolling | P3 | Pages through `item` templates over `items`, one page at a time (WGT-012). |
+| [PaymentCard](#paymentcard) | 2 | commerce | P5 | A payment card: brand, masked number, expiry and holder; flipping shows the back. |
+| [PhoneInput](#phoneinput) | 2 | input | P5 | A phone number entry in E.164 with a country picker and validation. |
 | [PopupMenuButton](#popupmenubutton) | 1 | navigation | P5 | A button that opens a menu of `items`; choosing one fires `onSelected` with its value. |
 | [Positioned](#positioned) | 1 | layout | P3 | Positions its child inside a Stack. |
+| [PriceTag](#pricetag) | 2 | commerce | P5 | A price, with the original price struck through and announced as the former price. |
 | [ProductCard](#productcard) | 2 | commerce | P5 | A product tile: image, title, price, an optional struck-through original price and badge, and an add-to-cart button. Prices arrive as formatted strings. |
 | [ProfileHeader](#profileheader) | 2 | layout | P5 | A person's avatar, name and subtitle with an actions row. |
 | [PromoBanner](#promobanner) | 2 | commerce | P5 | A campaign banner: image, title, subtitle, a call to action and, when `endsAt` is set, a countdown. |
@@ -183,10 +194,29 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [TextFormField](#textformfield) | 1 | input | P3 | A text input for use inside a form (validation arrives with FormScope, P5). |
 | [Timeline](#timeline) | 1 | structure | P5 | Plays a page timeline for its subtree: it starts the named timeline when shown, and optionally restarts it when it ends (ANI-002). |
 | [Tooltip](#tooltip) | 1 | display | P3 | Shows a text label when its child is long-pressed or hovered. |
+| [TransactionListItem](#transactionlistitem) | 2 | commerce | P5 | A transaction row: title, subtitle, signed amount in a credit or debit colour, status and date. |
 | [Transform](#transform) | 1 | layout | P3 | Rotates, scales, translates or flips its child before painting. |
 | [VerticalDivider](#verticaldivider) | 1 | display | P3 | A thin vertical line with padding on either side. |
 | [WizardForm](#wizardform) | 2 | input | P5 | A multi-step form: one child per step, a progress indicator, and Back, Next and Submit buttons that validate the step through the enclosing form. |
 | [Wrap](#wrap) | 1 | layout | P3 | Lays out its children in runs, wrapping to the next run when a run is full. |
+
+### AccountCard
+
+An account with its masked number and balance; flipping shows the back.
+
+ID 169 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 90 µs · role button · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `name` | 1 | `string`, required | — | The account's name. |
+| `maskedNumber` | 2 | `string`, required | — | The account number, masked. |
+| `balance` | 3 | `money`, required | — | The balance. |
+| `flipped` | 4 | `bool` | `false` | Whether the back is shown. |
+| `backLabel` | 5 | `string?` | — | The text on the back. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onFlip` | 1 | `bool` | Fires with the side the person asked for. |
 
 ### ActionChip
 
@@ -239,6 +269,25 @@ ID 8 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Align` · androi
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node |  |
+
+### AmountInput
+
+A money entry field: the locale's group and decimal separators, the currency's minor units, and a range.
+
+ID 159 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 90 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string?` | — | The field's label. |
+| `currency` | 2 | `string`, required | — | The ISO 4217 code of the amount. |
+| `value` | 3 | `money?` | — | The amount shown. |
+| `min` | 4 | `money?` | — | The smallest amount accepted. |
+| `max` | 5 | `money?` | — | The largest amount accepted. |
+| `rangeMessage` | 6 | `string?` | — | The error shown when the amount is outside the range. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `money` | Fires with the amount whenever the typed text is a valid amount. |
 
 ### AnimatedAlign
 
@@ -750,6 +799,31 @@ ID 184 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 10
 
 Takes a list of `children` (at least 1).
 
+### CartSummary
+
+The lines, subtotal, tax and total of a cart, with a checkout action.
+
+ID 167 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 100 µs · role group
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `lines` | 1 | `list<CartLine>`, required | — | The cart's lines. |
+| `subtotal` | 2 | `money`, required | — | The sum of the lines. |
+| `tax` | 3 | `money?` | — | The tax. |
+| `total` | 4 | `money`, required | — | The amount due. |
+| `subtotalLabel` | 5 | `string?` | — | The subtotal row's label. |
+| `taxLabel` | 6 | `string?` | — | The tax row's label. |
+| `totalLabel` | 7 | `string?` | — | The total row's label. |
+| `checkoutLabel` | 8 | `string?` | — | The label of the built-in checkout button. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onCheckout` | 1 | — | Fires when the person starts checkout. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `checkout` | 1 | one node | Replaces the built-in checkout button. |
+
 ### Center
 
 Centres its child within itself.
@@ -1122,6 +1196,21 @@ ID 186 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 40
 |---|---|---|---|
 | `onFinished` | 1 | — | Fires once when the countdown reaches zero. |
 
+### CountryPicker
+
+A searchable list of countries named in the locale, with flags.
+
+ID 164 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 90 µs · role list · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `string?` | — | The ISO 3166 code selected. |
+| `searchHint` | 2 | `string?` | — | The hint of the search field. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` | Fires with the ISO 3166 code of the chosen country. |
+
 ### CupertinoActivityIndicator
 
 An iOS-style activity indicator.
@@ -1474,6 +1563,22 @@ ID 96 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `CupertinoTextFi
 |---|---|---|---|
 | `prefix` | 1 | one node |  |
 | `suffix` | 2 | one node |  |
+
+### CurrencyPicker
+
+A searchable list of currencies named in the locale.
+
+ID 165 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 90 µs · role list · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `string?` | — | The ISO 4217 code selected. |
+| `currencies` | 2 | `list<string>?` | — | The codes offered; every currency of the locale when absent. |
+| `searchHint` | 3 | `string?` | — | The hint of the search field. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` | Fires with the ISO 4217 code of the chosen currency. |
 
 ### CustomScrollView
 
@@ -2254,6 +2359,22 @@ ID 137 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Hero` · andro
 |---|---|---|---|
 | `child` | 1 | one node, required |  |
 
+### IbanInput
+
+An IBAN entry shown in groups of four, with the mod-97 check.
+
+ID 163 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 80 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string?` | — | The field's label. |
+| `value` | 2 | `string?` | — | The IBAN without spaces. |
+| `invalidMessage` | 3 | `string?` | — | The error shown for an invalid IBAN. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `string` | Fires with the IBAN without spaces when it is valid, and with an empty string when it is not. |
+
 ### Icon
 
 An icon from the Material or Cupertino icon set.
@@ -2687,6 +2808,24 @@ ID 181 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60
 | `minutesLabel` | 4 | `string` | `"min"` | The unit shown after the minutes. |
 | `icon` | 5 | `IconData?` | — | A leading icon. |
 
+### MaskedText
+
+A sensitive number with all but its last digits hidden; the hidden digits never reach screen readers.
+
+ID 161 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 50 µs · role text · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `string`, required | — | The full value. |
+| `mask` | 2 | `MaskKind` | `"card"` | How the value is hidden. |
+| `visibleDigits` | 3 | `int` | `4` | How many trailing digits stay visible. |
+| `revealable` | 4 | `bool` | `false` | A button shows the whole value. |
+| `revealLabel` | 5 | `string?` | — | The label of the reveal button. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onReveal` | 1 | — | Fires when the person reveals the value. |
+
 ### Match
 
 Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`.
@@ -2754,6 +2893,19 @@ ID 121 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `MenuAnchor` ·
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node | The anchor the menu opens from; tapping it toggles the menu. |
+
+### MoneyText
+
+An amount written for the locale and currency, read aloud with the currency's name.
+
+ID 160 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 40 µs · role text
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `money`, required | — | The amount. |
+| `display` | 2 | `MoneyDisplay` | `"symbol"` | How the currency is written. |
+| `signDisplay` | 3 | `SignDisplay` | `"auto"` | When a sign is shown. |
+| `style` | 4 | `TextStyle?` | — | The text style. |
 
 ### NativeSlot
 
@@ -2993,6 +3145,42 @@ ID 38 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `PageView.builde
 | `loading` | 3 | one node | Shown while `status` is loading. |
 | `error` | 4 | one node | Shown while `status` is error. |
 
+### PaymentCard
+
+A payment card: brand, masked number, expiry and holder; flipping shows the back.
+
+ID 170 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 90 µs · role button · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `brand` | 1 | `CardBrand` | `"other"` | The card network. |
+| `maskedNumber` | 2 | `string`, required | — | The card number, masked. |
+| `expiry` | 3 | `string`, required | — | The expiry, as printed. |
+| `holder` | 4 | `string`, required | — | The holder's name. |
+| `flipped` | 5 | `bool` | `false` | Whether the back is shown. |
+| `backLabel` | 6 | `string?` | — | The text on the back. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onFlip` | 1 | `bool` | Fires with the side the person asked for. |
+
+### PhoneInput
+
+A phone number entry in E.164 with a country picker and validation.
+
+ID 162 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 100 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string?` | — | The field's label. |
+| `value` | 2 | `string?` | — | The number in E.164 form. |
+| `region` | 3 | `string?` | — | The default ISO 3166 region; the locale's region when absent. |
+| `invalidMessage` | 4 | `string?` | — | The error shown for an invalid number. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `string` | Fires with the E.164 number when it is valid, and with an empty string when it is not. |
+
 ### PopupMenuButton
 
 A button that opens a menu of `items`; choosing one fires `onSelected` with its value.
@@ -3040,6 +3228,18 @@ ID 28 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Positioned` · 
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node, required |  |
+
+### PriceTag
+
+A price, with the original price struck through and announced as the former price.
+
+ID 166 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 40 µs · role text
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `price` | 1 | `money`, required | — | The current price. |
+| `originalPrice` | 2 | `money?` | — | The price before a reduction. |
+| `wasLabel` | 3 | `string?` | — | What screen readers say before the original price. |
 
 ### ProductCard
 
@@ -4374,6 +4574,25 @@ ID 63 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Tooltip` · and
 |---|---|---|---|
 | `child` | 1 | one node |  |
 
+### TransactionListItem
+
+A transaction row: title, subtitle, signed amount in a credit or debit colour, status and date.
+
+ID 168 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60 µs · role button · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `title` | 1 | `string`, required | — | What the transaction was. |
+| `subtitle` | 2 | `string?` | — | A line below the title. |
+| `amount` | 3 | `money`, required | — | The signed amount; negative is a debit. |
+| `status` | 4 | `TransactionStatus` | `"completed"` | The state of the transaction. |
+| `date` | 5 | `dateTime?` | — | When it happened. |
+| `statusLabel` | 6 | `string?` | — | The status written for the person; the status name when absent. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onTap` | 1 | — | Fires when the row is tapped. |
+
 ### Transform
 
 Rotates, scales, translates or flips its child before painting.
@@ -4615,6 +4834,17 @@ ID 9 · revision 1 · Flutter `ButtonStyle`
 | `animationDuration` | 19 | `duration` | — |  |
 | `enableFeedback` | 20 | `bool` | — |  |
 | `alignment` | 21 | `Alignment` | — |  |
+
+### CartLine
+
+One line of a CartSummary.
+
+ID 69 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — | What the line is. |
+| `amount` | 2 | `money`, required | — | The line's amount. |
 
 ### ChoiceItem
 
@@ -5472,6 +5702,20 @@ ID 175 · revision 1
 | `islamicUmalqura` | 3 |  |
 | `persian` | 4 |  |
 
+### CardBrand
+
+The network of a payment card.
+
+ID 144 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `visa` | 1 | Visa. |
+| `mastercard` | 2 | Mastercard. |
+| `amex` | 3 | American Express. |
+| `discover` | 4 | Discover. |
+| `other` | 5 | Any other network. |
+
 ### Clip
 
 Mirrors the Flutter enum Clip.
@@ -5928,6 +6172,19 @@ ID 35 · revision 1 · Flutter `MainAxisSize`
 | `min` | 1 |  |
 | `max` | 2 |  |
 
+### MaskKind
+
+How MaskedText hides its value.
+
+ID 142 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `card` | 1 | Groups of four, the last digits visible. |
+| `account` | 2 | The last digits visible. |
+| `phone` | 3 | The last digits visible, separators kept. |
+| `custom` | 4 | Every character but the last digits hidden. |
+
 ### MaterialTapTargetSize
 
 Mirrors the Flutter enum MaterialTapTargetSize.
@@ -5950,6 +6207,18 @@ ID 37 · revision 1 · Flutter `MaxLengthEnforcement`
 | `none` | 1 |  |
 | `enforced` | 2 |  |
 | `truncateAfterCompositionEnds` | 3 |  |
+
+### MoneyDisplay
+
+How MoneyText writes the currency.
+
+ID 140 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `symbol` | 1 | The locale's symbol. |
+| `narrowSymbol` | 2 | The narrow symbol. |
+| `code` | 3 | The ISO 4217 code. |
 
 ### NavigationDestinationLabelBehavior
 
@@ -6115,6 +6384,19 @@ ID 43 · revision 1 · Flutter `ShowValueIndicator`
 | `onDrag` | 4 |  |
 | `alwaysVisible` | 5 |  |
 | `never` | 6 |  |
+
+### SignDisplay
+
+When MoneyText shows a sign.
+
+ID 141 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `auto` | 1 | A minus for negative amounts only. |
+| `always` | 2 | A sign on every amount. |
+| `never` | 3 | No sign. |
+| `exceptZero` | 4 | A sign on every amount but zero. |
 
 ### SliderInteraction
 
@@ -6454,6 +6736,19 @@ ID 63 · revision 1 · Flutter `TooltipTriggerMode`
 | `manual` | 1 |  |
 | `longPress` | 2 |  |
 | `tap` | 3 |  |
+
+### TransactionStatus
+
+The state of a transaction.
+
+ID 143 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `pending` | 1 | Not yet settled. |
+| `completed` | 2 | Settled. |
+| `failed` | 3 | Declined or failed. |
+| `reversed` | 4 | Reversed after settling. |
 
 ### VerticalDirection
 

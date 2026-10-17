@@ -98,6 +98,14 @@ final class ActionDescriptor {
 /// Every widget type, sorted by name.
 const List<WidgetDescriptor> widgetDescriptors = [
   WidgetDescriptor(
+    'AccountCard',
+    169,
+    layer: 2,
+    revision: 1,
+    props: {'name': 1, 'maskedNumber': 2, 'balance': 3, 'flipped': 4, 'backLabel': 5},
+    events: {'onFlip': 1},
+  ),
+  WidgetDescriptor(
     'ActionChip',
     61,
     layer: 1,
@@ -113,6 +121,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'alignment': 1, 'widthFactor': 2, 'heightFactor': 3},
     slots: {'child': 1},
+  ),
+  WidgetDescriptor(
+    'AmountInput',
+    159,
+    layer: 2,
+    revision: 1,
+    props: {'label': 1, 'currency': 2, 'value': 3, 'min': 4, 'max': 5, 'rangeMessage': 6},
+    events: {'onChanged': 1},
   ),
   WidgetDescriptor(
     'AnimatedAlign',
@@ -317,6 +333,15 @@ const List<WidgetDescriptor> widgetDescriptors = [
     events: {'onPageChanged': 1},
   ),
   WidgetDescriptor(
+    'CartSummary',
+    167,
+    layer: 2,
+    revision: 1,
+    props: {'lines': 1, 'subtotal': 2, 'tax': 3, 'total': 4, 'subtotalLabel': 5, 'taxLabel': 6, 'totalLabel': 7, 'checkoutLabel': 8},
+    events: {'onCheckout': 1},
+    slots: {'checkout': 1},
+  ),
+  WidgetDescriptor(
     'Center',
     9,
     layer: 1,
@@ -447,6 +472,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     events: {'onFinished': 1},
   ),
   WidgetDescriptor(
+    'CountryPicker',
+    164,
+    layer: 2,
+    revision: 1,
+    props: {'value': 1, 'searchHint': 2},
+    events: {'onSelected': 1},
+  ),
+  WidgetDescriptor(
     'CupertinoActivityIndicator',
     95,
     layer: 1,
@@ -553,6 +586,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'value': 1, 'decoration': 2, 'padding': 3, 'placeholder': 4, 'placeholderStyle': 5, 'prefixMode': 6, 'suffixMode': 7, 'crossAxisAlignment': 8, 'clearButtonMode': 9, 'clearButtonSemanticLabel': 10, 'keyboardType': 11, 'textInputAction': 12, 'textCapitalization': 13, 'style': 14, 'textAlign': 15, 'textAlignVertical': 16, 'textDirection': 17, 'readOnly': 18, 'showCursor': 19, 'autofocus': 20, 'obscuringCharacter': 21, 'obscureText': 22, 'autocorrect': 23, 'smartDashesType': 24, 'smartQuotesType': 25, 'enableSuggestions': 26, 'maxLines': 27, 'minLines': 28, 'expands': 29, 'maxLength': 30, 'maxLengthEnforcement': 31, 'enabled': 32, 'cursorWidth': 33, 'cursorHeight': 34, 'cursorRadius': 35, 'cursorOpacityAnimates': 36, 'cursorColor': 37, 'selectionHeightStyle': 38, 'selectionWidthStyle': 39, 'keyboardAppearance': 40, 'scrollPadding': 41, 'dragStartBehavior': 42, 'enableInteractiveSelection': 43, 'selectAllOnFocus': 44, 'scrollPhysics': 45, 'autofillHints': 46, 'clipBehavior': 47, 'stylusHandwritingEnabled': 48, 'enableIMEPersonalizedLearning': 49, 'enableInlinePrediction': 50},
     events: {'onChanged': 1, 'onEditingComplete': 2, 'onSubmitted': 3, 'onTapOutside': 4, 'onTapUpOutside': 5, 'onTap': 6},
     slots: {'prefix': 1, 'suffix': 2},
+  ),
+  WidgetDescriptor(
+    'CurrencyPicker',
+    165,
+    layer: 2,
+    revision: 1,
+    props: {'value': 1, 'currencies': 2, 'searchHint': 3},
+    events: {'onSelected': 1},
   ),
   WidgetDescriptor(
     'CustomScrollView',
@@ -813,6 +854,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'child': 1},
   ),
   WidgetDescriptor(
+    'IbanInput',
+    163,
+    layer: 2,
+    revision: 1,
+    props: {'label': 1, 'value': 2, 'invalidMessage': 3},
+    events: {'onChanged': 1},
+  ),
+  WidgetDescriptor(
     'Icon',
     49,
     layer: 1,
@@ -944,6 +993,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'title': 1, 'etaMinutes': 2, 'status': 3, 'minutesLabel': 4, 'icon': 5},
   ),
   WidgetDescriptor(
+    'MaskedText',
+    161,
+    layer: 2,
+    revision: 1,
+    props: {'value': 1, 'mask': 2, 'visibleDigits': 3, 'revealable': 4, 'revealLabel': 5},
+    events: {'onReveal': 1},
+  ),
+  WidgetDescriptor(
     'Match',
     2,
     layer: 1,
@@ -968,6 +1025,13 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'items': 1, 'consumeOutsideTap': 2},
     events: {'onSelected': 1, 'onOpen': 2, 'onClose': 3},
     slots: {'child': 1},
+  ),
+  WidgetDescriptor(
+    'MoneyText',
+    160,
+    layer: 2,
+    revision: 1,
+    props: {'value': 1, 'display': 2, 'signDisplay': 3, 'style': 4},
   ),
   WidgetDescriptor(
     'NativeSlot',
@@ -1068,6 +1132,22 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'item': 1, 'empty': 2, 'loading': 3, 'error': 4},
   ),
   WidgetDescriptor(
+    'PaymentCard',
+    170,
+    layer: 2,
+    revision: 1,
+    props: {'brand': 1, 'maskedNumber': 2, 'expiry': 3, 'holder': 4, 'flipped': 5, 'backLabel': 6},
+    events: {'onFlip': 1},
+  ),
+  WidgetDescriptor(
+    'PhoneInput',
+    162,
+    layer: 2,
+    revision: 1,
+    props: {'label': 1, 'value': 2, 'region': 3, 'invalidMessage': 4},
+    events: {'onChanged': 1},
+  ),
+  WidgetDescriptor(
     'PopupMenuButton',
     120,
     layer: 1,
@@ -1083,6 +1163,13 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'left': 1, 'top': 2, 'right': 3, 'bottom': 4, 'width': 5, 'height': 6},
     slots: {'child': 1},
+  ),
+  WidgetDescriptor(
+    'PriceTag',
+    166,
+    layer: 2,
+    revision: 1,
+    props: {'price': 1, 'originalPrice': 2, 'wasLabel': 3},
   ),
   WidgetDescriptor(
     'ProductCard',
@@ -1533,6 +1620,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'child': 1},
   ),
   WidgetDescriptor(
+    'TransactionListItem',
+    168,
+    layer: 2,
+    revision: 1,
+    props: {'title': 1, 'subtitle': 2, 'amount': 3, 'status': 4, 'date': 5, 'statusLabel': 6},
+    events: {'onTap': 1},
+  ),
+  WidgetDescriptor(
     'Transform',
     17,
     layer: 1,
@@ -1625,6 +1720,12 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     9,
     revision: 1,
     fields: {'textStyle': 1, 'backgroundColor': 2, 'foregroundColor': 3, 'overlayColor': 4, 'shadowColor': 5, 'surfaceTintColor': 6, 'elevation': 7, 'padding': 8, 'minimumSize': 9, 'fixedSize': 10, 'maximumSize': 11, 'iconColor': 12, 'iconSize': 13, 'iconAlignment': 14, 'side': 15, 'shape': 16, 'visualDensity': 17, 'tapTargetSize': 18, 'animationDuration': 19, 'enableFeedback': 20, 'alignment': 21},
+  ),
+  ValueTypeDescriptor(
+    'CartLine',
+    69,
+    revision: 1,
+    fields: {'label': 1, 'amount': 2},
   ),
   ValueTypeDescriptor(
     'ChoiceItem',
@@ -1973,6 +2074,12 @@ const List<EnumDescriptor> enumDescriptors = [
     values: {'gregorian': 1, 'ethiopic': 2, 'islamicUmalqura': 3, 'persian': 4},
   ),
   EnumDescriptor(
+    'CardBrand',
+    144,
+    revision: 1,
+    values: {'visa': 1, 'mastercard': 2, 'amex': 3, 'discover': 4, 'other': 5},
+  ),
+  EnumDescriptor(
     'Clip',
     11,
     revision: 1,
@@ -2183,6 +2290,12 @@ const List<EnumDescriptor> enumDescriptors = [
     values: {'min': 1, 'max': 2},
   ),
   EnumDescriptor(
+    'MaskKind',
+    142,
+    revision: 1,
+    values: {'card': 1, 'account': 2, 'phone': 3, 'custom': 4},
+  ),
+  EnumDescriptor(
     'MaterialTapTargetSize',
     36,
     revision: 1,
@@ -2193,6 +2306,12 @@ const List<EnumDescriptor> enumDescriptors = [
     37,
     revision: 1,
     values: {'none': 1, 'enforced': 2, 'truncateAfterCompositionEnds': 3},
+  ),
+  EnumDescriptor(
+    'MoneyDisplay',
+    140,
+    revision: 1,
+    values: {'symbol': 1, 'narrowSymbol': 2, 'code': 3},
   ),
   EnumDescriptor(
     'NavigationDestinationLabelBehavior',
@@ -2271,6 +2390,12 @@ const List<EnumDescriptor> enumDescriptors = [
     43,
     revision: 1,
     values: {'onlyForDiscrete': 1, 'onlyForContinuous': 2, 'always': 3, 'onDrag': 4, 'alwaysVisible': 5, 'never': 6},
+  ),
+  EnumDescriptor(
+    'SignDisplay',
+    141,
+    revision: 1,
+    values: {'auto': 1, 'always': 2, 'never': 3, 'exceptZero': 4},
   ),
   EnumDescriptor(
     'SliderInteraction',
@@ -2427,6 +2552,12 @@ const List<EnumDescriptor> enumDescriptors = [
     63,
     revision: 1,
     values: {'manual': 1, 'longPress': 2, 'tap': 3},
+  ),
+  EnumDescriptor(
+    'TransactionStatus',
+    143,
+    revision: 1,
+    values: {'pending': 1, 'completed': 2, 'failed': 3, 'reversed': 4},
   ),
   EnumDescriptor(
     'VerticalDirection',
