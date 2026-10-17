@@ -205,12 +205,12 @@ void main() {
       final caps = fbs.Meta(app.ofKind(SectionKind.meta).single.data)
           .capabilities;
       expect(caps, isNotNull);
-      expect(caps!.deviceApis, ['haptics']);
+      expect(caps!.deviceApis, ['camera', 'files', 'haptics']);
       expect(caps.networkDomains ?? const <String>[], isEmpty);
       final plugin = BundleContainer.parse(bundles['widgets/gallery.pxb']!);
       final declared = fbs.Meta(plugin.ofKind(SectionKind.meta).single.data)
           .capabilities;
-      expect(declared?.deviceApis, ['haptics']);
+      expect(declared?.deviceApis, ['camera', 'files', 'haptics']);
     },
   );
 }

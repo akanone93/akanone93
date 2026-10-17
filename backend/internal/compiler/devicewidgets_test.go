@@ -50,6 +50,8 @@ func TestDeviceWidgetsNeedTheirCapability(t *testing.T) {
 		t.Parallel()
 		m := project(t, widgetsDir)
 		ptr := addWidget(t, m, map[string]any{"type": "QrScanner"})
+		apis := []any{"haptics", "files"}
+		capabilities(t, m, map[string]any{"deviceApis": apis, "networkDomains": []any{"example.com"}}, map[string]any{"deviceApis": apis})
 		wantDiag(t, compileFS(m), plxerr.DeviceCapabilityUndeclared, galleryPage, ptr)
 	})
 	t.Run("scanner with camera is recorded", func(t *testing.T) {
