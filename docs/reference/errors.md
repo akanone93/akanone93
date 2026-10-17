@@ -1024,6 +1024,158 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Route the data source through the gateway, or remove requiresAssurance.
 
+### PLX-1600
+
+`LOCALE_UNSUPPORTED` · error · Locale not supported
+
+**Cause.** The locale is not in the CLDR data pinned by this release, so its plural rules, dates and numbers cannot be formatted (I18N-002).
+
+**Fix.** Choose a locale from the supported list, or remove it from the release's locales.
+
+### PLX-1601
+
+`MESSAGE_SYNTAX_INVALID` · error · Message syntax invalid
+
+**Cause.** A translatable message is not valid ICU MessageFormat, so it cannot be parsed (I18N-001).
+
+**Fix.** Fix the braces, plural and select blocks of the message; the error's details give the position.
+
+### PLX-1602
+
+`MESSAGE_ARGUMENT_UNDECLARED` · error · Message argument undeclared
+
+**Cause.** A message uses an argument that the key does not declare, so the runtime has no value to put in its place (I18N-001).
+
+**Fix.** Declare the argument on the key, or remove it from the message.
+
+### PLX-1603
+
+`MESSAGE_ARGUMENT_TYPE_MISMATCH` · error · Message argument type mismatch
+
+**Cause.** A message uses an argument as a number, date or plural while the key declares it with another type (I18N-001).
+
+**Fix.** Make the argument's declared type match its use in the message.
+
+### PLX-1604
+
+`PLURAL_CATEGORY_INVALID` · error · Plural category not in locale
+
+**Cause.** A plural branch names a category that the message's locale does not have, so no count can select it (I18N-001).
+
+**Fix.** Remove the branch, or use the categories the locale defines; `other` is always required.
+
+### PLX-1605
+
+`PLURAL_OTHER_MISSING` · error · Plural other branch missing
+
+**Cause.** A plural message has no `other` branch, so a count that matches no other category has no text to show (I18N-001).
+
+**Fix.** Add an `other` branch to the plural.
+
+### PLX-1606
+
+`TRANSLATION_MISSING` · warning · Translation missing
+
+**Cause.** A locale of the release has no translation for a key, so the runtime falls back to the source locale for that key (I18N-006).
+
+**Fix.** Translate the key for the locale, or accept the fallback.
+
+### PLX-1607
+
+`TRANSLATION_TOO_LONG` · error · Translation too long
+
+**Cause.** A translation is longer than the key's maxLength, so it would overflow the layout it is shown in (I18N-007).
+
+**Fix.** Shorten the translation, or raise the key's maxLength if the layout allows it.
+
+### PLX-1608
+
+`TRANSLATION_KEY_UNUSED` · warning · Translation key unused
+
+**Cause.** A translation key is not referenced by any document of the plugin, so it is shipped without being shown (I18N-007).
+
+**Fix.** Remove the key, or use it in a document.
+
+### PLX-1609
+
+`LITERAL_TEXT_UNTRANSLATED` · warning · Literal text not translated
+
+**Cause.** A translatable property holds literal text instead of a translation key, so it is shown in one language in every locale (I18N-007).
+
+**Fix.** Replace the literal with a translation key.
+
+### PLX-1610
+
+`TRANSLATION_NOT_APPROVED` · info · Translation not approved
+
+**Cause.** A translation was left out of the release because requireApprovedTranslations is set and the translation is not approved (I18N-008).
+
+**Fix.** Approve the translation, or accept that the locale falls back to the source.
+
+### PLX-1611
+
+`CALENDAR_UNSUPPORTED` · error · Calendar unsupported
+
+**Cause.** The calendar named for a locale is not one the runtime implements (I18N-003).
+
+**Fix.** Choose a calendar from the supported list, or use the locale's default calendar.
+
+### PLX-1612
+
+`NUMBERING_SYSTEM_UNSUPPORTED` · error · Numbering system unsupported
+
+**Cause.** The numbering system named for a locale is not one the pinned CLDR data defines (I18N-003).
+
+**Fix.** Choose a numbering system from the supported list, or use the locale's default.
+
+### PLX-1613
+
+`LOCALE_OVERRIDE_INVALID` · error · Locale override invalid
+
+**Cause.** A locale override names a locale that is malformed or not one of the release's locales, so it cannot be applied (I18N-012).
+
+**Fix.** Use a BCP 47 tag from the release's locales, or remove the override.
+
+### PLX-1614
+
+`PSEUDO_LOCALE_IN_PRODUCTION` · error · Pseudo-locale in production
+
+**Cause.** A pseudo-locale, used to test layout and encoding, is included in a production release (I18N-010).
+
+**Fix.** Remove the pseudo-locale from the production release; keep it in test builds only.
+
+### PLX-1615
+
+`CALENDAR_OUT_OF_TABLE` · warning · Calendar outside its table
+
+**Cause.** The Umm al-Qura calendar is used outside the years 1300 to 1600 AH covered by its table, so tabular arithmetic is used for those dates (I18N-003).
+
+**Fix.** Accept the tabular approximation, or use a date within the table's range.
+
+### PLX-1620
+
+`TRANSLATION_IMPORT_INVALID` · error · Translation import invalid
+
+**Cause.** The imported translation file is not valid for its format, so no translation from it was applied (I18N-009).
+
+**Fix.** Export the file again from the translation tool in a supported format, and check its structure.
+
+### PLX-1621
+
+`TRANSLATION_IMPORT_KEY_UNKNOWN` · error · Imported key unknown
+
+**Cause.** The imported file has a translation for a key that the plugin does not declare, so it cannot be applied (I18N-009).
+
+**Fix.** Remove the key from the file, or declare it in the plugin.
+
+### PLX-1622
+
+`TRANSLATION_IMPORT_SOURCE_CHANGED` · warning · Source text changed since translation
+
+**Cause.** The source text of a key changed after it was translated, so the imported translation is out of date and its key is reset to translated (I18N-009).
+
+**Fix.** Review the translation against the new source text and approve it again.
+
 ## Compiler and PXL (PLX-2000–2999)
 
 ### PLX-2001
@@ -1324,6 +1476,30 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** The device keeps its current release and retries at the next start or manual sync. Check the server's health and the device's connectivity.
 
+### PLX-3060
+
+`ACCESSIBILITY_BLOCKS_PUBLISH` · error · Accessibility check blocks publish
+
+**Cause.** The release's accessibility policy refused the publish because a blocking accessibility finding is present (A11Y-002).
+
+**Fix.** Fix the findings listed in the error's details, or lower the policy in a reviewed configuration.
+
+### PLX-3061
+
+`GOLDEN_RUN_MISSING` · error · Golden test run missing
+
+**Cause.** The release's policy requires golden image tests, and no run for this plugin version is recorded (TST-003).
+
+**Fix.** Run the golden tests for the plugin version and upload the results before publishing.
+
+### PLX-3062
+
+`GOLDEN_DIFFERENCE_UNAPPROVED` · error · Golden difference not approved
+
+**Cause.** A golden image differs from its baseline and the difference has not been approved, so the publish is refused (TST-003).
+
+**Fix.** Review the difference and approve it, or fix the rendering that changed.
+
 ## Runtime rendering and navigation (PLX-4000–4999)
 
 ### PLX-4001
@@ -1477,6 +1653,38 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 **Cause.** A Lottie or Rive widget could not load or play its asset: the file is missing, malformed or not what the widget expects (ANI-005).
 
 **Fix.** Check the asset and its media type; the widget shows nothing in its place.
+
+### PLX-4400
+
+`LOCALE_NOT_IN_RELEASE` · error · Locale not in release
+
+**Cause.** The app asked to switch to a locale that the current release does not contain, so the locale was not changed (I18N-005).
+
+**Fix.** Set a locale from the release's list, or check the locale list the release publishes.
+
+### PLX-4401
+
+`TRANSLATION_FALLBACK` · warning · Translation fell back to source
+
+**Cause.** A text had no translation in the current locale and the source text was shown instead (I18N-006).
+
+**Fix.** Add the translation for the locale in Studio and publish a new release.
+
+### PLX-4402
+
+`MESSAGE_FORMAT_FAILED` · error · Message could not be formatted
+
+**Cause.** A translated message could not be formatted with its arguments at run time, so the source text or an empty string is shown (I18N-001).
+
+**Fix.** Check the message and the argument values; the error's details name the argument.
+
+### PLX-4403
+
+`WIDGET_PACKAGE_MISSING` · error · Widget package not registered
+
+**Cause.** A widget comes from an optional package that is not registered in this app, so the widget is not built (RT-060).
+
+**Fix.** Register the package in the host app, or remove the widget from the page.
 
 ## Actions, data and local database (PLX-5000–5999)
 
@@ -2703,3 +2911,19 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 **Cause.** A file or directory could not be read or written.
 
 **Fix.** Check that the path exists and is accessible.
+
+### PLX-9300
+
+`GOLDEN_HARNESS_FAILED` · error · Golden test harness failed
+
+**Cause.** The golden test harness could not render or compare a screen, so no result was recorded (TST-003).
+
+**Fix.** Read the harness output in the error's details, and rerun the golden tests.
+
+### PLX-9301
+
+`FLUTTER_SDK_UNAVAILABLE` · error · Flutter SDK unavailable
+
+**Cause.** The Flutter SDK needed to run golden tests is not installed or not on the path, so the tests could not start (TST-003).
+
+**Fix.** Install the Flutter version pinned in the Makefile and make it available on the path.

@@ -137,6 +137,16 @@ var codes = map[plxerr.Code]connect.Code{
 	plxerr.FunctionCancelled:         connect.CodeCanceled,
 	plxerr.FunctionInputTooLarge:     connect.CodeInvalidArgument,
 
+	// Publish gates: the release was refused (A11Y-002, TST-003).
+	plxerr.AccessibilityBlocksPublish: connect.CodeFailedPrecondition,
+	plxerr.GoldenRunMissing:           connect.CodeFailedPrecondition,
+	plxerr.GoldenDifferenceUnapproved: connect.CodeFailedPrecondition,
+
+	// Translation import: the file or a key in it was refused (I18N-009).
+	plxerr.TranslationImportInvalid:       connect.CodeInvalidArgument,
+	plxerr.TranslationImportKeyUnknown:    connect.CodeInvalidArgument,
+	plxerr.TranslationImportSourceChanged: connect.CodeInvalidArgument,
+
 	// The server failed.
 	plxerr.InternalServerError: connect.CodeInternal,
 	plxerr.UpstreamUnavailable: connect.CodeUnavailable,
