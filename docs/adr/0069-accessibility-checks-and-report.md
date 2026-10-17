@@ -34,9 +34,12 @@ Chosen option: **2** (P8 plan D9, D10, D13).
   below 44 × 44, or 48 × 48 when the release targets Android (`PLX-1404`); text under a
   fixed-height ancestor (`PLX-1405`, warning); focus order (`PLX-1406`), heading levels
   (`PLX-1407`), constant live regions (`PLX-1408`, warning).
-- **Severity:** errors under `strict` and `maximum`, warnings otherwise. The security setting
-  `accessibilityBlocksPublish` (`standard` off, `strict` and `maximum` on) refuses a publish on
-  any unwaived error (`PLX-3060`).
+- **Severity:** errors under `strict` and `maximum`, warnings otherwise, by the profile the
+  release is compiled for (`app.json` `securityProfile`, recorded in the bundle). The security
+  setting `accessibilityBlocksPublish` (`standard` off, `strict` and `maximum` on) refuses a
+  publish on any unwaived error (`PLX-3060`). An environment never receives a release compiled
+  for a looser profile than its own (`PLX-3063`, ADR-0053 Revision 2026-10-17), so a finding
+  can never be a warning where the environment blocks on errors.
 - **Waivers:** `a11yWaivers` on a node or page, one check each, with a justification of at least
   ten characters (`PLX-1410`); under `maximum` the saving principal needs `a11y.waive`
   (`PLX-1411`), audited.

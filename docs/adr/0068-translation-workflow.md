@@ -47,10 +47,14 @@ Chosen option: **2** (P8 plan D6, D7).
   itself), CSV (RFC 4180: key ID, key, source, target, state, description, maximum length).
   Importers are bounded by `translation.importSize`, refuse DTDs and entities, never resolve
   external references, and are fuzzed. A changed source text since export marks the key
-  `translated` (`PLX-1622`).
+  `translated` (`PLX-1622`). A file that asks for `approved` (XLIFF `final`) from a caller without
+  `translations.approve` is imported with those entries as `translated` and one warning naming
+  them (maintainer, 2026-10-17); the whole file is not refused.
 - **Service and CLI:** `LocalisationService` (export, import, status, set states) and
   `plux l10n pull|push|export|import|status|extract|pseudo`.
-- **Compiler:** unused keys (`PLX-1608`), literal text in `translatable` props (`PLX-1609`),
+- **Compiler:** unused keys (`PLX-1608`), literal text in `translatable` props (`PLX-1609`,
+  only when the app supports two or more locales: a single-locale app has nothing to translate,
+  and a warning stops a publish until acknowledged — maintainer, 2026-10-17),
   missing translations (`PLX-1606`), too-long translations (`PLX-1607`); pseudo-locales `en-XA`
   (accented, about 35% longer, bracketed) and `ar-XB` (right-to-left) generated from the default
   locale when `localisation.pseudoLocales` is on, refused in production (`PLX-1614`).

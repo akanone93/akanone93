@@ -82,3 +82,17 @@ second thing to sign.
 
 Changing a setting would need a new release of every plugin, and settings are per
 environment while bundles are shared.
+
+## Revision (2026-10-17, P8)
+
+**The release's profile and the environment's agree by construction** (maintainer,
+2026-10-17). Two profiles exist: `app.json`'s `securityProfile`, which the compiler uses for its
+checks (accessibility severity, direct data sources under `maximum`) and records in the signed
+app bundle (the runtime requires local-database encryption under `strict` and `maximum`); and
+each environment's effective configuration above. A release is promoted between environments
+without recompiling (`REL-004`, `REL-005`), so its compiled profile cannot come from the
+environment. Instead, publishing or promoting a release into an environment whose effective
+profile is stricter than the release's compiled profile is refused (`PLX-3063`); a stricter
+release in a looser environment is allowed. Likewise a release with pseudo-locales is never
+promoted into a production environment (`PLX-3064`; compiling for production already refuses
+them, `PLX-1614`).
