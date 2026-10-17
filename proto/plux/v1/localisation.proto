@@ -1,0 +1,92 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "plux/v1/common.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// LocalisationService exchanges an app's translations with translation tools
+// and reports their progress (I18N-008, I18N-009, ADR-0068). Every write
+// goes through the document service under the lock of the locale
+// (translations/<locale>), so the review rules of I18N-008 apply to it.
+service LocalisationService {
+  // ExportTranslations writes the translations of one locale in a format,
+  // with the default locale's texts as the source. It needs app.read.
+  rpc ExportTranslations(ExportTranslationsRequest) returns (ExportTranslationsResponse) {}
+  // ImportTranslations applies a translation file to a locale. It needs
+  // translations.edit, and translations.approve to set the approved state.
+  // With dry_run it reports what would change and saves nothing.
+  rpc ImportTranslations(ImportTranslationsRequest) returns (ImportTranslationsResponse) {}
+  // GetStatus counts the keys of each locale by review state. It needs
+  // app.read.
+  rpc GetStatus(GetStatusRequest) returns (GetStatusResponse) {}
+  // SetStates sets the review state of keys of one locale. It needs
+  // translations.edit, and translations.approve for the approved state.
+  rpc SetStates(SetStatesRequest) returns (SetStatesResponse) {}
+}
+
+message ExportTranslationsRequest {
+  string app_id = 1;
+  string locale = 2;
+  // format is "xliff", "arb", "json" or "csv".
+  string format = 3;
+}
+message ExportTranslationsResponse {
+  bytes content = 1;
+  // source_locale is the locale the source texts are in: the app's default
+  // locale.
+  string source_locale = 2;
+}
+
+message ImportTranslationsRequest {
+  string app_id = 1;
+  string locale = 2;
+  string format = 3;
+  bytes content = 4;
+  bool dry_run = 5;
+}
+message ImportTranslationsResponse {
+  // diagnostics are the findings of the import: PLX-1621 for an unknown
+  // key, PLX-1622 for a changed source text.
+  repeated Diagnostic diagnostics = 1;
+  // changed_keys are the identifiers of the keys the import changed, or
+  // would change on a dry run.
+  repeated string changed_keys = 2;
+  // saved is whether the document was written.
+  bool saved = 3;
+}
+
+message GetStatusRequest {
+  string app_id = 1;
+}
+message GetStatusResponse {
+  string source_locale = 1;
+  repeated LocaleStatus locales = 2;
+}
+// LocaleStatus counts the translation keys of one locale by state. Missing
+// keys have no message; the other counts are of keys that have one, so
+// total = new + translated + reviewed + approved + missing.
+message LocaleStatus {
+  string locale = 1;
+  int32 total = 2;
+  int32 new = 3;
+  int32 translated = 4;
+  int32 reviewed = 5;
+  int32 approved = 6;
+  int32 missing = 7;
+}
+
+message SetStatesRequest {
+  string app_id = 1;
+  string locale = 2;
+  // states maps a translation key identifier to a review state: "new",
+  // "translated", "reviewed" or "approved".
+  map<string, string> states = 3;
+}
+message SetStatesResponse {
+  repeated string changed_keys = 1;
+}
