@@ -1,0 +1,90 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "Hero",
+  "id": 137,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "Hero",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "animation",
+  "icon": "flight_takeoff",
+  "description": "Marks its child as a shared element that flies between pages with the same `tag`.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 15,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "tag",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "flutter": "tag",
+      "description": "The shared tag; the same strings as the node-level `hero` (ANI-004)."
+    },
+    {
+      "name": "transitionOnUserGestures",
+      "id": 2,
+      "type": "bool",
+      "default": false,
+      "flutter": "transitionOnUserGestures"
+    },
+    {
+      "name": "curve",
+      "id": 3,
+      "type": "Curve",
+      "default": "fastOutSlowIn",
+      "flutter": "curve"
+    },
+    {
+      "name": "reverseCurve",
+      "id": 4,
+      "type": "Curve",
+      "flutter": "reverseCurve"
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "required": true,
+      "flutter": "child"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "createRectTween",
+      "reason": "non-serialisable"
+    },
+    {
+      "flutter": "flightShuttleBuilder",
+      "reason": "builder→template"
+    },
+    {
+      "flutter": "placeholderBuilder",
+      "reason": "builder→template"
+    }
+  ]
+}

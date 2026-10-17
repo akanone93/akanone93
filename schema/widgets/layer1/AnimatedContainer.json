@@ -1,0 +1,145 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "AnimatedContainer",
+  "id": 139,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "AnimatedContainer",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "animation",
+  "icon": "animation",
+  "description": "A `Container` that animates to new values of its props.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 40,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "alignment",
+      "id": 1,
+      "type": "Alignment",
+      "flutter": "alignment"
+    },
+    {
+      "name": "padding",
+      "id": 2,
+      "type": "EdgeInsets",
+      "flutter": "padding"
+    },
+    {
+      "name": "color",
+      "id": 3,
+      "type": "color",
+      "flutter": "color"
+    },
+    {
+      "name": "decoration",
+      "id": 4,
+      "type": "BoxDecoration",
+      "flutter": "decoration"
+    },
+    {
+      "name": "foregroundDecoration",
+      "id": 5,
+      "type": "BoxDecoration",
+      "flutter": "foregroundDecoration"
+    },
+    {
+      "name": "width",
+      "id": 6,
+      "type": "double",
+      "flutter": "width"
+    },
+    {
+      "name": "height",
+      "id": 7,
+      "type": "double",
+      "flutter": "height"
+    },
+    {
+      "name": "constraints",
+      "id": 8,
+      "type": "BoxConstraints",
+      "flutter": "constraints"
+    },
+    {
+      "name": "margin",
+      "id": 9,
+      "type": "EdgeInsets",
+      "flutter": "margin"
+    },
+    {
+      "name": "transformAlignment",
+      "id": 10,
+      "type": "Alignment",
+      "flutter": "transformAlignment"
+    },
+    {
+      "name": "clipBehavior",
+      "id": 11,
+      "type": "Clip",
+      "default": "none",
+      "flutter": "clipBehavior"
+    },
+    {
+      "name": "curve",
+      "id": 12,
+      "type": "Curve",
+      "default": "linear",
+      "flutter": "curve",
+      "description": "The curve of the animation."
+    },
+    {
+      "name": "duration",
+      "id": 13,
+      "type": "duration",
+      "required": true,
+      "flutter": "duration",
+      "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."
+    }
+  ],
+  "events": [
+    {
+      "name": "onEnd",
+      "id": 1,
+      "flutter": "onEnd",
+      "description": "Fired when the animation ends."
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "flutter": "child"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "transform",
+      "reason": "deferred",
+      "note": "Matrix transforms are animated with `AnimatedRotation`, `AnimatedScale` and `AnimatedSlide`."
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "FadeTransition",
+  "id": 150,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "FadeTransition",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "animation",
+  "icon": "gradient",
+  "description": "Fades its child by a track of a page timeline.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "timeline",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The name of a timeline of the page."
+    },
+    {
+      "name": "track",
+      "id": 2,
+      "type": "int",
+      "default": 0,
+      "constraints": {
+        "min": 0
+      },
+      "description": "The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value."
+    },
+    {
+      "name": "alwaysIncludeSemantics",
+      "id": 3,
+      "type": "bool",
+      "default": false,
+      "flutter": "alwaysIncludeSemantics"
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "flutter": "child"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "opacity",
+      "reason": "controller→state",
+      "note": "Driven by the timeline track."
+    }
+  ]
+}

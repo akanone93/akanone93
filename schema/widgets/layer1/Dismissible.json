@@ -1,0 +1,131 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "Dismissible",
+  "id": 133,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "Dismissible",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "interaction",
+  "icon": "swipe",
+  "description": "Dismisses its child with a swipe and fires `onDismissed` with the direction.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 40,
+  "accessibility": {
+    "role": "none",
+    "interactive": true
+  },
+  "props": [
+    {
+      "name": "direction",
+      "id": 1,
+      "type": "DismissDirection",
+      "default": "horizontal",
+      "flutter": "direction"
+    },
+    {
+      "name": "resizeDuration",
+      "id": 2,
+      "type": "duration",
+      "default": 300,
+      "flutter": "resizeDuration"
+    },
+    {
+      "name": "movementDuration",
+      "id": 3,
+      "type": "duration",
+      "default": 200,
+      "flutter": "movementDuration"
+    },
+    {
+      "name": "crossAxisEndOffset",
+      "id": 4,
+      "type": "double",
+      "default": 0.0,
+      "flutter": "crossAxisEndOffset"
+    },
+    {
+      "name": "dragStartBehavior",
+      "id": 5,
+      "type": "DragStartBehavior",
+      "default": "start",
+      "flutter": "dragStartBehavior"
+    },
+    {
+      "name": "behavior",
+      "id": 6,
+      "type": "HitTestBehavior",
+      "default": "opaque",
+      "flutter": "behavior"
+    }
+  ],
+  "events": [
+    {
+      "name": "onDismissed",
+      "id": 1,
+      "payload": "DismissDirection",
+      "flutter": "onDismissed",
+      "description": "Fired after the child was dismissed, with the direction it went."
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "required": true,
+      "flutter": "child"
+    },
+    {
+      "name": "background",
+      "id": 2,
+      "flutter": "background",
+      "description": "Shown behind the child while it is swiped."
+    },
+    {
+      "name": "secondaryBackground",
+      "id": 3,
+      "flutter": "secondaryBackground",
+      "description": "Shown behind the child when it is swiped in the secondary direction; needs `background`."
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "confirmDismiss",
+      "reason": "callback→event",
+      "note": "Dismissal is not vetoed from a handler."
+    },
+    {
+      "flutter": "onResize",
+      "reason": "deferred"
+    },
+    {
+      "flutter": "onUpdate",
+      "reason": "deferred"
+    },
+    {
+      "flutter": "dismissThresholds",
+      "reason": "deferred",
+      "note": "The runtime uses Flutter's default thresholds."
+    }
+  ]
+}

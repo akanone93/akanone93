@@ -1,0 +1,80 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "AnimatedPadding",
+  "id": 142,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "AnimatedPadding",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "animation",
+  "icon": "padding",
+  "description": "Animates the padding around its child.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "padding",
+      "id": 1,
+      "type": "EdgeInsets",
+      "required": true,
+      "flutter": "padding"
+    },
+    {
+      "name": "curve",
+      "id": 2,
+      "type": "Curve",
+      "default": "linear",
+      "flutter": "curve",
+      "description": "The curve of the animation."
+    },
+    {
+      "name": "duration",
+      "id": 3,
+      "type": "duration",
+      "required": true,
+      "flutter": "duration",
+      "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."
+    }
+  ],
+  "events": [
+    {
+      "name": "onEnd",
+      "id": 1,
+      "flutter": "onEnd",
+      "description": "Fired when the animation ends."
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "flutter": "child"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    }
+  ]
+}

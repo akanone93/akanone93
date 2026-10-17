@@ -1,0 +1,57 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "Timeline",
+  "id": 138,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "structure",
+  "icon": "timeline",
+  "description": "Plays a page timeline for its subtree: it starts the named timeline when shown, and optionally restarts it when it ends (ANI-002).",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 5,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "timeline",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The name of a timeline of the page."
+    },
+    {
+      "name": "autoplay",
+      "id": 2,
+      "type": "bool",
+      "default": true,
+      "description": "Start the timeline when the widget is shown."
+    },
+    {
+      "name": "repeat",
+      "id": 3,
+      "type": "bool",
+      "default": false,
+      "description": "Start the timeline again each time it ends."
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "required": true,
+      "description": "The subtree the timeline's tracks move."
+    }
+  ]
+}
