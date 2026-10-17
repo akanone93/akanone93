@@ -332,7 +332,9 @@
   },
   "route": "dashboard",
   "schemaVersion": "1.0.0",
-  "title": "Dashboard",
+  "title": {
+    "$t": "01a14bd7-5c1a-7069-b84a-4eef10bb2250"
+  },
   "triggers": {
     "dataSources": {
       "notifications": {

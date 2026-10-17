@@ -188,8 +188,10 @@
   },
   "route": "result",
   "schemaVersion": "1.0.0",
-  "title": "Result",
   "security": {
     "secure": true
+  },
+  "title": {
+    "$t": "01a14bd7-5c1d-73e6-8a52-43d148abd2f3"
   }
 }

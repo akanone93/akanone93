@@ -3,6 +3,12 @@
   "kind": "translations",
   "locale": "de",
   "messages": {
+    "01a14abf-1709-759b-b4e9-13dd4dda6b95": "Gebühr anzeigen",
+    "01a14bd7-5c1a-7069-b84a-4eef10bb2250": "Übersicht",
+    "01a14bd7-5c1b-7187-927b-61521cd85502": "Identitätsprüfung",
+    "01a14bd7-5c1c-717d-a9cf-f7d114b6f13e": "Anmelden",
+    "01a14bd7-5c1d-71fe-8376-851b7f675e47": "Überweisung",
+    "01a14bd7-5c1d-73e6-8a52-43d148abd2f3": "Ergebnis",
     "01d0c450-6c00-7000-8000-000000000280": "Willkommen zurück",
     "01d0c450-6c00-7000-8000-000000000281": "Benutzername",
     "01d0c450-6c00-7000-8000-000000000283": "Anmelden",
@@ -27,8 +33,7 @@
     "01d0c450-6c00-7000-8000-000000000296": "Foto aufnehmen",
     "01d0c450-6c00-7000-8000-000000000297": "Identitätsprüfung",
     "01d0c450-6c00-7000-8000-000000000298": "PIN eingeben",
-    "01d0c450-6c00-7000-8000-000000000299": "Per SMS gesendeter Code",
-    "01a14abf-1709-759b-b4e9-13dd4dda6b95": "Gebühr anzeigen"
+    "01d0c450-6c00-7000-8000-000000000299": "Per SMS gesendeter Code"
   },
   "schemaVersion": "1.0.0"
 }

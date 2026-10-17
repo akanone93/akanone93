@@ -173,13 +173,13 @@
                     "props": {
                       "length": 6
                     },
-                    "testId": "pin",
-                    "type": "SecurePinPad",
                     "semantics": {
                       "label": {
                         "$t": "01d0c450-6c00-7000-8000-000000000298"
                       }
-                    }
+                    },
+                    "testId": "pin",
+                    "type": "SecurePinPad"
                   },
                   {
                     "id": "01d0c450-6c00-7000-8000-000000002102",
@@ -219,13 +219,13 @@
                     "props": {
                       "length": 6
                     },
-                    "testId": "otp",
-                    "type": "OtpInput",
                     "semantics": {
                       "label": {
                         "$t": "01d0c450-6c00-7000-8000-000000000299"
                       }
-                    }
+                    },
+                    "testId": "otp",
+                    "type": "OtpInput"
                   },
                   {
                     "id": "01d0c450-6c00-7000-8000-000000002005",
@@ -359,6 +359,9 @@
   },
   "route": "login",
   "schemaVersion": "1.0.0",
+  "security": {
+    "secure": true
+  },
   "state": [
     {
       "default": "",
@@ -367,8 +370,7 @@
       "type": "string"
     }
   ],
-  "title": "Sign in",
-  "security": {
-    "secure": true
+  "title": {
+    "$t": "01a14bd7-5c1c-717d-a9cf-f7d114b6f13e"
   }
 }

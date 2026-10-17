@@ -570,5 +570,7 @@
       "type": "string"
     }
   ],
-  "title": "Transfer"
+  "title": {
+    "$t": "01a14bd7-5c1d-71fe-8376-851b7f675e47"
+  }
 }

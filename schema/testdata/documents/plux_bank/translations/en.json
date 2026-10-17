@@ -4,6 +4,11 @@
   "locale": "en",
   "messages": {
     "01a14abf-1709-759b-b4e9-13dd4dda6b95": "Show fee",
+    "01a14bd7-5c1a-7069-b84a-4eef10bb2250": "Dashboard",
+    "01a14bd7-5c1b-7187-927b-61521cd85502": "Identity check",
+    "01a14bd7-5c1c-717d-a9cf-f7d114b6f13e": "Sign in",
+    "01a14bd7-5c1d-71fe-8376-851b7f675e47": "Transfer",
+    "01a14bd7-5c1d-73e6-8a52-43d148abd2f3": "Result",
     "01d0c450-6c00-7000-8000-000000000280": "Welcome back",
     "01d0c450-6c00-7000-8000-000000000281": "Username",
     "01d0c450-6c00-7000-8000-000000000283": "Sign in",
