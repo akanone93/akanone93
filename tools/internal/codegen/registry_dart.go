@@ -6,6 +6,7 @@ package codegen
 import (
 	"bytes"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/nightCode42/plux3/tools/internal/registry"
@@ -30,7 +31,18 @@ func registryDart(r *registry.Registry) []byte {
 		writeDartIDs(&b, "slots", w.Slots, func(s registry.Slot) (string, uint32) { return s.Name, s.ID })
 		b.WriteString("  ),\n")
 	}
-	b.WriteString("];\n\n/// Every value type, sorted by name.\nconst List<ValueTypeDescriptor> valueTypeDescriptors = [\n")
+	b.WriteString("];\n\n/// The types of the widgets whose descriptor sets `minTarget` (A11Y-004),\n/// sorted by name.\nconst Set<String> minTargetTypes = {\n")
+	minTarget := []string{}
+	for _, w := range r.Widgets {
+		if w.Accessibility.MinTarget {
+			minTarget = append(minTarget, w.Type)
+		}
+	}
+	slices.Sort(minTarget)
+	for _, t := range minTarget {
+		fmt.Fprintf(&b, "  %s,\n", quoteDart(t))
+	}
+	b.WriteString("};\n\n/// Every value type, sorted by name.\nconst List<ValueTypeDescriptor> valueTypeDescriptors = [\n")
 	for _, t := range r.Types {
 		fmt.Fprintf(&b, "  ValueTypeDescriptor(\n    %s,\n    %d,\n    revision: %d,\n", quoteDart(t.Name), t.ID, t.Revision)
 		writeDartIDs(&b, "fields", t.Fields, func(f registry.Field) (string, uint32) { return f.Name, f.ID })
