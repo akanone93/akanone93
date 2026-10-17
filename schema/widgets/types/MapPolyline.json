@@ -1,0 +1,35 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "MapPolyline",
+  "id": 80,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "A line on a map through its points, in order.",
+  "fields": [
+    {
+      "name": "points",
+      "id": 1,
+      "type": "list<LatLng>",
+      "required": true,
+      "description": "The points; at least two draw a line."
+    },
+    {
+      "name": "color",
+      "id": 2,
+      "type": "string?",
+      "description": "A theme colour token; the primary colour when absent."
+    },
+    {
+      "name": "width",
+      "id": 3,
+      "type": "double",
+      "default": 4.0,
+      "description": "Line width in logical pixels."
+    }
+  ]
+}

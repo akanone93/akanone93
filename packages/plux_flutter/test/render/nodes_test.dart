@@ -106,13 +106,13 @@ void main() {
               ],
             ),
           ],
-          ['', 'layout', 'survivor', 'MapView', 'survivor-id'],
+          ['', 'layout', 'survivor', 'StoreMap', 'survivor-id'],
         ),
       );
       expect(find.text('survivor'), findsNWidgets(2));
       expect(find.textContaining('widget 9999'), findsOneWidget);
       // A native slot the host does not register (ADR-0041).
-      expect(find.textContaining('MapView'), findsOneWidget);
+      expect(find.textContaining('StoreMap'), findsOneWidget);
       expect(
         codes(),
         containsAll([

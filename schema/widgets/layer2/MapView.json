@@ -1,0 +1,127 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "MapView",
+  "id": 197,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "map",
+  "description": "A map with markers and lines. Tiles come from `tileUrlTemplate`, fetched over HTTPS from a domain the plugin declares (SEC-080); the Google package ignores the template and uses the host's API key. Showing the user's location needs the `location` device API and its permission. Each marker is a semantics node with its title.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 900,
+  "accessibility": {
+    "role": "group",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_maps",
+  "props": [
+    {
+      "name": "semanticLabel",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "translatable": true,
+      "description": "What the map shows, spoken before its markers."
+    },
+    {
+      "name": "center",
+      "id": 2,
+      "type": "LatLng",
+      "required": true,
+      "description": "The map centre."
+    },
+    {
+      "name": "zoom",
+      "id": 3,
+      "type": "double",
+      "default": 13.0,
+      "description": "The zoom level."
+    },
+    {
+      "name": "minZoom",
+      "id": 4,
+      "type": "double",
+      "default": 2.0,
+      "description": "The lowest zoom level."
+    },
+    {
+      "name": "maxZoom",
+      "id": 5,
+      "type": "double",
+      "default": 19.0,
+      "description": "The highest zoom level."
+    },
+    {
+      "name": "markers",
+      "id": 6,
+      "type": "list<MapMarker>",
+      "default": [],
+      "description": "The markers."
+    },
+    {
+      "name": "polylines",
+      "id": 7,
+      "type": "list<MapPolyline>",
+      "default": [],
+      "description": "The lines."
+    },
+    {
+      "name": "tileUrlTemplate",
+      "id": 8,
+      "type": "string?",
+      "description": "The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain. Without it no tiles are drawn."
+    },
+    {
+      "name": "attribution",
+      "id": 9,
+      "type": "string?",
+      "translatable": true,
+      "description": "The tile provider's attribution, always shown; required when `tileUrlTemplate` is set."
+    },
+    {
+      "name": "showUserLocation",
+      "id": 10,
+      "type": "bool",
+      "default": false,
+      "description": "Show the user's position; needs the `location` device API."
+    },
+    {
+      "name": "interactive",
+      "id": 11,
+      "type": "bool",
+      "default": true,
+      "description": "Whether the user can pan and zoom."
+    }
+  ],
+  "events": [
+    {
+      "name": "onMarkerTap",
+      "id": 1,
+      "payload": "string",
+      "description": "A marker was tapped; the payload is its `id`."
+    },
+    {
+      "name": "onMapTap",
+      "id": 2,
+      "payload": "LatLng",
+      "description": "The map was tapped away from a marker; the payload is the position."
+    },
+    {
+      "name": "onCameraIdle",
+      "id": 3,
+      "payload": "MapCamera",
+      "description": "The camera stopped moving; the payload is its centre and zoom."
+    }
+  ]
+}

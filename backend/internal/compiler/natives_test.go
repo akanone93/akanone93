@@ -58,7 +58,7 @@ func TestNativeDeclarationsReachTheAppBundle(t *testing.T) {
 	var event fbs.ComponentEvent
 	slot.Props(&prop, 0)
 	slot.Events(&event, 0)
-	if strs[slot.Type()] != "MapView" || slot.PropsLength() != 1 || strs[prop.Name()] != "zoom" ||
+	if strs[slot.Type()] != "StoreMap" || slot.PropsLength() != 1 || strs[prop.Name()] != "zoom" ||
 		slot.EventsLength() != 1 || strs[event.Name()] != "onPan" {
 		t.Errorf("slot %q %q %q", strs[slot.Type()], strs[prop.Name()], strs[event.Name()])
 	}
@@ -278,7 +278,7 @@ func TestNativeSlotNodeIsTheSlotItNames(t *testing.T) {
 	spelled := func(name string) *Result {
 		fsys := project(t, featuresDir)
 		src := string(fsys[page].Data)
-		src = strings.Replace(src, `"type": "MapView"`, `"type": "NativeSlot"`, 1)
+		src = strings.Replace(src, `"type": "StoreMap"`, `"type": "NativeSlot"`, 1)
 		src = strings.Replace(src, `"zoom": 3`, `"zoom": 3, "name": "`+name+`"`, 1)
 		fsys[page].Data = []byte(src)
 		return compileFS(fsys)
@@ -287,7 +287,7 @@ func TestNativeSlotNodeIsTheSlotItNames(t *testing.T) {
 	if base.Diagnostics.HasErrors() {
 		t.Fatalf("diagnostics:\n%v", base.Diagnostics)
 	}
-	named := spelled("MapView")
+	named := spelled("StoreMap")
 	if named.Diagnostics.HasErrors() {
 		t.Fatalf("diagnostics:\n%v", named.Diagnostics)
 	}

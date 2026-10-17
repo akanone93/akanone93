@@ -1,0 +1,113 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "OrderTrackerMap",
+  "id": 198,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "delivery_dining",
+  "description": "A map of a delivery: origin, destination, route and a courier marker that glides between position updates. Tiles come from `tileUrlTemplate` as in `MapView`.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 1000,
+  "accessibility": {
+    "role": "group",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_maps",
+  "props": [
+    {
+      "name": "semanticLabel",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "translatable": true,
+      "description": "What the map shows, spoken before its markers."
+    },
+    {
+      "name": "origin",
+      "id": 2,
+      "type": "LatLng",
+      "required": true,
+      "description": "Where the order starts."
+    },
+    {
+      "name": "destination",
+      "id": 3,
+      "type": "LatLng",
+      "required": true,
+      "description": "Where the order goes."
+    },
+    {
+      "name": "courier",
+      "id": 4,
+      "type": "LatLng?",
+      "description": "The courier's position; bindable, the marker animates to each new value."
+    },
+    {
+      "name": "route",
+      "id": 5,
+      "type": "list<LatLng>",
+      "default": [],
+      "description": "The route, in order."
+    },
+    {
+      "name": "etaLabel",
+      "id": 6,
+      "type": "string?",
+      "translatable": true,
+      "description": "The arrival estimate, shown over the map and spoken."
+    },
+    {
+      "name": "follow",
+      "id": 7,
+      "type": "bool",
+      "default": true,
+      "description": "Keep the courier in view."
+    },
+    {
+      "name": "tileUrlTemplate",
+      "id": 8,
+      "type": "string?",
+      "description": "The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain."
+    },
+    {
+      "name": "attribution",
+      "id": 9,
+      "type": "string?",
+      "translatable": true,
+      "description": "The tile provider's attribution, always shown; required when `tileUrlTemplate` is set."
+    },
+    {
+      "name": "originLabel",
+      "id": 10,
+      "type": "string?",
+      "translatable": true,
+      "description": "The origin marker's name for screen readers; the marker is silent without it."
+    },
+    {
+      "name": "destinationLabel",
+      "id": 11,
+      "type": "string?",
+      "translatable": true,
+      "description": "The destination marker's name for screen readers; the marker is silent without it."
+    },
+    {
+      "name": "courierLabel",
+      "id": 12,
+      "type": "string?",
+      "translatable": true,
+      "description": "The courier marker's name for screen readers; the marker is silent without it."
+    }
+  ]
+}

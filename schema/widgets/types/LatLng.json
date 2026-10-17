@@ -1,0 +1,29 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "LatLng",
+  "id": 78,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "A position on the Earth in degrees (WGS 84).",
+  "fields": [
+    {
+      "name": "lat",
+      "id": 1,
+      "type": "double",
+      "required": true,
+      "description": "Latitude, -90 to 90."
+    },
+    {
+      "name": "lng",
+      "id": 2,
+      "type": "double",
+      "required": true,
+      "description": "Longitude, -180 to 180."
+    }
+  ]
+}

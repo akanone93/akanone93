@@ -1,0 +1,25 @@
+name: plux_maps
+description: >-
+  MapView and OrderTrackerMap for Plux pages on flutter_map: tiles fetched
+  through the runtime's pinned client from domains the plugin declares.
+version: 0.1.0
+repository: https://github.com/nightCode42/plux3/tree/main/packages/plux_maps
+# Not published until its release is wired (release.yml, pub.dev).
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_map: 8.3.2
+  latlong2: ^0.9.1
+  plux_flutter: ^0.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

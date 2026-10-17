@@ -1,0 +1,41 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "MapMarker",
+  "id": 79,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "A marker on a map.",
+  "fields": [
+    {
+      "name": "id",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "Identifies the marker in `onMarkerTap`."
+    },
+    {
+      "name": "position",
+      "id": 2,
+      "type": "LatLng",
+      "required": true,
+      "description": "Where the marker is."
+    },
+    {
+      "name": "title",
+      "id": 3,
+      "type": "string?",
+      "description": "The marker's name, spoken by screen readers."
+    },
+    {
+      "name": "icon",
+      "id": 4,
+      "type": "string?",
+      "description": "The name of a built-in marker icon; the default pin when absent."
+    }
+  ]
+}

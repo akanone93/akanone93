@@ -14,6 +14,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Theme, kToolbarHeight;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import 'package:plux_flutter/src/actions/engine.dart';
 import 'package:plux_flutter/src/animation/interpolate.dart';
 import 'package:plux_flutter/src/animation/motion_node.dart';
@@ -473,6 +474,13 @@ final class NodeContextImpl implements NodeContext, MotionSource {
 
   @override
   PluxVectorSource? vector(String asset) => scope.services.vector(scope, asset);
+
+  @override
+  http.Client? remoteClient(String url) =>
+      scope.services.remoteClient(scope, url);
+
+  @override
+  ImageProvider<Object>? remoteImage(String url) => image(url: url);
 
   bool _visible(fbs.Node n) {
     final v = n.visible;

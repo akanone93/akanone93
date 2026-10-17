@@ -946,9 +946,9 @@ final class PluxRenderer implements PageRenderer, RenderServices {
     return null;
   }
 
-  /// A remote image: HTTPS, on a domain the plugin declares (SEC-080,
-  /// AST-002), else blocked and reported (PLX-6030).
-  ImageProvider<Object>? _remote(RenderScope scope, String url) {
+  /// [url] as a [Uri] when it is HTTPS on a domain the plugin declares
+  /// (SEC-080, AST-002); else null, reported (PLX-6030) as `what`.
+  Uri? _allowed(RenderScope scope, String url, String what) {
     final uri = Uri.tryParse(url);
     final domains =
         scope.release.meta(scope.pluginKey).capabilities?.networkDomains ??
@@ -959,12 +959,27 @@ final class PluxRenderer implements PageRenderer, RenderServices {
       scope.report(
         PluxException(
           PluxErrorCode.outboundRequestBlocked,
-          'the image $url is not on an HTTPS domain the plugin declares',
+          'the $what $url is not on an HTTPS domain the plugin declares',
         ),
         path: scope.path,
       );
       return null;
     }
+    return uri;
+  }
+
+  http.Client get _pinned =>
+      _client ??= (httpClient ?? config.httpClient ?? platformHttpClient)();
+
+  @override
+  http.Client? remoteClient(RenderScope scope, String url) =>
+      _allowed(scope, url, 'request') == null ? null : _pinned;
+
+  /// A remote image: HTTPS, on a domain the plugin declares (SEC-080,
+  /// AST-002), else blocked and reported (PLX-6030).
+  ImageProvider<Object>? _remote(RenderScope scope, String url) {
+    final uri = _allowed(scope, url, 'image');
+    if (uri == null) return null;
     final limits = scope.release.limits;
     return PluxNetworkImage(
       uri,
@@ -972,8 +987,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
         imageCacheDirectory,
         maxBytes: limits.valueOf(PluxLimit.runtimeImageDiskCacheBytes),
       ),
-      client: _client ??=
-          (httpClient ?? config.httpClient ?? platformHttpClient)(),
+      client: _pinned,
       maxBytes: limits.valueOf(PluxLimit.runtimeImageSize),
     );
   }

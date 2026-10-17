@@ -20,6 +20,8 @@ workspace:
   - packages/plux_go_router
   - packages/plux_location
   - packages/plux_lottie
+  - packages/plux_maps
+  - packages/plux_maps_google
   - packages/plux_markdown
   - packages/plux_media
   - packages/plux_native_scan

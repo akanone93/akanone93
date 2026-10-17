@@ -120,6 +120,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [ListView](#listview) | 1 | scrolling | P3 | A lazily built, scrollable list of `item` templates over `items`, with empty, loading and error states (WGT-012). |
 | [LiveEtaCard](#liveetacard) | 2 | feedback | P5 | A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced. |
 | [LottieView](#lottieview) | 2 | display | P5 | A Lottie or dotLottie animation from an https address, controlled by props (ANI-005). |
+| [MapView](#mapview) | 2 | display | P5 | A map with markers and lines. Tiles come from `tileUrlTemplate`, fetched over HTTPS from a domain the plugin declares (SEC-080); the Google package ignores the template and uses the host's API key. Showing the user's location needs the `location` device API and its permission. Each marker is a semantics node with its title. |
 | [MarkdownView](#markdownview) | 2 | display | P5 | Formatted text from Markdown: headings, paragraphs, emphasis, lists, quotes, code and links. Raw HTML is shown as text; images are bundle assets. |
 | [MaskedText](#maskedtext) | 2 | display | P5 | A sensitive number with all but its last digits hidden; the hidden digits never reach screen readers. |
 | [Match](#match) | 1 | structure | P3 | Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`. |
@@ -134,6 +135,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [OfflineBanner](#offlinebanner) | 2 | feedback | P3 | A banner shown while the device is offline. |
 | [OnboardingPager](#onboardingpager) | 2 | navigation | P5 | Swipeable onboarding pages with page indicators and a Done button on the last page. |
 | [Opacity](#opacity) | 1 | layout | P3 | Makes its child partially transparent. |
+| [OrderTrackerMap](#ordertrackermap) | 2 | display | P5 | A map of a delivery: origin, destination, route and a courier marker that glides between position updates. Tiles come from `tileUrlTemplate` as in `MapView`. |
 | [OtpInput](#otpinput) | 2 | input | P6 | One-time code entry with platform autofill: SMS User Consent API on Android, one-time-code autofill on iOS (SEC-090). |
 | [OutlinedButton](#outlinedbutton) | 1 | input | P3 | A Material outlined button. |
 | [Padding](#padding) | 1 | layout | P3 | Insets its child by the given padding. |
@@ -2891,6 +2893,32 @@ ID 205 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 12
 |---|---|---|---|
 | `onCompleted` | 1 | — | Fires when an animation that does not repeat ends. |
 
+### MapView
+
+A map with markers and lines. Tiles come from `tileUrlTemplate`, fetched over HTTPS from a domain the plugin declares (SEC-080); the Google package ignores the template and uses the host's API key. Showing the user's location needs the `location` device API and its permission. Each marker is a semantics node with its title.
+
+ID 197 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 900 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `semanticLabel` | 1 | `string`, required | — | What the map shows, spoken before its markers. |
+| `center` | 2 | `LatLng`, required | — | The map centre. |
+| `zoom` | 3 | `double` | `13.0` | The zoom level. |
+| `minZoom` | 4 | `double` | `2.0` | The lowest zoom level. |
+| `maxZoom` | 5 | `double` | `19.0` | The highest zoom level. |
+| `markers` | 6 | `list<MapMarker>` | `[]` | The markers. |
+| `polylines` | 7 | `list<MapPolyline>` | `[]` | The lines. |
+| `tileUrlTemplate` | 8 | `string?` | — | The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain. Without it no tiles are drawn. |
+| `attribution` | 9 | `string?` | — | The tile provider's attribution, always shown; required when `tileUrlTemplate` is set. |
+| `showUserLocation` | 10 | `bool` | `false` | Show the user's position; needs the `location` device API. |
+| `interactive` | 11 | `bool` | `true` | Whether the user can pan and zoom. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onMarkerTap` | 1 | `string` | A marker was tapped; the payload is its `id`. |
+| `onMapTap` | 2 | `LatLng` | The map was tapped away from a marker; the payload is the position. |
+| `onCameraIdle` | 3 | `MapCamera` | The camera stopped moving; the payload is its centre and zoom. |
+
 ### MarkdownView
 
 Formatted text from Markdown: headings, paragraphs, emphasis, lists, quotes, code and links. Raw HTML is shown as text; images are bundle assets.
@@ -3155,6 +3183,27 @@ ID 22 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Opacity` · and
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node |  |
+
+### OrderTrackerMap
+
+A map of a delivery: origin, destination, route and a courier marker that glides between position updates. Tiles come from `tileUrlTemplate` as in `MapView`.
+
+ID 198 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 1000 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `semanticLabel` | 1 | `string`, required | — | What the map shows, spoken before its markers. |
+| `origin` | 2 | `LatLng`, required | — | Where the order starts. |
+| `destination` | 3 | `LatLng`, required | — | Where the order goes. |
+| `courier` | 4 | `LatLng?` | — | The courier's position; bindable, the marker animates to each new value. |
+| `route` | 5 | `list<LatLng>` | `[]` | The route, in order. |
+| `etaLabel` | 6 | `string?` | — | The arrival estimate, shown over the map and spoken. |
+| `follow` | 7 | `bool` | `true` | Keep the courier in view. |
+| `tileUrlTemplate` | 8 | `string?` | — | The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain. |
+| `attribution` | 9 | `string?` | — | The tile provider's attribution, always shown; required when `tileUrlTemplate` is set. |
+| `originLabel` | 10 | `string?` | — | The origin marker's name for screen readers; the marker is silent without it. |
+| `destinationLabel` | 11 | `string?` | — | The destination marker's name for screen readers; the marker is silent without it. |
+| `courierLabel` | 12 | `string?` | — | The courier marker's name for screen readers; the marker is silent without it. |
 
 ### OtpInput
 
@@ -5350,6 +5399,53 @@ ID 17 · revision 1 · Flutter `InputDecoration`
 | `alignLabelWithHint` | 48 | `bool` | — |  |
 | `constraints` | 49 | `BoxConstraints` | — |  |
 | `visualDensity` | 50 | `VisualDensity` | — |  |
+
+### LatLng
+
+A position on the Earth in degrees (WGS 84).
+
+ID 78 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `lat` | 1 | `double`, required | — | Latitude, -90 to 90. |
+| `lng` | 2 | `double`, required | — | Longitude, -180 to 180. |
+
+### MapCamera
+
+Where a map is looking.
+
+ID 81 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `center` | 1 | `LatLng`, required | — | The centre. |
+| `zoom` | 2 | `double`, required | — | The zoom level. |
+
+### MapMarker
+
+A marker on a map.
+
+ID 79 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `id` | 1 | `string`, required | — | Identifies the marker in `onMarkerTap`. |
+| `position` | 2 | `LatLng`, required | — | Where the marker is. |
+| `title` | 3 | `string?` | — | The marker's name, spoken by screen readers. |
+| `icon` | 4 | `string?` | — | The name of a built-in marker icon; the default pin when absent. |
+
+### MapPolyline
+
+A line on a map through its points, in order.
+
+ID 80 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `points` | 1 | `list<LatLng>`, required | — | The points; at least two draw a line. |
+| `color` | 2 | `string?` | — | A theme colour token; the primary colour when absent. |
+| `width` | 3 | `double` | `4.0` | Line width in logical pixels. |
 
 ### MenuItem
 

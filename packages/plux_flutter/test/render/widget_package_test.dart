@@ -115,4 +115,34 @@ void main() {
     expect(find.text('bar'), findsOneWidget);
     expect(missing(), isEmpty);
   });
+
+  testWidgets('remoteClient and remoteImage apply the domain rule '
+      '[SEC-080][AST-002][RT-060]', (tester) async {
+    final seen = <Object?>[];
+    await show(tester, [
+      _Package({
+        line.id: (c) {
+          seen
+            ..add(c.remoteClient('https://example.com/t/1/2.png'))
+            ..add(c.remoteClient('https://example.com/t/1/3.png'))
+            ..add(c.remoteImage('https://example.com/a.png'))
+            ..add(c.remoteClient('https://evil.example.net/t.png'))
+            ..add(c.remoteClient('http://example.com/t.png'))
+            ..add(c.remoteImage('https://evil.example.net/a.png'));
+          return const SizedBox();
+        },
+        bar.id: (c) => const SizedBox(),
+      }),
+    ]);
+    final first = seen.take(2).toList();
+    expect(first[0], isNotNull);
+    expect(first[1], same(first[0]));
+    expect(seen[2], isNotNull);
+    expect(seen.skip(3).take(2), everyElement(isNull));
+    expect(seen[5], isNull);
+    expect(
+      h.errors.where((e) => e.code == PluxErrorCode.outboundRequestBlocked),
+      hasLength(6),
+    );
+  });
 }

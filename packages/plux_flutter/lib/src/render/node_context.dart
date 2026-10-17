@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/widgets.dart';
+import 'package:http/http.dart' as http;
 import 'package:plux_flutter/src/render/decoding.dart';
 
 /// Builds the widget of one node.
@@ -48,6 +49,15 @@ abstract interface class NodeContext implements Decoding {
   /// Builds item [index] of item-template slot [slot], with `item` and
   /// `index` in scope for its bindings (WGT-012).
   Widget item(int slot, Object? item, int index);
+
+  /// The renderer's pinned HTTP client for fetching [url], when [url] is
+  /// HTTPS on a domain the plugin declares (SEC-080, AST-002); else null,
+  /// reported (PLX-6030).
+  http.Client? remoteClient(String url);
+
+  /// A remote image at [url] under the same rule as [remoteClient]; null,
+  /// reported (PLX-6030), when blocked.
+  ImageProvider<Object>? remoteImage(String url);
 
   /// Reports that an image of the node failed to load.
   void imageFailed(Object error);
