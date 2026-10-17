@@ -24,3 +24,4 @@ library;
 
 export 'src/inputs.dart' show PluxRiveInputs, StateMachineInputs;
 export 'src/plux_rive.dart' show PluxRive, PluxRiveView;
+export 'src/rive_package.dart' show PluxRiveIds, PluxRiveWidgets;

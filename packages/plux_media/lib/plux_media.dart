@@ -11,7 +11,18 @@
 /// actions fail with `PLX-5401`. The host declares the platform usage
 /// descriptions (`NSPhotoLibraryUsageDescription`,
 /// `NSCameraUsageDescription`) and the camera permission itself.
+///
+/// [PluxMediaWidgets] in `PluxConfig.widgetPackages` adds the `SignaturePad`
+/// widget, which needs no permission.
 library;
 
 export 'src/kyc.dart' show KycQuality, KycThresholds;
 export 'src/media.dart' show FileBackend, ImageBackend, PickedEntry, PluxMedia;
+export 'src/signature_pad.dart'
+    show
+        PluxSignaturePad,
+        SignatureFormat,
+        paintSignature,
+        signaturePathData,
+        signaturePng;
+export 'src/widgets_package.dart' show PluxMediaWidgetIds, PluxMediaWidgets;

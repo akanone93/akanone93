@@ -6,6 +6,10 @@ import 'package:lottie/lottie.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 
 /// The Lottie native slot (ANI-005, WGT-021).
+///
+/// Deprecated: the `LottieView` catalogue widget of `PluxLottieWidgets`
+/// replaces it (ADR-0050 Revision); it stays for one minor release.
+@Deprecated('Use the LottieView catalogue widget (ADR-0050 Revision)')
 abstract final class PluxLottie {
   /// The slot's type name in the app's native catalogue.
   static const String slotName = 'PluxLottie';

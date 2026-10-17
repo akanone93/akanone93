@@ -7,6 +7,10 @@ import 'package:plux_rive/src/inputs.dart';
 import 'package:rive/rive.dart' as rive;
 
 /// The Rive native slot (ANI-005, WGT-021).
+///
+/// Deprecated: the `RiveView` catalogue widget of `PluxRiveWidgets`
+/// replaces it (ADR-0050 Revision); it stays for one minor release.
+@Deprecated('Use the RiveView catalogue widget (ADR-0050 Revision)')
 abstract final class PluxRive {
   /// The slot's type name in the app's native catalogue.
   static const String slotName = 'PluxRive';
