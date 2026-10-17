@@ -8,6 +8,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import 'package:plux_flutter/src/actions/engine.dart';
 import 'package:plux_flutter/src/animation/registry.dart';
 import 'package:plux_flutter/src/assets/icon_fonts.dart';
@@ -74,6 +75,11 @@ abstract interface class RenderServices {
   /// URL on a domain the plugin declares; null, reported, when there is
   /// none it may show.
   ImageProvider<Object>? image(RenderScope scope, {String? asset, String? url});
+
+  /// An HTTP client for a node of [scope] to fetch [url] with: the
+  /// renderer's pinned client when [url] is HTTPS on a domain the plugin
+  /// declares (SEC-080, AST-002); else null, reported (PLX-6030).
+  http.Client? remoteClient(RenderScope scope, String url);
 
   /// The SVG asset [asset] for a node of [scope] (CMP-031); null when the
   /// asset is not an SVG.

@@ -173,7 +173,7 @@ export interface ActionDescriptor {
 }
 
 /** A widget type name. */
-export type WidgetType = "AccountCard" | "ActionChip" | "Align" | "AmountInput" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "AudioPlayer" | "Autocomplete" | "BackButton" | "BackdropFilter" | "Badge" | "BarChart" | "Baseline" | "BiometricButton" | "BottomAppBar" | "BottomNavigationBar" | "CalendarDatePicker" | "Card" | "Carousel" | "CartSummary" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CountryPicker" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoContextMenu" | "CupertinoDatePicker" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoNavigationBar" | "CupertinoPicker" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTabBar" | "CupertinoTextField" | "CurrencyPicker" | "CustomScrollView" | "DataScope" | "DataTable" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "Drawer" | "DropdownMenu" | "DualCalendarDatePicker" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "IbanInput" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LineChart" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "LottieView" | "MarkdownView" | "MaskedText" | "Match" | "MaterialBanner" | "MenuAnchor" | "MoneyText" | "NativeSlot" | "NavigationBar" | "NavigationDrawer" | "NavigationRail" | "NestedScrollView" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "PaymentCard" | "PhoneInput" | "PieChart" | "PopupMenuButton" | "Positioned" | "PriceTag" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "RefreshIndicator" | "ReorderableListView" | "Responsive" | "RichText" | "RiveView" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchAnchor" | "SearchBar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SignaturePad" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverPersistentHeader" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Sparkline" | "Stack" | "StatusTimeline" | "Stepper" | "Switch" | "SwitchListTile" | "TabBar" | "TabBarView" | "Table" | "TermsViewer" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "TransactionListItem" | "Transform" | "VerticalDivider" | "VideoPlayer" | "WizardForm" | "Wrap";
+export type WidgetType = "AccountCard" | "ActionChip" | "Align" | "AmountInput" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "AudioPlayer" | "Autocomplete" | "BackButton" | "BackdropFilter" | "Badge" | "BarChart" | "Baseline" | "BiometricButton" | "BottomAppBar" | "BottomNavigationBar" | "CalendarDatePicker" | "Card" | "Carousel" | "CartSummary" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CountryPicker" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoContextMenu" | "CupertinoDatePicker" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoNavigationBar" | "CupertinoPicker" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTabBar" | "CupertinoTextField" | "CurrencyPicker" | "CustomScrollView" | "DataScope" | "DataTable" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "Drawer" | "DropdownMenu" | "DualCalendarDatePicker" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "IbanInput" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LineChart" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "LottieView" | "MapView" | "MarkdownView" | "MaskedText" | "Match" | "MaterialBanner" | "MenuAnchor" | "MoneyText" | "NativeSlot" | "NavigationBar" | "NavigationDrawer" | "NavigationRail" | "NestedScrollView" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OrderTrackerMap" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "PaymentCard" | "PhoneInput" | "PieChart" | "PopupMenuButton" | "Positioned" | "PriceTag" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "RefreshIndicator" | "ReorderableListView" | "Responsive" | "RichText" | "RiveView" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchAnchor" | "SearchBar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SignaturePad" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverPersistentHeader" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Sparkline" | "Stack" | "StatusTimeline" | "Stepper" | "Switch" | "SwitchListTile" | "TabBar" | "TabBarView" | "Table" | "TermsViewer" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "TransactionListItem" | "Transform" | "VerticalDivider" | "VideoPlayer" | "WizardForm" | "Wrap";
 
 /** An action name. */
 export type ActionName = "announce" | "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "readConfig" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
@@ -3694,6 +3694,40 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": []
   },
   {
+    "type": "MapView",
+    "id": 197,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "map",
+    "description": "A map with markers and lines. Tiles come from `tileUrlTemplate`, fetched over HTTPS from a domain the plugin declares (SEC-080); the Google package ignores the template and uses the host's API key. Showing the user's location needs the `location` device API and its permission. Each marker is a semantics node with its title.",
+    "platforms": ["android", "ios"],
+    "cost": 900,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "semanticLabel", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What the map shows, spoken before its markers."},
+      {"name": "center", "id": 2, "type": "LatLng", "required": true, "revision": 1, "bindable": true, "description": "The map centre."},
+      {"name": "zoom", "id": 3, "type": "double", "required": false, "default": 13.0, "revision": 1, "bindable": true, "description": "The zoom level."},
+      {"name": "minZoom", "id": 4, "type": "double", "required": false, "default": 2.0, "revision": 1, "bindable": true, "description": "The lowest zoom level."},
+      {"name": "maxZoom", "id": 5, "type": "double", "required": false, "default": 19.0, "revision": 1, "bindable": true, "description": "The highest zoom level."},
+      {"name": "markers", "id": 6, "type": "list<MapMarker>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "The markers."},
+      {"name": "polylines", "id": 7, "type": "list<MapPolyline>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "The lines."},
+      {"name": "tileUrlTemplate", "id": 8, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain. Without it no tiles are drawn."},
+      {"name": "attribution", "id": 9, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tile provider's attribution, always shown; required when `tileUrlTemplate` is set."},
+      {"name": "showUserLocation", "id": 10, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Show the user's position; needs the `location` device API."},
+      {"name": "interactive", "id": 11, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Whether the user can pan and zoom."}
+    ],
+    "events": [
+      {"name": "onMarkerTap", "id": 1, "payload": "string", "revision": 1, "description": "A marker was tapped; the payload is its `id`."},
+      {"name": "onMapTap", "id": 2, "payload": "LatLng", "revision": 1, "description": "The map was tapped away from a marker; the payload is the position."},
+      {"name": "onCameraIdle", "id": 3, "payload": "MapCamera", "revision": 1, "description": "The camera stopped moving; the payload is its centre and zoom."}
+    ],
+    "slots": []
+  },
+  {
     "type": "MarkdownView",
     "id": 192,
     "layer": 2,
@@ -4066,6 +4100,37 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "OrderTrackerMap",
+    "id": 198,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "delivery_dining",
+    "description": "A map of a delivery: origin, destination, route and a courier marker that glides between position updates. Tiles come from `tileUrlTemplate` as in `MapView`.",
+    "platforms": ["android", "ios"],
+    "cost": 1000,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "semanticLabel", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What the map shows, spoken before its markers."},
+      {"name": "origin", "id": 2, "type": "LatLng", "required": true, "revision": 1, "bindable": true, "description": "Where the order starts."},
+      {"name": "destination", "id": 3, "type": "LatLng", "required": true, "revision": 1, "bindable": true, "description": "Where the order goes."},
+      {"name": "courier", "id": 4, "type": "LatLng?", "required": false, "revision": 1, "bindable": true, "description": "The courier's position; bindable, the marker animates to each new value."},
+      {"name": "route", "id": 5, "type": "list<LatLng>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "The route, in order."},
+      {"name": "etaLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The arrival estimate, shown over the map and spoken."},
+      {"name": "follow", "id": 7, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Keep the courier in view."},
+      {"name": "tileUrlTemplate", "id": 8, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain."},
+      {"name": "attribution", "id": 9, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tile provider's attribution, always shown; required when `tileUrlTemplate` is set."},
+      {"name": "originLabel", "id": 10, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The origin marker's name for screen readers; the marker is silent without it."},
+      {"name": "destinationLabel", "id": 11, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The destination marker's name for screen readers; the marker is silent without it."},
+      {"name": "courierLabel", "id": 12, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The courier marker's name for screen readers; the marker is silent without it."}
+    ],
+    "events": [],
+    "slots": []
   },
   {
     "type": "OtpInput",
@@ -6908,6 +6973,57 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
       {"name": "alignLabelWithHint", "id": 48, "type": "bool", "required": false, "revision": 1},
       {"name": "constraints", "id": 49, "type": "BoxConstraints", "required": false, "revision": 1},
       {"name": "visualDensity", "id": 50, "type": "VisualDensity", "required": false, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
+    "name": "LatLng",
+    "id": 78,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "A position on the Earth in degrees (WGS 84).",
+    "fields": [
+      {"name": "lat", "id": 1, "type": "double", "required": true, "revision": 1, "description": "Latitude, -90 to 90."},
+      {"name": "lng", "id": 2, "type": "double", "required": true, "revision": 1, "description": "Longitude, -180 to 180."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "MapCamera",
+    "id": 81,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Where a map is looking.",
+    "fields": [
+      {"name": "center", "id": 1, "type": "LatLng", "required": true, "revision": 1, "description": "The centre."},
+      {"name": "zoom", "id": 2, "type": "double", "required": true, "revision": 1, "description": "The zoom level."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "MapMarker",
+    "id": 79,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "A marker on a map.",
+    "fields": [
+      {"name": "id", "id": 1, "type": "string", "required": true, "revision": 1, "description": "Identifies the marker in `onMarkerTap`."},
+      {"name": "position", "id": 2, "type": "LatLng", "required": true, "revision": 1, "description": "Where the marker is."},
+      {"name": "title", "id": 3, "type": "string?", "required": false, "revision": 1, "description": "The marker's name, spoken by screen readers."},
+      {"name": "icon", "id": 4, "type": "string?", "required": false, "revision": 1, "description": "The name of a built-in marker icon; the default pin when absent."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "MapPolyline",
+    "id": 80,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "A line on a map through its points, in order.",
+    "fields": [
+      {"name": "points", "id": 1, "type": "list<LatLng>", "required": true, "revision": 1, "description": "The points; at least two draw a line."},
+      {"name": "color", "id": 2, "type": "string?", "required": false, "revision": 1, "description": "A theme colour token; the primary colour when absent."},
+      {"name": "width", "id": 3, "type": "double", "required": false, "default": 4.0, "revision": 1, "description": "Line width in logical pixels."}
     ],
     "constants": []
   },

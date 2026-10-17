@@ -2324,6 +2324,29 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "MapView", ID: 197, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "map", Description: "A map with markers and lines. Tiles come from `tileUrlTemplate`, fetched over HTTPS from a domain the plugin declares (SEC-080); the Google package ignores the template and uses the host's API key. Showing the user's location needs the `location` device API and its permission. Each marker is a semantics node with its title.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 900, Role: RoleGroup, Interactive: true,
+		Props: []Prop{
+			{Name: "semanticLabel", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What the map shows, spoken before its markers."},
+			{Name: "center", ID: 2, Type: "LatLng", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The map centre."},
+			{Name: "zoom", ID: 3, Type: "double", Required: false, Default: "13.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The zoom level."},
+			{Name: "minZoom", ID: 4, Type: "double", Required: false, Default: "2.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The lowest zoom level."},
+			{Name: "maxZoom", ID: 5, Type: "double", Required: false, Default: "19.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The highest zoom level."},
+			{Name: "markers", ID: 6, Type: "list<MapMarker>", Required: false, Default: "[]", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The markers."},
+			{Name: "polylines", ID: 7, Type: "list<MapPolyline>", Required: false, Default: "[]", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The lines."},
+			{Name: "tileUrlTemplate", ID: 8, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain. Without it no tiles are drawn."},
+			{Name: "attribution", ID: 9, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The tile provider's attribution, always shown; required when `tileUrlTemplate` is set."},
+			{Name: "showUserLocation", ID: 10, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Show the user's position; needs the `location` device API."},
+			{Name: "interactive", ID: 11, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether the user can pan and zoom."},
+		},
+		Events: []Event{
+			{Name: "onMarkerTap", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "A marker was tapped; the payload is its `id`."},
+			{Name: "onMapTap", ID: 2, Payload: "LatLng", Revision: 1, Deprecated: nil, Description: "The map was tapped away from a marker; the payload is the position."},
+			{Name: "onCameraIdle", ID: 3, Payload: "MapCamera", Revision: 1, Deprecated: nil, Description: "The camera stopped moving; the payload is its centre and zoom."},
+		},
+	},
+	{
 		Type: "MarkdownView", ID: 192, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
 		Category: "display", Icon: "markdown", Description: "Formatted text from Markdown: headings, paragraphs, emphasis, lists, quotes, code and links. Raw HTML is shown as text; images are bundle assets.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 500, Role: RoleText, Interactive: false,
@@ -2542,6 +2565,25 @@ var widgets = [...]Widget{
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "OrderTrackerMap", ID: 198, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "delivery_dining", Description: "A map of a delivery: origin, destination, route and a courier marker that glides between position updates. Tiles come from `tileUrlTemplate` as in `MapView`.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 1000, Role: RoleGroup, Interactive: true,
+		Props: []Prop{
+			{Name: "semanticLabel", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What the map shows, spoken before its markers."},
+			{Name: "origin", ID: 2, Type: "LatLng", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Where the order starts."},
+			{Name: "destination", ID: 3, Type: "LatLng", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Where the order goes."},
+			{Name: "courier", ID: 4, Type: "LatLng?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The courier's position; bindable, the marker animates to each new value."},
+			{Name: "route", ID: 5, Type: "list<LatLng>", Required: false, Default: "[]", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The route, in order."},
+			{Name: "etaLabel", ID: 6, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The arrival estimate, shown over the map and spoken."},
+			{Name: "follow", ID: 7, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Keep the courier in view."},
+			{Name: "tileUrlTemplate", ID: 8, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain."},
+			{Name: "attribution", ID: 9, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The tile provider's attribution, always shown; required when `tileUrlTemplate` is set."},
+			{Name: "originLabel", ID: 10, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The origin marker's name for screen readers; the marker is silent without it."},
+			{Name: "destinationLabel", ID: 11, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The destination marker's name for screen readers; the marker is silent without it."},
+			{Name: "courierLabel", ID: 12, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The courier marker's name for screen readers; the marker is silent without it."},
 		},
 	},
 	{
@@ -4406,6 +4448,37 @@ var valueTypes = [...]ValueType{
 			{Name: "alignLabelWithHint", ID: 48, Type: "bool", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "constraints", ID: 49, Type: "BoxConstraints", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "visualDensity", ID: 50, Type: "VisualDensity", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Name: "LatLng", ID: 78, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "A position on the Earth in degrees (WGS 84).",
+		Fields: []Field{
+			{Name: "lat", ID: 1, Type: "double", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "Latitude, -90 to 90."},
+			{Name: "lng", ID: 2, Type: "double", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "Longitude, -180 to 180."},
+		},
+	},
+	{
+		Name: "MapCamera", ID: 81, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Where a map is looking.",
+		Fields: []Field{
+			{Name: "center", ID: 1, Type: "LatLng", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The centre."},
+			{Name: "zoom", ID: 2, Type: "double", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The zoom level."},
+		},
+	},
+	{
+		Name: "MapMarker", ID: 79, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "A marker on a map.",
+		Fields: []Field{
+			{Name: "id", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "Identifies the marker in `onMarkerTap`."},
+			{Name: "position", ID: 2, Type: "LatLng", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "Where the marker is."},
+			{Name: "title", ID: 3, Type: "string?", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "The marker's name, spoken by screen readers."},
+			{Name: "icon", ID: 4, Type: "string?", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "The name of a built-in marker icon; the default pin when absent."},
+		},
+	},
+	{
+		Name: "MapPolyline", ID: 80, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "A line on a map through its points, in order.",
+		Fields: []Field{
+			{Name: "points", ID: 1, Type: "list<LatLng>", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The points; at least two draw a line."},
+			{Name: "color", ID: 2, Type: "string?", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "A theme colour token; the primary colour when absent."},
+			{Name: "width", ID: 3, Type: "double", Required: false, Default: "4.0", Revision: 1, Deprecated: nil, Description: "Line width in logical pixels."},
 		},
 	},
 	{

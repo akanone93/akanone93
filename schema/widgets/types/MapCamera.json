@@ -1,0 +1,29 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "MapCamera",
+  "id": 81,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "Where a map is looking.",
+  "fields": [
+    {
+      "name": "center",
+      "id": 1,
+      "type": "LatLng",
+      "required": true,
+      "description": "The centre."
+    },
+    {
+      "name": "zoom",
+      "id": 2,
+      "type": "double",
+      "required": true,
+      "description": "The zoom level."
+    }
+  ]
+}

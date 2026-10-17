@@ -1032,6 +1032,15 @@ const List<WidgetDescriptor> widgetDescriptors = [
     events: {'onCompleted': 1},
   ),
   WidgetDescriptor(
+    'MapView',
+    197,
+    layer: 2,
+    revision: 1,
+    package: 'plux_maps',
+    props: {'semanticLabel': 1, 'center': 2, 'zoom': 3, 'minZoom': 4, 'maxZoom': 5, 'markers': 6, 'polylines': 7, 'tileUrlTemplate': 8, 'attribution': 9, 'showUserLocation': 10, 'interactive': 11},
+    events: {'onMarkerTap': 1, 'onMapTap': 2, 'onCameraIdle': 3},
+  ),
+  WidgetDescriptor(
     'MarkdownView',
     192,
     layer: 2,
@@ -1144,6 +1153,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'opacity': 1, 'alwaysIncludeSemantics': 2},
     slots: {'child': 1},
+  ),
+  WidgetDescriptor(
+    'OrderTrackerMap',
+    198,
+    layer: 2,
+    revision: 1,
+    package: 'plux_maps',
+    props: {'semanticLabel': 1, 'origin': 2, 'destination': 3, 'courier': 4, 'route': 5, 'etaLabel': 6, 'follow': 7, 'tileUrlTemplate': 8, 'attribution': 9, 'originLabel': 10, 'destinationLabel': 11, 'courierLabel': 12},
   ),
   WidgetDescriptor(
     'OtpInput',
@@ -1940,6 +1957,30 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     17,
     revision: 1,
     fields: {'icon': 1, 'iconColor': 2, 'labelText': 3, 'labelStyle': 4, 'floatingLabelStyle': 5, 'helperText': 6, 'helperStyle': 7, 'helperMaxLines': 8, 'hintText': 9, 'hintStyle': 10, 'hintTextDirection': 11, 'hintMaxLines': 12, 'hintFadeDuration': 13, 'maintainHintSize': 14, 'maintainLabelSize': 15, 'errorText': 16, 'errorStyle': 17, 'errorMaxLines': 18, 'floatingLabelBehavior': 19, 'floatingLabelAlignment': 20, 'isCollapsed': 21, 'isDense': 22, 'contentPadding': 23, 'prefixIcon': 24, 'prefixIconConstraints': 25, 'prefixText': 26, 'prefixStyle': 27, 'prefixIconColor': 28, 'suffixIcon': 29, 'suffixText': 30, 'suffixStyle': 31, 'suffixIconColor': 32, 'suffixIconConstraints': 33, 'counterText': 34, 'counterStyle': 35, 'filled': 36, 'fillColor': 37, 'focusColor': 38, 'hoverColor': 39, 'errorBorder': 40, 'focusedBorder': 41, 'focusedErrorBorder': 42, 'disabledBorder': 43, 'enabledBorder': 44, 'border': 45, 'enabled': 46, 'semanticCounterText': 47, 'alignLabelWithHint': 48, 'constraints': 49, 'visualDensity': 50},
+  ),
+  ValueTypeDescriptor(
+    'LatLng',
+    78,
+    revision: 1,
+    fields: {'lat': 1, 'lng': 2},
+  ),
+  ValueTypeDescriptor(
+    'MapCamera',
+    81,
+    revision: 1,
+    fields: {'center': 1, 'zoom': 2},
+  ),
+  ValueTypeDescriptor(
+    'MapMarker',
+    79,
+    revision: 1,
+    fields: {'id': 1, 'position': 2, 'title': 3, 'icon': 4},
+  ),
+  ValueTypeDescriptor(
+    'MapPolyline',
+    80,
+    revision: 1,
+    fields: {'points': 1, 'color': 2, 'width': 3},
   ),
   ValueTypeDescriptor(
     'MenuItem',
