@@ -189,6 +189,10 @@ var (
 	enumBody      = regexp.MustCompile(`(?s)\benum\s+StructuralAction\s*\{(.*?)(?:;|\})`)
 	lineComment   = regexp.MustCompile(`//[^\n]*`)
 	identifier    = regexp.MustCompile(`[A-Za-z_]\w*`)
+	classDecl     = regexp.MustCompile(`\bclass\s+(\w+)`)
+	intConstDecl  = regexp.MustCompile(`static const int (\w+)\s*=\s*(\d+);`)
+	buildersHead  = regexp.MustCompile(`get builders\s*(?:=>|\{)`)
+	builderKey    = regexp.MustCompile(`(?:^|[{,])\s*(?:([A-Z]\w*)\.(\w+)|(\d+))\s*:`)
 )
 
 var dartReserved = map[string]bool{
@@ -228,11 +232,18 @@ type Builders struct {
 	IDs   map[int]bool
 	Names map[string]bool // type names found as string literals
 	refs  map[string]bool // WidgetIds constant names
+
+	keyIDs  map[int]bool    // integer keys of a `get builders` map literal
+	consts  map[string]int  // "Class.name" of static const int declarations
+	keyRefs map[string]bool // "Class.name" keys of a `get builders` map literal
 }
 
 // NewBuilders returns an empty Builders holding the given generated IDs.
 func NewBuilders(ids map[int]bool) *Builders {
-	return &Builders{IDs: ids, Names: map[string]bool{}, refs: map[string]bool{}}
+	return &Builders{
+		IDs: ids, Names: map[string]bool{}, refs: map[string]bool{},
+		keyIDs: map[int]bool{}, consts: map[string]int{}, keyRefs: map[string]bool{},
+	}
 }
 
 // ScanGeneratedBuilders collects the keys of the generatedBuilders map.
@@ -270,11 +281,62 @@ func (b *Builders) ScanHandWritten(src string) {
 	for _, m := range widgetIDConst.FindAllStringSubmatch(src, -1) {
 		b.refs[m[1]] = true
 	}
+	cls := ""
+	for _, l := range strings.Split(src, "\n") {
+		if m := classDecl.FindStringSubmatch(l); m != nil {
+			cls = m[1]
+		}
+		if m := intConstDecl.FindStringSubmatch(l); m != nil && cls != "" {
+			n, _ := strconv.Atoi(m[2])
+			b.consts[cls+"."+m[1]] = n
+		}
+	}
+	for _, loc := range buildersHead.FindAllStringIndex(src, -1) {
+		open := strings.IndexByte(src[loc[0]:], '{')
+		if open < 0 {
+			continue
+		}
+		for _, m := range builderKey.FindAllStringSubmatch(mapBody(src[loc[0]+open:]), -1) {
+			if m[3] != "" {
+				n, _ := strconv.Atoi(m[3])
+				b.keyIDs[n] = true
+			} else {
+				b.keyRefs[m[1]+"."+m[2]] = true
+			}
+		}
+	}
 }
 
-// Has reports whether a widget is built.
+// mapBody returns the text of the brace-delimited block that starts at s[0].
+func mapBody(s string) string {
+	depth := 0
+	for i, c := range s {
+		switch c {
+		case '{':
+			depth++
+		case '}':
+			depth--
+			if depth == 0 {
+				return s[:i]
+			}
+		}
+	}
+	return s
+}
+
+// Has reports whether a widget is built. Builders registered by optional
+// packages count when their ID is a `get builders` key, either as an integer
+// literal or as a `Class.constant` reference to a static const int.
 func (b *Builders) Has(typeName string, id int) bool {
-	return b.IDs[id] || b.Names[typeName] || b.refs[ConstName(typeName)]
+	if b.IDs[id] || b.keyIDs[id] || b.Names[typeName] || b.refs[ConstName(typeName)] {
+		return true
+	}
+	for ref := range b.keyRefs {
+		if v, ok := b.consts[ref]; ok && v == id {
+			return true
+		}
+	}
+	return false
 }
 
 func handWrittenDart(root string, visit func(src string)) error {

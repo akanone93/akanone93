@@ -86,6 +86,29 @@ func TestBuilderDetection(t *testing.T) {
 	}
 }
 
+// Verifies: QA-073 (builders registered by optional packages).
+func TestBuilderPackageKeys(t *testing.T) {
+	b := NewBuilders(map[int]bool{})
+	b.ScanHandWritten("abstract final class PluxChartIds {\n  static const int lineChart = 193;\n  static const int pieChart = 195;\n  static const int unused = 197;\n}\nabstract final class PluxRiveIds {\n  static const int riveView = 206;\n}\n")
+	b.ScanHandWritten("final class PluxCharts implements PluxWidgetPackage {\n  @override\n  Map<int, NodeBuilder> get builders => {\n    PluxChartIds.lineChart: (c) => _cartesian(c, bars: false, widget: 'LineChart'),\n    PluxChartIds.pieChart: _pie,\n    42: _forty,\n  };\n}\nfinal class PluxRive {\n  Map<int, NodeBuilder> get builders => {PluxRiveIds.riveView: _riveView};\n}\n")
+	for _, tc := range []struct {
+		name string
+		id   int
+		want bool
+	}{
+		{"LineChart", 193, true},
+		{"PieChart", 195, true},
+		{"RiveView", 206, true},
+		{"Forty", 42, true},
+		{"Unused", 197, false},
+		{"Sparkline", 1, false},
+	} {
+		if got := b.Has(tc.name, tc.id); got != tc.want {
+			t.Errorf("Has(%s, %d) = %v, want %v", tc.name, tc.id, got, tc.want)
+		}
+	}
+}
+
 func TestConstName(t *testing.T) {
 	for in, want := range map[string]string{"If": "if_", "Switch": "switch_", "ListView": "listView", "": ""} {
 		if got := ConstName(in); got != want {
