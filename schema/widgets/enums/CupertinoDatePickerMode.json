@@ -1,0 +1,35 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "CupertinoDatePickerMode",
+  "id": 115,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "Mirrors the Flutter enum CupertinoDatePickerMode.",
+  "flutter": {
+    "library": "package:flutter/cupertino.dart",
+    "enum": "CupertinoDatePickerMode"
+  },
+  "values": [
+    {
+      "name": "time",
+      "id": 1
+    },
+    {
+      "name": "date",
+      "id": 2
+    },
+    {
+      "name": "dateAndTime",
+      "id": 3
+    },
+    {
+      "name": "monthYear",
+      "id": 4
+    }
+  ]
+}

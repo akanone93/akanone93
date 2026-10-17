@@ -596,6 +596,7 @@ func (u *unit) buildComponent(c *component) {
 // buildNode builds a node and its subtree, appending it to all in
 // pre-order.
 func (u *unit) buildNode(o owner, doc *schema.Node, parent *node, slot, ptr string, all *[]*node) *node {
+	doc = nativeSlotNode(doc)
 	n := &node{doc: doc, owner: o, ptr: ptr, parent: parent, slot: slot}
 	*all = append(*all, n)
 	file := o.file()
@@ -639,6 +640,29 @@ func (u *unit) buildNode(o owner, doc *schema.Node, parent *node, slot, ptr stri
 		}
 	}
 	return n
+}
+
+// nativeSlotNode rewrites a NativeSlot node whose literal `name` prop names a
+// native slot into the node whose type is that name, so both spellings share
+// one path (ADR-0071). Any other node, and an unknown name, is returned
+// unchanged and reported as before.
+func nativeSlotNode(doc *schema.Node) *schema.Node {
+	if doc.Type != "NativeSlot" {
+		return doc
+	}
+	var name string
+	if json.Unmarshal(doc.Props["name"], &name) != nil || name == "" {
+		return doc
+	}
+	out := *doc
+	out.Type = name
+	out.Props = make(map[string]json.RawMessage, len(doc.Props))
+	for k, v := range doc.Props {
+		if k != "name" {
+			out.Props[k] = v
+		}
+	}
+	return &out
 }
 
 // scanNodeRefs resolves the references in a node's values.

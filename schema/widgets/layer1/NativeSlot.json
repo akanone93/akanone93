@@ -1,0 +1,36 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "NativeSlot",
+  "id": 110,
+  "layer": 1,
+  "phase": "P4",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "structure",
+  "icon": "extension",
+  "description": "Places a host-app native slot, named by the literal `name`, with the props and events that slot declares. Equivalent to a node whose `type` is that name.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 10,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "typeParameters": [],
+  "props": [
+    {
+      "name": "name",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The native slot name from the host catalogue; a literal."
+    }
+  ]
+}

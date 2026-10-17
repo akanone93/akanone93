@@ -8,21 +8,21 @@ How the widget descriptors and value types cover the constructor parameters of t
 
 | | Count |
 |---|---|
-| Flutter classes | 145 |
-| Constructor parameters | 2089 |
-| Supported as props | 1161 |
-| Supported as events | 187 |
-| Supported as slots | 142 |
-| Supported as the children list | 6 |
+| Flutter classes | 150 |
+| Constructor parameters | 2151 |
+| Supported as props | 1198 |
+| Supported as events | 190 |
+| Supported as slots | 146 |
+| Supported as the children list | 7 |
 | Supported as value-type fields | 203 |
 | Excluded: callback→event | 3 |
-| Excluded: controller→state | 64 |
-| Excluded: builder→template | 5 |
-| Excluded: non-serialisable | 167 |
+| Excluded: controller→state | 65 |
+| Excluded: builder→template | 6 |
+| Excluded: non-serialisable | 173 |
 | Excluded: deprecated | 24 |
-| Excluded: deferred | 127 |
-| Mirrored enums | 58 |
-| Enum values | 229 |
+| Excluded: deferred | 136 |
+| Mirrored enums | 59 |
+| Enum values | 233 |
 | Enum values excluded | 0 |
 
 Callbacks are supported as events and builders as slots or item templates. A parameter is excluded as **callback→event** or **builder→template** when an event or template elsewhere covers its purpose, **controller→state** when the runtime owns the controller and binds it to state, **non-serialisable** when the value cannot be expressed as data, **deprecated** when Flutter deprecates it, and **deferred** when it is expressible but planned for a later revision.
@@ -637,6 +637,38 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `onLongPress` | `void Function()?` | event `onLongPress` |  |
 | `onPressed` | `void Function()?` | event `onPressed` |  |
 
+### CupertinoContextMenu · `CupertinoContextMenu`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `actions` | `List<Widget>` | prop `actions` |  |
+| `child` | `Widget` | slot `child` |  |
+| `enableHapticFeedback` | `bool` | prop `enableHapticFeedback` |  |
+
+### CupertinoDatePicker · `CupertinoDatePicker`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `mode` | `CupertinoDatePickerMode` | prop `mode` |  |
+| `onDateTimeChanged` | `void Function(DateTime)` | event `onDateTimeChanged` |  |
+| `initialDateTime` | `DateTime?` | prop `initialDateTime` |  |
+| `minimumDate` | `DateTime?` | prop `minimumDate` |  |
+| `maximumDate` | `DateTime?` | prop `maximumDate` |  |
+| `minimumYear` | `int` | prop `minimumYear` |  |
+| `maximumYear` | `int?` | prop `maximumYear` |  |
+| `minuteInterval` | `int` | prop `minuteInterval` |  |
+| `use24hFormat` | `bool` | prop `use24hFormat` |  |
+| `dateOrder` | `DatePickerDateOrder?` | excluded: deferred | The locale decides the order. |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `showDayOfWeek` | `bool` | prop `showDayOfWeek` |  |
+| `showTimeSeparator` | `bool` | prop `showTimeSeparator` |  |
+| `itemExtent` | `double` | prop `itemExtent` |  |
+| `selectionOverlayBuilder` | `Widget? Function(BuildContext, {required int columnCount, required int selectedIndex})?` | excluded: builder→template | The default overlay is used. |
+| `selectableDayPredicate` | `bool Function(DateTime)?` | excluded: deferred | Predicates are not serialisable; use minimumDate and maximumDate. |
+| `changeReportingBehavior` | `ChangeReportingBehavior` | excluded: deferred | The default reporting is used. |
+
 ### CupertinoListSection · `CupertinoListSection`
 
 | Parameter | Flutter type | Plux | Note |
@@ -671,6 +703,46 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `padding` | `EdgeInsetsGeometry?` | prop `padding` |  |
 | `leadingSize` | `double` | prop `leadingSize` |  |
 | `leadingToTitle` | `double` | prop `leadingToTitle` |  |
+
+### CupertinoNavigationBar · `CupertinoNavigationBar`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `leading` | `Widget?` | slot `leading` |  |
+| `automaticallyImplyLeading` | `bool` | prop `automaticallyImplyLeading` |  |
+| `automaticallyImplyMiddle` | `bool` | prop `automaticallyImplyMiddle` |  |
+| `previousPageTitle` | `String?` | prop `previousPageTitle` |  |
+| `middle` | `Widget?` | slot `middle` |  |
+| `trailing` | `Widget?` | slot `trailing` |  |
+| `border` | `Border?` | excluded: deferred | Flutter draws a private default border; Plux keeps it. |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `automaticBackgroundVisibility` | `bool` | prop `automaticBackgroundVisibility` |  |
+| `enableBackgroundFilterBlur` | `bool` | prop `enableBackgroundFilterBlur` |  |
+| `brightness` | `Brightness?` | prop `brightness` |  |
+| `padding` | `EdgeInsetsDirectional?` | excluded: deferred | EdgeInsetsDirectional is not a Plux value type. |
+| `transitionBetweenRoutes` | `bool` | prop `transitionBetweenRoutes` |  |
+| `heroTag` | `Object` | excluded: non-serialisable | Hero tags come from the node-level hero. |
+| `bottom` | `PreferredSizeWidget?` | excluded: deferred | A second bar row is not part of the catalogue yet. |
+
+### CupertinoPicker · `CupertinoPicker`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `diameterRatio` | `double` | prop `diameterRatio` |  |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `offAxisFraction` | `double` | prop `offAxisFraction` |  |
+| `useMagnifier` | `bool` | prop `useMagnifier` |  |
+| `magnification` | `double` | prop `magnification` |  |
+| `scrollController` | `FixedExtentScrollController?` | excluded: controller→state | The runtime owns the controller; `selectedIndex` is the state. |
+| `squeeze` | `double` | prop `squeeze` |  |
+| `changeReportingBehavior` | `ChangeReportingBehavior` | excluded: deferred | The default reporting is used. |
+| `itemExtent` | `double` | prop `itemExtent` |  |
+| `onSelectedItemChanged` | `void Function(int)?` | event `onSelectedItemChanged` |  |
+| `children` | `List<Widget>` | `children` |  |
+| `selectionOverlay` | `Widget?` | excluded: deferred | The default overlay is used. |
+| `looping` | `bool` | prop `looping` |  |
 
 ### CupertinoSlider · `CupertinoSlider`
 
@@ -731,6 +803,21 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `onFocusChange` | `void Function(bool)?` | event `onFocusChange` |  |
 | `autofocus` | `bool` | prop `autofocus` |  |
 | `dragStartBehavior` | `DragStartBehavior` | prop `dragStartBehavior` |  |
+
+### CupertinoTabBar · `CupertinoTabBar`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `items` | `List<BottomNavigationBarItem>` | prop `items` |  |
+| `onTap` | `void Function(int)?` | event `onTap` |  |
+| `currentIndex` | `int` | prop `currentIndex` |  |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `activeColor` | `Color?` | prop `activeColor` |  |
+| `inactiveColor` | `Color` | prop `inactiveColor` |  |
+| `iconSize` | `double` | prop `iconSize` |  |
+| `height` | `double` | prop `height` |  |
+| `border` | `Border?` | excluded: deferred | Flutter draws a private default border; Plux keeps it. |
 
 ### CupertinoTextField · `CupertinoTextField`
 
@@ -2863,6 +2950,7 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | CrossAxisAlignment | `CrossAxisAlignment` | 5 | — |
 | CrossFadeState | `CrossFadeState` | 2 | — |
 | CupertinoButtonSize | `CupertinoButtonSize` | 3 | — |
+| CupertinoDatePickerMode | `CupertinoDatePickerMode` | 4 | — |
 | DecorationPosition | `DecorationPosition` | 2 | — |
 | DismissDirection | `DismissDirection` | 7 | — |
 | DragStartBehavior | `DragStartBehavior` | 2 | — |

@@ -1,0 +1,66 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "DataScope",
+  "id": 109,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "structure",
+  "icon": "cloud_sync",
+  "description": "Shows one of `loading`, `empty`, `error` or `success` for a data source. Bind `status` to `data.<source>.status` and `empty` to a test of `data.<source>.value`; the subtree reads the source as `data.<source>`.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 10,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "typeParameters": [],
+  "props": [
+    {
+      "name": "status",
+      "id": 1,
+      "type": "ListStatus",
+      "default": "ready",
+      "description": "Loading, error or ready; bind it to `data.<source>.status`."
+    },
+    {
+      "name": "isEmpty",
+      "id": 2,
+      "type": "bool",
+      "default": false,
+      "description": "The source has no content; shows the `empty` slot while ready."
+    }
+  ],
+  "slots": [
+    {
+      "name": "success",
+      "id": 1,
+      "required": true,
+      "description": "Shown when the source is ready and not empty."
+    },
+    {
+      "name": "loading",
+      "id": 2,
+      "description": "Shown while `status` is loading."
+    },
+    {
+      "name": "empty",
+      "id": 3,
+      "description": "Shown when `isEmpty` is true."
+    },
+    {
+      "name": "error",
+      "id": 4,
+      "description": "Shown while `status` is error."
+    }
+  ]
+}

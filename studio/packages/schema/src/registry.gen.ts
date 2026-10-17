@@ -173,7 +173,7 @@ export interface ActionDescriptor {
 }
 
 /** A widget type name. */
-export type WidgetType = "ActionChip" | "Align" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "BackButton" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "Card" | "Carousel" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTextField" | "CustomScrollView" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "Match" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "Positioned" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "Responsive" | "RichText" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Stack" | "StatusTimeline" | "Switch" | "SwitchListTile" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "Transform" | "VerticalDivider" | "WizardForm" | "Wrap";
+export type WidgetType = "ActionChip" | "Align" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "BackButton" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "Card" | "Carousel" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoContextMenu" | "CupertinoDatePicker" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoNavigationBar" | "CupertinoPicker" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTabBar" | "CupertinoTextField" | "CustomScrollView" | "DataScope" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "Match" | "NativeSlot" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "Positioned" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "Responsive" | "RichText" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Stack" | "StatusTimeline" | "Switch" | "SwitchListTile" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "Transform" | "VerticalDivider" | "WizardForm" | "Wrap";
 
 /** An action name. */
 export type ActionName = "announce" | "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "readConfig" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
@@ -1373,6 +1373,64 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "CupertinoContextMenu",
+    "id": 158,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "cupertino",
+    "icon": "touch_app",
+    "description": "Shows `actions` when `child` is long-pressed; choosing one fires `onAction` with its index.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "menu", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "actions", "id": 1, "type": "list<ContextMenuAction>", "required": true, "revision": 1, "bindable": true, "description": "The actions, in order."},
+      {"name": "enableHapticFeedback", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onAction", "id": 1, "payload": "int", "revision": 1, "description": "Fired with the index of the chosen action."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "CupertinoDatePicker",
+    "id": 157,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "cupertino",
+    "icon": "calendar_month",
+    "description": "An iOS-style date and time wheel; `onDateTimeChanged` carries the chosen dateTime in the offset of `initialDateTime`.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "mode", "id": 1, "type": "CupertinoDatePickerMode", "required": false, "default": "dateAndTime", "revision": 1, "bindable": true},
+      {"name": "initialDateTime", "id": 2, "type": "dateTime", "required": false, "revision": 1, "bindable": true},
+      {"name": "minimumDate", "id": 3, "type": "dateTime", "required": false, "revision": 1, "bindable": true},
+      {"name": "maximumDate", "id": 4, "type": "dateTime", "required": false, "revision": 1, "bindable": true},
+      {"name": "minimumYear", "id": 5, "type": "int", "required": false, "default": 1, "revision": 1, "bindable": true},
+      {"name": "maximumYear", "id": 6, "type": "int", "required": false, "revision": 1, "bindable": true},
+      {"name": "minuteInterval", "id": 7, "type": "int", "required": false, "default": 1, "revision": 1, "bindable": true},
+      {"name": "use24hFormat", "id": 8, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 9, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "showDayOfWeek", "id": 10, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "showTimeSeparator", "id": 11, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "itemExtent", "id": 12, "type": "double", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onDateTimeChanged", "id": 1, "payload": "dateTime", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
     "type": "CupertinoListSection",
     "id": 97,
     "layer": 1,
@@ -1435,6 +1493,68 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "leading", "id": 4, "list": false, "required": false, "template": false, "revision": 1},
       {"name": "trailing", "id": 5, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "CupertinoNavigationBar",
+    "id": 154,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "cupertino",
+    "icon": "web_asset",
+    "description": "An iOS-style navigation bar with `leading`, `middle` and `trailing` slots.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "automaticallyImplyLeading", "id": 1, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "automaticallyImplyMiddle", "id": 2, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "previousPageTitle", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "automaticBackgroundVisibility", "id": 5, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "enableBackgroundFilterBlur", "id": 6, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "brightness", "id": 7, "type": "Brightness", "required": false, "revision": 1, "bindable": true},
+      {"name": "transitionBetweenRoutes", "id": 8, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "leading", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "middle", "id": 2, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "trailing", "id": 3, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "CupertinoPicker",
+    "id": 156,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "cupertino",
+    "icon": "view_agenda",
+    "description": "An iOS-style scrolling wheel over its children; `selectedIndex` is bound to state and `onSelectedItemChanged` reports the wheel.",
+    "platforms": ["android", "ios"],
+    "cost": 50,
+    "accessibility": {"role": "list", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "itemExtent", "id": 1, "type": "double", "required": true, "revision": 1, "bindable": true, "description": "The height of each child."},
+      {"name": "selectedIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true, "description": "The selected child; the wheel follows it when it changes."},
+      {"name": "diameterRatio", "id": 3, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "offAxisFraction", "id": 5, "type": "double", "required": false, "default": 0.0, "revision": 1, "bindable": true},
+      {"name": "useMagnifier", "id": 6, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "magnification", "id": 7, "type": "double", "required": false, "default": 1.0, "revision": 1, "bindable": true},
+      {"name": "squeeze", "id": 8, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "looping", "id": 9, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onSelectedItemChanged", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": [],
+    "children": {}
   },
   {
     "type": "CupertinoSlider",
@@ -1532,6 +1652,34 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "onActiveThumbImageError", "id": 2, "revision": 1},
       {"name": "onInactiveThumbImageError", "id": 3, "revision": 1},
       {"name": "onFocusChange", "id": 4, "payload": "bool", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
+    "type": "CupertinoTabBar",
+    "id": 155,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "cupertino",
+    "icon": "tab",
+    "description": "An iOS-style tab bar; bind `currentIndex` to a state key and `onTap` to the action that changes it.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "tab", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "items", "id": 1, "type": "list<TabBarItem>", "required": true, "revision": 1, "bindable": true, "description": "The tabs, at least two."},
+      {"name": "currentIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true, "description": "The selected tab."},
+      {"name": "backgroundColor", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "activeColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "inactiveColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "iconSize", "id": 6, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "height", "id": 7, "type": "double", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onTap", "id": 1, "payload": "int", "revision": 1}
     ],
     "slots": []
   },
@@ -1645,6 +1793,32 @@ export const widgets: readonly WidgetDescriptor[] = [
     "events": [],
     "slots": [
       {"name": "slivers", "id": 1, "list": true, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "DataScope",
+    "id": 109,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "structure",
+    "icon": "cloud_sync",
+    "description": "Shows one of `loading`, `empty`, `error` or `success` for a data source. Bind `status` to `data.<source>.status` and `empty` to a test of `data.<source>.value`; the subtree reads the source as `data.<source>`.",
+    "platforms": ["android", "ios"],
+    "cost": 10,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "status", "id": 1, "type": "ListStatus", "required": false, "default": "ready", "revision": 1, "bindable": true, "description": "Loading, error or ready; bind it to `data.<source>.status`."},
+      {"name": "isEmpty", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "The source has no content; shows the `empty` slot while ready."}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "success", "id": 1, "list": false, "required": true, "template": false, "revision": 1, "description": "Shown when the source is ready and not empty."},
+      {"name": "loading", "id": 2, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is loading."},
+      {"name": "empty", "id": 3, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown when `isEmpty` is true."},
+      {"name": "error", "id": 4, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is error."}
     ]
   },
   {
@@ -3072,6 +3246,26 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "branches", "id": 1, "list": true, "required": true, "template": false, "revision": 1, "description": "One subtree per case, in the order of `cases`."},
       {"name": "otherwise", "id": 2, "list": false, "required": false, "template": false, "revision": 1, "description": "Rendered when no case matches."}
     ]
+  },
+  {
+    "type": "NativeSlot",
+    "id": 110,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "structure",
+    "icon": "extension",
+    "description": "Places a host-app native slot, named by the literal `name`, with the props and events that slot declares. Equivalent to a node whose `type` is that name.",
+    "platforms": ["android", "ios"],
+    "cost": 10,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "name", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The native slot name from the host catalogue; a literal."}
+    ],
+    "events": [],
+    "slots": []
   },
   {
     "type": "OfflineBanner",
@@ -5088,6 +5282,19 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "constants": []
   },
   {
+    "name": "ContextMenuAction",
+    "id": 58,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One action of a CupertinoContextMenu.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1},
+      {"name": "icon", "id": 2, "type": "IconData", "required": false, "revision": 1, "description": "Icon after the label."},
+      {"name": "destructive", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "description": "Drawn in the destructive colour."}
+    ],
+    "constants": []
+  },
+  {
     "name": "DropdownMenuEntry",
     "id": 10,
     "revision": 1,
@@ -5444,6 +5651,18 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "fields": [
       {"name": "width", "id": 1, "type": "double", "required": false, "revision": 1},
       {"name": "height", "id": 2, "type": "double", "required": false, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
+    "name": "TabBarItem",
+    "id": 57,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One item of a CupertinoTabBar.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1},
+      {"name": "icon", "id": 2, "type": "IconData", "required": true, "revision": 1, "description": "Icon of the item."}
     ],
     "constants": []
   },
@@ -5895,6 +6114,19 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "small", "id": 1, "revision": 1},
       {"name": "medium", "id": 2, "revision": 1},
       {"name": "large", "id": 3, "revision": 1}
+    ]
+  },
+  {
+    "name": "CupertinoDatePickerMode",
+    "id": 115,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum CupertinoDatePickerMode.",
+    "values": [
+      {"name": "time", "id": 1, "revision": 1},
+      {"name": "date", "id": 2, "revision": 1},
+      {"name": "dateAndTime", "id": 3, "revision": 1},
+      {"name": "monthYear", "id": 4, "revision": 1}
     ]
   },
   {

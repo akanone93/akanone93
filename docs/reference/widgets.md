@@ -48,13 +48,19 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [CountdownTimer](#countdowntimer) | 2 | commerce | P5 | The time left until `endsAt`, updated once a second. |
 | [CupertinoActivityIndicator](#cupertinoactivityindicator) | 1 | cupertino | P3 | An iOS-style activity indicator. |
 | [CupertinoButton](#cupertinobutton) | 1 | cupertino | P3 | An iOS-style button. |
+| [CupertinoContextMenu](#cupertinocontextmenu) | 1 | cupertino | P5 | Shows `actions` when `child` is long-pressed; choosing one fires `onAction` with its index. |
+| [CupertinoDatePicker](#cupertinodatepicker) | 1 | cupertino | P5 | An iOS-style date and time wheel; `onDateTimeChanged` carries the chosen dateTime in the offset of `initialDateTime`. |
 | [CupertinoListSection](#cupertinolistsection) | 1 | cupertino | P3 | An iOS-style list section with an optional header and footer. |
 | [CupertinoListTile](#cupertinolisttile) | 1 | cupertino | P3 | An iOS-style list row. |
+| [CupertinoNavigationBar](#cupertinonavigationbar) | 1 | cupertino | P4 | An iOS-style navigation bar with `leading`, `middle` and `trailing` slots. |
+| [CupertinoPicker](#cupertinopicker) | 1 | cupertino | P5 | An iOS-style scrolling wheel over its children; `selectedIndex` is bound to state and `onSelectedItemChanged` reports the wheel. |
 | [CupertinoSlider](#cupertinoslider) | 1 | cupertino | P3 | An iOS-style slider. |
 | [CupertinoSlidingSegmentedControl](#cupertinoslidingsegmentedcontrol) | 1 | cupertino | P3 | An iOS-style sliding segmented control; `values[i]` identifies segment `children[i]`. |
 | [CupertinoSwitch](#cupertinoswitch) | 1 | cupertino | P3 | An iOS-style switch. |
+| [CupertinoTabBar](#cupertinotabbar) | 1 | cupertino | P4 | An iOS-style tab bar; bind `currentIndex` to a state key and `onTap` to the action that changes it. |
 | [CupertinoTextField](#cupertinotextfield) | 1 | cupertino | P3 | An iOS-style text input whose text is bound to `value`. |
 | [CustomScrollView](#customscrollview) | 1 | scrolling | P3 | A scroll view composed of slivers. |
+| [DataScope](#datascope) | 1 | structure | P5 | Shows one of `loading`, `empty`, `error` or `success` for a data source. Bind `status` to `data.<source>.status` and `empty` to a test of `data.<source>.value`; the subtree reads the source as `data.<source>`. |
 | [DecoratedBox](#decoratedbox) | 1 | layout | P3 | Paints a decoration behind or in front of its child. |
 | [Dismissible](#dismissible) | 1 | interaction | P5 | Dismisses its child with a swipe and fires `onDismissed` with the direction. |
 | [Divider](#divider) | 1 | display | P3 | A thin horizontal line with padding on either side. |
@@ -98,6 +104,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [ListView](#listview) | 1 | scrolling | P3 | A lazily built, scrollable list of `item` templates over `items`, with empty, loading and error states (WGT-012). |
 | [LiveEtaCard](#liveetacard) | 2 | feedback | P5 | A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced. |
 | [Match](#match) | 1 | structure | P3 | Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`. |
+| [NativeSlot](#nativeslot) | 1 | structure | P4 | Places a host-app native slot, named by the literal `name`, with the props and events that slot declares. Equivalent to a node whose `type` is that name. |
 | [OfflineBanner](#offlinebanner) | 2 | feedback | P3 | A banner shown while the device is offline. |
 | [OnboardingPager](#onboardingpager) | 2 | navigation | P5 | Swipeable onboarding pages with page indicators and a Done button on the last page. |
 | [Opacity](#opacity) | 1 | layout | P3 | Makes its child partially transparent. |
@@ -1058,6 +1065,50 @@ ID 91 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `CupertinoButton
 |---|---|---|---|
 | `child` | 1 | one node, required |  |
 
+### CupertinoContextMenu
+
+Shows `actions` when `child` is long-pressed; choosing one fires `onAction` with its index.
+
+ID 158 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `CupertinoContextMenu` · android, ios · cost 40 µs · role menu · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `actions` | 1 | `list<ContextMenuAction>`, required | — | The actions, in order. |
+| `enableHapticFeedback` | 2 | `bool` | `false` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onAction` | 1 | `int` | Fired with the index of the chosen action. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+
+### CupertinoDatePicker
+
+An iOS-style date and time wheel; `onDateTimeChanged` carries the chosen dateTime in the offset of `initialDateTime`.
+
+ID 157 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `CupertinoDatePicker` · android, ios · cost 60 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `mode` | 1 | `CupertinoDatePickerMode` | `"dateAndTime"` |  |
+| `initialDateTime` | 2 | `dateTime` | — |  |
+| `minimumDate` | 3 | `dateTime` | — |  |
+| `maximumDate` | 4 | `dateTime` | — |  |
+| `minimumYear` | 5 | `int` | `1` |  |
+| `maximumYear` | 6 | `int` | — |  |
+| `minuteInterval` | 7 | `int` | `1` |  |
+| `use24hFormat` | 8 | `bool` | `false` |  |
+| `backgroundColor` | 9 | `color` | — |  |
+| `showDayOfWeek` | 10 | `bool` | `false` |  |
+| `showTimeSeparator` | 11 | `bool` | `false` |  |
+| `itemExtent` | 12 | `double` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDateTimeChanged` | 1 | `dateTime` |  |
+
 ### CupertinoListSection
 
 An iOS-style list section with an optional header and footer.
@@ -1107,6 +1158,53 @@ ID 98 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `CupertinoListTi
 | `additionalInfo` | 3 | one node |  |
 | `leading` | 4 | one node |  |
 | `trailing` | 5 | one node |  |
+
+### CupertinoNavigationBar
+
+An iOS-style navigation bar with `leading`, `middle` and `trailing` slots.
+
+ID 154 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `CupertinoNavigationBar` · android, ios · cost 40 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `automaticallyImplyLeading` | 1 | `bool` | `true` |  |
+| `automaticallyImplyMiddle` | 2 | `bool` | `true` |  |
+| `previousPageTitle` | 3 | `string` | — |  |
+| `backgroundColor` | 4 | `color` | — |  |
+| `automaticBackgroundVisibility` | 5 | `bool` | `true` |  |
+| `enableBackgroundFilterBlur` | 6 | `bool` | `true` |  |
+| `brightness` | 7 | `Brightness` | — |  |
+| `transitionBetweenRoutes` | 8 | `bool` | `true` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `leading` | 1 | one node |  |
+| `middle` | 2 | one node |  |
+| `trailing` | 3 | one node |  |
+
+### CupertinoPicker
+
+An iOS-style scrolling wheel over its children; `selectedIndex` is bound to state and `onSelectedItemChanged` reports the wheel.
+
+ID 156 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `CupertinoPicker` · android, ios · cost 50 µs · role list · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `itemExtent` | 1 | `double`, required | — | The height of each child. |
+| `selectedIndex` | 2 | `int` | `0` | The selected child; the wheel follows it when it changes. |
+| `diameterRatio` | 3 | `double` | — |  |
+| `backgroundColor` | 4 | `color` | — |  |
+| `offAxisFraction` | 5 | `double` | `0.0` |  |
+| `useMagnifier` | 6 | `bool` | `false` |  |
+| `magnification` | 7 | `double` | `1.0` |  |
+| `squeeze` | 8 | `double` | — |  |
+| `looping` | 9 | `bool` | `false` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelectedItemChanged` | 1 | `int` |  |
+
+Takes a list of `children`.
 
 ### CupertinoSlider
 
@@ -1184,6 +1282,26 @@ ID 92 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `CupertinoSwitch
 | `onActiveThumbImageError` | 2 | — |  |
 | `onInactiveThumbImageError` | 3 | — |  |
 | `onFocusChange` | 4 | `bool` |  |
+
+### CupertinoTabBar
+
+An iOS-style tab bar; bind `currentIndex` to a state key and `onTap` to the action that changes it.
+
+ID 155 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `CupertinoTabBar` · android, ios · cost 40 µs · role tab · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `items` | 1 | `list<TabBarItem>`, required | — | The tabs, at least two. |
+| `currentIndex` | 2 | `int` | `0` | The selected tab. |
+| `backgroundColor` | 3 | `color` | — |  |
+| `activeColor` | 4 | `color` | — |  |
+| `inactiveColor` | 5 | `color` | — |  |
+| `iconSize` | 6 | `double` | — |  |
+| `height` | 7 | `double` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onTap` | 1 | `int` |  |
 
 ### CupertinoTextField
 
@@ -1282,6 +1400,24 @@ ID 35 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `CustomScrollVie
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `slivers` | 1 | a list of nodes |  |
+
+### DataScope
+
+Shows one of `loading`, `empty`, `error` or `success` for a data source. Bind `status` to `data.<source>.status` and `empty` to a test of `data.<source>.value`; the subtree reads the source as `data.<source>`.
+
+ID 109 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 10 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `status` | 1 | `ListStatus` | `"ready"` | Loading, error or ready; bind it to `data.<source>.status`. |
+| `isEmpty` | 2 | `bool` | `false` | The source has no content; shows the `empty` slot while ready. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `success` | 1 | one node, required | Shown when the source is ready and not empty. |
+| `loading` | 2 | one node | Shown while `status` is loading. |
+| `empty` | 3 | one node | Shown when `isEmpty` is true. |
+| `error` | 4 | one node | Shown while `status` is error. |
 
 ### DecoratedBox
 
@@ -2392,6 +2528,16 @@ ID 2 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · android, ios · cost 3 µ
 |---|---|---|---|
 | `branches` | 1 | a list of nodes, required | One subtree per case, in the order of `cases`. |
 | `otherwise` | 2 | one node | Rendered when no case matches. |
+
+### NativeSlot
+
+Places a host-app native slot, named by the literal `name`, with the props and events that slot declares. Equivalent to a node whose `type` is that name.
+
+ID 110 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · android, ios · cost 10 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `name` | 1 | `string`, required | — | The native slot name from the host catalogue; a literal. |
 
 ### OfflineBanner
 
@@ -3911,6 +4057,18 @@ ID 62 · revision 1
 | `label` | 2 | `string`, required | — | The text shown. |
 | `selected` | 3 | `bool` | `false` | Whether the choice is on. |
 
+### ContextMenuAction
+
+One action of a CupertinoContextMenu.
+
+ID 58 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — |  |
+| `icon` | 2 | `IconData` | — | Icon after the label. |
+| `destructive` | 3 | `bool` | `false` | Drawn in the destructive colour. |
+
 ### DropdownMenuEntry
 
 One entry of a DropdownMenu.
@@ -4247,6 +4405,17 @@ ID 24 · revision 1 · Flutter `Size`
 |---|---|---|---|---|
 | `width` | 1 | `double` | — |  |
 | `height` | 2 | `double` | — |  |
+
+### TabBarItem
+
+One item of a CupertinoTabBar.
+
+ID 57 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — |  |
+| `icon` | 2 | `IconData`, required | — | Icon of the item. |
 
 ### TextSpan
 
@@ -4685,6 +4854,19 @@ ID 13 · revision 1 · Flutter `CupertinoButtonSize`
 | `small` | 1 |  |
 | `medium` | 2 |  |
 | `large` | 3 |  |
+
+### CupertinoDatePickerMode
+
+Mirrors the Flutter enum CupertinoDatePickerMode.
+
+ID 115 · revision 1 · Flutter `CupertinoDatePickerMode`
+
+| Value | ID | Description |
+|---|---|---|
+| `time` | 1 |  |
+| `date` | 2 |  |
+| `dateAndTime` | 3 |  |
+| `monthYear` | 4 |  |
 
 ### Curve
 

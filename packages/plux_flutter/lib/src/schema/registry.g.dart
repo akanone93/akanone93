@@ -431,6 +431,23 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'child': 1},
   ),
   WidgetDescriptor(
+    'CupertinoContextMenu',
+    158,
+    layer: 1,
+    revision: 1,
+    props: {'actions': 1, 'enableHapticFeedback': 2},
+    events: {'onAction': 1},
+    slots: {'child': 1},
+  ),
+  WidgetDescriptor(
+    'CupertinoDatePicker',
+    157,
+    layer: 1,
+    revision: 1,
+    props: {'mode': 1, 'initialDateTime': 2, 'minimumDate': 3, 'maximumDate': 4, 'minimumYear': 5, 'maximumYear': 6, 'minuteInterval': 7, 'use24hFormat': 8, 'backgroundColor': 9, 'showDayOfWeek': 10, 'showTimeSeparator': 11, 'itemExtent': 12},
+    events: {'onDateTimeChanged': 1},
+  ),
+  WidgetDescriptor(
     'CupertinoListSection',
     97,
     layer: 1,
@@ -446,6 +463,22 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'backgroundColor': 1, 'backgroundColorActivated': 2, 'padding': 3, 'leadingSize': 4, 'leadingToTitle': 5},
     events: {'onTap': 1},
     slots: {'title': 1, 'subtitle': 2, 'additionalInfo': 3, 'leading': 4, 'trailing': 5},
+  ),
+  WidgetDescriptor(
+    'CupertinoNavigationBar',
+    154,
+    layer: 1,
+    revision: 1,
+    props: {'automaticallyImplyLeading': 1, 'automaticallyImplyMiddle': 2, 'previousPageTitle': 3, 'backgroundColor': 4, 'automaticBackgroundVisibility': 5, 'enableBackgroundFilterBlur': 6, 'brightness': 7, 'transitionBetweenRoutes': 8},
+    slots: {'leading': 1, 'middle': 2, 'trailing': 3},
+  ),
+  WidgetDescriptor(
+    'CupertinoPicker',
+    156,
+    layer: 1,
+    revision: 1,
+    props: {'itemExtent': 1, 'selectedIndex': 2, 'diameterRatio': 3, 'backgroundColor': 4, 'offAxisFraction': 5, 'useMagnifier': 6, 'magnification': 7, 'squeeze': 8, 'looping': 9},
+    events: {'onSelectedItemChanged': 1},
   ),
   WidgetDescriptor(
     'CupertinoSlider',
@@ -473,6 +506,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     events: {'onChanged': 1, 'onActiveThumbImageError': 2, 'onInactiveThumbImageError': 3, 'onFocusChange': 4},
   ),
   WidgetDescriptor(
+    'CupertinoTabBar',
+    155,
+    layer: 1,
+    revision: 1,
+    props: {'items': 1, 'currentIndex': 2, 'backgroundColor': 3, 'activeColor': 4, 'inactiveColor': 5, 'iconSize': 6, 'height': 7},
+    events: {'onTap': 1},
+  ),
+  WidgetDescriptor(
     'CupertinoTextField',
     96,
     layer: 1,
@@ -488,6 +529,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'scrollDirection': 1, 'reverse': 2, 'primary': 3, 'physics': 4, 'shrinkWrap': 5, 'anchor': 6, 'paintOrder': 7, 'semanticChildCount': 8, 'dragStartBehavior': 9, 'keyboardDismissBehavior': 10, 'clipBehavior': 11, 'hitTestBehavior': 12},
     slots: {'slivers': 1},
+  ),
+  WidgetDescriptor(
+    'DataScope',
+    109,
+    layer: 1,
+    revision: 1,
+    props: {'status': 1, 'isEmpty': 2},
+    slots: {'success': 1, 'loading': 2, 'empty': 3, 'error': 4},
   ),
   WidgetDescriptor(
     'DecoratedBox',
@@ -845,6 +894,13 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'value': 1, 'cases': 2},
     slots: {'branches': 1, 'otherwise': 2},
+  ),
+  WidgetDescriptor(
+    'NativeSlot',
+    110,
+    layer: 1,
+    revision: 1,
+    props: {'name': 1},
   ),
   WidgetDescriptor(
     'OfflineBanner',
@@ -1380,6 +1436,12 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     fields: {'id': 1, 'label': 2, 'selected': 3},
   ),
   ValueTypeDescriptor(
+    'ContextMenuAction',
+    58,
+    revision: 1,
+    fields: {'label': 1, 'icon': 2, 'destructive': 3},
+  ),
+  ValueTypeDescriptor(
     'DropdownMenuEntry',
     10,
     revision: 1,
@@ -1510,6 +1572,12 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     24,
     revision: 1,
     fields: {'width': 1, 'height': 2},
+  ),
+  ValueTypeDescriptor(
+    'TabBarItem',
+    57,
+    revision: 1,
+    fields: {'label': 1, 'icon': 2},
   ),
   ValueTypeDescriptor(
     'TextSpan',
@@ -1682,6 +1750,12 @@ const List<EnumDescriptor> enumDescriptors = [
     13,
     revision: 1,
     values: {'small': 1, 'medium': 2, 'large': 3},
+  ),
+  EnumDescriptor(
+    'CupertinoDatePickerMode',
+    115,
+    revision: 1,
+    values: {'time': 1, 'date': 2, 'dateAndTime': 3, 'monthYear': 4},
   ),
   EnumDescriptor(
     'Curve',

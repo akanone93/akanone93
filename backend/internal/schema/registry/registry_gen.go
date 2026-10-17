@@ -773,6 +773,43 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "CupertinoContextMenu", ID: 158, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "cupertino", Icon: "touch_app", Description: "Shows `actions` when `child` is long-pressed; choosing one fires `onAction` with its index.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleMenu, Interactive: true,
+		Props: []Prop{
+			{Name: "actions", ID: 1, Type: "list<ContextMenuAction>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The actions, in order."},
+			{Name: "enableHapticFeedback", ID: 2, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onAction", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fired with the index of the chosen action."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "CupertinoDatePicker", ID: 157, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "cupertino", Icon: "calendar_month", Description: "An iOS-style date and time wheel; `onDateTimeChanged` carries the chosen dateTime in the offset of `initialDateTime`.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleGroup, Interactive: true,
+		Props: []Prop{
+			{Name: "mode", ID: 1, Type: "CupertinoDatePickerMode", Required: false, Default: "\"dateAndTime\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "initialDateTime", ID: 2, Type: "dateTime", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "minimumDate", ID: 3, Type: "dateTime", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "maximumDate", ID: 4, Type: "dateTime", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "minimumYear", ID: 5, Type: "int", Required: false, Default: "1", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "maximumYear", ID: 6, Type: "int", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "minuteInterval", ID: 7, Type: "int", Required: false, Default: "1", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "use24hFormat", ID: 8, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "backgroundColor", ID: 9, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "showDayOfWeek", ID: 10, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "showTimeSeparator", ID: 11, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "itemExtent", ID: 12, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onDateTimeChanged", ID: 1, Payload: "dateTime", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
 		Type: "CupertinoListSection", ID: 97, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "cupertino", Icon: "view_list", Description: "An iOS-style list section with an optional header and footer.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 30, Role: RoleNone, Interactive: false,
@@ -814,6 +851,46 @@ var widgets = [...]Widget{
 			{Name: "leading", ID: 4, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "trailing", ID: 5, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
+	},
+	{
+		Type: "CupertinoNavigationBar", ID: 154, Layer: 1, Phase: "P4", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "cupertino", Icon: "web_asset", Description: "An iOS-style navigation bar with `leading`, `middle` and `trailing` slots.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "automaticallyImplyLeading", ID: 1, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "automaticallyImplyMiddle", ID: 2, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "previousPageTitle", ID: 3, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "backgroundColor", ID: 4, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "automaticBackgroundVisibility", ID: 5, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "enableBackgroundFilterBlur", ID: 6, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "brightness", ID: 7, Type: "Brightness", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "transitionBetweenRoutes", ID: 8, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "leading", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "middle", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "trailing", ID: 3, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "CupertinoPicker", ID: 156, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "cupertino", Icon: "view_agenda", Description: "An iOS-style scrolling wheel over its children; `selectedIndex` is bound to state and `onSelectedItemChanged` reports the wheel.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 50, Role: RoleList, Interactive: true,
+		Props: []Prop{
+			{Name: "itemExtent", ID: 1, Type: "double", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The height of each child."},
+			{Name: "selectedIndex", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The selected child; the wheel follows it when it changes."},
+			{Name: "diameterRatio", ID: 3, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "backgroundColor", ID: 4, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "offAxisFraction", ID: 5, Type: "double", Required: false, Default: "0.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "useMagnifier", ID: 6, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "magnification", ID: 7, Type: "double", Required: false, Default: "1.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "squeeze", ID: 8, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "looping", ID: 9, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onSelectedItemChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+		},
+		Children: &Children{Min: 0, Max: 0},
 	},
 	{
 		Type: "CupertinoSlider", ID: 93, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
@@ -880,6 +957,23 @@ var widgets = [...]Widget{
 			{Name: "onActiveThumbImageError", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "onInactiveThumbImageError", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "onFocusChange", ID: 4, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "CupertinoTabBar", ID: 155, Layer: 1, Phase: "P4", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "cupertino", Icon: "tab", Description: "An iOS-style tab bar; bind `currentIndex` to a state key and `onTap` to the action that changes it.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleTab, Interactive: true,
+		Props: []Prop{
+			{Name: "items", ID: 1, Type: "list<TabBarItem>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The tabs, at least two."},
+			{Name: "currentIndex", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The selected tab."},
+			{Name: "backgroundColor", ID: 3, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "activeColor", ID: 4, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "inactiveColor", ID: 5, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "iconSize", ID: 6, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "height", ID: 7, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onTap", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -971,6 +1065,21 @@ var widgets = [...]Widget{
 		},
 		Slots: []Slot{
 			{Name: "slivers", ID: 1, List: true, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "DataScope", ID: 109, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "structure", Icon: "cloud_sync", Description: "Shows one of `loading`, `empty`, `error` or `success` for a data source. Bind `status` to `data.<source>.status` and `empty` to a test of `data.<source>.value`; the subtree reads the source as `data.<source>`.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 10, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "status", ID: 1, Type: "ListStatus", Required: false, Default: "\"ready\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Loading, error or ready; bind it to `data.<source>.status`."},
+			{Name: "isEmpty", ID: 2, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The source has no content; shows the `empty` slot while ready."},
+		},
+		Slots: []Slot{
+			{Name: "success", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: "Shown when the source is ready and not empty."},
+			{Name: "loading", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown while `status` is loading."},
+			{Name: "empty", ID: 3, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown when `isEmpty` is true."},
+			{Name: "error", ID: 4, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown while `status` is error."},
 		},
 	},
 	{
@@ -1943,6 +2052,14 @@ var widgets = [...]Widget{
 		Slots: []Slot{
 			{Name: "branches", ID: 1, List: true, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: "One subtree per case, in the order of `cases`."},
 			{Name: "otherwise", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Rendered when no case matches."},
+		},
+	},
+	{
+		Type: "NativeSlot", ID: 110, Layer: 1, Phase: "P4", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "structure", Icon: "extension", Description: "Places a host-app native slot, named by the literal `name`, with the props and events that slot declares. Equivalent to a node whose `type` is that name.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 10, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "name", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The native slot name from the host catalogue; a literal."},
 		},
 	},
 	{
@@ -3263,6 +3380,14 @@ var valueTypes = [...]ValueType{
 		},
 	},
 	{
+		Name: "ContextMenuAction", ID: 58, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "One action of a CupertinoContextMenu.",
+		Fields: []Field{
+			{Name: "label", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "icon", ID: 2, Type: "IconData", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "Icon after the label."},
+			{Name: "destructive", ID: 3, Type: "bool", Required: false, Default: "false", Revision: 1, Deprecated: nil, Description: "Drawn in the destructive colour."},
+		},
+	},
+	{
 		Name: "DropdownMenuEntry", ID: 10, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "One entry of a DropdownMenu.",
 		Fields: []Field{
 			{Name: "value", ID: 1, Type: "string", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
@@ -3513,6 +3638,13 @@ var valueTypes = [...]ValueType{
 		Fields: []Field{
 			{Name: "width", ID: 1, Type: "double", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "height", ID: 2, Type: "double", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Name: "TabBarItem", ID: 57, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "One item of a CupertinoTabBar.",
+		Fields: []Field{
+			{Name: "label", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "icon", ID: 2, Type: "IconData", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "Icon of the item."},
 		},
 	},
 	{
@@ -3788,6 +3920,12 @@ var enums = [...]Enum{
 		{Name: "small", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "medium", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "large", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "CupertinoDatePickerMode", ID: 115, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum CupertinoDatePickerMode.", Values: []EnumValue{
+		{Name: "time", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "date", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "dateAndTime", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "monthYear", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
 	}},
 	{Name: "Curve", ID: 108, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "An animation curve by name; the same curves as the node-level animation (ANI-001, ANI-002).", Values: []EnumValue{
 		{Name: "linear", ID: 1, Revision: 1, Deprecated: nil, Description: ""},

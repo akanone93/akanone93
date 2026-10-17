@@ -354,6 +354,24 @@ CupertinoButtonSize? decodeCupertinoButtonSize(Decoding d, Object? v) => switch 
   _ => null,
 };
 
+/// The member name of a CupertinoDatePickerMode, from its permanent value ID or name.
+String? nameCupertinoDatePickerMode(Decoding d, Object? v) => switch (v) {
+  1 || 'time' => 'time',
+  2 || 'date' => 'date',
+  3 || 'dateAndTime' => 'dateAndTime',
+  4 || 'monthYear' => 'monthYear',
+  _ => null,
+};
+
+/// Decodes a CupertinoDatePickerMode.
+CupertinoDatePickerMode? decodeCupertinoDatePickerMode(Decoding d, Object? v) => switch (v) {
+  1 || 'time' => CupertinoDatePickerMode.time,
+  2 || 'date' => CupertinoDatePickerMode.date,
+  3 || 'dateAndTime' => CupertinoDatePickerMode.dateAndTime,
+  4 || 'monthYear' => CupertinoDatePickerMode.monthYear,
+  _ => null,
+};
+
 /// The member name of a Curve, from its permanent value ID or name.
 String? nameCurve(Decoding d, Object? v) => switch (v) {
   1 || 'linear' => 'linear',
