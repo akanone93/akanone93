@@ -1,4 +1,7 @@
 {
+  "a11yWaivers": {
+    "imageAlternative": "Fixture page that exercises this on purpose."
+  },
   "id": "01c0c450-6c00-7000-8000-000000000181",
   "key": "material",
   "kind": "page",

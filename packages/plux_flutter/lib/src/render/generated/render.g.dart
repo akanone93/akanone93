@@ -332,6 +332,24 @@ CupertinoButtonSize? decodeCupertinoButtonSize(Decoding d, Object? v) => switch 
   _ => null,
 };
 
+/// The member name of a CupertinoDatePickerMode, from its permanent value ID or name.
+String? nameCupertinoDatePickerMode(Decoding d, Object? v) => switch (v) {
+  1 || 'time' => 'time',
+  2 || 'date' => 'date',
+  3 || 'dateAndTime' => 'dateAndTime',
+  4 || 'monthYear' => 'monthYear',
+  _ => null,
+};
+
+/// Decodes a CupertinoDatePickerMode.
+CupertinoDatePickerMode? decodeCupertinoDatePickerMode(Decoding d, Object? v) => switch (v) {
+  1 || 'time' => CupertinoDatePickerMode.time,
+  2 || 'date' => CupertinoDatePickerMode.date,
+  3 || 'dateAndTime' => CupertinoDatePickerMode.dateAndTime,
+  4 || 'monthYear' => CupertinoDatePickerMode.monthYear,
+  _ => null,
+};
+
 /// The member name of a DecorationPosition, from its permanent value ID or name.
 String? nameDecorationPosition(Decoding d, Object? v) => switch (v) {
   1 || 'background' => 'background',
@@ -1148,6 +1166,15 @@ TileMode? decodeTileMode(Decoding d, Object? v) => switch (v) {
   2 || 'repeated' => TileMode.repeated,
   3 || 'mirror' => TileMode.mirror,
   4 || 'decal' => TileMode.decal,
+  _ => null,
+};
+
+/// The member name of a TimelineStepState, from its permanent value ID or name.
+String? nameTimelineStepState(Decoding d, Object? v) => switch (v) {
+  1 || 'done' => 'done',
+  2 || 'current' => 'current',
+  3 || 'pending' => 'pending',
+  4 || 'failed' => 'failed',
   _ => null,
 };
 

@@ -4,13 +4,13 @@
   "kind": "page",
   "pageKind": "screen",
   "root": {
-    "id": "01c0c450-6c00-7000-8a1d-000000000021",
+    "id": "01c0c450-6c00-7000-8a1d-000000000020",
     "slots": {
       "appBar": {
-        "id": "01c0c450-6c00-7000-8a1d-000000000022",
+        "id": "01c0c450-6c00-7000-8a1d-000000000021",
         "slots": {
           "title": {
-            "id": "01c0c450-6c00-7000-8a1d-000000000023",
+            "id": "01c0c450-6c00-7000-8a1d-000000000022",
             "props": {
               "data": "cupertino more"
             },
@@ -20,7 +20,7 @@
         "type": "AppBar"
       },
       "body": {
-        "id": "01c0c450-6c00-7000-8a1d-000000000024",
+        "id": "01c0c450-6c00-7000-8a1d-000000000023",
         "slots": {
           "child": {
             "children": [
@@ -107,7 +107,7 @@
                 "type": "CupertinoTabBar"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1d-000000000019",
+                "id": "01c0c450-6c00-7000-8a1d-000000000018",
                 "props": {
                   "data": {
                     "$expr": "\"tab \" + string(page.tab)"
@@ -119,7 +119,7 @@
               {
                 "id": "01c0c450-6c00-7000-8a1d-00000000000d",
                 "props": {
-                  "height": 120
+                  "maxHeight": 120
                 },
                 "slots": {
                   "child": {
@@ -180,10 +180,10 @@
                     "type": "CupertinoPicker"
                   }
                 },
-                "type": "SizedBox"
+                "type": "LimitedBox"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1d-00000000001a",
+                "id": "01c0c450-6c00-7000-8a1d-000000000019",
                 "props": {
                   "data": {
                     "$expr": "\"wheel \" + string(page.wheel)"
@@ -238,7 +238,7 @@
                 "type": "SizedBox"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1d-00000000001b",
+                "id": "01c0c450-6c00-7000-8a1d-00000000001a",
                 "props": {
                   "data": {
                     "$expr": "\"chosen \" + page.chosen"
@@ -283,27 +283,17 @@
                   "child": {
                     "id": "01c0c450-6c00-7000-8a1d-000000000011",
                     "props": {
-                      "height": 48,
-                      "width": 120
+                      "data": "Press and hold"
                     },
-                    "slots": {
-                      "child": {
-                        "id": "01c0c450-6c00-7000-8a1d-000000000012",
-                        "props": {
-                          "data": "Press and hold"
-                        },
-                        "testId": "menu-child",
-                        "type": "Text"
-                      }
-                    },
-                    "type": "SizedBox"
+                    "testId": "menu-child",
+                    "type": "Text"
                   }
                 },
                 "testId": "menu",
                 "type": "CupertinoContextMenu"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1d-00000000001c",
+                "id": "01c0c450-6c00-7000-8a1d-00000000001b",
                 "props": {
                   "data": {
                     "$expr": "\"action \" + string(page.action)"
@@ -313,7 +303,7 @@
                 "type": "Text"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1d-000000000013",
+                "id": "01c0c450-6c00-7000-8a1d-000000000012",
                 "props": {
                   "isEmpty": {
                     "$expr": "isEmpty(data.scope.value ?? [])"
@@ -324,21 +314,21 @@
                 },
                 "slots": {
                   "empty": {
-                    "id": "01c0c450-6c00-7000-8a1d-000000000016",
+                    "id": "01c0c450-6c00-7000-8a1d-000000000015",
                     "props": {
                       "data": "scope empty"
                     },
                     "type": "Text"
                   },
                   "error": {
-                    "id": "01c0c450-6c00-7000-8a1d-000000000015",
+                    "id": "01c0c450-6c00-7000-8a1d-000000000014",
                     "props": {
                       "data": "scope error"
                     },
                     "type": "Text"
                   },
                   "loading": {
-                    "id": "01c0c450-6c00-7000-8a1d-000000000014",
+                    "id": "01c0c450-6c00-7000-8a1d-000000000013",
                     "props": {
                       "data": "scope loading"
                     },
@@ -346,7 +336,7 @@
                     "type": "Text"
                   },
                   "success": {
-                    "id": "01c0c450-6c00-7000-8a1d-000000000017",
+                    "id": "01c0c450-6c00-7000-8a1d-000000000016",
                     "props": {
                       "data": "scope ready"
                     },
@@ -358,7 +348,7 @@
                 "type": "DataScope"
               }
             ],
-            "id": "01c0c450-6c00-7000-8a1d-000000000025",
+            "id": "01c0c450-6c00-7000-8a1d-000000000024",
             "type": "Column"
           }
         },
@@ -372,25 +362,25 @@
   "state": [
     {
       "default": 0,
-      "id": "01c0c450-6c00-7000-8a1d-00000000001d",
+      "id": "01c0c450-6c00-7000-8a1d-00000000001c",
       "name": "tab",
       "type": "int"
     },
     {
       "default": 1,
-      "id": "01c0c450-6c00-7000-8a1d-00000000001e",
+      "id": "01c0c450-6c00-7000-8a1d-00000000001d",
       "name": "wheel",
       "type": "int"
     },
     {
       "default": "none",
-      "id": "01c0c450-6c00-7000-8a1d-00000000001f",
+      "id": "01c0c450-6c00-7000-8a1d-00000000001e",
       "name": "chosen",
       "type": "string"
     },
     {
       "default": -1,
-      "id": "01c0c450-6c00-7000-8a1d-000000000020",
+      "id": "01c0c450-6c00-7000-8a1d-00000000001f",
       "name": "action",
       "type": "int"
     }

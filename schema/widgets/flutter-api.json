@@ -159,6 +159,159 @@
         ]
       }
     },
+    "package:flutter/cupertino.dart#CupertinoContextMenu": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "actions",
+            "type": "List<Widget>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "enableHapticFeedback",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          }
+        ]
+      }
+    },
+    "package:flutter/cupertino.dart#CupertinoDatePicker": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "mode",
+            "type": "CupertinoDatePickerMode",
+            "required": false,
+            "named": true,
+            "default": "CupertinoDatePickerMode.dateAndTime"
+          },
+          {
+            "name": "onDateTimeChanged",
+            "type": "void Function(DateTime)",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "initialDateTime",
+            "type": "DateTime?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "minimumDate",
+            "type": "DateTime?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "maximumDate",
+            "type": "DateTime?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "minimumYear",
+            "type": "int",
+            "required": false,
+            "named": true,
+            "default": "1"
+          },
+          {
+            "name": "maximumYear",
+            "type": "int?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "minuteInterval",
+            "type": "int",
+            "required": false,
+            "named": true,
+            "default": "1"
+          },
+          {
+            "name": "use24hFormat",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "dateOrder",
+            "type": "DatePickerDateOrder?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "backgroundColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "showDayOfWeek",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "showTimeSeparator",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "itemExtent",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "_kItemExtent"
+          },
+          {
+            "name": "selectionOverlayBuilder",
+            "type": "Widget? Function(BuildContext, {required int columnCount, required int selectedIndex})?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "selectableDayPredicate",
+            "type": "bool Function(DateTime)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "changeReportingBehavior",
+            "type": "ChangeReportingBehavior",
+            "required": false,
+            "named": true,
+            "default": "ChangeReportingBehavior.onScrollUpdate"
+          }
+        ]
+      }
+    },
     "package:flutter/cupertino.dart#CupertinoListSection": {
       "constructors": {
         "": [
@@ -325,6 +478,213 @@
             "required": false,
             "named": true,
             "default": "_kLeadingToTitle"
+          }
+        ]
+      }
+    },
+    "package:flutter/cupertino.dart#CupertinoNavigationBar": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "leading",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "automaticallyImplyLeading",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "automaticallyImplyMiddle",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "previousPageTitle",
+            "type": "String?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "middle",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "trailing",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "border",
+            "type": "Border?",
+            "required": false,
+            "named": true,
+            "default": "_kDefaultNavBarBorder"
+          },
+          {
+            "name": "backgroundColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "automaticBackgroundVisibility",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "enableBackgroundFilterBlur",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "brightness",
+            "type": "Brightness?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "padding",
+            "type": "EdgeInsetsDirectional?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "transitionBetweenRoutes",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "heroTag",
+            "type": "Object",
+            "required": false,
+            "named": true,
+            "default": "_defaultHeroTag"
+          },
+          {
+            "name": "bottom",
+            "type": "PreferredSizeWidget?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/cupertino.dart#CupertinoPicker": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "diameterRatio",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "_kDefaultDiameterRatio"
+          },
+          {
+            "name": "backgroundColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "offAxisFraction",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "0.0"
+          },
+          {
+            "name": "useMagnifier",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "magnification",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "1.0"
+          },
+          {
+            "name": "scrollController",
+            "type": "FixedExtentScrollController?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "squeeze",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "_kSqueeze"
+          },
+          {
+            "name": "changeReportingBehavior",
+            "type": "ChangeReportingBehavior",
+            "required": false,
+            "named": true,
+            "default": "ChangeReportingBehavior.onScrollUpdate"
+          },
+          {
+            "name": "itemExtent",
+            "type": "double",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onSelectedItemChanged",
+            "type": "void Function(int)?",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "children",
+            "type": "List<Widget>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "selectionOverlay",
+            "type": "Widget?",
+            "required": false,
+            "named": true,
+            "default": "const CupertinoPickerDefaultSelectionOverlay()"
+          },
+          {
+            "name": "looping",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
           }
         ]
       }
@@ -626,6 +986,77 @@
             "required": false,
             "named": true,
             "default": "DragStartBehavior.start"
+          }
+        ]
+      }
+    },
+    "package:flutter/cupertino.dart#CupertinoTabBar": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "items",
+            "type": "List<BottomNavigationBarItem>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onTap",
+            "type": "void Function(int)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "currentIndex",
+            "type": "int",
+            "required": false,
+            "named": true,
+            "default": "0"
+          },
+          {
+            "name": "backgroundColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "activeColor",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "inactiveColor",
+            "type": "Color",
+            "required": false,
+            "named": true,
+            "default": "_kDefaultTabBarInactiveColor"
+          },
+          {
+            "name": "iconSize",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "30.0"
+          },
+          {
+            "name": "height",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "_kTabBarHeight"
+          },
+          {
+            "name": "border",
+            "type": "Border?",
+            "required": false,
+            "named": true,
+            "default": "const Border(top: BorderSide(color: _kDefaultTabBarBorderColor, width: 0.0))"
           }
         ]
       }
@@ -14552,6 +14983,20 @@
       },
       {
         "name": "large"
+      }
+    ],
+    "package:flutter/cupertino.dart#CupertinoDatePickerMode": [
+      {
+        "name": "time"
+      },
+      {
+        "name": "date"
+      },
+      {
+        "name": "dateAndTime"
+      },
+      {
+        "name": "monthYear"
       }
     ],
     "package:flutter/cupertino.dart#OverlayVisibilityMode": [
