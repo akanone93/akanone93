@@ -1,0 +1,31 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "OverflowBarAlignment",
+  "id": 98,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "Mirrors the Flutter enum OverflowBarAlignment.",
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "enum": "OverflowBarAlignment"
+  },
+  "values": [
+    {
+      "name": "start",
+      "id": 1
+    },
+    {
+      "name": "end",
+      "id": 2
+    },
+    {
+      "name": "center",
+      "id": 3
+    }
+  ]
+}

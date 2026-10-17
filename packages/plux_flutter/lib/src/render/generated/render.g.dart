@@ -310,6 +310,15 @@ Clip? decodeClip(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a ColumnWidthKind, from its permanent value ID or name.
+String? nameColumnWidthKind(Decoding d, Object? v) => switch (v) {
+  1 || 'flex' => 'flex',
+  2 || 'fixed' => 'fixed',
+  3 || 'fraction' => 'fraction',
+  4 || 'intrinsic' => 'intrinsic',
+  _ => null,
+};
+
 /// The member name of a CountdownFormat, from its permanent value ID or name.
 String? nameCountdownFormat(Decoding d, Object? v) => switch (v) {
   1 || 'hms' => 'hms',
@@ -852,6 +861,22 @@ String? nameOtpAlphabet(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a OverflowBarAlignment, from its permanent value ID or name.
+String? nameOverflowBarAlignment(Decoding d, Object? v) => switch (v) {
+  1 || 'start' => 'start',
+  2 || 'end' => 'end',
+  3 || 'center' => 'center',
+  _ => null,
+};
+
+/// Decodes a OverflowBarAlignment.
+OverflowBarAlignment? decodeOverflowBarAlignment(Decoding d, Object? v) => switch (v) {
+  1 || 'start' => OverflowBarAlignment.start,
+  2 || 'end' => OverflowBarAlignment.end,
+  3 || 'center' => OverflowBarAlignment.center,
+  _ => null,
+};
+
 /// The member name of a OverlayVisibilityMode, from its permanent value ID or name.
 String? nameOverlayVisibilityMode(Decoding d, Object? v) => switch (v) {
   1 || 'never' => 'never',
@@ -885,6 +910,20 @@ PanAxis? decodePanAxis(Decoding d, Object? v) => switch (v) {
   2 || 'horizontal' => PanAxis.horizontal,
   3 || 'vertical' => PanAxis.vertical,
   4 || 'aligned' => PanAxis.aligned,
+  _ => null,
+};
+
+/// The member name of a RefreshIndicatorTriggerMode, from its permanent value ID or name.
+String? nameRefreshIndicatorTriggerMode(Decoding d, Object? v) => switch (v) {
+  1 || 'anywhere' => 'anywhere',
+  2 || 'onEdge' => 'onEdge',
+  _ => null,
+};
+
+/// Decodes a RefreshIndicatorTriggerMode.
+RefreshIndicatorTriggerMode? decodeRefreshIndicatorTriggerMode(Decoding d, Object? v) => switch (v) {
+  1 || 'anywhere' => RefreshIndicatorTriggerMode.anywhere,
+  2 || 'onEdge' => RefreshIndicatorTriggerMode.onEdge,
   _ => null,
 };
 
@@ -1039,6 +1078,40 @@ StackFit? decodeStackFit(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a StepState, from its permanent value ID or name.
+String? nameStepState(Decoding d, Object? v) => switch (v) {
+  1 || 'indexed' => 'indexed',
+  2 || 'editing' => 'editing',
+  3 || 'complete' => 'complete',
+  4 || 'disabled' => 'disabled',
+  5 || 'error' => 'error',
+  _ => null,
+};
+
+/// Decodes a StepState.
+StepState? decodeStepState(Decoding d, Object? v) => switch (v) {
+  1 || 'indexed' => StepState.indexed,
+  2 || 'editing' => StepState.editing,
+  3 || 'complete' => StepState.complete,
+  4 || 'disabled' => StepState.disabled,
+  5 || 'error' => StepState.error,
+  _ => null,
+};
+
+/// The member name of a StepperType, from its permanent value ID or name.
+String? nameStepperType(Decoding d, Object? v) => switch (v) {
+  1 || 'vertical' => 'vertical',
+  2 || 'horizontal' => 'horizontal',
+  _ => null,
+};
+
+/// Decodes a StepperType.
+StepperType? decodeStepperType(Decoding d, Object? v) => switch (v) {
+  1 || 'vertical' => StepperType.vertical,
+  2 || 'horizontal' => StepperType.horizontal,
+  _ => null,
+};
+
 /// The member name of a StrokeCap, from its permanent value ID or name.
 String? nameStrokeCap(Decoding d, Object? v) => switch (v) {
   1 || 'butt' => 'butt',
@@ -1066,6 +1139,28 @@ String? nameTabBarIndicatorSize(Decoding d, Object? v) => switch (v) {
 TabBarIndicatorSize? decodeTabBarIndicatorSize(Decoding d, Object? v) => switch (v) {
   1 || 'tab' => TabBarIndicatorSize.tab,
   2 || 'label' => TabBarIndicatorSize.label,
+  _ => null,
+};
+
+/// The member name of a TableCellVerticalAlignment, from its permanent value ID or name.
+String? nameTableCellVerticalAlignment(Decoding d, Object? v) => switch (v) {
+  1 || 'top' => 'top',
+  2 || 'middle' => 'middle',
+  3 || 'bottom' => 'bottom',
+  4 || 'baseline' => 'baseline',
+  5 || 'fill' => 'fill',
+  6 || 'intrinsicHeight' => 'intrinsicHeight',
+  _ => null,
+};
+
+/// Decodes a TableCellVerticalAlignment.
+TableCellVerticalAlignment? decodeTableCellVerticalAlignment(Decoding d, Object? v) => switch (v) {
+  1 || 'top' => TableCellVerticalAlignment.top,
+  2 || 'middle' => TableCellVerticalAlignment.middle,
+  3 || 'bottom' => TableCellVerticalAlignment.bottom,
+  4 || 'baseline' => TableCellVerticalAlignment.baseline,
+  5 || 'fill' => TableCellVerticalAlignment.fill,
+  6 || 'intrinsicHeight' => TableCellVerticalAlignment.intrinsicHeight,
   _ => null,
 };
 

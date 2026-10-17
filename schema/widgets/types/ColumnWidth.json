@@ -1,0 +1,28 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "ColumnWidth",
+  "id": 48,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "The width rule of one table column.",
+  "fields": [
+    {
+      "name": "kind",
+      "id": 1,
+      "type": "ColumnWidthKind",
+      "default": "flex"
+    },
+    {
+      "name": "value",
+      "id": 2,
+      "type": "double",
+      "default": 1,
+      "description": "The flex factor, the logical pixels or the fraction of the table, by `kind`; ignored for `intrinsic`."
+    }
+  ]
+}

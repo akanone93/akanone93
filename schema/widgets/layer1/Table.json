@@ -1,0 +1,94 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "Table",
+  "id": 111,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "Table",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "layout",
+  "icon": "table_chart",
+  "description": "A grid of cells; `children` fill it row by row, `columns` to a row (WGT-020).",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "group",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "columns",
+      "id": 1,
+      "type": "int",
+      "default": 1,
+      "constraints": {
+        "min": 1
+      },
+      "description": "Cells per row; the children are laid out row-major and the last row is padded with empty cells."
+    },
+    {
+      "name": "columnWidths",
+      "id": 2,
+      "type": "list<ColumnWidth>",
+      "flutter": "columnWidths",
+      "description": "The width rule of each column by position; columns beyond the list use `defaultColumnWidth`."
+    },
+    {
+      "name": "defaultColumnWidth",
+      "id": 3,
+      "type": "ColumnWidth",
+      "flutter": "defaultColumnWidth"
+    },
+    {
+      "name": "textDirection",
+      "id": 4,
+      "type": "TextDirection",
+      "flutter": "textDirection"
+    },
+    {
+      "name": "border",
+      "id": 5,
+      "type": "BorderSide",
+      "flutter": "border",
+      "description": "Draws the outside and the lines between all cells."
+    },
+    {
+      "name": "defaultVerticalAlignment",
+      "id": 6,
+      "type": "TableCellVerticalAlignment",
+      "default": "top",
+      "flutter": "defaultVerticalAlignment"
+    },
+    {
+      "name": "textBaseline",
+      "id": 7,
+      "type": "TextBaseline",
+      "flutter": "textBaseline"
+    }
+  ],
+  "children": {
+    "flutter": "children"
+  },
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    }
+  ]
+}
