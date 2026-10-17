@@ -299,6 +299,15 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'series': 1, 'labels': 2, 'title': 3, 'summaryTemplate': 4, 'showTable': 5},
   ),
   WidgetDescriptor(
+    'BarcodeScanner',
+    200,
+    layer: 2,
+    revision: 1,
+    package: 'plux_scanner',
+    props: {'formats': 1, 'torch': 2, 'cameraFacing': 3, 'scanWindow': 4, 'continuous': 5, 'overlayHint': 6, 'semanticLabel': 7},
+    events: {'onDetected': 1, 'onError': 2},
+  ),
+  WidgetDescriptor(
     'Baseline',
     16,
     layer: 1,
@@ -1252,6 +1261,23 @@ const List<WidgetDescriptor> widgetDescriptors = [
     events: {'onTap': 1},
   ),
   WidgetDescriptor(
+    'QrCodeView',
+    201,
+    layer: 2,
+    revision: 1,
+    package: 'plux_scanner',
+    props: {'data': 1, 'size': 2, 'errorCorrection': 3, 'foreground': 4, 'background': 5, 'quietZone': 6, 'semanticLabel': 7},
+  ),
+  WidgetDescriptor(
+    'QrScanner',
+    199,
+    layer: 2,
+    revision: 1,
+    package: 'plux_scanner',
+    props: {'torch': 1, 'cameraFacing': 2, 'scanWindow': 3, 'continuous': 4, 'overlayHint': 5, 'semanticLabel': 6},
+    events: {'onDetected': 1, 'onError': 2},
+  ),
+  WidgetDescriptor(
     'QuantityStepper',
     183,
     layer: 2,
@@ -2186,6 +2212,12 @@ const List<EnumDescriptor> enumDescriptors = [
     values: {'gregorian': 1, 'ethiopic': 2, 'islamicUmalqura': 3, 'persian': 4},
   ),
   EnumDescriptor(
+    'CameraFacing',
+    155,
+    revision: 1,
+    values: {'back': 1, 'front': 2},
+  ),
+  EnumDescriptor(
     'CardBrand',
     144,
     revision: 1,
@@ -2466,6 +2498,12 @@ const List<EnumDescriptor> enumDescriptors = [
     107,
     revision: 1,
     values: {'free': 1, 'horizontal': 2, 'vertical': 3, 'aligned': 4},
+  ),
+  EnumDescriptor(
+    'QrErrorCorrection',
+    156,
+    revision: 1,
+    values: {'low': 1, 'medium': 2, 'quartile': 3, 'high': 4},
   ),
   EnumDescriptor(
     'RefreshIndicatorTriggerMode',

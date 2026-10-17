@@ -173,7 +173,7 @@ export interface ActionDescriptor {
 }
 
 /** A widget type name. */
-export type WidgetType = "AccountCard" | "ActionChip" | "Align" | "AmountInput" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "AudioPlayer" | "Autocomplete" | "BackButton" | "BackdropFilter" | "Badge" | "BarChart" | "Baseline" | "BiometricButton" | "BottomAppBar" | "BottomNavigationBar" | "CalendarDatePicker" | "Card" | "Carousel" | "CartSummary" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CountryPicker" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoContextMenu" | "CupertinoDatePicker" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoNavigationBar" | "CupertinoPicker" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTabBar" | "CupertinoTextField" | "CurrencyPicker" | "CustomScrollView" | "DataScope" | "DataTable" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "Drawer" | "DropdownMenu" | "DualCalendarDatePicker" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "IbanInput" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LineChart" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "LottieView" | "MarkdownView" | "MaskedText" | "Match" | "MaterialBanner" | "MenuAnchor" | "MoneyText" | "NativeSlot" | "NavigationBar" | "NavigationDrawer" | "NavigationRail" | "NestedScrollView" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "PaymentCard" | "PhoneInput" | "PieChart" | "PopupMenuButton" | "Positioned" | "PriceTag" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "RefreshIndicator" | "ReorderableListView" | "Responsive" | "RichText" | "RiveView" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchAnchor" | "SearchBar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SignaturePad" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverPersistentHeader" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Sparkline" | "Stack" | "StatusTimeline" | "Stepper" | "Switch" | "SwitchListTile" | "TabBar" | "TabBarView" | "Table" | "TermsViewer" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "TransactionListItem" | "Transform" | "VerticalDivider" | "VideoPlayer" | "WizardForm" | "Wrap";
+export type WidgetType = "AccountCard" | "ActionChip" | "Align" | "AmountInput" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "AudioPlayer" | "Autocomplete" | "BackButton" | "BackdropFilter" | "Badge" | "BarChart" | "BarcodeScanner" | "Baseline" | "BiometricButton" | "BottomAppBar" | "BottomNavigationBar" | "CalendarDatePicker" | "Card" | "Carousel" | "CartSummary" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CountryPicker" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoContextMenu" | "CupertinoDatePicker" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoNavigationBar" | "CupertinoPicker" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTabBar" | "CupertinoTextField" | "CurrencyPicker" | "CustomScrollView" | "DataScope" | "DataTable" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "Drawer" | "DropdownMenu" | "DualCalendarDatePicker" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "IbanInput" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LineChart" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "LottieView" | "MarkdownView" | "MaskedText" | "Match" | "MaterialBanner" | "MenuAnchor" | "MoneyText" | "NativeSlot" | "NavigationBar" | "NavigationDrawer" | "NavigationRail" | "NestedScrollView" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "PaymentCard" | "PhoneInput" | "PieChart" | "PopupMenuButton" | "Positioned" | "PriceTag" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QrCodeView" | "QrScanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "RefreshIndicator" | "ReorderableListView" | "Responsive" | "RichText" | "RiveView" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchAnchor" | "SearchBar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SignaturePad" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverPersistentHeader" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Sparkline" | "Stack" | "StatusTimeline" | "Stepper" | "Switch" | "SwitchListTile" | "TabBar" | "TabBarView" | "Table" | "TermsViewer" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "TransactionListItem" | "Transform" | "VerticalDivider" | "VideoPlayer" | "WizardForm" | "Wrap";
 
 /** An action name. */
 export type ActionName = "announce" | "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "readConfig" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
@@ -840,6 +840,35 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "showTable", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether a table of the values is shown below the chart."}
     ],
     "events": [],
+    "slots": []
+  },
+  {
+    "type": "BarcodeScanner",
+    "id": 200,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "barcode_reader",
+    "description": "A live camera preview that reads QR codes and one-dimensional barcodes of the chosen formats. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`.",
+    "platforms": ["android", "ios"],
+    "cost": 400,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "formats", "id": 1, "type": "list<BarcodeFormat>?", "required": false, "revision": 1, "bindable": true, "description": "The formats to read; every format when empty or absent."},
+      {"name": "torch", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the torch is on."},
+      {"name": "cameraFacing", "id": 3, "type": "CameraFacing", "required": false, "default": "back", "revision": 1, "bindable": true, "description": "Which camera to open."},
+      {"name": "scanWindow", "id": 4, "type": "list<double>?", "required": false, "revision": 1, "bindable": true, "description": "The part of the preview that is read, as four fractions of the preview: left, top, width, height. The whole preview when absent."},
+      {"name": "continuous", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the scanner keeps reading after the first code; otherwise it reports once and stops."},
+      {"name": "overlayHint", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line of text under the viewfinder, such as \"Point the camera at the code\"."},
+      {"name": "semanticLabel", "id": 7, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What a screen reader announces for the scanner; the read value is announced when a code is detected."}
+    ],
+    "events": [
+      {"name": "onDetected", "id": 1, "payload": "ScanResult", "revision": 1, "description": "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
+      {"name": "onError", "id": 2, "payload": "string", "revision": 1, "description": "Fires with an error code when the camera is denied, missing or fails."}
+    ],
     "slots": []
   },
   {
@@ -4420,6 +4449,60 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": []
   },
   {
+    "type": "QrCodeView",
+    "id": 201,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "qr_code",
+    "description": "Draws a QR code for a text, offline. Ships in `plux_scanner`.",
+    "platforms": ["android", "ios"],
+    "cost": 200,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "data", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The text the code holds. It can be sensitive; it is drawn on the device and never sent."},
+      {"name": "size", "id": 2, "type": "double", "required": false, "default": 200.0, "constraints": {"min": 16}, "revision": 1, "bindable": true, "description": "The side of the square, in logical pixels."},
+      {"name": "errorCorrection", "id": 3, "type": "QrErrorCorrection", "required": false, "default": "medium", "revision": 1, "bindable": true, "description": "How much damage the code survives; higher levels make a denser code."},
+      {"name": "foreground", "id": 4, "type": "color?", "required": false, "revision": 1, "bindable": true, "description": "The colour of the modules; black when absent."},
+      {"name": "background", "id": 5, "type": "color?", "required": false, "revision": 1, "bindable": true, "description": "The colour behind the modules; white when absent."},
+      {"name": "quietZone", "id": 6, "type": "int", "required": false, "default": 4, "constraints": {"min": 0, "max": 16}, "revision": 1, "bindable": true, "description": "The empty border around the modules, in modules; scanners need four."},
+      {"name": "semanticLabel", "id": 7, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What a screen reader announces for the code. It describes what the code is for, never the data it holds."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
+    "type": "QrScanner",
+    "id": 199,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "qr_code_scanner",
+    "description": "A live camera preview that reads QR codes. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`.",
+    "platforms": ["android", "ios"],
+    "cost": 400,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "torch", "id": 1, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the torch is on."},
+      {"name": "cameraFacing", "id": 2, "type": "CameraFacing", "required": false, "default": "back", "revision": 1, "bindable": true, "description": "Which camera to open."},
+      {"name": "scanWindow", "id": 3, "type": "list<double>?", "required": false, "revision": 1, "bindable": true, "description": "The part of the preview that is read, as four fractions of the preview: left, top, width, height. The whole preview when absent."},
+      {"name": "continuous", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the scanner keeps reading after the first code; otherwise it reports once and stops."},
+      {"name": "overlayHint", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line of text under the viewfinder, such as \"Point the camera at the code\"."},
+      {"name": "semanticLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What a screen reader announces for the scanner; the read value is announced when a code is detected."}
+    ],
+    "events": [
+      {"name": "onDetected", "id": 1, "payload": "ScanResult", "revision": 1, "description": "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
+      {"name": "onError", "id": 2, "payload": "string", "revision": 1, "description": "Fires with an error code when the camera is denied, missing or fails."}
+    ],
+    "slots": []
+  },
+  {
     "type": "QuantityStepper",
     "id": 183,
     "layer": 2,
@@ -7517,6 +7600,17 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "CameraFacing",
+    "id": 155,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Which camera a scanner opens.",
+    "values": [
+      {"name": "back", "id": 1, "revision": 1},
+      {"name": "front", "id": 2, "revision": 1}
+    ]
+  },
+  {
     "name": "CardBrand",
     "id": 144,
     "revision": 1,
@@ -8118,6 +8212,19 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "horizontal", "id": 2, "revision": 1},
       {"name": "vertical", "id": 3, "revision": 1},
       {"name": "aligned", "id": 4, "revision": 1}
+    ]
+  },
+  {
+    "name": "QrErrorCorrection",
+    "id": 156,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "How much of a QR code may be damaged before it stops reading: about 7% (low), 15% (medium), 25% (quartile) or 30% (high).",
+    "values": [
+      {"name": "low", "id": 1, "revision": 1},
+      {"name": "medium", "id": 2, "revision": 1},
+      {"name": "quartile", "id": 3, "revision": 1},
+      {"name": "high", "id": 4, "revision": 1}
     ]
   },
   {

@@ -1,0 +1,31 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "QrErrorCorrection",
+  "id": 156,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "How much of a QR code may be damaged before it stops reading: about 7% (low), 15% (medium), 25% (quartile) or 30% (high).",
+  "values": [
+    {
+      "name": "low",
+      "id": 1
+    },
+    {
+      "name": "medium",
+      "id": 2
+    },
+    {
+      "name": "quartile",
+      "id": 3
+    },
+    {
+      "name": "high",
+      "id": 4
+    }
+  ]
+}
