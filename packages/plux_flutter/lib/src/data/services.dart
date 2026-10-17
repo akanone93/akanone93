@@ -370,6 +370,7 @@ abstract interface class DataActions {
     String operation,
     Map<String, Object?> input, {
     CancelToken? cancel,
+    void Function(TransferProgress progress)? onProgress,
   });
 
   /// Reloads [source] bypassing its cache, or with [more] loads its next
@@ -438,6 +439,7 @@ final class DataScope extends ChangeNotifier implements DataActions {
     String operation,
     Map<String, Object?> input, {
     CancelToken? cancel,
+    void Function(TransferProgress progress)? onProgress,
   }) async {
     final (name, op) = switch (operation.split('.')) {
       [final s, final o] => (s, o),
@@ -462,7 +464,9 @@ final class DataScope extends ChangeNotifier implements DataActions {
     final refusal = c.assuranceRefusal();
     if (refusal != null) throw refusal.toActionError();
     try {
-      if (spec.transfer != null) return await _transfer(c, spec, input, cancel);
+      if (spec.transfer != null) {
+        return await _transfer(c, spec, input, cancel, onProgress);
+      }
       final Object? raw;
       // A transaction is never queued: its confirmation is single use and
       // expires with its challenge, so a replay could not carry one.
@@ -495,6 +499,7 @@ final class DataScope extends ChangeNotifier implements DataActions {
     OperationSpec spec,
     Map<String, Object?> input,
     CancelToken? cancel,
+    void Function(TransferProgress progress)? onProgress,
   ) async {
     final transfers = services.transfers;
     if (transfers == null) {
@@ -506,18 +511,21 @@ final class DataScope extends ChangeNotifier implements DataActions {
       c.caller,
       input,
       cancel: cancel,
-      onProgress: (p) => services.ioEvents?.progress(
-        DataSourceEvent(
-          pluginKey: c.caller.pluginKey,
-          source: c.spec.name,
-          sourceId: c.spec.id,
-          value: {
-            'operation': '${c.spec.name}.${spec.name}',
-            'sent': p.sent,
-            'total': p.total,
-          },
-        ),
-      ),
+      onProgress: (p) {
+        onProgress?.call(p);
+        services.ioEvents?.progress(
+          DataSourceEvent(
+            pluginKey: c.caller.pluginKey,
+            source: c.spec.name,
+            sourceId: c.spec.id,
+            value: {
+              'operation': '${c.spec.name}.${spec.name}',
+              'sent': p.sent,
+              'total': p.total,
+            },
+          ),
+        );
+      },
     );
     return spec.transfer!.kind == TransferKind.download
         ? raw

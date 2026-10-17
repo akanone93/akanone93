@@ -1,0 +1,64 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "RatingBar",
+  "id": 187,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "star",
+  "description": "A read-only row of stars; screen readers read `3.5 of 5`.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 40,
+  "accessibility": {
+    "role": "text",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "value",
+      "id": 1,
+      "type": "double",
+      "required": true,
+      "constraints": {
+        "min": 0
+      },
+      "description": "The rating."
+    },
+    {
+      "name": "max",
+      "id": 2,
+      "type": "int",
+      "default": 5,
+      "constraints": {
+        "min": 1,
+        "max": 10
+      },
+      "description": "The number of stars."
+    },
+    {
+      "name": "ofLabel",
+      "id": 3,
+      "type": "string",
+      "default": "of",
+      "translatable": true,
+      "description": "The word between value and maximum in the spoken value."
+    },
+    {
+      "name": "semanticLabel",
+      "id": 4,
+      "type": "string?",
+      "translatable": true,
+      "description": "What is rated, spoken before the value."
+    }
+  ]
+}
