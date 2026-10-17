@@ -43,6 +43,7 @@
     "REUSE.toml",
     "docs/**",
     "ee/**",
+    "mk/l10n.mk",
     "mk/repo.mk",
     "scripts/check-commit-msg.sh",
     "scripts/install.sh",
