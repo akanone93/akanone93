@@ -5276,6 +5276,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetReleaseResponse'
+  /plux.v1.ReleaseService/GetReport:
+    post:
+      tags:
+        - plux.v1.ReleaseService
+      summary: GetReport
+      description: |-
+        GetReport returns a report of a release, such as its accessibility
+         report, as JSON or as a standalone HTML page (A11Y-008).
+      operationId: plux.v1.ReleaseService.GetReport
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetReportRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetReportResponse'
   /plux.v1.ReleaseService/ListPluginVersions:
     post:
       tags:
@@ -9676,6 +9717,41 @@ components:
           title: versions
       title: GetReleaseResponse
       additionalProperties: false
+    plux.v1.GetReportRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        sequence:
+          type: string
+          title: sequence
+          format: int64
+        kind:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ReportKind'
+          title: kind
+        format:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ReportFormat'
+          title: format
+          description: format defaults to JSON.
+      title: GetReportRequest
+      additionalProperties: false
+    plux.v1.GetReportResponse:
+      type: object
+      properties:
+        content:
+          type: string
+          title: content
+          format: byte
+          description: 'content is the report: canonical JSON, or a standalone HTML page.'
+        contentType:
+          type: string
+          title: content_type
+          description: content_type is "application/json" or "text/html; charset=utf-8".
+      title: GetReportResponse
+      additionalProperties: false
     plux.v1.GetRootKeysRequest:
       type: object
       properties:
@@ -12299,6 +12375,14 @@ components:
           title: lock
       title: RenewLockResponse
       additionalProperties: false
+    plux.v1.ReportFormat:
+      type: string
+      title: ReportFormat
+      enum:
+        - REPORT_FORMAT_UNSPECIFIED
+        - REPORT_FORMAT_JSON
+        - REPORT_FORMAT_HTML
+      description: ReportFormat says how a report is rendered.
     plux.v1.ReportInstalledRequest:
       type: object
       properties:
@@ -12315,6 +12399,14 @@ components:
       type: object
       title: ReportInstalledResponse
       additionalProperties: false
+    plux.v1.ReportKind:
+      type: string
+      title: ReportKind
+      enum:
+        - REPORT_KIND_UNSPECIFIED
+        - REPORT_KIND_ACCESSIBILITY
+        - REPORT_KIND_LOCALISATION
+      description: ReportKind says which report of a release to return.
     plux.v1.RequestLockRequest:
       type: object
       properties:

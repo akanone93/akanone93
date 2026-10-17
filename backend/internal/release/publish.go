@@ -285,7 +285,10 @@ func (s *Service) RunPublish(ctx context.Context, job Job) error {
 	if err := s.progress(ctx, system, row, "check"); err != nil {
 		return err
 	}
-	diags := c.result.Diagnostics
+	diags, err := s.gateAccessibility(ctx, storage.ID(row.AppID), storage.ID(row.EnvironmentID), c.result.Diagnostics)
+	if err != nil {
+		return err
+	}
 	if diags.HasErrors() {
 		return s.fail(ctx, system, row, diags)
 	}

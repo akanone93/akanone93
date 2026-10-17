@@ -11,6 +11,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
+	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 )
@@ -335,6 +336,44 @@ func (s Release) GetChangelog(ctx context.Context, req *connect.Request[pluxv1.G
 		}
 		return out, nil
 	})
+}
+
+// GetReport returns a report of a release: its accessibility report, as
+// JSON or as a standalone page (A11Y-008).
+func (s Release) GetReport(ctx context.Context, req *connect.Request[pluxv1.GetReportRequest]) (*connect.Response[pluxv1.GetReportResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.GetReportResponse, error) {
+		p, err := s.h.principal(ctx, req.Header(), "")
+		if err != nil {
+			return nil, err
+		}
+		m := req.Msg
+		kind, ok := reportKind(m.GetKind())
+		if !ok {
+			return nil, plxerr.New(plxerr.InvalidFormat, "the report kind is required")
+		}
+		format := release.ReportJSON
+		if m.GetFormat() == pluxv1.ReportFormat_REPORT_FORMAT_HTML {
+			format = release.ReportHTML
+		}
+		content, contentType, err := s.h.Releases.GetReport(ctx, p, m.GetAppId(), m.GetSequence(), kind, format)
+		if err != nil {
+			return nil, err //nolint:wrapcheck // a domain error
+		}
+		return &pluxv1.GetReportResponse{Content: content, ContentType: contentType}, nil
+	})
+}
+
+// reportKind maps a kind of the API to the release package's.
+func reportKind(k pluxv1.ReportKind) (release.ReportKind, bool) {
+	switch k {
+	case pluxv1.ReportKind_REPORT_KIND_ACCESSIBILITY:
+		return release.ReportAccessibility, true
+	case pluxv1.ReportKind_REPORT_KIND_LOCALISATION:
+		return release.ReportLocalisation, true
+	case pluxv1.ReportKind_REPORT_KIND_UNSPECIFIED:
+		return "", false
+	}
+	return "", false
 }
 
 // GetCompatibility reports who can use a release (REL-080).

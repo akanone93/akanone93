@@ -177,6 +177,21 @@ func TestPublishAndReleaseEndToEnd(t *testing.T) {
 	if compat.GetCompatibility().GetMinRuntime() == "" {
 		t.Errorf("GetCompatibility = %+v", compat)
 	}
+	// Verifies: A11Y-008.
+	rep := must(w.release.GetReport(ctx, req(admin, &pluxv1.GetReportRequest{AppId: app, Sequence: 1, Kind: pluxv1.ReportKind_REPORT_KIND_ACCESSIBILITY})))(t)
+	if rep.GetContentType() != "application/json" || !strings.Contains(string(rep.GetContent()), `"checks"`) {
+		t.Errorf("GetReport = %s %s", rep.GetContentType(), rep.GetContent())
+	}
+	page := must(w.release.GetReport(ctx, req(admin, &pluxv1.GetReportRequest{AppId: app, Sequence: 1, Kind: pluxv1.ReportKind_REPORT_KIND_ACCESSIBILITY, Format: pluxv1.ReportFormat_REPORT_FORMAT_HTML})))(t)
+	if page.GetContentType() != "text/html; charset=utf-8" || !strings.HasPrefix(string(page.GetContent()), "<!DOCTYPE html>") {
+		t.Errorf("GetReport html = %s", page.GetContentType())
+	}
+	if _, err := w.release.GetReport(ctx, req(admin, &pluxv1.GetReportRequest{AppId: app, Sequence: 1, Kind: pluxv1.ReportKind_REPORT_KIND_LOCALISATION})); codeOf(err) != connect.CodeNotFound {
+		t.Errorf("a report that does not exist: %v", err)
+	}
+	if _, err := w.release.GetReport(ctx, req(admin, &pluxv1.GetReportRequest{AppId: app, Sequence: 1})); codeOf(err) != connect.CodeInvalidArgument {
+		t.Errorf("a report without a kind: %v", err)
+	}
 	if _, err := w.release.GetRelease(ctx, req(admin, &pluxv1.GetReleaseRequest{AppId: app, Sequence: 99})); codeOf(err) != connect.CodeNotFound {
 		t.Errorf("a missing release: %v", err)
 	}

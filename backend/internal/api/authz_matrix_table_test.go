@@ -271,6 +271,9 @@ var matrix = map[string]entry{
 		return &pluxv1.RollbackReleaseRequest{AppId: f.app, EnvironmentId: f.dev, ChannelKey: f.channel, ToSequence: 1}
 	})),
 	"ReleaseService/GetChangelog": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message { return &pluxv1.GetChangelogRequest{AppId: f.app, Sequence: 1} })),
+	"ReleaseService/GetReport": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetReportRequest{AppId: f.app, Sequence: 1, Kind: pluxv1.ReportKind_REPORT_KIND_ACCESSIBILITY}
+	})),
 	"ReleaseService/GetCompatibility": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.GetCompatibilityRequest{AppId: f.app, Sequence: 1}
 	})),

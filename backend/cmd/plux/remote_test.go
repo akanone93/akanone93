@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -198,6 +199,19 @@ func (f *fake) RollbackRelease(_ context.Context, r *connect.Request[pluxv1.Roll
 	return connect.NewResponse(&pluxv1.RollbackReleaseResponse{Release: &pluxv1.Release{Sequence: 5}}), nil
 }
 
+// GetReport answers with a page for the HTML form of release 3 and JSON
+// otherwise, so a test sees which form the command asked for.
+func (*fake) GetReport(_ context.Context, req *connect.Request[pluxv1.GetReportRequest]) (*connect.Response[pluxv1.GetReportResponse], error) {
+	m := req.Msg
+	if m.GetKind() == pluxv1.ReportKind_REPORT_KIND_LOCALISATION {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no such report"))
+	}
+	if m.GetFormat() == pluxv1.ReportFormat_REPORT_FORMAT_HTML {
+		return connect.NewResponse(&pluxv1.GetReportResponse{Content: []byte("<html>report</html>"), ContentType: "text/html; charset=utf-8"}), nil
+	}
+	return connect.NewResponse(&pluxv1.GetReportResponse{Content: []byte(`{"checks":[]}`), ContentType: "application/json"}), nil
+}
+
 func (*fake) ListReleases(context.Context, *connect.Request[pluxv1.ListReleasesRequest]) (*connect.Response[pluxv1.ListReleasesResponse], error) {
 	return connect.NewResponse(&pluxv1.ListReleasesResponse{Releases: []*pluxv1.Release{{Sequence: 3, Notes: "n", CreatedBy: &pluxv1.Actor{Display: "Ada"}}}}), nil
 }
@@ -377,6 +391,22 @@ func TestServerCommands(t *testing.T) { //nolint:paralleltest // the keychain mo
 	}
 	if code, out, _ := cli(t, config, "release", "list", "-C", project); code != exitOK || !strings.Contains(out, "Ada") {
 		t.Errorf("release list: %d %s", code, out)
+	}
+	// Verifies: A11Y-008.
+	report := filepath.Join(t.TempDir(), "a11y.html")
+	if code, _, stderr := cli(t, config, "release", "report", "-C", project, "--format", "html", "--out", report, "3"); code != exitOK {
+		t.Errorf("release report: %d %s", code, stderr)
+	} else if data, err := os.ReadFile(report); err != nil || string(data) != "<html>report</html>" {
+		t.Errorf("the report file: %v %s", err, data)
+	}
+	if code, out, _ := cli(t, config, "release", "report", "-C", project, "3"); code != exitOK || out != `{"checks":[]}` {
+		t.Errorf("release report to standard output: %d %s", code, out)
+	}
+	if code, _, _ := cli(t, config, "release", "report", "-C", project, "--kind", "localisation", "3"); code != exitFailed {
+		t.Errorf("a report that does not exist: %d", code)
+	}
+	if code, _, _ := cli(t, config, "release", "report", "-C", project, "--format", "pdf", "3"); code == exitOK {
+		t.Error("an unknown format was accepted")
 	}
 	if code, _, _ := cli(t, config, "release", "promote", "-C", project, "--env", "production", "3"); code != exitOK {
 		t.Errorf("release promote: %d", code)

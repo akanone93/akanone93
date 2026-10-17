@@ -682,6 +682,13 @@ type ReleaseFunction struct {
 	Placement      string
 }
 
+type ReleaseReport struct {
+	ReleaseID      pgtype.UUID
+	Kind           string
+	OrganizationID pgtype.UUID
+	Content        []byte
+}
+
 type ReleaseVersion struct {
 	ReleaseID       pgtype.UUID
 	OrganizationID  pgtype.UUID
