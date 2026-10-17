@@ -56,6 +56,16 @@ func Node(node map[string]any) []Literal {
 	return out
 }
 
+// Title returns the literal of a page document's title (I18N-007): a title
+// that is a plain string holding a letter. A binding or a translation
+// reference is not a literal. Path is the title key from the document root.
+func Title(page map[string]any) []Literal {
+	if s, ok := page["title"].(string); ok && Translatable(s) {
+		return []Literal{{Path: []string{"title"}, Prop: "title", Text: s}}
+	}
+	return nil
+}
+
 // Translatable reports whether a string is text a person reads: it holds at
 // least one letter. Punctuation, digits and symbols alone ("-", "$", "12")
 // are not translated.

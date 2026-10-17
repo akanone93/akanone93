@@ -344,6 +344,9 @@ func (x *extractor) document(path string, dry bool) error {
 	rel = filepath.ToSlash(rel)
 	before := len(x.done)
 	scope := x.scope(rel, doc)
+	if err := x.title(rel, scope, doc); err != nil {
+		return err
+	}
 	if err := x.node(rel, scope, root, "/root"); err != nil {
 		return err
 	}
@@ -365,6 +368,19 @@ func (x *extractor) scope(rel string, doc map[string]any) []string {
 		key, _, _ = strings.Cut(filepath.Base(rel), ".")
 	}
 	return append(parts, key)
+}
+
+// title extracts the literal title of a page (I18N-007).
+func (x *extractor) title(file string, scope []string, doc map[string]any) error {
+	for _, l := range literals.Title(doc) {
+		id, err := x.add(file, scope, map[string]any{"type": "page"}, l)
+		if err != nil {
+			return err
+		}
+		setAt(doc, l.Path, map[string]any{"$t": id})
+		x.done[len(x.done)-1].Path = "/" + strings.Join(l.Path, "/")
+	}
+	return nil
 }
 
 // node extracts the literals of a node and of everything below it.

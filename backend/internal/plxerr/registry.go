@@ -196,6 +196,7 @@ const (
 	TranslationImportInvalid       Code = 1620
 	TranslationImportKeyUnknown    Code = 1621
 	TranslationImportSourceChanged Code = 1622
+	TranslationImportDowngraded    Code = 1623
 
 	// Compiler and PXL (PLX-2000–2999).
 
@@ -242,9 +243,11 @@ const (
 
 	// Publish gates: accessibility and golden tests (PLX-3060–3069, P8).
 
-	AccessibilityBlocksPublish Code = 3060
-	GoldenRunMissing           Code = 3061
-	GoldenDifferenceUnapproved Code = 3062
+	AccessibilityBlocksPublish     Code = 3060
+	GoldenRunMissing               Code = 3061
+	GoldenDifferenceUnapproved     Code = 3062
+	ReleaseProfileBelowEnvironment Code = 3063
+	PseudoLocalesInProduction      Code = 3064
 
 	// Runtime rendering and navigation (PLX-4000–4999).
 

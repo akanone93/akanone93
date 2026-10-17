@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plux.dev/schema/l10n-report.schema.json",
+  "title": "Plux localisation report",
+  "description": "The compiler's localisation report of a release: per locale and plugin, how many translation keys are covered, approved, missing or left out (I18N-008, ADR-0068).",
+  "type": "object",
+  "required": [
+    "defaultLocale",
+    "requireApproved",
+    "locales",
+    "unusedKeys"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "defaultLocale": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The app's default locale, whose texts always ship."
+    },
+    "requireApproved": {
+      "type": "boolean",
+      "description": "True when the app requires approved translations."
+    },
+    "locales": {
+      "type": "array",
+      "description": "One entry per locale and plugin, sorted by locale with pseudo-locales last, then by plugin.",
+      "items": {
+        "type": "object",
+        "required": [
+          "locale",
+          "plugin",
+          "pseudo",
+          "keys",
+          "translated",
+          "approved",
+          "missing",
+          "leftOutUnapproved"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "locale": {
+            "type": "string",
+            "minLength": 1
+          },
+          "plugin": {
+            "type": "string",
+            "description": "The plugin's key; empty for all the keys of the app."
+          },
+          "pseudo": {
+            "type": "boolean",
+            "description": "True for a generated pseudo-locale (I18N-010)."
+          },
+          "keys": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Keys in scope."
+          },
+          "translated": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Keys that have a message in the locale, shipped or not."
+          },
+          "approved": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Translated keys whose state is approved."
+          },
+          "missing": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Keys with no message in the locale."
+          },
+          "leftOutUnapproved": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Messages the release leaves out because they are not approved (PLX-1610)."
+          },
+          "missingKeys": {
+            "type": "array",
+            "description": "Names of the missing keys, sorted; listed on the entry of the whole app only.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "leftOutKeys": {
+            "type": "array",
+            "description": "Names of the keys left out, sorted; listed on the entry of the whole app only.",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "unusedKeys": {
+      "type": "array",
+      "description": "Names of the keys the default locale translates and nothing references (PLX-1608), sorted.",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

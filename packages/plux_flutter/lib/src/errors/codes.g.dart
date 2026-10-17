@@ -448,6 +448,9 @@ enum PluxErrorCode {
   /// Source text changed since translation.
   translationImportSourceChanged(1622, 'TRANSLATION_IMPORT_SOURCE_CHANGED', 'Source text changed since translation'),
 
+  /// Imported status lowered to translated.
+  translationImportDowngraded(1623, 'TRANSLATION_IMPORT_DOWNGRADED', 'Imported status lowered to translated'),
+
   /// PXL syntax error.
   pxlSyntaxError(2001, 'PXL_SYNTAX_ERROR', 'PXL syntax error'),
 
@@ -567,6 +570,12 @@ enum PluxErrorCode {
 
   /// Golden difference not approved.
   goldenDifferenceUnapproved(3062, 'GOLDEN_DIFFERENCE_UNAPPROVED', 'Golden difference not approved'),
+
+  /// Release profile below the environment's.
+  releaseProfileBelowEnvironment(3063, 'RELEASE_PROFILE_BELOW_ENVIRONMENT', 'Release profile below the environment\'s'),
+
+  /// Release carries pseudo-locales.
+  pseudoLocalesInProduction(3064, 'PSEUDO_LOCALES_IN_PRODUCTION', 'Release carries pseudo-locales'),
 
   /// Build error in node.
   nodeBuildFailed(4001, 'NODE_BUILD_FAILED', 'Build error in node'),

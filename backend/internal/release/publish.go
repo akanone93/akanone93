@@ -106,6 +106,17 @@ func (s *Service) Publish(ctx context.Context, p auth.Principal, r PublishReques
 		if err != nil {
 			return err //nolint:wrapcheck // a domain error
 		}
+		snapshot := ""
+		if r.PluginID == "" {
+			snapshot = frozen.SnapshotID
+		}
+		profile, err := s.o.Documents.AppProfile(ctx, tx, r.AppID, snapshot)
+		if err != nil {
+			return err //nolint:wrapcheck // a domain error
+		}
+		if err := s.requireProfileFloor(ctx, r.AppID, storage.ID(env.ID), string(profile)); err != nil {
+			return err
+		}
 		id, err := s.newID()
 		if err != nil {
 			return err

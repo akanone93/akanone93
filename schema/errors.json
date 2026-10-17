@@ -1216,6 +1216,14 @@
       "fix": "Review the translation against the new source text and approve it again."
     },
     {
+      "code": "PLX-1623",
+      "reason": "TRANSLATION_IMPORT_DOWNGRADED",
+      "severity": "warning",
+      "title": "Imported status lowered to translated",
+      "cause": "The file asks for approved or final status, which only a translation approver may set, so the entries are stored as translated (I18N-008, I18N-009).",
+      "fix": "Have a translation approver approve the entries in Studio or import the file."
+    },
+    {
       "code": "PLX-2001",
       "reason": "PXL_SYNTAX_ERROR",
       "severity": "error",
@@ -1534,6 +1542,22 @@
       "title": "Golden difference not approved",
       "cause": "A golden image differs from its baseline and the difference has not been approved, so the publish is refused (TST-003).",
       "fix": "Review the difference and approve it, or fix the rendering that changed."
+    },
+    {
+      "code": "PLX-3063",
+      "reason": "RELEASE_PROFILE_BELOW_ENVIRONMENT",
+      "severity": "error",
+      "title": "Release profile below the environment's",
+      "cause": "The release was compiled for a security profile that is less strict than the environment's effective profile, so it cannot be published or promoted into it (SEC-180).",
+      "fix": "Publish a release compiled with the environment's profile or a stricter one, or lower the environment's profile in a reviewed configuration."
+    },
+    {
+      "code": "PLX-3064",
+      "reason": "PSEUDO_LOCALES_IN_PRODUCTION",
+      "severity": "error",
+      "title": "Release carries pseudo-locales",
+      "cause": "The release supports the pseudo-locales en-XA or ar-XB, which are for development, so it cannot be promoted into a production environment (I18N-002).",
+      "fix": "Publish the release again from a build without pseudo-locales."
     },
     {
       "code": "PLX-4001",

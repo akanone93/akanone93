@@ -1176,6 +1176,14 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Review the translation against the new source text and approve it again.
 
+### PLX-1623
+
+`TRANSLATION_IMPORT_DOWNGRADED` · warning · Imported status lowered to translated
+
+**Cause.** The file asks for approved or final status, which only a translation approver may set, so the entries are stored as translated (I18N-008, I18N-009).
+
+**Fix.** Have a translation approver approve the entries in Studio or import the file.
+
 ## Compiler and PXL (PLX-2000–2999)
 
 ### PLX-2001
@@ -1499,6 +1507,22 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 **Cause.** A golden image differs from its baseline and the difference has not been approved, so the publish is refused (TST-003).
 
 **Fix.** Review the difference and approve it, or fix the rendering that changed.
+
+### PLX-3063
+
+`RELEASE_PROFILE_BELOW_ENVIRONMENT` · error · Release profile below the environment's
+
+**Cause.** The release was compiled for a security profile that is less strict than the environment's effective profile, so it cannot be published or promoted into it (SEC-180).
+
+**Fix.** Publish a release compiled with the environment's profile or a stricter one, or lower the environment's profile in a reviewed configuration.
+
+### PLX-3064
+
+`PSEUDO_LOCALES_IN_PRODUCTION` · error · Release carries pseudo-locales
+
+**Cause.** The release supports the pseudo-locales en-XA or ar-XB, which are for development, so it cannot be promoted into a production environment (I18N-002).
+
+**Fix.** Publish the release again from a build without pseudo-locales.
 
 ## Runtime rendering and navigation (PLX-4000–4999)
 
