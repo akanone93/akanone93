@@ -584,6 +584,56 @@ var registry = []Definition{
 		"Set `semantics.label`, or give the node visible text.", false,
 	},
 	{
+		ImageAlternativeMissing, "IMAGE_ALTERNATIVE_MISSING", SeverityWarning, "Image without alternative text",
+		"An image has no `semanticLabel`, no `semantics.label` and is not marked decorative, so screen readers cannot describe it (A11Y-002).",
+		"Set `semanticLabel` or `semantics.label`, or mark the image `semantics.decorative`.", false,
+	},
+	{
+		ContrastInsufficient, "CONTRAST_INSUFFICIENT", SeverityWarning, "Contrast below WCAG 2.2 AA",
+		"The contrast ratio of a text or component colour against its background is below 4.5:1 (3:1 for large text and UI components) in a theme variant (A11Y-003).",
+		"Choose colours with a higher contrast ratio in every theme variant.", false,
+	},
+	{
+		TouchTargetTooSmall, "TOUCH_TARGET_TOO_SMALL", SeverityWarning, "Touch target too small",
+		"An interactive node has a fixed size below 44 x 44 logical pixels, or below 48 x 48 when the app targets Android (A11Y-004).",
+		"Enlarge the node, or remove the fixed size so the platform padding applies.", false,
+	},
+	{
+		FixedHeightText, "FIXED_HEIGHT_TEXT", SeverityWarning, "Text under a fixed height",
+		"A text node sits under an ancestor with a fixed height, which clips the text when the user scales it (A11Y-005).",
+		"Remove the fixed height or use a minimum height.", false,
+	},
+	{
+		FocusOrderInvalid, "FOCUS_ORDER_INVALID", SeverityWarning, "Focus order invalid",
+		"Sibling nodes in one group or page declare duplicate or non-dense `focusOrder` values (A11Y-006).",
+		"Number the focus order of siblings 1, 2, 3 without gaps or repeats.", false,
+	},
+	{
+		HeadingLevelInvalid, "HEADING_LEVEL_INVALID", SeverityWarning, "Heading level skipped",
+		"A heading level skips more than one level from the previous heading of the page (A11Y-006).",
+		"Use consecutive heading levels.", false,
+	},
+	{
+		LiveRegionStatic, "LIVE_REGION_STATIC", SeverityWarning, "Live region with constant content",
+		"A node is a live region but its label or text never changes, so it announces nothing useful (A11Y-006).",
+		"Bind the content to state, or remove `liveRegion`.", false,
+	},
+	{
+		ContrastNotChecked, "CONTRAST_NOT_CHECKED", SeverityInfo, "Contrast not checked",
+		"A colour or background depends on an expression, a gradient, an image or a theme the compiler cannot see, so its contrast was not checked (A11Y-003).",
+		"Check the contrast at run time, or use literal colours or theme tokens.", false,
+	},
+	{
+		A11yWaiverInvalid, "A11Y_WAIVER_INVALID", SeverityError, "Accessibility waiver invalid",
+		"An accessibility waiver names an unknown check or has a justification shorter than ten characters (A11Y-008).",
+		"Name a known check and justify the waiver in at least ten characters.", false,
+	},
+	{
+		A11yWaiverPermissionRequired, "A11Y_WAIVER_PERMISSION_REQUIRED", SeverityError, "Accessibility waiver needs permission",
+		"Under the maximum profile an accessibility waiver needs the `a11y.waive` permission of the saving principal (A11Y-008).",
+		"Ask a principal with `a11y.waive` to save the waiver.", false,
+	},
+	{
 		SecretLikeValue, "SECRET_LIKE_VALUE", SeverityError, "Secret-like value detected",
 		"A literal looks like an API key, token, private key or password. Bundles are readable on devices, so secrets must never be shipped in them (DAT-003).",
 		"Keep the secret on the server and use it through a Plux Function or the host's auth delegate.", false,

@@ -346,6 +346,36 @@ enum PluxErrorCode {
   /// Interactive node without accessible name.
   accessibleNameMissing(1401, 'ACCESSIBLE_NAME_MISSING', 'Interactive node without accessible name'),
 
+  /// Image without alternative text.
+  imageAlternativeMissing(1402, 'IMAGE_ALTERNATIVE_MISSING', 'Image without alternative text'),
+
+  /// Contrast below WCAG 2.2 AA.
+  contrastInsufficient(1403, 'CONTRAST_INSUFFICIENT', 'Contrast below WCAG 2.2 AA'),
+
+  /// Touch target too small.
+  touchTargetTooSmall(1404, 'TOUCH_TARGET_TOO_SMALL', 'Touch target too small'),
+
+  /// Text under a fixed height.
+  fixedHeightText(1405, 'FIXED_HEIGHT_TEXT', 'Text under a fixed height'),
+
+  /// Focus order invalid.
+  focusOrderInvalid(1406, 'FOCUS_ORDER_INVALID', 'Focus order invalid'),
+
+  /// Heading level skipped.
+  headingLevelInvalid(1407, 'HEADING_LEVEL_INVALID', 'Heading level skipped'),
+
+  /// Live region with constant content.
+  liveRegionStatic(1408, 'LIVE_REGION_STATIC', 'Live region with constant content'),
+
+  /// Contrast not checked.
+  contrastNotChecked(1409, 'CONTRAST_NOT_CHECKED', 'Contrast not checked'),
+
+  /// Accessibility waiver invalid.
+  a11yWaiverInvalid(1410, 'A11Y_WAIVER_INVALID', 'Accessibility waiver invalid'),
+
+  /// Accessibility waiver needs permission.
+  a11yWaiverPermissionRequired(1411, 'A11Y_WAIVER_PERMISSION_REQUIRED', 'Accessibility waiver needs permission'),
+
   /// Secret-like value detected.
   secretLikeValue(1500, 'SECRET_LIKE_VALUE', 'Secret-like value detected'),
 

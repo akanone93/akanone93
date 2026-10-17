@@ -159,6 +159,16 @@ const (
 	// (PLX-1400–1599).
 
 	AccessibleNameMissing              Code = 1401
+	ImageAlternativeMissing            Code = 1402
+	ContrastInsufficient               Code = 1403
+	TouchTargetTooSmall                Code = 1404
+	FixedHeightText                    Code = 1405
+	FocusOrderInvalid                  Code = 1406
+	HeadingLevelInvalid                Code = 1407
+	LiveRegionStatic                   Code = 1408
+	ContrastNotChecked                 Code = 1409
+	A11yWaiverInvalid                  Code = 1410
+	A11yWaiverPermissionRequired       Code = 1411
 	SecretLikeValue                    Code = 1500
 	SensitiveValueExposed              Code = 1501
 	InsecureURL                        Code = 1502

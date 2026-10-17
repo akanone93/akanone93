@@ -109,7 +109,7 @@ func catalogPage(s *ids, revision int) node {
 	for i := range catalogItems {
 		rows = append(rows, s.w("Padding", map[string]any{"padding": map[string]any{"all": 8.0}}, map[string]node{
 			"child": s.w("Row", nil, nil,
-				s.w("Icon", map[string]any{"icon": map[string]any{"name": "shopping_bag"}, "size": 32.0}, nil),
+				s.w("Icon", map[string]any{"icon": map[string]any{"name": "shopping_bag"}, "size": 32.0, "semanticLabel": "Product"}, nil),
 				s.w("SizedBox", map[string]any{"width": 12.0}, nil),
 				s.w("Expanded", nil, map[string]node{"child": s.w("Column",
 					map[string]any{"crossAxisAlignment": "start"}, nil,
