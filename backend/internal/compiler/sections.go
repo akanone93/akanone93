@@ -19,6 +19,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/bundle"
 	"github.com/nightCode42/plux3/backend/internal/bundle/fbs"
+	"github.com/nightCode42/plux3/backend/internal/l10n"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/pxl"
 	"github.com/nightCode42/plux3/backend/internal/schema"
@@ -508,16 +509,24 @@ func stepTable(e *valueEnc, s *step) flatbuffers.UOffsetT {
 // clampU32 clamps a document integer to uint32.
 func clampU32(v int64) uint32 { return uint32(max(0, min(v, 1<<32-1))) } //nolint:gosec // G115: clamped.
 
-// localeSections encodes one l10n section per locale.
+// localeSections encodes one l10n section per locale: each message as its
+// text and its pre-parsed AST (I18N-001), after checking it against its key.
 func (u *unit) localeSections(o *out) {
+	app := u.project.App.Doc
+	covered := map[string]bool{}
 	for _, t := range u.project.Translations {
 		if t.Doc == nil {
 			continue
 		}
+		covered[t.Doc.Locale] = true
 		id, err := bundle.LocaleID(t.Doc.Locale)
 		if err != nil {
 			u.report(plxerr.OutOfRange, t.Source.File, "/locale", "%v", err)
 			continue
+		}
+		loc, lerr := l10n.Load(t.Doc.Locale)
+		if lerr != nil {
+			loc = nil // the plural categories cannot be checked
 		}
 		b := flatbuffers.NewBuilder(1024)
 		keys := sortedKeys(t.Doc.Messages)
@@ -527,11 +536,17 @@ func (u *unit) localeSections(o *out) {
 		})
 		offs := make([]flatbuffers.UOffsetT, len(keys))
 		for i, k := range keys {
+			msg := u.checkMessage(t.Source.File, plxerr.Pointer("messages", k), k, t.Doc.Messages[k], loc, t.Doc.Locale == app.DefaultLocale)
 			text := b.CreateString(t.Doc.Messages[k])
+			var ast flatbuffers.UOffsetT
+			if msg != nil {
+				ast = b.CreateByteVector(msg.ast)
+			}
 			fbs.MessageStart(b)
 			hi, lo := uuidHalves(uuidBytes(k))
 			fbs.MessageAddKey(b, fbs.CreateUuid(b, hi, lo))
 			fbs.MessageAddText(b, text)
+			addOptional(b, ast, fbs.MessageAddAst)
 			offs[i] = fbs.MessageEnd(b)
 		}
 		mv := offsetVector(b, offs)
@@ -540,6 +555,16 @@ func (u *unit) localeSections(o *out) {
 		fbs.LocaleAddTag(b, tag)
 		fbs.LocaleAddMessages(b, mv)
 		o.add(bundle.SectionL10n, id, finish(b, fbs.LocaleEnd(b), bundle.SectionL10n))
+		if slices.Contains(app.SupportedLocales, t.Doc.Locale) {
+			u.reportMissingTranslations(t.Doc.Locale, t.Source.File, "/messages", t.Doc.Messages)
+		}
+	}
+	if tk := u.project.TranslationKeys; tk != nil && tk.Doc != nil {
+		for _, tag := range app.SupportedLocales {
+			if !covered[tag] {
+				u.reportMissingTranslations(tag, tk.Source.File, "/keys", nil)
+			}
+		}
 	}
 }
 

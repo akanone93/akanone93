@@ -28,6 +28,7 @@ func TestIndicesAndCountsAre32Bit(t *testing.T) {
 		"code":          true, // PXL bytecode
 		"hash":          true, // SHA-256
 		"module":        true, // WebAssembly bytes
+		"ast":           true, // an encoded MessageFormat AST
 		"hints":         true, // NodeHints bits
 		"heading_level": true, // a heading level from 1 to 6
 	}
