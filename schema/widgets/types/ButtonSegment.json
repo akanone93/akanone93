@@ -38,13 +38,15 @@
       "id": 3,
       "type": "string",
       "flutter": "label",
-      "description": "Text of the segment."
+      "description": "Text of the segment.",
+      "translatable": true
     },
     {
       "name": "tooltip",
       "id": 4,
       "type": "string",
-      "flutter": "tooltip"
+      "flutter": "tooltip",
+      "translatable": true
     },
     {
       "name": "enabled",

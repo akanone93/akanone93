@@ -16,13 +16,15 @@
       "id": 1,
       "type": "string",
       "required": true,
-      "description": "The step's name."
+      "description": "The step's name.",
+      "translatable": true
     },
     {
       "name": "detail",
       "id": 2,
       "type": "string?",
-      "description": "A line below the label, such as a time or a reason."
+      "description": "A line below the label, such as a time or a reason.",
+      "translatable": true
     },
     {
       "name": "state",

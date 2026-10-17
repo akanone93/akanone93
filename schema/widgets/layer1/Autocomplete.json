@@ -41,7 +41,8 @@
     {
       "name": "hintText",
       "id": 2,
-      "type": "string"
+      "type": "string",
+      "translatable": true
     },
     {
       "name": "optionsMaxHeight",

@@ -114,7 +114,8 @@
       "name": "tooltip",
       "id": 13,
       "type": "string",
-      "flutter": "tooltip"
+      "flutter": "tooltip",
+      "translatable": true
     },
     {
       "name": "enableFeedback",

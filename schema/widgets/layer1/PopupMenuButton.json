@@ -50,7 +50,8 @@
       "name": "tooltip",
       "id": 3,
       "type": "string",
-      "flutter": "tooltip"
+      "flutter": "tooltip",
+      "translatable": true
     },
     {
       "name": "enabled",

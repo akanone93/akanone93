@@ -335,7 +335,9 @@
                       "child": {
                         "id": "01d0c450-6c00-7000-8000-000000003001",
                         "props": {
-                          "data": "Show fee"
+                          "data": {
+                            "$t": "01a14abf-1709-759b-b4e9-13dd4dda6b95"
+                          }
                         },
                         "type": "Text"
                       }

@@ -5,7 +5,6 @@
   "messages": {
     "01d0c450-6c00-7000-8000-000000000280": "Willkommen zurück",
     "01d0c450-6c00-7000-8000-000000000281": "Benutzername",
-    "01d0c450-6c00-7000-8000-000000000282": "Passwort",
     "01d0c450-6c00-7000-8000-000000000283": "Anmelden",
     "01d0c450-6c00-7000-8000-000000000284": "Plux Bank",
     "01d0c450-6c00-7000-8000-000000000285": "Noch keine Umsätze.",
@@ -28,7 +27,8 @@
     "01d0c450-6c00-7000-8000-000000000296": "Foto aufnehmen",
     "01d0c450-6c00-7000-8000-000000000297": "Identitätsprüfung",
     "01d0c450-6c00-7000-8000-000000000298": "PIN eingeben",
-    "01d0c450-6c00-7000-8000-000000000299": "Per SMS gesendeter Code"
+    "01d0c450-6c00-7000-8000-000000000299": "Per SMS gesendeter Code",
+    "01a14abf-1709-759b-b4e9-13dd4dda6b95": "Gebühr anzeigen"
   },
   "schemaVersion": "1.0.0"
 }

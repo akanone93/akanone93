@@ -186,8 +186,13 @@ func TestPublishAndReleaseEndToEnd(t *testing.T) {
 	if page.GetContentType() != "text/html; charset=utf-8" || !strings.HasPrefix(string(page.GetContent()), "<!DOCTYPE html>") {
 		t.Errorf("GetReport html = %s", page.GetContentType())
 	}
-	if _, err := w.release.GetReport(ctx, req(admin, &pluxv1.GetReportRequest{AppId: app, Sequence: 1, Kind: pluxv1.ReportKind_REPORT_KIND_LOCALISATION})); codeOf(err) != connect.CodeNotFound {
-		t.Errorf("a report that does not exist: %v", err)
+	// Verifies: I18N-008.
+	l10n := must(w.release.GetReport(ctx, req(admin, &pluxv1.GetReportRequest{AppId: app, Sequence: 1, Kind: pluxv1.ReportKind_REPORT_KIND_LOCALISATION})))(t)
+	if l10n.GetContentType() != "application/json" || !strings.Contains(string(l10n.GetContent()), `"defaultLocale"`) {
+		t.Errorf("GetReport localisation = %s %s", l10n.GetContentType(), l10n.GetContent())
+	}
+	if _, err := w.release.GetReport(ctx, req(admin, &pluxv1.GetReportRequest{AppId: app, Sequence: 99, Kind: pluxv1.ReportKind_REPORT_KIND_LOCALISATION})); codeOf(err) != connect.CodeNotFound {
+		t.Errorf("a report of a release that does not exist: %v", err)
 	}
 	if _, err := w.release.GetReport(ctx, req(admin, &pluxv1.GetReportRequest{AppId: app, Sequence: 1})); codeOf(err) != connect.CodeInvalidArgument {
 		t.Errorf("a report without a kind: %v", err)

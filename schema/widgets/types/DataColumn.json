@@ -16,7 +16,8 @@
       "id": 1,
       "type": "string",
       "required": true,
-      "description": "The heading text."
+      "description": "The heading text.",
+      "translatable": true
     },
     {
       "name": "numeric",
@@ -29,7 +30,8 @@
       "name": "tooltip",
       "id": 3,
       "type": "string",
-      "description": "Shown on long press of the heading."
+      "description": "Shown on long press of the heading.",
+      "translatable": true
     }
   ]
 }

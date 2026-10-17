@@ -73,6 +73,10 @@
           },
           "description": {
             "$ref": "common.schema.json#/$defs/description"
+          },
+          "translatable": {
+            "type": "boolean",
+            "description": "True for a string field whose text is shown to the user and belongs in translations (I18N-007, PLX-1609)."
           }
         },
         "additionalProperties": false

@@ -15,18 +15,21 @@
       "name": "title",
       "id": 1,
       "type": "string",
-      "required": true
+      "required": true,
+      "translatable": true
     },
     {
       "name": "subtitle",
       "id": 2,
-      "type": "string"
+      "type": "string",
+      "translatable": true
     },
     {
       "name": "label",
       "id": 3,
       "type": "string",
-      "description": "Shown in place of the step number."
+      "description": "Shown in place of the step number.",
+      "translatable": true
     },
     {
       "name": "state",

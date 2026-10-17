@@ -548,21 +548,24 @@ func (u *unit) localeSections(o *out) {
 			x, y := uuidBytes(a), uuidBytes(c)
 			return bytes.Compare(x[:], y[:])
 		})
-		offs := make([]flatbuffers.UOffsetT, len(keys))
-		for i, k := range keys {
-			msg := u.checkMessage(t.Source.File, plxerr.Pointer("messages", k), k, t.Doc.Messages[k], loc, t.Doc.Locale == app.DefaultLocale)
-			text := b.CreateString(t.Doc.Messages[k])
-			var ast flatbuffers.UOffsetT
-			if msg != nil {
-				ast = b.CreateByteVector(msg.ast)
-			}
-			fbs.MessageStart(b)
-			hi, lo := uuidHalves(uuidBytes(k))
-			fbs.MessageAddKey(b, fbs.CreateUuid(b, hi, lo))
-			fbs.MessageAddText(b, text)
-			addOptional(b, ast, fbs.MessageAddAst)
-			offs[i] = fbs.MessageEnd(b)
+		offs := make([]flatbuffers.UOffsetT, 0, len(keys))
+		kept, leftOut := u.approvedOnly(t.Doc, keys)
+		inRelease := make(map[string]bool, len(kept))
+		for _, k := range kept {
+			inRelease[k] = true
 		}
+		for _, k := range keys {
+			msg := u.checkMessage(t.Source.File, plxerr.Pointer("messages", k), k, t.Doc.Messages[k], loc, t.Doc.Locale == app.DefaultLocale)
+			if !inRelease[k] {
+				continue
+			}
+			var ast []byte
+			if msg != nil {
+				ast = msg.ast
+			}
+			offs = append(offs, messageTable(b, k, t.Doc.Messages[k], ast))
+		}
+		u.reportLeftOut(t.Doc, t.Source.File, leftOut, len(keys))
 		mv := offsetVector(b, offs)
 		o.add(bundle.SectionL10n, id, u.finishLocale(b, t.Doc.Locale, mv, blobs[t.Doc.Locale]))
 		if slices.Contains(app.SupportedLocales, t.Doc.Locale) {
@@ -581,6 +584,7 @@ func (u *unit) localeSections(o *out) {
 		b := flatbuffers.NewBuilder(256)
 		o.add(bundle.SectionL10n, id, u.finishLocale(b, tag, offsetVector(b, nil), blobs[tag]))
 	}
+	u.pseudoSections(o)
 	if tk := u.project.TranslationKeys; tk != nil && tk.Doc != nil {
 		for _, tag := range app.SupportedLocales {
 			if !translated[tag] {

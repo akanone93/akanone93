@@ -23,13 +23,14 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 )
 
-const l10nUsage = "Usage: plux l10n pull|push|export|import|status [flags]\n"
+const l10nUsage = "Usage: plux l10n pull|push|export|import|status|extract|pseudo [flags]\n"
 
 // localeFile matches the translations document of a locale in a project:
 // translations/<locale>.json (the locale of common.schema.json).
 var localeFile = regexp.MustCompile(`^translations/([a-z]{2,3}(?:-[A-Z][a-z]{3})?(?:-(?:[A-Z]{2}|[0-9]{3}))?)\.json$`)
 
-// l10n runs plux l10n pull|push|export|import|status (CLI-003, I18N-009).
+// l10n runs plux l10n pull|push|export|import|status|extract|pseudo (CLI-003,
+// I18N-007, I18N-009).
 func (e env) l10n(args []string) int {
 	if len(args) < 1 {
 		_, _ = fmt.Fprint(e.stderr, l10nUsage)
@@ -46,6 +47,10 @@ func (e env) l10n(args []string) int {
 		return e.l10nImport(args[1:])
 	case "status":
 		return e.l10nStatus(args[1:])
+	case "extract":
+		return e.l10nExtract(args[1:])
+	case "pseudo":
+		return e.l10nPseudo(args[1:])
 	}
 	_, _ = fmt.Fprint(e.stderr, l10nUsage)
 	return exitUsage

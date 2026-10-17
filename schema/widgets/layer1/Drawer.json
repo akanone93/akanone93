@@ -71,7 +71,8 @@
       "name": "semanticLabel",
       "id": 7,
       "type": "string",
-      "flutter": "semanticLabel"
+      "flutter": "semanticLabel",
+      "translatable": true
     },
     {
       "name": "clipBehavior",

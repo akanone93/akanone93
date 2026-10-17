@@ -220,7 +220,8 @@
       "name": "checkboxSemanticLabel",
       "id": 29,
       "type": "string",
-      "flutter": "checkboxSemanticLabel"
+      "flutter": "checkboxSemanticLabel",
+      "translatable": true
     },
     {
       "name": "checkboxScaleFactor",

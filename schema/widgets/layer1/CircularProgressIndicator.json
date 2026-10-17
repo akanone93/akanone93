@@ -73,13 +73,15 @@
       "name": "semanticsLabel",
       "id": 6,
       "type": "string",
-      "flutter": "semanticsLabel"
+      "flutter": "semanticsLabel",
+      "translatable": true
     },
     {
       "name": "semanticsValue",
       "id": 7,
       "type": "string",
-      "flutter": "semanticsValue"
+      "flutter": "semanticsValue",
+      "translatable": true
     },
     {
       "name": "strokeCap",

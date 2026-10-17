@@ -209,7 +209,12 @@ func TestReleaseReport_A11Y_008(t *testing.T) {
 		t.Errorf("the rollback's report differs: %v", err)
 	}
 
-	if _, _, err := f.rel.GetReport(ctx, f.viewer, f.app, first.Sequence, release.ReportLocalisation, release.ReportJSON); code(err) != plxerr.ResourceNotFound {
+	// Verifies: I18N-008. The release also stores a localisation report.
+	l10n, _, err := f.rel.GetReport(ctx, f.viewer, f.app, first.Sequence, release.ReportLocalisation, release.ReportJSON)
+	if err != nil || !strings.Contains(string(l10n), `"defaultLocale"`) {
+		t.Errorf("the localisation report: %v\n%s", err, l10n)
+	}
+	if _, _, err := f.rel.GetReport(ctx, f.viewer, f.app, first.Sequence, release.ReportKind("nonexistent"), release.ReportJSON); code(err) != plxerr.ResourceNotFound {
 		t.Errorf("a report that does not exist: %v", err)
 	}
 	if _, _, err := f.rel.GetReport(ctx, f.viewer, f.app, 99, release.ReportAccessibility, release.ReportJSON); code(err) != plxerr.ResourceNotFound {

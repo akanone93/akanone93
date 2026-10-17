@@ -29,6 +29,8 @@ type unit struct {
 	diags   plxerr.Diagnostics
 	// a11y collects the accessibility checks' findings (A11Y-008).
 	a11y a11yState
+	// l10n collects the localisation report's findings (I18N-008).
+	l10n l10nState
 	// focus is the page file ValidatePage checks: the checking stages
 	// then skip every other page, component and flow. Empty in Compile.
 	focus string

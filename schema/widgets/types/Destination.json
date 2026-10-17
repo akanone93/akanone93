@@ -15,7 +15,8 @@
       "name": "label",
       "id": 1,
       "type": "string",
-      "required": true
+      "required": true,
+      "translatable": true
     },
     {
       "name": "icon",

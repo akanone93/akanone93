@@ -43,7 +43,8 @@
       "name": "hintText",
       "id": 2,
       "type": "string",
-      "flutter": "hintText"
+      "flutter": "hintText",
+      "translatable": true
     }
   ],
   "events": [

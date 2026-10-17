@@ -35,7 +35,8 @@
       "name": "message",
       "id": 1,
       "type": "string",
-      "flutter": "message"
+      "flutter": "message",
+      "translatable": true
     },
     {
       "name": "richMessage",
