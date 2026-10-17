@@ -185,7 +185,7 @@ type Member struct {
 	OrganizationId string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	// team_id is empty for a direct organization membership.
 	TeamId string `protobuf:"bytes,3,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
-	// role is "owner", "admin", "developer" or "viewer" for a direct
+	// role is "owner", "admin", "developer", "translator" or "viewer" for a direct
 	// membership (SEC-102), and "member" for a team membership: a team's
 	// members hold the roles the team is granted on apps (GOV-001).
 	Role          string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`

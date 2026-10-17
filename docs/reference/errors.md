@@ -2662,6 +2662,22 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Retry later. If it persists, the operator checks the service and the server's outbound network.
 
+### PLX-8092
+
+`TRANSLATION_STATE_FORBIDDEN` · error · Translation state not allowed
+
+**Cause.** The save sets a message to approved, or changes the text of a message that stays approved, and the caller does not hold translations.approve (I18N-008).
+
+**Fix.** Ask a member who holds translations.approve to approve the message, or save it at another state; a changed text of a message without that permission is saved as translated.
+
+### PLX-8093
+
+`TRANSLATION_DOCUMENT_FORBIDDEN` · error · Document not editable with translations.edit
+
+**Cause.** A caller who holds translations.edit but not app.manage may save only the messages and states of an existing translations document (translations/<locale>.json); the save touches another document, another property, or creates the document (I18N-008).
+
+**Fix.** Save only messages and states of an existing translations document, or ask for app.manage.
+
 ## Studio, CLI and AI (PLX-9000–9999)
 
 ### PLX-9100

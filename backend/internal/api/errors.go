@@ -48,13 +48,15 @@ var codes = map[plxerr.Code]connect.Code{
 	plxerr.IdempotencyConflict: connect.CodeAlreadyExists,
 
 	// The caller may not do this, or may not know that it exists.
-	plxerr.AuthenticationRequired: connect.CodeUnauthenticated,
-	plxerr.MultiFactorRequired:    connect.CodePermissionDenied,
-	plxerr.PermissionDenied:       connect.CodePermissionDenied,
-	plxerr.ResourceNotFound:       connect.CodeNotFound,
-	plxerr.ResourceExists:         connect.CodeAlreadyExists,
-	plxerr.PreconditionFailed:     connect.CodeFailedPrecondition,
-	plxerr.EditingLockHeld:        connect.CodeFailedPrecondition,
+	plxerr.AuthenticationRequired:       connect.CodeUnauthenticated,
+	plxerr.MultiFactorRequired:          connect.CodePermissionDenied,
+	plxerr.PermissionDenied:             connect.CodePermissionDenied,
+	plxerr.ResourceNotFound:             connect.CodeNotFound,
+	plxerr.ResourceExists:               connect.CodeAlreadyExists,
+	plxerr.PreconditionFailed:           connect.CodeFailedPrecondition,
+	plxerr.EditingLockHeld:              connect.CodeFailedPrecondition,
+	plxerr.TranslationStateForbidden:    connect.CodePermissionDenied,
+	plxerr.TranslationDocumentForbidden: connect.CodePermissionDenied,
 
 	// The caller must slow down or ask for less.
 	plxerr.RateLimited:      connect.CodeResourceExhausted,

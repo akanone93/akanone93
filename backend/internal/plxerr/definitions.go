@@ -1692,6 +1692,16 @@ var registry = []Definition{
 		"The server could not reach a service outside it that the call needs, such as the single sign-on provider.",
 		"Retry later. If it persists, the operator checks the service and the server's outbound network.", false,
 	},
+	{
+		TranslationStateForbidden, "TRANSLATION_STATE_FORBIDDEN", SeverityError, "Translation state not allowed",
+		"The save sets a message to approved, or changes the text of a message that stays approved, and the caller does not hold translations.approve (I18N-008).",
+		"Ask a member who holds translations.approve to approve the message, or save it at another state; a changed text of a message without that permission is saved as translated.", false,
+	},
+	{
+		TranslationDocumentForbidden, "TRANSLATION_DOCUMENT_FORBIDDEN", SeverityError, "Document not editable with translations.edit",
+		"A caller who holds translations.edit but not app.manage may save only the messages and states of an existing translations document (translations/<locale>.json); the save touches another document, another property, or creates the document (I18N-008).",
+		"Save only messages and states of an existing translations document, or ask for app.manage.", false,
+	},
 
 	// Studio, CLI and AI.
 	{

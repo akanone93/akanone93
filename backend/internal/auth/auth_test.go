@@ -128,10 +128,13 @@ func TestSecretsAndUserCodes(t *testing.T) {
 // refused before anything else.
 func TestRolesAndAuthorisation(t *testing.T) {
 	t.Parallel()
-	if got := auth.Roles(); len(got) != 4 || got[0] != auth.RoleAdmin {
+	if got := auth.Roles(); len(got) != 5 || got[0] != auth.RoleAdmin {
 		t.Errorf("Roles = %v", got)
 	}
-	for _, p := range []auth.Permission{auth.ReleasePublish, auth.ReleasePromote, auth.KeysManage, auth.MembersManage} {
+	for _, p := range []auth.Permission{
+		auth.ReleasePublish, auth.ReleasePromote, auth.KeysManage, auth.MembersManage,
+		auth.TranslationsApprove, auth.A11yWaive, auth.GoldensApprove,
+	} {
 		if !auth.NeedsSecondFactor(p) {
 			t.Errorf("%s does not need a second factor (SEC-100)", p)
 		}
@@ -171,7 +174,8 @@ func TestFunctionPermissions_FN_007(t *testing.T) {
 	t.Parallel()
 	holds := func(r auth.Role, p auth.Permission) bool { return slices.Contains(auth.RolePermissions(r), p) }
 	for _, r := range auth.Roles() {
-		if !holds(r, auth.FunctionRead) {
+		// The translator reads what translating needs and nothing more (I18N-008).
+		if !holds(r, auth.FunctionRead) && r != auth.RoleTranslator {
 			t.Errorf("%s cannot read functions", r)
 		}
 		if holds(r, auth.FunctionDeploy) != holds(r, auth.ReleasePublish) {
@@ -186,5 +190,50 @@ func TestFunctionPermissions_FN_007(t *testing.T) {
 	}
 	if !slices.IsSorted(auth.Permissions()) {
 		t.Error("the catalogue is not sorted")
+	}
+}
+
+// Verifies: I18N-008, GOV-002.
+// The translator role holds the read permissions and translations.edit and
+// nothing else; the developer gains translations.edit but not the
+// approvals; the owner and the admin hold all four P8 permissions; the
+// approvals need a second factor and editing does not.
+func TestTranslationPermissions_I18N_008(t *testing.T) {
+	t.Parallel()
+	holds := func(r auth.Role, p auth.Permission) bool { return slices.Contains(auth.RolePermissions(r), p) }
+	p8 := []auth.Permission{auth.TranslationsEdit, auth.TranslationsApprove, auth.A11yWaive, auth.GoldensApprove}
+	for _, p := range p8 {
+		if !slices.Contains(auth.Permissions(), p) {
+			t.Errorf("the catalogue lacks %s", p)
+		}
+		if !holds(auth.RoleOwner, p) || !holds(auth.RoleAdmin, p) {
+			t.Errorf("the owner and the admin must hold %s", p)
+		}
+		if holds(auth.RoleViewer, p) {
+			t.Errorf("the viewer holds %s", p)
+		}
+	}
+	want := []auth.Permission{auth.AppRead, auth.OrganizationRead, auth.PluginRead, auth.TranslationsEdit}
+	got := auth.RolePermissions(auth.RoleTranslator)
+	slices.Sort(got)
+	if !slices.Equal(got, want) {
+		t.Errorf("translator holds %v, want %v", got, want)
+	}
+	for _, p := range p8 {
+		wantDev := p == auth.TranslationsEdit
+		if holds(auth.RoleDeveloper, p) != wantDev {
+			t.Errorf("developer holds %s = %v, want %v", p, !wantDev, wantDev)
+		}
+	}
+	for _, p := range []auth.Permission{auth.TranslationsApprove, auth.A11yWaive, auth.GoldensApprove} {
+		if !auth.NeedsSecondFactor(p) {
+			t.Errorf("%s does not need a second factor", p)
+		}
+	}
+	if auth.NeedsSecondFactor(auth.TranslationsEdit) {
+		t.Error("translations.edit needs a second factor")
+	}
+	if r, err := auth.ParseRole("translator"); err != nil || r != auth.RoleTranslator {
+		t.Errorf("ParseRole(translator) = %v, %v", r, err)
 	}
 }

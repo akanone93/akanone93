@@ -60,6 +60,9 @@ message Lock {
   google.protobuf.Timestamp expires_at = 6;
   // requested_by lists users who asked for the lock since it was taken.
   repeated Actor requested_by = 7;
+  // scope is empty for the draft's own lock and "translations/<locale>" for
+  // the lock of one locale's translations document (I18N-008).
+  string scope = 8;
 }
 
 message CreatePluginRequest {
@@ -109,6 +112,9 @@ message AcquireLockRequest {
   // force takes the lock from its holder; it needs plugin.lock.override,
   // snapshots the holder's unsaved work and is audited (SRV-041).
   bool force = 4;
+  // scope names a locale lock, "translations/<locale>"; empty is the draft
+  // lock (I18N-008).
+  string scope = 5;
 }
 message AcquireLockResponse {
   Lock lock = 1;
@@ -120,6 +126,8 @@ message RenewLockRequest {
   string app_id = 1;
   string plugin_id = 2;
   string session = 3;
+  // scope is as in AcquireLockRequest.
+  string scope = 4;
 }
 message RenewLockResponse {
   Lock lock = 1;
@@ -129,12 +137,16 @@ message ReleaseLockRequest {
   string app_id = 1;
   string plugin_id = 2;
   string session = 3;
+  // scope is as in AcquireLockRequest.
+  string scope = 4;
 }
 message ReleaseLockResponse {}
 
 message RequestLockRequest {
   string app_id = 1;
   string plugin_id = 2;
+  // scope is as in AcquireLockRequest.
+  string scope = 3;
 }
 message RequestLockResponse {
   Lock lock = 1;
@@ -143,6 +155,8 @@ message RequestLockResponse {
 message GetLockRequest {
   string app_id = 1;
   string plugin_id = 2;
+  // scope is as in AcquireLockRequest.
+  string scope = 3;
 }
 message GetLockResponse {
   Lock lock = 1;
