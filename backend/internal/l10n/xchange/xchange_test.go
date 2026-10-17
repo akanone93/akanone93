@@ -266,7 +266,7 @@ func TestImportApprovedNeedsApprover(t *testing.T) {
 	t.Parallel()
 	csv := "keyId,target,state\n" + idUser + ",Benutzer,approved\n" + idTitle + ",Willkommen!,approved\n" + idHint + ",\"" + strings.ReplaceAll(german().Messages[idHint], "\"", "\"\"") + "\",approved\n"
 
-	plain, _, err := xchange.Import([]byte(csv), xchange.CSV, keys(), german(), english(), opts(false))
+	plain, plainDiags, err := xchange.Import([]byte(csv), xchange.CSV, keys(), german(), english(), opts(false))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -285,9 +285,27 @@ func TestImportApprovedNeedsApprover(t *testing.T) {
 		}
 	}
 
-	approver, _, err := xchange.Import([]byte(csv), xchange.CSV, keys(), german(), english(), opts(true))
+	downgrades := 0
+	for _, d := range plainDiags {
+		if d.Code == plxerr.TranslationImportDowngraded {
+			downgrades++
+			if !strings.Contains(d.Message, "3 translation(s)") {
+				t.Errorf("warning %q does not name the count", d.Message)
+			}
+		}
+	}
+	if downgrades != 1 {
+		t.Errorf("%d downgrade warnings, want one", downgrades)
+	}
+
+	approver, approverDiags, err := xchange.Import([]byte(csv), xchange.CSV, keys(), german(), english(), opts(true))
 	if err != nil {
 		t.Fatal(err)
+	}
+	for _, d := range approverDiags {
+		if d.Code == plxerr.TranslationImportDowngraded {
+			t.Errorf("an approver is warned: %s", d.Message)
+		}
 	}
 	for _, id := range []string{idUser, idTitle, idHint} {
 		if approver.State(id) != "approved" {

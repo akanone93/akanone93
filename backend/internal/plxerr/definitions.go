@@ -755,6 +755,11 @@ var registry = []Definition{
 		"The source text of a key changed after it was translated, so the imported translation is out of date and its key is reset to translated (I18N-009).",
 		"Review the translation against the new source text and approve it again.", false,
 	},
+	{
+		TranslationImportDowngraded, "TRANSLATION_IMPORT_DOWNGRADED", SeverityWarning, "Imported status lowered to translated",
+		"The file asks for approved or final status, which only a translation approver may set, so the entries are stored as translated (I18N-008, I18N-009).",
+		"Have a translation approver approve the entries in Studio or import the file.", false,
+	},
 
 	// Compiler and PXL.
 	{
@@ -958,6 +963,16 @@ var registry = []Definition{
 		GoldenDifferenceUnapproved, "GOLDEN_DIFFERENCE_UNAPPROVED", SeverityError, "Golden difference not approved",
 		"A golden image differs from its baseline and the difference has not been approved, so the publish is refused (TST-003).",
 		"Review the difference and approve it, or fix the rendering that changed.", false,
+	},
+	{
+		ReleaseProfileBelowEnvironment, "RELEASE_PROFILE_BELOW_ENVIRONMENT", SeverityError, "Release profile below the environment's",
+		"The release was compiled for a security profile that is less strict than the environment's effective profile, so it cannot be published or promoted into it (SEC-180).",
+		"Publish a release compiled with the environment's profile or a stricter one, or lower the environment's profile in a reviewed configuration.", false,
+	},
+	{
+		PseudoLocalesInProduction, "PSEUDO_LOCALES_IN_PRODUCTION", SeverityError, "Release carries pseudo-locales",
+		"The release supports the pseudo-locales en-XA or ar-XB, which are for development, so it cannot be promoted into a production environment (I18N-002).",
+		"Publish the release again from a build without pseudo-locales.", false,
 	},
 
 	// Runtime rendering and navigation.

@@ -15,6 +15,7 @@ package xchange
 
 import (
 	"errors"
+	"fmt"
 	"maps"
 	"sort"
 	"strings"
@@ -233,6 +234,7 @@ func merge(file importFile, keys []Key, target, source Doc, o Options) (Doc, plx
 	out := target.Clone()
 	var diags plxerr.Diagnostics
 	seen := make(map[string]bool, len(file.entries))
+	var downgraded []string
 	for _, e := range file.entries {
 		k, ok := resolve(e, byID, byName)
 		if !ok {
@@ -251,6 +253,9 @@ func merge(file importFile, keys []Key, target, source Doc, o Options) (Doc, plx
 		changed := !had || before != e.target
 		current := source.Messages[k.ID]
 		sourceChanged := e.hasSource && current != "" && e.source != current
+		if e.state == stateApproved && !o.Approver {
+			downgraded = append(downgraded, k.Key)
+		}
 		state := decide(e.state, out.State(k.ID), changed, sourceChanged, o.Approver)
 		if sourceChanged {
 			diags = append(diags, plxerr.NewDiagnostic(plxerr.TranslationImportSourceChanged, location(target.Locale, k.ID, k.Key),
@@ -263,8 +268,31 @@ func merge(file importFile, keys []Key, target, source Doc, o Options) (Doc, plx
 			out.States[k.ID] = state
 		}
 	}
+	if len(downgraded) > 0 {
+		diags = append(diags, plxerr.NewDiagnostic(plxerr.TranslationImportDowngraded, plxerr.Location{File: "translations/" + target.Locale + ".json"},
+			"%s", downgradeMessage(downgraded)))
+	}
 	diags.Sort()
 	return out, diags, nil
+}
+
+// maxDowngradeKeys is how many keys the downgrade warning names.
+const maxDowngradeKeys = 10
+
+// downgradeMessage says how many entries asked for approved or final status
+// without the right to set it, naming the first few.
+func downgradeMessage(keys []string) string {
+	sort.Strings(keys)
+	listed := keys[:min(len(keys), maxDowngradeKeys)]
+	for i, k := range listed {
+		listed[i] = clip(k)
+	}
+	more := ""
+	if len(keys) > len(listed) {
+		more = fmt.Sprintf(" and %d more", len(keys)-len(listed))
+	}
+	return fmt.Sprintf("%d translation(s) ask for approved or final status, which needs the approver permission; they are stored as translated: %s%s",
+		len(keys), strings.Join(listed, ", "), more)
 }
 
 // decide is the review state a translated unit ends in. A changed source

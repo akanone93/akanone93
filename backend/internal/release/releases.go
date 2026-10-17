@@ -517,6 +517,9 @@ func (s *Service) PromoteRelease(ctx context.Context, p auth.Principal, appID st
 		if err := requirePromoted(ctx, q, env, row.ID); err != nil {
 			return err
 		}
+		if err := s.gatePromotion(ctx, appID, env, row, vs); err != nil {
+			return err
+		}
 		if err := s.point(ctx, tx, p, env, channelKey, row); err != nil {
 			return err
 		}
@@ -575,6 +578,9 @@ func (s *Service) RollbackRelease(ctx context.Context, p auth.Principal, appID, 
 			return err
 		}
 		if err := requirePromoted(ctx, q, env, earlier.ID); err != nil {
+			return err
+		}
+		if err := s.gatePromotion(ctx, appID, env, earlier, vs); err != nil {
 			return err
 		}
 		if notes == "" {

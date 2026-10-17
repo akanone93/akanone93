@@ -237,3 +237,30 @@ func TestL10nLocalCommandsReportUsageAndMissingProjects(t *testing.T) {
 		t.Error("an unknown subcommand must be a usage error")
 	}
 }
+
+// Verifies: I18N-007.
+// plux l10n extract also moves a literal page title into a key.
+func TestL10nExtractPageTitle(t *testing.T) {
+	t.Parallel()
+	dir := copyL10nProject(t)
+	path := filepath.Join(dir, filepath.FromSlash(calculator))
+	doc := readJSON(t, dir, calculator)
+	doc["title"] = "Loan calculator"
+	if err := writeDocument(path, doc); err != nil {
+		t.Fatal(err)
+	}
+	if n := countWarnings(t, dir, plxerr.LiteralTextUntranslated); n != 1 {
+		t.Fatalf("the project has %d literals, want the title", n)
+	}
+	code, out, stderr := cli(t, t.TempDir(), "l10n", "extract", "--dir", dir)
+	if code != exitOK || !strings.Contains(out, "Extracted 1 texts") {
+		t.Fatalf("extract: %d\n%s%s", code, out, stderr)
+	}
+	title, _ := readJSON(t, dir, calculator)["title"].(map[string]any)
+	if _, ok := title["$t"]; !ok {
+		t.Errorf("the title is %v, want a translation reference", title)
+	}
+	if n := countWarnings(t, dir, plxerr.LiteralTextUntranslated); n != 0 {
+		t.Errorf("%d literals remain", n)
+	}
+}

@@ -69,6 +69,13 @@ func (u *unit) localisation() {
 			u.translatableLiterals(n)
 		}
 	}
+	for _, pl := range u.plugins {
+		for _, pg := range pl.pages {
+			if u.inFocus(pg.file) {
+				u.translatableTitle(pg)
+			}
+		}
+	}
 	if u.focus == "" {
 		u.unusedKeys()
 	}
@@ -95,6 +102,21 @@ func (u *unit) translatableLiterals(n *node) {
 	}
 	for _, l := range literals.Node(nodeJSON(n.doc)) {
 		u.report(plxerr.LiteralTextUntranslated, n.owner.file(), n.ptr+plxerr.Pointer(l.Path...),
+			"%s holds literal text; move it into a translation key (plux l10n extract)", l.Prop)
+	}
+}
+
+// translatableTitle warns about a literal page title (PLX-1609, I18N-007).
+func (u *unit) translatableTitle(pg *page) {
+	if pg.doc == nil || len(u.project.App.Doc.SupportedLocales) < 2 {
+		return
+	}
+	var title any
+	if json.Unmarshal(pg.doc.Title, &title) != nil {
+		return
+	}
+	for _, l := range literals.Title(map[string]any{"title": title}) {
+		u.report(plxerr.LiteralTextUntranslated, pg.file, plxerr.Pointer(l.Path...),
 			"%s holds literal text; move it into a translation key (plux l10n extract)", l.Prop)
 	}
 }
@@ -306,6 +328,20 @@ func (u *unit) pseudoSections(o *out) {
 		}
 		o.add(bundle.SectionL10n, id, u.finishLocale(b, tag, offsetVector(b, offs), blob))
 	}
+}
+
+// generatedPseudo lists the pseudo-locales this build generated, sorted, so
+// the app bundle's supported locales name them (I18N-002). A release that
+// lists one cannot be promoted into production (PLX-3064).
+func (u *unit) generatedPseudo() []string {
+	var tags []string
+	for tag, st := range u.l10n.locales {
+		if st.pseudo {
+			tags = append(tags, tag)
+		}
+	}
+	slices.Sort(tags)
+	return tags
 }
 
 // hasTranslations reports whether the project has a translations document

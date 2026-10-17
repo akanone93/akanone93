@@ -1206,7 +1206,7 @@ func (u *unit) metaSection(o *out) {
 		exported = componentEntries(b, o.pl)
 	} else {
 		plugins = u.pluginIDs(b)
-		locales = stringVector(b, app.SupportedLocales)
+		locales = stringVector(b, append(slices.Clone(app.SupportedLocales), u.generatedPseudo()...))
 		flags = u.flagTables(e, app.Flags)
 		sampling = samplingTables(b, app.Telemetry)
 		hostEvents = hostEventTables(b, app.HostEvents)

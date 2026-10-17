@@ -140,7 +140,11 @@ func TestAccessibilityWarningsDoNotBlock_A11Y_002(t *testing.T) {
 	t.Parallel()
 	f := newFixture(t)
 	setAppProfile(t, f, "standard")
-	setProfile(t, f, "strict")
+	if _, err := f.sec.Set(context.Background(), f.owner, seccfg.Change{
+		AppID: f.app, EnvironmentID: f.envs["development"].ID, Profile: "standard", Overrides: []byte(`{"accessibilityBlocksPublish":true}`),
+	}); err != nil {
+		t.Fatal(err)
+	}
 	addImage(t, f, "")
 	job := f.publish(t, f.loans, false)
 	if job.State != release.StateFailed || hasCode(job.Diagnostics, plxerr.AccessibilityBlocksPublish) || !hasCode(job.Diagnostics, plxerr.WarningsNotAcknowledged) {
