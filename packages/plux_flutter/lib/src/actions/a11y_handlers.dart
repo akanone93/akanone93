@@ -3,6 +3,8 @@
 
 /// The accessibility and appearance actions (A11Y-006, THM-002):
 /// `announce` has the screen reader speak a message without moving focus;
+/// `setLocale` switches the locale of Plux pages like `Plux.setLocale`
+/// (I18N-005);
 /// `setThemeMode` changes the app's theme mode through the same
 /// environment path as `Plux.setThemeMode`.
 library;
@@ -13,11 +15,13 @@ import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/actions/handlers.dart';
 import 'package:plux_flutter/src/core/plux.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/l10n/locale_controller.dart' show localeOfTag;
 
 /// The handlers of the accessibility actions, by action name.
 final Map<String, ActionHandler> a11yHandlers = {
   'announce': FunctionHandler(_announce),
   'setThemeMode': FunctionHandler(_setThemeMode),
+  'setLocale': FunctionHandler(_setLocale),
 };
 
 Future<StepResult> _announce(StepContext c, Map<String, Object?> i) async {
@@ -59,5 +63,14 @@ StepResult _setThemeMode(StepContext c, Map<String, Object?> i) {
     ),
   };
   Plux.setThemeMode(mode);
+  return const StepDone();
+}
+
+StepResult _setLocale(StepContext c, Map<String, Object?> i) {
+  final tag = i['locale'];
+  if (tag != null && (tag is! String || tag.isEmpty)) {
+    throw ActionError.validation('setLocale: locale is not a language tag');
+  }
+  Plux.setLocale(tag == null ? null : localeOfTag(tag as String));
   return const StepDone();
 }

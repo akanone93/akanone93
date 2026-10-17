@@ -16,6 +16,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:plux_flutter/src/forms/form_state.dart';
+import 'package:plux_flutter/src/l10n/runtime_strings.dart';
 import 'package:plux_flutter/src/render/builders/builders.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
@@ -524,9 +525,15 @@ Widget buildWizardForm(NodeContext c) {
       steps: steps,
       titles: titles,
       fields: c.decode(_wizard.p('stepFields'), asStrings) ?? const [],
-      back: c.decode(_wizard.p('backLabel'), asString) ?? 'Back',
-      next: c.decode(_wizard.p('nextLabel'), asString) ?? 'Next',
-      submit: c.decode(_wizard.p('submitLabel'), asString) ?? 'Submit',
+      back:
+          c.decode(_wizard.p('backLabel'), asString) ??
+          RuntimeStrings.of(c.context)['plux.wizard.back'],
+      next:
+          c.decode(_wizard.p('nextLabel'), asString) ??
+          RuntimeStrings.of(c.context)['plux.wizard.next'],
+      submit:
+          c.decode(_wizard.p('submitLabel'), asString) ??
+          RuntimeStrings.of(c.context)['plux.wizard.submit'],
       setStep: set,
     ),
   );
@@ -684,8 +691,12 @@ Widget buildOnboardingPager(NodeContext c) {
       0,
       pages.length - 1,
     ),
-    next: c.decode(_pager.p('nextLabel'), asString) ?? 'Next',
-    done: c.decode(_pager.p('doneLabel'), asString) ?? 'Done',
+    next:
+        c.decode(_pager.p('nextLabel'), asString) ??
+        RuntimeStrings.of(c.context)['plux.wizard.next'],
+    done:
+        c.decode(_pager.p('doneLabel'), asString) ??
+        RuntimeStrings.of(c.context)['plux.pager.done'],
     onChanged: (i) => c.fire(_pager.e('onPageChanged'), i),
     onDone: () => c.fire(_pager.e('onDone')),
   );
@@ -984,7 +995,11 @@ Widget _buildStatusTimeline(NodeContext c, BuildContext context) {
         Semantics(
           container: true,
           liveRegion: s.state == 'current',
-          label: [s.label, ?s.detail, timelineStateWords[s.state]!].join(', '),
+          label: [
+            s.label,
+            ?s.detail,
+            RuntimeStrings.of(context)['plux.timeline.${s.state}'],
+          ].join(', '),
           excludeSemantics: true,
           child: IntrinsicHeight(
             child: Row(

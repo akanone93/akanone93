@@ -16,6 +16,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:plux_flutter/src/l10n/l10n.dart';
+import 'package:plux_flutter/src/l10n/runtime_strings.dart';
 import 'package:plux_flutter/src/l10n/scope.dart';
 import 'package:plux_flutter/src/pxl/builtins.dart' show isIbanNumber;
 import 'package:plux_flutter/src/pxl/decimal.dart';
@@ -232,7 +233,8 @@ Widget buildAmountInput(NodeContext c) {
     min: c.decode(_amount.p('min'), _asMoney),
     max: c.decode(_amount.p('max'), _asMoney),
     message:
-        c.decode(_amount.p('rangeMessage'), asString) ?? 'Amount out of range',
+        c.decode(_amount.p('rangeMessage'), asString) ??
+        RuntimeStrings.of(c.context)['plux.amount.outOfRange'],
     onChanged: c.handles(_amount.e('onChanged'))
         ? (m) => c.fire(_amount.e('onChanged'), m)
         : null,
@@ -417,7 +419,9 @@ Widget buildMaskedText(NodeContext c) => _MaskedText(
   mask: c.decode(_masked.p('mask'), nameMaskKind) ?? 'card',
   visible: math.max(0, c.decode(_masked.p('visibleDigits'), asInt) ?? 4),
   revealable: c.decode(_masked.p('revealable'), asBool) ?? false,
-  revealLabel: c.decode(_masked.p('revealLabel'), asString) ?? 'Reveal',
+  revealLabel:
+      c.decode(_masked.p('revealLabel'), asString) ??
+      RuntimeStrings.of(c.context)['plux.masked.reveal'],
   onReveal: c.handles(_masked.e('onReveal'))
       ? () => c.fire(_masked.e('onReveal'))
       : null,
@@ -624,7 +628,9 @@ final class _PickerListState extends State<_PickerList> {
 Widget buildCountryPicker(NodeContext c) => _Picker(
   build: (context) => _countries(PluxLocaleScope.dataOf(context)),
   selected: c.decode(_country.p('value'), asString),
-  hint: c.decode(_country.p('searchHint'), asString) ?? 'Search',
+  hint:
+      c.decode(_country.p('searchHint'), asString) ??
+      RuntimeStrings.of(c.context)['plux.picker.search'],
   onSelected: (code) => c.fire(_country.e('onSelected'), code),
 );
 
@@ -635,7 +641,9 @@ Widget buildCurrencyPicker(NodeContext c) {
   return _Picker(
     build: (context) => _currencies(PluxLocaleScope.dataOf(context), only),
     selected: c.decode(_currency.p('value'), asString),
-    hint: c.decode(_currency.p('searchHint'), asString) ?? 'Search',
+    hint:
+        c.decode(_currency.p('searchHint'), asString) ??
+        RuntimeStrings.of(c.context)['plux.picker.search'],
     onSelected: (code) => c.fire(_currency.e('onSelected'), code),
   );
 }
@@ -700,7 +708,8 @@ Widget buildPhoneInput(NodeContext c) => _PhoneInput(
   value: c.decode(_phone.p('value'), asString),
   region: c.decode(_phone.p('region'), asString),
   message:
-      c.decode(_phone.p('invalidMessage'), asString) ?? 'Invalid phone number',
+      c.decode(_phone.p('invalidMessage'), asString) ??
+      RuntimeStrings.of(c.context)['plux.phone.invalid'],
   onChanged: c.handles(_phone.e('onChanged'))
       ? (v) => c.fire(_phone.e('onChanged'), v)
       : null,
@@ -866,7 +875,9 @@ final class _PhoneInputState extends State<_PhoneInput> {
 Widget buildIbanInput(NodeContext c) => _IbanInput(
   label: c.decode(_iban.p('label'), asString),
   value: c.decode(_iban.p('value'), asString),
-  message: c.decode(_iban.p('invalidMessage'), asString) ?? 'Invalid IBAN',
+  message:
+      c.decode(_iban.p('invalidMessage'), asString) ??
+      RuntimeStrings.of(c.context)['plux.iban.invalid'],
   onChanged: c.handles(_iban.e('onChanged'))
       ? (v) => c.fire(_iban.e('onChanged'), v)
       : null,
@@ -979,7 +990,9 @@ Widget buildPriceTag(NodeContext c) {
   final price =
       c.decode(_price.p('price'), _asMoney) ?? c.missing('PriceTag.price');
   final original = c.decode(_price.p('originalPrice'), _asMoney);
-  final was = c.decode(_price.p('wasLabel'), asString) ?? 'was';
+  final was =
+      c.decode(_price.p('wasLabel'), asString) ??
+      RuntimeStrings.of(c.context)['plux.price.was'];
   final context = c.context;
   final style = Theme.of(context).textTheme;
   return Semantics(
@@ -1029,9 +1042,12 @@ Widget buildCartSummary(NodeContext c) {
       c.decode(_cart.p('total'), _asMoney) ?? c.missing('CartSummary.total');
   final tax = c.decode(_cart.p('tax'), _asMoney);
   final labels = (
-    c.decode(_cart.p('subtotalLabel'), asString) ?? 'Subtotal',
-    c.decode(_cart.p('taxLabel'), asString) ?? 'Tax',
-    c.decode(_cart.p('totalLabel'), asString) ?? 'Total',
+    c.decode(_cart.p('subtotalLabel'), asString) ??
+        RuntimeStrings.of(c.context)['plux.cart.subtotal'],
+    c.decode(_cart.p('taxLabel'), asString) ??
+        RuntimeStrings.of(c.context)['plux.cart.tax'],
+    c.decode(_cart.p('totalLabel'), asString) ??
+        RuntimeStrings.of(c.context)['plux.cart.total'],
   );
   final checkout =
       c.slot(_cart.s('checkout')) ??
@@ -1039,7 +1055,8 @@ Widget buildCartSummary(NodeContext c) {
           ? FilledButton(
               onPressed: () => c.fire(_cart.e('onCheckout')),
               child: Text(
-                c.decode(_cart.p('checkoutLabel'), asString) ?? 'Checkout',
+                c.decode(_cart.p('checkoutLabel'), asString) ??
+                    RuntimeStrings.of(c.context)['plux.cart.checkout'],
               ),
             )
           : null);

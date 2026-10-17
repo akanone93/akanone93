@@ -8,6 +8,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:plux_flutter/src/l10n/calendar/calendar.dart';
+import 'package:plux_flutter/src/l10n/scope.dart';
 import 'package:plux_flutter/src/pxl/values.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
@@ -47,8 +48,14 @@ Widget buildDualCalendarDatePicker(NodeContext c) {
     return v is PxlDate ? v : null;
   }
 
-  final primary = _systemId(c.decode(p['calendar']!, nameCalendarSystem));
-  final secondary = c.decode(p['secondaryCalendar']!, nameCalendarSystem);
+  // Without the prop the app's `localisation.calendar` applies (I18N-011).
+  final primary = _systemId(
+    c.decode(p['calendar']!, nameCalendarSystem) ??
+        PluxLocaleScope.calendarOf(c.context),
+  );
+  final secondary =
+      c.decode(p['secondaryCalendar']!, nameCalendarSystem) ??
+      PluxLocaleScope.secondaryCalendarOf(c.context);
   final first = date('firstDate');
   final last = date('lastDate');
   return c.controlled<PxlDate?>(e['onChanged']!, date('value'), (

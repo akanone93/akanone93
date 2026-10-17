@@ -7,6 +7,8 @@
 /// roots.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +38,8 @@ import 'package:plux_flutter/src/data/spec.dart';
 import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/forms/form_state.dart';
+import 'package:plux_flutter/src/l10n/locale_controller.dart';
+import 'package:plux_flutter/src/l10n/locale_host.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/navigation/guards.dart';
 import 'package:plux_flutter/src/navigation/page_navigator.dart';
@@ -1438,10 +1442,12 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     final env = ref.watch(environmentProvider);
     final media = MediaQuery.maybeOf(context);
     _reduceMotion = media?.disableAnimations ?? false;
+    final locales = ref.watch(localeControllerProvider);
+    final haveRelease = ref.watch(localeReleaseProvider) != null;
     final locale =
         env.locale ??
         Localizations.maybeLocaleOf(context) ??
-        const Locale('en');
+        (haveRelease ? locales.locale : const Locale('en'));
     final source = widget.renderer.config.themeSource;
     final host = Theme.of(context);
     // The mode the host sets with Plux.setThemeMode; otherwise the host
@@ -1463,7 +1469,10 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       boldText: media?.boldText ?? false,
       highContrast: media?.highContrast ?? false,
       screenReader: media?.accessibleNavigation ?? false,
-      textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
+      textDirection: haveRelease
+          ? locales.direction
+          : Directionality.maybeOf(context) ?? TextDirection.ltr,
+      calendar: locales.calendar,
     );
     Map<String, Object?> roots() => {
       _component ? 'props' : 'params': _params,
@@ -1506,6 +1515,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     final tags = [
       locale.toLanguageTag(),
       locale.languageCode,
+      if (haveRelease) ...locales.chain,
       widget.release.meta('').defaultLocale ?? '',
     ];
     String? translation(UuidKey key) {
@@ -1513,7 +1523,18 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
         if (tag.isEmpty) continue;
         // Plugin translations first, then the app's.
         final m = _plugin.message(tag, key) ?? _app.message(tag, key);
-        if (m != null) return m;
+        if (m != null) {
+          if (haveRelease && tag != tags.first && tag != locales.tag) {
+            _fellBack.add(key);
+            // After the frame: reporting must not rebuild what builds.
+            final requested = locales.tag;
+            final controller = ref.read(localeControllerProvider.notifier);
+            scheduleMicrotask(
+              () => controller.missing(uuidString(key), requested, tag),
+            );
+          }
+          return m;
+        }
       }
       return null;
     }
@@ -1535,7 +1556,8 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       token: (path) => theme.role(path) ?? tokens.read(path, appResolver),
       translation: translation,
       translationAst: translationAst,
-      localeContext: widget.renderer.localeContext,
+      localeContext: locales.pxl ?? widget.renderer.localeContext,
+      translationFellBack: (key) => kDebugMode && _fellBack.contains(key),
       onMessageError: (problem) => widget.renderer.report(
         PluxException(PluxErrorCode.messageFormatFailed, problem),
       ),
@@ -1595,8 +1617,14 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     if (theme.cupertino case final cupertino?) {
       page = CupertinoTheme(data: cupertino, child: page);
     }
-    return Theme(data: theme.material, child: page);
+    return PluxLocaleHost(
+      state: locales,
+      child: Theme(data: theme.material, child: page),
+    );
   }
+
+  /// The translations a locale further down the chain supplied.
+  final Set<UuidKey> _fellBack = {};
 
   ({
     ThemeData host,
@@ -1690,6 +1718,7 @@ Map<String, Object?> deviceRoot({
   bool highContrast = false,
   bool screenReader = false,
   TextDirection textDirection = TextDirection.ltr,
+  String calendar = 'gregorian',
 }) => {
   'platform': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
   'osVersion': '',
@@ -1709,6 +1738,7 @@ Map<String, Object?> deviceRoot({
   'highContrast': highContrast,
   'screenReader': screenReader,
   'textDirection': textDirection == TextDirection.rtl ? 'rtl' : 'ltr',
+  'calendar': calendar,
 };
 
 /// What a guard may navigate: nothing. A guard decides with the result it
