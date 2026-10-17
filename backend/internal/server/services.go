@@ -37,6 +37,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
+	"github.com/nightCode42/plux3/backend/internal/localisation"
 	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -605,6 +606,9 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	if svc.AuditCheckpoints != nil {
 		h.AuditCheckpoints = svc.AuditCheckpoints
 	}
+	if svc.Documents != nil {
+		h.Translations = localisation.New(svc.Documents, NewIDs(), s.limits)
+	}
 	if rt := svc.FunctionRuntime; rt != nil {
 		h.FunctionHosting, h.FunctionInvoker = rt.host, rt.invoker
 	}
@@ -645,6 +649,11 @@ func (s *Server) RegisterAPI(svc *Services) error {
 				return pluxv1connect.NewNativeCatalogueServiceHandler(h.NativeCatalogue(), opts)
 			},
 			func() (string, http.Handler) { return pluxv1connect.NewControlServiceHandler(h.Control(), opts) })
+	}
+	if h.Translations != nil {
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewLocalisationServiceHandler(h.Localisation(), opts)
+		})
 	}
 	if svc.SecurityConfig != nil {
 		registrations = append(registrations, func() (string, http.Handler) {

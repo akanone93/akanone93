@@ -3749,6 +3749,171 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.VerifySecondFactorResponse'
+  /plux.v1.LocalisationService/ExportTranslations:
+    post:
+      tags:
+        - plux.v1.LocalisationService
+      summary: ExportTranslations
+      description: |-
+        ExportTranslations writes the translations of one locale in a format,
+         with the default locale's texts as the source. It needs app.read.
+      operationId: plux.v1.LocalisationService.ExportTranslations
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ExportTranslationsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ExportTranslationsResponse'
+  /plux.v1.LocalisationService/GetStatus:
+    post:
+      tags:
+        - plux.v1.LocalisationService
+      summary: GetStatus
+      description: |-
+        GetStatus counts the keys of each locale by review state. It needs
+         app.read.
+      operationId: plux.v1.LocalisationService.GetStatus
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetStatusRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetStatusResponse'
+  /plux.v1.LocalisationService/ImportTranslations:
+    post:
+      tags:
+        - plux.v1.LocalisationService
+      summary: ImportTranslations
+      description: |-
+        ImportTranslations applies a translation file to a locale. It needs
+         translations.edit, and translations.approve to set the approved state.
+         With dry_run it reports what would change and saves nothing.
+      operationId: plux.v1.LocalisationService.ImportTranslations
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ImportTranslationsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ImportTranslationsResponse'
+  /plux.v1.LocalisationService/SetStates:
+    post:
+      tags:
+        - plux.v1.LocalisationService
+      summary: SetStates
+      description: |-
+        SetStates sets the review state of keys of one locale. It needs
+         translations.edit, and translations.approve for the approved state.
+      operationId: plux.v1.LocalisationService.SetStates
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetStatesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SetStatesResponse'
   /plux.v1.ManifestService/GetManifest:
     post:
       tags:
@@ -8765,6 +8930,36 @@ components:
           format: byte
       title: ExportDraftResponse
       additionalProperties: false
+    plux.v1.ExportTranslationsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        locale:
+          type: string
+          title: locale
+        format:
+          type: string
+          title: format
+          description: format is "xliff", "arb", "json" or "csv".
+      title: ExportTranslationsRequest
+      additionalProperties: false
+    plux.v1.ExportTranslationsResponse:
+      type: object
+      properties:
+        content:
+          type: string
+          title: content
+          format: byte
+        sourceLocale:
+          type: string
+          title: source_locale
+          description: |-
+            source_locale is the locale the source texts are in: the app's default
+             locale.
+      title: ExportTranslationsResponse
+      additionalProperties: false
     plux.v1.Factor:
       type: object
       properties:
@@ -9743,6 +9938,27 @@ components:
           title: documents
       title: GetSnapshotResponse
       additionalProperties: false
+    plux.v1.GetStatusRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: GetStatusRequest
+      additionalProperties: false
+    plux.v1.GetStatusResponse:
+      type: object
+      properties:
+        sourceLocale:
+          type: string
+          title: source_locale
+        locales:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.LocaleStatus'
+          title: locales
+      title: GetStatusResponse
+      additionalProperties: false
     plux.v1.GetTemplateRequest:
       type: object
       properties:
@@ -9897,6 +10113,52 @@ components:
             $ref: '#/components/schemas/plux.v1.Diagnostic'
           title: diagnostics
       title: ImportDraftResponse
+      additionalProperties: false
+    plux.v1.ImportTranslationsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        locale:
+          type: string
+          title: locale
+        format:
+          type: string
+          title: format
+        content:
+          type: string
+          title: content
+          format: byte
+        dryRun:
+          type: boolean
+          title: dry_run
+      title: ImportTranslationsRequest
+      additionalProperties: false
+    plux.v1.ImportTranslationsResponse:
+      type: object
+      properties:
+        diagnostics:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Diagnostic'
+          title: diagnostics
+          description: |-
+            diagnostics are the findings of the import: PLX-1621 for an unknown
+             key, PLX-1622 for a changed source text.
+        changedKeys:
+          type: array
+          items:
+            type: string
+          title: changed_keys
+          description: |-
+            changed_keys are the identifiers of the keys the import changed, or
+             would change on a dry run.
+        saved:
+          type: boolean
+          title: saved
+          description: saved is whether the document was written.
+      title: ImportTranslationsResponse
       additionalProperties: false
     plux.v1.IncompatibleHostBuild:
       type: object
@@ -11143,6 +11405,42 @@ components:
       description: |-
         LiveConfigValue is a live value as a device receives it. Devices hold
          it in memory only (DAT-094).
+    plux.v1.LocaleStatus:
+      type: object
+      properties:
+        locale:
+          type: string
+          title: locale
+        total:
+          type: integer
+          title: total
+          format: int32
+        new:
+          type: integer
+          title: new
+          format: int32
+        translated:
+          type: integer
+          title: translated
+          format: int32
+        reviewed:
+          type: integer
+          title: reviewed
+          format: int32
+        approved:
+          type: integer
+          title: approved
+          format: int32
+        missing:
+          type: integer
+          title: missing
+          format: int32
+      title: LocaleStatus
+      additionalProperties: false
+      description: |-
+        LocaleStatus counts the translation keys of one locale by state. Missing
+         keys have no message; the other counts are of keys that have one, so
+         total = new + translated + reviewed + approved + missing.
     plux.v1.Location:
       type: object
       properties:
@@ -12758,6 +13056,36 @@ components:
           description: version is the new configuration version.
       title: SetSecurityConfigResponse
       additionalProperties: false
+    plux.v1.SetStatesRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        locale:
+          type: string
+          title: locale
+        states:
+          type: object
+          title: states
+          additionalProperties:
+            type: string
+            title: value
+          description: |-
+            states maps a translation key identifier to a review state: "new",
+             "translated", "reviewed" or "approved".
+      title: SetStatesRequest
+      additionalProperties: false
+    plux.v1.SetStatesResponse:
+      type: object
+      properties:
+        changedKeys:
+          type: array
+          items:
+            type: string
+          title: changed_keys
+      title: SetStatesResponse
+      additionalProperties: false
     plux.v1.SetUserIdentityProviderRequest:
       type: object
       properties:
@@ -13865,6 +14193,12 @@ tags:
        authorization grant `plux login` uses (CLI-002). SAML, provisioning
        and group mapping arrive with GOV-004, and WebAuthn step-up with
        SEC-103, both in P9.
+  - name: plux.v1.LocalisationService
+    description: |-
+      LocalisationService exchanges an app's translations with translation tools
+       and reports their progress (I18N-008, I18N-009, ADR-0068). Every write
+       goes through the document service under the lock of the locale
+       (translations/<locale>), so the review rules of I18N-008 apply to it.
   - name: plux.v1.ManifestService
     description: |-
       ManifestService serves the signed manifest a device syncs against

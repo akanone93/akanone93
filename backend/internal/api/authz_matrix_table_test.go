@@ -241,6 +241,20 @@ var matrix = map[string]entry{
 		return &pluxv1.InstantiateRequest{TemplateId: f.template, AppId: f.app, PluginId: f.plugin, Session: "tab-2", Key: "copy"}
 	})),
 
+	// LocalisationService
+	"LocalisationService/ExportTranslations": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ExportTranslationsRequest{AppId: f.app, Locale: "de", Format: "csv"}
+	})),
+	"LocalisationService/ImportTranslations": atPerm(auth.TranslationsEdit, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ImportTranslationsRequest{AppId: f.app, Locale: "de", Format: "csv", Content: []byte("keyId,target\n"), DryRun: true}
+	})),
+	"LocalisationService/GetStatus": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetStatusRequest{AppId: f.app}
+	})),
+	"LocalisationService/SetStates": atPerm(auth.TranslationsEdit, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetStatesRequest{AppId: f.app, Locale: "de", States: map[string]string{unknownID: "reviewed"}}
+	})),
+
 	// PublishService and ReleaseService
 	"PublishService/Publish": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.PublishRequest{AppId: f.app, PluginId: f.plugin, EnvironmentId: f.dev}

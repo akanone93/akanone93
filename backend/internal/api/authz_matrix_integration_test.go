@@ -415,7 +415,7 @@ func TestEveryPermissionGuardsAnRPC(t *testing.T) {
 // operator act (SEC-120). The P8 permissions are checked inside the document
 // service (translations) or arrive with their RPCs (waivers, goldens).
 var permissionsWithoutRPC = []auth.Permission{
-	auth.A11yWaive, auth.GoldensApprove, auth.KeysManage, auth.TranslationsApprove, auth.TranslationsEdit,
+	auth.A11yWaive, auth.GoldensApprove, auth.KeysManage, auth.TranslationsApprove,
 }
 
 // Verifies: SEC-100, SEC-102, GOV-001, QA-008.
