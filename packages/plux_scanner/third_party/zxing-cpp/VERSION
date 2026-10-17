@@ -1,0 +1,5 @@
+version: 2.3.0
+source: https://files.pythonhosted.org/packages/d9/f2/b781bf6119abe665069777e3c0f154752cf924fe8a55fca027243abbc555/zxing_cpp-2.3.0.tar.gz
+sha256: 3babedb67a4c15c9de2c2b4c42d70af83a6c85780c1b2d9803ac64c6ae69f14e
+subset: reader sources of core/src (docs/plans/p8-handoff/zxing-files.txt) and core/src/libzueci (BSD-3-Clause)
+license: Apache-2.0 (the sdist ships no licence file; the text is the standard Apache-2.0)
