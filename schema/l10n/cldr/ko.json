@@ -1,0 +1,1919 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EEEEd": "d일 EEEE",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d일 (E)",
+        "Eh": "E a h시",
+        "Ehm": "E a h:mm",
+        "Ehms": "E a h:mm:ss",
+        "Gy": "G y년",
+        "GyM": "G y/M",
+        "GyMEd": "G y/M/d (E)",
+        "GyMMM": "G y년 M월",
+        "GyMMMEEEEd": "G y년 M월 d일 EEEE",
+        "GyMMMEd": "G y년 M월 d일 (E)",
+        "GyMMMd": "G y년 M월 d일",
+        "GyMd": "GGGGG y/M/d",
+        "H": "H시",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "M월",
+        "MEEEEd": "M. d. EEEE",
+        "MEd": "M. d. (E)",
+        "MMM": "LLL",
+        "MMMEEEEd": "M월 d일 EEEE",
+        "MMMEd": "M월 d일 (E)",
+        "MMMMd": "M월 d일",
+        "MMMd": "M월 d일",
+        "Md": "M. d.",
+        "d": "d일",
+        "h": "a h시",
+        "hm": "a h:mm",
+        "hmm": "a h:mm",
+        "hmmss": "a h:mm:ss",
+        "hms": "a h:mm:ss",
+        "ms": "mm:ss",
+        "y": "G y년",
+        "yyyy": "G y년",
+        "yyyyM": "G y. M.",
+        "yyyyMEEEEd": "G y. M. d. EEEE",
+        "yyyyMEd": "G y. M. d. (E)",
+        "yyyyMMM": "G y년 M월",
+        "yyyyMMMEEEEd": "G y년 M월 d일 EEEE",
+        "yyyyMMMEd": "G y년 M월 d일 (E)",
+        "yyyyMMMM": "G y년 M월",
+        "yyyyMMMd": "G y년 M월 d일",
+        "yyyyMd": "G y. M. d."
+      },
+      "dateFormats": {
+        "full": "G y년 M월 d일 EEEE",
+        "long": "G y년 M월 d일",
+        "medium": "G y. M. d.",
+        "short": "G y. M. d."
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "오전",
+            "pm": "오후"
+          },
+          "wide": {
+            "am": "오전",
+            "pm": "오후"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "오전",
+            "pm": "오후"
+          },
+          "wide": {
+            "am": "오전",
+            "pm": "오후"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["일", "월", "화", "수", "목", "금", "토"],
+          "short": ["일", "월", "화", "수", "목", "금", "토"],
+          "wide": ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]
+        },
+        "standAlone": {
+          "abbreviated": ["일", "월", "화", "수", "목", "금", "토"],
+          "short": ["일", "월", "화", "수", "목", "금", "토"],
+          "wide": ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["매스캐램", "테켐트", "헤다르", "타흐사스", "테르", "얘카티트", "매가비트", "미야지야", "겐보트", "새네", "함레", "내하세", "파구맨"],
+          "wide": ["매스캐램", "테켐트", "헤다르", "타흐사스", "테르", "얘카티트", "매가비트", "미야지야", "겐보트", "새네", "함레", "내하세", "파구맨"]
+        },
+        "standAlone": {
+          "abbreviated": ["매스캐램", "테켐트", "헤다르", "타흐사스", "테르", "얘카티트", "매가비트", "미야지야", "겐보트", "새네", "함레", "내하세", "파구맨"],
+          "wide": ["매스캐램", "테켐트", "헤다르", "타흐사스", "테르", "얘카티트", "매가비트", "미야지야", "겐보트", "새네", "함레", "내하세", "파구맨"]
+        }
+      },
+      "timeFormats": {
+        "full": "a h시 m분 s초 zzzz",
+        "long": "a h시 m분 s초 z",
+        "medium": "a h:mm:ss",
+        "short": "a h:mm"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EEEEd": "d일 EEEE",
+        "EHm": "(E) HH:mm",
+        "EHms": "(E) HH:mm:ss",
+        "Ed": "d일 (E)",
+        "Eh": "(E) a h",
+        "Ehm": "(E) a h:mm",
+        "Ehms": "(E) a h:mm:ss",
+        "Gy": "G y년",
+        "GyM": "G y/M",
+        "GyMEd": "G y/M/d (E)",
+        "GyMMM": "G y년 MMM",
+        "GyMMMEEEEd": "G y년 MMM d일 EEEE",
+        "GyMMMEd": "G y년 MMM d일 (E)",
+        "GyMMMd": "G y년 MMM d일",
+        "GyMd": "GGGGG y/M/d",
+        "H": "H시",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "H시 m분 s초",
+        "M": "M월",
+        "MEEEEd": "M. d. EEEE",
+        "MEd": "M. d. (E)",
+        "MMM": "LLL",
+        "MMMEEEEd": "MMM d일 EEEE",
+        "MMMEd": "MMM d일 (E)",
+        "MMMMd": "MMMM d일",
+        "MMMd": "MMM d일",
+        "Md": "M. d.",
+        "d": "d일",
+        "h": "a h시",
+        "hm": "a h:mm",
+        "hmm": "a h:mm",
+        "hmmss": "a h:mm:ss",
+        "hms": "a h:mm:ss",
+        "mmss": "mm:ss",
+        "ms": "mm:ss",
+        "y": "y년",
+        "yM": "y. M.",
+        "yMEEEEd": "y. M. d. EEEE",
+        "yMEd": "y. M. d. (E)",
+        "yMM": "y. M.",
+        "yMMM": "y년 MMM",
+        "yMMMEEEEd": "y년 MMM d일 EEEE",
+        "yMMMEd": "y년 MMM d일 (E)",
+        "yMMMM": "y년 MMMM",
+        "yMMMMEEEEd": "y년 MMMM d일 EEEE",
+        "yMMMMd": "y년 MMMM d일",
+        "yMMMd": "y년 MMM d일",
+        "yMd": "y. M. d.",
+        "yyMd": "yy. M. d."
+      },
+      "dateFormats": {
+        "full": "y년 MMMM d일 EEEE",
+        "long": "y년 MMMM d일",
+        "medium": "y. M. d.",
+        "short": "yy. M. d."
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "오전",
+            "pm": "오후"
+          },
+          "narrow": {
+            "am": "오전",
+            "pm": "오후"
+          },
+          "wide": {
+            "am": "오전",
+            "pm": "오후"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "오전",
+            "pm": "오후"
+          },
+          "narrow": {
+            "am": "오전",
+            "pm": "오후"
+          },
+          "wide": {
+            "am": "오전",
+            "pm": "오후"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["일", "월", "화", "수", "목", "금", "토"],
+          "narrow": ["일", "월", "화", "수", "목", "금", "토"],
+          "short": ["일", "월", "화", "수", "목", "금", "토"],
+          "wide": ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]
+        },
+        "standAlone": {
+          "abbreviated": ["일", "월", "화", "수", "목", "금", "토"],
+          "narrow": ["일", "월", "화", "수", "목", "금", "토"],
+          "short": ["일", "월", "화", "수", "목", "금", "토"],
+          "wide": ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["BC", "AD"],
+        "narrow": ["BC", "AD"],
+        "wide": ["기원전", "서기"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          "narrow": ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          "wide": ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"]
+        },
+        "standAlone": {
+          "abbreviated": ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          "narrow": ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          "wide": ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"]
+        }
+      },
+      "timeFormats": {
+        "full": "a h시 m분 s초 zzzz",
+        "long": "a h시 m분 s초 z",
+        "medium": "a h:mm:ss",
+        "short": "a h:mm"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EEEEd": "d일 EEEE",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d일 (E)",
+        "Eh": "E a h시",
+        "Ehm": "E a h:mm",
+        "Ehms": "E a h:mm:ss",
+        "Gy": "G y년",
+        "GyM": "G y/M",
+        "GyMEd": "G y/M/d (E)",
+        "GyMMM": "G y년 M월",
+        "GyMMMEEEEd": "G y년 M월 d일 EEEE",
+        "GyMMMEd": "G y년 M월 d일 (E)",
+        "GyMMMd": "G y년 M월 d일",
+        "GyMd": "GGGGG y/M/d",
+        "H": "H시",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "M월",
+        "MEEEEd": "M. d. EEEE",
+        "MEd": "M. d. (E)",
+        "MMM": "LLL",
+        "MMMEEEEd": "M월 d일 EEEE",
+        "MMMEd": "M월 d일 (E)",
+        "MMMMd": "MMMM d일",
+        "MMMd": "M월 d일",
+        "Md": "M. d.",
+        "d": "d일",
+        "h": "a h시",
+        "hm": "a h:mm",
+        "hmm": "a h:mm",
+        "hmmss": "a h:mm:ss",
+        "hms": "a h:mm:ss",
+        "ms": "mm:ss",
+        "y": "G y년",
+        "yyyy": "G y년",
+        "yyyyM": "G y. M.",
+        "yyyyMEEEEd": "G y. M. d. EEEE",
+        "yyyyMEd": "G y. M. d. (E)",
+        "yyyyMMM": "G y년 M월",
+        "yyyyMMMEEEEd": "G y년 M월 d일 EEEE",
+        "yyyyMMMEd": "G y년 M월 d일 (E)",
+        "yyyyMMMM": "G y년 MMMM",
+        "yyyyMMMd": "G y년 M월 d일",
+        "yyyyMd": "G y. M. d."
+      },
+      "dateFormats": {
+        "full": "G y년 M월 d일 EEEE",
+        "long": "G y년 M월 d일",
+        "medium": "G y. M. d.",
+        "short": "G y. M. d."
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "오전",
+            "pm": "오후"
+          },
+          "wide": {
+            "am": "오전",
+            "pm": "오후"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "오전",
+            "pm": "오후"
+          },
+          "wide": {
+            "am": "오전",
+            "pm": "오후"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["일", "월", "화", "수", "목", "금", "토"],
+          "short": ["일", "월", "화", "수", "목", "금", "토"],
+          "wide": ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]
+        },
+        "standAlone": {
+          "abbreviated": ["일", "월", "화", "수", "목", "금", "토"],
+          "short": ["일", "월", "화", "수", "목", "금", "토"],
+          "wide": ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AH", "BH"],
+        "wide": ["히즈라력", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["무하람", "사파르", "라비 알 아왈", "라비 알 쎄니", "주마다 알 아왈", "주마다 알 쎄니", "라잡", "쉐아반", "라마단", "쉐왈", "듀 알 까다", "듀 알 히자"]
+        },
+        "standAlone": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["무하람", "사파르", "라비 알 아왈", "라비 알 쎄니", "주마다 알 아왈", "주마다 알 쎄니", "라잡", "쉐아반", "라마단", "쉐왈", "듀 알 까다", "듀 알 히자"]
+        }
+      },
+      "timeFormats": {
+        "full": "a h시 m분 s초 zzzz",
+        "long": "a h시 m분 s초 z",
+        "medium": "a h:mm:ss",
+        "short": "a h:mm"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EEEEd": "d일 EEEE",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d일 (E)",
+        "Eh": "E a h시",
+        "Ehm": "E a h:mm",
+        "Ehms": "E a h:mm:ss",
+        "Gy": "G y년",
+        "GyM": "G y/M",
+        "GyMEd": "G y/M/d (E)",
+        "GyMMM": "G y년 M월",
+        "GyMMMEEEEd": "G y년 M월 d일 EEEE",
+        "GyMMMEd": "G y년 M월 d일 (E)",
+        "GyMMMd": "G y년 M월 d일",
+        "GyMd": "GGGGG y/M/d",
+        "H": "H시",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "M월",
+        "MEEEEd": "M. d. EEEE",
+        "MEd": "M. d. (E)",
+        "MMM": "LLL",
+        "MMMEEEEd": "M월 d일 EEEE",
+        "MMMEd": "M월 d일 (E)",
+        "MMMMd": "M월 d일",
+        "MMMd": "M월 d일",
+        "Md": "M. d.",
+        "d": "d일",
+        "h": "a h시",
+        "hm": "a h:mm",
+        "hmm": "a h:mm",
+        "hmmss": "a h:mm:ss",
+        "hms": "a h:mm:ss",
+        "ms": "mm:ss",
+        "y": "G y년",
+        "yyyy": "G y년",
+        "yyyyM": "G y. M.",
+        "yyyyMEEEEd": "G y. M. d. EEEE",
+        "yyyyMEd": "G y. M. d. (E)",
+        "yyyyMMM": "G y년 M월",
+        "yyyyMMMEEEEd": "G y년 M월 d일 EEEE",
+        "yyyyMMMEd": "G y년 M월 d일 (E)",
+        "yyyyMMMM": "G y년 M월",
+        "yyyyMMMd": "G y년 M월 d일",
+        "yyyyMd": "G y. M. d."
+      },
+      "dateFormats": {
+        "full": "G y년 M월 d일 EEEE",
+        "long": "G y년 M월 d일",
+        "medium": "G y. M. d.",
+        "short": "G y. M. d."
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "오전",
+            "pm": "오후"
+          },
+          "wide": {
+            "am": "오전",
+            "pm": "오후"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "오전",
+            "pm": "오후"
+          },
+          "wide": {
+            "am": "오전",
+            "pm": "오후"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["일", "월", "화", "수", "목", "금", "토"],
+          "short": ["일", "월", "화", "수", "목", "금", "토"],
+          "wide": ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]
+        },
+        "standAlone": {
+          "abbreviated": ["일", "월", "화", "수", "목", "금", "토"],
+          "short": ["일", "월", "화", "수", "목", "금", "토"],
+          "wide": ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AP"],
+        "wide": ["AP"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["화르바딘", "오르디베헤쉬트", "호르다드", "티르", "모르다드", "샤흐리바르", "메흐르", "아반", "아자르", "다이", "바흐만", "에스판드"],
+          "wide": ["화르바딘", "오르디베헤쉬트", "호르다드", "티르", "모르다드", "샤흐리바르", "메흐르", "아반", "아자르", "다이", "바흐만", "에스판드"]
+        },
+        "standAlone": {
+          "abbreviated": ["화르바딘", "오르디베헤쉬트", "호르다드", "티르", "모르다드", "샤흐리바르", "메흐르", "아반", "아자르", "다이", "바흐만", "에스판드"],
+          "wide": ["화르바딘", "오르디베헤쉬트", "호르다드", "티르", "모르다드", "샤흐리바르", "메흐르", "아반", "아자르", "다이", "바흐만", "에스판드"]
+        }
+      },
+      "timeFormats": {
+        "full": "a h시 m분 s초 zzzz",
+        "long": "a h시 m분 s초 z",
+        "medium": "a h:mm:ss",
+        "short": "a h:mm"
+      }
+    }
+  },
+  "currencies": {
+    "ADP": {
+      "name": "안도라 페세타"
+    },
+    "AED": {
+      "name": "아랍에미리트 디르함"
+    },
+    "AFA": {
+      "name": "아프가니 (1927–2002)"
+    },
+    "AFN": {
+      "name": "아프가니스탄 아프가니",
+      "narrow": "؋"
+    },
+    "ALL": {
+      "name": "알바니아 레크"
+    },
+    "AMD": {
+      "name": "아르메니아 드람",
+      "narrow": "֏"
+    },
+    "ANG": {
+      "name": "네덜란드령 안틸레스 길더"
+    },
+    "AOA": {
+      "name": "앙골라 콴자",
+      "narrow": "Kz"
+    },
+    "AOK": {
+      "name": "앙골라 콴자 (1977–1990)"
+    },
+    "AON": {
+      "name": "앙골라 신콴자 (1990–2000)"
+    },
+    "AOR": {
+      "name": "앙골라 재조정 콴자 (1995–1999)"
+    },
+    "ARA": {
+      "name": "아르헨티나 오스트랄"
+    },
+    "ARL": {
+      "name": "아르헨티나 페소 레이 (1970–1983)"
+    },
+    "ARM": {
+      "name": "아르헨티나 페소 (18810–1970)"
+    },
+    "ARP": {
+      "name": "아르헨티나 페소 (1983–1985)"
+    },
+    "ARS": {
+      "name": "아르헨티나 페소",
+      "narrow": "$"
+    },
+    "ATS": {
+      "name": "호주 실링"
+    },
+    "AUD": {
+      "name": "호주 달러",
+      "narrow": "$",
+      "symbol": "AU$"
+    },
+    "AWG": {
+      "name": "아루바 플로린"
+    },
+    "AZM": {
+      "name": "아제르바이젠 마나트(1993–2006)"
+    },
+    "AZN": {
+      "name": "아제르바이잔 마나트",
+      "narrow": "₼"
+    },
+    "BAD": {
+      "name": "보스니아-헤르체고비나 디나르"
+    },
+    "BAM": {
+      "name": "보스니아-헤르체고비나 태환 마르크",
+      "narrow": "KM"
+    },
+    "BAN": {
+      "name": "보스니아-헤르체고비나 신디나르 (1994–1997)"
+    },
+    "BBD": {
+      "name": "바베이도스 달러",
+      "narrow": "$"
+    },
+    "BDT": {
+      "name": "방글라데시 타카",
+      "narrow": "৳"
+    },
+    "BEC": {
+      "name": "벨기에 프랑 (태환)"
+    },
+    "BEF": {
+      "name": "벨기에 프랑"
+    },
+    "BEL": {
+      "name": "벨기에 프랑 (금융)"
+    },
+    "BGL": {
+      "name": "불가리아 동전 렛"
+    },
+    "BGM": {
+      "name": "불가리아 사회주의자 렛"
+    },
+    "BGN": {
+      "name": "불가리아 레프"
+    },
+    "BGO": {
+      "name": "불가리아 렛 (1879–1952)"
+    },
+    "BHD": {
+      "name": "바레인 디나르"
+    },
+    "BIF": {
+      "name": "부룬디 프랑"
+    },
+    "BMD": {
+      "name": "버뮤다 달러",
+      "narrow": "$"
+    },
+    "BND": {
+      "name": "부루나이 달러",
+      "narrow": "$"
+    },
+    "BOB": {
+      "name": "볼리비아 볼리비아노",
+      "narrow": "Bs"
+    },
+    "BOL": {
+      "name": "볼리비아 볼리비아노 (1863–1963)"
+    },
+    "BOP": {
+      "name": "볼리비아노 페소"
+    },
+    "BOV": {
+      "name": "볼리비아노 Mvdol(기금)"
+    },
+    "BRB": {
+      "name": "볼리비아노 크루제이루 노보 (1967–1986)"
+    },
+    "BRC": {
+      "name": "브라질 크루자두"
+    },
+    "BRE": {
+      "name": "브라질 크루제이루 (1990–1993)"
+    },
+    "BRL": {
+      "name": "브라질 레알",
+      "symbol": "R$"
+    },
+    "BRN": {
+      "name": "브라질 크루자두 노보"
+    },
+    "BRR": {
+      "name": "브라질 크루제이루"
+    },
+    "BRZ": {
+      "name": "브라질 크루제이루 (1942–1967)"
+    },
+    "BSD": {
+      "name": "바하마 달러",
+      "narrow": "$"
+    },
+    "BTN": {
+      "name": "부탄 눌투눔"
+    },
+    "BUK": {
+      "name": "버마 차트"
+    },
+    "BWP": {
+      "name": "보츠와나 풀라",
+      "narrow": "P"
+    },
+    "BYB": {
+      "name": "벨라루스 신권 루블 (1994–1999)"
+    },
+    "BYN": {
+      "name": "벨라루스 루블",
+      "narrow": "р."
+    },
+    "BYR": {
+      "name": "벨라루스 루블 (2000–2016)"
+    },
+    "BZD": {
+      "name": "벨리즈 달러",
+      "narrow": "$"
+    },
+    "CAD": {
+      "name": "캐나다 달러",
+      "narrow": "$",
+      "symbol": "CA$"
+    },
+    "CDF": {
+      "name": "콩고 프랑"
+    },
+    "CHE": {
+      "name": "유로 (WIR)"
+    },
+    "CHF": {
+      "name": "스위스 프랑"
+    },
+    "CHW": {
+      "name": "프랑 (WIR)"
+    },
+    "CLE": {
+      "name": "칠레 에스쿠도"
+    },
+    "CLF": {
+      "name": "칠레 (UF)"
+    },
+    "CLP": {
+      "name": "칠레 페소",
+      "narrow": "$"
+    },
+    "CNH": {
+      "name": "중국 위안화(역외)"
+    },
+    "CNY": {
+      "name": "중국 위안화",
+      "narrow": "¥",
+      "symbol": "CN¥"
+    },
+    "COP": {
+      "name": "콜롬비아 페소",
+      "narrow": "$"
+    },
+    "COU": {
+      "name": "콜롬비아 실가 단위"
+    },
+    "CRC": {
+      "name": "코스타리카 콜론",
+      "narrow": "₡"
+    },
+    "CSD": {
+      "name": "고 세르비아 디나르"
+    },
+    "CSK": {
+      "name": "체코슬로바키아 동전 코루나"
+    },
+    "CUC": {
+      "name": "쿠바 태환 페소",
+      "narrow": "$"
+    },
+    "CUP": {
+      "name": "쿠바 페소",
+      "narrow": "$"
+    },
+    "CVE": {
+      "name": "카보베르데 에스쿠도"
+    },
+    "CYP": {
+      "name": "싸이프러스 파운드"
+    },
+    "CZK": {
+      "name": "체코 코루나",
+      "narrow": "Kč"
+    },
+    "DDM": {
+      "name": "동독 오스트마르크"
+    },
+    "DEM": {
+      "name": "독일 마르크"
+    },
+    "DJF": {
+      "name": "지부티 프랑"
+    },
+    "DKK": {
+      "name": "덴마크 크로네",
+      "narrow": "kr"
+    },
+    "DOP": {
+      "name": "도미니카 페소",
+      "narrow": "$"
+    },
+    "DZD": {
+      "name": "알제리 디나르"
+    },
+    "ECS": {
+      "name": "에쿠아도르 수크레"
+    },
+    "ECV": {
+      "name": "에콰도르 (UVC)"
+    },
+    "EEK": {
+      "name": "에스토니아 크룬"
+    },
+    "EGP": {
+      "name": "이집트 파운드",
+      "narrow": "E£"
+    },
+    "ERN": {
+      "name": "에리트레아 낙파"
+    },
+    "ESA": {
+      "name": "스페인 페세타(예금)"
+    },
+    "ESB": {
+      "name": "스페인 페세타(변환 예금)"
+    },
+    "ESP": {
+      "name": "스페인 페세타",
+      "narrow": "₧"
+    },
+    "ETB": {
+      "name": "에티오피아 비르"
+    },
+    "EUR": {
+      "name": "유로",
+      "symbol": "€"
+    },
+    "FIM": {
+      "name": "핀란드 마르카"
+    },
+    "FJD": {
+      "name": "피지 달러",
+      "narrow": "$"
+    },
+    "FKP": {
+      "name": "포클랜드제도 파운드",
+      "narrow": "£"
+    },
+    "FRF": {
+      "name": "프랑스 프랑"
+    },
+    "GBP": {
+      "name": "영국 파운드",
+      "symbol": "£"
+    },
+    "GEK": {
+      "name": "그루지야 지폐 라리트"
+    },
+    "GEL": {
+      "name": "조지아 라리",
+      "narrow": "₾"
+    },
+    "GHC": {
+      "name": "가나 시디 (1979–2007)"
+    },
+    "GHS": {
+      "name": "가나 세디",
+      "narrow": "GH₵"
+    },
+    "GIP": {
+      "name": "지브롤터 파운드",
+      "narrow": "£"
+    },
+    "GMD": {
+      "name": "감비아 달라시"
+    },
+    "GNF": {
+      "name": "기니 프랑",
+      "narrow": "FG"
+    },
+    "GNS": {
+      "name": "기니 시리"
+    },
+    "GQE": {
+      "name": "적도 기니 에쿨 (Ekwele)"
+    },
+    "GRD": {
+      "name": "그리스 드라크마"
+    },
+    "GTQ": {
+      "name": "과테말라 케트살",
+      "narrow": "Q"
+    },
+    "GWE": {
+      "name": "포르투갈령 기니 에스쿠도"
+    },
+    "GWP": {
+      "name": "기네비쏘 페소"
+    },
+    "GYD": {
+      "name": "가이아나 달러",
+      "narrow": "$"
+    },
+    "HKD": {
+      "name": "홍콩 달러",
+      "narrow": "$",
+      "symbol": "HK$"
+    },
+    "HNL": {
+      "name": "온두라스 렘피라",
+      "narrow": "L"
+    },
+    "HRD": {
+      "name": "크로아티아 디나르"
+    },
+    "HRK": {
+      "name": "크로아티아 쿠나",
+      "narrow": "kn"
+    },
+    "HTG": {
+      "name": "아이티 구르드"
+    },
+    "HUF": {
+      "name": "헝가리 포린트",
+      "narrow": "Ft"
+    },
+    "IDR": {
+      "name": "인도네시아 루피아",
+      "narrow": "Rp"
+    },
+    "IEP": {
+      "name": "아일랜드 파운드"
+    },
+    "ILP": {
+      "name": "이스라엘 파운드"
+    },
+    "ILS": {
+      "name": "이스라엘 신권 세켈",
+      "symbol": "₪"
+    },
+    "INR": {
+      "name": "인도 루피",
+      "symbol": "₹"
+    },
+    "IQD": {
+      "name": "이라크 디나르"
+    },
+    "IRR": {
+      "name": "이란 리얄"
+    },
+    "ISK": {
+      "name": "아이슬란드 크로나",
+      "narrow": "kr"
+    },
+    "ITL": {
+      "name": "이탈리아 리라"
+    },
+    "JMD": {
+      "name": "자메이카 달러",
+      "narrow": "$"
+    },
+    "JOD": {
+      "name": "요르단 디나르"
+    },
+    "JPY": {
+      "name": "일본 엔화",
+      "narrow": "¥",
+      "symbol": "JP¥"
+    },
+    "KES": {
+      "name": "케냐 실링"
+    },
+    "KGS": {
+      "name": "키르기스스탄 솜",
+      "narrow": "⃀"
+    },
+    "KHR": {
+      "name": "캄보디아 리엘",
+      "narrow": "៛"
+    },
+    "KMF": {
+      "name": "코모르 프랑",
+      "narrow": "CF"
+    },
+    "KPW": {
+      "name": "조선 민주주의 인민 공화국 원",
+      "narrow": "₩"
+    },
+    "KRH": {
+      "name": "대한민국 환 (1953–1962)"
+    },
+    "KRW": {
+      "name": "대한민국 원",
+      "symbol": "₩"
+    },
+    "KWD": {
+      "name": "쿠웨이트 디나르"
+    },
+    "KYD": {
+      "name": "케이맨 제도 달러",
+      "narrow": "$"
+    },
+    "KZT": {
+      "name": "카자흐스탄 텡게",
+      "narrow": "₸"
+    },
+    "LAK": {
+      "name": "라오스 키프",
+      "narrow": "₭"
+    },
+    "LBP": {
+      "name": "레바논 파운드",
+      "narrow": "L£"
+    },
+    "LKR": {
+      "name": "스리랑카 루피",
+      "narrow": "Rs"
+    },
+    "LRD": {
+      "name": "라이베리아 달러",
+      "narrow": "$"
+    },
+    "LSL": {
+      "name": "레소토 로티"
+    },
+    "LTL": {
+      "name": "리투아니아 리타",
+      "narrow": "Lt"
+    },
+    "LTT": {
+      "name": "룩셈부르크 타로나"
+    },
+    "LUC": {
+      "name": "룩셈부르크 변환 프랑"
+    },
+    "LUF": {
+      "name": "룩셈부르크 프랑"
+    },
+    "LUL": {
+      "name": "룩셈부르크 재정 프랑"
+    },
+    "LVL": {
+      "name": "라트비아 라트",
+      "narrow": "Ls"
+    },
+    "LVR": {
+      "name": "라트비아 루블"
+    },
+    "LYD": {
+      "name": "리비아 디나르"
+    },
+    "MAD": {
+      "name": "모로코 디르함"
+    },
+    "MAF": {
+      "name": "모로코 프랑"
+    },
+    "MCF": {
+      "name": "모나코 프랑"
+    },
+    "MDC": {
+      "name": "몰도바 쿠폰"
+    },
+    "MDL": {
+      "name": "몰도바 레이"
+    },
+    "MGA": {
+      "name": "마다가스카르 아리아리",
+      "narrow": "Ar"
+    },
+    "MGF": {
+      "name": "마다가스카르 프랑"
+    },
+    "MKD": {
+      "name": "마케도니아 디나르"
+    },
+    "MLF": {
+      "name": "말리 프랑"
+    },
+    "MMK": {
+      "name": "미얀마 키얏",
+      "narrow": "K"
+    },
+    "MNT": {
+      "name": "몽골 투그릭",
+      "narrow": "₮"
+    },
+    "MOP": {
+      "name": "마카오 파타카"
+    },
+    "MRO": {
+      "name": "모리타니 우기야 (1973–2017)"
+    },
+    "MRU": {
+      "name": "모리타니 우기야"
+    },
+    "MTL": {
+      "name": "몰타 리라"
+    },
+    "MTP": {
+      "name": "몰타 파운드"
+    },
+    "MUR": {
+      "name": "모리셔스 루피",
+      "narrow": "Rs"
+    },
+    "MVR": {
+      "name": "몰디브 제도 루피아"
+    },
+    "MWK": {
+      "name": "말라위 콰차"
+    },
+    "MXN": {
+      "name": "멕시코 페소",
+      "narrow": "$",
+      "symbol": "MX$"
+    },
+    "MXP": {
+      "name": "멕시코 실버 페소 (1861–1992)"
+    },
+    "MXV": {
+      "name": "멕시코 (UDI)"
+    },
+    "MYR": {
+      "name": "말레이시아 링깃",
+      "narrow": "RM"
+    },
+    "MZE": {
+      "name": "모잠비크 에스쿠도"
+    },
+    "MZM": {
+      "name": "고 모잠비크 메티칼"
+    },
+    "MZN": {
+      "name": "모잠비크 메티칼"
+    },
+    "NAD": {
+      "name": "나미비아 달러",
+      "narrow": "$"
+    },
+    "NGN": {
+      "name": "나이지리아 나이라",
+      "narrow": "₦"
+    },
+    "NIC": {
+      "name": "니카라과 코르도바(1988~1991)",
+      "plural": {
+        "other": "니카라과 코르도바 오로(1988~1991)"
+      }
+    },
+    "NIO": {
+      "name": "니카라과 코르도바",
+      "narrow": "C$"
+    },
+    "NLG": {
+      "name": "네델란드 길더"
+    },
+    "NOK": {
+      "name": "노르웨이 크로네",
+      "narrow": "kr"
+    },
+    "NPR": {
+      "name": "네팔 루피",
+      "narrow": "Rs"
+    },
+    "NZD": {
+      "name": "뉴질랜드 달러",
+      "narrow": "$",
+      "symbol": "NZ$"
+    },
+    "OMR": {
+      "name": "오만 리알"
+    },
+    "PAB": {
+      "name": "파나마 발보아"
+    },
+    "PEI": {
+      "name": "페루 인티"
+    },
+    "PEN": {
+      "name": "페루 솔"
+    },
+    "PES": {
+      "name": "페루 솔 (1863–1965)"
+    },
+    "PGK": {
+      "name": "파푸아뉴기니 키나"
+    },
+    "PHP": {
+      "name": "필리핀 페소",
+      "narrow": "₱"
+    },
+    "PKR": {
+      "name": "파키스탄 루피",
+      "narrow": "Rs"
+    },
+    "PLN": {
+      "name": "폴란드 즈워티",
+      "narrow": "zł"
+    },
+    "PLZ": {
+      "name": "폴란드 즐로티 (1950–1995)"
+    },
+    "PTE": {
+      "name": "포르투갈 에스쿠도"
+    },
+    "PYG": {
+      "name": "파라과이 과라니",
+      "narrow": "₲"
+    },
+    "QAR": {
+      "name": "카타르 리얄"
+    },
+    "RHD": {
+      "name": "로디지아 달러"
+    },
+    "ROL": {
+      "name": "루마니아 레이"
+    },
+    "RON": {
+      "name": "루마니아 레우",
+      "narrow": "L"
+    },
+    "RSD": {
+      "name": "세르비아 디나르"
+    },
+    "RUB": {
+      "name": "러시아 루블",
+      "narrow": "₽"
+    },
+    "RUR": {
+      "name": "러시아 루블 (1991–1998)"
+    },
+    "RWF": {
+      "name": "르완다 프랑",
+      "narrow": "RF"
+    },
+    "SAR": {
+      "name": "사우디아라비아 리얄"
+    },
+    "SBD": {
+      "name": "솔로몬 제도 달러",
+      "narrow": "$"
+    },
+    "SCR": {
+      "name": "세이셸 루피"
+    },
+    "SDD": {
+      "name": "수단 디나르"
+    },
+    "SDG": {
+      "name": "수단 파운드"
+    },
+    "SDP": {
+      "name": "고 수단 파운드"
+    },
+    "SEK": {
+      "name": "스웨덴 크로나",
+      "narrow": "kr"
+    },
+    "SGD": {
+      "name": "싱가포르 달러",
+      "narrow": "$"
+    },
+    "SHP": {
+      "name": "세인트헬레나 파운드",
+      "narrow": "£"
+    },
+    "SIT": {
+      "name": "슬로베니아 톨라르"
+    },
+    "SKK": {
+      "name": "슬로바키아 코루나"
+    },
+    "SLE": {
+      "name": "시에라리온 리온"
+    },
+    "SLL": {
+      "name": "시에라리온 리온(1964~2022)"
+    },
+    "SOS": {
+      "name": "소말리아 실링"
+    },
+    "SRD": {
+      "name": "수리남 달러",
+      "narrow": "$"
+    },
+    "SRG": {
+      "name": "수리남 길더"
+    },
+    "SSP": {
+      "name": "남수단 파운드",
+      "narrow": "£"
+    },
+    "STD": {
+      "name": "상투메 프린시페 도브라 (1977–2017)"
+    },
+    "STN": {
+      "name": "상투메 프린시페 도브라",
+      "narrow": "Db"
+    },
+    "SUR": {
+      "name": "소련 루블"
+    },
+    "SVC": {
+      "name": "엘살바도르 콜론"
+    },
+    "SYP": {
+      "name": "시리아 파운드",
+      "narrow": "£"
+    },
+    "SZL": {
+      "name": "스와질란드 릴랑게니"
+    },
+    "THB": {
+      "name": "태국 바트",
+      "narrow": "฿"
+    },
+    "TJR": {
+      "name": "타지키스탄 루블"
+    },
+    "TJS": {
+      "name": "타지키스탄 소모니"
+    },
+    "TMM": {
+      "name": "투르크메니스탄 마나트 (1993–2009)"
+    },
+    "TMT": {
+      "name": "투르크메니스탄 마나트"
+    },
+    "TND": {
+      "name": "튀니지 디나르"
+    },
+    "TOP": {
+      "name": "통가 파앙가",
+      "narrow": "T$"
+    },
+    "TPE": {
+      "name": "티모르 에스쿠도"
+    },
+    "TRL": {
+      "name": "터키 리라(1922~2005)"
+    },
+    "TRY": {
+      "name": "튀르키예 리라",
+      "narrow": "₺"
+    },
+    "TTD": {
+      "name": "트리니다드 토바고 달러",
+      "narrow": "$"
+    },
+    "TWD": {
+      "name": "신 타이완 달러",
+      "symbol": "NT$"
+    },
+    "TZS": {
+      "name": "탄자니아 실링"
+    },
+    "UAH": {
+      "name": "우크라이나 그리브나",
+      "narrow": "₴"
+    },
+    "UAK": {
+      "name": "우크라이나 카보바네츠"
+    },
+    "UGS": {
+      "name": "우간다 실링 (1966–1987)"
+    },
+    "UGX": {
+      "name": "우간다 실링"
+    },
+    "USD": {
+      "name": "미국 달러",
+      "narrow": "$",
+      "symbol": "US$"
+    },
+    "USN": {
+      "name": "미국 달러(다음날)"
+    },
+    "USS": {
+      "name": "미국 달러(당일)"
+    },
+    "UYI": {
+      "name": "우루과이 페소 (UI)"
+    },
+    "UYP": {
+      "name": "우루과이 페소 (1975–1993)"
+    },
+    "UYU": {
+      "name": "우루과이 페소",
+      "narrow": "$"
+    },
+    "UZS": {
+      "name": "우즈베키스탄 숨"
+    },
+    "VEB": {
+      "name": "베네주엘라 볼리바르 (1871–2008)"
+    },
+    "VEF": {
+      "name": "베네수엘라 볼리바르 (2008–2018)",
+      "narrow": "Bs"
+    },
+    "VES": {
+      "name": "베네수엘라 볼리바르"
+    },
+    "VND": {
+      "name": "베트남 동",
+      "symbol": "₫"
+    },
+    "VNN": {
+      "name": "베트남 동 (1978–1985)"
+    },
+    "VUV": {
+      "name": "바누아투 바투"
+    },
+    "WST": {
+      "name": "서 사모아 탈라"
+    },
+    "XAF": {
+      "name": "중앙아프리카 CFA 프랑",
+      "symbol": "FCFA"
+    },
+    "XAG": {
+      "name": "은화"
+    },
+    "XAU": {
+      "name": "금"
+    },
+    "XBA": {
+      "name": "유르코 (유럽 회계 단위)"
+    },
+    "XBB": {
+      "name": "유럽 통화 동맹"
+    },
+    "XBC": {
+      "name": "유럽 계산 단위 (XBC)"
+    },
+    "XBD": {
+      "name": "유럽 계산 단위 (XBD)"
+    },
+    "XCD": {
+      "name": "동카리브 달러",
+      "narrow": "$",
+      "symbol": "EC$"
+    },
+    "XCG": {
+      "name": "카리브 길더",
+      "symbol": "Cg."
+    },
+    "XDR": {
+      "name": "특별인출권"
+    },
+    "XEU": {
+      "name": "유럽 환율 단위"
+    },
+    "XFO": {
+      "name": "프랑스 프랑 (Gold)"
+    },
+    "XFU": {
+      "name": "프랑스 프랑 (UIC)"
+    },
+    "XOF": {
+      "name": "서아프리카 CFA 프랑",
+      "symbol": "F\u202fCFA"
+    },
+    "XPD": {
+      "name": "팔라듐"
+    },
+    "XPF": {
+      "name": "CFP 프랑",
+      "symbol": "CFPF"
+    },
+    "XPT": {
+      "name": "백금"
+    },
+    "XRE": {
+      "name": "RINET 기금"
+    },
+    "XTS": {
+      "name": "테스트 통화 코드"
+    },
+    "XXX": {
+      "name": "알 수 없는 통화 단위",
+      "plural": {
+        "other": "(알 수 없는 통화 단위)"
+      },
+      "symbol": "¤"
+    },
+    "YDD": {
+      "name": "예멘 디나르"
+    },
+    "YER": {
+      "name": "예멘 리알"
+    },
+    "YUD": {
+      "name": "유고슬라비아 동전 디나르"
+    },
+    "YUM": {
+      "name": "유고슬라비아 노비 디나르"
+    },
+    "YUN": {
+      "name": "유고슬라비아 전환 디나르"
+    },
+    "ZAL": {
+      "name": "남아프리카 랜드 (금융)"
+    },
+    "ZAR": {
+      "name": "남아프리카 랜드",
+      "narrow": "R"
+    },
+    "ZMK": {
+      "name": "쟘비아 콰쳐 (1968–2012)"
+    },
+    "ZMW": {
+      "name": "잠비아 콰차",
+      "narrow": "ZK"
+    },
+    "ZRN": {
+      "name": "자이르 신권 자이르"
+    },
+    "ZRZ": {
+      "name": "자이르 자이르"
+    },
+    "ZWD": {
+      "name": "짐바브웨 달러"
+    },
+    "ZWG": {
+      "name": "짐바브웨 골드"
+    },
+    "ZWL": {
+      "name": "짐바브웨 달러 (2009)"
+    },
+    "ZWR": {
+      "name": "짐바브웨 달러 (2008)"
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "ko",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "¤#,##0.00;(¤#,##0.00)",
+      "compactShort": {
+        "1000": {
+          "other": "0천"
+        },
+        "10000": {
+          "other": "0만"
+        },
+        "100000": {
+          "other": "00만"
+        },
+        "1000000": {
+          "other": "000만"
+        },
+        "10000000": {
+          "other": "0000만"
+        },
+        "100000000": {
+          "other": "0억"
+        },
+        "1000000000": {
+          "other": "00억"
+        },
+        "10000000000": {
+          "other": "000억"
+        },
+        "100000000000": {
+          "other": "0000억"
+        },
+        "1000000000000": {
+          "other": "0조"
+        },
+        "10000000000000": {
+          "other": "00조"
+        },
+        "100000000000000": {
+          "other": "000조"
+        }
+      },
+      "currency": "¤#,##0.00",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ".",
+        "exponential": "E",
+        "group": ",",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "NaN",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {},
+    "ordinal": {}
+  },
+  "territories": {
+    "AC": "어센션섬",
+    "AD": "안도라",
+    "AE": "아랍에미리트",
+    "AF": "아프가니스탄",
+    "AG": "앤티가 바부다",
+    "AI": "앵귈라",
+    "AL": "알바니아",
+    "AM": "아르메니아",
+    "AO": "앙골라",
+    "AQ": "남극 대륙",
+    "AR": "아르헨티나",
+    "AS": "아메리칸 사모아",
+    "AT": "오스트리아",
+    "AU": "오스트레일리아",
+    "AW": "아루바",
+    "AX": "올란드 제도",
+    "AZ": "아제르바이잔",
+    "BA": "보스니아 헤르체고비나",
+    "BB": "바베이도스",
+    "BD": "방글라데시",
+    "BE": "벨기에",
+    "BF": "부르키나파소",
+    "BG": "불가리아",
+    "BH": "바레인",
+    "BI": "부룬디",
+    "BJ": "베냉",
+    "BL": "생바르텔레미",
+    "BM": "버뮤다",
+    "BN": "브루나이",
+    "BO": "볼리비아",
+    "BQ": "네덜란드령 카리브",
+    "BR": "브라질",
+    "BS": "바하마",
+    "BT": "부탄",
+    "BV": "부베섬",
+    "BW": "보츠와나",
+    "BY": "벨라루스",
+    "BZ": "벨리즈",
+    "CA": "캐나다",
+    "CC": "코코스 제도",
+    "CD": "콩고-킨샤사",
+    "CF": "중앙 아프리카 공화국",
+    "CG": "콩고-브라자빌",
+    "CH": "스위스",
+    "CI": "코트디부아르",
+    "CK": "쿡 제도",
+    "CL": "칠레",
+    "CM": "카메룬",
+    "CN": "중국",
+    "CO": "콜롬비아",
+    "CP": "클리퍼턴섬",
+    "CQ": "사크",
+    "CR": "코스타리카",
+    "CU": "쿠바",
+    "CV": "카보베르데",
+    "CW": "퀴라소",
+    "CX": "크리스마스섬",
+    "CY": "키프로스",
+    "CZ": "체코",
+    "DE": "독일",
+    "DG": "디에고 가르시아",
+    "DJ": "지부티",
+    "DK": "덴마크",
+    "DM": "도미니카",
+    "DO": "도미니카 공화국",
+    "DZ": "알제리",
+    "EA": "세우타 및 멜리야",
+    "EC": "에콰도르",
+    "EE": "에스토니아",
+    "EG": "이집트",
+    "EH": "서사하라",
+    "ER": "에리트리아",
+    "ES": "스페인",
+    "ET": "에티오피아",
+    "EU": "유럽 연합",
+    "EZ": "유로존",
+    "FI": "핀란드",
+    "FJ": "피지",
+    "FK": "포클랜드 제도",
+    "FM": "미크로네시아",
+    "FO": "페로 제도",
+    "FR": "프랑스",
+    "GA": "가봉",
+    "GB": "영국",
+    "GD": "그레나다",
+    "GE": "조지아",
+    "GF": "프랑스령 기아나",
+    "GG": "건지",
+    "GH": "가나",
+    "GI": "지브롤터",
+    "GL": "그린란드",
+    "GM": "감비아",
+    "GN": "기니",
+    "GP": "과들루프",
+    "GQ": "적도 기니",
+    "GR": "그리스",
+    "GS": "사우스조지아 사우스샌드위치 제도",
+    "GT": "과테말라",
+    "GU": "괌",
+    "GW": "기니비사우",
+    "GY": "가이아나",
+    "HK": "홍콩(중국 특별행정구)",
+    "HM": "허드 맥도널드 제도",
+    "HN": "온두라스",
+    "HR": "크로아티아",
+    "HT": "아이티",
+    "HU": "헝가리",
+    "IC": "카나리아 제도",
+    "ID": "인도네시아",
+    "IE": "아일랜드",
+    "IL": "이스라엘",
+    "IM": "맨섬",
+    "IN": "인도",
+    "IO": "영국령 인도양 지역",
+    "IQ": "이라크",
+    "IR": "이란",
+    "IS": "아이슬란드",
+    "IT": "이탈리아",
+    "JE": "저지",
+    "JM": "자메이카",
+    "JO": "요르단",
+    "JP": "일본",
+    "KE": "케냐",
+    "KG": "키르기스스탄",
+    "KH": "캄보디아",
+    "KI": "키리바시",
+    "KM": "코모로",
+    "KN": "세인트키츠 네비스",
+    "KP": "북한",
+    "KR": "대한민국",
+    "KW": "쿠웨이트",
+    "KY": "케이맨 제도",
+    "KZ": "카자흐스탄",
+    "LA": "라오스",
+    "LB": "레바논",
+    "LC": "세인트루시아",
+    "LI": "리히텐슈타인",
+    "LK": "스리랑카",
+    "LR": "라이베리아",
+    "LS": "레소토",
+    "LT": "리투아니아",
+    "LU": "룩셈부르크",
+    "LV": "라트비아",
+    "LY": "리비아",
+    "MA": "모로코",
+    "MC": "모나코",
+    "MD": "몰도바",
+    "ME": "몬테네그로",
+    "MF": "생마르탱",
+    "MG": "마다가스카르",
+    "MH": "마셜 제도",
+    "MK": "북마케도니아",
+    "ML": "말리",
+    "MM": "미얀마",
+    "MN": "몽골",
+    "MO": "마카오(중국 특별행정구)",
+    "MP": "북마리아나제도",
+    "MQ": "마르티니크",
+    "MR": "모리타니",
+    "MS": "몬트세라트",
+    "MT": "몰타",
+    "MU": "모리셔스",
+    "MV": "몰디브",
+    "MW": "말라위",
+    "MX": "멕시코",
+    "MY": "말레이시아",
+    "MZ": "모잠비크",
+    "NA": "나미비아",
+    "NC": "뉴칼레도니아",
+    "NE": "니제르",
+    "NF": "노퍽섬",
+    "NG": "나이지리아",
+    "NI": "니카라과",
+    "NL": "네덜란드",
+    "NO": "노르웨이",
+    "NP": "네팔",
+    "NR": "나우루",
+    "NU": "니우에",
+    "NZ": "뉴질랜드",
+    "OM": "오만",
+    "PA": "파나마",
+    "PE": "페루",
+    "PF": "프랑스령 폴리네시아",
+    "PG": "파푸아뉴기니",
+    "PH": "필리핀",
+    "PK": "파키스탄",
+    "PL": "폴란드",
+    "PM": "생피에르 미클롱",
+    "PN": "핏케언 제도",
+    "PR": "푸에르토리코",
+    "PS": "팔레스타인 지구",
+    "PT": "포르투갈",
+    "PW": "팔라우",
+    "PY": "파라과이",
+    "QA": "카타르",
+    "QO": "오세아니아 외곽",
+    "RE": "레위니옹",
+    "RO": "루마니아",
+    "RS": "세르비아",
+    "RU": "러시아",
+    "RW": "르완다",
+    "SA": "사우디아라비아",
+    "SB": "솔로몬 제도",
+    "SC": "세이셸",
+    "SD": "수단",
+    "SE": "스웨덴",
+    "SG": "싱가포르",
+    "SH": "세인트헬레나",
+    "SI": "슬로베니아",
+    "SJ": "스발바르제도-얀마웬섬",
+    "SK": "슬로바키아",
+    "SL": "시에라리온",
+    "SM": "산마리노",
+    "SN": "세네갈",
+    "SO": "소말리아",
+    "SR": "수리남",
+    "SS": "남수단",
+    "ST": "상투메 프린시페",
+    "SV": "엘살바도르",
+    "SX": "신트마르턴",
+    "SY": "시리아",
+    "SZ": "에스와티니",
+    "TA": "트리스탄다쿠나",
+    "TC": "터크스 케이커스 제도",
+    "TD": "차드",
+    "TF": "프랑스령 남방 지역",
+    "TG": "토고",
+    "TH": "태국",
+    "TJ": "타지키스탄",
+    "TK": "토켈라우",
+    "TL": "동티모르",
+    "TM": "투르크메니스탄",
+    "TN": "튀니지",
+    "TO": "통가",
+    "TR": "튀르키예",
+    "TT": "트리니다드 토바고",
+    "TV": "투발루",
+    "TW": "대만",
+    "TZ": "탄자니아",
+    "UA": "우크라이나",
+    "UG": "우간다",
+    "UM": "미국령 해외 제도",
+    "UN": "국제연합",
+    "US": "미국",
+    "UY": "우루과이",
+    "UZ": "우즈베키스탄",
+    "VA": "바티칸 시국",
+    "VC": "세인트빈센트그레나딘",
+    "VE": "베네수엘라",
+    "VG": "영국령 버진아일랜드",
+    "VI": "미국령 버진아일랜드",
+    "VN": "베트남",
+    "VU": "바누아투",
+    "WF": "왈리스-푸투나 제도",
+    "WS": "사모아",
+    "XA": "유사 억양",
+    "XB": "유사 양방향",
+    "XK": "코소보",
+    "YE": "예멘",
+    "YT": "마요트",
+    "ZA": "남아프리카",
+    "ZM": "잠비아",
+    "ZW": "짐바브웨"
+  }
+}

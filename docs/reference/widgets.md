@@ -10,6 +10,17 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 |---|---|---|---|---|
 | [ActionChip](#actionchip) | 1 | display | P3 | A chip that triggers an action related to primary content. |
 | [Align](#align) | 1 | layout | P3 | Aligns its child within itself and optionally sizes itself based on the child. |
+| [AnimatedAlign](#animatedalign) | 1 | animation | P5 | Animates its child's alignment. |
+| [AnimatedContainer](#animatedcontainer) | 1 | animation | P5 | A `Container` that animates to new values of its props. |
+| [AnimatedCrossFade](#animatedcrossfade) | 1 | animation | P5 | Cross-fades between two children, sizing to the one shown. |
+| [AnimatedOpacity](#animatedopacity) | 1 | animation | P5 | Animates its child's opacity. |
+| [AnimatedPadding](#animatedpadding) | 1 | animation | P5 | Animates the padding around its child. |
+| [AnimatedPositioned](#animatedpositioned) | 1 | animation | P5 | Animates the position of its child in a `Stack`. |
+| [AnimatedRotation](#animatedrotation) | 1 | animation | P5 | Animates its child's rotation, in turns. |
+| [AnimatedScale](#animatedscale) | 1 | animation | P5 | Animates its child's scale. |
+| [AnimatedSize](#animatedsize) | 1 | animation | P5 | Animates its own size to its child's. |
+| [AnimatedSlide](#animatedslide) | 1 | animation | P5 | Animates its child's offset, in multiples of its size. |
+| [AnimatedSwitcher](#animatedswitcher) | 1 | animation | P5 | Cross-fades between its old and new child when the child changes. |
 | [AppBar](#appbar) | 1 | structure | P3 | A Material top app bar. |
 | [AspectRatio](#aspectratio) | 1 | layout | P3 | Sizes its child to a specific aspect ratio. |
 | [BackButton](#backbutton) | 1 | input | P3 | A back-arrow button that pops the current route. |
@@ -45,13 +56,17 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [CustomScrollView](#customscrollview) | 1 | scrolling | P3 | A scroll view composed of slivers. |
 | [DataTable](#datatable) | 1 | display | P5 | A Material table with headings, sorting and optional row selection (WGT-020). |
 | [DecoratedBox](#decoratedbox) | 1 | layout | P3 | Paints a decoration behind or in front of its child. |
+| [Dismissible](#dismissible) | 1 | interaction | P5 | Dismisses its child with a swipe and fires `onDismissed` with the direction. |
 | [Divider](#divider) | 1 | display | P3 | A thin horizontal line with padding on either side. |
+| [DragTarget](#dragtarget) | 1 | interaction | P5 | Accepts a `Draggable`'s payload dropped on it; its child is highlighted while a candidate hovers. |
+| [Draggable](#draggable) | 1 | interaction | P5 | Lets the user drag its child, carrying a typed `data` payload to a `DragTarget`. |
 | [DropdownMenu](#dropdownmenu) | 1 | input | P3 | A Material 3 dropdown menu with optional text filtering. |
 | [ElevatedButton](#elevatedbutton) | 1 | input | P3 | A Material elevated button. |
 | [EmptyState](#emptystate) | 2 | feedback | P3 | A standard empty state: icon, title, message and an optional action. |
 | [ErrorState](#errorstate) | 2 | feedback | P3 | A standard error state: icon, title, message and an optional retry action. |
 | [Expanded](#expanded) | 1 | layout | P3 | Makes its child fill the available space along the main axis of a Row, Column or Flex. |
 | [ExpansionTile](#expansiontile) | 1 | display | P3 | A list tile that expands to reveal its children. |
+| [FadeTransition](#fadetransition) | 1 | animation | P5 | Fades its child by a track of a page timeline. |
 | [FilledButton](#filledbutton) | 1 | input | P3 | A Material filled button; `tonal` selects the filled-tonal style. |
 | [FilterBar](#filterbar) | 2 | input | P5 | A horizontally scrolling row of filter chips. |
 | [FilterChip](#filterchip) | 1 | display | P3 | A chip that filters content by a tag or description. |
@@ -64,6 +79,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [FractionallySizedBox](#fractionallysizedbox) | 1 | layout | P3 | Sizes its child to a fraction of the available space. |
 | [GestureDetector](#gesturedetector) | 1 | interaction | P3 | Detects taps, long presses, drags and scale gestures on its child. |
 | [GridView](#gridview) | 1 | scrolling | P3 | A lazily built, scrollable grid of `item` templates over `items` (WGT-012). |
+| [Hero](#hero) | 1 | animation | P5 | Marks its child as a shared element that flies between pages with the same `tag`. |
 | [Icon](#icon) | 1 | display | P3 | An icon from the Material or Cupertino icon set. |
 | [IconButton](#iconbutton) | 1 | input | P3 | A Material icon button. |
 | [If](#if) | 1 | structure | P3 | Renders its `then` slot while `condition` is true, otherwise its optional `else` slot. |
@@ -72,6 +88,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [InfiniteList](#infinitelist) | 2 | scrolling | P5 | A lazily built, paginated list of `item` templates over `items`, with empty, loading and error states (WGT-012). |
 | [InkWell](#inkwell) | 1 | interaction | P3 | A rectangular area that responds to touch with a Material ink splash. |
 | [InputChip](#inputchip) | 1 | display | P3 | A chip representing a complex piece of information, such as a contact. |
+| [InteractiveViewer](#interactiveviewer) | 1 | interaction | P5 | Pans and zooms its child with gestures. |
 | [KycCameraCapture](#kyccameracapture) | 2 | input | P6 | ID document and selfie capture with framing guides and quality checks. Ships in `plux_media`. |
 | [LimitedBox](#limitedbox) | 1 | layout | P3 | Limits its size only when it is unconstrained. |
 | [LinearProgressIndicator](#linearprogressindicator) | 1 | display | P3 | A linear progress indicator, determinate or indeterminate. |
@@ -96,9 +113,11 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [ReorderableListView](#reorderablelistview) | 1 | scrolling | P5 | A list whose `item` templates the user can drag into a new order; the page updates its list on `onReorder` (WGT-012). |
 | [Responsive](#responsive) | 1 | structure | P3 | Renders a different subtree per window-size class: `compact`, `medium` (600–839 dp) and `expanded` (≥ 840 dp). |
 | [RichText](#richtext) | 1 | display | P3 | Text built from styled spans (Flutter `Text.rich`). |
+| [RotationTransition](#rotationtransition) | 1 | animation | P5 | Rotates its child by a track of a page timeline, in turns. |
 | [Row](#row) | 1 | layout | P3 | Lays out its children horizontally. |
 | [SafeArea](#safearea) | 1 | layout | P3 | Insets its child to avoid system intrusions such as the status bar and notch. |
 | [Scaffold](#scaffold) | 1 | structure | P3 | The basic Material page structure: app bar, body, floating action button, bottom bar. |
+| [ScaleTransition](#scaletransition) | 1 | animation | P5 | Scales its child by a track of a page timeline. |
 | [Scrollbar](#scrollbar) | 1 | scrolling | P3 | Shows a Material scrollbar for its scrollable child. |
 | [SearchField](#searchfield) | 2 | input | P5 | A search box that reports the query once typing pauses, with optional suggestions. |
 | [SecurePinPad](#securepinpad) | 2 | input | P6 | PIN entry with an optional randomised layout and haptic-only key feedback (SEC-090). |
@@ -109,6 +128,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [SingleChildScrollView](#singlechildscrollview) | 1 | scrolling | P3 | Makes a single child scrollable. |
 | [SizedBox](#sizedbox) | 1 | layout | P3 | A box with a fixed width and height, or a spacer. |
 | [SkeletonLoader](#skeletonloader) | 2 | feedback | P3 | Shimmering placeholder blocks shown while content loads. |
+| [SlideTransition](#slidetransition) | 1 | animation | P5 | Slides its child by a track of a page timeline, in multiples of the child's size along `axis`. |
 | [Slider](#slider) | 1 | input | P3 | Selects a value from a continuous or discrete range. |
 | [SliverAppBar](#sliverappbar) | 1 | scrolling | P3 | A Material app bar that integrates with a CustomScrollView and can expand, float and pin. |
 | [SliverFillRemaining](#sliverfillremaining) | 1 | scrolling | P3 | Fills the remaining space of a CustomScrollView with its child. |
@@ -130,6 +150,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [TextButton](#textbutton) | 1 | input | P3 | A Material text button. |
 | [TextField](#textfield) | 1 | input | P3 | A Material text input whose text is bound to `value`. |
 | [TextFormField](#textformfield) | 1 | input | P3 | A text input for use inside a form (validation arrives with FormScope, P5). |
+| [Timeline](#timeline) | 1 | structure | P5 | Plays a page timeline for its subtree: it starts the named timeline when shown, and optionally restarts it when it ends (ANI-002). |
 | [Tooltip](#tooltip) | 1 | display | P3 | Shows a text label when its child is long-pressed or hovered. |
 | [Transform](#transform) | 1 | layout | P3 | Rotates, scales, translates or flips its child before painting. |
 | [VerticalDivider](#verticaldivider) | 1 | display | P3 | A thin vertical line with padding on either side. |
@@ -183,6 +204,254 @@ ID 8 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Align` · androi
 | `alignment` | 1 | `Alignment` | `"center"` |  |
 | `widthFactor` | 2 | `double` | — | Must be at least 0. |
 | `heightFactor` | 3 | `double` | — | Must be at least 0. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedAlign
+
+Animates its child's alignment.
+
+ID 141 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedAlign` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `alignment` | 1 | `Alignment`, required | — |  |
+| `heightFactor` | 2 | `double` | — |  |
+| `widthFactor` | 3 | `double` | — |  |
+| `curve` | 4 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 5 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedContainer
+
+A `Container` that animates to new values of its props.
+
+ID 139 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedContainer` · android, ios · cost 40 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `alignment` | 1 | `Alignment` | — |  |
+| `padding` | 2 | `EdgeInsets` | — |  |
+| `color` | 3 | `color` | — |  |
+| `decoration` | 4 | `BoxDecoration` | — |  |
+| `foregroundDecoration` | 5 | `BoxDecoration` | — |  |
+| `width` | 6 | `double` | — |  |
+| `height` | 7 | `double` | — |  |
+| `constraints` | 8 | `BoxConstraints` | — |  |
+| `margin` | 9 | `EdgeInsets` | — |  |
+| `transformAlignment` | 10 | `Alignment` | — |  |
+| `clipBehavior` | 11 | `Clip` | `"none"` |  |
+| `curve` | 12 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 13 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedCrossFade
+
+Cross-fades between two children, sizing to the one shown.
+
+ID 148 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedCrossFade` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `crossFadeState` | 1 | `CrossFadeState`, required | — |  |
+| `firstCurve` | 2 | `Curve` | `"linear"` |  |
+| `secondCurve` | 3 | `Curve` | `"linear"` |  |
+| `sizeCurve` | 4 | `Curve` | `"linear"` |  |
+| `alignment` | 5 | `Alignment` | `"topCenter"` |  |
+| `duration` | 6 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+| `reverseDuration` | 7 | `duration` | — | The length of the reverse animation in milliseconds. |
+| `excludeBottomFocus` | 8 | `bool` | `true` |  |
+| `clipBehavior` | 9 | `Clip` | `"hardEdge"` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `firstChild` | 1 | one node, required |  |
+| `secondChild` | 2 | one node, required |  |
+
+### AnimatedOpacity
+
+Animates its child's opacity.
+
+ID 140 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedOpacity` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `opacity` | 1 | `double`, required | — | Must be at least 0 and at most 1. |
+| `alwaysIncludeSemantics` | 2 | `bool` | `false` |  |
+| `curve` | 3 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 4 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedPadding
+
+Animates the padding around its child.
+
+ID 142 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedPadding` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `padding` | 1 | `EdgeInsets`, required | — |  |
+| `curve` | 2 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 3 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedPositioned
+
+Animates the position of its child in a `Stack`.
+
+ID 143 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedPositioned` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `left` | 1 | `double` | — |  |
+| `top` | 2 | `double` | — |  |
+| `right` | 3 | `double` | — |  |
+| `bottom` | 4 | `double` | — |  |
+| `width` | 5 | `double` | — |  |
+| `height` | 6 | `double` | — |  |
+| `curve` | 7 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 8 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+
+### AnimatedRotation
+
+Animates its child's rotation, in turns.
+
+ID 145 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedRotation` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `turns` | 1 | `double`, required | — |  |
+| `alignment` | 2 | `Alignment` | `"center"` |  |
+| `filterQuality` | 3 | `FilterQuality` | — |  |
+| `curve` | 4 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 5 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedScale
+
+Animates its child's scale.
+
+ID 144 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedScale` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `scale` | 1 | `double`, required | — |  |
+| `alignment` | 2 | `Alignment` | `"center"` |  |
+| `filterQuality` | 3 | `FilterQuality` | — |  |
+| `curve` | 4 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 5 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedSize
+
+Animates its own size to its child's.
+
+ID 149 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedSize` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `alignment` | 1 | `Alignment` | `"center"` |  |
+| `curve` | 2 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 3 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+| `reverseDuration` | 4 | `duration` | — | The length of the reverse animation in milliseconds. |
+| `clipBehavior` | 5 | `Clip` | `"hardEdge"` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedSlide
+
+Animates its child's offset, in multiples of its size.
+
+ID 146 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedSlide` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `offset` | 1 | `Offset`, required | — |  |
+| `curve` | 2 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 3 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedSwitcher
+
+Cross-fades between its old and new child when the child changes.
+
+ID 147 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedSwitcher` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `duration` | 1 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+| `reverseDuration` | 2 | `duration` | — | The length of the reverse animation in milliseconds. |
+| `switchInCurve` | 3 | `Curve` | `"linear"` |  |
+| `switchOutCurve` | 4 | `Curve` | `"linear"` |  |
 
 | Slot | ID | Holds | Description |
 |---|---|---|---|
@@ -1046,6 +1315,31 @@ ID 18 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `DecoratedBox` �
 |---|---|---|---|
 | `child` | 1 | one node |  |
 
+### Dismissible
+
+Dismisses its child with a swipe and fires `onDismissed` with the direction.
+
+ID 133 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Dismissible` · android, ios · cost 40 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `direction` | 1 | `DismissDirection` | `"horizontal"` |  |
+| `resizeDuration` | 2 | `duration` | `300` |  |
+| `movementDuration` | 3 | `duration` | `200` |  |
+| `crossAxisEndOffset` | 4 | `double` | `0.0` |  |
+| `dragStartBehavior` | 5 | `DragStartBehavior` | `"start"` |  |
+| `behavior` | 6 | `HitTestBehavior` | `"opaque"` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDismissed` | 1 | `DismissDirection` | Fired after the child was dismissed, with the direction it went. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+| `background` | 2 | one node | Shown behind the child while it is swiped. |
+| `secondaryBackground` | 3 | one node | Shown behind the child when it is swiped in the secondary direction; needs `background`. |
+
 ### Divider
 
 A thin horizontal line with padding on either side.
@@ -1060,6 +1354,57 @@ ID 52 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Divider` · and
 | `endIndent` | 4 | `double` | — | Must be at least 0. |
 | `color` | 5 | `color` | — |  |
 | `radius` | 6 | `BorderRadius` | — |  |
+
+### DragTarget
+
+Accepts a `Draggable`'s payload dropped on it; its child is highlighted while a candidate hovers.
+
+ID 135 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `DragTarget` · android, ios · cost 30 µs · role none · interactive · type parameters T
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `accepts` | 1 | `T` | — | When set, only a `Draggable` whose `data` equals it is accepted. |
+| `highlightColor` | 2 | `color` | — | Tints the child while an acceptable candidate hovers over it. |
+| `hitTestBehavior` | 3 | `HitTestBehavior` | `"translucent"` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onAccept` | 1 | — | Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload. |
+| `onLeave` | 2 | — | Fired when a candidate leaves without being dropped. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required | The content; it is highlighted while a candidate hovers. |
+
+### Draggable
+
+Lets the user drag its child, carrying a typed `data` payload to a `DragTarget`.
+
+ID 134 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Draggable` · android, ios · cost 40 µs · role none · interactive · type parameters T
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `data` | 1 | `T` | — | The payload a `DragTarget` receives when the child is dropped on it. |
+| `axis` | 2 | `Axis` | — | Restricts the drag to one axis. |
+| `feedbackOffset` | 3 | `Offset` | — |  |
+| `maxSimultaneousDrags` | 4 | `int` | — |  |
+| `ignoringFeedbackSemantics` | 5 | `bool` | `true` |  |
+| `ignoringFeedbackPointer` | 6 | `bool` | `true` |  |
+| `rootOverlay` | 7 | `bool` | `false` |  |
+| `hitTestBehavior` | 8 | `HitTestBehavior` | `"deferToChild"` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDragStarted` | 1 | — |  |
+| `onDragEnd` | 2 | `bool` | Fired when the drag ends; the payload tells whether a target accepted it. |
+| `onDragCompleted` | 3 | — | Fired when a target accepted the drop. |
+| `onDraggableCanceled` | 4 | — | Fired when no target accepted the drop. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+| `feedback` | 2 | one node, required | Shown under the finger while dragging. |
+| `childWhenDragging` | 3 | one node | Shown in place of the child while it is dragged. |
 
 ### DropdownMenu
 
@@ -1221,6 +1566,22 @@ ID 56 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `ExpansionTile` 
 | `subtitle` | 3 | one node |  |
 | `trailing` | 4 | one node |  |
 | `children` | 5 | a list of nodes | The content shown when expanded. |
+
+### FadeTransition
+
+Fades its child by a track of a page timeline.
+
+ID 150 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `FadeTransition` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `timeline` | 1 | `string`, required | — | The name of a timeline of the page. |
+| `track` | 2 | `int` | `0` | The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value. Must be at least 0. |
+| `alwaysIncludeSemantics` | 3 | `bool` | `false` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
 
 ### FilledButton
 
@@ -1563,6 +1924,23 @@ ID 37 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `GridView.builde
 | `loading` | 3 | one node | Shown while `status` is loading. |
 | `error` | 4 | one node | Shown while `status` is error. |
 
+### Hero
+
+Marks its child as a shared element that flies between pages with the same `tag`.
+
+ID 137 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Hero` · android, ios · cost 15 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `tag` | 1 | `string`, required | — | The shared tag; the same strings as the node-level `hero` (ANI-004). |
+| `transitionOnUserGestures` | 2 | `bool` | `false` |  |
+| `curve` | 3 | `Curve` | `"fastOutSlowIn"` |  |
+| `reverseCurve` | 4 | `Curve` | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+
 ### Icon
 
 An icon from the Material or Cupertino icon set.
@@ -1799,6 +2177,36 @@ ID 58 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `InputChip` · a
 | `avatar` | 1 | one node |  |
 | `label` | 2 | one node, required |  |
 | `deleteIcon` | 3 | one node |  |
+
+### InteractiveViewer
+
+Pans and zooms its child with gestures.
+
+ID 136 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `InteractiveViewer` · android, ios · cost 40 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `clipBehavior` | 1 | `Clip` | `"hardEdge"` |  |
+| `panAxis` | 2 | `PanAxis` | `"free"` |  |
+| `boundaryMargin` | 3 | `EdgeInsets` | — |  |
+| `constrained` | 4 | `bool` | `true` |  |
+| `maxScale` | 5 | `double` | `2.5` |  |
+| `minScale` | 6 | `double` | `0.8` |  |
+| `interactionEndFrictionCoefficient` | 7 | `double` | `1.35e-05` |  |
+| `panEnabled` | 8 | `bool` | `true` |  |
+| `scaleEnabled` | 9 | `bool` | `true` |  |
+| `scaleFactor` | 10 | `double` | `200.0` |  |
+| `alignment` | 11 | `Alignment` | — |  |
+| `trackpadScrollCausesScale` | 12 | `bool` | `false` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onInteractionStart` | 1 | — |  |
+| `onInteractionEnd` | 2 | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
 
 ### KycCameraCapture
 
@@ -2374,6 +2782,23 @@ ID 47 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Text.rich` · a
 | `textWidthBasis` | 11 | `TextWidthBasis` | — |  |
 | `selectionColor` | 12 | `color` | — |  |
 
+### RotationTransition
+
+Rotates its child by a track of a page timeline, in turns.
+
+ID 153 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `RotationTransition` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `timeline` | 1 | `string`, required | — | The name of a timeline of the page. |
+| `track` | 2 | `int` | `0` | The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value. Must be at least 0. |
+| `alignment` | 3 | `Alignment` | `"center"` |  |
+| `filterQuality` | 4 | `FilterQuality` | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
 ### Row
 
 Lays out its children horizontally.
@@ -2449,6 +2874,23 @@ ID 86 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Scaffold` · an
 | `endDrawer` | 6 | one node |  |
 | `bottomNavigationBar` | 7 | one node |  |
 | `bottomSheet` | 8 | one node |  |
+
+### ScaleTransition
+
+Scales its child by a track of a page timeline.
+
+ID 152 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `ScaleTransition` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `timeline` | 1 | `string`, required | — | The name of a timeline of the page. |
+| `track` | 2 | `int` | `0` | The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value. Must be at least 0. |
+| `alignment` | 3 | `Alignment` | `"center"` |  |
+| `filterQuality` | 4 | `FilterQuality` | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
 
 ### Scrollbar
 
@@ -2639,6 +3081,24 @@ ID 99 · Layer 2 · P3 · revision 1 (runtime 0.1.0) · android, ios · cost 25 
 | `lines` | 1 | `int` | `3` | Number of text-line placeholders. Must be at least 1. |
 | `avatar` | 2 | `bool` | `false` | Show a round avatar placeholder. |
 | `shimmer` | 3 | `bool` | `true` | Animate a shimmer; disabled when the device reduces motion. |
+
+### SlideTransition
+
+Slides its child by a track of a page timeline, in multiples of the child's size along `axis`.
+
+ID 151 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `SlideTransition` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `timeline` | 1 | `string`, required | — | The name of a timeline of the page. |
+| `track` | 2 | `int` | `0` | The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value. Must be at least 0. |
+| `axis` | 3 | `Axis` | `"horizontal"` |  |
+| `transformHitTests` | 4 | `bool` | `true` |  |
+| `textDirection` | 5 | `TextDirection` | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
 
 ### Slider
 
@@ -3219,6 +3679,22 @@ ID 67 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `TextFormField` 
 | `onEditingComplete` | 5 | — |  |
 | `onFieldSubmitted` | 6 | `string` |  |
 | `onSaved` | 7 | `string?` |  |
+
+### Timeline
+
+Plays a page timeline for its subtree: it starts the named timeline when shown, and optionally restarts it when it ends (ANI-002).
+
+ID 138 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 5 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `timeline` | 1 | `string`, required | — | The name of a timeline of the page. |
+| `autoplay` | 2 | `bool` | `true` | Start the timeline when the widget is shown. |
+| `repeat` | 3 | `bool` | `false` | Start the timeline again each time it ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required | The subtree the timeline's tracks move. |
 
 ### Tooltip
 
@@ -4286,6 +4762,17 @@ ID 12 · revision 1 · Flutter `CrossAxisAlignment`
 | `stretch` | 4 |  |
 | `baseline` | 5 |  |
 
+### CrossFadeState
+
+Mirrors the Flutter enum CrossFadeState.
+
+ID 106 · revision 1 · Flutter `CrossFadeState`
+
+| Value | ID | Description |
+|---|---|---|
+| `showFirst` | 1 |  |
+| `showSecond` | 2 |  |
+
 ### CupertinoButtonSize
 
 Mirrors the Flutter enum CupertinoButtonSize.
@@ -4298,6 +4785,25 @@ ID 13 · revision 1 · Flutter `CupertinoButtonSize`
 | `medium` | 2 |  |
 | `large` | 3 |  |
 
+### Curve
+
+An animation curve by name; the same curves as the node-level animation (ANI-001, ANI-002).
+
+ID 108 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `linear` | 1 |  |
+| `easeIn` | 2 |  |
+| `easeOut` | 3 |  |
+| `easeInOut` | 4 |  |
+| `fastOutSlowIn` | 5 |  |
+| `decelerate` | 6 |  |
+| `bounceIn` | 7 |  |
+| `bounceOut` | 8 |  |
+| `elasticOut` | 9 |  |
+| `overshoot` | 10 |  |
+
 ### DecorationPosition
 
 Mirrors the Flutter enum DecorationPosition.
@@ -4308,6 +4814,22 @@ ID 14 · revision 1 · Flutter `DecorationPosition`
 |---|---|---|
 | `background` | 1 |  |
 | `foreground` | 2 |  |
+
+### DismissDirection
+
+Mirrors the Flutter enum DismissDirection.
+
+ID 105 · revision 1 · Flutter `DismissDirection`
+
+| Value | ID | Description |
+|---|---|---|
+| `vertical` | 1 |  |
+| `horizontal` | 2 |  |
+| `endToStart` | 3 |  |
+| `startToEnd` | 4 |  |
+| `up` | 5 |  |
+| `down` | 6 |  |
+| `none` | 7 |  |
 
 ### DragStartBehavior
 
@@ -4702,6 +5224,19 @@ ID 38 · revision 1 · Flutter `OverlayVisibilityMode`
 | `editing` | 2 |  |
 | `notEditing` | 3 |  |
 | `always` | 4 |  |
+
+### PanAxis
+
+Mirrors the Flutter enum PanAxis.
+
+ID 107 · revision 1 · Flutter `PanAxis`
+
+| Value | ID | Description |
+|---|---|---|
+| `free` | 1 |  |
+| `horizontal` | 2 |  |
+| `vertical` | 3 |  |
+| `aligned` | 4 |  |
 
 ### RefreshIndicatorTriggerMode
 

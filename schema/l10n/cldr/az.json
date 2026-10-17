@@ -1,0 +1,2850 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMMdd": "GGGGG dd.MM.y",
+        "Gy": "G y",
+        "GyM": "G MM/y",
+        "GyMEd": "G dd/MM/y, E",
+        "GyMMM": "G MMM y",
+        "GyMMMEd": "G d MMM y, E",
+        "GyMMMMEEEEd": "G d MMMM y, EEEE",
+        "GyMMMMd": "G d MMMM, y",
+        "GyMMMd": "G d MMM y",
+        "GyMd": "GGGGG d M y",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "dd.MM, E",
+        "MMM": "LLL",
+        "MMMEd": "d MMM, E",
+        "MMMMd": "MMMM d",
+        "MMMd": "d MMM",
+        "Md": "dd.MM",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "G y",
+        "yyyy": "G y",
+        "yyyyM": "GGGGG MM y",
+        "yyyyMEd": "GGGGG dd.MM.y, E",
+        "yyyyMMM": "G MMM y",
+        "yyyyMMMEd": "G d MMM y, E",
+        "yyyyMMMM": "G MMMM y",
+        "yyyyMMMd": "G d MMM y",
+        "yyyyMd": "GGGGG dd.MM.y"
+      },
+      "dateFormats": {
+        "full": "G d MMMM y, EEEE",
+        "long": "G d MMMM, y",
+        "medium": "G d MMM y",
+        "short": "GGGGG dd.MM.y"
+      },
+      "dateTimeAtTime": {
+        "full": "{1}/{0}",
+        "long": "{1}/{0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["B.", "B.e.", "Ç.a.", "Ç.", "C.a.", "C.", "Ş."],
+          "short": ["B.", "B.E.", "Ç.A.", "Ç.", "C.A.", "C.", "Ş."],
+          "wide": ["bazar", "bazar ertəsi", "çərşənbə axşamı", "çərşənbə", "cümə axşamı", "cümə", "şənbə"]
+        },
+        "standAlone": {
+          "abbreviated": ["B.", "B.E.", "Ç.A.", "Ç.", "C.A.", "C.", "Ş."],
+          "short": ["B.", "B.E.", "Ç.A.", "Ç.", "C.A.", "C.", "Ş."],
+          "wide": ["bazar", "bazar ertəsi", "çərşənbə axşamı", "çərşənbə", "cümə axşamı", "cümə", "şənbə"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        },
+        "standAlone": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "Gy": "G y",
+        "GyM": "G M y",
+        "GyMEd": "G d M y, E",
+        "GyMMM": "G MMM y",
+        "GyMMMEd": "G d MMM y, E",
+        "GyMMMd": "G d MMM y",
+        "GyMd": "G d M y",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "dd.MM, E",
+        "MMM": "LLL",
+        "MMMEd": "d MMM, E",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "dd.MM",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "MM.y",
+        "yMEd": "dd.MM.y, E",
+        "yMMM": "MMM y",
+        "yMMMEd": "d MMM y, E",
+        "yMMMM": "MMMM y",
+        "yMMMMEEEEd": "d MMMM y, EEEE",
+        "yMMMMd": "d MMMM y",
+        "yMMMd": "d MMM y",
+        "yMd": "dd.MM.y",
+        "yyMMdd": "dd.MM.yy"
+      },
+      "dateFormats": {
+        "full": "d MMMM y, EEEE",
+        "long": "d MMMM y",
+        "medium": "d MMM y",
+        "short": "dd.MM.yy"
+      },
+      "dateTimeAtTime": {
+        "full": "{1}/{0}",
+        "long": "{1}/{0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "narrow": {
+            "am": "a",
+            "pm": "p"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "narrow": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["B.", "B.e.", "Ç.a.", "Ç.", "C.a.", "C.", "Ş."],
+          "narrow": ["7", "1", "2", "3", "4", "5", "6"],
+          "short": ["B.", "B.E.", "Ç.A.", "Ç.", "C.A.", "C.", "Ş."],
+          "wide": ["bazar", "bazar ertəsi", "çərşənbə axşamı", "çərşənbə", "cümə axşamı", "cümə", "şənbə"]
+        },
+        "standAlone": {
+          "abbreviated": ["B.", "B.E.", "Ç.A.", "Ç.", "C.A.", "C.", "Ş."],
+          "narrow": ["7", "1", "2", "3", "4", "5", "6"],
+          "short": ["B.", "B.E.", "Ç.A.", "Ç.", "C.A.", "C.", "Ş."],
+          "wide": ["bazar", "bazar ertəsi", "çərşənbə axşamı", "çərşənbə", "cümə axşamı", "cümə", "şənbə"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["e.ə.", "y.e."],
+        "narrow": ["e.ə.", "y.e."],
+        "wide": ["eramızdan əvvəl", "yeni era"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["yan", "fev", "mar", "apr", "may", "iyn", "iyl", "avq", "sen", "okt", "noy", "dek"],
+          "narrow": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+          "wide": ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avqust", "sentyabr", "oktyabr", "noyabr", "dekabr"]
+        },
+        "standAlone": {
+          "abbreviated": ["yan", "fev", "mar", "apr", "may", "iyn", "iyl", "avq", "sen", "okt", "noy", "dek"],
+          "narrow": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+          "wide": ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avqust", "sentyabr", "oktyabr", "noyabr", "dekabr"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMMdd": "GGGGG dd.MM.y",
+        "Gy": "G y",
+        "GyM": "G MM/y",
+        "GyMEd": "G dd/MM/y, E",
+        "GyMMM": "G MMM y",
+        "GyMMMEd": "G d MMM y, E",
+        "GyMMMMEEEEd": "G d MMMM y, EEEE",
+        "GyMMMMd": "G d MMMM, y",
+        "GyMMMd": "G d MMM y",
+        "GyMd": "GGGGG d M y",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "dd.MM, E",
+        "MMM": "LLL",
+        "MMMEd": "d MMM, E",
+        "MMMMd": "MMMM d",
+        "MMMd": "d MMM",
+        "Md": "dd.MM",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "G y",
+        "yyyy": "G y",
+        "yyyyM": "GGGGG MM y",
+        "yyyyMEd": "GGGGG dd.MM.y, E",
+        "yyyyMMM": "G MMM y",
+        "yyyyMMMEd": "G d MMM y, E",
+        "yyyyMMMM": "G MMMM y",
+        "yyyyMMMd": "G d MMM y",
+        "yyyyMd": "GGGGG dd.MM.y"
+      },
+      "dateFormats": {
+        "full": "G d MMMM y, EEEE",
+        "long": "G d MMMM, y",
+        "medium": "G d MMM y",
+        "short": "GGGGG dd.MM.y"
+      },
+      "dateTimeAtTime": {
+        "full": "{1}/{0}",
+        "long": "{1}/{0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["B.", "B.e.", "Ç.a.", "Ç.", "C.a.", "C.", "Ş."],
+          "short": ["B.", "B.E.", "Ç.A.", "Ç.", "C.A.", "C.", "Ş."],
+          "wide": ["bazar", "bazar ertəsi", "çərşənbə axşamı", "çərşənbə", "cümə axşamı", "cümə", "şənbə"]
+        },
+        "standAlone": {
+          "abbreviated": ["B.", "B.E.", "Ç.A.", "Ç.", "C.A.", "C.", "Ş."],
+          "short": ["B.", "B.E.", "Ç.A.", "Ç.", "C.A.", "C.", "Ş."],
+          "wide": ["bazar", "bazar ertəsi", "çərşənbə axşamı", "çərşənbə", "cümə axşamı", "cümə", "şənbə"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AH", "BH"],
+        "wide": ["AH", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Məh.", "Səf.", "Rəb. I", "Rəb. II", "Cəm. I", "Cəm. II", "Rəc.", "Şab.", "Ram.", "Şəv.", "Zilq.", "Zilh."],
+          "wide": ["Məhərrəm", "Səfər", "Rəbiüləvvəl", "Rəbiülaxır", "Cəmadiyələvvəl", "Cəmadiyəlaxır", "Rəcəb", "Şaban", "Ramazan", "Şəvval", "Zilqədə", "Zilhiccə"]
+        },
+        "standAlone": {
+          "abbreviated": ["Məh.", "Səf.", "Rəb. I", "Rəb. II", "Cəm. I", "Cəm. II", "Rəc.", "Şab.", "Ram.", "Şəv.", "Zilq.", "Zilh."],
+          "wide": ["Məhərrəm", "Səfər", "Rəbiüləvvəl", "Rəbiülaxır", "Cəmadiyələvvəl", "Cəmadiyəlaxır", "Rəcəb", "Şaban", "Ramazan", "Şəvval", "Zilqədə", "Zilhiccə"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMMdd": "GGGGG dd.MM.y",
+        "Gy": "G y",
+        "GyM": "G MM/y",
+        "GyMEd": "G dd/MM/y, E",
+        "GyMMM": "G MMM y",
+        "GyMMMEd": "G d MMM y, E",
+        "GyMMMMEEEEd": "G d MMMM y, EEEE",
+        "GyMMMMd": "G d MMMM, y",
+        "GyMMMd": "G d MMM y",
+        "GyMd": "GGGGG d M y",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "dd.MM, E",
+        "MMM": "LLL",
+        "MMMEd": "d MMM, E",
+        "MMMMd": "MMMM d",
+        "MMMd": "d MMM",
+        "Md": "dd.MM",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "G y",
+        "yyyy": "G y",
+        "yyyyM": "GGGGG MM y",
+        "yyyyMEd": "GGGGG dd.MM.y, E",
+        "yyyyMMM": "G MMM y",
+        "yyyyMMMEd": "G d MMM y, E",
+        "yyyyMMMM": "G MMMM y",
+        "yyyyMMMd": "G d MMM y",
+        "yyyyMd": "GGGGG dd.MM.y"
+      },
+      "dateFormats": {
+        "full": "G d MMMM y, EEEE",
+        "long": "G d MMMM, y",
+        "medium": "G d MMM y",
+        "short": "GGGGG dd.MM.y"
+      },
+      "dateTimeAtTime": {
+        "full": "{1}/{0}",
+        "long": "{1}/{0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["B.", "B.e.", "Ç.a.", "Ç.", "C.a.", "C.", "Ş."],
+          "short": ["B.", "B.E.", "Ç.A.", "Ç.", "C.A.", "C.", "Ş."],
+          "wide": ["bazar", "bazar ertəsi", "çərşənbə axşamı", "çərşənbə", "cümə axşamı", "cümə", "şənbə"]
+        },
+        "standAlone": {
+          "abbreviated": ["B.", "B.E.", "Ç.A.", "Ç.", "C.A.", "C.", "Ş."],
+          "short": ["B.", "B.E.", "Ç.A.", "Ç.", "C.A.", "C.", "Ş."],
+          "wide": ["bazar", "bazar ertəsi", "çərşənbə axşamı", "çərşənbə", "cümə axşamı", "cümə", "şənbə"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AP"],
+        "wide": ["AP"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["fərvərdin", "ordibeheşt", "xordəd", "tir", "mordəd", "şəhrivar", "mehr", "abən", "azər", "dey", "bəhmən", "isfənd"],
+          "wide": ["fərvərdin", "ordibeheşt", "xordəd", "tir", "mordəd", "şəhrivar", "mehr", "abən", "azər", "dey", "bəhmən", "isfənd"]
+        },
+        "standAlone": {
+          "abbreviated": ["fərvərdin", "ordibeheşt", "xordəd", "tir", "mordəd", "şəhrivar", "mehr", "abən", "azər", "dey", "bəhmən", "isfənd"],
+          "wide": ["fərvərdin", "ordibeheşt", "xordəd", "tir", "mordəd", "şəhrivar", "mehr", "abən", "azər", "dey", "bəhmən", "isfənd"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    }
+  },
+  "currencies": {
+    "ADP": {
+      "name": "Andora Pesetası",
+      "plural": {
+        "one": "Andora pesetası",
+        "other": "Andora pesetası"
+      }
+    },
+    "AED": {
+      "name": "Birləşmiş Ərəb Əmirlikləri Dirhəmi",
+      "plural": {
+        "one": "BƏƏ dirhəmi",
+        "other": "BƏƏ dirhəmi"
+      }
+    },
+    "AFA": {
+      "name": "Əfqanıstan Əfqanisi (1927–2002)",
+      "plural": {
+        "one": "Əfqanıstan əfqanisi (1927–2002)",
+        "other": "Əfqanıstan əfqanisi (1927–2002)"
+      }
+    },
+    "AFN": {
+      "name": "Əfqanıstan Əfqanisi",
+      "narrow": "؋",
+      "plural": {
+        "one": "Əfqanıstan əfqanisi",
+        "other": "Əfqanıstan əfqanisi"
+      }
+    },
+    "ALK": {
+      "name": "Albaniya Leki (1946–1965)",
+      "plural": {
+        "one": "Albaniya leki (1946–1965)",
+        "other": "Albaniya leki (1946–1965)"
+      }
+    },
+    "ALL": {
+      "name": "Albaniya Leki",
+      "plural": {
+        "one": "Albaniya leki",
+        "other": "Albaniya leki"
+      }
+    },
+    "AMD": {
+      "name": "Ermənistan Dramı",
+      "narrow": "֏",
+      "plural": {
+        "one": "Ermənistan dramı",
+        "other": "Ermənistan dramı"
+      }
+    },
+    "ANG": {
+      "name": "Niderland Antilyası Gilderi",
+      "plural": {
+        "one": "Niderland Antilyası gilderi",
+        "other": "Niderland Antilya gilderi"
+      }
+    },
+    "AOA": {
+      "name": "Anqola Kvanzası",
+      "narrow": "Kz",
+      "plural": {
+        "one": "Anqola kvanzası",
+        "other": "Anqola kvanzası"
+      }
+    },
+    "AOK": {
+      "name": "Anqola Kvanzasi (1977–1990)",
+      "plural": {
+        "one": "Anqola kvanzasi (1977–1990)",
+        "other": "Anqola kvanzasi (1977–1990)"
+      }
+    },
+    "AON": {
+      "name": "Anqola Yeni Kvanzası (1990–2000)",
+      "plural": {
+        "one": "Anqola yeni kvanzası (1990–2000)",
+        "other": "Anqola yeni kvanzası (1990–2000)"
+      }
+    },
+    "AOR": {
+      "name": "Anqola Kvanzası (1995–1999)",
+      "plural": {
+        "one": "Anqola kvanzası (1995–1999)",
+        "other": "Anqola kvanzası (1995–1999)"
+      }
+    },
+    "ARA": {
+      "name": "Argentina avstralı"
+    },
+    "ARP": {
+      "name": "Argentina pesosu (1983–1985)"
+    },
+    "ARS": {
+      "name": "Argentina Pesosu",
+      "narrow": "$",
+      "plural": {
+        "one": "Argentina pesosu",
+        "other": "Argentina pesosu"
+      }
+    },
+    "ATS": {
+      "name": "Avstriya Şillinqi",
+      "plural": {
+        "one": "Avstriya şillinqi",
+        "other": "Avstriya şillinqi"
+      }
+    },
+    "AUD": {
+      "name": "Avstraliya Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Avstraliya dolları",
+        "other": "Avstraliya dolları"
+      },
+      "symbol": "A$"
+    },
+    "AWG": {
+      "name": "Aruba Florini",
+      "plural": {
+        "one": "Aruba florini",
+        "other": "Aruba florini"
+      }
+    },
+    "AZM": {
+      "name": "Azərbaycan Manatı (1993–2006)",
+      "plural": {
+        "one": "Azərbaycan manatı (1993–2006)",
+        "other": "Azərbaycan manatı (1993–2006)"
+      }
+    },
+    "AZN": {
+      "name": "Azərbaycan Manatı",
+      "plural": {
+        "one": "Azərbaycan manatı",
+        "other": "Azərbaycan manatı"
+      },
+      "symbol": "₼"
+    },
+    "BAD": {
+      "name": "Bosniya-Herseqovina Dinarı",
+      "plural": {
+        "one": "Bosniya-Herseqovina dinarı",
+        "other": "Bosniya-Herseqovina dinarı"
+      }
+    },
+    "BAM": {
+      "name": "Bosniya-Herseqovina Markası",
+      "narrow": "KM",
+      "plural": {
+        "one": "Bosniya-Herseqovina markası",
+        "other": "Bosniya-Herseqovina markası"
+      }
+    },
+    "BBD": {
+      "name": "Barbados Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Barbados dolları",
+        "other": "Barbados dolları"
+      }
+    },
+    "BDT": {
+      "name": "Banqladeş Takası",
+      "narrow": "৳",
+      "plural": {
+        "one": "Banqladeş takası",
+        "other": "Banqladeş takası"
+      }
+    },
+    "BEC": {
+      "name": "Belçika Frankı (deyşirik)",
+      "plural": {
+        "one": "Belçika frankı (deyşirik)",
+        "other": "Belçika frankı (deyşirik)"
+      }
+    },
+    "BEF": {
+      "name": "Belçika Frankı",
+      "plural": {
+        "one": "Belçika frankı",
+        "other": "Belçika frankı"
+      }
+    },
+    "BEL": {
+      "name": "Belçika Frankı (finans)",
+      "plural": {
+        "one": "Belçika frankı (finans)",
+        "other": "Belçika frankı (finans)"
+      }
+    },
+    "BGL": {
+      "name": "Bolqarıstan Levası",
+      "plural": {
+        "one": "Bolqarıstan levası",
+        "other": "Bolqarıstan levası"
+      }
+    },
+    "BGN": {
+      "name": "Bolqarıstan Levi",
+      "plural": {
+        "one": "Bolqarıstan levi",
+        "other": "Bolqarıstan levi"
+      }
+    },
+    "BHD": {
+      "name": "Bəhreyn Dinarı",
+      "plural": {
+        "one": "Bəhreyn dinarı",
+        "other": "Bəhreyn dinarı"
+      }
+    },
+    "BIF": {
+      "name": "Burundi Frankı",
+      "plural": {
+        "one": "Burundi frankı",
+        "other": "Burundi frankı"
+      }
+    },
+    "BMD": {
+      "name": "Bermuda Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Bermuda dolları",
+        "other": "Bermuda dolları"
+      }
+    },
+    "BND": {
+      "name": "Bruney Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Bruney dolları",
+        "other": "Bruney dolları"
+      }
+    },
+    "BOB": {
+      "name": "Boliviya Bolivianosu",
+      "narrow": "Bs",
+      "plural": {
+        "one": "Boliviya bolivianosu",
+        "other": "Boliviya bolivianosu"
+      }
+    },
+    "BOP": {
+      "name": "Boliviya pesosu"
+    },
+    "BOV": {
+      "name": "Boliviya mvdolı"
+    },
+    "BRB": {
+      "name": "Braziliya kruzeyro novası"
+    },
+    "BRC": {
+      "name": "Braziliya kruzadosu"
+    },
+    "BRE": {
+      "name": "Braziliya kruzeyrosu (1990–1993)"
+    },
+    "BRL": {
+      "name": "Braziliya Realı",
+      "plural": {
+        "one": "Braziliya realı",
+        "other": "Braziliya realı"
+      },
+      "symbol": "R$"
+    },
+    "BRN": {
+      "name": "Braziliya kruzado novası"
+    },
+    "BRR": {
+      "name": "Braziliya kruzeyrosu"
+    },
+    "BSD": {
+      "name": "Baham Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Baham dolları",
+        "other": "Baham dolları"
+      }
+    },
+    "BTN": {
+      "name": "Butan Nqultrumu",
+      "plural": {
+        "one": "Butan nqultrumu",
+        "other": "Butan nqultrumu"
+      }
+    },
+    "BUK": {
+      "name": "Burmis Kyatı",
+      "plural": {
+        "one": "Burmis kyatı",
+        "other": "Burmis kyatı"
+      }
+    },
+    "BWP": {
+      "name": "Botsvana Pulası",
+      "narrow": "P",
+      "plural": {
+        "one": "Botsvana pulası",
+        "other": "Botsvana pulası"
+      }
+    },
+    "BYB": {
+      "name": "Belarus Yeni Rublu (1994–1999)",
+      "plural": {
+        "one": "Belarus yeni rublu (1994–1999)",
+        "other": "Belarus yeni rublu (1994–1999)"
+      }
+    },
+    "BYN": {
+      "name": "Belarus Rublu",
+      "narrow": "р.",
+      "plural": {
+        "one": "Belarus rublu",
+        "other": "Belarus rublu"
+      }
+    },
+    "BYR": {
+      "name": "Belarus Rublu (2000–2016)",
+      "plural": {
+        "one": "Belarus rublu (2000–2016)",
+        "other": "Belarus rublu (2000–2016)"
+      }
+    },
+    "BZD": {
+      "name": "Beliz Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Beliz dolları",
+        "other": "Beliz dolları"
+      }
+    },
+    "CAD": {
+      "name": "Kanada Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Kanada dolları",
+        "other": "Kanada dolları"
+      },
+      "symbol": "CA$"
+    },
+    "CDF": {
+      "name": "Konqo Frankı",
+      "plural": {
+        "one": "Konqo frankı",
+        "other": "Konqo frankı"
+      }
+    },
+    "CHE": {
+      "name": "WIR Avro",
+      "plural": {
+        "one": "WIR avro",
+        "other": "WIR avro"
+      }
+    },
+    "CHF": {
+      "name": "İsveçrə Frankı",
+      "plural": {
+        "one": "İsveçrə frankı",
+        "other": "İsveçrə frankı"
+      }
+    },
+    "CHW": {
+      "name": "WIR Frankası",
+      "plural": {
+        "one": "WIR frankası",
+        "other": "WIR frankası"
+      }
+    },
+    "CLP": {
+      "name": "Çili Pesosu",
+      "narrow": "$",
+      "plural": {
+        "one": "Çili pesosu",
+        "other": "Çili pesosu"
+      }
+    },
+    "CNH": {
+      "name": "Çin Yuanı (ofşor)",
+      "plural": {
+        "one": "Çin yuanı (ofşor)",
+        "other": "Çin yuanı (ofşor)"
+      }
+    },
+    "CNY": {
+      "name": "Çin Yuanı",
+      "narrow": "¥",
+      "plural": {
+        "one": "Çin yuanı",
+        "other": "Çin yuanı"
+      },
+      "symbol": "CN¥"
+    },
+    "COP": {
+      "name": "Kolumbiya Pesosu",
+      "narrow": "$",
+      "plural": {
+        "one": "Kolombiya pesosu",
+        "other": "Kolombiya pesosu"
+      }
+    },
+    "CRC": {
+      "name": "Kosta Rika Kolonu",
+      "narrow": "₡",
+      "plural": {
+        "one": "Kosta Rika kolonu",
+        "other": "Kosta Rika kolonu"
+      }
+    },
+    "CSD": {
+      "name": "Serbiya Dinarı (2002–2006)",
+      "plural": {
+        "one": "Serbiya dinarı (2002–2006)",
+        "other": "Serbiya dinarı (2002–2006)"
+      }
+    },
+    "CSK": {
+      "name": "Çexoslavakiya Korunası",
+      "plural": {
+        "one": "Çexoslavakiya korunası",
+        "other": "Çexoslavakiya korunası"
+      }
+    },
+    "CUC": {
+      "name": "Kuba Çevrilən Pesosu",
+      "narrow": "$",
+      "plural": {
+        "one": "Kuba çevrilən pesosu",
+        "other": "Kuba çevrilən pesosu"
+      }
+    },
+    "CUP": {
+      "name": "Kuba Pesosu",
+      "narrow": "$",
+      "plural": {
+        "one": "Kuba pesosu",
+        "other": "Kuba pesosu"
+      }
+    },
+    "CVE": {
+      "name": "Kape Verde Eskudosu",
+      "plural": {
+        "one": "Kape Verde eskudosu",
+        "other": "Kape Verde eskudosu"
+      }
+    },
+    "CYP": {
+      "name": "Kipr Paundu",
+      "plural": {
+        "one": "Kipr paundu",
+        "other": "Kipr paundu"
+      }
+    },
+    "CZK": {
+      "name": "Çexiya Korunası",
+      "narrow": "Kč",
+      "plural": {
+        "one": "Çexiya korunası",
+        "other": "Çexiya korunası"
+      }
+    },
+    "DDM": {
+      "name": "Şərq Almaniya Ostmarkı",
+      "plural": {
+        "one": "Şərq Almaniya ostmarkı",
+        "other": "Şərq Almaniya ostmarkı"
+      }
+    },
+    "DEM": {
+      "name": "Alman Markası",
+      "plural": {
+        "one": "Alman markası",
+        "other": "Alman markası"
+      }
+    },
+    "DJF": {
+      "name": "Cibuti Frankı",
+      "plural": {
+        "one": "Cibuti frankı",
+        "other": "Cibuti frankı"
+      }
+    },
+    "DKK": {
+      "name": "Danimarka Kronu",
+      "narrow": "kr",
+      "plural": {
+        "one": "Danimarka kronu",
+        "other": "Danimarka kronu"
+      }
+    },
+    "DOP": {
+      "name": "Dominika Pesosu",
+      "narrow": "$",
+      "plural": {
+        "one": "Dominika pesosu",
+        "other": "Dominika pesosu"
+      }
+    },
+    "DZD": {
+      "name": "Əlcəzair Dinarı",
+      "plural": {
+        "one": "Əlcəzair dinarı",
+        "other": "Əlcəzair dinarı"
+      }
+    },
+    "ECS": {
+      "name": "Ekvador Sukresi",
+      "plural": {
+        "one": "Ekvador sukresi",
+        "other": "Ekvador sukresi"
+      }
+    },
+    "EEK": {
+      "name": "Estoniya Krunu",
+      "plural": {
+        "one": "Estoniya krunu",
+        "other": "Estoniya krunu"
+      }
+    },
+    "EGP": {
+      "name": "Misir Funtu",
+      "narrow": "E£",
+      "plural": {
+        "one": "Misir funtu",
+        "other": "Misir funtu"
+      }
+    },
+    "ERN": {
+      "name": "Eritreya Nakfası",
+      "plural": {
+        "one": "Eritreya nakfası",
+        "other": "Eritreya nakfası"
+      }
+    },
+    "ESA": {
+      "name": "İspan Pesetası (A account)",
+      "plural": {
+        "one": "İspan pesetası (A account)",
+        "other": "İspan pesetası (A account)"
+      }
+    },
+    "ESB": {
+      "name": "İspan Pesetası (dəyşirik)",
+      "plural": {
+        "one": "İspan pesetası (dəyşirik)",
+        "other": "İspan pesetası (dəyşirik)"
+      }
+    },
+    "ESP": {
+      "name": "İspan Pesetası",
+      "narrow": "₧",
+      "plural": {
+        "one": "İspan pesetası",
+        "other": "İspan pesetası"
+      }
+    },
+    "ETB": {
+      "name": "Efiopiya Bırrı",
+      "plural": {
+        "one": "Efiopiya bırrı",
+        "other": "Efiopiya bırrı"
+      }
+    },
+    "EUR": {
+      "name": "Avro",
+      "symbol": "€"
+    },
+    "FIM": {
+      "name": "Fin Markası",
+      "plural": {
+        "one": "Fin markası",
+        "other": "Fin markası"
+      }
+    },
+    "FJD": {
+      "name": "Fici Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Fici dolları",
+        "other": "Fici dolları"
+      }
+    },
+    "FKP": {
+      "name": "Folklend Adaları Funtu",
+      "narrow": "£",
+      "plural": {
+        "one": "Folklend Adaları funtu",
+        "other": "Folklend Adaları funtu"
+      }
+    },
+    "FRF": {
+      "name": "Fransız Markası",
+      "plural": {
+        "one": "Fransız markası",
+        "other": "Fransız markası"
+      }
+    },
+    "GBP": {
+      "name": "Britaniya Funtu",
+      "plural": {
+        "one": "Britaniya funtu",
+        "other": "Britaniya funtu"
+      },
+      "symbol": "£"
+    },
+    "GEK": {
+      "name": "Gürcüstan Kupon Lariti",
+      "plural": {
+        "one": "Gürcüstan kupon lariti",
+        "other": "Gürcüstan kupon lariti"
+      }
+    },
+    "GEL": {
+      "name": "Gürcüstan Larisi",
+      "narrow": "₾",
+      "plural": {
+        "one": "Gürcüstan larisi",
+        "other": "Gürcüstan larisi"
+      }
+    },
+    "GHC": {
+      "name": "Qana Sedisi (1979–2007)",
+      "plural": {
+        "one": "Qana sedisi (1979–2007)",
+        "other": "Qana sedisi (1979–2007)"
+      }
+    },
+    "GHS": {
+      "name": "Qana Sedisi",
+      "narrow": "GH₵",
+      "plural": {
+        "one": "Qana sedisi",
+        "other": "Qana sedisi"
+      }
+    },
+    "GIP": {
+      "name": "Cəbəli-Tariq Funtu",
+      "narrow": "£",
+      "plural": {
+        "one": "Cəbəli-Tariq funtu",
+        "other": "Cəbəli-Tariq funtu"
+      }
+    },
+    "GMD": {
+      "name": "Qambiya Dalasisi",
+      "plural": {
+        "one": "Qambiya dalasisi",
+        "other": "Qambiya dalasisi"
+      }
+    },
+    "GNF": {
+      "name": "Qvineya Frankı",
+      "narrow": "FG",
+      "plural": {
+        "one": "Qvineya frankı",
+        "other": "Qvineya frankı"
+      }
+    },
+    "GNS": {
+      "name": "Qvineya Sulisi",
+      "plural": {
+        "one": "Qvineya sulisi",
+        "other": "Qvineya sulisi"
+      }
+    },
+    "GQE": {
+      "name": "Ekvatoriya Gvineya Ekvele Quneanası",
+      "plural": {
+        "one": "Ekvatoriya Gvineya ekvele quneanası",
+        "other": "Ekvatoriya Gvineya ekvele quneanası"
+      }
+    },
+    "GRD": {
+      "name": "Yunan Draçması",
+      "plural": {
+        "one": "Yunan draxması",
+        "other": "Yunan draxması"
+      }
+    },
+    "GTQ": {
+      "name": "Qvatemala Küetzalı",
+      "narrow": "Q",
+      "plural": {
+        "one": "Qvatemala küetzalı",
+        "other": "Qvatemala küetzalı"
+      }
+    },
+    "GWE": {
+      "name": "Portugal Qvineya Eskudosu",
+      "plural": {
+        "one": "Portugal Qvineya eskudosu",
+        "other": "Portugal Qvineya eskudosu"
+      }
+    },
+    "GWP": {
+      "name": "Qvineya-Bisau Pesosu",
+      "plural": {
+        "one": "Qvineya-Bisau pesosu",
+        "other": "Qvineya-Bisau pesosu"
+      }
+    },
+    "GYD": {
+      "name": "Qayana Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Qayana dolları",
+        "other": "Qayana dolları"
+      }
+    },
+    "HKD": {
+      "name": "Honq Konq Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Honq Konq dolları",
+        "other": "Honq Konq dolları"
+      },
+      "symbol": "HK$"
+    },
+    "HNL": {
+      "name": "Honduras Lempirası",
+      "narrow": "L",
+      "plural": {
+        "one": "Honduras lempirası",
+        "other": "Honduras lempirası"
+      }
+    },
+    "HRD": {
+      "name": "Xorvatiya Dinarı",
+      "plural": {
+        "one": "Xorvatiya dinarı",
+        "other": "Xorvatiya dinarı"
+      }
+    },
+    "HRK": {
+      "name": "Xorvatiya Kunası",
+      "narrow": "kn",
+      "plural": {
+        "one": "Xorvatiya kunası",
+        "other": "Xorvatiya kunası"
+      }
+    },
+    "HTG": {
+      "name": "Haiti Qourdu",
+      "plural": {
+        "one": "Haiti qourdu",
+        "other": "Haiti qourdu"
+      }
+    },
+    "HUF": {
+      "name": "Macarıstan Forinti",
+      "narrow": "Ft",
+      "plural": {
+        "one": "Macarıstan forinti",
+        "other": "Macarıstan forinti"
+      }
+    },
+    "IDR": {
+      "name": "İndoneziya Rupisi",
+      "narrow": "Rp",
+      "plural": {
+        "one": "İndoneziya rupisi",
+        "other": "İndoneziya rupisi"
+      }
+    },
+    "IEP": {
+      "name": "İrlandiya Paundu",
+      "plural": {
+        "one": "İrlandiya paundu",
+        "other": "İrlandiya paundu"
+      }
+    },
+    "ILP": {
+      "name": "İzrail Paundu",
+      "plural": {
+        "one": "İzrail paundu",
+        "other": "İzrail paundu"
+      }
+    },
+    "ILR": {
+      "name": "İsrail Şekeli (1980–1985)",
+      "plural": {
+        "one": "İsrail şekeli (1980–1985)",
+        "other": "İsrail şekeli (1980–1985)"
+      }
+    },
+    "ILS": {
+      "name": "İsrail Yeni Şekeli",
+      "plural": {
+        "one": "İsrail yeni şekeli",
+        "other": "İsrail yeni şekeli"
+      },
+      "symbol": "₪"
+    },
+    "INR": {
+      "name": "Hindistan Rupisi",
+      "plural": {
+        "one": "Hindistan rupisi",
+        "other": "Hindistan rupisi"
+      },
+      "symbol": "₹"
+    },
+    "IQD": {
+      "name": "İraq Dinarı",
+      "plural": {
+        "one": "İraq dinarı",
+        "other": "İraq dinarı"
+      }
+    },
+    "IRR": {
+      "name": "İran Rialı",
+      "plural": {
+        "one": "İran rialı",
+        "other": "İran rialı"
+      }
+    },
+    "ISJ": {
+      "name": "İslandiya Kronu (1918–1981)",
+      "plural": {
+        "one": "İslandiya kronu (1918–1981)",
+        "other": "İslandiya kronu (1918–1981)"
+      }
+    },
+    "ISK": {
+      "name": "İslandiya Kronu",
+      "narrow": "kr",
+      "plural": {
+        "one": "İslandiya kronu",
+        "other": "İslandiya kronu"
+      }
+    },
+    "ITL": {
+      "name": "İtaliya Lirası",
+      "plural": {
+        "one": "İtaliya lirası",
+        "other": "İtaliya lirası"
+      }
+    },
+    "JMD": {
+      "name": "Yamayka Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Yamayka dolları",
+        "other": "Yamayka dolları"
+      }
+    },
+    "JOD": {
+      "name": "İordaniya Dinarı",
+      "plural": {
+        "one": "İordaniya dinarı",
+        "other": "İordaniya dinarı"
+      }
+    },
+    "JPY": {
+      "name": "Yaponiya Yeni",
+      "narrow": "¥",
+      "plural": {
+        "one": "Yaponiya yeni",
+        "other": "Yaponiya yeni"
+      },
+      "symbol": "JP¥"
+    },
+    "KES": {
+      "name": "Keniya Şillinqi",
+      "plural": {
+        "one": "Keniya şillinqi",
+        "other": "Keniya şillinqi"
+      }
+    },
+    "KGS": {
+      "name": "Qırğızıstan Somu",
+      "narrow": "⃀",
+      "plural": {
+        "one": "Qırğızıstan somu",
+        "other": "Qırğızıstan somu"
+      }
+    },
+    "KHR": {
+      "name": "Kamboca Rieli",
+      "narrow": "៛",
+      "plural": {
+        "one": "Kamboca rieli",
+        "other": "Kamboca rieli"
+      }
+    },
+    "KMF": {
+      "name": "Komor Frankı",
+      "narrow": "CF",
+      "plural": {
+        "one": "Komor frankı",
+        "other": "Komor frankı"
+      }
+    },
+    "KPW": {
+      "name": "Şimali Koreya Vonu",
+      "narrow": "₩",
+      "plural": {
+        "one": "Şimali Koreya vonu",
+        "other": "Şimali Koreya vonu"
+      }
+    },
+    "KRW": {
+      "name": "Cənubi Koreya Vonu",
+      "plural": {
+        "one": "Cənubi Koreya vonu",
+        "other": "Cənubi Koreya vonu"
+      },
+      "symbol": "₩"
+    },
+    "KWD": {
+      "name": "Küveyt Dinarı",
+      "plural": {
+        "one": "Küveyt dinarı",
+        "other": "Küveyt dinarı"
+      }
+    },
+    "KYD": {
+      "name": "Kayman Adaları Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Kayman Adaları dolları",
+        "other": "Kayman Adaları dolları"
+      }
+    },
+    "KZT": {
+      "name": "Qazaxıstan Tengesi",
+      "narrow": "₸",
+      "plural": {
+        "one": "Qazaxıstan tengesi",
+        "other": "Qazaxıstan tengesi"
+      }
+    },
+    "LAK": {
+      "name": "Laos Kipi",
+      "narrow": "₭",
+      "plural": {
+        "one": "Laos kipi",
+        "other": "Laos kipi"
+      }
+    },
+    "LBP": {
+      "name": "Livan Funtu",
+      "narrow": "L£",
+      "plural": {
+        "one": "Livan funtu",
+        "other": "Livan funtu"
+      }
+    },
+    "LKR": {
+      "name": "Şri Lanka Rupisi",
+      "narrow": "Rs",
+      "plural": {
+        "one": "Şri Lanka rupisi",
+        "other": "Şri Lanka rupisi"
+      }
+    },
+    "LRD": {
+      "name": "Liberiya Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Liberiya dolları",
+        "other": "Liberiya dolları"
+      }
+    },
+    "LSL": {
+      "name": "Lesoto Lotisi",
+      "plural": {
+        "one": "Lesoto lotisi",
+        "other": "Lesoto lotisi"
+      }
+    },
+    "LTL": {
+      "name": "Litva Liti",
+      "narrow": "Lt",
+      "plural": {
+        "one": "Litva liti",
+        "other": "Litva liti"
+      }
+    },
+    "LTT": {
+      "name": "Litva Talonası",
+      "plural": {
+        "one": "Litva talonası",
+        "other": "Litva talonası"
+      }
+    },
+    "LUC": {
+      "name": "Luksemburq Frankası (dəyişik)",
+      "plural": {
+        "one": "Luksemburq dəyişik frankası",
+        "other": "Luksemburq dəyişik frankası"
+      }
+    },
+    "LUF": {
+      "name": "Luksemburq Frankası",
+      "plural": {
+        "one": "Luksemburq frankası",
+        "other": "Luksemburq frankası"
+      }
+    },
+    "LUL": {
+      "name": "Luksemburq Frankası (finans)",
+      "plural": {
+        "one": "Luksemburq finans frankası",
+        "other": "Luksemburq finans frankası"
+      }
+    },
+    "LVL": {
+      "name": "Latviya Latı",
+      "narrow": "Ls",
+      "plural": {
+        "one": "Latviya latı",
+        "other": "Latviya latı"
+      }
+    },
+    "LVR": {
+      "name": "Latviya Rublu",
+      "plural": {
+        "one": "Latviya rublu",
+        "other": "Latviya rublu"
+      }
+    },
+    "LYD": {
+      "name": "Liviya Dinarı",
+      "plural": {
+        "one": "Liviya dinarı",
+        "other": "Liviya dinarı"
+      }
+    },
+    "MAD": {
+      "name": "Mərakeş Dirhəmi",
+      "plural": {
+        "one": "Mərakeş dirhəmi",
+        "other": "Mərakeş dirhəmi"
+      }
+    },
+    "MAF": {
+      "name": "Mərakeş Frankası",
+      "plural": {
+        "one": "Mərakeş frankası",
+        "other": "Mərakeş frankası"
+      }
+    },
+    "MDL": {
+      "name": "Moldova Leyi",
+      "plural": {
+        "one": "Moldova leyi",
+        "other": "Moldova leyi"
+      }
+    },
+    "MGA": {
+      "name": "Madaqaskar Ariarisi",
+      "narrow": "Ar",
+      "plural": {
+        "one": "Madaqaskar ariarisi",
+        "other": "Madaqaskar ariarisi"
+      }
+    },
+    "MGF": {
+      "name": "Madaqaskar Frankası",
+      "plural": {
+        "one": "Madaqaskar frankası",
+        "other": "Madaqaskar frankası"
+      }
+    },
+    "MKD": {
+      "name": "Makedoniya Dinarı",
+      "plural": {
+        "one": "Makedoniya dinarı",
+        "other": "Makedoniya dinarı"
+      }
+    },
+    "MKN": {
+      "name": "Makedoniya Dinarı (1992–1993)",
+      "plural": {
+        "one": "Makedoniya dinarı (1992–1993)",
+        "other": "Makedoniya dinarı (1992–1993)"
+      }
+    },
+    "MLF": {
+      "name": "Mali Frankı",
+      "plural": {
+        "one": "Mali frankı",
+        "other": "Mali frankı"
+      }
+    },
+    "MMK": {
+      "name": "Myanma Kiyatı",
+      "narrow": "K",
+      "plural": {
+        "one": "Myanmar kiyatı",
+        "other": "Myanmar kiyatı"
+      }
+    },
+    "MNT": {
+      "name": "Monqoliya Tuqriki",
+      "narrow": "₮",
+      "plural": {
+        "one": "Monqoliya tuqriki",
+        "other": "Monqoliya tuqriki"
+      }
+    },
+    "MOP": {
+      "name": "Makao Patakası",
+      "plural": {
+        "one": "Makao patakası",
+        "other": "Makao patakası"
+      }
+    },
+    "MRO": {
+      "name": "Mavritaniya Ugiyası (1973–2017)",
+      "plural": {
+        "one": "Mavritaniya ugiyası (1973–2017)",
+        "other": "Mavritaniya ugiyası (1973–2017)"
+      }
+    },
+    "MRU": {
+      "name": "Mavritaniya Ugiyası",
+      "plural": {
+        "one": "Mavritaniya ugiyası",
+        "other": "Mavritaniya ugiyası"
+      }
+    },
+    "MTP": {
+      "name": "Maltiz Paundu",
+      "plural": {
+        "one": "Maltiz paundu",
+        "other": "Maltiz paundu"
+      }
+    },
+    "MUR": {
+      "name": "Mavriki Rupisi",
+      "narrow": "Rs",
+      "plural": {
+        "one": "Mavriki rupisi",
+        "other": "Mavriki rupisi"
+      }
+    },
+    "MVR": {
+      "name": "Maldiv Rufiyası",
+      "plural": {
+        "one": "Maldiv rufiyası",
+        "other": "Maldiv rufiyası"
+      }
+    },
+    "MWK": {
+      "name": "Malavi Kvaçası",
+      "plural": {
+        "one": "Malavi kvaçası",
+        "other": "Malavi kvaçası"
+      }
+    },
+    "MXN": {
+      "name": "Meksika Pesosu",
+      "narrow": "$",
+      "plural": {
+        "one": "Meksika pesosu",
+        "other": "Meksika pesosu"
+      },
+      "symbol": "MX$"
+    },
+    "MXP": {
+      "name": "Meksika gümüş pesosu"
+    },
+    "MYR": {
+      "name": "Malayziya Ringiti",
+      "narrow": "RM",
+      "plural": {
+        "one": "Malayziya ringiti",
+        "other": "Malayziya ringiti"
+      }
+    },
+    "MZE": {
+      "name": "Mozambik Eskudosu",
+      "plural": {
+        "one": "Mozambik eskudosu",
+        "other": "Mozambik eskudosu"
+      }
+    },
+    "MZM": {
+      "name": "Mozambik Metikalı (1980–2006)",
+      "plural": {
+        "one": "Mozambik metikalı (1980–2006)",
+        "other": "Mozambik metikalı (1980–2006)"
+      }
+    },
+    "MZN": {
+      "name": "Mozambik Metikalı",
+      "plural": {
+        "one": "Mozambik metikalı",
+        "other": "Mozambik metikalı"
+      }
+    },
+    "NAD": {
+      "name": "Namibiya Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Namibiya dolları",
+        "other": "Namibiya dolları"
+      }
+    },
+    "NGN": {
+      "name": "Nigeriya Nairası",
+      "narrow": "₦",
+      "plural": {
+        "one": "Nigeriya nairası",
+        "other": "Nigeriya nairası"
+      }
+    },
+    "NIC": {
+      "name": "Nikaraqua kordobu"
+    },
+    "NIO": {
+      "name": "Nikaraqua Kordobası",
+      "narrow": "C$",
+      "plural": {
+        "one": "Nikaraqua kordobası",
+        "other": "Nikaraqua kordobası"
+      }
+    },
+    "NLG": {
+      "name": "Hollandiya Gilderi",
+      "plural": {
+        "one": "Hollandiya gilderi",
+        "other": "Hollandiya gilderi"
+      }
+    },
+    "NOK": {
+      "name": "Norveç Kronu",
+      "narrow": "kr",
+      "plural": {
+        "one": "Norveç kronu",
+        "other": "Norveç kronu"
+      }
+    },
+    "NPR": {
+      "name": "Nepal Rupisi",
+      "narrow": "Rs",
+      "plural": {
+        "one": "Nepal rupisi",
+        "other": "Nepal rupisi"
+      }
+    },
+    "NZD": {
+      "name": "Yeni Zelandiya Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Yeni Zelandiya dolları",
+        "other": "Yeni Zelandiya dolları"
+      },
+      "symbol": "NZ$"
+    },
+    "OMR": {
+      "name": "Oman Rialı",
+      "plural": {
+        "one": "Oman rialı",
+        "other": "Oman rialı"
+      }
+    },
+    "PAB": {
+      "name": "Panama Balboası",
+      "plural": {
+        "one": "Panama balboası",
+        "other": "Panama balboası"
+      }
+    },
+    "PEI": {
+      "name": "Peru Inti",
+      "plural": {
+        "one": "Peru inti",
+        "other": "Peru inti"
+      }
+    },
+    "PEN": {
+      "name": "Peru Solu",
+      "plural": {
+        "one": "Peru solu",
+        "other": "Peru solu"
+      }
+    },
+    "PES": {
+      "name": "Peru Solu (1863–1965)",
+      "plural": {
+        "one": "Peru solu (1863–1965)",
+        "other": "Peru solu (1863–1965)"
+      }
+    },
+    "PGK": {
+      "name": "Papua Yeni Qvineya Kinası",
+      "plural": {
+        "one": "Papua Yeni Qvineya kinası",
+        "other": "Papua Yeni Qvineya kinası"
+      }
+    },
+    "PHP": {
+      "name": "Filippin Pesosu",
+      "narrow": "₱",
+      "plural": {
+        "one": "Filippin pesosu",
+        "other": "Filippin pesosu"
+      }
+    },
+    "PKR": {
+      "name": "Pakistan Rupisi",
+      "narrow": "Rs",
+      "plural": {
+        "one": "Pakistan rupisi",
+        "other": "Pakistan rupisi"
+      }
+    },
+    "PLN": {
+      "name": "Polşa Zlotısı",
+      "narrow": "zł",
+      "plural": {
+        "one": "Polşa zlotısı",
+        "other": "Polşa zlotısı"
+      }
+    },
+    "PLZ": {
+      "name": "Polşa Zlotısı (1950–1995)",
+      "plural": {
+        "one": "Polşa zlotısı (1950–1995)",
+        "other": "Polşa zlotısı (1950–1995)"
+      }
+    },
+    "PTE": {
+      "name": "Portuqal Eskudosu",
+      "plural": {
+        "one": "Portuqal eskudosu",
+        "other": "Portuqal eskudosu"
+      }
+    },
+    "PYG": {
+      "name": "Paraqvay Quaranisi",
+      "narrow": "₲",
+      "plural": {
+        "one": "Paraqvay quaranisi",
+        "other": "Paraqvay quaranisi"
+      }
+    },
+    "QAR": {
+      "name": "Qatar Rialı",
+      "plural": {
+        "one": "Qatar rialı",
+        "other": "Qatar rialı"
+      }
+    },
+    "RHD": {
+      "name": "Rodezian Dolları",
+      "plural": {
+        "one": "Rodezian dolları",
+        "other": "Rodezian dolları"
+      }
+    },
+    "ROL": {
+      "name": "Rumıniya Leyi (1952–2006)",
+      "plural": {
+        "one": "Rumıniya leyi (1952–2006)",
+        "other": "Rumıniya leyi (1952–2006)"
+      }
+    },
+    "RON": {
+      "name": "Rumıniya Leyi",
+      "narrow": "ley",
+      "plural": {
+        "one": "Rumıniya leyi",
+        "other": "Rumıniya leyi"
+      }
+    },
+    "RSD": {
+      "name": "Serbiya Dinarı",
+      "plural": {
+        "one": "Serbiya dinarı",
+        "other": "Serbiya dinarı"
+      }
+    },
+    "RUB": {
+      "name": "Rusiya Rublu",
+      "narrow": "₽",
+      "plural": {
+        "one": "Rusiya rublu",
+        "other": "Rusiya rublu"
+      }
+    },
+    "RUR": {
+      "name": "Rusiya Rublu (1991–1998)",
+      "plural": {
+        "one": "Rusiya rublu (1991–1998)",
+        "other": "Rusiya rublu (1991–1998)"
+      }
+    },
+    "RWF": {
+      "name": "Ruanda Frankı",
+      "narrow": "RF",
+      "plural": {
+        "one": "Ruanda frankı",
+        "other": "Ruanda frankı"
+      }
+    },
+    "SAR": {
+      "name": "Səudiyyə Riyalı",
+      "plural": {
+        "one": "Səudiyyə riyalı",
+        "other": "Səudiyyə riyalı"
+      }
+    },
+    "SBD": {
+      "name": "Solomon Adaları Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Solomon Adaları dolları",
+        "other": "Solomon Adaları dolları"
+      }
+    },
+    "SCR": {
+      "name": "Seyşel Rupisi",
+      "plural": {
+        "one": "Seyşel rupisi",
+        "other": "Seyşel rupisi"
+      }
+    },
+    "SDG": {
+      "name": "Sudan Funtu",
+      "plural": {
+        "one": "Sudan funtu",
+        "other": "Sudan funtu"
+      }
+    },
+    "SEK": {
+      "name": "İsveç Kronu",
+      "narrow": "kr",
+      "plural": {
+        "one": "İsveç kronu",
+        "other": "İsveç kronu"
+      }
+    },
+    "SGD": {
+      "name": "Sinqapur Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Sinqapur dolları",
+        "other": "Sinqapur dolları"
+      }
+    },
+    "SHP": {
+      "name": "Müqəddəs Yelena Funtu",
+      "narrow": "£",
+      "plural": {
+        "one": "Müqəddəs Yelena funtu",
+        "other": "Müqəddəs Yelena funtu"
+      }
+    },
+    "SIT": {
+      "name": "Sloveniya Toları",
+      "plural": {
+        "one": "Sloveniya toları",
+        "other": "Sloveniya toları"
+      }
+    },
+    "SKK": {
+      "name": "Slovak Korunası",
+      "plural": {
+        "one": "Slovak korunası",
+        "other": "Slovak korunası"
+      }
+    },
+    "SLE": {
+      "name": "Sierra Leon Leonu",
+      "plural": {
+        "one": "Sierra Leon leonu",
+        "other": "Sierra Leon leonu"
+      }
+    },
+    "SLL": {
+      "name": "Sierra Leon Leonu (1964—2022)",
+      "plural": {
+        "one": "Sierra Leon leonu (1964—2022)",
+        "other": "Sierra Leon leonu (1964—2022)"
+      }
+    },
+    "SOS": {
+      "name": "Somali Şillinqi",
+      "plural": {
+        "one": "Somali şillinqi",
+        "other": "Somali şillinqi"
+      }
+    },
+    "SRD": {
+      "name": "Surinam Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Surinam dolları",
+        "other": "Surinam dolları"
+      }
+    },
+    "SSP": {
+      "name": "Cənubi Sudan Funtu",
+      "narrow": "£",
+      "plural": {
+        "one": "Cənubi Sudan funtu",
+        "other": "Cənubi Sudan funtu"
+      }
+    },
+    "STD": {
+      "name": "San Tom və Prinsip Dobrası (1977–2017)",
+      "plural": {
+        "one": "San Tom və Prinsip dobrası (1977–2017)",
+        "other": "San Tom və Prinsip dobrası (1977–2017)"
+      }
+    },
+    "STN": {
+      "name": "San Tom və Prinsip Dobrası",
+      "narrow": "Db",
+      "plural": {
+        "one": "San Tom və Prinsip dobrası",
+        "other": "San Tom və Prinsip dobrası"
+      }
+    },
+    "SUR": {
+      "name": "Sovet Rublu",
+      "plural": {
+        "one": "Sovet rublu",
+        "other": "Sovet rublu"
+      }
+    },
+    "SVC": {
+      "name": "El Salvador kolonu"
+    },
+    "SYP": {
+      "name": "Suriya Funtu",
+      "narrow": "S£",
+      "plural": {
+        "one": "Suriya funtu",
+        "other": "Suriya funtu"
+      }
+    },
+    "SZL": {
+      "name": "Svazilend Lilangenini",
+      "plural": {
+        "one": "Svazilend lilangenini",
+        "other": "Svazilend emalangenini"
+      }
+    },
+    "THB": {
+      "name": "Tayland Batı",
+      "plural": {
+        "one": "Tayland batı",
+        "other": "Tayland batı"
+      },
+      "symbol": "฿"
+    },
+    "TJR": {
+      "name": "Tacikistan Rublu",
+      "plural": {
+        "one": "Tacikistan rublu",
+        "other": "Tacikistan rublu"
+      }
+    },
+    "TJS": {
+      "name": "Tacikistan Somonisi",
+      "plural": {
+        "one": "Tacikistan somonisi",
+        "other": "Tacikistan somonisi"
+      }
+    },
+    "TMM": {
+      "name": "Türkmənistan Manatı (1993–2009)",
+      "plural": {
+        "one": "Türkmənistan manatı (1993–2009)",
+        "other": "Türkmənistan manatı (1993–2009)"
+      }
+    },
+    "TMT": {
+      "name": "Türkmənistan Manatı",
+      "plural": {
+        "one": "Türkmənistan manatı",
+        "other": "Türkmənistan manatı"
+      }
+    },
+    "TND": {
+      "name": "Tunis Dinarı",
+      "plural": {
+        "one": "Tunis dinarı",
+        "other": "Tunis dinarı"
+      }
+    },
+    "TOP": {
+      "name": "Tonqa Panqası",
+      "narrow": "T$",
+      "plural": {
+        "one": "Tonqa panqası",
+        "other": "Tonqa panqası"
+      }
+    },
+    "TPE": {
+      "name": "Timor Eskudu",
+      "plural": {
+        "one": "Timor eskudu",
+        "other": "Timor eskudu"
+      }
+    },
+    "TRL": {
+      "name": "Türkiyə Lirəsi (1922–2005)",
+      "plural": {
+        "one": "Türkiyə lirəsi (1922–2005)",
+        "other": "Türkiyə lirəsi (1922–2005)"
+      }
+    },
+    "TRY": {
+      "name": "Türkiyə Lirəsi",
+      "narrow": "₺",
+      "plural": {
+        "one": "Türkiyə lirəsi",
+        "other": "Türkiyə lirəsi"
+      }
+    },
+    "TTD": {
+      "name": "Trinidad və Tobaqo Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Trinidad və Tobaqo dolları",
+        "other": "Trinidad və Tobaqo dolları"
+      }
+    },
+    "TWD": {
+      "name": "Tayvan Yeni Dolları",
+      "plural": {
+        "one": "Tayvan yeni dolları",
+        "other": "Tayvan yeni dolları"
+      },
+      "symbol": "NT$"
+    },
+    "TZS": {
+      "name": "Tanzaniya Şillinqi",
+      "plural": {
+        "one": "Tanzaniya şillinqi",
+        "other": "Tanzaniya şillinqi"
+      }
+    },
+    "UAH": {
+      "name": "Ukrayna Qrivnası",
+      "narrow": "₴",
+      "plural": {
+        "one": "Ukrayna qrivnası",
+        "other": "Ukrayna qrivnası"
+      }
+    },
+    "UAK": {
+      "name": "Ukrayna Karbovenesası",
+      "plural": {
+        "one": "Ukrayna karbovenesası",
+        "other": "Ukrayna karbovenesası"
+      }
+    },
+    "UGS": {
+      "name": "Uqanda Şillinqi (1966–1987)",
+      "plural": {
+        "one": "Uqanda şillinqi (1966–1987)",
+        "other": "Uqanda şillinqi (1966–1987)"
+      }
+    },
+    "UGX": {
+      "name": "Uqanda Şillinqi",
+      "plural": {
+        "one": "Uqanda şillinqi",
+        "other": "Uqanda şillinqi"
+      }
+    },
+    "USD": {
+      "name": "ABŞ Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "ABŞ dolları",
+        "other": "ABŞ dolları"
+      },
+      "symbol": "US$"
+    },
+    "USN": {
+      "name": "ABŞ dolları (yeni gün)"
+    },
+    "USS": {
+      "name": "ABŞ dolları (həmin gün)"
+    },
+    "UYI": {
+      "name": "Uruqvay pesosu Unidades Indexadas",
+      "plural": {
+        "one": "Uruqvay pesosu unidades indexadas",
+        "other": "Uruqvay pesosu unidades indexadas"
+      }
+    },
+    "UYP": {
+      "name": "Uruqvay Pesosu (1975–1993)",
+      "plural": {
+        "one": "Uruqvay pesosu (1975–1993)",
+        "other": "Uruqvay pesosu (1975–1993)"
+      }
+    },
+    "UYU": {
+      "name": "Uruqvay Pesosu",
+      "narrow": "$",
+      "plural": {
+        "one": "Uruqvay pesosu",
+        "other": "Uruqvay pesosu"
+      }
+    },
+    "UZS": {
+      "name": "Özbəkistan Somu",
+      "plural": {
+        "one": "Özbəkistan somu",
+        "other": "Özbəkistan somu"
+      }
+    },
+    "VEB": {
+      "name": "Venesuela Bolivarı (1871–2008)",
+      "plural": {
+        "one": "Venesuela bolivarı (1871–2008)",
+        "other": "Venesuela bolivarı (1871–2008)"
+      }
+    },
+    "VEF": {
+      "name": "Venesuela Bolivarı (2008–2018)",
+      "narrow": "Bs",
+      "plural": {
+        "one": "Venesuela bolivarı (2008–2018)",
+        "other": "Venesuela bolivarı (2008–2018)"
+      }
+    },
+    "VES": {
+      "name": "Venesuela Bolivarı",
+      "plural": {
+        "one": "Venesuela bolivarı",
+        "other": "Venesuela bolivarı"
+      }
+    },
+    "VND": {
+      "name": "Vyetnam Donqu",
+      "plural": {
+        "one": "Vyetnam donqu",
+        "other": "Vyetnam donqu"
+      },
+      "symbol": "₫"
+    },
+    "VNN": {
+      "name": "Vyetnam Donqu (1978–1985)",
+      "plural": {
+        "one": "Vyetnam donqu (1978–1985)",
+        "other": "Vyetnam donqu (1978–1985)"
+      }
+    },
+    "VUV": {
+      "name": "Vanuatu Vatusu",
+      "plural": {
+        "one": "Vanuatu vatusu",
+        "other": "Vanuatu vatusu"
+      }
+    },
+    "WST": {
+      "name": "Samoa Talası",
+      "plural": {
+        "one": "Samoa talası",
+        "other": "Samoa talası"
+      }
+    },
+    "XAF": {
+      "name": "Kamerun Frankı",
+      "plural": {
+        "one": "Kamerun frankı",
+        "other": "Kamerun frankı"
+      },
+      "symbol": "FCFA"
+    },
+    "XAG": {
+      "name": "gümüş"
+    },
+    "XAU": {
+      "name": "qızıl"
+    },
+    "XCD": {
+      "name": "Şərqi Karib Dolları",
+      "narrow": "$",
+      "plural": {
+        "one": "Şərqi Karib dolları",
+        "other": "Şərqi Karib dolları"
+      },
+      "symbol": "EC$"
+    },
+    "XCG": {
+      "name": "Karib gilderi",
+      "symbol": "Cg."
+    },
+    "XFO": {
+      "name": "Fransız Gızıl Frankı",
+      "plural": {
+        "one": "Fransız gızıl frankı",
+        "other": "Fransız gızıl frankı"
+      }
+    },
+    "XFU": {
+      "name": "Fransız UİC Frankı",
+      "plural": {
+        "one": "Fransız UİC frankı",
+        "other": "Fransız UİC frankı"
+      }
+    },
+    "XOF": {
+      "name": "Fil Dişi Sahili Frankı",
+      "plural": {
+        "one": "Fil Dişi Sahili frankı",
+        "other": "Fil Dişi Sahili frankı"
+      },
+      "symbol": "F\u202fCFA"
+    },
+    "XPD": {
+      "name": "Palladium"
+    },
+    "XPF": {
+      "name": "Fransız Polineziyası Frankı",
+      "plural": {
+        "one": "Fransız Polineziyası frankı",
+        "other": "Fransız Polineziyası frankı"
+      },
+      "symbol": "CFPF"
+    },
+    "XPT": {
+      "name": "Platinum",
+      "plural": {
+        "one": "platinum",
+        "other": "platinum"
+      }
+    },
+    "XXX": {
+      "name": "Naməlum Valyuta",
+      "plural": {
+        "one": "(naməlum valyuta vahidi)",
+        "other": "(naməlum valyuta)"
+      },
+      "symbol": "¤"
+    },
+    "YDD": {
+      "name": "Yəmən Dinarı",
+      "plural": {
+        "one": "Yəmən dinarı",
+        "other": "Yəmən dinarı"
+      }
+    },
+    "YER": {
+      "name": "Yəmən Rialı",
+      "plural": {
+        "one": "Yəmən rialı",
+        "other": "Yəmən rialı"
+      }
+    },
+    "YUD": {
+      "name": "Yuqoslaviya Dinarı (1966–1990)",
+      "plural": {
+        "one": "Yuqoslaviya dinarı (1966–1990)",
+        "other": "Yuqoslaviya dinarı (1966–1990)"
+      }
+    },
+    "YUM": {
+      "name": "Yuqoslaviya Yeni Dinarı (1994–2002)",
+      "plural": {
+        "one": "Yuqoslaviya yeni dinarı (1994–2002)",
+        "other": "Yuqoslaviya yeni dinarı (1994–2002)"
+      }
+    },
+    "YUN": {
+      "name": "Yuqoslaviya Dinarı (1990–1992)",
+      "plural": {
+        "one": "Yuqoslaviya dinarı (1990–1992)",
+        "other": "Yuqoslaviya dinarı (1990–1992)"
+      }
+    },
+    "ZAL": {
+      "name": "Cənubi Afrika Randı (finans)",
+      "plural": {
+        "one": "Cənubi Afrika randı (finans)",
+        "other": "Cənubi Afrika randı (finans)"
+      }
+    },
+    "ZAR": {
+      "name": "Cənubi Afrika Randı",
+      "narrow": "R",
+      "plural": {
+        "one": "Cənubi Afrika randı",
+        "other": "Cənubi Afrika randı"
+      }
+    },
+    "ZMK": {
+      "name": "Zambiya Kvaçası (1968–2012)",
+      "plural": {
+        "one": "Zambiya kvaçası (1968–2012)",
+        "other": "Zambiya kvaçası (1968–2012)"
+      }
+    },
+    "ZMW": {
+      "name": "Zambiya Kvaçası",
+      "narrow": "ZK",
+      "plural": {
+        "one": "Zambiya kvaçası",
+        "other": "Zambiya kvaçası"
+      }
+    },
+    "ZRN": {
+      "name": "Zair Yeni Zairi (1993–1998)",
+      "plural": {
+        "one": "Zair yeni zairi (1993–1998)",
+        "other": "Zair yeni zairi (1993–1998)"
+      }
+    },
+    "ZRZ": {
+      "name": "Zair Zairi (1971–1993)",
+      "plural": {
+        "one": "Zair zairi (1971–1993)",
+        "other": "Zair zairi (1971–1993)"
+      }
+    },
+    "ZWD": {
+      "name": "Zimbabve Dolları (1980–2008)",
+      "plural": {
+        "one": "Zimbabve dolları (1980–2008)",
+        "other": "Zimbabve dolları (1980–2008)"
+      }
+    },
+    "ZWG": {
+      "name": "Zimbabve Qızılı",
+      "plural": {
+        "one": "Zimbabve qızılı",
+        "other": "Zimbabve qızılı"
+      }
+    },
+    "ZWL": {
+      "name": "Zimbabve Dolları (2009)",
+      "plural": {
+        "one": "Zimbabve dolları (2009)",
+        "other": "Zimbabve dolları (2009)"
+      }
+    },
+    "ZWR": {
+      "name": "Zimbabve Dolları (2008)",
+      "plural": {
+        "one": "Zimbabve dolları (2008)",
+        "other": "Zimbabve dolları (2008)"
+      }
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "az",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "#,##0.00\u00a0¤",
+      "compactShort": {
+        "1000": {
+          "other": "0K"
+        },
+        "10000": {
+          "other": "00K"
+        },
+        "100000": {
+          "other": "000K"
+        },
+        "1000000": {
+          "one": "0\u00a0mln",
+          "other": "0\u00a0mln"
+        },
+        "10000000": {
+          "one": "00\u00a0mln",
+          "other": "00\u00a0mln"
+        },
+        "100000000": {
+          "one": "000\u00a0mln",
+          "other": "000\u00a0mln"
+        },
+        "1000000000": {
+          "one": "0\u00a0mlrd",
+          "other": "0\u00a0mlrd"
+        },
+        "10000000000": {
+          "one": "00\u00a0mlrd",
+          "other": "00\u00a0mlrd"
+        },
+        "100000000000": {
+          "one": "000\u00a0mlrd",
+          "other": "000\u00a0mlrd"
+        },
+        "1000000000000": {
+          "one": "0\u00a0trln",
+          "other": "0\u00a0trln"
+        },
+        "10000000000000": {
+          "one": "00\u00a0trln",
+          "other": "00\u00a0trln"
+        },
+        "100000000000000": {
+          "one": "000\u00a0trln",
+          "other": "000\u00a0trln"
+        }
+      },
+      "currency": "#,##0.00\u00a0¤",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ",",
+        "exponential": "E",
+        "group": ".",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "NaN",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {
+      "one": "n = 1"
+    },
+    "ordinal": {
+      "few": "i % 10 = 3,4 or i % 1000 = 100,200,300,400,500,600,700,800,900",
+      "many": "i = 0 or i % 10 = 6 or i % 100 = 40,60,90",
+      "one": "i % 10 = 1,2,5,7,8 or i % 100 = 20,50,70,80"
+    }
+  },
+  "territories": {
+    "AC": "Askenson adası",
+    "AD": "Andorra",
+    "AE": "Birləşmiş Ərəb Əmirlikləri",
+    "AF": "Əfqanıstan",
+    "AG": "Antiqua və Barbuda",
+    "AI": "Angilya",
+    "AL": "Albaniya",
+    "AM": "Ermənistan",
+    "AO": "Anqola",
+    "AQ": "Antarktika",
+    "AR": "Argentina",
+    "AS": "Amerika Samoası",
+    "AT": "Avstriya",
+    "AU": "Avstraliya",
+    "AW": "Aruba",
+    "AX": "Aland adaları",
+    "AZ": "Azərbaycan",
+    "BA": "Bosniya və Herseqovina",
+    "BB": "Barbados",
+    "BD": "Banqladeş",
+    "BE": "Belçika",
+    "BF": "Burkina Faso",
+    "BG": "Bolqarıstan",
+    "BH": "Bəhreyn",
+    "BI": "Burundi",
+    "BJ": "Benin",
+    "BL": "Sent-Bartelemi",
+    "BM": "Bermud adaları",
+    "BN": "Bruney",
+    "BO": "Boliviya",
+    "BQ": "Karib Niderlandı",
+    "BR": "Braziliya",
+    "BS": "Baham adaları",
+    "BT": "Butan",
+    "BV": "Buve adası",
+    "BW": "Botsvana",
+    "BY": "Belarus",
+    "BZ": "Beliz",
+    "CA": "Kanada",
+    "CC": "Kokos (Kilinq) adaları",
+    "CD": "Konqo - Kinşasa",
+    "CF": "Mərkəzi Afrika Respublikası",
+    "CG": "Konqo - Brazzavil",
+    "CH": "İsveçrə",
+    "CI": "Kotd’ivuar",
+    "CK": "Kuk adaları",
+    "CL": "Çili",
+    "CM": "Kamerun",
+    "CN": "Çin",
+    "CO": "Kolumbiya",
+    "CP": "Klipperton adası",
+    "CQ": "sark (ingilis dili) dialekti",
+    "CR": "Kosta Rika",
+    "CU": "Kuba",
+    "CV": "Kabo-Verde",
+    "CW": "Kurasao",
+    "CX": "Milad adası",
+    "CY": "Kipr",
+    "CZ": "Çexiya",
+    "DE": "Almaniya",
+    "DG": "Dieqo Qarsiya",
+    "DJ": "Cibuti",
+    "DK": "Danimarka",
+    "DM": "Dominika",
+    "DO": "Dominikan Respublikası",
+    "DZ": "Əlcəzair",
+    "EA": "Seuta və Melilya",
+    "EC": "Ekvador",
+    "EE": "Estoniya",
+    "EG": "Misir",
+    "EH": "Qərbi Saxara",
+    "ER": "Eritreya",
+    "ES": "İspaniya",
+    "ET": "Efiopiya",
+    "EU": "Avropa Birliyi",
+    "EZ": "Avrozona",
+    "FI": "Finlandiya",
+    "FJ": "Fici",
+    "FK": "Folklend adaları",
+    "FM": "Mikroneziya",
+    "FO": "Farer adaları",
+    "FR": "Fransa",
+    "GA": "Qabon",
+    "GB": "Birləşmiş Krallıq",
+    "GD": "Qrenada",
+    "GE": "Gürcüstan",
+    "GF": "Fransa Qvianası",
+    "GG": "Gernsi",
+    "GH": "Qana",
+    "GI": "Cəbəllütariq",
+    "GL": "Qrenlandiya",
+    "GM": "Qambiya",
+    "GN": "Qvineya",
+    "GP": "Qvadelupa",
+    "GQ": "Ekvatorial Qvineya",
+    "GR": "Yunanıstan",
+    "GS": "Cənubi Corciya və Cənubi Sendviç adaları",
+    "GT": "Qvatemala",
+    "GU": "Quam",
+    "GW": "Qvineya-Bisau",
+    "GY": "Qayana",
+    "HK": "Honq Konq Xüsusi İnzibati Rayonu Çin",
+    "HM": "Herd və Makdonald adaları",
+    "HN": "Honduras",
+    "HR": "Xorvatiya",
+    "HT": "Haiti",
+    "HU": "Macarıstan",
+    "IC": "Kanar adaları",
+    "ID": "İndoneziya",
+    "IE": "İrlandiya",
+    "IL": "İsrail",
+    "IM": "Men adası",
+    "IN": "Hindistan",
+    "IO": "Britaniyanın Hind Okeanı Ərazisi",
+    "IQ": "İraq",
+    "IR": "İran",
+    "IS": "İslandiya",
+    "IT": "İtaliya",
+    "JE": "Cersi",
+    "JM": "Yamayka",
+    "JO": "İordaniya",
+    "JP": "Yaponiya",
+    "KE": "Keniya",
+    "KG": "Qırğızıstan",
+    "KH": "Kamboca",
+    "KI": "Kiribati",
+    "KM": "Komor adaları",
+    "KN": "Sent-Kits və Nevis",
+    "KP": "Şimali Koreya",
+    "KR": "Cənubi Koreya",
+    "KW": "Küveyt",
+    "KY": "Kayman adaları",
+    "KZ": "Qazaxıstan",
+    "LA": "Laos",
+    "LB": "Livan",
+    "LC": "Sent-Lusiya",
+    "LI": "Lixtenşteyn",
+    "LK": "Şri-Lanka",
+    "LR": "Liberiya",
+    "LS": "Lesoto",
+    "LT": "Litva",
+    "LU": "Lüksemburq",
+    "LV": "Latviya",
+    "LY": "Liviya",
+    "MA": "Mərakeş",
+    "MC": "Monako",
+    "MD": "Moldova",
+    "ME": "Monteneqro",
+    "MF": "Sent Martin",
+    "MG": "Madaqaskar",
+    "MH": "Marşal adaları",
+    "MK": "Şimali Makedoniya",
+    "ML": "Mali",
+    "MM": "Myanma",
+    "MN": "Monqolustan",
+    "MO": "Makao XİR Çin",
+    "MP": "Şimali Marian adaları",
+    "MQ": "Martinik",
+    "MR": "Mavritaniya",
+    "MS": "Monserat",
+    "MT": "Malta",
+    "MU": "Mavriki",
+    "MV": "Maldiv adaları",
+    "MW": "Malavi",
+    "MX": "Meksika",
+    "MY": "Malayziya",
+    "MZ": "Mozambik",
+    "NA": "Namibiya",
+    "NC": "Yeni Kaledoniya",
+    "NE": "Niger",
+    "NF": "Norfolk adası",
+    "NG": "Nigeriya",
+    "NI": "Nikaraqua",
+    "NL": "Niderland",
+    "NO": "Norveç",
+    "NP": "Nepal",
+    "NR": "Nauru",
+    "NU": "Niue",
+    "NZ": "Yeni Zelandiya",
+    "OM": "Oman",
+    "PA": "Panama",
+    "PE": "Peru",
+    "PF": "Fransa Polineziyası",
+    "PG": "Papua-Yeni Qvineya",
+    "PH": "Filippin",
+    "PK": "Pakistan",
+    "PL": "Polşa",
+    "PM": "Müqəddəs Pyer və Mikelon",
+    "PN": "Pitkern adaları",
+    "PR": "Puerto Riko",
+    "PS": "Fələstin Əraziləri",
+    "PT": "Portuqaliya",
+    "PW": "Palau",
+    "PY": "Paraqvay",
+    "QA": "Qətər",
+    "QO": "Uzaq Okeaniya",
+    "RE": "Reyunyon",
+    "RO": "Rumıniya",
+    "RS": "Serbiya",
+    "RU": "Rusiya",
+    "RW": "Ruanda",
+    "SA": "Səudiyyə Ərəbistanı",
+    "SB": "Solomon adaları",
+    "SC": "Seyşel adaları",
+    "SD": "Sudan",
+    "SE": "İsveç",
+    "SG": "Sinqapur",
+    "SH": "Müqəddəs Yelena",
+    "SI": "Sloveniya",
+    "SJ": "Svalbard və Yan-Mayen",
+    "SK": "Slovakiya",
+    "SL": "Syerra-Leone",
+    "SM": "San-Marino",
+    "SN": "Seneqal",
+    "SO": "Somali",
+    "SR": "Surinam",
+    "SS": "Cənubi Sudan",
+    "ST": "San-Tome və Prinsipi",
+    "SV": "Salvador",
+    "SX": "Sint-Marten",
+    "SY": "Suriya",
+    "SZ": "Esvatini",
+    "TA": "Tristan da Kunya",
+    "TC": "Törks və Kaykos adaları",
+    "TD": "Çad",
+    "TF": "Fransanın Cənub Əraziləri",
+    "TG": "Toqo",
+    "TH": "Tailand",
+    "TJ": "Tacikistan",
+    "TK": "Tokelau",
+    "TL": "Şərqi Timor",
+    "TM": "Türkmənistan",
+    "TN": "Tunis",
+    "TO": "Tonqa",
+    "TR": "Türkiyə",
+    "TT": "Trinidad və Tobaqo",
+    "TV": "Tuvalu",
+    "TW": "Tayvan",
+    "TZ": "Tanzaniya",
+    "UA": "Ukrayna",
+    "UG": "Uqanda",
+    "UM": "ABŞ-a bağlı kiçik adacıqlar",
+    "UN": "Birləşmiş Millətlər Təşkilatı",
+    "US": "Amerika Birləşmiş Ştatları",
+    "UY": "Uruqvay",
+    "UZ": "Özbəkistan",
+    "VA": "Vatikan",
+    "VC": "Sent-Vinsent və Qrenadinlər",
+    "VE": "Venesuela",
+    "VG": "Britaniyanın Virgin adaları",
+    "VI": "ABŞ Virgin adaları",
+    "VN": "Vyetnam",
+    "VU": "Vanuatu",
+    "WF": "Uollis və Futuna",
+    "WS": "Samoa",
+    "XA": "Psevdo-Aksent",
+    "XB": "Psevdo-Bidi",
+    "XK": "Kosovo",
+    "YE": "Yəmən",
+    "YT": "Mayot",
+    "ZA": "Cənub Afrika",
+    "ZM": "Zambiya",
+    "ZW": "Zimbabve"
+  }
+}

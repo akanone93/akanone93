@@ -1,0 +1,3382 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "HH:mm, E",
+        "EHms": "HH:mm:ss, E",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "h:mm\u202fa, E",
+        "Ehms": "h:mm:ss\u202fa, E",
+        "Gy": "y G",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "y MMM G",
+        "GyMMMEd": "y MMM d G, E",
+        "GyMMMMEEEEd": "y MMMM d G, EEEE",
+        "GyMMMMd": "y MMMM d G",
+        "GyMMMd": "y MMM d G",
+        "GyMMdd": "y-MM-dd G",
+        "GyMd": "y-MM-dd G",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "LL",
+        "MEd": "MM-dd, E",
+        "MMM": "LLL",
+        "MMMEd": "MMM-d, E",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM-d",
+        "MMdd": "MM.dd",
+        "Md": "MM-dd",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "y MM G",
+        "yyyyMEd": "y-MM-dd G, E",
+        "yyyyMMM": "y MMM G",
+        "yyyyMMMEd": "y MMM d G, E",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "y MMM d G",
+        "yyyyMd": "y-MM-dd G"
+      },
+      "dateFormats": {
+        "full": "y MMMM d G, EEEE",
+        "long": "y MMMM d G",
+        "medium": "y MMM d G",
+        "short": "y-MM-dd G"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          },
+          "wide": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          },
+          "wide": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["sk", "pr", "an", "tr", "kt", "pn", "št"],
+          "short": ["Sk", "Pr", "An", "Tr", "Kt", "Pn", "Št"],
+          "wide": ["sekmadienis", "pirmadienis", "antradienis", "trečiadienis", "ketvirtadienis", "penktadienis", "šeštadienis"]
+        },
+        "standAlone": {
+          "abbreviated": ["sk", "pr", "an", "tr", "kt", "pn", "št"],
+          "short": ["Sk", "Pr", "An", "Tr", "Kt", "Pn", "Št"],
+          "wide": ["sekmadienis", "pirmadienis", "antradienis", "trečiadienis", "ketvirtadienis", "penktadienis", "šeštadienis"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        },
+        "standAlone": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "HH:mm, E",
+        "EHms": "HH:mm:ss, E",
+        "Ed": "d, E",
+        "Eh": "h\u202fa, E",
+        "Ehm": "hh:mm\u202fa, E",
+        "Ehms": "hh:mm:ss\u202fa, E",
+        "Gy": "y 'm'. G",
+        "GyM": "y-MM G",
+        "GyMEd": "y-MM-dd G, E",
+        "GyMMM": "y-MM G",
+        "GyMMMEd": "y-MM-dd G, E",
+        "GyMMMM": "y 'm'. G, LLLL",
+        "GyMMMMEd": "y 'm'. G MMMM d 'd'., E",
+        "GyMMMMd": "y 'm'. G MMMM d 'd'.",
+        "GyMMMd": "y-MM-dd G",
+        "GyMd": "y-MM-dd G",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "MM",
+        "MEd": "MM-dd, E",
+        "MMM": "MM",
+        "MMMEd": "MM-dd, E",
+        "MMMM": "LLLL",
+        "MMMMEd": "MMMM d 'd'., E",
+        "MMMMd": "MMMM d 'd'.",
+        "MMMd": "MM-dd",
+        "MMdd": "MM-dd",
+        "Md": "MM-d",
+        "d": "dd",
+        "h": "hh\u202fa",
+        "hm": "hh:mm\u202fa",
+        "hms": "hh:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "y-MM",
+        "yMEd": "y-MM-dd, E",
+        "yMMM": "y-MM",
+        "yMMMEd": "y-MM-dd, E",
+        "yMMMM": "y 'm'. LLLL",
+        "yMMMMEEEEd": "y 'm'. MMMM d 'd'., EEEE",
+        "yMMMMEd": "y 'm'. MMMM d 'd'., E",
+        "yMMMMd": "y 'm'. MMMM d 'd'.",
+        "yMMMd": "y-MM-dd",
+        "yMMdd": "y-MM-dd",
+        "yMd": "y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "y 'm'. MMMM d 'd'., EEEE",
+        "long": "y 'm'. MMMM d 'd'.",
+        "medium": "y-MM-dd",
+        "short": "y-MM-dd"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          },
+          "narrow": {
+            "am": "pr.\u202fp.",
+            "pm": "pop."
+          },
+          "wide": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          },
+          "narrow": {
+            "am": "pr.\u202fp.",
+            "pm": "pop."
+          },
+          "wide": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["sk", "pr", "an", "tr", "kt", "pn", "št"],
+          "narrow": ["S", "P", "A", "T", "K", "P", "Š"],
+          "short": ["Sk", "Pr", "An", "Tr", "Kt", "Pn", "Št"],
+          "wide": ["sekmadienis", "pirmadienis", "antradienis", "trečiadienis", "ketvirtadienis", "penktadienis", "šeštadienis"]
+        },
+        "standAlone": {
+          "abbreviated": ["sk", "pr", "an", "tr", "kt", "pn", "št"],
+          "narrow": ["S", "P", "A", "T", "K", "P", "Š"],
+          "short": ["Sk", "Pr", "An", "Tr", "Kt", "Pn", "Št"],
+          "wide": ["sekmadienis", "pirmadienis", "antradienis", "trečiadienis", "ketvirtadienis", "penktadienis", "šeštadienis"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["pr. Kr.", "po Kr."],
+        "narrow": ["pr. Kr.", "po Kr."],
+        "wide": ["prieš Kristų", "po Kristaus"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["saus.", "vas.", "kov.", "bal.", "geg.", "birž.", "liep.", "rugp.", "rugs.", "spal.", "lapkr.", "gruod."],
+          "narrow": ["S", "V", "K", "B", "G", "B", "L", "R", "R", "S", "L", "G"],
+          "wide": ["sausio", "vasario", "kovo", "balandžio", "gegužės", "birželio", "liepos", "rugpjūčio", "rugsėjo", "spalio", "lapkričio", "gruodžio"]
+        },
+        "standAlone": {
+          "abbreviated": ["saus.", "vas.", "kov.", "bal.", "geg.", "birž.", "liep.", "rugp.", "rugs.", "spal.", "lapkr.", "gruod."],
+          "narrow": ["S", "V", "K", "B", "G", "B", "L", "R", "R", "S", "L", "G"],
+          "wide": ["sausis", "vasaris", "kovas", "balandis", "gegužė", "birželis", "liepa", "rugpjūtis", "rugsėjis", "spalis", "lapkritis", "gruodis"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "HH:mm, E",
+        "EHms": "HH:mm:ss, E",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "h:mm\u202fa, E",
+        "Ehms": "h:mm:ss\u202fa, E",
+        "Gy": "y G",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "y MMM G",
+        "GyMMMEd": "y MMM d G, E",
+        "GyMMMMEEEEd": "y MMMM d G, EEEE",
+        "GyMMMMd": "y MMMM d G",
+        "GyMMMd": "y MMM d G",
+        "GyMMdd": "y-MM-dd G",
+        "GyMd": "y-MM-dd G",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "LL",
+        "MEd": "MM-dd, E",
+        "MMM": "LLL",
+        "MMMEd": "MMM-d, E",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM-d",
+        "MMdd": "MM.dd",
+        "Md": "MM-dd",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "y MM G",
+        "yyyyMEd": "y-MM-dd G, E",
+        "yyyyMMM": "y MMM G",
+        "yyyyMMMEd": "y MMM d G, E",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "y MMM d G",
+        "yyyyMd": "y-MM-dd G"
+      },
+      "dateFormats": {
+        "full": "y MMMM d G, EEEE",
+        "long": "y MMMM d G",
+        "medium": "y MMM d G",
+        "short": "y-MM-dd G"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          },
+          "wide": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          },
+          "wide": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["sk", "pr", "an", "tr", "kt", "pn", "št"],
+          "short": ["Sk", "Pr", "An", "Tr", "Kt", "Pn", "Št"],
+          "wide": ["sekmadienis", "pirmadienis", "antradienis", "trečiadienis", "ketvirtadienis", "penktadienis", "šeštadienis"]
+        },
+        "standAlone": {
+          "abbreviated": ["sk", "pr", "an", "tr", "kt", "pn", "št"],
+          "short": ["Sk", "Pr", "An", "Tr", "Kt", "Pn", "Št"],
+          "wide": ["sekmadienis", "pirmadienis", "antradienis", "trečiadienis", "ketvirtadienis", "penktadienis", "šeštadienis"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AH", "BH"],
+        "wide": ["AH", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        },
+        "standAlone": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "HH:mm, E",
+        "EHms": "HH:mm:ss, E",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "h:mm\u202fa, E",
+        "Ehms": "h:mm:ss\u202fa, E",
+        "Gy": "y G",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "y MMM G",
+        "GyMMMEd": "y MMM d G, E",
+        "GyMMMMEEEEd": "y MMMM d G, EEEE",
+        "GyMMMMd": "y MMMM d G",
+        "GyMMMd": "y MMM d G",
+        "GyMMdd": "y-MM-dd G",
+        "GyMd": "y-MM-dd G",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "LL",
+        "MEd": "MM-dd, E",
+        "MMM": "LLL",
+        "MMMEd": "MMM-d, E",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM-d",
+        "MMdd": "MM.dd",
+        "Md": "MM-dd",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "y MM G",
+        "yyyyMEd": "y-MM-dd G, E",
+        "yyyyMMM": "y MMM G",
+        "yyyyMMMEd": "y MMM d G, E",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "y MMM d G",
+        "yyyyMd": "y-MM-dd G"
+      },
+      "dateFormats": {
+        "full": "y MMMM d G, EEEE",
+        "long": "y MMMM d G",
+        "medium": "y MMM d G",
+        "short": "y-MM-dd G"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          },
+          "wide": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          },
+          "wide": {
+            "am": "priešpiet",
+            "pm": "popiet"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["sk", "pr", "an", "tr", "kt", "pn", "št"],
+          "short": ["Sk", "Pr", "An", "Tr", "Kt", "Pn", "Št"],
+          "wide": ["sekmadienis", "pirmadienis", "antradienis", "trečiadienis", "ketvirtadienis", "penktadienis", "šeštadienis"]
+        },
+        "standAlone": {
+          "abbreviated": ["sk", "pr", "an", "tr", "kt", "pn", "št"],
+          "short": ["Sk", "Pr", "An", "Tr", "Kt", "Pn", "Št"],
+          "wide": ["sekmadienis", "pirmadienis", "antradienis", "trečiadienis", "ketvirtadienis", "penktadienis", "šeštadienis"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AP"],
+        "wide": ["AP"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        },
+        "standAlone": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    }
+  },
+  "currencies": {
+    "ADP": {
+      "name": "Andoros peseta",
+      "plural": {
+        "few": "Andoros pesetos",
+        "many": "Andoros pesetos",
+        "other": "Andoros pesetos"
+      }
+    },
+    "AED": {
+      "name": "Jungtinių Arabų Emyratų dirhamas",
+      "plural": {
+        "few": "JAE dirhamai",
+        "many": "JAE dirhamo",
+        "one": "JAE dirhamas",
+        "other": "JAE dirhamų"
+      }
+    },
+    "AFA": {
+      "name": "Afganistano afganis (1927–2002)",
+      "plural": {
+        "few": "Afganistano afganiai (1927–2002)",
+        "many": "Afganistano afganio (1927–2002)",
+        "other": "Afganistano afganių (1927–2002)"
+      }
+    },
+    "AFN": {
+      "name": "Afganistano afganis",
+      "narrow": "؋",
+      "plural": {
+        "few": "Afganistano afganiai",
+        "many": "Afganistano afganio",
+        "other": "Afganistano afganių"
+      }
+    },
+    "ALK": {
+      "name": "Albanijos lekas (1946–1965)",
+      "plural": {
+        "few": "Albanijos lekai (1946–1965)",
+        "many": "Albanijos leko (1946–1965)",
+        "other": "Albanijos lekų (1946–1965)"
+      }
+    },
+    "ALL": {
+      "name": "Albanijos lekas",
+      "plural": {
+        "few": "Albanijos lekai",
+        "many": "Albanijos leko",
+        "other": "Albanijos lekų"
+      }
+    },
+    "AMD": {
+      "name": "Armėnijos dramas",
+      "narrow": "֏",
+      "plural": {
+        "few": "Armėnijos dramai",
+        "many": "Armėnijos dramo",
+        "other": "Armėnijos dramų"
+      }
+    },
+    "ANG": {
+      "name": "Olandijos Antilų guldenas",
+      "plural": {
+        "few": "Olandijos Antilų guldenai",
+        "many": "Olandijos Antilų guldeno",
+        "other": "Olandijos Antilų guldenų"
+      }
+    },
+    "AOA": {
+      "name": "Angolos kvanza",
+      "narrow": "Kz",
+      "plural": {
+        "few": "Angolos kvanzos",
+        "many": "Angolos kvanzos",
+        "other": "Angolos kvanzų"
+      }
+    },
+    "AOK": {
+      "name": "Angolos kvanza (1977–1990)",
+      "plural": {
+        "few": "Angolos kvanzos (1977–1990)",
+        "many": "Angolos kvanzos (1977–1990)",
+        "other": "Angolos kvanzų (1977–1990)"
+      }
+    },
+    "AON": {
+      "name": "Angolos naujoji kvanza (1990–2000)",
+      "plural": {
+        "few": "Angolos naujosios kvanzos (1990–2000)",
+        "many": "Angolos naujosios kvanzos (1990–2000)",
+        "other": "Angolos naujųjų kvanzų (1990–2000)"
+      }
+    },
+    "AOR": {
+      "name": "Angolos patikslinta kvanza (1995–1999)",
+      "plural": {
+        "few": "Angolos patikslintos kvanzos (1995–1999)",
+        "many": "Angolos patikslintos kvanzos (1995–1999)",
+        "other": "Angolos patikslintų kvanzų (1995–1999)"
+      }
+    },
+    "ARA": {
+      "name": "Argentinos australs",
+      "plural": {
+        "one": "Argentinos austral"
+      }
+    },
+    "ARL": {
+      "name": "Argentinos pesos ley (1970–1983)"
+    },
+    "ARM": {
+      "name": "Argentinos pesai (1881–1970)",
+      "plural": {
+        "many": "Argentinos peso (1881–1970)",
+        "one": "Argentinos pesas (1881–1970)",
+        "other": "Argentinos pesų (1881–1970)"
+      }
+    },
+    "ARP": {
+      "name": "Argentinos pesas (1983–1985)",
+      "plural": {
+        "few": "Argentinos pesai (1983–1985)",
+        "many": "Argentinos pesai (1983–1985)",
+        "other": "Argentinos pesai (1983–1985)"
+      }
+    },
+    "ARS": {
+      "name": "Argentinos pesas",
+      "narrow": "$",
+      "plural": {
+        "few": "Argentinos pesai",
+        "many": "Argentinos peso",
+        "other": "Argentinos pesų"
+      }
+    },
+    "ATS": {
+      "name": "Austrijos šilingas",
+      "plural": {
+        "few": "Austrijos šilingai",
+        "many": "Austrijos šilingo",
+        "other": "Austrijos šilingų"
+      }
+    },
+    "AUD": {
+      "name": "Australijos doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Australijos doleriai",
+        "many": "Australijos dolerio",
+        "other": "Australijos dolerių"
+      }
+    },
+    "AWG": {
+      "name": "Arubos guldenas",
+      "plural": {
+        "few": "Arubos guldenai",
+        "many": "Arubos guldeno",
+        "other": "Arubos guldenų"
+      }
+    },
+    "AZM": {
+      "name": "Azerbaidžano manatas (1993–2006)",
+      "plural": {
+        "few": "Azerbaidžano manatai (1993–2006)",
+        "many": "Azerbaidžano manato (1993–2006)",
+        "other": "Azerbaidžano manatų (1993–2006)"
+      }
+    },
+    "AZN": {
+      "name": "Azerbaidžano manatas",
+      "narrow": "₼",
+      "plural": {
+        "few": "Azerbaidžano manatai",
+        "many": "Azerbaidžano manato",
+        "other": "Azerbaidžano manatų"
+      }
+    },
+    "BAD": {
+      "name": "Bosnijos ir Hercegovinos dinaras (1992–1994)",
+      "plural": {
+        "few": "Bosnijos ir Hercegovinos dinarai (1992–1994)",
+        "many": "Bosnijos ir Hercegovinos dinaro (1992–1994)",
+        "other": "Bosnijos ir Hercegovinos dinarų (1992–1994)"
+      }
+    },
+    "BAM": {
+      "name": "Bosnijos ir Hercegovinos konvertuojamoji markė",
+      "narrow": "KM",
+      "plural": {
+        "few": "Bosnijos ir Hercegovinos konvertuojamosios markės",
+        "many": "Bosnijos ir Hercegovinos konvertuojamosios markės",
+        "other": "Bosnijos ir Hercegovinos konvertuojamųjų markių"
+      }
+    },
+    "BAN": {
+      "name": "Bosnijos ir Hercegovinos naujasis dinaras (1994–1997)",
+      "plural": {
+        "few": "Bosnijos ir Hercegovinos naujieji dinarai (1994–1997)",
+        "many": "Bosnijos ir Hercegovinos naujojo dinaro (1994–1997)",
+        "other": "Bosnijos ir Hercegovinos naujųjų dinarų (1994–1997)"
+      }
+    },
+    "BBD": {
+      "name": "Barbadoso doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Barbadoso doleriai",
+        "many": "Barbadoso dolerio",
+        "other": "Barbadoso dolerių"
+      }
+    },
+    "BDT": {
+      "name": "Bangladešo taka",
+      "plural": {
+        "few": "Bangladešo takos",
+        "many": "Bangladešo takos",
+        "other": "Bangladešo takų"
+      }
+    },
+    "BEC": {
+      "name": "Belgijos frankas (konvertuojamas)",
+      "plural": {
+        "few": "Belgijos frankai (konvertuojami)",
+        "many": "Belgijos franko (konvertuojamo)",
+        "other": "Belgijos frankų (konvertuojamų)"
+      }
+    },
+    "BEF": {
+      "name": "Belgijos frankas",
+      "plural": {
+        "few": "Belgijos frankai",
+        "many": "Belgijos franko",
+        "other": "Belgijos frankų"
+      }
+    },
+    "BEL": {
+      "name": "Belgijos frankas (finansinis)",
+      "plural": {
+        "few": "Belgijos frankai (finansiniai)",
+        "many": "Belgijos franko (finansinio)",
+        "other": "Belgijos frankų (finansinių)"
+      }
+    },
+    "BGL": {
+      "name": "Bulgarijos levas (1962–1999)",
+      "plural": {
+        "few": "Bulgarijos levai (1962–1999)",
+        "many": "Bulgarijos levo (1962–1999)",
+        "other": "Bulgarijos levų (1962–1999)"
+      }
+    },
+    "BGM": {
+      "name": "Bulgarų socialistų leva",
+      "plural": {
+        "one": "Bulgarų socialistų lev"
+      }
+    },
+    "BGN": {
+      "name": "Bulgarijos levas",
+      "plural": {
+        "few": "Bulgarijos levai",
+        "many": "Bulgarijos levo",
+        "other": "Bulgarijos levų"
+      }
+    },
+    "BGO": {
+      "name": "Bulgarijos levas (1879–1952)",
+      "plural": {
+        "few": "Bulgarijos levai (1879–1952)",
+        "many": "Bulgarijos levo (1879–1952)",
+        "other": "Bulgarijos levų (1879–1952)"
+      }
+    },
+    "BHD": {
+      "name": "Bahreino dinaras",
+      "plural": {
+        "few": "Bahreino dinarai",
+        "many": "Bahreino dinaro",
+        "other": "Bahreino dinarų"
+      }
+    },
+    "BIF": {
+      "name": "Burundžio frankas",
+      "plural": {
+        "few": "Burundžio frankai",
+        "many": "Burundžio franko",
+        "other": "Burundžio frankų"
+      }
+    },
+    "BMD": {
+      "name": "Bermudos doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Bermudos doleriai",
+        "many": "Bermudos dolerio",
+        "other": "Bermudos dolerių"
+      }
+    },
+    "BND": {
+      "name": "Brunėjaus doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Brunėjaus doleriai",
+        "many": "Brunėjaus dolerio",
+        "other": "Brunėjaus dolerių"
+      }
+    },
+    "BOB": {
+      "name": "Bolivijos bolivijanas",
+      "narrow": "Bs",
+      "plural": {
+        "few": "Bolivijos bolivijanai",
+        "many": "Bolivijos bolivijano",
+        "other": "Bolivijos bolivijanų"
+      }
+    },
+    "BOL": {
+      "name": "Bolivijos bolivijanas (1863–1963)",
+      "plural": {
+        "few": "Bolivijos bolivijanai (1863–1963)",
+        "many": "Bolivijos bolivijano (1863–1963)",
+        "other": "Bolivijos bolivijanų (1863–1963)"
+      }
+    },
+    "BOP": {
+      "name": "Bolivijos pesas",
+      "plural": {
+        "few": "Bolivijos pesai",
+        "many": "Bolivijos peso",
+        "other": "Bolivijos pesų"
+      }
+    },
+    "BOV": {
+      "name": "Bolivijos mvdol",
+      "plural": {
+        "few": "Boliviečių mvdols"
+      }
+    },
+    "BRB": {
+      "name": "Brazilijos naujieji kruzeirai (1967–1986)",
+      "plural": {
+        "many": "Brazilijos naujasis kruzeiro (1967–1986)",
+        "one": "Brazilijos naujasis kruzeiras (1967–1986)",
+        "other": "Brazilijos naujųjų kruzeirų (1967–1986)"
+      }
+    },
+    "BRC": {
+      "name": "Brazilijos kruzadai (1986–1989)",
+      "plural": {
+        "many": "Brazilijos kruzado (1986–1989)",
+        "one": "Brazilijos kruzadas (1986–1989)",
+        "other": "Brazilijos kruzadų (1986–1989)"
+      }
+    },
+    "BRE": {
+      "name": "Brazilijos kruzeiras (1990–1993)",
+      "plural": {
+        "few": "Brazilijos kruzeirai (1990–1993)",
+        "many": "Brazilijos kruzeirai (1990–1993)",
+        "other": "Brazilijos kruzeirai (1990–1993)"
+      }
+    },
+    "BRL": {
+      "name": "Brazilijos realas",
+      "narrow": "R$",
+      "plural": {
+        "few": "Brazilijos realai",
+        "many": "Brazilijos realo",
+        "other": "Brazilijos realų"
+      }
+    },
+    "BRN": {
+      "name": "Brazilijos naujiejis kruzadai (1989–1990)",
+      "plural": {
+        "few": "Brazilijos naujieji kruzadai (1989–1990)",
+        "many": "Brazilijos naujojo kruzado (1989–1990)",
+        "one": "Brazilijos naujasis kruzadas (1989–1990)",
+        "other": "Brazilijos naujųjų kruzadų (1989–1990)"
+      }
+    },
+    "BRR": {
+      "name": "Brazilijos kruzeiras (1993–1994)",
+      "plural": {
+        "few": "Brazilijos kruzeirai (1993–1994)",
+        "many": "Brazilijos kruzeiro (1993–1994)",
+        "other": "Brazilijos kruzeirų (1993–1994)"
+      }
+    },
+    "BRZ": {
+      "name": "Brazilijos kruzeirai (1942–1967)",
+      "plural": {
+        "many": "Brazilijos kruzeiro (1942–1967)",
+        "one": "Brazilijos kruzeiras (1942–1967)",
+        "other": "Brazilijos kruzeirų (1942–1967)"
+      }
+    },
+    "BSD": {
+      "name": "Bahamų doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Bahamų doleriai",
+        "many": "Bahamų dolerio",
+        "other": "Bahamų dolerių"
+      }
+    },
+    "BTN": {
+      "name": "Butano ngultrumas",
+      "plural": {
+        "few": "Butano ngultrumai",
+        "many": "Butano ngultrumo",
+        "other": "Butano ngultrumų"
+      }
+    },
+    "BUK": {
+      "name": "Birmos kijatas",
+      "plural": {
+        "few": "Birmos kijatai",
+        "many": "Birmos kijato",
+        "other": "Birmos kijatų"
+      }
+    },
+    "BWP": {
+      "name": "Botsvanos pula",
+      "narrow": "P",
+      "plural": {
+        "few": "Botsvanos pulos",
+        "many": "Botsvanos pulos",
+        "other": "Botsvanos pulų"
+      }
+    },
+    "BYB": {
+      "name": "Baltarusijos naujasis rublis (1994–1999)",
+      "plural": {
+        "few": "Baltarusijos naujieji rubliai (1994–1999)",
+        "many": "Baltarusijos naujojo rublio (1994–1999)",
+        "other": "Baltarusijos naujųjų rublių"
+      }
+    },
+    "BYN": {
+      "name": "Baltarusijos rublis",
+      "narrow": "Br",
+      "plural": {
+        "few": "Baltarusijos rubliai",
+        "many": "Baltarusijos rublio",
+        "other": "Baltarusijos rublių"
+      }
+    },
+    "BYR": {
+      "name": "Baltarusijos rublis (2000–2016)",
+      "plural": {
+        "few": "Baltarusijos rubliai (2000–2016)",
+        "many": "Baltarusijos rublio (2000–2016)",
+        "other": "Baltarusijos rublių (2000–2016)"
+      }
+    },
+    "BZD": {
+      "name": "Belizo doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Belizo doleriai",
+        "many": "Belizo dolerio",
+        "other": "Belizo dolerių"
+      }
+    },
+    "CAD": {
+      "name": "Kanados doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Kanados doleriai",
+        "many": "Kanados dolerio",
+        "other": "Kanados dolerių"
+      }
+    },
+    "CDF": {
+      "name": "Kongo frankas",
+      "plural": {
+        "few": "Kongo frankai",
+        "many": "Kongo franko",
+        "other": "Kongo frankų"
+      }
+    },
+    "CHE": {
+      "name": "WIR eurai",
+      "plural": {
+        "many": "WIR euro",
+        "one": "WIR euras",
+        "other": "WIR eurų"
+      }
+    },
+    "CHF": {
+      "name": "Šveicarijos frankas",
+      "plural": {
+        "few": "Šveicarijos frankai",
+        "many": "Šveicarijos franko",
+        "other": "Šveicarijos frankų"
+      }
+    },
+    "CHW": {
+      "name": "WIR frankas",
+      "plural": {
+        "few": "WIR frankai",
+        "many": "WIR franko",
+        "other": "WIR frankų"
+      }
+    },
+    "CLE": {
+      "name": "Čilės eskudai",
+      "plural": {
+        "many": "Čilės eskudo",
+        "one": "Čilės eskudas",
+        "other": "Čilės eskudų"
+      }
+    },
+    "CLF": {
+      "name": "Čiliečių unidades de fomentos"
+    },
+    "CLP": {
+      "name": "Čilės pesas",
+      "narrow": "$",
+      "plural": {
+        "few": "Čilės pesai",
+        "many": "Čilės peso",
+        "other": "Čilės pesų"
+      }
+    },
+    "CNH": {
+      "name": "Kinijos Užsienio juanis",
+      "plural": {
+        "few": "Kinijos Užsienio juaniai",
+        "many": "Kinijos Užsienio juanio",
+        "other": "Kinijos Užsienio juanių"
+      }
+    },
+    "CNX": {
+      "name": "Kinijos \"People\" banko doleris",
+      "plural": {
+        "few": "Kinijos \"People\" banko doleriai",
+        "many": "Kinijos \"People\" banko dolerio",
+        "other": "Kinijos \"People\" banko dolerių"
+      }
+    },
+    "CNY": {
+      "name": "Kinijos ženminbi juanis",
+      "narrow": "¥",
+      "plural": {
+        "few": "Kinijos ženminbi juaniai",
+        "many": "Kinijos ženminbi juanio",
+        "other": "Kinijos ženminbi juanių"
+      }
+    },
+    "COP": {
+      "name": "Kolumbijos pesas",
+      "narrow": "$",
+      "plural": {
+        "few": "Kolumbijos pesai",
+        "many": "Kolumbijos peso",
+        "other": "Kolumbijos pesų"
+      }
+    },
+    "COU": {
+      "name": "unidad de valor realai",
+      "plural": {
+        "one": "unidad de valor realas"
+      }
+    },
+    "CRC": {
+      "name": "Kosta Rikos kolonas",
+      "narrow": "₡",
+      "plural": {
+        "few": "Kosta Rikos kolonai",
+        "many": "Kosta Rikos kolono",
+        "other": "Kosta Rikos kolonų"
+      }
+    },
+    "CSD": {
+      "name": "Serbijos dinaras (2002–2006)",
+      "plural": {
+        "few": "Serbijos dinarai (2002–2006)",
+        "many": "Serbijos dinaro (2002–2006)",
+        "other": "Serbijos dinarų (2002–2006)"
+      }
+    },
+    "CSK": {
+      "name": "Čekoslovakų sunkusis korunas",
+      "plural": {
+        "few": "Čekoslovakų sunkieji korunai",
+        "many": "Čekoslovakų sunkiejio koruno",
+        "other": "Čekoslovakų sunkiejių korunų"
+      }
+    },
+    "CUC": {
+      "name": "Kubos konvertuojamasis pesas",
+      "narrow": "$",
+      "plural": {
+        "few": "Kubos konvertuojamieji pesai",
+        "many": "Kubos konvertuojamojo peso",
+        "other": "Kubos konvertuojamųjų pesų"
+      }
+    },
+    "CUP": {
+      "name": "Kubos pesas",
+      "narrow": "$",
+      "plural": {
+        "few": "Kubos pesai",
+        "many": "Kubos peso",
+        "other": "Kubos pesų"
+      }
+    },
+    "CVE": {
+      "name": "Žaliojo Kyšulio eskudas",
+      "plural": {
+        "few": "Žaliojo Kyšulio eskudai",
+        "many": "Žaliojo Kyšulio eskudo",
+        "other": "Žaliojo Kyšulio eskudų"
+      }
+    },
+    "CYP": {
+      "name": "Kipro svaras",
+      "plural": {
+        "few": "Kipro svarai",
+        "many": "Kipro svaro",
+        "other": "Kipro svarų"
+      }
+    },
+    "CZK": {
+      "name": "Čekijos krona",
+      "narrow": "Kč",
+      "plural": {
+        "few": "Čekijos kronos",
+        "many": "Čekijos kronos",
+        "other": "Čekijos kronų"
+      }
+    },
+    "DDM": {
+      "name": "Rytų Vokietijos markė",
+      "plural": {
+        "few": "Rytų Vokietijos markės",
+        "many": "Rytų Vokietijos markės",
+        "other": "Rytų Vokietijos markės"
+      }
+    },
+    "DEM": {
+      "name": "Vokietijos markė",
+      "plural": {
+        "few": "Vokietijos markės",
+        "many": "Vokietijos markės",
+        "other": "Vokietijos markės"
+      }
+    },
+    "DJF": {
+      "name": "Džibučio frankas",
+      "plural": {
+        "few": "Džibučio frankai",
+        "many": "Džibučio franko",
+        "other": "Džibučio frankų"
+      }
+    },
+    "DKK": {
+      "name": "Danijos krona",
+      "narrow": "kr",
+      "plural": {
+        "few": "Danijos kronos",
+        "many": "Danijos kronos",
+        "other": "Danijos kronų"
+      }
+    },
+    "DOP": {
+      "name": "Dominikos pesas",
+      "narrow": "$",
+      "plural": {
+        "few": "Dominikos pesai",
+        "many": "Dominikos peso",
+        "other": "Dominikos pesų"
+      }
+    },
+    "DZD": {
+      "name": "Alžyro dinaras",
+      "plural": {
+        "few": "Alžyro dinarai",
+        "many": "Alžyro dinaro",
+        "other": "Alžyro dinarų"
+      }
+    },
+    "ECS": {
+      "name": "Ekvadoro sukrė",
+      "plural": {
+        "few": "Ekvadoro sucres",
+        "many": "Ekvadoro sucres",
+        "one": "Ekvadoro sucre",
+        "other": "Ekvadoro sucres"
+      }
+    },
+    "ECV": {
+      "name": "Ekvadoro constante (UVC)",
+      "plural": {
+        "few": "Ekvadoro unidads de narsa Constante (UVC)",
+        "many": "Ekvadoro unidads de narsa Constante (UVC)",
+        "one": "Ekvadoro unidads de narsa Constante (UVC)",
+        "other": "Ekvadoro unidads de narsa Constante (UVC)"
+      }
+    },
+    "EEK": {
+      "name": "Estijos krona",
+      "plural": {
+        "few": "Estijos kronos",
+        "many": "Estijos kronos",
+        "other": "Estijos kronų"
+      }
+    },
+    "EGP": {
+      "name": "Egipto svaras",
+      "narrow": "E£",
+      "plural": {
+        "few": "Egipto svarai",
+        "many": "Egipto svaro",
+        "other": "Egipto svarų"
+      }
+    },
+    "ERN": {
+      "name": "Eritrėjos nakfa",
+      "plural": {
+        "few": "Eritrėjos nakfos",
+        "many": "Eritrėjos nakfos",
+        "other": "Eritrėjos nakfų"
+      }
+    },
+    "ESA": {
+      "name": "Ispanų pesetai (A sąskaita)",
+      "plural": {
+        "one": "Ispanų pesetas (A sąskaita)"
+      }
+    },
+    "ESB": {
+      "name": "Ispanų pesetai (konvertuojama sąskaita)",
+      "plural": {
+        "one": "Ispanų pesetas (konvertuojama sąskaita)"
+      }
+    },
+    "ESP": {
+      "name": "Ispanijos peseta",
+      "narrow": "₧",
+      "plural": {
+        "few": "Ispanų pesetai",
+        "many": "Ispanų pesetai",
+        "one": "Ispanų pesetas",
+        "other": "Ispanų pesetai"
+      }
+    },
+    "ETB": {
+      "name": "Etiopijos biras",
+      "plural": {
+        "few": "Etiopijos birai",
+        "many": "Etiopijos biro",
+        "other": "Etiopijos birų"
+      }
+    },
+    "EUR": {
+      "name": "Euras",
+      "plural": {
+        "few": "eurai",
+        "many": "euro",
+        "one": "euras",
+        "other": "eurų"
+      },
+      "symbol": "€"
+    },
+    "FIM": {
+      "name": "Suomijos markė",
+      "plural": {
+        "few": "Suomijos markės",
+        "many": "Suomijos markės",
+        "other": "Suomijos markės"
+      }
+    },
+    "FJD": {
+      "name": "Fidžio doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Fidžio doleriai",
+        "many": "Fidžio dolerio",
+        "other": "Fidžio dolerių"
+      }
+    },
+    "FKP": {
+      "name": "Falklando salų svaras",
+      "narrow": "£",
+      "plural": {
+        "few": "Falklando salų svarai",
+        "many": "Falklando salų svaro",
+        "other": "Falklando salų svarų"
+      }
+    },
+    "FRF": {
+      "name": "Prancūzijos frankas",
+      "plural": {
+        "few": "Prancūzijos frankai",
+        "many": "Prancūzijos franko",
+        "other": "Prancūzijos frankų"
+      }
+    },
+    "GBP": {
+      "name": "Didžiosios Britanijos svaras",
+      "narrow": "£",
+      "plural": {
+        "few": "Didžiosios Britanijos svarai",
+        "many": "Didžiosios Britanijos svaro",
+        "other": "Didžiosios Britanijos svarų"
+      }
+    },
+    "GEK": {
+      "name": "Gruzinų kupon larits",
+      "plural": {
+        "one": "Gruzinų kupon larit"
+      }
+    },
+    "GEL": {
+      "name": "Gruzijos laris",
+      "narrow": "₾",
+      "plural": {
+        "few": "Gruzijos lariai",
+        "many": "Gruzijos lario",
+        "other": "Gruzijos larių"
+      }
+    },
+    "GHC": {
+      "name": "Ganos sedis (1979–2007)",
+      "plural": {
+        "few": "Ganos sedžiai (1979–2007)",
+        "many": "Ganos sedžio (1979–2007)",
+        "other": "Ganos sedžių (1979–2007)"
+      }
+    },
+    "GHS": {
+      "name": "Ganos sedis",
+      "narrow": "GH₵",
+      "plural": {
+        "few": "Ganos sedžiai",
+        "many": "Ganos sedžio",
+        "other": "Ganos sedžių"
+      }
+    },
+    "GIP": {
+      "name": "Gibraltaro svaras",
+      "narrow": "£",
+      "plural": {
+        "few": "Gibraltaro svarai",
+        "many": "Gibraltaro svaro",
+        "other": "Gibraltaro svarų"
+      }
+    },
+    "GMD": {
+      "name": "Gambijos dalasis",
+      "plural": {
+        "few": "Gambijos dalasiai",
+        "many": "Gambijos dalasio",
+        "other": "Gambijos dalasių"
+      }
+    },
+    "GNF": {
+      "name": "Gvinėjos frankas",
+      "narrow": "FG",
+      "plural": {
+        "few": "Gvinėjos frankai",
+        "many": "Gvinėjos franko",
+        "other": "Gvinėjos frankų"
+      }
+    },
+    "GNS": {
+      "name": "Guinean sylis",
+      "plural": {
+        "few": "Gvinėjos syliai",
+        "many": "Gvinėjos sylio",
+        "one": "Gvinėjos sylis",
+        "other": "Gvinėjos sylio"
+      }
+    },
+    "GQE": {
+      "name": "Pusiaujo Guinean ekwele"
+    },
+    "GRD": {
+      "name": "Graikijos drachma",
+      "plural": {
+        "few": "Graikijos drachmos",
+        "many": "Graikijos drachmos",
+        "other": "Graikijos drachmos"
+      }
+    },
+    "GTQ": {
+      "name": "Gvatemalos ketcalis",
+      "narrow": "Q",
+      "plural": {
+        "few": "Gvatemalos ketcaliai",
+        "many": "Gvatemalos ketcalio",
+        "other": "Gvatemalos ketcalių"
+      }
+    },
+    "GWE": {
+      "name": "Portugalų Gvinėjos eskudas",
+      "plural": {
+        "few": "Portugalijos Gvinėjos eskudai",
+        "many": "Portugalijos Gvinėjos eskudo",
+        "one": "Portugalijos Gvinėjos eskudas",
+        "other": "Portugalijos Gvinėjos eskudų"
+      }
+    },
+    "GWP": {
+      "name": "Gvinėjos-Bisau pesas",
+      "plural": {
+        "few": "Bisau Gvinėjos pesai",
+        "many": "Bisau Gvinėjos peso",
+        "one": "Bisau Gvinėjos pesas",
+        "other": "Bisau Gvinėjos pesai"
+      }
+    },
+    "GYD": {
+      "name": "Gajanos doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Gajanos doleriai",
+        "many": "Gajanos dolerio",
+        "other": "Gajanos dolerių"
+      }
+    },
+    "HKD": {
+      "name": "Honkongo doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Honkongo doleriai",
+        "many": "Honkongo dolerio",
+        "other": "Honkongo dolerių"
+      }
+    },
+    "HNL": {
+      "name": "Hondūro lempira",
+      "narrow": "L",
+      "plural": {
+        "few": "Hondūro lempiros",
+        "many": "Hondūro lempiros",
+        "other": "Hondūro lempirų"
+      }
+    },
+    "HRD": {
+      "name": "Kroatijos dinaras",
+      "plural": {
+        "few": "Krotaijos dinarai",
+        "many": "Kroatijos dinaro",
+        "other": "Kroatijos dinarų"
+      }
+    },
+    "HRK": {
+      "name": "Kroatijos kuna",
+      "narrow": "kn",
+      "plural": {
+        "few": "Kroatijos kunos",
+        "many": "Kroatijos kunos",
+        "other": "Kroatijos kunų"
+      }
+    },
+    "HTG": {
+      "name": "Haičio gurdas",
+      "plural": {
+        "few": "Haičio gurdai",
+        "many": "Haičio gurdo",
+        "other": "Haičio gurdų"
+      }
+    },
+    "HUF": {
+      "name": "Vengrijos forintas",
+      "narrow": "Ft",
+      "plural": {
+        "few": "Vengrijos forintai",
+        "many": "Vengrijos forinto",
+        "other": "Vengrijos forintų"
+      }
+    },
+    "IDR": {
+      "name": "Indonezijos rupija",
+      "narrow": "Rp",
+      "plural": {
+        "few": "Indonezijos rupijos",
+        "many": "Indonezijos rupijos",
+        "other": "Indonezijos rupijų"
+      }
+    },
+    "IEP": {
+      "name": "Airijos svaras",
+      "plural": {
+        "few": "Airijos svarai",
+        "many": "Airijos svaro",
+        "other": "Airijos svarų"
+      }
+    },
+    "ILP": {
+      "name": "Izraelio svaras",
+      "plural": {
+        "few": "Izraelio svarai",
+        "many": "Izraelio svaro",
+        "other": "Izraelio svarų"
+      }
+    },
+    "ILR": {
+      "name": "Izraelio šekelis (1980–1985)",
+      "plural": {
+        "few": "Izraelio šekeliai (1980–1985)",
+        "many": "Izraelio šekelio (1980–1985)",
+        "other": "Izraelio šekelių (1980–1985)"
+      }
+    },
+    "ILS": {
+      "name": "Izraelio naujasis šekelis",
+      "plural": {
+        "few": "Izraelio naujieji šekeliai",
+        "many": "Izraelio naujojo šekelio",
+        "other": "Izraelio naujųjų šekelių"
+      }
+    },
+    "INR": {
+      "name": "Indijos rupija",
+      "plural": {
+        "few": "Indijos rupijos",
+        "many": "Indijos rupijos",
+        "other": "Indijos rupijų"
+      }
+    },
+    "IQD": {
+      "name": "Irako dinaras",
+      "plural": {
+        "few": "Irako dinarai",
+        "many": "Irako dinaro",
+        "other": "Irako dinarų"
+      }
+    },
+    "IRR": {
+      "name": "Irano rialas",
+      "plural": {
+        "few": "Irano rialai",
+        "many": "Irano rialo",
+        "other": "Irano rialų"
+      }
+    },
+    "ISJ": {
+      "name": "Islandijos krona (1918–1981)",
+      "plural": {
+        "few": "Islandijos kronos (1918–1981)",
+        "many": "Islandijos kronos (1918–1981)",
+        "other": "Islandijos kronų (1918–1981)"
+      }
+    },
+    "ISK": {
+      "name": "Islandijos krona",
+      "narrow": "kr",
+      "plural": {
+        "few": "Islandijos kronos",
+        "many": "Islandijos kronos",
+        "other": "Islandijos kronų"
+      }
+    },
+    "ITL": {
+      "name": "Italijos lira",
+      "plural": {
+        "few": "Italijos liros",
+        "many": "Italijos liros",
+        "other": "Italijos lirų"
+      }
+    },
+    "JMD": {
+      "name": "Jamaikos doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Jamaikos doleriai",
+        "many": "Jamaikos dolerio",
+        "other": "Jamaikos dolerių"
+      }
+    },
+    "JOD": {
+      "name": "Jordanijos dinaras",
+      "plural": {
+        "few": "Jordanijos dinarai",
+        "many": "Jordanijos dinaro",
+        "other": "Jordanijos dinarų"
+      }
+    },
+    "JPY": {
+      "name": "Japonijos jena",
+      "narrow": "¥",
+      "plural": {
+        "few": "Japonijos jenos",
+        "many": "Japonijos jenos",
+        "other": "Japonijos jenų"
+      }
+    },
+    "KES": {
+      "name": "Kenijos šilingas",
+      "plural": {
+        "few": "Kenijos šilingai",
+        "many": "Kenijos šilingo",
+        "other": "Kenijos šilingų"
+      }
+    },
+    "KGS": {
+      "name": "Kirgizijos somas",
+      "narrow": "⃀",
+      "plural": {
+        "few": "Kirgizijos somai",
+        "many": "Kirgizijos somo",
+        "other": "Kirgizijos somų"
+      }
+    },
+    "KHR": {
+      "name": "Kambodžos rielis",
+      "plural": {
+        "few": "Kambodžos rieliai",
+        "many": "Kambodžos rielio",
+        "other": "Kambodžos rielių"
+      }
+    },
+    "KMF": {
+      "name": "Komoro frankas",
+      "narrow": "CF",
+      "plural": {
+        "few": "Komoro frankai",
+        "many": "Komoro franko",
+        "other": "Komoro frankų"
+      }
+    },
+    "KPW": {
+      "name": "Šiaurės Korėjos vonas",
+      "narrow": "₩",
+      "plural": {
+        "few": "Šiaurės Korėjos vonai",
+        "many": "Šiaurės Korėjos vono",
+        "other": "Šiaurės Korėjos vonų"
+      }
+    },
+    "KRH": {
+      "name": "Pietų Korėjos hwanas (1953–1962)",
+      "plural": {
+        "few": "Pietų Korėjos hwanai (1953–1962)",
+        "many": "Pietų Korėjos hwano (1953–1962)",
+        "other": "Pietų Korėjos hwanų (1953–1962)"
+      }
+    },
+    "KRO": {
+      "name": "Pietų Korėjos vonas (1945–1953)",
+      "plural": {
+        "few": "Pietų Korėjos vonai (1945–1953)",
+        "many": "Pietų Korėjos vono (1945–1953)",
+        "other": "Pietų Korėjos vonų (1945–1953)"
+      }
+    },
+    "KRW": {
+      "name": "Pietų Korėjos vonas",
+      "narrow": "₩",
+      "plural": {
+        "few": "Pietų Korėjos vonai",
+        "many": "Pietų Korėjos vono",
+        "other": "Pietų Korėjos vonų"
+      }
+    },
+    "KWD": {
+      "name": "Kuveito dinaras",
+      "plural": {
+        "few": "Kuveito dinarai",
+        "many": "Kuveito dinaro",
+        "other": "Kuveito dinarų"
+      }
+    },
+    "KYD": {
+      "name": "Kaimanų salų doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Kaimanų salų doleriai",
+        "many": "Kaimanų salų dolerio",
+        "other": "Kaimanų salų dolerių"
+      }
+    },
+    "KZT": {
+      "name": "Kazachstano tengė",
+      "narrow": "₸",
+      "plural": {
+        "few": "Kazachstano tengės",
+        "many": "Kazachstano tengės",
+        "other": "Kazachstano tengių"
+      }
+    },
+    "LAK": {
+      "name": "Laoso kipas",
+      "plural": {
+        "few": "Laoso kipai",
+        "many": "Laoso kipo",
+        "other": "Laoso kipų"
+      }
+    },
+    "LBP": {
+      "name": "Libano svaras",
+      "narrow": "L£",
+      "plural": {
+        "few": "Libano svarai",
+        "many": "Libano svaro",
+        "other": "Libano svarų"
+      }
+    },
+    "LKR": {
+      "name": "Šri Lankos rupija",
+      "narrow": "Rs",
+      "plural": {
+        "few": "Šri Lankos rupijos",
+        "many": "Šri Lankos rupijos",
+        "other": "Šri Lankos rupijų"
+      }
+    },
+    "LRD": {
+      "name": "Liberijos doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Liberijos doleriai",
+        "many": "Liberijos dolerio",
+        "other": "Liberijos dolerių"
+      }
+    },
+    "LSL": {
+      "name": "Lesoto lotis"
+    },
+    "LTL": {
+      "name": "Lietuvos litas",
+      "narrow": "Lt",
+      "plural": {
+        "few": "Lietuvos litai",
+        "many": "Lietuvos lito",
+        "other": "Lietuvos litų"
+      }
+    },
+    "LTT": {
+      "name": "Lietuvos talonas",
+      "plural": {
+        "few": "Lietuvos talonai",
+        "many": "Lietuvos talonai",
+        "other": "Lietuvos talonai"
+      }
+    },
+    "LUC": {
+      "name": "Liuksemburgo konvertuojamas frankas",
+      "plural": {
+        "few": "Liuksemburgo konvertuojami frankai",
+        "many": "Liuksemburgo konvertuojamo franko",
+        "one": "Liuksemburgo konvertuojas frankas",
+        "other": "Liuksemburgo konvertuojamų frankų"
+      }
+    },
+    "LUF": {
+      "name": "Liuksemburgo frankas",
+      "plural": {
+        "few": "Liuksemburgo frankai",
+        "many": "Liuksemburgo franko",
+        "other": "Liuksemburgo frankų"
+      }
+    },
+    "LUL": {
+      "name": "Liuksemburgo finansinis frankas",
+      "plural": {
+        "few": "Liuksemburgo finansiniai frankai",
+        "many": "Liuksemburgo finansinio franko",
+        "other": "Liuksemburgo finansinių frankų"
+      }
+    },
+    "LVL": {
+      "name": "Latvijos latas",
+      "narrow": "Ls",
+      "plural": {
+        "few": "Latvijos latai",
+        "many": "Latvijos lato",
+        "other": "Latvijos latų"
+      }
+    },
+    "LVR": {
+      "name": "Latvijos rublis",
+      "plural": {
+        "few": "Latvijos rubliai",
+        "many": "Latvijos rublio",
+        "other": "Latvijos rublių"
+      }
+    },
+    "LYD": {
+      "name": "Libijos dinaras",
+      "plural": {
+        "few": "Libijos dinarai",
+        "many": "Libijos dinaro",
+        "other": "Libijos dinarų"
+      }
+    },
+    "MAD": {
+      "name": "Maroko dirhamas",
+      "plural": {
+        "few": "Maroko dirhamai",
+        "many": "Maroko dirhamo",
+        "other": "Maroko dirhamų"
+      }
+    },
+    "MAF": {
+      "name": "Maroko frankas",
+      "plural": {
+        "few": "Maroko frankai",
+        "many": "Maroko franko",
+        "other": "Maroko frankų"
+      }
+    },
+    "MCF": {
+      "name": "Monegasque frankas",
+      "plural": {
+        "few": "Monegasque frankai",
+        "many": "Monegasque franko",
+        "other": "Monegasque frankų"
+      }
+    },
+    "MDC": {
+      "name": "Moldovų cupon"
+    },
+    "MDL": {
+      "name": "Moldovos lėja",
+      "plural": {
+        "few": "Moldovos lėjos",
+        "many": "Moldovos lėjos",
+        "other": "Moldovos lėjų"
+      }
+    },
+    "MGA": {
+      "name": "Madagaskaro ariaris",
+      "narrow": "Ar",
+      "plural": {
+        "few": "Madagaskaro ariariai",
+        "many": "Madagaskaro ariario",
+        "other": "Madagaskaro ariarių"
+      }
+    },
+    "MGF": {
+      "name": "Madagaskaro frankas",
+      "plural": {
+        "few": "Madagaskaro frankai",
+        "many": "Madagaskaro franko",
+        "other": "Madagaskaro frankų"
+      }
+    },
+    "MKD": {
+      "name": "Makedonijos denaras",
+      "plural": {
+        "few": "Makedonijos denarai",
+        "many": "Makedonijos denaro",
+        "other": "Makedonijos denarų"
+      }
+    },
+    "MKN": {
+      "name": "Makedonijos denaras (1992–1993)",
+      "plural": {
+        "few": "Makedonijos denarai (1992–1993)",
+        "many": "Makedonijos denaro (1992–1993)",
+        "other": "Makedonijos denarų (1992–1993)"
+      }
+    },
+    "MLF": {
+      "name": "Malio frankas",
+      "plural": {
+        "few": "Malio frankai",
+        "many": "Malio franko",
+        "other": "Malio frankų"
+      }
+    },
+    "MMK": {
+      "name": "Mianmaro kijatas",
+      "narrow": "K",
+      "plural": {
+        "few": "Mianmaro kijatai",
+        "many": "Mianmaro kijato",
+        "other": "Mianmaro kijatų"
+      }
+    },
+    "MNT": {
+      "name": "Mongolijos tugrikas",
+      "plural": {
+        "few": "Mongolijos tugrikai",
+        "many": "Mongolijos tugriko",
+        "other": "Mongolijos tugrikų"
+      }
+    },
+    "MOP": {
+      "name": "Makao pataka",
+      "plural": {
+        "few": "Makao patakos",
+        "many": "Makao patakos",
+        "other": "Makao patakų"
+      }
+    },
+    "MRO": {
+      "name": "Mauritanijos ugija (1973–2017)",
+      "plural": {
+        "few": "Mauritanijos ugijos (1973–2017)",
+        "many": "Mauritanijos ugijos (1973–2017)",
+        "other": "Mauritanijos ugijų (1973–2017)"
+      }
+    },
+    "MRU": {
+      "name": "Mauritanijos ugija",
+      "plural": {
+        "few": "Mauritanijos ugijos",
+        "many": "Mauritanijos ugijos",
+        "other": "Mauritanijos ugijų"
+      }
+    },
+    "MTL": {
+      "name": "Maltos lira"
+    },
+    "MTP": {
+      "name": "Maltos svaras",
+      "plural": {
+        "few": "Maltos svarai",
+        "many": "Maltos svaro",
+        "other": "Maltos svarų"
+      }
+    },
+    "MUR": {
+      "name": "Mauricijaus rupija",
+      "narrow": "Rs",
+      "plural": {
+        "few": "Mauricijaus rupijos",
+        "many": "Mauricijaus rupijos",
+        "other": "Mauricijaus rupijų"
+      }
+    },
+    "MVP": {
+      "name": "Maldyvų rupija",
+      "plural": {
+        "few": "Maldyvų rupijos",
+        "many": "Maldyvų rupijos",
+        "other": "Maldyvų rupijos"
+      }
+    },
+    "MVR": {
+      "name": "Maldyvų rufija",
+      "plural": {
+        "few": "Maldyvų rufijos",
+        "many": "Maldyvų rufijos",
+        "other": "Maldyvų rufijų"
+      }
+    },
+    "MWK": {
+      "name": "Malavio kvača",
+      "plural": {
+        "few": "Malavio kvačos",
+        "many": "Malavio kvačos",
+        "other": "Malavio kvačų"
+      }
+    },
+    "MXN": {
+      "name": "Meksikos pesas",
+      "narrow": "$",
+      "plural": {
+        "few": "Meksikos pesai",
+        "many": "Meksikos peso",
+        "other": "Meksikos pesų"
+      }
+    },
+    "MXP": {
+      "name": "Meksikos sidabrinis pesas (1861–1992)",
+      "plural": {
+        "few": "Meksikos sidabriniai pesai (1861–1992)",
+        "many": "Meksikos sidabrino peso (1861–1992)",
+        "other": "Meksikos sidabrinių pesų (1861–1992)"
+      }
+    },
+    "MXV": {
+      "name": "Meksikos United de Inversion (UDI)",
+      "plural": {
+        "few": "Meksikos unidads de inversija (UDI)",
+        "many": "Meksikos unidads de inversija (UDI)",
+        "one": "Meksikos unidad de inversija (UDI)",
+        "other": "Meksikos unidads de inversija (UDI)"
+      }
+    },
+    "MYR": {
+      "name": "Malaizijos ringitas",
+      "narrow": "RM",
+      "plural": {
+        "few": "Malaizijos ringitai",
+        "many": "Malaizijos ringito",
+        "other": "Malaizijos ringitų"
+      }
+    },
+    "MZE": {
+      "name": "Mozambiko eskudas",
+      "plural": {
+        "few": "Mozambiko eskudai",
+        "many": "Mozambiko eskudo",
+        "other": "Mozambiko eskudų"
+      }
+    },
+    "MZM": {
+      "name": "Mozambiko metikalis (1980–2006)",
+      "plural": {
+        "few": "Mozambiko metikaliai (1980–2006)",
+        "many": "Mozambiko metikalio (1980–2006)",
+        "other": "Mozambiko metikalių (1980–2006)"
+      }
+    },
+    "MZN": {
+      "name": "Mozambiko metikalis",
+      "plural": {
+        "few": "Mozambiko metikaliai",
+        "many": "Mozambiko metikalio",
+        "other": "Mozambiko metikalių"
+      }
+    },
+    "NAD": {
+      "name": "Namibijos doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Namibijos doleriai",
+        "many": "Namibijos dolerio",
+        "other": "Namibijos dolerių"
+      }
+    },
+    "NGN": {
+      "name": "Nigerijos naira",
+      "narrow": "₦",
+      "plural": {
+        "few": "Nigerijos nairos",
+        "many": "Nigerijos nairos",
+        "other": "Nigerijos nairų"
+      }
+    },
+    "NIC": {
+      "name": "Nikaragvos kardoba (1988–1991)",
+      "plural": {
+        "few": "Nikaragvos kordobai (1988–1991)",
+        "many": "Nikaragvos kordobos (1988–1991)",
+        "one": "Nikaragvos kordoba (1988–1991)",
+        "other": "Nikaragvos kordobų (1988–1991)"
+      }
+    },
+    "NIO": {
+      "name": "Nikaragvos kordoba",
+      "narrow": "C$",
+      "plural": {
+        "few": "Nikaragvos kordobos",
+        "many": "Nikaragvos kordobos",
+        "other": "Nikaragvos kordobų"
+      }
+    },
+    "NLG": {
+      "name": "Nyderlandų guldenas",
+      "plural": {
+        "few": "Nyderlandų guldenai",
+        "many": "Nyderlandų guldeno",
+        "other": "Nyderlandų guldenų"
+      }
+    },
+    "NOK": {
+      "name": "Norvegijos krona",
+      "narrow": "kr",
+      "plural": {
+        "few": "Norvegijos kronos",
+        "many": "Norvegijos kronos",
+        "other": "Norvegijos kronų"
+      }
+    },
+    "NPR": {
+      "name": "Nepalo rupija",
+      "narrow": "Rs",
+      "plural": {
+        "few": "Nepalo rupijos",
+        "many": "Nepalo rupijos",
+        "other": "Nepalo rupijų"
+      }
+    },
+    "NZD": {
+      "name": "Naujosios Zelandijos doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Naujosios Zelandijos doleriai",
+        "many": "Naujosios Zelandijos dolerio",
+        "other": "Naujosios Zelandijos dolerių"
+      }
+    },
+    "OMR": {
+      "name": "Omano rialas",
+      "plural": {
+        "few": "Omano rialai",
+        "many": "Omano rialo",
+        "other": "Omano rialų"
+      }
+    },
+    "PAB": {
+      "name": "Panamos balboja",
+      "plural": {
+        "few": "Panamos balbojos",
+        "many": "Panamos balbojos",
+        "other": "Panamos balbojų"
+      }
+    },
+    "PEI": {
+      "name": "Peru intis",
+      "plural": {
+        "one": "Peru inti"
+      }
+    },
+    "PEN": {
+      "name": "Peru solis",
+      "plural": {
+        "few": "Peru soliai",
+        "many": "Peru solio",
+        "other": "Peru solių"
+      }
+    },
+    "PES": {
+      "name": "Peru solis (1863–1965)",
+      "plural": {
+        "few": "Peru soliai (1863–1965)",
+        "many": "Peru solio (1863–1965)",
+        "other": "Peru solių (1863–1965)"
+      }
+    },
+    "PGK": {
+      "name": "Papua Naujosios Gvinėjos kina",
+      "plural": {
+        "few": "Papua Naujosios Gvinėjos kinos",
+        "many": "Papua Naujosios Gvinėjos kinos",
+        "other": "Papua Naujosios Gvinėjos kinų"
+      }
+    },
+    "PHP": {
+      "name": "Filipinų pesas",
+      "narrow": "₱",
+      "plural": {
+        "few": "Filipinų pesai",
+        "many": "Filipinų peso",
+        "other": "Filipinų pesų"
+      }
+    },
+    "PKR": {
+      "name": "Pakistano rupija",
+      "narrow": "Rs",
+      "plural": {
+        "few": "Pakistano rupijos",
+        "many": "Pakistano rupijos",
+        "other": "Pakistano rupijų"
+      }
+    },
+    "PLN": {
+      "name": "Lenkijos zlotas",
+      "narrow": "zl",
+      "plural": {
+        "few": "Lenkijos zlotai",
+        "many": "Lenkijos zloto",
+        "other": "Lenkijos zlotų"
+      }
+    },
+    "PLZ": {
+      "name": "Lenkijos zlotas (1950–1995)",
+      "plural": {
+        "few": "Lenkijos zlotai (1950–1995)",
+        "many": "Lenkijos zloto (1950–1995)",
+        "other": "Lenkijos zlotų (1950–1995)"
+      }
+    },
+    "PTE": {
+      "name": "Portugalijos eskudas",
+      "plural": {
+        "few": "Portugalijos eskudai",
+        "many": "Portugalijos eskudo",
+        "other": "Portugalijos eskudų"
+      }
+    },
+    "PYG": {
+      "name": "Paragvajaus guaranis",
+      "narrow": "Gs",
+      "plural": {
+        "few": "Paragvajaus guaraniai",
+        "many": "Paragvajaus guaranio",
+        "other": "Paragvajaus guaranių"
+      }
+    },
+    "QAR": {
+      "name": "Kataro rialas",
+      "plural": {
+        "few": "Kataro rialai",
+        "many": "Kataro rialo",
+        "other": "Kataro rialų"
+      }
+    },
+    "RHD": {
+      "name": "Rodezijos doleris",
+      "plural": {
+        "few": "Rodezijos doleriai",
+        "many": "Rodezijos dolerio",
+        "other": "Rodezijos dolerių"
+      }
+    },
+    "ROL": {
+      "name": "Rumunijos lėja (1952–2006)",
+      "plural": {
+        "few": "Rumunijos lėjos (1952–2006)",
+        "many": "Rumunijos lėjos (1952–2006)",
+        "other": "Rumunijos lėjų (1952–2006)"
+      }
+    },
+    "RON": {
+      "name": "Rumunijos lėja",
+      "narrow": "lei",
+      "plural": {
+        "few": "Rumunijos lėjos",
+        "many": "Rumunijos lėjos",
+        "other": "Rumunijos lėjų"
+      }
+    },
+    "RSD": {
+      "name": "Serbijos dinaras",
+      "plural": {
+        "few": "Serbijos dinarai",
+        "many": "Serbijos dinaro",
+        "other": "Serbijos dinarų"
+      }
+    },
+    "RUB": {
+      "name": "Rusijos rublis",
+      "narrow": "rb",
+      "plural": {
+        "few": "Rusijos rubliai",
+        "many": "Rusijos rublio",
+        "other": "Rusijos rublių"
+      }
+    },
+    "RUR": {
+      "name": "Rusijos rublis (1991–1998)",
+      "plural": {
+        "few": "Rusijos rubliai (1991–1998)",
+        "many": "Rusijos rublio (1991–1998)",
+        "other": "Rusijos rublių (1991–1998)"
+      }
+    },
+    "RWF": {
+      "name": "Ruandos frankas",
+      "narrow": "RF",
+      "plural": {
+        "few": "Ruandos frankai",
+        "many": "Ruandos franko",
+        "other": "Ruandos frankų"
+      }
+    },
+    "SAR": {
+      "name": "Saudo Arabijos rijalas",
+      "plural": {
+        "few": "Saudo Arabijos rijalai",
+        "many": "Saudo Arabijos rijalo",
+        "other": "Saudo Arabijos rijalų"
+      }
+    },
+    "SBD": {
+      "name": "Saliamono salų doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Saliamono salų doleriai",
+        "many": "Saliamono salų dolerio",
+        "other": "Saliamono salų dolerių"
+      }
+    },
+    "SCR": {
+      "name": "Seišelių rupija",
+      "plural": {
+        "few": "Seišelių rupijos",
+        "many": "Seišelių rupijos",
+        "other": "Seišelių rupijų"
+      }
+    },
+    "SDD": {
+      "name": "Sudano dinaras (1992–2007)",
+      "plural": {
+        "few": "Sudano dinarai (1992–2007)",
+        "many": "Sudano dinaro (1992–2007)",
+        "other": "Sudano dinarų (1992–2007)"
+      }
+    },
+    "SDG": {
+      "name": "Sudano svaras",
+      "plural": {
+        "few": "Sudano svarai",
+        "many": "Sudano svaro",
+        "other": "Sudano svarų"
+      }
+    },
+    "SDP": {
+      "name": "Sudano svaras (1957–1998)",
+      "plural": {
+        "few": "Sudano svarai (1957–1998)",
+        "many": "Sudano svaro (1957–1998)",
+        "other": "Sudano svarų (1957–1998)"
+      }
+    },
+    "SEK": {
+      "name": "Švedijos krona",
+      "narrow": "kr",
+      "plural": {
+        "few": "Švedijos kronos",
+        "many": "Švedijos kronos",
+        "other": "Švedijos kronų"
+      }
+    },
+    "SGD": {
+      "name": "Singapūro doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Singapūro doleriai",
+        "many": "Singapūro dolerio",
+        "other": "Singapūro dolerių"
+      }
+    },
+    "SHP": {
+      "name": "Šv. Elenos salų svaras",
+      "narrow": "£",
+      "plural": {
+        "few": "Šv. Elenos salų svarai",
+        "many": "Šv. Elenos salų svaro",
+        "other": "Šv. Elenos salų svarų"
+      }
+    },
+    "SIT": {
+      "name": "Slovėnijos tolaras",
+      "plural": {
+        "few": "Slovėnijos tolars",
+        "many": "Slovėnijos tolar",
+        "one": "Slovėnijos tolars",
+        "other": "Slovėnijos tolar"
+      }
+    },
+    "SKK": {
+      "name": "Slovakijos krona",
+      "plural": {
+        "few": "Slovakijos kronos",
+        "many": "Slovakijos kronos",
+        "other": "Slovakijos kronų"
+      }
+    },
+    "SLE": {
+      "name": "Siera Leonės leonė",
+      "plural": {
+        "few": "Siera Leonės leonės",
+        "many": "Siera Leonės leonės",
+        "other": "Siera Leonės leonių"
+      }
+    },
+    "SLL": {
+      "name": "Siera Leonės leonė (1964—2022)",
+      "plural": {
+        "few": "Siera Leonės leonės (1964—2022)",
+        "many": "Siera Leonės leonės (1964—2022)",
+        "other": "Siera Leonės leonių (1964—2022)"
+      }
+    },
+    "SOS": {
+      "name": "Somalio šilingas",
+      "plural": {
+        "few": "Somalio šilingai",
+        "many": "Somalio šilingo",
+        "other": "Somalio šilingų"
+      }
+    },
+    "SRD": {
+      "name": "Surimano doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Surimano doleriai",
+        "many": "Surimano dolerio",
+        "other": "Surimano dolerių"
+      }
+    },
+    "SRG": {
+      "name": "Surimano guldenas",
+      "plural": {
+        "few": "Surimano guldenai",
+        "many": "Surimano guldeno",
+        "other": "Surimano guldenų"
+      }
+    },
+    "SSP": {
+      "name": "Pietų Sudano svaras",
+      "narrow": "£",
+      "plural": {
+        "few": "Pietų Sudano svarai",
+        "many": "Pietų Sudano svaro",
+        "other": "Pietų Sudano svarų"
+      }
+    },
+    "STD": {
+      "name": "San Tomės ir Principės dobra (1977–2017)",
+      "plural": {
+        "few": "San Tomės ir Principės dobros (1977–2017)",
+        "many": "San Tomės ir Principės dobros (1977–2017)",
+        "other": "Sao Tomės ir Principės dobrų (1977–2017)"
+      }
+    },
+    "STN": {
+      "name": "San Tomės ir Principės dobra",
+      "narrow": "Db",
+      "plural": {
+        "few": "San Tomės ir Principės dobros",
+        "many": "San Tomės ir Principės dobros",
+        "other": "Sao Tomės ir Principės dobrų"
+      }
+    },
+    "SUR": {
+      "name": "Sovietų rublis",
+      "plural": {
+        "few": "Sovietų rubliai",
+        "many": "Sovietų rublio",
+        "other": "Sovietų rublių"
+      }
+    },
+    "SVC": {
+      "name": "Salvadoro kolonas",
+      "plural": {
+        "few": "Salvadoro kolonai",
+        "many": "Salvadoro kolonai",
+        "other": "Salvadoro kolonai"
+      }
+    },
+    "SYP": {
+      "name": "Sirijos svaras",
+      "narrow": "£",
+      "plural": {
+        "few": "Sirijos svarai",
+        "many": "Sirijos svaro",
+        "other": "Sirijos svarų"
+      }
+    },
+    "SZL": {
+      "name": "Svazilando lilangenis",
+      "plural": {
+        "few": "Svazilando lilangeniai",
+        "many": "Svazilendo lilangenio",
+        "other": "Svazilendo lilangenių"
+      }
+    },
+    "THB": {
+      "name": "Tailando batas",
+      "narrow": "฿",
+      "plural": {
+        "few": "Tailando batai",
+        "many": "Tailando bato",
+        "other": "Tailando batų"
+      }
+    },
+    "TJR": {
+      "name": "Tadžikistano rublis",
+      "plural": {
+        "few": "Tadžikistano rubliai",
+        "many": "Tadžikistano rublio",
+        "other": "Tadžikistano rublių"
+      }
+    },
+    "TJS": {
+      "name": "Tadžikistano somonis",
+      "plural": {
+        "few": "Tadžikistano somoniai",
+        "many": "Tadžikistano somonio",
+        "other": "Tadžikistano somonių"
+      }
+    },
+    "TMM": {
+      "name": "Turkmėnistano manatas (1993–2009)",
+      "plural": {
+        "few": "Turkmėnistano manatai (1993–2009)",
+        "many": "Turkmėnistano manato (1993–2009)",
+        "other": "Turkmėnistano manatų (1993–2009)"
+      }
+    },
+    "TMT": {
+      "name": "Turkmėnistano manatas",
+      "plural": {
+        "few": "Turkmėnistano manatai",
+        "many": "Turkmėnistano manato",
+        "other": "Turkmėnistano manatų"
+      }
+    },
+    "TND": {
+      "name": "Tuniso dinaras",
+      "plural": {
+        "few": "Tuniso dinarai",
+        "many": "Tuniso dinaro",
+        "other": "Tuniso dinarų"
+      }
+    },
+    "TOP": {
+      "name": "Tongo paanga",
+      "narrow": "T$",
+      "plural": {
+        "few": "Tongo paangos",
+        "many": "Tongo paangos",
+        "other": "Tongo paangų"
+      }
+    },
+    "TPE": {
+      "name": "Timoro eskudas",
+      "plural": {
+        "few": "Timoro eskudai",
+        "many": "Timoro eskudo",
+        "other": "Timoro eskudų"
+      }
+    },
+    "TRL": {
+      "name": "Turkijos lira (1922–2005)",
+      "plural": {
+        "few": "Turkijos liros (1922–2005)",
+        "many": "Turkijos liros (1922–2005)",
+        "other": "Turkijos lirų (1922–2005)"
+      }
+    },
+    "TRY": {
+      "name": "Turkijos lira",
+      "narrow": "₺",
+      "plural": {
+        "few": "Turkijos liros",
+        "many": "Turkijos liros",
+        "other": "Turkijos lirų"
+      }
+    },
+    "TTD": {
+      "name": "Trinidado ir Tobago doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Trinidado ir Tobago doleriai",
+        "many": "Trinidado ir Tobago dolerio",
+        "other": "Trinidado ir Tobago dolerių"
+      }
+    },
+    "TWD": {
+      "name": "Taivano naujasis doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Taivano naujieji doleriai",
+        "many": "Taivano naujojo dolerio",
+        "other": "Taivano naujųjų dolerių"
+      }
+    },
+    "TZS": {
+      "name": "Tanzanijos šilingas",
+      "plural": {
+        "few": "Tanzanijos šilingai",
+        "many": "Tanzanijos šilingo",
+        "other": "Tanzanijos šilingų"
+      }
+    },
+    "UAH": {
+      "name": "Ukrainos grivina",
+      "narrow": "₴",
+      "plural": {
+        "few": "Ukrainos grivinos",
+        "many": "Ukrainos grivinos",
+        "other": "Ukrainos grivinų"
+      }
+    },
+    "UAK": {
+      "name": "Ukrainos karbovanecas",
+      "plural": {
+        "few": "Ukrainos karbovantsiv",
+        "many": "Ukrainos karbovantsiv",
+        "one": "Ukrainos karbovanets",
+        "other": "Ukrainos karbovantsiv"
+      }
+    },
+    "UGS": {
+      "name": "Ugandos šilingas (1966–1987)",
+      "plural": {
+        "few": "Ugandos šilingai (1966–1987)",
+        "many": "Ugandos šilingo (1966–1987)",
+        "other": "Ugandos šilingų (1966–1987)"
+      }
+    },
+    "UGX": {
+      "name": "Ugandos šilingas",
+      "plural": {
+        "few": "Ugandos šilingai",
+        "many": "Ugandos šilingo",
+        "other": "Ugandos šilingų"
+      }
+    },
+    "USD": {
+      "name": "JAV doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "JAV doleriai",
+        "many": "JAV dolerio",
+        "other": "JAV dolerių"
+      }
+    },
+    "USN": {
+      "name": "JAV doleris (kitos dienos)",
+      "plural": {
+        "few": "JAV doleriai (kitą dieną)",
+        "many": "JAV dolerio (kitą dieną)",
+        "one": "JAV doleris (kitą dieną)",
+        "other": "JAV dolerių (kitą dieną)"
+      }
+    },
+    "USS": {
+      "name": "JAV doleris (šios dienos)",
+      "plural": {
+        "few": "JAV doleriai (tą pačią dieną)",
+        "many": "JAV dolerio (tą pačią dieną)",
+        "one": "JAV doleris (tą pačią dieną)",
+        "other": "JAV dolerių (tą pačią dieną)"
+      }
+    },
+    "UYI": {
+      "name": "Urugvajaus pesai en unidades indexadas",
+      "plural": {
+        "few": "Uragvajaus pesai en unidades indexadas",
+        "one": "Urugvajaus pesas en unidades indexadas"
+      }
+    },
+    "UYP": {
+      "name": "Urugvajaus pesas (1975–1993)",
+      "plural": {
+        "few": "Urugvajaus pesai (1975–1993)",
+        "many": "Urugvajaus peso (1975–1993)",
+        "other": "Urugvajaus pesų (1975–1993)"
+      }
+    },
+    "UYU": {
+      "name": "Urugvajaus pesas",
+      "narrow": "$",
+      "plural": {
+        "few": "Urugvajaus pesai",
+        "many": "Urugvajaus peso",
+        "other": "Urugvajaus pesų"
+      }
+    },
+    "UZS": {
+      "name": "Uzbekistano sumas",
+      "plural": {
+        "few": "Uzbekistano sumai",
+        "many": "Uzbekistano sumo",
+        "other": "Uzbekistano sumų"
+      }
+    },
+    "VEB": {
+      "name": "Venesuelos bolivaras (1871–2008)",
+      "plural": {
+        "few": "Venesuelos bolivarai (1871–2008)",
+        "many": "Venesuelos bolivaro (1871–2008)",
+        "other": "Venesuelos bolivarų (1871–2008)"
+      }
+    },
+    "VEF": {
+      "name": "Venesuelos bolivaras (2008–2018)",
+      "narrow": "Bs",
+      "plural": {
+        "few": "Venesuelos bolivarai (2008–2018)",
+        "many": "Venesuelos bolivaro (2008–2018)",
+        "other": "Venesuelos bolivarų (2008–2018)"
+      }
+    },
+    "VES": {
+      "name": "Venesuelos bolivaras",
+      "plural": {
+        "few": "Venesuelos bolivarai",
+        "many": "Venesuelos bolivaro",
+        "other": "Venesuelos bolivarų"
+      }
+    },
+    "VND": {
+      "name": "Vietnamo dongas",
+      "plural": {
+        "few": "Vietnamo dongai",
+        "many": "Vietnamo dongo",
+        "other": "Vietnamo dongų"
+      }
+    },
+    "VNN": {
+      "name": "Vietnamo dongas (1978–1985)",
+      "plural": {
+        "few": "Vietnamo dongai (1978–1985)",
+        "many": "Vietnamo dongo (1978–1985)",
+        "other": "Vietnamo dongų (1978–1985)"
+      }
+    },
+    "VUV": {
+      "name": "Vanuatu vatas",
+      "plural": {
+        "few": "Vanuatu vatai",
+        "many": "Vanuatu vato",
+        "other": "Vanuatu vatų"
+      }
+    },
+    "WST": {
+      "name": "Samoa tala",
+      "plural": {
+        "few": "Samoa talos",
+        "many": "Samoa talos",
+        "other": "Samoa talų"
+      }
+    },
+    "XAF": {
+      "name": "CFA BEAC frankas",
+      "plural": {
+        "few": "CFA BEAC frankai",
+        "many": "CFA BEAC franko",
+        "other": "CFA BEAC frankų"
+      }
+    },
+    "XAG": {
+      "name": "Sidabras"
+    },
+    "XAU": {
+      "name": "Auksas"
+    },
+    "XBA": {
+      "name": "Europos suvestinės vienetas",
+      "plural": {
+        "few": "Europos suvestinės vienetai",
+        "many": "Europos suvestinės vienetai",
+        "other": "Europos suvestinės vienetai"
+      }
+    },
+    "XBB": {
+      "name": "Europos piniginis vienetas",
+      "plural": {
+        "few": "Europos piniginiai vienetai",
+        "many": "Europos piniginiai vienetai",
+        "other": "Europos piniginiai vienetai"
+      }
+    },
+    "XBC": {
+      "name": "Europos valiutos / apskaitos vienetas (XBC)",
+      "plural": {
+        "few": "Europos valiutos / apskaitos vienetai (XBC)",
+        "many": "Europos valiutos / apskaitos vienetai (XBC)",
+        "other": "Europos valiutos / apskaitos vienetai (XBC)"
+      }
+    },
+    "XBD": {
+      "name": "Europos valiutos / apskaitos vienetas (XBD)",
+      "plural": {
+        "many": "Europos valiutos / apskaitos vienetai (XBD)",
+        "other": "Europos valiutos / apskaitos vienetai (XBD)"
+      }
+    },
+    "XCD": {
+      "name": "Rytų Karibų doleris",
+      "narrow": "$",
+      "plural": {
+        "few": "Rytų Karibų doleriai",
+        "many": "Rytų Karibų dolerio",
+        "other": "Rytų Karibų dolerių"
+      }
+    },
+    "XCG": {
+      "name": "Karibų guldenas",
+      "plural": {
+        "few": "Karibų guldenai",
+        "many": "Karibų guldeno",
+        "other": "Karibų guldenų"
+      },
+      "symbol": "Cg."
+    },
+    "XDR": {
+      "name": "SDR tarptautinis valiutos fondas"
+    },
+    "XEU": {
+      "name": "Europos piniginis vienetas (1993–1999)"
+    },
+    "XFO": {
+      "name": "Aukso frankas",
+      "plural": {
+        "few": "Aukso frankai",
+        "many": "Aukso franko",
+        "other": "Aukso frankų"
+      }
+    },
+    "XFU": {
+      "name": "Prancūzijos UIC - frankas",
+      "plural": {
+        "few": "Prancūzijos UIC - frankai",
+        "many": "Prancūzijos UIC - franko",
+        "other": "Prancūzijos UIC - frankų"
+      }
+    },
+    "XOF": {
+      "name": "CFA BCEAO frankas",
+      "plural": {
+        "few": "CFA BCEAO frankai",
+        "many": "CFA BCEAO franko",
+        "other": "CFA BCEAO frankų"
+      }
+    },
+    "XPD": {
+      "name": "Paladis"
+    },
+    "XPF": {
+      "name": "CFP frankas",
+      "plural": {
+        "few": "CFP frankai",
+        "many": "CFP franko",
+        "other": "CFP frankų"
+      }
+    },
+    "XPT": {
+      "name": "Platina"
+    },
+    "XRE": {
+      "name": "RINET fondai",
+      "plural": {
+        "one": "RINET fondas"
+      }
+    },
+    "XSU": {
+      "name": "Sukrė",
+      "plural": {
+        "few": "Sukrės",
+        "many": "Sukrės",
+        "other": "Sukrių"
+      }
+    },
+    "XTS": {
+      "name": "Tikrinamas valiutos kodas"
+    },
+    "XUA": {
+      "name": "Azijos plėtros banko apskaitos vienetas",
+      "plural": {
+        "few": "Azijos plėtros banko apskaitos vienetai",
+        "many": "Azijos plėtros banko apskaitos vieneto",
+        "other": "Azijos plėtros banko apskaitos vienetų"
+      }
+    },
+    "XXX": {
+      "name": "nežinoma valiuta",
+      "plural": {
+        "few": "(nežinoma valiuta)",
+        "many": "(nežinoma valiuta)",
+        "one": "(nežinoma valiuta)",
+        "other": "(nežinoma valiuta)"
+      },
+      "symbol": "¤"
+    },
+    "YDD": {
+      "name": "Jemeno dinaras",
+      "plural": {
+        "few": "Jemeno dinarai",
+        "many": "Jemeno dinaro",
+        "other": "Jemeno dinarų"
+      }
+    },
+    "YER": {
+      "name": "Jemeno rialas",
+      "plural": {
+        "few": "Jemeno rialai",
+        "many": "Jemeno rialo",
+        "other": "Jemeno rialų"
+      }
+    },
+    "YUD": {
+      "name": "Jugoslavijos kietasis dinaras (1966–1990)",
+      "plural": {
+        "few": "Jugoslavijos kietieji dinarai (1966–1990)",
+        "many": "Jugoslavijos kietiejo dinaro (1966–1990)",
+        "other": "Jugoslavijos kietiejų dinarų (1966–1990)"
+      }
+    },
+    "YUM": {
+      "name": "Jugoslavijos naujasis dinaras (1994–2002)",
+      "plural": {
+        "few": "Jugoslavijos naujieji dinarai (1994–2002)",
+        "many": "Jugoslavijos naujojo dinaro (1994–2002)",
+        "other": "Jugoslavijos naujųjų dinarų (1994–2002)"
+      }
+    },
+    "YUN": {
+      "name": "Jugoslavijos konvertuojamas dinaras (1990–1992)",
+      "plural": {
+        "few": "Jugoslavijos konvertuojami dinarai (1990–1992)",
+        "many": "Jugoslavijos konvertuojamo dinaro (1990–1992)",
+        "other": "Jugoslavijos konvertuojamų dinarų (1990–1992)"
+      }
+    },
+    "YUR": {
+      "name": "Jugoslavijos reformuotas dinaras (1992–1993)",
+      "plural": {
+        "few": "Jugoslavijos reformuoti dinarai (1992–1993)",
+        "many": "Jugoslavijos reformuoto dinaro (1992–1993)",
+        "other": "Jugoslavijos reformuotų dinarų (1992–1993)"
+      }
+    },
+    "ZAL": {
+      "name": "Pietų Afrikos finansinis randas",
+      "plural": {
+        "few": "Pietų Afrikos randai (finansinis)",
+        "many": "Pietų Afrikos rando (finansinis)",
+        "one": "Pietų Afrikos randas (finansinis)",
+        "other": "Pietų Afrikos randų (finansinis)"
+      }
+    },
+    "ZAR": {
+      "name": "Pietų Afrikos Respublikos randas",
+      "narrow": "R",
+      "plural": {
+        "few": "Pietų Afrikos Respublikos randai",
+        "many": "Pietų Afrikos Respublikos rando",
+        "other": "Pietų Afrikos Respublikos randų"
+      }
+    },
+    "ZMK": {
+      "name": "Zambijos kvača (1968–2012)",
+      "plural": {
+        "few": "Zambijos kvačos (1968–2012)",
+        "many": "Zambijos kvačos (1968–2012)",
+        "other": "Zambijos kvačų (1968–2012)"
+      }
+    },
+    "ZMW": {
+      "name": "Zambijos kvača",
+      "narrow": "ZK",
+      "plural": {
+        "few": "Zambijos kvačos",
+        "many": "Zambijos kvačos",
+        "other": "Zambijos kvačų"
+      }
+    },
+    "ZRN": {
+      "name": "Zairo naujasis zairas (1993–1998)",
+      "plural": {
+        "few": "Zairo naujieji zairai (1993–1998)",
+        "many": "Zairo naujojo zairo (1993–1998)",
+        "other": "Zairo naujųjų zairų (1993–1998)"
+      }
+    },
+    "ZRZ": {
+      "name": "Zairo zairas (1971–1993)",
+      "plural": {
+        "few": "Zairo zairai (1971–1993)",
+        "many": "Zairo zairo (1971–1993)",
+        "other": "Zairo zairų (1971–1993)"
+      }
+    },
+    "ZWD": {
+      "name": "Zimbabvės doleris (1980–2008)",
+      "plural": {
+        "few": "Zimbabvės doleriai (1980–2008)",
+        "many": "Zimbabvės dolerio (1980–2008)",
+        "other": "Zimbabvės dolerių (1980–2008)"
+      }
+    },
+    "ZWG": {
+      "name": "Zimbabvės auksas"
+    },
+    "ZWL": {
+      "name": "Zimbabvės doleris (2009)",
+      "plural": {
+        "few": "Zimbabvės doleriai (2009)",
+        "many": "Zimbabvės dolerio (2009)",
+        "other": "Zimbabvės dolerių (2009)"
+      }
+    },
+    "ZWR": {
+      "name": "Zimbabvės doleris (2008)",
+      "plural": {
+        "few": "Zimbabvės doleriai (2008)",
+        "many": "Zimbabvės dolerio (2008)",
+        "other": "Zimbabvės dolerių (2008)"
+      }
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "lt",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "#,##0.00\u00a0¤",
+      "compactShort": {
+        "1000": {
+          "one": "0\u00a0tūkst'.'",
+          "other": "0\u00a0tūkst'.'"
+        },
+        "10000": {
+          "one": "00\u00a0tūkst'.'",
+          "other": "00\u00a0tūkst'.'"
+        },
+        "100000": {
+          "one": "000\u00a0tūkst'.'",
+          "other": "000\u00a0tūkst'.'"
+        },
+        "1000000": {
+          "one": "0\u00a0mln'.'",
+          "other": "0\u00a0mln'.'"
+        },
+        "10000000": {
+          "one": "00\u00a0mln'.'",
+          "other": "00\u00a0mln'.'"
+        },
+        "100000000": {
+          "one": "000\u00a0mln'.'",
+          "other": "000\u00a0mln'.'"
+        },
+        "1000000000": {
+          "one": "0\u00a0mlrd'.'",
+          "other": "0\u00a0mlrd'.'"
+        },
+        "10000000000": {
+          "one": "00\u00a0mlrd'.'",
+          "other": "00\u00a0mlrd'.'"
+        },
+        "100000000000": {
+          "one": "000\u00a0mlrd'.'",
+          "other": "000\u00a0mlrd'.'"
+        },
+        "1000000000000": {
+          "one": "0\u00a0trln'.'",
+          "other": "0\u00a0trln'.'"
+        },
+        "10000000000000": {
+          "one": "00\u00a0trln'.'",
+          "other": "00\u00a0trln'.'"
+        },
+        "100000000000000": {
+          "one": "000\u00a0trln'.'",
+          "other": "000\u00a0trln'.'"
+        }
+      },
+      "currency": "#,##0.00\u00a0¤",
+      "decimal": "#,##0.###",
+      "percent": "#,##0\u00a0%",
+      "symbols": {
+        "approximatelySign": "∼",
+        "decimal": ",",
+        "exponential": "×10^",
+        "group": "\u00a0",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "−",
+        "nan": "NaN",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {
+      "few": "n % 10 = 2..9 and n % 100 != 11..19",
+      "many": "f != 0",
+      "one": "n % 10 = 1 and n % 100 != 11..19"
+    },
+    "ordinal": {}
+  },
+  "territories": {
+    "AC": "Dangun Žengimo sala",
+    "AD": "Andora",
+    "AE": "Jungtiniai Arabų Emyratai",
+    "AF": "Afganistanas",
+    "AG": "Antigva ir Barbuda",
+    "AI": "Angilija",
+    "AL": "Albanija",
+    "AM": "Armėnija",
+    "AO": "Angola",
+    "AQ": "Antarktida",
+    "AR": "Argentina",
+    "AS": "Amerikos Samoa",
+    "AT": "Austrija",
+    "AU": "Australija",
+    "AW": "Aruba",
+    "AX": "Alandų Salos",
+    "AZ": "Azerbaidžanas",
+    "BA": "Bosnija ir Hercegovina",
+    "BB": "Barbadosas",
+    "BD": "Bangladešas",
+    "BE": "Belgija",
+    "BF": "Burkina Fasas",
+    "BG": "Bulgarija",
+    "BH": "Bahreinas",
+    "BI": "Burundis",
+    "BJ": "Beninas",
+    "BL": "Sen Bartelemi",
+    "BM": "Bermuda",
+    "BN": "Brunėjus",
+    "BO": "Bolivija",
+    "BQ": "Karibų Nyderlandai",
+    "BR": "Brazilija",
+    "BS": "Bahamos",
+    "BT": "Butanas",
+    "BV": "Buvė Sala",
+    "BW": "Botsvana",
+    "BY": "Baltarusija",
+    "BZ": "Belizas",
+    "CA": "Kanada",
+    "CC": "Kokosų (Kilingo) Salos",
+    "CD": "Kongas-Kinšasa",
+    "CF": "Centrinės Afrikos Respublika",
+    "CG": "Kongas-Brazavilis",
+    "CH": "Šveicarija",
+    "CI": "Dramblio Kaulo Krantas",
+    "CK": "Kuko Salos",
+    "CL": "Čilė",
+    "CM": "Kamerūnas",
+    "CN": "Kinija",
+    "CO": "Kolumbija",
+    "CP": "Klipertono sala",
+    "CQ": "Sarkas",
+    "CR": "Kosta Rika",
+    "CU": "Kuba",
+    "CV": "Žaliasis Kyšulys",
+    "CW": "Kiurasao",
+    "CX": "Kalėdų Sala",
+    "CY": "Kipras",
+    "CZ": "Čekija",
+    "DE": "Vokietija",
+    "DG": "Diego Garsija",
+    "DJ": "Džibutis",
+    "DK": "Danija",
+    "DM": "Dominika",
+    "DO": "Dominikos Respublika",
+    "DZ": "Alžyras",
+    "EA": "Seuta ir Melila",
+    "EC": "Ekvadoras",
+    "EE": "Estija",
+    "EG": "Egiptas",
+    "EH": "Vakarų Sachara",
+    "ER": "Eritrėja",
+    "ES": "Ispanija",
+    "ET": "Etiopija",
+    "EU": "Europos Sąjunga",
+    "EZ": "euro zona",
+    "FI": "Suomija",
+    "FJ": "Fidžis",
+    "FK": "Folklando salos",
+    "FM": "Mikronezija",
+    "FO": "Farerų Salos",
+    "FR": "Prancūzija",
+    "GA": "Gabonas",
+    "GB": "Jungtinė Karalystė",
+    "GD": "Grenada",
+    "GE": "Gruzija",
+    "GF": "Prancūzijos Gviana",
+    "GG": "Gernsis",
+    "GH": "Gana",
+    "GI": "Gibraltaras",
+    "GL": "Grenlandija",
+    "GM": "Gambija",
+    "GN": "Gvinėja",
+    "GP": "Gvadelupa",
+    "GQ": "Pusiaujo Gvinėja",
+    "GR": "Graikija",
+    "GS": "Pietų Džordžija ir Pietų Sandvičo salos",
+    "GT": "Gvatemala",
+    "GU": "Guamas",
+    "GW": "Bisau Gvinėja",
+    "GY": "Gajana",
+    "HK": "Ypatingasis Administracinis Kinijos Regionas Honkongas",
+    "HM": "Herdo ir Makdonaldo Salos",
+    "HN": "Hondūras",
+    "HR": "Kroatija",
+    "HT": "Haitis",
+    "HU": "Vengrija",
+    "IC": "Kanarų salos",
+    "ID": "Indonezija",
+    "IE": "Airija",
+    "IL": "Izraelis",
+    "IM": "Meno Sala",
+    "IN": "Indija",
+    "IO": "Indijos Vandenyno Britų Sritis",
+    "IQ": "Irakas",
+    "IR": "Iranas",
+    "IS": "Islandija",
+    "IT": "Italija",
+    "JE": "Džersis",
+    "JM": "Jamaika",
+    "JO": "Jordanija",
+    "JP": "Japonija",
+    "KE": "Kenija",
+    "KG": "Kirgizija",
+    "KH": "Kambodža",
+    "KI": "Kiribatis",
+    "KM": "Komorai",
+    "KN": "Sent Kitsas ir Nevis",
+    "KP": "Šiaurės Korėja",
+    "KR": "Pietų Korėja",
+    "KW": "Kuveitas",
+    "KY": "Kaimanų Salos",
+    "KZ": "Kazachstanas",
+    "LA": "Laosas",
+    "LB": "Libanas",
+    "LC": "Sent Lusija",
+    "LI": "Lichtenšteinas",
+    "LK": "Šri Lanka",
+    "LR": "Liberija",
+    "LS": "Lesotas",
+    "LT": "Lietuva",
+    "LU": "Liuksemburgas",
+    "LV": "Latvija",
+    "LY": "Libija",
+    "MA": "Marokas",
+    "MC": "Monakas",
+    "MD": "Moldova",
+    "ME": "Juodkalnija",
+    "MF": "Sen Martenas",
+    "MG": "Madagaskaras",
+    "MH": "Maršalo Salos",
+    "MK": "Šiaurės Makedonija",
+    "ML": "Malis",
+    "MM": "Mianmaras (Birma)",
+    "MN": "Mongolija",
+    "MO": "Ypatingasis Administracinis Kinijos Regionas Makao",
+    "MP": "Marianos Šiaurinės Salos",
+    "MQ": "Martinika",
+    "MR": "Mauritanija",
+    "MS": "Montseratas",
+    "MT": "Malta",
+    "MU": "Mauricijus",
+    "MV": "Maldyvai",
+    "MW": "Malavis",
+    "MX": "Meksika",
+    "MY": "Malaizija",
+    "MZ": "Mozambikas",
+    "NA": "Namibija",
+    "NC": "Naujoji Kaledonija",
+    "NE": "Nigeris",
+    "NF": "Norfolko sala",
+    "NG": "Nigerija",
+    "NI": "Nikaragva",
+    "NL": "Nyderlandai",
+    "NO": "Norvegija",
+    "NP": "Nepalas",
+    "NR": "Nauru",
+    "NU": "Niujė",
+    "NZ": "Naujoji Zelandija",
+    "OM": "Omanas",
+    "PA": "Panama",
+    "PE": "Peru",
+    "PF": "Prancūzijos Polinezija",
+    "PG": "Papua Naujoji Gvinėja",
+    "PH": "Filipinai",
+    "PK": "Pakistanas",
+    "PL": "Lenkija",
+    "PM": "Sen Pjeras ir Mikelonas",
+    "PN": "Pitkerno salos",
+    "PR": "Puerto Rikas",
+    "PS": "Palestinos teritorija",
+    "PT": "Portugalija",
+    "PW": "Palau",
+    "PY": "Paragvajus",
+    "QA": "Kataras",
+    "QO": "Nuošali Okeanija",
+    "RE": "Reunjonas",
+    "RO": "Rumunija",
+    "RS": "Serbija",
+    "RU": "Rusija",
+    "RW": "Ruanda",
+    "SA": "Saudo Arabija",
+    "SB": "Saliamono Salos",
+    "SC": "Seišeliai",
+    "SD": "Sudanas",
+    "SE": "Švedija",
+    "SG": "Singapūras",
+    "SH": "Šv. Elenos Sala",
+    "SI": "Slovėnija",
+    "SJ": "Svalbardas ir Janas Majenas",
+    "SK": "Slovakija",
+    "SL": "Siera Leonė",
+    "SM": "San Marinas",
+    "SN": "Senegalas",
+    "SO": "Somalis",
+    "SR": "Surinamas",
+    "SS": "Pietų Sudanas",
+    "ST": "San Tomė ir Prinsipė",
+    "SV": "Salvadoras",
+    "SX": "Sint Martenas",
+    "SY": "Sirija",
+    "SZ": "Svazilandas",
+    "TA": "Tristano da Kunjos",
+    "TC": "Terkso ir Kaikoso Salos",
+    "TD": "Čadas",
+    "TF": "Prancūzijos Pietų sritys",
+    "TG": "Togas",
+    "TH": "Tailandas",
+    "TJ": "Tadžikija",
+    "TK": "Tokelau",
+    "TL": "Rytų Timoras",
+    "TM": "Turkmėnistanas",
+    "TN": "Tunisas",
+    "TO": "Tonga",
+    "TR": "Turkija",
+    "TT": "Trinidadas ir Tobagas",
+    "TV": "Tuvalu",
+    "TW": "Taivanas",
+    "TZ": "Tanzanija",
+    "UA": "Ukraina",
+    "UG": "Uganda",
+    "UM": "Jungtinių Valstijų Mažosios Tolimosios Salos",
+    "UN": "Jungtinės Tautos",
+    "US": "Jungtinės Valstijos",
+    "UY": "Urugvajus",
+    "UZ": "Uzbekistanas",
+    "VA": "Vatikano Miesto Valstybė",
+    "VC": "Šventasis Vincentas ir Grenadinai",
+    "VE": "Venesuela",
+    "VG": "Didžiosios Britanijos Mergelių Salos",
+    "VI": "Jungtinių Valstijų Mergelių Salos",
+    "VN": "Vietnamas",
+    "VU": "Vanuatu",
+    "WF": "Volisas ir Futūna",
+    "WS": "Samoa",
+    "XA": "pseudo A",
+    "XB": "pseudo B",
+    "XK": "Kosovas",
+    "YE": "Jemenas",
+    "YT": "Majotas",
+    "ZA": "Pietų Afrika",
+    "ZM": "Zambija",
+    "ZW": "Zimbabvė"
+  }
+}

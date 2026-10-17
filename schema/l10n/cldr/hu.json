@@ -1,0 +1,2024 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d., E",
+        "Eh": "E a\u202fh",
+        "Ehm": "E h:mm",
+        "Ehms": "E h:mm:ss",
+        "GGGGGyMd": "GGGGG y. M. d.",
+        "Gy": "G y.",
+        "GyM": "G y. M.",
+        "GyMEd": "E, M/d/y G",
+        "GyMMM": "G y. MMM",
+        "GyMMMEd": "G y. MMM d., E",
+        "GyMMMMEEEEd": "G y. MMMM d., EEEE",
+        "GyMMMMd": "G y. MMMM d.",
+        "GyMMMd": "G y. MMM d.",
+        "GyMd": "G y. M. d.",
+        "H": "H",
+        "Hm": "H:mm",
+        "Hmm": "H:mm",
+        "Hmmss": "H:mm:ss",
+        "Hms": "H:mm:ss",
+        "M": "L",
+        "MEd": "M. d., E",
+        "MMM": "LLL",
+        "MMMEd": "MMM d., E",
+        "MMMMd": "MMMM d.",
+        "MMMd": "MMM d.",
+        "Md": "M. d.",
+        "d": "d",
+        "h": "a\u202fh",
+        "hm": "a\u202fh:mm",
+        "hms": "a\u202fh:mm:ss",
+        "ms": "mm:ss",
+        "y": "G y.",
+        "yyyy": "G y.",
+        "yyyyM": "G y. MM.",
+        "yyyyMEd": "G y. MM. dd., E",
+        "yyyyMMM": "G y. MMM",
+        "yyyyMMMEd": "G y. MMM d., E",
+        "yyyyMMMM": "G y. MMMM",
+        "yyyyMMMd": "G y. MMM d.",
+        "yyyyMd": "G y. MM. dd."
+      },
+      "dateFormats": {
+        "full": "G y. MMMM d., EEEE",
+        "long": "G y. MMMM d.",
+        "medium": "G y. MMM d.",
+        "short": "GGGGG y. M. d."
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "de.",
+            "pm": "du."
+          },
+          "wide": {
+            "am": "de.",
+            "pm": "du."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "de.",
+            "pm": "du."
+          },
+          "wide": {
+            "am": "de.",
+            "pm": "du."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "short": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "wide": ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"]
+        },
+        "standAlone": {
+          "abbreviated": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "short": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "wide": ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        },
+        "standAlone": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        }
+      },
+      "timeFormats": {
+        "full": "H:mm:ss zzzz",
+        "long": "H:mm:ss z",
+        "medium": "H:mm:ss",
+        "short": "H:mm"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d., E",
+        "Eh": "E a\u202fh",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "Gy": "G y.",
+        "GyM": "G y. MM.",
+        "GyMEd": "G y. MM. dd., E",
+        "GyMMM": "G y. MMM",
+        "GyMMMEd": "G y. MMM d., E",
+        "GyMMMd": "G y. MMM d.",
+        "GyMd": "GGGGG y. MM. dd.",
+        "H": "H",
+        "Hm": "H:mm",
+        "Hmm": "H:mm",
+        "Hmmss": "H:mm:ss",
+        "Hms": "H:mm:ss",
+        "M": "L",
+        "MEd": "M. d., E",
+        "MMM": "LLL",
+        "MMMEd": "MMM d., E",
+        "MMMMd": "MMMM d.",
+        "MMMd": "MMM d.",
+        "Md": "M. d.",
+        "d": "d",
+        "h": "a\u202fh",
+        "hm": "a\u202fh:mm",
+        "hms": "a\u202fh:mm:ss",
+        "mmss": "mm:ss",
+        "ms": "mm:ss",
+        "y": "y.",
+        "yM": "y. M.",
+        "yMEd": "y. MM. dd., E",
+        "yMMM": "y. MMM",
+        "yMMMEd": "y. MMM d., E",
+        "yMMMM": "y. MMMM",
+        "yMMMMEEEEd": "y. MMMM d., EEEE",
+        "yMMMMd": "y. MMMM d.",
+        "yMMMd": "y. MMM d.",
+        "yMMdd": "y. MM. dd.",
+        "yMd": "y. MM. dd."
+      },
+      "dateFormats": {
+        "full": "y. MMMM d., EEEE",
+        "long": "y. MMMM d.",
+        "medium": "y. MMM d.",
+        "short": "y. MM. dd."
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "de.",
+            "pm": "du."
+          },
+          "narrow": {
+            "am": "de.",
+            "pm": "du."
+          },
+          "wide": {
+            "am": "de.",
+            "pm": "du."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "de.",
+            "pm": "du."
+          },
+          "narrow": {
+            "am": "de.",
+            "pm": "du."
+          },
+          "wide": {
+            "am": "de.",
+            "pm": "du."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "narrow": ["V", "H", "K", "Sz", "Cs", "P", "Sz"],
+          "short": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "wide": ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"]
+        },
+        "standAlone": {
+          "abbreviated": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "narrow": ["V", "H", "K", "Sz", "Cs", "P", "Sz"],
+          "short": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "wide": ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["i. e.", "i. sz."],
+        "narrow": ["ie.", "isz."],
+        "wide": ["Krisztus előtt", "időszámításunk szerint"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["jan.", "febr.", "márc.", "ápr.", "máj.", "jún.", "júl.", "aug.", "szept.", "okt.", "nov.", "dec."],
+          "narrow": ["J", "F", "M", "Á", "M", "J", "J", "A", "Sz", "O", "N", "D"],
+          "wide": ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"]
+        },
+        "standAlone": {
+          "abbreviated": ["jan.", "febr.", "márc.", "ápr.", "máj.", "jún.", "júl.", "aug.", "szept.", "okt.", "nov.", "dec."],
+          "narrow": ["J", "F", "M", "Á", "M", "J", "J", "A", "Sz", "O", "N", "D"],
+          "wide": ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"]
+        }
+      },
+      "timeFormats": {
+        "full": "H:mm:ss zzzz",
+        "long": "H:mm:ss z",
+        "medium": "H:mm:ss",
+        "short": "H:mm"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d., E",
+        "Eh": "E a\u202fh",
+        "Ehm": "E h:mm",
+        "Ehms": "E h:mm:ss",
+        "GGGGGyMd": "GGGGG y. M. d.",
+        "Gy": "G y.",
+        "GyM": "G y. M.",
+        "GyMEd": "E, M/d/y G",
+        "GyMMM": "G y. MMM",
+        "GyMMMEd": "G y. MMM d., E",
+        "GyMMMMEEEEd": "G y. MMMM d., EEEE",
+        "GyMMMMd": "G y. MMMM d.",
+        "GyMMMd": "G y. MMM d.",
+        "GyMd": "G y. M. d.",
+        "H": "H",
+        "Hm": "H:mm",
+        "Hmm": "H:mm",
+        "Hmmss": "H:mm:ss",
+        "Hms": "H:mm:ss",
+        "M": "L",
+        "MEd": "M. d., E",
+        "MMM": "LLL",
+        "MMMEd": "MMM d., E",
+        "MMMMd": "MMMM d.",
+        "MMMd": "MMM d.",
+        "Md": "M. d.",
+        "d": "d",
+        "h": "a\u202fh",
+        "hm": "a\u202fh:mm",
+        "hms": "a\u202fh:mm:ss",
+        "ms": "mm:ss",
+        "y": "G y.",
+        "yyyy": "G y.",
+        "yyyyM": "G y. MM.",
+        "yyyyMEd": "G y. MM. dd., E",
+        "yyyyMMM": "G y. MMM",
+        "yyyyMMMEd": "G y. MMM d., E",
+        "yyyyMMMM": "G y. MMMM",
+        "yyyyMMMd": "G y. MMM d.",
+        "yyyyMd": "G y. MM. dd."
+      },
+      "dateFormats": {
+        "full": "G y. MMMM d., EEEE",
+        "long": "G y. MMMM d.",
+        "medium": "G y. MMM d.",
+        "short": "GGGGG y. M. d."
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "de.",
+            "pm": "du."
+          },
+          "wide": {
+            "am": "de.",
+            "pm": "du."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "de.",
+            "pm": "du."
+          },
+          "wide": {
+            "am": "de.",
+            "pm": "du."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "short": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "wide": ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"]
+        },
+        "standAlone": {
+          "abbreviated": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "short": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "wide": ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["MF", "BH"],
+        "wide": ["MF", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Moh.", "Saf.", "Réb. 1", "Réb. 2", "Dsem. I", "Dsem. II", "Red.", "Sab.", "Ram.", "Sev.", "Dsül k.", "Dsül h."],
+          "wide": ["Moharrem", "Safar", "Rébi el avvel", "Rébi el accher", "Dsemádi el avvel", "Dsemádi el accher", "Redseb", "Sabán", "Ramadán", "Sevvál", "Dsül kade", "Dsül hedse"]
+        },
+        "standAlone": {
+          "abbreviated": ["Moh.", "Saf.", "Réb. 1", "Réb. 2", "Dsem. I", "Dsem. II", "Red.", "Sab.", "Ram.", "Sev.", "Dsül k.", "Dsül h."],
+          "wide": ["Moharrem", "Safar", "Rébi I", "Rébi II", "Dsemádi I", "Dsemádi II", "Redseb", "Sabán", "Ramadán", "Sevvál", "Dsül kade", "Dsül hedse"]
+        }
+      },
+      "timeFormats": {
+        "full": "H:mm:ss zzzz",
+        "long": "H:mm:ss z",
+        "medium": "H:mm:ss",
+        "short": "H:mm"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d., E",
+        "Eh": "E a\u202fh",
+        "Ehm": "E h:mm",
+        "Ehms": "E h:mm:ss",
+        "GGGGGyMd": "GGGGG y. M. d.",
+        "Gy": "G y.",
+        "GyM": "G y. M.",
+        "GyMEd": "E, M/d/y G",
+        "GyMMM": "G y. MMM",
+        "GyMMMEd": "G y. MMM d., E",
+        "GyMMMMEEEEd": "G y. MMMM d., EEEE",
+        "GyMMMMd": "G y. MMMM d.",
+        "GyMMMd": "G y. MMM d.",
+        "GyMd": "G y. M. d.",
+        "H": "H",
+        "Hm": "H:mm",
+        "Hmm": "H:mm",
+        "Hmmss": "H:mm:ss",
+        "Hms": "H:mm:ss",
+        "M": "L",
+        "MEd": "M. d., E",
+        "MMM": "LLL",
+        "MMMEd": "MMM d., E",
+        "MMMMd": "MMMM d.",
+        "MMMd": "MMM d.",
+        "Md": "M. d.",
+        "d": "d",
+        "h": "a\u202fh",
+        "hm": "a\u202fh:mm",
+        "hms": "a\u202fh:mm:ss",
+        "ms": "mm:ss",
+        "y": "G y.",
+        "yyyy": "G y.",
+        "yyyyM": "G y. MM.",
+        "yyyyMEd": "G y. MM. dd., E",
+        "yyyyMMM": "G y. MMM",
+        "yyyyMMMEd": "G y. MMM d., E",
+        "yyyyMMMM": "G y. MMMM",
+        "yyyyMMMd": "G y. MMM d.",
+        "yyyyMd": "G y. MM. dd."
+      },
+      "dateFormats": {
+        "full": "G y. MMMM d., EEEE",
+        "long": "G y. MMMM d.",
+        "medium": "G y. MMM d.",
+        "short": "GGGGG y. M. d."
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "de.",
+            "pm": "du."
+          },
+          "wide": {
+            "am": "de.",
+            "pm": "du."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "de.",
+            "pm": "du."
+          },
+          "wide": {
+            "am": "de.",
+            "pm": "du."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "short": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "wide": ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"]
+        },
+        "standAlone": {
+          "abbreviated": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "short": ["V", "H", "K", "Sze", "Cs", "P", "Szo"],
+          "wide": ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AP"],
+        "wide": ["AP"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["farvardin", "ordibehesht", "khordad", "tir", "mordad", "shahrivar", "mehr", "aban", "azar", "dey", "bahman", "esfand"],
+          "wide": ["farvardin", "ordibehesht", "khordad", "tir", "mordad", "shahrivar", "mehr", "aban", "azar", "dey", "bahman", "esfand"]
+        },
+        "standAlone": {
+          "abbreviated": ["farvardin", "ordibehesht", "khordad", "tir", "mordad", "shahrivar", "mehr", "aban", "azar", "dey", "bahman", "esfand"],
+          "wide": ["farvardin", "ordibehesht", "khordad", "tir", "mordad", "shahrivar", "mehr", "aban", "azar", "dey", "bahman", "esfand"]
+        }
+      },
+      "timeFormats": {
+        "full": "H:mm:ss zzzz",
+        "long": "H:mm:ss z",
+        "medium": "H:mm:ss",
+        "short": "H:mm"
+      }
+    }
+  },
+  "currencies": {
+    "ADP": {
+      "name": "Andorrai peseta"
+    },
+    "AED": {
+      "name": "EAE-dirham"
+    },
+    "AFA": {
+      "name": "afgán afghani (1927–2002)"
+    },
+    "AFN": {
+      "name": "afgán afghani",
+      "narrow": "؋"
+    },
+    "ALK": {
+      "name": "albán lek (1946–1965)"
+    },
+    "ALL": {
+      "name": "albán lek"
+    },
+    "AMD": {
+      "name": "örmény dram",
+      "narrow": "֏"
+    },
+    "ANG": {
+      "name": "holland antilláki forint"
+    },
+    "AOA": {
+      "name": "angolai kwanza",
+      "narrow": "Kz"
+    },
+    "AOK": {
+      "name": "Angolai kwanza (1977–1990)"
+    },
+    "AON": {
+      "name": "Angolai új kwanza (1990–2000)"
+    },
+    "AOR": {
+      "name": "Angolai kwanza reajustado (1995–1999)"
+    },
+    "ARA": {
+      "name": "Argentín austral",
+      "plural": {
+        "one": "Argentin austral",
+        "other": "Argentin austral"
+      }
+    },
+    "ARP": {
+      "name": "Argentín peso (1983–1985)"
+    },
+    "ARS": {
+      "name": "argentin peso",
+      "narrow": "$"
+    },
+    "ATS": {
+      "name": "Osztrák schilling"
+    },
+    "AUD": {
+      "name": "ausztrál dollár",
+      "narrow": "$"
+    },
+    "AWG": {
+      "name": "arubai florin"
+    },
+    "AZM": {
+      "name": "azerbajdzsáni manat (1993–2006)"
+    },
+    "AZN": {
+      "name": "azerbajdzsáni manat",
+      "narrow": "₼"
+    },
+    "BAD": {
+      "name": "Bosznia-hercegovinai dínár (1992–1994)"
+    },
+    "BAM": {
+      "name": "bosznia-hercegovinai konvertibilis márka",
+      "narrow": "KM"
+    },
+    "BAN": {
+      "name": "bosznia-hercegovinai új dínár (1994–1997)"
+    },
+    "BBD": {
+      "name": "barbadosi dollár",
+      "narrow": "$"
+    },
+    "BDT": {
+      "name": "bangladesi taka",
+      "narrow": "৳"
+    },
+    "BEC": {
+      "name": "Belga frank (konvertibilis)"
+    },
+    "BEF": {
+      "name": "Belga frank"
+    },
+    "BEL": {
+      "name": "Belga frank (pénzügyi)"
+    },
+    "BGL": {
+      "name": "Bolgár kemény leva"
+    },
+    "BGM": {
+      "name": "bolgár szocialista leva"
+    },
+    "BGN": {
+      "name": "bolgár új leva"
+    },
+    "BGO": {
+      "name": "bolgár leva (1879–1952)"
+    },
+    "BHD": {
+      "name": "bahreini dinár"
+    },
+    "BIF": {
+      "name": "burundi frank"
+    },
+    "BMD": {
+      "name": "bermudai dollár",
+      "narrow": "$"
+    },
+    "BND": {
+      "name": "brunei dollár",
+      "narrow": "$"
+    },
+    "BOB": {
+      "name": "bolíviai boliviano",
+      "narrow": "Bs"
+    },
+    "BOP": {
+      "name": "Bolíviai peso"
+    },
+    "BOV": {
+      "name": "Bolíviai mvdol"
+    },
+    "BRB": {
+      "name": "Brazi cruzeiro novo (1967–1986)"
+    },
+    "BRC": {
+      "name": "Brazi cruzado (1986–1989)"
+    },
+    "BRE": {
+      "name": "Brazil cruzeiro (1990–1993)"
+    },
+    "BRL": {
+      "name": "brazil real",
+      "narrow": "R$"
+    },
+    "BRN": {
+      "name": "Brazil cruzado novo (1989–1990)"
+    },
+    "BRR": {
+      "name": "Brazil cruzeiro (1993–1994)"
+    },
+    "BSD": {
+      "name": "bahamai dollár",
+      "narrow": "$"
+    },
+    "BTN": {
+      "name": "bhutáni ngultrum"
+    },
+    "BUK": {
+      "name": "Burmai kyat",
+      "plural": {
+        "one": "burmai kjap",
+        "other": "burmai kjap"
+      }
+    },
+    "BWP": {
+      "name": "botswanai pula",
+      "narrow": "P"
+    },
+    "BYB": {
+      "name": "Fehérorosz új rubel (1994–1999)",
+      "plural": {
+        "one": "fehérorosz új rubel (1994–1999)",
+        "other": "fehérorosz új rubel (1994–1999)"
+      }
+    },
+    "BYN": {
+      "name": "belarusz rubel",
+      "narrow": "р."
+    },
+    "BYR": {
+      "name": "fehérorosz rubel (2000–2016)"
+    },
+    "BZD": {
+      "name": "belize-i dollár",
+      "narrow": "$"
+    },
+    "CAD": {
+      "name": "kanadai dollár",
+      "narrow": "$"
+    },
+    "CDF": {
+      "name": "kongói frank"
+    },
+    "CHE": {
+      "name": "WIR euro"
+    },
+    "CHF": {
+      "name": "svájci frank"
+    },
+    "CHW": {
+      "name": "WIR frank"
+    },
+    "CLF": {
+      "name": "Chilei unidades de fomento"
+    },
+    "CLP": {
+      "name": "chilei peso",
+      "narrow": "$"
+    },
+    "CNH": {
+      "name": "kínai jüan (offshore)"
+    },
+    "CNY": {
+      "name": "kínai jüan",
+      "narrow": "¥"
+    },
+    "COP": {
+      "name": "kolumbiai peso",
+      "narrow": "$"
+    },
+    "COU": {
+      "name": "Unidad de Valor Real"
+    },
+    "CRC": {
+      "name": "Costa Rica-i colon",
+      "narrow": "₡"
+    },
+    "CSD": {
+      "name": "szerb dinár (2002–2006)"
+    },
+    "CSK": {
+      "name": "Csehszlovák kemény korona",
+      "plural": {
+        "one": "csehszlovák kemény korona",
+        "other": "csehszlovák kemény korona"
+      }
+    },
+    "CUC": {
+      "name": "kubai konvertibilis peso",
+      "narrow": "$"
+    },
+    "CUP": {
+      "name": "kubai peso",
+      "narrow": "$"
+    },
+    "CVE": {
+      "name": "Zöld-foki escudo"
+    },
+    "CYP": {
+      "name": "Ciprusi font"
+    },
+    "CZK": {
+      "name": "cseh korona",
+      "narrow": "Kč"
+    },
+    "DDM": {
+      "name": "Kelet-Német márka"
+    },
+    "DEM": {
+      "name": "Német márka"
+    },
+    "DJF": {
+      "name": "dzsibuti frank"
+    },
+    "DKK": {
+      "name": "dán korona",
+      "narrow": "kr"
+    },
+    "DOP": {
+      "name": "dominikai peso",
+      "narrow": "$"
+    },
+    "DZD": {
+      "name": "algériai dínár"
+    },
+    "ECS": {
+      "name": "Ecuadori sucre"
+    },
+    "ECV": {
+      "name": "Ecuadori Unidad de Valor Constante (UVC)"
+    },
+    "EEK": {
+      "name": "Észt korona",
+      "plural": {
+        "one": "észt korona",
+        "other": "észt korona"
+      }
+    },
+    "EGP": {
+      "name": "egyiptomi font",
+      "narrow": "E£"
+    },
+    "ERN": {
+      "name": "eritreai nakfa"
+    },
+    "ESA": {
+      "name": "spanyol peseta (A–kontó)"
+    },
+    "ESB": {
+      "name": "spanyol peseta (konvertibilis kontó)"
+    },
+    "ESP": {
+      "name": "Spanyol peseta",
+      "narrow": "₧",
+      "plural": {
+        "one": "spanyol peseta",
+        "other": "spanyol peseta"
+      }
+    },
+    "ETB": {
+      "name": "etiópiai birr"
+    },
+    "EUR": {
+      "name": "euró",
+      "narrow": "€"
+    },
+    "FIM": {
+      "name": "Finn markka"
+    },
+    "FJD": {
+      "name": "fidzsi dollár",
+      "narrow": "$"
+    },
+    "FKP": {
+      "name": "falkland-szigeteki font",
+      "narrow": "£"
+    },
+    "FRF": {
+      "name": "Francia frank"
+    },
+    "GBP": {
+      "name": "angol font",
+      "narrow": "£"
+    },
+    "GEK": {
+      "name": "Grúz kupon larit"
+    },
+    "GEL": {
+      "name": "grúz lari",
+      "narrow": "₾"
+    },
+    "GHC": {
+      "name": "Ghánai cedi (1979–2007)"
+    },
+    "GHS": {
+      "name": "ghánai cedi",
+      "narrow": "GH₵"
+    },
+    "GIP": {
+      "name": "gibraltári font",
+      "narrow": "£"
+    },
+    "GMD": {
+      "name": "gambiai dalasi"
+    },
+    "GNF": {
+      "name": "guineai frank",
+      "narrow": "FG"
+    },
+    "GNS": {
+      "name": "Guineai syli"
+    },
+    "GQE": {
+      "name": "Egyenlítői-guineai ekwele guineana",
+      "plural": {
+        "one": "Egyenlítői-guineai ekwele",
+        "other": "Egyenlítői-guineai ekwele"
+      }
+    },
+    "GRD": {
+      "name": "Görög drachma",
+      "plural": {
+        "one": "görög drachma",
+        "other": "görög drachma"
+      }
+    },
+    "GTQ": {
+      "name": "guatemalai quetzal",
+      "narrow": "Q"
+    },
+    "GWE": {
+      "name": "Portugál guinea escudo"
+    },
+    "GWP": {
+      "name": "Guinea-Bissaui peso"
+    },
+    "GYD": {
+      "name": "guyanai dollár",
+      "narrow": "$"
+    },
+    "HKD": {
+      "name": "hongkongi dollár",
+      "narrow": "$"
+    },
+    "HNL": {
+      "name": "hondurasi lempira",
+      "narrow": "L"
+    },
+    "HRD": {
+      "name": "Horvát dínár",
+      "plural": {
+        "one": "horvát dínár",
+        "other": "horvát dínár"
+      }
+    },
+    "HRK": {
+      "name": "horvát kuna",
+      "narrow": "kn"
+    },
+    "HTG": {
+      "name": "haiti gourde"
+    },
+    "HUF": {
+      "name": "magyar forint",
+      "symbol": "Ft"
+    },
+    "IDR": {
+      "name": "indonéz rúpia",
+      "narrow": "Rp"
+    },
+    "IEP": {
+      "name": "Ír font"
+    },
+    "ILP": {
+      "name": "Izraeli font"
+    },
+    "ILS": {
+      "name": "izraeli új sékel",
+      "narrow": "₪"
+    },
+    "INR": {
+      "name": "indiai rúpia",
+      "narrow": "₹"
+    },
+    "IQD": {
+      "name": "iraki dínár"
+    },
+    "IRR": {
+      "name": "iráni riál"
+    },
+    "ISK": {
+      "name": "izlandi korona",
+      "narrow": "kr"
+    },
+    "ITL": {
+      "name": "Olasz líra",
+      "plural": {
+        "one": "olasz líra",
+        "other": "olasz líra"
+      }
+    },
+    "JMD": {
+      "name": "jamaicai dollár",
+      "narrow": "$"
+    },
+    "JOD": {
+      "name": "jordániai dínár"
+    },
+    "JPY": {
+      "name": "japán jen",
+      "symbol": "¥"
+    },
+    "KES": {
+      "name": "kenyai shilling"
+    },
+    "KGS": {
+      "name": "kirgizisztáni szom",
+      "narrow": "⃀"
+    },
+    "KHR": {
+      "name": "kambodzsai riel",
+      "narrow": "៛"
+    },
+    "KMF": {
+      "name": "comorei frank",
+      "narrow": "CF"
+    },
+    "KPW": {
+      "name": "észak-koreai won",
+      "narrow": "₩"
+    },
+    "KRW": {
+      "name": "dél-koreai won",
+      "narrow": "₩"
+    },
+    "KWD": {
+      "name": "kuvaiti dínár"
+    },
+    "KYD": {
+      "name": "kajmán-szigeteki dollár",
+      "narrow": "$"
+    },
+    "KZT": {
+      "name": "kazahsztáni tenge",
+      "narrow": "₸"
+    },
+    "LAK": {
+      "name": "laoszi kip",
+      "narrow": "₭"
+    },
+    "LBP": {
+      "name": "libanoni font",
+      "narrow": "L£"
+    },
+    "LKR": {
+      "name": "Srí Lanka-i rúpia",
+      "narrow": "Rs"
+    },
+    "LRD": {
+      "name": "libériai dollár",
+      "narrow": "$"
+    },
+    "LSL": {
+      "name": "lesothoi loti"
+    },
+    "LTL": {
+      "name": "litvániai litas",
+      "narrow": "Lt"
+    },
+    "LTT": {
+      "name": "Litvániai talonas"
+    },
+    "LUC": {
+      "name": "luxemburgi konvertibilis frank"
+    },
+    "LUF": {
+      "name": "Luxemburgi frank"
+    },
+    "LUL": {
+      "name": "luxemburgi pénzügyi frank"
+    },
+    "LVL": {
+      "name": "lett lats",
+      "narrow": "Ls"
+    },
+    "LVR": {
+      "name": "Lett rubel"
+    },
+    "LYD": {
+      "name": "líbiai dínár"
+    },
+    "MAD": {
+      "name": "marokkói dirham"
+    },
+    "MAF": {
+      "name": "Marokkói frank"
+    },
+    "MDC": {
+      "name": "moldáv kupon"
+    },
+    "MDL": {
+      "name": "moldován lei"
+    },
+    "MGA": {
+      "name": "madagaszkári ariary",
+      "narrow": "Ar"
+    },
+    "MGF": {
+      "name": "Madagaszkári frank"
+    },
+    "MKD": {
+      "name": "macedón dénár"
+    },
+    "MKN": {
+      "name": "macedón dénár (1992–1993)"
+    },
+    "MLF": {
+      "name": "Mali frank"
+    },
+    "MMK": {
+      "name": "mianmari kyat",
+      "narrow": "K"
+    },
+    "MNT": {
+      "name": "mongóliai tugrik",
+      "narrow": "₮"
+    },
+    "MOP": {
+      "name": "makaói pataca"
+    },
+    "MRO": {
+      "name": "mauritániai ouguiya (1973–2017)"
+    },
+    "MRU": {
+      "name": "mauritániai ouguiya"
+    },
+    "MTL": {
+      "name": "Máltai líra",
+      "plural": {
+        "one": "máltai líra",
+        "other": "máltai líra"
+      }
+    },
+    "MTP": {
+      "name": "Máltai font",
+      "plural": {
+        "one": "máltai font",
+        "other": "máltai font"
+      }
+    },
+    "MUR": {
+      "name": "mauritiusi rúpia",
+      "narrow": "Rs"
+    },
+    "MVR": {
+      "name": "maldív-szigeteki rufiyaa"
+    },
+    "MWK": {
+      "name": "malawi kwacha"
+    },
+    "MXN": {
+      "name": "mexikói peso",
+      "narrow": "$"
+    },
+    "MXP": {
+      "name": "Mexikói ezüst peso (1861–1992)",
+      "plural": {
+        "one": "mexikói ezüst peso (1861–1992)",
+        "other": "mexikói ezüst peso (1861–1992)"
+      }
+    },
+    "MXV": {
+      "name": "Mexikói Unidad de Inversion (UDI)",
+      "plural": {
+        "one": "mexikói befektetési egység (UDI)",
+        "other": "mexikói befektetési egység (UDI)"
+      }
+    },
+    "MYR": {
+      "name": "malajziai ringgit",
+      "narrow": "RM"
+    },
+    "MZE": {
+      "name": "Mozambik escudo"
+    },
+    "MZM": {
+      "name": "Mozambik metical"
+    },
+    "MZN": {
+      "name": "mozambiki metikális"
+    },
+    "NAD": {
+      "name": "namíbiai dollár",
+      "narrow": "$"
+    },
+    "NGN": {
+      "name": "nigériai naira",
+      "narrow": "₦"
+    },
+    "NIC": {
+      "name": "Nikaraguai cordoba",
+      "plural": {
+        "one": "nicaraguai córdoba (1988–1911)",
+        "other": "nicaraguai córdoba (1988–1911)"
+      }
+    },
+    "NIO": {
+      "name": "nicaraguai córdoba",
+      "narrow": "C$"
+    },
+    "NLG": {
+      "name": "Holland forint"
+    },
+    "NOK": {
+      "name": "norvég korona",
+      "narrow": "kr"
+    },
+    "NPR": {
+      "name": "nepáli rúpia",
+      "narrow": "Rs"
+    },
+    "NZD": {
+      "name": "új-zélandi dollár",
+      "narrow": "$"
+    },
+    "OMR": {
+      "name": "ománi riál"
+    },
+    "PAB": {
+      "name": "panamai balboa"
+    },
+    "PEI": {
+      "name": "perui inti"
+    },
+    "PEN": {
+      "name": "perui sol"
+    },
+    "PES": {
+      "name": "perui sol (1863–1965)"
+    },
+    "PGK": {
+      "name": "pápua új-guineai kina"
+    },
+    "PHP": {
+      "name": "fülöp-szigeteki peso",
+      "narrow": "₱"
+    },
+    "PKR": {
+      "name": "pakisztáni rúpia",
+      "narrow": "Rs"
+    },
+    "PLN": {
+      "name": "lengyel zloty",
+      "narrow": "zł"
+    },
+    "PLZ": {
+      "name": "Lengyel zloty (1950–1995)",
+      "plural": {
+        "one": "lengyel zloty (PLZ)",
+        "other": "lengyel zloty (PLZ)"
+      }
+    },
+    "PTE": {
+      "name": "Portugál escudo",
+      "plural": {
+        "one": "portugál escudo",
+        "other": "portugál escudo"
+      }
+    },
+    "PYG": {
+      "name": "paraguayi guarani",
+      "narrow": "₲"
+    },
+    "QAR": {
+      "name": "katari riál"
+    },
+    "RHD": {
+      "name": "rhodéziai dollár",
+      "plural": {
+        "one": "Rhodéziai dollár",
+        "other": "Rhodéziai dollár"
+      }
+    },
+    "ROL": {
+      "name": "román lej (1952–2006)"
+    },
+    "RON": {
+      "name": "román lej",
+      "narrow": "lei"
+    },
+    "RSD": {
+      "name": "szerb dinár"
+    },
+    "RUB": {
+      "name": "orosz rubel",
+      "narrow": "₽"
+    },
+    "RUR": {
+      "name": "orosz rubel (1991–1998)"
+    },
+    "RWF": {
+      "name": "ruandai frank",
+      "narrow": "RF"
+    },
+    "SAR": {
+      "name": "szaúdi riál"
+    },
+    "SBD": {
+      "name": "salamon-szigeteki dollár",
+      "narrow": "$"
+    },
+    "SCR": {
+      "name": "seychelle-szigeteki rúpia"
+    },
+    "SDD": {
+      "name": "Szudáni dínár (1992–2007)"
+    },
+    "SDG": {
+      "name": "szudáni font"
+    },
+    "SDP": {
+      "name": "Szudáni font (1957–1998)"
+    },
+    "SEK": {
+      "name": "svéd korona",
+      "narrow": "kr"
+    },
+    "SGD": {
+      "name": "szingapúri dollár",
+      "narrow": "$"
+    },
+    "SHP": {
+      "name": "Szent Ilona-i font",
+      "narrow": "£"
+    },
+    "SIT": {
+      "name": "Szlovén tolar",
+      "plural": {
+        "one": "szlovén tolár",
+        "other": "szlovén tolár"
+      }
+    },
+    "SKK": {
+      "name": "Szlovák korona",
+      "plural": {
+        "one": "szlovák korona",
+        "other": "szlovák korona"
+      }
+    },
+    "SLE": {
+      "name": "Sierra Leone-i leone"
+    },
+    "SLL": {
+      "name": "Sierra Leone-i leone (1964–2022)"
+    },
+    "SOS": {
+      "name": "szomáli shilling"
+    },
+    "SRD": {
+      "name": "suriname-i dollár",
+      "narrow": "$"
+    },
+    "SRG": {
+      "name": "Suriname-i gulden"
+    },
+    "SSP": {
+      "name": "dél-szudáni font",
+      "narrow": "£"
+    },
+    "STD": {
+      "name": "São Tomé és Príncipe-i dobra (1977–2017)"
+    },
+    "STN": {
+      "name": "São Tomé és Príncipe-i dobra",
+      "narrow": "Db"
+    },
+    "SUR": {
+      "name": "Szovjet rubel",
+      "plural": {
+        "one": "szovjet rubel",
+        "other": "szovjet rubel"
+      }
+    },
+    "SVC": {
+      "name": "Salvadori colón",
+      "plural": {
+        "one": "salvadori colón",
+        "other": "salvadori colón"
+      }
+    },
+    "SYP": {
+      "name": "szíriai font",
+      "narrow": "£"
+    },
+    "SZL": {
+      "name": "szvázi lilangeni"
+    },
+    "THB": {
+      "name": "thai baht",
+      "narrow": "฿"
+    },
+    "TJR": {
+      "name": "Tádzsikisztáni rubel"
+    },
+    "TJS": {
+      "name": "tádzsikisztáni somoni"
+    },
+    "TMM": {
+      "name": "türkmenisztáni manat (1993–2009)"
+    },
+    "TMT": {
+      "name": "türkmenisztáni manat"
+    },
+    "TND": {
+      "name": "tunéziai dínár"
+    },
+    "TOP": {
+      "name": "tongai paanga",
+      "narrow": "T$"
+    },
+    "TPE": {
+      "name": "Timori escudo",
+      "plural": {
+        "one": "timori escudo",
+        "other": "timori escudo"
+      }
+    },
+    "TRL": {
+      "name": "török líra (1922–2005)"
+    },
+    "TRY": {
+      "name": "török líra",
+      "narrow": "₺"
+    },
+    "TTD": {
+      "name": "Trinidad és Tobago-i dollár",
+      "narrow": "$"
+    },
+    "TWD": {
+      "name": "tajvani új dollár",
+      "narrow": "NT$"
+    },
+    "TZS": {
+      "name": "tanzániai shilling"
+    },
+    "UAH": {
+      "name": "ukrán hrivnya",
+      "narrow": "₴"
+    },
+    "UAK": {
+      "name": "Ukrán karbovanec",
+      "plural": {
+        "one": "ukrán karbovanec",
+        "other": "ukrán karbovanec"
+      }
+    },
+    "UGS": {
+      "name": "Ugandai shilling (1966–1987)"
+    },
+    "UGX": {
+      "name": "ugandai shilling"
+    },
+    "USD": {
+      "name": "USA-dollár",
+      "narrow": "$"
+    },
+    "USN": {
+      "name": "USA dollár (következő napi)",
+      "plural": {
+        "one": "USA-dollár (következő napi)",
+        "other": "USA-dollár (következő napi)"
+      }
+    },
+    "USS": {
+      "name": "USA dollár (aznapi)",
+      "plural": {
+        "one": "USA-dollár (aznapi)",
+        "other": "USA-dollár (aznapi)"
+      }
+    },
+    "UYI": {
+      "name": "Uruguayi peso en unidades indexadas"
+    },
+    "UYP": {
+      "name": "Uruguay-i peso (1975–1993)",
+      "plural": {
+        "one": "Uruguayi peso (1975–1993)",
+        "other": "Uruguayi peso (1975–1993)"
+      }
+    },
+    "UYU": {
+      "name": "uruguayi peso",
+      "narrow": "$"
+    },
+    "UZS": {
+      "name": "üzbegisztáni szom"
+    },
+    "VEB": {
+      "name": "Venezuelai bolivar (1871–2008)"
+    },
+    "VEF": {
+      "name": "venezuelai bolivar (2008–2018)",
+      "narrow": "Bs"
+    },
+    "VES": {
+      "name": "venezuelai bolivar"
+    },
+    "VND": {
+      "name": "vietnámi dong",
+      "narrow": "₫"
+    },
+    "VNN": {
+      "name": "vietnámi dong (1978–1985)"
+    },
+    "VUV": {
+      "name": "vanuatui vatu"
+    },
+    "WST": {
+      "name": "nyugat-szamoai tala"
+    },
+    "XAF": {
+      "name": "CFA frank BEAC",
+      "symbol": "FCFA"
+    },
+    "XAG": {
+      "name": "Ezüst"
+    },
+    "XAU": {
+      "name": "Arany"
+    },
+    "XBA": {
+      "name": "Európai kompozit egység"
+    },
+    "XBB": {
+      "name": "Európai monetáris egység"
+    },
+    "XBC": {
+      "name": "Európai kontó egység (XBC)"
+    },
+    "XBD": {
+      "name": "Európai kontó egység (XBD)"
+    },
+    "XCD": {
+      "name": "kelet-karibi dollár",
+      "narrow": "$"
+    },
+    "XCG": {
+      "name": "karibi forint",
+      "symbol": "Cg."
+    },
+    "XDR": {
+      "name": "Special Drawing Rights"
+    },
+    "XEU": {
+      "name": "európai pénznemegység",
+      "plural": {
+        "one": "Európai pénznemegység",
+        "other": "Európai pénznemegység"
+      }
+    },
+    "XFO": {
+      "name": "Francia arany frank"
+    },
+    "XFU": {
+      "name": "Francia UIC-frank"
+    },
+    "XOF": {
+      "name": "CFA frank BCEAO",
+      "symbol": "F\u202fCFA"
+    },
+    "XPD": {
+      "name": "palládium",
+      "plural": {
+        "one": "Palládium",
+        "other": "Palládium"
+      }
+    },
+    "XPF": {
+      "name": "csendes-óceáni valutaközösségi frank",
+      "symbol": "CFPF"
+    },
+    "XPT": {
+      "name": "platina",
+      "plural": {
+        "one": "Platina",
+        "other": "Platina"
+      }
+    },
+    "XRE": {
+      "name": "RINET tőke"
+    },
+    "XTS": {
+      "name": "Tesztelési pénznemkód"
+    },
+    "XXX": {
+      "name": "ismeretlen pénznem",
+      "plural": {
+        "one": "(ismeretlen pénznem)",
+        "other": "(ismeretlen pénznem)"
+      },
+      "symbol": "¤"
+    },
+    "YDD": {
+      "name": "Jemeni dínár"
+    },
+    "YER": {
+      "name": "jemeni riál"
+    },
+    "YUD": {
+      "name": "Jugoszláv kemény dínár",
+      "plural": {
+        "one": "jugoszláv kemény dinár (1966–1990)",
+        "other": "jugoszláv kemény dinár (1966–1990)"
+      }
+    },
+    "YUM": {
+      "name": "Jugoszláv új dínár",
+      "plural": {
+        "one": "jugoszláv új dinár (1994–2002)",
+        "other": "jugoszláv új dinár (1994–2002)"
+      }
+    },
+    "YUN": {
+      "name": "Jugoszláv konvertibilis dínár",
+      "plural": {
+        "one": "jugoszláv konvertibilis dinár (1990–1992)",
+        "other": "jugoszláv konvertibilis dinár (1990–1992)"
+      }
+    },
+    "YUR": {
+      "name": "jugoszláv reformált dinár (1992–1993)"
+    },
+    "ZAL": {
+      "name": "Dél-afrikai rand (pénzügyi)"
+    },
+    "ZAR": {
+      "name": "dél-afrikai rand",
+      "narrow": "R"
+    },
+    "ZMK": {
+      "name": "Zambiai kwacha (1968–2012)"
+    },
+    "ZMW": {
+      "name": "zambiai kwacha",
+      "narrow": "ZK"
+    },
+    "ZRN": {
+      "name": "Zairei új zaire"
+    },
+    "ZRZ": {
+      "name": "Zairei zaire"
+    },
+    "ZWD": {
+      "name": "Zimbabwei dollár (1980–2008)"
+    },
+    "ZWG": {
+      "name": "zimbabwei arany"
+    },
+    "ZWL": {
+      "name": "Zimbabwei dollár (2009)"
+    },
+    "ZWR": {
+      "name": "Zimbabwei dollár (2008)"
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "hu",
+  "minimumGroupingDigits": 2,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "#,##0.00\u00a0¤",
+      "compactShort": {
+        "1000": {
+          "one": "0\u00a0E",
+          "other": "0\u00a0E"
+        },
+        "10000": {
+          "one": "00\u00a0E",
+          "other": "00\u00a0E"
+        },
+        "100000": {
+          "one": "000\u00a0E",
+          "other": "000\u00a0E"
+        },
+        "1000000": {
+          "one": "0\u00a0M",
+          "other": "0\u00a0M"
+        },
+        "10000000": {
+          "one": "00\u00a0M",
+          "other": "00\u00a0M"
+        },
+        "100000000": {
+          "one": "000\u00a0M",
+          "other": "000\u00a0M"
+        },
+        "1000000000": {
+          "one": "0\u00a0Mrd",
+          "other": "0\u00a0Mrd"
+        },
+        "10000000000": {
+          "one": "00\u00a0Mrd",
+          "other": "00\u00a0Mrd"
+        },
+        "100000000000": {
+          "one": "000\u00a0Mrd",
+          "other": "000\u00a0Mrd"
+        },
+        "1000000000000": {
+          "one": "0\u00a0B",
+          "other": "0\u00a0B"
+        },
+        "10000000000000": {
+          "one": "00\u00a0B",
+          "other": "00\u00a0B"
+        },
+        "100000000000000": {
+          "one": "000\u00a0B",
+          "other": "000\u00a0B"
+        }
+      },
+      "currency": "#,##0.00\u00a0¤",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ",",
+        "exponential": "E",
+        "group": "\u00a0",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "NaN",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {
+      "one": "n = 1"
+    },
+    "ordinal": {
+      "one": "n = 1,5"
+    }
+  },
+  "territories": {
+    "AC": "Ascension-sziget",
+    "AD": "Andorra",
+    "AE": "Egyesült Arab Emírségek",
+    "AF": "Afganisztán",
+    "AG": "Antigua és Barbuda",
+    "AI": "Anguilla",
+    "AL": "Albánia",
+    "AM": "Örményország",
+    "AO": "Angola",
+    "AQ": "Antarktisz",
+    "AR": "Argentína",
+    "AS": "Amerikai Szamoa",
+    "AT": "Ausztria",
+    "AU": "Ausztrália",
+    "AW": "Aruba",
+    "AX": "Åland-szigetek",
+    "AZ": "Azerbajdzsán",
+    "BA": "Bosznia-Hercegovina",
+    "BB": "Barbados",
+    "BD": "Banglades",
+    "BE": "Belgium",
+    "BF": "Burkina Faso",
+    "BG": "Bulgária",
+    "BH": "Bahrein",
+    "BI": "Burundi",
+    "BJ": "Benin",
+    "BL": "Saint-Barthélemy",
+    "BM": "Bermuda",
+    "BN": "Brunei",
+    "BO": "Bolívia",
+    "BQ": "Holland Karib-térség",
+    "BR": "Brazília",
+    "BS": "Bahama-szigetek",
+    "BT": "Bhután",
+    "BV": "Bouvet-sziget",
+    "BW": "Botswana",
+    "BY": "Belarusz",
+    "BZ": "Belize",
+    "CA": "Kanada",
+    "CC": "Kókusz (Keeling)-szigetek",
+    "CD": "Kongó – Kinshasa",
+    "CF": "Közép-afrikai Köztársaság",
+    "CG": "Kongó – Brazzaville",
+    "CH": "Svájc",
+    "CI": "Elefántcsontpart",
+    "CK": "Cook-szigetek",
+    "CL": "Chile",
+    "CM": "Kamerun",
+    "CN": "Kína",
+    "CO": "Kolumbia",
+    "CP": "Clipperton-sziget",
+    "CQ": "Sark",
+    "CR": "Costa Rica",
+    "CU": "Kuba",
+    "CV": "Zöld-foki Köztársaság",
+    "CW": "Curaçao",
+    "CX": "Karácsony-sziget",
+    "CY": "Ciprus",
+    "CZ": "Csehország",
+    "DE": "Németország",
+    "DG": "Diego Garcia",
+    "DJ": "Dzsibuti",
+    "DK": "Dánia",
+    "DM": "Dominika",
+    "DO": "Dominikai Köztársaság",
+    "DZ": "Algéria",
+    "EA": "Ceuta és Melilla",
+    "EC": "Ecuador",
+    "EE": "Észtország",
+    "EG": "Egyiptom",
+    "EH": "Nyugat-Szahara",
+    "ER": "Eritrea",
+    "ES": "Spanyolország",
+    "ET": "Etiópia",
+    "EU": "Európai Unió",
+    "EZ": "Eurózóna",
+    "FI": "Finnország",
+    "FJ": "Fidzsi",
+    "FK": "Falkland-szigetek",
+    "FM": "Mikronézia",
+    "FO": "Feröer szigetek",
+    "FR": "Franciaország",
+    "GA": "Gabon",
+    "GB": "Egyesült Királyság",
+    "GD": "Grenada",
+    "GE": "Grúzia",
+    "GF": "Francia Guyana",
+    "GG": "Guernsey",
+    "GH": "Ghána",
+    "GI": "Gibraltár",
+    "GL": "Grönland",
+    "GM": "Gambia",
+    "GN": "Guinea",
+    "GP": "Guadeloupe",
+    "GQ": "Egyenlítői-Guinea",
+    "GR": "Görögország",
+    "GS": "Déli-Georgia és Déli-Sandwich-szigetek",
+    "GT": "Guatemala",
+    "GU": "Guam",
+    "GW": "Bissau-Guinea",
+    "GY": "Guyana",
+    "HK": "Hongkong KKT",
+    "HM": "Heard-sziget és McDonald-szigetek",
+    "HN": "Honduras",
+    "HR": "Horvátország",
+    "HT": "Haiti",
+    "HU": "Magyarország",
+    "IC": "Kanári-szigetek",
+    "ID": "Indonézia",
+    "IE": "Írország",
+    "IL": "Izrael",
+    "IM": "Man-sziget",
+    "IN": "India",
+    "IO": "Brit Indiai-óceáni Terület",
+    "IQ": "Irak",
+    "IR": "Irán",
+    "IS": "Izland",
+    "IT": "Olaszország",
+    "JE": "Jersey",
+    "JM": "Jamaica",
+    "JO": "Jordánia",
+    "JP": "Japán",
+    "KE": "Kenya",
+    "KG": "Kirgizisztán",
+    "KH": "Kambodzsa",
+    "KI": "Kiribati",
+    "KM": "Comore-szigetek",
+    "KN": "Saint Kitts és Nevis",
+    "KP": "Észak-Korea",
+    "KR": "Dél-Korea",
+    "KW": "Kuvait",
+    "KY": "Kajmán-szigetek",
+    "KZ": "Kazahsztán",
+    "LA": "Laosz",
+    "LB": "Libanon",
+    "LC": "Saint Lucia",
+    "LI": "Liechtenstein",
+    "LK": "Srí Lanka",
+    "LR": "Libéria",
+    "LS": "Lesotho",
+    "LT": "Litvánia",
+    "LU": "Luxemburg",
+    "LV": "Lettország",
+    "LY": "Líbia",
+    "MA": "Marokkó",
+    "MC": "Monaco",
+    "MD": "Moldova",
+    "ME": "Montenegró",
+    "MF": "Saint Martin",
+    "MG": "Madagaszkár",
+    "MH": "Marshall-szigetek",
+    "MK": "Észak-Macedónia",
+    "ML": "Mali",
+    "MM": "Mianmar",
+    "MN": "Mongólia",
+    "MO": "Makaó KKT",
+    "MP": "Északi Mariana-szigetek",
+    "MQ": "Martinique",
+    "MR": "Mauritánia",
+    "MS": "Montserrat",
+    "MT": "Málta",
+    "MU": "Mauritius",
+    "MV": "Maldív-szigetek",
+    "MW": "Malawi",
+    "MX": "Mexikó",
+    "MY": "Malajzia",
+    "MZ": "Mozambik",
+    "NA": "Namíbia",
+    "NC": "Új-Kaledónia",
+    "NE": "Niger",
+    "NF": "Norfolk-sziget",
+    "NG": "Nigéria",
+    "NI": "Nicaragua",
+    "NL": "Hollandia",
+    "NO": "Norvégia",
+    "NP": "Nepál",
+    "NR": "Nauru",
+    "NU": "Niue",
+    "NZ": "Új-Zéland",
+    "OM": "Omán",
+    "PA": "Panama",
+    "PE": "Peru",
+    "PF": "Francia Polinézia",
+    "PG": "Pápua Új-Guinea",
+    "PH": "Fülöp-szigetek",
+    "PK": "Pakisztán",
+    "PL": "Lengyelország",
+    "PM": "Saint-Pierre és Miquelon",
+    "PN": "Pitcairn-szigetek",
+    "PR": "Puerto Rico",
+    "PS": "Palesztin Autonómia",
+    "PT": "Portugália",
+    "PW": "Palau",
+    "PY": "Paraguay",
+    "QA": "Katar",
+    "QO": "Külső-Óceánia",
+    "RE": "Réunion",
+    "RO": "Románia",
+    "RS": "Szerbia",
+    "RU": "Oroszország",
+    "RW": "Ruanda",
+    "SA": "Szaúd-Arábia",
+    "SB": "Salamon-szigetek",
+    "SC": "Seychelle-szigetek",
+    "SD": "Szudán",
+    "SE": "Svédország",
+    "SG": "Szingapúr",
+    "SH": "Szent Ilona",
+    "SI": "Szlovénia",
+    "SJ": "Svalbard és Jan Mayen",
+    "SK": "Szlovákia",
+    "SL": "Sierra Leone",
+    "SM": "San Marino",
+    "SN": "Szenegál",
+    "SO": "Szomália",
+    "SR": "Suriname",
+    "SS": "Dél-Szudán",
+    "ST": "São Tomé és Príncipe",
+    "SV": "Salvador",
+    "SX": "Sint Maarten",
+    "SY": "Szíria",
+    "SZ": "Szváziföld",
+    "TA": "Tristan da Cunha",
+    "TC": "Turks- és Caicos-szigetek",
+    "TD": "Csád",
+    "TF": "Francia Déli Területek",
+    "TG": "Togo",
+    "TH": "Thaiföld",
+    "TJ": "Tádzsikisztán",
+    "TK": "Tokelau",
+    "TL": "Kelet-Timor",
+    "TM": "Türkmenisztán",
+    "TN": "Tunézia",
+    "TO": "Tonga",
+    "TR": "Törökország",
+    "TT": "Trinidad és Tobago",
+    "TV": "Tuvalu",
+    "TW": "Tajvan",
+    "TZ": "Tanzánia",
+    "UA": "Ukrajna",
+    "UG": "Uganda",
+    "UM": "Az USA lakatlan külbirtokai",
+    "UN": "Egyesült Nemzetek Szervezete",
+    "US": "Egyesült Államok",
+    "UY": "Uruguay",
+    "UZ": "Üzbegisztán",
+    "VA": "Vatikán",
+    "VC": "Saint Vincent és a Grenadine-szigetek",
+    "VE": "Venezuela",
+    "VG": "Brit Virgin-szigetek",
+    "VI": "Amerikai Virgin-szigetek",
+    "VN": "Vietnám",
+    "VU": "Vanuatu",
+    "WF": "Wallis és Futuna",
+    "WS": "Szamoa",
+    "XA": "Pszeudo-nyelvjárások",
+    "XB": "Pszeudo-kétirányú",
+    "XK": "Koszovó",
+    "YE": "Jemen",
+    "YT": "Mayotte",
+    "ZA": "Dél-afrikai Köztársaság",
+    "ZM": "Zambia",
+    "ZW": "Zimbabwe"
+  }
+}

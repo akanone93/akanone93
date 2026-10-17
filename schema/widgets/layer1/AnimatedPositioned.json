@@ -1,0 +1,110 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "AnimatedPositioned",
+  "id": 143,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "AnimatedPositioned",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "animation",
+  "icon": "open_with",
+  "description": "Animates the position of its child in a `Stack`.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "left",
+      "id": 1,
+      "type": "double",
+      "flutter": "left"
+    },
+    {
+      "name": "top",
+      "id": 2,
+      "type": "double",
+      "flutter": "top"
+    },
+    {
+      "name": "right",
+      "id": 3,
+      "type": "double",
+      "flutter": "right"
+    },
+    {
+      "name": "bottom",
+      "id": 4,
+      "type": "double",
+      "flutter": "bottom"
+    },
+    {
+      "name": "width",
+      "id": 5,
+      "type": "double",
+      "flutter": "width"
+    },
+    {
+      "name": "height",
+      "id": 6,
+      "type": "double",
+      "flutter": "height"
+    },
+    {
+      "name": "curve",
+      "id": 7,
+      "type": "Curve",
+      "default": "linear",
+      "flutter": "curve",
+      "description": "The curve of the animation."
+    },
+    {
+      "name": "duration",
+      "id": 8,
+      "type": "duration",
+      "required": true,
+      "flutter": "duration",
+      "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."
+    }
+  ],
+  "events": [
+    {
+      "name": "onEnd",
+      "id": 1,
+      "flutter": "onEnd",
+      "description": "Fired when the animation ends."
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "required": true,
+      "flutter": "child"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    }
+  ]
+}

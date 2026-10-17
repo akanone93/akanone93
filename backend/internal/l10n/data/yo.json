@@ -1,0 +1,1801 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "Gy": "G y",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMEEEEd": "EEEE, d MM y G",
+        "GyMMM": "G y MMM",
+        "GyMMMEd": "G y MMM d, E",
+        "GyMMMd": "G y MMM d",
+        "GyMMd": "d MM y G",
+        "GyMMdd": "dd/MM/y G",
+        "GyMd": "d/M/y GGGGG",
+        "H": "HH",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, M/d",
+        "MMM": "LLL",
+        "MMMEd": "E, MMM d",
+        "MMMMEd": "E, MMMM d",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "M/d",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M/y",
+        "yMEd": "E, M/d/y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E, MMM d, y",
+        "yMMMM": "MMMM y",
+        "yyyy": "G y",
+        "yyyyM": "G y-MM",
+        "yyyyMEd": "G y-MM-dd, E",
+        "yyyyMMM": "G y MMM",
+        "yyyyMMMEd": "G y MMM d, E",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "G y MMM d",
+        "yyyyMd": "G y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MM y G",
+        "long": "d MM y G",
+        "medium": "d MM y G",
+        "short": "dd/MM/y G"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'ní' {0}",
+        "long": "{1} 'ní' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          },
+          "wide": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          },
+          "wide": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "short": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "wide": ["Ọjọ́ Àìkú", "Ọjọ́ Ajé", "Ọjọ́ Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ọjọ́ Ẹtì", "Ọjọ́ Àbámẹ́ta"]
+        },
+        "standAlone": {
+          "abbreviated": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "short": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "wide": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        },
+        "standAlone": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "H:mm:ss z",
+        "medium": "H:m:s",
+        "short": "H:m"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E, d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "Gy": "G y",
+        "GyM": "MM-y G",
+        "GyMEd": "E, d/M/y G",
+        "GyMMM": "G y MMM",
+        "GyMMMEd": "G y MMM d, E",
+        "GyMMMd": "G y MMM d",
+        "GyMd": "d/M/y GGGGG",
+        "H": "HH",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, d/M",
+        "MMM": "LLL",
+        "MMMEd": "d MMM, E",
+        "MMMMEd": "d, MMMM E",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "d/M",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M/y",
+        "yMEd": "d/M/y, E",
+        "yMMM": "MMM y",
+        "yMMMEEEEd": "EEEE, d MMM y",
+        "yMMMEd": "E, d MMM , y",
+        "yMMMM": "MMMM y",
+        "yMMMd": "d MMM y",
+        "yMMd": "d MM y",
+        "yMd": "d/M/y"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MMM y",
+        "long": "d MMM y",
+        "medium": "d MM y",
+        "short": "d/M/y"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'ní' {0}",
+        "long": "{1} 'ní' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          },
+          "narrow": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          },
+          "wide": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          },
+          "narrow": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          },
+          "wide": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "narrow": ["À", "A", "Ì", "Ọ", "Ọ", "Ẹ", "À"],
+          "short": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "wide": ["Ọjọ́ Àìkú", "Ọjọ́ Ajé", "Ọjọ́ Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ọjọ́ Ẹtì", "Ọjọ́ Àbámẹ́ta"]
+        },
+        "standAlone": {
+          "abbreviated": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "narrow": ["À", "A", "Ì", "Ọ", "Ọ", "Ẹ", "À"],
+          "short": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "wide": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["BCE", "AD"],
+        "narrow": ["BCE", "AD"],
+        "wide": ["Saju Kristi", "Lehin Kristi"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Oṣù Ṣẹ́rẹ́", "Oṣù Èrèlè", "Oṣù Ẹrẹ̀nà", "Oṣù Ìgbé", "Oṣù Ẹ̀bibi", "Oṣù Òkúdu", "Oṣù Agẹmọ", "Oṣù Ògún", "Oṣù Owewe", "Oṣù Ọ̀wàrà", "Oṣù Bélú", "Oṣù Ọ̀pẹ̀"],
+          "narrow": ["S", "È", "Ẹ", "Ì", "Ẹ̀", "Ò", "A", "Ò", "O", "Ọ̀", "B", "Ọ̀"],
+          "wide": ["Oṣù Ṣẹ́rẹ́", "Oṣù Èrèlè", "Oṣù Ẹrẹ̀nà", "Oṣù Ìgbé", "Oṣù Ẹ̀bibi", "Oṣù Òkúdu", "Oṣù Agẹmọ", "Oṣù Ògún", "Oṣù Owewe", "Oṣù Ọ̀wàrà", "Oṣù Bélú", "Oṣù Ọ̀pẹ̀"]
+        },
+        "standAlone": {
+          "abbreviated": ["Oṣù Ṣẹ́rẹ́", "Oṣù Èrèlè", "Oṣù Ẹrẹ̀nà", "Oṣù Ìgbé", "Oṣù Ẹ̀bibi", "Oṣù Òkúdu", "Oṣù Agẹmọ", "Oṣù Ògún", "Oṣù Owewe", "Oṣù Ọ̀wàrà", "Oṣù Bélú", "Oṣù Ọ̀pẹ̀"],
+          "narrow": ["S", "È", "Ẹ", "Ì", "Ẹ̀", "Ò", "A", "Ò", "O", "Ọ̀", "B", "Ọ̀"],
+          "wide": ["Oṣù Ṣẹ́rẹ́", "Oṣù Èrèlè", "Oṣù Ẹrẹ̀nà", "Oṣù Ìgbé", "Oṣù Ẹ̀bibi", "Oṣù Òkúdu", "Oṣù Agẹmọ", "Oṣù Ògún", "Oṣù Owewe", "Oṣù Ọ̀wàrà", "Oṣù Bélú", "Oṣù Ọ̀pẹ̀"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "H:mm:ss z",
+        "medium": "H:m:s",
+        "short": "H:m"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "Gy": "G y",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMEEEEd": "EEEE, d MM y G",
+        "GyMMM": "G y MMM",
+        "GyMMMEd": "G y MMM d, E",
+        "GyMMMd": "G y MMM d",
+        "GyMMd": "d MM y G",
+        "GyMMdd": "dd/MM/y G",
+        "GyMd": "d/M/y GGGGG",
+        "H": "HH",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, M/d",
+        "MMM": "LLL",
+        "MMMEd": "E, MMM d",
+        "MMMMEd": "E, MMMM d",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "M/d",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M/y",
+        "yMEd": "E, M/d/y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E, MMM d, y",
+        "yMMMM": "MMMM y",
+        "yyyy": "G y",
+        "yyyyM": "G y-MM",
+        "yyyyMEd": "G y-MM-dd, E",
+        "yyyyMMM": "G y MMM",
+        "yyyyMMMEd": "G y MMM d, E",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "G y MMM d",
+        "yyyyMd": "G y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MM y G",
+        "long": "d MM y G",
+        "medium": "d MM y G",
+        "short": "dd/MM/y G"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'ní' {0}",
+        "long": "{1} 'ní' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          },
+          "wide": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          },
+          "wide": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "short": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "wide": ["Ọjọ́ Àìkú", "Ọjọ́ Ajé", "Ọjọ́ Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ọjọ́ Ẹtì", "Ọjọ́ Àbámẹ́ta"]
+        },
+        "standAlone": {
+          "abbreviated": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "short": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "wide": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AH", "BH"],
+        "wide": ["AH", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        },
+        "standAlone": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "H:mm:ss z",
+        "medium": "H:m:s",
+        "short": "H:m"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "Gy": "G y",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMEEEEd": "EEEE, d MM y G",
+        "GyMMM": "G y MMM",
+        "GyMMMEd": "G y MMM d, E",
+        "GyMMMd": "G y MMM d",
+        "GyMMd": "d MM y G",
+        "GyMMdd": "dd/MM/y G",
+        "GyMd": "d/M/y GGGGG",
+        "H": "HH",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, M/d",
+        "MMM": "LLL",
+        "MMMEd": "E, MMM d",
+        "MMMMEd": "E, MMMM d",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "M/d",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M/y",
+        "yMEd": "E, M/d/y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E, MMM d, y",
+        "yMMMM": "MMMM y",
+        "yyyy": "G y",
+        "yyyyM": "G y-MM",
+        "yyyyMEd": "G y-MM-dd, E",
+        "yyyyMMM": "G y MMM",
+        "yyyyMMMEd": "G y MMM d, E",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "G y MMM d",
+        "yyyyMd": "G y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MM y G",
+        "long": "d MM y G",
+        "medium": "d MM y G",
+        "short": "dd/MM/y G"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'ní' {0}",
+        "long": "{1} 'ní' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          },
+          "wide": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          },
+          "wide": {
+            "am": "Àárọ̀",
+            "pm": "Ọ̀sán"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "short": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "wide": ["Ọjọ́ Àìkú", "Ọjọ́ Ajé", "Ọjọ́ Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ọjọ́ Ẹtì", "Ọjọ́ Àbámẹ́ta"]
+        },
+        "standAlone": {
+          "abbreviated": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "short": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"],
+          "wide": ["Àìkú", "Ajé", "Ìsẹ́gun", "Ọjọ́rú", "Ọjọ́bọ", "Ẹtì", "Àbámẹ́ta"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AP"],
+        "wide": ["AP"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        },
+        "standAlone": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "H:mm:ss z",
+        "medium": "H:m:s",
+        "short": "H:m"
+      }
+    }
+  },
+  "currencies": {
+    "AED": {
+      "name": "Diami ti Awon Orílẹ́ède Arabu"
+    },
+    "AFN": {
+      "name": "Afugánì Afuganísítàànì",
+      "narrow": "؋"
+    },
+    "ALL": {
+      "name": "Lẹ́ẹ̀kì Àlìbáníà",
+      "plural": {
+        "other": "lẹ́kè Àlìbéníà"
+      }
+    },
+    "AMD": {
+      "name": "Dírààmù Àmẹ́níà",
+      "narrow": "֏"
+    },
+    "ANG": {
+      "name": "Gílídà Netherlands Antillean",
+      "plural": {
+        "other": "àwọn gílídà Netherlands Antillean"
+      }
+    },
+    "AOA": {
+      "name": "kíwánsà Angola",
+      "narrow": "Kz",
+      "plural": {
+        "other": "àwọn kíwánsà Angola"
+      }
+    },
+    "ARS": {
+      "name": "Pẹ́sò Agẹntínà",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn pẹ́sò Agẹntínà"
+      }
+    },
+    "AUD": {
+      "name": "Dọla ti Orílẹ́ède Ástràlìá",
+      "narrow": "$",
+      "symbol": "A$"
+    },
+    "AWG": {
+      "name": "Fuloríìnì Àrúbà",
+      "plural": {
+        "other": "àwọn fuloríìnì Àrúbà"
+      }
+    },
+    "AZN": {
+      "name": "Mánààtì Àsàbáíjáì",
+      "narrow": "₼"
+    },
+    "BAM": {
+      "name": "Àmi Yíyípadà Bosnia-Herzegovina",
+      "narrow": "KM",
+      "plural": {
+        "other": "àwọn àmi Yíyípadà Bosnia-Herzegovina"
+      }
+    },
+    "BBD": {
+      "name": "Dọ́là Bábádọ̀ọ̀sì",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn dọ́là Bábádọ̀ọ̀sì"
+      }
+    },
+    "BDT": {
+      "name": "Tákà Báńgíládẹ̀ẹ̀ṣì",
+      "narrow": "৳"
+    },
+    "BGN": {
+      "name": "Owó Lẹ́fì Bọ̀lìgéríà",
+      "plural": {
+        "other": "Lẹ́fà Bọ̀lìgéríà"
+      }
+    },
+    "BHD": {
+      "name": "Dina ti Orílẹ́ède Báránì"
+    },
+    "BIF": {
+      "name": "Faransi Bùùrúndì",
+      "plural": {
+        "other": "àwọn faransi Bùùrúndì"
+      }
+    },
+    "BMD": {
+      "name": "Dọ́là Bẹ̀múdà",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọ́n dọ́là Bẹ̀múdà"
+      }
+    },
+    "BND": {
+      "name": "Dọ́là Bùrùnéì",
+      "narrow": "$"
+    },
+    "BOB": {
+      "name": "Bọlifiánò Bọ̀lífíà",
+      "narrow": "Bs",
+      "plural": {
+        "other": "àwọn bọlifiánò Bọ̀lífíà"
+      }
+    },
+    "BRL": {
+      "name": "Owó ti Orílẹ̀-èdè Brazil",
+      "plural": {
+        "other": "Awon owó ti Orílẹ̀-èdè Brazil"
+      },
+      "symbol": "R$"
+    },
+    "BSD": {
+      "name": "Dọ́là Bàhámà",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn dọ́là Bàhámà"
+      }
+    },
+    "BTN": {
+      "name": "Ìngọ́tírọ̀mù Bútàànì"
+    },
+    "BWP": {
+      "name": "Pula Bọ̀tìsúwánà",
+      "narrow": "P",
+      "plural": {
+        "other": "àwọn pula Bọ̀tìsúwánà"
+      }
+    },
+    "BYN": {
+      "name": "Rọ́bù Bẹ̀lárùùsì",
+      "plural": {
+        "other": "àwọn rọ́bù Bẹ̀lárùùsì"
+      }
+    },
+    "BZD": {
+      "name": "Dọ́là Bẹ̀lísè",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn Dọ́là Bẹ́lìsè"
+      }
+    },
+    "CAD": {
+      "name": "Dọ́là Kánádà",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn dọ́là Kánádà"
+      },
+      "symbol": "CA$"
+    },
+    "CDF": {
+      "name": "Firanki Kongo",
+      "plural": {
+        "other": "àwọn firanki Kongo"
+      }
+    },
+    "CHF": {
+      "name": "Faransí Síwíìsì",
+      "plural": {
+        "other": "Faransi Siwisi"
+      }
+    },
+    "CLP": {
+      "name": "Pẹ́sò Ṣílè",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn pẹ́sò Ṣílè"
+      }
+    },
+    "CNH": {
+      "name": "Yúànì Sháínà"
+    },
+    "CNY": {
+      "name": "Reminibi ti Orílẹ́ède ṣáínà",
+      "narrow": "¥",
+      "symbol": "CN¥"
+    },
+    "COP": {
+      "name": "Pẹ́sò Kòlóḿbíà",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn pẹ́sò Kòlóḿbíà"
+      }
+    },
+    "CRC": {
+      "name": "Kólọ́ọ̀nì Kosita Ríkà",
+      "narrow": "₡",
+      "plural": {
+        "other": "àwọ́n kólọ́ọ̀nì Kosita Ríkà"
+      }
+    },
+    "CUC": {
+      "name": "Pẹ́sò Yíyípadà Kúbà",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn pẹ́sò yíyípadà Kúbà"
+      }
+    },
+    "CUP": {
+      "name": "Pẹ́sò Kúbà",
+      "narrow": "$"
+    },
+    "CVE": {
+      "name": "Èsìkúdò Kapú Faadì",
+      "plural": {
+        "other": "àwọn èsìkúdò Kapú Faadì"
+      }
+    },
+    "CZK": {
+      "name": "Koruna Ṣẹ́ẹ̀kì",
+      "narrow": "Kč",
+      "plural": {
+        "other": "àwọn koruna Ṣẹ́ẹ̀kì"
+      }
+    },
+    "DJF": {
+      "name": "Faransi Dibouti",
+      "plural": {
+        "other": "àwọn faransi Dibouti"
+      }
+    },
+    "DKK": {
+      "name": "Kírónì Dáníṣì",
+      "narrow": "kr",
+      "plural": {
+        "other": "Kírònà Dáníìṣì"
+      }
+    },
+    "DOP": {
+      "name": "Pẹ́sò Dòníníkà",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn pẹ́sò Dòníníkà"
+      }
+    },
+    "DZD": {
+      "name": "Dina ti Orílẹ́ède Àlùgèríánì",
+      "plural": {
+        "other": "àwọn dínà Àlùgèríánì"
+      }
+    },
+    "EGP": {
+      "name": "pọọn ti Orílẹ́ède Egipiti",
+      "narrow": "E£",
+      "plural": {
+        "other": "àwọn pọ́n-ún Ejipítì"
+      }
+    },
+    "ERN": {
+      "name": "Nakifasì Eritira",
+      "plural": {
+        "other": "àwọn nakifasì Eritira"
+      }
+    },
+    "ESP": {
+      "narrow": "₧"
+    },
+    "ETB": {
+      "name": "Báà Etópíà",
+      "plural": {
+        "other": "àwọn báà Etópíà"
+      }
+    },
+    "EUR": {
+      "name": "owó Yúrò",
+      "plural": {
+        "other": "Awon owó Yúrò"
+      },
+      "symbol": "€"
+    },
+    "FJD": {
+      "name": "Dọ́là Fíjì",
+      "narrow": "$"
+    },
+    "FKP": {
+      "name": "Pọ́n-ùn Erékùsù Falkland",
+      "narrow": "£",
+      "plural": {
+        "other": "àwọn Pọ́n-ùn Erékùsù Falkland [ Pɔ́n-ùn Erékùsù Falkland ] 1.23 Pọ́n-ùn Erékùsù Falkland 0.00 pọ́n-ùn Erékùsù Falkland"
+      }
+    },
+    "GBP": {
+      "name": "Pọ́n-ùn ti Orilẹ̀-èdè Gẹ̀ẹ́sì",
+      "symbol": "£"
+    },
+    "GEL": {
+      "name": "Lárì Jọ́jíà",
+      "narrow": "₾"
+    },
+    "GHC": {
+      "name": "ṣidi ti Orílẹ́ède Gana"
+    },
+    "GHS": {
+      "name": "sídì Gana",
+      "narrow": "GH₵",
+      "plural": {
+        "other": "àwọn sídì Gana"
+      }
+    },
+    "GIP": {
+      "name": "Pọ́n-ùn Gibúrátà",
+      "narrow": "£",
+      "plural": {
+        "other": "àwọn pọ́n-ùn Gibúrátà"
+      }
+    },
+    "GMD": {
+      "name": "Dalasi Gamibia",
+      "plural": {
+        "other": "àwọn dalasi Gamibia"
+      }
+    },
+    "GNF": {
+      "name": "Fírànkì Gínì",
+      "narrow": "FG",
+      "plural": {
+        "other": "àwọn fírànkì Gínì"
+      }
+    },
+    "GNS": {
+      "name": "Faransi ti Orílẹ́ède Gini"
+    },
+    "GTQ": {
+      "name": "Kúẹ́tísààlì Guatimílà",
+      "narrow": "Q",
+      "plural": {
+        "other": "àwọn kúẹ́tísààlì Guatimílà"
+      }
+    },
+    "GYD": {
+      "name": "Dọ́là Gùyánà",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn dọ́là Gùyánà"
+      }
+    },
+    "HKD": {
+      "name": "Dọ́là Hong Kong",
+      "narrow": "$",
+      "symbol": "HK$"
+    },
+    "HNL": {
+      "name": "Lẹmipírà Ọ́ńdúrà",
+      "narrow": "L",
+      "plural": {
+        "other": "àwọn Lẹmipírà Ọ́ńdúrà"
+      }
+    },
+    "HRK": {
+      "name": "Kúnà Kúróṣíà",
+      "narrow": "kn",
+      "plural": {
+        "other": "àwọn kúnà Kúróṣíà"
+      }
+    },
+    "HTG": {
+      "name": "Gọ́dì Àítì",
+      "plural": {
+        "other": "àwọn gọ́dì Àítì"
+      }
+    },
+    "HUF": {
+      "name": "Fọ́ríǹtì Họ̀ngérí",
+      "narrow": "Ft",
+      "plural": {
+        "other": "àwọn fọ́ríǹtì Họ̀ngérí"
+      }
+    },
+    "IDR": {
+      "name": "Rúpìyá Indonésíà",
+      "narrow": "Rp"
+    },
+    "ILS": {
+      "name": "Ṣékélì Tuntun Ísírẹ̀ẹ̀lì",
+      "symbol": "₪"
+    },
+    "INR": {
+      "name": "Rupi ti Orílẹ́ède Indina",
+      "symbol": "₹"
+    },
+    "IQD": {
+      "name": "Dínárì Ìráákì"
+    },
+    "IRR": {
+      "name": "Rial Iranian"
+    },
+    "ISK": {
+      "name": "Kòrónà Icelandic",
+      "narrow": "kr",
+      "plural": {
+        "other": "kórónọ̀ Áílándíìkì"
+      }
+    },
+    "JMD": {
+      "name": "Dọ́là Jàmáíkà",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn dọ́là Jàmáíkà"
+      }
+    },
+    "JOD": {
+      "name": "Dínárì Jọ́dàànì"
+    },
+    "JPY": {
+      "name": "Yeni ti Orílẹ́ède Japani",
+      "narrow": "¥",
+      "symbol": "JP¥"
+    },
+    "KES": {
+      "name": "Ṣiili Kenya",
+      "plural": {
+        "other": "àwọ́n ṣiili Kenya"
+      }
+    },
+    "KGS": {
+      "name": "Sómú Kirijísítàànì",
+      "narrow": "⃀"
+    },
+    "KHR": {
+      "name": "Ráyò Kàm̀bọ́díà",
+      "narrow": "៛"
+    },
+    "KMF": {
+      "name": "Faransi Komori",
+      "narrow": "CF",
+      "plural": {
+        "other": "àwọn faransi Komori"
+      }
+    },
+    "KPW": {
+      "name": "Wọ́ọ̀nù Àríwá Kòríà",
+      "narrow": "₩"
+    },
+    "KRW": {
+      "name": "Wọ́ọ̀nù Gúúsù Kòríà",
+      "symbol": "₩"
+    },
+    "KWD": {
+      "name": "Dínárì Kuwaiti"
+    },
+    "KYD": {
+      "name": "Dọ́là Erékùsù Cayman",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn dọ́là Erékùsù Cayman"
+      }
+    },
+    "KZT": {
+      "name": "Tẹngé Kasakísítàànì",
+      "narrow": "₸"
+    },
+    "LAK": {
+      "name": "Kíììpù Làótì",
+      "narrow": "₭"
+    },
+    "LBP": {
+      "name": "Pọ́n-ùn Lebanese",
+      "narrow": "L£"
+    },
+    "LKR": {
+      "name": "Rúpìì Siri Láńkà",
+      "narrow": "Rs"
+    },
+    "LRD": {
+      "name": "Dọla Liberia",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn dọla Liberia"
+      }
+    },
+    "LSL": {
+      "name": "Loti ti Orílẹ́ède Lesoto",
+      "plural": {
+        "other": "Lótì ti Lẹ̀sótò"
+      }
+    },
+    "LTL": {
+      "narrow": "Lt"
+    },
+    "LVL": {
+      "narrow": "Ls"
+    },
+    "LYD": {
+      "name": "Dínà Líbíyà",
+      "plural": {
+        "other": "àwọn dínà Líbíyà"
+      }
+    },
+    "MAD": {
+      "name": "Dírámì Morokò",
+      "plural": {
+        "other": "àwọn dírámì Morokò"
+      }
+    },
+    "MDL": {
+      "name": "Owó Léhù Moldovan",
+      "plural": {
+        "other": "Léhì Moldovan"
+      }
+    },
+    "MGA": {
+      "name": "Faransi Malagasi",
+      "narrow": "Ar",
+      "plural": {
+        "other": "àwọn faransi Malagasi"
+      }
+    },
+    "MKD": {
+      "name": "Dẹ́nà Masidóníà",
+      "plural": {
+        "other": "dẹ́nàrì Masidóníà"
+      }
+    },
+    "MMK": {
+      "name": "Kíyàtì Myanmar",
+      "narrow": "K"
+    },
+    "MNT": {
+      "name": "Túgúrììkì Mòǹgólíà",
+      "narrow": "₮"
+    },
+    "MOP": {
+      "name": "Pàtákà Màkáò"
+    },
+    "MRO": {
+      "name": "Ouguiya ti Orílẹ́ède Maritania (1973–2017)"
+    },
+    "MRU": {
+      "name": "Ouguiya ti Orílẹ́ède Maritania"
+    },
+    "MUR": {
+      "name": "Rupi Maritusi",
+      "narrow": "Rs",
+      "plural": {
+        "other": "àwọn rupi Maritusi"
+      }
+    },
+    "MVR": {
+      "name": "Rúfìyá Mọ̀lìdífà"
+    },
+    "MWK": {
+      "name": "Kásà Màláwì",
+      "plural": {
+        "other": "àwọn kásà Màláwì"
+      }
+    },
+    "MXN": {
+      "name": "Pẹ́sò Mẹ́síkò",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn pẹ́sò Mẹ́síkò"
+      },
+      "symbol": "MX$"
+    },
+    "MYR": {
+      "name": "Ríngìtì Màléṣíà",
+      "narrow": "RM"
+    },
+    "MZM": {
+      "name": "Metika ti Orílẹ́ède Mosamibiki"
+    },
+    "MZN": {
+      "name": "Mẹ́tíkààlì Mòsáḿbíìkì",
+      "plural": {
+        "other": "àwọn mẹ́tíkààlì Mòsáḿbíìkì"
+      }
+    },
+    "NAD": {
+      "name": "Dọla Namibíà",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn dọla Namibíà"
+      }
+    },
+    "NGN": {
+      "name": "Náírà Nàìjíríà",
+      "symbol": "₦"
+    },
+    "NIO": {
+      "name": "Kọ̀dóbà Naikarágúà",
+      "narrow": "C$",
+      "plural": {
+        "other": "àwọn kọ̀dóbà Naikarágúà"
+      }
+    },
+    "NOK": {
+      "name": "kórónì Nọ́wè",
+      "narrow": "kr",
+      "plural": {
+        "other": "kórónà Nọ́wè"
+      }
+    },
+    "NPR": {
+      "name": "Rúpìì Nẹ̵́pààlì",
+      "narrow": "Rs"
+    },
+    "NZD": {
+      "name": "Dọ́là New Zealand",
+      "narrow": "$",
+      "symbol": "NZ$"
+    },
+    "OMR": {
+      "name": "Ráyò Omani"
+    },
+    "PAB": {
+      "name": "Bálíbóà Pànámà",
+      "plural": {
+        "other": "àwọn bálíbóà Pànámà"
+      }
+    },
+    "PEN": {
+      "name": "Sólì Pèrúù",
+      "plural": {
+        "other": "àwọn sólì Pèrúù"
+      }
+    },
+    "PGK": {
+      "name": "Kínà Papua Guinea Tuntun"
+    },
+    "PHP": {
+      "name": "Písò Fílípìnì",
+      "symbol": "₱"
+    },
+    "PKR": {
+      "name": "Rúpìì Pakisitánì",
+      "narrow": "Rs"
+    },
+    "PLN": {
+      "name": "Sílọ̀tì Pọ́líṣì",
+      "narrow": "zł",
+      "plural": {
+        "other": "àwọn sílọ̀tì Pọ́líṣì"
+      }
+    },
+    "PYG": {
+      "name": "Gúáránì Párágúwè",
+      "narrow": "₲",
+      "plural": {
+        "other": "àwọn gúáránì Párágúwè"
+      }
+    },
+    "QAR": {
+      "name": "Ráyò Kàtárì"
+    },
+    "RON": {
+      "name": "Léhù Ròméníà",
+      "narrow": "lei",
+      "plural": {
+        "other": "Léhì Ròméníà"
+      }
+    },
+    "RSD": {
+      "name": "Dínárì Sàbíà",
+      "plural": {
+        "other": "àwọn dínárì Sàbíà"
+      }
+    },
+    "RUB": {
+      "name": "Owó ruble ti ilẹ̀ Rọ́ṣíà",
+      "symbol": "₽"
+    },
+    "RWF": {
+      "name": "Faransi Ruwanda",
+      "narrow": "RF",
+      "plural": {
+        "other": "àwọn faransi Ruwanda"
+      }
+    },
+    "SAR": {
+      "name": "Riya ti Orílẹ́ède Saudi"
+    },
+    "SBD": {
+      "name": "Dọ́là Erékùsù Sọ́lómọ́nì",
+      "narrow": "$"
+    },
+    "SCR": {
+      "name": "Rúpì Sayiselesi",
+      "plural": {
+        "other": "àwọ́n rúpì Sayiselesi"
+      }
+    },
+    "SDG": {
+      "name": "Pọ́n-ùn Sùdáànì",
+      "plural": {
+        "other": "àwọn pọ́n-ùn Sùdáànì"
+      }
+    },
+    "SDP": {
+      "name": "Pọọun ti Orílẹ́ède Sudani"
+    },
+    "SEK": {
+      "name": "Kòrónà Súwídìn",
+      "narrow": "kr",
+      "plural": {
+        "other": "Kòrónọ̀ Súwídìn"
+      }
+    },
+    "SGD": {
+      "name": "Dọ́là Síngápọ̀",
+      "narrow": "$"
+    },
+    "SHP": {
+      "name": "Pọ́n-un Elena",
+      "narrow": "£",
+      "plural": {
+        "other": "àwọn pọ́n-un Elena"
+      }
+    },
+    "SLE": {
+      "name": "Líónì Sira Líonì",
+      "plural": {
+        "other": "àwọn líónì Sira Líonì"
+      }
+    },
+    "SLL": {
+      "name": "Líónì Sira Líonì (1964—2022)",
+      "plural": {
+        "other": "àwọn líónì Sira Líonì (1964—2022)"
+      }
+    },
+    "SOS": {
+      "name": "Ṣílè Somali",
+      "plural": {
+        "other": "àwọ́n ṣílè Somali"
+      }
+    },
+    "SRD": {
+      "name": "Dọ́là Súrínámì",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn Dọ́là Súrínámì"
+      }
+    },
+    "SSP": {
+      "name": "Pọ́n-un Gúúsù Sùdáànì",
+      "narrow": "£",
+      "plural": {
+        "other": "àwọn pọ́n-un Gúúsù Sùdáànì"
+      }
+    },
+    "STD": {
+      "name": "Dobira ti Orílẹ́ède Sao tome Ati Pirisipe (1977–2017)"
+    },
+    "STN": {
+      "name": "Dọbíra Sao tome àti Pirisipi",
+      "narrow": "Db"
+    },
+    "SYP": {
+      "name": "Pọ́n-ùn Sírìà",
+      "narrow": "£"
+    },
+    "SZL": {
+      "name": "Lilangeni Suwasi",
+      "plural": {
+        "other": "emalangeni Suwasi"
+      }
+    },
+    "THB": {
+      "name": "Báàtì Tháì",
+      "narrow": "฿"
+    },
+    "TJS": {
+      "name": "Sómónì Tajikístàànì"
+    },
+    "TMT": {
+      "name": "Mánààtì Tọkimẹnístàànì"
+    },
+    "TND": {
+      "name": "Dínà Tuniṣíà",
+      "plural": {
+        "other": "àwọn dínà Tuniṣíà"
+      }
+    },
+    "TOP": {
+      "name": "Pàángà Tóńgà",
+      "narrow": "T$"
+    },
+    "TRY": {
+      "name": "Lírà Tọ́kì",
+      "narrow": "₺"
+    },
+    "TTD": {
+      "name": "Dọ́là Trinidad & Tobago",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn dọ́là Trinidad àti Tobago"
+      }
+    },
+    "TWD": {
+      "name": "Dọ́là Tàìwánì Tuntun",
+      "narrow": "$",
+      "symbol": "NT$"
+    },
+    "TZS": {
+      "name": "Sile Tansania",
+      "plural": {
+        "other": "àwọn ṣile Tansania"
+      }
+    },
+    "UAH": {
+      "name": "Ọrifiníyà Yukiréníà",
+      "narrow": "₴"
+    },
+    "UGX": {
+      "name": "Ṣile Uganda",
+      "plural": {
+        "other": "àwọn ṣile Uganda"
+      }
+    },
+    "USD": {
+      "name": "Dọ́là",
+      "symbol": "$"
+    },
+    "UYU": {
+      "name": "Pẹ́sò Úrúgúwè",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn pẹ́sò Úrúgúwè"
+      }
+    },
+    "UZS": {
+      "name": "Sómú Usibẹkísítàànì"
+    },
+    "VEF": {
+      "narrow": "Bs"
+    },
+    "VES": {
+      "name": "Bọ̀lífà Fẹnẹsuẹ́là",
+      "plural": {
+        "other": "àwọn bọ̀lífà Fẹnẹsuẹ́là"
+      }
+    },
+    "VND": {
+      "name": "Dáhùn Vietnamese",
+      "symbol": "₫"
+    },
+    "VUV": {
+      "name": "Fátù Vanuatu"
+    },
+    "WST": {
+      "name": "Tálà Sàmóà"
+    },
+    "XAF": {
+      "name": "Firanki àárín Afíríkà",
+      "plural": {
+        "other": "àwọn firanki àárín Afíríkà"
+      },
+      "symbol": "FCFA"
+    },
+    "XCD": {
+      "name": "Dọ́là Ilà Oòrùn Karíbíà",
+      "narrow": "$",
+      "plural": {
+        "other": "àwọn dọ́là Ilà Oòrùn Karíbíà"
+      },
+      "symbol": "EC$"
+    },
+    "XCG": {
+      "name": "Owó ìlú Kùrásọ̀ àti Saint Mátìnì",
+      "symbol": "Cg."
+    },
+    "XOF": {
+      "name": "Faransì ìwọ̀-oorùn Afíríkà",
+      "plural": {
+        "other": "àwọn faransì ìwọ̀-oorùn Afíríkà"
+      },
+      "symbol": "F\u202fCFA"
+    },
+    "XPF": {
+      "name": "Fírànkì CFP",
+      "symbol": "CFPF"
+    },
+    "XXX": {
+      "name": "owóníná àìmọ̀",
+      "symbol": "¤"
+    },
+    "YER": {
+      "name": "Ráyò Yẹ́mẹ̀nì"
+    },
+    "ZAR": {
+      "name": "Rándì Gúúsù Afíríkà",
+      "narrow": "R",
+      "plural": {
+        "other": "rándì Gúúsù Afíríkà"
+      }
+    },
+    "ZMK": {
+      "name": "Kawaṣa ti Orílẹ́ède Saabia (1968–2012)"
+    },
+    "ZMW": {
+      "name": "Kàwasà Sámbíà",
+      "narrow": "ZK",
+      "plural": {
+        "other": "àwọn kàwasà Sámbíà"
+      }
+    },
+    "ZWD": {
+      "name": "Dọla ti Orílẹ́ède Siibabuwe"
+    },
+    "ZWG": {
+      "name": "Owó ìlú Sìnbábúwè"
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "yo",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "¤#,##0.00;(¤#,##0.00)",
+      "compactShort": {
+        "1000": {
+          "other": "0K"
+        },
+        "10000": {
+          "other": "00K"
+        },
+        "100000": {
+          "other": "000K"
+        },
+        "1000000": {
+          "other": "0M"
+        },
+        "10000000": {
+          "other": "00M"
+        },
+        "100000000": {
+          "other": "000M"
+        },
+        "1000000000": {
+          "other": "0G"
+        },
+        "10000000000": {
+          "other": "00G"
+        },
+        "100000000000": {
+          "other": "000G"
+        },
+        "1000000000000": {
+          "other": "0T"
+        },
+        "10000000000000": {
+          "other": "00T"
+        },
+        "100000000000000": {
+          "other": "000T"
+        }
+      },
+      "currency": "¤#,##0.00",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "dáàṣì",
+        "decimal": ".",
+        "exponential": "E",
+        "group": ",",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "NaN",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {},
+    "ordinal": {}
+  },
+  "territories": {
+    "AC": "Erékùsù Ascension",
+    "AD": "Ààndórà",
+    "AE": "Ẹmirate ti Awọn Arabu",
+    "AF": "Àfùgànístánì",
+    "AG": "Ààntígúà àti Báríbúdà",
+    "AI": "Ààngúlílà",
+    "AL": "Àlùbàníánì",
+    "AM": "Améníà",
+    "AO": "Ààngólà",
+    "AQ": "Antakítíkà",
+    "AR": "Agentínà",
+    "AS": "Sámóánì ti Orílẹ́ède Àméríkà",
+    "AT": "Asítíríà",
+    "AU": "Austrálíà",
+    "AW": "Árúbà",
+    "AX": "Àwọn Erékùsù ti Aland",
+    "AZ": "Asẹ́bájánì",
+    "BA": "Bọ̀síníà àti Ẹtisẹgófínà",
+    "BB": "Bábádósì",
+    "BD": "Bángáládésì",
+    "BE": "Bégíọ́mù",
+    "BF": "Bùùkíná Fasò",
+    "BG": "Bùùgáríà",
+    "BH": "Báránì",
+    "BI": "Bùùrúndì",
+    "BJ": "Bẹ̀nẹ̀",
+    "BL": "Ìlú Bátílẹ́mì",
+    "BM": "Bémúdà",
+    "BN": "Búrúnẹ́lì",
+    "BO": "Bọ̀lífíyà",
+    "BQ": "Kàríbíánì ti Nẹ́dálándì",
+    "BR": "Bàràsílì",
+    "BS": "Bàhámásì",
+    "BT": "Bútánì",
+    "BV": "Erékùsù Bouvet",
+    "BW": "Bọ̀tìsúwánà",
+    "BY": "Bélárúsì",
+    "BZ": "Bèlísẹ̀",
+    "CA": "Kánádà",
+    "CC": "Erékùsù Cocos (Keeling)",
+    "CD": "Kóńgò – Kinshasa",
+    "CF": "Àrin gùngun Áfíríkà",
+    "CG": "Kóńgò – Brazaville",
+    "CH": "Súwísìlanìdì",
+    "CI": "Kóútè forà",
+    "CK": "Etíokun Kùúkù",
+    "CL": "Ṣílè",
+    "CM": "Kamerúúnì",
+    "CN": "Ṣáínà",
+    "CO": "Kòlómíbìa",
+    "CP": "Erékùsù Clipperston",
+    "CQ": "Sáàkì",
+    "CR": "Kuusita Ríkà",
+    "CU": "Kúbà",
+    "CV": "Etíokun Kápé féndè",
+    "CW": "Curaçao",
+    "CX": "Erékùsù Christmas",
+    "CY": "Kúrúsì",
+    "CZ": "Ṣẹ́ẹ́kì",
+    "DE": "Jámánì",
+    "DG": "Diego Gaṣia",
+    "DJ": "Díbọ́ótì",
+    "DK": "Dẹ́mákì",
+    "DM": "Dòmíníkà",
+    "DO": "Dòmíníkánì",
+    "DZ": "Àlùgèríánì",
+    "EA": "Seuta àti Melilla",
+    "EC": "Ekuádò",
+    "EE": "Esitonia",
+    "EG": "Égípítì",
+    "EH": "Ìwọ̀òòrùn Sàhárà",
+    "ER": "Eritira",
+    "ES": "Sípéìnì",
+    "ET": "Etopia",
+    "EU": "Àpapọ̀ Yúróòpù",
+    "EZ": "Agbègbè Yúrò",
+    "FI": "Filandi",
+    "FJ": "Fíjì",
+    "FK": "Etikun Fakalandi",
+    "FM": "Makoronesia",
+    "FO": "Àwọn Erékùsù ti Faroe",
+    "FR": "Faranse",
+    "GA": "Gabon",
+    "GB": "Gẹ̀ẹ́sì",
+    "GD": "Genada",
+    "GE": "Gọgia",
+    "GF": "Firenṣi Guana",
+    "GG": "Guernsey",
+    "GH": "Gana",
+    "GI": "Gibaratara",
+    "GL": "Gerelandi",
+    "GM": "Gambia",
+    "GN": "Gene",
+    "GP": "Gadelope",
+    "GQ": "Ekutoria Gini",
+    "GR": "Gíríìsì",
+    "GS": "Gúúsù Georgia àti Gúúsù Àwọn Erékùsù Sandwich",
+    "GT": "Guatemálà",
+    "GU": "Guamu",
+    "GW": "Gene-Busau",
+    "GY": "Guyana",
+    "HK": "Agbègbè Ìṣàkóso Ìṣúná Hong Kong Tí Ṣánà Ń Darí",
+    "HM": "Erékùsù Heard àti Erékùsù McDonald",
+    "HN": "Hondurasi",
+    "HR": "Kòróátíà",
+    "HT": "Haati",
+    "HU": "Hungari",
+    "IC": "Ẹrékùsù Kánárì",
+    "ID": "Indonéṣíà",
+    "IE": "Ailandi",
+    "IL": "Iserẹli",
+    "IM": "Erékùṣù ilẹ̀ Man",
+    "IN": "Íńdíà",
+    "IO": "Etíkun Índíánì ti Ìlú Bírítísì",
+    "IQ": "Iraki",
+    "IR": "Irani",
+    "IS": "Aṣilandi",
+    "IT": "Itáli",
+    "JE": "Jẹsì",
+    "JM": "Jamaika",
+    "JO": "Jọdani",
+    "JP": "Japani",
+    "KE": "Kenya",
+    "KG": "Kuriṣisitani",
+    "KH": "Kàmùbódíà",
+    "KI": "Kiribati",
+    "KM": "Kòmòrósì",
+    "KN": "Kiiti ati Neefi",
+    "KP": "Guusu Kọria",
+    "KR": "Ariwa Kọria",
+    "KW": "Kuweti",
+    "KY": "Etíokun Kámánì",
+    "KZ": "Kaṣaṣatani",
+    "LA": "Laosi",
+    "LB": "Lebanoni",
+    "LC": "Luṣia",
+    "LI": "Lẹṣitẹnisiteni",
+    "LK": "Siri Lanka",
+    "LR": "Laberia",
+    "LS": "Lesoto",
+    "LT": "Lituania",
+    "LU": "Lusemogi",
+    "LV": "Latifia",
+    "LY": "Libiya",
+    "MA": "Moroko",
+    "MC": "Monako",
+    "MD": "Modofia",
+    "ME": "Montenégrò",
+    "MF": "Ìlú Màtìnì",
+    "MG": "Madasika",
+    "MH": "Etikun Máṣali",
+    "MK": "Àríwá Macedonia",
+    "ML": "Mali",
+    "MM": "Manamari",
+    "MN": "Mogolia",
+    "MO": "Agbègbè Ìṣàkóso Pàtàkì Macao",
+    "MP": "Etikun Guusu Mariana",
+    "MQ": "Matinikuwi",
+    "MR": "Maritania",
+    "MS": "Motserati",
+    "MT": "Malata",
+    "MU": "Maritiusi",
+    "MV": "Maladifi",
+    "MW": "Malawi",
+    "MX": "Mesiko",
+    "MY": "Malasia",
+    "MZ": "Moṣamibiku",
+    "NA": "Namibia",
+    "NC": "Kaledonia Titun",
+    "NE": "Nàìjá",
+    "NF": "Erékùsù Nọ́úfókì",
+    "NG": "Nàìjíríà",
+    "NI": "Nikaragua",
+    "NL": "Nedalandi",
+    "NO": "Nọọwii",
+    "NP": "Nepa",
+    "NR": "Nauru",
+    "NU": "Niue",
+    "NZ": "Ṣilandi Titun",
+    "OM": "Ọọma",
+    "PA": "Paramá",
+    "PE": "Pèérù",
+    "PF": "Firenṣi Polinesia",
+    "PG": "Paapu ti Giini",
+    "PH": "Filipini",
+    "PK": "Pakisitan",
+    "PL": "Polandi",
+    "PM": "Pẹẹri ati mikuloni",
+    "PN": "Pikarini",
+    "PR": "Pọto Riko",
+    "PS": "Agbègbè ara Palẹsítínì",
+    "PT": "Pọ́túgà",
+    "PW": "Paalu",
+    "PY": "Paraguye",
+    "QA": "Kota",
+    "QO": "Agbègbè Òṣọ́ọ́níà",
+    "RE": "Riuniyan",
+    "RO": "Romaniya",
+    "RS": "Sẹ́bíà",
+    "RU": "Rọṣia",
+    "RW": "Ruwanda",
+    "SA": "Saudi Arabia",
+    "SB": "Etikun Solomoni",
+    "SC": "Ṣeṣẹlẹsi",
+    "SD": "Sudani",
+    "SE": "Swidini",
+    "SG": "Singapo",
+    "SH": "Hẹlena",
+    "SI": "Silofania",
+    "SJ": "Sífábáàdì àti Jánì Máyẹ̀nì",
+    "SK": "Silofakia",
+    "SL": "Siria looni",
+    "SM": "Sani Marino",
+    "SN": "Sẹnẹga",
+    "SO": "Sòmálíà",
+    "SR": "Surinami",
+    "SS": "Gúúsù Sudan",
+    "ST": "Sao tomi ati piriiṣipi",
+    "SV": "Ẹẹsáfádò",
+    "SX": "Síntì Mátẹ́ẹ̀nì",
+    "SY": "Siria",
+    "SZ": "Saṣiland",
+    "TA": "Tristan da Kunha",
+    "TC": "Tọọki ati Etikun Kakọsi",
+    "TD": "Ṣààdì",
+    "TF": "Agbègbè Gúúsù Faranṣé",
+    "TG": "Togo",
+    "TH": "Tailandi",
+    "TJ": "Takisitani",
+    "TK": "Tokelau",
+    "TL": "Tímọ̀ Lẹsiti",
+    "TM": "Tọ́kìmẹ́nísítànì",
+    "TN": "Tuniṣia",
+    "TO": "Tonga",
+    "TR": "Tọọki",
+    "TT": "Tirinida ati Tobaga",
+    "TV": "Tufalu",
+    "TW": "Taiwani",
+    "TZ": "Tàǹsáníà",
+    "UA": "Ukarini",
+    "UG": "Uganda",
+    "UM": "Àwọn Erékùsù Kékèké Agbègbè US",
+    "UN": "Ìṣọ̀kan àgbáyé",
+    "US": "Amẹrikà",
+    "UY": "Úrúgúwè",
+    "UZ": "Nṣibẹkisitani",
+    "VA": "Ìlú Vatican",
+    "VC": "Fisẹnnti ati Genadina",
+    "VE": "Fẹnẹṣuẹla",
+    "VG": "Etíkun Fágínì ti ìlú Bírítísì",
+    "VI": "Etikun Fagini ti Amẹrika",
+    "VN": "Fẹtinami",
+    "VU": "Faniatu",
+    "WF": "Wali ati futuna",
+    "WS": "Samọ",
+    "XA": "ìsọ̀rọ̀sí irọ́",
+    "XB": "Agbègbè irọ́",
+    "XK": "Kòsófò",
+    "YE": "Yemeni",
+    "YT": "Mayote",
+    "ZA": "Gúúṣù Áfíríkà",
+    "ZM": "Ṣamibia",
+    "ZW": "Ṣimibabe"
+  }
+}

@@ -175,6 +175,28 @@ const (
 	ExecutableContent                  Code = 1503
 	DirectSourceAssuranceUnenforceable Code = 1504
 
+	// Localisation and translation import (PLX-1600–1699, P8).
+
+	LocaleUnsupported              Code = 1600
+	MessageSyntaxInvalid           Code = 1601
+	MessageArgumentUndeclared      Code = 1602
+	MessageArgumentTypeMismatch    Code = 1603
+	PluralCategoryInvalid          Code = 1604
+	PluralOtherMissing             Code = 1605
+	TranslationMissing             Code = 1606
+	TranslationTooLong             Code = 1607
+	TranslationKeyUnused           Code = 1608
+	LiteralTextUntranslated        Code = 1609
+	TranslationNotApproved         Code = 1610
+	CalendarUnsupported            Code = 1611
+	NumberingSystemUnsupported     Code = 1612
+	LocaleOverrideInvalid          Code = 1613
+	PseudoLocaleInProduction       Code = 1614
+	CalendarOutOfTable             Code = 1615
+	TranslationImportInvalid       Code = 1620
+	TranslationImportKeyUnknown    Code = 1621
+	TranslationImportSourceChanged Code = 1622
+
 	// Compiler and PXL (PLX-2000–2999).
 
 	PXLSyntaxError          Code = 2001
@@ -218,6 +240,12 @@ const (
 	RevertedToLastKnownGood    Code = 3020
 	DiskQuotaExceeded          Code = 3030
 
+	// Publish gates: accessibility and golden tests (PLX-3060–3069, P8).
+
+	AccessibilityBlocksPublish Code = 3060
+	GoldenRunMissing           Code = 3061
+	GoldenDifferenceUnapproved Code = 3062
+
 	// Runtime rendering and navigation (PLX-4000–4999).
 
 	NodeBuildFailed           Code = 4001
@@ -242,6 +270,13 @@ const (
 	AnimationCommandInvalid Code = 4301
 	AnimationTimelineBroken Code = 4302
 	AnimationAssetFailed    Code = 4303
+
+	// Runtime localisation and widget packages (PLX-4400–4499, P8).
+
+	LocaleNotInRelease   Code = 4400
+	TranslationFallback  Code = 4401
+	MessageFormatFailed  Code = 4402
+	WidgetPackageMissing Code = 4403
 
 	// Actions, data and local DB (PLX-5000–5999).
 
@@ -404,27 +439,34 @@ const (
 
 	// Governance (PLX-8000–8999).
 
-	MultiFactorRequired     Code = 8011
-	AuthenticationRequired  Code = 8012
-	EditingLockHeld         Code = 8020
-	PermissionDenied        Code = 8030
-	ResourceNotFound        Code = 8031
-	ResourceExists          Code = 8032
-	PreconditionFailed      Code = 8033
-	RateLimited             Code = 8040
-	ReleaseInconsistent     Code = 8050
-	WarningsNotAcknowledged Code = 8051
-	PluginNotPublished      Code = 8052
-	AssetsNotReady          Code = 8053
-	HostBuildIncompatible   Code = 8054
-	InternalServerError     Code = 8090
-	UpstreamUnavailable     Code = 8091
+	MultiFactorRequired          Code = 8011
+	AuthenticationRequired       Code = 8012
+	EditingLockHeld              Code = 8020
+	PermissionDenied             Code = 8030
+	ResourceNotFound             Code = 8031
+	ResourceExists               Code = 8032
+	PreconditionFailed           Code = 8033
+	RateLimited                  Code = 8040
+	ReleaseInconsistent          Code = 8050
+	WarningsNotAcknowledged      Code = 8051
+	PluginNotPublished           Code = 8052
+	AssetsNotReady               Code = 8053
+	HostBuildIncompatible        Code = 8054
+	InternalServerError          Code = 8090
+	UpstreamUnavailable          Code = 8091
+	TranslationStateForbidden    Code = 8092
+	TranslationDocumentForbidden Code = 8093
 
 	// Studio, CLI and AI (PLX-9000–9999).
 
 	CLIConfigurationInvalid Code = 9100
 	ProjectNotFound         Code = 9101
 	FileSystemError         Code = 9102
+
+	// Golden test harness (PLX-9300–9399, P8).
+
+	GoldenHarnessFailed   Code = 9300
+	FlutterSDKUnavailable Code = 9301
 )
 
 // Definition is the registered description of a code (DX-003).

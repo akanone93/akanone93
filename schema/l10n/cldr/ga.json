@@ -1,0 +1,3455 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMMdd": "dd/MM/y GGGGG",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E, M/d/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E d MMM y G",
+        "GyMMMMEEEEd": "EEEE d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMd": "M/d/y G",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "LL",
+        "MEd": "E dd/MM",
+        "MMM": "LLL",
+        "MMMEd": "E d MMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "dd/MM",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "MM/y GGGGG",
+        "yyyyMEd": "E dd/MM/y GGGGG",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E d MMM y G",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "dd/MM/y GGGGG"
+      },
+      "dateFormats": {
+        "full": "EEEE d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "d MMM y G",
+        "short": "dd/MM/y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'ag' {0}",
+        "long": "{1} 'ag' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "r.n.",
+            "pm": "i.n."
+          },
+          "wide": {
+            "am": "r.n.",
+            "pm": "i.n."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "r.n.",
+            "pm": "i.n."
+          },
+          "wide": {
+            "am": "r.n.",
+            "pm": "i.n."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Domh", "Luan", "Máirt", "Céad", "Déar", "Aoine", "Sath"],
+          "short": ["Do", "Lu", "Má", "Cé", "Dé", "Ao", "Sa"],
+          "wide": ["Dé Domhnaigh", "Dé Luain", "Dé Máirt", "Dé Céadaoin", "Déardaoin", "Dé hAoine", "Dé Sathairn"]
+        },
+        "standAlone": {
+          "abbreviated": ["Domh", "Luan", "Máirt", "Céad", "Déar", "Aoine", "Sath"],
+          "short": ["Do", "Lu", "Má", "Cé", "Dé", "Ao", "Sa"],
+          "wide": ["Dé Domhnaigh", "Dé Luain", "Dé Máirt", "Dé Céadaoin", "Déardaoin", "Dé hAoine", "Dé Sathairn"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        },
+        "standAlone": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E, d/M/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E d MMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMd": "dd/MM/y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "LL",
+        "MEd": "E dd/MM",
+        "MMM": "LLL",
+        "MMMEd": "E d MMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "dd/MM",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "MM/y",
+        "yMEd": "E dd/MM/y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E d MMM y",
+        "yMMMM": "MMMM y",
+        "yMMMMEEEEd": "EEEE d MMMM y",
+        "yMMMMd": "d MMMM y",
+        "yMMMd": "d MMM y",
+        "yMMdd": "d/M/yy",
+        "yMd": "dd/MM/y"
+      },
+      "dateFormats": {
+        "full": "EEEE d MMMM y",
+        "long": "d MMMM y",
+        "medium": "d MMM y",
+        "short": "d/M/yy"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'ag' {0}",
+        "long": "{1} 'ag' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "r.n.",
+            "pm": "i.n."
+          },
+          "narrow": {
+            "am": "r.n.",
+            "pm": "i.n."
+          },
+          "wide": {
+            "am": "r.n.",
+            "pm": "i.n."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "r.n.",
+            "pm": "i.n."
+          },
+          "narrow": {
+            "am": "r.n.",
+            "pm": "i.n."
+          },
+          "wide": {
+            "am": "r.n.",
+            "pm": "i.n."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Domh", "Luan", "Máirt", "Céad", "Déar", "Aoine", "Sath"],
+          "narrow": ["D", "L", "M", "C", "D", "A", "S"],
+          "short": ["Do", "Lu", "Má", "Cé", "Dé", "Ao", "Sa"],
+          "wide": ["Dé Domhnaigh", "Dé Luain", "Dé Máirt", "Dé Céadaoin", "Déardaoin", "Dé hAoine", "Dé Sathairn"]
+        },
+        "standAlone": {
+          "abbreviated": ["Domh", "Luan", "Máirt", "Céad", "Déar", "Aoine", "Sath"],
+          "narrow": ["D", "L", "M", "C", "D", "A", "S"],
+          "short": ["Do", "Lu", "Má", "Cé", "Dé", "Ao", "Sa"],
+          "wide": ["Dé Domhnaigh", "Dé Luain", "Dé Máirt", "Dé Céadaoin", "Déardaoin", "Dé hAoine", "Dé Sathairn"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["RC", "AD"],
+        "narrow": ["RC", "AD"],
+        "wide": ["Roimh Chríost", "Anno Domini"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Ean", "Feabh", "Márta", "Aib", "Beal", "Meith", "Iúil", "Lún", "MFómh", "DFómh", "Samh", "Noll"],
+          "narrow": ["E", "F", "M", "A", "B", "M", "I", "L", "M", "D", "S", "N"],
+          "wide": ["Eanáir", "Feabhra", "Márta", "Aibreán", "Bealtaine", "Meitheamh", "Iúil", "Lúnasa", "Meán Fómhair", "Deireadh Fómhair", "Samhain", "Nollaig"]
+        },
+        "standAlone": {
+          "abbreviated": ["Ean", "Feabh", "Márta", "Aib", "Beal", "Meith", "Iúil", "Lún", "MFómh", "DFómh", "Samh", "Noll"],
+          "narrow": ["E", "F", "M", "A", "B", "M", "I", "L", "M", "D", "S", "N"],
+          "wide": ["Eanáir", "Feabhra", "Márta", "Aibreán", "Bealtaine", "Meitheamh", "Iúil", "Lúnasa", "Meán Fómhair", "Deireadh Fómhair", "Samhain", "Nollaig"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMMdd": "dd/MM/y GGGGG",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E, M/d/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E d MMM y G",
+        "GyMMMMEEEEd": "EEEE d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMd": "M/d/y G",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "LL",
+        "MEd": "E dd/MM",
+        "MMM": "LLL",
+        "MMMEd": "E d MMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "dd/MM",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "MM/y GGGGG",
+        "yyyyMEd": "E dd/MM/y GGGGG",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E d MMM y G",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "dd/MM/y GGGGG"
+      },
+      "dateFormats": {
+        "full": "EEEE d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "d MMM y G",
+        "short": "dd/MM/y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'ag' {0}",
+        "long": "{1} 'ag' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "r.n.",
+            "pm": "i.n."
+          },
+          "wide": {
+            "am": "r.n.",
+            "pm": "i.n."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "r.n.",
+            "pm": "i.n."
+          },
+          "wide": {
+            "am": "r.n.",
+            "pm": "i.n."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Domh", "Luan", "Máirt", "Céad", "Déar", "Aoine", "Sath"],
+          "short": ["Do", "Lu", "Má", "Cé", "Dé", "Ao", "Sa"],
+          "wide": ["Dé Domhnaigh", "Dé Luain", "Dé Máirt", "Dé Céadaoin", "Déardaoin", "Dé hAoine", "Dé Sathairn"]
+        },
+        "standAlone": {
+          "abbreviated": ["Domh", "Luan", "Máirt", "Céad", "Déar", "Aoine", "Sath"],
+          "short": ["Do", "Lu", "Má", "Cé", "Dé", "Ao", "Sa"],
+          "wide": ["Dé Domhnaigh", "Dé Luain", "Dé Máirt", "Dé Céadaoin", "Déardaoin", "Dé hAoine", "Dé Sathairn"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AH", "BH"],
+        "wide": ["AH", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        },
+        "standAlone": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMMdd": "dd/MM/y GGGGG",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E, M/d/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E d MMM y G",
+        "GyMMMMEEEEd": "EEEE d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMd": "M/d/y G",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "LL",
+        "MEd": "E dd/MM",
+        "MMM": "LLL",
+        "MMMEd": "E d MMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "dd/MM",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "MM/y GGGGG",
+        "yyyyMEd": "E dd/MM/y GGGGG",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E d MMM y G",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "dd/MM/y GGGGG"
+      },
+      "dateFormats": {
+        "full": "EEEE d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "d MMM y G",
+        "short": "dd/MM/y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'ag' {0}",
+        "long": "{1} 'ag' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "r.n.",
+            "pm": "i.n."
+          },
+          "wide": {
+            "am": "r.n.",
+            "pm": "i.n."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "r.n.",
+            "pm": "i.n."
+          },
+          "wide": {
+            "am": "r.n.",
+            "pm": "i.n."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Domh", "Luan", "Máirt", "Céad", "Déar", "Aoine", "Sath"],
+          "short": ["Do", "Lu", "Má", "Cé", "Dé", "Ao", "Sa"],
+          "wide": ["Dé Domhnaigh", "Dé Luain", "Dé Máirt", "Dé Céadaoin", "Déardaoin", "Dé hAoine", "Dé Sathairn"]
+        },
+        "standAlone": {
+          "abbreviated": ["Domh", "Luan", "Máirt", "Céad", "Déar", "Aoine", "Sath"],
+          "short": ["Do", "Lu", "Má", "Cé", "Dé", "Ao", "Sa"],
+          "wide": ["Dé Domhnaigh", "Dé Luain", "Dé Máirt", "Dé Céadaoin", "Déardaoin", "Dé hAoine", "Dé Sathairn"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AP"],
+        "wide": ["AP"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        },
+        "standAlone": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    }
+  },
+  "currencies": {
+    "ADP": {
+      "name": "Peseta Andóra",
+      "plural": {
+        "few": "pheseta Andóra",
+        "many": "bpeseta Andóra",
+        "one": "pheseta Andóra",
+        "other": "peseta Andóra",
+        "two": "pheseta Andóra"
+      }
+    },
+    "AED": {
+      "name": "Dirham Aontas na nÉimíríochtaí Arabacha",
+      "plural": {
+        "few": "dhirham Aontas na nÉimíríochtaí Arabacha",
+        "many": "ndirham Aontas na nÉimíríochtaí Arabacha",
+        "one": "dirham Aontas na nÉimíríochtaí Arabacha",
+        "other": "dirham Aontas na nÉimíríochtaí Arabacha",
+        "two": "dhirham Aontas na nÉimíríochtaí Arabacha"
+      }
+    },
+    "AFA": {
+      "name": "Afgainí (1927–2002)"
+    },
+    "AFN": {
+      "name": "Afghani na hAfganastáine",
+      "narrow": "؋",
+      "plural": {
+        "few": "afghani na hAfganastáine",
+        "many": "n-afghani na hAfganastáine",
+        "one": "afghani na hAfganastáine",
+        "other": "afghani na hAfganastáine",
+        "two": "afghani na hAfganastáine"
+      }
+    },
+    "ALK": {
+      "name": "Lek na hAlbáine (1946–1965)",
+      "plural": {
+        "few": "lek na hAlbáine (1946–1965)",
+        "many": "lek na hAlbáine (1946–1965)",
+        "one": "lek na hAlbáine (1946–1965)",
+        "other": "lek na hAlbáine (1946–1965)",
+        "two": "lek na hAlbáine (1946–1965)"
+      }
+    },
+    "ALL": {
+      "name": "Lek na hAlbáine",
+      "plural": {
+        "few": "lek na hAlbáine",
+        "many": "lek na hAlbáine",
+        "one": "lek na hAlbáine",
+        "two": "lek na hAlbáine"
+      }
+    },
+    "AMD": {
+      "name": "Dram na hAirméine",
+      "narrow": "֏",
+      "plural": {
+        "few": "dhram na hAirméine",
+        "many": "ndram na hAirméine",
+        "one": "dram na hAirméine",
+        "other": "dram na hAirméine",
+        "two": "dhram na hAirméine"
+      }
+    },
+    "ANG": {
+      "name": "Gildear Aintillí na hÍsiltíre",
+      "plural": {
+        "few": "ghildear Aintillí na hÍsiltíre",
+        "many": "ngildear Aintillí na hÍsiltíre",
+        "one": "ghildear Aintillí na hÍsiltíre",
+        "other": "gildear Aintillí na hÍsiltíre",
+        "two": "ghildear Aintillí na hÍsiltíre"
+      }
+    },
+    "AOA": {
+      "name": "Kwanza Angóla",
+      "narrow": "Kz",
+      "plural": {
+        "few": "kwanza Angóla",
+        "many": "kwanza Angóla",
+        "one": "kwanza Angóla",
+        "other": "kwanza Angóla",
+        "two": "kwanza Angóla"
+      }
+    },
+    "AOK": {
+      "name": "Kwanza Angólach (1977–1990)"
+    },
+    "AON": {
+      "name": "Kwanza Nua Angólach (1990–2000)"
+    },
+    "AOR": {
+      "name": "Kwanza Reajustado Angólach (1995–1999)"
+    },
+    "ARA": {
+      "name": "Austral Airgintíneach"
+    },
+    "ARL": {
+      "name": "Peso Ley na hAirgintíne (1970–1983)"
+    },
+    "ARM": {
+      "name": "Peso na hAirgintíne (1881–1970)",
+      "plural": {
+        "few": "pheso na hAirgintíne (1881–1970)",
+        "many": "bpeso na hAirgintíne (1881–1970)",
+        "one": "pheso na hAirgintíne (1881–1970)",
+        "other": "peso na hAirgintíne (1881–1970)",
+        "two": "pheso na hAirgintíne (1881–1970)"
+      }
+    },
+    "ARP": {
+      "name": "Peso na hAirgintíne (1983–1985)",
+      "plural": {
+        "few": "pheso na hAirgintíne (1983–1985)",
+        "many": "bpeso na hAirgintíne (1983–1985)",
+        "one": "pheso na hAirgintíne (1983–1985)",
+        "other": "peso na hAirgintíne (1983–1985)",
+        "two": "pheso na hAirgintíne (1983–1985)"
+      }
+    },
+    "ARS": {
+      "name": "Peso na hAirgintíne",
+      "narrow": "$",
+      "plural": {
+        "few": "pheso na hAirgintíne",
+        "many": "bpeso na hAirgintíne",
+        "one": "pheso na hAirgintíne",
+        "other": "peso na hAirgintíne",
+        "two": "pheso na hAirgintíne"
+      }
+    },
+    "ATS": {
+      "name": "Scilling na hOstaire",
+      "plural": {
+        "few": "Scilling Ostarach",
+        "many": "Scilling Ostarach",
+        "one": "Scilling Ostarach",
+        "other": "Scilling Ostarach",
+        "two": "Scilling Ostarach"
+      }
+    },
+    "AUD": {
+      "name": "Dollar na hAstráile",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar na hAstráile",
+        "many": "ndollar na hAstráile",
+        "one": "dollar na hAstráile",
+        "other": "dollar na hAstráile",
+        "two": "dhollar na hAstráile"
+      },
+      "symbol": "A$"
+    },
+    "AWG": {
+      "name": "Flóirín Arúba",
+      "plural": {
+        "few": "fhlóirín Arúba",
+        "many": "bhflóirín Arúba",
+        "one": "fhlóirín Arúba",
+        "other": "flóirín Arúba",
+        "two": "fhlóirín Arúba"
+      }
+    },
+    "AZM": {
+      "name": "Manat na hAsarbaiseáine (1993–2006)",
+      "plural": {
+        "few": "mhanat na hAsarbaiseáine (1993–2006)",
+        "many": "manat na hAsarbaiseáine (1993–2006)",
+        "one": "mhanat na hAsarbaiseáine (1993–2006)",
+        "other": "manat na hAsarbaiseáine (1993–2006)",
+        "two": "mhanat na hAsarbaiseáine (1993–2006)"
+      }
+    },
+    "AZN": {
+      "name": "Manat na hAsarbaiseáine",
+      "narrow": "₼",
+      "plural": {
+        "few": "mhanat na hAsarbaiseáine",
+        "many": "manat na hAsarbaiseáine",
+        "one": "mhanat na hAsarbaiseáine",
+        "other": "manat na hAsarbaiseáine",
+        "two": "mhanat na hAsarbaiseáine"
+      }
+    },
+    "BAD": {
+      "name": "Dínear Bhoisnia-Heirseagaivéin (1992–1994)"
+    },
+    "BAM": {
+      "name": "Marg Inmhalartaithe na Boisnia-Heirseagaivéine",
+      "narrow": "KM",
+      "plural": {
+        "few": "mharg inmhalartaithe na Boisnia-Heirseagaivéine",
+        "many": "marg inmhalartaithe na Boisnia-Heirseagaivéine",
+        "one": "mharg inmhalartaithe na Boisnia-Heirseagaivéine",
+        "other": "marg inmhalartaithe na Boisnia-Heirseagaivéine",
+        "two": "mharg inmhalartaithe na Boisnia-Heirseagaivéine"
+      }
+    },
+    "BBD": {
+      "name": "Dollar Bharbadós",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar Bharbadós",
+        "many": "ndollar Bharbadós",
+        "one": "dollar Bharbadós",
+        "other": "dollar Bharbadós",
+        "two": "dhollar Bharbadós"
+      }
+    },
+    "BDT": {
+      "name": "Taka na Banglaidéise",
+      "narrow": "৳",
+      "plural": {
+        "few": "thaka na Banglaidéise",
+        "many": "dtaka na Banglaidéise",
+        "one": "taka na Banglaidéise",
+        "other": "taka na Banglaidéise",
+        "two": "thaka na Banglaidéise"
+      }
+    },
+    "BEC": {
+      "name": "Franc na Beilge (inmhalartaithe)",
+      "plural": {
+        "few": "Franc Beilgeach (inathraithe)",
+        "many": "Franc Beilgeach (inathraithe)",
+        "one": "Franc Beilgeach (inathraithe)",
+        "other": "Franc Beilgeach (inathraithe)",
+        "two": "Franc Beilgeach (inathraithe)"
+      }
+    },
+    "BEF": {
+      "name": "Franc Beilgeach"
+    },
+    "BEL": {
+      "name": "Franc na Beilge (airgeadais)",
+      "plural": {
+        "few": "Franc Beilgeach (airgeadúil)",
+        "many": "Franc Beilgeach (airgeadúil)",
+        "one": "Franc Beilgeach (airgeadúil)",
+        "other": "Franc Beilgeach (airgeadúil)",
+        "two": "Franc Beilgeach (airgeadúil)"
+      }
+    },
+    "BGL": {
+      "name": "Lev Crua na Bulgáire",
+      "plural": {
+        "few": "lev chrua na Bulgáire",
+        "many": "lev chrua na Bulgáire",
+        "one": "lev crua na Bulgáire",
+        "other": "lev crua na Bulgáire",
+        "two": "lev chrua na Bulgáire"
+      }
+    },
+    "BGM": {
+      "plural": {
+        "few": "lev sóisialach na Bulgáire",
+        "many": "lev sóisialach na Bulgáire",
+        "one": "lev sóisialach na Bulgáire",
+        "other": "lev sóisialach na Bulgáire",
+        "two": "lev sóisialach na Bulgáire"
+      }
+    },
+    "BGN": {
+      "name": "Lev na Bulgáire",
+      "plural": {
+        "few": "lev na Bulgáire",
+        "many": "lev na Bulgáire",
+        "one": "lev na Bulgáire",
+        "other": "lev na Bulgáire",
+        "two": "lev na Bulgáire"
+      }
+    },
+    "BGO": {
+      "name": "Lev na Bulgáire (1879–1952)",
+      "plural": {
+        "few": "lev na Bulgáire (1879–1952)",
+        "many": "lev na Bulgáire (1879–1952)",
+        "one": "lev na Bulgáire (1879–1952)",
+        "other": "lev na Bulgáire (1879–1952)",
+        "two": "lev na Bulgáire (1879–1952)"
+      }
+    },
+    "BHD": {
+      "name": "Dinar Bhairéin",
+      "plural": {
+        "few": "dhinar Bhairéin",
+        "many": "ndinar Bhairéin",
+        "one": "dinar Bhairéin",
+        "other": "dinar Bhairéin",
+        "two": "dhinar Bhairéin"
+      }
+    },
+    "BIF": {
+      "name": "Franc na Burúine",
+      "plural": {
+        "few": "fhranc na Burúine",
+        "many": "bhfranc na Burúine",
+        "one": "fhranc na Burúine",
+        "other": "franc na Burúine",
+        "two": "fhranc na Burúine"
+      }
+    },
+    "BMD": {
+      "name": "Dollar Bheirmiúda",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar Bheirmiúda",
+        "many": "ndollar Bheirmiúda",
+        "one": "dollar Bheirmiúda",
+        "other": "dollar Bheirmiúda",
+        "two": "dhollar Bheirmiúda"
+      }
+    },
+    "BND": {
+      "name": "Dollar Bhrúiné",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar Bhrúiné",
+        "many": "ndollar Bhrúiné",
+        "one": "dollar Bhrúiné",
+        "other": "dollar Bhrúiné",
+        "two": "dhollar Bhrúiné"
+      }
+    },
+    "BOB": {
+      "name": "Boliviano",
+      "narrow": "Bs",
+      "plural": {
+        "few": "bholiviano",
+        "many": "mboliviano",
+        "one": "bholiviano",
+        "other": "boliviano",
+        "two": "bholiviano"
+      }
+    },
+    "BOP": {
+      "name": "Peso na Bolaive",
+      "plural": {
+        "few": "pheso na Bolaive",
+        "many": "bpeso na Bolaive",
+        "one": "pheso na Bolaive",
+        "other": "peso na Bolaive",
+        "two": "pheso na Bolaive"
+      }
+    },
+    "BOV": {
+      "name": "Mvdol na Bolaive",
+      "plural": {
+        "few": "mvdol na Bolaive",
+        "many": "mvdol na Bolaive",
+        "one": "mvdol na Bolaive",
+        "other": "mvdol na Bolaive",
+        "two": "mvdol na Bolaive"
+      }
+    },
+    "BRB": {
+      "name": "Cruzeiro Nua na Brasaíle (1967–1986)",
+      "plural": {
+        "few": "chruzeiro nua na Brasaíle (1967–1986)",
+        "many": "gcruzeiro nua na Brasaíle (1967–1986)",
+        "one": "chruzeiro nua na Brasaíle (1967–1986)",
+        "other": "cruzeiro nua na Brasaíle (1967–1986)",
+        "two": "chruzeiro nua na Brasaíle (1967–1986)"
+      }
+    },
+    "BRC": {
+      "name": "Cruzado na Brasaíle (1986–1989)",
+      "plural": {
+        "few": "chruzado na Brasaíle (1986–1989)",
+        "many": "gcruzado na Brasaíle (1986–1989)",
+        "one": "chruzado na Brasaíle (1986–1989)",
+        "other": "cruzado na Brasaíle (1986–1989)",
+        "two": "chruzado na Brasaíle (1986–1989)"
+      }
+    },
+    "BRE": {
+      "name": "Cruzeiro na Brasaíle (1990–1993)",
+      "plural": {
+        "few": "chruzeiro na Brasaíle (1990–1993)",
+        "many": "gcruzeiro na Brasaíle (1990–1993)",
+        "one": "chruzeiro na Brasaíle (1990–1993)",
+        "other": "cruzeiro na Brasaíle (1990–1993)",
+        "two": "chruzeiro na Brasaíle (1990–1993)"
+      }
+    },
+    "BRL": {
+      "name": "Real na Brasaíle",
+      "plural": {
+        "few": "real na Brasaíle",
+        "many": "real na Brasaíle",
+        "one": "real na Brasaíle",
+        "other": "real na Brasaíle",
+        "two": "real na Brasaíle"
+      },
+      "symbol": "R$"
+    },
+    "BRN": {
+      "name": "Cruzado Nua na Brasaíle (1989–1990)",
+      "plural": {
+        "few": "chruzado nua na Brasaíle (1989–1990)",
+        "many": "gcruzado nua na Brasaíle (1989–1990)",
+        "one": "chruzado nua na Brasaíle (1989–1990)",
+        "other": "cruzado nua na Brasaíle (1989–1990)",
+        "two": "chruzado nua na Brasaíle (1989–1990)"
+      }
+    },
+    "BRR": {
+      "name": "Cruzeiro na Brasaíle (1993–1994)",
+      "plural": {
+        "few": "chruzeiro na Brasaíle (1993–1994)",
+        "many": "gcruzeiro na Brasaíle (1993–1994)",
+        "one": "chruzeiro na Brasaíle (1993–1994)",
+        "other": "cruzeiro na Brasaíle (1993–1994)",
+        "two": "chruzeiro na Brasaíle (1993–1994)"
+      }
+    },
+    "BRZ": {
+      "name": "Cruzeiro na Brasaíle (1942–1967)",
+      "plural": {
+        "few": "chruzeiro na Brasaíle (1942–1967)",
+        "many": "gcruzeiro na Brasaíle (1942–1967)",
+        "one": "chruzeiro na Brasaíle (1942–1967)",
+        "other": "cruzeiro na Brasaíle (1942–1967)",
+        "two": "chruzeiro na Brasaíle (1942–1967)"
+      }
+    },
+    "BSD": {
+      "name": "Dollar na mBahámaí",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar na mBahámaí",
+        "many": "ndollar na mBahámaí",
+        "one": "dollar na mBahámaí",
+        "other": "dollar na mBahámaí",
+        "two": "dhollar na mBahámaí"
+      }
+    },
+    "BTN": {
+      "name": "Ngultrum na Bútáine",
+      "plural": {
+        "few": "ngultrum na Bútáine",
+        "many": "ngultrum na Bútáine",
+        "one": "ngultrum na Bútáine",
+        "other": "ngultrum na Bútáine",
+        "two": "ngultrum na Bútáine"
+      }
+    },
+    "BUK": {
+      "name": "Kyat Bhurma",
+      "plural": {
+        "few": "kyat Bhurma",
+        "many": "kyat Bhurma",
+        "one": "kyat Bhurma",
+        "other": "kyat Bhurma",
+        "two": "kyat Bhurma"
+      }
+    },
+    "BWP": {
+      "name": "Pula na Botsuáine",
+      "narrow": "P",
+      "plural": {
+        "few": "phula na Botsuáine",
+        "many": "bpula na Botsuáine",
+        "one": "phula na Botsuáine",
+        "other": "pula na Botsuáine",
+        "two": "phula na Botsuáine"
+      }
+    },
+    "BYB": {
+      "name": "Rúbal Nua na Bealarúise (1994–1999)",
+      "plural": {
+        "few": "rúbal nua na Bealarúise (1994–1999)",
+        "many": "rúbal nua na Bealarúise (1994–1999)",
+        "one": "rúbal nua na Bealarúise (1994–1999)",
+        "other": "rúbal nua na Bealarúise (1994–1999)",
+        "two": "rúbal nua na Bealarúise (1994–1999)"
+      }
+    },
+    "BYN": {
+      "name": "Rúbal na Bealarúise",
+      "plural": {
+        "few": "rúbal na Bealarúise",
+        "many": "rúbal na Bealarúise",
+        "one": "rúbal na Bealarúise",
+        "other": "rúbal na Bealarúise",
+        "two": "rúbal na Bealarúise"
+      }
+    },
+    "BYR": {
+      "name": "Rúbal na Bealarúise (2000–2016)",
+      "plural": {
+        "few": "rúbal na Bealarúise (2000–2016)",
+        "many": "rúbal na Bealarúise (2000–2016)",
+        "one": "rúbal na Bealarúise (2000–2016)",
+        "other": "rúbal na Bealarúise (2000–2016)",
+        "two": "rúbal na Bealarúise (2000–2016)"
+      }
+    },
+    "BZD": {
+      "name": "Dollar na Beilíse",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar na Beilíse",
+        "many": "ndollar na Beilíse",
+        "one": "dollar na Beilíse",
+        "other": "dollar na Beilíse",
+        "two": "dhollar na Beilíse"
+      }
+    },
+    "CAD": {
+      "name": "Dollar Cheanada",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar Cheanada",
+        "many": "ndollar Cheanada",
+        "one": "dollar Cheanada",
+        "other": "dollar Cheanada",
+        "two": "dhollar Cheanada"
+      },
+      "symbol": "CA$"
+    },
+    "CDF": {
+      "name": "Franc an Chongó",
+      "plural": {
+        "few": "fhranc an Chongó",
+        "many": "bhfranc an Chongó",
+        "one": "fhranc an Chongó",
+        "other": "franc an Chongó",
+        "two": "fhranc an Chongó"
+      }
+    },
+    "CHE": {
+      "name": "Euro WIR",
+      "plural": {
+        "few": "euro WIR",
+        "many": "euro WIR",
+        "one": "WIR euro",
+        "other": "euro WIR",
+        "two": "euro WIR"
+      }
+    },
+    "CHF": {
+      "name": "Franc na hEilvéise",
+      "plural": {
+        "few": "fhranc na hEilvéise",
+        "many": "bhfranc na hEilvéise",
+        "one": "fhranc na hEilvéise",
+        "other": "franc na hEilvéise",
+        "two": "fhranc na hEilvéise"
+      }
+    },
+    "CHW": {
+      "name": "Franc WIR",
+      "plural": {
+        "few": "fhranc WIR",
+        "many": "bhfranc WIR",
+        "one": "fhranc WIR amháin",
+        "other": "franc WIR",
+        "two": "fhranc WIR"
+      }
+    },
+    "CLE": {
+      "name": "Escudo na Sile",
+      "plural": {
+        "few": "escudo na Sile",
+        "many": "n-escudo na Sile",
+        "one": "escudo na Sile",
+        "other": "escudo na Sile",
+        "two": "escudo na Sile"
+      }
+    },
+    "CLF": {
+      "name": "Unidades de Fomento na Sile"
+    },
+    "CLP": {
+      "name": "Peso na Sile",
+      "narrow": "$",
+      "plural": {
+        "few": "pheso na Sile",
+        "many": "bpeso na Sile",
+        "one": "pheso na Sile",
+        "other": "peso na Sile",
+        "two": "pheso na Sile"
+      }
+    },
+    "CNH": {
+      "name": "Yuan na Síne (seachairgeadra)"
+    },
+    "CNY": {
+      "name": "Yuan na Síne",
+      "narrow": "¥",
+      "plural": {
+        "few": "yuan na Síne",
+        "many": "yuan na Síne",
+        "one": "yuan na Síne",
+        "other": "yuan na Síne",
+        "two": "yuan na Síne"
+      },
+      "symbol": "CN¥"
+    },
+    "COP": {
+      "name": "Peso na Colóime",
+      "narrow": "$",
+      "plural": {
+        "few": "pheso na Colóime",
+        "many": "bpeso na Colóime",
+        "one": "pheso na Colóime",
+        "other": "peso na Colóime",
+        "two": "pheso na Colóime"
+      }
+    },
+    "CRC": {
+      "name": "Colón Chósta Ríce",
+      "narrow": "₡",
+      "plural": {
+        "few": "cholón Chósta Ríce",
+        "many": "gcolón Chósta Ríce",
+        "one": "cholón Chósta Ríce",
+        "other": "colón Chósta Ríce",
+        "two": "cholón Chósta Ríce"
+      }
+    },
+    "CSD": {
+      "name": "Dinar na Seirbia (2002–2006)",
+      "plural": {
+        "few": "dhinar na Seirbia (2002–2006)",
+        "many": "ndinar na Seirbia (2002–2006)",
+        "one": "dinar na Seirbia (2002–2006)",
+        "other": "dinar na Seirbia (2002–2006)",
+        "two": "dhinar na Seirbia (2002–2006)"
+      }
+    },
+    "CSK": {
+      "name": "Koruna Crua na Seicslóvaice",
+      "plural": {
+        "few": "koruna chrua na Seicslóvaice",
+        "many": "koruna chrua na Seicslóvaice",
+        "one": "koruna chrua na Seicslóvaice",
+        "other": "koruna crua na Seicslóvaice",
+        "two": "koruna chrua na Seicslóvaice"
+      }
+    },
+    "CUC": {
+      "name": "Peso Inmhalartaithe Chúba",
+      "narrow": "$",
+      "plural": {
+        "few": "pheso inmhalartaithe Chúba",
+        "many": "bpeso inmhalartaithe Chúba",
+        "one": "pheso inmhalartaithe Chúba",
+        "other": "peso inmhalartaithe Chúba",
+        "two": "pheso inmhalartaithe Chúba"
+      }
+    },
+    "CUP": {
+      "name": "Peso Chúba",
+      "narrow": "$",
+      "plural": {
+        "few": "pheso Chúba",
+        "many": "bpeso Chúba",
+        "one": "pheso Chúba",
+        "other": "peso Chúba",
+        "two": "pheso Chúba"
+      }
+    },
+    "CVE": {
+      "name": "Escudo Rinn Verde",
+      "plural": {
+        "few": "escudo Rinn Verde",
+        "many": "n-escudo Rinn Verde",
+        "one": "escudo Rinn Verde",
+        "other": "escudo Rinn Verde",
+        "two": "escudo Rinn Verde"
+      }
+    },
+    "CYP": {
+      "name": "Punt na Cipire",
+      "plural": {
+        "few": "phunt na Cipire",
+        "many": "bpunt na Cipire",
+        "one": "phunt na Cipire",
+        "other": "punt na Cipire",
+        "two": "phunt na Cipire"
+      }
+    },
+    "CZK": {
+      "name": "Koruna Phoblacht na Seice",
+      "narrow": "Kč",
+      "plural": {
+        "few": "koruna Phoblacht na Seice",
+        "many": "koruna Phoblacht na Seice",
+        "one": "koruna Phoblacht na Seice",
+        "other": "koruna Phoblacht na Seice",
+        "two": "koruna Phoblacht na Seice"
+      }
+    },
+    "DDM": {
+      "name": "Marc Ghearmáin an Oirthir",
+      "plural": {
+        "few": "Ostmark na hOirGhearmáine",
+        "many": "Ostmark na hOirGhearmáine",
+        "one": "Ostmark na hOirGhearmáine",
+        "other": "Ostmark na hOirGhearmáine",
+        "two": "Ostmark na hOirGhearmáine"
+      }
+    },
+    "DEM": {
+      "name": "Deutsche Mark"
+    },
+    "DJF": {
+      "name": "Franc Djibouti",
+      "plural": {
+        "few": "fhranc Djibouti",
+        "many": "bhfranc Djibouti",
+        "one": "fhranc Djibouti",
+        "other": "franc Djibouti",
+        "two": "fhranc Djibouti"
+      }
+    },
+    "DKK": {
+      "name": "Coróin na Danmhairge",
+      "narrow": "kr",
+      "plural": {
+        "few": "choróin na Danmhairge",
+        "many": "gcoróin na Danmhairge",
+        "one": "choróin na Danmhairge",
+        "other": "coróin na Danmhairge",
+        "two": "choróin na Danmhairge"
+      }
+    },
+    "DOP": {
+      "name": "Peso na Poblachta Doiminicí",
+      "narrow": "$",
+      "plural": {
+        "few": "pheso na Poblachta Doiminicí",
+        "many": "bpeso na Poblachta Doiminicí",
+        "one": "pheso na Poblachta Doiminicí",
+        "other": "peso na Poblachta Doiminicí",
+        "two": "pheso na Poblachta Doiminicí"
+      }
+    },
+    "DZD": {
+      "name": "Dinar na hAilgéire",
+      "plural": {
+        "few": "dhinar na hAilgéire",
+        "many": "ndinar na hAilgéire",
+        "one": "dinar na hAilgéire",
+        "other": "dinar na hAilgéire",
+        "two": "dhinar na hAilgéire"
+      }
+    },
+    "ECS": {
+      "name": "Sucre Eacuadóir"
+    },
+    "ECV": {
+      "name": "Unidad de Valor Constante (UVC) Eacuadóir"
+    },
+    "EEK": {
+      "name": "Kroon na hEastóine"
+    },
+    "EGP": {
+      "name": "Punt na hÉigipte",
+      "narrow": "E£",
+      "plural": {
+        "few": "phunt na hÉigipte",
+        "many": "bpunt na hÉigipte",
+        "one": "phunt na hÉigipte",
+        "other": "punt na hÉigipte",
+        "two": "phunt na hÉigipte"
+      }
+    },
+    "ERN": {
+      "name": "Nakfa na hEiritré",
+      "plural": {
+        "few": "nakfa na hEiritré",
+        "many": "nakfa na hEiritré",
+        "one": "nakfa na hEiritré",
+        "other": "nakfa na hEiritré",
+        "two": "nakfa na hEiritré"
+      }
+    },
+    "ESP": {
+      "name": "Peseta na Spáinne",
+      "narrow": "₧",
+      "plural": {
+        "few": "pheseta na Spáinne",
+        "many": "bpeseta na Spáinne",
+        "one": "pheseta na Spáinne",
+        "other": "peseta na Spáinne",
+        "two": "pheseta na Spáinne"
+      }
+    },
+    "ETB": {
+      "name": "Birr na hAetóipe",
+      "plural": {
+        "few": "bhirr na hAetóipe",
+        "many": "mbirr na hAetóipe",
+        "one": "bhirr na hAetóipe",
+        "other": "birr na hAetóipe",
+        "two": "bhirr na hAetóipe"
+      }
+    },
+    "EUR": {
+      "name": "Euro",
+      "plural": {
+        "few": "euro",
+        "many": "euro",
+        "one": "euro",
+        "other": "euro",
+        "two": "euro"
+      },
+      "symbol": "€"
+    },
+    "FIM": {
+      "name": "Markka Fionnlannach"
+    },
+    "FJD": {
+      "name": "Dollar Fhidsí",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar Fhidsí",
+        "many": "ndollar Fhidsí",
+        "one": "dollar Fhidsí",
+        "other": "dollar Fhidsí",
+        "two": "dhollar Fhidsí"
+      }
+    },
+    "FKP": {
+      "name": "Punt Oileáin Fháclainne",
+      "narrow": "£",
+      "plural": {
+        "few": "phunt Oileáin Fháclainne",
+        "many": "bpunt Oileáin Fháclainne",
+        "one": "phunt Oileáin Fháclainne",
+        "other": "punt Oileáin Fháclainne",
+        "two": "phunt Oileáin Fháclainne"
+      }
+    },
+    "FRF": {
+      "name": "Franc na Fraince",
+      "plural": {
+        "few": "Franc Francach",
+        "many": "Franc Francach",
+        "one": "Franc Francach",
+        "other": "Franc Francach",
+        "two": "Franc Francach"
+      }
+    },
+    "GBP": {
+      "name": "Punt Steirling",
+      "plural": {
+        "few": "phunt steirling",
+        "many": "bpunt steirling",
+        "one": "phunt steirling",
+        "other": "punt steirling",
+        "two": "phunt steirling"
+      },
+      "symbol": "£"
+    },
+    "GEK": {
+      "name": "Kupon Larit na Grúise"
+    },
+    "GEL": {
+      "name": "Lari na Seoirsia",
+      "narrow": "₾",
+      "plural": {
+        "few": "lari na Seoirsia",
+        "many": "lari na Seoirsia",
+        "one": "lari na Seoirsia",
+        "other": "lari na Seoirsia",
+        "two": "lari na Seoirsia"
+      }
+    },
+    "GHC": {
+      "name": "Cedi Ghána (1979–2007)",
+      "plural": {
+        "few": "chedi Ghána (1979–2007)",
+        "many": "gcedi Ghána (1979–2007)",
+        "one": "chedi Ghána (1979–2007)",
+        "other": "cedi Ghána (1979–2007)",
+        "two": "chedi Ghána (1979–2007)"
+      }
+    },
+    "GHS": {
+      "name": "Cedi Ghána",
+      "narrow": "GH₵",
+      "plural": {
+        "few": "chedi Ghána",
+        "many": "gcedi Ghána",
+        "one": "chedi Ghána",
+        "other": "cedi Ghána",
+        "two": "chedi Ghána"
+      }
+    },
+    "GIP": {
+      "name": "Punt Ghiobráltar",
+      "narrow": "£",
+      "plural": {
+        "few": "phunt Ghiobráltar",
+        "many": "bpunt Ghiobráltar",
+        "one": "phunt Ghiobráltar",
+        "other": "punt Ghiobráltar",
+        "two": "phunt Ghiobráltar"
+      }
+    },
+    "GMD": {
+      "name": "Dalasi na Gaimbia",
+      "plural": {
+        "few": "dhalasi na Gaimbia",
+        "many": "ndalasi na Gaimbia",
+        "one": "dalasi na Gaimbia",
+        "other": "dalasi na Gaimbia",
+        "two": "dhalasi na Gaimbia"
+      }
+    },
+    "GNF": {
+      "name": "Franc na Guine",
+      "narrow": "FG",
+      "plural": {
+        "few": "fhranc na Guine",
+        "many": "bhfranc na Guine",
+        "one": "fhranc na Guine",
+        "other": "franc na Guine",
+        "two": "fhranc na Guine"
+      }
+    },
+    "GNS": {
+      "name": "Syli Guine"
+    },
+    "GQE": {
+      "name": "Ekwele Guineana na Guine Meánchiorclaí",
+      "plural": {
+        "other": "Ekwele Guineana na Guine Meánchriosaí"
+      }
+    },
+    "GRD": {
+      "name": "Drachma Gréagach"
+    },
+    "GTQ": {
+      "name": "Quetzal Ghuatamala",
+      "narrow": "Q",
+      "plural": {
+        "few": "quetzal Ghuatamala",
+        "many": "quetzal Ghuatamala",
+        "one": "quetzal Ghuatamala",
+        "other": "quetzal Ghuatamala",
+        "two": "quetzal Ghuatamala"
+      }
+    },
+    "GWE": {
+      "name": "Escudo na Guine Portaingéalaí"
+    },
+    "GWP": {
+      "name": "Peso Guine-Bhissau"
+    },
+    "GYD": {
+      "name": "Dollar na Guáine",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar na Guáine",
+        "many": "ndollar na Guáine",
+        "one": "dollar na Guáine",
+        "other": "dollar na Guáine",
+        "two": "dhollar na Guáine"
+      }
+    },
+    "HKD": {
+      "name": "Dollar Hong Cong",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar Hong Cong",
+        "many": "ndollar Hong Cong",
+        "one": "dollar Hong Cong",
+        "other": "dollar Hong Cong",
+        "two": "dhollar Hong Cong"
+      },
+      "symbol": "HK$"
+    },
+    "HNL": {
+      "name": "Lempira Hondúras",
+      "narrow": "L",
+      "plural": {
+        "few": "lempira Hondúras",
+        "many": "lempira Hondúras",
+        "one": "lempira Hondúras",
+        "other": "lempira Hondúras",
+        "two": "lempira Hondúras"
+      }
+    },
+    "HRD": {
+      "name": "Dínear na Cróite"
+    },
+    "HRK": {
+      "name": "Kuna na Cróite",
+      "narrow": "kn",
+      "plural": {
+        "few": "kuna na Cróite",
+        "many": "kuna na Cróite",
+        "one": "kuna na Cróite",
+        "other": "kuna na Cróite",
+        "two": "kuna na Cróite"
+      }
+    },
+    "HTG": {
+      "name": "Gourde Háítí",
+      "plural": {
+        "few": "ghourde Háítí",
+        "many": "ngourde Háítí",
+        "one": "ghourde Háítí",
+        "other": "gourde Háítí",
+        "two": "ghourde Háítí"
+      }
+    },
+    "HUF": {
+      "name": "Forint na hUngáire",
+      "narrow": "Ft",
+      "plural": {
+        "few": "fhorint na hUngáire",
+        "many": "bhforint na hUngáire",
+        "one": "fhorint na hUngáire",
+        "other": "forint na hUngáire",
+        "two": "fhorint na hUngáire"
+      }
+    },
+    "IDR": {
+      "name": "Rupiah na hIndinéise",
+      "narrow": "Rp",
+      "plural": {
+        "few": "rupiah na hIndinéise",
+        "many": "rupiah na hIndinéise",
+        "one": "rupiah na hIndinéise",
+        "other": "rupiah na hIndinéise",
+        "two": "rupiah na hIndinéise"
+      }
+    },
+    "IEP": {
+      "name": "Punt Éireannach"
+    },
+    "ILP": {
+      "name": "Punt Iosraelach"
+    },
+    "ILS": {
+      "name": "Seiceal Nua Iosrael",
+      "plural": {
+        "few": "sheiceal nua Iosrael",
+        "many": "seiceal nua Iosrael",
+        "one": "seiceal nua Iosrael",
+        "other": "seiceal nua Iosrael",
+        "two": "sheiceal nua Iosrael"
+      },
+      "symbol": "₪"
+    },
+    "INR": {
+      "name": "Rúipí na hIndia",
+      "plural": {
+        "few": "rúipí na hIndia",
+        "many": "rúipí na hIndia",
+        "one": "rúipí na hIndia",
+        "other": "rúipí na hIndia",
+        "two": "rúipí na hIndia"
+      },
+      "symbol": "₹"
+    },
+    "IQD": {
+      "name": "Dinar na hIaráice",
+      "plural": {
+        "few": "dhinar na hIaráice",
+        "many": "ndinar na hIaráice",
+        "one": "dinar na hIaráice",
+        "other": "dinar na hIaráice",
+        "two": "dhinar na hIaráice"
+      }
+    },
+    "IRR": {
+      "name": "Rial na hIaráine",
+      "plural": {
+        "few": "rial na hIaráine",
+        "many": "rial na hIaráine",
+        "one": "rial na hIaráine",
+        "other": "rial na hIaráine",
+        "two": "rial na hIaráine"
+      }
+    },
+    "ISK": {
+      "name": "Króna na hÍoslainne",
+      "narrow": "kr",
+      "plural": {
+        "few": "króna na hÍoslainne",
+        "many": "króna na hÍoslainne",
+        "one": "króna na hÍoslainne",
+        "other": "króna na hÍoslainne",
+        "two": "króna na hÍoslainne"
+      }
+    },
+    "ITL": {
+      "name": "Lira na hIodáile",
+      "plural": {
+        "few": "lira na hIodáile",
+        "many": "lira na hIodáile",
+        "one": "lira na hIodáile",
+        "other": "lira na hIodáile",
+        "two": "lira na hIodáile"
+      }
+    },
+    "JMD": {
+      "name": "Dollar na hIamáice",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar na hIamáice",
+        "many": "ndollar na hIamáice",
+        "one": "dollar na hIamáice",
+        "other": "dollar na hIamáice",
+        "two": "dhollar na hIamáice"
+      }
+    },
+    "JOD": {
+      "name": "Dinar na hIordáine",
+      "plural": {
+        "few": "dhinar na hIordáine",
+        "many": "ndinar na hIordáine",
+        "one": "dinar na hIordáine",
+        "other": "dinar na hIordáine",
+        "two": "dhinar na hIordáine"
+      }
+    },
+    "JPY": {
+      "name": "Yen na Seapáine",
+      "plural": {
+        "few": "yen na Seapáine",
+        "many": "yen na Seapáine",
+        "one": "yen na Seapáine",
+        "other": "yen na Seapáine",
+        "two": "yen na Seapáine"
+      },
+      "symbol": "¥"
+    },
+    "KES": {
+      "name": "Scilling na Céinia",
+      "plural": {
+        "few": "scilling na Céinia",
+        "many": "scilling na Céinia",
+        "one": "scilling na Céinia",
+        "other": "scilling na Céinia",
+        "two": "scilling na Céinia"
+      }
+    },
+    "KGS": {
+      "name": "Som na Cirgeastáine",
+      "narrow": "⃀",
+      "plural": {
+        "few": "shom na Cirgeastáine",
+        "many": "som na Cirgeastáine",
+        "one": "som na Cirgeastáine",
+        "other": "som na Cirgeastáine",
+        "two": "shom na Cirgeastáine"
+      }
+    },
+    "KHR": {
+      "name": "Riel na Cambóide",
+      "narrow": "៛",
+      "plural": {
+        "few": "riel na Cambóide",
+        "many": "riel na Cambóide",
+        "one": "riel na Cambóide",
+        "other": "riel na Cambóide",
+        "two": "riel na Cambóide"
+      }
+    },
+    "KMF": {
+      "name": "Franc Oileáin Chomóra",
+      "narrow": "CF",
+      "plural": {
+        "few": "fhranc Oileáin Chomóra",
+        "many": "bhfranc Oileáin Chomóra",
+        "one": "fhranc Oileáin Chomóra",
+        "other": "franc Oileáin Chomóra",
+        "two": "fhranc Oileáin Chomóra"
+      }
+    },
+    "KPW": {
+      "name": "Won na Cóiré Thuaidh",
+      "narrow": "₩",
+      "plural": {
+        "few": "won na Cóiré Thuaidh",
+        "many": "won na Cóiré Thuaidh",
+        "one": "won na Cóiré Thuaidh",
+        "other": "won na Cóiré Thuaidh",
+        "two": "won na Cóiré Thuaidh"
+      }
+    },
+    "KRW": {
+      "name": "Won na Cóiré Theas",
+      "plural": {
+        "few": "won na Cóiré Theas",
+        "many": "won na Cóiré Theas",
+        "one": "won na Cóiré Theas",
+        "other": "won na Cóiré Theas",
+        "two": "won na Cóiré Theas"
+      },
+      "symbol": "₩"
+    },
+    "KWD": {
+      "name": "Dinar Chuáit",
+      "plural": {
+        "few": "dhinar Chuáit",
+        "many": "ndinar Chuáit",
+        "one": "dinar Chuáit",
+        "other": "dinar Chuáit",
+        "two": "dhinar Chuáit"
+      }
+    },
+    "KYD": {
+      "name": "Dollar Oileáin Cayman",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar Oileáin Cayman",
+        "many": "ndollar Oileáin Cayman",
+        "one": "dollar Oileáin Cayman",
+        "other": "dollar Oileáin Cayman",
+        "two": "dhollar Oileáin Cayman"
+      }
+    },
+    "KZT": {
+      "name": "Tenge na Casacstáine",
+      "narrow": "₸",
+      "plural": {
+        "few": "thenge na Casacstáine",
+        "many": "dtenge na Casacstáine",
+        "one": "tenge na Casacstáine",
+        "other": "tenge na Casacstáine",
+        "two": "thenge na Casacstáine"
+      }
+    },
+    "LAK": {
+      "name": "Kip Laos",
+      "narrow": "₭",
+      "plural": {
+        "few": "kip Laos",
+        "many": "kip Laos",
+        "one": "kip Laos",
+        "other": "kip Laos",
+        "two": "kip Laos"
+      }
+    },
+    "LBP": {
+      "name": "Punt na Liobáine",
+      "narrow": "L£",
+      "plural": {
+        "few": "phunt na Liobáine",
+        "many": "bpunt na Liobáine",
+        "one": "phunt na Liobáine",
+        "other": "punt na Liobáine",
+        "two": "phunt na Liobáine"
+      }
+    },
+    "LKR": {
+      "name": "Rúipí Shrí Lanca",
+      "narrow": "Rs",
+      "plural": {
+        "few": "rúipí Shrí Lanca",
+        "many": "rúipí Shrí Lanca",
+        "one": "rúipí Shrí Lanca",
+        "other": "rúipí Shrí Lanca",
+        "two": "rúipí Shrí Lanca"
+      }
+    },
+    "LRD": {
+      "name": "Dollar na Libéire",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar na Libéire",
+        "many": "ndollar na Libéire",
+        "one": "dollar na Libéire",
+        "other": "dollar na Libéire",
+        "two": "dhollar na Libéire"
+      }
+    },
+    "LSL": {
+      "name": "Loti Leosóta",
+      "plural": {
+        "few": "loti Leosóta",
+        "many": "loti Leosóta",
+        "one": "loti Leosóta",
+        "other": "loti Leosóta"
+      }
+    },
+    "LTL": {
+      "name": "Litas na Liotuáine",
+      "narrow": "Lt",
+      "plural": {
+        "few": "litas na Liotuáine",
+        "many": "litas na Liotuáine",
+        "one": "litas na Liotuáine",
+        "other": "litas na Liotuáine",
+        "two": "litas na Liotuáine"
+      }
+    },
+    "LTT": {
+      "name": "Talonas Liotuánach"
+    },
+    "LUC": {
+      "name": "Franc Inmhalartach Lucsamburgach"
+    },
+    "LUF": {
+      "name": "Franc Lucsamburg"
+    },
+    "LVL": {
+      "name": "Lats na Laitvia",
+      "narrow": "Ls",
+      "plural": {
+        "few": "lats na Laitvia",
+        "many": "lats na Laitvia",
+        "one": "lats na Laitvia",
+        "other": "lats na Laitvia",
+        "two": "lats na Laitvia"
+      }
+    },
+    "LVR": {
+      "name": "Rúbal na Laitvia",
+      "plural": {
+        "few": "Rúbal Laitviach",
+        "many": "Rúbal Laitviach",
+        "one": "Rúbal Laitviach",
+        "other": "Rúbal Laitviach",
+        "two": "Rúbal Laitviach"
+      }
+    },
+    "LYD": {
+      "name": "Dinar na Libia",
+      "plural": {
+        "few": "dhinar na Libia",
+        "many": "ndinar na Libia",
+        "one": "dinar na Libia",
+        "other": "dinar na Libia",
+        "two": "dhinar na Libia"
+      }
+    },
+    "MAD": {
+      "name": "Dirham Mharacó",
+      "plural": {
+        "few": "dhirham Mharacó",
+        "many": "ndirham Mharacó",
+        "one": "dirham Mharacó",
+        "other": "dirham Mharacó",
+        "two": "dhirham Mharacó"
+      }
+    },
+    "MAF": {
+      "name": "Franc Mharacó",
+      "plural": {
+        "few": "fhranc Mharacó",
+        "many": "bhfranc Mharacó",
+        "one": "fhranc Mharacó",
+        "other": "franc Mharacó",
+        "two": "fhranc Mharacó"
+      }
+    },
+    "MDL": {
+      "name": "Leu na Moldóive",
+      "plural": {
+        "few": "leu na Moldóive",
+        "many": "leu na Moldóive",
+        "one": "leu na Moldóive",
+        "other": "leu na Moldóive",
+        "two": "leu na Moldóive"
+      }
+    },
+    "MGA": {
+      "name": "Ariary Mhadagascar",
+      "narrow": "Ar",
+      "plural": {
+        "few": "ariary Mhadagascar",
+        "many": "n-ariary Mhadagascar",
+        "one": "ariary Mhadagascar",
+        "other": "ariary Mhadagascar",
+        "two": "ariary Mhadagascar"
+      }
+    },
+    "MGF": {
+      "name": "Franc Madagascar"
+    },
+    "MKD": {
+      "name": "Denar na Macadóine",
+      "plural": {
+        "few": "dhenar na Macadóine",
+        "many": "ndenar na Macadóine",
+        "one": "denar na Macadóine",
+        "other": "denar na Macadóine",
+        "two": "dhenar na Macadóine"
+      }
+    },
+    "MLF": {
+      "name": "Franc Mhailí"
+    },
+    "MMK": {
+      "name": "Kyat Mhaenmar",
+      "narrow": "K",
+      "plural": {
+        "few": "kyat Mhaenmar",
+        "many": "kyat Mhaenmar",
+        "one": "kyat Mhaenmar",
+        "other": "kyat Mhaenmar",
+        "two": "kyat Mhaenmar"
+      }
+    },
+    "MNT": {
+      "name": "Tugrik na Mongóile",
+      "narrow": "₮",
+      "plural": {
+        "few": "thugrik na Mongóile",
+        "many": "dtugrik na Mongóile",
+        "one": "tugrik na Mongóile",
+        "other": "tugrik na Mongóile",
+        "two": "thugrik na Mongóile"
+      }
+    },
+    "MOP": {
+      "name": "Pataca Mhacao",
+      "plural": {
+        "few": "phataca Mhacao",
+        "many": "bpataca Mhacao",
+        "one": "phataca Mhacao",
+        "other": "pataca Mhacao",
+        "two": "phataca Mhacao"
+      }
+    },
+    "MRO": {
+      "name": "Ouguiya na Máratáine (1973–2017)",
+      "plural": {
+        "few": "ouguiya na Máratáine (1973–2017)",
+        "many": "n-ouguiya na Máratáine (1973–2017)",
+        "one": "ouguiya na Máratáine (1973–2017)",
+        "other": "ouguiya na Máratáine (1973–2017)",
+        "two": "ouguiya na Máratáine (1973–2017)"
+      }
+    },
+    "MRU": {
+      "name": "Ouguiya na Máratáine",
+      "plural": {
+        "few": "ouguiya na Máratáine",
+        "many": "n-ouguiya na Máratáine",
+        "one": "ouguiya na Máratáine",
+        "other": "ouguiya na Máratáine",
+        "two": "ouguiya na Máratáine"
+      }
+    },
+    "MTL": {
+      "name": "Lira Mhálta",
+      "plural": {
+        "few": "lira Mhálta",
+        "many": "lira Mhálta",
+        "one": "lira Mhálta",
+        "other": "lira Mhálta",
+        "two": "lira Mhálta"
+      }
+    },
+    "MTP": {
+      "name": "Punt Mhálta",
+      "plural": {
+        "few": "phunt Mhálta",
+        "many": "bpunt Mhálta",
+        "one": "phunt Mhálta",
+        "other": "punt Mhálta",
+        "two": "phunt Mhálta"
+      }
+    },
+    "MUR": {
+      "name": "Rúipí Oileán Mhuirís",
+      "narrow": "Rs",
+      "plural": {
+        "few": "rúipí Oileán Mhuirís",
+        "many": "rúipí Oileán Mhuirís",
+        "one": "rúipí Oileán Mhuirís",
+        "other": "rúipí Oileán Mhuirís",
+        "two": "rúipí Oileán Mhuirís"
+      }
+    },
+    "MVP": {
+      "name": "Rúipí Oileáin Mhaildíve",
+      "plural": {
+        "few": "rúipí Oileáin Mhaildíve",
+        "many": "rúipí Oileáin Mhaildíve",
+        "one": "rúipí Oileáin Mhaildíve",
+        "other": "rúipí Oileáin Mhaildíve",
+        "two": "rúipí Oileáin Mhaildíve"
+      }
+    },
+    "MVR": {
+      "name": "Rufiyaa Oileáin Mhaildíve",
+      "plural": {
+        "few": "rufiyaa Oileáin Mhaildíve",
+        "many": "rufiyaa Oileáin Mhaildíve",
+        "one": "rufiyaa Oileáin Mhaildíve",
+        "other": "rufiyaa Oileáin Mhaildíve",
+        "two": "rufiyaa Oileáin Mhaildíve"
+      }
+    },
+    "MWK": {
+      "name": "Kwacha na Maláive",
+      "plural": {
+        "few": "kwacha na Maláive",
+        "many": "kwacha na Maláive",
+        "one": "kwacha na Maláive",
+        "other": "kwacha na Maláive",
+        "two": "kwacha na Maláive"
+      }
+    },
+    "MXN": {
+      "name": "Peso Mheicsiceo",
+      "narrow": "$",
+      "plural": {
+        "few": "pheso Mheicsiceo",
+        "many": "bpeso Mheicsiceo",
+        "one": "pheso Mheicsiceo",
+        "other": "peso Mheicsiceo",
+        "two": "pheso Mheicsiceo"
+      },
+      "symbol": "MX$"
+    },
+    "MXP": {
+      "name": "Peso Airgid Mheicsiceo (1861–1992)",
+      "plural": {
+        "few": "pheso airgid Mheicsiceo (1861–1992)",
+        "many": "bpeso airgid Mheicsiceo (1861–1992)",
+        "one": "pheso airgid Mheicsiceo (1861–1992)",
+        "other": "peso airgid Mheicsiceo (1861–1992)",
+        "two": "pheso airgid Mheicsiceo (1861–1992)"
+      }
+    },
+    "MXV": {
+      "name": "Aonad Infheistíochta Meicsiceach",
+      "plural": {
+        "few": "Unidad de Inversion (UDI) Meicsiceo",
+        "many": "Unidad de Inversion (UDI) Meicsiceo",
+        "one": "Unidad de Inversion (UDI) Meicsiceo",
+        "other": "Unidad de Inversion (UDI) Meicsiceo",
+        "two": "Unidad de Inversion (UDI) Meicsiceo"
+      }
+    },
+    "MYR": {
+      "name": "Ringgit na Malaeisia",
+      "narrow": "RM",
+      "plural": {
+        "few": "ringgit na Malaeisia",
+        "many": "ringgit na Malaeisia",
+        "one": "ringgit na Malaeisia",
+        "other": "ringgit na Malaeisia",
+        "two": "ringgit na Malaeisia"
+      }
+    },
+    "MZE": {
+      "name": "Escudo Mósaimbíce"
+    },
+    "MZM": {
+      "name": "Metical Mósaimbíce"
+    },
+    "MZN": {
+      "name": "Metical Mhósaimbíc",
+      "plural": {
+        "few": "mhetical Mhósaimbíc",
+        "many": "metical Mhósaimbíc",
+        "one": "mhetical Mhósaimbíc",
+        "other": "metical Mhósaimbíc",
+        "two": "mhetical Mhósaimbíc"
+      }
+    },
+    "NAD": {
+      "name": "Dollar na Namaibe",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar na Namaibe",
+        "many": "ndollar na Namaibe",
+        "one": "dollar na Namaibe",
+        "other": "dollar na Namaibe",
+        "two": "dhollar na Namaibe"
+      }
+    },
+    "NGN": {
+      "name": "Naira na Nigéire",
+      "narrow": "₦",
+      "plural": {
+        "few": "naira na Nigéire",
+        "many": "naira na Nigéire",
+        "one": "naira na Nigéire",
+        "other": "naira na Nigéire",
+        "two": "naira na Nigéire"
+      }
+    },
+    "NIC": {
+      "name": "Córdoba Nicearagua (1988–1991)",
+      "plural": {
+        "few": "chórdoba Nicearagua (1988–1991)",
+        "many": "gcórdoba Nicearagua (1988–1991)",
+        "one": "chórdoba Nicearagua (1988–1991)",
+        "other": "córdoba Nicearagua (1988–1991)",
+        "two": "chórdoba Nicearagua (1988–1991)"
+      }
+    },
+    "NIO": {
+      "name": "Córdoba Nicearagua",
+      "narrow": "C$",
+      "plural": {
+        "few": "chórdoba Nicearagua",
+        "many": "gcórdoba Nicearagua",
+        "one": "chórdoba Nicearagua",
+        "other": "córdoba Nicearagua",
+        "two": "chórdoba Nicearagua"
+      }
+    },
+    "NLG": {
+      "name": "Guilder Ísiltíreach"
+    },
+    "NOK": {
+      "name": "Coróin na hIorua",
+      "narrow": "kr",
+      "plural": {
+        "few": "choróin na hIorua",
+        "many": "gcoróin na hIorua",
+        "one": "choróin na hIorua",
+        "other": "coróin na hIorua",
+        "two": "choróin na hIorua"
+      }
+    },
+    "NPR": {
+      "name": "Rúipí Neipeal",
+      "narrow": "Rs",
+      "plural": {
+        "few": "rúipí Neipeal",
+        "many": "rúipí Neipeal",
+        "one": "rúipí Neipeal",
+        "other": "rúipí Neipeal",
+        "two": "rúipí Neipeal"
+      }
+    },
+    "NZD": {
+      "name": "Dollar na Nua-Shéalainne",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar na Nua-Shéalainne",
+        "many": "ndollar na Nua-Shéalainne",
+        "one": "dollar na Nua-Shéalainne",
+        "other": "dollar na Nua-Shéalainne",
+        "two": "dhollar na Nua-Shéalainne"
+      },
+      "symbol": "NZ$"
+    },
+    "OMR": {
+      "name": "Rial Óman",
+      "plural": {
+        "few": "rial Óman",
+        "many": "rial Óman",
+        "one": "rial Óman",
+        "other": "rial Óman",
+        "two": "rial Óman"
+      }
+    },
+    "PAB": {
+      "name": "Balboa Phanama",
+      "plural": {
+        "few": "bhalboa Phanama",
+        "many": "mbalboa Phanama",
+        "one": "bhalboa Phanama",
+        "other": "balboa Phanama",
+        "two": "bhalboa Phanama"
+      }
+    },
+    "PEI": {
+      "name": "Inti Pheiriú"
+    },
+    "PEN": {
+      "name": "Sol Pheiriú",
+      "plural": {
+        "few": "sol Pheiriú",
+        "many": "sol Pheiriú",
+        "one": "sol Pheiriú",
+        "two": "shol Pheiriú"
+      }
+    },
+    "PES": {
+      "name": "Sol Pheiriú (1863–1965)",
+      "plural": {
+        "few": "shol Pheiriú (1863–1965)",
+        "many": "sol Pheiriú (1863–1965)",
+        "one": "sol Pheiriú (1863–1965)",
+        "other": "sol Pheiriú (1863–1965)",
+        "two": "shol Pheiriú (1863–1965)"
+      }
+    },
+    "PGK": {
+      "name": "Kina Nua-Ghuine Phapua",
+      "plural": {
+        "few": "kina Nua-Ghuine Phapua",
+        "many": "kina Nua-Ghuine Phapua",
+        "one": "kina Nua-Ghuine Phapua",
+        "other": "kina Nua-Ghuine Phapua",
+        "two": "kina Nua-Ghuine Phapua"
+      }
+    },
+    "PHP": {
+      "name": "Peso na nOileán Filipíneach",
+      "plural": {
+        "few": "pheso na nOileán Filipíneach",
+        "many": "bpeso na nOileán Filipíneach",
+        "one": "pheso na nOileán Filipíneach",
+        "other": "pesos na nOileán Filipíneach",
+        "two": "pheso na nOileán Filipíneach"
+      },
+      "symbol": "₱"
+    },
+    "PKR": {
+      "name": "Rúipí na Pacastáine",
+      "narrow": "Rs",
+      "plural": {
+        "few": "rúipí na Pacastáine",
+        "many": "rúipí na Pacastáine",
+        "one": "rúipí na Pacastáine",
+        "other": "rúipí na Pacastáine",
+        "two": "rúipí na Pacastáine"
+      }
+    },
+    "PLN": {
+      "name": "Zloty na Polainne",
+      "narrow": "zł",
+      "plural": {
+        "few": "zloty na Polainne",
+        "many": "zloty na Polainne",
+        "one": "zloty na Polainne",
+        "other": "zloty na Polainne",
+        "two": "zloty na Polainne"
+      }
+    },
+    "PLZ": {
+      "name": "Zloty Polannach (1950–1995)"
+    },
+    "PTE": {
+      "name": "Escudo na Portaingéile",
+      "plural": {
+        "few": "escudo na Portaingéile",
+        "many": "n-escudo na Portaingéile",
+        "one": "escudo na Portaingéile",
+        "other": "escudo na Portaingéile",
+        "two": "escudo na Portaingéile"
+      }
+    },
+    "PYG": {
+      "name": "Guaraní Pharagua",
+      "narrow": "₲",
+      "plural": {
+        "few": "ghuaraní Pharagua",
+        "many": "nguaraní Pharagua",
+        "one": "ghuaraní Pharagua",
+        "other": "guaraní Pharagua",
+        "two": "ghuaraní Pharagua"
+      }
+    },
+    "QAR": {
+      "name": "Riyal Chatar",
+      "plural": {
+        "few": "riyals Chatar",
+        "many": "riyals Chatar",
+        "one": "riyals Chatar",
+        "other": "riyals Chatar",
+        "two": "riyals Chatar"
+      }
+    },
+    "ROL": {
+      "name": "Leu na Rómáine (1952–2006)",
+      "plural": {
+        "few": "leu na Rómáine (1952–2006)",
+        "many": "leu na Rómáine (1952–2006)",
+        "one": "leu na Rómáine (1952–2006)",
+        "other": "leu na Rómáine (1952–2006)",
+        "two": "leu na Rómáine (1952–2006)"
+      }
+    },
+    "RON": {
+      "name": "Leu na Rómáine",
+      "narrow": "lei",
+      "plural": {
+        "few": "leu na Rómáine",
+        "many": "leu na Rómáine",
+        "one": "leu na Rómáine",
+        "other": "leu na Rómáine",
+        "two": "leu na Rómáine"
+      }
+    },
+    "RSD": {
+      "name": "Dinar na Seirbia",
+      "plural": {
+        "few": "dhinar na Seirbia",
+        "many": "ndinar na Seirbia",
+        "one": "dinar na Seirbia",
+        "other": "dinar na Seirbia",
+        "two": "dhinar na Seirbia"
+      }
+    },
+    "RUB": {
+      "name": "Rúbal na Rúise",
+      "narrow": "₽",
+      "plural": {
+        "few": "rúbal na Rúise",
+        "many": "rúbal na Rúise",
+        "one": "rúbal na Rúise",
+        "other": "rúbal na Rúise",
+        "two": "rúbal na Rúise"
+      }
+    },
+    "RUR": {
+      "name": "Rúbal na Rúise (1991–1998)",
+      "narrow": "р.",
+      "plural": {
+        "few": "rúbal na Rúise (1991–1998)",
+        "many": "rúbal na Rúise (1991–1998)",
+        "one": "rúbal na Rúise (1991–1998)",
+        "other": "rúbal na Rúise (1991–1998)",
+        "two": "rúbal na Rúise (1991–1998)"
+      }
+    },
+    "RWF": {
+      "name": "Franc Ruanda",
+      "narrow": "RF",
+      "plural": {
+        "few": "fhranc Ruanda",
+        "many": "bhfranc Ruanda",
+        "one": "fhranc Ruanda",
+        "other": "franc Ruanda",
+        "two": "fhranc Ruanda"
+      }
+    },
+    "SAR": {
+      "name": "Riyal na hAraibe Sádaí",
+      "plural": {
+        "few": "riyal na hAraibe Sádaí",
+        "many": "riyal na hAraibe Sádaí",
+        "one": "riyal na hAraibe Sádaí",
+        "other": "riyal na hAraibe Sádaí",
+        "two": "riyal na hAraibe Sádaí"
+      }
+    },
+    "SBD": {
+      "name": "Dollar Oileáin Sholomón",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar Oileáin Sholomón",
+        "many": "ndollar Oileáin Sholomón",
+        "one": "dollar Oileáin Sholomón",
+        "other": "dollar Oileáin Sholomón",
+        "two": "dhollar Oileáin Sholomón"
+      }
+    },
+    "SCR": {
+      "name": "Rúipí na Séiséal",
+      "plural": {
+        "few": "rúipí na Séiséal",
+        "many": "rúipí na Séiséal",
+        "one": "rúipí na Séiséal",
+        "other": "rúipí na Séiséal",
+        "two": "rúipí na Séiséal"
+      }
+    },
+    "SDD": {
+      "name": "Dinar na Súdáine (1992–2007)",
+      "plural": {
+        "few": "dhinar na Súdáine (1992–2007)",
+        "many": "ndinar na Súdáine (1992–2007)",
+        "one": "dinar na Súdáine (1992–2007)",
+        "other": "dinar na Súdáine (1992–2007)",
+        "two": "dhinar na Súdáine (1992–2007)"
+      }
+    },
+    "SDG": {
+      "name": "Punt na Súdáine",
+      "plural": {
+        "few": "phunt na Súdáine",
+        "many": "bpunt na Súdáine",
+        "one": "phunt na Súdáine",
+        "other": "punt na Súdáine",
+        "two": "phunt na Súdáine"
+      }
+    },
+    "SDP": {
+      "name": "Punt na Súdáine (1957–1998)",
+      "plural": {
+        "few": "phunt na Súdáine (1957–1998)",
+        "many": "bpunt na Súdáine (1957–1998)",
+        "one": "phunt na Súdáine (1957–1998)",
+        "other": "punt na Súdáine (1957–1998)",
+        "two": "phunt na Súdáine (1957–1998)"
+      }
+    },
+    "SEK": {
+      "name": "Coróin na Sualainne",
+      "narrow": "kr",
+      "plural": {
+        "few": "choróin na Sualainne",
+        "many": "gcoróin na Sualainne",
+        "one": "choróin na Sualainne",
+        "other": "coróin na Sualainne",
+        "two": "choróin na Sualainne"
+      }
+    },
+    "SGD": {
+      "name": "Dollar Shingeapór",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar Shingeapór",
+        "many": "ndollar Shingeapór",
+        "one": "dollar Shingeapór",
+        "other": "dollar Shingeapór",
+        "two": "dhollar Shingeapór"
+      }
+    },
+    "SHP": {
+      "name": "Punt San Héilin",
+      "narrow": "£",
+      "plural": {
+        "few": "phunt San Héilin",
+        "many": "bpunt San Héilin",
+        "one": "phunt San Héilin",
+        "other": "punt San Héilin",
+        "two": "phunt San Héilin"
+      }
+    },
+    "SIT": {
+      "name": "Tolar na Slóivéine",
+      "plural": {
+        "few": "tholar na Slóivéine",
+        "many": "dtolar na Slóivéine",
+        "one": "tolar na Slóivéine",
+        "other": "tolar na Slóivéine",
+        "two": "tholar na Slóivéine"
+      }
+    },
+    "SKK": {
+      "name": "Koruna na Slóvaice",
+      "plural": {
+        "few": "koruna na Slóvaice",
+        "many": "koruna na Slóvaice",
+        "one": "koruna na Slóvaice",
+        "other": "koruna na Slóvaice",
+        "two": "koruna na Slóvaice"
+      }
+    },
+    "SLE": {
+      "name": "Leone Shiarra Leon",
+      "plural": {
+        "few": "leone Shiarra Leon",
+        "many": "leone Shiarra Leon",
+        "one": "leone Shiarra Leon",
+        "other": "leone Shiarra Leon",
+        "two": "leone Shiarra Leon"
+      }
+    },
+    "SLL": {
+      "name": "Leone Shiarra Leon (1964—2022)",
+      "plural": {
+        "few": "leone Shiarra Leon (1964—2022)",
+        "many": "leone Shiarra Leon (1964—2022)",
+        "one": "leone Shiarra Leon (1964—2022)",
+        "other": "leone Shiarra Leon (1964—2022)",
+        "two": "leone Shiarra Leon (1964—2022)"
+      }
+    },
+    "SOS": {
+      "name": "Scilling na Somáile",
+      "plural": {
+        "few": "scilling na Somáile",
+        "many": "scilling na Somáile",
+        "one": "scilling na Somáile",
+        "other": "scilling na Somáile",
+        "two": "scilling na Somáile"
+      }
+    },
+    "SRD": {
+      "name": "Dollar Shuranam",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar Shuranam",
+        "many": "ndollar Shuranam",
+        "one": "dollar Shuranam",
+        "other": "dollar Shuranam",
+        "two": "dhollar Shuranam"
+      }
+    },
+    "SRG": {
+      "name": "Gildear Shuranam",
+      "plural": {
+        "few": "ghildear Shuranam",
+        "many": "ngildear Shuranam",
+        "one": "ghildear Shuranam",
+        "other": "gildear Shuranam",
+        "two": "ghildear Shuranam"
+      }
+    },
+    "SSP": {
+      "name": "Punt na Súdáine Theas",
+      "narrow": "£",
+      "plural": {
+        "few": "phunt na Súdáine Theas",
+        "many": "bpunt na Súdáine Theas",
+        "one": "phunt na Súdáine Theas",
+        "other": "punt na Súdáine Theas",
+        "two": "phunt na Súdáine Theas"
+      }
+    },
+    "STD": {
+      "name": "Dobra São Tomé agus Príncipe (1977–2017)",
+      "plural": {
+        "few": "dhobra São Tomé agus Príncipe (1977–2017)",
+        "many": "ndobra São Tomé agus Príncipe (1977–2017)",
+        "one": "dobra São Tomé agus Príncipe (1977–2017)",
+        "other": "dobra São Tomé agus Príncipe (1977–2017)",
+        "two": "dhobra São Tomé agus Príncipe (1977–2017)"
+      }
+    },
+    "STN": {
+      "name": "Dobra São Tomé agus Príncipe",
+      "narrow": "Db",
+      "plural": {
+        "few": "dhobra São Tomé agus Príncipe",
+        "many": "ndobra São Tomé agus Príncipe",
+        "one": "dobra São Tomé agus Príncipe",
+        "other": "dobra São Tomé agus Príncipe",
+        "two": "dhobra São Tomé agus Príncipe"
+      }
+    },
+    "SUR": {
+      "name": "Rúbal an Aontais Shóivéadaigh",
+      "plural": {
+        "few": "rúbal an Aontais Shóivéadaigh",
+        "many": "rúbal an Aontais Shóivéadaigh",
+        "one": "rúbal an Aontais Shóivéadaigh",
+        "other": "rúbal an Aontais Shóivéadaigh",
+        "two": "rúbal an Aontais Shóivéadaigh"
+      }
+    },
+    "SVC": {
+      "name": "Colón na Salvadóire",
+      "plural": {
+        "few": "cholón na Salvadóire",
+        "many": "gcolón na Salvadóire",
+        "one": "cholón na Salvadóire",
+        "other": "colón na Salvadóire",
+        "two": "cholón na Salvadóire"
+      }
+    },
+    "SYP": {
+      "name": "Punt na Siria",
+      "narrow": "£",
+      "plural": {
+        "few": "phunt na Siria",
+        "many": "bpunt na Siria",
+        "one": "phunt na Siria",
+        "other": "punt na Siria",
+        "two": "phunt na Siria"
+      }
+    },
+    "SZL": {
+      "name": "Lilangeni na Suasalainne",
+      "plural": {
+        "few": "lilangeni na Suasalainne",
+        "many": "lilangeni na Suasalainne",
+        "one": "lilangeni na Suasalainne",
+        "other": "lilangeni na Suasalainne",
+        "two": "lilangeni na Suasalainne"
+      }
+    },
+    "THB": {
+      "name": "Baht na Téalainne",
+      "plural": {
+        "few": "bhaht na Téalainne",
+        "many": "mbaht na Téalainne",
+        "one": "bhaht na Téalainne",
+        "other": "baht na Téalainne",
+        "two": "bhaht na Téalainne"
+      },
+      "symbol": "฿"
+    },
+    "TJR": {
+      "name": "Rúbal na Táidsíceastáine"
+    },
+    "TJS": {
+      "name": "Somoni na Táidsíceastáine",
+      "plural": {
+        "few": "shomoni na Táidsíceastáine",
+        "many": "somoni na Táidsíceastáine",
+        "one": "somoni na Táidsíceastáine",
+        "other": "somoni na Táidsíceastáine",
+        "two": "shomoni na Táidsíceastáine"
+      }
+    },
+    "TMM": {
+      "name": "Manat na Tuircméanastáine (1993–2009)"
+    },
+    "TMT": {
+      "name": "Manat na Tuircméanastáine",
+      "plural": {
+        "few": "mhanat na Tuircméanastáine",
+        "many": "manat na Tuircméanastáine",
+        "one": "mhanat na Tuircméanastáine",
+        "other": "manat na Tuircméanastáine",
+        "two": "mhanat na Tuircméanastáine"
+      }
+    },
+    "TND": {
+      "name": "Dinar na Túinéise",
+      "plural": {
+        "few": "dhinar na Túinéise",
+        "many": "ndinar na Túinéise",
+        "one": "dinar na Túinéise",
+        "other": "dinar na Túinéise",
+        "two": "dhinar na Túinéise"
+      }
+    },
+    "TOP": {
+      "name": "Paʻanga Thonga",
+      "narrow": "T$",
+      "plural": {
+        "few": "phaʻanga Thonga",
+        "many": "bpaʻanga Thonga",
+        "one": "phaʻanga Thonga",
+        "other": "paʻanga Thonga",
+        "two": "phaʻanga Thonga"
+      }
+    },
+    "TPE": {
+      "name": "Escudo Tíomóir"
+    },
+    "TRL": {
+      "name": "Lira na Tuirce (1922–2005)",
+      "plural": {
+        "few": "lira na Tuirce (1922–2005)",
+        "many": "lira na Tuirce (1922–2005)",
+        "one": "lira na Tuirce (1922–2005)",
+        "other": "lira na Tuirce (1922–2005)",
+        "two": "lira na Tuirce (1922–2005)"
+      }
+    },
+    "TRY": {
+      "name": "Lira na Tuirce",
+      "narrow": "₺",
+      "plural": {
+        "few": "lira na Tuirce",
+        "many": "lira na Tuirce",
+        "one": "lira na Tuirce",
+        "other": "lira na Tuirce",
+        "two": "lira na Tuirce"
+      }
+    },
+    "TTD": {
+      "name": "Dollar Oileán na Tríonóide agus Tobága",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar Oileán na Tríonóide agus Tobága",
+        "many": "ndollar Oileán na Tríonóide agus Tobága",
+        "one": "dollar Oileán na Tríonóide agus Tobága",
+        "other": "dollar Oileán na Tríonóide agus Tobága",
+        "two": "dhollar Oileán na Tríonóide agus Tobága"
+      }
+    },
+    "TWD": {
+      "name": "Dollar Nua na Téaváine",
+      "plural": {
+        "few": "dhollar nua na Téaváine",
+        "many": "ndollar nua na Téaváine",
+        "one": "dollar nua na Téaváine",
+        "other": "dollar nua na Téaváine",
+        "two": "dhollar nua na Téaváine"
+      },
+      "symbol": "NT$"
+    },
+    "TZS": {
+      "name": "Scilling na Tansáine",
+      "plural": {
+        "few": "scilling na Tansáine",
+        "many": "scilling na Tansáine",
+        "one": "scilling na Tansáine",
+        "other": "scilling na Tansáine",
+        "two": "scilling na Tansáine"
+      }
+    },
+    "UAH": {
+      "name": "Hryvnia na hÚcráine",
+      "narrow": "₴",
+      "plural": {
+        "few": "hryvnia na hÚcráine",
+        "many": "hryvnia na hÚcráine",
+        "one": "hryvnia na hÚcráine",
+        "other": "hryvnia na hÚcráine",
+        "two": "hryvnia na hÚcráine"
+      }
+    },
+    "UAK": {
+      "name": "Karbovanets Úcránach"
+    },
+    "UGS": {
+      "name": "Scilling Uganda (1966–1987)"
+    },
+    "UGX": {
+      "name": "Scilling Uganda",
+      "plural": {
+        "few": "scilling Uganda",
+        "many": "scilling Uganda",
+        "one": "scilling Uganda",
+        "other": "scilling Uganda",
+        "two": "scilling Uganda"
+      }
+    },
+    "USD": {
+      "name": "Dollar S.A.M.",
+      "plural": {
+        "few": "dhollar S.A.M.",
+        "many": "ndollar S.A.M.",
+        "one": "dollar S.A.M.",
+        "other": "dollar S.A.M.",
+        "two": "dhollar S.A.M."
+      },
+      "symbol": "$"
+    },
+    "USN": {
+      "name": "Dollar S.A.M. (an chéad lá eile)",
+      "plural": {
+        "few": "dhollar S.A.M. (an chéad lá eile)",
+        "many": "ndollar S.A.M. (an chéad lá eile)",
+        "one": "dollar S.A.M. (an chéad lá eile)",
+        "other": "dollar S.A.M. (an chéad lá eile)",
+        "two": "dhollar S.A.M. (an chéad lá eile)"
+      }
+    },
+    "USS": {
+      "name": "Dollar S.A.M. (an lá céanna)",
+      "plural": {
+        "few": "dhollar S.A.M. (an lá céanna)",
+        "many": "ndollar S.A.M. (an lá céanna)",
+        "one": "dollar S.A.M. (an lá céanna)",
+        "other": "dollar S.A.M. (an lá céanna)",
+        "two": "dhollar S.A.M. (an lá céanna)"
+      }
+    },
+    "UYP": {
+      "name": "Peso Uragua (1975–1993)",
+      "plural": {
+        "few": "pheso Uragua (1975–1993)",
+        "many": "bpeso Uragua (1975–1993)",
+        "one": "pheso Uragua (1975–1993)",
+        "other": "peso Uragua (1975–1993)",
+        "two": "pheso Uragua (1975–1993)"
+      }
+    },
+    "UYU": {
+      "name": "Peso Uragua",
+      "narrow": "$",
+      "plural": {
+        "few": "pheso Uragua",
+        "many": "bpeso Uragua",
+        "one": "pheso Uragua",
+        "other": "peso Uragua",
+        "two": "pheso Uragua"
+      }
+    },
+    "UZS": {
+      "name": "Sum na hÚisbéiceastáine",
+      "plural": {
+        "few": "shum na hÚisbéiceastáine",
+        "many": "sum na hÚisbéiceastáine",
+        "one": "sum na hÚisbéiceastáine",
+        "other": "sum na hÚisbéiceastáine",
+        "two": "shum na hÚisbéiceastáine"
+      }
+    },
+    "VEB": {
+      "name": "Bolívar Veiniséala (1871–2008)",
+      "plural": {
+        "few": "bholívar Veiniséala (1871–2008)",
+        "many": "mbolívar Veiniséala (1871–2008)",
+        "one": "bholívar Veiniséala (1871–2008)",
+        "other": "bolívar Veiniséala (1871–2008)",
+        "two": "bholívar Veiniséala (1871–2008)"
+      }
+    },
+    "VEF": {
+      "name": "Bolívar Veiniséala (2008–2018)",
+      "narrow": "Bs",
+      "plural": {
+        "few": "bholívar Veiniséala (2008–2018)",
+        "many": "mbolívar Veiniséala (2008–2018)",
+        "one": "bholívar Veiniséala (2008–2018)",
+        "other": "bolívar Veiniséala (2008–2018)",
+        "two": "bholívar Veiniséala (2008–2018)"
+      }
+    },
+    "VES": {
+      "name": "Bolívar Veiniséala",
+      "plural": {
+        "few": "bholívar Veiniséala",
+        "many": "mbolívar Veiniséala",
+        "one": "bholívar Veiniséala",
+        "other": "bolívar Veiniséala",
+        "two": "bholívar Veiniséala"
+      }
+    },
+    "VND": {
+      "name": "Dong Vítneam",
+      "plural": {
+        "few": "dhong Vítneam",
+        "many": "ndong Vítneam",
+        "one": "dong Vítneam",
+        "two": "dhong Vítneam"
+      },
+      "symbol": "₫"
+    },
+    "VNN": {
+      "name": "Dong Vítneam (1978–1985)",
+      "plural": {
+        "few": "dhong Vítneam (1978–1985)",
+        "many": "ndong Vítneam (1978–1985)",
+        "one": "dong Vítneam (1978–1985)",
+        "other": "dong Vítneam (1978–1985)",
+        "two": "dhong Vítneam (1978–1985)"
+      }
+    },
+    "VUV": {
+      "name": "Vatu Vanuatú",
+      "plural": {
+        "few": "vatu Vanuatú",
+        "many": "vatu Vanuatú",
+        "one": "vatu Vanuatú",
+        "other": "vatu Vanuatú",
+        "two": "vatu Vanuatú"
+      }
+    },
+    "WST": {
+      "name": "Tala Shamó",
+      "plural": {
+        "few": "thala Shamó",
+        "many": "dtala Shamó",
+        "one": "tala Shamó",
+        "other": "tala Shamó",
+        "two": "thala Shamó"
+      }
+    },
+    "XAF": {
+      "name": "Franc CFA na hAfraice Láir",
+      "plural": {
+        "few": "fhranc CFA na hAfraice Láir",
+        "many": "bhfranc CFA na hAfraice Láir",
+        "one": "fhranc CFA na hAfraice Láir",
+        "other": "franc CFA na hAfraice Láir",
+        "two": "fhranc CFA na hAfraice Láir"
+      },
+      "symbol": "FCFA"
+    },
+    "XAG": {
+      "name": "Airgead",
+      "plural": {
+        "few": "unsaí troí airgid",
+        "many": "unsaí troí airgid",
+        "one": "unsa troí airgid",
+        "other": "unsaí troí airgid",
+        "two": "unsa troí airgid"
+      }
+    },
+    "XAU": {
+      "name": "Ór",
+      "plural": {
+        "few": "unsaí troí óir",
+        "many": "unsaí troí óir",
+        "one": "unsa troí óir",
+        "other": "unsaí troí óir",
+        "two": "unsa troí óir"
+      }
+    },
+    "XBA": {
+      "name": "Aonad Ilchodach Eorpach"
+    },
+    "XBB": {
+      "name": "Aonad Airgeadaíochta Eorpach"
+    },
+    "XBC": {
+      "name": "Aonad Cuntais Eorpach (XBC)"
+    },
+    "XBD": {
+      "name": "Aonad Cuntais Eorpach (XBD)"
+    },
+    "XCD": {
+      "name": "Dollar na Cairibe Thoir",
+      "narrow": "$",
+      "plural": {
+        "few": "dhollar na Cairibe Thoir",
+        "many": "ndollar na Cairibe Thoir",
+        "one": "dollar na Cairibe Thoir",
+        "other": "dollar na Cairibe Thoir",
+        "two": "dhollar na Cairibe Thoir"
+      },
+      "symbol": "EC$"
+    },
+    "XCG": {
+      "name": "gildear Chairib",
+      "plural": {
+        "few": "ghildear Chairib",
+        "many": "ngildear Chairib",
+        "one": "ghildear Chairib",
+        "other": "gildir Chairib",
+        "two": "ghildear Chairib"
+      },
+      "symbol": "Cg."
+    },
+    "XDR": {
+      "name": "Cearta Speisialta Tarraingthe"
+    },
+    "XEU": {
+      "name": "Aonad Airgeadra Eorpach"
+    },
+    "XFO": {
+      "name": "Franc Ór Francach"
+    },
+    "XFU": {
+      "name": "UIC-Franc Francach"
+    },
+    "XOF": {
+      "name": "Franc CFA Iarthar na hAfraice",
+      "plural": {
+        "few": "fhranc CFA Iarthar na hAfraice",
+        "many": "bhfranc CFA Iarthar na hAfraice",
+        "one": "fhranc CFA Iarthar na hAfraice",
+        "other": "franc CFA Iarthar na hAfraice",
+        "two": "fhranc CFA Iarthar na hAfraice"
+      },
+      "symbol": "F\u202fCFA"
+    },
+    "XPD": {
+      "name": "Pallaidiam",
+      "plural": {
+        "few": "unsaí troí pallaidiam",
+        "many": "unsaí troí pallaidiam",
+        "one": "unsa troí pallaidiam",
+        "other": "unsaí troí pallaidiam",
+        "two": "unsa troí pallaidiam"
+      }
+    },
+    "XPF": {
+      "name": "Franc CFP",
+      "plural": {
+        "few": "fhranc CFP",
+        "many": "bhfranc CFP",
+        "one": "fhranc CFP",
+        "other": "franc CFP",
+        "two": "fhranc CFP"
+      },
+      "symbol": "CFPF"
+    },
+    "XPT": {
+      "name": "Platanam",
+      "plural": {
+        "few": "unsaí troí platanaim",
+        "many": "unsaí troí platanaim",
+        "one": "unsa troí platanaim",
+        "other": "unsaí troí platanaim",
+        "two": "unsa troí platanaim"
+      }
+    },
+    "XXX": {
+      "name": "Airgeadra Anaithnid",
+      "plural": {
+        "few": "(airgeadra anaithnid)",
+        "many": "(airgeadra anaithnid)",
+        "one": "(airgeadra anaithnid)",
+        "other": "(airgeadra anaithnid)",
+        "two": "(airgeadra anaithnid)"
+      }
+    },
+    "YDD": {
+      "name": "Dínear Éimin"
+    },
+    "YER": {
+      "name": "Rial Éimin",
+      "plural": {
+        "few": "rial Éimin",
+        "many": "rial Éimin",
+        "one": "rial Éimin",
+        "other": "rial Éimin",
+        "two": "rial Éimin"
+      }
+    },
+    "YUD": {
+      "name": "Dínear Crua Iúgslavach (1966–1990)"
+    },
+    "YUM": {
+      "name": "Dínear Nua Iúgslavach (1994–2002)"
+    },
+    "YUN": {
+      "name": "Dinar Inmhalartaithe Iúgslavach (1990–1992)",
+      "plural": {
+        "few": "Dínear Inathraithe Iúgslavach",
+        "many": "Dínear Inathraithe Iúgslavach",
+        "one": "Dínear Inathraithe Iúgslavach",
+        "other": "Dínear Inathraithe Iúgslavach",
+        "two": "Dínear Inathraithe Iúgslavach"
+      }
+    },
+    "YUR": {
+      "name": "Dinar Leasaithe na hIúgsláive (1992–1993)",
+      "plural": {
+        "other": "Dinars Leasaithe na hIúgsláive (1992–1993)"
+      }
+    },
+    "ZAL": {
+      "name": "Rand na hAfraice Theas (airgeadúil)"
+    },
+    "ZAR": {
+      "name": "Rand na hAfraice Theas",
+      "narrow": "R",
+      "plural": {
+        "few": "rand na hAfraice Theas",
+        "many": "rand na hAfraice Theas",
+        "one": "rand na hAfraice Theas",
+        "other": "rand na hAfraice Theas",
+        "two": "rand na hAfraice Theas"
+      }
+    },
+    "ZMK": {
+      "name": "Kwacha Saimbiach (1968–2012)"
+    },
+    "ZMW": {
+      "name": "Kwacha na Saimbia",
+      "narrow": "ZK",
+      "plural": {
+        "few": "kwacha na Saimbia",
+        "many": "kwacha na Saimbia",
+        "one": "kwacha na Saimbia",
+        "other": "kwacha na Saimbia",
+        "two": "kwacha na Saimbia"
+      }
+    },
+    "ZRN": {
+      "name": "Zaire Nua Sáíreach"
+    },
+    "ZRZ": {
+      "name": "Zaire Sáíreach"
+    },
+    "ZWD": {
+      "name": "Dollar Siombábach (1980–2008)"
+    },
+    "ZWG": {
+      "name": "ór na Siombáibe",
+      "plural": {
+        "many": "n-ór na Siombáibe"
+      }
+    },
+    "ZWL": {
+      "name": "Dollar na Siombáibe (2009)"
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "ga",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "¤#,##0.00;(¤#,##0.00)",
+      "compactShort": {
+        "1000": {
+          "one": "0k",
+          "other": "0k"
+        },
+        "10000": {
+          "one": "00k",
+          "other": "00k"
+        },
+        "100000": {
+          "one": "000k",
+          "other": "000k"
+        },
+        "1000000": {
+          "other": "0M"
+        },
+        "10000000": {
+          "other": "00M"
+        },
+        "100000000": {
+          "other": "000M"
+        },
+        "1000000000": {
+          "one": "0B",
+          "other": "0B"
+        },
+        "10000000000": {
+          "one": "00B",
+          "other": "00B"
+        },
+        "100000000000": {
+          "one": "000B",
+          "other": "000B"
+        },
+        "1000000000000": {
+          "other": "0T"
+        },
+        "10000000000000": {
+          "other": "00T"
+        },
+        "100000000000000": {
+          "other": "000T"
+        }
+      },
+      "currency": "¤#,##0.00",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ".",
+        "exponential": "E",
+        "group": ",",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "Nuimh",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {
+      "few": "n = 3..6",
+      "many": "n = 7..10",
+      "one": "n = 1",
+      "two": "n = 2"
+    },
+    "ordinal": {
+      "one": "n = 1"
+    }
+  },
+  "territories": {
+    "AC": "Oileán na Deascabhála",
+    "AD": "Andóra",
+    "AE": "Aontas na nÉimíríochtaí Arabacha",
+    "AF": "an Afganastáin",
+    "AG": "Antigua agus Barbúda",
+    "AI": "Angaíle",
+    "AL": "an Albáin",
+    "AM": "an Airméin",
+    "AO": "Angóla",
+    "AQ": "Antartaice",
+    "AR": "an Airgintín",
+    "AS": "Samó Mheiriceá",
+    "AT": "an Ostair",
+    "AU": "an Astráil",
+    "AW": "Arúba",
+    "AX": "Oileáin Åland",
+    "AZ": "an Asarbaiseáin",
+    "BA": "an Bhoisnia agus an Heirseagaivéin",
+    "BB": "Barbadós",
+    "BD": "an Bhanglaidéis",
+    "BE": "an Bheilg",
+    "BF": "Buircíne Fasó",
+    "BG": "an Bhulgáir",
+    "BH": "Bairéin",
+    "BI": "an Bhurúin",
+    "BJ": "Beinin",
+    "BL": "Saint Barthélemy",
+    "BM": "Beirmiúda",
+    "BN": "Brúiné",
+    "BO": "an Bholaiv",
+    "BQ": "an Ísiltír Chairibeach",
+    "BR": "an Bhrasaíl",
+    "BS": "na Bahámaí",
+    "BT": "an Bhútáin",
+    "BV": "Oileán Bouvet",
+    "BW": "an Bhotsuáin",
+    "BY": "an Bhealarúis",
+    "BZ": "an Bheilís",
+    "CA": "Ceanada",
+    "CC": "Oileáin Cocos (Keeling)",
+    "CD": "Poblacht Dhaonlathach an Chongó",
+    "CF": "Poblacht na hAfraice Láir",
+    "CG": "Congó-Brazzaville",
+    "CH": "an Eilvéis",
+    "CI": "Côte d’Ivoire",
+    "CK": "Oileáin Cook",
+    "CL": "an tSile",
+    "CM": "Camarún",
+    "CN": "an tSín",
+    "CO": "an Cholóim",
+    "CP": "Oileán Clipperton",
+    "CQ": "an tSairc",
+    "CR": "Cósta Ríce",
+    "CU": "Cúba",
+    "CV": "Poblacht Cabo Verde",
+    "CW": "Cúrasó",
+    "CX": "Oileán na Nollag",
+    "CY": "an Chipir",
+    "CZ": "an tSeicia",
+    "DE": "an Ghearmáin",
+    "DG": "Diego Garcia",
+    "DJ": "Djibouti",
+    "DK": "an Danmhairg",
+    "DM": "Doiminice",
+    "DO": "an Phoblacht Dhoiminiceach",
+    "DZ": "an Ailgéir",
+    "EA": "Ceuta agus Melilla",
+    "EC": "Eacuadór",
+    "EE": "an Eastóin",
+    "EG": "an Éigipt",
+    "EH": "an Sahára Thiar",
+    "ER": "an Eiritré",
+    "ES": "an Spáinn",
+    "ET": "an Aetóip",
+    "EU": "an tAontas Eorpach",
+    "EZ": "Limistéar an euro",
+    "FI": "an Fhionlainn",
+    "FJ": "Fidsí",
+    "FK": "Oileáin Fháclainne",
+    "FM": "an Mhicrinéis",
+    "FO": "Oileáin Fharó",
+    "FR": "an Fhrainc",
+    "GA": "an Ghabúin",
+    "GB": "an Ríocht Aontaithe",
+    "GD": "Greanáda",
+    "GE": "an tSeoirsia",
+    "GF": "Guáin na Fraince",
+    "GG": "Geansaí",
+    "GH": "Gána",
+    "GI": "Giobráltar",
+    "GL": "an Ghraonlainn",
+    "GM": "an Ghaimbia",
+    "GN": "an Ghuine",
+    "GP": "Guadalúip",
+    "GQ": "an Ghuine Mheánchiorclach",
+    "GR": "an Ghréig",
+    "GS": "An tSeoirsia Theas agus Oileáin Sandwich Theas",
+    "GT": "Guatamala",
+    "GU": "Guam",
+    "GW": "Guine Bissau",
+    "GY": "An Ghuáin",
+    "HK": "Sainréigiún Riaracháin Hong Cong, Daonphoblacht na Síne",
+    "HM": "Oileán Heard agus Oileáin McDonald",
+    "HN": "Hondúras",
+    "HR": "an Chróit",
+    "HT": "Háítí",
+    "HU": "an Ungáir",
+    "IC": "na hOileáin Chanáracha",
+    "ID": "an Indinéis",
+    "IE": "Éire",
+    "IL": "Iosrael",
+    "IM": "Oileán Mhanann",
+    "IN": "an India",
+    "IO": "Críoch Aigéan Indiach na Breataine",
+    "IQ": "an Iaráic",
+    "IR": "an Iaráin",
+    "IS": "an Íoslainn",
+    "IT": "an Iodáil",
+    "JE": "Geirsí",
+    "JM": "Iamáice",
+    "JO": "an Iordáin",
+    "JP": "an tSeapáin",
+    "KE": "an Chéinia",
+    "KG": "an Chirgeastáin",
+    "KH": "an Chambóid",
+    "KI": "Ciribeas",
+    "KM": "Oileáin Chomóra",
+    "KN": "San Críostóir-Nimheas",
+    "KP": "an Chóiré Thuaidh",
+    "KR": "an Chóiré Theas",
+    "KW": "Cuáit",
+    "KY": "Oileáin Cayman",
+    "KZ": "an Chasacstáin",
+    "LA": "Laos",
+    "LB": "an Liobáin",
+    "LC": "Saint Lucia",
+    "LI": "Lichtinstéin",
+    "LK": "Srí Lanca",
+    "LR": "an Libéir",
+    "LS": "Leosóta",
+    "LT": "an Liotuáin",
+    "LU": "Lucsamburg",
+    "LV": "an Laitvia",
+    "LY": "an Libia",
+    "MA": "Maracó",
+    "MC": "Monacó",
+    "MD": "an Mholdóiv",
+    "ME": "Montainéagró",
+    "MF": "Saint-Martin",
+    "MG": "Madagascar",
+    "MH": "Oileáin Marshall",
+    "MK": "an Mhacadóin Thuaidh",
+    "ML": "Mailí",
+    "MM": "Maenmar (Burma)",
+    "MN": "an Mhongóil",
+    "MO": "Sainréigiún Riaracháin Macao, Daonphoblacht na Síne",
+    "MP": "Na hOileáin Mháirianacha Thuaidh",
+    "MQ": "Martinique",
+    "MR": "an Mháratáin",
+    "MS": "Montsarat",
+    "MT": "Málta",
+    "MU": "Oileán Mhuirís",
+    "MV": "Oileáin Mhaildíve",
+    "MW": "an Mhaláiv",
+    "MX": "Meicsiceo",
+    "MY": "an Mhalaeisia",
+    "MZ": "Mósaimbíc",
+    "NA": "an Namaib",
+    "NC": "an Nua-Chaladóin",
+    "NE": "an Nígir",
+    "NF": "Oileán Norfolk",
+    "NG": "an Nigéir",
+    "NI": "Nicearagua",
+    "NL": "an Ísiltír",
+    "NO": "an Iorua",
+    "NP": "Neipeal",
+    "NR": "Nárú",
+    "NU": "Niue",
+    "NZ": "an Nua-Shéalainn",
+    "OM": "Óman",
+    "PA": "Panama",
+    "PE": "Peiriú",
+    "PF": "Polainéis na Fraince",
+    "PG": "Nua-Ghuine Phapua",
+    "PH": "Na hOileáin Fhilipíneacha",
+    "PK": "an Phacastáin",
+    "PL": "an Pholainn",
+    "PM": "San Pierre agus Miquelon",
+    "PN": "Oileáin Pitcairn",
+    "PR": "Pórtó Ríce",
+    "PS": "na Críocha Palaistíneacha",
+    "PT": "an Phortaingéil",
+    "PW": "Oileáin Palau",
+    "PY": "Paragua",
+    "QA": "Catar",
+    "QO": "an Aigéine Imeallach",
+    "RE": "La Réunion",
+    "RO": "an Rómáin",
+    "RS": "an tSeirbia",
+    "RU": "an Rúis",
+    "RW": "Ruanda",
+    "SA": "an Araib Shádach",
+    "SB": "Oileáin Sholaimh",
+    "SC": "na Séiséil",
+    "SD": "an tSúdáin",
+    "SE": "an tSualainn",
+    "SG": "Singeapór",
+    "SH": "San Héilin",
+    "SI": "an tSlóivéin",
+    "SJ": "Svalbard agus Jan Mayen",
+    "SK": "an tSlóvaic",
+    "SL": "Siarra Leon",
+    "SM": "San Mairíne",
+    "SN": "an tSeineagáil",
+    "SO": "an tSomáil",
+    "SR": "Suranam",
+    "SS": "an tSúdáin Theas",
+    "ST": "São Tomé agus Príncipe",
+    "SV": "An tSalvadóir",
+    "SX": "Sint Maarten",
+    "SY": "an tSiria",
+    "SZ": "Esuaitíní",
+    "TA": "Tristan da Cunha",
+    "TC": "Oileáin na dTurcach agus Caicos",
+    "TD": "Sead",
+    "TF": "Críocha Francacha Dheisceart an Domhain",
+    "TG": "Tóga",
+    "TH": "an Téalainn",
+    "TJ": "an Táidsíceastáin",
+    "TK": "Tócalá",
+    "TL": "Tíomór Thoir",
+    "TM": "an Tuircméanastáin",
+    "TN": "an Tuinéis",
+    "TO": "Tonga",
+    "TR": "an Tuirc",
+    "TT": "Oileán na Tríonóide agus Tobága",
+    "TV": "Túvalú",
+    "TW": "an Téaváin",
+    "TZ": "an Tansáin",
+    "UA": "an Úcráin",
+    "UG": "Uganda",
+    "UM": "Oileáin Imeallacha S.A.M.",
+    "UN": "na Náisiúin Aontaithe",
+    "US": "Stáit Aontaithe Mheiriceá",
+    "UY": "Uragua",
+    "UZ": "an Úisbéiceastáin",
+    "VA": "Cathair na Vatacáine",
+    "VC": "San Uinseann agus na Greanáidíní",
+    "VE": "Veiniséala",
+    "VG": "Oileáin Bhriotanacha na Maighdean",
+    "VI": "Oileáin Mheiriceánacha na Maighdean",
+    "VN": "Vítneam",
+    "VU": "Vanuatú",
+    "WF": "Vailís agus Futúna",
+    "WS": "Samó",
+    "XA": "Bréagaicinn",
+    "XB": "Bréag-Bidi",
+    "XK": "an Chosaiv",
+    "YE": "Éimin",
+    "YT": "Mayotte",
+    "ZA": "an Afraic Theas",
+    "ZM": "an tSaimbia",
+    "ZW": "an tSiombáib"
+  }
+}

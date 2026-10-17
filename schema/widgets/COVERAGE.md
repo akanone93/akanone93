@@ -8,21 +8,21 @@ How the widget descriptors and value types cover the constructor parameters of t
 
 | | Count |
 |---|---|
-| Flutter classes | 134 |
-| Constructor parameters | 2036 |
-| Supported as props | 1146 |
-| Supported as events | 176 |
-| Supported as slots | 127 |
+| Flutter classes | 154 |
+| Constructor parameters | 2227 |
+| Supported as props | 1248 |
+| Supported as events | 196 |
+| Supported as slots | 152 |
 | Supported as the children list | 7 |
 | Supported as value-type fields | 203 |
-| Excluded: callback→event | 1 |
-| Excluded: controller→state | 62 |
-| Excluded: builder→template | 3 |
-| Excluded: non-serialisable | 162 |
+| Excluded: callback→event | 4 |
+| Excluded: controller→state | 67 |
+| Excluded: builder→template | 8 |
+| Excluded: non-serialisable | 185 |
 | Excluded: deprecated | 26 |
-| Excluded: deferred | 123 |
-| Mirrored enums | 60 |
-| Enum values | 234 |
+| Excluded: deferred | 131 |
+| Mirrored enums | 63 |
+| Enum values | 247 |
 | Enum values excluded | 0 |
 
 Callbacks are supported as events and builders as slots or item templates. A parameter is excluded as **callback→event** or **builder→template** when an event or template elsewhere covers its purpose, **controller→state** when the runtime owns the controller and binds it to state, **non-serialisable** when the value cannot be expressed as data, **deprecated** when Flutter deprecates it, and **deferred** when it is expressible but planned for a later revision.
@@ -69,6 +69,162 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `widthFactor` | `double?` | prop `widthFactor` |  |
 | `heightFactor` | `double?` | prop `heightFactor` |  |
 | `child` | `Widget?` | slot `child` |  |
+
+### AnimatedAlign · `AnimatedAlign`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `alignment` | `AlignmentGeometry` | prop `alignment` |  |
+| `child` | `Widget?` | slot `child` |  |
+| `heightFactor` | `double?` | prop `heightFactor` |  |
+| `widthFactor` | `double?` | prop `widthFactor` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedContainer · `AnimatedContainer`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `alignment` | `AlignmentGeometry?` | prop `alignment` |  |
+| `padding` | `EdgeInsetsGeometry?` | prop `padding` |  |
+| `color` | `Color?` | prop `color` |  |
+| `decoration` | `Decoration?` | prop `decoration` |  |
+| `foregroundDecoration` | `Decoration?` | prop `foregroundDecoration` |  |
+| `width` | `double?` | prop `width` |  |
+| `height` | `double?` | prop `height` |  |
+| `constraints` | `BoxConstraints?` | prop `constraints` |  |
+| `margin` | `EdgeInsetsGeometry?` | prop `margin` |  |
+| `transform` | `Matrix4?` | excluded: deferred | Matrix transforms are animated with `AnimatedRotation`, `AnimatedScale` and `AnimatedSlide`. |
+| `transformAlignment` | `AlignmentGeometry?` | prop `transformAlignment` |  |
+| `child` | `Widget?` | slot `child` |  |
+| `clipBehavior` | `Clip` | prop `clipBehavior` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedCrossFade · `AnimatedCrossFade`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `firstChild` | `Widget` | slot `firstChild` |  |
+| `secondChild` | `Widget` | slot `secondChild` |  |
+| `firstCurve` | `Curve` | prop `firstCurve` |  |
+| `secondCurve` | `Curve` | prop `secondCurve` |  |
+| `sizeCurve` | `Curve` | prop `sizeCurve` |  |
+| `alignment` | `AlignmentGeometry` | prop `alignment` |  |
+| `crossFadeState` | `CrossFadeState` | prop `crossFadeState` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `reverseDuration` | `Duration?` | prop `reverseDuration` |  |
+| `layoutBuilder` | `Widget Function(Widget, Key, Widget, Key)` | excluded: builder→template |  |
+| `excludeBottomFocus` | `bool` | prop `excludeBottomFocus` |  |
+| `clipBehavior` | `Clip` | prop `clipBehavior` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedOpacity · `AnimatedOpacity`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget?` | slot `child` |  |
+| `opacity` | `double` | prop `opacity` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+| `alwaysIncludeSemantics` | `bool` | prop `alwaysIncludeSemantics` |  |
+
+### AnimatedPadding · `AnimatedPadding`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `padding` | `EdgeInsetsGeometry` | prop `padding` |  |
+| `child` | `Widget?` | slot `child` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedPositioned · `AnimatedPositioned`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget` | slot `child` |  |
+| `left` | `double?` | prop `left` |  |
+| `top` | `double?` | prop `top` |  |
+| `right` | `double?` | prop `right` |  |
+| `bottom` | `double?` | prop `bottom` |  |
+| `width` | `double?` | prop `width` |  |
+| `height` | `double?` | prop `height` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedRotation · `AnimatedRotation`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget?` | slot `child` |  |
+| `turns` | `double` | prop `turns` |  |
+| `alignment` | `Alignment` | prop `alignment` |  |
+| `filterQuality` | `FilterQuality?` | prop `filterQuality` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedScale · `AnimatedScale`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget?` | slot `child` |  |
+| `scale` | `double` | prop `scale` |  |
+| `alignment` | `Alignment` | prop `alignment` |  |
+| `filterQuality` | `FilterQuality?` | prop `filterQuality` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedSize · `AnimatedSize`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget?` | slot `child` |  |
+| `alignment` | `AlignmentGeometry` | prop `alignment` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `reverseDuration` | `Duration?` | prop `reverseDuration` |  |
+| `clipBehavior` | `Clip` | prop `clipBehavior` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedSlide · `AnimatedSlide`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget?` | slot `child` |  |
+| `offset` | `Offset` | prop `offset` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedSwitcher · `AnimatedSwitcher`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget?` | slot `child` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `reverseDuration` | `Duration?` | prop `reverseDuration` |  |
+| `switchInCurve` | `Curve` | prop `switchInCurve` |  |
+| `switchOutCurve` | `Curve` | prop `switchOutCurve` |  |
+| `transitionBuilder` | `Widget Function(Widget, Animation<double>)` | excluded: builder→template |  |
+| `layoutBuilder` | `Widget Function(Widget?, List<Widget>)` | excluded: builder→template |  |
 
 ### AppBar · `AppBar`
 
@@ -728,6 +884,26 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `position` | `DecorationPosition` | prop `position` |  |
 | `child` | `Widget?` | slot `child` |  |
 
+### Dismissible · `Dismissible`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget` | slot `child` |  |
+| `background` | `Widget?` | slot `background` |  |
+| `secondaryBackground` | `Widget?` | slot `secondaryBackground` |  |
+| `confirmDismiss` | `Future<bool?> Function(DismissDirection)?` | excluded: callback→event | Dismissal is not vetoed from a handler. |
+| `onResize` | `void Function()?` | excluded: deferred |  |
+| `onUpdate` | `void Function(DismissUpdateDetails)?` | excluded: deferred |  |
+| `onDismissed` | `void Function(DismissDirection)?` | event `onDismissed` |  |
+| `direction` | `DismissDirection` | prop `direction` |  |
+| `resizeDuration` | `Duration?` | prop `resizeDuration` |  |
+| `dismissThresholds` | `Map<DismissDirection, double>` | excluded: deferred | The runtime uses Flutter's default thresholds. |
+| `movementDuration` | `Duration` | prop `movementDuration` |  |
+| `crossAxisEndOffset` | `double` | prop `crossAxisEndOffset` |  |
+| `dragStartBehavior` | `DragStartBehavior` | prop `dragStartBehavior` |  |
+| `behavior` | `HitTestBehavior` | prop `behavior` |  |
+
 ### Divider · `Divider`
 
 | Parameter | Flutter type | Plux | Note |
@@ -739,6 +915,45 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `endIndent` | `double?` | prop `endIndent` |  |
 | `color` | `Color?` | prop `color` |  |
 | `radius` | `BorderRadiusGeometry?` | prop `radius` |  |
+
+### DragTarget · `DragTarget`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `builder` | `Widget Function(BuildContext, List<T?>, List<dynamic>)` | slot `child` |  |
+| `onWillAccept` (deprecated) | `bool Function(T?)?` | excluded: callback→event | Acceptance is declared with `accepts`. |
+| `onWillAcceptWithDetails` | `bool Function(DragTargetDetails<T>)?` | excluded: callback→event | Acceptance is declared with `accepts`. |
+| `onAccept` (deprecated) | `void Function(T)?` | event `onAccept` |  |
+| `onAcceptWithDetails` | `void Function(DragTargetDetails<T>)?` | event `onAccept` |  |
+| `onLeave` | `void Function(T?)?` | event `onLeave` |  |
+| `onMove` | `void Function(DragTargetDetails<T>)?` | excluded: deferred |  |
+| `hitTestBehavior` | `HitTestBehavior` | prop `hitTestBehavior` |  |
+
+### Draggable · `Draggable`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget` | slot `child` |  |
+| `feedback` | `Widget` | slot `feedback` |  |
+| `data` | `T?` | prop `data` |  |
+| `axis` | `Axis?` | prop `axis` |  |
+| `childWhenDragging` | `Widget?` | slot `childWhenDragging` |  |
+| `feedbackOffset` | `Offset` | prop `feedbackOffset` |  |
+| `dragAnchorStrategy` | `Offset Function(Draggable<Object>, BuildContext, Offset)` | excluded: non-serialisable |  |
+| `affinity` | `Axis?` | excluded: deferred |  |
+| `maxSimultaneousDrags` | `int?` | prop `maxSimultaneousDrags` |  |
+| `onDragStarted` | `void Function()?` | event `onDragStarted` |  |
+| `onDragUpdate` | `void Function(DragUpdateDetails)?` | excluded: deferred |  |
+| `onDraggableCanceled` | `void Function(Velocity, Offset)?` | event `onDraggableCanceled` |  |
+| `onDragEnd` | `void Function(DraggableDetails)?` | event `onDragEnd` |  |
+| `onDragCompleted` | `void Function()?` | event `onDragCompleted` |  |
+| `ignoringFeedbackSemantics` | `bool` | prop `ignoringFeedbackSemantics` |  |
+| `ignoringFeedbackPointer` | `bool` | prop `ignoringFeedbackPointer` |  |
+| `rootOverlay` | `bool` | prop `rootOverlay` |  |
+| `hitTestBehavior` | `HitTestBehavior` | prop `hitTestBehavior` |  |
+| `allowedButtonsFilter` | `bool Function(int)?` | excluded: non-serialisable |  |
 
 ### DropdownMenu · `DropdownMenu`
 
@@ -847,6 +1062,15 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `expansionAnimationStyle` | `AnimationStyle?` | excluded: deferred | Custom animation styles arrive with animations (P5). |
 | `internalAddSemanticForOnTap` | `bool` | excluded: non-serialisable | A framework-internal flag. |
 | `statesController` | `WidgetStatesController?` | excluded: controller→state | The runtime owns the controller and binds it to state. |
+
+### FadeTransition · `FadeTransition`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `opacity` | `Animation<double>` | excluded: controller→state | Driven by the timeline track. |
+| `alwaysIncludeSemantics` | `bool` | prop `alwaysIncludeSemantics` |  |
+| `child` | `Widget?` | slot `child` |  |
 
 ### FilledButton · `FilledButton`, `FilledButton.tonal`
 
@@ -1084,6 +1308,20 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `clipBehavior` | `Clip` | prop `clipBehavior` |  |
 | `hitTestBehavior` | `HitTestBehavior` | prop `hitTestBehavior` |  |
 
+### Hero · `Hero`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `tag` | `Object` | prop `tag` |  |
+| `createRectTween` | `Tween<Rect?> Function(Rect?, Rect?)?` | excluded: non-serialisable |  |
+| `flightShuttleBuilder` | `Widget Function(BuildContext, Animation<double>, HeroFlightDirection, BuildContext, BuildContext)?` | excluded: builder→template |  |
+| `placeholderBuilder` | `Widget Function(BuildContext, Size, Widget)?` | excluded: builder→template |  |
+| `transitionOnUserGestures` | `bool` | prop `transitionOnUserGestures` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `reverseCurve` | `Curve?` | prop `reverseCurve` |  |
+| `child` | `Widget` | slot `child` |  |
+
 ### Icon · `Icon`
 
 | Parameter | Flutter type | Plux | Note |
@@ -1260,6 +1498,29 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `deleteIconBoxConstraints` | `BoxConstraints?` | prop `deleteIconBoxConstraints` |  |
 | `chipAnimationStyle` | `ChipAnimationStyle?` | excluded: deferred | Custom animation styles arrive with animations (P5). |
 | `mouseCursor` | `MouseCursor?` | excluded: deferred | Pointer cursors matter only for desktop and web targets. |
+
+### InteractiveViewer · `InteractiveViewer`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `clipBehavior` | `Clip` | prop `clipBehavior` |  |
+| `panAxis` | `PanAxis` | prop `panAxis` |  |
+| `boundaryMargin` | `EdgeInsets` | prop `boundaryMargin` |  |
+| `constrained` | `bool` | prop `constrained` |  |
+| `maxScale` | `double` | prop `maxScale` |  |
+| `minScale` | `double` | prop `minScale` |  |
+| `interactionEndFrictionCoefficient` | `double` | prop `interactionEndFrictionCoefficient` |  |
+| `onInteractionEnd` | `void Function(ScaleEndDetails)?` | event `onInteractionEnd` |  |
+| `onInteractionStart` | `void Function(ScaleStartDetails)?` | event `onInteractionStart` |  |
+| `onInteractionUpdate` | `void Function(ScaleUpdateDetails)?` | excluded: deferred |  |
+| `panEnabled` | `bool` | prop `panEnabled` |  |
+| `scaleEnabled` | `bool` | prop `scaleEnabled` |  |
+| `scaleFactor` | `double` | prop `scaleFactor` |  |
+| `transformationController` | `TransformationController?` | excluded: controller→state | The runtime owns the controller. |
+| `alignment` | `Alignment?` | prop `alignment` |  |
+| `trackpadScrollCausesScale` | `bool` | prop `trackpadScrollCausesScale` |  |
+| `child` | `Widget` | slot `child` |  |
 
 ### LimitedBox · `LimitedBox`
 
@@ -1642,6 +1903,16 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `textHeightBehavior` | `TextHeightBehavior?` | excluded: deferred | Fine-grained line-height behaviour is deferred. |
 | `selectionColor` | `Color?` | prop `selectionColor` |  |
 
+### RotationTransition · `RotationTransition`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `turns` | `Animation<double>` | excluded: controller→state | Driven by the timeline track. |
+| `alignment` | `Alignment` | prop `alignment` |  |
+| `filterQuality` | `FilterQuality?` | prop `filterQuality` |  |
+| `child` | `Widget?` | slot `child` |  |
+
 ### Row · `Row`
 
 | Parameter | Flutter type | Plux | Note |
@@ -1701,6 +1972,16 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `drawerEnableOpenDragGesture` | `bool` | prop `drawerEnableOpenDragGesture` |  |
 | `endDrawerEnableOpenDragGesture` | `bool` | prop `endDrawerEnableOpenDragGesture` |  |
 | `restorationId` | `String?` | excluded: non-serialisable | State restoration is managed by the runtime. |
+
+### ScaleTransition · `ScaleTransition`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `scale` | `Animation<double>` | excluded: controller→state | Driven by the timeline track. |
+| `alignment` | `Alignment` | prop `alignment` |  |
+| `filterQuality` | `FilterQuality?` | prop `filterQuality` |  |
+| `child` | `Widget?` | slot `child` |  |
 
 ### Scrollbar · `Scrollbar`
 
@@ -1796,6 +2077,16 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
 | `width` | `double?` | prop `width` |  |
 | `height` | `double?` | prop `height` |  |
+| `child` | `Widget?` | slot `child` |  |
+
+### SlideTransition · `SlideTransition`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `position` | `Animation<Offset>` | excluded: controller→state | Driven by the timeline track. |
+| `transformHitTests` | `bool` | prop `transformHitTests` |  |
+| `textDirection` | `TextDirection?` | prop `textDirection` |  |
 | `child` | `Widget?` | slot `child` |  |
 
 ### Slider · `Slider`, `Slider.adaptive`
@@ -2753,8 +3044,10 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | Brightness | `Brightness` | 2 | — |
 | Clip | `Clip` | 4 | — |
 | CrossAxisAlignment | `CrossAxisAlignment` | 5 | — |
+| CrossFadeState | `CrossFadeState` | 2 | — |
 | CupertinoButtonSize | `CupertinoButtonSize` | 3 | — |
 | DecorationPosition | `DecorationPosition` | 2 | — |
+| DismissDirection | `DismissDirection` | 7 | — |
 | DragStartBehavior | `DragStartBehavior` | 2 | — |
 | DropdownMenuCloseBehavior | `DropdownMenuCloseBehavior` | 3 | — |
 | FilterQuality | `FilterQuality` | 4 | — |
@@ -2773,6 +3066,7 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | MaxLengthEnforcement | `MaxLengthEnforcement` | 3 | — |
 | OverflowBarAlignment | `OverflowBarAlignment` | 3 | — |
 | OverlayVisibilityMode | `OverlayVisibilityMode` | 4 | — |
+| PanAxis | `PanAxis` | 4 | — |
 | RefreshIndicatorTriggerMode | `RefreshIndicatorTriggerMode` | 2 | — |
 | ScrollViewKeyboardDismissBehavior | `ScrollViewKeyboardDismissBehavior` | 2 | — |
 | ScrollbarOrientation | `ScrollbarOrientation` | 4 | — |

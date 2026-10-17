@@ -1,0 +1,84 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "ScaleTransition",
+  "id": 152,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "ScaleTransition",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "animation",
+  "icon": "zoom_in_map",
+  "description": "Scales its child by a track of a page timeline.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "timeline",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The name of a timeline of the page."
+    },
+    {
+      "name": "track",
+      "id": 2,
+      "type": "int",
+      "default": 0,
+      "constraints": {
+        "min": 0
+      },
+      "description": "The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value."
+    },
+    {
+      "name": "alignment",
+      "id": 3,
+      "type": "Alignment",
+      "default": "center",
+      "flutter": "alignment"
+    },
+    {
+      "name": "filterQuality",
+      "id": 4,
+      "type": "FilterQuality",
+      "flutter": "filterQuality"
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "flutter": "child"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "scale",
+      "reason": "controller→state",
+      "note": "Driven by the timeline track."
+    }
+  ]
+}
