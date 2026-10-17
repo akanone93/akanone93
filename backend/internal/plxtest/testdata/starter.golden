@@ -8,11 +8,11 @@
     {
       "plugin": "",
       "version": 1,
-      "sha256": "18be670c8c92f06d1d92cc0c11e3f39a1e1a97cfc2affce6327f281780cba8a6",
+      "sha256": "c2dc38a0b1b90757cbf5ec130637daf346111c7432c84a22836b888a7e5dfb65",
       "file": "bundles/_app.pxb",
       "keyId": "6f2f732c84351d4da8d053c8f7e4e1de",
       "algorithm": "ed25519",
-      "signature": "sYzX97l59LQrWCqWKgpO3Y7hDP7JfcmkqJXUlkBN59d4McWOdh+4XY6L5bWbQIoZzrl0IhIitAcXtGr8ia1sDA=="
+      "signature": "tQmG2WHMQ9vYz8s/qU5ro7qVtoxrB2jwlxjQAyZCXRhU/2QdC/rkS91+5UNOseNo+SLwm7ZfQN1ygPJFhtH1AQ=="
     },
     {
       "plugin": "welcome",

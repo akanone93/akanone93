@@ -29,6 +29,8 @@ func TestIndicesAndCountsAre32Bit(t *testing.T) {
 		"hash":          true, // SHA-256
 		"module":        true, // WebAssembly bytes
 		"ast":           true, // an encoded MessageFormat AST
+		"data":          true, // JSON locale data
+		"flutter":       true, // JSON Flutter widget strings
 		"hints":         true, // NodeHints bits
 		"heading_level": true, // a heading level from 1 to 6
 	}

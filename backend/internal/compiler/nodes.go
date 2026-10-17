@@ -140,6 +140,8 @@ func (u *unit) checkNode(n *node) {
 	if sem := n.doc.Semantics; sem != nil {
 		n.semantics = u.checkSemantics(n, sem, c)
 	}
+	u.noteCalendar(n.doc.Props)
+	u.localeOverrides(n, sh, c)
 	if r := n.doc.Responsive; r != nil {
 		for _, layer := range []struct {
 			key   string

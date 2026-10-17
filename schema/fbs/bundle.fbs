@@ -756,6 +756,17 @@ table Locale {
   tag: string;
   // Sorted by key.
   messages: [Message];
+  // Canonical JSON of the CLDR data of the locale reduced to what the app
+  // uses (I18N-002, ADR-0066 § Data): numbers, plurals, the currencies and
+  // calendars the app uses, date formats and skeletons, territory and
+  // currency names. Parsed once, off the UI isolate.
+  data: [ubyte];
+  // Canonical JSON of Flutter's widget strings for the locale
+  // ({"cupertino": {...}, "material": {...}, "widgets": {...}}); empty when
+  // Flutter has none for the locale or a parent of it.
+  flutter: [ubyte];
+  // The CLDR locale `data` came from (de for a request for de-DE).
+  tag_resolved: string;
 }
 
 // ── Section timelines ─────────────────────────────────────────────────────
@@ -980,6 +991,19 @@ table Asset {
   // Transcoded forms, sorted by media type and then density; empty for
   // assets that are not raster images, or not yet transcoded.
   variants: [AssetVariant];
+  // The per-locale files of the asset (I18N-012), sorted by tag; empty when
+  // the asset has one file for every locale. `hash` and `size` above are
+  // the default file's.
+  locale_files: [AssetLocaleFile];
+}
+
+// The file an asset has for one locale.
+table AssetLocaleFile {
+  // The canonical BCP 47 tag of the locale.
+  tag: string;
+  // SHA-256 of the file.
+  hash: [ubyte];
+  size: ulong;
 }
 
 table AssetIndex {

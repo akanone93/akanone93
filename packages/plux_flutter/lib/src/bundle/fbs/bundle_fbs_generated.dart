@@ -6320,10 +6320,13 @@ class Locale {
 
   String? get tag => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
   List<Message>? get messages => const fb.ListReader<Message>(Message.reader).vTableGetNullable(_bc, _bcOffset, 6);
+  List<int>? get data => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 8);
+  List<int>? get flutter => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 10);
+  String? get tagResolved => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 12);
 
   @override
   String toString() {
-    return 'Locale{tag: ${tag}, messages: ${messages}}';
+    return 'Locale{tag: ${tag}, messages: ${messages}, data: ${data}, flutter: ${flutter}, tagResolved: ${tagResolved}}';
   }
 }
 
@@ -6341,7 +6344,7 @@ class LocaleBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(2);
+    fbBuilder.startTable(5);
   }
 
   int addTagOffset(int? offset) {
@@ -6350,6 +6353,18 @@ class LocaleBuilder {
   }
   int addMessagesOffset(int? offset) {
     fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+  int addDataOffset(int? offset) {
+    fbBuilder.addOffset(2, offset);
+    return fbBuilder.offset;
+  }
+  int addFlutterOffset(int? offset) {
+    fbBuilder.addOffset(3, offset);
+    return fbBuilder.offset;
+  }
+  int addTagResolvedOffset(int? offset) {
+    fbBuilder.addOffset(4, offset);
     return fbBuilder.offset;
   }
 
@@ -6361,13 +6376,22 @@ class LocaleBuilder {
 class LocaleObjectBuilder extends fb.ObjectBuilder {
   final String? _tag;
   final List<MessageObjectBuilder>? _messages;
+  final List<int>? _data;
+  final List<int>? _flutter;
+  final String? _tagResolved;
 
   LocaleObjectBuilder({
     String? tag,
     List<MessageObjectBuilder>? messages,
+    List<int>? data,
+    List<int>? flutter,
+    String? tagResolved,
   })
       : _tag = tag,
-        _messages = messages;
+        _messages = messages,
+        _data = data,
+        _flutter = flutter,
+        _tagResolved = tagResolved;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -6376,9 +6400,18 @@ class LocaleObjectBuilder extends fb.ObjectBuilder {
         : fbBuilder.writeString(_tag!);
     final int? messagesOffset = _messages == null ? null
         : fbBuilder.writeList(_messages!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
-    fbBuilder.startTable(2);
+    final int? dataOffset = _data == null ? null
+        : fbBuilder.writeListUint8(_data!);
+    final int? flutterOffset = _flutter == null ? null
+        : fbBuilder.writeListUint8(_flutter!);
+    final int? tagResolvedOffset = _tagResolved == null ? null
+        : fbBuilder.writeString(_tagResolved!);
+    fbBuilder.startTable(5);
     fbBuilder.addOffset(0, tagOffset);
     fbBuilder.addOffset(1, messagesOffset);
+    fbBuilder.addOffset(2, dataOffset);
+    fbBuilder.addOffset(3, flutterOffset);
+    fbBuilder.addOffset(4, tagResolvedOffset);
     return fbBuilder.endTable();
   }
 
@@ -8164,10 +8197,11 @@ class Asset {
   List<int>? get hash => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 10);
   int get size => const fb.Uint64Reader().vTableGet(_bc, _bcOffset, 12, 0);
   List<AssetVariant>? get variants => const fb.ListReader<AssetVariant>(AssetVariant.reader).vTableGetNullable(_bc, _bcOffset, 14);
+  List<AssetLocaleFile>? get localeFiles => const fb.ListReader<AssetLocaleFile>(AssetLocaleFile.reader).vTableGetNullable(_bc, _bcOffset, 16);
 
   @override
   String toString() {
-    return 'Asset{id: ${id}, key: ${key}, mediaType: ${mediaType}, hash: ${hash}, size: ${size}, variants: ${variants}}';
+    return 'Asset{id: ${id}, key: ${key}, mediaType: ${mediaType}, hash: ${hash}, size: ${size}, variants: ${variants}, localeFiles: ${localeFiles}}';
   }
 }
 
@@ -8185,7 +8219,7 @@ class AssetBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(6);
+    fbBuilder.startTable(7);
   }
 
   int addId(int offset) {
@@ -8212,6 +8246,10 @@ class AssetBuilder {
     fbBuilder.addOffset(5, offset);
     return fbBuilder.offset;
   }
+  int addLocaleFilesOffset(int? offset) {
+    fbBuilder.addOffset(6, offset);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -8225,6 +8263,7 @@ class AssetObjectBuilder extends fb.ObjectBuilder {
   final List<int>? _hash;
   final int? _size;
   final List<AssetVariantObjectBuilder>? _variants;
+  final List<AssetLocaleFileObjectBuilder>? _localeFiles;
 
   AssetObjectBuilder({
     UuidObjectBuilder? id,
@@ -8233,13 +8272,15 @@ class AssetObjectBuilder extends fb.ObjectBuilder {
     List<int>? hash,
     int? size,
     List<AssetVariantObjectBuilder>? variants,
+    List<AssetLocaleFileObjectBuilder>? localeFiles,
   })
       : _id = id,
         _key = key,
         _mediaType = mediaType,
         _hash = hash,
         _size = size,
-        _variants = variants;
+        _variants = variants,
+        _localeFiles = localeFiles;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -8252,7 +8293,9 @@ class AssetObjectBuilder extends fb.ObjectBuilder {
         : fbBuilder.writeListUint8(_hash!);
     final int? variantsOffset = _variants == null ? null
         : fbBuilder.writeList(_variants!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
-    fbBuilder.startTable(6);
+    final int? localeFilesOffset = _localeFiles == null ? null
+        : fbBuilder.writeList(_localeFiles!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
+    fbBuilder.startTable(7);
     if (_id != null) {
       fbBuilder.addStruct(0, _id!.finish(fbBuilder));
     }
@@ -8261,6 +8304,100 @@ class AssetObjectBuilder extends fb.ObjectBuilder {
     fbBuilder.addOffset(3, hashOffset);
     fbBuilder.addUint64(4, _size);
     fbBuilder.addOffset(5, variantsOffset);
+    fbBuilder.addOffset(6, localeFilesOffset);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
+class AssetLocaleFile {
+  AssetLocaleFile._(this._bc, this._bcOffset);
+  factory AssetLocaleFile(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<AssetLocaleFile> reader = _AssetLocaleFileReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  String? get tag => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
+  List<int>? get hash => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 6);
+  int get size => const fb.Uint64Reader().vTableGet(_bc, _bcOffset, 8, 0);
+
+  @override
+  String toString() {
+    return 'AssetLocaleFile{tag: ${tag}, hash: ${hash}, size: ${size}}';
+  }
+}
+
+class _AssetLocaleFileReader extends fb.TableReader<AssetLocaleFile> {
+  const _AssetLocaleFileReader();
+
+  @override
+  AssetLocaleFile createObject(fb.BufferContext bc, int offset) => 
+    AssetLocaleFile._(bc, offset);
+}
+
+class AssetLocaleFileBuilder {
+  AssetLocaleFileBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(3);
+  }
+
+  int addTagOffset(int? offset) {
+    fbBuilder.addOffset(0, offset);
+    return fbBuilder.offset;
+  }
+  int addHashOffset(int? offset) {
+    fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+  int addSize(int? size) {
+    fbBuilder.addUint64(2, size);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class AssetLocaleFileObjectBuilder extends fb.ObjectBuilder {
+  final String? _tag;
+  final List<int>? _hash;
+  final int? _size;
+
+  AssetLocaleFileObjectBuilder({
+    String? tag,
+    List<int>? hash,
+    int? size,
+  })
+      : _tag = tag,
+        _hash = hash,
+        _size = size;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    final int? tagOffset = _tag == null ? null
+        : fbBuilder.writeString(_tag!);
+    final int? hashOffset = _hash == null ? null
+        : fbBuilder.writeListUint8(_hash!);
+    fbBuilder.startTable(3);
+    fbBuilder.addOffset(0, tagOffset);
+    fbBuilder.addOffset(1, hashOffset);
+    fbBuilder.addUint64(2, _size);
     return fbBuilder.endTable();
   }
 

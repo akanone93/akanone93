@@ -20,6 +20,8 @@ import (
 // resolve stage builds, the intermediate representation the later stages
 // refine, and the outputs.
 type unit struct {
+	// calendars are the calendars nodes name as literals (I18N-003).
+	calendars map[string]bool
 	// gateway are the data sources that go through the gateway.
 	gateway []GatewaySource
 	opts    Options

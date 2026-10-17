@@ -470,6 +470,7 @@ func (u *unit) lintAssets() {
 		if e.MediaType == schema.MediaTypeImageSvgXml && svgScript(data) {
 			u.report(plxerr.ExecutableContent, a.Source.File, ptr, "%s contains a script or an event handler", e.File)
 		}
+		u.checkAssetLocales(a.Source.File, i, e)
 	}
 }
 

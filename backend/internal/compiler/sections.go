@@ -525,12 +525,14 @@ func clampU32(v int64) uint32 { return uint32(max(0, min(v, 1<<32-1))) } //nolin
 // text and its pre-parsed AST (I18N-001), after checking it against its key.
 func (u *unit) localeSections(o *out) {
 	app := u.project.App.Doc
-	covered := map[string]bool{}
+	covered, translated := map[string]bool{}, map[string]bool{}
+	blobs := u.localeBlobs(app)
 	for _, t := range u.project.Translations {
 		if t.Doc == nil {
 			continue
 		}
 		covered[t.Doc.Locale] = true
+		translated[t.Doc.Locale] = true
 		id, err := bundle.LocaleID(t.Doc.Locale)
 		if err != nil {
 			u.report(plxerr.OutOfRange, t.Source.File, "/locale", "%v", err)
@@ -562,18 +564,26 @@ func (u *unit) localeSections(o *out) {
 			offs[i] = fbs.MessageEnd(b)
 		}
 		mv := offsetVector(b, offs)
-		tag := b.CreateString(t.Doc.Locale)
-		fbs.LocaleStart(b)
-		fbs.LocaleAddTag(b, tag)
-		fbs.LocaleAddMessages(b, mv)
-		o.add(bundle.SectionL10n, id, finish(b, fbs.LocaleEnd(b), bundle.SectionL10n))
+		o.add(bundle.SectionL10n, id, u.finishLocale(b, t.Doc.Locale, mv, blobs[t.Doc.Locale]))
 		if slices.Contains(app.SupportedLocales, t.Doc.Locale) {
 			u.reportMissingTranslations(t.Doc.Locale, t.Source.File, "/messages", t.Doc.Messages)
 		}
 	}
+	for _, tag := range app.SupportedLocales {
+		if covered[tag] {
+			continue
+		}
+		covered[tag] = true
+		id, err := bundle.LocaleID(tag)
+		if err != nil {
+			continue // reported with the unsupported locales
+		}
+		b := flatbuffers.NewBuilder(256)
+		o.add(bundle.SectionL10n, id, u.finishLocale(b, tag, offsetVector(b, nil), blobs[tag]))
+	}
 	if tk := u.project.TranslationKeys; tk != nil && tk.Doc != nil {
 		for _, tag := range app.SupportedLocales {
-			if !covered[tag] {
+			if !translated[tag] {
 				u.reportMissingTranslations(tag, tk.Source.File, "/keys", nil)
 			}
 		}
@@ -763,6 +773,15 @@ type indexedAsset struct {
 	id         [16]byte
 	key, media string
 	data       []byte
+	// locales are the per-locale files of the asset, sorted by tag
+	// (I18N-012).
+	locales []localeFile
+}
+
+// localeFile is the file an asset has for one locale.
+type localeFile struct {
+	tag  string
+	data []byte
 }
 
 // iconFontKey is the key of an icon set's font in an assets index; asset
@@ -776,7 +795,11 @@ func (u *unit) assetsSection(o *out) {
 		for i := range idx.Doc.Assets {
 			a := &idx.Doc.Assets[i]
 			if o.pl == nil || o.assets[a.ID] {
-				entries = append(entries, indexedAsset{uuidBytes(a.ID), a.Key, string(a.MediaType), u.project.AssetFiles[a.File]})
+				data := u.project.AssetFiles[a.File]
+				if a.MediaType == schema.MediaTypeFontTtf {
+					data = u.textFont(data)
+				}
+				entries = append(entries, indexedAsset{uuidBytes(a.ID), a.Key, string(a.MediaType), data, u.localeFiles(a)})
 			}
 		}
 	}
@@ -793,6 +816,20 @@ func (u *unit) assetsSection(o *out) {
 		hash := b.CreateByteVector(sum[:])
 		key, media := b.CreateString(a.key), b.CreateString(a.media)
 		variants := u.variantsOf(b, sum)
+		var locales flatbuffers.UOffsetT
+		if len(a.locales) > 0 {
+			los := make([]flatbuffers.UOffsetT, len(a.locales))
+			for j, lf := range a.locales {
+				lsum := sha256.Sum256(lf.data)
+				tag, lhash := b.CreateString(lf.tag), b.CreateByteVector(lsum[:])
+				fbs.AssetLocaleFileStart(b)
+				fbs.AssetLocaleFileAddTag(b, tag)
+				fbs.AssetLocaleFileAddHash(b, lhash)
+				fbs.AssetLocaleFileAddSize(b, uint64(len(lf.data)))
+				los[j] = fbs.AssetLocaleFileEnd(b)
+			}
+			locales = offsetVector(b, los)
+		}
 		fbs.AssetStart(b)
 		hi, lo := uuidHalves(a.id)
 		fbs.AssetAddId(b, fbs.CreateUuid(b, hi, lo))
@@ -803,6 +840,7 @@ func (u *unit) assetsSection(o *out) {
 		if variants != 0 {
 			fbs.AssetAddVariants(b, variants)
 		}
+		addOptional(b, locales, fbs.AssetAddLocaleFiles)
 		offs[i] = fbs.AssetEnd(b)
 	}
 	av := offsetVector(b, offs)
@@ -829,7 +867,7 @@ func (u *unit) iconFonts(o *out) []indexedAsset {
 			return nil
 		}
 		u.files[sha256.Sum256(data)] = data
-		out = append(out, indexedAsset{derivedID("icons", o.key, string(set)), iconFontKey(set), "font/ttf", data})
+		out = append(out, indexedAsset{id: derivedID("icons", o.key, string(set)), key: iconFontKey(set), media: "font/ttf", data: data})
 	}
 	return out
 }

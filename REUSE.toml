@@ -192,3 +192,15 @@ path = [
 precedence = "override"
 SPDX-FileCopyrightText = ["2015-2024 Unicode, Inc.", "2026 Plux contributors"]
 SPDX-License-Identifier = "Unicode-3.0"
+
+# Flutter's widget strings (ADR-0066), derived by tools/cmd/flutterl10n
+# (make flutter-l10n-data) from the pinned Flutter SDK's flutter_localizations,
+# and the copy the Go compiler embeds.
+[[annotations]]
+path = [
+    "schema/l10n/flutter/**",
+    "backend/internal/l10n/flutterdata/*.json",
+]
+precedence = "override"
+SPDX-FileCopyrightText = ["2014 The Flutter Authors", "2026 Plux contributors"]
+SPDX-License-Identifier = "BSD-3-Clause"

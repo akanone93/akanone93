@@ -136,8 +136,28 @@ func (rcv *Asset) VariantsLength() int {
 	return 0
 }
 
+func (rcv *Asset) LocaleFiles(obj *AssetLocaleFile, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *Asset) LocaleFilesLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
 func AssetStart(builder *flatbuffers.Builder) {
-	builder.StartObject(6)
+	builder.StartObject(7)
 }
 func AssetAddId(builder *flatbuffers.Builder, id flatbuffers.UOffsetT) {
 	builder.PrependStructSlot(0, flatbuffers.UOffsetT(id), 0)
@@ -161,6 +181,12 @@ func AssetAddVariants(builder *flatbuffers.Builder, variants flatbuffers.UOffset
 	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(variants), 0)
 }
 func AssetStartVariantsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
+}
+func AssetAddLocaleFiles(builder *flatbuffers.Builder, localeFiles flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(localeFiles), 0)
+}
+func AssetStartLocaleFilesVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func AssetEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {

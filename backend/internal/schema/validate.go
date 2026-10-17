@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"io/fs"
 	"path"
+	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
@@ -78,7 +80,7 @@ func (v *Validator) Validate(k DocumentKind, tree any, file string) plxerr.Diagn
 	if !errors.As(err, &verr) {
 		return plxerr.Diagnostics{plxerr.NewDiagnostic(plxerr.InternalCompilerError, plxerr.Location{File: file}, "validation failed: %v", err)}
 	}
-	c := collector{file: file}
+	c := collector{file: file, tree: tree}
 	c.walk(verr, nil)
 	c.out.Sort()
 	return c.out
@@ -90,6 +92,7 @@ var printer = message.NewPrinter(language.English)
 // collector turns a validation error tree into diagnostics.
 type collector struct {
 	file string
+	tree any
 	out  plxerr.Diagnostics
 }
 
@@ -117,11 +120,61 @@ func (c *collector) walk(e *jsonschema.ValidationError, parent []string) {
 		}
 	case *kind.PropertyNames:
 		// jsonschema v6.0.3 stores an aliased, later overwritten location for
-		// propertyNames errors; the enclosing object's location is reliable.
-		c.add(plxerr.InvalidFormat, append(parent[:len(parent):len(parent)], k.Property), "property name %q is not allowed here", k.Property)
+		// propertyNames errors: only its length is reliable. The object is
+		// found below the enclosing error's location at that depth.
+		c.add(plxerr.InvalidFormat, append(c.objectWithKey(parent, len(e.InstanceLocation), k.Property), k.Property), "property name %q is not allowed here", k.Property)
 	default:
 		c.leaf(e)
 	}
+}
+
+// objectWithKey returns the location of the one object at depth below
+// parent that has key, or parent when there is no such single object.
+func (c *collector) objectWithKey(parent []string, depth int, key string) []string {
+	node := c.tree
+	for _, seg := range parent {
+		node = child(node, seg)
+	}
+	var found [][]string
+	var visit func(n any, loc []string)
+	visit = func(n any, loc []string) {
+		if len(loc) == depth {
+			if m, ok := n.(map[string]any); ok {
+				if _, ok := m[key]; ok {
+					found = append(found, slices.Clone(loc))
+				}
+			}
+			return
+		}
+		switch t := n.(type) {
+		case map[string]any:
+			for k, v := range t {
+				visit(v, append(loc, k))
+			}
+		case []any:
+			for i, v := range t {
+				visit(v, append(loc, strconv.Itoa(i)))
+			}
+		}
+	}
+	visit(node, slices.Clone(parent))
+	if len(found) != 1 {
+		return slices.Clone(parent)
+	}
+	return found[0]
+}
+
+// child returns the member of an object or array at one location segment.
+func child(n any, seg string) any {
+	switch t := n.(type) {
+	case map[string]any:
+		return t[seg]
+	case []any:
+		if i, err := strconv.Atoi(seg); err == nil && i >= 0 && i < len(t) {
+			return t[i]
+		}
+	}
+	return nil
 }
 
 // walkBranches descends into the best branch of a failed union, or reports
