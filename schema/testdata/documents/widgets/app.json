@@ -1,7 +1,8 @@
 {
   "capabilities": {
     "deviceApis": [
-      "haptics"
+      "haptics",
+      "files"
     ]
   },
   "defaultLocale": "en",
@@ -9,7 +10,10 @@
   "environments": [
     {
       "key": "production",
-      "name": "Production"
+      "name": "Production",
+      "values": {
+        "apiBaseUrl": "https://example.com/api"
+      }
     }
   ],
   "icon": {
@@ -43,5 +47,22 @@
       "screen_view": 0.5
     }
   },
-  "theme": "01c0c450-6c00-7000-8000-000000000002"
+  "theme": "01c0c450-6c00-7000-8000-000000000002",
+  "types": [
+    {
+      "fields": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "Upload"
+    }
+  ],
+  "variables": [
+    {
+      "name": "apiBaseUrl",
+      "type": "string"
+    }
+  ]
 }

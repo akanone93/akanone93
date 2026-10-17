@@ -1,13 +1,35 @@
 {
   "capabilities": {
     "deviceApis": [
-      "haptics"
+      "haptics",
+      "files"
     ],
     "networkDomains": [
       "example.com"
     ]
   },
   "dataSources": [
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "operations": {
+          "send": {
+            "input": "Upload",
+            "method": "POST",
+            "output": "Upload",
+            "path": "/uploads"
+          }
+        },
+        "path": "/uploads"
+      },
+      "id": "01c0c450-6c00-7000-8a1d-0000000f0003",
+      "kind": "rest",
+      "mock": [],
+      "name": "uploads",
+      "route": "plux",
+      "type": "list<string>"
+    },
     {
       "id": "01c0c450-6c00-7000-8a1d-000000000002",
       "kind": "static",

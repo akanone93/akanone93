@@ -120,7 +120,7 @@ func TestDeviceActionsNeedTheirCapability(t *testing.T) {
 		t.Parallel()
 		m := project(t, widgetsDir)
 		onStep(t, m, "share", map[string]any{"text": "hi"})
-		capabilities(t, m, map[string]any{"deviceApis": []any{"share", "haptics"}}, map[string]any{"deviceApis": []any{"share", "haptics"}})
+		capabilities(t, m, map[string]any{"deviceApis": []any{"share", "haptics", "files"}}, map[string]any{"deviceApis": []any{"share", "haptics", "files"}})
 		res := compileFS(m)
 		for _, d := range res.Diagnostics {
 			if d.Code == plxerr.DeviceCapabilityUndeclared {
@@ -138,7 +138,7 @@ func TestDeviceActionsNeedTheirCapability(t *testing.T) {
 		t.Parallel()
 		m := project(t, widgetsDir)
 		onStep(t, m, "requestPermission", map[string]any{"permission": "location"})
-		capabilities(t, m, map[string]any{"deviceApis": []any{"location", "haptics"}}, map[string]any{"deviceApis": []any{"location", "haptics"}})
+		capabilities(t, m, map[string]any{"deviceApis": []any{"location", "haptics", "files"}, "networkDomains": []any{"example.com"}}, map[string]any{"deviceApis": []any{"location", "haptics", "files"}})
 		if res := compileFS(m); res.Diagnostics.HasErrors() {
 			t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
 		}
@@ -219,21 +219,22 @@ func TestHostBuildLacksPackages(t *testing.T) {
 	t.Parallel()
 	m := project(t, widgetsDir)
 	onStep(t, m, "pickImage", map[string]any{"multiple": false})
-	capabilities(t, m, map[string]any{"deviceApis": []any{"photos", "haptics"}}, map[string]any{"deviceApis": []any{"photos", "haptics"}})
+	capabilities(t, m, map[string]any{"deviceApis": []any{"photos", "haptics", "files"}, "networkDomains": []any{"example.com"}}, map[string]any{"deviceApis": []any{"photos", "haptics", "files"}})
 	res := compileFS(m)
 	if res.Diagnostics.HasErrors() {
 		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
 	}
-	if uses := DeviceUses(res, nil); len(uses) != 1 || uses[0].Package != "plux_media" || uses[0].Action != "pickImage" {
+	onPage := func(f string) bool { return f == galleryPage }
+	if uses := DeviceUses(res, onPage); len(uses) != 1 || uses[0].Package != "plux_media" || uses[0].Action != "pickImage" {
 		t.Fatalf("uses = %+v", uses)
 	}
 
 	with := schema.NativeCatalogueDocument{Packages: []string{"plux_media"}}
-	if got := HostBuildLacksPackages(res, nil, "1.0.0+1", &with); len(got) != 0 {
+	if got := HostBuildLacksPackages(res, onPage, "1.0.0+1", &with); len(got) != 0 {
 		t.Errorf("a build with plux_media: %v", got)
 	}
 	without := schema.NativeCatalogueDocument{Packages: []string{"plux_scanner"}}
-	got := HostBuildLacksPackages(res, nil, "1.0.0+2", &without)
+	got := HostBuildLacksPackages(res, onPage, "1.0.0+2", &without)
 	if len(got) != 1 || got[0].Code != plxerr.HostBuildLacksPackage || got[0].File != galleryPage || got[0].Path != stepPtr+"/action" {
 		t.Errorf("a build without it: %v", got)
 	}
