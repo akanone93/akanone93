@@ -350,6 +350,24 @@
       "description": "The lowest assurance level a device must hold to sync plugins."
     },
     {
+      "key": "pinnedMediaOnly",
+      "type": "bool",
+      "tighter": "true",
+      "defaults": {
+        "standard": false,
+        "strict": false,
+        "maximum": true
+      },
+      "travelsToDevice": true,
+      "phase": "P8",
+      "requirements": [
+        "SEC-041",
+        "SEC-080",
+        "AST-002"
+      ],
+      "description": "Whether video and audio are downloaded through the pinned client to a temporary file before they play, because the platform players cannot pin certificates."
+    },
+    {
       "key": "raspAccessibilityResponse",
       "type": "enum",
       "values": [

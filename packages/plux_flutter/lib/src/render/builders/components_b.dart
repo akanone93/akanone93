@@ -1060,6 +1060,8 @@ final class _ZoomableState extends State<_Zoomable> {
 /// Without the picker package the control is disabled and PLX-5401 is
 /// reported (RT-060).
 Widget buildFileUploader(NodeContext c) {
+  final refused = c.deviceRefusal('files');
+  if (refused != null) return refused;
   final source =
       c.decode(_uploader.p('dataSource'), asString) ??
       c.missing('FileUploader.dataSource');

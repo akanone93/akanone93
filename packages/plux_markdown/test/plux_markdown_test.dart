@@ -39,8 +39,16 @@ final class FakeNode implements NodeContext {
   @override
   void fire(int id, [Object? payload]) => events[id]!(payload);
 
+  final List<String> remote = [];
+
   @override
   ImageProvider<Object>? image({String? asset, String? url}) => null;
+
+  @override
+  ImageProvider<Object>? remoteImage(String url) {
+    remote.add(url);
+    return null;
+  }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -269,5 +277,30 @@ void main() {
         );
       });
     }
+  });
+
+  testWidgets('an image address goes through the domain-checked remote '
+      'image, a name stays an asset [SEC-080][AST-002][WGT-020]', (
+    tester,
+  ) async {
+    late FakeNode node;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Builder(
+              builder: (context) {
+                node = FakeNode(context, {
+                  1: '![a](https://evil.example.net/a.png)',
+                });
+                return const PluxMarkdown().builders[PluxMarkdownIds
+                    .markdownView]!(node);
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(node.remote, ['https://evil.example.net/a.png']);
   });
 }

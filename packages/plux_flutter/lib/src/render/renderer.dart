@@ -109,6 +109,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
     this.actions,
     this.data,
     this.secureUi,
+    bool Function()? pinnedMedia,
     StatePersistence? statePersistence,
     VerifiedAssets? verified,
     int? cacheEntries,
@@ -117,6 +118,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
          ...nodeBuilders,
          for (final p in config.widgetPackages) ...p.builders,
        },
+       _pinnedMedia = pinnedMedia ?? (() => false),
        statePersistence = statePersistence ?? StatePersistence.inMemory(),
        _verified = verified ?? VerifiedAssets(),
        cache = SectionCache(
@@ -966,6 +968,19 @@ final class PluxRenderer implements PageRenderer, RenderServices {
       return null;
     }
     return uri;
+  }
+
+  final bool Function() _pinnedMedia;
+
+  @override
+  bool get pinnedMediaOnly => _pinnedMedia();
+
+  @override
+  Widget? deviceRefusal(BuildContext context, RenderScope scope, String api) {
+    final error = actions?.deviceGuard?.refusal(scope.pluginKey, api);
+    if (error == null) return null;
+    scope.report(error, path: scope.path);
+    return fallback(context, error, scope.pluginKey);
   }
 
   http.Client get _pinned =>

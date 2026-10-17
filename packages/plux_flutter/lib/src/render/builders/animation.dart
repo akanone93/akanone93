@@ -21,6 +21,7 @@ import 'package:plux_flutter/src/animation/timeline_spec.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
+import 'package:plux_flutter/src/render/keep_scope.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
 import 'package:plux_flutter/src/render/scope.dart';
 
@@ -249,10 +250,7 @@ Widget _draggable(NodeContext c) => Draggable<Object>(
   onDragEnd: c.handles(2) ? (d) => c.fire(2, d.wasAccepted) : null,
   onDragCompleted: c.handles(3) ? () => c.fire(3) : null,
   onDraggableCanceled: c.handles(4) ? (_, _) => c.fire(4) : null,
-  feedback: RenderScopeWidget(
-    scope: RenderScope.of(c.context),
-    child: c.slot(2) ?? c.missing('feedback'),
-  ),
+  feedback: keepScope(c.context, c.slot(2) ?? c.missing('feedback')),
   childWhenDragging: c.slot(3),
   child: c.slot(1) ?? c.missing('child'),
 );

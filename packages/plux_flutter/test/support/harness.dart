@@ -73,6 +73,7 @@ final class Harness {
     SecurePlatforms secure = const SecurePlatforms(),
     List<PluxWidgetPackage> widgetPackages = const [],
     ProviderContainer? container,
+    http.Client Function()? client,
   }) async {
     server.release = null;
     final baseline = await server.baseline(5, app, plugins);
@@ -89,7 +90,7 @@ final class Harness {
           ),
         ],
         storageDirectory: dir,
-        httpClient: _client,
+        httpClient: client ?? _client,
         themeSource: themeSource,
         onError: (e, _) => errors.add(e),
         fallbackBuilder: (_, e) =>

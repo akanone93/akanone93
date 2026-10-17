@@ -95,7 +95,7 @@ func TestAppCapabilitiesReachTheAppBundle(t *testing.T) {
 		"api.example.com": []any{pinA, pinB},
 	})
 	edit(t, m, "app.json", func(doc map[string]any) {
-		doc["capabilities"].(map[string]any)["deviceApis"] = []any{"location", "haptics"}
+		doc["capabilities"].(map[string]any)["deviceApis"] = []any{"location", "haptics", "camera", "files"}
 	})
 	res := compileFS(m)
 	clean(t, res)
@@ -113,7 +113,7 @@ func TestAppCapabilitiesReachTheAppBundle(t *testing.T) {
 	if got, want := strs(caps.NetworkDomainsLength(), caps.NetworkDomains), []string{"example.com", "api.example.com"}; !reflect.DeepEqual(got, want) {
 		t.Errorf("network domains %v, want %v", got, want)
 	}
-	if got, want := strs(caps.DeviceApisLength(), caps.DeviceApis), []string{"location", "haptics"}; !reflect.DeepEqual(got, want) {
+	if got, want := strs(caps.DeviceApisLength(), caps.DeviceApis), []string{"location", "haptics", "camera", "files"}; !reflect.DeepEqual(got, want) {
 		t.Errorf("device APIs %v, want %v", got, want)
 	}
 	if caps.NetworkPinsLength() != 1 {

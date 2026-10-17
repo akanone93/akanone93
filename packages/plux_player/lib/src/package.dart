@@ -51,6 +51,7 @@ Widget _video(NodeContext c) => PluxVideoPlayer(
   positionLabel: c.decode(10, asString) ?? 'Position',
   onEnded: _event(c, 1),
   onError: _event(c, 2),
+  resolve: c.mediaSource,
 );
 
 Widget _audio(NodeContext c) => PluxAudioPlayer(
@@ -63,4 +64,5 @@ Widget _audio(NodeContext c) => PluxAudioPlayer(
   positionLabel: c.decode(7, asString) ?? 'Position',
   onEnded: _event(c, 1),
   onError: _event(c, 2),
+  resolve: c.mediaSource,
 );

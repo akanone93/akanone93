@@ -1,6 +1,8 @@
 {
   "capabilities": {
     "deviceApis": [
+      "camera",
+      "files",
       "haptics"
     ]
   },

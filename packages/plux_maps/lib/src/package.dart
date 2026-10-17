@@ -54,6 +54,10 @@ Map<String, Object?> _latLng(LatLng p) => {
 }
 
 Widget _mapView(NodeContext c) {
+  final refused = (c.decode(10, asBool) ?? false)
+      ? c.deviceRefusal('location')
+      : null;
+  if (refused != null) return refused;
   final (template, attribution) = _tiles(c, 'MapView');
   return PluxMapView(
     semanticLabel: c.decode(1, asString) ?? c.missing('MapView.semanticLabel'),

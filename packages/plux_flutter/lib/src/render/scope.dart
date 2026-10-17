@@ -81,6 +81,15 @@ abstract interface class RenderServices {
   /// declares (SEC-080, AST-002); else null, reported (PLX-6030).
   http.Client? remoteClient(RenderScope scope, String url);
 
+  /// Whether media must be downloaded through the pinned client before it
+  /// plays (`pinnedMediaOnly`, SEC-041).
+  bool get pinnedMediaOnly;
+
+  /// The refusal widget for a node of [scope] that needs device API [api]
+  /// when the plugin may not use it (SEC-080, X1.1), reported (PLX-5400);
+  /// null when it may.
+  Widget? deviceRefusal(BuildContext context, RenderScope scope, String api);
+
   /// The SVG asset [asset] for a node of [scope] (CMP-031); null when the
   /// asset is not an SVG.
   PluxVectorSource? vector(RenderScope scope, String asset);

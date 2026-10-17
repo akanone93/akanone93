@@ -36,8 +36,11 @@ final class PluxMarkdown implements PluxWidgetPackage {
   };
 }
 
+/// An address becomes a remote image, which the domain rule decides
+/// (SEC-080, AST-002); anything else is an asset of the release.
 MarkdownImageResolver _images(NodeContext c) =>
-    (source) => c.image(asset: source);
+    (source) =>
+        source.contains('://') ? c.remoteImage(source) : c.image(asset: source);
 
 Widget _markdown(NodeContext c) => PluxMarkdownView(
   source: c.decode(1, asString) ?? c.missing('MarkdownView.source'),

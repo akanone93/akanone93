@@ -51,6 +51,10 @@ enum SecuritySetting {
   inactivityLockTimeout('inactivityLockTimeout', SecuritySettingType.seconds, 300, 300, 120),
   /// The lowest assurance level a device must hold to sync plugins.
   minAssuranceForSync('minAssuranceForSync', SecuritySettingType.choice, 'AL0', 'AL1', 'AL2'),
+  /// Whether video and audio are downloaded through the pinned client to a
+  /// temporary file before they play, because the platform players cannot pin
+  /// certificates.
+  pinnedMediaOnly('pinnedMediaOnly', SecuritySettingType.boolean, false, false, true),
   /// How the runtime responds when an accessibility service that can read the
   /// screen and perform gestures is enabled.
   raspAccessibilityResponse('raspAccessibilityResponse', SecuritySettingType.choice, 'report', 'warn', 'degrade'),

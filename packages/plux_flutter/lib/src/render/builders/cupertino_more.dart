@@ -10,15 +10,14 @@ library;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Theme;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:plux_flutter/src/assets/icon_fonts.dart';
 import 'package:plux_flutter/src/pxl/values.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
+import 'package:plux_flutter/src/render/keep_scope.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
 import 'package:plux_flutter/src/render/plux_icon.dart';
-import 'package:plux_flutter/src/render/scope.dart';
 
 /// The hand-written builders of this group by permanent widget ID.
 const Map<int, NodeBuilder> cupertinoMoreBuilders = {
@@ -286,11 +285,7 @@ Widget _buildContextMenu(NodeContext c) {
   final slot = c.slot(1) ?? c.missing('child');
   // The preview opens in a route above the page, so it carries the page's
   // render scope and providers with it.
-  final scope = RenderScope.of(c.context);
-  final child = UncontrolledProviderScope(
-    container: ProviderScope.containerOf(c.context, listen: false),
-    child: RenderScopeWidget(scope: scope, child: slot),
-  );
+  final child = keepScope(c.context, slot);
   final labels = c.decode(1, _menuActions) ?? c.missing('actions');
   return CupertinoContextMenu(
     enableHapticFeedback: c.decode(2, asBool) ?? false,

@@ -9,6 +9,8 @@
 library;
 
 import 'dart:developer' as developer;
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Theme, kToolbarHeight;
@@ -41,6 +43,8 @@ import 'package:plux_flutter/src/render/scope.dart';
 import 'package:plux_flutter/src/render/sections.dart';
 import 'package:plux_flutter/src/render/semantics_wrap.dart';
 import 'package:plux_flutter/src/render/values.dart';
+import 'package:plux_flutter/src/schema/limit_values.dart';
+import 'package:plux_flutter/src/schema/limits.g.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
 import 'package:plux_flutter/src/secure/masking.dart';
 import 'package:plux_flutter/src/state/access.dart';
@@ -478,6 +482,75 @@ final class NodeContextImpl implements NodeContext, MotionSource {
   @override
   http.Client? remoteClient(String url) =>
       scope.services.remoteClient(scope, url);
+
+  @override
+  Future<Uint8List?> remoteBytes(String url) async {
+    final client = remoteClient(url);
+    if (client == null) return null;
+    final limit = scope.release.limits.valueOf(PluxLimit.assetFileSize);
+    try {
+      final response = await client.send(http.Request('GET', Uri.parse(url)));
+      final length = response.contentLength;
+      if (response.statusCode != 200 || (length != null && length > limit)) {
+        _bad('the download was refused (status ${response.statusCode})');
+        return null;
+      }
+      final out = BytesBuilder(copy: false);
+      await for (final chunk in response.stream) {
+        out.add(chunk);
+        if (out.length > limit) {
+          _bad('the download is larger than the limit');
+          return null;
+        }
+      }
+      return out.takeBytes();
+    } on Object catch (e) {
+      _bad('the download failed: ${e.runtimeType}');
+      return null;
+    }
+  }
+
+  @override
+  Future<Uri?> mediaSource(String url) async {
+    final client = remoteClient(url);
+    if (client == null) return null;
+    final uri = Uri.parse(url);
+    if (!scope.services.pinnedMediaOnly) return uri;
+    final limit = scope.release.limits.valueOf(PluxLimit.assetFileSize);
+    File? file;
+    try {
+      final response = await client.send(http.Request('GET', uri));
+      final length = response.contentLength;
+      if (response.statusCode != 200 || (length != null && length > limit)) {
+        _bad('the media download was refused (status ${response.statusCode})');
+        return null;
+      }
+      final dir = await Directory.systemTemp.createTemp('plux_media');
+      file = File('${dir.path}/media');
+      final sink = file.openWrite();
+      var size = 0;
+      try {
+        await for (final chunk in response.stream) {
+          size += chunk.length;
+          if (size > limit) throw const FormatException('too large');
+          sink.add(chunk);
+        }
+      } finally {
+        await sink.close();
+      }
+      return file.uri;
+    } on Object catch (e) {
+      if (file != null && file.existsSync()) {
+        file.parent.deleteSync(recursive: true);
+      }
+      _bad('the media download failed: ${e.runtimeType}');
+      return null;
+    }
+  }
+
+  @override
+  Widget? deviceRefusal(String api) =>
+      scope.services.deviceRefusal(context, scope, api);
 
   @override
   ImageProvider<Object>? remoteImage(String url) => image(url: url);
