@@ -1,0 +1,141 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "NavigationBar",
+  "id": 128,
+  "layer": 1,
+  "phase": "P4",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "class": "NavigationBar",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "navigation",
+  "icon": "bottom_navigation",
+  "description": "A bar of destinations along the bottom; choosing one fires `onDestinationSelected` with its index.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "tab",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "destinations",
+      "id": 1,
+      "type": "list<Destination>",
+      "required": true
+    },
+    {
+      "name": "selectedIndex",
+      "id": 2,
+      "type": "int",
+      "default": 0,
+      "flutter": "selectedIndex"
+    },
+    {
+      "name": "backgroundColor",
+      "id": 3,
+      "type": "color",
+      "flutter": "backgroundColor"
+    },
+    {
+      "name": "elevation",
+      "id": 4,
+      "type": "double",
+      "flutter": "elevation"
+    },
+    {
+      "name": "shadowColor",
+      "id": 5,
+      "type": "color",
+      "flutter": "shadowColor"
+    },
+    {
+      "name": "surfaceTintColor",
+      "id": 6,
+      "type": "color",
+      "flutter": "surfaceTintColor"
+    },
+    {
+      "name": "indicatorColor",
+      "id": 7,
+      "type": "color",
+      "flutter": "indicatorColor"
+    },
+    {
+      "name": "height",
+      "id": 8,
+      "type": "double",
+      "flutter": "height"
+    },
+    {
+      "name": "labelBehavior",
+      "id": 9,
+      "type": "NavigationDestinationLabelBehavior",
+      "flutter": "labelBehavior"
+    }
+  ],
+  "events": [
+    {
+      "name": "onDestinationSelected",
+      "id": 1,
+      "payload": "int",
+      "flutter": "onDestinationSelected"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "animationDuration",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "destinations",
+      "reason": "deferred",
+      "note": "Replaced by the `destinations` prop."
+    },
+    {
+      "flutter": "indicatorShape",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "overlayColor",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "labelTextStyle",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "labelPadding",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "maintainBottomViewPadding",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    }
+  ]
+}

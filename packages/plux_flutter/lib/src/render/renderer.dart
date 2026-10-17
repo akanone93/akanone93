@@ -45,6 +45,7 @@ import 'package:plux_flutter/src/pxl/types.dart';
 import 'package:plux_flutter/src/pxl/vm.dart';
 import 'package:plux_flutter/src/render/builders/animation.dart';
 import 'package:plux_flutter/src/render/builders/builders.dart';
+import 'package:plux_flutter/src/render/builders/navigation.dart';
 import 'package:plux_flutter/src/render/builders/components_a.dart';
 import 'package:plux_flutter/src/render/builders/components_b.dart';
 import 'package:plux_flutter/src/render/builders/cupertino_more.dart';
@@ -76,6 +77,7 @@ import 'package:plux_flutter/src/verify/manifest.dart';
 final Map<int, NodeBuilder> nodeBuilders = {
   ...generatedBuilders,
   ...manualBuilders,
+  ...navigationBuilders,
   ...componentsABuilders,
   ...cupertinoMoreBuilders,
   ...secureBuilders,

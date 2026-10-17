@@ -1,0 +1,86 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "TabBarView",
+  "id": 127,
+  "layer": 1,
+  "phase": "P4",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "class": "TabBarView",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "navigation",
+  "icon": "view_carousel",
+  "description": "Shows the child at `index`, and pages between children by swiping; `onIndexChanged` reports the page.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "group",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "index",
+      "id": 1,
+      "type": "int",
+      "default": 0,
+      "description": "The shown child; bind it to the state key a TabBar shares."
+    },
+    {
+      "name": "viewportFraction",
+      "id": 2,
+      "type": "double",
+      "default": 1.0,
+      "flutter": "viewportFraction"
+    }
+  ],
+  "events": [
+    {
+      "name": "onIndexChanged",
+      "id": 1,
+      "payload": "int"
+    }
+  ],
+  "children": {
+    "flutter": "children"
+  },
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "controller",
+      "reason": "controller→state",
+      "note": "The runtime owns it and binds it to state."
+    },
+    {
+      "flutter": "physics",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "dragStartBehavior",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "clipBehavior",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    }
+  ]
+}

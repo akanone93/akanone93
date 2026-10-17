@@ -1,0 +1,152 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "MenuAnchor",
+  "id": 121,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "class": "MenuAnchor",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "navigation",
+  "icon": "menu_open",
+  "description": "Opens a menu of `items` from its anchor `child`; choosing one fires `onSelected` with its value.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "menu",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "items",
+      "id": 1,
+      "type": "list<MenuItem>",
+      "required": true,
+      "description": "The menu entries."
+    },
+    {
+      "name": "consumeOutsideTap",
+      "id": 2,
+      "type": "bool",
+      "default": false,
+      "flutter": "consumeOutsideTap"
+    }
+  ],
+  "events": [
+    {
+      "name": "onSelected",
+      "id": 1,
+      "payload": "string"
+    },
+    {
+      "name": "onOpen",
+      "id": 2,
+      "flutter": "onOpen"
+    },
+    {
+      "name": "onClose",
+      "id": 3,
+      "flutter": "onClose"
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "flutter": "child",
+      "description": "The anchor the menu opens from; tapping it toggles the menu."
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "controller",
+      "reason": "controller→state",
+      "note": "The runtime owns it and binds it to state."
+    },
+    {
+      "flutter": "childFocusNode",
+      "reason": "controller→state",
+      "note": "The runtime owns it and binds it to state."
+    },
+    {
+      "flutter": "style",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "alignmentOffset",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "reservedPadding",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "layerLink",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "clipBehavior",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "anchorTapClosesMenu",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "crossAxisUnconstrained",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "useRootOverlay",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "animated",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "onAnimationStatusChanged",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "menuChildren",
+      "reason": "deferred",
+      "note": "Replaced by the `items` prop; the runtime builds the entries."
+    },
+    {
+      "flutter": "builder",
+      "reason": "builder→template",
+      "note": "The runtime builds the anchor around the `child` slot."
+    }
+  ]
+}

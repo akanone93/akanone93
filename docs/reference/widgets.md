@@ -23,11 +23,14 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [AnimatedSwitcher](#animatedswitcher) | 1 | animation | P5 | Cross-fades between its old and new child when the child changes. |
 | [AppBar](#appbar) | 1 | structure | P3 | A Material top app bar. |
 | [AspectRatio](#aspectratio) | 1 | layout | P3 | Sizes its child to a specific aspect ratio. |
+| [Autocomplete](#autocomplete) | 1 | navigation | P5 | A text field that offers the `options` containing the typed text, ignoring case. |
 | [BackButton](#backbutton) | 1 | input | P3 | A back-arrow button that pops the current route. |
 | [Badge](#badge) | 1 | display | P3 | A small label, typically a count, on top of its child. |
 | [Baseline](#baseline) | 1 | layout | P3 | Positions its child according to the child's baseline. |
 | [BiometricButton](#biometricbutton) | 2 | interaction | P6 | A button that triggers a biometric step-up (SEC-027). |
 | [BottomAppBar](#bottomappbar) | 1 | structure | P3 | A Material bottom app bar. |
+| [BottomNavigationBar](#bottomnavigationbar) | 1 | navigation | P4 | A bar of two or more items along the bottom; tapping one fires `onTap` with its index. |
+| [CalendarDatePicker](#calendardatepicker) | 1 | navigation | P5 | A month grid for picking a date in the Gregorian calendar. |
 | [Card](#card) | 1 | display | P3 | A Material card: a panel with slightly rounded corners and an elevation shadow. |
 | [Carousel](#carousel) | 2 | layout | P5 | Pages of children swiped horizontally, with page indicators and optional autoplay. Autoplay stops when the device reduces motion. |
 | [Center](#center) | 1 | layout | P3 | Centres its child within itself. |
@@ -66,6 +69,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [Divider](#divider) | 1 | display | P3 | A thin horizontal line with padding on either side. |
 | [DragTarget](#dragtarget) | 1 | interaction | P5 | Accepts a `Draggable`'s payload dropped on it; its child is highlighted while a candidate hovers. |
 | [Draggable](#draggable) | 1 | interaction | P5 | Lets the user drag its child, carrying a typed `data` payload to a `DragTarget`. |
+| [Drawer](#drawer) | 1 | navigation | P4 | A panel that slides in from the edge; fill `Scaffold.drawer` or `Scaffold.endDrawer` with it. |
 | [DropdownMenu](#dropdownmenu) | 1 | input | P3 | A Material 3 dropdown menu with optional text filtering. |
 | [ElevatedButton](#elevatedbutton) | 1 | input | P3 | A Material elevated button. |
 | [EmptyState](#emptystate) | 2 | feedback | P3 | A standard empty state: icon, title, message and an optional action. |
@@ -104,7 +108,11 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [ListView](#listview) | 1 | scrolling | P3 | A lazily built, scrollable list of `item` templates over `items`, with empty, loading and error states (WGT-012). |
 | [LiveEtaCard](#liveetacard) | 2 | feedback | P5 | A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced. |
 | [Match](#match) | 1 | structure | P3 | Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`. |
+| [MenuAnchor](#menuanchor) | 1 | navigation | P5 | Opens a menu of `items` from its anchor `child`; choosing one fires `onSelected` with its value. |
 | [NativeSlot](#nativeslot) | 1 | structure | P4 | Places a host-app native slot, named by the literal `name`, with the props and events that slot declares. Equivalent to a node whose `type` is that name. |
+| [NavigationBar](#navigationbar) | 1 | navigation | P4 | A bar of destinations along the bottom; choosing one fires `onDestinationSelected` with its index. |
+| [NavigationDrawer](#navigationdrawer) | 1 | navigation | P4 | A drawer of destinations; choosing one fires `onDestinationSelected` with its index. |
+| [NavigationRail](#navigationrail) | 1 | navigation | P4 | A column of destinations along the side; choosing one fires `onDestinationSelected` with its index. |
 | [OfflineBanner](#offlinebanner) | 2 | feedback | P3 | A banner shown while the device is offline. |
 | [OnboardingPager](#onboardingpager) | 2 | navigation | P5 | Swipeable onboarding pages with page indicators and a Done button on the last page. |
 | [Opacity](#opacity) | 1 | layout | P3 | Makes its child partially transparent. |
@@ -112,6 +120,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [OutlinedButton](#outlinedbutton) | 1 | input | P3 | A Material outlined button. |
 | [Padding](#padding) | 1 | layout | P3 | Insets its child by the given padding. |
 | [PageView](#pageview) | 1 | scrolling | P3 | Pages through `item` templates over `items`, one page at a time (WGT-012). |
+| [PopupMenuButton](#popupmenubutton) | 1 | navigation | P5 | A button that opens a menu of `items`; choosing one fires `onSelected` with its value. |
 | [Positioned](#positioned) | 1 | layout | P3 | Positions its child inside a Stack. |
 | [ProductCard](#productcard) | 2 | commerce | P5 | A product tile: image, title, price, an optional struck-through original price and badge, and an add-to-cart button. Prices arrive as formatted strings. |
 | [ProfileHeader](#profileheader) | 2 | layout | P5 | A person's avatar, name and subtitle with an actions row. |
@@ -130,6 +139,8 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [Scaffold](#scaffold) | 1 | structure | P3 | The basic Material page structure: app bar, body, floating action button, bottom bar. |
 | [ScaleTransition](#scaletransition) | 1 | animation | P5 | Scales its child by a track of a page timeline. |
 | [Scrollbar](#scrollbar) | 1 | scrolling | P3 | Shows a Material scrollbar for its scrollable child. |
+| [SearchAnchor](#searchanchor) | 1 | navigation | P5 | A search bar that opens a view listing the `suggestions` that match the text; choosing one fires `onSelected`. |
+| [SearchBar](#searchbar) | 1 | navigation | P5 | A text field styled as a search bar. |
 | [SearchField](#searchfield) | 2 | input | P5 | A search box that reports the query once typing pauses, with optional suggestions. |
 | [SecurePinPad](#securepinpad) | 2 | input | P6 | PIN entry with an optional randomised layout and haptic-only key feedback (SEC-090). |
 | [SecureTextField](#securetextfield) | 2 | input | P6 | Hardened text entry: obscured, with no suggestions, autocorrect, clipboard or keyboard learning (SEC-090). |
@@ -154,6 +165,8 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [StatusTimeline](#statustimeline) | 2 | feedback | P5 | A vertical timeline of steps, each done, current, pending or failed; the current step is announced. |
 | [Switch](#switch) | 1 | input | P3 | A Material on/off switch. |
 | [SwitchListTile](#switchlisttile) | 1 | input | P3 | A list tile with a switch. |
+| [TabBar](#tabbar) | 1 | navigation | P4 | A row of tabs; the selected one is `selectedIndex`, and tapping a tab fires `onTap` with its index. |
+| [TabBarView](#tabbarview) | 1 | navigation | P4 | Shows the child at `index`, and pages between children by swiping; `onIndexChanged` reports the page. |
 | [Text](#text) | 1 | display | P3 | A run of text with a single style. |
 | [TextButton](#textbutton) | 1 | input | P3 | A Material text button. |
 | [TextField](#textfield) | 1 | input | P3 | A Material text input whose text is bound to `value`. |
@@ -520,6 +533,23 @@ ID 14 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `AspectRatio` ·
 |---|---|---|---|
 | `child` | 1 | one node |  |
 
+### Autocomplete
+
+A text field that offers the `options` containing the typed text, ignoring case.
+
+ID 124 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Autocomplete` · android, ios · cost 20 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `options` | 1 | `list<string>`, required | — |  |
+| `hintText` | 2 | `string` | — |  |
+| `optionsMaxHeight` | 3 | `double` | `200.0` |  |
+| `initialValue` | 4 | `string` | — | The text the field starts with. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` |  |
+
 ### BackButton
 
 A back-arrow button that pops the current route.
@@ -609,6 +639,49 @@ ID 88 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `BottomAppBar` �
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node |  |
+
+### BottomNavigationBar
+
+A bar of two or more items along the bottom; tapping one fires `onTap` with its index.
+
+ID 129 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `BottomNavigationBar` · android, ios · cost 20 µs · role tab · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `items` | 1 | `list<Destination>`, required | — | Two or more items; `selectedIcon` is the active icon. |
+| `currentIndex` | 2 | `int` | `0` |  |
+| `elevation` | 3 | `double` | — |  |
+| `type` | 4 | `BottomNavigationBarType` | — |  |
+| `backgroundColor` | 5 | `color` | — |  |
+| `selectedItemColor` | 6 | `color` | — |  |
+| `unselectedItemColor` | 7 | `color` | — |  |
+| `iconSize` | 8 | `double` | `24.0` |  |
+| `selectedFontSize` | 9 | `double` | `14.0` |  |
+| `unselectedFontSize` | 10 | `double` | `12.0` |  |
+| `showSelectedLabels` | 11 | `bool` | — |  |
+| `showUnselectedLabels` | 12 | `bool` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onTap` | 1 | `int` |  |
+
+### CalendarDatePicker
+
+A month grid for picking a date in the Gregorian calendar.
+
+ID 125 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `CalendarDatePicker` · android, ios · cost 20 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `initialDate` | 1 | `date`, required | — |  |
+| `firstDate` | 2 | `date`, required | — |  |
+| `lastDate` | 3 | `date`, required | — |  |
+| `currentDate` | 4 | `date` | — | Today, as the picker marks it; the device date when absent. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDateChanged` | 1 | `date` |  |
+| `onDisplayedMonthChanged` | 2 | `date` |  |
 
 ### Card
 
@@ -1524,6 +1597,27 @@ ID 134 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Draggable` · 
 | `child` | 1 | one node, required |  |
 | `feedback` | 2 | one node, required | Shown under the finger while dragging. |
 | `childWhenDragging` | 3 | one node | Shown in place of the child while it is dragged. |
+
+### Drawer
+
+A panel that slides in from the edge; fill `Scaffold.drawer` or `Scaffold.endDrawer` with it.
+
+ID 130 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `Drawer` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `backgroundColor` | 1 | `color` | — |  |
+| `elevation` | 2 | `double` | — |  |
+| `shadowColor` | 3 | `color` | — |  |
+| `surfaceTintColor` | 4 | `color` | — |  |
+| `shape` | 5 | `ShapeBorder` | — |  |
+| `width` | 6 | `double` | — |  |
+| `semanticLabel` | 7 | `string` | — |  |
+| `clipBehavior` | 8 | `Clip` | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
 
 ### DropdownMenu
 
@@ -2529,6 +2623,27 @@ ID 2 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · android, ios · cost 3 µ
 | `branches` | 1 | a list of nodes, required | One subtree per case, in the order of `cases`. |
 | `otherwise` | 2 | one node | Rendered when no case matches. |
 
+### MenuAnchor
+
+Opens a menu of `items` from its anchor `child`; choosing one fires `onSelected` with its value.
+
+ID 121 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `MenuAnchor` · android, ios · cost 20 µs · role menu · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `items` | 1 | `list<MenuItem>`, required | — | The menu entries. |
+| `consumeOutsideTap` | 2 | `bool` | `false` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` |  |
+| `onOpen` | 2 | — |  |
+| `onClose` | 3 | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node | The anchor the menu opens from; tapping it toggles the menu. |
+
 ### NativeSlot
 
 Places a host-app native slot, named by the literal `name`, with the props and events that slot declares. Equivalent to a node whose `type` is that name.
@@ -2538,6 +2653,82 @@ ID 110 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · android, ios · cost 10
 | Prop | ID | Type | Default | Description |
 |---|---|---|---|---|
 | `name` | 1 | `string`, required | — | The native slot name from the host catalogue; a literal. |
+
+### NavigationBar
+
+A bar of destinations along the bottom; choosing one fires `onDestinationSelected` with its index.
+
+ID 128 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `NavigationBar` · android, ios · cost 20 µs · role tab · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `destinations` | 1 | `list<Destination>`, required | — |  |
+| `selectedIndex` | 2 | `int` | `0` |  |
+| `backgroundColor` | 3 | `color` | — |  |
+| `elevation` | 4 | `double` | — |  |
+| `shadowColor` | 5 | `color` | — |  |
+| `surfaceTintColor` | 6 | `color` | — |  |
+| `indicatorColor` | 7 | `color` | — |  |
+| `height` | 8 | `double` | — |  |
+| `labelBehavior` | 9 | `NavigationDestinationLabelBehavior` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDestinationSelected` | 1 | `int` |  |
+
+### NavigationDrawer
+
+A drawer of destinations; choosing one fires `onDestinationSelected` with its index.
+
+ID 131 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `NavigationDrawer` · android, ios · cost 20 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `destinations` | 1 | `list<Destination>`, required | — |  |
+| `selectedIndex` | 2 | `int` | `0` |  |
+| `backgroundColor` | 3 | `color` | — |  |
+| `shadowColor` | 4 | `color` | — |  |
+| `surfaceTintColor` | 5 | `color` | — |  |
+| `elevation` | 6 | `double` | — |  |
+| `indicatorColor` | 7 | `color` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDestinationSelected` | 1 | `int` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `header` | 1 | one node |  |
+| `footer` | 2 | one node |  |
+
+### NavigationRail
+
+A column of destinations along the side; choosing one fires `onDestinationSelected` with its index.
+
+ID 132 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `NavigationRail` · android, ios · cost 20 µs · role tab · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `destinations` | 1 | `list<Destination>`, required | — |  |
+| `selectedIndex` | 2 | `int` | `0` |  |
+| `extended` | 3 | `bool` | `false` | Shows the labels beside the icons; `labelType` then reads as none. |
+| `labelType` | 4 | `NavigationRailLabelType` | — |  |
+| `backgroundColor` | 5 | `color` | — |  |
+| `elevation` | 6 | `double` | — |  |
+| `groupAlignment` | 7 | `double` | — |  |
+| `minWidth` | 8 | `double` | — |  |
+| `minExtendedWidth` | 9 | `double` | — |  |
+| `useIndicator` | 10 | `bool` | — |  |
+| `indicatorColor` | 11 | `color` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDestinationSelected` | 1 | `int` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `leading` | 1 | one node |  |
+| `trailing` | 2 | one node |  |
 
 ### OfflineBanner
 
@@ -2669,6 +2860,35 @@ ID 38 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `PageView.builde
 | `empty` | 2 | one node | Shown when `items` is empty. |
 | `loading` | 3 | one node | Shown while `status` is loading. |
 | `error` | 4 | one node | Shown while `status` is error. |
+
+### PopupMenuButton
+
+A button that opens a menu of `items`; choosing one fires `onSelected` with its value.
+
+ID 120 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `PopupMenuButton` · android, ios · cost 20 µs · role menu · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `items` | 1 | `list<MenuItem>`, required | — | The menu entries. |
+| `initialValue` | 2 | `string` | — | The value of the entry shown as selected. |
+| `tooltip` | 3 | `string` | — |  |
+| `enabled` | 4 | `bool` | `true` |  |
+| `elevation` | 5 | `double` | — |  |
+| `color` | 6 | `color` | — |  |
+| `shadowColor` | 7 | `color` | — |  |
+| `surfaceTintColor` | 8 | `color` | — |  |
+| `iconSize` | 9 | `double` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` |  |
+| `onCanceled` | 2 | — |  |
+| `onOpened` | 3 | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+| `icon` | 2 | one node |  |
 
 ### Positioned
 
@@ -3060,6 +3280,45 @@ ID 45 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Scrollbar` · a
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node, required |  |
+
+### SearchAnchor
+
+A search bar that opens a view listing the `suggestions` that match the text; choosing one fires `onSelected`.
+
+ID 123 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `SearchAnchor` · android, ios · cost 20 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `suggestions` | 1 | `list<string>`, required | — | The suggestions; the runtime lists those that contain the typed text, ignoring case. |
+| `isFullScreen` | 2 | `bool` | — |  |
+| `viewHintText` | 3 | `string` | — |  |
+| `hintText` | 4 | `string` | — | The hint of the bar that opens the view. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` |  |
+
+### SearchBar
+
+A text field styled as a search bar.
+
+ID 122 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `SearchBar` · android, ios · cost 20 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `string` | — | The text, bound two-way: the runtime owns the controller and updates bound state on every change. |
+| `hintText` | 2 | `string` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `string` |  |
+| `onSubmitted` | 2 | `string` |  |
+| `onTap` | 3 | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `leading` | 1 | one node |  |
+| `trailing` | 2 | a list of nodes |  |
 
 ### SearchField
 
@@ -3586,6 +3845,44 @@ ID 73 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `SwitchListTile`
 | `subtitle` | 2 | one node |  |
 | `secondary` | 3 | one node |  |
 
+### TabBar
+
+A row of tabs; the selected one is `selectedIndex`, and tapping a tab fires `onTap` with its index.
+
+ID 126 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `TabBar` · android, ios · cost 20 µs · role tab · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `tabs` | 1 | `list<TabItem>`, required | — |  |
+| `selectedIndex` | 2 | `int` | `0` | The selected tab; bind it to the state key a TabBarView shares. |
+| `isScrollable` | 3 | `bool` | `false` |  |
+| `indicatorColor` | 4 | `color` | — |  |
+| `indicatorSize` | 5 | `TabBarIndicatorSize` | — |  |
+| `dividerColor` | 6 | `color` | — |  |
+| `labelColor` | 7 | `color` | — |  |
+| `unselectedLabelColor` | 8 | `color` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onTap` | 1 | `int` |  |
+
+### TabBarView
+
+Shows the child at `index`, and pages between children by swiping; `onIndexChanged` reports the page.
+
+ID 127 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `TabBarView` · android, ios · cost 20 µs · role group
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `index` | 1 | `int` | `0` | The shown child; bind it to the state key a TabBar shares. |
+| `viewportFraction` | 2 | `double` | `1.0` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onIndexChanged` | 1 | `int` |  |
+
+Takes a list of `children`.
+
 ### Text
 
 A run of text with a single style.
@@ -4069,6 +4366,18 @@ ID 58 · revision 1
 | `icon` | 2 | `IconData` | — | Icon after the label. |
 | `destructive` | 3 | `bool` | `false` | Drawn in the destructive colour. |
 
+### Destination
+
+One destination of a NavigationBar, BottomNavigationBar, NavigationDrawer or NavigationRail.
+
+ID 44 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — |  |
+| `icon` | 2 | `IconData`, required | — |  |
+| `selectedIcon` | 3 | `IconData` | — | Icon while the destination is selected; `icon` when absent. |
+
 ### DropdownMenuEntry
 
 One entry of a DropdownMenu.
@@ -4288,6 +4597,19 @@ ID 17 · revision 1 · Flutter `InputDecoration`
 | `constraints` | 49 | `BoxConstraints` | — |  |
 | `visualDensity` | 50 | `VisualDensity` | — |  |
 
+### MenuItem
+
+One entry of a PopupMenuButton or MenuAnchor menu.
+
+ID 42 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `string`, required | — | What `onSelected` carries when the entry is chosen. |
+| `label` | 2 | `string`, required | — |  |
+| `icon` | 3 | `IconData` | — | Icon before the label. |
+| `enabled` | 4 | `bool` | `true` |  |
+
 ### Offset
 
 A two-dimensional offset.
@@ -4416,6 +4738,17 @@ ID 57 · revision 1
 |---|---|---|---|---|
 | `label` | 1 | `string`, required | — |  |
 | `icon` | 2 | `IconData`, required | — | Icon of the item. |
+
+### TabItem
+
+One tab of a TabBar.
+
+ID 43 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — |  |
+| `icon` | 2 | `IconData` | — | Icon above the label. |
 
 ### TextSpan
 
@@ -4728,6 +5061,17 @@ ID 5 · revision 1 · Flutter `BorderStyle`
 |---|---|---|
 | `none` | 1 |  |
 | `solid` | 2 |  |
+
+### BottomNavigationBarType
+
+Mirrors the Flutter enum BottomNavigationBarType.
+
+ID 87 · revision 1 · Flutter `BottomNavigationBarType`
+
+| Value | ID | Description |
+|---|---|---|
+| `fixed` | 1 |  |
+| `shifting` | 2 |  |
 
 ### BoxFit
 
@@ -5259,6 +5603,18 @@ ID 37 · revision 1 · Flutter `MaxLengthEnforcement`
 | `enforced` | 2 |  |
 | `truncateAfterCompositionEnds` | 3 |  |
 
+### NavigationDestinationLabelBehavior
+
+Mirrors the Flutter enum NavigationDestinationLabelBehavior.
+
+ID 86 · revision 1 · Flutter `NavigationDestinationLabelBehavior`
+
+| Value | ID | Description |
+|---|---|---|
+| `alwaysShow` | 1 |  |
+| `alwaysHide` | 2 |  |
+| `onlyShowSelected` | 3 |  |
+
 ### NavigationMode
 
 How navigate changes the navigation stack.
@@ -5271,6 +5627,18 @@ ID 68 · revision 1
 | `replace` | 2 | Replace the current route. |
 | `popUntil` | 3 | Pop routes until the named route is on top. |
 | `clearAndPush` | 4 | Clear the stack, then push the route. |
+
+### NavigationRailLabelType
+
+Mirrors the Flutter enum NavigationRailLabelType.
+
+ID 85 · revision 1 · Flutter `NavigationRailLabelType`
+
+| Value | ID | Description |
+|---|---|---|
+| `none` | 1 |  |
+| `selected` | 2 |  |
+| `all` | 3 |  |
 
 ### OtpAlphabet
 
@@ -5446,6 +5814,17 @@ ID 49 · revision 1 · Flutter `StrokeCap`
 | `butt` | 1 |  |
 | `round` | 2 |  |
 | `square` | 3 |  |
+
+### TabBarIndicatorSize
+
+Mirrors the Flutter enum TabBarIndicatorSize.
+
+ID 88 · revision 1 · Flutter `TabBarIndicatorSize`
+
+| Value | ID | Description |
+|---|---|---|
+| `tab` | 1 |  |
+| `label` | 2 |  |
 
 ### TextAlign
 

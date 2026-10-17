@@ -1,0 +1,40 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "MenuItem",
+  "id": 42,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "One entry of a PopupMenuButton or MenuAnchor menu.",
+  "fields": [
+    {
+      "name": "value",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "What `onSelected` carries when the entry is chosen."
+    },
+    {
+      "name": "label",
+      "id": 2,
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "icon",
+      "id": 3,
+      "type": "IconData",
+      "description": "Icon before the label."
+    },
+    {
+      "name": "enabled",
+      "id": 4,
+      "type": "bool",
+      "default": true
+    }
+  ]
+}

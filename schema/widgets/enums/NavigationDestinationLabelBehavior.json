@@ -1,0 +1,31 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "NavigationDestinationLabelBehavior",
+  "id": 86,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "Mirrors the Flutter enum NavigationDestinationLabelBehavior.",
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "enum": "NavigationDestinationLabelBehavior"
+  },
+  "values": [
+    {
+      "name": "alwaysShow",
+      "id": 1
+    },
+    {
+      "name": "alwaysHide",
+      "id": 2
+    },
+    {
+      "name": "onlyShowSelected",
+      "id": 3
+    }
+  ]
+}
