@@ -66,6 +66,7 @@ final class PluxTheme {
     required PluxThemeSource source,
     required bool dark,
     required TokenSource tokens,
+    bool boldText = false,
   }) {
     final colors = <String, Color>{
       for (final role in colorRoles) role: ?_color(tokens.token('color.$role')),
@@ -83,10 +84,18 @@ final class PluxTheme {
       ),
       PluxThemeSource.plux => _pluxTheme(dark, colors, texts),
     };
-    final material = base.copyWith(
+    var material = base.copyWith(
       textTheme: withFallback(base.textTheme, fallback),
       primaryTextTheme: withFallback(base.primaryTextTheme, fallback),
+      // Material controls keep a 48 dp tap target (A11Y-004).
+      materialTapTargetSize: MaterialTapTargetSize.padded,
     );
+    if (boldText) {
+      material = material.copyWith(
+        textTheme: boldTextTheme(material.textTheme),
+        primaryTextTheme: boldTextTheme(material.primaryTextTheme),
+      );
+    }
     return PluxTheme._(
       material,
       source == PluxThemeSource.host
@@ -135,6 +144,33 @@ final class PluxTheme {
     final theme = ThemeData(colorScheme: scheme, brightness: brightness);
     return theme.copyWith(textTheme: theme.textTheme.merge(textTheme(texts)));
   }
+}
+
+/// [theme] with every style at least bold, as the platform's bold-text
+/// setting asks (A11Y-007).
+TextTheme boldTextTheme(TextTheme theme) {
+  TextStyle? bold(TextStyle? s) => s?.copyWith(
+    fontWeight: (s.fontWeight?.value ?? 400) >= 700
+        ? s.fontWeight
+        : FontWeight.bold,
+  );
+  return theme.copyWith(
+    displayLarge: bold(theme.displayLarge),
+    displayMedium: bold(theme.displayMedium),
+    displaySmall: bold(theme.displaySmall),
+    headlineLarge: bold(theme.headlineLarge),
+    headlineMedium: bold(theme.headlineMedium),
+    headlineSmall: bold(theme.headlineSmall),
+    titleLarge: bold(theme.titleLarge),
+    titleMedium: bold(theme.titleMedium),
+    titleSmall: bold(theme.titleSmall),
+    bodyLarge: bold(theme.bodyLarge),
+    bodyMedium: bold(theme.bodyMedium),
+    bodySmall: bold(theme.bodySmall),
+    labelLarge: bold(theme.labelLarge),
+    labelMedium: bold(theme.labelMedium),
+    labelSmall: bold(theme.labelSmall),
+  );
 }
 
 /// The families of every `font.script.<code>` token, in path order

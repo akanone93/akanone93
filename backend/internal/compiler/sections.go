@@ -151,6 +151,12 @@ func encodeNode(e *valueEnc, n *node) flatbuffers.UOffsetT {
 	if anim != 0 {
 		fbs.NodeAddAnimation(b, anim)
 	}
+	switch n.doc.Direction {
+	case schema.TextDirectionLtr:
+		fbs.NodeAddDirection(b, fbs.TextDirectionOverrideLtr)
+	case schema.TextDirectionRtl:
+		fbs.NodeAddDirection(b, fbs.TextDirectionOverrideRtl)
+	}
 	return fbs.NodeEnd(b)
 }
 
@@ -230,6 +236,12 @@ func semanticsTable(e *valueEnc, s *semantics) flatbuffers.UOffsetT {
 	fbs.SemanticsAddButton(b, s.button)
 	fbs.SemanticsAddLiveRegion(b, s.liveRegion)
 	fbs.SemanticsAddExclude(b, s.excluded)
+	if s.focusOrder != nil {
+		fbs.SemanticsAddFocusOrder(b, *s.focusOrder)
+	}
+	fbs.SemanticsAddGroup(b, s.group)
+	fbs.SemanticsAddHeadingLevel(b, s.headingLevel)
+	fbs.SemanticsAddDecorative(b, s.decorative)
 	return fbs.SemanticsEnd(b)
 }
 

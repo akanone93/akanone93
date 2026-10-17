@@ -229,6 +229,11 @@ final class ReleaseOwners {
       width: view == null ? 0 : view.physicalSize.width / view.devicePixelRatio,
       locale: env.locale ?? d.locale,
       textScale: d.textScaleFactor,
+      textDirection: directionOfLocale(env.locale ?? d.locale),
+      reduceMotion: d.accessibilityFeatures.disableAnimations,
+      boldText: d.accessibilityFeatures.boldText,
+      highContrast: d.accessibilityFeatures.highContrast,
+      screenReader: d.accessibilityFeatures.accessibleNavigation,
       dark: switch (env.themeMode) {
         ThemeMode.light => false,
         ThemeMode.dark => true,
