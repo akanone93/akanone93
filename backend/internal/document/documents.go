@@ -459,14 +459,20 @@ func (s *Service) PutDocument(ctx context.Context, p auth.Principal, appID, plug
 		return Written{}, err
 	}
 	scope := translationsScope(pluginID, path)
+	var waivers []waiverChange
 	return s.writeScoped(ctx, p, appID, pluginID, session, scope, reasonWrite,
 		func(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set) ([]change, plxerr.Diagnostics, error) {
 			c, diags, err := s.prepare(d, lim, path, content, ifRevision)
 			if err == nil && scope != "" {
 				c, err = s.reviewTranslations(ctx, q, d, p, lim, c)
 			}
+			if err == nil {
+				waivers, err = s.reviewWaivers(ctx, q, d, p, lim, c)
+			}
 			return []change{c}, diags, err
-		}, nil)
+		}, func(ctx context.Context, tx pgx.Tx, _ *dbgen.Queries, _ draft) error {
+			return s.auditWaivers(ctx, tx, p, path, waivers)
+		})
 }
 
 // translationsScope is the lock scope a save of a document may be made
@@ -490,6 +496,7 @@ func (s *Service) PatchDocument(ctx context.Context, p auth.Principal, appID, pl
 		return Written{}, err
 	}
 	scope := translationsScope(pluginID, path)
+	var waivers []waiverChange
 	return s.writeScoped(ctx, p, appID, pluginID, session, scope, reasonWrite,
 		func(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set) ([]change, plxerr.Diagnostics, error) {
 			row, err := q.GetDocument(ctx, dbgen.GetDocumentParams{DraftID: d.row.ID, Path: path})
@@ -516,8 +523,13 @@ func (s *Service) PatchDocument(ctx context.Context, p auth.Principal, appID, pl
 			if err == nil && scope != "" {
 				c, err = s.reviewTranslations(ctx, q, d, p, lim, c)
 			}
+			if err == nil {
+				waivers, err = s.reviewWaivers(ctx, q, d, p, lim, c)
+			}
 			return []change{c}, diags, err
-		}, nil)
+		}, func(ctx context.Context, tx pgx.Tx, _ *dbgen.Queries, _ draft) error {
+			return s.auditWaivers(ctx, tx, p, path, waivers)
+		})
 }
 
 // DeleteDocument deletes a document; a page goes to the trash (GOV-031).

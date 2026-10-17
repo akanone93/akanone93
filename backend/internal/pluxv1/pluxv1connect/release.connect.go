@@ -63,6 +63,9 @@ const (
 	// ReleaseServiceGetCompatibilityProcedure is the fully-qualified name of the ReleaseService's
 	// GetCompatibility RPC.
 	ReleaseServiceGetCompatibilityProcedure = "/plux.v1.ReleaseService/GetCompatibility"
+	// ReleaseServiceGetReportProcedure is the fully-qualified name of the ReleaseService's GetReport
+	// RPC.
+	ReleaseServiceGetReportProcedure = "/plux.v1.ReleaseService/GetReport"
 )
 
 // ReleaseServiceClient is a client for the plux.v1.ReleaseService service.
@@ -85,6 +88,9 @@ type ReleaseServiceClient interface {
 	// GetCompatibility reports which runtime versions and host builds can
 	// use a release, and how many devices are affected (REL-080).
 	GetCompatibility(context.Context, *connect.Request[pluxv1.GetCompatibilityRequest]) (*connect.Response[pluxv1.GetCompatibilityResponse], error)
+	// GetReport returns a report of a release, such as its accessibility
+	// report, as JSON or as a standalone HTML page (A11Y-008).
+	GetReport(context.Context, *connect.Request[pluxv1.GetReportRequest]) (*connect.Response[pluxv1.GetReportResponse], error)
 }
 
 // NewReleaseServiceClient constructs a client for the plux.v1.ReleaseService service. By default,
@@ -152,6 +158,12 @@ func NewReleaseServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(releaseServiceMethods.ByName("GetCompatibility")),
 			connect.WithClientOptions(opts...),
 		),
+		getReport: connect.NewClient[pluxv1.GetReportRequest, pluxv1.GetReportResponse](
+			httpClient,
+			baseURL+ReleaseServiceGetReportProcedure,
+			connect.WithSchema(releaseServiceMethods.ByName("GetReport")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -166,6 +178,7 @@ type releaseServiceClient struct {
 	rollbackRelease    *connect.Client[pluxv1.RollbackReleaseRequest, pluxv1.RollbackReleaseResponse]
 	getChangelog       *connect.Client[pluxv1.GetChangelogRequest, pluxv1.GetChangelogResponse]
 	getCompatibility   *connect.Client[pluxv1.GetCompatibilityRequest, pluxv1.GetCompatibilityResponse]
+	getReport          *connect.Client[pluxv1.GetReportRequest, pluxv1.GetReportResponse]
 }
 
 // GetPluginVersion calls plux.v1.ReleaseService.GetPluginVersion.
@@ -213,6 +226,11 @@ func (c *releaseServiceClient) GetCompatibility(ctx context.Context, req *connec
 	return c.getCompatibility.CallUnary(ctx, req)
 }
 
+// GetReport calls plux.v1.ReleaseService.GetReport.
+func (c *releaseServiceClient) GetReport(ctx context.Context, req *connect.Request[pluxv1.GetReportRequest]) (*connect.Response[pluxv1.GetReportResponse], error) {
+	return c.getReport.CallUnary(ctx, req)
+}
+
 // ReleaseServiceHandler is an implementation of the plux.v1.ReleaseService service.
 type ReleaseServiceHandler interface {
 	GetPluginVersion(context.Context, *connect.Request[pluxv1.GetPluginVersionRequest]) (*connect.Response[pluxv1.GetPluginVersionResponse], error)
@@ -233,6 +251,9 @@ type ReleaseServiceHandler interface {
 	// GetCompatibility reports which runtime versions and host builds can
 	// use a release, and how many devices are affected (REL-080).
 	GetCompatibility(context.Context, *connect.Request[pluxv1.GetCompatibilityRequest]) (*connect.Response[pluxv1.GetCompatibilityResponse], error)
+	// GetReport returns a report of a release, such as its accessibility
+	// report, as JSON or as a standalone HTML page (A11Y-008).
+	GetReport(context.Context, *connect.Request[pluxv1.GetReportRequest]) (*connect.Response[pluxv1.GetReportResponse], error)
 }
 
 // NewReleaseServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -296,6 +317,12 @@ func NewReleaseServiceHandler(svc ReleaseServiceHandler, opts ...connect.Handler
 		connect.WithSchema(releaseServiceMethods.ByName("GetCompatibility")),
 		connect.WithHandlerOptions(opts...),
 	)
+	releaseServiceGetReportHandler := connect.NewUnaryHandler(
+		ReleaseServiceGetReportProcedure,
+		svc.GetReport,
+		connect.WithSchema(releaseServiceMethods.ByName("GetReport")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.ReleaseService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ReleaseServiceGetPluginVersionProcedure:
@@ -316,6 +343,8 @@ func NewReleaseServiceHandler(svc ReleaseServiceHandler, opts ...connect.Handler
 			releaseServiceGetChangelogHandler.ServeHTTP(w, r)
 		case ReleaseServiceGetCompatibilityProcedure:
 			releaseServiceGetCompatibilityHandler.ServeHTTP(w, r)
+		case ReleaseServiceGetReportProcedure:
+			releaseServiceGetReportHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -359,4 +388,8 @@ func (UnimplementedReleaseServiceHandler) GetChangelog(context.Context, *connect
 
 func (UnimplementedReleaseServiceHandler) GetCompatibility(context.Context, *connect.Request[pluxv1.GetCompatibilityRequest]) (*connect.Response[pluxv1.GetCompatibilityResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ReleaseService.GetCompatibility is not implemented"))
+}
+
+func (UnimplementedReleaseServiceHandler) GetReport(context.Context, *connect.Request[pluxv1.GetReportRequest]) (*connect.Response[pluxv1.GetReportResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ReleaseService.GetReport is not implemented"))
 }

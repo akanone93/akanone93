@@ -110,8 +110,11 @@ func (s *Service) CreateRelease(ctx context.Context, p auth.Principal, appID, en
 			diags = missing
 			return err
 		}
-		var grants []functionGrant
-		if diags, grants, err = s.validateSet(ctx, tx, p, appID, env.ID, versions); err != nil || diags.HasErrors() {
+		var (
+			grants  []functionGrant
+			reports map[ReportKind][]byte
+		)
+		if diags, grants, reports, err = s.validateSet(ctx, tx, p, appID, env.ID, versions); err != nil || diags.HasErrors() {
 			return err
 		}
 		confidential, err := s.confidentialFor(ctx, tx, p.OrganizationID, env, versions, o.confidential)
@@ -120,6 +123,13 @@ func (s *Service) CreateRelease(ctx context.Context, p auth.Principal, appID, en
 		}
 		out, err = s.insertRelease(ctx, tx, p, env, versions, 0, notes, confidential)
 		if err != nil {
+			return err
+		}
+		row, err := q.GetRelease(ctx, dbgen.GetReleaseParams{AppID: app, Sequence: out.Sequence})
+		if err != nil {
+			return failure(err, "release")
+		}
+		if err := storeReports(ctx, q, row, reports); err != nil {
 			return err
 		}
 		out.Functions, err = s.pinFunctions(ctx, tx, env, storage.MustUUID(out.ID), grants)
@@ -194,31 +204,34 @@ func (*Service) versionFor(ctx context.Context, q *dbgen.Queries, app, plugin pg
 // that every bundle it produces is the one each version stored, and that
 // the data sources that go through the gateway are matched by the
 // environment's registered upstreams (SEC-030, SEC-031).
-func (s *Service) validateSet(ctx context.Context, tx pgx.Tx, p auth.Principal, appID string, environment pgtype.UUID, versions []dbgen.PluginVersion) (plxerr.Diagnostics, []functionGrant, error) {
+func (s *Service) validateSet(ctx context.Context, tx pgx.Tx, p auth.Principal, appID string, environment pgtype.UUID, versions []dbgen.PluginVersion) (plxerr.Diagnostics, []functionGrant, map[ReportKind][]byte, error) {
 	sources := make([]string, 0, len(versions))
 	for _, v := range versions {
 		sources = append(sources, storage.ID(v.SourceSnapshotID))
 	}
 	fsys, err := s.o.Documents.SourceFiles(ctx, tx, appID, sources)
 	if err != nil {
-		return nil, nil, err //nolint:wrapcheck // a domain error
+		return nil, nil, nil, err //nolint:wrapcheck // a domain error
 	}
 	opts, err := s.compileOptions(ctx, tx, p.OrganizationID, appID, storage.ID(environment), "")
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	res := compiler.Compile(fsys, opts)
-	diags := res.Diagnostics
+	diags, err := s.gateAccessibility(ctx, appID, storage.ID(environment), res.Diagnostics)
+	if err != nil {
+		return nil, nil, nil, err
+	}
 	if diags.HasErrors() {
-		return diags, nil, nil
+		return diags, nil, nil, nil
 	}
 	if s.o.Gateway != nil {
 		upstreams, err := s.o.Gateway.UpstreamsOf(ctx, tx, storage.ID(environment))
 		if err != nil {
-			return nil, nil, err //nolint:wrapcheck // a domain error
+			return nil, nil, nil, err //nolint:wrapcheck // a domain error
 		}
 		if gw := gateway.CheckSources(res.GatewaySources, upstreams); len(gw) > 0 {
-			return append(diags, gw...), nil, nil
+			return append(diags, gw...), nil, nil, nil
 		}
 	}
 	produced := map[string]*compiler.Bundle{"": res.App}
@@ -232,7 +245,11 @@ func (s *Service) validateSet(ctx context.Context, tx pgx.Tx, p auth.Principal, 
 				"%s version %d was compiled against other sources than this release's; publish it again", nameOf(v), v.Version))
 		}
 	}
-	return diags, grantsOf(res, opts.Functions), nil
+	reports, err := canonicalReports(res)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return diags, grantsOf(res, opts.Functions), reports, nil
 }
 
 // nameOf names a version's bundle in messages.
@@ -574,6 +591,9 @@ func (s *Service) RollbackRelease(ctx context.Context, p auth.Principal, appID, 
 			return failure(err, "release")
 		}
 		if err := copyFunctions(ctx, q, row.ID, earlier.ID); err != nil {
+			return err
+		}
+		if err := copyReports(ctx, q, row.ID, earlier.ID); err != nil {
 			return err
 		}
 		if err := withFunctions(ctx, q, &out, row.ID); err != nil {

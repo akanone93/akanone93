@@ -32,6 +32,9 @@ service ReleaseService {
   // GetCompatibility reports which runtime versions and host builds can
   // use a release, and how many devices are affected (REL-080).
   rpc GetCompatibility(GetCompatibilityRequest) returns (GetCompatibilityResponse) {}
+  // GetReport returns a report of a release, such as its accessibility
+  // report, as JSON or as a standalone HTML page (A11Y-008).
+  rpc GetReport(GetReportRequest) returns (GetReportResponse) {}
 }
 
 // PluginVersion is an immutable published plugin (REL-001).
@@ -220,4 +223,32 @@ message GetCompatibilityRequest {
 }
 message GetCompatibilityResponse {
   Compatibility compatibility = 1;
+}
+
+// ReportKind says which report of a release to return.
+enum ReportKind {
+  REPORT_KIND_UNSPECIFIED = 0;
+  REPORT_KIND_ACCESSIBILITY = 1;
+  REPORT_KIND_LOCALISATION = 2;
+}
+
+// ReportFormat says how a report is rendered.
+enum ReportFormat {
+  REPORT_FORMAT_UNSPECIFIED = 0;
+  REPORT_FORMAT_JSON = 1;
+  REPORT_FORMAT_HTML = 2;
+}
+
+message GetReportRequest {
+  string app_id = 1;
+  int64 sequence = 2;
+  ReportKind kind = 3;
+  // format defaults to JSON.
+  ReportFormat format = 4;
+}
+message GetReportResponse {
+  // content is the report: canonical JSON, or a standalone HTML page.
+  bytes content = 1;
+  // content_type is "application/json" or "text/html; charset=utf-8".
+  string content_type = 2;
 }
