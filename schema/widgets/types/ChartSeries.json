@@ -1,0 +1,29 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "ChartSeries",
+  "id": 76,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "One named series of a LineChart or BarChart.",
+  "fields": [
+    {
+      "name": "name",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The series' name, spoken in its summary."
+    },
+    {
+      "name": "values",
+      "id": 2,
+      "type": "list<double>",
+      "required": true,
+      "description": "The values, one per label."
+    }
+  ]
+}

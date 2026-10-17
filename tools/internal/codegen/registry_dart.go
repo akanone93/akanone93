@@ -22,6 +22,9 @@ func registryDart(r *registry.Registry) []byte {
 	b.WriteString("\n/// Every widget type, sorted by name.\nconst List<WidgetDescriptor> widgetDescriptors = [\n")
 	for _, w := range r.Widgets {
 		fmt.Fprintf(&b, "  WidgetDescriptor(\n    %s,\n    %d,\n    layer: %d,\n    revision: %d,\n", quoteDart(w.Type), w.ID, w.Layer, w.Revision)
+		if w.Package != "" {
+			fmt.Fprintf(&b, "    package: %s,\n", quoteDart(w.Package))
+		}
 		writeDartIDs(&b, "props", w.Props, func(p registry.Prop) (string, uint32) { return p.Name, p.ID })
 		writeDartIDs(&b, "events", w.Events, func(e registry.Event) (string, uint32) { return e.Name, e.ID })
 		writeDartIDs(&b, "slots", w.Slots, func(s registry.Slot) (string, uint32) { return s.Name, s.ID })
@@ -76,6 +79,7 @@ final class WidgetDescriptor {
     this.props = const {},
     this.events = const {},
     this.slots = const {},
+    this.package,
   });
 
   /// The type name used in documents.
@@ -98,6 +102,10 @@ final class WidgetDescriptor {
 
   /// Slot IDs by name.
   final Map<String, int> slots;
+
+  /// The optional package whose builder renders the widget; null for the
+  /// runtime's own (PLX-4403).
+  final String? package;
 }
 
 /// A value type and the permanent IDs of its fields.

@@ -1,0 +1,24 @@
+name: plux_markdown
+description: >-
+  Markdown widgets for Plux pages: MarkdownView and TermsViewer, parsed with
+  markdown and drawn with Flutter text spans.
+version: 0.5.0
+repository: https://github.com/nightCode42/plux3/tree/main/packages/plux_markdown
+# Not published until its release is wired (release.yml, pub.dev).
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  markdown: ^7.3.1
+  plux_flutter: ^0.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

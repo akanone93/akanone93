@@ -61,6 +61,21 @@ export 'src/device/types.dart'
 export 'src/devtools_api/diagnostics.dart'
     show PluxDiagnostic, PluxDiagnostics, PluxPluginInfo, PluxReleaseInfo;
 export 'src/errors/plux_exception.dart' show PluxErrorCode, PluxException;
+export 'src/render/decoding.dart'
+    show
+        DecodeError,
+        Decoding,
+        Fields,
+        PluxObject,
+        asBool,
+        asDouble,
+        asDoubles,
+        asInt,
+        asList,
+        asString,
+        asStrings;
+export 'src/render/node_context.dart' show NodeBuilder, NodeContext;
+export 'src/render/widget_package.dart' show PluxWidgetPackage;
 export 'src/functions/engine.dart'
     show
         PluxFunctionBusinessError,

@@ -22,3 +22,4 @@
 library;
 
 export 'src/plux_lottie.dart' show PluxLottie, PluxLottieView, PluxReduceMotion;
+export 'src/lottie_package.dart' show PluxLottieIds, PluxLottieWidgets;

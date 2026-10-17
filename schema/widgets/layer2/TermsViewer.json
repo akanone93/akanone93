@@ -1,0 +1,75 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "TermsViewer",
+  "id": 191,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "gavel",
+  "description": "Terms in Markdown that scroll, with an accept button that enables once the end was reached.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 600,
+  "accessibility": {
+    "role": "group",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_markdown",
+  "props": [
+    {
+      "name": "source",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "translatable": true,
+      "description": "The terms as Markdown."
+    },
+    {
+      "name": "version",
+      "id": 2,
+      "type": "string",
+      "required": true,
+      "description": "The version of the terms, sent with `onAccepted`."
+    },
+    {
+      "name": "acceptLabel",
+      "id": 3,
+      "type": "string",
+      "default": "Accept",
+      "translatable": true,
+      "description": "The accept button's label."
+    },
+    {
+      "name": "scrollHint",
+      "id": 4,
+      "type": "string",
+      "default": "Scroll to the end to accept",
+      "translatable": true,
+      "description": "Shown, and spoken, while the end has not been reached."
+    }
+  ],
+  "events": [
+    {
+      "name": "onAccepted",
+      "id": 1,
+      "payload": "string",
+      "description": "Fires with the version when the user accepts."
+    },
+    {
+      "name": "onLink",
+      "id": 2,
+      "payload": "string",
+      "description": "Fires with the address of a tapped link; wire it to the `openUrl` action."
+    }
+  ]
+}

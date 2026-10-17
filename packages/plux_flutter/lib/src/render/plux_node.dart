@@ -214,7 +214,12 @@ final class NodeContextImpl implements NodeContext, MotionSource {
       return _unknown('a node with neither a widget nor a component');
     }
     final builder = scope.builders[node.widget];
-    if (builder == null) return _unknown('widget ${node.widget}');
+    if (builder == null) {
+      final package = scope.services.missingPackage(node.widget);
+      return package == null
+          ? _unknown('widget ${node.widget}')
+          : _packageMissing(package);
+    }
     if (_masked) {
       // Both are built, so that the node subscribes to everything its
       // bindings read; only one is shown.
@@ -297,6 +302,21 @@ final class NodeContextImpl implements NodeContext, MotionSource {
     scope.report(error, path: _path);
     PluxBoundary.fail(context, error);
     return const SizedBox.shrink();
+  }
+
+  Widget _packageMissing(String package) {
+    if (scope.services.firstMissingReport(node.widget)) {
+      scope.report(
+        PluxException(
+          PluxErrorCode.widgetPackageMissing,
+          'node $_path: widget ${node.widget} needs the package $package, '
+          'which this app does not register in PluxConfig.widgetPackages',
+          details: {'node': _path, 'package': package},
+        ),
+        path: _path,
+      );
+    }
+    return _placeholder('$package missing');
   }
 
   Widget _unknown(String what) {

@@ -70,6 +70,7 @@ final class Harness {
     bool? encryptLocalStores,
     KeyWrapper Function()? keyWrapper,
     SecurePlatforms secure = const SecurePlatforms(),
+    List<PluxWidgetPackage> widgetPackages = const [],
   }) async {
     server.release = null;
     final baseline = await server.baseline(5, app, plugins);
@@ -101,6 +102,7 @@ final class Harness {
         nativeActions: nativeActions,
         router: router,
         databaseAdapter: databaseAdapter,
+        widgetPackages: widgetPackages,
       ),
       RuntimeOverrides(
         credentials: MemoryCredentialStore.new,
