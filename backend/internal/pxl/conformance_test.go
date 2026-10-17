@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
+	"maps"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -37,7 +38,10 @@ type vectorFile struct {
 	// in; Messages are the translations t() finds, by key, in MessageFormat.
 	Locale   string            `json:"locale,omitempty"`
 	Messages map[string]string `json:"messages,omitempty"`
-	Cases    []*vectorCase     `json:"cases"`
+	// Asts are the golden binary ASTs of Messages, base64, which the Dart
+	// runtime evaluates (it does not parse message text).
+	Asts  map[string]string `json:"asts,omitempty"`
+	Cases []*vectorCase     `json:"cases"`
 }
 
 // vectorLimits overrides limits for a file, e.g. a small budget.
@@ -111,6 +115,29 @@ func (f *vectorFile) localeContext(t *testing.T, caseLocale string) *LocaleConte
 	}}
 }
 
+// checkAsts compares the golden ASTs of the file's messages, or rewrites them.
+func checkAsts(t *testing.T, f *vectorFile) {
+	t.Helper()
+	got := map[string]string{}
+	for k, text := range f.Messages {
+		m, err := mf.Parse(text)
+		if err != nil {
+			t.Fatalf("message %q: %v", k, err)
+		}
+		got[k] = base64.StdEncoding.EncodeToString(m.Encode())
+	}
+	if *update {
+		if len(got) == 0 {
+			got = nil
+		}
+		f.Asts = got
+		return
+	}
+	if !maps.Equal(got, f.Asts) {
+		t.Errorf("golden asts differ; run the test with -update and review:\n got %v\nwant %v", got, f.Asts)
+	}
+}
+
 func orDefault(v, def int64) int64 {
 	if v == 0 {
 		return def
@@ -149,6 +176,7 @@ func TestConformance(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			checkAsts(t, &f)
 			names := map[string]bool{}
 			for _, c := range f.Cases {
 				if names[c.Name] {

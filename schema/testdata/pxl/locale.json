@@ -93,6 +93,11 @@
     "items": "{count, plural, one {# item} other {# items}}",
     "plain": "Plain"
   },
+  "asts": {
+    "greeting": "AQMBBkhlbGxvIAIEbmFtZQEBIQ==",
+    "items": "AQEGBWNvdW50AAACA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM=",
+    "plain": "AQEBBVBsYWlu"
+  },
   "cases": [
     {
       "name": "number-double-en",
