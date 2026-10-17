@@ -175,7 +175,7 @@ Widget _dismissible(NodeContext c) => _KeyedDismissible(
   dragStartBehavior:
       c.decode(5, decodeDragStartBehavior) ?? DragStartBehavior.start,
   behavior: c.decode(6, decodeHitTestBehavior) ?? HitTestBehavior.opaque,
-  onDismissed: c.handles(1) ? (d) => c.fire(1, d.name) : null,
+  onDismissed: c.handles(1) ? (d) => c.fire(1, d.index + 1) : null,
   background: c.slot(2),
   secondaryBackground: c.slot(3),
   child: c.slot(1) ?? c.missing('child'),

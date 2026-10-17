@@ -120,8 +120,10 @@ void main() {
     await open(tester);
     expect(find.text('dismissed: no'), findsOneWidget);
     await tester.fling(find.text('Swipe me'), const Offset(-700, 0), 2000);
-    await tester.pump(const Duration(milliseconds: 500));
-    await tester.pump(const Duration(milliseconds: 500));
+    // The swipe, then the resize that ends with the callback.
+    for (var i = 0; i < 3; i++) {
+      await tester.pump(const Duration(milliseconds: 500));
+    }
     await settle(tester);
     expect(
       find.byType(Text).evaluate().map((e) => (e.widget as Text).data).toList(),
@@ -297,7 +299,7 @@ void main() {
       ),
     );
     expect(find.bySemanticsLabel('Swipe me'), findsOneWidget);
-    expect(find.bySemanticsLabel('t-fade'), findsOneWidget);
+    expect(find.bySemanticsLabel('t-slide'), findsOneWidget);
     semantics.dispose();
   });
 
