@@ -904,6 +904,86 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Set `semantics.label`, or give the node visible text.
 
+### PLX-1402
+
+`IMAGE_ALTERNATIVE_MISSING` · warning · Image without alternative text
+
+**Cause.** An image has no `semanticLabel`, no `semantics.label` and is not marked decorative, so screen readers cannot describe it (A11Y-002).
+
+**Fix.** Set `semanticLabel` or `semantics.label`, or mark the image `semantics.decorative`.
+
+### PLX-1403
+
+`CONTRAST_INSUFFICIENT` · warning · Contrast below WCAG 2.2 AA
+
+**Cause.** The contrast ratio of a text or component colour against its background is below 4.5:1 (3:1 for large text and UI components) in a theme variant (A11Y-003).
+
+**Fix.** Choose colours with a higher contrast ratio in every theme variant.
+
+### PLX-1404
+
+`TOUCH_TARGET_TOO_SMALL` · warning · Touch target too small
+
+**Cause.** An interactive node has a fixed size below 44 x 44 logical pixels, or below 48 x 48 when the app targets Android (A11Y-004).
+
+**Fix.** Enlarge the node, or remove the fixed size so the platform padding applies.
+
+### PLX-1405
+
+`FIXED_HEIGHT_TEXT` · warning · Text under a fixed height
+
+**Cause.** A text node sits under an ancestor with a fixed height, which clips the text when the user scales it (A11Y-005).
+
+**Fix.** Remove the fixed height or use a minimum height.
+
+### PLX-1406
+
+`FOCUS_ORDER_INVALID` · warning · Focus order invalid
+
+**Cause.** Sibling nodes in one group or page declare duplicate or non-dense `focusOrder` values (A11Y-006).
+
+**Fix.** Number the focus order of siblings 1, 2, 3 without gaps or repeats.
+
+### PLX-1407
+
+`HEADING_LEVEL_INVALID` · warning · Heading level skipped
+
+**Cause.** A heading level skips more than one level from the previous heading of the page (A11Y-006).
+
+**Fix.** Use consecutive heading levels.
+
+### PLX-1408
+
+`LIVE_REGION_STATIC` · warning · Live region with constant content
+
+**Cause.** A node is a live region but its label or text never changes, so it announces nothing useful (A11Y-006).
+
+**Fix.** Bind the content to state, or remove `liveRegion`.
+
+### PLX-1409
+
+`CONTRAST_NOT_CHECKED` · info · Contrast not checked
+
+**Cause.** A colour or background depends on an expression, a gradient, an image or a theme the compiler cannot see, so its contrast was not checked (A11Y-003).
+
+**Fix.** Check the contrast at run time, or use literal colours or theme tokens.
+
+### PLX-1410
+
+`A11Y_WAIVER_INVALID` · error · Accessibility waiver invalid
+
+**Cause.** An accessibility waiver names an unknown check or has a justification shorter than ten characters (A11Y-008).
+
+**Fix.** Name a known check and justify the waiver in at least ten characters.
+
+### PLX-1411
+
+`A11Y_WAIVER_PERMISSION_REQUIRED` · error · Accessibility waiver needs permission
+
+**Cause.** Under the maximum profile an accessibility waiver needs the `a11y.waive` permission of the saving principal (A11Y-008).
+
+**Fix.** Ask a principal with `a11y.waive` to save the waiver.
+
 ### PLX-1500
 
 `SECRET_LIKE_VALUE` · error · Secret-like value detected
@@ -2581,6 +2661,22 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 **Cause.** The server could not reach a service outside it that the call needs, such as the single sign-on provider.
 
 **Fix.** Retry later. If it persists, the operator checks the service and the server's outbound network.
+
+### PLX-8092
+
+`TRANSLATION_STATE_FORBIDDEN` · error · Translation state not allowed
+
+**Cause.** The save sets a message to approved, or changes the text of a message that stays approved, and the caller does not hold translations.approve (I18N-008).
+
+**Fix.** Ask a member who holds translations.approve to approve the message, or save it at another state; a changed text of a message without that permission is saved as translated.
+
+### PLX-8093
+
+`TRANSLATION_DOCUMENT_FORBIDDEN` · error · Document not editable with translations.edit
+
+**Cause.** A caller who holds translations.edit but not app.manage may save only the messages and states of an existing translations document (translations/<locale>.json); the save touches another document, another property, or creates the document (I18N-008).
+
+**Fix.** Save only messages and states of an existing translations document, or ask for app.manage.
 
 ## Studio, CLI and AI (PLX-9000–9999)
 

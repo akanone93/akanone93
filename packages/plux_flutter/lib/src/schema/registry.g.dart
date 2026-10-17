@@ -301,6 +301,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'mainAxisAlignment': 1, 'mainAxisSize': 2, 'crossAxisAlignment': 3, 'textDirection': 4, 'verticalDirection': 5, 'textBaseline': 6, 'spacing': 7},
   ),
   WidgetDescriptor(
+    'ConsentCheckbox',
+    171,
+    layer: 2,
+    revision: 1,
+    props: {'label': 1, 'documentVersion': 2, 'linkLabel': 3, 'value': 4},
+    events: {'onChanged': 1, 'onAccepted': 2, 'onLinkTap': 3},
+  ),
+  WidgetDescriptor(
     'ConstrainedBox',
     11,
     layer: 1,
@@ -476,6 +484,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'child': 1},
   ),
   WidgetDescriptor(
+    'FilterBar',
+    173,
+    layer: 2,
+    revision: 1,
+    props: {'filters': 1},
+    events: {'onToggle': 1},
+  ),
+  WidgetDescriptor(
     'FilterChip',
     60,
     layer: 1,
@@ -598,6 +614,15 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'alignment': 1, 'textDirection': 2, 'clipBehavior': 3, 'sizing': 4, 'index': 5},
   ),
   WidgetDescriptor(
+    'InfiniteList',
+    175,
+    layer: 2,
+    revision: 1,
+    props: {'items': 1, 'status': 2, 'hasMore': 3, 'padding': 4},
+    events: {'onEndReached': 1},
+    slots: {'item': 1, 'empty': 2, 'loading': 3, 'error': 4},
+  ),
+  WidgetDescriptor(
     'InkWell',
     90,
     layer: 1,
@@ -707,6 +732,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'message': 1, 'visible': 2},
   ),
   WidgetDescriptor(
+    'OnboardingPager',
+    177,
+    layer: 2,
+    revision: 1,
+    props: {'currentPage': 1, 'nextLabel': 2, 'doneLabel': 3},
+    events: {'onPageChanged': 1, 'onDone': 2},
+  ),
+  WidgetDescriptor(
     'Opacity',
     22,
     layer: 1,
@@ -764,6 +797,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'left': 1, 'top': 2, 'right': 3, 'bottom': 4, 'width': 5, 'height': 6},
     slots: {'child': 1},
+  ),
+  WidgetDescriptor(
+    'ProfileHeader',
+    179,
+    layer: 2,
+    revision: 1,
+    props: {'name': 1, 'subtitle': 2, 'avatar': 3, 'radius': 4},
+    slots: {'actions': 1},
   ),
   WidgetDescriptor(
     'Radio',
@@ -854,6 +895,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'leading': 1, 'trailing': 2},
   ),
   WidgetDescriptor(
+    'SearchField',
+    172,
+    layer: 2,
+    revision: 1,
+    props: {'value': 1, 'hint': 2, 'debounceMs': 3, 'suggestions': 4},
+    events: {'onSearch': 1, 'onSuggestionSelected': 2},
+  ),
+  WidgetDescriptor(
     'SecurePinPad',
     105,
     layer: 2,
@@ -885,6 +934,13 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'data': 1, 'style': 2, 'textAlign': 3, 'textDirection': 4, 'showCursor': 5, 'autofocus': 6, 'minLines': 7, 'maxLines': 8, 'cursorWidth': 9, 'cursorHeight': 10, 'cursorRadius': 11, 'cursorColor': 12, 'selectionColor': 13, 'selectionHeightStyle': 14, 'selectionWidthStyle': 15, 'dragStartBehavior': 16, 'enableInteractiveSelection': 17, 'scrollPhysics': 18, 'semanticsLabel': 19, 'textWidthBasis': 20},
     events: {'onTap': 1},
+  ),
+  WidgetDescriptor(
+    'SettingsList',
+    178,
+    layer: 2,
+    revision: 1,
+    props: {'sections': 1},
   ),
   WidgetDescriptor(
     'SingleChildScrollView',
@@ -976,6 +1032,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'fallback': 1},
   ),
   WidgetDescriptor(
+    'SortSheet',
+    174,
+    layer: 2,
+    revision: 1,
+    props: {'title': 1, 'options': 2, 'selected': 3},
+    events: {'onSelected': 1},
+  ),
+  WidgetDescriptor(
     'Spacer',
     33,
     layer: 1,
@@ -988,6 +1052,13 @@ const List<WidgetDescriptor> widgetDescriptors = [
     layer: 1,
     revision: 1,
     props: {'alignment': 1, 'textDirection': 2, 'fit': 3, 'clipBehavior': 4},
+  ),
+  WidgetDescriptor(
+    'StatusTimeline',
+    180,
+    layer: 2,
+    revision: 1,
+    props: {'steps': 1},
   ),
   WidgetDescriptor(
     'Switch',
@@ -1079,6 +1150,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'width': 1, 'thickness': 2, 'indent': 3, 'endIndent': 4, 'color': 5, 'radius': 6},
   ),
   WidgetDescriptor(
+    'WizardForm',
+    176,
+    layer: 2,
+    revision: 1,
+    props: {'titles': 1, 'currentStep': 2, 'stepFields': 3, 'backLabel': 4, 'nextLabel': 5, 'submitLabel': 6},
+    events: {'onNext': 1, 'onBack': 2, 'onSubmit': 3},
+  ),
+  WidgetDescriptor(
     'Wrap',
     30,
     layer: 1,
@@ -1142,6 +1221,12 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     9,
     revision: 1,
     fields: {'textStyle': 1, 'backgroundColor': 2, 'foregroundColor': 3, 'overlayColor': 4, 'shadowColor': 5, 'surfaceTintColor': 6, 'elevation': 7, 'padding': 8, 'minimumSize': 9, 'fixedSize': 10, 'maximumSize': 11, 'iconColor': 12, 'iconSize': 13, 'iconAlignment': 14, 'side': 15, 'shape': 16, 'visualDensity': 17, 'tapTargetSize': 18, 'animationDuration': 19, 'enableFeedback': 20, 'alignment': 21},
+  ),
+  ValueTypeDescriptor(
+    'ChoiceItem',
+    62,
+    revision: 1,
+    fields: {'id': 1, 'label': 2, 'selected': 3},
   ),
   ValueTypeDescriptor(
     'Destination',
@@ -1252,6 +1337,12 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     fields: {'value': 1, 'format': 2},
   ),
   ValueTypeDescriptor(
+    'SettingsSection',
+    64,
+    revision: 1,
+    fields: {'title': 1, 'count': 2},
+  ),
+  ValueTypeDescriptor(
     'Shadow',
     22,
     revision: 1,
@@ -1286,6 +1377,12 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     26,
     revision: 1,
     fields: {'inherit': 1, 'color': 2, 'backgroundColor': 3, 'fontSize': 4, 'fontWeight': 5, 'fontStyle': 6, 'letterSpacing': 7, 'wordSpacing': 8, 'textBaseline': 9, 'height': 10, 'leadingDistribution': 11, 'locale': 12, 'shadows': 13, 'decoration': 14, 'decorationColor': 15, 'decorationStyle': 16, 'decorationThickness': 17, 'fontFamily': 18, 'fontFamilyFallback': 19, 'overflow': 20},
+  ),
+  ValueTypeDescriptor(
+    'TimelineStep',
+    63,
+    revision: 1,
+    fields: {'label': 1, 'detail': 2, 'state': 3},
   ),
   ValueTypeDescriptor(
     'WidgetStateBorderSide',
@@ -1788,6 +1885,12 @@ const List<EnumDescriptor> enumDescriptors = [
     62,
     revision: 1,
     values: {'clamp': 1, 'repeated': 2, 'mirror': 3, 'decal': 4},
+  ),
+  EnumDescriptor(
+    'TimelineStepState',
+    125,
+    revision: 1,
+    values: {'done': 1, 'current': 2, 'pending': 3, 'failed': 4},
   ),
   EnumDescriptor(
     'TooltipTriggerMode',

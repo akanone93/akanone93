@@ -45,15 +45,27 @@ const (
 	// environment. It is the stand-in for the approval engine until P9
 	// (FN-007), so it requires a second factor.
 	FunctionDeployProduction Permission = "function.deploy.production"
+	// TranslationsEdit saves the messages and states of translations
+	// documents, under the per-locale lock (I18N-008).
+	TranslationsEdit Permission = "translations.edit"
+	// TranslationsApprove sets or keeps a translated message at the
+	// approved state (I18N-008). It requires a second factor.
+	TranslationsApprove Permission = "translations.approve"
+	// A11yWaive waives an accessibility finding (ADR-0069). It requires
+	// a second factor.
+	A11yWaive Permission = "a11y.waive"
+	// GoldensApprove approves a golden-image change (ADR-0069). It
+	// requires a second factor.
+	GoldensApprove Permission = "goldens.approve"
 )
 
 // permissions is the catalogue, sorted.
 var permissions = []Permission{
-	AppManage, AppRead, AuditRead, EnvironmentManage, FunctionDeploy,
-	FunctionDeployProduction, FunctionRead, KeysManage, LimitsManage,
+	A11yWaive, AppManage, AppRead, AuditRead, EnvironmentManage, FunctionDeploy,
+	FunctionDeployProduction, FunctionRead, GoldensApprove, KeysManage, LimitsManage,
 	MembersManage, OrganizationManage, OrganizationRead, PluginEdit,
 	PluginLockOverride, PluginRead, ReleasePromote, ReleasePublish,
-	SecretsManage, TokensManage, TrashManage,
+	SecretsManage, TokensManage, TranslationsApprove, TranslationsEdit, TrashManage,
 }
 
 // Permissions returns the catalogue, in order.
@@ -62,9 +74,10 @@ func Permissions() []Permission { return slices.Clone(permissions) }
 // appPermissions are the permissions that make sense on one app; an
 // app-level grant carries only these, whatever its role (GOV-001).
 var appPermissions = []Permission{
-	AppManage, AppRead, EnvironmentManage, FunctionDeploy, FunctionDeployProduction,
-	FunctionRead, PluginEdit, PluginLockOverride, PluginRead, ReleasePromote,
-	ReleasePublish, SecretsManage, TrashManage,
+	A11yWaive, AppManage, AppRead, EnvironmentManage, FunctionDeploy, FunctionDeployProduction,
+	FunctionRead, GoldensApprove, PluginEdit, PluginLockOverride, PluginRead,
+	ReleasePromote, ReleasePublish, SecretsManage, TrashManage,
+	TranslationsApprove, TranslationsEdit,
 }
 
 // Role is a named set of permissions. P2 defines the four roles a
@@ -83,6 +96,9 @@ const (
 	RoleDeveloper Role = "developer"
 	// RoleViewer may read.
 	RoleViewer Role = "viewer"
+	// RoleTranslator may read and edit translations, and nothing else
+	// (I18N-008).
+	RoleTranslator Role = "translator"
 )
 
 // grants maps each role to the permissions it holds. A role holds
@@ -94,10 +110,14 @@ var grants = map[Role][]Permission{
 		FunctionDeployProduction, FunctionRead, LimitsManage,
 		OrganizationManage, OrganizationRead, PluginEdit, PluginLockOverride,
 		PluginRead, ReleasePromote, ReleasePublish, SecretsManage, TokensManage,
-		TrashManage,
+		TrashManage, A11yWaive, GoldensApprove, TranslationsApprove, TranslationsEdit,
 	},
-	RoleDeveloper: {AppRead, FunctionDeploy, FunctionRead, OrganizationRead, PluginEdit, PluginRead, ReleasePublish},
-	RoleViewer:    {AppRead, FunctionRead, OrganizationRead, PluginRead},
+	RoleDeveloper: {
+		AppRead, FunctionDeploy, FunctionRead, OrganizationRead, PluginEdit,
+		PluginRead, ReleasePublish, TranslationsEdit,
+	},
+	RoleViewer:     {AppRead, FunctionRead, OrganizationRead, PluginRead},
+	RoleTranslator: {AppRead, OrganizationRead, PluginRead, TranslationsEdit},
 }
 
 // Roles returns every role, in order.
@@ -114,7 +134,7 @@ func Roles() []Role {
 func ParseRole(s string) (Role, error) {
 	r := Role(s)
 	if _, ok := grants[r]; !ok {
-		return "", plxerr.New(plxerr.InvalidEnumValue, "%q is not a role; the roles are owner, admin, developer and viewer", s)
+		return "", plxerr.New(plxerr.InvalidEnumValue, "%q is not a role; the roles are owner, admin, developer, translator and viewer", s)
 	}
 	return r, nil
 }
@@ -129,7 +149,8 @@ func RolePermissions(r Role) []Permission { return slices.Clone(grants[r]) }
 // a function to production is the stand-in for an approval until P9
 // (FN-007).
 var stepUp = []Permission{
-	FunctionDeployProduction, KeysManage, MembersManage, ReleasePromote, ReleasePublish, SecretsManage, TokensManage,
+	A11yWaive, FunctionDeployProduction, GoldensApprove, KeysManage, MembersManage,
+	ReleasePromote, ReleasePublish, SecretsManage, TokensManage, TranslationsApprove,
 }
 
 // NeedsSecondFactor reports whether a permission may be used only after

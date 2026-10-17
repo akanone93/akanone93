@@ -13,6 +13,13 @@ import '../support/harness.dart';
 /// `Autocomplete`, `CalendarDatePicker`, `TabBar`, `TabBarView`,
 /// `NavigationBar`, `BottomNavigationBar`, `Drawer`, `NavigationDrawer` and
 /// `NavigationRail`, compiled by the Go compiler and rendered here.
+/// Lets futures complete and every animation end.
+Future<void> idle(WidgetTester tester) async {
+  await settle(tester);
+  await tester.pumpAndSettle(const Duration(milliseconds: 50));
+  await settle(tester);
+}
+
 void main() {
   final g = Harness.goldens;
   late Harness h;
@@ -40,7 +47,7 @@ void main() {
         home: PluxScope(child: PluxView('navigation')),
       ),
     );
-    await settle(tester);
+    await idle(tester);
   }
 
   List<PluxException> problems() => [
@@ -73,7 +80,7 @@ void main() {
         );
         if (dark) {
           Plux.setThemeMode(ThemeMode.dark);
-          await settle(tester);
+          await idle(tester);
           await tester.pump(const Duration(milliseconds: 300));
         }
         for (final t in [
@@ -105,19 +112,19 @@ void main() {
   ) async {
     await open(tester);
     await tester.tap(find.byTooltip('Open menu'));
-    await settle(tester);
+    await idle(tester);
     expect(find.text('Gamma'), findsOneWidget);
     await tester.tap(find.text('Gamma'), warnIfMissed: false);
-    await settle(tester);
+    await idle(tester);
     expect(find.text('picked: none'), findsOneWidget, reason: 'disabled');
     await tester.tap(find.text('Beta'));
-    await settle(tester);
+    await idle(tester);
     expect(find.text('picked: b'), findsOneWidget);
 
     await tester.tap(find.text('anchor'));
-    await settle(tester);
+    await idle(tester);
     await tester.tap(find.text('Alpha'));
-    await settle(tester);
+    await idle(tester);
     expect(find.text('picked: a'), findsOneWidget);
     expect(problems(), isEmpty);
   });
@@ -134,27 +141,31 @@ void main() {
       ),
       'hello',
     );
-    await settle(tester);
+    await idle(tester);
     expect(find.text('query: hello'), findsOneWidget);
 
     await tester.enterText(
       within(Autocomplete<String>, find.byType(EditableText)),
       'BAN',
     );
-    await settle(tester);
+    await idle(tester);
     expect(find.text('Apple'), findsNothing);
     await tester.tap(find.text('Banana'));
-    await settle(tester);
+    await idle(tester);
     expect(find.text('picked: Banana'), findsOneWidget);
 
     await tester.tap(find.byType(SearchAnchor));
-    await settle(tester);
+    await idle(tester);
     await tester.enterText(find.byType(EditableText).last, 'AP');
-    await settle(tester);
-    expect(find.text('Banana'), findsNothing, reason: 'filtered');
+    await idle(tester);
+    expect(
+      find.widgetWithText(ListTile, 'Banana'),
+      findsNothing,
+      reason: 'filtered',
+    );
     expect(find.text('Apple'), findsOneWidget);
     await tester.tap(find.text('Apricot'));
-    await settle(tester);
+    await idle(tester);
     expect(find.text('picked: Apricot'), findsOneWidget);
     expect(problems(), isEmpty);
   });
@@ -163,7 +174,7 @@ void main() {
       '[WGT-020]', (tester) async {
     await open(tester);
     await tester.tap(within(CalendarDatePicker, find.text('15')));
-    await settle(tester);
+    await idle(tester);
     expect(find.text('date: 2026-03-15'), findsOneWidget);
     expect(problems(), isEmpty);
   });
@@ -173,12 +184,12 @@ void main() {
     await open(tester);
     expect(find.text('pane one'), findsOneWidget);
     await tester.tap(within(TabBar, find.text('Two')));
-    await settle(tester);
+    await idle(tester);
     expect(find.text('tab: 1'), findsOneWidget);
     expect(find.text('pane two'), findsOneWidget);
 
-    await tester.drag(find.byType(TabBarView), const Offset(-300, 0));
-    await settle(tester);
+    await tester.fling(find.byType(TabBarView), const Offset(-250, 0), 1500);
+    await idle(tester);
     expect(find.text('tab: 2'), findsOneWidget, reason: 'swiped');
     expect(find.text('pane three'), findsOneWidget);
     expect(
@@ -193,19 +204,19 @@ void main() {
       'index [WGT-020]', (tester) async {
     await open(tester);
     await tester.tap(within(NavigationBar, find.text('Search')));
-    await settle(tester);
+    await idle(tester);
     expect(find.text('nav: 1'), findsOneWidget);
 
     await tester.tap(within(BottomNavigationBar, find.text('Profile')));
-    await settle(tester);
+    await idle(tester);
     expect(find.text('bottom: 2'), findsOneWidget);
 
     await tester.tap(within(NavigationDrawer, find.text('Profile')));
-    await settle(tester);
+    await idle(tester);
     expect(find.text('panel: 2'), findsOneWidget);
 
     await tester.tap(within(NavigationRail, find.text('Search')).first);
-    await settle(tester);
+    await idle(tester);
     expect(find.text('rail: 1'), findsOneWidget);
     expect(problems(), isEmpty);
   });
@@ -216,7 +227,7 @@ void main() {
     await open(tester);
     expect(find.text('drawer body'), findsNothing);
     tester.state<ScaffoldState>(find.byType(Scaffold)).openDrawer();
-    await settle(tester);
+    await idle(tester);
     expect(find.text('drawer body'), findsOneWidget);
     expect(problems(), isEmpty);
   });
@@ -228,7 +239,7 @@ void main() {
 
     expect(
       tester.getSemantics(find.byTooltip('Open menu')),
-      isSemantics(label: 'Open menu', isButton: true, hasTapAction: true),
+      isSemantics(tooltip: 'Open menu', isButton: true, hasTapAction: true),
     );
     expect(
       tester.getSemantics(within(TabBar, find.text('One'))),

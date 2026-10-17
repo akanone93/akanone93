@@ -1,0 +1,31 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "TimelineStepState",
+  "id": 125,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "Where a StatusTimeline step stands.",
+  "values": [
+    {
+      "name": "done",
+      "id": 1
+    },
+    {
+      "name": "current",
+      "id": 2
+    },
+    {
+      "name": "pending",
+      "id": 3
+    },
+    {
+      "name": "failed",
+      "id": 4
+    }
+  ]
+}

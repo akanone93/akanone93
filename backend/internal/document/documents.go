@@ -300,6 +300,17 @@ func (s *Service) writeThen(ctx context.Context, p auth.Principal, appID, plugin
 	build func(context.Context, *dbgen.Queries, draft, limits.Set) ([]change, plxerr.Diagnostics, error),
 	then func(context.Context, pgx.Tx, *dbgen.Queries, draft) error,
 ) (Written, error) {
+	return s.writeScoped(ctx, p, appID, pluginID, session, "", reason, build, then)
+}
+
+// writeScoped is writeThen for a write that may also be made under a
+// narrower lock: scope, when not empty, is the lock of one locale's
+// translations, which a caller holding translations.edit takes instead of
+// the draft's lock and app.manage (I18N-008).
+func (s *Service) writeScoped(ctx context.Context, p auth.Principal, appID, pluginID, session, scope, reason string,
+	build func(context.Context, *dbgen.Queries, draft, limits.Set) ([]change, plxerr.Diagnostics, error),
+	then func(context.Context, pgx.Tx, *dbgen.Queries, draft) error,
+) (Written, error) {
 	if err := checkSession(session); err != nil {
 		return Written{}, err
 	}
@@ -313,7 +324,7 @@ func (s *Service) writeThen(ctx context.Context, p auth.Principal, appID, plugin
 		if err != nil {
 			return err
 		}
-		if err := authorize(p, d.editPermission(), appID); err != nil {
+		if err := authorize(p, d.lockPermission(p, scope), appID); err != nil {
 			return err
 		}
 		if _, err := q.GetDraftForUpdate(ctx, d.row.ID); err != nil {
@@ -327,7 +338,7 @@ func (s *Service) writeThen(ctx context.Context, p auth.Principal, appID, plugin
 		if err != nil {
 			return err
 		}
-		out, lockError, err = s.commit(ctx, tx, q, d, p, session, reason, changes, then)
+		out, lockError, err = s.commit(ctx, tx, q, d, p, session, lockScopes(p, d, scope), reason, changes, then)
 		out.Diagnostics = diags
 		return err
 	})
@@ -343,7 +354,7 @@ func (s *Service) writeThen(ctx context.Context, p auth.Principal, appID, plugin
 // commit applies prepared changes under the draft's lock, or preserves
 // them for a displaced session, and runs the step after. lockError is
 // the refusal a preserved write returns once its transaction commits.
-func (s *Service) commit(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d draft, p auth.Principal, session, reason string,
+func (s *Service) commit(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d draft, p auth.Principal, session string, scopes []string, reason string,
 	changes []change, then func(context.Context, pgx.Tx, *dbgen.Queries, draft) error,
 ) (out Written, lockError, err error) {
 	if len(changes) == 0 {
@@ -351,13 +362,13 @@ func (s *Service) commit(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d dra
 		if then == nil {
 			return Written{}, nil, nil
 		}
-		if err := s.holds(ctx, q, d, p, session); err != nil {
+		if err := s.holdsAny(ctx, q, d, p, session, scopes); err != nil {
 			return Written{}, nil, err
 		}
 		return Written{}, nil, then(ctx, tx, q, d)
 	}
-	if lockErr := s.holds(ctx, q, d, p, session); lockErr != nil {
-		displaced, err := s.displaced(ctx, q, d, p, session)
+	if lockErr := s.holdsAny(ctx, q, d, p, session, scopes); lockErr != nil {
+		displaced, err := s.displaced(ctx, q, d, p, session, scopes)
 		if err != nil || !displaced {
 			return Written{}, nil, lockErr
 		}
@@ -370,16 +381,52 @@ func (s *Service) commit(ctx context.Context, tx pgx.Tx, q *dbgen.Queries, d dra
 	return out, nil, then(ctx, tx, q, d)
 }
 
-// displaced reports whether a session is the one a takeover displaced.
-func (*Service) displaced(ctx context.Context, q *dbgen.Queries, d draft, p auth.Principal, session string) (bool, error) {
-	row, err := q.GetLock(ctx, d.row.ID)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return false, nil
+// lockScopes lists the locks that let a principal write: the draft's own,
+// and for a translations document its locale's. A caller who cannot manage
+// the app writes translations under the locale's lock only.
+func lockScopes(p auth.Principal, d draft, scope string) []string {
+	switch {
+	case scope == "":
+		return []string{""}
+	case p.HoldsOnApp(auth.AppManage, d.app):
+		return []string{"", scope}
+	default:
+		return []string{scope}
 	}
-	if err != nil {
-		return false, fmt.Errorf("document: read the lock: %w", err)
+}
+
+// holdsAny refuses a principal and session that hold none of the locks;
+// the refusal is that of the first.
+func (s *Service) holdsAny(ctx context.Context, q *dbgen.Queries, d draft, p auth.Principal, session string, scopes []string) error {
+	var first error
+	for _, scope := range scopes {
+		err := s.holds(ctx, q, d, p, session, scope)
+		if err == nil {
+			return nil
+		}
+		if first == nil {
+			first = err
+		}
 	}
-	return row.PreviousSession == session && row.PreviousHolder == p.ID, nil
+	return first
+}
+
+// displaced reports whether a session is the one a takeover displaced
+// from one of the locks.
+func (*Service) displaced(ctx context.Context, q *dbgen.Queries, d draft, p auth.Principal, session string, scopes []string) (bool, error) {
+	for _, scope := range scopes {
+		row, err := getLock(ctx, q, d, scope, false)
+		if errors.Is(err, pgx.ErrNoRows) {
+			continue
+		}
+		if err != nil {
+			return false, fmt.Errorf("document: read the lock: %w", err)
+		}
+		if row.PreviousSession == session && row.PreviousHolder == p.ID {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 // preserve keeps the work of a displaced holder as a snapshot that is
@@ -408,11 +455,28 @@ func (s *Service) preserve(ctx context.Context, q *dbgen.Queries, d draft, p aut
 
 // PutDocument writes a document whole (SRV-030).
 func (s *Service) PutDocument(ctx context.Context, p auth.Principal, appID, pluginID, session, path string, content []byte, ifRevision int64) (Written, error) {
-	return s.write(ctx, p, appID, pluginID, session, reasonWrite,
-		func(_ context.Context, _ *dbgen.Queries, d draft, lim limits.Set) ([]change, plxerr.Diagnostics, error) {
+	if err := guardTranslator(p, appID, pluginID, path, true); err != nil {
+		return Written{}, err
+	}
+	scope := translationsScope(pluginID, path)
+	return s.writeScoped(ctx, p, appID, pluginID, session, scope, reasonWrite,
+		func(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set) ([]change, plxerr.Diagnostics, error) {
 			c, diags, err := s.prepare(d, lim, path, content, ifRevision)
+			if err == nil && scope != "" {
+				c, err = s.reviewTranslations(ctx, q, d, p, lim, c)
+			}
 			return []change{c}, diags, err
-		})
+		}, nil)
+}
+
+// translationsScope is the lock scope a save of a document may be made
+// under besides the draft's own: that of its locale, for a translations
+// document of the app.
+func translationsScope(pluginID, path string) string {
+	if pluginID != "" {
+		return ""
+	}
+	return scopeOf(path)
 }
 
 // PatchDocument applies an RFC 6902 patch to a document, which is what
@@ -422,7 +486,11 @@ func (s *Service) PatchDocument(ctx context.Context, p auth.Principal, appID, pl
 	if ifRevision <= 0 {
 		return Written{}, plxerr.New(plxerr.MissingProperty, "a patch names the revision it applies to")
 	}
-	return s.write(ctx, p, appID, pluginID, session, reasonWrite,
+	if err := guardTranslator(p, appID, pluginID, path, true); err != nil {
+		return Written{}, err
+	}
+	scope := translationsScope(pluginID, path)
+	return s.writeScoped(ctx, p, appID, pluginID, session, scope, reasonWrite,
 		func(ctx context.Context, q *dbgen.Queries, d draft, lim limits.Set) ([]change, plxerr.Diagnostics, error) {
 			row, err := q.GetDocument(ctx, dbgen.GetDocumentParams{DraftID: d.row.ID, Path: path})
 			if err != nil {
@@ -445,14 +513,20 @@ func (s *Service) PatchDocument(ctx context.Context, p auth.Principal, appID, pl
 				return nil, nil, plxerr.Wrap(plxerr.InvalidStructure, err, "the patched document is not JSON")
 			}
 			c, diags, err := s.prepare(d, lim, path, data, ifRevision)
+			if err == nil && scope != "" {
+				c, err = s.reviewTranslations(ctx, q, d, p, lim, c)
+			}
 			return []change{c}, diags, err
-		})
+		}, nil)
 }
 
 // DeleteDocument deletes a document; a page goes to the trash (GOV-031).
 func (s *Service) DeleteDocument(ctx context.Context, p auth.Principal, appID, pluginID, session, path string, ifRevision int64) (Written, error) {
 	if ifRevision <= 0 {
 		return Written{}, plxerr.New(plxerr.MissingProperty, "a delete names the revision it read")
+	}
+	if err := guardTranslator(p, appID, pluginID, path, false); err != nil {
+		return Written{}, err
 	}
 	return s.write(ctx, p, appID, pluginID, session, reasonDelete,
 		func(_ context.Context, _ *dbgen.Queries, d draft, _ limits.Set) ([]change, plxerr.Diagnostics, error) {

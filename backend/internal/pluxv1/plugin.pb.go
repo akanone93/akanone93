@@ -139,7 +139,10 @@ type Lock struct {
 	AcquiredAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=acquired_at,json=acquiredAt,proto3" json:"acquired_at,omitempty"`
 	ExpiresAt  *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	// requested_by lists users who asked for the lock since it was taken.
-	RequestedBy   []*Actor `protobuf:"bytes,7,rep,name=requested_by,json=requestedBy,proto3" json:"requested_by,omitempty"`
+	RequestedBy []*Actor `protobuf:"bytes,7,rep,name=requested_by,json=requestedBy,proto3" json:"requested_by,omitempty"`
+	// scope is empty for the draft's own lock and "translations/<locale>" for
+	// the lock of one locale's translations document (I18N-008).
+	Scope         string `protobuf:"bytes,8,opt,name=scope,proto3" json:"scope,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -221,6 +224,13 @@ func (x *Lock) GetRequestedBy() []*Actor {
 		return x.RequestedBy
 	}
 	return nil
+}
+
+func (x *Lock) GetScope() string {
+	if x != nil {
+		return x.Scope
+	}
+	return ""
 }
 
 type CreatePluginRequest struct {
@@ -710,7 +720,10 @@ type AcquireLockRequest struct {
 	Session  string                 `protobuf:"bytes,3,opt,name=session,proto3" json:"session,omitempty"`
 	// force takes the lock from its holder; it needs plugin.lock.override,
 	// snapshots the holder's unsaved work and is audited (SRV-041).
-	Force         bool `protobuf:"varint,4,opt,name=force,proto3" json:"force,omitempty"`
+	Force bool `protobuf:"varint,4,opt,name=force,proto3" json:"force,omitempty"`
+	// scope names a locale lock, "translations/<locale>"; empty is the draft
+	// lock (I18N-008).
+	Scope         string `protobuf:"bytes,5,opt,name=scope,proto3" json:"scope,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -773,6 +786,13 @@ func (x *AcquireLockRequest) GetForce() bool {
 	return false
 }
 
+func (x *AcquireLockRequest) GetScope() string {
+	if x != nil {
+		return x.Scope
+	}
+	return ""
+}
+
 type AcquireLockResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Lock  *Lock                  `protobuf:"bytes,1,opt,name=lock,proto3" json:"lock,omitempty"`
@@ -827,10 +847,12 @@ func (x *AcquireLockResponse) GetPreservedSnapshotId() string {
 }
 
 type RenewLockRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	PluginId      string                 `protobuf:"bytes,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
-	Session       string                 `protobuf:"bytes,3,opt,name=session,proto3" json:"session,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	AppId    string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	PluginId string                 `protobuf:"bytes,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
+	Session  string                 `protobuf:"bytes,3,opt,name=session,proto3" json:"session,omitempty"`
+	// scope is as in AcquireLockRequest.
+	Scope         string `protobuf:"bytes,4,opt,name=scope,proto3" json:"scope,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -886,6 +908,13 @@ func (x *RenewLockRequest) GetSession() string {
 	return ""
 }
 
+func (x *RenewLockRequest) GetScope() string {
+	if x != nil {
+		return x.Scope
+	}
+	return ""
+}
+
 type RenewLockResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Lock          *Lock                  `protobuf:"bytes,1,opt,name=lock,proto3" json:"lock,omitempty"`
@@ -931,10 +960,12 @@ func (x *RenewLockResponse) GetLock() *Lock {
 }
 
 type ReleaseLockRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	PluginId      string                 `protobuf:"bytes,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
-	Session       string                 `protobuf:"bytes,3,opt,name=session,proto3" json:"session,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	AppId    string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	PluginId string                 `protobuf:"bytes,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
+	Session  string                 `protobuf:"bytes,3,opt,name=session,proto3" json:"session,omitempty"`
+	// scope is as in AcquireLockRequest.
+	Scope         string `protobuf:"bytes,4,opt,name=scope,proto3" json:"scope,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -990,6 +1021,13 @@ func (x *ReleaseLockRequest) GetSession() string {
 	return ""
 }
 
+func (x *ReleaseLockRequest) GetScope() string {
+	if x != nil {
+		return x.Scope
+	}
+	return ""
+}
+
 type ReleaseLockResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1027,9 +1065,11 @@ func (*ReleaseLockResponse) Descriptor() ([]byte, []int) {
 }
 
 type RequestLockRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	PluginId      string                 `protobuf:"bytes,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	AppId    string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	PluginId string                 `protobuf:"bytes,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
+	// scope is as in AcquireLockRequest.
+	Scope         string `protobuf:"bytes,3,opt,name=scope,proto3" json:"scope,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1074,6 +1114,13 @@ func (x *RequestLockRequest) GetAppId() string {
 func (x *RequestLockRequest) GetPluginId() string {
 	if x != nil {
 		return x.PluginId
+	}
+	return ""
+}
+
+func (x *RequestLockRequest) GetScope() string {
+	if x != nil {
+		return x.Scope
 	}
 	return ""
 }
@@ -1123,9 +1170,11 @@ func (x *RequestLockResponse) GetLock() *Lock {
 }
 
 type GetLockRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	PluginId      string                 `protobuf:"bytes,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	AppId    string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	PluginId string                 `protobuf:"bytes,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`
+	// scope is as in AcquireLockRequest.
+	Scope         string `protobuf:"bytes,3,opt,name=scope,proto3" json:"scope,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1170,6 +1219,13 @@ func (x *GetLockRequest) GetAppId() string {
 func (x *GetLockRequest) GetPluginId() string {
 	if x != nil {
 		return x.PluginId
+	}
+	return ""
+}
+
+func (x *GetLockRequest) GetScope() string {
+	if x != nil {
+		return x.Scope
 	}
 	return ""
 }
@@ -1425,7 +1481,7 @@ const file_plux_v1_plugin_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xa7\x02\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xbd\x02\n" +
 	"\x04Lock\x12\x1b\n" +
 	"\tplugin_id\x18\x01 \x01(\tR\bpluginId\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12&\n" +
@@ -1435,7 +1491,8 @@ const file_plux_v1_plugin_proto_rawDesc = "" +
 	"acquiredAt\x129\n" +
 	"\n" +
 	"expires_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x121\n" +
-	"\frequested_by\x18\a \x03(\v2\x0e.plux.v1.ActorR\vrequestedBy\"R\n" +
+	"\frequested_by\x18\a \x03(\v2\x0e.plux.v1.ActorR\vrequestedBy\x12\x14\n" +
+	"\x05scope\x18\b \x01(\tR\x05scope\"R\n" +
 	"\x13CreatePluginRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x10\n" +
 	"\x03key\x18\x02 \x01(\tR\x03key\x12\x12\n" +
@@ -1460,34 +1517,39 @@ const file_plux_v1_plugin_proto_rawDesc = "" +
 	"\x13DeletePluginRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"@\n" +
 	"\x14DeletePluginResponse\x12(\n" +
-	"\x05trash\x18\x01 \x01(\v2\x12.plux.v1.TrashItemR\x05trash\"x\n" +
+	"\x05trash\x18\x01 \x01(\v2\x12.plux.v1.TrashItemR\x05trash\"\x8e\x01\n" +
 	"\x12AcquireLockRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
 	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12\x18\n" +
 	"\asession\x18\x03 \x01(\tR\asession\x12\x14\n" +
-	"\x05force\x18\x04 \x01(\bR\x05force\"l\n" +
+	"\x05force\x18\x04 \x01(\bR\x05force\x12\x14\n" +
+	"\x05scope\x18\x05 \x01(\tR\x05scope\"l\n" +
 	"\x13AcquireLockResponse\x12!\n" +
 	"\x04lock\x18\x01 \x01(\v2\r.plux.v1.LockR\x04lock\x122\n" +
-	"\x15preserved_snapshot_id\x18\x02 \x01(\tR\x13preservedSnapshotId\"`\n" +
+	"\x15preserved_snapshot_id\x18\x02 \x01(\tR\x13preservedSnapshotId\"v\n" +
 	"\x10RenewLockRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
 	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12\x18\n" +
-	"\asession\x18\x03 \x01(\tR\asession\"6\n" +
+	"\asession\x18\x03 \x01(\tR\asession\x12\x14\n" +
+	"\x05scope\x18\x04 \x01(\tR\x05scope\"6\n" +
 	"\x11RenewLockResponse\x12!\n" +
-	"\x04lock\x18\x01 \x01(\v2\r.plux.v1.LockR\x04lock\"b\n" +
+	"\x04lock\x18\x01 \x01(\v2\r.plux.v1.LockR\x04lock\"x\n" +
 	"\x12ReleaseLockRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
 	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12\x18\n" +
-	"\asession\x18\x03 \x01(\tR\asession\"\x15\n" +
-	"\x13ReleaseLockResponse\"H\n" +
+	"\asession\x18\x03 \x01(\tR\asession\x12\x14\n" +
+	"\x05scope\x18\x04 \x01(\tR\x05scope\"\x15\n" +
+	"\x13ReleaseLockResponse\"^\n" +
 	"\x12RequestLockRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
-	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\"8\n" +
+	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12\x14\n" +
+	"\x05scope\x18\x03 \x01(\tR\x05scope\"8\n" +
 	"\x13RequestLockResponse\x12!\n" +
-	"\x04lock\x18\x01 \x01(\v2\r.plux.v1.LockR\x04lock\"D\n" +
+	"\x04lock\x18\x01 \x01(\v2\r.plux.v1.LockR\x04lock\"Z\n" +
 	"\x0eGetLockRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
-	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\"4\n" +
+	"\tplugin_id\x18\x02 \x01(\tR\bpluginId\x12\x14\n" +
+	"\x05scope\x18\x03 \x01(\tR\x05scope\"4\n" +
 	"\x0fGetLockResponse\x12!\n" +
 	"\x04lock\x18\x01 \x01(\v2\r.plux.v1.LockR\x04lock\"6\n" +
 	"\x17ListPluginLimitsRequest\x12\x1b\n" +
