@@ -16,7 +16,10 @@ import 'dart:isolate';
 import 'dart:typed_data';
 import 'dart:ui' show Locale, PlatformDispatcher, TextDirection;
 
+import 'package:flutter/widgets.dart'
+    show WidgetsBinding, WidgetsBindingObserver;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/l10n/cldr_index.dart';
 import 'package:plux_flutter/src/l10n/l10n.dart';
@@ -101,13 +104,23 @@ final class AppLocalisation {
   final Set<String> nativeDigits;
 }
 
-/// The `localisation` settings of the active release. The bundle's meta
-/// section does not carry them yet, so the runtime shows the Gregorian
-/// calendar and Latin digits until it does; this provider is the seam.
-final appLocalisationProvider = Provider<AppLocalisation>(
-  (ref) => const AppLocalisation(),
-  dependencies: const [],
-);
+/// The `localisation` settings of the active release's app meta
+/// (I18N-010, I18N-011); the Gregorian calendar and Latin digits without
+/// a release or where the bundle says nothing.
+final appLocalisationProvider = Provider<AppLocalisation>((ref) {
+  final r = ref.watch(activeReleaseProvider);
+  final l = r?.meta('').localisation;
+  if (l == null) return const AppLocalisation();
+  final second = l.secondaryCalendar;
+  return AppLocalisation(
+    calendar: (l.calendar ?? '').isEmpty ? 'gregorian' : l.calendar!,
+    secondaryCalendar: second == null || second.isEmpty ? null : second,
+    nativeDigits: {
+      for (final n in l.numberingSystems ?? const <fbs.NumberingSystemEntry>[])
+        if (n.system == 'native' && (n.locale ?? '').isNotEmpty) n.locale!,
+    },
+  );
+}, dependencies: [activeReleaseProvider]);
 
 /// The release's locale description; null until a release is active.
 final localeReleaseProvider = Provider<LocaleRelease?>((ref) {
@@ -341,6 +354,26 @@ _Parsed _build(_Decoded d) {
   );
 }
 
+/// The widgets binding, or null where none is initialised (a pure-Dart
+/// test of the controller).
+WidgetsBinding? _binding() {
+  try {
+    return WidgetsBinding.instance;
+  } on Object {
+    return null;
+  }
+}
+
+/// Tells the controller that the host's locales changed.
+final class _HostLocaleObserver with WidgetsBindingObserver {
+  _HostLocaleObserver(this.changed);
+
+  final void Function() changed;
+
+  @override
+  void didChangeLocales(List<Locale>? locales) => changed();
+}
+
 /// Holds the effective locale of Plux pages.
 final class LocaleController extends Notifier<PluxLocaleState> {
   final Map<(Object, String), _Parsed> _parsed = {};
@@ -352,7 +385,17 @@ final class LocaleController extends Notifier<PluxLocaleState> {
   PluxLocaleState build() {
     final env = ref.watch(environmentProvider);
     final release = ref.watch(localeReleaseProvider);
-    final requested = env.locale ?? PlatformDispatcher.instance.locale;
+    final binding = _binding();
+    final dispatcher =
+        binding?.platformDispatcher ?? PlatformDispatcher.instance;
+    if (env.locale == null && binding != null) {
+      // A locale that follows the host follows its changes (I18N-005).
+      final observer = _HostLocaleObserver(ref.invalidateSelf);
+      binding.addObserver(observer);
+      ref.onDispose(() => binding.removeObserver(observer));
+    }
+    final requested =
+        env.locale ?? dispatcher.locales.firstOrNull ?? dispatcher.locale;
     if (release == null) {
       return _last = PluxLocaleState.host(requested);
     }

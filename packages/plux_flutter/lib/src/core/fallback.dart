@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:plux_flutter/src/core/config.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
-import 'package:plux_flutter/src/l10n/runtime_strings.dart';
+import 'package:plux_flutter/src/l10n/locale_host.dart';
 
 /// Builds the fallback for [error] in content of [plugin] (null: not tied
 /// to one plugin, such as a route no plugin has): the most specific of
@@ -45,7 +45,7 @@ final class PluxDefaultFallback extends StatelessWidget {
     final scheme = theme.colorScheme;
     return Semantics(
       container: true,
-      label: RuntimeStrings.of(context)['plux.fallback.unavailable'],
+      label: effectiveRuntimeStrings(context)['plux.fallback.unavailable'],
       child: ColoredBox(
         color: scheme.surfaceContainerHighest,
         child: Center(

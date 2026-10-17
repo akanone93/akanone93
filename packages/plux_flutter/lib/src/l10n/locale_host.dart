@@ -11,6 +11,7 @@ library;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:plux_flutter/src/l10n/flutter_localizations.dart';
 import 'package:plux_flutter/src/l10n/locale_controller.dart';
 import 'package:plux_flutter/src/l10n/runtime_strings.dart';
@@ -109,4 +110,20 @@ final class _Delegate<T> extends LocalizationsDelegate<T> {
 
   @override
   bool shouldReload(covariant _Delegate<T> old) => old.strings != strings;
+}
+
+/// The runtime strings for UI built outside a Plux page (the not-found page,
+/// the error fallback; ACT-020, I18N-005): the strings of an enclosing
+/// scope, else those of the effective locale of the runtime's container,
+/// else English.
+RuntimeStrings effectiveRuntimeStrings(BuildContext context) {
+  final scope = context
+      .dependOnInheritedWidgetOfExactType<PluxRuntimeStringsScope>();
+  if (scope != null) return scope.strings;
+  try {
+    final container = ProviderScope.containerOf(context);
+    return container.read(localeControllerProvider).strings;
+  } on Object {
+    return RuntimeStrings.english;
+  }
 }
