@@ -275,6 +275,11 @@ type override struct {
 type semantics struct {
 	label, hint, value                   *value
 	header, button, liveRegion, excluded bool
+	// focusOrder is nil when the document sets none (A11Y-006).
+	focusOrder   *float32
+	group        bool
+	headingLevel uint8
+	decorative   bool
 }
 
 // handler is an event or lifecycle handler bound to a graph.

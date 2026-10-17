@@ -457,12 +457,12 @@ void main() {
     },
   );
 
-  test('the engine runs every action Appendix D tags up to P4, the P5 ones, the P6 ones delivered so far and invokeFunction of P7, and refuses the rest (ADR-0039)', () {
+  test('the engine runs every action Appendix D tags up to P4, the P5 ones, the P6 ones delivered so far and invokeFunction of P7, the accessibility ones of P8, and refuses the rest (ADR-0039)', () {
     for (final d in actionDescriptors) {
       final handler = handlerFor(d);
       if (runsInThisRuntime(d) || stateHandlers.containsKey(d.name)) {
         expect(handler, isNot(isA<RefusingHandler>()), reason: d.name);
-        expect(int.parse(d.phase.substring(1)), lessThanOrEqualTo(7));
+        expect(int.parse(d.phase.substring(1)), lessThanOrEqualTo(8));
       } else {
         expect(handler, isA<RefusingHandler>(), reason: d.name);
         expect(d.phase, isNot('P4'), reason: d.name);
@@ -474,6 +474,7 @@ void main() {
           if (runsInThisRuntime(d)) d.name,
       ]..sort(),
       [
+        'announce',
         'apiCall',
         'biometricAuth',
         'callFlow',
@@ -514,6 +515,7 @@ void main() {
         'resetState',
         'scanCode',
         'setState',
+        'setThemeMode',
         'share',
         'showSnackbar',
         'showToast',

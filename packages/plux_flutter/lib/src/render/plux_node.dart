@@ -32,11 +32,13 @@ import 'package:plux_flutter/src/render/builders/secure.dart'
     show isSensitiveEvent;
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
+import 'package:plux_flutter/src/render/min_target.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
 import 'package:plux_flutter/src/render/renderer.dart'
     show PluxRenderer, fromHost;
 import 'package:plux_flutter/src/render/scope.dart';
 import 'package:plux_flutter/src/render/sections.dart';
+import 'package:plux_flutter/src/render/semantics_wrap.dart';
 import 'package:plux_flutter/src/render/values.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
 import 'package:plux_flutter/src/secure/masking.dart';
@@ -45,8 +47,10 @@ import 'package:plux_flutter/src/state/scope_state.dart';
 
 /// Widgets whose output must be a direct child of their parent's render
 /// object (flex and stack parent data, slivers): they are never wrapped in
-/// semantics or repaint boundaries.
+/// semantics or repaint boundaries. Slivers carry their semantics in
+/// `SliverSemantics` instead (see [_slivers]).
 final Set<int> _unwrapped = {
+  ..._slivers,
   for (final d in widgetDescriptors)
     if (const {
       'Expanded',
@@ -54,6 +58,15 @@ final Set<int> _unwrapped = {
       'Spacer',
       'Positioned',
       'AnimatedPositioned',
+    }.contains(d.type))
+      d.id,
+};
+
+/// Widgets whose output is a sliver: a box `Semantics` around one breaks
+/// the viewport, so their semantics wrap in `SliverSemantics`.
+final Set<int> _slivers = {
+  for (final d in widgetDescriptors)
+    if (const {
       'SliverAppBar',
       'SliverFillRemaining',
       'SliverGrid',
@@ -170,9 +183,28 @@ final class NodeContextImpl implements NodeContext, MotionSource {
   Widget build({bool force = false}) {
     if (!force && !_visible(node)) return const SizedBox.shrink();
     final w = _content();
+    if (node.widget != 0 && _slivers.contains(node.widget)) {
+      return _decorateSliver(w);
+    }
     return node.widget != 0 && _unwrapped.contains(node.widget)
         ? w
         : _decorate(w);
+  }
+
+  /// A sliver's semantics and test ID, in `SliverSemantics`.
+  Widget _decorateSliver(Widget w) => wrapSliverSemantics(
+    w,
+    sem: node.semantics,
+    testId: _testId,
+    text: _semText,
+  );
+
+  String? get _testId =>
+      node.testId == 0 ? null : scope.section.string(node.testId);
+
+  String? _semText(fbs.Value? v) {
+    final r = v == null ? null : resolve(v);
+    return r is String ? r : null;
   }
 
   Widget _content() {
@@ -672,29 +704,14 @@ final class NodeContextImpl implements NodeContext, MotionSource {
 
   // ── Semantics and hints ──────────────────────────────────────────────────
 
-  Widget _decorate(Widget w) {
-    var out = w;
-    if (node.hints & 1 != 0) out = RepaintBoundary(child: out);
-    final sem = node.semantics;
-    final testId = node.testId == 0 ? null : scope.section.string(node.testId);
-    if (sem == null && testId == null) return out;
-    String? text(fbs.Value? v) {
-      final r = v == null ? null : resolve(v);
-      return r is String ? r : null;
-    }
-
-    if (sem != null && sem.exclude) out = ExcludeSemantics(child: out);
-    return Semantics(
-      identifier: testId,
-      label: text(sem?.label),
-      hint: text(sem?.hint),
-      value: text(sem?.value),
-      header: sem != null && sem.header ? true : null,
-      button: sem != null && sem.button ? true : null,
-      liveRegion: sem != null && sem.liveRegion ? true : null,
-      child: out,
-    );
-  }
+  Widget _decorate(Widget w) => wrapSemantics(
+    node.hints & 1 != 0 ? RepaintBoundary(child: w) : w,
+    sem: node.semantics,
+    direction: node.direction,
+    testId: _testId,
+    text: _semText,
+    minTarget: minTargetWidgets.contains(node.widget),
+  );
 
   // ── Native slots ─────────────────────────────────────────────────────────
 

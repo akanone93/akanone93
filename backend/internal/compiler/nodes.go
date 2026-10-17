@@ -310,6 +310,14 @@ func (u *unit) checkSemantics(n *node, sem *schema.Semantics, c vctx) *semantics
 	out := &semantics{
 		header: sem.Header != nil && *sem.Header, button: sem.Button != nil && *sem.Button,
 		liveRegion: sem.LiveRegion != nil && *sem.LiveRegion, excluded: sem.ExcludeSemantics != nil && *sem.ExcludeSemantics,
+		group: sem.Group != nil && *sem.Group, decorative: sem.Decorative != nil && *sem.Decorative,
+	}
+	if sem.FocusOrder != nil {
+		fo := float32(*sem.FocusOrder)
+		out.focusOrder = &fo
+	}
+	if sem.HeadingLevel != nil && *sem.HeadingLevel >= 1 && *sem.HeadingLevel <= 6 {
+		out.headingLevel = uint8(*sem.HeadingLevel) //nolint:gosec // G115: bounded to 1..6 above.
 	}
 	str := &texpr{name: "string"}
 	for _, f := range []struct {

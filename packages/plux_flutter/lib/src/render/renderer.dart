@@ -627,6 +627,11 @@ final class PluxRenderer implements PageRenderer, RenderServices {
             ThemeMode.system =>
               dispatcher.platformBrightness == Brightness.dark,
           },
+          reduceMotion: dispatcher.accessibilityFeatures.disableAnimations,
+          boldText: dispatcher.accessibilityFeatures.boldText,
+          highContrast: dispatcher.accessibilityFeatures.highContrast,
+          screenReader: dispatcher.accessibilityFeatures.accessibleNavigation,
+          textDirection: directionOfLocale(locale),
         ),
         'user': userRoot(release, env),
         'flags': flagsRoot(release),
@@ -1416,6 +1421,11 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       locale: locale,
       textScale: media?.textScaler.scale(1) ?? 1.0,
       dark: dark,
+      reduceMotion: media?.disableAnimations ?? false,
+      boldText: media?.boldText ?? false,
+      highContrast: media?.highContrast ?? false,
+      screenReader: media?.accessibleNavigation ?? false,
+      textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
     );
     Map<String, Object?> roots() => {
       _component ? 'props' : 'params': _params,
@@ -1450,6 +1460,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
         dark: dark,
         brand: env.brand,
         highContrast: tokens.highContrast,
+        boldText: media?.boldText ?? false,
       ),
       tokens,
       appResolver,
@@ -1500,7 +1511,11 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     Widget page = PluxBoundary(
       path: _path,
       fallback: (c, e) => widget.renderer.fallback(c, e, plugin),
-      child: RenderScopeWidget(scope: scope, child: const PluxNode(0)),
+      // One traversal group per page: focus order follows the nodes'
+      // `focusOrder` (A11Y-006).
+      child: FocusTraversalGroup(
+        child: RenderScopeWidget(scope: scope, child: const PluxNode(0)),
+      ),
     );
     final secureUi = widget.renderer.secureUi;
     if (secureUi != null) {
@@ -1535,6 +1550,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     bool dark,
     String? brand,
     bool highContrast,
+    bool boldText,
   })?
   _themeKey;
   PluxTheme? _theme;
@@ -1547,6 +1563,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       bool dark,
       String? brand,
       bool highContrast,
+      bool boldText,
     })
     key,
     TokenReader tokens,
@@ -1560,7 +1577,8 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
         old.source == key.source &&
         old.dark == key.dark &&
         old.brand == key.brand &&
-        old.highContrast == key.highContrast) {
+        old.highContrast == key.highContrast &&
+        old.boldText == key.boldText) {
       return have;
     }
     _themeKey = key;
@@ -1568,6 +1586,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       host: key.host,
       source: key.source,
       dark: key.dark,
+      boldText: key.boldText,
       tokens: (
         token: (path) => tokens.read(path, resolver),
         raw: (path) => tokens.raw(path, resolver),
@@ -1589,6 +1608,22 @@ PxlLimits _pxlLimits(Map<String, int> app) => PxlLimits(
   ),
 );
 
+/// The reading direction of [locale]'s language.
+TextDirection directionOfLocale(Locale locale) =>
+    const {
+      'ar',
+      'he',
+      'fa',
+      'ur',
+      'ps',
+      'sd',
+      'ug',
+      'yi',
+      'dv',
+    }.contains(locale.languageCode)
+    ? TextDirection.rtl
+    : TextDirection.ltr;
+
 /// PXL's `device` root (Appendix E.2) for a window [width] logical pixels
 /// wide.
 Map<String, Object?> deviceRoot({
@@ -1596,6 +1631,11 @@ Map<String, Object?> deviceRoot({
   required Locale locale,
   required double textScale,
   required bool dark,
+  bool reduceMotion = false,
+  bool boldText = false,
+  bool highContrast = false,
+  bool screenReader = false,
+  TextDirection textDirection = TextDirection.ltr,
 }) => {
   'platform': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
   'osVersion': '',
@@ -1609,6 +1649,12 @@ Map<String, Object?> deviceRoot({
       : 'compact',
   // Attestation arrives in P6; until then no assurance is claimed.
   'assuranceLevel': 'AL0',
+  // Platform accessibility settings (A11Y-007).
+  'reduceMotion': reduceMotion,
+  'boldText': boldText,
+  'highContrast': highContrast,
+  'screenReader': screenReader,
+  'textDirection': textDirection == TextDirection.rtl ? 'rtl' : 'ltr',
 };
 
 /// What a guard may navigate: nothing. A guard decides with the result it
