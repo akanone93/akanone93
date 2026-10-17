@@ -1,0 +1,284 @@
+{
+  "description": "The calendar group: toCalendar and fromCalendar (PXL-006, I18N-003). Expected values are Intl.DateTimeFormat's in the calendar; era is the index package l10n uses.",
+  "env": {
+    "roots": {
+      "day": "date",
+      "n": "int",
+      "parts": "map<string,int>"
+    }
+  },
+  "inputs": {
+    "day": "2024-02-29",
+    "n": 2016,
+    "parts": {
+      "day": 1,
+      "month": 9,
+      "year": 1445
+    }
+  },
+  "cases": [
+    {
+      "name": "to ethiopic",
+      "expr": "toCalendar(day, \"ethiopic\")",
+      "value": {
+        "era": 1,
+        "year": 2016,
+        "month": 6,
+        "day": 21
+      },
+      "type": "map<string,int>",
+      "program": "AQACD21hcDxzdHJpbmcsaW50PgIEA2RheQQIZXRoaW9waWMBA2RheQoGAAAEAQBJWgAC",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CONST 1 ; \"ethiopic\"",
+        "0006 CALL 90 2 ; toCalendar"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "to umalqura",
+      "expr": "toCalendar(day, \"islamic-umalqura\")",
+      "value": {
+        "era": 0,
+        "year": 1445,
+        "month": 8,
+        "day": 19
+      },
+      "type": "map<string,int>",
+      "program": "AQACD21hcDxzdHJpbmcsaW50PgIEA2RheQQQaXNsYW1pYy11bWFscXVyYQEDZGF5CgYAAAQBAElaAAI=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CONST 1 ; \"islamic-umalqura\"",
+        "0006 CALL 90 2 ; toCalendar"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "to persian",
+      "expr": "toCalendar(day, \"persian\")",
+      "value": {
+        "era": 0,
+        "year": 1402,
+        "month": 12,
+        "day": 10
+      },
+      "type": "map<string,int>",
+      "program": "AQACD21hcDxzdHJpbmcsaW50PgIEA2RheQQHcGVyc2lhbgEDZGF5CgYAAAQBAElaAAI=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CONST 1 ; \"persian\"",
+        "0006 CALL 90 2 ; toCalendar"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "to gregorian",
+      "expr": "toCalendar(day, \"gregorian\")",
+      "value": {
+        "era": 1,
+        "year": 2024,
+        "month": 2,
+        "day": 29
+      },
+      "type": "map<string,int>",
+      "program": "AQACD21hcDxzdHJpbmcsaW50PgIEA2RheQQJZ3JlZ29yaWFuAQNkYXkKBgAABAEASVoAAg==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CONST 1 ; \"gregorian\"",
+        "0006 CALL 90 2 ; toCalendar"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "ethiopic Amete Alem",
+      "expr": "toCalendar(date(\"0008-08-26\"), \"ethiopic\")",
+      "value": {
+        "era": 0,
+        "year": 5500,
+        "month": 13,
+        "day": 5
+      },
+      "type": "map<string,int>",
+      "program": "AQACD21hcDxzdHJpbmcsaW50PgIHn7lXBAhldGhpb3BpYwAKBAAABAEASVoAAg==",
+      "asm": [
+        "0000 CONST 0 ; 0008-08-26",
+        "0003 CONST 1 ; \"ethiopic\"",
+        "0006 CALL 90 2 ; toCalendar"
+      ]
+    },
+    {
+      "name": "umalqura table end",
+      "expr": "toCalendar(date(\"2174-11-25\"), \"islamic-umalqura\")",
+      "value": {
+        "era": 0,
+        "year": 1600,
+        "month": 12,
+        "day": 30
+      },
+      "type": "map<string,int>",
+      "program": "AQACD21hcDxzdHJpbmcsaW50PgIHrJEJBBBpc2xhbWljLXVtYWxxdXJhAAoEAAAEAQBJWgAC",
+      "asm": [
+        "0000 CONST 0 ; 2174-11-25",
+        "0003 CONST 1 ; \"islamic-umalqura\"",
+        "0006 CALL 90 2 ; toCalendar"
+      ]
+    },
+    {
+      "name": "from umalqura",
+      "expr": "string(fromCalendar(parts, \"islamic-umalqura\"))",
+      "value": "2024-03-11",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEBXBhcnRzBBBpc2xhbWljLXVtYWxxdXJhAQVwYXJ0cw4GAAAEAQBJWwACSY8AAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"parts\"",
+        "0003 CONST 1 ; \"islamic-umalqura\"",
+        "0006 CALL 91 2 ; fromCalendar",
+        "0010 CALL 143 1 ; string"
+      ],
+      "reads": [
+        "parts"
+      ]
+    },
+    {
+      "name": "from persian with era",
+      "expr": "string(fromCalendar({\"era\": 0, \"year\": 1402, \"month\": 12, \"day\": 10}, \"persian\"))",
+      "value": "2024-02-29",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIMBANkYXkCCgAAAAAAAAADZXJhAgAAAAAAAAAABW1vbnRoAgwAAAAAAAAABHllYXICegUAAAAAAAAEB3BlcnNpYW4ADgQAAAQBAElbAAJJjwAB",
+      "asm": [
+        "0000 CONST 0 ; map[day:10 era:0 month:12 year:1402]",
+        "0003 CONST 1 ; \"persian\"",
+        "0006 CALL 91 2 ; fromCalendar",
+        "0010 CALL 143 1 ; string"
+      ]
+    },
+    {
+      "name": "from ethiopic without era",
+      "expr": "string(fromCalendar({\"year\": n, \"month\": 6, \"day\": 21}, \"ethiopic\"))",
+      "value": "2024-02-29",
+      "type": "string",
+      "program": "AQAGBnN0cmluZwcEBHllYXIEAW4EBW1vbnRoAgYAAAAAAAAABANkYXkCFQAAAAAAAAAECGV0aGlvcGljAQFuIAQAAAYBAAQCAAQDAAQEAAQFAEcDAAQGAElbAAJJjwAB",
+      "asm": [
+        "0000 CONST 0 ; \"year\"",
+        "0003 LOAD_ROOT 1 ; \"n\"",
+        "0006 CONST 2 ; \"month\"",
+        "0009 CONST 3 ; 6",
+        "0012 CONST 4 ; \"day\"",
+        "0015 CONST 5 ; 21",
+        "0018 NEW_MAP 3",
+        "0021 CONST 6 ; \"ethiopic\"",
+        "0024 CALL 91 2 ; fromCalendar",
+        "0028 CALL 143 1 ; string"
+      ],
+      "reads": [
+        "n"
+      ]
+    },
+    {
+      "name": "from ethiopic Pagume leap",
+      "expr": "string(fromCalendar({\"year\": 2015, \"month\": 13, \"day\": 6}, \"ethiopic\"))",
+      "value": "2023-09-11",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIMAwNkYXkCBgAAAAAAAAAFbW9udGgCDQAAAAAAAAAEeWVhcgLfBwAAAAAAAAQIZXRoaW9waWMADgQAAAQBAElbAAJJjwAB",
+      "asm": [
+        "0000 CONST 0 ; map[day:6 month:13 year:2015]",
+        "0003 CONST 1 ; \"ethiopic\"",
+        "0006 CALL 91 2 ; fromCalendar",
+        "0010 CALL 143 1 ; string"
+      ]
+    },
+    {
+      "name": "round trip",
+      "expr": "fromCalendar(toCalendar(day, \"persian\"), \"persian\") == day",
+      "value": true,
+      "type": "bool",
+      "program": "AQACBGJvb2wCBANkYXkEB3BlcnNpYW4BA2RheRUGAAAEAQBJWgACBAEASVsAAgYAADU=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CONST 1 ; \"persian\"",
+        "0006 CALL 90 2 ; toCalendar",
+        "0010 CONST 1 ; \"persian\"",
+        "0013 CALL 91 2 ; fromCalendar",
+        "0017 LOAD_ROOT 0 ; \"day\"",
+        "0020 EQ"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "unknown system to",
+      "expr": "toCalendar(day, \"hebrew\")",
+      "error": "invalidArgument",
+      "type": "map<string,int>",
+      "program": "AQACD21hcDxzdHJpbmcsaW50PgIEA2RheQQGaGVicmV3AQNkYXkKBgAABAEASVoAAg==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CONST 1 ; \"hebrew\"",
+        "0006 CALL 90 2 ; toCalendar"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "unknown system from",
+      "expr": "fromCalendar(parts, \"hebrew\")",
+      "error": "invalidArgument",
+      "type": "date",
+      "program": "AQACBGRhdGUCBAVwYXJ0cwQGaGVicmV3AQVwYXJ0cwoGAAAEAQBJWwAC",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"parts\"",
+        "0003 CONST 1 ; \"hebrew\"",
+        "0006 CALL 91 2 ; fromCalendar"
+      ],
+      "reads": [
+        "parts"
+      ]
+    },
+    {
+      "name": "missing part",
+      "expr": "fromCalendar({\"year\": 1445, \"month\": 9}, \"islamic-umalqura\")",
+      "error": "invalidArgument",
+      "type": "date",
+      "program": "AQACBGRhdGUCDAIFbW9udGgCCQAAAAAAAAAEeWVhcgKlBQAAAAAAAAQQaXNsYW1pYy11bWFscXVyYQAKBAAABAEASVsAAg==",
+      "asm": [
+        "0000 CONST 0 ; map[month:9 year:1445]",
+        "0003 CONST 1 ; \"islamic-umalqura\"",
+        "0006 CALL 91 2 ; fromCalendar"
+      ]
+    },
+    {
+      "name": "day out of month",
+      "expr": "fromCalendar({\"year\": 2016, \"month\": 13, \"day\": 6}, \"ethiopic\")",
+      "error": "invalidArgument",
+      "type": "date",
+      "program": "AQACBGRhdGUCDAMDZGF5AgYAAAAAAAAABW1vbnRoAg0AAAAAAAAABHllYXIC4AcAAAAAAAAECGV0aGlvcGljAAoEAAAEAQBJWwAC",
+      "asm": [
+        "0000 CONST 0 ; map[day:6 month:13 year:2016]",
+        "0003 CONST 1 ; \"ethiopic\"",
+        "0006 CALL 91 2 ; fromCalendar"
+      ]
+    },
+    {
+      "name": "unknown era",
+      "expr": "fromCalendar({\"era\": 5, \"year\": 1402, \"month\": 1, \"day\": 1}, \"persian\")",
+      "error": "invalidArgument",
+      "type": "date",
+      "program": "AQACBGRhdGUCDAQDZGF5AgEAAAAAAAAAA2VyYQIFAAAAAAAAAAVtb250aAIBAAAAAAAAAAR5ZWFyAnoFAAAAAAAABAdwZXJzaWFuAAoEAAAEAQBJWwAC",
+      "asm": [
+        "0000 CONST 0 ; map[day:1 era:5 month:1 year:1402]",
+        "0003 CONST 1 ; \"persian\"",
+        "0006 CALL 91 2 ; fromCalendar"
+      ]
+    }
+  ]
+}

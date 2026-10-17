@@ -6,6 +6,7 @@
 /// builtins.go, builtins2.go, value.go).
 library;
 
+import 'package:plux_flutter/src/pxl/calendar_builtins.dart';
 import 'package:plux_flutter/src/pxl/decimal.dart';
 import 'package:plux_flutter/src/pxl/phone.dart';
 import 'package:plux_flutter/src/pxl/regex.dart';
@@ -30,6 +31,7 @@ final List<Builtin?> builtins = () {
     ..._decimalFns(),
     ..._moneyFns(),
     ..._dateFns(),
+    ...calendarFns(),
     ..._collectionFns(),
     ..._logicFns(),
     ..._regexFns(),

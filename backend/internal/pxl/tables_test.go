@@ -45,7 +45,7 @@ func TestSourcesMatchSchemas(t *testing.T) {
 func TestTablesAreComplete(t *testing.T) {
 	t.Parallel()
 	inline := map[string]bool{"coalesce": true, "ifNull": true, "isNull": true, "typeOf": true}
-	implemented := map[string]bool{"core": true, "regex": true, "phone": true}
+	implemented := map[string]bool{"core": true, "regex": true, "phone": true, "calendar": true}
 	impl := builtins()
 	for i, def := range stdOverloads {
 		switch {
