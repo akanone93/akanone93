@@ -64,3 +64,13 @@ final Set<int> minTargetWidgets = {
   for (final d in widgetDescriptors)
     if (minTargetTypes.contains(d.type)) d.id,
 };
+
+/// The types of the icon-only buttons: their own tap node has no text to
+/// read, so a semantics label on the node names that tap node (A11Y-001).
+const Set<String> iconOnlyButtonTypes = {'FloatingActionButton', 'IconButton'};
+
+/// The permanent IDs of the widgets in [iconOnlyButtonTypes].
+final Set<int> iconOnlyButtonWidgets = {
+  for (final d in widgetDescriptors)
+    if (iconOnlyButtonTypes.contains(d.type)) d.id,
+};

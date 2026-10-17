@@ -734,6 +734,7 @@ final class NodeContextImpl implements NodeContext, MotionSource {
     testId: _testId,
     text: _semText,
     minTarget: minTargetWidgets.contains(node.widget),
+    namesTapNode: iconOnlyButtonWidgets.contains(node.widget),
   );
 
   // ── Native slots ─────────────────────────────────────────────────────────

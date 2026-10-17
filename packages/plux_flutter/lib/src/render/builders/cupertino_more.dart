@@ -9,6 +9,7 @@
 library;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show Theme;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:plux_flutter/src/assets/icon_fonts.dart';
 import 'package:plux_flutter/src/pxl/values.dart';
@@ -114,15 +115,21 @@ Widget _buildTabBar(NodeContext c) {
   return c.controlled<int>(
     1,
     (c.decode(2, asInt) ?? 0).clamp(0, items.length - 1),
-    (value, onChanged) => CupertinoTabBar(
-      items: items,
-      currentIndex: value.clamp(0, items.length - 1),
-      onTap: onChanged,
-      backgroundColor: c.decode(3, asColor),
-      activeColor: c.decode(4, asColor),
-      inactiveColor: c.decode(5, asColor) ?? const Color(0xFF999999),
-      iconSize: c.decode(6, asDouble) ?? 30.0,
-      height: c.decode(7, asDouble) ?? 50.0,
+    // Cupertino's own grey inactive colour is 2.5:1 on its default
+    // background; the theme's variant text colour meets A11Y-004 instead.
+    (value, onChanged) => Builder(
+      builder: (context) => CupertinoTabBar(
+        items: items,
+        currentIndex: value.clamp(0, items.length - 1),
+        onTap: onChanged,
+        backgroundColor: c.decode(3, asColor),
+        activeColor: c.decode(4, asColor),
+        inactiveColor:
+            c.decode(5, asColor) ??
+            Theme.of(context).colorScheme.onSurfaceVariant,
+        iconSize: c.decode(6, asDouble) ?? 30.0,
+        height: c.decode(7, asDouble) ?? 50.0,
+      ),
     ),
   );
 }
