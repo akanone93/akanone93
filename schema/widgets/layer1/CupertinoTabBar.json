@@ -1,0 +1,103 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "CupertinoTabBar",
+  "id": 155,
+  "layer": 1,
+  "phase": "P4",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/cupertino.dart",
+    "class": "CupertinoTabBar",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "cupertino",
+  "icon": "tab",
+  "description": "An iOS-style tab bar; bind `currentIndex` to a state key and `onTap` to the action that changes it.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 40,
+  "accessibility": {
+    "role": "tab",
+    "interactive": true,
+    "minTarget": true
+  },
+  "typeParameters": [],
+  "props": [
+    {
+      "name": "items",
+      "id": 1,
+      "type": "list<TabBarItem>",
+      "required": true,
+      "flutter": "items",
+      "description": "The tabs, at least two."
+    },
+    {
+      "name": "currentIndex",
+      "id": 2,
+      "type": "int",
+      "default": 0,
+      "flutter": "currentIndex",
+      "description": "The selected tab."
+    },
+    {
+      "name": "backgroundColor",
+      "id": 3,
+      "type": "color",
+      "flutter": "backgroundColor"
+    },
+    {
+      "name": "activeColor",
+      "id": 4,
+      "type": "color",
+      "flutter": "activeColor"
+    },
+    {
+      "name": "inactiveColor",
+      "id": 5,
+      "type": "color",
+      "flutter": "inactiveColor"
+    },
+    {
+      "name": "iconSize",
+      "id": 6,
+      "type": "double",
+      "flutter": "iconSize"
+    },
+    {
+      "name": "height",
+      "id": 7,
+      "type": "double",
+      "flutter": "height"
+    }
+  ],
+  "events": [
+    {
+      "name": "onTap",
+      "id": 1,
+      "payload": "int",
+      "flutter": "onTap"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "border",
+      "reason": "deferred",
+      "note": "Flutter draws a private default border; Plux keeps it."
+    }
+  ]
+}
