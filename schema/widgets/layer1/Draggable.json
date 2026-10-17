@@ -1,0 +1,162 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "Draggable",
+  "id": 134,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "Draggable",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "interaction",
+  "icon": "drag_indicator",
+  "description": "Lets the user drag its child, carrying a typed `data` payload to a `DragTarget`.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 40,
+  "accessibility": {
+    "role": "none",
+    "interactive": true
+  },
+  "typeParameters": [
+    "T"
+  ],
+  "props": [
+    {
+      "name": "data",
+      "id": 1,
+      "type": "T",
+      "flutter": "data",
+      "description": "The payload a `DragTarget` receives when the child is dropped on it."
+    },
+    {
+      "name": "axis",
+      "id": 2,
+      "type": "Axis",
+      "flutter": "axis",
+      "description": "Restricts the drag to one axis."
+    },
+    {
+      "name": "feedbackOffset",
+      "id": 3,
+      "type": "Offset",
+      "flutter": "feedbackOffset"
+    },
+    {
+      "name": "maxSimultaneousDrags",
+      "id": 4,
+      "type": "int",
+      "flutter": "maxSimultaneousDrags"
+    },
+    {
+      "name": "ignoringFeedbackSemantics",
+      "id": 5,
+      "type": "bool",
+      "default": true,
+      "flutter": "ignoringFeedbackSemantics"
+    },
+    {
+      "name": "ignoringFeedbackPointer",
+      "id": 6,
+      "type": "bool",
+      "default": true,
+      "flutter": "ignoringFeedbackPointer"
+    },
+    {
+      "name": "rootOverlay",
+      "id": 7,
+      "type": "bool",
+      "default": false,
+      "flutter": "rootOverlay"
+    },
+    {
+      "name": "hitTestBehavior",
+      "id": 8,
+      "type": "HitTestBehavior",
+      "default": "deferToChild",
+      "flutter": "hitTestBehavior"
+    }
+  ],
+  "events": [
+    {
+      "name": "onDragStarted",
+      "id": 1,
+      "flutter": "onDragStarted"
+    },
+    {
+      "name": "onDragEnd",
+      "id": 2,
+      "payload": "bool",
+      "flutter": "onDragEnd",
+      "description": "Fired when the drag ends; the payload tells whether a target accepted it."
+    },
+    {
+      "name": "onDragCompleted",
+      "id": 3,
+      "flutter": "onDragCompleted",
+      "description": "Fired when a target accepted the drop."
+    },
+    {
+      "name": "onDraggableCanceled",
+      "id": 4,
+      "flutter": "onDraggableCanceled",
+      "description": "Fired when no target accepted the drop."
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "required": true,
+      "flutter": "child"
+    },
+    {
+      "name": "feedback",
+      "id": 2,
+      "required": true,
+      "flutter": "feedback",
+      "description": "Shown under the finger while dragging."
+    },
+    {
+      "name": "childWhenDragging",
+      "id": 3,
+      "flutter": "childWhenDragging",
+      "description": "Shown in place of the child while it is dragged."
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "dragAnchorStrategy",
+      "reason": "non-serialisable"
+    },
+    {
+      "flutter": "affinity",
+      "reason": "deferred"
+    },
+    {
+      "flutter": "onDragUpdate",
+      "reason": "deferred"
+    },
+    {
+      "flutter": "allowedButtonsFilter",
+      "reason": "non-serialisable"
+    }
+  ]
+}

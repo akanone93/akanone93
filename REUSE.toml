@@ -181,3 +181,14 @@ path = [
 precedence = "override"
 SPDX-FileCopyrightText = ["2009 The Libphonenumber Authors", "2026 Plux contributors"]
 SPDX-License-Identifier = "Apache-2.0"
+
+# Locale data (ADR-0066), derived by tools/cmd/cldrdata (make cldr-data) from the
+# cldr-json release pinned in mk/l10n.mk, and the copy the Go engine embeds.
+[[annotations]]
+path = [
+    "schema/l10n/cldr/**",
+    "backend/internal/l10n/data/**",
+]
+precedence = "override"
+SPDX-FileCopyrightText = ["2015-2024 Unicode, Inc.", "2026 Plux contributors"]
+SPDX-License-Identifier = "Unicode-3.0"

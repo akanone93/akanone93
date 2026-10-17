@@ -11244,6 +11244,704 @@
         ]
       }
     },
+    "package:flutter/widgets.dart#AnimatedAlign": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "alignment",
+            "type": "AlignmentGeometry",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "heightFactor",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "widthFactor",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "curve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "duration",
+            "type": "Duration",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onEnd",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#AnimatedContainer": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "alignment",
+            "type": "AlignmentGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "padding",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "color",
+            "type": "Color?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "decoration",
+            "type": "Decoration?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "foregroundDecoration",
+            "type": "Decoration?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "width",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "height",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "constraints",
+            "type": "BoxConstraints?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "margin",
+            "type": "EdgeInsetsGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "transform",
+            "type": "Matrix4?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "transformAlignment",
+            "type": "AlignmentGeometry?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "clipBehavior",
+            "type": "Clip",
+            "required": false,
+            "named": true,
+            "default": "Clip.none"
+          },
+          {
+            "name": "curve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "duration",
+            "type": "Duration",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onEnd",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#AnimatedCrossFade": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "firstChild",
+            "type": "Widget",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "secondChild",
+            "type": "Widget",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "firstCurve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "secondCurve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "sizeCurve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "alignment",
+            "type": "AlignmentGeometry",
+            "required": false,
+            "named": true,
+            "default": "Alignment.topCenter"
+          },
+          {
+            "name": "crossFadeState",
+            "type": "CrossFadeState",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "duration",
+            "type": "Duration",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "reverseDuration",
+            "type": "Duration?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "layoutBuilder",
+            "type": "Widget Function(Widget, Key, Widget, Key)",
+            "required": false,
+            "named": true,
+            "default": "defaultLayoutBuilder"
+          },
+          {
+            "name": "excludeBottomFocus",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "clipBehavior",
+            "type": "Clip",
+            "required": false,
+            "named": true,
+            "default": "Clip.hardEdge"
+          },
+          {
+            "name": "onEnd",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#AnimatedOpacity": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "opacity",
+            "type": "double",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "curve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "duration",
+            "type": "Duration",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onEnd",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "alwaysIncludeSemantics",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#AnimatedPadding": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "padding",
+            "type": "EdgeInsetsGeometry",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "curve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "duration",
+            "type": "Duration",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onEnd",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#AnimatedPositioned": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "left",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "top",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "right",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "bottom",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "width",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "height",
+            "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "curve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "duration",
+            "type": "Duration",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onEnd",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#AnimatedRotation": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "turns",
+            "type": "double",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "alignment",
+            "type": "Alignment",
+            "required": false,
+            "named": true,
+            "default": "Alignment.center"
+          },
+          {
+            "name": "filterQuality",
+            "type": "FilterQuality?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "curve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "duration",
+            "type": "Duration",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onEnd",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#AnimatedScale": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "scale",
+            "type": "double",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "alignment",
+            "type": "Alignment",
+            "required": false,
+            "named": true,
+            "default": "Alignment.center"
+          },
+          {
+            "name": "filterQuality",
+            "type": "FilterQuality?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "curve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "duration",
+            "type": "Duration",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onEnd",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#AnimatedSize": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "alignment",
+            "type": "AlignmentGeometry",
+            "required": false,
+            "named": true,
+            "default": "Alignment.center"
+          },
+          {
+            "name": "curve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "duration",
+            "type": "Duration",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "reverseDuration",
+            "type": "Duration?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "clipBehavior",
+            "type": "Clip",
+            "required": false,
+            "named": true,
+            "default": "Clip.hardEdge"
+          },
+          {
+            "name": "onEnd",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#AnimatedSlide": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "offset",
+            "type": "Offset",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "curve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "duration",
+            "type": "Duration",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onEnd",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#AnimatedSwitcher": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "duration",
+            "type": "Duration",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "reverseDuration",
+            "type": "Duration?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "switchInCurve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "switchOutCurve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.linear"
+          },
+          {
+            "name": "transitionBuilder",
+            "type": "Widget Function(Widget, Animation<double>)",
+            "required": false,
+            "named": true,
+            "default": "AnimatedSwitcher.defaultTransitionBuilder"
+          },
+          {
+            "name": "layoutBuilder",
+            "type": "Widget Function(Widget?, List<Widget>)",
+            "required": false,
+            "named": true,
+            "default": "AnimatedSwitcher.defaultLayoutBuilder"
+          }
+        ]
+      }
+    },
     "package:flutter/widgets.dart#AspectRatio": {
       "constructors": {
         "": [
@@ -11817,6 +12515,304 @@
         ]
       }
     },
+    "package:flutter/widgets.dart#Dismissible": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "background",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "secondaryBackground",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "confirmDismiss",
+            "type": "Future<bool?> Function(DismissDirection)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onResize",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onUpdate",
+            "type": "void Function(DismissUpdateDetails)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onDismissed",
+            "type": "void Function(DismissDirection)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "direction",
+            "type": "DismissDirection",
+            "required": false,
+            "named": true,
+            "default": "DismissDirection.horizontal"
+          },
+          {
+            "name": "resizeDuration",
+            "type": "Duration?",
+            "required": false,
+            "named": true,
+            "default": "const Duration(milliseconds: 300)"
+          },
+          {
+            "name": "dismissThresholds",
+            "type": "Map<DismissDirection, double>",
+            "required": false,
+            "named": true,
+            "default": "const <DismissDirection, double>{}"
+          },
+          {
+            "name": "movementDuration",
+            "type": "Duration",
+            "required": false,
+            "named": true,
+            "default": "const Duration(milliseconds: 200)"
+          },
+          {
+            "name": "crossAxisEndOffset",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "0.0"
+          },
+          {
+            "name": "dragStartBehavior",
+            "type": "DragStartBehavior",
+            "required": false,
+            "named": true,
+            "default": "DragStartBehavior.start"
+          },
+          {
+            "name": "behavior",
+            "type": "HitTestBehavior",
+            "required": false,
+            "named": true,
+            "default": "HitTestBehavior.opaque"
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#DragTarget": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "builder",
+            "type": "Widget Function(BuildContext, List<T?>, List<dynamic>)",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "onWillAccept",
+            "type": "bool Function(T?)?",
+            "required": false,
+            "named": true,
+            "deprecated": true
+          },
+          {
+            "name": "onWillAcceptWithDetails",
+            "type": "bool Function(DragTargetDetails<T>)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onAccept",
+            "type": "void Function(T)?",
+            "required": false,
+            "named": true,
+            "deprecated": true
+          },
+          {
+            "name": "onAcceptWithDetails",
+            "type": "void Function(DragTargetDetails<T>)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onLeave",
+            "type": "void Function(T?)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onMove",
+            "type": "void Function(DragTargetDetails<T>)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "hitTestBehavior",
+            "type": "HitTestBehavior",
+            "required": false,
+            "named": true,
+            "default": "HitTestBehavior.translucent"
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#Draggable": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "feedback",
+            "type": "Widget",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "data",
+            "type": "T?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "axis",
+            "type": "Axis?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "childWhenDragging",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "feedbackOffset",
+            "type": "Offset",
+            "required": false,
+            "named": true,
+            "default": "Offset.zero"
+          },
+          {
+            "name": "dragAnchorStrategy",
+            "type": "Offset Function(Draggable<Object>, BuildContext, Offset)",
+            "required": false,
+            "named": true,
+            "default": "childDragAnchorStrategy"
+          },
+          {
+            "name": "affinity",
+            "type": "Axis?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "maxSimultaneousDrags",
+            "type": "int?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onDragStarted",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onDragUpdate",
+            "type": "void Function(DragUpdateDetails)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onDraggableCanceled",
+            "type": "void Function(Velocity, Offset)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onDragEnd",
+            "type": "void Function(DraggableDetails)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onDragCompleted",
+            "type": "void Function()?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "ignoringFeedbackSemantics",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "ignoringFeedbackPointer",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "rootOverlay",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "hitTestBehavior",
+            "type": "HitTestBehavior",
+            "required": false,
+            "named": true,
+            "default": "HitTestBehavior.deferToChild"
+          },
+          {
+            "name": "allowedButtonsFilter",
+            "type": "bool Function(int)?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
     "package:flutter/widgets.dart#Expanded": {
       "constructors": {
         "": [
@@ -11837,6 +12833,37 @@
             "name": "child",
             "type": "Widget",
             "required": true,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#FadeTransition": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "opacity",
+            "type": "Animation<double>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "alwaysIncludeSemantics",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
             "named": true
           }
         ]
@@ -12589,6 +13616,68 @@
         ]
       }
     },
+    "package:flutter/widgets.dart#Hero": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "tag",
+            "type": "Object",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "createRectTween",
+            "type": "Tween<Rect?> Function(Rect?, Rect?)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "flightShuttleBuilder",
+            "type": "Widget Function(BuildContext, Animation<double>, HeroFlightDirection, BuildContext, BuildContext)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "placeholderBuilder",
+            "type": "Widget Function(BuildContext, Size, Widget)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "transitionOnUserGestures",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "curve",
+            "type": "Curve",
+            "required": false,
+            "named": true,
+            "default": "Curves.fastOutSlowIn"
+          },
+          {
+            "name": "reverseCurve",
+            "type": "Curve?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget",
+            "required": true,
+            "named": true
+          }
+        ]
+      }
+    },
     "package:flutter/widgets.dart#Icon": {
       "constructors": {
         "": [
@@ -13050,6 +14139,131 @@
         ]
       }
     },
+    "package:flutter/widgets.dart#InteractiveViewer": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "clipBehavior",
+            "type": "Clip",
+            "required": false,
+            "named": true,
+            "default": "Clip.hardEdge"
+          },
+          {
+            "name": "panAxis",
+            "type": "PanAxis",
+            "required": false,
+            "named": true,
+            "default": "PanAxis.free"
+          },
+          {
+            "name": "boundaryMargin",
+            "type": "EdgeInsets",
+            "required": false,
+            "named": true,
+            "default": "EdgeInsets.zero"
+          },
+          {
+            "name": "constrained",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "maxScale",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "2.5"
+          },
+          {
+            "name": "minScale",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "0.8"
+          },
+          {
+            "name": "interactionEndFrictionCoefficient",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "_kDrag"
+          },
+          {
+            "name": "onInteractionEnd",
+            "type": "void Function(ScaleEndDetails)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onInteractionStart",
+            "type": "void Function(ScaleStartDetails)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "onInteractionUpdate",
+            "type": "void Function(ScaleUpdateDetails)?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "panEnabled",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "scaleEnabled",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "scaleFactor",
+            "type": "double",
+            "required": false,
+            "named": true,
+            "default": "kDefaultMouseScrollToScaleFactor"
+          },
+          {
+            "name": "transformationController",
+            "type": "TransformationController?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "alignment",
+            "type": "Alignment?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "trackpadScrollCausesScale",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "false"
+          },
+          {
+            "name": "child",
+            "type": "Widget",
+            "required": true,
+            "named": true
+          }
+        ]
+      }
+    },
     "package:flutter/widgets.dart#LimitedBox": {
       "constructors": {
         "": [
@@ -13479,6 +14693,43 @@
         ]
       }
     },
+    "package:flutter/widgets.dart#RotationTransition": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "turns",
+            "type": "Animation<double>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "alignment",
+            "type": "Alignment",
+            "required": false,
+            "named": true,
+            "default": "Alignment.center"
+          },
+          {
+            "name": "filterQuality",
+            "type": "FilterQuality?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
     "package:flutter/widgets.dart#Row": {
       "constructors": {
         "": [
@@ -13605,6 +14856,43 @@
         ]
       }
     },
+    "package:flutter/widgets.dart#ScaleTransition": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "scale",
+            "type": "Animation<double>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "alignment",
+            "type": "Alignment",
+            "required": false,
+            "named": true,
+            "default": "Alignment.center"
+          },
+          {
+            "name": "filterQuality",
+            "type": "FilterQuality?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
     "package:flutter/widgets.dart#SingleChildScrollView": {
       "constructors": {
         "": [
@@ -13712,6 +15000,43 @@
           {
             "name": "height",
             "type": "double?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "child",
+            "type": "Widget?",
+            "required": false,
+            "named": true
+          }
+        ]
+      }
+    },
+    "package:flutter/widgets.dart#SlideTransition": {
+      "constructors": {
+        "": [
+          {
+            "name": "key",
+            "type": "Key?",
+            "required": false,
+            "named": true
+          },
+          {
+            "name": "position",
+            "type": "Animation<Offset>",
+            "required": true,
+            "named": true
+          },
+          {
+            "name": "transformHitTests",
+            "type": "bool",
+            "required": false,
+            "named": true,
+            "default": "true"
+          },
+          {
+            "name": "textDirection",
+            "type": "TextDirection?",
             "required": false,
             "named": true
           },
@@ -15272,6 +16597,51 @@
       },
       {
         "name": "truncateAfterCompositionEnds"
+      }
+    ],
+    "package:flutter/widgets.dart#CrossFadeState": [
+      {
+        "name": "showFirst"
+      },
+      {
+        "name": "showSecond"
+      }
+    ],
+    "package:flutter/widgets.dart#DismissDirection": [
+      {
+        "name": "vertical"
+      },
+      {
+        "name": "horizontal"
+      },
+      {
+        "name": "endToStart"
+      },
+      {
+        "name": "startToEnd"
+      },
+      {
+        "name": "up"
+      },
+      {
+        "name": "down"
+      },
+      {
+        "name": "none"
+      }
+    ],
+    "package:flutter/widgets.dart#PanAxis": [
+      {
+        "name": "horizontal"
+      },
+      {
+        "name": "vertical"
+      },
+      {
+        "name": "aligned"
+      },
+      {
+        "name": "free"
       }
     ]
   }

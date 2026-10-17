@@ -1,0 +1,2633 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMMdd": "dd.MM.y GGGGG",
+        "Gy": "y G",
+        "GyM": "MM.y G",
+        "GyMEd": "E, dd.MM.y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d MMM y G",
+        "GyMMMMEEEEd": "EEEE, d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMMdd": "dd.MM.y G",
+        "GyMd": "dd.MM.y G",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, dd.MM",
+        "MMM": "LLL",
+        "MMMEd": "E, d MMM",
+        "MMMMEd": "E, d MMMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "dd.MM",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y",
+        "yyyy": "y G",
+        "yyyyM": "MM.y G",
+        "yyyyMEd": "E, dd.MM.y G",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E, d MMM y G",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "dd.MM.y G"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "dd.MM.y G",
+        "short": "dd.MM.y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'la' {0}",
+        "long": "{1} 'la' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "a.m.",
+            "pm": "p.m."
+          },
+          "wide": {
+            "am": "a.m.",
+            "pm": "p.m."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "a.m.",
+            "pm": "p.m."
+          },
+          "wide": {
+            "am": "a.m.",
+            "pm": "p.m."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["dum.", "lun.", "mar.", "mie.", "joi", "vin.", "sâm."],
+          "short": ["du.", "lu.", "ma.", "mi.", "joi", "vi.", "sâ."],
+          "wide": ["duminică", "luni", "marți", "miercuri", "joi", "vineri", "sâmbătă"]
+        },
+        "standAlone": {
+          "abbreviated": ["dum.", "lun.", "mar.", "mie.", "joi", "vin.", "sâm."],
+          "short": ["du.", "lu.", "ma.", "mi.", "joi", "vi.", "sâ."],
+          "wide": ["duminică", "luni", "marți", "miercuri", "joi", "vineri", "sâmbătă"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["meskerem", "taqemt", "hedar", "tahsas", "ter", "yekatit", "megabit", "miazia", "genbot", "sene", "hamle", "nehase", "pagumen"],
+          "wide": ["meskerem", "taqemt", "hedar", "tahsas", "ter", "yekatit", "megabit", "miazia", "genbot", "sene", "hamle", "nehase", "pagumen"]
+        },
+        "standAlone": {
+          "abbreviated": ["meskerem", "taqemt", "hedar", "tahsas", "ter", "yekatit", "megabit", "miazia", "genbot", "sene", "hamle", "nehase", "pagumen"],
+          "wide": ["meskerem", "taqemt", "hedar", "tahsas", "ter", "yekatit", "megabit", "miazia", "genbot", "sene", "hamle", "nehase", "pagumen"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "Gy": "y G",
+        "GyM": "MM.y G",
+        "GyMEd": "E, dd.MM.y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d MMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMd": "dd.MM.y G",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, dd.MM",
+        "MMM": "LLL",
+        "MMMEd": "E, d MMM",
+        "MMMMEd": "E, d MMMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "MMdd": "dd.MM",
+        "Md": "dd.MM",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "MM.y",
+        "yMEd": "E, dd.MM.y",
+        "yMM": "MM.y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E, d MMM y",
+        "yMMMM": "MMMM y",
+        "yMMMMEEEEd": "EEEE, d MMMM y",
+        "yMMMMd": "d MMMM y",
+        "yMMMd": "d MMM y",
+        "yMMdd": "dd.MM.y",
+        "yMd": "dd.MM.y"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MMMM y",
+        "long": "d MMMM y",
+        "medium": "d MMM y",
+        "short": "dd.MM.y"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'la' {0}",
+        "long": "{1} 'la' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "a.m.",
+            "pm": "p.m."
+          },
+          "narrow": {
+            "am": "a.m.",
+            "pm": "p.m."
+          },
+          "wide": {
+            "am": "a.m.",
+            "pm": "p.m."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "a.m.",
+            "pm": "p.m."
+          },
+          "narrow": {
+            "am": "a.m.",
+            "pm": "p.m."
+          },
+          "wide": {
+            "am": "a.m.",
+            "pm": "p.m."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["dum.", "lun.", "mar.", "mie.", "joi", "vin.", "sâm."],
+          "narrow": ["D", "L", "M", "M", "J", "V", "S"],
+          "short": ["du.", "lu.", "ma.", "mi.", "joi", "vi.", "sâ."],
+          "wide": ["duminică", "luni", "marți", "miercuri", "joi", "vineri", "sâmbătă"]
+        },
+        "standAlone": {
+          "abbreviated": ["dum.", "lun.", "mar.", "mie.", "joi", "vin.", "sâm."],
+          "narrow": ["D", "L", "M", "M", "J", "V", "S"],
+          "short": ["du.", "lu.", "ma.", "mi.", "joi", "vi.", "sâ."],
+          "wide": ["duminică", "luni", "marți", "miercuri", "joi", "vineri", "sâmbătă"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["î.Hr.", "d.Hr."],
+        "narrow": ["î.Hr.", "d.Hr."],
+        "wide": ["înainte de Hristos", "după Hristos"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["ian.", "feb.", "mar.", "apr.", "mai", "iun.", "iul.", "aug.", "sept.", "oct.", "nov.", "dec."],
+          "narrow": ["I", "F", "M", "A", "M", "I", "I", "A", "S", "O", "N", "D"],
+          "wide": ["ianuarie", "februarie", "martie", "aprilie", "mai", "iunie", "iulie", "august", "septembrie", "octombrie", "noiembrie", "decembrie"]
+        },
+        "standAlone": {
+          "abbreviated": ["ian.", "feb.", "mar.", "apr.", "mai", "iun.", "iul.", "aug.", "sept.", "oct.", "nov.", "dec."],
+          "narrow": ["I", "F", "M", "A", "M", "I", "I", "A", "S", "O", "N", "D"],
+          "wide": ["ianuarie", "februarie", "martie", "aprilie", "mai", "iunie", "iulie", "august", "septembrie", "octombrie", "noiembrie", "decembrie"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMMdd": "dd.MM.y GGGGG",
+        "Gy": "y G",
+        "GyM": "MM.y G",
+        "GyMEd": "E, dd.MM.y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d MMM y G",
+        "GyMMMMEEEEd": "EEEE, d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMMdd": "dd.MM.y G",
+        "GyMd": "dd.MM.y G",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, dd.MM",
+        "MMM": "LLL",
+        "MMMEd": "E, d MMM",
+        "MMMMEd": "E, d MMMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "dd.MM",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y",
+        "yyyy": "y G",
+        "yyyyM": "MM.y G",
+        "yyyyMEd": "E, dd.MM.y G",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E, d MMM y G",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "dd.MM.y G"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "dd.MM.y G",
+        "short": "dd.MM.y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'la' {0}",
+        "long": "{1} 'la' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "a.m.",
+            "pm": "p.m."
+          },
+          "wide": {
+            "am": "a.m.",
+            "pm": "p.m."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "a.m.",
+            "pm": "p.m."
+          },
+          "wide": {
+            "am": "a.m.",
+            "pm": "p.m."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["dum.", "lun.", "mar.", "mie.", "joi", "vin.", "sâm."],
+          "short": ["du.", "lu.", "ma.", "mi.", "joi", "vi.", "sâ."],
+          "wide": ["duminică", "luni", "marți", "miercuri", "joi", "vineri", "sâmbătă"]
+        },
+        "standAlone": {
+          "abbreviated": ["dum.", "lun.", "mar.", "mie.", "joi", "vin.", "sâm."],
+          "short": ["du.", "lu.", "ma.", "mi.", "joi", "vi.", "sâ."],
+          "wide": ["duminică", "luni", "marți", "miercuri", "joi", "vineri", "sâmbătă"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AH", "BH"],
+        "wide": ["A.H.", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        },
+        "standAlone": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMMdd": "dd.MM.y GGGGG",
+        "Gy": "y G",
+        "GyM": "MM.y G",
+        "GyMEd": "E, dd.MM.y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d MMM y G",
+        "GyMMMMEEEEd": "EEEE, d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMMdd": "dd.MM.y G",
+        "GyMd": "dd.MM.y G",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, dd.MM",
+        "MMM": "LLL",
+        "MMMEd": "E, d MMM",
+        "MMMMEd": "E, d MMMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "dd.MM",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y",
+        "yyyy": "y G",
+        "yyyyM": "MM.y G",
+        "yyyyMEd": "E, dd.MM.y G",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E, d MMM y G",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "dd.MM.y G"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "dd.MM.y G",
+        "short": "dd.MM.y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'la' {0}",
+        "long": "{1} 'la' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "a.m.",
+            "pm": "p.m."
+          },
+          "wide": {
+            "am": "a.m.",
+            "pm": "p.m."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "a.m.",
+            "pm": "p.m."
+          },
+          "wide": {
+            "am": "a.m.",
+            "pm": "p.m."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["dum.", "lun.", "mar.", "mie.", "joi", "vin.", "sâm."],
+          "short": ["du.", "lu.", "ma.", "mi.", "joi", "vi.", "sâ."],
+          "wide": ["duminică", "luni", "marți", "miercuri", "joi", "vineri", "sâmbătă"]
+        },
+        "standAlone": {
+          "abbreviated": ["dum.", "lun.", "mar.", "mie.", "joi", "vin.", "sâm."],
+          "short": ["du.", "lu.", "ma.", "mi.", "joi", "vi.", "sâ."],
+          "wide": ["duminică", "luni", "marți", "miercuri", "joi", "vineri", "sâmbătă"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["A.P."],
+        "wide": ["Anno Persico"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "A-Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "A-Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        },
+        "standAlone": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "A-Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "A-Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    }
+  },
+  "currencies": {
+    "ADP": {
+      "name": "pesetă andorrană",
+      "plural": {
+        "few": "pesete andorrane",
+        "other": "pesete andorrane"
+      }
+    },
+    "AED": {
+      "name": "dirham din Emiratele Arabe Unite",
+      "plural": {
+        "few": "dirhami din Emiratele Arabe Unite",
+        "other": "dirhami din Emiratele Arabe Unite"
+      }
+    },
+    "AFN": {
+      "name": "afgani afgan",
+      "narrow": "؋",
+      "plural": {
+        "few": "afgani afgani",
+        "other": "afgani afgani"
+      }
+    },
+    "ALL": {
+      "name": "lek"
+    },
+    "AMD": {
+      "name": "dram armenesc",
+      "narrow": "֏",
+      "plural": {
+        "few": "drami armenești",
+        "other": "drami armenești"
+      }
+    },
+    "ANG": {
+      "name": "gulden neerlandez antilez",
+      "plural": {
+        "few": "guldeni neerlandezi antilezi",
+        "other": "guldeni neerlandezi antilezi"
+      }
+    },
+    "AOA": {
+      "name": "kwanza angoleză",
+      "narrow": "Kz",
+      "plural": {
+        "few": "kwanze angoleze",
+        "other": "kwanze angoleze"
+      }
+    },
+    "ARP": {
+      "name": "peso argentinian (1983–1985)",
+      "plural": {
+        "few": "pesos argentinieni (1983–1985)",
+        "other": "pesos argentinieni (1983–1985)"
+      }
+    },
+    "ARS": {
+      "name": "peso argentinian",
+      "narrow": "$",
+      "plural": {
+        "few": "pesos argentinieni",
+        "other": "pesos argentinieni"
+      }
+    },
+    "ATS": {
+      "name": "șiling austriac",
+      "plural": {
+        "few": "șilingi austrieci",
+        "other": "șilingi austrieci"
+      }
+    },
+    "AUD": {
+      "name": "dolar australian",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari australieni",
+        "other": "dolari australieni"
+      }
+    },
+    "AWG": {
+      "name": "florin aruban",
+      "plural": {
+        "few": "florini arubani",
+        "other": "florini arubani"
+      }
+    },
+    "AZM": {
+      "name": "manat azer (1993–2006)"
+    },
+    "AZN": {
+      "name": "manat azer",
+      "narrow": "₼",
+      "plural": {
+        "few": "manați azeri",
+        "other": "manați azeri"
+      }
+    },
+    "BAD": {
+      "name": "dinar Bosnia-Herțegovina (1992–1994)",
+      "plural": {
+        "few": "dinari Bosnia-Herțegovina",
+        "other": "dinari Bosnia-Herțegovina (1992–1994)"
+      }
+    },
+    "BAM": {
+      "name": "marcă convertibilă",
+      "narrow": "KM",
+      "plural": {
+        "few": "mărci convertibile",
+        "other": "mărci convertibile"
+      }
+    },
+    "BBD": {
+      "name": "dolar din Barbados",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari din Barbados",
+        "other": "dolari din Barbados"
+      }
+    },
+    "BDT": {
+      "name": "taka din Bangladesh",
+      "narrow": "৳"
+    },
+    "BEC": {
+      "name": "franc belgian (convertibil)",
+      "plural": {
+        "few": "franci belgieni (convertibili)",
+        "other": "franci belgieni (convertibili)"
+      }
+    },
+    "BEF": {
+      "name": "franc belgian",
+      "plural": {
+        "few": "franci belgieni",
+        "other": "franci belgieni"
+      }
+    },
+    "BEL": {
+      "name": "franc belgian (financiar)",
+      "plural": {
+        "few": "franci belgieni (financiari)",
+        "other": "franci belgieni (financiari)"
+      }
+    },
+    "BGN": {
+      "name": "leva",
+      "plural": {
+        "few": "leve",
+        "other": "leve"
+      }
+    },
+    "BHD": {
+      "name": "dinar din Bahrain",
+      "plural": {
+        "few": "dinari din Bahrain",
+        "other": "dinari din Bahrain"
+      }
+    },
+    "BIF": {
+      "name": "franc burundez",
+      "plural": {
+        "few": "franci burundezi",
+        "other": "franci burundezi"
+      }
+    },
+    "BMD": {
+      "name": "dolar din Bermuda",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari din Bermuda",
+        "other": "dolari din Bermuda"
+      }
+    },
+    "BND": {
+      "name": "dolar din Brunei",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari din Brunei",
+        "other": "dolari Brunei"
+      }
+    },
+    "BOB": {
+      "name": "boliviano",
+      "narrow": "Bs"
+    },
+    "BOP": {
+      "name": "peso bolivian",
+      "plural": {
+        "few": "pesos bolivieni",
+        "other": "pesos bolivieni"
+      }
+    },
+    "BOV": {
+      "name": "mvdol bolivian"
+    },
+    "BRE": {
+      "name": "cruzeiro brazilian (1990–1993)"
+    },
+    "BRL": {
+      "name": "real",
+      "narrow": "R$",
+      "plural": {
+        "few": "reali",
+        "other": "reali"
+      }
+    },
+    "BRR": {
+      "name": "cruzeiro brazilian (1993–1994)"
+    },
+    "BSD": {
+      "name": "dolar din Bahamas",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari din Bahamas",
+        "other": "dolari din Bahamas"
+      }
+    },
+    "BTN": {
+      "name": "ngultrum din Bhutan"
+    },
+    "BUK": {
+      "name": "kyat birman"
+    },
+    "BWP": {
+      "name": "pula Botswana",
+      "narrow": "P"
+    },
+    "BYN": {
+      "name": "rublă belarusă",
+      "narrow": "р.",
+      "plural": {
+        "few": "ruble belaruse",
+        "other": "ruble belaruse"
+      }
+    },
+    "BYR": {
+      "name": "rublă belarusă (2000–2016)",
+      "plural": {
+        "few": "ruble belaruse (2000–2016)",
+        "other": "ruble belaruse (2000–2016)"
+      }
+    },
+    "BZD": {
+      "name": "dolar din Belize",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari din Belize",
+        "other": "dolari din Belize"
+      }
+    },
+    "CAD": {
+      "name": "dolar canadian",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari canadieni",
+        "other": "dolari canadieni"
+      }
+    },
+    "CDF": {
+      "name": "franc congolez",
+      "plural": {
+        "few": "franci congolezi",
+        "other": "franci congolezi"
+      }
+    },
+    "CHF": {
+      "name": "franc elvețian",
+      "plural": {
+        "few": "franci elvețieni",
+        "other": "franci elvețieni"
+      }
+    },
+    "CLP": {
+      "name": "peso chilian",
+      "narrow": "$",
+      "plural": {
+        "few": "pesos chilieni",
+        "other": "pesos chilieni"
+      }
+    },
+    "CNH": {
+      "name": "yuan chinezesc (offshore)",
+      "plural": {
+        "few": "yuani chinezești (offshore)",
+        "other": "yuani chinezești (offshore)"
+      }
+    },
+    "CNY": {
+      "name": "yuan chinezesc",
+      "narrow": "¥",
+      "plural": {
+        "few": "yuani chinezești",
+        "other": "yuani chinezești"
+      }
+    },
+    "COP": {
+      "name": "peso columbian",
+      "narrow": "$",
+      "plural": {
+        "few": "pesos columbieni",
+        "other": "pesos columbieni"
+      }
+    },
+    "CRC": {
+      "name": "colón costarican",
+      "narrow": "₡",
+      "plural": {
+        "few": "colóni costaricani",
+        "other": "colóni costaricani"
+      }
+    },
+    "CSD": {
+      "name": "dinar Serbia și Muntenegru (2002–2006)",
+      "plural": {
+        "few": "dinari Serbia și Muntenegru (2002–2006)",
+        "other": "dinari Serbia și Muntenegru (2002–2006)"
+      }
+    },
+    "CUC": {
+      "name": "peso cubanez convertibil",
+      "narrow": "$",
+      "plural": {
+        "few": "pesos cubanezi convertibili",
+        "other": "pesos cubanezi convertibili"
+      }
+    },
+    "CUP": {
+      "name": "peso cubanez",
+      "narrow": "$",
+      "plural": {
+        "few": "pesos cubanezi",
+        "other": "pesos cubanezi"
+      }
+    },
+    "CVE": {
+      "name": "escudo caboverdian",
+      "plural": {
+        "few": "escudo caboverdieni",
+        "other": "escudo caboverdieni"
+      }
+    },
+    "CYP": {
+      "name": "liră cipriotă",
+      "plural": {
+        "few": "lire cipriote",
+        "other": "lire cipriote"
+      }
+    },
+    "CZK": {
+      "name": "coroană cehă",
+      "narrow": "Kč",
+      "plural": {
+        "few": "coroane cehe",
+        "other": "coroane cehe"
+      }
+    },
+    "DDM": {
+      "name": "marcă est-germană",
+      "plural": {
+        "few": "mărci est-germane",
+        "other": "mărci est-germane"
+      }
+    },
+    "DEM": {
+      "name": "marcă germană",
+      "plural": {
+        "few": "mărci germane",
+        "other": "mărci germane"
+      }
+    },
+    "DJF": {
+      "name": "franc djiboutian",
+      "plural": {
+        "few": "franci djiboutieni",
+        "other": "franci djiboutieni"
+      }
+    },
+    "DKK": {
+      "name": "coroană daneză",
+      "narrow": "kr",
+      "plural": {
+        "few": "coroane daneze",
+        "other": "coroane daneze"
+      }
+    },
+    "DOP": {
+      "name": "peso dominican",
+      "narrow": "$",
+      "plural": {
+        "few": "pesos dominicani",
+        "other": "pesos dominicani"
+      }
+    },
+    "DZD": {
+      "name": "dinar algerian",
+      "plural": {
+        "few": "dinari algerieni",
+        "other": "dinari algerieni"
+      }
+    },
+    "ECS": {
+      "name": "sucre Ecuador"
+    },
+    "EEK": {
+      "name": "coroană estoniană",
+      "plural": {
+        "few": "coroane estoniene",
+        "other": "coroane estoniene"
+      }
+    },
+    "EGP": {
+      "name": "liră egipteană",
+      "narrow": "E£",
+      "plural": {
+        "few": "lire egiptene",
+        "other": "lire egiptene"
+      }
+    },
+    "ERN": {
+      "name": "nakfa eritreeană",
+      "plural": {
+        "few": "nakfa eritreene",
+        "other": "nakfa eritreene"
+      }
+    },
+    "ESA": {
+      "name": "peseta spaniolă (cont A)"
+    },
+    "ESB": {
+      "name": "peseta spaniolă (cont convertibil)"
+    },
+    "ESP": {
+      "name": "pesetă spaniolă",
+      "narrow": "₧",
+      "plural": {
+        "few": "pesete spaniole",
+        "other": "pesete spaniole"
+      }
+    },
+    "ETB": {
+      "name": "birr etiopian",
+      "plural": {
+        "few": "birri etiopieni",
+        "other": "birri etiopieni"
+      }
+    },
+    "EUR": {
+      "name": "euro",
+      "narrow": "€"
+    },
+    "FIM": {
+      "name": "marcă finlandeză",
+      "plural": {
+        "few": "mărci finlandeze",
+        "one": "mărci finlandeze",
+        "other": "mărci finlandeze"
+      }
+    },
+    "FJD": {
+      "name": "dolar fijian",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari fijieni",
+        "other": "dolari fijieni"
+      }
+    },
+    "FKP": {
+      "name": "liră din Insulele Falkland",
+      "narrow": "£",
+      "plural": {
+        "few": "lire din Insulele Falkland",
+        "other": "lire din Insulele Falkland"
+      }
+    },
+    "FRF": {
+      "name": "franc francez",
+      "plural": {
+        "few": "franci francezi",
+        "other": "franci francezi"
+      }
+    },
+    "GBP": {
+      "name": "liră sterlină",
+      "narrow": "£",
+      "plural": {
+        "few": "lire sterline",
+        "other": "lire sterline"
+      }
+    },
+    "GEL": {
+      "name": "lari georgian",
+      "narrow": "₾",
+      "plural": {
+        "few": "lari georgieni",
+        "other": "lari georgieni"
+      }
+    },
+    "GHC": {
+      "name": "cedi Ghana (1979–2007)"
+    },
+    "GHS": {
+      "name": "cedi ghanez",
+      "narrow": "GH₵",
+      "plural": {
+        "few": "cedi ghanezi",
+        "other": "cedi ghanezi"
+      }
+    },
+    "GIP": {
+      "name": "liră din Gibraltar",
+      "narrow": "£",
+      "plural": {
+        "few": "lire din Gibraltar",
+        "other": "lire Gibraltar"
+      }
+    },
+    "GMD": {
+      "name": "dalasi din Gambia"
+    },
+    "GNF": {
+      "name": "franc guineean",
+      "narrow": "FG",
+      "plural": {
+        "few": "franci guineeni",
+        "other": "franci guineeni"
+      }
+    },
+    "GRD": {
+      "name": "drahmă grecească",
+      "plural": {
+        "few": "drahme grecești",
+        "other": "drahme grecești"
+      }
+    },
+    "GTQ": {
+      "name": "quetzal guatemalez",
+      "narrow": "Q",
+      "plural": {
+        "few": "quetzali guatemalezi",
+        "other": "quetzali guatemalezi"
+      }
+    },
+    "GWP": {
+      "name": "peso Guineea-Bissau",
+      "plural": {
+        "few": "pesos Guineea-Bissau",
+        "other": "pesos Guineea-Bissau"
+      }
+    },
+    "GYD": {
+      "name": "dolar guyanez",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari guyanezi",
+        "other": "dolari guyanezi"
+      }
+    },
+    "HKD": {
+      "name": "dolar din Hong Kong",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari din Hong Kong",
+        "other": "dolari din Hong Kong"
+      }
+    },
+    "HNL": {
+      "name": "lempira honduriană",
+      "narrow": "L",
+      "plural": {
+        "few": "lempire honduriene",
+        "one": "lempiră honduriană",
+        "other": "lempire honduriene"
+      }
+    },
+    "HRD": {
+      "name": "dinar croat",
+      "plural": {
+        "few": "dinari croați",
+        "other": "dinari croați"
+      }
+    },
+    "HRK": {
+      "name": "kuna",
+      "narrow": "kn"
+    },
+    "HTG": {
+      "name": "gourde din Haiti"
+    },
+    "HUF": {
+      "name": "forint",
+      "narrow": "Ft",
+      "plural": {
+        "few": "forinți",
+        "other": "forinți"
+      }
+    },
+    "IDR": {
+      "name": "rupie indoneziană",
+      "narrow": "Rp",
+      "plural": {
+        "few": "rupii indoneziene",
+        "other": "rupii indoneziene"
+      }
+    },
+    "IEP": {
+      "name": "liră irlandeză",
+      "plural": {
+        "few": "lire irlandeze",
+        "other": "lire irlandeze"
+      }
+    },
+    "ILP": {
+      "name": "liră israeliană",
+      "plural": {
+        "few": "lire israeliene",
+        "other": "lire israeliene"
+      }
+    },
+    "ILS": {
+      "name": "shekel israelian nou",
+      "narrow": "₪",
+      "plural": {
+        "few": "shekeli israelieni noi",
+        "other": "shekeli israelieni noi"
+      }
+    },
+    "INR": {
+      "name": "rupie indiană",
+      "narrow": "₹",
+      "plural": {
+        "few": "rupii indiene",
+        "other": "rupii indiene"
+      }
+    },
+    "IQD": {
+      "name": "dinar irakian",
+      "plural": {
+        "few": "dinari irakieni",
+        "other": "dinari irakieni"
+      }
+    },
+    "IRR": {
+      "name": "rial iranian",
+      "plural": {
+        "few": "riali iranieni",
+        "other": "riali iranieni"
+      }
+    },
+    "ISK": {
+      "name": "coroană islandeză",
+      "narrow": "kr",
+      "plural": {
+        "few": "coroane islandeze",
+        "other": "coroane islandeze"
+      }
+    },
+    "ITL": {
+      "name": "liră italiană",
+      "plural": {
+        "few": "lire italiene",
+        "other": "lire italiene"
+      }
+    },
+    "JMD": {
+      "name": "dolar jamaican",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari jamaicani",
+        "other": "dolari jamaicani"
+      }
+    },
+    "JOD": {
+      "name": "dinar iordanian",
+      "plural": {
+        "few": "dinari iordanieni",
+        "other": "dinari iordanieni"
+      }
+    },
+    "JPY": {
+      "name": "yen japonez",
+      "narrow": "¥",
+      "plural": {
+        "few": "yeni japonezi",
+        "other": "yeni japonezi"
+      }
+    },
+    "KES": {
+      "name": "șiling kenyan",
+      "plural": {
+        "few": "șilingi kenyeni",
+        "other": "șilingi kenyeni"
+      }
+    },
+    "KGS": {
+      "name": "som kârgâz",
+      "narrow": "⃀",
+      "plural": {
+        "few": "somi kârgâzi",
+        "other": "somi kârgâzi"
+      }
+    },
+    "KHR": {
+      "name": "riel cambodgian",
+      "narrow": "៛",
+      "plural": {
+        "few": "rieli cambodgieni",
+        "other": "rieli cambodgieni"
+      }
+    },
+    "KMF": {
+      "name": "franc comorian",
+      "narrow": "CF",
+      "plural": {
+        "few": "franci comorieni",
+        "other": "franci comorieni"
+      }
+    },
+    "KPW": {
+      "name": "won nord-coreean",
+      "narrow": "₩",
+      "plural": {
+        "few": "woni nord-coreeni",
+        "other": "woni nord-coreeni"
+      }
+    },
+    "KRW": {
+      "name": "won sud-coreean",
+      "narrow": "₩",
+      "plural": {
+        "few": "woni sud-coreeni",
+        "other": "woni sud-coreeni"
+      }
+    },
+    "KWD": {
+      "name": "dinar kuweitian",
+      "plural": {
+        "few": "dinari kuweitieni",
+        "other": "dinari kuweitieni"
+      }
+    },
+    "KYD": {
+      "name": "dolar din Insulele Cayman",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari din Insulele Cayman",
+        "other": "dolari din Insulele Cayman"
+      }
+    },
+    "KZT": {
+      "name": "tenge kazahă",
+      "narrow": "₸",
+      "plural": {
+        "few": "tenge kazahe",
+        "other": "tenge kazahe"
+      }
+    },
+    "LAK": {
+      "name": "kip laoțian",
+      "narrow": "₭",
+      "plural": {
+        "few": "kipi laoțieni",
+        "other": "kipi laoțieni"
+      }
+    },
+    "LBP": {
+      "name": "liră libaneză",
+      "narrow": "L£",
+      "plural": {
+        "few": "lire libaneze",
+        "other": "lire libaneze"
+      }
+    },
+    "LKR": {
+      "name": "rupie srilankeză",
+      "narrow": "Rs",
+      "plural": {
+        "few": "rupii srilankeze",
+        "other": "rupii srilankeze"
+      }
+    },
+    "LRD": {
+      "name": "dolar liberian",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari liberieni",
+        "other": "dolari liberieni"
+      }
+    },
+    "LSL": {
+      "name": "loti lesothian",
+      "plural": {
+        "few": "maloti lesothieni",
+        "other": "maloti lesothieni"
+      }
+    },
+    "LTL": {
+      "name": "litu lituanian",
+      "narrow": "Lt",
+      "plural": {
+        "few": "lite lituaniene",
+        "other": "lite lituaniene"
+      }
+    },
+    "LUC": {
+      "name": "franc convertibil luxemburghez",
+      "plural": {
+        "few": "franci convertibili luxemburghezi",
+        "other": "franci convertibili luxemburghezi"
+      }
+    },
+    "LUF": {
+      "name": "franc luxemburghez",
+      "plural": {
+        "few": "franci luxemburghezi",
+        "other": "franci luxemburghezi"
+      }
+    },
+    "LUL": {
+      "name": "franc financiar luxemburghez",
+      "plural": {
+        "few": "franci financiari luxemburghezi",
+        "other": "franci financiari luxemburghezi"
+      }
+    },
+    "LVL": {
+      "name": "lats letonian",
+      "narrow": "Ls",
+      "plural": {
+        "few": "lats letonieni",
+        "other": "lats letonieni"
+      }
+    },
+    "LVR": {
+      "name": "rublă Letonia",
+      "plural": {
+        "few": "ruble Letonia",
+        "other": "ruble Letonia"
+      }
+    },
+    "LYD": {
+      "name": "dinar libian",
+      "plural": {
+        "few": "dinari libieni",
+        "other": "dinari libieni"
+      }
+    },
+    "MAD": {
+      "name": "dirham marocan",
+      "plural": {
+        "few": "dirhami marocani",
+        "other": "dirhami marocani"
+      }
+    },
+    "MAF": {
+      "name": "franc marocan",
+      "plural": {
+        "few": "franci marocani",
+        "other": "franci marocani"
+      }
+    },
+    "MDL": {
+      "name": "leu moldovenesc",
+      "plural": {
+        "few": "lei moldovenești",
+        "other": "lei moldovenești"
+      }
+    },
+    "MGA": {
+      "name": "ariary malgaș",
+      "narrow": "Ar",
+      "plural": {
+        "few": "ariary malgași",
+        "other": "ariary malgași"
+      }
+    },
+    "MGF": {
+      "name": "franc Madagascar",
+      "plural": {
+        "few": "franci Madagascar",
+        "other": "franci Madagascar"
+      }
+    },
+    "MKD": {
+      "name": "denar",
+      "plural": {
+        "few": "denari",
+        "other": "denari"
+      }
+    },
+    "MLF": {
+      "name": "franc Mali",
+      "plural": {
+        "few": "franci Mali",
+        "other": "franci Mali"
+      }
+    },
+    "MMK": {
+      "name": "kyat din Myanmar",
+      "narrow": "K",
+      "plural": {
+        "few": "kyați din Myanmar",
+        "other": "kyați din Myanmar"
+      }
+    },
+    "MNT": {
+      "name": "tugrik mongol",
+      "narrow": "₮",
+      "plural": {
+        "few": "tugrici mongoli",
+        "other": "tugrici mongoli"
+      }
+    },
+    "MOP": {
+      "name": "pataca din Macao"
+    },
+    "MRO": {
+      "name": "ouguiya mauritană (1973–2017)",
+      "plural": {
+        "few": "ouguiya mauritane (1973–2017)",
+        "other": "ouguiya mauritane (1973–2017)"
+      }
+    },
+    "MRU": {
+      "name": "ouguiya mauritană",
+      "plural": {
+        "few": "ouguiya mauritane",
+        "other": "ouguiya mauritane"
+      }
+    },
+    "MTL": {
+      "name": "liră malteză",
+      "plural": {
+        "few": "lire malteze",
+        "other": "lire malteze"
+      }
+    },
+    "MUR": {
+      "name": "rupie mauritiană",
+      "narrow": "Rs",
+      "plural": {
+        "few": "rupii mauritiene",
+        "other": "rupii mauritiene"
+      }
+    },
+    "MVR": {
+      "name": "rufiyaa maldiviană",
+      "plural": {
+        "few": "rufiyaa maldiviene",
+        "other": "rufiyaa maldiviene"
+      }
+    },
+    "MWK": {
+      "name": "kwacha malawiană",
+      "plural": {
+        "few": "kwache malawiene",
+        "other": "kwache malawiene"
+      }
+    },
+    "MXN": {
+      "name": "peso mexican",
+      "narrow": "$",
+      "plural": {
+        "few": "pesos mexicani",
+        "other": "pesos mexicani"
+      }
+    },
+    "MXP": {
+      "name": "peso mexican de argint (1861–1992)",
+      "plural": {
+        "few": "pesos mexicani de argint (1861–1992",
+        "other": "pesos mexicani de argint (1861–1992)"
+      }
+    },
+    "MYR": {
+      "name": "ringgit malaiezian",
+      "narrow": "RM",
+      "plural": {
+        "few": "ringgit malaiezieni",
+        "other": "ringgit malaiezieni"
+      }
+    },
+    "MZE": {
+      "name": "escudo Mozambic"
+    },
+    "MZM": {
+      "name": "metical Mozambic vechi"
+    },
+    "MZN": {
+      "name": "metical mozambican",
+      "plural": {
+        "few": "meticali mozambicani",
+        "other": "meticali mozambicani"
+      }
+    },
+    "NAD": {
+      "name": "dolar namibian",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari namibieni",
+        "other": "dolari namibieni"
+      }
+    },
+    "NGN": {
+      "name": "naira nigeriană",
+      "narrow": "₦",
+      "plural": {
+        "few": "naire nigeriene",
+        "other": "naire nigeriene"
+      }
+    },
+    "NIC": {
+      "name": "cordoba nicaraguană (1988–1991)"
+    },
+    "NIO": {
+      "name": "córdoba oro",
+      "narrow": "C$",
+      "plural": {
+        "few": "córdobe oro",
+        "other": "córdobe oro"
+      }
+    },
+    "NLG": {
+      "name": "gulden olandez",
+      "plural": {
+        "few": "guldeni olandezi",
+        "other": "guldeni olandezi"
+      }
+    },
+    "NOK": {
+      "name": "coroană norvegiană",
+      "narrow": "kr",
+      "plural": {
+        "few": "coroane norvegiene",
+        "other": "coroane norvegiene"
+      }
+    },
+    "NPR": {
+      "name": "rupie nepaleză",
+      "narrow": "Rs",
+      "plural": {
+        "few": "rupii nepaleze",
+        "other": "rupii nepaleze"
+      }
+    },
+    "NZD": {
+      "name": "dolar neozeelandez",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari neozeelandezi",
+        "other": "dolari neozeelandezi"
+      }
+    },
+    "OMR": {
+      "name": "rial omanez",
+      "plural": {
+        "few": "riali omanezi",
+        "other": "riali omanezi"
+      }
+    },
+    "PAB": {
+      "name": "balboa panameză",
+      "plural": {
+        "few": "balboa panameze",
+        "other": "balboa panameze"
+      }
+    },
+    "PEI": {
+      "name": "inti peruvian"
+    },
+    "PEN": {
+      "name": "sol",
+      "plural": {
+        "few": "soli",
+        "other": "soli"
+      }
+    },
+    "PES": {
+      "name": "sol peruvian (1863–1965)",
+      "plural": {
+        "few": "soli peruvieni (1863–1965)",
+        "other": "soli peruvieni (1863–1965)"
+      }
+    },
+    "PGK": {
+      "name": "kina din Papua-Noua Guinee"
+    },
+    "PHP": {
+      "name": "peso filipinez",
+      "narrow": "₱",
+      "plural": {
+        "few": "pesos filipinezi",
+        "other": "pesos filipinezi"
+      }
+    },
+    "PKR": {
+      "name": "rupie pakistaneză",
+      "narrow": "Rs",
+      "plural": {
+        "few": "rupii pakistaneze",
+        "other": "rupii pakistaneze"
+      }
+    },
+    "PLN": {
+      "name": "zlot",
+      "narrow": "zł",
+      "plural": {
+        "few": "zloți",
+        "other": "zloți"
+      }
+    },
+    "PLZ": {
+      "name": "zlot polonez (1950–1995)",
+      "plural": {
+        "few": "zloți polonezi (1950–1995)",
+        "other": "zloți polonezi (1950–1995)"
+      }
+    },
+    "PYG": {
+      "name": "guarani",
+      "narrow": "₲"
+    },
+    "QAR": {
+      "name": "rial qatarian",
+      "plural": {
+        "few": "riali qatarieni",
+        "other": "riali qatarieni"
+      }
+    },
+    "RHD": {
+      "name": "dolar rhodesian",
+      "plural": {
+        "few": "dolari rhodesieni",
+        "other": "dolari rhodesieni"
+      }
+    },
+    "ROL": {
+      "name": "leu românesc (1952–2006)",
+      "plural": {
+        "few": "lei românești (1952–2006)",
+        "other": "lei românești (1952–2006)"
+      }
+    },
+    "RON": {
+      "name": "leu românesc",
+      "narrow": "lei",
+      "plural": {
+        "few": "lei românești",
+        "other": "lei românești"
+      }
+    },
+    "RSD": {
+      "name": "dinar sârbesc",
+      "plural": {
+        "few": "dinari sârbești",
+        "other": "dinari sârbești"
+      }
+    },
+    "RUB": {
+      "name": "rublă rusească",
+      "narrow": "₽",
+      "plural": {
+        "few": "ruble rusești",
+        "other": "ruble rusești"
+      }
+    },
+    "RWF": {
+      "name": "franc rwandez",
+      "narrow": "RF",
+      "plural": {
+        "few": "franci rwandezi",
+        "other": "franci rwandezi"
+      }
+    },
+    "SAR": {
+      "name": "rial saudit",
+      "plural": {
+        "few": "riali saudiți",
+        "other": "riali saudiți"
+      }
+    },
+    "SBD": {
+      "name": "dolar din Insulele Solomon",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari din Insulele Solomon",
+        "other": "dolari din Insulele Solomon"
+      }
+    },
+    "SCR": {
+      "name": "rupie seychelleză",
+      "plural": {
+        "few": "rupii seychelleze",
+        "other": "rupii seychelleze"
+      }
+    },
+    "SDD": {
+      "name": "dinar sudanez",
+      "plural": {
+        "few": "dinari sudanezi",
+        "other": "dinari sudanezi"
+      }
+    },
+    "SDG": {
+      "name": "liră sudaneză",
+      "plural": {
+        "few": "lire sudaneze",
+        "other": "lire sudaneze"
+      }
+    },
+    "SDP": {
+      "name": "liră sudaneză (1957–1998)",
+      "plural": {
+        "few": "lire sudaneze (1957–1998)",
+        "other": "lire sudaneze (1957–1998)"
+      }
+    },
+    "SEK": {
+      "name": "coroană suedeză",
+      "narrow": "kr",
+      "plural": {
+        "few": "coroane suedeze",
+        "other": "coroane suedeze"
+      }
+    },
+    "SGD": {
+      "name": "dolar singaporez",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari singaporezi",
+        "other": "dolari singaporezi"
+      }
+    },
+    "SHP": {
+      "name": "liră din Sfânta Elena (Sfânta Elena și Ascension)",
+      "narrow": "£",
+      "plural": {
+        "few": "lire din Sfânta Elena (Sfânta Elena și Ascension)",
+        "other": "lire din Sfânta Elena (Sfânta Elena și Ascension)"
+      }
+    },
+    "SIT": {
+      "name": "tolar sloven",
+      "plural": {
+        "few": "tolari sloveni",
+        "other": "tolari sloveni"
+      }
+    },
+    "SKK": {
+      "name": "coroană slovacă",
+      "plural": {
+        "few": "coroane slovace",
+        "other": "coroane slovace"
+      }
+    },
+    "SLE": {
+      "name": "leone din Sierra Leone",
+      "plural": {
+        "few": "leoni din Sierra Leone",
+        "other": "leoni din Sierra Leone"
+      }
+    },
+    "SLL": {
+      "name": "leone din Sierra Leone (1964—2022)",
+      "plural": {
+        "few": "leoni din Sierra Leone (1964—2022)",
+        "other": "leoni din Sierra Leone (1964—2022)"
+      }
+    },
+    "SOS": {
+      "name": "șiling somalez",
+      "plural": {
+        "few": "șilingi somalezi",
+        "other": "șilingi somalezi"
+      }
+    },
+    "SRD": {
+      "name": "dolar surinamez",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari surinamezi",
+        "other": "dolari surinamezi"
+      }
+    },
+    "SRG": {
+      "name": "gulden Surinam",
+      "plural": {
+        "few": "guldeni Surinam",
+        "other": "guldeni Surinam"
+      }
+    },
+    "SSP": {
+      "name": "liră din Sudanul de Sud",
+      "narrow": "£",
+      "plural": {
+        "few": "lire din Sudanul de Sud",
+        "other": "lire din Sudanul de Sud"
+      }
+    },
+    "STD": {
+      "name": "dobra Sao Tome și Principe (1977–2017)",
+      "plural": {
+        "few": "dobre Sao Tome și Principe (1977–2017)",
+        "other": "dobre Sao Tome și Principe (1977–2017)"
+      }
+    },
+    "STN": {
+      "name": "dobra din São Tomé și Príncipe",
+      "narrow": "Db",
+      "plural": {
+        "few": "dobre din São Tomé și Príncipe",
+        "other": "dobre din São Tomé și Príncipe"
+      }
+    },
+    "SUR": {
+      "name": "rublă sovietică",
+      "plural": {
+        "few": "ruble sovietice",
+        "other": "ruble sovietice"
+      }
+    },
+    "SVC": {
+      "name": "colon El Salvador",
+      "plural": {
+        "few": "coloni El Salvador",
+        "other": "coloni El Salvador"
+      }
+    },
+    "SYP": {
+      "name": "liră siriană",
+      "narrow": "£",
+      "plural": {
+        "few": "lire siriene",
+        "other": "lire siriene"
+      }
+    },
+    "SZL": {
+      "name": "lilangeni din Swaziland",
+      "plural": {
+        "few": "emalangeni din Swaziland",
+        "other": "emalangeni din Swaziland"
+      }
+    },
+    "THB": {
+      "name": "baht thailandez",
+      "narrow": "฿",
+      "plural": {
+        "few": "bahți thailandezi",
+        "other": "bahți thailandezi"
+      }
+    },
+    "TJR": {
+      "name": "rublă Tadjikistan",
+      "plural": {
+        "few": "ruble Tadjikistan",
+        "other": "ruble Tadjikistan"
+      }
+    },
+    "TJS": {
+      "name": "somoni tadjic",
+      "plural": {
+        "few": "somoni tadjici",
+        "one": "somoni tajdic",
+        "other": "somoni tadjici"
+      }
+    },
+    "TMM": {
+      "name": "manat turkmen (1993–2009)",
+      "plural": {
+        "few": "manat turkmeni (1993–2009)",
+        "other": "manat turkmeni (1993–2009)"
+      }
+    },
+    "TMT": {
+      "name": "manat turkmen",
+      "plural": {
+        "few": "manat turkmeni",
+        "other": "manat turkmeni"
+      }
+    },
+    "TND": {
+      "name": "dinar tunisian",
+      "plural": {
+        "few": "dinari tunisieni",
+        "other": "dinari tunisieni"
+      }
+    },
+    "TOP": {
+      "name": "pa’anga tongană",
+      "narrow": "T$",
+      "plural": {
+        "few": "pa’anga tongane",
+        "other": "pa’anga tongane"
+      }
+    },
+    "TRL": {
+      "name": "liră turcească (1922–2005)",
+      "plural": {
+        "other": "lire turcești (1922–2005)"
+      }
+    },
+    "TRY": {
+      "name": "liră turcească",
+      "narrow": "₺",
+      "plural": {
+        "few": "lire turcești",
+        "other": "lire turcești"
+      }
+    },
+    "TTD": {
+      "name": "dolar din Trinidad și Tobago",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari din Trinidad și Tobago",
+        "other": "dolari din Trinidad și Tobago"
+      }
+    },
+    "TWD": {
+      "name": "dolar nou din Taiwan",
+      "narrow": "NT$",
+      "plural": {
+        "few": "dolari noi din Taiwan",
+        "other": "dolari noi Taiwan"
+      }
+    },
+    "TZS": {
+      "name": "șiling tanzanian",
+      "plural": {
+        "few": "șilingi tanzanieni",
+        "other": "șilingi tanzanieni"
+      }
+    },
+    "UAH": {
+      "name": "grivnă",
+      "narrow": "₴",
+      "plural": {
+        "few": "grivne",
+        "other": "grivne"
+      }
+    },
+    "UAK": {
+      "name": "carboavă ucraineană",
+      "plural": {
+        "few": "carboave ucrainiene",
+        "other": "carboave ucrainiene"
+      }
+    },
+    "UGS": {
+      "name": "șiling ugandez (1966–1987)",
+      "plural": {
+        "few": "șilingi ugandezi (1966–1987)",
+        "other": "șilingi ugandezi (1966–1987)"
+      }
+    },
+    "UGX": {
+      "name": "șiling ugandez",
+      "plural": {
+        "few": "șilingi ugandezi",
+        "other": "șilingi ugandezi"
+      }
+    },
+    "USD": {
+      "name": "dolar american",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari americani",
+        "other": "dolari americani"
+      }
+    },
+    "USN": {
+      "name": "dolar american (ziua următoare)",
+      "plural": {
+        "few": "dolari americani (ziua următoare)",
+        "other": "dolari americani (ziua următoare)"
+      }
+    },
+    "USS": {
+      "name": "dolar american (aceeași zi)",
+      "plural": {
+        "few": "dolari americani (aceeași zi)",
+        "other": "dolari americani (aceeași zi)"
+      }
+    },
+    "UYP": {
+      "name": "peso Uruguay (1975–1993)",
+      "plural": {
+        "few": "pesos Uruguay (1975–1993)",
+        "other": "pesos Uruguay (1975–1993)"
+      }
+    },
+    "UYU": {
+      "name": "peso uruguayan",
+      "narrow": "$",
+      "plural": {
+        "few": "pesos uruguayeni",
+        "other": "pesos uruguayeni"
+      }
+    },
+    "UZS": {
+      "name": "sum Uzbekistan"
+    },
+    "VEB": {
+      "name": "bolivar Venezuela (1871–2008)",
+      "plural": {
+        "few": "bolivari Venezuela (1871–2008)",
+        "other": "bolivari Venezuela (1871–2008)"
+      }
+    },
+    "VEF": {
+      "name": "bolivar venezuelean (2008–2018)",
+      "narrow": "Bs",
+      "plural": {
+        "few": "bolivari venezueleni (2008–2018)",
+        "other": "bolivari venezueleni (2008–2018)"
+      }
+    },
+    "VES": {
+      "name": "bolívar soberano",
+      "plural": {
+        "few": "bolívari soberano",
+        "other": "bolívari soberano"
+      }
+    },
+    "VND": {
+      "name": "dong vietnamez",
+      "narrow": "₫",
+      "plural": {
+        "few": "dongi vietnamezi",
+        "other": "dongi vietnamezi"
+      }
+    },
+    "VUV": {
+      "name": "vatu din Vanuatu"
+    },
+    "WST": {
+      "name": "tala samoană",
+      "plural": {
+        "few": "tala samoane"
+      }
+    },
+    "XAF": {
+      "name": "franc CFA BEAC",
+      "plural": {
+        "few": "franci CFA BEAC",
+        "other": "franci CFA central-africani"
+      },
+      "symbol": "FCFA"
+    },
+    "XAG": {
+      "name": "argint"
+    },
+    "XAU": {
+      "name": "aur"
+    },
+    "XBA": {
+      "name": "unitate compusă europeană"
+    },
+    "XBB": {
+      "name": "unitate monetară europeană"
+    },
+    "XBC": {
+      "name": "unitate de cont europeană (XBC)"
+    },
+    "XBD": {
+      "name": "unitate de cont europeană (XBD)"
+    },
+    "XCD": {
+      "name": "dolar est-caraib",
+      "narrow": "$",
+      "plural": {
+        "few": "dolari est-caraibi",
+        "other": "dolari est-caraibi"
+      }
+    },
+    "XCG": {
+      "name": "gulden caraib",
+      "plural": {
+        "few": "guldeni caraibi",
+        "other": "guldeni caraibi"
+      },
+      "symbol": "Cg."
+    },
+    "XDR": {
+      "name": "drepturi speciale de tragere"
+    },
+    "XEU": {
+      "name": "unitate de monedă europeană"
+    },
+    "XFO": {
+      "name": "franc francez de aur",
+      "plural": {
+        "few": "franci francezi de aur",
+        "other": "franci francezi de aur"
+      }
+    },
+    "XFU": {
+      "name": "franc UIC francez"
+    },
+    "XOF": {
+      "name": "franc CFA BCEAO",
+      "plural": {
+        "few": "franci CFA BCEAO",
+        "other": "franci CFA BCEAO"
+      },
+      "symbol": "F\u202fCFA"
+    },
+    "XPD": {
+      "name": "paladiu"
+    },
+    "XPF": {
+      "name": "franc CFP",
+      "plural": {
+        "few": "franci CFP",
+        "other": "franci CFP"
+      },
+      "symbol": "CFPF"
+    },
+    "XPT": {
+      "name": "platină"
+    },
+    "XTS": {
+      "name": "cod monetar de test"
+    },
+    "XXX": {
+      "name": "monedă necunoscută",
+      "plural": {
+        "few": "(monedă necunoscută)",
+        "one": "(unitate monetară necunoscută)",
+        "other": "(monedă necunoscută)"
+      },
+      "symbol": "¤"
+    },
+    "YDD": {
+      "name": "dinar Yemen",
+      "plural": {
+        "few": "dinari Yemen",
+        "other": "dinari Yemen"
+      }
+    },
+    "YER": {
+      "name": "rial yemenit",
+      "plural": {
+        "few": "riali yemeniți",
+        "other": "riali yemeniți"
+      }
+    },
+    "YUD": {
+      "name": "dinar iugoslav greu",
+      "plural": {
+        "few": "dinari iugoslavi grei",
+        "other": "dinari iugoslavi grei"
+      }
+    },
+    "YUM": {
+      "name": "dinar iugoslav nou",
+      "plural": {
+        "few": "dinari iugoslavi noi",
+        "other": "dinari iugoslavi noi"
+      }
+    },
+    "YUN": {
+      "name": "dinar iugoslav convertibil",
+      "plural": {
+        "few": "dinari iugoslavi convertibili",
+        "other": "dinari iugoslavi convertibili"
+      }
+    },
+    "ZAL": {
+      "name": "rand sud-african (financiar)"
+    },
+    "ZAR": {
+      "name": "rand sud-african",
+      "narrow": "R",
+      "plural": {
+        "few": "ranzi sud-africani",
+        "other": "ranzi sud-africani"
+      }
+    },
+    "ZMK": {
+      "name": "kwacha zambian (1968–2012)",
+      "plural": {
+        "few": "kwache zambiene (1968–2012)",
+        "one": "kwacha zambiană (1968–2012)",
+        "other": "kwache zambiene (1968–2012)"
+      }
+    },
+    "ZMW": {
+      "name": "kwacha zambian",
+      "narrow": "ZK",
+      "plural": {
+        "few": "kwache zambiene",
+        "other": "kwache zambiene"
+      }
+    },
+    "ZRN": {
+      "name": "zair nou",
+      "plural": {
+        "few": "zairi noi",
+        "other": "zairi noi"
+      }
+    },
+    "ZWD": {
+      "name": "dolar Zimbabwe (1980–2008)",
+      "plural": {
+        "few": "dolari Zimbabwe (1980–2008)",
+        "other": "dolari Zimbabwe (1980–2008)"
+      }
+    },
+    "ZWG": {
+      "name": "Zimbabwe Gold"
+    },
+    "ZWL": {
+      "name": "dolar Zimbabwe (2009)"
+    },
+    "ZWR": {
+      "name": "dolar Zimbabwe (2008)"
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "ro",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "#,##0.00\u00a0¤;(#,##0.00\u00a0¤)",
+      "compactShort": {
+        "1000": {
+          "one": "0\u00a0K",
+          "other": "0\u00a0K"
+        },
+        "10000": {
+          "one": "00\u00a0K",
+          "other": "00\u00a0K"
+        },
+        "100000": {
+          "one": "000\u00a0K",
+          "other": "000\u00a0K"
+        },
+        "1000000": {
+          "one": "0\u00a0mil'.'",
+          "other": "0\u00a0mil'.'"
+        },
+        "10000000": {
+          "one": "00\u00a0mil'.'",
+          "other": "00\u00a0mil'.'"
+        },
+        "100000000": {
+          "one": "000\u00a0mil'.'",
+          "other": "000\u00a0mil'.'"
+        },
+        "1000000000": {
+          "one": "0\u00a0mld'.'",
+          "other": "0\u00a0mld'.'"
+        },
+        "10000000000": {
+          "one": "00\u00a0mld'.'",
+          "other": "00\u00a0mld'.'"
+        },
+        "100000000000": {
+          "one": "000\u00a0mld'.'",
+          "other": "000\u00a0mld'.'"
+        },
+        "1000000000000": {
+          "one": "0\u00a0tril'.'",
+          "other": "0\u00a0tril'.'"
+        },
+        "10000000000000": {
+          "one": "00\u00a0tril'.'",
+          "other": "00\u00a0tril'.'"
+        },
+        "100000000000000": {
+          "one": "000\u00a0tril'.'",
+          "other": "000\u00a0tril'.'"
+        }
+      },
+      "currency": "#,##0.00\u00a0¤",
+      "decimal": "#,##0.###",
+      "percent": "#,##0\u00a0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ",",
+        "exponential": "E",
+        "group": ".",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "NaN",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {
+      "few": "v != 0 or n = 0 or n != 1 and n % 100 = 1..19",
+      "one": "i = 1 and v = 0"
+    },
+    "ordinal": {
+      "one": "n = 1"
+    }
+  },
+  "territories": {
+    "AC": "Insula Ascension",
+    "AD": "Andorra",
+    "AE": "Emiratele Arabe Unite",
+    "AF": "Afganistan",
+    "AG": "Antigua și Barbuda",
+    "AI": "Anguilla",
+    "AL": "Albania",
+    "AM": "Armenia",
+    "AO": "Angola",
+    "AQ": "Antarctica",
+    "AR": "Argentina",
+    "AS": "Samoa Americană",
+    "AT": "Austria",
+    "AU": "Australia",
+    "AW": "Aruba",
+    "AX": "Insulele Åland",
+    "AZ": "Azerbaidjan",
+    "BA": "Bosnia și Herțegovina",
+    "BB": "Barbados",
+    "BD": "Bangladesh",
+    "BE": "Belgia",
+    "BF": "Burkina Faso",
+    "BG": "Bulgaria",
+    "BH": "Bahrain",
+    "BI": "Burundi",
+    "BJ": "Benin",
+    "BL": "Saint-Barthélemy",
+    "BM": "Bermuda",
+    "BN": "Brunei",
+    "BO": "Bolivia",
+    "BQ": "Insulele Caraibe Olandeze",
+    "BR": "Brazilia",
+    "BS": "Bahamas",
+    "BT": "Bhutan",
+    "BV": "Insula Bouvet",
+    "BW": "Botswana",
+    "BY": "Belarus",
+    "BZ": "Belize",
+    "CA": "Canada",
+    "CC": "Insulele Cocos (Keeling)",
+    "CD": "Congo - Kinshasa",
+    "CF": "Republica Centrafricană",
+    "CG": "Congo - Brazzaville",
+    "CH": "Elveția",
+    "CI": "Côte d’Ivoire",
+    "CK": "Insulele Cook",
+    "CL": "Chile",
+    "CM": "Camerun",
+    "CN": "China",
+    "CO": "Columbia",
+    "CP": "Insula Clipperton",
+    "CQ": "Sark",
+    "CR": "Costa Rica",
+    "CU": "Cuba",
+    "CV": "Capul Verde",
+    "CW": "Curaçao",
+    "CX": "Insula Christmas",
+    "CY": "Cipru",
+    "CZ": "Cehia",
+    "DE": "Germania",
+    "DG": "Diego Garcia",
+    "DJ": "Djibouti",
+    "DK": "Danemarca",
+    "DM": "Dominica",
+    "DO": "Republica Dominicană",
+    "DZ": "Algeria",
+    "EA": "Ceuta și Melilla",
+    "EC": "Ecuador",
+    "EE": "Estonia",
+    "EG": "Egipt",
+    "EH": "Sahara Occidentală",
+    "ER": "Eritreea",
+    "ES": "Spania",
+    "ET": "Etiopia",
+    "EU": "Uniunea Europeană",
+    "EZ": "Zona euro",
+    "FI": "Finlanda",
+    "FJ": "Fiji",
+    "FK": "Insulele Falkland",
+    "FM": "Micronezia",
+    "FO": "Insulele Feroe",
+    "FR": "Franța",
+    "GA": "Gabon",
+    "GB": "Regatul Unit",
+    "GD": "Grenada",
+    "GE": "Georgia",
+    "GF": "Guyana Franceză",
+    "GG": "Guernsey",
+    "GH": "Ghana",
+    "GI": "Gibraltar",
+    "GL": "Groenlanda",
+    "GM": "Gambia",
+    "GN": "Guineea",
+    "GP": "Guadelupa",
+    "GQ": "Guineea Ecuatorială",
+    "GR": "Grecia",
+    "GS": "Georgia de Sud și Insulele Sandwich de Sud",
+    "GT": "Guatemala",
+    "GU": "Guam",
+    "GW": "Guineea-Bissau",
+    "GY": "Guyana",
+    "HK": "R.A.S. Hong Kong, China",
+    "HM": "Insula Heard și Insulele McDonald",
+    "HN": "Honduras",
+    "HR": "Croația",
+    "HT": "Haiti",
+    "HU": "Ungaria",
+    "IC": "Insulele Canare",
+    "ID": "Indonezia",
+    "IE": "Irlanda",
+    "IL": "Israel",
+    "IM": "Insula Man",
+    "IN": "India",
+    "IO": "Teritoriul Britanic din Oceanul Indian",
+    "IQ": "Irak",
+    "IR": "Iran",
+    "IS": "Islanda",
+    "IT": "Italia",
+    "JE": "Jersey",
+    "JM": "Jamaica",
+    "JO": "Iordania",
+    "JP": "Japonia",
+    "KE": "Kenya",
+    "KG": "Kârgâzstan",
+    "KH": "Cambodgia",
+    "KI": "Kiribati",
+    "KM": "Comore",
+    "KN": "Saint Kitts și Nevis",
+    "KP": "Coreea de Nord",
+    "KR": "Coreea de Sud",
+    "KW": "Kuweit",
+    "KY": "Insulele Cayman",
+    "KZ": "Kazahstan",
+    "LA": "Laos",
+    "LB": "Liban",
+    "LC": "Sfânta Lucia",
+    "LI": "Liechtenstein",
+    "LK": "Sri Lanka",
+    "LR": "Liberia",
+    "LS": "Lesotho",
+    "LT": "Lituania",
+    "LU": "Luxemburg",
+    "LV": "Letonia",
+    "LY": "Libia",
+    "MA": "Maroc",
+    "MC": "Monaco",
+    "MD": "Republica Moldova",
+    "ME": "Muntenegru",
+    "MF": "Sfântul Martin",
+    "MG": "Madagascar",
+    "MH": "Insulele Marshall",
+    "MK": "Macedonia de Nord",
+    "ML": "Mali",
+    "MM": "Myanmar (Birmania)",
+    "MN": "Mongolia",
+    "MO": "R.A.S. Macao, China",
+    "MP": "Insulele Mariane de Nord",
+    "MQ": "Martinica",
+    "MR": "Mauritania",
+    "MS": "Montserrat",
+    "MT": "Malta",
+    "MU": "Mauritius",
+    "MV": "Maldive",
+    "MW": "Malawi",
+    "MX": "Mexic",
+    "MY": "Malaysia",
+    "MZ": "Mozambic",
+    "NA": "Namibia",
+    "NC": "Noua Caledonie",
+    "NE": "Niger",
+    "NF": "Insula Norfolk",
+    "NG": "Nigeria",
+    "NI": "Nicaragua",
+    "NL": "Țările de Jos",
+    "NO": "Norvegia",
+    "NP": "Nepal",
+    "NR": "Nauru",
+    "NU": "Niue",
+    "NZ": "Noua Zeelandă",
+    "OM": "Oman",
+    "PA": "Panama",
+    "PE": "Peru",
+    "PF": "Polinezia Franceză",
+    "PG": "Papua-Noua Guinee",
+    "PH": "Filipine",
+    "PK": "Pakistan",
+    "PL": "Polonia",
+    "PM": "Saint-Pierre și Miquelon",
+    "PN": "Insulele Pitcairn",
+    "PR": "Puerto Rico",
+    "PS": "Teritoriile Palestiniene",
+    "PT": "Portugalia",
+    "PW": "Palau",
+    "PY": "Paraguay",
+    "QA": "Qatar",
+    "QO": "Oceania Periferică",
+    "RE": "Réunion",
+    "RO": "România",
+    "RS": "Serbia",
+    "RU": "Rusia",
+    "RW": "Rwanda",
+    "SA": "Arabia Saudită",
+    "SB": "Insulele Solomon",
+    "SC": "Seychelles",
+    "SD": "Sudan",
+    "SE": "Suedia",
+    "SG": "Singapore",
+    "SH": "Sfânta Elena",
+    "SI": "Slovenia",
+    "SJ": "Svalbard și Jan Mayen",
+    "SK": "Slovacia",
+    "SL": "Sierra Leone",
+    "SM": "San Marino",
+    "SN": "Senegal",
+    "SO": "Somalia",
+    "SR": "Suriname",
+    "SS": "Sudanul de Sud",
+    "ST": "São Tomé și Príncipe",
+    "SV": "El Salvador",
+    "SX": "Sint-Maarten",
+    "SY": "Siria",
+    "SZ": "Eswatini",
+    "TA": "Tristan da Cunha",
+    "TC": "Insulele Turks și Caicos",
+    "TD": "Ciad",
+    "TF": "Teritoriile Australe și Antarctice Franceze",
+    "TG": "Togo",
+    "TH": "Thailanda",
+    "TJ": "Tadjikistan",
+    "TK": "Tokelau",
+    "TL": "Timor-Leste",
+    "TM": "Turkmenistan",
+    "TN": "Tunisia",
+    "TO": "Tonga",
+    "TR": "Turcia",
+    "TT": "Trinidad și Tobago",
+    "TV": "Tuvalu",
+    "TW": "Taiwan",
+    "TZ": "Tanzania",
+    "UA": "Ucraina",
+    "UG": "Uganda",
+    "UM": "Insulele Îndepărtate ale S.U.A.",
+    "UN": "Națiunile Unite",
+    "US": "Statele Unite ale Americii",
+    "UY": "Uruguay",
+    "UZ": "Uzbekistan",
+    "VA": "Statul Cetății Vaticanului",
+    "VC": "Saint Vincent și Grenadinele",
+    "VE": "Venezuela",
+    "VG": "Insulele Virgine Britanice",
+    "VI": "Insulele Virgine Americane",
+    "VN": "Vietnam",
+    "VU": "Vanuatu",
+    "WF": "Wallis și Futuna",
+    "WS": "Samoa",
+    "XA": "Pseudo-accente",
+    "XB": "Pseudo-Bidi",
+    "XK": "Kosovo",
+    "YE": "Yemen",
+    "YT": "Mayotte",
+    "ZA": "Africa de Sud",
+    "ZM": "Zambia",
+    "ZW": "Zimbabwe"
+  }
+}

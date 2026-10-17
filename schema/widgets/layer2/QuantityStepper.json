@@ -1,0 +1,84 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "QuantityStepper",
+  "id": 183,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "commerce",
+  "icon": "add_circle",
+  "description": "A decrease button, the quantity and an increase button; screen readers adjust it with increase and decrease actions.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 60,
+  "accessibility": {
+    "role": "slider",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "value",
+      "id": 1,
+      "type": "int",
+      "default": 1,
+      "description": "The current quantity."
+    },
+    {
+      "name": "min",
+      "id": 2,
+      "type": "int",
+      "default": 0,
+      "description": "The smallest quantity."
+    },
+    {
+      "name": "max",
+      "id": 3,
+      "type": "int",
+      "default": 99,
+      "description": "The largest quantity."
+    },
+    {
+      "name": "step",
+      "id": 4,
+      "type": "int",
+      "default": 1,
+      "constraints": {
+        "min": 1
+      },
+      "description": "The change per press."
+    },
+    {
+      "name": "decreaseLabel",
+      "id": 5,
+      "type": "string",
+      "default": "Decrease",
+      "translatable": true,
+      "description": "The accessibility label of the decrease button."
+    },
+    {
+      "name": "increaseLabel",
+      "id": 6,
+      "type": "string",
+      "default": "Increase",
+      "translatable": true,
+      "description": "The accessibility label of the increase button."
+    }
+  ],
+  "events": [
+    {
+      "name": "onChanged",
+      "id": 1,
+      "payload": "int",
+      "description": "Fires with the new quantity."
+    }
+  ]
+}

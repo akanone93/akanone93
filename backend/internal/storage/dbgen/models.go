@@ -759,6 +759,22 @@ type TelemetryEvent struct {
 	ReceivedAt      pgtype.Timestamptz
 }
 
+type TranslationLock struct {
+	DraftID         pgtype.UUID
+	Locale          string
+	OrganizationID  pgtype.UUID
+	HolderKind      string
+	HolderID        string
+	HolderDisplay   string
+	Session         string
+	AcquiredAt      pgtype.Timestamptz
+	HeartbeatAt     pgtype.Timestamptz
+	ExpiresAt       pgtype.Timestamptz
+	PreviousSession string
+	PreviousHolder  string
+	RequestedBy     []byte
+}
+
 type Trash struct {
 	ID             pgtype.UUID
 	OrganizationID pgtype.UUID

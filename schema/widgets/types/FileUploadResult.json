@@ -1,0 +1,42 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "FileUploadResult",
+  "id": 65,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "What a finished upload reports.",
+  "fields": [
+    {
+      "name": "name",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The file name."
+    },
+    {
+      "name": "mimeType",
+      "id": 2,
+      "type": "string",
+      "required": true,
+      "description": "The media type."
+    },
+    {
+      "name": "sizeBytes",
+      "id": 3,
+      "type": "int",
+      "required": true,
+      "description": "The size in bytes."
+    },
+    {
+      "name": "response",
+      "id": 4,
+      "type": "string?",
+      "description": "The server's response, JSON-encoded."
+    }
+  ]
+}

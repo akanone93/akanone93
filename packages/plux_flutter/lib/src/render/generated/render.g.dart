@@ -296,6 +296,14 @@ Clip? decodeClip(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a CountdownFormat, from its permanent value ID or name.
+String? nameCountdownFormat(Decoding d, Object? v) => switch (v) {
+  1 || 'hms' => 'hms',
+  2 || 'dhms' => 'dhms',
+  3 || 'compact' => 'compact',
+  _ => null,
+};
+
 /// The member name of a CrossAxisAlignment, from its permanent value ID or name.
 String? nameCrossAxisAlignment(Decoding d, Object? v) => switch (v) {
   1 || 'start' => 'start',
@@ -316,6 +324,20 @@ CrossAxisAlignment? decodeCrossAxisAlignment(Decoding d, Object? v) => switch (v
   _ => null,
 };
 
+/// The member name of a CrossFadeState, from its permanent value ID or name.
+String? nameCrossFadeState(Decoding d, Object? v) => switch (v) {
+  1 || 'showFirst' => 'showFirst',
+  2 || 'showSecond' => 'showSecond',
+  _ => null,
+};
+
+/// Decodes a CrossFadeState.
+CrossFadeState? decodeCrossFadeState(Decoding d, Object? v) => switch (v) {
+  1 || 'showFirst' => CrossFadeState.showFirst,
+  2 || 'showSecond' => CrossFadeState.showSecond,
+  _ => null,
+};
+
 /// The member name of a CupertinoButtonSize, from its permanent value ID or name.
 String? nameCupertinoButtonSize(Decoding d, Object? v) => switch (v) {
   1 || 'small' => 'small',
@@ -332,6 +354,21 @@ CupertinoButtonSize? decodeCupertinoButtonSize(Decoding d, Object? v) => switch 
   _ => null,
 };
 
+/// The member name of a Curve, from its permanent value ID or name.
+String? nameCurve(Decoding d, Object? v) => switch (v) {
+  1 || 'linear' => 'linear',
+  2 || 'easeIn' => 'easeIn',
+  3 || 'easeOut' => 'easeOut',
+  4 || 'easeInOut' => 'easeInOut',
+  5 || 'fastOutSlowIn' => 'fastOutSlowIn',
+  6 || 'decelerate' => 'decelerate',
+  7 || 'bounceIn' => 'bounceIn',
+  8 || 'bounceOut' => 'bounceOut',
+  9 || 'elasticOut' => 'elasticOut',
+  10 || 'overshoot' => 'overshoot',
+  _ => null,
+};
+
 /// The member name of a DecorationPosition, from its permanent value ID or name.
 String? nameDecorationPosition(Decoding d, Object? v) => switch (v) {
   1 || 'background' => 'background',
@@ -343,6 +380,30 @@ String? nameDecorationPosition(Decoding d, Object? v) => switch (v) {
 DecorationPosition? decodeDecorationPosition(Decoding d, Object? v) => switch (v) {
   1 || 'background' => DecorationPosition.background,
   2 || 'foreground' => DecorationPosition.foreground,
+  _ => null,
+};
+
+/// The member name of a DismissDirection, from its permanent value ID or name.
+String? nameDismissDirection(Decoding d, Object? v) => switch (v) {
+  1 || 'vertical' => 'vertical',
+  2 || 'horizontal' => 'horizontal',
+  3 || 'endToStart' => 'endToStart',
+  4 || 'startToEnd' => 'startToEnd',
+  5 || 'up' => 'up',
+  6 || 'down' => 'down',
+  7 || 'none' => 'none',
+  _ => null,
+};
+
+/// Decodes a DismissDirection.
+DismissDirection? decodeDismissDirection(Decoding d, Object? v) => switch (v) {
+  1 || 'vertical' => DismissDirection.vertical,
+  2 || 'horizontal' => DismissDirection.horizontal,
+  3 || 'endToStart' => DismissDirection.endToStart,
+  4 || 'startToEnd' => DismissDirection.startToEnd,
+  5 || 'up' => DismissDirection.up,
+  6 || 'down' => DismissDirection.down,
+  7 || 'none' => DismissDirection.none,
   _ => null,
 };
 
@@ -742,6 +803,24 @@ OverlayVisibilityMode? decodeOverlayVisibilityMode(Decoding d, Object? v) => swi
   2 || 'editing' => OverlayVisibilityMode.editing,
   3 || 'notEditing' => OverlayVisibilityMode.notEditing,
   4 || 'always' => OverlayVisibilityMode.always,
+  _ => null,
+};
+
+/// The member name of a PanAxis, from its permanent value ID or name.
+String? namePanAxis(Decoding d, Object? v) => switch (v) {
+  1 || 'free' => 'free',
+  2 || 'horizontal' => 'horizontal',
+  3 || 'vertical' => 'vertical',
+  4 || 'aligned' => 'aligned',
+  _ => null,
+};
+
+/// Decodes a PanAxis.
+PanAxis? decodePanAxis(Decoding d, Object? v) => switch (v) {
+  1 || 'free' => PanAxis.free,
+  2 || 'horizontal' => PanAxis.horizontal,
+  3 || 'vertical' => PanAxis.vertical,
+  4 || 'aligned' => PanAxis.aligned,
   _ => null,
 };
 

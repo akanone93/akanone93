@@ -1,0 +1,27 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "CountdownFormat",
+  "id": 132,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "How a countdown writes the time left.",
+  "values": [
+    {
+      "name": "hms",
+      "id": 1
+    },
+    {
+      "name": "dhms",
+      "id": 2
+    },
+    {
+      "name": "compact",
+      "id": 3
+    }
+  ]
+}

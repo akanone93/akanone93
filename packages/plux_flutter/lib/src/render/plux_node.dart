@@ -53,6 +53,7 @@ final Set<int> _unwrapped = {
       'Flexible',
       'Spacer',
       'Positioned',
+      'AnimatedPositioned',
       'SliverAppBar',
       'SliverFillRemaining',
       'SliverGrid',

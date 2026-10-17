@@ -1,0 +1,29 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "FileUploadError",
+  "id": 66,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "Why picking or uploading failed.",
+  "fields": [
+    {
+      "name": "code",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The error code, such as PLX-5401."
+    },
+    {
+      "name": "message",
+      "id": 2,
+      "type": "string",
+      "required": true,
+      "description": "A description for developers."
+    }
+  ]
+}

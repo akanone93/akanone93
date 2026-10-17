@@ -53,6 +53,211 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "AnimatedAlign", ID: 141, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "align_horizontal_center", Description: "Animates its child's alignment.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "alignment", ID: 1, Type: "Alignment", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "heightFactor", ID: 2, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "widthFactor", ID: 3, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "curve", ID: 4, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The curve of the animation."},
+			{Name: "duration", ID: 5, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+		},
+		Events: []Event{
+			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "AnimatedContainer", ID: 139, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "animation", Description: "A `Container` that animates to new values of its props.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "alignment", ID: 1, Type: "Alignment", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "padding", ID: 2, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "color", ID: 3, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "decoration", ID: 4, Type: "BoxDecoration", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "foregroundDecoration", ID: 5, Type: "BoxDecoration", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "width", ID: 6, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "height", ID: 7, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "constraints", ID: 8, Type: "BoxConstraints", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "margin", ID: 9, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "transformAlignment", ID: 10, Type: "Alignment", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "clipBehavior", ID: 11, Type: "Clip", Required: false, Default: "\"none\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "curve", ID: 12, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The curve of the animation."},
+			{Name: "duration", ID: 13, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+		},
+		Events: []Event{
+			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "AnimatedCrossFade", ID: 148, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "compare", Description: "Cross-fades between two children, sizing to the one shown.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "crossFadeState", ID: 1, Type: "CrossFadeState", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "firstCurve", ID: 2, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "secondCurve", ID: 3, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "sizeCurve", ID: 4, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "alignment", ID: 5, Type: "Alignment", Required: false, Default: "\"topCenter\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "duration", ID: 6, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+			{Name: "reverseDuration", ID: 7, Type: "duration", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The length of the reverse animation in milliseconds."},
+			{Name: "excludeBottomFocus", ID: 8, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "clipBehavior", ID: 9, Type: "Clip", Required: false, Default: "\"hardEdge\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+		},
+		Slots: []Slot{
+			{Name: "firstChild", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "secondChild", ID: 2, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "AnimatedOpacity", ID: 140, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "opacity", Description: "Animates its child's opacity.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "opacity", ID: 1, Type: "double", Required: true, Default: "", Constraints: Constraints{Min: Bound{Value: 0, Set: true}, Max: Bound{Value: 1, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "alwaysIncludeSemantics", ID: 2, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "curve", ID: 3, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The curve of the animation."},
+			{Name: "duration", ID: 4, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+		},
+		Events: []Event{
+			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "AnimatedPadding", ID: 142, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "padding", Description: "Animates the padding around its child.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "padding", ID: 1, Type: "EdgeInsets", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "curve", ID: 2, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The curve of the animation."},
+			{Name: "duration", ID: 3, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+		},
+		Events: []Event{
+			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "AnimatedPositioned", ID: 143, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "open_with", Description: "Animates the position of its child in a `Stack`.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "left", ID: 1, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "top", ID: 2, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "right", ID: 3, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "bottom", ID: 4, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "width", ID: 5, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "height", ID: 6, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "curve", ID: 7, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The curve of the animation."},
+			{Name: "duration", ID: 8, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+		},
+		Events: []Event{
+			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "AnimatedRotation", ID: 145, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "rotate_right", Description: "Animates its child's rotation, in turns.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "turns", ID: 1, Type: "double", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "alignment", ID: 2, Type: "Alignment", Required: false, Default: "\"center\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "filterQuality", ID: 3, Type: "FilterQuality", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "curve", ID: 4, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The curve of the animation."},
+			{Name: "duration", ID: 5, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+		},
+		Events: []Event{
+			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "AnimatedScale", ID: 144, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "zoom_out_map", Description: "Animates its child's scale.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "scale", ID: 1, Type: "double", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "alignment", ID: 2, Type: "Alignment", Required: false, Default: "\"center\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "filterQuality", ID: 3, Type: "FilterQuality", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "curve", ID: 4, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The curve of the animation."},
+			{Name: "duration", ID: 5, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+		},
+		Events: []Event{
+			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "AnimatedSize", ID: 149, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "aspect_ratio", Description: "Animates its own size to its child's.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "alignment", ID: 1, Type: "Alignment", Required: false, Default: "\"center\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "curve", ID: 2, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The curve of the animation."},
+			{Name: "duration", ID: 3, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+			{Name: "reverseDuration", ID: 4, Type: "duration", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The length of the reverse animation in milliseconds."},
+			{Name: "clipBehavior", ID: 5, Type: "Clip", Required: false, Default: "\"hardEdge\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "AnimatedSlide", ID: 146, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "arrow_right_alt", Description: "Animates its child's offset, in multiples of its size.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "offset", ID: 1, Type: "Offset", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "curve", ID: 2, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The curve of the animation."},
+			{Name: "duration", ID: 3, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+		},
+		Events: []Event{
+			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "AnimatedSwitcher", ID: 147, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "swap_horiz", Description: "Cross-fades between its old and new child when the child changes.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "duration", ID: 1, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+			{Name: "reverseDuration", ID: 2, Type: "duration", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The length of the reverse animation in milliseconds."},
+			{Name: "switchInCurve", ID: 3, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "switchOutCurve", ID: 4, Type: "Curve", Required: false, Default: "\"linear\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
 		Type: "AppBar", ID: 87, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "structure", Icon: "web_asset", Description: "A Material top app bar.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleHeader, Interactive: false,
@@ -194,6 +399,21 @@ var widgets = [...]Widget{
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
+	},
+	{
+		Type: "Carousel", ID: 184, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "layout", Icon: "view_carousel", Description: "Pages of children swiped horizontally, with page indicators and optional autoplay. Autoplay stops when the device reduces motion.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 100, Role: RoleList, Interactive: false,
+		Props: []Prop{
+			{Name: "autoplay", ID: 1, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Advances on its own."},
+			{Name: "intervalMs", ID: 2, Type: "int", Required: false, Default: "5000", Constraints: Constraints{Min: Bound{Value: 500, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Milliseconds between automatic advances."},
+			{Name: "indicators", ID: 3, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Shows page indicators."},
+			{Name: "semanticLabel", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The label screen readers announce for the carousel."},
+		},
+		Events: []Event{
+			{Name: "onPageChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the index of the page shown."},
+		},
+		Children: &Children{Min: 1, Max: 0},
 	},
 	{
 		Type: "Center", ID: 9, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
@@ -505,6 +725,18 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "CountdownTimer", ID: 186, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "commerce", Icon: "timer", Description: "The time left until `endsAt`, updated once a second.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleText, Interactive: false,
+		Props: []Prop{
+			{Name: "endsAt", ID: 1, Type: "dateTime", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The instant the countdown ends."},
+			{Name: "format", ID: 2, Type: "CountdownFormat", Required: false, Default: "\"hms\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "How the remaining time is written."},
+		},
+		Events: []Event{
+			{Name: "onFinished", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires once when the countdown reaches zero."},
+		},
+	},
+	{
 		Type: "CupertinoActivityIndicator", ID: 95, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "cupertino", Icon: "progress_activity", Description: "An iOS-style activity indicator.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 12, Role: RoleProgress, Interactive: false,
@@ -754,6 +986,27 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "Dismissible", ID: 133, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "interaction", Icon: "swipe", Description: "Dismisses its child with a swipe and fires `onDismissed` with the direction.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleNone, Interactive: true,
+		Props: []Prop{
+			{Name: "direction", ID: 1, Type: "DismissDirection", Required: false, Default: "\"horizontal\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "resizeDuration", ID: 2, Type: "duration", Required: false, Default: "300", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "movementDuration", ID: 3, Type: "duration", Required: false, Default: "200", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "crossAxisEndOffset", ID: 4, Type: "double", Required: false, Default: "0.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "dragStartBehavior", ID: 5, Type: "DragStartBehavior", Required: false, Default: "\"start\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "behavior", ID: 6, Type: "HitTestBehavior", Required: false, Default: "\"opaque\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onDismissed", ID: 1, Payload: "DismissDirection", Revision: 1, Deprecated: nil, Description: "Fired after the child was dismissed, with the direction it went."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "background", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown behind the child while it is swiped."},
+			{Name: "secondaryBackground", ID: 3, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown behind the child when it is swiped in the secondary direction; needs `background`."},
+		},
+	},
+	{
 		Type: "Divider", ID: 52, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "display", Icon: "horizontal_rule", Description: "A thin horizontal line with padding on either side.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 5, Role: RoleNone, Interactive: false,
@@ -764,6 +1017,51 @@ var widgets = [...]Widget{
 			{Name: "endIndent", ID: 4, Type: "double", Required: false, Default: "", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 			{Name: "color", ID: 5, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 			{Name: "radius", ID: 6, Type: "BorderRadius", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+	},
+	{
+		Type: "DragTarget", ID: 135, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "interaction", Icon: "move_to_inbox", Description: "Accepts a `Draggable`'s payload dropped on it; its child is highlighted while a candidate hovers.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 30, Role: RoleNone, Interactive: true,
+		TypeParameters: []string{"T"},
+		Props: []Prop{
+			{Name: "accepts", ID: 1, Type: "T", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "When set, only a `Draggable` whose `data` equals it is accepted."},
+			{Name: "highlightColor", ID: 2, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Tints the child while an acceptable candidate hovers over it."},
+			{Name: "hitTestBehavior", ID: 3, Type: "HitTestBehavior", Required: false, Default: "\"translucent\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onAccept", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload."},
+			{Name: "onLeave", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when a candidate leaves without being dropped."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: "The content; it is highlighted while a candidate hovers."},
+		},
+	},
+	{
+		Type: "Draggable", ID: 134, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "interaction", Icon: "drag_indicator", Description: "Lets the user drag its child, carrying a typed `data` payload to a `DragTarget`.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleNone, Interactive: true,
+		TypeParameters: []string{"T"},
+		Props: []Prop{
+			{Name: "data", ID: 1, Type: "T", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The payload a `DragTarget` receives when the child is dropped on it."},
+			{Name: "axis", ID: 2, Type: "Axis", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Restricts the drag to one axis."},
+			{Name: "feedbackOffset", ID: 3, Type: "Offset", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "maxSimultaneousDrags", ID: 4, Type: "int", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "ignoringFeedbackSemantics", ID: 5, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "ignoringFeedbackPointer", ID: 6, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "rootOverlay", ID: 7, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "hitTestBehavior", ID: 8, Type: "HitTestBehavior", Required: false, Default: "\"deferToChild\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onDragStarted", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDragEnd", ID: 2, Payload: "bool", Revision: 1, Deprecated: nil, Description: "Fired when the drag ends; the payload tells whether a target accepted it."},
+			{Name: "onDragCompleted", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when a target accepted the drop."},
+			{Name: "onDraggableCanceled", ID: 4, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when no target accepted the drop."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "feedback", ID: 2, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: "Shown under the finger while dragging."},
+			{Name: "childWhenDragging", ID: 3, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown in place of the child while it is dragged."},
 		},
 	},
 	{
@@ -903,6 +1201,36 @@ var widgets = [...]Widget{
 			{Name: "subtitle", ID: 3, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "trailing", ID: 4, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "children", ID: 5, List: true, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "The content shown when expanded."},
+		},
+	},
+	{
+		Type: "FadeTransition", ID: 150, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "gradient", Description: "Fades its child by a track of a page timeline.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "timeline", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The name of a timeline of the page."},
+			{Name: "track", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value."},
+			{Name: "alwaysIncludeSemantics", ID: 3, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "FileUploader", ID: 190, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "upload_file", Description: "Pick a file, preview it and upload it with progress. Picking needs `plux_media`; without it the control is disabled and PLX-5401 is reported. The upload is a transfer operation of a data source.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 140, Role: RoleButton, Interactive: true,
+		Props: []Prop{
+			{Name: "dataSource", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The data source holding the upload operation."},
+			{Name: "operation", ID: 2, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The upload operation of the data source."},
+			{Name: "accept", ID: 3, Type: "list<string>", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Accepted media types; any when empty."},
+			{Name: "maxBytes", ID: 4, Type: "int?", Required: false, Default: "", Constraints: Constraints{Min: Bound{Value: 1, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The largest file in bytes."},
+			{Name: "label", ID: 5, Type: "string", Required: false, Default: "\"Choose file\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The pick button's label."},
+			{Name: "uploadLabel", ID: 6, Type: "string", Required: false, Default: "\"Upload\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The upload button's label."},
+		},
+		Events: []Event{
+			{Name: "onUploaded", ID: 1, Payload: "FileUploadResult", Revision: 1, Deprecated: nil, Description: "Fires with the upload result when the upload succeeds."},
+			{Name: "onFailed", ID: 2, Payload: "FileUploadError", Revision: 1, Deprecated: nil, Description: "Fires with the error when picking or uploading fails."},
 		},
 	},
 	{
@@ -1208,6 +1536,20 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "Hero", ID: 137, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "flight_takeoff", Description: "Marks its child as a shared element that flies between pages with the same `tag`.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 15, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "tag", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The shared tag; the same strings as the node-level `hero` (ANI-004)."},
+			{Name: "transitionOnUserGestures", ID: 2, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "curve", ID: 3, Type: "Curve", Required: false, Default: "\"fastOutSlowIn\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "reverseCurve", ID: 4, Type: "Curve", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
 		Type: "Icon", ID: 49, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "display", Icon: "star", Description: "An icon from the Material or Cupertino icon set.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 8, Role: RoleImage, Interactive: false,
@@ -1298,6 +1640,20 @@ var widgets = [...]Widget{
 		Slots: []Slot{
 			{Name: "loading", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown while a network image loads."},
 			{Name: "error", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown when the image fails to load."},
+		},
+	},
+	{
+		Type: "ImageGallery", ID: 189, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "photo_library", Description: "Swipeable images, each pinch-zoomable, with page indicators.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 120, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "images", ID: 1, Type: "list<ImageSource>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The images."},
+			{Name: "initialPage", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The index first shown."},
+			{Name: "indicators", ID: 3, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Shows page indicators."},
+			{Name: "semanticLabel", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The label screen readers announce for the gallery."},
+		},
+		Events: []Event{
+			{Name: "onPageChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the index of the image shown."},
 		},
 	},
 	{
@@ -1419,6 +1775,32 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "InteractiveViewer", ID: 136, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "interaction", Icon: "zoom_in", Description: "Pans and zooms its child with gestures.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleNone, Interactive: true,
+		Props: []Prop{
+			{Name: "clipBehavior", ID: 1, Type: "Clip", Required: false, Default: "\"hardEdge\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "panAxis", ID: 2, Type: "PanAxis", Required: false, Default: "\"free\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "boundaryMargin", ID: 3, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "constrained", ID: 4, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "maxScale", ID: 5, Type: "double", Required: false, Default: "2.5", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "minScale", ID: 6, Type: "double", Required: false, Default: "0.8", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "interactionEndFrictionCoefficient", ID: 7, Type: "double", Required: false, Default: "1.35e-05", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "panEnabled", ID: 8, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "scaleEnabled", ID: 9, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "scaleFactor", ID: 10, Type: "double", Required: false, Default: "200.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "alignment", ID: 11, Type: "Alignment", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "trackpadScrollCausesScale", ID: 12, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onInteractionStart", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onInteractionEnd", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
 		Type: "KycCameraCapture", ID: 108, Layer: 2, Phase: "P6", Revision: 1, Runtimes: []string{"0.4.0"},
 		Category: "input", Icon: "photo_camera", Description: "ID document and selfie capture with framing guides and quality checks. Ships in `plux_media`.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 400, Role: RoleNone, Interactive: true,
@@ -1536,6 +1918,18 @@ var widgets = [...]Widget{
 			{Name: "empty", ID: 3, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown when `items` is empty."},
 			{Name: "loading", ID: 4, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown while `status` is loading."},
 			{Name: "error", ID: 5, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown while `status` is error."},
+		},
+	},
+	{
+		Type: "LiveEtaCard", ID: 181, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "feedback", Icon: "local_shipping", Description: "A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "title", ID: 1, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The headline, such as the order or ride."},
+			{Name: "etaMinutes", ID: 2, Type: "int?", Required: false, Default: "", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Minutes until arrival; bind it to a stream data source value."},
+			{Name: "status", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The current status text, such as `On the way`."},
+			{Name: "minutesLabel", ID: 4, Type: "string", Required: false, Default: "\"min\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The unit shown after the minutes."},
+			{Name: "icon", ID: 5, Type: "IconData?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A leading icon."},
 		},
 	},
 	{
@@ -1677,6 +2071,23 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "ProductCard", ID: 182, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "commerce", Icon: "shopping_bag", Description: "A product tile: image, title, price, an optional struck-through original price and badge, and an add-to-cart button. Prices arrive as formatted strings.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 120, Role: RoleButton, Interactive: true,
+		Props: []Prop{
+			{Name: "image", ID: 1, Type: "ImageSource?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The product image."},
+			{Name: "title", ID: 2, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The product name."},
+			{Name: "price", ID: 3, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The formatted price."},
+			{Name: "originalPrice", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The formatted price before a discount, shown struck through."},
+			{Name: "badge", ID: 5, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A short badge such as `New` or `-20%`."},
+			{Name: "addToCartLabel", ID: 6, Type: "string", Required: false, Default: "\"Add to cart\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The label of the add-to-cart button."},
+		},
+		Events: []Event{
+			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the card is tapped."},
+			{Name: "onAddToCart", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the add-to-cart button is pressed. The button shows only when this is handled."},
+		},
+	},
+	{
 		Type: "ProfileHeader", ID: 179, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
 		Category: "layout", Icon: "account_circle", Description: "A person's avatar, name and subtitle with an actions row.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 50, Role: RoleHeader, Interactive: false,
@@ -1688,6 +2099,37 @@ var widgets = [...]Widget{
 		},
 		Slots: []Slot{
 			{Name: "actions", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Buttons below the name."},
+		},
+	},
+	{
+		Type: "PromoBanner", ID: 185, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "commerce", Icon: "campaign", Description: "A campaign banner: image, title, subtitle, a call to action and, when `endsAt` is set, a countdown.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 110, Role: RoleButton, Interactive: true,
+		Props: []Prop{
+			{Name: "title", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The headline."},
+			{Name: "subtitle", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A line below the title."},
+			{Name: "image", ID: 3, Type: "ImageSource?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A background image."},
+			{Name: "ctaLabel", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The label of the call to action."},
+			{Name: "endsAt", ID: 5, Type: "dateTime?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "When the offer ends; shows a countdown."},
+		},
+		Events: []Event{
+			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the banner or its call to action is tapped."},
+		},
+	},
+	{
+		Type: "QuantityStepper", ID: 183, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "commerce", Icon: "add_circle", Description: "A decrease button, the quantity and an increase button; screen readers adjust it with increase and decrease actions.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleSlider, Interactive: true,
+		Props: []Prop{
+			{Name: "value", ID: 1, Type: "int", Required: false, Default: "1", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The current quantity."},
+			{Name: "min", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The smallest quantity."},
+			{Name: "max", ID: 3, Type: "int", Required: false, Default: "99", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The largest quantity."},
+			{Name: "step", ID: 4, Type: "int", Required: false, Default: "1", Constraints: Constraints{Min: Bound{Value: 1, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The change per press."},
+			{Name: "decreaseLabel", ID: 5, Type: "string", Required: false, Default: "\"Decrease\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The accessibility label of the decrease button."},
+			{Name: "increaseLabel", ID: 6, Type: "string", Required: false, Default: "\"Increase\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The accessibility label of the increase button."},
+		},
+		Events: []Event{
+			{Name: "onChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the new quantity."},
 		},
 	},
 	{
@@ -1788,6 +2230,30 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "RatingBar", ID: 187, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "star", Description: "A read-only row of stars; screen readers read `3.5 of 5`.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleText, Interactive: false,
+		Props: []Prop{
+			{Name: "value", ID: 1, Type: "double", Required: true, Default: "", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The rating."},
+			{Name: "max", ID: 2, Type: "int", Required: false, Default: "5", Constraints: Constraints{Min: Bound{Value: 1, Set: true}, Max: Bound{Value: 10, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The number of stars."},
+			{Name: "ofLabel", ID: 3, Type: "string", Required: false, Default: "\"of\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The word between value and maximum in the spoken value."},
+			{Name: "semanticLabel", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What is rated, spoken before the value."},
+		},
+	},
+	{
+		Type: "RatingInput", ID: 188, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "star_rate", Description: "Stars the user taps to rate; each star is a button.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleNone, Interactive: true,
+		Props: []Prop{
+			{Name: "value", ID: 1, Type: "int", Required: false, Default: "0", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The current rating, 0 for none."},
+			{Name: "max", ID: 2, Type: "int", Required: false, Default: "5", Constraints: Constraints{Min: Bound{Value: 1, Set: true}, Max: Bound{Value: 10, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The number of stars."},
+			{Name: "starLabel", ID: 3, Type: "string", Required: false, Default: "\"star\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The noun in each star's label, such as `star`."},
+		},
+		Events: []Event{
+			{Name: "onChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the rating chosen."},
+		},
+	},
+	{
 		Type: "Responsive", ID: 4, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "structure", Icon: "devices", Description: "Renders a different subtree per window-size class: `compact`, `medium` (600–839 dp) and `expanded` (≥ 840 dp).",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 3, Role: RoleNone, Interactive: false,
@@ -1814,6 +2280,20 @@ var widgets = [...]Widget{
 			{Name: "semanticsIdentifier", ID: 10, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 			{Name: "textWidthBasis", ID: 11, Type: "TextWidthBasis", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 			{Name: "selectionColor", ID: 12, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+	},
+	{
+		Type: "RotationTransition", ID: 153, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "autorenew", Description: "Rotates its child by a track of a page timeline, in turns.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "timeline", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The name of a timeline of the page."},
+			{Name: "track", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value."},
+			{Name: "alignment", ID: 3, Type: "Alignment", Required: false, Default: "\"center\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "filterQuality", ID: 4, Type: "FilterQuality", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -1880,6 +2360,20 @@ var widgets = [...]Widget{
 			{Name: "endDrawer", ID: 6, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "bottomNavigationBar", ID: 7, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "bottomSheet", ID: 8, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "ScaleTransition", ID: 152, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "zoom_in_map", Description: "Scales its child by a track of a page timeline.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "timeline", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The name of a timeline of the page."},
+			{Name: "track", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value."},
+			{Name: "alignment", ID: 3, Type: "Alignment", Required: false, Default: "\"center\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "filterQuality", ID: 4, Type: "FilterQuality", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -2040,6 +2534,21 @@ var widgets = [...]Widget{
 			{Name: "lines", ID: 1, Type: "int", Required: false, Default: "3", Constraints: Constraints{Min: Bound{Value: 1, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Number of text-line placeholders."},
 			{Name: "avatar", ID: 2, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Show a round avatar placeholder."},
 			{Name: "shimmer", ID: 3, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Animate a shimmer; disabled when the device reduces motion."},
+		},
+	},
+	{
+		Type: "SlideTransition", ID: 151, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "animation", Icon: "trending_flat", Description: "Slides its child by a track of a page timeline, in multiples of the child's size along `axis`.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "timeline", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The name of a timeline of the page."},
+			{Name: "track", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value."},
+			{Name: "axis", ID: 3, Type: "Axis", Required: false, Default: "\"horizontal\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "transformHitTests", ID: 4, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "textDirection", ID: 5, Type: "TextDirection", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -2504,6 +3013,19 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "Timeline", ID: 138, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "structure", Icon: "timeline", Description: "Plays a page timeline for its subtree: it starts the named timeline when shown, and optionally restarts it when it ends (ANI-002).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 5, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "timeline", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The name of a timeline of the page."},
+			{Name: "autoplay", ID: 2, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Start the timeline when the widget is shown."},
+			{Name: "repeat", ID: 3, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Start the timeline again each time it ends."},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: "The subtree the timeline's tracks move."},
+		},
+	},
+	{
 		Type: "Tooltip", ID: 63, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "display", Icon: "info", Description: "Shows a text label when its child is long-pressed or hovered.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 15, Role: RoleNone, Interactive: false,
@@ -2766,6 +3288,22 @@ var valueTypes = [...]ValueType{
 		},
 		Constants: []Constant{
 			{Name: "zero", Value: "{\"all\":0}"},
+		},
+	},
+	{
+		Name: "FileUploadError", ID: 66, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Why picking or uploading failed.",
+		Fields: []Field{
+			{Name: "code", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The error code, such as PLX-5401."},
+			{Name: "message", ID: 2, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "A description for developers."},
+		},
+	},
+	{
+		Name: "FileUploadResult", ID: 65, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "What a finished upload reports.",
+		Fields: []Field{
+			{Name: "name", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The file name."},
+			{Name: "mimeType", ID: 2, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The media type."},
+			{Name: "sizeBytes", ID: 3, Type: "int", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The size in bytes."},
+			{Name: "response", ID: 4, Type: "string?", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "The server's response, JSON-encoded."},
 		},
 	},
 	{
@@ -3230,6 +3768,11 @@ var enums = [...]Enum{
 		{Name: "antiAlias", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "antiAliasWithSaveLayer", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
 	}},
+	{Name: "CountdownFormat", ID: 132, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "How a countdown writes the time left.", Values: []EnumValue{
+		{Name: "hms", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "dhms", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "compact", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+	}},
 	{Name: "CrossAxisAlignment", ID: 12, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum CrossAxisAlignment.", Values: []EnumValue{
 		{Name: "start", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "end", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
@@ -3237,14 +3780,39 @@ var enums = [...]Enum{
 		{Name: "stretch", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "baseline", ID: 5, Revision: 1, Deprecated: nil, Description: ""},
 	}},
+	{Name: "CrossFadeState", ID: 106, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum CrossFadeState.", Values: []EnumValue{
+		{Name: "showFirst", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "showSecond", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+	}},
 	{Name: "CupertinoButtonSize", ID: 13, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum CupertinoButtonSize.", Values: []EnumValue{
 		{Name: "small", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "medium", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "large", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 	}},
+	{Name: "Curve", ID: 108, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "An animation curve by name; the same curves as the node-level animation (ANI-001, ANI-002).", Values: []EnumValue{
+		{Name: "linear", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "easeIn", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "easeOut", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "easeInOut", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "fastOutSlowIn", ID: 5, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "decelerate", ID: 6, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "bounceIn", ID: 7, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "bounceOut", ID: 8, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "elasticOut", ID: 9, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "overshoot", ID: 10, Revision: 1, Deprecated: nil, Description: ""},
+	}},
 	{Name: "DecorationPosition", ID: 14, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum DecorationPosition.", Values: []EnumValue{
 		{Name: "background", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "foreground", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "DismissDirection", ID: 105, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum DismissDirection.", Values: []EnumValue{
+		{Name: "vertical", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "horizontal", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "endToStart", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "startToEnd", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "up", ID: 5, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "down", ID: 6, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "none", ID: 7, Revision: 1, Deprecated: nil, Description: ""},
 	}},
 	{Name: "DragStartBehavior", ID: 15, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum DragStartBehavior.", Values: []EnumValue{
 		{Name: "down", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
@@ -3417,6 +3985,12 @@ var enums = [...]Enum{
 		{Name: "editing", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "notEditing", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "always", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "PanAxis", ID: 107, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum PanAxis.", Values: []EnumValue{
+		{Name: "free", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "horizontal", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "vertical", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "aligned", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
 	}},
 	{Name: "ScrollPhysics", ID: 39, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "How a scrollable responds to input.", Values: []EnumValue{
 		{Name: "platform", ID: 1, Revision: 1, Deprecated: nil, Description: ""},

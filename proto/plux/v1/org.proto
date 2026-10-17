@@ -62,7 +62,7 @@ message Member {
   string organization_id = 2;
   // team_id is empty for a direct organization membership.
   string team_id = 3;
-  // role is "owner", "admin", "developer" or "viewer" for a direct
+  // role is "owner", "admin", "developer", "translator" or "viewer" for a direct
   // membership (SEC-102), and "member" for a team membership: a team's
   // members hold the roles the team is granted on apps (GOV-001).
   string role = 4;

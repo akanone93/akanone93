@@ -1,0 +1,1525 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyMd": "d/M/y GGGGG",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E d/M/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d MMM y G",
+        "GyMMMMEEEEd": "EEEE d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMd": "G y-MM-dd",
+        "H": "HH",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E d/M",
+        "MMM": "LLL",
+        "MMMEd": "E d MMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "d/M",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hmm": "h:mm a",
+        "hmmss": "h:mm:ss a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "M/y GGGGG",
+        "yyyyMEd": "E d/M/y GGGGG",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E, d MMM y G",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "d/M/y GGGGG"
+      },
+      "dateFormats": {
+        "full": "EEEE d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "d MMM y G",
+        "short": "d/M/y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} នៅ\u200bម៉ោង {0}",
+        "long": "{1} នៅ\u200bម៉ោង {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហ", "សុក្រ", "សៅរ៍"],
+          "short": ["អា", "ច", "អ", "ពុ", "ព្រ", "សុ", "ស"],
+          "wide": ["អាទិត្យ", "ច័ន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍"]
+        },
+        "standAlone": {
+          "abbreviated": ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហ", "សុក្រ", "សៅរ៍"],
+          "short": ["អា", "ច", "អ", "ពុ", "ព្រ", "សុ", "ស"],
+          "wide": ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        },
+        "standAlone": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        }
+      },
+      "timeFormats": {
+        "full": "h:mm:ss a zzzz",
+        "long": "h:mm:ss a z",
+        "medium": "h:mm:ss a",
+        "short": "h:mm a"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E d/M/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E d MMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMd": "G y-MM-dd",
+        "H": "HH",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E d/M",
+        "MMM": "LLL",
+        "MMMEd": "E d MMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "d/M",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hmm": "h:mm a",
+        "hmmss": "h:mm:ss a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M/y",
+        "yMEd": "E d/M/y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E d MMM y",
+        "yMMMM": "MMMM y",
+        "yMMMMEEEEd": "EEEE d MMMM y",
+        "yMMMMd": "d MMMM y",
+        "yMMMd": "d MMM y",
+        "yMd": "d/M/y",
+        "yyMd": "d/M/yy"
+      },
+      "dateFormats": {
+        "full": "EEEE d MMMM y",
+        "long": "d MMMM y",
+        "medium": "d MMM y",
+        "short": "d/M/yy"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} នៅ\u200bម៉ោង {0}",
+        "long": "{1} នៅ\u200bម៉ោង {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "narrow": {
+            "am": "a",
+            "pm": "p"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "narrow": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហ", "សុក្រ", "សៅរ៍"],
+          "narrow": ["អ", "ច", "អ", "ព", "ព", "ស", "ស"],
+          "short": ["អា", "ច", "អ", "ពុ", "ព្រ", "សុ", "ស"],
+          "wide": ["អាទិត្យ", "ច័ន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍"]
+        },
+        "standAlone": {
+          "abbreviated": ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហ", "សុក្រ", "សៅរ៍"],
+          "narrow": ["អ", "ច", "អ", "ព", "ព", "ស", "ស"],
+          "short": ["អា", "ច", "អ", "ពុ", "ព្រ", "សុ", "ស"],
+          "wide": ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["មុន គ.ស.", "គ.ស."],
+        "narrow": ["មុន គ.ស.", "គ.ស."],
+        "wide": ["មុន\u200bគ្រិស្តសករាជ", "គ្រិស្តសករាជ"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"],
+          "narrow": ["ម", "ក", "ម", "ម", "ឧ", "ម", "ក", "ស", "ក", "ត", "វ", "ធ"],
+          "wide": ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"]
+        },
+        "standAlone": {
+          "abbreviated": ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"],
+          "narrow": ["ម", "ក", "ម", "ម", "ឧ", "ម", "ក", "ស", "ក", "ត", "វ", "ធ"],
+          "wide": ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"]
+        }
+      },
+      "timeFormats": {
+        "full": "h:mm:ss a zzzz",
+        "long": "h:mm:ss a z",
+        "medium": "h:mm:ss a",
+        "short": "h:mm a"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyMd": "d/M/y GGGGG",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E d/M/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d MMM y G",
+        "GyMMMMEEEEd": "EEEE d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMd": "G y-MM-dd",
+        "H": "HH",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E d/M",
+        "MMM": "LLL",
+        "MMMEd": "E d MMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "d/M",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hmm": "h:mm a",
+        "hmmss": "h:mm:ss a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "M/y GGGGG",
+        "yyyyMEd": "E d/M/y GGGGG",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E, d MMM y G",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "d/M/y GGGGG"
+      },
+      "dateFormats": {
+        "full": "EEEE d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "d MMM y G",
+        "short": "d/M/y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} នៅ\u200bម៉ោង {0}",
+        "long": "{1} នៅ\u200bម៉ោង {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហ", "សុក្រ", "សៅរ៍"],
+          "short": ["អា", "ច", "អ", "ពុ", "ព្រ", "សុ", "ស"],
+          "wide": ["អាទិត្យ", "ច័ន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍"]
+        },
+        "standAlone": {
+          "abbreviated": ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហ", "សុក្រ", "សៅរ៍"],
+          "short": ["អា", "ច", "អ", "ពុ", "ព្រ", "សុ", "ស"],
+          "wide": ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AH", "BH"],
+        "wide": ["AH", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        },
+        "standAlone": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        }
+      },
+      "timeFormats": {
+        "full": "h:mm:ss a zzzz",
+        "long": "h:mm:ss a z",
+        "medium": "h:mm:ss a",
+        "short": "h:mm a"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyMd": "d/M/y GGGGG",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E d/M/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d MMM y G",
+        "GyMMMMEEEEd": "EEEE d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMd": "G y-MM-dd",
+        "H": "HH",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E d/M",
+        "MMM": "LLL",
+        "MMMEd": "E d MMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "d/M",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hmm": "h:mm a",
+        "hmmss": "h:mm:ss a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "M/y GGGGG",
+        "yyyyMEd": "E d/M/y GGGGG",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E, d MMM y G",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "d/M/y GGGGG"
+      },
+      "dateFormats": {
+        "full": "EEEE d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "d MMM y G",
+        "short": "d/M/y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} នៅ\u200bម៉ោង {0}",
+        "long": "{1} នៅ\u200bម៉ោង {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហ", "សុក្រ", "សៅរ៍"],
+          "short": ["អា", "ច", "អ", "ពុ", "ព្រ", "សុ", "ស"],
+          "wide": ["អាទិត្យ", "ច័ន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍"]
+        },
+        "standAlone": {
+          "abbreviated": ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហ", "សុក្រ", "សៅរ៍"],
+          "short": ["អា", "ច", "អ", "ពុ", "ព្រ", "សុ", "ស"],
+          "wide": ["អាទិត្យ", "ចន្ទ", "អង្គារ", "ពុធ", "ព្រហស្បតិ៍", "សុក្រ", "សៅរ៍"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AP"],
+        "wide": ["AP"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        },
+        "standAlone": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        }
+      },
+      "timeFormats": {
+        "full": "h:mm:ss a zzzz",
+        "long": "h:mm:ss a z",
+        "medium": "h:mm:ss a",
+        "short": "h:mm a"
+      }
+    }
+  },
+  "currencies": {
+    "AED": {
+      "name": "ឌៀរហាំ\u200bអារ៉ាប់រួម"
+    },
+    "AFN": {
+      "name": "អាហ្វហ្គានី\u200bអាហ្វហ្គានីស្ថាន",
+      "narrow": "؋"
+    },
+    "ALL": {
+      "name": "លិក\u200bអាល់បានី"
+    },
+    "AMD": {
+      "name": "ដ្រាំ\u200bអាមេនី",
+      "narrow": "֏"
+    },
+    "ANG": {
+      "name": "ហ្គីលឌ័រអាំងទីលហូឡង់"
+    },
+    "AOA": {
+      "name": "ក្វាន់ហ្សា\u200bអង់ហ្គោឡា",
+      "narrow": "Kz"
+    },
+    "ARS": {
+      "name": "ប៉េសួអាហ្សង់ទីន",
+      "narrow": "$",
+      "plural": {
+        "other": "ប៉េសូអាហ្សង់ទីន"
+      }
+    },
+    "AUD": {
+      "name": "ដុល្លារ\u200bអូស្ត្រាលី",
+      "narrow": "$",
+      "symbol": "A$"
+    },
+    "AWG": {
+      "name": "ហ្វ្រ័ររិញ\u200bអារ៉ូបា"
+    },
+    "AZN": {
+      "name": "ម៉ាណាត\u200bអាស៊ែបៃហ្សង់",
+      "narrow": "₼"
+    },
+    "BAM": {
+      "name": "ម៉ាក\u200bអាច\u200bបម្លែង\u200bបាន\u200bបូស្នី",
+      "narrow": "KM"
+    },
+    "BBD": {
+      "name": "ដុល្លារ\u200bបាបាដុស",
+      "narrow": "$"
+    },
+    "BDT": {
+      "name": "តាកា\u200bបង់ក្លាដែស",
+      "narrow": "৳"
+    },
+    "BGN": {
+      "name": "លីវ\u200bប៊ុលហ្គារី"
+    },
+    "BHD": {
+      "name": "ឌីណា\u200bបារ៉ែន"
+    },
+    "BIF": {
+      "name": "ហ្វ្រង់\u200bប៊ូរុនឌី"
+    },
+    "BMD": {
+      "name": "ដុល្លារ\u200bប៊ឺមុយដា",
+      "narrow": "$"
+    },
+    "BND": {
+      "name": "ដុល្លារព្រុយណេ",
+      "narrow": "$"
+    },
+    "BOB": {
+      "name": "បូលីវីណូ\u200bបូលីវី",
+      "narrow": "Bs"
+    },
+    "BRL": {
+      "name": "រៀល\u200bប្រេស៊ីល",
+      "symbol": "R$"
+    },
+    "BSD": {
+      "name": "ដុល្លារ\u200bបាហាម៉ា",
+      "narrow": "$"
+    },
+    "BTN": {
+      "name": "ញូលត្រឹម\u200bប៊ូតាន"
+    },
+    "BWP": {
+      "name": "ពូឡា\u200bបុតស្វាណា",
+      "narrow": "P"
+    },
+    "BYN": {
+      "name": "រ៉ូបល\u200bបេឡារុស",
+      "narrow": "р."
+    },
+    "BYR": {
+      "name": "រ៉ូបល\u200bបេឡារុស (2000–2016)"
+    },
+    "BZD": {
+      "name": "ដុល្លារ\u200bបេលី",
+      "narrow": "$"
+    },
+    "CAD": {
+      "name": "ដុល្លារ\u200bកាណាដា",
+      "narrow": "$",
+      "symbol": "CA$"
+    },
+    "CDF": {
+      "name": "ហ្វ្រង់\u200bកុងហ្គោ"
+    },
+    "CHF": {
+      "name": "ហ្វ្រង់ស្វីស"
+    },
+    "CLP": {
+      "name": "ប៉េសូឈីលី",
+      "narrow": "$"
+    },
+    "CNH": {
+      "name": "យ័នចិន (ក្រៅប្រទេស)"
+    },
+    "CNY": {
+      "name": "យ័នចិន",
+      "narrow": "¥",
+      "symbol": "CN¥"
+    },
+    "COP": {
+      "name": "ប៉េសូកូឡុំប៊ី",
+      "narrow": "$"
+    },
+    "CRC": {
+      "name": "កូឡុង\u200bកូស្តារីកា",
+      "narrow": "₡"
+    },
+    "CUC": {
+      "name": "ប៉េសូ\u200bគុយបាអាច\u200bបម្លែង\u200bបាន",
+      "narrow": "$"
+    },
+    "CUP": {
+      "name": "ប៉េសូគុយបា",
+      "narrow": "$"
+    },
+    "CVE": {
+      "name": "អ៊ីស្កូឌូ\u200bកាប់វែរ"
+    },
+    "CZK": {
+      "name": "កូរុណា\u200bសាធារណៈ\u200bឆេក",
+      "narrow": "Kč"
+    },
+    "DJF": {
+      "name": "ហ្វ្រង់\u200bជីប៊ូទី"
+    },
+    "DKK": {
+      "name": "ក្រូណេ\u200bដាណាម៉ាក់",
+      "narrow": "kr"
+    },
+    "DOP": {
+      "name": "ប៉េសូដូមីនីក",
+      "narrow": "$"
+    },
+    "DZD": {
+      "name": "ឌីណា\u200bអាល់ស៊េរី"
+    },
+    "EGP": {
+      "name": "ផោនអេហ្ស៊ីប",
+      "narrow": "E£"
+    },
+    "ERN": {
+      "name": "ណាក់ហ្វាអេរីទ្រា"
+    },
+    "ESP": {
+      "narrow": "₧"
+    },
+    "ETB": {
+      "name": "ប៊័រ\u200bអេត្យូពី"
+    },
+    "EUR": {
+      "name": "អឺរ៉ូ",
+      "symbol": "€"
+    },
+    "FJD": {
+      "name": "ដុល្លារ\u200bហ្វីជី",
+      "narrow": "$"
+    },
+    "FKP": {
+      "name": "ផោន\u200bកោះ\u200bហ្វក់ឡែន",
+      "narrow": "£"
+    },
+    "GBP": {
+      "name": "ផោនចក្រភពអង់គ្លេស",
+      "symbol": "£"
+    },
+    "GEL": {
+      "name": "ឡារី\u200b\u200bហ្សកហ្ស៊ី",
+      "narrow": "₾"
+    },
+    "GHS": {
+      "name": "ស៊ីឌី\u200bហ្គាណា",
+      "narrow": "GH₵"
+    },
+    "GIP": {
+      "name": "ផោន\u200bហ្ស៊ីប្រាល់តា",
+      "narrow": "£"
+    },
+    "GMD": {
+      "name": "ដាឡាស៊ី\u200bហ្គាំប៊ី"
+    },
+    "GNF": {
+      "name": "ហ្វ្រង់\u200bហ្គីណេ",
+      "narrow": "FG",
+      "plural": {
+        "other": "ហ្វ្រង់ ហ្គីណេ"
+      }
+    },
+    "GTQ": {
+      "name": "ហ្គីស្សាល\u200bក្វាតេម៉ាឡា",
+      "narrow": "Q"
+    },
+    "GYD": {
+      "name": "ដុល្លារ\u200bហ្គីយ៉ាន",
+      "narrow": "$"
+    },
+    "HKD": {
+      "name": "ដុល្លារ\u200bហុងកុង",
+      "narrow": "$",
+      "symbol": "HK$"
+    },
+    "HNL": {
+      "name": "លិមពីរ៉ា\u200bហុងឌូរ៉ាស",
+      "narrow": "L"
+    },
+    "HRK": {
+      "name": "គូណា\u200bក្រូអាត",
+      "narrow": "kn"
+    },
+    "HTG": {
+      "name": "គោឌី\u200bហៃទី"
+    },
+    "HUF": {
+      "name": "ហ្វូរីន\u200bហុងគ្រី",
+      "narrow": "Ft"
+    },
+    "IDR": {
+      "name": "រូពីឥណ្ឌូណេស៊ី",
+      "narrow": "Rp"
+    },
+    "ILS": {
+      "name": "ស៊ីគែលថ្មីអ៊ីស្រាអែល",
+      "symbol": "₪"
+    },
+    "INR": {
+      "name": "រូពីឥណ្ឌា",
+      "symbol": "₹"
+    },
+    "IQD": {
+      "name": "ឌីណា\u200bអ៊ីរ៉ាក់"
+    },
+    "IRR": {
+      "name": "រៀល\u200bអ៊ីរ៉ង់",
+      "plural": {
+        "other": "រៀល អ៊ីរ៉ង់"
+      }
+    },
+    "ISK": {
+      "name": "ក្រូណា\u200bអ៊ីស្លង់",
+      "narrow": "kr"
+    },
+    "JMD": {
+      "name": "ដុល្លារ\u200bហ្សាម៉ាអ៊ីក",
+      "narrow": "$"
+    },
+    "JOD": {
+      "name": "ឌីណា\u200bហ្ស៊កដានី"
+    },
+    "JPY": {
+      "name": "យេន\u200bជប៉ុន",
+      "narrow": "¥",
+      "symbol": "JP¥"
+    },
+    "KES": {
+      "name": "ស៊ីលិញ\u200bកេនយ៉ា"
+    },
+    "KGS": {
+      "name": "សុម\u200bកៀហ្ស៊ីស៊ីស្ថាន",
+      "narrow": "⃀"
+    },
+    "KHR": {
+      "name": "រៀល\u200bកម្ពុជា",
+      "symbol": "៛"
+    },
+    "KMF": {
+      "name": "ហ្វ្រង់\u200bកូម័រ",
+      "narrow": "CF"
+    },
+    "KPW": {
+      "name": "វ៉ុនកូរ៉េខាងជើង",
+      "narrow": "₩"
+    },
+    "KRW": {
+      "name": "វ៉ុនកូរ៉េខាងត្បូង",
+      "symbol": "₩"
+    },
+    "KWD": {
+      "name": "ឌីណា\u200bគុយវ៉ែត"
+    },
+    "KYD": {
+      "name": "ដុល្លារ\u200bកោះ\u200bកៃម៉ែន",
+      "narrow": "$"
+    },
+    "KZT": {
+      "name": "តង់ហ្គី\u200bកាហ្សាក់ស្ថាន",
+      "narrow": "₸"
+    },
+    "LAK": {
+      "name": "គីប\u200bឡាវ",
+      "narrow": "₭"
+    },
+    "LBP": {
+      "name": "ផោន\u200bលីបង់",
+      "narrow": "L£"
+    },
+    "LKR": {
+      "name": "រូពីស្រីលង្កា",
+      "narrow": "Rs"
+    },
+    "LRD": {
+      "name": "ដុល្លារ\u200bលីប៊ី",
+      "narrow": "$"
+    },
+    "LSL": {
+      "name": "ឡូទីឡេសូតូ",
+      "symbol": "ឡូទី"
+    },
+    "LTL": {
+      "name": "លីតា\u200bលីទុយអានី",
+      "narrow": "Lt"
+    },
+    "LVL": {
+      "name": "ឡាត់\u200bឡេតូនី",
+      "narrow": "Ls"
+    },
+    "LYD": {
+      "name": "ឌីណា\u200bលីប៊ី"
+    },
+    "MAD": {
+      "name": "ឌៀរហាំ\u200bម៉ារ៉ុក"
+    },
+    "MDL": {
+      "name": "លូ\u200bម៉ុលដាវី"
+    },
+    "MGA": {
+      "name": "អារៀរី\u200bម៉ាឡាហ្គាស៊ី",
+      "narrow": "Ar"
+    },
+    "MKD": {
+      "name": "ឌីណាម៉ាសេដូនី"
+    },
+    "MMK": {
+      "name": "គីយ៉ាត\u200bភូមា",
+      "narrow": "K"
+    },
+    "MNT": {
+      "name": "ទូរីក\u200bម៉ុងហ្គោលី",
+      "narrow": "₮"
+    },
+    "MOP": {
+      "name": "ប៉ាតាកា\u200bម៉ាកាវ"
+    },
+    "MRO": {
+      "name": "អ៊ូហ្គីយ៉ា\u200bម៉ូរីតានី (1973–2017)"
+    },
+    "MRU": {
+      "name": "អ៊ូហ្គីយ៉ា\u200bម៉ូរីតានី"
+    },
+    "MUR": {
+      "name": "រូពីម៉ូរីតានី",
+      "narrow": "Rs"
+    },
+    "MVR": {
+      "name": "រ៉ូហ្វីយ៉ា\u200bម៉ាល់ឌីវ"
+    },
+    "MWK": {
+      "name": "ក្វាចា\u200bម៉ាឡាវី"
+    },
+    "MXN": {
+      "name": "ប៉េសូម៉ិកសិក",
+      "narrow": "$",
+      "symbol": "MX$"
+    },
+    "MYR": {
+      "name": "រីងហ្គីត\u200bម៉ាឡេស៊ី",
+      "narrow": "RM"
+    },
+    "MZN": {
+      "name": "មីទីខល\u200bម៉ូសំប៊ិក"
+    },
+    "NAD": {
+      "name": "ដុល្លារ\u200bណាមីប៊ី",
+      "narrow": "$"
+    },
+    "NGN": {
+      "name": "ណៃរ៉ា\u200bនីហ្សេរីយ៉ា",
+      "narrow": "₦"
+    },
+    "NIO": {
+      "name": "ខឌូបា\u200bនីការ៉ាហ្កា",
+      "narrow": "C$"
+    },
+    "NOK": {
+      "name": "ក្រូណេ\u200bន័រវ៉េ",
+      "narrow": "kr"
+    },
+    "NPR": {
+      "name": "រូពីនេប៉ាល់",
+      "narrow": "Rs"
+    },
+    "NZD": {
+      "name": "ដុល្លារ\u200bនូវែលសេឡង់",
+      "narrow": "$",
+      "symbol": "NZ$"
+    },
+    "OMR": {
+      "name": "រៀល\u200bរូម៉ានី"
+    },
+    "PAB": {
+      "name": "បាល់ប៉ៅ\u200bប៉ាណាម៉ា"
+    },
+    "PEN": {
+      "name": "ញូវ៉ូសូល\u200bប៉េរូ",
+      "plural": {
+        "other": "ញូវ៉ូសូល ប៉េរូ"
+      }
+    },
+    "PGK": {
+      "name": "គីណាប៉ាពួញូហ្គីណេ"
+    },
+    "PHP": {
+      "name": "ប៉េសូហ្វីលីពីន",
+      "narrow": "₱"
+    },
+    "PKR": {
+      "name": "រូពីប៉ាគីស្ថាន",
+      "narrow": "Rs"
+    },
+    "PLN": {
+      "name": "ហ្សូទី\u200bប៉ូឡូញ",
+      "narrow": "zł"
+    },
+    "PYG": {
+      "name": "ហ្គូរីនី\u200bប៉ារ៉ាហ្គាយ",
+      "narrow": "₲"
+    },
+    "QAR": {
+      "name": "រីយ៉ាលកាតា"
+    },
+    "RON": {
+      "name": "លូ\u200bរូម៉ានី",
+      "narrow": "lei"
+    },
+    "RSD": {
+      "name": "ឌីណាស៊ែប"
+    },
+    "RUB": {
+      "name": "រ៉ូបល\u200bរុស្ស៊ី",
+      "narrow": "₽"
+    },
+    "RWF": {
+      "name": "ហ្វ្រង់\u200bរវ៉ាន់ដា",
+      "narrow": "RF"
+    },
+    "SAR": {
+      "name": "រីយ៉ាល\u200bអារ៉ាប៊ីសាអូឌីត"
+    },
+    "SBD": {
+      "name": "ដុល្លារ\u200bកោះ\u200bសូឡូម៉ុង",
+      "narrow": "$"
+    },
+    "SCR": {
+      "name": "រូពី\u200bសីស្ហែល"
+    },
+    "SDG": {
+      "name": "ផោន\u200bស៊ូដង់"
+    },
+    "SEK": {
+      "name": "ក្រូណា\u200bស៊ុយអែត",
+      "narrow": "kr"
+    },
+    "SGD": {
+      "name": "ដុល្លារ\u200b\u200bសិង្ហបូរី",
+      "narrow": "$"
+    },
+    "SHP": {
+      "name": "ផោន\u200bសាំងហេឡេណា",
+      "narrow": "£"
+    },
+    "SLE": {
+      "name": "លីអ៊ុន\u200bសៀរ៉ាឡេអូន"
+    },
+    "SLL": {
+      "name": "លីអ៊ុន\u200bសៀរ៉ាឡេអូន (1964—2022)"
+    },
+    "SOS": {
+      "name": "ស៊ីលិញ\u200bសូម៉ាលី"
+    },
+    "SRD": {
+      "name": "ដុល្លារ\u200bសូរីណាម",
+      "narrow": "$"
+    },
+    "SSP": {
+      "name": "ផោន\u200bស៊ូដង់\u200bខាង\u200bត្បូង",
+      "narrow": "£"
+    },
+    "STD": {
+      "name": "ឌូប្រា\u200bសៅតូម៉េ និងប្រាំងស៊ីប (1977–2017)"
+    },
+    "STN": {
+      "name": "ឌូប្រា\u200bសៅតូម៉េ និងប្រាំងស៊ីប",
+      "narrow": "Db"
+    },
+    "SYP": {
+      "name": "ផោន\u200bស៊ីរី",
+      "narrow": "£"
+    },
+    "SZL": {
+      "name": "លីឡាងហ្គីនី\u200bស្វាស៊ីឡង់"
+    },
+    "THB": {
+      "name": "បាត\u200bថៃ",
+      "symbol": "฿"
+    },
+    "TJS": {
+      "name": "សូមុនី\u200bតាហ្ស៊ីគីស្ថាន"
+    },
+    "TMT": {
+      "name": "ម៉ាណាត\u200bតួកម៉េនីស្ថាន"
+    },
+    "TND": {
+      "name": "ឌីណាទុយនេស៊ី"
+    },
+    "TOP": {
+      "name": "ប៉ាអង់កា\u200bតុងហ្គា",
+      "narrow": "T$"
+    },
+    "TRY": {
+      "name": "លីរ៉ាទួរគី",
+      "narrow": "₺"
+    },
+    "TTD": {
+      "name": "ដុល្លារ\u200bទ្រីនីដាដ និងតូបាហ្គោ",
+      "narrow": "$"
+    },
+    "TWD": {
+      "name": "ដុល្លារ\u200bតៃវ៉ាន់",
+      "symbol": "NT$"
+    },
+    "TZS": {
+      "name": "ស៊ីលិញ\u200bតង់សានី"
+    },
+    "UAH": {
+      "name": "ហ៊ូនីយ៉ា\u200bអ៊ុយក្រែន",
+      "narrow": "₴"
+    },
+    "UGX": {
+      "name": "ស៊ីលិញ\u200bអ៊ូហ្គង់ដា"
+    },
+    "USD": {
+      "name": "ដុល្លារ\u200bអាមេរិក",
+      "symbol": "$"
+    },
+    "UYU": {
+      "name": "ប៉េសូអ៊ុយរូហ្គាយ",
+      "narrow": "$"
+    },
+    "UZS": {
+      "name": "សុមអ៊ូបេគីស្ថាន"
+    },
+    "VEF": {
+      "name": "ប៊ូលីវ៉ា\u200bវ៉េណេស៊ុយអេឡា (2008–2018)",
+      "narrow": "Bs"
+    },
+    "VES": {
+      "name": "ប៊ូលីវ៉ា\u200bវ៉េណេស៊ុយអេឡា"
+    },
+    "VND": {
+      "name": "ដុង\u200bវៀតណាម",
+      "symbol": "₫"
+    },
+    "VUV": {
+      "name": "វ៉ាទូវ៉ានូអាទូ"
+    },
+    "WST": {
+      "name": "តាឡា\u200bសាម័រ"
+    },
+    "XAF": {
+      "name": "ហ្វ្រង់ CFA អាហ្វ្រិកកណ្តាល",
+      "symbol": "FCFA"
+    },
+    "XCD": {
+      "name": "ដុល្លារ\u200bការ៉ាប៊ីន\u200bខាង\u200bកើត",
+      "narrow": "$",
+      "symbol": "EC$"
+    },
+    "XCG": {
+      "name": "ហ្គីលឌ័រការីបៀន",
+      "symbol": "Cg."
+    },
+    "XOF": {
+      "name": "ហ្វ្រង់ CFA អាហ្វ្រិកខាងលិច",
+      "symbol": "F\u202fCFA"
+    },
+    "XPF": {
+      "name": "ហ្វ្រង់ CFP",
+      "symbol": "CFPF"
+    },
+    "XXX": {
+      "name": "រូបិយប័ណ្ណ\u200bមិនស្គាល់",
+      "plural": {
+        "other": "(រូបិយប័ណ្ណ\u200bមិនស្គាល់)"
+      },
+      "symbol": "¤"
+    },
+    "YER": {
+      "name": "រៀល\u200bយេម៉ែន"
+    },
+    "ZAR": {
+      "name": "រ៉ង់អាហ្វ្រិកខាងត្បូង",
+      "narrow": "R"
+    },
+    "ZMK": {
+      "name": "ក្វាចា សំប៊ី (1968–2012)"
+    },
+    "ZMW": {
+      "name": "ក្វាចាហ្សំប៊ី",
+      "narrow": "ZK"
+    },
+    "ZWG": {
+      "name": "ហ្កូលស៊ីមបាវ៉េ"
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "km",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "#,##0.00¤;(#,##0.00¤)",
+      "compactShort": {
+        "1000": {
+          "other": "0ពាន់"
+        },
+        "10000": {
+          "other": "00\u00a0ពាន់"
+        },
+        "100000": {
+          "other": "000\u00a0ពាន់"
+        },
+        "1000000": {
+          "other": "0\u00a0លាន"
+        },
+        "10000000": {
+          "other": "00\u00a0លាន"
+        },
+        "100000000": {
+          "other": "000\u00a0លាន"
+        },
+        "1000000000": {
+          "other": "0\u00a0ប៊ីលាន"
+        },
+        "10000000000": {
+          "other": "00\u00a0ប៊ីលាន"
+        },
+        "100000000000": {
+          "other": "000\u00a0ប៊ីលាន"
+        },
+        "1000000000000": {
+          "other": "0\u00a0ទ្រីលាន"
+        },
+        "10000000000000": {
+          "other": "00\u00a0ទ្រីលាន"
+        },
+        "100000000000000": {
+          "other": "000\u00a0ទ្រីលាន"
+        }
+      },
+      "currency": "#,##0.00¤",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ".",
+        "exponential": "E",
+        "group": ",",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "NaN",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {},
+    "ordinal": {}
+  },
+  "territories": {
+    "AC": "កោះ\u200bអាសេនសិន",
+    "AD": "អង់ដូរ៉ា",
+    "AE": "អេមីរ៉ាត\u200bអារ៉ាប់\u200bរួម",
+    "AF": "អាហ្វហ្កានីស្ថាន",
+    "AG": "អង់ទីហ្គា និង បាប៊ុយដា",
+    "AI": "អង់ហ្គីឡា",
+    "AL": "អាល់បានី",
+    "AM": "អាមេនី",
+    "AO": "អង់ហ្គោឡា",
+    "AQ": "អង់តាក់ទិក",
+    "AR": "អាហ្សង់ទីន",
+    "AS": "សាម័រ អាមេរិកាំង",
+    "AT": "អូទ្រីស",
+    "AU": "អូស្ត្រាលី",
+    "AW": "អារូបា",
+    "AX": "កោះ\u200bអាឡង់",
+    "AZ": "អាស៊ែបៃហ្សង់",
+    "BA": "បូស្ន៊ី និងហឺហ្ស៊ីហ្គូវីណា",
+    "BB": "បាបាដុស",
+    "BD": "បង់ក្លាដែស",
+    "BE": "បែលហ្ស៊ិក",
+    "BF": "បួគីណាហ្វាសូ",
+    "BG": "ប៊ុលហ្ការី",
+    "BH": "បារ៉ែន",
+    "BI": "ប៊ូរុនឌី",
+    "BJ": "បេណាំង",
+    "BL": "សាំង\u200bបាថេឡេមី",
+    "BM": "ប៊ឺមុយដា",
+    "BN": "ព្រុយណេ",
+    "BO": "បូលីវី",
+    "BQ": "ហូឡង់ ការ៉ាប៊ីន",
+    "BR": "ប្រេស៊ីល",
+    "BS": "បាហាម៉ា",
+    "BT": "ប៊ូតង់",
+    "BV": "កោះ\u200bប៊ូវ៉េត",
+    "BW": "បុតស្វាណា",
+    "BY": "បេឡារុស",
+    "BZ": "បេលី",
+    "CA": "កាណាដា",
+    "CC": "កោះ\u200bកូកូស (គីលីង)",
+    "CD": "កុងហ្គោ- គីនស្ហាសា",
+    "CF": "សាធារណរដ្ឋអាហ្វ្រិកកណ្ដាល",
+    "CG": "កុងហ្គោ - ប្រាហ្សាវីល",
+    "CH": "ស្វ៊ីស",
+    "CI": "កូតឌីវ័រ",
+    "CK": "កោះ\u200bខូក",
+    "CL": "ស៊ីលី",
+    "CM": "កាមេរូន",
+    "CN": "ចិន",
+    "CO": "កូឡុំប៊ី",
+    "CP": "កោះ\u200bឃ្លីភឺតុន",
+    "CQ": "សាខ",
+    "CR": "កូស្តារីកា",
+    "CU": "គុយបា",
+    "CV": "កាប់វែរ",
+    "CW": "កូរ៉ាកៅ",
+    "CX": "កោះ\u200bគ្រីស្មាស",
+    "CY": "ស៊ីប",
+    "CZ": "ឆែក",
+    "DE": "អាល្លឺម៉ង់",
+    "DG": "ឌៀហ្គោហ្គាស៊ី",
+    "DJ": "ជីប៊ូទី",
+    "DK": "ដាណឺម៉ាក",
+    "DM": "ដូមីនីក",
+    "DO": "សាធារណរដ្ឋ\u200bដូមីនីក",
+    "DZ": "អាល់ហ្សេរី",
+    "EA": "ជឺតា និង\u200bម៉េលីឡា",
+    "EC": "អេក្វាទ័រ",
+    "EE": "អេស្តូនី",
+    "EG": "អេហ្ស៊ីប",
+    "EH": "សាហារ៉ាខាងលិច",
+    "ER": "អេរីត្រេ",
+    "ES": "អេស្ប៉ាញ",
+    "ET": "អេត្យូពី",
+    "EU": "សហភាព\u200bអឺរ៉ុប",
+    "EZ": "តំបន់ចាយលុយអឺរ៉ូ",
+    "FI": "ហ្វាំងឡង់",
+    "FJ": "ហ្វីជី",
+    "FK": "កោះ\u200bហ្វក់ឡែន",
+    "FM": "មីក្រូណេស៊ី",
+    "FO": "កោះ\u200bហ្វារ៉ូ",
+    "FR": "បារាំង",
+    "GA": "ហ្គាបុង",
+    "GB": "ចក្រភព\u200bអង់គ្លេស",
+    "GD": "ហ្គ្រើណាដ",
+    "GE": "ហ្សកហ្ស៊ី",
+    "GF": "ហ្គីអាណា បារាំង",
+    "GG": "ហ្គេនស៊ី",
+    "GH": "ហ្គាណា",
+    "GI": "ហ្ស៊ីប្រាល់តា",
+    "GL": "ហ្គ្រោអង់ឡង់",
+    "GM": "ហ្គំប៊ី",
+    "GN": "ហ្គីណេ",
+    "GP": "ហ្គោដឺឡុប",
+    "GQ": "ហ្គីណេអេក្វាទ័រ",
+    "GR": "ក្រិក",
+    "GS": "កោះ\u200bហ្សកហ្ស៊ី\u200bខាងត្បូង និង សង់វិច\u200bខាងត្បូង",
+    "GT": "ក្វាតេម៉ាឡា",
+    "GU": "ហ្គាំ",
+    "GW": "ហ្គីណេប៊ីស្សូ",
+    "GY": "ហ្គីយ៉ាន",
+    "HK": "ហុងកុង តំបន់រដ្ឋបាលពិសេសចិន",
+    "HM": "កោះ\u200bហឺដនិង\u200bម៉ាក់ដូណាល់",
+    "HN": "ហុងឌូរ៉ាស",
+    "HR": "ក្រូអាស៊ី",
+    "HT": "ហៃទី",
+    "HU": "ហុងគ្រី",
+    "IC": "កោះ\u200bកាណារី",
+    "ID": "ឥណ្ឌូណេស៊ី",
+    "IE": "អៀរឡង់",
+    "IL": "អ៊ីស្រាអែល",
+    "IM": "អែលអុហ្វមែន",
+    "IN": "ឥណ្ឌា",
+    "IO": "ដែនដី\u200bអង់គ្លេស\u200bនៅ\u200bមហា\u200bសមុទ្រ\u200bឥណ្ឌា",
+    "IQ": "អ៊ីរ៉ាក់",
+    "IR": "អ៊ីរ៉ង់",
+    "IS": "អ៊ីស្លង់",
+    "IT": "អ៊ីតាលី",
+    "JE": "ជើស៊ី",
+    "JM": "ហ្សាម៉ាអ៊ីក",
+    "JO": "ហ៊្សកដានី",
+    "JP": "ជប៉ុន",
+    "KE": "កេនយ៉ា",
+    "KG": "កៀហ្ស៊ីស៊ីស្ថាន",
+    "KH": "កម្ពុជា",
+    "KI": "គិរីបាទី",
+    "KM": "កូម័រ",
+    "KN": "សាំង\u200bគីត និង ណេវីស",
+    "KP": "កូរ៉េ\u200bខាង\u200bជើង",
+    "KR": "កូរ៉េ\u200bខាង\u200bត្បូង",
+    "KW": "កូវ៉ែត",
+    "KY": "កោះ\u200bកៃម៉ង់",
+    "KZ": "កាហ្សាក់ស្ថាន",
+    "LA": "ឡាវ",
+    "LB": "លីបង់",
+    "LC": "សាំងលូស៊ី",
+    "LI": "លិចតិនស្ដាញ",
+    "LK": "ស្រីលង្កា",
+    "LR": "លីបេរីយ៉ា",
+    "LS": "ឡេសូតូ",
+    "LT": "លីទុយអានី",
+    "LU": "លុចសំបួ",
+    "LV": "ឡេតូនី",
+    "LY": "លីប៊ី",
+    "MA": "ម៉ារ៉ុក",
+    "MC": "ម៉ូណាកូ",
+    "MD": "ម៉ុលដាវី",
+    "ME": "ម៉ុងតេណេហ្គ្រោ",
+    "MF": "សាំង\u200bម៉ាទីន",
+    "MG": "ម៉ាដាហ្គាស្កា",
+    "MH": "កោះ\u200bម៉ាស់សល",
+    "MK": "ម៉ាសេដ្វានខាងជើង",
+    "ML": "ម៉ាលី",
+    "MM": "មីយ៉ាន់ម៉ា (ភូមា)",
+    "MN": "ម៉ុងហ្គោលី",
+    "MO": "ម៉ាកាវ តំបន់រដ្ឋបាលពិសេសចិន",
+    "MP": "កោះ\u200bម៉ារីណា\u200bខាង\u200bជើង",
+    "MQ": "ម៉ាទីនីក",
+    "MR": "ម៉ូរីតានី",
+    "MS": "ម៉ុងស៊ែរ៉ា",
+    "MT": "ម៉ាល់ត៍",
+    "MU": "ម៉ូរីស",
+    "MV": "ម៉ាល់ឌីវ",
+    "MW": "ម៉ាឡាវី",
+    "MX": "ម៉ិកស៊ិក",
+    "MY": "ម៉ាឡេស៊ី",
+    "MZ": "ម៉ូសំប៊ិក",
+    "NA": "ណាមីប៊ី",
+    "NC": "នូវែល\u200bកាឡេដូនី",
+    "NE": "នីហ្សេ",
+    "NF": "កោះ\u200bណ័រហ្វក់",
+    "NG": "នីហ្សេរីយ៉ា",
+    "NI": "នីការ៉ាហ្គា",
+    "NL": "ហូឡង់",
+    "NO": "ន័រវែស",
+    "NP": "នេប៉ាល់",
+    "NR": "ណូរូ",
+    "NU": "ណៀ",
+    "NZ": "នូវែល\u200bសេឡង់",
+    "OM": "អូម៉ង់",
+    "PA": "ប៉ាណាម៉ា",
+    "PE": "ប៉េរូ",
+    "PF": "ប៉ូលី\u200bណេស៊ី\u200bបារាំង",
+    "PG": "ប៉ាពូអាស៊ី\u200bនូវែលហ្គីណេ",
+    "PH": "ហ្វ៊ីលីពីន",
+    "PK": "ប៉ាគីស្ថាន",
+    "PL": "ប៉ូឡូញ",
+    "PM": "សង់ព្យែរ និង\u200bមីគីឡុង",
+    "PN": "កោះ\u200bភីតកាន",
+    "PR": "ព័រតូរីកូ",
+    "PS": "ដែនដីប៉ាឡេស្ទីន",
+    "PT": "ព័រទុយហ្កាល់",
+    "PW": "ផៅឡូ",
+    "PY": "ប៉ារ៉ាហ្គាយ",
+    "QA": "កាតា",
+    "QO": "តំបន់ជាយអូសេអានី",
+    "RE": "រេអុយញ៉ុង",
+    "RO": "រូម៉ានី",
+    "RS": "សែប៊ី",
+    "RU": "រុស្ស៊ី",
+    "RW": "រវ៉ាន់ដា",
+    "SA": "អារ៉ាប៊ីសាអូឌីត",
+    "SB": "កោះ\u200bសូឡូម៉ុង",
+    "SC": "សីស្ហែល",
+    "SD": "ស៊ូដង់",
+    "SE": "ស៊ុយអែត",
+    "SG": "សិង្ហបុរី",
+    "SH": "សង់\u200bហេឡេណា",
+    "SI": "ស្លូវេនី",
+    "SJ": "ស្វាលបាដ និង ហ្សង់ម៉ាយេន",
+    "SK": "ស្លូវ៉ាគី",
+    "SL": "សៀរ៉ាឡេអូន",
+    "SM": "សាន\u200bម៉ារីណូ",
+    "SN": "សេណេហ្គាល់",
+    "SO": "សូម៉ាលី",
+    "SR": "សូរីណាម",
+    "SS": "ស៊ូដង់\u200bខាង\u200bត្បូង",
+    "ST": "សៅតូម៉េ និង ប្រាំងស៊ីប",
+    "SV": "អែលសាល់វ៉ាឌ័រ",
+    "SX": "សីង\u200bម៉ាធីន",
+    "SY": "ស៊ីរី",
+    "SZ": "ស្វាស៊ីឡង់",
+    "TA": "ទ្រីស្តង់\u200bដា\u200bចូនហា",
+    "TC": "កោះ\u200bទួគ និង កៃកូស",
+    "TD": "ឆាដ",
+    "TF": "ដែនដី\u200bបារាំង\u200bនៅ\u200bភាគខាងត្បូង",
+    "TG": "តូហ្គោ",
+    "TH": "ថៃ",
+    "TJ": "តាហ្ស៊ីគីស្ថាន",
+    "TK": "តូខេឡៅ",
+    "TL": "ទីម័រលេស្តេ",
+    "TM": "តួកម៉េនីស្ថាន",
+    "TN": "ទុយនីស៊ី",
+    "TO": "តុងហ្គា",
+    "TR": "តួកគី",
+    "TT": "ទ្រីនីដាត និង\u200bតូបាហ្គោ",
+    "TV": "ទូវ៉ាលូ",
+    "TW": "តៃវ៉ាន់",
+    "TZ": "តង់សានី",
+    "UA": "អ៊ុយក្រែន",
+    "UG": "អ៊ូហ្គង់ដា",
+    "UM": "កោះ\u200bអៅឡាយីង\u200bអាមេរិក",
+    "UN": "អង្គការសហប្រជាជាតិ",
+    "US": "សហរដ្ឋអាមេរិក",
+    "UY": "អ៊ុយរូហ្គាយ",
+    "UZ": "អ៊ូសបេគីស្ថាន",
+    "VA": "បុរី\u200bវ៉ាទីកង់",
+    "VC": "សាំង\u200bវ៉ាំងសង់ និង ហ្គ្រេណាឌីន",
+    "VE": "វ៉េណេស៊ុយអេឡា",
+    "VG": "កោះ\u200bវឺជិន\u200bចក្រភព\u200bអង់គ្លេស",
+    "VI": "កោះ\u200bវឺជីន\u200bអាមេរិក",
+    "VN": "វៀតណាម",
+    "VU": "វ៉ានូទូ",
+    "WF": "វ៉ាលីស និង\u200bហ្វូទូណា",
+    "WS": "សាម័រ",
+    "XA": "Pseudo-Accents",
+    "XB": "Pseudo-Bidi",
+    "XK": "កូសូវ៉ូ",
+    "YE": "យេម៉ែន",
+    "YT": "ម៉ាយុត",
+    "ZA": "អាហ្វ្រិកខាងត្បូង",
+    "ZM": "សំប៊ី",
+    "ZW": "ស៊ីមបាវ៉េ"
+  }
+}

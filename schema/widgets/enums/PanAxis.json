@@ -1,0 +1,35 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "PanAxis",
+  "id": 107,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "Mirrors the Flutter enum PanAxis.",
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "enum": "PanAxis"
+  },
+  "values": [
+    {
+      "name": "free",
+      "id": 1
+    },
+    {
+      "name": "horizontal",
+      "id": 2
+    },
+    {
+      "name": "vertical",
+      "id": 3
+    },
+    {
+      "name": "aligned",
+      "id": 4
+    }
+  ]
+}
