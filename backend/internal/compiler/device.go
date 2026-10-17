@@ -40,12 +40,38 @@ var deviceActions = map[string]struct{ api, pkg string }{
 	"getLocation":       {api: "location", pkg: "plux_location"},
 }
 
+// deviceWidgets is every widget that needs a device API or an optional
+// package, keyed by widget type (SEC-080, RT-060). The package is the
+// descriptor's package field; FileUploader and KycCameraCapture are
+// provided by plux_media although their descriptors do not say so.
+var deviceWidgets = map[string]struct{ api, pkg string }{
+	"QrScanner":        {api: "camera", pkg: "plux_scanner"},
+	"BarcodeScanner":   {api: "camera", pkg: "plux_scanner"},
+	"QrCodeView":       {pkg: "plux_scanner"},
+	"KycCameraCapture": {api: "camera", pkg: "plux_media"},
+	"FileUploader":     {api: "files", pkg: "plux_media"},
+	"SignaturePad":     {pkg: "plux_media"},
+	"VideoPlayer":      {pkg: "plux_player"},
+	"AudioPlayer":      {pkg: "plux_player"},
+	"MapView":          {pkg: "plux_maps"},
+	"OrderTrackerMap":  {pkg: "plux_maps"},
+	"LineChart":        {pkg: "plux_charts"},
+	"BarChart":         {pkg: "plux_charts"},
+	"PieChart":         {pkg: "plux_charts"},
+	"Sparkline":        {pkg: "plux_charts"},
+	"MarkdownView":     {pkg: "plux_markdown"},
+	"TermsViewer":      {pkg: "plux_markdown"},
+	"LottieView":       {pkg: "plux_lottie"},
+	"RiveView":         {pkg: "plux_rive"},
+}
+
 // permissionAPIs are the device APIs a platform asks the user to permit:
 // the values requestPermission accepts.
 var permissionAPIs = []string{"camera", "photos", "location", "contacts", "biometrics", "notifications"}
 
-// DeviceUse is a step that runs an action of an optional package, at the
-// JSON path of its action: what a host build must have installed (RT-060).
+// DeviceUse is a step that runs an action, or a node that shows a widget
+// (Action is then its type), of an optional package, at the JSON path of
+// the action or of the node's type: what a host build must have installed (RT-060).
 type DeviceUse struct {
 	Package string
 	Action  string
@@ -158,6 +184,36 @@ func (u *unit) checkDeviceStep(g *graph, action string, input map[string]json.Ra
 	}
 	if use.pkg != "" {
 		u.deviceUses = append(u.deviceUses, DeviceUse{Package: use.pkg, Action: action, File: g.file, Path: ptr + "/action"})
+	}
+}
+
+// checkDeviceWidget checks a widget node like a device action step
+// (SEC-080, RT-060): the device API it needs must be declared by its
+// plugin, and a widget of an optional package is recorded for the host
+// build check. A map needs the location API only when it shows the user:
+// showUserLocation is true or bound.
+func (u *unit) checkDeviceWidget(n *node, file string) {
+	if n.widget == nil {
+		return
+	}
+	use, ok := deviceWidgets[n.widget.Type]
+	if !ok {
+		return
+	}
+	api := use.api
+	if raw, set := n.doc.Props["showUserLocation"]; set && api == "" {
+		var b bool
+		if isBindingRaw(raw) || (json.Unmarshal(raw, &b) == nil && b) {
+			api = "location"
+		}
+	}
+	ptr := n.ptr + "/type"
+	if api != "" && !slices.Contains(u.declaredDeviceAPIs(n.owner.plugin()), schema.DeviceAPI(api)) {
+		u.report(plxerr.DeviceCapabilityUndeclared, file, ptr,
+			"%s needs the device API %q, which the plugin does not declare in capabilities.deviceApis", n.widget.Type, api)
+	}
+	if use.pkg != "" {
+		u.deviceUses = append(u.deviceUses, DeviceUse{Package: use.pkg, Action: n.widget.Type, File: file, Path: ptr})
 	}
 }
 

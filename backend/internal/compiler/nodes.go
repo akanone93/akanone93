@@ -130,6 +130,8 @@ func (u *unit) checkNode(n *node) {
 		}
 		u.deprecation(sh.widget.Deprecated, sh.widget.Type, vctx{file: file, ptr: n.ptr + "/type"})
 	}
+	u.checkDeviceWidget(n, file)
+	u.checkWidgetRefs(n, file)
 	n.props = u.checkProps(n, sh, n.doc.Props, c, "props", true)
 	u.checkNodeAnimation(n, sh, c)
 	u.checkEvents(n, sh, c)
@@ -207,13 +209,18 @@ func (u *unit) memberType(n *node, m member, file, ptr string) *texpr {
 	if len(n.typeArgs) == 0 {
 		return te
 	}
+	return te.subst(typeBindings(n))
+}
+
+// typeBindings are the node's type arguments as type expressions.
+func typeBindings(n *node) map[string]*texpr {
 	bind := map[string]*texpr{}
 	for name, t := range n.typeArgs {
 		if b, err := parseTypeExpr(t.String()); err == nil {
 			bind[name] = b
 		}
 	}
-	return te.subst(bind)
+	return bind
 }
 
 // isBindingRaw reports whether a raw value is a binding.
