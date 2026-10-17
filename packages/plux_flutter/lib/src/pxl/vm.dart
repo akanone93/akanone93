@@ -6,6 +6,7 @@
 /// typed errors, checked by the shared conformance vectors.
 library;
 
+import 'package:plux_flutter/src/l10n/l10n.dart';
 import 'package:plux_flutter/src/pxl/builtins.dart';
 import 'package:plux_flutter/src/pxl/decimal.dart';
 import 'package:plux_flutter/src/pxl/program.dart';
@@ -94,15 +95,33 @@ final class PxlFailure extends PxlResult {
   final PxlError error;
 }
 
+/// What the `format` and `l10n` groups need from the user's locale
+/// (PXL-006): the CLDR data to format with and, for `t`, the lookup of
+/// translated messages. The renderer builds one per locale and hands it to
+/// [evaluate]; this is the seam locale loading (L4) fills.
+final class PxlLocaleContext {
+  /// Creates the context.
+  const PxlLocaleContext(this.locale, {this.translate});
+
+  /// Formats numbers, money and dates and selects plural forms.
+  final PluxLocaleData locale;
+
+  /// The message of a translation key formatted with the arguments, or null
+  /// when the key has no message.
+  final String? Function(String key, Map<String, String> args)? translate;
+}
+
 /// Evaluates [program] with the root values [inputs] within [limits]. The
-/// result is a value or a typed error; it never throws.
+/// result is a value or a typed error; it never throws. Without a [locale]
+/// the `format` and `l10n` functions fail with [PxlErrorKind.unsupported].
 PxlResult evaluate(
   Program program,
   Map<String, Object?> inputs,
-  PxlLimits limits,
-) {
+  PxlLimits limits, {
+  PxlLocaleContext? locale,
+}) {
   try {
-    return PxlValue(Vm(program, inputs, limits).run());
+    return PxlValue(Vm(program, inputs, limits, locale: locale).run());
   } on PxlError catch (e) {
     return PxlFailure(e);
   } on InvalidProgram catch (e) {
@@ -125,7 +144,7 @@ final class _Iterator {
 /// One evaluation.
 final class Vm {
   /// Creates the VM for one evaluation.
-  Vm(this.program, this.inputs, this.limits)
+  Vm(this.program, this.inputs, this.limits, {this.locale})
     : locals = List<Object?>.filled(program.locals, null);
 
   /// The program.
@@ -136,6 +155,9 @@ final class Vm {
 
   /// The limits.
   final PxlLimits limits;
+
+  /// The locale of the `format` and `l10n` groups, or null.
+  final PxlLocaleContext? locale;
 
   /// The local slots.
   final List<Object?> locals;

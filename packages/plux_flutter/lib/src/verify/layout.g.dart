@@ -242,6 +242,7 @@ const List<TableLayout> tableLayouts = [
   TableLayout('Message', [
     FieldLayout('key', 0, FieldKind.struct, 16, 8, -1, required: false),
     FieldLayout('text', 1, FieldKind.string, 0, 0, -1, required: false),
+    FieldLayout('ast', 2, FieldKind.vectorScalar, 1, 1, -1, required: false),
   ]),
   // 34
   TableLayout('Meta', [

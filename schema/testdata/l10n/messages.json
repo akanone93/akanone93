@@ -1,0 +1,1375 @@
+{
+  "description": "ICU MessageFormat conformance vectors (I18N-001, I18N-011). Go parses message and checks the golden ast; Go and Dart evaluate the ast with args and compare want. Args: strings, booleans, numbers, {\"decimal\": \"1.0\"} for a number whose fraction digits count, {\"date\": \"YYYY-MM-DDThh:mm:ss\"}. A case with error must fail to parse at that byte offset.",
+  "cases": [
+    {
+      "name": "text-en",
+      "locale": "en",
+      "message": "Hello, world",
+      "want": "Hello, world",
+      "ast": "AQEBDEhlbGxvLCB3b3JsZA=="
+    },
+    {
+      "name": "text-de-DE",
+      "locale": "de-DE",
+      "message": "Hello, world",
+      "want": "Hello, world",
+      "ast": "AQEBDEhlbGxvLCB3b3JsZA=="
+    },
+    {
+      "name": "simple-arg",
+      "locale": "en",
+      "message": "Hello {name}!",
+      "args": {
+        "name": "Ada"
+      },
+      "want": "Hello Ada!",
+      "ast": "AQMBBkhlbGxvIAIEbmFtZQEBIQ=="
+    },
+    {
+      "name": "arg-spaces",
+      "locale": "en",
+      "message": "{ name }",
+      "args": {
+        "name": "x"
+      },
+      "want": "x",
+      "ast": "AQECBG5hbWU="
+    },
+    {
+      "name": "arg-missing",
+      "locale": "en",
+      "message": "[{missing}]",
+      "want": "[]",
+      "ast": "AQMBAVsCB21pc3NpbmcBAV0="
+    },
+    {
+      "name": "arg-bool",
+      "locale": "en",
+      "message": "{b}",
+      "args": {
+        "b": true
+      },
+      "want": "true",
+      "ast": "AQECAWI="
+    },
+    {
+      "name": "arg-number-en",
+      "locale": "en",
+      "message": "{n}",
+      "args": {
+        "n": 1234567.5
+      },
+      "want": "1,234,567.5",
+      "ast": "AQECAW4="
+    },
+    {
+      "name": "arg-number-de",
+      "locale": "de-DE",
+      "message": "{n}",
+      "args": {
+        "n": 1234567.5
+      },
+      "want": "1.234.567,5",
+      "ast": "AQECAW4="
+    },
+    {
+      "name": "arg-number-ar",
+      "locale": "ar",
+      "message": "{n}",
+      "args": {
+        "n": 1234
+      },
+      "want": "1,234",
+      "ast": "AQECAW4="
+    },
+    {
+      "name": "arg-number-ru",
+      "locale": "ru",
+      "message": "{n}",
+      "args": {
+        "n": 1234567
+      },
+      "want": "1 234 567",
+      "ast": "AQECAW4="
+    },
+    {
+      "name": "arg-number-pl",
+      "locale": "pl",
+      "message": "{n}",
+      "args": {
+        "n": 1234.5
+      },
+      "want": "1234,5",
+      "ast": "AQECAW4="
+    },
+    {
+      "name": "arg-number-am",
+      "locale": "am-ET",
+      "message": "{n}",
+      "args": {
+        "n": 1234.5
+      },
+      "want": "1,234.5",
+      "ast": "AQECAW4="
+    },
+    {
+      "name": "plural-basic-en-0",
+      "locale": "en",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 0
+      },
+      "want": "none",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-en-1",
+      "locale": "en",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 1
+      },
+      "want": "1 item",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-en-2",
+      "locale": "en",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 2
+      },
+      "want": "2 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-en-5",
+      "locale": "en",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 5
+      },
+      "want": "5 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-de-DE-0",
+      "locale": "de-DE",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 0
+      },
+      "want": "none",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-de-DE-1",
+      "locale": "de-DE",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 1
+      },
+      "want": "1 item",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-de-DE-2",
+      "locale": "de-DE",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 2
+      },
+      "want": "2 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-de-DE-5",
+      "locale": "de-DE",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 5
+      },
+      "want": "5 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-ar-0",
+      "locale": "ar",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 0
+      },
+      "want": "none",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-ar-1",
+      "locale": "ar",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 1
+      },
+      "want": "1 item",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-ar-2",
+      "locale": "ar",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 2
+      },
+      "want": "2 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-ar-5",
+      "locale": "ar",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 5
+      },
+      "want": "5 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-am-ET-0",
+      "locale": "am-ET",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 0
+      },
+      "want": "none",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-am-ET-1",
+      "locale": "am-ET",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 1
+      },
+      "want": "1 item",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-am-ET-2",
+      "locale": "am-ET",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 2
+      },
+      "want": "2 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-am-ET-5",
+      "locale": "am-ET",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 5
+      },
+      "want": "5 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-ru-0",
+      "locale": "ru",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 0
+      },
+      "want": "none",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-ru-1",
+      "locale": "ru",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 1
+      },
+      "want": "1 item",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-ru-2",
+      "locale": "ru",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 2
+      },
+      "want": "2 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-ru-5",
+      "locale": "ru",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 5
+      },
+      "want": "5 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-pl-0",
+      "locale": "pl",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 0
+      },
+      "want": "none",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-pl-1",
+      "locale": "pl",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 1
+      },
+      "want": "1 item",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-pl-2",
+      "locale": "pl",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 2
+      },
+      "want": "2 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-basic-pl-5",
+      "locale": "pl",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 5
+      },
+      "want": "5 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-ru-21",
+      "locale": "ru",
+      "message": "{n, plural, one {# файл} few {# файла} many {# файлов} other {# файла}}",
+      "args": {
+        "n": 21
+      },
+      "want": "21 файл",
+      "ast": "AQEGAW4AAAQDb25lAggBCSDRhNCw0LnQuwNmZXcCCAELINGE0LDQudC70LAEbWFueQIIAQ0g0YTQsNC50LvQvtCyBW90aGVyAggBCyDRhNCw0LnQu9Cw"
+    },
+    {
+      "name": "plural-ru-22",
+      "locale": "ru",
+      "message": "{n, plural, one {# файл} few {# файла} many {# файлов} other {# файла}}",
+      "args": {
+        "n": 22
+      },
+      "want": "22 файла",
+      "ast": "AQEGAW4AAAQDb25lAggBCSDRhNCw0LnQuwNmZXcCCAELINGE0LDQudC70LAEbWFueQIIAQ0g0YTQsNC50LvQvtCyBW90aGVyAggBCyDRhNCw0LnQu9Cw"
+    },
+    {
+      "name": "plural-ru-25",
+      "locale": "ru",
+      "message": "{n, plural, one {# файл} few {# файла} many {# файлов} other {# файла}}",
+      "args": {
+        "n": 25
+      },
+      "want": "25 файлов",
+      "ast": "AQEGAW4AAAQDb25lAggBCSDRhNCw0LnQuwNmZXcCCAELINGE0LDQudC70LAEbWFueQIIAQ0g0YTQsNC50LvQvtCyBW90aGVyAggBCyDRhNCw0LnQu9Cw"
+    },
+    {
+      "name": "plural-ru-11",
+      "locale": "ru",
+      "message": "{n, plural, one {# файл} few {# файла} many {# файлов} other {# файла}}",
+      "args": {
+        "n": 11
+      },
+      "want": "11 файлов",
+      "ast": "AQEGAW4AAAQDb25lAggBCSDRhNCw0LnQuwNmZXcCCAELINGE0LDQudC70LAEbWFueQIIAQ0g0YTQsNC50LvQvtCyBW90aGVyAggBCyDRhNCw0LnQu9Cw"
+    },
+    {
+      "name": "plural-ru-fraction",
+      "locale": "ru",
+      "message": "{n, plural, one {# файл} few {# файла} many {# файлов} other {# файла}}",
+      "args": {
+        "n": {
+          "decimal": "1.5"
+        }
+      },
+      "want": "1,5 файла",
+      "ast": "AQEGAW4AAAQDb25lAggBCSDRhNCw0LnQuwNmZXcCCAELINGE0LDQudC70LAEbWFueQIIAQ0g0YTQsNC50LvQvtCyBW90aGVyAggBCyDRhNCw0LnQu9Cw"
+    },
+    {
+      "name": "plural-pl-1",
+      "locale": "pl",
+      "message": "{n, plural, one {# plik} few {# pliki} many {# plików} other {# pliku}}",
+      "args": {
+        "n": 1
+      },
+      "want": "1 plik",
+      "ast": "AQEGAW4AAAQDb25lAggBBSBwbGlrA2ZldwIIAQYgcGxpa2kEbWFueQIIAQggcGxpa8OzdwVvdGhlcgIIAQYgcGxpa3U="
+    },
+    {
+      "name": "plural-pl-2",
+      "locale": "pl",
+      "message": "{n, plural, one {# plik} few {# pliki} many {# plików} other {# pliku}}",
+      "args": {
+        "n": 2
+      },
+      "want": "2 pliki",
+      "ast": "AQEGAW4AAAQDb25lAggBBSBwbGlrA2ZldwIIAQYgcGxpa2kEbWFueQIIAQggcGxpa8OzdwVvdGhlcgIIAQYgcGxpa3U="
+    },
+    {
+      "name": "plural-pl-5",
+      "locale": "pl",
+      "message": "{n, plural, one {# plik} few {# pliki} many {# plików} other {# pliku}}",
+      "args": {
+        "n": 5
+      },
+      "want": "5 plików",
+      "ast": "AQEGAW4AAAQDb25lAggBBSBwbGlrA2ZldwIIAQYgcGxpa2kEbWFueQIIAQggcGxpa8OzdwVvdGhlcgIIAQYgcGxpa3U="
+    },
+    {
+      "name": "plural-pl-22",
+      "locale": "pl",
+      "message": "{n, plural, one {# plik} few {# pliki} many {# plików} other {# pliku}}",
+      "args": {
+        "n": 22
+      },
+      "want": "22 pliki",
+      "ast": "AQEGAW4AAAQDb25lAggBBSBwbGlrA2ZldwIIAQYgcGxpa2kEbWFueQIIAQggcGxpa8OzdwVvdGhlcgIIAQYgcGxpa3U="
+    },
+    {
+      "name": "plural-ar-0",
+      "locale": "ar",
+      "message": "{n, plural, zero {صفر} one {واحد} two {اثنان} few {قليل} many {كثير} other {آخر}}",
+      "args": {
+        "n": 0
+      },
+      "want": "صفر",
+      "ast": "AQEGAW4AAAYEemVybwEBBti12YHYsQNvbmUBAQjZiNin2K3YrwN0d28BAQrYp9ir2YbYp9mGA2ZldwEBCNmC2YTZitmEBG1hbnkBAQjZg9ir2YrYsQVvdGhlcgEBBtii2K7YsQ=="
+    },
+    {
+      "name": "plural-ar-2",
+      "locale": "ar",
+      "message": "{n, plural, zero {صفر} one {واحد} two {اثنان} few {قليل} many {كثير} other {آخر}}",
+      "args": {
+        "n": 2
+      },
+      "want": "اثنان",
+      "ast": "AQEGAW4AAAYEemVybwEBBti12YHYsQNvbmUBAQjZiNin2K3YrwN0d28BAQrYp9ir2YbYp9mGA2ZldwEBCNmC2YTZitmEBG1hbnkBAQjZg9ir2YrYsQVvdGhlcgEBBtii2K7YsQ=="
+    },
+    {
+      "name": "plural-ar-5",
+      "locale": "ar",
+      "message": "{n, plural, zero {صفر} one {واحد} two {اثنان} few {قليل} many {كثير} other {آخر}}",
+      "args": {
+        "n": 5
+      },
+      "want": "قليل",
+      "ast": "AQEGAW4AAAYEemVybwEBBti12YHYsQNvbmUBAQjZiNin2K3YrwN0d28BAQrYp9ir2YbYp9mGA2ZldwEBCNmC2YTZitmEBG1hbnkBAQjZg9ir2YrYsQVvdGhlcgEBBtii2K7YsQ=="
+    },
+    {
+      "name": "plural-ar-11",
+      "locale": "ar",
+      "message": "{n, plural, zero {صفر} one {واحد} two {اثنان} few {قليل} many {كثير} other {آخر}}",
+      "args": {
+        "n": 11
+      },
+      "want": "كثير",
+      "ast": "AQEGAW4AAAYEemVybwEBBti12YHYsQNvbmUBAQjZiNin2K3YrwN0d28BAQrYp9ir2YbYp9mGA2ZldwEBCNmC2YTZitmEBG1hbnkBAQjZg9ir2YrYsQVvdGhlcgEBBtii2K7YsQ=="
+    },
+    {
+      "name": "plural-ar-100",
+      "locale": "ar",
+      "message": "{n, plural, zero {صفر} one {واحد} two {اثنان} few {قليل} many {كثير} other {آخر}}",
+      "args": {
+        "n": 100
+      },
+      "want": "آخر",
+      "ast": "AQEGAW4AAAYEemVybwEBBti12YHYsQNvbmUBAQjZiNin2K3YrwN0d28BAQrYp9ir2YbYp9mGA2ZldwEBCNmC2YTZitmEBG1hbnkBAQjZg9ir2YrYsQVvdGhlcgEBBtii2K7YsQ=="
+    },
+    {
+      "name": "plural-am-0",
+      "locale": "am-ET",
+      "message": "{n, plural, one {# ፋይል} other {# ፋይሎች}}",
+      "args": {
+        "n": 0
+      },
+      "want": "0 ፋይል",
+      "ast": "AQEGAW4AAAIDb25lAggBCiDhjYvhi63hiI0Fb3RoZXICCAENIOGNi+GLreGIjuGJvQ=="
+    },
+    {
+      "name": "plural-am-1",
+      "locale": "am-ET",
+      "message": "{n, plural, one {# ፋይል} other {# ፋይሎች}}",
+      "args": {
+        "n": 1
+      },
+      "want": "1 ፋይል",
+      "ast": "AQEGAW4AAAIDb25lAggBCiDhjYvhi63hiI0Fb3RoZXICCAENIOGNi+GLreGIjuGJvQ=="
+    },
+    {
+      "name": "plural-en-decimal-1.0",
+      "locale": "en",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": {
+          "decimal": "1.0"
+        }
+      },
+      "want": "1 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-en-decimal-1.5",
+      "locale": "en",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": {
+          "decimal": "1.5"
+        }
+      },
+      "want": "1.5 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-exact-beats-category",
+      "locale": "en",
+      "message": "{n, plural, =1 {exactly one} one {one} other {many}}",
+      "args": {
+        "n": 1
+      },
+      "want": "exactly one",
+      "ast": "AQEGAW4AAAMCPTEBAQtleGFjdGx5IG9uZQNvbmUBAQNvbmUFb3RoZXIBAQRtYW55"
+    },
+    {
+      "name": "plural-exact-decimal-whole",
+      "locale": "en",
+      "message": "{n, plural, =1 {exactly one} other {other}}",
+      "args": {
+        "n": {
+          "decimal": "1.0"
+        }
+      },
+      "want": "exactly one",
+      "ast": "AQEGAW4AAAICPTEBAQtleGFjdGx5IG9uZQVvdGhlcgEBBW90aGVy"
+    },
+    {
+      "name": "plural-offset-0",
+      "locale": "en",
+      "message": "{n, plural, offset:1 =0 {nobody} =1 {just you} one {you and # other} other {you and # others}}",
+      "args": {
+        "n": 0
+      },
+      "want": "nobody",
+      "ast": "AQEGAW4AAQQCPTABAQZub2JvZHkCPTEBAQhqdXN0IHlvdQNvbmUDAQh5b3UgYW5kIAgBBiBvdGhlcgVvdGhlcgMBCHlvdSBhbmQgCAEHIG90aGVycw=="
+    },
+    {
+      "name": "plural-offset-1",
+      "locale": "en",
+      "message": "{n, plural, offset:1 =0 {nobody} =1 {just you} one {you and # other} other {you and # others}}",
+      "args": {
+        "n": 1
+      },
+      "want": "just you",
+      "ast": "AQEGAW4AAQQCPTABAQZub2JvZHkCPTEBAQhqdXN0IHlvdQNvbmUDAQh5b3UgYW5kIAgBBiBvdGhlcgVvdGhlcgMBCHlvdSBhbmQgCAEHIG90aGVycw=="
+    },
+    {
+      "name": "plural-offset-2",
+      "locale": "en",
+      "message": "{n, plural, offset:1 =0 {nobody} =1 {just you} one {you and # other} other {you and # others}}",
+      "args": {
+        "n": 2
+      },
+      "want": "you and 1 other",
+      "ast": "AQEGAW4AAQQCPTABAQZub2JvZHkCPTEBAQhqdXN0IHlvdQNvbmUDAQh5b3UgYW5kIAgBBiBvdGhlcgVvdGhlcgMBCHlvdSBhbmQgCAEHIG90aGVycw=="
+    },
+    {
+      "name": "plural-offset-5",
+      "locale": "en",
+      "message": "{n, plural, offset:1 =0 {nobody} =1 {just you} one {you and # other} other {you and # others}}",
+      "args": {
+        "n": 5
+      },
+      "want": "you and 4 others",
+      "ast": "AQEGAW4AAQQCPTABAQZub2JvZHkCPTEBAQhqdXN0IHlvdQNvbmUDAQh5b3UgYW5kIAgBBiBvdGhlcgVvdGhlcgMBCHlvdSBhbmQgCAEHIG90aGVycw=="
+    },
+    {
+      "name": "plural-offset-decimal",
+      "locale": "en",
+      "message": "{n, plural, offset:1 one {# more} other {# more}}",
+      "args": {
+        "n": {
+          "decimal": "3.50"
+        }
+      },
+      "want": "2.5 more",
+      "ast": "AQEGAW4AAQIDb25lAggBBSBtb3JlBW90aGVyAggBBSBtb3Jl"
+    },
+    {
+      "name": "plural-pound-grouping-de",
+      "locale": "de-DE",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 12345
+      },
+      "want": "12.345 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-pound-grouping-en",
+      "locale": "en",
+      "message": "{n, plural, =0 {none} one {# item} other {# items}}",
+      "args": {
+        "n": 12345
+      },
+      "want": "12,345 items",
+      "ast": "AQEGAW4AAAMCPTABAQRub25lA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM="
+    },
+    {
+      "name": "plural-no-pound-outside",
+      "locale": "en",
+      "message": "# {n}",
+      "args": {
+        "n": 3
+      },
+      "want": "# 3",
+      "ast": "AQIBAiMgAgFu"
+    },
+    {
+      "name": "selectordinal-en-1",
+      "locale": "en",
+      "message": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
+      "args": {
+        "n": 1
+      },
+      "want": "1st",
+      "ast": "AQEGAW4BAAQDb25lAggBAnN0A3R3bwIIAQJuZANmZXcCCAECcmQFb3RoZXICCAECdGg="
+    },
+    {
+      "name": "selectordinal-en-2",
+      "locale": "en",
+      "message": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
+      "args": {
+        "n": 2
+      },
+      "want": "2nd",
+      "ast": "AQEGAW4BAAQDb25lAggBAnN0A3R3bwIIAQJuZANmZXcCCAECcmQFb3RoZXICCAECdGg="
+    },
+    {
+      "name": "selectordinal-en-3",
+      "locale": "en",
+      "message": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
+      "args": {
+        "n": 3
+      },
+      "want": "3rd",
+      "ast": "AQEGAW4BAAQDb25lAggBAnN0A3R3bwIIAQJuZANmZXcCCAECcmQFb3RoZXICCAECdGg="
+    },
+    {
+      "name": "selectordinal-en-11",
+      "locale": "en",
+      "message": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
+      "args": {
+        "n": 11
+      },
+      "want": "11th",
+      "ast": "AQEGAW4BAAQDb25lAggBAnN0A3R3bwIIAQJuZANmZXcCCAECcmQFb3RoZXICCAECdGg="
+    },
+    {
+      "name": "selectordinal-en-22",
+      "locale": "en",
+      "message": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
+      "args": {
+        "n": 22
+      },
+      "want": "22nd",
+      "ast": "AQEGAW4BAAQDb25lAggBAnN0A3R3bwIIAQJuZANmZXcCCAECcmQFb3RoZXICCAECdGg="
+    },
+    {
+      "name": "selectordinal-de",
+      "locale": "de-DE",
+      "message": "{n, selectordinal, other {#.}}",
+      "args": {
+        "n": 3
+      },
+      "want": "3.",
+      "ast": "AQEGAW4BAAEFb3RoZXICCAEBLg=="
+    },
+    {
+      "name": "select-gender-female",
+      "locale": "en",
+      "message": "{g, select, female {She} male {He} other {They}} replied.",
+      "args": {
+        "g": "female"
+      },
+      "want": "She replied.",
+      "ast": "AQIHAWcDBmZlbWFsZQEBA1NoZQRtYWxlAQECSGUFb3RoZXIBAQRUaGV5AQkgcmVwbGllZC4="
+    },
+    {
+      "name": "select-gender-male",
+      "locale": "en",
+      "message": "{g, select, female {She} male {He} other {They}} replied.",
+      "args": {
+        "g": "male"
+      },
+      "want": "He replied.",
+      "ast": "AQIHAWcDBmZlbWFsZQEBA1NoZQRtYWxlAQECSGUFb3RoZXIBAQRUaGV5AQkgcmVwbGllZC4="
+    },
+    {
+      "name": "select-gender-other",
+      "locale": "en",
+      "message": "{g, select, female {She} male {He} other {They}} replied.",
+      "args": {
+        "g": "x"
+      },
+      "want": "They replied.",
+      "ast": "AQIHAWcDBmZlbWFsZQEBA1NoZQRtYWxlAQECSGUFb3RoZXIBAQRUaGV5AQkgcmVwbGllZC4="
+    },
+    {
+      "name": "select-gender-de",
+      "locale": "de-DE",
+      "message": "{g, select, female {Sie} male {Er} other {Es}} antwortete.",
+      "args": {
+        "g": "female"
+      },
+      "want": "Sie antwortete.",
+      "ast": "AQIHAWcDBmZlbWFsZQEBA1NpZQRtYWxlAQECRXIFb3RoZXIBAQJFcwEMIGFudHdvcnRldGUu"
+    },
+    {
+      "name": "select-bool",
+      "locale": "en",
+      "message": "{b, select, true {yes} other {no}}",
+      "args": {
+        "b": true
+      },
+      "want": "yes",
+      "ast": "AQEHAWICBHRydWUBAQN5ZXMFb3RoZXIBAQJubw=="
+    },
+    {
+      "name": "select-missing-arg",
+      "locale": "en",
+      "message": "{g, select, a {A} other {O}}",
+      "want": "",
+      "ast": "AQEHAWcCAWEBAQFBBW90aGVyAQEBTw=="
+    },
+    {
+      "name": "nested-select-plural",
+      "locale": "en",
+      "message": "{g, select, female {{n, plural, one {She has # cat} other {She has # cats}}} other {{n, plural, one {They have # cat} other {They have # cats}}}}",
+      "args": {
+        "g": "female",
+        "n": 3
+      },
+      "want": "She has 3 cats",
+      "ast": "AQEHAWcCBmZlbWFsZQEGAW4AAAIDb25lAwEIU2hlIGhhcyAIAQQgY2F0BW90aGVyAwEIU2hlIGhhcyAIAQUgY2F0cwVvdGhlcgEGAW4AAAIDb25lAwEKVGhleSBoYXZlIAgBBCBjYXQFb3RoZXIDAQpUaGV5IGhhdmUgCAEFIGNhdHM="
+    },
+    {
+      "name": "nested-plural-in-select-one",
+      "locale": "en",
+      "message": "{g, select, female {{n, plural, one {She has # cat} other {She has # cats}}} other {{n, plural, one {They have # cat} other {They have # cats}}}}",
+      "args": {
+        "g": "male",
+        "n": 1
+      },
+      "want": "They have 1 cat",
+      "ast": "AQEHAWcCBmZlbWFsZQEGAW4AAAIDb25lAwEIU2hlIGhhcyAIAQQgY2F0BW90aGVyAwEIU2hlIGhhcyAIAQUgY2F0cwVvdGhlcgEGAW4AAAIDb25lAwEKVGhleSBoYXZlIAgBBCBjYXQFb3RoZXIDAQpUaGV5IGhhdmUgCAEFIGNhdHM="
+    },
+    {
+      "name": "nested-plural-select-in-plural",
+      "locale": "ru",
+      "message": "{n, plural, one {{g, select, female {Она добавила # фото} other {Он добавил # фото}}} other {{g, select, female {Она добавила # фото} other {Он добавил # фото}}}}",
+      "args": {
+        "g": "female",
+        "n": 1
+      },
+      "want": "Она добавила 1 фото",
+      "ast": "AQEGAW4AAAIDb25lAQcBZwIGZmVtYWxlAwEY0J7QvdCwINC00L7QsdCw0LLQuNC70LAgCAEJINGE0L7RgtC+BW90aGVyAwEU0J7QvSDQtNC+0LHQsNCy0LjQuyAIAQkg0YTQvtGC0L4Fb3RoZXIBBwFnAgZmZW1hbGUDARjQntC90LAg0LTQvtCx0LDQstC40LvQsCAIAQkg0YTQvtGC0L4Fb3RoZXIDARTQntC9INC00L7QsdCw0LLQuNC7IAgBCSDRhNC+0YLQvg=="
+    },
+    {
+      "name": "nested-two-plurals",
+      "locale": "en",
+      "message": "{a, plural, one {# apple} other {# apples}} and {b, plural, one {# pear} other {# pears}}",
+      "args": {
+        "a": 1,
+        "b": 2
+      },
+      "want": "1 apple and 2 pears",
+      "ast": "AQMGAWEAAAIDb25lAggBBiBhcHBsZQVvdGhlcgIIAQcgYXBwbGVzAQUgYW5kIAYBYgAAAgNvbmUCCAEFIHBlYXIFb3RoZXICCAEGIHBlYXJz"
+    },
+    {
+      "name": "quote-brace",
+      "locale": "en",
+      "message": "'{literal}' and {x}",
+      "args": {
+        "x": "v"
+      },
+      "want": "{literal} and v",
+      "ast": "AQIBDntsaXRlcmFsfSBhbmQgAgF4"
+    },
+    {
+      "name": "quote-double",
+      "locale": "en",
+      "message": "It''s {x}",
+      "args": {
+        "x": "fine"
+      },
+      "want": "It's fine",
+      "ast": "AQIBBUl0J3MgAgF4"
+    },
+    {
+      "name": "quote-lone",
+      "locale": "en",
+      "message": "a'b",
+      "want": "a'b",
+      "ast": "AQEBA2EnYg=="
+    },
+    {
+      "name": "quote-trailing",
+      "locale": "en",
+      "message": "rock 'n' roll",
+      "want": "rock 'n' roll",
+      "ast": "AQEBDXJvY2sgJ24nIHJvbGw="
+    },
+    {
+      "name": "quote-unterminated",
+      "locale": "en",
+      "message": "'{unterminated",
+      "want": "{unterminated",
+      "ast": "AQEBDXt1bnRlcm1pbmF0ZWQ="
+    },
+    {
+      "name": "quote-pound-in-plural",
+      "locale": "en",
+      "message": "{n, plural, other {'#' is #}}",
+      "args": {
+        "n": 4
+      },
+      "want": "# is 4",
+      "ast": "AQEGAW4AAAEFb3RoZXICAQUjIGlzIAg="
+    },
+    {
+      "name": "quote-pound-outside-plural",
+      "locale": "en",
+      "message": "'#' and #",
+      "want": "'#' and #",
+      "ast": "AQEBCScjJyBhbmQgIw=="
+    },
+    {
+      "name": "quote-inside-quoted",
+      "locale": "en",
+      "message": "'{it''s}'",
+      "want": "{it's}",
+      "ast": "AQEBBntpdCdzfQ=="
+    },
+    {
+      "name": "quote-closing-brace",
+      "locale": "en",
+      "message": "'}' ok",
+      "want": "} ok",
+      "ast": "AQEBBH0gb2s="
+    },
+    {
+      "name": "number-integer",
+      "locale": "en",
+      "message": "{n, number, integer}",
+      "args": {
+        "n": {
+          "decimal": "1234.7"
+        }
+      },
+      "want": "1,235",
+      "ast": "AQEDAW4HaW50ZWdlcg=="
+    },
+    {
+      "name": "number-percent-en",
+      "locale": "en",
+      "message": "{n, number, percent}",
+      "args": {
+        "n": {
+          "decimal": "0.256"
+        }
+      },
+      "want": "26%",
+      "ast": "AQEDAW4HcGVyY2VudA=="
+    },
+    {
+      "name": "number-percent-de",
+      "locale": "de-DE",
+      "message": "{n, number, percent}",
+      "args": {
+        "n": {
+          "decimal": "0.256"
+        }
+      },
+      "want": "26 %",
+      "ast": "AQEDAW4HcGVyY2VudA=="
+    },
+    {
+      "name": "number-plain-de",
+      "locale": "de-DE",
+      "message": "{n, number}",
+      "args": {
+        "n": 1234.5
+      },
+      "want": "1.234,5",
+      "ast": "AQEDAW4A"
+    },
+    {
+      "name": "number-skeleton-fraction",
+      "locale": "en",
+      "message": "{n, number, ::.00}",
+      "args": {
+        "n": 3.14159
+      },
+      "want": "3.14",
+      "ast": "AQEDAW4FOjouMDA="
+    },
+    {
+      "name": "number-skeleton-fraction-hash",
+      "locale": "en",
+      "message": "{n, number, ::.0#}",
+      "args": {
+        "n": 2
+      },
+      "want": "2.0",
+      "ast": "AQEDAW4FOjouMCM="
+    },
+    {
+      "name": "number-skeleton-integer",
+      "locale": "en",
+      "message": "{n, number, ::precision-integer}",
+      "args": {
+        "n": 2.5
+      },
+      "want": "2",
+      "ast": "AQEDAW4TOjpwcmVjaXNpb24taW50ZWdlcg=="
+    },
+    {
+      "name": "number-skeleton-group-off",
+      "locale": "en",
+      "message": "{n, number, ::group-off}",
+      "args": {
+        "n": 1234567
+      },
+      "want": "1234567",
+      "ast": "AQEDAW4LOjpncm91cC1vZmY="
+    },
+    {
+      "name": "number-skeleton-compact",
+      "locale": "en",
+      "message": "{n, number, ::compact-short}",
+      "args": {
+        "n": 1234567
+      },
+      "want": "1.2M",
+      "ast": "AQEDAW4POjpjb21wYWN0LXNob3J0"
+    },
+    {
+      "name": "number-skeleton-compact-de",
+      "locale": "de-DE",
+      "message": "{n, number, ::compact-short}",
+      "args": {
+        "n": 2500000
+      },
+      "want": "2,5 Mio.",
+      "ast": "AQEDAW4POjpjb21wYWN0LXNob3J0"
+    },
+    {
+      "name": "number-skeleton-percent",
+      "locale": "en",
+      "message": "{n, number, ::percent .0}",
+      "args": {
+        "n": {
+          "decimal": "0.1234"
+        }
+      },
+      "want": "12.3%",
+      "ast": "AQEDAW4MOjpwZXJjZW50IC4w"
+    },
+    {
+      "name": "number-skeleton-currency-en",
+      "locale": "en",
+      "message": "{n, number, ::currency/USD}",
+      "args": {
+        "n": 1234.5
+      },
+      "want": "$1,234.50",
+      "ast": "AQEDAW4OOjpjdXJyZW5jeS9VU0Q="
+    },
+    {
+      "name": "number-skeleton-currency-de",
+      "locale": "de-DE",
+      "message": "{n, number, ::currency/EUR}",
+      "args": {
+        "n": 1234.5
+      },
+      "want": "1.234,50 €",
+      "ast": "AQEDAW4OOjpjdXJyZW5jeS9FVVI="
+    },
+    {
+      "name": "date-medium-en",
+      "locale": "en",
+      "message": "{d, date}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "Mar 14, 2026",
+      "ast": "AQEEAWQA"
+    },
+    {
+      "name": "date-medium-de-DE",
+      "locale": "de-DE",
+      "message": "{d, date}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "14.03.2026",
+      "ast": "AQEEAWQA"
+    },
+    {
+      "name": "date-medium-ar",
+      "locale": "ar",
+      "message": "{d, date}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "14‏/03‏/2026",
+      "ast": "AQEEAWQA"
+    },
+    {
+      "name": "date-medium-am-ET",
+      "locale": "am-ET",
+      "message": "{d, date}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "14 ማርች 2026",
+      "ast": "AQEEAWQA"
+    },
+    {
+      "name": "date-medium-ru",
+      "locale": "ru",
+      "message": "{d, date}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "14 мар. 2026 г.",
+      "ast": "AQEEAWQA"
+    },
+    {
+      "name": "date-medium-pl",
+      "locale": "pl",
+      "message": "{d, date}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "14 mar 2026",
+      "ast": "AQEEAWQA"
+    },
+    {
+      "name": "date-short-en",
+      "locale": "en",
+      "message": "{d, date, short}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "3/14/26",
+      "ast": "AQEEAWQFc2hvcnQ="
+    },
+    {
+      "name": "date-long-de",
+      "locale": "de-DE",
+      "message": "{d, date, long}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "14. März 2026",
+      "ast": "AQEEAWQEbG9uZw=="
+    },
+    {
+      "name": "date-full-ru",
+      "locale": "ru",
+      "message": "{d, date, full}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "суббота, 14 марта 2026 г.",
+      "ast": "AQEEAWQEZnVsbA=="
+    },
+    {
+      "name": "date-skeleton-en",
+      "locale": "en",
+      "message": "{d, date, ::yMMMd}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "Mar 14, 2026",
+      "ast": "AQEEAWQHOjp5TU1NZA=="
+    },
+    {
+      "name": "date-skeleton-de",
+      "locale": "de-DE",
+      "message": "{d, date, ::yMMMEd}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "Sa., 14. März 2026",
+      "ast": "AQEEAWQIOjp5TU1NRWQ="
+    },
+    {
+      "name": "date-skeleton-pl",
+      "locale": "pl",
+      "message": "{d, date, ::yMMMMd}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "14 marca 2026",
+      "ast": "AQEEAWQIOjp5TU1NTWQ="
+    },
+    {
+      "name": "time-short-en",
+      "locale": "en",
+      "message": "{d, time, short}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "3:09 PM",
+      "ast": "AQEFAWQFc2hvcnQ="
+    },
+    {
+      "name": "time-short-de",
+      "locale": "de-DE",
+      "message": "{d, time, short}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "15:09",
+      "ast": "AQEFAWQFc2hvcnQ="
+    },
+    {
+      "name": "time-default-en",
+      "locale": "en",
+      "message": "{d, time}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "3:09:26 PM",
+      "ast": "AQEFAWQA"
+    },
+    {
+      "name": "time-skeleton-en",
+      "locale": "en",
+      "message": "{d, time, ::hm}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "3:09 PM",
+      "ast": "AQEFAWQEOjpobQ=="
+    },
+    {
+      "name": "date-plain-arg",
+      "locale": "en",
+      "message": "on {d}",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        }
+      },
+      "want": "on Mar 14, 2026",
+      "ast": "AQIBA29uIAIBZA=="
+    },
+    {
+      "name": "combined",
+      "locale": "de-DE",
+      "message": "{name} hat {n, plural, =0 {keine Nachrichten} one {eine Nachricht} other {# Nachrichten}} seit {d, date, medium}.",
+      "args": {
+        "d": {
+          "date": "2026-03-14T15:09:26"
+        },
+        "n": 3,
+        "name": "Ada"
+      },
+      "want": "Ada hat 3 Nachrichten seit 14.03.2026.",
+      "ast": "AQYCBG5hbWUBBSBoYXQgBgFuAAADAj0wAQERa2VpbmUgTmFjaHJpY2h0ZW4Db25lAQEOZWluZSBOYWNocmljaHQFb3RoZXICCAEMIE5hY2hyaWNodGVuAQYgc2VpdCAEAWQGbWVkaXVtAQEu"
+    },
+    {
+      "name": "emoji-and-cjk",
+      "locale": "en",
+      "message": "日本語 😀 {x}",
+      "args": {
+        "x": "é"
+      },
+      "want": "日本語 😀 é",
+      "ast": "AQIBD+aXpeacrOiqniDwn5iAIAIBeA=="
+    },
+    {
+      "name": "plural-wrong-type-renders-empty",
+      "locale": "en",
+      "message": "[{n, plural, other {x}}]",
+      "args": {
+        "n": "abc"
+      },
+      "want": "[]",
+      "ast": "AQMBAVsGAW4AAAEFb3RoZXIBAQF4AQFd",
+      "invalid": true
+    },
+    {
+      "name": "err-unclosed-arg",
+      "message": "Hello {name",
+      "error": {
+        "offset": 11
+      }
+    },
+    {
+      "name": "err-empty-arg",
+      "message": "Hello {}",
+      "error": {
+        "offset": 7
+      }
+    },
+    {
+      "name": "err-unmatched-close",
+      "message": "a } b",
+      "error": {
+        "offset": 2
+      }
+    },
+    {
+      "name": "err-unknown-type",
+      "message": "{n, foo}",
+      "error": {
+        "offset": 4
+      }
+    },
+    {
+      "name": "err-plural-bad-selector",
+      "message": "{n, plural, some {x} other {y}}",
+      "error": {
+        "offset": 12
+      }
+    },
+    {
+      "name": "err-plural-exact-bad",
+      "message": "{n, plural, =x {x} other {y}}",
+      "error": {
+        "offset": 12
+      }
+    },
+    {
+      "name": "err-plural-duplicate",
+      "message": "{n, plural, one {x} one {y} other {z}}",
+      "error": {
+        "offset": 20
+      }
+    },
+    {
+      "name": "err-plural-missing-brace",
+      "message": "{n, plural, one x other {y}}",
+      "error": {
+        "offset": 16
+      }
+    },
+    {
+      "name": "err-plural-unclosed-case",
+      "message": "{n, plural, one {x",
+      "error": {
+        "offset": 18
+      }
+    },
+    {
+      "name": "err-plural-offset",
+      "message": "{n, plural, offset:x other {y}}",
+      "error": {
+        "offset": 19
+      }
+    },
+    {
+      "name": "err-number-style",
+      "message": "{n, number, bogus}",
+      "error": {
+        "offset": 12
+      }
+    },
+    {
+      "name": "err-date-style",
+      "message": "{d, date, bogus}",
+      "error": {
+        "offset": 10
+      }
+    },
+    {
+      "name": "err-skeleton-empty",
+      "message": "{d, date, ::}",
+      "error": {
+        "offset": 10
+      }
+    },
+    {
+      "name": "err-number-skeleton",
+      "message": "{n, number, ::scientific}",
+      "error": {
+        "offset": 12
+      }
+    },
+    {
+      "name": "err-missing-type",
+      "message": "{n,}",
+      "error": {
+        "offset": 3
+      }
+    },
+    {
+      "name": "err-select-duplicate",
+      "message": "{g, select, a {x} a {y} other {z}}",
+      "error": {
+        "offset": 18
+      }
+    },
+    {
+      "name": "err-unclosed-plural",
+      "message": "{n, plural, other {x}",
+      "error": {
+        "offset": 21
+      }
+    }
+  ]
+}

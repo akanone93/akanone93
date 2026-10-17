@@ -6225,10 +6225,11 @@ class Message {
 
   Uuid? get key => Uuid.reader.vTableGetNullable(_bc, _bcOffset, 4);
   String? get text => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
+  List<int>? get ast => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 8);
 
   @override
   String toString() {
-    return 'Message{key: ${key}, text: ${text}}';
+    return 'Message{key: ${key}, text: ${text}, ast: ${ast}}';
   }
 }
 
@@ -6246,7 +6247,7 @@ class MessageBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(2);
+    fbBuilder.startTable(3);
   }
 
   int addKey(int offset) {
@@ -6255,6 +6256,10 @@ class MessageBuilder {
   }
   int addTextOffset(int? offset) {
     fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+  int addAstOffset(int? offset) {
+    fbBuilder.addOffset(2, offset);
     return fbBuilder.offset;
   }
 
@@ -6266,24 +6271,30 @@ class MessageBuilder {
 class MessageObjectBuilder extends fb.ObjectBuilder {
   final UuidObjectBuilder? _key;
   final String? _text;
+  final List<int>? _ast;
 
   MessageObjectBuilder({
     UuidObjectBuilder? key,
     String? text,
+    List<int>? ast,
   })
       : _key = key,
-        _text = text;
+        _text = text,
+        _ast = ast;
 
   /// Finish building, and store into the [fbBuilder].
   @override
   int finish(fb.Builder fbBuilder) {
     final int? textOffset = _text == null ? null
         : fbBuilder.writeString(_text!);
-    fbBuilder.startTable(2);
+    final int? astOffset = _ast == null ? null
+        : fbBuilder.writeListUint8(_ast!);
+    fbBuilder.startTable(3);
     if (_key != null) {
       fbBuilder.addStruct(0, _key!.finish(fbBuilder));
     }
     fbBuilder.addOffset(1, textOffset);
+    fbBuilder.addOffset(2, astOffset);
     return fbBuilder.endTable();
   }
 

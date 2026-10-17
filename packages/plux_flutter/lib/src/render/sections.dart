@@ -246,7 +246,16 @@ final class BundleView {
   }
 
   /// The translation [key] in locale [tag], or null.
-  String? message(String tag, UuidKey key) {
+  String? message(String tag, UuidKey key) => _message(tag, key)?.text;
+
+  /// The pre-parsed AST of the translation [key] in locale [tag], or null
+  /// when the bundle has no message or no AST for it (I18N-001).
+  List<int>? messageAst(String tag, UuidKey key) {
+    final ast = _message(tag, key)?.ast;
+    return ast == null || ast.isEmpty ? null : ast;
+  }
+
+  fbs.Message? _message(String tag, UuidKey key) {
     final locale = _locales.putIfAbsent(tag, () {
       final id = Uint8List(16)..setAll(0, tag.codeUnits.take(16));
       for (final s in bundle.container.ofKind(SectionKind.l10n)) {
@@ -263,7 +272,7 @@ final class BundleView {
       final k = list[i].key;
       return k == null ? -1 : _compareUuid(uuidOf(k), key);
     });
-    return i < 0 ? null : list[i].text;
+    return i < 0 ? null : list[i];
   }
 
   Map<String, NamedType>? _types;

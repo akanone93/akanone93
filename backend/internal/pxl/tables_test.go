@@ -45,10 +45,17 @@ func TestSourcesMatchSchemas(t *testing.T) {
 func TestTablesAreComplete(t *testing.T) {
 	t.Parallel()
 	inline := map[string]bool{"coalesce": true, "ifNull": true, "isNull": true, "typeOf": true}
-	implemented := map[string]bool{"core": true, "regex": true, "phone": true}
+	implemented := map[string]bool{"core": true, "regex": true, "phone": true, "format": true, "l10n": true}
+	// format.phone needs libphonenumber's national formats, which the
+	// metadata of the phone group does not carry.
+	deferred := map[string]bool{"format.phone": true}
 	impl := builtins()
 	for i, def := range stdOverloads {
 		switch {
+		case deferred[def.name]:
+			if impl[i] != nil {
+				t.Errorf("%s is implemented; drop it from deferred", overloadKey(def))
+			}
 		case implemented[def.group] && !inline[def.name] && impl[i] == nil:
 			t.Errorf("%s is not implemented", overloadKey(def))
 		case !implemented[def.group] && impl[i] != nil:

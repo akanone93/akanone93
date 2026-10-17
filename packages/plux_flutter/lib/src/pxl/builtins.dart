@@ -7,6 +7,7 @@
 library;
 
 import 'package:plux_flutter/src/pxl/decimal.dart';
+import 'package:plux_flutter/src/pxl/locale_fns.dart';
 import 'package:plux_flutter/src/pxl/phone.dart';
 import 'package:plux_flutter/src/pxl/regex.dart';
 import 'package:plux_flutter/src/pxl/tables.g.dart';
@@ -33,6 +34,7 @@ final List<Builtin?> builtins = () {
     ..._collectionFns(),
     ..._logicFns(),
     ..._regexFns(),
+    ...localeFns(),
   };
   return [
     for (final def in overloads) impl['${def.name}(${def.params.join(',')})'],

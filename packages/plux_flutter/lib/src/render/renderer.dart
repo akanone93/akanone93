@@ -124,6 +124,11 @@ final class PluxRenderer implements PageRenderer, RenderServices {
   /// Reports a problem.
   final void Function(PluxException error) report;
 
+  /// The locale PXL's `format` group and message numbers and dates are
+  /// formatted in; null until locale data is loaded (L4), which sets it once
+  /// per locale. The pages built after it is set use it.
+  PxlLocaleContext? localeContext;
+
   /// Records a failure attributed to Plux.
   final void Function(PluxException error) failure;
 
@@ -1473,11 +1478,27 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       return null;
     }
 
+    List<int>? translationAst(UuidKey key) {
+      for (final tag in tags) {
+        if (tag.isEmpty) continue;
+        if (_plugin.message(tag, key) != null ||
+            _app.message(tag, key) != null) {
+          return _plugin.messageAst(tag, key) ?? _app.messageAst(tag, key);
+        }
+      }
+      return null;
+    }
+
     final resolver = ValueResolver(
       plugin: _plugin,
       roots: roots,
       token: (path) => theme.role(path) ?? tokens.read(path, appResolver),
       translation: translation,
+      translationAst: translationAst,
+      localeContext: widget.renderer.localeContext,
+      onMessageError: (problem) => widget.renderer.report(
+        PluxException(PluxErrorCode.messageFormatFailed, problem),
+      ),
       limits: _limits,
     );
     _resolver = resolver;

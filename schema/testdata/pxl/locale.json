@@ -1,0 +1,1436 @@
+{
+  "description": "The format and l10n groups (PXL-006, PXL-007, I18N-001, I18N-011): numbers, money, dates, translations and plural forms in the locale of each case; both VMs evaluate them on the localisation engine.",
+  "env": {
+    "types": {
+      "Loan": {
+        "fields": {
+          "amount": "decimal",
+          "fee": "money?",
+          "months": "int",
+          "rate": "double",
+          "status": "string?"
+        }
+      },
+      "Tier": {
+        "enum": [
+          "gold",
+          "silver",
+          "bronze"
+        ]
+      }
+    },
+    "roots": {
+      "day": "date",
+      "items": "list<Loan>",
+      "n": "int",
+      "name": "string?",
+      "none": "int?",
+      "page": "Loan",
+      "scores": "map<string,int>",
+      "tags": "list<string>",
+      "tier": "Tier",
+      "total": "money",
+      "when": "dateTime",
+      "x": "double"
+    }
+  },
+  "inputs": {
+    "day": "2024-02-29",
+    "items": [
+      {
+        "amount": "100.00",
+        "months": 6,
+        "rate": 0.1,
+        "status": "open"
+      },
+      {
+        "amount": "25.5",
+        "months": 3,
+        "rate": 0.2,
+        "status": "closed"
+      },
+      {
+        "amount": "300",
+        "months": 12,
+        "rate": 0.05
+      }
+    ],
+    "n": 7,
+    "name": null,
+    "none": null,
+    "now": "2026-09-26T08:00:00Z",
+    "page": {
+      "amount": "1200.50",
+      "fee": {
+        "amount": "9.99",
+        "currency": "EUR"
+      },
+      "months": 12,
+      "rate": 0.05,
+      "status": null
+    },
+    "scores": {
+      "alice": 3,
+      "bob": 2
+    },
+    "tags": [
+      "b",
+      "a",
+      "c",
+      "a"
+    ],
+    "tier": "gold",
+    "total": {
+      "amount": "12.34",
+      "currency": "EUR"
+    },
+    "when": "2026-09-26T10:30:00+02:00",
+    "x": 2.5
+  },
+  "locale": "en",
+  "messages": {
+    "greeting": "Hello {name}!",
+    "items": "{count, plural, one {# item} other {# items}}",
+    "plain": "Plain"
+  },
+  "asts": {
+    "greeting": "AQMBBkhlbGxvIAIEbmFtZQEBIQ==",
+    "items": "AQEGBWNvdW50AAACA29uZQIIAQUgaXRlbQVvdGhlcgIIAQYgaXRlbXM=",
+    "plain": "AQEBBVBsYWlu"
+  },
+  "cases": [
+    {
+      "name": "number-double-en",
+      "locale": "en",
+      "expr": "format.number(1234567.891)",
+      "value": "1,234,567.891",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEDdZMY5IfWMkEABwQAAEl0AAE=",
+      "asm": [
+        "0000 CONST 0 ; 1234567.891",
+        "0003 CALL 116 1 ; format.number"
+      ]
+    },
+    {
+      "name": "number-decimal-en",
+      "locale": "en",
+      "expr": "format.number(page.amount)",
+      "value": "1,200.5",
+      "type": "string",
+      "program": "AQABBnN0cmluZwIEBHBhZ2UEBmFtb3VudAELcGFnZS5hbW91bnQKBgAACAEASXUAAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"page\"",
+        "0003 GET_FIELD 1 ; \"amount\"",
+        "0006 CALL 117 1 ; format.number"
+      ],
+      "reads": [
+        "page.amount"
+      ]
+    },
+    {
+      "name": "number-fraction-en",
+      "locale": "en",
+      "expr": "format.number(x, 3)",
+      "value": "2.500",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEAXgCAwAAAAAAAAABAXgKBgAABAEASXYAAg==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"x\"",
+        "0003 CONST 1 ; 3",
+        "0006 CALL 118 2 ; format.number"
+      ],
+      "reads": [
+        "x"
+      ]
+    },
+    {
+      "name": "percent-en",
+      "locale": "en",
+      "expr": "format.percent(page.rate)",
+      "value": "5%",
+      "type": "string",
+      "program": "AQABBnN0cmluZwIEBHBhZ2UEBHJhdGUBCXBhZ2UucmF0ZQoGAAAIAQBJfQAB",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"page\"",
+        "0003 GET_FIELD 1 ; \"rate\"",
+        "0006 CALL 125 1 ; format.percent"
+      ],
+      "reads": [
+        "page.rate"
+      ]
+    },
+    {
+      "name": "compact-en",
+      "locale": "en",
+      "expr": "format.compact(1234567)",
+      "value": "1.2M",
+      "type": "string",
+      "program": "AQABBnN0cmluZwECh9YSAAAAAAAABwQAAEl/AAE=",
+      "asm": [
+        "0000 CONST 0 ; 1234567",
+        "0003 CALL 127 1 ; format.compact"
+      ]
+    },
+    {
+      "name": "money-en",
+      "locale": "en",
+      "expr": "format.money(total)",
+      "value": "€12.34",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBXRvdGFsAQV0b3RhbAcGAABJeAAB",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"total\"",
+        "0003 CALL 120 1 ; format.money"
+      ],
+      "reads": [
+        "total"
+      ]
+    },
+    {
+      "name": "date-en",
+      "locale": "en",
+      "expr": "format.date(day)",
+      "value": "Feb 29, 2024",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEA2RheQEDZGF5BwYAAEl5AAE=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CALL 121 1 ; format.date"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "datetime-en",
+      "locale": "en",
+      "expr": "format.date(when)",
+      "value": "Sep 26, 2026, 10:30:00 AM",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBHdoZW4BBHdoZW4HBgAASXoAAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"when\"",
+        "0003 CALL 122 1 ; format.date"
+      ],
+      "reads": [
+        "when"
+      ]
+    },
+    {
+      "name": "number-double-de-DE",
+      "locale": "de-DE",
+      "expr": "format.number(1234567.891)",
+      "value": "1.234.567,891",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEDdZMY5IfWMkEABwQAAEl0AAE=",
+      "asm": [
+        "0000 CONST 0 ; 1234567.891",
+        "0003 CALL 116 1 ; format.number"
+      ]
+    },
+    {
+      "name": "number-decimal-de-DE",
+      "locale": "de-DE",
+      "expr": "format.number(page.amount)",
+      "value": "1.200,5",
+      "type": "string",
+      "program": "AQABBnN0cmluZwIEBHBhZ2UEBmFtb3VudAELcGFnZS5hbW91bnQKBgAACAEASXUAAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"page\"",
+        "0003 GET_FIELD 1 ; \"amount\"",
+        "0006 CALL 117 1 ; format.number"
+      ],
+      "reads": [
+        "page.amount"
+      ]
+    },
+    {
+      "name": "number-fraction-de-DE",
+      "locale": "de-DE",
+      "expr": "format.number(x, 3)",
+      "value": "2,500",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEAXgCAwAAAAAAAAABAXgKBgAABAEASXYAAg==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"x\"",
+        "0003 CONST 1 ; 3",
+        "0006 CALL 118 2 ; format.number"
+      ],
+      "reads": [
+        "x"
+      ]
+    },
+    {
+      "name": "percent-de-DE",
+      "locale": "de-DE",
+      "expr": "format.percent(page.rate)",
+      "value": "5 %",
+      "type": "string",
+      "program": "AQABBnN0cmluZwIEBHBhZ2UEBHJhdGUBCXBhZ2UucmF0ZQoGAAAIAQBJfQAB",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"page\"",
+        "0003 GET_FIELD 1 ; \"rate\"",
+        "0006 CALL 125 1 ; format.percent"
+      ],
+      "reads": [
+        "page.rate"
+      ]
+    },
+    {
+      "name": "compact-de-DE",
+      "locale": "de-DE",
+      "expr": "format.compact(1234567)",
+      "value": "1,2 Mio.",
+      "type": "string",
+      "program": "AQABBnN0cmluZwECh9YSAAAAAAAABwQAAEl/AAE=",
+      "asm": [
+        "0000 CONST 0 ; 1234567",
+        "0003 CALL 127 1 ; format.compact"
+      ]
+    },
+    {
+      "name": "money-de-DE",
+      "locale": "de-DE",
+      "expr": "format.money(total)",
+      "value": "12,34 €",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBXRvdGFsAQV0b3RhbAcGAABJeAAB",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"total\"",
+        "0003 CALL 120 1 ; format.money"
+      ],
+      "reads": [
+        "total"
+      ]
+    },
+    {
+      "name": "date-de-DE",
+      "locale": "de-DE",
+      "expr": "format.date(day)",
+      "value": "29.02.2024",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEA2RheQEDZGF5BwYAAEl5AAE=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CALL 121 1 ; format.date"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "datetime-de-DE",
+      "locale": "de-DE",
+      "expr": "format.date(when)",
+      "value": "26.09.2026, 10:30:00",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBHdoZW4BBHdoZW4HBgAASXoAAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"when\"",
+        "0003 CALL 122 1 ; format.date"
+      ],
+      "reads": [
+        "when"
+      ]
+    },
+    {
+      "name": "number-double-ar",
+      "locale": "ar",
+      "expr": "format.number(1234567.891)",
+      "value": "1,234,567.891",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEDdZMY5IfWMkEABwQAAEl0AAE=",
+      "asm": [
+        "0000 CONST 0 ; 1234567.891",
+        "0003 CALL 116 1 ; format.number"
+      ]
+    },
+    {
+      "name": "number-decimal-ar",
+      "locale": "ar",
+      "expr": "format.number(page.amount)",
+      "value": "1,200.5",
+      "type": "string",
+      "program": "AQABBnN0cmluZwIEBHBhZ2UEBmFtb3VudAELcGFnZS5hbW91bnQKBgAACAEASXUAAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"page\"",
+        "0003 GET_FIELD 1 ; \"amount\"",
+        "0006 CALL 117 1 ; format.number"
+      ],
+      "reads": [
+        "page.amount"
+      ]
+    },
+    {
+      "name": "number-fraction-ar",
+      "locale": "ar",
+      "expr": "format.number(x, 3)",
+      "value": "2.500",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEAXgCAwAAAAAAAAABAXgKBgAABAEASXYAAg==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"x\"",
+        "0003 CONST 1 ; 3",
+        "0006 CALL 118 2 ; format.number"
+      ],
+      "reads": [
+        "x"
+      ]
+    },
+    {
+      "name": "percent-ar",
+      "locale": "ar",
+      "expr": "format.percent(page.rate)",
+      "value": "5‎%‎",
+      "type": "string",
+      "program": "AQABBnN0cmluZwIEBHBhZ2UEBHJhdGUBCXBhZ2UucmF0ZQoGAAAIAQBJfQAB",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"page\"",
+        "0003 GET_FIELD 1 ; \"rate\"",
+        "0006 CALL 125 1 ; format.percent"
+      ],
+      "reads": [
+        "page.rate"
+      ]
+    },
+    {
+      "name": "compact-ar",
+      "locale": "ar",
+      "expr": "format.compact(1234567)",
+      "value": "1.2 مليون",
+      "type": "string",
+      "program": "AQABBnN0cmluZwECh9YSAAAAAAAABwQAAEl/AAE=",
+      "asm": [
+        "0000 CONST 0 ; 1234567",
+        "0003 CALL 127 1 ; format.compact"
+      ]
+    },
+    {
+      "name": "money-ar",
+      "locale": "ar",
+      "expr": "format.money(total)",
+      "value": "‏12.34 €",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBXRvdGFsAQV0b3RhbAcGAABJeAAB",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"total\"",
+        "0003 CALL 120 1 ; format.money"
+      ],
+      "reads": [
+        "total"
+      ]
+    },
+    {
+      "name": "date-ar",
+      "locale": "ar",
+      "expr": "format.date(day)",
+      "value": "29‏/02‏/2024",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEA2RheQEDZGF5BwYAAEl5AAE=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CALL 121 1 ; format.date"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "datetime-ar",
+      "locale": "ar",
+      "expr": "format.date(when)",
+      "value": "26‏/09‏/2026، 10:30:00 ص",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBHdoZW4BBHdoZW4HBgAASXoAAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"when\"",
+        "0003 CALL 122 1 ; format.date"
+      ],
+      "reads": [
+        "when"
+      ]
+    },
+    {
+      "name": "number-double-am-ET",
+      "locale": "am-ET",
+      "expr": "format.number(1234567.891)",
+      "value": "1,234,567.891",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEDdZMY5IfWMkEABwQAAEl0AAE=",
+      "asm": [
+        "0000 CONST 0 ; 1234567.891",
+        "0003 CALL 116 1 ; format.number"
+      ]
+    },
+    {
+      "name": "number-decimal-am-ET",
+      "locale": "am-ET",
+      "expr": "format.number(page.amount)",
+      "value": "1,200.5",
+      "type": "string",
+      "program": "AQABBnN0cmluZwIEBHBhZ2UEBmFtb3VudAELcGFnZS5hbW91bnQKBgAACAEASXUAAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"page\"",
+        "0003 GET_FIELD 1 ; \"amount\"",
+        "0006 CALL 117 1 ; format.number"
+      ],
+      "reads": [
+        "page.amount"
+      ]
+    },
+    {
+      "name": "number-fraction-am-ET",
+      "locale": "am-ET",
+      "expr": "format.number(x, 3)",
+      "value": "2.500",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEAXgCAwAAAAAAAAABAXgKBgAABAEASXYAAg==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"x\"",
+        "0003 CONST 1 ; 3",
+        "0006 CALL 118 2 ; format.number"
+      ],
+      "reads": [
+        "x"
+      ]
+    },
+    {
+      "name": "percent-am-ET",
+      "locale": "am-ET",
+      "expr": "format.percent(page.rate)",
+      "value": "5%",
+      "type": "string",
+      "program": "AQABBnN0cmluZwIEBHBhZ2UEBHJhdGUBCXBhZ2UucmF0ZQoGAAAIAQBJfQAB",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"page\"",
+        "0003 GET_FIELD 1 ; \"rate\"",
+        "0006 CALL 125 1 ; format.percent"
+      ],
+      "reads": [
+        "page.rate"
+      ]
+    },
+    {
+      "name": "compact-am-ET",
+      "locale": "am-ET",
+      "expr": "format.compact(1234567)",
+      "value": "1.2 ሚ",
+      "type": "string",
+      "program": "AQABBnN0cmluZwECh9YSAAAAAAAABwQAAEl/AAE=",
+      "asm": [
+        "0000 CONST 0 ; 1234567",
+        "0003 CALL 127 1 ; format.compact"
+      ]
+    },
+    {
+      "name": "money-am-ET",
+      "locale": "am-ET",
+      "expr": "format.money(total)",
+      "value": "€12.34",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBXRvdGFsAQV0b3RhbAcGAABJeAAB",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"total\"",
+        "0003 CALL 120 1 ; format.money"
+      ],
+      "reads": [
+        "total"
+      ]
+    },
+    {
+      "name": "date-am-ET",
+      "locale": "am-ET",
+      "expr": "format.date(day)",
+      "value": "29 ፌብ 2024",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEA2RheQEDZGF5BwYAAEl5AAE=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CALL 121 1 ; format.date"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "datetime-am-ET",
+      "locale": "am-ET",
+      "expr": "format.date(when)",
+      "value": "26 ሴፕቴ 2026 10:30:00 ጥዋት",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBHdoZW4BBHdoZW4HBgAASXoAAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"when\"",
+        "0003 CALL 122 1 ; format.date"
+      ],
+      "reads": [
+        "when"
+      ]
+    },
+    {
+      "name": "number-double-ru",
+      "locale": "ru",
+      "expr": "format.number(1234567.891)",
+      "value": "1 234 567,891",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEDdZMY5IfWMkEABwQAAEl0AAE=",
+      "asm": [
+        "0000 CONST 0 ; 1234567.891",
+        "0003 CALL 116 1 ; format.number"
+      ]
+    },
+    {
+      "name": "number-decimal-ru",
+      "locale": "ru",
+      "expr": "format.number(page.amount)",
+      "value": "1 200,5",
+      "type": "string",
+      "program": "AQABBnN0cmluZwIEBHBhZ2UEBmFtb3VudAELcGFnZS5hbW91bnQKBgAACAEASXUAAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"page\"",
+        "0003 GET_FIELD 1 ; \"amount\"",
+        "0006 CALL 117 1 ; format.number"
+      ],
+      "reads": [
+        "page.amount"
+      ]
+    },
+    {
+      "name": "number-fraction-ru",
+      "locale": "ru",
+      "expr": "format.number(x, 3)",
+      "value": "2,500",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEAXgCAwAAAAAAAAABAXgKBgAABAEASXYAAg==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"x\"",
+        "0003 CONST 1 ; 3",
+        "0006 CALL 118 2 ; format.number"
+      ],
+      "reads": [
+        "x"
+      ]
+    },
+    {
+      "name": "percent-ru",
+      "locale": "ru",
+      "expr": "format.percent(page.rate)",
+      "value": "5 %",
+      "type": "string",
+      "program": "AQABBnN0cmluZwIEBHBhZ2UEBHJhdGUBCXBhZ2UucmF0ZQoGAAAIAQBJfQAB",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"page\"",
+        "0003 GET_FIELD 1 ; \"rate\"",
+        "0006 CALL 125 1 ; format.percent"
+      ],
+      "reads": [
+        "page.rate"
+      ]
+    },
+    {
+      "name": "compact-ru",
+      "locale": "ru",
+      "expr": "format.compact(1234567)",
+      "value": "1,2 млн",
+      "type": "string",
+      "program": "AQABBnN0cmluZwECh9YSAAAAAAAABwQAAEl/AAE=",
+      "asm": [
+        "0000 CONST 0 ; 1234567",
+        "0003 CALL 127 1 ; format.compact"
+      ]
+    },
+    {
+      "name": "money-ru",
+      "locale": "ru",
+      "expr": "format.money(total)",
+      "value": "12,34 €",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBXRvdGFsAQV0b3RhbAcGAABJeAAB",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"total\"",
+        "0003 CALL 120 1 ; format.money"
+      ],
+      "reads": [
+        "total"
+      ]
+    },
+    {
+      "name": "date-ru",
+      "locale": "ru",
+      "expr": "format.date(day)",
+      "value": "29 февр. 2024 г.",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEA2RheQEDZGF5BwYAAEl5AAE=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CALL 121 1 ; format.date"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "datetime-ru",
+      "locale": "ru",
+      "expr": "format.date(when)",
+      "value": "26 сент. 2026 г., 10:30:00",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBHdoZW4BBHdoZW4HBgAASXoAAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"when\"",
+        "0003 CALL 122 1 ; format.date"
+      ],
+      "reads": [
+        "when"
+      ]
+    },
+    {
+      "name": "number-double-pl",
+      "locale": "pl",
+      "expr": "format.number(1234567.891)",
+      "value": "1 234 567,891",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEDdZMY5IfWMkEABwQAAEl0AAE=",
+      "asm": [
+        "0000 CONST 0 ; 1234567.891",
+        "0003 CALL 116 1 ; format.number"
+      ]
+    },
+    {
+      "name": "number-decimal-pl",
+      "locale": "pl",
+      "expr": "format.number(page.amount)",
+      "value": "1200,5",
+      "type": "string",
+      "program": "AQABBnN0cmluZwIEBHBhZ2UEBmFtb3VudAELcGFnZS5hbW91bnQKBgAACAEASXUAAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"page\"",
+        "0003 GET_FIELD 1 ; \"amount\"",
+        "0006 CALL 117 1 ; format.number"
+      ],
+      "reads": [
+        "page.amount"
+      ]
+    },
+    {
+      "name": "number-fraction-pl",
+      "locale": "pl",
+      "expr": "format.number(x, 3)",
+      "value": "2,500",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEAXgCAwAAAAAAAAABAXgKBgAABAEASXYAAg==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"x\"",
+        "0003 CONST 1 ; 3",
+        "0006 CALL 118 2 ; format.number"
+      ],
+      "reads": [
+        "x"
+      ]
+    },
+    {
+      "name": "percent-pl",
+      "locale": "pl",
+      "expr": "format.percent(page.rate)",
+      "value": "5%",
+      "type": "string",
+      "program": "AQABBnN0cmluZwIEBHBhZ2UEBHJhdGUBCXBhZ2UucmF0ZQoGAAAIAQBJfQAB",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"page\"",
+        "0003 GET_FIELD 1 ; \"rate\"",
+        "0006 CALL 125 1 ; format.percent"
+      ],
+      "reads": [
+        "page.rate"
+      ]
+    },
+    {
+      "name": "compact-pl",
+      "locale": "pl",
+      "expr": "format.compact(1234567)",
+      "value": "1,2 mln",
+      "type": "string",
+      "program": "AQABBnN0cmluZwECh9YSAAAAAAAABwQAAEl/AAE=",
+      "asm": [
+        "0000 CONST 0 ; 1234567",
+        "0003 CALL 127 1 ; format.compact"
+      ]
+    },
+    {
+      "name": "money-pl",
+      "locale": "pl",
+      "expr": "format.money(total)",
+      "value": "12,34 €",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBXRvdGFsAQV0b3RhbAcGAABJeAAB",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"total\"",
+        "0003 CALL 120 1 ; format.money"
+      ],
+      "reads": [
+        "total"
+      ]
+    },
+    {
+      "name": "date-pl",
+      "locale": "pl",
+      "expr": "format.date(day)",
+      "value": "29 lut 2024",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEA2RheQEDZGF5BwYAAEl5AAE=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CALL 121 1 ; format.date"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "datetime-pl",
+      "locale": "pl",
+      "expr": "format.date(when)",
+      "value": "26 wrz 2026, 10:30:00",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBHdoZW4BBHdoZW4HBgAASXoAAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"when\"",
+        "0003 CALL 122 1 ; format.date"
+      ],
+      "reads": [
+        "when"
+      ]
+    },
+    {
+      "name": "number-int",
+      "expr": "format.number(n)",
+      "value": "7",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEAW4BAW4HBgAASXMAAQ==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"n\"",
+        "0003 CALL 115 1 ; format.number"
+      ],
+      "reads": [
+        "n"
+      ]
+    },
+    {
+      "name": "number-decimal-fraction",
+      "expr": "format.number(1234.5d, 2)",
+      "value": "1,234.50",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIFBjEyMzQuNQICAAAAAAAAAAAKBAAABAEASXcAAg==",
+      "asm": [
+        "0000 CONST 0 ; 1234.5d",
+        "0003 CONST 1 ; 2",
+        "0006 CALL 119 2 ; format.number"
+      ]
+    },
+    {
+      "name": "number-negative",
+      "expr": "format.number(-1234.5)",
+      "value": "-1,234.5",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEDAAAAAABKk8AABwQAAEl0AAE=",
+      "asm": [
+        "0000 CONST 0 ; -1234.5",
+        "0003 CALL 116 1 ; format.number"
+      ]
+    },
+    {
+      "name": "percent-decimal",
+      "expr": "format.percent(0.256d)",
+      "value": "26%",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEFBTAuMjU2AAcEAABJfgAB",
+      "asm": [
+        "0000 CONST 0 ; 0.256d",
+        "0003 CALL 126 1 ; format.percent"
+      ]
+    },
+    {
+      "name": "compact-double",
+      "expr": "format.compact(2500.0)",
+      "value": "2.5K",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEDAAAAAACIo0AABwQAAEmAAAE=",
+      "asm": [
+        "0000 CONST 0 ; 2500",
+        "0003 CALL 128 1 ; format.compact"
+      ]
+    },
+    {
+      "name": "compact-decimal",
+      "expr": "format.compact(1500000d)",
+      "value": "1.5M",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEFBzE1MDAwMDAABwQAAEmBAAE=",
+      "asm": [
+        "0000 CONST 0 ; 1500000d",
+        "0003 CALL 129 1 ; format.compact"
+      ]
+    },
+    {
+      "name": "date-short",
+      "expr": "format.date(day, \"short\")",
+      "value": "2/29/24",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEA2RheQQFc2hvcnQBA2RheQoGAAAEAQBJewAC",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CONST 1 ; \"short\"",
+        "0006 CALL 123 2 ; format.date"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "date-long-de",
+      "locale": "de-DE",
+      "expr": "format.date(day, \"long\")",
+      "value": "29. Februar 2024",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEA2RheQQEbG9uZwEDZGF5CgYAAAQBAEl7AAI=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CONST 1 ; \"long\"",
+        "0006 CALL 123 2 ; format.date"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "date-full-ru",
+      "locale": "ru",
+      "expr": "format.date(day, \"full\")",
+      "value": "четверг, 29 февраля 2024 г.",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEA2RheQQEZnVsbAEDZGF5CgYAAAQBAEl7AAI=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"day\"",
+        "0003 CONST 1 ; \"full\"",
+        "0006 CALL 123 2 ; format.date"
+      ],
+      "reads": [
+        "day"
+      ]
+    },
+    {
+      "name": "datetime-short",
+      "expr": "format.date(when, \"short\")",
+      "value": "9/26/26, 10:30 AM",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEBHdoZW4EBXNob3J0AQR3aGVuCgYAAAQBAEl8AAI=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"when\"",
+        "0003 CONST 1 ; \"short\"",
+        "0006 CALL 124 2 ; format.date"
+      ],
+      "reads": [
+        "when"
+      ]
+    },
+    {
+      "name": "datetime-full-en",
+      "expr": "format.date(when, \"full\")",
+      "value": "Saturday, September 26, 2026 at 10:30:00 AM GMT+02:00",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEBHdoZW4EBGZ1bGwBBHdoZW4KBgAABAEASXwAAg==",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"when\"",
+        "0003 CONST 1 ; \"full\"",
+        "0006 CALL 124 2 ; format.date"
+      ],
+      "reads": [
+        "when"
+      ]
+    },
+    {
+      "name": "fraction-digits-out-of-range",
+      "expr": "format.number(1.5, 21)",
+      "error": "invalidArgument",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIDAAAAAAAA+D8CFQAAAAAAAAAACgQAAAQBAEl2AAI=",
+      "asm": [
+        "0000 CONST 0 ; 1.5",
+        "0003 CONST 1 ; 21",
+        "0006 CALL 118 2 ; format.number"
+      ]
+    },
+    {
+      "name": "t-plain",
+      "expr": "t(\"plain\")",
+      "value": "Plain",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBXBsYWluAAcEAABJhAAB",
+      "asm": [
+        "0000 CONST 0 ; \"plain\"",
+        "0003 CALL 132 1 ; t"
+      ]
+    },
+    {
+      "name": "t-args",
+      "expr": "t(\"greeting\", {\"name\": \"Ada\"})",
+      "value": "Hello Ada!",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIECGdyZWV0aW5nDAEEbmFtZQQDQWRhAAoEAAAEAQBJhQAC",
+      "asm": [
+        "0000 CONST 0 ; \"greeting\"",
+        "0003 CONST 1 ; map[name:Ada]",
+        "0006 CALL 133 2 ; t"
+      ]
+    },
+    {
+      "name": "t-plural-1",
+      "expr": "t(\"items\", {\"count\": \"1\"})",
+      "value": "1 item",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEBWl0ZW1zDAEFY291bnQEATEACgQAAAQBAEmFAAI=",
+      "asm": [
+        "0000 CONST 0 ; \"items\"",
+        "0003 CONST 1 ; map[count:1]",
+        "0006 CALL 133 2 ; t"
+      ]
+    },
+    {
+      "name": "t-plural-3",
+      "expr": "t(\"items\", {\"count\": \"3\"})",
+      "value": "3 items",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEBWl0ZW1zDAEFY291bnQEATMACgQAAAQBAEmFAAI=",
+      "asm": [
+        "0000 CONST 0 ; \"items\"",
+        "0003 CONST 1 ; map[count:3]",
+        "0006 CALL 133 2 ; t"
+      ]
+    },
+    {
+      "name": "t-missing",
+      "expr": "t(\"nope\")",
+      "error": "invalidArgument",
+      "type": "string",
+      "program": "AQABBnN0cmluZwEEBG5vcGUABwQAAEmEAAE=",
+      "asm": [
+        "0000 CONST 0 ; \"nope\"",
+        "0003 CALL 132 1 ; t"
+      ]
+    },
+    {
+      "name": "plural-0-en",
+      "locale": "en",
+      "expr": "plural(0, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "other",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAAAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 0",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-1-en",
+      "locale": "en",
+      "expr": "plural(1, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "one",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAQAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 1",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-2-en",
+      "locale": "en",
+      "expr": "plural(2, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "other",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAgAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 2",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-5-en",
+      "locale": "en",
+      "expr": "plural(5, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "other",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICBQAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 5",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-22-en",
+      "locale": "en",
+      "expr": "plural(22, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "other",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICFgAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 22",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-0-de-DE",
+      "locale": "de-DE",
+      "expr": "plural(0, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "other",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAAAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 0",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-1-de-DE",
+      "locale": "de-DE",
+      "expr": "plural(1, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "one",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAQAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 1",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-2-de-DE",
+      "locale": "de-DE",
+      "expr": "plural(2, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "other",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAgAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 2",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-5-de-DE",
+      "locale": "de-DE",
+      "expr": "plural(5, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "other",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICBQAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 5",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-22-de-DE",
+      "locale": "de-DE",
+      "expr": "plural(22, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "other",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICFgAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 22",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-0-ar",
+      "locale": "ar",
+      "expr": "plural(0, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "zero",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAAAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 0",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-1-ar",
+      "locale": "ar",
+      "expr": "plural(1, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "one",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAQAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 1",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-2-ar",
+      "locale": "ar",
+      "expr": "plural(2, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "two",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAgAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 2",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-5-ar",
+      "locale": "ar",
+      "expr": "plural(5, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "few",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICBQAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 5",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-22-ar",
+      "locale": "ar",
+      "expr": "plural(22, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "many",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICFgAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 22",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-0-am-ET",
+      "locale": "am-ET",
+      "expr": "plural(0, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "one",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAAAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 0",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-1-am-ET",
+      "locale": "am-ET",
+      "expr": "plural(1, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "one",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAQAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 1",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-2-am-ET",
+      "locale": "am-ET",
+      "expr": "plural(2, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "other",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAgAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 2",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-5-am-ET",
+      "locale": "am-ET",
+      "expr": "plural(5, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "other",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICBQAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 5",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-22-am-ET",
+      "locale": "am-ET",
+      "expr": "plural(22, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "other",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICFgAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 22",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-0-ru",
+      "locale": "ru",
+      "expr": "plural(0, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "many",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAAAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 0",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-1-ru",
+      "locale": "ru",
+      "expr": "plural(1, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "one",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAQAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 1",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-2-ru",
+      "locale": "ru",
+      "expr": "plural(2, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "few",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAgAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 2",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-5-ru",
+      "locale": "ru",
+      "expr": "plural(5, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "many",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICBQAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 5",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-22-ru",
+      "locale": "ru",
+      "expr": "plural(22, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "few",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICFgAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 22",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-0-pl",
+      "locale": "pl",
+      "expr": "plural(0, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "many",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAAAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 0",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-1-pl",
+      "locale": "pl",
+      "expr": "plural(1, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "one",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAQAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 1",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-2-pl",
+      "locale": "pl",
+      "expr": "plural(2, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "few",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICAgAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 2",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-5-pl",
+      "locale": "pl",
+      "expr": "plural(5, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "many",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICBQAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 5",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-22-pl",
+      "locale": "pl",
+      "expr": "plural(22, {\"zero\": \"zero\", \"one\": \"one\", \"two\": \"two\", \"few\": \"few\", \"many\": \"many\", \"other\": \"other\"})",
+      "value": "few",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICFgAAAAAAAAAMBgNmZXcEA2ZldwRtYW55BARtYW55A29uZQQDb25lBW90aGVyBAVvdGhlcgN0d28EA3R3bwR6ZXJvBAR6ZXJvAAoEAAAEAQBJhgAC",
+      "asm": [
+        "0000 CONST 0 ; 22",
+        "0003 CONST 1 ; map[few:few many:many one:one other:other two:two zero:zero]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-falls-back-to-other",
+      "expr": "plural(5, {\"one\": \"a\", \"other\": \"b\"})",
+      "value": "b",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICBQAAAAAAAAAMAgNvbmUEAWEFb3RoZXIEAWIACgQAAAQBAEmGAAI=",
+      "asm": [
+        "0000 CONST 0 ; 5",
+        "0003 CONST 1 ; map[one:a other:b]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    },
+    {
+      "name": "plural-no-form",
+      "expr": "plural(5, {\"one\": \"a\"})",
+      "error": "invalidArgument",
+      "type": "string",
+      "program": "AQACBnN0cmluZwICBQAAAAAAAAAMAQNvbmUEAWEACgQAAAQBAEmGAAI=",
+      "asm": [
+        "0000 CONST 0 ; 5",
+        "0003 CONST 1 ; map[one:a]",
+        "0006 CALL 134 2 ; plural"
+      ]
+    }
+  ]
+}

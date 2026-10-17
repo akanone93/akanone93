@@ -238,3 +238,15 @@ func (l *Locale) Categories() []Category {
 	}
 	return append(out, Other)
 }
+
+// OrdinalCategories lists the ordinal categories the locale uses, in CLDR
+// order, "other" last.
+func (l *Locale) OrdinalCategories() []Category {
+	var out []Category
+	for _, c := range categoryOrder {
+		if _, ok := l.ordinal[c]; ok {
+			out = append(out, c)
+		}
+	}
+	return append(out, Other)
+}

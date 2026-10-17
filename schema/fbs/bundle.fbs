@@ -744,7 +744,12 @@ table Strings {
 
 table Message {
   key: Uuid;
+  // The source text; kept for debugging and as the fallback of a runtime
+  // that cannot read the AST.
   text: string;
+  // The pre-parsed message in the compact binary AST of
+  // backend/internal/l10n/mf (I18N-001); the device never parses text.
+  ast: [ubyte];
 }
 
 table Locale {

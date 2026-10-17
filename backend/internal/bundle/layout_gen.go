@@ -205,6 +205,7 @@ var tableLayouts = [...]tableLayout{
 	33: {name: "Message", fields: []fieldLayout{
 		{name: "key", id: 0, kind: fieldStruct, size: 16, align: 8, table: -1, required: false},
 		{name: "text", id: 1, kind: fieldString, size: 0, align: 0, table: -1, required: false},
+		{name: "ast", id: 2, kind: fieldVectorScalar, size: 1, align: 1, table: -1, required: false},
 	}},
 	34: {name: "Meta", fields: []fieldLayout{
 		{name: "kind", id: 0, kind: fieldScalar, size: 1, align: 1, table: -1, required: false},
