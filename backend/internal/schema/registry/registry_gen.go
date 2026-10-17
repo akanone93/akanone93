@@ -471,6 +471,22 @@ var widgets = [...]Widget{
 		Children: &Children{Min: 0, Max: 0},
 	},
 	{
+		Type: "ConsentCheckbox", ID: 171, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "fact_check", Description: "A checkbox that records consent to a versioned document, with a link to read it.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleCheckbox, Interactive: true,
+		Props: []Prop{
+			{Name: "label", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What the person consents to."},
+			{Name: "documentVersion", ID: 2, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The version of the document the consent covers."},
+			{Name: "linkLabel", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The text of the link that opens the document."},
+			{Name: "value", ID: 4, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether consent is given."},
+		},
+		Events: []Event{
+			{Name: "onChanged", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: "Fires with the new value when the person toggles the checkbox."},
+			{Name: "onAccepted", ID: 2, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with `documentVersion` when consent is given, so the page records the accepted version."},
+			{Name: "onLinkTap", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the person taps the link."},
+		},
+	},
+	{
 		Type: "ConstrainedBox", ID: 11, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "layout", Icon: "fit_screen", Description: "Imposes additional constraints on its child.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 5, Role: RoleNone, Interactive: false,
@@ -953,6 +969,17 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "FilterBar", ID: 173, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "filter_list", Description: "A horizontally scrolling row of filter chips.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 90, Role: RoleList, Interactive: true,
+		Props: []Prop{
+			{Name: "filters", ID: 1, Type: "list<ChoiceItem>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The chips."},
+		},
+		Events: []Event{
+			{Name: "onToggle", ID: 1, Payload: "ChoiceItem", Revision: 1, Deprecated: nil, Description: "Fires with the chip's `id`, `label` and its new `selected` when the person taps it."},
+		},
+	},
+	{
 		Type: "FilterChip", ID: 60, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "display", Icon: "filter_alt", Description: "A chip that filters content by a tag or description.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 30, Role: RoleButton, Interactive: true,
@@ -1345,6 +1372,27 @@ var widgets = [...]Widget{
 		Children: &Children{Min: 0, Max: 0},
 	},
 	{
+		Type: "InfiniteList", ID: 175, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "scrolling", Icon: "view_list", Description: "A lazily built, paginated list of `item` templates over `items`, with empty, loading and error states (WGT-012).",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 50, Role: RoleList, Interactive: false,
+		TypeParameters: []string{"T"},
+		Props: []Prop{
+			{Name: "items", ID: 1, Type: "list<T>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The items loaded so far; the template repeats over them as `item` and `index`."},
+			{Name: "status", ID: 2, Type: "ListStatus", Required: false, Default: "\"ready\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Loading, error or ready; selects the `loading` or `error` slot."},
+			{Name: "hasMore", ID: 3, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "More items can be loaded; `onEndReached` fires near the end."},
+			{Name: "padding", ID: 4, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Space around the items."},
+		},
+		Events: []Event{
+			{Name: "onEndReached", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires once when the last item comes into view and `hasMore` is true."},
+		},
+		Slots: []Slot{
+			{Name: "item", ID: 1, List: false, Required: true, Template: true, Revision: 1, Deprecated: nil, Description: "The template built for each item, lazily."},
+			{Name: "empty", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown when `items` is empty."},
+			{Name: "loading", ID: 3, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown while `status` is loading."},
+			{Name: "error", ID: 4, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown while `status` is error."},
+		},
+	},
+	{
 		Type: "InkWell", ID: 90, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "interaction", Icon: "touch_app", Description: "A rectangular area that responds to touch with a Material ink splash.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleButton, Interactive: true,
@@ -1583,6 +1631,21 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "OnboardingPager", ID: 177, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "slideshow", Description: "Swipeable onboarding pages with page indicators and a Done button on the last page.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 140, Role: RoleNone, Interactive: true,
+		Props: []Prop{
+			{Name: "currentPage", ID: 1, Type: "int", Required: false, Default: "0", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The zero-based page shown."},
+			{Name: "nextLabel", ID: 2, Type: "string", Required: false, Default: "\"Next\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The Next button's text."},
+			{Name: "doneLabel", ID: 3, Type: "string", Required: false, Default: "\"Done\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The Done button's text, on the last page."},
+		},
+		Events: []Event{
+			{Name: "onPageChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the page now shown."},
+			{Name: "onDone", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the person finishes the last page."},
+		},
+		Children: &Children{Min: 1, Max: 0},
+	},
+	{
 		Type: "Opacity", ID: 22, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "layout", Icon: "opacity", Description: "Makes its child partially transparent.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 10, Role: RoleNone, Interactive: false,
@@ -1698,6 +1761,20 @@ var widgets = [...]Widget{
 		Events: []Event{
 			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the card is tapped."},
 			{Name: "onAddToCart", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the add-to-cart button is pressed. The button shows only when this is handled."},
+		},
+	},
+	{
+		Type: "ProfileHeader", ID: 179, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "layout", Icon: "account_circle", Description: "A person's avatar, name and subtitle with an actions row.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 50, Role: RoleHeader, Interactive: false,
+		Props: []Prop{
+			{Name: "name", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The person's name."},
+			{Name: "subtitle", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A line below the name."},
+			{Name: "avatar", ID: 3, Type: "ImageSource?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The avatar image; the name's initial shows when absent or failing."},
+			{Name: "radius", ID: 4, Type: "double", Required: false, Default: "32.0", Constraints: Constraints{Min: Bound{Value: 8, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The avatar's radius."},
+		},
+		Slots: []Slot{
+			{Name: "actions", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Buttons below the name."},
 		},
 	},
 	{
@@ -1964,6 +2041,21 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "SearchField", ID: 172, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "search", Description: "A search box that reports the query once typing pauses, with optional suggestions.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 120, Role: RoleTextField, Interactive: true,
+		Props: []Prop{
+			{Name: "value", ID: 1, Type: "string", Required: false, Default: "\"\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The text in the field."},
+			{Name: "hint", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The placeholder."},
+			{Name: "debounceMs", ID: 3, Type: "int", Required: false, Default: "300", Constraints: Constraints{Min: Bound{Value: 0, Set: true}, Max: Bound{Value: 5000, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "How long typing must pause before `onSearch` fires, in milliseconds."},
+			{Name: "suggestions", ID: 4, Type: "list<string>", Required: false, Default: "[]", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Suggestions shown below the field while it has text."},
+		},
+		Events: []Event{
+			{Name: "onSearch", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the query after typing pauses for `debounceMs`."},
+			{Name: "onSuggestionSelected", ID: 2, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the suggestion the person picked."},
+		},
+	},
+	{
 		Type: "SecurePinPad", ID: 105, Layer: 2, Phase: "P6", Revision: 1, Runtimes: []string{"0.4.0"},
 		Category: "input", Icon: "dialpad", Description: "PIN entry with an optional randomised layout and haptic-only key feedback (SEC-090).",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 150, Role: RoleButton, Interactive: true,
@@ -2041,6 +2133,15 @@ var widgets = [...]Widget{
 		Events: []Event{
 			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
 		},
+	},
+	{
+		Type: "SettingsList", ID: 178, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "layout", Icon: "settings", Description: "Settings rows grouped under section headers.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleList, Interactive: false,
+		Props: []Prop{
+			{Name: "sections", ID: 1, Type: "list<SettingsSection>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The groups; the children are divided among them in order by `count`."},
+		},
+		Children: &Children{Min: 0, Max: 0},
 	},
 	{
 		Type: "SingleChildScrollView", ID: 34, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
@@ -2254,6 +2355,19 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "SortSheet", ID: 174, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "sort", Description: "A list of radio rows to choose a sort order from; a page of kind bottom sheet hosts it.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 80, Role: RoleRadio, Interactive: true,
+		Props: []Prop{
+			{Name: "title", ID: 1, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A header above the rows."},
+			{Name: "options", ID: 2, Type: "list<ChoiceItem>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The orders offered; their `selected` is ignored in favour of `selected`."},
+			{Name: "selected", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The `id` of the chosen option."},
+		},
+		Events: []Event{
+			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the `id` of the option the person chose."},
+		},
+	},
+	{
 		Type: "Spacer", ID: 33, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "layout", Icon: "space_bar", Description: "Takes up flexible empty space in a Row, Column or Flex.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 2, Role: RoleNone, Interactive: false,
@@ -2272,6 +2386,14 @@ var widgets = [...]Widget{
 			{Name: "clipBehavior", ID: 4, Type: "Clip", Required: false, Default: "\"hardEdge\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 		},
 		Children: &Children{Min: 0, Max: 0},
+	},
+	{
+		Type: "StatusTimeline", ID: 180, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "feedback", Icon: "timeline", Description: "A vertical timeline of steps, each done, current, pending or failed; the current step is announced.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 70, Role: RoleList, Interactive: false,
+		Props: []Prop{
+			{Name: "steps", ID: 1, Type: "list<TimelineStep>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The steps, in order."},
+		},
 	},
 	{
 		Type: "Switch", ID: 72, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
@@ -2589,6 +2711,25 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "WizardForm", ID: 176, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "linear_scale", Description: "A multi-step form: one child per step, a progress indicator, and Back, Next and Submit buttons that validate the step through the enclosing form.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 160, Role: RoleNone, Interactive: true,
+		Props: []Prop{
+			{Name: "titles", ID: 1, Type: "list<string>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The title of each step, in order."},
+			{Name: "currentStep", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The zero-based step shown."},
+			{Name: "stepFields", ID: 3, Type: "list<string>", Required: false, Default: "[]", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "For each step, the comma-separated form fields it holds; Next validates those fields through the enclosing `FormScope`."},
+			{Name: "backLabel", ID: 4, Type: "string", Required: false, Default: "\"Back\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The Back button's text."},
+			{Name: "nextLabel", ID: 5, Type: "string", Required: false, Default: "\"Next\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The Next button's text."},
+			{Name: "submitLabel", ID: 6, Type: "string", Required: false, Default: "\"Submit\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The Submit button's text, on the last step."},
+		},
+		Events: []Event{
+			{Name: "onNext", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the step now shown, once the current step is valid."},
+			{Name: "onBack", ID: 2, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the step now shown when the person goes back."},
+			{Name: "onSubmit", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the last step is valid and the person submits."},
+		},
+		Children: &Children{Min: 1, Max: 0},
+	},
+	{
 		Type: "Wrap", ID: 30, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "layout", Icon: "wrap_text", Description: "Lays out its children in runs, wrapping to the next run when a run is full.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 10, Role: RoleNone, Interactive: false,
@@ -2731,6 +2872,14 @@ var valueTypes = [...]ValueType{
 			{Name: "animationDuration", ID: 19, Type: "duration", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "enableFeedback", ID: 20, Type: "bool", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "alignment", ID: 21, Type: "Alignment", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Name: "ChoiceItem", ID: 62, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "One choice of a FilterBar or SortSheet.",
+		Fields: []Field{
+			{Name: "id", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The stable identifier the events report."},
+			{Name: "label", ID: 2, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The text shown."},
+			{Name: "selected", ID: 3, Type: "bool", Required: false, Default: "false", Revision: 1, Deprecated: nil, Description: "Whether the choice is on."},
 		},
 	},
 	{
@@ -2956,6 +3105,13 @@ var valueTypes = [...]ValueType{
 		},
 	},
 	{
+		Name: "SettingsSection", ID: 64, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "One group of rows of a SettingsList.",
+		Fields: []Field{
+			{Name: "title", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The section header."},
+			{Name: "count", ID: 2, Type: "int", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "How many of the list's children, in order, belong to the section."},
+		},
+	},
+	{
 		Name: "Shadow", ID: 22, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "A shadow cast by text or an icon.",
 		Fields: []Field{
 			{Name: "color", ID: 1, Type: "color", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
@@ -3014,6 +3170,14 @@ var valueTypes = [...]ValueType{
 			{Name: "fontFamily", ID: 18, Type: "string", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "fontFamilyFallback", ID: 19, Type: "list<string>", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "overflow", ID: 20, Type: "TextOverflow", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Name: "TimelineStep", ID: 63, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "One step of a StatusTimeline.",
+		Fields: []Field{
+			{Name: "label", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The step's name."},
+			{Name: "detail", ID: 2, Type: "string?", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "A line below the label, such as a time or a reason."},
+			{Name: "state", ID: 3, Type: "TimelineStepState", Required: false, Default: "\"pending\"", Revision: 1, Deprecated: nil, Description: "Where the step stands."},
 		},
 	},
 	{
@@ -3572,6 +3736,12 @@ var enums = [...]Enum{
 		{Name: "repeated", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "mirror", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "decal", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "TimelineStepState", ID: 125, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Where a StatusTimeline step stands.", Values: []EnumValue{
+		{Name: "done", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "current", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "pending", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "failed", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
 	}},
 	{Name: "TooltipTriggerMode", ID: 63, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum TooltipTriggerMode.", Values: []EnumValue{
 		{Name: "manual", ID: 1, Revision: 1, Deprecated: nil, Description: ""},

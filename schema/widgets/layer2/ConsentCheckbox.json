@@ -1,0 +1,77 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "ConsentCheckbox",
+  "id": 171,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "fact_check",
+  "description": "A checkbox that records consent to a versioned document, with a link to read it.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 60,
+  "accessibility": {
+    "role": "checkbox",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "label",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "translatable": true,
+      "description": "What the person consents to."
+    },
+    {
+      "name": "documentVersion",
+      "id": 2,
+      "type": "string",
+      "required": true,
+      "description": "The version of the document the consent covers."
+    },
+    {
+      "name": "linkLabel",
+      "id": 3,
+      "type": "string?",
+      "translatable": true,
+      "description": "The text of the link that opens the document."
+    },
+    {
+      "name": "value",
+      "id": 4,
+      "type": "bool",
+      "default": false,
+      "description": "Whether consent is given."
+    }
+  ],
+  "events": [
+    {
+      "name": "onChanged",
+      "id": 1,
+      "payload": "bool",
+      "description": "Fires with the new value when the person toggles the checkbox."
+    },
+    {
+      "name": "onAccepted",
+      "id": 2,
+      "payload": "string",
+      "description": "Fires with `documentVersion` when consent is given, so the page records the accepted version."
+    },
+    {
+      "name": "onLinkTap",
+      "id": 3,
+      "description": "Fires when the person taps the link."
+    }
+  ]
+}

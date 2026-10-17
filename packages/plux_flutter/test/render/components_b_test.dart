@@ -50,7 +50,7 @@ void main() {
     bool rtl = false,
     double scale = 1,
   }) async {
-    tester.view.physicalSize = const Size(800, 2000);
+    tester.view.physicalSize = const Size(800, 2600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.runAsync(() async {
