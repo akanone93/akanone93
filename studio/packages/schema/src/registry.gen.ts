@@ -173,7 +173,7 @@ export interface ActionDescriptor {
 }
 
 /** A widget type name. */
-export type WidgetType = "ActionChip" | "Align" | "AppBar" | "AspectRatio" | "BackButton" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "Card" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConstrainedBox" | "Container" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTextField" | "CustomScrollView" | "DecoratedBox" | "Divider" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FilledButton" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Icon" | "IconButton" | "If" | "Image" | "IndexedStack" | "InkWell" | "InputChip" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "Match" | "OfflineBanner" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "Positioned" | "Radio" | "RadioListTile" | "RangeSlider" | "Responsive" | "RichText" | "Row" | "SafeArea" | "Scaffold" | "Scrollbar" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverToBoxAdapter" | "Slot" | "Spacer" | "Stack" | "Switch" | "SwitchListTile" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Tooltip" | "Transform" | "VerticalDivider" | "Wrap";
+export type WidgetType = "ActionChip" | "Align" | "AppBar" | "AspectRatio" | "BackButton" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "Card" | "Carousel" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTextField" | "CustomScrollView" | "DecoratedBox" | "Divider" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FileUploader" | "FilledButton" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InkWell" | "InputChip" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "Match" | "OfflineBanner" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "Positioned" | "ProductCard" | "PromoBanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "Responsive" | "RichText" | "Row" | "SafeArea" | "Scaffold" | "Scrollbar" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverToBoxAdapter" | "Slot" | "Spacer" | "Stack" | "Switch" | "SwitchListTile" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Tooltip" | "Transform" | "VerticalDivider" | "Wrap";
 
 /** An action name. */
 export type ActionName = "announce" | "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "readConfig" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
@@ -476,6 +476,32 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "Carousel",
+    "id": 184,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "layout",
+    "icon": "view_carousel",
+    "description": "Pages of children swiped horizontally, with page indicators and optional autoplay. Autoplay stops when the device reduces motion.",
+    "platforms": ["android", "ios"],
+    "cost": 100,
+    "accessibility": {"role": "list", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "autoplay", "id": 1, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Advances on its own."},
+      {"name": "intervalMs", "id": 2, "type": "int", "required": false, "default": 5000, "constraints": {"min": 500}, "revision": 1, "bindable": true, "description": "Milliseconds between automatic advances."},
+      {"name": "indicators", "id": 3, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Shows page indicators."},
+      {"name": "semanticLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label screen readers announce for the carousel."}
+    ],
+    "events": [
+      {"name": "onPageChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the index of the page shown."}
+    ],
+    "slots": [],
+    "children": {"min": 1}
   },
   {
     "type": "Center",
@@ -921,6 +947,29 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "CountdownTimer",
+    "id": 186,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "timer",
+    "description": "The time left until `endsAt`, updated once a second.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "text", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "endsAt", "id": 1, "type": "dateTime", "required": true, "revision": 1, "bindable": true, "description": "The instant the countdown ends."},
+      {"name": "format", "id": 2, "type": "CountdownFormat", "required": false, "default": "hms", "revision": 1, "bindable": true, "description": "How the remaining time is written."}
+    ],
+    "events": [
+      {"name": "onFinished", "id": 1, "revision": 1, "description": "Fires once when the countdown reaches zero."}
+    ],
+    "slots": []
   },
   {
     "type": "CupertinoActivityIndicator",
@@ -1505,6 +1554,34 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "FileUploader",
+    "id": 190,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "upload_file",
+    "description": "Pick a file, preview it and upload it with progress. Picking needs `plux_media`; without it the control is disabled and PLX-5401 is reported. The upload is a transfer operation of a data source.",
+    "platforms": ["android", "ios"],
+    "cost": 140,
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "dataSource", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The data source holding the upload operation."},
+      {"name": "operation", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The upload operation of the data source."},
+      {"name": "accept", "id": 3, "type": "list<string>", "required": false, "revision": 1, "bindable": true, "description": "Accepted media types; any when empty."},
+      {"name": "maxBytes", "id": 4, "type": "int?", "required": false, "constraints": {"min": 1}, "revision": 1, "bindable": true, "description": "The largest file in bytes."},
+      {"name": "label", "id": 5, "type": "string", "required": false, "default": "Choose file", "revision": 1, "bindable": true, "description": "The pick button's label."},
+      {"name": "uploadLabel", "id": 6, "type": "string", "required": false, "default": "Upload", "revision": 1, "bindable": true, "description": "The upload button's label."}
+    ],
+    "events": [
+      {"name": "onUploaded", "id": 1, "payload": "FileUploadResult", "revision": 1, "description": "Fires with the upload result when the upload succeeds."},
+      {"name": "onFailed", "id": 2, "payload": "FileUploadError", "revision": 1, "description": "Fires with the error when picking or uploading fails."}
+    ],
+    "slots": []
+  },
+  {
     "type": "FilledButton",
     "id": 79,
     "layer": 1,
@@ -2048,6 +2125,31 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "ImageGallery",
+    "id": 189,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "photo_library",
+    "description": "Swipeable images, each pinch-zoomable, with page indicators.",
+    "platforms": ["android", "ios"],
+    "cost": 120,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "images", "id": 1, "type": "list<ImageSource>", "required": true, "revision": 1, "bindable": true, "description": "The images."},
+      {"name": "initialPage", "id": 2, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The index first shown."},
+      {"name": "indicators", "id": 3, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Shows page indicators."},
+      {"name": "semanticLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label screen readers announce for the gallery."}
+    ],
+    "events": [
+      {"name": "onPageChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the index of the image shown."}
+    ],
+    "slots": []
+  },
+  {
     "type": "IndexedStack",
     "id": 29,
     "layer": 1,
@@ -2350,6 +2452,30 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "LiveEtaCard",
+    "id": 181,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "feedback",
+    "icon": "local_shipping",
+    "description": "A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "title", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The headline, such as the order or ride."},
+      {"name": "etaMinutes", "id": 2, "type": "int?", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "Minutes until arrival; bind it to a stream data source value."},
+      {"name": "status", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The current status text, such as `On the way`."},
+      {"name": "minutesLabel", "id": 4, "type": "string", "required": false, "default": "min", "revision": 1, "bindable": true, "description": "The unit shown after the minutes."},
+      {"name": "icon", "id": 5, "type": "IconData?", "required": false, "revision": 1, "bindable": true, "description": "A leading icon."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
     "type": "Match",
     "id": 2,
     "layer": 1,
@@ -2559,6 +2685,87 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "ProductCard",
+    "id": 182,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "shopping_bag",
+    "description": "A product tile: image, title, price, an optional struck-through original price and badge, and an add-to-cart button. Prices arrive as formatted strings.",
+    "platforms": ["android", "ios"],
+    "cost": 120,
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "image", "id": 1, "type": "ImageSource?", "required": false, "revision": 1, "bindable": true, "description": "The product image."},
+      {"name": "title", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The product name."},
+      {"name": "price", "id": 3, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The formatted price."},
+      {"name": "originalPrice", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The formatted price before a discount, shown struck through."},
+      {"name": "badge", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A short badge such as `New` or `-20%`."},
+      {"name": "addToCartLabel", "id": 6, "type": "string", "required": false, "default": "Add to cart", "revision": 1, "bindable": true, "description": "The label of the add-to-cart button."}
+    ],
+    "events": [
+      {"name": "onTap", "id": 1, "revision": 1, "description": "Fires when the card is tapped."},
+      {"name": "onAddToCart", "id": 2, "revision": 1, "description": "Fires when the add-to-cart button is pressed. The button shows only when this is handled."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "PromoBanner",
+    "id": 185,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "campaign",
+    "description": "A campaign banner: image, title, subtitle, a call to action and, when `endsAt` is set, a countdown.",
+    "platforms": ["android", "ios"],
+    "cost": 110,
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "title", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The headline."},
+      {"name": "subtitle", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line below the title."},
+      {"name": "image", "id": 3, "type": "ImageSource?", "required": false, "revision": 1, "bindable": true, "description": "A background image."},
+      {"name": "ctaLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label of the call to action."},
+      {"name": "endsAt", "id": 5, "type": "dateTime?", "required": false, "revision": 1, "bindable": true, "description": "When the offer ends; shows a countdown."}
+    ],
+    "events": [
+      {"name": "onTap", "id": 1, "revision": 1, "description": "Fires when the banner or its call to action is tapped."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "QuantityStepper",
+    "id": 183,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "add_circle",
+    "description": "A decrease button, the quantity and an increase button; screen readers adjust it with increase and decrease actions.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "slider", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "int", "required": false, "default": 1, "revision": 1, "bindable": true, "description": "The current quantity."},
+      {"name": "min", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true, "description": "The smallest quantity."},
+      {"name": "max", "id": 3, "type": "int", "required": false, "default": 99, "revision": 1, "bindable": true, "description": "The largest quantity."},
+      {"name": "step", "id": 4, "type": "int", "required": false, "default": 1, "constraints": {"min": 1}, "revision": 1, "bindable": true, "description": "The change per press."},
+      {"name": "decreaseLabel", "id": 5, "type": "string", "required": false, "default": "Decrease", "revision": 1, "bindable": true, "description": "The accessibility label of the decrease button."},
+      {"name": "increaseLabel", "id": 6, "type": "string", "required": false, "default": "Increase", "revision": 1, "bindable": true, "description": "The accessibility label of the increase button."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the new quantity."}
+    ],
+    "slots": []
+  },
+  {
     "type": "Radio",
     "id": 70,
     "layer": 1,
@@ -2684,6 +2891,53 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "onChanged", "id": 1, "payload": "RangeValues", "revision": 1},
       {"name": "onChangeStart", "id": 2, "payload": "RangeValues", "revision": 1},
       {"name": "onChangeEnd", "id": 3, "payload": "RangeValues", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
+    "type": "RatingBar",
+    "id": 187,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "star",
+    "description": "A read-only row of stars; screen readers read `3.5 of 5`.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "text", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "double", "required": true, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The rating."},
+      {"name": "max", "id": 2, "type": "int", "required": false, "default": 5, "constraints": {"min": 1, "max": 10}, "revision": 1, "bindable": true, "description": "The number of stars."},
+      {"name": "ofLabel", "id": 3, "type": "string", "required": false, "default": "of", "revision": 1, "bindable": true, "description": "The word between value and maximum in the spoken value."},
+      {"name": "semanticLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What is rated, spoken before the value."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
+    "type": "RatingInput",
+    "id": 188,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "star_rate",
+    "description": "Stars the user taps to rate; each star is a button.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "none", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The current rating, 0 for none."},
+      {"name": "max", "id": 2, "type": "int", "required": false, "default": 5, "constraints": {"min": 1, "max": 10}, "revision": 1, "bindable": true, "description": "The number of stars."},
+      {"name": "starLabel", "id": 3, "type": "string", "required": false, "default": "star", "revision": 1, "bindable": true, "description": "The noun in each star's label, such as `star`."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the rating chosen."}
     ],
     "slots": []
   },
@@ -4012,6 +4266,32 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     ]
   },
   {
+    "name": "FileUploadError",
+    "id": 66,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Why picking or uploading failed.",
+    "fields": [
+      {"name": "code", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The error code, such as PLX-5401."},
+      {"name": "message", "id": 2, "type": "string", "required": true, "revision": 1, "description": "A description for developers."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "FileUploadResult",
+    "id": 65,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "What a finished upload reports.",
+    "fields": [
+      {"name": "name", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The file name."},
+      {"name": "mimeType", "id": 2, "type": "string", "required": true, "revision": 1, "description": "The media type."},
+      {"name": "sizeBytes", "id": 3, "type": "int", "required": true, "revision": 1, "description": "The size in bytes."},
+      {"name": "response", "id": 4, "type": "string?", "required": false, "revision": 1, "description": "The server's response, JSON-encoded."}
+    ],
+    "constants": []
+  },
+  {
     "name": "GeoLocation",
     "id": 35,
     "revision": 1,
@@ -4682,6 +4962,18 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "hardEdge", "id": 2, "revision": 1},
       {"name": "antiAlias", "id": 3, "revision": 1},
       {"name": "antiAliasWithSaveLayer", "id": 4, "revision": 1}
+    ]
+  },
+  {
+    "name": "CountdownFormat",
+    "id": 132,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "How a countdown writes the time left.",
+    "values": [
+      {"name": "hms", "id": 1, "revision": 1},
+      {"name": "dhms", "id": 2, "revision": 1},
+      {"name": "compact", "id": 3, "revision": 1}
     ]
   },
   {

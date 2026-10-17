@@ -179,6 +179,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'child': 1},
   ),
   WidgetDescriptor(
+    'Carousel',
+    184,
+    layer: 2,
+    revision: 1,
+    props: {'autoplay': 1, 'intervalMs': 2, 'indicators': 3, 'semanticLabel': 4},
+    events: {'onPageChanged': 1},
+  ),
+  WidgetDescriptor(
     'Center',
     9,
     layer: 1,
@@ -291,6 +299,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'alignment': 1, 'padding': 2, 'color': 3, 'isAntiAlias': 4, 'decoration': 5, 'foregroundDecoration': 6, 'width': 7, 'height': 8, 'constraints': 9, 'margin': 10, 'transformAlignment': 11, 'clipBehavior': 12},
     slots: {'child': 1},
+  ),
+  WidgetDescriptor(
+    'CountdownTimer',
+    186,
+    layer: 2,
+    revision: 1,
+    props: {'endsAt': 1, 'format': 2},
+    events: {'onFinished': 1},
   ),
   WidgetDescriptor(
     'CupertinoActivityIndicator',
@@ -435,6 +451,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'leading': 1, 'title': 2, 'subtitle': 3, 'trailing': 4, 'children': 5},
   ),
   WidgetDescriptor(
+    'FileUploader',
+    190,
+    layer: 2,
+    revision: 1,
+    props: {'dataSource': 1, 'operation': 2, 'accept': 3, 'maxBytes': 4, 'label': 5, 'uploadLabel': 6},
+    events: {'onUploaded': 1, 'onFailed': 2},
+  ),
+  WidgetDescriptor(
     'FilledButton',
     79,
     layer: 1,
@@ -559,6 +583,14 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'loading': 1, 'error': 2},
   ),
   WidgetDescriptor(
+    'ImageGallery',
+    189,
+    layer: 2,
+    revision: 1,
+    props: {'images': 1, 'initialPage': 2, 'indicators': 3, 'semanticLabel': 4},
+    events: {'onPageChanged': 1},
+  ),
+  WidgetDescriptor(
     'IndexedStack',
     29,
     layer: 1,
@@ -623,6 +655,13 @@ const List<WidgetDescriptor> widgetDescriptors = [
     props: {'items': 1, 'scrollDirection': 2, 'reverse': 3, 'primary': 4, 'physics': 5, 'shrinkWrap': 6, 'padding': 7, 'itemExtent': 8, 'addAutomaticKeepAlives': 9, 'addRepaintBoundaries': 10, 'addSemanticIndexes': 11, 'semanticChildCount': 12, 'dragStartBehavior': 13, 'keyboardDismissBehavior': 14, 'clipBehavior': 15, 'hitTestBehavior': 16, 'status': 17, 'hasMore': 18},
     events: {'onEndReached': 1},
     slots: {'item': 1, 'prototypeItem': 2, 'empty': 3, 'loading': 4, 'error': 5},
+  ),
+  WidgetDescriptor(
+    'LiveEtaCard',
+    181,
+    layer: 2,
+    revision: 1,
+    props: {'title': 1, 'etaMinutes': 2, 'status': 3, 'minutesLabel': 4, 'icon': 5},
   ),
   WidgetDescriptor(
     'Match',
@@ -690,6 +729,30 @@ const List<WidgetDescriptor> widgetDescriptors = [
     slots: {'child': 1},
   ),
   WidgetDescriptor(
+    'ProductCard',
+    182,
+    layer: 2,
+    revision: 1,
+    props: {'image': 1, 'title': 2, 'price': 3, 'originalPrice': 4, 'badge': 5, 'addToCartLabel': 6},
+    events: {'onTap': 1, 'onAddToCart': 2},
+  ),
+  WidgetDescriptor(
+    'PromoBanner',
+    185,
+    layer: 2,
+    revision: 1,
+    props: {'title': 1, 'subtitle': 2, 'image': 3, 'ctaLabel': 4, 'endsAt': 5},
+    events: {'onTap': 1},
+  ),
+  WidgetDescriptor(
+    'QuantityStepper',
+    183,
+    layer: 2,
+    revision: 1,
+    props: {'value': 1, 'min': 2, 'max': 3, 'step': 4, 'decreaseLabel': 5, 'increaseLabel': 6},
+    events: {'onChanged': 1},
+  ),
+  WidgetDescriptor(
     'Radio',
     70,
     layer: 1,
@@ -713,6 +776,21 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'values': 1, 'min': 2, 'max': 3, 'divisions': 4, 'labels': 5, 'activeColor': 6, 'inactiveColor': 7, 'overlayColor': 8, 'padding': 9},
     events: {'onChanged': 1, 'onChangeStart': 2, 'onChangeEnd': 3},
+  ),
+  WidgetDescriptor(
+    'RatingBar',
+    187,
+    layer: 2,
+    revision: 1,
+    props: {'value': 1, 'max': 2, 'ofLabel': 3, 'semanticLabel': 4},
+  ),
+  WidgetDescriptor(
+    'RatingInput',
+    188,
+    layer: 2,
+    revision: 1,
+    props: {'value': 1, 'max': 2, 'starLabel': 3},
+    events: {'onChanged': 1},
   ),
   WidgetDescriptor(
     'Responsive',
@@ -1047,6 +1125,18 @@ const List<ValueTypeDescriptor> valueTypeDescriptors = [
     fields: {'all': 1, 'horizontal': 2, 'vertical': 3, 'left': 4, 'top': 5, 'right': 6, 'bottom': 7, 'start': 8, 'end': 9},
   ),
   ValueTypeDescriptor(
+    'FileUploadError',
+    66,
+    revision: 1,
+    fields: {'code': 1, 'message': 2},
+  ),
+  ValueTypeDescriptor(
+    'FileUploadResult',
+    65,
+    revision: 1,
+    fields: {'name': 1, 'mimeType': 2, 'sizeBytes': 3, 'response': 4},
+  ),
+  ValueTypeDescriptor(
     'GeoLocation',
     35,
     revision: 1,
@@ -1289,6 +1379,12 @@ const List<EnumDescriptor> enumDescriptors = [
     11,
     revision: 1,
     values: {'none': 1, 'hardEdge': 2, 'antiAlias': 3, 'antiAliasWithSaveLayer': 4},
+  ),
+  EnumDescriptor(
+    'CountdownFormat',
+    132,
+    revision: 1,
+    values: {'hms': 1, 'dhms': 2, 'compact': 3},
   ),
   EnumDescriptor(
     'CrossAxisAlignment',

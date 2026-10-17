@@ -1,0 +1,512 @@
+{
+  "id": "01c0c450-6c00-7000-8a2c-000000000019",
+  "key": "components-b",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01c0c450-6c00-7000-8a2c-000000000029",
+    "slots": {
+      "appBar": {
+        "id": "01c0c450-6c00-7000-8a2c-00000000001b",
+        "slots": {
+          "title": {
+            "id": "01c0c450-6c00-7000-8a2c-00000000001a",
+            "props": {
+              "data": "components b"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01c0c450-6c00-7000-8a2c-000000000028",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01c0c450-6c00-7000-8a2c-00000000001c",
+                "props": {
+                  "padding": {
+                    "all": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a2c-000000000001",
+                    "props": {
+                      "etaMinutes": {
+                        "$expr": "page.eta"
+                      },
+                      "icon": {
+                        "name": "local_shipping"
+                      },
+                      "status": "On the way",
+                      "title": "Order 1042"
+                    },
+                    "testId": "live-eta",
+                    "type": "LiveEtaCard"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2c-00000000001d",
+                "props": {
+                  "padding": {
+                    "all": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onAddToCart": {
+                        "steps": [
+                          {
+                            "action": "haptic",
+                            "id": "h",
+                            "input": {
+                              "pattern": "light"
+                            }
+                          }
+                        ]
+                      },
+                      "onTap": {
+                        "steps": [
+                          {
+                            "action": "haptic",
+                            "id": "h",
+                            "input": {
+                              "pattern": "light"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a2c-000000000002",
+                    "props": {
+                      "badge": "-25%",
+                      "image": {
+                        "asset": {
+                          "$asset": "01c0c450-6c00-7000-8000-000000000207"
+                        }
+                      },
+                      "originalPrice": "$120.00",
+                      "price": "$89.00",
+                      "title": "Trail shoe"
+                    },
+                    "testId": "product-card",
+                    "type": "ProductCard"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2c-00000000001e",
+                "props": {
+                  "padding": {
+                    "all": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onChanged": {
+                        "steps": [
+                          {
+                            "action": "haptic",
+                            "id": "h",
+                            "input": {
+                              "pattern": "light"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a2c-000000000003",
+                    "props": {
+                      "max": 5,
+                      "min": 1,
+                      "value": 2
+                    },
+                    "semantics": {
+                      "label": "quantity"
+                    },
+                    "testId": "stepper",
+                    "type": "QuantityStepper"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2c-00000000001f",
+                "props": {
+                  "padding": {
+                    "all": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a2c-000000000016",
+                    "props": {
+                      "height": 160
+                    },
+                    "slots": {
+                      "child": {
+                        "children": [
+                          {
+                            "id": "01c0c450-6c00-7000-8a2c-000000000005",
+                            "slots": {
+                              "child": {
+                                "id": "01c0c450-6c00-7000-8a2c-000000000004",
+                                "props": {
+                                  "data": "slide one"
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "type": "Center"
+                          },
+                          {
+                            "id": "01c0c450-6c00-7000-8a2c-000000000007",
+                            "slots": {
+                              "child": {
+                                "id": "01c0c450-6c00-7000-8a2c-000000000006",
+                                "props": {
+                                  "data": "slide two"
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "type": "Center"
+                          },
+                          {
+                            "id": "01c0c450-6c00-7000-8a2c-000000000009",
+                            "slots": {
+                              "child": {
+                                "id": "01c0c450-6c00-7000-8a2c-000000000008",
+                                "props": {
+                                  "data": "slide three"
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "type": "Center"
+                          }
+                        ],
+                        "events": {
+                          "onPageChanged": {
+                            "steps": [
+                              {
+                                "action": "haptic",
+                                "id": "h",
+                                "input": {
+                                  "pattern": "light"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01c0c450-6c00-7000-8a2c-00000000000a",
+                        "props": {
+                          "semanticLabel": "Offers"
+                        },
+                        "testId": "carousel",
+                        "type": "Carousel"
+                      }
+                    },
+                    "type": "SizedBox"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2c-000000000020",
+                "props": {
+                  "padding": {
+                    "all": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a2c-000000000017",
+                    "props": {
+                      "height": 160
+                    },
+                    "slots": {
+                      "child": {
+                        "children": [
+                          {
+                            "id": "01c0c450-6c00-7000-8a2c-000000000012",
+                            "slots": {
+                              "child": {
+                                "id": "01c0c450-6c00-7000-8a2c-000000000011",
+                                "props": {
+                                  "data": "auto one"
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "type": "Center"
+                          },
+                          {
+                            "id": "01c0c450-6c00-7000-8a2c-000000000014",
+                            "slots": {
+                              "child": {
+                                "id": "01c0c450-6c00-7000-8a2c-000000000013",
+                                "props": {
+                                  "data": "auto two"
+                                },
+                                "type": "Text"
+                              }
+                            },
+                            "type": "Center"
+                          }
+                        ],
+                        "events": {
+                          "onPageChanged": {
+                            "steps": [
+                              {
+                                "action": "haptic",
+                                "id": "h",
+                                "input": {
+                                  "pattern": "light"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01c0c450-6c00-7000-8a2c-000000000015",
+                        "props": {
+                          "autoplay": true,
+                          "intervalMs": 1000,
+                          "semanticLabel": "Auto offers"
+                        },
+                        "testId": "carousel-auto",
+                        "type": "Carousel"
+                      }
+                    },
+                    "type": "SizedBox"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2c-000000000021",
+                "props": {
+                  "padding": {
+                    "all": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onTap": {
+                        "steps": [
+                          {
+                            "action": "haptic",
+                            "id": "h",
+                            "input": {
+                              "pattern": "light"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a2c-00000000000b",
+                    "props": {
+                      "ctaLabel": "Shop now",
+                      "endsAt": "2099-01-01T00:00:00Z",
+                      "subtitle": "Up to 50% off",
+                      "title": "Summer sale"
+                    },
+                    "testId": "promo",
+                    "type": "PromoBanner"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2c-000000000022",
+                "props": {
+                  "padding": {
+                    "all": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a2c-00000000000c",
+                    "props": {
+                      "endsAt": "2099-01-01T00:00:00Z",
+                      "format": "dhms"
+                    },
+                    "testId": "countdown",
+                    "type": "CountdownTimer"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2c-000000000023",
+                "props": {
+                  "padding": {
+                    "all": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a2c-00000000000d",
+                    "props": {
+                      "semanticLabel": "Rating",
+                      "value": 3.5
+                    },
+                    "testId": "rating-bar",
+                    "type": "RatingBar"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2c-000000000024",
+                "props": {
+                  "padding": {
+                    "all": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onChanged": {
+                        "steps": [
+                          {
+                            "action": "haptic",
+                            "id": "h",
+                            "input": {
+                              "pattern": "light"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a2c-00000000000e",
+                    "props": {
+                      "value": 4
+                    },
+                    "semantics": {
+                      "label": "your rating"
+                    },
+                    "testId": "rating-input",
+                    "type": "RatingInput"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2c-000000000025",
+                "props": {
+                  "padding": {
+                    "all": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a2c-000000000018",
+                    "props": {
+                      "height": 180
+                    },
+                    "slots": {
+                      "child": {
+                        "events": {
+                          "onPageChanged": {
+                            "steps": [
+                              {
+                                "action": "haptic",
+                                "id": "h",
+                                "input": {
+                                  "pattern": "light"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01c0c450-6c00-7000-8a2c-00000000000f",
+                        "props": {
+                          "images": [
+                            {
+                              "asset": {
+                                "$asset": "01c0c450-6c00-7000-8000-000000000207"
+                              }
+                            },
+                            {
+                              "asset": {
+                                "$asset": "01c0c450-6c00-7000-8000-000000000207"
+                              }
+                            },
+                            {
+                              "asset": {
+                                "$asset": "01c0c450-6c00-7000-8000-000000000207"
+                              }
+                            }
+                          ],
+                          "semanticLabel": "Photos"
+                        },
+                        "testId": "image-gallery",
+                        "type": "ImageGallery"
+                      }
+                    },
+                    "type": "SizedBox"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2c-000000000026",
+                "props": {
+                  "padding": {
+                    "all": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a2c-000000000010",
+                    "props": {
+                      "accept": [
+                        "image/*"
+                      ],
+                      "dataSource": "uploads",
+                      "operation": "send"
+                    },
+                    "semantics": {
+                      "label": "attachment"
+                    },
+                    "testId": "file-uploader",
+                    "type": "FileUploader"
+                  }
+                },
+                "type": "Padding"
+              }
+            ],
+            "id": "01c0c450-6c00-7000-8a2c-000000000027",
+            "props": {
+              "crossAxisAlignment": "stretch"
+            },
+            "type": "Column"
+          }
+        },
+        "type": "SingleChildScrollView"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "components-b",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": 7,
+      "id": "01c0c450-6c00-7000-8a2c-00000000002a",
+      "name": "eta",
+      "type": "int"
+    }
+  ],
+  "title": "components b"
+}

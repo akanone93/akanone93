@@ -1,0 +1,70 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "PromoBanner",
+  "id": 185,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "commerce",
+  "icon": "campaign",
+  "description": "A campaign banner: image, title, subtitle, a call to action and, when `endsAt` is set, a countdown.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 110,
+  "accessibility": {
+    "role": "button",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "title",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "translatable": true,
+      "description": "The headline."
+    },
+    {
+      "name": "subtitle",
+      "id": 2,
+      "type": "string?",
+      "translatable": true,
+      "description": "A line below the title."
+    },
+    {
+      "name": "image",
+      "id": 3,
+      "type": "ImageSource?",
+      "description": "A background image."
+    },
+    {
+      "name": "ctaLabel",
+      "id": 4,
+      "type": "string?",
+      "translatable": true,
+      "description": "The label of the call to action."
+    },
+    {
+      "name": "endsAt",
+      "id": 5,
+      "type": "dateTime?",
+      "description": "When the offer ends; shows a countdown."
+    }
+  ],
+  "events": [
+    {
+      "name": "onTap",
+      "id": 1,
+      "description": "Fires when the banner or its call to action is tapped."
+    }
+  ]
+}

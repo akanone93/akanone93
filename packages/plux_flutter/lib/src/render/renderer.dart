@@ -44,6 +44,7 @@ import 'package:plux_flutter/src/pxl/regex.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
 import 'package:plux_flutter/src/pxl/vm.dart';
 import 'package:plux_flutter/src/render/builders/builders.dart';
+import 'package:plux_flutter/src/render/builders/components_b.dart';
 import 'package:plux_flutter/src/render/builders/secure.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
@@ -73,6 +74,7 @@ final Map<int, NodeBuilder> nodeBuilders = {
   ...generatedBuilders,
   ...manualBuilders,
   ...secureBuilders,
+  ...componentsBBuilders,
 };
 
 /// Renders pages of the active release.

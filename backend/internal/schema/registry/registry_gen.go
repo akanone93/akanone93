@@ -196,6 +196,21 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "Carousel", ID: 184, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "layout", Icon: "view_carousel", Description: "Pages of children swiped horizontally, with page indicators and optional autoplay. Autoplay stops when the device reduces motion.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 100, Role: RoleList, Interactive: false,
+		Props: []Prop{
+			{Name: "autoplay", ID: 1, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Advances on its own."},
+			{Name: "intervalMs", ID: 2, Type: "int", Required: false, Default: "5000", Constraints: Constraints{Min: Bound{Value: 500, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Milliseconds between automatic advances."},
+			{Name: "indicators", ID: 3, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Shows page indicators."},
+			{Name: "semanticLabel", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The label screen readers announce for the carousel."},
+		},
+		Events: []Event{
+			{Name: "onPageChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the index of the page shown."},
+		},
+		Children: &Children{Min: 1, Max: 0},
+	},
+	{
 		Type: "Center", ID: 9, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "layout", Icon: "filter_center_focus", Description: "Centres its child within itself.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 5, Role: RoleNone, Interactive: false,
@@ -486,6 +501,18 @@ var widgets = [...]Widget{
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "CountdownTimer", ID: 186, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "commerce", Icon: "timer", Description: "The time left until `endsAt`, updated once a second.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleText, Interactive: false,
+		Props: []Prop{
+			{Name: "endsAt", ID: 1, Type: "dateTime", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The instant the countdown ends."},
+			{Name: "format", ID: 2, Type: "CountdownFormat", Required: false, Default: "\"hms\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "How the remaining time is written."},
+		},
+		Events: []Event{
+			{Name: "onFinished", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires once when the countdown reaches zero."},
 		},
 	},
 	{
@@ -890,6 +917,23 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "FileUploader", ID: 190, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "upload_file", Description: "Pick a file, preview it and upload it with progress. Picking needs `plux_media`; without it the control is disabled and PLX-5401 is reported. The upload is a transfer operation of a data source.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 140, Role: RoleButton, Interactive: true,
+		Props: []Prop{
+			{Name: "dataSource", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The data source holding the upload operation."},
+			{Name: "operation", ID: 2, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The upload operation of the data source."},
+			{Name: "accept", ID: 3, Type: "list<string>", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Accepted media types; any when empty."},
+			{Name: "maxBytes", ID: 4, Type: "int?", Required: false, Default: "", Constraints: Constraints{Min: Bound{Value: 1, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The largest file in bytes."},
+			{Name: "label", ID: 5, Type: "string", Required: false, Default: "\"Choose file\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The pick button's label."},
+			{Name: "uploadLabel", ID: 6, Type: "string", Required: false, Default: "\"Upload\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The upload button's label."},
+		},
+		Events: []Event{
+			{Name: "onUploaded", ID: 1, Payload: "FileUploadResult", Revision: 1, Deprecated: nil, Description: "Fires with the upload result when the upload succeeds."},
+			{Name: "onFailed", ID: 2, Payload: "FileUploadError", Revision: 1, Deprecated: nil, Description: "Fires with the error when picking or uploading fails."},
+		},
+	},
+	{
 		Type: "FilledButton", ID: 79, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "input", Icon: "smart_button", Description: "A Material filled button; `tonal` selects the filled-tonal style.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 30, Role: RoleButton, Interactive: true,
@@ -1274,6 +1318,20 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "ImageGallery", ID: 189, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "photo_library", Description: "Swipeable images, each pinch-zoomable, with page indicators.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 120, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "images", ID: 1, Type: "list<ImageSource>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The images."},
+			{Name: "initialPage", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The index first shown."},
+			{Name: "indicators", ID: 3, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Shows page indicators."},
+			{Name: "semanticLabel", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The label screen readers announce for the gallery."},
+		},
+		Events: []Event{
+			{Name: "onPageChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the index of the image shown."},
+		},
+	},
+	{
 		Type: "IndexedStack", ID: 29, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "layout", Icon: "layers", Description: "Shows the child at `index` from a stack of children.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 8, Role: RoleNone, Interactive: false,
@@ -1491,6 +1549,18 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "LiveEtaCard", ID: 181, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "feedback", Icon: "local_shipping", Description: "A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "title", ID: 1, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The headline, such as the order or ride."},
+			{Name: "etaMinutes", ID: 2, Type: "int?", Required: false, Default: "", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Minutes until arrival; bind it to a stream data source value."},
+			{Name: "status", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The current status text, such as `On the way`."},
+			{Name: "minutesLabel", ID: 4, Type: "string", Required: false, Default: "\"min\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The unit shown after the minutes."},
+			{Name: "icon", ID: 5, Type: "IconData?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A leading icon."},
+		},
+	},
+	{
 		Type: "Match", ID: 2, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "structure", Icon: "alt_route", Description: "Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 3, Role: RoleNone, Interactive: false,
@@ -1614,6 +1684,54 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "ProductCard", ID: 182, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "commerce", Icon: "shopping_bag", Description: "A product tile: image, title, price, an optional struck-through original price and badge, and an add-to-cart button. Prices arrive as formatted strings.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 120, Role: RoleButton, Interactive: true,
+		Props: []Prop{
+			{Name: "image", ID: 1, Type: "ImageSource?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The product image."},
+			{Name: "title", ID: 2, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The product name."},
+			{Name: "price", ID: 3, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The formatted price."},
+			{Name: "originalPrice", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The formatted price before a discount, shown struck through."},
+			{Name: "badge", ID: 5, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A short badge such as `New` or `-20%`."},
+			{Name: "addToCartLabel", ID: 6, Type: "string", Required: false, Default: "\"Add to cart\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The label of the add-to-cart button."},
+		},
+		Events: []Event{
+			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the card is tapped."},
+			{Name: "onAddToCart", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the add-to-cart button is pressed. The button shows only when this is handled."},
+		},
+	},
+	{
+		Type: "PromoBanner", ID: 185, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "commerce", Icon: "campaign", Description: "A campaign banner: image, title, subtitle, a call to action and, when `endsAt` is set, a countdown.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 110, Role: RoleButton, Interactive: true,
+		Props: []Prop{
+			{Name: "title", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The headline."},
+			{Name: "subtitle", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A line below the title."},
+			{Name: "image", ID: 3, Type: "ImageSource?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A background image."},
+			{Name: "ctaLabel", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The label of the call to action."},
+			{Name: "endsAt", ID: 5, Type: "dateTime?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "When the offer ends; shows a countdown."},
+		},
+		Events: []Event{
+			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the banner or its call to action is tapped."},
+		},
+	},
+	{
+		Type: "QuantityStepper", ID: 183, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "commerce", Icon: "add_circle", Description: "A decrease button, the quantity and an increase button; screen readers adjust it with increase and decrease actions.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleSlider, Interactive: true,
+		Props: []Prop{
+			{Name: "value", ID: 1, Type: "int", Required: false, Default: "1", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The current quantity."},
+			{Name: "min", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The smallest quantity."},
+			{Name: "max", ID: 3, Type: "int", Required: false, Default: "99", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The largest quantity."},
+			{Name: "step", ID: 4, Type: "int", Required: false, Default: "1", Constraints: Constraints{Min: Bound{Value: 1, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The change per press."},
+			{Name: "decreaseLabel", ID: 5, Type: "string", Required: false, Default: "\"Decrease\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The accessibility label of the decrease button."},
+			{Name: "increaseLabel", ID: 6, Type: "string", Required: false, Default: "\"Increase\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The accessibility label of the increase button."},
+		},
+		Events: []Event{
+			{Name: "onChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the new quantity."},
+		},
+	},
+	{
 		Type: "Radio", ID: 70, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "input", Icon: "radio_button_checked", Description: "A Material radio button, selected when `groupValue` equals `value`.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleRadio, Interactive: true,
@@ -1708,6 +1826,30 @@ var widgets = [...]Widget{
 			{Name: "onChanged", ID: 1, Payload: "RangeValues", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "onChangeStart", ID: 2, Payload: "RangeValues", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "onChangeEnd", ID: 3, Payload: "RangeValues", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "RatingBar", ID: 187, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "star", Description: "A read-only row of stars; screen readers read `3.5 of 5`.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleText, Interactive: false,
+		Props: []Prop{
+			{Name: "value", ID: 1, Type: "double", Required: true, Default: "", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The rating."},
+			{Name: "max", ID: 2, Type: "int", Required: false, Default: "5", Constraints: Constraints{Min: Bound{Value: 1, Set: true}, Max: Bound{Value: 10, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The number of stars."},
+			{Name: "ofLabel", ID: 3, Type: "string", Required: false, Default: "\"of\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The word between value and maximum in the spoken value."},
+			{Name: "semanticLabel", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What is rated, spoken before the value."},
+		},
+	},
+	{
+		Type: "RatingInput", ID: 188, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "star_rate", Description: "Stars the user taps to rate; each star is a button.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleNone, Interactive: true,
+		Props: []Prop{
+			{Name: "value", ID: 1, Type: "int", Required: false, Default: "0", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The current rating, 0 for none."},
+			{Name: "max", ID: 2, Type: "int", Required: false, Default: "5", Constraints: Constraints{Min: Bound{Value: 1, Set: true}, Max: Bound{Value: 10, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The number of stars."},
+			{Name: "starLabel", ID: 3, Type: "string", Required: false, Default: "\"star\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The noun in each star's label, such as `star`."},
+		},
+		Events: []Event{
+			{Name: "onChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the rating chosen."},
 		},
 	},
 	{
@@ -2620,6 +2762,22 @@ var valueTypes = [...]ValueType{
 		},
 	},
 	{
+		Name: "FileUploadError", ID: 66, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Why picking or uploading failed.",
+		Fields: []Field{
+			{Name: "code", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The error code, such as PLX-5401."},
+			{Name: "message", ID: 2, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "A description for developers."},
+		},
+	},
+	{
+		Name: "FileUploadResult", ID: 65, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "What a finished upload reports.",
+		Fields: []Field{
+			{Name: "name", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The file name."},
+			{Name: "mimeType", ID: 2, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The media type."},
+			{Name: "sizeBytes", ID: 3, Type: "int", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The size in bytes."},
+			{Name: "response", ID: 4, Type: "string?", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "The server's response, JSON-encoded."},
+		},
+	},
+	{
 		Name: "GeoLocation", ID: 35, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "A position reported by the device.",
 		Fields: []Field{
 			{Name: "latitude", ID: 1, Type: "double", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "Latitude in degrees (WGS 84)."},
@@ -3065,6 +3223,11 @@ var enums = [...]Enum{
 		{Name: "hardEdge", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "antiAlias", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "antiAliasWithSaveLayer", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "CountdownFormat", ID: 132, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "How a countdown writes the time left.", Values: []EnumValue{
+		{Name: "hms", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "dhms", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "compact", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 	}},
 	{Name: "CrossAxisAlignment", ID: 12, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum CrossAxisAlignment.", Values: []EnumValue{
 		{Name: "start", ID: 1, Revision: 1, Deprecated: nil, Description: ""},

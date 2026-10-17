@@ -1,0 +1,49 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "CountdownTimer",
+  "id": 186,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "commerce",
+  "icon": "timer",
+  "description": "The time left until `endsAt`, updated once a second.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 40,
+  "accessibility": {
+    "role": "text",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "endsAt",
+      "id": 1,
+      "type": "dateTime",
+      "required": true,
+      "description": "The instant the countdown ends."
+    },
+    {
+      "name": "format",
+      "id": 2,
+      "type": "CountdownFormat",
+      "default": "hms",
+      "description": "How the remaining time is written."
+    }
+  ],
+  "events": [
+    {
+      "name": "onFinished",
+      "id": 1,
+      "description": "Fires once when the countdown reaches zero."
+    }
+  ]
+}

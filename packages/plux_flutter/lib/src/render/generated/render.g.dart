@@ -296,6 +296,14 @@ Clip? decodeClip(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a CountdownFormat, from its permanent value ID or name.
+String? nameCountdownFormat(Decoding d, Object? v) => switch (v) {
+  1 || 'hms' => 'hms',
+  2 || 'dhms' => 'dhms',
+  3 || 'compact' => 'compact',
+  _ => null,
+};
+
 /// The member name of a CrossAxisAlignment, from its permanent value ID or name.
 String? nameCrossAxisAlignment(Decoding d, Object? v) => switch (v) {
   1 || 'start' => 'start',

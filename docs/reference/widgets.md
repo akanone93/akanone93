@@ -18,6 +18,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [BiometricButton](#biometricbutton) | 2 | interaction | P6 | A button that triggers a biometric step-up (SEC-027). |
 | [BottomAppBar](#bottomappbar) | 1 | structure | P3 | A Material bottom app bar. |
 | [Card](#card) | 1 | display | P3 | A Material card: a panel with slightly rounded corners and an elevation shadow. |
+| [Carousel](#carousel) | 2 | layout | P5 | Pages of children swiped horizontally, with page indicators and optional autoplay. Autoplay stops when the device reduces motion. |
 | [Center](#center) | 1 | layout | P3 | Centres its child within itself. |
 | [Checkbox](#checkbox) | 1 | input | P3 | A Material checkbox. |
 | [CheckboxListTile](#checkboxlisttile) | 1 | input | P3 | A list tile with a checkbox. |
@@ -32,6 +33,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [Column](#column) | 1 | layout | P3 | Lays out its children vertically. |
 | [ConstrainedBox](#constrainedbox) | 1 | layout | P3 | Imposes additional constraints on its child. |
 | [Container](#container) | 1 | layout | P3 | A box with optional padding, margin, size constraints, alignment, colour and decoration. |
+| [CountdownTimer](#countdowntimer) | 2 | commerce | P5 | The time left until `endsAt`, updated once a second. |
 | [CupertinoActivityIndicator](#cupertinoactivityindicator) | 1 | cupertino | P3 | An iOS-style activity indicator. |
 | [CupertinoButton](#cupertinobutton) | 1 | cupertino | P3 | An iOS-style button. |
 | [CupertinoListSection](#cupertinolistsection) | 1 | cupertino | P3 | An iOS-style list section with an optional header and footer. |
@@ -49,6 +51,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [ErrorState](#errorstate) | 2 | feedback | P3 | A standard error state: icon, title, message and an optional retry action. |
 | [Expanded](#expanded) | 1 | layout | P3 | Makes its child fill the available space along the main axis of a Row, Column or Flex. |
 | [ExpansionTile](#expansiontile) | 1 | display | P3 | A list tile that expands to reveal its children. |
+| [FileUploader](#fileuploader) | 2 | input | P5 | Pick a file, preview it and upload it with progress. Picking needs `plux_media`; without it the control is disabled and PLX-5401 is reported. The upload is a transfer operation of a data source. |
 | [FilledButton](#filledbutton) | 1 | input | P3 | A Material filled button; `tonal` selects the filled-tonal style. |
 | [FilterChip](#filterchip) | 1 | display | P3 | A chip that filters content by a tag or description. |
 | [FittedBox](#fittedbox) | 1 | layout | P3 | Scales and positions its child within itself according to `fit`. |
@@ -64,6 +67,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [IconButton](#iconbutton) | 1 | input | P3 | A Material icon button. |
 | [If](#if) | 1 | structure | P3 | Renders its `then` slot while `condition` is true, otherwise its optional `else` slot. |
 | [Image](#image) | 1 | display | P3 | An image from a bundled asset or a URL, with loading and error states. |
+| [ImageGallery](#imagegallery) | 2 | display | P5 | Swipeable images, each pinch-zoomable, with page indicators. |
 | [IndexedStack](#indexedstack) | 1 | layout | P3 | Shows the child at `index` from a stack of children. |
 | [InkWell](#inkwell) | 1 | interaction | P3 | A rectangular area that responds to touch with a Material ink splash. |
 | [InputChip](#inputchip) | 1 | display | P3 | A chip representing a complex piece of information, such as a contact. |
@@ -72,6 +76,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [LinearProgressIndicator](#linearprogressindicator) | 1 | display | P3 | A linear progress indicator, determinate or indeterminate. |
 | [ListTile](#listtile) | 1 | display | P3 | A fixed-height row with leading and trailing content and one to three lines of text. |
 | [ListView](#listview) | 1 | scrolling | P3 | A lazily built, scrollable list of `item` templates over `items`, with empty, loading and error states (WGT-012). |
+| [LiveEtaCard](#liveetacard) | 2 | feedback | P5 | A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced. |
 | [Match](#match) | 1 | structure | P3 | Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`. |
 | [OfflineBanner](#offlinebanner) | 2 | feedback | P3 | A banner shown while the device is offline. |
 | [Opacity](#opacity) | 1 | layout | P3 | Makes its child partially transparent. |
@@ -80,9 +85,14 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [Padding](#padding) | 1 | layout | P3 | Insets its child by the given padding. |
 | [PageView](#pageview) | 1 | scrolling | P3 | Pages through `item` templates over `items`, one page at a time (WGT-012). |
 | [Positioned](#positioned) | 1 | layout | P3 | Positions its child inside a Stack. |
+| [ProductCard](#productcard) | 2 | commerce | P5 | A product tile: image, title, price, an optional struck-through original price and badge, and an add-to-cart button. Prices arrive as formatted strings. |
+| [PromoBanner](#promobanner) | 2 | commerce | P5 | A campaign banner: image, title, subtitle, a call to action and, when `endsAt` is set, a countdown. |
+| [QuantityStepper](#quantitystepper) | 2 | commerce | P5 | A decrease button, the quantity and an increase button; screen readers adjust it with increase and decrease actions. |
 | [Radio](#radio) | 1 | input | P3 | A Material radio button, selected when `groupValue` equals `value`. |
 | [RadioListTile](#radiolisttile) | 1 | input | P3 | A list tile with a radio button. |
 | [RangeSlider](#rangeslider) | 1 | input | P3 | Selects a range from a continuous or discrete set of values. |
+| [RatingBar](#ratingbar) | 2 | display | P5 | A read-only row of stars; screen readers read `3.5 of 5`. |
+| [RatingInput](#ratinginput) | 2 | input | P5 | Stars the user taps to rate; each star is a button. |
 | [Responsive](#responsive) | 1 | structure | P3 | Renders a different subtree per window-size class: `compact`, `medium` (600–839 dp) and `expanded` (≥ 840 dp). |
 | [RichText](#richtext) | 1 | display | P3 | Text built from styled spans (Flutter `Text.rich`). |
 | [Row](#row) | 1 | layout | P3 | Lays out its children horizontally. |
@@ -335,6 +345,25 @@ ID 54 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Card` · androi
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node |  |
+
+### Carousel
+
+Pages of children swiped horizontally, with page indicators and optional autoplay. Autoplay stops when the device reduces motion.
+
+ID 184 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 100 µs · role list
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `autoplay` | 1 | `bool` | `false` | Advances on its own. |
+| `intervalMs` | 2 | `int` | `5000` | Milliseconds between automatic advances. Must be at least 500. |
+| `indicators` | 3 | `bool` | `true` | Shows page indicators. |
+| `semanticLabel` | 4 | `string?` | — | The label screen readers announce for the carousel. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onPageChanged` | 1 | `int` | Fires with the index of the page shown. |
+
+Takes a list of `children` (at least 1).
 
 ### Center
 
@@ -673,6 +702,21 @@ ID 6 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Container` · an
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node |  |
+
+### CountdownTimer
+
+The time left until `endsAt`, updated once a second.
+
+ID 186 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 40 µs · role text
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `endsAt` | 1 | `dateTime`, required | — | The instant the countdown ends. |
+| `format` | 2 | `CountdownFormat` | `"hms"` | How the remaining time is written. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onFinished` | 1 | — | Fires once when the countdown reaches zero. |
 
 ### CupertinoActivityIndicator
 
@@ -1132,6 +1176,26 @@ ID 56 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `ExpansionTile` 
 | `trailing` | 4 | one node |  |
 | `children` | 5 | a list of nodes | The content shown when expanded. |
 
+### FileUploader
+
+Pick a file, preview it and upload it with progress. Picking needs `plux_media`; without it the control is disabled and PLX-5401 is reported. The upload is a transfer operation of a data source.
+
+ID 190 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 140 µs · role button · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `dataSource` | 1 | `string`, required | — | The data source holding the upload operation. |
+| `operation` | 2 | `string`, required | — | The upload operation of the data source. |
+| `accept` | 3 | `list<string>` | — | Accepted media types; any when empty. |
+| `maxBytes` | 4 | `int?` | — | The largest file in bytes. Must be at least 1. |
+| `label` | 5 | `string` | `"Choose file"` | The pick button's label. |
+| `uploadLabel` | 6 | `string` | `"Upload"` | The upload button's label. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onUploaded` | 1 | `FileUploadResult` | Fires with the upload result when the upload succeeds. |
+| `onFailed` | 2 | `FileUploadError` | Fires with the error when picking or uploading fails. |
+
 ### FilledButton
 
 A Material filled button; `tonal` selects the filled-tonal style.
@@ -1564,6 +1628,23 @@ ID 50 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Image.asset`, `
 | `loading` | 1 | one node | Shown while a network image loads. |
 | `error` | 2 | one node | Shown when the image fails to load. |
 
+### ImageGallery
+
+Swipeable images, each pinch-zoomable, with page indicators.
+
+ID 189 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 120 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `images` | 1 | `list<ImageSource>`, required | — | The images. |
+| `initialPage` | 2 | `int` | `0` | The index first shown. Must be at least 0. |
+| `indicators` | 3 | `bool` | `true` | Shows page indicators. |
+| `semanticLabel` | 4 | `string?` | — | The label screen readers announce for the gallery. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onPageChanged` | 1 | `int` | Fires with the index of the image shown. |
+
 ### IndexedStack
 
 Shows the child at `index` from a stack of children.
@@ -1807,6 +1888,20 @@ ID 36 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `ListView.builde
 | `loading` | 4 | one node | Shown while `status` is loading. |
 | `error` | 5 | one node | Shown while `status` is error. |
 
+### LiveEtaCard
+
+A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced.
+
+ID 181 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `title` | 1 | `string?` | — | The headline, such as the order or ride. |
+| `etaMinutes` | 2 | `int?` | — | Minutes until arrival; bind it to a stream data source value. Must be at least 0. |
+| `status` | 3 | `string?` | — | The current status text, such as `On the way`. |
+| `minutesLabel` | 4 | `string` | `"min"` | The unit shown after the minutes. |
+| `icon` | 5 | `IconData?` | — | A leading icon. |
+
 ### Match
 
 Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`.
@@ -1954,6 +2049,63 @@ ID 28 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Positioned` · 
 |---|---|---|---|
 | `child` | 1 | one node, required |  |
 
+### ProductCard
+
+A product tile: image, title, price, an optional struck-through original price and badge, and an add-to-cart button. Prices arrive as formatted strings.
+
+ID 182 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 120 µs · role button · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | 1 | `ImageSource?` | — | The product image. |
+| `title` | 2 | `string`, required | — | The product name. |
+| `price` | 3 | `string`, required | — | The formatted price. |
+| `originalPrice` | 4 | `string?` | — | The formatted price before a discount, shown struck through. |
+| `badge` | 5 | `string?` | — | A short badge such as `New` or `-20%`. |
+| `addToCartLabel` | 6 | `string` | `"Add to cart"` | The label of the add-to-cart button. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onTap` | 1 | — | Fires when the card is tapped. |
+| `onAddToCart` | 2 | — | Fires when the add-to-cart button is pressed. The button shows only when this is handled. |
+
+### PromoBanner
+
+A campaign banner: image, title, subtitle, a call to action and, when `endsAt` is set, a countdown.
+
+ID 185 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 110 µs · role button · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `title` | 1 | `string`, required | — | The headline. |
+| `subtitle` | 2 | `string?` | — | A line below the title. |
+| `image` | 3 | `ImageSource?` | — | A background image. |
+| `ctaLabel` | 4 | `string?` | — | The label of the call to action. |
+| `endsAt` | 5 | `dateTime?` | — | When the offer ends; shows a countdown. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onTap` | 1 | — | Fires when the banner or its call to action is tapped. |
+
+### QuantityStepper
+
+A decrease button, the quantity and an increase button; screen readers adjust it with increase and decrease actions.
+
+ID 183 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60 µs · role slider · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `int` | `1` | The current quantity. |
+| `min` | 2 | `int` | `0` | The smallest quantity. |
+| `max` | 3 | `int` | `99` | The largest quantity. |
+| `step` | 4 | `int` | `1` | The change per press. Must be at least 1. |
+| `decreaseLabel` | 5 | `string` | `"Decrease"` | The accessibility label of the decrease button. |
+| `increaseLabel` | 6 | `string` | `"Increase"` | The accessibility label of the increase button. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `int` | Fires with the new quantity. |
+
 ### Radio
 
 A Material radio button, selected when `groupValue` equals `value`.
@@ -2060,6 +2212,35 @@ ID 75 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `RangeSlider` ·
 | `onChanged` | 1 | `RangeValues` |  |
 | `onChangeStart` | 2 | `RangeValues` |  |
 | `onChangeEnd` | 3 | `RangeValues` |  |
+
+### RatingBar
+
+A read-only row of stars; screen readers read `3.5 of 5`.
+
+ID 187 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 40 µs · role text
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `double`, required | — | The rating. Must be at least 0. |
+| `max` | 2 | `int` | `5` | The number of stars. Must be at least 1 and at most 10. |
+| `ofLabel` | 3 | `string` | `"of"` | The word between value and maximum in the spoken value. |
+| `semanticLabel` | 4 | `string?` | — | What is rated, spoken before the value. |
+
+### RatingInput
+
+Stars the user taps to rate; each star is a button.
+
+ID 188 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `int` | `0` | The current rating, 0 for none. Must be at least 0. |
+| `max` | 2 | `int` | `5` | The number of stars. Must be at least 1 and at most 10. |
+| `starLabel` | 3 | `string` | `"star"` | The noun in each star's label, such as `star`. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `int` | Fires with the rating chosen. |
 
 ### Responsive
 
@@ -3095,6 +3276,30 @@ ID 11 · revision 1 · Flutter `EdgeInsets.all`, `EdgeInsets.only`, `EdgeInsets.
 
 Constants: `zero`.
 
+### FileUploadError
+
+Why picking or uploading failed.
+
+ID 66 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `code` | 1 | `string`, required | — | The error code, such as PLX-5401. |
+| `message` | 2 | `string`, required | — | A description for developers. |
+
+### FileUploadResult
+
+What a finished upload reports.
+
+ID 65 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `name` | 1 | `string`, required | — | The file name. |
+| `mimeType` | 2 | `string`, required | — | The media type. |
+| `sizeBytes` | 3 | `int`, required | — | The size in bytes. |
+| `response` | 4 | `string?` | — | The server's response, JSON-encoded. |
+
 ### GeoLocation
 
 A position reported by the device.
@@ -3738,6 +3943,18 @@ ID 11 · revision 1 · Flutter `Clip`
 | `hardEdge` | 2 |  |
 | `antiAlias` | 3 |  |
 | `antiAliasWithSaveLayer` | 4 |  |
+
+### CountdownFormat
+
+How a countdown writes the time left.
+
+ID 132 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `hms` | 1 |  |
+| `dhms` | 2 |  |
+| `compact` | 3 |  |
 
 ### CrossAxisAlignment
 
