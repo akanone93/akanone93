@@ -19,4 +19,4 @@ export 'src/model.dart'
         markerIcon,
         polylineColor;
 export 'src/package.dart' show PluxMapIds, PluxMaps;
-export 'src/tiles.dart' show PluxTileImage, PluxTileProvider, TileClientFor;
+export 'src/tiles.dart' show PluxTileProvider, TileImageFor, transparentTile;

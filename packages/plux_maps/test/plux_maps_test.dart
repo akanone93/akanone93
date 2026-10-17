@@ -6,8 +6,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_maps/plux_maps.dart';
@@ -18,7 +16,6 @@ final class FakeNode implements NodeContext {
   FakeNode(
     this.context,
     this.props, {
-    this.client,
     this.handled = const {},
     this.allowed = 'tiles.example.com',
   });
@@ -26,7 +23,6 @@ final class FakeNode implements NodeContext {
   @override
   final BuildContext context;
   final Map<int, Object?> props;
-  final http.Client? client;
   final Set<int> handled;
   final String allowed;
   final List<(int, Object?)> fired = [];
@@ -51,9 +47,9 @@ final class FakeNode implements NodeContext {
   void fire(int id, [Object? payload]) => fired.add((id, payload));
 
   @override
-  http.Client? remoteClient(String url) {
+  ImageProvider<Object>? remoteImage(String url) {
     asked.add(url);
-    return Uri.parse(url).host == allowed ? client : null;
+    return Uri.parse(url).host == allowed ? MemoryImage(transparentTile) : null;
   }
 
   @override
@@ -63,12 +59,6 @@ final class FakeNode implements NodeContext {
 Map<String, Object?> _descriptor(String type) => jsonDecode(
   File('../../schema/widgets/layer2/$type.json').readAsStringSync(),
 ) as Map<String, Object?>;
-
-/// A 1x1 PNG.
-final _png = base64Decode(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA'
-  '60e6kgAAAABJRU5ErkJggg==',
-);
 
 Map<String, Object?> _ll(double lat, double lng) => {'lat': lat, 'lng': lng};
 
@@ -106,7 +96,6 @@ Future<FakeNode> _pump(
   WidgetTester tester,
   int id,
   Map<int, Object?> props, {
-  http.Client? client,
   Set<int> handled = const {},
   String host = 'tiles.example.com',
   TextDirection dir = TextDirection.ltr,
@@ -116,13 +105,7 @@ Future<FakeNode> _pump(
     _app(
       Builder(
         builder: (context) {
-          node = FakeNode(
-            context,
-            props,
-            client: client,
-            handled: handled,
-            allowed: host,
-          );
+          node = FakeNode(context, props, handled: handled, allowed: host);
           return const PluxMaps().builders[id]!(node);
         },
       ),
@@ -142,29 +125,18 @@ void main() {
     expect(const PluxMaps().builders.keys, [197, 198]);
   });
 
-  // Verifies: SEC-080, AST-002.
-  testWidgets('tiles are fetched through the client of remoteClient '
-      'with the template filled per tile', (tester) async {
-    final urls = <Uri>[];
-    final client = MockClient((r) async {
-      urls.add(r.url);
-      return http.Response.bytes(_png, 200);
-    });
-    final node = await _pump(
-      tester,
-      PluxMapIds.mapView,
-      _mapProps(),
-      client: client,
-    );
+  // Verifies: SEC-080, AST-002, LIM-001.
+  testWidgets('tiles are the remote images of the runtime, the template '
+      'filled per tile', (tester) async {
+    final node = await _pump(tester, PluxMapIds.mapView, _mapProps());
     await tester.pump(const Duration(milliseconds: 100));
-    expect(urls, isNotEmpty);
-    expect(
-      urls.every((u) => RegExp(r'^/\d+/\d+/\d+\.png$').hasMatch(u.path)),
-      isTrue,
-    );
     expect(node.asked, isNotEmpty);
     expect(
-      node.asked.every((u) => u.startsWith('https://tiles.example.com/')),
+      node.asked.every(
+        (u) =>
+            RegExp(r'^https://tiles\.example\.com/\d+/\d+/\d+\.png$')
+                .hasMatch(u),
+      ),
       isTrue,
     );
     expect(find.text('© Example tiles'), findsOneWidget);
@@ -173,19 +145,12 @@ void main() {
   // Verifies: SEC-080, RT-060.
   testWidgets('a blocked tile domain draws no tiles and asks once '
       '(the runtime reports PLX-6030 once)', (tester) async {
-    var requests = 0;
-    final client = MockClient((r) async {
-      requests++;
-      return http.Response.bytes(_png, 200);
-    });
     final node = await _pump(
       tester,
       PluxMapIds.mapView,
       _mapProps(host: 'evil.example.net'),
-      client: client,
     );
     await tester.pump(const Duration(milliseconds: 100));
-    expect(requests, 0);
     expect(node.asked, hasLength(1));
     expect(find.text('© Example tiles'), findsOneWidget);
     expect(tester.takeException(), isNull);

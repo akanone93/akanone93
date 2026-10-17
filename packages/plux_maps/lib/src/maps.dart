@@ -69,7 +69,7 @@ final class PluxMapCanvas extends StatefulWidget {
     this.maxZoom = 19,
     this.tileUrlTemplate,
     this.attribution,
-    this.clientFor,
+    this.imageFor,
     this.interactive = true,
     this.corner,
     this.onTap,
@@ -104,8 +104,8 @@ final class PluxMapCanvas extends StatefulWidget {
   /// The tile provider's attribution, always shown when given.
   final String? attribution;
 
-  /// Resolves the client of a tile URL.
-  final TileClientFor? clientFor;
+  /// Resolves the image of a tile URL.
+  final TileImageFor? imageFor;
 
   /// Whether the user can pan and zoom.
   final bool interactive;
@@ -133,9 +133,9 @@ final class _PluxMapCanvasState extends State<PluxMapCanvas> {
   PluxTileProvider? _provider;
 
   PluxTileProvider? _providerFor() {
-    final clientFor = widget.clientFor;
-    if (widget.tileUrlTemplate == null || clientFor == null) return null;
-    return (_provider ??= PluxTileProvider(clientFor))..clientFor = clientFor;
+    final imageFor = widget.imageFor;
+    if (widget.tileUrlTemplate == null || imageFor == null) return null;
+    return (_provider ??= PluxTileProvider(imageFor))..imageFor = imageFor;
   }
 
   @override
@@ -275,7 +275,7 @@ final class PluxMapView extends StatefulWidget {
     this.polylines = const [],
     this.tileUrlTemplate,
     this.attribution,
-    this.clientFor,
+    this.imageFor,
     this.interactive = true,
     this.onMarkerTap,
     this.onMapTap,
@@ -309,8 +309,8 @@ final class PluxMapView extends StatefulWidget {
   /// The attribution.
   final String? attribution;
 
-  /// Resolves the client of a tile URL.
-  final TileClientFor? clientFor;
+  /// Resolves the image of a tile URL.
+  final TileImageFor? imageFor;
 
   /// Whether the user can pan and zoom.
   final bool interactive;
@@ -362,7 +362,7 @@ final class _PluxMapViewState extends State<PluxMapView> {
       maxZoom: widget.maxZoom,
       tileUrlTemplate: widget.tileUrlTemplate,
       attribution: widget.attribution,
-      clientFor: widget.clientFor,
+      imageFor: widget.imageFor,
       interactive: widget.interactive,
       onTap: widget.onMapTap,
       onCameraIdle: widget.onCameraIdle,
@@ -405,7 +405,7 @@ final class PluxOrderTrackerMap extends StatefulWidget {
     this.follow = true,
     this.tileUrlTemplate,
     this.attribution,
-    this.clientFor,
+    this.imageFor,
     this.originLabel,
     this.destinationLabel,
     this.courierLabel,
@@ -438,8 +438,8 @@ final class PluxOrderTrackerMap extends StatefulWidget {
   /// The attribution.
   final String? attribution;
 
-  /// Resolves the client of a tile URL.
-  final TileClientFor? clientFor;
+  /// Resolves the image of a tile URL.
+  final TileImageFor? imageFor;
 
   /// The origin marker's spoken name.
   final String? originLabel;
@@ -550,7 +550,7 @@ final class _PluxOrderTrackerMapState extends State<PluxOrderTrackerMap>
       ],
       tileUrlTemplate: widget.tileUrlTemplate,
       attribution: widget.attribution,
-      clientFor: widget.clientFor,
+      imageFor: widget.imageFor,
       onReady: () => _ready = true,
       corner: eta == null
           ? null

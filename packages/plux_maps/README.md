@@ -26,10 +26,11 @@ HTTPS. A tile whose domain is not declared is not fetched, no tile is drawn,
 and the runtime reports `PLX-6030` once. Without a template the map draws
 markers and lines on an empty background.
 
-**Tiles go through the pinned client (A3).** Every tile is requested with the
-client `NodeContext.remoteClient` returns: the renderer's own HTTP client,
-with the host's certificate pinning and proxy settings. The package never
-opens a connection of its own.
+**Tiles go through the pinned client (A3).** Every tile is the remote image
+`NodeContext.remoteImage` returns: fetched by the renderer's own HTTP client
+with the host's certificate pinning and proxy settings, bounded by the image
+size limit (LIM-001) and kept in the image disk cache. The package never opens
+a connection of its own.
 
 ## Attribution
 
