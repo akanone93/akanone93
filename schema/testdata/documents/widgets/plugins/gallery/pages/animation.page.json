@@ -1,4 +1,7 @@
 {
+  "a11yWaivers": {
+    "fixedHeightText": "Fixture page: the animated and draggable boxes need fixed sizes on purpose."
+  },
   "animations": [
     {
       "durationMs": 400,
