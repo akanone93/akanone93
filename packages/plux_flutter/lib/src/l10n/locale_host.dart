@@ -29,37 +29,49 @@ final class PluxLocaleHost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final strings = PluxFlutterStrings(
-      map: state.flutter,
+    PluxFlutterStrings strings(String group) => PluxFlutterStrings(
+      map: state.flutter[group] ?? const {},
       data: state.data,
       nativeDigits: state.nativeDigits,
     );
+    final delegates = <LocalizationsDelegate<Object?>>[
+      _Delegate<MaterialLocalizations>(
+        strings('material'),
+        PluxMaterialLocalizations.new,
+      ),
+      _Delegate<CupertinoLocalizations>(
+        strings('cupertino'),
+        PluxCupertinoLocalizations.new,
+      ),
+      _Delegate<WidgetsLocalizations>(
+        strings('widgets'),
+        PluxWidgetsLocalizations.new,
+      ),
+    ];
+    final direction = Directionality(
+      textDirection: state.direction,
+      child: child,
+    );
+    // Under a host's Localizations the host's other delegates stay in
+    // force; Plux's three come first and win.
+    final localized = Localizations.maybeLocaleOf(context) == null
+        ? Localizations(
+            locale: state.locale,
+            delegates: delegates,
+            child: direction,
+          )
+        : Localizations.override(
+            context: context,
+            locale: state.locale,
+            delegates: delegates,
+            child: direction,
+          );
     return PluxLocaleScope(
       data: state.data,
       tag: state.tag,
       calendar: state.calendar,
       secondaryCalendar: state.secondaryCalendar,
-      child: PluxRuntimeStringsScope(
-        strings: state.strings,
-        child: Localizations(
-          locale: state.locale,
-          delegates: [
-            _Delegate<MaterialLocalizations>(
-              strings,
-              PluxMaterialLocalizations.new,
-            ),
-            _Delegate<CupertinoLocalizations>(
-              strings,
-              PluxCupertinoLocalizations.new,
-            ),
-            _Delegate<WidgetsLocalizations>(
-              strings,
-              PluxWidgetsLocalizations.new,
-            ),
-          ],
-          child: Directionality(textDirection: state.direction, child: child),
-        ),
-      ),
+      child: PluxRuntimeStringsScope(strings: state.strings, child: localized),
     );
   }
 }

@@ -942,14 +942,6 @@ Widget _buildProfileHeader(NodeContext c, BuildContext context) {
   );
 }
 
-/// What a screen reader says for each state.
-const Map<String, String> timelineStateWords = {
-  'done': 'done',
-  'current': 'current step',
-  'pending': 'pending',
-  'failed': 'failed',
-};
-
 /// `StatusTimeline`: the steps of a process from top to bottom; the current
 /// step is announced when it changes.
 Widget buildStatusTimeline(NodeContext c) =>

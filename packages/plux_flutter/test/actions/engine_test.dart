@@ -514,6 +514,7 @@ void main() {
         'resetForm',
         'resetState',
         'scanCode',
+        'setLocale',
         'setState',
         'setThemeMode',
         'share',

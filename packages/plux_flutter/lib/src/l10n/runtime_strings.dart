@@ -14,8 +14,10 @@ import 'package:flutter/widgets.dart';
 /// namespace so it can sit beside Flutter's own ARB keys in one map.
 const Map<String, String> englishRuntimeStrings = {
   'plux.fallback.unavailable': 'Content unavailable',
-  'plux.fallback.error': 'Something went wrong',
-  'plux.fallback.retry': 'Retry',
+  'plux.action.network': 'Check your connection and try again.',
+  'plux.action.timeout': 'This is taking too long. Please try again.',
+  'plux.action.permission': 'Permission is needed to do this.',
+  'plux.action.error': 'Something went wrong. Please try again.',
   'plux.router.notFound': 'Page not found',
   'plux.wizard.back': 'Back',
   'plux.wizard.next': 'Next',

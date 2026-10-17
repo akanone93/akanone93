@@ -23,6 +23,7 @@ import 'package:plux_flutter/src/actions/triggers.dart';
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/l10n/runtime_strings.dart';
 import 'package:plux_flutter/src/navigation/router.dart';
 import 'package:plux_flutter/src/render/sections.dart';
 import 'package:plux_flutter/src/state/access.dart';
@@ -702,11 +703,15 @@ ActionError navigationRefused(String message) => ActionError(
   message,
 );
 
-/// The runtime's built-in messages for an error no handler handled, until
-/// P8's localisation (ACT-020).
-String fallbackMessage(ActionError error) => switch (error.kind) {
-  ActionErrorKind.network => 'Check your connection and try again.',
-  ActionErrorKind.timeout => 'This is taking too long. Please try again.',
-  ActionErrorKind.permission => 'Permission is needed to do this.',
-  _ => 'Something went wrong. Please try again.',
-};
+/// The runtime's built-in message for an error no handler handled, in the
+/// locale of [strings] (English by default; ACT-020, I18N-004).
+String fallbackMessage(
+  ActionError error, [
+  RuntimeStrings strings = RuntimeStrings.english,
+]) =>
+    strings[switch (error.kind) {
+      ActionErrorKind.network => 'plux.action.network',
+      ActionErrorKind.timeout => 'plux.action.timeout',
+      ActionErrorKind.permission => 'plux.action.permission',
+      _ => 'plux.action.error',
+    }];

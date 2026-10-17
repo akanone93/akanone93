@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:plux_flutter/plux_flutter.dart';
@@ -71,6 +72,7 @@ final class Harness {
     KeyWrapper Function()? keyWrapper,
     SecurePlatforms secure = const SecurePlatforms(),
     List<PluxWidgetPackage> widgetPackages = const [],
+    ProviderContainer? container,
   }) async {
     server.release = null;
     final baseline = await server.baseline(5, app, plugins);
@@ -103,6 +105,7 @@ final class Harness {
         router: router,
         databaseAdapter: databaseAdapter,
         widgetPackages: widgetPackages,
+        container: container,
       ),
       RuntimeOverrides(
         credentials: MemoryCredentialStore.new,

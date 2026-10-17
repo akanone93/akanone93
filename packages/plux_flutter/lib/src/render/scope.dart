@@ -129,6 +129,7 @@ final class RenderScope {
     this.emitEvent,
     this.formAlias,
     this.animations,
+    this.localeChain = const [],
   });
 
   /// The release rendered.
@@ -192,6 +193,11 @@ final class RenderScope {
   /// component.
   final void Function(String event, Object? payload)? emitEvent;
 
+  /// The effective locale and its fallbacks, most specific first, for
+  /// picking an asset's per-locale file (I18N-012); empty without a
+  /// release's locales.
+  final List<String> localeChain;
+
   /// The state path the `form` root reads below a `FormScope`, such as
   /// `page.signup`; null outside one. A binding's read of `form.<path>`
   /// subscribes to `<formAlias>.<path>`.
@@ -239,6 +245,7 @@ final class RenderScope {
       translation: resolver.translation,
       translationAst: resolver.translationAst,
       localeContext: resolver.localeContext,
+      translationFellBack: resolver.translationFellBack,
       onMessageError: resolver.onMessageError,
       limits: resolver.limits,
     ),
@@ -256,6 +263,7 @@ final class RenderScope {
     emitEvent: emitEvent,
     formAlias: alias,
     animations: animations,
+    localeChain: localeChain,
   );
 
   /// The scope of the nearest [RenderScopeWidget].

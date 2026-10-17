@@ -925,7 +925,11 @@ final class PluxRenderer implements PageRenderer, RenderServices {
       return null;
     }
     if (a != null) {
-      for (final hash in preferredFiles(a, assets)) {
+      for (final hash in preferredFiles(
+        a,
+        assets,
+        locales: scope.localeChain,
+      )) {
         final path = scope.release.assetPath(hash);
         if (path != null) return PluxAssetImage(path, hash, _verified);
       }
@@ -1174,8 +1178,10 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
           false,
       presenter: (error) {
         if (!mounted) return;
-        ScaffoldMessenger.maybeOf(context)
-            ?.showSnackBar(SnackBar(content: Text(fallbackMessage(error))));
+        final strings = ref.read(localeControllerProvider).strings;
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(content: Text(fallbackMessage(error, strings))),
+        );
       },
     );
   }();
@@ -1518,6 +1524,9 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       if (haveRelease) ...locales.chain,
       widget.release.meta('').defaultLocale ?? '',
     ];
+    // The translations a locale further down the chain supplied for this
+    // build; debug builds mark their text (I18N-006).
+    final fellBack = <UuidKey>{};
     String? translation(UuidKey key) {
       for (final tag in tags) {
         if (tag.isEmpty) continue;
@@ -1525,13 +1534,15 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
         final m = _plugin.message(tag, key) ?? _app.message(tag, key);
         if (m != null) {
           if (haveRelease && tag != tags.first && tag != locales.tag) {
-            _fellBack.add(key);
-            // After the frame: reporting must not rebuild what builds.
+            fellBack.add(key);
+            // After the build: reporting must not rebuild what builds.
             final requested = locales.tag;
             final controller = ref.read(localeControllerProvider.notifier);
-            scheduleMicrotask(
-              () => controller.missing(uuidString(key), requested, tag),
-            );
+            scheduleMicrotask(() {
+              if (mounted) {
+                controller.missing(uuidString(key), requested, tag);
+              }
+            });
           }
           return m;
         }
@@ -1557,7 +1568,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       translation: translation,
       translationAst: translationAst,
       localeContext: locales.pxl ?? widget.renderer.localeContext,
-      translationFellBack: (key) => kDebugMode && _fellBack.contains(key),
+      translationFellBack: (key) => kDebugMode && fellBack.contains(key),
       onMessageError: (problem) => widget.renderer.report(
         PluxException(PluxErrorCode.messageFormatFailed, problem),
       ),
@@ -1582,6 +1593,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       componentState: _component ? _instance : null,
       emitEvent: _component ? _emitToHost : null,
       animations: _animations,
+      localeChain: haveRelease ? locales.chain : const [],
     );
     final plugin = widget.page.plugin;
     Widget page = PluxBoundary(
@@ -1622,9 +1634,6 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       child: Theme(data: theme.material, child: page),
     );
   }
-
-  /// The translations a locale further down the chain supplied.
-  final Set<UuidKey> _fellBack = {};
 
   ({
     ThemeData host,

@@ -68,9 +68,9 @@ StepResult _setThemeMode(StepContext c, Map<String, Object?> i) {
 
 StepResult _setLocale(StepContext c, Map<String, Object?> i) {
   final tag = i['locale'];
-  if (tag != null && (tag is! String || tag.isEmpty)) {
+  if (tag is! String || tag.isEmpty) {
     throw ActionError.validation('setLocale: locale is not a language tag');
   }
-  Plux.setLocale(tag == null ? null : localeOfTag(tag as String));
+  Plux.setLocale(localeOfTag(tag));
   return const StepDone();
 }
