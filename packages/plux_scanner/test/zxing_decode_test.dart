@@ -137,7 +137,7 @@ void main() {
     // ignore: avoid_print
     print(
       'ZXing-C++ 2.3.0 on ${variants.length} variants of ${testCodes.length} '
-      'codes (host, -O2):\n${rows.join('\n')}\n'
+      'codes (host, -Os):\n${rows.join('\n')}\n'
       'total $read/$all, ${ms.toStringAsFixed(1)} ms per frame on average',
     );
     expect(byVariant['clean'], (testCodes.length, testCodes.length));

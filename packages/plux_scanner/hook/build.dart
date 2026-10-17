@@ -51,7 +51,7 @@ void main(List<String> args) async {
         // Google Play requires 16 KiB page alignment for Android 15+.
         if (os == OS.android) '-Wl,-z,max-page-size=16384',
       ],
-      optimizationLevel: OptimizationLevel.o2,
+      optimizationLevel: OptimizationLevel.oS,
     ).run(input: input, output: output);
   });
 }

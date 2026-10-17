@@ -1,0 +1,13 @@
+<!-- SPDX-FileCopyrightText: 2026 Plux contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Asks Google Play to download ML Kit's barcode model when the app
+             is installed or updated, so it is ready before the first scan
+             (decision B21). PluxScannerPlugin asks again at the first app
+             open, for sideloaded installs. -->
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="barcode" />
+    </application>
+</manifest>
