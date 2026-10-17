@@ -316,11 +316,14 @@ type graph struct {
 	// on; "" when they carry none.
 	eventType string
 	eventSet  bool
-	scope     *scope
-	lowered   []*step
-	navs      []navigation
-	output    string
-	used      bool
+	// eventSensitive is true when a handler running the graph has a
+	// sensitive payload: `event` is then a sensitive path (SCH-012).
+	eventSensitive bool
+	scope          *scope
+	lowered        []*step
+	navs           []navigation
+	output         string
+	used           bool
 	// state are the run's variables (STA-001).
 	state []*stateEntry
 }

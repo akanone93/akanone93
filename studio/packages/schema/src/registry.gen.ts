@@ -54,6 +54,8 @@ export interface EventDescriptor {
   readonly name: string;
   readonly id: number;
   readonly payload?: string;
+  /** True when the payload carries a personal or secret value (SCH-012). */
+  readonly sensitive?: boolean;
   readonly revision: number;
   readonly deprecated?: Deprecation;
   readonly description?: string;
@@ -295,7 +297,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "rangeMessage", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The error shown when the amount is outside the range."}
     ],
     "events": [
-      {"name": "onChanged", "id": 1, "payload": "money", "revision": 1, "description": "Fires with the amount whenever the typed text is a valid amount."}
+      {"name": "onChanged", "id": 1, "payload": "money", "sensitive": true, "revision": 1, "description": "Fires with the amount whenever the typed text is a valid amount."}
     ],
     "slots": []
   },
@@ -866,7 +868,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "semanticLabel", "id": 7, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What a screen reader announces for the scanner; the read value is announced when a code is detected."}
     ],
     "events": [
-      {"name": "onDetected", "id": 1, "payload": "ScanResult", "revision": 1, "description": "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
+      {"name": "onDetected", "id": 1, "payload": "ScanResult", "sensitive": true, "revision": 1, "description": "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
       {"name": "onError", "id": 2, "payload": "string", "revision": 1, "description": "Fires with an error code when the camera is denied, missing or fails."}
     ],
     "slots": []
@@ -2631,7 +2633,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "uploadLabel", "id": 6, "type": "string", "required": false, "default": "Upload", "revision": 1, "bindable": true, "description": "The upload button's label."}
     ],
     "events": [
-      {"name": "onUploaded", "id": 1, "payload": "FileUploadResult", "revision": 1, "description": "Fires with the upload result when the upload succeeds."},
+      {"name": "onUploaded", "id": 1, "payload": "FileUploadResult", "sensitive": true, "revision": 1, "description": "Fires with the upload result when the upload succeeds."},
       {"name": "onFailed", "id": 2, "payload": "FileUploadError", "revision": 1, "description": "Fires with the error when picking or uploading fails."}
     ],
     "slots": []
@@ -3109,7 +3111,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "invalidMessage", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The error shown for an invalid IBAN."}
     ],
     "events": [
-      {"name": "onChanged", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the IBAN without spaces when it is valid, and with an empty string when it is not."}
+      {"name": "onChanged", "id": 1, "payload": "string", "sensitive": true, "revision": 1, "description": "Fires with the IBAN without spaces when it is valid, and with an empty string when it is not."}
     ],
     "slots": []
   },
@@ -4181,7 +4183,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "autofill", "id": 3, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Uses the platform's one-time-code autofill."}
     ],
     "events": [
-      {"name": "onCompleted", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the code once `length` characters are entered. Sensitive: never logged, traced or persisted (SEC-092)."}
+      {"name": "onCompleted", "id": 1, "payload": "string", "sensitive": true, "revision": 1, "description": "Fires with the code once `length` characters are entered. Sensitive: never logged, traced or persisted (SEC-092)."}
     ],
     "slots": []
   },
@@ -4323,7 +4325,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "invalidMessage", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The error shown for an invalid number."}
     ],
     "events": [
-      {"name": "onChanged", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the E.164 number when it is valid, and with an empty string when it is not."}
+      {"name": "onChanged", "id": 1, "payload": "string", "sensitive": true, "revision": 1, "description": "Fires with the E.164 number when it is valid, and with an empty string when it is not."}
     ],
     "slots": []
   },
@@ -4562,7 +4564,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "semanticLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What a screen reader announces for the scanner; the read value is announced when a code is detected."}
     ],
     "events": [
-      {"name": "onDetected", "id": 1, "payload": "ScanResult", "revision": 1, "description": "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
+      {"name": "onDetected", "id": 1, "payload": "ScanResult", "sensitive": true, "revision": 1, "description": "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
       {"name": "onError", "id": 2, "payload": "string", "revision": 1, "description": "Fires with an error code when the camera is denied, missing or fails."}
     ],
     "slots": []
@@ -5350,7 +5352,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "semanticLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the signature is for, spoken for the pad."}
     ],
     "events": [
-      {"name": "onChanged", "id": 1, "payload": "string", "revision": 1, "description": "Fires after each stroke with the signature, and with an empty string when cleared."}
+      {"name": "onChanged", "id": 1, "payload": "string", "sensitive": true, "revision": 1, "description": "Fires after each stroke with the signature, and with an empty string when cleared."}
     ],
     "slots": []
   },

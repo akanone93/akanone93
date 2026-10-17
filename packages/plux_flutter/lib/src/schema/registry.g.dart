@@ -16,6 +16,7 @@ final class WidgetDescriptor {
     required this.revision,
     this.props = const {},
     this.events = const {},
+    this.sensitiveEvents = const {},
     this.slots = const {},
     this.package,
   });
@@ -37,6 +38,10 @@ final class WidgetDescriptor {
 
   /// Event IDs by name.
   final Map<String, int> events;
+
+  /// Names of the events whose payload is sensitive: traces and telemetry
+  /// never record it (SCH-012, SEC-092).
+  final Set<String> sensitiveEvents;
 
   /// Slot IDs by name.
   final Map<String, int> slots;
@@ -134,6 +139,7 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'label': 1, 'currency': 2, 'value': 3, 'min': 4, 'max': 5, 'rangeMessage': 6},
     events: {'onChanged': 1},
+    sensitiveEvents: {'onChanged'},
   ),
   WidgetDescriptor(
     'AnimatedAlign',
@@ -306,6 +312,7 @@ const List<WidgetDescriptor> widgetDescriptors = [
     package: 'plux_scanner',
     props: {'formats': 1, 'torch': 2, 'cameraFacing': 3, 'scanWindow': 4, 'continuous': 5, 'overlayHint': 6, 'semanticLabel': 7},
     events: {'onDetected': 1, 'onError': 2},
+    sensitiveEvents: {'onDetected'},
   ),
   WidgetDescriptor(
     'Baseline',
@@ -775,6 +782,7 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'dataSource': 1, 'operation': 2, 'accept': 3, 'maxBytes': 4, 'label': 5, 'uploadLabel': 6},
     events: {'onUploaded': 1, 'onFailed': 2},
+    sensitiveEvents: {'onUploaded'},
   ),
   WidgetDescriptor(
     'FilledButton',
@@ -891,6 +899,7 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'label': 1, 'value': 2, 'invalidMessage': 3},
     events: {'onChanged': 1},
+    sensitiveEvents: {'onChanged'},
   ),
   WidgetDescriptor(
     'Icon',
@@ -1178,6 +1187,7 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'length': 1, 'alphabet': 2, 'autofill': 3},
     events: {'onCompleted': 1},
+    sensitiveEvents: {'onCompleted'},
   ),
   WidgetDescriptor(
     'OutlinedButton',
@@ -1220,6 +1230,7 @@ const List<WidgetDescriptor> widgetDescriptors = [
     revision: 1,
     props: {'label': 1, 'value': 2, 'region': 3, 'invalidMessage': 4},
     events: {'onChanged': 1},
+    sensitiveEvents: {'onChanged'},
   ),
   WidgetDescriptor(
     'PieChart',
@@ -1293,6 +1304,7 @@ const List<WidgetDescriptor> widgetDescriptors = [
     package: 'plux_scanner',
     props: {'torch': 1, 'cameraFacing': 2, 'scanWindow': 3, 'continuous': 4, 'overlayHint': 5, 'semanticLabel': 6},
     events: {'onDetected': 1, 'onError': 2},
+    sensitiveEvents: {'onDetected'},
   ),
   WidgetDescriptor(
     'QuantityStepper',
@@ -1504,6 +1516,7 @@ const List<WidgetDescriptor> widgetDescriptors = [
     package: 'plux_media',
     props: {'format': 1, 'strokeWidth': 2, 'height': 3, 'clearLabel': 4, 'semanticLabel': 5},
     events: {'onChanged': 1},
+    sensitiveEvents: {'onChanged'},
   ),
   WidgetDescriptor(
     'SingleChildScrollView',

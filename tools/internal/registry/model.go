@@ -106,9 +106,12 @@ func (p Prop) IsBindable() bool { return p.Bindable == nil || *p.Bindable }
 
 // Event is a widget event.
 type Event struct {
-	Name        string       `json:"name"`
-	ID          uint32       `json:"id"`
-	Payload     string       `json:"payload,omitempty"`
+	Name    string `json:"name"`
+	ID      uint32 `json:"id"`
+	Payload string `json:"payload,omitempty"`
+	// Sensitive marks a payload carrying a personal or secret value; traces
+	// and telemetry never record it (SCH-012, SEC-092).
+	Sensitive   bool         `json:"sensitive,omitempty"`
 	Revision    int          `json:"revision,omitempty"`
 	Deprecated  *Deprecation `json:"deprecated,omitempty"`
 	Flutter     FlutterNames `json:"flutter,omitempty"`

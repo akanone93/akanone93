@@ -76,6 +76,7 @@
       "name": "onUploaded",
       "id": 1,
       "payload": "FileUploadResult",
+      "sensitive": true,
       "description": "Fires with the upload result when the upload succeeds."
     },
     {

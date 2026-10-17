@@ -202,6 +202,10 @@
           "payload": {
             "$ref": "common.schema.json#/$defs/typeExpr"
           },
+          "sensitive": {
+            "type": "boolean",
+            "description": "True when the payload carries a personal or secret value; traces and telemetry never record it (SCH-012, SEC-092)."
+          },
           "revision": {
             "$ref": "common.schema.json#/$defs/revision"
           },

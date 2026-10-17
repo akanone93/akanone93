@@ -55,6 +55,7 @@
       "name": "onCompleted",
       "id": 1,
       "payload": "string",
+      "sensitive": true,
       "description": "Fires with the code once `length` characters are entered. Sensitive: never logged, traced or persisted (SEC-092)."
     }
   ]

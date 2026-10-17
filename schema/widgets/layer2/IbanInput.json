@@ -51,6 +51,7 @@
       "name": "onChanged",
       "id": 1,
       "payload": "string",
+      "sensitive": true,
       "description": "Fires with the IBAN without spaces when it is valid, and with an empty string when it is not."
     }
   ]

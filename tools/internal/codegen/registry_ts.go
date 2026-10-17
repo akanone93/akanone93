@@ -57,6 +57,7 @@ type (
 		Name        string         `json:"name"`
 		ID          uint32         `json:"id"`
 		Payload     string         `json:"payload,omitempty"`
+		Sensitive   bool           `json:"sensitive,omitempty"`
 		Revision    int            `json:"revision"`
 		Deprecated  *tsDeprecation `json:"deprecated,omitempty"`
 		Description string         `json:"description,omitempty"`
@@ -287,7 +288,7 @@ func tsWidgets(r *registry.Registry) []tsWidget {
 			tw.Props = append(tw.Props, tp)
 		}
 		for _, e := range sortedByID(w.Events, func(e registry.Event) uint32 { return e.ID }) {
-			tw.Events = append(tw.Events, tsEvent{Name: e.Name, ID: e.ID, Payload: e.Payload, Revision: revisionOr1(e.Revision), Deprecated: tsDep(e.Deprecated), Description: e.Description})
+			tw.Events = append(tw.Events, tsEvent{Name: e.Name, ID: e.ID, Payload: e.Payload, Sensitive: e.Sensitive, Revision: revisionOr1(e.Revision), Deprecated: tsDep(e.Deprecated), Description: e.Description})
 		}
 		for _, s := range sortedByID(w.Slots, func(s registry.Slot) uint32 { return s.ID }) {
 			tw.Slots = append(tw.Slots, tsSlot{
@@ -401,6 +402,8 @@ export interface EventDescriptor {
   readonly name: string;
   readonly id: number;
   readonly payload?: string;
+  /** True when the payload carries a personal or secret value (SCH-012). */
+  readonly sensitive?: boolean;
   readonly revision: number;
   readonly deprecated?: Deprecation;
   readonly description?: string;
