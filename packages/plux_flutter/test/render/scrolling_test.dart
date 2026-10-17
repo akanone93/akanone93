@@ -108,7 +108,7 @@ void main() {
   testWidgets('ReorderableListView fires onReorder with the old and the new '
       'index after a drag [WGT-020]', (tester) async {
     await open(tester);
-    final tile = find.text('first');
+    final tile = find.text('first').first;
     final gesture = await tester.startGesture(tester.getCenter(tile));
     await tester.pump(kLongPressTimeout + const Duration(milliseconds: 50));
     for (var i = 0; i < 6; i++) {
@@ -129,7 +129,7 @@ void main() {
         of: find.byType(NestedScrollView),
         matching: find.text('c'),
       ),
-      const Offset(0, -60),
+      const Offset(0, -30),
     );
     await settle(tester);
     expect(tester.getTopLeft(find.text('nested header')).dy, lessThan(before));
@@ -188,10 +188,10 @@ void main() {
     await settle(tester);
     expect(find.text('step 1'), findsOneWidget);
     expect(find.text('content two'), findsOneWidget);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text('Continue').hitTestable());
     await settle(tester);
     expect(find.text('step 2'), findsOneWidget);
-    await tester.tap(find.text('Cancel'));
+    await tester.tap(find.text('Cancel').hitTestable());
     await settle(tester);
     expect(find.text('step 1'), findsOneWidget);
   });
@@ -227,7 +227,7 @@ void main() {
     final semantics = tester.ensureSemantics();
     await open(tester);
     expect(
-      tester.getSemantics(find.text('Continue')),
+      tester.getSemantics(find.text('Continue').hitTestable()),
       isSemantics(
         label: 'Continue',
         isButton: true,

@@ -174,7 +174,8 @@
                         "props": {
                           "items": {
                             "$expr": "page.items"
-                          }
+                          },
+                          "physics": "always"
                         },
                         "slots": {
                           "item": {

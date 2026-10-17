@@ -171,7 +171,7 @@ Widget _reorderableListView(NodeContext c) {
     _ => null,
   };
   if (other != null) return other;
-  return ReorderableListView.builder(
+  final list = ReorderableListView.builder(
     scrollDirection: c.decode(2, decodeAxis) ?? Axis.vertical,
     reverse: c.decode(3, asBool) ?? false,
     physics: c.decode(4, decodeScrollPhysics),
@@ -199,6 +199,7 @@ Widget _reorderableListView(NodeContext c) {
     onReorderStart: c.handles(2) ? (i) => c.fire(2, i) : null,
     onReorderEnd: c.handles(3) ? (i) => c.fire(3, i) : null,
   );
+  return _OverlayHost(child: list);
 }
 
 // ── NestedScrollView ───────────────────────────────────────────────────────
@@ -434,4 +435,36 @@ Widget _materialBanner(NodeContext c) {
       actions: actions.isEmpty ? const [SizedBox.shrink()] : actions,
     ),
   );
+}
+
+/// Gives a list its own [Overlay], so the item being dragged is drawn below
+/// the node's scope and keeps its providers, theme and bindings.
+final class _OverlayHost extends StatefulWidget {
+  const _OverlayHost({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_OverlayHost> createState() => _OverlayHostState();
+}
+
+final class _OverlayHostState extends State<_OverlayHost> {
+  late final OverlayEntry _entry = OverlayEntry(builder: (_) => widget.child);
+
+  @override
+  void didUpdateWidget(_OverlayHost old) {
+    super.didUpdateWidget(old);
+    _entry.markNeedsBuild();
+  }
+
+  @override
+  void dispose() {
+    _entry
+      ..remove()
+      ..dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Overlay(initialEntries: [_entry]);
 }
