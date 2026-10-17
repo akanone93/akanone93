@@ -121,10 +121,24 @@ abstract interface class ScanFrameSource {
 /// Opens a frame source for a request.
 typedef ScanFrameSourceFactory = ScanFrameSource Function(ScanRequest request);
 
+/// [window], left, top, width and height as fractions of the upright image,
+/// in the terms of a frame that must be turned [rotation] degrees clockwise
+/// to be upright.
+List<double> windowInSensor(List<double> window, int rotation) {
+  final [l, t, w, h] = window;
+  return switch (rotation % 360) {
+    90 => [t, 1 - l - w, h, w],
+    180 => [1 - l - w, 1 - t - h, w, h],
+    270 => [1 - t - h, l, h, w],
+    _ => window,
+  };
+}
+
 /// The part of [frame] that [window] selects: left, top, width and height as
 /// fractions of the frame. The frame itself for a window that selects all of
 /// it; a copy otherwise.
-ScanFrame cropFrame(ScanFrame frame, List<double> window) {
+ScanFrame cropFrame(ScanFrame frame, List<double> upright) {
+  final window = windowInSensor(upright, frame.rotation);
   final left = (window[0].clamp(0.0, 1.0) * frame.width).floor();
   final top = (window[1].clamp(0.0, 1.0) * frame.height).floor();
   final w = (window[2].clamp(0.0, 1.0) * frame.width).ceil().clamp(
@@ -143,7 +157,7 @@ ScanFrame cropFrame(ScanFrame frame, List<double> window) {
     final from = (top + row) * frame.stride + left;
     out.setRange(row * w, (row + 1) * w, frame.bytes, from);
   }
-  return ScanFrame(out, w, h);
+  return ScanFrame(out, w, h, rotation: frame.rotation);
 }
 
 /// Reads frames from a [ScanFrameSource] with ZXing-C++, one frame at a time:

@@ -3,8 +3,8 @@
 
 // The Android side of plux_scanner (decision B21, ADR-0051): the request for
 // ML Kit's unbundled barcode model and the probe that tells Dart whether the
-// model is ready. The ZXing-C++ fallback is native code built by
-// hook/build.dart, not here.
+// model is ready, and the CameraX camera that feeds the ZXing-C++ fallback
+// (the decoder itself is native code built by hook/build.dart).
 //
 // The host opts in to the unbundled model that mobile_scanner then uses with
 // `dev.steenbakker.mobile_scanner.useUnbundled=true` in its
@@ -63,6 +63,10 @@ dependencies {
     // (about 200 KB in the app instead of about 2.4 MB). Its Play services
     // base brings the module install API used by PluxScannerPlugin.
     implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1")
+    // CameraX for the ZXing fallback's camera, at the versions mobile_scanner
+    // 7.4.2 declares, so the app holds one copy of CameraX.
+    implementation("androidx.camera:camera-lifecycle:1.6.1")
+    implementation("androidx.camera:camera-camera2:1.6.1")
 }
 
 kotlin {

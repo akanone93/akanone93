@@ -29,10 +29,12 @@
 /// dev.steenbakker.mobile_scanner.useUnbundled=true
 /// ```
 ///
-/// The fallback needs frames, and `mobile_scanner` hands out none:
-/// [PluxScannerConfig.frameSource] opens a [ScanFrameSource] for it.
+/// The fallback needs frames, and `mobile_scanner` hands out none: on
+/// Android it opens its own CameraX camera ([AndroidFrameSource]), and
+/// [PluxScannerConfig.frameSource] replaces it.
 library;
 
+export 'src/android_frames.dart' show AndroidFrameSource, maxFrameSide;
 export 'src/engine.dart'
     show
         ChannelScannerProbe,
@@ -58,6 +60,7 @@ export 'src/session.dart'
         ScanSessionFactory,
         ScanSourceException,
         ZxingSession,
-        cropFrame;
+        cropFrame,
+        windowInSensor;
 export 'src/zxing_ffi.dart'
     show ScanFrame, ZxingDecoder, ZxingResult, formatMask, scanFormatNames;

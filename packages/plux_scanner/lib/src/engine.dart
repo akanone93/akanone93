@@ -9,6 +9,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:plux_scanner/src/android_frames.dart';
 import 'package:plux_scanner/src/session.dart';
 
 /// The engine a scanner uses.
@@ -169,8 +170,9 @@ final class PluxScannerConfig {
   final ScannerProbe probe;
 
   /// Opens the camera for [ScannerEngine.zxing]: the fallback needs frames
-  /// and `mobile_scanner` hands out none. Null where the host has no frame
-  /// source; the fallback then reports `unsupported`.
+  /// and `mobile_scanner` hands out none. Null on Android uses CameraX in the
+  /// package's plugin ([AndroidFrameSource]); elsewhere the fallback then
+  /// reports `unsupported`.
   final ScanFrameSourceFactory? frameSource;
 
   /// The texts.
@@ -202,10 +204,10 @@ final class PluxScannerConfig {
     if (custom != null) return custom(request, resolved);
     if (resolved == ScannerEngine.zxing) {
       final source = frameSource;
-      if (source == null) {
-        throw const ScanSourceException(ScanErrorCodes.unsupported);
-      }
-      return ZxingSession(request, source(request));
+      if (source != null) return ZxingSession(request, source(request));
+      // Android's own camera is the default; elsewhere the host provides one.
+      if (_isAndroid) return ZxingSession(request, AndroidFrameSource(request));
+      throw const ScanSourceException(ScanErrorCodes.unsupported);
     }
     return MobileScannerSession(request);
   }

@@ -20,10 +20,18 @@ import 'package:flutter/foundation.dart';
 @immutable
 final class ScanFrame {
   /// Creates a frame; [stride] is [width] when absent.
-  ScanFrame(this.bytes, this.width, this.height, {int? stride})
-    : stride = stride ?? width {
+  ScanFrame(
+    this.bytes,
+    this.width,
+    this.height, {
+    int? stride,
+    this.rotation = 0,
+  }) : stride = stride ?? width {
     if (width <= 0 || height <= 0 || this.stride < width) {
       throw ArgumentError('a frame needs a positive size and stride >= width');
+    }
+    if (rotation % 90 != 0) {
+      throw ArgumentError('rotation is a multiple of 90 degrees');
     }
     if (bytes.length < this.stride * (height - 1) + width) {
       throw ArgumentError('the frame has fewer bytes than its size needs');
@@ -41,6 +49,10 @@ final class ScanFrame {
 
   /// The distance between the starts of two rows, in bytes.
   final int stride;
+
+  /// The degrees clockwise the frame must be turned to be upright; the
+  /// engine reads rotated codes, but a scan window is in upright terms.
+  final int rotation;
 }
 
 /// A code the offline engine read.

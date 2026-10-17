@@ -409,22 +409,23 @@ void main() {
     expect(node.fired, isEmpty);
   });
 
-  testWidgets('the zxing engine without a frame source reports unsupported', (
-    tester,
-  ) async {
-    final cfg = PluxScannerConfig(
-      engine: ScannerEngine.zxing,
-      probe: probe,
-      android: true,
-    );
-    final node = await pump(tester, 199, {}, cfg: cfg);
-    expect(
-      find.text('Scanning is not available on this device'),
-      findsOneWidget,
-    );
-    expect(node.fired.single.$1, 2);
-    expect(node.fired.single.$2, 'unsupported');
-  });
+  testWidgets(
+    'off Android the zxing engine without a frame source is unsupported',
+    (tester) async {
+      final cfg = PluxScannerConfig(
+        engine: ScannerEngine.zxing,
+        probe: probe,
+        android: false,
+      );
+      final node = await pump(tester, 199, {}, cfg: cfg);
+      expect(
+        find.text('Scanning is not available on this device'),
+        findsOneWidget,
+      );
+      expect(node.fired.single.$1, 2);
+      expect(node.fired.single.$2, 'unsupported');
+    },
+  );
 
   group('engine choice (decision B21)', () {
     test('a configured engine is taken as it is', () async {
