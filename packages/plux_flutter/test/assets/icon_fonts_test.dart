@@ -36,7 +36,13 @@ void main() {
     expect(iconFontNames(fonts['material']!.$2), {
       'arrow_back': (0xe5c4, true),
       'error': (0xf8b6, false),
+      'home': (59826, false),
       'inbox': (0xe156, false),
+      'info': (59534, false),
+      'local_shipping': (58712, false),
+      'person': (61651, false),
+      'search': (61306, false),
+      'share': (59405, false),
       'star': (0xf09a, false),
     });
     expect(iconFontNames(Uint8List(16)), isNull);
@@ -71,7 +77,7 @@ void main() {
         ),
       );
       expect(registry.glyph(hash, path, 'arrow_back')?.mirrored, isTrue);
-      expect(registry.glyph(hash, path, 'home'), isNull);
+      expect(registry.glyph(hash, path, 'no_such_icon'), isNull);
       expect(loads, ['plux-icons-${hash.substring(0, 16)}']);
       expect((notified, errors.length), (1, 0));
       final source = PluxIconSource(registry, hash, path, 'star');
@@ -197,7 +203,7 @@ void main() {
 
     testWidgets('an icon the font does not name, or none, is an empty box '
         'of its size', (tester) async {
-      await tester.pumpWidget(await icon(tester, 'home'));
+      await tester.pumpWidget(await icon(tester, 'no_such_icon'));
       expect(find.byType(RichText), findsNothing);
       expect(tester.getSize(find.byType(SizedBox)), const Size(20, 20));
       await tester.pumpWidget(

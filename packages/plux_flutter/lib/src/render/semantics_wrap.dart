@@ -12,7 +12,9 @@ import 'package:plux_flutter/src/render/min_target.dart';
 
 /// Wraps the box widget [w] of a node: the minimum touch target when
 /// [minTarget], the node's own [direction] over the inherited one, then its
-/// semantics [sem] and [testId]. [text] resolves a semantics string.
+/// semantics [sem] and [testId]. [text] resolves a semantics string. With
+/// [namesTapNode] the label merges into the widget's own tap node, so a
+/// screen reader reads it on the control instead of on a node above it.
 Widget wrapSemantics(
   Widget w, {
   required fbs.Semantics? sem,
@@ -20,6 +22,7 @@ Widget wrapSemantics(
   required String? testId,
   required String? Function(fbs.Value?) text,
   bool minTarget = false,
+  bool namesTapNode = false,
 }) {
   var out = w;
   if (minTarget) {
@@ -44,7 +47,7 @@ Widget wrapSemantics(
   // A group reads as one unit: its descendants merge into one node.
   if (sem != null && sem.group) out = MergeSemantics(child: out);
   final level = sem != null && sem.headingLevel > 0 ? sem.headingLevel : null;
-  return Semantics(
+  final named = Semantics(
     identifier: testId,
     label: text(sem?.label),
     hint: text(sem?.hint),
@@ -58,6 +61,9 @@ Widget wrapSemantics(
         : null,
     child: out,
   );
+  return namesTapNode && sem?.label != null
+      ? MergeSemantics(child: named)
+      : named;
 }
 
 /// Wraps the sliver [w] of a node: a box `Semantics` around a sliver

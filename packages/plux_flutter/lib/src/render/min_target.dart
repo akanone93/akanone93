@@ -14,20 +14,48 @@ const double minTargetSize = 44;
 
 /// The types of the widgets marked `minTarget` in their descriptor.
 const Set<String> minTargetTypes = {
+  'AccountCard',
+  'AmountInput',
+  'AudioPlayer',
+  'Autocomplete',
+  'BottomNavigationBar',
+  'CalendarDatePicker',
+  'ConsentCheckbox',
+  'CountryPicker',
   'CupertinoContextMenu',
   'CupertinoDatePicker',
   'CupertinoPicker',
   'CupertinoTabBar',
-  'ConsentCheckbox',
+  'CurrencyPicker',
+  'DataTable',
+  'DualCalendarDatePicker',
   'FileUploader',
   'FilterBar',
+  'IbanInput',
+  'MaskedText',
+  'MenuAnchor',
+  'NavigationBar',
+  'NavigationDrawer',
+  'NavigationRail',
   'OnboardingPager',
+  'PaymentCard',
+  'PhoneInput',
+  'PopupMenuButton',
   'ProductCard',
   'PromoBanner',
   'QuantityStepper',
   'RatingInput',
+  'ReorderableListView',
+  'SearchAnchor',
+  'SearchBar',
   'SearchField',
+  'SignaturePad',
   'SortSheet',
+  'Stepper',
+  'TabBar',
+  'TermsViewer',
+  'TransactionListItem',
+  'VideoPlayer',
   'WizardForm',
 };
 
@@ -35,4 +63,14 @@ const Set<String> minTargetTypes = {
 final Set<int> minTargetWidgets = {
   for (final d in widgetDescriptors)
     if (minTargetTypes.contains(d.type)) d.id,
+};
+
+/// The types of the icon-only buttons: their own tap node has no text to
+/// read, so a semantics label on the node names that tap node (A11Y-001).
+const Set<String> iconOnlyButtonTypes = {'FloatingActionButton', 'IconButton'};
+
+/// The permanent IDs of the widgets in [iconOnlyButtonTypes].
+final Set<int> iconOnlyButtonWidgets = {
+  for (final d in widgetDescriptors)
+    if (iconOnlyButtonTypes.contains(d.type)) d.id,
 };

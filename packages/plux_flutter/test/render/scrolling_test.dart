@@ -99,6 +99,9 @@ void main() {
       const Offset(0, 300),
       1000,
     );
+    // The indicator snaps back over two frames (the first starts its ticker)
+    // before it starts the refresh.
+    await tester.pump(const Duration(seconds: 1));
     await tester.pump(const Duration(seconds: 1));
     await settle(tester);
     expect(find.text('refreshed 1'), findsOneWidget);
@@ -181,12 +184,16 @@ void main() {
     await open(tester);
     expect(find.text('step 0'), findsOneWidget);
     expect(find.text('content one'), findsOneWidget);
+    // The steps open with an animation; only the open step's buttons take
+    // taps, so each change runs the animation to its end.
     await tester.tap(find.text('Two'));
     await settle(tester);
+    await tester.pump(const Duration(seconds: 1));
     expect(find.text('step 1'), findsOneWidget);
     expect(find.text('content two'), findsOneWidget);
     await tester.tap(find.text('Continue').hitTestable());
     await settle(tester);
+    await tester.pump(const Duration(seconds: 1));
     expect(find.text('step 2'), findsOneWidget);
     await tester.tap(find.text('Cancel').hitTestable());
     await settle(tester);
@@ -200,7 +207,11 @@ void main() {
     expect(find.text('Connection restored'), findsOneWidget);
     expect(
       tester.getSemantics(find.text('Connection restored')),
-      isSemantics(label: 'Connection restored'),
+      isSemantics(
+        label: 'information\nConnection restored',
+        isLiveRegion: true,
+      ),
+      reason: 'the live region reads the leading icon label and the message',
     );
     expect(
       tester.getSemantics(find.text('dismiss')),

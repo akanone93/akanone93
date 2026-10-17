@@ -60,9 +60,16 @@ void main() {
           await settle(tester);
           await tester.pump(const Duration(milliseconds: 300));
         }
+        // The sync that finds no server release, the pages' uploader and
+        // static data source (kinds the test runtime does not load) and the
+        // images no test server serves are expected reports, not findings.
         expect([
           for (final e in h.errors)
-            if (e.code != PluxErrorCode.syncFailed) e,
+            if (e.code != PluxErrorCode.syncFailed &&
+                e.code != PluxErrorCode.devicePackageMissing &&
+                e.code != PluxErrorCode.dataSourceUnavailable &&
+                !e.message.contains('an image failed to load'))
+              e,
         ], isEmpty);
         expect(find.textContaining('fallback PLX'), findsNothing);
         expect(find.byType(PluxView), findsOneWidget);

@@ -101,6 +101,10 @@ void main() {
             // (security.secureui.v1).
             : path.startsWith('features/')
             ? '0.4.0'
+            // The widgets gallery uses widgets that need 0.5.0 (navigation,
+            // menus and the P8 widget set).
+            : path.startsWith('widgets/')
+            ? '0.5.0'
             : '0.3.0',
         reason: path,
       );
