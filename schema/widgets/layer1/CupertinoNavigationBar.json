@@ -1,0 +1,133 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "CupertinoNavigationBar",
+  "id": 154,
+  "layer": 1,
+  "phase": "P4",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/cupertino.dart",
+    "class": "CupertinoNavigationBar",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "cupertino",
+  "icon": "web_asset",
+  "description": "An iOS-style navigation bar with `leading`, `middle` and `trailing` slots.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 40,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "typeParameters": [],
+  "props": [
+    {
+      "name": "automaticallyImplyLeading",
+      "id": 1,
+      "type": "bool",
+      "default": true,
+      "flutter": "automaticallyImplyLeading"
+    },
+    {
+      "name": "automaticallyImplyMiddle",
+      "id": 2,
+      "type": "bool",
+      "default": true,
+      "flutter": "automaticallyImplyMiddle"
+    },
+    {
+      "name": "previousPageTitle",
+      "id": 3,
+      "type": "string",
+      "flutter": "previousPageTitle"
+    },
+    {
+      "name": "backgroundColor",
+      "id": 4,
+      "type": "color",
+      "flutter": "backgroundColor"
+    },
+    {
+      "name": "automaticBackgroundVisibility",
+      "id": 5,
+      "type": "bool",
+      "default": true,
+      "flutter": "automaticBackgroundVisibility"
+    },
+    {
+      "name": "enableBackgroundFilterBlur",
+      "id": 6,
+      "type": "bool",
+      "default": true,
+      "flutter": "enableBackgroundFilterBlur"
+    },
+    {
+      "name": "brightness",
+      "id": 7,
+      "type": "Brightness",
+      "flutter": "brightness"
+    },
+    {
+      "name": "transitionBetweenRoutes",
+      "id": 8,
+      "type": "bool",
+      "default": true,
+      "flutter": "transitionBetweenRoutes"
+    }
+  ],
+  "slots": [
+    {
+      "name": "leading",
+      "id": 1,
+      "flutter": "leading"
+    },
+    {
+      "name": "middle",
+      "id": 2,
+      "flutter": "middle"
+    },
+    {
+      "name": "trailing",
+      "id": 3,
+      "flutter": "trailing"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "border",
+      "reason": "deferred",
+      "note": "Flutter draws a private default border; Plux keeps it."
+    },
+    {
+      "flutter": "padding",
+      "reason": "deferred",
+      "note": "EdgeInsetsDirectional is not a Plux value type."
+    },
+    {
+      "flutter": "heroTag",
+      "reason": "non-serialisable",
+      "note": "Hero tags come from the node-level hero."
+    },
+    {
+      "flutter": "bottom",
+      "reason": "deferred",
+      "note": "A second bar row is not part of the catalogue yet."
+    }
+  ]
+}

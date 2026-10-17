@@ -1,0 +1,399 @@
+{
+  "id": "01c0c450-6c00-7000-8a1d-000000000001",
+  "key": "cupertino-more",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01c0c450-6c00-7000-8a1d-000000000021",
+    "slots": {
+      "appBar": {
+        "id": "01c0c450-6c00-7000-8a1d-000000000022",
+        "slots": {
+          "title": {
+            "id": "01c0c450-6c00-7000-8a1d-000000000023",
+            "props": {
+              "data": "cupertino more"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01c0c450-6c00-7000-8a1d-000000000024",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01c0c450-6c00-7000-8a1d-000000000003",
+                "props": {
+                  "automaticallyImplyLeading": false,
+                  "backgroundColor": "#FFF2F2F7",
+                  "transitionBetweenRoutes": false
+                },
+                "slots": {
+                  "leading": {
+                    "id": "01c0c450-6c00-7000-8a1d-000000000004",
+                    "props": {
+                      "data": "Back"
+                    },
+                    "type": "Text"
+                  },
+                  "middle": {
+                    "id": "01c0c450-6c00-7000-8a1d-000000000005",
+                    "props": {
+                      "data": "Title"
+                    },
+                    "type": "Text"
+                  },
+                  "trailing": {
+                    "id": "01c0c450-6c00-7000-8a1d-000000000006",
+                    "props": {
+                      "data": "Edit"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "navbar",
+                "type": "CupertinoNavigationBar"
+              },
+              {
+                "events": {
+                  "onTap": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "set",
+                        "input": {
+                          "path": "page.tab",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1d-000000000007",
+                "props": {
+                  "currentIndex": {
+                    "$expr": "page.tab"
+                  },
+                  "items": [
+                    {
+                      "icon": {
+                        "name": "home"
+                      },
+                      "label": "Home"
+                    },
+                    {
+                      "icon": {
+                        "name": "search"
+                      },
+                      "label": "Search"
+                    },
+                    {
+                      "icon": {
+                        "name": "person"
+                      },
+                      "label": "Profile"
+                    }
+                  ]
+                },
+                "semantics": {
+                  "label": "main tabs"
+                },
+                "testId": "tabs",
+                "type": "CupertinoTabBar"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1d-000000000019",
+                "props": {
+                  "data": {
+                    "$expr": "\"tab \" + string(page.tab)"
+                  }
+                },
+                "testId": "tab-out",
+                "type": "Text"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1d-00000000000d",
+                "props": {
+                  "height": 120
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01c0c450-6c00-7000-8a1d-000000000009",
+                        "props": {
+                          "data": "Apple"
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01c0c450-6c00-7000-8a1d-00000000000a",
+                        "props": {
+                          "data": "Banana"
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01c0c450-6c00-7000-8a1d-00000000000b",
+                        "props": {
+                          "data": "Cherry"
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01c0c450-6c00-7000-8a1d-00000000000c",
+                        "props": {
+                          "data": "Date"
+                        },
+                        "type": "Text"
+                      }
+                    ],
+                    "events": {
+                      "onSelectedItemChanged": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "set",
+                            "input": {
+                              "path": "page.wheel",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a1d-000000000008",
+                    "props": {
+                      "itemExtent": 32,
+                      "selectedIndex": {
+                        "$expr": "page.wheel"
+                      }
+                    },
+                    "testId": "picker",
+                    "type": "CupertinoPicker"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1d-00000000001a",
+                "props": {
+                  "data": {
+                    "$expr": "\"wheel \" + string(page.wheel)"
+                  }
+                },
+                "testId": "wheel-out",
+                "type": "Text"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1d-00000000000f",
+                "props": {
+                  "height": 180
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onDateTimeChanged": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "set",
+                            "input": {
+                              "path": "page.chosen",
+                              "value": {
+                                "$expr": "string(event)"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a1d-00000000000e",
+                    "props": {
+                      "initialDateTime": {
+                        "$expr": "dateTime(\"2026-03-15T09:30:00+00:00\")"
+                      },
+                      "maximumDate": {
+                        "$expr": "dateTime(\"2026-12-31T00:00:00+00:00\")"
+                      },
+                      "minimumDate": {
+                        "$expr": "dateTime(\"2026-01-01T00:00:00+00:00\")"
+                      },
+                      "mode": "date"
+                    },
+                    "semantics": {
+                      "label": "pick a date"
+                    },
+                    "testId": "date",
+                    "type": "CupertinoDatePicker"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1d-00000000001b",
+                "props": {
+                  "data": {
+                    "$expr": "\"chosen \" + page.chosen"
+                  }
+                },
+                "testId": "date-out",
+                "type": "Text"
+              },
+              {
+                "events": {
+                  "onAction": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "set",
+                        "input": {
+                          "path": "page.action",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1d-000000000010",
+                "props": {
+                  "actions": [
+                    {
+                      "icon": {
+                        "name": "share"
+                      },
+                      "label": "Share"
+                    },
+                    {
+                      "destructive": true,
+                      "label": "Delete"
+                    }
+                  ]
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1d-000000000011",
+                    "props": {
+                      "height": 48,
+                      "width": 120
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a1d-000000000012",
+                        "props": {
+                          "data": "Press and hold"
+                        },
+                        "testId": "menu-child",
+                        "type": "Text"
+                      }
+                    },
+                    "type": "SizedBox"
+                  }
+                },
+                "testId": "menu",
+                "type": "CupertinoContextMenu"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1d-00000000001c",
+                "props": {
+                  "data": {
+                    "$expr": "\"action \" + string(page.action)"
+                  }
+                },
+                "testId": "action-out",
+                "type": "Text"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1d-000000000013",
+                "props": {
+                  "isEmpty": {
+                    "$expr": "isEmpty(data.scope.value ?? [])"
+                  },
+                  "status": {
+                    "$expr": "data.scope.status"
+                  }
+                },
+                "slots": {
+                  "empty": {
+                    "id": "01c0c450-6c00-7000-8a1d-000000000016",
+                    "props": {
+                      "data": "scope empty"
+                    },
+                    "type": "Text"
+                  },
+                  "error": {
+                    "id": "01c0c450-6c00-7000-8a1d-000000000015",
+                    "props": {
+                      "data": "scope error"
+                    },
+                    "type": "Text"
+                  },
+                  "loading": {
+                    "id": "01c0c450-6c00-7000-8a1d-000000000014",
+                    "props": {
+                      "data": "scope loading"
+                    },
+                    "testId": "scope-loading",
+                    "type": "Text"
+                  },
+                  "success": {
+                    "id": "01c0c450-6c00-7000-8a1d-000000000017",
+                    "props": {
+                      "data": "scope ready"
+                    },
+                    "testId": "scope-ready",
+                    "type": "Text"
+                  }
+                },
+                "testId": "scope",
+                "type": "DataScope"
+              }
+            ],
+            "id": "01c0c450-6c00-7000-8a1d-000000000025",
+            "type": "Column"
+          }
+        },
+        "type": "SingleChildScrollView"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "cupertino-more",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": 0,
+      "id": "01c0c450-6c00-7000-8a1d-00000000001d",
+      "name": "tab",
+      "type": "int"
+    },
+    {
+      "default": 1,
+      "id": "01c0c450-6c00-7000-8a1d-00000000001e",
+      "name": "wheel",
+      "type": "int"
+    },
+    {
+      "default": "none",
+      "id": "01c0c450-6c00-7000-8a1d-00000000001f",
+      "name": "chosen",
+      "type": "string"
+    },
+    {
+      "default": -1,
+      "id": "01c0c450-6c00-7000-8a1d-000000000020",
+      "name": "action",
+      "type": "int"
+    }
+  ],
+  "title": "cupertino more"
+}

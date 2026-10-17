@@ -44,6 +44,7 @@ import 'package:plux_flutter/src/pxl/regex.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
 import 'package:plux_flutter/src/pxl/vm.dart';
 import 'package:plux_flutter/src/render/builders/builders.dart';
+import 'package:plux_flutter/src/render/builders/cupertino_more.dart';
 import 'package:plux_flutter/src/render/builders/secure.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
@@ -72,6 +73,7 @@ import 'package:plux_flutter/src/verify/manifest.dart';
 final Map<int, NodeBuilder> nodeBuilders = {
   ...generatedBuilders,
   ...manualBuilders,
+  ...cupertinoMoreBuilders,
   ...secureBuilders,
 };
 
