@@ -134,20 +134,23 @@ Curve _curve(NodeContext c, int id, [Curve fallback = Curves.linear]) {
   return at < 0 ? fallback : animationCurves[at];
 }
 
-/// The duration in prop [id]; zero under reduce motion (ANI-007).
-Duration _duration(NodeContext c, int id) {
+/// The duration in prop [id]; zero under reduce motion (ANI-007), or one
+/// microsecond where [measured]: Flutter's `AnimatedSize` asserts on a zero
+/// duration.
+Duration _duration(NodeContext c, int id, {bool measured = false}) {
   if (MediaQuery.maybeDisableAnimationsOf(c.context) ?? false) {
-    return Duration.zero;
+    return measured ? const Duration(microseconds: 1) : Duration.zero;
   }
   return c.decode(id, asDuration) ?? c.missing('duration');
 }
 
-/// An optional duration; zero under reduce motion.
+/// An optional duration; negligible under reduce motion (one microsecond,
+/// as for [_duration] with `measured`).
 Duration? _optionalDuration(NodeContext c, int id) {
   final d = c.decode(id, asDuration);
   if (d == null) return null;
   return (MediaQuery.maybeDisableAnimationsOf(c.context) ?? false)
-      ? Duration.zero
+      ? const Duration(microseconds: 1)
       : d;
 }
 
@@ -246,7 +249,10 @@ Widget _draggable(NodeContext c) => Draggable<Object>(
   onDragEnd: c.handles(2) ? (d) => c.fire(2, d.wasAccepted) : null,
   onDragCompleted: c.handles(3) ? () => c.fire(3) : null,
   onDraggableCanceled: c.handles(4) ? (_, _) => c.fire(4) : null,
-  feedback: c.slot(2) ?? c.missing('feedback'),
+  feedback: RenderScopeWidget(
+    scope: RenderScope.of(c.context),
+    child: c.slot(2) ?? c.missing('feedback'),
+  ),
   childWhenDragging: c.slot(3),
   child: c.slot(1) ?? c.missing('child'),
 );
@@ -483,7 +489,7 @@ Widget _animatedCrossFade(NodeContext c) => AnimatedCrossFade(
   secondCurve: _curve(c, 3),
   sizeCurve: _curve(c, 4),
   alignment: c.decode(5, decodeAlignment) ?? AlignmentDirectional.topCenter,
-  duration: _duration(c, 6),
+  duration: _duration(c, 6, measured: true),
   reverseDuration: _optionalDuration(c, 7),
   excludeBottomFocus: c.decode(8, asBool) ?? true,
   clipBehavior: c.decode(9, decodeClip) ?? Clip.hardEdge,
@@ -493,7 +499,7 @@ Widget _animatedCrossFade(NodeContext c) => AnimatedCrossFade(
 Widget _animatedSize(NodeContext c) => AnimatedSize(
   alignment: c.decode(1, decodeAlignment) ?? Alignment.center,
   curve: _curve(c, 2),
-  duration: _duration(c, 3),
+  duration: _duration(c, 3, measured: true),
   reverseDuration: _optionalDuration(c, 4),
   clipBehavior: c.decode(5, decodeClip) ?? Clip.hardEdge,
   onEnd: _onEnd(c),

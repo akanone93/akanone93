@@ -987,7 +987,7 @@ var widgets = [...]Widget{
 			{Name: "hitTestBehavior", ID: 3, Type: "HitTestBehavior", Required: false, Default: "\"translucent\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onAccept", ID: 1, Payload: "T", Revision: 1, Deprecated: nil, Description: "Fired with the dropped `data`."},
+			{Name: "onAccept", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload."},
 			{Name: "onLeave", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when a candidate leaves without being dropped."},
 		},
 		Slots: []Slot{

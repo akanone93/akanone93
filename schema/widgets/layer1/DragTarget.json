@@ -58,12 +58,11 @@
     {
       "name": "onAccept",
       "id": 1,
-      "payload": "T",
       "flutter": [
         "onAccept",
         "onAcceptWithDetails"
       ],
-      "description": "Fired with the dropped `data`."
+      "description": "Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload."
     },
     {
       "name": "onLeave",

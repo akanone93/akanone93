@@ -2,7 +2,7 @@
   "animations": [
     {
       "durationMs": 400,
-      "id": "01c0c450-6c00-7000-8a1c-000000000045",
+      "id": "01c0c450-6c00-7000-8a1c-000000000049",
       "name": "pulse",
       "tracks": [
         {
@@ -23,7 +23,7 @@
     },
     {
       "durationMs": 400,
-      "id": "01c0c450-6c00-7000-8a1c-000000000046",
+      "id": "01c0c450-6c00-7000-8a1c-00000000004a",
       "name": "drive",
       "tracks": [
         {
@@ -37,7 +37,7 @@
               "value": 1.0
             }
           ],
-          "node": "01c0c450-6c00-7000-8a1c-000000000039",
+          "node": "01c0c450-6c00-7000-8a1c-00000000003d",
           "prop": "width"
         },
         {
@@ -51,7 +51,7 @@
               "value": 0.5
             }
           ],
-          "node": "01c0c450-6c00-7000-8a1c-00000000003a",
+          "node": "01c0c450-6c00-7000-8a1c-00000000003e",
           "prop": "width"
         },
         {
@@ -65,7 +65,7 @@
               "value": 1.5
             }
           ],
-          "node": "01c0c450-6c00-7000-8a1c-00000000003b",
+          "node": "01c0c450-6c00-7000-8a1c-00000000003f",
           "prop": "width"
         },
         {
@@ -79,7 +79,7 @@
               "value": 0.25
             }
           ],
-          "node": "01c0c450-6c00-7000-8a1c-00000000003c",
+          "node": "01c0c450-6c00-7000-8a1c-000000000040",
           "prop": "width"
         }
       ]
@@ -90,13 +90,13 @@
   "kind": "page",
   "pageKind": "screen",
   "root": {
-    "id": "01c0c450-6c00-7000-8a1c-00000000004b",
+    "id": "01c0c450-6c00-7000-8a1c-00000000004f",
     "slots": {
       "appBar": {
-        "id": "01c0c450-6c00-7000-8a1c-000000000048",
+        "id": "01c0c450-6c00-7000-8a1c-00000000004c",
         "slots": {
           "title": {
-            "id": "01c0c450-6c00-7000-8a1c-000000000047",
+            "id": "01c0c450-6c00-7000-8a1c-00000000004b",
             "props": {
               "data": "animation"
             },
@@ -106,7 +106,7 @@
         "type": "AppBar"
       },
       "body": {
-        "id": "01c0c450-6c00-7000-8a1c-00000000004a",
+        "id": "01c0c450-6c00-7000-8a1c-00000000004e",
         "slots": {
           "child": {
             "children": [
@@ -121,16 +121,6 @@
                           "path": "page.on",
                           "value": {
                             "$expr": "!page.on"
-                          }
-                        }
-                      },
-                      {
-                        "action": "setState",
-                        "id": "fade",
-                        "input": {
-                          "path": "page.fade",
-                          "value": {
-                            "$expr": "page.on ? \"showSecond\" : \"showFirst\""
                           }
                         }
                       }
@@ -455,21 +445,36 @@
                 "type": "Timeline"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-00000000001e",
-                "props": {
-                  "color": "#FF2196F3",
-                  "curve": "easeOut",
-                  "duration": 200,
-                  "height": 40.0,
-                  "width": {
-                    "$expr": "page.on ? 160.0 : 80.0"
+                "children": [
+                  {
+                    "id": "01c0c450-6c00-7000-8a1c-00000000001f",
+                    "props": {
+                      "color": "#FF2196F3",
+                      "curve": "easeOut",
+                      "duration": 200,
+                      "height": 40.0,
+                      "width": {
+                        "$expr": "page.on ? 160.0 : 80.0"
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a1c-00000000001e",
+                        "props": {
+                          "data": "container"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "anim-container",
+                    "type": "AnimatedContainer"
                   }
-                },
-                "testId": "anim-container",
-                "type": "AnimatedContainer"
+                ],
+                "id": "01c0c450-6c00-7000-8a1c-000000000020",
+                "type": "Row"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-000000000020",
+                "id": "01c0c450-6c00-7000-8a1c-000000000022",
                 "props": {
                   "curve": "linear",
                   "duration": 200,
@@ -479,7 +484,7 @@
                 },
                 "slots": {
                   "child": {
-                    "id": "01c0c450-6c00-7000-8a1c-00000000001f",
+                    "id": "01c0c450-6c00-7000-8a1c-000000000021",
                     "props": {
                       "data": "Opacity"
                     },
@@ -490,21 +495,21 @@
                 "type": "AnimatedOpacity"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-000000000023",
+                "id": "01c0c450-6c00-7000-8a1c-000000000025",
                 "props": {
                   "height": 40,
                   "width": 240
                 },
                 "slots": {
                   "child": {
-                    "id": "01c0c450-6c00-7000-8a1c-000000000022",
+                    "id": "01c0c450-6c00-7000-8a1c-000000000024",
                     "props": {
                       "alignment": "centerRight",
                       "duration": 200
                     },
                     "slots": {
                       "child": {
-                        "id": "01c0c450-6c00-7000-8a1c-000000000021",
+                        "id": "01c0c450-6c00-7000-8a1c-000000000023",
                         "props": {
                           "data": "Align"
                         },
@@ -518,7 +523,7 @@
                 "type": "SizedBox"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-000000000025",
+                "id": "01c0c450-6c00-7000-8a1c-000000000027",
                 "props": {
                   "duration": 200,
                   "padding": {
@@ -527,7 +532,7 @@
                 },
                 "slots": {
                   "child": {
-                    "id": "01c0c450-6c00-7000-8a1c-000000000024",
+                    "id": "01c0c450-6c00-7000-8a1c-000000000026",
                     "props": {
                       "data": "Padding"
                     },
@@ -538,7 +543,7 @@
                 "type": "AnimatedPadding"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-000000000029",
+                "id": "01c0c450-6c00-7000-8a1c-00000000002b",
                 "props": {
                   "height": 60,
                   "width": 240
@@ -547,7 +552,7 @@
                   "child": {
                     "children": [
                       {
-                        "id": "01c0c450-6c00-7000-8a1c-000000000027",
+                        "id": "01c0c450-6c00-7000-8a1c-000000000029",
                         "props": {
                           "duration": 200,
                           "height": 40.0,
@@ -559,7 +564,7 @@
                         },
                         "slots": {
                           "child": {
-                            "id": "01c0c450-6c00-7000-8a1c-000000000026",
+                            "id": "01c0c450-6c00-7000-8a1c-000000000028",
                             "props": {
                               "color": "#FFFF5722",
                               "height": 40,
@@ -572,14 +577,14 @@
                         "type": "AnimatedPositioned"
                       }
                     ],
-                    "id": "01c0c450-6c00-7000-8a1c-000000000028",
+                    "id": "01c0c450-6c00-7000-8a1c-00000000002a",
                     "type": "Stack"
                   }
                 },
                 "type": "SizedBox"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-00000000002b",
+                "id": "01c0c450-6c00-7000-8a1c-00000000002d",
                 "props": {
                   "duration": 200,
                   "scale": {
@@ -588,7 +593,7 @@
                 },
                 "slots": {
                   "child": {
-                    "id": "01c0c450-6c00-7000-8a1c-00000000002a",
+                    "id": "01c0c450-6c00-7000-8a1c-00000000002c",
                     "props": {
                       "data": "Scale"
                     },
@@ -599,7 +604,7 @@
                 "type": "AnimatedScale"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-00000000002d",
+                "id": "01c0c450-6c00-7000-8a1c-00000000002f",
                 "props": {
                   "duration": 200,
                   "turns": {
@@ -608,7 +613,7 @@
                 },
                 "slots": {
                   "child": {
-                    "id": "01c0c450-6c00-7000-8a1c-00000000002c",
+                    "id": "01c0c450-6c00-7000-8a1c-00000000002e",
                     "props": {
                       "data": "Rotation"
                     },
@@ -619,7 +624,7 @@
                 "type": "AnimatedRotation"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-00000000002f",
+                "id": "01c0c450-6c00-7000-8a1c-000000000031",
                 "props": {
                   "duration": 200,
                   "offset": {
@@ -629,7 +634,7 @@
                 },
                 "slots": {
                   "child": {
-                    "id": "01c0c450-6c00-7000-8a1c-00000000002e",
+                    "id": "01c0c450-6c00-7000-8a1c-000000000030",
                     "props": {
                       "data": "Slide"
                     },
@@ -640,13 +645,13 @@
                 "type": "AnimatedSlide"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-000000000033",
+                "id": "01c0c450-6c00-7000-8a1c-000000000035",
                 "props": {
                   "duration": 200
                 },
                 "slots": {
                   "child": {
-                    "id": "01c0c450-6c00-7000-8a1c-000000000032",
+                    "id": "01c0c450-6c00-7000-8a1c-000000000034",
                     "props": {
                       "condition": {
                         "$expr": "page.on"
@@ -654,7 +659,7 @@
                     },
                     "slots": {
                       "else": {
-                        "id": "01c0c450-6c00-7000-8a1c-000000000031",
+                        "id": "01c0c450-6c00-7000-8a1c-000000000033",
                         "props": {
                           "data": "switch off"
                         },
@@ -662,7 +667,7 @@
                         "type": "Text"
                       },
                       "then": {
-                        "id": "01c0c450-6c00-7000-8a1c-000000000030",
+                        "id": "01c0c450-6c00-7000-8a1c-000000000032",
                         "props": {
                           "data": "switch on"
                         },
@@ -677,16 +682,14 @@
                 "type": "AnimatedSwitcher"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-000000000036",
+                "id": "01c0c450-6c00-7000-8a1c-000000000038",
                 "props": {
-                  "crossFadeState": {
-                    "$expr": "page.fade"
-                  },
+                  "crossFadeState": "showSecond",
                   "duration": 200
                 },
                 "slots": {
                   "firstChild": {
-                    "id": "01c0c450-6c00-7000-8a1c-000000000034",
+                    "id": "01c0c450-6c00-7000-8a1c-000000000036",
                     "props": {
                       "data": "first"
                     },
@@ -694,7 +697,7 @@
                     "type": "Text"
                   },
                   "secondChild": {
-                    "id": "01c0c450-6c00-7000-8a1c-000000000035",
+                    "id": "01c0c450-6c00-7000-8a1c-000000000037",
                     "props": {
                       "data": "second"
                     },
@@ -706,38 +709,53 @@
                 "type": "AnimatedCrossFade"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-000000000038",
-                "props": {
-                  "alignment": "topCenter",
-                  "duration": 200
-                },
-                "slots": {
-                  "child": {
-                    "id": "01c0c450-6c00-7000-8a1c-000000000037",
+                "children": [
+                  {
+                    "id": "01c0c450-6c00-7000-8a1c-00000000003b",
                     "props": {
-                      "color": "#FF2196F3",
-                      "height": {
-                        "$expr": "page.on ? 80.0 : 40.0"
-                      },
-                      "width": 80.0
+                      "alignment": "topCenter",
+                      "duration": 200
                     },
-                    "type": "Container"
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a1c-00000000003a",
+                        "props": {
+                          "color": "#FF2196F3",
+                          "height": {
+                            "$expr": "page.on ? 80.0 : 40.0"
+                          },
+                          "width": 80.0
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01c0c450-6c00-7000-8a1c-000000000039",
+                            "props": {
+                              "data": "size"
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "Container"
+                      }
+                    },
+                    "testId": "anim-size",
+                    "type": "AnimatedSize"
                   }
-                },
-                "testId": "anim-size",
-                "type": "AnimatedSize"
+                ],
+                "id": "01c0c450-6c00-7000-8a1c-00000000003c",
+                "type": "Row"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-00000000003e",
+                "id": "01c0c450-6c00-7000-8a1c-000000000042",
                 "props": {
                   "timeline": "drive",
                   "track": 0
                 },
                 "slots": {
                   "child": {
-                    "id": "01c0c450-6c00-7000-8a1c-00000000003d",
+                    "id": "01c0c450-6c00-7000-8a1c-000000000041",
                     "props": {
-                      "data": "Fade"
+                      "data": "t-fade"
                     },
                     "type": "Text"
                   }
@@ -746,7 +764,7 @@
                 "type": "FadeTransition"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-000000000040",
+                "id": "01c0c450-6c00-7000-8a1c-000000000044",
                 "props": {
                   "axis": "horizontal",
                   "timeline": "drive",
@@ -754,9 +772,9 @@
                 },
                 "slots": {
                   "child": {
-                    "id": "01c0c450-6c00-7000-8a1c-00000000003f",
+                    "id": "01c0c450-6c00-7000-8a1c-000000000043",
                     "props": {
-                      "data": "Slide"
+                      "data": "t-slide"
                     },
                     "type": "Text"
                   }
@@ -765,16 +783,16 @@
                 "type": "SlideTransition"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-000000000042",
+                "id": "01c0c450-6c00-7000-8a1c-000000000046",
                 "props": {
                   "timeline": "drive",
                   "track": 2
                 },
                 "slots": {
                   "child": {
-                    "id": "01c0c450-6c00-7000-8a1c-000000000041",
+                    "id": "01c0c450-6c00-7000-8a1c-000000000045",
                     "props": {
-                      "data": "Scale"
+                      "data": "t-scale"
                     },
                     "type": "Text"
                   }
@@ -783,16 +801,16 @@
                 "type": "ScaleTransition"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-000000000044",
+                "id": "01c0c450-6c00-7000-8a1c-000000000048",
                 "props": {
                   "timeline": "drive",
                   "track": 3
                 },
                 "slots": {
                   "child": {
-                    "id": "01c0c450-6c00-7000-8a1c-000000000043",
+                    "id": "01c0c450-6c00-7000-8a1c-000000000047",
                     "props": {
-                      "data": "Rotation"
+                      "data": "t-rotation"
                     },
                     "type": "Text"
                   }
@@ -801,7 +819,7 @@
                 "type": "RotationTransition"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-000000000039",
+                "id": "01c0c450-6c00-7000-8a1c-00000000003d",
                 "props": {
                   "height": 0.0,
                   "width": 0.0
@@ -809,7 +827,7 @@
                 "type": "SizedBox"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-00000000003a",
+                "id": "01c0c450-6c00-7000-8a1c-00000000003e",
                 "props": {
                   "height": 0.0,
                   "width": 0.0
@@ -817,7 +835,7 @@
                 "type": "SizedBox"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-00000000003b",
+                "id": "01c0c450-6c00-7000-8a1c-00000000003f",
                 "props": {
                   "height": 0.0,
                   "width": 0.0
@@ -825,7 +843,7 @@
                 "type": "SizedBox"
               },
               {
-                "id": "01c0c450-6c00-7000-8a1c-00000000003c",
+                "id": "01c0c450-6c00-7000-8a1c-000000000040",
                 "props": {
                   "height": 0.0,
                   "width": 0.0
@@ -833,7 +851,7 @@
                 "type": "SizedBox"
               }
             ],
-            "id": "01c0c450-6c00-7000-8a1c-000000000049",
+            "id": "01c0c450-6c00-7000-8a1c-00000000004d",
             "props": {
               "crossAxisAlignment": "stretch"
             },
@@ -850,37 +868,31 @@
   "state": [
     {
       "default": false,
-      "id": "01c0c450-6c00-7000-8a1c-00000000004c",
+      "id": "01c0c450-6c00-7000-8a1c-000000000050",
       "name": "on",
       "type": "bool"
     },
     {
-      "default": "showFirst",
-      "id": "01c0c450-6c00-7000-8a1c-00000000004d",
-      "name": "fade",
-      "type": "CrossFadeState"
-    },
-    {
       "default": "no",
-      "id": "01c0c450-6c00-7000-8a1c-00000000004e",
+      "id": "01c0c450-6c00-7000-8a1c-000000000051",
       "name": "dismissed",
       "type": "string"
     },
     {
       "default": "apple",
-      "id": "01c0c450-6c00-7000-8a1c-00000000004f",
+      "id": "01c0c450-6c00-7000-8a1c-000000000052",
       "name": "item",
       "type": "string"
     },
     {
       "default": "idle",
-      "id": "01c0c450-6c00-7000-8a1c-000000000050",
+      "id": "01c0c450-6c00-7000-8a1c-000000000053",
       "name": "drag",
       "type": "string"
     },
     {
       "default": "none",
-      "id": "01c0c450-6c00-7000-8a1c-000000000051",
+      "id": "01c0c450-6c00-7000-8a1c-000000000054",
       "name": "drop",
       "type": "string"
     }
