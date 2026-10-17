@@ -87,7 +87,8 @@
       "name": "semanticsLabel",
       "id": 9,
       "type": "string",
-      "flutter": "semanticsLabel"
+      "flutter": "semanticsLabel",
+      "translatable": true
     },
     {
       "name": "semanticsIdentifier",

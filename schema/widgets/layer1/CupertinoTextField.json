@@ -57,7 +57,8 @@
       "name": "placeholder",
       "id": 4,
       "type": "string",
-      "flutter": "placeholder"
+      "flutter": "placeholder",
+      "translatable": true
     },
     {
       "name": "placeholderStyle",
@@ -97,7 +98,8 @@
       "name": "clearButtonSemanticLabel",
       "id": 10,
       "type": "string",
-      "flutter": "clearButtonSemanticLabel"
+      "flutter": "clearButtonSemanticLabel",
+      "translatable": true
     },
     {
       "name": "keyboardType",

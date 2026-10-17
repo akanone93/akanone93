@@ -16,7 +16,8 @@
       "id": 1,
       "type": "string",
       "required": true,
-      "description": "The slice's name."
+      "description": "The slice's name.",
+      "translatable": true
     },
     {
       "name": "value",

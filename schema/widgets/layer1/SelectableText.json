@@ -36,7 +36,8 @@
       "id": 1,
       "type": "string",
       "required": true,
-      "flutter": "data"
+      "flutter": "data",
+      "translatable": true
     },
     {
       "name": "style",
@@ -161,7 +162,8 @@
       "name": "semanticsLabel",
       "id": 19,
       "type": "string",
-      "flutter": "semanticsLabel"
+      "flutter": "semanticsLabel",
+      "translatable": true
     },
     {
       "name": "textWidthBasis",

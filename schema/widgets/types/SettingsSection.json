@@ -16,7 +16,8 @@
       "id": 1,
       "type": "string",
       "required": true,
-      "description": "The section header."
+      "description": "The section header.",
+      "translatable": true
     },
     {
       "name": "count",

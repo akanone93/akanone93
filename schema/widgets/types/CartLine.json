@@ -16,7 +16,8 @@
       "id": 1,
       "type": "string",
       "required": true,
-      "description": "What the line is."
+      "description": "What the line is.",
+      "translatable": true
     },
     {
       "name": "amount",

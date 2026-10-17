@@ -191,15 +191,17 @@ type ValueType struct {
 
 // Field is a field of a value type.
 type Field struct {
-	Name        string          `json:"name"`
-	ID          uint32          `json:"id"`
-	Type        string          `json:"type"`
-	Required    bool            `json:"required,omitempty"`
-	Default     json.RawMessage `json:"default,omitempty"`
-	Revision    int             `json:"revision,omitempty"`
-	Deprecated  *Deprecation    `json:"deprecated,omitempty"`
-	Flutter     FlutterNames    `json:"flutter,omitempty"`
-	Description string          `json:"description,omitempty"`
+	Name       string          `json:"name"`
+	ID         uint32          `json:"id"`
+	Type       string          `json:"type"`
+	Required   bool            `json:"required,omitempty"`
+	Default    json.RawMessage `json:"default,omitempty"`
+	Revision   int             `json:"revision,omitempty"`
+	Deprecated *Deprecation    `json:"deprecated,omitempty"`
+	Flutter    FlutterNames    `json:"flutter,omitempty"`
+	// Translatable marks a string field shown to users (I18N-007).
+	Translatable bool   `json:"translatable,omitempty"`
+	Description  string `json:"description,omitempty"`
 }
 
 // Constant is a named value of a value type, such as Alignment.center; a

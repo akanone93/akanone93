@@ -22,7 +22,8 @@
       "name": "label",
       "id": 2,
       "type": "string",
-      "required": true
+      "required": true,
+      "translatable": true
     },
     {
       "name": "icon",

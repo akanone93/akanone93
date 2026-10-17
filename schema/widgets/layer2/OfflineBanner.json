@@ -29,7 +29,8 @@
       "id": 1,
       "type": "string",
       "required": true,
-      "description": "The text shown while offline."
+      "description": "The text shown while offline.",
+      "translatable": true
     },
     {
       "name": "visible",

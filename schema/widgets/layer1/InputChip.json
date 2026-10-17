@@ -67,7 +67,8 @@
       "name": "deleteButtonTooltipMessage",
       "id": 6,
       "type": "string",
-      "flutter": "deleteButtonTooltipMessage"
+      "flutter": "deleteButtonTooltipMessage",
+      "translatable": true
     },
     {
       "name": "pressElevation",
@@ -94,7 +95,8 @@
       "name": "tooltip",
       "id": 10,
       "type": "string",
-      "flutter": "tooltip"
+      "flutter": "tooltip",
+      "translatable": true
     },
     {
       "name": "side",

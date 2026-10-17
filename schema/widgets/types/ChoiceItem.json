@@ -23,7 +23,8 @@
       "id": 2,
       "type": "string",
       "required": true,
-      "description": "The text shown."
+      "description": "The text shown.",
+      "translatable": true
     },
     {
       "name": "selected",

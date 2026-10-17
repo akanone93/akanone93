@@ -55,7 +55,8 @@
       "name": "helperText",
       "id": 6,
       "type": "string",
-      "flutter": "helperText"
+      "flutter": "helperText",
+      "translatable": true
     },
     {
       "name": "helperStyle",
@@ -73,7 +74,8 @@
       "name": "hintText",
       "id": 9,
       "type": "string",
-      "flutter": "hintText"
+      "flutter": "hintText",
+      "translatable": true
     },
     {
       "name": "hintStyle",
@@ -117,7 +119,8 @@
       "name": "errorText",
       "id": 16,
       "type": "string",
-      "flutter": "errorText"
+      "flutter": "errorText",
+      "translatable": true
     },
     {
       "name": "errorStyle",

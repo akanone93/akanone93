@@ -65,8 +65,8 @@ func writeGoWidget(b *bytes.Buffer, w *registry.Widget) {
 	if len(w.Props) > 0 {
 		b.WriteString("Props: []Prop{\n")
 		for _, p := range sortedByID(w.Props, func(p registry.Prop) uint32 { return p.ID }) {
-			fmt.Fprintf(b, "{Name: %q, ID: %d, Type: %q, Required: %t, Default: %q, Constraints: %s, Revision: %d, Deprecated: %s, Bindable: %t, Description: %q},\n",
-				p.Name, p.ID, p.Type, p.Required, compactJSON(p.Default), goConstraints(p.Constraints), revisionOr1(p.Revision), goDeprecation(p.Deprecated), p.IsBindable(), p.Description)
+			fmt.Fprintf(b, "{Name: %q, ID: %d, Type: %q, Required: %t, Default: %q, Constraints: %s, Revision: %d, Deprecated: %s, Bindable: %t, Translatable: %t, Description: %q},\n",
+				p.Name, p.ID, p.Type, p.Required, compactJSON(p.Default), goConstraints(p.Constraints), revisionOr1(p.Revision), goDeprecation(p.Deprecated), p.IsBindable(), p.Translatable, p.Description)
 		}
 		b.WriteString("},\n")
 	}
@@ -107,8 +107,8 @@ func writeGoValueType(b *bytes.Buffer, t *registry.ValueType) {
 	fmt.Fprintf(b, "{\nName: %q, ID: %d, Revision: %d, Runtimes: %s, Description: %q,\nFields: []Field{\n",
 		t.Name, t.ID, t.Revision, goStrings(runtimes(t.Revisions)), t.Description)
 	for _, f := range sortedByID(t.Fields, func(f registry.Field) uint32 { return f.ID }) {
-		fmt.Fprintf(b, "{Name: %q, ID: %d, Type: %q, Required: %t, Default: %q, Revision: %d, Deprecated: %s, Description: %q},\n",
-			f.Name, f.ID, f.Type, f.Required, compactJSON(f.Default), revisionOr1(f.Revision), goDeprecation(f.Deprecated), f.Description)
+		fmt.Fprintf(b, "{Name: %q, ID: %d, Type: %q, Required: %t, Default: %q, Revision: %d, Deprecated: %s, Translatable: %t, Description: %q},\n",
+			f.Name, f.ID, f.Type, f.Required, compactJSON(f.Default), revisionOr1(f.Revision), goDeprecation(f.Deprecated), f.Translatable, f.Description)
 	}
 	b.WriteString("},\n")
 	if len(t.Constants) > 0 {

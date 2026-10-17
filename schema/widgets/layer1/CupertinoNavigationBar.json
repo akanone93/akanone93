@@ -50,7 +50,8 @@
       "name": "previousPageTitle",
       "id": 3,
       "type": "string",
-      "flutter": "previousPageTitle"
+      "flutter": "previousPageTitle",
+      "translatable": true
     },
     {
       "name": "backgroundColor",

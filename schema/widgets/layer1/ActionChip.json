@@ -56,7 +56,8 @@
       "name": "tooltip",
       "id": 4,
       "type": "string",
-      "flutter": "tooltip"
+      "flutter": "tooltip",
+      "translatable": true
     },
     {
       "name": "side",

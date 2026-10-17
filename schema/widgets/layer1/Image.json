@@ -47,7 +47,8 @@
       "name": "semanticLabel",
       "id": 2,
       "type": "string",
-      "flutter": "semanticLabel"
+      "flutter": "semanticLabel",
+      "translatable": true
     },
     {
       "name": "excludeFromSemantics",

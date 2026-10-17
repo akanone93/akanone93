@@ -49,13 +49,15 @@
       "name": "viewHintText",
       "id": 3,
       "type": "string",
-      "flutter": "viewHintText"
+      "flutter": "viewHintText",
+      "translatable": true
     },
     {
       "name": "hintText",
       "id": 4,
       "type": "string",
-      "description": "The hint of the bar that opens the view."
+      "description": "The hint of the bar that opens the view.",
+      "translatable": true
     }
   ],
   "events": [

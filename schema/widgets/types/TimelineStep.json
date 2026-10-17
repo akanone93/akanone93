@@ -16,7 +16,8 @@
       "id": 1,
       "type": "string",
       "required": true,
-      "description": "The step's name."
+      "description": "The step's name.",
+      "translatable": true
     },
     {
       "name": "detail",

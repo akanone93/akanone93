@@ -34,7 +34,8 @@
       "name": "label",
       "id": 2,
       "type": "string?",
-      "description": "The field label."
+      "description": "The field label.",
+      "translatable": true
     },
     {
       "name": "obscure",

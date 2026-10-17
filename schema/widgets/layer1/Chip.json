@@ -53,7 +53,8 @@
       "name": "deleteButtonTooltipMessage",
       "id": 4,
       "type": "string",
-      "flutter": "deleteButtonTooltipMessage"
+      "flutter": "deleteButtonTooltipMessage",
+      "translatable": true
     },
     {
       "name": "side",
