@@ -19,7 +19,7 @@ var widgets = [...]Widget{
 			{Name: "backLabel", ID: 5, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The text on the back."},
 		},
 		Events: []Event{
-			{Name: "onFlip", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: "Fires with the side the person asked for."},
+			{Name: "onFlip", ID: 1, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the side the person asked for."},
 		},
 	},
 	{
@@ -47,7 +47,7 @@ var widgets = [...]Widget{
 			{Name: "avatarBoxConstraints", ID: 18, Type: "BoxConstraints", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onPressed", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPressed", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "avatar", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -80,7 +80,7 @@ var widgets = [...]Widget{
 			{Name: "rangeMessage", ID: 6, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The error shown when the amount is outside the range."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "money", Revision: 1, Deprecated: nil, Description: "Fires with the amount whenever the typed text is a valid amount."},
+			{Name: "onChanged", ID: 1, Payload: "money", Sensitive: true, Revision: 1, Deprecated: nil, Description: "Fires with the amount whenever the typed text is a valid amount."},
 		},
 	},
 	{
@@ -95,7 +95,7 @@ var widgets = [...]Widget{
 			{Name: "duration", ID: 5, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
 		},
 		Events: []Event{
-			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+			{Name: "onEnd", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -121,7 +121,7 @@ var widgets = [...]Widget{
 			{Name: "duration", ID: 13, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
 		},
 		Events: []Event{
-			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+			{Name: "onEnd", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -143,7 +143,7 @@ var widgets = [...]Widget{
 			{Name: "clipBehavior", ID: 9, Type: "Clip", Required: false, Default: "\"hardEdge\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+			{Name: "onEnd", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
 		},
 		Slots: []Slot{
 			{Name: "firstChild", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -161,7 +161,7 @@ var widgets = [...]Widget{
 			{Name: "duration", ID: 4, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
 		},
 		Events: []Event{
-			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+			{Name: "onEnd", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -177,7 +177,7 @@ var widgets = [...]Widget{
 			{Name: "duration", ID: 3, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
 		},
 		Events: []Event{
-			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+			{Name: "onEnd", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -198,7 +198,7 @@ var widgets = [...]Widget{
 			{Name: "duration", ID: 8, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
 		},
 		Events: []Event{
-			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+			{Name: "onEnd", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -216,7 +216,7 @@ var widgets = [...]Widget{
 			{Name: "duration", ID: 5, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
 		},
 		Events: []Event{
-			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+			{Name: "onEnd", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -234,7 +234,7 @@ var widgets = [...]Widget{
 			{Name: "duration", ID: 5, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
 		},
 		Events: []Event{
-			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+			{Name: "onEnd", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -252,7 +252,7 @@ var widgets = [...]Widget{
 			{Name: "clipBehavior", ID: 5, Type: "Clip", Required: false, Default: "\"hardEdge\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+			{Name: "onEnd", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -268,7 +268,7 @@ var widgets = [...]Widget{
 			{Name: "duration", ID: 3, Type: "duration", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
 		},
 		Events: []Event{
-			{Name: "onEnd", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
+			{Name: "onEnd", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the animation ends."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -351,8 +351,8 @@ var widgets = [...]Widget{
 			{Name: "positionLabel", ID: 7, Type: "string", Required: false, Default: "\"Position\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The progress bar's label."},
 		},
 		Events: []Event{
-			{Name: "onEnded", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when playback ends."},
-			{Name: "onError", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the audio cannot be played."},
+			{Name: "onEnded", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when playback ends."},
+			{Name: "onError", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the audio cannot be played."},
 		},
 	},
 	{
@@ -366,7 +366,7 @@ var widgets = [...]Widget{
 			{Name: "initialValue", ID: 4, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The text the field starts with."},
 		},
 		Events: []Event{
-			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSelected", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -378,7 +378,7 @@ var widgets = [...]Widget{
 			{Name: "style", ID: 2, Type: "ButtonStyle", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onPressed", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPressed", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -440,8 +440,8 @@ var widgets = [...]Widget{
 			{Name: "semanticLabel", ID: 7, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "What a screen reader announces for the scanner; the read value is announced when a code is detected."},
 		},
 		Events: []Event{
-			{Name: "onDetected", ID: 1, Payload: "ScanResult", Revision: 1, Deprecated: nil, Description: "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
-			{Name: "onError", ID: 2, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with an error code when the camera is denied, missing or fails."},
+			{Name: "onDetected", ID: 1, Payload: "ScanResult", Sensitive: true, Revision: 1, Deprecated: nil, Description: "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
+			{Name: "onError", ID: 2, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with an error code when the camera is denied, missing or fails."},
 		},
 	},
 	{
@@ -465,8 +465,8 @@ var widgets = [...]Widget{
 			{Name: "reason", ID: 2, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "Why the app asks, shown by the system prompt."},
 		},
 		Events: []Event{
-			{Name: "onSuccess", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the user confirms."},
-			{Name: "onFailure", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the confirmation fails or is cancelled."},
+			{Name: "onSuccess", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the user confirms."},
+			{Name: "onFailure", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the confirmation fails or is cancelled."},
 		},
 	},
 	{
@@ -506,7 +506,7 @@ var widgets = [...]Widget{
 			{Name: "showUnselectedLabels", ID: 12, Type: "bool", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onTap", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTap", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -520,8 +520,8 @@ var widgets = [...]Widget{
 			{Name: "currentDate", ID: 4, Type: "date", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "Today, as the picker marks it; the device date when absent."},
 		},
 		Events: []Event{
-			{Name: "onDateChanged", ID: 1, Payload: "date", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onDisplayedMonthChanged", ID: 2, Payload: "date", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDateChanged", ID: 1, Payload: "date", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDisplayedMonthChanged", ID: 2, Payload: "date", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -554,7 +554,7 @@ var widgets = [...]Widget{
 			{Name: "semanticLabel", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The label screen readers announce for the carousel."},
 		},
 		Events: []Event{
-			{Name: "onPageChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the index of the page shown."},
+			{Name: "onPageChanged", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the index of the page shown."},
 		},
 		Children: &Children{Min: 1, Max: 0},
 	},
@@ -573,7 +573,7 @@ var widgets = [...]Widget{
 			{Name: "checkoutLabel", ID: 8, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The label of the built-in checkout button."},
 		},
 		Events: []Event{
-			{Name: "onCheckout", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the person starts checkout."},
+			{Name: "onCheckout", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the person starts checkout."},
 		},
 		Slots: []Slot{
 			{Name: "checkout", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Replaces the built-in checkout button."},
@@ -615,7 +615,7 @@ var widgets = [...]Widget{
 			{Name: "adaptive", ID: 17, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: false, Translatable: false, Description: "Renders the platform's variant through Flutter's adaptive constructor: the Cupertino look on iOS, Material elsewhere."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "bool?", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChanged", ID: 1, Payload: "bool?", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -657,8 +657,8 @@ var widgets = [...]Widget{
 			{Name: "adaptive", ID: 32, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: false, Translatable: false, Description: "Renders the platform's variant through Flutter's adaptive constructor: the Cupertino look on iOS, Material elsewhere."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "bool?", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onFocusChange", ID: 2, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChanged", ID: 1, Payload: "bool?", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onFocusChange", ID: 2, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "title", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -691,7 +691,7 @@ var widgets = [...]Widget{
 			{Name: "deleteIconBoxConstraints", ID: 18, Type: "BoxConstraints", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onDeleted", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDeleted", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "avatar", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -730,7 +730,7 @@ var widgets = [...]Widget{
 			{Name: "avatarBoxConstraints", ID: 24, Type: "BoxConstraints", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onSelected", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSelected", ID: 1, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "avatar", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -751,8 +751,8 @@ var widgets = [...]Widget{
 			{Name: "maxRadius", ID: 7, Type: "double", Required: false, Default: "", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onBackgroundImageError", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onForegroundImageError", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onBackgroundImageError", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onForegroundImageError", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -809,7 +809,7 @@ var widgets = [...]Widget{
 			{Name: "style", ID: 2, Type: "ButtonStyle", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onPressed", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPressed", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -850,9 +850,9 @@ var widgets = [...]Widget{
 			{Name: "value", ID: 4, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "Whether consent is given."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: "Fires with the new value when the person toggles the checkbox."},
-			{Name: "onAccepted", ID: 2, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with `documentVersion` when consent is given, so the page records the accepted version."},
-			{Name: "onLinkTap", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the person taps the link."},
+			{Name: "onChanged", ID: 1, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the new value when the person toggles the checkbox."},
+			{Name: "onAccepted", ID: 2, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with `documentVersion` when consent is given, so the page records the accepted version."},
+			{Name: "onLinkTap", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the person taps the link."},
 		},
 	},
 	{
@@ -897,7 +897,7 @@ var widgets = [...]Widget{
 			{Name: "format", ID: 2, Type: "CountdownFormat", Required: false, Default: "\"hms\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "How the remaining time is written."},
 		},
 		Events: []Event{
-			{Name: "onFinished", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires once when the countdown reaches zero."},
+			{Name: "onFinished", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires once when the countdown reaches zero."},
 		},
 	},
 	{
@@ -909,7 +909,7 @@ var widgets = [...]Widget{
 			{Name: "searchHint", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The hint of the search field."},
 		},
 		Events: []Event{
-			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the ISO 3166 code of the chosen country."},
+			{Name: "onSelected", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the ISO 3166 code of the chosen country."},
 		},
 	},
 	{
@@ -940,9 +940,9 @@ var widgets = [...]Widget{
 			{Name: "autofocus", ID: 11, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onFocusChange", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPress", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onPressed", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onFocusChange", ID: 1, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPress", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPressed", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -957,7 +957,7 @@ var widgets = [...]Widget{
 			{Name: "enableHapticFeedback", ID: 2, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onAction", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fired with the index of the chosen action."},
+			{Name: "onAction", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired with the index of the chosen action."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -982,7 +982,7 @@ var widgets = [...]Widget{
 			{Name: "itemExtent", ID: 12, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onDateTimeChanged", ID: 1, Payload: "dateTime", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDateTimeChanged", ID: 1, Payload: "dateTime", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -1018,7 +1018,7 @@ var widgets = [...]Widget{
 			{Name: "leadingToTitle", ID: 5, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTap", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "title", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -1064,7 +1064,7 @@ var widgets = [...]Widget{
 			{Name: "looping", ID: 9, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onSelectedItemChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSelectedItemChanged", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Children: &Children{Min: 0, Max: 0},
 	},
@@ -1081,9 +1081,9 @@ var widgets = [...]Widget{
 			{Name: "thumbColor", ID: 6, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "double", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onChangeStart", ID: 2, Payload: "double", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onChangeEnd", ID: 3, Payload: "double", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChanged", ID: 1, Payload: "double", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChangeStart", ID: 2, Payload: "double", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChangeEnd", ID: 3, Payload: "double", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -1101,7 +1101,7 @@ var widgets = [...]Widget{
 			{Name: "isMomentary", ID: 8, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onValueChanged", ID: 1, Payload: "string?", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onValueChanged", ID: 1, Payload: "string?", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "segments", ID: 1, List: true, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: "The label of each segment, in the order of `values`."},
@@ -1129,10 +1129,10 @@ var widgets = [...]Widget{
 			{Name: "dragStartBehavior", ID: 15, Type: "DragStartBehavior", Required: false, Default: "\"start\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onActiveThumbImageError", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onInactiveThumbImageError", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onFocusChange", ID: 4, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChanged", ID: 1, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onActiveThumbImageError", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onInactiveThumbImageError", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onFocusChange", ID: 4, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -1149,7 +1149,7 @@ var widgets = [...]Widget{
 			{Name: "height", ID: 7, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onTap", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTap", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -1209,12 +1209,12 @@ var widgets = [...]Widget{
 			{Name: "enableInlinePrediction", ID: 50, Type: "bool", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onEditingComplete", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSubmitted", ID: 3, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTapOutside", ID: 4, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTapUpOutside", ID: 5, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTap", ID: 6, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChanged", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onEditingComplete", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSubmitted", ID: 3, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTapOutside", ID: 4, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTapUpOutside", ID: 5, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTap", ID: 6, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "prefix", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -1231,7 +1231,7 @@ var widgets = [...]Widget{
 			{Name: "searchHint", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The hint of the search field."},
 		},
 		Events: []Event{
-			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the ISO 4217 code of the chosen currency."},
+			{Name: "onSelected", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the ISO 4217 code of the chosen currency."},
 		},
 	},
 	{
@@ -1299,9 +1299,9 @@ var widgets = [...]Widget{
 			{Name: "clipBehavior", ID: 21, Type: "Clip", Required: false, Default: "\"none\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onSort", ID: 1, Payload: "IndexFlag", Revision: 1, Deprecated: nil, Description: "Fired when a sortable heading is tapped; `index` is the column, `value` whether the order is ascending. The page stores both and re-sorts `rows`."},
-			{Name: "onSelectChanged", ID: 2, Payload: "IndexFlag", Revision: 1, Deprecated: nil, Description: "Fired when a row is selected or deselected; `index` is the row, `value` whether it is selected."},
-			{Name: "onSelectAll", ID: 3, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSort", ID: 1, Payload: "IndexFlag", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when a sortable heading is tapped; `index` is the column, `value` whether the order is ascending. The page stores both and re-sorts `rows`."},
+			{Name: "onSelectChanged", ID: 2, Payload: "IndexFlag", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when a row is selected or deselected; `index` is the row, `value` whether it is selected."},
+			{Name: "onSelectAll", ID: 3, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -1329,7 +1329,7 @@ var widgets = [...]Widget{
 			{Name: "behavior", ID: 6, Type: "HitTestBehavior", Required: false, Default: "\"opaque\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onDismissed", ID: 1, Payload: "DismissDirection", Revision: 1, Deprecated: nil, Description: "Fired after the child was dismissed, with the direction it went."},
+			{Name: "onDismissed", ID: 1, Payload: "DismissDirection", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired after the child was dismissed, with the direction it went."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -1361,8 +1361,8 @@ var widgets = [...]Widget{
 			{Name: "hitTestBehavior", ID: 3, Type: "HitTestBehavior", Required: false, Default: "\"translucent\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onAccept", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload."},
-			{Name: "onLeave", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when a candidate leaves without being dropped."},
+			{Name: "onAccept", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload."},
+			{Name: "onLeave", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when a candidate leaves without being dropped."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: "The content; it is highlighted while a candidate hovers."},
@@ -1384,10 +1384,10 @@ var widgets = [...]Widget{
 			{Name: "hitTestBehavior", ID: 8, Type: "HitTestBehavior", Required: false, Default: "\"deferToChild\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onDragStarted", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onDragEnd", ID: 2, Payload: "bool", Revision: 1, Deprecated: nil, Description: "Fired when the drag ends; the payload tells whether a target accepted it."},
-			{Name: "onDragCompleted", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when a target accepted the drop."},
-			{Name: "onDraggableCanceled", ID: 4, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when no target accepted the drop."},
+			{Name: "onDragStarted", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDragEnd", ID: 2, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the drag ends; the payload tells whether a target accepted it."},
+			{Name: "onDragCompleted", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when a target accepted the drop."},
+			{Name: "onDraggableCanceled", ID: 4, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when no target accepted the drop."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -1443,7 +1443,7 @@ var widgets = [...]Widget{
 			{Name: "scrollPadding", ID: 23, Type: "EdgeInsets", Required: false, Default: "{\"all\":20.0}", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onSelected", ID: 1, Payload: "string?", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSelected", ID: 1, Payload: "string?", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "leadingIcon", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -1464,7 +1464,7 @@ var widgets = [...]Widget{
 			{Name: "secondaryCalendar", ID: 5, Type: "CalendarSystem?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The calendar of the small day numbers; the app's `localisation.secondaryCalendar` when absent, and none if that is absent too."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "date", Revision: 1, Deprecated: nil, Description: "Fires with the date chosen."},
+			{Name: "onChanged", ID: 1, Payload: "date", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the date chosen."},
 		},
 	},
 	{
@@ -1477,10 +1477,10 @@ var widgets = [...]Widget{
 			{Name: "clipBehavior", ID: 3, Type: "Clip", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onPressed", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPress", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onHover", ID: 3, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onFocusChange", ID: 4, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPressed", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPress", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onHover", ID: 3, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onFocusChange", ID: 4, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -1510,7 +1510,7 @@ var widgets = [...]Widget{
 			{Name: "retryLabel", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "Label of a built-in retry button; hidden when absent."},
 		},
 		Events: []Event{
-			{Name: "onRetry", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the built-in retry button is pressed."},
+			{Name: "onRetry", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the built-in retry button is pressed."},
 		},
 		Slots: []Slot{
 			{Name: "action", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "An optional call to action, typically a button."},
@@ -1557,7 +1557,7 @@ var widgets = [...]Widget{
 			{Name: "enabled", ID: 23, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onExpansionChanged", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onExpansionChanged", ID: 1, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "leading", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -1593,8 +1593,8 @@ var widgets = [...]Widget{
 			{Name: "uploadLabel", ID: 6, Type: "string", Required: false, Default: "\"Upload\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The upload button's label."},
 		},
 		Events: []Event{
-			{Name: "onUploaded", ID: 1, Payload: "FileUploadResult", Revision: 1, Deprecated: nil, Description: "Fires with the upload result when the upload succeeds."},
-			{Name: "onFailed", ID: 2, Payload: "FileUploadError", Revision: 1, Deprecated: nil, Description: "Fires with the error when picking or uploading fails."},
+			{Name: "onUploaded", ID: 1, Payload: "FileUploadResult", Sensitive: true, Revision: 1, Deprecated: nil, Description: "Fires with the upload result when the upload succeeds."},
+			{Name: "onFailed", ID: 2, Payload: "FileUploadError", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the error when picking or uploading fails."},
 		},
 	},
 	{
@@ -1607,10 +1607,10 @@ var widgets = [...]Widget{
 			{Name: "clipBehavior", ID: 3, Type: "Clip", Required: false, Default: "\"none\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onPressed", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPress", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onHover", ID: 3, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onFocusChange", ID: 4, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPressed", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPress", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onHover", ID: 3, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onFocusChange", ID: 4, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -1624,7 +1624,7 @@ var widgets = [...]Widget{
 			{Name: "filters", ID: 1, Type: "list<ChoiceItem>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The chips."},
 		},
 		Events: []Event{
-			{Name: "onToggle", ID: 1, Payload: "ChoiceItem", Revision: 1, Deprecated: nil, Description: "Fires with the chip's `id`, `label` and its new `selected` when the person taps it."},
+			{Name: "onToggle", ID: 1, Payload: "ChoiceItem", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the chip's `id`, `label` and its new `selected` when the person taps it."},
 		},
 	},
 	{
@@ -1661,8 +1661,8 @@ var widgets = [...]Widget{
 			{Name: "deleteIconBoxConstraints", ID: 27, Type: "BoxConstraints", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onSelected", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onDeleted", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSelected", ID: 1, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDeleted", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "avatar", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -1740,7 +1740,7 @@ var widgets = [...]Widget{
 			{Name: "extendedTextStyle", ID: 21, Type: "TextStyle", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onPressed", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPressed", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -1796,64 +1796,64 @@ var widgets = [...]Widget{
 			{Name: "trackpadScrollToScaleFactor", ID: 5, Type: "Offset", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onTapDown", ID: 1, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTapUp", ID: 2, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTap", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTapMove", ID: 4, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTapCancel", ID: 5, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryTap", ID: 6, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryTapDown", ID: 7, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryTapUp", ID: 8, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryTapCancel", ID: 9, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTertiaryTapDown", ID: 10, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTertiaryTapUp", ID: 11, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTertiaryTapCancel", ID: 12, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onDoubleTapDown", ID: 13, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onDoubleTap", ID: 14, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onDoubleTapCancel", ID: 15, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPressDown", ID: 16, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPressCancel", ID: 17, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPress", ID: 18, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPressStart", ID: 19, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPressMoveUpdate", ID: 20, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPressUp", ID: 21, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPressEnd", ID: 22, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryLongPressDown", ID: 23, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryLongPressCancel", ID: 24, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryLongPress", ID: 25, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryLongPressStart", ID: 26, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryLongPressMoveUpdate", ID: 27, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryLongPressUp", ID: 28, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryLongPressEnd", ID: 29, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTertiaryLongPressDown", ID: 30, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTertiaryLongPressCancel", ID: 31, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTertiaryLongPress", ID: 32, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTertiaryLongPressStart", ID: 33, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTertiaryLongPressMoveUpdate", ID: 34, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTertiaryLongPressUp", ID: 35, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTertiaryLongPressEnd", ID: 36, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onVerticalDragDown", ID: 37, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onVerticalDragStart", ID: 38, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onVerticalDragUpdate", ID: 39, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onVerticalDragEnd", ID: 40, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onVerticalDragCancel", ID: 41, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onHorizontalDragDown", ID: 42, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onHorizontalDragStart", ID: 43, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onHorizontalDragUpdate", ID: 44, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onHorizontalDragEnd", ID: 45, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onHorizontalDragCancel", ID: 46, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onForcePressStart", ID: 47, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onForcePressPeak", ID: 48, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onForcePressUpdate", ID: 49, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onForcePressEnd", ID: 50, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onPanDown", ID: 51, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onPanStart", ID: 52, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onPanUpdate", ID: 53, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onPanEnd", ID: 54, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onPanCancel", ID: 55, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onScaleStart", ID: 56, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onScaleUpdate", ID: 57, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onScaleEnd", ID: 58, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTapDown", ID: 1, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTapUp", ID: 2, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTap", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTapMove", ID: 4, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTapCancel", ID: 5, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryTap", ID: 6, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryTapDown", ID: 7, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryTapUp", ID: 8, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryTapCancel", ID: 9, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTertiaryTapDown", ID: 10, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTertiaryTapUp", ID: 11, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTertiaryTapCancel", ID: 12, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDoubleTapDown", ID: 13, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDoubleTap", ID: 14, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDoubleTapCancel", ID: 15, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPressDown", ID: 16, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPressCancel", ID: 17, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPress", ID: 18, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPressStart", ID: 19, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPressMoveUpdate", ID: 20, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPressUp", ID: 21, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPressEnd", ID: 22, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryLongPressDown", ID: 23, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryLongPressCancel", ID: 24, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryLongPress", ID: 25, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryLongPressStart", ID: 26, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryLongPressMoveUpdate", ID: 27, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryLongPressUp", ID: 28, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryLongPressEnd", ID: 29, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTertiaryLongPressDown", ID: 30, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTertiaryLongPressCancel", ID: 31, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTertiaryLongPress", ID: 32, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTertiaryLongPressStart", ID: 33, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTertiaryLongPressMoveUpdate", ID: 34, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTertiaryLongPressUp", ID: 35, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTertiaryLongPressEnd", ID: 36, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onVerticalDragDown", ID: 37, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onVerticalDragStart", ID: 38, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onVerticalDragUpdate", ID: 39, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onVerticalDragEnd", ID: 40, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onVerticalDragCancel", ID: 41, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onHorizontalDragDown", ID: 42, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onHorizontalDragStart", ID: 43, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onHorizontalDragUpdate", ID: 44, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onHorizontalDragEnd", ID: 45, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onHorizontalDragCancel", ID: 46, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onForcePressStart", ID: 47, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onForcePressPeak", ID: 48, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onForcePressUpdate", ID: 49, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onForcePressEnd", ID: 50, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPanDown", ID: 51, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPanStart", ID: 52, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPanUpdate", ID: 53, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPanEnd", ID: 54, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPanCancel", ID: 55, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onScaleStart", ID: 56, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onScaleUpdate", ID: 57, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onScaleEnd", ID: 58, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -1890,7 +1890,7 @@ var widgets = [...]Widget{
 			{Name: "mainAxisExtent", ID: 23, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "Fixed cell extent along the main axis."},
 		},
 		Events: []Event{
-			{Name: "onEndReached", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the end of the list comes into view and `hasMore` is true."},
+			{Name: "onEndReached", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the end of the list comes into view and `hasMore` is true."},
 		},
 		Slots: []Slot{
 			{Name: "item", ID: 1, List: false, Required: true, Template: true, Revision: 1, Deprecated: nil, Description: "The template built for each item, lazily."},
@@ -1923,7 +1923,7 @@ var widgets = [...]Widget{
 			{Name: "invalidMessage", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The error shown for an invalid IBAN."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the IBAN without spaces when it is valid, and with an empty string when it is not."},
+			{Name: "onChanged", ID: 1, Payload: "string", Sensitive: true, Revision: 1, Deprecated: nil, Description: "Fires with the IBAN without spaces when it is valid, and with an empty string when it is not."},
 		},
 	},
 	{
@@ -1970,9 +1970,9 @@ var widgets = [...]Widget{
 			{Name: "isSelected", ID: 17, Type: "bool", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onPressed", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onHover", ID: 2, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPress", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPressed", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onHover", ID: 2, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPress", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "selectedIcon", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -2030,7 +2030,7 @@ var widgets = [...]Widget{
 			{Name: "semanticLabel", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The label screen readers announce for the gallery."},
 		},
 		Events: []Event{
-			{Name: "onPageChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the index of the image shown."},
+			{Name: "onPageChanged", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the index of the image shown."},
 		},
 	},
 	{
@@ -2058,7 +2058,7 @@ var widgets = [...]Widget{
 			{Name: "padding", ID: 4, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "Space around the items."},
 		},
 		Events: []Event{
-			{Name: "onEndReached", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires once when the last item comes into view and `hasMore` is true."},
+			{Name: "onEndReached", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires once when the last item comes into view and `hasMore` is true."},
 		},
 		Slots: []Slot{
 			{Name: "item", ID: 1, List: false, Required: true, Template: true, Revision: 1, Deprecated: nil, Description: "The template built for each item, lazily."},
@@ -2087,20 +2087,20 @@ var widgets = [...]Widget{
 			{Name: "hoverDuration", ID: 13, Type: "duration", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onDoubleTap", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPress", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPressUp", ID: 4, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTapDown", ID: 5, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTapUp", ID: 6, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTapCancel", ID: 7, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryTap", ID: 8, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryTapUp", ID: 9, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryTapDown", ID: 10, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSecondaryTapCancel", ID: 11, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onHighlightChanged", ID: 12, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onHover", ID: 13, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onFocusChange", ID: 14, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTap", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDoubleTap", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPress", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPressUp", ID: 4, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTapDown", ID: 5, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTapUp", ID: 6, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTapCancel", ID: 7, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryTap", ID: 8, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryTapUp", ID: 9, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryTapDown", ID: 10, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSecondaryTapCancel", ID: 11, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onHighlightChanged", ID: 12, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onHover", ID: 13, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onFocusChange", ID: 14, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -2141,9 +2141,9 @@ var widgets = [...]Widget{
 			{Name: "deleteIconBoxConstraints", ID: 28, Type: "BoxConstraints", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onSelected", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onDeleted", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onPressed", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSelected", ID: 1, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDeleted", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPressed", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "avatar", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -2170,8 +2170,8 @@ var widgets = [...]Widget{
 			{Name: "trackpadScrollCausesScale", ID: 12, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onInteractionStart", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onInteractionEnd", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onInteractionStart", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onInteractionEnd", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -2185,7 +2185,7 @@ var widgets = [...]Widget{
 			{Name: "mode", ID: 1, Type: "KycCaptureMode", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "What to capture."},
 		},
 		Events: []Event{
-			{Name: "onCaptured", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with a reference to the captured image."},
+			{Name: "onCaptured", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with a reference to the captured image."},
 		},
 	},
 	{
@@ -2262,9 +2262,9 @@ var widgets = [...]Widget{
 			{Name: "titleAlignment", ID: 26, Type: "ListTileTitleAlignment", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPress", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onFocusChange", ID: 3, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTap", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPress", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onFocusChange", ID: 3, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "leading", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -2299,7 +2299,7 @@ var widgets = [...]Widget{
 			{Name: "hasMore", ID: 18, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "More items can be loaded; `onEndReached` fires near the end (P5 pagination)."},
 		},
 		Events: []Event{
-			{Name: "onEndReached", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the end of the list comes into view and `hasMore` is true."},
+			{Name: "onEndReached", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the end of the list comes into view and `hasMore` is true."},
 		},
 		Slots: []Slot{
 			{Name: "item", ID: 1, List: false, Required: true, Template: true, Revision: 1, Deprecated: nil, Description: "The template built for each item, lazily."},
@@ -2338,7 +2338,7 @@ var widgets = [...]Widget{
 			{Name: "semanticLabel", ID: 10, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "What the animation shows; without one it is hidden from screen readers."},
 		},
 		Events: []Event{
-			{Name: "onCompleted", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when an animation that does not repeat ends."},
+			{Name: "onCompleted", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when an animation that does not repeat ends."},
 		},
 	},
 	{
@@ -2359,9 +2359,9 @@ var widgets = [...]Widget{
 			{Name: "interactive", ID: 11, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "Whether the user can pan and zoom."},
 		},
 		Events: []Event{
-			{Name: "onMarkerTap", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "A marker was tapped; the payload is its `id`."},
-			{Name: "onMapTap", ID: 2, Payload: "LatLng", Revision: 1, Deprecated: nil, Description: "The map was tapped away from a marker; the payload is the position."},
-			{Name: "onCameraIdle", ID: 3, Payload: "MapCamera", Revision: 1, Deprecated: nil, Description: "The camera stopped moving; the payload is its centre and zoom."},
+			{Name: "onMarkerTap", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "A marker was tapped; the payload is its `id`."},
+			{Name: "onMapTap", ID: 2, Payload: "LatLng", Sensitive: false, Revision: 1, Deprecated: nil, Description: "The map was tapped away from a marker; the payload is the position."},
+			{Name: "onCameraIdle", ID: 3, Payload: "MapCamera", Sensitive: false, Revision: 1, Deprecated: nil, Description: "The camera stopped moving; the payload is its centre and zoom."},
 		},
 	},
 	{
@@ -2372,7 +2372,7 @@ var widgets = [...]Widget{
 			{Name: "source", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The Markdown text."},
 		},
 		Events: []Event{
-			{Name: "onLink", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the address of a tapped link; wire it to the `openUrl` action. The widget never opens a link itself."},
+			{Name: "onLink", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the address of a tapped link; wire it to the `openUrl` action. The widget never opens a link itself."},
 		},
 	},
 	{
@@ -2387,7 +2387,7 @@ var widgets = [...]Widget{
 			{Name: "revealLabel", ID: 5, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The label of the reveal button."},
 		},
 		Events: []Event{
-			{Name: "onReveal", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the person reveals the value."},
+			{Name: "onReveal", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the person reveals the value."},
 		},
 	},
 	{
@@ -2422,7 +2422,7 @@ var widgets = [...]Widget{
 			{Name: "minActionBarHeight", ID: 12, Type: "double", Required: false, Default: "52.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onVisible", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onVisible", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "content", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -2439,9 +2439,9 @@ var widgets = [...]Widget{
 			{Name: "consumeOutsideTap", ID: 2, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onOpen", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onClose", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSelected", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onOpen", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onClose", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "The anchor the menu opens from; tapping it toggles the menu."},
@@ -2482,7 +2482,7 @@ var widgets = [...]Widget{
 			{Name: "labelBehavior", ID: 9, Type: "NavigationDestinationLabelBehavior", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onDestinationSelected", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDestinationSelected", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -2499,7 +2499,7 @@ var widgets = [...]Widget{
 			{Name: "indicatorColor", ID: 7, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onDestinationSelected", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDestinationSelected", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "header", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -2524,7 +2524,7 @@ var widgets = [...]Widget{
 			{Name: "indicatorColor", ID: 11, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onDestinationSelected", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDestinationSelected", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "leading", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -2568,8 +2568,8 @@ var widgets = [...]Widget{
 			{Name: "doneLabel", ID: 3, Type: "string", Required: false, Default: "\"Done\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The Done button's text, on the last page."},
 		},
 		Events: []Event{
-			{Name: "onPageChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the page now shown."},
-			{Name: "onDone", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the person finishes the last page."},
+			{Name: "onPageChanged", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the page now shown."},
+			{Name: "onDone", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the person finishes the last page."},
 		},
 		Children: &Children{Min: 1, Max: 0},
 	},
@@ -2614,7 +2614,7 @@ var widgets = [...]Widget{
 			{Name: "autofill", ID: 3, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "Uses the platform's one-time-code autofill."},
 		},
 		Events: []Event{
-			{Name: "onCompleted", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the code once `length` characters are entered. Sensitive: never logged, traced or persisted (SEC-092)."},
+			{Name: "onCompleted", ID: 1, Payload: "string", Sensitive: true, Revision: 1, Deprecated: nil, Description: "Fires with the code once `length` characters are entered. Sensitive: never logged, traced or persisted (SEC-092)."},
 		},
 	},
 	{
@@ -2627,10 +2627,10 @@ var widgets = [...]Widget{
 			{Name: "clipBehavior", ID: 3, Type: "Clip", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onPressed", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPress", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onHover", ID: 3, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onFocusChange", ID: 4, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPressed", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPress", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onHover", ID: 3, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onFocusChange", ID: 4, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -2667,8 +2667,8 @@ var widgets = [...]Widget{
 			{Name: "hasMore", ID: 12, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "More items can be loaded; `onEndReached` fires near the end (P5 pagination)."},
 		},
 		Events: []Event{
-			{Name: "onPageChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onEndReached", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the end of the list comes into view and `hasMore` is true."},
+			{Name: "onPageChanged", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onEndReached", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the end of the list comes into view and `hasMore` is true."},
 		},
 		Slots: []Slot{
 			{Name: "item", ID: 1, List: false, Required: true, Template: true, Revision: 1, Deprecated: nil, Description: "The template built for each item, lazily."},
@@ -2690,7 +2690,7 @@ var widgets = [...]Widget{
 			{Name: "backLabel", ID: 6, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The text on the back."},
 		},
 		Events: []Event{
-			{Name: "onFlip", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: "Fires with the side the person asked for."},
+			{Name: "onFlip", ID: 1, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the side the person asked for."},
 		},
 	},
 	{
@@ -2704,7 +2704,7 @@ var widgets = [...]Widget{
 			{Name: "invalidMessage", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The error shown for an invalid number."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the E.164 number when it is valid, and with an empty string when it is not."},
+			{Name: "onChanged", ID: 1, Payload: "string", Sensitive: true, Revision: 1, Deprecated: nil, Description: "Fires with the E.164 number when it is valid, and with an empty string when it is not."},
 		},
 	},
 	{
@@ -2734,9 +2734,9 @@ var widgets = [...]Widget{
 			{Name: "iconSize", ID: 9, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onCanceled", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onOpened", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSelected", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onCanceled", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onOpened", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -2782,8 +2782,8 @@ var widgets = [...]Widget{
 			{Name: "addToCartLabel", ID: 6, Type: "string", Required: false, Default: "\"Add to cart\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The label of the add-to-cart button."},
 		},
 		Events: []Event{
-			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the card is tapped."},
-			{Name: "onAddToCart", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the add-to-cart button is pressed. The button shows only when this is handled."},
+			{Name: "onTap", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the card is tapped."},
+			{Name: "onAddToCart", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the add-to-cart button is pressed. The button shows only when this is handled."},
 		},
 	},
 	{
@@ -2812,7 +2812,7 @@ var widgets = [...]Widget{
 			{Name: "endsAt", ID: 5, Type: "dateTime?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "When the offer ends; shows a countdown."},
 		},
 		Events: []Event{
-			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the banner or its call to action is tapped."},
+			{Name: "onTap", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the banner or its call to action is tapped."},
 		},
 	},
 	{
@@ -2842,8 +2842,8 @@ var widgets = [...]Widget{
 			{Name: "semanticLabel", ID: 6, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "What a screen reader announces for the scanner; the read value is announced when a code is detected."},
 		},
 		Events: []Event{
-			{Name: "onDetected", ID: 1, Payload: "ScanResult", Revision: 1, Deprecated: nil, Description: "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
-			{Name: "onError", ID: 2, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with an error code when the camera is denied, missing or fails."},
+			{Name: "onDetected", ID: 1, Payload: "ScanResult", Sensitive: true, Revision: 1, Deprecated: nil, Description: "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
+			{Name: "onError", ID: 2, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with an error code when the camera is denied, missing or fails."},
 		},
 	},
 	{
@@ -2859,7 +2859,7 @@ var widgets = [...]Widget{
 			{Name: "increaseLabel", ID: 6, Type: "string", Required: false, Default: "\"Increase\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The accessibility label of the increase button."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the new quantity."},
+			{Name: "onChanged", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the new quantity."},
 		},
 	},
 	{
@@ -2887,7 +2887,7 @@ var widgets = [...]Widget{
 			{Name: "useCupertinoCheckmarkStyle", ID: 18, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "With `adaptive` on iOS, marks the selected option with a checkmark instead of a dot."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "string?", Revision: 1, Deprecated: nil, Description: "Fired with the value when the user selects this radio."},
+			{Name: "onChanged", ID: 1, Payload: "string?", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired with the value when the user selects this radio."},
 		},
 	},
 	{
@@ -2929,8 +2929,8 @@ var widgets = [...]Widget{
 			{Name: "useCupertinoCheckmarkStyle", ID: 32, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "With `adaptive` on iOS, marks the selected option with a checkmark instead of a dot."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "string?", Revision: 1, Deprecated: nil, Description: "Fired with the value when the user selects this radio."},
-			{Name: "onFocusChange", ID: 2, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChanged", ID: 1, Payload: "string?", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired with the value when the user selects this radio."},
+			{Name: "onFocusChange", ID: 2, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "title", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -2954,9 +2954,9 @@ var widgets = [...]Widget{
 			{Name: "padding", ID: 9, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "RangeValues", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onChangeStart", ID: 2, Payload: "RangeValues", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onChangeEnd", ID: 3, Payload: "RangeValues", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChanged", ID: 1, Payload: "RangeValues", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChangeStart", ID: 2, Payload: "RangeValues", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChangeEnd", ID: 3, Payload: "RangeValues", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -2980,7 +2980,7 @@ var widgets = [...]Widget{
 			{Name: "starLabel", ID: 3, Type: "string", Required: false, Default: "\"star\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The noun in each star's label, such as `star`."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the rating chosen."},
+			{Name: "onChanged", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the rating chosen."},
 		},
 	},
 	{
@@ -2999,7 +2999,7 @@ var widgets = [...]Widget{
 			{Name: "elevation", ID: 9, Type: "double", Required: false, Default: "2.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onRefresh", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the user pulls to refresh. The indicator hides when the handlers have been started."},
+			{Name: "onRefresh", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the user pulls to refresh. The indicator hides when the handlers have been started."},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -3027,9 +3027,9 @@ var widgets = [...]Widget{
 			{Name: "status", ID: 15, Type: "ListStatus", Required: false, Default: "\"ready\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "Loading, error or ready; selects the `loading` or `error` slot (WGT-012)."},
 		},
 		Events: []Event{
-			{Name: "onReorder", ID: 1, Payload: "map<string,int>", Revision: 1, Deprecated: nil, Description: "Fired when an item is dropped; the payload holds `oldIndex` and `newIndex`, the final position of the item. The page moves the item in its list."},
-			{Name: "onReorderStart", ID: 2, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onReorderEnd", ID: 3, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onReorder", ID: 1, Payload: "map<string,int>", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when an item is dropped; the payload holds `oldIndex` and `newIndex`, the final position of the item. The page moves the item in its list."},
+			{Name: "onReorderStart", ID: 2, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onReorderEnd", ID: 3, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "item", ID: 1, List: false, Required: true, Template: true, Revision: 1, Deprecated: nil, Description: "The template built for each item, lazily."},
@@ -3085,8 +3085,8 @@ var widgets = [...]Widget{
 			{Name: "semanticLabel", ID: 9, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "What the animation shows; without one it is hidden from screen readers."},
 		},
 		Events: []Event{
-			{Name: "onLoaded", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the file is loaded."},
-			{Name: "onFailed", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the file cannot be loaded."},
+			{Name: "onLoaded", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the file is loaded."},
+			{Name: "onFailed", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the file cannot be loaded."},
 		},
 	},
 	{
@@ -3155,8 +3155,8 @@ var widgets = [...]Widget{
 			{Name: "endDrawerEnableOpenDragGesture", ID: 14, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onDrawerChanged", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onEndDrawerChanged", ID: 2, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDrawerChanged", ID: 1, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onEndDrawerChanged", ID: 2, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "appBar", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -3210,7 +3210,7 @@ var widgets = [...]Widget{
 			{Name: "hintText", ID: 4, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The hint of the bar that opens the view."},
 		},
 		Events: []Event{
-			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSelected", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -3222,9 +3222,9 @@ var widgets = [...]Widget{
 			{Name: "hintText", ID: 2, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSubmitted", ID: 2, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTap", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChanged", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSubmitted", ID: 2, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTap", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "leading", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -3242,8 +3242,8 @@ var widgets = [...]Widget{
 			{Name: "suggestions", ID: 4, Type: "list<string>", Required: false, Default: "[]", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "Suggestions shown below the field while it has text."},
 		},
 		Events: []Event{
-			{Name: "onSearch", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the query after typing pauses for `debounceMs`."},
-			{Name: "onSuggestionSelected", ID: 2, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the suggestion the person picked."},
+			{Name: "onSearch", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the query after typing pauses for `debounceMs`."},
+			{Name: "onSuggestionSelected", ID: 2, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the suggestion the person picked."},
 		},
 	},
 	{
@@ -3256,7 +3256,7 @@ var widgets = [...]Widget{
 			{Name: "haptics", ID: 3, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "Haptic feedback on key press; no visual key-press animation."},
 		},
 		Events: []Event{
-			{Name: "onCompleted", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the PIN once `length` digits are entered. Sensitive: never logged, traced or persisted (SEC-092)."},
+			{Name: "onCompleted", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the PIN once `length` digits are entered. Sensitive: never logged, traced or persisted (SEC-092)."},
 		},
 	},
 	{
@@ -3270,8 +3270,8 @@ var widgets = [...]Widget{
 			{Name: "maxLength", ID: 4, Type: "int", Required: false, Default: "", Constraints: Constraints{Min: Bound{Value: 1, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The maximum number of characters."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires on every change with the text. Sensitive: never logged, traced or persisted (SEC-092)."},
-			{Name: "onSubmitted", ID: 2, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires when the user submits. Sensitive: never logged, traced or persisted (SEC-092)."},
+			{Name: "onChanged", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires on every change with the text. Sensitive: never logged, traced or persisted (SEC-092)."},
+			{Name: "onSubmitted", ID: 2, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the user submits. Sensitive: never logged, traced or persisted (SEC-092)."},
 		},
 	},
 	{
@@ -3289,7 +3289,7 @@ var widgets = [...]Widget{
 			{Name: "direction", ID: 8, Type: "Axis", Required: false, Default: "\"horizontal\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onSelectionChanged", ID: 1, Payload: "list<string>", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSelectionChanged", ID: 1, Payload: "list<string>", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "selectedIcon", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -3322,7 +3322,7 @@ var widgets = [...]Widget{
 			{Name: "textWidthBasis", ID: 20, Type: "TextWidthBasis", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTap", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -3346,7 +3346,7 @@ var widgets = [...]Widget{
 			{Name: "semanticLabel", ID: 5, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "What the signature is for, spoken for the pad."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires after each stroke with the signature, and with an empty string when cleared."},
+			{Name: "onChanged", ID: 1, Payload: "string", Sensitive: true, Revision: 1, Deprecated: nil, Description: "Fires after each stroke with the signature, and with an empty string when cleared."},
 		},
 	},
 	{
@@ -3428,9 +3428,9 @@ var widgets = [...]Widget{
 			{Name: "adaptive", ID: 16, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: false, Translatable: false, Description: "Renders the platform's variant through Flutter's adaptive constructor: the Cupertino look on iOS, Material elsewhere. `padding` does not apply to it."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "double", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onChangeStart", ID: 2, Payload: "double", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onChangeEnd", ID: 3, Payload: "double", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChanged", ID: 1, Payload: "double", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChangeStart", ID: 2, Payload: "double", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChangeEnd", ID: 3, Payload: "double", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -3469,7 +3469,7 @@ var widgets = [...]Widget{
 			{Name: "actionsPadding", ID: 29, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onStretchTrigger", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onStretchTrigger", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "leading", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -3512,7 +3512,7 @@ var widgets = [...]Widget{
 			{Name: "mainAxisExtent", ID: 13, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "Fixed cell extent along the main axis."},
 		},
 		Events: []Event{
-			{Name: "onEndReached", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the end of the list comes into view and `hasMore` is true."},
+			{Name: "onEndReached", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the end of the list comes into view and `hasMore` is true."},
 		},
 		Slots: []Slot{
 			{Name: "item", ID: 1, List: false, Required: true, Template: true, Revision: 1, Deprecated: nil, Description: "The template built for each item, lazily."},
@@ -3536,7 +3536,7 @@ var widgets = [...]Widget{
 			{Name: "hasMore", ID: 7, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "More items can be loaded; `onEndReached` fires near the end (P5 pagination)."},
 		},
 		Events: []Event{
-			{Name: "onEndReached", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fired when the end of the list comes into view and `hasMore` is true."},
+			{Name: "onEndReached", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fired when the end of the list comes into view and `hasMore` is true."},
 		},
 		Slots: []Slot{
 			{Name: "item", ID: 1, List: false, Required: true, Template: true, Revision: 1, Deprecated: nil, Description: "The template built for each item, lazily."},
@@ -3599,7 +3599,7 @@ var widgets = [...]Widget{
 			{Name: "selected", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The `id` of the chosen option."},
 		},
 		Events: []Event{
-			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the `id` of the option the person chose."},
+			{Name: "onSelected", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the `id` of the option the person chose."},
 		},
 	},
 	{
@@ -3661,9 +3661,9 @@ var widgets = [...]Widget{
 			{Name: "contentPadding", ID: 14, Type: "EdgeInsets", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onStepTapped", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onStepContinue", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onStepCancel", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onStepTapped", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onStepContinue", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onStepCancel", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Children: &Children{Min: 0, Max: 0},
 	},
@@ -3695,10 +3695,10 @@ var widgets = [...]Widget{
 			{Name: "applyCupertinoTheme", ID: 21, Type: "bool", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "With `adaptive` on iOS, whether the switch takes its colours from the Cupertino theme."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onActiveThumbImageError", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onInactiveThumbImageError", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onFocusChange", ID: 4, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChanged", ID: 1, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onActiveThumbImageError", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onInactiveThumbImageError", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onFocusChange", ID: 4, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -3740,10 +3740,10 @@ var widgets = [...]Widget{
 			{Name: "applyCupertinoTheme", ID: 32, Type: "bool", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "With `adaptive` on iOS, whether the switch takes its colours from the Cupertino theme."},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onActiveThumbImageError", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onInactiveThumbImageError", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onFocusChange", ID: 4, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChanged", ID: 1, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onActiveThumbImageError", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onInactiveThumbImageError", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onFocusChange", ID: 4, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "title", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -3766,7 +3766,7 @@ var widgets = [...]Widget{
 			{Name: "unselectedLabelColor", ID: 8, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onTap", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTap", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -3778,7 +3778,7 @@ var widgets = [...]Widget{
 			{Name: "viewportFraction", ID: 2, Type: "double", Required: false, Default: "1.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onIndexChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onIndexChanged", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Children: &Children{Min: 0, Max: 0},
 	},
@@ -3808,8 +3808,8 @@ var widgets = [...]Widget{
 			{Name: "scrollHint", ID: 4, Type: "string", Required: false, Default: "\"Scroll to the end to accept\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "Shown, and spoken, while the end has not been reached."},
 		},
 		Events: []Event{
-			{Name: "onAccepted", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the version when the user accepts."},
-			{Name: "onLink", ID: 2, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the address of a tapped link; wire it to the `openUrl` action."},
+			{Name: "onAccepted", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the version when the user accepts."},
+			{Name: "onLink", ID: 2, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the address of a tapped link; wire it to the `openUrl` action."},
 		},
 	},
 	{
@@ -3842,10 +3842,10 @@ var widgets = [...]Widget{
 			{Name: "isSemanticButton", ID: 4, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onPressed", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onLongPress", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onHover", ID: 3, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onFocusChange", ID: 4, Payload: "bool", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onPressed", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onLongPress", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onHover", ID: 3, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onFocusChange", ID: 4, Payload: "bool", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -3905,12 +3905,12 @@ var widgets = [...]Widget{
 			{Name: "hintLocales", ID: 47, Type: "list<string>", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onEditingComplete", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSubmitted", ID: 3, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTap", ID: 4, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTapOutside", ID: 5, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTapUpOutside", ID: 6, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChanged", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onEditingComplete", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSubmitted", ID: 3, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTap", ID: 4, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTapOutside", ID: 5, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTapUpOutside", ID: 6, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -3969,13 +3969,13 @@ var widgets = [...]Widget{
 			{Name: "hintLocales", ID: 49, Type: "list<string>", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onChanged", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTap", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTapOutside", ID: 3, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onTapUpOutside", ID: 4, Payload: "GestureDetails", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onEditingComplete", ID: 5, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onFieldSubmitted", ID: 6, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
-			{Name: "onSaved", ID: 7, Payload: "string?", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onChanged", ID: 1, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTap", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTapOutside", ID: 3, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTapUpOutside", ID: 4, Payload: "GestureDetails", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onEditingComplete", ID: 5, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onFieldSubmitted", ID: 6, Payload: "string", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSaved", ID: 7, Payload: "string?", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -4016,7 +4016,7 @@ var widgets = [...]Widget{
 			{Name: "ignorePointer", ID: 18, Type: "bool", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: ""},
 		},
 		Events: []Event{
-			{Name: "onTriggered", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTriggered", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
@@ -4035,7 +4035,7 @@ var widgets = [...]Widget{
 			{Name: "statusLabel", ID: 6, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The status written for the person; the status name when absent."},
 		},
 		Events: []Event{
-			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the row is tapped."},
+			{Name: "onTap", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the row is tapped."},
 		},
 	},
 	{
@@ -4089,8 +4089,8 @@ var widgets = [...]Widget{
 			{Name: "positionLabel", ID: 10, Type: "string", Required: false, Default: "\"Position\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The progress bar's label."},
 		},
 		Events: []Event{
-			{Name: "onEnded", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when playback ends."},
-			{Name: "onError", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the video cannot be played."},
+			{Name: "onEnded", ID: 1, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when playback ends."},
+			{Name: "onError", ID: 2, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the video cannot be played."},
 		},
 	},
 	{
@@ -4106,9 +4106,9 @@ var widgets = [...]Widget{
 			{Name: "submitLabel", ID: 6, Type: "string", Required: false, Default: "\"Submit\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: true, Description: "The Submit button's text, on the last step."},
 		},
 		Events: []Event{
-			{Name: "onNext", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the step now shown, once the current step is valid."},
-			{Name: "onBack", ID: 2, Payload: "int", Revision: 1, Deprecated: nil, Description: "Fires with the step now shown when the person goes back."},
-			{Name: "onSubmit", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the last step is valid and the person submits."},
+			{Name: "onNext", ID: 1, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the step now shown, once the current step is valid."},
+			{Name: "onBack", ID: 2, Payload: "int", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires with the step now shown when the person goes back."},
+			{Name: "onSubmit", ID: 3, Payload: "", Sensitive: false, Revision: 1, Deprecated: nil, Description: "Fires when the last step is valid and the person submits."},
 		},
 		Children: &Children{Min: 1, Max: 0},
 	},

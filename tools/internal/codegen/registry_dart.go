@@ -28,6 +28,15 @@ func registryDart(r *registry.Registry) []byte {
 		}
 		writeDartIDs(&b, "props", w.Props, func(p registry.Prop) (string, uint32) { return p.Name, p.ID })
 		writeDartIDs(&b, "events", w.Events, func(e registry.Event) (string, uint32) { return e.Name, e.ID })
+		sens := []string{}
+		for _, e := range sortedByID(w.Events, func(e registry.Event) uint32 { return e.ID }) {
+			if e.Sensitive {
+				sens = append(sens, quoteDart(e.Name))
+			}
+		}
+		if len(sens) > 0 {
+			fmt.Fprintf(&b, "    sensitiveEvents: {%s},\n", strings.Join(sens, ", "))
+		}
 		writeDartIDs(&b, "slots", w.Slots, func(s registry.Slot) (string, uint32) { return s.Name, s.ID })
 		b.WriteString("  ),\n")
 	}
@@ -90,6 +99,7 @@ final class WidgetDescriptor {
     required this.revision,
     this.props = const {},
     this.events = const {},
+    this.sensitiveEvents = const {},
     this.slots = const {},
     this.package,
   });
@@ -111,6 +121,10 @@ final class WidgetDescriptor {
 
   /// Event IDs by name.
   final Map<String, int> events;
+
+  /// Names of the events whose payload is sensitive: traces and telemetry
+  /// never record it (SCH-012, SEC-092).
+  final Set<String> sensitiveEvents;
 
   /// Slot IDs by name.
   final Map<String, int> slots;

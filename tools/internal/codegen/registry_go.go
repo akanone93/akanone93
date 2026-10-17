@@ -73,8 +73,8 @@ func writeGoWidget(b *bytes.Buffer, w *registry.Widget) {
 	if len(w.Events) > 0 {
 		b.WriteString("Events: []Event{\n")
 		for _, e := range sortedByID(w.Events, func(e registry.Event) uint32 { return e.ID }) {
-			fmt.Fprintf(b, "{Name: %q, ID: %d, Payload: %q, Revision: %d, Deprecated: %s, Description: %q},\n",
-				e.Name, e.ID, e.Payload, revisionOr1(e.Revision), goDeprecation(e.Deprecated), e.Description)
+			fmt.Fprintf(b, "{Name: %q, ID: %d, Payload: %q, Sensitive: %t, Revision: %d, Deprecated: %s, Description: %q},\n",
+				e.Name, e.ID, e.Payload, e.Sensitive, revisionOr1(e.Revision), goDeprecation(e.Deprecated), e.Description)
 		}
 		b.WriteString("},\n")
 	}

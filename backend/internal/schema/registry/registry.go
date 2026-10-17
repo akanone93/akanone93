@@ -132,7 +132,10 @@ type Event struct {
 	Name string
 	ID   uint32
 	// Payload is the type of `event` in handlers; empty for none.
-	Payload     string
+	Payload string
+	// Sensitive is true when the payload carries a personal or secret
+	// value (SCH-012, SEC-092).
+	Sensitive   bool
 	Revision    uint16
 	Deprecated  *Deprecation
 	Description string

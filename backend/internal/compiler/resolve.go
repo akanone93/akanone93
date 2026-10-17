@@ -637,6 +637,11 @@ func (u *unit) buildNode(o owner, doc *schema.Node, parent *node, slot, ptr stri
 		eh := doc.Events[name]
 		if g := u.handlerGraph(o, &eh, doc.ID, name, file, ptr+plxerr.Pointer("events", name)); g != nil {
 			n.graphs[name] = g
+			if n.widget != nil {
+				if e, ok := n.widget.Event(name); ok && e.Sensitive {
+					g.eventSensitive = true
+				}
+			}
 		}
 	}
 	return n

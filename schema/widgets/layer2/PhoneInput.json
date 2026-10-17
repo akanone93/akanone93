@@ -57,6 +57,7 @@
       "name": "onChanged",
       "id": 1,
       "payload": "string",
+      "sensitive": true,
       "description": "Fires with the E.164 number when it is valid, and with an empty string when it is not."
     }
   ]

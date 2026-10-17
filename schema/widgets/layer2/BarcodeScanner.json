@@ -78,6 +78,7 @@
       "name": "onDetected",
       "id": 1,
       "payload": "ScanResult",
+      "sensitive": true,
       "description": "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."
     },
     {

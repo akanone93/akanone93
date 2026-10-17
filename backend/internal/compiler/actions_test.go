@@ -495,3 +495,56 @@ func TestRedactedInputs_ACT_031(t *testing.T) {
 		t.Errorf("redacted %v", redacted)
 	}
 }
+
+// TestRedactedEventPayload_SCH_012 checks that a graph run by a widget
+// event the registry marks sensitive redacts the inputs reading `event`,
+// and that a non-sensitive event does not.
+// Verifies: SCH-012, SEC-092, ACT-031.
+func TestRedactedEventPayload_SCH_012(t *testing.T) {
+	t.Parallel()
+	cond, _ := registry.LookupAction("condition")
+	in, _ := cond.Input("when")
+	for _, tc := range []struct {
+		name, typ, props, expr string
+		want                   []uint32
+	}{
+		{"sensitive", "AmountInput", `{"currency": "EUR"}`, "event != null", []uint32{in.ID}},
+		{"plain", "Switch", `{"value": false}`, "event == true", nil},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			res := features(t, func(m fstest.MapFS) {
+				edit(t, m, listFile, func(doc map[string]any) {
+					n := at(t, doc, "root/slots/body/children/8")
+					n["type"] = tc.typ
+					delete(n, "slots")
+					n["props"] = raw(t, tc.props)
+					n["events"] = raw(t, `{"onChanged": {"steps": [{"id": "only", "action": "condition", "input": {"when": {"$expr": "`+tc.expr+`"}}}]}}`)
+				})
+			})
+			noErrors(t, res)
+			var got []uint32
+			for _, sec := range readAll(t, res)[1].Sections {
+				if sec.Kind != bundle.SectionActions {
+					continue
+				}
+				actions := fbs.GetRootAsActions(sec.Data, 0)
+				var g fbs.Graph
+				var st fbs.Step
+				for i := range actions.GraphsLength() {
+					actions.Graphs(&g, i)
+					if g.StepsLength() != 1 {
+						continue
+					}
+					g.Steps(&st, 0)
+					for k := range st.RedactLength() {
+						got = append(got, st.Redact(k))
+					}
+				}
+			}
+			if !slices.Equal(got, tc.want) {
+				t.Errorf("redacted %v, want %v", got, tc.want)
+			}
+		})
+	}
+}

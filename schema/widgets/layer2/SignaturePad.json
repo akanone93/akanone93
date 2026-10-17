@@ -78,6 +78,7 @@
       "name": "onChanged",
       "id": 1,
       "payload": "string",
+      "sensitive": true,
       "description": "Fires after each stroke with the signature, and with an empty string when cleared."
     }
   ]

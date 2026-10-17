@@ -70,6 +70,7 @@
       "name": "onChanged",
       "id": 1,
       "payload": "money",
+      "sensitive": true,
       "description": "Fires with the amount whenever the typed text is a valid amount."
     }
   ]
