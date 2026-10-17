@@ -8,21 +8,21 @@ How the widget descriptors and value types cover the constructor parameters of t
 
 | | Count |
 |---|---|
-| Flutter classes | 125 |
-| Constructor parameters | 1898 |
-| Supported as props | 1059 |
-| Supported as events | 167 |
-| Supported as slots | 117 |
-| Supported as the children list | 6 |
+| Flutter classes | 138 |
+| Constructor parameters | 2158 |
+| Supported as props | 1127 |
+| Supported as events | 183 |
+| Supported as slots | 127 |
+| Supported as the children list | 7 |
 | Supported as value-type fields | 203 |
 | Excluded: callback→event | 0 |
-| Excluded: controller→state | 59 |
-| Excluded: builder→template | 0 |
-| Excluded: non-serialisable | 144 |
+| Excluded: controller→state | 68 |
+| Excluded: builder→template | 9 |
+| Excluded: non-serialisable | 157 |
 | Excluded: deprecated | 24 |
-| Excluded: deferred | 119 |
-| Mirrored enums | 55 |
-| Enum values | 216 |
+| Excluded: deferred | 253 |
+| Mirrored enums | 59 |
+| Enum values | 226 |
 | Enum values excluded | 0 |
 
 Callbacks are supported as events and builders as slots or item templates. A parameter is excluded as **callback→event** or **builder→template** when an event or template elsewhere covers its purpose, **controller→state** when the runtime owns the controller and binds it to state, **non-serialisable** when the value cannot be expressed as data, **deprecated** when Flutter deprecates it, and **deferred** when it is expressible but planned for a later revision.
@@ -117,6 +117,22 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `aspectRatio` | `double` | prop `aspectRatio` |  |
 | `child` | `Widget?` | slot `child` |  |
 
+### Autocomplete · `Autocomplete`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `optionsBuilder` | `FutureOr<Iterable<T>> Function(TextEditingValue)` | excluded: builder→template | Replaced by the `options` prop; the runtime filters. |
+| `displayStringForOption` | `String Function(T)` | excluded: deferred | Not supported yet. |
+| `fieldViewBuilder` | `Widget Function(BuildContext, TextEditingController, FocusNode, void Function())` | excluded: builder→template | The runtime builds it from the Plux props. |
+| `focusNode` | `FocusNode?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `onSelected` | `void Function(T)?` | event `onSelected` |  |
+| `optionsMaxHeight` | `double` | prop `optionsMaxHeight` |  |
+| `optionsViewBuilder` | `Widget Function(BuildContext, void Function(T), Iterable<T>)?` | excluded: builder→template | The runtime builds it from the Plux props. |
+| `optionsViewOpenDirection` | `OptionsViewOpenDirection` | excluded: deferred | Not supported yet. |
+| `textEditingController` | `TextEditingController?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `initialValue` | `TextEditingValue?` | excluded: deferred | Replaced by the `initialValue` prop. |
+
 ### BackButton · `BackButton`
 
 | Parameter | Flutter type | Plux | Note |
@@ -167,6 +183,49 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `surfaceTintColor` | `Color?` | prop `surfaceTintColor` |  |
 | `shadowColor` | `Color?` | prop `shadowColor` |  |
 | `height` | `double?` | prop `height` |  |
+
+### BottomNavigationBar · `BottomNavigationBar`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `items` | `List<BottomNavigationBarItem>` | excluded: deferred | Replaced by the `items` prop. |
+| `onTap` | `void Function(int)?` | event `onTap` |  |
+| `currentIndex` | `int` | prop `currentIndex` |  |
+| `elevation` | `double?` | prop `elevation` |  |
+| `type` | `BottomNavigationBarType?` | prop `type` |  |
+| `fixedColor` | `Color?` | excluded: deferred | Not supported yet. |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `iconSize` | `double` | prop `iconSize` |  |
+| `selectedItemColor` | `Color?` | prop `selectedItemColor` |  |
+| `unselectedItemColor` | `Color?` | prop `unselectedItemColor` |  |
+| `selectedIconTheme` | `IconThemeData?` | excluded: deferred | Not supported yet. |
+| `unselectedIconTheme` | `IconThemeData?` | excluded: deferred | Not supported yet. |
+| `selectedFontSize` | `double` | prop `selectedFontSize` |  |
+| `unselectedFontSize` | `double` | prop `unselectedFontSize` |  |
+| `selectedLabelStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `unselectedLabelStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `showSelectedLabels` | `bool?` | prop `showSelectedLabels` |  |
+| `showUnselectedLabels` | `bool?` | prop `showUnselectedLabels` |  |
+| `mouseCursor` | `MouseCursor?` | excluded: deferred | Not supported yet. |
+| `enableFeedback` | `bool?` | excluded: deferred | Not supported yet. |
+| `landscapeLayout` | `BottomNavigationBarLandscapeLayout?` | excluded: deferred | Not supported yet. |
+| `useLegacyColorScheme` | `bool` | excluded: deferred | Not supported yet. |
+
+### CalendarDatePicker · `CalendarDatePicker`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `initialDate` | `DateTime?` | prop `initialDate` |  |
+| `firstDate` | `DateTime` | prop `firstDate` |  |
+| `lastDate` | `DateTime` | prop `lastDate` |  |
+| `currentDate` | `DateTime?` | prop `currentDate` |  |
+| `onDateChanged` | `void Function(DateTime)` | event `onDateChanged` |  |
+| `onDisplayedMonthChanged` | `void Function(DateTime)?` | event `onDisplayedMonthChanged` |  |
+| `initialCalendarMode` | `DatePickerMode` | excluded: deferred | Not supported yet. |
+| `selectableDayPredicate` | `bool Function(DateTime)?` | excluded: deferred | Replaced by `firstDate` and `lastDate`. |
+| `calendarDelegate` | `CalendarDelegate<DateTime>` | excluded: deferred | The calendar choice arrives with Layer 3. |
 
 ### Card · `Card`
 
@@ -699,6 +758,21 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `endIndent` | `double?` | prop `endIndent` |  |
 | `color` | `Color?` | prop `color` |  |
 | `radius` | `BorderRadiusGeometry?` | prop `radius` |  |
+
+### Drawer · `Drawer`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `elevation` | `double?` | prop `elevation` |  |
+| `shadowColor` | `Color?` | prop `shadowColor` |  |
+| `surfaceTintColor` | `Color?` | prop `surfaceTintColor` |  |
+| `shape` | `ShapeBorder?` | prop `shape` |  |
+| `width` | `double?` | prop `width` |  |
+| `child` | `Widget?` | slot `child` |  |
+| `semanticLabel` | `String?` | prop `semanticLabel` |  |
+| `clipBehavior` | `Clip?` | prop `clipBehavior` |  |
 
 ### DropdownMenu · `DropdownMenu`
 
@@ -1322,6 +1396,99 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `clipBehavior` | `Clip` | prop `clipBehavior` |  |
 | `hitTestBehavior` | `HitTestBehavior` | prop `hitTestBehavior` |  |
 
+### MenuAnchor · `MenuAnchor`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `controller` | `MenuController?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `childFocusNode` | `FocusNode?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `style` | `MenuStyle?` | excluded: deferred | Not supported yet. |
+| `alignmentOffset` | `Offset?` | excluded: deferred | Not supported yet. |
+| `reservedPadding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `layerLink` | `LayerLink?` | excluded: deferred | Not supported yet. |
+| `clipBehavior` | `Clip` | excluded: deferred | Not supported yet. |
+| `anchorTapClosesMenu` (deprecated) | `bool` | excluded: deferred | Not supported yet. |
+| `consumeOutsideTap` | `bool` | prop `consumeOutsideTap` |  |
+| `onOpen` | `void Function()?` | event `onOpen` |  |
+| `onClose` | `void Function()?` | event `onClose` |  |
+| `crossAxisUnconstrained` | `bool` | excluded: deferred | Not supported yet. |
+| `useRootOverlay` | `bool` | excluded: deferred | Not supported yet. |
+| `animated` | `bool` | excluded: deferred | Not supported yet. |
+| `onAnimationStatusChanged` | `void Function(AnimationStatus)?` | excluded: deferred | Not supported yet. |
+| `menuChildren` | `List<Widget>` | excluded: deferred | Replaced by the `items` prop; the runtime builds the entries. |
+| `builder` | `Widget Function(BuildContext, MenuController, Widget?)?` | excluded: builder→template | The runtime builds the anchor around the `child` slot. |
+| `child` | `Widget?` | slot `child` |  |
+
+### NavigationBar · `NavigationBar`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `animationDuration` | `Duration?` | excluded: deferred | Not supported yet. |
+| `selectedIndex` | `int` | prop `selectedIndex` |  |
+| `destinations` | `List<Widget>` | excluded: deferred | Replaced by the `destinations` prop. |
+| `onDestinationSelected` | `void Function(int)?` | event `onDestinationSelected` |  |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `elevation` | `double?` | prop `elevation` |  |
+| `shadowColor` | `Color?` | prop `shadowColor` |  |
+| `surfaceTintColor` | `Color?` | prop `surfaceTintColor` |  |
+| `indicatorColor` | `Color?` | prop `indicatorColor` |  |
+| `indicatorShape` | `ShapeBorder?` | excluded: deferred | Not supported yet. |
+| `height` | `double?` | prop `height` |  |
+| `labelBehavior` | `NavigationDestinationLabelBehavior?` | prop `labelBehavior` |  |
+| `overlayColor` | `WidgetStateProperty<Color?>?` | excluded: deferred | Not supported yet. |
+| `labelTextStyle` | `WidgetStateProperty<TextStyle?>?` | excluded: deferred | Not supported yet. |
+| `labelPadding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `maintainBottomViewPadding` | `bool` | excluded: deferred | Not supported yet. |
+
+### NavigationDrawer · `NavigationDrawer`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `children` | `List<Widget>` | excluded: deferred | Replaced by the `destinations` prop. |
+| `header` | `Widget?` | slot `header` |  |
+| `footer` | `Widget?` | slot `footer` |  |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `shadowColor` | `Color?` | prop `shadowColor` |  |
+| `surfaceTintColor` | `Color?` | prop `surfaceTintColor` |  |
+| `elevation` | `double?` | prop `elevation` |  |
+| `indicatorColor` | `Color?` | prop `indicatorColor` |  |
+| `indicatorShape` | `ShapeBorder?` | excluded: deferred | Not supported yet. |
+| `onDestinationSelected` | `void Function(int)?` | event `onDestinationSelected` |  |
+| `selectedIndex` | `int?` | prop `selectedIndex` |  |
+| `tilePadding` | `EdgeInsetsGeometry` | excluded: deferred | Not supported yet. |
+
+### NavigationRail · `NavigationRail`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `extended` | `bool` | prop `extended` |  |
+| `leading` | `Widget?` | slot `leading` |  |
+| `trailing` | `Widget?` | slot `trailing` |  |
+| `destinations` | `List<NavigationRailDestination>` | excluded: deferred | Replaced by the `destinations` prop. |
+| `selectedIndex` | `int?` | prop `selectedIndex` |  |
+| `onDestinationSelected` | `void Function(int)?` | event `onDestinationSelected` |  |
+| `elevation` | `double?` | prop `elevation` |  |
+| `groupAlignment` | `double?` | prop `groupAlignment` |  |
+| `labelType` | `NavigationRailLabelType?` | prop `labelType` |  |
+| `unselectedLabelTextStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `selectedLabelTextStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `unselectedIconTheme` | `IconThemeData?` | excluded: deferred | Not supported yet. |
+| `selectedIconTheme` | `IconThemeData?` | excluded: deferred | Not supported yet. |
+| `minWidth` | `double?` | prop `minWidth` |  |
+| `minExtendedWidth` | `double?` | prop `minExtendedWidth` |  |
+| `useIndicator` | `bool?` | prop `useIndicator` |  |
+| `indicatorColor` | `Color?` | prop `indicatorColor` |  |
+| `indicatorShape` | `ShapeBorder?` | excluded: deferred | Not supported yet. |
+| `leadingAtTop` | `bool` | excluded: deferred | Not supported yet. |
+| `trailingAtBottom` | `bool` | excluded: deferred | Not supported yet. |
+| `scrollable` | `bool` | excluded: deferred | Not supported yet. |
+| `mainAxisAlignment` | `MainAxisAlignment?` | excluded: deferred | Not supported yet. |
+
 ### Opacity · `Opacity`
 
 | Parameter | Flutter type | Plux | Note |
@@ -1377,6 +1544,42 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `hitTestBehavior` | `HitTestBehavior` | prop `hitTestBehavior` |  |
 | `scrollBehavior` | `ScrollBehavior?` | excluded: non-serialisable |  |
 | `padEnds` | `bool` | prop `padEnds` |  |
+
+### PopupMenuButton · `PopupMenuButton`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `itemBuilder` | `List<PopupMenuEntry<T>> Function(BuildContext)` | excluded: builder→template | Replaced by the `items` prop; the runtime builds the entries. |
+| `initialValue` | `T?` | prop `initialValue` |  |
+| `onOpened` | `void Function()?` | event `onOpened` |  |
+| `onSelected` | `void Function(T)?` | event `onSelected` |  |
+| `onCanceled` | `void Function()?` | event `onCanceled` |  |
+| `tooltip` | `String?` | prop `tooltip` |  |
+| `elevation` | `double?` | prop `elevation` |  |
+| `shadowColor` | `Color?` | prop `shadowColor` |  |
+| `surfaceTintColor` | `Color?` | prop `surfaceTintColor` |  |
+| `padding` | `EdgeInsetsGeometry` | excluded: deferred | Not supported yet. |
+| `menuPadding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `child` | `Widget?` | slot `child` |  |
+| `borderRadius` | `BorderRadius?` | excluded: deferred | Not supported yet. |
+| `splashRadius` | `double?` | excluded: deferred | Not supported yet. |
+| `icon` | `Widget?` | slot `icon` |  |
+| `iconSize` | `double?` | prop `iconSize` |  |
+| `offset` | `Offset` | excluded: deferred | Not supported yet. |
+| `enabled` | `bool` | prop `enabled` |  |
+| `shape` | `ShapeBorder?` | excluded: deferred | Not supported yet. |
+| `color` | `Color?` | prop `color` |  |
+| `iconColor` | `Color?` | excluded: deferred | Not supported yet. |
+| `enableFeedback` | `bool?` | excluded: deferred | Not supported yet. |
+| `constraints` | `BoxConstraints?` | excluded: deferred | Not supported yet. |
+| `position` | `PopupMenuPosition?` | excluded: deferred | Not supported yet. |
+| `clipBehavior` | `Clip` | excluded: deferred | Not supported yet. |
+| `useRootNavigator` | `bool` | excluded: deferred | Not supported yet. |
+| `popUpAnimationStyle` | `AnimationStyle?` | excluded: deferred | Not supported yet. |
+| `routeSettings` | `RouteSettings?` | excluded: deferred | Not supported yet. |
+| `style` | `ButtonStyle?` | excluded: deferred | Not supported yet. |
+| `requestFocus` | `bool?` | excluded: deferred | Not supported yet. |
 
 ### Positioned · `Positioned`
 
@@ -1581,6 +1784,79 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `notificationPredicate` | `bool Function(ScrollNotification)?` | excluded: non-serialisable | A Dart callback. |
 | `interactive` | `bool?` | prop `interactive` |  |
 | `scrollbarOrientation` | `ScrollbarOrientation?` | prop `scrollbarOrientation` |  |
+
+### SearchAnchor · `SearchAnchor`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `isFullScreen` | `bool?` | prop `isFullScreen` |  |
+| `searchController` | `SearchController?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `viewBuilder` | `Widget Function(Iterable<Widget>)?` | excluded: builder→template | The runtime builds the view from `suggestions`. |
+| `viewLeading` | `Widget?` | excluded: deferred | Not supported yet. |
+| `viewTrailing` | `Iterable<Widget>?` | excluded: deferred | Not supported yet. |
+| `viewHintText` | `String?` | prop `viewHintText` |  |
+| `viewBackgroundColor` | `Color?` | excluded: deferred | Not supported yet. |
+| `viewElevation` | `double?` | excluded: deferred | Not supported yet. |
+| `viewSurfaceTintColor` | `Color?` | excluded: deferred | Not supported yet. |
+| `viewSide` | `BorderSide?` | excluded: deferred | Not supported yet. |
+| `viewShape` | `OutlinedBorder?` | excluded: deferred | Not supported yet. |
+| `viewBarPadding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `headerHeight` | `double?` | excluded: deferred | Not supported yet. |
+| `headerTextStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `headerHintStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `dividerColor` | `Color?` | excluded: deferred | Not supported yet. |
+| `viewConstraints` | `BoxConstraints?` | excluded: deferred | Not supported yet. |
+| `viewPadding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `shrinkWrap` | `bool?` | excluded: deferred | Not supported yet. |
+| `textCapitalization` | `TextCapitalization?` | excluded: deferred | Not supported yet. |
+| `viewOnChanged` | `void Function(String)?` | excluded: deferred | Not supported yet. |
+| `viewOnSubmitted` | `void Function(String)?` | excluded: deferred | Not supported yet. |
+| `viewOnClose` | `void Function()?` | excluded: deferred | Not supported yet. |
+| `viewOnOpen` | `void Function()?` | excluded: deferred | Not supported yet. |
+| `builder` | `Widget Function(BuildContext, SearchController)` | excluded: builder→template | The runtime builds it from the Plux props. |
+| `suggestionsBuilder` | `FutureOr<Iterable<Widget>> Function(BuildContext, SearchController)` | excluded: builder→template | Replaced by the `suggestions` prop. |
+| `textInputAction` | `TextInputAction?` | excluded: deferred | Not supported yet. |
+| `keyboardType` | `TextInputType?` | excluded: deferred | Not supported yet. |
+| `enabled` | `bool` | excluded: deferred | Not supported yet. |
+| `smartDashesType` | `SmartDashesType?` | excluded: deferred | Not supported yet. |
+| `smartQuotesType` | `SmartQuotesType?` | excluded: deferred | Not supported yet. |
+
+### SearchBar · `SearchBar`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `controller` | `TextEditingController?` | prop `value` |  |
+| `focusNode` | `FocusNode?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `hintText` | `String?` | prop `hintText` |  |
+| `leading` | `Widget?` | slot `leading` |  |
+| `trailing` | `Iterable<Widget>?` | slot `trailing` |  |
+| `onTap` | `void Function()?` | event `onTap` |  |
+| `onTapOutside` | `void Function(PointerDownEvent)?` | excluded: deferred | Not supported yet. |
+| `onChanged` | `void Function(String)?` | event `onChanged` |  |
+| `onSubmitted` | `void Function(String)?` | event `onSubmitted` |  |
+| `constraints` | `BoxConstraints?` | excluded: deferred | Not supported yet. |
+| `elevation` | `WidgetStateProperty<double?>?` | excluded: deferred | Not supported yet. |
+| `backgroundColor` | `WidgetStateProperty<Color?>?` | excluded: deferred | Not supported yet. |
+| `shadowColor` | `WidgetStateProperty<Color?>?` | excluded: deferred | Not supported yet. |
+| `surfaceTintColor` | `WidgetStateProperty<Color?>?` | excluded: deferred | Not supported yet. |
+| `overlayColor` | `WidgetStateProperty<Color?>?` | excluded: deferred | Not supported yet. |
+| `side` | `WidgetStateProperty<BorderSide?>?` | excluded: deferred | Not supported yet. |
+| `shape` | `WidgetStateProperty<OutlinedBorder?>?` | excluded: deferred | Not supported yet. |
+| `padding` | `WidgetStateProperty<EdgeInsetsGeometry?>?` | excluded: deferred | Not supported yet. |
+| `textStyle` | `WidgetStateProperty<TextStyle?>?` | excluded: deferred | Not supported yet. |
+| `hintStyle` | `WidgetStateProperty<TextStyle?>?` | excluded: deferred | Not supported yet. |
+| `textCapitalization` | `TextCapitalization?` | excluded: deferred | Not supported yet. |
+| `enabled` | `bool` | excluded: deferred | Not supported yet. |
+| `autoFocus` | `bool` | excluded: deferred | Not supported yet. |
+| `textInputAction` | `TextInputAction?` | excluded: deferred | Not supported yet. |
+| `keyboardType` | `TextInputType?` | excluded: deferred | Not supported yet. |
+| `scrollPadding` | `EdgeInsets` | excluded: deferred | Not supported yet. |
+| `contextMenuBuilder` | `Widget Function(BuildContext, EditableTextState)?` | excluded: builder→template | The runtime builds it from the Plux props. |
+| `readOnly` | `bool` | excluded: deferred | Not supported yet. |
+| `smartDashesType` | `SmartDashesType?` | excluded: deferred | Not supported yet. |
+| `smartQuotesType` | `SmartQuotesType?` | excluded: deferred | Not supported yet. |
 
 ### SegmentedButton · `SegmentedButton`
 
@@ -1887,6 +2163,55 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `hoverColor` | `Color?` | prop `hoverColor` |  |
 | `internalAddSemanticForOnTap` | `bool` | excluded: non-serialisable | A framework-internal flag. |
 | `applyCupertinoTheme` — SwitchListTile.adaptive | `bool?` | prop `applyCupertinoTheme` |  |
+
+### TabBar · `TabBar`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `tabs` | `List<Widget>` | excluded: deferred | Replaced by the `tabs` prop. |
+| `controller` | `TabController?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `scrollController` | `TabBarScrollController?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `isScrollable` | `bool` | prop `isScrollable` |  |
+| `padding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `indicatorColor` | `Color?` | prop `indicatorColor` |  |
+| `automaticIndicatorColorAdjustment` | `bool` | excluded: deferred | Not supported yet. |
+| `indicatorWeight` | `double` | excluded: deferred | Not supported yet. |
+| `indicatorPadding` | `EdgeInsetsGeometry` | excluded: deferred | Not supported yet. |
+| `indicator` | `Decoration?` | excluded: deferred | Not supported yet. |
+| `indicatorSize` | `TabBarIndicatorSize?` | prop `indicatorSize` |  |
+| `dividerColor` | `Color?` | prop `dividerColor` |  |
+| `dividerHeight` | `double?` | excluded: deferred | Not supported yet. |
+| `labelColor` | `Color?` | prop `labelColor` |  |
+| `labelStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `labelPadding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `unselectedLabelColor` | `Color?` | prop `unselectedLabelColor` |  |
+| `unselectedLabelStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `dragStartBehavior` | `DragStartBehavior` | excluded: deferred | Not supported yet. |
+| `overlayColor` | `WidgetStateProperty<Color?>?` | excluded: deferred | Not supported yet. |
+| `mouseCursor` | `MouseCursor?` | excluded: deferred | Not supported yet. |
+| `enableFeedback` | `bool?` | excluded: deferred | Not supported yet. |
+| `onTap` | `void Function(int)?` | event `onTap` |  |
+| `onHover` | `void Function(bool, int)?` | excluded: deferred | Not supported yet. |
+| `onFocusChange` | `void Function(bool, int)?` | excluded: deferred | Not supported yet. |
+| `physics` | `ScrollPhysics?` | excluded: deferred | Not supported yet. |
+| `splashFactory` | `InteractiveInkFeatureFactory?` | excluded: deferred | Not supported yet. |
+| `splashBorderRadius` | `BorderRadius?` | excluded: deferred | Not supported yet. |
+| `tabAlignment` | `TabAlignment?` | excluded: deferred | Not supported yet. |
+| `textScaler` | `TextScaler?` | excluded: deferred | Not supported yet. |
+| `indicatorAnimation` | `TabIndicatorAnimation?` | excluded: deferred | Not supported yet. |
+
+### TabBarView · `TabBarView`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `children` | `List<Widget>` | `children` |  |
+| `controller` | `TabController?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `physics` | `ScrollPhysics?` | excluded: deferred | Not supported yet. |
+| `dragStartBehavior` | `DragStartBehavior` | excluded: deferred | Not supported yet. |
+| `viewportFraction` | `double` | prop `viewportFraction` |  |
+| `clipBehavior` | `Clip` | excluded: deferred | Not supported yet. |
 
 ### Text · `Text`
 
@@ -2563,6 +2888,7 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | BlendMode | `BlendMode` | 29 | — |
 | BlurStyle | `BlurStyle` | 4 | — |
 | BorderStyle | `BorderStyle` | 2 | — |
+| BottomNavigationBarType | `BottomNavigationBarType` | 2 | — |
 | BoxFit | `BoxFit` | 7 | — |
 | BoxHeightStyle | `BoxHeightStyle` | 6 | — |
 | BoxShape | `BoxShape` | 2 | — |
@@ -2588,6 +2914,8 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | MainAxisSize | `MainAxisSize` | 2 | — |
 | MaterialTapTargetSize | `MaterialTapTargetSize` | 2 | — |
 | MaxLengthEnforcement | `MaxLengthEnforcement` | 3 | — |
+| NavigationDestinationLabelBehavior | `NavigationDestinationLabelBehavior` | 3 | — |
+| NavigationRailLabelType | `NavigationRailLabelType` | 3 | — |
 | OverlayVisibilityMode | `OverlayVisibilityMode` | 4 | — |
 | ScrollViewKeyboardDismissBehavior | `ScrollViewKeyboardDismissBehavior` | 2 | — |
 | ScrollbarOrientation | `ScrollbarOrientation` | 4 | — |
@@ -2598,6 +2926,7 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | SmartQuotesType | `SmartQuotesType` | 2 | — |
 | StackFit | `StackFit` | 3 | — |
 | StrokeCap | `StrokeCap` | 3 | — |
+| TabBarIndicatorSize | `TabBarIndicatorSize` | 2 | — |
 | TextAlign | `TextAlign` | 6 | — |
 | TextBaseline | `TextBaseline` | 2 | — |
 | TextCapitalization | `TextCapitalization` | 4 | — |

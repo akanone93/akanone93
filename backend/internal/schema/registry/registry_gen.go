@@ -102,6 +102,20 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "Autocomplete", ID: 124, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "checklist", Description: "A text field that offers the `options` containing the typed text, ignoring case.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleTextField, Interactive: true,
+		Props: []Prop{
+			{Name: "options", ID: 1, Type: "list<string>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "hintText", ID: 2, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "optionsMaxHeight", ID: 3, Type: "double", Required: false, Default: "200.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "initialValue", ID: 4, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The text the field starts with."},
+		},
+		Events: []Event{
+			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
 		Type: "BackButton", ID: 84, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "input", Icon: "arrow_back", Description: "A back-arrow button that pops the current route.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleButton, Interactive: true,
@@ -174,6 +188,43 @@ var widgets = [...]Widget{
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "BottomNavigationBar", ID: 129, Layer: 1, Phase: "P4", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "bottom_app_bar", Description: "A bar of two or more items along the bottom; tapping one fires `onTap` with its index.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleTab, Interactive: true,
+		Props: []Prop{
+			{Name: "items", ID: 1, Type: "list<Destination>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Two or more items; `selectedIcon` is the active icon."},
+			{Name: "currentIndex", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "elevation", ID: 3, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "type", ID: 4, Type: "BottomNavigationBarType", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "backgroundColor", ID: 5, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "selectedItemColor", ID: 6, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "unselectedItemColor", ID: 7, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "iconSize", ID: 8, Type: "double", Required: false, Default: "24.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "selectedFontSize", ID: 9, Type: "double", Required: false, Default: "14.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "unselectedFontSize", ID: 10, Type: "double", Required: false, Default: "12.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "showSelectedLabels", ID: 11, Type: "bool", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "showUnselectedLabels", ID: 12, Type: "bool", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onTap", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "CalendarDatePicker", ID: 125, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "calendar_month", Description: "A month grid for picking a date in the Gregorian calendar.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleGroup, Interactive: true,
+		Props: []Prop{
+			{Name: "initialDate", ID: 1, Type: "date", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "firstDate", ID: 2, Type: "date", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "lastDate", ID: 3, Type: "date", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "currentDate", ID: 4, Type: "date", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Today, as the picker marks it; the device date when absent."},
+		},
+		Events: []Event{
+			{Name: "onDateChanged", ID: 1, Payload: "date", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onDisplayedMonthChanged", ID: 2, Payload: "date", Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -748,6 +799,24 @@ var widgets = [...]Widget{
 			{Name: "endIndent", ID: 4, Type: "double", Required: false, Default: "", Constraints: Constraints{Min: Bound{Value: 0, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 			{Name: "color", ID: 5, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
 			{Name: "radius", ID: 6, Type: "BorderRadius", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+	},
+	{
+		Type: "Drawer", ID: 130, Layer: 1, Phase: "P4", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "menu", Description: "A panel that slides in from the edge; fill `Scaffold.drawer` or `Scaffold.endDrawer` with it.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleNone, Interactive: false,
+		Props: []Prop{
+			{Name: "backgroundColor", ID: 1, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "elevation", ID: 2, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "shadowColor", ID: 3, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "surfaceTintColor", ID: 4, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "shape", ID: 5, Type: "ShapeBorder", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "width", ID: 6, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "semanticLabel", ID: 7, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "clipBehavior", ID: 8, Type: "Clip", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -1504,6 +1573,88 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "MenuAnchor", ID: 121, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "menu_open", Description: "Opens a menu of `items` from its anchor `child`; choosing one fires `onSelected` with its value.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleMenu, Interactive: true,
+		Props: []Prop{
+			{Name: "items", ID: 1, Type: "list<MenuItem>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The menu entries."},
+			{Name: "consumeOutsideTap", ID: 2, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onOpen", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onClose", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "The anchor the menu opens from; tapping it toggles the menu."},
+		},
+	},
+	{
+		Type: "NavigationBar", ID: 128, Layer: 1, Phase: "P4", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "bottom_navigation", Description: "A bar of destinations along the bottom; choosing one fires `onDestinationSelected` with its index.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleTab, Interactive: true,
+		Props: []Prop{
+			{Name: "destinations", ID: 1, Type: "list<Destination>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "selectedIndex", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "backgroundColor", ID: 3, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "elevation", ID: 4, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "shadowColor", ID: 5, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "surfaceTintColor", ID: 6, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "indicatorColor", ID: 7, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "height", ID: 8, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "labelBehavior", ID: 9, Type: "NavigationDestinationLabelBehavior", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onDestinationSelected", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "NavigationDrawer", ID: 131, Layer: 1, Phase: "P4", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "menu_open", Description: "A drawer of destinations; choosing one fires `onDestinationSelected` with its index.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleGroup, Interactive: true,
+		Props: []Prop{
+			{Name: "destinations", ID: 1, Type: "list<Destination>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "selectedIndex", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "backgroundColor", ID: 3, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "shadowColor", ID: 4, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "surfaceTintColor", ID: 5, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "elevation", ID: 6, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "indicatorColor", ID: 7, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onDestinationSelected", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "header", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "footer", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "NavigationRail", ID: 132, Layer: 1, Phase: "P4", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "side_navigation", Description: "A column of destinations along the side; choosing one fires `onDestinationSelected` with its index.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleTab, Interactive: true,
+		Props: []Prop{
+			{Name: "destinations", ID: 1, Type: "list<Destination>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "selectedIndex", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "extended", ID: 3, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Shows the labels beside the icons; `labelType` then reads as none."},
+			{Name: "labelType", ID: 4, Type: "NavigationRailLabelType", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "backgroundColor", ID: 5, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "elevation", ID: 6, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "groupAlignment", ID: 7, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "minWidth", ID: 8, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "minExtendedWidth", ID: 9, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "useIndicator", ID: 10, Type: "bool", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "indicatorColor", ID: 11, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onDestinationSelected", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "leading", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "trailing", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
 		Type: "OfflineBanner", ID: 102, Layer: 2, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "feedback", Icon: "cloud_off", Description: "A banner shown while the device is offline.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 15, Role: RoleNone, Interactive: false,
@@ -1595,6 +1746,31 @@ var widgets = [...]Widget{
 			{Name: "empty", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown when `items` is empty."},
 			{Name: "loading", ID: 3, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown while `status` is loading."},
 			{Name: "error", ID: 4, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Shown while `status` is error."},
+		},
+	},
+	{
+		Type: "PopupMenuButton", ID: 120, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "more_vert", Description: "A button that opens a menu of `items`; choosing one fires `onSelected` with its value.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleMenu, Interactive: true,
+		Props: []Prop{
+			{Name: "items", ID: 1, Type: "list<MenuItem>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The menu entries."},
+			{Name: "initialValue", ID: 2, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The value of the entry shown as selected."},
+			{Name: "tooltip", ID: 3, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "enabled", ID: 4, Type: "bool", Required: false, Default: "true", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "elevation", ID: 5, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "color", ID: 6, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "shadowColor", ID: 7, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "surfaceTintColor", ID: 8, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "iconSize", ID: 9, Type: "double", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onCanceled", ID: 2, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onOpened", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "icon", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -1819,6 +1995,38 @@ var widgets = [...]Widget{
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "SearchAnchor", ID: 123, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "manage_search", Description: "A search bar that opens a view listing the `suggestions` that match the text; choosing one fires `onSelected`.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleTextField, Interactive: true,
+		Props: []Prop{
+			{Name: "suggestions", ID: 1, Type: "list<string>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The suggestions; the runtime lists those that contain the typed text, ignoring case."},
+			{Name: "isFullScreen", ID: 2, Type: "bool", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "viewHintText", ID: 3, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "hintText", ID: 4, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The hint of the bar that opens the view."},
+		},
+		Events: []Event{
+			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "SearchBar", ID: 122, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "search", Description: "A text field styled as a search bar.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleTextField, Interactive: true,
+		Props: []Prop{
+			{Name: "value", ID: 1, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The text, bound two-way: the runtime owns the controller and updates bound state on every change."},
+			{Name: "hintText", ID: 2, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onChanged", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onSubmitted", ID: 2, Payload: "string", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "onTap", ID: 3, Payload: "", Revision: 1, Deprecated: nil, Description: ""},
+		},
+		Slots: []Slot{
+			{Name: "leading", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "trailing", ID: 2, List: true, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 		},
 	},
 	{
@@ -2216,6 +2424,37 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "TabBar", ID: 126, Layer: 1, Phase: "P4", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "tab", Description: "A row of tabs; the selected one is `selectedIndex`, and tapping a tab fires `onTap` with its index.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleTab, Interactive: true,
+		Props: []Prop{
+			{Name: "tabs", ID: 1, Type: "list<TabItem>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "selectedIndex", ID: 2, Type: "int", Required: false, Default: "0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The selected tab; bind it to the state key a TabBarView shares."},
+			{Name: "isScrollable", ID: 3, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "indicatorColor", ID: 4, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "indicatorSize", ID: 5, Type: "TabBarIndicatorSize", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "dividerColor", ID: 6, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "labelColor", ID: 7, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+			{Name: "unselectedLabelColor", ID: 8, Type: "color", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onTap", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "TabBarView", ID: 127, Layer: 1, Phase: "P4", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "navigation", Icon: "view_carousel", Description: "Shows the child at `index`, and pages between children by swiping; `onIndexChanged` reports the page.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleGroup, Interactive: false,
+		Props: []Prop{
+			{Name: "index", ID: 1, Type: "int", Required: false, Default: "0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The shown child; bind it to the state key a TabBar shares."},
+			{Name: "viewportFraction", ID: 2, Type: "double", Required: false, Default: "1.0", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: ""},
+		},
+		Events: []Event{
+			{Name: "onIndexChanged", ID: 1, Payload: "int", Revision: 1, Deprecated: nil, Description: ""},
+		},
+		Children: &Children{Min: 0, Max: 0},
+	},
+	{
 		Type: "Text", ID: 46, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "display", Icon: "text_fields", Description: "A run of text with a single style.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleText, Interactive: false,
@@ -2592,6 +2831,14 @@ var valueTypes = [...]ValueType{
 		},
 	},
 	{
+		Name: "Destination", ID: 44, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "One destination of a NavigationBar, BottomNavigationBar, NavigationDrawer or NavigationRail.",
+		Fields: []Field{
+			{Name: "label", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "icon", ID: 2, Type: "IconData", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "selectedIcon", ID: 3, Type: "IconData", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "Icon while the destination is selected; `icon` when absent."},
+		},
+	},
+	{
 		Name: "DropdownMenuEntry", ID: 10, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "One entry of a DropdownMenu.",
 		Fields: []Field{
 			{Name: "value", ID: 1, Type: "string", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
@@ -2750,6 +2997,15 @@ var valueTypes = [...]ValueType{
 		},
 	},
 	{
+		Name: "MenuItem", ID: 42, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "One entry of a PopupMenuButton or MenuAnchor menu.",
+		Fields: []Field{
+			{Name: "value", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "What `onSelected` carries when the entry is chosen."},
+			{Name: "label", ID: 2, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "icon", ID: 3, Type: "IconData", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "Icon before the label."},
+			{Name: "enabled", ID: 4, Type: "bool", Required: false, Default: "true", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
 		Name: "Offset", ID: 18, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "A two-dimensional offset.",
 		Fields: []Field{
 			{Name: "dx", ID: 1, Type: "double", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
@@ -2819,6 +3075,13 @@ var valueTypes = [...]ValueType{
 		Fields: []Field{
 			{Name: "width", ID: 1, Type: "double", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "height", ID: 2, Type: "double", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Name: "TabItem", ID: 43, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "One tab of a TabBar.",
+		Fields: []Field{
+			{Name: "label", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+			{Name: "icon", ID: 2, Type: "IconData", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: "Icon above the label."},
 		},
 	},
 	{
@@ -3031,6 +3294,10 @@ var enums = [...]Enum{
 		{Name: "none", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "solid", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 	}},
+	{Name: "BottomNavigationBarType", ID: 87, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum BottomNavigationBarType.", Values: []EnumValue{
+		{Name: "fixed", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "shifting", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+	}},
 	{Name: "BoxFit", ID: 6, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum BoxFit.", Values: []EnumValue{
 		{Name: "fill", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "contain", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
@@ -3238,11 +3505,21 @@ var enums = [...]Enum{
 		{Name: "enforced", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "truncateAfterCompositionEnds", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 	}},
+	{Name: "NavigationDestinationLabelBehavior", ID: 86, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum NavigationDestinationLabelBehavior.", Values: []EnumValue{
+		{Name: "alwaysShow", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "alwaysHide", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "onlyShowSelected", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+	}},
 	{Name: "NavigationMode", ID: 68, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "How navigate changes the navigation stack.", Values: []EnumValue{
 		{Name: "push", ID: 1, Revision: 1, Deprecated: nil, Description: "Push the route on top of the stack."},
 		{Name: "replace", ID: 2, Revision: 1, Deprecated: nil, Description: "Replace the current route."},
 		{Name: "popUntil", ID: 3, Revision: 1, Deprecated: nil, Description: "Pop routes until the named route is on top."},
 		{Name: "clearAndPush", ID: 4, Revision: 1, Deprecated: nil, Description: "Clear the stack, then push the route."},
+	}},
+	{Name: "NavigationRailLabelType", ID: 85, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum NavigationRailLabelType.", Values: []EnumValue{
+		{Name: "none", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "selected", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "all", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 	}},
 	{Name: "OtpAlphabet", ID: 75, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "The characters a one-time code may contain.", Values: []EnumValue{
 		{Name: "numeric", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
@@ -3314,6 +3591,10 @@ var enums = [...]Enum{
 		{Name: "butt", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "round", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "square", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "TabBarIndicatorSize", ID: 88, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum TabBarIndicatorSize.", Values: []EnumValue{
+		{Name: "tab", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "label", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 	}},
 	{Name: "TextAlign", ID: 50, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum TextAlign.", Values: []EnumValue{
 		{Name: "left", ID: 1, Revision: 1, Deprecated: nil, Description: ""},

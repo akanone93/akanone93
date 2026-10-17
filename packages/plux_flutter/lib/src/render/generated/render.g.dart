@@ -190,6 +190,20 @@ BorderStyle? decodeBorderStyle(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a BottomNavigationBarType, from its permanent value ID or name.
+String? nameBottomNavigationBarType(Decoding d, Object? v) => switch (v) {
+  1 || 'fixed' => 'fixed',
+  2 || 'shifting' => 'shifting',
+  _ => null,
+};
+
+/// Decodes a BottomNavigationBarType.
+BottomNavigationBarType? decodeBottomNavigationBarType(Decoding d, Object? v) => switch (v) {
+  1 || 'fixed' => BottomNavigationBarType.fixed,
+  2 || 'shifting' => BottomNavigationBarType.shifting,
+  _ => null,
+};
+
 /// The member name of a BoxFit, from its permanent value ID or name.
 String? nameBoxFit(Decoding d, Object? v) => switch (v) {
   1 || 'fill' => 'fill',
@@ -711,12 +725,44 @@ MaxLengthEnforcement? decodeMaxLengthEnforcement(Decoding d, Object? v) => switc
   _ => null,
 };
 
+/// The member name of a NavigationDestinationLabelBehavior, from its permanent value ID or name.
+String? nameNavigationDestinationLabelBehavior(Decoding d, Object? v) => switch (v) {
+  1 || 'alwaysShow' => 'alwaysShow',
+  2 || 'alwaysHide' => 'alwaysHide',
+  3 || 'onlyShowSelected' => 'onlyShowSelected',
+  _ => null,
+};
+
+/// Decodes a NavigationDestinationLabelBehavior.
+NavigationDestinationLabelBehavior? decodeNavigationDestinationLabelBehavior(Decoding d, Object? v) => switch (v) {
+  1 || 'alwaysShow' => NavigationDestinationLabelBehavior.alwaysShow,
+  2 || 'alwaysHide' => NavigationDestinationLabelBehavior.alwaysHide,
+  3 || 'onlyShowSelected' => NavigationDestinationLabelBehavior.onlyShowSelected,
+  _ => null,
+};
+
 /// The member name of a NavigationMode, from its permanent value ID or name.
 String? nameNavigationMode(Decoding d, Object? v) => switch (v) {
   1 || 'push' => 'push',
   2 || 'replace' => 'replace',
   3 || 'popUntil' => 'popUntil',
   4 || 'clearAndPush' => 'clearAndPush',
+  _ => null,
+};
+
+/// The member name of a NavigationRailLabelType, from its permanent value ID or name.
+String? nameNavigationRailLabelType(Decoding d, Object? v) => switch (v) {
+  1 || 'none' => 'none',
+  2 || 'selected' => 'selected',
+  3 || 'all' => 'all',
+  _ => null,
+};
+
+/// Decodes a NavigationRailLabelType.
+NavigationRailLabelType? decodeNavigationRailLabelType(Decoding d, Object? v) => switch (v) {
+  1 || 'none' => NavigationRailLabelType.none,
+  2 || 'selected' => NavigationRailLabelType.selected,
+  3 || 'all' => NavigationRailLabelType.all,
   _ => null,
 };
 
@@ -909,6 +955,20 @@ StrokeCap? decodeStrokeCap(Decoding d, Object? v) => switch (v) {
   1 || 'butt' => StrokeCap.butt,
   2 || 'round' => StrokeCap.round,
   3 || 'square' => StrokeCap.square,
+  _ => null,
+};
+
+/// The member name of a TabBarIndicatorSize, from its permanent value ID or name.
+String? nameTabBarIndicatorSize(Decoding d, Object? v) => switch (v) {
+  1 || 'tab' => 'tab',
+  2 || 'label' => 'label',
+  _ => null,
+};
+
+/// Decodes a TabBarIndicatorSize.
+TabBarIndicatorSize? decodeTabBarIndicatorSize(Decoding d, Object? v) => switch (v) {
+  1 || 'tab' => TabBarIndicatorSize.tab,
+  2 || 'label' => TabBarIndicatorSize.label,
   _ => null,
 };
 

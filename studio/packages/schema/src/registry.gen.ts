@@ -173,7 +173,7 @@ export interface ActionDescriptor {
 }
 
 /** A widget type name. */
-export type WidgetType = "ActionChip" | "Align" | "AppBar" | "AspectRatio" | "BackButton" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "Card" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConstrainedBox" | "Container" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTextField" | "CustomScrollView" | "DecoratedBox" | "Divider" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FilledButton" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Icon" | "IconButton" | "If" | "Image" | "IndexedStack" | "InkWell" | "InputChip" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "Match" | "OfflineBanner" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "Positioned" | "Radio" | "RadioListTile" | "RangeSlider" | "Responsive" | "RichText" | "Row" | "SafeArea" | "Scaffold" | "Scrollbar" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverToBoxAdapter" | "Slot" | "Spacer" | "Stack" | "Switch" | "SwitchListTile" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Tooltip" | "Transform" | "VerticalDivider" | "Wrap";
+export type WidgetType = "ActionChip" | "Align" | "AppBar" | "AspectRatio" | "Autocomplete" | "BackButton" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "BottomNavigationBar" | "CalendarDatePicker" | "Card" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConstrainedBox" | "Container" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTextField" | "CustomScrollView" | "DecoratedBox" | "Divider" | "Drawer" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FilledButton" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Icon" | "IconButton" | "If" | "Image" | "IndexedStack" | "InkWell" | "InputChip" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "Match" | "MenuAnchor" | "NavigationBar" | "NavigationDrawer" | "NavigationRail" | "OfflineBanner" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "PopupMenuButton" | "Positioned" | "Radio" | "RadioListTile" | "RangeSlider" | "Responsive" | "RichText" | "Row" | "SafeArea" | "Scaffold" | "Scrollbar" | "SearchAnchor" | "SearchBar" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverToBoxAdapter" | "Slot" | "Spacer" | "Stack" | "Switch" | "SwitchListTile" | "TabBar" | "TabBarView" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Tooltip" | "Transform" | "VerticalDivider" | "Wrap";
 
 /** An action name. */
 export type ActionName = "announce" | "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "readConfig" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
@@ -318,6 +318,31 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "Autocomplete",
+    "id": 124,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "checklist",
+    "description": "A text field that offers the `options` containing the typed text, ignoring case.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "options", "id": 1, "type": "list<string>", "required": true, "revision": 1, "bindable": true},
+      {"name": "hintText", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "optionsMaxHeight", "id": 3, "type": "double", "required": false, "default": 200.0, "revision": 1, "bindable": true},
+      {"name": "initialValue", "id": 4, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The text the field starts with."}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
     "type": "BackButton",
     "id": 84,
     "layer": 1,
@@ -446,6 +471,65 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "BottomNavigationBar",
+    "id": 129,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "bottom_app_bar",
+    "description": "A bar of two or more items along the bottom; tapping one fires `onTap` with its index.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "tab", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "items", "id": 1, "type": "list<Destination>", "required": true, "revision": 1, "bindable": true, "description": "Two or more items; `selectedIcon` is the active icon."},
+      {"name": "currentIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 3, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "type", "id": 4, "type": "BottomNavigationBarType", "required": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "selectedItemColor", "id": 6, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "unselectedItemColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "iconSize", "id": 8, "type": "double", "required": false, "default": 24.0, "revision": 1, "bindable": true},
+      {"name": "selectedFontSize", "id": 9, "type": "double", "required": false, "default": 14.0, "revision": 1, "bindable": true},
+      {"name": "unselectedFontSize", "id": 10, "type": "double", "required": false, "default": 12.0, "revision": 1, "bindable": true},
+      {"name": "showSelectedLabels", "id": 11, "type": "bool", "required": false, "revision": 1, "bindable": true},
+      {"name": "showUnselectedLabels", "id": 12, "type": "bool", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onTap", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
+    "type": "CalendarDatePicker",
+    "id": 125,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "calendar_month",
+    "description": "A month grid for picking a date in the Gregorian calendar.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "initialDate", "id": 1, "type": "date", "required": true, "revision": 1, "bindable": true},
+      {"name": "firstDate", "id": 2, "type": "date", "required": true, "revision": 1, "bindable": true},
+      {"name": "lastDate", "id": 3, "type": "date", "required": true, "revision": 1, "bindable": true},
+      {"name": "currentDate", "id": 4, "type": "date", "required": false, "revision": 1, "bindable": true, "description": "Today, as the picker marks it; the device date when absent."}
+    ],
+    "events": [
+      {"name": "onDateChanged", "id": 1, "payload": "date", "revision": 1},
+      {"name": "onDisplayedMonthChanged", "id": 2, "payload": "date", "revision": 1}
+    ],
+    "slots": []
   },
   {
     "type": "Card",
@@ -1302,6 +1386,35 @@ export const widgets: readonly WidgetDescriptor[] = [
     ],
     "events": [],
     "slots": []
+  },
+  {
+    "type": "Drawer",
+    "id": 130,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "menu",
+    "description": "A panel that slides in from the edge; fill `Scaffold.drawer` or `Scaffold.endDrawer` with it.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "backgroundColor", "id": 1, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 2, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "shadowColor", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "surfaceTintColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "shape", "id": 5, "type": "ShapeBorder", "required": false, "revision": 1, "bindable": true},
+      {"name": "width", "id": 6, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticLabel", "id": 7, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "clipBehavior", "id": 8, "type": "Clip", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
   },
   {
     "type": "DropdownMenu",
@@ -2374,6 +2487,129 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "MenuAnchor",
+    "id": 121,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "menu_open",
+    "description": "Opens a menu of `items` from its anchor `child`; choosing one fires `onSelected` with its value.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "menu", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "items", "id": 1, "type": "list<MenuItem>", "required": true, "revision": 1, "bindable": true, "description": "The menu entries."},
+      {"name": "consumeOutsideTap", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1},
+      {"name": "onOpen", "id": 2, "revision": 1},
+      {"name": "onClose", "id": 3, "revision": 1}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1, "description": "The anchor the menu opens from; tapping it toggles the menu."}
+    ]
+  },
+  {
+    "type": "NavigationBar",
+    "id": 128,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "bottom_navigation",
+    "description": "A bar of destinations along the bottom; choosing one fires `onDestinationSelected` with its index.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "tab", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "destinations", "id": 1, "type": "list<Destination>", "required": true, "revision": 1, "bindable": true},
+      {"name": "selectedIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 4, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "shadowColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "surfaceTintColor", "id": 6, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "indicatorColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "height", "id": 8, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "labelBehavior", "id": 9, "type": "NavigationDestinationLabelBehavior", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onDestinationSelected", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
+    "type": "NavigationDrawer",
+    "id": 131,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "menu_open",
+    "description": "A drawer of destinations; choosing one fires `onDestinationSelected` with its index.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "destinations", "id": 1, "type": "list<Destination>", "required": true, "revision": 1, "bindable": true},
+      {"name": "selectedIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "shadowColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "surfaceTintColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 6, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "indicatorColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onDestinationSelected", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": [
+      {"name": "header", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "footer", "id": 2, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "NavigationRail",
+    "id": 132,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "side_navigation",
+    "description": "A column of destinations along the side; choosing one fires `onDestinationSelected` with its index.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "tab", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "destinations", "id": 1, "type": "list<Destination>", "required": true, "revision": 1, "bindable": true},
+      {"name": "selectedIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true},
+      {"name": "extended", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Shows the labels beside the icons; `labelType` then reads as none."},
+      {"name": "labelType", "id": 4, "type": "NavigationRailLabelType", "required": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 6, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "groupAlignment", "id": 7, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "minWidth", "id": 8, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "minExtendedWidth", "id": 9, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "useIndicator", "id": 10, "type": "bool", "required": false, "revision": 1, "bindable": true},
+      {"name": "indicatorColor", "id": 11, "type": "color", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onDestinationSelected", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": [
+      {"name": "leading", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "trailing", "id": 2, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
     "type": "OfflineBanner",
     "id": 102,
     "layer": 2,
@@ -2529,6 +2765,41 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "empty", "id": 2, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown when `items` is empty."},
       {"name": "loading", "id": 3, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is loading."},
       {"name": "error", "id": 4, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is error."}
+    ]
+  },
+  {
+    "type": "PopupMenuButton",
+    "id": 120,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "more_vert",
+    "description": "A button that opens a menu of `items`; choosing one fires `onSelected` with its value.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "menu", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "items", "id": 1, "type": "list<MenuItem>", "required": true, "revision": 1, "bindable": true, "description": "The menu entries."},
+      {"name": "initialValue", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The value of the entry shown as selected."},
+      {"name": "tooltip", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "enabled", "id": 4, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 5, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "color", "id": 6, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "shadowColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "surfaceTintColor", "id": 8, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "iconSize", "id": 9, "type": "double", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1},
+      {"name": "onCanceled", "id": 2, "revision": 1},
+      {"name": "onOpened", "id": 3, "revision": 1}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "icon", "id": 2, "list": false, "required": false, "template": false, "revision": 1}
     ]
   },
   {
@@ -2864,6 +3135,59 @@ export const widgets: readonly WidgetDescriptor[] = [
     "events": [],
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "SearchAnchor",
+    "id": 123,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "manage_search",
+    "description": "A search bar that opens a view listing the `suggestions` that match the text; choosing one fires `onSelected`.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "suggestions", "id": 1, "type": "list<string>", "required": true, "revision": 1, "bindable": true, "description": "The suggestions; the runtime lists those that contain the typed text, ignoring case."},
+      {"name": "isFullScreen", "id": 2, "type": "bool", "required": false, "revision": 1, "bindable": true},
+      {"name": "viewHintText", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "hintText", "id": 4, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The hint of the bar that opens the view."}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
+    "type": "SearchBar",
+    "id": 122,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "search",
+    "description": "A text field styled as a search bar.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The text, bound two-way: the runtime owns the controller and updates bound state on every change."},
+      {"name": "hintText", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "string", "revision": 1},
+      {"name": "onSubmitted", "id": 2, "payload": "string", "revision": 1},
+      {"name": "onTap", "id": 3, "revision": 1}
+    ],
+    "slots": [
+      {"name": "leading", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "trailing", "id": 2, "list": true, "required": false, "template": false, "revision": 1}
     ]
   },
   {
@@ -3467,6 +3791,59 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "TabBar",
+    "id": 126,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "tab",
+    "description": "A row of tabs; the selected one is `selectedIndex`, and tapping a tab fires `onTap` with its index.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "tab", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "tabs", "id": 1, "type": "list<TabItem>", "required": true, "revision": 1, "bindable": true},
+      {"name": "selectedIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true, "description": "The selected tab; bind it to the state key a TabBarView shares."},
+      {"name": "isScrollable", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "indicatorColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "indicatorSize", "id": 5, "type": "TabBarIndicatorSize", "required": false, "revision": 1, "bindable": true},
+      {"name": "dividerColor", "id": 6, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "labelColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "unselectedLabelColor", "id": 8, "type": "color", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onTap", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
+    "type": "TabBarView",
+    "id": 127,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "view_carousel",
+    "description": "Shows the child at `index`, and pages between children by swiping; `onIndexChanged` reports the page.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "group", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "index", "id": 1, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true, "description": "The shown child; bind it to the state key a TabBar shares."},
+      {"name": "viewportFraction", "id": 2, "type": "double", "required": false, "default": 1.0, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onIndexChanged", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": [],
+    "children": {}
+  },
+  {
     "type": "Text",
     "id": 46,
     "layer": 1,
@@ -3975,6 +4352,19 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "constants": []
   },
   {
+    "name": "Destination",
+    "id": 44,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One destination of a NavigationBar, BottomNavigationBar, NavigationDrawer or NavigationRail.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1},
+      {"name": "icon", "id": 2, "type": "IconData", "required": true, "revision": 1},
+      {"name": "selectedIcon", "id": 3, "type": "IconData", "required": false, "revision": 1, "description": "Icon while the destination is selected; `icon` when absent."}
+    ],
+    "constants": []
+  },
+  {
     "name": "DropdownMenuEntry",
     "id": 10,
     "revision": 1,
@@ -4181,6 +4571,20 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "constants": []
   },
   {
+    "name": "MenuItem",
+    "id": 42,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One entry of a PopupMenuButton or MenuAnchor menu.",
+    "fields": [
+      {"name": "value", "id": 1, "type": "string", "required": true, "revision": 1, "description": "What `onSelected` carries when the entry is chosen."},
+      {"name": "label", "id": 2, "type": "string", "required": true, "revision": 1},
+      {"name": "icon", "id": 3, "type": "IconData", "required": false, "revision": 1, "description": "Icon before the label."},
+      {"name": "enabled", "id": 4, "type": "bool", "required": false, "default": true, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
     "name": "Offset",
     "id": 18,
     "revision": 1,
@@ -4293,6 +4697,18 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "fields": [
       {"name": "width", "id": 1, "type": "double", "required": false, "revision": 1},
       {"name": "height", "id": 2, "type": "double", "required": false, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
+    "name": "TabItem",
+    "id": 43,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One tab of a TabBar.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1},
+      {"name": "icon", "id": 2, "type": "IconData", "required": false, "revision": 1, "description": "Icon above the label."}
     ],
     "constants": []
   },
@@ -4605,6 +5021,17 @@ export const enums: readonly EnumDescriptor[] = [
     "values": [
       {"name": "none", "id": 1, "revision": 1},
       {"name": "solid", "id": 2, "revision": 1}
+    ]
+  },
+  {
+    "name": "BottomNavigationBarType",
+    "id": 87,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum BottomNavigationBarType.",
+    "values": [
+      {"name": "fixed", "id": 1, "revision": 1},
+      {"name": "shifting", "id": 2, "revision": 1}
     ]
   },
   {
@@ -5067,6 +5494,18 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "NavigationDestinationLabelBehavior",
+    "id": 86,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum NavigationDestinationLabelBehavior.",
+    "values": [
+      {"name": "alwaysShow", "id": 1, "revision": 1},
+      {"name": "alwaysHide", "id": 2, "revision": 1},
+      {"name": "onlyShowSelected", "id": 3, "revision": 1}
+    ]
+  },
+  {
     "name": "NavigationMode",
     "id": 68,
     "revision": 1,
@@ -5077,6 +5516,18 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "replace", "id": 2, "revision": 1, "description": "Replace the current route."},
       {"name": "popUntil", "id": 3, "revision": 1, "description": "Pop routes until the named route is on top."},
       {"name": "clearAndPush", "id": 4, "revision": 1, "description": "Clear the stack, then push the route."}
+    ]
+  },
+  {
+    "name": "NavigationRailLabelType",
+    "id": 85,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum NavigationRailLabelType.",
+    "values": [
+      {"name": "none", "id": 1, "revision": 1},
+      {"name": "selected", "id": 2, "revision": 1},
+      {"name": "all", "id": 3, "revision": 1}
     ]
   },
   {
@@ -5239,6 +5690,17 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "butt", "id": 1, "revision": 1},
       {"name": "round", "id": 2, "revision": 1},
       {"name": "square", "id": 3, "revision": 1}
+    ]
+  },
+  {
+    "name": "TabBarIndicatorSize",
+    "id": 88,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum TabBarIndicatorSize.",
+    "values": [
+      {"name": "tab", "id": 1, "revision": 1},
+      {"name": "label", "id": 2, "revision": 1}
     ]
   },
   {

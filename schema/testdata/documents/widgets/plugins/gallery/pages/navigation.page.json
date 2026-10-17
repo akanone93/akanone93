@@ -1,0 +1,791 @@
+{
+  "id": "01c0c450-6c00-7000-8a1a-000000000000",
+  "key": "navigation",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01c0c450-6c00-7000-8a1a-000000000026",
+    "slots": {
+      "appBar": {
+        "id": "01c0c450-6c00-7000-8a1a-000000000020",
+        "slots": {
+          "title": {
+            "id": "01c0c450-6c00-7000-8a1a-00000000001f",
+            "props": {
+              "data": "navigation"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01c0c450-6c00-7000-8a1a-000000000025",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "events": {
+                  "onSelected": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.picked",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1a-000000000001",
+                "props": {
+                  "items": [
+                    {
+                      "icon": {
+                        "name": "home"
+                      },
+                      "label": "Alpha",
+                      "value": "a"
+                    },
+                    {
+                      "label": "Beta",
+                      "value": "b"
+                    },
+                    {
+                      "enabled": false,
+                      "label": "Gamma",
+                      "value": "c"
+                    }
+                  ],
+                  "tooltip": "Open menu"
+                },
+                "testId": "popup",
+                "type": "PopupMenuButton"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1a-000000000002",
+                "props": {
+                  "data": {
+                    "$expr": "\"picked: \" + page.picked"
+                  }
+                },
+                "type": "Text"
+              },
+              {
+                "events": {
+                  "onSelected": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.picked",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1a-000000000004",
+                "props": {
+                  "items": [
+                    {
+                      "icon": {
+                        "name": "home"
+                      },
+                      "label": "Alpha",
+                      "value": "a"
+                    },
+                    {
+                      "label": "Beta",
+                      "value": "b"
+                    },
+                    {
+                      "enabled": false,
+                      "label": "Gamma",
+                      "value": "c"
+                    }
+                  ]
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1a-000000000003",
+                    "props": {
+                      "data": "anchor"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "menu-anchor",
+                "type": "MenuAnchor"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.query",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1a-000000000005",
+                "props": {
+                  "hintText": "Search",
+                  "value": {
+                    "$expr": "page.query"
+                  }
+                },
+                "testId": "search-bar",
+                "type": "SearchBar"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1a-000000000006",
+                "props": {
+                  "data": {
+                    "$expr": "\"query: \" + page.query"
+                  }
+                },
+                "type": "Text"
+              },
+              {
+                "events": {
+                  "onSelected": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.picked",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1a-000000000007",
+                "props": {
+                  "hintText": "Find fruit",
+                  "suggestions": [
+                    "Apple",
+                    "Apricot",
+                    "Banana"
+                  ]
+                },
+                "testId": "search-anchor",
+                "type": "SearchAnchor"
+              },
+              {
+                "events": {
+                  "onSelected": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.picked",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1a-000000000008",
+                "props": {
+                  "hintText": "Fruit",
+                  "options": [
+                    "Apple",
+                    "Apricot",
+                    "Banana"
+                  ]
+                },
+                "testId": "autocomplete",
+                "type": "Autocomplete"
+              },
+              {
+                "events": {
+                  "onDateChanged": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.date",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1a-000000000009",
+                "props": {
+                  "currentDate": "2026-03-10",
+                  "firstDate": "2026-01-01",
+                  "initialDate": "2026-03-10",
+                  "lastDate": "2026-12-31"
+                },
+                "semantics": {
+                  "label": "date picker"
+                },
+                "testId": "calendar",
+                "type": "CalendarDatePicker"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1a-00000000000a",
+                "props": {
+                  "data": {
+                    "$expr": "\"date: \" + string(page.date)"
+                  }
+                },
+                "type": "Text"
+              },
+              {
+                "events": {
+                  "onTap": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.tab",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1a-00000000000b",
+                "props": {
+                  "selectedIndex": {
+                    "$expr": "page.tab"
+                  },
+                  "tabs": [
+                    {
+                      "icon": {
+                        "name": "home"
+                      },
+                      "label": "One"
+                    },
+                    {
+                      "label": "Two"
+                    },
+                    {
+                      "label": "Three"
+                    }
+                  ]
+                },
+                "semantics": {
+                  "label": "sections"
+                },
+                "testId": "tab-bar",
+                "type": "TabBar"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1a-000000000010",
+                "props": {
+                  "height": 80,
+                  "width": 60
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01c0c450-6c00-7000-8a1a-00000000000c",
+                        "props": {
+                          "data": "pane one"
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01c0c450-6c00-7000-8a1a-00000000000d",
+                        "props": {
+                          "data": "pane two"
+                        },
+                        "type": "Text"
+                      },
+                      {
+                        "id": "01c0c450-6c00-7000-8a1a-00000000000e",
+                        "props": {
+                          "data": "pane three"
+                        },
+                        "type": "Text"
+                      }
+                    ],
+                    "events": {
+                      "onIndexChanged": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "w",
+                            "input": {
+                              "path": "page.tab",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a1a-00000000000f",
+                    "props": {
+                      "index": {
+                        "$expr": "page.tab"
+                      }
+                    },
+                    "type": "TabBarView"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1a-000000000011",
+                "props": {
+                  "data": {
+                    "$expr": "\"tab: \" + string(page.tab)"
+                  }
+                },
+                "type": "Text"
+              },
+              {
+                "events": {
+                  "onDestinationSelected": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.nav",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1a-000000000012",
+                "props": {
+                  "destinations": [
+                    {
+                      "icon": {
+                        "name": "home"
+                      },
+                      "label": "Home",
+                      "selectedIcon": {
+                        "name": "home"
+                      }
+                    },
+                    {
+                      "icon": {
+                        "name": "search"
+                      },
+                      "label": "Search"
+                    },
+                    {
+                      "icon": {
+                        "name": "person"
+                      },
+                      "label": "Profile"
+                    }
+                  ],
+                  "selectedIndex": {
+                    "$expr": "page.nav"
+                  }
+                },
+                "semantics": {
+                  "label": "main navigation"
+                },
+                "testId": "navigation-bar",
+                "type": "NavigationBar"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1a-000000000013",
+                "props": {
+                  "data": {
+                    "$expr": "\"nav: \" + string(page.nav)"
+                  }
+                },
+                "type": "Text"
+              },
+              {
+                "events": {
+                  "onTap": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.bottom",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1a-000000000014",
+                "props": {
+                  "currentIndex": {
+                    "$expr": "page.bottom"
+                  },
+                  "items": [
+                    {
+                      "icon": {
+                        "name": "home"
+                      },
+                      "label": "Home",
+                      "selectedIcon": {
+                        "name": "home"
+                      }
+                    },
+                    {
+                      "icon": {
+                        "name": "search"
+                      },
+                      "label": "Search"
+                    },
+                    {
+                      "icon": {
+                        "name": "person"
+                      },
+                      "label": "Profile"
+                    }
+                  ]
+                },
+                "semantics": {
+                  "label": "bottom navigation"
+                },
+                "testId": "bottom-bar",
+                "type": "BottomNavigationBar"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1a-000000000015",
+                "props": {
+                  "data": {
+                    "$expr": "\"bottom: \" + string(page.bottom)"
+                  }
+                },
+                "type": "Text"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1a-000000000018",
+                "props": {
+                  "height": 300,
+                  "width": 304
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onDestinationSelected": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "w",
+                            "input": {
+                              "path": "page.panel",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a1a-000000000017",
+                    "props": {
+                      "destinations": [
+                        {
+                          "icon": {
+                            "name": "home"
+                          },
+                          "label": "Home",
+                          "selectedIcon": {
+                            "name": "home"
+                          }
+                        },
+                        {
+                          "icon": {
+                            "name": "search"
+                          },
+                          "label": "Search"
+                        },
+                        {
+                          "icon": {
+                            "name": "person"
+                          },
+                          "label": "Profile"
+                        }
+                      ],
+                      "selectedIndex": {
+                        "$expr": "page.panel"
+                      }
+                    },
+                    "slots": {
+                      "header": {
+                        "id": "01c0c450-6c00-7000-8a1a-000000000016",
+                        "props": {
+                          "data": "drawer header"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "navigation-drawer",
+                    "type": "NavigationDrawer"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1a-000000000019",
+                "props": {
+                  "data": {
+                    "$expr": "\"panel: \" + string(page.panel)"
+                  }
+                },
+                "type": "Text"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1a-00000000001b",
+                "props": {
+                  "height": 320,
+                  "width": 100
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onDestinationSelected": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "w",
+                            "input": {
+                              "path": "page.rail",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a1a-00000000001a",
+                    "props": {
+                      "destinations": [
+                        {
+                          "icon": {
+                            "name": "home"
+                          },
+                          "label": "Home",
+                          "selectedIcon": {
+                            "name": "home"
+                          }
+                        },
+                        {
+                          "icon": {
+                            "name": "search"
+                          },
+                          "label": "Search"
+                        },
+                        {
+                          "icon": {
+                            "name": "person"
+                          },
+                          "label": "Profile"
+                        }
+                      ],
+                      "labelType": "all",
+                      "selectedIndex": {
+                        "$expr": "page.rail"
+                      }
+                    },
+                    "semantics": {
+                      "label": "side navigation"
+                    },
+                    "testId": "navigation-rail",
+                    "type": "NavigationRail"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1a-00000000001d",
+                "props": {
+                  "height": 320,
+                  "width": 220
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onDestinationSelected": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "w",
+                            "input": {
+                              "path": "page.rail",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a1a-00000000001c",
+                    "props": {
+                      "destinations": [
+                        {
+                          "icon": {
+                            "name": "home"
+                          },
+                          "label": "Home",
+                          "selectedIcon": {
+                            "name": "home"
+                          }
+                        },
+                        {
+                          "icon": {
+                            "name": "search"
+                          },
+                          "label": "Search"
+                        },
+                        {
+                          "icon": {
+                            "name": "person"
+                          },
+                          "label": "Profile"
+                        }
+                      ],
+                      "extended": true,
+                      "selectedIndex": {
+                        "$expr": "page.rail"
+                      }
+                    },
+                    "semantics": {
+                      "label": "side navigation extended"
+                    },
+                    "testId": "navigation-rail-extended",
+                    "type": "NavigationRail"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1a-00000000001e",
+                "props": {
+                  "data": {
+                    "$expr": "\"rail: \" + string(page.rail)"
+                  }
+                },
+                "type": "Text"
+              }
+            ],
+            "id": "01c0c450-6c00-7000-8a1a-000000000024",
+            "props": {
+              "crossAxisAlignment": "stretch"
+            },
+            "type": "Column"
+          }
+        },
+        "type": "SingleChildScrollView"
+      },
+      "drawer": {
+        "id": "01c0c450-6c00-7000-8a1a-000000000023",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01c0c450-6c00-7000-8a1a-000000000021",
+                "props": {
+                  "data": "drawer body"
+                },
+                "type": "Text"
+              }
+            ],
+            "id": "01c0c450-6c00-7000-8a1a-000000000022",
+            "type": "Column"
+          }
+        },
+        "testId": "drawer",
+        "type": "Drawer"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "navigation",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": "none",
+      "id": "01c0c450-6c00-7000-8a1a-000000000027",
+      "name": "picked",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a1a-000000000028",
+      "name": "query",
+      "type": "string"
+    },
+    {
+      "default": "2026-03-10",
+      "id": "01c0c450-6c00-7000-8a1a-000000000029",
+      "name": "date",
+      "type": "date"
+    },
+    {
+      "default": 0,
+      "id": "01c0c450-6c00-7000-8a1a-00000000002a",
+      "name": "tab",
+      "type": "int"
+    },
+    {
+      "default": 0,
+      "id": "01c0c450-6c00-7000-8a1a-00000000002b",
+      "name": "nav",
+      "type": "int"
+    },
+    {
+      "default": 0,
+      "id": "01c0c450-6c00-7000-8a1a-00000000002c",
+      "name": "bottom",
+      "type": "int"
+    },
+    {
+      "default": 0,
+      "id": "01c0c450-6c00-7000-8a1a-00000000002d",
+      "name": "panel",
+      "type": "int"
+    },
+    {
+      "default": 0,
+      "id": "01c0c450-6c00-7000-8a1a-00000000002e",
+      "name": "rail",
+      "type": "int"
+    }
+  ],
+  "title": "navigation"
+}

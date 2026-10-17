@@ -1,0 +1,115 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "Autocomplete",
+  "id": 124,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "class": "Autocomplete",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "navigation",
+  "icon": "checklist",
+  "description": "A text field that offers the `options` containing the typed text, ignoring case.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "textField",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "options",
+      "id": 1,
+      "type": "list<string>",
+      "required": true
+    },
+    {
+      "name": "hintText",
+      "id": 2,
+      "type": "string"
+    },
+    {
+      "name": "optionsMaxHeight",
+      "id": 3,
+      "type": "double",
+      "default": 200.0,
+      "flutter": "optionsMaxHeight"
+    },
+    {
+      "name": "initialValue",
+      "id": 4,
+      "type": "string",
+      "description": "The text the field starts with."
+    }
+  ],
+  "events": [
+    {
+      "name": "onSelected",
+      "id": 1,
+      "payload": "string",
+      "flutter": "onSelected"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "optionsBuilder",
+      "reason": "builder→template",
+      "note": "Replaced by the `options` prop; the runtime filters."
+    },
+    {
+      "flutter": "displayStringForOption",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "fieldViewBuilder",
+      "reason": "builder→template",
+      "note": "The runtime builds it from the Plux props."
+    },
+    {
+      "flutter": "focusNode",
+      "reason": "controller→state",
+      "note": "The runtime owns it and binds it to state."
+    },
+    {
+      "flutter": "optionsViewBuilder",
+      "reason": "builder→template",
+      "note": "The runtime builds it from the Plux props."
+    },
+    {
+      "flutter": "optionsViewOpenDirection",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "textEditingController",
+      "reason": "controller→state",
+      "note": "The runtime owns it and binds it to state."
+    },
+    {
+      "flutter": "initialValue",
+      "reason": "deferred",
+      "note": "Replaced by the `initialValue` prop."
+    }
+  ]
+}
