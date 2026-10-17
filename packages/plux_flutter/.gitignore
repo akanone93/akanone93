@@ -1,0 +1,2 @@
+# Golden comparison output of failed flutter tests.
+test/**/failures/
