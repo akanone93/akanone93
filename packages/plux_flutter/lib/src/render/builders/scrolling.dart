@@ -180,6 +180,7 @@ Widget _refreshIndicator(NodeContext c) {
     // The handlers run unawaited: the indicator completes once they have
     // been started, as the engine's fire is not awaitable from a builder.
     onRefresh: () async {
+      debugPrint('REFRESH handles=${c.handles(1)}');
       if (c.handles(1)) c.fire(1);
     },
     child: c.slot(1) ?? c.missing('child'),

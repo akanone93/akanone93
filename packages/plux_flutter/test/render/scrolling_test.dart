@@ -91,6 +91,19 @@ void main() {
       'down [WGT-020]', (tester) async {
     await open(tester);
     expect(find.text('refreshed 0'), findsOneWidget);
+    final ri = find.byType(RefreshIndicator);
+    debugPrint(
+      'RI rect ${tester.getRect(ri)} a ${tester.getRect(find.descendant(of: ri, matching: find.text('a')))}',
+    );
+    debugPrint(
+      'SCR ${find.descendant(of: ri, matching: find.byType(Scrollable)).evaluate().length}',
+    );
+    final pos = tester
+        .state<ScrollableState>(
+          find.descendant(of: ri, matching: find.byType(Scrollable)).first,
+        )
+        .position;
+    debugPrint('POS ${pos.pixels} ${pos.maxScrollExtent} ${pos.physics}');
     await tester.fling(
       find.descendant(
         of: find.byType(RefreshIndicator),
