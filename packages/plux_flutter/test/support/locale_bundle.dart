@@ -80,3 +80,55 @@ Uint8List withLocales(
     for (final e in texts.entries) section(e.key, english, e.value),
   ]);
 }
+
+/// [app] with its meta carrying `localisation` settings: the primary
+/// [calendar], an optional [secondary] one and the locales in
+/// [nativeDigits] set to the `native` numbering system.
+Uint8List withLocalisation(
+  Uint8List app, {
+  String calendar = '',
+  String secondary = '',
+  Set<String> nativeDigits = const {},
+}) {
+  final b = BundleContainer.parse(app);
+  fbs.UuidObjectBuilder? uuid(fbs.Uuid? u) =>
+      u == null ? null : fbs.UuidObjectBuilder(hi: u.hi, lo: u.lo);
+  return encodeBundle(b.kind, [
+    for (final s in b.sections)
+      if (s.kind != SectionKind.meta)
+        s
+      else
+        () {
+          final m = fbs.Meta(s.data);
+          final data = fbs.MetaObjectBuilder(
+            kind: m.kind,
+            id: uuid(m.id),
+            key: m.key,
+            name: m.name,
+            version: m.version,
+            compilerVersion: m.compilerVersion,
+            schemaVersion: m.schemaVersion,
+            requiredFeatures: m.requiredFeatures,
+            minRuntime: m.minRuntime,
+            plugins: [
+              for (final u in m.plugins ?? const <fbs.Uuid>[]) uuid(u)!,
+            ],
+            defaultLocale: m.defaultLocale,
+            supportedLocales: m.supportedLocales,
+            entryRoute: m.entryRoute,
+            localisation: fbs.LocalisationSettingsObjectBuilder(
+              calendar: calendar,
+              secondaryCalendar: secondary,
+              numberingSystems: [
+                for (final l in nativeDigits)
+                  fbs.NumberingSystemEntryObjectBuilder(
+                    locale: l,
+                    system: 'native',
+                  ),
+              ],
+            ),
+          ).toBytes(String.fromCharCodes(s.data, 4, 8));
+          return Section(s.kind, s.id, s.hash, data);
+        }(),
+  ]);
+}

@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,7 +12,13 @@ import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/actions/handlers.dart';
 import 'package:plux_flutter/src/device/guard.dart';
+import 'package:plux_flutter/src/core/fallback.dart';
+import 'package:plux_flutter/src/l10n/calendar/calendar.dart';
 import 'package:plux_flutter/src/l10n/locale_controller.dart';
+import 'package:plux_flutter/src/l10n/locale_host.dart';
+import 'package:plux_flutter/src/l10n/scope.dart';
+import 'package:plux_flutter/src/navigation/router.dart';
+import 'package:plux_flutter/src/render/builders/calendar.dart';
 import 'package:plux_flutter/src/render/scope.dart';
 
 import '../actions/engine_test.dart' show FakeNavigator;
@@ -46,6 +54,8 @@ void main() {
     WidgetTester tester,
     String route, {
     Map<String, Map<String, String>> plux = const {},
+    Uint8List Function(Uint8List app)? tweak,
+    Widget Function(Widget page)? wrap,
   }) async {
     tester.view.physicalSize = const Size(800, 3000);
     tester.view.devicePixelRatio = 1;
@@ -75,7 +85,7 @@ void main() {
         plux: plux,
         verbatim: plux.keys.toSet().difference({'de', 'ar'}),
       );
-      await h.startFrom(app, {
+      await h.startFrom(tweak == null ? app : tweak(app), {
         'gallery': g.bundles['widgets/gallery.pxb']!,
       }, container: container);
       await h.loadIconFonts();
@@ -84,9 +94,11 @@ void main() {
       MaterialApp(
         debugShowCheckedModeBanner: false,
         home: PluxScope(
-          child: PluxView(
-            route,
-            inputs: route == 'text' ? const {'who': 'Ada'} : const {},
+          child: (wrap ?? (w) => w)(
+            PluxView(
+              route,
+              inputs: route == 'text' ? const {'who': 'Ada'} : const {},
+            ),
           ),
         ),
       ),
@@ -230,5 +242,111 @@ void main() {
       findsOneWidget,
     );
     handle.dispose();
+  });
+
+  // Verifies: I18N-011, I18N-003.
+  testWidgets("the app bundle's calendar settings reach the date picker "
+      'under am-ET [I18N-011] [I18N-003]', (tester) async {
+    await open(
+      tester,
+      'text',
+      tweak: (app) => withLocalisation(
+        app,
+        calendar: 'ethiopic',
+        secondary: 'gregorian',
+        nativeDigits: {'am'},
+      ),
+      plux: {'am': const {}},
+    );
+    await switchTo(tester, const Locale('am', 'ET'));
+    final settings = Plux.container.read(appLocalisationProvider);
+    expect(settings.calendar, 'ethiopic');
+    expect(settings.secondaryCalendar, 'gregorian');
+    expect(settings.nativeDigits, {'am'});
+    final state = Plux.container.read(localeControllerProvider);
+    expect(state.tag, 'am');
+    // The picker has no calendar of its own: the app's apply.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PluxLocaleHost(
+          state: state,
+          child: Material(
+            child: Builder(
+              builder: (context) => DualCalendarView(
+                primary: calendarSystem(PluxLocaleScope.calendarOf(context)!)!,
+                secondary: calendarSystem(
+                  PluxLocaleScope.secondaryCalendarOf(context)!,
+                ),
+                value: null,
+                firstJdn: 2460565,
+                lastJdn: 2461000,
+                onChanged: null,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await settle(tester);
+    expect(find.textContaining('Meskerem'), findsOneWidget);
+  });
+
+  // Verifies: I18N-005.
+  testWidgets('a locale that follows the host follows its changes '
+      '[I18N-005]', (tester) async {
+    await open(tester, 'text');
+    await switchTo(tester, null);
+    tester.platformDispatcher.localesTestValue = const [Locale('ar')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+    await tester.runAsync(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      Plux.container.read(localeControllerProvider);
+      await Plux.container.read(localeControllerProvider.notifier).settled();
+    });
+    await settle(tester);
+    await tester.runAsync(() async {
+      await Plux.container.read(localeControllerProvider.notifier).settled();
+    });
+    await settle(tester);
+    expect(Plux.container.read(localeControllerProvider).tag, 'ar');
+    expect(
+      Plux.container.read(localeControllerProvider).direction,
+      TextDirection.rtl,
+    );
+  });
+
+  // Verifies: ACT-020, I18N-005.
+  testWidgets('the not-found page and the fallback use the runtime strings '
+      'of the effective locale [ACT-020] [I18N-005]', (tester) async {
+    await open(
+      tester,
+      'text',
+      plux: {
+        'de': {
+          'plux.router.notFound': 'Seite nicht gefunden',
+          'plux.fallback.unavailable': 'Inhalt nicht verfügbar',
+        },
+      },
+    );
+    await switchTo(tester, const Locale('de'));
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: Plux.container,
+        child: const MaterialApp(
+          home: Column(
+            children: [
+              Expanded(child: PluxNotFoundPage(route: 'x')),
+              Expanded(
+                child: PluxDefaultFallback(
+                  PluxException(PluxErrorCode.routeNotFound, 'x'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    expect(find.text('Seite nicht gefunden'), findsOneWidget);
+    expect(find.bySemanticsLabel('Inhalt nicht verfügbar'), findsOneWidget);
   });
 }
