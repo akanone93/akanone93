@@ -1,4 +1,7 @@
 {
+  "a11yWaivers": {
+    "fixedHeightText": "The aligned box and the pinch-zoom viewport need a fixed size; that is what the demo shows."
+  },
   "animations": [
     {
       "durationMs": 400,
@@ -200,7 +203,9 @@
                     "id": "01c0c450-6c00-7000-8a1c-000000000006",
                     "props": {
                       "color": "#FF2196F3",
-                      "height": 56
+                      "constraints": {
+                        "minHeight": 56
+                      }
                     },
                     "slots": {
                       "child": {
@@ -255,7 +260,9 @@
                         "id": "01c0c450-6c00-7000-8a1c-00000000000b",
                         "props": {
                           "color": "#FF4CAF50",
-                          "height": 48,
+                          "constraints": {
+                            "minHeight": 48
+                          },
                           "width": 96
                         },
                         "slots": {
@@ -273,7 +280,9 @@
                         "id": "01c0c450-6c00-7000-8a1c-00000000000e",
                         "props": {
                           "color": "#FFBDBDBD",
-                          "height": 48,
+                          "constraints": {
+                            "minHeight": 48
+                          },
                           "width": 96
                         },
                         "type": "Container"
@@ -282,7 +291,9 @@
                         "id": "01c0c450-6c00-7000-8a1c-00000000000d",
                         "props": {
                           "color": "#FFFFC107",
-                          "height": 48,
+                          "constraints": {
+                            "minHeight": 48
+                          },
                           "width": 96
                         },
                         "slots": {
@@ -327,7 +338,9 @@
                         "id": "01c0c450-6c00-7000-8a1c-000000000011",
                         "props": {
                           "color": "#FFE0E0E0",
-                          "height": 80,
+                          "constraints": {
+                            "minHeight": 80
+                          },
                           "width": 160
                         },
                         "slots": {
@@ -377,7 +390,9 @@
                         "id": "01c0c450-6c00-7000-8a1c-000000000016",
                         "props": {
                           "color": "#FF9C27B0",
-                          "height": 300,
+                          "constraints": {
+                            "minHeight": 300
+                          },
                           "width": 300
                         },
                         "slots": {
@@ -567,7 +582,9 @@
                             "id": "01c0c450-6c00-7000-8a1c-000000000028",
                             "props": {
                               "color": "#FFFF5722",
-                              "height": 40,
+                              "constraints": {
+                                "minHeight": 40
+                              },
                               "width": 60
                             },
                             "type": "Container"

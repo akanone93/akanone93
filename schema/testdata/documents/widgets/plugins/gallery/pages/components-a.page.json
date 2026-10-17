@@ -1,4 +1,7 @@
 {
+  "a11yWaivers": {
+    "fixedHeightText": "The paged list needs a bounded height to scroll in; its placeholder texts are short."
+  },
   "forms": [
     {
       "fields": [
