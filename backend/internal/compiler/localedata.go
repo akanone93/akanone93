@@ -15,6 +15,7 @@ import (
 	fbs "github.com/nightCode42/plux3/backend/internal/bundle/fbs"
 	"github.com/nightCode42/plux3/backend/internal/l10n"
 	"github.com/nightCode42/plux3/backend/internal/l10n/flutterdata"
+	"github.com/nightCode42/plux3/backend/internal/l10n/pluxdata"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema"
 )
@@ -46,11 +47,11 @@ func (u *unit) noteCalendar(raw map[string]json.RawMessage) {
 func (u *unit) calendarsUsed(app *schema.AppDocument) []string {
 	set := map[string]bool{}
 	for c := range u.calendars {
-		set[c] = true
+		set[cldrCalendar(c)] = true
 	}
 	if l := app.Localisation; l != nil {
-		set[string(l.Calendar)] = true
-		set[string(l.SecondaryCalendar)] = true
+		set[cldrCalendar(string(l.Calendar))] = true
+		set[cldrCalendar(string(l.SecondaryCalendar))] = true
 	}
 	delete(set, "")
 	delete(set, string(schema.CalendarGregorian))
@@ -89,31 +90,69 @@ func (u *unit) localeBlobs(app *schema.AppDocument) map[string]*localeBlob {
 	return out
 }
 
-// flutterStrings returns Flutter's widget strings for tag as compact JSON:
-// the first locale on tag's CLDR parent chain Flutter has, else the same for
-// the app's default locale, else nil.
+// flutterStrings returns the strings the runtime shows for tag as compact
+// JSON with sorted keys: Flutter's widget groups (material, cupertino,
+// widgets) and the runtime's own strings as the "plux" group. Each comes
+// from the first locale on tag's CLDR parent chain that has it, else the
+// same for the app's default locale, else (for "plux") English.
 func (u *unit) flutterStrings(tag, fallback string) []byte {
+	groups := map[string]json.RawMessage{}
+	if raw := chainStrings(tag, fallback, flutterdata.Strings, flutterdata.ErrNoStrings); raw != nil {
+		if json.Unmarshal(raw, &groups) != nil {
+			return nil
+		}
+	}
+	if raw := chainStrings(tag, fallback, pluxdata.Strings, pluxdata.ErrNoStrings); raw != nil {
+		groups["plux"] = raw
+	} else if raw, err := pluxdata.Strings("en"); err == nil {
+		groups["plux"] = raw
+	}
+	if len(groups) == 0 {
+		return nil
+	}
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	if enc.Encode(groups) != nil {
+		return nil
+	}
+	var out bytes.Buffer
+	if json.Compact(&out, bytes.TrimSpace(buf.Bytes())) != nil {
+		return nil
+	}
+	return out.Bytes()
+}
+
+// chainStrings returns the strings of the first locale on the CLDR parent
+// chain of tag, then of fallback, that lookup has; nil when none has.
+func chainStrings(tag, fallback string, lookup func(string) ([]byte, error), missing error) []byte {
 	for _, t := range []string{tag, fallback} {
 		chain, err := l10n.Chain(t)
 		if err != nil {
 			continue
 		}
 		for _, c := range chain {
-			raw, err := flutterdata.Strings(c)
+			raw, err := lookup(c)
 			if err != nil {
-				if errors.Is(err, flutterdata.ErrNoStrings) {
+				if errors.Is(err, missing) {
 					continue
 				}
 				return nil
 			}
-			var buf bytes.Buffer
-			if json.Compact(&buf, raw) != nil {
-				return nil
-			}
-			return buf.Bytes()
+			return raw
 		}
 	}
 	return nil
+}
+
+// cldrCalendar maps a CalendarSystem value of a document to the CLDR calendar
+// key the locale data is keyed by; only the Islamic Umm al-Qura calendar is
+// spelled differently (I18N-003).
+func cldrCalendar(c string) string {
+	if c == string(schema.CalendarIslamicUmalqura) {
+		return "islamic-umalqura"
+	}
+	return c
 }
 
 // finishLocale ends a locale section with the tag, the messages vector and

@@ -1801,7 +1801,7 @@
       "enum": [
         "gregorian",
         "ethiopic",
-        "islamic-umalqura",
+        "islamicUmalqura",
         "persian"
       ],
       "description": "A calendar system (I18N-010)."

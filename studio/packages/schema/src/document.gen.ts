@@ -191,7 +191,7 @@ export interface AssetRef {
 export type AssuranceLevel = "AL0" | "AL1" | "AL2" | "AL3";
 
 /** A calendar system (I18N-010). */
-export type Calendar = "gregorian" | "ethiopic" | "islamic-umalqura" | "persian";
+export type Calendar = "gregorian" | "ethiopic" | "islamicUmalqura" | "persian";
 
 /** Capabilities the plugin requests; everything else is denied (SEC-080). */
 export interface Capabilities {

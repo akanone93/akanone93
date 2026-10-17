@@ -18,7 +18,7 @@ import 'dart:ui' show Locale, PlatformDispatcher, TextDirection;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
-import 'package:plux_flutter/src/l10n/cldr_index.dart';
+import 'package:plux_flutter/src/l10n/cldr_index.g.dart';
 import 'package:plux_flutter/src/l10n/l10n.dart';
 import 'package:plux_flutter/src/l10n/runtime_strings.dart';
 import 'package:plux_flutter/src/pxl/vm.dart' show PxlLocaleContext;

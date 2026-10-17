@@ -1215,7 +1215,7 @@ func (u *unit) metaSection(o *out) {
 	nameOff, keyOff := b.CreateString(name), b.CreateString(key)
 	compiler, schemaVersion, minRuntime := b.CreateString(u.opts.Version), b.CreateString(schema.CurrentVersion), b.CreateString(app.MinRuntimeVersion)
 	tv := triggerTables(b, u.ownTriggers(o))
-	var defLocale, entryRoute, profile, notFound, shells, links, push flatbuffers.UOffsetT
+	var defLocale, entryRoute, profile, notFound, shells, links, push, localisation flatbuffers.UOffsetT
 	if o.pl == nil {
 		defLocale, entryRoute, profile = b.CreateString(app.DefaultLocale), b.CreateString(app.EntryRoute), b.CreateString(string(app.SecurityProfile))
 		if nav := app.Navigation; nav != nil && nav.NotFound != "" {
@@ -1223,6 +1223,7 @@ func (u *unit) metaSection(o *out) {
 		}
 		shells = u.shellTables(e)
 		links, push = u.deepLinksTable(b), u.pushTable(b)
+		localisation = localisationTable(b, app.Localisation)
 	}
 	fbs.MetaStart(b)
 	fbs.MetaAddKind(b, fbs.BundleKind(o.kind)) //nolint:gosec // G115: bundle kinds are 1–3.
@@ -1261,8 +1262,46 @@ func (u *unit) metaSection(o *out) {
 		addOptional(b, shells, fbs.MetaAddShells)
 		addOptional(b, links, fbs.MetaAddDeepLinks)
 		addOptional(b, push, fbs.MetaAddPush)
+		addOptional(b, localisation, fbs.MetaAddLocalisation)
 	}
 	o.add(bundle.SectionMeta, o.id, finish(b, fbs.MetaEnd(b), bundle.SectionMeta))
+}
+
+// localisationTable writes the app's localisation settings (I18N-003,
+// I18N-011): the calendars and the numbering system per locale, sorted by
+// locale. It is 0 when the app declares none.
+func localisationTable(b *flatbuffers.Builder, l *schema.LocalisationSettings) flatbuffers.UOffsetT {
+	if l == nil {
+		return 0
+	}
+	var calendar, secondary flatbuffers.UOffsetT
+	if l.Calendar != "" {
+		calendar = b.CreateString(string(l.Calendar))
+	}
+	if l.SecondaryCalendar != "" {
+		secondary = b.CreateString(string(l.SecondaryCalendar))
+	}
+	var systems flatbuffers.UOffsetT
+	if tags := sortedKeys(l.NumberingSystem); len(tags) > 0 {
+		entries := make([]flatbuffers.UOffsetT, len(tags))
+		for i, tag := range tags {
+			loc, sys := b.CreateString(tag), b.CreateString(string(l.NumberingSystem[tag]))
+			fbs.NumberingSystemEntryStart(b)
+			fbs.NumberingSystemEntryAddLocale(b, loc)
+			fbs.NumberingSystemEntryAddSystem(b, sys)
+			entries[i] = fbs.NumberingSystemEntryEnd(b)
+		}
+		fbs.LocalisationSettingsStartNumberingSystemsVector(b, len(entries))
+		for i := len(entries) - 1; i >= 0; i-- {
+			b.PrependUOffsetT(entries[i])
+		}
+		systems = b.EndVector(len(entries))
+	}
+	fbs.LocalisationSettingsStart(b)
+	addOptional(b, calendar, fbs.LocalisationSettingsAddCalendar)
+	addOptional(b, secondary, fbs.LocalisationSettingsAddSecondaryCalendar)
+	addOptional(b, systems, fbs.LocalisationSettingsAddNumberingSystems)
+	return fbs.LocalisationSettingsEnd(b)
 }
 
 // capabilitiesOf writes the capabilities table of a bundle's meta: a
