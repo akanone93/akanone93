@@ -3,7 +3,7 @@ description: >-
   Scan and show QR codes and barcodes in Plux plugins: the scanCode action,
   the QrScanner, BarcodeScanner and QrCodeView widgets. ML Kit through Play
   services on Android with an offline ZXing-C++ fallback, Vision on iOS.
-version: 0.2.0
+version: 0.1.0
 repository: https://github.com/nightCode42/plux3/tree/main/packages/plux_scanner
 # Not published until its release is wired (release.yml, pub.dev).
 publish_to: none
