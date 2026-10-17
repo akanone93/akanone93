@@ -31,6 +31,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [BackdropFilter](#backdropfilter) | 1 | display | P5 | Blurs everything painted behind its child (WGT-020). |
 | [Badge](#badge) | 1 | display | P3 | A small label, typically a count, on top of its child. |
 | [BarChart](#barchart) | 2 | display | P5 | Bars per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table. |
+| [BarcodeScanner](#barcodescanner) | 2 | input | P5 | A live camera preview that reads QR codes and one-dimensional barcodes of the chosen formats. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`. |
 | [Baseline](#baseline) | 1 | layout | P3 | Positions its child according to the child's baseline. |
 | [BiometricButton](#biometricbutton) | 2 | interaction | P6 | A button that triggers a biometric step-up (SEC-027). |
 | [BottomAppBar](#bottomappbar) | 1 | structure | P3 | A Material bottom app bar. |
@@ -149,6 +150,8 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [ProductCard](#productcard) | 2 | commerce | P5 | A product tile: image, title, price, an optional struck-through original price and badge, and an add-to-cart button. Prices arrive as formatted strings. |
 | [ProfileHeader](#profileheader) | 2 | layout | P5 | A person's avatar, name and subtitle with an actions row. |
 | [PromoBanner](#promobanner) | 2 | commerce | P5 | A campaign banner: image, title, subtitle, a call to action and, when `endsAt` is set, a countdown. |
+| [QrCodeView](#qrcodeview) | 2 | display | P5 | Draws a QR code for a text, offline. Ships in `plux_scanner`. |
+| [QrScanner](#qrscanner) | 2 | input | P5 | A live camera preview that reads QR codes. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`. |
 | [QuantityStepper](#quantitystepper) | 2 | commerce | P5 | A decrease button, the quantity and an increase button; screen readers adjust it with increase and decrease actions. |
 | [Radio](#radio) | 1 | input | P3 | A Material radio button, selected when `groupValue` equals `value`. |
 | [RadioListTile](#radiolisttile) | 1 | input | P3 | A list tile with a radio button. |
@@ -710,6 +713,27 @@ ID 194 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 40
 | `title` | 3 | `string?` | — | A heading above the chart, also its spoken name. |
 | `summaryTemplate` | 4 | `string` | `"{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}"` | What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced. |
 | `showTable` | 5 | `bool` | `false` | Whether a table of the values is shown below the chart. |
+
+### BarcodeScanner
+
+A live camera preview that reads QR codes and one-dimensional barcodes of the chosen formats. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`.
+
+ID 200 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 400 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `formats` | 1 | `list<BarcodeFormat>?` | — | The formats to read; every format when empty or absent. |
+| `torch` | 2 | `bool` | `false` | Whether the torch is on. |
+| `cameraFacing` | 3 | `CameraFacing` | `"back"` | Which camera to open. |
+| `scanWindow` | 4 | `list<double>?` | — | The part of the preview that is read, as four fractions of the preview: left, top, width, height. The whole preview when absent. |
+| `continuous` | 5 | `bool` | `false` | Whether the scanner keeps reading after the first code; otherwise it reports once and stops. |
+| `overlayHint` | 6 | `string?` | — | A line of text under the viewfinder, such as "Point the camera at the code". |
+| `semanticLabel` | 7 | `string?` | — | What a screen reader announces for the scanner; the read value is announced when a code is detected. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDetected` | 1 | `ScanResult` | Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label. |
+| `onError` | 2 | `string` | Fires with an error code when the camera is denied, missing or fails. |
 
 ### Baseline
 
@@ -3455,6 +3479,42 @@ ID 185 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 11
 |---|---|---|---|
 | `onTap` | 1 | — | Fires when the banner or its call to action is tapped. |
 
+### QrCodeView
+
+Draws a QR code for a text, offline. Ships in `plux_scanner`.
+
+ID 201 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 200 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `data` | 1 | `string`, required | — | The text the code holds. It can be sensitive; it is drawn on the device and never sent. |
+| `size` | 2 | `double` | `200.0` | The side of the square, in logical pixels. Must be at least 16. |
+| `errorCorrection` | 3 | `QrErrorCorrection` | `"medium"` | How much damage the code survives; higher levels make a denser code. |
+| `foreground` | 4 | `color?` | — | The colour of the modules; black when absent. |
+| `background` | 5 | `color?` | — | The colour behind the modules; white when absent. |
+| `quietZone` | 6 | `int` | `4` | The empty border around the modules, in modules; scanners need four. Must be at least 0 and at most 16. |
+| `semanticLabel` | 7 | `string`, required | — | What a screen reader announces for the code. It describes what the code is for, never the data it holds. |
+
+### QrScanner
+
+A live camera preview that reads QR codes. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`.
+
+ID 199 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 400 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `torch` | 1 | `bool` | `false` | Whether the torch is on. |
+| `cameraFacing` | 2 | `CameraFacing` | `"back"` | Which camera to open. |
+| `scanWindow` | 3 | `list<double>?` | — | The part of the preview that is read, as four fractions of the preview: left, top, width, height. The whole preview when absent. |
+| `continuous` | 4 | `bool` | `false` | Whether the scanner keeps reading after the first code; otherwise it reports once and stops. |
+| `overlayHint` | 5 | `string?` | — | A line of text under the viewfinder, such as "Point the camera at the code". |
+| `semanticLabel` | 6 | `string?` | — | What a screen reader announces for the scanner; the read value is announced when a code is detected. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDetected` | 1 | `ScanResult` | Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label. |
+| `onError` | 2 | `string` | Fires with an error code when the camera is denied, missing or fails. |
+
 ### QuantityStepper
 
 A decrease button, the quantity and an increase button; screen readers adjust it with increase and decrease actions.
@@ -6025,6 +6085,17 @@ ID 175 · revision 1
 | `islamicUmalqura` | 3 |  |
 | `persian` | 4 |  |
 
+### CameraFacing
+
+Which camera a scanner opens.
+
+ID 155 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `back` | 1 |  |
+| `front` | 2 |  |
+
 ### CardBrand
 
 The network of a payment card.
@@ -6628,6 +6699,19 @@ ID 107 · revision 1 · Flutter `PanAxis`
 | `horizontal` | 2 |  |
 | `vertical` | 3 |  |
 | `aligned` | 4 |  |
+
+### QrErrorCorrection
+
+How much of a QR code may be damaged before it stops reading: about 7% (low), 15% (medium), 25% (quartile) or 30% (high).
+
+ID 156 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `low` | 1 |  |
+| `medium` | 2 |  |
+| `quartile` | 3 |  |
+| `high` | 4 |  |
 
 ### RefreshIndicatorTriggerMode
 

@@ -145,6 +145,23 @@ precedence = "override"
 SPDX-FileCopyrightText = "Intel Corporation and WAMR contributors"
 SPDX-License-Identifier = "Apache-2.0 WITH LLVM-exception"
 
+# ZXing-C++ 2.3.0, the reader sources only, vendored for the scanner's offline
+# fallback engine (decision B21, ADR-0051); the sdist ships no licence file, so
+# LICENSE is the standard Apache-2.0 text. Sources carry their own SPDX lines
+# where upstream has them; third_party/zxing-cpp/VERSION pins the archive.
+[[annotations]]
+path = "packages/plux_scanner/third_party/zxing-cpp/**"
+precedence = "override"
+SPDX-FileCopyrightText = "ZXing authors"
+SPDX-License-Identifier = "Apache-2.0"
+
+# libzueci inside ZXing-C++: BSD-3-Clause upstream.
+[[annotations]]
+path = "packages/plux_scanner/third_party/zxing-cpp/core/src/libzueci/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2022 gitlost"
+SPDX-License-Identifier = "BSD-3-Clause"
+
 # Docker's default seccomp profile (moby/profiles, seccomp/default.json) with
 # one added rule that lets the function builder create the namespaces of its
 # build sandbox (deploy/compose/README.md, "Function builder"; FN-016).

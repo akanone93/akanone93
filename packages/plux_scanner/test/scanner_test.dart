@@ -8,6 +8,8 @@ import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_scanner/plux_scanner.dart';
 import 'package:plux_scanner/src/scanner.dart' show formatName, scannerFormats;
 
+import 'scanner_widgets_test.dart' show FakeProbe, FakeSession;
+
 void main() {
   final key = GlobalKey<NavigatorState>();
   late ScanSink sink;
@@ -111,5 +113,84 @@ void main() {
     expect(formatName(ms.BarcodeFormat.ean13), 'ean13');
     expect(formatName(ms.BarcodeFormat.itf14), 'itf');
     expect(formatName(ms.BarcodeFormat.maxiCode), isNull);
+  });
+
+  group('the camera page runs on the shared scanner view', () {
+    late FakeSession session;
+    late PluxCodeScanner scanner;
+
+    Future<void> open(WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(navigatorKey: key, home: const Scaffold()),
+      );
+      scanner =
+          PluxScanner(
+                navigatorKey: key,
+                config: PluxScannerConfig(
+                  engine: ScannerEngine.platform,
+                  probe: FakeProbe(MlKitState.ready),
+                  sessionFactory: (request, engine) =>
+                      session = FakeSession(request, engine),
+                ),
+              ).services[PluxCodeScanner]!
+              as PluxCodeScanner;
+    }
+
+    testWidgets('a code that is read is returned', (tester) async {
+      await open(tester);
+      final result = scanner.scan(['ean13']);
+      await tester.pumpAndSettle();
+      await tester.pump();
+      expect(session.request.formats, ['ean13']);
+      session.hitController.add(const ScanHit('5901234123457', 'ean13'));
+      await tester.pumpAndSettle();
+      final got = await result;
+      expect(got?.value, '5901234123457');
+      expect(got?.format, 'ean13');
+    });
+
+    testWidgets('a denied camera is a typed denial', (tester) async {
+      await open(tester);
+      final result = scanner.scan(const []);
+      final typed = expectLater(
+        result,
+        throwsA(
+          isA<PluxDeviceException>().having(
+            (e) => e.failure,
+            'failure',
+            PluxDeviceFailure.denied,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.pump();
+      session.errorController.add(ScanErrorCodes.permissionDenied);
+      await tester.pumpAndSettle();
+      await typed;
+    });
+
+    testWidgets('any other failure is unavailable and holds only the code', (
+      tester,
+    ) async {
+      await open(tester);
+      final result = scanner.scan(const []);
+      final typed = expectLater(
+        result,
+        throwsA(
+          isA<PluxDeviceException>()
+              .having(
+                (e) => e.failure,
+                'failure',
+                PluxDeviceFailure.unavailable,
+              )
+              .having((e) => e.message, 'message', contains('failed')),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.pump();
+      session.errorController.add(ScanErrorCodes.failed);
+      await tester.pumpAndSettle();
+      await typed;
+    });
   });
 }

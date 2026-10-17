@@ -301,6 +301,13 @@ String? nameCalendarSystem(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a CameraFacing, from its permanent value ID or name.
+String? nameCameraFacing(Decoding d, Object? v) => switch (v) {
+  1 || 'back' => 'back',
+  2 || 'front' => 'front',
+  _ => null,
+};
+
 /// The member name of a CardBrand, from its permanent value ID or name.
 String? nameCardBrand(Decoding d, Object? v) => switch (v) {
   1 || 'visa' => 'visa',
@@ -946,6 +953,15 @@ PanAxis? decodePanAxis(Decoding d, Object? v) => switch (v) {
   2 || 'horizontal' => PanAxis.horizontal,
   3 || 'vertical' => PanAxis.vertical,
   4 || 'aligned' => PanAxis.aligned,
+  _ => null,
+};
+
+/// The member name of a QrErrorCorrection, from its permanent value ID or name.
+String? nameQrErrorCorrection(Decoding d, Object? v) => switch (v) {
+  1 || 'low' => 'low',
+  2 || 'medium' => 'medium',
+  3 || 'quartile' => 'quartile',
+  4 || 'high' => 'high',
   _ => null,
 };
 

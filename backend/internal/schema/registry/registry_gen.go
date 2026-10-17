@@ -427,6 +427,24 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "BarcodeScanner", ID: 200, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "barcode_reader", Description: "A live camera preview that reads QR codes and one-dimensional barcodes of the chosen formats. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 400, Role: RoleImage, Interactive: false,
+		Props: []Prop{
+			{Name: "formats", ID: 1, Type: "list<BarcodeFormat>?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The formats to read; every format when empty or absent."},
+			{Name: "torch", ID: 2, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether the torch is on."},
+			{Name: "cameraFacing", ID: 3, Type: "CameraFacing", Required: false, Default: "\"back\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Which camera to open."},
+			{Name: "scanWindow", ID: 4, Type: "list<double>?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The part of the preview that is read, as four fractions of the preview: left, top, width, height. The whole preview when absent."},
+			{Name: "continuous", ID: 5, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether the scanner keeps reading after the first code; otherwise it reports once and stops."},
+			{Name: "overlayHint", ID: 6, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A line of text under the viewfinder, such as \"Point the camera at the code\"."},
+			{Name: "semanticLabel", ID: 7, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What a screen reader announces for the scanner; the read value is announced when a code is detected."},
+		},
+		Events: []Event{
+			{Name: "onDetected", ID: 1, Payload: "ScanResult", Revision: 1, Deprecated: nil, Description: "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
+			{Name: "onError", ID: 2, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with an error code when the camera is denied, missing or fails."},
+		},
+	},
+	{
 		Type: "Baseline", ID: 16, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "layout", Icon: "vertical_align_bottom", Description: "Positions its child according to the child's baseline.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 6, Role: RoleNone, Interactive: false,
@@ -2798,6 +2816,37 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "QrCodeView", ID: 201, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "qr_code", Description: "Draws a QR code for a text, offline. Ships in `plux_scanner`.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 200, Role: RoleImage, Interactive: false,
+		Props: []Prop{
+			{Name: "data", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The text the code holds. It can be sensitive; it is drawn on the device and never sent."},
+			{Name: "size", ID: 2, Type: "double", Required: false, Default: "200.0", Constraints: Constraints{Min: Bound{Value: 16, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The side of the square, in logical pixels."},
+			{Name: "errorCorrection", ID: 3, Type: "QrErrorCorrection", Required: false, Default: "\"medium\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "How much damage the code survives; higher levels make a denser code."},
+			{Name: "foreground", ID: 4, Type: "color?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The colour of the modules; black when absent."},
+			{Name: "background", ID: 5, Type: "color?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The colour behind the modules; white when absent."},
+			{Name: "quietZone", ID: 6, Type: "int", Required: false, Default: "4", Constraints: Constraints{Min: Bound{Value: 0, Set: true}, Max: Bound{Value: 16, Set: true}}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The empty border around the modules, in modules; scanners need four."},
+			{Name: "semanticLabel", ID: 7, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What a screen reader announces for the code. It describes what the code is for, never the data it holds."},
+		},
+	},
+	{
+		Type: "QrScanner", ID: 199, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "qr_code_scanner", Description: "A live camera preview that reads QR codes. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 400, Role: RoleImage, Interactive: false,
+		Props: []Prop{
+			{Name: "torch", ID: 1, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether the torch is on."},
+			{Name: "cameraFacing", ID: 2, Type: "CameraFacing", Required: false, Default: "\"back\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Which camera to open."},
+			{Name: "scanWindow", ID: 3, Type: "list<double>?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The part of the preview that is read, as four fractions of the preview: left, top, width, height. The whole preview when absent."},
+			{Name: "continuous", ID: 4, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether the scanner keeps reading after the first code; otherwise it reports once and stops."},
+			{Name: "overlayHint", ID: 5, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A line of text under the viewfinder, such as \"Point the camera at the code\"."},
+			{Name: "semanticLabel", ID: 6, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What a screen reader announces for the scanner; the read value is announced when a code is detected."},
+		},
+		Events: []Event{
+			{Name: "onDetected", ID: 1, Payload: "ScanResult", Revision: 1, Deprecated: nil, Description: "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
+			{Name: "onError", ID: 2, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with an error code when the camera is denied, missing or fails."},
+		},
+	},
+	{
 		Type: "QuantityStepper", ID: 183, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
 		Category: "commerce", Icon: "add_circle", Description: "A decrease button, the quantity and an increase button; screen readers adjust it with increase and decrease actions.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleSlider, Interactive: true,
@@ -4857,6 +4906,10 @@ var enums = [...]Enum{
 		{Name: "islamicUmalqura", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "persian", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
 	}},
+	{Name: "CameraFacing", ID: 155, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Which camera a scanner opens.", Values: []EnumValue{
+		{Name: "back", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "front", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+	}},
 	{Name: "CardBrand", ID: 144, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "The network of a payment card.", Values: []EnumValue{
 		{Name: "visa", ID: 1, Revision: 1, Deprecated: nil, Description: "Visa."},
 		{Name: "mastercard", ID: 2, Revision: 1, Deprecated: nil, Description: "Mastercard."},
@@ -5131,6 +5184,12 @@ var enums = [...]Enum{
 		{Name: "horizontal", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "vertical", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "aligned", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "QrErrorCorrection", ID: 156, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "How much of a QR code may be damaged before it stops reading: about 7% (low), 15% (medium), 25% (quartile) or 30% (high).", Values: []EnumValue{
+		{Name: "low", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "medium", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "quartile", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+		{Name: "high", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
 	}},
 	{Name: "RefreshIndicatorTriggerMode", ID: 96, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum RefreshIndicatorTriggerMode.", Values: []EnumValue{
 		{Name: "anywhere", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
