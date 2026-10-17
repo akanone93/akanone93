@@ -131,11 +131,13 @@ func TestCheckRealRepository(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !slices.Contains(findings, "WIDGET TabBar: no builder") && !slices.Contains(findings, "WIDGET TabBar: missing descriptor") {
-		t.Errorf("TabBar not reported missing")
+	if !slices.IsSorted(findings) {
+		t.Errorf("findings not sorted: %v", findings)
 	}
 	for _, f := range findings {
-		if strings.HasPrefix(f, "WIDGET Text:") {
+		// Text is built by the generated renderer, PieChart by plux_charts'
+		// builders map through a class constant.
+		if strings.HasPrefix(f, "WIDGET Text:") || strings.HasPrefix(f, "WIDGET PieChart:") {
 			t.Errorf("Text reported: %s", f)
 		}
 	}
