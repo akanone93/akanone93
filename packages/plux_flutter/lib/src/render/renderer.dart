@@ -1450,6 +1450,12 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     _reduceMotion = media?.disableAnimations ?? false;
     final locales = ref.watch(localeControllerProvider);
     final haveRelease = ref.watch(localeReleaseProvider) != null;
+    // Not before the release's locale is decoded: a page never shows in the
+    // wrong formats and is never built twice for it (I18N-005).
+    if (haveRelease && locales.loading) return const SizedBox.shrink();
+    // A locale set with Plux.setLocale or PluxConfig sets the direction; one
+    // that follows the host leaves the host's direction in force.
+    final ownDirection = haveRelease && env.locale != null;
     final locale =
         env.locale ??
         Localizations.maybeLocaleOf(context) ??
@@ -1475,7 +1481,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       boldText: media?.boldText ?? false,
       highContrast: media?.highContrast ?? false,
       screenReader: media?.accessibleNavigation ?? false,
-      textDirection: haveRelease
+      textDirection: ownDirection
           ? locales.direction
           : Directionality.maybeOf(context) ?? TextDirection.ltr,
       calendar: locales.calendar,
@@ -1631,6 +1637,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     }
     return PluxLocaleHost(
       state: locales,
+      ownDirection: ownDirection,
       child: Theme(data: theme.material, child: page),
     );
   }

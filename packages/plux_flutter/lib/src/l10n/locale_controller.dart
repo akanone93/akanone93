@@ -175,23 +175,37 @@ final class PluxLocaleState {
   const PluxLocaleState({
     required this.tag,
     required this.chain,
+    this.requested = '',
     this.data,
     this.flutter = const {},
     this.strings = RuntimeStrings.english,
     this.calendar = 'gregorian',
     this.secondaryCalendar,
     this.nativeDigits = false,
+    this.loading = false,
   });
 
   /// The state before a release is known: the host's locale, English
   /// formatting.
   factory PluxLocaleState.host(Locale locale) {
     final tag = locale.toLanguageTag();
-    return PluxLocaleState(tag: tag, chain: [tag]);
+    return PluxLocaleState(tag: tag, chain: [tag], loading: true);
   }
+
+  /// Whether the locale's data is still being decoded and there is no
+  /// earlier locale to show meanwhile: pages wait rather than render in the
+  /// wrong formats.
+  final bool loading;
 
   /// The resolved locale: a supported one of the release.
   final String tag;
+
+  /// The locale as requested (`de-AT` for a request resolved to `de`);
+  /// empty means [tag]. Its region is the default region of phone numbers.
+  final String requested;
+
+  /// The tag the locale was requested with, or [tag].
+  String get requestedTag => requested.isEmpty ? tag : requested;
 
   /// The locales to look a missing message up in, [tag] first and the app
   /// default last.
@@ -330,7 +344,7 @@ _Parsed _build(_Decoded d) {
 /// Holds the effective locale of Plux pages.
 final class LocaleController extends Notifier<PluxLocaleState> {
   final Map<(Object, String), _Parsed> _parsed = {};
-  final Set<(Object, String)> _loading = {};
+  final Map<(Object, String), Future<void>> _loading = {};
   final Set<String> _missingReported = {};
   PluxLocaleState? _last;
 
@@ -345,13 +359,37 @@ final class LocaleController extends Notifier<PluxLocaleState> {
     final tag = _resolve(release, requested.toLanguageTag());
     final key = (release.id, tag);
     _parsed.removeWhere((k, _) => k.$1 != release.id);
-    final parsed = _parsed[key];
+    final want = requested.toLanguageTag();
+    var parsed = _parsed[key];
+    if (parsed == null) {
+      final payload = release.payload(tag);
+      if (payload?.data == null && payload?.flutter == null) {
+        // Nothing to decode: the locale is ready at once.
+        parsed = _parsed[key] = _noStrings;
+      }
+    }
     if (parsed == null) {
       _load(release, tag, key);
-      // Until the data is parsed the previous locale's stays on screen.
-      return _last ?? _state(release, tag, _noStrings);
+      // Until the data is decoded the previous locale's stays on screen.
+      final last = _last;
+      if (last != null && !last.loading) return last;
+      return _last = _state(
+        release,
+        tag,
+        _noStrings,
+        requested: want,
+        loading: true,
+      );
     }
-    return _last = _state(release, tag, parsed);
+    return _last = _state(release, tag, parsed, requested: want);
+  }
+
+  /// Completes when every locale being decoded is ready; the first page of
+  /// a release is built after it.
+  Future<void> settled() async {
+    while (_loading.isNotEmpty) {
+      await Future.wait(_loading.values.toList());
+    }
   }
 
   String _resolve(LocaleRelease release, String tag) {
@@ -366,7 +404,13 @@ final class LocaleController extends Notifier<PluxLocaleState> {
     }
   }
 
-  PluxLocaleState _state(LocaleRelease release, String tag, _Parsed p) {
+  PluxLocaleState _state(
+    LocaleRelease release,
+    String tag,
+    _Parsed p, {
+    String requested = '',
+    bool loading = false,
+  }) {
     final chain = <String>[
       ...release.index.chain(tag),
       if (!release.index.chain(tag).contains(release.defaultLocale))
@@ -375,21 +419,23 @@ final class LocaleController extends Notifier<PluxLocaleState> {
     return PluxLocaleState(
       tag: tag,
       chain: chain,
+      requested: requested,
       data: p.data,
       flutter: p.flutter,
       strings: p.strings,
       calendar: release.calendar,
       secondaryCalendar: release.secondaryCalendar,
       nativeDigits: release.nativeDigits.contains(tag),
+      loading: loading,
     );
   }
 
   void _load(LocaleRelease release, String tag, (Object, String) key) {
-    if (!_loading.add(key)) return;
+    if (_loading.containsKey(key)) return;
     final payload = release.payload(tag);
     final offload = ref.read(localeOffloadProvider);
     final data = payload?.data, flutter = payload?.flutter;
-    unawaited(() async {
+    _loading[key] = (() async {
       _Parsed parsed;
       try {
         parsed = _build(await _decodeOff(offload, data, flutter));
@@ -402,12 +448,12 @@ final class LocaleController extends Notifier<PluxLocaleState> {
         );
         parsed = _noStrings;
       }
-      _loading.remove(key);
+      unawaited(_loading.remove(key));
       _parsed[key] = parsed;
       // The build finds the parsed locale in the cache, and decides which
       // locale is the effective one now.
       if (ref.mounted) ref.invalidateSelf();
-    }());
+    })();
   }
 
   /// Asks for [locale]; null follows the host. A locale the release has no

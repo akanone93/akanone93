@@ -142,7 +142,7 @@ void main() {
 
   test('an action of a later phase fails its step with PLX-4010, which onError handles [RT-021]', () async {
     final r = await run([
-      GraphStep(id: 'toast', action: id('setLocale'), onError: 1),
+      GraphStep(id: 'toast', action: id('startPayment'), onError: 1),
       GraphStep(
         id: 'recover',
         action: id('emitHostEvent'),
@@ -157,13 +157,13 @@ void main() {
     expect(r.outcome, RunOutcome.ok);
     final error = events.single.$2['error']! as Map;
     expect(error['kind'], 'custom');
-    expect(error['message'], contains('setLocale arrives in P8'));
+    expect(error['message'], contains('startPayment arrives in P13'));
     expect(reports, isEmpty);
   });
 
   test('an unhandled error ends the run and is reported with its graph and step [RT-021]', () async {
     final r = await run([
-      GraphStep(id: 'toast', action: id('setLocale'), next: 1),
+      GraphStep(id: 'toast', action: id('startPayment'), next: 1),
       GraphStep(
         id: 'never',
         action: id('emitHostEvent'),

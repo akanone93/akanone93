@@ -19,10 +19,19 @@ import 'package:plux_flutter/src/l10n/scope.dart';
 /// Provides the locale of [state] to [child].
 final class PluxLocaleHost extends StatelessWidget {
   /// Creates the host.
-  const PluxLocaleHost({required this.state, required this.child, super.key});
+  const PluxLocaleHost({
+    required this.state,
+    required this.child,
+    this.ownDirection = true,
+    super.key,
+  });
 
   /// The effective locale.
   final PluxLocaleState state;
+
+  /// Whether the locale sets the reading direction. A locale that follows
+  /// the host leaves the host's direction in force.
+  final bool ownDirection;
 
   /// The page.
   final Widget child;
@@ -49,7 +58,9 @@ final class PluxLocaleHost extends StatelessWidget {
       ),
     ];
     final direction = Directionality(
-      textDirection: state.direction,
+      textDirection: ownDirection
+          ? state.direction
+          : Directionality.maybeOf(context) ?? state.direction,
       child: child,
     );
     // Under a host's Localizations the host's other delegates stay in
@@ -66,9 +77,14 @@ final class PluxLocaleHost extends StatelessWidget {
             delegates: delegates,
             child: direction,
           );
+    // A bundle without data for the locale (or data not yet decoded) leaves
+    // the data of an enclosing scope, such as a host's, in force.
+    final outer = state.data == null
+        ? context.dependOnInheritedWidgetOfExactType<PluxLocaleScope>()
+        : null;
     return PluxLocaleScope(
-      data: state.data,
-      tag: state.tag,
+      data: outer?.data ?? state.data,
+      tag: outer?.tag ?? state.requestedTag,
       calendar: state.calendar,
       secondaryCalendar: state.secondaryCalendar,
       child: PluxRuntimeStringsScope(strings: state.strings, child: localized),

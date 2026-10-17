@@ -38,6 +38,7 @@ Uint8List withLocales(
   Uint8List app,
   Map<String, Map<String, String>> texts, {
   Map<String, Map<String, String>> plux = const {},
+  Set<String> verbatim = const {},
 }) {
   final b = BundleContainer.parse(app);
   final english = [
@@ -62,7 +63,7 @@ Uint8List withLocales(
       data: payload.data,
       flutter: payload.flutter,
       tagResolved: tag,
-    ).toBytes();
+    ).toBytes('PXLN');
     return Section(
       SectionKind.l10n,
       Uint8List(16)..setAll(0, tag.codeUnits),
@@ -75,6 +76,7 @@ Uint8List withLocales(
     for (final s in b.sections)
       if (s.kind != SectionKind.l10n) s,
     section('en', english, null),
+    for (final t in verbatim) section(t, english, null),
     for (final e in texts.entries) section(e.key, english, e.value),
   ]);
 }

@@ -84,6 +84,9 @@ abstract final class Plux {
           ),
         );
     rt.attachSecurity();
+    // The release's locale is decoded off the UI isolate before the first
+    // page is built (I18N-005).
+    await container.read(localeControllerProvider.notifier).settled();
     return startup;
   }
 
