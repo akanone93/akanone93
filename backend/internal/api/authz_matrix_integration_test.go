@@ -413,9 +413,9 @@ func TestEveryPermissionGuardsAnRPC(t *testing.T) {
 // permissionsWithoutRPC are permissions the catalogue defines that no
 // ConnectRPC procedure checks: key management is a command-line and
 // operator act (SEC-120). The P8 permissions are checked inside the document
-// service (translations) or arrive with their RPCs (waivers, goldens).
+// service (translations) or arrive with their RPCs (waivers).
 var permissionsWithoutRPC = []auth.Permission{
-	auth.A11yWaive, auth.GoldensApprove, auth.KeysManage, auth.TranslationsApprove,
+	auth.A11yWaive, auth.KeysManage, auth.TranslationsApprove,
 }
 
 // Verifies: SEC-100, SEC-102, GOV-001, QA-008.

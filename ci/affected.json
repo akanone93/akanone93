@@ -228,6 +228,13 @@
       "paths": ["test/compat/**", "test/refapi/**", "schema/**", "mk/device.mk", "backend/cmd/plux/**", "backend/internal/generator/**", "backend/internal/codegen/**"],
       "exclude": ["**/*.md", "**/android/**", "**/ios/**"]
     },
+    "goldens": {
+      "description": "The golden (visual regression) harness on Linux, the canonical renderer: plux golden renders the starter project with the real runtime and the vendored fonts, deterministically (TST-003, ADR-0070)",
+      "goTest": ["backend/cmd/plux", "backend/internal/plxgolden"],
+      "dart": ["apps/starter"],
+      "paths": ["schema/goldens/**", "schema/testdata/documents/starter/**", "backend/internal/plxtest/**"],
+      "exclude": ["**/*.md", "**/android/**", "**/ios/**"]
+    },
     "e2e-android": {
       "description": "The starter app's flows and the Kotlin add-to-app host's on the Android 35 emulator",
       "goTest": ["backend/internal/server"],

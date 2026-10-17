@@ -96,8 +96,10 @@ void main() {
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' show ImageByteFormat;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:plux_flutter/plux_flutter.dart';
@@ -216,6 +218,22 @@ final class ScenarioSession {
   final List<PluxException> _errors;
   final SemanticsHandle _semantics;
   final String _dir;
+  final GlobalKey _shot = GlobalKey();
+
+  /// The screen as PNG bytes at the view's pixel ratio (TST-003).
+  Future<Uint8List> capture() async {
+    final boundary =
+        _shot.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+    final png = await tester.runAsync(() async {
+      final image = await boundary.toImage(
+        pixelRatio: tester.view.devicePixelRatio,
+      );
+      final data = await image.toByteData(format: ImageByteFormat.png);
+      image.dispose();
+      return data!.buffer.asUint8List();
+    });
+    return png!;
+  }
 
   /// Starts the runtime on the test release, applies the given state and
   /// data source states, and shows [page] with [params]. Call [finish]
@@ -226,11 +244,19 @@ final class ScenarioSession {
     Map<String, Object?> params = const {},
     Map<String, Object?> state = const {},
     Map<String, String> dataSources = const {},
+    Size frame = const Size(800, 1600),
+    double pixelRatio = 1,
+    double textScale = 1,
+    ThemeMode? themeMode,
+    String? locale,
+    ThemeData? theme,
   }) async {
     tester.view
-      ..physicalSize = const Size(800, 1600)
-      ..devicePixelRatio = 1;
+      ..physicalSize = Size(frame.width * pixelRatio, frame.height * pixelRatio)
+      ..devicePixelRatio = pixelRatio;
     addTearDown(tester.view.reset);
+    tester.platformDispatcher.textScaleFactorTestValue = textScale;
+    addTearDown(tester.platformDispatcher.clearAllTestValues);
     final semantics = tester.ensureSemantics();
     final dir = Directory.systemTemp.createTempSync('plux_scenario').path;
     final routes = <String>[];
@@ -283,10 +309,26 @@ final class ScenarioSession {
           );
         }
       }
+      if (themeMode != null) Plux.setThemeMode(themeMode);
+      if (locale != null) {
+        final parts = locale.split('-');
+        Plux.setLocale(
+          Locale.fromSubtags(
+            languageCode: parts.first,
+            countryCode: parts.length > 1 ? parts.last : null,
+          ),
+        );
+      }
       await tester.pumpWidget(
         MaterialApp(
           navigatorKey: navigatorKey,
-          home: PluxScope(child: PluxView(page, inputs: params)),
+          theme: theme,
+          darkTheme: theme,
+          debugShowCheckedModeBanner: false,
+          home: RepaintBoundary(
+            key: session._shot,
+            child: PluxScope(child: PluxView(page, inputs: params)),
+          ),
         ),
       );
       await _settle(tester);

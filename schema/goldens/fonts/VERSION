@@ -1,0 +1,18 @@
+# Vendored fonts of the golden tests (TST-003, ADR-0070, plan P8 D12).
+# Test data only: no app, package or bundle ships them. SIL Open Font
+# License 1.1; copyright 2022 The Noto Project Authors. Regular (400) and
+# Bold (700) only. Taken unmodified from the npm packages below, whose
+# tarballs are pinned by SHA-256 (test: backend/internal/golden).
+#
+# package version tarball-sha256
+package @expo-google-fonts/noto-sans 0.4.2 98cf14a19b8e67a0e76bfd4d5df98937b9734e6dde570bd750f2259042042548
+package @expo-google-fonts/noto-naskh-arabic 0.4.5 2f93452f15b3bdd86b922be17f247986d4d0e2ae7a1ca51f5d80326b2680628e
+package @expo-google-fonts/noto-sans-ethiopic 0.4.2 3030fe790f54df5297904e82da1d5216df61064af4e2ca2972ad166a6ad81f49
+#
+# file sha256
+file NotoNaskhArabic_400Regular.ttf 706b4580c025f6c75ec1c06013e17f00a23ec1780091b77a5a5b339469bda94d
+file NotoNaskhArabic_700Bold.ttf 35418f91100645a36e4d72d75866b61c5da14dc5ebbade64db434d2c9e76234c
+file NotoSansEthiopic_400Regular.ttf 321ff186e0f066a46257c3008e8a22070720350a9d17f8a32d0d3da53f52e7a2
+file NotoSansEthiopic_700Bold.ttf b968f7d5c79d6caaff5e29031b1598555f4b154de7456dd51b7c866f90d37597
+file NotoSans_400Regular.ttf fe8c022f48d8dd29f17b744d16f9346f4357e16f7d4f7be58b000ae7c291b614
+file NotoSans_700Bold.ttf 13a813c49624ae3ba3c5c6e72c5ebffc4b9e1e6ea32f421c04069b037c6ad431

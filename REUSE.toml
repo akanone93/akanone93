@@ -221,3 +221,12 @@ path = [
 precedence = "override"
 SPDX-FileCopyrightText = ["2014 The Flutter Authors", "2026 Plux contributors"]
 SPDX-License-Identifier = "BSD-3-Clause"
+
+# Fonts of the golden tests (TST-003, ADR-0070): Noto Sans, Noto Naskh Arabic
+# and Noto Sans Ethiopic, vendored unmodified and pinned by
+# schema/goldens/fonts/VERSION. Test data only; no app ships them.
+[[annotations]]
+path = ["schema/goldens/fonts/*.ttf"]
+precedence = "override"
+SPDX-FileCopyrightText = "2022 The Noto Project Authors"
+SPDX-License-Identifier = "OFL-1.1"

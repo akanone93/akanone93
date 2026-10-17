@@ -444,6 +444,42 @@ type GatewayUpstream struct {
 	UpdatedAt             pgtype.Timestamptz
 }
 
+type GoldenBaseline struct {
+	AppID          pgtype.UUID
+	PluginKey      string
+	CaseID         string
+	OrganizationID pgtype.UUID
+	ImageSha256    []byte
+	ImageBytes     int64
+	ApprovedBy     string
+	ApprovedAt     pgtype.Timestamptz
+}
+
+type GoldenCase struct {
+	RunID          pgtype.UUID
+	CaseID         string
+	OrganizationID pgtype.UUID
+	Frame          string
+	Locale         string
+	Theme          string
+	TextScale      float64
+	ImageSha256    []byte
+	ImageBytes     int64
+}
+
+type GoldenRun struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	PluginKey      string
+	BundleSha256   []byte
+	AppSha256      []byte
+	Canonical      bool
+	Renderer       string
+	CreatedBy      string
+	CreatedAt      pgtype.Timestamptz
+}
+
 type IdempotencyKey struct {
 	Subject     string
 	Key         string

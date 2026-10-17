@@ -35,6 +35,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
 	"github.com/nightCode42/plux3/backend/internal/localisation"
@@ -92,6 +93,9 @@ type Services struct {
 	// Gateway is the secure gateway; nil where the process runs neither
 	// role (SEC-030).
 	Gateway *GatewayParts
+	// Goldens holds golden-test baselines and runs (TST-003); nil where the
+	// installation has no object store.
+	Goldens *golden.Service
 	// KMS checks the key management service, when the signing backend
 	// is one; nil for the development file backend (SRV-007).
 	KMS func(context.Context) error
@@ -374,8 +378,13 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
+	var goldens *golden.Service
+	if work.Objects != nil {
+		goldens = golden.New(golden.Options{DB: db, Audit: log, Objects: work.Objects, IDs: gen, Limits: set})
+	}
 	return &Services{
-		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
+		Goldens: goldens,
+		Audit:   log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
 		AttestationStatus: status, Metrics: work.Metrics, Functions: functions, FunctionRuntime: fnRuntime,
@@ -653,6 +662,12 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	if h.Translations != nil {
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewLocalisationServiceHandler(h.Localisation(), opts)
+		})
+	}
+	if svc.Goldens != nil {
+		h.Goldens = svc.Goldens
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts)
 		})
 	}
 	if svc.SecurityConfig != nil {

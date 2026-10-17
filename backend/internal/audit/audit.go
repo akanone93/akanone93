@@ -98,7 +98,10 @@ const (
 	NativeCatalogueUploaded Action = "native_catalogue.uploaded"
 	// A11yWaiverChanged: a save added or changed an accessibility waiver
 	// (ADR-0069).
-	A11yWaiverChanged    Action = "a11y.waiver_changed"
+	A11yWaiverChanged Action = "a11y.waiver_changed"
+	// GoldensApproved: golden images were promoted to baselines (TST-003,
+	// ADR-0070).
+	GoldensApproved      Action = "goldens.approved"
 	ReleasesPurged       Action = "release.purged"
 	ControlChanged       Action = "release.control_changed"
 	SnapshotRestored     Action = "snapshot.restored"
@@ -163,7 +166,7 @@ var actions = sorted(
 	VariableSet, SecretSet, SecretDeleted, LimitSet, TrashRestored, TrashPurged,
 	PluginCreated, PluginUpdated, PluginDeleted, PluginRestored, PluginPurged,
 	DocumentWritten, DocumentDeleted, DocumentRestored, DocumentPurged, DraftImported, AssetUploaded, AssetDeleted,
-	VersionPublished, PublishCancelled, ReleaseCreated, ReleasePromoted, ReleaseRolledBack, ReleasesPurged, ControlChanged, NativeCatalogueUploaded, A11yWaiverChanged,
+	VersionPublished, PublishCancelled, ReleaseCreated, ReleasePromoted, ReleaseRolledBack, ReleasesPurged, ControlChanged, NativeCatalogueUploaded, A11yWaiverChanged, GoldensApproved,
 	SnapshotRestored, TemplateInstantiated, LockAcquired, LockTakenOver, LockReleased, LockRequested,
 	DeviceRevoked, SecurityConfigSet, UpdateMetadataRootUploaded,
 	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,
