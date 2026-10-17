@@ -5,6 +5,7 @@ package pxl
 
 import (
 	"bytes"
+	"cmp"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -15,6 +16,8 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/nightCode42/plux3/backend/internal/l10n"
+	"github.com/nightCode42/plux3/backend/internal/l10n/mf"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
 
@@ -30,7 +33,11 @@ type vectorFile struct {
 	Env         EnvSpec        `json:"env"`
 	Limits      *vectorLimits  `json:"limits,omitempty"`
 	Inputs      map[string]any `json:"inputs,omitempty"`
-	Cases       []*vectorCase  `json:"cases"`
+	// Locale, when set, is the locale the format and l10n groups evaluate
+	// in; Messages are the translations t() finds, by key, in MessageFormat.
+	Locale   string            `json:"locale,omitempty"`
+	Messages map[string]string `json:"messages,omitempty"`
+	Cases    []*vectorCase     `json:"cases"`
 }
 
 // vectorLimits overrides limits for a file, e.g. a small budget.
@@ -44,6 +51,7 @@ type vectorLimits struct {
 // vectorCase is one expression with its expected outcome and goldens.
 type vectorCase struct {
 	Name        string          `json:"name"`
+	Locale      string          `json:"locale,omitempty"`
 	Expr        string          `json:"expr"`
 	Inputs      map[string]any  `json:"inputs,omitempty"`
 	Value       json.RawMessage `json:"value,omitempty"`
@@ -71,6 +79,36 @@ func (f *vectorFile) limits() Limits {
 		lim.DecimalDigits = orDefault(l.DecimalDigits, lim.DecimalDigits)
 	}
 	return lim
+}
+
+// localeContext returns the locale context of a case (its locale, else the
+// file's), or nil.
+func (f *vectorFile) localeContext(t *testing.T, caseLocale string) *LocaleContext {
+	t.Helper()
+	tag := cmp.Or(caseLocale, f.Locale)
+	if tag == "" {
+		return nil
+	}
+	loc, err := l10n.Load(tag)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return &LocaleContext{Locale: loc, Translate: func(key string, args map[string]string) (string, bool) {
+		text, ok := f.Messages[key]
+		if !ok {
+			return "", false
+		}
+		m, err := mf.Parse(text)
+		if err != nil {
+			return "", false
+		}
+		in := make(map[string]any, len(args))
+		for k, v := range args {
+			in[k] = v
+		}
+		out, _ := m.Format(loc, in)
+		return out, true
+	}}
 }
 
 func orDefault(v, def int64) int64 {
@@ -163,7 +201,7 @@ func runCase(t *testing.T, env *Env, f *vectorFile, c *vectorCase) {
 		t.Fatalf("%s: decode: %v", c.Name, err)
 	}
 	for _, prog := range []*Program{p, decoded} {
-		v, err := prog.Eval(values, f.limits())
+		v, err := prog.EvalIn(values, f.limits(), f.localeContext(t, c.Locale))
 		checkOutcome(t, c, typ, v, err)
 	}
 }
@@ -200,6 +238,9 @@ func checkOutcome(t *testing.T, c *vectorCase, typ *Type, v Value, err error) {
 		return
 	}
 	got, _ := json.Marshal(ToJSON(typ, v))
+	if *update && c.Value == nil {
+		c.Value = got // a new case: review the value written
+	}
 	var g, w any
 	if decodeJSON(got, &g) != nil || decodeJSON(c.Value, &w) != nil || !jsonEqual(g, w) {
 		t.Errorf("%s: %q = %s, want %s", c.Name, c.Expr, got, c.Value)

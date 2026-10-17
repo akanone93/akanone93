@@ -70,18 +70,14 @@ type vm struct {
 	stack  []Value
 	locals []any
 	used   int64
+	loc    *LocaleContext
 }
 
 // Eval evaluates the program with the given root values, which must match
 // the types the program was checked against (use FromJSON), within lim.
 // The result, or an *EvalError, never a panic, is returned.
 func (p *Program) Eval(inputs map[string]Value, lim Limits) (Value, error) {
-	m := &vm{p: p, lim: lim, inputs: inputs, stack: make([]Value, 0, min(p.MaxStack, len(p.Code))), locals: make([]any, p.Locals)}
-	v, err := m.run()
-	if err != nil {
-		return nil, err
-	}
-	return v, nil
+	return p.EvalIn(inputs, lim, nil)
 }
 
 // charge spends operations of the budget.

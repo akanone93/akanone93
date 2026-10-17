@@ -16,7 +16,8 @@ import (
 // ErrArgument is wrapped by evaluation errors about an argument's value.
 var ErrArgument = errors.New("invalid message argument")
 
-// Format evaluates the message in the locale. Arguments are string, bool,
+// Format evaluates the message in the locale. Arguments are string (also a
+// number written as text where a number is needed), bool,
 // int, int64, float64, l10n.Decimal (a number; its fraction digits count for
 // plural rules) or l10n.CalendarDate (a Gregorian date and time of day). An
 // argument that is missing renders as nothing. A node that cannot be
@@ -80,6 +81,9 @@ func toDecimal(v any) (l10n.Decimal, bool) {
 		return l10n.DecimalFromInt(x), true
 	case float64:
 		d, err := l10n.ParseDecimal(strconv.FormatFloat(x, 'f', -1, 64))
+		return d, err == nil
+	case string: // PXL passes every argument of t() as a string
+		d, err := l10n.ParseDecimal(x)
 		return d, err == nil
 	}
 	return l10n.Decimal{}, false
