@@ -21,22 +21,35 @@ import 'package:plux_flutter/src/render/scope.dart';
 
 /// The hand-written builders of this group by permanent widget ID.
 const Map<int, NodeBuilder> cupertinoMoreBuilders = {
-  _dataScopeId: _buildDataScope,
-  _nativeSlotId: _buildNativeSlot,
-  _navBarId: _buildNavigationBar,
-  _tabBarId: _buildTabBar,
-  _pickerId: _buildPicker,
-  _datePickerId: _buildDatePicker,
-  _contextMenuId: _buildContextMenu,
+  dataScopeWidgetId: _buildDataScope,
+  nativeSlotWidgetId: _buildNativeSlot,
+  cupertinoNavigationBarWidgetId: _buildNavigationBar,
+  cupertinoTabBarWidgetId: _buildTabBar,
+  cupertinoPickerWidgetId: _buildPicker,
+  cupertinoDatePickerWidgetId: _buildDatePicker,
+  cupertinoContextMenuWidgetId: _buildContextMenu,
 };
 
-const int _dataScopeId = 109,
-    _nativeSlotId = 110,
-    _navBarId = 154,
-    _tabBarId = 155,
-    _pickerId = 156,
-    _datePickerId = 157,
-    _contextMenuId = 158;
+/// The permanent widget ID of `DataScope`.
+const int dataScopeWidgetId = 109;
+
+/// The permanent widget ID of `NativeSlot`.
+const int nativeSlotWidgetId = 110;
+
+/// The permanent widget ID of `CupertinoNavigationBar`.
+const int cupertinoNavigationBarWidgetId = 154;
+
+/// The permanent widget ID of `CupertinoTabBar`.
+const int cupertinoTabBarWidgetId = 155;
+
+/// The permanent widget ID of `CupertinoPicker`.
+const int cupertinoPickerWidgetId = 156;
+
+/// The permanent widget ID of `CupertinoDatePicker`.
+const int cupertinoDatePickerWidgetId = 157;
+
+/// The permanent widget ID of `CupertinoContextMenu`.
+const int cupertinoContextMenuWidgetId = 158;
 
 // ── DataScope ───────────────────────────────────────────────────────────────
 
