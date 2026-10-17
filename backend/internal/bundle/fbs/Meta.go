@@ -477,8 +477,21 @@ func (rcv *Meta) HostEventsLength() int {
 	return 0
 }
 
+func (rcv *Meta) Localisation(obj *LocalisationSettings) *LocalisationSettings {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(62))
+	if o != 0 {
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(LocalisationSettings)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
+	}
+	return nil
+}
+
 func MetaStart(builder *flatbuffers.Builder) {
-	builder.StartObject(29)
+	builder.StartObject(30)
 }
 func MetaAddKind(builder *flatbuffers.Builder, kind BundleKind) {
 	builder.PrependByteSlot(0, byte(kind), 0)
@@ -599,6 +612,9 @@ func MetaAddHostEvents(builder *flatbuffers.Builder, hostEvents flatbuffers.UOff
 }
 func MetaStartHostEventsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
+}
+func MetaAddLocalisation(builder *flatbuffers.Builder, localisation flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(29, flatbuffers.UOffsetT(localisation), 0)
 }
 func MetaEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

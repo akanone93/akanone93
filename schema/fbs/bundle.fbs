@@ -413,6 +413,25 @@ table HostEvent {
   fields: [HostEventField];
 }
 
+// The numbering system of one locale (I18N-011).
+table NumberingSystemEntry {
+  // A canonical BCP 47 tag of a supported locale.
+  locale: string;
+  // `latn` or `native`.
+  system: string;
+}
+
+// The app's localisation settings (app.json `localisation`).
+table LocalisationSettings {
+  // A CalendarSystem value (`gregorian`, `ethiopic`, `islamicUmalqura`,
+  // `persian`); empty is gregorian.
+  calendar: string;
+  // A second calendar shown beside the first; empty for none.
+  secondary_calendar: string;
+  // Sorted by locale.
+  numbering_systems: [NumberingSystemEntry];
+}
+
 table Meta {
   kind: BundleKind;
   id: Uuid;
@@ -460,6 +479,9 @@ table Meta {
   // App bundles: the declared host events, sorted by name (HST-013);
   // absent when the app declares none.
   host_events: [HostEvent];
+  // App bundles: the app's localisation settings (I18N-003, I18N-011);
+  // absent when app.json declares none.
+  localisation: LocalisationSettings;
 }
 
 // ── Section page ──────────────────────────────────────────────────────────
