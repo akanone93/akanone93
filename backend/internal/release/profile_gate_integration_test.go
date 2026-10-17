@@ -94,3 +94,27 @@ func TestPseudoLocalesCannotBePromotedToProduction(t *testing.T) {
 		t.Fatalf("promote pseudo-locales into production: %v", err)
 	}
 }
+
+// Verifies: SEC-180.
+// A rollback passes the same gates as a promotion (profile floor and, into
+// production, the pseudo-locale check, which share gatePromotion).
+func TestRollbackPassesProfileFloor_SEC_180(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	f := newFixture(t)
+	dev, prod := f.envs["development"], f.envs["production"]
+	setAppProfile(t, f, "strict")
+	f.publish(t, "", false)
+	f.publish(t, f.loans, false)
+	rel, _, err := f.rel.CreateRelease(ctx, f.owner, f.app, dev.ID, nil, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.rel.PromoteRelease(ctx, f.owner, f.app, rel.Sequence, prod.ID, ""); err != nil {
+		t.Fatal(err)
+	}
+	setEnvProfile(t, f, "production", "maximum")
+	if _, err := f.rel.RollbackRelease(ctx, f.owner, f.app, prod.ID, "", rel.Sequence, ""); code(err) != plxerr.ReleaseProfileBelowEnvironment {
+		t.Fatalf("rollback below the environment's profile: %v", err)
+	}
+}

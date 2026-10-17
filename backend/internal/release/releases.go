@@ -580,6 +580,9 @@ func (s *Service) RollbackRelease(ctx context.Context, p auth.Principal, appID, 
 		if err := requirePromoted(ctx, q, env, earlier.ID); err != nil {
 			return err
 		}
+		if err := s.gatePromotion(ctx, appID, env, earlier, vs); err != nil {
+			return err
+		}
 		if notes == "" {
 			notes = "Rollback to release " + strconv.FormatInt(toSequence, 10)
 		}
