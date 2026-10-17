@@ -3,7 +3,6 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 
@@ -62,7 +61,7 @@ void main() {
       Stepper,
       MaterialBanner,
     ]) {
-      expect(find.byType(type), findsWidgets, reason: "$type");
+      expect(find.byType(type), findsWidgets, reason: '$type');
     }
     expect(problems(), isEmpty);
   });
@@ -110,14 +109,12 @@ void main() {
     await open(tester);
     final tile = find.text('first').first;
     final gesture = await tester.startGesture(tester.getCenter(tile));
-    await tester.pump(kLongPressTimeout + const Duration(milliseconds: 50));
-    for (var i = 0; i < 6; i++) {
-      await gesture.moveBy(const Offset(0, 20));
-      await tester.pump(const Duration(milliseconds: 50));
-    }
+    await tester.pump(kLongPressTimeout + kPressTimeout);
+    await gesture.moveBy(const Offset(0, 100));
+    await tester.pump();
     await gesture.up();
     await settle(tester);
-    expect(find.text('moved 0>1'), findsOneWidget);
+    expect(find.text('moved 0>2'), findsOneWidget);
   });
 
   testWidgets('NestedScrollView scrolls its header away with the body '

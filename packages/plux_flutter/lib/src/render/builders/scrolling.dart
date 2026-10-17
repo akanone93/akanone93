@@ -19,17 +19,44 @@ import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
 
+/// The permanent ID of `Table`.
+const int tableWidgetId = 111;
+
+/// The permanent ID of `BackdropFilter`.
+const int backdropFilterWidgetId = 112;
+
+/// The permanent ID of `RefreshIndicator`.
+const int refreshIndicatorWidgetId = 113;
+
+/// The permanent ID of `ReorderableListView`.
+const int reorderableListViewWidgetId = 114;
+
+/// The permanent ID of `NestedScrollView`.
+const int nestedScrollViewWidgetId = 115;
+
+/// The permanent ID of `SliverPersistentHeader`.
+const int sliverPersistentHeaderWidgetId = 116;
+
+/// The permanent ID of `DataTable`.
+const int dataTableWidgetId = 117;
+
+/// The permanent ID of `Stepper`.
+const int stepperWidgetId = 118;
+
+/// The permanent ID of `MaterialBanner`.
+const int materialBannerWidgetId = 119;
+
 /// The builders of this group, by permanent widget ID.
 const Map<int, NodeBuilder> scrollingBuilders = {
-  111: _table,
-  112: _backdropFilter,
-  113: _refreshIndicator,
-  114: _reorderableListView,
-  115: _nestedScrollView,
-  116: _sliverPersistentHeader,
-  117: _dataTable,
-  118: _stepper,
-  119: _materialBanner,
+  tableWidgetId: _table,
+  backdropFilterWidgetId: _backdropFilter,
+  refreshIndicatorWidgetId: _refreshIndicator,
+  reorderableListViewWidgetId: _reorderableListView,
+  nestedScrollViewWidgetId: _nestedScrollView,
+  sliverPersistentHeaderWidgetId: _sliverPersistentHeader,
+  dataTableWidgetId: _dataTable,
+  stepperWidgetId: _stepper,
+  materialBannerWidgetId: _materialBanner,
 };
 
 List<Object?> _list(NodeContext c, int id) => switch (c.prop(id)) {
