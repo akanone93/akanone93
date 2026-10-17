@@ -361,6 +361,63 @@ enum PluxErrorCode {
   /// Direct data source assurance cannot be enforced.
   directSourceAssuranceUnenforceable(1504, 'DIRECT_SOURCE_ASSURANCE_UNENFORCEABLE', 'Direct data source assurance cannot be enforced'),
 
+  /// Locale not supported.
+  localeUnsupported(1600, 'LOCALE_UNSUPPORTED', 'Locale not supported'),
+
+  /// Message syntax invalid.
+  messageSyntaxInvalid(1601, 'MESSAGE_SYNTAX_INVALID', 'Message syntax invalid'),
+
+  /// Message argument undeclared.
+  messageArgumentUndeclared(1602, 'MESSAGE_ARGUMENT_UNDECLARED', 'Message argument undeclared'),
+
+  /// Message argument type mismatch.
+  messageArgumentTypeMismatch(1603, 'MESSAGE_ARGUMENT_TYPE_MISMATCH', 'Message argument type mismatch'),
+
+  /// Plural category not in locale.
+  pluralCategoryInvalid(1604, 'PLURAL_CATEGORY_INVALID', 'Plural category not in locale'),
+
+  /// Plural other branch missing.
+  pluralOtherMissing(1605, 'PLURAL_OTHER_MISSING', 'Plural other branch missing'),
+
+  /// Translation missing.
+  translationMissing(1606, 'TRANSLATION_MISSING', 'Translation missing'),
+
+  /// Translation too long.
+  translationTooLong(1607, 'TRANSLATION_TOO_LONG', 'Translation too long'),
+
+  /// Translation key unused.
+  translationKeyUnused(1608, 'TRANSLATION_KEY_UNUSED', 'Translation key unused'),
+
+  /// Literal text not translated.
+  literalTextUntranslated(1609, 'LITERAL_TEXT_UNTRANSLATED', 'Literal text not translated'),
+
+  /// Translation not approved.
+  translationNotApproved(1610, 'TRANSLATION_NOT_APPROVED', 'Translation not approved'),
+
+  /// Calendar unsupported.
+  calendarUnsupported(1611, 'CALENDAR_UNSUPPORTED', 'Calendar unsupported'),
+
+  /// Numbering system unsupported.
+  numberingSystemUnsupported(1612, 'NUMBERING_SYSTEM_UNSUPPORTED', 'Numbering system unsupported'),
+
+  /// Locale override invalid.
+  localeOverrideInvalid(1613, 'LOCALE_OVERRIDE_INVALID', 'Locale override invalid'),
+
+  /// Pseudo-locale in production.
+  pseudoLocaleInProduction(1614, 'PSEUDO_LOCALE_IN_PRODUCTION', 'Pseudo-locale in production'),
+
+  /// Calendar outside its table.
+  calendarOutOfTable(1615, 'CALENDAR_OUT_OF_TABLE', 'Calendar outside its table'),
+
+  /// Translation import invalid.
+  translationImportInvalid(1620, 'TRANSLATION_IMPORT_INVALID', 'Translation import invalid'),
+
+  /// Imported key unknown.
+  translationImportKeyUnknown(1621, 'TRANSLATION_IMPORT_KEY_UNKNOWN', 'Imported key unknown'),
+
+  /// Source text changed since translation.
+  translationImportSourceChanged(1622, 'TRANSLATION_IMPORT_SOURCE_CHANGED', 'Source text changed since translation'),
+
   /// PXL syntax error.
   pxlSyntaxError(2001, 'PXL_SYNTAX_ERROR', 'PXL syntax error'),
 
@@ -472,6 +529,15 @@ enum PluxErrorCode {
   /// Sync failed.
   syncFailed(3050, 'SYNC_FAILED', 'Sync failed'),
 
+  /// Accessibility check blocks publish.
+  accessibilityBlocksPublish(3060, 'ACCESSIBILITY_BLOCKS_PUBLISH', 'Accessibility check blocks publish'),
+
+  /// Golden test run missing.
+  goldenRunMissing(3061, 'GOLDEN_RUN_MISSING', 'Golden test run missing'),
+
+  /// Golden difference not approved.
+  goldenDifferenceUnapproved(3062, 'GOLDEN_DIFFERENCE_UNAPPROVED', 'Golden difference not approved'),
+
   /// Build error in node.
   nodeBuildFailed(4001, 'NODE_BUILD_FAILED', 'Build error in node'),
 
@@ -528,6 +594,18 @@ enum PluxErrorCode {
 
   /// Lottie or Rive asset failed.
   animationAssetFailed(4303, 'ANIMATION_ASSET_FAILED', 'Lottie or Rive asset failed'),
+
+  /// Locale not in release.
+  localeNotInRelease(4400, 'LOCALE_NOT_IN_RELEASE', 'Locale not in release'),
+
+  /// Translation fell back to source.
+  translationFallback(4401, 'TRANSLATION_FALLBACK', 'Translation fell back to source'),
+
+  /// Message could not be formatted.
+  messageFormatFailed(4402, 'MESSAGE_FORMAT_FAILED', 'Message could not be formatted'),
+
+  /// Widget package not registered.
+  widgetPackageMissing(4403, 'WIDGET_PACKAGE_MISSING', 'Widget package not registered'),
 
   /// Action timed out.
   actionTimeout(5001, 'ACTION_TIMEOUT', 'Action timed out'),
@@ -977,7 +1055,13 @@ enum PluxErrorCode {
   projectNotFound(9101, 'PROJECT_NOT_FOUND', 'Project not found'),
 
   /// File system error.
-  fileSystemError(9102, 'FILE_SYSTEM_ERROR', 'File system error');
+  fileSystemError(9102, 'FILE_SYSTEM_ERROR', 'File system error'),
+
+  /// Golden test harness failed.
+  goldenHarnessFailed(9300, 'GOLDEN_HARNESS_FAILED', 'Golden test harness failed'),
+
+  /// Flutter SDK unavailable.
+  flutterSdkUnavailable(9301, 'FLUTTER_SDK_UNAVAILABLE', 'Flutter SDK unavailable');
 
   const PluxErrorCode(this.code, this.reason, this.title);
 
