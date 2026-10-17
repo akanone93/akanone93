@@ -218,8 +218,8 @@ func TestTranslationStatuses_I18N_008(t *testing.T) {
 	if m, s := w.stored(t, path); m[keyBye] != "Tschüss" || s[keyBye] != "translated" {
 		t.Errorf("after a new message without a state: %v %v", m, s)
 	}
-	if _, s := w.stored(t, path); s[keyHello] != "" {
-		t.Errorf("a state left out of a save is kept: %v", s)
+	if _, s := w.stored(t, path); s[keyHello] != "translated" {
+		t.Errorf("a state left out of a save is not kept: %v", s)
 	}
 	// Without a text change the state is the caller's to set.
 	if err := save(w.developer, "dev", map[string]string{keyHello: "Hallo!", keyBye: "Tschüss"},
@@ -245,6 +245,25 @@ func TestTranslationStatuses_I18N_008(t *testing.T) {
 	}
 	if _, s := w.stored(t, path); s[keyHello] != "approved" {
 		t.Fatalf("approved state: %v", s)
+	}
+
+	// A state left out of a save is kept, so a developer cannot drop an
+	// approval by omission; an explicit state, or a changed text, alters it.
+	texts := map[string]string{keyHello: "Hallo!", keyBye: "Tschüss"}
+	if err := save(w.developer, "dev", texts, nil); err != nil {
+		t.Fatalf("a developer's save without states: %v", err)
+	}
+	if _, s := w.stored(t, path); s[keyHello] != "approved" || s[keyBye] != "translated" {
+		t.Errorf("states after a save that left them out: %v", s)
+	}
+	if err := save(w.developer, "dev", map[string]string{keyHello: "Hallo!"}, nil); err != nil {
+		t.Fatalf("a developer removing a message: %v", err)
+	}
+	if m, s := w.stored(t, path); len(m) != 1 || s[keyBye] != "" || s[keyHello] != "approved" {
+		t.Errorf("after removing a message: %v %v", m, s)
+	}
+	if err := save(w.developer, "dev", texts, map[string]string{keyHello: "approved"}); err != nil {
+		t.Fatalf("a developer re-adding a message: %v", err)
 	}
 
 	// An approved message whose text changes stays approved only for
@@ -335,7 +354,7 @@ func TestLocaleLocksAreIndependent_I18N_008(t *testing.T) {
 		}
 	}
 
-	for name, scope := range map[string]string{"another document": "app", "a path": "translations/../x", "no locale": "translations/"} {
+	for name, scope := range map[string]string{"another document": "app", "a path": "translations/../x", "no locale": "translations/", "an upper-case locale": "translations/DE", "a region only": "translations/de-de"} {
 		if _, _, err := w.docs.AcquireScopedLock(ctx, w.owner, w.app, "", "own", scope, false); code(err) != plxerr.InvalidFormat {
 			t.Errorf("a scope of %s: %v", name, err)
 		}

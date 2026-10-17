@@ -495,7 +495,6 @@ type Lock struct {
 	PreviousSession string
 	PreviousHolder  string
 	RequestedBy     []byte
-	Scope           string
 }
 
 type Manifest struct {
@@ -758,6 +757,22 @@ type TelemetryEvent struct {
 	Route           string
 	Fields          []byte
 	ReceivedAt      pgtype.Timestamptz
+}
+
+type TranslationLock struct {
+	DraftID         pgtype.UUID
+	Locale          string
+	OrganizationID  pgtype.UUID
+	HolderKind      string
+	HolderID        string
+	HolderDisplay   string
+	Session         string
+	AcquiredAt      pgtype.Timestamptz
+	HeartbeatAt     pgtype.Timestamptz
+	ExpiresAt       pgtype.Timestamptz
+	PreviousSession string
+	PreviousHolder  string
+	RequestedBy     []byte
 }
 
 type Trash struct {

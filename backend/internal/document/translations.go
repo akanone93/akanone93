@@ -152,6 +152,24 @@ func reviewStates(p auth.Principal, appID string, prev, next map[string]any) (bo
 	states, _ := next["states"].(map[string]any)
 	approver := p.HoldsOnApp(auth.TranslationsApprove, appID)
 
+	// A state left out of the save is kept: only an explicit state, or a
+	// changed text, alters it. The state of a message the save removes goes
+	// with it.
+	adjusted := false
+	for id, state := range oldStates {
+		if _, said := states[id]; said {
+			continue
+		}
+		if _, kept := messages[id]; !kept {
+			continue
+		}
+		if states == nil {
+			states = map[string]any{}
+		}
+		states[id] = state
+		adjusted = true
+	}
+
 	ids := make([]string, 0, len(messages)+len(states))
 	for id := range messages {
 		ids = append(ids, id)
@@ -160,7 +178,7 @@ func reviewStates(p auth.Principal, appID string, prev, next map[string]any) (bo
 		ids = append(ids, id)
 	}
 	slices.Sort(ids)
-	adjusted, stepped := false, false
+	stepped := false
 	for _, id := range slices.Compact(ids) {
 		was := stateOf(oldStates, id)
 		now := stateOf(states, id)

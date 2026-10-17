@@ -201,28 +201,11 @@ func (q *Queries) CreateSnapshot(ctx context.Context, arg CreateSnapshotParams) 
 }
 
 const deleteLock = `-- name: DeleteLock :execrows
-DELETE FROM locks WHERE draft_id = $1 AND scope = $2
-`
-
-type DeleteLockParams struct {
-	DraftID pgtype.UUID
-	Scope   string
-}
-
-func (q *Queries) DeleteLock(ctx context.Context, arg DeleteLockParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteLock, arg.DraftID, arg.Scope)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
-const deleteLocksOfDraft = `-- name: DeleteLocksOfDraft :execrows
 DELETE FROM locks WHERE draft_id = $1
 `
 
-func (q *Queries) DeleteLocksOfDraft(ctx context.Context, draftID pgtype.UUID) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteLocksOfDraft, draftID)
+func (q *Queries) DeleteLock(ctx context.Context, draftID pgtype.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteLock, draftID)
 	if err != nil {
 		return 0, err
 	}
@@ -460,16 +443,11 @@ func (q *Queries) GetDraftForUpdate(ctx context.Context, id pgtype.UUID) (Draft,
 }
 
 const getLock = `-- name: GetLock :one
-SELECT draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, scope FROM locks WHERE draft_id = $1 AND scope = $2
+SELECT draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by FROM locks WHERE draft_id = $1
 `
 
-type GetLockParams struct {
-	DraftID pgtype.UUID
-	Scope   string
-}
-
-func (q *Queries) GetLock(ctx context.Context, arg GetLockParams) (Lock, error) {
-	row := q.db.QueryRow(ctx, getLock, arg.DraftID, arg.Scope)
+func (q *Queries) GetLock(ctx context.Context, draftID pgtype.UUID) (Lock, error) {
+	row := q.db.QueryRow(ctx, getLock, draftID)
 	var i Lock
 	err := row.Scan(
 		&i.DraftID,
@@ -484,22 +462,16 @@ func (q *Queries) GetLock(ctx context.Context, arg GetLockParams) (Lock, error) 
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
-		&i.Scope,
 	)
 	return i, err
 }
 
 const getLockForUpdate = `-- name: GetLockForUpdate :one
-SELECT draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, scope FROM locks WHERE draft_id = $1 AND scope = $2 FOR UPDATE
+SELECT draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by FROM locks WHERE draft_id = $1 FOR UPDATE
 `
 
-type GetLockForUpdateParams struct {
-	DraftID pgtype.UUID
-	Scope   string
-}
-
-func (q *Queries) GetLockForUpdate(ctx context.Context, arg GetLockForUpdateParams) (Lock, error) {
-	row := q.db.QueryRow(ctx, getLockForUpdate, arg.DraftID, arg.Scope)
+func (q *Queries) GetLockForUpdate(ctx context.Context, draftID pgtype.UUID) (Lock, error) {
+	row := q.db.QueryRow(ctx, getLockForUpdate, draftID)
 	var i Lock
 	err := row.Scan(
 		&i.DraftID,
@@ -514,7 +486,6 @@ func (q *Queries) GetLockForUpdate(ctx context.Context, arg GetLockForUpdatePara
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
-		&i.Scope,
 	)
 	return i, err
 }
@@ -1262,21 +1233,20 @@ func (q *Queries) PutBlob(ctx context.Context, arg PutBlobParams) error {
 }
 
 const putLock = `-- name: PutLock :one
-INSERT INTO locks (draft_id, scope, organization_id, holder_kind, holder_id, holder_display, session,
+INSERT INTO locks (draft_id, organization_id, holder_kind, holder_id, holder_display, session,
                    expires_at, previous_session, previous_holder)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-ON CONFLICT (draft_id, scope) DO UPDATE
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+ON CONFLICT (draft_id) DO UPDATE
    SET holder_kind = EXCLUDED.holder_kind, holder_id = EXCLUDED.holder_id,
        holder_display = EXCLUDED.holder_display, session = EXCLUDED.session,
        acquired_at = now(), heartbeat_at = now(), expires_at = EXCLUDED.expires_at,
        previous_session = EXCLUDED.previous_session, previous_holder = EXCLUDED.previous_holder,
        requested_by = '[]'
-RETURNING draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, scope
+RETURNING draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by
 `
 
 type PutLockParams struct {
 	DraftID         pgtype.UUID
-	Scope           string
 	OrganizationID  pgtype.UUID
 	HolderKind      string
 	HolderID        string
@@ -1290,7 +1260,6 @@ type PutLockParams struct {
 func (q *Queries) PutLock(ctx context.Context, arg PutLockParams) (Lock, error) {
 	row := q.db.QueryRow(ctx, putLock,
 		arg.DraftID,
-		arg.Scope,
 		arg.OrganizationID,
 		arg.HolderKind,
 		arg.HolderID,
@@ -1314,23 +1283,21 @@ func (q *Queries) PutLock(ctx context.Context, arg PutLockParams) (Lock, error) 
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
-		&i.Scope,
 	)
 	return i, err
 }
 
 const renewLock = `-- name: RenewLock :one
-UPDATE locks SET heartbeat_at = now(), expires_at = $3 WHERE draft_id = $1 AND scope = $2 RETURNING draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, scope
+UPDATE locks SET heartbeat_at = now(), expires_at = $2 WHERE draft_id = $1 RETURNING draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by
 `
 
 type RenewLockParams struct {
 	DraftID   pgtype.UUID
-	Scope     string
 	ExpiresAt pgtype.Timestamptz
 }
 
 func (q *Queries) RenewLock(ctx context.Context, arg RenewLockParams) (Lock, error) {
-	row := q.db.QueryRow(ctx, renewLock, arg.DraftID, arg.Scope, arg.ExpiresAt)
+	row := q.db.QueryRow(ctx, renewLock, arg.DraftID, arg.ExpiresAt)
 	var i Lock
 	err := row.Scan(
 		&i.DraftID,
@@ -1345,27 +1312,25 @@ func (q *Queries) RenewLock(ctx context.Context, arg RenewLockParams) (Lock, err
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
-		&i.Scope,
 	)
 	return i, err
 }
 
 const requestLock = `-- name: RequestLock :one
 UPDATE locks
-   SET requested_by = CASE WHEN requested_by @> $3::jsonb THEN requested_by
-                           ELSE requested_by || $3::jsonb END
- WHERE draft_id = $1 AND scope = $2
-RETURNING draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by, scope
+   SET requested_by = CASE WHEN requested_by @> $2::jsonb THEN requested_by
+                           ELSE requested_by || $2::jsonb END
+ WHERE draft_id = $1
+RETURNING draft_id, organization_id, holder_kind, holder_id, holder_display, session, acquired_at, heartbeat_at, expires_at, previous_session, previous_holder, requested_by
 `
 
 type RequestLockParams struct {
 	DraftID   pgtype.UUID
-	Scope     string
 	Requester []byte
 }
 
 func (q *Queries) RequestLock(ctx context.Context, arg RequestLockParams) (Lock, error) {
-	row := q.db.QueryRow(ctx, requestLock, arg.DraftID, arg.Scope, arg.Requester)
+	row := q.db.QueryRow(ctx, requestLock, arg.DraftID, arg.Requester)
 	var i Lock
 	err := row.Scan(
 		&i.DraftID,
@@ -1380,7 +1345,6 @@ func (q *Queries) RequestLock(ctx context.Context, arg RequestLockParams) (Lock,
 		&i.PreviousSession,
 		&i.PreviousHolder,
 		&i.RequestedBy,
-		&i.Scope,
 	)
 	return i, err
 }

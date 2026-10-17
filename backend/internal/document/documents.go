@@ -415,7 +415,7 @@ func (s *Service) holdsAny(ctx context.Context, q *dbgen.Queries, d draft, p aut
 // from one of the locks.
 func (*Service) displaced(ctx context.Context, q *dbgen.Queries, d draft, p auth.Principal, session string, scopes []string) (bool, error) {
 	for _, scope := range scopes {
-		row, err := q.GetLock(ctx, dbgen.GetLockParams{DraftID: d.row.ID, Scope: scope})
+		row, err := getLock(ctx, q, d, scope, false)
 		if errors.Is(err, pgx.ErrNoRows) {
 			continue
 		}
