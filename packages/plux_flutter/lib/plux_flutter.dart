@@ -68,6 +68,7 @@ export 'src/render/decoding.dart'
         Fields,
         PluxObject,
         asBool,
+        asColor,
         asDouble,
         asDoubles,
         asInt,

@@ -4,8 +4,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart' as ms;
 import 'package:plux_flutter/plux_flutter.dart';
+import 'package:plux_scanner/src/engine.dart';
+import 'package:plux_scanner/src/scan_view.dart';
+import 'package:plux_scanner/src/session.dart';
+
+export 'package:plux_scanner/src/formats.dart' show formatName, scannerFormats;
 
 /// What a scan page reports. It reports once; later calls are ignored.
 abstract interface class ScanSink {
@@ -28,8 +32,9 @@ typedef ScanPageBuilder = Widget Function(
 );
 
 /// The `scanCode` action for Plux plugins (RT-060, SEC-080): a full-screen
-/// camera page, on `mobile_scanner` (ML Kit on Android, Vision on iOS),
-/// that returns the first code it reads.
+/// camera page that returns the first code it reads, on the same engines as
+/// the scanner widgets (ML Kit through Play services with a ZXing-C++
+/// fallback on Android, Vision on iOS).
 ///
 /// Register it in `PluxConfig.devicePackages` with the key of the host's
 /// root navigator: `PluxScanner(navigatorKey: navigatorKey)`. Plugins must
@@ -39,8 +44,14 @@ final class PluxScanner implements PluxDevicePackage {
   /// [navigatorKey]; [pageBuilder] replaces the camera page.
   PluxScanner({
     required GlobalKey<NavigatorState> navigatorKey,
+    PluxScannerConfig config = const PluxScannerConfig(),
     @visibleForTesting ScanPageBuilder? pageBuilder,
-  }) : _scanner = _Scanner(navigatorKey, pageBuilder ?? _cameraPage);
+  }) : _scanner = _Scanner(
+         navigatorKey,
+         pageBuilder ??
+             (context, formats, sink) =>
+                 _CameraPage(formats: formats, sink: sink, config: config),
+       );
 
   final _Scanner _scanner;
 
@@ -110,93 +121,24 @@ final class _Sink implements ScanSink {
   void cancel() => _finish(null);
 }
 
-/// The `BarcodeFormat` members of the schema and the scanner's formats.
-const Map<String, List<ms.BarcodeFormat>> _formats = {
-  'qrCode': [ms.BarcodeFormat.qrCode],
-  'aztec': [ms.BarcodeFormat.aztec],
-  'dataMatrix': [ms.BarcodeFormat.dataMatrix],
-  'pdf417': [ms.BarcodeFormat.pdf417],
-  'code39': [ms.BarcodeFormat.code39],
-  'code93': [ms.BarcodeFormat.code93],
-  'code128': [ms.BarcodeFormat.code128],
-  'codabar': [ms.BarcodeFormat.codabar],
-  'ean8': [ms.BarcodeFormat.ean8],
-  'ean13': [ms.BarcodeFormat.ean13],
-  'itf': [ms.BarcodeFormat.itf14, ms.BarcodeFormat.itf2of5],
-  'upcA': [ms.BarcodeFormat.upcA],
-  'upcE': [ms.BarcodeFormat.upcE],
-};
-
-/// The schema's `BarcodeFormat` member for a scanner format, or null for
-/// a format the schema does not know.
-@visibleForTesting
-String? formatName(ms.BarcodeFormat format) {
-  for (final e in _formats.entries) {
-    if (e.value.contains(format)) return e.key;
-  }
-  return null;
-}
-
-/// The scanner formats for schema members [names]; empty for every format.
-@visibleForTesting
-List<ms.BarcodeFormat> scannerFormats(List<String> names) => [
-  for (final n in names) ...?_formats[n],
-];
-
-Widget _cameraPage(BuildContext context, List<String> formats, ScanSink sink) =>
-    _CameraPage(formats: formats, sink: sink);
-
-final class _CameraPage extends StatefulWidget {
-  const _CameraPage({required this.formats, required this.sink});
+final class _CameraPage extends StatelessWidget {
+  const _CameraPage({
+    required this.formats,
+    required this.sink,
+    required this.config,
+  });
 
   final List<String> formats;
   final ScanSink sink;
+  final PluxScannerConfig config;
 
-  @override
-  State<_CameraPage> createState() => _CameraPageState();
-}
-
-final class _CameraPageState extends State<_CameraPage> {
-  late final ms.MobileScannerController _controller =
-      ms.MobileScannerController(
-        formats: scannerFormats(widget.formats),
-        detectionSpeed: ms.DetectionSpeed.noDuplicates,
-      );
-
-  @override
-  void dispose() {
-    unawaited(_controller.dispose());
-    super.dispose();
-  }
-
-  void _detected(ms.BarcodeCapture capture) {
-    for (final code in capture.barcodes) {
-      final value = code.rawValue, format = formatName(code.format);
-      if (value == null || format == null) continue;
-      if (widget.formats.isNotEmpty && !widget.formats.contains(format)) {
-        continue;
-      }
-      widget.sink.found(PluxScanResult(value: value, format: format));
-      return;
-    }
-  }
-
-  Widget _failed(BuildContext context, ms.MobileScannerException error) {
-    final denied =
-        error.errorCode == ms.MobileScannerErrorCode.permissionDenied;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // The message holds the error code only (SEC-092).
-      widget.sink.fail(
-        denied
-            ? const PluxDeviceException.denied(
-                'the camera permission was denied',
-              )
-            : PluxDeviceException.unavailable(
-                'the scanner failed: ${error.errorCode.name}',
-              ),
-      );
-    });
-    return const ColoredBox(color: Colors.black);
+  void _failed(String code) {
+    // The message holds the error code only (SEC-092).
+    sink.fail(
+      code == ScanErrorCodes.permissionDenied
+          ? const PluxDeviceException.denied('the camera permission was denied')
+          : PluxDeviceException.unavailable('the scanner failed: $code'),
+    );
   }
 
   @override
@@ -208,14 +150,16 @@ final class _CameraPageState extends State<_CameraPage> {
       leading: IconButton(
         icon: const Icon(Icons.close),
         tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-        onPressed: widget.sink.cancel,
+        onPressed: sink.cancel,
       ),
     ),
     extendBodyBehindAppBar: true,
-    body: ms.MobileScanner(
-      controller: _controller,
-      onDetect: _detected,
-      errorBuilder: _failed,
+    body: PluxScannerView(
+      config: config,
+      formats: formats,
+      onDetected: (hit) =>
+          sink.found(PluxScanResult(value: hit.value, format: hit.format)),
+      onError: _failed,
     ),
   );
 }
