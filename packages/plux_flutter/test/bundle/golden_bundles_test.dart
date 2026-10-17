@@ -183,7 +183,7 @@ void main() {
       isNot(contains('hidden')),
       reason: 'the node with visible false',
     );
-    expect(natives, ['MapView']);
+    expect(natives, ['StoreMap']);
     // Hints are a set of bits; a static repaint boundary would be 3.
     expect(
       hints,

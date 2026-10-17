@@ -157,8 +157,8 @@ func TestCompileFeaturesProject(t *testing.T) {
 	})
 	t.Run("native slot", func(t *testing.T) {
 		n := nodes[mapView]
-		if n.Widget() != 0 || n.NativeSlot() == 0 || strs[n.NativeSlot()] != "MapView" {
-			t.Errorf("MapView: widget %d, native slot %d", n.Widget(), n.NativeSlot())
+		if n.Widget() != 0 || n.NativeSlot() == 0 || strs[n.NativeSlot()] != "StoreMap" {
+			t.Errorf("StoreMap: widget %d, native slot %d", n.Widget(), n.NativeSlot())
 		}
 	})
 	t.Run("page root", func(t *testing.T) {
