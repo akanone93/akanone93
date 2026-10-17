@@ -1,0 +1,73 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "AccountCard",
+  "id": 169,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "commerce",
+  "icon": "account_balance_wallet",
+  "description": "An account with its masked number and balance; flipping shows the back.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 90,
+  "accessibility": {
+    "role": "button",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "name",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "translatable": true,
+      "description": "The account's name."
+    },
+    {
+      "name": "maskedNumber",
+      "id": 2,
+      "type": "string",
+      "required": true,
+      "description": "The account number, masked."
+    },
+    {
+      "name": "balance",
+      "id": 3,
+      "type": "money",
+      "required": true,
+      "description": "The balance."
+    },
+    {
+      "name": "flipped",
+      "id": 4,
+      "type": "bool",
+      "default": false,
+      "description": "Whether the back is shown."
+    },
+    {
+      "name": "backLabel",
+      "id": 5,
+      "type": "string?",
+      "translatable": true,
+      "description": "The text on the back."
+    }
+  ],
+  "events": [
+    {
+      "name": "onFlip",
+      "id": 1,
+      "payload": "bool",
+      "description": "Fires with the side the person asked for."
+    }
+  ]
+}

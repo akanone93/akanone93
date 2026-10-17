@@ -1,0 +1,97 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "CartSummary",
+  "id": 167,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "commerce",
+  "icon": "shopping_cart",
+  "description": "The lines, subtotal, tax and total of a cart, with a checkout action.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 100,
+  "accessibility": {
+    "role": "group",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "lines",
+      "id": 1,
+      "type": "list<CartLine>",
+      "required": true,
+      "description": "The cart's lines."
+    },
+    {
+      "name": "subtotal",
+      "id": 2,
+      "type": "money",
+      "required": true,
+      "description": "The sum of the lines."
+    },
+    {
+      "name": "tax",
+      "id": 3,
+      "type": "money?",
+      "description": "The tax."
+    },
+    {
+      "name": "total",
+      "id": 4,
+      "type": "money",
+      "required": true,
+      "description": "The amount due."
+    },
+    {
+      "name": "subtotalLabel",
+      "id": 5,
+      "type": "string?",
+      "translatable": true,
+      "description": "The subtotal row's label."
+    },
+    {
+      "name": "taxLabel",
+      "id": 6,
+      "type": "string?",
+      "translatable": true,
+      "description": "The tax row's label."
+    },
+    {
+      "name": "totalLabel",
+      "id": 7,
+      "type": "string?",
+      "translatable": true,
+      "description": "The total row's label."
+    },
+    {
+      "name": "checkoutLabel",
+      "id": 8,
+      "type": "string?",
+      "translatable": true,
+      "description": "The label of the built-in checkout button."
+    }
+  ],
+  "events": [
+    {
+      "name": "onCheckout",
+      "id": 1,
+      "description": "Fires when the person starts checkout."
+    }
+  ],
+  "slots": [
+    {
+      "name": "checkout",
+      "id": 1,
+      "description": "Replaces the built-in checkout button."
+    }
+  ]
+}

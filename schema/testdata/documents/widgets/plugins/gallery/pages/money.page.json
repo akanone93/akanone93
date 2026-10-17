@@ -1,0 +1,443 @@
+{
+  "id": "01c0c450-6c00-7000-8a2b-000000000013",
+  "key": "money",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01c0c450-6c00-7000-8a2b-000000000012",
+    "slots": {
+      "appBar": {
+        "id": "01c0c450-6c00-7000-8a2b-000000000011",
+        "slots": {
+          "title": {
+            "id": "01c0c450-6c00-7000-8a2b-000000000010",
+            "props": {
+              "data": "money"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01c0c450-6c00-7000-8a2b-00000000000f",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01c0c450-6c00-7000-8a2b-000000000001",
+                "props": {
+                  "value": {
+                    "$expr": "money(\"1234.56\", \"EUR\")"
+                  }
+                },
+                "testId": "money",
+                "type": "MoneyText"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2b-000000000002",
+                "props": {
+                  "display": "code",
+                  "signDisplay": "always",
+                  "value": {
+                    "$expr": "money(\"-50\", \"USD\")"
+                  }
+                },
+                "testId": "moneyCode",
+                "type": "MoneyText"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.amount",
+                          "value": {
+                            "$expr": "string(event)"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2b-000000000003",
+                "props": {
+                  "currency": "EUR",
+                  "label": "Amount",
+                  "max": {
+                    "$expr": "money(\"5000\", \"EUR\")"
+                  },
+                  "min": {
+                    "$expr": "money(\"1\", \"EUR\")"
+                  },
+                  "rangeMessage": "Between 1 and 5000",
+                  "value": {
+                    "$expr": "money(\"12.50\", \"EUR\")"
+                  }
+                },
+                "testId": "amount",
+                "type": "AmountInput"
+              },
+              {
+                "events": {
+                  "onReveal": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.revealed",
+                          "value": {
+                            "$expr": "\"yes\""
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2b-000000000004",
+                "props": {
+                  "mask": "card",
+                  "revealLabel": "Show number",
+                  "revealable": true,
+                  "value": "4111111111111234"
+                },
+                "semantics": {
+                  "label": "Card number"
+                },
+                "testId": "masked",
+                "type": "MaskedText"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.phone",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2b-000000000005",
+                "props": {
+                  "label": "Phone",
+                  "region": "DE"
+                },
+                "testId": "phone",
+                "type": "PhoneInput"
+              },
+              {
+                "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.iban",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2b-000000000006",
+                "props": {
+                  "invalidMessage": "Check the IBAN",
+                  "label": "IBAN"
+                },
+                "testId": "iban",
+                "type": "IbanInput"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2b-000000000007",
+                "props": {
+                  "originalPrice": {
+                    "$expr": "money(\"29.99\", \"EUR\")"
+                  },
+                  "price": {
+                    "$expr": "money(\"19.99\", \"EUR\")"
+                  }
+                },
+                "testId": "price",
+                "type": "PriceTag"
+              },
+              {
+                "events": {
+                  "onCheckout": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.checkout",
+                          "value": {
+                            "$expr": "\"go\""
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2b-000000000008",
+                "props": {
+                  "checkoutLabel": "Check out",
+                  "lines": [
+                    {
+                      "amount": {
+                        "$expr": "money(\"20\", \"EUR\")"
+                      },
+                      "label": "Shirt"
+                    },
+                    {
+                      "amount": {
+                        "$expr": "money(\"5.50\", \"EUR\")"
+                      },
+                      "label": "Socks"
+                    }
+                  ],
+                  "subtotal": {
+                    "$expr": "money(\"25.50\", \"EUR\")"
+                  },
+                  "tax": {
+                    "$expr": "money(\"4.85\", \"EUR\")"
+                  },
+                  "total": {
+                    "$expr": "money(\"30.35\", \"EUR\")"
+                  }
+                },
+                "testId": "cart",
+                "type": "CartSummary"
+              },
+              {
+                "events": {
+                  "onTap": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.tapped",
+                          "value": {
+                            "$expr": "\"tx\""
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2b-000000000009",
+                "props": {
+                  "amount": {
+                    "$expr": "money(\"-3.80\", \"EUR\")"
+                  },
+                  "status": "completed",
+                  "statusLabel": "Done",
+                  "subtitle": "Card payment",
+                  "title": "Coffee shop"
+                },
+                "testId": "tx",
+                "type": "TransactionListItem"
+              },
+              {
+                "events": {
+                  "onFlip": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.flip",
+                          "value": {
+                            "$expr": "string(event)"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2b-00000000000a",
+                "props": {
+                  "backLabel": "Account details",
+                  "balance": {
+                    "$expr": "money(\"1234.56\", \"EUR\")"
+                  },
+                  "maskedNumber": "•••• 4821",
+                  "name": "Everyday"
+                },
+                "semantics": {
+                  "label": "Everyday account"
+                },
+                "testId": "account",
+                "type": "AccountCard"
+              },
+              {
+                "events": {
+                  "onFlip": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.flip",
+                          "value": {
+                            "$expr": "string(event)"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2b-00000000000b",
+                "props": {
+                  "backLabel": "Signature",
+                  "brand": "visa",
+                  "expiry": "12/29",
+                  "holder": "Ada Lovelace",
+                  "maskedNumber": "•••• •••• •••• 1234"
+                },
+                "semantics": {
+                  "label": "Visa card"
+                },
+                "testId": "payment",
+                "type": "PaymentCard"
+              },
+              {
+                "events": {
+                  "onSelected": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.country",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2b-00000000000c",
+                "props": {
+                  "searchHint": "Search countries"
+                },
+                "semantics": {
+                  "label": "Country"
+                },
+                "testId": "country",
+                "type": "CountryPicker"
+              },
+              {
+                "events": {
+                  "onSelected": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.currency",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2b-00000000000d",
+                "props": {
+                  "searchHint": "Search currencies"
+                },
+                "semantics": {
+                  "label": "Currency"
+                },
+                "testId": "currency",
+                "type": "CurrencyPicker"
+              }
+            ],
+            "id": "01c0c450-6c00-7000-8a2b-00000000000e",
+            "props": {
+              "crossAxisAlignment": "stretch"
+            },
+            "type": "Column"
+          }
+        },
+        "type": "SingleChildScrollView"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "money",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2b-000000000014",
+      "name": "amount",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2b-000000000015",
+      "name": "phone",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2b-000000000016",
+      "name": "iban",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2b-000000000017",
+      "name": "country",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2b-000000000018",
+      "name": "currency",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2b-000000000019",
+      "name": "flip",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2b-00000000001a",
+      "name": "tapped",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2b-00000000001b",
+      "name": "checkout",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2b-00000000001c",
+      "name": "revealed",
+      "type": "string"
+    }
+  ],
+  "title": "money"
+}

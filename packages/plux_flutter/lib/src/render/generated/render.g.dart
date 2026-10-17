@@ -292,6 +292,16 @@ Brightness? decodeBrightness(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a CardBrand, from its permanent value ID or name.
+String? nameCardBrand(Decoding d, Object? v) => switch (v) {
+  1 || 'visa' => 'visa',
+  2 || 'mastercard' => 'mastercard',
+  3 || 'amex' => 'amex',
+  4 || 'discover' => 'discover',
+  5 || 'other' => 'other',
+  _ => null,
+};
+
 /// The member name of a Clip, from its permanent value ID or name.
 String? nameClip(Decoding d, Object? v) => switch (v) {
   1 || 'none' => 'none',
@@ -774,6 +784,15 @@ MainAxisSize? decodeMainAxisSize(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a MaskKind, from its permanent value ID or name.
+String? nameMaskKind(Decoding d, Object? v) => switch (v) {
+  1 || 'card' => 'card',
+  2 || 'account' => 'account',
+  3 || 'phone' => 'phone',
+  4 || 'custom' => 'custom',
+  _ => null,
+};
+
 /// The member name of a MaterialTapTargetSize, from its permanent value ID or name.
 String? nameMaterialTapTargetSize(Decoding d, Object? v) => switch (v) {
   1 || 'padded' => 'padded',
@@ -801,6 +820,14 @@ MaxLengthEnforcement? decodeMaxLengthEnforcement(Decoding d, Object? v) => switc
   1 || 'none' => MaxLengthEnforcement.none,
   2 || 'enforced' => MaxLengthEnforcement.enforced,
   3 || 'truncateAfterCompositionEnds' => MaxLengthEnforcement.truncateAfterCompositionEnds,
+  _ => null,
+};
+
+/// The member name of a MoneyDisplay, from its permanent value ID or name.
+String? nameMoneyDisplay(Decoding d, Object? v) => switch (v) {
+  1 || 'symbol' => 'symbol',
+  2 || 'narrowSymbol' => 'narrowSymbol',
+  3 || 'code' => 'code',
   _ => null,
 };
 
@@ -960,6 +987,15 @@ ShowValueIndicator? decodeShowValueIndicator(Decoding d, Object? v) => switch (v
   4 || 'onDrag' => ShowValueIndicator.onDrag,
   5 || 'alwaysVisible' => ShowValueIndicator.alwaysVisible,
   6 || 'never' => ShowValueIndicator.never,
+  _ => null,
+};
+
+/// The member name of a SignDisplay, from its permanent value ID or name.
+String? nameSignDisplay(Decoding d, Object? v) => switch (v) {
+  1 || 'auto' => 'auto',
+  2 || 'always' => 'always',
+  3 || 'never' => 'never',
+  4 || 'exceptZero' => 'exceptZero',
   _ => null,
 };
 
@@ -1330,6 +1366,15 @@ TooltipTriggerMode? decodeTooltipTriggerMode(Decoding d, Object? v) => switch (v
   1 || 'manual' => TooltipTriggerMode.manual,
   2 || 'longPress' => TooltipTriggerMode.longPress,
   3 || 'tap' => TooltipTriggerMode.tap,
+  _ => null,
+};
+
+/// The member name of a TransactionStatus, from its permanent value ID or name.
+String? nameTransactionStatus(Decoding d, Object? v) => switch (v) {
+  1 || 'pending' => 'pending',
+  2 || 'completed' => 'completed',
+  3 || 'failed' => 'failed',
+  4 || 'reversed' => 'reversed',
   _ => null,
 };
 

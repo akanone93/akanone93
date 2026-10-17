@@ -1,0 +1,56 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "CurrencyPicker",
+  "id": 165,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "currency_exchange",
+  "description": "A searchable list of currencies named in the locale.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 90,
+  "accessibility": {
+    "role": "list",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "value",
+      "id": 1,
+      "type": "string?",
+      "description": "The ISO 4217 code selected."
+    },
+    {
+      "name": "currencies",
+      "id": 2,
+      "type": "list<string>?",
+      "description": "The codes offered; every currency of the locale when absent."
+    },
+    {
+      "name": "searchHint",
+      "id": 3,
+      "type": "string?",
+      "translatable": true,
+      "description": "The hint of the search field."
+    }
+  ],
+  "events": [
+    {
+      "name": "onSelected",
+      "id": 1,
+      "payload": "string",
+      "description": "Fires with the ISO 4217 code of the chosen currency."
+    }
+  ]
+}

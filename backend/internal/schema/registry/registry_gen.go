@@ -8,6 +8,21 @@ package registry
 // widgets holds every widget descriptor, sorted by type name. It is read-only.
 var widgets = [...]Widget{
 	{
+		Type: "AccountCard", ID: 169, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "commerce", Icon: "account_balance_wallet", Description: "An account with its masked number and balance; flipping shows the back.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 90, Role: RoleButton, Interactive: true,
+		Props: []Prop{
+			{Name: "name", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The account's name."},
+			{Name: "maskedNumber", ID: 2, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The account number, masked."},
+			{Name: "balance", ID: 3, Type: "money", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The balance."},
+			{Name: "flipped", ID: 4, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether the back is shown."},
+			{Name: "backLabel", ID: 5, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The text on the back."},
+		},
+		Events: []Event{
+			{Name: "onFlip", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: "Fires with the side the person asked for."},
+		},
+	},
+	{
 		Type: "ActionChip", ID: 61, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "display", Icon: "bolt", Description: "A chip that triggers an action related to primary content.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 25, Role: RoleButton, Interactive: true,
@@ -50,6 +65,22 @@ var widgets = [...]Widget{
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "AmountInput", ID: 159, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "payments", Description: "A money entry field: the locale's group and decimal separators, the currency's minor units, and a range.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 90, Role: RoleTextField, Interactive: true,
+		Props: []Prop{
+			{Name: "label", ID: 1, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The field's label."},
+			{Name: "currency", ID: 2, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The ISO 4217 code of the amount."},
+			{Name: "value", ID: 3, Type: "money?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The amount shown."},
+			{Name: "min", ID: 4, Type: "money?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The smallest amount accepted."},
+			{Name: "max", ID: 5, Type: "money?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The largest amount accepted."},
+			{Name: "rangeMessage", ID: 6, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The error shown when the amount is outside the range."},
+		},
+		Events: []Event{
+			{Name: "onChanged", ID: 1, Payload: "money", Revision: 1, Deprecated: nil, Description: "Fires with the amount whenever the typed text is a valid amount."},
 		},
 	},
 	{
@@ -467,6 +498,27 @@ var widgets = [...]Widget{
 		Children: &Children{Min: 1, Max: 0},
 	},
 	{
+		Type: "CartSummary", ID: 167, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "commerce", Icon: "shopping_cart", Description: "The lines, subtotal, tax and total of a cart, with a checkout action.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 100, Role: RoleGroup, Interactive: false,
+		Props: []Prop{
+			{Name: "lines", ID: 1, Type: "list<CartLine>", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The cart's lines."},
+			{Name: "subtotal", ID: 2, Type: "money", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The sum of the lines."},
+			{Name: "tax", ID: 3, Type: "money?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The tax."},
+			{Name: "total", ID: 4, Type: "money", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The amount due."},
+			{Name: "subtotalLabel", ID: 5, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The subtotal row's label."},
+			{Name: "taxLabel", ID: 6, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The tax row's label."},
+			{Name: "totalLabel", ID: 7, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The total row's label."},
+			{Name: "checkoutLabel", ID: 8, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The label of the built-in checkout button."},
+		},
+		Events: []Event{
+			{Name: "onCheckout", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the person starts checkout."},
+		},
+		Slots: []Slot{
+			{Name: "checkout", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "Replaces the built-in checkout button."},
+		},
+	},
+	{
 		Type: "Center", ID: 9, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "layout", Icon: "filter_center_focus", Description: "Centres its child within itself.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 5, Role: RoleNone, Interactive: false,
@@ -788,6 +840,18 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "CountryPicker", ID: 164, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "flag", Description: "A searchable list of countries named in the locale, with flags.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 90, Role: RoleList, Interactive: true,
+		Props: []Prop{
+			{Name: "value", ID: 1, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The ISO 3166 code selected."},
+			{Name: "searchHint", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The hint of the search field."},
+		},
+		Events: []Event{
+			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the ISO 3166 code of the chosen country."},
+		},
+	},
+	{
 		Type: "CupertinoActivityIndicator", ID: 95, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "cupertino", Icon: "progress_activity", Description: "An iOS-style activity indicator.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 12, Role: RoleProgress, Interactive: false,
@@ -1094,6 +1158,19 @@ var widgets = [...]Widget{
 		Slots: []Slot{
 			{Name: "prefix", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "suffix", ID: 2, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "CurrencyPicker", ID: 165, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "currency_exchange", Description: "A searchable list of currencies named in the locale.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 90, Role: RoleList, Interactive: true,
+		Props: []Prop{
+			{Name: "value", ID: 1, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The ISO 4217 code selected."},
+			{Name: "currencies", ID: 2, Type: "list<string>?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The codes offered; every currency of the locale when absent."},
+			{Name: "searchHint", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The hint of the search field."},
+		},
+		Events: []Event{
+			{Name: "onSelected", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the ISO 4217 code of the chosen currency."},
 		},
 	},
 	{
@@ -1728,6 +1805,19 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "IbanInput", ID: 163, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "account_balance", Description: "An IBAN entry shown in groups of four, with the mod-97 check.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 80, Role: RoleTextField, Interactive: true,
+		Props: []Prop{
+			{Name: "label", ID: 1, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The field's label."},
+			{Name: "value", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The IBAN without spaces."},
+			{Name: "invalidMessage", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The error shown for an invalid IBAN."},
+		},
+		Events: []Event{
+			{Name: "onChanged", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the IBAN without spaces when it is valid, and with an empty string when it is not."},
+		},
+	},
+	{
 		Type: "Icon", ID: 49, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "display", Icon: "star", Description: "An icon from the Material or Cupertino icon set.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 8, Role: RoleImage, Interactive: false,
@@ -2111,6 +2201,21 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "MaskedText", ID: 161, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "visibility_off", Description: "A sensitive number with all but its last digits hidden; the hidden digits never reach screen readers.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 50, Role: RoleText, Interactive: true,
+		Props: []Prop{
+			{Name: "value", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The full value."},
+			{Name: "mask", ID: 2, Type: "MaskKind", Required: false, Default: "\"card\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "How the value is hidden."},
+			{Name: "visibleDigits", ID: 3, Type: "int", Required: false, Default: "4", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "How many trailing digits stay visible."},
+			{Name: "revealable", ID: 4, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A button shows the whole value."},
+			{Name: "revealLabel", ID: 5, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The label of the reveal button."},
+		},
+		Events: []Event{
+			{Name: "onReveal", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the person reveals the value."},
+		},
+	},
+	{
 		Type: "Match", ID: 2, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "structure", Icon: "alt_route", Description: "Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 3, Role: RoleNone, Interactive: false,
@@ -2138,6 +2243,17 @@ var widgets = [...]Widget{
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: false, Template: false, Revision: 1, Deprecated: nil, Description: "The anchor the menu opens from; tapping it toggles the menu."},
+		},
+	},
+	{
+		Type: "MoneyText", ID: 160, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "display", Icon: "attach_money", Description: "An amount written for the locale and currency, read aloud with the currency's name.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleText, Interactive: false,
+		Props: []Prop{
+			{Name: "value", ID: 1, Type: "money", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The amount."},
+			{Name: "display", ID: 2, Type: "MoneyDisplay", Required: false, Default: "\"symbol\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "How the currency is written."},
+			{Name: "signDisplay", ID: 3, Type: "SignDisplay", Required: false, Default: "\"auto\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "When a sign is shown."},
+			{Name: "style", ID: 4, Type: "TextStyle?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The text style."},
 		},
 	},
 	{
@@ -2323,6 +2439,36 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "PaymentCard", ID: 170, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "commerce", Icon: "credit_card", Description: "A payment card: brand, masked number, expiry and holder; flipping shows the back.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 90, Role: RoleButton, Interactive: true,
+		Props: []Prop{
+			{Name: "brand", ID: 1, Type: "CardBrand", Required: false, Default: "\"other\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The card network."},
+			{Name: "maskedNumber", ID: 2, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The card number, masked."},
+			{Name: "expiry", ID: 3, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The expiry, as printed."},
+			{Name: "holder", ID: 4, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The holder's name."},
+			{Name: "flipped", ID: 5, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "Whether the back is shown."},
+			{Name: "backLabel", ID: 6, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The text on the back."},
+		},
+		Events: []Event{
+			{Name: "onFlip", ID: 1, Payload: "bool", Revision: 1, Deprecated: nil, Description: "Fires with the side the person asked for."},
+		},
+	},
+	{
+		Type: "PhoneInput", ID: 162, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "input", Icon: "phone", Description: "A phone number entry in E.164 with a country picker and validation.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 100, Role: RoleTextField, Interactive: true,
+		Props: []Prop{
+			{Name: "label", ID: 1, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The field's label."},
+			{Name: "value", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The number in E.164 form."},
+			{Name: "region", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The default ISO 3166 region; the locale's region when absent."},
+			{Name: "invalidMessage", ID: 4, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The error shown for an invalid number."},
+		},
+		Events: []Event{
+			{Name: "onChanged", ID: 1, Payload: "string", Revision: 1, Deprecated: nil, Description: "Fires with the E.164 number when it is valid, and with an empty string when it is not."},
+		},
+	},
+	{
 		Type: "PopupMenuButton", ID: 120, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
 		Category: "navigation", Icon: "more_vert", Description: "A button that opens a menu of `items`; choosing one fires `onSelected` with its value.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 20, Role: RoleMenu, Interactive: true,
@@ -2361,6 +2507,16 @@ var widgets = [...]Widget{
 		},
 		Slots: []Slot{
 			{Name: "child", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Type: "PriceTag", ID: 166, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "commerce", Icon: "sell", Description: "A price, with the original price struck through and announced as the former price.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 40, Role: RoleText, Interactive: false,
+		Props: []Prop{
+			{Name: "price", ID: 1, Type: "money", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The current price."},
+			{Name: "originalPrice", ID: 2, Type: "money?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The price before a reduction."},
+			{Name: "wasLabel", ID: 3, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What screen readers say before the original price."},
 		},
 	},
 	{
@@ -3413,6 +3569,22 @@ var widgets = [...]Widget{
 		},
 	},
 	{
+		Type: "TransactionListItem", ID: 168, Layer: 2, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
+		Category: "commerce", Icon: "receipt_long", Description: "A transaction row: title, subtitle, signed amount in a credit or debit colour, status and date.",
+		Platforms: PlatformAndroid | PlatformIOS, Cost: 60, Role: RoleButton, Interactive: true,
+		Props: []Prop{
+			{Name: "title", ID: 1, Type: "string", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "What the transaction was."},
+			{Name: "subtitle", ID: 2, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "A line below the title."},
+			{Name: "amount", ID: 3, Type: "money", Required: true, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The signed amount; negative is a debit."},
+			{Name: "status", ID: 4, Type: "TransactionStatus", Required: false, Default: "\"completed\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The state of the transaction."},
+			{Name: "date", ID: 5, Type: "dateTime?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "When it happened."},
+			{Name: "statusLabel", ID: 6, Type: "string?", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Description: "The status written for the person; the status name when absent."},
+		},
+		Events: []Event{
+			{Name: "onTap", ID: 1, Payload: "", Revision: 1, Deprecated: nil, Description: "Fires when the row is tapped."},
+		},
+	},
+	{
 		Type: "Transform", ID: 17, Layer: 1, Phase: "P3", Revision: 1, Runtimes: []string{"0.1.0"},
 		Category: "layout", Icon: "transform", Description: "Rotates, scales, translates or flips its child before painting.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 8, Role: RoleNone, Interactive: false,
@@ -3608,6 +3780,13 @@ var valueTypes = [...]ValueType{
 			{Name: "animationDuration", ID: 19, Type: "duration", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "enableFeedback", ID: 20, Type: "bool", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
 			{Name: "alignment", ID: 21, Type: "Alignment", Required: false, Default: "", Revision: 1, Deprecated: nil, Description: ""},
+		},
+	},
+	{
+		Name: "CartLine", ID: 69, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "One line of a CartSummary.",
+		Fields: []Field{
+			{Name: "label", ID: 1, Type: "string", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "What the line is."},
+			{Name: "amount", ID: 2, Type: "money", Required: true, Default: "", Revision: 1, Deprecated: nil, Description: "The line's amount."},
 		},
 	},
 	{
@@ -4161,6 +4340,13 @@ var enums = [...]Enum{
 		{Name: "dark", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "light", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 	}},
+	{Name: "CardBrand", ID: 144, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "The network of a payment card.", Values: []EnumValue{
+		{Name: "visa", ID: 1, Revision: 1, Deprecated: nil, Description: "Visa."},
+		{Name: "mastercard", ID: 2, Revision: 1, Deprecated: nil, Description: "Mastercard."},
+		{Name: "amex", ID: 3, Revision: 1, Deprecated: nil, Description: "American Express."},
+		{Name: "discover", ID: 4, Revision: 1, Deprecated: nil, Description: "Discover."},
+		{Name: "other", ID: 5, Revision: 1, Deprecated: nil, Description: "Any other network."},
+	}},
 	{Name: "Clip", ID: 11, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum Clip.", Values: []EnumValue{
 		{Name: "none", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "hardEdge", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
@@ -4366,6 +4552,12 @@ var enums = [...]Enum{
 		{Name: "min", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "max", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 	}},
+	{Name: "MaskKind", ID: 142, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "How MaskedText hides its value.", Values: []EnumValue{
+		{Name: "card", ID: 1, Revision: 1, Deprecated: nil, Description: "Groups of four, the last digits visible."},
+		{Name: "account", ID: 2, Revision: 1, Deprecated: nil, Description: "The last digits visible."},
+		{Name: "phone", ID: 3, Revision: 1, Deprecated: nil, Description: "The last digits visible, separators kept."},
+		{Name: "custom", ID: 4, Revision: 1, Deprecated: nil, Description: "Every character but the last digits hidden."},
+	}},
 	{Name: "MaterialTapTargetSize", ID: 36, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum MaterialTapTargetSize.", Values: []EnumValue{
 		{Name: "padded", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "shrinkWrap", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
@@ -4374,6 +4566,11 @@ var enums = [...]Enum{
 		{Name: "none", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "enforced", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "truncateAfterCompositionEnds", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "MoneyDisplay", ID: 140, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "How MoneyText writes the currency.", Values: []EnumValue{
+		{Name: "symbol", ID: 1, Revision: 1, Deprecated: nil, Description: "The locale's symbol."},
+		{Name: "narrowSymbol", ID: 2, Revision: 1, Deprecated: nil, Description: "The narrow symbol."},
+		{Name: "code", ID: 3, Revision: 1, Deprecated: nil, Description: "The ISO 4217 code."},
 	}},
 	{Name: "NavigationDestinationLabelBehavior", ID: 86, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "Mirrors the Flutter enum NavigationDestinationLabelBehavior.", Values: []EnumValue{
 		{Name: "alwaysShow", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
@@ -4439,6 +4636,12 @@ var enums = [...]Enum{
 		{Name: "onDrag", ID: 4, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "alwaysVisible", ID: 5, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "never", ID: 6, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "SignDisplay", ID: 141, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "When MoneyText shows a sign.", Values: []EnumValue{
+		{Name: "auto", ID: 1, Revision: 1, Deprecated: nil, Description: "A minus for negative amounts only."},
+		{Name: "always", ID: 2, Revision: 1, Deprecated: nil, Description: "A sign on every amount."},
+		{Name: "never", ID: 3, Revision: 1, Deprecated: nil, Description: "No sign."},
+		{Name: "exceptZero", ID: 4, Revision: 1, Deprecated: nil, Description: "A sign on every amount but zero."},
 	}},
 	{Name: "SliderInteraction", ID: 44, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum SliderInteraction.", Values: []EnumValue{
 		{Name: "tapAndSlide", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
@@ -4577,6 +4780,12 @@ var enums = [...]Enum{
 		{Name: "manual", ID: 1, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "longPress", ID: 2, Revision: 1, Deprecated: nil, Description: ""},
 		{Name: "tap", ID: 3, Revision: 1, Deprecated: nil, Description: ""},
+	}},
+	{Name: "TransactionStatus", ID: 143, Revision: 1, Runtimes: []string{"0.5.0"}, Description: "The state of a transaction.", Values: []EnumValue{
+		{Name: "pending", ID: 1, Revision: 1, Deprecated: nil, Description: "Not yet settled."},
+		{Name: "completed", ID: 2, Revision: 1, Deprecated: nil, Description: "Settled."},
+		{Name: "failed", ID: 3, Revision: 1, Deprecated: nil, Description: "Declined or failed."},
+		{Name: "reversed", ID: 4, Revision: 1, Deprecated: nil, Description: "Reversed after settling."},
 	}},
 	{Name: "VerticalDirection", ID: 64, Revision: 1, Runtimes: []string{"0.1.0"}, Description: "Mirrors the Flutter enum VerticalDirection.", Values: []EnumValue{
 		{Name: "up", ID: 1, Revision: 1, Deprecated: nil, Description: ""},

@@ -1,0 +1,29 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "CartLine",
+  "id": 69,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "One line of a CartSummary.",
+  "fields": [
+    {
+      "name": "label",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "What the line is."
+    },
+    {
+      "name": "amount",
+      "id": 2,
+      "type": "money",
+      "required": true,
+      "description": "The line's amount."
+    }
+  ]
+}
