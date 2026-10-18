@@ -8,10 +8,9 @@ import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
 import android.os.SystemClock
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiObject2
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -24,9 +23,10 @@ import org.junit.Test
  * a screen reader reads, in reading order, on controls of at least 48 dp.
  * The app is the one built with the flows' defines against the server
  * TestPluxExpressAgainstTheServer starts; Flutter reports a widget's label
- * as the content description, a native view its text. The second test runs
- * the catalogue with the app in Arabic, whose labels are the translators'
- * and so are checked for being there, not for their words.
+ * as the content description, a text field's as its hint, a native view's
+ * as its text. The second test runs the catalogue with the app in Arabic,
+ * whose labels are the translators' and so are checked for being there, not
+ * for their words.
  */
 class AccessibilityTreeTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -44,14 +44,14 @@ class AccessibilityTreeTest {
         assertReadsInOrder(listOf("Product 01", "Product 02"), prefix = true)
         assertInteractiveControlsAreLabelled()
 
-        waitFor("Product 01", prefix = true).click()
+        click(waitFor("Product 01", prefix = true))
         waitFor("In cart: 0")
         assertReadsInOrder(listOf("In cart: 0", "Add to cart"))
         assertInteractiveControlsAreLabelled()
 
-        waitFor("Add to cart").click()
+        click(waitFor("Add to cart"))
         waitFor("In cart: 1")
-        waitFor("Cart (1)").click()
+        click(waitFor("Cart (1)"))
         // The summary's total reads its label, then the amount in words.
         waitFor("Total", prefix = true)
         assertReadsInOrder(listOf("Total", "Place order"), prefix = true)
@@ -85,7 +85,7 @@ class AccessibilityTreeTest {
     // The labels, or with prefix the labels' starts, appear on screen top to
     // bottom in the order given.
     private fun assertReadsInOrder(labels: List<String>, prefix: Boolean = false) {
-        val tops = labels.map { waitFor(it, prefix).visibleBounds.top }
+        val tops = labels.map { waitFor(it, prefix).bounds.top }
         assertEquals("the reading order of $labels", tops.sorted(), tops)
     }
 
@@ -96,22 +96,54 @@ class AccessibilityTreeTest {
         val nodes = interactiveNodes()
         assertTrue("nothing interactive on screen", nodes.isNotEmpty())
         for (node in nodes) {
-            val bounds: Rect = node.visibleBounds
-            assertTrue("an unlabelled control at $bounds", label(node).isNotEmpty())
+            val bounds = node.bounds
+            assertTrue("an unlabelled control at $bounds", node.label.isNotEmpty())
             assertTrue(
-                "\"${label(node)}\" is ${bounds.width()} x ${bounds.height()} px, under 48 dp",
+                "\"${node.label}\" is ${bounds.width()} x ${bounds.height()} px, under 48 dp",
                 bounds.width() >= minimum && bounds.height() >= minimum,
             )
         }
     }
 
-    private fun interactiveNodes(): List<UiObject2> =
-        device.findObjects(By.pkg(pkg)).filter {
-            runCatching { it.isClickable || it.className == "android.widget.EditText" }.getOrDefault(false)
-        }
+    /** A node of the app's accessibility tree, as a screen reader meets it. */
+    private class Node(val info: AccessibilityNodeInfo) {
+        val bounds: Rect get() = Rect().also { info.getBoundsInScreen(it) }
 
-    private fun label(node: UiObject2): String =
-        runCatching { node.contentDescription ?: node.text ?: "" }.getOrDefault("")
+        // What a screen reader reads: the description, the text or, for a
+        // text field, the hint Flutter puts its label in.
+        val labels: List<String>
+            get() =
+                listOfNotNull(info.contentDescription, info.text, if (Build.VERSION.SDK_INT >= 26) info.hintText else null)
+                    .map { it.toString() }
+                    .filter { it.isNotEmpty() }
+
+        val label: String get() = labels.firstOrNull() ?: ""
+
+        val interactive: Boolean get() = info.isClickable || info.className?.toString() == "android.widget.EditText"
+
+        // A merged node reads its parts on separate lines.
+        fun reads(label: String, prefix: Boolean): Boolean =
+            labels.any { if (prefix) it.startsWith(label) else it == label }
+    }
+
+    // The app's nodes on screen, in the tree's order.
+    private fun nodes(): List<Node> {
+        val found = mutableListOf<Node>()
+        fun walk(info: AccessibilityNodeInfo?) {
+            if (info == null) return
+            if (info.packageName == pkg) found += Node(info)
+            for (i in 0 until info.childCount) walk(info.getChild(i))
+        }
+        walk(instrumentation.uiAutomation.rootInActiveWindow)
+        return found
+    }
+
+    private fun interactiveNodes(): List<Node> = nodes().filter { it.interactive }
+
+    private fun click(node: Node) {
+        val bounds = node.bounds
+        device.click(bounds.centerX(), bounds.centerY())
+    }
 
     // Starts the app anew; its settings are those it was built with.
     private fun launch() {
@@ -128,15 +160,10 @@ class AccessibilityTreeTest {
         device.executeShellCommand("cmd locale set-app-locales $pkg$locales")
     }
 
-    private fun find(label: String, prefix: Boolean = false): UiObject2? {
-        val selectors =
-            if (prefix) listOf(By.descStartsWith(label), By.textStartsWith(label))
-            else listOf(By.desc(label), By.text(label))
-        return selectors.firstNotNullOfOrNull { device.findObject(it) }
-    }
+    private fun find(label: String, prefix: Boolean = false): Node? = nodes().firstOrNull { it.reads(label, prefix) }
 
     // Waits up to a minute: the first page starts the engine and the runtime.
-    private fun waitFor(label: String, prefix: Boolean = false): UiObject2 {
+    private fun waitFor(label: String, prefix: Boolean = false): Node {
         val deadline = SystemClock.uptimeMillis() + 60_000
         while (true) {
             find(label, prefix)?.let { return it }
