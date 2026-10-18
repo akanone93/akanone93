@@ -2287,7 +2287,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "hitTestBehavior", "id": 3, "type": "HitTestBehavior", "required": false, "default": "translucent", "revision": 1, "bindable": true}
     ],
     "events": [
-      {"name": "onAccept", "id": 1, "revision": 1, "description": "Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload."},
+      {"name": "onAccept", "id": 1, "payload": "T", "revision": 1, "description": "Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload."},
       {"name": "onLeave", "id": 2, "revision": 1, "description": "Fired when a candidate leaves without being dropped."}
     ],
     "slots": [

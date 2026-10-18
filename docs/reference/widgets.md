@@ -1800,7 +1800,7 @@ ID 135 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `DragTarget` ·
 
 | Event | ID | Payload | Description |
 |---|---|---|---|
-| `onAccept` | 1 | — | Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload. |
+| `onAccept` | 1 | `T` | Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload. |
 | `onLeave` | 2 | — | Fired when a candidate leaves without being dropped. |
 
 | Slot | ID | Holds | Description |

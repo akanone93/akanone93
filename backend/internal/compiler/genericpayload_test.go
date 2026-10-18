@@ -38,3 +38,32 @@ func TestGenericEventPayloads(t *testing.T) {
 		t.Errorf("unbound payload = %q, want T", got)
 	}
 }
+
+// TestDragTargetOnAcceptPayload checks the generated descriptor: the
+// payload of DragTarget.onAccept is its type parameter, so a DragTarget
+// bound to a type sees that type as the payload (ACT-001).
+// Verifies: ACT-001.
+func TestDragTargetOnAcceptPayload(t *testing.T) {
+	t.Parallel()
+	w, ok := registry.LookupWidget("DragTarget")
+	if !ok {
+		t.Fatal("DragTarget is not in the widget registry")
+	}
+	env, err := pxl.NewEnv(pxl.EnvSpec{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	someType, err := env.ParseType("string")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tc := &typer{}
+	n := &node{widget: &w, typeArgs: map[string]*pxl.Type{"T": someType}}
+	if got := tc.payload(n, "onAccept"); got != "string" {
+		t.Errorf("payload of DragTarget<string>.onAccept = %q, want string", got)
+	}
+	n.typeArgs = nil
+	if got := tc.payload(n, "onAccept"); got != "T" {
+		t.Errorf("unbound payload of DragTarget.onAccept = %q, want T", got)
+	}
+}

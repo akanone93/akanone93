@@ -58,6 +58,7 @@
     {
       "name": "onAccept",
       "id": 1,
+      "payload": "T",
       "flutter": [
         "onAccept",
         "onAcceptWithDetails"
