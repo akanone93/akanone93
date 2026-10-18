@@ -261,7 +261,7 @@ final class _MediaPlayerState extends State<_MediaPlayer> {
     super.didChangeDependencies();
     if (!_started) {
       _started = true;
-      _open();
+      unawaited(_open());
     }
   }
 
@@ -270,7 +270,7 @@ final class _MediaPlayerState extends State<_MediaPlayer> {
     super.didUpdateWidget(old);
     if (old.url != widget.url || old.captions != widget.captions) {
       _close();
-      _open();
+      unawaited(_open());
     } else if (old.loop != widget.loop) {
       unawaited(_controller?.setLooping(widget.loop));
     }
@@ -335,6 +335,7 @@ final class _MediaPlayerState extends State<_MediaPlayer> {
       await controller.initialize();
       if (!mounted || _controller != controller) return;
       await controller.setLooping(widget.loop);
+      if (!mounted) return;
       // Reduce motion means nothing starts moving on its own.
       final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
       if (widget.autoplay && !reduce) await controller.play();
@@ -449,7 +450,7 @@ final class _MediaPlayerState extends State<_MediaPlayer> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (surface != null) surface,
+          ?surface,
           if (!widget.video && widget.label != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),

@@ -85,7 +85,7 @@ void main() {
           set = setState;
           return _Page(
             tag,
-            (byLocale[tag]!['messages']! as Map<String, Object?>),
+            byLocale[tag]!['messages']! as Map<String, Object?>,
             title,
           );
         },

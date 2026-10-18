@@ -14,10 +14,10 @@ import 'package:plux_flutter/src/actions/handlers.dart';
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/render/min_target.dart';
-import 'package:plux_flutter/src/schema/registry.g.dart' show minTargetTypes;
 import 'package:plux_flutter/src/render/renderer.dart';
 import 'package:plux_flutter/src/render/semantics_wrap.dart';
 import 'package:plux_flutter/src/render/theme.dart';
+import 'package:plux_flutter/src/schema/registry.g.dart' show minTargetTypes;
 import 'package:plux_flutter/src/state/providers.dart';
 
 import '../actions/engine_test.dart' show FakeNavigator;

@@ -13,8 +13,8 @@ import 'package:video_player/video_player.dart' as vp;
 /// A controller that plays nothing: it records what the widget asks of it
 /// and lets the test move the value, so no platform player is needed.
 final class FakeController extends vp.VideoPlayerController {
-  FakeController(Uri url, {this.failToInitialize = false})
-    : super.networkUrl(url);
+  FakeController(super.url, {this.failToInitialize = false})
+    : super.networkUrl();
 
   final bool failToInitialize;
   final List<String> calls = [];

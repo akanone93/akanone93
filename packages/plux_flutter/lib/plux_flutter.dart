@@ -61,22 +61,6 @@ export 'src/device/types.dart'
 export 'src/devtools_api/diagnostics.dart'
     show PluxDiagnostic, PluxDiagnostics, PluxPluginInfo, PluxReleaseInfo;
 export 'src/errors/plux_exception.dart' show PluxErrorCode, PluxException;
-export 'src/render/decoding.dart'
-    show
-        DecodeError,
-        Decoding,
-        Fields,
-        PluxObject,
-        asBool,
-        asColor,
-        asDouble,
-        asDoubles,
-        asInt,
-        asList,
-        asString,
-        asStrings;
-export 'src/render/node_context.dart' show NodeBuilder, NodeContext;
-export 'src/render/widget_package.dart' show PluxWidgetPackage;
 export 'src/functions/engine.dart'
     show
         PluxFunctionBusinessError,
@@ -108,6 +92,22 @@ export 'src/navigation/router.dart' show PluxNotFoundPage;
 export 'src/navigation/shell.dart' show PluxShell, PluxShellScope, PluxShellTab;
 export 'src/platform/platform_services.dart'
     show PlatformSecretStore, platformStorageDirectory;
+export 'src/render/decoding.dart'
+    show
+        DecodeError,
+        Decoding,
+        Fields,
+        PluxObject,
+        asBool,
+        asColor,
+        asDouble,
+        asDoubles,
+        asInt,
+        asList,
+        asString,
+        asStrings;
+export 'src/render/node_context.dart' show NodeBuilder, NodeContext;
+export 'src/render/widget_package.dart' show PluxWidgetPackage;
 export 'src/runtime_info.dart';
 export 'src/security/key_wrap.dart'
     show HardwareWrappedSecretStore, KeyWrapper, PlatformKeyWrapper;
