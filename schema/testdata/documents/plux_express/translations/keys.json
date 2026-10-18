@@ -225,6 +225,146 @@
       "description": "Rate the delivery",
       "id": "01d0c450-6c00-7000-8000-000000009013",
       "key": "shop.order.rate"
+    },
+    {
+      "args": [
+        {
+          "name": "count",
+          "type": "string"
+        }
+      ],
+      "description": "Cart ({count})",
+      "id": "01d0c450-6c00-7000-8000-000000009201",
+      "key": "shop.cart-link"
+    },
+    {
+      "args": [
+        {
+          "name": "count",
+          "type": "string"
+        }
+      ],
+      "description": "Loaded {count} products",
+      "id": "01d0c450-6c00-7000-8000-000000009202",
+      "key": "shop.catalogue.loaded"
+    },
+    {
+      "args": [
+        {
+          "name": "months",
+          "type": "string"
+        }
+      ],
+      "description": "Term: {months} months at 12 % a year",
+      "id": "01d0c450-6c00-7000-8000-000000009203",
+      "key": "shop.instalments.term"
+    },
+    {
+      "args": [
+        {
+          "name": "payment",
+          "type": "string"
+        }
+      ],
+      "description": "Monthly payment: {payment} EUR",
+      "id": "01d0c450-6c00-7000-8000-000000009204",
+      "key": "shop.instalments.payment"
+    },
+    {
+      "args": [
+        {
+          "name": "count",
+          "type": "string"
+        }
+      ],
+      "description": "Instalments: {count}",
+      "id": "01d0c450-6c00-7000-8000-000000009205",
+      "key": "shop.instalments.count"
+    },
+    {
+      "args": [
+        {
+          "name": "interest",
+          "type": "string"
+        }
+      ],
+      "description": "Interest in the first month: {interest} EUR",
+      "id": "01d0c450-6c00-7000-8000-000000009206",
+      "key": "shop.instalments.interest"
+    },
+    {
+      "args": [
+        {
+          "name": "status",
+          "type": "string"
+        }
+      ],
+      "description": "Status: {status}",
+      "id": "01d0c450-6c00-7000-8000-000000009207",
+      "key": "shop.order.status"
+    },
+    {
+      "args": [
+        {
+          "name": "minutes",
+          "type": "string"
+        }
+      ],
+      "description": "ETA: {minutes} min",
+      "id": "01d0c450-6c00-7000-8000-000000009208",
+      "key": "shop.order.eta"
+    },
+    {
+      "args": [
+        {
+          "name": "lat",
+          "type": "string"
+        },
+        {
+          "name": "lng",
+          "type": "string"
+        }
+      ],
+      "description": "Position: {lat}, {lng}",
+      "id": "01d0c450-6c00-7000-8000-000000009209",
+      "key": "shop.order.position"
+    },
+    {
+      "args": [
+        {
+          "name": "id",
+          "type": "string"
+        }
+      ],
+      "description": "Order {id}",
+      "id": "01d0c450-6c00-7000-8000-00000000920a",
+      "key": "shop.order.number"
+    },
+    {
+      "args": [
+        {
+          "name": "count",
+          "type": "string"
+        }
+      ],
+      "description": "In cart: {count}",
+      "id": "01d0c450-6c00-7000-8000-00000000920b",
+      "key": "shop.product.in-cart"
+    },
+    {
+      "args": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        }
+      ],
+      "description": "Job {id}: {status}",
+      "id": "01d0c450-6c00-7000-8000-00000000920c",
+      "key": "shop.job-row.job"
     }
   ],
   "kind": "translationKeys",

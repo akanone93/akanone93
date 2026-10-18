@@ -75,7 +75,12 @@
                     "id": "01d0c450-6c00-7000-8000-000000003030",
                     "props": {
                       "data": {
-                        "$expr": "\"Order \" + params.orderId"
+                        "$t": "01d0c450-6c00-7000-8000-00000000920a",
+                        "args": {
+                          "id": {
+                            "$expr": "params.orderId"
+                          }
+                        }
                       }
                     },
                     "testId": "order-id",
@@ -85,7 +90,12 @@
                     "id": "01d0c450-6c00-7000-8000-000000003031",
                     "props": {
                       "data": {
-                        "$expr": "\"Status: \" + (data.tracking.value?.status ?? \"waiting\")"
+                        "$t": "01d0c450-6c00-7000-8000-000000009207",
+                        "args": {
+                          "status": {
+                            "$expr": "data.tracking.value?.status ?? \"waiting\""
+                          }
+                        }
                       }
                     },
                     "testId": "tracking-status",
@@ -95,7 +105,12 @@
                     "id": "01d0c450-6c00-7000-8000-000000003032",
                     "props": {
                       "data": {
-                        "$expr": "\"ETA: \" + string(data.tracking.value?.etaMinutes ?? 0) + \" min\""
+                        "$t": "01d0c450-6c00-7000-8000-000000009208",
+                        "args": {
+                          "minutes": {
+                            "$expr": "string(data.tracking.value?.etaMinutes ?? 0)"
+                          }
+                        }
                       }
                     },
                     "testId": "tracking-eta",
@@ -105,7 +120,15 @@
                     "id": "01d0c450-6c00-7000-8000-000000003033",
                     "props": {
                       "data": {
-                        "$expr": "\"Position: \" + string(data.tracking.value?.lat ?? 0.0) + \", \" + string(data.tracking.value?.lng ?? 0.0)"
+                        "$t": "01d0c450-6c00-7000-8000-000000009209",
+                        "args": {
+                          "lat": {
+                            "$expr": "string(data.tracking.value?.lat ?? 0.0)"
+                          },
+                          "lng": {
+                            "$expr": "string(data.tracking.value?.lng ?? 0.0)"
+                          }
+                        }
                       }
                     },
                     "testId": "tracking-position",

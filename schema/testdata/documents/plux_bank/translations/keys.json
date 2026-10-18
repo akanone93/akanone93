@@ -175,6 +175,28 @@
       "description": "New balance",
       "id": "01d0c450-6c00-7000-8000-000000009004",
       "key": "res.newbalance"
+    },
+    {
+      "args": [
+        {
+          "name": "amount",
+          "type": "string"
+        }
+      ],
+      "description": "Available: {amount} EUR",
+      "id": "01d0c450-6c00-7000-8000-000000009201",
+      "key": "tr.available"
+    },
+    {
+      "args": [
+        {
+          "name": "fee",
+          "type": "string"
+        }
+      ],
+      "description": "Fee: {fee} EUR",
+      "id": "01d0c450-6c00-7000-8000-000000009202",
+      "key": "tr.fee"
     }
   ],
   "kind": "translationKeys",

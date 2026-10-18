@@ -67,7 +67,12 @@
                 "id": "01d0c450-6c00-7000-8000-000000004001",
                 "props": {
                   "data": {
-                    "$expr": "\"Term: \" + string(page.months) + \" months at 12 % a year\""
+                    "$t": "01d0c450-6c00-7000-8000-000000009203",
+                    "args": {
+                      "months": {
+                        "$expr": "string(page.months)"
+                      }
+                    }
                   }
                 },
                 "testId": "term",
@@ -251,7 +256,12 @@
                 "id": "01d0c450-6c00-7000-8000-000000004009",
                 "props": {
                   "data": {
-                    "$expr": "\"Monthly payment: \" + page.payment + \" EUR\""
+                    "$t": "01d0c450-6c00-7000-8000-000000009204",
+                    "args": {
+                      "payment": {
+                        "$expr": "page.payment"
+                      }
+                    }
                   }
                 },
                 "testId": "payment",
@@ -264,7 +274,12 @@
                 "id": "01d0c450-6c00-7000-8000-00000000400a",
                 "props": {
                   "data": {
-                    "$expr": "\"Instalments: \" + string(page.count)"
+                    "$t": "01d0c450-6c00-7000-8000-000000009205",
+                    "args": {
+                      "count": {
+                        "$expr": "string(page.count)"
+                      }
+                    }
                   }
                 },
                 "testId": "count",
@@ -277,7 +292,12 @@
                 "id": "01d0c450-6c00-7000-8000-00000000400b",
                 "props": {
                   "data": {
-                    "$expr": "\"Interest in the first month: \" + page.firstInterest + \" EUR\""
+                    "$t": "01d0c450-6c00-7000-8000-000000009206",
+                    "args": {
+                      "interest": {
+                        "$expr": "page.firstInterest"
+                      }
+                    }
                   }
                 },
                 "testId": "first-interest",

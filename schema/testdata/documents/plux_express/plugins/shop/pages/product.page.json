@@ -61,7 +61,12 @@
                   "id": "01d0c450-6c00-7000-8000-000000003018",
                   "props": {
                     "data": {
-                      "$expr": "\"Cart (\" + string(size(plugin.cartIds)) + \")\""
+                      "$t": "01d0c450-6c00-7000-8000-000000009201",
+                      "args": {
+                        "count": {
+                          "$expr": "string(size(plugin.cartIds))"
+                        }
+                      }
                     }
                   },
                   "type": "Text"
@@ -267,7 +272,12 @@
                 "id": "01d0c450-6c00-7000-8000-000000003015",
                 "props": {
                   "data": {
-                    "$expr": "\"In cart: \" + string(size(plugin.cartIds))"
+                    "$t": "01d0c450-6c00-7000-8000-00000000920b",
+                    "args": {
+                      "count": {
+                        "$expr": "string(size(plugin.cartIds))"
+                      }
+                    }
                   }
                 },
                 "testId": "in-cart",

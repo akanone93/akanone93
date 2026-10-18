@@ -17,7 +17,15 @@
         "id": "01d0c450-6c00-7000-8000-00000000304b",
         "props": {
           "data": {
-            "$expr": "\"Job \" + props.item.id + \": \" + props.item.status"
+            "$t": "01d0c450-6c00-7000-8000-00000000920c",
+            "args": {
+              "id": {
+                "$expr": "props.item.id"
+              },
+              "status": {
+                "$expr": "props.item.status"
+              }
+            }
           }
         },
         "type": "Text"

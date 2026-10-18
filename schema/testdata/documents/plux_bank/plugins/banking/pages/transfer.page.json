@@ -126,7 +126,12 @@
                     "id": "01d0c450-6c00-7000-8000-00000000202d",
                     "props": {
                       "data": {
-                        "$expr": "\"Available: \" + string(div(decimal(params.balanceCents), 100d, 2)) + \" EUR\""
+                        "$t": "01d0c450-6c00-7000-8000-000000009201",
+                        "args": {
+                          "amount": {
+                            "$expr": "string(div(decimal(params.balanceCents), 100d, 2))"
+                          }
+                        }
                       }
                     },
                     "testId": "available",
@@ -341,7 +346,12 @@
                     "id": "01d0c450-6c00-7000-8000-000000003002",
                     "props": {
                       "data": {
-                        "$expr": "\"Fee: \" + page.fee + \" EUR\""
+                        "$t": "01d0c450-6c00-7000-8000-000000009202",
+                        "args": {
+                          "fee": {
+                            "$expr": "page.fee"
+                          }
+                        }
                       }
                     },
                     "testId": "fee",
