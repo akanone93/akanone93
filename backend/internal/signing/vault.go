@@ -109,7 +109,10 @@ func NewVault(opts VaultOptions) (*Vault, error) {
 	}
 	client := opts.Client
 	if client == nil {
-		client = &http.Client{Timeout: 15 * time.Second}
+		// Its own transport, not http.DefaultTransport: closing idle
+		// connections on the shared default (as httptest.Server.Close does)
+		// must not break this client's requests in flight.
+		client = &http.Client{Timeout: 15 * time.Second, Transport: http.DefaultTransport.(*http.Transport).Clone()} //nolint:forcetypeassert // the default transport is an *http.Transport
 	}
 	return &Vault{
 		address: strings.TrimSuffix(opts.Address, "/"), mount: mount,

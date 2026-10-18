@@ -152,9 +152,10 @@ go-cover: ## Run Go tests with coverage; enforce floors (QA-001)
 	@for m in $(GO_MODULES); do (cd $$m && $(GO) test -covermode=atomic -coverprofile=coverage.out ./...); done
 	$(COVGATE) -kind go $(addsuffix /coverage.out,$(GO_MODULES))
 
-# Verifies: CMP-002.
+# Verifies: CMP-002. `plux golden`'s own CLI tests (TST-003) match the name
+# filter but are not about determinism; the Go test jobs run them.
 go-determinism: ## Compile the conformance vectors and projects and compare with the goldens byte for byte (CMP-002)
-	cd backend && $(GO) test -count=1 -run 'Golden|Determinism|Repeated|Conformance' ./internal/pxl ./internal/bundle ./internal/compiler ./cmd/plux
+	cd backend && $(GO) test -count=1 -run 'Golden|Determinism|Repeated|Conformance' -skip '^TestGolden(Run|Approve)' ./internal/pxl ./internal/bundle ./internal/compiler ./cmd/plux
 
 go-budgets: ## Check the compiler's timing budgets on this machine (CMP-050, SCH-042)
 	cd backend && PLUX_BUDGETS=1 $(GO) test -count=1 -v -run '^TestPerformanceBudgets$$' ./internal/compiler
