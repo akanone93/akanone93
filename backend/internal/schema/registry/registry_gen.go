@@ -1258,11 +1258,12 @@ var widgets = [...]Widget{
 	},
 	{
 		Type: "DataScope", ID: 109, Layer: 1, Phase: "P5", Revision: 1, Runtimes: []string{"0.5.0"},
-		Category: "structure", Icon: "cloud_sync", Description: "Shows one of `loading`, `empty`, `error` or `success` for a data source. Bind `status` to `data.<source>.status` and `empty` to a test of `data.<source>.value`; the subtree reads the source as `data.<source>`.",
+		Category: "structure", Icon: "cloud_sync", Description: "Shows one of `loading`, `empty`, `error` or `success` for a data source. Set `source` to derive the state from the named data source: loading and error from its status, empty when its value is null, an empty list or an empty map. An explicit `status` or `isEmpty` overrides what `source` derives. The subtree reads the source as `data.<source>`.",
 		Platforms: PlatformAndroid | PlatformIOS, Cost: 10, Role: RoleNone, Interactive: false,
 		Props: []Prop{
-			{Name: "status", ID: 1, Type: "ListStatus", Required: false, Default: "\"ready\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "Loading, error or ready; bind it to `data.<source>.status`."},
-			{Name: "isEmpty", ID: 2, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The source has no content; shows the `empty` slot while ready."},
+			{Name: "status", ID: 1, Type: "ListStatus", Required: false, Default: "\"ready\"", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "Loading, error or ready; overrides the status derived from `source`."},
+			{Name: "isEmpty", ID: 2, Type: "bool", Required: false, Default: "false", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The source has no content; shows the `empty` slot while ready. Overrides the emptiness derived from `source`."},
+			{Name: "source", ID: 3, Type: "string", Required: false, Default: "", Constraints: Constraints{}, Revision: 1, Deprecated: nil, Bindable: true, Translatable: false, Description: "The data source of the page or plugin whose loading, error and empty states the widget shows."},
 		},
 		Slots: []Slot{
 			{Name: "success", ID: 1, List: false, Required: true, Template: false, Revision: 1, Deprecated: nil, Description: "Shown when the source is ready and not empty."},

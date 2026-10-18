@@ -53,18 +53,28 @@ const int cupertinoContextMenuWidgetId = 158;
 
 // ── DataScope ───────────────────────────────────────────────────────────────
 
-/// Props `status` (1) and `isEmpty` (2); slots `success` (1), `loading` (2),
-/// `empty` (3), `error` (4).
+/// Props `status` (1), `isEmpty` (2) and `source` (3); slots `success` (1),
+/// `loading` (2), `empty` (3), `error` (4). With a `source`, the state comes
+/// from that data source: its status, and empty when its value is null, an
+/// empty list or an empty map; an explicit `status` or `isEmpty` wins.
 Widget _buildDataScope(NodeContext c) {
-  final status = nameListStatus(c, c.prop(1)) ?? 'ready';
+  final name = c.decode(3, asString);
+  final src = name == null ? null : c.dataSource(name);
+  final status =
+      nameListStatus(c, c.prop(1)) ?? (src?['status'] as String?) ?? 'ready';
+  final empty =
+      c.decode(2, asBool) ?? (src != null && _isEmptyValue(src['value']));
   final shown = switch (status) {
     'loading' => c.slot(2),
     'error' => c.slot(4),
-    _ when c.decode(2, asBool) ?? false => c.slot(3),
+    _ when empty => c.slot(3),
     _ => c.slot(1),
   };
   return shown ?? const SizedBox.shrink();
 }
+
+bool _isEmptyValue(Object? v) =>
+    v == null || (v is List && v.isEmpty) || (v is Map && v.isEmpty);
 
 // ── NativeSlot ──────────────────────────────────────────────────────────────
 

@@ -2127,14 +2127,15 @@ export const widgets: readonly WidgetDescriptor[] = [
     "runtimes": ["0.5.0"],
     "category": "structure",
     "icon": "cloud_sync",
-    "description": "Shows one of `loading`, `empty`, `error` or `success` for a data source. Bind `status` to `data.<source>.status` and `empty` to a test of `data.<source>.value`; the subtree reads the source as `data.<source>`.",
+    "description": "Shows one of `loading`, `empty`, `error` or `success` for a data source. Set `source` to derive the state from the named data source: loading and error from its status, empty when its value is null, an empty list or an empty map. An explicit `status` or `isEmpty` overrides what `source` derives. The subtree reads the source as `data.<source>`.",
     "platforms": ["android", "ios"],
     "cost": 10,
     "accessibility": {"role": "none", "interactive": false},
     "typeParameters": [],
     "props": [
-      {"name": "status", "id": 1, "type": "ListStatus", "required": false, "default": "ready", "revision": 1, "bindable": true, "description": "Loading, error or ready; bind it to `data.<source>.status`."},
-      {"name": "isEmpty", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "The source has no content; shows the `empty` slot while ready."}
+      {"name": "status", "id": 1, "type": "ListStatus", "required": false, "default": "ready", "revision": 1, "bindable": true, "description": "Loading, error or ready; overrides the status derived from `source`."},
+      {"name": "isEmpty", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "The source has no content; shows the `empty` slot while ready. Overrides the emptiness derived from `source`."},
+      {"name": "source", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The data source of the page or plugin whose loading, error and empty states the widget shows."}
     ],
     "events": [],
     "slots": [

@@ -72,7 +72,7 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [CupertinoTextField](#cupertinotextfield) | 1 | cupertino | P3 | An iOS-style text input whose text is bound to `value`. |
 | [CurrencyPicker](#currencypicker) | 2 | input | P5 | A searchable list of currencies named in the locale. |
 | [CustomScrollView](#customscrollview) | 1 | scrolling | P3 | A scroll view composed of slivers. |
-| [DataScope](#datascope) | 1 | structure | P5 | Shows one of `loading`, `empty`, `error` or `success` for a data source. Bind `status` to `data.<source>.status` and `empty` to a test of `data.<source>.value`; the subtree reads the source as `data.<source>`. |
+| [DataScope](#datascope) | 1 | structure | P5 | Shows one of `loading`, `empty`, `error` or `success` for a data source. Set `source` to derive the state from the named data source: loading and error from its status, empty when its value is null, an empty list or an empty map. An explicit `status` or `isEmpty` overrides what `source` derives. The subtree reads the source as `data.<source>`. |
 | [DataTable](#datatable) | 1 | display | P5 | A Material table with headings, sorting and optional row selection (WGT-020). |
 | [DecoratedBox](#decoratedbox) | 1 | layout | P3 | Paints a decoration behind or in front of its child. |
 | [Dismissible](#dismissible) | 1 | interaction | P5 | Dismisses its child with a swipe and fires `onDismissed` with the direction. |
@@ -1679,14 +1679,15 @@ ID 35 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `CustomScrollVie
 
 ### DataScope
 
-Shows one of `loading`, `empty`, `error` or `success` for a data source. Bind `status` to `data.<source>.status` and `empty` to a test of `data.<source>.value`; the subtree reads the source as `data.<source>`.
+Shows one of `loading`, `empty`, `error` or `success` for a data source. Set `source` to derive the state from the named data source: loading and error from its status, empty when its value is null, an empty list or an empty map. An explicit `status` or `isEmpty` overrides what `source` derives. The subtree reads the source as `data.<source>`.
 
 ID 109 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 10 µs · role none
 
 | Prop | ID | Type | Default | Description |
 |---|---|---|---|---|
-| `status` | 1 | `ListStatus` | `"ready"` | Loading, error or ready; bind it to `data.<source>.status`. |
-| `isEmpty` | 2 | `bool` | `false` | The source has no content; shows the `empty` slot while ready. |
+| `status` | 1 | `ListStatus` | `"ready"` | Loading, error or ready; overrides the status derived from `source`. |
+| `isEmpty` | 2 | `bool` | `false` | The source has no content; shows the `empty` slot while ready. Overrides the emptiness derived from `source`. |
+| `source` | 3 | `string` | — | The data source of the page or plugin whose loading, error and empty states the widget shows. |
 
 | Slot | ID | Holds | Description |
 |---|---|---|---|

@@ -579,6 +579,13 @@ final class NodeContextImpl implements NodeContext, MotionSource {
   }
 
   @override
+  Map<String, Object?>? dataSource(String name) {
+    final data = scope.roots()['data'];
+    final snapshot = data is Map<String, Object?> ? data[name] : null;
+    return snapshot is Map<String, Object?> ? snapshot : null;
+  }
+
+  @override
   bool hasSlot(int id) => (_fill(id)?.nodes ?? const []).isNotEmpty;
 
   @override

@@ -31,6 +31,8 @@ func (u *unit) checkWidgetRefs(n *node, file string) {
 	switch t := n.widget.Type; {
 	case t == "FileUploader":
 		u.checkUploaderRefs(n, file)
+	case t == "DataScope":
+		u.checkDataScopeRefs(n, file)
 	case timelineWidgets[t]:
 		u.checkTimelineRefs(n, file)
 	}
@@ -60,6 +62,23 @@ func (u *unit) checkUploaderRefs(n *node, file string) {
 	if src, _ := u.operation(g, name+"."+op); src == nil {
 		u.report(plxerr.UnresolvedReference, file, n.ptr+"/props/operation", "data source %q has no operation %q", name, op)
 	}
+}
+
+// checkDataScopeRefs resolves the data source a DataScope shows the state
+// of. A source is empty when its value is null, an empty list or an empty
+// map.
+func (u *unit) checkDataScopeRefs(n *node, file string) {
+	name := literalString(n.doc.Props["source"])
+	if name == "" || n.scope == nil {
+		return
+	}
+	ptr := n.ptr + "/props/source"
+	id, ok := n.scope.ids["data"][name]
+	if !ok {
+		u.report(plxerr.UnresolvedReference, file, ptr, "no data source is named %q", name)
+		return
+	}
+	u.graph.add(Edge{From: ownerID(n.owner), Kind: EdgeUsesDataSource, To: id, File: file, Path: ptr})
 }
 
 // checkTimelineRefs resolves the timeline a node plays by name, and the

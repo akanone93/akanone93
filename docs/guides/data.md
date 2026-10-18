@@ -47,7 +47,7 @@ A source declares its type, where the value is in the response, and how it pages
 `data.products.value ?? []` and `status` to `data.products.status`, and shows its
 `loading`, `empty` and `error` slots. Its `onEndReached` runs `refreshData` with
 `"more": true` for the next page. A GraphQL source is the same, with a `query`; Plux Bank
-reads its accounts that way.
+reads its accounts that way. A `DataScope` with `source: "products"` shows its `loading`, `empty`, `error` or `success` slot from that source, empty meaning a null, empty list or empty map value; an explicit `status` or `isEmpty` overrides it.
 
 `cache` keeps responses with `networkOnly`, `cacheFirst`, `networkFirst` or
 `staleWhileRevalidate`, a TTL and optional encryption (`DAT-010`). Responses that need auth
