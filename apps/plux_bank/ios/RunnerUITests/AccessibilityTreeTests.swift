@@ -62,9 +62,10 @@ final class AccessibilityTreeTests: XCTestCase {
     assertReadsInOrder(app, ["New transfer"])
     assertInteractiveControlsAreLabelled(app)
 
+    // The balance is what the flows' transfers left, so only its start is known.
     tap(app, "New transfer", exact: true)
-    waitFor(app, "Available: 2500.00 EUR", exact: true)
-    assertReadsInOrder(app, ["Available: 2500.00 EUR", "Recipient IBAN", "Amount (EUR)", "Reference", "Send money"])
+    waitFor(app, "Available: ")
+    assertReadsInOrder(app, ["Available: ", "Recipient IBAN", "Amount (EUR)", "Reference", "Send money"], exact: false)
     assertInteractiveControlsAreLabelled(app)
   }
 
@@ -94,9 +95,10 @@ final class AccessibilityTreeTests: XCTestCase {
     return app
   }
 
-  // The labels appear on screen top to bottom in the order given.
-  private func assertReadsInOrder(_ app: XCUIApplication, _ labels: [String]) {
-    let tops = labels.map { waitFor(app, $0, exact: true).frame.minY }
+  // The labels, or with exact false labels containing them, appear on screen
+  // top to bottom in the order given.
+  private func assertReadsInOrder(_ app: XCUIApplication, _ labels: [String], exact: Bool = true) {
+    let tops = labels.map { waitFor(app, $0, exact: exact).frame.minY }
     XCTAssertEqual(tops, tops.sorted(), "the reading order of \(labels)")
   }
 

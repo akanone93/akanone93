@@ -440,7 +440,14 @@ func accessibilityTreePass(ctx context.Context, t *testing.T, app referenceApp, 
 			break
 		}
 	}
-	run(os.Getenv("PLUX_E2E_FLUTTER"), append([]string{"build", "apk", "--debug", "--target=" + app.a11yTarget}, defines...)...)
+	// Only the emulator's ABI is built, as flutter test builds it for the
+	// flows: the WebAssembly runtime's native build has no 32-bit ARM target.
+	abi := strings.TrimSpace(run(adb, "-s", device, "shell", "getprop", "ro.product.cpu.abi"))
+	platform, ok := map[string]string{"x86_64": "android-x64", "arm64-v8a": "android-arm64"}[abi]
+	if !ok {
+		t.Fatalf("%s's accessibility-tree pass: no Flutter target platform for the emulator's ABI %q", app.dir, abi)
+	}
+	run(os.Getenv("PLUX_E2E_FLUTTER"), append([]string{"build", "apk", "--debug", "--target-platform=" + platform, "--target=" + app.a11yTarget}, defines...)...)
 	run(filepath.Join(dir, "android", "gradlew"), "-p", filepath.Join(dir, "android"), "--no-daemon", "--console=plain", ":app:assembleDebugAndroidTest")
 	apks := filepath.Join(dir, "build", "app", "outputs", "apk")
 	run(adb, "-s", device, "install", "-r", "-t", filepath.Join(dir, "build", "app", "outputs", "flutter-apk", "app-debug.apk"))
@@ -478,9 +485,25 @@ func accessibilityTreePassIOS(ctx context.Context, t *testing.T, app referenceAp
 	xcodebuild.Dir = dir
 	out, err := xcodebuild.CombinedOutput()
 	if err != nil || !strings.Contains(string(out), "** TEST SUCCEEDED **") {
-		t.Fatalf("%s's accessibility-tree pass on %s: %v\n%s", app.dir, device, err, tail(string(out), 150))
+		t.Fatalf("%s's accessibility-tree pass on %s: %v\n%s\n%s", app.dir, device, err, xctestFailures(string(out)), tail(string(out), 150))
 	}
 	t.Logf("%s's accessibility-tree pass on %s:\n%s", app.dir, device, tail(string(out), 10))
+}
+
+// xctestFailures is the assertions xcodebuild reported failing, the lines
+// "<file>:<line>: error: -[<class> <test>] : <message>": XCTest's query log
+// runs to thousands of lines, so a failure's tail rarely holds them.
+func xctestFailures(out string) string {
+	var failed []string
+	for line := range strings.Lines(out) {
+		if strings.Contains(line, ": error: -[") {
+			failed = append(failed, strings.TrimRight(line, "\n"))
+		}
+	}
+	if len(failed) == 0 {
+		return "(no failed assertion reported)"
+	}
+	return "failed assertions:\n" + strings.Join(failed, "\n")
 }
 
 // flowsTail is how many lines of a failed run's output the driver prints.

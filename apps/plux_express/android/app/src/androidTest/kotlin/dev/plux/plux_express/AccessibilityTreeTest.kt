@@ -42,11 +42,12 @@ class AccessibilityTreeTest {
     fun catalogueProductAndCartPagesReadInOrder() {
         setAppLocale("en")
         launch()
+        // A row reads its name, then its price.
         waitFor("Loaded 10 products")
-        assertReadsInOrder(listOf("Product 01", "Product 02"))
+        assertReadsInOrder(listOf("Product 01", "Product 02"), prefix = true)
         assertInteractiveControlsAreLabelled()
 
-        waitFor("Product 01").click()
+        waitFor("Product 01", prefix = true).click()
         waitFor("In cart: 0")
         assertReadsInOrder(listOf("In cart: 0", "Add to cart"))
         assertInteractiveControlsAreLabelled()
@@ -54,8 +55,9 @@ class AccessibilityTreeTest {
         waitFor("Add to cart").click()
         waitFor("In cart: 1")
         waitFor("Cart (1)").click()
-        waitFor("Total: 1.99 EUR")
-        assertReadsInOrder(listOf("Total: 1.99 EUR", "Place order"))
+        // The summary's total reads its label, then the amount in words.
+        waitFor("Total", prefix = true)
+        assertReadsInOrder(listOf("Total", "Place order"), prefix = true)
         assertInteractiveControlsAreLabelled()
     }
 
@@ -83,9 +85,10 @@ class AccessibilityTreeTest {
         if (Build.VERSION.SDK_INT >= 33) setAppLocale("")
     }
 
-    // The labels appear on screen top to bottom in the order given.
-    private fun assertReadsInOrder(labels: List<String>) {
-        val tops = labels.map { waitFor(it).visibleBounds.top }
+    // The labels, or with prefix the labels' starts, appear on screen top to
+    // bottom in the order given.
+    private fun assertReadsInOrder(labels: List<String>, prefix: Boolean = false) {
+        val tops = labels.map { waitFor(it, prefix).visibleBounds.top }
         assertEquals("the reading order of $labels", tops.sorted(), tops)
     }
 
@@ -128,14 +131,18 @@ class AccessibilityTreeTest {
         device.executeShellCommand("cmd locale set-app-locales $pkg$locales")
     }
 
-    private fun find(label: String): UiObject2? =
-        listOf(By.desc(label), By.text(label)).firstNotNullOfOrNull { device.findObject(it) }
+    private fun find(label: String, prefix: Boolean = false): UiObject2? {
+        val selectors =
+            if (prefix) listOf(By.descStartsWith(label), By.textStartsWith(label))
+            else listOf(By.desc(label), By.text(label))
+        return selectors.firstNotNullOfOrNull { device.findObject(it) }
+    }
 
     // Waits up to a minute: the first page starts the engine and the runtime.
-    private fun waitFor(label: String): UiObject2 {
+    private fun waitFor(label: String, prefix: Boolean = false): UiObject2 {
         val deadline = SystemClock.uptimeMillis() + 60_000
         while (true) {
-            find(label)?.let { return it }
+            find(label, prefix)?.let { return it }
             if (SystemClock.uptimeMillis() > deadline) {
                 throw AssertionError("nothing on screen reads \"$label\"")
             }

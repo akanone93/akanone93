@@ -56,10 +56,12 @@ class AccessibilityTreeTest {
         assertReadsInOrder(listOf("New transfer"))
         assertInteractiveControlsAreLabelled()
 
+        // The balance is what the flows' transfers left, so only its start is known.
         waitFor("New transfer").click()
-        waitFor("Available: 2500.00 EUR")
+        waitFor("Available: ", prefix = true)
         assertReadsInOrder(
-            listOf("Available: 2500.00 EUR", "Recipient IBAN", "Amount (EUR)", "Reference", "Send money"),
+            listOf("Available: ", "Recipient IBAN", "Amount (EUR)", "Reference", "Send money"),
+            prefix = true,
         )
         assertInteractiveControlsAreLabelled()
     }
@@ -88,9 +90,10 @@ class AccessibilityTreeTest {
         if (Build.VERSION.SDK_INT >= 33) setAppLocale("")
     }
 
-    // The labels appear on screen top to bottom in the order given.
-    private fun assertReadsInOrder(labels: List<String>) {
-        val tops = labels.map { waitFor(it).visibleBounds.top }
+    // The labels, or with prefix the labels' starts, appear on screen top to
+    // bottom in the order given.
+    private fun assertReadsInOrder(labels: List<String>, prefix: Boolean = false) {
+        val tops = labels.map { waitFor(it, prefix).visibleBounds.top }
         assertEquals("the reading order of $labels", tops.sorted(), tops)
     }
 
@@ -133,14 +136,18 @@ class AccessibilityTreeTest {
         device.executeShellCommand("cmd locale set-app-locales $pkg$locales")
     }
 
-    private fun find(label: String): UiObject2? =
-        listOf(By.desc(label), By.text(label)).firstNotNullOfOrNull { device.findObject(it) }
+    private fun find(label: String, prefix: Boolean = false): UiObject2? {
+        val selectors =
+            if (prefix) listOf(By.descStartsWith(label), By.textStartsWith(label))
+            else listOf(By.desc(label), By.text(label))
+        return selectors.firstNotNullOfOrNull { device.findObject(it) }
+    }
 
     // Waits up to a minute: the first page starts the engine and the runtime.
-    private fun waitFor(label: String): UiObject2 {
+    private fun waitFor(label: String, prefix: Boolean = false): UiObject2 {
         val deadline = SystemClock.uptimeMillis() + 60_000
         while (true) {
-            find(label)?.let { return it }
+            find(label, prefix)?.let { return it }
             if (SystemClock.uptimeMillis() > deadline) {
                 throw AssertionError("nothing on screen reads \"$label\"")
             }

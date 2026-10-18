@@ -47,11 +47,12 @@ final class AccessibilityTreeTests: XCTestCase {
   /// The three pages' labels read in order, each control labelled and large enough.
   func testCatalogueProductAndCartPagesReadInOrder() {
     let app = launch()
+    // A row reads its name, then its price.
     waitFor(app, "Loaded 10 products", exact: true)
-    assertReadsInOrder(app, ["Product 01", "Product 02"])
+    assertReadsInOrder(app, ["Product 01", "Product 02"], exact: false)
     assertInteractiveControlsAreLabelled(app)
 
-    tap(app, "Product 01", exact: true)
+    tap(app, "Product 01")
     waitFor(app, "In cart: 0", exact: true)
     assertReadsInOrder(app, ["In cart: 0", "Add to cart"])
     assertInteractiveControlsAreLabelled(app)
@@ -59,8 +60,9 @@ final class AccessibilityTreeTests: XCTestCase {
     tap(app, "Add to cart", exact: true)
     waitFor(app, "In cart: 1", exact: true)
     tap(app, "Cart (1)", exact: true)
-    waitFor(app, "Total: 1.99 EUR", exact: true)
-    assertReadsInOrder(app, ["Total: 1.99 EUR", "Place order"])
+    // The summary's total reads its label, then the amount in words.
+    waitFor(app, "Total")
+    assertReadsInOrder(app, ["Total", "Place order"], exact: false)
     assertInteractiveControlsAreLabelled(app)
   }
 
@@ -90,9 +92,10 @@ final class AccessibilityTreeTests: XCTestCase {
     return app
   }
 
-  // The labels appear on screen top to bottom in the order given.
-  private func assertReadsInOrder(_ app: XCUIApplication, _ labels: [String]) {
-    let tops = labels.map { waitFor(app, $0, exact: true).frame.minY }
+  // The labels, or with exact false labels containing them, appear on screen
+  // top to bottom in the order given.
+  private func assertReadsInOrder(_ app: XCUIApplication, _ labels: [String], exact: Bool = true) {
+    let tops = labels.map { waitFor(app, $0, exact: exact).frame.minY }
     XCTAssertEqual(tops, tops.sorted(), "the reading order of \(labels)")
   }
 

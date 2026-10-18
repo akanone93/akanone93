@@ -50,9 +50,10 @@ flutter {
 }
 
 dependencies {
-    // The accessibility-tree test only (QA-011; the add-to-app host's UI
-    // tests use the same versions).
-    androidTestImplementation("androidx.test:runner:1.6.2")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
+    // The accessibility-tree test only (QA-011). The integration_test plugin
+    // puts androidx.test 1.3.0 on the app's classpath and Gradle's consistent
+    // resolution holds the test APK to it, so these are that release's.
+    androidTestImplementation("androidx.test:runner:1.3.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.2")
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
 }

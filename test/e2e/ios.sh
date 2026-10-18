@@ -90,7 +90,7 @@ if [ "$status" -ne 0 ]; then
 		[ -d "$bundle" ] || continue
 		echo "--- test results: $(basename "$bundle")"
 		xcrun xcresulttool get test-results tests --path "$bundle" 2>&1 \
-			| jq -r '.. | objects | select(.result? == "Failed") | "\(.name): \(.details // "" | tostring)"' 2>/dev/null \
+			| jq -r '.. | objects | select(.result? == "Failed" or .nodeType? == "Failure Message") | "\(.name): \(.details // "" | tostring)"' 2>/dev/null \
 			|| echo "(no result bundle)"
 		xcrun xcresulttool get test-results tests --path "$bundle" 2>&1 | grep -i -A3 'failure\|message' | head -n 60 || true
 	done
