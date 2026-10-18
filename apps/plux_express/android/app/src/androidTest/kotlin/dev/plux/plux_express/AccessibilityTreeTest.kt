@@ -171,7 +171,8 @@ class AccessibilityTreeTest {
         while (true) {
             find(label, partial)?.let { return it }
             if (SystemClock.uptimeMillis() > deadline) {
-                throw AssertionError("nothing on screen reads \"$label\"")
+                val shown = nodes().map { it.label }.filter { it.isNotEmpty() }
+                throw AssertionError("nothing on screen reads \"$label\"; it reads $shown")
             }
             SystemClock.sleep(200)
         }

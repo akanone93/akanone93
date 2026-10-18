@@ -177,17 +177,31 @@ class AccessibilityTreeTest {
         while (true) {
             find(label, partial)?.let { return it }
             if (SystemClock.uptimeMillis() > deadline) {
-                throw AssertionError("nothing on screen reads \"$label\"")
+                val shown = nodes().map { it.label }.filter { it.isNotEmpty() }
+                throw AssertionError("nothing on screen reads \"$label\"; it reads $shown")
             }
             SystemClock.sleep(200)
         }
     }
 
-    // Focuses the field and types into it, as the keyboard does.
+    // Focuses the field and types into it, as the keyboard does. Keys sent
+    // before Flutter attaches its text input are lost, so the field is
+    // cleared and typed into again until it holds the text.
     private fun type(field: Node, text: String) {
-        click(field)
-        SystemClock.sleep(500)
-        device.executeShellCommand("input text $text")
+        repeat(3) {
+            click(field)
+            SystemClock.sleep(500)
+            device.executeShellCommand("input keyevent KEYCODE_MOVE_END")
+            device.executeShellCommand("input keyevent" + " KEYCODE_DEL".repeat(text.length + 4))
+            device.executeShellCommand("input text $text")
+            val deadline = SystemClock.uptimeMillis() + 3_000
+            while (SystemClock.uptimeMillis() < deadline) {
+                field.info.refresh()
+                if (field.info.text?.toString()?.filterNot { it.isWhitespace() } == text) return
+                SystemClock.sleep(200)
+            }
+        }
+        throw AssertionError("the field at ${field.bounds} does not hold \"$text\"")
     }
 
     // The control with the label, scrolled to when the keyboard hides it: a
