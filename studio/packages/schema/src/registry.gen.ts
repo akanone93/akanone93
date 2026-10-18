@@ -91,7 +91,7 @@ export interface WidgetDescriptor {
   readonly platforms: readonly Platform[];
   /** Estimated build cost in microseconds on the mid-tier reference device (CMP-040). */
   readonly cost: number;
-  readonly accessibility: { readonly role: AccessibilityRole; readonly interactive: boolean };
+  readonly accessibility: { readonly role: AccessibilityRole; readonly interactive: boolean; readonly minTarget?: boolean };
   readonly typeParameters: readonly string[];
   readonly props: readonly PropDescriptor[];
   readonly events: readonly EventDescriptor[];
