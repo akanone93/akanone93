@@ -16,13 +16,13 @@ import (
 // hostLinkPage is a plugin page that opens the host's native settings
 // screen through the module's native route host-settings.
 const hostLinkPage = `{"id": "01e0c450-6c00-7000-8000-000000000080", "key": "host-link", "kind": "page", "pageKind": "screen", "route": "host-link",
-  "schemaVersion": "1.0.0", "title": "Host link", "root": {"id": "01e0c450-6c00-7000-8000-000000000081", "type": "Scaffold", "slots": {
+  "schemaVersion": "1.0.0", "title": {"$t": "01e0c450-6c00-7000-8000-0000000000f0"}, "root": {"id": "01e0c450-6c00-7000-8000-000000000081", "type": "Scaffold", "slots": {
     "appBar": {"id": "01e0c450-6c00-7000-8000-000000000082", "type": "AppBar", "slots": {
-      "title": {"id": "01e0c450-6c00-7000-8000-000000000083", "type": "Text", "props": {"data": "Host link"}}}},
+      "title": {"id": "01e0c450-6c00-7000-8000-000000000083", "type": "Text", "props": {"data": {"$t": "01e0c450-6c00-7000-8000-0000000000f0"}}}}},
     "body": {"id": "01e0c450-6c00-7000-8000-000000000084", "type": "Center", "slots": {"child":
       {"id": "01e0c450-6c00-7000-8000-000000000085", "type": "TextButton",
        "events": {"onPressed": {"steps": [{"action": "navigate", "id": "go", "input": {"route": "host-settings"}}]}},
-       "slots": {"child": {"id": "01e0c450-6c00-7000-8000-000000000086", "type": "Text", "props": {"data": "Open host settings"}}}}}}}}}`
+       "slots": {"child": {"id": "01e0c450-6c00-7000-8000-000000000086", "type": "Text", "props": {"data": {"$t": "01e0c450-6c00-7000-8000-0000000000f1"}}}}}}}}}}`
 
 // hostFlow is one add-to-app flow: the module's Dart test plays it on the
 // development machine, the hosts' UI tests on a device. Each runs in a
@@ -121,6 +121,15 @@ func addHostLink(t *testing.T, project string) {
 	edit(t, filepath.Join(project, "plugins", "welcome", "plugin.json"), `"pages": [`, `"pages": ["01e0c450-6c00-7000-8000-000000000080", `)
 	edit(t, filepath.Join(project, "native-catalogue.json"), `"routes": [`,
 		`"routes": [{"name": "host-settings", "description": "The host's native settings screen."}, `)
+	// The starter supports en and ar, so the page's texts are translation
+	// keys with both translations (PLX-1609, PLX-1606).
+	edit(t, filepath.Join(project, "translations", "keys.json"), `"keys": [`,
+		`"keys": [{"description": "Title of the host-link page.", "id": "01e0c450-6c00-7000-8000-0000000000f0", "key": "welcome.host-link.title"}, `+
+			`{"description": "The host-link page's button.", "id": "01e0c450-6c00-7000-8000-0000000000f1", "key": "welcome.host-link.open"}, `)
+	edit(t, filepath.Join(project, "translations", "en.json"), `"messages": {`,
+		`"messages": {"01e0c450-6c00-7000-8000-0000000000f0": "Host link", "01e0c450-6c00-7000-8000-0000000000f1": "Open host settings", `)
+	edit(t, filepath.Join(project, "translations", "ar.json"), `"messages": {`,
+		`"messages": {"01e0c450-6c00-7000-8000-0000000000f0": "رابط المضيف", "01e0c450-6c00-7000-8000-0000000000f1": "فتح إعدادات المضيف", `)
 }
 
 // edit replaces the first from in the file at path with to, and fails the
