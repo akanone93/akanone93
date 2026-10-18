@@ -32,6 +32,8 @@ func emitProgram(root *ir, locals int) *Program {
 		Constants: e.consts,
 		Reads:     minimalPaths(reads),
 		Code:      e.code,
+
+		Currencies: currenciesOf(root),
 	}
 }
 

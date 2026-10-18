@@ -35,6 +35,9 @@ type Program struct {
 	// besides pxl.v1 (BND-008). They are recorded by the compiler, not
 	// encoded.
 	Features []string
+	// Currencies are the currencies the expression names or leaves open.
+	// They are recorded by the compiler, not encoded.
+	Currencies Currencies
 }
 
 // ErrInvalidProgram reports malformed program bytes.

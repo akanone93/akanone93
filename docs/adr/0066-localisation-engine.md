@@ -93,3 +93,32 @@ toolchain (Rust) to the app build, which ADR-0011 (P7 plan D10) reserves for Fun
 
 Costs an engine of our own, bounded by the vectors; matches the libphonenumber precedent
 (ADR-0047).
+
+## Revision (2026-10-18)
+
+**The bundle carries only the currency names, territory names and date skeleton formats the app
+uses** (maintainer, Q24). The decision above already said so; the compiler had shipped every one
+per locale. It now trims them (`backend/internal/compiler/localeuse.go`, `l10n.Reduce`).
+
+One conservative rule covers all three categories: every reference whose value is known at
+compile time is kept, and when a reference is dynamic the whole category is kept.
+
+- **Currencies.** Literal: the currency of a money constant or of `money(x, "XXX")` in PXL, a
+  literal `currency`/`value`/`currencies` prop of `AmountInput` and `CurrencyPicker`, and
+  `::currency/XXX` number skeletons in messages. Dynamic (keeps all): a money value read from
+  state, a parameter or a data field, `money` with a computed currency, any declared type that
+  mentions `money`, a computed currency prop, and a `CurrencyPicker` without a list. The
+  digits of every currency are always kept. The app has no default-currency setting, so none
+  is added.
+- **Territories.** Only `CountryPicker` and `PhoneInput` name territories, and both list all of
+  them; a project using neither carries none.
+- **Skeletons.** The skeletons of message `date`/`time` arguments plus the ones
+  `plux_flutter`'s Flutter localizations use (pinned by a test). For each, the available
+  format the engine would pick is kept, so results are unchanged; the date and time styles are
+  always kept.
+- **Native widgets.** If the host's native catalogue declares slots, native Dart code may read
+  any locale data, so nothing is trimmed.
+
+The runtime already falls back to the ISO code for a currency name and the region code for a
+territory name that the data lacks (`trimmed_data_test.dart`). Output stays sorted and
+deterministic (`CMP-002`).

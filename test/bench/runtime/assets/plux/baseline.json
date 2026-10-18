@@ -7,11 +7,11 @@
     {
       "plugin": "",
       "version": 1,
-      "sha256": "f3a507a63f83db4f2291efcc20a99678935679751cec4a17f82c0c0aad3f9871",
+      "sha256": "a7c0fc25ef0b8ff95013ff08f5d0c4b83e6dc1ade26657d7dacedd4b0bc97230",
       "file": "bundles/_app.pxb",
       "keyId": "08eab417e7060eb9846a89c885a94988",
       "algorithm": "ed25519",
-      "signature": "wah0m0dQJAs2DVA0xpYx/Ym5yHmz/3JDsmQTHsm4icrUXH2pRmUX3xvTo7Hra2m19f+fTnJzT1EIpmzHWNZyAQ=="
+      "signature": "/j3mqc47CphQT32YsGRKBSsYnjaYfLhYjfSYPu2dYJfAJriaPueTjvuDLrf6+WsW8716n59iVkbvL/NWWnlCAw=="
     },
     {
       "plugin": "catalog",
