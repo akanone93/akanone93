@@ -54,7 +54,9 @@ esac
 
 // fakeRustc prints the version file.
 const fakeRustc = `#!/bin/sh
-cat "$(dirname "$0")/rustc-version"
+d=$(dirname "$0")
+if [ -f "$d/sleep-version" ]; then sleep "$(cat "$d/sleep-version")"; fi
+cat "$d/rustc-version"
 `
 
 // fakeWasmOpt answers --version and wraps its input.
