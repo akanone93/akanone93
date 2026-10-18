@@ -61,7 +61,12 @@ func ParseVersion(data []byte) (map[string]string, error) {
 // SHA-256 pinned in its VERSION file: a run rendered with other fonts would
 // compare against baselines it cannot match (ADR-0070).
 func LoadFonts(dir string) (map[string][]byte, error) {
-	version, err := os.ReadFile(filepath.Join(dir, "VERSION"))
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		return nil, fmt.Errorf("plxgolden: %w", err)
+	}
+	defer root.Close()
+	version, err := root.ReadFile("VERSION")
 	if err != nil {
 		return nil, fmt.Errorf("plxgolden: %w", err)
 	}
@@ -71,7 +76,7 @@ func LoadFonts(dir string) (map[string][]byte, error) {
 	}
 	out := map[string][]byte{}
 	for name, want := range pinned {
-		data, err := os.ReadFile(filepath.Join(dir, name))
+		data, err := root.ReadFile(name)
 		if err != nil {
 			return nil, fmt.Errorf("plxgolden: %w", err)
 		}

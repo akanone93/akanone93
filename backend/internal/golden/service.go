@@ -233,51 +233,72 @@ func (s *Service) Upload(ctx context.Context, p auth.Principal, r Run) (string, 
 	}
 	differences := 0
 	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		if _, err := q.GetApp(ctx, app); err != nil {
-			return failure(err, "app")
-		}
-		rows, err := q.ListGoldenBaselines(ctx, dbgen.ListGoldenBaselinesParams{AppID: app, PluginKey: r.PluginKey})
-		if err != nil {
-			return failure(err, "golden baselines")
-		}
-		baseline := make(map[string][]byte, len(rows))
-		for _, b := range rows {
-			baseline[b.CaseID] = b.ImageSha256
-		}
-		if err := q.InsertGoldenRun(ctx, dbgen.InsertGoldenRunParams{
-			ID: runID, OrganizationID: org, AppID: app, PluginKey: r.PluginKey, BundleSha256: r.Bundle, AppSha256: r.App,
-			Canonical: r.Canonical, Renderer: clip(r.Renderer), CreatedBy: p.Actor().ID,
-		}); err != nil {
-			return failure(err, "golden run")
-		}
-		for _, c := range slices.SortedFunc(slices.Values(r.Cases), func(a, b Case) int { return compareStrings(a.ID, b.ID) }) {
-			if !bytes.Equal(baseline[c.ID], c.SHA256) {
-				differences++
-				if len(c.Image) == 0 {
-					return plxerr.New(plxerr.InvalidFormat, "case %q differs from its baseline and needs its image", c.ID)
-				}
-				key, err := objectKey(p.OrganizationID, r.AppID, r.PluginKey, c.SHA256)
-				if err != nil {
-					return err
-				}
-				if _, err := s.o.Objects.Put(ctx, key, c.Image, "image/png"); err != nil {
-					return fmt.Errorf("golden: store image: %w", err)
-				}
-			}
-			if err := q.InsertGoldenCase(ctx, dbgen.InsertGoldenCaseParams{
-				RunID: runID, CaseID: c.ID, OrganizationID: org, Frame: clip(c.Frame), Locale: clip(c.Locale), Theme: clip(c.Theme),
-				TextScale: c.TextScale, ImageSha256: c.SHA256, ImageBytes: int64(len(c.Image)),
-			}); err != nil {
-				return failure(err, "golden case")
-			}
-		}
-		return nil
+		var err error
+		differences, err = s.recordRun(ctx, tx, p, r, runKeys{app: app, run: runID, org: org})
+		return err
 	})
 	if err != nil {
 		return "", 0, err
 	}
 	return id, differences, nil
+}
+
+// runKeys are the parsed identifiers of an uploaded run.
+type runKeys struct{ app, run, org pgtype.UUID }
+
+// recordRun stores a run and its cases in the caller's transaction and
+// returns how many cases differ from the baselines.
+func (s *Service) recordRun(ctx context.Context, tx pgx.Tx, p auth.Principal, r Run, k runKeys) (int, error) {
+	q := dbgen.New(tx)
+	if _, err := q.GetApp(ctx, k.app); err != nil {
+		return 0, failure(err, "app")
+	}
+	rows, err := q.ListGoldenBaselines(ctx, dbgen.ListGoldenBaselinesParams{AppID: k.app, PluginKey: r.PluginKey})
+	if err != nil {
+		return 0, failure(err, "golden baselines")
+	}
+	baseline := make(map[string][]byte, len(rows))
+	for _, b := range rows {
+		baseline[b.CaseID] = b.ImageSha256
+	}
+	if err := q.InsertGoldenRun(ctx, dbgen.InsertGoldenRunParams{
+		ID: k.run, OrganizationID: k.org, AppID: k.app, PluginKey: r.PluginKey, BundleSha256: r.Bundle, AppSha256: r.App,
+		Canonical: r.Canonical, Renderer: clip(r.Renderer), CreatedBy: p.Actor().ID,
+	}); err != nil {
+		return 0, failure(err, "golden run")
+	}
+	differences := 0
+	for _, c := range slices.SortedFunc(slices.Values(r.Cases), func(a, b Case) int { return compareStrings(a.ID, b.ID) }) {
+		if !bytes.Equal(baseline[c.ID], c.SHA256) {
+			differences++
+			if err := s.storeDifferingImage(ctx, p, r, c); err != nil {
+				return differences, err
+			}
+		}
+		if err := q.InsertGoldenCase(ctx, dbgen.InsertGoldenCaseParams{
+			RunID: k.run, CaseID: c.ID, OrganizationID: k.org, Frame: clip(c.Frame), Locale: clip(c.Locale), Theme: clip(c.Theme),
+			TextScale: c.TextScale, ImageSha256: c.SHA256, ImageBytes: int64(len(c.Image)),
+		}); err != nil {
+			return differences, failure(err, "golden case")
+		}
+	}
+	return differences, nil
+}
+
+// storeDifferingImage stores the image of a case that differs from its
+// baseline; such a case must carry one.
+func (s *Service) storeDifferingImage(ctx context.Context, p auth.Principal, r Run, c Case) error {
+	if len(c.Image) == 0 {
+		return plxerr.New(plxerr.InvalidFormat, "case %q differs from its baseline and needs its image", c.ID)
+	}
+	key, err := objectKey(p.OrganizationID, r.AppID, r.PluginKey, c.SHA256)
+	if err != nil {
+		return err
+	}
+	if _, err := s.o.Objects.Put(ctx, key, c.Image, "image/png"); err != nil {
+		return fmt.Errorf("golden: store image: %w", err)
+	}
+	return nil
 }
 
 func compareStrings(a, b string) int {
@@ -349,74 +370,96 @@ func (s *Service) Approve(ctx context.Context, p auth.Principal, appID, runID st
 	}
 	var approved []string
 	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		r, err := q.GetGoldenRun(ctx, dbgen.GetGoldenRunParams{ID: run, AppID: app})
-		if err != nil {
-			return failure(err, "golden run")
-		}
-		diffs, err := q.ListGoldenDifferences(ctx, run)
-		if err != nil {
-			return failure(err, "golden differences")
-		}
-		wanted := map[string]bool{}
-		for _, id := range caseIDs {
-			wanted[id] = true
-		}
-		used, err := q.GoldenBaselineBytes(ctx, dbgen.GoldenBaselineBytesParams{AppID: app, PluginKey: r.PluginKey})
-		if err != nil {
-			return failure(err, "golden baseline size")
-		}
-		maxTotal := s.o.Limits.Get(limits.GoldenBaselineBytesPerPlugin)
-		for _, d := range diffs {
-			if len(caseIDs) > 0 && !wanted[d.CaseID] {
-				continue
-			}
-			delete(wanted, d.CaseID)
-			if d.ImageBytes == 0 {
-				return plxerr.New(plxerr.InvalidFormat, "case %q has no stored image to approve", d.CaseID)
-			}
-			key, err := objectKey(p.OrganizationID, appID, r.PluginKey, d.ImageSha256)
-			if err != nil {
-				return err
-			}
-			if _, err := s.o.Objects.Stat(ctx, key); err != nil {
-				return fmt.Errorf("golden: image of case %q: %w", d.CaseID, err)
-			}
-			prev, err := baselineBytes(ctx, q, app, r.PluginKey, d.CaseID)
-			if err != nil {
-				return err
-			}
-			used += d.ImageBytes - prev
-			if used > maxTotal {
-				return plxerr.New(plxerr.LimitExceeded, "the baselines of this plugin would take %d bytes; golden.baselineBytesPerPlugin allows %d", used, maxTotal)
-			}
-			if err := q.UpsertGoldenBaseline(ctx, dbgen.UpsertGoldenBaselineParams{
-				AppID: app, PluginKey: r.PluginKey, CaseID: d.CaseID, OrganizationID: org,
-				ImageSha256: d.ImageSha256, ImageBytes: d.ImageBytes, ApprovedBy: p.Actor().ID,
-			}); err != nil {
-				return failure(err, "golden baseline")
-			}
-			approved = append(approved, d.CaseID)
-		}
-		if len(wanted) > 0 {
-			return plxerr.New(plxerr.ResourceNotFound, "the run has no unapproved difference for %d of the named cases", len(wanted))
-		}
-		if len(approved) == 0 {
-			return nil
-		}
-		e := audit.Entry{
-			Action: audit.GoldensApproved, TargetKind: "golden_run", TargetID: runID,
-			Detail: fmt.Sprintf("plugin %q: %d case(s)", r.PluginKey, len(approved)), OrganizationID: p.OrganizationID, Actor: p.Actor(),
-		}
-		if _, err := s.o.Audit.Append(ctx, tx, e); err != nil {
-			return fmt.Errorf("golden: %w", err)
-		}
-		return nil
+		var err error
+		approved, err = s.approveRun(ctx, tx, p, runRef{app: app, run: run, org: org, appID: appID, runID: runID}, caseIDs)
+		return err
 	})
 	if err != nil {
 		return nil, err
 	}
 	return approved, nil
+}
+
+// runRef names the run an approval is for, as parsed and as given.
+type runRef struct {
+	app, run, org pgtype.UUID
+	appID, runID  string
+}
+
+// approveRun promotes the named differences of a run (all when none are
+// named) to baselines in the caller's transaction, within the plugin's
+// baseline budget, and audits it. It returns the approved case IDs.
+func (s *Service) approveRun(ctx context.Context, tx pgx.Tx, p auth.Principal, ref runRef, caseIDs []string) ([]string, error) {
+	q := dbgen.New(tx)
+	r, err := q.GetGoldenRun(ctx, dbgen.GetGoldenRunParams{ID: ref.run, AppID: ref.app})
+	if err != nil {
+		return nil, failure(err, "golden run")
+	}
+	diffs, err := q.ListGoldenDifferences(ctx, ref.run)
+	if err != nil {
+		return nil, failure(err, "golden differences")
+	}
+	wanted := map[string]bool{}
+	for _, id := range caseIDs {
+		wanted[id] = true
+	}
+	used, err := q.GoldenBaselineBytes(ctx, dbgen.GoldenBaselineBytesParams{AppID: ref.app, PluginKey: r.PluginKey})
+	if err != nil {
+		return nil, failure(err, "golden baseline size")
+	}
+	maxTotal := s.o.Limits.Get(limits.GoldenBaselineBytesPerPlugin)
+	var approved []string
+	for _, d := range diffs {
+		if len(caseIDs) > 0 && !wanted[d.CaseID] {
+			continue
+		}
+		delete(wanted, d.CaseID)
+		prev, err := s.checkApprovable(ctx, q, p, ref, r.PluginKey, d)
+		if err != nil {
+			return nil, err
+		}
+		used += d.ImageBytes - prev
+		if used > maxTotal {
+			return nil, plxerr.New(plxerr.LimitExceeded, "the baselines of this plugin would take %d bytes; golden.baselineBytesPerPlugin allows %d", used, maxTotal)
+		}
+		if err := q.UpsertGoldenBaseline(ctx, dbgen.UpsertGoldenBaselineParams{
+			AppID: ref.app, PluginKey: r.PluginKey, CaseID: d.CaseID, OrganizationID: ref.org,
+			ImageSha256: d.ImageSha256, ImageBytes: d.ImageBytes, ApprovedBy: p.Actor().ID,
+		}); err != nil {
+			return nil, failure(err, "golden baseline")
+		}
+		approved = append(approved, d.CaseID)
+	}
+	if len(wanted) > 0 {
+		return nil, plxerr.New(plxerr.ResourceNotFound, "the run has no unapproved difference for %d of the named cases", len(wanted))
+	}
+	if len(approved) == 0 {
+		return approved, nil
+	}
+	e := audit.Entry{
+		Action: audit.GoldensApproved, TargetKind: "golden_run", TargetID: ref.runID,
+		Detail: fmt.Sprintf("plugin %q: %d case(s)", r.PluginKey, len(approved)), OrganizationID: p.OrganizationID, Actor: p.Actor(),
+	}
+	if _, err := s.o.Audit.Append(ctx, tx, e); err != nil {
+		return nil, fmt.Errorf("golden: %w", err)
+	}
+	return approved, nil
+}
+
+// checkApprovable checks that a difference has its stored image and returns
+// the size of the baseline it would replace.
+func (s *Service) checkApprovable(ctx context.Context, q *dbgen.Queries, p auth.Principal, ref runRef, pluginKey string, d dbgen.ListGoldenDifferencesRow) (int64, error) {
+	if d.ImageBytes == 0 {
+		return 0, plxerr.New(plxerr.InvalidFormat, "case %q has no stored image to approve", d.CaseID)
+	}
+	key, err := objectKey(p.OrganizationID, ref.appID, pluginKey, d.ImageSha256)
+	if err != nil {
+		return 0, err
+	}
+	if _, err := s.o.Objects.Stat(ctx, key); err != nil {
+		return 0, fmt.Errorf("golden: image of case %q: %w", d.CaseID, err)
+	}
+	return baselineBytes(ctx, q, ref.app, pluginKey, d.CaseID)
 }
 
 // baselineBytes is the size of the approved image of a case, 0 when there is

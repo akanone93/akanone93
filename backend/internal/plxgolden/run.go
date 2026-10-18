@@ -83,41 +83,13 @@ func Prepare(o Options, out string) (*Plan, error) {
 	if err != nil {
 		return nil, err
 	}
-	var pages []Page
-	dataSources := map[string]bool{}
-	for _, d := range app.DataSources {
-		dataSources[d.Name] = true
-	}
-	for _, pl := range res.Project.Plugins {
-		if pl.Doc == nil || (o.Plugin != "" && pl.Doc.Key != o.Plugin) {
-			continue
-		}
-		for _, d := range pl.Doc.DataSources {
-			dataSources[d.Name] = true
-		}
-		for _, pg := range pl.Pages {
-			if pg.Doc == nil || pg.Doc.Route == "" {
-				continue
-			}
-			pages = append(pages, Page{Plugin: pl.Doc.Key, Route: pg.Doc.Route, Params: pageParams(pg.Doc.Params)})
-			for _, d := range pg.Doc.DataSources {
-				dataSources[d.Name] = true
-			}
-		}
-	}
+	pages, dataSources := renderablePages(res.Project, app, o.Plugin)
 	if len(pages) == 0 {
 		return nil, plxerr.New(plxerr.GoldenHarnessFailed, "the project has no page with a route to render")
 	}
 	cases := Cases(matrix, pages)
-	perPlugin := map[string]int{}
-	for _, c := range cases {
-		perPlugin[c.Plugin]++
-	}
-	max := o.Limits.Get(limits.GoldenCasesPerRun)
-	for _, key := range slices.Sorted(mapKeys(perPlugin)) {
-		if int64(perPlugin[key]) > max {
-			return nil, plxerr.New(plxerr.LimitExceeded, "plugin %q has %d golden cases; golden.casesPerRun allows %d; narrow goldens.matrix", key, perPlugin[key], max)
-		}
+	if err := checkCaseLimit(cases, o.Limits.Get(limits.GoldenCasesPerRun)); err != nil {
+		return nil, err
 	}
 	key, err := runkey.New(o.Entropy)
 	if err != nil {
@@ -135,6 +107,49 @@ func Prepare(o Options, out string) (*Plan, error) {
 		})
 	}
 	return &Plan{Files: plxtest.GenerateGolden(in), Cases: cases, Out: out}, nil
+}
+
+// renderablePages lists the pages with a route in the project (of one plugin
+// when plugin is not empty), and the names of the data sources the app and
+// those plugins declare.
+func renderablePages(project *schema.Project, app *schema.AppDocument, plugin string) ([]Page, map[string]bool) {
+	var pages []Page
+	dataSources := map[string]bool{}
+	for _, d := range app.DataSources {
+		dataSources[d.Name] = true
+	}
+	for _, pl := range project.Plugins {
+		if pl.Doc == nil || (plugin != "" && pl.Doc.Key != plugin) {
+			continue
+		}
+		for _, d := range pl.Doc.DataSources {
+			dataSources[d.Name] = true
+		}
+		for _, pg := range pl.Pages {
+			if pg.Doc == nil || pg.Doc.Route == "" {
+				continue
+			}
+			pages = append(pages, Page{Plugin: pl.Doc.Key, Route: pg.Doc.Route, Params: pageParams(pg.Doc.Params)})
+			for _, d := range pg.Doc.DataSources {
+				dataSources[d.Name] = true
+			}
+		}
+	}
+	return pages, dataSources
+}
+
+// checkCaseLimit refuses a plugin with more cases than one run allows.
+func checkCaseLimit(cases []Case, limit int64) error {
+	perPlugin := map[string]int{}
+	for _, c := range cases {
+		perPlugin[c.Plugin]++
+	}
+	for _, key := range slices.Sorted(mapKeys(perPlugin)) {
+		if int64(perPlugin[key]) > limit {
+			return plxerr.New(plxerr.LimitExceeded, "plugin %q has %d golden cases; golden.casesPerRun allows %d; narrow goldens.matrix", key, perPlugin[key], limit)
+		}
+	}
+	return nil
 }
 
 // pageParams are the inputs a page is shown with: each parameter's mock,
