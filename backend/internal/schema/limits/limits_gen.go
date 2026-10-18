@@ -201,6 +201,13 @@ const (
 	// DPOPReplayCacheEntries: Proof identifiers the DPoP replay cache holds.
 	// (SEC-023, LIM-004)
 	DPOPReplayCacheEntries Key = "dpop.replayCacheEntries"
+	// DsrExportBytes: Size of one data subject export archive. (SEC-162)
+	DsrExportBytes Key = "dsr.exportBytes"
+	// ExperimentsActivePerApp: Experiments that may be running at once in one
+	// app. (ABT-001)
+	ExperimentsActivePerApp Key = "experiments.activePerApp"
+	// FlagsPerApp: Feature flags one app may define. (ABT-001)
+	FlagsPerApp Key = "flags.perApp"
 	// FunctionBuildMemory: Memory one function build may use. (FN-016)
 	FunctionBuildMemory Key = "function.buildMemory"
 	// FunctionBuildTimeout: Wall-clock time one function build may run. (FN-016)
@@ -286,6 +293,9 @@ const (
 	// pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned
 	// client). (SEC-041)
 	MediaPinnedDownloadSize Key = "media.pinnedDownloadSize"
+	// NotificationsPerHour: Notifications one organisation may send in an hour
+	// across all channels; the excess is dropped and audited. (SRV-062)
+	NotificationsPerHour Key = "notifications.perHour"
 	// PageAnimations: Animations that can run at the same time on one page.
 	// (CMP-040)
 	PageAnimations Key = "page.animations"
@@ -334,9 +344,16 @@ const (
 	// PXLStringLength: Length of a string produced during one PXL evaluation.
 	// (PXL-001)
 	PXLStringLength Key = "pxl.stringLength"
+	// ReconstructionRetentionDays: Days of release and device history kept for
+	// reconstruction of what a device ran (SEC-142); older data is no longer
+	// reconstructable. (SEC-142)
+	ReconstructionRetentionDays Key = "reconstruction.retentionDays"
 	// ReleaseAppSize: Total size of one app release: the app bundle and every
 	// plugin bundle. (BND-010)
 	ReleaseAppSize Key = "release.appSize"
+	// RolloutsActivePerApp: Staged rollouts that may be in progress at once in
+	// one app. (REL-050)
+	RolloutsActivePerApp Key = "rollouts.activePerApp"
 	// RuntimeImageDiskCacheBytes: Disk space the runtime's cache of remote
 	// images may use on one device. (RT-014, AST-002)
 	RuntimeImageDiskCacheBytes Key = "runtime.imageDiskCacheBytes"
@@ -352,6 +369,8 @@ const (
 	// ScaChallengeLifetime: Milliseconds a strong customer authentication
 	// challenge stays valid. (SEC-027, LIM-004)
 	ScaChallengeLifetime Key = "sca.challengeLifetime"
+	// SearchResultsPerPage: Results one search page may return. (SRV-061)
+	SearchResultsPerPage Key = "search.resultsPerPage"
 	// SecurityConfigBytes: Bytes of a security configuration, encoded. (SEC-182,
 	// LIM-004)
 	SecurityConfigBytes Key = "securityConfig.bytes"
@@ -366,9 +385,16 @@ const (
 	// runtime's local store (plain; secure state is the encrypted one, plan p5
 	// B6); writes beyond it stay in memory and are reported. (STA-003, LIM-004)
 	StateSecureBytes Key = "state.secureBytes"
+	// TelemetryBatchBytes: Bytes one telemetry batch may carry on the wire after
+	// decompression. (ANL-010)
+	TelemetryBatchBytes Key = "telemetry.batchBytes"
 	// TelemetryBufferBytes: The size of the runtime's buffer of unsent telemetry
 	// events; the oldest are dropped first. (ANL-002)
 	TelemetryBufferBytes Key = "telemetry.bufferBytes"
+	// TelemetryEventsPerDevicePerHour: Runtime events one device may send in an
+	// hour; events above it are dropped and counted. Conservative default of ten
+	// per minute on average, with room for bursts. (ANL-010)
+	TelemetryEventsPerDevicePerHour Key = "telemetry.eventsPerDevicePerHour"
 	// TelemetryEventsPerRequest: Runtime events one telemetry request may carry.
 	// (SEC-104)
 	TelemetryEventsPerRequest Key = "telemetry.eventsPerRequest"
@@ -379,6 +405,9 @@ const (
 	// UpdateMetadataBytes: Size of one update metadata file (root, snapshot or
 	// timestamp) a device accepts and the server serves. (SEC-050)
 	UpdateMetadataBytes Key = "updateMetadata.bytes"
+	// WebhooksPerOrg: Outbound webhook endpoints one organisation may configure.
+	// (SRV-062)
+	WebhooksPerOrg Key = "webhooks.perOrg"
 )
 
 // registry holds every definition in key order. It is read-only.
@@ -450,6 +479,9 @@ var registry = [...]Definition{
 	{Key: DPOPJtiBytes, Unit: UnitBytes, Default: 64, Warning: 0, Max: 256, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Length of a DPoP proof identifier."},
 	{Key: DPOPProofBytes, Unit: UnitBytes, Default: 8192, Warning: 0, Max: 32768, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of a DPoP proof."},
 	{Key: DPOPReplayCacheEntries, Unit: UnitCount, Default: 1000000, Warning: 0, Max: 100000000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Proof identifiers the DPoP replay cache holds."},
+	{Key: DsrExportBytes, Unit: UnitBytes, Default: 268435456, Warning: 0, Max: 4294967296, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Size of one data subject export archive."},
+	{Key: ExperimentsActivePerApp, Unit: UnitCount, Default: 20, Warning: 0, Max: 500, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Experiments that may be running at once in one app."},
+	{Key: FlagsPerApp, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Feature flags one app may define."},
 	{Key: FunctionBuildMemory, Unit: UnitBytes, Default: 4294967296, Warning: 0, Max: 17179869184, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Memory one function build may use."},
 	{Key: FunctionBuildTimeout, Unit: UnitMilliseconds, Default: 600000, Warning: 0, Max: 3600000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Wall-clock time one function build may run."},
 	{Key: FunctionCallDepth, Unit: UnitCount, Default: 3, Warning: 0, Max: 3, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P7", Description: "Depth of nested function-to-function calls within one invocation."},
@@ -480,6 +512,7 @@ var registry = [...]Definition{
 	{Key: GoldenImageBytes, Unit: UnitBytes, Default: 2097152, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerCli, Phase: "P8", Description: "Size of one golden image."},
 	{Key: HTTPResponseSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 67108864, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Size of a response the server reads when it fetches a URL, such as an identity provider's keys."},
 	{Key: MediaPinnedDownloadSize, Unit: UnitBytes, Default: 209715200, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P8", Description: "Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client)."},
+	{Key: NotificationsPerHour, Unit: UnitCount, Default: 600, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Notifications one organisation may send in an hour across all channels; the excess is dropped and audited."},
 	{Key: PageAnimations, Unit: UnitCount, Default: 30, Warning: 10, Max: 200, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Animations that can run at the same time on one page."},
 	{Key: PageBuildCost, Unit: UnitMicroseconds, Default: 16000, Warning: 8000, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Estimated build time of a page on the mid-tier reference device, the sum of its widgets' cost hints."},
 	{Key: PageDepth, Unit: UnitCount, Default: 64, Warning: 32, Max: 128, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Depth of a page's node tree."},
@@ -497,19 +530,25 @@ var registry = [...]Definition{
 	{Key: PXLRegexProgramSize, Unit: UnitCount, Default: 2000, Warning: 0, Max: 20000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P5", Description: "Instructions of one compiled regular-expression pattern of pxl.regex.v1 (schema/pxl/regex.md)."},
 	{Key: PXLRegexRepeat, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P5", Description: "The largest count of a {n,m} repetition in a regular-expression pattern of pxl.regex.v1."},
 	{Key: PXLStringLength, Unit: UnitCodepoints, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P1", Description: "Length of a string produced during one PXL evaluation."},
+	{Key: ReconstructionRetentionDays, Unit: UnitCount, Default: 365, Warning: 0, Max: 3650, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Days of release and device history kept for reconstruction of what a device ran (SEC-142); older data is no longer reconstructable."},
 	{Key: ReleaseAppSize, Unit: UnitBytes, Default: 104857600, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Total size of one app release: the app bundle and every plugin bundle."},
+	{Key: RolloutsActivePerApp, Unit: UnitCount, Default: 10, Warning: 0, Max: 100, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Staged rollouts that may be in progress at once in one app."},
 	{Key: RuntimeImageDiskCacheBytes, Unit: UnitBytes, Default: 67108864, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "Disk space the runtime's cache of remote images may use on one device."},
 	{Key: RuntimeImageSize, Unit: UnitBytes, Default: 10485760, Warning: 0, Max: 104857600, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "Size of one remote image the runtime downloads; a larger one is refused."},
 	{Key: RuntimeSectionCacheBytes, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "Memory the runtime's cache of decoded page and component sections may hold."},
 	{Key: RuntimeSectionCacheEntries, Unit: UnitCount, Default: 64, Warning: 0, Max: 4096, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "Page and component sections the runtime keeps decoded."},
 	{Key: ScaChallengeLifetime, Unit: UnitMilliseconds, Default: 300000, Warning: 0, Max: 900000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Milliseconds a strong customer authentication challenge stays valid."},
+	{Key: SearchResultsPerPage, Unit: UnitCount, Default: 50, Warning: 0, Max: 200, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Results one search page may return."},
 	{Key: SecurityConfigBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of a security configuration, encoded."},
 	{Key: SecurityConfigPatchBytes, Unit: UnitBytes, Default: 16384, Warning: 0, Max: 262144, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of a security configuration patch, encoded."},
 	{Key: StatePersistedBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes the persisted state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported."},
 	{Key: StateSecureBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported."},
+	{Key: TelemetryBatchBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 4194304, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Bytes one telemetry batch may carry on the wire after decompression."},
 	{Key: TelemetryBufferBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 4194304, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first."},
+	{Key: TelemetryEventsPerDevicePerHour, Unit: UnitCount, Default: 600, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Runtime events one device may send in an hour; events above it are dropped and counted. Conservative default of ten per minute on average, with room for bursts."},
 	{Key: TelemetryEventsPerRequest, Unit: UnitCount, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Runtime events one telemetry request may carry."},
 	{Key: TranslationImportSize, Unit: UnitBytes, Default: 16777216, Warning: 0, Max: 134217728, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerCli, Phase: "P8", Description: "Size of one translation import file."},
 	{Key: TranslationMessageSize, Unit: UnitBytes, Default: 4096, Warning: 0, Max: 65536, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P8", Description: "Size of one translation message."},
 	{Key: UpdateMetadataBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 4194304, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P6", Description: "Size of one update metadata file (root, snapshot or timestamp) a device accepts and the server serves."},
+	{Key: WebhooksPerOrg, Unit: UnitCount, Default: 50, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Outbound webhook endpoints one organisation may configure."},
 }

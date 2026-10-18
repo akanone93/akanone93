@@ -451,6 +451,21 @@ enum PluxErrorCode {
   /// Imported status lowered to translated.
   translationImportDowngraded(1623, 'TRANSLATION_IMPORT_DOWNGRADED', 'Imported status lowered to translated'),
 
+  /// Policy document invalid.
+  policyDocumentInvalid(1700, 'POLICY_DOCUMENT_INVALID', 'Policy document invalid'),
+
+  /// Unknown flag type.
+  unknownFlagType(1701, 'UNKNOWN_FLAG_TYPE', 'Unknown flag type'),
+
+  /// Variant without a control.
+  variantWithoutControl(1702, 'VARIANT_WITHOUT_CONTROL', 'Variant without a control'),
+
+  /// Variant weights do not sum to 100.
+  variantWeightsInvalid(1703, 'VARIANT_WEIGHTS_INVALID', 'Variant weights do not sum to 100'),
+
+  /// Segment rule invalid.
+  segmentRuleInvalid(1704, 'SEGMENT_RULE_INVALID', 'Segment rule invalid'),
+
   /// PXL syntax error.
   pxlSyntaxError(2001, 'PXL_SYNTAX_ERROR', 'PXL syntax error'),
 
@@ -517,6 +532,15 @@ enum PluxErrorCode {
   /// Content identifier collision.
   contentIdCollision(2202, 'CONTENT_ID_COLLISION', 'Content identifier collision'),
 
+  /// Experiment key unknown.
+  experimentKeyUnknown(2300, 'EXPERIMENT_KEY_UNKNOWN', 'Experiment key unknown'),
+
+  /// Winner is not a variant of the experiment.
+  winnerNotAVariant(2301, 'WINNER_NOT_A_VARIANT', 'Winner is not a variant of the experiment'),
+
+  /// Variant tree exceeds the node budget.
+  variantTreeExceedsBudget(2302, 'VARIANT_TREE_EXCEEDS_BUDGET', 'Variant tree exceeds the node budget'),
+
   /// Manifest signature invalid.
   manifestSignatureInvalid(3001, 'MANIFEST_SIGNATURE_INVALID', 'Manifest signature invalid'),
 
@@ -576,6 +600,33 @@ enum PluxErrorCode {
 
   /// Release carries pseudo-locales.
   pseudoLocalesInProduction(3064, 'PSEUDO_LOCALES_IN_PRODUCTION', 'Release carries pseudo-locales'),
+
+  /// Control document signature invalid.
+  controlSignatureInvalid(3100, 'CONTROL_SIGNATURE_INVALID', 'Control document signature invalid'),
+
+  /// Control document expired.
+  controlDocumentExpired(3101, 'CONTROL_DOCUMENT_EXPIRED', 'Control document expired'),
+
+  /// Control rollback rejected.
+  controlRollbackRejected(3102, 'CONTROL_ROLLBACK_REJECTED', 'Control rollback rejected'),
+
+  /// Mandatory update pending.
+  mandatoryUpdatePending(3103, 'MANDATORY_UPDATE_PENDING', 'Mandatory update pending'),
+
+  /// Forced rollback applied.
+  forcedRollbackApplied(3104, 'FORCED_ROLLBACK_APPLIED', 'Forced rollback applied'),
+
+  /// Rollout paused by a health gate.
+  rolloutPausedByHealthGate(3150, 'ROLLOUT_PAUSED_BY_HEALTH_GATE', 'Rollout paused by a health gate'),
+
+  /// Rollout rolled back.
+  rolloutRolledBack(3151, 'ROLLOUT_ROLLED_BACK', 'Rollout rolled back'),
+
+  /// Targeting rule invalid.
+  targetingRuleInvalid(3152, 'TARGETING_RULE_INVALID', 'Targeting rule invalid'),
+
+  /// Schedule overlaps another rollout.
+  scheduleOverlapsRollout(3153, 'SCHEDULE_OVERLAPS_ROLLOUT', 'Schedule overlaps another rollout'),
 
   /// Build error in node.
   nodeBuildFailed(4001, 'NODE_BUILD_FAILED', 'Build error in node'),
@@ -943,6 +994,33 @@ enum PluxErrorCode {
   /// Runtime tampering detected.
   raspDetection(6100, 'RASP_DETECTION', 'Runtime tampering detected'),
 
+  /// Step-up required.
+  stepUpRequired(6200, 'STEP_UP_REQUIRED', 'Step-up required'),
+
+  /// Step-up expired.
+  stepUpExpired(6201, 'STEP_UP_EXPIRED', 'Step-up expired'),
+
+  /// WebAuthn assertion invalid.
+  webauthnAssertionInvalid(6202, 'WEBAUTHN_ASSERTION_INVALID', 'WebAuthn assertion invalid'),
+
+  /// SAML response invalid.
+  samlResponseInvalid(6210, 'SAML_RESPONSE_INVALID', 'SAML response invalid'),
+
+  /// SAML assertion replayed.
+  samlAssertionReplayed(6211, 'SAML_ASSERTION_REPLAYED', 'SAML assertion replayed'),
+
+  /// SCIM request invalid.
+  scimRequestInvalid(6220, 'SCIM_REQUEST_INVALID', 'SCIM request invalid'),
+
+  /// Session revoked.
+  sessionRevoked(6230, 'SESSION_REVOKED', 'Session revoked'),
+
+  /// Session idle timeout.
+  sessionIdleTimeout(6231, 'SESSION_IDLE_TIMEOUT', 'Session idle timeout'),
+
+  /// Session absolute timeout.
+  sessionAbsoluteTimeout(6232, 'SESSION_ABSOLUTE_TIMEOUT', 'Session absolute timeout'),
+
   /// Function timed out.
   functionTimeout(7001, 'FUNCTION_TIMEOUT', 'Function timed out'),
 
@@ -1021,6 +1099,15 @@ enum PluxErrorCode {
   /// Function business error.
   functionBusinessError(7100, 'FUNCTION_BUSINESS_ERROR', 'Function business error'),
 
+  /// Cron expression invalid.
+  cronExpressionInvalid(7150, 'CRON_EXPRESSION_INVALID', 'Cron expression invalid'),
+
+  /// Inbound webhook signature invalid.
+  webhookSignatureInvalid(7151, 'WEBHOOK_SIGNATURE_INVALID', 'Inbound webhook signature invalid'),
+
+  /// Inbound webhook replayed.
+  webhookReplayed(7152, 'WEBHOOK_REPLAYED', 'Inbound webhook replayed'),
+
   /// Function build failed.
   functionBuildFailed(7200, 'FUNCTION_BUILD_FAILED', 'Function build failed'),
 
@@ -1041,6 +1128,27 @@ enum PluxErrorCode {
 
   /// Function build not reproducible.
   functionBuildNotReproducible(7206, 'FUNCTION_BUILD_NOT_REPRODUCIBLE', 'Function build not reproducible'),
+
+  /// Approval required.
+  approvalRequired(8001, 'APPROVAL_REQUIRED', 'Approval required'),
+
+  /// Approval invalidated by a content change.
+  approvalInvalidated(8002, 'APPROVAL_INVALIDATED', 'Approval invalidated by a content change'),
+
+  /// Approver not eligible.
+  approverNotEligible(8003, 'APPROVER_NOT_ELIGIBLE', 'Approver not eligible'),
+
+  /// Approval expired.
+  approvalExpired(8004, 'APPROVAL_EXPIRED', 'Approval expired'),
+
+  /// Break-glass justification required.
+  breakGlassJustificationRequired(8005, 'BREAK_GLASS_JUSTIFICATION_REQUIRED', 'Break-glass justification required'),
+
+  /// Post-hoc review overdue.
+  postHocReviewOverdue(8006, 'POST_HOC_REVIEW_OVERDUE', 'Post-hoc review overdue'),
+
+  /// Change freeze active.
+  changeFreezeActive(8010, 'CHANGE_FREEZE_ACTIVE', 'Change freeze active'),
 
   /// Second factor required.
   multiFactorRequired(8011, 'MULTI_FACTOR_REQUIRED', 'Second factor required'),
@@ -1092,6 +1200,69 @@ enum PluxErrorCode {
 
   /// Document not editable with translations.edit.
   translationDocumentForbidden(8093, 'TRANSLATION_DOCUMENT_FORBIDDEN', 'Document not editable with translations.edit'),
+
+  /// Role unknown.
+  roleUnknown(8100, 'ROLE_UNKNOWN', 'Role unknown'),
+
+  /// Permission not in the catalogue.
+  permissionNotInCatalogue(8101, 'PERMISSION_NOT_IN_CATALOGUE', 'Permission not in the catalogue'),
+
+  /// Scope invalid.
+  scopeInvalid(8102, 'SCOPE_INVALID', 'Scope invalid'),
+
+  /// Last owner cannot be removed.
+  lastOwnerCannotBeRemoved(8103, 'LAST_OWNER_CANNOT_BE_REMOVED', 'Last owner cannot be removed'),
+
+  /// Experiment overlaps its layer.
+  experimentOverlapsLayer(8200, 'EXPERIMENT_OVERLAPS_LAYER', 'Experiment overlaps its layer'),
+
+  /// Sample size not reached.
+  sampleSizeNotReached(8201, 'SAMPLE_SIZE_NOT_REACHED', 'Sample size not reached'),
+
+  /// Sample ratio mismatch.
+  sampleRatioMismatch(8202, 'SAMPLE_RATIO_MISMATCH', 'Sample ratio mismatch'),
+
+  /// Flag type change refused.
+  flagTypeChangeRefused(8203, 'FLAG_TYPE_CHANGE_REFUSED', 'Flag type change refused'),
+
+  /// Ingestion over quota.
+  ingestionOverQuota(8300, 'INGESTION_OVER_QUOTA', 'Ingestion over quota'),
+
+  /// Retention change scheduled.
+  retentionChangeScheduled(8301, 'RETENTION_CHANGE_SCHEDULED', 'Retention change scheduled'),
+
+  /// Export destination unreachable.
+  exportDestinationUnreachable(8302, 'EXPORT_DESTINATION_UNREACHABLE', 'Export destination unreachable'),
+
+  /// Notification channel misconfigured.
+  channelMisconfigured(8400, 'CHANNEL_MISCONFIGURED', 'Notification channel misconfigured'),
+
+  /// Delivery failed after retries.
+  deliveryFailed(8401, 'DELIVERY_FAILED', 'Delivery failed after retries'),
+
+  /// SIEM destination unreachable.
+  siemDestinationUnreachable(8500, 'SIEM_DESTINATION_UNREACHABLE', 'SIEM destination unreachable'),
+
+  /// Subject not found.
+  subjectNotFound(8501, 'SUBJECT_NOT_FOUND', 'Subject not found'),
+
+  /// Reconstruction data no longer retained.
+  reconstructionDataExpired(8502, 'RECONSTRUCTION_DATA_EXPIRED', 'Reconstruction data no longer retained'),
+
+  /// Git remote refused.
+  gitRemoteRefused(8503, 'GIT_REMOTE_REFUSED', 'Git remote refused'),
+
+  /// Enterprise feature not licensed.
+  enterpriseFeatureNotLicensed(8600, 'ENTERPRISE_FEATURE_NOT_LICENSED', 'Enterprise feature not licensed'),
+
+  /// Licence invalid.
+  licenseInvalid(8601, 'LICENSE_INVALID', 'Licence invalid'),
+
+  /// Licence expired.
+  licenseExpired(8602, 'LICENSE_EXPIRED', 'Licence expired'),
+
+  /// Licence limit exceeded.
+  licenseLimitExceeded(8603, 'LICENSE_LIMIT_EXCEEDED', 'Licence limit exceeded'),
 
   /// Invalid CLI configuration.
   cliConfigurationInvalid(9100, 'CLI_CONFIGURATION_INVALID', 'Invalid CLI configuration'),

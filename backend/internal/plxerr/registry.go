@@ -470,6 +470,66 @@ const (
 
 	GoldenHarnessFailed   Code = 9300
 	FlutterSDKUnavailable Code = 9301
+
+	// Experiments, rollouts, governance, federation and licence (P9).
+
+	PolicyDocumentInvalid           Code = 1700
+	UnknownFlagType                 Code = 1701
+	VariantWithoutControl           Code = 1702
+	VariantWeightsInvalid           Code = 1703
+	SegmentRuleInvalid              Code = 1704
+	ExperimentKeyUnknown            Code = 2300
+	WinnerNotAVariant               Code = 2301
+	VariantTreeExceedsBudget        Code = 2302
+	ControlSignatureInvalid         Code = 3100
+	ControlDocumentExpired          Code = 3101
+	ControlRollbackRejected         Code = 3102
+	MandatoryUpdatePending          Code = 3103
+	ForcedRollbackApplied           Code = 3104
+	RolloutPausedByHealthGate       Code = 3150
+	RolloutRolledBack               Code = 3151
+	TargetingRuleInvalid            Code = 3152
+	ScheduleOverlapsRollout         Code = 3153
+	StepUpRequired                  Code = 6200
+	StepUpExpired                   Code = 6201
+	WebAuthnAssertionInvalid        Code = 6202
+	SAMLResponseInvalid             Code = 6210
+	SAMLAssertionReplayed           Code = 6211
+	SCIMRequestInvalid              Code = 6220
+	SessionRevoked                  Code = 6230
+	SessionIdleTimeout              Code = 6231
+	SessionAbsoluteTimeout          Code = 6232
+	CronExpressionInvalid           Code = 7150
+	WebhookSignatureInvalid         Code = 7151
+	WebhookReplayed                 Code = 7152
+	ApprovalRequired                Code = 8001
+	ApprovalInvalidated             Code = 8002
+	ApproverNotEligible             Code = 8003
+	ApprovalExpired                 Code = 8004
+	BreakGlassJustificationRequired Code = 8005
+	PostHocReviewOverdue            Code = 8006
+	ChangeFreezeActive              Code = 8010
+	RoleUnknown                     Code = 8100
+	PermissionNotInCatalogue        Code = 8101
+	ScopeInvalid                    Code = 8102
+	LastOwnerCannotBeRemoved        Code = 8103
+	ExperimentOverlapsLayer         Code = 8200
+	SampleSizeNotReached            Code = 8201
+	SampleRatioMismatch             Code = 8202
+	FlagTypeChangeRefused           Code = 8203
+	IngestionOverQuota              Code = 8300
+	RetentionChangeScheduled        Code = 8301
+	ExportDestinationUnreachable    Code = 8302
+	ChannelMisconfigured            Code = 8400
+	DeliveryFailed                  Code = 8401
+	SIEMDestinationUnreachable      Code = 8500
+	SubjectNotFound                 Code = 8501
+	ReconstructionDataExpired       Code = 8502
+	GitRemoteRefused                Code = 8503
+	EnterpriseFeatureNotLicensed    Code = 8600
+	LicenseInvalid                  Code = 8601
+	LicenseExpired                  Code = 8602
+	LicenseLimitExceeded            Code = 8603
 )
 
 // Definition is the registered description of a code (DX-003).

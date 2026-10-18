@@ -1311,6 +1311,63 @@
       "description": "Proof identifiers the DPoP replay cache holds."
     },
     {
+      "key": "dsr.exportBytes",
+      "unit": "bytes",
+      "default": 268435456,
+      "max": 4294967296,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SEC-162"
+      ],
+      "description": "Size of one data subject export archive."
+    },
+    {
+      "key": "experiments.activePerApp",
+      "unit": "count",
+      "default": 20,
+      "max": 500,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "ABT-001"
+      ],
+      "description": "Experiments that may be running at once in one app."
+    },
+    {
+      "key": "flags.perApp",
+      "unit": "count",
+      "default": 500,
+      "max": 10000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "ABT-001"
+      ],
+      "description": "Feature flags one app may define."
+    },
+    {
       "key": "function.buildMemory",
       "unit": "bytes",
       "default": 4294967296,
@@ -1889,6 +1946,25 @@
       "description": "Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client)."
     },
     {
+      "key": "notifications.perHour",
+      "unit": "count",
+      "default": 600,
+      "max": 100000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SRV-062"
+      ],
+      "description": "Notifications one organisation may send in an hour across all channels; the excess is dropped and audited."
+    },
+    {
       "key": "page.animations",
       "unit": "count",
       "default": 30,
@@ -2261,6 +2337,25 @@
       "description": "Length of a string produced during one PXL evaluation."
     },
     {
+      "key": "reconstruction.retentionDays",
+      "unit": "count",
+      "default": 365,
+      "max": 3650,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SEC-142"
+      ],
+      "description": "Days of release and device history kept for reconstruction of what a device ran (SEC-142); older data is no longer reconstructable."
+    },
+    {
       "key": "release.appSize",
       "unit": "bytes",
       "default": 104857600,
@@ -2279,6 +2374,25 @@
         "BND-010"
       ],
       "description": "Total size of one app release: the app bundle and every plugin bundle."
+    },
+    {
+      "key": "rollouts.activePerApp",
+      "unit": "count",
+      "default": 10,
+      "max": 100,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "REL-050"
+      ],
+      "description": "Staged rollouts that may be in progress at once in one app."
     },
     {
       "key": "runtime.imageDiskCacheBytes",
@@ -2379,6 +2493,25 @@
       "description": "Milliseconds a strong customer authentication challenge stays valid."
     },
     {
+      "key": "search.resultsPerPage",
+      "unit": "count",
+      "default": 50,
+      "max": 200,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SRV-061"
+      ],
+      "description": "Results one search page may return."
+    },
+    {
       "key": "securityConfig.bytes",
       "unit": "bytes",
       "default": 65536,
@@ -2459,6 +2592,25 @@
       "description": "Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported."
     },
     {
+      "key": "telemetry.batchBytes",
+      "unit": "bytes",
+      "default": 262144,
+      "max": 4194304,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "ANL-010"
+      ],
+      "description": "Bytes one telemetry batch may carry on the wire after decompression."
+    },
+    {
       "key": "telemetry.bufferBytes",
       "unit": "bytes",
       "default": 262144,
@@ -2476,6 +2628,25 @@
         "ANL-002"
       ],
       "description": "The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first."
+    },
+    {
+      "key": "telemetry.eventsPerDevicePerHour",
+      "unit": "count",
+      "default": 600,
+      "max": 100000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "ANL-010"
+      ],
+      "description": "Runtime events one device may send in an hour; events above it are dropped and counted. Conservative default of ten per minute on average, with room for bursts."
     },
     {
       "key": "telemetry.eventsPerRequest",
@@ -2553,6 +2724,25 @@
         "SEC-050"
       ],
       "description": "Size of one update metadata file (root, snapshot or timestamp) a device accepts and the server serves."
+    },
+    {
+      "key": "webhooks.perOrg",
+      "unit": "count",
+      "default": 50,
+      "max": 1000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SRV-062"
+      ],
+      "description": "Outbound webhook endpoints one organisation may configure."
     }
   ]
 }
