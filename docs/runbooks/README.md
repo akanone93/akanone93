@@ -16,6 +16,11 @@ One runbook per alert and per failure mode introduced in a phase (DoD-9, `OBS-00
 | [Function outage](function-outage.md) | `fnrunner` down, unreachable, overloaded or refusing modules (`FN-009`–`FN-013`) | P7 |
 | [Function egress refusals](function-egress-refusals.md) | A function's outbound HTTP is refused by the allowlist or the private-address rules (`FN-012`, `FN-017`) | P7 |
 | [Function builder failure](function-builder-failure.md) | Function builds fail, hang or are refused by the `builder` role (`FN-016`, `FN-019`) | P7 |
+| [Locale fallbacks](locale-fallbacks.md) | A locale shows keys or the default language: fallback chain, `l10n_missing`, `PLX-4400`/`4401`, the localisation report (`I18N-005`, `I18N-006`) | P8 |
+| [Translation import](translation-import.md) | An import is refused or downgraded: size, DTD and entities, `PLX-1620`–`1623` (`I18N-008`, `I18N-009`) | P8 |
+| [Publish blocked](publish-blocked-quality.md) | Accessibility, goldens, profile floor or pseudo-locales refuse a publish: `PLX-3060`–`3064` (`A11Y-002`, `TST-003`) | P8 |
+| [Golden runs](golden-runs.md) | Golden runs are non-canonical or differ without a change: fonts, frames, Linux renderer (`TST-003`) | P8 |
+| [Wrong calendar day](calendar-wrong-day.md) | A date shows the wrong day: Umm al-Qura table range, `PLX-1615` (`I18N-003`) | P8 |
 
 ## Signals
 
