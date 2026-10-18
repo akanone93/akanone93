@@ -152,9 +152,10 @@ final class AccessibilityTreeTests: XCTestCase {
   // A field's value, as VoiceOver reads it.
   private func text(of field: XCUIElement) -> String { (field.value as? String) ?? "" }
 
-  // Focuses the field and types into it; when the field does not then hold
-  // the text (keys typed before Flutter attached its input are lost), it is
-  // cleared and typed into again. A final newline is Return, not text.
+  // Focuses the field and types into it one key at a time, reading the field
+  // after each key: XCTest's first key into a Flutter field arrives twice
+  // (run 39146472448 typed "ddemo"), so a key that added more than itself is
+  // taken back. A final newline is Return, sent once the text is right.
   private func type(_ field: XCUIElement, _ text: String) {
     let expected = text.trimmingCharacters(in: .newlines)
     for _ in 0..<3 {
@@ -168,8 +169,19 @@ final class AccessibilityTreeTests: XCTestCase {
       if !current.isEmpty {
         field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: current.count))
       }
-      field.typeText(text)
-      if self.text(of: field) == expected { return }
+      var typed = ""
+      for key in expected {
+        typed.append(key)
+        field.typeText(String(key))
+        let extra = self.text(of: field).count - typed.count
+        if extra > 0 {
+          field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: extra))
+        }
+      }
+      if self.text(of: field) == expected {
+        if text.hasSuffix("\n") { field.typeText("\n") }
+        return
+      }
     }
     XCTFail("the field holds \"\(self.text(of: field))\", not \"\(expected)\"")
   }
