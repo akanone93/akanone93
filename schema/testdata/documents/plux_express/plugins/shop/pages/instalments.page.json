@@ -12,7 +12,9 @@
           "title": {
             "id": "01d0c450-6c00-7000-8000-00000000400f",
             "props": {
-              "data": "Instalments"
+              "data": {
+                "$t": "01a14cd1-ca0e-76fd-b433-d62c051e6d16"
+              }
             },
             "type": "Text"
           }
@@ -49,7 +51,9 @@
                 "id": "01d0c450-6c00-7000-8000-000000004000",
                 "props": {
                   "decoration": {
-                    "labelText": "Amount (EUR)"
+                    "labelText": {
+                      "$t": "01a14cd1-ca0e-7302-8a9a-acda5134f164"
+                    }
                   },
                   "keyboardType": "number",
                   "value": {
@@ -91,7 +95,9 @@
                       "child": {
                         "id": "01d0c450-6c00-7000-8000-000000004003",
                         "props": {
-                          "data": "3 months"
+                          "data": {
+                            "$t": "01a14cd1-ca0e-7134-89b2-c72cdbbe477f"
+                          }
                         },
                         "type": "Text"
                       }
@@ -119,7 +125,9 @@
                       "child": {
                         "id": "01d0c450-6c00-7000-8000-000000004005",
                         "props": {
-                          "data": "6 months"
+                          "data": {
+                            "$t": "01a14cd1-ca0e-756e-abba-5f97c118b682"
+                          }
                         },
                         "type": "Text"
                       }
@@ -229,7 +237,9 @@
                   "child": {
                     "id": "01d0c450-6c00-7000-8000-000000004008",
                     "props": {
-                      "data": "Calculate on this device"
+                      "data": {
+                        "$t": "01a14cd1-ca0e-7077-9d37-17c23018e9be"
+                      }
                     },
                     "type": "Text"
                   }
@@ -343,5 +353,7 @@
       "type": "string"
     }
   ],
-  "title": "Instalments"
+  "title": {
+    "$t": "01a14cd1-ca0e-7632-bf32-dadef589ac94"
+  }
 }

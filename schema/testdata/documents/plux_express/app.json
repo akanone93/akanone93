@@ -28,8 +28,47 @@
   "id": "01d0c450-6c00-7000-8000-000000000300",
   "key": "express",
   "kind": "app",
-  "minRuntimeVersion": "0.3.0",
+  "minRuntimeVersion": "0.5.0",
   "name": "Plux Express",
+  "navigation": {
+    "shells": [
+      {
+        "key": "main",
+        "tabs": [
+          {
+            "icon": {
+              "name": "storefront"
+            },
+            "initialRoute": "catalogue",
+            "key": "catalogue",
+            "label": {
+              "$t": "01a14cd1-ca0d-74fb-8d4f-5dd19046db58"
+            }
+          },
+          {
+            "icon": {
+              "name": "shopping_cart"
+            },
+            "initialRoute": "cart",
+            "key": "cart",
+            "label": {
+              "$t": "01a14cd1-ca0c-74ea-be85-46f2d772481d"
+            }
+          },
+          {
+            "icon": {
+              "name": "local_shipping"
+            },
+            "initialRoute": "courier",
+            "key": "courier",
+            "label": {
+              "$t": "01a14cd1-ca0e-703f-b903-b2e42c4c85c0"
+            }
+          }
+        ]
+      }
+    ]
+  },
   "plugins": [
     "shop"
   ],
@@ -37,7 +76,10 @@
   "schemaVersion": "1.0.0",
   "securityProfile": "standard",
   "supportedLocales": [
-    "en"
+    "en",
+    "de-DE",
+    "ar",
+    "am-ET"
   ],
   "sync": {
     "activation": "atSafePoint",

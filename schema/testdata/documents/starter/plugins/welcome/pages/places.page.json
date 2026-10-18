@@ -12,7 +12,9 @@
           "title": {
             "id": "01e0c450-6c00-7000-8000-000000000067",
             "props": {
-              "data": "Places"
+              "data": {
+                "$t": "01a14cd1-caed-7025-b85d-e7d36df56e68"
+              }
             },
             "type": "Text"
           }
@@ -60,5 +62,7 @@
   },
   "route": "places",
   "schemaVersion": "1.0.0",
-  "title": "Places"
+  "title": {
+    "$t": "01a14cd1-caed-76be-b243-d14581cb9c7f"
+  }
 }

@@ -75,7 +75,8 @@
     }
   ],
   "supportedLocales": [
-    "en"
+    "en",
+    "ar"
   ],
   "sync": {
     "activation": "atSafePoint",

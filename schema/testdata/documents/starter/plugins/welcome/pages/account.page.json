@@ -12,7 +12,9 @@
           "title": {
             "id": "01e0c450-6c00-7000-8000-000000000099",
             "props": {
-              "data": "Account"
+              "data": {
+                "$t": "01a14cd1-caec-756b-9706-2bba3a9767d8"
+              }
             },
             "type": "Text"
           }
@@ -46,5 +48,7 @@
     ]
   },
   "schemaVersion": "1.0.0",
-  "title": "Account"
+  "title": {
+    "$t": "01a14cd1-caec-7089-bb3e-47b16548d89e"
+  }
 }

@@ -20,7 +20,9 @@
           "title": {
             "id": "01e0c450-6c00-7000-8000-00000000006d",
             "props": {
-              "data": "Place"
+              "data": {
+                "$t": "01a14cd1-caec-7130-999e-81fbfc99a49a"
+              }
             },
             "type": "Text"
           }
@@ -75,7 +77,9 @@
                   "child": {
                     "id": "01e0c450-6c00-7000-8000-000000000092",
                     "props": {
-                      "data": "Share"
+                      "data": {
+                        "$t": "01a14cd1-caec-76e4-8637-769db136246e"
+                      }
                     },
                     "type": "Text"
                   }
@@ -106,7 +110,9 @@
                   "child": {
                     "id": "01e0c450-6c00-7000-8000-000000000094",
                     "props": {
-                      "data": "Profile"
+                      "data": {
+                        "$t": "01a14cd1-caed-73b2-be0b-8125fc02de66"
+                      }
                     },
                     "type": "Text"
                   }
@@ -129,5 +135,7 @@
   },
   "route": "place",
   "schemaVersion": "1.0.0",
-  "title": "Place"
+  "title": {
+    "$t": "01a14cd1-caec-7438-a77a-3a7e72628077"
+  }
 }

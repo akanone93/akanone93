@@ -12,7 +12,9 @@
           "title": {
             "id": "01d0c450-6c00-7000-8000-00000000302d",
             "props": {
-              "data": "Cart"
+              "data": {
+                "$t": "01a14cd1-ca0c-7721-bbd8-458d769faf21"
+              }
             },
             "type": "Text"
           }
@@ -35,7 +37,9 @@
                   "empty": {
                     "id": "01d0c450-6c00-7000-8000-000000003022",
                     "props": {
-                      "data": "Your cart is empty."
+                      "data": {
+                        "$t": "01a14cd1-ca0c-705a-9a40-73aba75c7d18"
+                      }
                     },
                     "type": "Text"
                   },
@@ -81,14 +85,136 @@
               "child": {
                 "children": [
                   {
-                    "id": "01d0c450-6c00-7000-8000-000000003025",
+                    "id": "01d0c450-6c00-7000-8000-00000000500b",
                     "props": {
-                      "data": {
-                        "$expr": "\"Total: \" + string(div(decimal(sum(plugin.cartPrices)), 100d, 2)) + \" EUR\""
+                      "lines": [],
+                      "subtotal": {
+                        "$expr": "money(string(div(decimal(sum(plugin.cartPrices)), 100d, 2)), \"EUR\")"
+                      },
+                      "subtotalLabel": {
+                        "$t": "01d0c450-6c00-7000-8000-000000009007"
+                      },
+                      "total": {
+                        "$expr": "money(string(div(decimal(sum(plugin.cartPrices)), 100d, 2)), \"EUR\")"
+                      },
+                      "totalLabel": {
+                        "$t": "01d0c450-6c00-7000-8000-000000009008"
+                      }
+                    },
+                    "slots": {
+                      "checkout": {
+                        "events": {
+                          "onPressed": {
+                            "steps": [
+                              {
+                                "action": "forEach",
+                                "branches": {
+                                  "body": "place"
+                                },
+                                "id": "each",
+                                "input": {
+                                  "items": {
+                                    "$expr": "plugin.cartIds"
+                                  }
+                                },
+                                "next": "clear"
+                              },
+                              {
+                                "action": "apiCall",
+                                "id": "place",
+                                "input": {
+                                  "input": {
+                                    "items": [
+                                      {
+                                        "productId": {
+                                          "$expr": "item"
+                                        },
+                                        "quantity": 1
+                                      }
+                                    ]
+                                  },
+                                  "operation": "orders.place"
+                                },
+                                "onError": "failed"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "clear",
+                                "input": {
+                                  "path": "plugin.cartIds",
+                                  "value": {
+                                    "$expr": "[]"
+                                  }
+                                },
+                                "next": "clearNames"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "clearNames",
+                                "input": {
+                                  "path": "plugin.cartNames",
+                                  "value": {
+                                    "$expr": "[]"
+                                  }
+                                },
+                                "next": "clearPrices"
+                              },
+                              {
+                                "action": "setState",
+                                "id": "clearPrices",
+                                "input": {
+                                  "path": "plugin.cartPrices",
+                                  "value": {
+                                    "$expr": "[]"
+                                  }
+                                },
+                                "next": "go"
+                              },
+                              {
+                                "action": "navigate",
+                                "id": "go",
+                                "input": {
+                                  "mode": "replace",
+                                  "params": {
+                                    "orderId": {
+                                      "$expr": "steps.place.output?.id ?? \"\""
+                                    }
+                                  },
+                                  "route": "order"
+                                }
+                              },
+                              {
+                                "action": "setState",
+                                "id": "failed",
+                                "input": {
+                                  "path": "page.error",
+                                  "value": "The order could not be placed."
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "01d0c450-6c00-7000-8000-000000003029",
+                        "slots": {
+                          "child": {
+                            "id": "01d0c450-6c00-7000-8000-000000003028",
+                            "props": {
+                              "data": {
+                                "$t": "01a14cd1-ca0c-7040-9950-f9d7955685d7"
+                              }
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "testId": "place-order",
+                        "type": "FilledButton",
+                        "visible": {
+                          "$expr": "size(plugin.cartIds) > 0"
+                        }
                       }
                     },
                     "testId": "cart-total",
-                    "type": "Text"
+                    "type": "CartSummary"
                   },
                   {
                     "id": "01d0c450-6c00-7000-8000-000000003026",
@@ -109,114 +235,6 @@
                       "height": 8.0
                     },
                     "type": "SizedBox"
-                  },
-                  {
-                    "events": {
-                      "onPressed": {
-                        "steps": [
-                          {
-                            "action": "forEach",
-                            "branches": {
-                              "body": "place"
-                            },
-                            "id": "each",
-                            "input": {
-                              "items": {
-                                "$expr": "plugin.cartIds"
-                              }
-                            },
-                            "next": "clear"
-                          },
-                          {
-                            "action": "apiCall",
-                            "id": "place",
-                            "input": {
-                              "input": {
-                                "items": [
-                                  {
-                                    "productId": {
-                                      "$expr": "item"
-                                    },
-                                    "quantity": 1
-                                  }
-                                ]
-                              },
-                              "operation": "orders.place"
-                            },
-                            "onError": "failed"
-                          },
-                          {
-                            "action": "setState",
-                            "id": "clear",
-                            "input": {
-                              "path": "plugin.cartIds",
-                              "value": {
-                                "$expr": "[]"
-                              }
-                            },
-                            "next": "clearNames"
-                          },
-                          {
-                            "action": "setState",
-                            "id": "clearNames",
-                            "input": {
-                              "path": "plugin.cartNames",
-                              "value": {
-                                "$expr": "[]"
-                              }
-                            },
-                            "next": "clearPrices"
-                          },
-                          {
-                            "action": "setState",
-                            "id": "clearPrices",
-                            "input": {
-                              "path": "plugin.cartPrices",
-                              "value": {
-                                "$expr": "[]"
-                              }
-                            },
-                            "next": "go"
-                          },
-                          {
-                            "action": "navigate",
-                            "id": "go",
-                            "input": {
-                              "mode": "replace",
-                              "params": {
-                                "orderId": {
-                                  "$expr": "steps.place.output?.id ?? \"\""
-                                }
-                              },
-                              "route": "order"
-                            }
-                          },
-                          {
-                            "action": "setState",
-                            "id": "failed",
-                            "input": {
-                              "path": "page.error",
-                              "value": "The order could not be placed."
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    "id": "01d0c450-6c00-7000-8000-000000003029",
-                    "slots": {
-                      "child": {
-                        "id": "01d0c450-6c00-7000-8000-000000003028",
-                        "props": {
-                          "data": "Place order"
-                        },
-                        "type": "Text"
-                      }
-                    },
-                    "testId": "place-order",
-                    "type": "FilledButton",
-                    "visible": {
-                      "$expr": "size(plugin.cartIds) > 0"
-                    }
                   }
                 ],
                 "id": "01d0c450-6c00-7000-8000-00000000302a",
@@ -248,5 +266,7 @@
       "type": "string"
     }
   ],
-  "title": "Cart"
+  "title": {
+    "$t": "01a14cd1-ca0c-74ea-be85-46f2d772481d"
+  }
 }
