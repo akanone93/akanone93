@@ -44,16 +44,14 @@ class AccessibilityTreeTest {
         assertReadsInOrder(listOf("Loaded 10 products", "Product 01"), partial = true)
         assertInteractiveControlsAreLabelled()
 
-        click(waitFor("Product 01", partial = true))
-        waitFor("In cart: 0")
+        activate(waitFor("Product 01", partial = true), opens = "In cart: 0")
         assertReadsInOrder(listOf("Add to cart", "In cart: 0"))
         assertInteractiveControlsAreLabelled()
 
-        click(waitFor("Add to cart"))
-        waitFor("In cart: 1")
-        click(waitFor("Cart (1)"))
+        // Adding twice would be a second item, so it is activated once.
+        activate(waitFor("Add to cart"), opens = "In cart: 1", attempts = 1)
         // The summary's total reads its label, then the amount in words.
-        waitFor("Total", partial = true)
+        activate(waitFor("Cart (1)"), opens = "Total", partial = true)
         assertReadsInOrder(listOf("Total", "Place order"), partial = true)
         assertInteractiveControlsAreLabelled()
     }
@@ -146,6 +144,25 @@ class AccessibilityTreeTest {
     private fun click(node: Node) {
         val bounds = node.bounds
         device.click(bounds.centerX(), bounds.centerY())
+    }
+
+    // Activates the control as a screen reader does, through its click
+    // action, which holds wherever the control is while the page still moves
+    // (a route transition, data loading above it); a tap at its centre is the
+    // fallback. Then waits for what it opens, activating it again up to
+    // twice more when nothing opened.
+    private fun activate(control: Node, opens: String, partial: Boolean = false, attempts: Int = 3) {
+        var node = control
+        repeat(attempts) { attempt ->
+            if (attempt > 0) node = find(node.label) ?: node
+            if (!node.info.performAction(AccessibilityNodeInfo.ACTION_CLICK)) click(node)
+            val deadline = SystemClock.uptimeMillis() + 10_000
+            while (SystemClock.uptimeMillis() < deadline) {
+                if (find(opens, partial) != null) return
+                SystemClock.sleep(200)
+            }
+        }
+        waitFor(opens, partial)
     }
 
     // Starts the app anew; its settings are those it was built with.

@@ -34,7 +34,9 @@ void main() {
     kind: StreamKind.webSocket,
     url: Uri.parse('wss://localhost:${server.port}/live'),
     maxMessageBytes: 1000,
-    connectTimeout: const Duration(seconds: 5),
+    // Not what these tests check: a loaded CI runner can take seconds to
+    // finish a TLS handshake on localhost.
+    connectTimeout: const Duration(seconds: 30),
   );
 
   WebSocketClients sockets({String? host, List<String>? pins}) =>
@@ -89,6 +91,7 @@ void main() {
         await transport(s).open(request());
         fail('the stream opened');
       } on DataFailure catch (f) {
+        expect(f.code, PluxErrorCode.certificatePinMismatch, reason: f.message);
         expect(streamRetryable(f), isFalse);
       }
     },

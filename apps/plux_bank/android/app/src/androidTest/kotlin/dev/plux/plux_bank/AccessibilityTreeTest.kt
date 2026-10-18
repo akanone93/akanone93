@@ -51,15 +51,13 @@ class AccessibilityTreeTest {
         type(waitFor("Username", partial = true), "demo")
         for (digit in "246810") click(reveal(digit.toString()))
         type(reveal("One-time code", partial = true), "123456")
-        click(reveal("Sign in"))
+        activate(reveal("Sign in"), opens = "New transfer")
 
-        waitFor("New transfer")
         assertReadsInOrder(listOf("New transfer"))
         assertInteractiveControlsAreLabelled()
 
         // The balance is what the flows' transfers left, so only its start is known.
-        click(waitFor("New transfer"))
-        waitFor("Available: ", partial = true)
+        activate(waitFor("New transfer"), opens = "Available: ", partial = true)
         assertReadsInOrder(listOf("Available: ", "Recipient IBAN", "Amount (EUR)"), partial = true)
         assertInteractiveControlsAreLabelled()
     }
@@ -152,6 +150,25 @@ class AccessibilityTreeTest {
     private fun click(node: Node) {
         val bounds = node.bounds
         device.click(bounds.centerX(), bounds.centerY())
+    }
+
+    // Activates the control as a screen reader does, through its click
+    // action, which holds wherever the control is while the page still moves
+    // (a route transition, data loading above it); a tap at its centre is the
+    // fallback. Then waits for what it opens, activating it again up to
+    // twice more when nothing opened.
+    private fun activate(control: Node, opens: String, partial: Boolean = false, attempts: Int = 3) {
+        var node = control
+        repeat(attempts) { attempt ->
+            if (attempt > 0) node = find(node.label) ?: node
+            if (!node.info.performAction(AccessibilityNodeInfo.ACTION_CLICK)) click(node)
+            val deadline = SystemClock.uptimeMillis() + 10_000
+            while (SystemClock.uptimeMillis() < deadline) {
+                if (find(opens, partial) != null) return
+                SystemClock.sleep(200)
+            }
+        }
+        waitFor(opens, partial)
     }
 
     // Starts the app anew; its settings are those it was built with.
