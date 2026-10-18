@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: Apache-2.0
 
-/// The navigation and menu builders (WGT-001, ADR-0071): menus, search,
-/// the date picker, tabs, bars, drawers and the rail. Flutter's controllers
+/// The navigation and menu builders (WGT-001, ADR-0071): menus, tabs, bars
+/// and drawers. Search, the date picker and the rail are built by
+/// `plux_components` (RT-060, RT-061). Flutter's controllers
 /// map to state (ADR-0071): a widget shows the index its prop gives, keeps
 /// the user's choice until the prop changes, and fires the event with it, so
 /// a page binds both to one state key. Entries are lists of small value
@@ -10,7 +11,6 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:plux_flutter/src/pxl/values.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
@@ -22,18 +22,6 @@ const int popupMenuButtonWidgetId = 120;
 
 /// The permanent ID of `MenuAnchor`.
 const int menuAnchorWidgetId = 121;
-
-/// The permanent ID of `SearchBar`.
-const int searchBarWidgetId = 122;
-
-/// The permanent ID of `SearchAnchor`.
-const int searchAnchorWidgetId = 123;
-
-/// The permanent ID of `Autocomplete`.
-const int autocompleteWidgetId = 124;
-
-/// The permanent ID of `CalendarDatePicker`.
-const int calendarDatePickerWidgetId = 125;
 
 /// The permanent ID of `TabBar`.
 const int tabBarWidgetId = 126;
@@ -53,24 +41,16 @@ const int drawerWidgetId = 130;
 /// The permanent ID of `NavigationDrawer`.
 const int navigationDrawerWidgetId = 131;
 
-/// The permanent ID of `NavigationRail`.
-const int navigationRailWidgetId = 132;
-
 /// The builders of the navigation group, by permanent widget ID.
 const Map<int, NodeBuilder> navigationBuilders = {
   popupMenuButtonWidgetId: _popupMenuButton,
   menuAnchorWidgetId: _menuAnchor,
-  searchBarWidgetId: _searchBar,
-  searchAnchorWidgetId: _searchAnchor,
-  autocompleteWidgetId: _autocomplete,
-  calendarDatePickerWidgetId: _calendarDatePicker,
   tabBarWidgetId: _tabBar,
   tabBarViewWidgetId: _tabBarView,
   navigationBarWidgetId: _navigationBar,
   bottomNavigationBarWidgetId: _bottomNavigationBar,
   drawerWidgetId: _drawer,
   navigationDrawerWidgetId: _navigationDrawer,
-  navigationRailWidgetId: _navigationRail,
 };
 
 // ── Entries ────────────────────────────────────────────────────────────────
@@ -212,133 +192,6 @@ Widget _menuAnchor(NodeContext c) {
         ),
       ),
     ),
-  );
-}
-
-// ── Search ─────────────────────────────────────────────────────────────────
-
-Widget _searchBar(NodeContext c) {
-  return c.text(
-    c.decode(1, asString) ?? '',
-    (controller) => SearchBar(
-      controller: controller,
-      hintText: c.decode(2, asString),
-      leading: c.slot(1),
-      trailing: c.hasSlot(2) ? c.slotList(2) : null,
-      onChanged: c.handles(1) ? (v) => c.fire(1, v) : null,
-      onSubmitted: c.handles(2) ? (v) => c.fire(2, v) : null,
-      onTap: c.handles(3) ? () => c.fire(3) : null,
-    ),
-  );
-}
-
-Widget _searchAnchor(NodeContext c) {
-  final suggestions = c.decode(1, asStrings) ?? c.missing('suggestions');
-  final hint = c.decode(4, asString);
-  return SearchAnchor(
-    isFullScreen: c.decode(2, asBool),
-    viewHintText: c.decode(3, asString),
-    builder: (context, controller) => SearchBar(
-      controller: controller,
-      hintText: hint,
-      leading: const Icon(Icons.search),
-      onTap: controller.openView,
-      onChanged: (_) => controller.openView(),
-    ),
-    suggestionsBuilder: (context, controller) {
-      final query = controller.text.toLowerCase();
-      return [
-        for (final s in suggestions)
-          if (s.toLowerCase().contains(query))
-            keepScope(
-              c.context,
-              ListTile(
-                title: Text(s),
-                onTap: () {
-                  controller.closeView(s);
-                  if (c.handles(1)) c.fire(1, s);
-                },
-              ),
-            ),
-      ];
-    },
-  );
-}
-
-Widget _autocomplete(NodeContext c) {
-  final options = c.decode(1, asStrings) ?? c.missing('options');
-  final hint = c.decode(2, asString);
-  return Autocomplete<String>(
-    optionsBuilder: (value) {
-      final query = value.text.toLowerCase();
-      if (query.isEmpty) return const Iterable<String>.empty();
-      return options.where((o) => o.toLowerCase().contains(query));
-    },
-    optionsMaxHeight: c.decode(3, asDouble) ?? 200.0,
-    initialValue: TextEditingValue(text: c.decode(4, asString) ?? ''),
-    onSelected: c.handles(1) ? (v) => c.fire(1, v) : null,
-    optionsViewBuilder: (context, onSelected, opts) => keepScope(
-      c.context,
-      Align(
-        alignment: Alignment.topLeft,
-        child: Material(
-          elevation: 4,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: c.decode(3, asDouble) ?? 200.0,
-            ),
-            child: ListView(
-              padding: EdgeInsets.zero,
-              shrinkWrap: true,
-              children: [
-                for (final o in opts)
-                  ListTile(title: Text(o), onTap: () => onSelected(o)),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ),
-    fieldViewBuilder: (context, controller, focusNode, onSubmitted) =>
-        TextField(
-          controller: controller,
-          focusNode: focusNode,
-          decoration: InputDecoration(hintText: hint),
-          onSubmitted: (_) => onSubmitted(),
-        ),
-  );
-}
-
-// ── Date picker ────────────────────────────────────────────────────────────
-
-DateTime? _date(Decoding d, Object? v) {
-  if (v is! PxlDate) return null;
-  final u = DateTime.fromMillisecondsSinceEpoch(v.days * 86400000, isUtc: true);
-  return DateTime(u.year, u.month, u.day);
-}
-
-PxlDate _pxlDate(DateTime t) => PxlDate(
-  DateTime.utc(t.year, t.month, t.day).millisecondsSinceEpoch ~/ 86400000,
-);
-
-Widget _calendarDatePicker(NodeContext c) {
-  final first = c.decode(2, _date) ?? c.missing('firstDate');
-  final last = c.decode(3, _date) ?? c.missing('lastDate');
-  if (last.isBefore(first)) c.missing('lastDate (not before firstDate)');
-  var initial = c.decode(1, _date) ?? c.missing('initialDate');
-  if (initial.isBefore(first)) initial = first;
-  if (initial.isAfter(last)) initial = last;
-  return CalendarDatePicker(
-    initialDate: initial,
-    firstDate: first,
-    lastDate: last,
-    currentDate: c.decode(4, _date),
-    onDateChanged: (date) {
-      if (c.handles(1)) c.fire(1, _pxlDate(date));
-    },
-    onDisplayedMonthChanged: c.handles(2)
-        ? (date) => c.fire(2, _pxlDate(date))
-        : null,
   );
 }
 
@@ -532,40 +385,6 @@ Widget _navigationDrawer(NodeContext c) {
       children: [
         for (final e in dests)
           NavigationDrawerDestination(
-            icon: e.icon!,
-            selectedIcon: e.selectedIcon,
-            label: Text(e.label),
-          ),
-      ],
-    ),
-  );
-}
-
-Widget _navigationRail(NodeContext c) {
-  final dests = _atLeastTwo(c, 1, 'destinations');
-  final extended = c.decode(3, asBool) ?? false;
-  return c.controlled<int>(
-    1,
-    c.decode(2, asInt) ?? 0,
-    (selected, onChanged) => NavigationRail(
-      selectedIndex: _clamp(selected, dests.length),
-      onDestinationSelected: onChanged,
-      extended: extended,
-      // An extended rail shows its labels beside the icons (Flutter asserts
-      // that no label type is set).
-      labelType: extended ? null : c.decode(4, decodeNavigationRailLabelType),
-      backgroundColor: c.decode(5, asColor),
-      elevation: c.decode(6, asDouble),
-      groupAlignment: c.decode(7, asDouble),
-      minWidth: c.decode(8, asDouble),
-      minExtendedWidth: c.decode(9, asDouble),
-      useIndicator: c.decode(10, asBool),
-      indicatorColor: c.decode(11, asColor),
-      leading: c.slot(1),
-      trailing: c.slot(2),
-      destinations: [
-        for (final e in dests)
-          NavigationRailDestination(
             icon: e.icon!,
             selectedIcon: e.selectedIcon,
             label: Text(e.label),

@@ -40,30 +40,59 @@ var deviceActions = map[string]struct{ api, pkg string }{
 	"getLocation":       {api: "location", pkg: "plux_location"},
 }
 
+// deviceWidget is what a widget needs besides the core runtime: a device
+// API, the optional package whose builder renders it (the descriptor's
+// package field) and, for a widget that picks or captures through a device
+// package, that package as well.
+type deviceWidget struct{ api, pkg, device string }
+
+// componentWidgets are the widgets plux_components renders: the Layer 2
+// components most apps do not use and the Layer 1 widgets that pull large
+// parts of the Flutter framework (RT-060, RT-061).
+var componentWidgets = []string{
+	"AccountCard", "AmountInput", "Autocomplete", "CalendarDatePicker", "CartSummary",
+	"Carousel", "ConsentCheckbox", "CountdownTimer", "CountryPicker", "CupertinoContextMenu",
+	"CupertinoDatePicker", "CupertinoPicker", "CurrencyPicker", "DataTable", "DragTarget",
+	"Draggable", "FileUploader", "FilterBar", "IbanInput", "ImageGallery", "InfiniteList",
+	"InteractiveViewer", "LiveEtaCard", "MaskedText", "MoneyText", "NavigationRail",
+	"NestedScrollView", "OnboardingPager", "PaymentCard", "PhoneInput", "PriceTag",
+	"ProductCard", "ProfileHeader", "PromoBanner", "QuantityStepper", "RatingBar",
+	"RatingInput", "ReorderableListView", "SearchAnchor", "SearchBar", "SearchField",
+	"SettingsList", "SortSheet", "StatusTimeline", "Stepper", "Table",
+	"TransactionListItem", "WizardForm",
+}
+
 // deviceWidgets is every widget that needs a device API or an optional
 // package, keyed by widget type (SEC-080, RT-060). The package is the
-// descriptor's package field; FileUploader and KycCameraCapture are
-// provided by plux_media although their descriptors do not say so.
-var deviceWidgets = map[string]struct{ api, pkg string }{
-	"QrScanner":        {api: "camera", pkg: "plux_scanner"},
-	"BarcodeScanner":   {api: "camera", pkg: "plux_scanner"},
-	"QrCodeView":       {pkg: "plux_scanner"},
-	"KycCameraCapture": {api: "camera", pkg: "plux_media"},
-	"FileUploader":     {api: "files", pkg: "plux_media"},
-	"SignaturePad":     {pkg: "plux_media"},
-	"VideoPlayer":      {pkg: "plux_player"},
-	"AudioPlayer":      {pkg: "plux_player"},
-	"MapView":          {pkg: "plux_maps"},
-	"OrderTrackerMap":  {pkg: "plux_maps"},
-	"LineChart":        {pkg: "plux_charts"},
-	"BarChart":         {pkg: "plux_charts"},
-	"PieChart":         {pkg: "plux_charts"},
-	"Sparkline":        {pkg: "plux_charts"},
-	"MarkdownView":     {pkg: "plux_markdown"},
-	"TermsViewer":      {pkg: "plux_markdown"},
-	"LottieView":       {pkg: "plux_lottie"},
-	"RiveView":         {pkg: "plux_rive"},
-}
+// descriptor's package field; a test compares them. FileUploader and
+// KycCameraCapture also need plux_media to pick or capture, although their
+// descriptors name the package that renders them.
+var deviceWidgets = func() map[string]deviceWidget {
+	m := map[string]deviceWidget{
+		"QrScanner":        {api: "camera", pkg: "plux_scanner"},
+		"BarcodeScanner":   {api: "camera", pkg: "plux_scanner"},
+		"QrCodeView":       {pkg: "plux_scanner"},
+		"KycCameraCapture": {api: "camera", pkg: "plux_media"},
+		"SignaturePad":     {pkg: "plux_media"},
+		"VideoPlayer":      {pkg: "plux_player"},
+		"AudioPlayer":      {pkg: "plux_player"},
+		"MapView":          {pkg: "plux_maps"},
+		"OrderTrackerMap":  {pkg: "plux_maps"},
+		"LineChart":        {pkg: "plux_charts"},
+		"BarChart":         {pkg: "plux_charts"},
+		"PieChart":         {pkg: "plux_charts"},
+		"Sparkline":        {pkg: "plux_charts"},
+		"MarkdownView":     {pkg: "plux_markdown"},
+		"TermsViewer":      {pkg: "plux_markdown"},
+		"LottieView":       {pkg: "plux_lottie"},
+		"RiveView":         {pkg: "plux_rive"},
+	}
+	for _, w := range componentWidgets {
+		m[w] = deviceWidget{pkg: "plux_components"}
+	}
+	m["FileUploader"] = deviceWidget{api: "files", pkg: "plux_components", device: "plux_media"}
+	return m
+}()
 
 // permissionAPIs are the device APIs a platform asks the user to permit:
 // the values requestPermission accepts.
@@ -212,8 +241,10 @@ func (u *unit) checkDeviceWidget(n *node, file string) {
 		u.report(plxerr.DeviceCapabilityUndeclared, file, ptr,
 			"%s needs the device API %q, which the plugin does not declare in capabilities.deviceApis", n.widget.Type, api)
 	}
-	if use.pkg != "" {
-		u.deviceUses = append(u.deviceUses, DeviceUse{Package: use.pkg, Action: n.widget.Type, File: file, Path: ptr})
+	for _, pkg := range []string{use.pkg, use.device} {
+		if pkg != "" {
+			u.deviceUses = append(u.deviceUses, DeviceUse{Package: pkg, Action: n.widget.Type, File: file, Path: ptr})
+		}
 	}
 }
 

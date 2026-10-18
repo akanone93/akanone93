@@ -73,14 +73,15 @@ root public keys (`--env`, as `plux keys`), then:
 
 1. adds `plux_flutter` to `pubspec.yaml`'s dependencies, `plux_go_router` or
    `plux_auto_route` when the app depends on `go_router` or `auto_route`, and the optional
-   packages the app uses: those `--packages` names (comma-separated: `plux_db_drift`,
-   `plux_location`, `plux_lottie`, `plux_media`, `plux_rive`, `plux_scanner`) and those the
-   device actions of the Plux project at `--project <dir>` need (`RT-060`);
+   packages the app uses: those `--packages` names (comma-separated: `plux_charts`,
+   `plux_components`, `plux_db_drift`, `plux_location`, `plux_lottie`, `plux_maps`,
+   `plux_markdown`, `plux_media`, `plux_player`, `plux_rive`, `plux_scanner`) and those the
+   device actions and widgets of the Plux project at `--project <dir>` need (`RT-060`);
 2. writes `plux.yaml` when the app has none, with the Android `applicationId` as `appId`
    when it finds one;
 3. writes `lib/plux/plux_options.g.dart`: `PluxOptions` with the app, server and
    environment, the root keys embedded (`SEC-051`), and `PluxOptions.config()`, which
-   registers the optional packages (`devicePackages`, `nativeSlots`, `databaseAdapter`);
+   registers the optional packages (`devicePackages`, `widgetPackages`, `nativeSlots`, `databaseAdapter`);
    with `plux_scanner`, which opens a page of its own, `PluxOptions.rootNavigatorKey` is
    the navigator it uses when `config()` gets none — give it to the app's `MaterialApp`;
 4. calls `Plux.initialize(PluxOptions.config())` in `lib/main.dart` and wraps the app in

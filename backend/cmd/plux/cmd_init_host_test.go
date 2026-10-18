@@ -5,6 +5,7 @@ package main
 
 import (
 	"bytes"
+	"cmp"
 	"encoding/json"
 	"flag"
 	"os"
@@ -175,7 +176,7 @@ func TestInitConstraints(t *testing.T) {
 	version := regexp.MustCompile(`(?m)^version: (\d+\.\d+)\.\d+`)
 	constraints := map[string]string{"plux_flutter": runtimeConstraint, "plux_go_router": adapterConstraint, "plux_auto_route": adapterConstraint}
 	for _, p := range codegen.OptionalPackages() {
-		constraints[p.Name] = optionalConstraint
+		constraints[p.Name] = cmp.Or(p.Constraint, optionalConstraint)
 	}
 	for pkg, constraint := range constraints {
 		m := version.FindStringSubmatch(read(t, filepath.Join("..", "..", "..", "packages", pkg, "pubspec.yaml")))
@@ -268,7 +269,7 @@ func TestHostPackages(t *testing.T) {
 		{name: "none"},
 		{name: "named", list: "plux_rive, plux_lottie,plux_rive", want: []string{"plux_lottie", "plux_rive"}},
 		{name: "unknown", list: "plux_camera", err: `unknown package "plux_camera"`},
-		{name: "project", list: "plux_media,plux_lottie", project: project, want: []string{"plux_lottie", "plux_media"}},
+		{name: "project", list: "plux_media,plux_lottie", project: project, want: []string{"plux_components", "plux_lottie", "plux_media"}},
 		{name: "project without device actions", project: projectDir},
 		{name: "not a directory", project: filepath.Join(project, "app.json"), err: "is not a directory"},
 	} {
@@ -302,6 +303,7 @@ func TestOptionsRegisterPackages(t *testing.T) {
 		"static final rootNavigatorKey = GlobalKey<NavigatorState>();",
 		"        navigatorKey: navigatorKey ?? rootNavigatorKey,\n" +
 			"        devicePackages: [PluxMedia(), PluxScanner(navigatorKey: navigatorKey ?? rootNavigatorKey)],\n" +
+			"        widgetPackages: [PluxLottieWidgets(), PluxMediaWidgets(), PluxScannerWidgets()],\n" +
 			"        nativeSlots: {...PluxLottie.slots},\n" +
 			"        databaseAdapter: PluxDriftAdapter(),\n      );\n}\n",
 	} {

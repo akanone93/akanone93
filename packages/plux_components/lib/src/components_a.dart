@@ -14,39 +14,19 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:plux_flutter/src/forms/form_state.dart';
-import 'package:plux_flutter/src/l10n/runtime_strings.dart';
-import 'package:plux_flutter/src/render/builders/builders.dart';
-import 'package:plux_flutter/src/render/decoders.dart';
-import 'package:plux_flutter/src/render/decoding.dart';
-import 'package:plux_flutter/src/render/generated/render.g.dart';
-import 'package:plux_flutter/src/render/node_context.dart';
-import 'package:plux_flutter/src/render/scope.dart';
-import 'package:plux_flutter/src/schema/registry.g.dart';
+import 'package:plux_components/src/ids.dart';
+import 'package:plux_flutter/plux_flutter.dart';
 
-/// The IDs of one widget of the registry.
-final class _Ids {
-  _Ids(String type) : _d = widgetDescriptors.firstWhere((d) => d.type == type);
-
-  final WidgetDescriptor _d;
-
-  int get id => _d.id;
-  int p(String name) => _d.props[name]!;
-  int e(String name) => _d.events[name]!;
-  int s(String name) => _d.slots[name]!;
-}
-
-final _consent = _Ids('ConsentCheckbox');
-final _search = _Ids('SearchField');
-final _filter = _Ids('FilterBar');
-final _sort = _Ids('SortSheet');
-final _infinite = _Ids('InfiniteList');
-final _wizard = _Ids('WizardForm');
-final _pager = _Ids('OnboardingPager');
-final _settings = _Ids('SettingsList');
-final _profile = _Ids('ProfileHeader');
-final _timeline = _Ids('StatusTimeline');
+final _consent = componentIds['ConsentCheckbox']!;
+final _search = componentIds['SearchField']!;
+final _filter = componentIds['FilterBar']!;
+final _sort = componentIds['SortSheet']!;
+final _infinite = componentIds['InfiniteList']!;
+final _wizard = componentIds['WizardForm']!;
+final _pager = componentIds['OnboardingPager']!;
+final _settings = componentIds['SettingsList']!;
+final _profile = componentIds['ProfileHeader']!;
+final _timeline = componentIds['StatusTimeline']!;
 
 /// The builders of group A, by permanent widget ID.
 final Map<int, NodeBuilder> componentsABuilders = {
@@ -539,7 +519,7 @@ Widget buildWizardForm(NodeContext c) {
   );
 }
 
-final class _Wizard extends ConsumerStatefulWidget {
+final class _Wizard extends StatefulWidget {
   const _Wizard({
     required this.c,
     required this.step,
@@ -561,46 +541,21 @@ final class _Wizard extends ConsumerStatefulWidget {
   final ValueChanged<int> setStep;
 
   @override
-  ConsumerState<_Wizard> createState() => _WizardState();
+  State<_Wizard> createState() => _WizardState();
 }
 
-final class _WizardState extends ConsumerState<_Wizard> {
+final class _WizardState extends State<_Wizard> {
   bool _busy = false;
-
-  /// The form below the nearest `FormScope`, or null outside one.
-  FormController? _form() {
-    final scope = RenderScope.of(context);
-    final alias = scope.formAlias;
-    if (alias == null) return null;
-    final parts = alias.split('.');
-    final instance = parts.first == 'component'
-        ? scope.componentState
-        : scope.state;
-    if (instance == null) return null;
-    return ref.read(pageStateProvider(instance).notifier).form(parts.last);
-  }
 
   /// Whether the fields of the shown step pass their validators. Other
   /// steps' fields are not shown as touched.
-  Future<bool> _valid() async {
-    final form = _form();
-    if (form == null) return true;
+  Future<bool> _valid() {
     final mine = <String>{
       if (widget.step < widget.fields.length)
         for (final f in widget.fields[widget.step].split(','))
           if (f.trim().isNotEmpty) f.trim(),
     };
-    if (mine.isEmpty) return true;
-    final touchedBefore = form.host.read()?['touched'];
-    await form.validate();
-    final state = form.host.read();
-    for (final f in form.decl.fields) {
-      if (mine.contains(f.name)) continue;
-      final was = touchedBefore is Map ? touchedBefore[f.name] == true : false;
-      form.writeTouched(f.name, touched: was);
-    }
-    final errors = state?['errors'];
-    return errors is! Map || mine.every((f) => errors[f] == null);
+    return widget.c.validateFields(mine);
   }
 
   Future<void> _go(int delta) async {

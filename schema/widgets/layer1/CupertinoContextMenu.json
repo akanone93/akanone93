@@ -32,6 +32,7 @@
     "minTarget": true
   },
   "typeParameters": [],
+  "package": "plux_components",
   "props": [
     {
       "name": "actions",

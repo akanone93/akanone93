@@ -1,0 +1,24 @@
+name: plux_components
+description: >-
+  The Layer 2 components most apps do not use, as an optional Plux widget
+  package: forms and lists, onboarding, commerce, ratings, uploads, and the
+  money and locale components.
+version: 0.1.0
+repository: https://github.com/nightCode42/plux3/tree/main/packages/plux_components
+# Not published until its release is wired (release.yml, pub.dev).
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plux_flutter: ^0.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

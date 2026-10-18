@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
+import 'package:plux_components/plux_components.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_flutter/src/core/runtime.dart';
 import 'package:plux_flutter/src/render/renderer.dart';
@@ -71,7 +72,7 @@ final class Harness {
     bool? encryptLocalStores,
     KeyWrapper Function()? keyWrapper,
     SecurePlatforms secure = const SecurePlatforms(),
-    List<PluxWidgetPackage> widgetPackages = const [],
+    List<PluxWidgetPackage> widgetPackages = const [PluxComponents()],
     ProviderContainer? container,
     http.Client Function()? client,
   }) async {

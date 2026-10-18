@@ -50,10 +50,7 @@ import 'package:plux_flutter/src/pxl/vm.dart';
 import 'package:plux_flutter/src/render/builders/animation.dart';
 import 'package:plux_flutter/src/render/builders/builders.dart';
 import 'package:plux_flutter/src/render/builders/calendar.dart';
-import 'package:plux_flutter/src/render/builders/components_a.dart';
-import 'package:plux_flutter/src/render/builders/components_b.dart';
 import 'package:plux_flutter/src/render/builders/cupertino_more.dart';
-import 'package:plux_flutter/src/render/builders/money.dart';
 import 'package:plux_flutter/src/render/builders/navigation.dart';
 import 'package:plux_flutter/src/render/builders/scrolling.dart';
 import 'package:plux_flutter/src/render/builders/secure.dart';
@@ -85,14 +82,11 @@ final Map<int, NodeBuilder> nodeBuilders = {
   ...generatedBuilders,
   ...manualBuilders,
   ...navigationBuilders,
-  ...componentsABuilders,
   ...cupertinoMoreBuilders,
   ...secureBuilders,
   ...scrollingBuilders,
   ...animationBuilders,
-  ...componentsBBuilders,
   ...calendarBuilders,
-  ...moneyBuilders,
 };
 
 /// Renders pages of the active release.

@@ -6,10 +6,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plux_components/plux_components.dart';
+import 'package:plux_components/src/components_b.dart';
 import 'package:plux_flutter/plux_flutter.dart';
-import 'package:plux_flutter/src/render/builders/components_b.dart';
 
-import '../support/harness.dart';
+import '../../plux_flutter/test/support/harness.dart';
 
 /// The Layer 2 components of group B (WGT-020, A11Y-001): commerce,
 /// campaign, rating and media components, rendered from the gallery page
@@ -53,9 +54,12 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.runAsync(() async {
-      await h.startFrom(g.bundles['widgets/widgets.pxb']!, {
-        'gallery': g.bundles['widgets/gallery.pxb']!,
-      }, themeSource: PluxThemeSource.plux);
+      await h.startFrom(
+        g.bundles['widgets/widgets.pxb']!,
+        {'gallery': g.bundles['widgets/gallery.pxb']!},
+        themeSource: PluxThemeSource.plux,
+        widgetPackages: const [PluxComponents()],
+      );
       await h.loadIconFonts();
     });
     await tester.pumpWidget(

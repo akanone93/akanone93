@@ -13,7 +13,6 @@ import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/l10n/calendar/calendar.dart';
 import 'package:plux_flutter/src/l10n/locale_controller.dart';
 import 'package:plux_flutter/src/l10n/locale_host.dart';
-import 'package:plux_flutter/src/l10n/scope.dart';
 import 'package:plux_flutter/src/render/builders/calendar.dart';
 import 'package:plux_flutter/src/render/scope.dart';
 
@@ -215,29 +214,6 @@ void main() {
       throwsA(isA<ActionError>()),
     );
     expect(() => handler.run(ctx(), {}), throwsA(isA<ActionError>()));
-  });
-
-  testWidgets("a Layer 2 component's own words come from the runtime strings "
-      'of the locale [I18N-004] [ACT-020]', (tester) async {
-    final handle = tester.ensureSemantics();
-    await open(
-      tester,
-      'money',
-      plux: {
-        'de': {'price.was': 'statt'},
-      },
-    );
-    await switchTo(tester, const Locale('de'));
-    expect(
-      find.bySemanticsLabel(RegExp('^19,99 Euro, statt 29,99 Euro')),
-      findsOneWidget,
-    );
-    await switchTo(tester, const Locale('en'));
-    expect(
-      find.bySemanticsLabel(RegExp(r'19\.99.*, was .*29\.99')),
-      findsOneWidget,
-    );
-    handle.dispose();
   });
 
   // Verifies: I18N-011, I18N-003.

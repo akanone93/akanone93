@@ -15,7 +15,6 @@ import 'package:plux_flutter/src/core/features.dart';
 import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/device/platform.dart';
 import 'package:plux_flutter/src/device/services.dart';
-import 'package:plux_flutter/src/pxl/values.dart';
 
 import '../actions/engine_test.dart' show FakeNavigator, id, input, lit;
 

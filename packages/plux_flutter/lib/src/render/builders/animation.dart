@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /// The interaction and animation widgets of the catalogue catch-up
-/// (ADR-0071, WGT-003): `Dismissible`, `Draggable`, `DragTarget`,
-/// `InteractiveViewer`, `Hero`, `Timeline`, the implicit `Animated*` widgets
+/// (ADR-0071, WGT-003): `Dismissible`, `Hero`, `Timeline`, the implicit `Animated*` widgets
 /// and the timeline-driven `*Transition` widgets. All of them follow the
 /// platform's reduce-motion setting (ANI-007): an implicit animation then
 /// takes no time, and a timeline follows its own reduction.
@@ -21,21 +20,11 @@ import 'package:plux_flutter/src/animation/timeline_spec.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
-import 'package:plux_flutter/src/render/keep_scope.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
 import 'package:plux_flutter/src/render/scope.dart';
 
 /// Permanent widget ID of `Dismissible`.
 const int dismissibleWidgetId = 133;
-
-/// Permanent widget ID of `Draggable`.
-const int draggableWidgetId = 134;
-
-/// Permanent widget ID of `DragTarget`.
-const int dragTargetWidgetId = 135;
-
-/// Permanent widget ID of `InteractiveViewer`.
-const int interactiveViewerWidgetId = 136;
 
 /// Permanent widget ID of `Hero`.
 const int heroWidgetId = 137;
@@ -91,9 +80,6 @@ const int rotationTransitionWidgetId = 153;
 /// The builders of this group, by permanent widget ID.
 const Map<int, NodeBuilder> animationBuilders = {
   dismissibleWidgetId: _dismissible,
-  draggableWidgetId: _draggable,
-  dragTargetWidgetId: _dragTarget,
-  interactiveViewerWidgetId: _interactiveViewer,
   heroWidgetId: _hero,
   timelineWidgetId: _timeline,
   animatedContainerWidgetId: _animatedContainer,
@@ -235,66 +221,6 @@ final class _KeyedDismissibleState extends State<_KeyedDismissible> {
     );
   }
 }
-
-Widget _draggable(NodeContext c) => Draggable<Object>(
-  data: c.prop(1),
-  axis: c.decode(2, decodeAxis),
-  feedbackOffset: c.decode(3, decodeOffset) ?? Offset.zero,
-  maxSimultaneousDrags: c.decode(4, asInt),
-  ignoringFeedbackSemantics: c.decode(5, asBool) ?? true,
-  ignoringFeedbackPointer: c.decode(6, asBool) ?? true,
-  rootOverlay: c.decode(7, asBool) ?? false,
-  hitTestBehavior:
-      c.decode(8, decodeHitTestBehavior) ?? HitTestBehavior.deferToChild,
-  onDragStarted: c.handles(1) ? () => c.fire(1) : null,
-  onDragEnd: c.handles(2) ? (d) => c.fire(2, d.wasAccepted) : null,
-  onDragCompleted: c.handles(3) ? () => c.fire(3) : null,
-  onDraggableCanceled: c.handles(4) ? (_, _) => c.fire(4) : null,
-  feedback: keepScope(c.context, c.slot(2) ?? c.missing('feedback')),
-  childWhenDragging: c.slot(3),
-  child: c.slot(1) ?? c.missing('child'),
-);
-
-Widget _dragTarget(NodeContext c) {
-  final accepts = c.prop(1);
-  final tint = c.decode(2, asColor);
-  final child = c.slot(1) ?? c.missing('child');
-  return DragTarget<Object>(
-    hitTestBehavior:
-        c.decode(3, decodeHitTestBehavior) ?? HitTestBehavior.translucent,
-    onWillAcceptWithDetails: (d) => accepts == null || d.data == accepts,
-    onAcceptWithDetails: c.handles(1) ? (d) => c.fire(1, d.data) : null,
-    onLeave: c.handles(2) ? (_) => c.fire(2) : null,
-    builder: (context, candidates, rejected) {
-      if (candidates.isEmpty) return child;
-      final color =
-          tint ?? Theme.of(context).colorScheme.primary.withValues(alpha: 0.16);
-      return DecoratedBox(
-        position: DecorationPosition.foreground,
-        decoration: BoxDecoration(color: color),
-        child: child,
-      );
-    },
-  );
-}
-
-Widget _interactiveViewer(NodeContext c) => InteractiveViewer(
-  clipBehavior: c.decode(1, decodeClip) ?? Clip.hardEdge,
-  panAxis: c.decode(2, decodePanAxis) ?? PanAxis.free,
-  boundaryMargin: c.decode(3, decodeEdgeInsetsResolved) ?? EdgeInsets.zero,
-  constrained: c.decode(4, asBool) ?? true,
-  maxScale: c.decode(5, asDouble) ?? 2.5,
-  minScale: c.decode(6, asDouble) ?? 0.8,
-  interactionEndFrictionCoefficient: c.decode(7, asDouble) ?? 0.0000135,
-  panEnabled: c.decode(8, asBool) ?? true,
-  scaleEnabled: c.decode(9, asBool) ?? true,
-  scaleFactor: c.decode(10, asDouble) ?? 200.0,
-  alignment: _plainAlignment(c, 11),
-  trackpadScrollCausesScale: c.decode(12, asBool) ?? false,
-  onInteractionStart: c.handles(1) ? (_) => c.fire(1) : null,
-  onInteractionEnd: c.handles(2) ? (_) => c.fire(2) : null,
-  child: c.slot(1) ?? c.missing('child'),
-);
 
 // ── Hero and timelines ─────────────────────────────────────────────────────
 

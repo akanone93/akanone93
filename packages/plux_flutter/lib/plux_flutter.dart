@@ -11,6 +11,7 @@ library;
 
 export 'src/actions/trace.dart'
     show PluxActionTrace, PluxStepTrace, PluxTraceStatus;
+export 'src/assets/icon_fonts.dart' show PluxIconSource;
 export 'src/core/app_state.dart' show PluxState;
 export 'src/core/config.dart'
     show
@@ -71,7 +72,21 @@ export 'src/functions/engine.dart'
         PluxFunctionLimits,
         PluxFunctionOutput,
         PluxFunctionResult;
+export 'src/l10n/l10n.dart'
+    show
+        CurrencyDisplay,
+        FractionDigits,
+        L10nException,
+        MoneyOptions,
+        NumberOptions,
+        PluxCalendarDate,
+        PluxDateFormatting,
+        PluxDateOptions,
+        PluxDecimal,
+        PluxLocaleData,
+        PluxNumberFormatting;
 export 'src/l10n/runtime_strings.dart' show RuntimeStrings;
+export 'src/l10n/scope.dart' show PluxLocaleScope;
 export 'src/native_catalogue/registration.dart'
     show
         PluxNativeAction,
@@ -92,6 +107,22 @@ export 'src/navigation/router.dart' show PluxNotFoundPage;
 export 'src/navigation/shell.dart' show PluxShell, PluxShellScope, PluxShellTab;
 export 'src/platform/platform_services.dart'
     show PlatformSecretStore, platformStorageDirectory;
+export 'src/pxl/builtins.dart' show isIbanNumber;
+export 'src/pxl/decimal.dart' show Decimal;
+export 'src/pxl/phone.dart'
+    show isPhoneRegion, isValidPhone, phoneCallingCode, phoneRegions;
+export 'src/pxl/values.dart' show Money, PxlDate, PxlDateTime, civilFromDays;
+export 'src/render/builders/builders.dart' show ItemCollection;
+export 'src/render/decoders.dart'
+    show
+        decodeAlignment,
+        decodeEdgeInsets,
+        decodeEdgeInsetsResolved,
+        decodeIconData,
+        decodeIconWidget,
+        decodeImageSource,
+        decodeScrollPhysics,
+        decodeWidgetStateColor;
 export 'src/render/decoding.dart'
     show
         DecodeError,
@@ -106,7 +137,37 @@ export 'src/render/decoding.dart'
         asList,
         asString,
         asStrings;
+export 'src/render/generated/render.g.dart'
+    show
+        decodeAxis,
+        decodeBorderSide,
+        decodeBoxDecoration,
+        decodeClip,
+        decodeCupertinoDatePickerMode,
+        decodeDragStartBehavior,
+        decodeHitTestBehavior,
+        decodeNavigationRailLabelType,
+        decodeOffset,
+        decodePanAxis,
+        decodeScrollViewKeyboardDismissBehavior,
+        decodeTextBaseline,
+        decodeTextDirection,
+        decodeTextStyle,
+        nameCardBrand,
+        nameColumnWidthKind,
+        nameCountdownFormat,
+        nameListStatus,
+        nameMaskKind,
+        nameMoneyDisplay,
+        nameSignDisplay,
+        nameStepState,
+        nameStepperType,
+        nameTableCellVerticalAlignment,
+        nameTimelineStepState,
+        nameTransactionStatus;
+export 'src/render/keep_scope.dart' show keepScope;
 export 'src/render/node_context.dart' show NodeBuilder, NodeContext;
+export 'src/render/plux_icon.dart' show PluxIcon;
 export 'src/render/widget_package.dart' show PluxWidgetPackage;
 export 'src/runtime_info.dart';
 export 'src/security/key_wrap.dart'

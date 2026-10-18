@@ -15,42 +15,21 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:plux_flutter/src/l10n/l10n.dart';
-import 'package:plux_flutter/src/l10n/runtime_strings.dart';
-import 'package:plux_flutter/src/l10n/scope.dart';
-import 'package:plux_flutter/src/pxl/builtins.dart' show isIbanNumber;
-import 'package:plux_flutter/src/pxl/decimal.dart';
-import 'package:plux_flutter/src/pxl/phone.dart';
-import 'package:plux_flutter/src/pxl/values.dart';
-import 'package:plux_flutter/src/render/decoding.dart';
-import 'package:plux_flutter/src/render/generated/render.g.dart';
-import 'package:plux_flutter/src/render/node_context.dart';
-import 'package:plux_flutter/src/schema/registry.g.dart';
+import 'package:plux_components/src/ids.dart';
+import 'package:plux_flutter/plux_flutter.dart';
 
-/// The IDs of one widget of the registry.
-final class _Ids {
-  _Ids(String type) : _d = widgetDescriptors.firstWhere((d) => d.type == type);
-
-  final WidgetDescriptor _d;
-
-  int get id => _d.id;
-  int p(String name) => _d.props[name]!;
-  int e(String name) => _d.events[name]!;
-  int s(String name) => _d.slots[name]!;
-}
-
-final _amount = _Ids('AmountInput');
-final _moneyText = _Ids('MoneyText');
-final _masked = _Ids('MaskedText');
-final _phone = _Ids('PhoneInput');
-final _iban = _Ids('IbanInput');
-final _country = _Ids('CountryPicker');
-final _currency = _Ids('CurrencyPicker');
-final _price = _Ids('PriceTag');
-final _cart = _Ids('CartSummary');
-final _transaction = _Ids('TransactionListItem');
-final _account = _Ids('AccountCard');
-final _payment = _Ids('PaymentCard');
+final _amount = componentIds['AmountInput']!;
+final _moneyText = componentIds['MoneyText']!;
+final _masked = componentIds['MaskedText']!;
+final _phone = componentIds['PhoneInput']!;
+final _iban = componentIds['IbanInput']!;
+final _country = componentIds['CountryPicker']!;
+final _currency = componentIds['CurrencyPicker']!;
+final _price = componentIds['PriceTag']!;
+final _cart = componentIds['CartSummary']!;
+final _transaction = componentIds['TransactionListItem']!;
+final _account = componentIds['AccountCard']!;
+final _payment = componentIds['PaymentCard']!;
 
 /// The builders of the money group, by permanent widget ID.
 final Map<int, NodeBuilder> moneyBuilders = {

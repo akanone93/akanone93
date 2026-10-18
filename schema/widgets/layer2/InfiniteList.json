@@ -26,6 +26,7 @@
   "typeParameters": [
     "T"
   ],
+  "package": "plux_components",
   "props": [
     {
       "name": "items",

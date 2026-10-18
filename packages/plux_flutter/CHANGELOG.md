@@ -26,9 +26,20 @@ released yet.
   motion and high contrast.
 - **Catalogue catch-up (ADR-0071):** the Appendix C widgets of P3–P5 that had no descriptor,
   including the Layer 2 money, form, commerce and status components; `PluxWidgetPackage` for
-  optional widget packages (`plux_charts`, `plux_markdown`, `plux_player`, `plux_maps`,
-  `plux_maps_google`, scanner widgets in `plux_scanner`, `SignaturePad`, `LottieView`,
-  `RiveView`).
+  optional widget packages (`plux_charts`, `plux_components`, `plux_markdown`, `plux_player`,
+  `plux_maps`, `plux_maps_google`, scanner widgets in `plux_scanner`, `SignaturePad`,
+  `LottieView`, `RiveView`).
+- **Size (RT-060, RT-061):** the catch-up grew the core past its budgets, so the Layer 2
+  components most apps do not use and the Layer 1 widgets that pull large parts of the
+  framework (`Table`, `ReorderableListView`, `NestedScrollView`, `DataTable`, `Stepper`,
+  `SearchBar`, `SearchAnchor`, `Autocomplete`, `CalendarDatePicker`, `NavigationRail`,
+  `CupertinoPicker`, `CupertinoDatePicker`, `CupertinoContextMenu`, `Draggable`, `DragTarget`,
+  `InteractiveViewer`) moved to the optional package `plux_components`: register
+  `PluxComponents()` in `PluxConfig.widgetPackages`. The public API gains what a widget
+  package needs: `NodeContext.validateFields`, `filePicker`, `fileUpload` and
+  `reportDevicePackageMissing`, the decoders and value types the moved builders use
+  (`Money`, `Decimal`, `PluxLocaleScope`, `PluxLocaleData`, `keepScope`, …) and the phone and
+  IBAN checks.
 - **Integration (SEC-080, SEC-041, AST-002, SCH-012):** widgets that need a device API are
   refused without it; every remote image, Markdown image, Lottie and Rive file loads only from
   a declared HTTPS domain through the pinned client; under `pinnedMediaOnly` network video and

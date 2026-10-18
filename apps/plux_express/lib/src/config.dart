@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:flutter/foundation.dart';
+import 'package:plux_components/plux_components.dart';
 import 'package:plux_express/src/host.dart';
 import 'package:plux_express/src/reference_ca.dart';
 import 'package:plux_flutter/plux_flutter.dart';
@@ -146,8 +147,9 @@ final class ExpressConfig {
     baseline: baseline,
     // The instalment calculation runs on the device (FN-050, FN-055).
     functionEngine: PluxFunctions(),
-    // The order tracker map (OrderTrackerMap) comes from plux_maps.
-    widgetPackages: [PluxMaps()],
+    // The order tracker map (OrderTrackerMap) comes from plux_maps, the
+    // product and cart components from plux_components.
+    widgetPackages: [PluxMaps(), PluxComponents()],
     navigatorKey: host.navigatorKey,
     httpClient: trustReferenceCa ? referenceHttpClient : null,
     webSocketClient: trustReferenceCa ? referenceWebSocketClient : null,

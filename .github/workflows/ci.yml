@@ -325,7 +325,8 @@ jobs:
           #   Apache-2.0    clock, cryptography, material_color_utilities,
           #                 webdriver;
           #                 plux_flutter, plux_devtools, plux_go_router,
-          #                 plux_auto_route, plux_native_scan and plux_media
+          #                 plux_auto_route, plux_native_scan, plux_media and
+          #                 plux_components
           #                 are this repository's
           #                 (REUSE.toml), not yet on pub.dev
           #   BSD-3-Clause  the Dart team packages below, go_router,
@@ -372,7 +373,8 @@ jobs:
             pkg:pub/mime, pkg:pub/mobile_scanner, pkg:pub/native_toolchain_c,
             pkg:pub/node_preamble, pkg:pub/objective_c, pkg:pub/path,
             pkg:pub/petitparser, pkg:pub/platform, pkg:pub/plux_auto_route,
-            pkg:pub/plux_devtools, pkg:pub/plux_flutter,
+            pkg:pub/plux_components, pkg:pub/plux_devtools,
+            pkg:pub/plux_flutter,
             pkg:pub/plux_go_router, pkg:pub/plux_media,
             pkg:pub/plux_native_scan, pkg:pub/pool, pkg:pub/process,
             pkg:pub/pub_semver, pkg:pub/record_use, pkg:pub/rive,

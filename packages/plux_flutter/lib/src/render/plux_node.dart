@@ -8,6 +8,7 @@
 /// only when Flutter builds them (RT-011).
 library;
 
+import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
 import 'dart:typed_data';
@@ -17,6 +18,7 @@ import 'package:flutter/material.dart' show Theme, kToolbarHeight;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/actions/engine.dart';
 import 'package:plux_flutter/src/animation/interpolate.dart';
 import 'package:plux_flutter/src/animation/motion_node.dart';
@@ -26,9 +28,12 @@ import 'package:plux_flutter/src/bundle/container.dart';
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/bundle/safe_read.dart';
 import 'package:plux_flutter/src/core/app_state.dart';
-import 'package:plux_flutter/src/data/services.dart' show DataRoot;
+import 'package:plux_flutter/src/data/services.dart' show DataRoot, DataScope;
 import 'package:plux_flutter/src/db/row_identity.dart';
+import 'package:plux_flutter/src/device/types.dart'
+    show PluxMediaPicker, PluxPickedFile;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/forms/form_state.dart' show FormController;
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
 import 'package:plux_flutter/src/render/builders/secure.dart'
@@ -553,6 +558,89 @@ final class NodeContextImpl implements NodeContext, MotionSource {
   @override
   Widget? deviceRefusal(String api) =>
       scope.services.deviceRefusal(context, scope, api);
+
+  /// The form below the nearest `FormScope`, or null outside one.
+  FormController? _form() {
+    final alias = scope.formAlias;
+    if (alias == null) return null;
+    final parts = alias.split('.');
+    final instance = parts.first == 'component'
+        ? scope.componentState
+        : scope.state;
+    if (instance == null) return null;
+    return _ref.read(pageStateProvider(instance).notifier).form(parts.last);
+  }
+
+  @override
+  Future<bool> validateFields(Set<String> fields) async {
+    final form = _form();
+    if (form == null || fields.isEmpty) return true;
+    final touchedBefore = form.host.read()?['touched'];
+    await form.validate();
+    final state = form.host.read();
+    for (final f in form.decl.fields) {
+      if (fields.contains(f.name)) continue;
+      final was = touchedBefore is Map ? touchedBefore[f.name] == true : false;
+      form.writeTouched(f.name, touched: was);
+    }
+    final errors = state?['errors'];
+    return errors is! Map || fields.every((f) => errors[f] == null);
+  }
+
+  @override
+  Future<PluxPickedFile?> Function()? filePicker(List<String> mimeTypes) {
+    final step = scope.actions?.context;
+    final picker = step?.service<PluxMediaPicker>();
+    final device = step?.device;
+    if (picker == null || device == null) return null;
+    return () async {
+      try {
+        device.guard.admit(device.plugin, 'pickFile', {'mimeTypes': mimeTypes});
+      } on ActionError {
+        // Blocked: the guard has reported it.
+        return null;
+      }
+      final files = await picker.pickFiles(
+        mimeTypes: mimeTypes,
+        multiple: false,
+        limit: 1,
+      );
+      return files.isEmpty ? null : files.first;
+    };
+  }
+
+  @override
+  Future<String?> Function(
+    PluxPickedFile file,
+    void Function(double? fraction) progress,
+  )?
+  fileUpload(String source, String operation) {
+    final data = scope.actions?.context.data;
+    if (data == null) return null;
+    return (file, progress) async {
+      final param = data is DataScope
+          ? data[source]?.spec.operations[operation]?.transfer?.fileParam
+          : null;
+      try {
+        final out = await data.callOperation('$source.$operation', {
+          param ?? 'file': file.path,
+        }, onProgress: (p) => progress(p.total > 0 ? p.sent / p.total : null));
+        return out == null ? null : jsonEncode(toJson(out));
+      } on ActionError catch (e) {
+        throw PluxException(e.code, e.message);
+      }
+    };
+  }
+
+  @override
+  void reportDevicePackageMissing(String message) => scope.report(
+    PluxException(
+      PluxErrorCode.devicePackageMissing,
+      message,
+      details: {'plugin': scope.pluginKey},
+    ),
+    path: scope.path,
+  );
 
   @override
   ImageProvider<Object>? remoteImage(String url) => image(url: url);

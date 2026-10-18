@@ -23,6 +23,7 @@
     "role": "none",
     "interactive": false
   },
+  "package": "plux_components",
   "props": [
     {
       "name": "images",

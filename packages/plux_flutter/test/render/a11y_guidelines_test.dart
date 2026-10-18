@@ -14,8 +14,6 @@ void main() {
   const pages = [
     'animation',
     'collections',
-    'components-a',
-    'components-b',
     'cupertino-more',
     'cupertino',
     'inputs',

@@ -23,6 +23,7 @@
     "role": "group",
     "interactive": false
   },
+  "package": "plux_components",
   "props": [
     {
       "name": "lines",

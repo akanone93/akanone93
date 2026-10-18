@@ -23,6 +23,7 @@
     "role": "list",
     "interactive": false
   },
+  "package": "plux_components",
   "props": [
     {
       "name": "sections",

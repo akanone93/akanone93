@@ -12,47 +12,22 @@
 library;
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:plux_flutter/src/actions/action_error.dart';
-import 'package:plux_flutter/src/assets/icon_fonts.dart';
-import 'package:plux_flutter/src/data/services.dart' show DataScope;
-import 'package:plux_flutter/src/device/types.dart';
-import 'package:plux_flutter/src/errors/plux_exception.dart';
-import 'package:plux_flutter/src/l10n/runtime_strings.dart';
-import 'package:plux_flutter/src/pxl/types.dart' show toJson;
-import 'package:plux_flutter/src/pxl/values.dart';
-import 'package:plux_flutter/src/render/decoders.dart';
-import 'package:plux_flutter/src/render/decoding.dart';
-import 'package:plux_flutter/src/render/generated/render.g.dart';
-import 'package:plux_flutter/src/render/node_context.dart';
-import 'package:plux_flutter/src/render/plux_icon.dart';
-import 'package:plux_flutter/src/render/scope.dart';
-import 'package:plux_flutter/src/schema/registry.g.dart';
+import 'package:plux_components/src/ids.dart';
+import 'package:plux_flutter/plux_flutter.dart';
 
-/// A descriptor with name lookups for its permanent IDs.
-final class _D {
-  _D(String type) : d = widgetDescriptors.firstWhere((w) => w.type == type);
-
-  final WidgetDescriptor d;
-
-  int get id => d.id;
-  int p(String name) => d.props[name]!;
-  int e(String name) => d.events[name]!;
-}
-
-final _eta = _D('LiveEtaCard');
-final _product = _D('ProductCard');
-final _stepper = _D('QuantityStepper');
-final _carousel = _D('Carousel');
-final _promo = _D('PromoBanner');
-final _countdown = _D('CountdownTimer');
-final _ratingBar = _D('RatingBar');
-final _ratingInput = _D('RatingInput');
-final _gallery = _D('ImageGallery');
-final _uploader = _D('FileUploader');
+final _eta = componentIds['LiveEtaCard']!;
+final _product = componentIds['ProductCard']!;
+final _stepper = componentIds['QuantityStepper']!;
+final _carousel = componentIds['Carousel']!;
+final _promo = componentIds['PromoBanner']!;
+final _countdown = componentIds['CountdownTimer']!;
+final _ratingBar = componentIds['RatingBar']!;
+final _ratingInput = componentIds['RatingInput']!;
+final _gallery = componentIds['ImageGallery']!;
+final _uploader = componentIds['FileUploader']!;
 
 /// The builders of this group, by permanent widget ID.
 final Map<int, NodeBuilder> componentsBBuilders = {
@@ -1069,11 +1044,6 @@ Widget buildFileUploader(NodeContext c) {
       c.decode(_uploader.p('operation'), asString) ??
       c.missing('FileUploader.operation');
   final accept = c.decode(_uploader.p('accept'), asStrings) ?? const [];
-  final scope = RenderScope.of(c.context);
-  final step = scope.actions?.context;
-  final picker = step?.service<PluxMediaPicker>();
-  final device = step?.device;
-  final data = step?.data;
   final onUploaded = _uploader.e('onUploaded');
   final onFailed = _uploader.e('onFailed');
   return FileUploaderView(
@@ -1084,46 +1054,10 @@ Widget buildFileUploader(NodeContext c) {
         c.decode(_uploader.p('uploadLabel'), asString) ??
         RuntimeStrings.of(c.context)['plux.uploader.upload'],
     maxBytes: c.decode(_uploader.p('maxBytes'), asInt),
-    pick: picker == null || device == null
-        ? null
-        : () async {
-            try {
-              device.guard.admit(device.plugin, 'pickFile', {
-                'mimeTypes': accept,
-              });
-            } on ActionError {
-              // Blocked: the guard has reported it.
-              return null;
-            }
-            final files = await picker.pickFiles(
-              mimeTypes: accept,
-              multiple: false,
-              limit: 1,
-            );
-            return files.isEmpty ? null : files.first;
-          },
-    upload: data == null
-        ? null
-        : (file, progress) async {
-            final param = data is DataScope
-                ? data[source]?.spec.operations[operation]?.transfer?.fileParam
-                : null;
-            final out = await data.callOperation(
-              '$source.$operation',
-              {param ?? 'file': file.path},
-              onProgress: (p) =>
-                  progress(p.total > 0 ? p.sent / p.total : null),
-            );
-            return out == null ? null : jsonEncode(toJson(out));
-          },
-    onUnavailable: () => scope.report(
-      PluxException(
-        PluxErrorCode.devicePackageMissing,
-        'FileUploader needs plux_media: add it to '
-        'PluxConfig.devicePackages',
-        details: {'plugin': scope.pluginKey},
-      ),
-      path: scope.path,
+    pick: c.filePicker(accept),
+    upload: c.fileUpload(source, operation),
+    onUnavailable: () => c.reportDevicePackageMissing(
+      'FileUploader needs plux_media: add it to PluxConfig.devicePackages',
     ),
     onUploaded: c.handles(onUploaded) ? (r) => c.fire(onUploaded, r) : null,
     onFailed: c.handles(onFailed) ? (e) => c.fire(onFailed, e) : null,
@@ -1207,7 +1141,7 @@ final class _FileUploaderViewState extends State<FileUploaderView> {
   }
 
   (String, String) _describe(Object error) => switch (error) {
-    ActionError(:final code, :final message) => (code.id, message),
+    PluxException(:final code, :final message) => (code.id, message),
     PluxDeviceException(:final failure, :final message) => (
       (failure == PluxDeviceFailure.denied
               ? PluxErrorCode.devicePermissionDenied

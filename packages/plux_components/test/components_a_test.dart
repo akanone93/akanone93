@@ -4,10 +4,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plux_components/plux_components.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_flutter/src/render/scope.dart';
 
-import '../support/harness.dart';
+import '../../plux_flutter/test/support/harness.dart';
 
 /// The Layer 2 components of P5, group A (ADR-0071): ConsentCheckbox,
 /// SearchField, FilterBar, SortSheet, InfiniteList, WizardForm,
@@ -38,9 +39,12 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.runAsync(() async {
-      await h.startFrom(g.bundles['widgets/widgets.pxb']!, {
-        'gallery': g.bundles['widgets/gallery.pxb']!,
-      }, themeSource: themeSource);
+      await h.startFrom(
+        g.bundles['widgets/widgets.pxb']!,
+        {'gallery': g.bundles['widgets/gallery.pxb']!},
+        themeSource: themeSource,
+        widgetPackages: const [PluxComponents()],
+      );
       await h.loadIconFonts();
     });
     await tester.pumpWidget(
