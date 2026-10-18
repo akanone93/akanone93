@@ -375,3 +375,17 @@ Plan p8 §7, put to the maintainer with the plan (D11, accepted 2026-10-16):
 - `schema/l10n/**`, `tools/cmd/cldrdata`, `backend/internal/l10n/**`, `lib/src/l10n/**`,
   `schema/goldens/**`, the golden harness and the new packages join `ci/affected.json`, with the
   policy test that every path maps to a job.
+
+## Revision (2026-10-18, a manual run of one job)
+
+Asked for by the maintainer on 2026-10-18, after each attempt at the iOS bank flow's
+accessibility pass took a full run of over 30 minutes (runs 39149009669, 39153556766), though
+that job alone takes 20 to 30 minutes:
+
+- A manual run's inputs `only` (a job of `ci/affected.json`) and `shard` (one flow of
+  `e2e-ios`, `e2e-android` or `e2e-android-26`) narrow the selection to that job and flow; the
+  repository jobs, which always run, run beside it. The device jobs' flows are listed in the
+  changes job, which hands each matrix its list, as it hands Android its API levels.
+- CI OK fails in such a run: it checked one job, not the commit, so it must never count as a
+  full run's required check. Pull requests, pushes, the merge queue and the daily run never
+  set the inputs, so their selection is unchanged and no gate is removed.

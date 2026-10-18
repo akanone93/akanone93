@@ -417,8 +417,20 @@ void main() {
           );
         }
         expect(done, isEmpty);
+        expect(
+          tester.testTextInput.log.map((c) => c.method),
+          isNot(contains('TextInput.finishAutofillContext')),
+        );
         await tester.enterText(find.byType(TextField), '123456');
         expect(done, ['123456']);
+        // Completing the code ends the autofill context, which on iOS takes
+        // the keyboard away (the engine resigns the field's first
+        // responder); Plux Bank's iOS accessibility pass sends no Return
+        // after the code for this reason.
+        expect(
+          tester.testTextInput.log.map((c) => c.method),
+          contains('TextInput.finishAutofillContext'),
+        );
         // Typing past the end is dropped.
         await tester.enterText(find.byType(TextField), '1234567');
         expect(controller.text, '123456');

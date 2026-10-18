@@ -57,7 +57,11 @@ final class AccessibilityTreeTests: XCTestCase {
     // button: a touch outside a field does not, on a phone.
     type(waitFor(app, "Username"), "demo\n")
     enterPin(app, "246810")
-    type(reveal(app, "One-time code", exact: false), "123456\n")
+    // The code's last digit completes it, and the field ends its autofill
+    // context, which on iOS takes the keyboard away: there is no field to
+    // send Return to (run 39153556766; pinned in plux_flutter's
+    // test/secure/secure_widgets_test.dart).
+    type(reveal(app, "One-time code", exact: false), "123456")
     reveal(app, "Sign in")
     tap(app, "Sign in", exact: true, opens: "New transfer", exactly: true)
 
