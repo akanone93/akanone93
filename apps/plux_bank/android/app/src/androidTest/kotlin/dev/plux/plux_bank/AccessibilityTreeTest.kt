@@ -54,10 +54,10 @@ class AccessibilityTreeTest {
 
         // The balance is what the flows' transfers left, so only its start is known.
         click(waitFor("New transfer"))
-        waitFor("Available: ", prefix = true)
+        waitFor("Available: ", partial = true)
         assertReadsInOrder(
             listOf("Available: ", "Recipient IBAN", "Amount (EUR)", "Reference", "Send money"),
-            prefix = true,
+            partial = true,
         )
         assertInteractiveControlsAreLabelled()
     }
@@ -86,10 +86,10 @@ class AccessibilityTreeTest {
         if (Build.VERSION.SDK_INT >= 33) setAppLocale("")
     }
 
-    // The labels, or with prefix the labels' starts, appear on screen top to
-    // bottom in the order given.
-    private fun assertReadsInOrder(labels: List<String>, prefix: Boolean = false) {
-        val tops = labels.map { waitFor(it, prefix).bounds.top }
+    // The labels, or with partial labels containing them, appear on screen
+    // top to bottom in the order given.
+    private fun assertReadsInOrder(labels: List<String>, partial: Boolean = false) {
+        val tops = labels.map { waitFor(it, partial).bounds.top }
         assertEquals("the reading order of $labels", tops.sorted(), tops)
     }
 
@@ -125,9 +125,10 @@ class AccessibilityTreeTest {
 
         val interactive: Boolean get() = info.isClickable || info.className?.toString() == "android.widget.EditText"
 
-        // A merged node reads its parts on separate lines.
-        fun reads(label: String, prefix: Boolean): Boolean =
-            labels.any { if (prefix) it.startsWith(label) else it == label }
+        // A merged node reads its parts on separate lines, so partial
+        // matches a part.
+        fun reads(label: String, partial: Boolean): Boolean =
+            labels.any { if (partial) it.contains(label) else it == label }
     }
 
     // The app's nodes on screen, in the tree's order.
@@ -164,13 +165,13 @@ class AccessibilityTreeTest {
         device.executeShellCommand("cmd locale set-app-locales $pkg$locales")
     }
 
-    private fun find(label: String, prefix: Boolean = false): Node? = nodes().firstOrNull { it.reads(label, prefix) }
+    private fun find(label: String, partial: Boolean = false): Node? = nodes().firstOrNull { it.reads(label, partial) }
 
     // Waits up to a minute: the first page starts the engine and the runtime.
-    private fun waitFor(label: String, prefix: Boolean = false): Node {
+    private fun waitFor(label: String, partial: Boolean = false): Node {
         val deadline = SystemClock.uptimeMillis() + 60_000
         while (true) {
-            find(label, prefix)?.let { return it }
+            find(label, partial)?.let { return it }
             if (SystemClock.uptimeMillis() > deadline) {
                 throw AssertionError("nothing on screen reads \"$label\"")
             }

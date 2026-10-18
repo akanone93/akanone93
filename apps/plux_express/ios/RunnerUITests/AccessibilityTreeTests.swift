@@ -47,9 +47,9 @@ final class AccessibilityTreeTests: XCTestCase {
   /// The three pages' labels read in order, each control labelled and large enough.
   func testCatalogueProductAndCartPagesReadInOrder() {
     let app = launch()
-    // A row reads its name, then its price.
+    // A card reads its badge, name and price as one.
     waitFor(app, "Loaded 10 products", exact: true)
-    assertReadsInOrder(app, ["Product 01", "Product 02"], exact: false)
+    assertReadsInOrder(app, ["Loaded 10 products", "Product 01"], exact: false)
     assertInteractiveControlsAreLabelled(app)
 
     tap(app, "Product 01")
