@@ -102,6 +102,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `golden.casesPerRun` | count | 500 | 80% | 10000 | installation, organization, app | P8 | TST-003 | Golden cases one run may contain. |
 | `golden.imageBytes` | bytes | 2097152 | 80% | 16777216 | installation, organization, app | P8 | TST-003 | Size of one golden image. |
 | `http.responseSize` | bytes | 1048576 | 80% | 67108864 | installation | P2 | SEC-104, SEC-105 | Size of a response the server reads when it fetches a URL, such as an identity provider's keys. |
+| `media.pinnedDownloadSize` | bytes | 209715200 | 80% | 1073741824 | installation, organization, app | P8 | SEC-041 | Largest network video or audio file the player downloads through the pinned client when pinnedMediaOnly is on (A3). |
 | `page.animations` | count | 30 | 10 | 200 | installation, organization, app, plugin | P1 | CMP-040 | Animations that can run at the same time on one page. |
 | `page.buildCost` | microseconds | 16000 | 8000 | 100000 | installation, organization, app, plugin | P1 | CMP-040 | Estimated build time of a page on the mid-tier reference device, the sum of its widgets' cost hints. |
 | `page.depth` | count | 64 | 32 | 128 | installation, organization, app, plugin | P1 | SCH-005, CMP-040 | Depth of a page's node tree. |

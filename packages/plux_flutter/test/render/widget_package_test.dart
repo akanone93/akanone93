@@ -50,12 +50,19 @@ Uint8List _galleryWith(List<fbs.NodeObjectBuilder> nodes) {
 /// worker.
 final List<String> _asked = [];
 
+/// The length the mock declares for its next download, and the bytes it
+/// sends; the default is the three bytes the tests expect.
+({int declared, int sent}) _mockDownload = (declared: 3, sent: 3);
+
 http.Client _mockClient() => MockClient.streaming((r, body) async {
   _asked.add(r.url.toString());
+  final d = _mockDownload;
   return http.StreamedResponse(
-    Stream.value(Uint8List.fromList([1, 2, 3])),
+    Stream.value(
+      d.sent == 3 ? Uint8List.fromList([1, 2, 3]) : Uint8List(d.sent),
+    ),
     200,
-    contentLength: 3,
+    contentLength: d.declared,
   );
 });
 
@@ -242,6 +249,42 @@ void main() {
       expect(uri.scheme, 'file');
       expect(File.fromUri(uri).readAsBytesSync(), [1, 2, 3]);
       File.fromUri(uri).parent.deleteSync(recursive: true);
+    });
+
+    testWidgets('the pinned media limit is media.pinnedDownloadSize, not '
+        'asset.fileSize: a file above the asset limit is downloaded '
+        '[SEC-041]', (tester) async {
+      addTearDown(() => _mockDownload = (declared: 3, sent: 3));
+      const size = 10485761; // asset.fileSize default (10 MiB) + 1
+      _mockDownload = (declared: size, sent: size);
+      _asked.clear();
+      final out = await run(
+        tester,
+        (c) => c.mediaSource('https://example.com/a.mp4'),
+        profile: 'maximum',
+      );
+      final uri = out.single! as Uri;
+      expect(File.fromUri(uri).lengthSync(), size);
+      File.fromUri(uri).parent.deleteSync(recursive: true);
+    });
+
+    testWidgets('a media file above media.pinnedDownloadSize is refused with '
+        'the same report as before [SEC-041]', (tester) async {
+      addTearDown(() => _mockDownload = (declared: 3, sent: 3));
+      const size = 209715201; // media.pinnedDownloadSize default (200 MiB) + 1
+      _mockDownload = (declared: size, sent: 0);
+      _asked.clear();
+      final out = await run(
+        tester,
+        (c) => c.mediaSource('https://example.com/a.mp4'),
+        profile: 'maximum',
+      );
+      expect(_asked, ['https://example.com/a.mp4']);
+      expect(out.single, isNull);
+      expect(
+        h.errors.where((e) => e.code == PluxErrorCode.propValueInvalid),
+        hasLength(1),
+      );
     });
 
     testWidgets('under standard the platform player gets the address and '

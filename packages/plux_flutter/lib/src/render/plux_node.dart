@@ -516,7 +516,9 @@ final class NodeContextImpl implements NodeContext, MotionSource {
     if (client == null) return null;
     final uri = Uri.parse(url);
     if (!scope.services.pinnedMediaOnly) return uri;
-    final limit = scope.release.limits.valueOf(PluxLimit.assetFileSize);
+    final limit = scope.release.limits.valueOf(
+      PluxLimit.mediaPinnedDownloadSize,
+    );
     File? file;
     try {
       final response = await client.send(http.Request('GET', uri));

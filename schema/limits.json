@@ -1870,6 +1870,25 @@
       "description": "Size of a response the server reads when it fetches a URL, such as an identity provider's keys."
     },
     {
+      "key": "media.pinnedDownloadSize",
+      "unit": "bytes",
+      "default": 209715200,
+      "max": 1073741824,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "runtime"
+      ],
+      "phase": "P8",
+      "requirements": [
+        "SEC-041"
+      ],
+      "description": "Largest network video or audio file the player downloads through the pinned client when pinnedMediaOnly is on (A3)."
+    },
+    {
       "key": "page.animations",
       "unit": "count",
       "default": 30,

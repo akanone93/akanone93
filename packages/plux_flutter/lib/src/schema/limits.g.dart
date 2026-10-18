@@ -245,6 +245,9 @@ enum PluxLimit {
   /// Size of a response the server reads when it fetches a URL, such as an
   /// identity provider's keys.
   httpResponseSize('http.responseSize', PluxLimitUnit.bytes, 1048576, 0, 67108864),
+  /// Largest network video or audio file the player downloads through the
+  /// pinned client when pinnedMediaOnly is on (A3).
+  mediaPinnedDownloadSize('media.pinnedDownloadSize', PluxLimitUnit.bytes, 209715200, 0, 1073741824),
   /// Animations that can run at the same time on one page.
   pageAnimations('page.animations', PluxLimitUnit.count, 30, 10, 200),
   /// Estimated build time of a page on the mid-tier reference device, the sum
