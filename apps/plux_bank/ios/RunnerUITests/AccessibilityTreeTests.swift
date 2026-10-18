@@ -56,9 +56,7 @@ final class AccessibilityTreeTests: XCTestCase {
     // Return closes the keyboard, which would cover the PIN pad and the
     // button: a touch outside a field does not, on a phone.
     type(waitFor(app, "Username"), "demo\n")
-    for digit in "246810" {
-      reveal(app, String(digit)).tap()
-    }
+    enterPin(app, "246810")
     type(reveal(app, "One-time code", exact: false), "123456\n")
     reveal(app, "Sign in")
     tap(app, "Sign in", exact: true, opens: "New transfer", exactly: true)
@@ -151,14 +149,48 @@ final class AccessibilityTreeTests: XCTestCase {
 
   // Focuses the field and types into it: XCTest types only into the field
   // with the keyboard's focus.
+  // A field's value, as VoiceOver reads it.
+  private func text(of field: XCUIElement) -> String { (field.value as? String) ?? "" }
+
+  // Focuses the field and types into it; when the field does not then hold
+  // the text (keys typed before Flutter attached its input are lost), it is
+  // cleared and typed into again. A final newline is Return, not text.
   private func type(_ field: XCUIElement, _ text: String) {
-    field.tap()
-    // Flutter attaches its text input a frame after the tap.
-    let deadline = Date().addingTimeInterval(5)
-    while (field.value(forKey: "hasKeyboardFocus") as? Bool) != true, Date() < deadline {
-      Thread.sleep(forTimeInterval: 0.2)
+    let expected = text.trimmingCharacters(in: .newlines)
+    for _ in 0..<3 {
+      field.tap()
+      // Flutter attaches its text input a frame after the tap.
+      let deadline = Date().addingTimeInterval(5)
+      while (field.value(forKey: "hasKeyboardFocus") as? Bool) != true, Date() < deadline {
+        Thread.sleep(forTimeInterval: 0.2)
+      }
+      let current = self.text(of: field)
+      if !current.isEmpty {
+        field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: current.count))
+      }
+      field.typeText(text)
+      if self.text(of: field) == expected { return }
     }
-    field.typeText(text)
+    XCTFail("the field holds \"\(self.text(of: field))\", not \"\(expected)\"")
+  }
+
+  // Taps the PIN's digits and checks the pad counted each of them (its
+  // value reads "N of M digits entered"); a pad that missed one is cleared
+  // and the PIN entered again.
+  private func enterPin(_ app: XCUIApplication, _ pin: String) {
+    let pad = app.descendants(matching: .any)
+      .matching(NSPredicate(format: "value CONTAINS %@", "digits entered")).firstMatch
+    let full = "\(pin.count) of \(pin.count) digits entered"
+    for _ in 0..<3 {
+      for digit in pin {
+        reveal(app, String(digit)).tap()
+      }
+      if (pad.value as? String) == full { return }
+      for _ in 0..<pin.count {
+        reveal(app, "Delete").tap()
+      }
+    }
+    XCTFail("the PIN pad reads \"\((pad.value as? String) ?? "nothing")\", not \"\(full)\"")
   }
 
   // The control with the label, scrolled to when the keyboard hides it: a
