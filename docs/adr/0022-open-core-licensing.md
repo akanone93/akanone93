@@ -55,3 +55,22 @@ Protects commercial interests strongly. Rejected: not open source by the OSI def
 ### Option 4 — proprietary
 
 Rejected: hides the engineering and removes the adoption path for solo developers and startups.
+
+## Revision (2026-10-18, P9: the edition split)
+
+P9 puts the first code in `ee/` (ADR-0084). The split, decided by the maintainer on 2026-10-18, is below. Security capabilities are never in `ee/` (`GOV-032`); the audit log, reconstruction, data-subject requests, break-glass and the kill switch stay in the core because a regulated deployment cannot be safe without them. The `ee/` path is covered by the commercial licence identifier `LicenseRef-Plux-Enterprise` in `REUSE.toml`, and `ee/LICENSE` carries the draft text, marked for legal review before the first public release.
+
+| Open-source core (AGPL server, Apache runtime and CLI) | Enterprise edition (`ee/`, licence file) |
+|---|---|
+| The ten predefined roles, teams, environment and app scoping | Custom roles |
+| OIDC single sign-on, group mapping, JIT provisioning | SAML 2.0; SCIM 2.0 |
+| WebAuthn step-up; session and token administration | — |
+| Approval engine with single-stage policies, N approvers, four-eyes, role and named approvers, expiry; break-glass | Multi-stage and parallel policies, distinct-team rules, change freezes, signed compliance reports (JSON and PDF) |
+| Signed control document, kill switch, mandatory updates, silent push | — |
+| Rollouts: percentage, targeting, schedules, health gates | — |
+| Flags; experiments with layers, holdouts and sequential analysis | — |
+| Telemetry ingestion on PostgreSQL, rollups, Grafana dashboards, alerts, OTLP export | ClickHouse storage; Parquet export; signed-webhook event export |
+| Audit export over syslog (RFC 5424); reconstruction; DSR; egress list | CEF, OTLP-logs and signed-webhook SIEM export |
+| Notifications (inbox, SMTP, Slack, Teams, Telegram), Standard Webhooks, function triggers | — |
+| Search; Git export and import | — |
+| Helm chart, HA, backups, restore drill, IaC modules | Air-gapped installation bundle and its tooling |

@@ -82,5 +82,18 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0070](0070-golden-tests.md) | Golden tests: harness, canonical renderer, server baselines, publish gate | P8 | Proposed |
 | [0071](0071-catalogue-completion.md) | Catalogue completion: the widget catch-up, widget packages and `catalogue-check` | P8 | Proposed |
 | [0072](0072-p9-scope-p16-mini-apps.md) | P9 scope: Phase P16 for mini-apps; `SEC-191` to P12; `DX-005` and `DEP-060` withdrawn | P9 | Accepted |
+| [0073](0073-roles-permissions-and-scoping.md) | Roles, the permission catalogue, custom roles and scoping | P9 | Accepted |
+| [0074](0074-identity-federation.md) | Identity federation: OIDC providers, SAML 2.0, SCIM 2.0, JIT provisioning, group mapping | P9 | Accepted |
+| [0075](0075-webauthn-step-up.md) | WebAuthn step-up and the CLI's browser step-up | P9 | Accepted |
+| [0076](0076-approval-engine.md) | The approval engine: policies as documents, content-hash binding, signed approval records, break-glass, change freezes | P9 | Accepted |
+| [0077](0077-signed-control-document.md) | The signed control document, kill switches, mandatory updates and silent push | P9 | Accepted |
+| [0078](0078-rollouts-and-health-gates.md) | Rollouts: bucketing, server-side targeting, schedules and health gates | P9 | Accepted |
+| [0079](0079-flags-and-experiments.md) | Feature flags and experiments: `Variant` nodes, assignment, exposure and sequential analysis | P9 | Accepted |
+| [0080](0080-telemetry-and-analytics-storage.md) | Telemetry ingestion and analytics storage: PostgreSQL rollups, ClickHouse, retention, exports | P9 | Accepted |
+| [0081](0081-notifications-webhooks-and-function-triggers.md) | Notifications, Standard Webhooks and function triggers | P9 | Accepted |
+| [0082](0082-audit-export-reconstruction-and-egress.md) | Audit export, reconstruction releases, data-subject requests and the egress list | P9 | Accepted |
+| [0083](0083-kubernetes-ha-backups-and-air-gap.md) | Kubernetes: the Helm chart, HA components, backups, air-gapped bundles and IaC modules | P9 | Accepted |
+| [0084](0084-enterprise-edition-and-licence-files.md) | Enterprise edition boundary and licence files | P9 | Accepted |
+| [0085](0085-slos-dashboards-and-alert-rules.md) | Service level objectives, dashboards and alert rules | P9 | Accepted |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.
