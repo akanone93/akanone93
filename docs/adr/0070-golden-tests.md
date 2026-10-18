@@ -39,7 +39,11 @@ Chosen option: **2** (P8 plan D11, D12).
 - **Gate:** with `goldens.blockPublish`, a publish whose plugin bundle hashes have no canonical run,
   or a run with unapproved differences, is refused (`PLX-3061`, `PLX-3062`). Compiler determinism
   (`CMP-002`) makes the local hashes the server's.
-- **CI:** a Linux `goldens` job runs the reference apps' suites (ADR-0043 Revision).
+- **CI:** a Linux `goldens` job renders the starter's full matrix with the real runtime and the
+  vendored fonts and requires identical images on every run, which keeps the canonical renderer
+  deterministic (ADR-0043 Revision). The reference apps' suites compare against approved
+  baselines, which only a server holds, so they run with `plux golden run --upload` against a
+  real server (a developer's or the release pipeline's), not in CI (maintainer, 2026-10-18).
 
 ## Consequences
 
