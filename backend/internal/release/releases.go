@@ -577,10 +577,7 @@ func (s *Service) RollbackRelease(ctx context.Context, p auth.Principal, appID, 
 		if err != nil {
 			return err
 		}
-		if err := requirePromoted(ctx, q, env, earlier.ID); err != nil {
-			return err
-		}
-		if err := s.gatePromotion(ctx, appID, env, earlier, vs); err != nil {
+		if err := s.requireRollbackTarget(ctx, q, appID, env, earlier, vs); err != nil {
 			return err
 		}
 		if notes == "" {
@@ -596,18 +593,33 @@ func (s *Service) RollbackRelease(ctx context.Context, p auth.Principal, appID, 
 		if err != nil {
 			return failure(err, "release")
 		}
-		if err := copyFunctions(ctx, q, row.ID, earlier.ID); err != nil {
-			return err
-		}
-		if err := copyReports(ctx, q, row.ID, earlier.ID); err != nil {
-			return err
-		}
-		if err := withFunctions(ctx, q, &out, row.ID); err != nil {
+		if err := carryOver(ctx, q, &out, row.ID, earlier.ID); err != nil {
 			return err
 		}
 		return s.point(ctx, tx, p, env, channelKey, row)
 	})
 	return out, err
+}
+
+// requireRollbackTarget checks that the release is promoted in the
+// environment and passes the promotion gates.
+func (s *Service) requireRollbackTarget(ctx context.Context, q *dbgen.Queries, appID string, env dbgen.Environment, earlier dbgen.Release, vs []dbgen.PluginVersion) error {
+	if err := requirePromoted(ctx, q, env, earlier.ID); err != nil {
+		return err
+	}
+	return s.gatePromotion(ctx, appID, env, earlier, vs)
+}
+
+// carryOver gives a rollback release the functions and reports of the
+// release it reproduces, and loads its functions into out.
+func carryOver(ctx context.Context, q *dbgen.Queries, out *Release, to, from pgtype.UUID) error {
+	if err := copyFunctions(ctx, q, to, from); err != nil {
+		return err
+	}
+	if err := copyReports(ctx, q, to, from); err != nil {
+		return err
+	}
+	return withFunctions(ctx, q, out, to)
 }
 
 // semverLess compares MAJOR.MINOR.PATCH versions; "" is lowest.
