@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -92,6 +93,9 @@ func goldenProject(t *testing.T) string {
 // writes to and reports each as passed.
 func fakeFlutterRendering(t *testing.T, content string) string {
 	t.Helper()
+	if runtime.GOOS == "windows" {
+		t.Skip("the flutter test double is a POSIX shell script, which Windows cannot execute; the comparison logic is OS-independent and runs on Linux and macOS")
+	}
 	path := filepath.Join(t.TempDir(), "flutter")
 	script := `#!/bin/sh
 out=$(sed -n "s/^const _out = '\(.*\)';$/\1/p" test/golden_test.dart)

@@ -161,7 +161,10 @@ func runReferenceApp(t *testing.T, app referenceApp) {
 	if flutter == "" {
 		t.Skip("set PLUX_E2E_FLUTTER to the flutter executable (make e2e-starter)")
 	}
-	dir := filepath.Join("..", "..", "..", "apps", app.dir)
+	dir, err := filepath.Abs(filepath.Join("..", "..", "..", "apps", app.dir))
+	if err != nil {
+		t.Fatal(err)
+	}
 	run := startReferenceApp(t, app)
 	st, ref, roots := run.st, run.ref, run.roots
 
@@ -196,7 +199,6 @@ func runReferenceApp(t *testing.T, app referenceApp) {
 		}
 	}
 	var out bytes.Buffer
-	var err error
 	for _, step := range steps {
 		cmd := exec.CommandContext(ctx, step[0], step[1:]...) //nolint:gosec // G204: the flutter, Xcode and device the developer named.
 		cmd.Dir = dir
