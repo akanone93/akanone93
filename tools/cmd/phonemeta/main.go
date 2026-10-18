@@ -249,48 +249,73 @@ func convert(t xmlTerritory) (territory, error) {
 func formatEntries(t xmlTerritory) ([]numFmt, error) {
 	var out []numFmt
 	for _, f := range t.Formats {
-		pat := space.ReplaceAllString(f.Pattern, "")
-		format := strings.TrimSpace(f.Format)
-		if pat == "" || !compiles(pat) || !formatText.MatchString(format) {
-			return nil, territoryErr(t, "number format %q %q", f.Pattern, f.Format)
-		}
-		e := numFmt{Pattern: pat, Format: format}
-		if n := len(f.LeadingDigits); n > 0 {
-			e.LeadingDigits = space.ReplaceAllString(f.LeadingDigits[n-1], "")
-			if !compiles(e.LeadingDigits) {
-				return nil, territoryErr(t, "leading digits %q", e.LeadingDigits)
-			}
-		}
-		rule := f.FormattingRule
-		if rule == "" {
-			rule = t.NationalFormattingRule
-		}
-		if rule != "" {
-			if loc := firstGroup.FindStringIndex(format); loc != nil {
-				rule = strings.ReplaceAll(strings.ReplaceAll(rule, "$NP", t.NationalPrefix), "$FG", format[loc[0]:loc[1]])
-				if nat := format[:loc[0]] + rule + format[loc[1]:]; nat != format {
-					if !formatText.MatchString(nat) {
-						return nil, territoryErr(t, "national format %q", nat)
-					}
-					e.NationalFormat = nat
-				}
-			}
-		}
-		if len(f.IntlFormat) > 1 {
-			return nil, territoryErr(t, "two intlFormat elements")
-		}
-		if len(f.IntlFormat) == 1 {
-			if intl := strings.TrimSpace(f.IntlFormat[0]); intl == "NA" || formatText.MatchString(intl) {
-				if intl != format {
-					e.IntlFormat = intl
-				}
-			} else {
-				return nil, territoryErr(t, "international format %q", intl)
-			}
+		e, err := numberFormat(t, f)
+		if err != nil {
+			return nil, err
 		}
 		out = append(out, e)
 	}
 	return out, nil
+}
+
+// numberFormat resolves one number format of the territory t.
+func numberFormat(t xmlTerritory, f xmlFmt) (numFmt, error) {
+	pat := space.ReplaceAllString(f.Pattern, "")
+	format := strings.TrimSpace(f.Format)
+	if pat == "" || !compiles(pat) || !formatText.MatchString(format) {
+		return numFmt{}, territoryErr(t, "number format %q %q", f.Pattern, f.Format)
+	}
+	e := numFmt{Pattern: pat, Format: format}
+	if n := len(f.LeadingDigits); n > 0 {
+		e.LeadingDigits = space.ReplaceAllString(f.LeadingDigits[n-1], "")
+		if !compiles(e.LeadingDigits) {
+			return numFmt{}, territoryErr(t, "leading digits %q", e.LeadingDigits)
+		}
+	}
+	nat, err := nationalFormat(t, f, format)
+	if err != nil {
+		return numFmt{}, err
+	}
+	e.NationalFormat = nat
+	if len(f.IntlFormat) > 1 {
+		return numFmt{}, territoryErr(t, "two intlFormat elements")
+	}
+	if len(f.IntlFormat) == 1 {
+		if intl := strings.TrimSpace(f.IntlFormat[0]); intl == "NA" || formatText.MatchString(intl) {
+			if intl != format {
+				e.IntlFormat = intl
+			}
+		} else {
+			return numFmt{}, territoryErr(t, "international format %q", intl)
+		}
+	}
+	return e, nil
+}
+
+// nationalFormat returns the national format of format, the formatting rule
+// with its $NP and $FG placeholders filled in, or "" when it is the format
+// itself.
+func nationalFormat(t xmlTerritory, f xmlFmt, format string) (string, error) {
+	rule := f.FormattingRule
+	if rule == "" {
+		rule = t.NationalFormattingRule
+	}
+	if rule == "" {
+		return "", nil
+	}
+	loc := firstGroup.FindStringIndex(format)
+	if loc == nil {
+		return "", nil
+	}
+	rule = strings.ReplaceAll(strings.ReplaceAll(rule, "$NP", t.NationalPrefix), "$FG", format[loc[0]:loc[1]])
+	nat := format[:loc[0]] + rule + format[loc[1]:]
+	if nat == format {
+		return "", nil
+	}
+	if !formatText.MatchString(nat) {
+		return "", territoryErr(t, "national format %q", nat)
+	}
+	return nat, nil
 }
 
 // territoryHead resolves a territory's identity and prefixes, and checks

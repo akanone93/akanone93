@@ -112,36 +112,48 @@ func runFilter(dataPath, dir string, stdout, stderr io.Writer) int {
 		if filepath.Base(p) == "index.json" {
 			continue
 		}
-		b, err := os.ReadFile(p)
+		n, err := filterLocaleFile(p, current)
 		if err != nil {
 			return fail(err)
 		}
-		var doc obj
-		if err := json.Unmarshal(b, &doc); err != nil {
-			return fail(fmt.Errorf("decode %s: %w", p, err))
-		}
-		doc = integers(doc).(obj)
-		cur := atObj(doc, "currencies")
-		for code := range cur {
-			if !current[code] {
-				delete(cur, code)
-				dropped++
-			}
-		}
-		if len(cur) == 0 {
-			return fail(fmt.Errorf("%s: no current currency left", p))
-		}
-		out, err := canonical(doc)
-		if err != nil {
-			return fail(err)
-		}
-		if err := os.WriteFile(p, out, 0o600); err != nil {
-			return fail(err)
-		}
+		dropped += n
 		files++
 	}
 	_, _ = fmt.Fprintf(stdout, "cldrdata: filtered %d files, dropped %d currency entries\n", files, dropped)
 	return 0
+}
+
+// filterLocaleFile drops the currencies not in current from the locale file
+// at p, rewrites it canonically and returns how many entries it dropped.
+func filterLocaleFile(p string, current map[string]bool) (int, error) {
+	b, err := os.ReadFile(p)
+	if err != nil {
+		return 0, fmt.Errorf("read %s: %w", p, err)
+	}
+	var doc obj
+	if err := json.Unmarshal(b, &doc); err != nil {
+		return 0, fmt.Errorf("decode %s: %w", p, err)
+	}
+	doc = integers(doc).(obj)
+	cur := atObj(doc, "currencies")
+	dropped := 0
+	for code := range cur {
+		if !current[code] {
+			delete(cur, code)
+			dropped++
+		}
+	}
+	if len(cur) == 0 {
+		return 0, fmt.Errorf("%s: no current currency left", p)
+	}
+	out, err := canonical(doc)
+	if err != nil {
+		return 0, err
+	}
+	if err := os.WriteFile(p, out, 0o600); err != nil {
+		return 0, fmt.Errorf("write %s: %w", p, err)
+	}
+	return dropped, nil
 }
 
 // integers converts the numbers json decoded as float64 to the int the
@@ -197,7 +209,12 @@ func openArchive(path string) (*archive, error) {
 	return a, nil
 }
 
-func (a *archive) close() error { return a.r.Close() }
+func (a *archive) close() error {
+	if err := a.r.Close(); err != nil {
+		return fmt.Errorf("close archive: %w", err)
+	}
+	return nil
+}
 
 // load decodes the JSON document at path.
 func (a *archive) load(path string) (obj, error) {
@@ -287,22 +304,9 @@ func derive(src source, version string) (map[string][]byte, error) {
 		return nil, err
 	}
 
-	files := make(map[string][]byte, len(locales)+1)
-	for _, l := range locales {
-		doc, err := buildLocale(src, l, current)
-		if err != nil {
-			return nil, fmt.Errorf("locale %s: %w", l, err)
-		}
-		doc["plurals"] = plurals[l]
-		doc["currencyDigits"] = nonDefault
-		b, err := canonical(doc)
-		if err != nil {
-			return nil, err
-		}
-		if len(b) >= maxFileBytes {
-			return nil, fmt.Errorf("locale %s: %d bytes exceeds the %d byte limit", l, len(b), maxFileBytes)
-		}
-		files[l+".json"] = b
+	files, err := buildLocaleFiles(src, locales, plurals, nonDefault, current)
+	if err != nil {
+		return nil, err
 	}
 
 	parents, err := parentLocales(src)
@@ -335,6 +339,29 @@ func strSlice(s []string) []any {
 		out[i] = v
 	}
 	return out
+}
+
+// buildLocaleFiles encodes the self-contained file of each locale, keyed by
+// file name, and checks that each stays under maxFileBytes.
+func buildLocaleFiles(src source, locales []string, plurals, nonDefault obj, current map[string]bool) (map[string][]byte, error) {
+	files := make(map[string][]byte, len(locales)+1)
+	for _, l := range locales {
+		doc, err := buildLocale(src, l, current)
+		if err != nil {
+			return nil, fmt.Errorf("locale %s: %w", l, err)
+		}
+		doc["plurals"] = plurals[l]
+		doc["currencyDigits"] = nonDefault
+		b, err := canonical(doc)
+		if err != nil {
+			return nil, err
+		}
+		if len(b) >= maxFileBytes {
+			return nil, fmt.Errorf("locale %s: %d bytes exceeds the %d byte limit", l, len(b), maxFileBytes)
+		}
+		files[l+".json"] = b
+	}
+	return files, nil
 }
 
 // buildLocale assembles the self-contained document of one locale.
@@ -470,39 +497,10 @@ func addNumbers(src source, l string, doc obj) error {
 	}
 	numbers := obj{}
 	for _, s := range systems {
-		entry := obj{}
-		syms := obj{}
-		for _, k := range symbolKeys {
-			if v := atStr(num, "symbols-numberSystem-"+s, k); v != "" {
-				syms[k] = v
-			}
-		}
-		for _, req := range []string{"decimal", "group", "minusSign", "percentSign", "plusSign", "infinity", "nan"} {
-			if _, ok := syms[req]; !ok {
-				return fmt.Errorf("numbers.json has no %s symbol for %s", req, s)
-			}
-		}
-		entry["symbols"] = syms
-		for _, p := range []struct {
-			key  string
-			path []string
-		}{
-			{"decimal", []string{"decimalFormats-numberSystem-" + s, "standard"}},
-			{"percent", []string{"percentFormats-numberSystem-" + s, "standard"}},
-			{"currency", []string{"currencyFormats-numberSystem-" + s, "standard"}},
-			{"accounting", []string{"currencyFormats-numberSystem-" + s, "accounting"}},
-		} {
-			v := atStr(num, p.path...)
-			if v == "" {
-				return fmt.Errorf("numbers.json has no %s pattern for %s", p.key, s)
-			}
-			entry[p.key] = v
-		}
-		compact, err := compactShort(atObj(num, "decimalFormats-numberSystem-"+s, "short", "decimalFormat"))
+		entry, err := numberSystemEntry(num, s)
 		if err != nil {
-			return fmt.Errorf("compact patterns of %s: %w", s, err)
+			return err
 		}
-		entry["compactShort"] = compact
 		numbers[s] = entry
 	}
 	doc["numbers"] = numbers
@@ -515,6 +513,45 @@ func addNumbers(src source, l string, doc obj) error {
 	}
 	doc["currencySpacing"] = obj{"after": after, "before": before}
 	return nil
+}
+
+// numberSystemEntry returns the symbols, patterns and compact patterns of the
+// numbering system s, from the numbers.json document num.
+func numberSystemEntry(num obj, s string) (obj, error) {
+	entry := obj{}
+	syms := obj{}
+	for _, k := range symbolKeys {
+		if v := atStr(num, "symbols-numberSystem-"+s, k); v != "" {
+			syms[k] = v
+		}
+	}
+	for _, req := range []string{"decimal", "group", "minusSign", "percentSign", "plusSign", "infinity", "nan"} {
+		if _, ok := syms[req]; !ok {
+			return nil, fmt.Errorf("numbers.json has no %s symbol for %s", req, s)
+		}
+	}
+	entry["symbols"] = syms
+	for _, p := range []struct {
+		key  string
+		path []string
+	}{
+		{"decimal", []string{"decimalFormats-numberSystem-" + s, "standard"}},
+		{"percent", []string{"percentFormats-numberSystem-" + s, "standard"}},
+		{"currency", []string{"currencyFormats-numberSystem-" + s, "standard"}},
+		{"accounting", []string{"currencyFormats-numberSystem-" + s, "accounting"}},
+	} {
+		v := atStr(num, p.path...)
+		if v == "" {
+			return nil, fmt.Errorf("numbers.json has no %s pattern for %s", p.key, s)
+		}
+		entry[p.key] = v
+	}
+	compact, err := compactShort(atObj(num, "decimalFormats-numberSystem-"+s, "short", "decimalFormat"))
+	if err != nil {
+		return nil, fmt.Errorf("compact patterns of %s: %w", s, err)
+	}
+	entry["compactShort"] = compact
+	return entry, nil
 }
 
 var compactKey = regexp.MustCompile(`^(\d+)-count-([a-z]+)$`)
@@ -556,36 +593,7 @@ func addCurrencies(src source, l string, doc obj, current map[string]bool) error
 			continue
 		}
 		e, _ := v.(obj)
-		// A currency without a symbol is written as its ISO code, so the code
-		// is the default and only a different symbol is stored; one without a
-		// name is shown by its code.
-		name := atStr(e, "displayName")
-		sym := atStr(e, "symbol")
-		if sym == "" {
-			sym = code
-		}
-		entry := obj{}
-		if name != "" {
-			entry["name"] = name
-		}
-		if sym != code {
-			entry["symbol"] = sym
-		}
-		if n := atStr(e, "symbol-alt-narrow"); n != "" && n != sym {
-			entry["narrow"] = n
-		}
-		plural := obj{}
-		for k, pv := range e {
-			if cat, ok := strings.CutPrefix(k, "displayName-count-"); ok {
-				if s, _ := pv.(string); s != "" && s != name {
-					plural[cat] = s
-				}
-			}
-		}
-		if len(plural) > 0 {
-			entry["plural"] = plural
-		}
-		if len(entry) > 0 {
+		if entry := currencyEntry(code, e); len(entry) > 0 {
 			out[code] = entry
 		}
 	}
@@ -594,6 +602,42 @@ func addCurrencies(src source, l string, doc obj, current map[string]bool) error
 	}
 	doc["currencies"] = out
 	return nil
+}
+
+// currencyEntry returns the name, symbol, narrow symbol and plural names of
+// the currency code, as written in a locale file; the fields that repeat the
+// defaults are left out.
+func currencyEntry(code string, e obj) obj {
+	// A currency without a symbol is written as its ISO code, so the code
+	// is the default and only a different symbol is stored; one without a
+	// name is shown by its code.
+	name := atStr(e, "displayName")
+	sym := atStr(e, "symbol")
+	if sym == "" {
+		sym = code
+	}
+	entry := obj{}
+	if name != "" {
+		entry["name"] = name
+	}
+	if sym != code {
+		entry["symbol"] = sym
+	}
+	if n := atStr(e, "symbol-alt-narrow"); n != "" && n != sym {
+		entry["narrow"] = n
+	}
+	plural := obj{}
+	for k, pv := range e {
+		if cat, ok := strings.CutPrefix(k, "displayName-count-"); ok {
+			if s, _ := pv.(string); s != "" && s != name {
+				plural[cat] = s
+			}
+		}
+	}
+	if len(plural) > 0 {
+		entry["plural"] = plural
+	}
+	return entry
 }
 
 func addTerritories(src source, l string, doc obj) error {
@@ -637,57 +681,116 @@ func calendar(raw, generic obj, gregorian bool) (obj, error) {
 		return nil, errors.New("calendar data is missing")
 	}
 	out := obj{}
+	months, days, periods, err := calendarNames(raw, gregorian)
+	if err != nil {
+		return nil, err
+	}
+	out["months"], out["days"], out["dayPeriods"] = months, days, periods
+	eras, err := calendarEras(raw, gregorian)
+	if err != nil {
+		return nil, err
+	}
+	out["eras"] = eras
+	if err := addCalendarFormats(out, raw); err != nil {
+		return nil, err
+	}
+	avail, err := availableFormats(raw, generic)
+	if err != nil {
+		return nil, err
+	}
+	out["availableFormats"] = avail
+	return out, nil
+}
+
+// skipWidth reports whether the name width w is left out of a calendar that
+// is not Gregorian.
+func skipWidth(gregorian bool, w string) bool {
+	return !gregorian && w == "narrow"
+}
+
+// calendarNames returns the month names, day names and day periods of raw in
+// each context, keyed by width and by the output context name.
+func calendarNames(raw obj, gregorian bool) (months, days, periods obj, err error) {
 	nMonths := 12
 	if raw["months"] != nil {
 		nMonths = len(atObj(raw, "months", "format", "wide"))
 	}
-
-	months := obj{}
-	days := obj{}
-	periods := obj{}
+	months, days, periods = obj{}, obj{}, obj{}
 	for _, ctx := range contexts {
-		m, d, p := obj{}, obj{}, obj{}
+		m, p := obj{}, obj{}
 		for _, w := range widths {
-			if !gregorian && w == "narrow" {
+			if skipWidth(gregorian, w) {
 				continue
 			}
 			names, err := indexed(atObj(raw, "months", ctx.cldr, w), 1, nMonths)
 			if err != nil {
-				return nil, fmt.Errorf("months %s %s: %w", ctx.cldr, w, err)
+				return nil, nil, nil, fmt.Errorf("months %s %s: %w", ctx.cldr, w, err)
 			}
 			m[w] = names
-			ap := obj{}
-			for _, k := range []string{"am", "pm"} {
-				s := atStr(raw, "dayPeriods", ctx.cldr, w, k)
-				if s == "" {
-					return nil, fmt.Errorf("dayPeriods %s %s has no %s", ctx.cldr, w, k)
-				}
-				ap[k] = s
+			ap, err := dayPeriodNames(raw, ctx.cldr, w)
+			if err != nil {
+				return nil, nil, nil, err
 			}
 			p[w] = ap
 		}
-		for _, w := range dayWidths {
-			if !gregorian && w == "narrow" {
-				continue
-			}
-			src := atObj(raw, "days", ctx.cldr, w)
-			names := make([]any, len(dayKeys))
-			for i, k := range dayKeys {
-				s, _ := src[k].(string)
-				if s == "" {
-					return nil, fmt.Errorf("days %s %s has no %s", ctx.cldr, w, k)
-				}
-				names[i] = s
-			}
-			d[w] = names
+		d, err := weekdayWidths(raw, ctx.cldr, gregorian)
+		if err != nil {
+			return nil, nil, nil, err
 		}
 		months[ctx.out], days[ctx.out], periods[ctx.out] = m, d, p
 	}
-	out["months"], out["days"], out["dayPeriods"] = months, days, periods
+	return months, days, periods, nil
+}
 
+// weekdayWidths returns the day names of the context in each width.
+func weekdayWidths(raw obj, context string, gregorian bool) (obj, error) {
+	d := obj{}
+	for _, w := range dayWidths {
+		if skipWidth(gregorian, w) {
+			continue
+		}
+		names, err := weekdayNames(raw, context, w)
+		if err != nil {
+			return nil, err
+		}
+		d[w] = names
+	}
+	return d, nil
+}
+
+// dayPeriodNames returns the am and pm names of the context and width.
+func dayPeriodNames(raw obj, context, w string) (obj, error) {
+	ap := obj{}
+	for _, k := range []string{"am", "pm"} {
+		s := atStr(raw, "dayPeriods", context, w, k)
+		if s == "" {
+			return nil, fmt.Errorf("dayPeriods %s %s has no %s", context, w, k)
+		}
+		ap[k] = s
+	}
+	return ap, nil
+}
+
+// weekdayNames returns the names of the seven days, Sunday first, of the
+// context and width.
+func weekdayNames(raw obj, context, w string) ([]any, error) {
+	src := atObj(raw, "days", context, w)
+	names := make([]any, len(dayKeys))
+	for i, k := range dayKeys {
+		s, _ := src[k].(string)
+		if s == "" {
+			return nil, fmt.Errorf("days %s %s has no %s", context, w, k)
+		}
+		names[i] = s
+	}
+	return names, nil
+}
+
+// calendarEras returns the era names of each width of raw.
+func calendarEras(raw obj, gregorian bool) (obj, error) {
 	eras := obj{}
 	for w, key := range map[string]string{"wide": "eraNames", "abbreviated": "eraAbbr", "narrow": "eraNarrow"} {
-		if !gregorian && w == "narrow" {
+		if skipWidth(gregorian, w) {
 			continue
 		}
 		src := atObj(raw, "eras", key)
@@ -704,28 +807,18 @@ func calendar(raw, generic obj, gregorian bool) (obj, error) {
 		}
 		eras[w] = names
 	}
-	out["eras"] = eras
+	return eras, nil
+}
 
-	for _, kind := range []struct{ key, src string }{{"dateFormats", "dateFormats"}, {"timeFormats", "timeFormats"}} {
-		f := obj{}
-		for _, s := range styles {
-			v := atStr(raw, kind.src, s)
-			if v == "" {
-				return nil, fmt.Errorf("%s has no %s", kind.src, s)
-			}
-			f[s] = v
+// addCalendarFormats adds the date, time and date-time patterns of raw to out.
+func addCalendarFormats(out, raw obj) error {
+	for _, kind := range []struct{ key, src string }{{"dateFormats", "dateFormats"}, {"timeFormats", "timeFormats"}, {"dateTimeFormats", "dateTimeFormats"}} {
+		f, err := stylePatterns(raw, kind.src)
+		if err != nil {
+			return err
 		}
 		out[kind.key] = f
 	}
-	dt := obj{}
-	for _, s := range styles {
-		v := atStr(raw, "dateTimeFormats", s)
-		if v == "" {
-			return nil, fmt.Errorf("dateTimeFormats has no %s", s)
-		}
-		dt[s] = v
-	}
-	out["dateTimeFormats"] = dt
 	if atTime := atObj(raw, "dateTimeFormats-atTime", "standard"); len(atTime) > 0 {
 		m := obj{}
 		for _, s := range styles {
@@ -735,11 +828,32 @@ func calendar(raw, generic obj, gregorian bool) (obj, error) {
 		}
 		out["dateTimeAtTime"] = m
 	}
+	return nil
+}
+
+// stylePatterns returns the pattern of each date or time style that the
+// section src of raw defines, and fails when one is missing.
+func stylePatterns(raw obj, src string) (obj, error) {
+	f := obj{}
+	for _, s := range styles {
+		v := atStr(raw, src, s)
+		if v == "" {
+			return nil, fmt.Errorf("%s has no %s", src, s)
+		}
+		f[s] = v
+	}
+	return f, nil
+}
+
+// availableFormats returns the flexible formats of a calendar, keyed by
+// skeleton: those of the generic calendar, overridden by those of raw, then
+// the styles' own skeletons where no format has them.
+func availableFormats(raw, generic obj) (obj, error) {
 	avail := obj{}
 	for _, source := range []obj{generic, raw} {
 		for skel, v := range atObj(source, "dateTimeFormats", "availableFormats") {
 			p, _ := v.(string)
-			if p == "" || strings.Contains(skel, "-alt-") || !onlyLetters(skel, supportedLetters) || !onlyLetters(unquoted(p), supportedLetters) {
+			if p == "" || strings.Contains(skel, "-alt-") || !onlyLetters(skel) || !onlyLetters(unquoted(p)) {
 				continue
 			}
 			avail[skel] = p
@@ -753,7 +867,7 @@ func calendar(raw, generic obj, gregorian bool) (obj, error) {
 		for _, s := range styles {
 			skel := strings.ReplaceAll(atStr(raw, kind.skeletons, s), "a", "")
 			p := atStr(raw, kind.formats, s)
-			if _, have := avail[skel]; !have && skel != "" && onlyLetters(skel, supportedLetters) && onlyLetters(unquoted(p), supportedLetters) {
+			if _, have := avail[skel]; !have && skel != "" && onlyLetters(skel) && onlyLetters(unquoted(p)) {
 				avail[skel] = p
 			}
 		}
@@ -761,8 +875,7 @@ func calendar(raw, generic obj, gregorian bool) (obj, error) {
 	if len(avail) == 0 {
 		return nil, errors.New("availableFormats is empty")
 	}
-	out["availableFormats"] = avail
-	return out, nil
+	return avail, nil
 }
 
 // unquoted returns the pattern with its quoted literals removed.
@@ -780,10 +893,10 @@ func unquoted(p string) string {
 	return b.String()
 }
 
-// onlyLetters reports whether every ASCII letter of s is in allowed.
-func onlyLetters(s, allowed string) bool {
+// onlyLetters reports whether every ASCII letter of s is in supportedLetters.
+func onlyLetters(s string) bool {
 	for _, r := range s {
-		if (r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z') && !strings.ContainsRune(allowed, r) {
+		if (r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z') && !strings.ContainsRune(supportedLetters, r) {
 			return false
 		}
 	}
@@ -1000,41 +1113,9 @@ func canonical(v any) ([]byte, error) {
 func writeValue(buf *bytes.Buffer, v any, depth int) error {
 	switch x := v.(type) {
 	case obj:
-		if len(x) == 0 {
-			buf.WriteString("{}")
-			return nil
-		}
-		keys := make([]string, 0, len(x))
-		for k := range x {
-			keys = append(keys, k)
-		}
-		sort.Strings(keys)
-		buf.WriteString("{\n")
-		for i, k := range keys {
-			buf.WriteString(strings.Repeat("  ", depth+1))
-			writeString(buf, k)
-			buf.WriteString(": ")
-			if err := writeValue(buf, x[k], depth+1); err != nil {
-				return err
-			}
-			if i < len(keys)-1 {
-				buf.WriteByte(',')
-			}
-			buf.WriteByte('\n')
-		}
-		buf.WriteString(strings.Repeat("  ", depth))
-		buf.WriteByte('}')
+		return writeObject(buf, x, depth)
 	case []any:
-		buf.WriteByte('[')
-		for i, e := range x {
-			if i > 0 {
-				buf.WriteString(", ")
-			}
-			if err := writeValue(buf, e, depth+1); err != nil {
-				return err
-			}
-		}
-		buf.WriteByte(']')
+		return writeArray(buf, x, depth)
 	case string:
 		writeString(buf, x)
 	case int:
@@ -1042,6 +1123,50 @@ func writeValue(buf *bytes.Buffer, v any, depth int) error {
 	default:
 		return fmt.Errorf("cannot encode %T", v)
 	}
+	return nil
+}
+
+// writeObject encodes x with its keys sorted, one member to a line.
+func writeObject(buf *bytes.Buffer, x obj, depth int) error {
+	if len(x) == 0 {
+		buf.WriteString("{}")
+		return nil
+	}
+	keys := make([]string, 0, len(x))
+	for k := range x {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	buf.WriteString("{\n")
+	for i, k := range keys {
+		buf.WriteString(strings.Repeat("  ", depth+1))
+		writeString(buf, k)
+		buf.WriteString(": ")
+		if err := writeValue(buf, x[k], depth+1); err != nil {
+			return err
+		}
+		if i < len(keys)-1 {
+			buf.WriteByte(',')
+		}
+		buf.WriteByte('\n')
+	}
+	buf.WriteString(strings.Repeat("  ", depth))
+	buf.WriteByte('}')
+	return nil
+}
+
+// writeArray encodes x on one line.
+func writeArray(buf *bytes.Buffer, x []any, depth int) error {
+	buf.WriteByte('[')
+	for i, e := range x {
+		if i > 0 {
+			buf.WriteString(", ")
+		}
+		if err := writeValue(buf, e, depth+1); err != nil {
+			return err
+		}
+	}
+	buf.WriteByte(']')
 	return nil
 }
 

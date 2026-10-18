@@ -43,7 +43,11 @@ func TestRegistryDartMinTargetTypes(t *testing.T) {
 			t.Fatal("registry.g.dart lacks minTargetTypes")
 		}
 		body := text[start+len(open):]
-		body = body[:strings.Index(body, "};")]
+		end := strings.Index(body, "};")
+		if end < 0 {
+			t.Fatal("registry.g.dart lacks the end of minTargetTypes")
+		}
+		body = body[:end]
 		for _, l := range strings.Split(strings.TrimSpace(body), "\n") {
 			got = append(got, strings.Trim(strings.TrimSpace(l), ",'"))
 		}

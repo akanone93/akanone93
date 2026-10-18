@@ -160,7 +160,7 @@ type descriptorJSON struct {
 func loadDescriptors(dir string, key func(descriptorJSON) string, out map[string]Descriptor) error {
 	files, err := filepath.Glob(filepath.Join(dir, "*.json"))
 	if err != nil {
-		return err
+		return fmt.Errorf("list %s: %w", dir, err)
 	}
 	sort.Strings(files)
 	for _, f := range files {
@@ -340,7 +340,7 @@ func (b *Builders) Has(typeName string, id int) bool {
 }
 
 func handWrittenDart(root string, visit func(src string)) error {
-	return filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			if os.IsNotExist(err) {
 				return nil
@@ -353,11 +353,15 @@ func handWrittenDart(root string, visit func(src string)) error {
 		}
 		data, err := os.ReadFile(p) //nolint:gosec // G304: walked under the repository root.
 		if err != nil {
-			return err
+			return fmt.Errorf("read %s: %w", p, err)
 		}
 		visit(string(data))
 		return nil
 	})
+	if err != nil {
+		return fmt.Errorf("walk %s: %w", root, err)
+	}
+	return nil
 }
 
 // Check runs the comparison for every appendix entry up to phase and returns
@@ -365,7 +369,7 @@ func handWrittenDart(root string, visit func(src string)) error {
 func Check(root string, phase int) ([]string, error) {
 	spec, err := os.ReadFile(filepath.Join(root, "docs", "requirements.md")) //nolint:gosec // G304: fixed path under root.
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("read the specification: %w", err)
 	}
 	widgets, actions := ParseAppendices(string(spec))
 
@@ -379,22 +383,46 @@ func Check(root string, phase int) ([]string, error) {
 		return nil, err
 	}
 
-	b := NewBuilders(map[int]bool{})
-	gen, err := os.ReadFile(filepath.Join(root, "packages", "plux_flutter", "lib", "src", "render", "generated", "render.g.dart")) //nolint:gosec // G304: fixed path under root.
-	if err == nil {
-		b.IDs = ScanGeneratedBuilders(string(gen))
-	} else if !os.IsNotExist(err) {
+	b, err := loadBuilders(root)
+	if err != nil {
 		return nil, err
 	}
 	pkgs, err := filepath.Glob(filepath.Join(root, "packages", "*", "lib"))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("list the packages: %w", err)
 	}
 	for _, p := range pkgs {
 		if err := handWrittenDart(p, b.ScanHandWritten); err != nil {
 			return nil, err
 		}
 	}
+	handlers, err := handlerNames(pkgs)
+	if err != nil {
+		return nil, err
+	}
+
+	out := widgetFindings(widgets, wd, b, phase)
+	out = append(out, actionFindings(actions, ad, handlers, phase)...)
+	sort.Strings(out)
+	return out, nil
+}
+
+// loadBuilders returns the builders the generated render code declares, or
+// none when the generated file does not exist yet.
+func loadBuilders(root string) (*Builders, error) {
+	b := NewBuilders(map[int]bool{})
+	gen, err := os.ReadFile(filepath.Join(root, "packages", "plux_flutter", "lib", "src", "render", "generated", "render.g.dart")) //nolint:gosec // G304: fixed path under root.
+	if err == nil {
+		b.IDs = ScanGeneratedBuilders(string(gen))
+	} else if !os.IsNotExist(err) {
+		return nil, fmt.Errorf("read the generated render code: %w", err)
+	}
+	return b, nil
+}
+
+// handlerNames returns the action names the hand-written Dart of pkgs handles,
+// by their key or by a structural action.
+func handlerNames(pkgs []string) (map[string]bool, error) {
 	handlers := map[string]bool{}
 	for _, p := range pkgs {
 		if err := handWrittenDart(p, func(src string) {
@@ -408,7 +436,12 @@ func Check(root string, phase int) ([]string, error) {
 			return nil, err
 		}
 	}
+	return handlers, nil
+}
 
+// widgetFindings compares the widgets of the appendix up to phase with their
+// descriptors and builders, and returns the findings in no particular order.
+func widgetFindings(widgets map[string]int, wd map[string]Descriptor, b *Builders, phase int) []string {
 	var out []string
 	for name, ph := range widgets {
 		if ph > phase {
@@ -431,6 +464,13 @@ func Check(root string, phase int) ([]string, error) {
 			out = append(out, "WIDGET "+name+": not in appendix")
 		}
 	}
+	return out
+}
+
+// actionFindings compares the actions of the appendix up to phase with their
+// descriptors and handlers, and returns the findings in no particular order.
+func actionFindings(actions map[string]int, ad map[string]Descriptor, handlers map[string]bool, phase int) []string {
+	var out []string
 	for name, ph := range actions {
 		if ph > phase {
 			continue
@@ -452,8 +492,7 @@ func Check(root string, phase int) ([]string, error) {
 			out = append(out, "ACTION "+name+": not in appendix")
 		}
 	}
-	sort.Strings(out)
-	return out, nil
+	return out
 }
 
 // ParsePhase converts "P8" to 8.

@@ -23,7 +23,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "usage: cldrindexdart <index.json> <out.g.dart>")
 		os.Exit(2)
 	}
-	in, err := os.ReadFile(os.Args[1])
+	in, err := os.ReadFile(os.Args[1]) //nolint:gosec // The index the caller named.
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -33,7 +33,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	if err := os.WriteFile(os.Args[2], out, 0o644); err != nil {
+	if err := os.WriteFile(os.Args[2], out, 0o644); err != nil { //nolint:gosec // A committed file, readable by all.
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
@@ -50,7 +50,7 @@ func render(index []byte) ([]byte, error) {
 	}
 	var b bytes.Buffer
 	b.WriteString("// SPDX-FileCopyrightText: 2026 Plux contributors\n")
-	b.WriteString("// SPDX-License-Identifier: Apache-2.0\n\n")
+	b.WriteString("// SPDX-" + "License-Identifier: Apache-2.0\n\n")
 	b.WriteString("// GENERATED CODE - DO NOT MODIFY BY HAND. Run 'make gen'\n")
 	b.WriteString("// (tools/cmd/cldrindexdart, from schema/l10n/cldr/index.json).\n\n")
 	b.WriteString("/// The part of `schema/l10n/cldr/index.json` that locale resolution needs,\n")

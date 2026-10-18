@@ -307,7 +307,7 @@ func TestDeriveRejectsIncompleteData(t *testing.T) {
 }
 
 func TestCanonical(t *testing.T) {
-	got, err := canonical(obj{"b": []any{"x", "y z"}, "a": obj{}, "c": obj{"k": "q\"\\ ‏😀"}, "n": 3})
+	got, err := canonical(obj{"b": []any{"x", "y z"}, "a": obj{}, "c": obj{"k": "q\"\\ \u200f😀"}, "n": 3})
 	if err != nil {
 		t.Fatal(err)
 	}

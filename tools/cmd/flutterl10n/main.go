@@ -76,40 +76,9 @@ func sdkRoot() (string, error) {
 
 // derive writes the locale files and returns how many it wrote.
 func derive(arbDir, cldrDir, out string) (int, error) {
-	raw, err := os.ReadFile(filepath.Join(cldrDir, "index.json"))
+	files, err := arbFiles(arbDir, cldrDir)
 	if err != nil {
-		return 0, fmt.Errorf("read the CLDR index: %w", err)
-	}
-	var idx struct {
-		Locales []string `json:"locales"`
-	}
-	if err := json.Unmarshal(raw, &idx); err != nil {
-		return 0, fmt.Errorf("parse the CLDR index: %w", err)
-	}
-	cldr := map[string]bool{}
-	for _, l := range idx.Locales {
-		cldr[l] = true
-	}
-	// locale -> group -> file
-	files := map[string]map[string]string{}
-	for _, g := range groups {
-		matches, err := filepath.Glob(filepath.Join(arbDir, g+"_*.arb"))
-		if err != nil {
-			return 0, fmt.Errorf("list %s: %w", arbDir, err)
-		}
-		for _, m := range matches {
-			tag := strings.ReplaceAll(strings.TrimSuffix(strings.TrimPrefix(filepath.Base(m), g+"_"), ".arb"), "_", "-")
-			if !cldr[tag] {
-				continue
-			}
-			if files[tag] == nil {
-				files[tag] = map[string]string{}
-			}
-			files[tag][g] = m
-		}
-	}
-	if len(files) == 0 {
-		return 0, fmt.Errorf("%s has no ARB file for a CLDR locale", arbDir)
+		return 0, err
 	}
 	if err := os.MkdirAll(out, 0o750); err != nil {
 		return 0, fmt.Errorf("create %s: %w", out, err)
@@ -129,23 +98,73 @@ func derive(arbDir, cldrDir, out string) (int, error) {
 	}
 	sort.Strings(tags)
 	for _, tag := range tags {
-		doc := map[string]map[string]string{}
-		for g, f := range files[tag] {
-			strs, err := readARB(f)
-			if err != nil {
-				return 0, err
-			}
-			doc[g] = strs
-		}
-		b, err := json.MarshalIndent(doc, "", "  ")
-		if err != nil {
-			return 0, fmt.Errorf("encode %s: %w", tag, err)
-		}
-		if err := os.WriteFile(filepath.Join(out, tag+".json"), append(b, '\n'), 0o600); err != nil {
-			return 0, fmt.Errorf("write %s: %w", tag, err)
+		if err := writeLocale(out, tag, files[tag]); err != nil {
+			return 0, err
 		}
 	}
 	return len(tags), nil
+}
+
+// arbFiles maps each CLDR locale that has ARB files in arbDir to its files,
+// group -> path. It fails when no locale has any.
+func arbFiles(arbDir, cldrDir string) (map[string]map[string]string, error) {
+	raw, err := os.ReadFile(filepath.Join(cldrDir, "index.json"))
+	if err != nil {
+		return nil, fmt.Errorf("read the CLDR index: %w", err)
+	}
+	var idx struct {
+		Locales []string `json:"locales"`
+	}
+	if err := json.Unmarshal(raw, &idx); err != nil {
+		return nil, fmt.Errorf("parse the CLDR index: %w", err)
+	}
+	cldr := map[string]bool{}
+	for _, l := range idx.Locales {
+		cldr[l] = true
+	}
+	// locale -> group -> file
+	files := map[string]map[string]string{}
+	for _, g := range groups {
+		matches, err := filepath.Glob(filepath.Join(arbDir, g+"_*.arb"))
+		if err != nil {
+			return nil, fmt.Errorf("list %s: %w", arbDir, err)
+		}
+		for _, m := range matches {
+			tag := strings.ReplaceAll(strings.TrimSuffix(strings.TrimPrefix(filepath.Base(m), g+"_"), ".arb"), "_", "-")
+			if !cldr[tag] {
+				continue
+			}
+			if files[tag] == nil {
+				files[tag] = map[string]string{}
+			}
+			files[tag][g] = m
+		}
+	}
+	if len(files) == 0 {
+		return nil, fmt.Errorf("%s has no ARB file for a CLDR locale", arbDir)
+	}
+	return files, nil
+}
+
+// writeLocale writes the strings of the locale tag, from its ARB files, to
+// out/<tag>.json.
+func writeLocale(out, tag string, files map[string]string) error {
+	doc := map[string]map[string]string{}
+	for g, f := range files {
+		strs, err := readARB(f)
+		if err != nil {
+			return err
+		}
+		doc[g] = strs
+	}
+	b, err := json.MarshalIndent(doc, "", "  ")
+	if err != nil {
+		return fmt.Errorf("encode %s: %w", tag, err)
+	}
+	if err := os.WriteFile(filepath.Join(out, tag+".json"), append(b, '\n'), 0o600); err != nil {
+		return fmt.Errorf("write %s: %w", tag, err)
+	}
+	return nil
 }
 
 // readARB returns the strings of an ARB file, without its metadata.
