@@ -71,8 +71,7 @@ final class MinTargetSegments extends StatelessWidget {
         children: [
           ExcludeSemantics(child: control),
           Positioned.fill(
-            child: IgnorePointer(
-              ignoringSemantics: false,
+            child: _PointerTransparent(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -101,4 +100,20 @@ final class MinTargetSegments extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Takes no pointer events but keeps its subtree's semantics and does not
+/// block assistive actions: [IgnorePointer] with `ignoringSemantics: false`,
+/// which is deprecated, without its deprecated parameter.
+final class _PointerTransparent extends SingleChildRenderObjectWidget {
+  const _PointerTransparent({required super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderPointerTransparent();
+}
+
+final class _RenderPointerTransparent extends RenderProxyBox {
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) => false;
 }

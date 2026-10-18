@@ -85,7 +85,7 @@ Widget _gallery({bool table = true}) => Column(
     PluxCartesianChart(
       series: [
         for (final s in _series)
-          ChartSeriesData(s['name']! as String, (s['values']! as List<double>)),
+          ChartSeriesData(s['name']! as String, s['values']! as List<double>),
       ],
       labels: _labels,
       bars: false,

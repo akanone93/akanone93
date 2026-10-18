@@ -17,8 +17,8 @@ import 'package:plux_flutter/src/device/types.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/functions/engine.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
-import 'package:plux_flutter/src/render/widget_package.dart';
 import 'package:plux_flutter/src/navigation/delegate.dart';
+import 'package:plux_flutter/src/render/widget_package.dart';
 import 'package:plux_flutter/src/security/rasp.dart';
 import 'package:plux_flutter/src/verify/manifest.dart';
 

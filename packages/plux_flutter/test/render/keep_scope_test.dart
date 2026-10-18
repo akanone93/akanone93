@@ -204,7 +204,7 @@ void main() {
         height: 200,
         child: ReorderableListView(
           proxyDecorator: (child, _, _) => keepScope(c.context, probe('proxy')),
-          onReorder: (_, _) {},
+          onReorderItem: (_, _) {},
           children: [
             for (final i in [0, 1])
               ListTile(key: ValueKey(i), title: Text('item $i')),

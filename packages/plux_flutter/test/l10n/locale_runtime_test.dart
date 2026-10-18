@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Plux contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:typed_data';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,12 +10,10 @@ import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/actions/handlers.dart';
 import 'package:plux_flutter/src/device/guard.dart';
-import 'package:plux_flutter/src/core/fallback.dart';
 import 'package:plux_flutter/src/l10n/calendar/calendar.dart';
 import 'package:plux_flutter/src/l10n/locale_controller.dart';
 import 'package:plux_flutter/src/l10n/locale_host.dart';
 import 'package:plux_flutter/src/l10n/scope.dart';
-import 'package:plux_flutter/src/navigation/router.dart';
 import 'package:plux_flutter/src/render/builders/calendar.dart';
 import 'package:plux_flutter/src/render/scope.dart';
 

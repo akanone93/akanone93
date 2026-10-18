@@ -458,8 +458,9 @@ final class FormController {
   /// and no finished check covers it.
   bool _needsCheck(FormFieldDecl f, Object? v) {
     if (!f.validators.any((x) => x.isAsync) || _absent(v)) return false;
-    if (_syncError(decl, f, v, values, host.evaluate, host.texts) != null)
+    if (_syncError(decl, f, v, values, host.evaluate, host.texts) != null) {
       return false;
+    }
     final done = _checked[f.name];
     return done == null || !sameValue(done.$1, v);
   }

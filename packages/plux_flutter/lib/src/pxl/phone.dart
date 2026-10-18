@@ -204,7 +204,9 @@ String formatPhone(String number, String region) {
   final (code, national, g) = parsed;
   final isNational = g.id.toUpperCase() == region.toUpperCase();
   var body = national;
-  for (final f in _formats[_tables.byCode[code]!.first.id] ?? const []) {
+  final List<_NumberFormat> formats =
+      _formats[_tables.byCode[code]!.first.id] ?? const <_NumberFormat>[];
+  for (final _NumberFormat f in formats) {
     final leading = f.leading;
     if (leading != null && leading.prefix(national) == null) continue;
     final m = f.pattern?._re?.fullFind(national);
