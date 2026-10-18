@@ -10,6 +10,8 @@
   "plux.cart.total": "الإجمالي",
   "plux.fallback.unavailable": "المحتوى غير متاح",
   "plux.iban.invalid": "رقم IBAN غير صالح",
+  "plux.map.zoomIn": "تكبير",
+  "plux.map.zoomOut": "تصغير",
   "plux.masked.reveal": "إظهار",
   "plux.pager.done": "تم",
   "plux.phone.invalid": "رقم هاتف غير صالح",

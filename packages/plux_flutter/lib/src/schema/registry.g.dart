@@ -1829,6 +1829,7 @@ const Set<String> minTargetTypes = {
   'CupertinoContextMenu',
   'CupertinoDatePicker',
   'CupertinoPicker',
+  'CupertinoSlidingSegmentedControl',
   'CupertinoTabBar',
   'CurrencyPicker',
   'DataTable',

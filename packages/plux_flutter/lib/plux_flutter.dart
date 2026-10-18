@@ -87,6 +87,7 @@ export 'src/functions/engine.dart'
         PluxFunctionLimits,
         PluxFunctionOutput,
         PluxFunctionResult;
+export 'src/l10n/runtime_strings.dart' show RuntimeStrings;
 export 'src/native_catalogue/registration.dart'
     show
         PluxNativeAction,

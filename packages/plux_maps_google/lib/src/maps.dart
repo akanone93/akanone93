@@ -10,6 +10,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:plux_maps_google/src/model.dart';
+import 'package:plux_maps_google/src/zoom_controls.dart';
 
 /// Called with the id of a tapped marker.
 typedef MarkerTapped = void Function(String id);
@@ -132,6 +133,11 @@ final class _PluxGoogleMapViewState extends State<PluxGoogleMapView> {
     }
   }
 
+  void _zoomBy(double delta) {
+    final c = _controller;
+    if (c != null) unawaited(c.animateCamera(CameraUpdate.zoomBy(delta)));
+  }
+
   @override
   void dispose() {
     _controller?.dispose();
@@ -146,28 +152,42 @@ final class _PluxGoogleMapViewState extends State<PluxGoogleMapView> {
       (context) => Semantics(
         container: true,
         label: widget.semanticLabel,
-        child: GoogleMap(
-          initialCameraPosition: _camera,
-          minMaxZoomPreference: MinMaxZoomPreference(widget.minZoom, maxZoom),
-          markers: googleMarkers(widget.markers, onTap: widget.onMarkerTap),
-          polylines: googlePolylines(
-            widget.polylines,
-            Theme.of(context).colorScheme,
-          ),
-          scrollGesturesEnabled: widget.interactive,
-          zoomGesturesEnabled: widget.interactive,
-          rotateGesturesEnabled: false,
-          tiltGesturesEnabled: false,
-          zoomControlsEnabled: widget.interactive,
-          mapToolbarEnabled: false,
-          myLocationButtonEnabled: false,
-          layoutDirection: Directionality.of(context),
-          onMapCreated: (c) => _controller = c,
-          onTap: widget.onMapTap,
-          onCameraMove: (p) => _camera = p,
-          onCameraIdle: idle == null
-              ? null
-              : () => idle(_camera.target, _camera.zoom),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            GoogleMap(
+              initialCameraPosition: _camera,
+              minMaxZoomPreference: MinMaxZoomPreference(
+                widget.minZoom,
+                maxZoom,
+              ),
+              markers: googleMarkers(widget.markers, onTap: widget.onMarkerTap),
+              polylines: googlePolylines(
+                widget.polylines,
+                Theme.of(context).colorScheme,
+              ),
+              scrollGesturesEnabled: widget.interactive,
+              zoomGesturesEnabled: widget.interactive,
+              rotateGesturesEnabled: false,
+              tiltGesturesEnabled: false,
+              zoomControlsEnabled: false,
+              mapToolbarEnabled: false,
+              myLocationButtonEnabled: false,
+              layoutDirection: Directionality.of(context),
+              onMapCreated: (c) => _controller = c,
+              onTap: widget.onMapTap,
+              onCameraMove: (p) => _camera = p,
+              onCameraIdle: idle == null
+                  ? null
+                  : () => idle(_camera.target, _camera.zoom),
+            ),
+            if (widget.interactive)
+              PositionedDirectional(
+                top: 8,
+                end: 8,
+                child: PluxMapZoomControls(onZoom: _zoomBy),
+              ),
+          ],
         ),
       ),
     );
@@ -362,6 +382,18 @@ final class _PluxGoogleOrderTrackerMapState
                   },
                 );
               },
+            ),
+            PositionedDirectional(
+              top: 8,
+              end: 8,
+              child: PluxMapZoomControls(
+                onZoom: (delta) {
+                  final c = _controller;
+                  if (c != null) {
+                    unawaited(c.animateCamera(CameraUpdate.zoomBy(delta)));
+                  }
+                },
+              ),
             ),
             if (eta != null)
               PositionedDirectional(

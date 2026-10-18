@@ -195,14 +195,14 @@
                   "background": {
                     "id": "01c0c450-6c00-7000-8a1c-000000000007",
                     "props": {
-                      "color": "#FFF44336"
+                      "color": "#F4433633"
                     },
                     "type": "ColoredBox"
                   },
                   "child": {
                     "id": "01c0c450-6c00-7000-8a1c-000000000006",
                     "props": {
-                      "color": "#FF2196F3",
+                      "color": "#2196F333",
                       "constraints": {
                         "minHeight": 56
                       }
@@ -259,7 +259,7 @@
                       "child": {
                         "id": "01c0c450-6c00-7000-8a1c-00000000000b",
                         "props": {
-                          "color": "#FF4CAF50",
+                          "color": "#4CAF5033",
                           "constraints": {
                             "minHeight": 48
                           },
@@ -279,7 +279,7 @@
                       "childWhenDragging": {
                         "id": "01c0c450-6c00-7000-8a1c-00000000000e",
                         "props": {
-                          "color": "#FFBDBDBD",
+                          "color": "#BDBDBD33",
                           "constraints": {
                             "minHeight": 48
                           },
@@ -290,7 +290,7 @@
                       "feedback": {
                         "id": "01c0c450-6c00-7000-8a1c-00000000000d",
                         "props": {
-                          "color": "#FFFFC107",
+                          "color": "#FFC10733",
                           "constraints": {
                             "minHeight": 48
                           },
@@ -331,13 +331,13 @@
                       "accepts": {
                         "$expr": "page.item"
                       },
-                      "highlightColor": "#33673AB7"
+                      "highlightColor": "#673AB733"
                     },
                     "slots": {
                       "child": {
                         "id": "01c0c450-6c00-7000-8a1c-000000000011",
                         "props": {
-                          "color": "#FFE0E0E0",
+                          "color": "#E0E0E033",
                           "constraints": {
                             "minHeight": 80
                           },
@@ -389,7 +389,6 @@
                       "child": {
                         "id": "01c0c450-6c00-7000-8a1c-000000000016",
                         "props": {
-                          "color": "#FF9C27B0",
                           "constraints": {
                             "minHeight": 300
                           },
@@ -447,9 +446,16 @@
                       "child": {
                         "id": "01c0c450-6c00-7000-8a1c-00000000001b",
                         "props": {
-                          "data": "Timeline pulse"
+                          "color": "#2196F3",
+                          "constraints": {
+                            "minHeight": 24
+                          },
+                          "margin": {
+                            "vertical": 8.0
+                          },
+                          "width": 80
                         },
-                        "type": "Text"
+                        "type": "Container"
                       }
                     },
                     "testId": "pulse-target",
@@ -464,7 +470,7 @@
                   {
                     "id": "01c0c450-6c00-7000-8a1c-00000000001f",
                     "props": {
-                      "color": "#FF2196F3",
+                      "color": "#2196F333",
                       "curve": "easeOut",
                       "duration": 200,
                       "height": 40.0,
@@ -501,9 +507,16 @@
                   "child": {
                     "id": "01c0c450-6c00-7000-8a1c-000000000021",
                     "props": {
-                      "data": "Opacity"
+                      "color": "#2196F3",
+                      "constraints": {
+                        "minHeight": 24
+                      },
+                      "margin": {
+                        "vertical": 8.0
+                      },
+                      "width": 80
                     },
-                    "type": "Text"
+                    "type": "Container"
                   }
                 },
                 "testId": "anim-opacity",
@@ -581,7 +594,7 @@
                           "child": {
                             "id": "01c0c450-6c00-7000-8a1c-000000000028",
                             "props": {
-                              "color": "#FFFF5722",
+                              "color": "#FF572233",
                               "constraints": {
                                 "minHeight": 40
                               },
@@ -737,7 +750,7 @@
                       "child": {
                         "id": "01c0c450-6c00-7000-8a1c-00000000003a",
                         "props": {
-                          "color": "#FF2196F3",
+                          "color": "#2196F333",
                           "height": {
                             "$expr": "page.on ? 80.0 : 40.0"
                           },

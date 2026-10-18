@@ -27,6 +27,7 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -46,4 +47,12 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // The accessibility-tree test only (QA-011; the add-to-app host's UI
+    // tests use the same versions).
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
 }

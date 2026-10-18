@@ -218,4 +218,54 @@ void main() {
     expect(map.polylines, hasLength(1));
     expect(find.text('Arrives in 5 min'), findsOneWidget);
   });
+
+  Widget mapApp({bool interactive = true, TextDirection? dir}) => MaterialApp(
+    home: Directionality(
+      textDirection: dir ?? TextDirection.ltr,
+      child: Scaffold(
+        body: PluxGoogleMapView(
+          semanticLabel: 'Branches',
+          center: const LatLng(48.85, 2.35),
+          interactive: interactive,
+        ),
+      ),
+    ),
+  );
+
+  // Verifies: A11Y-001, A11Y-004.
+  testWidgets('zoom buttons are labelled 48 px targets and replace the '
+      'native controls', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(mapApp());
+    expect(find.bySemanticsLabel('Zoom in'), findsOneWidget);
+    expect(find.bySemanticsLabel('Zoom out'), findsOneWidget);
+    expect(
+      tester.getSize(find.byTooltip('Zoom in')).shortestSide,
+      greaterThanOrEqualTo(48),
+    );
+    expect(
+      tester.widget<GoogleMap>(find.byType(GoogleMap)).zoomControlsEnabled,
+      isFalse,
+    );
+    await tester.tap(find.byTooltip('Zoom in'));
+    handle.dispose();
+  });
+
+  // Verifies: A11Y-001, I18N-005.
+  testWidgets('the zoom buttons sit at the end corner in both directions', (
+    tester,
+  ) async {
+    await tester.pumpWidget(mapApp());
+    expect(tester.getCenter(find.byTooltip('Zoom in')).dx, greaterThan(400));
+    await tester.pumpWidget(mapApp(dir: TextDirection.rtl));
+    expect(tester.getCenter(find.byTooltip('Zoom in')).dx, lessThan(400));
+  });
+
+  // Verifies: A11Y-001.
+  testWidgets('a map that is not interactive has no zoom buttons', (
+    tester,
+  ) async {
+    await tester.pumpWidget(mapApp(interactive: false));
+    expect(find.byTooltip('Zoom in'), findsNothing);
+  });
 }

@@ -414,32 +414,6 @@
                 "type": "TextButton"
               },
               {
-                "events": {
-                  "onPressed": {
-                    "steps": [
-                      {
-                        "action": "haptic",
-                        "id": "h",
-                        "input": {
-                          "pattern": "light"
-                        }
-                      }
-                    ]
-                  }
-                },
-                "id": "01c0c450-6c00-7000-8000-000000000176",
-                "slots": {
-                  "label": {
-                    "id": "01c0c450-6c00-7000-8000-000000000175",
-                    "props": {
-                      "data": "extended fab"
-                    },
-                    "type": "Text"
-                  }
-                },
-                "type": "FloatingActionButton"
-              },
-              {
                 "id": "01c0c450-6c00-7000-8000-000000000178",
                 "props": {
                   "message": "tip"
@@ -522,6 +496,32 @@
                   }
                 },
                 "type": "BottomAppBar"
+              },
+              {
+                "events": {
+                  "onPressed": {
+                    "steps": [
+                      {
+                        "action": "haptic",
+                        "id": "h",
+                        "input": {
+                          "pattern": "light"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8000-000000000176",
+                "slots": {
+                  "label": {
+                    "id": "01c0c450-6c00-7000-8000-000000000175",
+                    "props": {
+                      "data": "extended fab"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "type": "FloatingActionButton"
               }
             ],
             "id": "01c0c450-6c00-7000-8000-00000000017f",

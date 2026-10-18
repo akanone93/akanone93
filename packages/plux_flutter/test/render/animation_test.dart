@@ -81,7 +81,6 @@ void main() {
     await open(tester);
     for (final (text, type) in [
       ('container', AnimatedContainer),
-      ('Opacity', AnimatedOpacity),
       ('Align', AnimatedAlign),
       ('Padding', AnimatedPadding),
       ('Scale', AnimatedScale),
@@ -95,6 +94,7 @@ void main() {
     ]) {
       expect(over(text, type), findsOneWidget, reason: '$type');
     }
+    expect(find.byType(AnimatedOpacity), findsOneWidget);
     expect(find.byType(AnimatedPositioned), findsOneWidget);
     expect(find.byType(Draggable<Object>), findsOneWidget);
     expect(find.byType(DragTarget<Object>), findsOneWidget);
@@ -279,7 +279,7 @@ void main() {
   ) async {
     await open(tester);
     double pulse() =>
-        tester.widget<Opacity>(over('Timeline pulse', Opacity).first).opacity;
+        tester.widget<Opacity>(find.byType(Opacity).first).opacity;
     await tester.pump(const Duration(milliseconds: 200));
     expect(pulse(), inExclusiveRange(0.2, 1.0));
     await tester.pump(const Duration(milliseconds: 600));

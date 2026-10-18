@@ -18,6 +18,7 @@ import 'package:plux_flutter/src/render/builders/layer2.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
+import 'package:plux_flutter/src/render/min_target.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
 import 'package:plux_flutter/src/render/plux_icon.dart';
 import 'package:plux_flutter/src/render/plux_node.dart';
@@ -810,43 +811,55 @@ Widget _slidingSegmentedControl(NodeContext c) {
     for (var i = 0; i < values.length && i < segments.length; i++)
       values[i]: segments[i],
   };
+  final keys = children.keys.toList();
   return c.controlled<String?>(
     CupertinoSlidingSegmentedControlEvents.onValueChanged,
     c.decode(CupertinoSlidingSegmentedControlProps.groupValue, asString),
-    (value, onChanged) => CupertinoSlidingSegmentedControl<String>(
-      children: children,
-      onValueChanged: (v) => onChanged?.call(v),
-      disabledChildren:
-          c.decode(
-            CupertinoSlidingSegmentedControlProps.disabledChildren,
-            asStringSet,
-          ) ??
-          (onChanged == null ? children.keys.toSet() : const {}),
-      groupValue: value,
-      thumbColor:
-          c.decode(CupertinoSlidingSegmentedControlProps.thumbColor, asColor) ??
-          _segmentDefaults.thumbColor,
-      padding:
-          c.decode(
-            CupertinoSlidingSegmentedControlProps.padding,
-            decodeEdgeInsets,
-          ) ??
-          _segmentDefaults.padding,
-      backgroundColor:
-          c.decode(
-            CupertinoSlidingSegmentedControlProps.backgroundColor,
-            asColor,
-          ) ??
-          CupertinoColors.tertiarySystemFill,
-      proportionalWidth:
-          c.decode(
-            CupertinoSlidingSegmentedControlProps.proportionalWidth,
-            asBool,
-          ) ??
-          false,
-      isMomentary:
-          c.decode(CupertinoSlidingSegmentedControlProps.isMomentary, asBool) ??
-          false,
+    (value, onChanged) => MinTargetSegments(
+      segments: children.values.toList(),
+      selected: value == null ? null : keys.indexOf(value),
+      onSelect: onChanged == null ? null : (i) => onChanged(keys[i]),
+      control: CupertinoSlidingSegmentedControl<String>(
+        children: children,
+        onValueChanged: (v) => onChanged?.call(v),
+        disabledChildren:
+            c.decode(
+              CupertinoSlidingSegmentedControlProps.disabledChildren,
+              asStringSet,
+            ) ??
+            (onChanged == null ? children.keys.toSet() : const {}),
+        groupValue: value,
+        thumbColor:
+            c.decode(
+              CupertinoSlidingSegmentedControlProps.thumbColor,
+              asColor,
+            ) ??
+            _segmentDefaults.thumbColor,
+        padding:
+            c.decode(
+              CupertinoSlidingSegmentedControlProps.padding,
+              decodeEdgeInsets,
+            ) ??
+            _segmentDefaults.padding,
+        backgroundColor:
+            c.decode(
+              CupertinoSlidingSegmentedControlProps.backgroundColor,
+              asColor,
+            ) ??
+            CupertinoColors.tertiarySystemFill,
+        proportionalWidth:
+            c.decode(
+              CupertinoSlidingSegmentedControlProps.proportionalWidth,
+              asBool,
+            ) ??
+            false,
+        isMomentary:
+            c.decode(
+              CupertinoSlidingSegmentedControlProps.isMomentary,
+              asBool,
+            ) ??
+            false,
+      ),
     ),
   );
 }

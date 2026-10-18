@@ -27,7 +27,7 @@ Widget wrapSemantics(
   var out = w;
   if (minTarget) {
     out = ConstrainedBox(
-      constraints: const BoxConstraints(
+      constraints: BoxConstraints(
         minWidth: minTargetSize,
         minHeight: minTargetSize,
       ),

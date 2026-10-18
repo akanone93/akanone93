@@ -58,7 +58,12 @@ void main() {
         if (dark) {
           Plux.setThemeMode(ThemeMode.dark);
           await settle(tester);
-          await tester.pump(const Duration(milliseconds: 300));
+          // The theme change animates down the tree one level at a time (a
+          // Material text style, then the segmented control's own), so wait
+          // for each level before the page is read.
+          for (var i = 0; i < 3; i++) {
+            await tester.pump(const Duration(milliseconds: 300));
+          }
         }
         // The sync that finds no server release, the pages' uploader and
         // static data source (kinds the test runtime does not load) and the
