@@ -108,33 +108,43 @@ func walk(typ string, v any, marked bool, path []string, prop string, out *[]Lit
 			*out = append(*out, Literal{Path: append([]string(nil), path...), Prop: prop, Text: x})
 		}
 	case []any:
-		elem, ok := inner(typ, "list<")
-		if !ok {
-			return
-		}
-		for i, it := range x {
-			walk(elem, it, marked, append(path, itoa(i)), prop, out)
-		}
+		walkList(typ, x, marked, path, prop, out)
 	case map[string]any:
-		if isBinding(x) {
-			return
-		}
-		if elem, ok := inner(typ, "map<"); ok {
-			if _, value, found := strings.Cut(elem, ","); found {
-				for _, k := range sortedKeys(x) {
-					walk(value, x[k], marked, append(path, k), prop, out)
-				}
+		walkObject(typ, x, path, prop, out, marked)
+	}
+}
+
+// walkList follows the items of a list<...> value.
+func walkList(typ string, items []any, marked bool, path []string, prop string, out *[]Literal) {
+	elem, ok := inner(typ, "list<")
+	if !ok {
+		return
+	}
+	for i, it := range items {
+		walk(elem, it, marked, append(path, itoa(i)), prop, out)
+	}
+}
+
+// walkObject follows a map<...> value or an object of a value type.
+func walkObject(typ string, x map[string]any, path []string, prop string, out *[]Literal, marked bool) {
+	if isBinding(x) {
+		return
+	}
+	if elem, ok := inner(typ, "map<"); ok {
+		if _, value, found := strings.Cut(elem, ","); found {
+			for _, k := range sortedKeys(x) {
+				walk(value, x[k], marked, append(path, k), prop, out)
 			}
-			return
 		}
-		vt, ok := registry.LookupValueType(typ)
-		if !ok {
-			return
-		}
-		for _, f := range vt.Fields {
-			if fv, present := x[f.Name]; present {
-				walk(f.Type, fv, f.Translatable, append(path, f.Name), prop, out)
-			}
+		return
+	}
+	vt, ok := registry.LookupValueType(typ)
+	if !ok {
+		return
+	}
+	for _, f := range vt.Fields {
+		if fv, present := x[f.Name]; present {
+			walk(f.Type, fv, f.Translatable, append(path, f.Name), prop, out)
 		}
 	}
 }

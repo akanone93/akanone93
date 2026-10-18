@@ -34,6 +34,15 @@ type ReduceOptions struct {
 	Currencies []string
 }
 
+// keepKeys deletes the keys of m that are not in keep.
+func keepKeys(m map[string]any, keep []string) {
+	for k := range m {
+		if !slices.Contains(keep, k) {
+			delete(m, k)
+		}
+	}
+}
+
 // Reduce returns the canonical JSON of the data of the best embedded locale
 // for tag, reduced to what an app uses, and the CLDR locale it came from.
 // The numbers, plurals, date formats, territory names and currency digits
@@ -60,20 +69,11 @@ func Reduce(tag string, o ReduceOptions) (data []byte, resolved string, err erro
 		return nil, "", fmt.Errorf("%w: %s: %w", ErrInvalidData, id, err)
 	}
 	if cals, ok := doc["calendars"].(map[string]any); ok {
-		keep := append([]string{"gregorian"}, o.Calendars...)
-		for name := range cals {
-			if !slices.Contains(keep, name) {
-				delete(cals, name)
-			}
-		}
+		keepKeys(cals, append([]string{"gregorian"}, o.Calendars...))
 	}
 	if o.Currencies != nil {
 		if cur, ok := doc["currencies"].(map[string]any); ok {
-			for code := range cur {
-				if !slices.Contains(o.Currencies, code) {
-					delete(cur, code)
-				}
-			}
+			keepKeys(cur, o.Currencies)
 		}
 	}
 	var buf bytes.Buffer

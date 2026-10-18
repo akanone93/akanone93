@@ -176,15 +176,32 @@ func (l *Locale) FormatCompact(x Decimal, opts NumberOptions) (string, error) {
 	if opts.Fraction != nil {
 		return "", fmt.Errorf("%w: compact notation fixes its own fraction digits", ErrInvalidOption)
 	}
-	cur := x.abs()
-	var (
-		scaled Decimal
-		exp    int
-		pat    *pattern
-	)
+	scaled, exp, cur := ns.compactScale(x.abs())
+	pat := ns.decimal
+	if exp > 0 {
+		cat := l.cardinal.category(operands{d: scaled, c: exp})
+		row := ns.compactRow(cur.intLen() - 1)
+		if row == nil {
+			return "", fmt.Errorf("%w: compact patterns", ErrInvalidData)
+		}
+		pat = row.patterns[string(cat)]
+		if pat == nil {
+			pat = row.patterns[string(Other)]
+		}
+	}
+	scaled.neg = x.neg
+	ly := layout{pat: pat, sysID: id, ns: ns, grouping: !opts.NoGrouping, min: 0, max: len(scaled.frac), minGrouping: 2}
+	return l.render(ly, scaled), nil
+}
+
+// compactScale scales cur to the compact magnitude it belongs to and rounds
+// it. It returns the scaled number, the power of ten removed and the number
+// the magnitude was finally chosen for: a number that rounds up to the next
+// magnitude is scaled again, once.
+func (ns *numberSystem) compactScale(cur Decimal) (scaled Decimal, exp int, chosen Decimal) {
 	for attempt := 0; attempt < 2; attempt++ {
 		row := ns.compactRow(cur.intLen() - 1)
-		exp, pat = 0, ns.decimal
+		exp = 0
 		if row != nil {
 			if p := row.patterns[string(Other)]; p != nil && (len(p.prefix) > 0 || len(p.suffix) > 0) {
 				exp = row.exp - (p.minInt - 1)
@@ -202,20 +219,7 @@ func (l *Locale) FormatCompact(x Decimal, opts NumberOptions) (string, error) {
 		}
 		break
 	}
-	if exp > 0 {
-		cat := l.cardinal.category(operands{d: scaled, c: exp})
-		row := ns.compactRow(cur.intLen() - 1)
-		if row == nil {
-			return "", fmt.Errorf("%w: compact patterns", ErrInvalidData)
-		}
-		pat = row.patterns[string(cat)]
-		if pat == nil {
-			pat = row.patterns[string(Other)]
-		}
-	}
-	scaled.neg = x.neg
-	ly := layout{pat: pat, sysID: id, ns: ns, grouping: !opts.NoGrouping, min: 0, max: len(scaled.frac), minGrouping: 2}
-	return l.render(ly, scaled), nil
+	return scaled, exp, cur
 }
 
 // compactRow returns the row for the largest magnitude not above 10^exp, or
@@ -293,6 +297,25 @@ func group(ints string, primary, secondary int, sep string) string {
 	return strings.Join(parts, sep)
 }
 
+// writeCurrency writes the currency text cur; when it touches the number it
+// gets the locale's currency spacing on the number's side.
+func (l *Locale) writeCurrency(b *strings.Builder, cur string, touches, isPrefix bool) {
+	switch {
+	case touches && isPrefix:
+		b.WriteString(cur)
+		if r, _ := utf8.DecodeLastRuneInString(cur); !unicode.IsSymbol(r) && !unicode.IsSpace(r) {
+			b.WriteString(l.spacingAfter)
+		}
+	case touches:
+		if r, _ := utf8.DecodeRuneInString(cur); !unicode.IsSymbol(r) && !unicode.IsSpace(r) {
+			b.WriteString(l.spacingBefore)
+		}
+		b.WriteString(cur)
+	default:
+		b.WriteString(cur)
+	}
+}
+
 // writeAffix writes a prefix or suffix. A currency sign touching the number
 // gets the locale's currency spacing when the currency text ends (before the
 // number) or starts (after it) with a letter-like character.
@@ -306,20 +329,7 @@ func (l *Locale) writeAffix(b *strings.Builder, a affix, ly layout, isPrefix boo
 			if cur == "" {
 				continue
 			}
-			touches := (isPrefix && i == len(a)-1) || (!isPrefix && i == 0)
-			if touches && isPrefix {
-				b.WriteString(cur)
-				if r, _ := utf8.DecodeLastRuneInString(cur); !unicode.IsSymbol(r) && !unicode.IsSpace(r) {
-					b.WriteString(l.spacingAfter)
-				}
-			} else if touches {
-				if r, _ := utf8.DecodeRuneInString(cur); !unicode.IsSymbol(r) && !unicode.IsSpace(r) {
-					b.WriteString(l.spacingBefore)
-				}
-				b.WriteString(cur)
-			} else {
-				b.WriteString(cur)
-			}
+			l.writeCurrency(b, cur, (isPrefix && i == len(a)-1) || (!isPrefix && i == 0), isPrefix)
 		case partPercent:
 			b.WriteString(ly.ns.symbols["percentSign"])
 		case partPermille:

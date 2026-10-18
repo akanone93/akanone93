@@ -189,6 +189,42 @@ func parseCore(core string, p *pattern) error {
 	return nil
 }
 
+// symbolKind returns the part kind of a percent, per-mille, minus or plus
+// sign in an affix.
+func symbolKind(r rune) partKind {
+	switch r {
+	case '%':
+		return partPercent
+	case '‰':
+		return partPermille
+	case '-':
+		return partMinus
+	}
+	return partPlus
+}
+
+// readQuotedRunes appends the text of the quote that opens at runes[i] to text
+// and returns the index of its closing quote; false when it is unterminated.
+func readQuotedRunes(runes []rune, i int, text *strings.Builder) (int, bool) {
+	j := i + 1
+	for j < len(runes) {
+		if runes[j] == '\'' {
+			if j+1 < len(runes) && runes[j+1] == '\'' {
+				text.WriteRune('\'') // '' inside a quote is an apostrophe
+				j += 2
+				continue
+			}
+			break
+		}
+		text.WriteRune(runes[j])
+		j++
+	}
+	if j == len(runes) {
+		return 0, false
+	}
+	return j, true
+}
+
 func parseAffix(s string) (affix, error) {
 	var out affix
 	var text strings.Builder
@@ -208,41 +244,20 @@ func parseAffix(s string) (affix, error) {
 				i++
 				continue
 			}
-			j := i + 1
-			for j < len(runes) {
-				if runes[j] == '\'' {
-					if j+1 < len(runes) && runes[j+1] == '\'' {
-						text.WriteRune('\'') // '' inside a quote is an apostrophe
-						j += 2
-						continue
-					}
-					break
-				}
-				text.WriteRune(runes[j])
-				j++
-			}
-			if j == len(runes) {
+			end, ok := readQuotedRunes(runes, i, &text)
+			if !ok {
 				return nil, fmt.Errorf("unterminated quote")
 			}
-			i = j
+			i = end
 		case '¤':
 			flush()
 			for i+1 < len(runes) && runes[i+1] == '¤' {
 				i++
 			}
 			out = append(out, part{kind: partCurrency})
-		case '%':
+		case '%', '‰', '-', '+':
 			flush()
-			out = append(out, part{kind: partPercent})
-		case '‰':
-			flush()
-			out = append(out, part{kind: partPermille})
-		case '-':
-			flush()
-			out = append(out, part{kind: partMinus})
-		case '+':
-			flush()
-			out = append(out, part{kind: partPlus})
+			out = append(out, part{kind: symbolKind(r)})
 		default:
 			text.WriteRune(r)
 		}
