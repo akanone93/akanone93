@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plux_flutter/plux_flutter.dart';
+import 'package:plux_flutter/src/l10n/calendar/calendar.dart';
+import 'package:plux_flutter/src/render/builders/calendar.dart';
 
 import '../support/harness.dart';
 
@@ -144,5 +146,90 @@ void main() {
     await tester.tap(find.byTooltip('Previous month').first);
     await tester.pump();
     expect(find.text('February 2024'), findsOneWidget);
+  });
+
+  // The grid opens on today when there is no value; the 1900-01-01 lower
+  // bound stays the selectable range start.
+  group('opens on the current month without a value [I18N-003]', () {
+    int jdn(int y, int m, int d) =>
+        calendarSystem(gregorianId)!.toJdn(CalendarYmd(y, m, d));
+
+    Future<void> pumpPicker(
+      WidgetTester tester, {
+      required DateTime Function() now,
+      int? value,
+      int? first,
+      int? last,
+    }) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Material(
+            child: DualCalendarView(
+              primary: calendarSystem(gregorianId)!,
+              secondary: null,
+              value: value,
+              firstJdn: first ?? jdn(1900, 1, 1),
+              lastJdn: last ?? jdn(2100, 12, 31),
+              onChanged: (_) {},
+              now: now,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+    }
+
+    testWidgets('shows the month of today', (tester) async {
+      await pumpPicker(tester, now: () => DateTime(2024, 7, 15));
+      expect(find.text('July 2024'), findsOneWidget);
+    });
+
+    testWidgets('a value wins over today', (tester) async {
+      await pumpPicker(
+        tester,
+        now: () => DateTime(2024, 7, 15),
+        value: jdn(2024, 3, 11),
+      );
+      expect(find.text('March 2024'), findsOneWidget);
+      expect(find.text('July 2024'), findsNothing);
+    });
+
+    testWidgets('today before the lower bound opens on the lower bound', (
+      tester,
+    ) async {
+      await pumpPicker(tester, now: () => DateTime(1850, 5, 1));
+      expect(find.text('January 1900'), findsOneWidget);
+      // The range is unchanged: 1900 is still selectable from its month.
+      expect(
+        tester
+            .widget<IconButton>(
+              find.ancestor(
+                of: find.byTooltip('Previous month'),
+                matching: find.byType(IconButton),
+              ),
+            )
+            .onPressed,
+        isNull,
+      );
+    });
+
+    testWidgets('today after the upper bound opens on the upper bound', (
+      tester,
+    ) async {
+      await pumpPicker(tester, now: () => DateTime(2150, 1, 1));
+      expect(find.text('December 2100'), findsOneWidget);
+    });
+
+    testWidgets('a given range is honoured when it excludes today', (
+      tester,
+    ) async {
+      await pumpPicker(
+        tester,
+        now: () => DateTime(2024, 7, 15),
+        first: jdn(2010, 1, 1),
+        last: jdn(2012, 6, 30),
+      );
+      expect(find.text('June 2012'), findsOneWidget);
+    });
   });
 }
