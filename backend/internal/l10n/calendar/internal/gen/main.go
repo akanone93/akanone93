@@ -42,9 +42,9 @@ func main() {
 }
 
 func read(path string, v any) error {
-	b, err := os.ReadFile(path)
+	b, err := os.ReadFile(path) //nolint:gosec // G304: the developer names the input.
 	if err != nil {
-		return err
+		return fmt.Errorf("read %s: %w", path, err)
 	}
 	if err := json.Unmarshal(b, v); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
@@ -89,10 +89,10 @@ func run(dir, goOut, dartOut string) error {
 	g.WriteString("var persianNonLeapYears = [...]int32{" + list(p.NonLeapYears, "%d", " ") + "}\n")
 	src, err := format.Source(g.Bytes())
 	if err != nil {
-		return err
+		return fmt.Errorf("format Go tables: %w", err)
 	}
-	if err := os.WriteFile(goOut, src, 0o644); err != nil {
-		return err
+	if err := os.WriteFile(goOut, src, 0o600); err != nil { //nolint:gosec // G703: the developer names the output.
+		return fmt.Errorf("write %s: %w", goOut, err)
 	}
 
 	var d bytes.Buffer
@@ -109,7 +109,10 @@ func run(dir, goOut, dartOut string) error {
 	d.WriteString("const List<int> umalquraYearStarts = [" + list(starts, "%d", "  ") + "];\n\n")
 	d.WriteString("/// The Persian years ICU corrects to non-leap, ascending.\n")
 	d.WriteString("const List<int> persianNonLeapYears = [" + list(p.NonLeapYears, "%d", "  ") + "];\n")
-	return os.WriteFile(dartOut, d.Bytes(), 0o644)
+	if err := os.WriteFile(dartOut, d.Bytes(), 0o600); err != nil { //nolint:gosec // G703: the developer names the output.
+		return fmt.Errorf("write %s: %w", dartOut, err)
+	}
+	return nil
 }
 
 // list formats ints eight to a line, indented, each followed by a comma.

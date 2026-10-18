@@ -37,9 +37,9 @@ func TestAccentedGolden(t *testing.T) {
 func TestRightToLeftGolden(t *testing.T) {
 	t.Parallel()
 	for _, c := range []struct{ in, want string }{
-		{"Hello", "‮Hello‬"},
-		{"Hi {name}!", "‮Hi {name}!‬"},
-		{"{n, plural, one {# item} other {# items}}", "‮{n, plural, one {# item} other {# items}}‬"},
+		{"Hello", "\u202eHello\u202c"},
+		{"Hi {name}!", "\u202eHi {name}!\u202c"},
+		{"{n, plural, one {# item} other {# items}}", "\u202e{n, plural, one {# item} other {# items}}\u202c"},
 	} {
 		got, err := Message(RTL, c.in)
 		if err != nil {

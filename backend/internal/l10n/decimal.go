@@ -82,7 +82,7 @@ func DecimalFromInt(n int64) Decimal {
 		return Decimal{}
 	}
 	neg := n < 0
-	u := uint64(n)
+	u := uint64(n) //nolint:gosec // G115: two's complement; negating gives |n|, also for MinInt64.
 	if neg {
 		u = -u
 	}

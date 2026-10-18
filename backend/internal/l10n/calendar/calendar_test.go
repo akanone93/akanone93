@@ -191,7 +191,7 @@ func TestFormatDate(t *testing.T) {
 		{Ethiopic, "Monday, Megabit 2, 2016 AM"},
 	} {
 		sys, _ := ForID(c.cal)
-		s, err := en.FormatDate(CalendarDate(sys, jdn, 0, 0, 0), c.cal, l10n.DateOptions{DateStyle: "full"})
+		s, err := en.FormatDate(FormatInput(sys, jdn, 0, 0, 0), c.cal, l10n.DateOptions{DateStyle: "full"})
 		if err != nil {
 			t.Fatalf("%s: %v", c.cal, err)
 		}

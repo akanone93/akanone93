@@ -27,7 +27,7 @@ type SyntaxError struct {
 func (e *SyntaxError) Error() string { return fmt.Sprintf("%s at offset %d", e.Msg, e.Offset) }
 
 // Unwrap returns ErrSyntax.
-func (e *SyntaxError) Unwrap() error { return ErrSyntax }
+func (*SyntaxError) Unwrap() error { return ErrSyntax }
 
 // pluralSelectors are the selector words of plural and selectordinal.
 var pluralSelectors = map[string]bool{"zero": true, "one": true, "two": true, "few": true, "many": true, "other": true}
@@ -61,7 +61,7 @@ func Parse(src string) (*Message, error) {
 
 func (p *parser) done() bool { return p.pos >= len(p.src) }
 
-func (p *parser) fail(off int, format string, args ...any) error {
+func (*parser) fail(off int, format string, args ...any) error {
 	return &SyntaxError{Offset: off, Msg: fmt.Sprintf(format, args...)}
 }
 

@@ -31,8 +31,8 @@ func IsTag(tag string) bool { return tag == Accented || tag == RTL }
 
 // Right-to-left override and pop directional formatting.
 const (
-	rlo = "‮"
-	pdf = "‬"
+	rlo = "\u202e"
+	pdf = "\u202c"
 )
 
 // accents maps ASCII letters to accented Latin ones.
@@ -51,7 +51,7 @@ var accents = map[rune]rune{
 func Message(tag, text string) (string, error) {
 	m, err := mf.Parse(text)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("parse message: %w", err)
 	}
 	switch tag {
 	case Accented:

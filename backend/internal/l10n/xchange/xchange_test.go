@@ -122,8 +122,11 @@ func TestXLIFFExportShape(t *testing.T) {
 		}
 	}
 	// The key without a translation has no target.
-	unit := text[strings.Index(text, `id="`+idUser):]
-	unit = unit[:strings.Index(unit, "</unit>")]
+	_, unit, found := strings.Cut(text, `id="`+idUser)
+	if !found {
+		t.Fatalf("export lacks the unit %q:\n%s", idUser, text)
+	}
+	unit, _, _ = strings.Cut(unit, "</unit>")
 	if strings.Contains(unit, "<target>") {
 		t.Errorf("an untranslated key has a target:\n%s", unit)
 	}

@@ -63,7 +63,7 @@ func (e *evaluator) nodes(b *strings.Builder, nodes []Node, p *pound) {
 		case KindDate, KindTime:
 			e.date(b, n)
 		case KindPlural:
-			e.plural(b, n, p)
+			e.plural(b, n)
 		case KindSelect:
 			e.selectCase(b, n, p)
 		}
@@ -153,13 +153,13 @@ func (e *evaluator) skeleton(d l10n.Decimal, src string) (string, error) {
 	}
 	switch {
 	case sk.compact:
-		return e.loc.FormatCompact(d, l10n.NumberOptions{NoGrouping: sk.noGroup})
+		return e.loc.FormatCompact(d, l10n.NumberOptions{NoGrouping: sk.noGroup}) //nolint:wrapcheck // reported as is
 	case sk.percent:
-		return e.loc.FormatPercent(d, l10n.NumberOptions{Fraction: frac, NoGrouping: sk.noGroup})
+		return e.loc.FormatPercent(d, l10n.NumberOptions{Fraction: frac, NoGrouping: sk.noGroup}) //nolint:wrapcheck // reported as is
 	case sk.currency != "":
-		return e.loc.FormatMoney(d, sk.currency, l10n.MoneyOptions{Fraction: frac, NoGrouping: sk.noGroup})
+		return e.loc.FormatMoney(d, sk.currency, l10n.MoneyOptions{Fraction: frac, NoGrouping: sk.noGroup}) //nolint:wrapcheck // reported as is
 	}
-	return e.loc.FormatNumber(d, l10n.NumberOptions{Fraction: frac, NoGrouping: sk.noGroup})
+	return e.loc.FormatNumber(d, l10n.NumberOptions{Fraction: frac, NoGrouping: sk.noGroup}) //nolint:wrapcheck // reported as is
 }
 
 func (e *evaluator) date(b *strings.Builder, n *Node) {
@@ -221,7 +221,7 @@ func (e *evaluator) selectCase(b *strings.Builder, n *Node, p *pound) {
 	}
 }
 
-func (e *evaluator) plural(b *strings.Builder, n *Node, outer *pound) {
+func (e *evaluator) plural(b *strings.Builder, n *Node) {
 	v, ok := e.args[n.Name]
 	if !ok || v == nil {
 		return
@@ -316,5 +316,5 @@ func subtract(d l10n.Decimal, offset int64) (l10n.Decimal, error) {
 	if u.Sign() < 0 {
 		text = "-" + text
 	}
-	return l10n.ParseDecimal(text)
+	return l10n.ParseDecimal(text) //nolint:wrapcheck // reported as is
 }

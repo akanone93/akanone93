@@ -101,11 +101,11 @@ func (r *reader) string() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if n > uint64(len(r.b)-r.pos) {
+	if n > uint64(len(r.b)-r.pos) { //nolint:gosec // G115: the remaining length is non-negative.
 		return "", fmt.Errorf("%w: truncated string", ErrAST)
 	}
-	s := string(r.b[r.pos : r.pos+int(n)])
-	r.pos += int(n)
+	s := string(r.b[r.pos : r.pos+int(n)]) //nolint:gosec // G115: n is at most the remaining length.
+	r.pos += int(n)                        //nolint:gosec // G115: n is at most the remaining length.
 	if !utf8.ValidString(s) {
 		return "", fmt.Errorf("%w: string is not UTF-8", ErrAST)
 	}
@@ -137,7 +137,7 @@ func (r *reader) nodes(depth int) ([]Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	if count > uint64(len(r.b)-r.pos) { // every node is at least one byte
+	if count > uint64(len(r.b)-r.pos) { //nolint:gosec // G115: the remaining length is non-negative. Every node is at least one byte.
 		return nil, fmt.Errorf("%w: truncated", ErrAST)
 	}
 	nodes := make([]Node, 0, count)
@@ -201,7 +201,7 @@ func (r *reader) cases(depth int) ([]Case, error) {
 	if err != nil {
 		return nil, err
 	}
-	if count > uint64(len(r.b)-r.pos) {
+	if count > uint64(len(r.b)-r.pos) { //nolint:gosec // G115: the remaining length is non-negative.
 		return nil, fmt.Errorf("%w: truncated", ErrAST)
 	}
 	cases := make([]Case, 0, count)
