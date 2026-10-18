@@ -39,7 +39,16 @@
     "01d0c450-6c00-7000-8000-000000009003": "Amount",
     "01d0c450-6c00-7000-8000-000000009004": "New balance",
     "01d0c450-6c00-7000-8000-000000009201": "Available: {amount} EUR",
-    "01d0c450-6c00-7000-8000-000000009202": "Fee: {fee} EUR"
+    "01d0c450-6c00-7000-8000-000000009202": "Fee: {fee} EUR",
+    "01d0c450-6c00-7000-8000-000000009301": "Enter your username",
+    "01d0c450-6c00-7000-8000-000000009302": "Enter your PIN",
+    "01d0c450-6c00-7000-8000-000000009303": "Enter the code",
+    "01d0c450-6c00-7000-8000-000000009304": "Enter the recipient's IBAN",
+    "01d0c450-6c00-7000-8000-000000009305": "Enter a valid IBAN",
+    "01d0c450-6c00-7000-8000-000000009306": "Enter an amount",
+    "01d0c450-6c00-7000-8000-000000009307": "Use at most two decimals",
+    "01d0c450-6c00-7000-8000-000000009308": "The amount must be above zero and within your balance",
+    "01d0c450-6c00-7000-8000-000000009309": "Use at most 40 characters"
   },
   "schemaVersion": "1.0.0"
 }

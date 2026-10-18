@@ -73,7 +73,18 @@ func (u *unit) localisation() {
 		for _, pg := range pl.pages {
 			if u.inFocus(pg.file) {
 				u.translatableTitle(pg)
+				u.translatableMessages(pg.file, pg.doc.Forms)
 			}
+		}
+	}
+	comps := make([]*component, 0, len(u.components))
+	for _, c := range u.components {
+		comps = append(comps, c)
+	}
+	slices.SortFunc(comps, func(a, b *component) int { return strings.Compare(a.file, b.file) })
+	for _, c := range comps {
+		if c.doc != nil && u.inFocus(c.file) {
+			u.translatableMessages(c.file, c.doc.Forms)
 		}
 	}
 	if u.focus == "" {
@@ -117,6 +128,26 @@ func (u *unit) translatableTitle(pg *page) {
 	}
 	for _, l := range literals.Title(map[string]any{"title": title}) {
 		u.report(plxerr.LiteralTextUntranslated, pg.file, plxerr.Pointer(l.Path...),
+			"%s holds literal text; move it into a translation key (plux l10n extract)", l.Prop)
+	}
+}
+
+// translatableMessages warns about a literal validator message of a page's
+// or component's forms (PLX-1609, I18N-001, I18N-007).
+func (u *unit) translatableMessages(file string, forms []schema.Form) {
+	if len(forms) == 0 || len(u.project.App.Doc.SupportedLocales) < 2 {
+		return
+	}
+	raw, err := json.Marshal(map[string]any{"forms": forms})
+	if err != nil {
+		return
+	}
+	var doc map[string]any
+	if json.Unmarshal(raw, &doc) != nil {
+		return
+	}
+	for _, l := range literals.Forms(doc) {
+		u.report(plxerr.LiteralTextUntranslated, file, plxerr.Pointer(l.Path...),
 			"%s holds literal text; move it into a translation key (plux l10n extract)", l.Prop)
 	}
 }

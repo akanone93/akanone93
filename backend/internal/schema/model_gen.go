@@ -787,9 +787,10 @@ type FormField struct {
 type FormValidator struct {
 	// Kind: A built-in validator of a form field (STA-020, ADR-0047).
 	Kind FormValidatorKind `json:"kind"`
-	// Message: The message shown when the value is invalid; the runtime's
-	// built-in message otherwise.
-	Message string `json:"message,omitempty"`
+	// Message: The message shown when the value is invalid: a literal string or
+	// a translation reference resolved in the effective locale; the runtime's
+	// built-in message otherwise (I18N-001).
+	Message json.RawMessage `json:"message,omitempty"`
 	// Min: A JSON value interpreted against a declared type (defaults, mocks,
 	// environment values).
 	Min json.RawMessage `json:"min,omitempty"`

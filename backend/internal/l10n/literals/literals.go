@@ -66,6 +66,31 @@ func Title(page map[string]any) []Literal {
 	return nil
 }
 
+// Forms returns the literal validator messages of a page or component
+// document decoded as generic JSON (I18N-001, I18N-007): a message that is a
+// plain string holding a letter. Path is the message key from the document
+// root, such as forms, 0, fields, 1, validators, 0, message.
+func Forms(doc map[string]any) []Literal {
+	var out []Literal
+	forms, _ := doc["forms"].([]any)
+	for i, f := range forms {
+		fm, _ := f.(map[string]any)
+		fields, _ := fm["fields"].([]any)
+		for j, fd := range fields {
+			fdm, _ := fd.(map[string]any)
+			vals, _ := fdm["validators"].([]any)
+			for k, v := range vals {
+				vm, _ := v.(map[string]any)
+				if s, ok := vm["message"].(string); ok && Translatable(s) {
+					path := []string{"forms", itoa(i), "fields", itoa(j), "validators", itoa(k), "message"}
+					out = append(out, Literal{Path: path, Prop: "validator message", Text: s})
+				}
+			}
+		}
+	}
+	return out
+}
+
 // Translatable reports whether a string is text a person reads: it holds at
 // least one letter. Punctuation, digits and symbols alone ("-", "$", "12")
 // are not translated.

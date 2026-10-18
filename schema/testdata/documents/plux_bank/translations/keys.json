@@ -197,6 +197,51 @@
       "description": "Fee: {fee} EUR",
       "id": "01d0c450-6c00-7000-8000-000000009202",
       "key": "tr.fee"
+    },
+    {
+      "description": "Enter your username",
+      "id": "01d0c450-6c00-7000-8000-000000009301",
+      "key": "login.error.username"
+    },
+    {
+      "description": "Enter your PIN",
+      "id": "01d0c450-6c00-7000-8000-000000009302",
+      "key": "login.error.pin"
+    },
+    {
+      "description": "Enter the code",
+      "id": "01d0c450-6c00-7000-8000-000000009303",
+      "key": "login.error.code"
+    },
+    {
+      "description": "Enter the recipient's IBAN",
+      "id": "01d0c450-6c00-7000-8000-000000009304",
+      "key": "transfer.error.recipient"
+    },
+    {
+      "description": "Enter a valid IBAN",
+      "id": "01d0c450-6c00-7000-8000-000000009305",
+      "key": "transfer.error.iban"
+    },
+    {
+      "description": "Enter an amount",
+      "id": "01d0c450-6c00-7000-8000-000000009306",
+      "key": "transfer.error.amount"
+    },
+    {
+      "description": "Use at most two decimals",
+      "id": "01d0c450-6c00-7000-8000-000000009307",
+      "key": "transfer.error.decimals"
+    },
+    {
+      "description": "The amount must be above zero and within your balance",
+      "id": "01d0c450-6c00-7000-8000-000000009308",
+      "key": "transfer.error.range"
+    },
+    {
+      "description": "Use at most 40 characters",
+      "id": "01d0c450-6c00-7000-8000-000000009309",
+      "key": "transfer.error.reference"
     }
   ],
   "kind": "translationKeys",

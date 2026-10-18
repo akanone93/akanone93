@@ -176,8 +176,21 @@ func (rcv *FormValidator) MutateDebounceMs(n uint32) bool {
 	return rcv._tab.MutateUint32Slot(24, n)
 }
 
+func (rcv *FormValidator) MessageRef(obj *Value) *Value {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(26))
+	if o != 0 {
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(Value)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
+	}
+	return nil
+}
+
 func FormValidatorStart(builder *flatbuffers.Builder) {
-	builder.StartObject(11)
+	builder.StartObject(12)
 }
 func FormValidatorAddKind(builder *flatbuffers.Builder, kind ValidatorKind) {
 	builder.PrependByteSlot(0, byte(kind), 0)
@@ -211,6 +224,9 @@ func FormValidatorAddGraph(builder *flatbuffers.Builder, graph flatbuffers.UOffs
 }
 func FormValidatorAddDebounceMs(builder *flatbuffers.Builder, debounceMs uint32) {
 	builder.PrependUint32Slot(10, debounceMs, 0)
+}
+func FormValidatorAddMessageRef(builder *flatbuffers.Builder, messageRef flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(11, flatbuffers.UOffsetT(messageRef), 0)
 }
 func FormValidatorEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

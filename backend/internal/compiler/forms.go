@@ -4,6 +4,7 @@
 package compiler
 
 import (
+	"encoding/json"
 	"math/big"
 	"slices"
 	"strconv"
@@ -59,6 +60,7 @@ type formField struct {
 type formValidator struct {
 	kind             fbs.ValidatorKind
 	message          string
+	messageRef       *value
 	min, max         *value
 	pattern, region  string
 	maxScale         int32
@@ -251,7 +253,7 @@ func (u *unit) formOutput(g *graph, st schema.Step) string {
 // checkForms checks the forms of a page or component (STA-020): unique
 // names, initial values, and each validator's options against its kind
 // and its field's type.
-func (u *unit) checkForms(pl *plugin, forms []schema.Form, state []schema.StateEntry, file string) []*form {
+func (u *unit) checkForms(pl *plugin, forms []schema.Form, state []schema.StateEntry, file, from string) []*form {
 	if len(forms) == 0 {
 		return nil
 	}
@@ -275,7 +277,7 @@ func (u *unit) checkForms(pl *plugin, forms []schema.Form, state []schema.StateE
 				u.report(plxerr.FormNameConflict, file, fptr+"/name", "form %q has two fields named %q", f.Name, fd.Name)
 			}
 			fields[fd.Name] = true
-			if ff := u.checkFormField(pl, &fd, file, fptr); ff != nil {
+			if ff := u.checkFormField(pl, &fd, file, from, fptr); ff != nil {
 				o.fields = append(o.fields, ff)
 			}
 		}
@@ -285,7 +287,7 @@ func (u *unit) checkForms(pl *plugin, forms []schema.Form, state []schema.StateE
 }
 
 // checkFormField checks a field's initial value and validators.
-func (u *unit) checkFormField(pl *plugin, fd *schema.FormField, file, ptr string) *formField {
+func (u *unit) checkFormField(pl *plugin, fd *schema.FormField, file, from, ptr string) *formField {
 	te, err := parseTypeExpr(fd.Type)
 	if err != nil {
 		return nil // reported by formTypes
@@ -301,7 +303,7 @@ func (u *unit) checkFormField(pl *plugin, fd *schema.FormField, file, ptr string
 		u.report(plxerr.FormFieldInitialMissing, file, ptr, "field %q has no initial value and its type %s is not nullable", fd.Name, fd.Type)
 	}
 	for k := range fd.Validators {
-		if v := u.checkValidator(pl, &fd.Validators[k], te, file, ptr+plxerr.Pointer("validators", strconv.Itoa(k))); v != nil {
+		if v := u.checkValidator(pl, &fd.Validators[k], te, file, from, ptr+plxerr.Pointer("validators", strconv.Itoa(k))); v != nil {
 			out.validators = append(out.validators, v)
 		}
 	}
@@ -359,7 +361,7 @@ var validatorTypes = map[schema.FormValidatorKind][]string{
 
 // checkValidator checks one validator against its kind and the field's
 // type, and lowers it.
-func (u *unit) checkValidator(pl *plugin, v *schema.FormValidator, te *texpr, file, ptr string) *formValidator {
+func (u *unit) checkValidator(pl *plugin, v *schema.FormValidator, te *texpr, file, from, ptr string) *formValidator {
 	if types, ok := validatorTypes[v.Kind]; ok && !slices.Contains(types, te.name) {
 		u.report(plxerr.FormValidatorNotApplicable, file, ptr+"/kind", "a %s validator does not apply to a %s field", v.Kind, te)
 		return nil
@@ -369,12 +371,44 @@ func (u *unit) checkValidator(pl *plugin, v *schema.FormValidator, te *texpr, fi
 	}
 	c := &validatorCheck{
 		u: u, pl: pl, v: v, te: te, file: file, ptr: ptr,
-		out: &formValidator{kind: validatorKinds[v.Kind], message: v.Message, maxScale: -1, maxIntegerDigits: -1},
+		out: &formValidator{kind: validatorKinds[v.Kind], maxScale: -1, maxIntegerDigits: -1},
 	}
-	if !c.kind() {
+	if !c.message(from) || !c.kind() {
 		return nil
 	}
 	return c.out
+}
+
+// message lowers the validator's message: a literal string, or a
+// translation reference resolved per locale at run time (I18N-001). It
+// reports whether the message is valid.
+func (c *validatorCheck) message(from string) bool {
+	if len(c.v.Message) == 0 {
+		return true
+	}
+	var lit string
+	if json.Unmarshal(c.v.Message, &lit) == nil {
+		c.out.message = lit
+		return true
+	}
+	var ref struct {
+		T    string         `json:"$t"`
+		Args map[string]any `json:"args"`
+	}
+	if json.Unmarshal(c.v.Message, &ref) != nil || ref.T == "" {
+		c.u.report(plxerr.ValueTypeMismatch, c.file, c.ptr+"/message", "a validator message is a string or a translation reference")
+		return false
+	}
+	ptr := c.ptr + "/message"
+	c.u.translationRef(from, c.file, ptr+"/$t", ref.T)
+	c.u.scanValue(from, c.file, ptr+"/args", ref.Args)
+	vc := vctx{file: c.file, ptr: ptr, pl: c.pl, code: plxerr.ValueTypeMismatch, from: from}
+	val := c.u.translationValue(vc, ref.T, ref.Args, &texpr{name: "string"})
+	if val == nil {
+		return false
+	}
+	c.out.messageRef = val
+	return true
 }
 
 // checkValidatorOptions reports each option the validator's kind does not
@@ -639,6 +673,7 @@ func (e *valueEnc) formField(fd *formField) flatbuffers.UOffsetT {
 func (e *valueEnc) formValidator(v *formValidator) flatbuffers.UOffsetT {
 	b := e.b
 	lo, hi := e.value(v.min), e.value(v.max)
+	messageRef := e.value(v.messageRef)
 	var message, pattern, region uint32
 	if v.message != "" {
 		message = e.strs.of(v.message)
@@ -657,6 +692,9 @@ func (e *valueEnc) formValidator(v *formValidator) flatbuffers.UOffsetT {
 	fbs.FormValidatorAddKind(b, v.kind)
 	if message != 0 {
 		fbs.FormValidatorAddMessage(b, message)
+	}
+	if messageRef != 0 {
+		fbs.FormValidatorAddMessageRef(b, messageRef)
 	}
 	if lo != 0 {
 		fbs.FormValidatorAddMin(b, lo)

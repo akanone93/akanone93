@@ -45,6 +45,21 @@ const Map<String, String> englishRuntimeStrings = {
   'plux.timeline.current': 'current step',
   'plux.timeline.pending': 'pending',
   'plux.timeline.failed': 'failed',
+  'plux.validation.required': 'Required',
+  'plux.validation.tooShort': 'At least {min} characters',
+  'plux.validation.tooLong': 'At most {max} characters',
+  'plux.validation.belowMin': 'Must be at least {min}',
+  'plux.validation.aboveMax': 'Must be at most {max}',
+  'plux.validation.pattern': 'Not in the expected format',
+  'plux.validation.email': 'Not a valid email address',
+  'plux.validation.phone': 'Not a valid phone number',
+  'plux.validation.iban': 'Not a valid IBAN',
+  'plux.validation.tooManyDecimals': 'At most {max} decimal places',
+  'plux.validation.tooManyDigits':
+      'At most {max} digits before the decimal point',
+  'plux.validation.notANumber': 'Not a number',
+  'plux.validation.unchecked': 'Could not be checked',
+  'plux.validation.invalid': 'Invalid',
 };
 
 /// The runtime strings of one locale: its own table over the English one.

@@ -151,6 +151,7 @@ var tableLayouts = [...]tableLayout{
 		{name: "rule", id: 8, kind: fieldScalar, size: 8, align: 8, table: -1, required: false},
 		{name: "graph", id: 9, kind: fieldStruct, size: 16, align: 8, table: -1, required: false},
 		{name: "debounce_ms", id: 10, kind: fieldScalar, size: 4, align: 4, table: -1, required: false},
+		{name: "message_ref", id: 11, kind: fieldTable, size: 0, align: 0, table: 72, required: false},
 	}},
 	24: {name: "FunctionGrant", fields: []fieldLayout{
 		{name: "id", id: 0, kind: fieldStruct, size: 16, align: 8, table: -1, required: false},

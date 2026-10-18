@@ -497,8 +497,8 @@ export interface FormField {
 export interface FormValidator {
   /** A built-in validator of a form field (STA-020, ADR-0047). */
   readonly kind: FormValidatorKind;
-  /** The message shown when the value is invalid; the runtime's built-in message otherwise. */
-  readonly message?: string;
+  /** The message shown when the value is invalid: a literal string or a translation reference resolved in the effective locale; the runtime's built-in message otherwise (I18N-001). */
+  readonly message?: JsonValue;
   /** A JSON value interpreted against a declared type (defaults, mocks, environment values). */
   readonly min?: JsonValue;
   /** A JSON value interpreted against a declared type (defaults, mocks, environment values). */
