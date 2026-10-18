@@ -490,16 +490,6 @@
     }
   },
   "currencies": {
-    "ADP": {
-      "name": "Peseta Andóra",
-      "plural": {
-        "few": "pheseta Andóra",
-        "many": "bpeseta Andóra",
-        "one": "pheseta Andóra",
-        "other": "peseta Andóra",
-        "two": "pheseta Andóra"
-      }
-    },
     "AED": {
       "name": "Dirham Aontas na nÉimíríochtaí Arabacha",
       "plural": {
@@ -510,9 +500,6 @@
         "two": "dhirham Aontas na nÉimíríochtaí Arabacha"
       }
     },
-    "AFA": {
-      "name": "Afgainí (1927–2002)"
-    },
     "AFN": {
       "name": "Afghani na hAfganastáine",
       "narrow": "؋",
@@ -522,16 +509,6 @@
         "one": "afghani na hAfganastáine",
         "other": "afghani na hAfganastáine",
         "two": "afghani na hAfganastáine"
-      }
-    },
-    "ALK": {
-      "name": "Lek na hAlbáine (1946–1965)",
-      "plural": {
-        "few": "lek na hAlbáine (1946–1965)",
-        "many": "lek na hAlbáine (1946–1965)",
-        "one": "lek na hAlbáine (1946–1965)",
-        "other": "lek na hAlbáine (1946–1965)",
-        "two": "lek na hAlbáine (1946–1965)"
       }
     },
     "ALL": {
@@ -554,16 +531,6 @@
         "two": "dhram na hAirméine"
       }
     },
-    "ANG": {
-      "name": "Gildear Aintillí na hÍsiltíre",
-      "plural": {
-        "few": "ghildear Aintillí na hÍsiltíre",
-        "many": "ngildear Aintillí na hÍsiltíre",
-        "one": "ghildear Aintillí na hÍsiltíre",
-        "other": "gildear Aintillí na hÍsiltíre",
-        "two": "ghildear Aintillí na hÍsiltíre"
-      }
-    },
     "AOA": {
       "name": "Kwanza Angóla",
       "narrow": "Kz",
@@ -575,41 +542,6 @@
         "two": "kwanza Angóla"
       }
     },
-    "AOK": {
-      "name": "Kwanza Angólach (1977–1990)"
-    },
-    "AON": {
-      "name": "Kwanza Nua Angólach (1990–2000)"
-    },
-    "AOR": {
-      "name": "Kwanza Reajustado Angólach (1995–1999)"
-    },
-    "ARA": {
-      "name": "Austral Airgintíneach"
-    },
-    "ARL": {
-      "name": "Peso Ley na hAirgintíne (1970–1983)"
-    },
-    "ARM": {
-      "name": "Peso na hAirgintíne (1881–1970)",
-      "plural": {
-        "few": "pheso na hAirgintíne (1881–1970)",
-        "many": "bpeso na hAirgintíne (1881–1970)",
-        "one": "pheso na hAirgintíne (1881–1970)",
-        "other": "peso na hAirgintíne (1881–1970)",
-        "two": "pheso na hAirgintíne (1881–1970)"
-      }
-    },
-    "ARP": {
-      "name": "Peso na hAirgintíne (1983–1985)",
-      "plural": {
-        "few": "pheso na hAirgintíne (1983–1985)",
-        "many": "bpeso na hAirgintíne (1983–1985)",
-        "one": "pheso na hAirgintíne (1983–1985)",
-        "other": "peso na hAirgintíne (1983–1985)",
-        "two": "pheso na hAirgintíne (1983–1985)"
-      }
-    },
     "ARS": {
       "name": "Peso na hAirgintíne",
       "narrow": "$",
@@ -619,16 +551,6 @@
         "one": "pheso na hAirgintíne",
         "other": "peso na hAirgintíne",
         "two": "pheso na hAirgintíne"
-      }
-    },
-    "ATS": {
-      "name": "Scilling na hOstaire",
-      "plural": {
-        "few": "Scilling Ostarach",
-        "many": "Scilling Ostarach",
-        "one": "Scilling Ostarach",
-        "other": "Scilling Ostarach",
-        "two": "Scilling Ostarach"
       }
     },
     "AUD": {
@@ -653,16 +575,6 @@
         "two": "fhlóirín Arúba"
       }
     },
-    "AZM": {
-      "name": "Manat na hAsarbaiseáine (1993–2006)",
-      "plural": {
-        "few": "mhanat na hAsarbaiseáine (1993–2006)",
-        "many": "manat na hAsarbaiseáine (1993–2006)",
-        "one": "mhanat na hAsarbaiseáine (1993–2006)",
-        "other": "manat na hAsarbaiseáine (1993–2006)",
-        "two": "mhanat na hAsarbaiseáine (1993–2006)"
-      }
-    },
     "AZN": {
       "name": "Manat na hAsarbaiseáine",
       "narrow": "₼",
@@ -673,9 +585,6 @@
         "other": "manat na hAsarbaiseáine",
         "two": "mhanat na hAsarbaiseáine"
       }
-    },
-    "BAD": {
-      "name": "Dínear Bhoisnia-Heirseagaivéin (1992–1994)"
     },
     "BAM": {
       "name": "Marg Inmhalartaithe na Boisnia-Heirseagaivéine",
@@ -708,68 +617,6 @@
         "one": "taka na Banglaidéise",
         "other": "taka na Banglaidéise",
         "two": "thaka na Banglaidéise"
-      }
-    },
-    "BEC": {
-      "name": "Franc na Beilge (inmhalartaithe)",
-      "plural": {
-        "few": "Franc Beilgeach (inathraithe)",
-        "many": "Franc Beilgeach (inathraithe)",
-        "one": "Franc Beilgeach (inathraithe)",
-        "other": "Franc Beilgeach (inathraithe)",
-        "two": "Franc Beilgeach (inathraithe)"
-      }
-    },
-    "BEF": {
-      "name": "Franc Beilgeach"
-    },
-    "BEL": {
-      "name": "Franc na Beilge (airgeadais)",
-      "plural": {
-        "few": "Franc Beilgeach (airgeadúil)",
-        "many": "Franc Beilgeach (airgeadúil)",
-        "one": "Franc Beilgeach (airgeadúil)",
-        "other": "Franc Beilgeach (airgeadúil)",
-        "two": "Franc Beilgeach (airgeadúil)"
-      }
-    },
-    "BGL": {
-      "name": "Lev Crua na Bulgáire",
-      "plural": {
-        "few": "lev chrua na Bulgáire",
-        "many": "lev chrua na Bulgáire",
-        "one": "lev crua na Bulgáire",
-        "other": "lev crua na Bulgáire",
-        "two": "lev chrua na Bulgáire"
-      }
-    },
-    "BGM": {
-      "plural": {
-        "few": "lev sóisialach na Bulgáire",
-        "many": "lev sóisialach na Bulgáire",
-        "one": "lev sóisialach na Bulgáire",
-        "other": "lev sóisialach na Bulgáire",
-        "two": "lev sóisialach na Bulgáire"
-      }
-    },
-    "BGN": {
-      "name": "Lev na Bulgáire",
-      "plural": {
-        "few": "lev na Bulgáire",
-        "many": "lev na Bulgáire",
-        "one": "lev na Bulgáire",
-        "other": "lev na Bulgáire",
-        "two": "lev na Bulgáire"
-      }
-    },
-    "BGO": {
-      "name": "Lev na Bulgáire (1879–1952)",
-      "plural": {
-        "few": "lev na Bulgáire (1879–1952)",
-        "many": "lev na Bulgáire (1879–1952)",
-        "one": "lev na Bulgáire (1879–1952)",
-        "other": "lev na Bulgáire (1879–1952)",
-        "two": "lev na Bulgáire (1879–1952)"
       }
     },
     "BHD": {
@@ -825,56 +672,6 @@
         "two": "bholiviano"
       }
     },
-    "BOP": {
-      "name": "Peso na Bolaive",
-      "plural": {
-        "few": "pheso na Bolaive",
-        "many": "bpeso na Bolaive",
-        "one": "pheso na Bolaive",
-        "other": "peso na Bolaive",
-        "two": "pheso na Bolaive"
-      }
-    },
-    "BOV": {
-      "name": "Mvdol na Bolaive",
-      "plural": {
-        "few": "mvdol na Bolaive",
-        "many": "mvdol na Bolaive",
-        "one": "mvdol na Bolaive",
-        "other": "mvdol na Bolaive",
-        "two": "mvdol na Bolaive"
-      }
-    },
-    "BRB": {
-      "name": "Cruzeiro Nua na Brasaíle (1967–1986)",
-      "plural": {
-        "few": "chruzeiro nua na Brasaíle (1967–1986)",
-        "many": "gcruzeiro nua na Brasaíle (1967–1986)",
-        "one": "chruzeiro nua na Brasaíle (1967–1986)",
-        "other": "cruzeiro nua na Brasaíle (1967–1986)",
-        "two": "chruzeiro nua na Brasaíle (1967–1986)"
-      }
-    },
-    "BRC": {
-      "name": "Cruzado na Brasaíle (1986–1989)",
-      "plural": {
-        "few": "chruzado na Brasaíle (1986–1989)",
-        "many": "gcruzado na Brasaíle (1986–1989)",
-        "one": "chruzado na Brasaíle (1986–1989)",
-        "other": "cruzado na Brasaíle (1986–1989)",
-        "two": "chruzado na Brasaíle (1986–1989)"
-      }
-    },
-    "BRE": {
-      "name": "Cruzeiro na Brasaíle (1990–1993)",
-      "plural": {
-        "few": "chruzeiro na Brasaíle (1990–1993)",
-        "many": "gcruzeiro na Brasaíle (1990–1993)",
-        "one": "chruzeiro na Brasaíle (1990–1993)",
-        "other": "cruzeiro na Brasaíle (1990–1993)",
-        "two": "chruzeiro na Brasaíle (1990–1993)"
-      }
-    },
     "BRL": {
       "name": "Real na Brasaíle",
       "plural": {
@@ -885,36 +682,6 @@
         "two": "real na Brasaíle"
       },
       "symbol": "R$"
-    },
-    "BRN": {
-      "name": "Cruzado Nua na Brasaíle (1989–1990)",
-      "plural": {
-        "few": "chruzado nua na Brasaíle (1989–1990)",
-        "many": "gcruzado nua na Brasaíle (1989–1990)",
-        "one": "chruzado nua na Brasaíle (1989–1990)",
-        "other": "cruzado nua na Brasaíle (1989–1990)",
-        "two": "chruzado nua na Brasaíle (1989–1990)"
-      }
-    },
-    "BRR": {
-      "name": "Cruzeiro na Brasaíle (1993–1994)",
-      "plural": {
-        "few": "chruzeiro na Brasaíle (1993–1994)",
-        "many": "gcruzeiro na Brasaíle (1993–1994)",
-        "one": "chruzeiro na Brasaíle (1993–1994)",
-        "other": "cruzeiro na Brasaíle (1993–1994)",
-        "two": "chruzeiro na Brasaíle (1993–1994)"
-      }
-    },
-    "BRZ": {
-      "name": "Cruzeiro na Brasaíle (1942–1967)",
-      "plural": {
-        "few": "chruzeiro na Brasaíle (1942–1967)",
-        "many": "gcruzeiro na Brasaíle (1942–1967)",
-        "one": "chruzeiro na Brasaíle (1942–1967)",
-        "other": "cruzeiro na Brasaíle (1942–1967)",
-        "two": "chruzeiro na Brasaíle (1942–1967)"
-      }
     },
     "BSD": {
       "name": "Dollar na mBahámaí",
@@ -937,16 +704,6 @@
         "two": "ngultrum na Bútáine"
       }
     },
-    "BUK": {
-      "name": "Kyat Bhurma",
-      "plural": {
-        "few": "kyat Bhurma",
-        "many": "kyat Bhurma",
-        "one": "kyat Bhurma",
-        "other": "kyat Bhurma",
-        "two": "kyat Bhurma"
-      }
-    },
     "BWP": {
       "name": "Pula na Botsuáine",
       "narrow": "P",
@@ -958,16 +715,6 @@
         "two": "phula na Botsuáine"
       }
     },
-    "BYB": {
-      "name": "Rúbal Nua na Bealarúise (1994–1999)",
-      "plural": {
-        "few": "rúbal nua na Bealarúise (1994–1999)",
-        "many": "rúbal nua na Bealarúise (1994–1999)",
-        "one": "rúbal nua na Bealarúise (1994–1999)",
-        "other": "rúbal nua na Bealarúise (1994–1999)",
-        "two": "rúbal nua na Bealarúise (1994–1999)"
-      }
-    },
     "BYN": {
       "name": "Rúbal na Bealarúise",
       "plural": {
@@ -976,16 +723,6 @@
         "one": "rúbal na Bealarúise",
         "other": "rúbal na Bealarúise",
         "two": "rúbal na Bealarúise"
-      }
-    },
-    "BYR": {
-      "name": "Rúbal na Bealarúise (2000–2016)",
-      "plural": {
-        "few": "rúbal na Bealarúise (2000–2016)",
-        "many": "rúbal na Bealarúise (2000–2016)",
-        "one": "rúbal na Bealarúise (2000–2016)",
-        "other": "rúbal na Bealarúise (2000–2016)",
-        "two": "rúbal na Bealarúise (2000–2016)"
       }
     },
     "BZD": {
@@ -1021,16 +758,6 @@
         "two": "fhranc an Chongó"
       }
     },
-    "CHE": {
-      "name": "Euro WIR",
-      "plural": {
-        "few": "euro WIR",
-        "many": "euro WIR",
-        "one": "WIR euro",
-        "other": "euro WIR",
-        "two": "euro WIR"
-      }
-    },
     "CHF": {
       "name": "Franc na hEilvéise",
       "plural": {
@@ -1040,29 +767,6 @@
         "other": "franc na hEilvéise",
         "two": "fhranc na hEilvéise"
       }
-    },
-    "CHW": {
-      "name": "Franc WIR",
-      "plural": {
-        "few": "fhranc WIR",
-        "many": "bhfranc WIR",
-        "one": "fhranc WIR amháin",
-        "other": "franc WIR",
-        "two": "fhranc WIR"
-      }
-    },
-    "CLE": {
-      "name": "Escudo na Sile",
-      "plural": {
-        "few": "escudo na Sile",
-        "many": "n-escudo na Sile",
-        "one": "escudo na Sile",
-        "other": "escudo na Sile",
-        "two": "escudo na Sile"
-      }
-    },
-    "CLF": {
-      "name": "Unidades de Fomento na Sile"
     },
     "CLP": {
       "name": "Peso na Sile",
@@ -1074,9 +778,6 @@
         "other": "peso na Sile",
         "two": "pheso na Sile"
       }
-    },
-    "CNH": {
-      "name": "Yuan na Síne (seachairgeadra)"
     },
     "CNY": {
       "name": "Yuan na Síne",
@@ -1112,37 +813,6 @@
         "two": "cholón Chósta Ríce"
       }
     },
-    "CSD": {
-      "name": "Dinar na Seirbia (2002–2006)",
-      "plural": {
-        "few": "dhinar na Seirbia (2002–2006)",
-        "many": "ndinar na Seirbia (2002–2006)",
-        "one": "dinar na Seirbia (2002–2006)",
-        "other": "dinar na Seirbia (2002–2006)",
-        "two": "dhinar na Seirbia (2002–2006)"
-      }
-    },
-    "CSK": {
-      "name": "Koruna Crua na Seicslóvaice",
-      "plural": {
-        "few": "koruna chrua na Seicslóvaice",
-        "many": "koruna chrua na Seicslóvaice",
-        "one": "koruna chrua na Seicslóvaice",
-        "other": "koruna crua na Seicslóvaice",
-        "two": "koruna chrua na Seicslóvaice"
-      }
-    },
-    "CUC": {
-      "name": "Peso Inmhalartaithe Chúba",
-      "narrow": "$",
-      "plural": {
-        "few": "pheso inmhalartaithe Chúba",
-        "many": "bpeso inmhalartaithe Chúba",
-        "one": "pheso inmhalartaithe Chúba",
-        "other": "peso inmhalartaithe Chúba",
-        "two": "pheso inmhalartaithe Chúba"
-      }
-    },
     "CUP": {
       "name": "Peso Chúba",
       "narrow": "$",
@@ -1164,16 +834,6 @@
         "two": "escudo Rinn Verde"
       }
     },
-    "CYP": {
-      "name": "Punt na Cipire",
-      "plural": {
-        "few": "phunt na Cipire",
-        "many": "bpunt na Cipire",
-        "one": "phunt na Cipire",
-        "other": "punt na Cipire",
-        "two": "phunt na Cipire"
-      }
-    },
     "CZK": {
       "name": "Koruna Phoblacht na Seice",
       "narrow": "Kč",
@@ -1184,19 +844,6 @@
         "other": "koruna Phoblacht na Seice",
         "two": "koruna Phoblacht na Seice"
       }
-    },
-    "DDM": {
-      "name": "Marc Ghearmáin an Oirthir",
-      "plural": {
-        "few": "Ostmark na hOirGhearmáine",
-        "many": "Ostmark na hOirGhearmáine",
-        "one": "Ostmark na hOirGhearmáine",
-        "other": "Ostmark na hOirGhearmáine",
-        "two": "Ostmark na hOirGhearmáine"
-      }
-    },
-    "DEM": {
-      "name": "Deutsche Mark"
     },
     "DJF": {
       "name": "Franc Djibouti",
@@ -1240,15 +887,6 @@
         "two": "dhinar na hAilgéire"
       }
     },
-    "ECS": {
-      "name": "Sucre Eacuadóir"
-    },
-    "ECV": {
-      "name": "Unidad de Valor Constante (UVC) Eacuadóir"
-    },
-    "EEK": {
-      "name": "Kroon na hEastóine"
-    },
     "EGP": {
       "name": "Punt na hÉigipte",
       "narrow": "E£",
@@ -1268,17 +906,6 @@
         "one": "nakfa na hEiritré",
         "other": "nakfa na hEiritré",
         "two": "nakfa na hEiritré"
-      }
-    },
-    "ESP": {
-      "name": "Peseta na Spáinne",
-      "narrow": "₧",
-      "plural": {
-        "few": "pheseta na Spáinne",
-        "many": "bpeseta na Spáinne",
-        "one": "pheseta na Spáinne",
-        "other": "peseta na Spáinne",
-        "two": "pheseta na Spáinne"
       }
     },
     "ETB": {
@@ -1302,9 +929,6 @@
       },
       "symbol": "€"
     },
-    "FIM": {
-      "name": "Markka Fionnlannach"
-    },
     "FJD": {
       "name": "Dollar Fhidsí",
       "narrow": "$",
@@ -1327,16 +951,6 @@
         "two": "phunt Oileáin Fháclainne"
       }
     },
-    "FRF": {
-      "name": "Franc na Fraince",
-      "plural": {
-        "few": "Franc Francach",
-        "many": "Franc Francach",
-        "one": "Franc Francach",
-        "other": "Franc Francach",
-        "two": "Franc Francach"
-      }
-    },
     "GBP": {
       "name": "Punt Steirling",
       "plural": {
@@ -1348,9 +962,6 @@
       },
       "symbol": "£"
     },
-    "GEK": {
-      "name": "Kupon Larit na Grúise"
-    },
     "GEL": {
       "name": "Lari na Seoirsia",
       "narrow": "₾",
@@ -1360,16 +971,6 @@
         "one": "lari na Seoirsia",
         "other": "lari na Seoirsia",
         "two": "lari na Seoirsia"
-      }
-    },
-    "GHC": {
-      "name": "Cedi Ghána (1979–2007)",
-      "plural": {
-        "few": "chedi Ghána (1979–2007)",
-        "many": "gcedi Ghána (1979–2007)",
-        "one": "chedi Ghána (1979–2007)",
-        "other": "cedi Ghána (1979–2007)",
-        "two": "chedi Ghána (1979–2007)"
       }
     },
     "GHS": {
@@ -1415,18 +1016,6 @@
         "two": "fhranc na Guine"
       }
     },
-    "GNS": {
-      "name": "Syli Guine"
-    },
-    "GQE": {
-      "name": "Ekwele Guineana na Guine Meánchiorclaí",
-      "plural": {
-        "other": "Ekwele Guineana na Guine Meánchriosaí"
-      }
-    },
-    "GRD": {
-      "name": "Drachma Gréagach"
-    },
     "GTQ": {
       "name": "Quetzal Ghuatamala",
       "narrow": "Q",
@@ -1437,12 +1026,6 @@
         "other": "quetzal Ghuatamala",
         "two": "quetzal Ghuatamala"
       }
-    },
-    "GWE": {
-      "name": "Escudo na Guine Portaingéalaí"
-    },
-    "GWP": {
-      "name": "Peso Guine-Bhissau"
     },
     "GYD": {
       "name": "Dollar na Guáine",
@@ -1478,20 +1061,6 @@
         "two": "lempira Hondúras"
       }
     },
-    "HRD": {
-      "name": "Dínear na Cróite"
-    },
-    "HRK": {
-      "name": "Kuna na Cróite",
-      "narrow": "kn",
-      "plural": {
-        "few": "kuna na Cróite",
-        "many": "kuna na Cróite",
-        "one": "kuna na Cróite",
-        "other": "kuna na Cróite",
-        "two": "kuna na Cróite"
-      }
-    },
     "HTG": {
       "name": "Gourde Háítí",
       "plural": {
@@ -1523,12 +1092,6 @@
         "other": "rupiah na hIndinéise",
         "two": "rupiah na hIndinéise"
       }
-    },
-    "IEP": {
-      "name": "Punt Éireannach"
-    },
-    "ILP": {
-      "name": "Punt Iosraelach"
     },
     "ILS": {
       "name": "Seiceal Nua Iosrael",
@@ -1581,16 +1144,6 @@
         "one": "króna na hÍoslainne",
         "other": "króna na hÍoslainne",
         "two": "króna na hÍoslainne"
-      }
-    },
-    "ITL": {
-      "name": "Lira na hIodáile",
-      "plural": {
-        "few": "lira na hIodáile",
-        "many": "lira na hIodáile",
-        "one": "lira na hIodáile",
-        "other": "lira na hIodáile",
-        "two": "lira na hIodáile"
       }
     },
     "JMD": {
@@ -1775,47 +1328,6 @@
         "other": "loti Leosóta"
       }
     },
-    "LTL": {
-      "name": "Litas na Liotuáine",
-      "narrow": "Lt",
-      "plural": {
-        "few": "litas na Liotuáine",
-        "many": "litas na Liotuáine",
-        "one": "litas na Liotuáine",
-        "other": "litas na Liotuáine",
-        "two": "litas na Liotuáine"
-      }
-    },
-    "LTT": {
-      "name": "Talonas Liotuánach"
-    },
-    "LUC": {
-      "name": "Franc Inmhalartach Lucsamburgach"
-    },
-    "LUF": {
-      "name": "Franc Lucsamburg"
-    },
-    "LVL": {
-      "name": "Lats na Laitvia",
-      "narrow": "Ls",
-      "plural": {
-        "few": "lats na Laitvia",
-        "many": "lats na Laitvia",
-        "one": "lats na Laitvia",
-        "other": "lats na Laitvia",
-        "two": "lats na Laitvia"
-      }
-    },
-    "LVR": {
-      "name": "Rúbal na Laitvia",
-      "plural": {
-        "few": "Rúbal Laitviach",
-        "many": "Rúbal Laitviach",
-        "one": "Rúbal Laitviach",
-        "other": "Rúbal Laitviach",
-        "two": "Rúbal Laitviach"
-      }
-    },
     "LYD": {
       "name": "Dinar na Libia",
       "plural": {
@@ -1834,16 +1346,6 @@
         "one": "dirham Mharacó",
         "other": "dirham Mharacó",
         "two": "dhirham Mharacó"
-      }
-    },
-    "MAF": {
-      "name": "Franc Mharacó",
-      "plural": {
-        "few": "fhranc Mharacó",
-        "many": "bhfranc Mharacó",
-        "one": "fhranc Mharacó",
-        "other": "franc Mharacó",
-        "two": "fhranc Mharacó"
       }
     },
     "MDL": {
@@ -1867,9 +1369,6 @@
         "two": "ariary Mhadagascar"
       }
     },
-    "MGF": {
-      "name": "Franc Madagascar"
-    },
     "MKD": {
       "name": "Denar na Macadóine",
       "plural": {
@@ -1879,9 +1378,6 @@
         "other": "denar na Macadóine",
         "two": "dhenar na Macadóine"
       }
-    },
-    "MLF": {
-      "name": "Franc Mhailí"
     },
     "MMK": {
       "name": "Kyat Mhaenmar",
@@ -1915,16 +1411,6 @@
         "two": "phataca Mhacao"
       }
     },
-    "MRO": {
-      "name": "Ouguiya na Máratáine (1973–2017)",
-      "plural": {
-        "few": "ouguiya na Máratáine (1973–2017)",
-        "many": "n-ouguiya na Máratáine (1973–2017)",
-        "one": "ouguiya na Máratáine (1973–2017)",
-        "other": "ouguiya na Máratáine (1973–2017)",
-        "two": "ouguiya na Máratáine (1973–2017)"
-      }
-    },
     "MRU": {
       "name": "Ouguiya na Máratáine",
       "plural": {
@@ -1933,26 +1419,6 @@
         "one": "ouguiya na Máratáine",
         "other": "ouguiya na Máratáine",
         "two": "ouguiya na Máratáine"
-      }
-    },
-    "MTL": {
-      "name": "Lira Mhálta",
-      "plural": {
-        "few": "lira Mhálta",
-        "many": "lira Mhálta",
-        "one": "lira Mhálta",
-        "other": "lira Mhálta",
-        "two": "lira Mhálta"
-      }
-    },
-    "MTP": {
-      "name": "Punt Mhálta",
-      "plural": {
-        "few": "phunt Mhálta",
-        "many": "bpunt Mhálta",
-        "one": "phunt Mhálta",
-        "other": "punt Mhálta",
-        "two": "phunt Mhálta"
       }
     },
     "MUR": {
@@ -1964,16 +1430,6 @@
         "one": "rúipí Oileán Mhuirís",
         "other": "rúipí Oileán Mhuirís",
         "two": "rúipí Oileán Mhuirís"
-      }
-    },
-    "MVP": {
-      "name": "Rúipí Oileáin Mhaildíve",
-      "plural": {
-        "few": "rúipí Oileáin Mhaildíve",
-        "many": "rúipí Oileáin Mhaildíve",
-        "one": "rúipí Oileáin Mhaildíve",
-        "other": "rúipí Oileáin Mhaildíve",
-        "two": "rúipí Oileáin Mhaildíve"
       }
     },
     "MVR": {
@@ -2008,26 +1464,6 @@
       },
       "symbol": "MX$"
     },
-    "MXP": {
-      "name": "Peso Airgid Mheicsiceo (1861–1992)",
-      "plural": {
-        "few": "pheso airgid Mheicsiceo (1861–1992)",
-        "many": "bpeso airgid Mheicsiceo (1861–1992)",
-        "one": "pheso airgid Mheicsiceo (1861–1992)",
-        "other": "peso airgid Mheicsiceo (1861–1992)",
-        "two": "pheso airgid Mheicsiceo (1861–1992)"
-      }
-    },
-    "MXV": {
-      "name": "Aonad Infheistíochta Meicsiceach",
-      "plural": {
-        "few": "Unidad de Inversion (UDI) Meicsiceo",
-        "many": "Unidad de Inversion (UDI) Meicsiceo",
-        "one": "Unidad de Inversion (UDI) Meicsiceo",
-        "other": "Unidad de Inversion (UDI) Meicsiceo",
-        "two": "Unidad de Inversion (UDI) Meicsiceo"
-      }
-    },
     "MYR": {
       "name": "Ringgit na Malaeisia",
       "narrow": "RM",
@@ -2038,12 +1474,6 @@
         "other": "ringgit na Malaeisia",
         "two": "ringgit na Malaeisia"
       }
-    },
-    "MZE": {
-      "name": "Escudo Mósaimbíce"
-    },
-    "MZM": {
-      "name": "Metical Mósaimbíce"
     },
     "MZN": {
       "name": "Metical Mhósaimbíc",
@@ -2077,16 +1507,6 @@
         "two": "naira na Nigéire"
       }
     },
-    "NIC": {
-      "name": "Córdoba Nicearagua (1988–1991)",
-      "plural": {
-        "few": "chórdoba Nicearagua (1988–1991)",
-        "many": "gcórdoba Nicearagua (1988–1991)",
-        "one": "chórdoba Nicearagua (1988–1991)",
-        "other": "córdoba Nicearagua (1988–1991)",
-        "two": "chórdoba Nicearagua (1988–1991)"
-      }
-    },
     "NIO": {
       "name": "Córdoba Nicearagua",
       "narrow": "C$",
@@ -2097,9 +1517,6 @@
         "other": "córdoba Nicearagua",
         "two": "chórdoba Nicearagua"
       }
-    },
-    "NLG": {
-      "name": "Guilder Ísiltíreach"
     },
     "NOK": {
       "name": "Coróin na hIorua",
@@ -2155,9 +1572,6 @@
         "two": "bhalboa Phanama"
       }
     },
-    "PEI": {
-      "name": "Inti Pheiriú"
-    },
     "PEN": {
       "name": "Sol Pheiriú",
       "plural": {
@@ -2165,16 +1579,6 @@
         "many": "sol Pheiriú",
         "one": "sol Pheiriú",
         "two": "shol Pheiriú"
-      }
-    },
-    "PES": {
-      "name": "Sol Pheiriú (1863–1965)",
-      "plural": {
-        "few": "shol Pheiriú (1863–1965)",
-        "many": "sol Pheiriú (1863–1965)",
-        "one": "sol Pheiriú (1863–1965)",
-        "other": "sol Pheiriú (1863–1965)",
-        "two": "shol Pheiriú (1863–1965)"
       }
     },
     "PGK": {
@@ -2220,19 +1624,6 @@
         "two": "zloty na Polainne"
       }
     },
-    "PLZ": {
-      "name": "Zloty Polannach (1950–1995)"
-    },
-    "PTE": {
-      "name": "Escudo na Portaingéile",
-      "plural": {
-        "few": "escudo na Portaingéile",
-        "many": "n-escudo na Portaingéile",
-        "one": "escudo na Portaingéile",
-        "other": "escudo na Portaingéile",
-        "two": "escudo na Portaingéile"
-      }
-    },
     "PYG": {
       "name": "Guaraní Pharagua",
       "narrow": "₲",
@@ -2252,16 +1643,6 @@
         "one": "riyals Chatar",
         "other": "riyals Chatar",
         "two": "riyals Chatar"
-      }
-    },
-    "ROL": {
-      "name": "Leu na Rómáine (1952–2006)",
-      "plural": {
-        "few": "leu na Rómáine (1952–2006)",
-        "many": "leu na Rómáine (1952–2006)",
-        "one": "leu na Rómáine (1952–2006)",
-        "other": "leu na Rómáine (1952–2006)",
-        "two": "leu na Rómáine (1952–2006)"
       }
     },
     "RON": {
@@ -2294,17 +1675,6 @@
         "one": "rúbal na Rúise",
         "other": "rúbal na Rúise",
         "two": "rúbal na Rúise"
-      }
-    },
-    "RUR": {
-      "name": "Rúbal na Rúise (1991–1998)",
-      "narrow": "р.",
-      "plural": {
-        "few": "rúbal na Rúise (1991–1998)",
-        "many": "rúbal na Rúise (1991–1998)",
-        "one": "rúbal na Rúise (1991–1998)",
-        "other": "rúbal na Rúise (1991–1998)",
-        "two": "rúbal na Rúise (1991–1998)"
       }
     },
     "RWF": {
@@ -2349,16 +1719,6 @@
         "two": "rúipí na Séiséal"
       }
     },
-    "SDD": {
-      "name": "Dinar na Súdáine (1992–2007)",
-      "plural": {
-        "few": "dhinar na Súdáine (1992–2007)",
-        "many": "ndinar na Súdáine (1992–2007)",
-        "one": "dinar na Súdáine (1992–2007)",
-        "other": "dinar na Súdáine (1992–2007)",
-        "two": "dhinar na Súdáine (1992–2007)"
-      }
-    },
     "SDG": {
       "name": "Punt na Súdáine",
       "plural": {
@@ -2367,16 +1727,6 @@
         "one": "phunt na Súdáine",
         "other": "punt na Súdáine",
         "two": "phunt na Súdáine"
-      }
-    },
-    "SDP": {
-      "name": "Punt na Súdáine (1957–1998)",
-      "plural": {
-        "few": "phunt na Súdáine (1957–1998)",
-        "many": "bpunt na Súdáine (1957–1998)",
-        "one": "phunt na Súdáine (1957–1998)",
-        "other": "punt na Súdáine (1957–1998)",
-        "two": "phunt na Súdáine (1957–1998)"
       }
     },
     "SEK": {
@@ -2412,26 +1762,6 @@
         "two": "phunt San Héilin"
       }
     },
-    "SIT": {
-      "name": "Tolar na Slóivéine",
-      "plural": {
-        "few": "tholar na Slóivéine",
-        "many": "dtolar na Slóivéine",
-        "one": "tolar na Slóivéine",
-        "other": "tolar na Slóivéine",
-        "two": "tholar na Slóivéine"
-      }
-    },
-    "SKK": {
-      "name": "Koruna na Slóvaice",
-      "plural": {
-        "few": "koruna na Slóvaice",
-        "many": "koruna na Slóvaice",
-        "one": "koruna na Slóvaice",
-        "other": "koruna na Slóvaice",
-        "two": "koruna na Slóvaice"
-      }
-    },
     "SLE": {
       "name": "Leone Shiarra Leon",
       "plural": {
@@ -2440,16 +1770,6 @@
         "one": "leone Shiarra Leon",
         "other": "leone Shiarra Leon",
         "two": "leone Shiarra Leon"
-      }
-    },
-    "SLL": {
-      "name": "Leone Shiarra Leon (1964—2022)",
-      "plural": {
-        "few": "leone Shiarra Leon (1964—2022)",
-        "many": "leone Shiarra Leon (1964—2022)",
-        "one": "leone Shiarra Leon (1964—2022)",
-        "other": "leone Shiarra Leon (1964—2022)",
-        "two": "leone Shiarra Leon (1964—2022)"
       }
     },
     "SOS": {
@@ -2473,16 +1793,6 @@
         "two": "dhollar Shuranam"
       }
     },
-    "SRG": {
-      "name": "Gildear Shuranam",
-      "plural": {
-        "few": "ghildear Shuranam",
-        "many": "ngildear Shuranam",
-        "one": "ghildear Shuranam",
-        "other": "gildear Shuranam",
-        "two": "ghildear Shuranam"
-      }
-    },
     "SSP": {
       "name": "Punt na Súdáine Theas",
       "narrow": "£",
@@ -2494,16 +1804,6 @@
         "two": "phunt na Súdáine Theas"
       }
     },
-    "STD": {
-      "name": "Dobra São Tomé agus Príncipe (1977–2017)",
-      "plural": {
-        "few": "dhobra São Tomé agus Príncipe (1977–2017)",
-        "many": "ndobra São Tomé agus Príncipe (1977–2017)",
-        "one": "dobra São Tomé agus Príncipe (1977–2017)",
-        "other": "dobra São Tomé agus Príncipe (1977–2017)",
-        "two": "dhobra São Tomé agus Príncipe (1977–2017)"
-      }
-    },
     "STN": {
       "name": "Dobra São Tomé agus Príncipe",
       "narrow": "Db",
@@ -2513,26 +1813,6 @@
         "one": "dobra São Tomé agus Príncipe",
         "other": "dobra São Tomé agus Príncipe",
         "two": "dhobra São Tomé agus Príncipe"
-      }
-    },
-    "SUR": {
-      "name": "Rúbal an Aontais Shóivéadaigh",
-      "plural": {
-        "few": "rúbal an Aontais Shóivéadaigh",
-        "many": "rúbal an Aontais Shóivéadaigh",
-        "one": "rúbal an Aontais Shóivéadaigh",
-        "other": "rúbal an Aontais Shóivéadaigh",
-        "two": "rúbal an Aontais Shóivéadaigh"
-      }
-    },
-    "SVC": {
-      "name": "Colón na Salvadóire",
-      "plural": {
-        "few": "cholón na Salvadóire",
-        "many": "gcolón na Salvadóire",
-        "one": "cholón na Salvadóire",
-        "other": "colón na Salvadóire",
-        "two": "cholón na Salvadóire"
       }
     },
     "SYP": {
@@ -2567,9 +1847,6 @@
       },
       "symbol": "฿"
     },
-    "TJR": {
-      "name": "Rúbal na Táidsíceastáine"
-    },
     "TJS": {
       "name": "Somoni na Táidsíceastáine",
       "plural": {
@@ -2579,9 +1856,6 @@
         "other": "somoni na Táidsíceastáine",
         "two": "shomoni na Táidsíceastáine"
       }
-    },
-    "TMM": {
-      "name": "Manat na Tuircméanastáine (1993–2009)"
     },
     "TMT": {
       "name": "Manat na Tuircméanastáine",
@@ -2612,19 +1886,6 @@
         "one": "phaʻanga Thonga",
         "other": "paʻanga Thonga",
         "two": "phaʻanga Thonga"
-      }
-    },
-    "TPE": {
-      "name": "Escudo Tíomóir"
-    },
-    "TRL": {
-      "name": "Lira na Tuirce (1922–2005)",
-      "plural": {
-        "few": "lira na Tuirce (1922–2005)",
-        "many": "lira na Tuirce (1922–2005)",
-        "one": "lira na Tuirce (1922–2005)",
-        "other": "lira na Tuirce (1922–2005)",
-        "two": "lira na Tuirce (1922–2005)"
       }
     },
     "TRY": {
@@ -2681,12 +1942,6 @@
         "two": "hryvnia na hÚcráine"
       }
     },
-    "UAK": {
-      "name": "Karbovanets Úcránach"
-    },
-    "UGS": {
-      "name": "Scilling Uganda (1966–1987)"
-    },
     "UGX": {
       "name": "Scilling Uganda",
       "plural": {
@@ -2707,36 +1962,6 @@
         "two": "dhollar S.A.M."
       },
       "symbol": "$"
-    },
-    "USN": {
-      "name": "Dollar S.A.M. (an chéad lá eile)",
-      "plural": {
-        "few": "dhollar S.A.M. (an chéad lá eile)",
-        "many": "ndollar S.A.M. (an chéad lá eile)",
-        "one": "dollar S.A.M. (an chéad lá eile)",
-        "other": "dollar S.A.M. (an chéad lá eile)",
-        "two": "dhollar S.A.M. (an chéad lá eile)"
-      }
-    },
-    "USS": {
-      "name": "Dollar S.A.M. (an lá céanna)",
-      "plural": {
-        "few": "dhollar S.A.M. (an lá céanna)",
-        "many": "ndollar S.A.M. (an lá céanna)",
-        "one": "dollar S.A.M. (an lá céanna)",
-        "other": "dollar S.A.M. (an lá céanna)",
-        "two": "dhollar S.A.M. (an lá céanna)"
-      }
-    },
-    "UYP": {
-      "name": "Peso Uragua (1975–1993)",
-      "plural": {
-        "few": "pheso Uragua (1975–1993)",
-        "many": "bpeso Uragua (1975–1993)",
-        "one": "pheso Uragua (1975–1993)",
-        "other": "peso Uragua (1975–1993)",
-        "two": "pheso Uragua (1975–1993)"
-      }
     },
     "UYU": {
       "name": "Peso Uragua",
@@ -2759,27 +1984,6 @@
         "two": "shum na hÚisbéiceastáine"
       }
     },
-    "VEB": {
-      "name": "Bolívar Veiniséala (1871–2008)",
-      "plural": {
-        "few": "bholívar Veiniséala (1871–2008)",
-        "many": "mbolívar Veiniséala (1871–2008)",
-        "one": "bholívar Veiniséala (1871–2008)",
-        "other": "bolívar Veiniséala (1871–2008)",
-        "two": "bholívar Veiniséala (1871–2008)"
-      }
-    },
-    "VEF": {
-      "name": "Bolívar Veiniséala (2008–2018)",
-      "narrow": "Bs",
-      "plural": {
-        "few": "bholívar Veiniséala (2008–2018)",
-        "many": "mbolívar Veiniséala (2008–2018)",
-        "one": "bholívar Veiniséala (2008–2018)",
-        "other": "bolívar Veiniséala (2008–2018)",
-        "two": "bholívar Veiniséala (2008–2018)"
-      }
-    },
     "VES": {
       "name": "Bolívar Veiniséala",
       "plural": {
@@ -2799,16 +2003,6 @@
         "two": "dhong Vítneam"
       },
       "symbol": "₫"
-    },
-    "VNN": {
-      "name": "Dong Vítneam (1978–1985)",
-      "plural": {
-        "few": "dhong Vítneam (1978–1985)",
-        "many": "ndong Vítneam (1978–1985)",
-        "one": "dong Vítneam (1978–1985)",
-        "other": "dong Vítneam (1978–1985)",
-        "two": "dhong Vítneam (1978–1985)"
-      }
     },
     "VUV": {
       "name": "Vatu Vanuatú",
@@ -2841,38 +2035,6 @@
       },
       "symbol": "FCFA"
     },
-    "XAG": {
-      "name": "Airgead",
-      "plural": {
-        "few": "unsaí troí airgid",
-        "many": "unsaí troí airgid",
-        "one": "unsa troí airgid",
-        "other": "unsaí troí airgid",
-        "two": "unsa troí airgid"
-      }
-    },
-    "XAU": {
-      "name": "Ór",
-      "plural": {
-        "few": "unsaí troí óir",
-        "many": "unsaí troí óir",
-        "one": "unsa troí óir",
-        "other": "unsaí troí óir",
-        "two": "unsa troí óir"
-      }
-    },
-    "XBA": {
-      "name": "Aonad Ilchodach Eorpach"
-    },
-    "XBB": {
-      "name": "Aonad Airgeadaíochta Eorpach"
-    },
-    "XBC": {
-      "name": "Aonad Cuntais Eorpach (XBC)"
-    },
-    "XBD": {
-      "name": "Aonad Cuntais Eorpach (XBD)"
-    },
     "XCD": {
       "name": "Dollar na Cairibe Thoir",
       "narrow": "$",
@@ -2896,18 +2058,6 @@
       },
       "symbol": "Cg."
     },
-    "XDR": {
-      "name": "Cearta Speisialta Tarraingthe"
-    },
-    "XEU": {
-      "name": "Aonad Airgeadra Eorpach"
-    },
-    "XFO": {
-      "name": "Franc Ór Francach"
-    },
-    "XFU": {
-      "name": "UIC-Franc Francach"
-    },
     "XOF": {
       "name": "Franc CFA Iarthar na hAfraice",
       "plural": {
@@ -2918,16 +2068,6 @@
         "two": "fhranc CFA Iarthar na hAfraice"
       },
       "symbol": "F\u202fCFA"
-    },
-    "XPD": {
-      "name": "Pallaidiam",
-      "plural": {
-        "few": "unsaí troí pallaidiam",
-        "many": "unsaí troí pallaidiam",
-        "one": "unsa troí pallaidiam",
-        "other": "unsaí troí pallaidiam",
-        "two": "unsa troí pallaidiam"
-      }
     },
     "XPF": {
       "name": "Franc CFP",
@@ -2940,29 +2080,6 @@
       },
       "symbol": "CFPF"
     },
-    "XPT": {
-      "name": "Platanam",
-      "plural": {
-        "few": "unsaí troí platanaim",
-        "many": "unsaí troí platanaim",
-        "one": "unsa troí platanaim",
-        "other": "unsaí troí platanaim",
-        "two": "unsa troí platanaim"
-      }
-    },
-    "XXX": {
-      "name": "Airgeadra Anaithnid",
-      "plural": {
-        "few": "(airgeadra anaithnid)",
-        "many": "(airgeadra anaithnid)",
-        "one": "(airgeadra anaithnid)",
-        "other": "(airgeadra anaithnid)",
-        "two": "(airgeadra anaithnid)"
-      }
-    },
-    "YDD": {
-      "name": "Dínear Éimin"
-    },
     "YER": {
       "name": "Rial Éimin",
       "plural": {
@@ -2972,31 +2089,6 @@
         "other": "rial Éimin",
         "two": "rial Éimin"
       }
-    },
-    "YUD": {
-      "name": "Dínear Crua Iúgslavach (1966–1990)"
-    },
-    "YUM": {
-      "name": "Dínear Nua Iúgslavach (1994–2002)"
-    },
-    "YUN": {
-      "name": "Dinar Inmhalartaithe Iúgslavach (1990–1992)",
-      "plural": {
-        "few": "Dínear Inathraithe Iúgslavach",
-        "many": "Dínear Inathraithe Iúgslavach",
-        "one": "Dínear Inathraithe Iúgslavach",
-        "other": "Dínear Inathraithe Iúgslavach",
-        "two": "Dínear Inathraithe Iúgslavach"
-      }
-    },
-    "YUR": {
-      "name": "Dinar Leasaithe na hIúgsláive (1992–1993)",
-      "plural": {
-        "other": "Dinars Leasaithe na hIúgsláive (1992–1993)"
-      }
-    },
-    "ZAL": {
-      "name": "Rand na hAfraice Theas (airgeadúil)"
     },
     "ZAR": {
       "name": "Rand na hAfraice Theas",
@@ -3009,9 +2101,6 @@
         "two": "rand na hAfraice Theas"
       }
     },
-    "ZMK": {
-      "name": "Kwacha Saimbiach (1968–2012)"
-    },
     "ZMW": {
       "name": "Kwacha na Saimbia",
       "narrow": "ZK",
@@ -3023,23 +2112,11 @@
         "two": "kwacha na Saimbia"
       }
     },
-    "ZRN": {
-      "name": "Zaire Nua Sáíreach"
-    },
-    "ZRZ": {
-      "name": "Zaire Sáíreach"
-    },
-    "ZWD": {
-      "name": "Dollar Siombábach (1980–2008)"
-    },
     "ZWG": {
       "name": "ór na Siombáibe",
       "plural": {
         "many": "n-ór na Siombáibe"
       }
-    },
-    "ZWL": {
-      "name": "Dollar na Siombáibe (2009)"
     }
   },
   "currencyDigits": {

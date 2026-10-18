@@ -490,14 +490,6 @@
     }
   },
   "currencies": {
-    "ADP": {
-      "name": "andorraska peseta",
-      "plural": {
-        "few": "andorraske pesety",
-        "other": "andorraskich pesetow",
-        "two": "andorraskej peseśe"
-      }
-    },
     "AED": {
       "name": "ZAE dirham",
       "plural": {
@@ -532,15 +524,6 @@
         "two": "armeńskej drama"
       }
     },
-    "ANG": {
-      "name": "nižozemsko-antilski gulden",
-      "plural": {
-        "few": "nižozemskoantilske guldeny",
-        "one": "nižozemskoantilski gulden",
-        "other": "nižozemskoantilskich guldenow",
-        "two": "nižozemskoantilskej guldena"
-      }
-    },
     "AOA": {
       "name": "angolska kwanza",
       "narrow": "Kz",
@@ -550,46 +533,6 @@
         "two": "angolskej kwanzy"
       }
     },
-    "AOK": {
-      "name": "angolska kwanza (1977–1990)",
-      "plural": {
-        "few": "angolske kwanze (1977–1990)",
-        "other": "angolskich kwanzow (1977–1990)",
-        "two": "angolskej kwanzy (1977–1990)"
-      }
-    },
-    "AON": {
-      "name": "angolska nowa kwanza (1990–2000)",
-      "plural": {
-        "few": "angolske nowe kwanze (1990–2000)",
-        "other": "angolskich nowych kwanzow (1990–2000)",
-        "two": "angolskej nowej kwanzy (1990–2000)"
-      }
-    },
-    "AOR": {
-      "name": "angolska kwanza reajustado (1995–1999)",
-      "plural": {
-        "few": "angolske kwanze reajustado (1995–1999)",
-        "other": "angolskich kwanzow reajustado (1995–1999)",
-        "two": "angolskej kwanzy reajustado (1995–1999)"
-      }
-    },
-    "ARA": {
-      "name": "argentinski austral",
-      "plural": {
-        "few": "argentinske australy",
-        "other": "argentinskich australow",
-        "two": "argentinskej australa"
-      }
-    },
-    "ARP": {
-      "name": "argentinski peso (1983–1985)",
-      "plural": {
-        "few": "argentinske peso (1983–1985)",
-        "other": "argentinskich peso (1983–1985)",
-        "two": "argentinskej peso (1983–1985)"
-      }
-    },
     "ARS": {
       "name": "argentinski peso",
       "narrow": "$",
@@ -597,14 +540,6 @@
         "few": "argentinske peso",
         "other": "argentinskich peso",
         "two": "argentinskej peso"
-      }
-    },
-    "ATS": {
-      "name": "rakuski šiling",
-      "plural": {
-        "few": "rakuske šilingi",
-        "other": "rakuskich šilingow",
-        "two": "rakuskej šilinga"
       }
     },
     "AUD": {
@@ -624,14 +559,6 @@
         "two": "aruba-florina"
       }
     },
-    "AZM": {
-      "name": "azerbajdžaniski manat (1993–2006)",
-      "plural": {
-        "few": "azerbajdžaniske manaty (1993–2006)",
-        "other": "azerbajdžaniskich manatow (1993–2006)",
-        "two": "azerbajdžaniskej manata (1993–2006)"
-      }
-    },
     "AZN": {
       "name": "azerbajdžaniski manat",
       "narrow": "₼",
@@ -639,14 +566,6 @@
         "few": "azerbajdžaniske manaty",
         "other": "azerbajdžaniskich manatow",
         "two": "azerbajdžaniskej manata"
-      }
-    },
-    "BAD": {
-      "name": "bosniski dinar",
-      "plural": {
-        "few": "bosniske dinary",
-        "other": "bosniskich dinarow",
-        "two": "bosniskej dinara"
       }
     },
     "BAM": {
@@ -674,46 +593,6 @@
         "few": "bangladešske taki",
         "other": "bangladešskich takow",
         "two": "bangladešskej tace"
-      }
-    },
-    "BEC": {
-      "name": "belgiski frank (konwertibelny)",
-      "plural": {
-        "few": "belgiske franki (konwertibelne)",
-        "other": "belgiskich frankow (konwertibelnych)",
-        "two": "belgiskej franka (konwertibelnej)"
-      }
-    },
-    "BEF": {
-      "name": "belgiski frank",
-      "plural": {
-        "few": "belgiske franki",
-        "other": "belgiskich frankow",
-        "two": "belgiskej franka"
-      }
-    },
-    "BEL": {
-      "name": "belgiski financny frank",
-      "plural": {
-        "few": "belgiske financne franki",
-        "other": "belgiskich financnych frankow",
-        "two": "belgiskej financnej franka"
-      }
-    },
-    "BGL": {
-      "name": "bulgarski lew (1962–1999)",
-      "plural": {
-        "few": "bulgarske lewy (1962–1999)",
-        "other": "bulgarskich lewow (1962–1999)",
-        "two": "bulgarskej lewa (1962–1999)"
-      }
-    },
-    "BGN": {
-      "name": "bulgarski lew",
-      "plural": {
-        "few": "bulgarske lewy",
-        "other": "bulgarskich lewow",
-        "two": "bulgarskej lewa"
       }
     },
     "BHD": {
@@ -759,46 +638,6 @@
         "two": "boliwiskej bolivianje"
       }
     },
-    "BOP": {
-      "name": "boliwiski peso",
-      "plural": {
-        "few": "boliwiske peso",
-        "other": "boliwiskich peso",
-        "two": "boliwiskej peso"
-      }
-    },
-    "BOV": {
-      "name": "boliwiski mvdol",
-      "plural": {
-        "few": "boliwiske mvdole",
-        "other": "boliwiskich mvdolow",
-        "two": "boliwiskej mvdola"
-      }
-    },
-    "BRB": {
-      "name": "brazilski nowy cruzeiro (1967–1986)",
-      "plural": {
-        "few": "brazilske nowe cruzeiry (1967–1986)",
-        "other": "brazilskich nowych cruzeirow (1967–1986)",
-        "two": "brazilskej nowej cruzeira (1967–1986)"
-      }
-    },
-    "BRC": {
-      "name": "brazilski cruzado (1986–1989)",
-      "plural": {
-        "few": "brazilske cruzada (1986–1989)",
-        "other": "brazilskich cruzadow (1986–1989)",
-        "two": "brazilskej cruzaźe (1986–1989)"
-      }
-    },
-    "BRE": {
-      "name": "brazilski cruzeiro (1990–1993)",
-      "plural": {
-        "few": "brazilske cruzeira (1990–1993)",
-        "other": "brazilskich cruzeirow (1990–1993)",
-        "two": "brazilskej cruzeirje (1990–1993)"
-      }
-    },
     "BRL": {
       "name": "brazilski real",
       "plural": {
@@ -807,22 +646,6 @@
         "two": "brazilskej reala"
       },
       "symbol": "R$"
-    },
-    "BRN": {
-      "name": "brazilski nowy cruzado (1989–1990)",
-      "plural": {
-        "few": "brazilske nowe cruzada",
-        "other": "brazilskich nowych cruzadow",
-        "two": "brazilskej nowej cruzaźe (1989–1990)"
-      }
-    },
-    "BRR": {
-      "name": "brazilski cruzeiro (1993–1994)",
-      "plural": {
-        "few": "brazilske cruzeira (1993–1994)",
-        "other": "brazilskich cruzeirow (1993–1994)",
-        "two": "brazilskej cruzeirje (1993–1994)"
-      }
     },
     "BSD": {
       "name": "bahamaski dolar",
@@ -841,14 +664,6 @@
         "two": "bhutańskej ngultruma"
       }
     },
-    "BUK": {
-      "name": "burmaski kyat",
-      "plural": {
-        "few": "burmaske kyaty",
-        "other": "burmaskich kyatow",
-        "two": "burmaskej kyata"
-      }
-    },
     "BWP": {
       "name": "botswaniska pula",
       "narrow": "P",
@@ -858,28 +673,12 @@
         "two": "botswaniskej puli"
       }
     },
-    "BYB": {
-      "name": "běłoruski rubl (1994–1999)",
-      "plural": {
-        "few": "běłoruske ruble (1994–1999)",
-        "other": "běłoruskich rublow (1994–1999)",
-        "two": "běłoruskej rubla (1994–1999)"
-      }
-    },
     "BYN": {
       "name": "běłoruski rubl",
       "plural": {
         "few": "běłoruske ruble",
         "other": "běłoruskich rublow",
         "two": "běłoruskej rubla"
-      }
-    },
-    "BYR": {
-      "name": "běłoruski rubl (2000–2016)",
-      "plural": {
-        "few": "běłoruske ruble (2000–2016)",
-        "other": "běłoruskich rublow (2000–2016)",
-        "two": "běłoruskej rubla (2000–2016)"
       }
     },
     "BZD": {
@@ -926,14 +725,6 @@
         "two": "chilskej peso"
       }
     },
-    "CNH": {
-      "name": "chinski yuan (offshore)",
-      "plural": {
-        "few": "chinske yuany (offshore)",
-        "other": "chinskich yuanow (offshore)",
-        "two": "chinskej yuanaj (offshore)"
-      }
-    },
     "CNY": {
       "name": "chinski yuan",
       "narrow": "¥",
@@ -960,15 +751,6 @@
         "few": "kosta-rikańske colóny",
         "other": "kosta-rikańskich colónow",
         "two": "kosta-rikańskej colóna"
-      }
-    },
-    "CUC": {
-      "name": "kubański konwertibelny peso",
-      "narrow": "$",
-      "plural": {
-        "few": "kubańske konwertibelne peso",
-        "other": "kubańskich konwertibelnych peso",
-        "two": "kubańskej konwertibelnej peso"
       }
     },
     "CUP": {
@@ -1047,9 +829,6 @@
         "other": "eritrejskich nakfow",
         "two": "eritrejskej nakfje"
       }
-    },
-    "ESP": {
-      "narrow": "₧"
     },
     "ETB": {
       "name": "etiopiski birr",
@@ -1143,9 +922,6 @@
         "two": "guatemalskej quetzala"
       }
     },
-    "GWP": {
-      "name": "Guinea-Bissau peso"
-    },
     "GYD": {
       "name": "guyański dolar",
       "narrow": "$",
@@ -1172,15 +948,6 @@
         "few": "honduraske lempiry",
         "other": "honduraskich lempirow",
         "two": "honduraskej lempirje"
-      }
-    },
-    "HRK": {
-      "name": "chorwatska kuna",
-      "narrow": "kn",
-      "plural": {
-        "few": "chorwatske kuny",
-        "other": "chorwatskich kunow",
-        "two": "chorwatskej kunje"
       }
     },
     "HTG": {
@@ -1401,24 +1168,6 @@
         "two": "lesothiskej lotija"
       }
     },
-    "LTL": {
-      "name": "litawski litas",
-      "narrow": "Lt",
-      "plural": {
-        "few": "litawske litasy",
-        "other": "litawskich litasow",
-        "two": "litawskej litasa"
-      }
-    },
-    "LVL": {
-      "name": "letiski lat",
-      "narrow": "Ls",
-      "plural": {
-        "few": "letiske laty",
-        "other": "letiskich latow",
-        "two": "letiskej lata"
-      }
-    },
     "LYD": {
       "name": "libyski dinar",
       "plural": {
@@ -1486,13 +1235,6 @@
         "two": "macaoskej pataca"
       }
     },
-    "MRO": {
-      "name": "mauretański ouguiya (1973–2017)",
-      "plural": {
-        "few": "mauretańske ouguiya (1973–2017)",
-        "two": "mauretańskej ouguiya (1973–2017)"
-      }
-    },
     "MRU": {
       "name": "mauretański ouguiya",
       "plural": {
@@ -1542,23 +1284,6 @@
         "few": "malajziske ringgity",
         "other": "malajziskich ringgitow",
         "two": "malajziskej ringgita"
-      }
-    },
-    "MZE": {
-      "name": "Mozabicke escudo",
-      "plural": {
-        "few": "mozabicke escuda",
-        "one": "mozabicke escudo",
-        "other": "mozabickich escud",
-        "two": "mozabickej escuźe"
-      }
-    },
-    "MZM": {
-      "name": "mosambikski metical (1980–2006)",
-      "plural": {
-        "few": "mosambikske meticale (1980–2006)",
-        "other": "mosambikskich meticalow (1980–2006)",
-        "two": "mosambikskej meticala (1980–2006)"
       }
     },
     "MZN": {
@@ -1803,14 +1528,6 @@
         "two": "sierra-leoneskej leone"
       }
     },
-    "SLL": {
-      "name": "sierra-leoneski leone (1964—2022)",
-      "plural": {
-        "few": "sierra-leoneske leone (1964—2022)",
-        "other": "sierra-leoneskich leone (1964—2022)",
-        "two": "sierra-leoneskej leone (1964—2022)"
-      }
-    },
     "SOS": {
       "name": "somaliski šiling",
       "plural": {
@@ -1837,14 +1554,6 @@
         "two": "pódpołdnjowosudańskej punta"
       }
     },
-    "STD": {
-      "name": "são-tomeska dobra (1977–2017)",
-      "plural": {
-        "few": "são-tomeske dobry (1977–2017)",
-        "other": "são-tomeskich dobrow (1977–2017)",
-        "two": "são-tomeskej dobrje (1977–2017)"
-      }
-    },
     "STN": {
       "name": "são-tomeska dobra",
       "narrow": "Db",
@@ -1852,14 +1561,6 @@
         "few": "são-tomeske dobry",
         "other": "são-tomeskich dobrow",
         "two": "são-tomeskej dobrje"
-      }
-    },
-    "SVC": {
-      "name": "el-salvadorski colón",
-      "plural": {
-        "few": "el-salvadorske colóny",
-        "other": "el-salvadorskich colónow",
-        "two": "el-salvadorskej colóna"
       }
     },
     "SYP": {
@@ -2001,15 +1702,6 @@
         "two": "usbekiskej suma"
       }
     },
-    "VEF": {
-      "name": "venezuelski bolívar (2008–2018)",
-      "narrow": "Bs",
-      "plural": {
-        "few": "venezuelske bolívary (2008–2018)",
-        "other": "venezuelskich bolívarow (2008–2018)",
-        "two": "venezuelskej bolívara (2008–2018)"
-      }
-    },
     "VES": {
       "name": "venezuelski bolívar",
       "plural": {
@@ -2089,13 +1781,6 @@
         "two": "CFP-franka"
       },
       "symbol": "CFPF"
-    },
-    "XXX": {
-      "name": "njeznate pjenjeze",
-      "plural": {
-        "other": "njeznatych pjenjez"
-      },
-      "symbol": "¤"
     },
     "YER": {
       "name": "jemeński rial",

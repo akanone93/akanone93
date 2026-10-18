@@ -517,12 +517,6 @@
       "name": "Dírààmù Àmẹ́níà",
       "narrow": "֏"
     },
-    "ANG": {
-      "name": "Gílídà Netherlands Antillean",
-      "plural": {
-        "other": "àwọn gílídà Netherlands Antillean"
-      }
-    },
     "AOA": {
       "name": "kíwánsà Angola",
       "narrow": "Kz",
@@ -569,12 +563,6 @@
     "BDT": {
       "name": "Tákà Báńgíládẹ̀ẹ̀ṣì",
       "narrow": "৳"
-    },
-    "BGN": {
-      "name": "Owó Lẹ́fì Bọ̀lìgéríà",
-      "plural": {
-        "other": "Lẹ́fà Bọ̀lìgéríà"
-      }
     },
     "BHD": {
       "name": "Dina ti Orílẹ́ède Báránì"
@@ -667,9 +655,6 @@
         "other": "àwọn pẹ́sò Ṣílè"
       }
     },
-    "CNH": {
-      "name": "Yúànì Sháínà"
-    },
     "CNY": {
       "name": "Reminibi ti Orílẹ́ède ṣáínà",
       "narrow": "¥",
@@ -687,13 +672,6 @@
       "narrow": "₡",
       "plural": {
         "other": "àwọ́n kólọ́ọ̀nì Kosita Ríkà"
-      }
-    },
-    "CUC": {
-      "name": "Pẹ́sò Yíyípadà Kúbà",
-      "narrow": "$",
-      "plural": {
-        "other": "àwọn pẹ́sò yíyípadà Kúbà"
       }
     },
     "CUP": {
@@ -752,9 +730,6 @@
         "other": "àwọn nakifasì Eritira"
       }
     },
-    "ESP": {
-      "narrow": "₧"
-    },
     "ETB": {
       "name": "Báà Etópíà",
       "plural": {
@@ -787,9 +762,6 @@
       "name": "Lárì Jọ́jíà",
       "narrow": "₾"
     },
-    "GHC": {
-      "name": "ṣidi ti Orílẹ́ède Gana"
-    },
     "GHS": {
       "name": "sídì Gana",
       "narrow": "GH₵",
@@ -817,9 +789,6 @@
         "other": "àwọn fírànkì Gínì"
       }
     },
-    "GNS": {
-      "name": "Faransi ti Orílẹ́ède Gini"
-    },
     "GTQ": {
       "name": "Kúẹ́tísààlì Guatimílà",
       "narrow": "Q",
@@ -844,13 +813,6 @@
       "narrow": "L",
       "plural": {
         "other": "àwọn Lẹmipírà Ọ́ńdúrà"
-      }
-    },
-    "HRK": {
-      "name": "Kúnà Kúróṣíà",
-      "narrow": "kn",
-      "plural": {
-        "other": "àwọn kúnà Kúróṣíà"
       }
     },
     "HTG": {
@@ -974,12 +936,6 @@
         "other": "Lótì ti Lẹ̀sótò"
       }
     },
-    "LTL": {
-      "narrow": "Lt"
-    },
-    "LVL": {
-      "narrow": "Ls"
-    },
     "LYD": {
       "name": "Dínà Líbíyà",
       "plural": {
@@ -1022,9 +978,6 @@
     "MOP": {
       "name": "Pàtákà Màkáò"
     },
-    "MRO": {
-      "name": "Ouguiya ti Orílẹ́ède Maritania (1973–2017)"
-    },
     "MRU": {
       "name": "Ouguiya ti Orílẹ́ède Maritania"
     },
@@ -1055,9 +1008,6 @@
     "MYR": {
       "name": "Ríngìtì Màléṣíà",
       "narrow": "RM"
-    },
-    "MZM": {
-      "name": "Metika ti Orílẹ́ède Mosamibiki"
     },
     "MZN": {
       "name": "Mẹ́tíkààlì Mòsáḿbíìkì",
@@ -1185,9 +1135,6 @@
         "other": "àwọn pọ́n-ùn Sùdáànì"
       }
     },
-    "SDP": {
-      "name": "Pọọun ti Orílẹ́ède Sudani"
-    },
     "SEK": {
       "name": "Kòrónà Súwídìn",
       "narrow": "kr",
@@ -1212,12 +1159,6 @@
         "other": "àwọn líónì Sira Líonì"
       }
     },
-    "SLL": {
-      "name": "Líónì Sira Líonì (1964—2022)",
-      "plural": {
-        "other": "àwọn líónì Sira Líonì (1964—2022)"
-      }
-    },
     "SOS": {
       "name": "Ṣílè Somali",
       "plural": {
@@ -1237,9 +1178,6 @@
       "plural": {
         "other": "àwọn pọ́n-un Gúúsù Sùdáànì"
       }
-    },
-    "STD": {
-      "name": "Dobira ti Orílẹ́ède Sao tome Ati Pirisipe (1977–2017)"
     },
     "STN": {
       "name": "Dọbíra Sao tome àti Pirisipi",
@@ -1321,9 +1259,6 @@
     "UZS": {
       "name": "Sómú Usibẹkísítàànì"
     },
-    "VEF": {
-      "narrow": "Bs"
-    },
     "VES": {
       "name": "Bọ̀lífà Fẹnẹsuẹ́là",
       "plural": {
@@ -1370,10 +1305,6 @@
       "name": "Fírànkì CFP",
       "symbol": "CFPF"
     },
-    "XXX": {
-      "name": "owóníná àìmọ̀",
-      "symbol": "¤"
-    },
     "YER": {
       "name": "Ráyò Yẹ́mẹ̀nì"
     },
@@ -1384,18 +1315,12 @@
         "other": "rándì Gúúsù Afíríkà"
       }
     },
-    "ZMK": {
-      "name": "Kawaṣa ti Orílẹ́ède Saabia (1968–2012)"
-    },
     "ZMW": {
       "name": "Kàwasà Sámbíà",
       "narrow": "ZK",
       "plural": {
         "other": "àwọn kàwasà Sámbíà"
       }
-    },
-    "ZWD": {
-      "name": "Dọla ti Orílẹ́ède Siibabuwe"
     },
     "ZWG": {
       "name": "Owó ìlú Sìnbábúwè"

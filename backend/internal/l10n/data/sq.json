@@ -524,13 +524,6 @@
         "other": "drami armene"
       }
     },
-    "ANG": {
-      "name": "Gilderi antilian holandez",
-      "plural": {
-        "one": "gilder antilian holandez",
-        "other": "gilderë antilianë holandezë"
-      }
-    },
     "AOA": {
       "name": "Kuanza e Angolës",
       "plural": {
@@ -587,13 +580,6 @@
       "plural": {
         "one": "takë bangladeshi",
         "other": "taka bangladeshi"
-      }
-    },
-    "BGN": {
-      "name": "Leva bullgare",
-      "plural": {
-        "one": "levë bullgare",
-        "other": "leva bullgare"
       }
     },
     "BHD": {
@@ -666,13 +652,6 @@
         "other": "rubla bjelloruse"
       }
     },
-    "BYR": {
-      "name": "Rubla bjelloruse (2000–2016)",
-      "plural": {
-        "one": "rubël bjelloruse (2000–2016)",
-        "other": "rubla bjelloruse (2000–2016)"
-      }
-    },
     "BZD": {
       "name": "Dollari i Ishujve Belize",
       "plural": {
@@ -710,13 +689,6 @@
         "other": "peso kiliane"
       }
     },
-    "CNH": {
-      "name": "Juani kinez (për treg të jashtëm)",
-      "plural": {
-        "one": "juan kinez (për treg të jashtëm)",
-        "other": "juanë kinezë (për treg të jashtëm)"
-      }
-    },
     "CNY": {
       "name": "Juani kinez",
       "narrow": "CNY",
@@ -738,13 +710,6 @@
       "plural": {
         "one": "kolon kostarikan",
         "other": "kolonë kostarikanë"
-      }
-    },
-    "CUC": {
-      "name": "Pesoja kubaneze e shkëmbyeshme",
-      "plural": {
-        "one": "peso kubaneze e shkëmbyeshme",
-        "other": "peso kubaneze e shkëmbyeshme"
       }
     },
     "CUP": {
@@ -809,9 +774,6 @@
         "one": "nakfë eritreje",
         "other": "nakfa eritreje"
       }
-    },
-    "ESP": {
-      "narrow": "₧"
     },
     "ETB": {
       "name": "Bira etiopiane",
@@ -915,13 +877,6 @@
       "plural": {
         "one": "lempirë hondurase",
         "other": "lempira hondurase"
-      }
-    },
-    "HRK": {
-      "name": "Kuna kroate",
-      "plural": {
-        "one": "kunë kroate",
-        "other": "kuna kroate"
       }
     },
     "HTG": {
@@ -1108,22 +1063,6 @@
         "other": "lota lesotiane"
       }
     },
-    "LTL": {
-      "name": "Lita lituaneze",
-      "narrow": "Lt",
-      "plural": {
-        "one": "litë lituaneze",
-        "other": "lita lituaneze"
-      }
-    },
-    "LVL": {
-      "name": "Lata letoneze",
-      "narrow": "Ls",
-      "plural": {
-        "one": "latë letoneze",
-        "other": "lata letoneze"
-      }
-    },
     "LYD": {
       "name": "Dinari libian",
       "plural": {
@@ -1178,13 +1117,6 @@
       "plural": {
         "one": "patakë e Makaos",
         "other": "pataka të Makaos"
-      }
-    },
-    "MRO": {
-      "name": "Ugija mauritane (1973–2017)",
-      "plural": {
-        "one": "ugijë mauritane (1973–2017)",
-        "other": "ugija mauritane (1973–2017)"
       }
     },
     "MRU": {
@@ -1429,13 +1361,6 @@
         "other": "leonë të Siera-Leones"
       }
     },
-    "SLL": {
-      "name": "Leoni i Siera-Leones (1964–2022)",
-      "plural": {
-        "one": "leon i Siera-Leones (1964–2022)",
-        "other": "leonë të Siera-Leones (1964–2022)"
-      }
-    },
     "SOS": {
       "name": "Shilinga somaleze",
       "plural": {
@@ -1455,13 +1380,6 @@
       "plural": {
         "one": "sterlinë sudanezo-jugore",
         "other": "sterlina sudanezo-jugore"
-      }
-    },
-    "STD": {
-      "name": "Dobra e Sao-Tomes dhe Prinsipes (1977–2017)",
-      "plural": {
-        "one": "dobër e Sao-Tomes dhe Prinsipes (1977–2017)",
-        "other": "dobra të Sao-Tomes dhe Prinsipes (1977–2017)"
       }
     },
     "STN": {
@@ -1589,14 +1507,6 @@
         "other": "soma uzbeke"
       }
     },
-    "VEF": {
-      "name": "Bolivari venezuelian (2008–2018)",
-      "narrow": "Bs",
-      "plural": {
-        "one": "bolivar venezuelian (2008–2018)",
-        "other": "bolivarë venezuelian (2008–2018)"
-      }
-    },
     "VES": {
       "name": "Bolivari venezuelas",
       "plural": {
@@ -1666,14 +1576,6 @@
         "other": "franga franceze të Polinezisë"
       },
       "symbol": "CFPF"
-    },
-    "XXX": {
-      "name": "Valutë e panjohur",
-      "plural": {
-        "one": "(njësi e panjohur valutore)",
-        "other": "(njësi të panjohura valutore)"
-      },
-      "symbol": "¤"
     },
     "YER": {
       "name": "Riali i Jemenit",

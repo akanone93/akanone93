@@ -6,8 +6,9 @@
 // at a pinned release (make phone-metadata). It keeps what validation needs
 // — calling codes, prefixes and each number type's pattern and lengths —
 // resolved the way libphonenumber's BuildMetadataFromXml resolves them, and
-// one example number per type for tests; formats, carriers and comments
-// are dropped. The output is deterministic: the same XML gives the same
+// one example number per type for tests, and each territory's number formats
+// for format.phone (pattern, last leading-digits pattern, national and
+// international format); carriers and comments are dropped. The output is deterministic: the same XML gives the same
 // bytes.
 package main
 
@@ -87,6 +88,19 @@ type (
 		NationalPrefixTransformRule string     `json:"nationalPrefixTransformRule,omitempty"`
 		General                     general    `json:"generalDesc"`
 		Types                       []numberTy `json:"types"`
+		Formats                     []numFmt   `json:"formats,omitempty"`
+	}
+	// numFmt is one availableFormats/numberFormat. Format is libphonenumber's
+	// format; NationalFormat is the one national formatting uses, with the
+	// national-prefix formatting rule applied to its first group (omitted when
+	// equal to Format); IntlFormat is the explicit international format, "NA"
+	// for none (omitted when equal to Format).
+	numFmt struct {
+		Pattern        string `json:"pattern"`
+		LeadingDigits  string `json:"leadingDigits,omitempty"`
+		Format         string `json:"format"`
+		NationalFormat string `json:"nationalFormat,omitempty"`
+		IntlFormat     string `json:"intlFormat,omitempty"`
 	}
 	general struct {
 		Pattern   string `json:"pattern"`
@@ -119,8 +133,17 @@ type (
 		NationalPrefix              string   `xml:"nationalPrefix,attr"`
 		NationalPrefixForParsing    string   `xml:"nationalPrefixForParsing,attr"`
 		NationalPrefixTransformRule string   `xml:"nationalPrefixTransformRule,attr"`
+		NationalFormattingRule      string   `xml:"nationalPrefixFormattingRule,attr"`
+		Formats                     []xmlFmt `xml:"availableFormats>numberFormat"`
 		General                     *xmlDesc `xml:"generalDesc"`
 		Descs                       []xmlAny `xml:",any"`
+	}
+	xmlFmt struct {
+		Pattern        string   `xml:"pattern,attr"`
+		FormattingRule string   `xml:"nationalPrefixFormattingRule,attr"`
+		LeadingDigits  []string `xml:"leadingDigits"`
+		Format         string   `xml:"format"`
+		IntlFormat     []string `xml:"intlFormat"`
 	}
 	xmlAny struct {
 		XMLName xml.Name
@@ -142,6 +165,8 @@ var (
 	regionID   = regexp.MustCompile(`^([A-Z]{2}|001)$`)
 	transform  = regexp.MustCompile(`^(\d|\$[1-9])*$`)
 	digitsOnly = regexp.MustCompile(`^\d+$`)
+	formatText = regexp.MustCompile(`^(\$[1-9]|[0-9 ().-])+$`)
+	firstGroup = regexp.MustCompile(`\$\d`)
 )
 
 // derive converts the XML into the document's bytes.
@@ -209,6 +234,61 @@ func convert(t xmlTerritory) (territory, error) {
 	out.General.LocalOnly = sortedKeys(local, national)
 	if out.Types, err = typeEntries(t, descs, out.General.Lengths); err != nil {
 		return territory{}, err
+	}
+	if out.Formats, err = formatEntries(t); err != nil {
+		return territory{}, err
+	}
+	return out, nil
+}
+
+// formatEntries resolves a territory's number formats the way
+// BuildMetadataFromXml does: the national-prefix formatting rule ($NP the
+// national prefix, $FG the first group) replaces the first group of the
+// national format, and a format without intlFormat is its own international
+// format.
+func formatEntries(t xmlTerritory) ([]numFmt, error) {
+	var out []numFmt
+	for _, f := range t.Formats {
+		pat := space.ReplaceAllString(f.Pattern, "")
+		format := strings.TrimSpace(f.Format)
+		if pat == "" || !compiles(pat) || !formatText.MatchString(format) {
+			return nil, territoryErr(t, "number format %q %q", f.Pattern, f.Format)
+		}
+		e := numFmt{Pattern: pat, Format: format}
+		if n := len(f.LeadingDigits); n > 0 {
+			e.LeadingDigits = space.ReplaceAllString(f.LeadingDigits[n-1], "")
+			if !compiles(e.LeadingDigits) {
+				return nil, territoryErr(t, "leading digits %q", e.LeadingDigits)
+			}
+		}
+		rule := f.FormattingRule
+		if rule == "" {
+			rule = t.NationalFormattingRule
+		}
+		if rule != "" {
+			if loc := firstGroup.FindStringIndex(format); loc != nil {
+				rule = strings.ReplaceAll(strings.ReplaceAll(rule, "$NP", t.NationalPrefix), "$FG", format[loc[0]:loc[1]])
+				if nat := format[:loc[0]] + rule + format[loc[1]:]; nat != format {
+					if !formatText.MatchString(nat) {
+						return nil, territoryErr(t, "national format %q", nat)
+					}
+					e.NationalFormat = nat
+				}
+			}
+		}
+		if len(f.IntlFormat) > 1 {
+			return nil, territoryErr(t, "two intlFormat elements")
+		}
+		if len(f.IntlFormat) == 1 {
+			if intl := strings.TrimSpace(f.IntlFormat[0]); intl == "NA" || formatText.MatchString(intl) {
+				if intl != format {
+					e.IntlFormat = intl
+				}
+			} else {
+				return nil, territoryErr(t, "international format %q", intl)
+			}
+		}
+		out = append(out, e)
 	}
 	return out, nil
 }

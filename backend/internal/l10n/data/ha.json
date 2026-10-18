@@ -526,12 +526,6 @@
       "name": "Dram na Armeniya",
       "narrow": "֏"
     },
-    "ANG": {
-      "name": "Antillean Guilder na ƙasar Netherlands",
-      "plural": {
-        "one": "Antillean guilder na ƙasar Netherlands"
-      }
-    },
     "AOA": {
       "name": "Kwanza na Angola",
       "narrow": "Kz"
@@ -572,12 +566,6 @@
     "BDT": {
       "name": "Taka na ƙasar Bangladesh",
       "narrow": "৳"
-    },
-    "BGN": {
-      "name": "Lev na Bulgeria",
-      "plural": {
-        "other": "Leva na Bulgeria"
-      }
     },
     "BHD": {
       "name": "Zinaren Bahrain"
@@ -647,9 +635,6 @@
       "name": "Peso na ƙasar Chile",
       "narrow": "$"
     },
-    "CNH": {
-      "name": "Yuwan na ƙasar Sin (na wajen ƙasa)"
-    },
     "CNY": {
       "name": "Yuwan na ƙasar Sin",
       "narrow": "¥",
@@ -662,10 +647,6 @@
     "CRC": {
       "name": "Colón na ƙasar Costa Rica",
       "narrow": "₡"
-    },
-    "CUC": {
-      "name": "Peso mai fuska biyu na ƙasar Kuba",
-      "narrow": "$"
     },
     "CUP": {
       "name": "Peso na ƙasar Kuba",
@@ -715,9 +696,6 @@
         "other": "Nafka na Eritrea"
       }
     },
-    "ESP": {
-      "narrow": "₧"
-    },
     "ETB": {
       "name": "Birr na Habasha"
     },
@@ -748,9 +726,6 @@
       "name": "Lari na Georgia",
       "narrow": "₾"
     },
-    "GHC": {
-      "name": "Cedi"
-    },
     "GHS": {
       "name": "Sidi na Ghana",
       "narrow": "GH₵"
@@ -765,9 +740,6 @@
     "GNF": {
       "name": "Franc na Guinea",
       "narrow": "FG"
-    },
-    "GNS": {
-      "name": "Kuɗin Gini"
     },
     "GTQ": {
       "name": "Quetzal na ƙasar Guatemala",
@@ -790,13 +762,6 @@
       "narrow": "L",
       "plural": {
         "one": "lempira na ƙasar Honduras"
-      }
-    },
-    "HRK": {
-      "name": "Kuna na Croatia",
-      "narrow": "kn",
-      "plural": {
-        "other": "Kunas na Croatia"
       }
     },
     "HTG": {
@@ -916,12 +881,6 @@
     "LSL": {
       "name": "Loti na Lesoto"
     },
-    "LTL": {
-      "narrow": "Lt"
-    },
-    "LVL": {
-      "narrow": "Ls"
-    },
     "LYD": {
       "name": "Dinarin Libya",
       "plural": {
@@ -960,9 +919,6 @@
     "MOP": {
       "name": "Pataca na ƙasar Macao"
     },
-    "MRO": {
-      "name": "Kuɗin Moritaniya (1973–2017)"
-    },
     "MRU": {
       "name": "Ouguiya na Moritaniya"
     },
@@ -988,9 +944,6 @@
     "MYR": {
       "name": "Ringgit na ƙasar Malaysia",
       "narrow": "RM"
-    },
-    "MZM": {
-      "name": "Kuɗin Mozambik"
     },
     "MZN": {
       "name": "Metical na ƙasar Mozambique",
@@ -1126,9 +1079,6 @@
     "SLE": {
       "name": "Leone na Saliyo"
     },
-    "SLL": {
-      "name": "Leone na Saliyo (1964—2022)"
-    },
     "SOS": {
       "name": "Sulen Somaliya"
     },
@@ -1142,9 +1092,6 @@
       "plural": {
         "one": "fam na Kudancin Sudan"
       }
-    },
-    "STD": {
-      "name": "Kuɗin Sawo Tome da Paransip (1977–2017)"
     },
     "STN": {
       "name": "Dobra na Sawo Tome",
@@ -1221,9 +1168,6 @@
     "UZS": {
       "name": "Som na ƙasar Uzbekistan"
     },
-    "VEF": {
-      "narrow": "Bs"
-    },
     "VES": {
       "name": "Bolívar na ƙasar Venezuela"
     },
@@ -1262,13 +1206,6 @@
       "name": "Kuɗin CFP franc",
       "symbol": "CFPF"
     },
-    "XXX": {
-      "name": "Kudin da ba a sani ba",
-      "plural": {
-        "one": "(sashin kuɗi da ba a sani ba)"
-      },
-      "symbol": "¤"
-    },
     "YER": {
       "name": "Riyal ɗin Yemen",
       "plural": {
@@ -1279,15 +1216,9 @@
       "name": "Rand na Afirka ta Kudu",
       "narrow": "R"
     },
-    "ZMK": {
-      "name": "Kuɗin Zambiya (1968–2012)"
-    },
     "ZMW": {
       "name": "Kwacha na Zambiya",
       "narrow": "ZK"
-    },
-    "ZWD": {
-      "name": "Dalar zimbabuwe"
     },
     "ZWG": {
       "name": "Zinaren Zimbabwe"

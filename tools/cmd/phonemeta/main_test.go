@@ -76,3 +76,43 @@ func TestRun(t *testing.T) {
 		t.Errorf("missing input exit %d", code)
 	}
 }
+
+const formatSample = `<phoneNumberMetadata><territories>
+<territory id="XX" mainCountryForCode="true" countryCode="99" nationalPrefix="0">
+  <availableFormats>
+    <numberFormat pattern="(\d{2})(\d{4})" nationalPrefixFormattingRule="$NP$FG">
+      <leadingDigits>1</leadingDigits><leadingDigits>
+        [12]
+      </leadingDigits>
+      <format>$1 $2</format>
+      <intlFormat>$1-$2</intlFormat>
+    </numberFormat>
+    <numberFormat pattern="(\d{6})"><format>$1</format><intlFormat>NA</intlFormat></numberFormat>
+  </availableFormats>
+  <generalDesc><nationalNumberPattern>\d{6}</nationalNumberPattern></generalDesc>
+  <fixedLine><possibleLengths national="6"/><nationalNumberPattern>\d{6}</nationalNumberPattern></fixedLine>
+</territory>
+</territories></phoneNumberMetadata>`
+
+// TestDeriveFormats checks the resolution of number formats: the last
+// leading-digits pattern, the national-prefix rule on the first group and the
+// international format.
+//
+// Verifies: PXL-006.
+func TestDeriveFormats(t *testing.T) {
+	src := source{Project: "libphonenumber", Version: "v1.0.0", Commit: strings.Repeat("a", 40), File: "f"}
+	out, err := derive([]byte(formatSample), src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{`"leadingDigits": "[12]"`, `"format": "$1 $2"`, `"nationalFormat": "0$1 $2"`, `"intlFormat": "$1-$2"`, `"intlFormat": "NA"`} {
+		if !bytes.Contains(out, []byte(want)) {
+			t.Errorf("output lacks %s:\n%s", want, out)
+		}
+	}
+	if bad := strings.Replace(formatSample, "<format>$1 $2</format>", "<format>$1 x</format>", 1); bad != formatSample {
+		if _, err := derive([]byte(bad), src); err == nil {
+			t.Error("accepted a format with a letter")
+		}
+	}
+}

@@ -516,9 +516,6 @@
         "other": "Armẹ́niá drams"
       }
     },
-    "ANG": {
-      "name": "Nẹ́dalánds Antílián Gílda"
-    },
     "AOA": {
       "name": "Angólá Kwánza",
       "narrow": "Kz",
@@ -566,9 +563,6 @@
         "one": "Bangladẹ́sh táka",
         "other": "Bangladẹ́sh táka"
       }
-    },
-    "BGN": {
-      "name": "Bọlgériá Lẹv"
     },
     "BHD": {
       "name": "Baréin Dínar",
@@ -650,13 +644,6 @@
       "name": "Chílí Pẹ́so",
       "narrow": "$"
     },
-    "CNH": {
-      "name": "Chaíná Yuan (ples-dẹm aúsaíd chaína)",
-      "plural": {
-        "one": "Chaíná yuan (ples-dẹm aúsaíd chaína)",
-        "other": "Chaíná yuans (ples-dẹm aúsaíd chaína)"
-      }
-    },
     "CNY": {
       "name": "Chaíná Yuan",
       "narrow": "¥",
@@ -677,10 +664,6 @@
     "CRC": {
       "name": "Kósta Ríka Kólọn",
       "narrow": "₡"
-    },
-    "CUC": {
-      "name": "Kiúbá Pẹ́so Wé Pẹ́sin Fít Chenj",
-      "narrow": "$"
     },
     "CUP": {
       "name": "Kiúbá Pẹ́so",
@@ -725,9 +708,6 @@
         "one": "Ẹritrẹá nákfa",
         "other": "Ẹritrẹá nákfas"
       }
-    },
-    "ESP": {
-      "narrow": "₧"
     },
     "ETB": {
       "name": "Ẹtiópiá Berr",
@@ -823,10 +803,6 @@
     "HNL": {
       "name": "Họndúrán Lẹmpíra",
       "narrow": "L"
-    },
-    "HRK": {
-      "name": "Kroéshia Kúna",
-      "narrow": "kn"
     },
     "HTG": {
       "name": "Haíti Gourd"
@@ -1000,12 +976,6 @@
       "plural": {
         "other": "Lẹsóto Lọ́tis"
       }
-    },
-    "LTL": {
-      "narrow": "Lt"
-    },
-    "LVL": {
-      "narrow": "Ls"
     },
     "LYD": {
       "name": "Líbia Dínar"
@@ -1262,13 +1232,6 @@
         "other": "Siẹ́ra Líoniá liọns"
       }
     },
-    "SLL": {
-      "name": "Siẹ́ra Líoniá Liọn (1964—2022)",
-      "plural": {
-        "one": "Siẹ́ra Líoniá liọn (1964—2022)",
-        "other": "Siẹ́ra Líoniá liọns (1964—2022)"
-      }
-    },
     "SOS": {
       "name": "Sọmáliá Shílin",
       "plural": {
@@ -1402,9 +1365,6 @@
         "other": "Uzbẹ́kistan soms"
       }
     },
-    "VEF": {
-      "narrow": "Bs"
-    },
     "VES": {
       "name": "Vẹnẹzuẹlá Bolívar"
     },
@@ -1462,14 +1422,6 @@
         "other": "Frẹ́nch Poliníshiá franks"
       },
       "symbol": "CFPF"
-    },
-    "XXX": {
-      "name": "Mọní Wé Pípul Nọ́ No",
-      "plural": {
-        "one": "mọní wé pípul nọ́ no",
-        "other": "(mọní wé pípul nọ́ no)"
-      },
-      "symbol": "¤"
     },
     "YER": {
       "name": "Yẹ́mẹ́n Rial",

@@ -526,9 +526,6 @@
       "name": "Ego Dram obodo Armenia",
       "narrow": "֏"
     },
-    "ANG": {
-      "name": "Ego Antillean Guilder obodo Netherlands"
-    },
     "AOA": {
       "name": "Ego Kwanza obodo Angola",
       "narrow": "Kz",
@@ -569,9 +566,6 @@
     "BDT": {
       "name": "Ego Taka obodo Bangladesh",
       "narrow": "৳"
-    },
-    "BGN": {
-      "name": "Ego Lev mba Bulgaria"
     },
     "BHD": {
       "name": "Ego Dinar Obodo Bahrain"
@@ -646,9 +640,6 @@
       "name": "Ego Peso obodo Chile",
       "narrow": "$"
     },
-    "CNH": {
-      "name": "Ego Yuan Obodo China (ndị bi na mmiri)"
-    },
     "CNY": {
       "name": "Yuan China",
       "narrow": "¥",
@@ -664,10 +655,6 @@
       "plural": {
         "other": "Ego colóns obodo Costa Rica"
       }
-    },
-    "CUC": {
-      "name": "Ego Peso e nwere ike ịgbanwe nke obodo Cuba",
-      "narrow": "$"
     },
     "CUP": {
       "name": "Ego Peso obodo Cuba",
@@ -709,9 +696,6 @@
       "plural": {
         "other": "Ego nakfas obodo Eritrea"
       }
-    },
-    "ESP": {
-      "narrow": "₧"
     },
     "ETB": {
       "name": "Ego Birr obodo Ethiopia",
@@ -776,13 +760,6 @@
     "HNL": {
       "name": "Ego Lempira obodo Honduras",
       "narrow": "L"
-    },
-    "HRK": {
-      "name": "Ego Kuna obodo Croatia",
-      "narrow": "kn",
-      "plural": {
-        "other": "Ego kunas obodo Croatia"
-      }
     },
     "HTG": {
       "name": "Ego Gourde obodo Haiti"
@@ -885,12 +862,6 @@
     },
     "LSL": {
       "name": "Ego loti obodo Lesotho"
-    },
-    "LTL": {
-      "narrow": "Lt"
-    },
-    "LVL": {
-      "narrow": "Ls"
     },
     "LYD": {
       "name": "Ego Dinar obodo Libya"
@@ -1076,9 +1047,6 @@
     "SLE": {
       "name": "Ego Leone obodo Sierra Leone"
     },
-    "SLL": {
-      "name": "Ego Leone obodo Sierra Leone (1964—2022)"
-    },
     "SOS": {
       "name": "Ego shilling obodo Somali"
     },
@@ -1173,9 +1141,6 @@
         "other": "Ego som obodo Uzbekistan"
       }
     },
-    "VEF": {
-      "narrow": "Bs"
-    },
     "VES": {
       "name": "Ego Bolivar obodo Venezuela"
     },
@@ -1221,13 +1186,6 @@
         "other": "Ego francs obodo CFP"
       },
       "symbol": "CFPF"
-    },
-    "XXX": {
-      "name": "Ego Amaghị",
-      "plural": {
-        "other": "(ego amaghị)"
-      },
-      "symbol": "¤"
     },
     "YER": {
       "name": "Ego Rial obodo Yemeni"

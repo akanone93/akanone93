@@ -530,9 +530,6 @@
       "name": "Amɛnia dram",
       "narrow": "֏"
     },
-    "ANG": {
-      "name": "Nɛdɛlande Antɛlia guuda"
-    },
     "AOA": {
       "name": "Angola Kwanza",
       "narrow": "Kz"
@@ -564,12 +561,6 @@
     "BDT": {
       "name": "Bangladehye taka",
       "narrow": "৳"
-    },
-    "BGN": {
-      "name": "Bɔɔgaria lɛv",
-      "plural": {
-        "other": "Bɔɔgaria lɛva"
-      }
     },
     "BHD": {
       "name": "Baren Dina"
@@ -630,9 +621,6 @@
       "name": "Kyili Peso",
       "narrow": "$"
     },
-    "CNH": {
-      "name": "kyaena yuan (offshore)"
-    },
     "CNY": {
       "name": "Kyaena yuan",
       "narrow": "¥",
@@ -645,10 +633,6 @@
     "CRC": {
       "name": "Kɔsta Rika kɔlɔn",
       "narrow": "₡"
-    },
-    "CUC": {
-      "name": "Kuba nsesa peso",
-      "narrow": "$"
     },
     "CUP": {
       "name": "Kuba peso",
@@ -682,9 +666,6 @@
     "ERN": {
       "name": "Ɛretereya Nakfa"
     },
-    "ESP": {
-      "narrow": "₧"
-    },
     "ETB": {
       "name": "Itiopia Bir"
     },
@@ -708,9 +689,6 @@
       "name": "Gyɔɔgyia lari",
       "narrow": "₾"
     },
-    "GHC": {
-      "name": "Ghana Sidi (1979–2007)"
-    },
     "GHS": {
       "name": "Ghana Sidi",
       "symbol": "GH₵"
@@ -725,9 +703,6 @@
     "GNF": {
       "name": "Gini franke",
       "narrow": "FG"
-    },
-    "GNS": {
-      "name": "Gini Frank"
     },
     "GTQ": {
       "name": "Guatemala kwɛtsaa",
@@ -745,13 +720,6 @@
     "HNL": {
       "name": "Hɔndura lɛmpira",
       "narrow": "L"
-    },
-    "HRK": {
-      "name": "Krohyia kuna",
-      "narrow": "kn",
-      "plural": {
-        "other": "Krohyia kunas"
-      }
     },
     "HTG": {
       "name": "Haiti gɔɔde"
@@ -852,12 +820,6 @@
     "LSL": {
       "name": "Lesoto Loti"
     },
-    "LTL": {
-      "narrow": "Lt"
-    },
-    "LVL": {
-      "narrow": "Ls"
-    },
     "LYD": {
       "name": "Libya Dina"
     },
@@ -892,9 +854,6 @@
     "MOP": {
       "name": "Makaw pataka"
     },
-    "MRO": {
-      "name": "Mɔretenia Ouguiya (1973–2017)"
-    },
     "MRU": {
       "name": "Mɔretenia Ouguiya"
     },
@@ -916,9 +875,6 @@
     "MYR": {
       "name": "Malaahyia ringgit",
       "narrow": "RM"
-    },
-    "MZM": {
-      "name": "Mozambik Metical"
     },
     "MZN": {
       "name": "Mozambik mɛtikaa"
@@ -1015,9 +971,6 @@
     "SDG": {
       "name": "Sudan Dina"
     },
-    "SDP": {
-      "name": "Sudan Pɔn"
-    },
     "SEK": {
       "name": "Sweden Krona",
       "narrow": "kr",
@@ -1037,9 +990,6 @@
     "SLE": {
       "name": "Leone"
     },
-    "SLL": {
-      "name": "Leone (1964—2022)"
-    },
     "SOS": {
       "name": "Somailia Hyelen"
     },
@@ -1050,9 +1000,6 @@
     "SSP": {
       "name": "Sudan Anaafoɔ Pɔn",
       "narrow": "£"
-    },
-    "STD": {
-      "name": "Sao Tome ne Principe Dobra (1977–2017)"
     },
     "STN": {
       "name": "Sao Tome ne Principe Dobra",
@@ -1124,9 +1071,6 @@
     "UZS": {
       "name": "Yusbɛkistan som"
     },
-    "VEF": {
-      "narrow": "Bs"
-    },
     "VES": {
       "name": "Venezuelan bolívar",
       "plural": {
@@ -1175,14 +1119,6 @@
       },
       "symbol": "CFPF"
     },
-    "XXX": {
-      "name": "sika a yɛnnim",
-      "plural": {
-        "one": "(sika a yɛnnim)",
-        "other": "(sika a yɛnnim)"
-      },
-      "symbol": "¤"
-    },
     "YER": {
       "name": "Yɛmɛn rial"
     },
@@ -1190,15 +1126,9 @@
       "name": "Afrika Anaafo Rand",
       "narrow": "R"
     },
-    "ZMK": {
-      "name": "Zambia Kwacha (1968–2012)"
-    },
     "ZMW": {
       "name": "Zambia Kwakya",
       "narrow": "ZK"
-    },
-    "ZWD": {
-      "name": "Zimbabwe Dɔla"
     },
     "ZWG": {
       "name": "Zimbabwe sika kᴐkᴐᴐ"

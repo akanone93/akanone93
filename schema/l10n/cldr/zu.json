@@ -522,9 +522,6 @@
       "name": "i-Armenian Dram",
       "narrow": "֏"
     },
-    "ANG": {
-      "name": "i-Netherlands Antillean Guilder"
-    },
     "AOA": {
       "name": "i-Angolan Kwanza",
       "narrow": "Kz"
@@ -556,9 +553,6 @@
     "BDT": {
       "name": "i-Bangladeshi Taka",
       "narrow": "৳"
-    },
-    "BGN": {
-      "name": "i-Bulgarian Lev"
     },
     "BHD": {
       "name": "i-Bahraini Dinar"
@@ -597,9 +591,6 @@
       "name": "i-Belarusian Ruble",
       "narrow": "P."
     },
-    "BYR": {
-      "name": "i-Belarusian Ruble (2000–2016)"
-    },
     "BZD": {
       "name": "i-Belize Dollar",
       "narrow": "$"
@@ -619,12 +610,6 @@
       "name": "i-Chilean Peso",
       "narrow": "$"
     },
-    "CNH": {
-      "name": "i-CNH",
-      "plural": {
-        "one": "i-Chinese yuan (offshore)"
-      }
-    },
     "CNY": {
       "name": "i-Chinese Yuan",
       "narrow": "¥",
@@ -637,10 +622,6 @@
     "CRC": {
       "name": "i-Costa Rican Colón",
       "narrow": "₡"
-    },
-    "CUC": {
-      "name": "i-Cuban Convertable Peso",
-      "narrow": "$"
     },
     "CUP": {
       "name": "i-Cuban Peso",
@@ -680,9 +661,6 @@
     },
     "ERN": {
       "name": "i-Eritrean Nakfa"
-    },
-    "ESP": {
-      "narrow": "₧"
     },
     "ETB": {
       "name": "i-Ethopian Birr"
@@ -750,10 +728,6 @@
       "plural": {
         "other": "i-Honduran lempiras"
       }
-    },
-    "HRK": {
-      "name": "i-Croatian Kuna",
-      "narrow": "Kn"
     },
     "HTG": {
       "name": "i-Haitian Gourde"
@@ -849,14 +823,6 @@
     "LSL": {
       "name": "i-Lesotho Loti"
     },
-    "LTL": {
-      "name": "i-Lithuanian Litas",
-      "narrow": "Lt"
-    },
-    "LVL": {
-      "name": "i-Latvian Lats",
-      "narrow": "Ls"
-    },
     "LYD": {
       "name": "i-Libyan Dinar"
     },
@@ -883,9 +849,6 @@
     },
     "MOP": {
       "name": "i-Macanese Pataca"
-    },
-    "MRO": {
-      "name": "i-Mauritanian Ouguiya (1973–2017)"
     },
     "MRU": {
       "name": "i-Mauritanian Ouguiya"
@@ -1015,9 +978,6 @@
     "SLE": {
       "name": "i-Sierra Leonean Leone"
     },
-    "SLL": {
-      "name": "i-Sierra Leonean Leone (1964—2022)"
-    },
     "SOS": {
       "name": "i-Somali Shilling"
     },
@@ -1028,9 +988,6 @@
     "SSP": {
       "name": "i-South Sudanese Pound",
       "narrow": "£"
-    },
-    "STD": {
-      "name": "i-São Tomé kanye ne-Príncipe Dobra (1977–2017)"
     },
     "STN": {
       "name": "i-São Tomé kanye ne-Príncipe Dobra",
@@ -1097,10 +1054,6 @@
     "UZS": {
       "name": "i-Uzbekistan Som"
     },
-    "VEF": {
-      "name": "i-Venezuelan Bolívar (2008–2018)",
-      "narrow": "Bs"
-    },
     "VES": {
       "name": "i-Venezuelan Bolívar"
     },
@@ -1145,19 +1098,12 @@
       "name": "i-CFP Franc",
       "symbol": "CFPF"
     },
-    "XXX": {
-      "name": "imali engaziwa",
-      "symbol": "¤"
-    },
     "YER": {
       "name": "i-Yemeni Rial"
     },
     "ZAR": {
       "name": "i-South African Rand",
       "symbol": "R"
-    },
-    "ZMK": {
-      "name": "i-Zambian Kwacha (1968–2012)"
     },
     "ZMW": {
       "name": "i-Zambian Kwacha",

@@ -524,13 +524,6 @@
         "other": "dram za Armenia"
       }
     },
-    "ANG": {
-      "name": "Guilder ya Antili za Kiholanzi",
-      "plural": {
-        "one": "guilder ya Antili za Kiholanzi",
-        "other": "guilder za Antili za Kiholanzi"
-      }
-    },
     "AOA": {
       "name": "Kwanza ya Angola",
       "narrow": "Kz",
@@ -593,13 +586,6 @@
       "plural": {
         "one": "taka ya Bangladesh",
         "other": "taka za Bangladesh"
-      }
-    },
-    "BGN": {
-      "name": "Lev ya Bulgaria",
-      "plural": {
-        "one": "lev ya Bulgaria",
-        "other": "lev za Bulgaria"
       }
     },
     "BHD": {
@@ -677,12 +663,6 @@
         "other": "ruble za Belarus"
       }
     },
-    "BYR": {
-      "name": "Ruble ya Belarusi (2000–2016)",
-      "plural": {
-        "other": "Ruble za Belarusi (2000–2016)"
-      }
-    },
     "BZD": {
       "name": "Dola ya Belize",
       "narrow": "$",
@@ -721,13 +701,6 @@
         "other": "Peso za Chile"
       }
     },
-    "CNH": {
-      "name": "Yuan ya Uchina (huru)",
-      "plural": {
-        "one": "yuan ya Uchina (huru)",
-        "other": "yuan za Uchina (huru)"
-      }
-    },
     "CNY": {
       "name": "Yuan ya Uchina",
       "narrow": "¥",
@@ -751,14 +724,6 @@
       "plural": {
         "one": "colon ya Kostarika",
         "other": "colon za Kostarika"
-      }
-    },
-    "CUC": {
-      "name": "Peso ya Kuba Inayoweza Kubadilishwa",
-      "narrow": "$",
-      "plural": {
-        "one": "peso ya Kuba inayoweza kubadilishwa",
-        "other": "peso za Kuba zinazoweza kubadilishwa"
       }
     },
     "CUP": {
@@ -829,9 +794,6 @@
         "other": "nakfa za Eritrea"
       }
     },
-    "ESP": {
-      "narrow": "₧"
-    },
     "ETB": {
       "name": "Birr ya Uhabeshi",
       "plural": {
@@ -878,9 +840,6 @@
         "other": "lari za Jojia"
       }
     },
-    "GHC": {
-      "name": "Sedi ya Ghana"
-    },
     "GHS": {
       "name": "Cedi ya Ghana",
       "narrow": "GH₵",
@@ -911,9 +870,6 @@
         "one": "faranga ya Guinea",
         "other": "faranga za Guinea"
       }
-    },
-    "GNS": {
-      "name": "Faranga ya Gine"
     },
     "GTQ": {
       "name": "Quetzal ya Guatemala",
@@ -946,14 +902,6 @@
       "plural": {
         "one": "lempira ya Hondurasi",
         "other": "lempira za Hondurasi"
-      }
-    },
-    "HRK": {
-      "name": "Kuna ya Korasia",
-      "narrow": "kn",
-      "plural": {
-        "one": "kuna ya Korasia",
-        "other": "kuna za Korasia"
       }
     },
     "HTG": {
@@ -1151,20 +1099,6 @@
         "other": "Loti za Lesoto"
       }
     },
-    "LTL": {
-      "name": "Litas ya Lithuania",
-      "narrow": "Lt",
-      "plural": {
-        "other": "Litas za Lithuania"
-      }
-    },
-    "LVL": {
-      "name": "Lats ya Lativia",
-      "narrow": "Ls",
-      "plural": {
-        "other": "Lats za Lativia"
-      }
-    },
     "LYD": {
       "name": "Dinari ya Libya",
       "plural": {
@@ -1224,13 +1158,6 @@
         "other": "pataca za Macau"
       }
     },
-    "MRO": {
-      "name": "Ouguiya ya Mauritania (1973–2017)",
-      "plural": {
-        "one": "ouguiya ya Mauritania (1973–2017)",
-        "other": "ouguiya za Mauritania (1973–2017)"
-      }
-    },
     "MRU": {
       "name": "Ouguiya ya Moritania",
       "plural": {
@@ -1275,13 +1202,6 @@
       "plural": {
         "one": "ringgit ya Malaysia",
         "other": "ringgit za Malaysia"
-      }
-    },
-    "MZM": {
-      "name": "Metikali ya Msumbiji (1980–2006)",
-      "plural": {
-        "one": "metikali ya Msumbiji (1980–2006)",
-        "other": "metikali ya Msumbiji (1980–2006)"
       }
     },
     "MZN": {
@@ -1467,13 +1387,6 @@
         "other": "pauni za Sudan"
       }
     },
-    "SDP": {
-      "name": "Pauni ya Sudani (1957–1998)",
-      "plural": {
-        "one": "pauni ya Sudani (1957–1998)",
-        "other": "pauni za Sudani (1957–1998)"
-      }
-    },
     "SEK": {
       "name": "Krona ya Uswidi",
       "narrow": "kr",
@@ -1505,13 +1418,6 @@
         "other": "leone za Siera Leoni"
       }
     },
-    "SLL": {
-      "name": "Leone ya Siera Leoni (1964—2022)",
-      "plural": {
-        "one": "leone ya Siera Leoni (1964—2022)",
-        "other": "leone za Siera Leoni (1964—2022)"
-      }
-    },
     "SOS": {
       "name": "Shilingi ya Somalia",
       "plural": {
@@ -1533,13 +1439,6 @@
       "plural": {
         "one": "pauni ya Sudan Kusini",
         "other": "pauni za Sudan Kusini"
-      }
-    },
-    "STD": {
-      "name": "Dobra ya Sao Tome na Principe (1977–2017)",
-      "plural": {
-        "one": "dobra ya Sao Tome na Principe (1977–2017)",
-        "other": "dobra za Sao Tome na Principe (1977–2017)"
       }
     },
     "STN": {
@@ -1672,13 +1571,6 @@
         "other": "som za Uzbekistan"
       }
     },
-    "VEF": {
-      "name": "Bolivar ya Venezuela (2008–2018)",
-      "narrow": "Bs",
-      "plural": {
-        "other": "Bolivar za Venezuela (2008–2018)"
-      }
-    },
     "VES": {
       "name": "Bolivar ya Venezuela",
       "plural": {
@@ -1745,14 +1637,6 @@
       },
       "symbol": "CFPF"
     },
-    "XXX": {
-      "name": "Sarafu isiyojulikana",
-      "plural": {
-        "one": "(sarafu isiyojulikana)",
-        "other": "(sarafu isiyojulikana)"
-      },
-      "symbol": "¤"
-    },
     "YER": {
       "name": "Rial ya Yemen",
       "plural": {
@@ -1768,9 +1652,6 @@
         "other": "randi za Afrika Kusini"
       }
     },
-    "ZMK": {
-      "name": "Kwacha ya Zambia (1968–2012)"
-    },
     "ZMW": {
       "name": "Kwacha ya Zambia",
       "narrow": "ZK",
@@ -1778,9 +1659,6 @@
         "one": "kwacha ya Zambia",
         "other": "kwacha za Zambia"
       }
-    },
-    "ZWD": {
-      "name": "Dola ya Zimbabwe"
     },
     "ZWG": {
       "name": "Dhahabu ya Zimbabwe"

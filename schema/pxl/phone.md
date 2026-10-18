@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 The specification of `isPhone(s, region)` (`PXL-006`, `STA-020`), implemented by Go
 (`backend/internal/pxl/phone`) and Dart (`packages/plux_flutter/lib/src/pxl/phone.dart`);
 `schema/testdata/phone/examples.json` and the PXL vectors prove they agree. Formatting
-(`format.phone`) belongs to the `format` group (P8).
+(`format.phone`, §4) shares the parser.
 
 ## 1. Metadata
 
@@ -16,7 +16,7 @@ The specification of `isPhone(s, region)` (`PXL-006`, `STA-020`), implemented by
 `resources/PhoneNumberMetadata.xml` at the pinned release (Apache-2.0, The Libphonenumber
 Authors) and `tools/cmd/phonemeta` keeps, per territory, the calling code, whether it is the
 main territory of its code, the leading digits, the international and national prefixes, the
-national-prefix transform rule, and each number type's pattern, lengths and example —
+national-prefix transform rule, each number type's pattern, lengths and example, and the number formats (§4) —
 resolved as libphonenumber's `BuildMetadataFromXml` resolves them (a type without lengths
 takes the general description's; the general lengths are the union of the types', excluding
 `noInternationalDialling`; local-only lengths are kept for the general description only).
@@ -72,3 +72,24 @@ libphonenumber's `parse(s, region)` followed by `isValidNumber`, on a stricter i
 Known differences from libphonenumber: no letters (vanity numbers), extensions, `tel:` URIs,
 full-width digits or Unicode punctuation, and a `+` followed by an international prefix is
 invalid.
+
+## 4. Formatting (`format.phone(s, region)`)
+
+`format.phone` reads `s` with §3 and returns it unchanged when it is invalid. For a valid number
+it takes the formats of the main territory of the calling code (`formatTable`, one line per
+territory that has formats, written by `make gen` from the `formats` of `phone.json`) and picks
+the first whose leading-digits pattern (the last one libphonenumber lists; a format without one matches all)
+matches at the start of the national number and whose pattern matches all of it. Pattern groups
+fill the format's `$1`–`$9`. The result is the *national* format when the number's territory
+(§3 step 8) equals `region` (either case), else `+`, the calling code, a space and the
+*international* format. With no format chosen the national number is used as it is.
+
+The national format is libphonenumber's format with its national-prefix formatting rule applied
+to the first group (`$NP` the national prefix, `$FG` that group; resolved by `phonemeta`). The
+international format is `intlFormat` when given, else the format; `intlFormat` `NA` means the
+digits unformatted. A format line is `id` then, per format, `pattern leadingDigits national intl`
+with `~` for no leading digits, `_` for a space inside a format, `=` for an international format
+equal to the national one and `-` for `NA`.
+
+`schema/testdata/phone/formats.json` is the shared golden of every example number formatted in
+its region and internationally; `schema/testdata/pxl/regex-phone.json` has the PXL cases.

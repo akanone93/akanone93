@@ -506,17 +506,11 @@
     }
   },
   "currencies": {
-    "ADP": {
-      "name": "Đồng Peseta của Andora"
-    },
     "AED": {
       "name": "Dirham UAE",
       "plural": {
         "other": "dirham UAE"
       }
-    },
-    "AFA": {
-      "name": "Đồng Afghani của Afghanistan (1927–2002)"
     },
     "AFN": {
       "name": "Afghani Afghanistan",
@@ -535,12 +529,6 @@
         "other": "dram Armenia"
       }
     },
-    "ANG": {
-      "name": "Guilder Antille Hà Lan",
-      "plural": {
-        "other": "guilder Antille Hà Lan"
-      }
-    },
     "AOA": {
       "name": "Kwanza Angola",
       "narrow": "Kz",
@@ -548,36 +536,12 @@
         "other": "kwanza Angola"
       }
     },
-    "AOK": {
-      "name": "Đồng Kwanza của Angola (1977–1991)"
-    },
-    "AON": {
-      "name": "Đồng Kwanza Mới của Angola (1990–2000)"
-    },
-    "AOR": {
-      "name": "Đồng Kwanza Điều chỉnh lại của Angola (1995–1999)"
-    },
-    "ARA": {
-      "name": "Đồng Austral của Argentina"
-    },
-    "ARL": {
-      "name": "Đồng Peso Ley của Argentina (1970–1983)"
-    },
-    "ARM": {
-      "name": "Đồng Peso Argentina (1881–1970)"
-    },
-    "ARP": {
-      "name": "Đồng Peso Argentina (1983–1985)"
-    },
     "ARS": {
       "name": "Peso Argentina",
       "narrow": "$",
       "plural": {
         "other": "peso Argentina"
       }
-    },
-    "ATS": {
-      "name": "Đồng Schiling Áo"
     },
     "AUD": {
       "name": "Đô la Australia",
@@ -587,9 +551,6 @@
     "AWG": {
       "name": "Florin Aruba"
     },
-    "AZM": {
-      "name": "Đồng Manat của Azerbaijan (1993–2006)"
-    },
     "AZN": {
       "name": "Manat Azerbaijan",
       "narrow": "₼",
@@ -597,18 +558,12 @@
         "other": "manat Azerbaijan"
       }
     },
-    "BAD": {
-      "name": "Đồng Dinar của Bosnia-Herzegovina (1992–1994)"
-    },
     "BAM": {
       "name": "Mark Bosnia-Herzegovina có thể chuyển đổi",
       "narrow": "KM",
       "plural": {
         "other": "mark Bosnia-Herzegovina có thể chuyển đổi"
       }
-    },
-    "BAN": {
-      "name": "Đồng Dinar Mới của Bosnia-Herzegovina (1994–1997)"
     },
     "BBD": {
       "name": "Đô la Barbados",
@@ -620,30 +575,6 @@
     "BDT": {
       "name": "Taka Bangladesh",
       "narrow": "৳"
-    },
-    "BEC": {
-      "name": "Đồng Franc Bỉ (có thể chuyển đổi)"
-    },
-    "BEF": {
-      "name": "Đồng Franc Bỉ"
-    },
-    "BEL": {
-      "name": "Đồng Franc Bỉ (tài chính)"
-    },
-    "BGL": {
-      "name": "Đồng Lev Xu của Bun-ga-ri"
-    },
-    "BGM": {
-      "name": "Đồng Lev Xã hội chủ nghĩa của Bun-ga-ri"
-    },
-    "BGN": {
-      "name": "Lev Bulgaria",
-      "plural": {
-        "other": "lev Bulgaria"
-      }
-    },
-    "BGO": {
-      "name": "Đồng Lev của Bun-ga-ri (1879–1952)"
     },
     "BHD": {
       "name": "Dinar Bahrain",
@@ -678,39 +609,12 @@
         "other": "boliviano Bolivia"
       }
     },
-    "BOL": {
-      "name": "Đồng Boliviano của Bolivia (1863–1963)"
-    },
-    "BOP": {
-      "name": "Đồng Peso Bolivia"
-    },
-    "BOV": {
-      "name": "Đồng Mvdol Bolivia"
-    },
-    "BRB": {
-      "name": "Đồng Cruzerio Mới của Braxin (1967–1986)"
-    },
-    "BRC": {
-      "name": "Đồng Cruzado của Braxin (1986–1989)"
-    },
-    "BRE": {
-      "name": "Đồng Cruzerio của Braxin (1990–1993)"
-    },
     "BRL": {
       "name": "Real Braxin",
       "plural": {
         "other": "real Braxin"
       },
       "symbol": "R$"
-    },
-    "BRN": {
-      "name": "Đồng Cruzado Mới của Braxin (1989–1990)"
-    },
-    "BRR": {
-      "name": "Đồng Cruzeiro của Braxin (1993–1994)"
-    },
-    "BRZ": {
-      "name": "Đồng Cruzeiro của Braxin (1942–1967)"
     },
     "BSD": {
       "name": "Đô la Bahamas",
@@ -722,9 +626,6 @@
     "BTN": {
       "name": "Ngultrum Bhutan"
     },
-    "BUK": {
-      "name": "Đồng Kyat Miến Điện"
-    },
     "BWP": {
       "name": "Pula Botswana",
       "narrow": "P",
@@ -732,18 +633,12 @@
         "other": "pula Botswana"
       }
     },
-    "BYB": {
-      "name": "Đồng Rúp Mới của Belarus (1994–1999)"
-    },
     "BYN": {
       "name": "Rúp Belarus",
       "narrow": "р.",
       "plural": {
         "other": "rúp Belarus"
       }
-    },
-    "BYR": {
-      "name": "Rúp Belarus (2000–2016)"
     },
     "BZD": {
       "name": "Đô la Belize",
@@ -766,35 +661,17 @@
         "other": "franc Congo"
       }
     },
-    "CHE": {
-      "name": "Đồng Euro WIR"
-    },
     "CHF": {
       "name": "Franc Thụy sĩ",
       "plural": {
         "other": "franc Thụy sĩ"
       }
     },
-    "CHW": {
-      "name": "Đồng France WIR"
-    },
-    "CLE": {
-      "name": "Đồng Escudo của Chile"
-    },
-    "CLF": {
-      "name": "Đơn vị Kế toán của Chile (UF)"
-    },
     "CLP": {
       "name": "Peso Chile",
       "narrow": "$",
       "plural": {
         "other": "peso Chile"
-      }
-    },
-    "CNH": {
-      "name": "Nhân dân tệ (hải ngoại)",
-      "plural": {
-        "other": "nhân dân tệ (hải ngoại)"
       }
     },
     "CNY": {
@@ -812,27 +689,11 @@
         "other": "peso Colombia"
       }
     },
-    "COU": {
-      "name": "Đơn vị Giá trị Thực của Colombia"
-    },
     "CRC": {
       "name": "Colón Costa Rica",
       "narrow": "₡",
       "plural": {
         "other": "colón Costa Rica"
-      }
-    },
-    "CSD": {
-      "name": "Đồng Dinar của Serbia (2002–2006)"
-    },
-    "CSK": {
-      "name": "Đồng Koruna Xu của Czechoslovakia"
-    },
-    "CUC": {
-      "name": "Peso Cuba có thể chuyển đổi",
-      "narrow": "$",
-      "plural": {
-        "other": "peso Cuba có thể chuyển đổi"
       }
     },
     "CUP": {
@@ -848,21 +709,12 @@
         "other": "escudo Cape Verde"
       }
     },
-    "CYP": {
-      "name": "Đồng Bảng Síp"
-    },
     "CZK": {
       "name": "Koruna Cộng hòa Séc",
       "narrow": "Kč",
       "plural": {
         "other": "koruna Cộng hòa Séc"
       }
-    },
-    "DDM": {
-      "name": "Đồng Mark Đông Đức"
-    },
-    "DEM": {
-      "name": "Đồng Mark Đức"
     },
     "DJF": {
       "name": "Franc Djibouti",
@@ -890,15 +742,6 @@
         "other": "dinar Algeria"
       }
     },
-    "ECS": {
-      "name": "Đồng Scure Ecuador"
-    },
-    "ECV": {
-      "name": "Đơn vị Giá trị Không đổi của Ecuador"
-    },
-    "EEK": {
-      "name": "Crun Extônia"
-    },
     "EGP": {
       "name": "Bảng Ai Cập",
       "narrow": "E£",
@@ -912,16 +755,6 @@
         "other": "nakfa Eritrea"
       }
     },
-    "ESA": {
-      "name": "Đồng Peseta Tây Ban Nha (Tài khoản)"
-    },
-    "ESB": {
-      "name": "Đồng Peseta Tây Ban Nha (tài khoản có thể chuyển đổi)"
-    },
-    "ESP": {
-      "name": "Đồng Peseta Tây Ban Nha",
-      "narrow": "₧"
-    },
     "ETB": {
       "name": "Birr Ethiopia",
       "plural": {
@@ -934,9 +767,6 @@
         "other": "euro"
       },
       "symbol": "€"
-    },
-    "FIM": {
-      "name": "Đồng Markka Phần Lan"
     },
     "FJD": {
       "name": "Đô la Fiji",
@@ -952,9 +782,6 @@
         "other": "bảng Quần đảo Falkland"
       }
     },
-    "FRF": {
-      "name": "Franc Pháp"
-    },
     "GBP": {
       "name": "Bảng Anh",
       "plural": {
@@ -962,18 +789,12 @@
       },
       "symbol": "£"
     },
-    "GEK": {
-      "name": "Đồng Kupon Larit của Georgia"
-    },
     "GEL": {
       "name": "Lari Georgia",
       "narrow": "₾",
       "plural": {
         "other": "lari Georgia"
       }
-    },
-    "GHC": {
-      "name": "Cedi Ghana (1979–2007)"
     },
     "GHS": {
       "name": "Cedi Ghana",
@@ -1002,27 +823,12 @@
         "other": "franc Guinea"
       }
     },
-    "GNS": {
-      "name": "Syli Guinea"
-    },
-    "GQE": {
-      "name": "Đồng Ekwele của Guinea Xích Đạo"
-    },
-    "GRD": {
-      "name": "Drachma Hy Lạp"
-    },
     "GTQ": {
       "name": "Quetzal Guatemala",
       "narrow": "Q",
       "plural": {
         "other": "quetzal Guatemala"
       }
-    },
-    "GWE": {
-      "name": "Đồng Guinea Escudo Bồ Đào Nha"
-    },
-    "GWP": {
-      "name": "Peso Guinea-Bissau"
     },
     "GYD": {
       "name": "Đô la Guyana",
@@ -1046,16 +852,6 @@
         "other": "lempira Honduras"
       }
     },
-    "HRD": {
-      "name": "Đồng Dinar Croatia"
-    },
-    "HRK": {
-      "name": "Kuna Croatia",
-      "narrow": "kn",
-      "plural": {
-        "other": "kuna Croatia"
-      }
-    },
     "HTG": {
       "name": "Gourde Haiti",
       "plural": {
@@ -1075,12 +871,6 @@
       "plural": {
         "other": "rupiah Indonesia"
       }
-    },
-    "IEP": {
-      "name": "Pao Ai-len"
-    },
-    "ILP": {
-      "name": "Pao Ixraen"
     },
     "ILS": {
       "name": "Sheqel Israel mới",
@@ -1108,9 +898,6 @@
       "plural": {
         "other": "króna Iceland"
       }
-    },
-    "ITL": {
-      "name": "Lia Ý"
     },
     "JMD": {
       "name": "Đô la Jamaica",
@@ -1165,12 +952,6 @@
       "plural": {
         "other": "won Triều Tiên"
       }
-    },
-    "KRH": {
-      "name": "Đồng Hwan Hàn Quốc (1953–1962)"
-    },
-    "KRO": {
-      "name": "Đồng Won Hàn Quốc (1945–1953)"
     },
     "KRW": {
       "name": "Won Hàn Quốc",
@@ -1227,35 +1008,6 @@
     "LSL": {
       "name": "Loti Lesotho"
     },
-    "LTL": {
-      "name": "Litas Lít-va",
-      "narrow": "Lt",
-      "plural": {
-        "other": "litas Lít-va"
-      }
-    },
-    "LTT": {
-      "name": "Đồng Talonas Litva"
-    },
-    "LUC": {
-      "name": "Đồng Franc Luxembourg có thể chuyển đổi"
-    },
-    "LUF": {
-      "name": "Đồng Franc Luxembourg"
-    },
-    "LUL": {
-      "name": "Đồng Franc Luxembourg tài chính"
-    },
-    "LVL": {
-      "name": "Lats Latvia",
-      "narrow": "Ls",
-      "plural": {
-        "other": "lats Lativia"
-      }
-    },
-    "LVR": {
-      "name": "Đồng Rúp Latvia"
-    },
     "LYD": {
       "name": "Dinar Libi",
       "plural": {
@@ -1267,15 +1019,6 @@
       "plural": {
         "other": "dirham Ma-rốc"
       }
-    },
-    "MAF": {
-      "name": "Đồng Franc Ma-rốc"
-    },
-    "MCF": {
-      "name": "Đồng Franc Monegasque"
-    },
-    "MDC": {
-      "name": "Đồng Cupon Moldova"
     },
     "MDL": {
       "name": "Leu Moldova",
@@ -1290,20 +1033,11 @@
         "other": "ariary Madagascar"
       }
     },
-    "MGF": {
-      "name": "Đồng Franc Magalasy"
-    },
     "MKD": {
       "name": "Denar Macedonia",
       "plural": {
         "other": "denar Macedonia"
       }
-    },
-    "MKN": {
-      "name": "Đồng Denar Macedonia (1992–1993)"
-    },
-    "MLF": {
-      "name": "Đồng Franc Mali"
     },
     "MMK": {
       "name": "Kyat Myanma",
@@ -1325,20 +1059,11 @@
         "other": "pataca Ma Cao"
       }
     },
-    "MRO": {
-      "name": "Ouguiya Mauritania (1973–2017)"
-    },
     "MRU": {
       "name": "Ouguiya Mauritania",
       "plural": {
         "other": "ouguiya Mauritania"
       }
-    },
-    "MTL": {
-      "name": "Lia xứ Man-tơ"
-    },
-    "MTP": {
-      "name": "Đồng Bảng Malta"
     },
     "MUR": {
       "name": "Rupee Mauritius",
@@ -1346,9 +1071,6 @@
       "plural": {
         "other": "rupee Mauritius"
       }
-    },
-    "MVP": {
-      "name": "Rupee Maldives (1947–1981)"
     },
     "MVR": {
       "name": "Rufiyaa Maldives"
@@ -1367,24 +1089,12 @@
       },
       "symbol": "MX$"
     },
-    "MXP": {
-      "name": "Đồng Peso Bạc Mê-hi-cô (1861–1992)"
-    },
-    "MXV": {
-      "name": "Đơn vị Đầu tư Mê-hi-cô"
-    },
     "MYR": {
       "name": "Ringgit Malaysia",
       "narrow": "RM",
       "plural": {
         "other": "ringgit Malaysia"
       }
-    },
-    "MZE": {
-      "name": "Escudo Mozambique"
-    },
-    "MZM": {
-      "name": "Đồng Metical Mozambique (1980–2006)"
     },
     "MZN": {
       "name": "Metical Mozambique",
@@ -1406,18 +1116,12 @@
         "other": "naira Nigeria"
       }
     },
-    "NIC": {
-      "name": "Đồng Córdoba Nicaragua (1988–1991)"
-    },
     "NIO": {
       "name": "Córdoba Nicaragua",
       "narrow": "C$",
       "plural": {
         "other": "córdoba Nicaragua"
       }
-    },
-    "NLG": {
-      "name": "Đồng Guilder Hà Lan"
     },
     "NOK": {
       "name": "Krone Na Uy",
@@ -1450,17 +1154,11 @@
         "other": "balboa Panama"
       }
     },
-    "PEI": {
-      "name": "Đồng Inti Peru"
-    },
     "PEN": {
       "name": "Sol Peru",
       "plural": {
         "other": "sol Peru"
       }
-    },
-    "PES": {
-      "name": "Đồng Sol Peru (1863–1965)"
     },
     "PGK": {
       "name": "Kina Papua New Guinea",
@@ -1486,12 +1184,6 @@
         "other": "zloty Ba Lan"
       }
     },
-    "PLZ": {
-      "name": "Đồng Zloty Ba Lan (1950–1995)"
-    },
-    "PTE": {
-      "name": "Đồng Escudo Bồ Đào Nha"
-    },
     "PYG": {
       "name": "Guarani Paraguay",
       "narrow": "₲",
@@ -1504,12 +1196,6 @@
       "plural": {
         "other": "rial Qatar"
       }
-    },
-    "RHD": {
-      "name": "Đồng Đô la Rhode"
-    },
-    "ROL": {
-      "name": "Đồng Leu Rumani (1952–2006)"
     },
     "RON": {
       "name": "Leu Romania",
@@ -1530,9 +1216,6 @@
       "plural": {
         "other": "rúp Nga"
       }
-    },
-    "RUR": {
-      "name": "Đồng Rúp Nga (1991–1998)"
     },
     "RWF": {
       "name": "Franc Rwanda",
@@ -1560,17 +1243,11 @@
         "other": "rupee Seychelles"
       }
     },
-    "SDD": {
-      "name": "Đồng Dinar Sudan (1992–2007)"
-    },
     "SDG": {
       "name": "Bảng Sudan",
       "plural": {
         "other": "bảng Sudan"
       }
-    },
-    "SDP": {
-      "name": "Đồng Bảng Sudan (1957–1998)"
     },
     "SEK": {
       "name": "Krona Thụy Điển",
@@ -1593,17 +1270,8 @@
         "other": "bảng St. Helena"
       }
     },
-    "SIT": {
-      "name": "Tôla Xlôvênia"
-    },
-    "SKK": {
-      "name": "Cuaron Xlôvác"
-    },
     "SLE": {
       "name": "Leone Sierra Leone"
-    },
-    "SLL": {
-      "name": "Leone Sierra Leone (1964—2022)"
     },
     "SOS": {
       "name": "Shilling Somali",
@@ -1618,9 +1286,6 @@
         "other": "đô la Suriname"
       }
     },
-    "SRG": {
-      "name": "Đồng Guilder Surinam"
-    },
     "SSP": {
       "name": "Bảng Nam Sudan",
       "narrow": "£",
@@ -1628,21 +1293,12 @@
         "other": "bảng Nam Sudan"
       }
     },
-    "STD": {
-      "name": "Dobra São Tomé và Príncipe (1977–2017)"
-    },
     "STN": {
       "name": "Dobra São Tomé và Príncipe",
       "narrow": "Db",
       "plural": {
         "other": "dobra São Tomé và Príncipe"
       }
-    },
-    "SUR": {
-      "name": "Đồng Rúp Sô viết"
-    },
-    "SVC": {
-      "name": "Colón El Salvador"
     },
     "SYP": {
       "name": "Bảng Syria",
@@ -1664,17 +1320,11 @@
       },
       "symbol": "฿"
     },
-    "TJR": {
-      "name": "Đồng Rúp Tajikistan"
-    },
     "TJS": {
       "name": "Somoni Tajikistan",
       "plural": {
         "other": "somoni Tajikistan"
       }
-    },
-    "TMM": {
-      "name": "Đồng Manat Turkmenistan (1993–2009)"
     },
     "TMT": {
       "name": "Manat Turkmenistan",
@@ -1693,15 +1343,6 @@
       "narrow": "T$",
       "plural": {
         "other": "paʻanga Tonga"
-      }
-    },
-    "TPE": {
-      "name": "Đồng Escudo Timor"
-    },
-    "TRL": {
-      "name": "Lia Thổ Nhĩ Kỳ (1922–2005)",
-      "plural": {
-        "other": "lia Thổ Nhĩ Kỳ (1922–2005)"
       }
     },
     "TRY": {
@@ -1735,12 +1376,6 @@
         "other": "hryvnia Ukraina"
       }
     },
-    "UAK": {
-      "name": "Đồng Karbovanets Ucraina"
-    },
-    "UGS": {
-      "name": "Đồng Shilling Uganda (1966–1987)"
-    },
     "UGX": {
       "name": "Shilling Uganda",
       "plural": {
@@ -1755,18 +1390,6 @@
       },
       "symbol": "US$"
     },
-    "USN": {
-      "name": "Đô la Mỹ (Ngày tiếp theo)"
-    },
-    "USS": {
-      "name": "Đô la Mỹ (Cùng ngày)"
-    },
-    "UYI": {
-      "name": "Đồng Peso Uruguay (Đơn vị Theo chỉ số)"
-    },
-    "UYP": {
-      "name": "Đồng Peso Uruguay (1975–1993)"
-    },
     "UYU": {
       "name": "Peso Uruguay",
       "narrow": "$",
@@ -1780,13 +1403,6 @@
         "other": "som Uzbekistan"
       }
     },
-    "VEB": {
-      "name": "Đồng bolívar của Venezuela (1871–2008)"
-    },
-    "VEF": {
-      "name": "Bolívar Venezuela (2008–2018)",
-      "narrow": "Bs"
-    },
     "VES": {
       "name": "Bolívar Venezuela",
       "plural": {
@@ -1799,9 +1415,6 @@
         "other": "đồng Việt Nam"
       },
       "symbol": "₫"
-    },
-    "VNN": {
-      "name": "Đồng Việt Nam (1978–1985)"
     },
     "VUV": {
       "name": "Vatu Vanuatu",
@@ -1822,24 +1435,6 @@
       },
       "symbol": "FCFA"
     },
-    "XAG": {
-      "name": "Bạc"
-    },
-    "XAU": {
-      "name": "Vàng"
-    },
-    "XBA": {
-      "name": "Đơn vị Tổng hợp Châu Âu"
-    },
-    "XBB": {
-      "name": "Đơn vị Tiền tệ Châu Âu"
-    },
-    "XBC": {
-      "name": "Đơn vị Kế toán Châu Âu (XBC)"
-    },
-    "XBD": {
-      "name": "Đơn vị Kế toán Châu Âu (XBD)"
-    },
     "XCD": {
       "name": "Đô la Đông Caribê",
       "narrow": "$",
@@ -1852,27 +1447,12 @@
       "name": "Guilder Caribe",
       "symbol": "Cg."
     },
-    "XDR": {
-      "name": "Quyền Rút vốn Đặc biệt"
-    },
-    "XEU": {
-      "name": "Đơn vị Tiền Châu Âu"
-    },
-    "XFO": {
-      "name": "Đồng France Pháp Vàng"
-    },
-    "XFU": {
-      "name": "Đồng UIC-Franc Pháp"
-    },
     "XOF": {
       "name": "Franc CFA Tây Phi",
       "plural": {
         "other": "franc CFA Tây Phi"
       },
       "symbol": "F\u202fCFA"
-    },
-    "XPD": {
-      "name": "Paladi"
     },
     "XPF": {
       "name": "Franc CFP",
@@ -1881,44 +1461,11 @@
       },
       "symbol": "CFPF"
     },
-    "XPT": {
-      "name": "Bạch kim"
-    },
-    "XRE": {
-      "name": "Quỹ RINET"
-    },
-    "XTS": {
-      "name": "Mã Tiền tệ Kiểm tra"
-    },
-    "XXX": {
-      "name": "Tiền tệ chưa biết",
-      "plural": {
-        "other": "(tiền tệ chưa biết)"
-      }
-    },
-    "YDD": {
-      "name": "Đồng Dinar Yemen"
-    },
     "YER": {
       "name": "Rial Yemen",
       "plural": {
         "other": "rial Yemen"
       }
-    },
-    "YUD": {
-      "name": "Đồng Dinar Nam Tư Xu (1966–1990)"
-    },
-    "YUM": {
-      "name": "Đồng Dinar Nam Tư Mới (1994–2002)"
-    },
-    "YUN": {
-      "name": "Đồng Dinar Nam Tư Có thể chuyển đổi (1990–1992)"
-    },
-    "YUR": {
-      "name": "Đồng Dinar Nam Tư Tái cơ cấu (1992–1993)"
-    },
-    "ZAL": {
-      "name": "Đồng Rand Nam Phi (tài chính)"
     },
     "ZAR": {
       "name": "Rand Nam Phi",
@@ -1927,9 +1474,6 @@
         "other": "rand Nam Phi"
       }
     },
-    "ZMK": {
-      "name": "Đồng kwacha của Zambia (1968–2012)"
-    },
     "ZMW": {
       "name": "Kwacha Zambia",
       "narrow": "ZK",
@@ -1937,23 +1481,8 @@
         "other": "kwacha Zambia"
       }
     },
-    "ZRN": {
-      "name": "Đồng Zaire Mới (1993–1998)"
-    },
-    "ZRZ": {
-      "name": "Đồng Zaire (1971–1993)"
-    },
-    "ZWD": {
-      "name": "Đồng Đô la Zimbabwe (1980–2008)"
-    },
     "ZWG": {
       "name": "Zimbabwean Gold"
-    },
-    "ZWL": {
-      "name": "Đồng Đô la Zimbabwe (2009)"
-    },
-    "ZWR": {
-      "name": "Đồng Đô la Zimbabwe (2008)"
     }
   },
   "currencyDigits": {

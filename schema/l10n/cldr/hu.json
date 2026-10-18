@@ -491,21 +491,12 @@
     }
   },
   "currencies": {
-    "ADP": {
-      "name": "Andorrai peseta"
-    },
     "AED": {
       "name": "EAE-dirham"
-    },
-    "AFA": {
-      "name": "afgán afghani (1927–2002)"
     },
     "AFN": {
       "name": "afgán afghani",
       "narrow": "؋"
-    },
-    "ALK": {
-      "name": "albán lek (1946–1965)"
     },
     "ALL": {
       "name": "albán lek"
@@ -514,38 +505,13 @@
       "name": "örmény dram",
       "narrow": "֏"
     },
-    "ANG": {
-      "name": "holland antilláki forint"
-    },
     "AOA": {
       "name": "angolai kwanza",
       "narrow": "Kz"
     },
-    "AOK": {
-      "name": "Angolai kwanza (1977–1990)"
-    },
-    "AON": {
-      "name": "Angolai új kwanza (1990–2000)"
-    },
-    "AOR": {
-      "name": "Angolai kwanza reajustado (1995–1999)"
-    },
-    "ARA": {
-      "name": "Argentín austral",
-      "plural": {
-        "one": "Argentin austral",
-        "other": "Argentin austral"
-      }
-    },
-    "ARP": {
-      "name": "Argentín peso (1983–1985)"
-    },
     "ARS": {
       "name": "argentin peso",
       "narrow": "$"
-    },
-    "ATS": {
-      "name": "Osztrák schilling"
     },
     "AUD": {
       "name": "ausztrál dollár",
@@ -554,22 +520,13 @@
     "AWG": {
       "name": "arubai florin"
     },
-    "AZM": {
-      "name": "azerbajdzsáni manat (1993–2006)"
-    },
     "AZN": {
       "name": "azerbajdzsáni manat",
       "narrow": "₼"
     },
-    "BAD": {
-      "name": "Bosznia-hercegovinai dínár (1992–1994)"
-    },
     "BAM": {
       "name": "bosznia-hercegovinai konvertibilis márka",
       "narrow": "KM"
-    },
-    "BAN": {
-      "name": "bosznia-hercegovinai új dínár (1994–1997)"
     },
     "BBD": {
       "name": "barbadosi dollár",
@@ -578,27 +535,6 @@
     "BDT": {
       "name": "bangladesi taka",
       "narrow": "৳"
-    },
-    "BEC": {
-      "name": "Belga frank (konvertibilis)"
-    },
-    "BEF": {
-      "name": "Belga frank"
-    },
-    "BEL": {
-      "name": "Belga frank (pénzügyi)"
-    },
-    "BGL": {
-      "name": "Bolgár kemény leva"
-    },
-    "BGM": {
-      "name": "bolgár szocialista leva"
-    },
-    "BGN": {
-      "name": "bolgár új leva"
-    },
-    "BGO": {
-      "name": "bolgár leva (1879–1952)"
     },
     "BHD": {
       "name": "bahreini dinár"
@@ -618,30 +554,9 @@
       "name": "bolíviai boliviano",
       "narrow": "Bs"
     },
-    "BOP": {
-      "name": "Bolíviai peso"
-    },
-    "BOV": {
-      "name": "Bolíviai mvdol"
-    },
-    "BRB": {
-      "name": "Brazi cruzeiro novo (1967–1986)"
-    },
-    "BRC": {
-      "name": "Brazi cruzado (1986–1989)"
-    },
-    "BRE": {
-      "name": "Brazil cruzeiro (1990–1993)"
-    },
     "BRL": {
       "name": "brazil real",
       "narrow": "R$"
-    },
-    "BRN": {
-      "name": "Brazil cruzado novo (1989–1990)"
-    },
-    "BRR": {
-      "name": "Brazil cruzeiro (1993–1994)"
     },
     "BSD": {
       "name": "bahamai dollár",
@@ -650,30 +565,13 @@
     "BTN": {
       "name": "bhutáni ngultrum"
     },
-    "BUK": {
-      "name": "Burmai kyat",
-      "plural": {
-        "one": "burmai kjap",
-        "other": "burmai kjap"
-      }
-    },
     "BWP": {
       "name": "botswanai pula",
       "narrow": "P"
     },
-    "BYB": {
-      "name": "Fehérorosz új rubel (1994–1999)",
-      "plural": {
-        "one": "fehérorosz új rubel (1994–1999)",
-        "other": "fehérorosz új rubel (1994–1999)"
-      }
-    },
     "BYN": {
       "name": "belarusz rubel",
       "narrow": "р."
-    },
-    "BYR": {
-      "name": "fehérorosz rubel (2000–2016)"
     },
     "BZD": {
       "name": "belize-i dollár",
@@ -686,24 +584,12 @@
     "CDF": {
       "name": "kongói frank"
     },
-    "CHE": {
-      "name": "WIR euro"
-    },
     "CHF": {
       "name": "svájci frank"
-    },
-    "CHW": {
-      "name": "WIR frank"
-    },
-    "CLF": {
-      "name": "Chilei unidades de fomento"
     },
     "CLP": {
       "name": "chilei peso",
       "narrow": "$"
-    },
-    "CNH": {
-      "name": "kínai jüan (offshore)"
     },
     "CNY": {
       "name": "kínai jüan",
@@ -713,26 +599,9 @@
       "name": "kolumbiai peso",
       "narrow": "$"
     },
-    "COU": {
-      "name": "Unidad de Valor Real"
-    },
     "CRC": {
       "name": "Costa Rica-i colon",
       "narrow": "₡"
-    },
-    "CSD": {
-      "name": "szerb dinár (2002–2006)"
-    },
-    "CSK": {
-      "name": "Csehszlovák kemény korona",
-      "plural": {
-        "one": "csehszlovák kemény korona",
-        "other": "csehszlovák kemény korona"
-      }
-    },
-    "CUC": {
-      "name": "kubai konvertibilis peso",
-      "narrow": "$"
     },
     "CUP": {
       "name": "kubai peso",
@@ -741,18 +610,9 @@
     "CVE": {
       "name": "Zöld-foki escudo"
     },
-    "CYP": {
-      "name": "Ciprusi font"
-    },
     "CZK": {
       "name": "cseh korona",
       "narrow": "Kč"
-    },
-    "DDM": {
-      "name": "Kelet-Német márka"
-    },
-    "DEM": {
-      "name": "Német márka"
     },
     "DJF": {
       "name": "dzsibuti frank"
@@ -768,19 +628,6 @@
     "DZD": {
       "name": "algériai dínár"
     },
-    "ECS": {
-      "name": "Ecuadori sucre"
-    },
-    "ECV": {
-      "name": "Ecuadori Unidad de Valor Constante (UVC)"
-    },
-    "EEK": {
-      "name": "Észt korona",
-      "plural": {
-        "one": "észt korona",
-        "other": "észt korona"
-      }
-    },
     "EGP": {
       "name": "egyiptomi font",
       "narrow": "E£"
@@ -788,29 +635,12 @@
     "ERN": {
       "name": "eritreai nakfa"
     },
-    "ESA": {
-      "name": "spanyol peseta (A–kontó)"
-    },
-    "ESB": {
-      "name": "spanyol peseta (konvertibilis kontó)"
-    },
-    "ESP": {
-      "name": "Spanyol peseta",
-      "narrow": "₧",
-      "plural": {
-        "one": "spanyol peseta",
-        "other": "spanyol peseta"
-      }
-    },
     "ETB": {
       "name": "etiópiai birr"
     },
     "EUR": {
       "name": "euró",
       "narrow": "€"
-    },
-    "FIM": {
-      "name": "Finn markka"
     },
     "FJD": {
       "name": "fidzsi dollár",
@@ -820,22 +650,13 @@
       "name": "falkland-szigeteki font",
       "narrow": "£"
     },
-    "FRF": {
-      "name": "Francia frank"
-    },
     "GBP": {
       "name": "angol font",
       "narrow": "£"
     },
-    "GEK": {
-      "name": "Grúz kupon larit"
-    },
     "GEL": {
       "name": "grúz lari",
       "narrow": "₾"
-    },
-    "GHC": {
-      "name": "Ghánai cedi (1979–2007)"
     },
     "GHS": {
       "name": "ghánai cedi",
@@ -852,32 +673,9 @@
       "name": "guineai frank",
       "narrow": "FG"
     },
-    "GNS": {
-      "name": "Guineai syli"
-    },
-    "GQE": {
-      "name": "Egyenlítői-guineai ekwele guineana",
-      "plural": {
-        "one": "Egyenlítői-guineai ekwele",
-        "other": "Egyenlítői-guineai ekwele"
-      }
-    },
-    "GRD": {
-      "name": "Görög drachma",
-      "plural": {
-        "one": "görög drachma",
-        "other": "görög drachma"
-      }
-    },
     "GTQ": {
       "name": "guatemalai quetzal",
       "narrow": "Q"
-    },
-    "GWE": {
-      "name": "Portugál guinea escudo"
-    },
-    "GWP": {
-      "name": "Guinea-Bissaui peso"
     },
     "GYD": {
       "name": "guyanai dollár",
@@ -891,17 +689,6 @@
       "name": "hondurasi lempira",
       "narrow": "L"
     },
-    "HRD": {
-      "name": "Horvát dínár",
-      "plural": {
-        "one": "horvát dínár",
-        "other": "horvát dínár"
-      }
-    },
-    "HRK": {
-      "name": "horvát kuna",
-      "narrow": "kn"
-    },
     "HTG": {
       "name": "haiti gourde"
     },
@@ -912,12 +699,6 @@
     "IDR": {
       "name": "indonéz rúpia",
       "narrow": "Rp"
-    },
-    "IEP": {
-      "name": "Ír font"
-    },
-    "ILP": {
-      "name": "Izraeli font"
     },
     "ILS": {
       "name": "izraeli új sékel",
@@ -936,13 +717,6 @@
     "ISK": {
       "name": "izlandi korona",
       "narrow": "kr"
-    },
-    "ITL": {
-      "name": "Olasz líra",
-      "plural": {
-        "one": "olasz líra",
-        "other": "olasz líra"
-      }
     },
     "JMD": {
       "name": "jamaicai dollár",
@@ -1008,40 +782,11 @@
     "LSL": {
       "name": "lesothoi loti"
     },
-    "LTL": {
-      "name": "litvániai litas",
-      "narrow": "Lt"
-    },
-    "LTT": {
-      "name": "Litvániai talonas"
-    },
-    "LUC": {
-      "name": "luxemburgi konvertibilis frank"
-    },
-    "LUF": {
-      "name": "Luxemburgi frank"
-    },
-    "LUL": {
-      "name": "luxemburgi pénzügyi frank"
-    },
-    "LVL": {
-      "name": "lett lats",
-      "narrow": "Ls"
-    },
-    "LVR": {
-      "name": "Lett rubel"
-    },
     "LYD": {
       "name": "líbiai dínár"
     },
     "MAD": {
       "name": "marokkói dirham"
-    },
-    "MAF": {
-      "name": "Marokkói frank"
-    },
-    "MDC": {
-      "name": "moldáv kupon"
     },
     "MDL": {
       "name": "moldován lei"
@@ -1050,17 +795,8 @@
       "name": "madagaszkári ariary",
       "narrow": "Ar"
     },
-    "MGF": {
-      "name": "Madagaszkári frank"
-    },
     "MKD": {
       "name": "macedón dénár"
-    },
-    "MKN": {
-      "name": "macedón dénár (1992–1993)"
-    },
-    "MLF": {
-      "name": "Mali frank"
     },
     "MMK": {
       "name": "mianmari kyat",
@@ -1073,25 +809,8 @@
     "MOP": {
       "name": "makaói pataca"
     },
-    "MRO": {
-      "name": "mauritániai ouguiya (1973–2017)"
-    },
     "MRU": {
       "name": "mauritániai ouguiya"
-    },
-    "MTL": {
-      "name": "Máltai líra",
-      "plural": {
-        "one": "máltai líra",
-        "other": "máltai líra"
-      }
-    },
-    "MTP": {
-      "name": "Máltai font",
-      "plural": {
-        "one": "máltai font",
-        "other": "máltai font"
-      }
     },
     "MUR": {
       "name": "mauritiusi rúpia",
@@ -1107,29 +826,9 @@
       "name": "mexikói peso",
       "narrow": "$"
     },
-    "MXP": {
-      "name": "Mexikói ezüst peso (1861–1992)",
-      "plural": {
-        "one": "mexikói ezüst peso (1861–1992)",
-        "other": "mexikói ezüst peso (1861–1992)"
-      }
-    },
-    "MXV": {
-      "name": "Mexikói Unidad de Inversion (UDI)",
-      "plural": {
-        "one": "mexikói befektetési egység (UDI)",
-        "other": "mexikói befektetési egység (UDI)"
-      }
-    },
     "MYR": {
       "name": "malajziai ringgit",
       "narrow": "RM"
-    },
-    "MZE": {
-      "name": "Mozambik escudo"
-    },
-    "MZM": {
-      "name": "Mozambik metical"
     },
     "MZN": {
       "name": "mozambiki metikális"
@@ -1142,19 +841,9 @@
       "name": "nigériai naira",
       "narrow": "₦"
     },
-    "NIC": {
-      "name": "Nikaraguai cordoba",
-      "plural": {
-        "one": "nicaraguai córdoba (1988–1911)",
-        "other": "nicaraguai córdoba (1988–1911)"
-      }
-    },
     "NIO": {
       "name": "nicaraguai córdoba",
       "narrow": "C$"
-    },
-    "NLG": {
-      "name": "Holland forint"
     },
     "NOK": {
       "name": "norvég korona",
@@ -1174,14 +863,8 @@
     "PAB": {
       "name": "panamai balboa"
     },
-    "PEI": {
-      "name": "perui inti"
-    },
     "PEN": {
       "name": "perui sol"
-    },
-    "PES": {
-      "name": "perui sol (1863–1965)"
     },
     "PGK": {
       "name": "pápua új-guineai kina"
@@ -1198,36 +881,12 @@
       "name": "lengyel zloty",
       "narrow": "zł"
     },
-    "PLZ": {
-      "name": "Lengyel zloty (1950–1995)",
-      "plural": {
-        "one": "lengyel zloty (PLZ)",
-        "other": "lengyel zloty (PLZ)"
-      }
-    },
-    "PTE": {
-      "name": "Portugál escudo",
-      "plural": {
-        "one": "portugál escudo",
-        "other": "portugál escudo"
-      }
-    },
     "PYG": {
       "name": "paraguayi guarani",
       "narrow": "₲"
     },
     "QAR": {
       "name": "katari riál"
-    },
-    "RHD": {
-      "name": "rhodéziai dollár",
-      "plural": {
-        "one": "Rhodéziai dollár",
-        "other": "Rhodéziai dollár"
-      }
-    },
-    "ROL": {
-      "name": "román lej (1952–2006)"
     },
     "RON": {
       "name": "román lej",
@@ -1239,9 +898,6 @@
     "RUB": {
       "name": "orosz rubel",
       "narrow": "₽"
-    },
-    "RUR": {
-      "name": "orosz rubel (1991–1998)"
     },
     "RWF": {
       "name": "ruandai frank",
@@ -1257,14 +913,8 @@
     "SCR": {
       "name": "seychelle-szigeteki rúpia"
     },
-    "SDD": {
-      "name": "Szudáni dínár (1992–2007)"
-    },
     "SDG": {
       "name": "szudáni font"
-    },
-    "SDP": {
-      "name": "Szudáni font (1957–1998)"
     },
     "SEK": {
       "name": "svéd korona",
@@ -1278,25 +928,8 @@
       "name": "Szent Ilona-i font",
       "narrow": "£"
     },
-    "SIT": {
-      "name": "Szlovén tolar",
-      "plural": {
-        "one": "szlovén tolár",
-        "other": "szlovén tolár"
-      }
-    },
-    "SKK": {
-      "name": "Szlovák korona",
-      "plural": {
-        "one": "szlovák korona",
-        "other": "szlovák korona"
-      }
-    },
     "SLE": {
       "name": "Sierra Leone-i leone"
-    },
-    "SLL": {
-      "name": "Sierra Leone-i leone (1964–2022)"
     },
     "SOS": {
       "name": "szomáli shilling"
@@ -1305,33 +938,13 @@
       "name": "suriname-i dollár",
       "narrow": "$"
     },
-    "SRG": {
-      "name": "Suriname-i gulden"
-    },
     "SSP": {
       "name": "dél-szudáni font",
       "narrow": "£"
     },
-    "STD": {
-      "name": "São Tomé és Príncipe-i dobra (1977–2017)"
-    },
     "STN": {
       "name": "São Tomé és Príncipe-i dobra",
       "narrow": "Db"
-    },
-    "SUR": {
-      "name": "Szovjet rubel",
-      "plural": {
-        "one": "szovjet rubel",
-        "other": "szovjet rubel"
-      }
-    },
-    "SVC": {
-      "name": "Salvadori colón",
-      "plural": {
-        "one": "salvadori colón",
-        "other": "salvadori colón"
-      }
     },
     "SYP": {
       "name": "szíriai font",
@@ -1344,14 +957,8 @@
       "name": "thai baht",
       "narrow": "฿"
     },
-    "TJR": {
-      "name": "Tádzsikisztáni rubel"
-    },
     "TJS": {
       "name": "tádzsikisztáni somoni"
-    },
-    "TMM": {
-      "name": "türkmenisztáni manat (1993–2009)"
     },
     "TMT": {
       "name": "türkmenisztáni manat"
@@ -1362,16 +969,6 @@
     "TOP": {
       "name": "tongai paanga",
       "narrow": "T$"
-    },
-    "TPE": {
-      "name": "Timori escudo",
-      "plural": {
-        "one": "timori escudo",
-        "other": "timori escudo"
-      }
-    },
-    "TRL": {
-      "name": "török líra (1922–2005)"
     },
     "TRY": {
       "name": "török líra",
@@ -1392,46 +989,12 @@
       "name": "ukrán hrivnya",
       "narrow": "₴"
     },
-    "UAK": {
-      "name": "Ukrán karbovanec",
-      "plural": {
-        "one": "ukrán karbovanec",
-        "other": "ukrán karbovanec"
-      }
-    },
-    "UGS": {
-      "name": "Ugandai shilling (1966–1987)"
-    },
     "UGX": {
       "name": "ugandai shilling"
     },
     "USD": {
       "name": "USA-dollár",
       "narrow": "$"
-    },
-    "USN": {
-      "name": "USA dollár (következő napi)",
-      "plural": {
-        "one": "USA-dollár (következő napi)",
-        "other": "USA-dollár (következő napi)"
-      }
-    },
-    "USS": {
-      "name": "USA dollár (aznapi)",
-      "plural": {
-        "one": "USA-dollár (aznapi)",
-        "other": "USA-dollár (aznapi)"
-      }
-    },
-    "UYI": {
-      "name": "Uruguayi peso en unidades indexadas"
-    },
-    "UYP": {
-      "name": "Uruguay-i peso (1975–1993)",
-      "plural": {
-        "one": "Uruguayi peso (1975–1993)",
-        "other": "Uruguayi peso (1975–1993)"
-      }
     },
     "UYU": {
       "name": "uruguayi peso",
@@ -1440,22 +1003,12 @@
     "UZS": {
       "name": "üzbegisztáni szom"
     },
-    "VEB": {
-      "name": "Venezuelai bolivar (1871–2008)"
-    },
-    "VEF": {
-      "name": "venezuelai bolivar (2008–2018)",
-      "narrow": "Bs"
-    },
     "VES": {
       "name": "venezuelai bolivar"
     },
     "VND": {
       "name": "vietnámi dong",
       "narrow": "₫"
-    },
-    "VNN": {
-      "name": "vietnámi dong (1978–1985)"
     },
     "VUV": {
       "name": "vanuatui vatu"
@@ -1467,24 +1020,6 @@
       "name": "CFA frank BEAC",
       "symbol": "FCFA"
     },
-    "XAG": {
-      "name": "Ezüst"
-    },
-    "XAU": {
-      "name": "Arany"
-    },
-    "XBA": {
-      "name": "Európai kompozit egység"
-    },
-    "XBB": {
-      "name": "Európai monetáris egység"
-    },
-    "XBC": {
-      "name": "Európai kontó egység (XBC)"
-    },
-    "XBD": {
-      "name": "Európai kontó egység (XBD)"
-    },
     "XCD": {
       "name": "kelet-karibi dollár",
       "narrow": "$"
@@ -1493,119 +1028,27 @@
       "name": "karibi forint",
       "symbol": "Cg."
     },
-    "XDR": {
-      "name": "Special Drawing Rights"
-    },
-    "XEU": {
-      "name": "európai pénznemegység",
-      "plural": {
-        "one": "Európai pénznemegység",
-        "other": "Európai pénznemegység"
-      }
-    },
-    "XFO": {
-      "name": "Francia arany frank"
-    },
-    "XFU": {
-      "name": "Francia UIC-frank"
-    },
     "XOF": {
       "name": "CFA frank BCEAO",
       "symbol": "F\u202fCFA"
-    },
-    "XPD": {
-      "name": "palládium",
-      "plural": {
-        "one": "Palládium",
-        "other": "Palládium"
-      }
     },
     "XPF": {
       "name": "csendes-óceáni valutaközösségi frank",
       "symbol": "CFPF"
     },
-    "XPT": {
-      "name": "platina",
-      "plural": {
-        "one": "Platina",
-        "other": "Platina"
-      }
-    },
-    "XRE": {
-      "name": "RINET tőke"
-    },
-    "XTS": {
-      "name": "Tesztelési pénznemkód"
-    },
-    "XXX": {
-      "name": "ismeretlen pénznem",
-      "plural": {
-        "one": "(ismeretlen pénznem)",
-        "other": "(ismeretlen pénznem)"
-      },
-      "symbol": "¤"
-    },
-    "YDD": {
-      "name": "Jemeni dínár"
-    },
     "YER": {
       "name": "jemeni riál"
-    },
-    "YUD": {
-      "name": "Jugoszláv kemény dínár",
-      "plural": {
-        "one": "jugoszláv kemény dinár (1966–1990)",
-        "other": "jugoszláv kemény dinár (1966–1990)"
-      }
-    },
-    "YUM": {
-      "name": "Jugoszláv új dínár",
-      "plural": {
-        "one": "jugoszláv új dinár (1994–2002)",
-        "other": "jugoszláv új dinár (1994–2002)"
-      }
-    },
-    "YUN": {
-      "name": "Jugoszláv konvertibilis dínár",
-      "plural": {
-        "one": "jugoszláv konvertibilis dinár (1990–1992)",
-        "other": "jugoszláv konvertibilis dinár (1990–1992)"
-      }
-    },
-    "YUR": {
-      "name": "jugoszláv reformált dinár (1992–1993)"
-    },
-    "ZAL": {
-      "name": "Dél-afrikai rand (pénzügyi)"
     },
     "ZAR": {
       "name": "dél-afrikai rand",
       "narrow": "R"
     },
-    "ZMK": {
-      "name": "Zambiai kwacha (1968–2012)"
-    },
     "ZMW": {
       "name": "zambiai kwacha",
       "narrow": "ZK"
     },
-    "ZRN": {
-      "name": "Zairei új zaire"
-    },
-    "ZRZ": {
-      "name": "Zairei zaire"
-    },
-    "ZWD": {
-      "name": "Zimbabwei dollár (1980–2008)"
-    },
     "ZWG": {
       "name": "zimbabwei arany"
-    },
-    "ZWL": {
-      "name": "Zimbabwei dollár (2009)"
-    },
-    "ZWR": {
-      "name": "Zimbabwei dollár (2008)"
     }
   },
   "currencyDigits": {

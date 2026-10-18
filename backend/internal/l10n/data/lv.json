@@ -526,13 +526,6 @@
         "zero": "Armēnijas drami"
       }
     },
-    "ANG": {
-      "name": "Nīderlandes Antiļu guldenis",
-      "plural": {
-        "other": "Nīderlandes Antiļu guldeņi",
-        "zero": "Nīderlandes Antiļu guldeņi"
-      }
-    },
     "AOA": {
       "name": "Angolas kvanza",
       "narrow": "Kz",
@@ -544,9 +537,6 @@
     "ARS": {
       "name": "Argentīnas peso",
       "narrow": "$"
-    },
-    "ATS": {
-      "name": "Austrijas šiliņš"
     },
     "AUD": {
       "name": "Austrālijas dolārs",
@@ -562,13 +552,6 @@
       "plural": {
         "other": "Arubas guldeņi",
         "zero": "Arubas guldeņi"
-      }
-    },
-    "AZM": {
-      "name": "Azerbaidžānas manats (1993–2006)",
-      "plural": {
-        "other": "Azerbaidžānas manati (1993–2006)",
-        "zero": "Azerbaidžānas manati (1993–2006)"
       }
     },
     "AZN": {
@@ -601,20 +584,6 @@
       "plural": {
         "other": "Bangladešas takas",
         "zero": "Bangladešas takas"
-      }
-    },
-    "BEF": {
-      "name": "Beļģijas franks",
-      "plural": {
-        "other": "Beļģijas franki",
-        "zero": "Beļģijas franki"
-      }
-    },
-    "BGN": {
-      "name": "Bulgārijas leva",
-      "plural": {
-        "other": "Bulgārijas levas",
-        "zero": "Bulgārijas levas"
       }
     },
     "BHD": {
@@ -690,13 +659,6 @@
         "zero": "Baltkrievijas rubeļi"
       }
     },
-    "BYR": {
-      "name": "Baltkrievijas rubelis (2000–2016)",
-      "plural": {
-        "other": "Baltkrievijas rubeļi (2000–2016)",
-        "zero": "Baltkrievijas rubeļi (2000–2016)"
-      }
-    },
     "BZD": {
       "name": "Belizas dolārs",
       "narrow": "$",
@@ -732,12 +694,6 @@
       "name": "Čīles peso",
       "narrow": "$"
     },
-    "CNH": {
-      "name": "Ķīnas juaņa (ofšors)",
-      "plural": {
-        "other": "Ķīnas juaņas (ofšors)"
-      }
-    },
     "CNY": {
       "name": "Ķīnas juaņs",
       "narrow": "¥",
@@ -751,23 +707,12 @@
       "name": "Kolumbijas peso",
       "narrow": "$"
     },
-    "COU": {
-      "name": "Kolumbijas reāls"
-    },
     "CRC": {
       "name": "Kostarikas kolons",
       "narrow": "₡",
       "plural": {
         "other": "Kostarikas koloni",
         "zero": "Kostarikas koloni"
-      }
-    },
-    "CUC": {
-      "name": "Kubas konvertējamais peso",
-      "narrow": "$",
-      "plural": {
-        "other": "Kubas konvertējamie peso",
-        "zero": "Kubas konvertējamie peso"
       }
     },
     "CUP": {
@@ -777,9 +722,6 @@
     "CVE": {
       "name": "Kaboverdes eskudo"
     },
-    "CYP": {
-      "name": "Kipras mārciņa"
-    },
     "CZK": {
       "name": "Čehijas krona",
       "narrow": "Kč",
@@ -787,9 +729,6 @@
         "other": "Čehijas kronas",
         "zero": "Čehijas kronas"
       }
-    },
-    "DEM": {
-      "name": "Vācijas marka"
     },
     "DJF": {
       "name": "Džibutijas franks",
@@ -817,9 +756,6 @@
         "zero": "Alžīrijas dināri"
       }
     },
-    "EEK": {
-      "name": "Igaunijas krona"
-    },
     "EGP": {
       "name": "Ēģiptes mārciņa",
       "narrow": "E£",
@@ -835,10 +771,6 @@
         "zero": "Eritrejas nakfas"
       }
     },
-    "ESP": {
-      "name": "Spānijas peseta",
-      "narrow": "₧"
-    },
     "ETB": {
       "name": "Etiopijas birs",
       "plural": {
@@ -849,9 +781,6 @@
     "EUR": {
       "name": "eiro",
       "symbol": "€"
-    },
-    "FIM": {
-      "name": "Somijas marka"
     },
     "FJD": {
       "name": "Fidži dolārs",
@@ -868,9 +797,6 @@
         "other": "Folklenda Salu mārciņas",
         "zero": "Folklenda Salu mārciņas"
       }
-    },
-    "FRF": {
-      "name": "Francijas franks"
     },
     "GBP": {
       "name": "Lielbritānijas mārciņa",
@@ -906,9 +832,6 @@
         "zero": "Gvinejas franki"
       }
     },
-    "GRD": {
-      "name": "Grieķijas drahma"
-    },
     "GTQ": {
       "name": "Gvatemalas ketsals",
       "narrow": "Q",
@@ -942,14 +865,6 @@
         "zero": "Hondurasas lempīras"
       }
     },
-    "HRK": {
-      "name": "Horvātijas kuna",
-      "narrow": "kn",
-      "plural": {
-        "other": "Horvātijas kunas",
-        "zero": "Horvātijas kunas"
-      }
-    },
     "HTG": {
       "name": "Haiti gurds",
       "plural": {
@@ -972,9 +887,6 @@
         "other": "Indonēzijas rūpijas",
         "zero": "Indonēzijas rūpijas"
       }
-    },
-    "IEP": {
-      "name": "Īrijas mārciņa"
     },
     "ILS": {
       "name": "Izraēlas šekelis",
@@ -1013,9 +925,6 @@
         "other": "Islandes kronas",
         "zero": "Islandes kronas"
       }
-    },
-    "ITL": {
-      "name": "Itālijas lira"
     },
     "JMD": {
       "name": "Jamaikas dolārs",
@@ -1145,28 +1054,6 @@
     "LSL": {
       "name": "Lesoto loti"
     },
-    "LTL": {
-      "name": "Lietuvas lits",
-      "narrow": "Lt",
-      "plural": {
-        "other": "Lietuvas liti",
-        "zero": "Lietuvas liti"
-      }
-    },
-    "LUF": {
-      "name": "Luksemburgas franks"
-    },
-    "LVL": {
-      "name": "Latvijas lats",
-      "plural": {
-        "other": "Latvijas lati",
-        "zero": "Latvijas lati"
-      },
-      "symbol": "Ls"
-    },
-    "LVR": {
-      "name": "Latvijas rublis"
-    },
     "LYD": {
       "name": "Lībijas dinārs",
       "plural": {
@@ -1199,9 +1086,6 @@
         "zero": "Maķedonijas denāri"
       }
     },
-    "MLF": {
-      "name": "CFA (Āfrikas) franks"
-    },
     "MMK": {
       "name": "Mjanmas kjats",
       "narrow": "K",
@@ -1225,25 +1109,12 @@
         "zero": "Makao patakas"
       }
     },
-    "MRO": {
-      "name": "Mauritānijas ugija (1973–2017)",
-      "plural": {
-        "other": "Mauritānijas ugijas (1973–2017)",
-        "zero": "Mauritānijas ugijas (1973–2017)"
-      }
-    },
     "MRU": {
       "name": "Mauritānijas ugija",
       "plural": {
         "other": "Mauritānijas ugijas",
         "zero": "Mauritānijas ugijas"
       }
-    },
-    "MTL": {
-      "name": "Maltas lira"
-    },
-    "MTP": {
-      "name": "Maltas mārciņa"
     },
     "MUR": {
       "name": "Maurīcijas rūpija",
@@ -1280,16 +1151,6 @@
         "zero": "Malaizijas ringiti"
       }
     },
-    "MZE": {
-      "name": "Mozambikas eskudo"
-    },
-    "MZM": {
-      "name": "Mozambikas vecais metikals",
-      "plural": {
-        "other": "Mozambikas vecie metikali",
-        "zero": "Mozambikas vecie metikali"
-      }
-    },
     "MZN": {
       "name": "Mozambikas metikals",
       "plural": {
@@ -1320,9 +1181,6 @@
         "other": "Nikaragvas kordobas",
         "zero": "Nikaragvas kordobas"
       }
-    },
-    "NLG": {
-      "name": "Nīderlandes guldenis"
     },
     "NOK": {
       "name": "Norvēģijas krona",
@@ -1393,9 +1251,6 @@
         "zero": "Polijas zloti"
       }
     },
-    "PTE": {
-      "name": "Portugāles eskudo"
-    },
     "PYG": {
       "name": "Paragvajas guarani",
       "narrow": "₲"
@@ -1405,14 +1260,6 @@
       "plural": {
         "other": "Kataras riāli",
         "zero": "Kataras riāli"
-      }
-    },
-    "ROL": {
-      "name": "Rumānijas vecā leja",
-      "plural": {
-        "one": "Rumānijas vecā leva",
-        "other": "Rumānijas vecās levas",
-        "zero": "Rumānijas vecās levas"
       }
     },
     "RON": {
@@ -1500,24 +1347,11 @@
         "zero": "Sv.Helēnas salas mārciņas"
       }
     },
-    "SIT": {
-      "name": "Slovēnijas tolars"
-    },
-    "SKK": {
-      "name": "Slovakijas krona"
-    },
     "SLE": {
       "name": "Sjerraleones leone",
       "plural": {
         "other": "Sjerraleones leones",
         "zero": "Sjerraleones leones"
-      }
-    },
-    "SLL": {
-      "name": "Sjerraleones leone (1964—2022)",
-      "plural": {
-        "other": "Sjerraleones leones (1964—2022)",
-        "zero": "Sjerraleones leones (1964—2022)"
       }
     },
     "SOS": {
@@ -1535,22 +1369,12 @@
         "zero": "Surinamas dolāri"
       }
     },
-    "SRG": {
-      "name": "Surinamas guldenis"
-    },
     "SSP": {
       "name": "Dienvidsudānas mārciņa",
       "narrow": "£",
       "plural": {
         "other": "Dienvidsudānas mārciņas",
         "zero": "Dienvidsudānas mārciņas"
-      }
-    },
-    "STD": {
-      "name": "Santome un Prinsipi dobra (1977–2017)",
-      "plural": {
-        "other": "Santome un Prinsipi dobras (1977–2017)",
-        "zero": "Santome un Prinsipi dobras (1977–2017)"
       }
     },
     "STN": {
@@ -1560,9 +1384,6 @@
         "other": "Santome un Prinsipi dobras",
         "zero": "Santome un Prinsipi dobras"
       }
-    },
-    "SVC": {
-      "name": "Salvadoras kolons"
     },
     "SYP": {
       "name": "Sīrijas mārciņa",
@@ -1590,13 +1411,6 @@
         "zero": "Tadžikistānas somoni"
       }
     },
-    "TMM": {
-      "name": "Turkmenistānas manats (1993–2009)",
-      "plural": {
-        "other": "Turkmenistānas manati (1993–2009)",
-        "zero": "Turkmenistānas manati (1993–2009)"
-      }
-    },
     "TMT": {
       "name": "Turkmenistānas manats",
       "plural": {
@@ -1617,13 +1431,6 @@
       "plural": {
         "other": "Tongas paangas",
         "zero": "Tongas paangas"
-      }
-    },
-    "TRL": {
-      "name": "Turcijas lira (1922–2005)",
-      "plural": {
-        "other": "Turcijas liras (1922–2005)",
-        "zero": "Turcijas liras (1922–2005)"
       }
     },
     "TRY": {
@@ -1691,21 +1498,6 @@
         "zero": "Uzbekistānas sumi"
       }
     },
-    "VEB": {
-      "name": "Venecuēlas bolivārs (1871–2008)",
-      "plural": {
-        "other": "Venecuēlas bolivāri (1871–2008)",
-        "zero": "Venecuēlas bolivāri (1871–2008)"
-      }
-    },
-    "VEF": {
-      "name": "Venecuēlas bolivārs (2008–2018)",
-      "narrow": "Bs",
-      "plural": {
-        "other": "Venecuēlas bolivāri (2008–2018)",
-        "zero": "Venecuēlas bolivāri (2008–2018)"
-      }
-    },
     "VES": {
       "name": "Venecuēlas bolivārs",
       "plural": {
@@ -1735,36 +1527,6 @@
       },
       "symbol": "FCFA"
     },
-    "XAG": {
-      "name": "sudrabs"
-    },
-    "XAU": {
-      "name": "zelts"
-    },
-    "XBA": {
-      "name": "Eiropas norēķinu vienība EURCO",
-      "plural": {
-        "other": "Eiropas norēķinu vienības EURCO",
-        "zero": "Eiropas norēķinu vienības EURCO"
-      }
-    },
-    "XBB": {
-      "name": "Eiropas naudas vienība"
-    },
-    "XBC": {
-      "name": "Eiropas norēķinu vienība (XBC)",
-      "plural": {
-        "other": "Eiropas norēķinu vienības (XBC)",
-        "zero": "Eiropas norēķinu vienības (XBC)"
-      }
-    },
-    "XBD": {
-      "name": "Eiropas norēķinu vienība (XBD)",
-      "plural": {
-        "other": "Eiropas norēķinu vienības (XBD)",
-        "zero": "Eiropas norēķinu vienības (XBD)"
-      }
-    },
     "XCD": {
       "name": "Austrumkarību dolārs",
       "narrow": "$",
@@ -1778,18 +1540,6 @@
       "name": "Karību guldenis",
       "symbol": "Cg."
     },
-    "XDR": {
-      "name": "Speciālās aizņēmuma tiesības"
-    },
-    "XEU": {
-      "name": "Eiropas norēķinu vienība"
-    },
-    "XFO": {
-      "name": "Francijas zelta franks"
-    },
-    "XFU": {
-      "name": "Francijas UIC franks"
-    },
     "XOF": {
       "name": "Rietumāfrikas CFA franks",
       "plural": {
@@ -1798,9 +1548,6 @@
       },
       "symbol": "F\u202fCFA"
     },
-    "XPD": {
-      "name": "pallādijs"
-    },
     "XPF": {
       "name": "CFP franks",
       "plural": {
@@ -1808,26 +1555,6 @@
         "zero": "CFP franki"
       },
       "symbol": "CFPF"
-    },
-    "XPT": {
-      "name": "platīns"
-    },
-    "XTS": {
-      "name": "Testa valūtas kods",
-      "plural": {
-        "one": "testa valūtas kods",
-        "other": "testa valūtas kods",
-        "zero": "testa valūtas kods"
-      }
-    },
-    "XXX": {
-      "name": "Nezināma valūta",
-      "plural": {
-        "one": "(nezināma valūta)",
-        "other": "(nezināma valūta)",
-        "zero": "(nezināma valūta)"
-      },
-      "symbol": "¤"
     },
     "YER": {
       "name": "Jemenas riāls",
@@ -1844,13 +1571,6 @@
         "zero": "Dienvidāfrikas rendi"
       }
     },
-    "ZMK": {
-      "name": "Zambijas kvača (1968–2012)",
-      "plural": {
-        "other": "Zambijas kvačas (1968–2012)",
-        "zero": "Zambijas kvačas (1968–2012)"
-      }
-    },
     "ZMW": {
       "name": "Zambijas kvača",
       "narrow": "ZK",
@@ -1859,19 +1579,8 @@
         "zero": "Zambijas kvačas"
       }
     },
-    "ZWD": {
-      "name": "Zimbabves dolārs"
-    },
     "ZWG": {
       "name": "Zimbabves zelts"
-    },
-    "ZWL": {
-      "name": "Zimbabves dolārs (2009)",
-      "plural": {
-        "one": "Zimbabves dollārs (2009)",
-        "other": "Zimbabves dollāri (2009)",
-        "zero": "Zimbabves dollāri (2009)"
-      }
     }
   },
   "currencyDigits": {

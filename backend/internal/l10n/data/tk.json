@@ -542,13 +542,6 @@
         "other": "ermeni dramy"
       }
     },
-    "ANG": {
-      "name": "Niderland antil guldeni",
-      "plural": {
-        "one": "niderland antil guldeni",
-        "other": "niderland antil guldeni"
-      }
-    },
     "AOA": {
       "name": "Angola kwanzasy",
       "narrow": "Kz",
@@ -611,13 +604,6 @@
       "plural": {
         "one": "bangladeş takasy",
         "other": "bangladeş takasy"
-      }
-    },
-    "BGN": {
-      "name": "Bolgar lewi",
-      "plural": {
-        "one": "bolgar lewi",
-        "other": "bolgar lewi"
       }
     },
     "BHD": {
@@ -697,13 +683,6 @@
         "other": "belarus rubly"
       }
     },
-    "BYR": {
-      "name": "Belorus rubly (2000–2016)",
-      "plural": {
-        "one": "belorus rubly (2000–2016)",
-        "other": "belorus rubly (2000–2016)"
-      }
-    },
     "BZD": {
       "name": "Beliz dollary",
       "narrow": "$",
@@ -743,13 +722,6 @@
         "other": "çili pesosy"
       }
     },
-    "CNH": {
-      "name": "Hytaý ýuany (ofşor)",
-      "plural": {
-        "one": "hytaý ýuany (ofşor)",
-        "other": "hytaý ýuany (ofşor)"
-      }
-    },
     "CNY": {
       "name": "Hytaý ýuany",
       "narrow": "¥",
@@ -773,14 +745,6 @@
       "plural": {
         "one": "kosta-rika kolony",
         "other": "kosta-rika kolony"
-      }
-    },
-    "CUC": {
-      "name": "Konwertirlenýän kuba pesosy",
-      "narrow": "$",
-      "plural": {
-        "one": "konwertirlenýän kuba pesosy",
-        "other": "konwertirlenýän kuba pesosy"
       }
     },
     "CUP": {
@@ -850,9 +814,6 @@
         "one": "eritreýa nakfasy",
         "other": "eritreýa nakfasy"
       }
-    },
-    "ESP": {
-      "narrow": "₧"
     },
     "ETB": {
       "name": "Efiopiýa byry",
@@ -963,14 +924,6 @@
       "plural": {
         "one": "gonduras lempirasy",
         "other": "gonduras lempirasy"
-      }
-    },
-    "HRK": {
-      "name": "Horwat kunasy",
-      "narrow": "kn",
-      "plural": {
-        "one": "horwat kunasy",
-        "other": "horwat kunasy"
       }
     },
     "HTG": {
@@ -1163,12 +1116,6 @@
     "LSL": {
       "name": "Lesoto lotisi"
     },
-    "LTL": {
-      "narrow": "Lt"
-    },
-    "LVL": {
-      "narrow": "Ls"
-    },
     "LYD": {
       "name": "Liwiýa dinary",
       "plural": {
@@ -1226,13 +1173,6 @@
       "plural": {
         "one": "makao patakasy",
         "other": "makao patakasy"
-      }
-    },
-    "MRO": {
-      "name": "Mawritan ugiýasy (1973–2017)",
-      "plural": {
-        "one": "mawritan ugiýasy (1973–2017)",
-        "other": "mawritan ugiýasy (1973–2017)"
       }
     },
     "MRU": {
@@ -1495,13 +1435,6 @@
         "other": "sýerra-leone leony"
       }
     },
-    "SLL": {
-      "name": "Sýerra-Leone leony (1964—2022)",
-      "plural": {
-        "one": "sýerra-leone leony (1964—2022)",
-        "other": "sýerra-leone leony (1964—2022)"
-      }
-    },
     "SOS": {
       "name": "Somali şillingi",
       "plural": {
@@ -1523,13 +1456,6 @@
       "plural": {
         "one": "günorta sudan funty",
         "other": "günorta sudan funty"
-      }
-    },
-    "STD": {
-      "name": "San-Tome we Prinsipi dobrasy (1977–2017)",
-      "plural": {
-        "one": "san-tome we prinsipi dobrasy (1977–2017)",
-        "other": "san-tome we prinsipi dobrasy (1977–2017)"
       }
     },
     "STN": {
@@ -1659,14 +1585,6 @@
         "other": "özbek somy"
       }
     },
-    "VEF": {
-      "name": "Wenesuela boliwary (2008–2018)",
-      "narrow": "Bs",
-      "plural": {
-        "one": "wenesuela boliwary (2008–2018)",
-        "other": "wenesuela boliwary (2008–2018)"
-      }
-    },
     "VES": {
       "name": "Wenesuela boliwary",
       "plural": {
@@ -1724,14 +1642,6 @@
         "other": "fransuz ýuwaş umman franky"
       },
       "symbol": "CFPF"
-    },
-    "XXX": {
-      "name": "Näbelli pul birligi",
-      "plural": {
-        "one": "näbelli pul birligi",
-        "other": "näbelli pul birligi"
-      },
-      "symbol": "¤"
     },
     "YER": {
       "name": "Ýemen rialy",

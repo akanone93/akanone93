@@ -506,15 +506,6 @@
     }
   },
   "currencies": {
-    "ADP": {
-      "name": "Peseta Andorrach",
-      "plural": {
-        "few": "peseta Andorrach",
-        "one": "pheseta Andorrach",
-        "other": "peseta Andorrach",
-        "two": "pheseta Andorrach"
-      }
-    },
     "AED": {
       "name": "Dirham nan Iomaratan Arabach Aonaichte",
       "plural": {
@@ -522,15 +513,6 @@
         "one": "dirham nan IAA",
         "other": "dirham nan IAA",
         "two": "dhirham nan IAA"
-      }
-    },
-    "AFA": {
-      "name": "Afghani Afghanach (1927–2002)",
-      "plural": {
-        "few": "afghani Afghanach (1927–2002)",
-        "one": "afghani Afghanach (1927–2002)",
-        "other": "afghani Afghanach (1927–2002)",
-        "two": "afghani Afghanach (1927–2002)"
       }
     },
     "AFN": {
@@ -541,15 +523,6 @@
         "one": "afghani Afghanach",
         "other": "afghani Afghanach",
         "two": "afghani Afghanach"
-      }
-    },
-    "ALK": {
-      "name": "Lek Albàineach (1946–1965)",
-      "plural": {
-        "few": "lek Albàineach (1946–1965)",
-        "one": "lek Albàineach (1946–1965)",
-        "other": "lek Albàineach (1946–1965)",
-        "two": "lek Albàineach (1946–1965)"
       }
     },
     "ALL": {
@@ -571,15 +544,6 @@
         "two": "dhram Airmeineach"
       }
     },
-    "ANG": {
-      "name": "Gulden Eileanan Aintilia nan Tìrean Ìsle",
-      "plural": {
-        "few": "gulden Eileanan Aintilia nan Tìrean Ìsle",
-        "one": "ghulden Eileanan Aintilia nan Tìrean Ìsle",
-        "other": "gulden Eileanan Aintilia nan Tìrean Ìsle",
-        "two": "ghulden Eileanan Aintilia nan Tìrean Ìsle"
-      }
-    },
     "AOA": {
       "name": "Kwanza Angòlach",
       "narrow": "Kz",
@@ -590,69 +554,6 @@
         "two": "kwanza Angòlach"
       }
     },
-    "AOK": {
-      "name": "Kwanza Angòlach (1977–1991)",
-      "plural": {
-        "few": "kwanza Angòlach (1977–1991)",
-        "one": "kwanza Angòlach (1977–1991)",
-        "other": "kwanza Angòlach (1977–1991)",
-        "two": "kwanza Angòlach (1977–1991)"
-      }
-    },
-    "AON": {
-      "name": "Kwanza ùr Angòlach (1990–2000)",
-      "plural": {
-        "few": "kwanza ùr Angòlach (1990–2000)",
-        "one": "kwanza ùr Angòlach (1990–2000)",
-        "other": "kwanza ùr Angòlach (1990–2000)",
-        "two": "kwanza ùr Angòlach (1990–2000)"
-      }
-    },
-    "AOR": {
-      "name": "Kwanza ath-ghleusaichte Angòlach (1995–1999)",
-      "plural": {
-        "few": "kwanza ath-ghleusaichte Angòlach (1995–1999)",
-        "one": "kwanza ath-ghleusaichte Angòlach (1995–1999)",
-        "other": "kwanza ath-ghleusaichte Angòlach (1995–1999)",
-        "two": "kwanza ath-ghleusaichte Angòlach (1995–1999)"
-      }
-    },
-    "ARA": {
-      "name": "Austral Argantaineach",
-      "plural": {
-        "few": "austral Argantaineach",
-        "one": "austral Argantaineach",
-        "other": "austral Argantaineach",
-        "two": "austral Argantaineach"
-      }
-    },
-    "ARL": {
-      "name": "Peso ley Argantaineach (1970–1983)",
-      "plural": {
-        "few": "pesothan ley Argantaineach (1970–1983)",
-        "one": "pheso ley Argantaineach (1970–1983)",
-        "other": "peso ley Argantaineach (1970–1983)",
-        "two": "pheso ley Argantaineach (1970–1983)"
-      }
-    },
-    "ARM": {
-      "name": "Peso Argantaineach (1881–1970)",
-      "plural": {
-        "few": "pesothan Argantaineach (1881–1970)",
-        "one": "pheso Argantaineach (1881–1970)",
-        "other": "peso Argantaineach (1881–1970)",
-        "two": "pheso Argantaineach (1881–1970)"
-      }
-    },
-    "ARP": {
-      "name": "Peso Argantaineach (1983–1985)",
-      "plural": {
-        "few": "pesothan Argantaineach (1983–1985)",
-        "one": "pheso Argantaineach (1983–1985)",
-        "other": "peso Argantaineach (1983–1985)",
-        "two": "pheso Argantaineach (1983–1985)"
-      }
-    },
     "ARS": {
       "name": "Peso Argantaineach",
       "narrow": "$",
@@ -661,15 +562,6 @@
         "one": "pheso Argantaineach",
         "other": "peso Argantaineach",
         "two": "pheso Argantaineach"
-      }
-    },
-    "ATS": {
-      "name": "Schilling Ostaireach",
-      "plural": {
-        "few": "schilling Ostaireach",
-        "one": "schilling Ostaireach",
-        "other": "schilling Ostaireach",
-        "two": "schilling Ostaireach"
       }
     },
     "AUD": {
@@ -692,15 +584,6 @@
         "two": "fhlorin Arùbach"
       }
     },
-    "AZM": {
-      "name": "Manat Asarbaideànach (1993–2006)",
-      "plural": {
-        "few": "manat Asarbaideànach (1993–2006)",
-        "one": "mhanat Asarbaideànach (1993–2006)",
-        "other": "manat Asarbaideànach (1993–2006)",
-        "two": "mhanat Asarbaideànach (1993–2006)"
-      }
-    },
     "AZN": {
       "name": "Manat Asarbaideànach",
       "narrow": "₼",
@@ -711,15 +594,6 @@
         "two": "mhanat Asarbaideànach"
       }
     },
-    "BAD": {
-      "name": "Dinar Bhosna agus Hearsagobhana (1992–1994)",
-      "plural": {
-        "few": "dinar Bhosna agus Hearsagobhana (1992–1994)",
-        "one": "dinar Bhosna agus Hearsagobhana (1992–1994)",
-        "other": "dinar Bhosna agus Hearsagobhana (1992–1994)",
-        "two": "dhinar Bhosna agus Hearsagobhana (1992–1994)"
-      }
-    },
     "BAM": {
       "name": "Mark iompachail Bhosna agus Hearsagobhana",
       "narrow": "KM",
@@ -728,15 +602,6 @@
         "one": "mhark iompachail Bhosna agus Hearsagobhana",
         "other": "mark iompachail Bhosna agus Hearsagobhana",
         "two": "mhark iompachail Bhosna agus Hearsagobhana"
-      }
-    },
-    "BAN": {
-      "name": "Dinar ùr Bhosna agus Hearsagobhana (1994–1997)",
-      "plural": {
-        "few": "dinar ùr Bhosna agus Hearsagobhana (1994–1997)",
-        "one": "dinar ùr Bhosna agus Hearsagobhana (1994–1997)",
-        "other": "dinar ùr Bhosna agus Hearsagobhana (1994–1997)",
-        "two": "dhinar ùr Bhosna agus Hearsagobhana (1994–1997)"
       }
     },
     "BBD": {
@@ -757,69 +622,6 @@
         "one": "taka Bangladaiseach",
         "other": "taka Bangladaiseach",
         "two": "thaka Bangladaiseach"
-      }
-    },
-    "BEC": {
-      "name": "Franc Beilgeach (iompachail)",
-      "plural": {
-        "few": "franc Beilgeach (iompachail)",
-        "one": "fhranc Beilgeach (iompachail)",
-        "other": "franc Beilgeach (iompachail)",
-        "two": "fhranc Beilgeach (iompachail)"
-      }
-    },
-    "BEF": {
-      "name": "Franc Beilgeach",
-      "plural": {
-        "few": "franc Beilgeach",
-        "one": "fhranc Beilgeach",
-        "other": "franc Beilgeach",
-        "two": "fhranc Beilgeach"
-      }
-    },
-    "BEL": {
-      "name": "Franc Beilgeach (ionmhasail)",
-      "plural": {
-        "few": "franc Beilgeach (ionmhasail)",
-        "one": "fhranc Beilgeach (ionmhasail)",
-        "other": "franc Beilgeach (ionmhasail)",
-        "two": "fhranc Beilgeach (ionmhasail)"
-      }
-    },
-    "BGL": {
-      "name": "Lev cruaidh Bulgarach",
-      "plural": {
-        "few": "lev cruaidh Bulgarach",
-        "one": "lev cruaidh Bulgarach",
-        "other": "lev cruaidh Bulgarach",
-        "two": "lev cruaidh Bulgarach"
-      }
-    },
-    "BGM": {
-      "name": "Lev sòisealach Bulgarach",
-      "plural": {
-        "few": "lev sòisealach Bulgarach",
-        "one": "lev sòisealach Bulgarach",
-        "other": "lev sòisealach Bulgarach",
-        "two": "lev sòisealach Bulgarach"
-      }
-    },
-    "BGN": {
-      "name": "Lev Bulgarach",
-      "plural": {
-        "few": "lev Bulgarach",
-        "one": "lev Bulgarach",
-        "other": "lev Bulgarach",
-        "two": "lev Bulgarach"
-      }
-    },
-    "BGO": {
-      "name": "Lev Bulgarach (1879–1952)",
-      "plural": {
-        "few": "lev Bulgarach (1879–1952)",
-        "one": "lev Bulgarach (1879–1952)",
-        "other": "lev Bulgarach (1879–1952)",
-        "two": "lev Bulgarach (1879–1952)"
       }
     },
     "BHD": {
@@ -870,60 +672,6 @@
         "two": "bholiviano Boilibhiach"
       }
     },
-    "BOL": {
-      "name": "Boliviano Boilibhiach (1863–1963)",
-      "plural": {
-        "few": "boliviano Boilibhiach (1863–1963)",
-        "one": "bholiviano Boilibhiach (1863–1963)",
-        "other": "boliviano Boilibhiach (1863–1963)",
-        "two": "bholiviano Boilibhiach (1863–1963)"
-      }
-    },
-    "BOP": {
-      "name": "Peso Boilibhiach",
-      "plural": {
-        "few": "pesothan Boilibhiach",
-        "one": "pheso Boilibhiach",
-        "other": "peso Boilibhiach",
-        "two": "pheso Boilibhiach"
-      }
-    },
-    "BOV": {
-      "name": "Mvdol Boilibhiach",
-      "plural": {
-        "few": "mvdol Boilibhiach",
-        "one": "mvdol Boilibhiach",
-        "other": "mvdol Boilibhiach",
-        "two": "mvdol Boilibhiach"
-      }
-    },
-    "BRB": {
-      "name": "Cruzeiro ùr Braisileach (1967–1986)",
-      "plural": {
-        "few": "cruzeiro ùr Braisileach (1967–1986)",
-        "one": "chruzeiro ùr Braisileach (1967–1986)",
-        "other": "cruzeiro ùr Braisileach (1967–1986)",
-        "two": "chruzeiro ùr Braisileach (1967–1986)"
-      }
-    },
-    "BRC": {
-      "name": "Cruzado Braisileach (1986–1989)",
-      "plural": {
-        "few": "cruzado Braisileach (1986–1989)",
-        "one": "chruzado Braisileach (1986–1989)",
-        "other": "cruzado Braisileach (1986–1989)",
-        "two": "chruzado Braisileach (1986–1989)"
-      }
-    },
-    "BRE": {
-      "name": "Cruzeiro Braisileach (1990–1993)",
-      "plural": {
-        "few": "cruzeiro Braisileach (1990–1993)",
-        "one": "chruzeiro Braisileach (1990–1993)",
-        "other": "cruzeiro Braisileach (1990–1993)",
-        "two": "chruzeiro Braisileach (1990–1993)"
-      }
-    },
     "BRL": {
       "name": "Real Braisileach",
       "plural": {
@@ -933,33 +681,6 @@
         "two": "real Braisileach"
       },
       "symbol": "R$"
-    },
-    "BRN": {
-      "name": "Cruzado ùr Braisileach (1989–1990)",
-      "plural": {
-        "few": "cruzado ùr Braisileach (1989–1990)",
-        "one": "chruzado ùr Braisileach (1989–1990)",
-        "other": "cruzado ùr Braisileach (1989–1990)",
-        "two": "chruzado ùr Braisileach (1989–1990)"
-      }
-    },
-    "BRR": {
-      "name": "Cruzeiro Braisileach (1993–1994)",
-      "plural": {
-        "few": "cruzeiro Braisileach (1993–1994)",
-        "one": "chruzeiro Braisileach (1993–1994)",
-        "other": "cruzeiro Braisileach (1993–1994)",
-        "two": "chruzeiro Braisileach (1993–1994)"
-      }
-    },
-    "BRZ": {
-      "name": "Cruzeiro Braisileach (1942–1967)",
-      "plural": {
-        "few": "cruzeiro Braisileach (1942–1967)",
-        "one": "chruzeiro Braisileach (1942–1967)",
-        "other": "cruzeiro Braisileach (1942–1967)",
-        "two": "chruzeiro Braisileach (1942–1967)"
-      }
     },
     "BSD": {
       "name": "Dolar Bathamach",
@@ -980,15 +701,6 @@
         "two": "ngultrum Butànach"
       }
     },
-    "BUK": {
-      "name": "Kyat Burmach",
-      "plural": {
-        "few": "kyat Burmach",
-        "one": "kyat Burmach",
-        "other": "kyat Burmach",
-        "two": "kyat Burmach"
-      }
-    },
     "BWP": {
       "name": "Pula Botsuanach",
       "narrow": "P",
@@ -999,15 +711,6 @@
         "two": "phula Botsuanach"
       }
     },
-    "BYB": {
-      "name": "Rùbal ùr Bealaruiseach (1994–1999)",
-      "plural": {
-        "few": "rùbalan ùra Bealaruiseach (1994–1999)",
-        "one": "rùbal ùr Bealaruiseach (1994–1999)",
-        "other": "rùbal ùr Bealaruiseach (1994–1999)",
-        "two": "rùbal ùr Bealaruiseach (1994–1999)"
-      }
-    },
     "BYN": {
       "name": "Rùbal Bealaruiseach",
       "narrow": "р.",
@@ -1016,15 +719,6 @@
         "one": "rùbal Bealaruiseach",
         "other": "rùbal Bealaruiseach",
         "two": "rùbal Bealaruiseach"
-      }
-    },
-    "BYR": {
-      "name": "Rùbal Bealaruiseach (2000–2016)",
-      "plural": {
-        "few": "rùbalan Bealaruiseach (2000–2016)",
-        "one": "rùbal Bealaruiseach (2000–2016)",
-        "other": "rùbal Bealaruiseach (2000–2016)",
-        "two": "rùbal Bealaruiseach (2000–2016)"
       }
     },
     "BZD": {
@@ -1057,12 +751,6 @@
         "two": "fhranc Congothach"
       }
     },
-    "CHE": {
-      "name": "Eòro WIR",
-      "plural": {
-        "few": "Eòrothan WIR"
-      }
-    },
     "CHF": {
       "name": "Franc Eilbheiseach",
       "plural": {
@@ -1070,33 +758,6 @@
         "one": "fhranc Eilbheiseach",
         "other": "franc Eilbheiseach",
         "two": "fhranc Eilbheiseach"
-      }
-    },
-    "CHW": {
-      "name": "Franc WIR",
-      "plural": {
-        "few": "franc WIR",
-        "one": "fhranc WIR",
-        "other": "franc WIR",
-        "two": "fhranc WIR"
-      }
-    },
-    "CLE": {
-      "name": "Escudo Sileach",
-      "plural": {
-        "few": "escudo Sileach",
-        "one": "escudo Sileach",
-        "other": "escudo Sileach",
-        "two": "escudo Sileach"
-      }
-    },
-    "CLF": {
-      "name": "Aonad cunntasachd Sileach (UF)",
-      "plural": {
-        "few": "aonadan cunntasachd Sileach (UF)",
-        "one": "aonad cunntasachd Sileach (UF)",
-        "other": "aonad cunntasachd Sileach (UF)",
-        "two": "aonad cunntasachd Sileach (UF)"
       }
     },
     "CLP": {
@@ -1107,24 +768,6 @@
         "one": "pheso Sileach",
         "other": "peso Sileach",
         "two": "pheso Sileach"
-      }
-    },
-    "CNH": {
-      "name": "Yuan Sìneach (far-thìreach)",
-      "plural": {
-        "few": "yuan Sìneach (far-thìreach)",
-        "one": "yuan Sìneach (far-thìreach)",
-        "other": "yuan Sìneach (far-thìreach)",
-        "two": "yuan Sìneach (far-thìreach)"
-      }
-    },
-    "CNX": {
-      "name": "Dolar an t-sluagh-bhanca Shìnich",
-      "plural": {
-        "few": "dolaran an t-sluagh-bhanca Shìnich",
-        "one": "dolar an t-sluagh-bhanca Shìnich",
-        "other": "dolar an t-sluagh-bhanca Shìnich",
-        "two": "dholar an t-sluagh-bhanca Shìnich"
       }
     },
     "CNY": {
@@ -1148,15 +791,6 @@
         "two": "pheso Coloimbeach"
       }
     },
-    "COU": {
-      "name": "Aonad fìor-luach Coloimbeach",
-      "plural": {
-        "few": "aonadan fìor-luach Coloimbeach",
-        "one": "aonad fìor-luach Coloimbeach",
-        "other": "aonad fìor-luach Coloimbeach",
-        "two": "aonad fìor-luach Coloimbeach"
-      }
-    },
     "CRC": {
       "name": "Colón Costa Rìceach",
       "narrow": "₡",
@@ -1165,34 +799,6 @@
         "one": "cholón Chosta Rìcea",
         "other": "colón Costa Rìceach",
         "two": "cholón Costa Rìceach"
-      }
-    },
-    "CSD": {
-      "name": "Dinar Sèirbeach (2002–2006)",
-      "plural": {
-        "few": "dinar Sèirbeach (2002–2006)",
-        "one": "dinar Sèirbeach (2002–2006)",
-        "other": "dinar Sèirbeach (2002–2006)",
-        "two": "dhinar Sèirbeach (2002–2006)"
-      }
-    },
-    "CSK": {
-      "name": "Koruna cruaidh Seic-Slòbhacach",
-      "plural": {
-        "few": "koruna cruaidh Seic-Slòbhacach",
-        "one": "koruna cruaidh Seic-Slòbhacach",
-        "other": "koruna cruaidh Seic-Slòbhacach",
-        "two": "koruna cruaidh Seic-Slòbhacach"
-      }
-    },
-    "CUC": {
-      "name": "Peso iompachail Cùbach",
-      "narrow": "$",
-      "plural": {
-        "few": "pesothan iompachail Cùbach",
-        "one": "pheso iompachail Cùbach",
-        "other": "peso iompachail Cùbach",
-        "two": "pheso iompachail Cùbach"
       }
     },
     "CUP": {
@@ -1214,15 +820,6 @@
         "two": "escudo a’ Chip Uaine"
       }
     },
-    "CYP": {
-      "name": "Punnd Cìoprasach",
-      "plural": {
-        "few": "puinnd Chìoprasach",
-        "one": "phunnd Cìoprasach",
-        "other": "punnd Cìoprasach",
-        "two": "phunnd Cìoprasach"
-      }
-    },
     "CZK": {
       "name": "Koruna Seiceach",
       "narrow": "Kč",
@@ -1231,24 +828,6 @@
         "one": "koruna Seiceach",
         "other": "koruna Seiceach",
         "two": "koruna Seiceach"
-      }
-    },
-    "DDM": {
-      "name": "Mark na Gearmailte an Ear",
-      "plural": {
-        "few": "mark na Gearmailte an Ear",
-        "one": "mhark na Gearmailte an Ear",
-        "other": "mark na Gearmailte an Ear",
-        "two": "mhark na Gearmailte an Ear"
-      }
-    },
-    "DEM": {
-      "name": "Mark Gearmailteach",
-      "plural": {
-        "few": "mark Gearmailteach",
-        "one": "mhark Gearmailteach",
-        "other": "mark Gearmailteach",
-        "two": "mhark Gearmailteach"
       }
     },
     "DJF": {
@@ -1289,33 +868,6 @@
         "two": "dhinar Aildireach"
       }
     },
-    "ECS": {
-      "name": "Sucre Eacuadorach",
-      "plural": {
-        "few": "sucre Eacuadorach",
-        "one": "sucre Eacuadorach",
-        "other": "sucre Eacuadorach",
-        "two": "shucre Eacuadorach"
-      }
-    },
-    "ECV": {
-      "name": "Aonad luach chunbhalaich Eacuadorach",
-      "plural": {
-        "few": "aonadan luach chunbhalaich Eacuadorach",
-        "one": "aonad luach chunbhalaich Eacuadorach",
-        "other": "aonad luach chunbhalaich Eacuadorach",
-        "two": "aonad luach chunbhalaich Eacuadorach"
-      }
-    },
-    "EEK": {
-      "name": "Kroon Eastoineach",
-      "plural": {
-        "few": "kroon Eastoineach",
-        "one": "kroon Eastoineach",
-        "other": "kroon Eastoineach",
-        "two": "kroon Eastoineach"
-      }
-    },
     "EGP": {
       "name": "Punnd Èipheiteach",
       "narrow": "E£",
@@ -1335,34 +887,6 @@
         "two": "nakfa Eartrach"
       }
     },
-    "ESA": {
-      "name": "Peseta Spàinnteach (cunntas A)",
-      "plural": {
-        "few": "peseta Spàinnteach (cunntas A)",
-        "one": "pheseta Spàinnteach (cunntas A)",
-        "other": "peseta Spàinnteach (cunntas A)",
-        "two": "pheseta Spàinnteach (cunntas A)"
-      }
-    },
-    "ESB": {
-      "name": "Peseta Spàinnteach (cunntas iompachail)",
-      "plural": {
-        "few": "peseta Spàinnteach (cunntas iompachail)",
-        "one": "pheseta Spàinnteach (cunntas iompachail)",
-        "other": "peseta Spàinnteach (cunntas iompachail)",
-        "two": "pheseta Spàinnteach (cunntas iompachail)"
-      }
-    },
-    "ESP": {
-      "name": "Peseta Spàinnteach",
-      "narrow": "₧",
-      "plural": {
-        "few": "peseta Spàinnteach",
-        "one": "pheseta Spàinnteach",
-        "other": "peseta Spàinnteach",
-        "two": "pheseta Spàinnteach"
-      }
-    },
     "ETB": {
       "name": "Birr Itiopach",
       "plural": {
@@ -1378,15 +902,6 @@
         "few": "Eòrothan"
       },
       "symbol": "€"
-    },
-    "FIM": {
-      "name": "Markka Fionnlannach",
-      "plural": {
-        "few": "markka Fionnlannach",
-        "one": "mharkka Fionnlannach",
-        "other": "markka Fionnlannach",
-        "two": "mharkka Fionnlannach"
-      }
     },
     "FJD": {
       "name": "Dolar Fìditheach",
@@ -1408,15 +923,6 @@
         "two": "phunnd Fàclannach"
       }
     },
-    "FRF": {
-      "name": "Franc Frangach",
-      "plural": {
-        "few": "franc Frangach",
-        "one": "fhranc Frangach",
-        "other": "franc Frangach",
-        "two": "fhranc Frangach"
-      }
-    },
     "GBP": {
       "name": "Punnd Sasannach",
       "plural": {
@@ -1427,15 +933,6 @@
       },
       "symbol": "£"
     },
-    "GEK": {
-      "name": "Kupon larit Cairtbheileach",
-      "plural": {
-        "few": "kupon larit Cairtbheileach",
-        "one": "kupon larit Cairtbheileach",
-        "other": "kupon larit Cairtbheileach",
-        "two": "kupon larit Cairtbheileach"
-      }
-    },
     "GEL": {
       "name": "Lari Cairtbheileach",
       "narrow": "₾",
@@ -1444,15 +941,6 @@
         "one": "lari Cairtbheileach",
         "other": "lari Cairtbheileach",
         "two": "lari Cairtbheileach"
-      }
-    },
-    "GHC": {
-      "name": "Cedi Gànach (1979–2007)",
-      "plural": {
-        "few": "cedi Gànach (1979–2007)",
-        "one": "chedi Gànach (1979–2007)",
-        "other": "cedi Gànach (1979–2007)",
-        "two": "chedi Gànach (1979–2007)"
       }
     },
     "GHS": {
@@ -1494,33 +982,6 @@
         "two": "fhranc Ginitheach"
       }
     },
-    "GNS": {
-      "name": "Syli Ginitheach",
-      "plural": {
-        "few": "syli Ginitheach",
-        "one": "syli Ginitheach",
-        "other": "syli Ginitheach",
-        "two": "shyli Ginitheach"
-      }
-    },
-    "GQE": {
-      "name": "Ekwele Gini Meadhan-Chriosaich",
-      "plural": {
-        "few": "ekwele Gini Meadhan-Chriosaich",
-        "one": "ekwele Gini Meadhan-Chriosaich",
-        "other": "ekwele Gini Meadhan-Chriosaich",
-        "two": "ekwele Gini Meadhan-Chriosaich"
-      }
-    },
-    "GRD": {
-      "name": "Drachma Greugach",
-      "plural": {
-        "few": "drachma Greugach",
-        "one": "dhrachma Greugach",
-        "other": "drachma Greugach",
-        "two": "dhrachma Greugach"
-      }
-    },
     "GTQ": {
       "name": "Quetzal Guatamalach",
       "narrow": "Q",
@@ -1529,24 +990,6 @@
         "one": "quetzal Guatamalach",
         "other": "quetzal Guatamalach",
         "two": "quetzal Guatamalach"
-      }
-    },
-    "GWE": {
-      "name": "Escudo Gini na Portagaile",
-      "plural": {
-        "few": "escudo Gini na Portagaile",
-        "one": "escudo Gini na Portagaile",
-        "other": "escudo Gini na Portagaile",
-        "two": "escudo Gini na Portagaile"
-      }
-    },
-    "GWP": {
-      "name": "Peso Gini-Biosothach",
-      "plural": {
-        "few": "pesothan Gini-Biosothach",
-        "one": "pheso Gini-Biosothach",
-        "other": "peso Gini-Biosothach",
-        "two": "pheso Gini-Biosothach"
       }
     },
     "GYD": {
@@ -1580,25 +1023,6 @@
         "two": "lempira Hondùrach"
       }
     },
-    "HRD": {
-      "name": "Dinar Cròthaiseach",
-      "plural": {
-        "few": "dinar Cròthaiseach",
-        "one": "dinar Cròthaiseach",
-        "other": "dinar Cròthaiseach",
-        "two": "dhinar Cròthaiseach"
-      }
-    },
-    "HRK": {
-      "name": "Kuna Cròthaiseach",
-      "narrow": "kn",
-      "plural": {
-        "few": "kuna Cròthaiseach",
-        "one": "kuna Cròthaiseach",
-        "other": "kuna Cròthaiseach",
-        "two": "kuna Cròthaiseach"
-      }
-    },
     "HTG": {
       "name": "Gourde Haidhteach",
       "plural": {
@@ -1626,33 +1050,6 @@
         "one": "rupiah Innd-Innseach",
         "other": "rupiah Innd-Innseach",
         "two": "rupiah Innd-Innseach"
-      }
-    },
-    "IEP": {
-      "name": "Punnd Èireannach",
-      "plural": {
-        "few": "puinnd Èireannach",
-        "one": "phunnd Èireannach",
-        "other": "punnd Èireannach",
-        "two": "phunnd Èireannach"
-      }
-    },
-    "ILP": {
-      "name": "Punnd Iosraeleach",
-      "plural": {
-        "few": "puinnd Iosraeleach",
-        "one": "phunnd Iosraeleach",
-        "other": "punnd Iosraeleach",
-        "two": "phunnd Iosraeleach"
-      }
-    },
-    "ILR": {
-      "name": "Secel Iosraeleach (1980–1985)",
-      "plural": {
-        "few": "secelean Iosraeleach (1980–1985)",
-        "one": "shecel Iosraeleach (1980–1985)",
-        "other": "secel Iosraeleach (1980–1985)",
-        "two": "shecel Iosraeleach (1980–1985)"
       }
     },
     "ILS": {
@@ -1693,15 +1090,6 @@
         "two": "rial Iorànach"
       }
     },
-    "ISJ": {
-      "name": "Króna Innis Tìleach (1918–1981)",
-      "plural": {
-        "few": "krónur Innis Tìleach (1918–1981)",
-        "one": "króna Innis Tìleach (1918–1981)",
-        "other": "króna Innis Tìleach (1918–1981)",
-        "two": "króna Innis Tìleach (1918–1981)"
-      }
-    },
     "ISK": {
       "name": "Króna Innis Tìleach",
       "narrow": "kr",
@@ -1710,15 +1098,6 @@
         "one": "króna Innis Tìleach",
         "other": "króna Innis Tìleach",
         "two": "króna Innis Tìleach"
-      }
-    },
-    "ITL": {
-      "name": "Lira Eadailteach",
-      "plural": {
-        "few": "lira Eadailteach",
-        "one": "lira Eadailteach",
-        "other": "lira Eadailteach",
-        "two": "lira Eadailteach"
       }
     },
     "JMD": {
@@ -1798,24 +1177,6 @@
         "one": "won Choirèa a Tuath",
         "other": "won Choirèa a Tuath",
         "two": "won Choirèa a Tuath"
-      }
-    },
-    "KRH": {
-      "name": "Hwan Choirèa a Deas (1953–1962)",
-      "plural": {
-        "few": "hwan Choirèa a Deas (1953–1962)",
-        "one": "hwan Choirèa a Deas (1953–1962)",
-        "other": "hwan Choirèa a Deas (1953–1962)",
-        "two": "hwan Choirèa a Deas (1953–1962)"
-      }
-    },
-    "KRO": {
-      "name": "Won Choirèa a Deas (1945–1953)",
-      "plural": {
-        "few": "won Choirèa a Deas (1945–1953)",
-        "one": "won Choirèa a Deas (1945–1953)",
-        "other": "won Choirèa a Deas (1945–1953)",
-        "two": "won Choirèa a Deas (1945–1953)"
       }
     },
     "KRW": {
@@ -1906,71 +1267,6 @@
         "two": "loti Leasotach"
       }
     },
-    "LTL": {
-      "name": "Litas Liotuaineach",
-      "narrow": "Lt",
-      "plural": {
-        "few": "litas Liotuaineach",
-        "one": "litas Liotuaineach",
-        "other": "litas Liotuaineach",
-        "two": "litas Liotuaineach"
-      }
-    },
-    "LTT": {
-      "name": "Talonas Liotuaineach",
-      "plural": {
-        "few": "talonas Liotuaineach",
-        "one": "talonas Liotuaineach",
-        "other": "talonas Liotuaineach",
-        "two": "thalonas Liotuaineach"
-      }
-    },
-    "LUC": {
-      "name": "Franc iompachail Lugsamburgach",
-      "plural": {
-        "few": "franc iompachail Lugsamburgach",
-        "one": "fhranc iompachail Lugsamburgach",
-        "other": "franc iompachail Lugsamburgach",
-        "two": "fhranc iompachail Lugsamburgach"
-      }
-    },
-    "LUF": {
-      "name": "Franc Lugsamburgach",
-      "plural": {
-        "few": "franc Lugsamburgach",
-        "one": "fhranc Lugsamburgach",
-        "other": "franc Lugsamburgach",
-        "two": "fhranc Lugsamburgach"
-      }
-    },
-    "LUL": {
-      "name": "Franc ionmhasail Lugsamburgach",
-      "plural": {
-        "few": "franc ionmhasail Lugsamburgach",
-        "one": "fhranc ionmhasail Lugsamburgach",
-        "other": "franc ionmhasail Lugsamburgach",
-        "two": "fhranc ionmhasail Lugsamburgach"
-      }
-    },
-    "LVL": {
-      "name": "Lats Laitbheach",
-      "narrow": "Ls",
-      "plural": {
-        "few": "lats Laitbheach",
-        "one": "lats Laitbheach",
-        "other": "lats Laitbheach",
-        "two": "lats Laitbheach"
-      }
-    },
-    "LVR": {
-      "name": "Rùbal Laitbheach",
-      "plural": {
-        "few": "rùbalan Laitbheach",
-        "one": "rùbal Laitbheach",
-        "other": "rùbal Laitbheach",
-        "two": "rùbal Laitbheach"
-      }
-    },
     "LYD": {
       "name": "Dinar Libitheach",
       "plural": {
@@ -1987,33 +1283,6 @@
         "one": "dirham Morocach",
         "other": "dirham Morocach",
         "two": "dhirham Morocach"
-      }
-    },
-    "MAF": {
-      "name": "Franc Morocach",
-      "plural": {
-        "few": "franc Morocach",
-        "one": "fhranc Morocach",
-        "other": "franc Morocach",
-        "two": "fhranc Morocach"
-      }
-    },
-    "MCF": {
-      "name": "Franc Monacach",
-      "plural": {
-        "few": "franc Monacach",
-        "one": "fhranc Monacach",
-        "other": "franc Monacach",
-        "two": "fhranc Monacach"
-      }
-    },
-    "MDC": {
-      "name": "Cupon Moldobhach",
-      "plural": {
-        "few": "cupon Moldobhach",
-        "one": "chupon Moldobhach",
-        "other": "cupon Moldobhach",
-        "two": "chupon Moldobhach"
       }
     },
     "MDL": {
@@ -2035,15 +1304,6 @@
         "two": "ariary Madagasgarach"
       }
     },
-    "MGF": {
-      "name": "Franc Madagasgarach",
-      "plural": {
-        "few": "franc Madagasgarach",
-        "one": "fhranc Madagasgarach",
-        "other": "franc Madagasgarach",
-        "two": "fhranc Madagasgarach"
-      }
-    },
     "MKD": {
       "name": "Denar Masadonach",
       "plural": {
@@ -2051,24 +1311,6 @@
         "one": "denar Masadonach",
         "other": "denar Masadonach",
         "two": "dhenar Masadonach"
-      }
-    },
-    "MKN": {
-      "name": "Denar Masadonach (1992–1993)",
-      "plural": {
-        "few": "denar Masadonach (1992–1993)",
-        "one": "denar Masadonach (1992–1993)",
-        "other": "denar Masadonach (1992–1993)",
-        "two": "dhenar Masadonach (1992–1993)"
-      }
-    },
-    "MLF": {
-      "name": "Franc Màilitheach",
-      "plural": {
-        "few": "franc Màilitheach",
-        "one": "fhranc Màilitheach",
-        "other": "franc Màilitheach",
-        "two": "fhranc Màilitheach"
       }
     },
     "MMK": {
@@ -2100,15 +1342,6 @@
         "two": "phataca Macàthuach"
       }
     },
-    "MRO": {
-      "name": "Ouguiya Moratàineach (1973–2017)",
-      "plural": {
-        "few": "ouguiya Moratàineach (1973–2017)",
-        "one": "ouguiya Moratàineach (1973–2017)",
-        "other": "ouguiya Moratàineach (1973–2017)",
-        "two": "ouguiya Moratàineach (1973–2017)"
-      }
-    },
     "MRU": {
       "name": "Ouguiya Moratàineach",
       "plural": {
@@ -2116,24 +1349,6 @@
         "one": "ouguiya Moratàineach",
         "other": "ouguiya Moratàineach",
         "two": "ouguiya Moratàineach"
-      }
-    },
-    "MTL": {
-      "name": "Lira Maltach",
-      "plural": {
-        "few": "lira Maltach",
-        "one": "lira Maltach",
-        "other": "lira Maltach",
-        "two": "lira Maltach"
-      }
-    },
-    "MTP": {
-      "name": "Punnd Maltach",
-      "plural": {
-        "few": "puinnd Mhaltach",
-        "one": "phunnd Maltach",
-        "other": "punnd Maltach",
-        "two": "phunnd Maltach"
       }
     },
     "MUR": {
@@ -2144,15 +1359,6 @@
         "one": "rupee Moiriseasach",
         "other": "rupee Moiriseasach",
         "two": "rupee Moiriseasach"
-      }
-    },
-    "MVP": {
-      "name": "Rupee Maladaibheach",
-      "plural": {
-        "few": "rupee Maladaibheach",
-        "one": "rupee Maladaibheach",
-        "other": "rupee Maladaibheach",
-        "two": "rupee Maladaibheach"
       }
     },
     "MVR": {
@@ -2184,24 +1390,6 @@
       },
       "symbol": "MX$"
     },
-    "MXP": {
-      "name": "Peso airgid Meagsagach (1861–1992)",
-      "plural": {
-        "few": "pesothan airgid Meagsagach (1861–1992)",
-        "one": "pheso airgid Meagsagach (1861–1992)",
-        "other": "peso airgid Meagsagach (1861–1992)",
-        "two": "pheso airgid Meagsagach (1861–1992)"
-      }
-    },
-    "MXV": {
-      "name": "Aonad inbheistidh Meagsagach",
-      "plural": {
-        "few": "aonadan inbheistidh Meagsagach",
-        "one": "aonad inbheistidh Meagsagach",
-        "other": "aonad inbheistidh Meagsagach",
-        "two": "aonad inbheistidh Meagsagach"
-      }
-    },
     "MYR": {
       "name": "Ringgit Malaidheach",
       "narrow": "RM",
@@ -2210,24 +1398,6 @@
         "one": "ringgit Malaidheach",
         "other": "ringgit Malaidheach",
         "two": "ringgit Malaidheach"
-      }
-    },
-    "MZE": {
-      "name": "Escudo Mòsaimbiceach",
-      "plural": {
-        "few": "escudo Mòsaimbiceach",
-        "one": "escudo Mòsaimbiceach",
-        "other": "escudo Mòsaimbiceach",
-        "two": "escudo Mòsaimbiceach"
-      }
-    },
-    "MZM": {
-      "name": "Metical Mòsaimbiceach (1980–2006)",
-      "plural": {
-        "few": "metical Mòsaimbiceach (1980–2006)",
-        "one": "mhetical Mòsaimbiceach (1980–2006)",
-        "other": "metical Mòsaimbiceach (1980–2006)",
-        "two": "mhetical Mòsaimbiceach (1980–2006)"
       }
     },
     "MZN": {
@@ -2259,15 +1429,6 @@
         "two": "naira Nigèiriach"
       }
     },
-    "NIC": {
-      "name": "Córdoba Niocaragach (1988–1991)",
-      "plural": {
-        "few": "córdoba Niocaragach (1988–1991)",
-        "one": "chórdoba Niocaragach (1988–1991)",
-        "other": "córdoba Niocaragach (1988–1991)",
-        "two": "chórdoba Niocaragach (1988–1991)"
-      }
-    },
     "NIO": {
       "name": "Córdoba Niocaragach",
       "narrow": "C$",
@@ -2276,15 +1437,6 @@
         "one": "chórdoba Niocaragach",
         "other": "córdoba Niocaragach",
         "two": "chórdoba Niocaragach"
-      }
-    },
-    "NLG": {
-      "name": "Gulden Duitseach",
-      "plural": {
-        "few": "gulden Duitseach",
-        "one": "ghulden Duitseach",
-        "other": "gulden Duitseach",
-        "two": "ghulden Duitseach"
       }
     },
     "NOK": {
@@ -2336,15 +1488,6 @@
         "two": "bhalboa Panamach"
       }
     },
-    "PEI": {
-      "name": "Inti Pearùthach",
-      "plural": {
-        "few": "inti Pearùthach",
-        "one": "inti Pearùthach",
-        "other": "inti Pearùthach",
-        "two": "inti Pearùthach"
-      }
-    },
     "PEN": {
       "name": "Sol Pearùthach",
       "plural": {
@@ -2352,15 +1495,6 @@
         "one": "sol Pearùthach",
         "other": "sol Pearùthach",
         "two": "shol Pearùthach"
-      }
-    },
-    "PES": {
-      "name": "Sol Pearùthach (1863–1965)",
-      "plural": {
-        "few": "sol Pearùthach (1863–1965)",
-        "one": "sol Pearùthach (1863–1965)",
-        "other": "sol Pearùthach (1863–1965)",
-        "two": "shol Pearùthach (1863–1965)"
       }
     },
     "PGK": {
@@ -2402,24 +1536,6 @@
         "two": "złoty Pòlainneach"
       }
     },
-    "PLZ": {
-      "name": "Złoty Pòlainneach (1950–1995)",
-      "plural": {
-        "few": "złoty Pòlainneach (1950–1995)",
-        "one": "złoty Pòlainneach (1950–1995)",
-        "other": "złoty Pòlainneach (1950–1995)",
-        "two": "złoty Pòlainneach (1950–1995)"
-      }
-    },
-    "PTE": {
-      "name": "Escudo Portagaileach",
-      "plural": {
-        "few": "escudo Portagaileach",
-        "one": "escudo Portagaileach",
-        "other": "escudo Portagaileach",
-        "two": "escudo Portagaileach"
-      }
-    },
     "PYG": {
       "name": "Guaraní Paraguaidheach",
       "narrow": "₲",
@@ -2437,24 +1553,6 @@
         "one": "rial Catarach",
         "other": "rial Catarach",
         "two": "rial Catarach"
-      }
-    },
-    "RHD": {
-      "name": "Dolar Rhodesiach",
-      "plural": {
-        "few": "dolaran Rhodesiach",
-        "one": "dolar Rhodesiach",
-        "other": "dolar Rhodesiach",
-        "two": "dholar Rhodesiach"
-      }
-    },
-    "ROL": {
-      "name": "Leu Romàineach (1952–2006)",
-      "plural": {
-        "few": "leu Romàineach (1952–2006)",
-        "one": "leu Romàineach (1952–2006)",
-        "other": "leu Romàineach (1952–2006)",
-        "two": "leu Romàineach (1952–2006)"
       }
     },
     "RON": {
@@ -2484,16 +1582,6 @@
         "one": "rùbal Ruiseach",
         "other": "rùbal Ruiseach",
         "two": "rùbal Ruiseach"
-      }
-    },
-    "RUR": {
-      "name": "Rùbal Ruiseach (1991–1998)",
-      "narrow": "р.",
-      "plural": {
-        "few": "rùbalan Ruiseach (1991–1998)",
-        "one": "rùbal Ruiseach (1991–1998)",
-        "other": "rùbal Ruiseach (1991–1998)",
-        "two": "rùbal Ruiseach (1991–1998)"
       }
     },
     "RWF": {
@@ -2534,15 +1622,6 @@
         "two": "rupee Seiseallach"
       }
     },
-    "SDD": {
-      "name": "Dinar Sudànach (1992–2007)",
-      "plural": {
-        "few": "dinar Sudànach (1992–2007)",
-        "one": "dinar Sudànach (1992–2007)",
-        "other": "dinar Sudànach (1992–2007)",
-        "two": "dhinar Sudànach (1992–2007)"
-      }
-    },
     "SDG": {
       "name": "Punnd Sudànach",
       "plural": {
@@ -2550,15 +1629,6 @@
         "one": "phunnd Sudànach",
         "other": "punnd Sudànach",
         "two": "phunnd Sudànach"
-      }
-    },
-    "SDP": {
-      "name": "Punnd Sudànach (1957–1998)",
-      "plural": {
-        "few": "puinnd Shudànach (1957–1998)",
-        "one": "phunnd Sudànach (1957–1998)",
-        "other": "punnd Sudànach (1957–1998)",
-        "two": "phunnd Sudànach (1957–1998)"
       }
     },
     "SEK": {
@@ -2591,24 +1661,6 @@
         "two": "phunnd Eilean Naomh Eilidh"
       }
     },
-    "SIT": {
-      "name": "Tolar Slòbhaineach",
-      "plural": {
-        "few": "tolar Slòbhaineach",
-        "one": "tolar Slòbhaineach",
-        "other": "tolar Slòbhaineach",
-        "two": "tholar Slòbhaineach"
-      }
-    },
-    "SKK": {
-      "name": "Koruna Slòbhacach",
-      "plural": {
-        "few": "koruna Slòbhacach",
-        "one": "koruna Slòbhacach",
-        "other": "koruna Slòbhacach",
-        "two": "koruna Slòbhacach"
-      }
-    },
     "SLE": {
       "name": "Leone Siarra Leòmhannach ùr",
       "plural": {
@@ -2616,15 +1668,6 @@
         "one": "leone Siarra Leòmhannach ùr",
         "other": "leone Siarra Leòmhannach ùr",
         "two": "leone Siarra Leòmhannach ùr"
-      }
-    },
-    "SLL": {
-      "name": "Leone Siarra Leòmhannach",
-      "plural": {
-        "few": "leone Siarra Leòmhannach",
-        "one": "leone Siarra Leòmhannach",
-        "other": "leone Siarra Leòmhannach",
-        "two": "leone Siarra Leòmhannach"
       }
     },
     "SOS": {
@@ -2646,15 +1689,6 @@
         "two": "dholar Suranamach"
       }
     },
-    "SRG": {
-      "name": "Gulden Suranamach",
-      "plural": {
-        "few": "gulden Suranamach",
-        "one": "ghulden Suranamach",
-        "other": "gulden Suranamach",
-        "two": "ghulden Suranamach"
-      }
-    },
     "SSP": {
       "name": "Punnd Sudàin a Deas",
       "narrow": "£",
@@ -2665,15 +1699,6 @@
         "two": "phunnd Sudàin a Deas"
       }
     },
-    "STD": {
-      "name": "Dobra São Tomé agus Príncipe (1977–2017)",
-      "plural": {
-        "few": "dobra São Tomé agus Príncipe (1977–2017)",
-        "one": "dobra São Tomé agus Príncipe (1977–2017)",
-        "other": "dobra São Tomé agus Príncipe (1977–2017)",
-        "two": "dhobra São Tomé agus Príncipe (1977–2017)"
-      }
-    },
     "STN": {
       "name": "Dobra São Tomé agus Príncipe",
       "narrow": "Db",
@@ -2682,24 +1707,6 @@
         "one": "dobra São Tomé agus Príncipe",
         "other": "dobra São Tomé agus Príncipe",
         "two": "dhobra São Tomé agus Príncipe"
-      }
-    },
-    "SUR": {
-      "name": "Rùbal Sovietach",
-      "plural": {
-        "few": "rùbalan Sovietach",
-        "one": "rùbal Sovietach",
-        "other": "rùbal Sovietach",
-        "two": "rùbal Sovietach"
-      }
-    },
-    "SVC": {
-      "name": "Colón Salbhadorach",
-      "plural": {
-        "few": "colón Salbhadorach",
-        "one": "cholón Salbhadorach",
-        "other": "colón Salbhadorach",
-        "two": "cholón Salbhadorach"
       }
     },
     "SYP": {
@@ -2731,15 +1738,6 @@
       },
       "symbol": "฿"
     },
-    "TJR": {
-      "name": "Rùbal Taidigeach",
-      "plural": {
-        "few": "rùbalan Taidigeach",
-        "one": "rùbal Taidigeach",
-        "other": "rùbal Taidigeach",
-        "two": "rùbal Taidigeach"
-      }
-    },
     "TJS": {
       "name": "Somoni Taidigeach",
       "plural": {
@@ -2747,15 +1745,6 @@
         "one": "somoni Taidigeach",
         "other": "somoni Taidigeach",
         "two": "shomoni Taidigeach"
-      }
-    },
-    "TMM": {
-      "name": "Manat Turcmanach (1993–2009)",
-      "plural": {
-        "few": "manat Turcmanach (1993–2009)",
-        "one": "mhanat Turcmanach (1993–2009)",
-        "other": "manat Turcmanach (1993–2009)",
-        "two": "mhanat Turcmanach (1993–2009)"
       }
     },
     "TMT": {
@@ -2784,24 +1773,6 @@
         "one": "phaʻanga Tongach",
         "other": "paʻanga Tongach",
         "two": "phaʻanga Tongach"
-      }
-    },
-    "TPE": {
-      "name": "Escudo Tìomorach",
-      "plural": {
-        "few": "escudo Tìomorach",
-        "one": "escudo Tìomorach",
-        "other": "escudo Tìomorach",
-        "two": "escudo Tìomorach"
-      }
-    },
-    "TRL": {
-      "name": "Lira Turcach (1922–2005)",
-      "plural": {
-        "few": "lira Turcach (1922–2005)",
-        "one": "lira Turcach (1922–2005)",
-        "other": "lira Turcach (1922–2005)",
-        "two": "lira Turcach (1922–2005)"
       }
     },
     "TRY": {
@@ -2853,24 +1824,6 @@
         "two": "hryvnia Ucràineach"
       }
     },
-    "UAK": {
-      "name": "Karbovanets Ucràineach",
-      "plural": {
-        "few": "karbovanets Ucràineach",
-        "one": "karbovanets Ucràineach",
-        "other": "karbovanets Ucràineach",
-        "two": "karbovanets Ucràineach"
-      }
-    },
-    "UGS": {
-      "name": "Shilling Ugandach (1966–1987)",
-      "plural": {
-        "few": "shilling Ugandach (1966–1987)",
-        "one": "shilling Ugandach (1966–1987)",
-        "other": "shilling Ugandach (1966–1987)",
-        "two": "shilling Ugandach (1966–1987)"
-      }
-    },
     "UGX": {
       "name": "Shilling Ugandach",
       "plural": {
@@ -2890,42 +1843,6 @@
       },
       "symbol": "$"
     },
-    "USN": {
-      "name": "Dolar nan SA (an ath–latha)",
-      "plural": {
-        "few": "dolaran nan SA (an ath–latha)",
-        "one": "dolar nan SA (an ath–latha)",
-        "other": "dolar nan SA (an ath–latha)",
-        "two": "dholar nan SA (an ath–latha)"
-      }
-    },
-    "USS": {
-      "name": "Dolar nan SA (an aon latha)",
-      "plural": {
-        "few": "dolaran nan SA (an aon latha)",
-        "one": "dolar nan SA (an aon latha)",
-        "other": "dolar nan SA (an aon latha)",
-        "two": "dholar nan SA (an aon latha)"
-      }
-    },
-    "UYI": {
-      "name": "Peso Uruguaidheach (aonadan inneacsaichte)",
-      "plural": {
-        "few": "pesothan Uruguaidheach (aonadan inneacsaichte)",
-        "one": "pheso Uruguaidheach (aonadan inneacsaichte)",
-        "other": "peso Uruguaidheach (aonadan inneacsaichte)",
-        "two": "pheso Uruguaidheach (aonadan inneacsaichte)"
-      }
-    },
-    "UYP": {
-      "name": "Peso Uruguaidheach (1975–1993)",
-      "plural": {
-        "few": "pesothan Uruguaidheach (1975–1993)",
-        "one": "pheso Uruguaidheach (1975–1993)",
-        "other": "peso Uruguaidheach (1975–1993)",
-        "two": "pheso Uruguaidheach (1975–1993)"
-      }
-    },
     "UYU": {
       "name": "Peso Uruguaidheach",
       "narrow": "$",
@@ -2936,15 +1853,6 @@
         "two": "pheso Uruguaidheach"
       }
     },
-    "UYW": {
-      "name": "Aonad inneacs tuarastail ainmeach Uruguaidh",
-      "plural": {
-        "few": "aonadan inneacs tuarastail ainmeach Uruguaidh",
-        "one": "aonad inneacs tuarastail ainmeach Uruguaidh",
-        "other": "aonad inneacs tuarastail ainmeach Uruguaidh",
-        "two": "aonad inneacs tuarastail ainmeach Uruguaidh"
-      }
-    },
     "UZS": {
       "name": "Som Usbagach",
       "plural": {
@@ -2952,34 +1860,6 @@
         "one": "som Usbagach",
         "other": "som Usbagach",
         "two": "shom Usbagach"
-      }
-    },
-    "VEB": {
-      "name": "Bolívar Bheinisealach (1871–2008)",
-      "plural": {
-        "few": "bolívar Bheinisealach (1871–2008)",
-        "one": "bholívar Bheinisealach (1871–2008)",
-        "other": "bolívar Bheinisealach (1871–2008)",
-        "two": "bholívar Bheinisealach (1871–2008)"
-      }
-    },
-    "VED": {
-      "name": "Bolívar Soberano",
-      "plural": {
-        "few": "bolívar Soberano",
-        "one": "bholívar Soberano",
-        "other": "bolívar Soberano",
-        "two": "bholívar Soberano"
-      }
-    },
-    "VEF": {
-      "name": "Bolívar Bheinisealach (2008–2018)",
-      "narrow": "Bs",
-      "plural": {
-        "few": "bolívar Bheinisealach (2008–2018)",
-        "one": "bholívar Bheinisealach (2008–2018)",
-        "other": "bolívar Bheinisealach (2008–2018)",
-        "two": "bholívar Bheinisealach (2008–2018)"
       }
     },
     "VES": {
@@ -3000,15 +1880,6 @@
         "two": "dhong Bhiet-Namach"
       },
       "symbol": "₫"
-    },
-    "VNN": {
-      "name": "Dong Bhiet-Namach (1978–1985)",
-      "plural": {
-        "few": "dong Bhiet-Namach (1978–1985)",
-        "one": "dong Bhiet-Namach (1978–1985)",
-        "other": "dong Bhiet-Namach (1978–1985)",
-        "two": "dhong Bhiet-Namach (1978–1985)"
-      }
     },
     "VUV": {
       "name": "Vatu Vanuatuthach",
@@ -3038,60 +1909,6 @@
       },
       "symbol": "FCFA"
     },
-    "XAG": {
-      "name": "Airgead",
-      "plural": {
-        "few": "unnsachan tròidh airgid",
-        "one": "unnsa tròidh airgid",
-        "other": "unnsa tròidh airgid",
-        "two": "unnsa tròidh airgid"
-      }
-    },
-    "XAU": {
-      "name": "Òr",
-      "plural": {
-        "few": "unnsachan tròidh òir",
-        "one": "unnsa tròidh òir",
-        "other": "unnsa tròidh òir",
-        "two": "unnsa tròidh òir"
-      }
-    },
-    "XBA": {
-      "name": "Aonad co-dhèanta Eòrpach",
-      "plural": {
-        "few": "aonadan co-dhèanta Eòrpach",
-        "one": "aonad co-dhèanta Eòrpach",
-        "other": "aonad co-dhèanta Eòrpach",
-        "two": "aonad co-dhèanta Eòrpach"
-      }
-    },
-    "XBB": {
-      "name": "Aonad airgid Eòrpach",
-      "plural": {
-        "few": "aonadan airgid Eòrpach",
-        "one": "aonad airgid Eòrpach",
-        "other": "aonad airgid Eòrpach",
-        "two": "aonad airgid Eòrpach"
-      }
-    },
-    "XBC": {
-      "name": "Aonad cunntasachd Eòrpach (XBC)",
-      "plural": {
-        "few": "aonadan cunntasachd Eòrpach (XBC)",
-        "one": "aonad cunntasachd Eòrpach (XBC)",
-        "other": "aonad cunntasachd Eòrpach (XBC)",
-        "two": "aonad cunntasachd Eòrpach (XBC)"
-      }
-    },
-    "XBD": {
-      "name": "Aonad cunntasachd Eòrpach (XBD)",
-      "plural": {
-        "few": "aonadan cunntasachd Eòrpach (XBD)",
-        "one": "aonad cunntasachd Eòrpach (XBD)",
-        "other": "aonad cunntasachd Eòrpach (XBD)",
-        "two": "aonad cunntasachd Eòrpach (XBD)"
-      }
-    },
     "XCD": {
       "name": "Dolar Caraibeach earach",
       "narrow": "$",
@@ -3113,42 +1930,6 @@
       },
       "symbol": "Cg."
     },
-    "XDR": {
-      "name": "Còir tarraing shònraichte",
-      "plural": {
-        "few": "còirichean tarraing sònraichte",
-        "one": "chòir tarraing shònraichte",
-        "other": "còir tarraing shònraichte",
-        "two": "chòir tarraing shònraichte"
-      }
-    },
-    "XEU": {
-      "name": "Aonad airgeadra Eòrpach",
-      "plural": {
-        "few": "aonadan airgeadra Eòrpach",
-        "one": "aonad airgeadra Eòrpach",
-        "other": "aonad airgeadra Eòrpach",
-        "two": "aonad airgeadra Eòrpach"
-      }
-    },
-    "XFO": {
-      "name": "Franc òir Frangach",
-      "plural": {
-        "few": "franc òir Frangach",
-        "one": "fhranc òir Frangach",
-        "other": "franc òir Frangach",
-        "two": "fhranc òir Frangach"
-      }
-    },
-    "XFU": {
-      "name": "Franc UIC Frangach",
-      "plural": {
-        "few": "franc UIC Frangach",
-        "one": "fhranc UIC Frangach",
-        "other": "franc UIC Frangach",
-        "two": "fhranc UIC Frangach"
-      }
-    },
     "XOF": {
       "name": "Franc CFA Afraga an Iar",
       "plural": {
@@ -3158,15 +1939,6 @@
         "two": "fhranc CFA Afraga an Iar"
       },
       "symbol": "F\u202fCFA"
-    },
-    "XPD": {
-      "name": "Pallaideam",
-      "plural": {
-        "few": "unnsachan tròidh pallaideim",
-        "one": "unnsa tròidh pallaideim",
-        "other": "unnsa tròidh pallaideim",
-        "two": "unnsa tròidh pallaideim"
-      }
     },
     "XPF": {
       "name": "Franc CFP",
@@ -3178,69 +1950,6 @@
       },
       "symbol": "CFPF"
     },
-    "XPT": {
-      "name": "Platanam",
-      "plural": {
-        "few": "unnsachan tròidh platanaim",
-        "one": "unnsa tròidh platanaim",
-        "other": "unnsa tròidh platanaim",
-        "two": "unnsa tròidh platanaim"
-      }
-    },
-    "XRE": {
-      "name": "Aonad maoine RINET",
-      "plural": {
-        "few": "aonadan maoine RINET",
-        "one": "aonad maoine RINET",
-        "other": "aonad maoine RINET",
-        "two": "aonad maoine RINET"
-      }
-    },
-    "XSU": {
-      "name": "Sucre",
-      "plural": {
-        "few": "sucre",
-        "one": "sucre",
-        "other": "sucre",
-        "two": "sucre"
-      }
-    },
-    "XTS": {
-      "name": "Còd airgeadra fo dheuchainn",
-      "plural": {
-        "few": "aonadan airgeadra fo dheuchainn",
-        "one": "aonad airgeadra fo dheuchainn",
-        "other": "aonad airgeadra fo dheuchainn",
-        "two": "aonad airgeadra fo dheuchainn"
-      }
-    },
-    "XUA": {
-      "name": "Aonad cunntasachd ADB",
-      "plural": {
-        "few": "aonadan cunntasachd ADB",
-        "one": "aonad cunntasachd ADB",
-        "other": "aonad cunntasachd ADB",
-        "two": "aonad cunntasachd ADB"
-      }
-    },
-    "XXX": {
-      "name": "Airgeadra neo-aithnichte",
-      "plural": {
-        "few": "(aonadan airgeadra neo–aithnichte)",
-        "one": "(aonad airgeadra neo–aithnichte)",
-        "other": "(aonad airgeadra neo–aithnichte)",
-        "two": "(aonad airgeadra neo–aithnichte)"
-      }
-    },
-    "YDD": {
-      "name": "Dinar Eamanach",
-      "plural": {
-        "few": "dinar Eamanach",
-        "one": "dinar Eamanach",
-        "other": "dinar Eamanach",
-        "two": "dhinar Eamanach"
-      }
-    },
     "YER": {
       "name": "Rial Eamanach",
       "plural": {
@@ -3248,51 +1957,6 @@
         "one": "rial Eamanach",
         "other": "rial Eamanach",
         "two": "rial Eamanach"
-      }
-    },
-    "YUD": {
-      "name": "Dinar cruaidh Iùgoslabhach (1966–1990)",
-      "plural": {
-        "few": "dinar cruaidh Iùgoslabhach (1966–1990)",
-        "one": "dinar cruaidh Iùgoslabhach (1966–1990)",
-        "other": "dinar cruaidh Iùgoslabhach (1966–1990)",
-        "two": "dhinar cruaidh Iùgoslabhach (1966–1990)"
-      }
-    },
-    "YUM": {
-      "name": "Dinar ùr Iùgoslabhach (1994–2002)",
-      "plural": {
-        "few": "dinar ùr Iùgoslabhach (1994–2002)",
-        "one": "dinar ùr Iùgoslabhach (1994–2002)",
-        "other": "dinar ùr Iùgoslabhach (1994–2002)",
-        "two": "dhinar ùr Iùgoslabhach (1994–2002)"
-      }
-    },
-    "YUN": {
-      "name": "Dinar iompachail Iùgoslabhach (1990–1992)",
-      "plural": {
-        "few": "dinar iompachail Iùgoslabhach (1990–1992)",
-        "one": "dinar iompachail Iùgoslabhach (1990–1992)",
-        "other": "dinar iompachail Iùgoslabhach (1990–1992)",
-        "two": "dhinar iompachail Iùgoslabhach (1990–1992)"
-      }
-    },
-    "YUR": {
-      "name": "Dinar ath-leasaichte Iùgoslabhach (1992–1993)",
-      "plural": {
-        "few": "dinar ath-leasaichte Iùgoslabhach (1992–1993)",
-        "one": "dinar ath-leasaichte Iùgoslabhach (1992–1993)",
-        "other": "dinar ath-leasaichte Iùgoslabhach (1992–1993)",
-        "two": "dhinar ath-leasaichte Iùgoslabhach (1992–1993)"
-      }
-    },
-    "ZAL": {
-      "name": "Rand Afraga a Deas (ionmhasail)",
-      "plural": {
-        "few": "rand Afraga a Deas (ionmhasail)",
-        "one": "rand Afraga a Deas (ionmhasail)",
-        "other": "rand Afraga a Deas (ionmhasail)",
-        "two": "rand Afraga a Deas (ionmhasail)"
       }
     },
     "ZAR": {
@@ -3305,15 +1969,6 @@
         "two": "rand Afraga a Deas"
       }
     },
-    "ZMK": {
-      "name": "Kwacha Sàimbitheach (1968–2012)",
-      "plural": {
-        "few": "kwacha Sàimbitheach (1968–2012)",
-        "one": "kwacha Sàimbitheach (1968–2012)",
-        "other": "kwacha Sàimbitheach (1968–2012)",
-        "two": "kwacha Sàimbitheach (1968–2012)"
-      }
-    },
     "ZMW": {
       "name": "Kwacha Sàimbitheach",
       "narrow": "ZK",
@@ -3324,53 +1979,8 @@
         "two": "kwacha Sàimbitheach"
       }
     },
-    "ZRN": {
-      "name": "Zaïre ùr Zaïreach (1993–1998)",
-      "plural": {
-        "few": "zaïre ùr Zaïreach (1993–1998)",
-        "one": "zaïre ùr Zaïreach (1993–1998)",
-        "other": "zaïre ùr Zaïreach (1993–1998)",
-        "two": "zaïre ùr Zaïreach (1993–1998)"
-      }
-    },
-    "ZRZ": {
-      "name": "Zaïre Zaïreach (1971–1993)",
-      "plural": {
-        "few": "zaïre Zaïreach (1971–1993)",
-        "one": "zaïre Zaïreach (1971–1993)",
-        "other": "zaïre Zaïreach (1971–1993)",
-        "two": "zaïre Zaïreach (1971–1993)"
-      }
-    },
-    "ZWD": {
-      "name": "Dolar Sìombabuthach (1980–2008)",
-      "plural": {
-        "few": "dolaran Sìombabuthach (1980–2008)",
-        "one": "dolar Sìombabuthach (1980–2008)",
-        "other": "dolar Sìombabuthach (1980–2008)",
-        "two": "dholar Sìombabuthach (1980–2008)"
-      }
-    },
     "ZWG": {
       "name": "Òr Sìombabuthach"
-    },
-    "ZWL": {
-      "name": "Dolar Sìombabuthach (2009)",
-      "plural": {
-        "few": "dolaran Sìombabuthach (2009)",
-        "one": "dolar Sìombabuthach (2009)",
-        "other": "dolar Sìombabuthach (2009)",
-        "two": "dholar Sìombabuthach (2009)"
-      }
-    },
-    "ZWR": {
-      "name": "Dolar Sìombabuthach (2008)",
-      "plural": {
-        "few": "dolaran Sìombabuthach (2008)",
-        "one": "dolar Sìombabuthach (2008)",
-        "other": "dolar Sìombabuthach (2008)",
-        "two": "dholar Sìombabuthach (2008)"
-      }
     }
   },
   "currencyDigits": {

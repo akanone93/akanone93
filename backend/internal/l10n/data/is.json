@@ -493,9 +493,6 @@
     }
   },
   "currencies": {
-    "ADP": {
-      "name": "Andorrskur peseti"
-    },
     "AED": {
       "name": "arabískt dírham",
       "plural": {
@@ -522,12 +519,6 @@
         "other": "armensk drömm"
       }
     },
-    "ANG": {
-      "name": "hollenskt Antillugyllini",
-      "plural": {
-        "other": "hollensk Antillugyllini"
-      }
-    },
     "AOA": {
       "name": "angólsk kvansa",
       "narrow": "Kz",
@@ -535,21 +526,12 @@
         "other": "angólskar kvönsur"
       }
     },
-    "ARA": {
-      "name": "Argentine Austral"
-    },
-    "ARP": {
-      "name": "Argentískur pesi (1983–1985)"
-    },
     "ARS": {
       "name": "argentínskur pesi",
       "narrow": "$",
       "plural": {
         "other": "argentínskir pesar"
       }
-    },
-    "ATS": {
-      "name": "Austurrískur skildingur"
     },
     "AUD": {
       "name": "ástralskur dalur",
@@ -592,18 +574,6 @@
         "other": "bangladesskar tökur"
       }
     },
-    "BEF": {
-      "name": "Belgískur franki"
-    },
-    "BGL": {
-      "name": "Lef"
-    },
-    "BGN": {
-      "name": "búlgarskt lef",
-      "plural": {
-        "other": "búlgörsk lef"
-      }
-    },
     "BHD": {
       "name": "bareinskur denari",
       "plural": {
@@ -637,12 +607,6 @@
         "other": "bólivíanar"
       }
     },
-    "BOP": {
-      "name": "Bólivískur pesi"
-    },
-    "BOV": {
-      "name": "Bolivian Mvdol"
-    },
     "BRL": {
       "name": "brasilískt ríal",
       "narrow": "R$",
@@ -663,9 +627,6 @@
         "other": "bútönsk núltrum"
       }
     },
-    "BUK": {
-      "name": "Búrmverskt kjat"
-    },
     "BWP": {
       "name": "botsvönsk púla",
       "narrow": "P",
@@ -677,12 +638,6 @@
       "name": "hvítrússnesk rúbla",
       "plural": {
         "other": "hvítrússneskar rúblur"
-      }
-    },
-    "BYR": {
-      "name": "hvítrússnesk rúbla (2000–2016)",
-      "plural": {
-        "other": "hvítrússneskar rúblur (2000–2016)"
       }
     },
     "BZD": {
@@ -711,24 +666,11 @@
         "other": "svissneskir frankar"
       }
     },
-    "CLF": {
-      "name": "Chilean Unidades de Fomento",
-      "plural": {
-        "one": "síleskt Unidad de Fomento",
-        "other": "síleskt Unidad de Fomento"
-      }
-    },
     "CLP": {
       "name": "síleskur pesi",
       "narrow": "$",
       "plural": {
         "other": "síleskir pesar"
-      }
-    },
-    "CNH": {
-      "name": "kínverskt júan (utan heimalands)",
-      "plural": {
-        "other": "kínversk júön (utan heimalands)"
       }
     },
     "CNY": {
@@ -753,16 +695,6 @@
         "other": "kostarísk kólon"
       }
     },
-    "CSK": {
-      "name": "Tékknesk króna, eldri"
-    },
-    "CUC": {
-      "name": "kúbverskur skiptanlegur pesi",
-      "narrow": "$",
-      "plural": {
-        "other": "kúbverskir skiptanlegir pesar"
-      }
-    },
     "CUP": {
       "name": "kúbverskur pesi",
       "narrow": "$",
@@ -776,21 +708,12 @@
         "other": "grænhöfðeyskir skútar"
       }
     },
-    "CYP": {
-      "name": "Kýpverskt pund"
-    },
     "CZK": {
       "name": "tékknesk króna",
       "narrow": "Kč",
       "plural": {
         "other": "tékkneskar krónur"
       }
-    },
-    "DDM": {
-      "name": "Austurþýskt mark"
-    },
-    "DEM": {
-      "name": "Þýskt mark"
     },
     "DJF": {
       "name": "djíbútískur franki",
@@ -818,16 +741,6 @@
         "other": "alsírskir denarar"
       }
     },
-    "ECS": {
-      "name": "Ecuador Sucre"
-    },
-    "EEK": {
-      "name": "Eistnesk króna",
-      "plural": {
-        "one": "eistnesk króna",
-        "other": "eistneskar krónur"
-      }
-    },
     "EGP": {
       "name": "egypskt pund",
       "narrow": "E£",
@@ -840,10 +753,6 @@
       "plural": {
         "other": "erítreskar nökfur"
       }
-    },
-    "ESP": {
-      "name": "Spænskur peseti",
-      "narrow": "₧"
     },
     "ETB": {
       "name": "eþíópískt birr",
@@ -858,9 +767,6 @@
         "other": "evrur"
       }
     },
-    "FIM": {
-      "name": "Finnskt mark"
-    },
     "FJD": {
       "name": "fídjískur dalur",
       "narrow": "$",
@@ -874,9 +780,6 @@
       "plural": {
         "other": "falklensk pund"
       }
-    },
-    "FRF": {
-      "name": "Franskur franki"
     },
     "GBP": {
       "name": "sterlingspund",
@@ -913,18 +816,12 @@
         "other": "Gíneufrankar"
       }
     },
-    "GRD": {
-      "name": "Drakma"
-    },
     "GTQ": {
       "name": "gvatemalskt kvesal",
       "narrow": "Q",
       "plural": {
         "other": "gvatemölsk kvesöl"
       }
-    },
-    "GWE": {
-      "name": "Portúgalskur, gíneskur skúti"
     },
     "GYD": {
       "name": "gvæjanskur dalur",
@@ -948,13 +845,6 @@
         "other": "hondúrskar lempírur"
       }
     },
-    "HRK": {
-      "name": "króatísk kúna",
-      "narrow": "kn",
-      "plural": {
-        "other": "króatískar kúnur"
-      }
-    },
     "HTG": {
       "name": "haítískur gúrdi",
       "plural": {
@@ -974,12 +864,6 @@
       "plural": {
         "other": "indónesískar rúpíur"
       }
-    },
-    "IEP": {
-      "name": "Írskt pund"
-    },
-    "ILP": {
-      "name": "Ísraelskt pund"
     },
     "ILS": {
       "name": "nýr ísraelskur sikill",
@@ -1013,9 +897,6 @@
         "other": "íslenskar krónur"
       },
       "symbol": "kr."
-    },
-    "ITL": {
-      "name": "Ítölsk líra"
     },
     "JMD": {
       "name": "jamaískur dalur",
@@ -1133,31 +1014,6 @@
         "other": "lesótóskir lótar"
       }
     },
-    "LTL": {
-      "name": "Litháískt lít",
-      "narrow": "Lt",
-      "plural": {
-        "one": "litháískt lít",
-        "other": "litháísk lít"
-      }
-    },
-    "LTT": {
-      "name": "Lithuanian Talonas"
-    },
-    "LUF": {
-      "name": "Lúxemborgarfranki"
-    },
-    "LVL": {
-      "name": "Lettneskt lat",
-      "narrow": "Ls",
-      "plural": {
-        "one": "lettneskt lat",
-        "other": "lettnesk löt"
-      }
-    },
-    "LVR": {
-      "name": "Lettnesk rúbla"
-    },
     "LYD": {
       "name": "líbískur denari",
       "plural": {
@@ -1169,9 +1025,6 @@
       "plural": {
         "other": "marokkósk dírhöm"
       }
-    },
-    "MAF": {
-      "name": "Marokkóskur franki"
     },
     "MDL": {
       "name": "moldavískt lei",
@@ -1186,17 +1039,11 @@
         "other": "Madagaskararjarar"
       }
     },
-    "MGF": {
-      "name": "Madagaskur franki"
-    },
     "MKD": {
       "name": "makedónskur denari",
       "plural": {
         "other": "makedónskir denarar"
       }
-    },
-    "MLF": {
-      "name": "Malískur franki"
     },
     "MMK": {
       "name": "mjanmarskt kjat",
@@ -1218,25 +1065,12 @@
         "other": "makaóskar patökur"
       }
     },
-    "MRO": {
-      "name": "márítönsk úgía (1973–2017)",
-      "plural": {
-        "one": "máritönsk úgía (1973–2017)",
-        "other": "máritanskar úgíur (1973–2017)"
-      }
-    },
     "MRU": {
       "name": "márítönsk úgía",
       "plural": {
         "one": "máritönsk úgía",
         "other": "máritanskar úgíur"
       }
-    },
-    "MTL": {
-      "name": "Meltnesk líra"
-    },
-    "MTP": {
-      "name": "Maltneskt pund"
     },
     "MUR": {
       "name": "máritísk rúpía",
@@ -1264,21 +1098,12 @@
         "other": "mexíkóskir pesar"
       }
     },
-    "MXP": {
-      "name": "Mexíkóskur silfurpesi (1861–1992)"
-    },
-    "MXV": {
-      "name": "Mexíkóskur pesi, UDI"
-    },
     "MYR": {
       "name": "malasískt ringit",
       "narrow": "RM",
       "plural": {
         "other": "malasísk ringit"
       }
-    },
-    "MZE": {
-      "name": "Mósambískur skúti"
     },
     "MZN": {
       "name": "mósambískt metikal",
@@ -1300,21 +1125,12 @@
         "other": "nígerískar nærur"
       }
     },
-    "NIC": {
-      "name": "Níkarögsk kordóva (1988–1991)",
-      "plural": {
-        "other": "Níkaragskar kordóvur (1988–1991)"
-      }
-    },
     "NIO": {
       "name": "níkarögsk kordóva",
       "narrow": "C$",
       "plural": {
         "other": "níkaragskar kordóvur"
       }
-    },
-    "NLG": {
-      "name": "Hollenskt gyllini"
     },
     "NOK": {
       "name": "norsk króna",
@@ -1382,12 +1198,6 @@
         "other": "pólsk slot"
       }
     },
-    "PLZ": {
-      "name": "Slot"
-    },
-    "PTE": {
-      "name": "Portúgalskur skúti"
-    },
     "PYG": {
       "name": "paragvæskt gvaraní",
       "narrow": "₲",
@@ -1400,9 +1210,6 @@
       "plural": {
         "other": "katörsk ríöl"
       }
-    },
-    "ROL": {
-      "name": "Rúmenskt lei (1952–2006)"
     },
     "RON": {
       "name": "rúmenskt lei",
@@ -1423,9 +1230,6 @@
       "plural": {
         "other": "rússneskar rúblur"
       }
-    },
-    "RUR": {
-      "name": "Rússnesk rúbla (1991–1998)"
     },
     "RWF": {
       "name": "rúandskur franki",
@@ -1454,17 +1258,11 @@
         "other": "Seychellesrúpíur"
       }
     },
-    "SDD": {
-      "name": "Súdanskur denari"
-    },
     "SDG": {
       "name": "súdanskt pund",
       "plural": {
         "other": "súdönsk pund"
       }
-    },
-    "SDP": {
-      "name": "Súdanskt pund (1957–1998)"
     },
     "SEK": {
       "name": "sænsk króna",
@@ -1487,22 +1285,10 @@
         "other": "helensk pund"
       }
     },
-    "SIT": {
-      "name": "Slóvenskur dalur"
-    },
-    "SKK": {
-      "name": "Slóvakísk króna"
-    },
     "SLE": {
       "name": "síerraleónsk ljóna",
       "plural": {
         "other": "síerraleónskar ljónur"
-      }
-    },
-    "SLL": {
-      "name": "síerraleónsk ljóna (1964—2022)",
-      "plural": {
-        "other": "síerraleónskar ljónur (1964—2022)"
       }
     },
     "SOS": {
@@ -1518,20 +1304,11 @@
         "other": "Súrínamdalir"
       }
     },
-    "SRG": {
-      "name": "Suriname Guilder"
-    },
     "SSP": {
       "name": "suðursúdanskt pund",
       "narrow": "£",
       "plural": {
         "other": "suðursúdönsk pund"
-      }
-    },
-    "STD": {
-      "name": "Saó Tóme og Prinsípe-dóbra (1977–2017)",
-      "plural": {
-        "other": "Saó Tóme og Prinsípe-dóbrur (1977–2017)"
       }
     },
     "STN": {
@@ -1540,12 +1317,6 @@
       "plural": {
         "other": "Saó Tóme og Prinsípe-dóbrur"
       }
-    },
-    "SUR": {
-      "name": "Soviet Rouble"
-    },
-    "SVC": {
-      "name": "El Salvador Colon"
     },
     "SYP": {
       "name": "sýrlenskt pund",
@@ -1567,17 +1338,11 @@
         "other": "taílensk böt"
       }
     },
-    "TJR": {
-      "name": "Tadsjiksk rúbla"
-    },
     "TJS": {
       "name": "tadsjikskur sómóni",
       "plural": {
         "other": "tadsjikskir sómónar"
       }
-    },
-    "TMM": {
-      "name": "Túrkmenskt manat (1993–2009)"
     },
     "TMT": {
       "name": "túrkmenskt manat",
@@ -1597,12 +1362,6 @@
       "plural": {
         "other": "Tongapöngur"
       }
-    },
-    "TPE": {
-      "name": "Tímorskur skúti"
-    },
-    "TRL": {
-      "name": "Tyrknesk líra (1922–2005)"
     },
     "TRY": {
       "name": "tyrknesk líra",
@@ -1638,9 +1397,6 @@
         "other": "úkraínskar hrinjur"
       }
     },
-    "UAK": {
-      "name": "Ukrainian Karbovanetz"
-    },
     "UGX": {
       "name": "úgandskur skildingur",
       "plural": {
@@ -1654,12 +1410,6 @@
         "other": "Bandaríkjadalir"
       }
     },
-    "USN": {
-      "name": "Bandaríkjadalur (næsta dag)"
-    },
-    "USS": {
-      "name": "Bandaríkjadalur (sama dag)"
-    },
     "UYU": {
       "name": "úrúgvæskur pesi",
       "narrow": "$",
@@ -1671,16 +1421,6 @@
       "name": "úsbekskt súm",
       "plural": {
         "other": "úsbeksk súm"
-      }
-    },
-    "VEB": {
-      "name": "Bolívar í Venesúela (1871–2008)"
-    },
-    "VEF": {
-      "name": "venesúelskur bólívari (2008–2018)",
-      "narrow": "Bs",
-      "plural": {
-        "other": "venesúelskir bólívarar (2008–2018)"
       }
     },
     "VES": {
@@ -1726,15 +1466,6 @@
     "XCG": {
       "name": "Karíbahafsgyllini"
     },
-    "XDR": {
-      "name": "Sérstök dráttarréttindi"
-    },
-    "XFO": {
-      "name": "Franskur gullfranki"
-    },
-    "XFU": {
-      "name": "Franskur franki, UIC"
-    },
     "XOF": {
       "name": "vesturafrískur franki",
       "plural": {
@@ -1749,28 +1480,11 @@
       },
       "symbol": "CFPF"
     },
-    "XXX": {
-      "name": "óþekktur gjaldmiðill",
-      "plural": {
-        "one": "(óþekkt mynteining gjaldmiðils)",
-        "other": "(óþekktur gjaldmiðill)"
-      },
-      "symbol": "¤"
-    },
-    "YDD": {
-      "name": "Jemenskur denari"
-    },
     "YER": {
       "name": "jemenskt ríal",
       "plural": {
         "other": "jemensk ríöl"
       }
-    },
-    "YUM": {
-      "name": "Júgóslavneskur denari"
-    },
-    "ZAL": {
-      "name": "Rand (viðskipta)"
     },
     "ZAR": {
       "name": "suðurafrískt rand",
@@ -1779,18 +1493,12 @@
         "other": "suðurafrísk rönd"
       }
     },
-    "ZMK": {
-      "name": "Zambian Kwacha (1968–2012)"
-    },
     "ZMW": {
       "name": "sambísk kvaka",
       "narrow": "ZK",
       "plural": {
         "other": "sambískar kvökur"
       }
-    },
-    "ZWD": {
-      "name": "Simbabveskur dalur"
     },
     "ZWG": {
       "name": "simbabveskt gold"

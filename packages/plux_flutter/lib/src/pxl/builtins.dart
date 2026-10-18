@@ -962,4 +962,6 @@ Map<String, Builtin> _regexFns() => {
   },
   'isPhone(string,string)': (_, a) =>
       isValidPhone(a[0]! as String, a[1]! as String),
+  'format.phone(string,string)': (_, a) =>
+      formatPhone(a[0]! as String, a[1]! as String),
 };
