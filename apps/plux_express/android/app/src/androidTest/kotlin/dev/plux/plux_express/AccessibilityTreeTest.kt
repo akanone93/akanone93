@@ -73,6 +73,8 @@ class AccessibilityTreeTest {
         assertTrue(
             device.executeShellCommand("cmd locale get-app-locales $pkg").contains("ar"),
         )
+        // The tree is briefly empty while the app starts again in Arabic.
+        runCatching { waitForAny { interactiveNodes().size == inEnglish } }
         assertEquals(inEnglish, interactiveNodes().size)
         assertInteractiveControlsAreLabelled()
     }

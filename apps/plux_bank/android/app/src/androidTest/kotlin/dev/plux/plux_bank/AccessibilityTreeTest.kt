@@ -37,6 +37,9 @@ class AccessibilityTreeTest {
     /** The three pages' labels read in order, each control labelled and large enough. */
     @Test
     fun loginDashboardAndTransferPagesReadInOrder() {
+        // Flutter gives Android a text field's label from Android 9 (API 28);
+        // before it the login's fields have no name to find them by.
+        assumeTrue("text fields are named from Android 9", Build.VERSION.SDK_INT >= 28)
         setAppLocale("en")
         launch()
         // The code field and the button are below the fold on a phone: the
@@ -76,6 +79,8 @@ class AccessibilityTreeTest {
         assertTrue(
             device.executeShellCommand("cmd locale get-app-locales $pkg").contains("ar"),
         )
+        // The tree is briefly empty while the app starts again in Arabic.
+        runCatching { waitForAny { interactiveNodes().size == inEnglish } }
         assertEquals(inEnglish, interactiveNodes().size)
         assertInteractiveControlsAreLabelled()
     }
