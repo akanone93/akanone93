@@ -38,7 +38,7 @@
   "id": "01d0c450-6c00-7000-8000-000000000200",
   "key": "bank",
   "kind": "app",
-  "minRuntimeVersion": "0.4.0",
+  "minRuntimeVersion": "0.5.0",
   "name": "Plux Bank",
   "nativeCatalogue": "01d0c450-6c00-7000-8000-000000000202",
   "plugins": [
@@ -55,7 +55,9 @@
   "securityProfile": "maximum",
   "supportedLocales": [
     "en",
-    "de"
+    "de-DE",
+    "ar",
+    "am-ET"
   ],
   "sync": {
     "activation": "atSafePoint",

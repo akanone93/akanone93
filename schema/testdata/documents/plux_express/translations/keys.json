@@ -1,0 +1,372 @@
+{
+  "id": "01a14cd1-ca0b-7636-9209-1f11a2ba6359",
+  "keys": [
+    {
+      "description": "Extracted from data of a Text on job-row.",
+      "id": "01a14cd1-ca0b-7293-9086-065954d8eb86",
+      "key": "shop.job-row.confirm-delivery"
+    },
+    {
+      "description": "Extracted from title of a page on cart.",
+      "id": "01a14cd1-ca0c-74ea-be85-46f2d772481d",
+      "key": "shop.cart.cart"
+    },
+    {
+      "description": "Extracted from data of a Text on cart.",
+      "id": "01a14cd1-ca0c-7721-bbd8-458d769faf21",
+      "key": "shop.cart.cart-2"
+    },
+    {
+      "description": "Extracted from data of a Text on cart.",
+      "id": "01a14cd1-ca0c-705a-9a40-73aba75c7d18",
+      "key": "shop.cart.your-cart-is-empty"
+    },
+    {
+      "description": "Extracted from data of a Text on cart.",
+      "id": "01a14cd1-ca0c-7040-9950-f9d7955685d7",
+      "key": "shop.cart.place-order"
+    },
+    {
+      "description": "Extracted from title of a page on catalogue.",
+      "id": "01a14cd1-ca0d-74fb-8d4f-5dd19046db58",
+      "key": "shop.catalogue.catalogue"
+    },
+    {
+      "description": "Extracted from data of a Text on catalogue.",
+      "id": "01a14cd1-ca0d-74de-9fa5-fb06d6979c53",
+      "key": "shop.catalogue.courier"
+    },
+    {
+      "description": "Extracted from data of a Text on catalogue.",
+      "id": "01a14cd1-ca0d-77c0-8313-5406c63c684b",
+      "key": "shop.catalogue.instalments"
+    },
+    {
+      "description": "Extracted from data of a Text on catalogue.",
+      "id": "01a14cd1-ca0d-753c-9aed-14f6ccf98f5c",
+      "key": "shop.catalogue.catalogue-2"
+    },
+    {
+      "description": "Extracted from data of a Text on catalogue.",
+      "id": "01a14cd1-ca0d-7686-aab8-04c495fa7ff0",
+      "key": "shop.catalogue.no-products"
+    },
+    {
+      "description": "Extracted from data of a Text on catalogue.",
+      "id": "01a14cd1-ca0d-73db-84d3-47877d761c6d",
+      "key": "shop.catalogue.the-catalogue-is-not"
+    },
+    {
+      "description": "Extracted from title of a page on courier.",
+      "id": "01a14cd1-ca0e-703f-b903-b2e42c4c85c0",
+      "key": "shop.courier.courier"
+    },
+    {
+      "description": "Extracted from data of a Text on courier.",
+      "id": "01a14cd1-ca0e-71b8-a77f-c69f7f4daedf",
+      "key": "shop.courier.courier-jobs"
+    },
+    {
+      "description": "Extracted from data of a Text on courier.",
+      "id": "01a14cd1-ca0e-71bc-8c67-7bf3e39292f1",
+      "key": "shop.courier.no-jobs"
+    },
+    {
+      "description": "Extracted from title of a page on instalments.",
+      "id": "01a14cd1-ca0e-7632-bf32-dadef589ac94",
+      "key": "shop.instalments.instalments"
+    },
+    {
+      "description": "Extracted from data of a Text on instalments.",
+      "id": "01a14cd1-ca0e-76fd-b433-d62c051e6d16",
+      "key": "shop.instalments.instalments-2"
+    },
+    {
+      "description": "Extracted from decoration of a TextField on instalments.",
+      "id": "01a14cd1-ca0e-7302-8a9a-acda5134f164",
+      "key": "shop.instalments.principal-decoration-labeltext"
+    },
+    {
+      "description": "Extracted from data of a Text on instalments.",
+      "id": "01a14cd1-ca0e-7134-89b2-c72cdbbe477f",
+      "key": "shop.instalments.3-months"
+    },
+    {
+      "description": "Extracted from data of a Text on instalments.",
+      "id": "01a14cd1-ca0e-756e-abba-5f97c118b682",
+      "key": "shop.instalments.6-months"
+    },
+    {
+      "description": "Extracted from data of a Text on instalments.",
+      "id": "01a14cd1-ca0e-7077-9d37-17c23018e9be",
+      "key": "shop.instalments.calculate-on-this-device"
+    },
+    {
+      "description": "Extracted from title of a page on order.",
+      "id": "01a14cd1-ca0f-760e-abfe-4170d8ccf543",
+      "key": "shop.order.order"
+    },
+    {
+      "description": "Extracted from data of a Text on order.",
+      "id": "01a14cd1-ca0f-7536-a1e1-c5c4941fbd7d",
+      "key": "shop.order.your-order"
+    },
+    {
+      "description": "Extracted from title of a page on product.",
+      "id": "01a14cd1-ca0f-77ba-b173-6385523045e3",
+      "key": "shop.product.product"
+    },
+    {
+      "description": "Extracted from data of a Text on product.",
+      "id": "01a14cd1-ca0f-72e8-b478-3f9258d8f480",
+      "key": "shop.product.courier"
+    },
+    {
+      "description": "Extracted from data of a Text on product.",
+      "id": "01a14cd1-ca0f-707c-9f55-7bc395344043",
+      "key": "shop.product.product-2"
+    },
+    {
+      "description": "Extracted from data of a Text on product.",
+      "id": "01a14cd1-ca0f-7227-a2d6-8e227e3f845a",
+      "key": "shop.product.add-to-cart"
+    },
+    {
+      "description": "Offers",
+      "id": "01d0c450-6c00-7000-8000-000000009001",
+      "key": "shop.catalogue.offers"
+    },
+    {
+      "description": "Free delivery over 20 EUR",
+      "id": "01d0c450-6c00-7000-8000-000000009002",
+      "key": "shop.catalogue.offer-delivery"
+    },
+    {
+      "description": "Fresh fruit every day",
+      "id": "01d0c450-6c00-7000-8000-000000009003",
+      "key": "shop.catalogue.offer-fresh"
+    },
+    {
+      "description": "Fewer",
+      "id": "01d0c450-6c00-7000-8000-000000009004",
+      "key": "shop.product.fewer"
+    },
+    {
+      "description": "More",
+      "id": "01d0c450-6c00-7000-8000-000000009005",
+      "key": "shop.product.more"
+    },
+    {
+      "description": "Quantity",
+      "id": "01d0c450-6c00-7000-8000-000000009006",
+      "key": "shop.product.quantity"
+    },
+    {
+      "description": "Subtotal",
+      "id": "01d0c450-6c00-7000-8000-000000009007",
+      "key": "shop.cart.subtotal"
+    },
+    {
+      "description": "Total",
+      "id": "01d0c450-6c00-7000-8000-000000009008",
+      "key": "shop.cart.total"
+    },
+    {
+      "description": "Ordered",
+      "id": "01d0c450-6c00-7000-8000-000000009009",
+      "key": "shop.order.ordered"
+    },
+    {
+      "description": "Packed",
+      "id": "01d0c450-6c00-7000-8000-00000000900a",
+      "key": "shop.order.packed"
+    },
+    {
+      "description": "On the way",
+      "id": "01d0c450-6c00-7000-8000-00000000900b",
+      "key": "shop.order.on-the-way"
+    },
+    {
+      "description": "Delivered",
+      "id": "01d0c450-6c00-7000-8000-00000000900c",
+      "key": "shop.order.delivered"
+    },
+    {
+      "description": "min",
+      "id": "01d0c450-6c00-7000-8000-00000000900d",
+      "key": "shop.order.min"
+    },
+    {
+      "description": "Courier position on the map",
+      "id": "01d0c450-6c00-7000-8000-00000000900e",
+      "key": "shop.order.map"
+    },
+    {
+      "description": "Shop",
+      "id": "01d0c450-6c00-7000-8000-00000000900f",
+      "key": "shop.order.shop"
+    },
+    {
+      "description": "Delivery address",
+      "id": "01d0c450-6c00-7000-8000-000000009010",
+      "key": "shop.order.home"
+    },
+    {
+      "description": "Courier",
+      "id": "01d0c450-6c00-7000-8000-000000009011",
+      "key": "shop.order.courier"
+    },
+    {
+      "description": "Star",
+      "id": "01d0c450-6c00-7000-8000-000000009012",
+      "key": "shop.order.star"
+    },
+    {
+      "description": "Rate the delivery",
+      "id": "01d0c450-6c00-7000-8000-000000009013",
+      "key": "shop.order.rate"
+    },
+    {
+      "args": [
+        {
+          "name": "count",
+          "type": "string"
+        }
+      ],
+      "description": "Cart ({count})",
+      "id": "01d0c450-6c00-7000-8000-000000009201",
+      "key": "shop.cart-link"
+    },
+    {
+      "args": [
+        {
+          "name": "count",
+          "type": "string"
+        }
+      ],
+      "description": "Loaded {count} products",
+      "id": "01d0c450-6c00-7000-8000-000000009202",
+      "key": "shop.catalogue.loaded"
+    },
+    {
+      "args": [
+        {
+          "name": "months",
+          "type": "string"
+        }
+      ],
+      "description": "Term: {months} months at 12 % a year",
+      "id": "01d0c450-6c00-7000-8000-000000009203",
+      "key": "shop.instalments.term"
+    },
+    {
+      "args": [
+        {
+          "name": "payment",
+          "type": "string"
+        }
+      ],
+      "description": "Monthly payment: {payment} EUR",
+      "id": "01d0c450-6c00-7000-8000-000000009204",
+      "key": "shop.instalments.payment"
+    },
+    {
+      "args": [
+        {
+          "name": "count",
+          "type": "string"
+        }
+      ],
+      "description": "Instalments: {count}",
+      "id": "01d0c450-6c00-7000-8000-000000009205",
+      "key": "shop.instalments.count"
+    },
+    {
+      "args": [
+        {
+          "name": "interest",
+          "type": "string"
+        }
+      ],
+      "description": "Interest in the first month: {interest} EUR",
+      "id": "01d0c450-6c00-7000-8000-000000009206",
+      "key": "shop.instalments.interest"
+    },
+    {
+      "args": [
+        {
+          "name": "status",
+          "type": "string"
+        }
+      ],
+      "description": "Status: {status}",
+      "id": "01d0c450-6c00-7000-8000-000000009207",
+      "key": "shop.order.status"
+    },
+    {
+      "args": [
+        {
+          "name": "minutes",
+          "type": "string"
+        }
+      ],
+      "description": "ETA: {minutes} min",
+      "id": "01d0c450-6c00-7000-8000-000000009208",
+      "key": "shop.order.eta"
+    },
+    {
+      "args": [
+        {
+          "name": "lat",
+          "type": "string"
+        },
+        {
+          "name": "lng",
+          "type": "string"
+        }
+      ],
+      "description": "Position: {lat}, {lng}",
+      "id": "01d0c450-6c00-7000-8000-000000009209",
+      "key": "shop.order.position"
+    },
+    {
+      "args": [
+        {
+          "name": "id",
+          "type": "string"
+        }
+      ],
+      "description": "Order {id}",
+      "id": "01d0c450-6c00-7000-8000-00000000920a",
+      "key": "shop.order.number"
+    },
+    {
+      "args": [
+        {
+          "name": "count",
+          "type": "string"
+        }
+      ],
+      "description": "In cart: {count}",
+      "id": "01d0c450-6c00-7000-8000-00000000920b",
+      "key": "shop.product.in-cart"
+    },
+    {
+      "args": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        }
+      ],
+      "description": "Job {id}: {status}",
+      "id": "01d0c450-6c00-7000-8000-00000000920c",
+      "key": "shop.job-row.job"
+    }
+  ],
+  "kind": "translationKeys",
+  "schemaVersion": "1.0.0"
+}

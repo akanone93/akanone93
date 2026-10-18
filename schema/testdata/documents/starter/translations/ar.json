@@ -1,0 +1,40 @@
+{
+  "id": "93683d4e-f799-7664-814b-3563e19bc23f",
+  "kind": "translations",
+  "locale": "ar",
+  "messages": {
+    "01a14cd1-caec-7089-bb3e-47b16548d89e": "الحساب",
+    "01a14cd1-caec-7130-999e-81fbfc99a49a": "المكان",
+    "01a14cd1-caec-7438-a77a-3a7e72628077": "المكان",
+    "01a14cd1-caec-756b-9706-2bba3a9767d8": "الحساب",
+    "01a14cd1-caec-76e4-8637-769db136246e": "مشاركة",
+    "01a14cd1-caed-7025-b85d-e7d36df56e68": "الأماكن",
+    "01a14cd1-caed-73b2-be0b-8125fc02de66": "الملف الشخصي",
+    "01a14cd1-caed-76be-b243-d14581cb9c7f": "الأماكن",
+    "01a14cd1-caee-743e-ada4-bec9cd0b4fb5": "تسجيل الدخول",
+    "01a14cd1-caee-75b9-acea-4091ead024df": "شعار بلاكس",
+    "01a14cd1-caee-75cb-b99f-07e6a2cdf6c6": "مرحبًا",
+    "01a14cd1-caee-75fd-a4ab-aeda99f5cbe6": "سجّل الدخول من الشاشة الرئيسية لعرض حسابك.",
+    "01a14cd1-caee-77f4-b55c-f7b1c6d15e93": "تسجيل الدخول",
+    "01e0c450-6c00-7000-8000-000000000050": "مرحبًا بك في بلاكس",
+    "01e0c450-6c00-7000-8000-000000000051": "نُشرت هذه الصفحة من الخادم وتُعرض بشكل أصلي."
+  },
+  "schemaVersion": "1.0.0",
+  "states": {
+    "01a14cd1-caec-7089-bb3e-47b16548d89e": "translated",
+    "01a14cd1-caec-7130-999e-81fbfc99a49a": "translated",
+    "01a14cd1-caec-7438-a77a-3a7e72628077": "translated",
+    "01a14cd1-caec-756b-9706-2bba3a9767d8": "translated",
+    "01a14cd1-caec-76e4-8637-769db136246e": "translated",
+    "01a14cd1-caed-7025-b85d-e7d36df56e68": "translated",
+    "01a14cd1-caed-73b2-be0b-8125fc02de66": "translated",
+    "01a14cd1-caed-76be-b243-d14581cb9c7f": "translated",
+    "01a14cd1-caee-743e-ada4-bec9cd0b4fb5": "translated",
+    "01a14cd1-caee-75b9-acea-4091ead024df": "translated",
+    "01a14cd1-caee-75cb-b99f-07e6a2cdf6c6": "translated",
+    "01a14cd1-caee-75fd-a4ab-aeda99f5cbe6": "translated",
+    "01a14cd1-caee-77f4-b55c-f7b1c6d15e93": "translated",
+    "01e0c450-6c00-7000-8000-000000000050": "translated",
+    "01e0c450-6c00-7000-8000-000000000051": "translated"
+  }
+}

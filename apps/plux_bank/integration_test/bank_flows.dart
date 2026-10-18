@@ -71,7 +71,16 @@ Future<void> tapSettled(WidgetTester tester, Finder finder) async {
 /// Types [text] into the text field labelled [label] and lets the page's
 /// `onChanged` handler write it into its form.
 Future<void> typeInto(WidgetTester tester, String label, String text) async {
-  final field = find.widgetWithText(TextFormField, label);
+  // The amount is an AmountInput (a Layer 2 widget): its text field is the
+  // editable text under the node with the test ID `amount`.
+  final field = label == 'Amount (EUR)'
+      ? find.descendant(
+          of: find.byWidgetPredicate(
+            (w) => w is Semantics && w.properties.identifier == 'amount',
+          ),
+          matching: find.byType(EditableText),
+        )
+      : find.widgetWithText(TextFormField, label);
   await pumpUntil(tester, field);
   await tester.enterText(field, text);
   await tester.pump(const Duration(milliseconds: 100));
@@ -198,7 +207,7 @@ void bankFlows({
     (tester) async {
       problems.clear();
       await signIn(tester);
-      await waitFor(tester, find.text('2500.00 EUR'));
+      await waitFor(tester, find.text('€2,500.00'));
       await sendTransfer(tester);
       await waitFor(tester, find.text('Confirm transaction'));
       await tapSettled(tester, find.text('Cancel'));
@@ -207,8 +216,8 @@ void bankFlows({
       expect(find.text('Transfer completed'), findsNothing);
       await tapSettled(tester, find.text('Back to dashboard'));
       await waitFor(tester, find.text('Your accounts'));
-      await waitFor(tester, find.text('2500.00 EUR'));
-      expect(find.text('2487.50 EUR'), findsNothing);
+      await waitFor(tester, find.text('€2,500.00'));
+      expect(find.text('€2,487.50'), findsNothing);
       await stop(tester);
     },
     skip: skip != null || !confirmsTransfers,
@@ -269,7 +278,7 @@ void bankFlows({
       // transactions, both through the gateway for the signed-in user.
       await waitFor(tester, find.text('Your accounts'));
       await waitFor(tester, find.text('Checking'));
-      expect(find.text('2500.00 EUR'), findsOneWidget);
+      expect(find.text('€2,500.00'), findsWidgets);
       expect(find.text('Savings'), findsOneWidget);
       await waitFor(tester, find.text('Groceries'));
 
@@ -296,8 +305,8 @@ void bankFlows({
 
       // The result page, then the dashboard.
       await waitFor(tester, find.text('Transfer completed'));
-      expect(find.text('Amount: 12.50 EUR'), findsOneWidget);
-      expect(find.text('New balance: 2487.50 EUR'), findsOneWidget);
+      expect(find.text('€12.50'), findsOneWidget);
+      expect(find.text('€2,487.50'), findsOneWidget);
 
       await tapSettled(tester, find.text('Back to dashboard'));
       await waitFor(tester, find.text('Your accounts'));
@@ -307,7 +316,7 @@ void bankFlows({
         tester,
         find.text('Transfer of 12.50 EUR sent. New balance: 2487.50 EUR'),
       );
-      await waitFor(tester, find.text('2487.50 EUR'));
+      await waitFor(tester, find.text('€2,487.50'));
       expect(problems, isEmpty, reason: problems.join('\n'));
       await stop(tester);
     },

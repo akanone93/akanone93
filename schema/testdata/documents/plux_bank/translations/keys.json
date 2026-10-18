@@ -155,6 +155,48 @@
       "description": "Extracted from title of a page on transfer.",
       "id": "01a14bd7-5c1d-71fe-8376-851b7f675e47",
       "key": "banking.transfer.transfer"
+    },
+    {
+      "description": "Execution date",
+      "id": "01d0c450-6c00-7000-8000-000000009001",
+      "key": "tr.date"
+    },
+    {
+      "description": "Check the fields marked in red.",
+      "id": "01d0c450-6c00-7000-8000-000000009002",
+      "key": "tr.invalid"
+    },
+    {
+      "description": "Amount",
+      "id": "01d0c450-6c00-7000-8000-000000009003",
+      "key": "res.amount"
+    },
+    {
+      "description": "New balance",
+      "id": "01d0c450-6c00-7000-8000-000000009004",
+      "key": "res.newbalance"
+    },
+    {
+      "args": [
+        {
+          "name": "amount",
+          "type": "string"
+        }
+      ],
+      "description": "Available: {amount} EUR",
+      "id": "01d0c450-6c00-7000-8000-000000009201",
+      "key": "tr.available"
+    },
+    {
+      "args": [
+        {
+          "name": "fee",
+          "type": "string"
+        }
+      ],
+      "description": "Fee: {fee} EUR",
+      "id": "01d0c450-6c00-7000-8000-000000009202",
+      "key": "tr.fee"
     }
   ],
   "kind": "translationKeys",

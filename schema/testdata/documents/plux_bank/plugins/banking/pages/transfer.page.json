@@ -126,7 +126,12 @@
                     "id": "01d0c450-6c00-7000-8000-00000000202d",
                     "props": {
                       "data": {
-                        "$expr": "\"Available: \" + string(div(decimal(params.balanceCents), 100d, 2)) + \" EUR\""
+                        "$t": "01d0c450-6c00-7000-8000-000000009201",
+                        "args": {
+                          "amount": {
+                            "$expr": "string(div(decimal(params.balanceCents), 100d, 2))"
+                          }
+                        }
                       }
                     },
                     "testId": "available",
@@ -212,14 +217,11 @@
                             "input": {
                               "path": "page.transfer.values.amount",
                               "value": {
-                                "$expr": "event"
+                                "$expr": "string(amount(event))"
                               }
-                            }
-                          }
-                        ]
-                      },
-                      "onEditingComplete": {
-                        "steps": [
+                            },
+                            "next": "touch"
+                          },
                           {
                             "action": "setState",
                             "id": "touch",
@@ -231,20 +233,15 @@
                         ]
                       }
                     },
-                    "id": "01d0c450-6c00-7000-8000-000000002032",
+                    "id": "01d0c450-6c00-7000-8000-000000007003",
                     "props": {
-                      "decoration": {
-                        "labelText": {
-                          "$t": "01d0c450-6c00-7000-8000-00000000028d"
-                        }
-                      },
-                      "keyboardType": "number",
-                      "value": {
-                        "$expr": "page.transfer.values.amount"
+                      "currency": "EUR",
+                      "label": {
+                        "$t": "01d0c450-6c00-7000-8000-00000000028d"
                       }
                     },
                     "testId": "amount",
-                    "type": "TextFormField"
+                    "type": "AmountInput"
                   },
                   {
                     "id": "01d0c450-6c00-7000-8000-000000002033",
@@ -349,7 +346,12 @@
                     "id": "01d0c450-6c00-7000-8000-000000003002",
                     "props": {
                       "data": {
-                        "$expr": "\"Fee: \" + page.fee + \" EUR\""
+                        "$t": "01d0c450-6c00-7000-8000-000000009202",
+                        "args": {
+                          "fee": {
+                            "$expr": "page.fee"
+                          }
+                        }
                       }
                     },
                     "testId": "fee",
@@ -435,6 +437,52 @@
                     }
                   },
                   {
+                    "id": "01d0c450-6c00-7000-8000-000000007004",
+                    "props": {
+                      "data": {
+                        "$t": "01d0c450-6c00-7000-8000-000000009001"
+                      }
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "events": {
+                      "onChanged": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "write",
+                            "input": {
+                              "path": "page.executeOn",
+                              "value": {
+                                "$expr": "string(event)"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01d0c450-6c00-7000-8000-000000007005",
+                    "localeOverrides": {
+                      "am-ET": {
+                        "secondaryCalendar": "ethiopic"
+                      },
+                      "ar": {
+                        "secondaryCalendar": "islamicUmalqura"
+                      }
+                    },
+                    "props": {
+                      "calendar": "gregorian"
+                    },
+                    "semantics": {
+                      "label": {
+                        "$t": "01d0c450-6c00-7000-8000-000000009001"
+                      }
+                    },
+                    "testId": "execute-on",
+                    "type": "DualCalendarDatePicker"
+                  },
+                  {
                     "id": "01d0c450-6c00-7000-8000-000000002037",
                     "props": {
                       "height": 12.0
@@ -498,12 +546,41 @@
                             "action": "showSnackbar",
                             "id": "invalid",
                             "input": {
-                              "message": "Check the fields marked in red."
-                            }
+                              "message": {
+                                "$t": "01d0c450-6c00-7000-8000-000000009002"
+                              }
+                            },
+                            "next": "announceInvalid"
+                          },
+                          {
+                            "action": "announce",
+                            "id": "announceInvalid",
+                            "input": {
+                              "assertiveness": "assertive",
+                              "message": {
+                                "$t": "01d0c450-6c00-7000-8000-000000009002"
+                              }
+                            },
+                            "next": "endInvalid"
+                          },
+                          {
+                            "action": "stop",
+                            "id": "endInvalid"
+                          },
+                          {
+                            "action": "announce",
+                            "id": "failed",
+                            "input": {
+                              "assertiveness": "assertive",
+                              "message": {
+                                "$t": "01d0c450-6c00-7000-8000-000000000292"
+                              }
+                            },
+                            "next": "failedGo"
                           },
                           {
                             "action": "navigate",
-                            "id": "failed",
+                            "id": "failedGo",
                             "input": {
                               "mode": "replace",
                               "params": {
@@ -567,6 +644,12 @@
       "default": "",
       "id": "01d0c450-6c00-7000-8000-000000003101",
       "name": "feeError",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01d0c450-6c00-7000-8000-000000007200",
+      "name": "executeOn",
       "type": "string"
     }
   ],

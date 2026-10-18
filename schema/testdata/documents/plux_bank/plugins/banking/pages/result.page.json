@@ -107,24 +107,60 @@
                         "type": "Text"
                       },
                       {
-                        "id": "01d0c450-6c00-7000-8000-000000002041",
-                        "props": {
-                          "data": {
-                            "$expr": "\"Amount: \" + string(div(decimal(params.amountCents), 100d, 2)) + \" EUR\""
+                        "children": [
+                          {
+                            "id": "01d0c450-6c00-7000-8000-000000007006",
+                            "props": {
+                              "data": {
+                                "$t": "01d0c450-6c00-7000-8000-000000009003"
+                              }
+                            },
+                            "type": "Text"
+                          },
+                          {
+                            "id": "01d0c450-6c00-7000-8000-000000007007",
+                            "props": {
+                              "value": {
+                                "$expr": "money(string(div(decimal(params.amountCents), 100d, 2)), \"EUR\")"
+                              }
+                            },
+                            "testId": "result-amount",
+                            "type": "MoneyText"
                           }
+                        ],
+                        "id": "01d0c450-6c00-7000-8000-000000007008",
+                        "props": {
+                          "mainAxisAlignment": "spaceBetween"
                         },
-                        "testId": "result-amount",
-                        "type": "Text"
+                        "type": "Row"
                       },
                       {
-                        "id": "01d0c450-6c00-7000-8000-000000002042",
-                        "props": {
-                          "data": {
-                            "$expr": "\"New balance: \" + string(div(decimal(params.balanceCents), 100d, 2)) + \" EUR\""
+                        "children": [
+                          {
+                            "id": "01d0c450-6c00-7000-8000-000000007009",
+                            "props": {
+                              "data": {
+                                "$t": "01d0c450-6c00-7000-8000-000000009004"
+                              }
+                            },
+                            "type": "Text"
+                          },
+                          {
+                            "id": "01d0c450-6c00-7000-8000-00000000700a",
+                            "props": {
+                              "value": {
+                                "$expr": "money(string(div(decimal(params.balanceCents), 100d, 2)), \"EUR\")"
+                              }
+                            },
+                            "testId": "result-balance",
+                            "type": "MoneyText"
                           }
+                        ],
+                        "id": "01d0c450-6c00-7000-8000-00000000700b",
+                        "props": {
+                          "mainAxisAlignment": "spaceBetween"
                         },
-                        "testId": "result-balance",
-                        "type": "Text"
+                        "type": "Row"
                       }
                     ],
                     "id": "01d0c450-6c00-7000-8000-000000002043",

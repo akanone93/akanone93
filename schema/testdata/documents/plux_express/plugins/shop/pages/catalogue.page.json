@@ -30,7 +30,12 @@
                   "id": "01d0c450-6c00-7000-8000-000000003008",
                   "props": {
                     "data": {
-                      "$expr": "\"Cart (\" + string(size(plugin.cartIds)) + \")\""
+                      "$t": "01d0c450-6c00-7000-8000-000000009201",
+                      "args": {
+                        "count": {
+                          "$expr": "string(size(plugin.cartIds))"
+                        }
+                      }
                     }
                   },
                   "type": "Text"
@@ -58,7 +63,9 @@
                 "child": {
                   "id": "01d0c450-6c00-7000-8000-00000000300a",
                   "props": {
-                    "data": "Courier"
+                    "data": {
+                      "$t": "01a14cd1-ca0d-74de-9fa5-fb06d6979c53"
+                    }
                   },
                   "type": "Text"
                 }
@@ -85,7 +92,9 @@
                 "child": {
                   "id": "01d0c450-6c00-7000-8000-000000004101",
                   "props": {
-                    "data": "Instalments"
+                    "data": {
+                      "$t": "01a14cd1-ca0d-77c0-8313-5406c63c684b"
+                    }
                   },
                   "type": "Text"
                 }
@@ -97,7 +106,9 @@
           "title": {
             "id": "01d0c450-6c00-7000-8000-00000000300c",
             "props": {
-              "data": "Catalogue"
+              "data": {
+                "$t": "01a14cd1-ca0d-753c-9aed-14f6ccf98f5c"
+              }
             },
             "type": "Text"
           }
@@ -107,10 +118,67 @@
       "body": {
         "children": [
           {
+            "id": "01d0c450-6c00-7000-8000-000000005007",
+            "props": {
+              "aspectRatio": 4.0
+            },
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "id": "01d0c450-6c00-7000-8000-000000005003",
+                    "slots": {
+                      "child": {
+                        "id": "01d0c450-6c00-7000-8000-000000005002",
+                        "props": {
+                          "data": {
+                            "$t": "01d0c450-6c00-7000-8000-000000009002"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "type": "Center"
+                  },
+                  {
+                    "id": "01d0c450-6c00-7000-8000-000000005005",
+                    "slots": {
+                      "child": {
+                        "id": "01d0c450-6c00-7000-8000-000000005004",
+                        "props": {
+                          "data": {
+                            "$t": "01d0c450-6c00-7000-8000-000000009003"
+                          }
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "type": "Center"
+                  }
+                ],
+                "id": "01d0c450-6c00-7000-8000-000000005006",
+                "props": {
+                  "indicators": true,
+                  "semanticLabel": {
+                    "$t": "01d0c450-6c00-7000-8000-000000009001"
+                  }
+                },
+                "testId": "offers",
+                "type": "Carousel"
+              }
+            },
+            "type": "AspectRatio"
+          },
+          {
             "id": "01d0c450-6c00-7000-8000-000000003005",
             "props": {
               "data": {
-                "$expr": "\"Loaded \" + string(size(data.products.value ?? [])) + \" products\""
+                "$t": "01d0c450-6c00-7000-8000-000000009202",
+                "args": {
+                  "count": {
+                    "$expr": "string(size(data.products.value ?? []))"
+                  }
+                }
               }
             },
             "testId": "loaded",
@@ -150,14 +218,18 @@
                   "empty": {
                     "id": "01d0c450-6c00-7000-8000-000000003001",
                     "props": {
-                      "data": "No products."
+                      "data": {
+                        "$t": "01a14cd1-ca0d-7686-aab8-04c495fa7ff0"
+                      }
                     },
                     "type": "Text"
                   },
                   "error": {
                     "id": "01d0c450-6c00-7000-8000-000000003003",
                     "props": {
-                      "data": "The catalogue is not available."
+                      "data": {
+                        "$t": "01a14cd1-ca0d-73db-84d3-47877d761c6d"
+                      }
                     },
                     "type": "Text"
                   },
@@ -196,5 +268,7 @@
   },
   "route": "catalogue",
   "schemaVersion": "1.0.0",
-  "title": "Catalogue"
+  "title": {
+    "$t": "01a14cd1-ca0d-74fb-8d4f-5dd19046db58"
+  }
 }

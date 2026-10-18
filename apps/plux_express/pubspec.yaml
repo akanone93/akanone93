@@ -18,6 +18,7 @@ dependencies:
   http: ^1.6.0
   plux_flutter: ^0.5.0
   plux_functions: ^0.1.0
+  plux_maps: ^0.1.0
 
 dev_dependencies:
   flutter_test:

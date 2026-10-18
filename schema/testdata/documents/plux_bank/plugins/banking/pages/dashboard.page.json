@@ -127,37 +127,24 @@
             },
             "slots": {
               "item": {
-                "id": "01d0c450-6c00-7000-8000-000000002012",
-                "slots": {
-                  "subtitle": {
-                    "id": "01d0c450-6c00-7000-8000-000000002010",
-                    "props": {
-                      "data": {
-                        "$expr": "item.iban"
-                      }
-                    },
-                    "type": "Text"
+                "id": "01d0c450-6c00-7000-8000-000000007001",
+                "props": {
+                  "balance": {
+                    "$expr": "money(string(div(decimal(item.balanceCents), 100d, 2)), item.currency)"
                   },
-                  "title": {
-                    "id": "01d0c450-6c00-7000-8000-00000000200f",
-                    "props": {
-                      "data": {
-                        "$expr": "item.name"
-                      }
-                    },
-                    "type": "Text"
+                  "maskedNumber": {
+                    "$expr": "item.iban"
                   },
-                  "trailing": {
-                    "id": "01d0c450-6c00-7000-8000-000000002011",
-                    "props": {
-                      "data": {
-                        "$expr": "string(div(decimal(item.balanceCents), 100d, 2)) + \" \" + item.currency"
-                      }
-                    },
-                    "type": "Text"
+                  "name": {
+                    "$expr": "item.name"
                   }
                 },
-                "type": "ListTile"
+                "semantics": {
+                  "label": {
+                    "$expr": "item.name"
+                  }
+                },
+                "type": "AccountCard"
               }
             },
             "type": "ForEach"
@@ -277,37 +264,20 @@
                     "type": "Text"
                   },
                   "item": {
-                    "id": "01d0c450-6c00-7000-8000-000000002016",
-                    "slots": {
+                    "id": "01d0c450-6c00-7000-8000-000000007002",
+                    "props": {
+                      "amount": {
+                        "$expr": "money(string(div(decimal(item.amountCents), 100d, 2)), \"EUR\")"
+                      },
+                      "status": "completed",
                       "subtitle": {
-                        "id": "01d0c450-6c00-7000-8000-000000002014",
-                        "props": {
-                          "data": {
-                            "$expr": "item.postedAt"
-                          }
-                        },
-                        "type": "Text"
+                        "$expr": "item.postedAt"
                       },
                       "title": {
-                        "id": "01d0c450-6c00-7000-8000-000000002013",
-                        "props": {
-                          "data": {
-                            "$expr": "item.description"
-                          }
-                        },
-                        "type": "Text"
-                      },
-                      "trailing": {
-                        "id": "01d0c450-6c00-7000-8000-000000002015",
-                        "props": {
-                          "data": {
-                            "$expr": "string(div(decimal(item.amountCents), 100d, 2))"
-                          }
-                        },
-                        "type": "Text"
+                        "$expr": "item.description"
                       }
                     },
-                    "type": "ListTile"
+                    "type": "TransactionListItem"
                   },
                   "loading": {
                     "id": "01d0c450-6c00-7000-8000-000000002019",
