@@ -353,6 +353,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
     Map<String, Object?> Function()? extraRoots,
     List<fbs.Form>? forms,
     FormGraphRunner? runForm,
+    FormTexts formTexts = const FormTexts(),
   }) {
     final bundle = view(release, plugin);
     final limits = _pxlLimits(release.limits);
@@ -398,6 +399,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
         regex: limits.regex,
       ),
       runForm: runForm,
+      formTexts: formTexts,
       types: types,
       evaluate: (program, roots) => ValueResolver(
         plugin: bundle,
@@ -1401,6 +1403,17 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
         extraRoots: () => {_component ? 'props' : 'params': _params},
         forms: page?.forms ?? component?.forms,
         runForm: _runForm,
+        formTexts: FormTexts(
+          reference: (v) {
+            try {
+              final text = _resolver?.resolve(v, _section.string);
+              return text is String ? text : null;
+            } on Object {
+              return null;
+            }
+          },
+          strings: () => ref.read(localeControllerProvider).strings,
+        ),
       ),
     );
     final appLiteral = ValueResolver(

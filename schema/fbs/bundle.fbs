@@ -573,6 +573,10 @@ table FormValidator {
   rule: ulong;
   graph: Uuid;
   debounce_ms: uint;
+  // The message as a translation reference (a Translation value),
+  // resolved in the effective locale; takes precedence over `message`
+  // (I18N-001).
+  message_ref: Value;
 }
 
 // A form field; `type` is a type expression, `initial` its initial value.

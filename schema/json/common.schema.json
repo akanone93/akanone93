@@ -1438,10 +1438,18 @@
           "$ref": "#/$defs/formValidatorKind"
         },
         "message": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 512,
-          "description": "The message shown when the value is invalid; the runtime's built-in message otherwise."
+          "x-plux-raw": true,
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            {
+              "$ref": "#/$defs/translationRef"
+            }
+          ],
+          "description": "The message shown when the value is invalid: a literal string or a translation reference resolved in the effective locale; the runtime's built-in message otherwise (I18N-001)."
         },
         "min": {
           "$ref": "#/$defs/value"

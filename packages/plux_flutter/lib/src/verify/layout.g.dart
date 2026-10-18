@@ -178,6 +178,7 @@ const List<TableLayout> tableLayouts = [
     FieldLayout('rule', 8, FieldKind.scalar, 8, 8, -1, required: false),
     FieldLayout('graph', 9, FieldKind.struct, 16, 8, -1, required: false),
     FieldLayout('debounce_ms', 10, FieldKind.scalar, 4, 4, -1, required: false),
+    FieldLayout('message_ref', 11, FieldKind.table, 0, 0, 72, required: false),
   ]),
   // 24
   TableLayout('FunctionGrant', [

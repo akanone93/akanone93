@@ -456,7 +456,7 @@ A validator of a form field. Each kind takes its own options: `min` and `max` (l
 | Property | Type | Required | Description |
 |---|---|---|---|
 | `kind` | [FormValidatorKind](#formvalidatorkind) | yes | A built-in validator of a form field (STA-020, ADR-0047). |
-| `message` | string |  | The message shown when the value is invalid; the runtime's built-in message otherwise. |
+| `message` | JSON value |  | The message shown when the value is invalid: a literal string or a translation reference resolved in the effective locale; the runtime's built-in message otherwise (I18N-001). |
 | `min` | JSON value |  | A JSON value interpreted against a declared type (defaults, mocks, environment values). |
 | `max` | JSON value |  | A JSON value interpreted against a declared type (defaults, mocks, environment values). |
 | `pattern` | string |  | A pxl.regex.v1 pattern, checked at publish (PXL-003). |

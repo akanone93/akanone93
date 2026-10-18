@@ -347,6 +347,9 @@ func (x *extractor) document(path string, dry bool) error {
 	if err := x.title(rel, scope, doc); err != nil {
 		return err
 	}
+	if err := x.forms(rel, scope, doc); err != nil {
+		return err
+	}
 	if err := x.node(rel, scope, root, "/root"); err != nil {
 		return err
 	}
@@ -374,6 +377,20 @@ func (x *extractor) scope(rel string, doc map[string]any) []string {
 func (x *extractor) title(file string, scope []string, doc map[string]any) error {
 	for _, l := range literals.Title(doc) {
 		id, err := x.add(file, scope, map[string]any{"type": "page"}, l)
+		if err != nil {
+			return err
+		}
+		setAt(doc, l.Path, map[string]any{"$t": id})
+		x.done[len(x.done)-1].Path = "/" + strings.Join(l.Path, "/")
+	}
+	return nil
+}
+
+// forms extracts the literal validator messages of a page or component
+// (I18N-001, I18N-007).
+func (x *extractor) forms(file string, scope []string, doc map[string]any) error {
+	for _, l := range literals.Forms(doc) {
+		id, err := x.add(file, scope, map[string]any{"type": "form"}, l)
 		if err != nil {
 			return err
 		}

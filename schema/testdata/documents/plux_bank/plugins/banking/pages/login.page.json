@@ -9,7 +9,9 @@
           "validators": [
             {
               "kind": "required",
-              "message": "Enter your username"
+              "message": {
+                "$t": "01d0c450-6c00-7000-8000-000000009301"
+              }
             }
           ]
         },
@@ -20,7 +22,9 @@
           "validators": [
             {
               "kind": "required",
-              "message": "Enter your PIN"
+              "message": {
+                "$t": "01d0c450-6c00-7000-8000-000000009302"
+              }
             }
           ]
         },
@@ -31,7 +35,9 @@
           "validators": [
             {
               "kind": "required",
-              "message": "Enter the code"
+              "message": {
+                "$t": "01d0c450-6c00-7000-8000-000000009303"
+              }
             }
           ]
         }

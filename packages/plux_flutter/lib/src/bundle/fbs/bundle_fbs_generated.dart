@@ -4647,10 +4647,11 @@ class FormValidator {
   int get rule => const fb.Uint64Reader().vTableGet(_bc, _bcOffset, 20, 0);
   Uuid? get graph => Uuid.reader.vTableGetNullable(_bc, _bcOffset, 22);
   int get debounceMs => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 24, 0);
+  Value? get messageRef => Value.reader.vTableGetNullable(_bc, _bcOffset, 26);
 
   @override
   String toString() {
-    return 'FormValidator{kind: ${kind}, message: ${message}, min: ${min}, max: ${max}, pattern: ${pattern}, region: ${region}, maxScale: ${maxScale}, maxIntegerDigits: ${maxIntegerDigits}, rule: ${rule}, graph: ${graph}, debounceMs: ${debounceMs}}';
+    return 'FormValidator{kind: ${kind}, message: ${message}, min: ${min}, max: ${max}, pattern: ${pattern}, region: ${region}, maxScale: ${maxScale}, maxIntegerDigits: ${maxIntegerDigits}, rule: ${rule}, graph: ${graph}, debounceMs: ${debounceMs}, messageRef: ${messageRef}}';
   }
 }
 
@@ -4668,7 +4669,7 @@ class FormValidatorBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(11);
+    fbBuilder.startTable(12);
   }
 
   int addKind(ValidatorKind? kind) {
@@ -4715,6 +4716,10 @@ class FormValidatorBuilder {
     fbBuilder.addUint32(10, debounceMs);
     return fbBuilder.offset;
   }
+  int addMessageRefOffset(int? offset) {
+    fbBuilder.addOffset(11, offset);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -4733,6 +4738,7 @@ class FormValidatorObjectBuilder extends fb.ObjectBuilder {
   final int? _rule;
   final UuidObjectBuilder? _graph;
   final int? _debounceMs;
+  final ValueObjectBuilder? _messageRef;
 
   FormValidatorObjectBuilder({
     ValidatorKind? kind,
@@ -4746,6 +4752,7 @@ class FormValidatorObjectBuilder extends fb.ObjectBuilder {
     int? rule,
     UuidObjectBuilder? graph,
     int? debounceMs,
+    ValueObjectBuilder? messageRef,
   })
       : _kind = kind,
         _message = message,
@@ -4757,14 +4764,16 @@ class FormValidatorObjectBuilder extends fb.ObjectBuilder {
         _maxIntegerDigits = maxIntegerDigits,
         _rule = rule,
         _graph = graph,
-        _debounceMs = debounceMs;
+        _debounceMs = debounceMs,
+        _messageRef = messageRef;
 
   /// Finish building, and store into the [fbBuilder].
   @override
   int finish(fb.Builder fbBuilder) {
     final int? minOffset = _min?.getOrCreateOffset(fbBuilder);
     final int? maxOffset = _max?.getOrCreateOffset(fbBuilder);
-    fbBuilder.startTable(11);
+    final int? messageRefOffset = _messageRef?.getOrCreateOffset(fbBuilder);
+    fbBuilder.startTable(12);
     fbBuilder.addUint8(0, _kind?.value);
     fbBuilder.addUint32(1, _message);
     fbBuilder.addOffset(2, minOffset);
@@ -4778,6 +4787,7 @@ class FormValidatorObjectBuilder extends fb.ObjectBuilder {
       fbBuilder.addStruct(9, _graph!.finish(fbBuilder));
     }
     fbBuilder.addUint32(10, _debounceMs);
+    fbBuilder.addOffset(11, messageRefOffset);
     return fbBuilder.endTable();
   }
 

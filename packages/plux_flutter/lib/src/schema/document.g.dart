@@ -1457,7 +1457,7 @@ final class FormValidator {
     final m = json as Map<String, Object?>;
     return FormValidator(
       kind: FormValidatorKind.fromJson(m['kind']!),
-      message: m['message'] == null ? null : m['message']! as String,
+      message: m.containsKey('message') ? JsonValue(m['message']) : null,
       min: m.containsKey('min') ? JsonValue(m['min']) : null,
       max: m.containsKey('max') ? JsonValue(m['max']) : null,
       pattern: m['pattern'] == null ? null : m['pattern']! as String,
@@ -1472,9 +1472,10 @@ final class FormValidator {
 
   /// A built-in validator of a form field (STA-020, ADR-0047).
   final FormValidatorKind kind;
-  /// The message shown when the value is invalid; the runtime's built-in
-  /// message otherwise.
-  final String? message;
+  /// The message shown when the value is invalid: a literal string or a
+  /// translation reference resolved in the effective locale; the runtime's
+  /// built-in message otherwise (I18N-001).
+  final JsonValue? message;
   /// A JSON value interpreted against a declared type (defaults, mocks,
   /// environment values).
   final JsonValue? min;
@@ -1500,7 +1501,7 @@ final class FormValidator {
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
         'kind': kind.toJson(),
-        if (message != null) 'message': message!,
+        if (message != null) 'message': message!.value,
         if (min != null) 'min': min!.value,
         if (max != null) 'max': max!.value,
         if (pattern != null) 'pattern': pattern!,
