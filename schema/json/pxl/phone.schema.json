@@ -59,6 +59,21 @@
               },
               "additionalProperties": false
             }
+          },
+          "formats": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["pattern", "format"],
+              "properties": {
+                "pattern": { "type": "string", "minLength": 1 },
+                "leadingDigits": { "type": "string", "minLength": 1 },
+                "format": { "$ref": "#/$defs/format" },
+                "nationalFormat": { "$ref": "#/$defs/format" },
+                "intlFormat": { "oneOf": [{ "const": "NA" }, { "$ref": "#/$defs/format" }] }
+              },
+              "additionalProperties": false
+            }
           }
         },
         "additionalProperties": false
@@ -67,6 +82,7 @@
   },
   "additionalProperties": false,
   "$defs": {
+    "format": { "type": "string", "pattern": "^(\\$[1-9]|[0-9 ().-])+$" },
     "lengths": {
       "type": "array",
       "items": { "type": "integer", "minimum": 1, "maximum": 17 }

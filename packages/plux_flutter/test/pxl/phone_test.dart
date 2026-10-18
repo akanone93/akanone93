@@ -12,6 +12,7 @@ import 'package:plux_flutter/src/pxl/regex.dart';
 /// The metadata and the golden shared with the Go implementation.
 final _metadata = File('../../schema/pxl/phone.json');
 final _examples = File('../../schema/testdata/phone/examples.json');
+final _formats = File('../../schema/testdata/phone/formats.json');
 
 /// The inputs derived from one example, in the golden's variant order.
 final Map<String, (String, String) Function(String, int, String)> _variants = {
@@ -81,5 +82,36 @@ void main() {
     expect(isValidPhone('1' * 251, ''), isFalse);
     expect(isValidPhone('7400 123456 x', 'GB'), isFalse);
     expect(isValidPhone('0 11 15-2345-6789', 'AR'), isTrue);
+  });
+
+  test('formats every example as Go does [PXL-006]', () {
+    final meta =
+        jsonDecode(_metadata.readAsStringSync()) as Map<String, Object?>;
+    final golden =
+        jsonDecode(_formats.readAsStringSync()) as Map<String, Object?>;
+    final results = StringBuffer();
+    for (final t
+        in (meta['territories']! as List<Object?>)
+            .cast<Map<String, Object?>>()) {
+      final id = t['id']! as String;
+      if (id == '001') continue;
+      final cc = t['countryCode']! as int;
+      for (final ty
+          in (t['types']! as List<Object?>).cast<Map<String, Object?>>()) {
+        final ex = ty['example'] as String?;
+        if (ex == null) continue;
+        results.write(
+          '${formatPhone(ex, id)}|${formatPhone('+$cc$ex', 'ZZ')}\n',
+        );
+      }
+    }
+    expect(results.toString(), golden['results']);
+  });
+
+  test('formats a number for its region and for others [PXL-006]', () {
+    expect(formatPhone('650-253-0000', 'us'), '(650) 253-0000');
+    expect(formatPhone('+1 650 253 0000', 'DE'), '+1 650-253-0000');
+    expect(formatPhone('+44 7400 123456', 'GB'), '07400 123456');
+    expect(formatPhone('12', 'GB'), '12');
   });
 }

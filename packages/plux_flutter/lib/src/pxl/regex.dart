@@ -685,6 +685,10 @@ final class Regex {
   /// [find] returns it.
   List<int>? prefix(String s) => _run(_decode(s), _Mode.prefix, true);
 
+  /// The match against all of [s], as [find] returns it; null when the
+  /// pattern does not match all of [s].
+  List<int>? fullFind(String s) => _run(_decode(s), _Mode.full, true);
+
   List<int>? _run(List<int> input, _Mode mode, bool captures) {
     final ncap = captures ? 2 * (groups + 1) : 0;
     var cur = _Queue(_prog.length), next = _Queue(_prog.length);

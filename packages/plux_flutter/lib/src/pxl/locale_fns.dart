@@ -3,8 +3,6 @@
 
 /// The `format` and `l10n` groups of PXL (PXL-006, I18N-001, I18N-011) on the
 /// localisation engine, identical to Go's `backend/internal/pxl/localefns.go`.
-/// `format.phone` is not evaluated: it needs libphonenumber's national
-/// formats, which the metadata of the phone group does not carry.
 library;
 
 import 'package:plux_flutter/src/l10n/l10n.dart';
