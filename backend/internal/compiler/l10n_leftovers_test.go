@@ -36,7 +36,7 @@ func TestGeneratedPseudoLocalesAreSupportedLocales(t *testing.T) {
 		t.Errorf("pseudo-locales listed without being generated: %v", plain)
 	}
 	m := fixture(t)
-	localisation(t, m, "pseudoLocales", true)
+	enableLocalisation(t, m, "pseudoLocales")
 	got := supportedLocales(t, compileFS(m))
 	if !slices.Contains(got, "en-XA") || !slices.Contains(got, "ar-XB") {
 		t.Errorf("supported locales = %v, want the pseudo-locales too", got)
@@ -63,8 +63,8 @@ func TestLiteralPageTitleWarns(t *testing.T) {
 func TestLocalisationReportMatchesItsSchema(t *testing.T) {
 	t.Parallel()
 	m := fixture(t)
-	localisation(t, m, "requireApprovedTranslations", true)
-	localisation(t, m, "pseudoLocales", true)
+	enableLocalisation(t, m, "requireApprovedTranslations")
+	enableLocalisation(t, m, "pseudoLocales")
 	res := compileFS(m)
 	if res.Localisation == nil {
 		t.Fatalf("no report:\n%s", list(res.Diagnostics))

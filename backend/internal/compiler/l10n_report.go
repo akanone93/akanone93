@@ -70,20 +70,8 @@ func (u *unit) l10nReport() *L10nReport {
 		names[k.ID] = k.Key
 		all[k.ID] = true
 	}
-	scopes := []reportScope{{"", all}}
-	for _, pl := range u.plugins {
-		if keys := u.l10n.uses[pl.key]; len(keys) > 0 {
-			scopes = append(scopes, reportScope{pl.key, keys})
-		}
-	}
-	tags := map[string]bool{app.DefaultLocale: true}
-	for _, tag := range app.SupportedLocales {
-		tags[tag] = true
-	}
-	for tag := range u.l10n.locales {
-		tags[tag] = true
-	}
-	order := sortedKeys(tags)
+	scopes := u.reportScopes(all)
+	order := sortedKeys(u.reportLocales())
 	slices.SortStableFunc(order, func(a, b string) int {
 		return boolInt(u.l10n.stat(a).pseudo) - boolInt(u.l10n.stat(b).pseudo)
 	})
@@ -91,29 +79,7 @@ func (u *unit) l10nReport() *L10nReport {
 	for _, tag := range order {
 		st := u.l10n.stat(tag)
 		for _, sc := range scopes {
-			c := L10nCoverage{Locale: tag, Plugin: sc.plugin, Pseudo: st.pseudo, Keys: len(sc.keys)}
-			for _, id := range sortedKeys(sc.keys) {
-				switch {
-				case !st.present[id]:
-					c.Missing++
-					if sc.plugin == "" {
-						c.MissingKeys = append(c.MissingKeys, names[id])
-					}
-					continue
-				case st.leftOut[id]:
-					c.LeftOut++
-					if sc.plugin == "" {
-						c.LeftOutKeys = append(c.LeftOutKeys, names[id])
-					}
-				}
-				c.Translated++
-				if st.approved[id] {
-					c.Approved++
-				}
-			}
-			slices.Sort(c.MissingKeys)
-			slices.Sort(c.LeftOutKeys)
-			r.Locales = append(r.Locales, c)
+			r.Locales = append(r.Locales, coverageOf(tag, st, sc, names))
 		}
 	}
 	for _, id := range u.l10n.unused {
@@ -121,6 +87,60 @@ func (u *unit) l10nReport() *L10nReport {
 	}
 	slices.Sort(r.UnusedKeys)
 	return r
+}
+
+// reportScopes lists the scopes of the report: the whole app (all keys),
+// then each plugin that uses keys.
+func (u *unit) reportScopes(all map[string]bool) []reportScope {
+	scopes := []reportScope{{"", all}}
+	for _, pl := range u.plugins {
+		if keys := u.l10n.uses[pl.key]; len(keys) > 0 {
+			scopes = append(scopes, reportScope{pl.key, keys})
+		}
+	}
+	return scopes
+}
+
+// reportLocales is the set of locale tags the report covers: the default,
+// the supported ones and any with a translation file.
+func (u *unit) reportLocales() map[string]bool {
+	app := u.project.App.Doc
+	tags := map[string]bool{app.DefaultLocale: true}
+	for _, tag := range app.SupportedLocales {
+		tags[tag] = true
+	}
+	for tag := range u.l10n.locales {
+		tags[tag] = true
+	}
+	return tags
+}
+
+// coverageOf counts how the keys of one scope stand in one locale. The key
+// lists are filled on the entry of the whole app only.
+func coverageOf(tag string, st *localeStat, sc reportScope, names map[string]string) L10nCoverage {
+	c := L10nCoverage{Locale: tag, Plugin: sc.plugin, Pseudo: st.pseudo, Keys: len(sc.keys)}
+	for _, id := range sortedKeys(sc.keys) {
+		switch {
+		case !st.present[id]:
+			c.Missing++
+			if sc.plugin == "" {
+				c.MissingKeys = append(c.MissingKeys, names[id])
+			}
+			continue
+		case st.leftOut[id]:
+			c.LeftOut++
+			if sc.plugin == "" {
+				c.LeftOutKeys = append(c.LeftOutKeys, names[id])
+			}
+		}
+		c.Translated++
+		if st.approved[id] {
+			c.Approved++
+		}
+	}
+	slices.Sort(c.MissingKeys)
+	slices.Sort(c.LeftOutKeys)
+	return c
 }
 
 // boolInt is 1 for true and 0 for false.

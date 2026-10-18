@@ -42,8 +42,8 @@ func onlyEnglish(t *testing.T, m fstest.MapFS) {
 	edit(t, m, appJSON, func(doc map[string]any) { doc["supportedLocales"] = []any{"en"} })
 }
 
-// localisation sets a setting of the app's localisation object.
-func localisation(t *testing.T, m fstest.MapFS, name string, v any) {
+// enableLocalisation turns on a boolean setting of the app's localisation object.
+func enableLocalisation(t *testing.T, m fstest.MapFS, name string) {
 	t.Helper()
 	edit(t, m, appJSON, func(doc map[string]any) {
 		l, _ := doc["localisation"].(map[string]any)
@@ -51,7 +51,7 @@ func localisation(t *testing.T, m fstest.MapFS, name string, v any) {
 			l = map[string]any{}
 			doc["localisation"] = l
 		}
-		l[name] = v
+		l[name] = true
 	})
 }
 
@@ -198,7 +198,7 @@ func section(t *testing.T, res *Result, tag string) map[string]string {
 func TestUnapprovedTranslationsAreLeftOutWhenApprovalIsRequired(t *testing.T) {
 	t.Parallel()
 	m := fixture(t)
-	localisation(t, m, "requireApprovedTranslations", true)
+	enableLocalisation(t, m, "requireApprovedTranslations")
 	approve(t, m, map[string]any{keyLoansAmount: "approved", keyLoansTitle: "approved", keyLoansMonths: "reviewed"})
 	res := compileFS(m)
 	if res.Diagnostics.HasErrors() {
@@ -245,7 +245,7 @@ func TestAllTranslationsShipWithoutTheApprovalSetting(t *testing.T) {
 func TestPseudoLocalesAreGeneratedFromTheDefaultLocale(t *testing.T) {
 	t.Parallel()
 	m := fixture(t)
-	localisation(t, m, "pseudoLocales", true)
+	enableLocalisation(t, m, "pseudoLocales")
 	res := compileFS(m)
 	if res.Diagnostics.HasErrors() {
 		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
@@ -277,7 +277,7 @@ func TestPseudoLocalesAreGeneratedFromTheDefaultLocale(t *testing.T) {
 func TestPseudoLocalesCarryTheDataOfTheirBaseLocale(t *testing.T) {
 	t.Parallel()
 	m := fixture(t)
-	localisation(t, m, "pseudoLocales", true)
+	enableLocalisation(t, m, "pseudoLocales")
 	res := compileFS(m)
 	for tag, want := range map[string]string{"en-XA": "en", "ar-XB": "ar"} {
 		id, _ := bundle.LocaleID(tag)
@@ -299,7 +299,7 @@ func TestPseudoLocalesCarryTheDataOfTheirBaseLocale(t *testing.T) {
 func TestPseudoLocalesInAProductionBuildAreRefused(t *testing.T) {
 	t.Parallel()
 	m := fixture(t)
-	localisation(t, m, "pseudoLocales", true)
+	enableLocalisation(t, m, "pseudoLocales")
 	opts := DefaultOptions()
 	opts.Production = true
 	res := Compile(m, opts)
@@ -322,7 +322,7 @@ func TestPseudoLocalesInAProductionBuildAreRefused(t *testing.T) {
 func TestLocalisationReportCountsPerLocaleAndPlugin(t *testing.T) {
 	t.Parallel()
 	m := fixture(t)
-	localisation(t, m, "requireApprovedTranslations", true)
+	enableLocalisation(t, m, "requireApprovedTranslations")
 	approve(t, m, map[string]any{keyLoansAmount: "approved", keyLoansTitle: "approved"})
 	edit(t, m, messageDE, func(doc map[string]any) { delete(at(t, doc, "messages"), keyLoansMonths) })
 	edit(t, m, messageKeys, func(doc map[string]any) {
@@ -385,7 +385,7 @@ func TestLocalisationReportListsUnusedKeys(t *testing.T) {
 func TestPseudoLocaleDocumentsOfTheProjectWinOverGeneratedOnes(t *testing.T) {
 	t.Parallel()
 	m := fixture(t)
-	localisation(t, m, "pseudoLocales", true)
+	enableLocalisation(t, m, "pseudoLocales")
 	m["translations/en-XA.json"] = &fstest.MapFile{Data: []byte(`{"schemaVersion": "1.0.0", "kind": "translations", "id": "01a0c450-6c00-7fff-8000-0000000003c1", "locale": "en-XA", "messages": {"` + keyLoansTitle + `": "Mine"}}`)}
 	res := compileFS(m)
 	if res.Diagnostics.HasErrors() {

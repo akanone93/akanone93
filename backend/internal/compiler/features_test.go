@@ -162,7 +162,7 @@ func TestCompileFeaturesProject(t *testing.T) {
 		}
 	})
 	t.Run("page root", func(t *testing.T) {
-		pg := fbs.GetRootAsPage(mustSection(t, read[1], bundle.SectionPage, listPageID).Data, 0)
+		pg := fbs.GetRootAsPage(mustListPage(t, read[1]).Data, 0)
 		var root fbs.Node
 		pg.Nodes(&root, 0)
 		if root.Hints()&byte(fbs.NodeHintsRepaintBoundary) == 0 {
@@ -203,12 +203,12 @@ func styleValue(t *testing.T, b *bundle.Bundle, id uint64) *fbs.Value {
 	return nil
 }
 
-// mustSection returns a section of a bundle by UUID.
-func mustSection(t *testing.T, b *bundle.Bundle, k bundle.SectionKind, id string) bundle.Section {
+// mustListPage returns the section of the list page of a bundle.
+func mustListPage(t *testing.T, b *bundle.Bundle) bundle.Section {
 	t.Helper()
-	s, ok := b.Section(k, bundle.ID(uuidBytes(id)))
+	s, ok := b.Section(bundle.SectionPage, bundle.ID(uuidBytes(listPageID)))
 	if !ok {
-		t.Fatalf("no %s section %s", k, id)
+		t.Fatalf("no page section %s", listPageID)
 	}
 	return s
 }

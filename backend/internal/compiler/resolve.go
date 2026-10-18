@@ -602,21 +602,7 @@ func (u *unit) buildNode(o owner, doc *schema.Node, parent *node, slot, ptr stri
 	file := o.file()
 	u.claimID(doc.ID, file, ptr+"/id")
 	from := ownerID(o)
-	switch {
-	case doc.Type != "":
-		if w, ok := registry.LookupWidget(doc.Type); ok {
-			n.widget = &w
-		} else if _, native := u.natives.slots[doc.Type]; native {
-			u.graph.add(Edge{From: from, Kind: EdgeUsesSlot, To: doc.Type, File: file, Path: ptr + "/type"})
-		} else {
-			u.report(plxerr.UnknownWidgetType, file, ptr+"/type", "no widget or native slot is named %q", doc.Type)
-		}
-	case doc.Component != nil:
-		n.target = u.componentRef(o, doc.Component, file, ptr+"/component")
-		if n.target != nil {
-			u.graph.add(Edge{From: from, Kind: EdgeUsesComponent, To: n.target.doc.ID, File: file, Path: ptr + "/component"})
-		}
-	}
+	u.resolveNodeTarget(n, from, file, ptr)
 	for i := range doc.Children {
 		n.children = append(n.children, u.buildNode(o, &doc.Children[i], n, "", ptr+"/children/"+strconv.Itoa(i), all))
 	}
@@ -632,19 +618,50 @@ func (u *unit) buildNode(o owner, doc *schema.Node, parent *node, slot, ptr stri
 		n.slots = append(n.slots, sf)
 	}
 	u.scanNodeRefs(doc, from, file, ptr)
+	u.buildEventGraphs(n, file, ptr)
+	return n
+}
+
+// resolveNodeTarget binds a node to its widget, native slot or component,
+// reporting a type that names none of them.
+func (u *unit) resolveNodeTarget(n *node, from, file, ptr string) {
+	doc, o := n.doc, n.owner
+	switch {
+	case doc.Type != "":
+		if w, ok := registry.LookupWidget(doc.Type); ok {
+			n.widget = &w
+		} else if _, native := u.natives.slots[doc.Type]; native {
+			u.graph.add(Edge{From: from, Kind: EdgeUsesSlot, To: doc.Type, File: file, Path: ptr + "/type"})
+		} else {
+			u.report(plxerr.UnknownWidgetType, file, ptr+"/type", "no widget or native slot is named %q", doc.Type)
+		}
+	case doc.Component != nil:
+		n.target = u.componentRef(o, doc.Component, file, ptr+"/component")
+		if n.target != nil {
+			u.graph.add(Edge{From: from, Kind: EdgeUsesComponent, To: n.target.doc.ID, File: file, Path: ptr + "/component"})
+		}
+	}
+}
+
+// buildEventGraphs builds the action graph of each event handler of a node
+// and marks those of sensitive events.
+func (u *unit) buildEventGraphs(n *node, file, ptr string) {
+	doc := n.doc
 	n.graphs = map[string]*graph{}
 	for _, name := range sortedKeys(doc.Events) {
 		eh := doc.Events[name]
-		if g := u.handlerGraph(o, &eh, doc.ID, name, file, ptr+plxerr.Pointer("events", name)); g != nil {
-			n.graphs[name] = g
-			if n.widget != nil {
-				if e, ok := n.widget.Event(name); ok && e.Sensitive {
-					g.eventSensitive = true
-				}
-			}
+		g := u.handlerGraph(n.owner, &eh, doc.ID, name, file, ptr+plxerr.Pointer("events", name))
+		if g == nil {
+			continue
+		}
+		n.graphs[name] = g
+		if n.widget == nil {
+			continue
+		}
+		if e, ok := n.widget.Event(name); ok && e.Sensitive {
+			g.eventSensitive = true
 		}
 	}
-	return n
 }
 
 // nativeSlotNode rewrites a NativeSlot node whose literal `name` prop names a

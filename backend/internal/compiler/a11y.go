@@ -35,19 +35,19 @@ func (u *unit) accessibility() {
 		for _, pg := range pl.pages {
 			if u.inFocus(pg.file) {
 				u.pageWaivers(pg)
-				u.focusOrder(pg.file, pg.root, pg.root)
+				u.focusOrder(pg.root, pg.root)
 				u.headingLevels(pg)
 			}
 		}
 		for _, c := range pl.components {
 			if u.inFocus(c.file) {
-				u.focusOrder(c.file, c.root, c.root)
+				u.focusOrder(c.root, c.root)
 			}
 		}
 	}
 	for _, c := range u.shared {
 		if u.inFocus(c.file) {
-			u.focusOrder(c.file, c.root, c.root)
+			u.focusOrder(c.root, c.root)
 		}
 	}
 	for _, n := range u.allNodes() {
@@ -75,7 +75,7 @@ func (u *unit) strictA11y() bool {
 
 // androidTargeted reports whether the app targets Android. The app document
 // declares no platforms, so every app is taken to target both.
-func (u *unit) androidTargeted() bool { return true }
+func (*unit) androidTargeted() bool { return true }
 
 // knownCheck reports whether name is a check that can be waived.
 func knownCheck(name string) bool {
@@ -305,39 +305,38 @@ func (u *unit) defaultTextColor(n *node, v variant) colorRes {
 // fixedSizes returns the width and height a node is fixed to by its own
 // props and by the sizing wrappers directly around it; 0 means not fixed.
 func fixedSizes(n *node) (w, h float64) {
-	take := func(cur *float64, v float64) {
-		if *cur == 0 || v < *cur {
-			*cur = v
-		}
+	ownProp := func(src *node) func(string) (float64, bool) {
+		return func(key string) (float64, bool) { return propNumber(src, key) }
 	}
-	if v, ok := propNumber(n, "width"); ok {
-		take(&w, v)
-	}
-	if v, ok := propNumber(n, "height"); ok {
-		take(&h, v)
-	}
+	takeSizes(&w, &h, ownProp(n), "width", "height")
 	for a := n.parent; a != nil && a.widget != nil; a = a.parent {
 		switch a.widget.Type {
 		case "SizedBox":
-			if v, ok := propNumber(a, "width"); ok {
-				take(&w, v)
-			}
-			if v, ok := propNumber(a, "height"); ok {
-				take(&h, v)
-			}
+			takeSizes(&w, &h, ownProp(a), "width", "height")
 		case "ConstrainedBox":
 			cf := objectFields(a.doc.Props["constraints"])
-			if v, ok := number(cf["maxWidth"]); ok {
-				take(&w, v)
-			}
-			if v, ok := number(cf["maxHeight"]); ok {
-				take(&h, v)
-			}
+			takeSizes(&w, &h, func(key string) (float64, bool) { return number(cf[key]) }, "maxWidth", "maxHeight")
 		default:
 			return w, h
 		}
 	}
 	return w, h
+}
+
+// takeSizes tightens w and h to the smaller of what they hold and what read
+// returns for the two keys; 0 means not yet fixed.
+func takeSizes(w, h *float64, read func(string) (float64, bool), widthKey, heightKey string) {
+	take := func(cur *float64, v float64) {
+		if *cur == 0 || v < *cur {
+			*cur = v
+		}
+	}
+	if v, ok := read(widthKey); ok {
+		take(w, v)
+	}
+	if v, ok := read(heightKey); ok {
+		take(h, v)
+	}
 }
 
 // number reads a JSON number.
@@ -409,7 +408,7 @@ func (u *unit) fixedHeightText(n *node) {
 // focusOrder checks that the focusOrder values below a scope (a page or a
 // group) are unique and dense (PLX-1406, A11Y-006). Nested groups are
 // scopes of their own.
-func (u *unit) focusOrder(file string, root, scope *node) {
+func (u *unit) focusOrder(root, scope *node) {
 	if root == nil {
 		return
 	}

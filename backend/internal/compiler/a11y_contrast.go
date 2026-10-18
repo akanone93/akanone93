@@ -207,15 +207,16 @@ func (u *unit) backgroundBehind(n *node, v variant) background {
 			fg = "onPrimary"
 		}
 		var r colorRes
-		if set {
+		switch {
+		case set:
 			r = u.resolveColor(raw, v)
-		} else if role == "surfaceContainerLow" {
+		case role == "surfaceContainerLow":
 			// A Card without a colour: the theme's container colour, or the
 			// surface where the theme has none.
 			if r = u.roleColor(role, v); r.unknown() {
 				r = u.roleColor("surface", v)
 			}
-		} else {
+		default:
 			r = u.roleColor(role, v)
 		}
 		if !r.unknown() && !r.opaque {
@@ -238,39 +239,48 @@ func ownFill(n *node) (raw json.RawMessage, role string, set bool, stop string) 
 	p := n.doc.Props
 	switch n.widget.Type {
 	case "Container", "DecoratedBox":
-		if dec, ok := p["decoration"]; ok {
-			f := objectFields(dec)
-			if _, g := f["gradient"]; g {
-				return nil, "", false, "the background is a gradient"
-			}
-			if c, ok := f["color"]; ok {
-				return c, "", true, ""
-			}
-		}
-		if c, ok := p["color"]; ok {
-			return c, "", true, ""
-		}
-		if _, ok := p["backgroundImage"]; ok {
-			return nil, "", false, "the background is an image"
-		}
+		return boxFill(p)
 	case "ColoredBox":
-		if c, ok := p["color"]; ok {
-			return c, "", true, ""
-		}
+		return propFill(p, "color", "")
 	case "Card":
-		if c, ok := p["color"]; ok {
-			return c, "", true, ""
-		}
-		return nil, "surfaceContainerLow", false, ""
+		return propFill(p, "color", "surfaceContainerLow")
 	case "Scaffold":
-		if c, ok := p["backgroundColor"]; ok {
-			return c, "", true, ""
-		}
+		return propFill(p, "backgroundColor", "")
 	case "FilledButton", "ElevatedButton":
 		if c, ok := stateValue(objectFields(p["style"])["backgroundColor"]); ok {
 			return c, "", true, ""
 		}
 		return nil, "primary", false, ""
+	}
+	return nil, "", false, ""
+}
+
+// propFill is the fill a colour prop sets; without the prop, the theme role
+// the widget paints by default (empty for none).
+func propFill(p map[string]json.RawMessage, key, defaultRole string) (raw json.RawMessage, role string, set bool, stop string) {
+	if c, ok := p[key]; ok {
+		return c, "", true, ""
+	}
+	return nil, defaultRole, false, ""
+}
+
+// boxFill is the fill of a Container or DecoratedBox: a decoration colour,
+// a colour prop, or a reason the background cannot be known.
+func boxFill(p map[string]json.RawMessage) (raw json.RawMessage, role string, set bool, stop string) {
+	if dec, ok := p["decoration"]; ok {
+		f := objectFields(dec)
+		if _, g := f["gradient"]; g {
+			return nil, "", false, "the background is a gradient"
+		}
+		if c, ok := f["color"]; ok {
+			return c, "", true, ""
+		}
+	}
+	if c, ok := p["color"]; ok {
+		return c, "", true, ""
+	}
+	if _, ok := p["backgroundImage"]; ok {
+		return nil, "", false, "the background is an image"
 	}
 	return nil, "", false, ""
 }
