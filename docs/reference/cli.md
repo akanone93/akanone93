@@ -81,7 +81,7 @@ root public keys (`--env`, as `plux keys`), then:
    when it finds one;
 3. writes `lib/plux/plux_options.g.dart`: `PluxOptions` with the app, server and
    environment, the root keys embedded (`SEC-051`), and `PluxOptions.config()`, which
-   registers the optional packages (`devicePackages`, `nativeSlots`, `databaseAdapter`);
+   registers the optional packages (`devicePackages`, `widgetPackages`, `nativeSlots`, `databaseAdapter`);
    with `plux_scanner`, which opens a page of its own, `PluxOptions.rootNavigatorKey` is
    the navigator it uses when `config()` gets none — give it to the app's `MaterialApp`;
 4. calls `Plux.initialize(PluxOptions.config())` in `lib/main.dart` and wraps the app in

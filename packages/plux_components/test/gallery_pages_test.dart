@@ -63,16 +63,15 @@ void main() {
       expect(find.byType(Scaffold), findsWidgets);
     });
 
-    // Verifies: RT-060, PLX-4403.
-    testWidgets(
-      'gallery page $route reports the missing package [RT-060] [PLX-4403]',
-      (tester) async {
-        await open(tester, route, const []);
-        expect(
-          h.errors.where((e) => e.code == PluxErrorCode.widgetPackageMissing),
-          isNotEmpty,
-        );
-      },
-    );
+    // Verifies: RT-060.
+    testWidgets('gallery page $route reports the missing package [RT-060]', (
+      tester,
+    ) async {
+      await open(tester, route, const []);
+      expect(
+        h.errors.where((e) => e.code == PluxErrorCode.widgetPackageMissing),
+        isNotEmpty,
+      );
+    });
   }
 }
