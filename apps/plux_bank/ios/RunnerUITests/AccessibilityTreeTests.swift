@@ -53,11 +53,11 @@ final class AccessibilityTreeTests: XCTestCase {
     assertReadsInOrder(app, ["Welcome back", "Username"], exact: false)
     assertInteractiveControlsAreLabelled(app)
 
-    waitFor(app, "Username").typeText("demo")
+    type(waitFor(app, "Username"), "demo")
     for digit in "246810" {
       reveal(app, String(digit)).tap()
     }
-    reveal(app, "One-time code", exact: false).typeText("123456")
+    type(reveal(app, "One-time code", exact: false), "123456")
     reveal(app, "Sign in").tap()
 
     waitFor(app, "New transfer", exact: true)
@@ -145,6 +145,18 @@ final class AccessibilityTreeTests: XCTestCase {
       XCTFail("nothing on screen reads \"\(label)\"")
     }
     return found
+  }
+
+  // Focuses the field and types into it: XCTest types only into the field
+  // with the keyboard's focus.
+  private func type(_ field: XCUIElement, _ text: String) {
+    field.tap()
+    // Flutter attaches its text input a frame after the tap.
+    let deadline = Date().addingTimeInterval(5)
+    while (field.value(forKey: "hasKeyboardFocus") as? Bool) != true, Date() < deadline {
+      Thread.sleep(forTimeInterval: 0.2)
+    }
+    field.typeText(text)
   }
 
   // The control with the label, scrolled to when the keyboard hides it: a
