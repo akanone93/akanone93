@@ -10,6 +10,8 @@
   "plux.cart.total": "ጠቅላላ",
   "plux.fallback.unavailable": "ይዘቱ አይገኝም",
   "plux.iban.invalid": "ልክ ያልሆነ IBAN",
+  "plux.map.zoomIn": "አጉላ",
+  "plux.map.zoomOut": "አሳንስ",
   "plux.masked.reveal": "አሳይ",
   "plux.pager.done": "ተጠናቅቋል",
   "plux.phone.invalid": "ልክ ያልሆነ ስልክ ቁጥር",

@@ -17,6 +17,12 @@
     },
     "color": {
       "$type": "color",
+      "onSurface": {
+        "$extensions": {
+          "dev.plux.dark": "#E6E0E9"
+        },
+        "$value": "#1D1B20"
+      },
       "primary": {
         "$extensions": {
           "dev.plux.dark": "#D0BCFF"

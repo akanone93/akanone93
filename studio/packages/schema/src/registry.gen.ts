@@ -1896,7 +1896,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "description": "An iOS-style sliding segmented control; `values[i]` identifies segment `children[i]`.",
     "platforms": ["android", "ios"],
     "cost": 50,
-    "accessibility": {"role": "button", "interactive": true},
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
       {"name": "values", "id": 1, "type": "list<string>", "required": true, "revision": 1, "bindable": true, "description": "The value of each segment, in order."},

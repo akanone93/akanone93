@@ -10,6 +10,8 @@
   "plux.cart.total": "Total",
   "plux.fallback.unavailable": "Content unavailable",
   "plux.iban.invalid": "Invalid IBAN",
+  "plux.map.zoomIn": "Zoom in",
+  "plux.map.zoomOut": "Zoom out",
   "plux.masked.reveal": "Reveal",
   "plux.pager.done": "Done",
   "plux.phone.invalid": "Invalid phone number",

@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart' show MapController;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:plux_flutter/plux_flutter.dart';
@@ -375,5 +376,69 @@ void main() {
     );
     expect(shown, isA<Text>());
     expect(plain, isA<PluxMapView>());
+  });
+
+  Future<MapController> pumpCanvas(
+    WidgetTester tester, {
+    bool interactive = true,
+    TextDirection dir = TextDirection.ltr,
+  }) async {
+    final controller = MapController();
+    await tester.pumpWidget(
+      _app(
+        PluxMapCanvas(
+          controller: controller,
+          semanticLabel: 'Map',
+          center: const LatLng(48.85, 2.35),
+          zoom: 10,
+          overlays: const [],
+          interactive: interactive,
+        ),
+        dir: dir,
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+    return controller;
+  }
+
+  // Verifies: A11Y-001, A11Y-004.
+  testWidgets('zoom buttons are labelled 48 px targets that zoom the map', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final controller = await pumpCanvas(tester);
+    expect(find.bySemanticsLabel('Zoom in'), findsOneWidget);
+    expect(find.bySemanticsLabel('Zoom out'), findsOneWidget);
+    expect(
+      tester.getSize(find.byTooltip('Zoom in')).shortestSide,
+      greaterThanOrEqualTo(48),
+    );
+    await tester.tap(find.byTooltip('Zoom in'));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(controller.camera.zoom, 11);
+    await tester.tap(find.byTooltip('Zoom out'));
+    await tester.tap(find.byTooltip('Zoom out'));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(controller.camera.zoom, 9);
+    handle.dispose();
+  });
+
+  // Verifies: A11Y-001, I18N-005.
+  testWidgets('the zoom buttons sit at the end corner in both directions', (
+    tester,
+  ) async {
+    await pumpCanvas(tester);
+    expect(tester.getCenter(find.byTooltip('Zoom in')).dx, greaterThan(400));
+    await pumpCanvas(tester, dir: TextDirection.rtl);
+    expect(tester.getCenter(find.byTooltip('Zoom in')).dx, lessThan(400));
+  });
+
+  // Verifies: A11Y-001.
+  testWidgets('a map that is not interactive has no zoom buttons', (
+    tester,
+  ) async {
+    await pumpCanvas(tester, interactive: false);
+    expect(find.byTooltip('Zoom in'), findsNothing);
+    expect(find.byTooltip('Zoom out'), findsNothing);
   });
 }

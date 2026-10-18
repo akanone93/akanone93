@@ -11,6 +11,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:plux_maps/src/model.dart';
 import 'package:plux_maps/src/tiles.dart';
+import 'package:plux_maps/src/zoom_controls.dart';
 
 /// Called with the id of a tapped marker.
 typedef MarkerTapped = void Function(String id);
@@ -231,6 +232,16 @@ final class _PluxMapCanvasState extends State<PluxMapCanvas> {
                       top: 8,
                       start: 8,
                       child: widget.corner!,
+                    ),
+                  if (widget.interactive)
+                    PositionedDirectional(
+                      top: 8,
+                      end: 8,
+                      child: PluxMapZoomControls(
+                        controller: widget.controller,
+                        minZoom: widget.minZoom,
+                        maxZoom: maxZoom,
+                      ),
                     ),
                   if (attribution != null)
                     PositionedDirectional(

@@ -24,6 +24,8 @@ const Map<String, String> englishRuntimeStrings = {
   'plux.wizard.submit': 'Submit',
   'plux.pager.done': 'Done',
   'plux.amount.outOfRange': 'Amount out of range',
+  'plux.map.zoomIn': 'Zoom in',
+  'plux.map.zoomOut': 'Zoom out',
   'plux.masked.reveal': 'Reveal',
   'plux.picker.search': 'Search',
   'plux.phone.invalid': 'Invalid phone number',

@@ -10,6 +10,8 @@
   "plux.cart.total": "Gesamt",
   "plux.fallback.unavailable": "Inhalt nicht verfügbar",
   "plux.iban.invalid": "Ungültige IBAN",
+  "plux.map.zoomIn": "Vergrößern",
+  "plux.map.zoomOut": "Verkleinern",
   "plux.masked.reveal": "Anzeigen",
   "plux.pager.done": "Fertig",
   "plux.phone.invalid": "Ungültige Telefonnummer",
