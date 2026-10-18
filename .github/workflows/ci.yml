@@ -163,6 +163,9 @@ jobs:
       # Verifies: QA-070.
       - name: Traceability report
         run: make trace
+      # Verifies: QA-073 (Appendix C and D agree with the registries, builders and handlers).
+      - name: Catalogue consistency
+        run: make catalogue-check
       - name: Publish report
         if: always()
         run: |

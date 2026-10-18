@@ -50,7 +50,7 @@ release-notes: ## Print release notes for COMPONENT (backend, plux_flutter, plux
 
 ##@ Repository
 
-repo-check: spec-lint trace workflows-lint reuse-lint hygiene ## Specification, traceability, workflows, licensing, hygiene
+repo-check: spec-lint trace catalogue-check workflows-lint reuse-lint hygiene ## Specification, traceability, workflows, licensing, hygiene
 
 spec-lint: ## Check the specification's internal consistency (QA-073)
 	$(REQTRACE) lint

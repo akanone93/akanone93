@@ -8,9 +8,10 @@
 	go-lint go-tidy go-tidy-check go-gen-check registry-lock-check go-test go-test-race go-cover \
 	go-determinism go-budgets go-fuzz currencies-check phone-metadata go-vuln go-build go-reproducible catalogue-check
 
-# Phase and flags of `make catalogue-check`; report-only until the catch-up ends.
+# Phase and flags of `make catalogue-check`; it fails on any finding since the
+# P8 catch-up (plan p8 §5.12); `CATALOGUE_FLAGS=-report` only lists them.
 CATALOGUE_PHASE ?= P8
-CATALOGUE_FLAGS ?= -report
+CATALOGUE_FLAGS ?=
 
 # How long `make go-fuzz` runs each fuzz target.
 FUZZTIME      ?= 30s
