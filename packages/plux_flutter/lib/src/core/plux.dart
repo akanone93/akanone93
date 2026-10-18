@@ -84,9 +84,9 @@ abstract final class Plux {
           ),
         );
     rt.attachSecurity();
-    // The release's locale is decoded off the UI isolate before the first
-    // page is built (I18N-005).
-    await container.read(localeControllerProvider.notifier).settled();
+    // The release's locale is parsed by the first page that is built, which
+    // waits for it (I18N-005): nothing else reads it, so a start that shows
+    // no page does not pay for it, and one that does pays once, there.
     return startup;
   }
 

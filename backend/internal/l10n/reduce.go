@@ -46,7 +46,10 @@ func keepKeys(m map[string]any, keep []string) {
 // Reduce returns the canonical JSON of the data of the best embedded locale
 // for tag, reduced to what an app uses, and the CLDR locale it came from.
 // The numbers, plurals, date formats, territory names and currency digits
-// are kept whole; calendars and currency names are filtered by o. The
+// are kept whole; calendars and currency names are filtered by o, and the
+// plural forms of currency names, which neither engine reads, are dropped
+// (over a quarter of the bytes of a launch locale, downloaded on every
+// device's first launch). The
 // output is compact with sorted keys, so it depends on its inputs only
 // (CMP-002). It returns ErrNoLocale when no locale on the chain has data.
 func Reduce(tag string, o ReduceOptions) (data []byte, resolved string, err error) {
@@ -71,9 +74,14 @@ func Reduce(tag string, o ReduceOptions) (data []byte, resolved string, err erro
 	if cals, ok := doc["calendars"].(map[string]any); ok {
 		keepKeys(cals, append([]string{"gregorian"}, o.Calendars...))
 	}
-	if o.Currencies != nil {
-		if cur, ok := doc["currencies"].(map[string]any); ok {
+	if cur, ok := doc["currencies"].(map[string]any); ok {
+		if o.Currencies != nil {
 			keepKeys(cur, o.Currencies)
+		}
+		for _, names := range cur {
+			if m, ok := names.(map[string]any); ok {
+				delete(m, "plural")
+			}
 		}
 	}
 	var buf bytes.Buffer
