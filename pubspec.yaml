@@ -13,6 +13,7 @@ workspace:
   - apps/starter
   - packages/plux_auto_route
   - packages/plux_charts
+  - packages/plux_components
   - packages/plux_db_drift
   - packages/plux_devtools
   - packages/plux_flutter

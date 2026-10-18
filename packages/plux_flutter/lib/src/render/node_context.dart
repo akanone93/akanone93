@@ -8,6 +8,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
+import 'package:plux_flutter/src/device/types.dart' show PluxPickedFile;
 import 'package:plux_flutter/src/render/decoding.dart';
 
 /// Builds the widget of one node.
@@ -82,6 +83,33 @@ abstract interface class NodeContext implements Decoding {
   /// refusal to return instead of opening the camera, files or location,
   /// reported (PLX-5400) (SEC-080, X1.1).
   Widget? deviceRefusal(String api);
+
+  /// Validates the fields named in [fields] of the form below the nearest
+  /// `FormScope`, as a wizard's Next and Submit do: the other fields keep
+  /// their touched state. True when none of [fields] has an error, and
+  /// outside a form.
+  Future<bool> validateFields(Set<String> fields);
+
+  /// Lets the user pick one file of [mimeTypes] through the host's media
+  /// package, once the device guard admits `pickFile`. Null when no media
+  /// package is installed; the function it returns gives null when the
+  /// guard blocks the pick (reported) or the user cancels.
+  Future<PluxPickedFile?> Function()? filePicker(List<String> mimeTypes);
+
+  /// Uploads a file through the transfer operation [operation] of data
+  /// source [source], reporting progress as a fraction (null when
+  /// unknown), and resolves to the JSON-encoded response. Null when the
+  /// page has no data layer; the function it returns throws a
+  /// `PluxException` when the transfer fails.
+  Future<String?> Function(
+    PluxPickedFile file,
+    void Function(double? fraction) progress,
+  )?
+  fileUpload(String source, String operation);
+
+  /// Reports that [message] needs a device package that is not installed
+  /// (PLX-5401).
+  void reportDevicePackageMissing(String message);
 
   /// Reports that an image of the node failed to load.
   void imageFailed(Object error);

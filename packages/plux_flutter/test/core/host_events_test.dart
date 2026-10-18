@@ -4,8 +4,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_flutter/src/core/host_events.dart';
-import 'package:plux_flutter/src/pxl/decimal.dart';
-import 'package:plux_flutter/src/pxl/values.dart';
 import 'package:plux_flutter/src/render/renderer.dart';
 
 import '../support/harness.dart';

@@ -23,6 +23,7 @@
     "role": "text",
     "interactive": false
   },
+  "package": "plux_components",
   "props": [
     {
       "name": "value",

@@ -47,8 +47,9 @@ func (e env) initProject(args []string) int {
 		"the app up as a Plux host: plux_flutter and a router adapter in pubspec.yaml, plux.yaml,\n"+
 		"lib/plux/plux_options.g.dart with the environment's root keys, and the runtime's start\n"+
 		"in lib/main.dart when main only calls runApp; then the server checks of plux doctor.\n"+
-		"The optional packages the app uses (--packages, and those the device actions of the\n"+
-		"project at --project need) are added to pubspec.yaml and registered in the configuration.\n"+
+		"The optional packages the app uses (--packages, and those the device actions and widgets\n"+
+		"of the project at --project need) are added to pubspec.yaml and registered in the\n"+
+		"configuration.\n"+
 		"Running it again changes nothing.", 0); !ok {
 		return code
 	}

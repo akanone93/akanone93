@@ -1,9 +1,9 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.6.0
+**Version:** 1.6.1
 **Status:** Draft — living document, revised as implementation proceeds
-**Date:** 2026-10-16
+**Date:** 2026-10-18
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
 
 > **Plux — Plugin Experience.** Build native Flutter screens visually, compile them into signed binary plugins, and ship them to every device in seconds — with high-assurance security, zero parse cost, and full control over who changes what.
@@ -961,7 +961,7 @@ The Studio canvas no longer uses a Flutter Web build of the runtime (ADR-0013); 
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `RT-060` | P3 | MUST | Optional capabilities **MUST** ship as separate packages so apps pay only for what they use: `plux_flutter` (core), `plux_db_drift`, `plux_lottie`, `plux_rive`, `plux_maps` (with `plux_maps_google`), `plux_charts`, `plux_media`, `plux_player`, `plux_markdown`, `plux_scanner`, `plux_location`, `plux_security` (RASP), `plux_payments`, `plux_devtools` (debug only). The on-device function interpreter **MUST** be part of an optional package (`plux_functions`) so apps that do not place functions on the device do not ship it. | WIP |
+| `RT-060` | P3 | MUST | Optional capabilities **MUST** ship as separate packages so apps pay only for what they use: `plux_flutter` (core), `plux_db_drift`, `plux_lottie`, `plux_rive`, `plux_maps` (with `plux_maps_google`), `plux_charts`, `plux_components` (the Layer 2 components most apps do not use and the Layer 1 widgets that pull large parts of Flutter into a build, Appendix C), `plux_media`, `plux_player`, `plux_markdown`, `plux_scanner`, `plux_location`, `plux_security` (RASP), `plux_payments`, `plux_devtools` (debug only). The on-device function interpreter **MUST** be part of an optional package (`plux_functions`) so apps that do not place functions on the device do not ship it. | WIP |
 | `RT-061` | P3 | MUST | The core package **MUST** add, per ABI (arm64-v8a, armeabi-v7a, x86_64), ≤ 5 MiB to what Google Play downloads from a release App Bundle and ≤ 10 MiB to a release APK, and ≤ 5 MiB to an iOS IPA (thinned, arm64), measured in CI against a blank Flutter app (ADR-0036). | DONE |
 
 ---
@@ -2164,7 +2164,7 @@ plux/
 ├── packages/                  # Dart packages (pub workspace members)
 │   ├── plux_flutter/          # core runtime
 │   ├── plux_devtools/  plux_security/  plux_db_drift/
-│   ├── plux_lottie/  plux_rive/  plux_maps/  plux_charts/  plux_media/  plux_scanner/  plux_location/  plux_payments/
+│   ├── plux_lottie/  plux_rive/  plux_maps/  plux_charts/  plux_components/  plux_media/  plux_scanner/  plux_location/  plux_payments/
 │   └── plux_functions/        # on-device WASM interpreter (optional)
 ├── apps/
 │   ├── plux_dev/              # Plux Dev companion app
@@ -2428,6 +2428,8 @@ The per-device sync plan (`REL-032`) and download URLs sit outside `signed`: the
 
 Phase indicates when the widget must be supported by the runtime. Layer 1 names follow Flutter; all serialisable properties are supported unless the coverage table (`WGT-003`) records an exclusion. Layer 3 (native slots) is not listed: its members are whatever widgets each host app exposes (`WGT-030`).
 
+Layer 1 widgets are built by `plux_flutter` unless their descriptor names a package. Sixteen that pull large parts of the Flutter framework into a build and that most apps do not use are built by the optional package `plux_components` (`RT-060`, `RT-061`): `Table`, `ReorderableListView`, `NestedScrollView`, `DataTable`, `Stepper`, `SearchBar`, `SearchAnchor`, `Autocomplete`, `CalendarDatePicker`, `NavigationRail`, `CupertinoPicker`, `CupertinoDatePicker`, `CupertinoContextMenu`, `Draggable`, `DragTarget` and `InteractiveViewer`. Their phase and props are unchanged.
+
 ### C.1 Layer 1 — structural primitives (Plux-specific)
 
 | Widget | Purpose | Phase |
@@ -2542,34 +2544,34 @@ Dialogs, bottom sheets and snack bars are page kinds and actions (Appendix D), n
 | `SecureTextField` | Hardened text entry (`SEC-090`) | P6 | core |
 | `SecurePinPad` | PIN entry with optional randomised layout | P6 | core |
 | `OtpInput` | One-time code with platform autofill, configurable length and alphabet (`SEC-090`) | P6 | core |
-| `AmountInput` | Money entry with currency, limits, locale formatting | P5 | core |
-| `MoneyText` | Locale- and currency-correct money display | P5 | core |
-| `MaskedText` | Masked display (card, account, phone) with reveal | P5 | core |
-| `PhoneInput` | E.164 entry, default region from the device locale, country picker | P5 | core |
-| `IbanInput` | IBAN entry with checksum validation and grouping | P5 | core |
+| `AmountInput` | Money entry with currency, limits, locale formatting | P5 | `plux_components` |
+| `MoneyText` | Locale- and currency-correct money display | P5 | `plux_components` |
+| `MaskedText` | Masked display (card, account, phone) with reveal | P5 | `plux_components` |
+| `PhoneInput` | E.164 entry, default region from the device locale, country picker | P5 | `plux_components` |
+| `IbanInput` | IBAN entry with checksum validation and grouping | P5 | `plux_components` |
 | `DualCalendarDatePicker` | Date picker in the Gregorian, Ethiopian, Islamic Umm al-Qura or Persian calendar, with an optional second calendar | P8 | core |
-| `CountryPicker`, `CurrencyPicker` | Searchable pickers | P5 | core |
-| `ConsentCheckbox` | Versioned consent with linked legal text, records accepted version | P5 | core |
+| `CountryPicker`, `CurrencyPicker` | Searchable pickers | P5 | `plux_components` |
+| `ConsentCheckbox` | Versioned consent with linked legal text, records accepted version | P5 | `plux_components` |
 | `TermsViewer`, `MarkdownView` | Rich legal and content text | P5 | `plux_markdown` |
 | `BiometricButton` | Triggers biometric step-up (`SEC-027`) | P6 | core |
 | `SkeletonLoader` | Shimmer placeholders | P3 | core |
 | `EmptyState`, `ErrorState`, `OfflineBanner` | Standard states | P3 | core |
-| `SearchField` | Debounced search with suggestions | P5 | core |
-| `FilterBar`, `SortSheet` | List filtering and sorting | P5 | core |
-| `InfiniteList` | Paginated list bound to a data source | P5 | core |
-| `WizardForm` | Multi-step form with progress and validation per step | P5 | core |
-| `OnboardingPager` | Paged onboarding with indicators | P5 | core |
-| `SettingsList` | Grouped settings rows | P5 | core |
-| `ProfileHeader` | Avatar, name, actions | P5 | core |
-| `AccountCard` / `PaymentCard` | Masked card or account with balance, flip animation | P5 | core |
-| `TransactionListItem` | Transaction row with amount colouring and status | P5 | core |
-| `StatusTimeline` | Order or application status steps | P5 | core |
-| `LiveEtaCard` | Real-time ETA bound to a stream | P5 | core |
-| `ProductCard`, `PriceTag`, `QuantityStepper`, `CartSummary` | Commerce building blocks | P5 | core |
-| `Carousel`, `PromoBanner` (with countdown), `CountdownTimer` | Campaign building blocks | P5 | core |
-| `RatingBar`, `RatingInput` | Ratings | P5 | core |
-| `ImageGallery` | Swipeable gallery with zoom | P5 | core |
-| `FileUploader` | Pick, preview and upload files with progress | P5 | core |
+| `SearchField` | Debounced search with suggestions | P5 | `plux_components` |
+| `FilterBar`, `SortSheet` | List filtering and sorting | P5 | `plux_components` |
+| `InfiniteList` | Paginated list bound to a data source | P5 | `plux_components` |
+| `WizardForm` | Multi-step form with progress and validation per step | P5 | `plux_components` |
+| `OnboardingPager` | Paged onboarding with indicators | P5 | `plux_components` |
+| `SettingsList` | Grouped settings rows | P5 | `plux_components` |
+| `ProfileHeader` | Avatar, name, actions | P5 | `plux_components` |
+| `AccountCard` / `PaymentCard` | Masked card or account with balance, flip animation | P5 | `plux_components` |
+| `TransactionListItem` | Transaction row with amount colouring and status | P5 | `plux_components` |
+| `StatusTimeline` | Order or application status steps | P5 | `plux_components` |
+| `LiveEtaCard` | Real-time ETA bound to a stream | P5 | `plux_components` |
+| `ProductCard`, `PriceTag`, `QuantityStepper`, `CartSummary` | Commerce building blocks | P5 | `plux_components` |
+| `Carousel`, `PromoBanner` (with countdown), `CountdownTimer` | Campaign building blocks | P5 | `plux_components` |
+| `RatingBar`, `RatingInput` | Ratings | P5 | `plux_components` |
+| `ImageGallery` | Swipeable gallery with zoom | P5 | `plux_components` |
+| `FileUploader` | Pick, preview and upload files with progress | P5 | `plux_components`; picking needs `plux_media` |
 | `PaymentMethodSelector`, `PaymentSummary`, `Receipt` | Payment UI (`PAY-007`) | P13 | `plux_payments` |
 | `LineChart`, `BarChart`, `PieChart`, `Sparkline` | Charts | P5 | `plux_charts` |
 | `MapView` (markers, routes), `OrderTrackerMap` | Maps with provider abstraction (OpenStreetMap, Mapbox, Google) | P5 | `plux_maps`; Google through `plux_maps_google` |
@@ -3109,3 +3111,4 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | 1.5.0 | 2026-10-13 | Phase 7 decisions (maintainer, 2026-10-13; P7 plan §2.1 D1–D9, §2.2 C1 and C6, §2.5): Plux Functions are written in **Rust** (D1) — the §5.1 P7 row, §16 with its example, `FN-001`–`FN-004`, `FN-030`, `FN-033` and `FN-040` rewritten, with the SDK crate `plux-fn` at `github.com/nightCode42/plux3/sdk/fn` (D4), the repository layout (§33), the technology decision (§34) and the Go-editor wording (`STU-063`, `STU-110`) updated; `FN-050` names WAMR in interpreter mode in the optional package `plux_functions` (D2); builds run on the server in a new `builder` role (D3, `FN-016`) with a `wasm-opt` step (D9), only signed builder artifacts are deployable (`FN-009`) and builds are reproducible (`FN-019`); our own `egress` forward proxy (D5, `FN-017`); the server key-value store (D8, `FN-018`); until the approval engine (`GOV-020`, P9) `FN-007` and `FN-055` require a dedicated RBAC permission with step-up (D6); `FN-031` and `FN-032` split (D7) with new `FN-034`, `FN-035` (P11) and `FN-036` (P10); `FN-011` names the registry keys; new `SEC-123` (imported signing keys, C1); `SEC-043` covers `builder` and `egress`; §6.3 gains the `builder` and `egress` roles and L-4 names them; §5.4 anchors additive-only evolution (`BND-000`, `SCH-000`, `SRV-000`) to the first release, 0.0.1 (C6); §30.4, Appendix F (functions range, `PLX-6080`, `PLX-6081`) and Appendix K updated; ADR-0011 accepted for Rust and ADR-0062 (host ABI), ADR-0063 (builds and provenance), ADR-0064 (isolation) and ADR-0065 (imported keys and the Apple receipt) proposed. |
 | 1.5.1 | 2026-10-14 | Function versions are numbered per app and reach another environment only by promotion; a release promotion is refused until every function version it pins is promoted there (maintainer, 2026-10-14; `FN-006`; ADR-0063). Appendix H.1 gains the `functions`, `fnrunner`, `egress` and `builder` configuration (P7 plan §2.6 M6). `FN-023` and `NFR-022` measure the first invocation after the deploy-time compile, on the CI reference runner, the warm gate on the median of five rounds (M9, M10; ADR-0064). Appendix G.1 lists the function and egress metrics as implemented: no `function` label, so a tenant's functions add no Prometheus series; per-function numbers come from the stored invocations (`FN-032`) (M11). Statuses at the P7 exit: `FN-001`–`FN-013`, `FN-015`–`FN-024`, `FN-030`–`FN-032`, `FN-050`–`FN-055`, `NFR-022`, `SEC-123`, and the P7 parts of `HST-010` and `SEC-043` → `DONE`; `FN-056` `WIP` until the reference-device run; `FN-014` (`MAY`) not taken. |
 | 1.6.0 | 2026-10-16 | Phase 8 decisions (maintainer, 2026-10-16; P8 plan §2.1 D1–D17, §2.4 A1–A2): `I18N-001` names the MessageFormat subset; `I18N-002` covers the pinned CLDR data at `modern` coverage; `I18N-003` names the Ethiopian, Umm al-Qura and Persian calendars and Latin digits by default; `I18N-006` the `l10n_missing` event; `I18N-008` statuses in the document, the translator role and permissions, a lock per locale and approval-only releases; `A11Y-002`–`A11Y-004` severities and `accessibilityBlocksPublish` (§15.12); `A11Y-008` waivers and JSON/HTML reports; `QA-011` accessibility-tree passes in CI and live screen readers on the device checklist; `TST-003` `plux golden` and the optional gate; `GOV-002` notes the P8 translator role; `RT-060` adds `plux_player`, `plux_markdown`, `plux_maps_google`; §17.1 locale data and calendars; Appendix C package columns, Appendix D `announce`, Appendix E `device` fields, Appendix F `PLX-9300`, Appendix G.2 `l10n_missing`; §32 ADRs 0066–0071. The 1.4.1–1.5.1 rows move from the field table into this history, unchanged. |
+| 1.6.1 | 2026-10-18 | Size split (maintainer, 2026-10-18; ADR-0071 Revision): the P8 catch-up grew `plux_flutter` past the `RT-061` budgets, so `RT-060` adds the optional package `plux_components`, which builds the Layer 2 components most apps do not use and sixteen Layer 1 widgets that pull large parts of the Flutter framework into a build; Appendix C names the package for each of them, and its Layer 1 note lists the sixteen. No requirement text other than `RT-060`'s package list changes. |

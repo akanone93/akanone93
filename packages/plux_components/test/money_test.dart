@@ -7,13 +7,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plux_components/plux_components.dart';
 import 'package:plux_flutter/plux_flutter.dart';
-import 'package:plux_flutter/src/l10n/l10n.dart';
 import 'package:plux_flutter/src/l10n/locale_controller.dart';
 import 'package:plux_flutter/src/render/scope.dart';
 
-import '../support/harness.dart';
-import '../support/locale_bundle.dart';
+import '../../plux_flutter/test/support/harness.dart';
+import '../../plux_flutter/test/support/locale_bundle.dart';
 
 PluxLocaleData _load(String id) => PluxLocaleData.fromJson(
   jsonDecode(File('../../schema/l10n/cldr/$id.json').readAsStringSync())
@@ -59,6 +59,7 @@ void main() {
         locale == null ? app : withLocales(app, const {}, verbatim: {locale}),
         {'gallery': g.bundles['widgets/gallery.pxb']!},
         themeSource: PluxThemeSource.plux,
+        widgetPackages: const [PluxComponents()],
       );
       await h.loadIconFonts();
       if (locale != null) {

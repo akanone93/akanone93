@@ -30,6 +30,7 @@
     "role": "none",
     "interactive": true
   },
+  "package": "plux_components",
   "props": [
     {
       "name": "clipBehavior",

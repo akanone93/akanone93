@@ -10,7 +10,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_flutter/src/bundle/container.dart';
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
-import 'package:plux_flutter/src/render/keep_scope.dart';
 import 'package:plux_flutter/src/render/scope.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
 

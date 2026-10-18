@@ -193,7 +193,11 @@ func addDependencies(dir string, pkgs []string) (hostStep, error) {
 	}
 	for _, p := range pkgs {
 		if !has(p) {
-			add = append(add, "  "+p+": "+optionalConstraint)
+			constraint := optionalConstraint
+			if pkg, ok := codegen.PackageByName(p); ok && pkg.Constraint != "" {
+				constraint = pkg.Constraint
+			}
+			add = append(add, "  "+p+": "+constraint)
 		}
 	}
 	if len(add) == 0 {

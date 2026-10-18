@@ -46,3 +46,35 @@ some needing new dependencies (A1).
 - **Negative:** about a hundred builders grow the core package; size is measured each milestone and
   heavy components can move to optional packages.
 - **Follow-up:** K1–K3.
+
+## Revision (2026-10-18, P8: the size split, `plux_components`)
+
+**Context.** The catch-up put every Layer 2 component and the Layer 1 widgets of K1 into
+`plux_flutter` (the plan's §2.4 named the size risk). Measured in CI, the core then added
+9,835,006 B to the arm64 APK, 11,242,334 B to the armeabi-v7a APK (over `RT-061`'s 10 MiB) and
+4,175,235 B to the iOS IPA, and `QA-007` failed each on growth beyond 20 %. The Linux release
+build of the size app (`flutter build linux --release --analyze-size`) tracks the Android
+numbers closely and was used to choose what moves.
+
+**Decision.** A new optional package, `plux_components`, builds the widgets that most apps do not
+use. It follows ADR-0051's placement rule (a measurable size cost most apps would not pay) and
+registers like `plux_charts`, through `PluxConfig.widgetPackages`:
+
+- the Layer 2 components of K2a and K2b (`ConsentCheckbox` … `PaymentCard`, `FileUploader`
+  included, which picks through `plux_media`), about 0.23 MB of the Linux AOT code;
+- sixteen Layer 1 widgets whose Flutter implementation is large and rarely used, about 0.78 MB:
+  `Table`, `ReorderableListView`, `NestedScrollView`, `DataTable`, `Stepper`, `SearchBar`,
+  `SearchAnchor`, `Autocomplete`, `CalendarDatePicker`, `NavigationRail`, `CupertinoPicker`,
+  `CupertinoDatePicker`, `CupertinoContextMenu`, `Draggable`, `DragTarget` and
+  `InteractiveViewer`.
+
+Their descriptors name the package; the compiler's optional-package table (PLX-1233) is checked
+against the descriptors by a test; `plux init` registers the widget packages a project shows.
+`plux_flutter` exports what a widget package needs, nothing more: four members of `NodeContext`,
+the decoders and value types the builders read.
+
+**Consequences.** An app that uses one of these widgets adds one dependency and one line of
+configuration, and `plux init` does both. A node whose package is missing renders the fallback
+and reports `PLX-4403`, as for the other packages. `plux_flutter`'s tests register the package
+in their harness (a development dependency), so the core keeps its gallery and accessibility
+tests; the package runs its own.

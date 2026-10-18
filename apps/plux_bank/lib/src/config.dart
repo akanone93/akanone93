@@ -4,6 +4,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:plux_bank/src/host.dart';
 import 'package:plux_bank/src/reference_ca.dart';
+import 'package:plux_components/plux_components.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_media/plux_media.dart';
 
@@ -148,6 +149,7 @@ final class BankConfig {
     authDelegate: host,
     nativeActions: host.nativeActions,
     devicePackages: [PluxMedia()],
+    widgetPackages: [PluxComponents()],
     strongCustomerAuthentication: true,
     securityModules: [host.security],
     httpClient: trustReferenceCa ? referenceHttpClient : null,
