@@ -173,7 +173,7 @@ func (x *xliffReader) start(t xml.StartElement) error {
 		return x.startSegment(t)
 	case (name == "source" || name == "target") && x.cur != nil && parent(x.stack) == "segment":
 		x.text = &strings.Builder{}
-	case xliffContainers[name]:
+	case isContainer(name):
 	default:
 		// Anything else, such as <ignorable> or <originalData>, is not a
 		// translation; skip it whole.
@@ -185,10 +185,14 @@ func (x *xliffReader) start(t xml.StartElement) error {
 	return nil
 }
 
-// xliffContainers are the elements that hold units or notes and are descended
-// into without being read.
-var xliffContainers = map[string]bool{
-	"xliff": true, "file": true, "group": true, "unit": true, "notes": true, "note": true, "segment": true,
+// isContainer reports whether name holds units or notes and is descended into
+// without being read.
+func isContainer(name string) bool {
+	switch name {
+	case "xliff", "file", "group", "unit", "notes", "note", "segment":
+		return true
+	}
+	return false
 }
 
 // startSegment handles a <segment>: one per unit, with an optional state.
