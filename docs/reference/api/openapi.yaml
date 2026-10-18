@@ -2603,6 +2603,215 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.CallResponse'
+  /plux.v1.GoldenService/Approve:
+    post:
+      tags:
+        - plux.v1.GoldenService
+      summary: Approve
+      description: |-
+        Approve promotes the images of cases of a run to baselines; with no case
+         IDs, every difference of the run. It needs goldens.approve and is
+         audited.
+      operationId: plux.v1.GoldenService.Approve
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ApproveRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ApproveResponse'
+  /plux.v1.GoldenService/GetBaselines:
+    post:
+      tags:
+        - plux.v1.GoldenService
+      summary: GetBaselines
+      description: |-
+        GetBaselines lists the approved image hashes of a plugin by case, so the
+         CLI can compare locally and upload only the images that differ. It
+         needs plugin.read.
+      operationId: plux.v1.GoldenService.GetBaselines
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetBaselinesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetBaselinesResponse'
+  /plux.v1.GoldenService/GetStatus:
+    post:
+      tags:
+        - plux.v1.GoldenService
+      summary: GetStatus
+      description: |-
+        GetStatus says whether the run for the exact bundles exists, is
+         canonical and has unapproved differences: what the publish gate sees.
+         It needs plugin.read.
+      operationId: plux.v1.GoldenService.GetStatus
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetGoldenStatusRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetGoldenStatusResponse'
+  /plux.v1.GoldenService/ListDifferences:
+    post:
+      tags:
+        - plux.v1.GoldenService
+      summary: ListDifferences
+      description: |-
+        ListDifferences lists the cases of a run that differ from the approved
+         baselines now. It needs plugin.read.
+      operationId: plux.v1.GoldenService.ListDifferences
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListDifferencesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListDifferencesResponse'
+  /plux.v1.GoldenService/UploadRun:
+    post:
+      tags:
+        - plux.v1.GoldenService
+      summary: UploadRun
+      description: |-
+        UploadRun records a run. Every case that differs from its baseline
+         carries its image, which the server checks against the hash. It needs
+         plugin.edit.
+      operationId: plux.v1.GoldenService.UploadRun
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.UploadRunRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.UploadRunResponse'
   /plux.v1.IdentityService/AcceptInvitation:
     post:
       tags:
@@ -6930,6 +7139,33 @@ components:
       type: object
       title: ApproveDeviceAuthorizationResponse
       additionalProperties: false
+    plux.v1.ApproveRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        runId:
+          type: string
+          title: run_id
+        caseIds:
+          type: array
+          items:
+            type: string
+          title: case_ids
+          description: case_ids are the cases to approve; empty approves every difference.
+      title: ApproveRequest
+      additionalProperties: false
+    plux.v1.ApproveResponse:
+      type: object
+      properties:
+        approvedCaseIds:
+          type: array
+          items:
+            type: string
+          title: approved_case_ids
+      title: ApproveResponse
+      additionalProperties: false
     plux.v1.Artifact:
       type: object
       properties:
@@ -9315,6 +9551,31 @@ components:
           title: asset
       title: GetAssetResponse
       additionalProperties: false
+    plux.v1.GetBaselinesRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        pluginKey:
+          type: string
+          title: plugin_key
+          description: plugin_key is the plugin's key, or empty for the app bundle.
+      title: GetBaselinesRequest
+      additionalProperties: false
+    plux.v1.GetBaselinesResponse:
+      type: object
+      properties:
+        imageSha256:
+          type: object
+          title: image_sha256
+          additionalProperties:
+            type: string
+            title: value
+            format: byte
+          description: image_sha256 maps a case ID to the SHA-256 of its approved image.
+      title: GetBaselinesResponse
+      additionalProperties: false
     plux.v1.GetBuildRequest:
       type: object
       properties:
@@ -9580,6 +9841,46 @@ components:
             $ref: '#/components/schemas/plux.v1.Alias'
           title: aliases
       title: GetFunctionResponse
+      additionalProperties: false
+    plux.v1.GetGoldenStatusRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        pluginKey:
+          type: string
+          title: plugin_key
+        bundleSha256:
+          type: string
+          title: bundle_sha256
+          format: byte
+        appSha256:
+          type: string
+          title: app_sha256
+          format: byte
+      title: GetGoldenStatusRequest
+      additionalProperties: false
+    plux.v1.GetGoldenStatusResponse:
+      type: object
+      properties:
+        found:
+          type: boolean
+          title: found
+          description: found is whether a canonical run exists for the exact bundles.
+        runId:
+          type: string
+          title: run_id
+        cases:
+          type: integer
+          title: cases
+          format: int32
+        differences:
+          type: integer
+          title: differences
+          format: int32
+          description: differences is the number of cases of that run still unapproved.
+      title: GetGoldenStatusResponse
       additionalProperties: false
     plux.v1.GetLiveConfigRequest:
       type: object
@@ -10092,6 +10393,70 @@ components:
             - $ref: '#/components/schemas/plux.v1.UserIdentityProvider'
           title: provider
       title: GetUserIdentityProviderResponse
+      additionalProperties: false
+    plux.v1.GoldenCase:
+      type: object
+      properties:
+        caseId:
+          type: string
+          title: case_id
+        frame:
+          type: string
+          title: frame
+        locale:
+          type: string
+          title: locale
+        theme:
+          type: string
+          title: theme
+        textScale:
+          type: number
+          title: text_scale
+          format: double
+        imageSha256:
+          type: string
+          title: image_sha256
+          format: byte
+          description: image_sha256 is the SHA-256 of the PNG.
+        image:
+          type: string
+          title: image
+          format: byte
+          description: image is the PNG; empty when the case matches its baseline.
+      title: GoldenCase
+      additionalProperties: false
+      description: |-
+        GoldenCase is one rendered case: a page in a frame, locale, theme and text
+         scale. The case ID names all of them and is stable across runs.
+    plux.v1.GoldenDifference:
+      type: object
+      properties:
+        caseId:
+          type: string
+          title: case_id
+        frame:
+          type: string
+          title: frame
+        locale:
+          type: string
+          title: locale
+        theme:
+          type: string
+          title: theme
+        textScale:
+          type: number
+          title: text_scale
+          format: double
+        imageSha256:
+          type: string
+          title: image_sha256
+          format: byte
+        baselineSha256:
+          type: string
+          title: baseline_sha256
+          format: byte
+          description: baseline_sha256 is empty for a case with no baseline yet.
+      title: GoldenDifference
       additionalProperties: false
     plux.v1.GrantAccessRequest:
       type: object
@@ -10752,6 +11117,27 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListDevicesResponse
+      additionalProperties: false
+    plux.v1.ListDifferencesRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        runId:
+          type: string
+          title: run_id
+      title: ListDifferencesRequest
+      additionalProperties: false
+    plux.v1.ListDifferencesResponse:
+      type: object
+      properties:
+        differences:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.GoldenDifference'
+          title: differences
+      title: ListDifferencesResponse
       additionalProperties: false
     plux.v1.ListDocumentsRequest:
       type: object
@@ -13703,6 +14089,58 @@ components:
              the same content.
       title: UploadNativeCatalogueResponse
       additionalProperties: false
+    plux.v1.UploadRunRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        pluginKey:
+          type: string
+          title: plugin_key
+          description: plugin_key is the plugin's key, or empty for the app bundle.
+        bundleSha256:
+          type: string
+          title: bundle_sha256
+          format: byte
+          description: |-
+            bundle_sha256 is the hash of the bundle under test and app_sha256 the
+             hash of the app bundle it was rendered with (BND-005).
+        appSha256:
+          type: string
+          title: app_sha256
+          format: byte
+        canonical:
+          type: boolean
+          title: canonical
+          description: |-
+            canonical is true when the run was rendered on Linux, the canonical
+             renderer; other systems compare with a tolerance and the gate never
+             accepts their runs.
+        renderer:
+          type: string
+          title: renderer
+          description: renderer names the system that rendered the run.
+        cases:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.GoldenCase'
+          title: cases
+      title: UploadRunRequest
+      additionalProperties: false
+    plux.v1.UploadRunResponse:
+      type: object
+      properties:
+        runId:
+          type: string
+          title: run_id
+        differences:
+          type: integer
+          title: differences
+          format: int32
+          description: differences is the number of cases that differ from the baselines.
+      title: UploadRunResponse
+      additionalProperties: false
     plux.v1.UploadSourceRequest:
       type: object
       properties:
@@ -14269,6 +14707,13 @@ tags:
       ScaService issues the challenges behind strong customer authentication:
        the user confirms the exact transaction on the device and its SCA key
        signs it (SEC-027).
+  - name: plux.v1.GoldenService
+    description: |-
+      GoldenService holds the baselines of golden (visual regression) tests and
+       the runs compared with them (TST-003, ADR-0070). The CLI renders the
+       cases with the real runtime and uploads a run; the server compares the
+       images with the approved baselines, promotes images on approval and gates
+       publishing on them.
   - name: plux.v1.OrgService
     description: |-
       OrgService manages the Installation → Organization → Teams hierarchy

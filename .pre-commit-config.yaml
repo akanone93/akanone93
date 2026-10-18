@@ -46,7 +46,10 @@ repos:
         # WAMR's validating loader, vendored unmodified and pinned by
         # SHA256SUMS (ADR-0011, plan p7 §2.5 E10); lead decision under plan
         # p7 §2.4 P1, 2026-10-13, for the maintainer's confirmation.
-        exclude: ^(backend/internal/compiler/media/codecs/[a-z]+\.wasm|backend/internal/icons/fonts/MaterialSymbolsOutlined\.ttf|packages/plux_functions/native/wamr/core/iwasm/interpreter/wasm_loader\.c)$
+        # The Noto Sans fonts of the golden tests, vendored unmodified and
+        # pinned by schema/goldens/fonts/VERSION (ADR-0070, plan p8 D12);
+        # test data only; for the maintainer's confirmation.
+        exclude: ^(backend/internal/compiler/media/codecs/[a-z]+\.wasm|backend/internal/icons/fonts/MaterialSymbolsOutlined\.ttf|packages/plux_functions/native/wamr/core/iwasm/interpreter/wasm_loader\.c|schema/goldens/fonts/NotoSans_(400Regular|700Bold)\.ttf)$
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
       - id: detect-private-key

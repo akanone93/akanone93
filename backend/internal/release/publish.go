@@ -303,6 +303,12 @@ func (s *Service) RunPublish(ctx context.Context, job Job) error {
 	if diags.HasErrors() {
 		return s.fail(ctx, system, row, diags)
 	}
+	if diags, err = s.gateGoldens(ctx, system, row, c, diags); err != nil {
+		return err
+	}
+	if diags.HasErrors() {
+		return s.fail(ctx, system, row, diags)
+	}
 	builds, err := s.hostBuildChecks(ctx, system, row, c)
 	if err != nil {
 		return err

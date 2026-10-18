@@ -39,6 +39,7 @@ Commands:
   fn          new | build | test | invoke | deploy | alias | versions | logs of Plux Functions
   security    config show | set | diff an environment's security configuration
   l10n        pull | push | export | import | status | extract | pseudo of an app's translations
+  golden      run | approve | status of golden (visual regression) tests
   config      set | get | list | delete an environment's server-held configuration values
   create      Generate the Flutter project of a no-code app
   completion  Print a shell completion script (bash, zsh, fish, powershell)
@@ -103,6 +104,6 @@ func (e env) commands() map[string]func([]string) int {
 	return map[string]func([]string) int{
 		"login": e.login, "logout": e.logout, "whoami": e.whoami, "init": e.initProject, "doctor": e.doctor,
 		"diff": e.diff, "publish": e.publish, "pull": e.pull, "release": e.release, "export": e.export,
-		"import": e.importCmd, "mock": e.mockCmd, "keys": e.keys, "native": e.native, "security": e.security, "config": e.config, "create": e.create, "completion": e.completion, "fn": e.fn, "l10n": e.l10n,
+		"import": e.importCmd, "mock": e.mockCmd, "keys": e.keys, "native": e.native, "security": e.security, "config": e.config, "create": e.create, "completion": e.completion, "fn": e.fn, "l10n": e.l10n, "golden": e.golden,
 	}
 }

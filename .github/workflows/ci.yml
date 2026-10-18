@@ -1034,6 +1034,65 @@ jobs:
       - name: Starter flows and the compatibility matrix
         run: make compat | tee -a "$GITHUB_STEP_SUMMARY"
 
+  # The golden (visual regression) harness on Linux, the canonical renderer
+  # (TST-003, ADR-0070): `plux golden run` renders the starter project's pages
+  # with the real runtime and the vendored Noto fonts, and two runs must
+  # produce the same bytes. Baselines live on the server, so the job needs no
+  # database.
+  goldens:
+    name: Golden tests
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['goldens']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
+      # Flutter and the pub cache, as in starter-e2e.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        id: flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          dry-run: true
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: flutter-cache
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.CACHE-KEY }}
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pub-cache
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      # Verifies: TST-003.
+      - name: Render the golden matrix and compare two runs
+        working-directory: backend
+        run: go test -count=1 -run 'TestGolden' ./cmd/plux/ ./internal/plxgolden/
+
   # The same flows on an Android emulator and an iOS simulator, in the app
   # built for the device, with the platform's key store and HTTP client
   # (test/e2e/README.md). No emulator action: the runner's Android SDK
@@ -1780,6 +1839,7 @@ jobs:
       - go-vuln
       - dart
       - starter-e2e
+      - goldens
       - e2e-android
       - e2e-ios
       - bench-runtime

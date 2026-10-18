@@ -255,6 +255,23 @@ var matrix = map[string]entry{
 		return &pluxv1.SetStatesRequest{AppId: f.app, Locale: "de", States: map[string]string{unknownID: "reviewed"}}
 	})),
 
+	// GoldenService
+	"GoldenService/GetBaselines": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetBaselinesRequest{AppId: f.app}
+	})),
+	"GoldenService/UploadRun": atPerm(auth.PluginEdit, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.UploadRunRequest{AppId: f.app}
+	})),
+	"GoldenService/ListDifferences": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListDifferencesRequest{AppId: f.app, RunId: unknownID}
+	})),
+	"GoldenService/Approve": atPerm(auth.GoldensApprove, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ApproveRequest{AppId: f.app, RunId: unknownID}
+	})),
+	"GoldenService/GetStatus": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetGoldenStatusRequest{AppId: f.app}
+	})),
+
 	// PublishService and ReleaseService
 	"PublishService/Publish": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.PublishRequest{AppId: f.app, PluginId: f.plugin, EnvironmentId: f.dev}
