@@ -39,6 +39,18 @@ and renders it as native widgets.
   page transitions, Lottie and Rive.
 - [Testing](../../../../docs/guides/testing.md): declarative scenarios with `plux test`, and
   mocking a backend.
+- [Localisation](../../../../docs/guides/localisation.md): locales, translations,
+  MessageFormat, RTL and fallback.
+- [Calendars](../../../../docs/guides/calendars.md): Ethiopian, Hijri and Persian dates and
+  `DualCalendarDatePicker`.
+- [Translation workflow](../../../../docs/guides/translation-workflow.md): translators,
+  review states, `plux l10n` and exchange formats.
+- [Accessibility](../../../../docs/guides/accessibility.md): compiler checks, waivers, the
+  report and runtime semantics.
+- [Golden tests](../../../../docs/guides/golden-tests.md): `plux golden`, baselines and the
+  publish gate.
+- [Widget packages](../../../../docs/guides/widget-packages.md): charts, Markdown, player,
+  maps and scanner widgets.
 - The [starter app](https://github.com/nightCode42/plux3/tree/main/apps/starter) is a complete
   host to copy from, and the reference apps
   [Plux Bank](https://github.com/nightCode42/plux3/tree/main/apps/plux_bank) and
