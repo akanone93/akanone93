@@ -51,13 +51,13 @@ func Reduce(tag string, o ReduceOptions) (data []byte, resolved string, err erro
 	}
 	src, err := dataFS.ReadFile("data/" + id + ".json")
 	if err != nil {
-		return nil, "", fmt.Errorf("%w: %s: %v", ErrNoLocale, id, err)
+		return nil, "", fmt.Errorf("%w: %s: %w", ErrNoLocale, id, err)
 	}
 	dec := json.NewDecoder(bytes.NewReader(src))
 	dec.UseNumber()
 	var doc map[string]any
 	if err := dec.Decode(&doc); err != nil {
-		return nil, "", fmt.Errorf("%w: %s: %v", ErrInvalidData, id, err)
+		return nil, "", fmt.Errorf("%w: %s: %w", ErrInvalidData, id, err)
 	}
 	if cals, ok := doc["calendars"].(map[string]any); ok {
 		keep := append([]string{"gregorian"}, o.Calendars...)
@@ -80,7 +80,7 @@ func Reduce(tag string, o ReduceOptions) (data []byte, resolved string, err erro
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)
 	if err := enc.Encode(doc); err != nil {
-		return nil, "", fmt.Errorf("%w: %s: %v", ErrInvalidData, id, err)
+		return nil, "", fmt.Errorf("%w: %s: %w", ErrInvalidData, id, err)
 	}
 	return bytes.TrimRight(buf.Bytes(), "\n"), id, nil
 }

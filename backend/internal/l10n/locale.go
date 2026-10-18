@@ -19,7 +19,6 @@ import (
 	"errors"
 	"fmt"
 	"sort"
-	"strconv"
 )
 
 //go:embed data/*.json
@@ -119,7 +118,7 @@ func Load(tag string) (*Locale, error) {
 	}
 	b, err := dataFS.ReadFile("data/" + id + ".json")
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s: %v", ErrNoLocale, id, err)
+		return nil, fmt.Errorf("%w: %s: %w", ErrNoLocale, id, err)
 	}
 	return Parse(b)
 }
@@ -141,7 +140,7 @@ func Parse(data []byte) (*Locale, error) {
 	var raw rawLocale
 	dec := json.NewDecoder(bytes.NewReader(data))
 	if err := dec.Decode(&raw); err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrInvalidData, err)
+		return nil, fmt.Errorf("%w: %w", ErrInvalidData, err)
 	}
 	if raw.Locale == "" || len(raw.Numbers) == 0 || len(raw.Calendars) == 0 {
 		return nil, fmt.Errorf("%w: locale file is incomplete", ErrInvalidData)
@@ -169,7 +168,7 @@ func Parse(data []byte) (*Locale, error) {
 	for id, rs := range raw.Numbers {
 		ns, err := compileNumberSystem(rs)
 		if err != nil {
-			return nil, fmt.Errorf("%w: numbers %s: %v", ErrInvalidData, id, err)
+			return nil, fmt.Errorf("%w: numbers %s: %w", ErrInvalidData, id, err)
 		}
 		l.systems[id] = ns
 	}
@@ -179,7 +178,7 @@ func Parse(data []byte) (*Locale, error) {
 	for id, rc := range raw.Calendars {
 		c, err := compileCalendar(rc)
 		if err != nil {
-			return nil, fmt.Errorf("%w: calendar %s: %v", ErrInvalidData, id, err)
+			return nil, fmt.Errorf("%w: calendar %s: %w", ErrInvalidData, id, err)
 		}
 		l.calendars[id] = c
 	}
@@ -260,5 +259,3 @@ func (l *Locale) mapDigits(s, system string) string {
 	}
 	return string(out)
 }
-
-func itoa(n int) string { return strconv.Itoa(n) }
