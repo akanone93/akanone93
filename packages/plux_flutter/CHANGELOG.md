@@ -5,6 +5,36 @@ SPDX-License-Identifier: Apache-2.0
 
 # Changelog
 
+## 0.5.0
+
+The runtime of Plux Phase 8: localisation, accessibility and the catalogue catch-up. Not
+released yet.
+
+- **Locale data and switching (I18N-001–I18N-006, I18N-011, I18N-012):** each app locale's
+  reduced CLDR data, Flutter's widget strings and the runtime's own strings arrive in the app
+  bundle and are parsed off the UI isolate; `LocaleController` resolves the effective locale
+  along the CLDR parent chain (`setLocale`, `Plux.setLocale`, `PluxConfig.locale`, the host),
+  follows host locale changes and switches without a restart, keeping page state; text
+  direction, Plux's own Material, Cupertino and Widgets localizations, Latin or native digits,
+  per-locale assets and node `localeOverrides`; missing messages fall back along the chain
+  with `PLX-4401` and a sampled `l10n_missing` event.
+- **Formatting and calendars (I18N-001, I18N-003, PXL-006):** ICU MessageFormat, numbers,
+  currencies, dates and plurals from CLDR; Gregorian, Ethiopian, Umm al-Qura and Persian
+  calendars; the PXL `format`, `l10n` and `calendar` groups; `DualCalendarDatePicker`.
+- **Accessibility (A11Y-001–A11Y-008):** semantics on every builder, minimum tap targets from
+  the descriptors, focus order, groups, heading levels, `announce`, `setThemeMode`, reduce
+  motion and high contrast.
+- **Catalogue catch-up (ADR-0071):** the Appendix C widgets of P3–P5 that had no descriptor,
+  including the Layer 2 money, form, commerce and status components; `PluxWidgetPackage` for
+  optional widget packages (`plux_charts`, `plux_markdown`, `plux_player`, `plux_maps`,
+  `plux_maps_google`, scanner widgets in `plux_scanner`, `SignaturePad`, `LottieView`,
+  `RiveView`).
+- **Integration (SEC-080, SEC-041, AST-002, SCH-012):** widgets that need a device API are
+  refused without it; every remote image, Markdown image, Lottie and Rive file loads only from
+  a declared HTTPS domain through the pinned client; under `pinnedMediaOnly` network video and
+  audio are downloaded through the pinned client first (`media.pinnedDownloadSize`); overlays
+  keep the page scope; sensitive event payloads are redacted from traces.
+
 ## 0.4.0
 
 The runtime of Plux Phase 6, milestones S0–S6: device trust, configuration, update

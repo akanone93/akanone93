@@ -17,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
   google_maps_flutter: 2.19.0
-  plux_flutter: ^0.4.0
+  plux_flutter: ^0.5.0
 
 dev_dependencies:
   flutter_test:
