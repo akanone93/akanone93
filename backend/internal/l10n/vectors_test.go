@@ -163,7 +163,7 @@ func TestDateVectors(t *testing.T) {
 		d := CalendarDate{Era: c.Date[0], Year: c.Date[1], Month: c.Date[2], Day: c.Date[3], Weekday: c.Date[4], Hour: c.Date[5], Minute: c.Date[6], Second: c.Date[7]}
 		got, err := l.FormatDate(d, cal, DateOptions{DateStyle: c.DateStyle, TimeStyle: c.TimeStyle, Skeleton: c.Skeleton, NumberingSystem: c.Numbering})
 		// JavaScriptCore writes U+0020 where CLDR has U+202F (dates.json
-		// "normalize"); the engine keeps CLDR's character.
+		// "normalise"); the engine keeps CLDR's character.
 		return strings.ReplaceAll(got, "\u202f", " "), err
 	})
 }

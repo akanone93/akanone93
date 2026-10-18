@@ -33,7 +33,7 @@ func copyJSON(src, dst string) error {
 	if len(files) == 0 {
 		return fmt.Errorf("%s has no JSON file", src)
 	}
-	if err := os.MkdirAll(dst, 0o750); err != nil {
+	if err := os.MkdirAll(dst, 0o750); err != nil { //nolint:gosec // G703: the developer names the destination.
 		return fmt.Errorf("create %s: %w", dst, err)
 	}
 	old, err := filepath.Glob(filepath.Join(dst, "*.json"))
@@ -41,16 +41,16 @@ func copyJSON(src, dst string) error {
 		return fmt.Errorf("list %s: %w", dst, err)
 	}
 	for _, f := range old {
-		if err := os.Remove(f); err != nil {
+		if err := os.Remove(f); err != nil { //nolint:gosec // G703: a file the tool lists under the destination.
 			return fmt.Errorf("remove %s: %w", f, err)
 		}
 	}
 	for _, f := range files {
-		b, err := os.ReadFile(f)
+		b, err := os.ReadFile(f) //nolint:gosec // G304: a file the tool lists under the source.
 		if err != nil {
 			return fmt.Errorf("read %s: %w", f, err)
 		}
-		if err := os.WriteFile(filepath.Join(dst, filepath.Base(f)), b, 0o600); err != nil {
+		if err := os.WriteFile(filepath.Join(dst, filepath.Base(f)), b, 0o600); err != nil { //nolint:gosec // G703: the developer names the destination.
 			return fmt.Errorf("write %s: %w", f, err)
 		}
 	}

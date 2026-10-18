@@ -21,7 +21,7 @@ type index struct {
 func loadIndex() (*index, error) {
 	b, err := dataFS.ReadFile("data/index.json")
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrInvalidData, err)
+		return nil, fmt.Errorf("%w: %w", ErrInvalidData, err)
 	}
 	var raw struct {
 		Locales       []string          `json:"locales"`
@@ -29,7 +29,7 @@ func loadIndex() (*index, error) {
 		LikelyScripts map[string]string `json:"likelyScripts"`
 	}
 	if err := json.Unmarshal(b, &raw); err != nil {
-		return nil, fmt.Errorf("%w: index.json: %v", ErrInvalidData, err)
+		return nil, fmt.Errorf("%w: index.json: %w", ErrInvalidData, err)
 	}
 	idx := &index{locales: raw.Locales, have: map[string]bool{}, parents: raw.ParentLocales, likelyScripts: raw.LikelyScripts}
 	for _, l := range raw.Locales {

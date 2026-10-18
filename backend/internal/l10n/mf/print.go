@@ -37,26 +37,31 @@ func printNodes(b *strings.Builder, nodes []Node, inPlural bool) {
 			}
 			b.WriteByte('}')
 		case KindPlural, KindSelect:
-			kind := "select"
-			if n.Kind == KindPlural {
-				kind = "plural"
-				if n.Ordinal {
-					kind = "selectordinal"
-				}
-			}
-			b.WriteString("{" + n.Name + ", " + kind + ",")
-			if n.Offset != 0 {
-				b.WriteString(" offset:" + strconv.FormatInt(n.Offset, 10))
-			}
-			for j := range n.Cases {
-				c := &n.Cases[j]
-				b.WriteString(" " + c.Selector + " {")
-				printNodes(b, c.Body, inPlural || n.Kind == KindPlural)
-				b.WriteByte('}')
-			}
-			b.WriteByte('}')
+			printBranches(b, n, inPlural)
 		}
 	}
+}
+
+// printBranches writes a plural, selectordinal or select with its cases.
+func printBranches(b *strings.Builder, n *Node, inPlural bool) {
+	kind := "select"
+	if n.Kind == KindPlural {
+		kind = "plural"
+		if n.Ordinal {
+			kind = "selectordinal"
+		}
+	}
+	b.WriteString("{" + n.Name + ", " + kind + ",")
+	if n.Offset != 0 {
+		b.WriteString(" offset:" + strconv.FormatInt(n.Offset, 10))
+	}
+	for j := range n.Cases {
+		c := &n.Cases[j]
+		b.WriteString(" " + c.Selector + " {")
+		printNodes(b, c.Body, inPlural || n.Kind == KindPlural)
+		b.WriteByte('}')
+	}
+	b.WriteByte('}')
 }
 
 // printText writes literal text, quoting what the syntax reserves.

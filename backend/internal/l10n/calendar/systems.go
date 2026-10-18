@@ -179,7 +179,7 @@ func (u umalqura) IsLeapYear(year int) bool {
 	return u.yearLength(year) == 355
 }
 
-func (u umalqura) yearLength(year int) int {
+func (umalqura) yearLength(year int) int {
 	i := year - umalquraYearStart
 	return int(umalquraYearStarts[i+1] - umalquraYearStarts[i])
 }

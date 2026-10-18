@@ -99,14 +99,7 @@ func parseXLIFF(data []byte) (importFile, error) {
 	d.Entity = nil
 	d.CharsetReader = nil
 
-	var (
-		out     importFile
-		stack   []string
-		cur     *entry
-		segment int
-		text    *strings.Builder
-		sawRoot bool
-	)
+	x := &xliffReader{d: d}
 	for {
 		tok, err := d.Token()
 		if errors.Is(err, io.EOF) {
@@ -119,81 +112,125 @@ func parseXLIFF(data []byte) (importFile, error) {
 		case xml.Directive:
 			return importFile{}, invalid("an XLIFF file may not carry a DOCTYPE or ENTITY declaration")
 		case xml.StartElement:
-			if len(stack) >= xliffMaxDepth {
-				return importFile{}, invalid("the file nests elements deeper than %d levels", xliffMaxDepth)
-			}
-			name := t.Name.Local
-			if len(stack) == 0 {
-				if err := checkRoot(t); err != nil {
-					return importFile{}, err
-				}
-				out.locale = attr(t, "trgLang")
-				sawRoot = true
-			} else if t.Name.Space != xliffNamespace {
-				return importFile{}, invalid("element %s is not in the XLIFF 2.0 namespace", clip(name))
-			}
-			if text != nil {
-				return importFile{}, invalid("<%s> holds a nested element; messages are plain text", stack[len(stack)-1])
-			}
-			stack = append(stack, name)
-			switch {
-			case name == "unit" && parent(stack) != "":
-				if cur != nil {
-					return importFile{}, invalid("units may not nest")
-				}
-				cur = &entry{id: attr(t, "id"), key: attr(t, "name")}
-				segment = 0
-			case name == "segment" && cur != nil:
-				segment++
-				if segment > 1 {
-					return importFile{}, invalid("unit %s has more than one segment; export with segmentation off", clip(cur.id))
-				}
-				if s := attr(t, "state"); s != "" {
-					state, ok := fromXLIFFState[s]
-					if !ok {
-						return importFile{}, invalid("unit %s has the unknown state %q", clip(cur.id), clip(s))
-					}
-					cur.state = state
-				}
-			case (name == "source" || name == "target") && cur != nil && parent(stack) == "segment":
-				text = &strings.Builder{}
-			case name == "xliff" || name == "file" || name == "group" || name == "unit" || name == "notes" || name == "note" || name == "segment":
-			default:
-				// Anything else, such as <ignorable> or <originalData>, is not
-				// a translation; skip it whole.
-				if err := d.Skip(); err != nil {
-					return importFile{}, invalid("the file is not well-formed XML: %s", clip(err.Error()))
-				}
-				stack = stack[:len(stack)-1]
+			if err := x.start(t); err != nil {
+				return importFile{}, err
 			}
 		case xml.CharData:
-			if text != nil {
-				text.Write(t)
+			if x.text != nil {
+				x.text.Write(t)
 			}
 		case xml.EndElement:
-			name := stack[len(stack)-1]
-			stack = stack[:len(stack)-1]
-			switch {
-			case text != nil && (name == "source" || name == "target"):
-				if name == "source" {
-					cur.source, cur.hasSource = text.String(), true
-				} else {
-					cur.target, cur.hasTarget = text.String(), true
-				}
-				text = nil
-			case name == "unit" && cur != nil:
-				if cur.id == "" && cur.key == "" {
-					return importFile{}, invalid("a unit has neither an id nor a name")
-				}
-				out.entries = append(out.entries, *cur)
-				cur = nil
+			if err := x.end(); err != nil {
+				return importFile{}, err
 			}
 		}
 	}
-	if !sawRoot {
+	if !x.sawRoot {
 		return importFile{}, invalid("the file has no <xliff> element")
 	}
-	return out, nil
+	return x.out, nil
+}
+
+// xliffReader is the state of one parseXLIFF pass: the open elements, the
+// unit being read and the text of the source or target being collected.
+type xliffReader struct {
+	d       *xml.Decoder
+	out     importFile
+	stack   []string
+	cur     *entry
+	segment int
+	text    *strings.Builder
+	sawRoot bool
+}
+
+// start handles an opening element.
+func (x *xliffReader) start(t xml.StartElement) error {
+	if len(x.stack) >= xliffMaxDepth {
+		return invalid("the file nests elements deeper than %d levels", xliffMaxDepth)
+	}
+	name := t.Name.Local
+	if len(x.stack) == 0 {
+		if err := checkRoot(t); err != nil {
+			return err
+		}
+		x.out.locale = attr(t, "trgLang")
+		x.sawRoot = true
+	} else if t.Name.Space != xliffNamespace {
+		return invalid("element %s is not in the XLIFF 2.0 namespace", clip(name))
+	}
+	if x.text != nil {
+		return invalid("<%s> holds a nested element; messages are plain text", x.stack[len(x.stack)-1])
+	}
+	x.stack = append(x.stack, name)
+	switch {
+	case name == "unit" && parent(x.stack) != "":
+		if x.cur != nil {
+			return invalid("units may not nest")
+		}
+		x.cur = &entry{id: attr(t, "id"), key: attr(t, "name")}
+		x.segment = 0
+	case name == "segment" && x.cur != nil:
+		return x.startSegment(t)
+	case (name == "source" || name == "target") && x.cur != nil && parent(x.stack) == "segment":
+		x.text = &strings.Builder{}
+	case isContainer(name):
+	default:
+		// Anything else, such as <ignorable> or <originalData>, is not a
+		// translation; skip it whole.
+		if err := x.d.Skip(); err != nil {
+			return invalid("the file is not well-formed XML: %s", clip(err.Error()))
+		}
+		x.stack = x.stack[:len(x.stack)-1]
+	}
+	return nil
+}
+
+// isContainer reports whether name holds units or notes and is descended into
+// without being read.
+func isContainer(name string) bool {
+	switch name {
+	case "xliff", "file", "group", "unit", "notes", "note", "segment":
+		return true
+	}
+	return false
+}
+
+// startSegment handles a <segment>: one per unit, with an optional state.
+func (x *xliffReader) startSegment(t xml.StartElement) error {
+	x.segment++
+	if x.segment > 1 {
+		return invalid("unit %s has more than one segment; export with segmentation off", clip(x.cur.id))
+	}
+	if s := attr(t, "state"); s != "" {
+		state, ok := fromXLIFFState[s]
+		if !ok {
+			return invalid("unit %s has the unknown state %q", clip(x.cur.id), clip(s))
+		}
+		x.cur.state = state
+	}
+	return nil
+}
+
+// end handles a closing element.
+func (x *xliffReader) end() error {
+	name := x.stack[len(x.stack)-1]
+	x.stack = x.stack[:len(x.stack)-1]
+	switch {
+	case x.text != nil && (name == "source" || name == "target"):
+		if name == "source" {
+			x.cur.source, x.cur.hasSource = x.text.String(), true
+		} else {
+			x.cur.target, x.cur.hasTarget = x.text.String(), true
+		}
+		x.text = nil
+	case name == "unit" && x.cur != nil:
+		if x.cur.id == "" && x.cur.key == "" {
+			return invalid("a unit has neither an id nor a name")
+		}
+		x.out.entries = append(x.out.entries, *x.cur)
+		x.cur = nil
+	}
+	return nil
 }
 
 // parent returns the element above the innermost one of a stack.

@@ -51,7 +51,7 @@ func compileRules(src map[string]string) (ruleSet, error) {
 		}
 		r, err := parseRule(text)
 		if err != nil {
-			return nil, fmt.Errorf("%w: plural rule %q: %v", ErrInvalidData, text, err)
+			return nil, fmt.Errorf("%w: plural rule %q: %w", ErrInvalidData, text, err)
 		}
 		out[cat] = r
 	}
@@ -95,7 +95,7 @@ func parseRule(text string) (rule, error) {
 // number of tokens it used.
 func parseRelation(toks []string) (relation, int, error) {
 	var rel relation
-	if len(toks[0]) != 1 || !strings.Contains("nivwftce", toks[0]) {
+	if len(toks[0]) != 1 || strings.IndexByte("nivwftce", toks[0][0]) < 0 {
 		return rel, 0, fmt.Errorf("unknown operand %q", toks[0])
 	}
 	rel.operand = toks[0][0]

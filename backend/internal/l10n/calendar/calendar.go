@@ -89,7 +89,7 @@ func ForID(id string) (System, error) {
 func Convert(from System, d Date, to System) (Date, error) {
 	jdn, err := from.ToJDN(d)
 	if err != nil {
-		return Date{}, err
+		return Date{}, err //nolint:wrapcheck // reported as is
 	}
 	return to.FromJDN(jdn), nil
 }
@@ -99,9 +99,9 @@ func Weekday(jdn int) int {
 	return floorMod(jdn+1, 7)
 }
 
-// CalendarDate converts a Julian day number and time of day to the
+// FormatInput converts a Julian day number and time of day to the
 // l10n.CalendarDate that Locale.FormatDate formats in the system's calendar.
-func CalendarDate(sys System, jdn, hour, minute, second int) l10n.CalendarDate {
+func FormatInput(sys System, jdn, hour, minute, second int) l10n.CalendarDate {
 	d := sys.FromJDN(jdn)
 	era, y := sys.EraOf(d.Year)
 	return l10n.CalendarDate{

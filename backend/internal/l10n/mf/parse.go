@@ -27,7 +27,7 @@ type SyntaxError struct {
 func (e *SyntaxError) Error() string { return fmt.Sprintf("%s at offset %d", e.Msg, e.Offset) }
 
 // Unwrap returns ErrSyntax.
-func (e *SyntaxError) Unwrap() error { return ErrSyntax }
+func (*SyntaxError) Unwrap() error { return ErrSyntax }
 
 // pluralSelectors are the selector words of plural and selectordinal.
 var pluralSelectors = map[string]bool{"zero": true, "one": true, "two": true, "few": true, "many": true, "other": true}
@@ -61,7 +61,7 @@ func Parse(src string) (*Message, error) {
 
 func (p *parser) done() bool { return p.pos >= len(p.src) }
 
-func (p *parser) fail(off int, format string, args ...any) error {
+func (*parser) fail(off int, format string, args ...any) error {
 	return &SyntaxError{Offset: off, Msg: fmt.Sprintf(format, args...)}
 }
 
@@ -259,31 +259,16 @@ func (p *parser) branches(n *Node, typ string, depth int, inPlural bool) error {
 	}
 	p.skip()
 	if n.Kind == KindPlural && strings.HasPrefix(p.src[p.pos:], "offset:") {
-		p.pos += len("offset:")
-		p.skip()
-		at := p.pos
-		w := p.word()
-		off, err := strconv.ParseInt(w, 10, 32)
-		if err != nil || off < 0 {
-			return p.fail(at, "offset must be a non-negative integer")
+		if err := p.offset(n); err != nil {
+			return err
 		}
-		n.Offset = off
-		p.skip()
 	}
 	seen := map[string]bool{}
 	for !p.done() && p.src[p.pos] != '}' {
 		at := p.pos
 		sel := p.word()
-		if sel == "" {
-			return p.fail(at, "selector expected")
-		}
-		if n.Kind == KindPlural {
-			if err := checkPluralSelector(sel); err != nil {
-				return p.fail(at, "%v", err)
-			}
-		}
-		if seen[sel] {
-			return p.fail(at, "duplicate selector %q", sel)
+		if err := p.checkSelector(n.Kind, sel, at, seen); err != nil {
+			return err
 		}
 		seen[sel] = true
 		p.skip()
@@ -301,6 +286,36 @@ func (p *parser) branches(n *Node, typ string, depth int, inPlural bool) error {
 		p.skip()
 	}
 	return p.expect('}')
+}
+
+// offset parses the "offset:n" of a plural into n.
+func (p *parser) offset(n *Node) error {
+	p.pos += len("offset:")
+	p.skip()
+	at := p.pos
+	off, err := strconv.ParseInt(p.word(), 10, 32)
+	if err != nil || off < 0 {
+		return p.fail(at, "offset must be a non-negative integer")
+	}
+	n.Offset = off
+	p.skip()
+	return nil
+}
+
+// checkSelector rejects an empty, invalid or repeated selector sel read at at.
+func (p *parser) checkSelector(kind Kind, sel string, at int, seen map[string]bool) error {
+	if sel == "" {
+		return p.fail(at, "selector expected")
+	}
+	if kind == KindPlural {
+		if err := checkPluralSelector(sel); err != nil {
+			return p.fail(at, "%v", err)
+		}
+	}
+	if seen[sel] {
+		return p.fail(at, "duplicate selector %q", sel)
+	}
+	return nil
 }
 
 // checkPluralSelector accepts =n and the CLDR category words.
