@@ -23,8 +23,8 @@ func (p Problem) String() string {
 	return fmt.Sprintf("line %d: %s", p.Line, p.Message)
 }
 
-// phasePattern accepts the phase tags P0 to P15 (spec §5).
-var phasePattern = regexp.MustCompile(`^P(\d|1[0-5])$`)
+// phasePattern accepts the phase tags P0 to P16 (spec §5).
+var phasePattern = regexp.MustCompile(`^P(\d|1[0-6])$`)
 
 // Lint checks the document's internal consistency and returns every problem
 // found, ordered by line.
@@ -51,7 +51,7 @@ func (d *Document) lintRequirements() []Problem {
 			problems = append(problems, Problem{r.Line, fmt.Sprintf("%s uses area %q, which is not declared in the conventions table", r.ID, r.Area)})
 		}
 		if !phasePattern.MatchString(r.Phase) {
-			problems = append(problems, Problem{r.Line, fmt.Sprintf("%s has phase %s outside P0–P15", r.ID, r.Phase)})
+			problems = append(problems, Problem{r.Line, fmt.Sprintf("%s has phase %s outside P0–P16", r.ID, r.Phase)})
 		}
 		problems = append(problems, lintWithdrawal(r)...)
 	}
