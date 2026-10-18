@@ -253,7 +253,9 @@ func TestHostPackages(t *testing.T) {
 	addCamera := func(doc map[string]any) {
 		caps, _ := doc["capabilities"].(map[string]any)
 		apis, _ := caps["deviceApis"].([]any)
-		caps["deviceApis"] = append(apis, "camera")
+		if !slices.Contains(apis, any("camera")) {
+			caps["deviceApis"] = append(apis, "camera")
+		}
 	}
 	editJSON(t, filepath.Join(project, "plugins", "gallery", "plugin.json"), addCamera)
 	editJSON(t, filepath.Join(project, "app.json"), addCamera)

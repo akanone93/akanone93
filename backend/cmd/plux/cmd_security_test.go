@@ -115,6 +115,7 @@ encryptLocalStores               true                    profile
 inactivityLock                   true                    profile
 inactivityLockTimeout            60                      override (profile: 300)
 minAssuranceForSync              AL1                     profile
+pinnedMediaOnly                  false                   profile
 raspAccessibilityResponse        warn                    profile
 raspDebuggerResponse             degrade                 profile
 raspEmulatorResponse             warn                    profile
