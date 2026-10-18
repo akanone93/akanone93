@@ -7,10 +7,14 @@
 /// against the release's supported locales along the CLDR parent chain, and
 /// holds its parsed data. A request for a locale the release lacks is
 /// reported (PLX-4400) and changes nothing. The locale data and Flutter
-/// strings are parsed once per release and locale, off the UI isolate.
+/// strings are parsed once per release and locale: a payload within
+/// [LocaleRelease.inlineBytes] at once, reading only the sections a page
+/// needs (spawning an isolate costs more than that), a larger one off the UI
+/// isolate (L-6).
 library;
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:isolate';
 import 'dart:typed_data';
@@ -22,11 +26,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/l10n/cldr_index.g.dart';
+import 'package:plux_flutter/src/l10n/json_sections.dart';
 import 'package:plux_flutter/src/l10n/l10n.dart';
 import 'package:plux_flutter/src/l10n/runtime_strings.dart';
 import 'package:plux_flutter/src/pxl/vm.dart' show PxlLocaleContext;
 import 'package:plux_flutter/src/render/sections.dart';
 import 'package:plux_flutter/src/state/providers.dart';
+import 'package:plux_flutter/src/verify/bundle_verifier.dart' show SectionGate;
 
 /// The bytes the app bundle carries for one supported locale.
 final class LocalePayload {
@@ -51,6 +57,7 @@ final class LocaleRelease {
     required this.supported,
     this.index = cldrLocaleIndex,
     this.payload = _noPayload,
+    this.inlineBytes = defaultInlineBytes,
     this.calendar = 'gregorian',
     this.secondaryCalendar,
     this.nativeDigits = const {},
@@ -70,6 +77,14 @@ final class LocaleRelease {
 
   /// The payload of a supported locale, or null.
   final LocalePayload? Function(String tag) payload;
+
+  /// The most bytes of a locale's payload that are parsed on the calling
+  /// isolate; a larger payload is parsed by the off-isolate runner.
+  final int inlineBytes;
+
+  /// The most bytes parsed on the UI isolate by default: the figure above
+  /// which layering rule L-6 sends hashing off it ([SectionGate]).
+  static const defaultInlineBytes = SectionGate.uiIsolateLimit;
 
   /// The app's calendar (`localisation.calendar`).
   final String calendar;
@@ -306,27 +321,90 @@ typedef _Decoded = ({
   Map<String, Map<String, String>> flutter,
 });
 
-/// Decodes a locale's bytes; runs off the UI isolate.
-_Decoded _decode(Uint8List? data, Uint8List? flutter) {
-  final groups = <String, Map<String, String>>{};
-  if (flutter != null && flutter.isNotEmpty) {
-    final json = jsonDecode(utf8.decode(flutter)) as Map<String, Object?>;
-    for (final g in json.entries) {
-      final entries = g.value;
-      if (entries is! Map<String, Object?>) continue;
-      groups[g.key] = {
-        for (final e in entries.entries)
-          if (e.value is String) e.key: e.value! as String,
-      };
-    }
-  }
-  return (
-    data: data == null || data.isEmpty
-        ? null
-        : jsonDecode(utf8.decode(data)) as Map<String, Object?>,
-    flutter: groups,
-  );
+/// The string entries of a decoded group; anything else is left out.
+Map<String, String> _stringsOf(Object? group) => {
+  if (group is Map<String, Object?>)
+    for (final e in group.entries)
+      if (e.value is String) e.key: e.value! as String,
+};
+
+/// Flutter's ARB keys by group, from the bytes of the `flutter` blob.
+Map<String, Map<String, String>> _groups(Uint8List? flutter) {
+  if (flutter == null || flutter.isEmpty) return {};
+  final json = jsonDecode(utf8.decode(flutter)) as Map<String, Object?>;
+  return {
+    for (final g in json.entries)
+      if (g.value is Map<String, Object?>) g.key: _stringsOf(g.value),
+  };
 }
+
+/// The same as [_groups], with each group decoded when its first key is
+/// read: most pages read none (Material and Cupertino strings are for
+/// pickers, tooltips and context menus), so start-up neither spends time
+/// nor holds memory on them. Throws a [FormatException] when the blob is
+/// not a JSON object.
+Map<String, Map<String, String>> _lazyGroups(Uint8List? flutter) =>
+    flutter == null || flutter.isEmpty
+    ? const {}
+    : _LazyGroups(JsonSections.scan(flutter));
+
+/// A map of strings decoded on first use. A group that cannot be decoded
+/// reads as empty, so its strings are Flutter's English ones; the compiler
+/// writes the blob and its section is hash-checked before it is read.
+final class _LazyStrings extends UnmodifiableMapBase<String, String> {
+  _LazyStrings(this._load);
+
+  final Map<String, String> Function() _load;
+
+  late final Map<String, String> _map = () {
+    try {
+      return _load();
+    } on Object {
+      return const <String, String>{};
+    }
+  }();
+
+  @override
+  String? operator [](Object? key) => _map[key];
+
+  @override
+  Iterable<String> get keys => _map.keys;
+
+  @override
+  bool containsKey(Object? key) => _map.containsKey(key);
+
+  @override
+  int get length => _map.length;
+}
+
+/// Flutter's groups over a blob's sections, each a [_LazyStrings].
+final class _LazyGroups
+    extends UnmodifiableMapBase<String, Map<String, String>> {
+  _LazyGroups(this._sections);
+
+  final JsonSections _sections;
+  final Map<String, Map<String, String>> _groups = {};
+
+  @override
+  Map<String, String>? operator [](Object? key) {
+    if (key is! String || !containsKey(key)) return null;
+    return _groups[key] ??= _LazyStrings(() => _stringsOf(_sections[key]));
+  }
+
+  @override
+  Iterable<String> get keys => _sections.keys;
+
+  @override
+  bool containsKey(Object? key) => key is String && keys.contains(key);
+}
+
+/// Decodes a locale's bytes; runs off the UI isolate.
+_Decoded _decode(Uint8List? data, Uint8List? flutter) => (
+  data: data == null || data.isEmpty
+      ? null
+      : jsonDecode(utf8.decode(data)) as Map<String, Object?>,
+  flutter: _groups(flutter),
+);
 
 /// Runs [_decode] on [offload]. The closure is made here, in a scope that
 /// holds nothing but the bytes, because a closure sent to another isolate
@@ -339,18 +417,39 @@ Future<_Decoded> _decodeOff(
 
 /// Builds the locale from what [_decode] returned; throws an
 /// [L10nException] when the data is incomplete.
-_Parsed _build(_Decoded d) {
-  final json = d.data;
-  final plux = d.flutter['plux'];
+_Parsed _build(_Decoded d) => _parsedOf(
+  d.data == null ? null : PluxLocaleData.fromJson(d.data!),
+  d.flutter,
+);
+
+/// Parses a payload on this isolate; throws an [L10nException] when the
+/// data is incomplete.
+_Parsed _buildNow(LocalePayload payload) {
+  final data = payload.data;
+  return _parsedOf(
+    data == null || data.isEmpty ? null : PluxLocaleData.fromBytes(data),
+    _lazyGroups(payload.flutter),
+  );
+}
+
+_Parsed _parsedOf(
+  PluxLocaleData? data,
+  Map<String, Map<String, String>> groups,
+) {
+  final plux = groups['plux'];
   return _Parsed(
-    json == null ? null : PluxLocaleData.fromJson(json),
-    d.flutter,
+    data,
+    groups,
     plux == null
         ? RuntimeStrings.english
-        : RuntimeStrings({
-            for (final e in plux.entries)
-              e.key.startsWith('plux.') ? e.key : 'plux.${e.key}': e.value,
-          }),
+        : RuntimeStrings(
+            _LazyStrings(
+              () => {
+                for (final e in plux.entries)
+                  e.key.startsWith('plux.') ? e.key : 'plux.${e.key}': e.value,
+              },
+            ),
+          ),
   );
 }
 
@@ -409,6 +508,8 @@ final class LocaleController extends Notifier<PluxLocaleState> {
       if (payload?.data == null && payload?.flutter == null) {
         // Nothing to decode: the locale is ready at once.
         parsed = _parsed[key] = _noStrings;
+      } else if (payload != null && _size(payload) <= release.inlineBytes) {
+        parsed = _parsed[key] = _parseNow(tag, payload);
       }
     }
     if (parsed == null) {
@@ -432,6 +533,26 @@ final class LocaleController extends Notifier<PluxLocaleState> {
   Future<void> settled() async {
     while (_loading.isNotEmpty) {
       await Future.wait(_loading.values.toList());
+    }
+  }
+
+  static int _size(LocalePayload p) =>
+      (p.data?.length ?? 0) + (p.flutter?.length ?? 0);
+
+  /// Parses [payload] now; invalid data is reported (after this build) and
+  /// leaves the locale without data.
+  _Parsed _parseNow(String tag, LocalePayload payload) {
+    try {
+      return _buildNow(payload);
+    } on Object catch (e) {
+      final error = PluxException(
+        PluxErrorCode.messageFormatFailed,
+        'locale data of $tag is invalid: $e',
+      );
+      scheduleMicrotask(() {
+        if (ref.mounted) _report(error);
+      });
+      return _noStrings;
     }
   }
 

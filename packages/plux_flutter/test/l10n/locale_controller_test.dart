@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,6 +37,7 @@ LocaleRelease _release({
   String? secondaryCalendar,
   Set<String> nativeDigits = const {},
   Map<String, String>? dePlux,
+  int inlineBytes = 0,
 }) {
   final payloads = {
     for (final t in supported)
@@ -47,6 +49,7 @@ LocaleRelease _release({
     supported: supported,
     index: cldrLocaleIndex,
     payload: (tag) => payloads[tag],
+    inlineBytes: inlineBytes,
     calendar: calendar,
     secondaryCalendar: secondaryCalendar,
     nativeDigits: nativeDigits,
@@ -151,6 +154,100 @@ void main() {
       ..request(const Locale('de'));
     expect((await _settled(c)).tag, 'de');
     expect(runs, 2, reason: 'en and de are cached');
+  });
+
+  test('a payload within the inline size is parsed at once, without the '
+      'runner, and is ready on the first read [I18N-005] [QA-007]', () async {
+    var runs = 0;
+    Future<R> counting<R>(R Function() work) async {
+      runs++;
+      return work();
+    }
+
+    final c = _container(
+      _release(inlineBytes: LocaleRelease.defaultInlineBytes),
+      _Seen(),
+      offload: counting,
+      host: const Locale('de'),
+    );
+    final first = c.read(localeControllerProvider);
+    expect(first.loading, isFalse);
+    expect(first.tag, 'de');
+    expect(first.data, isNotNull);
+    expect(first.flutter['material']!['cancelButtonLabel'], 'Abbrechen');
+    expect(first.data!.formatNumber(PluxDecimal.parse('1234.5')), '1.234,5');
+    expect(first.data!.currencyName('EUR'), 'Euro');
+    expect(first.data!.territoryName('DE'), 'Deutschland');
+    expect((await _settled(c)).tag, 'de');
+    expect(runs, 0);
+  });
+
+  test('the groups of Flutter strings and the runtime strings parsed at once '
+      'read as the decoded ones [I18N-004] [I18N-005]', () async {
+    final plux = {'wizard.back': 'Zurück', 'plux.cart.total': 'Summe'};
+    final release = _release(inlineBytes: 1 << 20, dePlux: plux);
+    final c = _container(release, _Seen(), host: const Locale('de'));
+    final now = c.read(localeControllerProvider);
+    final eager = _container(
+      _release(dePlux: plux),
+      _Seen(),
+      host: const Locale('de'),
+    );
+    final decoded = await _settled(eager);
+    expect(now.flutter.keys.toSet(), decoded.flutter.keys.toSet());
+    for (final group in decoded.flutter.keys) {
+      expect(now.flutter[group], decoded.flutter[group], reason: group);
+    }
+    expect(now.flutter['nothing'], isNull);
+    expect(now.strings['plux.wizard.back'], 'Zurück');
+    expect(now.strings['plux.cart.total'], 'Summe');
+    expect(now.strings['plux.wizard.next'], 'Next');
+    expect(now.strings.table, decoded.strings.table);
+  });
+
+  test(
+    'a payload over the inline size goes to the runner [I18N-005]',
+    () async {
+      var runs = 0;
+      Future<R> counting<R>(R Function() work) async {
+        runs++;
+        return work();
+      }
+
+      final release = _release(inlineBytes: 1024);
+      expect(release.payload('de')!.data!.length, greaterThan(1024));
+      final c = _container(
+        release,
+        _Seen(),
+        offload: counting,
+        host: const Locale('de'),
+      );
+      expect(c.read(localeControllerProvider).loading, isTrue);
+      expect((await _settled(c)).data, isNotNull);
+      expect(runs, 1);
+    },
+  );
+
+  test('invalid data parsed at once is reported and leaves the locale '
+      'without data [I18N-005]', () async {
+    final seen = _Seen();
+    final c = _container(
+      LocaleRelease(
+        id: 1,
+        defaultLocale: 'en',
+        supported: const ['en'],
+        index: cldrLocaleIndex,
+        payload: (_) =>
+            LocalePayload(data: Uint8List.fromList(utf8.encode('{"locale":'))),
+        inlineBytes: LocaleRelease.defaultInlineBytes,
+      ),
+      seen,
+      host: const Locale('en'),
+    );
+    final s = await _settled(c);
+    expect(s.loading, isFalse);
+    expect(s.data, isNull);
+    expect(seen.errors.map((e) => e.code), [PluxErrorCode.messageFormatFailed]);
   });
 
   test('the bytes parse in a real isolate [I18N-005]', () async {

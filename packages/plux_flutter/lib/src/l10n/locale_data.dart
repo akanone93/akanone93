@@ -8,15 +8,20 @@
 /// (QA-003); it reads data handed to it and depends on no package.
 library;
 
+import 'dart:typed_data';
+
 import 'package:plux_flutter/src/l10n/decimal.dart';
 import 'package:plux_flutter/src/l10n/errors.dart';
+import 'package:plux_flutter/src/l10n/json_sections.dart';
 import 'package:plux_flutter/src/l10n/plural.dart';
 
 part 'date.dart';
 part 'number.dart';
 
 /// The formatting data of one CLDR locale, built from the JSON of a locale
-/// file with [PluxLocaleData.fromJson]. It is immutable.
+/// file with [PluxLocaleData.fromJson] or [PluxLocaleData.fromBytes]. It is
+/// immutable. The currency and territory names are the bulk of a file and
+/// most pages never read them, so they are built on first use.
 final class PluxLocaleData {
   PluxLocaleData._({
     required this.id,
@@ -27,9 +32,9 @@ final class PluxLocaleData {
     required this._spacingBefore,
     required this._spacingAfter,
     required this._systems,
-    required this._currencies,
+    required this._currenciesOf,
     required this._currencyDigits,
-    required this._territories,
+    required this._territoriesOf,
     required this._calendars,
     required this._cardinal,
     required this._ordinal,
@@ -40,9 +45,24 @@ final class PluxLocaleData {
   ///
   /// Throws an [L10nException] with [L10nError.invalidData] when the data is
   /// incomplete.
-  factory PluxLocaleData.fromJson(Map<String, Object?> json) {
+  factory PluxLocaleData.fromJson(Map<String, Object?> json) =>
+      _checked(() => _build(JsonSections.of(json)));
+
+  /// Builds the locale from the bytes of a locale file in JSON, reading
+  /// only the sections a page needs at once (numbers, plurals, calendars);
+  /// the currency and territory names are decoded when first asked for.
+  /// The same data as [PluxLocaleData.fromJson] gives, for a fraction of
+  /// the work and memory of decoding the whole file.
+  ///
+  /// Throws an [L10nException] with [L10nError.invalidData] when the data is
+  /// incomplete or malformed. A malformed currency or territory section is
+  /// found when it is first used.
+  factory PluxLocaleData.fromBytes(Uint8List bytes) =>
+      _checked(() => _build(JsonSections.scan(bytes)));
+
+  static T _checked<T>(T Function() build) {
     try {
-      return _build(json);
+      return build();
     } on L10nException {
       rethrow;
     } on Object catch (e) {
@@ -50,17 +70,17 @@ final class PluxLocaleData {
     }
   }
 
-  static PluxLocaleData _build(Map<String, Object?> json) {
-    final id = _string(json, 'locale');
-    final numbers = _map(json, 'numbers');
-    final calendars = _map(json, 'calendars');
+  static PluxLocaleData _build(JsonSections json) {
+    final id = json['locale'] as String? ?? '';
+    final numbers = _mapOf(json['numbers']);
+    final calendars = _mapOf(json['calendars']);
     if (id.isEmpty || numbers.isEmpty || calendars.isEmpty) {
       throw const L10nException(
         L10nError.invalidData,
         'locale file is incomplete',
       );
     }
-    final numbering = _map(json, 'numbering');
+    final numbering = _mapOf(json['numbering']);
     final defaultSystem = _string(numbering, 'default');
     final digits = <String, String>{'latn': '0123456789'};
     if (defaultSystem != 'latn') {
@@ -83,8 +103,8 @@ final class PluxLocaleData {
         'numbers lack latn or the default system',
       );
     }
-    final spacing = _map(json, 'currencySpacing');
-    final plurals = _map(json, 'plurals');
+    final spacing = _mapOf(json['currencySpacing']);
+    final plurals = _mapOf(json['plurals']);
     return PluxLocaleData._(
       id: id,
       isRtl: json['direction'] == 'rtl',
@@ -94,16 +114,16 @@ final class PluxLocaleData {
       spacingBefore: spacing['before'] as String? ?? '',
       spacingAfter: spacing['after'] as String? ?? '',
       systems: systems,
-      currencies: {
-        for (final e in _map(json, 'currencies').entries)
+      currenciesOf: () => {
+        for (final e in _mapOf(json['currencies']).entries)
           e.key: _CurrencyNames.fromJson(e.value! as Map<String, Object?>),
       },
       currencyDigits: {
-        for (final e in _map(json, 'currencyDigits').entries)
+        for (final e in _mapOf(json['currencyDigits']).entries)
           e.key: e.value! as int,
       },
-      territories: {
-        for (final e in _map(json, 'territories').entries)
+      territoriesOf: () => {
+        for (final e in _mapOf(json['territories']).entries)
           e.key: e.value! as String,
       },
       calendars: {
@@ -130,9 +150,11 @@ final class PluxLocaleData {
   final String _spacingBefore;
   final String _spacingAfter;
   final Map<String, _NumberSystem> _systems;
-  final Map<String, _CurrencyNames> _currencies;
+  final Map<String, _CurrencyNames> Function() _currenciesOf;
+  late final Map<String, _CurrencyNames> _currencies = _checked(_currenciesOf);
   final Map<String, int> _currencyDigits;
-  final Map<String, String> _territories;
+  final Map<String, String> Function() _territoriesOf;
+  late final Map<String, String> _territories = _checked(_territoriesOf);
   final Map<String, _Calendar> _calendars;
   final PluralRules _cardinal;
   final PluralRules _ordinal;
@@ -218,6 +240,9 @@ String _string(Map<String, Object?> m, String key) => m[key] as String? ?? '';
 
 Map<String, Object?> _map(Map<String, Object?> m, String key) =>
     (m[key] as Map<String, Object?>?) ?? const {};
+
+Map<String, Object?> _mapOf(Object? v) =>
+    (v as Map<String, Object?>?) ?? const {};
 
 Map<String, String> _strings(Map<String, Object?> m) => {
   for (final e in m.entries) e.key: e.value! as String,
