@@ -142,85 +142,110 @@ func otherField(prev, next map[string]any) (string, bool) {
 	return "", false
 }
 
+// reviewPass is one application of the status rules to a save.
+type reviewPass struct {
+	p           auth.Principal
+	appID       string
+	approver    bool
+	oldMessages map[string]any
+	oldStates   map[string]any
+	messages    map[string]any
+	states      map[string]any
+	adjusted    bool
+	stepped     bool
+}
+
 // reviewStates applies the status rules to the states of next, given the
 // stored document prev (nil for a new one). It reports whether it changed
 // next.
 func reviewStates(p auth.Principal, appID string, prev, next map[string]any) (bool, error) {
-	oldMessages, _ := prev["messages"].(map[string]any)
-	oldStates, _ := prev["states"].(map[string]any)
-	messages, _ := next["messages"].(map[string]any)
-	states, _ := next["states"].(map[string]any)
-	approver := p.HoldsOnApp(auth.TranslationsApprove, appID)
+	r := &reviewPass{p: p, appID: appID, approver: p.HoldsOnApp(auth.TranslationsApprove, appID)}
+	r.oldMessages, _ = prev["messages"].(map[string]any)
+	r.oldStates, _ = prev["states"].(map[string]any)
+	r.messages, _ = next["messages"].(map[string]any)
+	r.states, _ = next["states"].(map[string]any)
 
-	// A state left out of the save is kept: only an explicit state, or a
-	// changed text, alters it. The state of a message the save removes goes
-	// with it.
-	adjusted := false
-	for id, state := range oldStates {
-		if _, said := states[id]; said {
-			continue
-		}
-		if _, kept := messages[id]; !kept {
-			continue
-		}
-		if states == nil {
-			states = map[string]any{}
-		}
-		states[id] = state
-		adjusted = true
-	}
-
-	ids := make([]string, 0, len(messages)+len(states))
-	for id := range messages {
+	r.keepUnsaidStates()
+	ids := make([]string, 0, len(r.messages)+len(r.states))
+	for id := range r.messages {
 		ids = append(ids, id)
 	}
-	for id := range states {
+	for id := range r.states {
 		ids = append(ids, id)
 	}
 	slices.Sort(ids)
-	stepped := false
 	for _, id := range slices.Compact(ids) {
-		was := stateOf(oldStates, id)
-		now := stateOf(states, id)
-		before, hadBefore := oldMessages[id]
-		after, hasAfter := messages[id]
-		changed := hadBefore != hasAfter || !reflect.DeepEqual(before, after)
-		switch {
-		case now == stateApproved && (was != stateApproved || changed):
-			if !approver {
-				return false, plxerr.New(plxerr.TranslationStateForbidden,
-					"approving %s, or changing the text of an approved message, needs translations.approve", id)
-			}
-			if !stepped {
-				if err := authorize(p, auth.TranslationsApprove, appID); err != nil {
-					return false, err
-				}
-				stepped = true
-			}
-		case changed && !approver:
-			switch {
-			case !hasAfter:
-				if _, ok := states[id]; ok {
-					delete(states, id)
-					adjusted = true
-				}
-			case now != stateTranslated:
-				if states == nil {
-					states = map[string]any{}
-				}
-				states[id] = stateTranslated
-				adjusted = true
-			}
+		if err := r.review(id); err != nil {
+			return false, err
 		}
 	}
-	if adjusted {
-		if len(states) == 0 {
+	if r.adjusted {
+		if len(r.states) == 0 {
 			delete(next, "states")
 		} else {
-			next["states"] = states
+			next["states"] = r.states
 		}
 	}
-	return adjusted, nil
+	return r.adjusted, nil
+}
+
+// keepUnsaidStates keeps a state left out of the save: only an explicit
+// state, or a changed text, alters it. The state of a message the save
+// removes goes with it.
+func (r *reviewPass) keepUnsaidStates() {
+	for id, state := range r.oldStates {
+		if _, said := r.states[id]; said {
+			continue
+		}
+		if _, kept := r.messages[id]; !kept {
+			continue
+		}
+		r.setState(id, state)
+	}
+}
+
+// setState records a state for a key, creating the states object if needed.
+func (r *reviewPass) setState(id string, state any) {
+	if r.states == nil {
+		r.states = map[string]any{}
+	}
+	r.states[id] = state
+	r.adjusted = true
+}
+
+// review applies the rules to one key: approving, or changing an approved
+// message, needs the approve permission; any other change by a non-approver
+// leaves the message translated, or drops the state of a removed one.
+func (r *reviewPass) review(id string) error {
+	was := stateOf(r.oldStates, id)
+	now := stateOf(r.states, id)
+	before, hadBefore := r.oldMessages[id]
+	after, hasAfter := r.messages[id]
+	changed := hadBefore != hasAfter || !reflect.DeepEqual(before, after)
+	switch {
+	case now == stateApproved && (was != stateApproved || changed):
+		if !r.approver {
+			return plxerr.New(plxerr.TranslationStateForbidden,
+				"approving %s, or changing the text of an approved message, needs translations.approve", id)
+		}
+		if !r.stepped {
+			if err := authorize(r.p, auth.TranslationsApprove, r.appID); err != nil {
+				return err
+			}
+			r.stepped = true
+		}
+	case changed && !r.approver:
+		switch {
+		case !hasAfter:
+			if _, ok := r.states[id]; ok {
+				delete(r.states, id)
+				r.adjusted = true
+			}
+		case now != stateTranslated:
+			r.setState(id, stateTranslated)
+		}
+	}
+	return nil
 }
 
 // stateOf returns the review state of a key; a key with none is new.

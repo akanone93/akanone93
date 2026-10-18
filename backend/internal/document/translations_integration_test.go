@@ -67,20 +67,24 @@ func newTranslationsWorld(t *testing.T) *translationsWorld {
 	return w
 }
 
+// germanTranslations is the path of the German translations document.
+const germanTranslations = "translations/de.json"
+
 // revision returns the stored revision of a document.
-func (w *translationsWorld) revision(t *testing.T, path string) int64 {
+func (w *translationsWorld) revision(ctx context.Context, t *testing.T, path string) int64 {
 	t.Helper()
-	d, err := w.docs.GetDocument(context.Background(), w.owner, w.app, "", path)
+	d, err := w.docs.GetDocument(ctx, w.owner, w.app, "", path)
 	if err != nil {
 		t.Fatal(err)
 	}
 	return d.Revision
 }
 
-// stored returns the messages and states of a stored translations document.
-func (w *translationsWorld) stored(t *testing.T, path string) (messages, states map[string]string) {
+// stored returns the messages and states of the stored German translations
+// document.
+func (w *translationsWorld) stored(t *testing.T) (messages, states map[string]string) {
 	t.Helper()
-	d, err := w.docs.GetDocument(context.Background(), w.owner, w.app, "", path)
+	d, err := w.docs.GetDocument(context.Background(), w.owner, w.app, "", germanTranslations)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,27 +113,27 @@ func TestTranslatorSavesUnderLocaleLock_I18N_008(t *testing.T) {
 	}
 	edit := translationsDoc(t, "de", map[string]string{keyHello: "Hallo Welt", keyBye: "Tschüss"},
 		map[string]string{keyHello: "translated", keyBye: "translated"}, nil)
-	if _, err := w.docs.PutDocument(ctx, w.translator, w.app, "", "tr", path, edit, w.revision(t, path)); code(err) != plxerr.EditingLockHeld {
+	if _, err := w.docs.PutDocument(ctx, w.translator, w.app, "", "tr", path, edit, w.revision(ctx, t, path)); code(err) != plxerr.EditingLockHeld {
 		t.Fatalf("a save without the locale lock: %v", err)
 	}
 	l, _, err := w.docs.AcquireScopedLock(ctx, w.translator, w.app, "", "tr", scope, false)
 	if err != nil || l.Scope != scope || l.Session != "tr" {
 		t.Fatalf("AcquireScopedLock = %+v, %v", l, err)
 	}
-	written, err := w.docs.PutDocument(ctx, w.translator, w.app, "", "tr", path, edit, w.revision(t, path))
+	written, err := w.docs.PutDocument(ctx, w.translator, w.app, "", "tr", path, edit, w.revision(ctx, t, path))
 	if err != nil || len(written.Documents) != 1 {
 		t.Fatalf("a translator's save under the locale lock: %v", err)
 	}
-	if m, s := w.stored(t, path); m[keyBye] != "Tschüss" || s[keyBye] != "translated" {
+	if m, s := w.stored(t); m[keyBye] != "Tschüss" || s[keyBye] != "translated" {
 		t.Errorf("stored %v %v", m, s)
 	}
 	patched, err := w.docs.PatchDocument(ctx, w.translator, w.app, "", "tr", path,
-		[]document.Op{{Op: "replace", Path: "/messages/" + keyBye, Value: "Auf Wiedersehen"}}, w.revision(t, path))
+		[]document.Op{{Op: "replace", Path: "/messages/" + keyBye, Value: "Auf Wiedersehen"}}, w.revision(ctx, t, path))
 	if err != nil || len(patched.Documents) != 1 {
 		t.Fatalf("a translator's patch: %v", err)
 	}
 
-	rev := w.revision(t, path)
+	rev := w.revision(ctx, t, path)
 	for name, c := range map[string]struct {
 		path string
 		do   func() error
@@ -161,11 +165,11 @@ func TestTranslatorSavesUnderLocaleLock_I18N_008(t *testing.T) {
 			t.Errorf("%s: %v, want PLX-8093", name, err)
 		}
 	}
-	if m, _ := w.stored(t, path); len(m) != 2 {
+	if m, _ := w.stored(t); len(m) != 2 {
 		t.Errorf("a refused save changed the document: %v", m)
 	}
 	if _, err := w.docs.PutDocument(ctx, w.translator, w.app, "", "tr", "translations/ar.json",
-		translationsDoc(t, "ar", map[string]string{keyHello: "أهلا"}, nil, nil), w.revision(t, "translations/ar.json")); code(err) != plxerr.EditingLockHeld {
+		translationsDoc(t, "ar", map[string]string{keyHello: "أهلا"}, nil, nil), w.revision(ctx, t, "translations/ar.json")); code(err) != plxerr.EditingLockHeld {
 		t.Errorf("a save of another locale under this locale's lock: %v", err)
 	}
 	// A viewer holds neither permission.
@@ -189,7 +193,7 @@ func TestTranslationStatuses_I18N_008(t *testing.T) {
 	const path = "translations/de.json"
 	scope := document.TranslationsScope("de")
 	save := func(p auth.Principal, session string, messages, states map[string]string) error {
-		_, err := w.docs.PutDocument(ctx, p, w.app, "", session, path, translationsDoc(t, "de", messages, states, nil), w.revision(t, path))
+		_, err := w.docs.PutDocument(ctx, p, w.app, "", session, path, translationsDoc(t, "de", messages, states, nil), w.revision(ctx, t, path))
 		return err
 	}
 	if _, _, err := w.docs.AcquireScopedLock(ctx, w.developer, w.app, "", "dev", scope, false); err != nil {
@@ -209,16 +213,16 @@ func TestTranslationStatuses_I18N_008(t *testing.T) {
 	if err := save(w.developer, "dev", map[string]string{keyHello: "Hallo!"}, map[string]string{keyHello: "reviewed"}); err != nil {
 		t.Fatalf("a developer's text change: %v", err)
 	}
-	if m, s := w.stored(t, path); m[keyHello] != "Hallo!" || s[keyHello] != "translated" {
+	if m, s := w.stored(t); m[keyHello] != "Hallo!" || s[keyHello] != "translated" {
 		t.Errorf("after a text change with state reviewed: %v %v", m, s)
 	}
 	if err := save(w.developer, "dev", map[string]string{keyHello: "Hallo!", keyBye: "Tschüss"}, nil); err != nil {
 		t.Fatalf("a developer's new message: %v", err)
 	}
-	if m, s := w.stored(t, path); m[keyBye] != "Tschüss" || s[keyBye] != "translated" {
+	if m, s := w.stored(t); m[keyBye] != "Tschüss" || s[keyBye] != "translated" {
 		t.Errorf("after a new message without a state: %v %v", m, s)
 	}
-	if _, s := w.stored(t, path); s[keyHello] != "translated" {
+	if _, s := w.stored(t); s[keyHello] != "translated" {
 		t.Errorf("a state left out of a save is not kept: %v", s)
 	}
 	// Without a text change the state is the caller's to set.
@@ -226,7 +230,7 @@ func TestTranslationStatuses_I18N_008(t *testing.T) {
 		map[string]string{keyHello: "reviewed", keyBye: "translated"}); err != nil {
 		t.Fatalf("a developer's review: %v", err)
 	}
-	if _, s := w.stored(t, path); s[keyHello] != "reviewed" {
+	if _, s := w.stored(t); s[keyHello] != "reviewed" {
 		t.Errorf("a review without a text change: %v", s)
 	}
 
@@ -243,7 +247,7 @@ func TestTranslationStatuses_I18N_008(t *testing.T) {
 	if err := save(w.owner, "own", map[string]string{keyHello: "Hallo!", keyBye: "Tschüss"}, approved); err != nil {
 		t.Fatalf("the owner approving under the draft lock: %v", err)
 	}
-	if _, s := w.stored(t, path); s[keyHello] != "approved" {
+	if _, s := w.stored(t); s[keyHello] != "approved" {
 		t.Fatalf("approved state: %v", s)
 	}
 
@@ -253,13 +257,13 @@ func TestTranslationStatuses_I18N_008(t *testing.T) {
 	if err := save(w.developer, "dev", texts, nil); err != nil {
 		t.Fatalf("a developer's save without states: %v", err)
 	}
-	if _, s := w.stored(t, path); s[keyHello] != "approved" || s[keyBye] != "translated" {
+	if _, s := w.stored(t); s[keyHello] != "approved" || s[keyBye] != "translated" {
 		t.Errorf("states after a save that left them out: %v", s)
 	}
 	if err := save(w.developer, "dev", map[string]string{keyHello: "Hallo!"}, nil); err != nil {
 		t.Fatalf("a developer removing a message: %v", err)
 	}
-	if m, s := w.stored(t, path); len(m) != 1 || s[keyBye] != "" || s[keyHello] != "approved" {
+	if m, s := w.stored(t); len(m) != 1 || s[keyBye] != "" || s[keyHello] != "approved" {
 		t.Errorf("after removing a message: %v %v", m, s)
 	}
 	if err := save(w.developer, "dev", texts, map[string]string{keyHello: "approved"}); err != nil {
@@ -287,7 +291,7 @@ func TestTranslationStatuses_I18N_008(t *testing.T) {
 	if err := save(w.admin, "adm", map[string]string{keyHello: "Hallo.", keyBye: "Tschüss"}, approved); err != nil {
 		t.Errorf("the admin changing an approved text: %v", err)
 	}
-	if m, s := w.stored(t, path); m[keyHello] != "Hallo." || s[keyHello] != "approved" {
+	if m, s := w.stored(t); m[keyHello] != "Hallo." || s[keyHello] != "approved" {
 		t.Errorf("after the admin: %v %v", m, s)
 	}
 }
@@ -348,7 +352,7 @@ func TestLocaleLocksAreIndependent_I18N_008(t *testing.T) {
 	for name, c := range saves {
 		path := "translations/" + c.locale + ".json"
 		doc := translationsDoc(t, c.locale, map[string]string{keyHello: name}, map[string]string{keyHello: "translated"}, nil)
-		_, err := w.docs.PutDocument(ctx, c.who, w.app, "", c.session, path, doc, w.revision(t, path))
+		_, err := w.docs.PutDocument(ctx, c.who, w.app, "", c.session, path, doc, w.revision(ctx, t, path))
 		if code(err) != c.want {
 			t.Errorf("%s: %v, want code %d", name, err, c.want)
 		}
