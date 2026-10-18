@@ -45,6 +45,11 @@ abstract interface class NodeContext implements Decoding {
   /// Whether slot [id] is filled.
   bool hasSlot(int id);
 
+  /// The snapshot of data source [name] (`value`, `loading`, `error`,
+  /// `status`) as `data.<name>` reads it; null when the page has no such
+  /// source.
+  Map<String, Object?>? dataSource(String name);
+
   /// The children, built lazily.
   List<Widget> children();
 

@@ -1780,6 +1780,7 @@
     "widget/CustomScrollView/slot/slivers": 1,
     "widget/DataScope": 109,
     "widget/DataScope/prop/isEmpty": 2,
+    "widget/DataScope/prop/source": 3,
     "widget/DataScope/prop/status": 1,
     "widget/DataScope/slot/empty": 3,
     "widget/DataScope/slot/error": 4,

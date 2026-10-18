@@ -305,12 +305,7 @@
               {
                 "id": "01c0c450-6c00-7000-8a1d-000000000012",
                 "props": {
-                  "isEmpty": {
-                    "$expr": "isEmpty(data.scope.value ?? [])"
-                  },
-                  "status": {
-                    "$expr": "data.scope.status"
-                  }
+                  "source": "scope"
                 },
                 "slots": {
                   "empty": {

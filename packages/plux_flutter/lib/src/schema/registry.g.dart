@@ -646,7 +646,7 @@ const List<WidgetDescriptor> widgetDescriptors = [
     109,
     layer: 1,
     revision: 1,
-    props: {'status': 1, 'isEmpty': 2},
+    props: {'status': 1, 'isEmpty': 2, 'source': 3},
     slots: {'success': 1, 'loading': 2, 'empty': 3, 'error': 4},
   ),
   WidgetDescriptor(

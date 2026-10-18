@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	animationPage = "plugins/gallery/pages/animation.page.json"
-	uploaderPage  = "plugins/gallery/pages/components-b.page.json"
+	animationPage     = "plugins/gallery/pages/animation.page.json"
+	uploaderPage      = "plugins/gallery/pages/components-b.page.json"
+	moreCupertinoPage = "plugins/gallery/pages/cupertino-more.page.json"
 )
 
 // findByTestID returns the pointer of the node with a test ID and the
@@ -104,6 +105,27 @@ func TestFileUploaderReferences(t *testing.T) {
 			t.Errorf("a bound value is not checked: %s", d.Message)
 		}
 	}
+}
+
+// TestDataScopeReferences checks that the data source a DataScope names
+// resolves at compile time and appears in the reference graph.
+// Verifies: SCH-041, REL-003.
+func TestDataScopeReferences(t *testing.T) {
+	t.Parallel()
+	m := project(t, widgetsDir)
+	res := compileFS(m)
+	if res.Diagnostics.HasErrors() {
+		t.Fatalf("diagnostics:\n%s", list(res.Diagnostics))
+	}
+	var base string
+	edit(t, m, moreCupertinoPage, func(doc map[string]any) { base, _ = findByTestID(doc["root"], "/root", "scope") })
+	if !hasEdge(res, EdgeUsesDataSource, moreCupertinoPage, base+"/props/source") {
+		t.Errorf("no usesDataSource edge at %s", base)
+	}
+
+	m = project(t, widgetsDir)
+	ptr := setNodeProp(t, m, moreCupertinoPage, "scope", "source", "nowhere")
+	wantDiag(t, compileFS(m), plxerr.UnresolvedReference, moreCupertinoPage, ptr+"/props/source")
 }
 
 // TestTimelineReferences checks that the timeline and track a Timeline or
