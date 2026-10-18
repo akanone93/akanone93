@@ -57,7 +57,7 @@
 | Local state | Zustand + Immer patches | zustand 5.0.15, immer 11.1.21 | MIT |
 | Forms | TanStack Form + Zod 4 | react-form 1.33.5, zod 4.6.7 | MIT |
 | UI components | shadcn/ui on **Base UI** (not Radix) | shadcn 4.22.0, @base-ui/react 1.9.0 | MIT |
-| Small UI pieces | cmdk (palette), sonner (toasts), Lucide (icons), TanStack Table + Virtual | cmdk 1.1.1, sonner 2.0.8, lucide-react 1.59.0, react-table 9.3.1, react-virtual 3.14.21 | MIT; Lucide ISC |
+| Small UI pieces | command palette on Base UI Dialog + Autocomplete (no cmdk), sonner (toasts), Lucide (icons), TanStack Table + Virtual | sonner 2.0.8, lucide-react 1.59.0, react-table 9.3.1, react-virtual 3.14.21 | MIT; Lucide ISC |
 | Styling | Tailwind CSS v4, theme generated from tokens | tailwindcss 4.3.3, @tailwindcss/vite 4.3.3 | MIT |
 | i18n | Lingui 6 (ICU MessageFormat) | 6.10.0 (+ @lingui/vite-plugin 6.10.0) | MIT |
 | Canvas renderer | CanvasKit (Skia → WebAssembly), own trimmed build | canvaskit-wasm 0.42.0 (reference) | BSD-3-Clause |
@@ -79,7 +79,7 @@
 reserve only, licence decision first); SWR; RTK Query; Apollo/Relay; TanStack DB; sync engines
 (Zero, Replicache); React Hook Form (fallback only); react-i18next; FormatJS; Radix (safe but
 not shadcn's direction); React Aria Components; MUI/Mantine/Chakra; Elysia; Bun bundler;
-ESLint; Oxlint; dnd-kit; react-window; react-virtuoso; virtua; ECharts; visx; Phosphor; Tabler;
+ESLint; Oxlint; cmdk (Radix dependencies); dnd-kit; react-window; react-virtuoso; virtua; ECharts; visx; Phosphor; Tabler;
 Framer Motion; Storybook; Ladle; Vitest; the OpenTelemetry browser SDK; `fast-json-patch`;
 `jsondiffpatch`; WebSocket; a service worker; SharedArrayBuffer (for now); IndexedDB for undo.
 
@@ -189,6 +189,9 @@ nothing, and `STU-001`/`STU-002` already require a React SPA served by a Bun BFF
 - Required by `STU-001`; shadcn is written in it.
 - Tokens from `@plux/brand` generate the `@theme` CSS variables; Tailwind's default values are
   reset so only token-backed utilities exist; the same token source feeds CanvasKit.
+- The token set defines the scale names shadcn components use (spacing, sizes, radius, colours);
+  each shadcn component is adapted to token-backed utilities when it is added, so no component
+  relies on a reset default.
 - Themes (light, dark, system) and density switch by variables, no re-render
   (`STU-010`, `STU-014`). Logical utilities and the `rtl:` variant for RTL (`STU-012`).
 - One static stylesheet, no runtime style injection: CSP needs no style exceptions
@@ -215,6 +218,8 @@ nothing, and `STU-001`/`STU-002` already require a React SPA served by a Bun BFF
 ### A4.11 Forms: TanStack Form + Zod 4
 For ordinary forms (new-app wizard, publish flow, admin, policies, settings): fully typed,
 field-level re-renders, async validation, Zod via Standard Schema; shadcn has an integration.
+Zod is configured with `z.config({ jitless: true })`: otherwise it probes `new Function`, which
+the strict CSP (Part B §11.2) forbids.
 React Hook Form 7.90 is the fallback (weaker types for nested/dynamic forms). The Properties
 panel uses no form library: descriptor-generated editors write JSON Patch into the store and
 are validated by the WebAssembly validator.
@@ -250,8 +255,11 @@ it in Playwright, not with Vitest.
 - **Maintainer chose Option A:** change `STU-001` to "shadcn/ui on Base UI primitives". Radix
   is not deprecated (radix-ui 1.8.1, October 2026) but is not shadcn's direction. React Aria
   Components has the strongest accessibility but shadcn does not build on it.
-- Alongside: **cmdk** (command palette, `STU-013`), **sonner** (toasts), **lucide** (icons),
-  **TanStack Table + Virtual** (localisation grid, audit log, device lists).
+- Alongside: **command palette** (`STU-013`) built on Base UI Dialog + Autocomplete, fed by the
+  command registry — not cmdk, which depends on four Radix packages and would bring Radix back
+  beside Base UI; **sonner** (toasts); **lucide** (icons); **TanStack Table + Virtual**
+  (localisation grid, audit log, device lists).
+- Base UI's `CSPProvider` passes the request's nonce to the styles Base UI injects (Part B §11.2).
 
 ### A4.15 BFF: Hono + `oauth4webapi`
 Hono ships CSRF, secure headers with per-request CSP nonces, cookies, body limit and timeout
@@ -397,7 +405,8 @@ first.
 
 ### A5.4 Fonts
 - **Studio UI:** Noto Sans + Noto Sans Arabic (OFL-1.1, variable weights, self-hosted per
-  Part B §11.5); one family across scripts (Part B §4.6); covers later scripts (e.g. Ethiopic).
+  Part B §11.5); one superfamily (Noto) across scripts, with matching weights and metrics
+  (Part B §4.6); covers later scripts (e.g. Ethiopic).
   Sora SemiBold for the wordmark only (Appendix J).
 - **Canvas, app fonts:** the canvas worker fetches the same verified font assets the device
   loads (ADR-0032 § Fonts per script) and receives their bytes without copying.
@@ -425,8 +434,8 @@ first.
   snapshots. Undo applies the inverse patch as a **new forward write** (ADR-0015 linear history).
 - Proposed API addition: tag each write with an editor-session ID and store its inverse patch
   (`proto/` change, C2).
-- Edits inside the 500 ms autosave delay flush on tab hide via `fetch` `keepalive` through the
-  BFF.
+- Edits inside the 500 ms autosave delay flush on tab hide through the generated Connect client
+  with a `keepalive` fetch transport, via the BFF (no hand-written fetch, Part B §2.2).
 - Server protection: inverse patches are a few hundred bytes; rebuilds capped to the session's
   recent entries; writes rate-limited.
 
@@ -592,13 +601,13 @@ The one enforced limit is Biome's `noExcessiveCognitiveComplexity`, already an e
 
 4.2. **No raw values.** No hex, `rgb()`, `hsl()`, pixel, `rem` or shadow literals in components, and no Tailwind arbitrary values (`bg-[#…]`, `p-[13px]`, `rounded-[…]`). The Tailwind v4 `@theme` is generated from the tokens and Tailwind's default values are reset, so only token-backed utilities exist. A lint rule enforces this with the first component. No runtime CSS-in-JS.
 
-4.3. **The visual language is compact** ([studio-ui-language.md](studio-ui-language.md), written by the maintainer): light and whitish by default, a dark theme, and a system setting; radius tokens 4–6 px; the action bar, panels and bottom drawer docked around the canvas, separated by hairlines rather than shadows; light blue as the single accent; colour only for meaning (selection, status, arrows). Floating panels over a strongly blurred canvas are an option, off by default. A new colour use states its meaning in the token's name. This differs from `STU-010` and Appendix J as written; the specification change lands in the same pull request as the first implementation of this rule (`AGENTS.md` §3).
+4.3. **The visual language is compact** ([studio-ui-language.md](studio-ui-language.md), written by the maintainer): light and whitish by default, a dark theme, and a system setting; radius tokens 4–6 px; the action bar, panels and bottom drawer docked around the canvas, separated by hairlines rather than shadows; light blue as the single accent; colour only for meaning (selection, status, arrows). Floating panels over a strongly blurred canvas are an option, off by default. A new colour use states its meaning in the token's name. This differs from the spec as written — `STU-010` and Appendix J (rounded 12–20 px, floating panels), `STU-060`–`STU-062` ("floating" action bar and panels) and the caption of Figure 21-2 ("Panels float over the canvas"); the specification change for all of them lands in the same pull request as the first implementation of this rule (`AGENTS.md` §3).
 
 4.4. **Themes and density** (`STU-014`): light, dark and system; compact density by default and comfortable as the option, both as token sets (CSS variables), not conditional class names. A high-contrast theme exists for the canvas preview (`STU-112`) and is offered for the shell.
 
 4.5. **Contrast is computed, not eyeballed.** Every text/background and UI-component token pair is checked with the `@plux/brand` contrast utilities in both themes: 4.5:1 for text, 3:1 for large text and components (`STU-011`). The check is a unit test over the token tables.
 
-4.6. **Typography.** The wordmark uses Sora SemiBold (Appendix J). The UI typeface is Noto Sans with Noto Sans Arabic (OFL-1.1, variable, self-hosted): one family covering the scripts of every Studio locale, so English and Arabic text share weights and metrics.
+4.6. **Typography.** The wordmark uses Sora SemiBold (Appendix J). The UI typeface is Noto Sans with Noto Sans Arabic (OFL-1.1, variable, self-hosted): one superfamily covering the scripts of every Studio locale, so English and Arabic text share weights and metrics.
 
 4.7. **Motion** comes from duration and easing tokens (arrow expansion 150–200 ms, `STU-044`). No animation library: canvas animations run in Plux Canvas; panels and dialogs use CSS transitions and Base UI state attributes. Every animation honours `prefers-reduced-motion` by reducing to an instant change.
 
@@ -616,7 +625,7 @@ The one enforced limit is Biome's `noExcessiveCognitiveComplexity`, already an e
 
 5.6. **Keyboard first.** Every action is reachable by keyboard. Arrow keys inside lists, menus and trees follow the reading direction (§8.4).
 
-5.7. **Commands are registered once.** Every user-invocable action is a command in the command registry: ID, message key for its label, shortcut, availability predicate and handler. The command palette (`STU-013`, built on cmdk), the shortcut sheet (`?`), menus and toolbars are generated from the registry; no shortcut is bound anywhere else. A test checks for duplicate shortcuts per scope.
+5.7. **Commands are registered once.** Every user-invocable action is a command in the command registry: ID, message key for its label, shortcut, availability predicate and handler. The command palette (`STU-013`, built on Base UI Dialog and Autocomplete), the shortcut sheet (`?`), menus and toolbars are generated from the registry; no shortcut is bound anywhere else. A test checks for duplicate shortcuts per scope.
 
 5.8. **No `dangerouslySetInnerHTML`**, no `innerHTML`, no `eval`-like APIs (§11).
 
@@ -624,7 +633,7 @@ The one enforced limit is Biome's `noExcessiveCognitiveComplexity`, already an e
 
 6.1. **Two kinds of state** (`STU-004`). Server state lives in TanStack Query (through Connect Query), keyed by resource and document revision. Local UI state lives in component state or one small Zustand store per area, created inside the area's React provider. No module-level mutable state (AGENTS.md §8). Live streams write into the area's store, not into the Query cache.
 
-6.2. **Edits are JSON Patch.** Document edits are applied optimistically and autosaved as JSON Patch (`SRV-030`) with a 500 ms debounce by default (`STU-004`); a rejected patch rolls back and shows the diagnostic. Pending edits flush when the tab is hidden (`fetch` with `keepalive`).
+6.2. **Edits are JSON Patch.** Document edits are applied optimistically and autosaved as JSON Patch (`SRV-030`) with a 500 ms debounce by default (`STU-004`); a rejected patch rolls back and shows the diagnostic. Pending edits flush when the tab is hidden, through the generated client with a `keepalive` fetch transport.
 
 6.3. **Undo is a model, not a feature of each component** (`STU-069`): every edit goes through one edit pipeline (Zustand + Immer) that records the forward and the inverse patch. A component never mutates the document directly. The pipeline is the single stream that feeds autosave, undo, the validator worker and the canvas worker. Undo applies the inverse patch as a new write; after a reload the stack is rebuilt from the server's snapshots of the editing session, never from browser storage.
 
@@ -706,7 +715,7 @@ Studio's own interface is localised and runs left-to-right and right-to-left (`S
 
 11.1. **BFF holds every credential** (`SEC-101`, `STU-002`): `__Host-` session cookie, `HttpOnly`, `Secure`, `SameSite=Strict`; CSRF token on state-changing requests.
 
-11.2. **Strict CSP with nonces and Trusted Types.** No inline scripts or styles without the nonce; `script-src` allows `'wasm-unsafe-eval'` (never `'unsafe-eval'`) for CanvasKit and the validator; `worker-src` allows Studio's own workers; Monaco and workers are loaded in a way the policy allows; no `eval`, `new Function` or string timers.
+11.2. **Strict CSP with nonces and Trusted Types.** No inline scripts or styles without the nonce; `script-src` allows `'wasm-unsafe-eval'` (never `'unsafe-eval'`) for CanvasKit and the validator; `worker-src` allows Studio's own workers; Monaco and workers are loaded in a way the policy allows; Base UI receives the nonce through its `CSPProvider`; Zod runs with `jitless: true`; no `eval`, `new Function` or string timers, in our code or a dependency's.
 
 11.3. **Everything pasted, imported or dropped is untrusted** (security-practices §3): clipboard content (`STU-067`), `.plux` archives, templates, OpenAPI files, images and translation files are validated by the API before use and never rendered as HTML.
 
@@ -804,7 +813,8 @@ In addition to [workflow.md](workflow.md) §6:
 | 12 | §2.2 | "no hand-written fetch **to the API**"; own static files are fine | loading WebAssembly, fonts, catalogues |
 | 13 | §5.2, §8.3 | catalogue keeps icon `mirrors` list; `*.cases.tsx` | Lucide has no mirror metadata; A4.22 |
 | 14 | §4.6 | UI font Noto Sans + Noto Sans Arabic | A5.4 |
-| 15 | §4.3 | spec change for `STU-010`/Appendix J lands in the same PR; `studio-ui-language.md` written by the maintainer | `AGENTS.md` §3; A1.5 |
+| 15 | §4.3 | spec change for `STU-010`/Appendix J, `STU-060`–`STU-062` and Figure 21-2 lands in the same PR; `studio-ui-language.md` written by the maintainer | `AGENTS.md` §3; A1.5 |
+| 19 | §5.7, §11.2 | command palette on Base UI (no cmdk); Base UI `CSPProvider`; Zod `jitless` | cmdk depends on Radix; Zod probes `new Function` |
 | 16 | §1.7, §10.6, §11.5, §11.7, §14 (new/extended) | protect the server; static asset caching; telemetry bounds; sandboxed language servers | A1.1, A5.3, A5.7, A5.9 |
 | 17 | §10.2 | CI benchmarks without GPU; reference-laptop confirmation | A5.8 |
 | 18 | §4.2, §4.7 | Tailwind defaults reset, no CSS-in-JS; no animation library | A4.8, A4.20 |
@@ -827,7 +837,8 @@ In addition to [workflow.md](workflow.md) §6:
   - `STU-001`: shadcn/ui on **Base UI**; "built with Bun" = Vite on the Bun runtime; add
     CodeMirror 6 for inline PXL beside Monaco.
   - `STU-006`: text shaped with **SkParagraph at the pinned Flutter Skia revision**.
-  - `STU-010` / Appendix J: per rule book §4.3 and `studio-ui-language.md`.
+  - `STU-010` / Appendix J, `STU-060`–`STU-062` and the Figure 21-2 caption ("floating" → docked
+    by default): per rule book §4.3 and `studio-ui-language.md`.
 - **ADRs:**
   - **ADR-0013** (Planned in `docs/adr/README.md`): Plux Canvas — CanvasKit custom build, the
     layout port and conformance suite, the canvas worker, fonts.
