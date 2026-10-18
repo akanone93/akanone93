@@ -249,23 +249,11 @@ func merge(file importFile, keys []Key, target, source Doc, o Options) (Doc, plx
 		if !e.hasTarget || e.target == "" {
 			continue
 		}
-		before, had := out.Messages[k.ID]
-		changed := !had || before != e.target
-		current := source.Messages[k.ID]
-		sourceChanged := e.hasSource && current != "" && e.source != current
 		if e.state == stateApproved && !o.Approver {
 			downgraded = append(downgraded, k.Key)
 		}
-		state := decide(e.state, out.State(k.ID), changed, sourceChanged, o.Approver)
-		if sourceChanged {
-			diags = append(diags, plxerr.NewDiagnostic(plxerr.TranslationImportSourceChanged, location(target.Locale, k.ID, k.Key),
-				"the source text of %s changed since it was translated; the translation is stored as translated", clip(k.Key)))
-		}
-		out.Messages[k.ID] = e.target
-		if state == stateNew {
-			delete(out.States, k.ID)
-		} else {
-			out.States[k.ID] = state
+		if d, changed := applyEntry(out, e, k, target.Locale, source, o); changed {
+			diags = append(diags, d)
 		}
 	}
 	if len(downgraded) > 0 {
@@ -274,6 +262,29 @@ func merge(file importFile, keys []Key, target, source Doc, o Options) (Doc, plx
 	}
 	diags.Sort()
 	return out, diags, nil
+}
+
+// applyEntry stores the translation of e for key k in out and returns the
+// diagnostic for a source text that changed since it was translated, with
+// true when there is one.
+func applyEntry(out Doc, e entry, k Key, locale string, source Doc, o Options) (plxerr.Diagnostic, bool) {
+	before, had := out.Messages[k.ID]
+	changed := !had || before != e.target
+	current := source.Messages[k.ID]
+	sourceChanged := e.hasSource && current != "" && e.source != current
+	state := decide(e.state, out.State(k.ID), changed, sourceChanged, o.Approver)
+	var diag plxerr.Diagnostic
+	if sourceChanged {
+		diag = plxerr.NewDiagnostic(plxerr.TranslationImportSourceChanged, location(locale, k.ID, k.Key),
+			"the source text of %s changed since it was translated; the translation is stored as translated", clip(k.Key))
+	}
+	out.Messages[k.ID] = e.target
+	if state == stateNew {
+		delete(out.States, k.ID)
+	} else {
+		out.States[k.ID] = state
+	}
+	return diag, sourceChanged
 }
 
 // maxDowngradeKeys is how many keys the downgrade warning names.

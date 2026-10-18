@@ -92,26 +92,9 @@ func parseCSV(data []byte) (importFile, error) {
 	if err != nil {
 		return importFile{}, invalid("the file is not valid CSV: %s", clip(err.Error()))
 	}
-	col := map[string]int{}
-	for i, name := range header {
-		name = strings.TrimSpace(name)
-		if _, dup := col[name]; dup {
-			return importFile{}, invalid("the CSV header names column %s twice", clip(name))
-		}
-		col[name] = i
-	}
-	_, hasID := col["keyId"]
-	_, hasKey := col["key"]
-	_, hasTarget := col["target"]
-	if !hasTarget || (!hasID && !hasKey) {
-		return importFile{}, invalid("the CSV header needs the columns target and keyId or key")
-	}
-	cell := func(row []string, name string) (string, bool) {
-		i, ok := col[name]
-		if !ok || i >= len(row) {
-			return "", false
-		}
-		return row[i], true
+	col, err := csvHeader(header)
+	if err != nil {
+		return importFile{}, err
 	}
 	var out importFile
 	for {
@@ -122,25 +105,68 @@ func parseCSV(data []byte) (importFile, error) {
 		if err != nil {
 			return importFile{}, invalid("the file is not valid CSV: %s", clip(err.Error()))
 		}
-		e := entry{}
-		e.id, _ = cell(row, "keyId")
-		e.key, _ = cell(row, "key")
-		if e.id == "" && e.key == "" {
-			continue
+		e, keep, err := col.entry(row)
+		if err != nil {
+			return importFile{}, err
 		}
-		var present bool
-		if e.source, present = cell(row, "source"); present {
-			e.source, e.hasSource = unprotectCell(e.source), true
+		if keep {
+			out.entries = append(out.entries, e)
 		}
-		if e.target, present = cell(row, "target"); present {
-			e.target, e.hasTarget = unprotectCell(e.target), true
-		}
-		if s, _ := cell(row, "state"); s != "" {
-			if !validState(s) {
-				return importFile{}, invalid("the state %q of %s is not a review state", clip(s), clip(firstNonEmpty(e.key, e.id)))
-			}
-			e.state = s
-		}
-		out.entries = append(out.entries, e)
 	}
+}
+
+// csvCols maps the column names of a header to their positions.
+type csvCols map[string]int
+
+// csvHeader reads a header and checks that the columns an import needs are
+// present.
+func csvHeader(header []string) (csvCols, error) {
+	col := csvCols{}
+	for i, name := range header {
+		name = strings.TrimSpace(name)
+		if _, dup := col[name]; dup {
+			return nil, invalid("the CSV header names column %s twice", clip(name))
+		}
+		col[name] = i
+	}
+	_, hasID := col["keyId"]
+	_, hasKey := col["key"]
+	_, hasTarget := col["target"]
+	if !hasTarget || (!hasID && !hasKey) {
+		return nil, invalid("the CSV header needs the columns target and keyId or key")
+	}
+	return col, nil
+}
+
+// cell returns the named column of a row and whether the row has it.
+func (c csvCols) cell(row []string, name string) (string, bool) {
+	i, ok := c[name]
+	if !ok || i >= len(row) {
+		return "", false
+	}
+	return row[i], true
+}
+
+// entry reads a row; false when the row names no key and is skipped.
+func (c csvCols) entry(row []string) (entry, bool, error) {
+	e := entry{}
+	e.id, _ = c.cell(row, "keyId")
+	e.key, _ = c.cell(row, "key")
+	if e.id == "" && e.key == "" {
+		return entry{}, false, nil
+	}
+	var present bool
+	if e.source, present = c.cell(row, "source"); present {
+		e.source, e.hasSource = unprotectCell(e.source), true
+	}
+	if e.target, present = c.cell(row, "target"); present {
+		e.target, e.hasTarget = unprotectCell(e.target), true
+	}
+	if s, _ := c.cell(row, "state"); s != "" {
+		if !validState(s) {
+			return entry{}, false, invalid("the state %q of %s is not a review state", clip(s), clip(firstNonEmpty(e.key, e.id)))
+		}
+		e.state = s
+	}
+	return e, true, nil
 }

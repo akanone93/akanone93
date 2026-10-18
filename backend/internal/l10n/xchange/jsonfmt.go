@@ -88,25 +88,35 @@ func parseJSON(data []byte) (importFile, error) {
 			return importFile{}, invalid("states is not an object")
 		}
 	}
+	out.entries, err = jsonEntries(messages, states)
+	if err != nil {
+		return importFile{}, err
+	}
+	return out, nil
+}
+
+// jsonEntries reads the messages, in id order, with their review states.
+func jsonEntries(messages, states map[string]any) ([]entry, error) {
 	ids := make([]string, 0, len(messages))
 	for id := range messages {
 		ids = append(ids, id)
 	}
 	sort.Strings(ids)
+	var entries []entry
 	for _, id := range ids {
 		text, isString := messages[id].(string)
 		if !isString {
-			return importFile{}, invalid("the message %s is not a string", clip(id))
+			return nil, invalid("the message %s is not a string", clip(id))
 		}
 		e := entry{id: id, target: text, hasTarget: true}
 		if v, present := states[id]; present {
 			s, isString := v.(string)
 			if !isString || !validState(s) {
-				return importFile{}, invalid("the state of %s is not a review state", clip(id))
+				return nil, invalid("the state of %s is not a review state", clip(id))
 			}
 			e.state = s
 		}
-		out.entries = append(out.entries, e)
+		entries = append(entries, e)
 	}
-	return out, nil
+	return entries, nil
 }
