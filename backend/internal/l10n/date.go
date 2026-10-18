@@ -135,28 +135,7 @@ func (l *Locale) FormatDate(d CalendarDate, calendarID string, opts DateOptions)
 // pattern returns the date-time pattern the options select.
 func (c *calendar) pattern(opts DateOptions) (string, error) {
 	if opts.DateStyle != "" || opts.TimeStyle != "" {
-		if opts.Skeleton != "" {
-			return "", fmt.Errorf("%w: both styles and a skeleton", ErrInvalidOption)
-		}
-		var date, tm string
-		if opts.DateStyle != "" {
-			if date = c.raw.DateFormats[opts.DateStyle]; date == "" {
-				return "", fmt.Errorf("%w: date style %q", ErrUnsupported, opts.DateStyle)
-			}
-		}
-		if opts.TimeStyle != "" {
-			if tm = c.raw.TimeFormats[opts.TimeStyle]; tm == "" {
-				return "", fmt.Errorf("%w: time style %q", ErrUnsupported, opts.TimeStyle)
-			}
-		}
-		if date == "" || tm == "" {
-			return date + tm, nil
-		}
-		glue := c.raw.DateTimeAtTime[opts.DateStyle]
-		if glue == "" {
-			glue = c.raw.DateTimeFormats[opts.DateStyle]
-		}
-		return fillGlue(glue, date, tm), nil
+		return c.stylePattern(opts)
 	}
 	if opts.Skeleton == "" {
 		return "", fmt.Errorf("%w: neither a style nor a skeleton", ErrInvalidOption)
@@ -189,11 +168,37 @@ func (c *calendar) pattern(opts DateOptions) (string, error) {
 	} else if m == 3 {
 		style = "medium"
 	}
-	glue := c.raw.DateTimeAtTime[style]
-	if glue == "" {
-		glue = c.raw.DateTimeFormats[style]
+	return fillGlue(c.glue(style), date, tm), nil
+}
+
+// stylePattern returns the pattern for the date and time styles in opts.
+func (c *calendar) stylePattern(opts DateOptions) (string, error) {
+	if opts.Skeleton != "" {
+		return "", fmt.Errorf("%w: both styles and a skeleton", ErrInvalidOption)
 	}
-	return fillGlue(glue, date, tm), nil
+	var date, tm string
+	if opts.DateStyle != "" {
+		if date = c.raw.DateFormats[opts.DateStyle]; date == "" {
+			return "", fmt.Errorf("%w: date style %q", ErrUnsupported, opts.DateStyle)
+		}
+	}
+	if opts.TimeStyle != "" {
+		if tm = c.raw.TimeFormats[opts.TimeStyle]; tm == "" {
+			return "", fmt.Errorf("%w: time style %q", ErrUnsupported, opts.TimeStyle)
+		}
+	}
+	if date == "" || tm == "" {
+		return date + tm, nil
+	}
+	return fillGlue(c.glue(opts.DateStyle), date, tm), nil
+}
+
+// glue returns the pattern joining a date and a time of the given style.
+func (c *calendar) glue(style string) string {
+	if g := c.raw.DateTimeAtTime[style]; g != "" {
+		return g
+	}
+	return c.raw.DateTimeFormats[style]
 }
 
 func fillGlue(glue, date, tm string) string {
@@ -412,23 +417,11 @@ func tokenize(p string) ([]token, error) {
 				i += 2
 				continue
 			}
-			j := i + 1
-			for j < len(p) {
-				if p[j] == '\'' {
-					if j+1 < len(p) && p[j+1] == '\'' {
-						text.WriteByte('\'') // '' inside a quote is an apostrophe
-						j += 2
-						continue
-					}
-					break
-				}
-				text.WriteByte(p[j])
-				j++
-			}
-			if j == len(p) {
+			end, ok := readQuoted(p, i, &text)
+			if !ok {
 				return nil, fmt.Errorf("%w: unterminated quote in %q", ErrInvalidData, p)
 			}
-			i = j + 1
+			i = end
 		case (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'):
 			flush()
 			j := i
@@ -444,6 +437,28 @@ func tokenize(p string) ([]token, error) {
 	}
 	flush()
 	return out, nil
+}
+
+// readQuoted appends the text of the quote that opens at p[i] to text and
+// returns the index after its closing quote; false when it is unterminated.
+func readQuoted(p string, i int, text *strings.Builder) (int, bool) {
+	j := i + 1
+	for j < len(p) {
+		if p[j] == '\'' {
+			if j+1 < len(p) && p[j+1] == '\'' {
+				text.WriteByte('\'') // '' inside a quote is an apostrophe
+				j += 2
+				continue
+			}
+			break
+		}
+		text.WriteByte(p[j])
+		j++
+	}
+	if j == len(p) {
+		return 0, false
+	}
+	return j + 1, true
 }
 
 // untokenize writes tokens back as a pattern, quoting literal text that
@@ -515,62 +530,25 @@ func name(byWidth map[string][]string, width string, i int) (string, bool) {
 
 func (f *dateFormatter) field(t token) (string, error) {
 	d, raw := f.d, f.cal.raw
-	bad := func() (string, error) {
-		return "", fmt.Errorf("%w: date %+v has no value for %s", ErrInvalidOption, d, strings.Repeat(string(t.letter), t.n))
-	}
 	switch t.letter {
 	case 'G':
 		if s, ok := name(raw.Eras, widthOf(t.n), d.Era); ok {
 			return s, nil
 		}
-		return bad()
+		return f.missing(t)
 	case 'y', 'Y':
 		if t.n == 2 {
 			return f.num(d.Year%100, 2), nil
 		}
 		return f.num(d.Year, t.n), nil
 	case 'M', 'L':
-		if t.n <= 2 {
-			return f.num(d.Month, t.n), nil
-		}
-		ctx := "format"
-		if t.letter == 'L' {
-			ctx = "standAlone"
-		}
-		if s, ok := name(raw.Months[ctx], widthOf(t.n), d.Month-1); ok {
-			return s, nil
-		}
-		return bad()
+		return f.month(t)
 	case 'd':
 		return f.num(d.Day, t.n), nil
 	case 'E', 'c':
-		if t.letter == 'c' && t.n < 3 {
-			return "", fmt.Errorf("%w: numeric local weekday", ErrUnsupported)
-		}
-		ctx := "format"
-		if t.letter == 'c' {
-			ctx = "standAlone"
-		}
-		w := widthOf(t.n)
-		if t.n == 6 {
-			w = "short"
-		}
-		if s, ok := name(raw.Days[ctx], w, d.Weekday); ok {
-			return s, nil
-		}
-		return bad()
+		return f.weekday(t)
 	case 'a', 'B':
-		key := "am"
-		if d.Hour >= 12 {
-			key = "pm"
-		}
-		if s := raw.DayPeriods["format"][widthOf(t.n)][key]; s != "" {
-			return s, nil
-		}
-		if s := raw.DayPeriods["format"]["abbreviated"][key]; s != "" {
-			return s, nil
-		}
-		return bad()
+		return f.dayPeriod(t)
 	case 'h':
 		h := d.Hour % 12
 		if h == 0 {
@@ -595,6 +573,61 @@ func (f *dateFormatter) field(t token) (string, error) {
 		return f.zone, nil
 	}
 	return "", fmt.Errorf("%w: pattern letter %q", ErrUnsupported, t.letter)
+}
+
+// missing reports that the date has no value for the field t.
+func (f *dateFormatter) missing(t token) (string, error) {
+	return "", fmt.Errorf("%w: date %+v has no value for %s", ErrInvalidOption, f.d, strings.Repeat(string(t.letter), t.n))
+}
+
+// month writes the M or L field: a number, or a format or stand-alone name.
+func (f *dateFormatter) month(t token) (string, error) {
+	if t.n <= 2 {
+		return f.num(f.d.Month, t.n), nil
+	}
+	ctx := "format"
+	if t.letter == 'L' {
+		ctx = "standAlone"
+	}
+	if s, ok := name(f.cal.raw.Months[ctx], widthOf(t.n), f.d.Month-1); ok {
+		return s, nil
+	}
+	return f.missing(t)
+}
+
+// weekday writes the E or c field as a format or stand-alone name.
+func (f *dateFormatter) weekday(t token) (string, error) {
+	if t.letter == 'c' && t.n < 3 {
+		return "", fmt.Errorf("%w: numeric local weekday", ErrUnsupported)
+	}
+	ctx := "format"
+	if t.letter == 'c' {
+		ctx = "standAlone"
+	}
+	w := widthOf(t.n)
+	if t.n == 6 {
+		w = "short"
+	}
+	if s, ok := name(f.cal.raw.Days[ctx], w, f.d.Weekday); ok {
+		return s, nil
+	}
+	return f.missing(t)
+}
+
+// dayPeriod writes the a or B field, falling back to the abbreviated width.
+func (f *dateFormatter) dayPeriod(t token) (string, error) {
+	key := "am"
+	if f.d.Hour >= 12 {
+		key = "pm"
+	}
+	periods := f.cal.raw.DayPeriods["format"]
+	if s := periods[widthOf(t.n)][key]; s != "" {
+		return s, nil
+	}
+	if s := periods["abbreviated"][key]; s != "" {
+		return s, nil
+	}
+	return f.missing(t)
 }
 
 // widthOf maps a count of pattern letters to a name width (E, M, G, a).

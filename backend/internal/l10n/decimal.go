@@ -34,25 +34,12 @@ func ParseDecimal(s string) (Decimal, error) {
 	}
 	exp := 0
 	if i := strings.IndexAny(rest, "eE"); i >= 0 {
-		e := rest[i+1:]
+		var ok bool
+		exp, ok = parseExponent(rest[i+1:])
+		if !ok {
+			return bad()
+		}
 		rest = rest[:i]
-		sign := 1
-		if e != "" && (e[0] == '-' || e[0] == '+') {
-			if e[0] == '-' {
-				sign = -1
-			}
-			e = e[1:]
-		}
-		if e == "" || len(e) > 3 || !allDigits(e) {
-			return bad()
-		}
-		for _, c := range e {
-			exp = exp*10 + int(c-'0')
-		}
-		if exp > maxExponent {
-			return bad()
-		}
-		exp *= sign
 	}
 	ip, fp, _ := strings.Cut(rest, ".")
 	if (ip == "" && fp == "") || !allDigits(ip) || !allDigits(fp) || strings.Contains(fp, ".") {
@@ -65,6 +52,29 @@ func ParseDecimal(s string) (Decimal, error) {
 		d.neg = s[0] == '-'
 	}
 	return d, nil
+}
+
+// parseExponent parses the optionally signed exponent digits after the "e"
+// and reports false when they are malformed or exceed maxExponent.
+func parseExponent(e string) (int, bool) {
+	sign := 1
+	if e != "" && (e[0] == '-' || e[0] == '+') {
+		if e[0] == '-' {
+			sign = -1
+		}
+		e = e[1:]
+	}
+	if e == "" || len(e) > 3 || !allDigits(e) {
+		return 0, false
+	}
+	exp := 0
+	for _, c := range e {
+		exp = exp*10 + int(c-'0')
+	}
+	if exp > maxExponent {
+		return 0, false
+	}
+	return exp * sign, true
 }
 
 func allDigits(s string) bool {
