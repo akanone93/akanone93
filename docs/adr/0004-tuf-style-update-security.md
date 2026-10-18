@@ -156,3 +156,9 @@ bundles (`SEC-053`).
 ## Revision (2026-10-07, P6 plan)
 
 P6 delivers the second half: the `root`, `snapshot` and `timestamp` roles, thresholds (root 2 of 3), expiries (timestamp 24 h, snapshot 7 days, targets 30 days, root 1 year), rotation, algorithm identifiers, development-key rejection and pins in signed metadata. The design is in ADR-0054.
+
+## Revision (2026-10-18, P9: the `control` role)
+
+P9 adds a signed control document (kill switches, flags, experiments, mandatory update, forced rollback; ADR-0077). It is signed by a new **online `control` role** in the update metadata. Like the other online roles it is limited by a short expiry (default 24 h, configurable); the root key stays offline, so a compromised control key can switch features off or on but cannot sign a release. Devices accept only a control document with a higher version than the last one they hold and refuse older ones (`PLX-3102`).
+
+The anti-rollback rule above is narrowed in one case: a **signed control-document rollback** may direct a device to an earlier release from its retained bundles. Without such a document a device never activates an older release. When the control document cannot be refreshed within its expiry, the kill switches it last carried stay in force (fail closed for switches only).

@@ -190,3 +190,7 @@ the development file backend.
 ## Revision (2026-10-07, P6 plan)
 
 The backends as built in P6: a PKCS#11 helper process (cgo confined to the helper) reaches HSMs and the cloud HSM products through their PKCS#11 libraries (AWS CloudHSM, Google Cloud HSM, Azure Managed HSM); Vault Transit stays; native cloud KMS SDKs are not used (ADR-0060, P6 plan B12).
+
+## Revision (2026-10-18, P9: SAML, SCIM and step-up)
+
+P9 extends identity as decided in ADR-0074 and ADR-0075. OIDC stays in-house and gains several providers, group-to-role and team mapping, optional just-in-time provisioning, `acr`/`amr` recording and back-channel logout. SAML 2.0 (with `crewjam/saml`) and SCIM 2.0 (in-house) arrive in the enterprise edition, with deprovisioning revoking sessions and tokens at once. Sessions are listed, time-limited and revocable by administrators (`GOV-005`). Sensitive actions require a WebAuthn step-up within the last 5 minutes (`SEC-103`); the CLI runs the ceremony in the browser and receives a 5-minute grant bound to its DPoP key. Roles, teams and scoped grants are in ADR-0073.

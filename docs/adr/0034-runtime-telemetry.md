@@ -131,3 +131,7 @@ event costs battery and data.
 ## Revision (2026-10-07, P6 plan)
 
 From P6 telemetry uploads carry DPoP proofs like every device request, and three `necessary` events are added: `rasp_detection`, `attestation_result` and `pin_failure`, with no personal data (ADR-0012, ADR-0057).
+
+## Revision (2026-10-18, P9: new events)
+
+P9 adds the events that rollout health gates, experiments and the control document need (ADR-0078, ADR-0079, ADR-0077): `session_start`, `session_end`, `fatal_error`, `experiment_exposure`, `flag_evaluated` (sampled) and `control_applied`. They follow the same consent gating and buffering as the existing events; spec Appendix G.2 lists them with their categories. Ingestion, rollups and retention are in ADR-0080.
