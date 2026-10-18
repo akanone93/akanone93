@@ -991,7 +991,7 @@ export const limits = [
     max: 1073741824,
     scopes: ["installation", "organization", "app"],
     phase: "P8",
-    description: "Largest network video or audio file the player downloads through the pinned client when pinnedMediaOnly is on (A3).",
+    description: "Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client).",
   },
   {
     key: "page.animations",

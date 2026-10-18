@@ -282,8 +282,9 @@ const (
 	// URL, such as an identity provider's keys. (SEC-104, SEC-105)
 	HTTPResponseSize Key = "http.responseSize"
 	// MediaPinnedDownloadSize: Largest network video or audio file the player
-	// downloads through the pinned client when pinnedMediaOnly is on (A3).
-	// (SEC-041)
+	// downloads through the pinned client when the security setting
+	// pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned
+	// client). (SEC-041)
 	MediaPinnedDownloadSize Key = "media.pinnedDownloadSize"
 	// PageAnimations: Animations that can run at the same time on one page.
 	// (CMP-040)
@@ -478,7 +479,7 @@ var registry = [...]Definition{
 	{Key: GoldenCasesPerRun, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerCli, Phase: "P8", Description: "Golden cases one run may contain."},
 	{Key: GoldenImageBytes, Unit: UnitBytes, Default: 2097152, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerCli, Phase: "P8", Description: "Size of one golden image."},
 	{Key: HTTPResponseSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 67108864, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Size of a response the server reads when it fetches a URL, such as an identity provider's keys."},
-	{Key: MediaPinnedDownloadSize, Unit: UnitBytes, Default: 209715200, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P8", Description: "Largest network video or audio file the player downloads through the pinned client when pinnedMediaOnly is on (A3)."},
+	{Key: MediaPinnedDownloadSize, Unit: UnitBytes, Default: 209715200, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P8", Description: "Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client)."},
 	{Key: PageAnimations, Unit: UnitCount, Default: 30, Warning: 10, Max: 200, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Animations that can run at the same time on one page."},
 	{Key: PageBuildCost, Unit: UnitMicroseconds, Default: 16000, Warning: 8000, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Estimated build time of a page on the mid-tier reference device, the sum of its widgets' cost hints."},
 	{Key: PageDepth, Unit: UnitCount, Default: 64, Warning: 32, Max: 128, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Depth of a page's node tree."},
