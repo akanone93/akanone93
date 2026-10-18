@@ -8,7 +8,6 @@ import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
 import android.os.SystemClock
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
@@ -18,7 +17,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Test
-import org.junit.runner.RunWith
 
 /**
  * A scripted pass over the platform accessibility tree of Plux Express's
@@ -30,7 +28,6 @@ import org.junit.runner.RunWith
  * the catalogue with the app in Arabic, whose labels are the translators'
  * and so are checked for being there, not for their words.
  */
-@RunWith(AndroidJUnit4::class)
 class AccessibilityTreeTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val device = UiDevice.getInstance(instrumentation)

@@ -53,10 +53,10 @@ final class AccessibilityTreeTests: XCTestCase {
 
     waitFor(app, "Username", exact: true).typeText("demo")
     for digit in "246810" {
-      tap(app, String(digit), exact: true)
+      reveal(app, String(digit)).tap()
     }
-    waitFor(app, "One-time code", exact: true).typeText("123456")
-    tap(app, "Sign in", exact: true)
+    reveal(app, "One-time code").typeText("123456")
+    reveal(app, "Sign in").tap()
 
     waitFor(app, "New transfer", exact: true)
     assertReadsInOrder(app, ["New transfer"])
@@ -143,6 +143,18 @@ final class AccessibilityTreeTests: XCTestCase {
       XCTFail("nothing on screen reads \"\(label)\"")
     }
     return found
+  }
+
+  // The control with the label, scrolled to when the keyboard hides it: a
+  // control below the focused field is off screen, and Flutter leaves it out
+  // of the tree.
+  @discardableResult
+  private func reveal(_ app: XCUIApplication, _ label: String) -> XCUIElement {
+    let found = element(app, label, exact: true)
+    for _ in 0..<5 where !found.waitForExistence(timeout: 1) {
+      app.scrollViews.firstMatch.swipeUp()
+    }
+    return waitFor(app, label, exact: true)
   }
 
   // Waits up to a minute for a condition on the page.

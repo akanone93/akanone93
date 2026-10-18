@@ -8,9 +8,9 @@ import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
 import android.os.SystemClock
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import org.junit.After
@@ -18,7 +18,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Test
-import org.junit.runner.RunWith
 
 /**
  * A scripted pass over the platform accessibility tree of Plux Bank's login,
@@ -31,7 +30,6 @@ import org.junit.runner.RunWith
  * Arabic, whose labels are the translators' and so are checked for being
  * there, not for their words.
  */
-@RunWith(AndroidJUnit4::class)
 class AccessibilityTreeTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val device = UiDevice.getInstance(instrumentation)
@@ -48,9 +46,9 @@ class AccessibilityTreeTest {
         assertInteractiveControlsAreLabelled()
 
         waitFor("Username").text = "demo"
-        for (digit in "246810") waitFor(digit).click()
-        waitFor("One-time code").text = "123456"
-        waitFor("Sign in").click()
+        for (digit in "246810") reveal(digit.toString()).click()
+        reveal("One-time code").text = "123456"
+        reveal("Sign in").click()
 
         waitFor("New transfer")
         assertReadsInOrder(listOf("New transfer"))
@@ -153,6 +151,18 @@ class AccessibilityTreeTest {
             }
             SystemClock.sleep(200)
         }
+    }
+
+    // The control with the label, scrolled to when the keyboard hides it: a
+    // control below the focused field is off screen, and Flutter leaves it
+    // out of the tree.
+    private fun reveal(label: String): UiObject2 {
+        repeat(5) {
+            find(label)?.let { return it }
+            SystemClock.sleep(1_000)
+            device.findObject(By.scrollable(true))?.scroll(Direction.DOWN, 0.5f)
+        }
+        return waitFor(label)
     }
 
     private fun waitForAny(condition: () -> Boolean) {
