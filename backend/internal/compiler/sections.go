@@ -760,7 +760,7 @@ func droppedVector(b *flatbuffers.Builder, ids []string) flatbuffers.UOffsetT {
 
 // assets adds the assets-index sections — every asset to the app bundle,
 // the assets it uses to each plugin bundle — and then the sections every
-// bundle shares: programs, styles, strings, meta and the source map.
+// bundle shares: styles, programs, strings, meta and the source map.
 // Asset files are not in the bundles: each is its own content-addressed
 // object, and the index lists it with its transcoded variants (CMP-030).
 func assets(u *unit) {
@@ -768,8 +768,9 @@ func assets(u *unit) {
 		u.assetsSection(o)
 		u.pluginAssetBytes(o)
 		u.metaSection(o)
-		programsSection(o)
+		// Styles hold expressions, which register their programs.
 		u.stylesSection(o)
+		programsSection(o)
 		stringsSection(o)
 		sourceMapSection(o)
 	}

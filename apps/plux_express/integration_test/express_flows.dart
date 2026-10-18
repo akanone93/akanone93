@@ -55,8 +55,12 @@ Future<void> pumpUntil(
 }
 
 /// Taps [finder] once the screen has settled: a page still sliding in
-/// moves its widgets, and a tap aimed at a moving widget can miss it.
+/// moves its widgets, and a tap aimed at a moving widget can miss it. The
+/// catalogue's product cards are taller than the test device's list, so the
+/// target is scrolled into view first, as a user scrolls to it.
 Future<void> tapSettled(WidgetTester tester, Finder finder) async {
+  await tester.pumpAndSettle();
+  await tester.ensureVisible(finder);
   await tester.pumpAndSettle();
   await tester.tap(finder);
 }
