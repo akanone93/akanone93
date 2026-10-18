@@ -1295,7 +1295,7 @@ Security profiles bundle settings so that operators do not need to understand fi
 | Publish approvals, production (`publishApprovals`) | 1 | 2 (four-eyes) | 2 from distinct teams + compliance |
 | Accessibility errors block publish (`accessibilityBlocksPublish`) | – | ✔ | ✔ |
 | Plux tests and goldens required for release (`requiredTests`, `TST-005`) | – | optional | ✔ |
-| Experiment launch approval (`experimentApproval`) | – | regulated flows | all production experiments |
+| Experiment launch approval (`experimentApproval`) | – | – | experiments on `secure` pages or money flows (`ABT-007`) |
 | Device-placed functions | ✔ | ✔ | disabled by default |
 | Software DPoP keys (`allowSoftwareKeys`, `SEC-001`) | accepted, capped at AL1 | refused | refused |
 | Direct data-source calls (`allowDirectDataSources`, `SEC-030`) | allowed | allowed | refused |
