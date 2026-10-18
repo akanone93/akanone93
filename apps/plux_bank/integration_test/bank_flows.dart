@@ -60,9 +60,17 @@ Future<void> settle(WidgetTester tester) async {
 }
 
 /// Taps [finder] once the screen has settled: a page still sliding in
-/// moves its widgets, and a tap aimed at a moving widget can miss it.
+/// moves its widgets, and a tap aimed at a moving widget can miss it. A
+/// snackbar an earlier step raised (the form's "check the fields") lies over
+/// the bottom of the page for seconds, and a tap on a button beneath it hits
+/// the snackbar: it is dismissed first, as a user swipes it away.
 Future<void> tapSettled(WidgetTester tester, Finder finder) async {
   await settle(tester);
+  if (find.byType(SnackBar).evaluate().isNotEmpty) {
+    ScaffoldMessenger.of(tester.element(find.byType(Scaffold).first))
+        .removeCurrentSnackBar();
+    await settle(tester);
+  }
   await tester.ensureVisible(finder);
   await settle(tester);
   await tester.tap(finder);
