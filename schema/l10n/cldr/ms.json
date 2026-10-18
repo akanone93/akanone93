@@ -511,9 +511,6 @@
       "name": "Dram Armenia",
       "narrow": "֏"
     },
-    "ANG": {
-      "name": "Guilder Antillen Belanda"
-    },
     "AOA": {
       "name": "Kwanza Angola",
       "narrow": "Kz"
@@ -545,9 +542,6 @@
     "BDT": {
       "name": "Taka Bangladesh",
       "narrow": "৳"
-    },
-    "BGN": {
-      "name": "Lev Bulgaria"
     },
     "BHD": {
       "name": "Dinar Bahrain"
@@ -589,9 +583,6 @@
         "other": "Rubel Belarus"
       }
     },
-    "BYR": {
-      "name": "Rubel Belarus (2000–2016)"
-    },
     "BZD": {
       "name": "Dolar Belize",
       "narrow": "$"
@@ -610,9 +601,6 @@
       "name": "Peso Chile",
       "narrow": "$"
     },
-    "CNH": {
-      "name": "Yuan China (luar pesisir)"
-    },
     "CNY": {
       "name": "Yuan Cina",
       "narrow": "¥",
@@ -625,10 +613,6 @@
     "CRC": {
       "name": "Colon Costa Rica",
       "narrow": "₡"
-    },
-    "CUC": {
-      "name": "Peso Boleh Tukar Cuba",
-      "narrow": "$"
     },
     "CUP": {
       "name": "Peso Cuba",
@@ -661,9 +645,6 @@
     },
     "ERN": {
       "name": "Nakfa Eritrea"
-    },
-    "ESP": {
-      "narrow": "₧"
     },
     "ETB": {
       "name": "Birr Ethiopia"
@@ -719,10 +700,6 @@
     "HNL": {
       "name": "Lempira Honduras",
       "narrow": "L"
-    },
-    "HRK": {
-      "name": "Kuna Croatia",
-      "narrow": "kn"
     },
     "HTG": {
       "name": "Gourde Haiti"
@@ -821,14 +798,6 @@
     "LSL": {
       "name": "Loti Lesotho"
     },
-    "LTL": {
-      "name": "Litas Lithuania",
-      "narrow": "Lt"
-    },
-    "LVL": {
-      "name": "Lats Latvia",
-      "narrow": "Ls"
-    },
     "LYD": {
       "name": "Dinar Libya"
     },
@@ -841,9 +810,6 @@
     "MGA": {
       "name": "Ariary Malagasy",
       "narrow": "Ar"
-    },
-    "MGF": {
-      "name": "Franc Malagasy"
     },
     "MKD": {
       "name": "Denar Macedonia"
@@ -858,9 +824,6 @@
     },
     "MOP": {
       "name": "Pataca Macau"
-    },
-    "MRO": {
-      "name": "Ouguiya Mauritania (1973–2017)"
     },
     "MRU": {
       "name": "Ouguiya Mauritania"
@@ -882,12 +845,6 @@
     "MYR": {
       "name": "Ringgit Malaysia",
       "symbol": "RM"
-    },
-    "MZE": {
-      "name": "Escudo Mozambique"
-    },
-    "MZM": {
-      "name": "Metical Mozambique (1980–2006)"
     },
     "MZN": {
       "name": "Metikal Mozambique"
@@ -948,9 +905,6 @@
     "QAR": {
       "name": "Rial Qatar"
     },
-    "RHD": {
-      "name": "Dolar Rhodesia"
-    },
     "RON": {
       "name": "Leu Romania",
       "narrow": "lei"
@@ -994,9 +948,6 @@
     "SLE": {
       "name": "Leone Sierra Leone"
     },
-    "SLL": {
-      "name": "Leone Sierra Leone (1964—2022)"
-    },
     "SOS": {
       "name": "Syiling Somali"
     },
@@ -1007,9 +958,6 @@
     "SSP": {
       "name": "Paun Sudan selatan",
       "narrow": "£"
-    },
-    "STD": {
-      "name": "Dobra Sao Tome dan Principe (1977–2017)"
     },
     "STN": {
       "name": "Dobra Sao Tome dan Principe",
@@ -1058,9 +1006,6 @@
       "name": "Hryvnia Ukraine",
       "narrow": "₴"
     },
-    "UGS": {
-      "name": "Shilling Uganda (1966–1987)"
-    },
     "UGX": {
       "name": "Syiling Uganda"
     },
@@ -1074,10 +1019,6 @@
     },
     "UZS": {
       "name": "Som Uzbekistan"
-    },
-    "VEF": {
-      "name": "Bolivar Venezuela (2008–2018)",
-      "narrow": "Bs"
     },
     "VES": {
       "name": "Bolivar Venezuela"
@@ -1113,13 +1054,6 @@
       "name": "Franc CFP",
       "symbol": "CFPF"
     },
-    "XXX": {
-      "name": "Mata Wang Tidak Diketahui",
-      "plural": {
-        "other": "(mata wang tidak diketahui)"
-      },
-      "symbol": "¤"
-    },
     "YER": {
       "name": "Rial Yaman"
     },
@@ -1127,24 +1061,12 @@
       "name": "Rand Afrika Selatan",
       "narrow": "R"
     },
-    "ZMK": {
-      "name": "Kwacha Zambia (1968–2012)"
-    },
     "ZMW": {
       "name": "Kwacha Zambia",
       "narrow": "ZK"
     },
-    "ZWD": {
-      "name": "Dolar Zimbabwe (1980–2008)"
-    },
     "ZWG": {
       "name": "Emas Zimbabwe"
-    },
-    "ZWL": {
-      "name": "Dolar Zimbabwe (2009)"
-    },
-    "ZWR": {
-      "name": "Dolar Zimbabwe (2008)"
     }
   },
   "currencyDigits": {

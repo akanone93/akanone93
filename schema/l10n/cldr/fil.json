@@ -527,13 +527,6 @@
         "other": "Armenian drams"
       }
     },
-    "ANG": {
-      "name": "Antillean Guilder ng Netherlands",
-      "plural": {
-        "one": "Antillean guilder ng Netherlands",
-        "other": "Antillean guilders ng Netherlands"
-      }
-    },
     "AOA": {
       "name": "Angolan Kwanza",
       "narrow": "Kz",
@@ -596,13 +589,6 @@
       "plural": {
         "one": "Bangladeshi taka",
         "other": "Bangladeshi takas"
-      }
-    },
-    "BGN": {
-      "name": "Bulgarian Lev",
-      "plural": {
-        "one": "Bulgarian lev",
-        "other": "Bulgarian leva"
       }
     },
     "BHD": {
@@ -682,13 +668,6 @@
         "other": "rubles ng Belarus"
       }
     },
-    "BYR": {
-      "name": "Belarusian Ruble (2000–2016)",
-      "plural": {
-        "one": "Belarusian ruble (2000–2016)",
-        "other": "Belarusian rubles (2000–2016)"
-      }
-    },
     "BZD": {
       "name": "Dolyar ng Belize",
       "narrow": "$",
@@ -728,13 +707,6 @@
         "other": "piso ng Chile"
       }
     },
-    "CNH": {
-      "name": "Chinese Yuan (offshore)",
-      "plural": {
-        "one": "Chinese yuan (offshore)",
-        "other": "Chinese yuan (offshore)"
-      }
-    },
     "CNY": {
       "name": "Chinese Yuan",
       "narrow": "¥",
@@ -759,14 +731,6 @@
         "other": "colóns ng Costa Rica"
       }
     },
-    "CUC": {
-      "name": "Convertible na Piso ng Cuba",
-      "narrow": "$",
-      "plural": {
-        "one": "Convertible na piso ng Cuba",
-        "other": "Convertible na piso ng Cuba"
-      }
-    },
     "CUP": {
       "name": "Piso ng Cuba",
       "narrow": "$",
@@ -789,9 +753,6 @@
         "one": "koruna ng Czech Republic",
         "other": "korunas ng Czech Republic"
       }
-    },
-    "DEM": {
-      "name": "Deutsche Marks"
     },
     "DJF": {
       "name": "Djiboutian Franc",
@@ -822,9 +783,6 @@
         "other": "Algerian dinars"
       }
     },
-    "EEK": {
-      "name": "Estonian Kroon"
-    },
     "EGP": {
       "name": "Pound ng Egypt",
       "narrow": "E£",
@@ -839,9 +797,6 @@
         "one": "Eritrean nakfa",
         "other": "Eritrean nakfas"
       }
-    },
-    "ESP": {
-      "narrow": "₧"
     },
     "ETB": {
       "name": "Ethiopian Birr",
@@ -873,9 +828,6 @@
         "one": "pound ng Falkland Islands",
         "other": "pounds ng Falkland Islands"
       }
-    },
-    "FRF": {
-      "name": "French Franc"
     },
     "GBP": {
       "name": "British Pound",
@@ -955,14 +907,6 @@
       "plural": {
         "one": "lempira ng Honduras",
         "other": "lempiras ng Honduras"
-      }
-    },
-    "HRK": {
-      "name": "Kuna ng Croatia",
-      "narrow": "kn",
-      "plural": {
-        "one": "kuna ng Croatia",
-        "other": "kunas ng Croatia"
       }
     },
     "HTG": {
@@ -1158,22 +1102,6 @@
         "other": "Lesotho lotis"
       }
     },
-    "LTL": {
-      "name": "Lithuanian Litas",
-      "narrow": "Lt",
-      "plural": {
-        "one": "Lithuanian litas",
-        "other": "Lithuanian litai"
-      }
-    },
-    "LVL": {
-      "name": "Latvian Lats",
-      "narrow": "Ls",
-      "plural": {
-        "one": "Latvian lats",
-        "other": "Latvian lati"
-      }
-    },
     "LYD": {
       "name": "Dinar ng Libya",
       "plural": {
@@ -1230,13 +1158,6 @@
       "plural": {
         "one": "Macanese pataca",
         "other": "Macanese patacas"
-      }
-    },
-    "MRO": {
-      "name": "Mauritanian Ouguiya (1973–2017)",
-      "plural": {
-        "one": "Mauritanian ouguiya (1973–2017)",
-        "other": "Mauritanian ouguiyas (1973–2017)"
       }
     },
     "MRU": {
@@ -1490,24 +1411,11 @@
         "other": "Saint Helena pounds"
       }
     },
-    "SIT": {
-      "name": "Slovenian Tolar"
-    },
-    "SKK": {
-      "name": "Slovak Koruna"
-    },
     "SLE": {
       "name": "Sierra Leonean Leone",
       "plural": {
         "one": "Sierra Leonean leone",
         "other": "Sierra Leonean leones"
-      }
-    },
-    "SLL": {
-      "name": "Sierra Leonean Leone (1964—2022)",
-      "plural": {
-        "one": "Sierra Leonean leone (1964—2022)",
-        "other": "Sierra Leonean leones (1964—2022)"
       }
     },
     "SOS": {
@@ -1530,13 +1438,6 @@
       "narrow": "£",
       "plural": {
         "other": "pounds ng Timog Sudan"
-      }
-    },
-    "STD": {
-      "name": "São Tomé & Príncipe Dobra (1977–2017)",
-      "plural": {
-        "one": "São Tomé & Príncipe dobra (1977–2017)",
-        "other": "São Tomé & Príncipe dobras (1977–2017)"
       }
     },
     "STN": {
@@ -1667,17 +1568,6 @@
         "other": "Uzbekistan som"
       }
     },
-    "VEB": {
-      "name": "Venezuelan Bolívar (1871–2008)"
-    },
-    "VEF": {
-      "name": "Bolívar ng Venezuela (2008–2018)",
-      "narrow": "Bs",
-      "plural": {
-        "one": "bolívar ng Venezuela (2008–2018)",
-        "other": "bolívars ng Venezuela (2008–2018)"
-      }
-    },
     "VES": {
       "name": "Bolívar ng Venezuela",
       "plural": {
@@ -1747,14 +1637,6 @@
       },
       "symbol": "CFPF"
     },
-    "XXX": {
-      "name": "Hindi Kilalang Pera",
-      "plural": {
-        "one": "(hindi kilalang unit ng currency)",
-        "other": "(hindi kilalang pera)"
-      },
-      "symbol": "¤"
-    },
     "YER": {
       "name": "Yemeni Rial",
       "plural": {
@@ -1769,9 +1651,6 @@
         "one": "rand ng Timog Africa",
         "other": "rand ng Timog Africa"
       }
-    },
-    "ZMK": {
-      "name": "Zambian Kwacha (1968–2012)"
     },
     "ZMW": {
       "name": "Zambian Kwacha",

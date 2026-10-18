@@ -494,14 +494,8 @@
     }
   },
   "currencies": {
-    "ADP": {
-      "name": "Peseta Andorra"
-    },
     "AED": {
       "name": "Dirham Uni Emirat Arab"
-    },
-    "AFA": {
-      "name": "Afgani Afganistan (1927–2002)"
     },
     "AFN": {
       "name": "Afgani Afganistan",
@@ -514,40 +508,13 @@
       "name": "Dram Armenia",
       "narrow": "֏"
     },
-    "ANG": {
-      "name": "Guilder Antilla Belanda"
-    },
     "AOA": {
       "name": "Kwanza Angola",
       "narrow": "Kz"
     },
-    "AOK": {
-      "name": "Kwanza Angola (1977–1991)"
-    },
-    "AON": {
-      "name": "Kwanza Baru Angola (1990–2000)"
-    },
-    "AOR": {
-      "name": "Kwanza Angola yang Disesuaikan Lagi (1995–1999)"
-    },
-    "ARA": {
-      "name": "Austral Argentina"
-    },
-    "ARL": {
-      "name": "Peso Ley Argentina (1970–1983)"
-    },
-    "ARM": {
-      "name": "Peso Argentina (1881–1970)"
-    },
-    "ARP": {
-      "name": "Peso Argentina (1983–1985)"
-    },
     "ARS": {
       "name": "Peso Argentina",
       "narrow": "$"
-    },
-    "ATS": {
-      "name": "Schilling Austria"
     },
     "AUD": {
       "name": "Dolar Australia",
@@ -557,22 +524,13 @@
     "AWG": {
       "name": "Florin Aruba"
     },
-    "AZM": {
-      "name": "Manat Azerbaijan (1993–2006)"
-    },
     "AZN": {
       "name": "Manat Azerbaijan",
       "narrow": "₼"
     },
-    "BAD": {
-      "name": "Dinar Bosnia-Herzegovina (1992–1994)"
-    },
     "BAM": {
       "name": "Mark Konvertibel Bosnia-Herzegovina",
       "narrow": "KM"
-    },
-    "BAN": {
-      "name": "Dinar Baru Bosnia-Herzegovina (1994–1997)"
     },
     "BBD": {
       "name": "Dolar Barbados",
@@ -581,27 +539,6 @@
     "BDT": {
       "name": "Taka Bangladesh",
       "narrow": "৳"
-    },
-    "BEC": {
-      "name": "Franc Belgia (konvertibel)"
-    },
-    "BEF": {
-      "name": "Franc Belgia"
-    },
-    "BEL": {
-      "name": "Franc Belgia (keuangan)"
-    },
-    "BGL": {
-      "name": "Hard Lev Bulgaria"
-    },
-    "BGM": {
-      "name": "Socialist Lev Bulgaria"
-    },
-    "BGN": {
-      "name": "Lev Bulgaria"
-    },
-    "BGO": {
-      "name": "Lev Bulgaria (1879–1952)"
     },
     "BHD": {
       "name": "Dinar Bahrain"
@@ -621,36 +558,9 @@
       "name": "Boliviano",
       "narrow": "Bs"
     },
-    "BOL": {
-      "name": "Boliviano Bolivia (1863–1963)"
-    },
-    "BOP": {
-      "name": "Peso Bolivia"
-    },
-    "BOV": {
-      "name": "Mvdol Bolivia"
-    },
-    "BRB": {
-      "name": "Cruzeiro Baru Brasil (1967–1986)"
-    },
-    "BRC": {
-      "name": "Cruzado Brasil (1986–1989)"
-    },
-    "BRE": {
-      "name": "Cruzeiro Brasil (1990–1993)"
-    },
     "BRL": {
       "name": "Real Brasil",
       "symbol": "R$"
-    },
-    "BRN": {
-      "name": "Cruzado Baru Brasil (1989–1990)"
-    },
-    "BRR": {
-      "name": "Cruzeiro Brasil (1993–1994)"
-    },
-    "BRZ": {
-      "name": "Cruzeiro Brasil (1942–1967)"
     },
     "BSD": {
       "name": "Dolar Bahama",
@@ -659,22 +569,13 @@
     "BTN": {
       "name": "Ngultrum Bhutan"
     },
-    "BUK": {
-      "name": "Kyat Burma"
-    },
     "BWP": {
       "name": "Pula Botswana",
       "narrow": "P"
     },
-    "BYB": {
-      "name": "Rubel Baru Belarus (1994–1999)"
-    },
     "BYN": {
       "name": "Rubel Belarusia",
       "narrow": "р."
-    },
-    "BYR": {
-      "name": "Rubel Belarusia (2000–2016)"
     },
     "BZD": {
       "name": "Dolar Belize",
@@ -688,27 +589,12 @@
     "CDF": {
       "name": "Franc Kongo"
     },
-    "CHE": {
-      "name": "Euro WIR"
-    },
     "CHF": {
       "name": "Franc Swiss"
-    },
-    "CHW": {
-      "name": "Franc WIR"
-    },
-    "CLE": {
-      "name": "Escudo Cile"
-    },
-    "CLF": {
-      "name": "Satuan Hitung (UF) Cile"
     },
     "CLP": {
       "name": "Peso Cile",
       "narrow": "$"
-    },
-    "CNH": {
-      "name": "Yuan Tiongkok (luar negeri)"
     },
     "CNY": {
       "name": "Yuan Tiongkok",
@@ -719,22 +605,9 @@
       "name": "Peso Kolombia",
       "narrow": "$"
     },
-    "COU": {
-      "name": "Unit Nilai Nyata Kolombia"
-    },
     "CRC": {
       "name": "Colon Kosta Rika",
       "narrow": "₡"
-    },
-    "CSD": {
-      "name": "Dinar Serbia (2002–2006)"
-    },
-    "CSK": {
-      "name": "Hard Koruna Cheska"
-    },
-    "CUC": {
-      "name": "Peso Konvertibel Kuba",
-      "narrow": "$"
     },
     "CUP": {
       "name": "Peso Kuba",
@@ -743,18 +616,9 @@
     "CVE": {
       "name": "Escudo Tanjung Verde"
     },
-    "CYP": {
-      "name": "Pound Siprus"
-    },
     "CZK": {
       "name": "Koruna Ceko",
       "narrow": "Kč"
-    },
-    "DDM": {
-      "name": "Mark Jerman Timur"
-    },
-    "DEM": {
-      "name": "Mark Jerman"
     },
     "DJF": {
       "name": "Franc Jibuti"
@@ -770,15 +634,6 @@
     "DZD": {
       "name": "Dinar Aljazair"
     },
-    "ECS": {
-      "name": "Sucre Ekuador"
-    },
-    "ECV": {
-      "name": "Satuan Nilai Tetap Ekuador"
-    },
-    "EEK": {
-      "name": "Kroon Estonia"
-    },
     "EGP": {
       "name": "Pound Mesir",
       "narrow": "E£"
@@ -786,25 +641,12 @@
     "ERN": {
       "name": "Nakfa Eritrea"
     },
-    "ESA": {
-      "name": "Peseta Spanyol (akun)"
-    },
-    "ESB": {
-      "name": "Peseta Spanyol (konvertibel)"
-    },
-    "ESP": {
-      "name": "Peseta Spanyol",
-      "narrow": "₧"
-    },
     "ETB": {
       "name": "Birr Etiopia"
     },
     "EUR": {
       "name": "Euro",
       "symbol": "€"
-    },
-    "FIM": {
-      "name": "Markka Finlandia"
     },
     "FJD": {
       "name": "Dolar Fiji",
@@ -814,22 +656,13 @@
       "name": "Pound Kepulauan Falkland",
       "narrow": "£"
     },
-    "FRF": {
-      "name": "Franc Prancis"
-    },
     "GBP": {
       "name": "Pound Inggris",
       "symbol": "£"
     },
-    "GEK": {
-      "name": "Kupon Larit Georgia"
-    },
     "GEL": {
       "name": "Lari Georgia",
       "narrow": "₾"
-    },
-    "GHC": {
-      "name": "Cedi Ghana (1979–2007)"
     },
     "GHS": {
       "name": "Cedi Ghana",
@@ -846,24 +679,9 @@
       "name": "Franc Guinea",
       "narrow": "FG"
     },
-    "GNS": {
-      "name": "Syli Guinea"
-    },
-    "GQE": {
-      "name": "Ekuele Guinea Ekuatorial"
-    },
-    "GRD": {
-      "name": "Drachma Yunani"
-    },
     "GTQ": {
       "name": "Quetzal Guatemala",
       "narrow": "Q"
-    },
-    "GWE": {
-      "name": "Escudo Guinea Portugal"
-    },
-    "GWP": {
-      "name": "Peso Guinea-Bissau"
     },
     "GYD": {
       "name": "Dolar Guyana",
@@ -878,13 +696,6 @@
       "name": "Lempira Honduras",
       "narrow": "L"
     },
-    "HRD": {
-      "name": "Dinar Kroasia"
-    },
-    "HRK": {
-      "name": "Kuna Kroasia",
-      "narrow": "kn"
-    },
     "HTG": {
       "name": "Gourde Haiti"
     },
@@ -895,18 +706,6 @@
     "IDR": {
       "name": "Rupiah Indonesia",
       "symbol": "Rp"
-    },
-    "IEP": {
-      "name": "Pound Irlandia"
-    },
-    "ILP": {
-      "name": "Pound Israel"
-    },
-    "ILR": {
-      "name": "Shekel Israel",
-      "plural": {
-        "other": "Shekel Israel (1980–1985)"
-      }
     },
     "ILS": {
       "name": "Shekel Baru Israel",
@@ -923,15 +722,9 @@
     "IRR": {
       "name": "Rial Iran"
     },
-    "ISJ": {
-      "name": "Krona Islandia (1918–1981)"
-    },
     "ISK": {
       "name": "Krona Islandia",
       "narrow": "kr"
-    },
-    "ITL": {
-      "name": "Lira Italia"
     },
     "JMD": {
       "name": "Dolar Jamaika",
@@ -963,12 +756,6 @@
     "KPW": {
       "name": "Won Korea Utara",
       "narrow": "₩"
-    },
-    "KRH": {
-      "name": "Hwan Korea Selatan (1953–1962)"
-    },
-    "KRO": {
-      "name": "Won Korea Selatan (1945–1953)"
     },
     "KRW": {
       "name": "Won Korea Selatan",
@@ -1004,43 +791,11 @@
     "LSL": {
       "name": "Loti Lesotho"
     },
-    "LTL": {
-      "name": "Litas Lituania",
-      "narrow": "Lt"
-    },
-    "LTT": {
-      "name": "Talonas Lituania"
-    },
-    "LUC": {
-      "name": "Franc Konvertibel Luksemburg"
-    },
-    "LUF": {
-      "name": "Franc Luksemburg"
-    },
-    "LUL": {
-      "name": "Financial Franc Luksemburg"
-    },
-    "LVL": {
-      "name": "Lats Latvia",
-      "narrow": "Ls"
-    },
-    "LVR": {
-      "name": "Rubel Latvia"
-    },
     "LYD": {
       "name": "Dinar Libya"
     },
     "MAD": {
       "name": "Dirham Maroko"
-    },
-    "MAF": {
-      "name": "Franc Maroko"
-    },
-    "MCF": {
-      "name": "Franc Monegasque"
-    },
-    "MDC": {
-      "name": "Cupon Moldova"
     },
     "MDL": {
       "name": "Leu Moldova"
@@ -1049,17 +804,8 @@
       "name": "Ariary Madagaskar",
       "narrow": "Ar"
     },
-    "MGF": {
-      "name": "Franc Malagasi"
-    },
     "MKD": {
       "name": "Denar Makedonia"
-    },
-    "MKN": {
-      "name": "Denar Makedonia (1992–1993)"
-    },
-    "MLF": {
-      "name": "Franc Mali"
     },
     "MMK": {
       "name": "Kyat Myanmar",
@@ -1072,24 +818,12 @@
     "MOP": {
       "name": "Pataca Makau"
     },
-    "MRO": {
-      "name": "Ouguiya Mauritania (1973–2017)"
-    },
     "MRU": {
       "name": "Ouguiya Mauritania"
-    },
-    "MTL": {
-      "name": "Lira Malta"
-    },
-    "MTP": {
-      "name": "Pound Malta"
     },
     "MUR": {
       "name": "Rupee Mauritius",
       "narrow": "Rs"
-    },
-    "MVP": {
-      "name": "Rufiyaa Maladewa (1947–1981)"
     },
     "MVR": {
       "name": "Rufiyaa Maladewa"
@@ -1102,24 +836,9 @@
       "narrow": "$",
       "symbol": "MX$"
     },
-    "MXP": {
-      "name": "Peso Silver Meksiko (1861–1992)",
-      "plural": {
-        "other": "Peso Perak Meksiko"
-      }
-    },
-    "MXV": {
-      "name": "Unit Investasi Meksiko"
-    },
     "MYR": {
       "name": "Ringgit Malaysia",
       "narrow": "RM"
-    },
-    "MZE": {
-      "name": "Escudo Mozambik"
-    },
-    "MZM": {
-      "name": "Metical Mozambik (1980–2006)"
     },
     "MZN": {
       "name": "Metical Mozambik"
@@ -1132,15 +851,9 @@
       "name": "Naira Nigeria",
       "narrow": "₦"
     },
-    "NIC": {
-      "name": "Cordoba Nikaragua (1988–1991)"
-    },
     "NIO": {
       "name": "Cordoba Nikaragua",
       "narrow": "C$"
-    },
-    "NLG": {
-      "name": "Guilder Belanda"
     },
     "NOK": {
       "name": "Krone Norwegia",
@@ -1161,14 +874,8 @@
     "PAB": {
       "name": "Balboa Panama"
     },
-    "PEI": {
-      "name": "Inti Peru"
-    },
     "PEN": {
       "name": "Sol Peru"
-    },
-    "PES": {
-      "name": "Sol Peru (1863–1965)"
     },
     "PGK": {
       "name": "Kina Papua Nugini"
@@ -1185,24 +892,12 @@
       "name": "Zloty Polandia",
       "narrow": "zł"
     },
-    "PLZ": {
-      "name": "Zloty Polandia (1950–1995)"
-    },
-    "PTE": {
-      "name": "Escudo Portugal"
-    },
     "PYG": {
       "name": "Guarani Paraguay",
       "narrow": "₲"
     },
     "QAR": {
       "name": "Rial Qatar"
-    },
-    "RHD": {
-      "name": "Dolar Rhodesia"
-    },
-    "ROL": {
-      "name": "Leu Rumania (1952–2006)"
     },
     "RON": {
       "name": "Leu Rumania",
@@ -1214,9 +909,6 @@
     "RUB": {
       "name": "Rubel Rusia",
       "narrow": "₽"
-    },
-    "RUR": {
-      "name": "Rubel Rusia (1991–1998)"
     },
     "RWF": {
       "name": "Franc Rwanda",
@@ -1232,14 +924,8 @@
     "SCR": {
       "name": "Rupee Seychelles"
     },
-    "SDD": {
-      "name": "Dinar Sudan (1992–2007)"
-    },
     "SDG": {
       "name": "Pound Sudan"
-    },
-    "SDP": {
-      "name": "Pound Sudan (1957–1998)"
     },
     "SEK": {
       "name": "Krona Swedia",
@@ -1253,17 +939,8 @@
       "name": "Pound Saint Helena",
       "narrow": "£"
     },
-    "SIT": {
-      "name": "Tolar Slovenia"
-    },
-    "SKK": {
-      "name": "Koruna Slovakia"
-    },
     "SLE": {
       "name": "Leone Sierra Leone"
-    },
-    "SLL": {
-      "name": "Leone Sierra Leone (1964—2022)"
     },
     "SOS": {
       "name": "Shilling Somalia"
@@ -1272,25 +949,13 @@
       "name": "Dolar Suriname",
       "narrow": "$"
     },
-    "SRG": {
-      "name": "Guilder Suriname"
-    },
     "SSP": {
       "name": "Pound Sudan Selatan",
       "narrow": "£"
     },
-    "STD": {
-      "name": "Dobra Sao Tome dan Principe (1977–2017)"
-    },
     "STN": {
       "name": "Dobra Sao Tome dan Principe",
       "narrow": "Db"
-    },
-    "SUR": {
-      "name": "Rubel Soviet"
-    },
-    "SVC": {
-      "name": "Colon El Savador"
     },
     "SYP": {
       "name": "Pound Suriah",
@@ -1303,14 +968,8 @@
       "name": "Baht Thailand",
       "symbol": "฿"
     },
-    "TJR": {
-      "name": "Rubel Tajikistan"
-    },
     "TJS": {
       "name": "Somoni Tajikistan"
-    },
-    "TMM": {
-      "name": "Manat Turkmenistan (1993–2009)"
     },
     "TMT": {
       "name": "Manat Turkmenistan"
@@ -1321,12 +980,6 @@
     "TOP": {
       "name": "Paʻanga Tonga",
       "narrow": "T$"
-    },
-    "TPE": {
-      "name": "Escudo Timor"
-    },
-    "TRL": {
-      "name": "Lira Turki (1922–2005)"
     },
     "TRY": {
       "name": "Lira Turki",
@@ -1347,12 +1000,6 @@
       "name": "Hryvnia Ukraina",
       "narrow": "₴"
     },
-    "UAK": {
-      "name": "Karbovanet Ukraina"
-    },
-    "UGS": {
-      "name": "Shilling Uganda (1966–1987)"
-    },
     "UGX": {
       "name": "Shilling Uganda"
     },
@@ -1361,18 +1008,6 @@
       "narrow": "$",
       "symbol": "US$"
     },
-    "USN": {
-      "name": "Dolar AS (Hari berikutnya)"
-    },
-    "USS": {
-      "name": "Dolar AS (Hari yang sama)"
-    },
-    "UYI": {
-      "name": "Peso Uruguay (Unit Diindeks)"
-    },
-    "UYP": {
-      "name": "Peso Uruguay (1975–1993)"
-    },
     "UYU": {
       "name": "Peso Uruguay",
       "narrow": "$"
@@ -1380,22 +1015,12 @@
     "UZS": {
       "name": "Som Uzbekistan"
     },
-    "VEB": {
-      "name": "Bolivar Venezuela (1871–2008)"
-    },
-    "VEF": {
-      "name": "Bolivar Venezuela (2008–2018)",
-      "narrow": "Bs"
-    },
     "VES": {
       "name": "Bolivar Venezuela"
     },
     "VND": {
       "name": "Dong Vietnam",
       "symbol": "₫"
-    },
-    "VNN": {
-      "name": "Dong Vietnam (1978–1985)"
     },
     "VUV": {
       "name": "Vatu Vanuatu"
@@ -1407,24 +1032,6 @@
       "name": "Franc CFA Afrika Tengah",
       "symbol": "FCFA"
     },
-    "XAG": {
-      "name": "Silver"
-    },
-    "XAU": {
-      "name": "Emas"
-    },
-    "XBA": {
-      "name": "Unit Gabungan Eropa"
-    },
-    "XBB": {
-      "name": "Unit Keuangan Eropa"
-    },
-    "XBC": {
-      "name": "Satuan Hitung Eropa (XBC)"
-    },
-    "XBD": {
-      "name": "Satuan Hitung Eropa (XBD)"
-    },
     "XCD": {
       "name": "Dolar Karibia Timur",
       "narrow": "$",
@@ -1434,99 +1041,30 @@
       "name": "Guilder Karibia",
       "symbol": "Cg."
     },
-    "XDR": {
-      "name": "Hak Khusus Menggambar"
-    },
-    "XEU": {
-      "name": "Satuan Mata Uang Eropa"
-    },
-    "XFO": {
-      "name": "Franc Gold Perancis"
-    },
-    "XFU": {
-      "name": "Franc UIC Perancis"
-    },
     "XOF": {
       "name": "Franc CFA Afrika Barat",
       "symbol": "F\u202fCFA"
-    },
-    "XPD": {
-      "name": "Palladium"
     },
     "XPF": {
       "name": "Franc CFP",
       "symbol": "CFPF"
     },
-    "XPT": {
-      "name": "Platinum"
-    },
-    "XRE": {
-      "name": "Dana RINET"
-    },
-    "XTS": {
-      "name": "Kode Mata Uang Pengujian"
-    },
-    "XXX": {
-      "name": "Mata Uang Tidak Dikenal",
-      "plural": {
-        "other": "(mata uang tidak dikenal)"
-      }
-    },
-    "YDD": {
-      "name": "Dinar Yaman"
-    },
     "YER": {
       "name": "Rial Yaman"
-    },
-    "YUD": {
-      "name": "Hard Dinar Yugoslavia (1966–1990)",
-      "plural": {
-        "other": "Dinar Keras Yugoslavia"
-      }
-    },
-    "YUM": {
-      "name": "Dinar Baru Yugoslavia (1994–2002)"
-    },
-    "YUN": {
-      "name": "Dinar Konvertibel Yugoslavia (1990–1992)"
-    },
-    "YUR": {
-      "name": "Dinar Reformasi Yugoslavia (1992–1993)"
-    },
-    "ZAL": {
-      "name": "Rand Afrika Selatan (Keuangan)"
     },
     "ZAR": {
       "name": "Rand Afrika Selatan",
       "narrow": "R"
     },
-    "ZMK": {
-      "name": "Kwacha Zambia (1968–2012)"
-    },
     "ZMW": {
       "name": "Kwacha Zambia",
       "narrow": "ZK"
-    },
-    "ZRN": {
-      "name": "Zaire Baru Zaire (1993–1998)"
-    },
-    "ZRZ": {
-      "name": "Zaire Zaire (1971–1993)"
-    },
-    "ZWD": {
-      "name": "Dolar Zimbabwe (1980–2008)"
     },
     "ZWG": {
       "name": "Emas Zimbabwe",
       "plural": {
         "other": "emas Zimbabwe"
       }
-    },
-    "ZWL": {
-      "name": "Dolar Zimbabwe (2009)"
-    },
-    "ZWR": {
-      "name": "Dolar Zimbabwe (2008)"
     }
   },
   "currencyDigits": {

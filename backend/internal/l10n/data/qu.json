@@ -513,12 +513,6 @@
         "other": "drams Armenios"
       }
     },
-    "ANG": {
-      "name": "Florín Antillano Neerlandés",
-      "plural": {
-        "other": "Florín antillano neerlandés"
-      }
-    },
     "AOA": {
       "name": "Kwanza Angoleño",
       "narrow": "Kz",
@@ -569,9 +563,6 @@
       "plural": {
         "other": "Taka bangladesí"
       }
-    },
-    "BGN": {
-      "name": "Lev"
     },
     "BHD": {
       "name": "Dinar Bareiní",
@@ -666,12 +657,6 @@
         "other": "Peso chileno"
       }
     },
-    "CNH": {
-      "name": "Yuan Chino (offshore)",
-      "plural": {
-        "other": "Yuan chino (offshore)"
-      }
-    },
     "CNY": {
       "name": "Yuan Chino",
       "narrow": "¥",
@@ -692,13 +677,6 @@
       "narrow": "₡",
       "plural": {
         "other": "Colón costarricense"
-      }
-    },
-    "CUC": {
-      "name": "Peso Cubano Convertible",
-      "narrow": "$",
-      "plural": {
-        "other": "Peso cubano convertible"
       }
     },
     "CUP": {
@@ -756,9 +734,6 @@
     },
     "ERN": {
       "name": "Nakfa Eritreano"
-    },
-    "ESP": {
-      "narrow": "₧"
     },
     "ETB": {
       "name": "Birr Etíope",
@@ -846,13 +821,6 @@
       "narrow": "L",
       "plural": {
         "other": "Lempira hondureño"
-      }
-    },
-    "HRK": {
-      "name": "Kuna Croata",
-      "narrow": "kn",
-      "plural": {
-        "other": "Kuna croata"
       }
     },
     "HTG": {
@@ -1020,12 +988,6 @@
       "plural": {
         "other": "Lesoto lotis qullqi"
       }
-    },
-    "LTL": {
-      "narrow": "Lt"
-    },
-    "LVL": {
-      "narrow": "Ls"
     },
     "LYD": {
       "name": "Dinar Libio",
@@ -1284,12 +1246,6 @@
     "SLE": {
       "name": "Leone qullqi de Sierra Leona"
     },
-    "SLL": {
-      "name": "Leone qullqi de Sierra Leona (1964–2022)",
-      "plural": {
-        "other": "Leones qullqi de Sierra Leona (1964–2022)"
-      }
-    },
     "SOS": {
       "name": "Chelín Somalí",
       "plural": {
@@ -1415,9 +1371,6 @@
     "UZS": {
       "name": "Som Ubzeko"
     },
-    "VEF": {
-      "narrow": "Bs"
-    },
     "VES": {
       "name": "Bolívar Venezolano",
       "plural": {
@@ -1472,13 +1425,6 @@
     "XPF": {
       "name": "Franco CFP",
       "symbol": "CFPF"
-    },
-    "XXX": {
-      "name": "Mana riqsisqa Qullqi",
-      "plural": {
-        "other": "Mana riqsisqa qullqi"
-      },
-      "symbol": "¤"
     },
     "YER": {
       "name": "Rial Yemení",

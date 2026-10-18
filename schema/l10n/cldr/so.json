@@ -536,13 +536,6 @@
         "other": "daraamka Armeniya"
       }
     },
-    "ANG": {
-      "name": "Galdarka Nadarlaan Antiliyaan",
-      "plural": {
-        "one": "galdarka Nadarlaan Antiliyaan",
-        "other": "galdarada Nadarlaan Antiliyaan"
-      }
-    },
     "AOA": {
       "name": "Kawansada Angola",
       "narrow": "Kz",
@@ -550,21 +543,6 @@
         "one": "kawansada Angola",
         "other": "kawansada Angola"
       }
-    },
-    "ARA": {
-      "name": "Argentine Austral",
-      "plural": {
-        "other": "Argentine Australs"
-      }
-    },
-    "ARL": {
-      "name": "Beesada Ley ee Arjentiin (1970–1983)"
-    },
-    "ARM": {
-      "name": "Beesada Ley ee Arjentiin (1881–1970)"
-    },
-    "ARP": {
-      "name": "Beesada Ley ee Arjentiin (1883–1985)"
     },
     "ARS": {
       "name": "Beesada Arjentiin",
@@ -594,12 +572,6 @@
         "other": "manaata Asarbeyjan"
       }
     },
-    "BAD": {
-      "name": "Diinaarka BBosnia-Hersogofina 1.00 konfatibal maakta Bosnia-Hersogofina 1 konfatibal maaka Bosnia-Hersogofina (1992–1994)",
-      "plural": {
-        "one": "Diinaarka BBosnia-Hersogofina (1992–1994)"
-      }
-    },
     "BAM": {
       "name": "Konfatibal Maakta Bosnia-Hersogofina",
       "narrow": "KM",
@@ -623,13 +595,6 @@
       "plural": {
         "one": "taka Bangledesh",
         "other": "taka Bangledesh"
-      }
-    },
-    "BGN": {
-      "name": "Lefta Bulgariya",
-      "plural": {
-        "one": "lefta Bulgariya",
-        "other": "lefta Bulgariya"
       }
     },
     "BHD": {
@@ -664,9 +629,6 @@
     "BOB": {
       "name": "Bolifiyanada Bolifiya",
       "narrow": "Bs"
-    },
-    "BOL": {
-      "name": "Bolifiyaabka Bolifiyaano(1863–1963)"
     },
     "BRL": {
       "name": "Realka Barasil",
@@ -736,13 +698,6 @@
       "name": "Beesada Jili",
       "narrow": "$"
     },
-    "CNH": {
-      "name": "Yuwanta Shiinaha (Ofshoor)",
-      "plural": {
-        "one": "yuwanta Shiinaha (Ofshoor)",
-        "other": "yuwanta Shiinaha (Ofshoor)"
-      }
-    },
     "CNY": {
       "name": "Yuwanta Shiinaha",
       "narrow": "¥",
@@ -762,14 +717,6 @@
       "plural": {
         "one": "kolonka Kosta Riika",
         "other": "kolonka Kosta Riika"
-      }
-    },
-    "CUC": {
-      "name": "Beesada Konfatibal ee Kuuba",
-      "narrow": "$",
-      "plural": {
-        "one": "beesada konfatibal ee Kuuba",
-        "other": "beesada konfatibal ee Kuuba"
       }
     },
     "CUP": {
@@ -817,9 +764,6 @@
         "other": "dinaarka Aljeriya"
       }
     },
-    "EEK": {
-      "name": "Kroonka Estooniya"
-    },
     "EGP": {
       "name": "Bowndka Masar",
       "narrow": "E£",
@@ -835,9 +779,6 @@
         "other": "nafkada Eritriya"
       }
     },
-    "ESP": {
-      "narrow": "₧"
-    },
     "ETB": {
       "name": "Birta Itoobbiya",
       "plural": {
@@ -852,9 +793,6 @@
         "other": "yuuroo"
       },
       "symbol": "€"
-    },
-    "FIM": {
-      "name": "Markkada Fiinishka ah"
     },
     "FJD": {
       "name": "Doolarka Fiji",
@@ -939,14 +877,6 @@
         "other": "lembirada Honduras"
       }
     },
-    "HRK": {
-      "name": "Kunada Korooshiya",
-      "narrow": "kn",
-      "plural": {
-        "one": "kunada Korooshiya",
-        "other": "kunada Korooshiya"
-      }
-    },
     "HTG": {
       "name": "Goordada Hiyati",
       "plural": {
@@ -969,9 +899,6 @@
         "one": "rubiah Indonesiya",
         "other": "rubiah Indonesiya"
       }
-    },
-    "IEP": {
-      "name": "baawnka Ayrishka"
     },
     "ILS": {
       "name": "Niyuu Shekelka Israaiil",
@@ -1001,12 +928,6 @@
       "plural": {
         "one": "riyaalka Iran",
         "other": "riyaalka Iran"
-      }
-    },
-    "ISJ": {
-      "plural": {
-        "one": "krónaha Iceland (1918–1981)",
-        "other": "krónaha Iceland (1918–1981)"
       }
     },
     "ISK": {
@@ -1144,19 +1065,6 @@
         "other": "Lesotho lotis"
       }
     },
-    "LTL": {
-      "narrow": "Lt"
-    },
-    "LVL": {
-      "narrow": "Ls"
-    },
-    "LVR": {
-      "name": "Rubalka Latfiya",
-      "plural": {
-        "one": "rubalka Latvia",
-        "other": "rubalka Latfiya"
-      }
-    },
     "LYD": {
       "name": "Dinaarka Libya",
       "plural": {
@@ -1215,9 +1123,6 @@
         "one": "bataka Makana",
         "other": "bataka Makana"
       }
-    },
-    "MRO": {
-      "name": "Oogiya Mawritaniya (1973–2017)"
     },
     "MRU": {
       "name": "Oogiyada Mawritaaniya",
@@ -1451,13 +1356,6 @@
         "other": "leonka Sira Leon"
       }
     },
-    "SLL": {
-      "name": "Leonka Sira Leon (1964—2022)",
-      "plural": {
-        "one": "leonka Sira Leon (1964—2022)",
-        "other": "leonka Sira Leon (1964—2022)"
-      }
-    },
     "SOS": {
       "name": "Shilingka Soomaaliya",
       "symbol": "S"
@@ -1596,10 +1494,6 @@
         "other": "somta Usbekistan"
       }
     },
-    "VEF": {
-      "name": "Bolifar Fenesuala (2008–2018)",
-      "narrow": "Bs"
-    },
     "VES": {
       "name": "Bolifarada Fenesuwela"
     },
@@ -1661,14 +1555,6 @@
     "XPF": {
       "name": "Faranka CFP",
       "symbol": "CFPF"
-    },
-    "XXX": {
-      "name": "Lacag aan la aqoon",
-      "plural": {
-        "one": "(halbeeg lacag aan la aqoon)",
-        "other": "(Lacag aan la aqoon)"
-      },
-      "symbol": "¤"
     },
     "YER": {
       "name": "Riyaalka Yemen",

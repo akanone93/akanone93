@@ -42,8 +42,15 @@ func run(args []string, stdout, stderr io.Writer) int {
 	zipPath := fs.String("zip", "", "the cldr-<version>-json-full.zip archive")
 	version := fs.String("version", "", "the CLDR release, e.g. 48.2.3")
 	out := fs.String("out", "", "the directory to write the locale files and index.json to")
-	if err := fs.Parse(args); err != nil || *zipPath == "" || *version == "" || *out == "" {
-		_, _ = fmt.Fprintln(stderr, "usage: cldrdata -zip <cldr-json-full.zip> -version <release> -out <dir>")
+	filterOnly := fs.String("filter-only", "", "cldr-core/supplemental/currencyData.json: only drop the currencies not in current tender from the locale files already in -out")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	if *filterOnly != "" {
+		return runFilter(*filterOnly, *out, stdout, stderr)
+	}
+	if *zipPath == "" || *version == "" || *out == "" {
+		_, _ = fmt.Fprintln(stderr, "usage: cldrdata -zip <cldr-json-full.zip> -version <release> -out <dir>\n       cldrdata -filter-only <currencyData.json> -out <dir>")
 		return 2
 	}
 	src, err := openArchive(*zipPath)
@@ -71,6 +78,98 @@ func run(args []string, stdout, stderr io.Writer) int {
 	}
 	_, _ = fmt.Fprintf(stdout, "cldrdata: %d files, %d bytes in total, largest %s (%d bytes)\n", len(files), total, largestName, largest)
 	return 0
+}
+
+// runFilter applies the current-currency filter to the locale files in dir,
+// so that they equal what a full derivation writes (the archive is not
+// needed to re-apply it).
+func runFilter(dataPath, dir string, stdout, stderr io.Writer) int {
+	fail := func(err error) int {
+		_, _ = fmt.Fprintln(stderr, "cldrdata:", err)
+		return 2
+	}
+	if dir == "" {
+		return fail(errors.New("-filter-only needs -out"))
+	}
+	raw, err := os.ReadFile(dataPath)
+	if err != nil {
+		return fail(err)
+	}
+	var data obj
+	if err := json.Unmarshal(raw, &data); err != nil {
+		return fail(fmt.Errorf("decode %s: %w", dataPath, err))
+	}
+	current, err := currentCurrencies(singleDoc(data))
+	if err != nil {
+		return fail(err)
+	}
+	paths, err := filepath.Glob(filepath.Join(dir, "*.json"))
+	if err != nil {
+		return fail(err)
+	}
+	files, dropped := 0, 0
+	for _, p := range paths {
+		if filepath.Base(p) == "index.json" {
+			continue
+		}
+		b, err := os.ReadFile(p)
+		if err != nil {
+			return fail(err)
+		}
+		var doc obj
+		if err := json.Unmarshal(b, &doc); err != nil {
+			return fail(fmt.Errorf("decode %s: %w", p, err))
+		}
+		doc = integers(doc).(obj)
+		cur := atObj(doc, "currencies")
+		for code := range cur {
+			if !current[code] {
+				delete(cur, code)
+				dropped++
+			}
+		}
+		if len(cur) == 0 {
+			return fail(fmt.Errorf("%s: no current currency left", p))
+		}
+		out, err := canonical(doc)
+		if err != nil {
+			return fail(err)
+		}
+		if err := os.WriteFile(p, out, 0o600); err != nil {
+			return fail(err)
+		}
+		files++
+	}
+	_, _ = fmt.Fprintf(stdout, "cldrdata: filtered %d files, dropped %d currency entries\n", files, dropped)
+	return 0
+}
+
+// integers converts the numbers json decoded as float64 to the int the
+// canonical writer encodes; the locale files hold whole numbers only.
+func integers(v any) any {
+	switch x := v.(type) {
+	case obj:
+		for k, e := range x {
+			x[k] = integers(e)
+		}
+	case []any:
+		for i, e := range x {
+			x[i] = integers(e)
+		}
+	case float64:
+		return int(x)
+	}
+	return v
+}
+
+// singleDoc serves currencyData.json under its archive path.
+type singleDoc obj
+
+func (d singleDoc) load(path string) (obj, error) {
+	if path != currencyDataPath {
+		return nil, fmt.Errorf("no %s", path)
+	}
+	return obj(d), nil
 }
 
 // maxFileBytes is the size every locale file must stay under: the commit
@@ -183,9 +282,14 @@ func derive(src source, version string) (map[string][]byte, error) {
 		}
 	}
 
+	current, err := currentCurrencies(src)
+	if err != nil {
+		return nil, err
+	}
+
 	files := make(map[string][]byte, len(locales)+1)
 	for _, l := range locales {
-		doc, err := buildLocale(src, l)
+		doc, err := buildLocale(src, l, current)
 		if err != nil {
 			return nil, fmt.Errorf("locale %s: %w", l, err)
 		}
@@ -234,7 +338,7 @@ func strSlice(s []string) []any {
 }
 
 // buildLocale assembles the self-contained document of one locale.
-func buildLocale(src source, l string) (obj, error) {
+func buildLocale(src source, l string, current map[string]bool) (obj, error) {
 	doc := obj{"locale": l}
 
 	layout, err := src.load("cldr-misc-full/main/" + l + "/layout.json")
@@ -253,7 +357,7 @@ func buildLocale(src source, l string) (obj, error) {
 	if err := addNumbers(src, l, doc); err != nil {
 		return nil, err
 	}
-	if err := addCurrencies(src, l, doc); err != nil {
+	if err := addCurrencies(src, l, doc, current); err != nil {
 		return nil, err
 	}
 	if err := addTerritories(src, l, doc); err != nil {
@@ -440,7 +544,7 @@ func compactShort(m obj) (obj, error) {
 	return out, nil
 }
 
-func addCurrencies(src source, l string, doc obj) error {
+func addCurrencies(src source, l string, doc obj, current map[string]bool) error {
 	c, err := src.load("cldr-numbers-full/main/" + l + "/currencies.json")
 	if err != nil {
 		return err
@@ -448,6 +552,9 @@ func addCurrencies(src source, l string, doc obj) error {
 	cur := atObj(c, "main", l, "numbers", "currencies")
 	out := obj{}
 	for code, v := range cur {
+		if !current[code] {
+			continue
+		}
 		e, _ := v.(obj)
 		// A currency without a symbol is written as its ISO code, so the code
 		// is the default and only a different symbol is stored; one without a
@@ -794,8 +901,38 @@ func likelyScripts(src source, locales []string) (obj, error) {
 
 // currencyDigits returns the ISO 4217 fraction digits and rounding by code,
 // with "DEFAULT" for a currency that has no entry.
+// currencyDataPath is the supplemental currency document of cldr-json.
+const currencyDataPath = "cldr-core/supplemental/currencyData.json"
+
+// currentCurrencies returns the currencies in current tender in some
+// territory: the entries of currencyData's region lists without an end date
+// whose tender is not "false". Locale files keep only these, as the others
+// are historic and add size to every bundle.
+func currentCurrencies(src source) (map[string]bool, error) {
+	c, err := src.load(currencyDataPath)
+	if err != nil {
+		return nil, err
+	}
+	out := map[string]bool{}
+	for _, list := range atObj(c, "supplemental", "currencyData", "region") {
+		entries, _ := list.([]any)
+		for _, e := range entries {
+			m, _ := e.(obj)
+			for code, v := range m {
+				if atStr(v, "_to") == "" && atStr(v, "_tender") != "false" {
+					out[code] = true
+				}
+			}
+		}
+	}
+	if len(out) == 0 {
+		return nil, errors.New("currencyData.json lists no currency in current tender")
+	}
+	return out, nil
+}
+
 func currencyDigits(src source) (obj, error) {
-	c, err := src.load("cldr-core/supplemental/currencyData.json")
+	c, err := src.load(currencyDataPath)
 	if err != nil {
 		return nil, err
 	}

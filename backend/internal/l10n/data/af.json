@@ -516,9 +516,6 @@
       "name": "Armeense dram",
       "narrow": "֏"
     },
-    "ANG": {
-      "name": "Nederlands-Antilliaanse gulde"
-    },
     "AOA": {
       "name": "Angolese kwanza",
       "narrow": "Kz"
@@ -550,9 +547,6 @@
     "BDT": {
       "name": "Bangladesjiese taka",
       "narrow": "৳"
-    },
-    "BGN": {
-      "name": "Bulgaarse lev"
     },
     "BHD": {
       "name": "Bahreinse dinar"
@@ -595,9 +589,6 @@
       "name": "Belarussiese roebel",
       "narrow": "р."
     },
-    "BYR": {
-      "name": "Belo-Russiese roebel (2000–2016)"
-    },
     "BZD": {
       "name": "Beliziese dollar",
       "narrow": "$"
@@ -616,9 +607,6 @@
       "name": "Chileense peso",
       "narrow": "$"
     },
-    "CNH": {
-      "name": "Chinese joean (buiteland)"
-    },
     "CNY": {
       "name": "Chinese joean",
       "narrow": "¥",
@@ -631,10 +619,6 @@
     "CRC": {
       "name": "Costa Ricaanse colón",
       "narrow": "₡"
-    },
-    "CUC": {
-      "name": "Kubaanse omskakelbare peso",
-      "narrow": "$"
     },
     "CUP": {
       "name": "Kubaanse peso",
@@ -668,9 +652,6 @@
     "ERN": {
       "name": "Eritrese nakfa"
     },
-    "ESP": {
-      "narrow": "₧"
-    },
     "ETB": {
       "name": "Etiopiese birr"
     },
@@ -694,9 +675,6 @@
       "name": "Georgiese lari",
       "narrow": "₾"
     },
-    "GHC": {
-      "name": "Ghanese cedi (1979–2007)"
-    },
     "GHS": {
       "name": "Ghanese cedi",
       "narrow": "GH₵"
@@ -711,9 +689,6 @@
     "GNF": {
       "name": "Guinese frank",
       "narrow": "FG"
-    },
-    "GNS": {
-      "name": "Guinese syli"
     },
     "GTQ": {
       "name": "Guatemalaanse kwetsal",
@@ -731,10 +706,6 @@
     "HNL": {
       "name": "Hondurese lempira",
       "narrow": "L"
-    },
-    "HRK": {
-      "name": "Kroatiese kuna",
-      "narrow": "kn"
     },
     "HTG": {
       "name": "Haïtiaanse gourde"
@@ -764,9 +735,6 @@
     "ISK": {
       "name": "Yslandse kroon",
       "narrow": "kr"
-    },
-    "ITL": {
-      "name": "Italiaanse lier"
     },
     "JMD": {
       "name": "Jamaikaanse dollar",
@@ -833,14 +801,6 @@
     "LSL": {
       "name": "Lesotho-loti"
     },
-    "LTL": {
-      "name": "Litause litas",
-      "narrow": "Lt"
-    },
-    "LVL": {
-      "name": "Lettiese lats",
-      "narrow": "Ls"
-    },
     "LYD": {
       "name": "Libiese dinar"
     },
@@ -868,9 +828,6 @@
     "MOP": {
       "name": "Macaose pataca"
     },
-    "MRO": {
-      "name": "Mauritaniese ouguiya (1973–2017)"
-    },
     "MRU": {
       "name": "Mauritaniese ouguiya"
     },
@@ -891,9 +848,6 @@
     "MYR": {
       "name": "Maleisiese ringgit",
       "narrow": "RM"
-    },
-    "MZM": {
-      "name": "Mosambiekse metical (1980–2006)"
     },
     "MZN": {
       "name": "Mosambiekse metical"
@@ -986,9 +940,6 @@
     "SDG": {
       "name": "Soedannese pond"
     },
-    "SDP": {
-      "name": "Soedannese pond (1957–1998)"
-    },
     "SEK": {
       "name": "Sweedse kroon",
       "narrow": "kr"
@@ -1004,9 +955,6 @@
     "SLE": {
       "name": "Sierra Leoniese leone"
     },
-    "SLL": {
-      "name": "Sierra Leoniese leone (1964–2022)"
-    },
     "SOS": {
       "name": "Somaliese sjieling"
     },
@@ -1017,9 +965,6 @@
     "SSP": {
       "name": "Suid-Soedanese pond",
       "narrow": "£"
-    },
-    "STD": {
-      "name": "São Tomé en Príncipe dobra (1977–2017)"
     },
     "STN": {
       "name": "São Tomé en Príncipe-dobra",
@@ -1048,9 +993,6 @@
     "TOP": {
       "name": "Tongaanse pa’anga",
       "narrow": "T$"
-    },
-    "TRL": {
-      "name": "Turkse lier (1922–2005)"
     },
     "TRY": {
       "name": "Turkse lira",
@@ -1084,14 +1026,6 @@
     },
     "UZS": {
       "name": "Oezbekiese som"
-    },
-    "VEF": {
-      "name": "Venezolaanse bolivar",
-      "narrow": "Bs",
-      "plural": {
-        "one": "Venezolaanse bolívar (2008–2018)",
-        "other": "Venezolaanse bolívare (2008–2018)"
-      }
     },
     "VES": {
       "name": "Venezolaanse bolívar"
@@ -1127,14 +1061,6 @@
       "name": "CFP-frank",
       "symbol": "CFPF"
     },
-    "XXX": {
-      "name": "Onbekende geldeenheid",
-      "plural": {
-        "one": "(onbekende geldeenheid)",
-        "other": "(onbekende geldeenheid)"
-      },
-      "symbol": "¤"
-    },
     "YER": {
       "name": "Jemenitiese rial"
     },
@@ -1142,15 +1068,9 @@
       "name": "Suid-Afrikaanse rand",
       "symbol": "R"
     },
-    "ZMK": {
-      "name": "Zambiese kwacha (1968–2012)"
-    },
     "ZMW": {
       "name": "Zambiese kwacha",
       "narrow": "ZK"
-    },
-    "ZWD": {
-      "name": "Zimbabwiese dollar"
     },
     "ZWG": {
       "name": "Zimbabwiese goud"

@@ -510,22 +510,10 @@
     }
   },
   "currencies": {
-    "ADP": {
-      "name": "pesseta andorrana",
-      "plural": {
-        "other": "pessetes andorranes"
-      }
-    },
     "AED": {
       "name": "dírham dels Emirats Àrabs Units",
       "plural": {
         "other": "dírhams dels Emirats Àrabs Units"
-      }
-    },
-    "AFA": {
-      "name": "afgani afganès (1927–2002)",
-      "plural": {
-        "other": "afganis afganesos (1927–2002)"
       }
     },
     "AFN": {
@@ -533,12 +521,6 @@
       "narrow": "؋",
       "plural": {
         "other": "afganis afganesos"
-      }
-    },
-    "ALK": {
-      "name": "lek albanès (1946–1965)",
-      "plural": {
-        "other": "lekë albanesos (1946–1965)"
       }
     },
     "ALL": {
@@ -554,12 +536,6 @@
         "other": "drams"
       }
     },
-    "ANG": {
-      "name": "florí de les Antilles Neerlandeses",
-      "plural": {
-        "other": "florins de les Antilles Neerlandeses"
-      }
-    },
     "AOA": {
       "name": "kwanza angolès",
       "narrow": "Kz",
@@ -567,60 +543,11 @@
         "other": "kwanzas angolesos"
       }
     },
-    "AOK": {
-      "name": "kwanza angolès (1977–1991)",
-      "plural": {
-        "other": "kwanzas angolesos (1977–1991)"
-      }
-    },
-    "AON": {
-      "name": "nou kwanza angolès (1990–2000)",
-      "plural": {
-        "other": "nous kwanzas angolesos (1990–2000)"
-      }
-    },
-    "AOR": {
-      "name": "kwanza angolès reajustat (1995–1999)",
-      "plural": {
-        "other": "kwanzas angolesos (1995–1999)"
-      }
-    },
-    "ARA": {
-      "name": "austral argentí",
-      "plural": {
-        "other": "australs argentins"
-      }
-    },
-    "ARL": {
-      "name": "peso ley argentí (1970–1983)",
-      "plural": {
-        "other": "pesos ley argentins (1970–1983)"
-      }
-    },
-    "ARM": {
-      "name": "peso argentí (1981–1970)",
-      "plural": {
-        "one": "peso argentí moneda nacional",
-        "other": "pesos argentins moneda nacional"
-      }
-    },
-    "ARP": {
-      "name": "peso argentí (1983–1985)",
-      "plural": {
-        "other": "pesos argentins (1983–1985)"
-      }
-    },
     "ARS": {
       "name": "peso argentí",
       "narrow": "$",
       "plural": {
         "other": "pesos argentins"
-      }
-    },
-    "ATS": {
-      "name": "xíling austríac",
-      "plural": {
-        "other": "xílings austríacs"
       }
     },
     "AUD": {
@@ -637,12 +564,6 @@
         "other": "florins d’Aruba"
       }
     },
-    "AZM": {
-      "name": "manat azerbaidjanès (1993–2006)",
-      "plural": {
-        "other": "manats azerbaidjanesos (1993–2006)"
-      }
-    },
     "AZN": {
       "name": "manat azerbaidjanès",
       "narrow": "₼",
@@ -650,23 +571,11 @@
         "other": "manats azerbaidjanesos"
       }
     },
-    "BAD": {
-      "name": "dinar de Bòsnia i Hercegovina (1992–1994)",
-      "plural": {
-        "other": "dinars de Bòsnia i Hercegovina (1992–1994)"
-      }
-    },
     "BAM": {
       "name": "marc convertible de Bòsnia i Hercegovina",
       "narrow": "KM",
       "plural": {
         "other": "marcs convertibles de Bòsnia i Hercegovina"
-      }
-    },
-    "BAN": {
-      "name": "nou dinar de Bòsnia i Hercegovina (1994–1997)",
-      "plural": {
-        "other": "nous dinars de Bòsnia i Hercegovina (1994–1997)"
       }
     },
     "BBD": {
@@ -679,48 +588,6 @@
     "BDT": {
       "name": "taka",
       "narrow": "৳"
-    },
-    "BEC": {
-      "name": "franc belga (convertible)",
-      "plural": {
-        "other": "francs belgues (convertibles)"
-      }
-    },
-    "BEF": {
-      "name": "franc belga",
-      "plural": {
-        "other": "francs belgues"
-      }
-    },
-    "BEL": {
-      "name": "franc belga (financer)",
-      "plural": {
-        "other": "francs belgues (financers)"
-      }
-    },
-    "BGL": {
-      "name": "lev fort búlgar",
-      "plural": {
-        "other": "leva forts búlgars"
-      }
-    },
-    "BGM": {
-      "name": "lev socialista búlgar",
-      "plural": {
-        "other": "leva socialistes búlgars"
-      }
-    },
-    "BGN": {
-      "name": "lev",
-      "plural": {
-        "other": "leva"
-      }
-    },
-    "BGO": {
-      "name": "lev búlgar (1879–1952)",
-      "plural": {
-        "other": "leva búlgars (1879–1952)"
-      }
     },
     "BHD": {
       "name": "dinar de Bahrain",
@@ -755,65 +622,11 @@
         "other": "bolivians"
       }
     },
-    "BOL": {
-      "name": "boliviano bolivià (1863–1963)",
-      "plural": {
-        "other": "bolivianos bolivians (1863–1963)"
-      }
-    },
-    "BOP": {
-      "name": "peso bolivià",
-      "plural": {
-        "other": "pesos bolivians"
-      }
-    },
-    "BOV": {
-      "name": "MVDOL bolivià",
-      "plural": {
-        "other": "MVDOL bolivians"
-      }
-    },
-    "BRB": {
-      "name": "cruzeiro novo brasiler (1967–1986)",
-      "plural": {
-        "other": "cruzeiros novos brasilers (1967–1986)"
-      }
-    },
-    "BRC": {
-      "name": "cruzado brasiler",
-      "plural": {
-        "other": "cruzados brasilers"
-      }
-    },
-    "BRE": {
-      "name": "cruzeiro brasiler (1990–1993)",
-      "plural": {
-        "other": "cruzeiros brasilers (1990–1993)"
-      }
-    },
     "BRL": {
       "name": "real brasiler",
       "narrow": "R$",
       "plural": {
         "other": "reals brasilers"
-      }
-    },
-    "BRN": {
-      "name": "cruzado novo brasiler",
-      "plural": {
-        "other": "cruzados novos brasilers"
-      }
-    },
-    "BRR": {
-      "name": "cruzeiro brasiler",
-      "plural": {
-        "other": "cruzeiros brasilers"
-      }
-    },
-    "BRZ": {
-      "name": "antic cruzeiro brasiler",
-      "plural": {
-        "other": "antics cruzeiros brasilers"
       }
     },
     "BSD": {
@@ -829,12 +642,6 @@
         "other": "ngultrums de Bhutan"
       }
     },
-    "BUK": {
-      "name": "kyat birmà",
-      "plural": {
-        "other": "kyats birmans"
-      }
-    },
     "BWP": {
       "name": "pula de Botswana",
       "narrow": "P",
@@ -842,23 +649,11 @@
         "other": "pules de Botswana"
       }
     },
-    "BYB": {
-      "name": "nou ruble bielorús (1994–1999)",
-      "plural": {
-        "other": "nous rubles bielorussos (1994–1999)"
-      }
-    },
     "BYN": {
       "name": "ruble belarús",
       "narrow": "р.",
       "plural": {
         "other": "rubles belarussos"
-      }
-    },
-    "BYR": {
-      "name": "ruble bielorús (2000–2016)",
-      "plural": {
-        "other": "rubles bielorussos (2000–2016)"
       }
     },
     "BZD": {
@@ -881,35 +676,10 @@
         "other": "francs congolesos"
       }
     },
-    "CHE": {
-      "name": "euro WIR",
-      "plural": {
-        "other": "euros WIR"
-      }
-    },
     "CHF": {
       "name": "franc suís",
       "plural": {
         "other": "francs suïssos"
-      }
-    },
-    "CHW": {
-      "name": "franc WIR",
-      "plural": {
-        "other": "francs WIR"
-      }
-    },
-    "CLE": {
-      "name": "escut xilè",
-      "plural": {
-        "one": "escudo xilè",
-        "other": "escudos xilens"
-      }
-    },
-    "CLF": {
-      "name": "unidad de fomento xilena",
-      "plural": {
-        "other": "unidades de fomento xilenes"
       }
     },
     "CLP": {
@@ -917,18 +687,6 @@
       "narrow": "$",
       "plural": {
         "other": "pesos xilens"
-      }
-    },
-    "CNH": {
-      "name": "iuan xinès extracontinental",
-      "plural": {
-        "other": "iuans xinesos extracontinentals"
-      }
-    },
-    "CNX": {
-      "plural": {
-        "one": "dòlar del Banc Popular Xinès",
-        "other": "dòlars del Banc Popular Xinès"
       }
     },
     "CNY": {
@@ -945,36 +703,11 @@
         "other": "pesos colombians"
       }
     },
-    "COU": {
-      "name": "unidad de valor real colombiana",
-      "plural": {
-        "other": "unidades de valor real colombianes"
-      }
-    },
     "CRC": {
       "name": "colon costa-riqueny",
       "narrow": "₡",
       "plural": {
         "other": "colons costa-riquenys"
-      }
-    },
-    "CSD": {
-      "name": "dinar serbi antic",
-      "plural": {
-        "other": "dinars serbis antics"
-      }
-    },
-    "CSK": {
-      "name": "corona forta txecoslovaca",
-      "plural": {
-        "other": "corones fortes txecoslovaques"
-      }
-    },
-    "CUC": {
-      "name": "peso convertible cubà",
-      "narrow": "$",
-      "plural": {
-        "other": "pesos convertibles cubans"
       }
     },
     "CUP": {
@@ -990,29 +723,11 @@
         "other": "escuts de Cap Verd"
       }
     },
-    "CYP": {
-      "name": "lliura xipriota",
-      "plural": {
-        "other": "lliures xipriotes"
-      }
-    },
     "CZK": {
       "name": "corona txeca",
       "narrow": "Kč",
       "plural": {
         "other": "corones txeques"
-      }
-    },
-    "DDM": {
-      "name": "marc de l’Alemanya Oriental",
-      "plural": {
-        "other": "marcs de l’Alemanya Oriental"
-      }
-    },
-    "DEM": {
-      "name": "marc alemany",
-      "plural": {
-        "other": "marcs alemanys"
       }
     },
     "DJF": {
@@ -1041,24 +756,6 @@
         "other": "dinars algerians"
       }
     },
-    "ECS": {
-      "name": "sucre equatorià",
-      "plural": {
-        "other": "sucres equatorians"
-      }
-    },
-    "ECV": {
-      "name": "unidad de valor constante (UVC) equatoriana",
-      "plural": {
-        "other": "unidades de valor constante (UVC) equatorianes"
-      }
-    },
-    "EEK": {
-      "name": "corona estoniana",
-      "plural": {
-        "other": "corones estonianes"
-      }
-    },
     "EGP": {
       "name": "lliura egípcia",
       "narrow": "E£",
@@ -1072,25 +769,6 @@
         "other": "nakfes eritreus"
       }
     },
-    "ESA": {
-      "name": "pesseta espanyola (compte A)",
-      "plural": {
-        "other": "pessetes espanyoles (compte A)"
-      }
-    },
-    "ESB": {
-      "name": "pesseta espanyola (compte convertible)",
-      "plural": {
-        "other": "pessetes espanyoles (compte convertible)"
-      }
-    },
-    "ESP": {
-      "name": "pesseta espanyola",
-      "plural": {
-        "other": "pessetes espanyoles"
-      },
-      "symbol": "₧"
-    },
     "ETB": {
       "name": "birr etíop",
       "plural": {
@@ -1103,12 +781,6 @@
         "other": "euros"
       },
       "symbol": "€"
-    },
-    "FIM": {
-      "name": "marc finlandès",
-      "plural": {
-        "other": "marcs finlandesos"
-      }
     },
     "FJD": {
       "name": "dòlar fijià",
@@ -1124,12 +796,6 @@
         "other": "lliures de les illes Malvines"
       }
     },
-    "FRF": {
-      "name": "franc francès",
-      "plural": {
-        "other": "francs francesos"
-      }
-    },
     "GBP": {
       "name": "lliura esterlina",
       "plural": {
@@ -1137,23 +803,11 @@
       },
       "symbol": "£"
     },
-    "GEK": {
-      "name": "cupó de lari georgià",
-      "plural": {
-        "other": "cupons de lari georgians"
-      }
-    },
     "GEL": {
       "name": "lari",
       "narrow": "₾",
       "plural": {
         "other": "laris"
-      }
-    },
-    "GHC": {
-      "name": "cedi ghanès (1979–2007)",
-      "plural": {
-        "other": "cedis ghanesos (1979–2007)"
       }
     },
     "GHS": {
@@ -1183,41 +837,11 @@
         "other": "francs guineans"
       }
     },
-    "GNS": {
-      "name": "syli guineà",
-      "plural": {
-        "other": "sylis guineans"
-      }
-    },
-    "GQE": {
-      "name": "ekwele de Guinea Equatorial",
-      "plural": {
-        "other": "bipkwele de Guinea Equatorial"
-      }
-    },
-    "GRD": {
-      "name": "dracma grega",
-      "plural": {
-        "other": "dracmes gregues"
-      }
-    },
     "GTQ": {
       "name": "quetzal",
       "narrow": "Q",
       "plural": {
         "other": "quetzals"
-      }
-    },
-    "GWE": {
-      "name": "escut de la Guinea Portuguesa",
-      "plural": {
-        "other": "escuts de la Guinea Portuguesa"
-      }
-    },
-    "GWP": {
-      "name": "peso de Guinea Bissau",
-      "plural": {
-        "other": "pesos de Guinea Bissau"
       }
     },
     "GYD": {
@@ -1242,19 +866,6 @@
         "other": "lempires"
       }
     },
-    "HRD": {
-      "name": "dinar croat",
-      "plural": {
-        "other": "dinars croats"
-      }
-    },
-    "HRK": {
-      "name": "kuna",
-      "narrow": "kn",
-      "plural": {
-        "other": "kunes"
-      }
-    },
     "HTG": {
       "name": "gourde",
       "plural": {
@@ -1274,21 +885,6 @@
       "plural": {
         "other": "rupies indonèsies"
       }
-    },
-    "IEP": {
-      "name": "lliura irlandesa",
-      "plural": {
-        "other": "lliures irlandeses"
-      }
-    },
-    "ILP": {
-      "name": "lliura israeliana",
-      "plural": {
-        "other": "lliures israelianes"
-      }
-    },
-    "ILR": {
-      "name": "xéquel israelià"
     },
     "ILS": {
       "name": "nou xéquel israelià",
@@ -1316,23 +912,11 @@
         "other": "rials iranians"
       }
     },
-    "ISJ": {
-      "name": "corona islandesa antiga",
-      "plural": {
-        "other": "corones islandeses antigues"
-      }
-    },
     "ISK": {
       "name": "corona islandesa",
       "narrow": "kr",
       "plural": {
         "other": "corones islandeses"
-      }
-    },
-    "ITL": {
-      "name": "lira italiana",
-      "plural": {
-        "other": "lires italianes"
       }
     },
     "JMD": {
@@ -1387,19 +971,6 @@
       "narrow": "₩",
       "plural": {
         "other": "wons nord-coreans"
-      }
-    },
-    "KRH": {
-      "name": "hwan sud-coreà (1953–1962)",
-      "plural": {
-        "one": "hwan sud-coreà",
-        "other": "hwans sud-coreans"
-      }
-    },
-    "KRO": {
-      "name": "antic won sud-coreà",
-      "plural": {
-        "other": "antics wons sud-coreans"
       }
     },
     "KRW": {
@@ -1463,50 +1034,6 @@
         "other": "lotis"
       }
     },
-    "LTL": {
-      "name": "litas lituà",
-      "narrow": "Lt",
-      "plural": {
-        "other": "litai lituans"
-      }
-    },
-    "LTT": {
-      "name": "talonas lituà",
-      "plural": {
-        "other": "talonai lituans"
-      }
-    },
-    "LUC": {
-      "name": "franc convertible luxemburguès",
-      "plural": {
-        "other": "francs convertibles luxemburguesos"
-      }
-    },
-    "LUF": {
-      "name": "franc luxemburguès",
-      "plural": {
-        "other": "francs luxemburguesos"
-      }
-    },
-    "LUL": {
-      "name": "franc financer luxemburguès",
-      "plural": {
-        "other": "francs financers luxemburguesos"
-      }
-    },
-    "LVL": {
-      "name": "lats letó",
-      "narrow": "Ls",
-      "plural": {
-        "other": "lati letons"
-      }
-    },
-    "LVR": {
-      "name": "ruble letó",
-      "plural": {
-        "other": "rubles letons"
-      }
-    },
     "LYD": {
       "name": "dinar libi",
       "plural": {
@@ -1517,24 +1044,6 @@
       "name": "dírham marroquí",
       "plural": {
         "other": "dírhams marroquins"
-      }
-    },
-    "MAF": {
-      "name": "franc marroquí",
-      "plural": {
-        "other": "francs marroquins"
-      }
-    },
-    "MCF": {
-      "name": "franc monegasc",
-      "plural": {
-        "other": "francs monegascos"
-      }
-    },
-    "MDC": {
-      "name": "cupó moldau",
-      "plural": {
-        "other": "cupons moldaus"
       }
     },
     "MDL": {
@@ -1550,28 +1059,10 @@
         "other": "ariarys malgaixos"
       }
     },
-    "MGF": {
-      "name": "franc malgaix",
-      "plural": {
-        "other": "francs malgaixos"
-      }
-    },
     "MKD": {
       "name": "dinar macedoni",
       "plural": {
         "other": "dinars macedonis"
-      }
-    },
-    "MKN": {
-      "name": "denar macedoni (1992–1993)",
-      "plural": {
-        "other": "denari macedonis (1992–1993)"
-      }
-    },
-    "MLF": {
-      "name": "franc malià",
-      "plural": {
-        "other": "francs malians"
       }
     },
     "MMK": {
@@ -1594,28 +1085,10 @@
         "other": "pataques de Macau"
       }
     },
-    "MRO": {
-      "name": "ouguiya maurità (1973–2017)",
-      "plural": {
-        "other": "ouguiyas mauritans (1973–2017)"
-      }
-    },
     "MRU": {
       "name": "ouguiya maurità",
       "plural": {
         "other": "ouguiyas mauritans"
-      }
-    },
-    "MTL": {
-      "name": "lira maltesa",
-      "plural": {
-        "other": "lires malteses"
-      }
-    },
-    "MTP": {
-      "name": "lliura maltesa",
-      "plural": {
-        "other": "lliures malteses"
       }
     },
     "MUR": {
@@ -1644,35 +1117,11 @@
         "other": "pesos mexicans"
       }
     },
-    "MXP": {
-      "name": "peso de plata mexicà (1861–1992)",
-      "plural": {
-        "other": "pesos de plata mexicans (1861–1992)"
-      }
-    },
-    "MXV": {
-      "name": "unidad de inversión (UDI) mexicana",
-      "plural": {
-        "other": "unidades de inversión (UDI) mexicanes"
-      }
-    },
     "MYR": {
       "name": "ringgit",
       "narrow": "RM",
       "plural": {
         "other": "ringgits"
-      }
-    },
-    "MZE": {
-      "name": "escut moçambiquès",
-      "plural": {
-        "other": "escuts moçambiquesos"
-      }
-    },
-    "MZM": {
-      "name": "antic metical moçambiquès",
-      "plural": {
-        "other": "antics meticals moçambiquesos"
       }
     },
     "MZN": {
@@ -1695,23 +1144,11 @@
         "other": "naires nigerians"
       }
     },
-    "NIC": {
-      "name": "córdoba nicaragüenca",
-      "plural": {
-        "other": "córdobas nicaragüenques"
-      }
-    },
     "NIO": {
       "name": "córdoba nicaragüenc",
       "narrow": "C$",
       "plural": {
         "other": "córdobas nicaragüencs"
-      }
-    },
-    "NLG": {
-      "name": "florí neerlandès",
-      "plural": {
-        "other": "florins neerlandesos"
       }
     },
     "NOK": {
@@ -1748,22 +1185,10 @@
         "other": "balboes"
       }
     },
-    "PEI": {
-      "name": "inti peruà",
-      "plural": {
-        "other": "intis peruans"
-      }
-    },
     "PEN": {
       "name": "sol",
       "plural": {
         "other": "sols"
-      }
-    },
-    "PES": {
-      "name": "sol peruà (1863–1965)",
-      "plural": {
-        "other": "sols peruans (1863–1965)"
       }
     },
     "PGK": {
@@ -1793,18 +1218,6 @@
         "other": "zlote"
       }
     },
-    "PLZ": {
-      "name": "zloty polonès (1950–1995)",
-      "plural": {
-        "other": "zlote polonesos (1950–1995)"
-      }
-    },
-    "PTE": {
-      "name": "escut portuguès",
-      "plural": {
-        "other": "escuts portuguesos"
-      }
-    },
     "PYG": {
       "name": "guaraní",
       "narrow": "₲",
@@ -1816,18 +1229,6 @@
       "name": "rial de Qatar",
       "plural": {
         "other": "rials de Qatar"
-      }
-    },
-    "RHD": {
-      "name": "dòlar rhodesià",
-      "plural": {
-        "other": "dòlars rhodesians"
-      }
-    },
-    "ROL": {
-      "name": "antic leu romanès",
-      "plural": {
-        "other": "antics lei romanesos"
       }
     },
     "RON": {
@@ -1848,12 +1249,6 @@
       "narrow": "₽",
       "plural": {
         "other": "rubles"
-      }
-    },
-    "RUR": {
-      "name": "ruble rus (1991–1998)",
-      "plural": {
-        "other": "rubles russos (1991–1998)"
       }
     },
     "RWF": {
@@ -1882,22 +1277,10 @@
         "other": "rupies de les Seychelles"
       }
     },
-    "SDD": {
-      "name": "dinar sudanès",
-      "plural": {
-        "other": "dinars sudanesos"
-      }
-    },
     "SDG": {
       "name": "lliura sudanesa",
       "plural": {
         "other": "lliures sudaneses"
-      }
-    },
-    "SDP": {
-      "name": "antiga lliura sudanesa",
-      "plural": {
-        "other": "antigues lliures sudaneses"
       }
     },
     "SEK": {
@@ -1921,28 +1304,10 @@
         "other": "lliures de Santa Helena"
       }
     },
-    "SIT": {
-      "name": "tolar eslovè",
-      "plural": {
-        "other": "tolars eslovens"
-      }
-    },
-    "SKK": {
-      "name": "corona eslovaca",
-      "plural": {
-        "other": "corones eslovaques"
-      }
-    },
     "SLE": {
       "name": "leone de Sierra Leone",
       "plural": {
         "other": "leones de Sierra Leone"
-      }
-    },
-    "SLL": {
-      "name": "leone de Sierra Leone (1964—2022)",
-      "plural": {
-        "other": "leones de Sierra Leone (1964—2022)"
       }
     },
     "SOS": {
@@ -1958,12 +1323,6 @@
         "other": "dòlars de Surinam"
       }
     },
-    "SRG": {
-      "name": "florí de Surinam",
-      "plural": {
-        "other": "florins de Surinam"
-      }
-    },
     "SSP": {
       "name": "lliura del Sudan del Sud",
       "narrow": "£",
@@ -1971,30 +1330,11 @@
         "other": "lliures del Sudan del Sud"
       }
     },
-    "STD": {
-      "name": "dobra de São Tomé i Príncipe (1977–2017)",
-      "plural": {
-        "other": "dobras de São Tomé i Príncipe (1977–2017)"
-      }
-    },
     "STN": {
       "name": "dobra de São Tomé i Príncipe",
       "narrow": "Db",
       "plural": {
         "other": "dobras de São Tomé i Príncipe"
-      }
-    },
-    "SUR": {
-      "name": "ruble soviètic",
-      "plural": {
-        "other": "rubles soviètics"
-      }
-    },
-    "SVC": {
-      "name": "colon salvadorenc",
-      "plural": {
-        "one": "colón salvadorenc",
-        "other": "colones salvadorencs"
       }
     },
     "SYP": {
@@ -2017,22 +1357,10 @@
       },
       "symbol": "฿"
     },
-    "TJR": {
-      "name": "ruble tadjik",
-      "plural": {
-        "other": "rubles tadjiks"
-      }
-    },
     "TJS": {
       "name": "somoni tadjik",
       "plural": {
         "other": "somonis tadjiks"
-      }
-    },
-    "TMM": {
-      "name": "manat turcman (1993–2009)",
-      "plural": {
-        "other": "manats turcmans (1993–2009)"
       }
     },
     "TMT": {
@@ -2052,18 +1380,6 @@
       "narrow": "T$",
       "plural": {
         "other": "pa‘angas tongans"
-      }
-    },
-    "TPE": {
-      "name": "escut de Timor",
-      "plural": {
-        "other": "escuts de Timor"
-      }
-    },
-    "TRL": {
-      "name": "lira turca (1922–2005)",
-      "plural": {
-        "other": "lires turques (1922–2005)"
       }
     },
     "TRY": {
@@ -2101,18 +1417,6 @@
         "other": "hrívnies"
       }
     },
-    "UAK": {
-      "name": "karbóvanets ucraïnès",
-      "plural": {
-        "other": "karbóvantsiv ucraïnesos"
-      }
-    },
-    "UGS": {
-      "name": "xíling ugandès (1966–1987)",
-      "plural": {
-        "other": "xílings ugandesos (1966–1987)"
-      }
-    },
     "UGX": {
       "name": "xíling ugandès",
       "plural": {
@@ -2124,30 +1428,6 @@
       "narrow": "$",
       "plural": {
         "other": "dòlars dels Estats Units"
-      }
-    },
-    "USN": {
-      "name": "dòlar dels Estats Units (dia següent)",
-      "plural": {
-        "other": "dòlars dels Estats Units (dia següent)"
-      }
-    },
-    "USS": {
-      "name": "dòlar dels Estats Units (mateix dia)",
-      "plural": {
-        "other": "dòlars dels Estats Units (mateix dia)"
-      }
-    },
-    "UYI": {
-      "name": "peso uruguaià en unitats indexades",
-      "plural": {
-        "other": "pesos uruguaians en unitats indexades"
-      }
-    },
-    "UYP": {
-      "name": "peso uruguaià (1975–1993)",
-      "plural": {
-        "other": "pesos uruguaians (1975–1993)"
       }
     },
     "UYU": {
@@ -2163,19 +1443,6 @@
         "other": "soms uzbeks"
       }
     },
-    "VEB": {
-      "name": "bolívar veneçolà (1871–2008)",
-      "plural": {
-        "other": "bolívars veneçolans (1871–2008)"
-      }
-    },
-    "VEF": {
-      "name": "bolívar veneçolà (2008–2018)",
-      "narrow": "Bs F",
-      "plural": {
-        "other": "bolívars veneçolans (2008–2018)"
-      }
-    },
     "VES": {
       "name": "bolívar veneçolà",
       "plural": {
@@ -2188,12 +1455,6 @@
         "other": "dongs vietnamites"
       },
       "symbol": "₫"
-    },
-    "VNN": {
-      "name": "dong vietnamita (1978–1985)",
-      "plural": {
-        "other": "dongs vietnamites (1978–1985)"
-      }
     },
     "VUV": {
       "name": "vatu de Vanuatu",
@@ -2214,36 +1475,6 @@
       },
       "symbol": "FCFA"
     },
-    "XAG": {
-      "name": "plata"
-    },
-    "XAU": {
-      "name": "or"
-    },
-    "XBA": {
-      "name": "unitat compensatòria europea",
-      "plural": {
-        "other": "unitats compensatòries europees"
-      }
-    },
-    "XBB": {
-      "name": "unitat monetària europea",
-      "plural": {
-        "other": "unitats monetàries europees"
-      }
-    },
-    "XBC": {
-      "name": "unitat de compte europea (XBC)",
-      "plural": {
-        "other": "unitats de compte europees (XBC)"
-      }
-    },
-    "XBD": {
-      "name": "unitat de compte europea (XBD)",
-      "plural": {
-        "other": "unitats de compte europees (XBD)"
-      }
-    },
     "XCD": {
       "name": "dòlar del Carib Oriental",
       "narrow": "$",
@@ -2257,36 +1488,12 @@
         "other": "florins de les Antilles"
       }
     },
-    "XDR": {
-      "name": "drets especials de gir"
-    },
-    "XEU": {
-      "name": "unitat de moneda europea",
-      "plural": {
-        "other": "unitats de moneda europees"
-      }
-    },
-    "XFO": {
-      "name": "franc or francès",
-      "plural": {
-        "other": "francs or francesos"
-      }
-    },
-    "XFU": {
-      "name": "franc UIC francès",
-      "plural": {
-        "other": "francs UIC francesos"
-      }
-    },
     "XOF": {
       "name": "franc CFA BCEAO",
       "plural": {
         "other": "francs CFA BCEAO"
       },
       "symbol": "F\u202fCFA"
-    },
-    "XPD": {
-      "name": "pal·ladi"
     },
     "XPF": {
       "name": "franc CFP",
@@ -2295,63 +1502,10 @@
       },
       "symbol": "CFPF"
     },
-    "XPT": {
-      "name": "platí"
-    },
-    "XRE": {
-      "name": "fons RINET"
-    },
-    "XTS": {
-      "name": "codi reservat per a proves"
-    },
-    "XXX": {
-      "name": "moneda desconeguda",
-      "plural": {
-        "one": "(unitat monetària desconeguda)",
-        "other": "(moneda desconeguda)"
-      }
-    },
-    "YDD": {
-      "name": "dinar iemenita",
-      "plural": {
-        "other": "dinars iemenites"
-      }
-    },
     "YER": {
       "name": "rial iemenita",
       "plural": {
         "other": "rials iemenites"
-      }
-    },
-    "YUD": {
-      "name": "dinar fort iugoslau",
-      "plural": {
-        "other": "dinars forts iugoslaus"
-      }
-    },
-    "YUM": {
-      "name": "nou dinar iugoslau",
-      "plural": {
-        "other": "nous dinars iugoslaus"
-      }
-    },
-    "YUN": {
-      "name": "dinar convertible iugoslau",
-      "plural": {
-        "other": "dinars convertibles iugoslaus"
-      }
-    },
-    "YUR": {
-      "name": "dinar iugoslau reformat (1992–1993)",
-      "plural": {
-        "one": "dinar reformat iugoslau",
-        "other": "dinars reformats iugoslaus"
-      }
-    },
-    "ZAL": {
-      "name": "rand sud-africà (financer)",
-      "plural": {
-        "other": "rands sud-africans (financers)"
       }
     },
     "ZAR": {
@@ -2361,12 +1515,6 @@
         "other": "rands sud-africans"
       }
     },
-    "ZMK": {
-      "name": "kwacha zambià (1968–2012)",
-      "plural": {
-        "other": "kwacha zambians (1968–2012)"
-      }
-    },
     "ZMW": {
       "name": "kwacha zambià",
       "narrow": "ZK",
@@ -2374,38 +1522,8 @@
         "other": "kwacha zambians"
       }
     },
-    "ZRN": {
-      "name": "nou zaire zairès",
-      "plural": {
-        "other": "nous zaires zairesos"
-      }
-    },
-    "ZRZ": {
-      "name": "zaire zairès",
-      "plural": {
-        "other": "zaires zairesos"
-      }
-    },
-    "ZWD": {
-      "name": "dòlar zimbabuès (1980–2008)",
-      "plural": {
-        "other": "dòlars zimbabuesos (1980–2008)"
-      }
-    },
     "ZWG": {
       "name": "or de Zimbàbue"
-    },
-    "ZWL": {
-      "name": "dòlar zimbabuès (2009)",
-      "plural": {
-        "other": "dòlars zimbabuesos (2009)"
-      }
-    },
-    "ZWR": {
-      "name": "dòlar zimbabuès (2008)",
-      "plural": {
-        "other": "dòlars zimbabuesos (2008)"
-      }
     }
   },
   "currencyDigits": {

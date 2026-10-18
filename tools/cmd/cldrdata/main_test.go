@@ -105,6 +105,8 @@ func localeFixture(src fakeSource, l, order, defNS string) {
 		"EUR": obj{"displayName": "Euro", "displayName-count-one": "Euro", "displayName-count-other": "Euros", "symbol": "€"},
 		"CHF": obj{"displayName": "Franken", "symbol": "CHF"},
 		"USD": obj{"displayName": "Dollar", "symbol": "US$", "symbol-alt-narrow": "$"},
+		"DEM": obj{"displayName": "Deutsche Mark", "symbol": "DM"},
+		"USN": obj{"displayName": "US Dollar (Next day)"},
 		"XXX": obj{},
 	}}}}}
 	src["cldr-misc-full/main/"+l+"/layout.json"] = obj{"main": obj{l: obj{"layout": obj{"orientation": obj{"characterOrder": order}}}}}
@@ -136,11 +138,18 @@ func fixture() fakeSource {
 			"de": obj{"pluralRule-count-other": " @integer 0~15"},
 		}}},
 		"cldr-core/supplemental/parentLocales.json": obj{"supplemental": obj{"parentLocales": obj{"parentLocale": obj{"de-AT": "de"}}}},
-		"cldr-core/supplemental/currencyData.json": obj{"supplemental": obj{"currencyData": obj{"fractions": obj{
-			"DEFAULT": obj{"_rounding": "0", "_digits": "2"},
-			"JPY":     obj{"_rounding": "0", "_digits": "0"},
-			"CHF":     obj{"_rounding": "0", "_digits": "2", "_cashRounding": "5"},
-		}}}},
+		"cldr-core/supplemental/currencyData.json": obj{"supplemental": obj{"currencyData": obj{
+			"fractions": obj{
+				"DEFAULT": obj{"_rounding": "0", "_digits": "2"},
+				"JPY":     obj{"_rounding": "0", "_digits": "0"},
+				"CHF":     obj{"_rounding": "0", "_digits": "2", "_cashRounding": "5"},
+			},
+			"region": obj{
+				"DE": []any{obj{"EUR": obj{"_from": "1999-01-01"}}, obj{"DEM": obj{"_from": "1948-06-20", "_to": "2001-12-31"}}},
+				"CH": []any{obj{"CHF": obj{"_from": "1799-03-17"}}},
+				"US": []any{obj{"USD": obj{"_from": "1792-01-01"}}, obj{"USN": obj{"_from": "1792-01-01", "_tender": "false"}}},
+			},
+		}}},
 		"cldr-core/supplemental/likelySubtags.json": obj{"supplemental": obj{"likelySubtags": obj{
 			"de": "de-Latn-DE", "de-AT": "de-Latn-AT", "ar": "ar-Arab-EG", "ar-XX": "ar-Latn-XX", "xx-YY": "xx-Latn-YY",
 		}}},
@@ -190,6 +199,11 @@ func TestDeriveLocale(t *testing.T) {
 	}
 	if _, ok := atObj(de, "currencies")["XXX"]; ok {
 		t.Error("an empty currency is stored")
+	}
+	for _, code := range []string{"DEM", "USN"} {
+		if _, ok := atObj(de, "currencies")[code]; ok {
+			t.Errorf("%s is not in current tender but is stored", code)
+		}
 	}
 	if terr := atObj(de, "territories"); len(terr) != 1 || terr["DE"] != "Deutschland" {
 		t.Errorf("territories = %v", terr)
@@ -358,5 +372,39 @@ func TestOpenArchiveAndRun(t *testing.T) {
 	}
 	if code := run(nil, &stdout, &stderr); code != 2 {
 		t.Errorf("run without flags = %d, want 2", code)
+	}
+}
+
+// TestFilterOnly checks that filtering existing locale files drops the
+// currencies a derivation would not write.
+func TestFilterOnly(t *testing.T) {
+	dir := t.TempDir()
+	doc := obj{"locale": "de", "currencies": obj{"EUR": obj{"name": "Euro"}, "DEM": obj{"name": "Mark"}}}
+	b, err := canonical(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "de.json"), b, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(fixture()["cldr-core/supplemental/currencyData.json"])
+	if err != nil {
+		t.Fatal(err)
+	}
+	dataPath := filepath.Join(t.TempDir(), "currencyData.json")
+	if err := os.WriteFile(dataPath, data, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var stdout, stderr bytes.Buffer
+	if code := run([]string{"-filter-only", dataPath, "-out", dir}, &stdout, &stderr); code != 0 {
+		t.Fatalf("exit %d: %s", code, stderr.String())
+	}
+	got, _ := os.ReadFile(filepath.Join(dir, "de.json"))
+	want, _ := canonical(obj{"locale": "de", "currencies": obj{"EUR": obj{"name": "Euro"}}})
+	if !bytes.Equal(got, want) {
+		t.Errorf("filtered file = %s", got)
+	}
+	if code := run([]string{"-filter-only", dataPath}, &stdout, &stderr); code != 2 {
+		t.Errorf("missing -out exit %d", code)
 	}
 }

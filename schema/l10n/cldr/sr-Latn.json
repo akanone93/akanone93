@@ -513,27 +513,11 @@
     }
   },
   "currencies": {
-    "ADP": {
-      "name": "Andorska pezeta",
-      "plural": {
-        "few": "andorske pezete",
-        "one": "andorska pezeta",
-        "other": "andorske pezete"
-      }
-    },
     "AED": {
       "name": "dirham UAE",
       "plural": {
         "few": "dirhama UAE",
         "other": "dirhama UAE"
-      }
-    },
-    "AFA": {
-      "name": "Avganistanski avgani (1927–2002)",
-      "plural": {
-        "few": "avganistanska avgana (1927–2002)",
-        "one": "avganistanski avgani (1927–2002)",
-        "other": "avganistanskih avgana (1927–2002)"
       }
     },
     "AFN": {
@@ -559,13 +543,6 @@
         "other": "jermenska drama"
       }
     },
-    "ANG": {
-      "name": "holandskoantilski gulden",
-      "plural": {
-        "few": "holandskoantilska guldena",
-        "other": "holandskoantilskih guldena"
-      }
-    },
     "AOA": {
       "name": "angolska kvanza",
       "narrow": "Kz",
@@ -574,60 +551,12 @@
         "other": "angolskih kvanzi"
       }
     },
-    "AOK": {
-      "name": "Angolijska kvanza (1977–1990)",
-      "plural": {
-        "few": "angolijske kvanze (1977–1990)",
-        "one": "angolijska kvanza (1977–1990)",
-        "other": "angolijskih kvanzi (1977–1990)"
-      }
-    },
-    "AON": {
-      "name": "Angolijska nova kvanza (1990–2000)",
-      "plural": {
-        "few": "angolijske nove kvanze",
-        "one": "angolijska nova kvanza",
-        "other": "angolijskih novih kvanzi"
-      }
-    },
-    "AOR": {
-      "name": "Angolijska kvanza reađustado (1995–1999)",
-      "plural": {
-        "few": "angolijske kvanze reađustado (1995–1999)",
-        "one": "angolijska kvanza reađustado (1995–1999)",
-        "other": "angolijskih kvanzi reađustado (1995–1999)"
-      }
-    },
-    "ARA": {
-      "name": "Argentinski austral",
-      "plural": {
-        "few": "argentinska australa",
-        "one": "argentinski austral",
-        "other": "argentinskih australa"
-      }
-    },
-    "ARP": {
-      "name": "Argentinski pezo (1983–1985)",
-      "plural": {
-        "few": "argentinska pezosa (1983–1985)",
-        "one": "argentinski pezo (1983–1985)",
-        "other": "argentinskih pezosa (1983–1985)"
-      }
-    },
     "ARS": {
       "name": "argentinski pezos",
       "narrow": "$",
       "plural": {
         "few": "argentinska pezosa",
         "other": "argentinskih pezosa"
-      }
-    },
-    "ATS": {
-      "name": "Austrijski šiling",
-      "plural": {
-        "few": "austrijska šilinga",
-        "one": "austrijski šiling",
-        "other": "austrijskih šilinga"
       }
     },
     "AUD": {
@@ -645,28 +574,12 @@
         "other": "arubanskih florina"
       }
     },
-    "AZM": {
-      "name": "Azerbejdžanski manat (1993–2006)",
-      "plural": {
-        "few": "azerbejdžanska manata (1993–2006)",
-        "one": "azerbejdžanski manat (1993–2006)",
-        "other": "azerbejdžanskih manata (1993–2006)"
-      }
-    },
     "AZN": {
       "name": "azerbejdžanski manat",
       "narrow": "₼",
       "plural": {
         "few": "azerbejdžanska manata",
         "other": "azerbejdžanskih manata"
-      }
-    },
-    "BAD": {
-      "name": "Bosansko-Hercegovački dinar",
-      "plural": {
-        "few": "bosansko-hercegovačka dinara",
-        "one": "bosansko-hercegovački dinar",
-        "other": "bosansko-hercegovačkih dinara"
       }
     },
     "BAM": {
@@ -691,45 +604,6 @@
       "plural": {
         "few": "bangladeške take",
         "other": "bangladeških taka"
-      }
-    },
-    "BEC": {
-      "name": "Belgijski franak (konvertibilni)",
-      "plural": {
-        "few": "belgijska franka (konvertibilna)",
-        "one": "belgijski franak (konvertibilni)",
-        "other": "belgijskih franaka (konvertibilnih)"
-      }
-    },
-    "BEF": {
-      "name": "Belgijski franak",
-      "plural": {
-        "few": "belgijska franka",
-        "one": "belgijski franak",
-        "other": "belgijskih franaka"
-      }
-    },
-    "BEL": {
-      "name": "Belgijski franak (finansijski)",
-      "plural": {
-        "few": "belgijska franka (finansijska)",
-        "one": "belgijski franak (finansijski)",
-        "other": "belgijskih franaka (finansijskih)"
-      }
-    },
-    "BGL": {
-      "name": "Bugarski tvrdi lev",
-      "plural": {
-        "few": "bugarska tvrda leva",
-        "one": "bugarski tvrdi lev",
-        "other": "bugarskih tvrdih leva"
-      }
-    },
-    "BGN": {
-      "name": "bugarski lev",
-      "plural": {
-        "few": "bugarska leva",
-        "other": "bugarskih leva"
       }
     },
     "BHD": {
@@ -770,46 +644,6 @@
         "other": "bolivijskih bolivijana"
       }
     },
-    "BOP": {
-      "name": "Bolivijski pezo",
-      "plural": {
-        "few": "bolivijska pezosa",
-        "one": "bolivijski pezo",
-        "other": "bolivijskih pezosa"
-      }
-    },
-    "BOV": {
-      "name": "Bolivijski mvdol",
-      "plural": {
-        "few": "bolivijska mvdola",
-        "one": "bolivijski mvdol",
-        "other": "bolivijskih mvdola"
-      }
-    },
-    "BRB": {
-      "name": "Brazilski novi kruzeiro (1967–1986)",
-      "plural": {
-        "few": "brazilska nova kruzeira (1967–1986)",
-        "one": "brazilski novi kruzeiro (1967–1986)",
-        "other": "brazilskih novih kruzeira (1967–1986)"
-      }
-    },
-    "BRC": {
-      "name": "Brazilijski kruzado",
-      "plural": {
-        "few": "brazilska kruzadosa",
-        "one": "brazilski kruzados",
-        "other": "brazilskih kruzadosa"
-      }
-    },
-    "BRE": {
-      "name": "Brazilski kruzeiro (1990–1993)",
-      "plural": {
-        "few": "brazilska kruzeira (1990–1993)",
-        "one": "brazilski kruzeiro (1990–1993)",
-        "other": "brazilskih kruzeira (1990–1993)"
-      }
-    },
     "BRL": {
       "name": "brazilski real",
       "plural": {
@@ -817,22 +651,6 @@
         "other": "brazilskih reala"
       },
       "symbol": "R$"
-    },
-    "BRN": {
-      "name": "Brazilijski novi kruzado",
-      "plural": {
-        "few": "brazilska nova kruzada",
-        "one": "brazilski novi kruzado",
-        "other": "brazilskih novih kruzada"
-      }
-    },
-    "BRR": {
-      "name": "Brazilski kruzeiro",
-      "plural": {
-        "few": "brazilska kruzeira",
-        "one": "brazilski kruzeiro",
-        "other": "brazilskih kruzeira"
-      }
     },
     "BSD": {
       "name": "bahamski dolar",
@@ -849,14 +667,6 @@
         "other": "butanskih ngultruma"
       }
     },
-    "BUK": {
-      "name": "Burmanski kjat",
-      "plural": {
-        "few": "burmanska kjata",
-        "one": "burmanski kjat",
-        "other": "burmanskih kjata"
-      }
-    },
     "BWP": {
       "name": "bocvanska pula",
       "narrow": "P",
@@ -865,28 +675,12 @@
         "other": "bocvanskih pula"
       }
     },
-    "BYB": {
-      "name": "Beloruska nova rublja (1994–1999)",
-      "plural": {
-        "few": "beloruske nove rublja (1994–1999)",
-        "one": "beloruska nova rublja (1994–1999)",
-        "other": "beloruskih novih rublji (1994–1999)"
-      }
-    },
     "BYN": {
       "name": "beloruska rublja",
       "narrow": "r.",
       "plural": {
         "few": "beloruske rublje",
         "other": "beloruskih rublji"
-      }
-    },
-    "BYR": {
-      "name": "Beloruska rublja (2000–2016)",
-      "plural": {
-        "few": "beloruske rublje (2000–2016)",
-        "one": "beloruska rublja (2000–2016)",
-        "other": "beloruskih rublji (2000–2016)"
       }
     },
     "BZD": {
@@ -913,33 +707,11 @@
         "other": "kongoanskih franaka"
       }
     },
-    "CHE": {
-      "name": "WIR evro",
-      "plural": {
-        "few": "WIR evra",
-        "other": "WIR evra"
-      }
-    },
     "CHF": {
       "name": "švajcarski franak",
       "plural": {
         "few": "švajcarska franka",
         "other": "švajcarskih franaka"
-      }
-    },
-    "CHW": {
-      "name": "WIR franak",
-      "plural": {
-        "few": "WIR franka",
-        "other": "WIR franaka"
-      }
-    },
-    "CLF": {
-      "name": "Čileovski unidades se fomento",
-      "plural": {
-        "few": "čileanska unidades de fomenta",
-        "one": "čileanski unidades de fomento",
-        "other": "čileanski unidadesi de fomento"
       }
     },
     "CLP": {
@@ -948,13 +720,6 @@
       "plural": {
         "few": "čileanska pezosa",
         "other": "čileanskih pezosa"
-      }
-    },
-    "CNH": {
-      "name": "kineski juan (ostrvski)",
-      "plural": {
-        "few": "kineska juana (ostrvska)",
-        "other": "kineskih juana (ostrvskih)"
       }
     },
     "CNY": {
@@ -974,44 +739,12 @@
         "other": "kolumbijskih pezosa"
       }
     },
-    "COU": {
-      "name": "Unidad de valorški real",
-      "plural": {
-        "few": "nidad de valor reala",
-        "one": "unidad de valorški real",
-        "other": "unidad de valorških reala"
-      }
-    },
     "CRC": {
       "name": "kostarikanski kolon",
       "narrow": "₡",
       "plural": {
         "few": "kostarikanska kolona",
         "other": "kostarikanskih kolona"
-      }
-    },
-    "CSD": {
-      "name": "Stari srpski dinar",
-      "plural": {
-        "few": "stara srpska dinara",
-        "one": "stari srpski dinar",
-        "other": "starih srpskih dinara"
-      }
-    },
-    "CSK": {
-      "name": "Čehoslovačka tvrda kruna",
-      "plural": {
-        "few": "čehoslovačke tvrde krune",
-        "one": "čehoslovačka tvrda kruna",
-        "other": "čehoslovačkih tvrdih kruna"
-      }
-    },
-    "CUC": {
-      "name": "kubanski konvertibilni pezos",
-      "narrow": "$",
-      "plural": {
-        "few": "kubanska konvertibilna pezosa",
-        "other": "kubanskih konvertibilnih pezosa"
       }
     },
     "CUP": {
@@ -1029,36 +762,12 @@
         "other": "zelenortskih eskuda"
       }
     },
-    "CYP": {
-      "name": "Kiparska funta",
-      "plural": {
-        "few": "kiparske funte",
-        "one": "kiparska funta",
-        "other": "kiparskih funti"
-      }
-    },
     "CZK": {
       "name": "češka kruna",
       "narrow": "Kč",
       "plural": {
         "few": "češke krune",
         "other": "čeških kruna"
-      }
-    },
-    "DDM": {
-      "name": "Istočno-nemačka marka",
-      "plural": {
-        "few": "istočno-nemačke marke",
-        "one": "istočno-nemačka marka",
-        "other": "istočno-nemačkih maraka"
-      }
-    },
-    "DEM": {
-      "name": "Nemačka marka",
-      "plural": {
-        "few": "nemačke marke",
-        "one": "nemačka marka",
-        "other": "nemačkih maraka"
       }
     },
     "DJF": {
@@ -1091,30 +800,6 @@
         "other": "alžirskih dinara"
       }
     },
-    "ECS": {
-      "name": "Ekvadorski sakr",
-      "plural": {
-        "few": "ekvadorska sakra",
-        "one": "ekvadorski sakr",
-        "other": "ekvadorskih sakra"
-      }
-    },
-    "ECV": {
-      "name": "Ekvadorski unidad de valor konstante",
-      "plural": {
-        "few": "ekvadorska unidad de valor konstanta",
-        "one": "ekvadorski unidad de valor konstante",
-        "other": "ekvadorskih unidad de valor konstanta"
-      }
-    },
-    "EEK": {
-      "name": "Estonska kroon",
-      "plural": {
-        "few": "estonske krune",
-        "one": "estonska kruna",
-        "other": "estonskih kruna"
-      }
-    },
     "EGP": {
       "name": "egipatska funta",
       "narrow": "E£",
@@ -1128,31 +813,6 @@
       "plural": {
         "few": "eritrejske nakfe",
         "other": "eritrejskih nakfi"
-      }
-    },
-    "ESA": {
-      "name": "Španska pezeta (račun)",
-      "plural": {
-        "few": "španske pezete (A račun)",
-        "one": "španska pezeta (A račun)",
-        "other": "španskih pezeta (A račun)"
-      }
-    },
-    "ESB": {
-      "name": "Španska pezeta (konvertibilniračun)",
-      "plural": {
-        "few": "španske pezete (konvertibilan račun)",
-        "one": "španska pezeta (konvertibilan račun)",
-        "other": "španskih pezeta (konvertibilan račun)"
-      }
-    },
-    "ESP": {
-      "name": "Španska pezeta",
-      "narrow": "₧",
-      "plural": {
-        "few": "španska pezeta",
-        "one": "španska pezeta",
-        "other": "španske pezete"
       }
     },
     "ETB": {
@@ -1171,14 +831,6 @@
       },
       "symbol": "€"
     },
-    "FIM": {
-      "name": "Finska marka",
-      "plural": {
-        "few": "finske marke",
-        "one": "finska marka",
-        "other": "finskih maraka"
-      }
-    },
     "FJD": {
       "name": "fidžijski dolar",
       "narrow": "$",
@@ -1196,14 +848,6 @@
         "other": "foklandskih funti"
       }
     },
-    "FRF": {
-      "name": "Francuski franak",
-      "plural": {
-        "few": "francuska franka",
-        "one": "francuski franak",
-        "other": "francuskih franaka"
-      }
-    },
     "GBP": {
       "name": "britanska funta",
       "plural": {
@@ -1212,28 +856,12 @@
       },
       "symbol": "£"
     },
-    "GEK": {
-      "name": "Gruzijski kupon larit",
-      "plural": {
-        "few": "gruzijska kupon larita",
-        "one": "gruzijski kupon larit",
-        "other": "gruzijskih kupon larita"
-      }
-    },
     "GEL": {
       "name": "gruzijski lari",
       "narrow": "ლ",
       "plural": {
         "few": "gruzijska larija",
         "other": "gruzijskih larija"
-      }
-    },
-    "GHC": {
-      "name": "Ganski cedi (1979–2007)",
-      "plural": {
-        "few": "ganska ceda (1979–2007)",
-        "one": "ganski ced (1979–2007)",
-        "other": "ganskih ceda (1979–2007)"
       }
     },
     "GHS": {
@@ -1267,52 +895,12 @@
         "other": "gvinejskih franaka"
       }
     },
-    "GNS": {
-      "name": "Gvinejski sili",
-      "plural": {
-        "few": "gvinejska sila",
-        "one": "gvinejski sili",
-        "other": "gvinejskih sila"
-      }
-    },
-    "GQE": {
-      "name": "Ekvatorijalno-gvinejski ekvele",
-      "plural": {
-        "few": "ekvatorijalno-gvinejska ekvela",
-        "one": "ekvatorijalno-gvinejski ekvele",
-        "other": "ekvatorijalno-gvinejskih ekvela"
-      }
-    },
-    "GRD": {
-      "name": "Grčka drahma",
-      "plural": {
-        "few": "grčke drahme",
-        "one": "grčka drahma",
-        "other": "grčkih drahmi"
-      }
-    },
     "GTQ": {
       "name": "gvatemalski kecal",
       "narrow": "Q",
       "plural": {
         "few": "gvatemalska kecala",
         "other": "gvatemalskih kecala"
-      }
-    },
-    "GWE": {
-      "name": "Portugalska gvineja eskudo",
-      "plural": {
-        "few": "portugalsko-gvinejska eskuda",
-        "one": "portugalsko-gvinejski eskudo",
-        "other": "portugalsko-gvinejskih eskuda"
-      }
-    },
-    "GWP": {
-      "name": "Gvineja Bisao Pezo",
-      "plural": {
-        "few": "gvineja-bisaoška pezosa",
-        "one": "gvineja-bisaoški pezo",
-        "other": "gvineja-bisaoških pezosa"
       }
     },
     "GYD": {
@@ -1340,22 +928,6 @@
         "other": "honduraških lempira"
       }
     },
-    "HRD": {
-      "name": "Hrvatski dinar",
-      "plural": {
-        "few": "hrvatska dinara",
-        "one": "hrvatski dinar",
-        "other": "hrvatskih dinara"
-      }
-    },
-    "HRK": {
-      "name": "hrvatska kuna",
-      "narrow": "kn",
-      "plural": {
-        "few": "hrvatske kune",
-        "other": "hrvatskih kuna"
-      }
-    },
     "HTG": {
       "name": "haićanski gurd",
       "plural": {
@@ -1377,30 +949,6 @@
       "plural": {
         "few": "indonežanske rupije",
         "other": "indonežanskih rupija"
-      }
-    },
-    "IEP": {
-      "name": "Irska funta",
-      "plural": {
-        "few": "irske funte",
-        "one": "irska funta",
-        "other": "irskih funti"
-      }
-    },
-    "ILP": {
-      "name": "Izraelska funta",
-      "plural": {
-        "few": "izraelske funte",
-        "one": "izraelska funta",
-        "other": "izraelskih funti"
-      }
-    },
-    "ILR": {
-      "name": "Stari izraelski šekeli",
-      "plural": {
-        "few": "stari izraelski šekeli",
-        "one": "stari izraelski šekeli",
-        "other": "stari izraelski šekeli"
       }
     },
     "ILS": {
@@ -1433,28 +981,12 @@
         "other": "iranskih rijala"
       }
     },
-    "ISJ": {
-      "name": "Stara islandska kruna",
-      "plural": {
-        "few": "stara islandska kruna",
-        "one": "stara islandska kruna",
-        "other": "stara islandska kruna"
-      }
-    },
     "ISK": {
       "name": "islandska kruna",
       "narrow": "kr",
       "plural": {
         "few": "islandske krune",
         "other": "islandskih kruna"
-      }
-    },
-    "ITL": {
-      "name": "Italijanska lira",
-      "plural": {
-        "few": "italijanske lire",
-        "one": "italijanska lira",
-        "other": "italijanske lire"
       }
     },
     "JMD": {
@@ -1589,64 +1121,6 @@
         "other": "lesotskih lotija"
       }
     },
-    "LTL": {
-      "name": "Litvanski litas",
-      "narrow": "Lt",
-      "plural": {
-        "few": "litvanska litasa",
-        "one": "litvanski litas",
-        "other": "litvanskih litasa"
-      }
-    },
-    "LTT": {
-      "name": "Litvanski talonas",
-      "plural": {
-        "few": "litvanska talonasa",
-        "one": "litvanski talonas",
-        "other": "litvanskih talonasa"
-      }
-    },
-    "LUC": {
-      "name": "Luksemburški konvertibilni franak",
-      "plural": {
-        "few": "luksemburška konvertibilna franka",
-        "one": "luksemburški konvertibilni franak",
-        "other": "luksemburških konvertibilnih franaka"
-      }
-    },
-    "LUF": {
-      "name": "Luksemburški franak",
-      "plural": {
-        "few": "luksemburška franka",
-        "one": "luksemburški franak",
-        "other": "luksemburški franci"
-      }
-    },
-    "LUL": {
-      "name": "Luksemburški finansijski franak",
-      "plural": {
-        "few": "luksemburška finansijska franka",
-        "one": "luksemburški finansijski franak",
-        "other": "luksemburških finansijskih franaka"
-      }
-    },
-    "LVL": {
-      "name": "Latvijski lati",
-      "narrow": "Ls",
-      "plural": {
-        "few": "latvijska lata",
-        "one": "latvijski lat",
-        "other": "latvijskih lata"
-      }
-    },
-    "LVR": {
-      "name": "Latvijska rublja",
-      "plural": {
-        "few": "latvijske rublje",
-        "one": "latvijska rublja",
-        "other": "latvijskih rublji"
-      }
-    },
     "LYD": {
       "name": "libijski dinar",
       "plural": {
@@ -1659,14 +1133,6 @@
       "plural": {
         "few": "marokanska dirhama",
         "other": "marokanskih dirhama"
-      }
-    },
-    "MAF": {
-      "name": "Marokanski franak",
-      "plural": {
-        "few": "marokanska franka",
-        "one": "marokanski franak",
-        "other": "marokanskih franaka"
       }
     },
     "MDL": {
@@ -1684,27 +1150,11 @@
         "other": "malgaških arijarija"
       }
     },
-    "MGF": {
-      "name": "Malagasijski franak",
-      "plural": {
-        "few": "malagašajska franka",
-        "one": "malagašajski franak",
-        "other": "malagašajski franci"
-      }
-    },
     "MKD": {
       "name": "makedonski denar",
       "plural": {
         "few": "makedonska denara",
         "other": "makedonskih denara"
-      }
-    },
-    "MLF": {
-      "name": "Malijanski franak",
-      "plural": {
-        "few": "malijska franka",
-        "one": "malijski franak",
-        "other": "malijskih franaka"
       }
     },
     "MMK": {
@@ -1730,35 +1180,11 @@
         "other": "makaoskih pataka"
       }
     },
-    "MRO": {
-      "name": "Mauritanijska ogija (1973–2017)",
-      "plural": {
-        "few": "mauritanijske ogije (1973–2017)",
-        "one": "mauritanijska ogija (1973–2017)",
-        "other": "mauritanijskih ogija (1973–2017)"
-      }
-    },
     "MRU": {
       "name": "mauritanska ogija",
       "plural": {
         "few": "mauritanske ogije",
         "other": "mauritanskih ogija"
-      }
-    },
-    "MTL": {
-      "name": "Malteška lira",
-      "plural": {
-        "few": "malteške lire",
-        "one": "malteška lira",
-        "other": "malteških lira"
-      }
-    },
-    "MTP": {
-      "name": "Malteška funta",
-      "plural": {
-        "few": "malteške funte",
-        "one": "malteška funta",
-        "other": "malteških funti"
       }
     },
     "MUR": {
@@ -1792,44 +1218,12 @@
       },
       "symbol": "MX$"
     },
-    "MXP": {
-      "name": "Meksički srebrni pezo (1861–1992)",
-      "plural": {
-        "few": "meksička srebrna pezosa",
-        "one": "meksički srebrni pezo",
-        "other": "meksičkih srebrnih pezosa"
-      }
-    },
-    "MXV": {
-      "name": "Meksički unidad de inversion (UDI)",
-      "plural": {
-        "few": "meksička unidads de inverziona",
-        "one": "meksički unidads de inverzion",
-        "other": "meksičkih unidads de inverziona"
-      }
-    },
     "MYR": {
       "name": "malezijski ringit",
       "narrow": "RM",
       "plural": {
         "few": "malezijska ringita",
         "other": "malezijskih ringita"
-      }
-    },
-    "MZE": {
-      "name": "Mozambijski eskudo",
-      "plural": {
-        "few": "mozambijska eskuda",
-        "one": "mozambijski eskudo",
-        "other": "mozambijskih eskuda"
-      }
-    },
-    "MZM": {
-      "name": "Stari mozambijski metikal",
-      "plural": {
-        "few": "stara mozambijska metikala",
-        "one": "stari mozambijski metikal",
-        "other": "starih mozambijskih metikala"
       }
     },
     "MZN": {
@@ -1855,27 +1249,12 @@
         "other": "nigerijskih naira"
       }
     },
-    "NIC": {
-      "name": "nikaragvanska kordoba (1988–1991)",
-      "plural": {
-        "few": "nikaragvanske kordobe (1988–1991)",
-        "other": "nikaragvanskih kordoba (1988–1991)"
-      }
-    },
     "NIO": {
       "name": "nikaragvanska kordoba",
       "narrow": "C$",
       "plural": {
         "few": "nikaragvanske kordobe",
         "other": "nikaragvanskih kordoba"
-      }
-    },
-    "NLG": {
-      "name": "Holandski gulden",
-      "plural": {
-        "few": "holandska guldena",
-        "one": "holandski gulden",
-        "other": "holandskih guldena"
       }
     },
     "NOK": {
@@ -1916,27 +1295,11 @@
         "other": "panamskih balboa"
       }
     },
-    "PEI": {
-      "name": "Peruanski inti",
-      "plural": {
-        "few": "peruvijska intija",
-        "one": "peruvijski inti",
-        "other": "peruvijskih intija"
-      }
-    },
     "PEN": {
       "name": "peruanski sol",
       "plural": {
         "few": "peruanska sola",
         "other": "peruanskih sola"
-      }
-    },
-    "PES": {
-      "name": "Peruanski sol (1863–1965)",
-      "plural": {
-        "few": "peruanska sola (1863–1965)",
-        "one": "peruanski sol (1863–1965)",
-        "other": "peruanskih sola (1863–1965)"
       }
     },
     "PGK": {
@@ -1970,22 +1333,6 @@
         "other": "poljskih zlota"
       }
     },
-    "PLZ": {
-      "name": "Poljski zloti (1950–1995)",
-      "plural": {
-        "few": "poljska zlota (1950–1995)",
-        "one": "poljski zlot (1950–1995)",
-        "other": "poljskih zlota (1950–1995)"
-      }
-    },
-    "PTE": {
-      "name": "Portugalski eskudo",
-      "plural": {
-        "few": "portugalska eskuda",
-        "one": "portugalski eskudo",
-        "other": "portugalskih eskuda"
-      }
-    },
     "PYG": {
       "name": "paragvajski gvarani",
       "narrow": "₲",
@@ -1999,22 +1346,6 @@
       "plural": {
         "few": "katarska rijala",
         "other": "katarskih rijala"
-      }
-    },
-    "RHD": {
-      "name": "Rodejskidolar",
-      "plural": {
-        "few": "rodežanska dolara",
-        "one": "rodežanski dolar",
-        "other": "rodežanskih dolara"
-      }
-    },
-    "ROL": {
-      "name": "Rumunski lej (1952–2006)",
-      "plural": {
-        "few": "rumunska leja (1952–2006)",
-        "one": "rumunski lej (1952–2006)",
-        "other": "rumunskih leja (1952–2006)"
       }
     },
     "RON": {
@@ -2038,14 +1369,6 @@
       "plural": {
         "few": "ruske rublje",
         "other": "ruskih rublji"
-      }
-    },
-    "RUR": {
-      "name": "Ruska rublja (1991–1998)",
-      "plural": {
-        "few": "ruske rublje (1991–1998)",
-        "one": "ruska rublja (1991–1998)",
-        "other": "ruskih rublji (1991–1998)"
       }
     },
     "RWF": {
@@ -2078,27 +1401,11 @@
         "other": "sejšelskih rupija"
       }
     },
-    "SDD": {
-      "name": "Stari sudanski dinar",
-      "plural": {
-        "few": "stara sudanska dinara",
-        "one": "stari sudanski dinar",
-        "other": "starih sudanskih dinara"
-      }
-    },
     "SDG": {
       "name": "sudanska funta",
       "plural": {
         "few": "sudanske funte",
         "other": "sudanskih funti"
-      }
-    },
-    "SDP": {
-      "name": "Stara sudanska funta",
-      "plural": {
-        "few": "stare sudanske funte",
-        "one": "stara sudanska funta",
-        "other": "starih sudanskih funti"
       }
     },
     "SEK": {
@@ -2125,34 +1432,11 @@
         "other": "funti Svete Jelene"
       }
     },
-    "SIT": {
-      "name": "Slovenački tolar",
-      "plural": {
-        "few": "slovenačka tolara",
-        "one": "slovenački tolar",
-        "other": "slovenačkih tolara"
-      }
-    },
-    "SKK": {
-      "name": "Slovačka kruna",
-      "plural": {
-        "few": "slovačke krune",
-        "one": "slovačka kruna",
-        "other": "slovačkih kruna"
-      }
-    },
     "SLE": {
       "name": "sijeraleonski leone",
       "plural": {
         "few": "sijeraleonska leona",
         "other": "sijeraleonskih leona"
-      }
-    },
-    "SLL": {
-      "name": "sijeraleonski leone (1964—2022)",
-      "plural": {
-        "few": "sijeraleonska leona (1964—2022)",
-        "other": "sijeraleonskih leona (1964—2022)"
       }
     },
     "SOS": {
@@ -2170,14 +1454,6 @@
         "other": "surinamskih dolara"
       }
     },
-    "SRG": {
-      "name": "Surinamski gilder",
-      "plural": {
-        "few": "surinamska gildera",
-        "one": "surinamski gilder",
-        "other": "surinamskih gildera"
-      }
-    },
     "SSP": {
       "name": "južnosudanska funta",
       "narrow": "£",
@@ -2186,36 +1462,12 @@
         "other": "južnosudanskih funti"
       }
     },
-    "STD": {
-      "name": "Saotomska dobra (1977–2017)",
-      "plural": {
-        "few": "saotomske dobre (1977–2017)",
-        "one": "saotomska dobra (1977–2017)",
-        "other": "saotomskih dobri (1977–2017)"
-      }
-    },
     "STN": {
       "name": "saotomska dobra",
       "narrow": "Db",
       "plural": {
         "few": "saotomske dobre",
         "other": "saotomskih dobri"
-      }
-    },
-    "SUR": {
-      "name": "Sovjetska rublja",
-      "plural": {
-        "few": "sovjetske rublje",
-        "one": "sovjetska rublja",
-        "other": "sovjetskih rublji"
-      }
-    },
-    "SVC": {
-      "name": "Salvadorski kolon",
-      "plural": {
-        "few": "salvadorska kolona",
-        "one": "salvadorski kolon",
-        "other": "salvadorskih kolona"
       }
     },
     "SYP": {
@@ -2241,27 +1493,11 @@
         "other": "tajlandskih bata"
       }
     },
-    "TJR": {
-      "name": "Tadžihistanska rublja",
-      "plural": {
-        "few": "tadžihistanske rublje",
-        "one": "tadžihistanska rublja",
-        "other": "tadžihistanskih rublji"
-      }
-    },
     "TJS": {
       "name": "tadžikistanski somon",
       "plural": {
         "few": "tadžikistanska somona",
         "other": "tadžikistanskih somona"
-      }
-    },
-    "TMM": {
-      "name": "Turkmenistanski manat (1993–2009)",
-      "plural": {
-        "few": "turkmenistanska manata (1993–2009)",
-        "one": "turkmenistanski manat (1993–2009)",
-        "other": "turkmenistanski manat (1993–2009)"
       }
     },
     "TMT": {
@@ -2284,22 +1520,6 @@
       "plural": {
         "few": "tonganske pange",
         "other": "tonganskih pangi"
-      }
-    },
-    "TPE": {
-      "name": "Timorški eskudo",
-      "plural": {
-        "few": "timorška eskuda",
-        "one": "timorški eskudo",
-        "other": "timorških eskuda"
-      }
-    },
-    "TRL": {
-      "name": "Turska lira (1922–2005)",
-      "plural": {
-        "few": "turske lire (1922–2005)",
-        "one": "turska lira (1922–2005)",
-        "other": "turskih lira (1922–2005)"
       }
     },
     "TRY": {
@@ -2341,22 +1561,6 @@
         "other": "ukrajinskih hrivnji"
       }
     },
-    "UAK": {
-      "name": "Ukrajinski karbovaneti",
-      "plural": {
-        "few": "ukrajinska karbovanciva",
-        "one": "ukrajinski karbovanec",
-        "other": "ukrajinskih karbovanciva"
-      }
-    },
-    "UGS": {
-      "name": "Ugandski šiling (1966–1987)",
-      "plural": {
-        "few": "ugandijska šilinga (1966–1987)",
-        "one": "ugandijski šiling (1966–1987)",
-        "other": "ugandijskih šilinga (1966–1987)"
-      }
-    },
     "UGX": {
       "name": "ugandski šiling",
       "plural": {
@@ -2373,36 +1577,6 @@
       },
       "symbol": "US$"
     },
-    "USN": {
-      "name": "SAD dolar (sledeći dan)",
-      "plural": {
-        "few": "SAD dolara (sledeći dan)",
-        "other": "SAD dolara (sledeći dan)"
-      }
-    },
-    "USS": {
-      "name": "SAD dolar (isti dan)",
-      "plural": {
-        "few": "SAD dolara (isti dan)",
-        "other": "SAD dolara (isti dan)"
-      }
-    },
-    "UYI": {
-      "name": "Urugvajski pezo en unidades indeksadas",
-      "plural": {
-        "few": "urugvajska pezosa en unidades indeksadesa",
-        "one": "urugvajski pezo en unidades indeksades",
-        "other": "ugvajskih pezosa en unidades indeksadesa"
-      }
-    },
-    "UYP": {
-      "name": "Urugvajski pezo (1975–1993)",
-      "plural": {
-        "few": "urugvajska pezosa (1975–1993)",
-        "one": "urugvajski pezo (1975–1993)",
-        "other": "urugvajskih pezosa (1975–1993)"
-      }
-    },
     "UYU": {
       "name": "urugvajski pezos",
       "narrow": "$",
@@ -2418,23 +1592,6 @@
         "other": "uzbekistanskih soma"
       }
     },
-    "VEB": {
-      "name": "Venecuelanski bolivar (1871–2008)",
-      "plural": {
-        "few": "venecuelanska bolivara (1871–2008)",
-        "one": "venecuelanski bolivar (1871–2008)",
-        "other": "venecuelanskih bolivara (1871–2008)"
-      }
-    },
-    "VEF": {
-      "name": "Venecuelanski bolivar (2008–2018)",
-      "narrow": "Bs",
-      "plural": {
-        "few": "venecuelanska bolivara (2008–2018)",
-        "one": "venecuelanski bolivar (2008–2018)",
-        "other": "venecuelanskih bolivara (2008–2018)"
-      }
-    },
     "VES": {
       "name": "venecuelanski bolivar",
       "plural": {
@@ -2448,14 +1605,6 @@
       "plural": {
         "few": "vijetnamska donga",
         "other": "vijetnamskih donga"
-      }
-    },
-    "VNN": {
-      "name": "Vijetnamski dong (1978–1985)",
-      "plural": {
-        "few": "vijetnamska donga (1978–1985)",
-        "one": "vijetnamski dong (1978–1985)",
-        "other": "vijetnamskih donga (1978–1985)"
       }
     },
     "VUV": {
@@ -2480,54 +1629,6 @@
       },
       "symbol": "FCFA"
     },
-    "XAG": {
-      "name": "Srebro",
-      "plural": {
-        "few": "srebra",
-        "one": "srebro",
-        "other": "srebra"
-      }
-    },
-    "XAU": {
-      "name": "Zlato",
-      "plural": {
-        "few": "zlata",
-        "one": "zlato",
-        "other": "zlata"
-      }
-    },
-    "XBA": {
-      "name": "Evropska kompozitna jedinica",
-      "plural": {
-        "few": "evropske kompozitne jedinice",
-        "one": "evropska kompozitna jedinica",
-        "other": "evropskih kompozitnih jedinica"
-      }
-    },
-    "XBB": {
-      "name": "Evropska novčana jedinica",
-      "plural": {
-        "few": "evropske novčane jedinice (XBB)",
-        "one": "evropska novčana jedinica (XBB)",
-        "other": "evropske novčane jedinice (XBB)"
-      }
-    },
-    "XBC": {
-      "name": "Evropska jedinica računa (XBC)",
-      "plural": {
-        "few": "evropske jedinice računa (XBC)",
-        "one": "evropska jedinica računa (XBC)",
-        "other": "evropskih jedinica računa (XBC)"
-      }
-    },
-    "XBD": {
-      "name": "Evropska jedinica računa (XBD)",
-      "plural": {
-        "few": "evropske jedinice računa (XBD)",
-        "one": "evropska jedinica računa (XBD)",
-        "other": "evropskih jedinica računa (XBD)"
-      }
-    },
     "XCD": {
       "name": "istočnokaripski dolar",
       "narrow": "$",
@@ -2541,38 +1642,6 @@
       "name": "karipski gulden",
       "symbol": "Cg."
     },
-    "XDR": {
-      "name": "Posebna crtaća prava",
-      "plural": {
-        "few": "posebna crtaća prava",
-        "one": "posebno crtaće pravo",
-        "other": "posebnih crtaćih prava"
-      }
-    },
-    "XEU": {
-      "name": "Evropska valutna jedinica",
-      "plural": {
-        "few": "evropske novčane jedinice (XEU)",
-        "one": "evropska novčana jedinica (XEU)",
-        "other": "evropskih novčanih jedinica"
-      }
-    },
-    "XFO": {
-      "name": "Francuski zlatni franak",
-      "plural": {
-        "few": "francuska zlatna franka",
-        "one": "francuski zlatni franak",
-        "other": "francuskih zlatnih franaka"
-      }
-    },
-    "XFU": {
-      "name": "Francuski UIC-franak",
-      "plural": {
-        "few": "francuska UIC-franka",
-        "one": "francuski UIC-franak",
-        "other": "francuskih UIC-franaka"
-      }
-    },
     "XOF": {
       "name": "zapadnoafrički franak",
       "plural": {
@@ -2580,14 +1649,6 @@
         "other": "zapadnoafričkih franaka"
       },
       "symbol": "F\u202fCFA"
-    },
-    "XPD": {
-      "name": "Paladijum",
-      "plural": {
-        "few": "paladijuma",
-        "one": "paladijum",
-        "other": "paladijuma"
-      }
     },
     "XPF": {
       "name": "CFP franak",
@@ -2597,83 +1658,11 @@
       },
       "symbol": "CFPF"
     },
-    "XPT": {
-      "name": "Platina",
-      "plural": {
-        "few": "platine",
-        "one": "platina",
-        "other": "platina"
-      }
-    },
-    "XRE": {
-      "name": "RINET fond",
-      "plural": {
-        "few": "RINET fonda",
-        "other": "RINET fondova"
-      }
-    },
-    "XTS": {
-      "name": "Kod testirane valute",
-      "plural": {
-        "few": "koda testirane valute",
-        "one": "kod testirane valute",
-        "other": "kodova testirane valute"
-      }
-    },
-    "XXX": {
-      "name": "nepoznata valuta",
-      "plural": {
-        "few": "nepoznate valute",
-        "one": "nepoznata jedinica valute",
-        "other": "nepoznatih valuta"
-      },
-      "symbol": "¤"
-    },
-    "YDD": {
-      "name": "Jemenski dinar",
-      "plural": {
-        "few": "jemenska dolara",
-        "one": "jemenski dolar",
-        "other": "jemenskih dolara"
-      }
-    },
     "YER": {
       "name": "jemenski rijal",
       "plural": {
         "few": "jemenska rijala",
         "other": "jemenskih rijala"
-      }
-    },
-    "YUD": {
-      "name": "Jugoslovenski tvrdi dinar",
-      "plural": {
-        "few": "jugoslovenska tvrda dinara",
-        "one": "jugoslovenski tvrdi dinar",
-        "other": "jugoslovenskih tvrdih dinara"
-      }
-    },
-    "YUM": {
-      "name": "Jugoslovenski novi dinar",
-      "plural": {
-        "few": "jugoslovenska nova dinara",
-        "one": "jugoslovenski novi dinar",
-        "other": "jugoslovenskih novih dinara"
-      }
-    },
-    "YUN": {
-      "name": "Jugoslovenski konvertibilni dinar",
-      "plural": {
-        "few": "jugoslovenska konvertibilna dinara",
-        "one": "jugoslovenski konvertibilni dinar",
-        "other": "jugoslovenskih konvertibilnih dinara"
-      }
-    },
-    "ZAL": {
-      "name": "Južno-afrički rand (finansijski)",
-      "plural": {
-        "few": "južnoafrička randa (finansijska)",
-        "one": "južnoafrički rand (finansijski)",
-        "other": "južnoafričkih randa (finansijskih)"
       }
     },
     "ZAR": {
@@ -2684,14 +1673,6 @@
         "other": "južnoafričkih randa"
       }
     },
-    "ZMK": {
-      "name": "Zambijska kvača (1968–2012)",
-      "plural": {
-        "few": "zambijske kvače (1968–2012)",
-        "one": "zambijska kvača (1968–2012)",
-        "other": "zambijskih kvača (1968–2012)"
-      }
-    },
     "ZMW": {
       "name": "zambijska kvača",
       "narrow": "ZK",
@@ -2700,48 +1681,8 @@
         "other": "zambijskih kvača"
       }
     },
-    "ZRN": {
-      "name": "Zairski novi zair",
-      "plural": {
-        "few": "zairska nova zaira",
-        "one": "zairski novi zair",
-        "other": "zairskih novih zaira"
-      }
-    },
-    "ZRZ": {
-      "name": "Zairski zair",
-      "plural": {
-        "few": "zairska zaira",
-        "one": "zairski zair",
-        "other": "zairskih zaira"
-      }
-    },
-    "ZWD": {
-      "name": "Zimbabveanski dolar (1980–2008)",
-      "plural": {
-        "few": "zimbabvejska dolara (1980–2008)",
-        "one": "zimbabvejski dolar (1980–2008)",
-        "other": "zimbabvejskih dolara (1980–2008)"
-      }
-    },
     "ZWG": {
       "name": "zimbabveansko zlato"
-    },
-    "ZWL": {
-      "name": "Zimbabveanski dolar (2009)",
-      "plural": {
-        "few": "zimbabvejska dolara (2009)",
-        "one": "zimbabvejski dolar (2009)",
-        "other": "zimbabvejskih dolara (2009)"
-      }
-    },
-    "ZWR": {
-      "name": "Zimbabveanski dolar (2008)",
-      "plural": {
-        "few": "zimbabvejska dolara (2008)",
-        "one": "zimbabvejski dolar (2008)",
-        "other": "zimbabvejskih dolara (2008)"
-      }
     }
   },
   "currencyDigits": {

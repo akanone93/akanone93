@@ -502,9 +502,6 @@
     }
   },
   "currencies": {
-    "ADP": {
-      "name": "Andorra Pezetası"
-    },
     "AED": {
       "name": "Birleşik Arap Emirlikleri dirhemi",
       "plural": {
@@ -512,19 +509,9 @@
         "other": "BAE dirhemi"
       }
     },
-    "AFA": {
-      "name": "Afganistan Afganisi (1927–2002)"
-    },
     "AFN": {
       "name": "Afganistan afganisi",
       "narrow": "؋"
-    },
-    "ALK": {
-      "name": "Arnavutluk Leki (1946–1965)",
-      "plural": {
-        "one": "Arnavutluk leki (1946–1965)",
-        "other": "Arnavutluk leki (1946–1965)"
-      }
     },
     "ALL": {
       "name": "Arnavutluk leki"
@@ -533,48 +520,13 @@
       "name": "Ermenistan dramı",
       "narrow": "֏"
     },
-    "ANG": {
-      "name": "Hollanda Antilleri guldeni"
-    },
     "AOA": {
       "name": "Angola kvanzası",
       "narrow": "Kz"
     },
-    "AOK": {
-      "name": "Angola Kvanzası (1977–1990)"
-    },
-    "AON": {
-      "name": "Yeni Angola Kvanzası (1990–2000)"
-    },
-    "AOR": {
-      "name": "Angola Kvanzası Reajustado (1995–1999)"
-    },
-    "ARA": {
-      "name": "Arjantin Australi"
-    },
-    "ARL": {
-      "name": "Arjantin Peso Leyi (1970–1983)",
-      "plural": {
-        "one": "Arjantin peso leyi (1970–1983)",
-        "other": "Arjantin peso leyi (1970–1983)"
-      }
-    },
-    "ARM": {
-      "name": "Arjantin Pesosu (1881–1970)",
-      "plural": {
-        "one": "Arjantin pesosu (1881–1970)",
-        "other": "Arjantin pesosu (1881–1970)"
-      }
-    },
-    "ARP": {
-      "name": "Arjantin Pezosu (1983–1985)"
-    },
     "ARS": {
       "name": "Arjantin pesosu",
       "narrow": "$"
-    },
-    "ATS": {
-      "name": "Avusturya Şilini"
     },
     "AUD": {
       "name": "Avustralya doları",
@@ -584,26 +536,13 @@
     "AWG": {
       "name": "Aruba florini"
     },
-    "AZM": {
-      "name": "Azerbaycan Manatı (1993–2006)"
-    },
     "AZN": {
       "name": "Azerbaycan manatı",
       "narrow": "₼"
     },
-    "BAD": {
-      "name": "Bosna Hersek Dinarı"
-    },
     "BAM": {
       "name": "Konvertibl Bosna Hersek markı",
       "narrow": "KM"
-    },
-    "BAN": {
-      "name": "Yeni Bosna Hersek Dinarı (1994–1997)",
-      "plural": {
-        "one": "Yeni Bosna Hersek dinarı (1994–1997)",
-        "other": "Yeni Bosna Hersek dinarı (1994–1997)"
-      }
     },
     "BBD": {
       "name": "Barbados doları",
@@ -612,35 +551,6 @@
     "BDT": {
       "name": "Bangladeş takası",
       "narrow": "৳"
-    },
-    "BEC": {
-      "name": "Belçika Frangı (konvertibl)"
-    },
-    "BEF": {
-      "name": "Belçika Frangı"
-    },
-    "BEL": {
-      "name": "Belçika Frangı (finansal)"
-    },
-    "BGL": {
-      "name": "Bulgar Levası (Hard)"
-    },
-    "BGM": {
-      "name": "Sosyalist Bulgaristan Levası",
-      "plural": {
-        "one": "Sosyalist Bulgaristan levası",
-        "other": "Sosyalist Bulgaristan levası"
-      }
-    },
-    "BGN": {
-      "name": "Bulgar levası"
-    },
-    "BGO": {
-      "name": "Bulgar Levası (1879–1952)",
-      "plural": {
-        "one": "Bulgar levası (1879–1952)",
-        "other": "Bulgar levası (1879–1952)"
-      }
     },
     "BHD": {
       "name": "Bahreyn dinarı"
@@ -660,44 +570,9 @@
       "name": "Bolivya bolivyanosu",
       "narrow": "Bs"
     },
-    "BOL": {
-      "name": "Bolivya Bolivyanosu (1863–1963)",
-      "plural": {
-        "one": "Bolivya bolivyanosu (1863–1963)",
-        "other": "Bolivya bolivyanosu (1863–1963)"
-      }
-    },
-    "BOP": {
-      "name": "Bolivya Pezosu"
-    },
-    "BOV": {
-      "name": "Bolivya Mvdolu"
-    },
-    "BRB": {
-      "name": "Yeni Brezilya Kruzeirosu (1967–1986)"
-    },
-    "BRC": {
-      "name": "Brezilya Kruzadosu"
-    },
-    "BRE": {
-      "name": "Brezilya Kruzeirosu (1990–1993)"
-    },
     "BRL": {
       "name": "Brezilya reali",
       "symbol": "R$"
-    },
-    "BRN": {
-      "name": "Yeni Brezilya Kruzadosu"
-    },
-    "BRR": {
-      "name": "Brezilya Kruzeirosu"
-    },
-    "BRZ": {
-      "name": "Brezilya Kruzeirosu (1942–1967)",
-      "plural": {
-        "one": "Brezilya kruzeirosu (1942–1967)",
-        "other": "Brezilya kruzeirosu (1942–1967)"
-      }
     },
     "BSD": {
       "name": "Bahama doları",
@@ -706,26 +581,13 @@
     "BTN": {
       "name": "Butan ngultrumu"
     },
-    "BUK": {
-      "name": "Burma Kyatı"
-    },
     "BWP": {
       "name": "Botsvana pulası",
       "narrow": "P"
     },
-    "BYB": {
-      "name": "Yeni Beyaz Rusya Rublesi (1994–1999)"
-    },
     "BYN": {
       "name": "Belarus rublesi",
       "narrow": "р."
-    },
-    "BYR": {
-      "name": "Beyaz Rusya Rublesi (2000–2016)",
-      "plural": {
-        "one": "Beyaz Rusya rublesi (2000–2016)",
-        "other": "Beyaz Rusya rublesi (2000–2016)"
-      }
     },
     "BZD": {
       "name": "Belize doları",
@@ -739,38 +601,12 @@
     "CDF": {
       "name": "Kongo frangı"
     },
-    "CHE": {
-      "name": "WIR Avrosu"
-    },
     "CHF": {
       "name": "İsviçre frangı"
-    },
-    "CHW": {
-      "name": "WIR Frangı"
-    },
-    "CLE": {
-      "name": "Şili Esküdosu",
-      "plural": {
-        "one": "Şili esküdosu",
-        "other": "Şili esküdosu"
-      }
-    },
-    "CLF": {
-      "name": "Şili Unidades de Fomento"
     },
     "CLP": {
       "name": "Şili pesosu",
       "narrow": "$"
-    },
-    "CNH": {
-      "name": "Çin yuanı (offshore)"
-    },
-    "CNX": {
-      "name": "Çin Halk Cumhuriyeti Merkez Bankası Doları",
-      "plural": {
-        "one": "Çin Halk Cumhuriyeti Merkez Bankası doları",
-        "other": "Çin Halk Cumhuriyeti Merkez Bankası doları"
-      }
     },
     "CNY": {
       "name": "Çin yuanı",
@@ -781,22 +617,9 @@
       "name": "Kolombiya pesosu",
       "narrow": "$"
     },
-    "COU": {
-      "name": "Unidad de Valor Real"
-    },
     "CRC": {
       "name": "Kosta Rika kolonu",
       "narrow": "₡"
-    },
-    "CSD": {
-      "name": "Eski Sırbistan Dinarı"
-    },
-    "CSK": {
-      "name": "Çekoslavak Korunası (Hard)"
-    },
-    "CUC": {
-      "name": "Konvertibl Küba pesosu",
-      "narrow": "$"
     },
     "CUP": {
       "name": "Küba pesosu",
@@ -805,18 +628,9 @@
     "CVE": {
       "name": "Cape Verde esküdosu"
     },
-    "CYP": {
-      "name": "Güney Kıbrıs Lirası"
-    },
     "CZK": {
       "name": "Çek korunası",
       "narrow": "Kč"
-    },
-    "DDM": {
-      "name": "Doğu Alman Markı"
-    },
-    "DEM": {
-      "name": "Alman Markı"
     },
     "DJF": {
       "name": "Cibuti frangı"
@@ -832,15 +646,6 @@
     "DZD": {
       "name": "Cezayir dinarı"
     },
-    "ECS": {
-      "name": "Ekvador Sukresi"
-    },
-    "ECV": {
-      "name": "Ekvador Unidad de Valor Constante (UVC)"
-    },
-    "EEK": {
-      "name": "Estonya Krunu"
-    },
     "EGP": {
       "name": "Mısır lirası",
       "narrow": "E£"
@@ -848,25 +653,12 @@
     "ERN": {
       "name": "Eritre nakfası"
     },
-    "ESA": {
-      "name": "İspanyol Pezetası (A hesabı)"
-    },
-    "ESB": {
-      "name": "İspanyol Pezetası (konvertibl hesap)"
-    },
-    "ESP": {
-      "name": "İspanyol Pezetası",
-      "narrow": "₧"
-    },
     "ETB": {
       "name": "Etiyopya birri"
     },
     "EUR": {
       "name": "Euro",
       "symbol": "€"
-    },
-    "FIM": {
-      "name": "Fin Markkası"
     },
     "FJD": {
       "name": "Fiji doları",
@@ -876,22 +668,13 @@
       "name": "Falkland Adaları lirası",
       "narrow": "£"
     },
-    "FRF": {
-      "name": "Fransız Frangı"
-    },
     "GBP": {
       "name": "İngiliz sterlini",
       "symbol": "£"
     },
-    "GEK": {
-      "name": "Gürcistan Kupon Larisi"
-    },
     "GEL": {
       "name": "Gürcistan larisi",
       "narrow": "₾"
-    },
-    "GHC": {
-      "name": "Gana Sedisi (1979–2007)"
     },
     "GHS": {
       "name": "Gana sedisi",
@@ -908,24 +691,9 @@
       "name": "Gine frangı",
       "narrow": "FG"
     },
-    "GNS": {
-      "name": "Gine Sylisi"
-    },
-    "GQE": {
-      "name": "Ekvator Ginesi Ekuelesi"
-    },
-    "GRD": {
-      "name": "Yunan Drahmisi"
-    },
     "GTQ": {
       "name": "Guatemala quetzalı",
       "narrow": "Q"
-    },
-    "GWE": {
-      "name": "Portekiz Ginesi Esküdosu"
-    },
-    "GWP": {
-      "name": "Gine-Bissau Pezosu"
     },
     "GYD": {
       "name": "Guyana doları",
@@ -940,13 +708,6 @@
       "name": "Honduras lempirası",
       "narrow": "L"
     },
-    "HRD": {
-      "name": "Hırvatistan Dinarı"
-    },
-    "HRK": {
-      "name": "Hırvatistan kunası",
-      "narrow": "kn"
-    },
     "HTG": {
       "name": "Haiti gurdu"
     },
@@ -957,19 +718,6 @@
     "IDR": {
       "name": "Endonezya rupisi",
       "narrow": "Rp"
-    },
-    "IEP": {
-      "name": "İrlanda Lirası"
-    },
-    "ILP": {
-      "name": "İsrail Lirası"
-    },
-    "ILR": {
-      "name": "İsrail Şekeli (1980–1985)",
-      "plural": {
-        "one": "İsrail şekeli (1980–1985)",
-        "other": "İsrail şekeli (1980–1985)"
-      }
     },
     "ILS": {
       "name": "Yeni İsrail şekeli",
@@ -985,19 +733,9 @@
     "IRR": {
       "name": "İran riyali"
     },
-    "ISJ": {
-      "name": "İzlanda Kronu (1918–1981)",
-      "plural": {
-        "one": "İzlanda kronu (1918–1981)",
-        "other": "İzlanda kronu (1918–1981)"
-      }
-    },
     "ISK": {
       "name": "İzlanda kronu",
       "narrow": "kr"
-    },
-    "ITL": {
-      "name": "İtalyan Lireti"
     },
     "JMD": {
       "name": "Jamaika doları",
@@ -1028,20 +766,6 @@
     "KPW": {
       "name": "Kuzey Kore wonu",
       "narrow": "₩"
-    },
-    "KRH": {
-      "name": "Güney Kore Hwanı (1953–1962)",
-      "plural": {
-        "one": "Güney Kore hwanı (1953–1962)",
-        "other": "Güney Kore hwanı (1953–1962)"
-      }
-    },
-    "KRO": {
-      "name": "Güney Kore Wonu (1945–1953)",
-      "plural": {
-        "one": "Güney Kore wonu (1945–1953)",
-        "other": "Güney Kore wonu (1945–1953)"
-      }
     },
     "KRW": {
       "name": "Güney Kore wonu",
@@ -1077,59 +801,11 @@
     "LSL": {
       "name": "Lesotho lotisi"
     },
-    "LTL": {
-      "name": "Litvanya Litası",
-      "narrow": "Lt",
-      "plural": {
-        "one": "Litvanya litası",
-        "other": "Litvanya litası"
-      }
-    },
-    "LTT": {
-      "name": "Litvanya Talonu"
-    },
-    "LUC": {
-      "name": "Konvertibl Lüksemburg Frangı"
-    },
-    "LUF": {
-      "name": "Lüksemburg Frangı"
-    },
-    "LUL": {
-      "name": "Finansal Lüksemburg Frangı"
-    },
-    "LVL": {
-      "name": "Letonya Latı",
-      "narrow": "Ls",
-      "plural": {
-        "one": "Letonya latı",
-        "other": "Letonya latı"
-      }
-    },
-    "LVR": {
-      "name": "Letonya Rublesi"
-    },
     "LYD": {
       "name": "Libya dinarı"
     },
     "MAD": {
       "name": "Fas dirhemi"
-    },
-    "MAF": {
-      "name": "Fas Frangı"
-    },
-    "MCF": {
-      "name": "Monako Frangı",
-      "plural": {
-        "one": "Monako frangı",
-        "other": "Monako frangı"
-      }
-    },
-    "MDC": {
-      "name": "Moldova Kuponu",
-      "plural": {
-        "one": "Moldova kuponu",
-        "other": "Moldova kuponu"
-      }
     },
     "MDL": {
       "name": "Moldova leyi"
@@ -1138,21 +814,8 @@
       "name": "Madagaskar ariarisi",
       "narrow": "Ar"
     },
-    "MGF": {
-      "name": "Madagaskar Frangı"
-    },
     "MKD": {
       "name": "Makedonya dinarı"
-    },
-    "MKN": {
-      "name": "Makedonya Dinarı (1992–1993)",
-      "plural": {
-        "one": "Makedonya dinarı (1992–1993)",
-        "other": "Makedonya dinarı (1992–1993)"
-      }
-    },
-    "MLF": {
-      "name": "Mali Frangı"
     },
     "MMK": {
       "name": "Myanmar kyatı",
@@ -1165,32 +828,12 @@
     "MOP": {
       "name": "Makao patakası"
     },
-    "MRO": {
-      "name": "Moritanya Ugiyası (1973–2017)",
-      "plural": {
-        "one": "Moritanya ugiyası (1973–2017)",
-        "other": "Moritanya ugiyası (1973–2017)"
-      }
-    },
     "MRU": {
       "name": "Moritanya ugiyası"
-    },
-    "MTL": {
-      "name": "Malta Lirası"
-    },
-    "MTP": {
-      "name": "Malta Sterlini"
     },
     "MUR": {
       "name": "Mauritius rupisi",
       "narrow": "Rs"
-    },
-    "MVP": {
-      "name": "Maldiv Rupisi",
-      "plural": {
-        "one": "Maldiv rupisi",
-        "other": "Maldiv rupisi"
-      }
     },
     "MVR": {
       "name": "Maldiv rufiyaası"
@@ -1203,21 +846,9 @@
       "narrow": "$",
       "symbol": "MX$"
     },
-    "MXP": {
-      "name": "Gümüş Meksika Pezosu (1861–1992)"
-    },
-    "MXV": {
-      "name": "Meksika Unidad de Inversion (UDI)"
-    },
     "MYR": {
       "name": "Malezya ringgiti",
       "narrow": "RM"
-    },
-    "MZE": {
-      "name": "Mozambik Esküdosu"
-    },
-    "MZM": {
-      "name": "Eski Mozambik Metikali"
     },
     "MZN": {
       "name": "Mozambik metikali"
@@ -1230,15 +861,9 @@
       "name": "Nijerya nairası",
       "narrow": "₦"
     },
-    "NIC": {
-      "name": "Nikaragua Kordobası (1988–1991)"
-    },
     "NIO": {
       "name": "Nikaragua kordobası",
       "narrow": "C$"
-    },
-    "NLG": {
-      "name": "Hollanda Florini"
     },
     "NOK": {
       "name": "Norveç kronu",
@@ -1259,14 +884,8 @@
     "PAB": {
       "name": "Panama balboası"
     },
-    "PEI": {
-      "name": "Peru İnti"
-    },
     "PEN": {
       "name": "Peru solü"
-    },
-    "PES": {
-      "name": "Peru Solü (1863–1965)"
     },
     "PGK": {
       "name": "Papua Yeni Gine kinası"
@@ -1283,24 +902,12 @@
       "name": "Polonya zlotisi",
       "narrow": "zł"
     },
-    "PLZ": {
-      "name": "Polonya Zlotisi (1950–1995)"
-    },
-    "PTE": {
-      "name": "Portekiz Esküdosu"
-    },
     "PYG": {
       "name": "Paraguay guaranisi",
       "narrow": "₲"
     },
     "QAR": {
       "name": "Katar riyali"
-    },
-    "RHD": {
-      "name": "Rodezya Doları"
-    },
-    "ROL": {
-      "name": "Eski Romen Leyi"
     },
     "RON": {
       "name": "Romen leyi",
@@ -1312,10 +919,6 @@
     "RUB": {
       "name": "Rus rublesi",
       "narrow": "₽"
-    },
-    "RUR": {
-      "name": "Rus Rublesi (1991–1998)",
-      "narrow": "р."
     },
     "RWF": {
       "name": "Ruanda frangı",
@@ -1331,14 +934,8 @@
     "SCR": {
       "name": "Seyşeller rupisi"
     },
-    "SDD": {
-      "name": "Eski Sudan Dinarı"
-    },
     "SDG": {
       "name": "Sudan lirası"
-    },
-    "SDP": {
-      "name": "Eski Sudan Lirası"
     },
     "SEK": {
       "name": "İsveç kronu",
@@ -1352,17 +949,8 @@
       "name": "Saint Helena lirası",
       "narrow": "£"
     },
-    "SIT": {
-      "name": "Slovenya Toları"
-    },
-    "SKK": {
-      "name": "Slovak Korunası"
-    },
     "SLE": {
       "name": "Sierra Leone leonesi"
-    },
-    "SLL": {
-      "name": "Sierra Leone leonesi (1964–2022)"
     },
     "SOS": {
       "name": "Somali şilini"
@@ -1371,29 +959,13 @@
       "name": "Surinam doları",
       "narrow": "$"
     },
-    "SRG": {
-      "name": "Surinam Guldeni"
-    },
     "SSP": {
       "name": "Güney Sudan lirası",
       "narrow": "£"
     },
-    "STD": {
-      "name": "São Tomé ve Príncipe Dobrası (1977–2017)",
-      "plural": {
-        "one": "São Tomé ve Príncipe dobrası (1977–2017)",
-        "other": "São Tomé ve Príncipe dobrası (1977–2017)"
-      }
-    },
     "STN": {
       "name": "Sao Tome ve Principe dobrası",
       "narrow": "Db"
-    },
-    "SUR": {
-      "name": "Sovyet Rublesi"
-    },
-    "SVC": {
-      "name": "El Salvador Kolonu"
     },
     "SYP": {
       "name": "Suriye lirası",
@@ -1406,14 +978,8 @@
       "name": "Tayland bahtı",
       "symbol": "฿"
     },
-    "TJR": {
-      "name": "Tacikistan Rublesi"
-    },
     "TJS": {
       "name": "Tacikistan somonisi"
-    },
-    "TMM": {
-      "name": "Türkmenistan Manatı (1993–2009)"
     },
     "TMT": {
       "name": "Türkmenistan manatı"
@@ -1424,12 +990,6 @@
     "TOP": {
       "name": "Tonga paʻangası",
       "narrow": "T$"
-    },
-    "TPE": {
-      "name": "Timor Esküdosu"
-    },
-    "TRL": {
-      "name": "Eski Türk Lirası"
     },
     "TRY": {
       "name": "Türk lirası",
@@ -1450,30 +1010,12 @@
       "name": "Ukrayna grivnası",
       "narrow": "₴"
     },
-    "UAK": {
-      "name": "Ukrayna Karbovanetz"
-    },
-    "UGS": {
-      "name": "Uganda Şilini (1966–1987)"
-    },
     "UGX": {
       "name": "Uganda şilini"
     },
     "USD": {
       "name": "ABD doları",
       "symbol": "$"
-    },
-    "USN": {
-      "name": "ABD Doları (Ertesi gün)"
-    },
-    "USS": {
-      "name": "ABD Doları (Aynı gün)"
-    },
-    "UYI": {
-      "name": "Uruguay Peso en Unidades Indexadas"
-    },
-    "UYP": {
-      "name": "Uruguay Pezosu (1975–1993)"
     },
     "UYU": {
       "name": "Uruguay pesosu",
@@ -1482,30 +1024,12 @@
     "UZS": {
       "name": "Özbekistan somu"
     },
-    "VEB": {
-      "name": "Venezuela Bolivarı (1871–2008)"
-    },
-    "VEF": {
-      "name": "Venezuela Bolivarı (2008–2018)",
-      "narrow": "Bs",
-      "plural": {
-        "one": "Venezuela bolivarı (2008–2018)",
-        "other": "Venezuela bolivarı (2008–2018)"
-      }
-    },
     "VES": {
       "name": "Venezuela bolivarı"
     },
     "VND": {
       "name": "Vietnam dongu",
       "symbol": "₫"
-    },
-    "VNN": {
-      "name": "Vietnam Dongu (1978–1985)",
-      "plural": {
-        "one": "Vietnam dongu (1978–1985)",
-        "other": "Vietnam dongu (1978–1985)"
-      }
     },
     "VUV": {
       "name": "Vanuatu vatusu"
@@ -1517,24 +1041,6 @@
       "name": "Orta Afrika CFA frangı",
       "symbol": "FCFA"
     },
-    "XAG": {
-      "name": "Gümüş"
-    },
-    "XAU": {
-      "name": "Altın"
-    },
-    "XBA": {
-      "name": "Birleşik Avrupa Birimi"
-    },
-    "XBB": {
-      "name": "Avrupa Para Birimi (EMU)"
-    },
-    "XBC": {
-      "name": "Avrupa Hesap Birimi (XBC)"
-    },
-    "XBD": {
-      "name": "Avrupa Hesap Birimi (XBD)"
-    },
     "XCD": {
       "name": "Doğu Karayip doları",
       "narrow": "$",
@@ -1544,113 +1050,27 @@
       "name": "Karayip guldeni",
       "symbol": "Cg."
     },
-    "XDR": {
-      "name": "Özel Çekme Hakkı (SDR)"
-    },
-    "XEU": {
-      "name": "Avrupa Para Birimi"
-    },
-    "XFO": {
-      "name": "Fransız Altın Frangı"
-    },
-    "XFU": {
-      "name": "Fransız UIC-Frangı"
-    },
     "XOF": {
       "name": "Batı Afrika CFA frangı",
       "symbol": "F\u202fCFA"
-    },
-    "XPD": {
-      "name": "Paladyum"
     },
     "XPF": {
       "name": "CFP frangı",
       "symbol": "CFPF"
     },
-    "XPT": {
-      "name": "Platin"
-    },
-    "XRE": {
-      "name": "RINET Fonları"
-    },
-    "XSU": {
-      "name": "Sucre"
-    },
-    "XTS": {
-      "name": "Test Para Birimi Kodu"
-    },
-    "XUA": {
-      "name": "ADB Hesap Birimi",
-      "plural": {
-        "one": "ADB hesap birimi",
-        "other": "ADB hesap birimi"
-      }
-    },
-    "XXX": {
-      "name": "Bilinmeyen Para Birimi",
-      "plural": {
-        "one": "(bilinmeyen para birimi)",
-        "other": "(bilinmeyen para birimi)"
-      },
-      "symbol": "¤"
-    },
-    "YDD": {
-      "name": "Yemen Dinarı"
-    },
     "YER": {
       "name": "Yemen riyali"
-    },
-    "YUD": {
-      "name": "Yugoslav Dinarı (Hard)"
-    },
-    "YUM": {
-      "name": "Yeni Yugoslav Dinarı"
-    },
-    "YUN": {
-      "name": "Konvertibl Yugoslav Dinarı"
-    },
-    "YUR": {
-      "name": "İyileştirilmiş Yugoslav Dinarı (1992–1993)",
-      "plural": {
-        "one": "İyileştirilmiş Yugoslav dinarı (1992–1993)",
-        "other": "İyileştirilmiş Yugoslav dinarı (1992–1993)"
-      }
-    },
-    "ZAL": {
-      "name": "Güney Afrika Randı (finansal)"
     },
     "ZAR": {
       "name": "Güney Afrika randı",
       "narrow": "R"
     },
-    "ZMK": {
-      "name": "Zambiya Kvaçası (1968–2012)"
-    },
     "ZMW": {
       "name": "Zambiya kvaçası",
       "narrow": "ZK"
     },
-    "ZRN": {
-      "name": "Yeni Zaire Zairesi"
-    },
-    "ZRZ": {
-      "name": "Zaire Zairesi"
-    },
-    "ZWD": {
-      "name": "Zimbabve Doları"
-    },
     "ZWG": {
       "name": "Zimbabve altını"
-    },
-    "ZWL": {
-      "name": "Zimbabve Doları (2009)"
-    },
-    "ZWR": {
-      "name": "Zimbabve Doları (2008)",
-      "plural": {
-        "one": "Zimbabve doları (2008)",
-        "other": "Zimbabve doları (2008)"
-      }
     }
   },
   "currencyDigits": {

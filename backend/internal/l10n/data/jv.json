@@ -504,9 +504,6 @@
       "name": "Dram Armenia",
       "narrow": "֏"
     },
-    "ANG": {
-      "name": "Guilder Antilla Walanda"
-    },
     "AOA": {
       "name": "Kwanza Angola",
       "narrow": "Kz"
@@ -538,9 +535,6 @@
     "BDT": {
       "name": "Taka Bangladesh",
       "narrow": "৳"
-    },
-    "BGN": {
-      "name": "Lev Bulgaria"
     },
     "BHD": {
       "name": "Bahrain Dinar"
@@ -597,9 +591,6 @@
       "name": "Peso Chili",
       "narrow": "$"
     },
-    "CNH": {
-      "name": "Yuan Tyongkok (Jaban Rangkah)"
-    },
     "CNY": {
       "name": "Yuan Tyongkok",
       "narrow": "¥",
@@ -612,10 +603,6 @@
     "CRC": {
       "name": "Colon Kosta Rika",
       "narrow": "₡"
-    },
-    "CUC": {
-      "name": "Peso Konvertibel Kuba",
-      "narrow": "$"
     },
     "CUP": {
       "name": "Peso Kuba",
@@ -648,9 +635,6 @@
     },
     "ERN": {
       "name": "Nakfa Eritrea"
-    },
-    "ESP": {
-      "narrow": "₧"
     },
     "ETB": {
       "name": "Birr Ethiopia"
@@ -706,10 +690,6 @@
     "HNL": {
       "name": "Lempira Honduras",
       "narrow": "L"
-    },
-    "HRK": {
-      "name": "Kuna Kroasia",
-      "narrow": "kn"
     },
     "HTG": {
       "name": "Gourde Haiti"
@@ -805,12 +785,6 @@
     "LSL": {
       "name": "Loti Lesotho"
     },
-    "LTL": {
-      "narrow": "Lt"
-    },
-    "LVL": {
-      "narrow": "Ls"
-    },
     "LYD": {
       "name": "Dinar Libya"
     },
@@ -840,9 +814,6 @@
     },
     "MOP": {
       "name": "Pataca Macau"
-    },
-    "MRO": {
-      "name": "Ouguiya Mauritania (1973 - 2017)"
     },
     "MRU": {
       "name": "Ouguiya Mauritania"
@@ -968,9 +939,6 @@
     "SLE": {
       "name": "Leone Sierra Leone"
     },
-    "SLL": {
-      "name": "Leone Sierra Leone (1964—2022)"
-    },
     "SOS": {
       "name": "Shilling Somalia"
     },
@@ -1045,10 +1013,6 @@
     "UZS": {
       "name": "Som Usbekistan"
     },
-    "VEF": {
-      "name": "Bolivar Venezuela (2008 - 2018)",
-      "narrow": "Bs"
-    },
     "VES": {
       "name": "Bolivar Venezuela"
     },
@@ -1082,10 +1046,6 @@
     "XPF": {
       "name": "Franc CFP",
       "symbol": "CFPF"
-    },
-    "XXX": {
-      "name": "Dhuwit Ora Dikenali",
-      "symbol": "¤"
     },
     "YER": {
       "name": "Rial Yaman"

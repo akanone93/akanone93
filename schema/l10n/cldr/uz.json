@@ -508,9 +508,6 @@
       "name": "Armaniston drami",
       "narrow": "֏"
     },
-    "ANG": {
-      "name": "Niderlandiya antil guldeni"
-    },
     "AOA": {
       "name": "Angola kvanzasi",
       "narrow": "Kz"
@@ -542,9 +539,6 @@
     "BDT": {
       "name": "Bangladesh takasi",
       "narrow": "৳"
-    },
-    "BGN": {
-      "name": "Bolgariya levi"
     },
     "BHD": {
       "name": "Bahrayn dinori"
@@ -583,9 +577,6 @@
       "name": "Belarus rubli",
       "narrow": "р."
     },
-    "BYR": {
-      "name": "Belarus rubli (2000–2016)"
-    },
     "BZD": {
       "name": "Beliz dollari",
       "narrow": "$"
@@ -605,9 +596,6 @@
       "name": "Chili pesosi",
       "narrow": "$"
     },
-    "CNH": {
-      "name": "Xitoy yuani (ofshor)"
-    },
     "CNY": {
       "name": "Xitoy yuani",
       "narrow": "¥",
@@ -620,10 +608,6 @@
     "CRC": {
       "name": "Kosta-Rika koloni",
       "narrow": "₡"
-    },
-    "CUC": {
-      "name": "Kuba ayirboshlash pesosi",
-      "narrow": "$"
     },
     "CUP": {
       "name": "Kuba pesosi",
@@ -656,9 +640,6 @@
     },
     "ERN": {
       "name": "Eritreya nakfasi"
-    },
-    "ESP": {
-      "narrow": "₧"
     },
     "ETB": {
       "name": "Efiopiya biri"
@@ -718,10 +699,6 @@
     "HNL": {
       "name": "Gonduras lempirasi",
       "narrow": "L"
-    },
-    "HRK": {
-      "name": "Xorvatiya kunasi",
-      "narrow": "kn"
     },
     "HTG": {
       "name": "Gaiti gurdi"
@@ -820,14 +797,6 @@
     "LSL": {
       "name": "Lesoto lotisi"
     },
-    "LTL": {
-      "name": "Litva liti",
-      "narrow": "Lt"
-    },
-    "LVL": {
-      "name": "Latviya lati",
-      "narrow": "Ls"
-    },
     "LYD": {
       "name": "Liviya dinori"
     },
@@ -854,9 +823,6 @@
     },
     "MOP": {
       "name": "Makao patakasi"
-    },
-    "MRO": {
-      "name": "Mavritaniya uqiyasi (1973–2017)"
     },
     "MRU": {
       "name": "Mavritaniya uqiyasi"
@@ -982,9 +948,6 @@
     "SLE": {
       "name": "Syerra-Leone leonesi"
     },
-    "SLL": {
-      "name": "Syerra-Leone leonesi (1964—2022)"
-    },
     "SOS": {
       "name": "Somali shillingi"
     },
@@ -995,9 +958,6 @@
     "SSP": {
       "name": "Janubiy Sudan funti",
       "narrow": "£"
-    },
-    "STD": {
-      "name": "San-Tome va Prinsipi dobrasi (1977–2017)"
     },
     "STN": {
       "name": "San-Tome va Prinsipi dobrasi",
@@ -1063,10 +1023,6 @@
       "name": "O‘zbekiston so‘mi",
       "symbol": "soʻm"
     },
-    "VEF": {
-      "name": "Venesuela bolivari (2008–2018)",
-      "narrow": "Bs"
-    },
     "VES": {
       "name": "Venesuela bolivari"
     },
@@ -1100,14 +1056,6 @@
     "XPF": {
       "name": "Fransuz Polineziyasi franki",
       "symbol": "CFPF"
-    },
-    "XXX": {
-      "name": "Noma’lum valyuta",
-      "plural": {
-        "one": "(noma’lum valyuta)",
-        "other": "(noma’lum valyuta)"
-      },
-      "symbol": "¤"
     },
     "YER": {
       "name": "Yaman riyoli"
