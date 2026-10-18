@@ -83,13 +83,14 @@ func (e env) goldenRun(args []string) int {
 	var c common
 	set := flag.NewFlagSet("golden run", flag.ContinueOnError)
 	c.register(set, true)
-	plugin := set.String("plugin", "", "render only the plugin with this `key`")
-	upload := set.Bool("upload", false, "record the run on the server")
-	flutter := set.String("flutter", "", "the `path` of the Flutter executable (default flutter on the PATH)")
-	rt := set.String("runtime", "", "use the plux_flutter checkout in `dir` instead of the published package")
-	work := set.String("work", "", "generate the Flutter test project in `dir` and keep it (default a temporary directory)")
-	fonts := set.String("fonts", "", "the vendored fonts `dir` (default schema/goldens/fonts of the checkout above the project)")
-	out := set.String("out", "", "write the images that differ to `dir` (default .plux/golden in the project)")
+	var f goldenRunFlags
+	set.StringVar(&f.plugin, "plugin", "", "render only the plugin with this `key`")
+	set.BoolVar(&f.upload, "upload", false, "record the run on the server")
+	set.StringVar(&f.flutter, "flutter", "", "the `path` of the Flutter executable (default flutter on the PATH)")
+	set.StringVar(&f.runtime, "runtime", "", "use the plux_flutter checkout in `dir` instead of the published package")
+	set.StringVar(&f.work, "work", "", "generate the Flutter test project in `dir` and keep it (default a temporary directory)")
+	set.StringVar(&f.fonts, "fonts", "", "the vendored fonts `dir` (default schema/goldens/fonts of the checkout above the project)")
+	set.StringVar(&f.out, "out", "", "write the images that differ to `dir` (default .plux/golden in the project)")
 	if _, code, ok := parse(set, args, e.stderr, "Usage: plux golden run [-C dir] [--app id] [--plugin key] [--upload] [--flutter path]\n\n"+
 		"Renders every page in every device frame, locale, theme and text scale with the real\n"+
 		"runtime, compares the images with the approved baselines and, with --upload, records the\n"+
@@ -110,53 +111,17 @@ func (e env) goldenRun(args []string) int {
 	if res.Diagnostics.HasErrors() {
 		return exitFailed
 	}
-	flutterPath := *flutter
-	if flutterPath == "" {
-		p, err := exec.LookPath("flutter")
-		if err != nil {
-			return e.goldenHarnessError("run", plxerr.FlutterSDKUnavailable, "flutter is not on the PATH; install it or pass --flutter")
-		}
-		flutterPath = p
+	flutterPath, code, ok := e.locateFlutter(f.flutter)
+	if !ok {
+		return code
 	}
-	fontDir := *fonts
-	if fontDir == "" {
-		found, ok := plxgolden.FindFonts(t.c.dir)
-		if !ok {
-			cwd, _ := os.Getwd()
-			found, ok = plxgolden.FindFonts(cwd)
-		}
-		if !ok {
-			return e.goldenHarnessError("run", plxerr.GoldenHarnessFailed, "the vendored fonts (%s) were not found; pass --fonts", plxgolden.FontsPath)
-		}
-		fontDir = found
+	fontData, code, ok := e.loadGoldenFonts(f.fonts, t.c.dir)
+	if !ok {
+		return code
 	}
-	fontData, err := plxgolden.LoadFonts(fontDir)
-	if err != nil {
-		return e.goldenHarnessError("run", plxerr.GoldenHarnessFailed, "%v", err)
-	}
-	workDir := *work
-	if workDir == "" {
-		tmp, err := os.MkdirTemp("", "plux-golden-")
-		if err != nil {
-			return e.fail("golden run", err)
-		}
-		defer func() { _ = os.RemoveAll(tmp) }()
-		workDir = tmp
-	}
-	workDir, err = filepath.Abs(workDir)
-	if err != nil {
-		return e.fail("golden run", err)
-	}
-	plan, err := plxgolden.Prepare(plxgolden.Options{
-		Result: res, Plugin: *plugin, Fonts: fontData, Entropy: rand.Reader,
-		Runtime: plxtest.Dependency{Version: runtimeConstraint, Path: *rt},
-	}, filepath.Join(workDir, "_images"))
-	if err != nil {
-		return e.fail("golden run", err)
-	}
-	rendered, err := plxgolden.Execute(context.Background(), plan, workDir, flutterPath, e.stderr, limits.Defaults())
-	if err != nil {
-		return e.fail("golden run", err)
+	rendered, code, ok := e.renderGoldens(f, res, flutterPath, fontData)
+	if !ok {
+		return code
 	}
 	ctx := context.Background()
 	var verdicts []plxgolden.Verdict
@@ -167,7 +132,7 @@ func (e env) goldenRun(args []string) int {
 		}
 		verdicts = append(verdicts, plxgolden.Compare(filterPlugin(rendered, key), base.Msg.GetImageSha256())...)
 	}
-	outDir := *out
+	outDir := f.out
 	if outDir == "" {
 		outDir = filepath.Join(t.c.dir, ".plux", "golden")
 	}
@@ -175,6 +140,83 @@ func (e env) goldenRun(args []string) int {
 	if err != nil {
 		return e.fail("golden run", err)
 	}
+	return e.reportGoldens(ctx, t, res, f.upload, verdicts, differing, outDir)
+}
+
+// goldenRunFlags are the options of `plux golden run`.
+type goldenRunFlags struct {
+	plugin, flutter, runtime, work, fonts, out string
+	upload                                     bool
+}
+
+// locateFlutter returns the Flutter executable: the one named, else the one
+// on the PATH. On failure ok is false and code is the exit code.
+func (e env) locateFlutter(named string) (path string, code int, ok bool) {
+	if named != "" {
+		return named, exitOK, true
+	}
+	p, err := exec.LookPath("flutter")
+	if err != nil {
+		return "", e.goldenHarnessError("run", plxerr.FlutterSDKUnavailable, "flutter is not on the PATH; install it or pass --flutter"), false
+	}
+	return p, exitOK, true
+}
+
+// loadGoldenFonts reads the vendored fonts from the directory named, else
+// from the checkout above the project or the working directory.
+func (e env) loadGoldenFonts(named, projectDir string) (fonts map[string][]byte, code int, ok bool) {
+	fontDir := named
+	if fontDir == "" {
+		found, ok := plxgolden.FindFonts(projectDir)
+		if !ok {
+			cwd, _ := os.Getwd()
+			found, ok = plxgolden.FindFonts(cwd)
+		}
+		if !ok {
+			return nil, e.goldenHarnessError("run", plxerr.GoldenHarnessFailed, "the vendored fonts (%s) were not found; pass --fonts", plxgolden.FontsPath), false
+		}
+		fontDir = found
+	}
+	fontData, err := plxgolden.LoadFonts(fontDir)
+	if err != nil {
+		return nil, e.goldenHarnessError("run", plxerr.GoldenHarnessFailed, "%v", err), false
+	}
+	return fontData, exitOK, true
+}
+
+// renderGoldens generates the Flutter test project in the work directory (a
+// temporary one unless named) and renders every case.
+func (e env) renderGoldens(f goldenRunFlags, res *compiler.Result, flutterPath string, fontData map[string][]byte) (rendered []plxgolden.Rendered, code int, ok bool) {
+	workDir := f.work
+	if workDir == "" {
+		tmp, err := os.MkdirTemp("", "plux-golden-")
+		if err != nil {
+			return nil, e.fail("golden run", err), false
+		}
+		defer func() { _ = os.RemoveAll(tmp) }()
+		workDir = tmp
+	}
+	workDir, err := filepath.Abs(workDir)
+	if err != nil {
+		return nil, e.fail("golden run", err), false
+	}
+	plan, err := plxgolden.Prepare(plxgolden.Options{
+		Result: res, Plugin: f.plugin, Fonts: fontData, Entropy: rand.Reader,
+		Runtime: plxtest.Dependency{Version: runtimeConstraint, Path: f.runtime},
+	}, filepath.Join(workDir, "_images"))
+	if err != nil {
+		return nil, e.fail("golden run", err), false
+	}
+	rendered, err = plxgolden.Execute(context.Background(), plan, workDir, flutterPath, e.stderr, limits.Defaults())
+	if err != nil {
+		return nil, e.fail("golden run", err), false
+	}
+	return rendered, exitOK, true
+}
+
+// reportGoldens prints the outcome per plugin, uploading each run when
+// asked, and returns the exit code: failed when any case differs.
+func (e env) reportGoldens(ctx context.Context, t goldenTarget, res *compiler.Result, upload bool, verdicts []plxgolden.Verdict, differing int, outDir string) int {
 	var text strings.Builder
 	tw := tabwriter.NewWriter(&text, 0, 4, 2, ' ', 0)
 	view := map[string]any{"cases": len(verdicts), "differences": differing}
@@ -186,8 +228,8 @@ func (e env) goldenRun(args []string) int {
 			counts[v.Status]++
 		}
 		line := fmt.Sprintf("%s\t%d cases\t%d match\t%d new\t%d changed", pluginLabel(key), len(vs), counts[plxgolden.Match], counts[plxgolden.New], counts[plxgolden.Changed])
-		if *upload {
-			id, err := e.goldenUpload(ctx, t, res, key, vs)
+		if upload {
+			id, err := goldenUpload(ctx, t, res, key, vs)
 			if err != nil {
 				return e.fail("golden run", err)
 			}
@@ -197,7 +239,7 @@ func (e env) goldenRun(args []string) int {
 		_, _ = fmt.Fprintln(tw, line)
 	}
 	_ = tw.Flush()
-	if *upload {
+	if upload {
 		view["runs"] = runs
 	}
 	if differing > 0 {
@@ -270,7 +312,7 @@ func pluginLabelDir(key string) string {
 }
 
 // goldenUpload records the run of one plugin.
-func (e env) goldenUpload(ctx context.Context, t goldenTarget, res *compiler.Result, key string, vs []plxgolden.Verdict) (string, error) {
+func goldenUpload(ctx context.Context, t goldenTarget, res *compiler.Result, key string, vs []plxgolden.Verdict) (string, error) {
 	bundle := res.App
 	if key != "" {
 		bundle = nil

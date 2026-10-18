@@ -360,7 +360,7 @@ func (x *extractor) document(path string, dry bool) error {
 }
 
 // scope names the plugin and the document a key belongs to.
-func (x *extractor) scope(rel string, doc map[string]any) []string {
+func (*extractor) scope(rel string, doc map[string]any) []string {
 	var parts []string
 	if after, ok := strings.CutPrefix(rel, "plugins/"); ok {
 		plugin, _, _ := strings.Cut(after, "/")
@@ -411,12 +411,8 @@ func (x *extractor) node(file string, scope []string, n map[string]any, ptr stri
 		x.done[len(x.done)-1].Path = ptr + "/" + strings.Join(l.Path, "/")
 	}
 	if kids, ok := n["children"].([]any); ok {
-		for i, k := range kids {
-			if m, ok := k.(map[string]any); ok {
-				if err := x.node(file, scope, m, fmt.Sprintf("%s/children/%d", ptr, i)); err != nil {
-					return err
-				}
-			}
+		if err := x.nodes(file, scope, kids, ptr+"/children"); err != nil {
+			return err
 		}
 	}
 	slots, _ := n["slots"].(map[string]any)
@@ -427,12 +423,20 @@ func (x *extractor) node(file string, scope []string, n map[string]any, ptr stri
 				return err
 			}
 		case []any:
-			for i, k := range s {
-				if m, ok := k.(map[string]any); ok {
-					if err := x.node(file, scope, m, fmt.Sprintf("%s/slots/%s/%d", ptr, name, i)); err != nil {
-						return err
-					}
-				}
+			if err := x.nodes(file, scope, s, ptr+"/slots/"+name); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// nodes extracts the literals of the nodes in a list, which sits at ptr.
+func (x *extractor) nodes(file string, scope []string, list []any, ptr string) error {
+	for i, k := range list {
+		if m, ok := k.(map[string]any); ok {
+			if err := x.node(file, scope, m, fmt.Sprintf("%s/%d", ptr, i)); err != nil {
+				return err
 			}
 		}
 	}

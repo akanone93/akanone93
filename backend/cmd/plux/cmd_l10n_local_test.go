@@ -82,7 +82,7 @@ func TestL10nExtract(t *testing.T) {
 	dir := copyL10nProject(t)
 	addLiterals(t, dir)
 	before, _ := os.ReadFile(filepath.Join(dir, filepath.FromSlash(calculator))) //nolint:gosec // G304: a temporary project.
-	if n := countWarnings(t, dir, plxerr.LiteralTextUntranslated); n != 4 {
+	if n := countUntranslated(t, dir); n != 4 {
 		t.Fatalf("the test project has %d literals, want 4", n)
 	}
 
@@ -131,7 +131,7 @@ func TestL10nExtract(t *testing.T) {
 		}
 	}
 
-	if n := countWarnings(t, dir, plxerr.LiteralTextUntranslated); n != 0 {
+	if n := countUntranslated(t, dir); n != 0 {
 		t.Errorf("%d literals remain after extraction", n)
 	}
 	res := compiler.Compile(os.DirFS(dir), compiler.DefaultOptions())
@@ -154,14 +154,14 @@ func TestL10nExtract(t *testing.T) {
 	}
 }
 
-// countWarnings compiles the project in dir and counts diagnostics with a
-// code.
-func countWarnings(t *testing.T, dir string, code plxerr.Code) int {
+// countUntranslated compiles the project in dir and counts the literal-text
+// warnings.
+func countUntranslated(t *testing.T, dir string) int {
 	t.Helper()
 	res := compiler.Compile(os.DirFS(dir), compiler.DefaultOptions())
 	n := 0
 	for _, d := range res.Diagnostics {
-		if d.Code == code {
+		if d.Code == plxerr.LiteralTextUntranslated {
 			n++
 		}
 	}
@@ -207,7 +207,7 @@ func TestL10nPseudo(t *testing.T) {
 		t.Errorf("en-XA title = %q", got)
 	}
 	xb := readJSON(t, dir, "translations/ar-XB.json")
-	if got := xb["messages"].(map[string]any)[title].(string); !strings.HasPrefix(got, "‮") || !strings.HasSuffix(got, "‬") {
+	if got := xb["messages"].(map[string]any)[title].(string); !strings.HasPrefix(got, "\u202e") || !strings.HasSuffix(got, "\u202c") {
 		t.Errorf("ar-XB title = %q", got)
 	}
 	first, _ := os.ReadFile(filepath.Join(dir, "translations", "en-XA.json")) //nolint:gosec // G304: a temporary project.
@@ -249,7 +249,7 @@ func TestL10nExtractPageTitle(t *testing.T) {
 	if err := writeDocument(path, doc); err != nil {
 		t.Fatal(err)
 	}
-	if n := countWarnings(t, dir, plxerr.LiteralTextUntranslated); n != 1 {
+	if n := countUntranslated(t, dir); n != 1 {
 		t.Fatalf("the project has %d literals, want the title", n)
 	}
 	code, out, stderr := cli(t, t.TempDir(), "l10n", "extract", "--dir", dir)
@@ -260,7 +260,7 @@ func TestL10nExtractPageTitle(t *testing.T) {
 	if _, ok := title["$t"]; !ok {
 		t.Errorf("the title is %v, want a translation reference", title)
 	}
-	if n := countWarnings(t, dir, plxerr.LiteralTextUntranslated); n != 0 {
+	if n := countUntranslated(t, dir); n != 0 {
 		t.Errorf("%d literals remain", n)
 	}
 }
