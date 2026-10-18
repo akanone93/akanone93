@@ -55,11 +55,11 @@ func (f *fakeGolden) Approve(_ context.Context, r *connect.Request[pluxv1.Approv
 	return connect.NewResponse(&pluxv1.ApproveResponse{ApprovedCaseIds: []string{"a", "b"}}), nil
 }
 
-func (*fakeGolden) GetStatus(_ context.Context, r *connect.Request[pluxv1.GetGoldenStatusRequest]) (*connect.Response[pluxv1.GetGoldenStatusResponse], error) {
+func (*fakeGolden) GetRunStatus(_ context.Context, r *connect.Request[pluxv1.GetRunStatusRequest]) (*connect.Response[pluxv1.GetRunStatusResponse], error) {
 	if len(r.Msg.GetBundleSha256()) != sha256.Size || len(r.Msg.GetAppSha256()) != sha256.Size {
 		return nil, connect.NewError(connect.CodeInvalidArgument, nil)
 	}
-	return connect.NewResponse(&pluxv1.GetGoldenStatusResponse{Found: true, RunId: "run-1", Cases: 10, Differences: 2}), nil
+	return connect.NewResponse(&pluxv1.GetRunStatusResponse{Found: true, RunId: "run-1", Cases: 10, Differences: 2}), nil
 }
 
 // goldenProject is the starter project with a golden matrix narrowed to one

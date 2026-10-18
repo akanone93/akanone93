@@ -268,8 +268,8 @@ var matrix = map[string]entry{
 	"GoldenService/Approve": atPerm(auth.GoldensApprove, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.ApproveRequest{AppId: f.app, RunId: unknownID}
 	})),
-	"GoldenService/GetStatus": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
-		return &pluxv1.GetGoldenStatusRequest{AppId: f.app}
+	"GoldenService/GetRunStatus": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetRunStatusRequest{AppId: f.app}
 	})),
 
 	// PublishService and ReleaseService

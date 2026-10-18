@@ -304,13 +304,13 @@ func (s *Service) load(ctx context.Context, p auth.Principal, appID, locale stri
 	if err != nil {
 		return work{}, err
 	}
-	target, revision, tree, _, err := s.locale(ctx, p, appID, locale)
+	target, revision, tree, err := s.locale(ctx, p, appID, locale)
 	if err != nil {
 		return work{}, err
 	}
 	source := target
 	if app.defaultLocale != locale {
-		if source, _, _, _, err = s.locale(ctx, p, appID, app.defaultLocale); err != nil {
+		if source, _, _, err = s.locale(ctx, p, appID, app.defaultLocale); err != nil {
 			return work{}, err
 		}
 	}
@@ -319,16 +319,16 @@ func (s *Service) load(ctx context.Context, p auth.Principal, appID, locale stri
 
 // locale reads the translations document of a locale; a locale without one
 // is an empty document.
-func (s *Service) locale(ctx context.Context, p auth.Principal, appID, locale string) (xchange.Doc, int64, map[string]any, bool, error) {
+func (s *Service) locale(ctx context.Context, p auth.Principal, appID, locale string) (xchange.Doc, int64, map[string]any, error) {
 	d, err := s.docs.GetDocument(ctx, p, appID, "", localePath(locale))
 	if isNotFound(err) {
-		return xchange.Doc{Locale: locale, Messages: map[string]string{}, States: map[string]string{}}, 0, nil, false, nil
+		return xchange.Doc{Locale: locale, Messages: map[string]string{}, States: map[string]string{}}, 0, nil, nil
 	}
 	if err != nil {
-		return xchange.Doc{}, 0, nil, false, fmt.Errorf("localisation: %w", err)
+		return xchange.Doc{}, 0, nil, fmt.Errorf("localisation: %w", err)
 	}
 	doc, tree, err := s.parseLocale(d.Content, locale)
-	return doc, d.Revision, tree, true, err
+	return doc, d.Revision, tree, err
 }
 
 func (s *Service) parseLocale(content []byte, locale string) (xchange.Doc, map[string]any, error) {
@@ -351,7 +351,7 @@ func (s *Service) parseLocale(content []byte, locale string) (xchange.Doc, map[s
 	return doc, tree, nil
 }
 
-func (s *Service) object(content []byte) (map[string]any, error) {
+func (*Service) object(content []byte) (map[string]any, error) {
 	tree, err := jcs.Parse(content, jsonDepth)
 	if err != nil {
 		return nil, fmt.Errorf("localisation: read a stored document: %w", err)
@@ -462,7 +462,7 @@ func (s *Service) localeDocuments(ctx context.Context, p auth.Principal, appID s
 			}
 			out[locale] = doc
 		}
-		if int32(len(page)) < listPage {
+		if len(page) < int(listPage) {
 			return out, nil
 		}
 	}

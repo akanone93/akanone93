@@ -2687,16 +2687,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetBaselinesResponse'
-  /plux.v1.GoldenService/GetStatus:
+  /plux.v1.GoldenService/GetRunStatus:
     post:
       tags:
         - plux.v1.GoldenService
-      summary: GetStatus
+      summary: GetRunStatus
       description: |-
-        GetStatus says whether the run for the exact bundles exists, is
+        GetRunStatus says whether the run for the exact bundles exists, is
          canonical and has unapproved differences: what the publish gate sees.
          It needs plugin.read.
-      operationId: plux.v1.GoldenService.GetStatus
+      operationId: plux.v1.GoldenService.GetRunStatus
       parameters:
         - name: Connect-Protocol-Version
           in: header
@@ -2714,7 +2714,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/plux.v1.GetGoldenStatusRequest'
+              $ref: '#/components/schemas/plux.v1.GetRunStatusRequest'
         required: true
       responses:
         default:
@@ -2728,7 +2728,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/plux.v1.GetGoldenStatusResponse'
+                $ref: '#/components/schemas/plux.v1.GetRunStatusResponse'
   /plux.v1.GoldenService/ListDifferences:
     post:
       tags:
@@ -9842,46 +9842,6 @@ components:
           title: aliases
       title: GetFunctionResponse
       additionalProperties: false
-    plux.v1.GetGoldenStatusRequest:
-      type: object
-      properties:
-        appId:
-          type: string
-          title: app_id
-        pluginKey:
-          type: string
-          title: plugin_key
-        bundleSha256:
-          type: string
-          title: bundle_sha256
-          format: byte
-        appSha256:
-          type: string
-          title: app_sha256
-          format: byte
-      title: GetGoldenStatusRequest
-      additionalProperties: false
-    plux.v1.GetGoldenStatusResponse:
-      type: object
-      properties:
-        found:
-          type: boolean
-          title: found
-          description: found is whether a canonical run exists for the exact bundles.
-        runId:
-          type: string
-          title: run_id
-        cases:
-          type: integer
-          title: cases
-          format: int32
-        differences:
-          type: integer
-          title: differences
-          format: int32
-          description: differences is the number of cases of that run still unapproved.
-      title: GetGoldenStatusResponse
-      additionalProperties: false
     plux.v1.GetLiveConfigRequest:
       type: object
       title: GetLiveConfigRequest
@@ -10286,6 +10246,46 @@ components:
              (SEC-051, ADR-0054); the caller verifies the chain from the root it
              embeds.
       title: GetRootKeysResponse
+      additionalProperties: false
+    plux.v1.GetRunStatusRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        pluginKey:
+          type: string
+          title: plugin_key
+        bundleSha256:
+          type: string
+          title: bundle_sha256
+          format: byte
+        appSha256:
+          type: string
+          title: app_sha256
+          format: byte
+      title: GetRunStatusRequest
+      additionalProperties: false
+    plux.v1.GetRunStatusResponse:
+      type: object
+      properties:
+        found:
+          type: boolean
+          title: found
+          description: found is whether a canonical run exists for the exact bundles.
+        runId:
+          type: string
+          title: run_id
+        cases:
+          type: integer
+          title: cases
+          format: int32
+        differences:
+          type: integer
+          title: differences
+          format: int32
+          description: differences is the number of cases of that run still unapproved.
+      title: GetRunStatusResponse
       additionalProperties: false
     plux.v1.GetSnapshotRequest:
       type: object

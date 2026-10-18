@@ -144,7 +144,7 @@ func TestTriggersCompile_ACT_002(t *testing.T) {
 	})
 	clean(t, res)
 	read := readAll(t, res)
-	pg := fbs.GetRootAsPage(mustSection(t, read[1], bundle.SectionPage, listPageID).Data, 0)
+	pg := fbs.GetRootAsPage(mustListPage(t, read[1]).Data, 0)
 	want := []triggerRow{
 		{fbs.TriggerKindTimer, "poll", fbs.ConcurrencyDrop, 5000, true},
 		{fbs.TriggerKindStateChange, "page.priority", fbs.ConcurrencyDebounce, 0, false},

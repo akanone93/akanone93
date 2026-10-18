@@ -99,9 +99,9 @@ func (s Golden) Approve(ctx context.Context, req *connect.Request[pluxv1.Approve
 	})
 }
 
-// GetStatus says what the publish gate sees for the exact bundles.
-func (s Golden) GetStatus(ctx context.Context, req *connect.Request[pluxv1.GetGoldenStatusRequest]) (*connect.Response[pluxv1.GetGoldenStatusResponse], error) {
-	return read(ctx, func(ctx context.Context) (*pluxv1.GetGoldenStatusResponse, error) {
+// GetRunStatus says what the publish gate sees for the exact bundles.
+func (s Golden) GetRunStatus(ctx context.Context, req *connect.Request[pluxv1.GetRunStatusRequest]) (*connect.Response[pluxv1.GetRunStatusResponse], error) {
+	return read(ctx, func(ctx context.Context) (*pluxv1.GetRunStatusResponse, error) {
 		p, err := s.h.principal(ctx, req.Header(), "")
 		if err != nil {
 			return nil, err
@@ -111,6 +111,6 @@ func (s Golden) GetStatus(ctx context.Context, req *connect.Request[pluxv1.GetGo
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}
-		return &pluxv1.GetGoldenStatusResponse{Found: st.Found, RunId: st.RunID, Cases: int32(st.Cases), Differences: int32(st.Differences)}, nil //nolint:gosec // bounded by golden.casesPerRun
+		return &pluxv1.GetRunStatusResponse{Found: st.Found, RunId: st.RunID, Cases: int32(st.Cases), Differences: int32(st.Differences)}, nil //nolint:gosec // bounded by golden.casesPerRun
 	})
 }

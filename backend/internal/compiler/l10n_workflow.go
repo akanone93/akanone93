@@ -188,20 +188,16 @@ func (u *unit) unusedKeys() {
 	if tk == nil || tk.Doc == nil {
 		return
 	}
+	used := u.markKeyUses(tk)
+	u.warnUnusedKeys(tk, used)
+}
+
+// markKeyUses returns the IDs of the keys something references, and records
+// in u.l10n.uses which plugin references which key.
+func (u *unit) markKeyUses(tk *schema.Loaded[schema.TranslationKeysDocument]) map[string]bool {
 	used := map[string]bool{}
 	u.l10n.uses = map[string]map[string]bool{}
-	dirs := make([]string, len(u.plugins))
-	for i, pl := range u.plugins {
-		dirs[i] = pl.file[:strings.LastIndex(pl.file, "/")+1]
-	}
-	owner := func(file string) string {
-		for i, d := range dirs {
-			if d != "" && strings.HasPrefix(file, d) {
-				return u.plugins[i].key
-			}
-		}
-		return ""
-	}
+	owner := u.pluginOwner()
 	mark := func(id, file string) {
 		used[id] = true
 		who := owner(file)
@@ -232,6 +228,29 @@ func (u *unit) unusedKeys() {
 		}
 	}
 	u.markIDsIn(u.project.App.Doc, "app.json", tk.Doc.Keys, mark)
+	return used
+}
+
+// pluginOwner returns a function naming the plugin whose directory holds a
+// file, or "" for a file of the app itself.
+func (u *unit) pluginOwner() func(file string) string {
+	dirs := make([]string, len(u.plugins))
+	for i, pl := range u.plugins {
+		dirs[i] = pl.file[:strings.LastIndex(pl.file, "/")+1]
+	}
+	return func(file string) string {
+		for i, d := range dirs {
+			if d != "" && strings.HasPrefix(file, d) {
+				return u.plugins[i].key
+			}
+		}
+		return ""
+	}
+}
+
+// warnUnusedKeys reports each key with a default-locale message that is not
+// in used, and records it for the localisation report.
+func (u *unit) warnUnusedKeys(tk *schema.Loaded[schema.TranslationKeysDocument], used map[string]bool) {
 	def := u.defaultMessages()
 	for i, k := range tk.Doc.Keys {
 		if used[k.ID] {

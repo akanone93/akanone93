@@ -35,8 +35,8 @@ func a11yProject(t *testing.T, profile, onSurface, onSurfaceDark, kids string) f
 	m := fixture(t)
 	edit(t, m, "app.json", func(doc map[string]any) { doc["securityProfile"] = profile })
 	edit(t, m, themeFile, func(doc map[string]any) {
-		colors := at(t, doc, "tokens/color")
-		colors["onSurface"] = map[string]any{"$value": onSurface, "$extensions": map[string]any{"dev.plux.dark": onSurfaceDark}}
+		colours := at(t, doc, "tokens/color")
+		colours["onSurface"] = map[string]any{"$value": onSurface, "$extensions": map[string]any{"dev.plux.dark": onSurfaceDark}}
 	})
 	n := 0
 	for strings.Contains(kids, "%ID%") {

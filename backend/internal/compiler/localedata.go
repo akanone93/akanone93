@@ -95,7 +95,7 @@ func (u *unit) localeBlobs(app *schema.AppDocument) map[string]*localeBlob {
 // widgets) and the runtime's own strings as the "plux" group. Each comes
 // from the first locale on tag's CLDR parent chain that has it, else the
 // same for the app's default locale, else (for "plux") English.
-func (u *unit) flutterStrings(tag, fallback string) []byte {
+func (*unit) flutterStrings(tag, fallback string) []byte {
 	groups := map[string]json.RawMessage{}
 	if raw := chainStrings(tag, fallback, flutterdata.Strings, flutterdata.ErrNoStrings); raw != nil {
 		if json.Unmarshal(raw, &groups) != nil {
@@ -157,7 +157,7 @@ func cldrCalendar(c string) string {
 
 // finishLocale ends a locale section with the tag, the messages vector and
 // the locale's data, and returns its encoded bytes.
-func (u *unit) finishLocale(b *flatbuffers.Builder, tag string, messages flatbuffers.UOffsetT, blob *localeBlob) []byte {
+func (*unit) finishLocale(b *flatbuffers.Builder, tag string, messages flatbuffers.UOffsetT, blob *localeBlob) []byte {
 	var data, flutter, resolved flatbuffers.UOffsetT
 	if blob != nil {
 		data = b.CreateByteVector(blob.data)

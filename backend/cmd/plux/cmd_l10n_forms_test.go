@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/nightCode42/plux3/backend/internal/plxerr"
 )
 
 // Verifies: I18N-001, I18N-007.
@@ -29,7 +27,7 @@ func TestL10nExtractValidatorMessage(t *testing.T) {
 	if err := writeDocument(filepath.Join(dir, filepath.FromSlash(calculator)), doc); err != nil {
 		t.Fatal(err)
 	}
-	if n := countWarnings(t, dir, plxerr.LiteralTextUntranslated); n != 1 {
+	if n := countUntranslated(t, dir); n != 1 {
 		t.Fatalf("the project has %d literals, want 1", n)
 	}
 
@@ -48,7 +46,7 @@ func TestL10nExtractValidatorMessage(t *testing.T) {
 	if en[ref["$t"].(string)] != "Enter your email" {
 		t.Errorf("default message = %v", en[ref["$t"].(string)])
 	}
-	if n := countWarnings(t, dir, plxerr.LiteralTextUntranslated); n != 0 {
+	if n := countUntranslated(t, dir); n != 0 {
 		t.Errorf("%d literals remain after extraction", n)
 	}
 }

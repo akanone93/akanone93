@@ -333,16 +333,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	if work.Metrics != nil {
-		work.Metrics.DevicesByAssurance(func(ctx context.Context) ([]observability.DeviceAssurance, error) {
-			counts, err := devices.AssuranceCounts(ctx)
-			out := make([]observability.DeviceAssurance, len(counts))
-			for i, c := range counts {
-				out[i] = observability.DeviceAssurance{App: c.AppID, Level: c.Level, Count: c.Count}
-			}
-			return out, err //nolint:wrapcheck // a domain error
-		})
-	}
+	reportDeviceAssurance(work.Metrics, devices)
 	events, err := telemetry.NewService(telemetry.Options{DB: db, IDs: gen, Limits: set, Retention: time.Duration(cfg.Telemetry.RetentionDays) * 24 * time.Hour})
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
@@ -389,6 +380,22 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
 		AttestationStatus: status, Metrics: work.Metrics, Functions: functions, FunctionRuntime: fnRuntime,
 	}, nil
+}
+
+// reportDeviceAssurance feeds the devices-by-assurance gauge from the device
+// service. It does nothing without a metrics sink.
+func reportDeviceAssurance(m *observability.Metrics, devices *device.Service) {
+	if m == nil {
+		return
+	}
+	m.DevicesByAssurance(func(ctx context.Context) ([]observability.DeviceAssurance, error) {
+		counts, err := devices.AssuranceCounts(ctx)
+		out := make([]observability.DeviceAssurance, len(counts))
+		for i, c := range counts {
+			out[i] = observability.DeviceAssurance{App: c.AppID, Level: c.Level, Count: c.Count}
+		}
+		return out, err //nolint:wrapcheck // a domain error
+	})
 }
 
 // coreServices are the services the others are built on: sign-in, tenancy
@@ -607,6 +614,42 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	if s.cache != nil {
 		limiter.Count = s.cache.Increment
 	}
+	h := s.handlersFor(svc, limiter)
+	people := api.Authentication(svc.Auth, api.IdentityPublic, s.trusted, limiter, s.limits.Get(limits.APIRequestsPerMinute))
+	deviceAuth := s.deviceAuth(svc, limiter, people)
+	authn := api.DeviceAuthentication(deviceAuth)
+	// api.requestSize bounds a body as sent, before a handler reads it
+	// (httpx.MaxBytes), and also each message after decompression: Connect
+	// accepts gzip bodies, and a small one could otherwise expand without
+	// bound in memory.
+	opts := connect.WithHandlerOptions(
+		connect.WithInterceptors(s.Interceptors(authn)...),
+		connect.WithReadMaxBytes(int(s.limits.Get(limits.APIRequestSize))),
+	)
+	registrations := apiRegistrations(svc, h, opts)
+	for _, register := range registrations {
+		path, handler := register()
+		s.Register(path, handler)
+	}
+	s.registerFunctionHost(h)
+	if h.FunctionInvoker != nil {
+		s.Register(pluxv1connect.NewFunctionServiceHandler(h.FunctionService(), opts))
+	}
+	if svc.Gateway != nil {
+		s.registerGateway(svc.Gateway, h, deviceAuth, opts)
+	}
+	if s.objects != nil {
+		s.Register("GET "+release.ObjectsPath, s.objectHandler())
+	}
+	if svc.Releases != nil {
+		s.Register(MetadataRoute, s.metadataHandler(svc.Releases))
+	}
+	return nil
+}
+
+// handlersFor collects the services into the handler set of the api role,
+// leaving out what the build did not provide.
+func (s *Server) handlersFor(svc *Services, limiter api.RateLimiter) *api.Handlers {
 	h := &api.Handlers{
 		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
 		Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
@@ -625,17 +668,12 @@ func (s *Server) RegisterAPI(svc *Services) error {
 		h.Gateway, h.Upstreams, h.Exchange = g.Gateway, g.Upstreams, g.Exchange
 		h.Configs, h.LiveConfig = g.Configs, g.Resolver
 	}
-	people := api.Authentication(svc.Auth, api.IdentityPublic, s.trusted, limiter, s.limits.Get(limits.APIRequestsPerMinute))
-	deviceAuth := s.deviceAuth(svc, limiter, people)
-	authn := api.DeviceAuthentication(deviceAuth)
-	// api.requestSize bounds a body as sent, before a handler reads it
-	// (httpx.MaxBytes), and also each message after decompression: Connect
-	// accepts gzip bodies, and a small one could otherwise expand without
-	// bound in memory.
-	opts := connect.WithHandlerOptions(
-		connect.WithInterceptors(s.Interceptors(authn)...),
-		connect.WithReadMaxBytes(int(s.limits.Get(limits.APIRequestSize))),
-	)
+	return h
+}
+
+// apiRegistrations lists the Connect services to mount, by service group:
+// the always-present ones first, then those that depend on a built service.
+func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption) []func() (string, http.Handler) {
 	registrations := []func() (string, http.Handler){
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
@@ -680,24 +718,7 @@ func (s *Server) RegisterAPI(svc *Services) error {
 			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
 		})
 	}
-	for _, register := range registrations {
-		path, handler := register()
-		s.Register(path, handler)
-	}
-	s.registerFunctionHost(h)
-	if h.FunctionInvoker != nil {
-		s.Register(pluxv1connect.NewFunctionServiceHandler(h.FunctionService(), opts))
-	}
-	if svc.Gateway != nil {
-		s.registerGateway(svc.Gateway, h, deviceAuth, opts)
-	}
-	if s.objects != nil {
-		s.Register("GET "+release.ObjectsPath, s.objectHandler())
-	}
-	if svc.Releases != nil {
-		s.Register(MetadataRoute, s.metadataHandler(svc.Releases))
-	}
-	return nil
+	return registrations
 }
 
 // rejectionsOf feeds the reasons of refused proofs into the metrics.

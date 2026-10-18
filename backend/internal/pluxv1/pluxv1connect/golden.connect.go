@@ -46,8 +46,9 @@ const (
 	GoldenServiceListDifferencesProcedure = "/plux.v1.GoldenService/ListDifferences"
 	// GoldenServiceApproveProcedure is the fully-qualified name of the GoldenService's Approve RPC.
 	GoldenServiceApproveProcedure = "/plux.v1.GoldenService/Approve"
-	// GoldenServiceGetStatusProcedure is the fully-qualified name of the GoldenService's GetStatus RPC.
-	GoldenServiceGetStatusProcedure = "/plux.v1.GoldenService/GetStatus"
+	// GoldenServiceGetRunStatusProcedure is the fully-qualified name of the GoldenService's
+	// GetRunStatus RPC.
+	GoldenServiceGetRunStatusProcedure = "/plux.v1.GoldenService/GetRunStatus"
 )
 
 // GoldenServiceClient is a client for the plux.v1.GoldenService service.
@@ -67,10 +68,10 @@ type GoldenServiceClient interface {
 	// IDs, every difference of the run. It needs goldens.approve and is
 	// audited.
 	Approve(context.Context, *connect.Request[pluxv1.ApproveRequest]) (*connect.Response[pluxv1.ApproveResponse], error)
-	// GetStatus says whether the run for the exact bundles exists, is
+	// GetRunStatus says whether the run for the exact bundles exists, is
 	// canonical and has unapproved differences: what the publish gate sees.
 	// It needs plugin.read.
-	GetStatus(context.Context, *connect.Request[pluxv1.GetGoldenStatusRequest]) (*connect.Response[pluxv1.GetGoldenStatusResponse], error)
+	GetRunStatus(context.Context, *connect.Request[pluxv1.GetRunStatusRequest]) (*connect.Response[pluxv1.GetRunStatusResponse], error)
 }
 
 // NewGoldenServiceClient constructs a client for the plux.v1.GoldenService service. By default, it
@@ -108,10 +109,10 @@ func NewGoldenServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(goldenServiceMethods.ByName("Approve")),
 			connect.WithClientOptions(opts...),
 		),
-		getStatus: connect.NewClient[pluxv1.GetGoldenStatusRequest, pluxv1.GetGoldenStatusResponse](
+		getRunStatus: connect.NewClient[pluxv1.GetRunStatusRequest, pluxv1.GetRunStatusResponse](
 			httpClient,
-			baseURL+GoldenServiceGetStatusProcedure,
-			connect.WithSchema(goldenServiceMethods.ByName("GetStatus")),
+			baseURL+GoldenServiceGetRunStatusProcedure,
+			connect.WithSchema(goldenServiceMethods.ByName("GetRunStatus")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -123,7 +124,7 @@ type goldenServiceClient struct {
 	uploadRun       *connect.Client[pluxv1.UploadRunRequest, pluxv1.UploadRunResponse]
 	listDifferences *connect.Client[pluxv1.ListDifferencesRequest, pluxv1.ListDifferencesResponse]
 	approve         *connect.Client[pluxv1.ApproveRequest, pluxv1.ApproveResponse]
-	getStatus       *connect.Client[pluxv1.GetGoldenStatusRequest, pluxv1.GetGoldenStatusResponse]
+	getRunStatus    *connect.Client[pluxv1.GetRunStatusRequest, pluxv1.GetRunStatusResponse]
 }
 
 // GetBaselines calls plux.v1.GoldenService.GetBaselines.
@@ -146,9 +147,9 @@ func (c *goldenServiceClient) Approve(ctx context.Context, req *connect.Request[
 	return c.approve.CallUnary(ctx, req)
 }
 
-// GetStatus calls plux.v1.GoldenService.GetStatus.
-func (c *goldenServiceClient) GetStatus(ctx context.Context, req *connect.Request[pluxv1.GetGoldenStatusRequest]) (*connect.Response[pluxv1.GetGoldenStatusResponse], error) {
-	return c.getStatus.CallUnary(ctx, req)
+// GetRunStatus calls plux.v1.GoldenService.GetRunStatus.
+func (c *goldenServiceClient) GetRunStatus(ctx context.Context, req *connect.Request[pluxv1.GetRunStatusRequest]) (*connect.Response[pluxv1.GetRunStatusResponse], error) {
+	return c.getRunStatus.CallUnary(ctx, req)
 }
 
 // GoldenServiceHandler is an implementation of the plux.v1.GoldenService service.
@@ -168,10 +169,10 @@ type GoldenServiceHandler interface {
 	// IDs, every difference of the run. It needs goldens.approve and is
 	// audited.
 	Approve(context.Context, *connect.Request[pluxv1.ApproveRequest]) (*connect.Response[pluxv1.ApproveResponse], error)
-	// GetStatus says whether the run for the exact bundles exists, is
+	// GetRunStatus says whether the run for the exact bundles exists, is
 	// canonical and has unapproved differences: what the publish gate sees.
 	// It needs plugin.read.
-	GetStatus(context.Context, *connect.Request[pluxv1.GetGoldenStatusRequest]) (*connect.Response[pluxv1.GetGoldenStatusResponse], error)
+	GetRunStatus(context.Context, *connect.Request[pluxv1.GetRunStatusRequest]) (*connect.Response[pluxv1.GetRunStatusResponse], error)
 }
 
 // NewGoldenServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -205,10 +206,10 @@ func NewGoldenServiceHandler(svc GoldenServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(goldenServiceMethods.ByName("Approve")),
 		connect.WithHandlerOptions(opts...),
 	)
-	goldenServiceGetStatusHandler := connect.NewUnaryHandler(
-		GoldenServiceGetStatusProcedure,
-		svc.GetStatus,
-		connect.WithSchema(goldenServiceMethods.ByName("GetStatus")),
+	goldenServiceGetRunStatusHandler := connect.NewUnaryHandler(
+		GoldenServiceGetRunStatusProcedure,
+		svc.GetRunStatus,
+		connect.WithSchema(goldenServiceMethods.ByName("GetRunStatus")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/plux.v1.GoldenService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -221,8 +222,8 @@ func NewGoldenServiceHandler(svc GoldenServiceHandler, opts ...connect.HandlerOp
 			goldenServiceListDifferencesHandler.ServeHTTP(w, r)
 		case GoldenServiceApproveProcedure:
 			goldenServiceApproveHandler.ServeHTTP(w, r)
-		case GoldenServiceGetStatusProcedure:
-			goldenServiceGetStatusHandler.ServeHTTP(w, r)
+		case GoldenServiceGetRunStatusProcedure:
+			goldenServiceGetRunStatusHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -248,6 +249,6 @@ func (UnimplementedGoldenServiceHandler) Approve(context.Context, *connect.Reque
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GoldenService.Approve is not implemented"))
 }
 
-func (UnimplementedGoldenServiceHandler) GetStatus(context.Context, *connect.Request[pluxv1.GetGoldenStatusRequest]) (*connect.Response[pluxv1.GetGoldenStatusResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GoldenService.GetStatus is not implemented"))
+func (UnimplementedGoldenServiceHandler) GetRunStatus(context.Context, *connect.Request[pluxv1.GetRunStatusRequest]) (*connect.Response[pluxv1.GetRunStatusResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.GoldenService.GetRunStatus is not implemented"))
 }

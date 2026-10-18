@@ -291,8 +291,8 @@ func TestNativeSlotNodeIsTheSlotItNames(t *testing.T) {
 	if named.Diagnostics.HasErrors() {
 		t.Fatalf("diagnostics:\n%v", named.Diagnostics)
 	}
-	want := mustSection(t, readAll(t, base)[1], bundle.SectionPage, listPageID).Data
-	got := mustSection(t, readAll(t, named)[1], bundle.SectionPage, listPageID).Data
+	want := mustListPage(t, readAll(t, base)[1]).Data
+	got := mustListPage(t, readAll(t, named)[1]).Data
 	if !reflect.DeepEqual(got, want) {
 		t.Error("a NativeSlot node does not compile to the node of the slot it names")
 	}
