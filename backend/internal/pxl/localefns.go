@@ -162,7 +162,7 @@ func formatDateFn(m *vm, a []Value) (Value, *EvalError) {
 // localeFns implements the format and l10n groups on the locale of the
 // evaluation (PXL-006, I18N-001, I18N-011).
 func localeFns() map[string]builtinFn {
-	num := func(f func(*l10n.Locale, l10n.Decimal) (string, error)) builtinFn { return formatWith(f) }
+	num := formatWith
 	percent := num(func(l *l10n.Locale, d l10n.Decimal) (string, error) { return l.FormatPercent(d, l10n.NumberOptions{}) })
 	compact := num(func(l *l10n.Locale, d l10n.Decimal) (string, error) { return l.FormatCompact(d, l10n.NumberOptions{}) })
 	return map[string]builtinFn{
