@@ -1,0 +1,1 @@
+package android.content; public abstract class Context { public abstract String getPackageName(); public abstract android.content.pm.PackageManager getPackageManager(); public abstract android.content.res.Resources getResources(); public abstract void startActivity(Intent i); }

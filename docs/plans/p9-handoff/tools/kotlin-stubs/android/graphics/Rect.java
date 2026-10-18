@@ -1,0 +1,1 @@
+package android.graphics; public final class Rect { public int left, top, right, bottom; public int width(){return 0;} public int height(){return 0;} public int centerX(){return 0;} public int centerY(){return 0;} }

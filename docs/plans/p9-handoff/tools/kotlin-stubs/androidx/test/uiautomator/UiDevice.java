@@ -1,0 +1,1 @@
+package androidx.test.uiautomator; public class UiDevice { public static UiDevice getInstance(android.app.Instrumentation i){return null;} public String executeShellCommand(String c) throws java.io.IOException {return "";} public boolean click(int x,int y){return false;} }
