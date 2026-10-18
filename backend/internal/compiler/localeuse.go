@@ -21,9 +21,8 @@ import (
 // the same and conservative: the app's documents are searched for every
 // reference whose value is known at compile time, and when a reference is
 // dynamic (an expression or a typed value whose content only exists at run
-// time) or pages embed native widgets of the host app, which can read the
-// locale data, the
-// whole category is kept. A trimmed bundle therefore never lacks a name that
+// time), or when pages embed native widgets of the host app, which can read
+// the locale data, the whole category is kept. A trimmed bundle therefore never lacks a name that
 // a literal reference needs, and a missing name still falls back at run time
 // to the ISO code (currencies) or the region code (territories).
 //
