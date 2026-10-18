@@ -664,7 +664,7 @@ func (x *ApproveResponse) GetApprovedCaseIds() []string {
 	return nil
 }
 
-type GetGoldenStatusRequest struct {
+type GetRunStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	PluginKey     string                 `protobuf:"bytes,2,opt,name=plugin_key,json=pluginKey,proto3" json:"plugin_key,omitempty"`
@@ -674,20 +674,20 @@ type GetGoldenStatusRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetGoldenStatusRequest) Reset() {
-	*x = GetGoldenStatusRequest{}
+func (x *GetRunStatusRequest) Reset() {
+	*x = GetRunStatusRequest{}
 	mi := &file_plux_v1_golden_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetGoldenStatusRequest) String() string {
+func (x *GetRunStatusRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetGoldenStatusRequest) ProtoMessage() {}
+func (*GetRunStatusRequest) ProtoMessage() {}
 
-func (x *GetGoldenStatusRequest) ProtoReflect() protoreflect.Message {
+func (x *GetRunStatusRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_v1_golden_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -699,40 +699,40 @@ func (x *GetGoldenStatusRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetGoldenStatusRequest.ProtoReflect.Descriptor instead.
-func (*GetGoldenStatusRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetRunStatusRequest.ProtoReflect.Descriptor instead.
+func (*GetRunStatusRequest) Descriptor() ([]byte, []int) {
 	return file_plux_v1_golden_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *GetGoldenStatusRequest) GetAppId() string {
+func (x *GetRunStatusRequest) GetAppId() string {
 	if x != nil {
 		return x.AppId
 	}
 	return ""
 }
 
-func (x *GetGoldenStatusRequest) GetPluginKey() string {
+func (x *GetRunStatusRequest) GetPluginKey() string {
 	if x != nil {
 		return x.PluginKey
 	}
 	return ""
 }
 
-func (x *GetGoldenStatusRequest) GetBundleSha256() []byte {
+func (x *GetRunStatusRequest) GetBundleSha256() []byte {
 	if x != nil {
 		return x.BundleSha256
 	}
 	return nil
 }
 
-func (x *GetGoldenStatusRequest) GetAppSha256() []byte {
+func (x *GetRunStatusRequest) GetAppSha256() []byte {
 	if x != nil {
 		return x.AppSha256
 	}
 	return nil
 }
 
-type GetGoldenStatusResponse struct {
+type GetRunStatusResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// found is whether a canonical run exists for the exact bundles.
 	Found bool   `protobuf:"varint,1,opt,name=found,proto3" json:"found,omitempty"`
@@ -744,20 +744,20 @@ type GetGoldenStatusResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetGoldenStatusResponse) Reset() {
-	*x = GetGoldenStatusResponse{}
+func (x *GetRunStatusResponse) Reset() {
+	*x = GetRunStatusResponse{}
 	mi := &file_plux_v1_golden_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetGoldenStatusResponse) String() string {
+func (x *GetRunStatusResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetGoldenStatusResponse) ProtoMessage() {}
+func (*GetRunStatusResponse) ProtoMessage() {}
 
-func (x *GetGoldenStatusResponse) ProtoReflect() protoreflect.Message {
+func (x *GetRunStatusResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_plux_v1_golden_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -769,33 +769,33 @@ func (x *GetGoldenStatusResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetGoldenStatusResponse.ProtoReflect.Descriptor instead.
-func (*GetGoldenStatusResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetRunStatusResponse.ProtoReflect.Descriptor instead.
+func (*GetRunStatusResponse) Descriptor() ([]byte, []int) {
 	return file_plux_v1_golden_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *GetGoldenStatusResponse) GetFound() bool {
+func (x *GetRunStatusResponse) GetFound() bool {
 	if x != nil {
 		return x.Found
 	}
 	return false
 }
 
-func (x *GetGoldenStatusResponse) GetRunId() string {
+func (x *GetRunStatusResponse) GetRunId() string {
 	if x != nil {
 		return x.RunId
 	}
 	return ""
 }
 
-func (x *GetGoldenStatusResponse) GetCases() int32 {
+func (x *GetRunStatusResponse) GetCases() int32 {
 	if x != nil {
 		return x.Cases
 	}
 	return 0
 }
 
-func (x *GetGoldenStatusResponse) GetDifferences() int32 {
+func (x *GetRunStatusResponse) GetDifferences() int32 {
 	if x != nil {
 		return x.Differences
 	}
@@ -858,25 +858,25 @@ const file_plux_v1_golden_proto_rawDesc = "" +
 	"\x06run_id\x18\x02 \x01(\tR\x05runId\x12\x19\n" +
 	"\bcase_ids\x18\x03 \x03(\tR\acaseIds\"=\n" +
 	"\x0fApproveResponse\x12*\n" +
-	"\x11approved_case_ids\x18\x01 \x03(\tR\x0fapprovedCaseIds\"\x92\x01\n" +
-	"\x16GetGoldenStatusRequest\x12\x15\n" +
+	"\x11approved_case_ids\x18\x01 \x03(\tR\x0fapprovedCaseIds\"\x8f\x01\n" +
+	"\x13GetRunStatusRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1d\n" +
 	"\n" +
 	"plugin_key\x18\x02 \x01(\tR\tpluginKey\x12#\n" +
 	"\rbundle_sha256\x18\x03 \x01(\fR\fbundleSha256\x12\x1d\n" +
 	"\n" +
-	"app_sha256\x18\x04 \x01(\fR\tappSha256\"~\n" +
-	"\x17GetGoldenStatusResponse\x12\x14\n" +
+	"app_sha256\x18\x04 \x01(\fR\tappSha256\"{\n" +
+	"\x14GetRunStatusResponse\x12\x14\n" +
 	"\x05found\x18\x01 \x01(\bR\x05found\x12\x15\n" +
 	"\x06run_id\x18\x02 \x01(\tR\x05runId\x12\x14\n" +
 	"\x05cases\x18\x03 \x01(\x05R\x05cases\x12 \n" +
-	"\vdifferences\x18\x04 \x01(\x05R\vdifferences2\x8e\x03\n" +
+	"\vdifferences\x18\x04 \x01(\x05R\vdifferences2\x8b\x03\n" +
 	"\rGoldenService\x12M\n" +
 	"\fGetBaselines\x12\x1c.plux.v1.GetBaselinesRequest\x1a\x1d.plux.v1.GetBaselinesResponse\"\x00\x12D\n" +
 	"\tUploadRun\x12\x19.plux.v1.UploadRunRequest\x1a\x1a.plux.v1.UploadRunResponse\"\x00\x12V\n" +
 	"\x0fListDifferences\x12\x1f.plux.v1.ListDifferencesRequest\x1a .plux.v1.ListDifferencesResponse\"\x00\x12>\n" +
-	"\aApprove\x12\x17.plux.v1.ApproveRequest\x1a\x18.plux.v1.ApproveResponse\"\x00\x12P\n" +
-	"\tGetStatus\x12\x1f.plux.v1.GetGoldenStatusRequest\x1a .plux.v1.GetGoldenStatusResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"\aApprove\x12\x17.plux.v1.ApproveRequest\x1a\x18.plux.v1.ApproveResponse\"\x00\x12M\n" +
+	"\fGetRunStatus\x12\x1c.plux.v1.GetRunStatusRequest\x1a\x1d.plux.v1.GetRunStatusResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_golden_proto_rawDescOnce sync.Once
@@ -902,8 +902,8 @@ var file_plux_v1_golden_proto_goTypes = []any{
 	(*ListDifferencesResponse)(nil), // 7: plux.v1.ListDifferencesResponse
 	(*ApproveRequest)(nil),          // 8: plux.v1.ApproveRequest
 	(*ApproveResponse)(nil),         // 9: plux.v1.ApproveResponse
-	(*GetGoldenStatusRequest)(nil),  // 10: plux.v1.GetGoldenStatusRequest
-	(*GetGoldenStatusResponse)(nil), // 11: plux.v1.GetGoldenStatusResponse
+	(*GetRunStatusRequest)(nil),     // 10: plux.v1.GetRunStatusRequest
+	(*GetRunStatusResponse)(nil),    // 11: plux.v1.GetRunStatusResponse
 	nil,                             // 12: plux.v1.GetBaselinesResponse.ImageSha256Entry
 }
 var file_plux_v1_golden_proto_depIdxs = []int32{
@@ -914,12 +914,12 @@ var file_plux_v1_golden_proto_depIdxs = []int32{
 	3,  // 4: plux.v1.GoldenService.UploadRun:input_type -> plux.v1.UploadRunRequest
 	5,  // 5: plux.v1.GoldenService.ListDifferences:input_type -> plux.v1.ListDifferencesRequest
 	8,  // 6: plux.v1.GoldenService.Approve:input_type -> plux.v1.ApproveRequest
-	10, // 7: plux.v1.GoldenService.GetStatus:input_type -> plux.v1.GetGoldenStatusRequest
+	10, // 7: plux.v1.GoldenService.GetRunStatus:input_type -> plux.v1.GetRunStatusRequest
 	1,  // 8: plux.v1.GoldenService.GetBaselines:output_type -> plux.v1.GetBaselinesResponse
 	4,  // 9: plux.v1.GoldenService.UploadRun:output_type -> plux.v1.UploadRunResponse
 	7,  // 10: plux.v1.GoldenService.ListDifferences:output_type -> plux.v1.ListDifferencesResponse
 	9,  // 11: plux.v1.GoldenService.Approve:output_type -> plux.v1.ApproveResponse
-	11, // 12: plux.v1.GoldenService.GetStatus:output_type -> plux.v1.GetGoldenStatusResponse
+	11, // 12: plux.v1.GoldenService.GetRunStatus:output_type -> plux.v1.GetRunStatusResponse
 	8,  // [8:13] is the sub-list for method output_type
 	3,  // [3:8] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name

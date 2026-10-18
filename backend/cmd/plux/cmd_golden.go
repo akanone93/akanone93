@@ -363,7 +363,7 @@ func (e env) goldenStatus(args []string) int {
 		if *plugin != "" && p.Key != *plugin {
 			continue
 		}
-		out, err := t.client.GetStatus(context.Background(), connect.NewRequest(&pluxv1.GetGoldenStatusRequest{
+		out, err := t.client.GetRunStatus(context.Background(), connect.NewRequest(&pluxv1.GetRunStatusRequest{
 			AppId: t.c.app, PluginKey: p.Key, BundleSha256: p.Hash[:], AppSha256: res.App.Hash[:],
 		}))
 		if err != nil {

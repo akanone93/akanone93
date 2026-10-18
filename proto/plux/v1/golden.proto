@@ -28,10 +28,10 @@ service GoldenService {
   // IDs, every difference of the run. It needs goldens.approve and is
   // audited.
   rpc Approve(ApproveRequest) returns (ApproveResponse) {}
-  // GetStatus says whether the run for the exact bundles exists, is
+  // GetRunStatus says whether the run for the exact bundles exists, is
   // canonical and has unapproved differences: what the publish gate sees.
   // It needs plugin.read.
-  rpc GetStatus(GetGoldenStatusRequest) returns (GetGoldenStatusResponse) {}
+  rpc GetRunStatus(GetRunStatusRequest) returns (GetRunStatusResponse) {}
 }
 
 message GetBaselinesRequest {
@@ -108,13 +108,13 @@ message ApproveResponse {
   repeated string approved_case_ids = 1;
 }
 
-message GetGoldenStatusRequest {
+message GetRunStatusRequest {
   string app_id = 1;
   string plugin_key = 2;
   bytes bundle_sha256 = 3;
   bytes app_sha256 = 4;
 }
-message GetGoldenStatusResponse {
+message GetRunStatusResponse {
   // found is whether a canonical run exists for the exact bundles.
   bool found = 1;
   string run_id = 2;
