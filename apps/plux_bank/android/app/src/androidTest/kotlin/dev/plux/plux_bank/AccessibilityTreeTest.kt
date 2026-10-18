@@ -156,11 +156,11 @@ class AccessibilityTreeTest {
     // action, which holds wherever the control is while the page still moves
     // (a route transition, data loading above it); a tap at its centre is the
     // fallback. Then waits for what it opens, activating it again up to
-    // twice more when nothing opened.
+    // twice more while it is still there and nothing opened.
     private fun activate(control: Node, opens: String, partial: Boolean = false, attempts: Int = 3) {
         var node = control
         repeat(attempts) { attempt ->
-            if (attempt > 0) node = find(node.label) ?: node
+            if (attempt > 0) node = find(node.label) ?: return@repeat
             if (!node.info.performAction(AccessibilityNodeInfo.ACTION_CLICK)) click(node)
             val deadline = SystemClock.uptimeMillis() + 10_000
             while (SystemClock.uptimeMillis() < deadline) {

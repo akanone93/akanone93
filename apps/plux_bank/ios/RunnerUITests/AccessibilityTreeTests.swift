@@ -53,20 +53,21 @@ final class AccessibilityTreeTests: XCTestCase {
     assertReadsInOrder(app, ["Welcome back", "Username"], exact: false)
     assertInteractiveControlsAreLabelled(app)
 
-    type(waitFor(app, "Username"), "demo")
+    // Return closes the keyboard, which would cover the PIN pad and the
+    // button: a touch outside a field does not, on a phone.
+    type(waitFor(app, "Username"), "demo\n")
     for digit in "246810" {
       reveal(app, String(digit)).tap()
     }
-    type(reveal(app, "One-time code", exact: false), "123456")
-    reveal(app, "Sign in").tap()
+    type(reveal(app, "One-time code", exact: false), "123456\n")
+    reveal(app, "Sign in")
+    tap(app, "Sign in", exact: true, opens: "New transfer", exactly: true)
 
-    waitFor(app, "New transfer", exact: true)
     assertReadsInOrder(app, ["New transfer"])
     assertInteractiveControlsAreLabelled(app)
 
     // The balance is what the flows' transfers left, so only its start is known.
-    tap(app, "New transfer", exact: true)
-    waitFor(app, "Available: ")
+    tap(app, "New transfer", exact: true, opens: "Available: ", exactly: false)
     assertReadsInOrder(app, ["Available: ", "Recipient IBAN", "Amount (EUR)"], exact: false)
     assertInteractiveControlsAreLabelled(app)
   }
@@ -142,7 +143,8 @@ final class AccessibilityTreeTests: XCTestCase {
     }
     waiting = false
     if !shown {
-      XCTFail("nothing on screen reads \"\(label)\"")
+      let labels = app.descendants(matching: .any).allElementsBoundByIndex.map(\.label).filter { !$0.isEmpty }
+      XCTFail("nothing on screen reads \"\(label)\"; it reads \(labels)")
     }
     return found
   }
@@ -165,7 +167,7 @@ final class AccessibilityTreeTests: XCTestCase {
   @discardableResult
   private func reveal(_ app: XCUIApplication, _ label: String, exact: Bool = true) -> XCUIElement {
     let found = element(app, label, exact: exact)
-    for _ in 0..<5 where !found.waitForExistence(timeout: 1) {
+    for _ in 0..<5 where !(found.waitForExistence(timeout: 1) && found.isHittable) {
       app.scrollViews.firstMatch.swipeUp()
     }
     return waitFor(app, label, exact: exact)
@@ -185,5 +187,17 @@ final class AccessibilityTreeTests: XCTestCase {
 
   private func tap(_ app: XCUIApplication, _ label: String, exact: Bool = false) {
     waitFor(app, label, exact: exact).tap()
+  }
+
+  // Taps the control and waits for what it opens, tapping it again up to
+  // twice more while it is still there and nothing opened: a page that has
+  // just been pushed may still be moving when the first tap lands.
+  private func tap(_ app: XCUIApplication, _ label: String, exact: Bool = false, opens: String, exactly: Bool) {
+    let control = waitFor(app, label, exact: exact)
+    for _ in 0..<3 where control.exists {
+      control.tap()
+      if element(app, opens, exact: exactly).waitForExistence(timeout: 10) { return }
+    }
+    waitFor(app, opens, exact: exactly)
   }
 }

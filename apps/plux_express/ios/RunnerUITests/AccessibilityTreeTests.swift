@@ -52,16 +52,14 @@ final class AccessibilityTreeTests: XCTestCase {
     assertReadsInOrder(app, ["Loaded 10 products", "Product 01"], exact: false)
     assertInteractiveControlsAreLabelled(app)
 
-    tap(app, "Product 01")
-    waitFor(app, "In cart: 0", exact: true)
+    tap(app, "Product 01", opens: "In cart: 0", exactly: true)
     assertReadsInOrder(app, ["Add to cart", "In cart: 0"])
     assertInteractiveControlsAreLabelled(app)
 
     tap(app, "Add to cart", exact: true)
     waitFor(app, "In cart: 1", exact: true)
-    tap(app, "Cart (1)", exact: true)
     // The summary's total reads its label, then the amount in words.
-    waitFor(app, "Total")
+    tap(app, "Cart (1)", exact: true, opens: "Total", exactly: false)
     assertReadsInOrder(app, ["Total", "Place order"], exact: false)
     assertInteractiveControlsAreLabelled(app)
   }
@@ -156,5 +154,17 @@ final class AccessibilityTreeTests: XCTestCase {
 
   private func tap(_ app: XCUIApplication, _ label: String, exact: Bool = false) {
     waitFor(app, label, exact: exact).tap()
+  }
+
+  // Taps the control and waits for what it opens, tapping it again up to
+  // twice more while it is still there and nothing opened: a page that has
+  // just been pushed may still be moving when the first tap lands.
+  private func tap(_ app: XCUIApplication, _ label: String, exact: Bool = false, opens: String, exactly: Bool) {
+    let control = waitFor(app, label, exact: exact)
+    for _ in 0..<3 where control.exists {
+      control.tap()
+      if element(app, opens, exact: exactly).waitForExistence(timeout: 10) { return }
+    }
+    waitFor(app, opens, exact: exactly)
   }
 }
