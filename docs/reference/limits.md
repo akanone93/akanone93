@@ -73,6 +73,9 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `dpop.jtiBytes` | bytes | 64 | 80% | 256 | installation | P6 | SEC-021 | Length of a DPoP proof identifier. |
 | `dpop.proofBytes` | bytes | 8192 | 80% | 32768 | installation | P6 | SEC-021 | Size of a DPoP proof. |
 | `dpop.replayCacheEntries` | count | 1000000 | 80% | 100000000 | installation | P6 | SEC-023, LIM-004 | Proof identifiers the DPoP replay cache holds. |
+| `dsr.exportBytes` | bytes | 268435456 | 80% | 4294967296 | installation, organization, app | P9 | SEC-162 | Size of one data subject export archive. |
+| `experiments.activePerApp` | count | 20 | 80% | 500 | installation, organization, app | P9 | ABT-001 | Experiments that may be running at once in one app. |
+| `flags.perApp` | count | 500 | 80% | 10000 | installation, organization, app | P9 | ABT-001 | Feature flags one app may define. |
 | `function.buildMemory` | bytes | 4294967296 | 80% | 17179869184 | installation, organization, app | P7 | FN-016 | Memory one function build may use. |
 | `function.buildTimeout` | milliseconds | 600000 | 80% | 3600000 | installation, organization, app | P7 | FN-016 | Wall-clock time one function build may run. |
 | `function.callDepth` | count | 3 | 80% | 3 | installation, organization, app | P7 | FN-011 | Depth of nested function-to-function calls within one invocation. |
@@ -103,6 +106,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `golden.imageBytes` | bytes | 2097152 | 80% | 16777216 | installation, organization, app | P8 | TST-003 | Size of one golden image. |
 | `http.responseSize` | bytes | 1048576 | 80% | 67108864 | installation | P2 | SEC-104, SEC-105 | Size of a response the server reads when it fetches a URL, such as an identity provider's keys. |
 | `media.pinnedDownloadSize` | bytes | 209715200 | 80% | 1073741824 | installation, organization, app | P8 | SEC-041 | Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client). |
+| `notifications.perHour` | count | 600 | 80% | 100000 | installation, organization, app | P9 | SRV-062 | Notifications one organisation may send in an hour across all channels; the excess is dropped and audited. |
 | `page.animations` | count | 30 | 10 | 200 | installation, organization, app, plugin | P1 | CMP-040 | Animations that can run at the same time on one page. |
 | `page.buildCost` | microseconds | 16000 | 8000 | 100000 | installation, organization, app, plugin | P1 | CMP-040 | Estimated build time of a page on the mid-tier reference device, the sum of its widgets' cost hints. |
 | `page.depth` | count | 64 | 32 | 128 | installation, organization, app, plugin | P1 | SCH-005, CMP-040 | Depth of a page's node tree. |
@@ -120,18 +124,24 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `pxl.regexProgramSize` | count | 2000 | 80% | 20000 | installation, organization, app, plugin | P5 | PXL-001, PXL-006, LIM-001 | Instructions of one compiled regular-expression pattern of pxl.regex.v1 (schema/pxl/regex.md). |
 | `pxl.regexRepeat` | count | 100 | 80% | 1000 | installation, organization, app, plugin | P5 | PXL-001, PXL-006, LIM-001 | The largest count of a {n,m} repetition in a regular-expression pattern of pxl.regex.v1. |
 | `pxl.stringLength` | codepoints | 65536 | 80% | 1048576 | installation, organization, app, plugin | P1 | PXL-001 | Length of a string produced during one PXL evaluation. |
+| `reconstruction.retentionDays` | count | 365 | 80% | 3650 | installation, organization, app | P9 | SEC-142 | Days of release and device history kept for reconstruction of what a device ran (SEC-142); older data is no longer reconstructable. |
 | `release.appSize` | bytes | 104857600 | 80% | 1073741824 | installation, organization, app | P1 | BND-010 | Total size of one app release: the app bundle and every plugin bundle. |
+| `rollouts.activePerApp` | count | 10 | 80% | 100 | installation, organization, app | P9 | REL-050 | Staged rollouts that may be in progress at once in one app. |
 | `runtime.imageDiskCacheBytes` | bytes | 67108864 | 80% | 1073741824 | installation, organization, app | P3 | RT-014, AST-002 | Disk space the runtime's cache of remote images may use on one device. |
 | `runtime.imageSize` | bytes | 10485760 | 80% | 104857600 | installation, organization, app | P3 | AST-002, SEC-104 | Size of one remote image the runtime downloads; a larger one is refused. |
 | `runtime.sectionCacheBytes` | bytes | 8388608 | 80% | 268435456 | installation, organization, app | P3 | RT-013 | Memory the runtime's cache of decoded page and component sections may hold. |
 | `runtime.sectionCacheEntries` | count | 64 | 80% | 4096 | installation, organization, app | P3 | RT-013 | Page and component sections the runtime keeps decoded. |
 | `sca.challengeLifetime` | milliseconds | 300000 | 80% | 900000 | installation, organization, app | P6 | SEC-027, LIM-004 | Milliseconds a strong customer authentication challenge stays valid. |
+| `search.resultsPerPage` | count | 50 | 80% | 200 | installation, organization, app | P9 | SRV-061 | Results one search page may return. |
 | `securityConfig.bytes` | bytes | 65536 | 80% | 1048576 | installation, organization, app | P6 | SEC-182, LIM-004 | Bytes of a security configuration, encoded. |
 | `securityConfig.patchBytes` | bytes | 16384 | 80% | 262144 | installation, organization, app | P6 | SEC-182, LIM-004 | Bytes of a security configuration patch, encoded. |
 | `state.persistedBytes` | bytes | 1048576 | 80% | 16777216 | installation, organization, app | P5 | STA-003, LIM-004 | Bytes the persisted state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported. |
 | `state.secureBytes` | bytes | 65536 | 80% | 1048576 | installation, organization, app | P5 | STA-003, LIM-004 | Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported. |
+| `telemetry.batchBytes` | bytes | 262144 | 80% | 4194304 | installation, organization, app | P9 | ANL-010 | Bytes one telemetry batch may carry on the wire after decompression. |
 | `telemetry.bufferBytes` | bytes | 262144 | 80% | 4194304 | installation, organization, app | P3 | ANL-002 | The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first. |
+| `telemetry.eventsPerDevicePerHour` | count | 600 | 80% | 100000 | installation, organization, app | P9 | ANL-010 | Runtime events one device may send in an hour; events above it are dropped and counted. Conservative default of ten per minute on average, with room for bursts. |
 | `telemetry.eventsPerRequest` | count | 500 | 80% | 5000 | installation, organization, app | P2 | SEC-104 | Runtime events one telemetry request may carry. |
 | `translation.importSize` | bytes | 16777216 | 80% | 134217728 | installation, organization, app | P8 | I18N-009 | Size of one translation import file. |
 | `translation.messageSize` | bytes | 4096 | 80% | 65536 | installation, organization, app | P8 | I18N-001 | Size of one translation message. |
 | `updateMetadata.bytes` | bytes | 1048576 | 80% | 4194304 | installation | P6 | SEC-050 | Size of one update metadata file (root, snapshot or timestamp) a device accepts and the server serves. |
+| `webhooks.perOrg` | count | 50 | 80% | 1000 | installation, organization, app | P9 | SRV-062 | Outbound webhook endpoints one organisation may configure. |

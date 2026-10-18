@@ -1184,6 +1184,46 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Have a translation approver approve the entries in Studio or import the file.
 
+### PLX-1700
+
+`POLICY_DOCUMENT_INVALID` · error · Policy document invalid
+
+**Cause.** A policy document does not match its schema or names an unknown rule.
+
+**Fix.** Correct the policy document against its schema and save it again.
+
+### PLX-1701
+
+`UNKNOWN_FLAG_TYPE` · error · Unknown flag type
+
+**Cause.** A flag declares a type that is not one of the registered flag types.
+
+**Fix.** Use a registered flag type.
+
+### PLX-1702
+
+`VARIANT_WITHOUT_CONTROL` · error · Variant without a control
+
+**Cause.** An experiment or variant set has variants but none is marked as the control.
+
+**Fix.** Mark exactly one variant as the control.
+
+### PLX-1703
+
+`VARIANT_WEIGHTS_INVALID` · error · Variant weights do not sum to 100
+
+**Cause.** The weights of the variants of an experiment do not add up to 100.
+
+**Fix.** Adjust the weights so that they sum to 100.
+
+### PLX-1704
+
+`SEGMENT_RULE_INVALID` · error · Segment rule invalid
+
+**Cause.** A segment rule is malformed or uses an attribute or operator the segment grammar does not define.
+
+**Fix.** Correct the rule so that it uses only defined attributes and operators.
+
 ## Compiler and PXL (PLX-2000–2999)
 
 ### PLX-2001
@@ -1362,6 +1402,30 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Report the input to the Plux maintainers; changing either value avoids the collision.
 
+### PLX-2300
+
+`EXPERIMENT_KEY_UNKNOWN` · error · Experiment key unknown
+
+**Cause.** A variant or winner refers to an experiment key that the app does not define.
+
+**Fix.** Use the key of an experiment defined in the app.
+
+### PLX-2301
+
+`WINNER_NOT_A_VARIANT` · error · Winner is not a variant of the experiment
+
+**Cause.** The variant chosen for promotion is not one of the variants of the experiment.
+
+**Fix.** Choose one of the variants the experiment defines.
+
+### PLX-2302
+
+`VARIANT_TREE_EXCEEDS_BUDGET` · error · Variant tree exceeds the node budget
+
+**Cause.** Applying the variant gives a page more nodes than the node budget allows.
+
+**Fix.** Reduce the variant, or split the page.
+
 ## Release and sync (PLX-3000–3999)
 
 ### PLX-3001
@@ -1523,6 +1587,78 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 **Cause.** The release supports the pseudo-locales en-XA or ar-XB, which are for development, so it cannot be promoted into a production environment (I18N-002).
 
 **Fix.** Publish the release again from a build without pseudo-locales.
+
+### PLX-3100
+
+`CONTROL_SIGNATURE_INVALID` · error · Control document signature invalid
+
+**Cause.** The signature of a control document does not verify against the trusted keys.
+
+**Fix.** Fetch the control document again; if it persists, report a possible tampering.
+
+### PLX-3101
+
+`CONTROL_DOCUMENT_EXPIRED` · error · Control document expired
+
+**Cause.** The control document is past its expiry time.
+
+**Fix.** Fetch a current control document.
+
+### PLX-3102
+
+`CONTROL_ROLLBACK_REJECTED` · error · Control rollback rejected
+
+**Cause.** The control document has an older version than the one already applied, so it was refused.
+
+**Fix.** Publish a control document with a higher version.
+
+### PLX-3103
+
+`MANDATORY_UPDATE_PENDING` · error · Mandatory update pending
+
+**Cause.** The control document requires an update that has not been applied yet.
+
+**Fix.** Apply the pending update.
+
+### PLX-3104
+
+`FORCED_ROLLBACK_APPLIED` · warning · Forced rollback applied
+
+**Cause.** The control document forced a rollback, so the release in use was replaced.
+
+**Fix.** Publish a fixed release to move forward again.
+
+### PLX-3150
+
+`ROLLOUT_PAUSED_BY_HEALTH_GATE` · error · Rollout paused by a health gate
+
+**Cause.** A health gate of the rollout failed, so the rollout stopped advancing.
+
+**Fix.** Investigate the failing health signal, then resume or roll back.
+
+### PLX-3151
+
+`ROLLOUT_ROLLED_BACK` · error · Rollout rolled back
+
+**Cause.** The rollout was rolled back, by a health gate or by a person.
+
+**Fix.** Publish a corrected release and start a new rollout.
+
+### PLX-3152
+
+`TARGETING_RULE_INVALID` · error · Targeting rule invalid
+
+**Cause.** A targeting rule is malformed or uses an attribute or operator that is not defined.
+
+**Fix.** Correct the targeting rule.
+
+### PLX-3153
+
+`SCHEDULE_OVERLAPS_ROLLOUT` · error · Schedule overlaps another rollout
+
+**Cause.** The schedule overlaps the schedule of another rollout in the same scope.
+
+**Fix.** Choose a time that does not overlap another rollout.
 
 ## Runtime rendering and navigation (PLX-4000–4999)
 
@@ -2506,6 +2642,78 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Use an unmodified app on an unmodified device.
 
+### PLX-6200
+
+`STEP_UP_REQUIRED` · error · Step-up required
+
+**Cause.** The action needs a fresh stronger authentication than the session holds.
+
+**Fix.** Complete the step-up challenge and repeat the call.
+
+### PLX-6201
+
+`STEP_UP_EXPIRED` · error · Step-up expired
+
+**Cause.** The step-up authentication is too old for this action.
+
+**Fix.** Complete the step-up challenge again and repeat the call.
+
+### PLX-6202
+
+`WEBAUTHN_ASSERTION_INVALID` · error · WebAuthn assertion invalid
+
+**Cause.** The WebAuthn assertion does not verify against the registered credential.
+
+**Fix.** Try again with a registered authenticator.
+
+### PLX-6210
+
+`SAML_RESPONSE_INVALID` · error · SAML response invalid
+
+**Cause.** The SAML response failed signature, audience, destination or time checks.
+
+**Fix.** Check the identity provider configuration and sign in again.
+
+### PLX-6211
+
+`SAML_ASSERTION_REPLAYED` · error · SAML assertion replayed
+
+**Cause.** The SAML assertion was already used once.
+
+**Fix.** Start a new sign-in.
+
+### PLX-6220
+
+`SCIM_REQUEST_INVALID` · error · SCIM request invalid
+
+**Cause.** A SCIM request is malformed or the token that carried it is not valid.
+
+**Fix.** Check the request and the SCIM token.
+
+### PLX-6230
+
+`SESSION_REVOKED` · error · Session revoked
+
+**Cause.** The session was revoked by its owner or an administrator.
+
+**Fix.** Sign in again.
+
+### PLX-6231
+
+`SESSION_IDLE_TIMEOUT` · error · Session idle timeout
+
+**Cause.** The session was idle for longer than the organisation allows.
+
+**Fix.** Sign in again.
+
+### PLX-6232
+
+`SESSION_ABSOLUTE_TIMEOUT` · error · Session absolute timeout
+
+**Cause.** The session reached the maximum lifetime the organisation allows.
+
+**Fix.** Sign in again.
+
 ## Functions (PLX-7000–7999)
 
 ### PLX-7001
@@ -2716,6 +2924,30 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Handle the error in the action graph's error path; the code and message key come from the function.
 
+### PLX-7150
+
+`CRON_EXPRESSION_INVALID` · error · Cron expression invalid
+
+**Cause.** The cron expression of a trigger cannot be parsed or schedules more often than allowed.
+
+**Fix.** Correct the expression.
+
+### PLX-7151
+
+`WEBHOOK_SIGNATURE_INVALID` · error · Inbound webhook signature invalid
+
+**Cause.** The signature of an inbound webhook request does not verify.
+
+**Fix.** Check the shared secret and the signing scheme of the sender.
+
+### PLX-7152
+
+`WEBHOOK_REPLAYED` · error · Inbound webhook replayed
+
+**Cause.** An inbound webhook request was already processed or is outside the replay window.
+
+**Fix.** Send a new request with a fresh timestamp and identifier.
+
 ### PLX-7200
 
 `FUNCTION_BUILD_FAILED` · error · Function build failed
@@ -2773,6 +3005,62 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 **Fix.** Remove the source of nondeterminism, such as embedded paths, times or random values, and build again.
 
 ## Governance (PLX-8000–8999)
+
+### PLX-8001
+
+`APPROVAL_REQUIRED` · error · Approval required
+
+**Cause.** The change needs an approval under the organisation policy and has none yet.
+
+**Fix.** Request an approval and repeat the call once it is granted.
+
+### PLX-8002
+
+`APPROVAL_INVALIDATED` · error · Approval invalidated by a content change
+
+**Cause.** The content changed after it was approved, so the approval no longer applies.
+
+**Fix.** Request a new approval for the changed content.
+
+### PLX-8003
+
+`APPROVER_NOT_ELIGIBLE` · error · Approver not eligible
+
+**Cause.** The approver is the author or does not belong to the team or hold the role the policy requires.
+
+**Fix.** Ask an eligible approver.
+
+### PLX-8004
+
+`APPROVAL_EXPIRED` · error · Approval expired
+
+**Cause.** The approval is older than the policy allows.
+
+**Fix.** Request a new approval.
+
+### PLX-8005
+
+`BREAK_GLASS_JUSTIFICATION_REQUIRED` · error · Break-glass justification required
+
+**Cause.** A break-glass action needs a written justification and none was given.
+
+**Fix.** Add a justification and repeat the call.
+
+### PLX-8006
+
+`POST_HOC_REVIEW_OVERDUE` · warning · Post-hoc review overdue
+
+**Cause.** A break-glass action was not reviewed within the period the policy sets.
+
+**Fix.** Complete the review of the break-glass action.
+
+### PLX-8010
+
+`CHANGE_FREEZE_ACTIVE` · error · Change freeze active
+
+**Cause.** A change freeze blocks this action in this scope.
+
+**Fix.** Wait for the freeze to end, or invoke break-glass if you may.
 
 ### PLX-8011
 
@@ -2909,6 +3197,174 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 **Cause.** A caller who holds translations.edit but not app.manage may save only the messages and states of an existing translations document (translations/<locale>.json); the save touches another document, another property, or creates the document (I18N-008).
 
 **Fix.** Save only messages and states of an existing translations document, or ask for app.manage.
+
+### PLX-8100
+
+`ROLE_UNKNOWN` · error · Role unknown
+
+**Cause.** The role does not exist in the organisation.
+
+**Fix.** Use an existing role.
+
+### PLX-8101
+
+`PERMISSION_NOT_IN_CATALOGUE` · error · Permission not in the catalogue
+
+**Cause.** The permission is not in the permission catalogue.
+
+**Fix.** Use a permission from the catalogue.
+
+### PLX-8102
+
+`SCOPE_INVALID` · error · Scope invalid
+
+**Cause.** The scope of a grant does not name an environment or app of the organisation.
+
+**Fix.** Use a scope that names an environment or app of the organisation.
+
+### PLX-8103
+
+`LAST_OWNER_CANNOT_BE_REMOVED` · error · Last owner cannot be removed
+
+**Cause.** The change would leave the organisation without an owner.
+
+**Fix.** Make another member an owner first.
+
+### PLX-8200
+
+`EXPERIMENT_OVERLAPS_LAYER` · error · Experiment overlaps its layer
+
+**Cause.** Another running experiment in the same layer targets the same audience.
+
+**Fix.** End the other experiment or choose another layer.
+
+### PLX-8201
+
+`SAMPLE_SIZE_NOT_REACHED` · error · Sample size not reached
+
+**Cause.** The experiment has not collected the sample size needed to declare a winner.
+
+**Fix.** Wait for the required sample size.
+
+### PLX-8202
+
+`SAMPLE_RATIO_MISMATCH` · error · Sample ratio mismatch
+
+**Cause.** The observed split of the experiment differs from the configured weights beyond chance.
+
+**Fix.** Investigate the assignment before trusting the results.
+
+### PLX-8203
+
+`FLAG_TYPE_CHANGE_REFUSED` · error · Flag type change refused
+
+**Cause.** The type of an existing flag cannot be changed.
+
+**Fix.** Create a new flag with the new type.
+
+### PLX-8300
+
+`INGESTION_OVER_QUOTA` · error · Ingestion over quota
+
+**Cause.** The telemetry ingested exceeds the quota of the organisation.
+
+**Fix.** Reduce the event volume or ask for a higher quota.
+
+### PLX-8301
+
+`RETENTION_CHANGE_SCHEDULED` · info · Retention change scheduled
+
+**Cause.** A change of the retention period is scheduled and takes effect later.
+
+**Fix.** No action is needed; cancel the change if it is not intended.
+
+### PLX-8302
+
+`EXPORT_DESTINATION_UNREACHABLE` · error · Export destination unreachable
+
+**Cause.** The server could not reach the export destination.
+
+**Fix.** Check the destination address and credentials.
+
+### PLX-8400
+
+`CHANNEL_MISCONFIGURED` · error · Notification channel misconfigured
+
+**Cause.** The settings of the notification channel are incomplete or invalid.
+
+**Fix.** Correct the channel settings.
+
+### PLX-8401
+
+`DELIVERY_FAILED` · error · Delivery failed after retries
+
+**Cause.** A notification or webhook could not be delivered after all retries.
+
+**Fix.** Check the destination and send the notification again.
+
+### PLX-8500
+
+`SIEM_DESTINATION_UNREACHABLE` · error · SIEM destination unreachable
+
+**Cause.** The server could not reach the SIEM destination for the audit export.
+
+**Fix.** Check the destination address and credentials.
+
+### PLX-8501
+
+`SUBJECT_NOT_FOUND` · error · Subject not found
+
+**Cause.** No data subject matches the request.
+
+**Fix.** Check the subject identifier.
+
+### PLX-8502
+
+`RECONSTRUCTION_DATA_EXPIRED` · error · Reconstruction data no longer retained
+
+**Cause.** The data needed to reconstruct the state is past its retention period.
+
+**Fix.** Choose a point in time within the retention period.
+
+### PLX-8503
+
+`GIT_REMOTE_REFUSED` · error · Git remote refused
+
+**Cause.** The Git remote rejected the export.
+
+**Fix.** Check the remote address, credentials and branch protection.
+
+### PLX-8600
+
+`ENTERPRISE_FEATURE_NOT_LICENSED` · error · Enterprise feature not licensed
+
+**Cause.** The feature belongs to the enterprise edition and the licence does not include it.
+
+**Fix.** Install a licence that includes the feature.
+
+### PLX-8601
+
+`LICENSE_INVALID` · error · Licence invalid
+
+**Cause.** The licence does not verify or does not belong to this installation.
+
+**Fix.** Install a valid licence.
+
+### PLX-8602
+
+`LICENSE_EXPIRED` · warning · Licence expired
+
+**Cause.** The licence is past its expiry and the grace period is running.
+
+**Fix.** Install a renewed licence before the grace period ends.
+
+### PLX-8603
+
+`LICENSE_LIMIT_EXCEEDED` · error · Licence limit exceeded
+
+**Cause.** The change would exceed a limit of the licence, such as the number of seats.
+
+**Fix.** Reduce usage or install a licence with a higher limit.
 
 ## Studio, CLI and AI (PLX-9000–9999)
 

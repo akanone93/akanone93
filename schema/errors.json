@@ -1224,6 +1224,46 @@
       "fix": "Have a translation approver approve the entries in Studio or import the file."
     },
     {
+      "code": "PLX-1700",
+      "reason": "POLICY_DOCUMENT_INVALID",
+      "severity": "error",
+      "title": "Policy document invalid",
+      "cause": "A policy document does not match its schema or names an unknown rule.",
+      "fix": "Correct the policy document against its schema and save it again."
+    },
+    {
+      "code": "PLX-1701",
+      "reason": "UNKNOWN_FLAG_TYPE",
+      "severity": "error",
+      "title": "Unknown flag type",
+      "cause": "A flag declares a type that is not one of the registered flag types.",
+      "fix": "Use a registered flag type."
+    },
+    {
+      "code": "PLX-1702",
+      "reason": "VARIANT_WITHOUT_CONTROL",
+      "severity": "error",
+      "title": "Variant without a control",
+      "cause": "An experiment or variant set has variants but none is marked as the control.",
+      "fix": "Mark exactly one variant as the control."
+    },
+    {
+      "code": "PLX-1703",
+      "reason": "VARIANT_WEIGHTS_INVALID",
+      "severity": "error",
+      "title": "Variant weights do not sum to 100",
+      "cause": "The weights of the variants of an experiment do not add up to 100.",
+      "fix": "Adjust the weights so that they sum to 100."
+    },
+    {
+      "code": "PLX-1704",
+      "reason": "SEGMENT_RULE_INVALID",
+      "severity": "error",
+      "title": "Segment rule invalid",
+      "cause": "A segment rule is malformed or uses an attribute or operator the segment grammar does not define.",
+      "fix": "Correct the rule so that it uses only defined attributes and operators."
+    },
+    {
       "code": "PLX-2001",
       "reason": "PXL_SYNTAX_ERROR",
       "severity": "error",
@@ -1400,6 +1440,30 @@
       "fix": "Report the input to the Plux maintainers; changing either value avoids the collision."
     },
     {
+      "code": "PLX-2300",
+      "reason": "EXPERIMENT_KEY_UNKNOWN",
+      "severity": "error",
+      "title": "Experiment key unknown",
+      "cause": "A variant or winner refers to an experiment key that the app does not define.",
+      "fix": "Use the key of an experiment defined in the app."
+    },
+    {
+      "code": "PLX-2301",
+      "reason": "WINNER_NOT_A_VARIANT",
+      "severity": "error",
+      "title": "Winner is not a variant of the experiment",
+      "cause": "The variant chosen for promotion is not one of the variants of the experiment.",
+      "fix": "Choose one of the variants the experiment defines."
+    },
+    {
+      "code": "PLX-2302",
+      "reason": "VARIANT_TREE_EXCEEDS_BUDGET",
+      "severity": "error",
+      "title": "Variant tree exceeds the node budget",
+      "cause": "Applying the variant gives a page more nodes than the node budget allows.",
+      "fix": "Reduce the variant, or split the page."
+    },
+    {
       "code": "PLX-3001",
       "reason": "MANIFEST_SIGNATURE_INVALID",
       "severity": "error",
@@ -1558,6 +1622,78 @@
       "title": "Release carries pseudo-locales",
       "cause": "The release supports the pseudo-locales en-XA or ar-XB, which are for development, so it cannot be promoted into a production environment (I18N-002).",
       "fix": "Publish the release again from a build without pseudo-locales."
+    },
+    {
+      "code": "PLX-3100",
+      "reason": "CONTROL_SIGNATURE_INVALID",
+      "severity": "error",
+      "title": "Control document signature invalid",
+      "cause": "The signature of a control document does not verify against the trusted keys.",
+      "fix": "Fetch the control document again; if it persists, report a possible tampering."
+    },
+    {
+      "code": "PLX-3101",
+      "reason": "CONTROL_DOCUMENT_EXPIRED",
+      "severity": "error",
+      "title": "Control document expired",
+      "cause": "The control document is past its expiry time.",
+      "fix": "Fetch a current control document."
+    },
+    {
+      "code": "PLX-3102",
+      "reason": "CONTROL_ROLLBACK_REJECTED",
+      "severity": "error",
+      "title": "Control rollback rejected",
+      "cause": "The control document has an older version than the one already applied, so it was refused.",
+      "fix": "Publish a control document with a higher version."
+    },
+    {
+      "code": "PLX-3103",
+      "reason": "MANDATORY_UPDATE_PENDING",
+      "severity": "error",
+      "title": "Mandatory update pending",
+      "cause": "The control document requires an update that has not been applied yet.",
+      "fix": "Apply the pending update."
+    },
+    {
+      "code": "PLX-3104",
+      "reason": "FORCED_ROLLBACK_APPLIED",
+      "severity": "warning",
+      "title": "Forced rollback applied",
+      "cause": "The control document forced a rollback, so the release in use was replaced.",
+      "fix": "Publish a fixed release to move forward again."
+    },
+    {
+      "code": "PLX-3150",
+      "reason": "ROLLOUT_PAUSED_BY_HEALTH_GATE",
+      "severity": "error",
+      "title": "Rollout paused by a health gate",
+      "cause": "A health gate of the rollout failed, so the rollout stopped advancing.",
+      "fix": "Investigate the failing health signal, then resume or roll back."
+    },
+    {
+      "code": "PLX-3151",
+      "reason": "ROLLOUT_ROLLED_BACK",
+      "severity": "error",
+      "title": "Rollout rolled back",
+      "cause": "The rollout was rolled back, by a health gate or by a person.",
+      "fix": "Publish a corrected release and start a new rollout."
+    },
+    {
+      "code": "PLX-3152",
+      "reason": "TARGETING_RULE_INVALID",
+      "severity": "error",
+      "title": "Targeting rule invalid",
+      "cause": "A targeting rule is malformed or uses an attribute or operator that is not defined.",
+      "fix": "Correct the targeting rule."
+    },
+    {
+      "code": "PLX-3153",
+      "reason": "SCHEDULE_OVERLAPS_ROLLOUT",
+      "severity": "error",
+      "title": "Schedule overlaps another rollout",
+      "cause": "The schedule overlaps the schedule of another rollout in the same scope.",
+      "fix": "Choose a time that does not overlap another rollout."
     },
     {
       "code": "PLX-4001",
@@ -2536,6 +2672,78 @@
       "fix": "Use an unmodified app on an unmodified device."
     },
     {
+      "code": "PLX-6200",
+      "reason": "STEP_UP_REQUIRED",
+      "severity": "error",
+      "title": "Step-up required",
+      "cause": "The action needs a fresh stronger authentication than the session holds.",
+      "fix": "Complete the step-up challenge and repeat the call."
+    },
+    {
+      "code": "PLX-6201",
+      "reason": "STEP_UP_EXPIRED",
+      "severity": "error",
+      "title": "Step-up expired",
+      "cause": "The step-up authentication is too old for this action.",
+      "fix": "Complete the step-up challenge again and repeat the call."
+    },
+    {
+      "code": "PLX-6202",
+      "reason": "WEBAUTHN_ASSERTION_INVALID",
+      "severity": "error",
+      "title": "WebAuthn assertion invalid",
+      "cause": "The WebAuthn assertion does not verify against the registered credential.",
+      "fix": "Try again with a registered authenticator."
+    },
+    {
+      "code": "PLX-6210",
+      "reason": "SAML_RESPONSE_INVALID",
+      "severity": "error",
+      "title": "SAML response invalid",
+      "cause": "The SAML response failed signature, audience, destination or time checks.",
+      "fix": "Check the identity provider configuration and sign in again."
+    },
+    {
+      "code": "PLX-6211",
+      "reason": "SAML_ASSERTION_REPLAYED",
+      "severity": "error",
+      "title": "SAML assertion replayed",
+      "cause": "The SAML assertion was already used once.",
+      "fix": "Start a new sign-in."
+    },
+    {
+      "code": "PLX-6220",
+      "reason": "SCIM_REQUEST_INVALID",
+      "severity": "error",
+      "title": "SCIM request invalid",
+      "cause": "A SCIM request is malformed or the token that carried it is not valid.",
+      "fix": "Check the request and the SCIM token."
+    },
+    {
+      "code": "PLX-6230",
+      "reason": "SESSION_REVOKED",
+      "severity": "error",
+      "title": "Session revoked",
+      "cause": "The session was revoked by its owner or an administrator.",
+      "fix": "Sign in again."
+    },
+    {
+      "code": "PLX-6231",
+      "reason": "SESSION_IDLE_TIMEOUT",
+      "severity": "error",
+      "title": "Session idle timeout",
+      "cause": "The session was idle for longer than the organisation allows.",
+      "fix": "Sign in again."
+    },
+    {
+      "code": "PLX-6232",
+      "reason": "SESSION_ABSOLUTE_TIMEOUT",
+      "severity": "error",
+      "title": "Session absolute timeout",
+      "cause": "The session reached the maximum lifetime the organisation allows.",
+      "fix": "Sign in again."
+    },
+    {
       "code": "PLX-7001",
       "reason": "FUNCTION_TIMEOUT",
       "severity": "error",
@@ -2744,6 +2952,30 @@
       "fix": "Handle the error in the action graph's error path; the code and message key come from the function."
     },
     {
+      "code": "PLX-7150",
+      "reason": "CRON_EXPRESSION_INVALID",
+      "severity": "error",
+      "title": "Cron expression invalid",
+      "cause": "The cron expression of a trigger cannot be parsed or schedules more often than allowed.",
+      "fix": "Correct the expression."
+    },
+    {
+      "code": "PLX-7151",
+      "reason": "WEBHOOK_SIGNATURE_INVALID",
+      "severity": "error",
+      "title": "Inbound webhook signature invalid",
+      "cause": "The signature of an inbound webhook request does not verify.",
+      "fix": "Check the shared secret and the signing scheme of the sender."
+    },
+    {
+      "code": "PLX-7152",
+      "reason": "WEBHOOK_REPLAYED",
+      "severity": "error",
+      "title": "Inbound webhook replayed",
+      "cause": "An inbound webhook request was already processed or is outside the replay window.",
+      "fix": "Send a new request with a fresh timestamp and identifier."
+    },
+    {
       "code": "PLX-7200",
       "reason": "FUNCTION_BUILD_FAILED",
       "severity": "error",
@@ -2798,6 +3030,62 @@
       "title": "Function build not reproducible",
       "cause": "Two builds of the same source, lock file and toolchain produced different modules (FN-019).",
       "fix": "Remove the source of nondeterminism, such as embedded paths, times or random values, and build again."
+    },
+    {
+      "code": "PLX-8001",
+      "reason": "APPROVAL_REQUIRED",
+      "severity": "error",
+      "title": "Approval required",
+      "cause": "The change needs an approval under the organisation policy and has none yet.",
+      "fix": "Request an approval and repeat the call once it is granted."
+    },
+    {
+      "code": "PLX-8002",
+      "reason": "APPROVAL_INVALIDATED",
+      "severity": "error",
+      "title": "Approval invalidated by a content change",
+      "cause": "The content changed after it was approved, so the approval no longer applies.",
+      "fix": "Request a new approval for the changed content."
+    },
+    {
+      "code": "PLX-8003",
+      "reason": "APPROVER_NOT_ELIGIBLE",
+      "severity": "error",
+      "title": "Approver not eligible",
+      "cause": "The approver is the author or does not belong to the team or hold the role the policy requires.",
+      "fix": "Ask an eligible approver."
+    },
+    {
+      "code": "PLX-8004",
+      "reason": "APPROVAL_EXPIRED",
+      "severity": "error",
+      "title": "Approval expired",
+      "cause": "The approval is older than the policy allows.",
+      "fix": "Request a new approval."
+    },
+    {
+      "code": "PLX-8005",
+      "reason": "BREAK_GLASS_JUSTIFICATION_REQUIRED",
+      "severity": "error",
+      "title": "Break-glass justification required",
+      "cause": "A break-glass action needs a written justification and none was given.",
+      "fix": "Add a justification and repeat the call."
+    },
+    {
+      "code": "PLX-8006",
+      "reason": "POST_HOC_REVIEW_OVERDUE",
+      "severity": "warning",
+      "title": "Post-hoc review overdue",
+      "cause": "A break-glass action was not reviewed within the period the policy sets.",
+      "fix": "Complete the review of the break-glass action."
+    },
+    {
+      "code": "PLX-8010",
+      "reason": "CHANGE_FREEZE_ACTIVE",
+      "severity": "error",
+      "title": "Change freeze active",
+      "cause": "A change freeze blocks this action in this scope.",
+      "fix": "Wait for the freeze to end, or invoke break-glass if you may."
     },
     {
       "code": "PLX-8011",
@@ -2934,6 +3222,174 @@
       "title": "Document not editable with translations.edit",
       "cause": "A caller who holds translations.edit but not app.manage may save only the messages and states of an existing translations document (translations/\u003clocale\u003e.json); the save touches another document, another property, or creates the document (I18N-008).",
       "fix": "Save only messages and states of an existing translations document, or ask for app.manage."
+    },
+    {
+      "code": "PLX-8100",
+      "reason": "ROLE_UNKNOWN",
+      "severity": "error",
+      "title": "Role unknown",
+      "cause": "The role does not exist in the organisation.",
+      "fix": "Use an existing role."
+    },
+    {
+      "code": "PLX-8101",
+      "reason": "PERMISSION_NOT_IN_CATALOGUE",
+      "severity": "error",
+      "title": "Permission not in the catalogue",
+      "cause": "The permission is not in the permission catalogue.",
+      "fix": "Use a permission from the catalogue."
+    },
+    {
+      "code": "PLX-8102",
+      "reason": "SCOPE_INVALID",
+      "severity": "error",
+      "title": "Scope invalid",
+      "cause": "The scope of a grant does not name an environment or app of the organisation.",
+      "fix": "Use a scope that names an environment or app of the organisation."
+    },
+    {
+      "code": "PLX-8103",
+      "reason": "LAST_OWNER_CANNOT_BE_REMOVED",
+      "severity": "error",
+      "title": "Last owner cannot be removed",
+      "cause": "The change would leave the organisation without an owner.",
+      "fix": "Make another member an owner first."
+    },
+    {
+      "code": "PLX-8200",
+      "reason": "EXPERIMENT_OVERLAPS_LAYER",
+      "severity": "error",
+      "title": "Experiment overlaps its layer",
+      "cause": "Another running experiment in the same layer targets the same audience.",
+      "fix": "End the other experiment or choose another layer."
+    },
+    {
+      "code": "PLX-8201",
+      "reason": "SAMPLE_SIZE_NOT_REACHED",
+      "severity": "error",
+      "title": "Sample size not reached",
+      "cause": "The experiment has not collected the sample size needed to declare a winner.",
+      "fix": "Wait for the required sample size."
+    },
+    {
+      "code": "PLX-8202",
+      "reason": "SAMPLE_RATIO_MISMATCH",
+      "severity": "error",
+      "title": "Sample ratio mismatch",
+      "cause": "The observed split of the experiment differs from the configured weights beyond chance.",
+      "fix": "Investigate the assignment before trusting the results."
+    },
+    {
+      "code": "PLX-8203",
+      "reason": "FLAG_TYPE_CHANGE_REFUSED",
+      "severity": "error",
+      "title": "Flag type change refused",
+      "cause": "The type of an existing flag cannot be changed.",
+      "fix": "Create a new flag with the new type."
+    },
+    {
+      "code": "PLX-8300",
+      "reason": "INGESTION_OVER_QUOTA",
+      "severity": "error",
+      "title": "Ingestion over quota",
+      "cause": "The telemetry ingested exceeds the quota of the organisation.",
+      "fix": "Reduce the event volume or ask for a higher quota."
+    },
+    {
+      "code": "PLX-8301",
+      "reason": "RETENTION_CHANGE_SCHEDULED",
+      "severity": "info",
+      "title": "Retention change scheduled",
+      "cause": "A change of the retention period is scheduled and takes effect later.",
+      "fix": "No action is needed; cancel the change if it is not intended."
+    },
+    {
+      "code": "PLX-8302",
+      "reason": "EXPORT_DESTINATION_UNREACHABLE",
+      "severity": "error",
+      "title": "Export destination unreachable",
+      "cause": "The server could not reach the export destination.",
+      "fix": "Check the destination address and credentials."
+    },
+    {
+      "code": "PLX-8400",
+      "reason": "CHANNEL_MISCONFIGURED",
+      "severity": "error",
+      "title": "Notification channel misconfigured",
+      "cause": "The settings of the notification channel are incomplete or invalid.",
+      "fix": "Correct the channel settings."
+    },
+    {
+      "code": "PLX-8401",
+      "reason": "DELIVERY_FAILED",
+      "severity": "error",
+      "title": "Delivery failed after retries",
+      "cause": "A notification or webhook could not be delivered after all retries.",
+      "fix": "Check the destination and send the notification again."
+    },
+    {
+      "code": "PLX-8500",
+      "reason": "SIEM_DESTINATION_UNREACHABLE",
+      "severity": "error",
+      "title": "SIEM destination unreachable",
+      "cause": "The server could not reach the SIEM destination for the audit export.",
+      "fix": "Check the destination address and credentials."
+    },
+    {
+      "code": "PLX-8501",
+      "reason": "SUBJECT_NOT_FOUND",
+      "severity": "error",
+      "title": "Subject not found",
+      "cause": "No data subject matches the request.",
+      "fix": "Check the subject identifier."
+    },
+    {
+      "code": "PLX-8502",
+      "reason": "RECONSTRUCTION_DATA_EXPIRED",
+      "severity": "error",
+      "title": "Reconstruction data no longer retained",
+      "cause": "The data needed to reconstruct the state is past its retention period.",
+      "fix": "Choose a point in time within the retention period."
+    },
+    {
+      "code": "PLX-8503",
+      "reason": "GIT_REMOTE_REFUSED",
+      "severity": "error",
+      "title": "Git remote refused",
+      "cause": "The Git remote rejected the export.",
+      "fix": "Check the remote address, credentials and branch protection."
+    },
+    {
+      "code": "PLX-8600",
+      "reason": "ENTERPRISE_FEATURE_NOT_LICENSED",
+      "severity": "error",
+      "title": "Enterprise feature not licensed",
+      "cause": "The feature belongs to the enterprise edition and the licence does not include it.",
+      "fix": "Install a licence that includes the feature."
+    },
+    {
+      "code": "PLX-8601",
+      "reason": "LICENSE_INVALID",
+      "severity": "error",
+      "title": "Licence invalid",
+      "cause": "The licence does not verify or does not belong to this installation.",
+      "fix": "Install a valid licence."
+    },
+    {
+      "code": "PLX-8602",
+      "reason": "LICENSE_EXPIRED",
+      "severity": "warning",
+      "title": "Licence expired",
+      "cause": "The licence is past its expiry and the grace period is running.",
+      "fix": "Install a renewed licence before the grace period ends."
+    },
+    {
+      "code": "PLX-8603",
+      "reason": "LICENSE_LIMIT_EXCEEDED",
+      "severity": "error",
+      "title": "Licence limit exceeded",
+      "cause": "The change would exceed a limit of the licence, such as the number of seats.",
+      "fix": "Reduce usage or install a licence with a higher limit."
     },
     {
       "code": "PLX-9100",

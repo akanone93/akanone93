@@ -185,6 +185,12 @@ enum PluxLimit {
   dpopProofBytes('dpop.proofBytes', PluxLimitUnit.bytes, 8192, 0, 32768),
   /// Proof identifiers the DPoP replay cache holds.
   dpopReplayCacheEntries('dpop.replayCacheEntries', PluxLimitUnit.count, 1000000, 0, 100000000),
+  /// Size of one data subject export archive.
+  dsrExportBytes('dsr.exportBytes', PluxLimitUnit.bytes, 268435456, 0, 4294967296),
+  /// Experiments that may be running at once in one app.
+  experimentsActivePerApp('experiments.activePerApp', PluxLimitUnit.count, 20, 0, 500),
+  /// Feature flags one app may define.
+  flagsPerApp('flags.perApp', PluxLimitUnit.count, 500, 0, 10000),
   /// Memory one function build may use.
   functionBuildMemory('function.buildMemory', PluxLimitUnit.bytes, 4294967296, 0, 17179869184),
   /// Wall-clock time one function build may run.
@@ -249,6 +255,9 @@ enum PluxLimit {
   /// pinned client when the security setting pinnedMediaOnly is on (SEC-041:
   /// platform players cannot use the pinned client).
   mediaPinnedDownloadSize('media.pinnedDownloadSize', PluxLimitUnit.bytes, 209715200, 0, 1073741824),
+  /// Notifications one organisation may send in an hour across all channels;
+  /// the excess is dropped and audited.
+  notificationsPerHour('notifications.perHour', PluxLimitUnit.count, 600, 0, 100000),
   /// Animations that can run at the same time on one page.
   pageAnimations('page.animations', PluxLimitUnit.count, 30, 10, 200),
   /// Estimated build time of a page on the mid-tier reference device, the sum
@@ -290,8 +299,13 @@ enum PluxLimit {
   pxlRegexRepeat('pxl.regexRepeat', PluxLimitUnit.count, 100, 0, 1000),
   /// Length of a string produced during one PXL evaluation.
   pxlStringLength('pxl.stringLength', PluxLimitUnit.codepoints, 65536, 0, 1048576),
+  /// Days of release and device history kept for reconstruction of what a
+  /// device ran (SEC-142); older data is no longer reconstructable.
+  reconstructionRetentionDays('reconstruction.retentionDays', PluxLimitUnit.count, 365, 0, 3650),
   /// Total size of one app release: the app bundle and every plugin bundle.
   releaseAppSize('release.appSize', PluxLimitUnit.bytes, 104857600, 0, 1073741824),
+  /// Staged rollouts that may be in progress at once in one app.
+  rolloutsActivePerApp('rollouts.activePerApp', PluxLimitUnit.count, 10, 0, 100),
   /// Disk space the runtime's cache of remote images may use on one device.
   runtimeImageDiskCacheBytes('runtime.imageDiskCacheBytes', PluxLimitUnit.bytes, 67108864, 0, 1073741824),
   /// Size of one remote image the runtime downloads; a larger one is refused.
@@ -303,6 +317,8 @@ enum PluxLimit {
   runtimeSectionCacheEntries('runtime.sectionCacheEntries', PluxLimitUnit.count, 64, 0, 4096),
   /// Milliseconds a strong customer authentication challenge stays valid.
   scaChallengeLifetime('sca.challengeLifetime', PluxLimitUnit.milliseconds, 300000, 0, 900000),
+  /// Results one search page may return.
+  searchResultsPerPage('search.resultsPerPage', PluxLimitUnit.count, 50, 0, 200),
   /// Bytes of a security configuration, encoded.
   securityConfigBytes('securityConfig.bytes', PluxLimitUnit.bytes, 65536, 0, 1048576),
   /// Bytes of a security configuration patch, encoded.
@@ -315,9 +331,15 @@ enum PluxLimit {
   /// (plain; secure state is the encrypted one, plan p5 B6); writes beyond it
   /// stay in memory and are reported.
   stateSecureBytes('state.secureBytes', PluxLimitUnit.bytes, 65536, 0, 1048576),
+  /// Bytes one telemetry batch may carry on the wire after decompression.
+  telemetryBatchBytes('telemetry.batchBytes', PluxLimitUnit.bytes, 262144, 0, 4194304),
   /// The size of the runtime's buffer of unsent telemetry events; the oldest
   /// are dropped first.
   telemetryBufferBytes('telemetry.bufferBytes', PluxLimitUnit.bytes, 262144, 0, 4194304),
+  /// Runtime events one device may send in an hour; events above it are dropped
+  /// and counted. Conservative default of ten per minute on average, with room
+  /// for bursts.
+  telemetryEventsPerDevicePerHour('telemetry.eventsPerDevicePerHour', PluxLimitUnit.count, 600, 0, 100000),
   /// Runtime events one telemetry request may carry.
   telemetryEventsPerRequest('telemetry.eventsPerRequest', PluxLimitUnit.count, 500, 0, 5000),
   /// Size of one translation import file.
@@ -326,7 +348,9 @@ enum PluxLimit {
   translationMessageSize('translation.messageSize', PluxLimitUnit.bytes, 4096, 0, 65536),
   /// Size of one update metadata file (root, snapshot or timestamp) a device
   /// accepts and the server serves.
-  updateMetadataBytes('updateMetadata.bytes', PluxLimitUnit.bytes, 1048576, 0, 4194304);
+  updateMetadataBytes('updateMetadata.bytes', PluxLimitUnit.bytes, 1048576, 0, 4194304),
+  /// Outbound webhook endpoints one organisation may configure.
+  webhooksPerOrg('webhooks.perOrg', PluxLimitUnit.count, 50, 0, 1000);
 
   const PluxLimit(this.key, this.unit, this.defaultValue, this.warning, this.max);
 

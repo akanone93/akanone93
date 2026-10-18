@@ -763,6 +763,31 @@ var registry = []Definition{
 
 	// Compiler and PXL.
 	{
+		PolicyDocumentInvalid, "POLICY_DOCUMENT_INVALID", SeverityError, "Policy document invalid",
+		"A policy document does not match its schema or names an unknown rule.",
+		"Correct the policy document against its schema and save it again.", false,
+	},
+	{
+		UnknownFlagType, "UNKNOWN_FLAG_TYPE", SeverityError, "Unknown flag type",
+		"A flag declares a type that is not one of the registered flag types.",
+		"Use a registered flag type.", false,
+	},
+	{
+		VariantWithoutControl, "VARIANT_WITHOUT_CONTROL", SeverityError, "Variant without a control",
+		"An experiment or variant set has variants but none is marked as the control.",
+		"Mark exactly one variant as the control.", false,
+	},
+	{
+		VariantWeightsInvalid, "VARIANT_WEIGHTS_INVALID", SeverityError, "Variant weights do not sum to 100",
+		"The weights of the variants of an experiment do not add up to 100.",
+		"Adjust the weights so that they sum to 100.", false,
+	},
+	{
+		SegmentRuleInvalid, "SEGMENT_RULE_INVALID", SeverityError, "Segment rule invalid",
+		"A segment rule is malformed or uses an attribute or operator the segment grammar does not define.",
+		"Correct the rule so that it uses only defined attributes and operators.", false,
+	},
+	{
 		PXLSyntaxError, "PXL_SYNTAX_ERROR", SeverityError, "PXL syntax error",
 		"The expression does not follow the PXL grammar at the reported position.",
 		"Correct the expression; the PXL reference describes the grammar.", false,
@@ -875,6 +900,21 @@ var registry = []Definition{
 
 	// Release and sync.
 	{
+		ExperimentKeyUnknown, "EXPERIMENT_KEY_UNKNOWN", SeverityError, "Experiment key unknown",
+		"A variant or winner refers to an experiment key that the app does not define.",
+		"Use the key of an experiment defined in the app.", false,
+	},
+	{
+		WinnerNotAVariant, "WINNER_NOT_A_VARIANT", SeverityError, "Winner is not a variant of the experiment",
+		"The variant chosen for promotion is not one of the variants of the experiment.",
+		"Choose one of the variants the experiment defines.", false,
+	},
+	{
+		VariantTreeExceedsBudget, "VARIANT_TREE_EXCEEDS_BUDGET", SeverityError, "Variant tree exceeds the node budget",
+		"Applying the variant gives a page more nodes than the node budget allows.",
+		"Reduce the variant, or split the page.", false,
+	},
+	{
 		ManifestSignatureInvalid, "MANIFEST_SIGNATURE_INVALID", SeverityError, "Manifest signature invalid",
 		"The manifest is not signed by a key the app trusts, is not in canonical form, or names another app, environment or channel (SEC-052, ADR-0029).",
 		"The device keeps its current release. Check that the app embeds the environment's keys from `plux pull`, and that the server signs with that environment's key.", false,
@@ -976,6 +1016,51 @@ var registry = []Definition{
 	},
 
 	// Runtime rendering and navigation.
+	{
+		ControlSignatureInvalid, "CONTROL_SIGNATURE_INVALID", SeverityError, "Control document signature invalid",
+		"The signature of a control document does not verify against the trusted keys.",
+		"Fetch the control document again; if it persists, report a possible tampering.", false,
+	},
+	{
+		ControlDocumentExpired, "CONTROL_DOCUMENT_EXPIRED", SeverityError, "Control document expired",
+		"The control document is past its expiry time.",
+		"Fetch a current control document.", false,
+	},
+	{
+		ControlRollbackRejected, "CONTROL_ROLLBACK_REJECTED", SeverityError, "Control rollback rejected",
+		"The control document has an older version than the one already applied, so it was refused.",
+		"Publish a control document with a higher version.", false,
+	},
+	{
+		MandatoryUpdatePending, "MANDATORY_UPDATE_PENDING", SeverityError, "Mandatory update pending",
+		"The control document requires an update that has not been applied yet.",
+		"Apply the pending update.", false,
+	},
+	{
+		ForcedRollbackApplied, "FORCED_ROLLBACK_APPLIED", SeverityWarning, "Forced rollback applied",
+		"The control document forced a rollback, so the release in use was replaced.",
+		"Publish a fixed release to move forward again.", false,
+	},
+	{
+		RolloutPausedByHealthGate, "ROLLOUT_PAUSED_BY_HEALTH_GATE", SeverityError, "Rollout paused by a health gate",
+		"A health gate of the rollout failed, so the rollout stopped advancing.",
+		"Investigate the failing health signal, then resume or roll back.", false,
+	},
+	{
+		RolloutRolledBack, "ROLLOUT_ROLLED_BACK", SeverityError, "Rollout rolled back",
+		"The rollout was rolled back, by a health gate or by a person.",
+		"Publish a corrected release and start a new rollout.", false,
+	},
+	{
+		TargetingRuleInvalid, "TARGETING_RULE_INVALID", SeverityError, "Targeting rule invalid",
+		"A targeting rule is malformed or uses an attribute or operator that is not defined.",
+		"Correct the targeting rule.", false,
+	},
+	{
+		ScheduleOverlapsRollout, "SCHEDULE_OVERLAPS_ROLLOUT", SeverityError, "Schedule overlaps another rollout",
+		"The schedule overlaps the schedule of another rollout in the same scope.",
+		"Choose a time that does not overlap another rollout.", false,
+	},
 	{
 		NodeBuildFailed, "NODE_BUILD_FAILED", SeverityError, "Build error in node",
 		"Building, laying out or painting a node failed, or a value it needs could not be decoded or evaluated. The page's error boundary rendered its fallback (RT-020). A PluxView that expands in unbounded constraints shows its fallback with it too (NAV-004).",
@@ -1599,6 +1684,51 @@ var registry = []Definition{
 
 	// Functions.
 	{
+		StepUpRequired, "STEP_UP_REQUIRED", SeverityError, "Step-up required",
+		"The action needs a fresh stronger authentication than the session holds.",
+		"Complete the step-up challenge and repeat the call.", false,
+	},
+	{
+		StepUpExpired, "STEP_UP_EXPIRED", SeverityError, "Step-up expired",
+		"The step-up authentication is too old for this action.",
+		"Complete the step-up challenge again and repeat the call.", false,
+	},
+	{
+		WebAuthnAssertionInvalid, "WEBAUTHN_ASSERTION_INVALID", SeverityError, "WebAuthn assertion invalid",
+		"The WebAuthn assertion does not verify against the registered credential.",
+		"Try again with a registered authenticator.", false,
+	},
+	{
+		SAMLResponseInvalid, "SAML_RESPONSE_INVALID", SeverityError, "SAML response invalid",
+		"The SAML response failed signature, audience, destination or time checks.",
+		"Check the identity provider configuration and sign in again.", false,
+	},
+	{
+		SAMLAssertionReplayed, "SAML_ASSERTION_REPLAYED", SeverityError, "SAML assertion replayed",
+		"The SAML assertion was already used once.",
+		"Start a new sign-in.", false,
+	},
+	{
+		SCIMRequestInvalid, "SCIM_REQUEST_INVALID", SeverityError, "SCIM request invalid",
+		"A SCIM request is malformed or the token that carried it is not valid.",
+		"Check the request and the SCIM token.", false,
+	},
+	{
+		SessionRevoked, "SESSION_REVOKED", SeverityError, "Session revoked",
+		"The session was revoked by its owner or an administrator.",
+		"Sign in again.", false,
+	},
+	{
+		SessionIdleTimeout, "SESSION_IDLE_TIMEOUT", SeverityError, "Session idle timeout",
+		"The session was idle for longer than the organisation allows.",
+		"Sign in again.", false,
+	},
+	{
+		SessionAbsoluteTimeout, "SESSION_ABSOLUTE_TIMEOUT", SeverityError, "Session absolute timeout",
+		"The session reached the maximum lifetime the organisation allows.",
+		"Sign in again.", false,
+	},
+	{
 		FunctionTimeout, "FUNCTION_TIMEOUT", SeverityError, "Function timed out",
 		"The invocation ran longer than the wall-time limit of the function (FN-011, FN-053).",
 		"Make the function do less work per call, or raise `function.timeout` or `function.deviceTimeout` within the registry maximum.", false,
@@ -1729,6 +1859,21 @@ var registry = []Definition{
 		"Handle the error in the action graph's error path; the code and message key come from the function.", false,
 	},
 	{
+		CronExpressionInvalid, "CRON_EXPRESSION_INVALID", SeverityError, "Cron expression invalid",
+		"The cron expression of a trigger cannot be parsed or schedules more often than allowed.",
+		"Correct the expression.", false,
+	},
+	{
+		WebhookSignatureInvalid, "WEBHOOK_SIGNATURE_INVALID", SeverityError, "Inbound webhook signature invalid",
+		"The signature of an inbound webhook request does not verify.",
+		"Check the shared secret and the signing scheme of the sender.", false,
+	},
+	{
+		WebhookReplayed, "WEBHOOK_REPLAYED", SeverityError, "Inbound webhook replayed",
+		"An inbound webhook request was already processed or is outside the replay window.",
+		"Send a new request with a fresh timestamp and identifier.", false,
+	},
+	{
 		FunctionBuildFailed, "FUNCTION_BUILD_FAILED", SeverityError, "Function build failed",
 		"The build did not produce a module; the diagnostics name the compiler or linker error (FN-016).",
 		"Fix the reported errors and build again.", false,
@@ -1765,6 +1910,41 @@ var registry = []Definition{
 	},
 
 	// Governance.
+	{
+		ApprovalRequired, "APPROVAL_REQUIRED", SeverityError, "Approval required",
+		"The change needs an approval under the organisation policy and has none yet.",
+		"Request an approval and repeat the call once it is granted.", false,
+	},
+	{
+		ApprovalInvalidated, "APPROVAL_INVALIDATED", SeverityError, "Approval invalidated by a content change",
+		"The content changed after it was approved, so the approval no longer applies.",
+		"Request a new approval for the changed content.", false,
+	},
+	{
+		ApproverNotEligible, "APPROVER_NOT_ELIGIBLE", SeverityError, "Approver not eligible",
+		"The approver is the author or does not belong to the team or hold the role the policy requires.",
+		"Ask an eligible approver.", false,
+	},
+	{
+		ApprovalExpired, "APPROVAL_EXPIRED", SeverityError, "Approval expired",
+		"The approval is older than the policy allows.",
+		"Request a new approval.", false,
+	},
+	{
+		BreakGlassJustificationRequired, "BREAK_GLASS_JUSTIFICATION_REQUIRED", SeverityError, "Break-glass justification required",
+		"A break-glass action needs a written justification and none was given.",
+		"Add a justification and repeat the call.", false,
+	},
+	{
+		PostHocReviewOverdue, "POST_HOC_REVIEW_OVERDUE", SeverityWarning, "Post-hoc review overdue",
+		"A break-glass action was not reviewed within the period the policy sets.",
+		"Complete the review of the break-glass action.", false,
+	},
+	{
+		ChangeFreezeActive, "CHANGE_FREEZE_ACTIVE", SeverityError, "Change freeze active",
+		"A change freeze blocks this action in this scope.",
+		"Wait for the freeze to end, or invoke break-glass if you may.", false,
+	},
 	{
 		MultiFactorRequired, "MULTI_FACTOR_REQUIRED", SeverityError, "Second factor required",
 		"The capability this call needs — publishing, approving, managing keys or managing members — requires a second factor, and the session has not completed one (SEC-100).",
@@ -1852,6 +2032,111 @@ var registry = []Definition{
 	},
 
 	// Studio, CLI and AI.
+	{
+		RoleUnknown, "ROLE_UNKNOWN", SeverityError, "Role unknown",
+		"The role does not exist in the organisation.",
+		"Use an existing role.", false,
+	},
+	{
+		PermissionNotInCatalogue, "PERMISSION_NOT_IN_CATALOGUE", SeverityError, "Permission not in the catalogue",
+		"The permission is not in the permission catalogue.",
+		"Use a permission from the catalogue.", false,
+	},
+	{
+		ScopeInvalid, "SCOPE_INVALID", SeverityError, "Scope invalid",
+		"The scope of a grant does not name an environment or app of the organisation.",
+		"Use a scope that names an environment or app of the organisation.", false,
+	},
+	{
+		LastOwnerCannotBeRemoved, "LAST_OWNER_CANNOT_BE_REMOVED", SeverityError, "Last owner cannot be removed",
+		"The change would leave the organisation without an owner.",
+		"Make another member an owner first.", false,
+	},
+	{
+		ExperimentOverlapsLayer, "EXPERIMENT_OVERLAPS_LAYER", SeverityError, "Experiment overlaps its layer",
+		"Another running experiment in the same layer targets the same audience.",
+		"End the other experiment or choose another layer.", false,
+	},
+	{
+		SampleSizeNotReached, "SAMPLE_SIZE_NOT_REACHED", SeverityError, "Sample size not reached",
+		"The experiment has not collected the sample size needed to declare a winner.",
+		"Wait for the required sample size.", false,
+	},
+	{
+		SampleRatioMismatch, "SAMPLE_RATIO_MISMATCH", SeverityError, "Sample ratio mismatch",
+		"The observed split of the experiment differs from the configured weights beyond chance.",
+		"Investigate the assignment before trusting the results.", false,
+	},
+	{
+		FlagTypeChangeRefused, "FLAG_TYPE_CHANGE_REFUSED", SeverityError, "Flag type change refused",
+		"The type of an existing flag cannot be changed.",
+		"Create a new flag with the new type.", false,
+	},
+	{
+		IngestionOverQuota, "INGESTION_OVER_QUOTA", SeverityError, "Ingestion over quota",
+		"The telemetry ingested exceeds the quota of the organisation.",
+		"Reduce the event volume or ask for a higher quota.", false,
+	},
+	{
+		RetentionChangeScheduled, "RETENTION_CHANGE_SCHEDULED", SeverityInfo, "Retention change scheduled",
+		"A change of the retention period is scheduled and takes effect later.",
+		"No action is needed; cancel the change if it is not intended.", false,
+	},
+	{
+		ExportDestinationUnreachable, "EXPORT_DESTINATION_UNREACHABLE", SeverityError, "Export destination unreachable",
+		"The server could not reach the export destination.",
+		"Check the destination address and credentials.", false,
+	},
+	{
+		ChannelMisconfigured, "CHANNEL_MISCONFIGURED", SeverityError, "Notification channel misconfigured",
+		"The settings of the notification channel are incomplete or invalid.",
+		"Correct the channel settings.", false,
+	},
+	{
+		DeliveryFailed, "DELIVERY_FAILED", SeverityError, "Delivery failed after retries",
+		"A notification or webhook could not be delivered after all retries.",
+		"Check the destination and send the notification again.", false,
+	},
+	{
+		SIEMDestinationUnreachable, "SIEM_DESTINATION_UNREACHABLE", SeverityError, "SIEM destination unreachable",
+		"The server could not reach the SIEM destination for the audit export.",
+		"Check the destination address and credentials.", false,
+	},
+	{
+		SubjectNotFound, "SUBJECT_NOT_FOUND", SeverityError, "Subject not found",
+		"No data subject matches the request.",
+		"Check the subject identifier.", false,
+	},
+	{
+		ReconstructionDataExpired, "RECONSTRUCTION_DATA_EXPIRED", SeverityError, "Reconstruction data no longer retained",
+		"The data needed to reconstruct the state is past its retention period.",
+		"Choose a point in time within the retention period.", false,
+	},
+	{
+		GitRemoteRefused, "GIT_REMOTE_REFUSED", SeverityError, "Git remote refused",
+		"The Git remote rejected the export.",
+		"Check the remote address, credentials and branch protection.", false,
+	},
+	{
+		EnterpriseFeatureNotLicensed, "ENTERPRISE_FEATURE_NOT_LICENSED", SeverityError, "Enterprise feature not licensed",
+		"The feature belongs to the enterprise edition and the licence does not include it.",
+		"Install a licence that includes the feature.", false,
+	},
+	{
+		LicenseInvalid, "LICENSE_INVALID", SeverityError, "Licence invalid",
+		"The licence does not verify or does not belong to this installation.",
+		"Install a valid licence.", false,
+	},
+	{
+		LicenseExpired, "LICENSE_EXPIRED", SeverityWarning, "Licence expired",
+		"The licence is past its expiry and the grace period is running.",
+		"Install a renewed licence before the grace period ends.", false,
+	},
+	{
+		LicenseLimitExceeded, "LICENSE_LIMIT_EXCEEDED", SeverityError, "Licence limit exceeded",
+		"The change would exceed a limit of the licence, such as the number of seats.",
+		"Reduce usage or install a licence with a higher limit.", false,
+	},
 	{
 		CLIConfigurationInvalid, "CLI_CONFIGURATION_INVALID", SeverityError, "Invalid CLI configuration",
 		"A command-line argument, flag or configuration value is invalid.",
