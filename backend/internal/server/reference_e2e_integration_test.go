@@ -31,9 +31,11 @@ type referenceApp struct {
 	fixture string
 	dir     string
 	addr    string
-	// id is the Android application ID, and a11yTarget the Dart entry point
-	// the accessibility-tree test's build runs (QA-011).
+	// id is the Android application ID, iosID the iOS bundle identifier, and
+	// a11yTarget the Dart entry point the accessibility-tree test's build
+	// runs (QA-011).
 	id         string
+	iosID      string
 	a11yTarget string
 }
 
@@ -48,7 +50,7 @@ type referenceApp struct {
 func TestPluxBankAgainstTheServer(t *testing.T) {
 	runReferenceApp(t, referenceApp{
 		fixture: "plux_bank", dir: "plux_bank", addr: deviceAddr("127.0.0.1:18097"),
-		id: "dev.plux.plux_bank", a11yTarget: "integration_test/a11y_main.dart",
+		id: "dev.plux.plux_bank", iosID: "dev.plux.pluxBank", a11yTarget: "integration_test/a11y_main.dart",
 	})
 }
 
@@ -62,7 +64,7 @@ func TestPluxBankAgainstTheServer(t *testing.T) {
 func TestPluxExpressAgainstTheServer(t *testing.T) {
 	runReferenceApp(t, referenceApp{
 		fixture: "plux_express", dir: "plux_express", addr: deviceAddr("127.0.0.1:18098"),
-		id: "dev.plux.plux_express", a11yTarget: "lib/main.dart",
+		id: "dev.plux.plux_express", iosID: "dev.plux.pluxExpress", a11yTarget: "lib/main.dart",
 	})
 }
 
@@ -186,6 +188,12 @@ func runReferenceApp(t *testing.T, app referenceApp) {
 			t.Setenv("PLUX_E2E_XCRESULT", strings.TrimSuffix(bundle, ".xcresult")+"-"+app.dir+".xcresult")
 		}
 		steps, succeeded = deviceSteps(flutter, device, defines)
+		if os.Getenv("PLUX_E2E_XCTEST") != "" {
+			// The scheme runs the UI tests too; they need the accessibility
+			// pass's build, so the flows' run leaves them out.
+			last := len(steps) - 1
+			steps[last] = append(steps[last], "-skip-testing:RunnerUITests")
+		}
 	}
 	var out bytes.Buffer
 	var err error
@@ -207,10 +215,14 @@ func runReferenceApp(t *testing.T, app referenceApp) {
 		t.Fatalf("%s's flows failed: %v", app.dir, err)
 	}
 
-	// On an Android emulator the app's accessibility tree is walked too
+	// On an emulator or simulator the app's accessibility tree is walked too
 	// (QA-011): the platform's own view of the pages the flows drove.
-	if device := os.Getenv("PLUX_E2E_DEVICE"); device != "" && os.Getenv("PLUX_E2E_XCTEST") == "" {
-		accessibilityTreePass(ctx, t, app, dir, device, defines)
+	if device := os.Getenv("PLUX_E2E_DEVICE"); device != "" {
+		if os.Getenv("PLUX_E2E_XCTEST") != "" {
+			accessibilityTreePassIOS(ctx, t, app, dir, device, defines)
+		} else {
+			accessibilityTreePass(ctx, t, app, dir, device, defines)
+		}
 	}
 
 	// The device synced from this server: it reported what the runtime
@@ -438,6 +450,35 @@ func accessibilityTreePass(ctx context.Context, t *testing.T, app referenceApp, 
 		t.Fatalf("%s's accessibility-tree pass on %s:\n%s", app.dir, device, tail(out, 150))
 	}
 	t.Logf("%s's accessibility-tree pass on %s:\n%s", app.dir, device, tail(out, 10))
+}
+
+// accessibilityTreePassIOS is accessibilityTreePass for a simulator: it builds
+// the app for the simulator with the flows' defines and its a11yTarget, then
+// runs its XCUITests (AccessibilityTreeTests, in ios/RunnerUITests) through
+// the Runner scheme. The app starts from a clean install, so it signs in anew.
+func accessibilityTreePassIOS(ctx context.Context, t *testing.T, app referenceApp, dir, device string, defines []string) {
+	t.Helper()
+	build := exec.CommandContext(ctx, os.Getenv("PLUX_E2E_FLUTTER"), append([]string{"build", "ios", "--simulator", "--debug", "--target=" + app.a11yTarget}, defines...)...) //nolint:gosec // G204: the flutter the developer named.
+	build.Dir = dir
+	if out, err := build.CombinedOutput(); err != nil {
+		t.Fatalf("flutter build ios for %s's accessibility-tree pass: %v\n%s", app.dir, err, tail(string(out), 150))
+	}
+	_ = exec.CommandContext(ctx, "xcrun", "simctl", "uninstall", device, app.iosID).Run() //nolint:gosec // G204: the simulator the developer named.
+	args := []string{
+		"test", "-workspace", "ios/Runner.xcworkspace", "-scheme", "Runner", "-configuration", "Debug",
+		"-destination", "platform=iOS Simulator,id=" + device, "-parallel-testing-enabled", "NO",
+		"-only-testing:RunnerUITests/AccessibilityTreeTests",
+	}
+	if bundle := os.Getenv("PLUX_E2E_XCRESULT"); bundle != "" {
+		args = append(args, "-resultBundlePath", strings.TrimSuffix(bundle, ".xcresult")+"-a11y.xcresult")
+	}
+	xcodebuild := exec.CommandContext(ctx, "xcodebuild", args...) //nolint:gosec // G204: Xcode and the simulator the developer named.
+	xcodebuild.Dir = dir
+	out, err := xcodebuild.CombinedOutput()
+	if err != nil || !strings.Contains(string(out), "** TEST SUCCEEDED **") {
+		t.Fatalf("%s's accessibility-tree pass on %s: %v\n%s", app.dir, device, err, tail(string(out), 150))
+	}
+	t.Logf("%s's accessibility-tree pass on %s:\n%s", app.dir, device, tail(string(out), 10))
 }
 
 // flowsTail is how many lines of a failed run's output the driver prints.
