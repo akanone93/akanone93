@@ -81,5 +81,6 @@ Files are named `NNNN-short-title.md` with a four-digit, never-reused number. Th
 | [0069](0069-accessibility-checks-and-report.md) | Accessibility checks at publish, waivers, report and runtime semantics | P8 | Proposed |
 | [0070](0070-golden-tests.md) | Golden tests: harness, canonical renderer, server baselines, publish gate | P8 | Proposed |
 | [0071](0071-catalogue-completion.md) | Catalogue completion: the widget catch-up, widget packages and `catalogue-check` | P8 | Proposed |
+| [0072](0072-p9-scope-p16-mini-apps.md) | P9 scope: Phase P16 for mini-apps; `SEC-191` to P12; `DX-005` and `DEP-060` withdrawn | P9 | Accepted |
 
 The decisions for planned ADRs are summarised in spec §32 and §34.1. Each is written in full before or alongside the first implementation that depends on it, and its status is updated here.

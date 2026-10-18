@@ -1,7 +1,7 @@
 # Plux — System Requirements Specification
 
 **Document ID:** `SRS-PLUX-001`
-**Version:** 1.6.1
+**Version:** 1.7.0
 **Status:** Draft — living document, revised as implementation proceeds
 **Date:** 2026-10-18
 **Applies to:** Plux Schema, Plux Compiler, Plux Server, Plux Functions, `plux_flutter` runtime, Plux Dev app, Plux Studio, Plux CLI, Plux AI
@@ -298,7 +298,7 @@ Every normative requirement carries a stable identifier `<AREA>-<NNN>`. Identifi
 
 ### 4.3 Phase and status tags
 
-Each requirement carries a phase tag `P0`–`P15` (§5) indicating when it becomes binding, and a `Status` from this controlled vocabulary:
+Each requirement carries a phase tag `P0`–`P16` (§5) indicating when it becomes binding, and a `Status` from this controlled vocabulary:
 
 | Status | Meaning |
 |---|---|
@@ -321,7 +321,7 @@ All requirement tables use the columns `ID | Phase | Priority | Requirement | St
 
 ## 5. Delivery Phases and Milestones
 
-Plux is delivered in sixteen phases. Each phase produces an **independently demonstrable, fully tested increment**; no phase leaves the system partially working. Core engine first, Studio last: the runtime, bundle format and security model are the foundations everything else depends on, and they are the hardest to change later.
+Plux is delivered in seventeen phases. Each phase produces an **independently demonstrable, fully tested increment**; no phase leaves the system partially working. Core engine first, Studio last: the runtime, bundle format and security model are the foundations everything else depends on, and they are the hardest to change later.
 
 ```mermaid
 flowchart LR
@@ -335,7 +335,7 @@ flowchart LR
       P10[P10 Dev app + debugging] --> P11[P11 Studio] --> P12[P12 AI generation]
     end
     subgraph M4["M4 — Growth"]
-      P13[P13 Payments] --> P14[P14 Collaboration] --> P15[P15 Multi-tenant operation]
+      P13[P13 Payments] --> P14[P14 Collaboration] --> P15[P15 Multi-tenant operation] --> P16[P16 Super-app + partner mini-apps]
     end
     P5 --> P6
     P9 --> P10
@@ -362,6 +362,7 @@ flowchart LR
 | **P13** | **Payments** | Payment action and server-side provider interface; adapters for Telebirr, Chapa, M-Pesa and Stripe; SCA transaction signing; webhooks; reconciliation. | Sandbox payments complete end to end for every adapter with SCA; PCI DSS scope stays at SAQ A. |
 | **P14** | **Collaboration** | Real-time co-editing (CRDT), presence, comments, mentions, notifications. | Two editors edit one plugin concurrently without data loss; validation remains authoritative on the server. |
 | **P15** | **Multi-tenant operation** | Strict tenant isolation, per-tenant keys, quotas, usage metering interfaces, self-service organisation creation, public template gallery, status endpoint. | A new organisation is created and ships a plugin on a shared installation without operator involvement; isolation tests pass. |
+| **P16** | **Super-app and partner mini-apps** | Mini-app mode: one host binary runs several Plux apps and web-based mini-apps, each isolated with its own bundles, state, storage, theme and host-approved capabilities, deeply integrated with the host's plugin system. Partner organisations are invited as accounts with a detailed permission model, build and maintain their own (native-widget or web-based) mini-apps, submit them for the host's review, and publish into the super-app only after the host approves. | A partner organisation builds, submits and, after the host's review, publishes a mini-app into a host super-app, isolated from the host's and other mini-apps' state, storage and events. |
 
 ### 5.2 Milestones
 
@@ -370,7 +371,7 @@ flowchart LR
 | **M1 — Engine** | P0–P5 | JSON → signed binary → device rendering with navigation, actions, state, data and animations. The core technical claim. |
 | **M2 — High-assurance** | P6–P9 | Security, compute, localisation and governance sufficient for a pilot in a regulated industry. |
 | **M3 — Plux 1.0** | P10–P12 | The complete developer product: live device debugging, Studio and AI. |
-| **M4 — Growth** | P13–P15 | Payments, collaboration and multi-tenant operation. |
+| **M4 — Growth** | P13–P16 | Payments, collaboration, multi-tenant operation and the super-app with partner mini-apps. |
 
 ### 5.3 Definition of Done for a phase
 
@@ -1003,7 +1004,7 @@ A Plux screen is addressed by its **app-wide unique route name** with typed para
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `HST-020` | P9 | MUST | The runtime **MUST** support a **mini-app mode** in which one host binary runs several Plux apps (e.g. partner mini-apps in a super-app), each with its own bundles, state, storage namespace, theme and capability grants approved by the host; one mini-app **MUST NOT** read another's state, storage or events. | SPEC |
+| `HST-020` | P16 | MUST | The runtime **MUST** support a **mini-app mode** in which one host binary runs several Plux apps (e.g. partner mini-apps in a super-app), each with its own bundles, state, storage namespace, theme and capability grants approved by the host; one mini-app **MUST NOT** read another's state, storage or events. *Note: moved to P16 (ADR-0072).* | SPEC |
 | `HST-030` | P4 | MUST | `plux codegen` **MUST** generate typed Dart APIs from the app document: route builders with typed parameters and results, event classes, exposed-state accessors and feature-flag accessors, so misuse is a compile error in the host app. | DONE |
 | `HST-031` | P4 | MUST | Integrating native routes, native slots and custom actions **MUST NOT** require changing existing host code beyond one registration point at startup: apps using `go_router` or `auto_route` have their existing named routes discovered automatically; other apps register routes, slot builders and actions in the `Plux.initialize` configuration; `plux native scan` derives descriptors by static analysis (`WGT-030`) and `plux native sync` uploads the catalogue for a host build. | DONE |
 | `HST-021` | P4 | MUST | **Mixed screens** **MUST** be supported in both directions: a plugin page may contain native slots (`WGT-033`), and a native screen may contain any number of `PluxView`s (`NAV-004`). Both sides share state through exposed state entries (`STA-030`), which are observable from native code as streams, so native and plugin content on one screen stay consistent. | DONE |
@@ -1291,9 +1292,10 @@ Security profiles bundle settings so that operators do not need to understand fi
 | RASP response for root/hooking (`raspRootHookingResponse`) | report | degrade | block |
 | Screenshot blocking (`screenshotBlockingDefault`) | per page | per page | default on |
 | Session replay | opt-in | off | off (cannot enable) |
-| Publish approvals (production) | 1 | 2 (four-eyes) | 2 from distinct teams + compliance |
+| Publish approvals, production (`publishApprovals`) | 1 | 2 (four-eyes) | 2 from distinct teams + compliance |
 | Accessibility errors block publish (`accessibilityBlocksPublish`) | – | ✔ | ✔ |
-| Plux tests required for release | – | optional | ✔ |
+| Plux tests and goldens required for release (`requiredTests`, `TST-005`) | – | optional | ✔ |
+| Experiment launch approval (`experimentApproval`) | – | regulated flows | all production experiments |
 | Device-placed functions | ✔ | ✔ | disabled by default |
 | Software DPoP keys (`allowSoftwareKeys`, `SEC-001`) | accepted, capped at AL1 | refused | refused |
 | Direct data-source calls (`allowDirectDataSources`, `SEC-030`) | allowed | allowed | refused |
@@ -1314,7 +1316,7 @@ Security profiles bundle settings so that operators do not need to understand fi
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `SEC-190` | P6 | MUST | The mobile runtime **MUST** be tested against the OWASP MASTG test cases applicable to MASVS L2 and MASVS-RESILIENCE, with results recorded per release. | WIP |
-| `SEC-191` | P9 | MUST | An independent penetration test of the server, Studio and runtime **MUST** be completed before Plux 1.0, with findings tracked to closure. | SPEC |
+| `SEC-191` | P12 | MUST | An independent penetration test of the server, Studio and runtime **MUST** be completed before Plux 1.0, with findings tracked to closure. *Note: moved to P12, before Plux 1.0 (ADR-0072).* | SPEC |
 | `SEC-192` | P0 | MUST | `SECURITY.md` **MUST** define a coordinated vulnerability disclosure process with a response SLA. | DONE |
 
 ---
@@ -1492,6 +1494,8 @@ Plux targets **WCAG 2.2 level AA** and the harmonised European standard **EN 301
 ### 18.2 Approval engine
 
 Approvals are generic: the same engine governs publishing, function deployment, key rotation, secret and role changes, experiment launches on regulated flows and kill-switch changes.
+
+**Default policies per security profile.** A new app starts with the approval policy of its security profile (§15.12), stored as an ordinary policy document that the organisation can tighten. `maximum` requires four-eyes approval on production publish, function deployment, device-function enablement, security-configuration change, accessibility waiver and golden approval, and requires the Plux tests and goldens of `TST-005` to pass. `standard` requires one approver for production publish. A `development` environment has no default approval. Break-glass (`GOV-024`) needs a written justification and opens a post-hoc review due within a configurable time, 24 hours by default in every profile; an overdue review raises `PLX-8006`.
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
@@ -1821,7 +1825,7 @@ The screen editor is the canvas of §21.6 with a screen selected for editing and
 | `DX-002` | P3 | MUST | A documentation site **MUST** cover concepts, quick start, guides per use case (financial services, delivery, campaigns, super-app, no-code apps), the widget catalogue (generated from descriptors), the action catalogue, PXL reference, API references (dartdoc, Go doc, protobuf docs), the security whitepaper, the compliance pack and runbooks. | WIP |
 | `DX-003` | P1 | MUST | Every error and diagnostic **MUST** have a stable code (Appendix F), a clear message, the likely cause, a suggested fix and a link to its documentation page. | DONE |
 | `DX-004` | P5 | MUST | Reference host apps **MUST** be maintained: **Plux Bank** (accounts, transfers with SCA, loan calculator via Functions, KYC capture, secure PIN, English/German/Arabic/Amharic, `maximum` profile) and **Plux Express** (catalogue, cart, scheduled campaign, A/B banners, live order tracking via WebSocket, courier flow with offline outbox), plus a minimal **Starter** app. | WIP |
-| `DX-005` | P9 | MAY | A VS Code extension **MAY** provide schema validation, PXL highlighting and completion, and CLI integration for developers authoring Plux JSON in repositories. | SPEC |
+| `DX-005` | P9 | — | Withdrawn: a VS Code extension is not worth its cost (maintainer, 2026-10-18, ADR-0072). *Original text:* A VS Code extension **MAY** provide schema validation, PXL highlighting and completion, and CLI integration for developers authoring Plux JSON in repositories. | WITHDRAWN |
 | `DX-006` | P3 | MUST | Every release of every component **MUST** have release notes and, where needed, an upgrade guide. | DONE |
 
 ### 22.4 No-code app generation
@@ -1929,7 +1933,7 @@ One Plux installation can serve many independent organisations — for example a
 | `DEP-041` | P2 | MUST | The server **MUST** serve bundles and deltas itself when no CDN is configured, and **MUST** support any CDN in front of object storage because artifacts are immutable and content-addressed. | DONE |
 | `DEP-050` | P9 | SHOULD | Reference infrastructure-as-code modules (OpenTofu/Terraform) **SHOULD** be provided for AWS, Google Cloud and Azure, and an on-premises reference architecture for regulated industries. | SPEC |
 | `DEP-051` | P9 | MUST | A sizing guide **MUST** document resource needs by active devices, apps and publish frequency, backed by load-test results (`QA-007`). | SPEC |
-| `DEP-060` | P5 | SHOULD | A public demonstration environment **SHOULD** run the latest release with the reference apps, reset nightly, with abuse and cost controls. *Note: deferred to P9, which brings HA deployment and cost controls (maintainer, 2026-10-04, P5 plan B1).* | SPEC |
+| `DEP-060` | P5 | — | Withdrawn: the maintainer deploys the product for its market, so no public demonstration environment is built (maintainer, 2026-10-18, ADR-0072). *Original text:* A public demonstration environment **SHOULD** run the latest release with the reference apps, reset nightly, with abuse and cost controls. *Note: deferred to P9, which brings HA deployment and cost controls (maintainer, 2026-10-04, P5 plan B1).* | WITHDRAWN |
 
 ---
 
@@ -2118,6 +2122,7 @@ Significant decisions are recorded as ADRs in `docs/adr/` using MADR. These ADRs
 | 0069 | Accessibility checks at publish, waivers, the report and runtime semantics | P8 |
 | 0070 | Golden tests: harness, canonical renderer, server baselines and the publish gate | P8 |
 | 0071 | Catalogue completion: the widget catch-up, widget packages and `catalogue-check` | P8 |
+| 0072 | P9 scope: Phase P16 for mini-apps; `SEC-191` to P12; `DX-005` and `DEP-060` withdrawn | P9 |
 
 ---
 
@@ -2707,14 +2712,14 @@ Every error and diagnostic has a stable code `PLX-NNNN` (`DX-003`). Codes are gr
 
 | Range | Area | Examples |
 |---|---|---|
-| `PLX-1000`–`1999` | Schema and validation | `PLX-1001` unknown property · `PLX-1102` unresolved reference · `PLX-1203` route parameter missing at navigate · `PLX-1310` page exceeds node budget · `PLX-1401` interactive node without accessible name · `PLX-1500` secret-like value detected |
-| `PLX-2000`–`2999` | Compiler and PXL | `PLX-2001` PXL syntax error · `PLX-2002` PXL type mismatch · `PLX-2010` operation budget exceeded at compile-time evaluation · `PLX-2100` asset transcoding failed |
-| `PLX-3000`–`3999` | Release and sync | `PLX-3001` manifest signature invalid · `PLX-3002` manifest expired · `PLX-3003` rollback attempt rejected · `PLX-3010` unsupported required feature · `PLX-3011` hash mismatch after patch · `PLX-3020` automatic revert to last known good · `PLX-3030` disk quota exceeded |
+| `PLX-1000`–`1999` | Schema and validation | `PLX-1001` unknown property · `PLX-1102` unresolved reference · `PLX-1203` route parameter missing at navigate · `PLX-1310` page exceeds node budget · `PLX-1401` interactive node without accessible name · `PLX-1500` secret-like value detected · `PLX-1700`–`1749` policies, experiments, flags, segments and `Variant` |
+| `PLX-2000`–`2999` | Compiler and PXL | `PLX-2001` PXL syntax error · `PLX-2002` PXL type mismatch · `PLX-2010` operation budget exceeded at compile-time evaluation · `PLX-2100` asset transcoding failed · `PLX-2300`–`2349` variants and winner promotion |
+| `PLX-3000`–`3999` | Release and sync | `PLX-3001` manifest signature invalid · `PLX-3002` manifest expired · `PLX-3003` rollback attempt rejected · `PLX-3010` unsupported required feature · `PLX-3011` hash mismatch after patch · `PLX-3020` automatic revert to last known good · `PLX-3030` disk quota exceeded · `PLX-3100`–`3149` control document (`PLX-3100` control signature invalid, `PLX-3103` mandatory update pending) · `PLX-3150`–`3199` rollouts and targeting (`PLX-3150` rollout paused by health gate) |
 | `PLX-4000`–`4999` | Runtime rendering and navigation | `PLX-4001` build error in node · `PLX-4003` unknown widget type · `PLX-4100` unknown route · `PLX-4101` invalid route parameters · `PLX-4102` navigation refused by a guard · `PLX-4103` deep link not mapped · `PLX-4200` native route not registered · `PLX-4201` native slot not registered · `PLX-4202` custom action not registered · `PLX-4203` exposed state written with the wrong type |
 | `PLX-5000`–`5999` | Actions, data and local DB | `PLX-5001` action timeout · `PLX-5002` step limit exceeded · `PLX-5100` request to undeclared domain blocked · `PLX-5200` DB migration failed · `PLX-5300` outbox replay conflict |
-| `PLX-6000`–`6999` | Security | `PLX-6001` attestation failed · `PLX-6002` assurance level insufficient · `PLX-6003` key not hardware-backed · `PLX-6004` development provider in production · `PLX-6006` device revoked · `PLX-6010` DPoP proof invalid · `PLX-6011` DPoP replay detected · `PLX-6012` DPoP nonce required · `PLX-6013` token binding mismatch · `PLX-6015` replay cache unavailable · `PLX-6020` certificate pin mismatch · `PLX-6040` security configuration hash mismatch · `PLX-6041` setting loosens the profile · `PLX-6050` confidential bundle key unavailable · `PLX-6060`–`6064` gateway refusals · `PLX-6070`–`6073` SCA failures · `PLX-6080` fraud receipt unavailable · `PLX-6081` imported key invalid · `PLX-6100` RASP detection |
-| `PLX-7000`–`7999` | Functions | `PLX-7001` timeout · `PLX-7002` memory limit exceeded · `PLX-7003` capability denied · `PLX-7004` output too large · `PLX-7005` call depth exceeded · `PLX-7010` egress refused · `PLX-7011` idempotency key conflict · `PLX-7014` device functions disabled · `PLX-7100` business error (carries function-defined code) · `PLX-7200` build failed · `PLX-7202` build script refused (further codes in the registry, ADR-0018) |
-| `PLX-8000`–`8999` | Governance | `PLX-8001` approval required · `PLX-8002` approval invalidated by content change · `PLX-8010` change freeze active · `PLX-8020` editing lock held by another user · `PLX-8030` permission denied |
+| `PLX-6000`–`6999` | Security | `PLX-6001` attestation failed · `PLX-6002` assurance level insufficient · `PLX-6003` key not hardware-backed · `PLX-6004` development provider in production · `PLX-6006` device revoked · `PLX-6010` DPoP proof invalid · `PLX-6011` DPoP replay detected · `PLX-6012` DPoP nonce required · `PLX-6013` token binding mismatch · `PLX-6015` replay cache unavailable · `PLX-6020` certificate pin mismatch · `PLX-6040` security configuration hash mismatch · `PLX-6041` setting loosens the profile · `PLX-6050` confidential bundle key unavailable · `PLX-6060`–`6064` gateway refusals · `PLX-6070`–`6073` SCA failures · `PLX-6080` fraud receipt unavailable · `PLX-6081` imported key invalid · `PLX-6100` RASP detection · `PLX-6200`–`6249` step-up, federation and sessions (`PLX-6200` step-up required, `PLX-6230` session revoked) |
+| `PLX-7000`–`7999` | Functions | `PLX-7001` timeout · `PLX-7002` memory limit exceeded · `PLX-7003` capability denied · `PLX-7004` output too large · `PLX-7005` call depth exceeded · `PLX-7010` egress refused · `PLX-7011` idempotency key conflict · `PLX-7014` device functions disabled · `PLX-7100` business error (carries function-defined code) · `PLX-7200` build failed · `PLX-7202` build script refused `PLX-7150`–`7199` function triggers (`PLX-7150` cron expression invalid) · further codes in the registry, ADR-0018 |
+| `PLX-8000`–`8999` | Governance | `PLX-8001` approval required · `PLX-8002` approval invalidated by content change · `PLX-8003` approver not eligible · `PLX-8004` approval expired · `PLX-8005` break-glass justification required · `PLX-8006` post-hoc review overdue · `PLX-8010` change freeze active · `PLX-8020` editing lock held by another user · `PLX-8030` permission denied · `PLX-8100`–`8149` roles and scoping · `PLX-8200`–`8249` experiments and flags (admin) · `PLX-8300`–`8349` analytics, telemetry and retention · `PLX-8400`–`8449` notifications and webhooks · `PLX-8500`–`8549` audit export, data-subject requests, reconstruction and Git export · `PLX-8600`–`8649` licence and edition |
 | `PLX-9000`–`9999` | Studio, CLI and AI | `PLX-9001` AI output invalid after repair attempts · `PLX-9100` CLI configuration invalid · `PLX-9300` golden harness failed · `PLX-9200` dev session expired |
 
 ---
@@ -2765,12 +2770,17 @@ Every error and diagnostic has a stable code `PLX-NNNN` (`DX-003`). Codes are gr
 | `function_call` | function, version, status, duration |
 | `sync_result` | duration, bytes, delta ratio, plugins updated, outcome |
 | `error` | code, node path, route, fingerprint |
+| `fatal_error` | code, fingerprint, route, whether the app recovered (Plux errors and uncaught Flutter errors; no payloads) |
 | `experiment_exposure` | experiment, variant |
+| `flag_evaluated` | flag key, resolved value type, source (sampled) |
+| `control_applied` | control document version, kill switches and flags changed, outcome |
 | `rasp_detection` | detection type, response taken |
 | `attestation_result` | provider, result, assurance level (no device identifiers) |
 | `pin_failure` | host, pin set version |
 | `custom` (`trackEvent`) | name, declared non-sensitive properties |
 | `l10n_missing` | translation key, requested locale, resolved locale (sampled; `I18N-006`) |
+
+Consent categories (`SEC-161`): `experiment_exposure` and `flag_evaluated` are sent only under `experiments`. `session_start`, `session_end`, `fatal_error` and `control_applied` are operational telemetry under `necessary`: they carry no personal data and feed the rollout health gates (§18.4). Events not listed here keep the category of their feature (`analytics` for screen, action and custom events).
 
 ---
 
@@ -3042,7 +3052,7 @@ Studio, the documentation site and the reference apps use these tokens (`STU-016
 | `NFR` | 25 | `LIM` | 6 |  |  |
 | | | | | **Total** | **645** |
 
-Four requirements are `WITHDRAWN` (`RT-050`, `RT-051`, `SAAS-004`, `SAAS-009`) and are kept for traceability.
+Six requirements are `WITHDRAWN` (`RT-050`, `RT-051`, `SAAS-004`, `SAAS-009`, `DX-005`, `DEP-060`) and are kept for traceability.
 
 ### K.2 Distribution by phase and priority
 
@@ -3077,10 +3087,10 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | Field | Value |
 |---|---|
 | Document ID | `SRS-PLUX-001` |
-| Version | 1.6.0 |
+| Version | 1.7.0 |
 | Status | Draft (living document) |
-| Date | 2026-10-16 |
-| Supersedes | 1.5.1 |
+| Date | 2026-10-18 |
+| Supersedes | 1.6.1 |
 | Change process | Amendments are made by pull request against `docs/requirements.md`. A change to a `MUST` requirement requires a corresponding ADR. The version is incremented per Semantic Versioning: a breaking change to an existing requirement is a major increment, a new requirement is a minor increment, and a clarification is a patch increment. |
 
 ### Revision history
@@ -3112,3 +3122,4 @@ The distribution is deliberate. Phases P1–P3 carry the largest share of the en
 | 1.5.1 | 2026-10-14 | Function versions are numbered per app and reach another environment only by promotion; a release promotion is refused until every function version it pins is promoted there (maintainer, 2026-10-14; `FN-006`; ADR-0063). Appendix H.1 gains the `functions`, `fnrunner`, `egress` and `builder` configuration (P7 plan §2.6 M6). `FN-023` and `NFR-022` measure the first invocation after the deploy-time compile, on the CI reference runner, the warm gate on the median of five rounds (M9, M10; ADR-0064). Appendix G.1 lists the function and egress metrics as implemented: no `function` label, so a tenant's functions add no Prometheus series; per-function numbers come from the stored invocations (`FN-032`) (M11). Statuses at the P7 exit: `FN-001`–`FN-013`, `FN-015`–`FN-024`, `FN-030`–`FN-032`, `FN-050`–`FN-055`, `NFR-022`, `SEC-123`, and the P7 parts of `HST-010` and `SEC-043` → `DONE`; `FN-056` `WIP` until the reference-device run; `FN-014` (`MAY`) not taken. |
 | 1.6.0 | 2026-10-16 | Phase 8 decisions (maintainer, 2026-10-16; P8 plan §2.1 D1–D17, §2.4 A1–A2): `I18N-001` names the MessageFormat subset; `I18N-002` covers the pinned CLDR data at `modern` coverage; `I18N-003` names the Ethiopian, Umm al-Qura and Persian calendars and Latin digits by default; `I18N-006` the `l10n_missing` event; `I18N-008` statuses in the document, the translator role and permissions, a lock per locale and approval-only releases; `A11Y-002`–`A11Y-004` severities and `accessibilityBlocksPublish` (§15.12); `A11Y-008` waivers and JSON/HTML reports; `QA-011` accessibility-tree passes in CI and live screen readers on the device checklist; `TST-003` `plux golden` and the optional gate; `GOV-002` notes the P8 translator role; `RT-060` adds `plux_player`, `plux_markdown`, `plux_maps_google`; §17.1 locale data and calendars; Appendix C package columns, Appendix D `announce`, Appendix E `device` fields, Appendix F `PLX-9300`, Appendix G.2 `l10n_missing`; §32 ADRs 0066–0071. The 1.4.1–1.5.1 rows move from the field table into this history, unchanged. |
 | 1.6.1 | 2026-10-18 | Size split (maintainer, 2026-10-18; ADR-0071 Revision): the P8 catch-up grew `plux_flutter` past the `RT-061` budgets, so `RT-060` adds the optional package `plux_components`, which builds the Layer 2 components most apps do not use and sixteen Layer 1 widgets that pull large parts of the Flutter framework into a build; Appendix C names the package for each of them, and its Layer 1 note lists the sixteen. No requirement text other than `RT-060`'s package list changes. |
+| 1.7.0 | 2026-10-18 | P9 plan decisions (maintainer, 2026-10-18; P9 plan §2.1; ADR-0072): §5 adds Phase P16 "Super-app and partner mini-apps" (M4, after P15), and `HST-020` moves to it; `SEC-191` moves to P12 (before Plux 1.0); `DX-005` and `DEP-060` are `WITHDRAWN`. §15.12 names the settings `publishApprovals`, `requiredTests` and `experimentApproval`; §18.2 states the default approval policy per security profile and the 24 h break-glass review default; Appendix F lists the new P9 ranges; Appendix G.2 adds `fatal_error`, `flag_evaluated` and `control_applied` and states the consent category of the session, health, exposure and control events. |
