@@ -46,7 +46,7 @@ class AccessibilityTreeTest {
 
         click(waitFor("Product 01", partial = true))
         waitFor("In cart: 0")
-        assertReadsInOrder(listOf("In cart: 0", "Add to cart"))
+        assertReadsInOrder(listOf("Add to cart", "In cart: 0"))
         assertInteractiveControlsAreLabelled()
 
         click(waitFor("Add to cart"))

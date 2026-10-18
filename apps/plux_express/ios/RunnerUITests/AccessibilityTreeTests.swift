@@ -54,7 +54,7 @@ final class AccessibilityTreeTests: XCTestCase {
 
     tap(app, "Product 01")
     waitFor(app, "In cart: 0", exact: true)
-    assertReadsInOrder(app, ["In cart: 0", "Add to cart"])
+    assertReadsInOrder(app, ["Add to cart", "In cart: 0"])
     assertInteractiveControlsAreLabelled(app)
 
     tap(app, "Add to cart", exact: true)
