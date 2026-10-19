@@ -146,6 +146,11 @@ const (
 	// by its identifier alone: the files are signed and public, and a
 	// device fetches them before it can authenticate (SEC-050).
 	ScopeMetadata Scope = "metadata"
+	// ScopeHook lets an inbound function hook be found by its app and
+	// function name before its organisation is known; the request is
+	// then rescoped to that organisation (FN-025). Only function_hooks
+	// admits it.
+	ScopeHook Scope = "hook"
 )
 
 // InTx runs f in a transaction bound to a tenant. The settings are set

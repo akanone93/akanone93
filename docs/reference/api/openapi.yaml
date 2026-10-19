@@ -2560,6 +2560,281 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.FunctionServiceInvokeResponse'
+  /plux.v1.FunctionTriggerService/CreateHook:
+    post:
+      tags:
+        - plux.v1.FunctionTriggerService
+      summary: CreateHook
+      description: |-
+        CreateHook opens /hooks/{app}/{function} for a function alias and returns
+         the signing secret once.
+      operationId: plux.v1.FunctionTriggerService.CreateHook
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateHookRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateHookResponse'
+  /plux.v1.FunctionTriggerService/CreateTrigger:
+    post:
+      tags:
+        - plux.v1.FunctionTriggerService
+      summary: CreateTrigger
+      description: |-
+        CreateTrigger schedules a function alias with a cron expression. An
+         invalid expression or zone is PLX-7150.
+      operationId: plux.v1.FunctionTriggerService.CreateTrigger
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateTriggerRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateTriggerResponse'
+  /plux.v1.FunctionTriggerService/DeleteHook:
+    post:
+      tags:
+        - plux.v1.FunctionTriggerService
+      summary: DeleteHook
+      operationId: plux.v1.FunctionTriggerService.DeleteHook
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteHookRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteHookResponse'
+  /plux.v1.FunctionTriggerService/DeleteTrigger:
+    post:
+      tags:
+        - plux.v1.FunctionTriggerService
+      summary: DeleteTrigger
+      operationId: plux.v1.FunctionTriggerService.DeleteTrigger
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteTriggerRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteTriggerResponse'
+  /plux.v1.FunctionTriggerService/ListHooks:
+    post:
+      tags:
+        - plux.v1.FunctionTriggerService
+      summary: ListHooks
+      operationId: plux.v1.FunctionTriggerService.ListHooks
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListHooksRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListHooksResponse'
+  /plux.v1.FunctionTriggerService/ListTriggers:
+    post:
+      tags:
+        - plux.v1.FunctionTriggerService
+      summary: ListTriggers
+      operationId: plux.v1.FunctionTriggerService.ListTriggers
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListTriggersRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListTriggersResponse'
+  /plux.v1.FunctionTriggerService/RotateHookSecret:
+    post:
+      tags:
+        - plux.v1.FunctionTriggerService
+      summary: RotateHookSecret
+      description: |-
+        RotateHookSecret issues a new secret, with the overlap of
+         RotateWebhookSecret.
+      operationId: plux.v1.FunctionTriggerService.RotateHookSecret
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.RotateHookSecretRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.RotateHookSecretResponse'
   /plux.v1.GatewayService/Call:
     post:
       tags:
@@ -4768,6 +5043,443 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.UploadNativeCatalogueResponse'
+  /plux.v1.NotificationService/CreateNotificationChannel:
+    post:
+      tags:
+        - plux.v1.NotificationService
+      summary: CreateNotificationChannel
+      description: |-
+        CreateNotificationChannel configures a destination. A channel that cannot work as
+         configured is PLX-8400. Needs notifications.manage.
+      operationId: plux.v1.NotificationService.CreateNotificationChannel
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateNotificationChannelRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateNotificationChannelResponse'
+  /plux.v1.NotificationService/DeleteNotificationChannel:
+    post:
+      tags:
+        - plux.v1.NotificationService
+      summary: DeleteNotificationChannel
+      operationId: plux.v1.NotificationService.DeleteNotificationChannel
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteNotificationChannelRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteNotificationChannelResponse'
+  /plux.v1.NotificationService/ListDeliveries:
+    post:
+      tags:
+        - plux.v1.NotificationService
+      summary: ListDeliveries
+      description: ListDeliveries reads the delivery log of channels, newest first.
+      operationId: plux.v1.NotificationService.ListDeliveries
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListDeliveriesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListDeliveriesResponse'
+  /plux.v1.NotificationService/ListEventTypes:
+    post:
+      tags:
+        - plux.v1.NotificationService
+      summary: ListEventTypes
+      description: ListEventTypes returns the event types other parts of Plux publish.
+      operationId: plux.v1.NotificationService.ListEventTypes
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListEventTypesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListEventTypesResponse'
+  /plux.v1.NotificationService/ListInbox:
+    post:
+      tags:
+        - plux.v1.NotificationService
+      summary: ListInbox
+      description: ListInbox lists the caller's notifications, newest first.
+      operationId: plux.v1.NotificationService.ListInbox
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListInboxRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListInboxResponse'
+  /plux.v1.NotificationService/ListNotificationChannels:
+    post:
+      tags:
+        - plux.v1.NotificationService
+      summary: ListNotificationChannels
+      operationId: plux.v1.NotificationService.ListNotificationChannels
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListNotificationChannelsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListNotificationChannelsResponse'
+  /plux.v1.NotificationService/ListSubscriptions:
+    post:
+      tags:
+        - plux.v1.NotificationService
+      summary: ListSubscriptions
+      description: |-
+        ListSubscriptions lists the caller's subscriptions, or all of the
+         organisation's with notifications.manage.
+      operationId: plux.v1.NotificationService.ListSubscriptions
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListSubscriptionsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListSubscriptionsResponse'
+  /plux.v1.NotificationService/MarkRead:
+    post:
+      tags:
+        - plux.v1.NotificationService
+      summary: MarkRead
+      description: |-
+        MarkRead marks the named notifications read, or all of the caller's when
+         none is named.
+      operationId: plux.v1.NotificationService.MarkRead
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.MarkReadRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.MarkReadResponse'
+  /plux.v1.NotificationService/Subscribe:
+    post:
+      tags:
+        - plux.v1.NotificationService
+      summary: Subscribe
+      description: |-
+        Subscribe follows an event type. A person subscribes themselves to their
+         inbox or to a mail channel; any other subscription needs
+         notifications.manage. Subscribing twice is not an error.
+      operationId: plux.v1.NotificationService.Subscribe
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SubscribeRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SubscribeResponse'
+  /plux.v1.NotificationService/TestNotificationChannel:
+    post:
+      tags:
+        - plux.v1.NotificationService
+      summary: TestNotificationChannel
+      description: |-
+        TestNotificationChannel sends a test message through a channel; a failure is
+         PLX-8400.
+      operationId: plux.v1.NotificationService.TestNotificationChannel
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.TestNotificationChannelRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.TestNotificationChannelResponse'
+  /plux.v1.NotificationService/Unsubscribe:
+    post:
+      tags:
+        - plux.v1.NotificationService
+      summary: Unsubscribe
+      operationId: plux.v1.NotificationService.Unsubscribe
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.UnsubscribeRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.UnsubscribeResponse'
   /plux.v1.OrgService/AddMember:
     post:
       tags:
@@ -7236,6 +7948,203 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.RefreshDeviceTokenResponse'
+  /plux.v1.WebhookService/CreateWebhook:
+    post:
+      tags:
+        - plux.v1.WebhookService
+      summary: CreateWebhook
+      description: |-
+        CreateWebhook registers an endpoint and returns its signing secret, which
+         is shown once. A private destination is refused.
+      operationId: plux.v1.WebhookService.CreateWebhook
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateWebhookRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateWebhookResponse'
+  /plux.v1.WebhookService/DeleteWebhook:
+    post:
+      tags:
+        - plux.v1.WebhookService
+      summary: DeleteWebhook
+      operationId: plux.v1.WebhookService.DeleteWebhook
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteWebhookRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteWebhookResponse'
+  /plux.v1.WebhookService/ListWebhookDeliveries:
+    post:
+      tags:
+        - plux.v1.WebhookService
+      summary: ListWebhookDeliveries
+      description: ListWebhookDeliveries reads the delivery log of webhooks.
+      operationId: plux.v1.WebhookService.ListWebhookDeliveries
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListDeliveriesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListDeliveriesResponse'
+  /plux.v1.WebhookService/ListWebhooks:
+    post:
+      tags:
+        - plux.v1.WebhookService
+      summary: ListWebhooks
+      operationId: plux.v1.WebhookService.ListWebhooks
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListWebhooksRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListWebhooksResponse'
+  /plux.v1.WebhookService/RotateWebhookSecret:
+    post:
+      tags:
+        - plux.v1.WebhookService
+      summary: RotateWebhookSecret
+      description: |-
+        RotateWebhookSecret issues a new secret. Until the overlap ends both
+         signatures are sent, so a receiver can change over without a gap.
+      operationId: plux.v1.WebhookService.RotateWebhookSecret
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.RotateWebhookSecretRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.RotateWebhookSecretResponse'
 components:
   schemas:
     connect-protocol-version:
@@ -8730,6 +9639,77 @@ components:
           title: grant
       title: CreateGrantResponse
       additionalProperties: false
+    plux.v1.CreateHookRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        function:
+          type: string
+          title: function
+        alias:
+          type: string
+          title: alias
+        verifier:
+          type: string
+          title: verifier
+        secret:
+          type: string
+          title: secret
+          description: |-
+            secret is a provider's signing secret for a provider verifier; a
+             Standard Webhooks hook gets a generated one.
+      title: CreateHookRequest
+      additionalProperties: false
+    plux.v1.CreateHookResponse:
+      type: object
+      properties:
+        hook:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FunctionHook'
+          title: hook
+        secret:
+          type: string
+          title: secret
+          description: secret is returned once.
+      title: CreateHookResponse
+      additionalProperties: false
+    plux.v1.CreateNotificationChannelRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+        kind:
+          type: string
+          title: kind
+        settings:
+          type: object
+          title: settings
+          additionalProperties:
+            type: string
+            title: value
+        secret:
+          type: string
+          title: secret
+          description: |-
+            secret is the SMTP password, the Slack or Teams webhook URL, or the
+             Telegram bot token. It is stored encrypted.
+      title: CreateNotificationChannelRequest
+      additionalProperties: false
+    plux.v1.CreateNotificationChannelResponse:
+      type: object
+      properties:
+        channel:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.NotificationChannel'
+          title: channel
+      title: CreateNotificationChannelResponse
+      additionalProperties: false
     plux.v1.CreateOrganizationRequest:
       type: object
       properties:
@@ -8981,6 +9961,42 @@ components:
              beside the device's own summary (DAT-093).
       title: CreateTransactionChallengeResponse
       additionalProperties: false
+    plux.v1.CreateTriggerRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        function:
+          type: string
+          title: function
+        alias:
+          type: string
+          title: alias
+        expression:
+          type: string
+          title: expression
+        timezone:
+          type: string
+          title: timezone
+        input:
+          type: string
+          title: input
+          format: byte
+      title: CreateTriggerRequest
+      additionalProperties: false
+    plux.v1.CreateTriggerResponse:
+      type: object
+      properties:
+        trigger:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FunctionTrigger'
+          title: trigger
+      title: CreateTriggerResponse
+      additionalProperties: false
     plux.v1.CreateUpstreamRequest:
       type: object
       properties:
@@ -8999,6 +10015,35 @@ components:
             - $ref: '#/components/schemas/plux.v1.Upstream'
           title: upstream
       title: CreateUpstreamResponse
+      additionalProperties: false
+    plux.v1.CreateWebhookRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+        url:
+          type: string
+          title: url
+        eventTypes:
+          type: array
+          items:
+            type: string
+          title: event_types
+      title: CreateWebhookRequest
+      additionalProperties: false
+    plux.v1.CreateWebhookResponse:
+      type: object
+      properties:
+        webhook:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.OutboundWebhook'
+          title: webhook
+        secret:
+          type: string
+          title: secret
+          description: secret is the "whsec_" signing secret, returned once.
+      title: CreateWebhookResponse
       additionalProperties: false
     plux.v1.CreateWorkloadIdentityRequest:
       type: object
@@ -9158,6 +10203,30 @@ components:
       type: object
       title: DeleteGrantResponse
       additionalProperties: false
+    plux.v1.DeleteHookRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: DeleteHookRequest
+      additionalProperties: false
+    plux.v1.DeleteHookResponse:
+      type: object
+      title: DeleteHookResponse
+      additionalProperties: false
+    plux.v1.DeleteNotificationChannelRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: DeleteNotificationChannelRequest
+      additionalProperties: false
+    plux.v1.DeleteNotificationChannelResponse:
+      type: object
+      title: DeleteNotificationChannelResponse
+      additionalProperties: false
     plux.v1.DeletePluginRequest:
       type: object
       properties:
@@ -9214,6 +10283,18 @@ components:
       type: object
       title: DeleteTeamResponse
       additionalProperties: false
+    plux.v1.DeleteTriggerRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: DeleteTriggerRequest
+      additionalProperties: false
+    plux.v1.DeleteTriggerResponse:
+      type: object
+      title: DeleteTriggerResponse
+      additionalProperties: false
     plux.v1.DeleteUpstreamRequest:
       type: object
       properties:
@@ -9241,6 +10322,18 @@ components:
       type: object
       title: DeleteUserIdentityProviderResponse
       additionalProperties: false
+    plux.v1.DeleteWebhookRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: DeleteWebhookRequest
+      additionalProperties: false
+    plux.v1.DeleteWebhookResponse:
+      type: object
+      title: DeleteWebhookResponse
+      additionalProperties: false
     plux.v1.DeleteWorkloadIdentityRequest:
       type: object
       properties:
@@ -9253,6 +10346,54 @@ components:
       type: object
       title: DeleteWorkloadIdentityResponse
       additionalProperties: false
+    plux.v1.Delivery:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        kind:
+          type: string
+          title: kind
+          description: kind is "channel" or "webhook".
+        targetId:
+          type: string
+          title: target_id
+        eventType:
+          type: string
+          title: event_type
+        state:
+          type: string
+          title: state
+          description: state is "pending", "delivered" or "failed".
+        attempts:
+          type: integer
+          title: attempts
+          format: int32
+        nextAttempt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: next_attempt
+        lastStatus:
+          type: integer
+          title: last_status
+          format: int32
+          description: last_status is the HTTP status of the last attempt, or zero.
+        lastError:
+          type: string
+          title: last_error
+          description: last_error describes the last failure without its payload.
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        deliveredAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: delivered_at
+      title: Delivery
+      additionalProperties: false
+      description: Delivery is a row of a delivery log.
     plux.v1.DenyDeviceAuthorizationRequest:
       type: object
       properties:
@@ -9633,6 +10774,23 @@ components:
              canonical JSON.
       title: Event
       additionalProperties: false
+    plux.v1.EventTypeInfo:
+      type: object
+      properties:
+        type:
+          type: string
+          title: type
+          description: type is the dotted name, for example "release.published".
+        description:
+          type: string
+          title: description
+        severity:
+          type: string
+          title: severity
+          description: severity is "info", "warning" or "critical".
+      title: EventTypeInfo
+      additionalProperties: false
+      description: EventTypeInfo describes an event type.
     plux.v1.ExchangeUserTokenRequest:
       type: object
       properties:
@@ -9833,6 +10991,38 @@ components:
       description: |-
         FunctionBusinessError is an outcome the function's own code declares,
          surfaced to the calling action graph (FN-022).
+    plux.v1.FunctionHook:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        function:
+          type: string
+          title: function
+        alias:
+          type: string
+          title: alias
+        verifier:
+          type: string
+          title: verifier
+          description: verifier is "standard-webhooks" or a registered provider's name.
+        enabled:
+          type: boolean
+          title: enabled
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+      title: FunctionHook
+      additionalProperties: false
+      description: FunctionHook is an inbound webhook of a function.
     plux.v1.FunctionLogLine:
       type: object
       properties:
@@ -9976,6 +11166,54 @@ components:
       title: FunctionTestResult
       additionalProperties: false
       description: FunctionTestResult is the outcome of one stored test case (FN-031).
+    plux.v1.FunctionTrigger:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        function:
+          type: string
+          title: function
+        alias:
+          type: string
+          title: alias
+        expression:
+          type: string
+          title: expression
+          description: expression is five cron fields, or @hourly, @daily, @weekly, @monthly.
+        timezone:
+          type: string
+          title: timezone
+          description: timezone is "UTC" or an IANA zone name.
+        input:
+          type: string
+          title: input
+          format: byte
+        enabled:
+          type: boolean
+          title: enabled
+        nextFireAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: next_fire_at
+        lastFireAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: last_fire_at
+        lastResult:
+          type: string
+          title: last_result
+          description: 'last_result is "ok", "business_error" or "failed: PLX-<code>".'
+      title: FunctionTrigger
+      additionalProperties: false
+      description: FunctionTrigger is a cron schedule on a function alias.
     plux.v1.FunctionVersion:
       type: object
       properties:
@@ -11199,6 +12437,38 @@ components:
           description: saved is whether the document was written.
       title: ImportTranslationsResponse
       additionalProperties: false
+    plux.v1.InboxItem:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        eventType:
+          type: string
+          title: event_type
+        appId:
+          type: string
+          title: app_id
+        title:
+          type: string
+          title: title
+        body:
+          type: string
+          title: body
+        link:
+          type: string
+          title: link
+          description: link is an https URL or a path in Studio.
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        read:
+          type: boolean
+          title: read
+      title: InboxItem
+      additionalProperties: false
+      description: InboxItem is a stored notification.
     plux.v1.IncompatibleHostBuild:
       type: object
       properties:
@@ -11687,6 +12957,31 @@ components:
              every change (DAT-095).
       title: ListConfigValuesResponse
       additionalProperties: false
+    plux.v1.ListDeliveriesRequest:
+      type: object
+      properties:
+        targetId:
+          type: string
+          title: target_id
+        state:
+          type: string
+          title: state
+        limit:
+          type: integer
+          title: limit
+          format: int32
+      title: ListDeliveriesRequest
+      additionalProperties: false
+    plux.v1.ListDeliveriesResponse:
+      type: object
+      properties:
+        deliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Delivery'
+          title: deliveries
+      title: ListDeliveriesResponse
+      additionalProperties: false
     plux.v1.ListDevicesRequest:
       type: object
       properties:
@@ -11795,6 +13090,20 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListEnvironmentsResponse
+      additionalProperties: false
+    plux.v1.ListEventTypesRequest:
+      type: object
+      title: ListEventTypesRequest
+      additionalProperties: false
+    plux.v1.ListEventTypesResponse:
+      type: object
+      properties:
+        eventTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.EventTypeInfo'
+          title: event_types
+      title: ListEventTypesResponse
       additionalProperties: false
     plux.v1.ListEventsRequest:
       type: object
@@ -11918,6 +13227,24 @@ components:
           title: page
       title: ListGrantsResponse
       additionalProperties: false
+    plux.v1.ListHooksRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: ListHooksRequest
+      additionalProperties: false
+    plux.v1.ListHooksResponse:
+      type: object
+      properties:
+        hooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.FunctionHook'
+          title: hooks
+      title: ListHooksResponse
+      additionalProperties: false
     plux.v1.ListHostBuildsRequest:
       type: object
       properties:
@@ -11943,6 +13270,33 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListHostBuildsResponse
+      additionalProperties: false
+    plux.v1.ListInboxRequest:
+      type: object
+      properties:
+        unreadOnly:
+          type: boolean
+          title: unread_only
+        limit:
+          type: integer
+          title: limit
+          format: int32
+          description: limit is at most 200; zero is 50.
+      title: ListInboxRequest
+      additionalProperties: false
+    plux.v1.ListInboxResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.InboxItem'
+          title: items
+        unread:
+          type: string
+          title: unread
+          format: int64
+      title: ListInboxResponse
       additionalProperties: false
     plux.v1.ListLogsRequest:
       type: object
@@ -12013,6 +13367,20 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListMembersResponse
+      additionalProperties: false
+    plux.v1.ListNotificationChannelsRequest:
+      type: object
+      title: ListNotificationChannelsRequest
+      additionalProperties: false
+    plux.v1.ListNotificationChannelsResponse:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.NotificationChannel'
+          title: channels
+      title: ListNotificationChannelsResponse
       additionalProperties: false
     plux.v1.ListOrganizationLimitsRequest:
       type: object
@@ -12275,6 +13643,27 @@ components:
           title: page
       title: ListSnapshotsResponse
       additionalProperties: false
+    plux.v1.ListSubscriptionsRequest:
+      type: object
+      properties:
+        all:
+          type: boolean
+          title: all
+          description: |-
+            all lists the organisation's subscriptions; it needs
+             notifications.manage.
+      title: ListSubscriptionsRequest
+      additionalProperties: false
+    plux.v1.ListSubscriptionsResponse:
+      type: object
+      properties:
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.NotificationSubscription'
+          title: subscriptions
+      title: ListSubscriptionsResponse
+      additionalProperties: false
     plux.v1.ListTeamsRequest:
       type: object
       properties:
@@ -12358,6 +13747,24 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListTrashResponse
+      additionalProperties: false
+    plux.v1.ListTriggersRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: ListTriggersRequest
+      additionalProperties: false
+    plux.v1.ListTriggersResponse:
+      type: object
+      properties:
+        triggers:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.FunctionTrigger'
+          title: triggers
+      title: ListTriggersResponse
       additionalProperties: false
     plux.v1.ListUpstreamsRequest:
       type: object
@@ -12480,6 +13887,20 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListVersionsResponse
+      additionalProperties: false
+    plux.v1.ListWebhooksRequest:
+      type: object
+      title: ListWebhooksRequest
+      additionalProperties: false
+    plux.v1.ListWebhooksResponse:
+      type: object
+      properties:
+        webhooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.OutboundWebhook'
+          title: webhooks
+      title: ListWebhooksResponse
       additionalProperties: false
     plux.v1.ListWorkloadIdentitiesRequest:
       type: object
@@ -12719,6 +14140,25 @@ components:
          Appendix B.3). The signatures cover `signed`, the RFC 8785 canonical
          JSON of the document's signed part, not this message: a device
          verifies the bytes it received rather than a re-encoding.
+    plux.v1.MarkReadRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+          title: ids
+      title: MarkReadRequest
+      additionalProperties: false
+    plux.v1.MarkReadResponse:
+      type: object
+      properties:
+        marked:
+          type: string
+          title: marked
+          format: int64
+      title: MarkReadResponse
+      additionalProperties: false
     plux.v1.Member:
       type: object
       properties:
@@ -12771,6 +14211,70 @@ components:
       title: MfaChallenge
       additionalProperties: false
       description: MfaChallenge is a sign-in waiting for its second factor.
+    plux.v1.NotificationChannel:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        name:
+          type: string
+          title: name
+        kind:
+          type: string
+          title: kind
+          description: kind is "smtp", "slack", "teams" or "telegram".
+        settings:
+          type: object
+          title: settings
+          additionalProperties:
+            type: string
+            title: value
+          description: |-
+            settings are the non-secret settings: for SMTP host, port, from,
+             username and tls (starttls, implicit or none); for Telegram chat_id.
+        hint:
+          type: string
+          title: hint
+        enabled:
+          type: boolean
+          title: enabled
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+      title: NotificationChannel
+      additionalProperties: false
+      description: |-
+        NotificationChannel is a configured destination. The credential is never
+         returned; hint is its last characters, to tell channels apart.
+    plux.v1.NotificationSubscription:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        subjectKind:
+          type: string
+          title: subject_kind
+          description: subject_kind is "user" or "team"; empty on a request means the caller.
+        subjectId:
+          type: string
+          title: subject_id
+        eventType:
+          type: string
+          title: event_type
+        channelId:
+          type: string
+          title: channel_id
+          description: channel_id is empty for the in-app inbox.
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+      title: NotificationSubscription
+      additionalProperties: false
+      description: NotificationSubscription says who follows an event type, and where it goes.
     plux.v1.Organization:
       type: object
       properties:
@@ -12794,6 +14298,38 @@ components:
           title: updated_at
       title: Organization
       additionalProperties: false
+    plux.v1.OutboundWebhook:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        name:
+          type: string
+          title: name
+        url:
+          type: string
+          title: url
+        eventTypes:
+          type: array
+          items:
+            type: string
+          title: event_types
+          description: event_types narrows the events sent; empty is all.
+        enabled:
+          type: boolean
+          title: enabled
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        secretHint:
+          type: string
+          title: secret_hint
+          description: secret_hint is the end of the newest secret.
+      title: OutboundWebhook
+      additionalProperties: false
+      description: OutboundWebhook is an endpoint that receives events.
     plux.v1.Page:
       type: object
       properties:
@@ -14008,6 +15544,49 @@ components:
           title: release
       title: RollbackReleaseResponse
       additionalProperties: false
+    plux.v1.RotateHookSecretRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        overlapSeconds:
+          type: string
+          title: overlap_seconds
+          format: int64
+      title: RotateHookSecretRequest
+      additionalProperties: false
+    plux.v1.RotateHookSecretResponse:
+      type: object
+      properties:
+        secret:
+          type: string
+          title: secret
+      title: RotateHookSecretResponse
+      additionalProperties: false
+    plux.v1.RotateWebhookSecretRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        overlapSeconds:
+          type: string
+          title: overlap_seconds
+          format: int64
+          description: |-
+            overlap_seconds is how long the previous secret stays valid; zero is 24
+             hours, negative ends it at once. At most seven days.
+      title: RotateWebhookSecretRequest
+      additionalProperties: false
+    plux.v1.RotateWebhookSecretResponse:
+      type: object
+      properties:
+        secret:
+          type: string
+          title: secret
+      title: RotateWebhookSecretResponse
+      additionalProperties: false
     plux.v1.Secret:
       type: object
       properties:
@@ -14529,6 +16108,24 @@ components:
           title: challenge
       title: StartPasswordLoginResponse
       additionalProperties: false
+    plux.v1.SubscribeRequest:
+      type: object
+      properties:
+        subscription:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.NotificationSubscription'
+          title: subscription
+      title: SubscribeRequest
+      additionalProperties: false
+    plux.v1.SubscribeResponse:
+      type: object
+      properties:
+        subscription:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.NotificationSubscription'
+          title: subscription
+      title: SubscribeResponse
+      additionalProperties: false
     plux.v1.SyncStep:
       type: object
       properties:
@@ -14626,6 +16223,18 @@ components:
           title: description
       title: TemplateParameter
       additionalProperties: false
+    plux.v1.TestNotificationChannelRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: TestNotificationChannelRequest
+      additionalProperties: false
+    plux.v1.TestNotificationChannelResponse:
+      type: object
+      title: TestNotificationChannelResponse
+      additionalProperties: false
     plux.v1.TrashItem:
       type: object
       properties:
@@ -14654,6 +16263,18 @@ components:
       title: TrashItem
       additionalProperties: false
       description: TrashItem is a deleted app, plugin or page awaiting restore (GOV-031).
+    plux.v1.UnsubscribeRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: UnsubscribeRequest
+      additionalProperties: false
+    plux.v1.UnsubscribeResponse:
+      type: object
+      title: UnsubscribeResponse
+      additionalProperties: false
     plux.v1.UpdateAppRequest:
       type: object
       properties:
@@ -15586,6 +17207,24 @@ tags:
        plugins (CLI-006, WGT-032, ADR-0041). Publishing checks the release's
        plugins against every build's catalogue, and devices of a build that
        cannot run a release keep the newest one they can (REL-080).
+  - name: plux.v1.NotificationService
+    description: |-
+      NotificationService delivers what happens in an organisation to the people
+       who follow it (SRV-062, ADR-0081): an in-app inbox, subscriptions of users
+       and teams to event types, and the channels beyond the inbox — SMTP, Slack,
+       Microsoft Teams and Telegram. A channel's credential is stored encrypted
+       and is never returned.
+  - name: plux.v1.WebhookService
+    description: |-
+      WebhookService manages outbound webhooks (SRV-063, ADR-0081): HTTPS
+       endpoints that receive events as Standard Webhooks messages. A message that
+       cannot be delivered is retried with exponential backoff for up to 24 hours,
+       then given up on with PLX-8401.
+  - name: plux.v1.FunctionTriggerService
+    description: |-
+      FunctionTriggerService schedules functions and opens them to signed
+       inbound webhooks (FN-025, ADR-0081). A trigger runs the version an alias
+       points at, on the server, at the lowest assurance, with no credentials.
   - name: plux.v1.PluginService
     description: |-
       PluginService manages plugins and their editing locks (SRV-040–SRV-042).

@@ -22,6 +22,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/localisation"
+	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -70,6 +71,9 @@ type Handlers struct {
 	// Functions administers functions (FN-006, FN-016); nil leaves
 	// FunctionAdminService unmounted.
 	Functions *function.Service
+	// Notify serves NotificationService and WebhookService (SRV-062,
+	// SRV-063); nil leaves them unmounted.
+	Notify *notify.Service
 	// FunctionHosting serves FunctionHostService to the function runner on
 	// the internal listener (ADR-0064); nil leaves it unmounted.
 	FunctionHosting *function.Host

@@ -70,6 +70,9 @@ type Config struct {
 	Builder Builder `json:"builder"`
 	// License names the enterprise licence file (GOV-030, ADR-0084).
 	License License `json:"license"`
+	// Notifications configures notification and webhook delivery (SRV-062,
+	// SRV-063).
+	Notifications Notifications `json:"notifications"`
 }
 
 // License configures the offline licence check of the enterprise edition.

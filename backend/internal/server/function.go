@@ -26,6 +26,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
+	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
@@ -79,7 +80,7 @@ func (w *functionBuildWorker) Work(ctx context.Context, job *river.Job[function.
 // installation has no object store to keep sources and modules in. The
 // service has no Builder and no ArtifactSigner here: the worker role that
 // runs builds is given them where it is assembled.
-func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.Service, configs *seccfg.Service, gen interface{ New() (string, error) }, retention time.Duration, link *runnerLink) (*function.Service, error) {
+func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.Service, configs *seccfg.Service, gen interface{ New() (string, error) }, retention time.Duration, link *runnerLink, notifier *notify.Service) (*function.Service, error) {
 	if work.Objects == nil {
 		return nil, nil //nolint:nilnil // the installation runs no functions
 	}
@@ -96,6 +97,7 @@ func buildFunctions(db *storage.DB, work WorkDeps, log *audit.Log, ten *tenancy.
 	o := function.Options{
 		DB: db, Audit: log, Objects: work.Objects, IDs: gen, Jobs: functionQueue{work.Queue},
 		Builder: work.Builder, Signer: signer, Linker: work.Linker, Retention: retention, Log: work.Log,
+		Secrets: notifier, Notify: notifier,
 		DeviceFunctions: func(ctx context.Context, appID, environmentID string) (bool, error) {
 			values, _, err := configs.Effective(ctx, appID, environmentID)
 			if err != nil {
@@ -135,7 +137,7 @@ type runnerLink struct {
 // runner URL configured. The grants' secret is created on first use and
 // shared by every replica (ADR-0064).
 func buildRunnerLink(ctx context.Context, cfg *config.Config, db *storage.DB, crypter signing.Crypter, work WorkDeps) (*runnerLink, error) {
-	if work.Objects == nil || !cfg.Has(config.RoleAPI) || cfg.Functions.RunnerURL == "" {
+	if work.Objects == nil || !(cfg.Has(config.RoleAPI) || cfg.Has(config.RoleWorker)) || cfg.Functions.RunnerURL == "" {
 		return nil, nil //nolint:nilnil // the process calls no runner
 	}
 	grants, err := function.OpenGrants(ctx, db, crypter, nil)

@@ -172,6 +172,33 @@ const (
 	RoleRevoked      Action = "role.revoked"
 )
 
+// The actions of notifications, webhooks and function triggers.
+const (
+	// NotificationChannelSet, NotificationChannelDeleted,
+	// NotificationSubscriptionSet, NotificationsDropped, the Webhook*
+	// actions and DeliveryFailed: a channel, subscription or outbound
+	// webhook changed, a webhook's secret was rotated, notifications over
+	// notifications.perHour were dropped, or a delivery was given up on
+	// (SRV-062, SRV-063, ADR-0081).
+	NotificationChannelSet      Action = "notification.channel_set"
+	NotificationChannelDeleted  Action = "notification.channel_deleted"
+	NotificationSubscriptionSet Action = "notification.subscription_set"
+	NotificationsDropped        Action = "notification.dropped"
+	WebhookSet                  Action = "webhook.set"
+	WebhookDeleted              Action = "webhook.deleted"
+	WebhookSecretRotated        Action = "webhook.secret_rotated"
+	DeliveryFailed              Action = "notification.delivery_failed"
+
+	// FunctionTriggerSet, FunctionTriggerDeleted, FunctionHookSet,
+	// FunctionHookDeleted and FunctionHookSecretRotated: a schedule or an
+	// inbound webhook of a function changed (FN-025, ADR-0081).
+	FunctionTriggerSet        Action = "function.trigger_set"
+	FunctionTriggerDeleted    Action = "function.trigger_deleted"
+	FunctionHookSet           Action = "function.hook_set"
+	FunctionHookDeleted       Action = "function.hook_deleted"
+	FunctionHookSecretRotated Action = "function.hook_secret_rotated"
+)
+
 // actions is the registry, sorted, so that Registered can search it and
 // a test can print the catalogue.
 var actions = sorted(
@@ -195,6 +222,9 @@ var actions = sorted(
 	RoleCreated, RoleUpdated, RoleDeleted,
 	RoleGranted, RoleGrantChanged, RoleRevoked,
 	LicenseStateChanged,
+	NotificationChannelSet, NotificationChannelDeleted, NotificationSubscriptionSet, NotificationsDropped,
+	WebhookSet, WebhookDeleted, WebhookSecretRotated, DeliveryFailed,
+	FunctionTriggerSet, FunctionTriggerDeleted, FunctionHookSet, FunctionHookDeleted, FunctionHookSecretRotated,
 )
 
 // sorted returns its arguments in order.

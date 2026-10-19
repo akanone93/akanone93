@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log/slog"
 	"regexp"
+	"sync/atomic"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -16,6 +17,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -72,12 +74,44 @@ type Options struct {
 	// Log receives the failures of recording logs and invocations, which
 	// never fail an invocation; nil discards them.
 	Log *slog.Logger
+	// Secrets keeps the signing secrets of inbound hooks (FN-025); nil
+	// refuses to create hooks.
+	Secrets HookSecrets
+	// Notify receives the function.failing event when a scheduled run
+	// starts failing (SRV-062); nil sends nothing.
+	Notify notify.Publisher
+	// Verifiers are provider-specific inbound verifiers by name, beside the
+	// built-in "standard-webhooks" (FN-025, PAY-006).
+	Verifiers map[string]Verifier
 }
 
 // Service stores functions and administers them. It is safe for
 // concurrent use: it holds no state beyond its options, and the database
 // serialises the deploys and the key-value writes of one function.
-type Service struct{ o Options }
+type Service struct {
+	o Options
+	// invoker runs schedules and hooks; it is set by UseInvoker once the
+	// invoker, which needs the service itself, has been built.
+	invoker atomic.Pointer[invokerBox]
+}
+
+// invokerBox lets an interface value sit in an atomic pointer.
+type invokerBox struct{ ServerInvoker }
+
+// UseInvoker gives the service the invoker that runs schedules and inbound
+// hooks (FN-025). The invoker depends on the service for declarations and
+// versions, so it cannot be an option; the server calls this once, while it
+// assembles, before anything fires. Without one, triggers are recorded but
+// never fire and a hook answers 404.
+func (s *Service) UseInvoker(inv ServerInvoker) { s.invoker.Store(&invokerBox{inv}) }
+
+// serverInvoker returns the invoker, or nil.
+func (s *Service) serverInvoker() ServerInvoker {
+	if b := s.invoker.Load(); b != nil {
+		return b.ServerInvoker
+	}
+	return nil
+}
 
 // NewService returns the function service.
 func NewService(o Options) (*Service, error) {

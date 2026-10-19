@@ -99,5 +99,6 @@ func (c *Config) Warnings() []string {
 			w = append(w, "database.url uses sslmode=verify-ca: the server certificate's host name is not checked; prefer verify-full")
 		}
 	}
-	return append(append(w, c.egressWarnings()...), c.builderWarnings()...)
+	w = append(append(w, c.egressWarnings()...), c.builderWarnings()...)
+	return append(w, c.notificationWarnings()...)
 }
