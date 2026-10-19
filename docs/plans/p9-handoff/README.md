@@ -21,13 +21,13 @@ allocations §2.4, architecture §5, milestones §6), then this file.
 
 | Branch | Head | State |
 |---|---|---|
-| `feat/phase-8` | `796ddbd` | P8 complete. Waiting on CI run 39149009669 (§2). |
+| `feat/phase-8` | `796ddbd` | **Done: P8 is squash-merged to `main` as `e0a5fe6` ([#36](https://github.com/nightCode42/plux3/pull/36)), with the maintainer's later CI and code fixes.** §2 is history. |
 | `feat/phase-9` | `938e7b1` | Cut from `feat/phase-8`, P8 merged in; E0 merged (§3). |
 | `wip/p9-handoff` | this commit | `feat/phase-9` + this directory: the in-progress P9 slices as patches. |
 
 `feat/phase-9` was cut from `feat/phase-8`, not from `main`, because P8 was not merged yet.
-After P8 is squash-merged, merge `main` into `feat/phase-9` (conflicts are P8's own content
-on both sides; take `main`'s side).
+**`main` is now merged into `wip/p9-handoff`** (`39edc2b`, §7): it is the latest state of the
+repository. Merge `wip/p9-handoff` into `feat/phase-9` (a fast-forward) and continue there.
 
 ---
 
@@ -213,6 +213,19 @@ The maintainer asked the lead to finish short slices without sub-agents and merg
 this branch, so the next session continues from here. `wip/p9-handoff` is therefore now
 `feat/phase-9` + this directory + the slices below; merge it into `feat/phase-9` (it is a
 fast-forward of it) when the next session starts.
+
+### `main` merged in (`39edc2b`, 2026-10-19)
+
+`main` squash-merged P8 as `e0a5fe6`, so git's merge base for this branch predates P8 and a
+plain `git merge origin/main` conflicts in about 50 P8 files. The merge was made instead as
+`git merge -s ours --no-commit origin/main` followed by
+`git diff --binary 796ddbd origin/main | git apply --3way --index` — only main's changes since
+`796ddbd` (the P8 commit this branch already held): 13 files (CI workflow, `ci/affected.json`,
+the iOS bank accessibility pass, ADR-0043, `ci.md`, `testing.md`, the work log, a secure-widgets
+test, zxing-cpp). All applied cleanly. Verified: the tree differs from `main` by exactly the
+files the P9 work changed since `796ddbd`; `go test` of `tools/internal/affected` and
+`tools/cmd/affected`; `make workflows-lint`. Use the same recipe for `feat/phase-9` if it is
+merged with `main` separately.
 
 ### E9a — the Helm chart (`c4fc1dd`, merged `c05385b`)
 
