@@ -697,6 +697,44 @@
       "description": "Server-held configuration values one environment holds."
     },
     {
+      "key": "control.expiry",
+      "unit": "milliseconds",
+      "default": 86400000,
+      "max": 604800000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SYN-060"
+      ],
+      "description": "How long a signed control document is valid after the server signs it; a device keeps the kill switches of an expired document in force."
+    },
+    {
+      "key": "control.killSwitches",
+      "unit": "count",
+      "default": 200,
+      "max": 5000,
+      "scopes": [
+        "installation",
+        "organization",
+        "app"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "REL-060"
+      ],
+      "description": "Kill switches one channel's control document may carry."
+    },
+    {
       "key": "data.cacheBytes",
       "unit": "bytes",
       "default": 16777216,
@@ -2135,6 +2173,23 @@
         "REL-003"
       ],
       "description": "Time a publish waits, from when it was queued, for the app's image assets to finish processing before it fails."
+    },
+    {
+      "key": "push.batchSize",
+      "unit": "count",
+      "default": 200,
+      "max": 5000,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SYN-060"
+      ],
+      "description": "Devices one silent-push job sends to before it hands the rest to a follow-up job."
     },
     {
       "key": "pxl.collectionSize",

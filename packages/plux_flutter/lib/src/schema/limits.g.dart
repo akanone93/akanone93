@@ -108,6 +108,11 @@ enum PluxLimit {
   configValueBytes('config.valueBytes', PluxLimitUnit.bytes, 4096, 0, 65536),
   /// Server-held configuration values one environment holds.
   configValuesPerEnvironment('config.valuesPerEnvironment', PluxLimitUnit.count, 256, 0, 4096),
+  /// How long a signed control document is valid after the server signs it; a
+  /// device keeps the kill switches of an expired document in force.
+  controlExpiry('control.expiry', PluxLimitUnit.milliseconds, 86400000, 0, 604800000),
+  /// Kill switches one channel's control document may carry.
+  controlKillSwitches('control.killSwitches', PluxLimitUnit.count, 200, 0, 5000),
   /// Bytes the response cache of data sources keeps on the device; the least
   /// recently used entries are evicted beyond it.
   dataCacheBytes('data.cacheBytes', PluxLimitUnit.bytes, 16777216, 0, 268435456),
@@ -278,6 +283,9 @@ enum PluxLimit {
   /// Time a publish waits, from when it was queued, for the app's image assets
   /// to finish processing before it fails.
   publishAssetWait('publish.assetWait', PluxLimitUnit.milliseconds, 600000, 0, 3600000),
+  /// Devices one silent-push job sends to before it hands the rest to a
+  /// follow-up job.
+  pushBatchSize('push.batchSize', PluxLimitUnit.count, 200, 0, 5000),
   /// Elements of a list or map produced during one PXL evaluation.
   pxlCollectionSize('pxl.collectionSize', PluxLimitUnit.count, 10000, 0, 1000000),
   /// Digits of a decimal produced during one PXL evaluation, in plain notation.
