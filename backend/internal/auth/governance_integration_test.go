@@ -9,6 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/nightCode42/plux3/backend/edition"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -272,7 +273,7 @@ func TestGrantValidation_GOV_003(t *testing.T) {
 	}); err != nil {
 		t.Fatal(err)
 	}
-	stranger := g.fixture.person(t, "eve@example.com")
+	stranger := g.person(t, "eve@example.com")
 	unknown, _ := g.ids.New()
 	cases := []struct {
 		name string
@@ -428,5 +429,42 @@ func TestCustomRolesResolveWhenTheFeatureIsOff_GOV_002(t *testing.T) {
 	}
 	if _, err := g.svc.UpdateRole(ctx, g.owner, "log-reader", "Log reader", "", []string{"audit.read", "app.read"}); code(err) != plxerr.EnterpriseFeatureNotLicensed {
 		t.Errorf("changing a custom role with the feature off: %v", err)
+	}
+}
+
+// licence is a provider with a fixed status.
+type licence edition.Status
+
+func (l licence) Status() edition.Status { return edition.Status(l) }
+
+// Verifies: GOV-002, GOV-033.
+// Without an override, the licence in the request's context decides whether
+// custom roles may be created: no provider is the community edition, a
+// valid licence listing the feature allows it, an expired one does not.
+func TestCustomRolesFollowTheLicenceInTheContext_GOV_033(t *testing.T) {
+	t.Parallel()
+	g := newGovernance(t)
+	features := []edition.Feature{edition.FeatureCustomRoles}
+	for _, c := range []struct {
+		name, key string
+		ctx       context.Context
+		want      plxerr.Code
+	}{
+		{"community", "reader-a", context.Background(), plxerr.EnterpriseFeatureNotLicensed},
+		{"valid without the feature", "reader-b", edition.WithProvider(context.Background(), licence{State: edition.StateValid}), plxerr.EnterpriseFeatureNotLicensed},
+		{"expired", "reader-c", edition.WithProvider(context.Background(), licence{State: edition.StateExpired, Features: features}), plxerr.EnterpriseFeatureNotLicensed},
+		{"grace", "reader-d", edition.WithProvider(context.Background(), licence{State: edition.StateGrace, Features: features}), 0},
+		{"valid", "reader-e", edition.WithProvider(context.Background(), licence{State: edition.StateValid, Features: features}), 0},
+	} {
+		_, err := g.svc.CreateRole(c.ctx, g.owner, c.key, "Reader", "", []string{"audit.read"})
+		if c.want == 0 {
+			if err != nil {
+				t.Errorf("%s: %v", c.name, err)
+			}
+			continue
+		}
+		if code(err) != c.want {
+			t.Errorf("%s: %v; want %v", c.name, err, c.want)
+		}
 	}
 }

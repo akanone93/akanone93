@@ -43,6 +43,9 @@ Commands:
   config      set | get | list | delete an environment's server-held configuration values
   license     inspect a licence file and its signature
   admin       license: show the installation's enterprise licence state
+  roles       list, show, create, update and delete roles
+  grants      grant roles to people and teams on the organisation, an app or an environment
+  teams       list, create and delete teams; add and remove their members
   create      Generate the Flutter project of a no-code app
   completion  Print a shell completion script (bash, zsh, fish, powershell)
   version     Print version information
@@ -106,6 +109,6 @@ func (e env) commands() map[string]func([]string) int {
 	return map[string]func([]string) int{
 		"login": e.login, "logout": e.logout, "whoami": e.whoami, "init": e.initProject, "doctor": e.doctor,
 		"diff": e.diff, "publish": e.publish, "pull": e.pull, "release": e.release, "export": e.export,
-		"import": e.importCmd, "mock": e.mockCmd, "keys": e.keys, "native": e.native, "security": e.security, "config": e.config, "create": e.create, "completion": e.completion, "fn": e.fn, "l10n": e.l10n, "golden": e.golden, "license": e.license, "admin": e.admin,
+		"import": e.importCmd, "mock": e.mockCmd, "keys": e.keys, "native": e.native, "security": e.security, "config": e.config, "create": e.create, "completion": e.completion, "fn": e.fn, "l10n": e.l10n, "golden": e.golden, "license": e.license, "admin": e.admin, "roles": e.roles, "grants": e.grants, "teams": e.teams,
 	}
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/nightCode42/plux3/backend/edition"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -64,12 +65,17 @@ type GrantFilter struct {
 }
 
 // customRolesEnabled reports whether this installation may create and
-// change custom roles, an enterprise feature (GOV-002, ADR-0073,
-// ADR-0084). It is false unless the installation wires a check: custom
+// change custom roles, an enterprise feature (GOV-002, GOV-033, ADR-0073,
+// ADR-0084). The licence provider in ctx answers, which the server's
+// interceptors put there; without one it is the community edition and the
+// answer is no. Options.CustomRolesEnabled overrides it in tests. Custom
 // roles that already exist keep resolving either way, so a lapsed licence
 // never changes anyone's access.
-func (s *Service) customRolesEnabled() bool {
-	return s.o.CustomRolesEnabled != nil && s.o.CustomRolesEnabled()
+func (s *Service) customRolesEnabled(ctx context.Context) bool {
+	if s.o.CustomRolesEnabled != nil {
+		return s.o.CustomRolesEnabled()
+	}
+	return edition.EnabledForWrite(ctx, edition.FeatureCustomRoles)
 }
 
 // customRoleTable reads the custom roles the given grants use, so that the
@@ -212,8 +218,8 @@ func composeRole(p Principal, values []string) ([]string, error) {
 }
 
 // requireCustomRoles refuses when custom roles are not licensed.
-func (s *Service) requireCustomRoles() error {
-	if !s.customRolesEnabled() {
+func (s *Service) requireCustomRoles(ctx context.Context) error {
+	if !s.customRolesEnabled(ctx) {
 		return plxerr.New(plxerr.EnterpriseFeatureNotLicensed, "custom roles are an enterprise feature; this installation is not licensed for them")
 	}
 	return nil
@@ -225,7 +231,7 @@ func (s *Service) CreateRole(ctx context.Context, p Principal, key, name, descri
 	if err := p.Authorize(RolesManage); err != nil {
 		return RoleDefinition{}, err
 	}
-	if err := s.requireCustomRoles(); err != nil {
+	if err := s.requireCustomRoles(ctx); err != nil {
 		return RoleDefinition{}, err
 	}
 	name, description = strings.TrimSpace(name), strings.TrimSpace(description)
@@ -278,7 +284,7 @@ func (s *Service) UpdateRole(ctx context.Context, p Principal, key, name, descri
 	if err := p.Authorize(RolesManage); err != nil {
 		return RoleDefinition{}, err
 	}
-	if err := s.requireCustomRoles(); err != nil {
+	if err := s.requireCustomRoles(ctx); err != nil {
 		return RoleDefinition{}, err
 	}
 	if IsPredefined(Role(key)) {
@@ -415,23 +421,9 @@ func (s *Service) ListGrants(ctx context.Context, p Principal, f GrantFilter, af
 // environment: the scope names an app, or an environment of that app, of
 // the organisation (PLX-8102).
 func checkScope(ctx context.Context, q *dbgen.Queries, spec GrantSpec) (app, environment pgtype.UUID, err error) {
-	bad := func(format string, args ...any) error { return plxerr.New(plxerr.ScopeInvalid, format, args...) }
-	switch spec.Scope {
-	case ScopeOrganization:
-		if spec.AppID != "" || spec.EnvironmentID != "" {
-			return app, environment, bad("a grant on the organisation names no app or environment")
-		}
-		return app, environment, nil
-	case ScopeApp:
-		if spec.AppID == "" || spec.EnvironmentID != "" {
-			return app, environment, bad("a grant on an app names the app and no environment")
-		}
-	case ScopeEnvironment:
-		if spec.AppID == "" || spec.EnvironmentID == "" {
-			return app, environment, bad("a grant on an environment names the app and the environment")
-		}
-	default:
-		return app, environment, bad("%q is not a scope; the scopes are organization, app and environment", spec.Scope)
+	bad := func(msg string) error { return plxerr.New(plxerr.ScopeInvalid, "%s", msg) }
+	if err := scopeShape(spec); err != nil || spec.Scope == ScopeOrganization {
+		return app, environment, err
 	}
 	if app, err = storage.UUID(spec.AppID); err != nil {
 		return app, environment, bad("the app identifier is not valid")
@@ -457,6 +449,32 @@ func checkScope(ctx context.Context, q *dbgen.Queries, spec GrantSpec) (app, env
 		return app, environment, fmt.Errorf("auth: read an environment: %w", err)
 	}
 	return row.ID, env.ID, nil
+}
+
+// scopeShape checks that a grant names the app and environment its scope
+// needs, and no more (PLX-8102).
+func scopeShape(spec GrantSpec) error {
+	var msg string
+	switch spec.Scope {
+	case ScopeOrganization:
+		if spec.AppID != "" || spec.EnvironmentID != "" {
+			msg = "a grant on the organisation names no app or environment"
+		}
+	case ScopeApp:
+		if spec.AppID == "" || spec.EnvironmentID != "" {
+			msg = "a grant on an app names the app and no environment"
+		}
+	case ScopeEnvironment:
+		if spec.AppID == "" || spec.EnvironmentID == "" {
+			msg = "a grant on an environment names the app and the environment"
+		}
+	default:
+		return plxerr.New(plxerr.ScopeInvalid, "%q is not a scope; the scopes are organization, app and environment", spec.Scope)
+	}
+	if msg != "" {
+		return plxerr.New(plxerr.ScopeInvalid, "%s", msg)
+	}
+	return nil
 }
 
 // holderExists checks that a grant's team exists in the organisation, or

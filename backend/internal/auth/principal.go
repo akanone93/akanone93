@@ -74,40 +74,15 @@ func resolve(id Identity, organizationID string, given []roleGrant, custom map[R
 		Identity: id, OrganizationID: organizationID,
 		AppPermissions: map[string][]Permission{}, EnvPermissions: map[EnvScope][]Permission{},
 	}
-	org := slices.Clone(direct)
-	apps := map[string][]Permission{}
-	envs := map[EnvScope][]Permission{}
+	h := held{org: slices.Clone(direct), apps: map[string][]Permission{}, envs: map[EnvScope][]Permission{}}
 	for _, g := range given {
 		for _, sp := range rolePermissions(g.Role, custom) {
-			info, ok := Describe(sp.Permission)
-			if !ok {
-				continue
-			}
-			switch g.Scope {
-			case ScopeOrganization:
-				if sp.Environment == "" {
-					org = append(org, sp.Permission)
-				} else if info.Scope == ScopeEnvironment {
-					key := EnvScope{Environment: sp.Environment}
-					envs[key] = append(envs[key], sp.Permission)
-				}
-			case ScopeApp:
-				switch {
-				case info.Scope == ScopeOrganization:
-				case sp.Environment == "":
-					apps[g.AppID] = append(apps[g.AppID], sp.Permission)
-				case info.Scope == ScopeEnvironment:
-					key := EnvScope{AppID: g.AppID, Environment: sp.Environment}
-					envs[key] = append(envs[key], sp.Permission)
-				}
-			case ScopeEnvironment:
-				if info.Scope == ScopeEnvironment && (sp.Environment == "" || sp.Environment == g.Environment) {
-					key := EnvScope{AppID: g.AppID, Environment: g.Environment}
-					envs[key] = append(envs[key], sp.Permission)
-				}
+			if info, ok := Describe(sp.Permission); ok {
+				h.add(g, sp, info.Scope)
 			}
 		}
 	}
+	org, apps, envs := h.org, h.apps, h.envs
 	p.Permissions = restrict(org, id.Scopes)
 	for app, held := range apps {
 		if perms := restrict(held, id.Scopes); len(perms) > 0 {
@@ -120,6 +95,42 @@ func resolve(id Identity, organizationID string, given []roleGrant, custom map[R
 		}
 	}
 	return p
+}
+
+// held collects the permissions a principal's grants carry, by where they
+// apply.
+type held struct {
+	org  []Permission
+	apps map[string][]Permission
+	envs map[EnvScope][]Permission
+}
+
+// add places one permission of a grant's role, whose catalogue scope is
+// scope, where the grant lets it apply (see resolve).
+func (h *held) add(g roleGrant, sp ScopedPermission, scope Scope) {
+	switch g.Scope {
+	case ScopeOrganization:
+		if sp.Environment == "" {
+			h.org = append(h.org, sp.Permission)
+		} else if scope == ScopeEnvironment {
+			key := EnvScope{Environment: sp.Environment}
+			h.envs[key] = append(h.envs[key], sp.Permission)
+		}
+	case ScopeApp:
+		switch {
+		case scope == ScopeOrganization:
+		case sp.Environment == "":
+			h.apps[g.AppID] = append(h.apps[g.AppID], sp.Permission)
+		case scope == ScopeEnvironment:
+			key := EnvScope{AppID: g.AppID, Environment: sp.Environment}
+			h.envs[key] = append(h.envs[key], sp.Permission)
+		}
+	case ScopeEnvironment:
+		if scope == ScopeEnvironment && (sp.Environment == "" || sp.Environment == g.Environment) {
+			key := EnvScope{AppID: g.AppID, Environment: g.Environment}
+			h.envs[key] = append(h.envs[key], sp.Permission)
+		}
+	}
 }
 
 // restrict sorts and de-duplicates held. scopes is nil for a session,

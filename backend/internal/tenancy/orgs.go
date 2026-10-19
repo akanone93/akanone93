@@ -5,6 +5,7 @@ package tenancy
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -298,7 +299,7 @@ func (s *Service) AddMember(ctx context.Context, p auth.Principal, teamID, email
 				return err
 			}
 		}
-		row, err := s.addMembership(ctx, q, p.OrganizationID, membershipID, user.ID, team, role)
+		row, err := addMembership(ctx, q, p.OrganizationID, membershipID, user.ID, team, role)
 		if err != nil {
 			return err
 		}
@@ -326,7 +327,7 @@ func membershipRole(teamID, role string) (pgtype.UUID, string, error) {
 }
 
 // addMembership writes a membership of the organisation or of a team.
-func (s *Service) addMembership(ctx context.Context, q *dbgen.Queries, org, membershipID, userID string, team pgtype.UUID, role string) (dbgen.Membership, error) {
+func addMembership(ctx context.Context, q *dbgen.Queries, org, membershipID, userID string, team pgtype.UUID, role string) (dbgen.Membership, error) {
 	var (
 		row dbgen.Membership
 		err error
@@ -347,7 +348,10 @@ func (s *Service) addMembership(ctx context.Context, q *dbgen.Queries, org, memb
 				ID: storage.MustUUID(membershipID), OrganizationID: storage.MustUUID(org),
 				UserID: storage.MustUUID(userID), Role: role,
 			})
-			return addErr
+			if addErr != nil {
+				return fmt.Errorf("tenancy: add a membership: %w", addErr)
+			}
+			return nil
 		})
 	}
 	if err != nil {
