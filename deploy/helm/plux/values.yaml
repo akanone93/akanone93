@@ -141,6 +141,73 @@ postgresql:
     operatorNamespace: cnpg-system
     # Keys merged into the Cluster's spec after the chart's own.
     spec: {}
+    # Continuous backup (DEP-010, README "Backup and restore"): every WAL
+    # segment goes to object storage as it fills or after archiveTimeout, and a
+    # base backup is taken on a schedule, so the cluster restores to any second
+    # inside the retention (point-in-time recovery). Keep the store apart from
+    # the data bucket and the cluster: a backup that dies with what it protects
+    # is no backup. Off by default because it needs a store you have chosen.
+    backup:
+      enabled: false
+      # The store. Empty values use the chart's object storage (its endpoint,
+      # bucket and credential); set them to use a separate S3 store.
+      bucket: ""
+      # Folder in the bucket; the cluster's server name is a sub-folder.
+      path: postgresql
+      endpoint: ""
+      region: ""
+      # A Secret with the access key pair; empty uses the object storage's, and
+      # no Secret at all uses the pod's ambient credential (IRSA).
+      existingSecret: ""
+      accessKeyIDKey: accessKeyID
+      secretAccessKeyKey: secretAccessKey
+      # A Secret key with the CA bundle of a private S3 endpoint.
+      caSecret: ""
+      caKey: ca.crt
+      # The folder under which this cluster archives; empty is the cluster's
+      # name. A cluster restored from another must archive under a new name.
+      serverName: ""
+      # Six fields, seconds first (not a Kubernetes cron expression).
+      schedule: "0 0 */6 * * *"
+      # Backups and WAL older than this are deleted (days, weeks or months: 30d).
+      retention: 30d
+      # The longest a committed transaction can wait outside the archive when
+      # the primary is quiet. With the synchronous standby it bounds the data a
+      # lost cluster takes with it: the recovery point objective (RPO <= 5 min).
+      archiveTimeout: 60s
+      compression: gzip
+      walMaxParallel: 2
+      immediateCheckpoint: false
+      # A consistency marker (README "Consistency marker") every minute:
+      # a WAL message and an object in the data bucket that name the same
+      # instant, so a database point and an object-store point can be matched.
+      marker:
+        enabled: true
+        schedule: "* * * * *"
+        # The folder in the data bucket.
+        prefix: markers/postgresql
+        image:
+          repository: ghcr.io/cloudnative-pg/postgresql
+          tag: 18-standard-trixie
+          digest: sha256:5c11341a777f9780b35cb5be3956d53df2b81d455495272668e730106bb44138
+        # curl signs the upload (SigV4), so the marker needs an access key pair:
+        # the data bucket's by default, or this Secret.
+        existingSecret: ""
+        accessKeyIDKey: accessKeyID
+        secretAccessKeyKey: secretAccessKey
+        resources:
+          requests: {cpu: 10m, memory: 32Mi}
+          limits: {memory: 128Mi}
+    # Create the cluster from a backup store instead of empty (a restore, or
+    # the restore drill). Uses the store of `backup` above.
+    restore:
+      enabled: false
+      # The folder of the cluster to restore from; empty is this cluster's name.
+      sourceServerName: ""
+      # RFC 3339, e.g. 2026-10-19T08:30:00Z; empty restores to the end of the
+      # archive. Or an exact WAL position: the lsn of a consistency marker.
+      targetTime: ""
+      targetLSN: ""
   external:
     # A Secret with the connection URL (postgres://...?sslmode=verify-full).
     existingSecret: ""
@@ -324,6 +391,10 @@ networkPolicy:
     api: []
     worker: []
     migrate: []
+    # The PostgreSQL pods' backups to a store outside the cluster, and the
+    # consistency marker Job (port 443 of a private S3 endpoint, for example).
+    postgresql: []
+    backup: []
 
 # ── helm test ──────────────────────────────────────────────────────────────
 test:

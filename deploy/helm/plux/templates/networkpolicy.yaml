@@ -269,6 +269,42 @@ spec:
       ports: [{protocol: TCP, port: 5432}, {protocol: TCP, port: 8000}]
     # The instance manager watches its Cluster at the Kubernetes API server.
     - ports: [{protocol: TCP, port: 443}, {protocol: TCP, port: 6443}]
+    {{- if or .Values.postgresql.cnpg.backup.enabled .Values.postgresql.cnpg.restore.enabled }}
+    # WAL archive and base backups (or the archive a restore reads) in the
+    # backup store.
+    {{- if and $storeInside (not .Values.postgresql.cnpg.backup.endpoint) }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "seaweedfs") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8333}]
+    {{- end }}
+    {{- include "plux.np.https" . | nindent 4 }}
+    {{- with $np.extraEgress.postgresql }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- end }}
+{{- end }}
+{{- if and $pgInside .Values.postgresql.cnpg.backup.enabled .Values.postgresql.cnpg.backup.marker.enabled }}
+---
+# The consistency marker Job emits a WAL message and uploads one object.
+{{ include "plux.np.head" (dict "root" . "name" "backup-marker") }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "plux.sel" (dict "root" . "component" "backup-marker") | nindent 6 }}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "postgresql") | nindent 8 }}
+      ports: [{protocol: TCP, port: 5432}]
+    {{- if $storeInside }}
+    - to:
+        {{- include "plux.peer" (dict "root" . "component" "seaweedfs") | nindent 8 }}
+      ports: [{protocol: TCP, port: 8333}]
+    {{- end }}
+    {{- include "plux.np.https" . | nindent 4 }}
+    {{- with $np.extraEgress.backup }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 {{- end }}
 {{- if $valkeyInside }}
 ---
@@ -301,6 +337,12 @@ spec:
     - from:
         {{- include "plux.peer" (dict "root" . "component" "api") | nindent 8 }}
         {{- include "plux.peer" (dict "root" . "component" "worker") | nindent 8 }}
+        {{- if or .Values.postgresql.cnpg.backup.enabled .Values.postgresql.cnpg.restore.enabled }}
+        {{- include "plux.peer" (dict "root" . "component" "postgresql") | nindent 8 }}
+        {{- end }}
+        {{- if and $pgInside .Values.postgresql.cnpg.backup.enabled .Values.postgresql.cnpg.backup.marker.enabled }}
+        {{- include "plux.peer" (dict "root" . "component" "backup-marker") | nindent 8 }}
+        {{- end }}
       ports: [{protocol: TCP, port: 8333}]
   egress: []
 {{- end }}

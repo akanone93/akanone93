@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# A cluster created from a backup store to a point in time, in a namespace of
+# its own, reading the data bucket of the installation it came from: the
+# restore drill's second installation (DEP-010). Backups are off: the restored
+# cluster must not archive into the folder it was restored from.
+server:
+  publicBaseURL: https://plux.example.com
+signing:
+  backend: file
+  file:
+    persistence:
+      existingClaim: plux-keys
+postgresql:
+  cnpg:
+    instances: 1
+    synchronous: {enabled: false}
+    storage: {size: 1Gi}
+    backup:
+      bucket: plux-backups
+      endpoint: http://plux-seaweedfs.plux.svc:8333
+      existingSecret: plux-source-s3
+    restore:
+      enabled: true
+      sourceServerName: plux-pg
+      targetLSN: "0/5000060"
+objectStorage:
+  mode: external
+  pathStyle: true
+  external:
+    endpoint: http://plux-seaweedfs.plux.svc:8333
+    existingSecret: plux-source-s3
+networkPolicy:
+  enabled: false
