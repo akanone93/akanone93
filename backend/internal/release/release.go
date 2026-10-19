@@ -201,6 +201,27 @@ func authorize(p auth.Principal, want auth.Permission, appID string) error {
 	return nil
 }
 
+// authorizeSomeEnvironment is the first check of a call that acts on one
+// environment, made before the environment is read: it passes for a
+// principal who holds the permission on the app or on some environment of
+// it. The call then checks the environment with authorizeEnvironment
+// (GOV-003).
+func authorizeSomeEnvironment(p auth.Principal, want auth.Permission, appID string) error {
+	if err := p.AuthorizeSomeEnvironment(want, appID); err != nil {
+		return fmt.Errorf("release: %w", err)
+	}
+	return nil
+}
+
+// authorizeEnvironment is Principal.AuthorizeEnvironment with the refusal
+// marked as this package's.
+func authorizeEnvironment(p auth.Principal, want auth.Permission, appID, environment string) error {
+	if err := p.AuthorizeEnvironment(want, appID, environment); err != nil {
+		return fmt.Errorf("release: %w", err)
+	}
+	return nil
+}
+
 // failure turns a database error into the refusal a caller understands.
 func failure(err error, what string) error {
 	if errors.Is(err, pgx.ErrNoRows) {

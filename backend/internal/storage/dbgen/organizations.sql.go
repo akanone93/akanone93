@@ -82,10 +82,22 @@ func (q *Queries) AddTeamMembership(ctx context.Context, arg AddTeamMembershipPa
 }
 
 const countOwners = `-- name: CountOwners :one
-SELECT count(DISTINCT user_id) FROM memberships
- WHERE organization_id = $1 AND team_id IS NULL AND role = 'owner'
+SELECT count(*) FROM (
+    SELECT m.user_id FROM memberships m
+     WHERE m.organization_id = $1 AND m.team_id IS NULL AND m.role = 'owner'
+    UNION
+    SELECT g.user_id FROM role_grants g
+     WHERE g.organization_id = $1 AND g.scope = 'organization' AND g.role = 'owner' AND g.user_id IS NOT NULL
+    UNION
+    SELECT m.user_id FROM role_grants g
+      JOIN memberships m ON m.organization_id = g.organization_id AND m.team_id = g.team_id
+     WHERE g.organization_id = $1 AND g.scope = 'organization' AND g.role = 'owner'
+) owners
 `
 
+// The people who are owners of the organisation: by a direct membership,
+// or by a grant of the owner role on the whole organisation, to them or to
+// a team they belong to (GOV-002).
 func (q *Queries) CountOwners(ctx context.Context, organizationID pgtype.UUID) (int64, error) {
 	row := q.db.QueryRow(ctx, countOwners, organizationID)
 	var count int64

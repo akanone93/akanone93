@@ -74,7 +74,10 @@ type entry struct {
 }
 
 // roles are the callers of the matrix, in the order they are checked.
-var matrixRoles = []auth.Role{auth.RoleViewer, auth.RoleTranslator, auth.RoleDeveloper, auth.RoleAdmin, auth.RoleOwner}
+var matrixRoles = []auth.Role{
+	auth.RoleViewer, auth.RoleTranslator, auth.RoleDeveloper, auth.RoleAdmin, auth.RoleOwner,
+	auth.RoleReleaseManager, auth.RoleDesigner, auth.RoleReviewer, auth.RoleComplianceOfficer, auth.RoleAuditor,
+}
 
 // matrixFixture is an organisation with one member per role and the
 // resources the RPCs act on.
@@ -148,7 +151,10 @@ func newMatrixFixture(t *testing.T) *matrixFixture {
 	owner.org = f.org
 	w.withSecondFactor(t, owner)
 	f.callers[auth.RoleOwner] = owner
-	for _, role := range []auth.Role{auth.RoleAdmin, auth.RoleDeveloper, auth.RoleTranslator, auth.RoleViewer} {
+	for _, role := range matrixRoles {
+		if role == auth.RoleOwner {
+			continue
+		}
 		email := string(role) + "@example.com"
 		added := must(w.org.AddMember(ctx, req(owner, &pluxv1.AddMemberRequest{Email: email, Role: string(role)})))(t)
 		must(w.identity.AcceptInvitation(ctx, connect.NewRequest(&pluxv1.AcceptInvitationRequest{Invitation: added.GetInvitation(), DisplayName: string(role), Password: password})))(t)
@@ -416,6 +422,31 @@ func TestEveryPermissionGuardsAnRPC(t *testing.T) {
 // service (translations) or arrive with their RPCs (waivers).
 var permissionsWithoutRPC = []auth.Permission{
 	auth.A11yWaive, auth.KeysManage, auth.TranslationsApprove,
+	// The P9 permissions whose RPCs a later milestone adds; each milestone
+	// removes its permissions from this list when its first call checks
+	// them (plan §2.4).
+	auth.SSOManage,
+	auth.SessionsManage,
+	auth.PoliciesManage,
+	auth.ApprovalsDecide,
+	auth.BreakglassInvoke,
+	auth.FreezesManage,
+	auth.ComplianceReport,
+	auth.RolloutManage,
+	auth.KillswitchManage,
+	auth.FlagsManage,
+	auth.ExperimentsManage,
+	auth.AnalyticsRead,
+	auth.AlertsManage,
+	auth.NotificationsManage,
+	auth.WebhooksManage,
+	auth.AuditExport,
+	auth.ReconstructionView,
+	auth.DSRManage,
+	auth.SearchRead,
+	auth.GitExport,
+	auth.LicenseManage,
+	auth.BackupManage,
 }
 
 // Verifies: SEC-100, SEC-102, GOV-001, QA-008.

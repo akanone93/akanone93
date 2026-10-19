@@ -106,15 +106,15 @@ var matrix = map[string]entry{
 	"OrgService/UpdateOrganization": atPerm(auth.OrganizationManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.UpdateOrganizationRequest{Id: f.org, Name: "Acme"}
 	})),
-	"OrgService/CreateTeam": atPerm(auth.MembersManage, func(t *testing.T, f *matrixFixture) proto.Message {
+	"OrgService/CreateTeam": atPerm(auth.TeamsManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		k := f.name()
 		return &pluxv1.CreateTeamRequest{Key: k, Name: k}
 	}),
 	"OrgService/ListTeams": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListTeamsRequest{})),
-	"OrgService/UpdateTeam": atPerm(auth.MembersManage, fixed(func(f *matrixFixture) proto.Message {
+	"OrgService/UpdateTeam": atPerm(auth.TeamsManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.UpdateTeamRequest{Id: f.team, Name: "Web"}
 	})),
-	"OrgService/DeleteTeam": atPerm(auth.MembersManage, func(t *testing.T, f *matrixFixture) proto.Message {
+	"OrgService/DeleteTeam": atPerm(auth.TeamsManage, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteTeamRequest{Id: f.freshTeam(t)}
 	}),
 	"OrgService/AddMember": atPerm(auth.MembersManage, func(t *testing.T, f *matrixFixture) proto.Message {
@@ -253,6 +253,32 @@ var matrix = map[string]entry{
 	})),
 	"LocalisationService/SetStates": atPerm(auth.TranslationsEdit, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.SetStatesRequest{AppId: f.app, Locale: "de", States: map[string]string{unknownID: "reviewed"}}
+	})),
+
+	// GovernanceService (GOV-002, GOV-003)
+	"GovernanceService/ListPermissions": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListPermissionsRequest{})),
+	"GovernanceService/ListRoles":       atPerm(auth.OrganizationRead, anyone(&pluxv1.ListRolesRequest{})),
+	"GovernanceService/GetRole": atPerm(auth.OrganizationRead, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.GetRoleRequest{Key: "viewer"}
+	})),
+	"GovernanceService/CreateRole": atPerm(auth.RolesManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateRoleRequest{Key: "role-" + f.name(), Name: "Role", Permissions: []string{"app.read"}}
+	}),
+	"GovernanceService/UpdateRole": atPerm(auth.RolesManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.UpdateRoleRequest{Key: "no-such-role", Name: "Role", Permissions: []string{"app.read"}}
+	})),
+	"GovernanceService/DeleteRole": atPerm(auth.RolesManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.DeleteRoleRequest{Key: "no-such-role"}
+	})),
+	"GovernanceService/ListGrants": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListGrantsRequest{})),
+	"GovernanceService/CreateGrant": atPerm(auth.MembersManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateGrantRequest{TeamId: f.freshTeam(t), Role: "viewer", Scope: "organization"}
+	}),
+	"GovernanceService/UpdateGrant": atPerm(auth.MembersManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.UpdateGrantRequest{Id: unknownID, Role: "viewer"}
+	})),
+	"GovernanceService/DeleteGrant": atPerm(auth.MembersManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.DeleteGrantRequest{Id: unknownID}
 	})),
 
 	// GoldenService

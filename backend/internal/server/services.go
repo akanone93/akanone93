@@ -677,6 +677,7 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 	registrations := []func() (string, http.Handler){
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewGovernanceServiceHandler(h.Governance(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewAppServiceHandler(h.App(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewPluginServiceHandler(h.Plugin(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewDocumentServiceHandler(h.Document(), opts) },

@@ -152,6 +152,21 @@ const (
 	UpdateMetadataRootUploaded Action = "update_metadata.root_uploaded"
 )
 
+// The actions of roles and grants (GOV-002, GOV-003, ADR-0073).
+const (
+	// RoleCreated, RoleUpdated and RoleDeleted: a custom role was made,
+	// changed or removed; the entry's detail lists its permissions.
+	RoleCreated Action = "role.created"
+	RoleUpdated Action = "role.updated"
+	RoleDeleted Action = "role.deleted"
+	// RoleGranted, RoleGrantChanged and RoleRevoked: a role was bound to a
+	// user or a team at a scope, the role of a grant changed, or a grant
+	// removed; the entry's detail names the holder, role and scope.
+	RoleGranted      Action = "role.granted"
+	RoleGrantChanged Action = "role.grant_changed"
+	RoleRevoked      Action = "role.revoked"
+)
+
 // actions is the registry, sorted, so that Registered can search it and
 // a test can print the catalogue.
 var actions = sorted(
@@ -172,6 +187,8 @@ var actions = sorted(
 	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,
 	ConfigValueSet, ConfigValueDeleted,
 	FunctionSourceUploaded, FunctionBuildRequested, FunctionBuildFinished, FunctionDeployed, FunctionPromoted, FunctionAliasSet,
+	RoleCreated, RoleUpdated, RoleDeleted,
+	RoleGranted, RoleGrantChanged, RoleRevoked,
 )
 
 // sorted returns its arguments in order.

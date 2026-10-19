@@ -164,7 +164,7 @@ func (s *Service) UpdateOrganization(ctx context.Context, p auth.Principal, name
 
 // CreateTeam adds a team to the principal's organisation.
 func (s *Service) CreateTeam(ctx context.Context, p auth.Principal, key, name string) (Team, error) {
-	if err := authorize(p, auth.MembersManage); err != nil {
+	if err := authorize(p, auth.TeamsManage); err != nil {
 		return Team{}, err
 	}
 	name = strings.TrimSpace(name)
@@ -217,7 +217,7 @@ func (s *Service) ListTeams(ctx context.Context, p auth.Principal, page Page) ([
 
 // UpdateTeam renames a team.
 func (s *Service) UpdateTeam(ctx context.Context, p auth.Principal, teamID, name string) (Team, error) {
-	if err := authorize(p, auth.MembersManage); err != nil {
+	if err := authorize(p, auth.TeamsManage); err != nil {
 		return Team{}, err
 	}
 	tid, err := parseID(teamID, "team")
@@ -242,7 +242,7 @@ func (s *Service) UpdateTeam(ctx context.Context, p auth.Principal, teamID, name
 
 // DeleteTeam removes a team with its memberships and app grants.
 func (s *Service) DeleteTeam(ctx context.Context, p auth.Principal, teamID string) error {
-	if err := authorize(p, auth.MembersManage); err != nil {
+	if err := authorize(p, auth.TeamsManage); err != nil {
 		return err
 	}
 	tid, err := parseID(teamID, "team")
@@ -250,14 +250,19 @@ func (s *Service) DeleteTeam(ctx context.Context, p auth.Principal, teamID strin
 		return err
 	}
 	return s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		n, err := dbgen.New(tx).DeleteTeam(ctx, tid)
-		if err != nil {
-			return failure(err, "team")
-		}
-		if n == 0 {
-			return plxerr.New(plxerr.ResourceNotFound, "no such team")
-		}
-		return s.record(ctx, tx, p, audit.TeamDeleted, "team", teamID)
+		q := dbgen.New(tx)
+		// A team can hold the owner role, so deleting it can remove the
+		// last owner (PLX-8103).
+		return auth.GuardOwners(ctx, q, storage.MustUUID(p.OrganizationID), func() error {
+			n, err := q.DeleteTeam(ctx, tid)
+			if err != nil {
+				return failure(err, "team")
+			}
+			if n == 0 {
+				return plxerr.New(plxerr.ResourceNotFound, "no such team")
+			}
+			return s.record(ctx, tx, p, audit.TeamDeleted, "team", teamID)
+		})
 	})
 }
 
@@ -335,49 +340,20 @@ func (s *Service) addMembership(ctx context.Context, q *dbgen.Queries, org, memb
 			UserID: storage.MustUUID(userID), TeamID: team, Role: role,
 		})
 	} else {
-		if err := s.keepAnOwner(ctx, q, org, userID, role); err != nil {
-			return dbgen.Membership{}, err
-		}
-		row, err = q.AddMembership(ctx, dbgen.AddMembershipParams{
-			ID: storage.MustUUID(membershipID), OrganizationID: storage.MustUUID(org),
-			UserID: storage.MustUUID(userID), Role: role,
+		// Setting a role can demote the last owner (PLX-8103).
+		err = auth.GuardOwners(ctx, q, storage.MustUUID(org), func() error {
+			var addErr error
+			row, addErr = q.AddMembership(ctx, dbgen.AddMembershipParams{
+				ID: storage.MustUUID(membershipID), OrganizationID: storage.MustUUID(org),
+				UserID: storage.MustUUID(userID), Role: role,
+			})
+			return addErr
 		})
 	}
 	if err != nil {
 		return dbgen.Membership{}, failure(err, "membership")
 	}
 	return row, nil
-}
-
-// keepAnOwner refuses a change that would leave the organisation without
-// an owner: demoting the last owner, or removing them (role "").
-func (*Service) keepAnOwner(ctx context.Context, q *dbgen.Queries, org, userID, role string) error {
-	if role == string(auth.RoleOwner) {
-		return nil
-	}
-	rows, err := q.ListMembershipsForUser(ctx, dbgen.ListMembershipsForUserParams{
-		OrganizationID: storage.MustUUID(org), UserID: storage.MustUUID(userID),
-	})
-	if err != nil {
-		return failure(err, "membership")
-	}
-	isOwner := false
-	for _, m := range rows {
-		if !m.TeamID.Valid && m.Role == string(auth.RoleOwner) {
-			isOwner = true
-		}
-	}
-	if !isOwner {
-		return nil
-	}
-	owners, err := q.CountOwners(ctx, storage.MustUUID(org))
-	if err != nil {
-		return failure(err, "membership")
-	}
-	if owners <= 1 {
-		return plxerr.New(plxerr.PreconditionFailed, "an organisation keeps at least one owner; make someone else owner first")
-	}
-	return nil
 }
 
 // RemoveMember removes a membership of the organisation or of a team.
@@ -397,21 +373,20 @@ func (s *Service) RemoveMember(ctx context.Context, p auth.Principal, teamID, us
 	}
 	return s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
-		if !team.Valid {
-			if err := s.keepAnOwner(ctx, q, p.OrganizationID, userID, ""); err != nil {
-				return err
+		// Removing a person can remove the last owner (PLX-8103), directly
+		// or through a team that holds the owner role.
+		return auth.GuardOwners(ctx, q, storage.MustUUID(p.OrganizationID), func() error {
+			n, err := q.RemoveMembership(ctx, dbgen.RemoveMembershipParams{
+				OrganizationID: storage.MustUUID(p.OrganizationID), UserID: uid, TeamID: team,
+			})
+			if err != nil {
+				return failure(err, "membership")
 			}
-		}
-		n, err := q.RemoveMembership(ctx, dbgen.RemoveMembershipParams{
-			OrganizationID: storage.MustUUID(p.OrganizationID), UserID: uid, TeamID: team,
+			if n == 0 {
+				return plxerr.New(plxerr.ResourceNotFound, "no such membership")
+			}
+			return s.record(ctx, tx, p, audit.MemberRemoved, "user", userID)
 		})
-		if err != nil {
-			return failure(err, "membership")
-		}
-		if n == 0 {
-			return plxerr.New(plxerr.ResourceNotFound, "no such membership")
-		}
-		return s.record(ctx, tx, p, audit.MemberRemoved, "user", userID)
 	})
 }
 

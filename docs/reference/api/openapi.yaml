@@ -2812,6 +2812,403 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.UploadRunResponse'
+  /plux.v1.GovernanceService/CreateGrant:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: CreateGrant
+      description: |-
+        CreateGrant binds a role to a user or a team at a scope: the
+         organisation, one app, or one environment of an app.
+      operationId: plux.v1.GovernanceService.CreateGrant
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateGrantRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateGrantResponse'
+  /plux.v1.GovernanceService/CreateRole:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: CreateRole
+      description: |-
+        CreateRole creates a custom role composed of catalogue permissions the
+         caller holds. Unknown permissions are PLX-8101. Custom roles are an
+         enterprise feature.
+      operationId: plux.v1.GovernanceService.CreateRole
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateRoleRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateRoleResponse'
+  /plux.v1.GovernanceService/DeleteGrant:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: DeleteGrant
+      operationId: plux.v1.GovernanceService.DeleteGrant
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteGrantRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteGrantResponse'
+  /plux.v1.GovernanceService/DeleteRole:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: DeleteRole
+      description: DeleteRole deletes a custom role that no grant uses.
+      operationId: plux.v1.GovernanceService.DeleteRole
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteRoleRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteRoleResponse'
+  /plux.v1.GovernanceService/GetRole:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: GetRole
+      operationId: plux.v1.GovernanceService.GetRole
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetRoleRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetRoleResponse'
+  /plux.v1.GovernanceService/ListGrants:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: ListGrants
+      description: |-
+        ListGrants lists the grants made through this service. The role of a
+         direct membership and the roles on apps (AppService.GrantAccess) are
+         grants too, and are managed where they are made.
+      operationId: plux.v1.GovernanceService.ListGrants
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListGrantsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListGrantsResponse'
+  /plux.v1.GovernanceService/ListPermissions:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: ListPermissions
+      description: ListPermissions returns the permission catalogue, in name order.
+      operationId: plux.v1.GovernanceService.ListPermissions
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListPermissionsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListPermissionsResponse'
+  /plux.v1.GovernanceService/ListRoles:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: ListRoles
+      description: |-
+        ListRoles lists the predefined roles and the organisation's custom
+         roles, by key.
+      operationId: plux.v1.GovernanceService.ListRoles
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListRolesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListRolesResponse'
+  /plux.v1.GovernanceService/UpdateGrant:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: UpdateGrant
+      description: UpdateGrant changes the role of a grant.
+      operationId: plux.v1.GovernanceService.UpdateGrant
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.UpdateGrantRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.UpdateGrantResponse'
+  /plux.v1.GovernanceService/UpdateRole:
+    post:
+      tags:
+        - plux.v1.GovernanceService
+      summary: UpdateRole
+      operationId: plux.v1.GovernanceService.UpdateRole
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.UpdateRoleRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.UpdateRoleResponse'
   /plux.v1.IdentityService/AcceptInvitation:
     post:
       tags:
@@ -8259,6 +8656,39 @@ components:
           title: environment
       title: CreateEnvironmentResponse
       additionalProperties: false
+    plux.v1.CreateGrantRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+          title: user_id
+          description: Exactly one of user_id and team_id is set.
+        teamId:
+          type: string
+          title: team_id
+        role:
+          type: string
+          title: role
+        scope:
+          type: string
+          title: scope
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+      title: CreateGrantRequest
+      additionalProperties: false
+    plux.v1.CreateGrantResponse:
+      type: object
+      properties:
+        grant:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.RoleGrant'
+          title: grant
+      title: CreateGrantResponse
+      additionalProperties: false
     plux.v1.CreateOrganizationRequest:
       type: object
       properties:
@@ -8373,6 +8803,34 @@ components:
             $ref: '#/components/schemas/plux.v1.Diagnostic'
           title: diagnostics
       title: CreateReleaseResponse
+      additionalProperties: false
+    plux.v1.CreateRoleRequest:
+      type: object
+      properties:
+        key:
+          type: string
+          title: key
+        name:
+          type: string
+          title: name
+        description:
+          type: string
+          title: description
+        permissions:
+          type: array
+          items:
+            type: string
+          title: permissions
+      title: CreateRoleRequest
+      additionalProperties: false
+    plux.v1.CreateRoleResponse:
+      type: object
+      properties:
+        role:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.RoleDefinition'
+          title: role
+      title: CreateRoleResponse
       additionalProperties: false
     plux.v1.CreateTeamRequest:
       type: object
@@ -8647,6 +9105,18 @@ components:
       type: object
       title: DeleteFactorResponse
       additionalProperties: false
+    plux.v1.DeleteGrantRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: DeleteGrantRequest
+      additionalProperties: false
+    plux.v1.DeleteGrantResponse:
+      type: object
+      title: DeleteGrantResponse
+      additionalProperties: false
     plux.v1.DeletePluginRequest:
       type: object
       properties:
@@ -8663,6 +9133,18 @@ components:
             - $ref: '#/components/schemas/plux.v1.TrashItem'
           title: trash
       title: DeletePluginResponse
+      additionalProperties: false
+    plux.v1.DeleteRoleRequest:
+      type: object
+      properties:
+        key:
+          type: string
+          title: key
+      title: DeleteRoleRequest
+      additionalProperties: false
+    plux.v1.DeleteRoleResponse:
+      type: object
+      title: DeleteRoleResponse
       additionalProperties: false
     plux.v1.DeleteSecretRequest:
       type: object
@@ -10208,6 +10690,23 @@ components:
           description: content_type is "application/json" or "text/html; charset=utf-8".
       title: GetReportResponse
       additionalProperties: false
+    plux.v1.GetRoleRequest:
+      type: object
+      properties:
+        key:
+          type: string
+          title: key
+      title: GetRoleRequest
+      additionalProperties: false
+    plux.v1.GetRoleResponse:
+      type: object
+      properties:
+        role:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.RoleDefinition'
+          title: role
+      title: GetRoleResponse
+      additionalProperties: false
     plux.v1.GetRootKeysRequest:
       type: object
       properties:
@@ -11287,6 +11786,39 @@ components:
           title: page
       title: ListFunctionsResponse
       additionalProperties: false
+    plux.v1.ListGrantsRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+          title: user_id
+          description: user_id, team_id and app_id each narrow the list when set.
+        teamId:
+          type: string
+          title: team_id
+        appId:
+          type: string
+          title: app_id
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListGrantsRequest
+      additionalProperties: false
+    plux.v1.ListGrantsResponse:
+      type: object
+      properties:
+        grants:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.RoleGrant'
+          title: grants
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListGrantsResponse
+      additionalProperties: false
     plux.v1.ListHostBuildsRequest:
       type: object
       properties:
@@ -11424,6 +11956,20 @@ components:
           title: page
       title: ListOrganizationsResponse
       additionalProperties: false
+    plux.v1.ListPermissionsRequest:
+      type: object
+      title: ListPermissionsRequest
+      additionalProperties: false
+    plux.v1.ListPermissionsResponse:
+      type: object
+      properties:
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.PermissionEntry'
+          title: permissions
+      title: ListPermissionsResponse
+      additionalProperties: false
     plux.v1.ListPluginLimitsRequest:
       type: object
       properties:
@@ -11551,6 +12097,29 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListReleasesResponse
+      additionalProperties: false
+    plux.v1.ListRolesRequest:
+      type: object
+      properties:
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListRolesRequest
+      additionalProperties: false
+    plux.v1.ListRolesResponse:
+      type: object
+      properties:
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.RoleDefinition'
+          title: roles
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListRolesResponse
       additionalProperties: false
     plux.v1.ListSecretsRequest:
       type: object
@@ -12245,6 +12814,39 @@ components:
       title: PatchOp
       additionalProperties: false
       description: PatchOp is one JSON Patch (RFC 6902) operation.
+    plux.v1.PermissionEntry:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+          description: name is the dotted permission name, for example "release.publish".
+        description:
+          type: string
+          title: description
+        risk:
+          type: string
+          title: risk
+          description: risk is "low", "medium" or "high".
+        stepUp:
+          type: boolean
+          title: step_up
+          description: |-
+            step_up is true when the permission needs a second factor in the
+             session (SEC-100, SEC-103).
+        scope:
+          type: string
+          title: scope
+          description: |-
+            scope is the narrowest scope the permission can be granted at:
+             "organization", "app" or "environment".
+        readOnly:
+          type: boolean
+          title: read_only
+          description: read_only is true when the permission changes nothing.
+      title: PermissionEntry
+      additionalProperties: false
+      description: PermissionEntry is one permission of the catalogue.
     plux.v1.Plugin:
       type: object
       properties:
@@ -13201,6 +13803,81 @@ components:
           title: device
       title: RevokeDeviceResponse
       additionalProperties: false
+    plux.v1.RoleDefinition:
+      type: object
+      properties:
+        key:
+          type: string
+          title: key
+          description: |-
+            key names the role: the name of a predefined role, or the key of a
+             custom role.
+        name:
+          type: string
+          title: name
+        description:
+          type: string
+          title: description
+        predefined:
+          type: boolean
+          title: predefined
+        permissions:
+          type: array
+          items:
+            type: string
+          title: permissions
+          description: |-
+            permissions are catalogue names, bare or limited to an environment as
+             "<permission>:<environment>".
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+      title: RoleDefinition
+      additionalProperties: false
+      description: RoleDefinition is a role and the permissions it holds.
+    plux.v1.RoleGrant:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        organizationId:
+          type: string
+          title: organization_id
+        userId:
+          type: string
+          title: user_id
+          description: Exactly one of user_id and team_id is set.
+        teamId:
+          type: string
+          title: team_id
+        role:
+          type: string
+          title: role
+        scope:
+          type: string
+          title: scope
+          description: scope is "organization", "app" or "environment".
+        appId:
+          type: string
+          title: app_id
+          description: app_id is set for the scopes "app" and "environment".
+        environmentId:
+          type: string
+          title: environment_id
+          description: environment_id is set for the scope "environment".
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+      title: RoleGrant
+      additionalProperties: false
+      description: RoleGrant binds a role to a user or a team at a scope (GOV-003).
     plux.v1.RollbackReleaseRequest:
       type: object
       properties:
@@ -13921,6 +14598,26 @@ components:
           title: environment
       title: UpdateEnvironmentResponse
       additionalProperties: false
+    plux.v1.UpdateGrantRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        role:
+          type: string
+          title: role
+      title: UpdateGrantRequest
+      additionalProperties: false
+    plux.v1.UpdateGrantResponse:
+      type: object
+      properties:
+        grant:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.RoleGrant'
+          title: grant
+      title: UpdateGrantResponse
+      additionalProperties: false
     plux.v1.UpdateMetadataRef:
       type: object
       properties:
@@ -13986,6 +14683,34 @@ components:
             - $ref: '#/components/schemas/plux.v1.Plugin'
           title: plugin
       title: UpdatePluginResponse
+      additionalProperties: false
+    plux.v1.UpdateRoleRequest:
+      type: object
+      properties:
+        key:
+          type: string
+          title: key
+        name:
+          type: string
+          title: name
+        description:
+          type: string
+          title: description
+        permissions:
+          type: array
+          items:
+            type: string
+          title: permissions
+      title: UpdateRoleRequest
+      additionalProperties: false
+    plux.v1.UpdateRoleResponse:
+      type: object
+      properties:
+        role:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.RoleDefinition'
+          title: role
+      title: UpdateRoleResponse
       additionalProperties: false
     plux.v1.UpdateTeamRequest:
       type: object
@@ -14714,6 +15439,12 @@ tags:
        cases with the real runtime and uploads a run; the server compares the
        images with the approved baselines, promotes images on approval and gates
        publishing on them.
+  - name: plux.v1.GovernanceService
+    description: |-
+      GovernanceService manages who may do what (GOV-002, GOV-003, ADR-0073):
+       the permission catalogue, the predefined and custom roles, and the grants
+       that bind a role to a user or a team at a scope. Teams and their members
+       are managed by OrgService.
   - name: plux.v1.OrgService
     description: |-
       OrgService manages the Installation → Organization → Teams hierarchy

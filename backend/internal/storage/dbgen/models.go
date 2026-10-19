@@ -156,6 +156,18 @@ type ConfigValue struct {
 	UpdatedAt      pgtype.Timestamptz
 }
 
+type CustomRole struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	Key            string
+	Name           string
+	Description    string
+	Permissions    []string
+	CreatedBy      pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
+}
+
 type Delta struct {
 	OrganizationID pgtype.UUID
 	FromSha256     []byte
@@ -729,6 +741,18 @@ type ReleaseVersion struct {
 	ReleaseID       pgtype.UUID
 	OrganizationID  pgtype.UUID
 	PluginVersionID pgtype.UUID
+}
+
+type RoleGrant struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	UserID         pgtype.UUID
+	TeamID         pgtype.UUID
+	Role           string
+	Scope          string
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
 }
 
 type SecurityConfigVersion struct {

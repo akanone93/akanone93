@@ -72,6 +72,11 @@ type Options struct {
 	// WebAuthn names the relying party security keys are registered
 	// for; an empty RPID disables WebAuthn factors.
 	WebAuthn WebAuthnConfig
+	// CustomRolesEnabled says whether the installation is licensed to
+	// create and change custom roles, an enterprise feature (GOV-002,
+	// ADR-0073). Nil means it is not. The edition package is the one that
+	// answers; until it is wired, custom roles stay off by default.
+	CustomRolesEnabled func() bool
 }
 
 // Durations the requirements or RFCs fix rather than configuration.

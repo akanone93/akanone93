@@ -1,0 +1,175 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+import "plux/v1/common.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// GovernanceService manages who may do what (GOV-002, GOV-003, ADR-0073):
+// the permission catalogue, the predefined and custom roles, and the grants
+// that bind a role to a user or a team at a scope. Teams and their members
+// are managed by OrgService.
+service GovernanceService {
+  // ListPermissions returns the permission catalogue, in name order.
+  rpc ListPermissions(ListPermissionsRequest) returns (ListPermissionsResponse) {}
+
+  // ListRoles lists the predefined roles and the organisation's custom
+  // roles, by key.
+  rpc ListRoles(ListRolesRequest) returns (ListRolesResponse) {}
+  rpc GetRole(GetRoleRequest) returns (GetRoleResponse) {}
+  // CreateRole creates a custom role composed of catalogue permissions the
+  // caller holds. Unknown permissions are PLX-8101. Custom roles are an
+  // enterprise feature.
+  rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse) {}
+  rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse) {}
+  // DeleteRole deletes a custom role that no grant uses.
+  rpc DeleteRole(DeleteRoleRequest) returns (DeleteRoleResponse) {}
+
+  // ListGrants lists the grants made through this service. The role of a
+  // direct membership and the roles on apps (AppService.GrantAccess) are
+  // grants too, and are managed where they are made.
+  rpc ListGrants(ListGrantsRequest) returns (ListGrantsResponse) {}
+  // CreateGrant binds a role to a user or a team at a scope: the
+  // organisation, one app, or one environment of an app.
+  rpc CreateGrant(CreateGrantRequest) returns (CreateGrantResponse) {}
+  // UpdateGrant changes the role of a grant.
+  rpc UpdateGrant(UpdateGrantRequest) returns (UpdateGrantResponse) {}
+  rpc DeleteGrant(DeleteGrantRequest) returns (DeleteGrantResponse) {}
+}
+
+// PermissionEntry is one permission of the catalogue.
+message PermissionEntry {
+  // name is the dotted permission name, for example "release.publish".
+  string name = 1;
+  string description = 2;
+  // risk is "low", "medium" or "high".
+  string risk = 3;
+  // step_up is true when the permission needs a second factor in the
+  // session (SEC-100, SEC-103).
+  bool step_up = 4;
+  // scope is the narrowest scope the permission can be granted at:
+  // "organization", "app" or "environment".
+  string scope = 5;
+  // read_only is true when the permission changes nothing.
+  bool read_only = 6;
+}
+
+// RoleDefinition is a role and the permissions it holds.
+message RoleDefinition {
+  // key names the role: the name of a predefined role, or the key of a
+  // custom role.
+  string key = 1;
+  string name = 2;
+  string description = 3;
+  bool predefined = 4;
+  // permissions are catalogue names, bare or limited to an environment as
+  // "<permission>:<environment>".
+  repeated string permissions = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+// RoleGrant binds a role to a user or a team at a scope (GOV-003).
+message RoleGrant {
+  string id = 1;
+  string organization_id = 2;
+  // Exactly one of user_id and team_id is set.
+  string user_id = 3;
+  string team_id = 4;
+  string role = 5;
+  // scope is "organization", "app" or "environment".
+  string scope = 6;
+  // app_id is set for the scopes "app" and "environment".
+  string app_id = 7;
+  // environment_id is set for the scope "environment".
+  string environment_id = 8;
+  google.protobuf.Timestamp created_at = 9;
+}
+
+message ListPermissionsRequest {}
+message ListPermissionsResponse {
+  repeated PermissionEntry permissions = 1;
+}
+
+message ListRolesRequest {
+  Page page = 1;
+}
+message ListRolesResponse {
+  repeated RoleDefinition roles = 1;
+  PageResult page = 2;
+}
+
+message GetRoleRequest {
+  string key = 1;
+}
+message GetRoleResponse {
+  RoleDefinition role = 1;
+}
+
+message CreateRoleRequest {
+  string key = 1;
+  string name = 2;
+  string description = 3;
+  repeated string permissions = 4;
+}
+message CreateRoleResponse {
+  RoleDefinition role = 1;
+}
+
+message UpdateRoleRequest {
+  string key = 1;
+  string name = 2;
+  string description = 3;
+  repeated string permissions = 4;
+}
+message UpdateRoleResponse {
+  RoleDefinition role = 1;
+}
+
+message DeleteRoleRequest {
+  string key = 1;
+}
+message DeleteRoleResponse {}
+
+message ListGrantsRequest {
+  // user_id, team_id and app_id each narrow the list when set.
+  string user_id = 1;
+  string team_id = 2;
+  string app_id = 3;
+  Page page = 4;
+}
+message ListGrantsResponse {
+  repeated RoleGrant grants = 1;
+  PageResult page = 2;
+}
+
+message CreateGrantRequest {
+  // Exactly one of user_id and team_id is set.
+  string user_id = 1;
+  string team_id = 2;
+  string role = 3;
+  string scope = 4;
+  string app_id = 5;
+  string environment_id = 6;
+}
+message CreateGrantResponse {
+  RoleGrant grant = 1;
+}
+
+message UpdateGrantRequest {
+  string id = 1;
+  string role = 2;
+}
+message UpdateGrantResponse {
+  RoleGrant grant = 1;
+}
+
+message DeleteGrantRequest {
+  string id = 1;
+}
+message DeleteGrantResponse {}

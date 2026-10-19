@@ -120,21 +120,24 @@ func (s *Service) Resolve(ctx context.Context, id Identity, organizationID strin
 	if id.Kind == KindCI {
 		return resolve(id, organizationID, nil, nil, id.Scopes), nil
 	}
-	roles, appRoles, err := s.roles(ctx, organizationID, org, storage.MustUUID(id.UserID))
+	given, custom, err := s.grants(ctx, organizationID, org, storage.MustUUID(id.UserID))
 	if err != nil {
 		return Principal{}, err
 	}
-	return resolve(id, organizationID, roles, appRoles, nil), nil
+	return resolve(id, organizationID, given, custom, nil), nil
 }
 
-// roles reads a person's organisation-wide roles and their roles on
-// single apps, directly or through a team (GOV-001). A person with
-// neither is not part of the organisation, which is reported as not
-// found.
-func (s *Service) roles(ctx context.Context, organizationID string, org, user pgtype.UUID) ([]Role, map[string][]Role, error) {
+// grants reads a person's grants in an organisation, directly or through
+// a team (GOV-001, GOV-003): the role of a direct membership is a grant on
+// the organisation, a role on an app (app_access) a grant on that app, and
+// role_grants hold grants at any scope. It reads the organisation's custom
+// roles with them, to resolve grants of custom roles. A person with no
+// grant and no membership is not part of the organisation, which is
+// reported as not found.
+func (s *Service) grants(ctx context.Context, organizationID string, org, user pgtype.UUID) ([]roleGrant, map[Role][]ScopedPermission, error) {
 	var (
-		roles    []Role
-		appRoles = map[string][]Role{}
+		given  []roleGrant
+		custom map[Role][]ScopedPermission
 	)
 	err := s.inTx(ctx, storage.Tenant{OrganizationID: organizationID}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
@@ -144,25 +147,44 @@ func (s *Service) roles(ctx context.Context, organizationID string, org, user pg
 		}
 		for _, m := range memberships {
 			// A team membership grants the team's roles on apps, through
-			// app_access; the organisation-wide role is the direct one.
+			// app_access and role_grants; the organisation-wide role is the
+			// direct one.
 			if !m.TeamID.Valid {
-				roles = append(roles, Role(m.Role))
+				given = append(given, roleGrant{Role: Role(m.Role), Scope: ScopeOrganization})
 			}
 		}
-		grants, err := q.ListAppRolesForUser(ctx, dbgen.ListAppRolesForUserParams{OrganizationID: org, UserID: user})
+		appGrants, err := q.ListAppRolesForUser(ctx, dbgen.ListAppRolesForUserParams{OrganizationID: org, UserID: user})
 		if err != nil {
 			return fmt.Errorf("auth: read app access: %w", err)
 		}
-		for _, g := range grants {
-			app := storage.ID(g.AppID)
-			appRoles[app] = append(appRoles[app], Role(g.Role))
+		for _, g := range appGrants {
+			given = append(given, roleGrant{Role: Role(g.Role), Scope: ScopeApp, AppID: storage.ID(g.AppID)})
 		}
-		if len(memberships) == 0 && len(grants) == 0 {
+		scoped, err := q.ListRoleGrantsForUser(ctx, dbgen.ListRoleGrantsForUserParams{OrganizationID: org, UserID: user})
+		if err != nil {
+			return fmt.Errorf("auth: read role grants: %w", err)
+		}
+		for _, g := range scoped {
+			given = append(given, roleGrant{
+				Role: Role(g.Role), Scope: Scope(g.Scope), AppID: storage.ID(g.AppID),
+				Environment: deref(g.EnvironmentKey),
+			})
+		}
+		if len(memberships) == 0 && len(appGrants) == 0 && len(scoped) == 0 {
 			return plxerr.New(plxerr.ResourceNotFound, "no such organisation")
 		}
-		return nil
+		custom, err = s.customRoleTable(ctx, q, org, given)
+		return err
 	})
-	return roles, appRoles, err
+	return given, custom, err
+}
+
+// deref returns the string a nullable column holds, or "".
+func deref(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }
 
 // CurrentUser returns the signed-in person with their memberships.

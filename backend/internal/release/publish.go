@@ -86,7 +86,7 @@ type PublishRequest struct {
 // An empty plugin ID publishes the app bundle. Idempotency of repeated
 // calls is the API edge's (SRV-005).
 func (s *Service) Publish(ctx context.Context, p auth.Principal, r PublishRequest) (PublishJob, error) {
-	if err := authorize(p, auth.ReleasePublish, r.AppID); err != nil {
+	if err := authorizeSomeEnvironment(p, auth.ReleasePublish, r.AppID); err != nil {
 		return PublishJob{}, err
 	}
 	if s.o.Jobs == nil {
@@ -111,6 +111,9 @@ func (s *Service) enqueuePublish(ctx context.Context, tx pgx.Tx, p auth.Principa
 	q := dbgen.New(tx)
 	app, env, err := s.environment(ctx, q, r.AppID, r.EnvironmentID)
 	if err != nil {
+		return PublishJob{}, err
+	}
+	if err := authorizeEnvironment(p, auth.ReleasePublish, r.AppID, env.Key); err != nil {
 		return PublishJob{}, err
 	}
 	frozen, err := s.o.Documents.FreezeDraft(ctx, tx, r.AppID, r.PluginID, r.Revision)

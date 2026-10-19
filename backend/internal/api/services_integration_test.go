@@ -97,6 +97,7 @@ type world struct {
 	docs     *document.Service
 	identity pluxv1connect.IdentityServiceClient
 	org      pluxv1connect.OrgServiceClient
+	govern   pluxv1connect.GovernanceServiceClient
 	app      pluxv1connect.AppServiceClient
 	plugin   pluxv1connect.PluginServiceClient
 	document pluxv1connect.DocumentServiceClient
@@ -175,6 +176,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	shared := cache.NewMemory(cfg.Now)
 	authService, err := auth.NewService(auth.Options{
 		DB: db, Audit: log, Cache: shared, Crypter: backend, IDs: gen, VerificationURI: "https://p.example/device",
+		CustomRolesEnabled: func() bool { return true },
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -317,6 +319,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewGovernanceServiceHandler(h.Governance(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewAppServiceHandler(h.App(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewPluginServiceHandler(h.Plugin(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewDocumentServiceHandler(h.Document(), opts) },
@@ -362,6 +365,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		docs:     docs,
 		identity: pluxv1connect.NewIdentityServiceClient(srv.Client(), srv.URL),
 		org:      pluxv1connect.NewOrgServiceClient(srv.Client(), srv.URL),
+		govern:   pluxv1connect.NewGovernanceServiceClient(srv.Client(), srv.URL),
 		app:      pluxv1connect.NewAppServiceClient(srv.Client(), srv.URL),
 		plugin:   pluxv1connect.NewPluginServiceClient(srv.Client(), srv.URL),
 		document: pluxv1connect.NewDocumentServiceClient(srv.Client(), srv.URL),

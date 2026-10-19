@@ -500,7 +500,7 @@ func (*Service) pluginRow(ctx context.Context, q *dbgen.Queries, p auth.Principa
 // function version the release pins must have been promoted to the
 // environment first (FN-006).
 func (s *Service) PromoteRelease(ctx context.Context, p auth.Principal, appID string, sequence int64, envID, channelKey string) (Release, error) {
-	if err := authorize(p, auth.ReleasePromote, appID); err != nil {
+	if err := authorizeSomeEnvironment(p, auth.ReleasePromote, appID); err != nil {
 		return Release{}, err
 	}
 	var out Release
@@ -508,6 +508,9 @@ func (s *Service) PromoteRelease(ctx context.Context, p auth.Principal, appID st
 		q := dbgen.New(tx)
 		_, env, err := s.environment(ctx, q, appID, envID)
 		if err != nil {
+			return err
+		}
+		if err := authorizeEnvironment(p, auth.ReleasePromote, appID, env.Key); err != nil {
 			return err
 		}
 		row, vs, err := s.releaseRow(ctx, q, appID, sequence)
@@ -560,7 +563,7 @@ func (s *Service) point(ctx context.Context, tx pgx.Tx, p auth.Principal, env db
 // with a higher sequence, and points the channel at it, so a device's
 // anti-rollback rule never has to be relaxed (REL-006).
 func (s *Service) RollbackRelease(ctx context.Context, p auth.Principal, appID, envID, channelKey string, toSequence int64, notes string) (Release, error) {
-	if err := authorize(p, auth.ReleasePromote, appID); err != nil {
+	if err := authorizeSomeEnvironment(p, auth.ReleasePromote, appID); err != nil {
 		return Release{}, err
 	}
 	var out Release
@@ -568,6 +571,9 @@ func (s *Service) RollbackRelease(ctx context.Context, p auth.Principal, appID, 
 		q := dbgen.New(tx)
 		app, env, err := s.environment(ctx, q, appID, envID)
 		if err != nil {
+			return err
+		}
+		if err := authorizeEnvironment(p, auth.ReleasePromote, appID, env.Key); err != nil {
 			return err
 		}
 		if _, err := q.LockApp(ctx, app); err != nil {

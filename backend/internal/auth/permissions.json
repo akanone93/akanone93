@@ -1,0 +1,388 @@
+{
+  "permissions": [
+    {
+      "name": "a11y.waive",
+      "description": "Waive an accessibility finding with a recorded reason.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
+      "name": "alerts.manage",
+      "description": "Create, change and delete alert rules and their routes.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "analytics.read",
+      "description": "Read analytics, rollups and experiment results.",
+      "risk": "low",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": true
+    },
+    {
+      "name": "app.manage",
+      "description": "Create, change and delete apps.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
+      "name": "app.read",
+      "description": "Read apps, their environments and channels.",
+      "risk": "low",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": true
+    },
+    {
+      "name": "approvals.decide",
+      "description": "Approve or reject a change that needs approval.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "environment",
+      "readOnly": false
+    },
+    {
+      "name": "audit.export",
+      "description": "Export the audit log to a file or a SIEM destination.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "organization",
+      "readOnly": true
+    },
+    {
+      "name": "audit.read",
+      "description": "Read the audit log.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "organization",
+      "readOnly": true
+    },
+    {
+      "name": "backup.manage",
+      "description": "Run, schedule and restore backups.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "breakglass.invoke",
+      "description": "Perform an emergency action without prior approval, with a written justification.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "environment",
+      "readOnly": false
+    },
+    {
+      "name": "compliance.report",
+      "description": "Generate and read compliance reports.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "organization",
+      "readOnly": true
+    },
+    {
+      "name": "dsr.manage",
+      "description": "Handle data-subject requests: search, export and erase personal data.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "environment.manage",
+      "description": "Create, change and delete environments and channels.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
+      "name": "experiments.manage",
+      "description": "Create, start, stop and conclude experiments.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
+      "name": "flags.manage",
+      "description": "Create and change feature flags and segments.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "environment",
+      "readOnly": false
+    },
+    {
+      "name": "freezes.manage",
+      "description": "Create and change change-freeze windows.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
+      "name": "function.deploy",
+      "description": "Upload, build and deploy functions outside production.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "environment",
+      "readOnly": false
+    },
+    {
+      "name": "function.deploy.production",
+      "description": "Deploy a function to a production environment.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "environment",
+      "readOnly": false
+    },
+    {
+      "name": "function.read",
+      "description": "Read functions, their versions and builds.",
+      "risk": "low",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": true
+    },
+    {
+      "name": "git.export",
+      "description": "Export an app to a Git repository.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
+      "name": "goldens.approve",
+      "description": "Approve a golden-image change.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
+      "name": "keys.manage",
+      "description": "Manage signing keys.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "killswitch.manage",
+      "description": "Switch a plugin or an app off, or force a mandatory update.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "environment",
+      "readOnly": false
+    },
+    {
+      "name": "license.manage",
+      "description": "Install and replace the licence file.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "limits.manage",
+      "description": "Change the limits of the organisation.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "members.manage",
+      "description": "Invite, remove and change the roles of members, and grant roles.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "notifications.manage",
+      "description": "Manage notification channels and subscriptions.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "organization.manage",
+      "description": "Change the organisation.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "organization.read",
+      "description": "Read the organisation, its teams and members.",
+      "risk": "low",
+      "stepUp": false,
+      "scope": "organization",
+      "readOnly": true
+    },
+    {
+      "name": "plugin.edit",
+      "description": "Edit plugins, pages and documents.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
+      "name": "plugin.lock.override",
+      "description": "Take over an editing lock held by someone else.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
+      "name": "plugin.read",
+      "description": "Read plugins, pages and documents.",
+      "risk": "low",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": true
+    },
+    {
+      "name": "policies.manage",
+      "description": "Create and change approval policies.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
+      "name": "reconstruction.view",
+      "description": "View a reconstruction of what a release ran at a past time.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": true
+    },
+    {
+      "name": "release.promote",
+      "description": "Promote or roll back a release to an environment.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "environment",
+      "readOnly": false
+    },
+    {
+      "name": "release.publish",
+      "description": "Publish a plugin or app version.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "environment",
+      "readOnly": false
+    },
+    {
+      "name": "roles.manage",
+      "description": "Create, change and delete custom roles.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "rollout.manage",
+      "description": "Create, pause, resume and roll back rollouts.",
+      "risk": "high",
+      "stepUp": false,
+      "scope": "environment",
+      "readOnly": false
+    },
+    {
+      "name": "search.read",
+      "description": "Search across the apps the caller can read.",
+      "risk": "low",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": true
+    },
+    {
+      "name": "secrets.manage",
+      "description": "Create, change and delete secrets.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "environment",
+      "readOnly": false
+    },
+    {
+      "name": "sessions.manage",
+      "description": "List and revoke the sessions of other members.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "sso.manage",
+      "description": "Configure identity providers, SAML, SCIM and group mappings.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "teams.manage",
+      "description": "Create, change and delete teams.",
+      "risk": "medium",
+      "stepUp": true,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "tokens.manage",
+      "description": "Manage the access tokens of all members.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
+      "name": "translations.approve",
+      "description": "Set or keep a translated message at the approved state.",
+      "risk": "medium",
+      "stepUp": true,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
+      "name": "translations.edit",
+      "description": "Edit the messages and states of translations.",
+      "risk": "low",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
+      "name": "trash.manage",
+      "description": "Restore and purge trashed items.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "app",
+      "readOnly": false
+    },
+    {
+      "name": "webhooks.manage",
+      "description": "Manage outbound and inbound webhooks.",
+      "risk": "medium",
+      "stepUp": false,
+      "scope": "organization",
+      "readOnly": false
+    }
+  ]
+}

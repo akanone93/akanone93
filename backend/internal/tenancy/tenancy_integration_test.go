@@ -155,7 +155,7 @@ func TestOrganisationsTeamsAndMembers(t *testing.T) {
 	if _, again, err := f.svc.AddMember(ctx, f.owner, "", "bob@example.com", "viewer"); err != nil || again != "" {
 		t.Errorf("re-adding an account = %q, %v; want no invitation", again, err)
 	}
-	if _, _, err := f.svc.AddMember(ctx, f.owner, "", "carol@example.com", "root"); code(err) != plxerr.InvalidEnumValue {
+	if _, _, err := f.svc.AddMember(ctx, f.owner, "", "carol@example.com", "root"); code(err) != plxerr.RoleUnknown {
 		t.Errorf("an unknown role: %v", err)
 	}
 	bob := f.principal(t, person(m.UserID, false), f.org)
@@ -193,10 +193,10 @@ func TestOrganisationsTeamsAndMembers(t *testing.T) {
 		t.Errorf("ListMembers page 2 = %+v, %v", next, err)
 	}
 
-	if err := f.svc.RemoveMember(ctx, f.owner, "", f.admin.UserID); code(err) != plxerr.PreconditionFailed {
+	if err := f.svc.RemoveMember(ctx, f.owner, "", f.admin.UserID); code(err) != plxerr.LastOwnerCannotBeRemoved {
 		t.Errorf("removing the last owner: %v", err)
 	}
-	if _, _, err := f.svc.AddMember(ctx, f.owner, "", "admin@example.com", "admin"); code(err) != plxerr.PreconditionFailed {
+	if _, _, err := f.svc.AddMember(ctx, f.owner, "", "admin@example.com", "admin"); code(err) != plxerr.LastOwnerCannotBeRemoved {
 		t.Errorf("demoting the last owner: %v", err)
 	}
 	if err := f.svc.RemoveMember(ctx, f.owner, team.ID, m.UserID); err != nil {
@@ -615,7 +615,7 @@ func TestTenancyRefusesMalformedInput(t *testing.T) {
 		"environment ID":  errOf(f.svc.ListVariables(ctx, f.owner, "nope", tenancy.Page{Size: 1})),
 		"channel key":     errOf(f.svc.CreateChannel(ctx, f.owner, "nope", "Bad")),
 		"channel ID":      f.svc.DeleteChannel(ctx, f.owner, "nope"),
-		"grant role":      errOf(f.svc.GrantAccess(ctx, f.owner, "nope", "", "u", "root")),
+		"grant app ID":    errOf(f.svc.GrantAccess(ctx, f.owner, "nope", "", "u", "viewer")),
 		"grant ID":        f.svc.RevokeAccess(ctx, f.owner, "nope"),
 		"trash app ID":    errOf(f.svc.ListTrash(ctx, f.owner, "nope", tenancy.Page{Size: 1})),
 		"trash item ID":   f.svc.RestoreFromTrash(ctx, f.owner, "nope"),
@@ -628,6 +628,9 @@ func TestTenancyRefusesMalformedInput(t *testing.T) {
 		if c != plxerr.InvalidFormat && c != plxerr.InvalidEnumValue {
 			t.Errorf("%s: %v; want INVALID_FORMAT or INVALID_ENUM_VALUE", name, err)
 		}
+	}
+	if _, err := f.svc.GrantAccess(ctx, f.owner, "nope", "", "u", "root"); code(err) != plxerr.RoleUnknown {
+		t.Errorf("grant role: %v; want ROLE_UNKNOWN", err)
 	}
 	missing, _ := f.ids.New()
 	for name, err := range map[string]error{
