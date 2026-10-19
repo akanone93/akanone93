@@ -1,0 +1,180 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# The api role: the public API for devices, Studio and the CLI. It holds the
+# data credentials but never signs (only the worker does). With
+# functions.enabled it also serves the internal listener on which the function
+# runner fetches modules and the key-value store (SEC-043).
+{{- $name := printf "%s-api" (include "plux.fullname" .) }}
+{{- $ctx := dict "root" . "role" "api" "v" .Values.api }}
+{{- $scheme := ternary "HTTPS" "HTTP" (eq (include "plux.apiTLS" .) "true") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "api") | nindent 4 }}
+spec:
+  {{- if not .Values.api.autoscaling.enabled }}
+  replicas: {{ .Values.api.replicas }}
+  {{- end }}
+  # A new pod must be ready before an old one goes: no capacity is lost.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxSurge: 1, maxUnavailable: 0}
+  selector:
+    matchLabels:
+      {{- include "plux.selectorLabels" (dict "root" . "component" "api") | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include "plux.config.api" . | sha256sum }}
+        {{- include "plux.podAnnotations" $ctx | nindent 8 }}
+      labels:
+        {{- include "plux.labels" (dict "root" . "component" "api") | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "plux.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: {{ include "plux.terminationGrace" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- include "plux.podSecurityContext" (dict "root" . "role" "api") | nindent 8 }}
+      {{- include "plux.scheduling" $ctx | nindent 6 }}
+      containers:
+        - name: plux
+          image: {{ include "plux.serverImage" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: [serve, --config, /etc/plux/plux.yaml]
+          ports:
+            - {name: http, containerPort: 8080}
+            {{- if .Values.functions.enabled }}
+            - {name: internal, containerPort: 8443}
+            {{- end }}
+          env:
+            {{- include "plux.dataEnv" (dict "root" . "role" "api") | nindent 12 }}
+            {{- with .Values.api.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          # /livez checks nothing but the process; /readyz also checks
+          # PostgreSQL, Valkey and the object store, and turns false as soon
+          # as the pod is told to stop (SRV-007).
+          startupProbe:
+            httpGet: {path: /livez, port: http, scheme: {{ $scheme }}}
+            periodSeconds: 2
+            failureThreshold: 60
+          livenessProbe:
+            httpGet: {path: /livez, port: http, scheme: {{ $scheme }}}
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet: {path: /readyz, port: http, scheme: {{ $scheme }}}
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+          lifecycle:
+            # Endpoints are removed while the pod still serves.
+            preStop:
+              sleep: {seconds: 5}
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          securityContext:
+            {{- include "plux.containerSecurityContext" . | nindent 12 }}
+          volumeMounts:
+            - {name: config, mountPath: /etc/plux/plux.yaml, subPath: plux.yaml, readOnly: true}
+            - {name: tmp, mountPath: /tmp}
+            {{- if include "plux.apiTLS" . }}
+            - {name: tls, mountPath: /etc/plux/tls, readOnly: true}
+            {{- end }}
+            {{- if .Values.functions.enabled }}
+            - {name: internal-tls, mountPath: /etc/plux/internal, readOnly: true}
+            {{- end }}
+            {{- include "plux.dataMounts" . | nindent 12 }}
+      volumes:
+        - name: config
+          configMap: {name: {{ $name }}}
+        - name: tmp
+          emptyDir: {sizeLimit: 256Mi}
+        {{- if include "plux.apiTLS" . }}
+        - name: tls
+          secret: {secretName: {{ .Values.server.tls.existingSecret }}}
+        {{- end }}
+        {{- if .Values.functions.enabled }}
+        - name: internal-tls
+          secret: {secretName: {{ include "plux.tlsSecretName" (dict "root" . "role" "api") }}}
+        {{- end }}
+        {{- include "plux.dataVolumes" . | nindent 8 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "api") | nindent 4 }}
+  {{- with .Values.api.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.api.service.type }}
+  selector:
+    {{- include "plux.selectorLabels" (dict "root" . "component" "api") | nindent 4 }}
+  ports:
+    - {name: http, port: {{ .Values.api.service.port }}, targetPort: http}
+{{- if .Values.functions.enabled }}
+---
+# The internal listener, reached by the function runner alone (NetworkPolicy).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}-internal
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "api") | nindent 4 }}
+spec:
+  selector:
+    {{- include "plux.selectorLabels" (dict "root" . "component" "api") | nindent 4 }}
+  ports:
+    - {name: internal, port: 8443, targetPort: internal}
+{{- end }}
+---
+{{ include "plux.pdb" $ctx }}
+{{- if .Values.api.autoscaling.enabled }}
+---
+{{ include "plux.hpa" $ctx }}
+{{- end }}
+{{- if .Values.api.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "api") | nindent 4 }}
+  {{- with .Values.api.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.api.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- with .Values.api.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range .Values.api.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          - path: {{ default "/" .path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $name }}
+                port: {name: http}
+    {{- end }}
+{{- end }}

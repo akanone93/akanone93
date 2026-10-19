@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# The smallest installation that renders: everything else is the chart's
+# default (CloudNativePG, Valkey with Sentinel, SeaweedFS, Vault Transit).
+server:
+  publicBaseURL: https://plux.example.com
+signing:
+  vault:
+    address: https://vault.example.com:8200
+    tokenSecret:
+      name: plux-vault
