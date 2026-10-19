@@ -92,6 +92,33 @@ func keepKeys(m map[string]any, keep []string) {
 	}
 }
 
+// reduceDoc filters a locale's decoded data in place as Reduce describes.
+func reduceDoc(doc map[string]any, o ReduceOptions) {
+	if cals, ok := doc["calendars"].(map[string]any); ok {
+		keepKeys(cals, append([]string{"gregorian"}, o.Calendars...))
+		for _, c := range cals {
+			if m, ok := c.(map[string]any); ok && o.Skeletons != nil {
+				trimFormats(m, o.Skeletons)
+			}
+		}
+	}
+	if terr, ok := doc["territories"].(map[string]any); ok && o.Territories != nil {
+		keepKeys(terr, o.Territories)
+	}
+	cur, ok := doc["currencies"].(map[string]any)
+	if !ok {
+		return
+	}
+	if o.Currencies != nil {
+		keepKeys(cur, o.Currencies)
+	}
+	for _, names := range cur {
+		if m, ok := names.(map[string]any); ok {
+			delete(m, "plural")
+		}
+	}
+}
+
 // Reduce returns the canonical JSON of the data of the best embedded locale
 // for tag, reduced to what an app uses, and the CLDR locale it came from.
 // The numbers, plurals, date and time styles and currency digits are kept
@@ -121,29 +148,7 @@ func Reduce(tag string, o ReduceOptions) (data []byte, resolved string, err erro
 	if err := dec.Decode(&doc); err != nil {
 		return nil, "", fmt.Errorf("%w: %s: %w", ErrInvalidData, id, err)
 	}
-	if cals, ok := doc["calendars"].(map[string]any); ok {
-		keepKeys(cals, append([]string{"gregorian"}, o.Calendars...))
-		if o.Skeletons != nil {
-			for _, c := range cals {
-				if m, ok := c.(map[string]any); ok {
-					trimFormats(m, o.Skeletons)
-				}
-			}
-		}
-	}
-	if terr, ok := doc["territories"].(map[string]any); ok && o.Territories != nil {
-		keepKeys(terr, o.Territories)
-	}
-	if cur, ok := doc["currencies"].(map[string]any); ok {
-		if o.Currencies != nil {
-			keepKeys(cur, o.Currencies)
-		}
-		for _, names := range cur {
-			if m, ok := names.(map[string]any); ok {
-				delete(m, "plural")
-			}
-		}
-	}
+	reduceDoc(doc, o)
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)

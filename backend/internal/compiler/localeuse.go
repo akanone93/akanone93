@@ -207,29 +207,6 @@ func (u *unit) hasNativeSlots() bool {
 // reported elsewhere and adds nothing.
 func (u *unit) messageUse() (skeletons, currencies []string) {
 	sk, cur := map[string]bool{}, map[string]bool{}
-	var walk func(nodes []mf.Node)
-	walk = func(nodes []mf.Node) {
-		for i := range nodes {
-			n := &nodes[i]
-			switch n.Kind {
-			case mf.KindDate, mf.KindTime:
-				if s, ok := strings.CutPrefix(n.Style, "::"); ok {
-					sk[s] = true
-				}
-			case mf.KindNumber:
-				if s, ok := strings.CutPrefix(n.Style, "::"); ok {
-					for _, tok := range strings.Fields(s) {
-						if code, ok := strings.CutPrefix(tok, "currency/"); ok {
-							cur[code] = true
-						}
-					}
-				}
-			}
-			for _, c := range n.Cases {
-				walk(c.Body)
-			}
-		}
-	}
 	for i := range u.project.Translations {
 		t := &u.project.Translations[i]
 		if t.Doc == nil {
@@ -237,11 +214,34 @@ func (u *unit) messageUse() (skeletons, currencies []string) {
 		}
 		for _, k := range sortedKeys(t.Doc.Messages) {
 			if m, err := mf.Parse(t.Doc.Messages[k]); err == nil {
-				walk(m.Nodes)
+				formatsUsed(m.Nodes, sk, cur)
 			}
 		}
 	}
 	return sortedKeys(sk), sortedKeys(cur)
+}
+
+// formatsUsed adds the date skeletons and the currencies the nodes of a
+// message, and of its cases, format with to sk and cur.
+func formatsUsed(nodes []mf.Node, sk, cur map[string]bool) {
+	for i := range nodes {
+		n := &nodes[i]
+		style, skeleton := strings.CutPrefix(n.Style, "::")
+		switch {
+		case !skeleton:
+		case n.Kind == mf.KindDate || n.Kind == mf.KindTime:
+			sk[style] = true
+		case n.Kind == mf.KindNumber:
+			for _, tok := range strings.Fields(style) {
+				if code, ok := strings.CutPrefix(tok, "currency/"); ok {
+					cur[code] = true
+				}
+			}
+		}
+		for _, c := range n.Cases {
+			formatsUsed(c.Body, sk, cur)
+		}
+	}
 }
 
 // reduceOptions say which locale data the app's bundle keeps: its calendars
