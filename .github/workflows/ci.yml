@@ -370,10 +370,10 @@ jobs:
           # action reads as a non-SPDX "AND LicenseRef-…" expression. Each
           # was checked by hand against the package's LICENSE file:
           #   Apache-2.0    clock, cryptography, material_color_utilities,
-          #                 webdriver;
+          #                 webdriver, latlong2;
           #                 plux_flutter, plux_devtools, plux_go_router,
-          #                 plux_auto_route, plux_native_scan, plux_media and
-          #                 plux_components
+          #                 plux_auto_route, plux_native_scan, plux_media,
+          #                 plux_components and plux_maps
           #                 are this repository's
           #                 (REUSE.toml), not yet on pub.dev
           #   BSD-3-Clause  the Dart team packages below, go_router,
@@ -386,12 +386,16 @@ jobs:
           #                 (Flutter team), mobile_scanner, win32;
           #                 image_picker, image_picker_android and
           #                 image_picker_ios also carry aFileChooser's
-          #                 Apache-2.0
+          #                 Apache-2.0; flutter_map, google_maps_flutter*
+          #                 and video_player* (Flutter team; the web
+          #                 plugin also carries to_screen_location's MIT),
+          #                 markdown, qr, stream_transform, dart_polylabel2
           #   MIT           auto_route, flutter_riverpod, node_preamble,
           #                 petitparser, riverpod, xml; yaml is BSD-3-Clause
           #                 and MIT; archive, drift, sqlite3, lottie, rive,
           #                 rive_native, geolocator*, file_picker*,
-          #                 android_file_picker, windows_file_picker;
+          #                 android_file_picker, windows_file_picker,
+          #                 wkt_parser; dart_earcut is MIT and ISC;
           #                 sqlcipher_flutter_libs, with OpenSSL's Apache-2.0
           #   MPL-2.0       dbus, gsettings; riverqueue/river/rivershared,
           #                 with a vendored MIT levenshtein package
@@ -403,37 +407,44 @@ jobs:
             pkg:pub/android_file_picker, pkg:pub/archive, pkg:pub/auto_route,
             pkg:pub/clock, pkg:pub/code_assets, pkg:pub/cronet_http,
             pkg:pub/cross_file, pkg:pub/crypto, pkg:pub/cryptography,
-            pkg:pub/cupertino_http, pkg:pub/cupertino_ui, pkg:pub/dbus,
-            pkg:pub/drift, pkg:pub/file_picker, pkg:pub/file_picker_darwin,
+            pkg:pub/cupertino_http, pkg:pub/cupertino_ui, pkg:pub/dart_earcut,
+            pkg:pub/dart_polylabel2, pkg:pub/dbus, pkg:pub/drift,
+            pkg:pub/file_picker, pkg:pub/file_picker_darwin,
             pkg:pub/file_picker_linux, pkg:pub/file_picker_platform_interface,
             pkg:pub/file_picker_web, pkg:pub/file_selector_linux,
             pkg:pub/file_selector_macos, pkg:pub/file_selector_windows,
-            pkg:pub/flutter_riverpod, pkg:pub/frontend_server_client,
-            pkg:pub/geolocator, pkg:pub/geolocator_android,
-            pkg:pub/geolocator_platform_interface, pkg:pub/geolocator_windows,
-            pkg:pub/glob, pkg:pub/go_router, pkg:pub/gsettings, pkg:pub/hooks,
+            pkg:pub/flutter_map, pkg:pub/flutter_riverpod,
+            pkg:pub/frontend_server_client, pkg:pub/geolocator,
+            pkg:pub/geolocator_android, pkg:pub/geolocator_platform_interface,
+            pkg:pub/geolocator_windows, pkg:pub/glob, pkg:pub/go_router,
+            pkg:pub/google_maps_flutter, pkg:pub/google_maps_flutter_android,
+            pkg:pub/google_maps_flutter_ios,
+            pkg:pub/google_maps_flutter_platform_interface,
+            pkg:pub/google_maps_flutter_web, pkg:pub/gsettings, pkg:pub/hooks,
             pkg:pub/http, pkg:pub/image_picker, pkg:pub/image_picker_android,
             pkg:pub/image_picker_ios, pkg:pub/image_picker_platform_interface,
             pkg:pub/intl, pkg:pub/io, pkg:pub/jni, pkg:pub/jni_flutter,
-            pkg:pub/listen, pkg:pub/lottie, pkg:pub/matcher,
-            pkg:pub/material_color_utilities, pkg:pub/material_ui,
-            pkg:pub/mime, pkg:pub/mobile_scanner, pkg:pub/native_toolchain_c,
-            pkg:pub/node_preamble, pkg:pub/objective_c, pkg:pub/path,
-            pkg:pub/petitparser, pkg:pub/platform, pkg:pub/plux_auto_route,
-            pkg:pub/plux_components, pkg:pub/plux_devtools,
-            pkg:pub/plux_flutter,
-            pkg:pub/plux_go_router, pkg:pub/plux_media,
+            pkg:pub/latlong2, pkg:pub/listen, pkg:pub/lottie, pkg:pub/markdown,
+            pkg:pub/matcher, pkg:pub/material_color_utilities,
+            pkg:pub/material_ui, pkg:pub/mime, pkg:pub/mobile_scanner,
+            pkg:pub/native_toolchain_c, pkg:pub/node_preamble,
+            pkg:pub/objective_c, pkg:pub/path, pkg:pub/petitparser,
+            pkg:pub/platform, pkg:pub/plux_auto_route, pkg:pub/plux_components,
+            pkg:pub/plux_devtools, pkg:pub/plux_flutter,
+            pkg:pub/plux_go_router, pkg:pub/plux_maps, pkg:pub/plux_media,
             pkg:pub/plux_native_scan, pkg:pub/pool, pkg:pub/process,
-            pkg:pub/pub_semver, pkg:pub/record_use, pkg:pub/rive,
+            pkg:pub/pub_semver, pkg:pub/qr, pkg:pub/record_use, pkg:pub/rive,
             pkg:pub/rive_native, pkg:pub/riverpod, pkg:pub/source_maps,
             pkg:pub/sqlcipher_flutter_libs, pkg:pub/sqlite3,
-            pkg:pub/stack_trace, pkg:pub/test, pkg:pub/test_api,
-            pkg:pub/test_core, pkg:pub/url_launcher,
+            pkg:pub/stack_trace, pkg:pub/stream_transform, pkg:pub/test,
+            pkg:pub/test_api, pkg:pub/test_core, pkg:pub/url_launcher,
             pkg:pub/url_launcher_android, pkg:pub/url_launcher_ios,
             pkg:pub/url_launcher_linux, pkg:pub/url_launcher_macos,
             pkg:pub/url_launcher_windows, pkg:pub/vector_graphics,
-            pkg:pub/vector_math, pkg:pub/webdriver, pkg:pub/win32,
-            pkg:pub/windows_file_picker, pkg:pub/xml, pkg:pub/yaml
+            pkg:pub/vector_math, pkg:pub/video_player,
+            pkg:pub/video_player_avfoundation, pkg:pub/webdriver,
+            pkg:pub/win32, pkg:pub/windows_file_picker, pkg:pub/wkt_parser,
+            pkg:pub/xml, pkg:pub/yaml
           comment-summary-in-pr: never
 
   # ── Go ───────────────────────────────────────────────────────────────────
