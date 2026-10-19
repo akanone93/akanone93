@@ -276,10 +276,19 @@ func (s *Service) SetRetention(ctx context.Context, p auth.Principal, class stri
 	err = s.inOrg(ctx, p.OrganizationID, p.UserID, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		// A newer request for a class replaces a waiting one.
-		if _, err := q.SupersedeScheduledChange(ctx, dbgen.SupersedeScheduledChangeParams{
+		replaced, err := q.SupersedeScheduledChange(ctx, dbgen.SupersedeScheduledChangeParams{
 			OrganizationID: row.OrganizationID, DataClass: class, FinishedAt: storage.Timestamp(now),
-		}); err != nil {
+		})
+		if err != nil {
 			return fmt.Errorf("analytics: supersede: %w", err)
+		}
+		if replaced > 0 {
+			if _, err := s.o.Audit.Append(ctx, tx, audit.Entry{
+				Action: audit.RetentionCancelled, TargetKind: "retention", TargetID: class,
+				Detail: class + ": the waiting change was replaced by a newer request", OrganizationID: p.OrganizationID, Actor: p.Actor(),
+			}); err != nil {
+				return fmt.Errorf("analytics: %w", err)
+			}
 		}
 		if err := q.InsertRetentionChange(ctx, row); err != nil {
 			return fmt.Errorf("analytics: record the change: %w", err)
@@ -293,7 +302,7 @@ func (s *Service) SetRetention(ctx context.Context, p auth.Principal, class stri
 				return fmt.Errorf("analytics: set the retention: %w", err)
 			}
 		}
-		_, err := s.o.Audit.Append(ctx, tx, audit.Entry{
+		_, err = s.o.Audit.Append(ctx, tx, audit.Entry{
 			Action: action, TargetKind: "retention", TargetID: class, Detail: detail,
 			OrganizationID: p.OrganizationID, Actor: p.Actor(),
 		})
