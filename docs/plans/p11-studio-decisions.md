@@ -306,7 +306,7 @@ Biome only, as today (`biome ci` in `make studio-check`). No ESLint, Prettier or
 ### A4.19 Drag and drop
 - Inside the canvas (widgets, plugin boxes, links): Plux Canvas's own pointer handling.
 - Insert panel → canvas, file and asset drops, list reordering in panels: **Pragmatic drag and
-  drop** (tiny, native DnD, DOM → canvas element with our own hit-testing, desktop files).
+  drop** (tiny, native DnD, DOM → canvas element with our own hit-testing, files dragged in from the computer).
 - Layers tree (`STU-061`): **Headless Tree** (tree semantics, keyboard moves, virtualisation).
 - Every drag has a keyboard alternative ("Move to…", nudging) — WCAG 2.2 (`STU-011`, `STU-067`).
 - Not dnd-kit: classic 6.3.1 unreleased since December 2024; the rewrite is 0.5.1.

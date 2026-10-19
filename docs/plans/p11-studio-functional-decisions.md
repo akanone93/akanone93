@@ -426,23 +426,13 @@ on a paired device → approved by a second person with step-up → released wit
 performance targets met on the reference laptop. Runs as a scripted end-to-end test in CI (without
 the real device) plus one manual run with a real device, numbers recorded.
 
-## F24. Scope decisions
+## F24. Scope decision
 
 - **AI entry points are not in P11** (Option A, maintainer). `STU-060` (AI assistant button),
   `STU-024` (create an app "from an AI prompt") and `STU-055` (create a screen "from an AI prompt")
   name P12 features (`AI-010`); P11 leaves them out entirely (no disabled placeholders), P12 adds
   them, and the three requirements' wording says so (Z1). `AGENTS.md` §5: later-phase features are
   absent.
-- **Desktop Plux Studio is deferred** — nice to have, not needed now. When it is taken up, these
-  questions open it: (1) shell — Electron (bundled Chromium, same behaviour as our fully supported
-  browser) vs Tauri (system WebKit, our fallback tier) vs Electrobun; (2) thin client to a remote
-  installation vs a bundled local BFF or server; (3) which native capabilities justify it (local Git
-  layout and generated projects, the `plux` CLI, USB/LAN pairing, native menus, local fonts incl. the
-  user's own SF Pro, offline) behind one platform-adapter interface with no desktop-only forks;
-  (4) distribution — code signing and notarisation, a signed update channel, connecting to servers of
-  different versions, air-gapped installs, AGPL binaries and `ee/` licensing; (5) phase and
-  requirement IDs (e.g. `DSK-001`…) and the existing requirements it touches (`STU-002`, `STU-122`,
-  `DEP-002`).
 
 ---
 
