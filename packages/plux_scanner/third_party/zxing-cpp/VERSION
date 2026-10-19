@@ -3,3 +3,4 @@ source: https://files.pythonhosted.org/packages/d9/f2/b781bf6119abe665069777e3c0
 sha256: 3babedb67a4c15c9de2c2b4c42d70af83a6c85780c1b2d9803ac64c6ae69f14e
 subset: reader sources of core/src (docs/plans/p8-handoff/zxing-files.txt) and core/src/libzueci (BSD-3-Clause)
 license: Apache-2.0 (the sdist ships no licence file; the text is the standard Apache-2.0)
+patches: three element counts multiplied in std::size_t, not int, so CodeQL's cpp/integer-multiplication-cast-to-long holds (core/src/Matrix.h, pdf417/PDFReader.cpp, pdf417/PDFScanningDecoder.cpp; each line marked "plux:"); behaviour is unchanged, as the factors are bounded (Matrix.h checks the product; PDF417 has at most 90 rows and 30 columns)

@@ -314,8 +314,9 @@ void main() {
       'keys are buttons with accessible names, and the digits entered are never announced [SEC-090]',
       (tester) async {
         final handle = tester.ensureSemantics();
+        final pins = <String>[];
         await tester.pumpWidget(
-          _app(SecurePinPadView(length: 4, onCompleted: (_) {})),
+          _app(SecurePinPadView(length: 4, onCompleted: pins.add)),
         );
         expect(find.bySemanticsLabel('7'), findsOneWidget);
         expect(find.bySemanticsLabel('Delete'), findsOneWidget);
@@ -329,6 +330,22 @@ void main() {
         final status = tester.getSemantics(find.bySemanticsLabel('PIN'));
         expect(status.value, '2 of 4 digits entered');
         expect(status.label, isNot(contains('7')));
+        // The last digit completes the PIN and clears the pad, so a screen
+        // reader never hears "4 of 4"; Plux Bank's iOS accessibility pass
+        // checks the pad by this count.
+        await tester.tap(find.text('1'));
+        await tester.pump();
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('PIN')).value,
+          '3 of 4 digits entered',
+        );
+        await tester.tap(find.text('9'));
+        await tester.pump();
+        expect(pins, ['7319']);
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('PIN')).value,
+          '0 of 4 digits entered',
+        );
         handle.dispose();
       },
     );
@@ -400,8 +417,20 @@ void main() {
           );
         }
         expect(done, isEmpty);
+        expect(
+          tester.testTextInput.log.map((c) => c.method),
+          isNot(contains('TextInput.finishAutofillContext')),
+        );
         await tester.enterText(find.byType(TextField), '123456');
         expect(done, ['123456']);
+        // Completing the code ends the autofill context, which on iOS takes
+        // the keyboard away (the engine resigns the field's first
+        // responder); Plux Bank's iOS accessibility pass sends no Return
+        // after the code for this reason.
+        expect(
+          tester.testTextInput.log.map((c) => c.method),
+          contains('TextInput.finishAutofillContext'),
+        );
         // Typing past the end is dropped.
         await tester.enterText(find.byType(TextField), '1234567');
         expect(controller.text, '123456');

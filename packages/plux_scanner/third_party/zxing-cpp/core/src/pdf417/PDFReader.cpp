@@ -239,7 +239,7 @@ std::vector<int> ReadCodeWords(BitMatrixCursor<POINT> topCur, SymbolInfo info)
 	}
 
 	int maxColWidth = info.colWidth * 3 / 2;
-	std::vector<int> codeWords(info.nRows * info.nCols, -1);
+	std::vector<int> codeWords(static_cast<std::size_t>(info.nRows) * info.nCols, -1); // plux: size_t product (VERSION)
 	for (int row = info.firstRow; row < std::min(info.nRows, info.lastRow + 1); ++row) {
 		int cluster = (row % 3) * 3;
 		auto cur = topCur.movedBy(int((row - info.firstRow + 0.5f) * info.rowHeight) * rowSkip);
