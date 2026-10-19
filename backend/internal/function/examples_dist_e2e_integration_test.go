@@ -102,6 +102,14 @@ func exampleSources(t *testing.T, root string, ex example) []byte {
 		}
 	}
 	runIn(t, proj, "cargo", "vendor", "--quiet")
+	// The archive's digest is part of the provenance, so the manifest it
+	// carries must not name this checkout's path. The patch only served
+	// cargo vendor: in the builder's workspace the root manifest's patch
+	// wins, and ../plux-fn is where the SDK sits there.
+	manifest := fmt.Appendf(nil, ex.manifest, "../plux-fn")
+	if err := os.WriteFile(filepath.Join(proj, "Cargo.toml"), manifest, 0o600); err != nil {
+		t.Fatal(err)
+	}
 	return packReproducibly(t, proj)
 }
 
