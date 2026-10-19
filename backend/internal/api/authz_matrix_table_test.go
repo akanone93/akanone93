@@ -391,8 +391,21 @@ var matrix = map[string]entry{
 	"SecurityAdminService/DeleteConfigValue": atPerm(auth.AppManage, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.DeleteConfigValueRequest{AppId: f.app, EnvironmentId: f.dev, Key: "absent"}
 	})),
-	"ConfigService/GetLiveConfig":               {kind: deviceRPC, build: anyone(&pluxv1.GetLiveConfigRequest{})},
-	"DeviceService/EnrolScaKey":                 {kind: deviceRPC, build: anyone(&pluxv1.EnrolScaKeyRequest{})},
+	"ConfigService/GetLiveConfig": {kind: deviceRPC, build: anyone(&pluxv1.GetLiveConfigRequest{})},
+	"DeviceService/EnrolScaKey":   {kind: deviceRPC, build: anyone(&pluxv1.EnrolScaKeyRequest{})},
+	"AuditService/CreateExportDestination": atPerm(auth.AuditExport, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateExportDestinationRequest{Name: "d" + f.name(), Kind: "syslog", Address: "siem.example.com:6514"}
+	}),
+	"AuditService/GetExportDestination": atPerm(auth.AuditExport, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.GetExportDestinationRequest{Id: f.freshDestination(t)}
+	}),
+	"AuditService/ListExportDestinations": atPerm(auth.AuditExport, anyone(&pluxv1.ListExportDestinationsRequest{})),
+	"AuditService/UpdateExportDestination": atPerm(auth.AuditExport, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.UpdateExportDestinationRequest{Id: f.freshDestination(t), Address: "siem.example.com:6514", Enabled: true}
+	}),
+	"AuditService/DeleteExportDestination": atPerm(auth.AuditExport, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.DeleteExportDestinationRequest{Id: f.freshDestination(t)}
+	}),
 	"LicenseService/GetLicenseState":            atPerm(auth.OrganizationManage, anyone(&pluxv1.GetLicenseStateRequest{})),
 	"SecurityAdminService/ListAuditCheckpoints": atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
 

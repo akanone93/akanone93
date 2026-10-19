@@ -41,8 +41,8 @@ func newSyslogSink(stream *export.Stream, hostname string) *syslogSink {
 // Name identifies the sink.
 func (*syslogSink) Name() string { return KindSyslog }
 
-// Deliver sends the batch in one write; it returns once the TLS layer has
-// accepted every byte.
+// Deliver sends the batch on a connection of its own and returns once the
+// receiver has read it and closed the connection.
 func (s *syslogSink) Deliver(ctx context.Context, records []export.Record) error {
 	var batch bytes.Buffer
 	for _, r := range records {
@@ -54,9 +54,6 @@ func (s *syslogSink) Deliver(ctx context.Context, records []export.Record) error
 	}
 	return s.stream.Send(ctx, batch.Bytes())
 }
-
-// Close closes the connection.
-func (s *syslogSink) Close() error { return s.stream.Close() }
 
 // SyslogMessage renders a record as an RFC 5424 message: facility 13 (log
 // audit), severity 6 (informational), the entry's action as MSGID, a

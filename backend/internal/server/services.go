@@ -24,9 +24,11 @@ import (
 	"connectrpc.com/connect"
 	"github.com/riverqueue/river"
 
+	"github.com/nightCode42/plux3/backend/ext/export"
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/attest/statuslist"
 	"github.com/nightCode42/plux3/backend/internal/audit"
+	"github.com/nightCode42/plux3/backend/internal/auditexport"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/buildinfo"
 	"github.com/nightCode42/plux3/backend/internal/cache"
@@ -96,6 +98,11 @@ type Services struct {
 	// Goldens holds golden-test baselines and runs (TST-003); nil where the
 	// installation has no object store.
 	Goldens *golden.Service
+	// AuditExport administers the audit export destinations (SEC-143).
+	AuditExport *auditexport.Service
+	// AuditExporter delivers the audit chains to them; nil where the process
+	// holds no signer, which is every process without the worker role.
+	AuditExporter *auditexport.Exporter
 	// KMS checks the key management service, when the signing backend
 	// is one; nil for the development file backend (SRV-007).
 	KMS func(context.Context) error
@@ -127,6 +134,12 @@ type WorkDeps struct {
 	// FunctionKey is the key reference that signs the statements of
 	// function builds (signing.keys.functionArtifact).
 	FunctionKey string
+	// AuditSinks builds the enterprise audit export sinks; nil is the
+	// community edition, which exports over syslog only (SEC-143).
+	AuditSinks export.Provider
+	// AuditNotifier receives the report of an unreachable audit export
+	// destination (PLX-8500); nil reports none.
+	AuditNotifier auditexport.Notifier
 	// Metrics receives the device side's metrics, the DPoP replay cache's
 	// health among them; nil records none.
 	Metrics *observability.Metrics
@@ -373,13 +386,42 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if work.Objects != nil {
 		goldens = golden.New(golden.Options{DB: db, Audit: log, Objects: work.Objects, IDs: gen, Limits: set})
 	}
+	auditExport, auditExporter, err := buildAuditExport(db, log, gen, backend, tenancyService, work)
+	if err != nil {
+		return nil, err
+	}
 	return &Services{
-		Goldens: goldens,
-		Audit:   log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
+		Goldens: goldens, AuditExport: auditExport, AuditExporter: auditExporter,
+		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
 		AttestationStatus: status, Metrics: work.Metrics, Functions: functions, FunctionRuntime: fnRuntime,
 	}, nil
+}
+
+// buildAuditExport builds the administration of the audit export
+// destinations and, in the worker role only, the exporter (SEC-143).
+func buildAuditExport(db *storage.DB, log *audit.Log, gen auditexport.IDs, backend signing.Crypter, ten *tenancy.Service, work WorkDeps) (*auditexport.Service, *auditexport.Exporter, error) {
+	o := auditexport.Options{
+		DB: db, Audit: log, IDs: gen, Crypter: backend, Provider: work.AuditSinks,
+		Limits: func(ctx context.Context, tx pgx.Tx, org string) (limits.Set, error) {
+			return ten.Effective(ctx, tx, org, "", "") //nolint:wrapcheck // a domain error
+		},
+	}
+	service, err := auditexport.NewService(o)
+	if err != nil {
+		return nil, nil, fmt.Errorf("server: %w", err)
+	}
+	if work.Signer == nil {
+		return service, nil, nil
+	}
+	exporter, err := auditexport.NewExporter(auditexport.ExporterOptions{
+		Options: o, Organizations: ten, Notifier: work.AuditNotifier, Log: work.Log,
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("server: %w", err)
+	}
+	return service, exporter, nil
 }
 
 // reportDeviceAssurance feeds the devices-by-assurance gauge from the device
@@ -707,6 +749,12 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 		h.Goldens = svc.Goldens
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts)
+		})
+	}
+	if svc.AuditExport != nil {
+		h.AuditExport = svc.AuditExport
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewAuditServiceHandler(h.Audit(), opts)
 		})
 	}
 	if svc.SecurityConfig != nil {

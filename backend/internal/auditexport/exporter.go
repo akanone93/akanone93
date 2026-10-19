@@ -17,7 +17,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/nightCode42/plux3/backend/edition"
 	"github.com/nightCode42/plux3/backend/ext/export"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -69,10 +68,8 @@ type Organizations interface {
 type ExporterOptions struct {
 	Options
 	Organizations Organizations
-	// Edition answers what the licence allows; the worker's jobs carry no
-	// request context, so the exporter sets it. Nil is the community
-	// provider.
-	Edition  edition.Provider
+	// Notifier receives the report of an unreachable destination; nil
+	// reports none.
 	Notifier Notifier
 	Log      *slog.Logger
 	// Jitter returns a number in [0, 1) for the backoff; nil uses
@@ -119,12 +116,10 @@ func NewExporter(o ExporterOptions) (*Exporter, error) {
 // Run makes one pass: every enabled destination whose backoff has passed
 // gets batches until it has caught up, fails, or the run's budget is spent.
 // A destination that fails does not stop the others; its failure is
-// recorded on it. Run returns an error only for a failure of the server's
-// own storage.
+// recorded on it. The licence is read from ctx (edition.WithProvider), which
+// a worker job does not carry by itself. Run returns an error only for a
+// failure of the server's own storage.
 func (x *Exporter) Run(ctx context.Context) error {
-	if x.o.Edition != nil {
-		ctx = edition.WithProvider(ctx, x.o.Edition)
-	}
 	stop := x.now().Add(x.o.RunBudget)
 	var errs []error
 	err := x.o.Organizations.ForEachOrganization(ctx, func(org string) error {

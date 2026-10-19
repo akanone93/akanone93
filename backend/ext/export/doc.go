@@ -17,7 +17,7 @@
 // the same guard (SEC-104), so no sink can reach what the policy forbids.
 // The package also carries the wire helpers the syslog-based sinks share:
 // the RFC 5424 formatter, the RFC 5425 octet-counting framing and a TLS
-// stream that reconnects.
+// stream that acknowledges a batch by the receiver closing the connection.
 //
 // A Record carries the entry's hash and the previous entry's hash. The hash
 // is the hex SHA-256 over the length-prefixed fields in the order of the

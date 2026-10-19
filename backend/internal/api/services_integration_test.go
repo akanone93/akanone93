@@ -21,6 +21,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/attest/playintegrity"
 	"github.com/nightCode42/plux3/backend/internal/audit"
+	"github.com/nightCode42/plux3/backend/internal/auditexport"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/compiler/media"
@@ -112,6 +113,7 @@ type world struct {
 	native   pluxv1connect.NativeCatalogueServiceClient
 	secAdmin pluxv1connect.SecurityAdminServiceClient
 	license  pluxv1connect.LicenseServiceClient
+	audit    pluxv1connect.AuditServiceClient
 	config   pluxv1connect.ConfigServiceClient
 	sca      pluxv1connect.ScaServiceClient
 	// configs and resolver are the server-held configuration store and its
@@ -290,8 +292,17 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 			return values.Get(settings.DefaultFunctionAssurance).Text(), nil
 		},
 	})
+	auditExport, err := auditexport.NewService(auditexport.Options{
+		DB: db, Audit: log, IDs: gen, Crypter: backend, Now: cfg.Now,
+		Limits: func(ctx context.Context, tx pgx.Tx, org string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, "", "")
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	h := &api.Handlers{
-		Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
+		AuditExport: auditExport, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
@@ -344,6 +355,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewTelemetryServiceHandler(h.Telemetry(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewLicenseServiceHandler(h.License(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewAuditServiceHandler(h.Audit(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewConfigServiceHandler(h.ConfigService(), opts) },
 		func() (string, http.Handler) {
 			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
@@ -383,6 +395,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		control:  pluxv1connect.NewControlServiceClient(srv.Client(), srv.URL),
 		secAdmin: pluxv1connect.NewSecurityAdminServiceClient(srv.Client(), srv.URL),
 		license:  pluxv1connect.NewLicenseServiceClient(srv.Client(), srv.URL),
+		audit:    pluxv1connect.NewAuditServiceClient(srv.Client(), srv.URL),
 		config:   pluxv1connect.NewConfigServiceClient(srv.Client(), srv.URL),
 		sca:      pluxv1connect.NewScaServiceClient(srv.Client(), srv.URL),
 

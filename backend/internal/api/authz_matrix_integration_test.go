@@ -218,6 +218,13 @@ func (f *matrixFixture) freshApp(t *testing.T) string {
 	return must(f.w.app.CreateApp(context.Background(), req(f.owner(), &pluxv1.CreateAppRequest{Key: k, Name: k})))(t).GetApp().GetId()
 }
 
+func (f *matrixFixture) freshDestination(t *testing.T) string {
+	t.Helper()
+	return must(f.w.audit.CreateExportDestination(context.Background(), req(f.owner(), &pluxv1.CreateExportDestinationRequest{
+		Name: "d" + f.name(), Kind: "syslog", Address: "siem.example.com:6514",
+	})))(t).GetDestination().GetId()
+}
+
 func (f *matrixFixture) freshEnvironment(t *testing.T) string {
 	t.Helper()
 	k := f.name()
@@ -440,7 +447,6 @@ var permissionsWithoutRPC = []auth.Permission{
 	auth.AlertsManage,
 	auth.NotificationsManage,
 	auth.WebhooksManage,
-	auth.AuditExport,
 	auth.ReconstructionView,
 	auth.DSRManage,
 	auth.SearchRead,
