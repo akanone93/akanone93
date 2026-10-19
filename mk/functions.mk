@@ -26,11 +26,7 @@ rust-e2e: ## Build the example functions with the builder role, twice, and compa
 # copy of the loan module. Scorecard's Binary-Artifacts alerts on them are
 # dismissed on this check; the image codecs have wasm-codecs-check.
 wasm-check: ## Rebuild the committed function modules (.wasm) and compare them with the commit
-	cd sdk/fn && cargo build --release --locked --target wasm32-wasip1 -p loan-module -p fee-module
-	cmp sdk/fn/target/wasm32-wasip1/release/loan_module.wasm packages/plux_functions/test/fixtures/loan_module.wasm
-	cmp sdk/fn/target/wasm32-wasip1/release/fee_module.wasm packages/plux_functions/test/fixtures/fee_module.wasm
-	cd packages/plux_functions/test/fixtures/src/probe && cargo +1.97.0 build --release --locked --target wasm32-wasip1
-	cmp packages/plux_functions/test/fixtures/src/probe/target/wasm32-wasip1/release/probe.wasm packages/plux_functions/test/fixtures/probe.wasm
+	sh packages/plux_functions/test/fixtures/build.sh --check
 	RUSTUP_TOOLCHAIN=1.97.0 sh schema/testdata/functions/probe/build.sh --check
 	cmp sdk/fn/examples/modules/loan-module/dist/module.wasm schema/testdata/documents/plux_express/functions/loan.calculateSchedule/target/plux/module.wasm
 	cd backend && PLUX_RUST_E2E=1 $(GO) test -count=1 -run 'TestExampleArtefactsAreWhatTheBuilderMakes' ./internal/function/
