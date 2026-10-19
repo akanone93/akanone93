@@ -3,7 +3,7 @@
 
 //go:build cgo && unix
 
-package main
+package serverapp
 
 import (
 	"context"

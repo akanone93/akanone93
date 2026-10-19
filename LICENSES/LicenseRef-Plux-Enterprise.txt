@@ -1,0 +1,39 @@
+DRAFT — for legal review before the first public release (ADR-0022, ADR-0084).
+
+Plux Enterprise License 1.0
+
+Copyright 2026 Plux contributors
+
+1. Scope. This license covers the files in the ee/ directory of the Plux
+   repository ("Enterprise Code"). All other files are licensed as stated in
+   their headers and in REUSE.toml.
+
+2. Source availability. You may read, copy and modify the Enterprise Code, and
+   run it for development, testing and evaluation, without a license file.
+
+3. Production use. Using the Enterprise Code in production requires a valid
+   license file issued by the licensor for your organisation. The features and
+   limits you may use in production are those named in that license file, for
+   the period it states, including its grace period.
+
+4. Modification. You may modify the Enterprise Code for your own use. You may
+   not remove, disable or circumvent the license-file checks, or enable features
+   or raise limits beyond those your license file grants.
+
+5. No service offering. You may not offer the Enterprise Code, or a modified
+   version of it, to third parties as a hosted or managed service without a
+   separate written agreement with the licensor.
+
+6. Redistribution. You may redistribute the Enterprise Code only unmodified,
+   with this license, and only as part of a distribution of Plux.
+
+7. Security capabilities. Nothing in this license restricts the security
+   capabilities of the open-source core, which are never part of the
+   Enterprise Code (GOV-032).
+
+8. No warranty. THE ENTERPRISE CODE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+   ANY KIND, EXPRESS OR IMPLIED. IN NO EVENT SHALL THE AUTHORS OR LICENSOR BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE USE OF THE
+   ENTERPRISE CODE.
+
+9. Termination. Any breach of this license ends your rights under it.

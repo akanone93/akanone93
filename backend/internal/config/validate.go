@@ -76,7 +76,23 @@ func (c *Config) Validate() error {
 	c.validateFnRunner(&p)
 	c.validateFunctions(&p)
 	c.validateBuilder(&p)
+	c.validateLicense(&p)
 	return errors.Join(p.errs...)
+}
+
+// validateLicense checks the licence file's path. Whether the file exists
+// and verifies is decided when the server starts and every hour after, never
+// here: validation makes no file access and an absent licence is a normal
+// state (GOV-030).
+func (c *Config) validateLicense(p *problems) {
+	f := c.License.File
+	switch {
+	case f == "":
+	case strings.ContainsRune(f, 0):
+		p.addf("license.file", "must not contain a NUL byte")
+	case !filepath.IsAbs(f):
+		p.addf("license.file", "must be an absolute path, got %q", f)
+	}
 }
 
 func (c *Config) validateServer(p *problems) {

@@ -1513,7 +1513,7 @@ Approvals are generic: the same engine governs publishing, function deployment, 
 |---|---|---|---|---|
 | `GOV-010` | P2 | MUST | Apps **MUST** have environments (default development, staging, production; custom allowed) with their own variables, secrets, data source URLs, signing keys and device registrations. | DONE |
 | `GOV-011` | P9 | SHOULD | Each app **SHOULD** be exportable to a Git repository in the file layout of `SCH-006` on every publish (for review and audit), and **MAY** be imported from Git through the CLI for teams that prefer docs-as-code. | SPEC |
-| `GOV-030` | P9 | MUST | Self-hosted installations **MUST** validate a signed, offline license file (organisation, limits, features, expiry, grace period) without calling home. | SPEC |
+| `GOV-030` | P9 | MUST | Self-hosted installations **MUST** validate a signed, offline license file (organisation, limits, features, expiry, grace period) without calling home. | DONE |
 | `GOV-031` | P2 | MUST | Deleted apps, plugins and pages **MUST** go to a trash with 30-day restore before permanent deletion, except where retention rules require longer. | DONE |
 
 ### 18.4 Rollouts and kill switch
@@ -2218,7 +2218,7 @@ Plux is developed in **one public repository**, including this specification, un
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `GOV-032` | P0 | MUST | Security capabilities — DPoP, attestation, signed and anti-rollback updates, sandboxing, encryption — **MUST** be part of the open-source core and **MUST NOT** be gated by edition. | WIP |
-| `GOV-033` | P9 | MUST | Enterprise-edition code **MUST** live under `ee/` with a clean interface boundary, so the open-source core builds, tests and runs without it; enterprise features **MUST** be enabled only by the offline license file (`GOV-030`). | SPEC |
+| `GOV-033` | P9 | MUST | Enterprise-edition code **MUST** live under `ee/` with a clean interface boundary, so the open-source core builds, tests and runs without it; enterprise features **MUST** be enabled only by the offline license file (`GOV-030`). | DONE |
 | `GOV-034` | P0 | MUST | Contributions **MUST** be accepted under a Contributor License Agreement that permits dual licensing. | WIP |
 
 Candidate enterprise-edition features are SSO/SCIM, advanced approval policies, SIEM export, the air-gapped installation bundle, mini-app mode for third-party partners, and HA support tooling. The final split is recorded in ADR-0022 before P9, and reviewed legally before the first public release.

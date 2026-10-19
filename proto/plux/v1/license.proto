@@ -1,0 +1,46 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// LicenseService reports the installation's enterprise licence (GOV-030,
+// ADR-0084). The open-source core answers "absent": it has no enterprise
+// features to enable. The service only reads; the licence file is placed by
+// the operator and verified offline by the server, never uploaded through
+// the API.
+service LicenseService {
+  // GetLicenseState returns the state of the licence and what it enables.
+  // It never quotes a file that failed verification.
+  rpc GetLicenseState(GetLicenseStateRequest) returns (GetLicenseStateResponse) {}
+}
+
+message GetLicenseStateRequest {}
+
+message GetLicenseStateResponse {
+  // state is "absent", "valid", "grace", "expired" or "invalid". In grace
+  // the enterprise features keep working and warn; once expired they are
+  // read-only; absent and invalid leave them off. Device traffic and
+  // security capabilities are unaffected in every state (GOV-032).
+  string state = 1;
+  // license_id and organization identify a verified licence; empty
+  // otherwise.
+  string license_id = 2;
+  string organization = 3;
+  // expires_at and grace_ends_at are unset without a verified licence.
+  google.protobuf.Timestamp expires_at = 4;
+  google.protobuf.Timestamp grace_ends_at = 5;
+  // days_remaining is the whole days until expires_at, negative in grace.
+  int32 days_remaining = 6;
+  // features are the enterprise features the licence lists.
+  repeated string features = 7;
+  // limits are the registry limits (LIM-001) the licence caps.
+  map<string, int64> limits = 8;
+  // message says in one line why the state is what it is.
+  string message = 9;
+}

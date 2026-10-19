@@ -16,6 +16,7 @@ import (
 
 	"connectrpc.com/connect"
 
+	"github.com/nightCode42/plux3/backend/edition"
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/config"
@@ -68,6 +69,9 @@ type Server struct {
 	internal    *http.Server
 	// hsts is the Strict-Transport-Security value; empty disables it.
 	hsts string
+	// edition answers what the installation's licence allows (GOV-030);
+	// the community provider in the open-source core.
+	edition edition.Provider
 }
 
 // Deps are the already-built dependencies a Server is assembled from.
@@ -85,6 +89,9 @@ type Deps struct {
 	Limits  limits.Set
 	// KMS checks the key management service; nil when none is used.
 	KMS func(context.Context) error
+	// Edition answers what the licence allows; nil is the community
+	// provider, which enables nothing (GOV-033).
+	Edition edition.Provider
 }
 
 // New assembles a process from its dependencies. It opens no
@@ -104,6 +111,7 @@ func New(d Deps) (*Server, error) {
 	if s.limits.IsZero() {
 		s.limits = limits.Defaults()
 	}
+	s.useEdition(d.Edition)
 	for _, cidr := range d.Config.Server.TrustedProxies {
 		prefix, err := netip.ParsePrefix(cidr)
 		if err != nil {
@@ -136,6 +144,18 @@ func New(d Deps) (*Server, error) {
 		}
 	}
 	return s, nil
+}
+
+// useEdition installs the licence provider, the community one when p
+// is nil (GOV-033), and reports its days remaining as a metric.
+func (s *Server) useEdition(p edition.Provider) {
+	s.edition = p
+	if s.edition == nil {
+		s.edition = edition.Community()
+	}
+	if s.metrics != nil {
+		s.metrics.LicenseDaysRemaining(func() float64 { return float64(s.edition.Status().DaysRemaining) })
+	}
 }
 
 // registerChecks adds the dependencies /readyz reports on (SRV-007).
@@ -179,6 +199,7 @@ func (s *Server) HealthEndpoint() *Health { return s.health }
 // rate limit's per-principal counterpart.
 func (s *Server) Interceptors(before ...api.Around) []connect.Interceptor {
 	d := api.Deps{Log: s.log, Metrics: s.metrics, Tracer: s.tracer}
+	d.Before = append(d.Before, s.withEdition())
 	if s.cache != nil {
 		d.Before = append(d.Before, s.addressLimit())
 	}
@@ -274,6 +295,8 @@ func (s *Server) Run(ctx context.Context) error {
 	for _, w := range s.cfg.Warnings() {
 		s.log.WarnContext(ctx, w)
 	}
+	stopLicence := s.watchLicence(ctx)
+	defer stopLicence()
 	started, err := s.startComponents(ctx)
 	if err != nil {
 		s.health.SetReady(false)

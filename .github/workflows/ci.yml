@@ -741,6 +741,9 @@ jobs:
           cache: false # reproducibility is checked with cold caches
       - name: Build
         run: make go-build
+      # Verifies: GOV-033.
+      - name: The core builds and tests without ee/
+        run: make go-test-core
       # Verifies: CI-006.
       - name: Reproducible build
         run: make go-reproducible

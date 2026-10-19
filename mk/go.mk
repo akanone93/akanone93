@@ -6,7 +6,7 @@
 
 .PHONY: gen proto sqlc sqlc-check go-check proto-check proto-lint proto-format-check proto-breaking go-fmt go-fmt-check \
 	go-lint go-tidy go-tidy-check go-gen-check registry-lock-check go-test go-test-race go-cover \
-	go-determinism go-budgets go-fuzz currencies-check phone-metadata go-vuln go-build go-reproducible catalogue-check
+	go-determinism go-budgets go-fuzz currencies-check phone-metadata go-vuln go-build go-reproducible catalogue-check go-test-core
 
 # Phase and flags of `make catalogue-check`; it fails on any finding since the
 # P8 catch-up (plan p8 §5.12); `CATALOGUE_FLAGS=-report` only lists them.
@@ -15,7 +15,7 @@ CATALOGUE_FLAGS ?=
 
 # How long `make go-fuzz` runs each fuzz target.
 FUZZTIME      ?= 30s
-GO_MODULES    := backend tools test/refapi
+GO_MODULES    := backend tools test/refapi ee/backend
 # Everything `make gen` writes; `go-gen-check` fails if any of it changes.
 GEN_PATHS     := backend tools docs/reference packages studio/packages schema
 PROTO_DIR     := proto
@@ -187,6 +187,12 @@ go-vuln: ## Scan Go dependencies for known vulnerabilities
 go-build: ## Build reproducible binaries into bin/ (CI-006)
 	@mkdir -p $(BIN_DIR)
 	cd backend && CGO_ENABLED=0 $(GO) build $(GO_BUILD_FLAGS) -o ../$(BIN_DIR)/ ./cmd/...
+
+# Verifies: GOV-033. With the workspace off, the backend module resolves only
+# its own go.mod, which does not require ee/, so the core builds, vets and
+# tests its edition boundary without the enterprise module.
+go-test-core: ## Build, vet and test the open-source core without the ee/ module (GOV-033)
+	cd backend && GOWORK=off $(GO) build ./... && GOWORK=off $(GO) vet ./... && GOWORK=off $(GO) test ./edition/... ./serverapp/...
 
 # Verifies: CI-006.
 go-reproducible: ## Build twice with cold caches and fail unless the binaries are identical (CI-006)
