@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plux.dev/schema/v1/policy.schema.json",
+  "title": "Plux policy document",
+  "description": "An approval policy: which changes it applies to and what approval they need (GOV-020). File: `policies/<key>.policy.json`.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "kind",
+    "id",
+    "key",
+    "name",
+    "match",
+    "require"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "kind": {
+      "const": "policy"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "key": {
+      "$ref": "common.schema.json#/$defs/key"
+    },
+    "name": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "description": {
+      "$ref": "common.schema.json#/$defs/description"
+    },
+    "match": {
+      "$ref": "#/$defs/policyMatch"
+    },
+    "require": {
+      "$ref": "#/$defs/policyRequire"
+    }
+  },
+  "patternProperties": {
+    "^x-": true
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "policyResource": {
+      "enum": [
+        "release",
+        "functionVersion",
+        "policy",
+        "securityConfiguration",
+        "limit",
+        "capabilitySet",
+        "experiment",
+        "waiver",
+        "goldenBaseline"
+      ],
+      "description": "A kind of artifact an approval can guard."
+    },
+    "policyRisk": {
+      "enum": [
+        "touchesSecurePage",
+        "touchesMoneyFlow",
+        "changesFunctionUsedBy"
+      ],
+      "description": "A risk attribute the compiler and the release service compute from a change."
+    },
+    "policyStages": {
+      "enum": [
+        "sequential",
+        "parallel"
+      ],
+      "description": "Whether approvers decide one after the other, in the order of the roles and names listed, or all at once."
+    },
+    "policyMatch": {
+      "type": "object",
+      "description": "The changes a policy applies to: a change matches when it satisfies every attribute listed; an attribute left out matches anything.",
+      "properties": {
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/policyResource"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "environments": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/key"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/name"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "risk": {
+          "type": "array",
+          "description": "Risk attributes that must all hold.",
+          "items": {
+            "$ref": "#/$defs/policyRisk"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false,
+      "x-plux-type": "PolicyMatch"
+    },
+    "policyRequire": {
+      "type": "object",
+      "description": "What approval a matching change needs.",
+      "required": [
+        "approvers"
+      ],
+      "properties": {
+        "approvers": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "How many approvals are needed."
+        },
+        "roles": {
+          "type": "array",
+          "description": "Roles whose members may approve.",
+          "items": {
+            "$ref": "common.schema.json#/$defs/key"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "users": {
+          "type": "array",
+          "description": "Named approvers, by user identifier.",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "distinctFromAuthor": {
+          "type": "boolean",
+          "description": "The author's own approval does not count."
+        },
+        "distinctTeams": {
+          "type": "boolean",
+          "description": "The approvals must come from different teams."
+        },
+        "stages": {
+          "$ref": "#/$defs/policyStages"
+        },
+        "expiryHours": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 720,
+          "description": "How long a request stays open and how long an approval counts."
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false,
+      "x-plux-type": "PolicyRequire"
+    }
+  }
+}

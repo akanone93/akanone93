@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plux.dev/schema/v1/segment.schema.json",
+  "title": "Plux segment document",
+  "description": "A named audience: a rule over the attributes of a device, its build and its user, evaluated by rollouts on the server and by flags and experiments on the device (REL-051, ABT-001, ABT-006). File: `segments/<key>.segment.json`.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "kind",
+    "id",
+    "key",
+    "name",
+    "rule"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "kind": {
+      "const": "segment"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "key": {
+      "$ref": "common.schema.json#/$defs/key"
+    },
+    "name": {
+      "$ref": "common.schema.json#/$defs/text"
+    },
+    "description": {
+      "$ref": "common.schema.json#/$defs/description"
+    },
+    "rule": {
+      "$ref": "#/$defs/segmentRule"
+    }
+  },
+  "patternProperties": {
+    "^x-": true
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "segmentOperator": {
+      "enum": [
+        "eq",
+        "neq",
+        "in",
+        "notIn",
+        "lt",
+        "lte",
+        "gt",
+        "gte"
+      ],
+      "description": "How a condition compares an attribute with its value: equality, membership in a list, or an ordering on numbers and versions."
+    },
+    "segmentRule": {
+      "type": "object",
+      "description": "One condition (`attribute`, `operator`, `value`) or a group of rules combined with `all` (every rule holds) or `any` (at least one holds). The compiler checks the attribute, the operator and the value (PLX-1704).",
+      "properties": {
+        "attribute": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9]*(\\.[a-z][a-zA-Z0-9]*)?$",
+          "maxLength": 128,
+          "description": "A targeting attribute: `build`, `runtimeVersion`, `os`, `osVersion`, `deviceClass`, `locale`, `region`, `channel`, or `user.<name>` for an attribute of the user context."
+        },
+        "operator": {
+          "$ref": "#/$defs/segmentOperator"
+        },
+        "value": {
+          "description": "The value to compare with: a string, a number, a boolean or, for `in` and `notIn`, a list of them.",
+          "x-plux-raw": true
+        },
+        "all": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/segmentRule"
+          },
+          "minItems": 1
+        },
+        "any": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/segmentRule"
+          },
+          "minItems": 1
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "attribute",
+            "operator",
+            "value"
+          ]
+        },
+        {
+          "required": [
+            "all"
+          ]
+        },
+        {
+          "required": [
+            "any"
+          ]
+        }
+      ],
+      "x-plux-type": "SegmentRule"
+    }
+  }
+}

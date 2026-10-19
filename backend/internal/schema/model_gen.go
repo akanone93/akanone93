@@ -19,11 +19,15 @@ const (
 	KindApp             DocumentKind = "app"
 	KindAssetIndex      DocumentKind = "assetIndex"
 	KindComponent       DocumentKind = "component"
+	KindExperiment      DocumentKind = "experiment"
+	KindFlag            DocumentKind = "flag"
 	KindFunction        DocumentKind = "function"
 	KindNativeCatalogue DocumentKind = "nativeCatalogue"
 	KindPage            DocumentKind = "page"
 	KindPlugin          DocumentKind = "plugin"
+	KindPolicy          DocumentKind = "policy"
 	KindScenarios       DocumentKind = "scenarios"
+	KindSegment         DocumentKind = "segment"
 	KindTemplate        DocumentKind = "template"
 	KindTheme           DocumentKind = "theme"
 	KindTranslationKeys DocumentKind = "translationKeys"
@@ -39,11 +43,15 @@ var documentSchemas = [...]struct {
 	{KindApp, "app.schema.json"},
 	{KindAssetIndex, "asset-index.schema.json"},
 	{KindComponent, "component.schema.json"},
+	{KindExperiment, "experiment.schema.json"},
+	{KindFlag, "flag.schema.json"},
 	{KindFunction, "function.schema.json"},
 	{KindNativeCatalogue, "native-catalogue.schema.json"},
 	{KindPage, "page.schema.json"},
 	{KindPlugin, "plugin.schema.json"},
+	{KindPolicy, "policy.schema.json"},
 	{KindScenarios, "scenario.schema.json"},
+	{KindSegment, "segment.schema.json"},
 	{KindTemplate, "template.schema.json"},
 	{KindTheme, "theme.schema.json"},
 	{KindTranslationKeys, "translation-keys.schema.json"},
@@ -405,8 +413,9 @@ type ComponentDocument struct {
 	State       []StateEntry     `json:"state,omitempty"`
 	// Exported: Embeddable by the host with `PluxView` (NAV-004).
 	Exported *bool `json:"exported,omitempty"`
-	// Root: A node of a page or component tree: a widget or a component instance
-	// (SCH-023).
+	// Root: A node of a page or component tree: a widget, a component instance
+	// or, with the reserved type `Variant`, the subtrees of an experiment's
+	// variants (SCH-023, ABT-001).
 	Root Node `json:"root"`
 	// Forms: The forms of the component (STA-020).
 	Forms []Form `json:"forms,omitempty"`
@@ -692,6 +701,110 @@ type EventHandler struct {
 	Detached *bool `json:"detached,omitempty"`
 }
 
+// ExperimentDocument — An experiment: a control and variants with their
+// allocation, audience, schedule and metrics (ABT-001). Its `key` is the PXL
+// name in `experiment.<key>` and the `experiment` of a `Variant` node. File:
+// `experiments/<key>.experiment.json`.
+type ExperimentDocument struct {
+	// SchemaVersion: Version of the document schema (SCH-000). Older documents
+	// are migrated before validation.
+	SchemaVersion string `json:"schemaVersion"`
+	Kind          string `json:"kind"`
+	// ID: Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+	ID string `json:"id"`
+	// Key: Identifier used in PXL and generated code: lowerCamelCase.
+	Key  string `json:"key"`
+	Name string `json:"name,omitempty"`
+	// Description: Human-readable description.
+	Description string `json:"description,omitempty"`
+	// Scope: What varies: a whole page, a component subtree (a `Variant` node),
+	// a prop value, a flow, or the version of a plugin.
+	Scope ExperimentScope `json:"scope"`
+	// Props: The props a `prop` experiment varies, read in PXL as
+	// `experiment.<key>.<name>`; every variant gives each a value.
+	Props []Field `json:"props,omitempty"`
+	// Variants: The control and the variants. Exactly one is the control and the
+	// weights sum to 100 (PLX-1702, PLX-1703).
+	Variants []ExperimentVariant `json:"variants"`
+	// Layer: Identifier used in PXL and generated code: lowerCamelCase.
+	Layer string `json:"layer,omitempty"`
+	// Holdout: The share of subjects, in percent, kept out of the experiment and
+	// shown the control.
+	Holdout *float64 `json:"holdout,omitempty"`
+	// Segment: Human-readable lower-kebab slug, unique within its parent
+	// (SCH-002). Files in the Git layout are named after it.
+	Segment string `json:"segment,omitempty"`
+	// Schedule: When the experiment runs; both bounds are optional.
+	Schedule         *ExperimentSchedule `json:"schedule,omitempty"`
+	PrimaryMetric    ExperimentMetric    `json:"primaryMetric"`
+	GuardrailMetrics []ExperimentMetric  `json:"guardrailMetrics,omitempty"`
+	// MinimumSampleSize: Subjects per variant before a result may be read.
+	MinimumSampleSize *int64 `json:"minimumSampleSize,omitempty"`
+	// Salt: Mixed into the hash that assigns a subject to a variant, so two
+	// experiments split the same subjects differently (ABT-002).
+	Salt string `json:"salt,omitempty"`
+}
+
+// ExperimentMetric — is generated from
+// experiment.schema.json#/$defs/experimentMetric.
+type ExperimentMetric struct {
+	// Event: The analytics event the metric counts.
+	Event string `json:"event"`
+	// Kind: How a metric is analysed: the share of subjects that did the event,
+	// or the mean of a numeric property of the event.
+	Kind MetricKind `json:"kind,omitempty"`
+	// Property: Identifier used in PXL and generated code: lowerCamelCase.
+	Property string `json:"property,omitempty"`
+	// Direction: Which change of the metric is an improvement.
+	Direction MetricDirection `json:"direction,omitempty"`
+	// MaxRegression: For a guardrail: the largest relative worsening tolerated,
+	// as a fraction.
+	MaxRegression *float64 `json:"maxRegression,omitempty"`
+}
+
+// ExperimentSchedule — When the experiment runs; both bounds are optional.
+type ExperimentSchedule struct {
+	Start string `json:"start,omitempty"`
+	End   string `json:"end,omitempty"`
+}
+
+// ExperimentScope — What varies: a whole page, a component subtree (a
+// `Variant` node), a prop value, a flow, or the version of a plugin.
+type ExperimentScope string
+
+// Values of ExperimentScope.
+const (
+	ExperimentScopePage          ExperimentScope = "page"
+	ExperimentScopeSubtree       ExperimentScope = "subtree"
+	ExperimentScopeProp          ExperimentScope = "prop"
+	ExperimentScopeFlow          ExperimentScope = "flow"
+	ExperimentScopePluginVersion ExperimentScope = "pluginVersion"
+)
+
+// Valid reports whether v is one of the values of ExperimentScope.
+func (v ExperimentScope) Valid() bool {
+	switch v {
+	case ExperimentScopePage, ExperimentScopeSubtree, ExperimentScopeProp, ExperimentScopeFlow, ExperimentScopePluginVersion:
+		return true
+	}
+	return false
+}
+
+// ExperimentVariant — is generated from
+// experiment.schema.json#/$defs/experimentVariant.
+type ExperimentVariant struct {
+	// Name: Identifier used in PXL and generated code: lowerCamelCase.
+	Name string `json:"name"`
+	// Control: Marks the control.
+	Control *bool `json:"control,omitempty"`
+	// Weight: The share of subjects, in percent.
+	Weight float64 `json:"weight"`
+	// Props: The value of each declared prop for this variant.
+	Props map[string]json.RawMessage `json:"props,omitempty"`
+	// Description: Human-readable description.
+	Description string `json:"description,omitempty"`
+}
+
 // Expr — PXL binding (SCH-011).
 type Expr struct {
 	// Expr: PXL expression (Appendix E).
@@ -724,6 +837,44 @@ type FlagDecl struct {
 	Default json.RawMessage `json:"default"`
 	// Description: Human-readable description.
 	Description string `json:"description,omitempty"`
+}
+
+// FlagDocument — A typed feature flag with its default and its value per
+// segment, read in PXL as `flags.<key>` and through generated host accessors
+// (ABT-006). File: `flags/<key>.flag.json`.
+type FlagDocument struct {
+	// SchemaVersion: Version of the document schema (SCH-000). Older documents
+	// are migrated before validation.
+	SchemaVersion string `json:"schemaVersion"`
+	Kind          string `json:"kind"`
+	// ID: Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+	ID string `json:"id"`
+	// Key: Identifier used in PXL and generated code: lowerCamelCase.
+	Key string `json:"key"`
+	// Description: Human-readable description.
+	Description string `json:"description,omitempty"`
+	// Type: The flag's type: `bool`, `number`, `string` or `json`. The compiler
+	// refuses any other (PLX-1701).
+	Type string `json:"type"`
+	// Schema: For a `json` flag: the JSON Schema its values must satisfy.
+	Schema json.RawMessage `json:"schema,omitempty"`
+	// Default: A JSON value interpreted against a declared type (defaults,
+	// mocks, environment values).
+	Default json.RawMessage `json:"default"`
+	// Segments: The value for each segment, in order: the first segment a
+	// subject belongs to wins.
+	Segments []FlagSegmentValue `json:"segments,omitempty"`
+}
+
+// FlagSegmentValue — is generated from
+// flag.schema.json#/properties/segments/items.
+type FlagSegmentValue struct {
+	// Segment: Human-readable lower-kebab slug, unique within its parent
+	// (SCH-002). Files in the Git layout are named after it.
+	Segment string `json:"segment"`
+	// Value: A JSON value interpreted against a declared type (defaults, mocks,
+	// environment values).
+	Value json.RawMessage `json:"value"`
 }
 
 // FlagType — Type of a feature flag (ABT-006).
@@ -1104,6 +1255,43 @@ func (v MediaType) Valid() bool {
 	return false
 }
 
+// MetricDirection — Which change of the metric is an improvement.
+type MetricDirection string
+
+// Values of MetricDirection.
+const (
+	MetricDirectionIncrease MetricDirection = "increase"
+	MetricDirectionDecrease MetricDirection = "decrease"
+)
+
+// Valid reports whether v is one of the values of MetricDirection.
+func (v MetricDirection) Valid() bool {
+	switch v {
+	case MetricDirectionIncrease, MetricDirectionDecrease:
+		return true
+	}
+	return false
+}
+
+// MetricKind — How a metric is analysed: the share of subjects that did the
+// event, or the mean of a numeric property of the event.
+type MetricKind string
+
+// Values of MetricKind.
+const (
+	MetricKindProportion MetricKind = "proportion"
+	MetricKindMean       MetricKind = "mean"
+)
+
+// Valid reports whether v is one of the values of MetricKind.
+func (v MetricKind) Valid() bool {
+	switch v {
+	case MetricKindProportion, MetricKindMean:
+		return true
+	}
+	return false
+}
+
 // Monogram — Generated monogram icon.
 type Monogram struct {
 	Text string `json:"text"`
@@ -1185,8 +1373,9 @@ type NavigationPolicy struct {
 	Shells    []Shell         `json:"shells,omitempty"`
 }
 
-// Node — A node of a page or component tree: a widget or a component
-// instance (SCH-023).
+// Node — A node of a page or component tree: a widget, a component instance
+// or, with the reserved type `Variant`, the subtrees of an experiment's
+// variants (SCH-023, ABT-001).
 type Node struct {
 	// ID: Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
 	ID string `json:"id"`
@@ -1222,6 +1411,15 @@ type Node struct {
 	// A11yWaivers: Accessibility checks waived, each with its justification
 	// (A11Y-008).
 	A11yWaivers map[string]string `json:"a11yWaivers,omitempty"`
+	// Experiment: On a `Variant` node: the key of the experiment whose assigned
+	// variant this node shows (ABT-001, ABT-002).
+	Experiment string `json:"experiment,omitempty"`
+	// Control: On a `Variant` node: the subtree shown for the control, and for a
+	// variant that has no subtree of its own (ABT-001).
+	Control *Node `json:"control,omitempty"`
+	// Variants: On a `Variant` node: the subtree of each non-control variant, by
+	// the variant's name (ABT-001).
+	Variants map[string]Node `json:"variants,omitempty"`
 }
 
 // NodeAnimation — The animations of a node (ANI-001, ANI-003, ANI-004):
@@ -1305,8 +1503,9 @@ type PageDocument struct {
 	RouteOptions *RouteOptions `json:"routeOptions,omitempty"`
 	// Security: Security flags (SCH-022).
 	Security *PageSecurity `json:"security,omitempty"`
-	// Root: A node of a page or component tree: a widget or a component instance
-	// (SCH-023).
+	// Root: A node of a page or component tree: a widget, a component instance
+	// or, with the reserved type `Variant`, the subtrees of an experiment's
+	// variants (SCH-023, ABT-001).
 	Root Node `json:"root"`
 	// Forms: The forms of the page (STA-020).
 	Forms      []Form     `json:"forms,omitempty"`
@@ -1446,6 +1645,122 @@ type PluginDocument struct {
 	// the owner's error handler (ACT-020). A page's runs are cancelled with the
 	// page; a plugin's and the app's run while the release is active.
 	Triggers *Triggers `json:"triggers,omitempty"`
+}
+
+// PolicyDocument — An approval policy: which changes it applies to and what
+// approval they need (GOV-020). File: `policies/<key>.policy.json`.
+type PolicyDocument struct {
+	// SchemaVersion: Version of the document schema (SCH-000). Older documents
+	// are migrated before validation.
+	SchemaVersion string `json:"schemaVersion"`
+	Kind          string `json:"kind"`
+	// ID: Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+	ID string `json:"id"`
+	// Key: Human-readable lower-kebab slug, unique within its parent (SCH-002).
+	// Files in the Git layout are named after it.
+	Key  string `json:"key"`
+	Name string `json:"name"`
+	// Description: Human-readable description.
+	Description string `json:"description,omitempty"`
+	// Match: The changes a policy applies to: a change matches when it satisfies
+	// every attribute listed; an attribute left out matches anything.
+	Match PolicyMatch `json:"match"`
+	// Require: What approval a matching change needs.
+	Require PolicyRequire `json:"require"`
+}
+
+// PolicyMatch — The changes a policy applies to: a change matches when it
+// satisfies every attribute listed; an attribute left out matches anything.
+type PolicyMatch struct {
+	Resources    []PolicyResource `json:"resources,omitempty"`
+	Environments []string         `json:"environments,omitempty"`
+	Actions      []string         `json:"actions,omitempty"`
+	// Risk: Risk attributes that must all hold.
+	Risk []PolicyRisk `json:"risk,omitempty"`
+}
+
+// PolicyRequire — What approval a matching change needs.
+type PolicyRequire struct {
+	// Approvers: How many approvals are needed.
+	Approvers int64 `json:"approvers"`
+	// Roles: Roles whose members may approve.
+	Roles []string `json:"roles,omitempty"`
+	// Users: Named approvers, by user identifier.
+	Users []string `json:"users,omitempty"`
+	// DistinctFromAuthor: The author's own approval does not count.
+	DistinctFromAuthor *bool `json:"distinctFromAuthor,omitempty"`
+	// DistinctTeams: The approvals must come from different teams.
+	DistinctTeams *bool `json:"distinctTeams,omitempty"`
+	// Stages: Whether approvers decide one after the other, in the order of the
+	// roles and names listed, or all at once.
+	Stages PolicyStages `json:"stages,omitempty"`
+	// ExpiryHours: How long a request stays open and how long an approval
+	// counts.
+	ExpiryHours *int64 `json:"expiryHours,omitempty"`
+}
+
+// PolicyResource — A kind of artifact an approval can guard.
+type PolicyResource string
+
+// Values of PolicyResource.
+const (
+	PolicyResourceRelease               PolicyResource = "release"
+	PolicyResourceFunctionVersion       PolicyResource = "functionVersion"
+	PolicyResourcePolicy                PolicyResource = "policy"
+	PolicyResourceSecurityConfiguration PolicyResource = "securityConfiguration"
+	PolicyResourceLimit                 PolicyResource = "limit"
+	PolicyResourceCapabilitySet         PolicyResource = "capabilitySet"
+	PolicyResourceExperiment            PolicyResource = "experiment"
+	PolicyResourceWaiver                PolicyResource = "waiver"
+	PolicyResourceGoldenBaseline        PolicyResource = "goldenBaseline"
+)
+
+// Valid reports whether v is one of the values of PolicyResource.
+func (v PolicyResource) Valid() bool {
+	switch v {
+	case PolicyResourceRelease, PolicyResourceFunctionVersion, PolicyResourcePolicy, PolicyResourceSecurityConfiguration, PolicyResourceLimit, PolicyResourceCapabilitySet, PolicyResourceExperiment, PolicyResourceWaiver, PolicyResourceGoldenBaseline:
+		return true
+	}
+	return false
+}
+
+// PolicyRisk — A risk attribute the compiler and the release service
+// compute from a change.
+type PolicyRisk string
+
+// Values of PolicyRisk.
+const (
+	PolicyRiskTouchesSecurePage     PolicyRisk = "touchesSecurePage"
+	PolicyRiskTouchesMoneyFlow      PolicyRisk = "touchesMoneyFlow"
+	PolicyRiskChangesFunctionUsedBy PolicyRisk = "changesFunctionUsedBy"
+)
+
+// Valid reports whether v is one of the values of PolicyRisk.
+func (v PolicyRisk) Valid() bool {
+	switch v {
+	case PolicyRiskTouchesSecurePage, PolicyRiskTouchesMoneyFlow, PolicyRiskChangesFunctionUsedBy:
+		return true
+	}
+	return false
+}
+
+// PolicyStages — Whether approvers decide one after the other, in the order
+// of the roles and names listed, or all at once.
+type PolicyStages string
+
+// Values of PolicyStages.
+const (
+	PolicyStagesSequential PolicyStages = "sequential"
+	PolicyStagesParallel   PolicyStages = "parallel"
+)
+
+// Valid reports whether v is one of the values of PolicyStages.
+func (v PolicyStages) Valid() bool {
+	switch v {
+	case PolicyStagesSequential, PolicyStagesParallel:
+		return true
+	}
+	return false
 }
 
 // PushPolicy — Push notifications (NAV-008, ADR-0040): whether the app uses
@@ -1730,6 +2045,73 @@ func (v SecurityProfile) Valid() bool {
 	return false
 }
 
+// SegmentDocument — A named audience: a rule over the attributes of a
+// device, its build and its user, evaluated by rollouts on the server and by
+// flags and experiments on the device (REL-051, ABT-001, ABT-006). File:
+// `segments/<key>.segment.json`.
+type SegmentDocument struct {
+	// SchemaVersion: Version of the document schema (SCH-000). Older documents
+	// are migrated before validation.
+	SchemaVersion string `json:"schemaVersion"`
+	Kind          string `json:"kind"`
+	// ID: Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
+	ID string `json:"id"`
+	// Key: Human-readable lower-kebab slug, unique within its parent (SCH-002).
+	// Files in the Git layout are named after it.
+	Key  string `json:"key"`
+	Name string `json:"name"`
+	// Description: Human-readable description.
+	Description string `json:"description,omitempty"`
+	// Rule: One condition (`attribute`, `operator`, `value`) or a group of rules
+	// combined with `all` (every rule holds) or `any` (at least one holds). The
+	// compiler checks the attribute, the operator and the value (PLX-1704).
+	Rule SegmentRule `json:"rule"`
+}
+
+// SegmentOperator — How a condition compares an attribute with its value:
+// equality, membership in a list, or an ordering on numbers and versions.
+type SegmentOperator string
+
+// Values of SegmentOperator.
+const (
+	SegmentOperatorEq    SegmentOperator = "eq"
+	SegmentOperatorNeq   SegmentOperator = "neq"
+	SegmentOperatorIn    SegmentOperator = "in"
+	SegmentOperatorNotIn SegmentOperator = "notIn"
+	SegmentOperatorLt    SegmentOperator = "lt"
+	SegmentOperatorLte   SegmentOperator = "lte"
+	SegmentOperatorGt    SegmentOperator = "gt"
+	SegmentOperatorGte   SegmentOperator = "gte"
+)
+
+// Valid reports whether v is one of the values of SegmentOperator.
+func (v SegmentOperator) Valid() bool {
+	switch v {
+	case SegmentOperatorEq, SegmentOperatorNeq, SegmentOperatorIn, SegmentOperatorNotIn, SegmentOperatorLt, SegmentOperatorLte, SegmentOperatorGt, SegmentOperatorGte:
+		return true
+	}
+	return false
+}
+
+// SegmentRule — One condition (`attribute`, `operator`, `value`) or a group
+// of rules combined with `all` (every rule holds) or `any` (at least one
+// holds). The compiler checks the attribute, the operator and the value
+// (PLX-1704).
+type SegmentRule struct {
+	// Attribute: A targeting attribute: `build`, `runtimeVersion`, `os`,
+	// `osVersion`, `deviceClass`, `locale`, `region`, `channel`, or
+	// `user.<name>` for an attribute of the user context.
+	Attribute string `json:"attribute,omitempty"`
+	// Operator: How a condition compares an attribute with its value: equality,
+	// membership in a list, or an ordering on numbers and versions.
+	Operator SegmentOperator `json:"operator,omitempty"`
+	// Value: The value to compare with: a string, a number, a boolean or, for
+	// `in` and `notIn`, a list of them.
+	Value json.RawMessage `json:"value,omitempty"`
+	All   []SegmentRule   `json:"all,omitempty"`
+	Any   []SegmentRule   `json:"any,omitempty"`
+}
+
 // Semantics — Accessibility semantics of a node (A11Y-002).
 type Semantics struct {
 	// Label: A prop value: a literal of the prop's type, or a binding (SCH-011).
@@ -1965,8 +2347,9 @@ type TemplateDocument struct {
 	Visibility TemplateVisibility `json:"visibility"`
 	// Dependencies: What the subtree uses.
 	Dependencies *TemplateDependencies `json:"dependencies,omitempty"`
-	// Root: A node of a page or component tree: a widget or a component instance
-	// (SCH-023).
+	// Root: A node of a page or component tree: a widget, a component instance
+	// or, with the reserved type `Variant`, the subtrees of an experiment's
+	// variants (SCH-023, ABT-001).
 	Root Node `json:"root"`
 }
 

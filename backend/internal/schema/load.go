@@ -67,7 +67,15 @@ type Project struct {
 	// Functions holds the function documents, one per
 	// functions/<name>/function.json, in directory order (FN-008).
 	Functions []Loaded[FunctionDocument]
-	Plugins   []Plugin
+	// Segments, Flags, Experiments and Policies hold the targeting,
+	// feature-flag, experiment and approval-policy documents of the app,
+	// one per file under segments/, flags/, experiments/ and policies/
+	// (REL-051, ABT-006, ABT-001, GOV-020).
+	Segments    []Loaded[SegmentDocument]
+	Flags       []Loaded[FlagDocument]
+	Experiments []Loaded[ExperimentDocument]
+	Policies    []Loaded[PolicyDocument]
+	Plugins     []Plugin
 }
 
 // Loader reads projects. It is safe for concurrent use.
@@ -101,6 +109,10 @@ func (l *Loader) Load(fsys fs.FS) (*Project, plxerr.Diagnostics) {
 	}
 	p.Components = loadAll[ComponentDocument](r, "components", ".component.json", KindComponent)
 	p.Templates = loadAll[TemplateDocument](r, "templates", ".template.json", KindTemplate)
+	p.Segments = loadAll[SegmentDocument](r, "segments", ".segment.json", KindSegment)
+	p.Flags = loadAll[FlagDocument](r, "flags", ".flag.json", KindFlag)
+	p.Experiments = loadAll[ExperimentDocument](r, "experiments", ".experiment.json", KindExperiment)
+	p.Policies = loadAll[PolicyDocument](r, "policies", ".policy.json", KindPolicy)
 	r.loadFunctions(p)
 	r.loadAssets(p)
 	r.loadPlugins(p)

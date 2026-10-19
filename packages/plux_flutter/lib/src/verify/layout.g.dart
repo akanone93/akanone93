@@ -331,6 +331,7 @@ const List<TableLayout> tableLayouts = [
     FieldLayout('native_slot', 14, FieldKind.scalar, 4, 4, -1, required: false),
     FieldLayout('animation', 15, FieldKind.table, 0, 0, 41, required: false),
     FieldLayout('direction', 16, FieldKind.scalar, 1, 1, -1, required: false),
+    FieldLayout('variant', 17, FieldKind.table, 0, 0, 73, required: false),
   ]),
   // 41
   TableLayout('NodeAnimation', [
@@ -594,6 +595,16 @@ const List<TableLayout> tableLayouts = [
     FieldLayout('entries', 9, FieldKind.vectorTable, 0, 0, 18, required: false),
   ]),
   // 73
+  TableLayout('Variant', [
+    FieldLayout('experiment', 0, FieldKind.scalar, 4, 4, -1, required: false),
+    FieldLayout('arms', 1, FieldKind.vectorTable, 0, 0, 74, required: false),
+  ]),
+  // 74
+  TableLayout('VariantArm', [
+    FieldLayout('name', 0, FieldKind.scalar, 4, 4, -1, required: false),
+    FieldLayout('node', 1, FieldKind.scalar, 4, 4, -1, required: false),
+  ]),
+  // 75
   TableLayout('WasmModule', [
     FieldLayout('id', 0, FieldKind.struct, 16, 8, -1, required: false),
     FieldLayout('hash', 1, FieldKind.vectorScalar, 1, 1, -1, required: false),
@@ -617,5 +628,5 @@ const Map<String, int> rootLayouts = {
   'PXSM': 58, // SourceMap
   'PXST': 64, // Styles
   'PXTL': 66, // Timelines
-  'PXWM': 73, // WasmModule
+  'PXWM': 75, // WasmModule
 };

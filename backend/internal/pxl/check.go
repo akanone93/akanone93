@@ -453,6 +453,9 @@ func (c *checker) access(n *node) *ir {
 		return c.errorf(plxerr.PXLNullableAccess, n.span, "%s may be null; write ?.%s or provide a default with ??", a.typ, n.op)
 	}
 	base := a.typ.nonNull()
+	if x := dottedField(a, n); x != nil {
+		return x
+	}
 	var (
 		t  *Type
 		op Opcode
@@ -473,6 +476,28 @@ func (c *checker) access(n *node) *ir {
 		kind, t = irSafe, t.orNull()
 	}
 	return &ir{kind: kind, op: op, name: n.op, typ: t, args: []*ir{a}, span: n.span}
+}
+
+// dottedField types a.name where a is an enum read from a field of an
+// object and that object declares a field named "<field>.<name>": the
+// enum is a value with members of its own, as experiment.<key>.<prop> is
+// the value of a prop of the variant experiment.<key> names (ABT-001). The
+// access reads the dotted field of the object, so the VM and the bytecode
+// need no new operation. It returns nil when the pattern does not apply.
+func dottedField(a *ir, n *node) *ir {
+	if n.kind != nField || a.typ.kind != KindEnum || a.typ.nullable || a.kind != irAccess || a.op != OpGetField || len(a.args) != 1 {
+		return nil
+	}
+	owner := a.args[0].typ.nonNull()
+	if owner.kind != KindObject {
+		return nil
+	}
+	name := a.name + "." + n.op
+	t := owner.named.Fields[name]
+	if t == nil {
+		return nil
+	}
+	return &ir{kind: irAccess, op: OpGetField, name: name, typ: t, args: a.args, span: n.span}
 }
 
 // index types a[b].

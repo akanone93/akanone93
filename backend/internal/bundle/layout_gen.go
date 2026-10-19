@@ -287,6 +287,7 @@ var tableLayouts = [...]tableLayout{
 		{name: "native_slot", id: 14, kind: fieldScalar, size: 4, align: 4, table: -1, required: false},
 		{name: "animation", id: 15, kind: fieldTable, size: 0, align: 0, table: 41, required: false},
 		{name: "direction", id: 16, kind: fieldScalar, size: 1, align: 1, table: -1, required: false},
+		{name: "variant", id: 17, kind: fieldTable, size: 0, align: 0, table: 73, required: false},
 	}},
 	41: {name: "NodeAnimation", fields: []fieldLayout{
 		{name: "duration_us", id: 0, kind: fieldScalar, size: 8, align: 8, table: -1, required: false},
@@ -517,7 +518,15 @@ var tableLayouts = [...]tableLayout{
 		{name: "items", id: 8, kind: fieldVectorTable, size: 0, align: 0, table: 72, required: false},
 		{name: "entries", id: 9, kind: fieldVectorTable, size: 0, align: 0, table: 18, required: false},
 	}},
-	73: {name: "WasmModule", fields: []fieldLayout{
+	73: {name: "Variant", fields: []fieldLayout{
+		{name: "experiment", id: 0, kind: fieldScalar, size: 4, align: 4, table: -1, required: false},
+		{name: "arms", id: 1, kind: fieldVectorTable, size: 0, align: 0, table: 74, required: false},
+	}},
+	74: {name: "VariantArm", fields: []fieldLayout{
+		{name: "name", id: 0, kind: fieldScalar, size: 4, align: 4, table: -1, required: false},
+		{name: "node", id: 1, kind: fieldScalar, size: 4, align: 4, table: -1, required: false},
+	}},
+	75: {name: "WasmModule", fields: []fieldLayout{
 		{name: "id", id: 0, kind: fieldStruct, size: 16, align: 8, table: -1, required: false},
 		{name: "hash", id: 1, kind: fieldVectorScalar, size: 1, align: 1, table: -1, required: false},
 		{name: "module", id: 2, kind: fieldVectorScalar, size: 1, align: 1, table: -1, required: false},
@@ -540,5 +549,5 @@ var rootLayouts = map[string]int{
 	"PXSM": 58, // SourceMap
 	"PXST": 64, // Styles
 	"PXTL": 66, // Timelines
-	"PXWM": 73, // WasmModule
+	"PXWM": 75, // WasmModule
 }

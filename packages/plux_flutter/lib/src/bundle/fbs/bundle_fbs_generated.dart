@@ -2216,10 +2216,11 @@ class Node {
   int get nativeSlot => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 32, 0);
   NodeAnimation? get animation => NodeAnimation.reader.vTableGetNullable(_bc, _bcOffset, 34);
   TextDirectionOverride get direction => TextDirectionOverride.fromValue(const fb.Uint8Reader().vTableGet(_bc, _bcOffset, 36, 0));
+  Variant? get variant => Variant.reader.vTableGetNullable(_bc, _bcOffset, 38);
 
   @override
   String toString() {
-    return 'Node{id: ${id}, widget: ${widget}, component: ${component}, componentVersion: ${componentVersion}, props: ${props}, handlers: ${handlers}, children: ${children}, slots: ${slots}, visible: ${visible}, semantics: ${semantics}, testId: ${testId}, overrides: ${overrides}, hints: ${hints}, typeArguments: ${typeArguments}, nativeSlot: ${nativeSlot}, animation: ${animation}, direction: ${direction}}';
+    return 'Node{id: ${id}, widget: ${widget}, component: ${component}, componentVersion: ${componentVersion}, props: ${props}, handlers: ${handlers}, children: ${children}, slots: ${slots}, visible: ${visible}, semantics: ${semantics}, testId: ${testId}, overrides: ${overrides}, hints: ${hints}, typeArguments: ${typeArguments}, nativeSlot: ${nativeSlot}, animation: ${animation}, direction: ${direction}, variant: ${variant}}';
   }
 }
 
@@ -2237,7 +2238,7 @@ class NodeBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(17);
+    fbBuilder.startTable(18);
   }
 
   int addId(int offset) {
@@ -2308,6 +2309,10 @@ class NodeBuilder {
     fbBuilder.addUint8(16, direction?.value);
     return fbBuilder.offset;
   }
+  int addVariantOffset(int? offset) {
+    fbBuilder.addOffset(17, offset);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -2332,6 +2337,7 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
   final int? _nativeSlot;
   final NodeAnimationObjectBuilder? _animation;
   final TextDirectionOverride? _direction;
+  final VariantObjectBuilder? _variant;
 
   NodeObjectBuilder({
     UuidObjectBuilder? id,
@@ -2351,6 +2357,7 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
     int? nativeSlot,
     NodeAnimationObjectBuilder? animation,
     TextDirectionOverride? direction,
+    VariantObjectBuilder? variant,
   })
       : _id = id,
         _widget = widget,
@@ -2368,7 +2375,8 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
         _typeArguments = typeArguments,
         _nativeSlot = nativeSlot,
         _animation = animation,
-        _direction = direction;
+        _direction = direction,
+        _variant = variant;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -2388,7 +2396,8 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
     final int? typeArgumentsOffset = _typeArguments == null ? null
         : fbBuilder.writeListUint32(_typeArguments!);
     final int? animationOffset = _animation?.getOrCreateOffset(fbBuilder);
-    fbBuilder.startTable(17);
+    final int? variantOffset = _variant?.getOrCreateOffset(fbBuilder);
+    fbBuilder.startTable(18);
     if (_id != null) {
       fbBuilder.addStruct(0, _id!.finish(fbBuilder));
     }
@@ -2410,6 +2419,169 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
     fbBuilder.addUint32(14, _nativeSlot);
     fbBuilder.addOffset(15, animationOffset);
     fbBuilder.addUint8(16, _direction?.value);
+    fbBuilder.addOffset(17, variantOffset);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
+class VariantArm {
+  VariantArm._(this._bc, this._bcOffset);
+  factory VariantArm(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<VariantArm> reader = _VariantArmReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  int get name => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 4, 0);
+  int get node => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 6, 0);
+
+  @override
+  String toString() {
+    return 'VariantArm{name: ${name}, node: ${node}}';
+  }
+}
+
+class _VariantArmReader extends fb.TableReader<VariantArm> {
+  const _VariantArmReader();
+
+  @override
+  VariantArm createObject(fb.BufferContext bc, int offset) => 
+    VariantArm._(bc, offset);
+}
+
+class VariantArmBuilder {
+  VariantArmBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(2);
+  }
+
+  int addName(int? name) {
+    fbBuilder.addUint32(0, name);
+    return fbBuilder.offset;
+  }
+  int addNode(int? node) {
+    fbBuilder.addUint32(1, node);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class VariantArmObjectBuilder extends fb.ObjectBuilder {
+  final int? _name;
+  final int? _node;
+
+  VariantArmObjectBuilder({
+    int? name,
+    int? node,
+  })
+      : _name = name,
+        _node = node;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    fbBuilder.startTable(2);
+    fbBuilder.addUint32(0, _name);
+    fbBuilder.addUint32(1, _node);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
+class Variant {
+  Variant._(this._bc, this._bcOffset);
+  factory Variant(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<Variant> reader = _VariantReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  int get experiment => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 4, 0);
+  List<VariantArm>? get arms => const fb.ListReader<VariantArm>(VariantArm.reader).vTableGetNullable(_bc, _bcOffset, 6);
+
+  @override
+  String toString() {
+    return 'Variant{experiment: ${experiment}, arms: ${arms}}';
+  }
+}
+
+class _VariantReader extends fb.TableReader<Variant> {
+  const _VariantReader();
+
+  @override
+  Variant createObject(fb.BufferContext bc, int offset) => 
+    Variant._(bc, offset);
+}
+
+class VariantBuilder {
+  VariantBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(2);
+  }
+
+  int addExperiment(int? experiment) {
+    fbBuilder.addUint32(0, experiment);
+    return fbBuilder.offset;
+  }
+  int addArmsOffset(int? offset) {
+    fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class VariantObjectBuilder extends fb.ObjectBuilder {
+  final int? _experiment;
+  final List<VariantArmObjectBuilder>? _arms;
+
+  VariantObjectBuilder({
+    int? experiment,
+    List<VariantArmObjectBuilder>? arms,
+  })
+      : _experiment = experiment,
+        _arms = arms;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    final int? armsOffset = _arms == null ? null
+        : fbBuilder.writeList(_arms!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
+    fbBuilder.startTable(2);
+    fbBuilder.addUint32(0, _experiment);
+    fbBuilder.addOffset(1, armsOffset);
     return fbBuilder.endTable();
   }
 

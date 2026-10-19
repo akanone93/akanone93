@@ -266,6 +266,27 @@ table Node {
   // ANI-003, ANI-004); null when it declares none.
   animation: NodeAnimation;
   direction: TextDirectionOverride;
+  // Set on a Variant node (ABT-001, ABT-002): the node shows the subtree
+  // of the experiment variant assigned to the device. Such a node has no
+  // widget, component or native slot, and no children: its subtrees are
+  // the arms.
+  variant: Variant;
+}
+
+// One subtree of a Variant node: the name of an experiment variant and the
+// index of the root of the subtree shown for it.
+table VariantArm {
+  name: uint;
+  node: uint;
+}
+
+// The experiment a Variant node belongs to, and its subtrees (ABT-001).
+// arms[0] is the control; a variant without an arm shows the control. The
+// renderer records the exposure event when the arm it builds is built, not
+// when the variant is assigned (ABT-002).
+table Variant {
+  experiment: uint;
+  arms: [VariantArm];
 }
 
 // ── Section meta ──────────────────────────────────────────────────────────
