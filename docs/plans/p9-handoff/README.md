@@ -95,7 +95,7 @@ slice: create a worktree at its base, `gunzip -c <patch>.gz | git apply --3way`,
 |---|---|---|---|---|
 | ~~`E9a-helm.patch.gz`~~ | E9: Helm chart (`DEP-003`, `DEP-004`) | — | — | **Done and merged on `wip/p9-handoff`** (`c4fc1dd`, see §7) |
 | ~~`E10-ee-licence.patch.gz`~~ | E10: `ee/` module, edition boundary, offline licence (`GOV-030`, `GOV-033`) | — | — | **Done and merged on `wip/p9-handoff`** (`ee14449`, see §7) |
-| [`E1a-roles.patch.gz`](E1a-roles.patch.gz) | E1: permission catalogue, ten roles, teams, scoping, custom roles, `rbac_p9.go`, migrations 0024–0025, `governance.proto` (`GOV-002`, `GOV-003`) | `fcafe9a` | 38 files, +7098 −266 | Was adding the edge test at the end of the authorisation-matrix integration file |
+| ~~`E1a-roles.patch.gz`~~ | E1: permission catalogue, ten roles, scoped grants, custom roles (`GOV-002`, `GOV-003`) | — | — | **Done and merged on `wip/p9-handoff`** (`c350c9d`, see §7) |
 | [`E6a-telemetry.patch.gz`](E6a-telemetry.patch.gz) | E6: ingestion through Valkey streams, partitioned storage, rollups, retention, OTLP export, migrations 0039–0041 (`ANL-010`, `ANL-011`) | `fcafe9a` | 55 files, +7569 −200 | Was editing `telemetry.proto` and writing `analytics.proto` |
 | [`E7-notify.patch.gz`](E7-notify.patch.gz) | E7: notifications, Standard Webhooks, cron and inbound-webhook function triggers, migration 0042 (`SRV-062`, `SRV-063`, `FN-025`) | `fcafe9a` | 26 files, +6838 | Was writing `triggers.go` (the notify import added) |
 | [`E1c-stepup.patch.gz`](E1c-stepup.patch.gz) | E1: sessions, idle/absolute timeouts, WebAuthn step-up, CLI browser step-up, migrations 0026–0027 (`GOV-005`, `SEC-103`) | `938e7b1` | 7 files, +187 | Early: first files only |
@@ -276,3 +276,37 @@ merged with `main` separately.
   violations); `make reuse-lint`; `make workflows-lint`; the commit hooks.
 - **For E1a (next):** gate custom roles with `edition.Enabled(ctx, edition.FeatureCustomRoles)`
   from the server's `Provider` (the interceptor `withEdition` puts it in the context).
+
+### E1a — roles, catalogue, scoping (`b0dde31`, `c350c9d`; fast-forwarded onto `wip/p9-handoff`)
+
+- **Finished from the agent's work (`b0dde31`):** the permission catalogue
+  (`backend/internal/auth/permissions.json` → generated `catalogue_gen.go` and
+  `docs/reference/permissions.md`, wired into `make gen`) with risk and step-up per
+  permission; every P9 permission in `rbac_p9.go` (**E6a, E7, E1c and E3 use these
+  constants; do not add a second const block**); the ten predefined roles (`roles.json`;
+  existing roles keep exactly their grants, tested); `role_grants` (user or team;
+  organisation, app or environment scope) and custom roles, migrations 0024 and 0025 (teams
+  already existed since 0002, so 0024 adds no team table); the resolver (`principal.go`);
+  `GovernanceService` (`governance.proto`); the matrix and scoped tests
+  (`TestScopedGrantsAtTheEdge_QA_008` is the "edge test" the agent was writing — it was
+  already complete). The tenancy tests now expect `PLX-8100` (unknown role) and `PLX-8103`
+  (last owner), the codes plan §2.4 allocates; the old "grant role" malformed-input case is
+  split so the malformed IDs are still checked with a valid role.
+- **Added by the lead (`c350c9d`):** custom roles are gated on the licence in the request's
+  context (`edition.EnabledForWrite(ctx, edition.FeatureCustomRoles)`, put there by E10's
+  `withEdition` interceptor); `Options.CustomRolesEnabled` stays as a test override; test
+  `TestCustomRolesFollowTheLicenceInTheContext_GOV_033`. CLI `plux roles|grants|teams`
+  (`backend/cmd/plux/cmd_governance.go`, test `TestGovernanceCommands_GOV_002`); rows for
+  these and for E10's `plux license` / `plux admin license` in `docs/reference/cli.md`;
+  `resolve` and `checkScope` split under gocognit; `GOV-002` and `GOV-003` → `DONE`.
+- **Also fixed (`1ce4802`):** `make go-lint` failed on `feat/phase-9` itself since
+  `aad6ec6`/`a2c5fef` (gocognit on `compiler.(*unit).messageUse` and `l10n.Reduce`); both
+  split, behaviour unchanged.
+- **Verified:** `go test ./...` in `backend/` against the local PostgreSQL
+  (`PLUX_TEST_DATABASE_URL`), all packages pass; `make go-lint` (four modules, 0 issues);
+  `make go-gen-check`; `make go-test-core`; `make spec-lint`; `make trace` (0 violations);
+  `make reuse-lint`; `go test` of `tools/internal/affected` and `tools/internal/policy`; the
+  commit hooks and the pre-push `go test`.
+- **Environment note:** the container's disk filled up (14 GB Go build cache); `go clean
+  -cache` freed it. If a build fails with "no space left on device", do the same.
+- **Open for the maintainer:** none new. Studio's roles and grants screens are P11.
