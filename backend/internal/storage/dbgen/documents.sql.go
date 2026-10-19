@@ -260,7 +260,7 @@ func (q *Queries) GetBlob(ctx context.Context, arg GetBlobParams) (Blob, error) 
 }
 
 const getDocument = `-- name: GetDocument :one
-SELECT id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at FROM documents WHERE draft_id = $1 AND path = $2 AND deleted_at IS NULL
+SELECT id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at, search_text FROM documents WHERE draft_id = $1 AND path = $2 AND deleted_at IS NULL
 `
 
 type GetDocumentParams struct {
@@ -286,12 +286,13 @@ func (q *Queries) GetDocument(ctx context.Context, arg GetDocumentParams) (Docum
 		&i.UpdatedBy,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.SearchText,
 	)
 	return i, err
 }
 
 const getDocumentByEntity = `-- name: GetDocumentByEntity :one
-SELECT d.id, d.organization_id, d.draft_id, d.path, d.kind, d.entity_id, d.entity_key, d.sha256, d.revision, d.updated_by_kind, d.updated_by_id, d.updated_by, d.updated_at, d.deleted_at FROM documents d
+SELECT d.id, d.organization_id, d.draft_id, d.path, d.kind, d.entity_id, d.entity_key, d.sha256, d.revision, d.updated_by_kind, d.updated_by_id, d.updated_by, d.updated_at, d.deleted_at, d.search_text FROM documents d
   JOIN drafts dr ON dr.id = d.draft_id
  WHERE d.entity_id = $1 AND d.kind = $2 AND d.deleted_at IS NULL
 `
@@ -319,12 +320,13 @@ func (q *Queries) GetDocumentByEntity(ctx context.Context, arg GetDocumentByEnti
 		&i.UpdatedBy,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.SearchText,
 	)
 	return i, err
 }
 
 const getDocumentByID = `-- name: GetDocumentByID :one
-SELECT id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at FROM documents WHERE id = $1
+SELECT id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at, search_text FROM documents WHERE id = $1
 `
 
 func (q *Queries) GetDocumentByID(ctx context.Context, id pgtype.UUID) (Document, error) {
@@ -345,12 +347,13 @@ func (q *Queries) GetDocumentByID(ctx context.Context, id pgtype.UUID) (Document
 		&i.UpdatedBy,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.SearchText,
 	)
 	return i, err
 }
 
 const getDocumentForUpdate = `-- name: GetDocumentForUpdate :one
-SELECT id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at FROM documents WHERE draft_id = $1 AND path = $2 AND deleted_at IS NULL FOR UPDATE
+SELECT id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at, search_text FROM documents WHERE draft_id = $1 AND path = $2 AND deleted_at IS NULL FOR UPDATE
 `
 
 type GetDocumentForUpdateParams struct {
@@ -376,6 +379,7 @@ func (q *Queries) GetDocumentForUpdate(ctx context.Context, arg GetDocumentForUp
 		&i.UpdatedBy,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.SearchText,
 	)
 	return i, err
 }
@@ -596,9 +600,9 @@ func (q *Queries) HardDeleteDocument(ctx context.Context, id pgtype.UUID) (int64
 
 const insertDocument = `-- name: InsertDocument :one
 INSERT INTO documents (id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision,
-                       updated_by_kind, updated_by_id, updated_by)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1, $9, $10, $11)
-RETURNING id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at
+                       updated_by_kind, updated_by_id, updated_by, search_text)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1, $9, $10, $11, $12)
+RETURNING id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at, search_text
 `
 
 type InsertDocumentParams struct {
@@ -613,6 +617,7 @@ type InsertDocumentParams struct {
 	UpdatedByKind  string
 	UpdatedByID    string
 	UpdatedBy      string
+	SearchText     string
 }
 
 func (q *Queries) InsertDocument(ctx context.Context, arg InsertDocumentParams) (Document, error) {
@@ -628,6 +633,7 @@ func (q *Queries) InsertDocument(ctx context.Context, arg InsertDocumentParams) 
 		arg.UpdatedByKind,
 		arg.UpdatedByID,
 		arg.UpdatedBy,
+		arg.SearchText,
 	)
 	var i Document
 	err := row.Scan(
@@ -645,6 +651,7 @@ func (q *Queries) InsertDocument(ctx context.Context, arg InsertDocumentParams) 
 		&i.UpdatedBy,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.SearchText,
 	)
 	return i, err
 }
@@ -659,7 +666,7 @@ func (q *Queries) KeepSnapshot(ctx context.Context, id pgtype.UUID) error {
 }
 
 const listAllDocuments = `-- name: ListAllDocuments :many
-SELECT id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at FROM documents WHERE draft_id = $1 AND deleted_at IS NULL ORDER BY path
+SELECT id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at, search_text FROM documents WHERE draft_id = $1 AND deleted_at IS NULL ORDER BY path
 `
 
 func (q *Queries) ListAllDocuments(ctx context.Context, draftID pgtype.UUID) ([]Document, error) {
@@ -686,6 +693,7 @@ func (q *Queries) ListAllDocuments(ctx context.Context, draftID pgtype.UUID) ([]
 			&i.UpdatedBy,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.SearchText,
 		); err != nil {
 			return nil, err
 		}
@@ -732,7 +740,7 @@ func (q *Queries) ListAllPlugins(ctx context.Context, appID pgtype.UUID) ([]Plug
 }
 
 const listDocuments = `-- name: ListDocuments :many
-SELECT id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at FROM documents
+SELECT id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at, search_text FROM documents
  WHERE draft_id = $1 AND deleted_at IS NULL AND path > $2::text
  ORDER BY path
  LIMIT $3
@@ -768,6 +776,7 @@ func (q *Queries) ListDocuments(ctx context.Context, arg ListDocumentsParams) ([
 			&i.UpdatedBy,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.SearchText,
 		); err != nil {
 			return nil, err
 		}
@@ -780,7 +789,7 @@ func (q *Queries) ListDocuments(ctx context.Context, arg ListDocumentsParams) ([
 }
 
 const listDocumentsOfKind = `-- name: ListDocumentsOfKind :many
-SELECT d.id, d.organization_id, d.draft_id, d.path, d.kind, d.entity_id, d.entity_key, d.sha256, d.revision, d.updated_by_kind, d.updated_by_id, d.updated_by, d.updated_at, d.deleted_at, dr.plugin_id FROM documents d
+SELECT d.id, d.organization_id, d.draft_id, d.path, d.kind, d.entity_id, d.entity_key, d.sha256, d.revision, d.updated_by_kind, d.updated_by_id, d.updated_by, d.updated_at, d.deleted_at, d.search_text, dr.plugin_id FROM documents d
   JOIN drafts dr ON dr.id = d.draft_id
   LEFT JOIN plugins p ON p.id = dr.plugin_id
  WHERE dr.app_id = $1 AND d.kind = $2 AND d.deleted_at IS NULL
@@ -814,6 +823,7 @@ type ListDocumentsOfKindRow struct {
 	UpdatedBy      string
 	UpdatedAt      pgtype.Timestamptz
 	DeletedAt      pgtype.Timestamptz
+	SearchText     string
 	PluginID       pgtype.UUID
 }
 
@@ -847,6 +857,7 @@ func (q *Queries) ListDocumentsOfKind(ctx context.Context, arg ListDocumentsOfKi
 			&i.UpdatedBy,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.SearchText,
 			&i.PluginID,
 		); err != nil {
 			return nil, err
@@ -1350,7 +1361,7 @@ func (q *Queries) RequestLock(ctx context.Context, arg RequestLockParams) (Lock,
 }
 
 const restoreDocument = `-- name: RestoreDocument :one
-UPDATE documents SET deleted_at = NULL, revision = revision + 1, updated_at = now() WHERE id = $1 RETURNING id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at
+UPDATE documents SET deleted_at = NULL, revision = revision + 1, updated_at = now() WHERE id = $1 RETURNING id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at, search_text
 `
 
 func (q *Queries) RestoreDocument(ctx context.Context, id pgtype.UUID) (Document, error) {
@@ -1371,6 +1382,7 @@ func (q *Queries) RestoreDocument(ctx context.Context, id pgtype.UUID) (Document
 		&i.UpdatedBy,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.SearchText,
 	)
 	return i, err
 }
@@ -1488,7 +1500,7 @@ func (q *Queries) SnapshotState(ctx context.Context, arg SnapshotStateParams) ([
 }
 
 const softDeleteDocument = `-- name: SoftDeleteDocument :one
-UPDATE documents SET deleted_at = now(), revision = revision + 1 WHERE id = $1 AND deleted_at IS NULL RETURNING id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at
+UPDATE documents SET deleted_at = now(), revision = revision + 1 WHERE id = $1 AND deleted_at IS NULL RETURNING id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at, search_text
 `
 
 func (q *Queries) SoftDeleteDocument(ctx context.Context, id pgtype.UUID) (Document, error) {
@@ -1509,6 +1521,7 @@ func (q *Queries) SoftDeleteDocument(ctx context.Context, id pgtype.UUID) (Docum
 		&i.UpdatedBy,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.SearchText,
 	)
 	return i, err
 }
@@ -1537,9 +1550,9 @@ func (q *Queries) SoftDeletePlugin(ctx context.Context, id pgtype.UUID) (Plugin,
 const updateDocument = `-- name: UpdateDocument :one
 UPDATE documents
    SET kind = $2, entity_id = $3, entity_key = $4, sha256 = $5, revision = revision + 1,
-       updated_by_kind = $6, updated_by_id = $7, updated_by = $8, updated_at = now()
+       updated_by_kind = $6, updated_by_id = $7, updated_by = $8, search_text = $9, updated_at = now()
  WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at
+RETURNING id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision, updated_by_kind, updated_by_id, updated_by, updated_at, deleted_at, search_text
 `
 
 type UpdateDocumentParams struct {
@@ -1551,6 +1564,7 @@ type UpdateDocumentParams struct {
 	UpdatedByKind string
 	UpdatedByID   string
 	UpdatedBy     string
+	SearchText    string
 }
 
 func (q *Queries) UpdateDocument(ctx context.Context, arg UpdateDocumentParams) (Document, error) {
@@ -1563,6 +1577,7 @@ func (q *Queries) UpdateDocument(ctx context.Context, arg UpdateDocumentParams) 
 		arg.UpdatedByKind,
 		arg.UpdatedByID,
 		arg.UpdatedBy,
+		arg.SearchText,
 	)
 	var i Document
 	err := row.Scan(
@@ -1580,6 +1595,7 @@ func (q *Queries) UpdateDocument(ctx context.Context, arg UpdateDocumentParams) 
 		&i.UpdatedBy,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.SearchText,
 	)
 	return i, err
 }
