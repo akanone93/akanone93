@@ -31,6 +31,7 @@ func resolve(u *unit) {
 	}
 	slices.SortFunc(u.plugins, func(a, b *plugin) int { return strings.Compare(a.key, b.key) })
 	u.types = newUniverse(u)
+	u.indexRollout()
 	for _, c := range u.shared {
 		u.buildComponent(c)
 	}
@@ -563,6 +564,13 @@ func (u *unit) claimNodeIDs(doc *schema.Node, file, ptr string) {
 	for i := range doc.Children {
 		u.claimNodeIDs(&doc.Children[i], file, ptr+"/children/"+strconv.Itoa(i))
 	}
+	if doc.Control != nil {
+		u.claimNodeIDs(doc.Control, file, ptr+"/control")
+	}
+	for _, name := range sortedKeys(doc.Variants) {
+		arm := doc.Variants[name]
+		u.claimNodeIDs(&arm, file, ptr+plxerr.Pointer("variants", name))
+	}
 	for _, name := range sortedKeys(doc.Slots) {
 		fill, sp := doc.Slots[name], ptr+plxerr.Pointer("slots", name)
 		if fill.One != nil {
@@ -603,6 +611,9 @@ func (u *unit) buildNode(o owner, doc *schema.Node, parent *node, slot, ptr stri
 	u.claimID(doc.ID, file, ptr+"/id")
 	from := ownerID(o)
 	u.resolveNodeTarget(n, from, file, ptr)
+	if doc.Type == variantType {
+		u.buildArms(n, o, all)
+	}
 	for i := range doc.Children {
 		n.children = append(n.children, u.buildNode(o, &doc.Children[i], n, "", ptr+"/children/"+strconv.Itoa(i), all))
 	}
@@ -627,6 +638,7 @@ func (u *unit) buildNode(o owner, doc *schema.Node, parent *node, slot, ptr stri
 func (u *unit) resolveNodeTarget(n *node, from, file, ptr string) {
 	doc, o := n.doc, n.owner
 	switch {
+	case doc.Type == variantType:
 	case doc.Type != "":
 		if w, ok := registry.LookupWidget(doc.Type); ok {
 			n.widget = &w

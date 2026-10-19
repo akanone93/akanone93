@@ -117,6 +117,11 @@ func findMember(ms []member, name string) (member, bool) {
 // props, events, children, slots, visibility, semantics and responsive
 // overrides.
 func (u *unit) checkNode(n *node) {
+	if n.variant != nil {
+		u.checkVariant(n)
+		return
+	}
+	u.strayVariantFields(n)
 	sh := u.shapeOf(n)
 	if sh == nil {
 		return
