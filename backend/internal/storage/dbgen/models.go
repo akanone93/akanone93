@@ -77,6 +77,32 @@ type AuditCheckpoint struct {
 	CreatedAt      pgtype.Timestamptz
 }
 
+type AuditExportDestination struct {
+	ID                    pgtype.UUID
+	OrganizationID        pgtype.UUID
+	Name                  string
+	Kind                  string
+	Address               string
+	Enabled               bool
+	AllowPrivate          bool
+	CaPem                 string
+	CredentialsCiphertext []byte
+	CredentialsWrappedKey []byte
+	CredentialsKeyID      string
+	CredentialsHint       string
+	CursorSequence        int64
+	CursorHash            string
+	ExportedCount         int64
+	Failures              int32
+	NextAttemptAt         pgtype.Timestamptz
+	LastError             string
+	LastErrorAt           pgtype.Timestamptz
+	LastSuccessAt         pgtype.Timestamptz
+	Version               int64
+	CreatedAt             pgtype.Timestamptz
+	UpdatedAt             pgtype.Timestamptz
+}
+
 type AuditLog struct {
 	ID             pgtype.UUID
 	OrganizationID pgtype.UUID

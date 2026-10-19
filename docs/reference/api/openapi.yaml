@@ -1079,6 +1079,207 @@ paths:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListAssetsResponse'
   /plux.v1.AssetService/UploadAsset: {}
+  /plux.v1.AuditService/CreateExportDestination:
+    post:
+      tags:
+        - plux.v1.AuditService
+      summary: CreateExportDestination
+      description: |-
+        CreateExportDestination registers a SIEM destination. The organisation's
+         whole chain is delivered, in order, from start_after_sequence. The
+         syslog kind is part of the core; cef, otlp and webhook are an
+         enterprise feature (PLX-8600 without a licence).
+      operationId: plux.v1.AuditService.CreateExportDestination
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateExportDestinationRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateExportDestinationResponse'
+  /plux.v1.AuditService/DeleteExportDestination:
+    post:
+      tags:
+        - plux.v1.AuditService
+      summary: DeleteExportDestination
+      operationId: plux.v1.AuditService.DeleteExportDestination
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteExportDestinationRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteExportDestinationResponse'
+  /plux.v1.AuditService/GetExportDestination:
+    post:
+      tags:
+        - plux.v1.AuditService
+      summary: GetExportDestination
+      description: |-
+        GetExportDestination returns a destination with its status: the cursor,
+         the entries not yet delivered and the last error (PLX-8500).
+      operationId: plux.v1.AuditService.GetExportDestination
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetExportDestinationRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetExportDestinationResponse'
+  /plux.v1.AuditService/ListExportDestinations:
+    post:
+      tags:
+        - plux.v1.AuditService
+      summary: ListExportDestinations
+      operationId: plux.v1.AuditService.ListExportDestinations
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListExportDestinationsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListExportDestinationsResponse'
+  /plux.v1.AuditService/UpdateExportDestination:
+    post:
+      tags:
+        - plux.v1.AuditService
+      summary: UpdateExportDestination
+      description: |-
+        UpdateExportDestination replaces a destination's address and settings.
+         Its cursor is kept.
+      operationId: plux.v1.AuditService.UpdateExportDestination
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.UpdateExportDestinationRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.UpdateExportDestinationResponse'
   /plux.v1.ComponentService/GetComponent:
     post:
       tags:
@@ -8697,6 +8898,60 @@ components:
           title: environment
       title: CreateEnvironmentResponse
       additionalProperties: false
+    plux.v1.CreateExportDestinationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+        kind:
+          type: string
+          title: kind
+        address:
+          type: string
+          title: address
+        allowPrivate:
+          type: boolean
+          title: allow_private
+        caPem:
+          type: string
+          title: ca_pem
+          description: |-
+            ca_pem pins the roots that verify the destination's certificate; empty
+             uses the system roots.
+        clientCertificatePem:
+          type: string
+          title: client_certificate_pem
+          description: |-
+            client_certificate_pem and client_key_pem are the client certificate for
+             mutual TLS; both or neither.
+        clientKeyPem:
+          type: string
+          title: client_key_pem
+        signingSecret:
+          type: string
+          title: signing_secret
+          description: |-
+            signing_secret is the signing secret of a webhook destination
+             ("whsec_" and base64).
+        startAfterSequence:
+          type: string
+          title: start_after_sequence
+          format: int64
+          description: |-
+            start_after_sequence is the last entry the destination already has;
+             zero delivers the chain from its first entry.
+      title: CreateExportDestinationRequest
+      additionalProperties: false
+    plux.v1.CreateExportDestinationResponse:
+      type: object
+      properties:
+        destination:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ExportDestination'
+          title: destination
+      title: CreateExportDestinationResponse
+      additionalProperties: false
     plux.v1.CreateGrantRequest:
       type: object
       properties:
@@ -9133,6 +9388,18 @@ components:
     plux.v1.DeleteEnvironmentResponse:
       type: object
       title: DeleteEnvironmentResponse
+      additionalProperties: false
+    plux.v1.DeleteExportDestinationRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: DeleteExportDestinationRequest
+      additionalProperties: false
+    plux.v1.DeleteExportDestinationResponse:
+      type: object
+      title: DeleteExportDestinationResponse
       additionalProperties: false
     plux.v1.DeleteFactorRequest:
       type: object
@@ -9707,6 +9974,106 @@ components:
       title: ExperimentAssignment
       additionalProperties: false
       description: ExperimentAssignment is one experiment's variant for this device.
+    plux.v1.ExportDestination:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        name:
+          type: string
+          title: name
+          description: name is a lower-case key, unique in the organisation.
+        kind:
+          type: string
+          title: kind
+          description: kind is "syslog", "cef", "otlp" or "webhook".
+        address:
+          type: string
+          title: address
+          description: |-
+            address is host:port for syslog and cef, and an https URL for otlp and
+             webhook.
+        enabled:
+          type: boolean
+          title: enabled
+        allowPrivate:
+          type: boolean
+          title: allow_private
+          description: |-
+            allow_private is true when the destination may be a private or loopback
+             address. It is for development; warnings says so.
+        caPem:
+          type: string
+          title: ca_pem
+          description: ca_pem pins the roots that verify the destination's certificate.
+        credentialsHint:
+          type: string
+          title: credentials_hint
+          description: |-
+            credentials_hint names what is stored sealed, such as "client certificate"
+             or "signing secret ...a1b2"; the credentials themselves are never
+             returned.
+        cursorSequence:
+          type: string
+          title: cursor_sequence
+          format: int64
+          description: |-
+            cursor_sequence is the last entry of the chain the destination
+             acknowledged; cursor_hash is that entry's hash.
+        cursorHash:
+          type: string
+          title: cursor_hash
+        exportedCount:
+          type: string
+          title: exported_count
+          format: int64
+        failures:
+          type: integer
+          title: failures
+          format: int32
+          description: |-
+            failures counts consecutive failed attempts; last_error is the last
+             failure, prefixed with its PLX code.
+        lastError:
+          type: string
+          title: last_error
+        lastErrorAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: last_error_at
+        lastSuccessAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: last_success_at
+        nextAttemptAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: next_attempt_at
+          description: next_attempt_at is when the exporter will try again after a failure.
+        version:
+          type: string
+          title: version
+          format: int64
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+        warnings:
+          type: array
+          items:
+            type: string
+          title: warnings
+          description: |-
+            warnings are unsafe settings of the destination, for example a private
+             address allowed for development.
+      title: ExportDestination
+      additionalProperties: false
+      description: ExportDestination is a SIEM destination and how far delivery has got.
     plux.v1.ExportDraftRequest:
       type: object
       properties:
@@ -10335,6 +10702,30 @@ components:
             sha256 is the hash of effective_json, the value the manifest pins
              (SEC-182).
       title: GetEffectiveSecurityConfigResponse
+      additionalProperties: false
+    plux.v1.GetExportDestinationRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: GetExportDestinationRequest
+      additionalProperties: false
+    plux.v1.GetExportDestinationResponse:
+      type: object
+      properties:
+        destination:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ExportDestination'
+          title: destination
+        chainHeadSequence:
+          type: string
+          title: chain_head_sequence
+          format: int64
+          description: |-
+            chain_head_sequence is the newest entry of the organisation's chain, so
+             the lag is chain_head_sequence - destination.cursor_sequence.
+      title: GetExportDestinationResponse
       additionalProperties: false
     plux.v1.GetFunctionRequest:
       type: object
@@ -11831,6 +12222,29 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListEventsResponse
+      additionalProperties: false
+    plux.v1.ListExportDestinationsRequest:
+      type: object
+      properties:
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListExportDestinationsRequest
+      additionalProperties: false
+    plux.v1.ListExportDestinationsResponse:
+      type: object
+      properties:
+        destinations:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ExportDestination'
+          title: destinations
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListExportDestinationsResponse
       additionalProperties: false
     plux.v1.ListFactorsRequest:
       type: object
@@ -14697,6 +15111,50 @@ components:
           title: environment
       title: UpdateEnvironmentResponse
       additionalProperties: false
+    plux.v1.UpdateExportDestinationRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        address:
+          type: string
+          title: address
+        enabled:
+          type: boolean
+          title: enabled
+        allowPrivate:
+          type: boolean
+          title: allow_private
+        caPem:
+          type: string
+          title: ca_pem
+        clientCertificatePem:
+          type: string
+          title: client_certificate_pem
+          description: |-
+            The credentials are replaced when any is set; all empty keeps what is
+             stored. clear_credentials removes them.
+        clientKeyPem:
+          type: string
+          title: client_key_pem
+        signingSecret:
+          type: string
+          title: signing_secret
+        clearCredentials:
+          type: boolean
+          title: clear_credentials
+      title: UpdateExportDestinationRequest
+      additionalProperties: false
+    plux.v1.UpdateExportDestinationResponse:
+      type: object
+      properties:
+        destination:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ExportDestination'
+          title: destination
+      title: UpdateExportDestinationResponse
+      additionalProperties: false
     plux.v1.UpdateGrantRequest:
       type: object
       properties:
@@ -15471,6 +15929,12 @@ tags:
       AssetService stores the images, animations, fonts and other files a draft
        uses. Uploads are size-limited, sniffed rather than trusted by extension,
        stripped of metadata and deduplicated by hash (SRV-060, AST-003).
+  - name: plux.v1.AuditService
+    description: |-
+      AuditService serves the audit log's outward faces (ADR-0082): the export
+       of an organisation's chain to a SIEM (SEC-143), and, in later milestones
+       of the same ADR, the reconstruction of what a user saw (SEC-142) and the
+       data-subject requests (SEC-162). Reading the chain itself is not here.
   - name: plux.v1.ComponentService
     description: |-
       ComponentService lists the components of an app and of its plugins and

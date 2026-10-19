@@ -80,6 +80,12 @@ const (
 	// AttestStatusListBytes: Size of the Android attestation status list the
 	// server fetches or reads. (SEC-002)
 	AttestStatusListBytes Key = "attest.statusListBytes"
+	// AuditExportBatchEntries: Audit entries delivered to an export destination
+	// in one batch. (SEC-143)
+	AuditExportBatchEntries Key = "audit.exportBatchEntries"
+	// AuditExportDestinationsPerOrg: Audit export destinations one organisation
+	// may configure. (SEC-143)
+	AuditExportDestinationsPerOrg Key = "audit.exportDestinationsPerOrg"
 	// AuthFailedSignIns: Failed passwords or one-time codes one account may
 	// present in fifteen minutes before sign-in is refused. (SEC-100)
 	AuthFailedSignIns Key = "auth.failedSignIns"
@@ -439,6 +445,8 @@ var registry = [...]Definition{
 	{Key: AttestKeyAttestationChainCerts, Unit: UnitCount, Default: 10, Warning: 0, Max: 16, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Certificates an Android Key Attestation chain may hold."},
 	{Key: AttestPlayIntegrityTokenBytes, Unit: UnitBytes, Default: 16384, Warning: 0, Max: 65536, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of a Play Integrity token the server accepts."},
 	{Key: AttestStatusListBytes, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 33554432, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of the Android attestation status list the server fetches or reads."},
+	{Key: AuditExportBatchEntries, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Audit entries delivered to an export destination in one batch."},
+	{Key: AuditExportDestinationsPerOrg, Unit: UnitCount, Default: 5, Warning: 0, Max: 50, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Audit export destinations one organisation may configure."},
 	{Key: AuthFailedSignIns, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused."},
 	{Key: BundleDeviceFunctionModuleSize, Unit: UnitBytes, Default: 4194304, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P7", Description: "Size of the WebAssembly module of the device-placed functions of one plugin."},
 	{Key: BundlePageSectionSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Size of one page section in a bundle."},

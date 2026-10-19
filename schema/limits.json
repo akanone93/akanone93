@@ -517,6 +517,42 @@
       "description": "Size of the Android attestation status list the server fetches or reads."
     },
     {
+      "key": "audit.exportBatchEntries",
+      "unit": "count",
+      "default": 500,
+      "max": 10000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SEC-143"
+      ],
+      "description": "Audit entries delivered to an export destination in one batch."
+    },
+    {
+      "key": "audit.exportDestinationsPerOrg",
+      "unit": "count",
+      "default": 5,
+      "max": 50,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SEC-143"
+      ],
+      "description": "Audit export destinations one organisation may configure."
+    },
+    {
       "key": "auth.failedSignIns",
       "unit": "count",
       "default": 10,

@@ -157,6 +157,16 @@ const (
 	LicenseStateChanged Action = "license.state_changed"
 )
 
+// The actions of the audit export (SEC-143, ADR-0082).
+const (
+	// ExportDestinationCreated, ExportDestinationUpdated and
+	// ExportDestinationDeleted: a SIEM destination was registered, changed or
+	// removed; the entry names its kind and host, never a credential.
+	ExportDestinationCreated Action = "audit_export.destination_created"
+	ExportDestinationUpdated Action = "audit_export.destination_updated"
+	ExportDestinationDeleted Action = "audit_export.destination_deleted"
+)
+
 // The actions of roles and grants (GOV-002, GOV-003, ADR-0073).
 const (
 	// RoleCreated, RoleUpdated and RoleDeleted: a custom role was made,
@@ -195,6 +205,7 @@ var actions = sorted(
 	RoleCreated, RoleUpdated, RoleDeleted,
 	RoleGranted, RoleGrantChanged, RoleRevoked,
 	LicenseStateChanged,
+	ExportDestinationCreated, ExportDestinationUpdated, ExportDestinationDeleted,
 )
 
 // sorted returns its arguments in order.
