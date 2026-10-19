@@ -25,6 +25,12 @@ postgresql:
     instances: 3
     synchronous: {enabled: true, number: 1}
     storage: {size: 50Gi, storageClass: fast}
+    # Backups to an S3 store of their own, apart from the data bucket.
+    backup:
+      enabled: true
+      bucket: plux-pg-backups
+      endpoint: https://s3.backup.example.com
+      existingSecret: plux-pg-backup
 api:
   replicas: 3
   autoscaling: {enabled: true, minReplicas: 3, maxReplicas: 10, targetCPUUtilizationPercentage: 65}
@@ -44,3 +50,6 @@ networkPolicy:
     - namespaceSelector:
         matchLabels:
           kubernetes.io/metadata.name: ingress-nginx
+observability:
+  prometheusRule: {enabled: true, labels: {release: prometheus}}
+  dashboards: {enabled: true}

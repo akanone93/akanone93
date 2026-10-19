@@ -11,6 +11,11 @@
 {{- $name := include "plux.seaweedName" . }}
 {{- $secret := include "plux.s3SecretName" . }}
 {{- $bucket := .Values.objectStorage.bucket }}
+{{- $buckets := list $bucket }}
+{{- $pgb := .Values.postgresql.cnpg.backup }}
+{{- if and (eq .Values.postgresql.mode "cnpg") (or $pgb.enabled .Values.postgresql.cnpg.restore.enabled) (not $pgb.endpoint) (ne (include "plux.backup.bucket" .) $bucket) }}
+{{- $buckets = append $buckets (include "plux.backup.bucket" .) }}
+{{- end }}
 {{- if not $s.existingSecret }}
 {{- $key := include "plux.randomValue" (dict "root" . "name" $secret "key" "accessKeyID") }}
 {{- $sec := include "plux.randomValue" (dict "root" . "name" $secret "key" "secretAccessKey") }}
@@ -102,21 +107,25 @@ spec:
             - {name: data, mountPath: /data}
             - {name: s3-config, mountPath: /etc/seaweedfs, readOnly: true}
             - {name: tmp, mountPath: /tmp}
-        # Creates the bucket once the master answers, and keeps it: the
-        # bucket lives in the data volume, so a rerun finds it.
+        # Creates the buckets once the master answers, and keeps them: the
+        # buckets live in the data volume, so a rerun finds them. The second is
+        # the PostgreSQL backups' when they go to this store (DEP-010); keeping
+        # them on the same volume as the data is for trials and tests only.
         - name: bucket
           image: {{ include "plux.image" (dict "image" $s.image) | quote }}
           command:
             - sh
             - -c
             - |
-              until echo 's3.bucket.list' | weed shell -master=127.0.0.1:9333 2>/dev/null | grep -q "$BUCKET" ||
-                    echo "s3.bucket.create -name $BUCKET" | weed shell -master=127.0.0.1:9333 >/dev/null 2>&1; do
-                sleep 3
+              for BUCKET in $BUCKETS; do
+                until echo 's3.bucket.list' | weed shell -master=127.0.0.1:9333 2>/dev/null | grep -q "$BUCKET" ||
+                      echo "s3.bucket.create -name $BUCKET" | weed shell -master=127.0.0.1:9333 >/dev/null 2>&1; do
+                  sleep 3
+                done
               done
               exec sleep 2147483647
           env:
-            - {name: BUCKET, value: {{ $bucket | quote }}}
+            - {name: BUCKETS, value: {{ $buckets | join " " | quote }}}
             - {name: HOME, value: /tmp}
           resources:
             requests: {cpu: 10m, memory: 32Mi}

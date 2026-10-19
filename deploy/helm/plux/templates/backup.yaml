@@ -1,0 +1,160 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Backups of PostgreSQL (DEP-010), next to the continuous WAL archive that
+# postgresql.yaml turns on:
+#
+#   * a ScheduledBackup: base backups on a schedule, the starting points of a
+#     point-in-time recovery;
+#   * the consistency marker: every minute a CronJob writes one WAL message in
+#     PostgreSQL and one small object in the data bucket that name the same
+#     instant. A restore to a marker's WAL position gives a database whose
+#     bundle, delta and asset objects are all in the (versioned) bucket as it
+#     stood at the marker's time (README.md, "Consistency marker").
+{{- if and (eq .Values.postgresql.mode "cnpg") .Values.postgresql.cnpg.backup.enabled }}
+{{- $b := .Values.postgresql.cnpg.backup }}
+{{- $pg := include "plux.pgName" . }}
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: {{ $pg }}-base
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "postgresql") | nindent 4 }}
+spec:
+  cluster:
+    name: {{ $pg }}
+  schedule: {{ $b.schedule | quote }}
+  immediate: true
+  backupOwnerReference: self
+  method: barmanObjectStore
+  target: prefer-standby
+{{- if $b.marker.enabled }}
+{{- $m := $b.marker }}
+{{- $secret := default (include "plux.s3SecretName" .) $m.existingSecret }}
+{{- if not $secret }}
+{{- fail "postgresql.cnpg.backup.marker needs an access key pair to sign its upload: set marker.existingSecret, or marker.enabled=false" }}
+{{- end }}
+{{- $endpoint := printf "http://%s:8333" (include "plux.seaweedName" .) }}
+{{- if eq .Values.objectStorage.mode "external" }}
+{{- $endpoint = required "objectStorage.external.endpoint is required for the backup marker" .Values.objectStorage.external.endpoint }}
+{{- end }}
+{{- $region := default "us-east-1" .Values.objectStorage.region }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "plux.fullname" . }}-backup-marker
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "backup-marker") | nindent 4 }}
+spec:
+  schedule: {{ $m.schedule | quote }}
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 120
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 90
+      ttlSecondsAfterFinished: 600
+      template:
+        metadata:
+          labels:
+            {{- include "plux.labels" (dict "root" . "component" "backup-marker") | nindent 12 }}
+        spec:
+          restartPolicy: Never
+          serviceAccountName: {{ include "plux.serviceAccountName" . }}
+          automountServiceAccountToken: false
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- include "plux.podSecurityContext" (dict "root" . "role" "backup-marker") | nindent 12 }}
+          initContainers:
+            # One WAL message in the database; the position it returns is the
+            # point a restore can stop at. The application user may emit it and
+            # needs no other right.
+            - name: emit
+              image: {{ include "plux.image" (dict "image" $m.image) | quote }}
+              {{- with $m.image.pullPolicy }}
+              imagePullPolicy: {{ . }}
+              {{- end }}
+              securityContext:
+                {{- include "plux.containerSecurityContext" . | nindent 16 }}
+              command:
+                - sh
+                - -ec
+                - |
+                  id=$(date -u +%Y%m%dT%H%M%SZ)
+                  row=$(psql -X -q -A -t -F '|' -v ON_ERROR_STOP=1 -c \
+                    "select l, pg_walfile_name(l) from (select pg_logical_emit_message(true, 'plux.backup.marker', '$id') as l) m")
+                  lsn=${row%%|*}
+                  wal=${row##*|}
+                  now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+                  printf '{"id":"%s","time":"%s","lsn":"%s","walFile":"%s","cluster":"%s"}\n' \
+                    "$id" "$now" "$lsn" "$wal" "$PGCLUSTER" >/marker/marker.json
+                  printf '%s' "$id" >/marker/id
+              env:
+                - {name: PGHOST, value: {{ printf "%s-rw" $pg | quote }}}
+                - {name: PGDATABASE, value: {{ .Values.postgresql.database | quote }}}
+                - {name: PGCLUSTER, value: {{ $pg | quote }}}
+                - {name: PGSSLMODE, value: verify-full}
+                - {name: PGSSLROOTCERT, value: /etc/plux/postgres/ca.crt}
+                - {name: PGCONNECT_TIMEOUT, value: "10"}
+                - {name: PSQL_HISTORY, value: /dev/null}
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef: {name: {{ $pg }}-app, key: username}
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef: {name: {{ $pg }}-app, key: password}
+              resources:
+                {{- toYaml $m.resources | nindent 16 }}
+              volumeMounts:
+                - {name: marker, mountPath: /marker}
+                - {name: postgres-ca, mountPath: /etc/plux/postgres, readOnly: true}
+          containers:
+            # The same instant in the data bucket, signed with SigV4. The bucket
+            # is versioned (README.md), so the marker keeps its place.
+            - name: upload
+              image: {{ include "plux.image" (dict "image" .Values.test.image) | quote }}
+              securityContext:
+                {{- include "plux.containerSecurityContext" . | nindent 16 }}
+              command:
+                - sh
+                - -ec
+                - |
+                  id=$(cat /marker/id)
+                  sum=$(sha256sum /marker/marker.json | cut -d' ' -f1)
+                  curl -fsS --max-time 20 --retry 2 \
+                    --aws-sigv4 "aws:amz:{{ $region }}:s3" \
+                    --user "$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY" \
+                    -H "x-amz-content-sha256: $sum" -H "Content-Type: application/json" \
+                    -T /marker/marker.json \
+                    "{{ $endpoint }}/{{ .Values.objectStorage.bucket }}/{{ trimAll "/" $m.prefix }}/$id.json"
+                  echo "marker $id written"
+              env:
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $secret }}
+                      key: {{ ternary $m.accessKeyIDKey (ternary .Values.objectStorage.external.accessKeyIDKey "accessKeyID" (eq .Values.objectStorage.mode "external")) (not (empty $m.existingSecret)) }}
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $secret }}
+                      key: {{ ternary $m.secretAccessKeyKey (ternary .Values.objectStorage.external.secretAccessKeyKey "secretAccessKey" (eq .Values.objectStorage.mode "external")) (not (empty $m.existingSecret)) }}
+              resources:
+                {{- toYaml .Values.test.resources | nindent 16 }}
+              volumeMounts:
+                - {name: marker, mountPath: /marker, readOnly: true}
+          volumes:
+            - name: marker
+              emptyDir: {sizeLimit: 1Mi}
+            - name: postgres-ca
+              secret:
+                secretName: {{ $pg }}-ca
+                items: [{key: ca.crt, path: ca.crt}]
+{{- end }}
+{{- end }}

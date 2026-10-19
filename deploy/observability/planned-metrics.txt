@@ -1,0 +1,5 @@
+# Metrics of Appendix G.1 that rules use before the server registers them. A rule on one of these cannot fire
+# until the server exports it; the checker accepts the name only while it is listed here and in Appendix G.1,
+# and fails when the server starts to register it (remove the line then).
+# Format: <metric> <what must export it>.
+plux_control_propagation_seconds    control events recorded as control_applied (ADR-0077, ADR-0085), api and worker roles

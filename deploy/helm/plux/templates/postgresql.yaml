@@ -7,6 +7,13 @@
 # "<cluster>-app" and the server's CA in "<cluster>-ca", which the roles read;
 # the chart creates no PostgreSQL credential. The user owns the schema and is
 # neither a superuser nor BYPASSRLS, so row-level security binds it (SRV-022).
+#
+# Backups (DEP-010): with postgresql.cnpg.backup.enabled the cluster archives
+# every WAL segment to object storage (Barman Cloud, built into the operator
+# release the chart targets), at least every archiveTimeout, and a
+# ScheduledBackup (backup.yaml) takes base backups, so the cluster restores to
+# any point inside the retention. With postgresql.cnpg.restore.enabled the
+# cluster is instead created from such a store, optionally to a target.
 {{- if eq .Values.postgresql.mode "cnpg" }}
 {{- $pg := .Values.postgresql.cnpg }}
 {{- $spec := dict
@@ -22,9 +29,32 @@
 {{- if $pg.storage.storageClass }}{{ $_ := set $spec.storage "storageClass" $pg.storage.storageClass }}{{ end }}
 {{- if $pg.imageName }}{{ $_ := set $spec "imageName" $pg.imageName }}{{ end }}
 {{- if not (empty $pg.resources) }}{{ $_ := set $spec "resources" $pg.resources }}{{ end }}
+{{- $conf := dict }}
 {{- if and $pg.synchronous.enabled (gt (int $pg.instances) 1) }}
-{{- $_ := set $spec "postgresql" (dict "synchronous" (dict "method" "any" "number" (int $pg.synchronous.number) "dataDurability" "required")) }}
+{{- $_ := set $conf "synchronous" (dict "method" "any" "number" (int $pg.synchronous.number) "dataDurability" "required") }}
 {{- end }}
+{{- if $pg.backup.enabled }}
+{{- /* A segment is archived when full or after archive_timeout, whichever is first: the bound on the data a lost cluster takes with it. */}}
+{{- $_ := set $conf "parameters" (dict "archive_timeout" $pg.backup.archiveTimeout) }}
+{{- $_ := set $spec "backup" (dict
+  "barmanObjectStore" (include "plux.backup.store" (dict "root" . "serverName" (include "plux.backup.serverName" .) "archive" true) | fromJson)
+  "retentionPolicy" $pg.backup.retention
+  "target" "prefer-standby") }}
+{{- end }}
+{{- if $pg.restore.enabled }}
+{{- $source := default (include "plux.backup.serverName" .) $pg.restore.sourceServerName }}
+{{- if and $pg.backup.enabled (eq $source (include "plux.backup.serverName" .)) }}
+{{- fail "postgresql.cnpg.backup.serverName must differ from the cluster being restored from: a new cluster cannot archive into the folder it restores from (set a new serverName, or turn backup off while you verify the restore)" }}
+{{- end }}
+{{- $recovery := dict "source" $source "database" .Values.postgresql.database "owner" .Values.postgresql.database }}
+{{- $target := dict }}
+{{- with $pg.restore.targetTime }}{{ $_ := set $target "targetTime" . }}{{ end }}
+{{- with $pg.restore.targetLSN }}{{ $_ := set $target "targetLSN" . }}{{ end }}
+{{- if $target }}{{ $_ := set $recovery "recoveryTarget" $target }}{{ end }}
+{{- $_ := set $spec "bootstrap" (dict "recovery" $recovery) }}
+{{- $_ := set $spec "externalClusters" (list (dict "name" $source "barmanObjectStore" (include "plux.backup.store" (dict "root" . "serverName" $source "archive" false) | fromJson))) }}
+{{- end }}
+{{- if $conf }}{{ $_ := set $spec "postgresql" $conf }}{{ end }}
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:

@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# The dashboards of deploy/observability (OBS-005), mounted read-only by
+# compose.yaml; the Helm chart ships the same files.
+apiVersion: 1
+providers:
+  - name: plux
+    type: file
+    allowUiUpdates: false
+    options:
+      path: /var/lib/plux-dashboards
