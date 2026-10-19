@@ -4355,6 +4355,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.VerifySecondFactorResponse'
+  /plux.v1.LicenseService/GetLicenseState:
+    post:
+      tags:
+        - plux.v1.LicenseService
+      summary: GetLicenseState
+      description: |-
+        GetLicenseState returns the state of the licence and what it enables.
+         It never quotes a file that failed verification.
+      operationId: plux.v1.LicenseService.GetLicenseState
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetLicenseStateRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetLicenseStateResponse'
   /plux.v1.LocalisationService/ExportTranslations:
     post:
       tags:
@@ -10324,6 +10365,64 @@ components:
           title: aliases
       title: GetFunctionResponse
       additionalProperties: false
+    plux.v1.GetLicenseStateRequest:
+      type: object
+      title: GetLicenseStateRequest
+      additionalProperties: false
+    plux.v1.GetLicenseStateResponse:
+      type: object
+      properties:
+        state:
+          type: string
+          title: state
+          description: |-
+            state is "absent", "valid", "grace", "expired" or "invalid". In grace
+             the enterprise features keep working and warn; once expired they are
+             read-only; absent and invalid leave them off. Device traffic and
+             security capabilities are unaffected in every state (GOV-032).
+        licenseId:
+          type: string
+          title: license_id
+          description: |-
+            license_id and organization identify a verified licence; empty
+             otherwise.
+        organization:
+          type: string
+          title: organization
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+          description: expires_at and grace_ends_at are unset without a verified licence.
+        graceEndsAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: grace_ends_at
+        daysRemaining:
+          type: integer
+          title: days_remaining
+          format: int32
+          description: days_remaining is the whole days until expires_at, negative in grace.
+        features:
+          type: array
+          items:
+            type: string
+          title: features
+          description: features are the enterprise features the licence lists.
+        limits:
+          type: object
+          title: limits
+          additionalProperties:
+            type: string
+            title: value
+            format: int64
+          description: limits are the registry limits (LIM-001) the licence caps.
+        message:
+          type: string
+          title: message
+          description: message says in one line why the state is what it is.
+      title: GetLicenseStateResponse
+      additionalProperties: false
     plux.v1.GetLiveConfigRequest:
       type: object
       title: GetLiveConfigRequest
@@ -15461,6 +15560,13 @@ tags:
        authorization grant `plux login` uses (CLI-002). SAML, provisioning
        and group mapping arrive with GOV-004, and WebAuthn step-up with
        SEC-103, both in P9.
+  - name: plux.v1.LicenseService
+    description: |-
+      LicenseService reports the installation's enterprise licence (GOV-030,
+       ADR-0084). The open-source core answers "absent": it has no enterprise
+       features to enable. The service only reads; the licence file is placed by
+       the operator and verified offline by the server, never uploaded through
+       the API.
   - name: plux.v1.LocalisationService
     description: |-
       LocalisationService exchanges an app's translations with translation tools

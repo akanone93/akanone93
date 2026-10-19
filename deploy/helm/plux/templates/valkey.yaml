@@ -1,0 +1,259 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Valkey with Sentinel (DEP-004): the rate-limit counters and the DPoP replay
+# cache need the master's view, so clients ask the Sentinels for the master and
+# never read from a replica (backend/internal/cache/sentinel.go). The data is
+# expendable and is not persisted. Each pod runs a Valkey and a Sentinel; a pod
+# that starts asks the Sentinels who the master is and follows it, so a
+# restarted former master rejoins as a replica. Pods are addressed by their
+# stable DNS names (announce-hostnames), which the certificate names.
+{{- if eq .Values.valkey.mode "sentinel" }}
+{{- $s := .Values.valkey.sentinel }}
+{{- $name := include "plux.valkeyName" . }}
+{{- $headless := printf "%s-headless" $name }}
+{{- $tls := $s.tls }}
+{{- $ctx := dict "root" . "role" "valkey" "v" (dict "podDisruptionBudget" (dict "maxUnavailable" 1)) }}
+{{- if not $s.existingSecret }}
+---
+# Generated once and kept across upgrades.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $name }}-auth
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "valkey") | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
+type: Opaque
+data:
+  password: {{ include "plux.randomValue" (dict "root" . "name" (printf "%s-auth" $name) "key" "password") | b64enc }}
+{{- end }}
+{{- if $tls }}
+{{- $caName := printf "%s-ca-key" $name }}
+{{- $ca := include "plux.ca" (dict "root" . "name" $caName "cn" "plux-valkey-ca") | fromJson }}
+{{- $sans := list "localhost" (printf "*.%s.%s.svc.%s" $headless .Release.Namespace .Values.clusterDomain) (printf "*.%s.%s.svc" $headless .Release.Namespace) (printf "*.%s.%s" $headless .Release.Namespace) }}
+{{- $id := include "plux.identity" (dict "root" . "name" (printf "%s-tls" $name) "cn" $headless "sans" $sans "ips" (list "127.0.0.1") "ca" $ca) | fromJson }}
+---
+# The CA's key, mounted by no pod.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $caName }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "valkey") | nindent 4 }}
+type: Opaque
+data:
+  ca.crt: {{ $ca.cert | b64enc }}
+  ca.key: {{ $ca.key | b64enc }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $name }}-tls
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "valkey") | nindent 4 }}
+type: kubernetes.io/tls
+data:
+  ca.crt: {{ $ca.cert | b64enc }}
+  tls.crt: {{ $id.crt | b64enc }}
+  tls.key: {{ $id.key | b64enc }}
+---
+# The public CA, which the api and worker trust (SSL_CERT_DIR).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}-ca
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "valkey") | nindent 4 }}
+data:
+  ca.crt: |
+    {{- $ca.cert | nindent 4 }}
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}-scripts
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "valkey") | nindent 4 }}
+data:
+  common.sh: |
+    # Sourced by both scripts. The password comes from the environment.
+    set -eu
+    ordinal=${POD_NAME##*-}
+    self="${POD_NAME}.${HEADLESS}"
+    first="${NAME}-0.${HEADLESS}"
+    if [ "$TLS" = true ]; then
+      CLI_TLS="--tls --cacert /tls/ca.crt"
+      LISTEN="port 0
+    tls-port"
+      TLS_CONF="tls-cert-file /tls/tls.crt
+    tls-key-file /tls/tls.key
+    tls-ca-cert-file /tls/ca.crt
+    tls-auth-clients no
+    tls-replication yes
+    tls-protocols \"TLSv1.3\""
+    else
+      CLI_TLS=""
+      LISTEN="port"
+      TLS_CONF=""
+    fi
+    # The master as the other Sentinels know it, or nothing.
+    current_master() {
+      i=0
+      while [ "$i" -lt "$REPLICAS" ]; do
+        host="${NAME}-${i}.${HEADLESS}"
+        if [ "$host" != "$self" ]; then
+          # shellcheck disable=SC2086
+          addr=$(timeout 3 valkey-cli $CLI_TLS -h "$host" -p 26379 sentinel get-master-addr-by-name "$MASTER_NAME" 2>/dev/null | head -n 1 || true)
+          if [ -n "$addr" ]; then echo "$addr"; return 0; fi
+        fi
+        i=$((i + 1))
+      done
+      return 0
+    }
+  valkey.sh: |
+    . /scripts/common.sh
+    master=$(current_master)
+    if [ -z "$master" ]; then
+      if [ "$ordinal" = 0 ]; then master="$self"; else master="$first"; fi
+    fi
+    {
+      echo "bind 0.0.0.0"
+      echo "$LISTEN 6379"
+      echo "$TLS_CONF"
+      echo "dir /data"
+      echo 'save ""'
+      echo "appendonly no"
+      echo "requirepass $REDISCLI_AUTH"
+      echo "masterauth $REDISCLI_AUTH"
+      echo "replica-announce-ip $self"
+      if [ "$master" != "$self" ]; then echo "replicaof $master 6379"; fi
+    } > /data/valkey.conf
+    exec valkey-server /data/valkey.conf
+  sentinel.sh: |
+    . /scripts/common.sh
+    master=$(current_master)
+    if [ -z "$master" ]; then master="$first"; fi
+    {
+      echo "bind 0.0.0.0"
+      echo "$LISTEN 26379"
+      echo "$TLS_CONF"
+      echo "dir /data"
+      echo "sentinel resolve-hostnames yes"
+      echo "sentinel announce-hostnames yes"
+      echo "sentinel announce-ip $self"
+      echo "requirepass $REDISCLI_AUTH"
+      echo "sentinel sentinel-pass $REDISCLI_AUTH"
+      echo "sentinel monitor $MASTER_NAME $master 6379 {{ $s.quorum }}"
+      echo "sentinel auth-pass $MASTER_NAME $REDISCLI_AUTH"
+      echo "sentinel down-after-milliseconds $MASTER_NAME 5000"
+      echo "sentinel failover-timeout $MASTER_NAME 30000"
+      echo "sentinel parallel-syncs $MASTER_NAME 1"
+    } > /data/sentinel.conf
+    exec valkey-server /data/sentinel.conf --sentinel
+  ping.sh: |
+    # Readiness and liveness: PONG from the port in $1.
+    # shellcheck disable=SC2086
+    [ "$(valkey-cli $( [ "$TLS" = true ] && echo '--tls --cacert /tls/ca.crt' ) -p "$1" ping)" = PONG ]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $headless }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "valkey") | nindent 4 }}
+spec:
+  clusterIP: None
+  # Pods resolve each other before they are ready.
+  publishNotReadyAddresses: true
+  selector:
+    {{- include "plux.selectorLabels" (dict "root" . "component" "valkey") | nindent 4 }}
+  ports:
+    - {name: valkey, port: 6379}
+    - {name: sentinel, port: 26379}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "valkey") | nindent 4 }}
+spec:
+  serviceName: {{ $headless }}
+  replicas: {{ $s.replicas }}
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      {{- include "plux.selectorLabels" (dict "root" . "component" "valkey") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "plux.labels" (dict "root" . "component" "valkey") | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "plux.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- include "plux.podSecurityContext" (dict "root" . "role" "valkey" "uid" 999) | nindent 8 }}
+      {{- include "plux.scheduling" $ctx | nindent 6 }}
+      containers:
+        {{- range $c := list (dict "name" "valkey" "script" "valkey.sh" "port" 6379) (dict "name" "sentinel" "script" "sentinel.sh" "port" 26379) }}
+        - name: {{ $c.name }}
+          image: {{ include "plux.image" (dict "image" $s.image) | quote }}
+          command: [sh, /scripts/{{ $c.script }}]
+          ports:
+            - {name: {{ $c.name }}, containerPort: {{ $c.port }}}
+          env:
+            - {name: POD_NAME, valueFrom: {fieldRef: {fieldPath: metadata.name}}}
+            - {name: NAME, value: {{ $name }}}
+            - {name: HEADLESS, value: "{{ $headless }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}"}
+            - {name: REPLICAS, value: {{ $s.replicas | quote }}}
+            - {name: MASTER_NAME, value: {{ $s.masterName }}}
+            - {name: TLS, value: {{ $tls | quote }}}
+            - name: REDISCLI_AUTH
+              valueFrom:
+                secretKeyRef: {name: {{ include "plux.valkeySecretName" $ }}, key: password}
+          readinessProbe:
+            exec: {command: [sh, /scripts/ping.sh, {{ $c.port | quote }}]}
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            exec: {command: [sh, /scripts/ping.sh, {{ $c.port | quote }}]}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          {{- if $s.resources }}
+          resources:
+            {{- toYaml $s.resources | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- include "plux.containerSecurityContext" $ | nindent 12 }}
+          volumeMounts:
+            - {name: scripts, mountPath: /scripts, readOnly: true}
+            - {name: data, mountPath: /data}
+            - {name: tmp, mountPath: /tmp}
+            {{- if $tls }}
+            - {name: tls, mountPath: /tls, readOnly: true}
+            {{- end }}
+        {{- end }}
+      volumes:
+        - name: scripts
+          configMap: {name: {{ $name }}-scripts}
+        # The data is expendable: rate-limit counters and replay markers.
+        - name: data
+          emptyDir: {sizeLimit: 512Mi}
+        - name: tmp
+          emptyDir: {sizeLimit: 16Mi}
+        {{- if $tls }}
+        - name: tls
+          secret: {secretName: {{ $name }}-tls, defaultMode: 0440}
+        {{- end }}
+---
+{{ include "plux.pdb" $ctx }}
+{{- end }}

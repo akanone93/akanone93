@@ -649,7 +649,7 @@ static DecoderResult CreateDecoderResult(DetectionResult& detectionResult)
 		return {};
 	}
 	std::vector<int> erasures;
-	std::vector<int> codewords(detectionResult.barcodeRowCount() * detectionResult.barcodeColumnCount(), 0);
+	std::vector<int> codewords(static_cast<std::size_t>(detectionResult.barcodeRowCount()) * detectionResult.barcodeColumnCount(), 0); // plux: size_t product (VERSION)
 	std::vector<std::vector<int>> ambiguousIndexValues;
 	std::vector<int> ambiguousIndexesList;
 	for (int row = 0; row < detectionResult.barcodeRowCount(); row++) {

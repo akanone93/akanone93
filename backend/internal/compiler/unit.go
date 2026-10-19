@@ -22,6 +22,8 @@ import (
 type unit struct {
 	// calendars are the calendars nodes name as literals (I18N-003).
 	calendars map[string]bool
+	// use is what the documents reference of the locale data (I18N-002).
+	use localeUse
 	// gateway are the data sources that go through the gateway.
 	gateway []GatewaySource
 	opts    Options

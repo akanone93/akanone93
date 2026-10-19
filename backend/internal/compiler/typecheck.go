@@ -822,6 +822,7 @@ func (t *typer) compile(src string, s *scope, from, file, ptr string) {
 	prog, typ, diags := pxl.Compile(src, env, s.options(t.opts), plxerr.Location{File: file, Path: ptr + "/$expr"})
 	t.u.diags = append(t.u.diags, diags...)
 	e.prog, e.typ = prog, typ
+	t.u.noteProgram(prog)
 	if prog != nil {
 		t.recordReads(prog.Reads, s, from, file, ptr)
 		for _, f := range prog.Features {

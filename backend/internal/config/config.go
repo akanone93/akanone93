@@ -68,6 +68,18 @@ type Config struct {
 	// Builder configures the builder role, and the worker's route to it
 	// (FN-016, ADR-0063).
 	Builder Builder `json:"builder"`
+	// License names the enterprise licence file (GOV-030, ADR-0084).
+	License License `json:"license"`
+}
+
+// License configures the offline licence check of the enterprise edition.
+// The open-source core ignores it: it has no enterprise features to enable
+// (GOV-033).
+type License struct {
+	// File is the absolute path of the signed licence file, or empty for
+	// none. A missing or invalid file never stops the server; enterprise
+	// features stay off.
+	File string `json:"file"`
 }
 
 // Builder configures the builder role. The role's fields are read only when

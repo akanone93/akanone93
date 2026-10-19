@@ -150,6 +150,11 @@ const (
 	// UpdateMetadataRootUploaded: an operator stored a root signed
 	// offline (SEC-051, SEC-140).
 	UpdateMetadataRootUploaded Action = "update_metadata.root_uploaded"
+
+	// LicenseStateChanged: the enterprise licence entered grace, expired or
+	// became invalid, or came back to a valid state (GOV-030). It is
+	// recorded in the installation's own chain.
+	LicenseStateChanged Action = "license.state_changed"
 )
 
 // The actions of roles and grants (GOV-002, GOV-003, ADR-0073).
@@ -189,6 +194,7 @@ var actions = sorted(
 	FunctionSourceUploaded, FunctionBuildRequested, FunctionBuildFinished, FunctionDeployed, FunctionPromoted, FunctionAliasSet,
 	RoleCreated, RoleUpdated, RoleDeleted,
 	RoleGranted, RoleGrantChanged, RoleRevoked,
+	LicenseStateChanged,
 )
 
 // sorted returns its arguments in order.

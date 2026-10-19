@@ -57,7 +57,11 @@ final class AccessibilityTreeTests: XCTestCase {
     // button: a touch outside a field does not, on a phone.
     type(waitFor(app, "Username"), "demo\n")
     enterPin(app, "246810")
-    type(reveal(app, "One-time code", exact: false), "123456\n")
+    // The code's last digit completes it, and the field ends its autofill
+    // context, which on iOS takes the keyboard away: there is no field to
+    // send Return to (run 39153556766; pinned in plux_flutter's
+    // test/secure/secure_widgets_test.dart).
+    type(reveal(app, "One-time code", exact: false), "123456")
     reveal(app, "Sign in")
     tap(app, "Sign in", exact: true, opens: "New transfer", exactly: true)
 
@@ -147,8 +151,6 @@ final class AccessibilityTreeTests: XCTestCase {
     return found
   }
 
-  // Focuses the field and types into it: XCTest types only into the field
-  // with the keyboard's focus.
   // A field's value, as VoiceOver reads it.
   private func text(of field: XCUIElement) -> String { (field.value as? String) ?? "" }
 
@@ -186,23 +188,37 @@ final class AccessibilityTreeTests: XCTestCase {
     XCTFail("the field holds \"\(self.text(of: field))\", not \"\(expected)\"")
   }
 
-  // Taps the PIN's digits and checks the pad counted each of them (its
-  // value reads "N of M digits entered"); a pad that missed one is cleared
-  // and the PIN entered again.
+  // Taps the PIN's digits one at a time and checks the pad counted each of
+  // them once. Its value reads "N of M digits entered" after the Nth digit;
+  // the last digit completes the PIN and the pad clears itself (SEC-090,
+  // pinned in plux_flutter's test/secure/secure_widgets_test.dart), so it
+  // then reads "0 of M", never "M of M". A digit the pad missed or counted
+  // twice fails here, named by its position.
   private func enterPin(_ app: XCUIApplication, _ pin: String) {
     let pad = app.descendants(matching: .any)
       .matching(NSPredicate(format: "value CONTAINS %@", "digits entered")).firstMatch
-    let full = "\(pin.count) of \(pin.count) digits entered"
-    for _ in 0..<3 {
-      for digit in pin {
-        reveal(app, String(digit)).tap()
-      }
-      if (pad.value as? String) == full { return }
-      for _ in 0..<pin.count {
-        reveal(app, "Delete").tap()
+    for (index, digit) in pin.enumerated() {
+      reveal(app, String(digit)).tap()
+      let expected = "\((index + 1) % pin.count) of \(pin.count) digits entered"
+      if !waitForValue(pad, expected) {
+        XCTFail(
+          "after digit \(index + 1) of \(pin.count) the PIN pad reads \"\(text(of: pad))\", not \"\(expected)\"")
+        return
       }
     }
-    XCTFail("the PIN pad reads \"\((pad.value as? String) ?? "nothing")\", not \"\(full)\"")
+  }
+
+  // Waits up to ten seconds for the element's value: Flutter sends the
+  // accessibility tree a frame after the tap changed it.
+  private func waitForValue(_ element: XCUIElement, _ value: String) -> Bool {
+    let deadline = Date().addingTimeInterval(10)
+    waiting = true
+    defer { waiting = false }
+    while !(element.exists && text(of: element) == value) {
+      if Date() >= deadline { return false }
+      Thread.sleep(forTimeInterval: 0.2)
+    }
+    return true
   }
 
   // The control with the label, scrolled to when the keyboard hides it: a

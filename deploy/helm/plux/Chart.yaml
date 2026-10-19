@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: plux
+description: Plux Server in high availability on Kubernetes - api, worker, fnrunner, egress and builder roles, with CloudNativePG, Valkey Sentinel and SeaweedFS or external S3
+type: application
+# The chart's own version; the server version is appVersion.
+version: 0.1.0
+appVersion: "0.0.1"
+# The pods' preStop sleep (connection draining) needs Kubernetes 1.30.
+kubeVersion: ">=1.30.0-0"
+home: https://github.com/nightCode42/plux3
+sources:
+  - https://github.com/nightCode42/plux3
+keywords:
+  - plux
+  - server-driven-ui
+  - flutter
+annotations:
+  licenses: Apache-2.0

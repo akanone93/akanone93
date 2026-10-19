@@ -653,7 +653,7 @@ func (s *Server) handlersFor(svc *Services, limiter api.RateLimiter) *api.Handle
 	h := &api.Handlers{
 		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
 		Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
-		Limiter: limiter, Limits: s.limits,
+		Limiter: limiter, Limits: s.limits, Edition: s.edition,
 	}
 	if svc.AuditCheckpoints != nil {
 		h.AuditCheckpoints = svc.AuditCheckpoints
@@ -714,6 +714,9 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 			return pluxv1connect.NewSecurityAdminServiceHandler(h.SecurityAdmin(), opts)
 		})
 	}
+	registrations = append(registrations, func() (string, http.Handler) {
+		return pluxv1connect.NewLicenseServiceHandler(h.License(), opts)
+	})
 	if svc.Functions != nil {
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
