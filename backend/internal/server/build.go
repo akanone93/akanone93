@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nightCode42/plux3/backend/internal/compiler/media"
-
+	"github.com/nightCode42/plux3/backend/edition"
 	"github.com/nightCode42/plux3/backend/internal/cache"
+	"github.com/nightCode42/plux3/backend/internal/compiler/media"
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
@@ -37,6 +37,14 @@ type buildOptions struct {
 	identityHTTP *http.Client
 	builder      function.Builder
 	linker       function.Linker
+	edition      edition.Provider
+}
+
+// WithEdition gives the process the licence provider of the enterprise
+// edition; without it the process is the open-source core and enables no
+// enterprise feature (GOV-030, GOV-033).
+func WithEdition(p edition.Provider) BuildOption {
+	return func(o *buildOptions) { o.edition = p }
 }
 
 // WithIdentityProviderClient makes the gateway read the key sets of
@@ -158,7 +166,7 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 	srv, err := New(Deps{
 		Config: cfg, Log: log, Metrics: metrics, Tracer: tracer,
 		DB: db, Objects: store, Cache: shared, Jobs: jobClient, Limits: limitSet,
-		KMS: services.KMS,
+		KMS: services.KMS, Edition: o.edition,
 	})
 	if err != nil {
 		return fail(err)

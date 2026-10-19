@@ -30,6 +30,14 @@ precedence = "override"
 SPDX-FileCopyrightText = "2026 Plux contributors"
 SPDX-License-Identifier = "AGPL-3.0-only"
 
+# The enterprise edition (ADR-0022, ADR-0084): source visible, production use
+# requires a licence file. The licence text is a draft for legal review.
+[[annotations]]
+path = "ee/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2026 Plux contributors"
+SPDX-License-Identifier = "LicenseRef-Plux-Enterprise"
+
 # The WebAssembly image codecs (ADR-0027): libwebp, and libavif with
 # libaom, compiled by codecs/build.sh and linked with wasi-libc. Their
 # notices are in codecs/THIRD_PARTY_NOTICES.txt, which travels with them.

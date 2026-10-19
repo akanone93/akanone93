@@ -150,6 +150,11 @@ const (
 	// UpdateMetadataRootUploaded: an operator stored a root signed
 	// offline (SEC-051, SEC-140).
 	UpdateMetadataRootUploaded Action = "update_metadata.root_uploaded"
+
+	// LicenseStateChanged: the enterprise licence entered grace, expired or
+	// became invalid, or came back to a valid state (GOV-030). It is
+	// recorded in the installation's own chain.
+	LicenseStateChanged Action = "license.state_changed"
 )
 
 // actions is the registry, sorted, so that Registered can search it and
@@ -172,6 +177,7 @@ var actions = sorted(
 	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,
 	ConfigValueSet, ConfigValueDeleted,
 	FunctionSourceUploaded, FunctionBuildRequested, FunctionBuildFinished, FunctionDeployed, FunctionPromoted, FunctionAliasSet,
+	LicenseStateChanged,
 )
 
 // sorted returns its arguments in order.

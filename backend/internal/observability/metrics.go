@@ -204,6 +204,16 @@ func (m *Metrics) ReplayCacheFallback() {
 // again after a fallback (SEC-023).
 func (m *Metrics) ReplayCacheRecovered() { m.replayDegraded.Set(0) }
 
+// LicenseDaysRemaining exposes plux_license_days_remaining, the whole days
+// until the enterprise licence expires, negative during its grace period
+// (GOV-030). days is read at each scrape. Call it once per Metrics.
+func (m *Metrics) LicenseDaysRemaining(days func() float64) {
+	m.registry.MustRegister(prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+		Name: "plux_license_days_remaining",
+		Help: "Days until the enterprise licence expires; negative during the grace period, 0 without a verified licence.",
+	}, days))
+}
+
 // DPoP rejection reasons: the closed set of plux_dpop_rejections_total's
 // reason label (SEC-021, SEC-023, SEC-024).
 const (

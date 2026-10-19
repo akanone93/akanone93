@@ -367,6 +367,7 @@ var matrix = map[string]entry{
 	})),
 	"ConfigService/GetLiveConfig":               {kind: deviceRPC, build: anyone(&pluxv1.GetLiveConfigRequest{})},
 	"DeviceService/EnrolScaKey":                 {kind: deviceRPC, build: anyone(&pluxv1.EnrolScaKeyRequest{})},
+	"LicenseService/GetLicenseState":            atPerm(auth.OrganizationManage, anyone(&pluxv1.GetLicenseStateRequest{})),
 	"SecurityAdminService/ListAuditCheckpoints": atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
 
 	// FunctionAdminService

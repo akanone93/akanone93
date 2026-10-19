@@ -110,6 +110,7 @@ type world struct {
 	manifest pluxv1connect.ManifestServiceClient
 	native   pluxv1connect.NativeCatalogueServiceClient
 	secAdmin pluxv1connect.SecurityAdminServiceClient
+	license  pluxv1connect.LicenseServiceClient
 	config   pluxv1connect.ConfigServiceClient
 	sca      pluxv1connect.ScaServiceClient
 	// configs and resolver are the server-held configuration store and its
@@ -339,6 +340,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 			return pluxv1connect.NewSecurityAdminServiceHandler(h.SecurityAdmin(), opts)
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewTelemetryServiceHandler(h.Telemetry(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewLicenseServiceHandler(h.License(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewConfigServiceHandler(h.ConfigService(), opts) },
 		func() (string, http.Handler) {
 			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
@@ -376,6 +378,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		native:   pluxv1connect.NewNativeCatalogueServiceClient(srv.Client(), srv.URL),
 		control:  pluxv1connect.NewControlServiceClient(srv.Client(), srv.URL),
 		secAdmin: pluxv1connect.NewSecurityAdminServiceClient(srv.Client(), srv.URL),
+		license:  pluxv1connect.NewLicenseServiceClient(srv.Client(), srv.URL),
 		config:   pluxv1connect.NewConfigServiceClient(srv.Client(), srv.URL),
 		sca:      pluxv1connect.NewScaServiceClient(srv.Client(), srv.URL),
 
