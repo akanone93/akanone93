@@ -84,6 +84,26 @@ void main() {
     await settle(tester);
   }
 
+  /// Waits until every image on the page has decoded. Their files are read,
+  /// checked and decoded in real time, off the test's fake clock, so a
+  /// golden taken after a fixed wait showed them on a fast machine and not
+  /// on a slow one (PR #39: the dark golden failed on a loaded runner).
+  Future<void> imagesLoaded(WidgetTester tester) async {
+    final images = {
+      for (final i in tester.widgetList<Image>(find.byType(Image))) i.image,
+    };
+    // The loads started in the test's zone, so their steps run when the test
+    // pumps; real time passes in between for the file reads and the decode.
+    for (var i = 0; i < 500; i++) {
+      if (images.every((p) => !imageCache.statusForKey(p).pending)) {
+        await tester.pump();
+        return;
+      }
+      await settle(tester, 1);
+    }
+    fail("the page's images did not load in time");
+  }
+
   /// Problems other than the sync that finds no server release, and the
   /// missing picker package the page's uploader reports.
   List<PluxException> problems() => [
@@ -108,6 +128,7 @@ void main() {
           await settle(tester);
           await tester.pump(const Duration(milliseconds: 300));
         }
+        await imagesLoaded(tester);
         for (final t in [
           'Order 1042',
           '7 min',
