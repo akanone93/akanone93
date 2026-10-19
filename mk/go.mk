@@ -29,6 +29,10 @@ FBS_SCHEMA    := schema/fbs/bundle.fbs
 FBS_SECTIONS  := schema/fbs/sections/*.fbs
 FBS_GO_DIR    := backend/internal/bundle/fbs
 FBS_DART_DIR  := packages/plux_flutter/lib/src/bundle/fbs
+# The control document (SYN-060, ADR-0077) has its own schema and namespace.
+CTL_SCHEMA    := schema/control.fbs
+CTL_GO_DIR    := backend/internal/controldoc/controlfbs
+CTL_DART_DIR  := packages/plux_flutter/lib/src/control/fbs
 
 # ── Reproducible build metadata (CI-006) ────────────────────────────────────
 # Everything below is derived from the commit, never from the build machine
@@ -53,10 +57,13 @@ GO_BUILD_FLAGS  := -trimpath -buildvcs=false -ldflags "-s -w -buildid= \
 gen: ## Regenerate all generated code and reference documents (CI-003)
 	@"$(FLATC)" --version 2>/dev/null | grep -qx "flatc version $(FLATC_VERSION)" || { echo "✗ flatc $(FLATC_VERSION) not found at $(FLATC); run 'make install-flatc'" >&2; exit 1; }
 	@bfbs=$$(mktemp -d); trap 'rm -rf "$$bfbs"' EXIT; \
-	rm -rf $(FBS_GO_DIR) $(FBS_DART_DIR); \
+	rm -rf $(FBS_GO_DIR) $(FBS_DART_DIR) $(CTL_GO_DIR) $(CTL_DART_DIR); \
 	"$(FLATC)" --go -o $(dir $(FBS_GO_DIR)) $(FBS_SCHEMA); \
 	"$(FLATC)" --dart -o $(FBS_DART_DIR) $(FBS_SCHEMA); \
 	sed -i.bak 's|^// ignore_for_file: unused_import,|// ignore_for_file: unnecessary_non_null_assertion, unused_import,|' $(FBS_DART_DIR)/*_generated.dart && rm -f $(FBS_DART_DIR)/*.bak; \
+	"$(FLATC)" --go -o $(dir $(CTL_GO_DIR)) $(CTL_SCHEMA); \
+	"$(FLATC)" --dart -o $(CTL_DART_DIR) $(CTL_SCHEMA); \
+	sed -i.bak 's|^// ignore_for_file: unused_import,|// ignore_for_file: unnecessary_non_null_assertion, unused_import,|' $(CTL_DART_DIR)/*_generated.dart && rm -f $(CTL_DART_DIR)/*.bak; \
 	"$(FLATC)" --binary --schema -o "$$bfbs" $(FBS_SECTIONS); \
 	$(GO) run ./tools/cmd/schemagen -root . -bfbs "$$bfbs"
 	@"$(MAKE)" proto

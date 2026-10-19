@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plux.dev/schema/v1/update/control.schema.json",
+  "title": "Control document",
+  "description": "The envelope of a control document (SYN-060, REL-060, REL-070, ADR-0077): signed by the online control role that the root delegates to. The document member is the FlatBuffers buffer of schema/control.fbs, which a device reads only after the signature, the expiry and the version have been checked (SEC-052). The header repeats the fields the device checks first; the FlatBuffers document must agree with it.",
+  "type": "object",
+  "required": [
+    "signed",
+    "signatures"
+  ],
+  "properties": {
+    "signed": {
+      "type": "object",
+      "required": [
+        "_type",
+        "version",
+        "expires",
+        "specVersion",
+        "app",
+        "environment",
+        "channel",
+        "issuedAt",
+        "document"
+      ],
+      "properties": {
+        "_type": {
+          "const": "control"
+        },
+        "version": {
+          "$ref": "common.schema.json#/$defs/version",
+          "description": "Strictly increasing per app, environment and channel; a device refuses a lower one (PLX-3102)."
+        },
+        "expires": {
+          "$ref": "common.schema.json#/$defs/signedBase/properties/expires",
+          "description": "After this instant the document is expired (PLX-3101) and only the kill switches it last carried stay in force."
+        },
+        "specVersion": {
+          "$ref": "common.schema.json#/$defs/signedBase/properties/specVersion"
+        },
+        "app": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "environment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "channel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "issuedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "RFC 3339 timestamp."
+        },
+        "document": {
+          "$ref": "common.schema.json#/$defs/base64",
+          "description": "The FlatBuffers ControlDocument of schema/control.fbs, file identifier PLXC."
+        }
+      },
+      "additionalProperties": false
+    },
+    "signatures": {
+      "$ref": "common.schema.json#/$defs/signatures"
+    }
+  },
+  "additionalProperties": false
+}

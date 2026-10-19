@@ -36,6 +36,11 @@ const (
 	RoleTargets   = "targets"
 	RoleSnapshot  = "snapshot"
 	RoleTimestamp = "timestamp"
+	// RoleControl signs the control document (ADR-0077, ADR-0004
+	// Revision of 2026-10-18). It is an online role like targets,
+	// snapshot and timestamp, and optional in a root: a root without it
+	// delegates no control document.
+	RoleControl = "control"
 )
 
 // Algorithm identifiers (SEC-122). The names are those of
@@ -79,13 +84,15 @@ var (
 // Expiry is how long each role's metadata is valid (SEC-050).
 type Expiry struct {
 	Timestamp, Snapshot, Targets, Root time.Duration
+	// Control is how long a control document is valid (ADR-0077).
+	Control time.Duration
 }
 
 // DefaultExpiry is the specification's: timestamp 24 hours, snapshot 7
-// days, targets 30 days, root one year.
+// days, targets 30 days, root one year, control document 24 hours.
 func DefaultExpiry() Expiry {
 	const day = 24 * time.Hour
-	return Expiry{Timestamp: day, Snapshot: 7 * day, Targets: 30 * day, Root: 365 * day}
+	return Expiry{Timestamp: day, Snapshot: 7 * day, Targets: 30 * day, Root: 365 * day, Control: day}
 }
 
 // CanonicalAlg maps the spellings of an algorithm to the identifier of

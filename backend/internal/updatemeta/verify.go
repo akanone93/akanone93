@@ -36,9 +36,10 @@ type Verifier struct {
 	Now time.Time
 }
 
-// Floor is the highest version trusted so far, per role.
+// Floor is the highest version trusted so far, per role. Control is the
+// newest control document of the one channel being asked about.
 type Floor struct {
-	Timestamp, Snapshot, Targets int64
+	Timestamp, Snapshot, Targets, Control int64
 }
 
 func (v Verifier) now() time.Time {

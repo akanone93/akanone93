@@ -27,6 +27,9 @@ type RootSpec struct {
 	Version                            int64
 	Expires                            time.Time
 	Root, Targets, Snapshot, Timestamp RoleSpec
+	// Control delegates the control document (ADR-0077); nil delegates
+	// none.
+	Control *RoleSpec
 	// Pins are the certificate pins the root carries, per host: at least
 	// two each (SEC-041). Nil pins nothing.
 	Pins map[string][]string
@@ -56,6 +59,13 @@ func NewRoot(spec RootSpec) (Root, error) {
 			return Root{}, fmt.Errorf("role %s: %w", role.name, err)
 		}
 		*role.dst = RoleKeys{KeyIDs: ids, Threshold: role.spec.Threshold}
+	}
+	if spec.Control != nil {
+		ids, err := r.addKeys(spec.Control.Keys)
+		if err != nil {
+			return Root{}, fmt.Errorf("role %s: %w", RoleControl, err)
+		}
+		r.Roles.Control = &RoleKeys{KeyIDs: ids, Threshold: spec.Control.Threshold}
 	}
 	signed, err := Canonical(r)
 	if err != nil {
