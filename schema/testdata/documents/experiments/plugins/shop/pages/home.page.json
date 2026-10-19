@@ -1,0 +1,60 @@
+{
+  "id": "01f0c450-6c00-7000-8000-00000000070a",
+  "key": "home",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01f0c450-6c00-7000-8000-00000000070b",
+    "slots": {
+      "body": {
+        "children": [
+          {
+            "control": {
+              "id": "01f0c450-6c00-7000-8000-00000000070e",
+              "props": {
+                "data": "Welcome"
+              },
+              "type": "Text"
+            },
+            "experiment": "heroLayout",
+            "id": "01f0c450-6c00-7000-8000-00000000070d",
+            "type": "Variant",
+            "variants": {
+              "wide": {
+                "id": "01f0c450-6c00-7000-8000-00000000070f",
+                "props": {
+                  "data": "Welcome back, we missed you"
+                },
+                "type": "Text"
+              }
+            }
+          },
+          {
+            "id": "01f0c450-6c00-7000-8000-000000000710",
+            "props": {
+              "data": {
+                "$expr": "experiment.ctaLabel.label"
+              }
+            },
+            "type": "Text"
+          },
+          {
+            "id": "01f0c450-6c00-7000-8000-000000000711",
+            "props": {
+              "data": {
+                "$expr": "experiment.ctaLabel == \"bold\" ? \"bold\" : \"other\""
+              }
+            },
+            "type": "Text"
+          }
+        ],
+        "id": "01f0c450-6c00-7000-8000-00000000070c",
+        "type": "Column"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "home",
+  "schemaVersion": "1.0.0",
+  "title": "Home"
+}

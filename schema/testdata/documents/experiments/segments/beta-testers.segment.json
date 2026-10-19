@@ -1,0 +1,33 @@
+{
+  "id": "01f0c450-6c00-7000-8000-000000000703",
+  "key": "beta-testers",
+  "kind": "segment",
+  "name": "Beta testers",
+  "rule": {
+    "all": [
+      {
+        "attribute": "channel",
+        "operator": "eq",
+        "value": "beta"
+      },
+      {
+        "any": [
+          {
+            "attribute": "user.tier",
+            "operator": "in",
+            "value": [
+              "gold",
+              "silver"
+            ]
+          },
+          {
+            "attribute": "build",
+            "operator": "gte",
+            "value": 100
+          }
+        ]
+      }
+    ]
+  },
+  "schemaVersion": "1.0.0"
+}
