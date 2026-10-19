@@ -94,7 +94,7 @@ slice: create a worktree at its base, `gunzip -c <patch>.gz | git apply --3way`,
 | Patch | Milestone | Base | Size | Where it stopped |
 |---|---|---|---|---|
 | ~~`E9a-helm.patch.gz`~~ | E9: Helm chart (`DEP-003`, `DEP-004`) | — | — | **Done and merged on `wip/p9-handoff`** (`c4fc1dd`, see §7) |
-| [`E10-ee-licence.patch.gz`](E10-ee-licence.patch.gz) | E10: `ee/` module, `backend/internal/edition`, licence verification, `plux-license`, `ee/LICENSE` draft (`GOV-030`, `GOV-033`) | `fcafe9a` | 61 files, +3855 −282 | Was writing the ee server binary (`ee/cmd/plux-server-ee`); CLI, CI core-without-ee job and tests to finish |
+| ~~`E10-ee-licence.patch.gz`~~ | E10: `ee/` module, edition boundary, offline licence (`GOV-030`, `GOV-033`) | — | — | **Done and merged on `wip/p9-handoff`** (`ee14449`, see §7) |
 | [`E1a-roles.patch.gz`](E1a-roles.patch.gz) | E1: permission catalogue, ten roles, teams, scoping, custom roles, `rbac_p9.go`, migrations 0024–0025, `governance.proto` (`GOV-002`, `GOV-003`) | `fcafe9a` | 38 files, +7098 −266 | Was adding the edge test at the end of the authorisation-matrix integration file |
 | [`E6a-telemetry.patch.gz`](E6a-telemetry.patch.gz) | E6: ingestion through Valkey streams, partitioned storage, rollups, retention, OTLP export, migrations 0039–0041 (`ANL-010`, `ANL-011`) | `fcafe9a` | 55 files, +7569 −200 | Was editing `telemetry.proto` and writing `analytics.proto` |
 | [`E7-notify.patch.gz`](E7-notify.patch.gz) | E7: notifications, Standard Webhooks, cron and inbound-webhook function triggers, migration 0042 (`SRV-062`, `SRV-063`, `FN-025`) | `fcafe9a` | 26 files, +6838 | Was writing `triggers.go` (the notify import added) |
@@ -235,3 +235,31 @@ fast-forward of it) when the next session starts.
 - **Not run:** `make e2e-kind` (no Docker here) — its first real run is the `kind` CI job;
   expect to debug it there. Plan §5.11.1–2 items still open for E9b: none for the chart
   itself; backups, air-gap, observability, sizing and IaC remain E9b.
+
+### E10 — `ee/` module and licence (`ee14449`, merged `e4a2d5f`)
+
+- **Finished from the agent's work:** `backend/edition` (the `Provider` interface the core
+  asks; `Community()` enables nothing) and `backend/edition/licensefile` (Apache-2.0, offline
+  Ed25519 verification in the update-metadata envelope, used by the CLI);
+  `backend/serverapp` (the server's main moved out of `cmd/plux-server`, which is now a
+  thin wrapper, so `ee/backend/cmd/plux-server-ee` can wrap it with the licence provider);
+  `ee/backend` (own Go module in `go.work`: `license`, `cmd/plux-license` signing tool,
+  `cmd/plux-server-ee`); `proto/plux/v1/license.proto` (`GetLicenseState`, organisation
+  managers only); `plux license inspect` and `plux admin license`; `PLUX_LICENSE_FILE`; the
+  licence days-remaining metric; coverage floors `backend/edition` 85 and
+  `ee/backend/license` 85.
+- **Added by the lead:** `LICENSES/LicenseRef-Plux-Enterprise.txt` and `ee/LICENSE` — a
+  **draft** "Plux Enterprise License 1.0", marked for legal review before the first ee
+  release (open item for the maintainer); the `REUSE.toml` annotation for `ee/**`;
+  `ee/README.md`; `make go-test-core` (builds, vets and tests the core with `GOWORK=off`)
+  and the CI step "The core builds and tests without ee/" in `go-build`; `ee/backend` in
+  `GO_MODULES`; `ee/**` moved from `noJob` to the `go-lint` and `go-test` rules of
+  `ci/affected.json`; lint fixes (gosec G304, wrapcheck, gocritic, gofumpt, ST1023, and
+  `server.New`'s complexity via `useEdition`); `make gen`; `GOV-030` and `GOV-033` → `DONE`.
+- **Verified:** `make go-lint` (all four modules, 0 issues); `make go-gen-check` (clean after
+  the commit); `make go-test-core`; `go test` of `edition`, `serverapp`, `cmd/...`,
+  `internal/config`, `internal/server`, `internal/api` and all of `ee/backend`;
+  `go test ./internal/affected/...` in `tools/`; `make spec-lint`; `make trace` (0
+  violations); `make reuse-lint`; `make workflows-lint`; the commit hooks.
+- **For E1a (next):** gate custom roles with `edition.Enabled(ctx, edition.FeatureCustomRoles)`
+  from the server's `Provider` (the interceptor `withEdition` puts it in the context).
