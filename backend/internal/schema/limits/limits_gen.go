@@ -83,6 +83,15 @@ const (
 	// AuthFailedSignIns: Failed passwords or one-time codes one account may
 	// present in fifteen minutes before sign-in is refused. (SEC-100)
 	AuthFailedSignIns Key = "auth.failedSignIns"
+	// AuthSessionAbsoluteTimeout: Time after sign-in at which a browser session
+	// ends however active it is; an organisation may shorten it. (GOV-005)
+	AuthSessionAbsoluteTimeout Key = "auth.sessionAbsoluteTimeout"
+	// AuthSessionIdleTimeout: Time without a request after which a browser
+	// session ends; an organisation may shorten it. (GOV-005)
+	AuthSessionIdleTimeout Key = "auth.sessionIdleTimeout"
+	// AuthStepUpAttempts: Ceremonies one step-up request accepts before it is
+	// closed; each wrong assertion uses one. (SEC-103)
+	AuthStepUpAttempts Key = "auth.stepUpAttempts"
 	// BundleDeviceFunctionModuleSize: Size of the WebAssembly module of the
 	// device-placed functions of one plugin. (FN-050)
 	BundleDeviceFunctionModuleSize Key = "bundle.deviceFunctionModuleSize"
@@ -440,6 +449,9 @@ var registry = [...]Definition{
 	{Key: AttestPlayIntegrityTokenBytes, Unit: UnitBytes, Default: 16384, Warning: 0, Max: 65536, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of a Play Integrity token the server accepts."},
 	{Key: AttestStatusListBytes, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 33554432, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of the Android attestation status list the server fetches or reads."},
 	{Key: AuthFailedSignIns, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused."},
+	{Key: AuthSessionAbsoluteTimeout, Unit: UnitMilliseconds, Default: 43200000, Warning: 0, Max: 2592000000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Time after sign-in at which a browser session ends however active it is; an organisation may shorten it."},
+	{Key: AuthSessionIdleTimeout, Unit: UnitMilliseconds, Default: 1800000, Warning: 0, Max: 86400000, Scopes: ScopeInstallation | ScopeOrganization, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Time without a request after which a browser session ends; an organisation may shorten it."},
+	{Key: AuthStepUpAttempts, Unit: UnitCount, Default: 5, Warning: 0, Max: 20, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Ceremonies one step-up request accepts before it is closed; each wrong assertion uses one."},
 	{Key: BundleDeviceFunctionModuleSize, Unit: UnitBytes, Default: 4194304, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P7", Description: "Size of the WebAssembly module of the device-placed functions of one plugin."},
 	{Key: BundlePageSectionSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Size of one page section in a bundle."},
 	{Key: BundlePluginSize, Unit: UnitBytes, Default: 20971520, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Size of one plugin bundle."},

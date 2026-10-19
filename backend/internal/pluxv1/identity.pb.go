@@ -208,7 +208,10 @@ type Session struct {
 	CsrfToken string                 `protobuf:"bytes,3,opt,name=csrf_token,json=csrfToken,proto3" json:"csrf_token,omitempty"`
 	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	// second_factor is true when a second factor was presented in it.
-	SecondFactor  bool `protobuf:"varint,5,opt,name=second_factor,json=secondFactor,proto3" json:"second_factor,omitempty"`
+	SecondFactor bool `protobuf:"varint,5,opt,name=second_factor,json=secondFactor,proto3" json:"second_factor,omitempty"`
+	// step_up_at is when a WebAuthn step-up last succeeded in it; unset
+	// when none did (SEC-103).
+	StepUpAt      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=step_up_at,json=stepUpAt,proto3" json:"step_up_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -276,6 +279,13 @@ func (x *Session) GetSecondFactor() bool {
 		return x.SecondFactor
 	}
 	return false
+}
+
+func (x *Session) GetStepUpAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StepUpAt
+	}
+	return nil
 }
 
 // MfaChallenge is a sign-in waiting for its second factor.
@@ -3441,6 +3451,546 @@ func (x *ListAuditEntriesResponse) GetPage() *PageResult {
 	return nil
 }
 
+type BeginStepUpRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// cli_request_id names a step-up the CLI asked for with
+	// POST /stepup/requests, which the caller's browser session performs
+	// for it (ADR-0075). Empty steps up the caller's own session.
+	CliRequestId  string `protobuf:"bytes,1,opt,name=cli_request_id,json=cliRequestId,proto3" json:"cli_request_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BeginStepUpRequest) Reset() {
+	*x = BeginStepUpRequest{}
+	mi := &file_plux_v1_identity_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BeginStepUpRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BeginStepUpRequest) ProtoMessage() {}
+
+func (x *BeginStepUpRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_identity_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BeginStepUpRequest.ProtoReflect.Descriptor instead.
+func (*BeginStepUpRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_identity_proto_rawDescGZIP(), []int{64}
+}
+
+func (x *BeginStepUpRequest) GetCliRequestId() string {
+	if x != nil {
+		return x.CliRequestId
+	}
+	return ""
+}
+
+type BeginStepUpResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// request_id names the step-up for CompleteStepUp.
+	RequestId string `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	// options_json is PublicKeyCredentialRequestOptions in WebAuthn's JSON
+	// serialisation, with user verification required.
+	OptionsJson   string                 `protobuf:"bytes,2,opt,name=options_json,json=optionsJson,proto3" json:"options_json,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BeginStepUpResponse) Reset() {
+	*x = BeginStepUpResponse{}
+	mi := &file_plux_v1_identity_proto_msgTypes[65]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BeginStepUpResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BeginStepUpResponse) ProtoMessage() {}
+
+func (x *BeginStepUpResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_identity_proto_msgTypes[65]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BeginStepUpResponse.ProtoReflect.Descriptor instead.
+func (*BeginStepUpResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_identity_proto_rawDescGZIP(), []int{65}
+}
+
+func (x *BeginStepUpResponse) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *BeginStepUpResponse) GetOptionsJson() string {
+	if x != nil {
+		return x.OptionsJson
+	}
+	return ""
+}
+
+func (x *BeginStepUpResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+type CompleteStepUpRequest struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	RequestId         string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	CredentialId      []byte                 `protobuf:"bytes,2,opt,name=credential_id,json=credentialId,proto3" json:"credential_id,omitempty"`
+	ClientDataJson    []byte                 `protobuf:"bytes,3,opt,name=client_data_json,json=clientDataJson,proto3" json:"client_data_json,omitempty"`
+	AuthenticatorData []byte                 `protobuf:"bytes,4,opt,name=authenticator_data,json=authenticatorData,proto3" json:"authenticator_data,omitempty"`
+	Signature         []byte                 `protobuf:"bytes,5,opt,name=signature,proto3" json:"signature,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *CompleteStepUpRequest) Reset() {
+	*x = CompleteStepUpRequest{}
+	mi := &file_plux_v1_identity_proto_msgTypes[66]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CompleteStepUpRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CompleteStepUpRequest) ProtoMessage() {}
+
+func (x *CompleteStepUpRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_identity_proto_msgTypes[66]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CompleteStepUpRequest.ProtoReflect.Descriptor instead.
+func (*CompleteStepUpRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_identity_proto_rawDescGZIP(), []int{66}
+}
+
+func (x *CompleteStepUpRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *CompleteStepUpRequest) GetCredentialId() []byte {
+	if x != nil {
+		return x.CredentialId
+	}
+	return nil
+}
+
+func (x *CompleteStepUpRequest) GetClientDataJson() []byte {
+	if x != nil {
+		return x.ClientDataJson
+	}
+	return nil
+}
+
+func (x *CompleteStepUpRequest) GetAuthenticatorData() []byte {
+	if x != nil {
+		return x.AuthenticatorData
+	}
+	return nil
+}
+
+func (x *CompleteStepUpRequest) GetSignature() []byte {
+	if x != nil {
+		return x.Signature
+	}
+	return nil
+}
+
+type CompleteStepUpResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// step_up_at is when the assertion verified; for a step-up of the
+	// CLI's, it starts the five minutes its grant is good for.
+	StepUpAt      *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=step_up_at,json=stepUpAt,proto3" json:"step_up_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CompleteStepUpResponse) Reset() {
+	*x = CompleteStepUpResponse{}
+	mi := &file_plux_v1_identity_proto_msgTypes[67]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CompleteStepUpResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CompleteStepUpResponse) ProtoMessage() {}
+
+func (x *CompleteStepUpResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_identity_proto_msgTypes[67]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CompleteStepUpResponse.ProtoReflect.Descriptor instead.
+func (*CompleteStepUpResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_identity_proto_rawDescGZIP(), []int{67}
+}
+
+func (x *CompleteStepUpResponse) GetStepUpAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StepUpAt
+	}
+	return nil
+}
+
+// SessionInfo is one session or token of a person, as an administrator
+// sees it (GOV-005). The secret is never part of it.
+type SessionInfo struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Id     string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserId string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// client_kind is "studio" for a browser session, "cli" for a token from
+	// `plux login`, and "token" for a personal access token or a CI token.
+	ClientKind string `protobuf:"bytes,3,opt,name=client_kind,json=clientKind,proto3" json:"client_kind,omitempty"`
+	// name is a token's name; empty for a browser session.
+	Name       string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	CreatedAt  *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	LastSeenAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=last_seen_at,json=lastSeenAt,proto3" json:"last_seen_at,omitempty"`
+	ExpiresAt  *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	// ip_prefix is the /24 (IPv4) or /48 (IPv6) the last request came from.
+	IpPrefix  string `protobuf:"bytes,8,opt,name=ip_prefix,json=ipPrefix,proto3" json:"ip_prefix,omitempty"`
+	UserAgent string `protobuf:"bytes,9,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
+	// step_up_at is when a step-up last succeeded in a browser session.
+	StepUpAt      *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=step_up_at,json=stepUpAt,proto3" json:"step_up_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SessionInfo) Reset() {
+	*x = SessionInfo{}
+	mi := &file_plux_v1_identity_proto_msgTypes[68]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SessionInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SessionInfo) ProtoMessage() {}
+
+func (x *SessionInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_identity_proto_msgTypes[68]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SessionInfo.ProtoReflect.Descriptor instead.
+func (*SessionInfo) Descriptor() ([]byte, []int) {
+	return file_plux_v1_identity_proto_rawDescGZIP(), []int{68}
+}
+
+func (x *SessionInfo) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SessionInfo) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *SessionInfo) GetClientKind() string {
+	if x != nil {
+		return x.ClientKind
+	}
+	return ""
+}
+
+func (x *SessionInfo) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *SessionInfo) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *SessionInfo) GetLastSeenAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastSeenAt
+	}
+	return nil
+}
+
+func (x *SessionInfo) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+func (x *SessionInfo) GetIpPrefix() string {
+	if x != nil {
+		return x.IpPrefix
+	}
+	return ""
+}
+
+func (x *SessionInfo) GetUserAgent() string {
+	if x != nil {
+		return x.UserAgent
+	}
+	return ""
+}
+
+func (x *SessionInfo) GetStepUpAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StepUpAt
+	}
+	return nil
+}
+
+type ListSessionsRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	OrganizationId string                 `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	Page           *Page                  `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ListSessionsRequest) Reset() {
+	*x = ListSessionsRequest{}
+	mi := &file_plux_v1_identity_proto_msgTypes[69]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSessionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSessionsRequest) ProtoMessage() {}
+
+func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_identity_proto_msgTypes[69]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSessionsRequest.ProtoReflect.Descriptor instead.
+func (*ListSessionsRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_identity_proto_rawDescGZIP(), []int{69}
+}
+
+func (x *ListSessionsRequest) GetOrganizationId() string {
+	if x != nil {
+		return x.OrganizationId
+	}
+	return ""
+}
+
+func (x *ListSessionsRequest) GetPage() *Page {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type ListSessionsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Sessions      []*SessionInfo         `protobuf:"bytes,1,rep,name=sessions,proto3" json:"sessions,omitempty"`
+	Page          *PageResult            `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSessionsResponse) Reset() {
+	*x = ListSessionsResponse{}
+	mi := &file_plux_v1_identity_proto_msgTypes[70]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSessionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSessionsResponse) ProtoMessage() {}
+
+func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_identity_proto_msgTypes[70]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSessionsResponse.ProtoReflect.Descriptor instead.
+func (*ListSessionsResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_identity_proto_rawDescGZIP(), []int{70}
+}
+
+func (x *ListSessionsResponse) GetSessions() []*SessionInfo {
+	if x != nil {
+		return x.Sessions
+	}
+	return nil
+}
+
+func (x *ListSessionsResponse) GetPage() *PageResult {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type RevokeSessionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id is a session's or a token's identifier, as ListSessions gives it.
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RevokeSessionRequest) Reset() {
+	*x = RevokeSessionRequest{}
+	mi := &file_plux_v1_identity_proto_msgTypes[71]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RevokeSessionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RevokeSessionRequest) ProtoMessage() {}
+
+func (x *RevokeSessionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_identity_proto_msgTypes[71]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RevokeSessionRequest.ProtoReflect.Descriptor instead.
+func (*RevokeSessionRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_identity_proto_rawDescGZIP(), []int{71}
+}
+
+func (x *RevokeSessionRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type RevokeSessionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RevokeSessionResponse) Reset() {
+	*x = RevokeSessionResponse{}
+	mi := &file_plux_v1_identity_proto_msgTypes[72]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RevokeSessionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RevokeSessionResponse) ProtoMessage() {}
+
+func (x *RevokeSessionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_identity_proto_msgTypes[72]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RevokeSessionResponse.ProtoReflect.Descriptor instead.
+func (*RevokeSessionResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_identity_proto_rawDescGZIP(), []int{72}
+}
+
 var File_plux_v1_identity_proto protoreflect.FileDescriptor
 
 const file_plux_v1_identity_proto_rawDesc = "" +
@@ -3462,7 +4012,7 @@ const file_plux_v1_identity_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12<\n" +
 	"\flast_used_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"lastUsedAt\"\xb1\x01\n" +
+	"lastUsedAt\"\xeb\x01\n" +
 	"\aSession\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1d\n" +
@@ -3470,7 +4020,9 @@ const file_plux_v1_identity_proto_rawDesc = "" +
 	"csrf_token\x18\x03 \x01(\tR\tcsrfToken\x129\n" +
 	"\n" +
 	"expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12#\n" +
-	"\rsecond_factor\x18\x05 \x01(\bR\fsecondFactor\"o\n" +
+	"\rsecond_factor\x18\x05 \x01(\bR\fsecondFactor\x128\n" +
+	"\n" +
+	"step_up_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\bstepUpAt\"o\n" +
 	"\fMfaChallenge\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05kinds\x18\x02 \x03(\tR\x05kinds\x129\n" +
@@ -3665,7 +4217,52 @@ const file_plux_v1_identity_proto_rawDesc = "" +
 	"\x04page\x18\x02 \x01(\v2\r.plux.v1.PageR\x04page\"r\n" +
 	"\x18ListAuditEntriesResponse\x12-\n" +
 	"\aentries\x18\x01 \x03(\v2\x13.plux.v1.AuditEntryR\aentries\x12'\n" +
-	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page2\xfc\x15\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\":\n" +
+	"\x12BeginStepUpRequest\x12$\n" +
+	"\x0ecli_request_id\x18\x01 \x01(\tR\fcliRequestId\"\x92\x01\n" +
+	"\x13BeginStepUpResponse\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x12!\n" +
+	"\foptions_json\x18\x02 \x01(\tR\voptionsJson\x129\n" +
+	"\n" +
+	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"\xd2\x01\n" +
+	"\x15CompleteStepUpRequest\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x12#\n" +
+	"\rcredential_id\x18\x02 \x01(\fR\fcredentialId\x12(\n" +
+	"\x10client_data_json\x18\x03 \x01(\fR\x0eclientDataJson\x12-\n" +
+	"\x12authenticator_data\x18\x04 \x01(\fR\x11authenticatorData\x12\x1c\n" +
+	"\tsignature\x18\x05 \x01(\fR\tsignature\"R\n" +
+	"\x16CompleteStepUpResponse\x128\n" +
+	"\n" +
+	"step_up_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\bstepUpAt\"\x95\x03\n" +
+	"\vSessionInfo\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1f\n" +
+	"\vclient_kind\x18\x03 \x01(\tR\n" +
+	"clientKind\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x129\n" +
+	"\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12<\n" +
+	"\flast_seen_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"lastSeenAt\x129\n" +
+	"\n" +
+	"expires_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12\x1b\n" +
+	"\tip_prefix\x18\b \x01(\tR\bipPrefix\x12\x1d\n" +
+	"\n" +
+	"user_agent\x18\t \x01(\tR\tuserAgent\x128\n" +
+	"\n" +
+	"step_up_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\bstepUpAt\"a\n" +
+	"\x13ListSessionsRequest\x12'\n" +
+	"\x0forganization_id\x18\x01 \x01(\tR\x0eorganizationId\x12!\n" +
+	"\x04page\x18\x02 \x01(\v2\r.plux.v1.PageR\x04page\"q\n" +
+	"\x14ListSessionsResponse\x120\n" +
+	"\bsessions\x18\x01 \x03(\v2\x14.plux.v1.SessionInfoR\bsessions\x12'\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"&\n" +
+	"\x14RevokeSessionRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x17\n" +
+	"\x15RevokeSessionResponse2\xbe\x18\n" +
 	"\x0fIdentityService\x12S\n" +
 	"\x0eGetCurrentUser\x12\x1e.plux.v1.GetCurrentUserRequest\x1a\x1f.plux.v1.GetCurrentUserResponse\"\x00\x12Y\n" +
 	"\x10AcceptInvitation\x12 .plux.v1.AcceptInvitationRequest\x1a!.plux.v1.AcceptInvitationResponse\"\x00\x12_\n" +
@@ -3677,7 +4274,11 @@ const file_plux_v1_identity_proto_rawDesc = "" +
 	"\x15CompleteWebAuthnLogin\x12%.plux.v1.CompleteWebAuthnLoginRequest\x1a&.plux.v1.CompleteWebAuthnLoginResponse\"\x00\x12_\n" +
 	"\x12VerifySecondFactor\x12\".plux.v1.VerifySecondFactorRequest\x1a#.plux.v1.VerifySecondFactorResponse\"\x00\x12S\n" +
 	"\x0eChangePassword\x12\x1e.plux.v1.ChangePasswordRequest\x1a\x1f.plux.v1.ChangePasswordResponse\"\x00\x12;\n" +
-	"\x06Logout\x12\x16.plux.v1.LogoutRequest\x1a\x17.plux.v1.LogoutResponse\"\x00\x12G\n" +
+	"\x06Logout\x12\x16.plux.v1.LogoutRequest\x1a\x17.plux.v1.LogoutResponse\"\x00\x12J\n" +
+	"\vBeginStepUp\x12\x1b.plux.v1.BeginStepUpRequest\x1a\x1c.plux.v1.BeginStepUpResponse\"\x00\x12S\n" +
+	"\x0eCompleteStepUp\x12\x1e.plux.v1.CompleteStepUpRequest\x1a\x1f.plux.v1.CompleteStepUpResponse\"\x00\x12M\n" +
+	"\fListSessions\x12\x1c.plux.v1.ListSessionsRequest\x1a\x1d.plux.v1.ListSessionsResponse\"\x00\x12P\n" +
+	"\rRevokeSession\x12\x1d.plux.v1.RevokeSessionRequest\x1a\x1e.plux.v1.RevokeSessionResponse\"\x00\x12G\n" +
 	"\n" +
 	"EnrollTotp\x12\x1a.plux.v1.EnrollTotpRequest\x1a\x1b.plux.v1.EnrollTotpResponse\"\x00\x12t\n" +
 	"\x19BeginWebAuthnRegistration\x12).plux.v1.BeginWebAuthnRegistrationRequest\x1a*.plux.v1.BeginWebAuthnRegistrationResponse\"\x00\x12w\n" +
@@ -3710,7 +4311,7 @@ func file_plux_v1_identity_proto_rawDescGZIP() []byte {
 	return file_plux_v1_identity_proto_rawDescData
 }
 
-var file_plux_v1_identity_proto_msgTypes = make([]protoimpl.MessageInfo, 64)
+var file_plux_v1_identity_proto_msgTypes = make([]protoimpl.MessageInfo, 73)
 var file_plux_v1_identity_proto_goTypes = []any{
 	(*User)(nil),                               // 0: plux.v1.User
 	(*Factor)(nil),                             // 1: plux.v1.Factor
@@ -3776,119 +4377,146 @@ var file_plux_v1_identity_proto_goTypes = []any{
 	(*ExchangeWorkloadIdentityResponse)(nil),   // 61: plux.v1.ExchangeWorkloadIdentityResponse
 	(*ListAuditEntriesRequest)(nil),            // 62: plux.v1.ListAuditEntriesRequest
 	(*ListAuditEntriesResponse)(nil),           // 63: plux.v1.ListAuditEntriesResponse
-	(*timestamppb.Timestamp)(nil),              // 64: google.protobuf.Timestamp
-	(*Member)(nil),                             // 65: plux.v1.Member
-	(*Page)(nil),                               // 66: plux.v1.Page
-	(*PageResult)(nil),                         // 67: plux.v1.PageResult
-	(*AuditEntry)(nil),                         // 68: plux.v1.AuditEntry
+	(*BeginStepUpRequest)(nil),                 // 64: plux.v1.BeginStepUpRequest
+	(*BeginStepUpResponse)(nil),                // 65: plux.v1.BeginStepUpResponse
+	(*CompleteStepUpRequest)(nil),              // 66: plux.v1.CompleteStepUpRequest
+	(*CompleteStepUpResponse)(nil),             // 67: plux.v1.CompleteStepUpResponse
+	(*SessionInfo)(nil),                        // 68: plux.v1.SessionInfo
+	(*ListSessionsRequest)(nil),                // 69: plux.v1.ListSessionsRequest
+	(*ListSessionsResponse)(nil),               // 70: plux.v1.ListSessionsResponse
+	(*RevokeSessionRequest)(nil),               // 71: plux.v1.RevokeSessionRequest
+	(*RevokeSessionResponse)(nil),              // 72: plux.v1.RevokeSessionResponse
+	(*timestamppb.Timestamp)(nil),              // 73: google.protobuf.Timestamp
+	(*Member)(nil),                             // 74: plux.v1.Member
+	(*Page)(nil),                               // 75: plux.v1.Page
+	(*PageResult)(nil),                         // 76: plux.v1.PageResult
+	(*AuditEntry)(nil),                         // 77: plux.v1.AuditEntry
 }
 var file_plux_v1_identity_proto_depIdxs = []int32{
-	64, // 0: plux.v1.User.created_at:type_name -> google.protobuf.Timestamp
-	64, // 1: plux.v1.User.last_login_at:type_name -> google.protobuf.Timestamp
-	64, // 2: plux.v1.Factor.created_at:type_name -> google.protobuf.Timestamp
-	64, // 3: plux.v1.Factor.last_used_at:type_name -> google.protobuf.Timestamp
-	64, // 4: plux.v1.Session.expires_at:type_name -> google.protobuf.Timestamp
-	64, // 5: plux.v1.MfaChallenge.expires_at:type_name -> google.protobuf.Timestamp
-	0,  // 6: plux.v1.GetCurrentUserResponse.user:type_name -> plux.v1.User
-	65, // 7: plux.v1.GetCurrentUserResponse.memberships:type_name -> plux.v1.Member
-	0,  // 8: plux.v1.AcceptInvitationResponse.user:type_name -> plux.v1.User
-	2,  // 9: plux.v1.StartPasswordLoginResponse.session:type_name -> plux.v1.Session
-	3,  // 10: plux.v1.StartPasswordLoginResponse.challenge:type_name -> plux.v1.MfaChallenge
-	2,  // 11: plux.v1.CompleteMfaResponse.session:type_name -> plux.v1.Session
-	64, // 12: plux.v1.StartOidcLoginResponse.expires_at:type_name -> google.protobuf.Timestamp
-	2,  // 13: plux.v1.CompleteOidcLoginResponse.session:type_name -> plux.v1.Session
-	3,  // 14: plux.v1.CompleteOidcLoginResponse.challenge:type_name -> plux.v1.MfaChallenge
-	2,  // 15: plux.v1.CompleteWebAuthnLoginResponse.session:type_name -> plux.v1.Session
-	1,  // 16: plux.v1.BeginWebAuthnRegistrationResponse.factor:type_name -> plux.v1.Factor
-	1,  // 17: plux.v1.FinishWebAuthnRegistrationResponse.factor:type_name -> plux.v1.Factor
-	2,  // 18: plux.v1.VerifySecondFactorResponse.session:type_name -> plux.v1.Session
-	1,  // 19: plux.v1.EnrollTotpResponse.factor:type_name -> plux.v1.Factor
-	1,  // 20: plux.v1.ConfirmFactorResponse.factor:type_name -> plux.v1.Factor
-	66, // 21: plux.v1.ListFactorsRequest.page:type_name -> plux.v1.Page
-	1,  // 22: plux.v1.ListFactorsResponse.factors:type_name -> plux.v1.Factor
-	67, // 23: plux.v1.ListFactorsResponse.page:type_name -> plux.v1.PageResult
-	64, // 24: plux.v1.StartDeviceAuthorizationResponse.expires_at:type_name -> google.protobuf.Timestamp
-	46, // 25: plux.v1.PollDeviceAuthorizationResponse.token:type_name -> plux.v1.AccessToken
-	64, // 26: plux.v1.AccessToken.created_at:type_name -> google.protobuf.Timestamp
-	64, // 27: plux.v1.AccessToken.expires_at:type_name -> google.protobuf.Timestamp
-	64, // 28: plux.v1.AccessToken.last_used_at:type_name -> google.protobuf.Timestamp
-	64, // 29: plux.v1.AccessToken.revoked_at:type_name -> google.protobuf.Timestamp
-	46, // 30: plux.v1.CreateAccessTokenResponse.token:type_name -> plux.v1.AccessToken
-	66, // 31: plux.v1.ListAccessTokensRequest.page:type_name -> plux.v1.Page
-	46, // 32: plux.v1.ListAccessTokensResponse.tokens:type_name -> plux.v1.AccessToken
-	67, // 33: plux.v1.ListAccessTokensResponse.page:type_name -> plux.v1.PageResult
-	64, // 34: plux.v1.WorkloadIdentity.created_at:type_name -> google.protobuf.Timestamp
-	53, // 35: plux.v1.CreateWorkloadIdentityResponse.identity:type_name -> plux.v1.WorkloadIdentity
-	66, // 36: plux.v1.ListWorkloadIdentitiesRequest.page:type_name -> plux.v1.Page
-	53, // 37: plux.v1.ListWorkloadIdentitiesResponse.identities:type_name -> plux.v1.WorkloadIdentity
-	67, // 38: plux.v1.ListWorkloadIdentitiesResponse.page:type_name -> plux.v1.PageResult
-	46, // 39: plux.v1.ExchangeWorkloadIdentityResponse.token:type_name -> plux.v1.AccessToken
-	66, // 40: plux.v1.ListAuditEntriesRequest.page:type_name -> plux.v1.Page
-	68, // 41: plux.v1.ListAuditEntriesResponse.entries:type_name -> plux.v1.AuditEntry
-	67, // 42: plux.v1.ListAuditEntriesResponse.page:type_name -> plux.v1.PageResult
-	4,  // 43: plux.v1.IdentityService.GetCurrentUser:input_type -> plux.v1.GetCurrentUserRequest
-	6,  // 44: plux.v1.IdentityService.AcceptInvitation:input_type -> plux.v1.AcceptInvitationRequest
-	8,  // 45: plux.v1.IdentityService.StartPasswordLogin:input_type -> plux.v1.StartPasswordLoginRequest
-	10, // 46: plux.v1.IdentityService.CompleteMfa:input_type -> plux.v1.CompleteMfaRequest
-	12, // 47: plux.v1.IdentityService.StartOidcLogin:input_type -> plux.v1.StartOidcLoginRequest
-	14, // 48: plux.v1.IdentityService.CompleteOidcLogin:input_type -> plux.v1.CompleteOidcLoginRequest
-	16, // 49: plux.v1.IdentityService.BeginWebAuthnLogin:input_type -> plux.v1.BeginWebAuthnLoginRequest
-	18, // 50: plux.v1.IdentityService.CompleteWebAuthnLogin:input_type -> plux.v1.CompleteWebAuthnLoginRequest
-	24, // 51: plux.v1.IdentityService.VerifySecondFactor:input_type -> plux.v1.VerifySecondFactorRequest
-	26, // 52: plux.v1.IdentityService.ChangePassword:input_type -> plux.v1.ChangePasswordRequest
-	28, // 53: plux.v1.IdentityService.Logout:input_type -> plux.v1.LogoutRequest
-	30, // 54: plux.v1.IdentityService.EnrollTotp:input_type -> plux.v1.EnrollTotpRequest
-	20, // 55: plux.v1.IdentityService.BeginWebAuthnRegistration:input_type -> plux.v1.BeginWebAuthnRegistrationRequest
-	22, // 56: plux.v1.IdentityService.FinishWebAuthnRegistration:input_type -> plux.v1.FinishWebAuthnRegistrationRequest
-	32, // 57: plux.v1.IdentityService.ConfirmFactor:input_type -> plux.v1.ConfirmFactorRequest
-	34, // 58: plux.v1.IdentityService.ListFactors:input_type -> plux.v1.ListFactorsRequest
-	36, // 59: plux.v1.IdentityService.DeleteFactor:input_type -> plux.v1.DeleteFactorRequest
-	38, // 60: plux.v1.IdentityService.StartDeviceAuthorization:input_type -> plux.v1.StartDeviceAuthorizationRequest
-	40, // 61: plux.v1.IdentityService.PollDeviceAuthorization:input_type -> plux.v1.PollDeviceAuthorizationRequest
-	42, // 62: plux.v1.IdentityService.ApproveDeviceAuthorization:input_type -> plux.v1.ApproveDeviceAuthorizationRequest
-	44, // 63: plux.v1.IdentityService.DenyDeviceAuthorization:input_type -> plux.v1.DenyDeviceAuthorizationRequest
-	47, // 64: plux.v1.IdentityService.CreateAccessToken:input_type -> plux.v1.CreateAccessTokenRequest
-	49, // 65: plux.v1.IdentityService.ListAccessTokens:input_type -> plux.v1.ListAccessTokensRequest
-	51, // 66: plux.v1.IdentityService.RevokeAccessToken:input_type -> plux.v1.RevokeAccessTokenRequest
-	54, // 67: plux.v1.IdentityService.CreateWorkloadIdentity:input_type -> plux.v1.CreateWorkloadIdentityRequest
-	56, // 68: plux.v1.IdentityService.ListWorkloadIdentities:input_type -> plux.v1.ListWorkloadIdentitiesRequest
-	58, // 69: plux.v1.IdentityService.DeleteWorkloadIdentity:input_type -> plux.v1.DeleteWorkloadIdentityRequest
-	60, // 70: plux.v1.IdentityService.ExchangeWorkloadIdentity:input_type -> plux.v1.ExchangeWorkloadIdentityRequest
-	62, // 71: plux.v1.IdentityService.ListAuditEntries:input_type -> plux.v1.ListAuditEntriesRequest
-	5,  // 72: plux.v1.IdentityService.GetCurrentUser:output_type -> plux.v1.GetCurrentUserResponse
-	7,  // 73: plux.v1.IdentityService.AcceptInvitation:output_type -> plux.v1.AcceptInvitationResponse
-	9,  // 74: plux.v1.IdentityService.StartPasswordLogin:output_type -> plux.v1.StartPasswordLoginResponse
-	11, // 75: plux.v1.IdentityService.CompleteMfa:output_type -> plux.v1.CompleteMfaResponse
-	13, // 76: plux.v1.IdentityService.StartOidcLogin:output_type -> plux.v1.StartOidcLoginResponse
-	15, // 77: plux.v1.IdentityService.CompleteOidcLogin:output_type -> plux.v1.CompleteOidcLoginResponse
-	17, // 78: plux.v1.IdentityService.BeginWebAuthnLogin:output_type -> plux.v1.BeginWebAuthnLoginResponse
-	19, // 79: plux.v1.IdentityService.CompleteWebAuthnLogin:output_type -> plux.v1.CompleteWebAuthnLoginResponse
-	25, // 80: plux.v1.IdentityService.VerifySecondFactor:output_type -> plux.v1.VerifySecondFactorResponse
-	27, // 81: plux.v1.IdentityService.ChangePassword:output_type -> plux.v1.ChangePasswordResponse
-	29, // 82: plux.v1.IdentityService.Logout:output_type -> plux.v1.LogoutResponse
-	31, // 83: plux.v1.IdentityService.EnrollTotp:output_type -> plux.v1.EnrollTotpResponse
-	21, // 84: plux.v1.IdentityService.BeginWebAuthnRegistration:output_type -> plux.v1.BeginWebAuthnRegistrationResponse
-	23, // 85: plux.v1.IdentityService.FinishWebAuthnRegistration:output_type -> plux.v1.FinishWebAuthnRegistrationResponse
-	33, // 86: plux.v1.IdentityService.ConfirmFactor:output_type -> plux.v1.ConfirmFactorResponse
-	35, // 87: plux.v1.IdentityService.ListFactors:output_type -> plux.v1.ListFactorsResponse
-	37, // 88: plux.v1.IdentityService.DeleteFactor:output_type -> plux.v1.DeleteFactorResponse
-	39, // 89: plux.v1.IdentityService.StartDeviceAuthorization:output_type -> plux.v1.StartDeviceAuthorizationResponse
-	41, // 90: plux.v1.IdentityService.PollDeviceAuthorization:output_type -> plux.v1.PollDeviceAuthorizationResponse
-	43, // 91: plux.v1.IdentityService.ApproveDeviceAuthorization:output_type -> plux.v1.ApproveDeviceAuthorizationResponse
-	45, // 92: plux.v1.IdentityService.DenyDeviceAuthorization:output_type -> plux.v1.DenyDeviceAuthorizationResponse
-	48, // 93: plux.v1.IdentityService.CreateAccessToken:output_type -> plux.v1.CreateAccessTokenResponse
-	50, // 94: plux.v1.IdentityService.ListAccessTokens:output_type -> plux.v1.ListAccessTokensResponse
-	52, // 95: plux.v1.IdentityService.RevokeAccessToken:output_type -> plux.v1.RevokeAccessTokenResponse
-	55, // 96: plux.v1.IdentityService.CreateWorkloadIdentity:output_type -> plux.v1.CreateWorkloadIdentityResponse
-	57, // 97: plux.v1.IdentityService.ListWorkloadIdentities:output_type -> plux.v1.ListWorkloadIdentitiesResponse
-	59, // 98: plux.v1.IdentityService.DeleteWorkloadIdentity:output_type -> plux.v1.DeleteWorkloadIdentityResponse
-	61, // 99: plux.v1.IdentityService.ExchangeWorkloadIdentity:output_type -> plux.v1.ExchangeWorkloadIdentityResponse
-	63, // 100: plux.v1.IdentityService.ListAuditEntries:output_type -> plux.v1.ListAuditEntriesResponse
-	72, // [72:101] is the sub-list for method output_type
-	43, // [43:72] is the sub-list for method input_type
-	43, // [43:43] is the sub-list for extension type_name
-	43, // [43:43] is the sub-list for extension extendee
-	0,  // [0:43] is the sub-list for field type_name
+	73, // 0: plux.v1.User.created_at:type_name -> google.protobuf.Timestamp
+	73, // 1: plux.v1.User.last_login_at:type_name -> google.protobuf.Timestamp
+	73, // 2: plux.v1.Factor.created_at:type_name -> google.protobuf.Timestamp
+	73, // 3: plux.v1.Factor.last_used_at:type_name -> google.protobuf.Timestamp
+	73, // 4: plux.v1.Session.expires_at:type_name -> google.protobuf.Timestamp
+	73, // 5: plux.v1.Session.step_up_at:type_name -> google.protobuf.Timestamp
+	73, // 6: plux.v1.MfaChallenge.expires_at:type_name -> google.protobuf.Timestamp
+	0,  // 7: plux.v1.GetCurrentUserResponse.user:type_name -> plux.v1.User
+	74, // 8: plux.v1.GetCurrentUserResponse.memberships:type_name -> plux.v1.Member
+	0,  // 9: plux.v1.AcceptInvitationResponse.user:type_name -> plux.v1.User
+	2,  // 10: plux.v1.StartPasswordLoginResponse.session:type_name -> plux.v1.Session
+	3,  // 11: plux.v1.StartPasswordLoginResponse.challenge:type_name -> plux.v1.MfaChallenge
+	2,  // 12: plux.v1.CompleteMfaResponse.session:type_name -> plux.v1.Session
+	73, // 13: plux.v1.StartOidcLoginResponse.expires_at:type_name -> google.protobuf.Timestamp
+	2,  // 14: plux.v1.CompleteOidcLoginResponse.session:type_name -> plux.v1.Session
+	3,  // 15: plux.v1.CompleteOidcLoginResponse.challenge:type_name -> plux.v1.MfaChallenge
+	2,  // 16: plux.v1.CompleteWebAuthnLoginResponse.session:type_name -> plux.v1.Session
+	1,  // 17: plux.v1.BeginWebAuthnRegistrationResponse.factor:type_name -> plux.v1.Factor
+	1,  // 18: plux.v1.FinishWebAuthnRegistrationResponse.factor:type_name -> plux.v1.Factor
+	2,  // 19: plux.v1.VerifySecondFactorResponse.session:type_name -> plux.v1.Session
+	1,  // 20: plux.v1.EnrollTotpResponse.factor:type_name -> plux.v1.Factor
+	1,  // 21: plux.v1.ConfirmFactorResponse.factor:type_name -> plux.v1.Factor
+	75, // 22: plux.v1.ListFactorsRequest.page:type_name -> plux.v1.Page
+	1,  // 23: plux.v1.ListFactorsResponse.factors:type_name -> plux.v1.Factor
+	76, // 24: plux.v1.ListFactorsResponse.page:type_name -> plux.v1.PageResult
+	73, // 25: plux.v1.StartDeviceAuthorizationResponse.expires_at:type_name -> google.protobuf.Timestamp
+	46, // 26: plux.v1.PollDeviceAuthorizationResponse.token:type_name -> plux.v1.AccessToken
+	73, // 27: plux.v1.AccessToken.created_at:type_name -> google.protobuf.Timestamp
+	73, // 28: plux.v1.AccessToken.expires_at:type_name -> google.protobuf.Timestamp
+	73, // 29: plux.v1.AccessToken.last_used_at:type_name -> google.protobuf.Timestamp
+	73, // 30: plux.v1.AccessToken.revoked_at:type_name -> google.protobuf.Timestamp
+	46, // 31: plux.v1.CreateAccessTokenResponse.token:type_name -> plux.v1.AccessToken
+	75, // 32: plux.v1.ListAccessTokensRequest.page:type_name -> plux.v1.Page
+	46, // 33: plux.v1.ListAccessTokensResponse.tokens:type_name -> plux.v1.AccessToken
+	76, // 34: plux.v1.ListAccessTokensResponse.page:type_name -> plux.v1.PageResult
+	73, // 35: plux.v1.WorkloadIdentity.created_at:type_name -> google.protobuf.Timestamp
+	53, // 36: plux.v1.CreateWorkloadIdentityResponse.identity:type_name -> plux.v1.WorkloadIdentity
+	75, // 37: plux.v1.ListWorkloadIdentitiesRequest.page:type_name -> plux.v1.Page
+	53, // 38: plux.v1.ListWorkloadIdentitiesResponse.identities:type_name -> plux.v1.WorkloadIdentity
+	76, // 39: plux.v1.ListWorkloadIdentitiesResponse.page:type_name -> plux.v1.PageResult
+	46, // 40: plux.v1.ExchangeWorkloadIdentityResponse.token:type_name -> plux.v1.AccessToken
+	75, // 41: plux.v1.ListAuditEntriesRequest.page:type_name -> plux.v1.Page
+	77, // 42: plux.v1.ListAuditEntriesResponse.entries:type_name -> plux.v1.AuditEntry
+	76, // 43: plux.v1.ListAuditEntriesResponse.page:type_name -> plux.v1.PageResult
+	73, // 44: plux.v1.BeginStepUpResponse.expires_at:type_name -> google.protobuf.Timestamp
+	73, // 45: plux.v1.CompleteStepUpResponse.step_up_at:type_name -> google.protobuf.Timestamp
+	73, // 46: plux.v1.SessionInfo.created_at:type_name -> google.protobuf.Timestamp
+	73, // 47: plux.v1.SessionInfo.last_seen_at:type_name -> google.protobuf.Timestamp
+	73, // 48: plux.v1.SessionInfo.expires_at:type_name -> google.protobuf.Timestamp
+	73, // 49: plux.v1.SessionInfo.step_up_at:type_name -> google.protobuf.Timestamp
+	75, // 50: plux.v1.ListSessionsRequest.page:type_name -> plux.v1.Page
+	68, // 51: plux.v1.ListSessionsResponse.sessions:type_name -> plux.v1.SessionInfo
+	76, // 52: plux.v1.ListSessionsResponse.page:type_name -> plux.v1.PageResult
+	4,  // 53: plux.v1.IdentityService.GetCurrentUser:input_type -> plux.v1.GetCurrentUserRequest
+	6,  // 54: plux.v1.IdentityService.AcceptInvitation:input_type -> plux.v1.AcceptInvitationRequest
+	8,  // 55: plux.v1.IdentityService.StartPasswordLogin:input_type -> plux.v1.StartPasswordLoginRequest
+	10, // 56: plux.v1.IdentityService.CompleteMfa:input_type -> plux.v1.CompleteMfaRequest
+	12, // 57: plux.v1.IdentityService.StartOidcLogin:input_type -> plux.v1.StartOidcLoginRequest
+	14, // 58: plux.v1.IdentityService.CompleteOidcLogin:input_type -> plux.v1.CompleteOidcLoginRequest
+	16, // 59: plux.v1.IdentityService.BeginWebAuthnLogin:input_type -> plux.v1.BeginWebAuthnLoginRequest
+	18, // 60: plux.v1.IdentityService.CompleteWebAuthnLogin:input_type -> plux.v1.CompleteWebAuthnLoginRequest
+	24, // 61: plux.v1.IdentityService.VerifySecondFactor:input_type -> plux.v1.VerifySecondFactorRequest
+	26, // 62: plux.v1.IdentityService.ChangePassword:input_type -> plux.v1.ChangePasswordRequest
+	28, // 63: plux.v1.IdentityService.Logout:input_type -> plux.v1.LogoutRequest
+	64, // 64: plux.v1.IdentityService.BeginStepUp:input_type -> plux.v1.BeginStepUpRequest
+	66, // 65: plux.v1.IdentityService.CompleteStepUp:input_type -> plux.v1.CompleteStepUpRequest
+	69, // 66: plux.v1.IdentityService.ListSessions:input_type -> plux.v1.ListSessionsRequest
+	71, // 67: plux.v1.IdentityService.RevokeSession:input_type -> plux.v1.RevokeSessionRequest
+	30, // 68: plux.v1.IdentityService.EnrollTotp:input_type -> plux.v1.EnrollTotpRequest
+	20, // 69: plux.v1.IdentityService.BeginWebAuthnRegistration:input_type -> plux.v1.BeginWebAuthnRegistrationRequest
+	22, // 70: plux.v1.IdentityService.FinishWebAuthnRegistration:input_type -> plux.v1.FinishWebAuthnRegistrationRequest
+	32, // 71: plux.v1.IdentityService.ConfirmFactor:input_type -> plux.v1.ConfirmFactorRequest
+	34, // 72: plux.v1.IdentityService.ListFactors:input_type -> plux.v1.ListFactorsRequest
+	36, // 73: plux.v1.IdentityService.DeleteFactor:input_type -> plux.v1.DeleteFactorRequest
+	38, // 74: plux.v1.IdentityService.StartDeviceAuthorization:input_type -> plux.v1.StartDeviceAuthorizationRequest
+	40, // 75: plux.v1.IdentityService.PollDeviceAuthorization:input_type -> plux.v1.PollDeviceAuthorizationRequest
+	42, // 76: plux.v1.IdentityService.ApproveDeviceAuthorization:input_type -> plux.v1.ApproveDeviceAuthorizationRequest
+	44, // 77: plux.v1.IdentityService.DenyDeviceAuthorization:input_type -> plux.v1.DenyDeviceAuthorizationRequest
+	47, // 78: plux.v1.IdentityService.CreateAccessToken:input_type -> plux.v1.CreateAccessTokenRequest
+	49, // 79: plux.v1.IdentityService.ListAccessTokens:input_type -> plux.v1.ListAccessTokensRequest
+	51, // 80: plux.v1.IdentityService.RevokeAccessToken:input_type -> plux.v1.RevokeAccessTokenRequest
+	54, // 81: plux.v1.IdentityService.CreateWorkloadIdentity:input_type -> plux.v1.CreateWorkloadIdentityRequest
+	56, // 82: plux.v1.IdentityService.ListWorkloadIdentities:input_type -> plux.v1.ListWorkloadIdentitiesRequest
+	58, // 83: plux.v1.IdentityService.DeleteWorkloadIdentity:input_type -> plux.v1.DeleteWorkloadIdentityRequest
+	60, // 84: plux.v1.IdentityService.ExchangeWorkloadIdentity:input_type -> plux.v1.ExchangeWorkloadIdentityRequest
+	62, // 85: plux.v1.IdentityService.ListAuditEntries:input_type -> plux.v1.ListAuditEntriesRequest
+	5,  // 86: plux.v1.IdentityService.GetCurrentUser:output_type -> plux.v1.GetCurrentUserResponse
+	7,  // 87: plux.v1.IdentityService.AcceptInvitation:output_type -> plux.v1.AcceptInvitationResponse
+	9,  // 88: plux.v1.IdentityService.StartPasswordLogin:output_type -> plux.v1.StartPasswordLoginResponse
+	11, // 89: plux.v1.IdentityService.CompleteMfa:output_type -> plux.v1.CompleteMfaResponse
+	13, // 90: plux.v1.IdentityService.StartOidcLogin:output_type -> plux.v1.StartOidcLoginResponse
+	15, // 91: plux.v1.IdentityService.CompleteOidcLogin:output_type -> plux.v1.CompleteOidcLoginResponse
+	17, // 92: plux.v1.IdentityService.BeginWebAuthnLogin:output_type -> plux.v1.BeginWebAuthnLoginResponse
+	19, // 93: plux.v1.IdentityService.CompleteWebAuthnLogin:output_type -> plux.v1.CompleteWebAuthnLoginResponse
+	25, // 94: plux.v1.IdentityService.VerifySecondFactor:output_type -> plux.v1.VerifySecondFactorResponse
+	27, // 95: plux.v1.IdentityService.ChangePassword:output_type -> plux.v1.ChangePasswordResponse
+	29, // 96: plux.v1.IdentityService.Logout:output_type -> plux.v1.LogoutResponse
+	65, // 97: plux.v1.IdentityService.BeginStepUp:output_type -> plux.v1.BeginStepUpResponse
+	67, // 98: plux.v1.IdentityService.CompleteStepUp:output_type -> plux.v1.CompleteStepUpResponse
+	70, // 99: plux.v1.IdentityService.ListSessions:output_type -> plux.v1.ListSessionsResponse
+	72, // 100: plux.v1.IdentityService.RevokeSession:output_type -> plux.v1.RevokeSessionResponse
+	31, // 101: plux.v1.IdentityService.EnrollTotp:output_type -> plux.v1.EnrollTotpResponse
+	21, // 102: plux.v1.IdentityService.BeginWebAuthnRegistration:output_type -> plux.v1.BeginWebAuthnRegistrationResponse
+	23, // 103: plux.v1.IdentityService.FinishWebAuthnRegistration:output_type -> plux.v1.FinishWebAuthnRegistrationResponse
+	33, // 104: plux.v1.IdentityService.ConfirmFactor:output_type -> plux.v1.ConfirmFactorResponse
+	35, // 105: plux.v1.IdentityService.ListFactors:output_type -> plux.v1.ListFactorsResponse
+	37, // 106: plux.v1.IdentityService.DeleteFactor:output_type -> plux.v1.DeleteFactorResponse
+	39, // 107: plux.v1.IdentityService.StartDeviceAuthorization:output_type -> plux.v1.StartDeviceAuthorizationResponse
+	41, // 108: plux.v1.IdentityService.PollDeviceAuthorization:output_type -> plux.v1.PollDeviceAuthorizationResponse
+	43, // 109: plux.v1.IdentityService.ApproveDeviceAuthorization:output_type -> plux.v1.ApproveDeviceAuthorizationResponse
+	45, // 110: plux.v1.IdentityService.DenyDeviceAuthorization:output_type -> plux.v1.DenyDeviceAuthorizationResponse
+	48, // 111: plux.v1.IdentityService.CreateAccessToken:output_type -> plux.v1.CreateAccessTokenResponse
+	50, // 112: plux.v1.IdentityService.ListAccessTokens:output_type -> plux.v1.ListAccessTokensResponse
+	52, // 113: plux.v1.IdentityService.RevokeAccessToken:output_type -> plux.v1.RevokeAccessTokenResponse
+	55, // 114: plux.v1.IdentityService.CreateWorkloadIdentity:output_type -> plux.v1.CreateWorkloadIdentityResponse
+	57, // 115: plux.v1.IdentityService.ListWorkloadIdentities:output_type -> plux.v1.ListWorkloadIdentitiesResponse
+	59, // 116: plux.v1.IdentityService.DeleteWorkloadIdentity:output_type -> plux.v1.DeleteWorkloadIdentityResponse
+	61, // 117: plux.v1.IdentityService.ExchangeWorkloadIdentity:output_type -> plux.v1.ExchangeWorkloadIdentityResponse
+	63, // 118: plux.v1.IdentityService.ListAuditEntries:output_type -> plux.v1.ListAuditEntriesResponse
+	86, // [86:119] is the sub-list for method output_type
+	53, // [53:86] is the sub-list for method input_type
+	53, // [53:53] is the sub-list for extension type_name
+	53, // [53:53] is the sub-list for extension extendee
+	0,  // [0:53] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_identity_proto_init() }
@@ -3904,7 +4532,7 @@ func file_plux_v1_identity_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_identity_proto_rawDesc), len(file_plux_v1_identity_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   64,
+			NumMessages:   73,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

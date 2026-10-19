@@ -172,6 +172,28 @@ const (
 	RoleRevoked      Action = "role.revoked"
 )
 
+// The actions of sessions and step-up (GOV-005, SEC-103, ADR-0075).
+const (
+	// SessionRevoked: an administrator ended a browser session; the entry
+	// names the session, and the person it belonged to in the detail. A
+	// revoked token is recorded as TokenRevoked.
+	SessionRevoked Action = "session.revoked"
+	// StepUpRequested: the CLI asked for a step-up, bound to its token and
+	// the thumbprint of its DPoP key.
+	StepUpRequested Action = "stepup.requested"
+	// StepUpApproved: a WebAuthn assertion with user verification verified,
+	// for a browser session or for a request of the CLI's.
+	StepUpApproved Action = "stepup.approved"
+	// StepUpRefused: an assertion did not verify, or the request was
+	// closed after too many ceremonies.
+	StepUpRefused Action = "stepup.refused"
+	// StepUpGrantIssued: the CLI collected the grant of an approved request.
+	StepUpGrantIssued Action = "stepup.grant_issued"
+	// StepUpGrantRefused: a grant was presented with another token or
+	// another key than the ones it is bound to.
+	StepUpGrantRefused Action = "stepup.grant_refused"
+)
+
 // actions is the registry, sorted, so that Registered can search it and
 // a test can print the catalogue.
 var actions = sorted(
@@ -194,6 +216,7 @@ var actions = sorted(
 	FunctionSourceUploaded, FunctionBuildRequested, FunctionBuildFinished, FunctionDeployed, FunctionPromoted, FunctionAliasSet,
 	RoleCreated, RoleUpdated, RoleDeleted,
 	RoleGranted, RoleGrantChanged, RoleRevoked,
+	SessionRevoked, StepUpRequested, StepUpApproved, StepUpRefused, StepUpGrantIssued, StepUpGrantRefused,
 	LicenseStateChanged,
 )
 

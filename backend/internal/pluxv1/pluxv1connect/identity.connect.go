@@ -68,6 +68,18 @@ const (
 	IdentityServiceChangePasswordProcedure = "/plux.v1.IdentityService/ChangePassword"
 	// IdentityServiceLogoutProcedure is the fully-qualified name of the IdentityService's Logout RPC.
 	IdentityServiceLogoutProcedure = "/plux.v1.IdentityService/Logout"
+	// IdentityServiceBeginStepUpProcedure is the fully-qualified name of the IdentityService's
+	// BeginStepUp RPC.
+	IdentityServiceBeginStepUpProcedure = "/plux.v1.IdentityService/BeginStepUp"
+	// IdentityServiceCompleteStepUpProcedure is the fully-qualified name of the IdentityService's
+	// CompleteStepUp RPC.
+	IdentityServiceCompleteStepUpProcedure = "/plux.v1.IdentityService/CompleteStepUp"
+	// IdentityServiceListSessionsProcedure is the fully-qualified name of the IdentityService's
+	// ListSessions RPC.
+	IdentityServiceListSessionsProcedure = "/plux.v1.IdentityService/ListSessions"
+	// IdentityServiceRevokeSessionProcedure is the fully-qualified name of the IdentityService's
+	// RevokeSession RPC.
+	IdentityServiceRevokeSessionProcedure = "/plux.v1.IdentityService/RevokeSession"
 	// IdentityServiceEnrollTotpProcedure is the fully-qualified name of the IdentityService's
 	// EnrollTotp RPC.
 	IdentityServiceEnrollTotpProcedure = "/plux.v1.IdentityService/EnrollTotp"
@@ -152,6 +164,19 @@ type IdentityServiceClient interface {
 	VerifySecondFactor(context.Context, *connect.Request[pluxv1.VerifySecondFactorRequest]) (*connect.Response[pluxv1.VerifySecondFactorResponse], error)
 	ChangePassword(context.Context, *connect.Request[pluxv1.ChangePasswordRequest]) (*connect.Response[pluxv1.ChangePasswordResponse], error)
 	Logout(context.Context, *connect.Request[pluxv1.LogoutRequest]) (*connect.Response[pluxv1.LogoutResponse], error)
+	// BeginStepUp starts a WebAuthn step-up in the caller's browser
+	// session, or for a request of the CLI's that the session performs:
+	// it returns the options for navigator.credentials.get() with user
+	// verification required. CompleteStepUp verifies the assertion and
+	// records stepUpAt on the session, or approves the CLI's request
+	// (SEC-103, ADR-0075).
+	BeginStepUp(context.Context, *connect.Request[pluxv1.BeginStepUpRequest]) (*connect.Response[pluxv1.BeginStepUpResponse], error)
+	CompleteStepUp(context.Context, *connect.Request[pluxv1.CompleteStepUpRequest]) (*connect.Response[pluxv1.CompleteStepUpResponse], error)
+	// ListSessions lists the sessions of the organisation's members and
+	// the organisation's tokens, with where and when each was last used;
+	// RevokeSession ends one at once (GOV-005).
+	ListSessions(context.Context, *connect.Request[pluxv1.ListSessionsRequest]) (*connect.Response[pluxv1.ListSessionsResponse], error)
+	RevokeSession(context.Context, *connect.Request[pluxv1.RevokeSessionRequest]) (*connect.Response[pluxv1.RevokeSessionResponse], error)
 	EnrollTotp(context.Context, *connect.Request[pluxv1.EnrollTotpRequest]) (*connect.Response[pluxv1.EnrollTotpResponse], error)
 	// BeginWebAuthnRegistration adds a security key waiting for the
 	// browser's registration, which FinishWebAuthnRegistration verifies.
@@ -264,6 +289,30 @@ func NewIdentityServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			httpClient,
 			baseURL+IdentityServiceLogoutProcedure,
 			connect.WithSchema(identityServiceMethods.ByName("Logout")),
+			connect.WithClientOptions(opts...),
+		),
+		beginStepUp: connect.NewClient[pluxv1.BeginStepUpRequest, pluxv1.BeginStepUpResponse](
+			httpClient,
+			baseURL+IdentityServiceBeginStepUpProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("BeginStepUp")),
+			connect.WithClientOptions(opts...),
+		),
+		completeStepUp: connect.NewClient[pluxv1.CompleteStepUpRequest, pluxv1.CompleteStepUpResponse](
+			httpClient,
+			baseURL+IdentityServiceCompleteStepUpProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("CompleteStepUp")),
+			connect.WithClientOptions(opts...),
+		),
+		listSessions: connect.NewClient[pluxv1.ListSessionsRequest, pluxv1.ListSessionsResponse](
+			httpClient,
+			baseURL+IdentityServiceListSessionsProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("ListSessions")),
+			connect.WithClientOptions(opts...),
+		),
+		revokeSession: connect.NewClient[pluxv1.RevokeSessionRequest, pluxv1.RevokeSessionResponse](
+			httpClient,
+			baseURL+IdentityServiceRevokeSessionProcedure,
+			connect.WithSchema(identityServiceMethods.ByName("RevokeSession")),
 			connect.WithClientOptions(opts...),
 		),
 		enrollTotp: connect.NewClient[pluxv1.EnrollTotpRequest, pluxv1.EnrollTotpResponse](
@@ -390,6 +439,10 @@ type identityServiceClient struct {
 	verifySecondFactor         *connect.Client[pluxv1.VerifySecondFactorRequest, pluxv1.VerifySecondFactorResponse]
 	changePassword             *connect.Client[pluxv1.ChangePasswordRequest, pluxv1.ChangePasswordResponse]
 	logout                     *connect.Client[pluxv1.LogoutRequest, pluxv1.LogoutResponse]
+	beginStepUp                *connect.Client[pluxv1.BeginStepUpRequest, pluxv1.BeginStepUpResponse]
+	completeStepUp             *connect.Client[pluxv1.CompleteStepUpRequest, pluxv1.CompleteStepUpResponse]
+	listSessions               *connect.Client[pluxv1.ListSessionsRequest, pluxv1.ListSessionsResponse]
+	revokeSession              *connect.Client[pluxv1.RevokeSessionRequest, pluxv1.RevokeSessionResponse]
 	enrollTotp                 *connect.Client[pluxv1.EnrollTotpRequest, pluxv1.EnrollTotpResponse]
 	beginWebAuthnRegistration  *connect.Client[pluxv1.BeginWebAuthnRegistrationRequest, pluxv1.BeginWebAuthnRegistrationResponse]
 	finishWebAuthnRegistration *connect.Client[pluxv1.FinishWebAuthnRegistrationRequest, pluxv1.FinishWebAuthnRegistrationResponse]
@@ -463,6 +516,26 @@ func (c *identityServiceClient) ChangePassword(ctx context.Context, req *connect
 // Logout calls plux.v1.IdentityService.Logout.
 func (c *identityServiceClient) Logout(ctx context.Context, req *connect.Request[pluxv1.LogoutRequest]) (*connect.Response[pluxv1.LogoutResponse], error) {
 	return c.logout.CallUnary(ctx, req)
+}
+
+// BeginStepUp calls plux.v1.IdentityService.BeginStepUp.
+func (c *identityServiceClient) BeginStepUp(ctx context.Context, req *connect.Request[pluxv1.BeginStepUpRequest]) (*connect.Response[pluxv1.BeginStepUpResponse], error) {
+	return c.beginStepUp.CallUnary(ctx, req)
+}
+
+// CompleteStepUp calls plux.v1.IdentityService.CompleteStepUp.
+func (c *identityServiceClient) CompleteStepUp(ctx context.Context, req *connect.Request[pluxv1.CompleteStepUpRequest]) (*connect.Response[pluxv1.CompleteStepUpResponse], error) {
+	return c.completeStepUp.CallUnary(ctx, req)
+}
+
+// ListSessions calls plux.v1.IdentityService.ListSessions.
+func (c *identityServiceClient) ListSessions(ctx context.Context, req *connect.Request[pluxv1.ListSessionsRequest]) (*connect.Response[pluxv1.ListSessionsResponse], error) {
+	return c.listSessions.CallUnary(ctx, req)
+}
+
+// RevokeSession calls plux.v1.IdentityService.RevokeSession.
+func (c *identityServiceClient) RevokeSession(ctx context.Context, req *connect.Request[pluxv1.RevokeSessionRequest]) (*connect.Response[pluxv1.RevokeSessionResponse], error) {
+	return c.revokeSession.CallUnary(ctx, req)
 }
 
 // EnrollTotp calls plux.v1.IdentityService.EnrollTotp.
@@ -583,6 +656,19 @@ type IdentityServiceHandler interface {
 	VerifySecondFactor(context.Context, *connect.Request[pluxv1.VerifySecondFactorRequest]) (*connect.Response[pluxv1.VerifySecondFactorResponse], error)
 	ChangePassword(context.Context, *connect.Request[pluxv1.ChangePasswordRequest]) (*connect.Response[pluxv1.ChangePasswordResponse], error)
 	Logout(context.Context, *connect.Request[pluxv1.LogoutRequest]) (*connect.Response[pluxv1.LogoutResponse], error)
+	// BeginStepUp starts a WebAuthn step-up in the caller's browser
+	// session, or for a request of the CLI's that the session performs:
+	// it returns the options for navigator.credentials.get() with user
+	// verification required. CompleteStepUp verifies the assertion and
+	// records stepUpAt on the session, or approves the CLI's request
+	// (SEC-103, ADR-0075).
+	BeginStepUp(context.Context, *connect.Request[pluxv1.BeginStepUpRequest]) (*connect.Response[pluxv1.BeginStepUpResponse], error)
+	CompleteStepUp(context.Context, *connect.Request[pluxv1.CompleteStepUpRequest]) (*connect.Response[pluxv1.CompleteStepUpResponse], error)
+	// ListSessions lists the sessions of the organisation's members and
+	// the organisation's tokens, with where and when each was last used;
+	// RevokeSession ends one at once (GOV-005).
+	ListSessions(context.Context, *connect.Request[pluxv1.ListSessionsRequest]) (*connect.Response[pluxv1.ListSessionsResponse], error)
+	RevokeSession(context.Context, *connect.Request[pluxv1.RevokeSessionRequest]) (*connect.Response[pluxv1.RevokeSessionResponse], error)
 	EnrollTotp(context.Context, *connect.Request[pluxv1.EnrollTotpRequest]) (*connect.Response[pluxv1.EnrollTotpResponse], error)
 	// BeginWebAuthnRegistration adds a security key waiting for the
 	// browser's registration, which FinishWebAuthnRegistration verifies.
@@ -691,6 +777,30 @@ func NewIdentityServiceHandler(svc IdentityServiceHandler, opts ...connect.Handl
 		IdentityServiceLogoutProcedure,
 		svc.Logout,
 		connect.WithSchema(identityServiceMethods.ByName("Logout")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceBeginStepUpHandler := connect.NewUnaryHandler(
+		IdentityServiceBeginStepUpProcedure,
+		svc.BeginStepUp,
+		connect.WithSchema(identityServiceMethods.ByName("BeginStepUp")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceCompleteStepUpHandler := connect.NewUnaryHandler(
+		IdentityServiceCompleteStepUpProcedure,
+		svc.CompleteStepUp,
+		connect.WithSchema(identityServiceMethods.ByName("CompleteStepUp")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceListSessionsHandler := connect.NewUnaryHandler(
+		IdentityServiceListSessionsProcedure,
+		svc.ListSessions,
+		connect.WithSchema(identityServiceMethods.ByName("ListSessions")),
+		connect.WithHandlerOptions(opts...),
+	)
+	identityServiceRevokeSessionHandler := connect.NewUnaryHandler(
+		IdentityServiceRevokeSessionProcedure,
+		svc.RevokeSession,
+		connect.WithSchema(identityServiceMethods.ByName("RevokeSession")),
 		connect.WithHandlerOptions(opts...),
 	)
 	identityServiceEnrollTotpHandler := connect.NewUnaryHandler(
@@ -825,6 +935,14 @@ func NewIdentityServiceHandler(svc IdentityServiceHandler, opts ...connect.Handl
 			identityServiceChangePasswordHandler.ServeHTTP(w, r)
 		case IdentityServiceLogoutProcedure:
 			identityServiceLogoutHandler.ServeHTTP(w, r)
+		case IdentityServiceBeginStepUpProcedure:
+			identityServiceBeginStepUpHandler.ServeHTTP(w, r)
+		case IdentityServiceCompleteStepUpProcedure:
+			identityServiceCompleteStepUpHandler.ServeHTTP(w, r)
+		case IdentityServiceListSessionsProcedure:
+			identityServiceListSessionsHandler.ServeHTTP(w, r)
+		case IdentityServiceRevokeSessionProcedure:
+			identityServiceRevokeSessionHandler.ServeHTTP(w, r)
 		case IdentityServiceEnrollTotpProcedure:
 			identityServiceEnrollTotpHandler.ServeHTTP(w, r)
 		case IdentityServiceBeginWebAuthnRegistrationProcedure:
@@ -912,6 +1030,22 @@ func (UnimplementedIdentityServiceHandler) ChangePassword(context.Context, *conn
 
 func (UnimplementedIdentityServiceHandler) Logout(context.Context, *connect.Request[pluxv1.LogoutRequest]) (*connect.Response[pluxv1.LogoutResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.IdentityService.Logout is not implemented"))
+}
+
+func (UnimplementedIdentityServiceHandler) BeginStepUp(context.Context, *connect.Request[pluxv1.BeginStepUpRequest]) (*connect.Response[pluxv1.BeginStepUpResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.IdentityService.BeginStepUp is not implemented"))
+}
+
+func (UnimplementedIdentityServiceHandler) CompleteStepUp(context.Context, *connect.Request[pluxv1.CompleteStepUpRequest]) (*connect.Response[pluxv1.CompleteStepUpResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.IdentityService.CompleteStepUp is not implemented"))
+}
+
+func (UnimplementedIdentityServiceHandler) ListSessions(context.Context, *connect.Request[pluxv1.ListSessionsRequest]) (*connect.Response[pluxv1.ListSessionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.IdentityService.ListSessions is not implemented"))
+}
+
+func (UnimplementedIdentityServiceHandler) RevokeSession(context.Context, *connect.Request[pluxv1.RevokeSessionRequest]) (*connect.Response[pluxv1.RevokeSessionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.IdentityService.RevokeSession is not implemented"))
 }
 
 func (UnimplementedIdentityServiceHandler) EnrollTotp(context.Context, *connect.Request[pluxv1.EnrollTotpRequest]) (*connect.Response[pluxv1.EnrollTotpResponse], error) {

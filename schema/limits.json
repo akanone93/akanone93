@@ -534,6 +534,59 @@
       "description": "Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused."
     },
     {
+      "key": "auth.sessionAbsoluteTimeout",
+      "unit": "milliseconds",
+      "default": 43200000,
+      "max": 2592000000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-005"
+      ],
+      "description": "Time after sign-in at which a browser session ends however active it is; an organisation may shorten it."
+    },
+    {
+      "key": "auth.sessionIdleTimeout",
+      "unit": "milliseconds",
+      "default": 1800000,
+      "max": 86400000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-005"
+      ],
+      "description": "Time without a request after which a browser session ends; an organisation may shorten it."
+    },
+    {
+      "key": "auth.stepUpAttempts",
+      "unit": "count",
+      "default": 5,
+      "max": 20,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "SEC-103"
+      ],
+      "description": "Ceremonies one step-up request accepts before it is closed; each wrong assertion uses one."
+    },
+    {
       "key": "bundle.deviceFunctionModuleSize",
       "unit": "bytes",
       "default": 4194304,
