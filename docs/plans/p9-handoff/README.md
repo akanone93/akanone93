@@ -266,7 +266,7 @@ merged with `main` separately.
   release (open item for the maintainer); the `REUSE.toml` annotation for `ee/**`;
   `ee/README.md`; `make go-test-core` (builds, vets and tests the core with `GOWORK=off`)
   and the CI step "The core builds and tests without ee/" in `go-build`; `ee/backend` in
-  `GO_MODULES`; `ee/**` moved from `noJob` to the `go-lint` and `go-test` rules of
+  `GO_MODULES` and in `.github/dependabot.yml` (`CI-007`; added after the merge, `TestProjectDependabotCoversEveryManifest_CI_007` caught it); `ee/**` moved from `noJob` to the `go-lint` and `go-test` rules of
   `ci/affected.json`; lint fixes (gosec G304, wrapcheck, gocritic, gofumpt, ST1023, and
   `server.New`'s complexity via `useEdition`); `make gen`; `GOV-030` and `GOV-033` → `DONE`.
 - **Verified:** `make go-lint` (all four modules, 0 issues); `make go-gen-check` (clean after
