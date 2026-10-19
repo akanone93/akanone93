@@ -11,6 +11,7 @@
   "always": [
     "changes",
     "ci-ok",
+    "codeql",
     "commits",
     "dependency-review",
     "docs-site",

@@ -24,7 +24,7 @@ How the pipeline is built and why. The requirements are spec §29 (`CI-001`–`C
 | [release.yml](../../.github/workflows/release.yml) | Component tags `<component>/v*` | Verify the signed tag and publish the release (`CI-008`). For `backend/v*` also: `make release-binaries` (reproducible archives of `plux` and `plux-server` for Linux, macOS and Windows on amd64 and arm64, `SHA256SUMS`, a Homebrew formula and a Scoop manifest), a keyless cosign signature of `SHA256SUMS`, SLSA Build Level 3 provenance for the archives, and both images through `image.yml` with their own provenance (`DEP-001`, `CLI-001`, `CI-004`) |
 | [pages.yml](../../.github/workflows/pages.yml) | Pushes to `main`, release tags, manual | Builds the documentation site (`make docs-site`) and deploys it to GitHub Pages ([ADR-0033](../adr/0033-documentation-site.md), `DX-002`); the deploy job alone has `pages: write` and `id-token: write`, and it restores no cache |
 | [image.yml](../../.github/workflows/image.yml) | Called by `release.yml` | Builds one target of `backend/Dockerfile` for linux/amd64 and linux/arm64, pushes it to GHCR, signs it with cosign and attests a CycloneDX SBOM |
-| CodeQL | GitHub default setup | Static analysis of Go, TypeScript and Actions |
+| CodeQL | GitHub default setup | Static analysis of Go, Rust, TypeScript, C and C++, and Actions for the Security tab; the same analysis gates merges as the CodeQL job of `ci.yml` (§3) |
 
 ## 3. CI jobs
 
@@ -41,6 +41,7 @@ How the pipeline is built and why. The requirements are spec §29 (`CI-001`–`C
 | SBOM | always | CycloneDX via Syft | `CI-001` |
 | Commit messages | pull requests | `scripts/check-commit-msg.sh` on title and commits | `CI-009` |
 | Dependency review | pull requests | vulnerabilities and licences of new dependencies | `CI-007` |
+| CodeQL | always | CodeQL on Go, Rust, TypeScript, C and C++ (the vendored libraries included) and Actions, one job per language; it fails on any finding of high or critical security severity, or at level error, anywhere in the repository, so CI OK is red while CodeQL would be ([ADR-0043, Revision 2026-10-19](../adr/0043-affected-only-ci.md#revision-2026-10-19-codeql-in-ci-ok)) | `CI-001` |
 | Go lint | Go code, contracts, generated files | `go-fmt-check go-lint go-tidy-check go-gen-check` (regenerates everything `make gen` writes and fails on any difference), `registry-lock-check` (no permanent ID of the base commit changed or removed) | `CI-001`, `CI-003`, `BND-011` |
 | API contract | `proto/` | `proto-check`: `buf lint`, `buf format --diff --exit-code` and `buf breaking` against the last `backend/v*` tag | `CI-001`, `SRV-000`, `SRV-002` |
 | Go test (race detector), Go test (coverage) | Go code, and the files Go tests read (schema, workflows, manifests, the specification) | two parallel jobs, `go-test-race` (the race detector) and `go-cover` (coverage floors), against a real PostgreSQL service, with `PLUX_TEST_DATABASE_URL` set so the integration tests run rather than skip; `go-budgets` (compiler timing budgets; `ubuntu-latest` is the reference runner) | `QA-001`, `QA-005`, `CMP-050`, `SCH-042` |

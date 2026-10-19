@@ -447,6 +447,84 @@ jobs:
             pkg:pub/xml, pkg:pub/yaml
           comment-summary-in-pr: never
 
+  # CodeQL on the languages GitHub's default setup analyses, inside this
+  # workflow so that CI OK holds it (maintainer, 2026-10-19): a finding the
+  # CodeQL check fails on, a security severity of high or critical or a
+  # result at level error, fails the job wherever it is in the
+  # repository. It uploads nothing; the default setup still feeds the
+  # Security tab.
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: c-cpp
+            build-mode: none
+          - language: go
+            build-mode: autobuild
+          - language: javascript-typescript
+            build-mode: none
+          - language: rust
+            build-mode: none
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - if: matrix.language == 'go'
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      - uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+      - uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        with:
+          category: /language:${{ matrix.language }}
+          upload: never
+          output: ${{ runner.temp }}/codeql
+      - name: Fail on a finding the CodeQL check fails on
+        env:
+          SARIF_DIR: ${{ runner.temp }}/codeql
+        run: |
+          python3 - <<'EOF'
+          import glob, json, os, sys
+
+          files = glob.glob(os.path.join(os.environ["SARIF_DIR"], "*.sarif"))
+          if not files:
+              sys.exit("::error::CodeQL wrote no results")
+          found = []
+          for path in files:
+              for run in json.load(open(path))["runs"]:
+                  rules = {}
+                  for part in [run["tool"]["driver"], *run["tool"].get("extensions", [])]:
+                      for rule in part.get("rules", []):
+                          rules[rule["id"]] = rule
+                  for res in run.get("results", []):
+                      if res.get("suppressions"):
+                          continue
+                      rule = rules.get(res.get("ruleId"), {})
+                      severity = float(rule.get("properties", {}).get("security-severity") or 0)
+                      level = res.get("level") or rule.get("defaultConfiguration", {}).get("level", "warning")
+                      if severity >= 7.0 or level == "error":
+                          loc = res["locations"][0]["physicalLocation"]
+                          line = loc.get("region", {}).get("startLine", "?")
+                          found.append(f"{loc['artifactLocation']['uri']}:{line}: {res.get('ruleId')} "
+                                       f"({severity or level}): {res['message']['text']}")
+          for f in found:
+              print("::error::" + f)
+          print(f"{len(found)} finding(s) at high, critical or error")
+          sys.exit(1 if found else 0)
+          EOF
+
   # ── Go ───────────────────────────────────────────────────────────────────
 
   go-lint:
@@ -1889,6 +1967,7 @@ jobs:
       - sbom
       - commits
       - dependency-review
+      - codeql
       - go-lint
       - api-contract
       - go-test

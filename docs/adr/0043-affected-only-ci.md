@@ -389,3 +389,16 @@ that job alone takes 20 to 30 minutes:
 - CI OK fails in such a run: it checked one job, not the commit, so it must never count as a
   full run's required check. Pull requests, pushes, the merge queue and the daily run never
   set the inputs, so their selection is unchanged and no gate is removed.
+
+## Revision (2026-10-19, CodeQL in CI OK)
+
+Asked for by the maintainer on 2026-10-19, after pull request #36 was green in CI OK while
+GitHub's CodeQL check failed on three findings in the vendored ZXing-C++:
+
+- A `codeql` job runs CodeQL on the languages the default setup analyses (Go, Rust,
+  JavaScript and TypeScript, C and C++, Actions), one job per language, on every run, and CI OK
+  needs it. It fails on a finding the CodeQL check fails on, a security severity of high or
+  critical or a result at level error, anywhere in the repository, vendored code included; a
+  finding is fixed, or suppressed in the source with its reason, never left.
+- It uploads nothing, so it does not clash with the default setup, which still feeds the
+  Security tab.
