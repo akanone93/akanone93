@@ -534,6 +534,40 @@
       "description": "Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused."
     },
     {
+      "key": "auth.samlClockSkewSeconds",
+      "unit": "count",
+      "default": 120,
+      "max": 180,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-004"
+      ],
+      "description": "Seconds of clock difference between an identity provider and the server that a SAML assertion's validity window tolerates."
+    },
+    {
+      "key": "auth.scimTokenOverlapSeconds",
+      "unit": "count",
+      "default": 86400,
+      "max": 604800,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-004"
+      ],
+      "description": "Seconds the previous SCIM bearer token of an organisation keeps working after it is rotated, so the identity provider can switch over."
+    },
+    {
       "key": "bundle.deviceFunctionModuleSize",
       "unit": "bytes",
       "default": 4194304,

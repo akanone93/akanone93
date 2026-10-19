@@ -320,6 +320,29 @@ type EnvironmentVariable struct {
 	UpdatedAt      pgtype.Timestamptz
 }
 
+type FederatedAssignment struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	ProviderID     pgtype.UUID
+	UserID         pgtype.UUID
+	RoleGrantID    pgtype.UUID
+	MembershipID   pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
+}
+
+type FederatedSignIn struct {
+	ID         pgtype.UUID
+	UserID     pgtype.UUID
+	ProviderID pgtype.UUID
+	Issuer     string
+	Subject    string
+	Sid        string
+	Acr        string
+	Amr        []string
+	SessionID  pgtype.UUID
+	SignedInAt pgtype.Timestamptz
+}
+
 type FunctionAlias struct {
 	OrganizationID pgtype.UUID
 	AppID          pgtype.UUID
@@ -503,6 +526,22 @@ type IdempotencyKey struct {
 	ExpiresAt   pgtype.Timestamptz
 }
 
+type IdentityProvider struct {
+	ID              pgtype.UUID
+	OrganizationID  pgtype.UUID
+	Key             string
+	Kind            string
+	Name            string
+	Enabled         bool
+	JitProvisioning bool
+	Config          []byte
+	Secret          []byte
+	Mapping         []byte
+	CreatedBy       pgtype.UUID
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
+}
+
 type ImportedKey struct {
 	Role            string
 	KeyID           string
@@ -604,11 +643,12 @@ type NativeCatalogue struct {
 }
 
 type OidcLogin struct {
-	StateHash []byte
-	Nonce     string
-	Verifier  []byte
-	CreatedAt pgtype.Timestamptz
-	ExpiresAt pgtype.Timestamptz
+	StateHash  []byte
+	Nonce      string
+	Verifier   []byte
+	CreatedAt  pgtype.Timestamptz
+	ExpiresAt  pgtype.Timestamptz
+	ProviderID pgtype.UUID
 }
 
 // The tenant boundary. Not itself tenant data: a row is the tenant (GOV-001).
@@ -753,6 +793,49 @@ type RoleGrant struct {
 	AppID          pgtype.UUID
 	EnvironmentID  pgtype.UUID
 	CreatedAt      pgtype.Timestamptz
+}
+
+type SamlLogin struct {
+	StateHash  []byte
+	ProviderID pgtype.UUID
+	RequestID  string
+	CreatedAt  pgtype.Timestamptz
+	ExpiresAt  pgtype.Timestamptz
+}
+
+type ScimGroup struct {
+	OrganizationID pgtype.UUID
+	TeamID         pgtype.UUID
+	ExternalID     string
+	Version        int64
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
+}
+
+type ScimToken struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	Name           string
+	Prefix         string
+	SecretHash     []byte
+	CreatedBy      pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
+	ExpiresAt      pgtype.Timestamptz
+	RevokedAt      pgtype.Timestamptz
+	LastUsedAt     pgtype.Timestamptz
+}
+
+type ScimUser struct {
+	OrganizationID  pgtype.UUID
+	UserID          pgtype.UUID
+	ExternalID      string
+	DisplayName     string
+	Active          bool
+	CreatedAccount  bool
+	DisabledAccount bool
+	Version         int64
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
 }
 
 type SecurityConfigVersion struct {
