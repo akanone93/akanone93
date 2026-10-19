@@ -1,0 +1,186 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+import "plux/v1/common.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// AnalyticsService queries the rollups of runtime events, manages how long
+// events, rollups and the production audit log are kept, and configures the
+// OTLP export (ANL-010, ANL-011, ADR-0080, maintainer decision Q17).
+service AnalyticsService {
+  // QueryRollups reads one event name's rollups of an app over a time range,
+  // optionally grouped by dimensions. A result cut off by the limit carries a
+  // page token. It needs analytics.read.
+  rpc QueryRollups(QueryRollupsRequest) returns (QueryRollupsResponse) {}
+  // GetRetention returns the effective retention of every data class and
+  // the changes waiting for the maintenance window. It needs analytics.read.
+  rpc GetRetention(GetRetentionRequest) returns (GetRetentionResponse) {}
+  // SetRetention changes the retention of a data class. The change waits
+  // for the maintenance window and the response carries PLX-8301, unless
+  // immediate is set. It needs retention.manage and is audited.
+  rpc SetRetention(SetRetentionRequest) returns (SetRetentionResponse) {}
+  // ListRetentionChanges lists scheduled and finished changes, newest first.
+  // It needs analytics.read.
+  rpc ListRetentionChanges(ListRetentionChangesRequest) returns (ListRetentionChangesResponse) {}
+  // CancelRetentionChange withdraws a scheduled change. It needs
+  // retention.manage and is audited.
+  rpc CancelRetentionChange(CancelRetentionChangeRequest) returns (CancelRetentionChangeResponse) {}
+  // GetExport returns the OTLP destination. It needs analytics.read.
+  rpc GetExport(GetExportRequest) returns (GetExportResponse) {}
+  // SetExport sets the OTLP destination after sending it an empty request;
+  // an unreachable destination is PLX-8302. It needs organization.manage and
+  // is audited.
+  rpc SetExport(SetExportRequest) returns (SetExportResponse) {}
+  // DeleteExport removes the OTLP destination. It needs organization.manage
+  // and is audited.
+  rpc DeleteExport(DeleteExportRequest) returns (DeleteExportResponse) {}
+}
+
+// RollupGroup is the dimension values of a point; a dimension not grouped by
+// is empty.
+message RollupGroup {
+  string environment_id = 1;
+  int64 release_sequence = 2;
+  string plugin_key = 3;
+  string page = 4;
+  string device_class = 5;
+  string locale = 6;
+}
+
+// RollupPoint is one bucket of one series. Durations are milliseconds; the
+// percentiles are estimated from a fixed-bucket histogram.
+message RollupPoint {
+  google.protobuf.Timestamp bucket = 1;
+  RollupGroup group = 2;
+  int64 events = 3;
+  int64 value_count = 4;
+  double sum = 5;
+  double min = 6;
+  double max = 7;
+  double p50 = 8;
+  double p90 = 9;
+  double p99 = 10;
+}
+
+message QueryRollupsRequest {
+  string app_id = 1;
+  // environment restricts the query to one environment key; empty for all.
+  string environment = 2;
+  // metric is the event name, such as render_perf.
+  string metric = 3;
+  // granularity is 5m, 1h or 1d.
+  string granularity = 4;
+  google.protobuf.Timestamp from = 5;
+  google.protobuf.Timestamp to = 6;
+  // group_by names dimensions to keep apart: environment, release, plugin,
+  // page, device_class, locale.
+  repeated string group_by = 7;
+  // limit is the most points to return, up to api.pageSize.
+  int32 limit = 8;
+  // page_token continues a result cut off by the limit: the
+  // next_page_token of the previous response, with the same other fields.
+  string page_token = 9;
+}
+message QueryRollupsResponse {
+  repeated RollupPoint points = 1;
+  // next_page_token is set when the limit was reached; it is empty on the
+  // last page.
+  string next_page_token = 2;
+}
+
+// RetentionSetting is the retention of one data class: raw_events, rollups
+// or audit_production.
+message RetentionSetting {
+  string data_class = 1;
+  // days is 0 for indefinitely.
+  int32 days = 2;
+  // is_default says the installation default applies.
+  bool is_default = 3;
+  // enforced is false where nothing deletes yet (audit_production).
+  bool enforced = 4;
+  string changed_by = 5;
+  google.protobuf.Timestamp changed_at = 6;
+}
+
+// RetentionChange is a retention change that was scheduled or made.
+message RetentionChange {
+  string id = 1;
+  string data_class = 2;
+  // days is 0 for indefinitely.
+  int32 days = 3;
+  // state is scheduled, applied or cancelled.
+  string state = 4;
+  string requested_by = 5;
+  google.protobuf.Timestamp requested_at = 6;
+  google.protobuf.Timestamp apply_at = 7;
+  google.protobuf.Timestamp finished_at = 8;
+}
+
+message GetRetentionRequest {}
+message GetRetentionResponse {
+  repeated RetentionSetting settings = 1;
+  repeated RetentionChange scheduled = 2;
+}
+
+message SetRetentionRequest {
+  string data_class = 1;
+  // days is 1 to 36500, or 0 for indefinitely.
+  int32 days = 2;
+  // immediate applies the change now instead of in the maintenance window.
+  bool immediate = 3;
+}
+message SetRetentionResponse {
+  RetentionChange change = 1;
+  // diagnostics carries PLX-8301 for a scheduled change.
+  repeated Diagnostic diagnostics = 2;
+}
+
+message ListRetentionChangesRequest {
+  bool only_scheduled = 1;
+  int32 limit = 2;
+}
+message ListRetentionChangesResponse {
+  repeated RetentionChange changes = 1;
+}
+
+message CancelRetentionChangeRequest {
+  string id = 1;
+}
+message CancelRetentionChangeResponse {
+  RetentionChange change = 1;
+}
+
+// Export is the OTLP destination of an organisation.
+message Export {
+  // endpoint is the OTLP/HTTP metrics URL.
+  string endpoint = 1;
+  bool enabled = 2;
+  // exported_until is the end of the last bucket sent.
+  google.protobuf.Timestamp exported_until = 3;
+  // last_error says why the last attempt failed; empty when it did not.
+  string last_error = 4;
+  google.protobuf.Timestamp last_attempt_at = 5;
+}
+
+message GetExportRequest {}
+message GetExportResponse {
+  Export export = 1;
+}
+
+message SetExportRequest {
+  // endpoint is the collector's base URL or its /v1/metrics URL, https only.
+  string endpoint = 1;
+  bool enabled = 2;
+}
+message SetExportResponse {
+  Export export = 1;
+}
+
+message DeleteExportRequest {}
+message DeleteExportResponse {}

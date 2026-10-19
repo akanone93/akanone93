@@ -60,4 +60,7 @@ const (
 	LicenseManage Permission = "license.manage"
 	// BackupManage runs, schedules and restores backups.
 	BackupManage Permission = "backup.manage"
+	// RetentionManage changes how long events and rollups are kept and
+	// schedules or cancels such changes (ANL-010, maintainer decision Q17).
+	RetentionManage Permission = "retention.manage"
 )

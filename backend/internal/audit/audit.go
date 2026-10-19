@@ -101,15 +101,28 @@ const (
 	A11yWaiverChanged Action = "a11y.waiver_changed"
 	// GoldensApproved: golden images were promoted to baselines (TST-003,
 	// ADR-0070).
-	GoldensApproved      Action = "goldens.approved"
-	ReleasesPurged       Action = "release.purged"
-	ControlChanged       Action = "release.control_changed"
-	SnapshotRestored     Action = "snapshot.restored"
-	TemplateInstantiated Action = "template.instantiated"
-	LockAcquired         Action = "plugin.lock.acquired"
-	LockTakenOver        Action = "plugin.lock.override"
-	LockReleased         Action = "plugin.lock.released"
-	LockRequested        Action = "plugin.lock.requested"
+	GoldensApproved Action = "goldens.approved"
+
+	// Analytics retention and export (ANL-010, ANL-011, ADR-0080).
+	// RetentionSet: a retention value was changed at once. RetentionScheduled:
+	// a change was queued for the maintenance window (PLX-8301).
+	// RetentionCancelled: a scheduled change was withdrawn. RetentionApplied:
+	// the window opened and a scheduled change took effect. AnalyticsExportSet
+	// and AnalyticsExportDeleted: the OTLP destination changed.
+	RetentionSet           Action = "analytics.retention_set"
+	RetentionScheduled     Action = "analytics.retention_scheduled"
+	RetentionCancelled     Action = "analytics.retention_cancelled"
+	RetentionApplied       Action = "analytics.retention_applied"
+	AnalyticsExportSet     Action = "analytics.export_set"
+	AnalyticsExportDeleted Action = "analytics.export_deleted"
+	ReleasesPurged         Action = "release.purged"
+	ControlChanged         Action = "release.control_changed"
+	SnapshotRestored       Action = "snapshot.restored"
+	TemplateInstantiated   Action = "template.instantiated"
+	LockAcquired           Action = "plugin.lock.acquired"
+	LockTakenOver          Action = "plugin.lock.override"
+	LockReleased           Action = "plugin.lock.released"
+	LockRequested          Action = "plugin.lock.requested"
 
 	// DeviceRevoked: a device's trust was withdrawn (SEC-006).
 	DeviceRevoked Action = "device.revoked"
@@ -187,6 +200,7 @@ var actions = sorted(
 	PluginCreated, PluginUpdated, PluginDeleted, PluginRestored, PluginPurged,
 	DocumentWritten, DocumentDeleted, DocumentRestored, DocumentPurged, DraftImported, AssetUploaded, AssetDeleted,
 	VersionPublished, PublishCancelled, ReleaseCreated, ReleasePromoted, ReleaseRolledBack, ReleasesPurged, ControlChanged, NativeCatalogueUploaded, A11yWaiverChanged, GoldensApproved,
+	RetentionSet, RetentionScheduled, RetentionCancelled, RetentionApplied, AnalyticsExportSet, AnalyticsExportDeleted,
 	SnapshotRestored, TemplateInstantiated, LockAcquired, LockTakenOver, LockReleased, LockRequested,
 	DeviceRevoked, SecurityConfigSet, UpdateMetadataRootUploaded,
 	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,

@@ -15,6 +15,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/nightCode42/plux3/backend/edition"
+	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
@@ -47,6 +48,9 @@ type Handlers struct {
 	Releases *release.Service
 	Devices  *device.Service
 	Events   *telemetry.Service
+	// Analytics serves AnalyticsService (ANL-010, ANL-011); nil leaves it
+	// unmounted.
+	Analytics *analytics.Service
 	// SecurityConfig serves SecurityAdminService (SEC-182); nil leaves
 	// the service unmounted.
 	SecurityConfig *seccfg.Service

@@ -55,16 +55,26 @@ type subUsage struct {
 	positional int
 }
 
+// authOptions returns the client option that sends the caller's credential
+// and organisation, or an authentication error when the caller is not signed
+// in.
+func (e env) authOptions(c common) (connect.ClientOption, error) {
+	token, err := e.creds.load(c.server)
+	if err != nil {
+		return nil, err
+	}
+	if token == "" {
+		return nil, authError("not signed in to " + c.server + ": run plux login or set " + tokenEnv)
+	}
+	return connect.WithInterceptors(headers{token: token, org: c.org}), nil
+}
+
 // governanceClients connects to the governance and organisation services.
 func (e env) governanceClients(c common) (pluxv1connect.GovernanceServiceClient, pluxv1connect.OrgServiceClient, error) {
-	token, err := e.creds.load(c.server)
+	opts, err := e.authOptions(c)
 	if err != nil {
 		return nil, nil, err
 	}
-	if token == "" {
-		return nil, nil, authError("not signed in to " + c.server + ": run plux login or set " + tokenEnv)
-	}
-	opts := connect.WithInterceptors(headers{token: token, org: c.org})
 	return pluxv1connect.NewGovernanceServiceClient(e.httpClient, c.server, opts),
 		pluxv1connect.NewOrgServiceClient(e.httpClient, c.server, opts), nil
 }

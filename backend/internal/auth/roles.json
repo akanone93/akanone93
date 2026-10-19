@@ -12,6 +12,7 @@
       "description": "May do everything except manage members and keys.",
       "permissions": [
         "a11y.waive",
+        "analytics.read",
         "app.manage",
         "app.read",
         "audit.read",
@@ -28,6 +29,7 @@
         "plugin.read",
         "release.promote",
         "release.publish",
+        "retention.manage",
         "secrets.manage",
         "tokens.manage",
         "translations.approve",

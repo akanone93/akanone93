@@ -353,7 +353,7 @@ func (q *Queries) GetDelta(ctx context.Context, arg GetDeltaParams) (Delta, erro
 }
 
 const getDevice = `-- name: GetDevice :one
-SELECT id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key FROM devices WHERE id = $1
+SELECT id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key, device_class, locale FROM devices WHERE id = $1
 `
 
 func (q *Queries) GetDevice(ctx context.Context, id pgtype.UUID) (Device, error) {
@@ -389,12 +389,14 @@ func (q *Queries) GetDevice(ctx context.Context, id pgtype.UUID) (Device, error)
 		&i.RaspDetectedAt,
 		&i.RaspKinds,
 		&i.AgreementPublicKey,
+		&i.DeviceClass,
+		&i.Locale,
 	)
 	return i, err
 }
 
 const getDeviceByJKT = `-- name: GetDeviceByJKT :one
-SELECT id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key FROM devices WHERE dpop_jkt = $1
+SELECT id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key, device_class, locale FROM devices WHERE dpop_jkt = $1
 `
 
 // Runs in the authentication scope.
@@ -431,6 +433,8 @@ func (q *Queries) GetDeviceByJKT(ctx context.Context, dpopJkt *string) (Device, 
 		&i.RaspDetectedAt,
 		&i.RaspKinds,
 		&i.AgreementPublicKey,
+		&i.DeviceClass,
+		&i.Locale,
 	)
 	return i, err
 }
@@ -442,7 +446,7 @@ INSERT INTO devices (id, organization_id, app_id, environment_id, platform, os_v
                      app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt,
                      agreement_public_key)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, ''::bytea, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
-RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key
+RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key, device_class, locale
 `
 
 type InsertAttestedDeviceParams struct {
@@ -527,6 +531,8 @@ func (q *Queries) InsertAttestedDevice(ctx context.Context, arg InsertAttestedDe
 		&i.RaspDetectedAt,
 		&i.RaspKinds,
 		&i.AgreementPublicKey,
+		&i.DeviceClass,
+		&i.Locale,
 	)
 	return i, err
 }
@@ -561,7 +567,7 @@ func (q *Queries) InsertDelta(ctx context.Context, arg InsertDeltaParams) error 
 const insertDevice = `-- name: InsertDevice :one
 INSERT INTO devices (id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, secret_hash)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key
+RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key, device_class, locale
 `
 
 type InsertDeviceParams struct {
@@ -619,6 +625,8 @@ func (q *Queries) InsertDevice(ctx context.Context, arg InsertDeviceParams) (Dev
 		&i.RaspDetectedAt,
 		&i.RaspKinds,
 		&i.AgreementPublicKey,
+		&i.DeviceClass,
+		&i.Locale,
 	)
 	return i, err
 }
@@ -691,43 +699,6 @@ func (q *Queries) InsertManifest(ctx context.Context, arg InsertManifestParams) 
 	return i, err
 }
 
-const insertTelemetryEvent = `-- name: InsertTelemetryEvent :exec
-INSERT INTO telemetry_events (id, organization_id, app_id, environment_id, device_id, name, time, release_sequence,
-                              plugin_key, route, fields)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-`
-
-type InsertTelemetryEventParams struct {
-	ID              pgtype.UUID
-	OrganizationID  pgtype.UUID
-	AppID           pgtype.UUID
-	EnvironmentID   pgtype.UUID
-	DeviceID        pgtype.UUID
-	Name            string
-	Time            pgtype.Timestamptz
-	ReleaseSequence int64
-	PluginKey       string
-	Route           string
-	Fields          []byte
-}
-
-func (q *Queries) InsertTelemetryEvent(ctx context.Context, arg InsertTelemetryEventParams) error {
-	_, err := q.db.Exec(ctx, insertTelemetryEvent,
-		arg.ID,
-		arg.OrganizationID,
-		arg.AppID,
-		arg.EnvironmentID,
-		arg.DeviceID,
-		arg.Name,
-		arg.Time,
-		arg.ReleaseSequence,
-		arg.PluginKey,
-		arg.Route,
-		arg.Fields,
-	)
-	return err
-}
-
 const latestManifest = `-- name: LatestManifest :one
 SELECT id, organization_id, channel_id, release_sequence, signed, signatures, issued_at, expires_at, host_build, own_manifest_id FROM manifests WHERE channel_id = $1 AND host_build = '' ORDER BY issued_at DESC, id DESC LIMIT 1
 `
@@ -753,7 +724,7 @@ func (q *Queries) LatestManifest(ctx context.Context, channelID pgtype.UUID) (Ma
 }
 
 const listDevices = `-- name: ListDevices :many
-SELECT id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key FROM devices
+SELECT id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key, device_class, locale FROM devices
  WHERE app_id = $1
    AND ($2::uuid IS NULL OR environment_id = $2::uuid)
    AND (registered_at, id) < ($3::timestamptz, $4::uuid)
@@ -814,6 +785,8 @@ func (q *Queries) ListDevices(ctx context.Context, arg ListDevicesParams) ([]Dev
 			&i.RaspDetectedAt,
 			&i.RaspKinds,
 			&i.AgreementPublicKey,
+			&i.DeviceClass,
+			&i.Locale,
 		); err != nil {
 			return nil, err
 		}
@@ -859,7 +832,7 @@ func (q *Queries) ListEnvironmentKeys(ctx context.Context, environmentID pgtype.
 }
 
 const listTelemetryEvents = `-- name: ListTelemetryEvents :many
-SELECT id, organization_id, app_id, environment_id, device_id, name, time, release_sequence, plugin_key, route, fields, received_at FROM telemetry_events
+SELECT id, organization_id, app_id, environment_id, device_id, name, time, release_sequence, plugin_key, route, fields, received_at, device_class, locale, category FROM analytics_events
  WHERE app_id = $1 AND environment_id = $2
    AND ($3::text = '' OR name = $3::text)
    AND time >= $4::timestamptz
@@ -878,7 +851,7 @@ type ListTelemetryEventsParams struct {
 	PageSize      int32
 }
 
-func (q *Queries) ListTelemetryEvents(ctx context.Context, arg ListTelemetryEventsParams) ([]TelemetryEvent, error) {
+func (q *Queries) ListTelemetryEvents(ctx context.Context, arg ListTelemetryEventsParams) ([]AnalyticsEvent, error) {
 	rows, err := q.db.Query(ctx, listTelemetryEvents,
 		arg.AppID,
 		arg.EnvironmentID,
@@ -892,9 +865,9 @@ func (q *Queries) ListTelemetryEvents(ctx context.Context, arg ListTelemetryEven
 		return nil, err
 	}
 	defer rows.Close()
-	items := []TelemetryEvent{}
+	items := []AnalyticsEvent{}
 	for rows.Next() {
-		var i TelemetryEvent
+		var i AnalyticsEvent
 		if err := rows.Scan(
 			&i.ID,
 			&i.OrganizationID,
@@ -908,6 +881,9 @@ func (q *Queries) ListTelemetryEvents(ctx context.Context, arg ListTelemetryEven
 			&i.Route,
 			&i.Fields,
 			&i.ReceivedAt,
+			&i.DeviceClass,
+			&i.Locale,
+			&i.Category,
 		); err != nil {
 			return nil, err
 		}
@@ -978,18 +954,6 @@ func (q *Queries) PurgeManifests(ctx context.Context, expiresAt pgtype.Timestamp
 	return result.RowsAffected(), nil
 }
 
-const purgeTelemetry = `-- name: PurgeTelemetry :execrows
-DELETE FROM telemetry_events WHERE received_at < $1
-`
-
-func (q *Queries) PurgeTelemetry(ctx context.Context, receivedAt pgtype.Timestamptz) (int64, error) {
-	result, err := q.db.Exec(ctx, purgeTelemetry, receivedAt)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
 const recentVersionBundles = `-- name: RecentVersionBundles :many
 SELECT bundle_sha256 FROM plugin_versions
  WHERE app_id = $1 AND plugin_key = $2
@@ -1032,7 +996,7 @@ UPDATE devices
        assurance_level = CASE WHEN assurance_level = ANY ($3::text[]) THEN $4::text
                               ELSE assurance_level END
  WHERE id = $5 AND revoked_at IS NULL
-RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key
+RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key, device_class, locale
 `
 
 type RecordDeviceRASPParams struct {
@@ -1085,6 +1049,8 @@ func (q *Queries) RecordDeviceRASP(ctx context.Context, arg RecordDeviceRASPPara
 		&i.RaspDetectedAt,
 		&i.RaspKinds,
 		&i.AgreementPublicKey,
+		&i.DeviceClass,
+		&i.Locale,
 	)
 	return i, err
 }
@@ -1144,7 +1110,7 @@ UPDATE devices
        app_attest_receipt = COALESCE($10::bytea, app_attest_receipt),
        rasp_detected_at = NULL, rasp_kinds = '{}'
  WHERE id = $11 AND revoked_at IS NULL
-RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key
+RETURNING id, organization_id, app_id, environment_id, platform, os_version, runtime_version, host_build, assurance_level, secret_hash, installed_sequence, registered_at, last_seen_at, dpop_jkt, dpop_public_key, key_storage, attestation_provider, attestation_verdicts, attestation_risk_metric, attested_at, app_attest_key_id, app_attest_public_key, app_attest_counter, app_attest_receipt, revoked_at, revoked_reason, rasp_detected_at, rasp_kinds, agreement_public_key, device_class, locale
 `
 
 type UpdateDeviceAttestationParams struct {
@@ -1208,6 +1174,8 @@ func (q *Queries) UpdateDeviceAttestation(ctx context.Context, arg UpdateDeviceA
 		&i.RaspDetectedAt,
 		&i.RaspKinds,
 		&i.AgreementPublicKey,
+		&i.DeviceClass,
+		&i.Locale,
 	)
 	return i, err
 }

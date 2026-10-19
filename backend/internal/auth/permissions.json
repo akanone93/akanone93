@@ -289,6 +289,14 @@
       "readOnly": false
     },
     {
+      "name": "retention.manage",
+      "description": "Change how long events and rollups are kept, and schedule or cancel retention changes.",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
       "name": "roles.manage",
       "description": "Create, change and delete custom roles.",
       "risk": "high",

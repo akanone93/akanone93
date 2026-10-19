@@ -103,7 +103,7 @@ func TestCatalogueEntries_GOV_002(t *testing.T) {
 		auth.RolloutManage, auth.KillswitchManage, auth.FlagsManage, auth.ExperimentsManage,
 		auth.AnalyticsRead, auth.AlertsManage, auth.NotificationsManage, auth.WebhooksManage,
 		auth.AuditExport, auth.ReconstructionView, auth.DSRManage, auth.SearchRead, auth.GitExport,
-		auth.LicenseManage, auth.BackupManage,
+		auth.LicenseManage, auth.BackupManage, auth.RetentionManage,
 	}
 	for _, p := range p9 {
 		if !auth.InCatalogue(p) {
@@ -222,7 +222,7 @@ func TestPredefinedRoles_GOV_002(t *testing.T) {
 		if r == auth.RoleOwner {
 			continue
 		}
-		for _, p := range []auth.Permission{auth.RolesManage, auth.SSOManage, auth.SessionsManage, auth.LicenseManage, auth.BackupManage, auth.KeysManage, auth.MembersManage} {
+		for _, p := range []auth.Permission{auth.RolesManage, auth.SSOManage, auth.SessionsManage, auth.LicenseManage, auth.BackupManage, auth.RetentionManage, auth.KeysManage, auth.MembersManage} {
 			if slices.Contains(auth.RolePermissions(r), p) {
 				t.Errorf("%s holds %s", r, p)
 			}
