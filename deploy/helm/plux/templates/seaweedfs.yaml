@@ -1,0 +1,146 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Object storage for bundles, deltas and assets (SRV-023) when
+# objectStorage.mode is "seaweedfs": one SeaweedFS instance (master, volume
+# server and S3 gateway in one process, as deploy/compose runs it) on a
+# persistent volume. It is a single instance, not a replicated cluster: for
+# production use an external S3 store (README.md, "Object storage").
+{{- if eq .Values.objectStorage.mode "seaweedfs" }}
+{{- $s := .Values.objectStorage.seaweedfs }}
+{{- $name := include "plux.seaweedName" . }}
+{{- $secret := include "plux.s3SecretName" . }}
+{{- $bucket := .Values.objectStorage.bucket }}
+{{- if not $s.existingSecret }}
+{{- $key := include "plux.randomValue" (dict "root" . "name" $secret "key" "accessKeyID") }}
+{{- $sec := include "plux.randomValue" (dict "root" . "name" $secret "key" "secretAccessKey") }}
+---
+# Generated once and kept across upgrades. Supply your own Secret with
+# accessKeyID, secretAccessKey and s3.json through existingSecret.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $secret }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "seaweedfs") | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
+type: Opaque
+stringData:
+  accessKeyID: {{ $key | quote }}
+  secretAccessKey: {{ $sec | quote }}
+  s3.json: {{ dict "identities" (list (dict "name" "plux" "credentials" (list (dict "accessKey" $key "secretKey" $sec)) "actions" (list "Admin" "Read" "Write" "List" "Tagging"))) | toJson | quote }}
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "seaweedfs") | nindent 4 }}
+spec:
+  selector:
+    {{- include "plux.selectorLabels" (dict "root" . "component" "seaweedfs") | nindent 4 }}
+  ports:
+    - {name: s3, port: 8333, targetPort: s3}
+    - {name: master, port: 9333, targetPort: master}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "plux.labels" (dict "root" . "component" "seaweedfs") | nindent 4 }}
+spec:
+  serviceName: {{ $name }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "plux.selectorLabels" (dict "root" . "component" "seaweedfs") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "plux.labels" (dict "root" . "component" "seaweedfs") | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "plux.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- include "plux.podSecurityContext" (dict "root" . "role" "seaweedfs" "uid" 1000) | nindent 8 }}
+      containers:
+        - name: seaweedfs
+          image: {{ include "plux.image" (dict "image" $s.image) | quote }}
+          args: [server, -dir=/data, -s3, -s3.port=8333, -s3.config=/etc/seaweedfs/s3.json, -ip.bind=0.0.0.0]
+          ports:
+            - {name: s3, containerPort: 8333}
+            - {name: master, containerPort: 9333}
+          env:
+            - {name: HOME, value: /tmp}
+          # Ready once the master and the S3 gateway both answer: the gateway
+          # starts after the master, and a client that comes first is reset.
+          readinessProbe:
+            exec:
+              command: [sh, -c, "wget -qO- http://127.0.0.1:9333/cluster/status >/dev/null && wget -qO- http://127.0.0.1:8333/healthz >/dev/null"]
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            exec:
+              command: [sh, -c, "wget -qO- http://127.0.0.1:9333/cluster/status >/dev/null"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 6
+          {{- if $s.resources }}
+          resources:
+            {{- toYaml $s.resources | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- include "plux.containerSecurityContext" . | nindent 12 }}
+          volumeMounts:
+            - {name: data, mountPath: /data}
+            - {name: s3-config, mountPath: /etc/seaweedfs, readOnly: true}
+            - {name: tmp, mountPath: /tmp}
+        # Creates the bucket once the master answers, and keeps it: the
+        # bucket lives in the data volume, so a rerun finds it.
+        - name: bucket
+          image: {{ include "plux.image" (dict "image" $s.image) | quote }}
+          command:
+            - sh
+            - -c
+            - |
+              until echo 's3.bucket.list' | weed shell -master=127.0.0.1:9333 2>/dev/null | grep -q "$BUCKET" ||
+                    echo "s3.bucket.create -name $BUCKET" | weed shell -master=127.0.0.1:9333 >/dev/null 2>&1; do
+                sleep 3
+              done
+              exec sleep 2147483647
+          env:
+            - {name: BUCKET, value: {{ $bucket | quote }}}
+            - {name: HOME, value: /tmp}
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {memory: 128Mi}
+          securityContext:
+            {{- include "plux.containerSecurityContext" . | nindent 12 }}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: s3-config
+          secret:
+            secretName: {{ $secret }}
+            items: [{key: s3.json, path: s3.json}]
+        - name: tmp
+          emptyDir: {sizeLimit: 64Mi}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        {{- with $s.storage.storageClass }}
+        storageClassName: {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ $s.storage.size }}
+{{- end }}

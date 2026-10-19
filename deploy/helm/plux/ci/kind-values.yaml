@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# The end-to-end installation on a single-node kind cluster (make e2e-kind):
+# every dependency in the chart, every role but the builder (which needs a
+# node seccomp profile), spreading best effort, no metrics server, and the
+# file signing backend because the cluster has no Vault. Images are set by the
+# make target (--set image.*).
+scheduling:
+  nodeSpread: ScheduleAnyway
+server:
+  publicBaseURL: https://plux.example.com
+signing:
+  backend: file
+functions:
+  enabled: true
+  artifactKeys:
+    - keyID: "000102030405060708090a0b0c0d0e0f"
+      publicKey: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="
+postgresql:
+  cnpg:
+    instances: 3
+    storage: {size: 1Gi}
+objectStorage:
+  seaweedfs:
+    storage: {size: 1Gi}
+api:
+  autoscaling: {enabled: false}
+fnrunner:
+  autoscaling: {enabled: false}

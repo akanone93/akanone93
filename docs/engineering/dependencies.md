@@ -169,6 +169,9 @@ Planned for P11 (ADR-0014): React, TanStack Router and Query, shadcn/ui on Radix
 | golangci-lint, govulncheck, gitleaks, actionlint | Makefile (built with the project toolchain), CI | Lint, vulnerabilities, secrets, workflows |
 | pre-commit, zizmor, reuse, git-cliff | Makefile, CI | Hooks, workflow security, licensing, release notes |
 | `buf`, `protoc-gen-go`, `protoc-gen-connect-go`, `protoc-gen-connect-openapi` | Makefile (`BUF_VERSION` and the plugin versions), built with the project toolchain | API contract lint, breaking-change detection and code generation ([ADR-0005](../adr/0005-connectrpc-and-protobuf.md)) |
+| Helm 3.22.1 (Apache-2.0), kind 0.33.0 (Apache-2.0), kubeconform 0.8.0 (Apache-2.0) | Makefile (`HELM_VERSION`, `KIND_VERSION`, `KUBECONFORM_VERSION`), built with the project toolchain by `make install-helm-tools`; cached in CI keyed on `make helm-tool-pins` | Render, lint and schema-validate the chart (`make helm-lint`) and run it on a throwaway cluster (`make e2e-kind`) (`DEP-003`, `DEP-004`). Approved (maintainer, 2026-10-18, P9 plan A3). Helm 4.3.1 is current; the chart is `apiVersion: v2`, which both read, and Helm 3 stays the pin until the chart tests run on 4 |
+| chart-testing (`ct`) 3.15.0 (Apache-2.0) | Approved with the tools above (P9 plan A3), not pinned: `ct lint` runs the Python tools `yamale` and `yamllint`, and `ct install` installs every `ci/*-values.yaml`, while `make helm-lint` runs `helm lint --strict` and the schema checks for each of them without either | Not used |
+| kubectl | The runner's or the developer's own | `make e2e-kind` applies the pinned CloudNativePG manifest and waits on the cluster with it; not built or pinned here (Apache-2.0) |
 | `flatc` (FlatBuffers compiler) | Makefile (`FLATC_VERSION`, tag commit), built from source; cached in CI | Bundle code generation ([ADR-0002](../adr/0002-flatbuffers-sectioned-bundles.md)) |
 | GitHub Actions | Full commit SHAs in `.github/workflows/` | CI |
 | cosign (sigstore/cosign-installer), Syft (anchore/sbom-action), Docker Buildx and QEMU | Action SHAs in `release.yml` and `image.yml` | Keyless signatures, CycloneDX SBOMs and multi-arch images (`DEP-001`, `CI-004`) |
@@ -189,6 +192,18 @@ Pinned by tag and digest in `backend/Dockerfile` and `deploy/compose/compose.yam
 | `valkey/valkey` | Compose stack cache |
 | `otel/opentelemetry-collector-contrib`, `prom/prometheus`, `grafana/grafana` | Compose stack telemetry |
 | `keycloak/keycloak`, `ollama/ollama` | Optional Compose profiles |
+
+### Deploy-time dependencies of the Helm chart (`deploy/helm/plux`)
+
+The chart does not vendor these; it renders resources for them, or addresses an existing installation. Approved with the chart (maintainer, 2026-10-18, P9 plan A4). `make e2e-kind` installs the first and the images below on a throwaway cluster.
+
+| Dependency | Used for | Licence | Pinned in |
+|---|---|---|---|
+| CloudNativePG operator 1.30.1 (`ghcr.io/cloudnative-pg/cloudnative-pg`), with its `Cluster` custom resource (`postgresql.cnpg.io/v1`) | The three-instance PostgreSQL cluster of `postgresql.mode: cnpg` (`DEP-004`); installed by the operator's owner, not by the chart. The PostgreSQL image is the operator's default unless `postgresql.cnpg.imageName` names one | Apache-2.0 | `CNPG_VERSION` and `CNPG_SHA256` (the release manifest) in the Makefile; the `Cluster` schema is checked against the Datree CRDs catalogue by `make helm-lint` |
+| `valkey/valkey` 8.1.9 (Valkey and Sentinel) | `valkey.mode: sentinel`: three pods, each a Valkey and a Sentinel, written by the chart (`DEP-004`); the server follows the master through the Sentinels (`SEC-023`) | BSD-3-Clause | Tag and digest in `values.yaml`, the same image as Compose |
+| `chrislusf/seaweedfs` 4.47 | `objectStorage.mode: seaweedfs`: one instance on a volume, as Compose runs it; replication needs an external S3 store | Apache-2.0 | Tag and digest in `values.yaml`, the same image as Compose |
+| `curlimages/curl` 8.23.0 | The `helm test` pod only (`/readyz` and the manifest route) | curl licence (MIT-style) | Tag and digest in `values.yaml` |
+| HashiCorp Vault Transit, any S3 API, any PostgreSQL or Valkey | The `external` modes and `signing.backend: vault`: the chart holds a reference to their Secrets and nothing else | — | Not part of the chart |
 
 ## 3. Decisions made in P0
 

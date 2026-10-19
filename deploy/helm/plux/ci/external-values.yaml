@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Every dependency outside the chart: a managed PostgreSQL, a Valkey or
+# Sentinel URL, an S3 store and a proxy that terminates TLS.
+server:
+  publicBaseURL: https://plux.example.com
+signing:
+  vault:
+    address: https://vault.example.com:8200
+    tokenSecret:
+      name: plux-vault
+postgresql:
+  mode: external
+  external:
+    existingSecret: plux-database
+valkey:
+  mode: external
+  external:
+    existingSecret: plux-valkey
+    caSecret: plux-valkey-ca
+objectStorage:
+  mode: external
+  region: eu-central-1
+  pathStyle: false
+  cdnBaseURL: https://cdn.example.com
+  external:
+    endpoint: https://s3.eu-central-1.amazonaws.com
+    existingSecret: plux-s3
+networkPolicy:
+  extraEgress:
+    api: &db
+      - to:
+          - ipBlock: {cidr: 10.20.0.0/16}
+        ports:
+          - {protocol: TCP, port: 5432}
+          - {protocol: TCP, port: 6379}
+    worker: *db
+    migrate: *db

@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# One configuration file per role. A change rolls the role's pods: each
+# deployment carries a checksum of its file (checksum/config).
+{{- $roles := list "api" "worker" }}
+{{- if .Values.functions.enabled }}
+{{- $roles = concat $roles (list "fnrunner" "egress") }}
+{{- if .Values.builder.enabled }}{{ $roles = append $roles "builder" }}{{ end }}
+{{- end }}
+{{- range $role := $roles }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "plux.fullname" $ }}-{{ $role }}
+  labels:
+    {{- include "plux.labels" (dict "root" $ "component" $role) | nindent 4 }}
+data:
+  plux.yaml: |
+    {{- include (printf "plux.config.%s" $role) $ | nindent 4 }}
+{{- end }}

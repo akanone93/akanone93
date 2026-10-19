@@ -53,6 +53,28 @@
     "test/load/**"
   ],
   "jobs": {
+    "helm": {
+      "description": "The Helm chart linted, rendered for every values file and validated (DEP-003, DEP-004)",
+      "paths": [
+        "deploy/helm/**",
+        "mk/helm.mk"
+      ],
+      "exclude": [
+        "**/*.md"
+      ]
+    },
+    "kind": {
+      "description": "The chart installed on a kind cluster with CloudNativePG: helm test, a rolling upgrade and failovers; it takes long, so pushes to main skip it and only chart, image and fragment changes select it",
+      "paths": [
+        "backend/Dockerfile",
+        "deploy/helm/**",
+        "mk/helm.mk"
+      ],
+      "exclude": [
+        "**/*.md"
+      ],
+      "skipOnPush": true
+    },
     "go-lint": {
       "description": "Format, lint and tidiness of both Go modules, and `make gen` reproducing everything it writes (CI-003) from schema/, proto/ and the licence texts",
       "paths": [
