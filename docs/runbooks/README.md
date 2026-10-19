@@ -21,10 +21,12 @@ One runbook per alert and per failure mode introduced in a phase (DoD-9, `OBS-00
 | [Publish blocked](publish-blocked-quality.md) | Accessibility, goldens, profile floor or pseudo-locales refuse a publish: `PLX-3060`–`3064` (`A11Y-002`, `TST-003`) | P8 |
 | [Golden runs](golden-runs.md) | Golden runs are non-canonical or differ without a change: fonts, frames, Linux renderer (`TST-003`) | P8 |
 | [Wrong calendar day](calendar-wrong-day.md) | A date shows the wrong day: Umm al-Qura table range, `PLX-1615` (`I18N-003`) | P8 |
+| [Backup and restore](backup-and-restore.md) | PostgreSQL WAL archive and base backups, object-store versioning, the consistency marker, restoring to a point in time, the restore drill (`DEP-010`) | P9 |
+| [Alert runbooks](alerts/README.md) | One page per alert of the Prometheus rules: service level objectives with burn-rate alerts, and the infrastructure and security alerts (`OBS-004`) | P9 |
 
 ## Signals
 
-Alert rules and dashboards arrive in P9 (`OBS-004`). Until then the signals are `/readyz`, the
+Alert rules and dashboards ship in `deploy/observability` since P9 (`OBS-004`, [alert runbooks](alerts/README.md)). The signals they and the runbooks read are `/readyz`, the
 metrics of [Appendix G.1](../requirements.md#appendix-g--metrics-and-telemetry-events), the JSON
 logs, the audit log and the runtime's telemetry events. The server exports today:
 `plux_rpc_requests_total`, `plux_rpc_duration_seconds`, `plux_manifest_requests_total`,

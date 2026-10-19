@@ -21,8 +21,8 @@
 #   6. the restored installation is verified: it is ready; every release row
 #      and audit entry it holds is the source's row, and every source row older
 #      than the restore point is present; every bundle it names is in the object
-#      store with exactly the SHA-256 that names it; `plux pull` fetches the
-#      channel's release with its bundles checked against the signed hashes;
+#      store, whole; `plux pull` fetches the channel's release with its bundles
+#      checked against the hashes the server recorded;
 #      `plux-server audit verify` walks the audit chains and checkpoints;
 #   7. RTO clock stops. RPO and RTO are printed; RTO must be at most RTO_LIMIT
 #      seconds (default 3600).
@@ -381,14 +381,18 @@ compare() { # name restored-query source-file
 compare releases "select id, encode(bundle_sha256, 'hex'), encode(signature, 'hex'), extract(epoch from created_at)::bigint from plugin_versions order by id" "$work/src-releases.txt"
 compare audit "select coalesce(organization_id::text, ''), sequence, entry_hash, extract(epoch from occurred_at)::bigint from audit_log order by 1, 2" "$work/src-audit.txt"
 
-step "verify: bundle hashes in the object store"
+step "verify: bundles in the object store"
+# A bundle's key is its bundle hash (BND-005), which covers the header and the
+# section digests, not the file's bytes; the hash is checked below by plux pull.
+# Here every bundle the restored database names must exist, whole: same size.
 checked=0
-for hash in $(cut -d'|' -f2 "$work/dst-releases.txt" | sort -u); do
-	got=$(s3get "$DATA_BUCKET/bundles/${hash:0:2}/$hash" | sha256sum | cut -d' ' -f1)
-	[ "$got" = "$hash" ] || fail "bundle $hash: the object store holds bytes that hash to $got"
+while IFS='|' read -r hash size; do
+	got=$(s3get "$DATA_BUCKET/bundles/${hash:0:2}/$hash" | wc -c)
+	[ "$got" -eq "$size" ] || fail "bundle $hash: the object store holds $got bytes, the database says $size"
 	checked=$((checked + 1))
-done
-echo "$checked bundles in the object store match the hashes the restored database names"
+done < <(sql "$DST_NS" "select distinct encode(bundle_sha256, 'hex'), bundle_size from plugin_versions order by 1")
+[ "$checked" -gt 0 ] || fail "the restored database names no bundle"
+echo "$checked bundles in the object store have the size the restored database records"
 
 step "verify: manifests and bundles through the restored server (plux pull)"
 "$work/plux" pull --server http://127.0.0.1:18082 --org "$ORG" --app "$APP" --env staging -o "$work/pulled" >/dev/null ||

@@ -14,9 +14,10 @@ HELM_DIR := deploy/helm
 # cluster; E2E_KEEP=1 keeps the cluster afterwards.
 E2E_IMAGE ?= plux-server:e2e
 
-# Verifies: DEP-003, DEP-004.
-helm-lint: ## Lint the Helm chart, render it for every ci/*-values.yaml and validate the output (Kubernetes and CloudNativePG schemas, Pod Security, L-4)
+# Verifies: DEP-003, DEP-004, DEP-010, OBS-004, OBS-005.
+helm-lint: ## Lint the Helm chart, render it for every ci/*-values.yaml and validate the output (Kubernetes and CloudNativePG schemas, Pod Security, L-4), and check the alert rules, runbooks and dashboards
 	HELM="$(HELM)" KUBECONFORM="$(KUBECONFORM)" $(HELM_DIR)/lint.sh
+	cd tools && $(GO) test -count=1 ./internal/observability/
 
 # Verifies: DEP-003, DEP-004.
 e2e-kind: ## Install the chart on a kind cluster with CloudNativePG, run helm test, a rolling upgrade and two failovers (needs Docker and kubectl)

@@ -407,3 +407,22 @@ test:
   resources:
     requests: {cpu: 10m, memory: 16Mi}
     limits: {memory: 64Mi}
+
+# ── Alerts and dashboards ──────────────────────────────────────────────────
+# The rules (service level objectives with burn-rate alerts, and the alerts of
+# the runbooks) and the Grafana dashboards of deploy/observability (OBS-004,
+# OBS-005). Every alert links to docs/runbooks/alerts/<alert>.md. The chart
+# ships no Prometheus or Grafana; both flags need the Prometheus Operator and
+# Grafana's dashboard sidecar. Scrape every role with a job name that starts
+# with "plux"; the rules also read CloudNativePG, redis_exporter and
+# kube-state-metrics series (deploy/observability/external-metrics.txt).
+observability:
+  prometheusRule:
+    enabled: false
+    # Labels the Prometheus resource selects rules by (release: kube-prometheus-stack).
+    labels: {}
+  dashboards:
+    enabled: false
+    # The label Grafana's sidecar selects ConfigMaps by.
+    label: grafana_dashboard
+    annotations: {}

@@ -1,0 +1,474 @@
+# SPDX-FileCopyrightText: 2026 Plux contributors
+# SPDX-License-Identifier: Apache-2.0
+
+# Prometheus rules for Plux (OBS-004, ADR-0085): the one source for the Compose stack and the Helm chart.
+# Recording rules turn each objective into error ratios over seven windows; the burn-rate alerts pair a long
+# and a short window (the multiwindow, multi-burn-rate method) so an alert fires fast on a real outage and
+# resets quickly. Every alert carries a runbook_url (docs/runbooks/alerts/<alert>.md). Metrics come from the
+# server (Appendix G.1) or from a named exporter (external-metrics.txt); tools/internal/observability checks both.
+# Keep the layout: one key per line, expressions as | blocks. The checker reads this file without a YAML library.
+groups:
+  - name: plux.slo.recording
+    interval: 30s
+    rules:
+      - record: plux:manifest_error_ratio:rate5m
+        expr: |
+          sum(rate(plux_manifest_requests_total{result="error"}[5m])) / sum(rate(plux_manifest_requests_total[5m]))
+      - record: plux:manifest_error_ratio:rate30m
+        expr: |
+          sum(rate(plux_manifest_requests_total{result="error"}[30m])) / sum(rate(plux_manifest_requests_total[30m]))
+      - record: plux:manifest_error_ratio:rate1h
+        expr: |
+          sum(rate(plux_manifest_requests_total{result="error"}[1h])) / sum(rate(plux_manifest_requests_total[1h]))
+      - record: plux:manifest_error_ratio:rate2h
+        expr: |
+          sum(rate(plux_manifest_requests_total{result="error"}[2h])) / sum(rate(plux_manifest_requests_total[2h]))
+      - record: plux:manifest_error_ratio:rate6h
+        expr: |
+          sum(rate(plux_manifest_requests_total{result="error"}[6h])) / sum(rate(plux_manifest_requests_total[6h]))
+      - record: plux:manifest_error_ratio:rate1d
+        expr: |
+          sum(rate(plux_manifest_requests_total{result="error"}[1d])) / sum(rate(plux_manifest_requests_total[1d]))
+      - record: plux:manifest_error_ratio:rate3d
+        expr: |
+          sum(rate(plux_manifest_requests_total{result="error"}[3d])) / sum(rate(plux_manifest_requests_total[3d]))
+      - record: plux:function_error_ratio:rate5m
+        expr: |
+          1 - sum(rate(plux_function_requests_total{result=~"ok|business_error"}[5m])) / sum(rate(plux_function_requests_total[5m]))
+      - record: plux:function_error_ratio:rate30m
+        expr: |
+          1 - sum(rate(plux_function_requests_total{result=~"ok|business_error"}[30m])) / sum(rate(plux_function_requests_total[30m]))
+      - record: plux:function_error_ratio:rate1h
+        expr: |
+          1 - sum(rate(plux_function_requests_total{result=~"ok|business_error"}[1h])) / sum(rate(plux_function_requests_total[1h]))
+      - record: plux:function_error_ratio:rate2h
+        expr: |
+          1 - sum(rate(plux_function_requests_total{result=~"ok|business_error"}[2h])) / sum(rate(plux_function_requests_total[2h]))
+      - record: plux:function_error_ratio:rate6h
+        expr: |
+          1 - sum(rate(plux_function_requests_total{result=~"ok|business_error"}[6h])) / sum(rate(plux_function_requests_total[6h]))
+      - record: plux:function_error_ratio:rate1d
+        expr: |
+          1 - sum(rate(plux_function_requests_total{result=~"ok|business_error"}[1d])) / sum(rate(plux_function_requests_total[1d]))
+      - record: plux:function_error_ratio:rate3d
+        expr: |
+          1 - sum(rate(plux_function_requests_total{result=~"ok|business_error"}[3d])) / sum(rate(plux_function_requests_total[3d]))
+      - record: plux:publish_error_ratio:rate5m
+        expr: |
+          sum(rate(plux_publish_jobs_total{result="failed"}[5m])) / sum(rate(plux_publish_jobs_total{result=~"succeeded|failed"}[5m]))
+      - record: plux:publish_error_ratio:rate30m
+        expr: |
+          sum(rate(plux_publish_jobs_total{result="failed"}[30m])) / sum(rate(plux_publish_jobs_total{result=~"succeeded|failed"}[30m]))
+      - record: plux:publish_error_ratio:rate1h
+        expr: |
+          sum(rate(plux_publish_jobs_total{result="failed"}[1h])) / sum(rate(plux_publish_jobs_total{result=~"succeeded|failed"}[1h]))
+      - record: plux:publish_error_ratio:rate2h
+        expr: |
+          sum(rate(plux_publish_jobs_total{result="failed"}[2h])) / sum(rate(plux_publish_jobs_total{result=~"succeeded|failed"}[2h]))
+      - record: plux:publish_error_ratio:rate6h
+        expr: |
+          sum(rate(plux_publish_jobs_total{result="failed"}[6h])) / sum(rate(plux_publish_jobs_total{result=~"succeeded|failed"}[6h]))
+      - record: plux:publish_error_ratio:rate1d
+        expr: |
+          sum(rate(plux_publish_jobs_total{result="failed"}[1d])) / sum(rate(plux_publish_jobs_total{result=~"succeeded|failed"}[1d]))
+      - record: plux:publish_error_ratio:rate3d
+        expr: |
+          sum(rate(plux_publish_jobs_total{result="failed"}[3d])) / sum(rate(plux_publish_jobs_total{result=~"succeeded|failed"}[3d]))
+      - record: plux:control_propagation_seconds:p95_5m
+        expr: |
+          histogram_quantile(0.95, sum by (le)(rate(plux_control_propagation_seconds_bucket[5m])))
+      - record: plux:control_propagation_seconds:p95_30m
+        expr: |
+          histogram_quantile(0.95, sum by (le)(rate(plux_control_propagation_seconds_bucket[30m])))
+      - record: plux:control_propagation_seconds:p95_6h
+        expr: |
+          histogram_quantile(0.95, sum by (le)(rate(plux_control_propagation_seconds_bucket[6h])))
+
+  - name: plux.slo.alerts
+    interval: 1m
+    rules:
+      - alert: PluxManifestBurnFast
+        expr: |
+          plux:manifest_error_ratio:rate1h > (14.4 * 0.0005)
+          and
+          plux:manifest_error_ratio:rate5m > (14.4 * 0.0005)
+        for: 2m
+        labels:
+          severity: page
+          slo: manifest
+        annotations:
+          summary: "Manifest availability (99.95%) is burning its error budget 14.4 times too fast over 1h and 5m"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxManifestBurnFast.md
+      - alert: PluxManifestBurnSlow
+        expr: |
+          plux:manifest_error_ratio:rate6h > (6 * 0.0005)
+          and
+          plux:manifest_error_ratio:rate30m > (6 * 0.0005)
+        for: 15m
+        labels:
+          severity: page
+          slo: manifest
+        annotations:
+          summary: "Manifest availability (99.95%) is burning its error budget 6 times too fast over 6h and 30m"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxManifestBurnSlow.md
+      - alert: PluxManifestBurnTicket
+        expr: |
+          plux:manifest_error_ratio:rate1d > (3 * 0.0005)
+          and
+          plux:manifest_error_ratio:rate2h > (3 * 0.0005)
+        for: 1h
+        labels:
+          severity: ticket
+          slo: manifest
+        annotations:
+          summary: "Manifest availability (99.95%) is burning its error budget 3 times too fast over 1d and 2h"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxManifestBurnTicket.md
+      - alert: PluxFunctionBurnFast
+        expr: |
+          plux:function_error_ratio:rate1h > (14.4 * 0.001)
+          and
+          plux:function_error_ratio:rate5m > (14.4 * 0.001)
+        for: 2m
+        labels:
+          severity: page
+          slo: function
+        annotations:
+          summary: "Function success (99.9%) is burning its error budget 14.4 times too fast over 1h and 5m"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxFunctionBurnFast.md
+      - alert: PluxFunctionBurnSlow
+        expr: |
+          plux:function_error_ratio:rate6h > (6 * 0.001)
+          and
+          plux:function_error_ratio:rate30m > (6 * 0.001)
+        for: 15m
+        labels:
+          severity: page
+          slo: function
+        annotations:
+          summary: "Function success (99.9%) is burning its error budget 6 times too fast over 6h and 30m"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxFunctionBurnSlow.md
+      - alert: PluxFunctionBurnTicket
+        expr: |
+          plux:function_error_ratio:rate1d > (3 * 0.001)
+          and
+          plux:function_error_ratio:rate2h > (3 * 0.001)
+        for: 1h
+        labels:
+          severity: ticket
+          slo: function
+        annotations:
+          summary: "Function success (99.9%) is burning its error budget 3 times too fast over 1d and 2h"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxFunctionBurnTicket.md
+      - alert: PluxPublishBurnFast
+        expr: |
+          plux:publish_error_ratio:rate1h > (14.4 * 0.005)
+          and
+          plux:publish_error_ratio:rate5m > (14.4 * 0.005)
+        for: 2m
+        labels:
+          severity: page
+          slo: publish
+        annotations:
+          summary: "Publish job success (99.5%) is burning its error budget 14.4 times too fast over 1h and 5m"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxPublishBurnFast.md
+      - alert: PluxPublishBurnSlow
+        expr: |
+          plux:publish_error_ratio:rate6h > (6 * 0.005)
+          and
+          plux:publish_error_ratio:rate30m > (6 * 0.005)
+        for: 15m
+        labels:
+          severity: page
+          slo: publish
+        annotations:
+          summary: "Publish job success (99.5%) is burning its error budget 6 times too fast over 6h and 30m"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxPublishBurnSlow.md
+      - alert: PluxPublishBurnTicket
+        expr: |
+          plux:publish_error_ratio:rate1d > (3 * 0.005)
+          and
+          plux:publish_error_ratio:rate2h > (3 * 0.005)
+        for: 1h
+        labels:
+          severity: ticket
+          slo: publish
+        annotations:
+          summary: "Publish job success (99.5%) is burning its error budget 3 times too fast over 1d and 2h"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxPublishBurnTicket.md
+      - alert: PluxControlPropagationSlow
+        expr: |
+          plux:control_propagation_seconds:p95_30m > 60
+          and
+          plux:control_propagation_seconds:p95_5m > 60
+        for: 15m
+        labels:
+          severity: page
+          slo: control
+        annotations:
+          summary: "Control documents take more than 60 s (p95) to reach devices"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxControlPropagationSlow.md
+      - alert: PluxControlPropagationDegraded
+        expr: |
+          plux:control_propagation_seconds:p95_6h > 60
+        for: 1h
+        labels:
+          severity: ticket
+          slo: control
+        annotations:
+          summary: "Control propagation has exceeded 60 s (p95) for six hours"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxControlPropagationDegraded.md
+
+  - name: plux.product
+    interval: 1m
+    rules:
+      - alert: PluxServerDown
+        expr: |
+          up{job=~"plux.*"} == 0
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "A Plux server process is not scraped ({{ $labels.job }} {{ $labels.instance }})"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxServerDown.md
+      - alert: PluxRoleUnavailable
+        expr: |
+          kube_deployment_status_replicas_available{deployment=~".*plux-(api|worker|fnrunner|egress|builder)"} == 0
+        for: 3m
+        labels:
+          severity: page
+        annotations:
+          summary: "No replica of {{ $labels.deployment }} is available"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxRoleUnavailable.md
+      - alert: PluxApiErrorRatioHigh
+        expr: |
+          sum(rate(plux_rpc_requests_total{code=~"internal|unavailable|unknown|data_loss|deadline_exceeded"}[5m])) / sum(rate(plux_rpc_requests_total[5m])) > 0.05
+        for: 10m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "More than 5% of API calls fail on the server side"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxApiErrorRatioHigh.md
+      - alert: PluxApiLatencyHigh
+        expr: |
+          histogram_quantile(0.99, sum by (le)(rate(plux_rpc_duration_seconds_bucket[5m]))) > 2.5
+        for: 15m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "API p99 latency is above 2.5 s"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxApiLatencyHigh.md
+      - alert: PluxAttestationUnavailable
+        expr: |
+          sum(rate(plux_attestation_results_total{verdict="unavailable"}[10m])) / sum(rate(plux_attestation_results_total[10m])) > 0.2
+          and
+          sum(rate(plux_attestation_results_total[10m])) > 0.01
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: "More than 20% of attestation checks cannot be made"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxAttestationUnavailable.md
+      - alert: PluxAttestationFailures
+        expr: |
+          sum(rate(plux_attestation_results_total{verdict="failed"}[15m])) / sum(rate(plux_attestation_results_total[15m])) > 0.3
+          and
+          sum(rate(plux_attestation_results_total[15m])) > 0.01
+        for: 15m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "More than 30% of attestation evidence fails verification"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxAttestationFailures.md
+      - alert: PluxReplayCacheDegraded
+        expr: |
+          plux_dpop_replay_cache_degraded == 1
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "A replica decides DPoP replays alone because the shared cache is unreachable"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxReplayCacheDegraded.md
+      - alert: PluxReplayCacheRefusing
+        expr: |
+          sum(rate(plux_dpop_rejections_total{reason="replay_cache_unavailable"}[5m])) > 0
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Device requests are refused because the replay cache is unavailable"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxReplayCacheRefusing.md
+      - alert: PluxKeyCompromiseSignals
+        expr: |
+          sum(rate(plux_dpop_rejections_total{reason=~"replay|binding_mismatch"}[10m])) > 1
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: "DPoP replays or key-binding mismatches are rising"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxKeyCompromiseSignals.md
+      - alert: PluxAuditChainBroken
+        expr: |
+          plux_audit_chain_verified == 0
+        for: 0m
+        labels:
+          severity: page
+        annotations:
+          summary: "The audit log verification found a break in a chain"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxAuditChainBroken.md
+      - alert: PluxGatewayUpstreamFailing
+        expr: |
+          sum(rate(plux_rpc_requests_total{service="plux.gateway",code=~"5.."}[5m])) / sum(rate(plux_rpc_requests_total{service="plux.gateway"}[5m])) > 0.1
+        for: 10m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "More than 10% of gateway calls to customer APIs fail"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxGatewayUpstreamFailing.md
+      - alert: PluxFunctionEgressRefusals
+        expr: |
+          sum(rate(plux_egress_tunnels_total{result=~"refused_.*"}[10m])) > 0.1
+        for: 15m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Functions are being refused outbound connections"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxFunctionEgressRefusals.md
+      - alert: PluxFunctionRunnerFailures
+        expr: |
+          1 - sum(rate(plux_function_invocations_total{result=~"ok|business_error"}[5m])) / sum(rate(plux_function_invocations_total[5m])) > 0.05
+        for: 10m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "More than 5% of function invocations fail at the runner"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxFunctionRunnerFailures.md
+      - alert: PluxFunctionModulesRefused
+        expr: |
+          sum(rate(plux_function_module_cache_total{result="refused"}[10m])) > 0
+        for: 10m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "The function runner refuses modules"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxFunctionModulesRefused.md
+      - alert: PluxJobQueueBacklog
+        expr: |
+          max by (queue)(plux_jobs_queue_depth) > 100
+        for: 15m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "The {{ $labels.queue }} job queue has a backlog"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxJobQueueBacklog.md
+      - alert: PluxLicenseExpiringSoon
+        expr: |
+          plux_license_days_remaining < 30
+        for: 1h
+        labels:
+          severity: ticket
+        annotations:
+          summary: "The licence expires in less than 30 days"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxLicenseExpiringSoon.md
+      - alert: PluxLicenseExpiryImminent
+        expr: |
+          plux_license_days_remaining < 7
+        for: 1h
+        labels:
+          severity: page
+        annotations:
+          summary: "The licence expires in less than 7 days"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxLicenseExpiryImminent.md
+
+  - name: plux.infrastructure
+    interval: 1m
+    rules:
+      - alert: PluxPostgresDown
+        expr: |
+          cnpg_collector_up == 0
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "PostgreSQL instance {{ $labels.pod }} does not answer"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxPostgresDown.md
+      - alert: PluxPostgresReplicationLag
+        expr: |
+          max by (pod)(cnpg_pg_replication_lag) > 30
+        for: 10m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "PostgreSQL replica {{ $labels.pod }} is more than 30 s behind"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxPostgresReplicationLag.md
+      - alert: PluxBackupTooOld
+        expr: |
+          time() - max(cnpg_collector_last_available_backup_timestamp) > 86400
+        for: 15m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "The newest PostgreSQL base backup is older than 24 hours"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxBackupTooOld.md
+      - alert: PluxWalArchiveStalled
+        expr: |
+          time() - max(cnpg_pg_stat_archiver_last_archived_time) > 300
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "No WAL segment was archived for more than 5 minutes"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxWalArchiveStalled.md
+      - alert: PluxConsistencyMarkerStale
+        expr: |
+          time() - max(kube_cronjob_status_last_successful_time{cronjob=~".*backup-marker"}) > 600
+        for: 5m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "The backup consistency marker has not been written for 10 minutes"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxConsistencyMarkerStale.md
+      - alert: PluxValkeyDown
+        expr: |
+          redis_up == 0
+        for: 2m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Valkey {{ $labels.instance }} does not answer"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxValkeyDown.md
+      - alert: PluxValkeyMemoryHigh
+        expr: |
+          redis_memory_max_bytes > 0 and redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 15m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Valkey uses more than 90% of its memory limit"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxValkeyMemoryHigh.md
+      - alert: PluxObjectStorageDown
+        expr: |
+          kube_statefulset_status_replicas_ready{statefulset=~".*seaweedfs"} < 1
+        for: 3m
+        labels:
+          severity: page
+        annotations:
+          summary: "The bundled object store has no ready pod"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxObjectStorageDown.md
+      - alert: PluxVolumeFilling
+        expr: |
+          kubelet_volume_stats_available_bytes{persistentvolumeclaim=~".*(plux-pg|seaweedfs|keys).*"} / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~".*(plux-pg|seaweedfs|keys).*"} < 0.1
+        for: 15m
+        labels:
+          severity: page
+        annotations:
+          summary: "Volume {{ $labels.persistentvolumeclaim }} has less than 10% free"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxVolumeFilling.md
+      - alert: PluxCertificateExpiring
+        expr: |
+          (certmanager_certificate_expiration_timestamp_seconds - time()) < 14 * 24 * 3600
+        for: 1h
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Certificate {{ $labels.name }} expires in less than 14 days"
+          runbook_url: https://github.com/nightCode42/plux3/blob/main/docs/runbooks/alerts/PluxCertificateExpiring.md
