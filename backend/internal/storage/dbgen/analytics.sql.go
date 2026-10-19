@@ -471,7 +471,7 @@ func (q *Queries) ListRollupsInWindow(ctx context.Context, arg ListRollupsInWind
 const queryRollups = `-- name: QueryRollups :many
 SELECT organization_id, app_id, environment_id, granularity, event_name, bucket, release_sequence, plugin_key, page, device_class, locale, events, value_count, value_sum, value_min, value_max, histogram FROM analytics_rollups
  WHERE app_id = $1 AND granularity = $2 AND event_name = $3
-   AND ($4::uuid = '00000000-0000-0000-0000-000000000000'::uuid OR environment_id = $4::uuid)
+   AND ($4::uuid IS NULL OR environment_id = $4::uuid)
    AND bucket >= $5::timestamptz AND bucket < $6::timestamptz
  ORDER BY bucket
  LIMIT $7

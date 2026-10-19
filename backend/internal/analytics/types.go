@@ -59,3 +59,6 @@ var Bounds = ext.Bounds
 
 // Dimensions lists the dimensions in order.
 func Dimensions() []Dimension { return ext.Dimensions() }
+
+// BucketOf returns the histogram bucket of a value in milliseconds.
+func BucketOf(v float64) int { return ext.BucketOf(v) }

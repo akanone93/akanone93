@@ -69,7 +69,7 @@ SELECT * FROM analytics_rollups
 -- name: QueryRollups :many
 SELECT * FROM analytics_rollups
  WHERE app_id = $1 AND granularity = $2 AND event_name = $3
-   AND (sqlc.arg(environment_id)::uuid = '00000000-0000-0000-0000-000000000000'::uuid OR environment_id = sqlc.arg(environment_id)::uuid)
+   AND (sqlc.narg(environment_id)::uuid IS NULL OR environment_id = sqlc.narg(environment_id)::uuid)
    AND bucket >= sqlc.arg(from_time)::timestamptz AND bucket < sqlc.arg(to_time)::timestamptz
  ORDER BY bucket
  LIMIT sqlc.arg(row_limit);
