@@ -1,0 +1,30 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "PieSlice",
+  "id": 77,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "One slice of a PieChart.",
+  "fields": [
+    {
+      "name": "label",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The slice's name.",
+      "translatable": true
+    },
+    {
+      "name": "value",
+      "id": 2,
+      "type": "double",
+      "required": true,
+      "description": "The slice's size; negative values count as zero."
+    }
+  ]
+}

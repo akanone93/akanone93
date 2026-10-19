@@ -1,0 +1,1918 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d.",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMd": "d.M.y GGGGG",
+        "Gy": "y G",
+        "GyM": "MM-y G",
+        "GyMEd": "E dd-MM-y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d. MMM y G",
+        "GyMMMMEEEEd": "EEEE, d. MMMM y G",
+        "GyMMMMd": "d. MMMM y G",
+        "GyMMMd": "d. MMM y G",
+        "GyMd": "d/M/y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, d.M.",
+        "MMM": "LLL",
+        "MMMEd": "E, d. MMM",
+        "MMMMEd": "E, d. MMMM",
+        "MMMMd": "d. MMMM",
+        "MMMd": "d. MMM",
+        "Md": "d.M.",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "M.y G",
+        "yyyyMEd": "E, d.M.y G",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E, d. MMM y G",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "d. MMM y G",
+        "yyyyMd": "d.M.y G"
+      },
+      "dateFormats": {
+        "full": "EEEE, d. MMMM y G",
+        "long": "d. MMMM y G",
+        "medium": "d.M.y G",
+        "short": "d.M.y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'kl'. {0}",
+        "long": "{1} 'kl'. {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "f.h.",
+            "pm": "e.h."
+          },
+          "wide": {
+            "am": "f.h.",
+            "pm": "e.h."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "f.h.",
+            "pm": "e.h."
+          },
+          "wide": {
+            "am": "f.h.",
+            "pm": "e.h."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["sun.", "mán.", "þri.", "mið.", "fim.", "fös.", "lau."],
+          "short": ["su.", "má.", "þr.", "mi.", "fi.", "fö.", "la."],
+          "wide": ["sunnudagur", "mánudagur", "þriðjudagur", "miðvikudagur", "fimmtudagur", "föstudagur", "laugardagur"]
+        },
+        "standAlone": {
+          "abbreviated": ["sun.", "mán.", "þri.", "mið.", "fim.", "fös.", "lau."],
+          "short": ["su.", "má.", "þr.", "mi.", "fi.", "fö.", "la."],
+          "wide": ["sunnudagur", "mánudagur", "þriðjudagur", "miðvikudagur", "fimmtudagur", "föstudagur", "laugardagur"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["meskerem", "tekemt", "hedar", "tahsas", "ter", "yekatit", "megabit", "miazia", "genbot", "sene", "hamle", "nehasse", "pagumen"],
+          "wide": ["meskerem", "tekemt", "hedar", "tahsas", "ter", "yekatit", "megabit", "miazia", "genbot", "sene", "hamle", "nehasse", "pagumen"]
+        },
+        "standAlone": {
+          "abbreviated": ["meskerem", "tekemt", "hedar", "tahsas", "ter", "yekatit", "megabit", "miazia", "genbot", "sene", "hamle", "nehasse", "pagumen"],
+          "wide": ["meskerem", "tekemt", "hedar", "tahsas", "ter", "yekatit", "megabit", "miazia", "genbot", "sene", "hamle", "nehasse", "pagumen"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E, HH:mm",
+        "EHms": "E, HH:mm:ss",
+        "Ed": "E d.",
+        "Eh": "E h\u202fa",
+        "Ehm": "E, h:mm\u202fa",
+        "Ehms": "E, h:mm:ss\u202fa",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E, d/M/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d. MMM y G",
+        "GyMMMd": "d. MMM y G",
+        "GyMd": "d/M/y G",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, d.M.",
+        "MMM": "LLL",
+        "MMMEd": "E, d. MMM",
+        "MMMMEd": "E, d. MMMM",
+        "MMMMd": "d. MMMM",
+        "MMMd": "d. MMM",
+        "Md": "d.M.",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M. y",
+        "yMEd": "E, d.M.y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E, d. MMM y",
+        "yMMMM": "MMMM y",
+        "yMMMMEEEEd": "EEEE, d. MMMM y",
+        "yMMMMd": "d. MMMM y",
+        "yMMMd": "d. MMM y",
+        "yMd": "d.M.y"
+      },
+      "dateFormats": {
+        "full": "EEEE, d. MMMM y",
+        "long": "d. MMMM y",
+        "medium": "d. MMM y",
+        "short": "d.M.y"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'kl'. {0}",
+        "long": "{1} 'kl'. {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "f.h.",
+            "pm": "e.h."
+          },
+          "narrow": {
+            "am": "f.",
+            "pm": "e."
+          },
+          "wide": {
+            "am": "f.h.",
+            "pm": "e.h."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "f.h.",
+            "pm": "e.h."
+          },
+          "narrow": {
+            "am": "f.h.",
+            "pm": "e.h."
+          },
+          "wide": {
+            "am": "f.h.",
+            "pm": "e.h."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["sun.", "mán.", "þri.", "mið.", "fim.", "fös.", "lau."],
+          "narrow": ["S", "M", "Þ", "M", "F", "F", "L"],
+          "short": ["su.", "má.", "þr.", "mi.", "fi.", "fö.", "la."],
+          "wide": ["sunnudagur", "mánudagur", "þriðjudagur", "miðvikudagur", "fimmtudagur", "föstudagur", "laugardagur"]
+        },
+        "standAlone": {
+          "abbreviated": ["sun.", "mán.", "þri.", "mið.", "fim.", "fös.", "lau."],
+          "narrow": ["S", "M", "Þ", "M", "F", "F", "L"],
+          "short": ["su.", "má.", "þr.", "mi.", "fi.", "fö.", "la."],
+          "wide": ["sunnudagur", "mánudagur", "þriðjudagur", "miðvikudagur", "fimmtudagur", "föstudagur", "laugardagur"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["f.Kr.", "e.Kr."],
+        "narrow": ["f.k.", "e.k."],
+        "wide": ["fyrir Krist", "eftir Krist"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["jan.", "feb.", "mar.", "apr.", "maí", "jún.", "júl.", "ágú.", "sep.", "okt.", "nóv.", "des."],
+          "narrow": ["J", "F", "M", "A", "M", "J", "J", "Á", "S", "O", "N", "D"],
+          "wide": ["janúar", "febrúar", "mars", "apríl", "maí", "júní", "júlí", "ágúst", "september", "október", "nóvember", "desember"]
+        },
+        "standAlone": {
+          "abbreviated": ["jan.", "feb.", "mar.", "apr.", "maí", "jún.", "júl.", "ágú.", "sep.", "okt.", "nóv.", "des."],
+          "narrow": ["J", "F", "M", "A", "M", "J", "J", "Á", "S", "O", "N", "D"],
+          "wide": ["janúar", "febrúar", "mars", "apríl", "maí", "júní", "júlí", "ágúst", "september", "október", "nóvember", "desember"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d.",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMd": "d.M.y GGGGG",
+        "Gy": "y G",
+        "GyM": "MM-y G",
+        "GyMEd": "E dd-MM-y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d. MMM y G",
+        "GyMMMMEEEEd": "EEEE, d. MMMM y G",
+        "GyMMMMd": "d. MMMM y G",
+        "GyMMMd": "d. MMM y G",
+        "GyMd": "d/M/y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, d.M.",
+        "MMM": "LLL",
+        "MMMEd": "E, d. MMM",
+        "MMMMEd": "E, d. MMMM",
+        "MMMMd": "d. MMMM",
+        "MMMd": "d. MMM",
+        "Md": "d.M.",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "M.y G",
+        "yyyyMEd": "E, d.M.y G",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E, d. MMM y G",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "d. MMM y G",
+        "yyyyMd": "d.M.y G"
+      },
+      "dateFormats": {
+        "full": "EEEE, d. MMMM y G",
+        "long": "d. MMMM y G",
+        "medium": "d.M.y G",
+        "short": "d.M.y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'kl'. {0}",
+        "long": "{1} 'kl'. {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "f.h.",
+            "pm": "e.h."
+          },
+          "wide": {
+            "am": "f.h.",
+            "pm": "e.h."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "f.h.",
+            "pm": "e.h."
+          },
+          "wide": {
+            "am": "f.h.",
+            "pm": "e.h."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["sun.", "mán.", "þri.", "mið.", "fim.", "fös.", "lau."],
+          "short": ["su.", "má.", "þr.", "mi.", "fi.", "fö.", "la."],
+          "wide": ["sunnudagur", "mánudagur", "þriðjudagur", "miðvikudagur", "fimmtudagur", "föstudagur", "laugardagur"]
+        },
+        "standAlone": {
+          "abbreviated": ["sun.", "mán.", "þri.", "mið.", "fim.", "fös.", "lau."],
+          "short": ["su.", "má.", "þr.", "mi.", "fi.", "fö.", "la."],
+          "wide": ["sunnudagur", "mánudagur", "þriðjudagur", "miðvikudagur", "fimmtudagur", "föstudagur", "laugardagur"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["EH", "BH"],
+        "wide": ["eftir Hijra", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["muh.", "saf.", "rab. I", "rab. II", "jum. I", "jum. II", "raj.", "sha.", "ram.", "shaw.", "dhuʻl-Q.", "dhuʻl-H."],
+          "wide": ["muharram", "safar", "rabiʻ I", "rabiʻ II", "jumada I", "jumada II", "rajab", "shaʻban", "ramadan", "shawwal", "dhuʻl-Qiʻdah", "dhuʻl-Hijjah"]
+        },
+        "standAlone": {
+          "abbreviated": ["muh.", "saf.", "rab. I", "rab. II", "jum. I", "jum. II", "raj.", "sha.", "ram.", "shaw.", "dhuʻl-Q.", "dhuʻl-H."],
+          "wide": ["muharram", "safar", "rabiʻ I", "rabiʻ II", "jumada I", "jumada II", "rajab", "shaʻban", "ramadan", "shawwal", "dhuʻl-Qiʻdah", "dhuʻl-Hijjah"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d.",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMd": "d.M.y GGGGG",
+        "Gy": "y G",
+        "GyM": "MM-y G",
+        "GyMEd": "E dd-MM-y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d. MMM y G",
+        "GyMMMMEEEEd": "EEEE, d. MMMM y G",
+        "GyMMMMd": "d. MMMM y G",
+        "GyMMMd": "d. MMM y G",
+        "GyMd": "d/M/y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, d.M.",
+        "MMM": "LLL",
+        "MMMEd": "E, d. MMM",
+        "MMMMEd": "E, d. MMMM",
+        "MMMMd": "d. MMMM",
+        "MMMd": "d. MMM",
+        "Md": "d.M.",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "M.y G",
+        "yyyyMEd": "E, d.M.y G",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E, d. MMM y G",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "d. MMM y G",
+        "yyyyMd": "d.M.y G"
+      },
+      "dateFormats": {
+        "full": "EEEE, d. MMMM y G",
+        "long": "d. MMMM y G",
+        "medium": "d.M.y G",
+        "short": "d.M.y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'kl'. {0}",
+        "long": "{1} 'kl'. {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "f.h.",
+            "pm": "e.h."
+          },
+          "wide": {
+            "am": "f.h.",
+            "pm": "e.h."
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "f.h.",
+            "pm": "e.h."
+          },
+          "wide": {
+            "am": "f.h.",
+            "pm": "e.h."
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["sun.", "mán.", "þri.", "mið.", "fim.", "fös.", "lau."],
+          "short": ["su.", "má.", "þr.", "mi.", "fi.", "fö.", "la."],
+          "wide": ["sunnudagur", "mánudagur", "þriðjudagur", "miðvikudagur", "fimmtudagur", "föstudagur", "laugardagur"]
+        },
+        "standAlone": {
+          "abbreviated": ["sun.", "mán.", "þri.", "mið.", "fim.", "fös.", "lau."],
+          "short": ["su.", "má.", "þr.", "mi.", "fi.", "fö.", "la."],
+          "wide": ["sunnudagur", "mánudagur", "þriðjudagur", "miðvikudagur", "fimmtudagur", "föstudagur", "laugardagur"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AP"],
+        "wide": ["AP"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["farvardin", "ordibehesht", "khordad", "tir", "mordad", "shahrivar", "mehr", "aban", "azar", "dey", "bahman", "esfand"],
+          "wide": ["farvardin", "ordibehesht", "khordad", "tir", "mordad", "shahrivar", "mehr", "aban", "azar", "dey", "bahman", "esfand"]
+        },
+        "standAlone": {
+          "abbreviated": ["farvardin", "ordibehesht", "khordad", "tir", "mordad", "shahrivar", "mehr", "aban", "azar", "dey", "bahman", "esfand"],
+          "wide": ["farvardin", "ordibehesht", "khordad", "tir", "mordad", "shahrivar", "mehr", "aban", "azar", "dey", "bahman", "esfand"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    }
+  },
+  "currencies": {
+    "AED": {
+      "name": "arabískt dírham",
+      "plural": {
+        "other": "arabísk dírhöm"
+      }
+    },
+    "AFN": {
+      "name": "afgani",
+      "narrow": "؋",
+      "plural": {
+        "other": "afganar"
+      }
+    },
+    "ALL": {
+      "name": "albanskt lek",
+      "plural": {
+        "other": "albönsk lek"
+      }
+    },
+    "AMD": {
+      "name": "armenskt dramm",
+      "narrow": "֏",
+      "plural": {
+        "other": "armensk drömm"
+      }
+    },
+    "AOA": {
+      "name": "angólsk kvansa",
+      "narrow": "Kz",
+      "plural": {
+        "other": "angólskar kvönsur"
+      }
+    },
+    "ARS": {
+      "name": "argentínskur pesi",
+      "narrow": "$",
+      "plural": {
+        "other": "argentínskir pesar"
+      }
+    },
+    "AUD": {
+      "name": "ástralskur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "ástralskir dalir"
+      }
+    },
+    "AWG": {
+      "name": "arúbönsk flórína",
+      "plural": {
+        "other": "arúbanskar flórínur"
+      }
+    },
+    "AZN": {
+      "name": "aserskt manat",
+      "narrow": "₼",
+      "plural": {
+        "other": "asersk manöt"
+      }
+    },
+    "BAM": {
+      "name": "skiptanlegt Bosníu og Hersegóvínu-mark",
+      "narrow": "KM",
+      "plural": {
+        "other": "skiptanleg Bosníu og Hersegóvínu-mörk"
+      }
+    },
+    "BBD": {
+      "name": "barbadoskur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "barbadoskir dalir"
+      }
+    },
+    "BDT": {
+      "name": "bangladessk taka",
+      "narrow": "৳",
+      "plural": {
+        "other": "bangladesskar tökur"
+      }
+    },
+    "BHD": {
+      "name": "bareinskur denari",
+      "plural": {
+        "other": "bareinskir denarar"
+      }
+    },
+    "BIF": {
+      "name": "búrúndískur franki",
+      "plural": {
+        "other": "búrúndískir frankar"
+      }
+    },
+    "BMD": {
+      "name": "Bermúdadalur",
+      "narrow": "$",
+      "plural": {
+        "other": "Bermúdadalir"
+      }
+    },
+    "BND": {
+      "name": "brúneiskur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "brúneiskir dalir"
+      }
+    },
+    "BOB": {
+      "name": "bólivíani",
+      "narrow": "Bs",
+      "plural": {
+        "other": "bólivíanar"
+      }
+    },
+    "BRL": {
+      "name": "brasilískt ríal",
+      "narrow": "R$",
+      "plural": {
+        "other": "brasilísk ríöl"
+      }
+    },
+    "BSD": {
+      "name": "Bahamadalur",
+      "narrow": "$",
+      "plural": {
+        "other": "Bahamadalir"
+      }
+    },
+    "BTN": {
+      "name": "bútanskt núltrum",
+      "plural": {
+        "other": "bútönsk núltrum"
+      }
+    },
+    "BWP": {
+      "name": "botsvönsk púla",
+      "narrow": "P",
+      "plural": {
+        "other": "botsvanskar púlur"
+      }
+    },
+    "BYN": {
+      "name": "hvítrússnesk rúbla",
+      "plural": {
+        "other": "hvítrússneskar rúblur"
+      }
+    },
+    "BZD": {
+      "name": "belískur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "belískir dalir"
+      }
+    },
+    "CAD": {
+      "name": "Kanadadalur",
+      "narrow": "$",
+      "plural": {
+        "other": "Kanadadalir"
+      }
+    },
+    "CDF": {
+      "name": "kongóskur franki",
+      "plural": {
+        "other": "kongóskir frankar"
+      }
+    },
+    "CHF": {
+      "name": "svissneskur franki",
+      "plural": {
+        "other": "svissneskir frankar"
+      }
+    },
+    "CLP": {
+      "name": "síleskur pesi",
+      "narrow": "$",
+      "plural": {
+        "other": "síleskir pesar"
+      }
+    },
+    "CNY": {
+      "name": "kínverskt júan",
+      "narrow": "¥",
+      "plural": {
+        "other": "kínversk júön"
+      },
+      "symbol": "CN¥"
+    },
+    "COP": {
+      "name": "kólumbískur pesi",
+      "narrow": "$",
+      "plural": {
+        "other": "kólumbískir pesar"
+      }
+    },
+    "CRC": {
+      "name": "kostarískt kólon",
+      "narrow": "₡",
+      "plural": {
+        "other": "kostarísk kólon"
+      }
+    },
+    "CUP": {
+      "name": "kúbverskur pesi",
+      "narrow": "$",
+      "plural": {
+        "other": "kúbverskir pesar"
+      }
+    },
+    "CVE": {
+      "name": "grænhöfðeyskur skúti",
+      "plural": {
+        "other": "grænhöfðeyskir skútar"
+      }
+    },
+    "CZK": {
+      "name": "tékknesk króna",
+      "narrow": "Kč",
+      "plural": {
+        "other": "tékkneskar krónur"
+      }
+    },
+    "DJF": {
+      "name": "djíbútískur franki",
+      "plural": {
+        "other": "djíbútískir frankar"
+      }
+    },
+    "DKK": {
+      "name": "dönsk króna",
+      "narrow": "kr.",
+      "plural": {
+        "other": "danskar krónur"
+      }
+    },
+    "DOP": {
+      "name": "dóminískur pesi",
+      "narrow": "$",
+      "plural": {
+        "other": "dóminískir pesar"
+      }
+    },
+    "DZD": {
+      "name": "alsírskur denari",
+      "plural": {
+        "other": "alsírskir denarar"
+      }
+    },
+    "EGP": {
+      "name": "egypskt pund",
+      "narrow": "E£",
+      "plural": {
+        "other": "egypsk pund"
+      }
+    },
+    "ERN": {
+      "name": "erítresk nakfa",
+      "plural": {
+        "other": "erítreskar nökfur"
+      }
+    },
+    "ETB": {
+      "name": "eþíópískt birr",
+      "plural": {
+        "other": "eþíópísk birr"
+      }
+    },
+    "EUR": {
+      "name": "evra",
+      "narrow": "€",
+      "plural": {
+        "other": "evrur"
+      }
+    },
+    "FJD": {
+      "name": "fídjískur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "fídjískir dalir"
+      }
+    },
+    "FKP": {
+      "name": "falklenskt pund",
+      "narrow": "£",
+      "plural": {
+        "other": "falklensk pund"
+      }
+    },
+    "GBP": {
+      "name": "sterlingspund",
+      "narrow": "£"
+    },
+    "GEL": {
+      "name": "georgískur lari",
+      "narrow": "₾",
+      "plural": {
+        "other": "georgískir larar"
+      }
+    },
+    "GHS": {
+      "name": "ganverskur sedi",
+      "narrow": "GH₵",
+      "plural": {
+        "other": "ganverskir sedar"
+      }
+    },
+    "GIP": {
+      "name": "Gíbraltarspund",
+      "narrow": "£"
+    },
+    "GMD": {
+      "name": "gambískur dalasi",
+      "plural": {
+        "other": "gambískir dalasar"
+      }
+    },
+    "GNF": {
+      "name": "Gíneufranki",
+      "narrow": "FG",
+      "plural": {
+        "other": "Gíneufrankar"
+      }
+    },
+    "GTQ": {
+      "name": "gvatemalskt kvesal",
+      "narrow": "Q",
+      "plural": {
+        "other": "gvatemölsk kvesöl"
+      }
+    },
+    "GYD": {
+      "name": "gvæjanskur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "gvæjanskir dalir"
+      }
+    },
+    "HKD": {
+      "name": "Hong Kong-dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "Hong Kong-dalir"
+      },
+      "symbol": "HK$"
+    },
+    "HNL": {
+      "name": "hondúrsk lempíra",
+      "narrow": "L",
+      "plural": {
+        "other": "hondúrskar lempírur"
+      }
+    },
+    "HTG": {
+      "name": "haítískur gúrdi",
+      "plural": {
+        "other": "haítískir gúrdar"
+      }
+    },
+    "HUF": {
+      "name": "ungversk fórinta",
+      "narrow": "Ft",
+      "plural": {
+        "other": "ungverskar fórintur"
+      }
+    },
+    "IDR": {
+      "name": "indónesísk rúpía",
+      "narrow": "Rp",
+      "plural": {
+        "other": "indónesískar rúpíur"
+      }
+    },
+    "ILS": {
+      "name": "nýr ísraelskur sikill",
+      "plural": {
+        "other": "nýir ísraelskir siklar"
+      },
+      "symbol": "₪"
+    },
+    "INR": {
+      "name": "indversk rúpía",
+      "narrow": "₹",
+      "plural": {
+        "other": "indverskar rúpíur"
+      }
+    },
+    "IQD": {
+      "name": "írakskur denari",
+      "plural": {
+        "other": "írakskir denarar"
+      }
+    },
+    "IRR": {
+      "name": "íranskt ríal",
+      "plural": {
+        "other": "írönsk ríöl"
+      }
+    },
+    "ISK": {
+      "name": "íslensk króna",
+      "plural": {
+        "other": "íslenskar krónur"
+      },
+      "symbol": "kr."
+    },
+    "JMD": {
+      "name": "jamaískur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "jamaískir dalir"
+      }
+    },
+    "JOD": {
+      "name": "jórdanskur denari",
+      "plural": {
+        "other": "jórdanskir denarar"
+      }
+    },
+    "JPY": {
+      "name": "japanskt jen",
+      "narrow": "¥",
+      "plural": {
+        "other": "japönsk jen"
+      },
+      "symbol": "JP¥"
+    },
+    "KES": {
+      "name": "kenískur skildingur",
+      "plural": {
+        "other": "kenískir skildingar"
+      }
+    },
+    "KGS": {
+      "name": "kirgiskt som",
+      "narrow": "⃀",
+      "plural": {
+        "other": "kirgisk som"
+      }
+    },
+    "KHR": {
+      "name": "kambódískt ríal",
+      "narrow": "៛",
+      "plural": {
+        "other": "kambódísk ríöl"
+      }
+    },
+    "KMF": {
+      "name": "kómoreyskur franki",
+      "narrow": "CF",
+      "plural": {
+        "other": "kómoreyskir frankar"
+      }
+    },
+    "KPW": {
+      "name": "norðurkóreskt vonn",
+      "narrow": "₩",
+      "plural": {
+        "other": "norðurkóresk vonn"
+      }
+    },
+    "KRW": {
+      "name": "suðurkóreskt vonn",
+      "narrow": "₩",
+      "plural": {
+        "other": "suðurkóresk vonn"
+      }
+    },
+    "KWD": {
+      "name": "kúveiskur denari",
+      "plural": {
+        "other": "kúveiskir denarar"
+      }
+    },
+    "KYD": {
+      "name": "caymaneyskur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "caymaneyskir dalir"
+      }
+    },
+    "KZT": {
+      "name": "kasakst tengi",
+      "narrow": "₸",
+      "plural": {
+        "other": "kasöksk tengi"
+      }
+    },
+    "LAK": {
+      "name": "laoskt kip",
+      "narrow": "₭",
+      "plural": {
+        "other": "laosk kip"
+      }
+    },
+    "LBP": {
+      "name": "líbanskt pund",
+      "narrow": "L£",
+      "plural": {
+        "other": "líbönsk pund"
+      }
+    },
+    "LKR": {
+      "name": "srílönsk rúpía",
+      "narrow": "Rs",
+      "plural": {
+        "other": "srílanskar rúpíur"
+      }
+    },
+    "LRD": {
+      "name": "líberískur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "líberískir dalir"
+      }
+    },
+    "LSL": {
+      "name": "lesótóskur lóti",
+      "plural": {
+        "other": "lesótóskir lótar"
+      }
+    },
+    "LYD": {
+      "name": "líbískur denari",
+      "plural": {
+        "other": "líbískir denarar"
+      }
+    },
+    "MAD": {
+      "name": "marokkóskt dírham",
+      "plural": {
+        "other": "marokkósk dírhöm"
+      }
+    },
+    "MDL": {
+      "name": "moldavískt lei",
+      "plural": {
+        "other": "moldavísk lei"
+      }
+    },
+    "MGA": {
+      "name": "Madagaskararjari",
+      "narrow": "Ar",
+      "plural": {
+        "other": "Madagaskararjarar"
+      }
+    },
+    "MKD": {
+      "name": "makedónskur denari",
+      "plural": {
+        "other": "makedónskir denarar"
+      }
+    },
+    "MMK": {
+      "name": "mjanmarskt kjat",
+      "narrow": "K",
+      "plural": {
+        "other": "mjanmörsk kjöt"
+      }
+    },
+    "MNT": {
+      "name": "mongólskur túríkur",
+      "narrow": "₮",
+      "plural": {
+        "other": "mongólskir túríkar"
+      }
+    },
+    "MOP": {
+      "name": "makaósk pataka",
+      "plural": {
+        "other": "makaóskar patökur"
+      }
+    },
+    "MRU": {
+      "name": "márítönsk úgía",
+      "plural": {
+        "one": "máritönsk úgía",
+        "other": "máritanskar úgíur"
+      }
+    },
+    "MUR": {
+      "name": "máritísk rúpía",
+      "narrow": "Rs",
+      "plural": {
+        "other": "máritískar rúpíur"
+      }
+    },
+    "MVR": {
+      "name": "maldíveysk rúpía",
+      "plural": {
+        "other": "maldíveyskar rúpíur"
+      }
+    },
+    "MWK": {
+      "name": "malavísk kvaka",
+      "plural": {
+        "other": "malavískar kvökur"
+      }
+    },
+    "MXN": {
+      "name": "mexíkóskur pesi",
+      "narrow": "$",
+      "plural": {
+        "other": "mexíkóskir pesar"
+      }
+    },
+    "MYR": {
+      "name": "malasískt ringit",
+      "narrow": "RM",
+      "plural": {
+        "other": "malasísk ringit"
+      }
+    },
+    "MZN": {
+      "name": "mósambískt metikal",
+      "plural": {
+        "other": "mósambísk metiköl"
+      }
+    },
+    "NAD": {
+      "name": "namibískur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "namibískir dalir"
+      }
+    },
+    "NGN": {
+      "name": "nígerísk næra",
+      "narrow": "₦",
+      "plural": {
+        "other": "nígerískar nærur"
+      }
+    },
+    "NIO": {
+      "name": "níkarögsk kordóva",
+      "narrow": "C$",
+      "plural": {
+        "other": "níkaragskar kordóvur"
+      }
+    },
+    "NOK": {
+      "name": "norsk króna",
+      "narrow": "kr.",
+      "plural": {
+        "other": "norskar krónur"
+      }
+    },
+    "NPR": {
+      "name": "nepölsk rúpía",
+      "narrow": "Rs",
+      "plural": {
+        "other": "nepalskar rúpíur"
+      }
+    },
+    "NZD": {
+      "name": "nýsjálenskur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "nýsjálenskir dalir"
+      }
+    },
+    "OMR": {
+      "name": "ómanskt ríal",
+      "plural": {
+        "other": "ómönsk ríöl"
+      }
+    },
+    "PAB": {
+      "name": "balbói",
+      "plural": {
+        "other": "balbóar"
+      }
+    },
+    "PEN": {
+      "name": "perúskt sól",
+      "plural": {
+        "other": "perúsk sól"
+      }
+    },
+    "PGK": {
+      "name": "papúsk kína",
+      "plural": {
+        "other": "papúskar kínur"
+      }
+    },
+    "PHP": {
+      "name": "filippseyskur pesi",
+      "narrow": "₱",
+      "plural": {
+        "other": "filippseyskir pesar"
+      }
+    },
+    "PKR": {
+      "name": "pakistönsk rúpía",
+      "narrow": "Rs",
+      "plural": {
+        "other": "pakistanskar rúpíur"
+      }
+    },
+    "PLN": {
+      "name": "pólskt slot",
+      "narrow": "zł",
+      "plural": {
+        "other": "pólsk slot"
+      }
+    },
+    "PYG": {
+      "name": "paragvæskt gvaraní",
+      "narrow": "₲",
+      "plural": {
+        "other": "paragvæsk gvaraní"
+      }
+    },
+    "QAR": {
+      "name": "katarskt ríal",
+      "plural": {
+        "other": "katörsk ríöl"
+      }
+    },
+    "RON": {
+      "name": "rúmenskt lei",
+      "narrow": "lei",
+      "plural": {
+        "other": "rúmensk lei"
+      }
+    },
+    "RSD": {
+      "name": "serbneskur denari",
+      "plural": {
+        "other": "serbneskir denarar"
+      }
+    },
+    "RUB": {
+      "name": "rússnesk rúbla",
+      "narrow": "₽",
+      "plural": {
+        "other": "rússneskar rúblur"
+      }
+    },
+    "RWF": {
+      "name": "rúandskur franki",
+      "narrow": "RF",
+      "plural": {
+        "other": "rúandskir frankar"
+      }
+    },
+    "SAR": {
+      "name": "sádíarabískt ríal",
+      "plural": {
+        "one": "sádiarabískt ríal",
+        "other": "sádiarabísk ríöl"
+      }
+    },
+    "SBD": {
+      "name": "salómonseyskur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "salómonseyskir dalir"
+      }
+    },
+    "SCR": {
+      "name": "Seychellesrúpía",
+      "plural": {
+        "other": "Seychellesrúpíur"
+      }
+    },
+    "SDG": {
+      "name": "súdanskt pund",
+      "plural": {
+        "other": "súdönsk pund"
+      }
+    },
+    "SEK": {
+      "name": "sænsk króna",
+      "narrow": "kr.",
+      "plural": {
+        "other": "sænskar krónur"
+      }
+    },
+    "SGD": {
+      "name": "singapúrskur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "singapúrskir dalir"
+      }
+    },
+    "SHP": {
+      "name": "helenskt pund",
+      "narrow": "£",
+      "plural": {
+        "other": "helensk pund"
+      }
+    },
+    "SLE": {
+      "name": "síerraleónsk ljóna",
+      "plural": {
+        "other": "síerraleónskar ljónur"
+      }
+    },
+    "SOS": {
+      "name": "sómalískur skildingur",
+      "plural": {
+        "other": "sómalískir skildingar"
+      }
+    },
+    "SRD": {
+      "name": "Súrínamdalur",
+      "narrow": "$",
+      "plural": {
+        "other": "Súrínamdalir"
+      }
+    },
+    "SSP": {
+      "name": "suðursúdanskt pund",
+      "narrow": "£",
+      "plural": {
+        "other": "suðursúdönsk pund"
+      }
+    },
+    "STN": {
+      "name": "Saó Tóme og Prinsípe-dóbra",
+      "narrow": "Db",
+      "plural": {
+        "other": "Saó Tóme og Prinsípe-dóbrur"
+      }
+    },
+    "SYP": {
+      "name": "sýrlenskt pund",
+      "narrow": "£",
+      "plural": {
+        "other": "sýrlensk pund"
+      }
+    },
+    "SZL": {
+      "name": "svasílenskur lílangeni",
+      "plural": {
+        "other": "svasílenskir lílangenar"
+      }
+    },
+    "THB": {
+      "name": "taílenskt bat",
+      "narrow": "฿",
+      "plural": {
+        "other": "taílensk böt"
+      }
+    },
+    "TJS": {
+      "name": "tadsjikskur sómóni",
+      "plural": {
+        "other": "tadsjikskir sómónar"
+      }
+    },
+    "TMT": {
+      "name": "túrkmenskt manat",
+      "plural": {
+        "other": "túrkmensk manöt"
+      }
+    },
+    "TND": {
+      "name": "túniskur denari",
+      "plural": {
+        "other": "túniskir denarar"
+      }
+    },
+    "TOP": {
+      "name": "Tongapanga",
+      "narrow": "T$",
+      "plural": {
+        "other": "Tongapöngur"
+      }
+    },
+    "TRY": {
+      "name": "tyrknesk líra",
+      "narrow": "₺",
+      "plural": {
+        "other": "tyrkneskar lírur"
+      }
+    },
+    "TTD": {
+      "name": "Trínidad og Tóbagó-dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "Trínidad og Tóbagó-dalir"
+      }
+    },
+    "TWD": {
+      "name": "taívanskur dalur",
+      "narrow": "NT$",
+      "plural": {
+        "other": "taívanskir dalir"
+      }
+    },
+    "TZS": {
+      "name": "tansanískur skildingur",
+      "plural": {
+        "other": "tansanískir skildingar"
+      }
+    },
+    "UAH": {
+      "name": "úkraínsk hrinja",
+      "narrow": "₴",
+      "plural": {
+        "other": "úkraínskar hrinjur"
+      }
+    },
+    "UGX": {
+      "name": "úgandskur skildingur",
+      "plural": {
+        "other": "úgandskir skildingar"
+      }
+    },
+    "USD": {
+      "name": "Bandaríkjadalur",
+      "narrow": "$",
+      "plural": {
+        "other": "Bandaríkjadalir"
+      }
+    },
+    "UYU": {
+      "name": "úrúgvæskur pesi",
+      "narrow": "$",
+      "plural": {
+        "other": "úrúgvæskir pesar"
+      }
+    },
+    "UZS": {
+      "name": "úsbekskt súm",
+      "plural": {
+        "other": "úsbeksk súm"
+      }
+    },
+    "VES": {
+      "name": "venesúelskur bólívari",
+      "plural": {
+        "other": "venesúelskir bólívarar"
+      }
+    },
+    "VND": {
+      "name": "víetnamskt dong",
+      "narrow": "₫",
+      "plural": {
+        "other": "víetnömsk dong"
+      }
+    },
+    "VUV": {
+      "name": "vanúatúskt vatú",
+      "plural": {
+        "other": "vanúatúsk vatú"
+      }
+    },
+    "WST": {
+      "name": "Samóatala",
+      "plural": {
+        "other": "Samóatölur"
+      }
+    },
+    "XAF": {
+      "name": "miðafrískur franki",
+      "plural": {
+        "other": "miðafrískir frankar"
+      },
+      "symbol": "FCFA"
+    },
+    "XCD": {
+      "name": "austurkarabískur dalur",
+      "narrow": "$",
+      "plural": {
+        "other": "austurkarabískir dalir"
+      },
+      "symbol": "EC$"
+    },
+    "XCG": {
+      "name": "Karíbahafsgyllini"
+    },
+    "XOF": {
+      "name": "vesturafrískur franki",
+      "plural": {
+        "other": "vesturafrískir frankar"
+      },
+      "symbol": "F\u202fCFA"
+    },
+    "XPF": {
+      "name": "pólinesískur franki",
+      "plural": {
+        "other": "pólinesískir frankar"
+      },
+      "symbol": "CFPF"
+    },
+    "YER": {
+      "name": "jemenskt ríal",
+      "plural": {
+        "other": "jemensk ríöl"
+      }
+    },
+    "ZAR": {
+      "name": "suðurafrískt rand",
+      "narrow": "R",
+      "plural": {
+        "other": "suðurafrísk rönd"
+      }
+    },
+    "ZMW": {
+      "name": "sambísk kvaka",
+      "narrow": "ZK",
+      "plural": {
+        "other": "sambískar kvökur"
+      }
+    },
+    "ZWG": {
+      "name": "simbabveskt gold"
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "is",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "#,##0.00\u00a0¤",
+      "compactShort": {
+        "1000": {
+          "one": "0\u00a0þ'.'",
+          "other": "0\u00a0þ'.'"
+        },
+        "10000": {
+          "one": "00\u00a0þ'.'",
+          "other": "00\u00a0þ'.'"
+        },
+        "100000": {
+          "one": "000\u00a0þ'.'",
+          "other": "000\u00a0þ'.'"
+        },
+        "1000000": {
+          "one": "0\u00a0m'.'",
+          "other": "0\u00a0m'.'"
+        },
+        "10000000": {
+          "one": "00\u00a0m'.'",
+          "other": "00\u00a0m'.'"
+        },
+        "100000000": {
+          "one": "000\u00a0m'.'",
+          "other": "000\u00a0m'.'"
+        },
+        "1000000000": {
+          "one": "0\u00a0ma'.'",
+          "other": "0\u00a0ma'.'"
+        },
+        "10000000000": {
+          "one": "00\u00a0ma'.'",
+          "other": "00\u00a0ma'.'"
+        },
+        "100000000000": {
+          "one": "000\u00a0ma'.'",
+          "other": "000\u00a0ma'.'"
+        },
+        "1000000000000": {
+          "one": "0\u00a0bn",
+          "other": "0\u00a0bn"
+        },
+        "10000000000000": {
+          "one": "00\u00a0bn",
+          "other": "00\u00a0bn"
+        },
+        "100000000000000": {
+          "one": "000\u00a0bn",
+          "other": "000\u00a0bn"
+        }
+      },
+      "currency": "#,##0.00\u00a0¤",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ",",
+        "exponential": "E",
+        "group": ".",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "NaN",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {
+      "one": "t = 0 and i % 10 = 1 and i % 100 != 11 or t % 10 = 1 and t % 100 != 11"
+    },
+    "ordinal": {}
+  },
+  "territories": {
+    "AC": "Ascension-eyja",
+    "AD": "Andorra",
+    "AE": "Sameinuðu arabísku furstadæmin",
+    "AF": "Afganistan",
+    "AG": "Antígva og Barbúda",
+    "AI": "Angvilla",
+    "AL": "Albanía",
+    "AM": "Armenía",
+    "AO": "Angóla",
+    "AQ": "Suðurskautslandið",
+    "AR": "Argentína",
+    "AS": "Bandaríska Samóa",
+    "AT": "Austurríki",
+    "AU": "Ástralía",
+    "AW": "Arúba",
+    "AX": "Álandseyjar",
+    "AZ": "Aserbaídsjan",
+    "BA": "Bosnía og Hersegóvína",
+    "BB": "Barbados",
+    "BD": "Bangladess",
+    "BE": "Belgía",
+    "BF": "Búrkína Fasó",
+    "BG": "Búlgaría",
+    "BH": "Barein",
+    "BI": "Búrúndí",
+    "BJ": "Benín",
+    "BL": "Sankti Bartólómeusareyjar",
+    "BM": "Bermúdaeyjar",
+    "BN": "Brúnei",
+    "BO": "Bólivía",
+    "BQ": "Karíbahafshluti Hollands",
+    "BR": "Brasilía",
+    "BS": "Bahamaeyjar",
+    "BT": "Bútan",
+    "BV": "Bouveteyja",
+    "BW": "Botsvana",
+    "BY": "Hvíta-Rússland",
+    "BZ": "Belís",
+    "CA": "Kanada",
+    "CC": "Kókoseyjar (Keeling)",
+    "CD": "Kongó-Kinshasa",
+    "CF": "Mið-Afríkulýðveldið",
+    "CG": "Kongó-Brazzaville",
+    "CH": "Sviss",
+    "CI": "Fílabeinsströndin",
+    "CK": "Cooks-eyjar",
+    "CL": "Síle",
+    "CM": "Kamerún",
+    "CN": "Kína",
+    "CO": "Kólumbía",
+    "CP": "Clipperton-eyja",
+    "CQ": "Sark",
+    "CR": "Kostaríka",
+    "CU": "Kúba",
+    "CV": "Grænhöfðaeyjar",
+    "CW": "Curacao",
+    "CX": "Jólaey",
+    "CY": "Kýpur",
+    "CZ": "Tékkland",
+    "DE": "Þýskaland",
+    "DG": "Diego Garcia",
+    "DJ": "Djíbútí",
+    "DK": "Danmörk",
+    "DM": "Dóminíka",
+    "DO": "Dóminíska lýðveldið",
+    "DZ": "Alsír",
+    "EA": "Ceuta og Melilla",
+    "EC": "Ekvador",
+    "EE": "Eistland",
+    "EG": "Egyptaland",
+    "EH": "Vestur-Sahara",
+    "ER": "Erítrea",
+    "ES": "Spánn",
+    "ET": "Eþíópía",
+    "EU": "Evrópusambandið",
+    "EZ": "Evrusvæðið",
+    "FI": "Finnland",
+    "FJ": "Fídjíeyjar",
+    "FK": "Falklandseyjar",
+    "FM": "Míkrónesía",
+    "FO": "Færeyjar",
+    "FR": "Frakkland",
+    "GA": "Gabon",
+    "GB": "Bretland",
+    "GD": "Grenada",
+    "GE": "Georgía",
+    "GF": "Franska Gvæjana",
+    "GG": "Guernsey",
+    "GH": "Gana",
+    "GI": "Gíbraltar",
+    "GL": "Grænland",
+    "GM": "Gambía",
+    "GN": "Gínea",
+    "GP": "Gvadelúpeyjar",
+    "GQ": "Miðbaugs-Gínea",
+    "GR": "Grikkland",
+    "GS": "Suður-Georgía og Suður-Sandvíkureyjar",
+    "GT": "Gvatemala",
+    "GU": "Gvam",
+    "GW": "Gínea-Bissá",
+    "GY": "Gvæjana",
+    "HK": "sérstjórnarsvæðið Hong Kong",
+    "HM": "Heard og McDonaldseyjar",
+    "HN": "Hondúras",
+    "HR": "Króatía",
+    "HT": "Haítí",
+    "HU": "Ungverjaland",
+    "IC": "Kanaríeyjar",
+    "ID": "Indónesía",
+    "IE": "Írland",
+    "IL": "Ísrael",
+    "IM": "Mön",
+    "IN": "Indland",
+    "IO": "Bresku Indlandshafseyjar",
+    "IQ": "Írak",
+    "IR": "Íran",
+    "IS": "Ísland",
+    "IT": "Ítalía",
+    "JE": "Jersey",
+    "JM": "Jamaíka",
+    "JO": "Jórdanía",
+    "JP": "Japan",
+    "KE": "Kenía",
+    "KG": "Kirgistan",
+    "KH": "Kambódía",
+    "KI": "Kíribatí",
+    "KM": "Kómoreyjar",
+    "KN": "Sankti Kitts og Nevis",
+    "KP": "Norður-Kórea",
+    "KR": "Suður-Kórea",
+    "KW": "Kúveit",
+    "KY": "Caymaneyjar",
+    "KZ": "Kasakstan",
+    "LA": "Laos",
+    "LB": "Líbanon",
+    "LC": "Sankti Lúsía",
+    "LI": "Liechtenstein",
+    "LK": "Srí Lanka",
+    "LR": "Líbería",
+    "LS": "Lesótó",
+    "LT": "Litháen",
+    "LU": "Lúxemborg",
+    "LV": "Lettland",
+    "LY": "Líbía",
+    "MA": "Marokkó",
+    "MC": "Mónakó",
+    "MD": "Moldóva",
+    "ME": "Svartfjallaland",
+    "MF": "Saint-Martin",
+    "MG": "Madagaskar",
+    "MH": "Marshalleyjar",
+    "MK": "Norður-Makedónía",
+    "ML": "Malí",
+    "MM": "Mjanmar (Búrma)",
+    "MN": "Mongólía",
+    "MO": "sérstjórnarsvæðið Makaó",
+    "MP": "Norður-Maríanaeyjar",
+    "MQ": "Martiník",
+    "MR": "Máritanía",
+    "MS": "Montserrat",
+    "MT": "Malta",
+    "MU": "Máritíus",
+    "MV": "Maldíveyjar",
+    "MW": "Malaví",
+    "MX": "Mexíkó",
+    "MY": "Malasía",
+    "MZ": "Mósambík",
+    "NA": "Namibía",
+    "NC": "Nýja-Kaledónía",
+    "NE": "Níger",
+    "NF": "Norfolkeyja",
+    "NG": "Nígería",
+    "NI": "Níkaragva",
+    "NL": "Holland",
+    "NO": "Noregur",
+    "NP": "Nepal",
+    "NR": "Nárú",
+    "NU": "Niue",
+    "NZ": "Nýja-Sjáland",
+    "OM": "Óman",
+    "PA": "Panama",
+    "PE": "Perú",
+    "PF": "Franska Pólýnesía",
+    "PG": "Papúa Nýja-Gínea",
+    "PH": "Filippseyjar",
+    "PK": "Pakistan",
+    "PL": "Pólland",
+    "PM": "Sankti Pierre og Miquelon",
+    "PN": "Pitcairn-eyjar",
+    "PR": "Púertó Ríkó",
+    "PS": "Heimastjórnarsvæði Palestínumanna",
+    "PT": "Portúgal",
+    "PW": "Palá",
+    "PY": "Paragvæ",
+    "QA": "Katar",
+    "QO": "Ytri Eyjaálfa",
+    "RE": "Réunion",
+    "RO": "Rúmenía",
+    "RS": "Serbía",
+    "RU": "Rússland",
+    "RW": "Rúanda",
+    "SA": "Sádi-Arabía",
+    "SB": "Salómonseyjar",
+    "SC": "Seychelles-eyjar",
+    "SD": "Súdan",
+    "SE": "Svíþjóð",
+    "SG": "Singapúr",
+    "SH": "Sankti Helena",
+    "SI": "Slóvenía",
+    "SJ": "Svalbarði og Jan Mayen",
+    "SK": "Slóvakía",
+    "SL": "Síerra Leóne",
+    "SM": "San Marínó",
+    "SN": "Senegal",
+    "SO": "Sómalía",
+    "SR": "Súrínam",
+    "SS": "Suður-Súdan",
+    "ST": "Saó Tóme og Prinsípe",
+    "SV": "El Salvador",
+    "SX": "Sint Maarten",
+    "SY": "Sýrland",
+    "SZ": "Esvatíní",
+    "TA": "Tristan da Cunha",
+    "TC": "Turks- og Caicoseyjar",
+    "TD": "Tsjad",
+    "TF": "Frönsku suðlægu landsvæðin",
+    "TG": "Tógó",
+    "TH": "Taíland",
+    "TJ": "Tadsíkistan",
+    "TK": "Tókelá",
+    "TL": "Tímor-Leste",
+    "TM": "Túrkmenistan",
+    "TN": "Túnis",
+    "TO": "Tonga",
+    "TR": "Tyrkland",
+    "TT": "Trínidad og Tóbagó",
+    "TV": "Túvalú",
+    "TW": "Taívan",
+    "TZ": "Tansanía",
+    "UA": "Úkraína",
+    "UG": "Úganda",
+    "UM": "Smáeyjar Bandaríkjanna",
+    "UN": "Sameinuðu þjóðirnar",
+    "US": "Bandaríkin",
+    "UY": "Úrúgvæ",
+    "UZ": "Úsbekistan",
+    "VA": "Vatíkanið",
+    "VC": "Sankti Vinsent og Grenadíneyjar",
+    "VE": "Venesúela",
+    "VG": "Bresku Jómfrúaeyjar",
+    "VI": "Bandarísku Jómfrúaeyjar",
+    "VN": "Víetnam",
+    "VU": "Vanúatú",
+    "WF": "Wallis- og Fútúnaeyjar",
+    "WS": "Samóa",
+    "XA": "gervihreimur",
+    "XB": "gervistaður",
+    "XK": "Kósóvó",
+    "YE": "Jemen",
+    "YT": "Mayotte",
+    "ZA": "Suður-Afríka",
+    "ZM": "Sambía",
+    "ZW": "Simbabve"
+  }
+}

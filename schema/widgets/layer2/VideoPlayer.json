@@ -1,0 +1,123 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "VideoPlayer",
+  "id": 203,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "videocam",
+  "description": "A video from an https address with play and pause, a progress bar and optional captions. It never starts by itself under reduce motion.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 1500,
+  "accessibility": {
+    "role": "group",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_player",
+  "props": [
+    {
+      "name": "url",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "constraints": {
+        "pattern": "^https://"
+      },
+      "description": "The https address of the video."
+    },
+    {
+      "name": "captions",
+      "id": 2,
+      "type": "string?",
+      "translatable": true,
+      "description": "Captions as WebVTT text."
+    },
+    {
+      "name": "autoplay",
+      "id": 3,
+      "type": "bool",
+      "default": false,
+      "description": "Whether it starts by itself; ignored under reduce motion."
+    },
+    {
+      "name": "loop",
+      "id": 4,
+      "type": "bool",
+      "default": false,
+      "description": "Whether it starts again when it ends."
+    },
+    {
+      "name": "aspectRatio",
+      "id": 5,
+      "type": "double",
+      "default": 1.7777778,
+      "constraints": {
+        "min": 0.2,
+        "max": 5
+      },
+      "description": "Width over height."
+    },
+    {
+      "name": "semanticLabel",
+      "id": 6,
+      "type": "string?",
+      "translatable": true,
+      "description": "What the video is, spoken for the player."
+    },
+    {
+      "name": "playLabel",
+      "id": 7,
+      "type": "string",
+      "default": "Play",
+      "translatable": true,
+      "description": "The play button's label."
+    },
+    {
+      "name": "pauseLabel",
+      "id": 8,
+      "type": "string",
+      "default": "Pause",
+      "translatable": true,
+      "description": "The pause button's label."
+    },
+    {
+      "name": "captionsLabel",
+      "id": 9,
+      "type": "string",
+      "default": "Captions",
+      "translatable": true,
+      "description": "The captions switch's label."
+    },
+    {
+      "name": "positionLabel",
+      "id": 10,
+      "type": "string",
+      "default": "Position",
+      "translatable": true,
+      "description": "The progress bar's label."
+    }
+  ],
+  "events": [
+    {
+      "name": "onEnded",
+      "id": 1,
+      "description": "Fires when playback ends."
+    },
+    {
+      "name": "onError",
+      "id": 2,
+      "description": "Fires when the video cannot be played."
+    }
+  ]
+}

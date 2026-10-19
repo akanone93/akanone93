@@ -48,7 +48,8 @@
       "name": "forceErrorText",
       "id": 3,
       "type": "string",
-      "flutter": "forceErrorText"
+      "flutter": "forceErrorText",
+      "translatable": true
     },
     {
       "name": "decoration",

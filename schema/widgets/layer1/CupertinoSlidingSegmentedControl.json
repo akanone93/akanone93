@@ -28,7 +28,8 @@
   "cost": 50,
   "accessibility": {
     "role": "button",
-    "interactive": true
+    "interactive": true,
+    "minTarget": true
   },
   "typeParameters": [],
   "props": [

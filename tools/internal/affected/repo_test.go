@@ -241,7 +241,7 @@ func TestProjectPastChangesRunTheRightJobs_CI_002(t *testing.T) {
 		{
 			name:  "a compiler change",
 			files: []string{"backend/internal/compiler/compiler.go"},
-			want:  sorted(append([]string{"go-build", "go-determinism", "go-vuln", "image-arm64"}, goServer...)),
+			want:  sorted(append([]string{"go-build", "go-determinism", "go-vuln", "image-arm64", "goldens"}, goServer...)),
 		},
 		{
 			name:  "a server test",
@@ -256,7 +256,7 @@ func TestProjectPastChangesRunTheRightJobs_CI_002(t *testing.T) {
 		{
 			name:  "the runtime's rendering",
 			files: []string{"packages/plux_flutter/lib/src/render/decoders.dart"},
-			want:  runtime,
+			want:  sorted(append([]string{"goldens"}, runtime...)),
 		},
 		{
 			name:  "a runtime test",

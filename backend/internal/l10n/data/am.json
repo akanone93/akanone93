@@ -1,0 +1,1502 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyMMdd": "dd/MM/y GGGGG",
+        "Gy": "y G",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "MMM፣ y G",
+        "GyMMMEd": "E MMM d፣ y G",
+        "GyMMMMEEEEd": "EEEE፣ d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "MMM d፣ y G",
+        "GyMd": "M/d/y GGGGG",
+        "H": "H",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E፣ M/d",
+        "MMM": "LLL",
+        "MMMEd": "E፣ MMM d",
+        "MMMMEd": "E, MMMM d",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "M/d",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hmm": "h:mm a",
+        "hmmss": "h:mm:ss a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M/y",
+        "yMEd": "E፣ d/M/y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E፣ MMM d y",
+        "yMMMM": "MMMM y",
+        "yMMMd": "d MMM y",
+        "yMd": "d/M/y",
+        "yyyy": "G y",
+        "yyyyM": "GGGGG y-MM",
+        "yyyyMEd": "GGGGG y-MM-dd, E",
+        "yyyyMMM": "G y MMM",
+        "yyyyMMMEd": "G y MMM d, E",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "G y MMM d",
+        "yyyyMd": "GGGGG y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "EEEE፣ d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "d MMM y G",
+        "short": "dd/MM/y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          },
+          "wide": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          },
+          "wide": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["እሑድ", "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"],
+          "short": ["እ", "ሰ", "ማ", "ረ", "ሐ", "ዓ", "ቅ"],
+          "wide": ["እሑድ", "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"]
+        },
+        "standAlone": {
+          "abbreviated": ["እሑድ", "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"],
+          "short": ["እ", "ሰ", "ማ", "ረ", "ሐ", "ዓ", "ቅ"],
+          "wide": ["እሑድ", "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["መስከረም", "ጥቅምት", "ኅዳር", "ታኅሣሥ", "ጥር", "የካቲት", "መጋቢት", "ሚያዝያ", "ግንቦት", "ሰኔ", "ሐምሌ", "ነሐሴ", "ጳጉሜን"],
+          "wide": ["መስከረም", "ጥቅምት", "ኅዳር", "ታኅሣሥ", "ጥር", "የካቲት", "መጋቢት", "ሚያዝያ", "ግንቦት", "ሰኔ", "ሐምሌ", "ነሐሴ", "ጳጉሜን"]
+        },
+        "standAlone": {
+          "abbreviated": ["መስከረም", "ጥቅምት", "ኅዳር", "ታኅሣሥ", "ጥር", "የካቲት", "መጋቢት", "ሚያዝያ", "ግንቦት", "ሰኔ", "ሐምሌ", "ነሐሴ", "ጳጉሜን"],
+          "wide": ["መስከረም", "ጥቅምት", "ኅዳር", "ታኅሣሥ", "ጥር", "የካቲት", "መጋቢት", "ሚያዝያ", "ግንቦት", "ሰኔ", "ሐምሌ", "ነሐሴ", "ጳጉሜን"]
+        }
+      },
+      "timeFormats": {
+        "full": "h:mm:ss a zzzz",
+        "long": "h:mm:ss a z",
+        "medium": "h:mm:ss a",
+        "short": "h:mm a"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E\u202fa h",
+        "Ehm": "E a h:mm",
+        "Ehms": "E a h:mm:ss",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E d/M/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E MMM d y G",
+        "GyMMMd": "MMM d y G",
+        "GyMd": "d/M/y GGGGG",
+        "H": "H",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E፣ d/M",
+        "MMM": "LLL",
+        "MMMEd": "E፣ MMM d",
+        "MMMMEd": "E፣ MMMM d",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "d/M",
+        "d": "d",
+        "h": "a h",
+        "hm": "a h:mm",
+        "hmm": "h:mm a",
+        "hmmss": "h:mm:ss a",
+        "hms": "a h:mm:ss",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M/y",
+        "yMEd": "E፣ d/M/y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E፣ MMM d y",
+        "yMMMM": "MMMM y",
+        "yMMMMEEEEd": "EEEE d MMMM y",
+        "yMMMMd": "d MMMM y",
+        "yMMMd": "MMM d y",
+        "yMMdd": "dd/MM/y",
+        "yMd": "d/M/y"
+      },
+      "dateFormats": {
+        "full": "EEEE d MMMM y",
+        "long": "d MMMM y",
+        "medium": "d MMM y",
+        "short": "dd/MM/y"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          },
+          "narrow": {
+            "am": "ጠ",
+            "pm": "ከ"
+          },
+          "wide": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          },
+          "narrow": {
+            "am": "ጠ",
+            "pm": "ከ"
+          },
+          "wide": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["እሑድ", "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"],
+          "narrow": ["እ", "ሰ", "ማ", "ረ", "ሐ", "ዓ", "ቅ"],
+          "short": ["እ", "ሰ", "ማ", "ረ", "ሐ", "ዓ", "ቅ"],
+          "wide": ["እሑድ", "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"]
+        },
+        "standAlone": {
+          "abbreviated": ["እሑድ", "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"],
+          "narrow": ["እ", "ሰ", "ማ", "ረ", "ሐ", "ዓ", "ቅ"],
+          "short": ["እ", "ሰ", "ማ", "ረ", "ሐ", "ዓ", "ቅ"],
+          "wide": ["እሑድ", "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["ዓ/ዓ", "ዓ/ም"],
+        "narrow": ["ዓ/ዓ", "ዓ/ም"],
+        "wide": ["ዓመተ ዓለም", "ዓመተ ምሕረት"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["ጃን", "ፌብ", "ማርች", "ኤፕሪ", "ሜይ", "ጁን", "ጁላይ", "ኦገስ", "ሴፕቴ", "ኦክቶ", "ኖቬም", "ዲሴም"],
+          "narrow": ["ጃ", "ፌ", "ማ", "ኤ", "ሜ", "ጁ", "ጁ", "ኦ", "ሴ", "ኦ", "ኖ", "ዲ"],
+          "wide": ["ጃንዋሪ", "ፌብሩዋሪ", "ማርች", "ኤፕሪል", "ሜይ", "ጁን", "ጁላይ", "ኦገስት", "ሴፕቴምበር", "ኦክቶበር", "ኖቬምበር", "ዲሴምበር"]
+        },
+        "standAlone": {
+          "abbreviated": ["ጃን", "ፌብ", "ማርች", "ኤፕሪ", "ሜይ", "ጁን", "ጁላይ", "ኦገስ", "ሴፕቴ", "ኦክቶ", "ኖቬም", "ዲሴም"],
+          "narrow": ["ጃ", "ፌ", "ማ", "ኤ", "ሜ", "ጁ", "ጁ", "ኦ", "ሴ", "ኦ", "ኖ", "ዲ"],
+          "wide": ["ጃንዋሪ", "ፌብሩዋሪ", "ማርች", "ኤፕሪል", "ሜይ", "ጁን", "ጁላይ", "ኦገስት", "ሴፕቴምበር", "ኦክቶበር", "ኖቬምበር", "ዲሴምበር"]
+        }
+      },
+      "timeFormats": {
+        "full": "h:mm:ss a zzzz",
+        "long": "h:mm:ss a z",
+        "medium": "h:mm:ss a",
+        "short": "h:mm a"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyMMdd": "dd/MM/y GGGGG",
+        "Gy": "y G",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "G y MMM",
+        "GyMMMEd": "E MMM d፣ y G",
+        "GyMMMMEEEEd": "EEEE፣ d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "MMM d፣ y G",
+        "GyMd": "M/d/y GGGGG",
+        "H": "H",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E፣ M/d",
+        "MMM": "LLL",
+        "MMMEd": "E፣ MMM d",
+        "MMMMEd": "E፣ MMMM d",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "M/d",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hmm": "h:mm a",
+        "hmmss": "h:mm:ss a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M/y",
+        "yMEd": "E፣ d/M/y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E፣ MMM d y",
+        "yMMMM": "MMMM y",
+        "yMMMd": "d MMM y",
+        "yMd": "d/M/y",
+        "yyyy": "G y",
+        "yyyyM": "G y-MM",
+        "yyyyMEd": "G y-MM-dd, E",
+        "yyyyMMM": "G y MMM",
+        "yyyyMMMEd": "G y MMM d, E",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "G y MMM d",
+        "yyyyMd": "G y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "EEEE፣ d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "d MMM y G",
+        "short": "dd/MM/y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          },
+          "wide": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          },
+          "wide": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["እሑድ", "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"],
+          "short": ["እ", "ሰ", "ማ", "ረ", "ሐ", "ዓ", "ቅ"],
+          "wide": ["እሑድ", "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"]
+        },
+        "standAlone": {
+          "abbreviated": ["እሑድ", "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"],
+          "short": ["እ", "ሰ", "ማ", "ረ", "ሐ", "ዓ", "ቅ"],
+          "wide": ["እሑድ", "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AH", "BH"],
+        "wide": ["AH", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["ሙሀረም", "ሳፈር", "ረቢዑል አወል", "ረቢዑል አኺር", "ጀማደል አወል", "ጀማደል አኺር", "ረጀብ", "ሻእባን", "ረመዳን", "ሸዋል", "ዙልቂዳህ", "ዙልሂጃህ"]
+        },
+        "standAlone": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["ሙሀረም", "ሳፈር", "ረቢዑል አወል", "ረቢዑል አኺር", "ጀማደል አወል", "ጀማደል አኺር", "ረጀብ", "ሻእባን", "ረመዳን", "ሸዋል", "ዙልቂዳህ", "ዙልሂጃህ"]
+        }
+      },
+      "timeFormats": {
+        "full": "h:mm:ss a zzzz",
+        "long": "h:mm:ss a z",
+        "medium": "h:mm:ss a",
+        "short": "h:mm a"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyMMdd": "dd/MM/y GGGGG",
+        "Gy": "y G",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "G y MMM",
+        "GyMMMEd": "E MMM d፣ y G",
+        "GyMMMMEEEEd": "EEEE፣ d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "MMM d፣ y G",
+        "GyMd": "M/d/y GGGGG",
+        "H": "H",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E፣ M/d",
+        "MMM": "LLL",
+        "MMMEd": "E፣ MMM d",
+        "MMMMEd": "E፣ MMMM d",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "M/d",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hmm": "h:mm a",
+        "hmmss": "h:mm:ss a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M/y",
+        "yMEd": "E፣ d/M/y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E፣ MMM d y",
+        "yMMMM": "MMMM y",
+        "yMMMd": "d MMM y",
+        "yMd": "d/M/y",
+        "yyyy": "G y",
+        "yyyyM": "G y-MM",
+        "yyyyMEd": "G y-MM-dd, E",
+        "yyyyMMM": "G y MMM",
+        "yyyyMMMEd": "G y MMM d, E",
+        "yyyyMMMM": "MMMM y G",
+        "yyyyMMMd": "G y MMM d",
+        "yyyyMd": "G y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "EEEE፣ d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "d MMM y G",
+        "short": "dd/MM/y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          },
+          "wide": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          },
+          "wide": {
+            "am": "ጥዋት",
+            "pm": "ከሰዓት"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["እሑድ", "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"],
+          "short": ["እ", "ሰ", "ማ", "ረ", "ሐ", "ዓ", "ቅ"],
+          "wide": ["እሑድ", "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"]
+        },
+        "standAlone": {
+          "abbreviated": ["እሑድ", "ሰኞ", "ማክሰ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"],
+          "short": ["እ", "ሰ", "ማ", "ረ", "ሐ", "ዓ", "ቅ"],
+          "wide": ["እሑድ", "ሰኞ", "ማክሰኞ", "ረቡዕ", "ሐሙስ", "ዓርብ", "ቅዳሜ"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AP"],
+        "wide": ["AP"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        },
+        "standAlone": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        }
+      },
+      "timeFormats": {
+        "full": "h:mm:ss a zzzz",
+        "long": "h:mm:ss a z",
+        "medium": "h:mm:ss a",
+        "short": "h:mm a"
+      }
+    }
+  },
+  "currencies": {
+    "AED": {
+      "name": "የተባበሩት የአረብ ኤምሬትስ ድርሀም"
+    },
+    "AFN": {
+      "name": "የአፍጋን አፍጋኒ",
+      "narrow": "؋"
+    },
+    "ALL": {
+      "name": "የአልባንያ ሌክ"
+    },
+    "AMD": {
+      "name": "የአርመን ድራም",
+      "narrow": "֏"
+    },
+    "AOA": {
+      "name": "የአንጎላ ኩዋንዛ",
+      "narrow": "Kz"
+    },
+    "ARS": {
+      "name": "የአርጀንቲና ፔሶ",
+      "narrow": "$"
+    },
+    "AUD": {
+      "name": "የአውስትራሊያ ዶላር",
+      "narrow": "$",
+      "symbol": "AU$"
+    },
+    "AWG": {
+      "name": "አሩባን ፍሎሪን"
+    },
+    "AZN": {
+      "name": "የአዛርባጃን ማናት",
+      "narrow": "₼"
+    },
+    "BAM": {
+      "name": "የቦስኒያ ሄርዞጎቪና የሚመነዘር ማርክ",
+      "narrow": "KM"
+    },
+    "BBD": {
+      "name": "የባርቤዶስ ዶላር",
+      "narrow": "$"
+    },
+    "BDT": {
+      "name": "የባንግላዲሽ ታካ",
+      "narrow": "৳"
+    },
+    "BHD": {
+      "name": "የባኽሬን ዲናር"
+    },
+    "BIF": {
+      "name": "የብሩንዲ ፍራንክ"
+    },
+    "BMD": {
+      "name": "የቤርሙዳ ዶላር",
+      "narrow": "$"
+    },
+    "BND": {
+      "name": "የብሩኔ ዶላር",
+      "narrow": "$"
+    },
+    "BOB": {
+      "name": "የቦሊቪያ ቦሊቪያኖ",
+      "narrow": "Bs"
+    },
+    "BRL": {
+      "name": "የብራዚል ሪል",
+      "symbol": "R$"
+    },
+    "BSD": {
+      "name": "የባሃማስ ዶላር",
+      "narrow": "$"
+    },
+    "BTN": {
+      "name": "ብሁታኒዝ ንጉልትረም"
+    },
+    "BWP": {
+      "name": "የቦትስዋና ፑላ",
+      "narrow": "P"
+    },
+    "BYN": {
+      "name": "የቤላሩስያ ሩብል",
+      "narrow": "р."
+    },
+    "BZD": {
+      "name": "የቤሊዝ ዶላር",
+      "narrow": "$"
+    },
+    "CAD": {
+      "name": "የካናዳ ዶላር",
+      "narrow": "$",
+      "symbol": "CA$"
+    },
+    "CDF": {
+      "name": "የኮንጐ ፍራንክ ኮንጐሌዝ"
+    },
+    "CHF": {
+      "name": "የስዊስ ፍራንክ"
+    },
+    "CLP": {
+      "name": "የቺሊ ፔሶ",
+      "narrow": "$"
+    },
+    "CNY": {
+      "name": "የቻይና የን",
+      "narrow": "¥",
+      "symbol": "CN¥"
+    },
+    "COP": {
+      "name": "የኮሎምቢያ ፔሶ",
+      "narrow": "$"
+    },
+    "CRC": {
+      "name": "የኮስታሪካ ኮሎን",
+      "narrow": "₡"
+    },
+    "CUP": {
+      "name": "የኩባ ፔሶ",
+      "narrow": "$"
+    },
+    "CVE": {
+      "name": "የኬፕ ቫርዲ ኤስኩዶ"
+    },
+    "CZK": {
+      "name": "ቼክ ሪፐብሊክ ኮሩና",
+      "narrow": "Kč",
+      "plural": {
+        "other": "ቼክ ሪፐብሊክ ኮሮና"
+      }
+    },
+    "DJF": {
+      "name": "የጅቡቲ ፍራንክ"
+    },
+    "DKK": {
+      "name": "የዴንማርክ ክሮን",
+      "narrow": "kr"
+    },
+    "DOP": {
+      "name": "የዶሚኒክ ፔሶ",
+      "narrow": "$"
+    },
+    "DZD": {
+      "name": "የአልጄሪያ ዲናር"
+    },
+    "EGP": {
+      "name": "የግብጽ ፓውንድ",
+      "narrow": "E£"
+    },
+    "ERN": {
+      "name": "የኤርትራ ናቅፋ"
+    },
+    "ETB": {
+      "name": "የኢትዮጵያ ብር",
+      "symbol": "ብር"
+    },
+    "EUR": {
+      "name": "ዩሮ",
+      "symbol": "€"
+    },
+    "FJD": {
+      "name": "የፊጂ ዶላር",
+      "narrow": "$"
+    },
+    "FKP": {
+      "name": "የፎክላንድ ደሴቶች ፓውንድ",
+      "narrow": "£"
+    },
+    "GBP": {
+      "name": "የእንግሊዝ ፓውንድ ስተርሊንግ",
+      "symbol": "£"
+    },
+    "GEL": {
+      "name": "የጆርጅያ ላሪ",
+      "narrow": "₾"
+    },
+    "GHS": {
+      "name": "የጋና ሲዲ",
+      "narrow": "GH₵"
+    },
+    "GIP": {
+      "name": "ጂብራልተር ፓውንድ",
+      "narrow": "£"
+    },
+    "GMD": {
+      "name": "የጋምቢያ ዳላሲ"
+    },
+    "GNF": {
+      "name": "የጊኒ ፍራንክ",
+      "narrow": "FG"
+    },
+    "GTQ": {
+      "name": "ጓቲማላን ኩቲዛል",
+      "narrow": "Q"
+    },
+    "GYD": {
+      "name": "የጉየና ዶላር",
+      "narrow": "$"
+    },
+    "HKD": {
+      "name": "የሆንግኮንግ ዶላር",
+      "narrow": "$",
+      "symbol": "HK$"
+    },
+    "HNL": {
+      "name": "የሃንዱራ ሌምፓአይራ",
+      "narrow": "L"
+    },
+    "HTG": {
+      "name": "የሃያቲ ጓርዴ"
+    },
+    "HUF": {
+      "name": "የሃንጋሪያን ፎሪንት",
+      "narrow": "Ft"
+    },
+    "IDR": {
+      "name": "የኢንዶኔዥያ ሩፒሃ",
+      "narrow": "Rp"
+    },
+    "ILS": {
+      "name": "የእስራኤል አዲስ ሽቅል",
+      "symbol": "₪"
+    },
+    "INR": {
+      "name": "የሕንድ ሩፒ",
+      "symbol": "₹"
+    },
+    "IQD": {
+      "name": "የኢራቅ ዲናር"
+    },
+    "IRR": {
+      "name": "የኢራን ሪአል"
+    },
+    "ISK": {
+      "name": "የአይስላንድ ክሮና",
+      "narrow": "kr"
+    },
+    "JMD": {
+      "name": "የጃማይካ ዶላር",
+      "narrow": "$"
+    },
+    "JOD": {
+      "name": "የጆርዳን ዲናር"
+    },
+    "JPY": {
+      "name": "የጃፓን የን",
+      "narrow": "¥",
+      "symbol": "JP¥"
+    },
+    "KES": {
+      "name": "የኬኒያ ሺሊንግ"
+    },
+    "KGS": {
+      "name": "የኪርጊስታን ሶም",
+      "narrow": "⃀"
+    },
+    "KHR": {
+      "name": "የካምቦዲያ ሬል",
+      "narrow": "៛"
+    },
+    "KMF": {
+      "name": "የኮሞሮ ፍራንክ",
+      "narrow": "CF"
+    },
+    "KPW": {
+      "name": "የሰሜን ኮሪያ ዎን",
+      "narrow": "₩"
+    },
+    "KRW": {
+      "name": "የደቡብ ኮሪያ ዎን",
+      "symbol": "₩"
+    },
+    "KWD": {
+      "name": "የኩዌት ዲናር"
+    },
+    "KYD": {
+      "name": "የካይማን ደሴቶች ዶላር",
+      "narrow": "$"
+    },
+    "KZT": {
+      "name": "የካዛኪስታን ተንጌ",
+      "narrow": "₸"
+    },
+    "LAK": {
+      "name": "የላኦቲ ኪፕ",
+      "narrow": "₭"
+    },
+    "LBP": {
+      "name": "የሊባኖስ ፓውንድ",
+      "narrow": "L£"
+    },
+    "LKR": {
+      "name": "የሲሪላንካ ሩፒ",
+      "narrow": "Rs"
+    },
+    "LRD": {
+      "name": "የላይቤሪያ ዶላር",
+      "narrow": "$"
+    },
+    "LSL": {
+      "name": "የሌሶቶ ሎቲ"
+    },
+    "LYD": {
+      "name": "የሊቢያ ዲናር"
+    },
+    "MAD": {
+      "name": "የሞሮኮ ዲርሀም"
+    },
+    "MDL": {
+      "name": "ሞልዶቫን ሊኡ"
+    },
+    "MGA": {
+      "name": "የማደጋስካር ማላጋስይ አሪያርይ",
+      "narrow": "Ar"
+    },
+    "MKD": {
+      "name": "የሜቆድንያ ዲናር"
+    },
+    "MMK": {
+      "name": "የማያናማር ክያት",
+      "narrow": "K"
+    },
+    "MNT": {
+      "name": "የሞንጎሊያን ቱግሪክ",
+      "narrow": "₮"
+    },
+    "MOP": {
+      "name": "የማካኔዝ ፓታካ"
+    },
+    "MRU": {
+      "name": "የሞሪቴኒያ ኦውጉያ"
+    },
+    "MUR": {
+      "name": "የሞሪሸስ ሩፒ",
+      "narrow": "Rs"
+    },
+    "MVR": {
+      "name": "የማልዲቫ ሩፊያ"
+    },
+    "MWK": {
+      "name": "የማላዊ ኩዋቻ"
+    },
+    "MXN": {
+      "name": "የሜክሲኮ ፔሶ",
+      "narrow": "$",
+      "symbol": "MX$"
+    },
+    "MYR": {
+      "name": "የማሌዥያ ሪንጊት",
+      "narrow": "RM"
+    },
+    "MZN": {
+      "name": "የሞዛምቢክ ሜቲካል"
+    },
+    "NAD": {
+      "name": "የናሚቢያ ዶላር",
+      "narrow": "$"
+    },
+    "NGN": {
+      "name": "የናይጄሪያ ናይራ",
+      "narrow": "₦"
+    },
+    "NIO": {
+      "name": "የኒካራጓ ኮርዶባ",
+      "narrow": "C$"
+    },
+    "NOK": {
+      "name": "የኖርዌይ ክሮን",
+      "narrow": "kr"
+    },
+    "NPR": {
+      "name": "የኔፓል ሩፒ",
+      "narrow": "Rs"
+    },
+    "NZD": {
+      "name": "የኒውዚላንድ ዶላር",
+      "narrow": "$",
+      "symbol": "NZ$"
+    },
+    "OMR": {
+      "name": "የኦማን ሪአል"
+    },
+    "PAB": {
+      "name": "ፓናማኒአን ባልቦአ"
+    },
+    "PEN": {
+      "name": "የፔሩቪያ ሶል"
+    },
+    "PGK": {
+      "name": "የፓፕዋ ኒው ጊኒ ኪና"
+    },
+    "PHP": {
+      "name": "የፊሊፒንስ ፔሶ",
+      "narrow": "₱"
+    },
+    "PKR": {
+      "name": "የፓኪስታን ሩፒ",
+      "narrow": "Rs"
+    },
+    "PLN": {
+      "name": "የፖላንድ ዝሎቲ",
+      "narrow": "zł"
+    },
+    "PYG": {
+      "name": "የፓራጓይ ጉአራኒ",
+      "narrow": "₲"
+    },
+    "QAR": {
+      "name": "የኳታር ሪአል"
+    },
+    "RON": {
+      "name": "የሮማኒያ ለው",
+      "narrow": "lei"
+    },
+    "RSD": {
+      "name": "የሰርቢያ ዲናር"
+    },
+    "RUB": {
+      "name": "የሩስያ ሩብል",
+      "narrow": "₽"
+    },
+    "RWF": {
+      "name": "የሩዋንዳ ፍራንክ",
+      "narrow": "RF"
+    },
+    "SAR": {
+      "name": "የሳውዲ ሪያል"
+    },
+    "SBD": {
+      "name": "የሰለሞን ደሴቶች ዶላር",
+      "narrow": "$"
+    },
+    "SCR": {
+      "name": "የሲሼል ሩፒ"
+    },
+    "SDG": {
+      "name": "የሱዳን ፓውንድ"
+    },
+    "SEK": {
+      "name": "የስዊድን ክሮና",
+      "narrow": "kr"
+    },
+    "SGD": {
+      "name": "የሲንጋፖር ዶላር",
+      "narrow": "$"
+    },
+    "SHP": {
+      "name": "የሴይንት ሔሌና ፓውንድ",
+      "narrow": "£"
+    },
+    "SLE": {
+      "name": "የሴራሊዎን ሊዎን"
+    },
+    "SOS": {
+      "name": "የሶማሌ ሺሊንግ"
+    },
+    "SRD": {
+      "name": "የሰርናሜዝ ዶላር",
+      "narrow": "$"
+    },
+    "SSP": {
+      "name": "የደቡብ ሱዳን ፓውንድ",
+      "narrow": "£"
+    },
+    "STN": {
+      "name": "የሳኦ ቶሜ እና ፕሪንሲፔ ዶብራ",
+      "narrow": "Db"
+    },
+    "SYP": {
+      "name": "የሲሪያ ፓውንድ",
+      "narrow": "£"
+    },
+    "SZL": {
+      "name": "የስዋዚላንድ ሊላንገኒ"
+    },
+    "THB": {
+      "name": "የታይላንድ ባህት",
+      "symbol": "฿"
+    },
+    "TJS": {
+      "name": "የታጂክስታን ሶሞኒ"
+    },
+    "TMT": {
+      "name": "ቱርክሜኒስታኒ ማናት"
+    },
+    "TND": {
+      "name": "የቱኒዚያ ዲናር"
+    },
+    "TOP": {
+      "name": "ቶንጋን ፓ’አንጋ",
+      "narrow": "T$"
+    },
+    "TRY": {
+      "name": "የቱርክ ሊራ",
+      "narrow": "₺"
+    },
+    "TTD": {
+      "name": "የትሪንዳድ እና ቶቤጎዶላር",
+      "narrow": "$"
+    },
+    "TWD": {
+      "name": "የአዲሷ ታይዋን ዶላር",
+      "symbol": "NT$"
+    },
+    "TZS": {
+      "name": "የታንዛኒያ ሺሊንግ"
+    },
+    "UAH": {
+      "name": "የዩክሬን ሀሪይቭኒአ",
+      "narrow": "₴"
+    },
+    "UGX": {
+      "name": "የዩጋንዳ ሺሊንግ"
+    },
+    "USD": {
+      "name": "የአሜሪካን ዶላር",
+      "narrow": "$",
+      "symbol": "US$"
+    },
+    "UYU": {
+      "name": "የኡራጓይ ፔሶ",
+      "narrow": "$"
+    },
+    "UZS": {
+      "name": "የኡዝፔኪስታን ሶም"
+    },
+    "VES": {
+      "name": "የቬንዝዌላ-ቦሊቫር"
+    },
+    "VND": {
+      "name": "የቭየትናም ዶንግ",
+      "symbol": "₫"
+    },
+    "VUV": {
+      "name": "የቫንዋንቱ ቫቱ"
+    },
+    "WST": {
+      "name": "ሳሞአን ታላ"
+    },
+    "XAF": {
+      "name": "የመካከለኛው አፍሪካ ሴፋ ፍራንክ",
+      "symbol": "FCFA"
+    },
+    "XCD": {
+      "name": "የምዕራብ ካሪብያን ዶላር",
+      "narrow": "$",
+      "symbol": "EC$"
+    },
+    "XCG": {
+      "name": "የካሪቢያን ጊልደር",
+      "symbol": "Cg."
+    },
+    "XOF": {
+      "name": "የምዕራብ አፍሪካ ሴፋ ፍራንክ",
+      "symbol": "F\u202fCFA"
+    },
+    "XPF": {
+      "name": "ሲ ኤፍ ፒ ፍራንክ",
+      "symbol": "CFPF"
+    },
+    "YER": {
+      "name": "የየመን ሪአል"
+    },
+    "ZAR": {
+      "name": "የደቡብ አፍሪካ ራንድ",
+      "narrow": "R"
+    },
+    "ZMW": {
+      "name": "የዛምቢያ ክዋቻ",
+      "narrow": "ZK"
+    },
+    "ZWG": {
+      "name": "የዚምባብዌ ወርቅ"
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "am",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "¤#,##0.00;(¤#,##0.00)",
+      "compactShort": {
+        "1000": {
+          "one": "0\u00a0ሺ",
+          "other": "0\u00a0ሺ"
+        },
+        "10000": {
+          "one": "00\u00a0ሺ",
+          "other": "00\u00a0ሺ"
+        },
+        "100000": {
+          "one": "000\u00a0ሺ",
+          "other": "000\u00a0ሺ"
+        },
+        "1000000": {
+          "one": "0\u00a0ሚ",
+          "other": "0\u00a0ሚ"
+        },
+        "10000000": {
+          "one": "00\u00a0ሚ",
+          "other": "00\u00a0ሚ"
+        },
+        "100000000": {
+          "one": "000\u00a0ሚ",
+          "other": "000\u00a0ሚ"
+        },
+        "1000000000": {
+          "one": "0\u00a0ቢ",
+          "other": "0\u00a0ቢ"
+        },
+        "10000000000": {
+          "one": "00\u00a0ቢ",
+          "other": "00\u00a0ቢ"
+        },
+        "100000000000": {
+          "one": "000\u00a0ቢ",
+          "other": "000\u00a0ቢ"
+        },
+        "1000000000000": {
+          "one": "0\u00a0ት",
+          "other": "0\u00a0ት"
+        },
+        "10000000000000": {
+          "one": "00\u00a0ት",
+          "other": "00\u00a0ት"
+        },
+        "100000000000000": {
+          "one": "000\u00a0ት",
+          "other": "000\u00a0ት"
+        }
+      },
+      "currency": "¤#,##0.00",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ".",
+        "exponential": "E",
+        "group": ",",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "በቁጥር\u00a0ሊገለጽ\u00a0የማይችል",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {
+      "one": "i = 0 or n = 1"
+    },
+    "ordinal": {}
+  },
+  "territories": {
+    "AC": "አሴንሽን ደሴት",
+    "AD": "አንዶራ",
+    "AE": "የተባበሩት ዓረብ ኤምሬትስ",
+    "AF": "አፍጋኒስታን",
+    "AG": "አንቲጓ እና ባርቡዳ",
+    "AI": "አንጉይላ",
+    "AL": "አልባኒያ",
+    "AM": "አርሜኒያ",
+    "AO": "አንጐላ",
+    "AQ": "አንታርክቲካ",
+    "AR": "አርጀንቲና",
+    "AS": "የአሜሪካ ሳሞአ",
+    "AT": "ኦስትሪያ",
+    "AU": "አውስትራልያ",
+    "AW": "አሩባ",
+    "AX": "የአላንድ ደሴቶች",
+    "AZ": "አዘርባጃን",
+    "BA": "ቦስኒያ እና ሄርዞጎቪኒያ",
+    "BB": "ባርቤዶስ",
+    "BD": "ባንግላዲሽ",
+    "BE": "ቤልጄም",
+    "BF": "ቡርኪና ፋሶ",
+    "BG": "ቡልጋሪያ",
+    "BH": "ባህሬን",
+    "BI": "ብሩንዲ",
+    "BJ": "ቤኒን",
+    "BL": "ሴንት ባርቴሌሚ",
+    "BM": "ቤርሙዳ",
+    "BN": "ብሩኒ",
+    "BO": "ቦሊቪያ",
+    "BQ": "የካሪቢያን ኔዘርላንድስ",
+    "BR": "ብራዚል",
+    "BS": "ባሃማስ",
+    "BT": "ቡህታን",
+    "BV": "ቡቬት ደሴት",
+    "BW": "ቦትስዋና",
+    "BY": "ቤላሩስ",
+    "BZ": "በሊዝ",
+    "CA": "ካናዳ",
+    "CC": "ኮኮስ(ኬሊንግ) ደሴቶች",
+    "CD": "ኮንጎ-ኪንሻሳ",
+    "CF": "ማዕከላዊ አፍሪካ ሪፑብሊክ",
+    "CG": "ኮንጎ ብራዛቪል",
+    "CH": "ስዊዘርላንድ",
+    "CI": "ኮትዲቯር",
+    "CK": "ኩክ ደሴቶች",
+    "CL": "ቺሊ",
+    "CM": "ካሜሩን",
+    "CN": "ቻይና",
+    "CO": "ኮሎምቢያ",
+    "CP": "ክሊፐርቶን ደሴት",
+    "CQ": "ሳርክ",
+    "CR": "ኮስታሪካ",
+    "CU": "ኩባ",
+    "CV": "ኬፕቨርዴ",
+    "CW": "ኩራሳዎ",
+    "CX": "ክሪስማስ ደሴት",
+    "CY": "ሳይፕረስ",
+    "CZ": "ቼቺያ",
+    "DE": "ጀርመን",
+    "DG": "ዲዬጎ ጋርሲያ",
+    "DJ": "ጂቡቲ",
+    "DK": "ዴንማርክ",
+    "DM": "ዶሚኒካ",
+    "DO": "ዶመኒካን ሪፑብሊክ",
+    "DZ": "አልጄሪያ",
+    "EA": "ሴኡታና ሜሊላ",
+    "EC": "ኢኳዶር",
+    "EE": "ኤስቶኒያ",
+    "EG": "ግብጽ",
+    "EH": "ምዕራባዊ ሳህራ",
+    "ER": "ኤርትራ",
+    "ES": "ስፔን",
+    "ET": "ኢትዮጵያ",
+    "EU": "የአውሮፓ ህብረት",
+    "EZ": "የዩሮ ዞን",
+    "FI": "ፊንላንድ",
+    "FJ": "ፊጂ",
+    "FK": "የፎክላንድ ደሴቶች",
+    "FM": "ማይክሮኔዢያ",
+    "FO": "የፋሮ ደሴቶች",
+    "FR": "ፈረንሳይ",
+    "GA": "ጋቦን",
+    "GB": "ዩናይትድ ኪንግደም",
+    "GD": "ግሬናዳ",
+    "GE": "ጆርጂያ",
+    "GF": "የፈረንሳይ ጉዊአና",
+    "GG": "ጉርነሲ",
+    "GH": "ጋና",
+    "GI": "ጂብራልተር",
+    "GL": "ግሪንላንድ",
+    "GM": "ጋምቢያ",
+    "GN": "ጊኒ",
+    "GP": "ጉዋደሉፕ",
+    "GQ": "ኢኳቶሪያል ጊኒ",
+    "GR": "ግሪክ",
+    "GS": "ደቡብ ጆርጂያ እና የደቡብ ሳንድዊች ደሴቶች",
+    "GT": "ጉዋቲማላ",
+    "GU": "ጉዋም",
+    "GW": "ጊኒ-ቢሳው",
+    "GY": "ጉያና",
+    "HK": "ሆንግ ኮንግ ልዩ የአስተዳደር ክልል ቻይና",
+    "HM": "ኽርድ ኣና ማክዶናልድ ደሴቶች",
+    "HN": "ሆንዱራስ",
+    "HR": "ክሮኤሽያ",
+    "HT": "ሀይቲ",
+    "HU": "ሀንጋሪ",
+    "IC": "የካናሪ ደሴቶች",
+    "ID": "ኢንዶኔዢያ",
+    "IE": "አየርላንድ",
+    "IL": "እስራኤል",
+    "IM": "አይል ኦፍ ማን",
+    "IN": "ህንድ",
+    "IO": "የብሪታኒያ ህንድ ውቂያኖስ ግዛት",
+    "IQ": "ኢራቅ",
+    "IR": "ኢራን",
+    "IS": "አይስላንድ",
+    "IT": "ጣሊያን",
+    "JE": "ጀርዚ",
+    "JM": "ጃማይካ",
+    "JO": "ጆርዳን",
+    "JP": "ጃፓን",
+    "KE": "ኬንያ",
+    "KG": "ኪርጊስታን",
+    "KH": "ካምቦዲያ",
+    "KI": "ኪሪባቲ",
+    "KM": "ኮሞሮስ",
+    "KN": "ቅዱስ ኪትስ እና ኔቪስ",
+    "KP": "ሰሜን ኮሪያ",
+    "KR": "ደቡብ ኮሪያ",
+    "KW": "ኩዌት",
+    "KY": "ካይማን ደሴቶች",
+    "KZ": "ካዛኪስታን",
+    "LA": "ላኦስ",
+    "LB": "ሊባኖስ",
+    "LC": "ሴንት ሉቺያ",
+    "LI": "ሊችተንስታይን",
+    "LK": "ሲሪላንካ",
+    "LR": "ላይቤሪያ",
+    "LS": "ሌሶቶ",
+    "LT": "ሊቱዌኒያ",
+    "LU": "ሉክሰምበርግ",
+    "LV": "ላትቪያ",
+    "LY": "ሊቢያ",
+    "MA": "ሞሮኮ",
+    "MC": "ሞናኮ",
+    "MD": "ሞልዶቫ",
+    "ME": "ሞንተኔግሮ",
+    "MF": "ሴንት ማርቲን",
+    "MG": "ማዳጋስካር",
+    "MH": "ማርሻል ደሴቶች",
+    "MK": "ሰሜን መቄዶንያ",
+    "ML": "ማሊ",
+    "MM": "ማይናማር(በርማ)",
+    "MN": "ሞንጎሊያ",
+    "MO": "ማካኦ ልዩ የአስተዳደር ክልል ቻይና",
+    "MP": "የሰሜናዊ ማሪያና ደሴቶች",
+    "MQ": "ማርቲኒክ",
+    "MR": "ሞሪቴኒያ",
+    "MS": "ሞንትሴራት",
+    "MT": "ማልታ",
+    "MU": "ሞሪሸስ",
+    "MV": "ማልዲቭስ",
+    "MW": "ማላዊ",
+    "MX": "ሜክሲኮ",
+    "MY": "ማሌዢያ",
+    "MZ": "ሞዛምቢክ",
+    "NA": "ናሚቢያ",
+    "NC": "ኒው ካሌዶኒያ",
+    "NE": "ኒጀር",
+    "NF": "ኖርፎልክ ደሴት",
+    "NG": "ናይጄሪያ",
+    "NI": "ኒካራጓ",
+    "NL": "ኔዘርላንድ",
+    "NO": "ኖርዌይ",
+    "NP": "ኔፓል",
+    "NR": "ናኡሩ",
+    "NU": "ኒዌ",
+    "NZ": "ኒው ዚላንድ",
+    "OM": "ኦማን",
+    "PA": "ፓናማ",
+    "PE": "ፔሩ",
+    "PF": "የፈረንሳይ ፖሊኔዢያ",
+    "PG": "ፓፑዋ ኒው ጊኒ",
+    "PH": "ፊሊፒንስ",
+    "PK": "ፓኪስታን",
+    "PL": "ፖላንድ",
+    "PM": "ሴንት ፒዬር እና ሚኩኤሎን",
+    "PN": "ፒትካኢርን ደሴቶች",
+    "PR": "ፑዌርቶ ሪኮ",
+    "PS": "የፍልስጤም ግዛት",
+    "PT": "ፖርቱጋል",
+    "PW": "ፓላው",
+    "PY": "ፓራጓይ",
+    "QA": "ኳታር",
+    "QO": "የኦሺያንያ ዳርቻ",
+    "RE": "ሪዩኒየን",
+    "RO": "ሮሜኒያ",
+    "RS": "ሰርብያ",
+    "RU": "ሩስያ",
+    "RW": "ሩዋንዳ",
+    "SA": "ሳውድአረቢያ",
+    "SB": "ሰለሞን ደሴቶች",
+    "SC": "ሲሼልስ",
+    "SD": "ሱዳን",
+    "SE": "ስዊድን",
+    "SG": "ሲንጋፖር",
+    "SH": "ሴንት ሄለና",
+    "SI": "ስሎቬኒያ",
+    "SJ": "ስቫልባርድ እና ጃን ማየን",
+    "SK": "ስሎቫኪያ",
+    "SL": "ሴራሊዮን",
+    "SM": "ሳን ማሪኖ",
+    "SN": "ሴኔጋል",
+    "SO": "ሶማሊያ",
+    "SR": "ሱሪናም",
+    "SS": "ደቡብ ሱዳን",
+    "ST": "ሳኦ ቶሜ እና ፕሪንሲፔ",
+    "SV": "ኤል ሳልቫዶር",
+    "SX": "ሲንት ማርተን",
+    "SY": "ሶሪያ",
+    "SZ": "ኤስዋቲኒ",
+    "TA": "ትሪስታን ዳ ኩንሃ",
+    "TC": "የቱርኮችና የካኢኮስ ደሴቶች",
+    "TD": "ቻድ",
+    "TF": "የፈረንሳይ ደቡባዊ ግዛቶች",
+    "TG": "ቶጐ",
+    "TH": "ታይላንድ",
+    "TJ": "ታጃኪስታን",
+    "TK": "ቶክላው",
+    "TL": "ቲሞር ሌስቴ",
+    "TM": "ቱርክሜኒስታን",
+    "TN": "ቱኒዚያ",
+    "TO": "ቶንጋ",
+    "TR": "ቱርክ",
+    "TT": "ትሪናዳድ እና ቶቤጎ",
+    "TV": "ቱቫሉ",
+    "TW": "ታይዋን",
+    "TZ": "ታንዛኒያ",
+    "UA": "ዩክሬን",
+    "UG": "ዩጋንዳ",
+    "UM": "የዩ ኤስ ጠረፍ ላይ ያሉ ደሴቶች",
+    "UN": "የተባበሩት መንግስታት",
+    "US": "ዩናይትድ ስቴትስ",
+    "UY": "ኡራጓይ",
+    "UZ": "ኡዝቤኪስታን",
+    "VA": "ቫቲካን ከተማ",
+    "VC": "ሴንት ቪንሴንት እና ግሬናዲንስ",
+    "VE": "ቬንዙዌላ",
+    "VG": "የእንግሊዝ ቨርጂን ደሴቶች",
+    "VI": "የአሜሪካ ቨርጂን ደሴቶች",
+    "VN": "ቬትናም",
+    "VU": "ቫኑአቱ",
+    "WF": "ዋሊስ እና ፉቱና ደሴቶች",
+    "WS": "ሳሞአ",
+    "XA": "የሀሰት ትእምርት",
+    "XB": "የሀሰት ባለሁለት አቅጣጫ",
+    "XK": "ኮሶቮ",
+    "YE": "የመን",
+    "YT": "ሜይኦቴ",
+    "ZA": "ደቡብ አፍሪካ",
+    "ZM": "ዛምቢያ",
+    "ZW": "ዚምቧቤ"
+  }
+}

@@ -155,7 +155,7 @@ enum AnimTransitionKind {
 /// An app: its plugins, theme, locales, environments, shared data and policies
 /// (SCH-020). File: `app.json`.
 final class AppDocument {
-  const AppDocument({required this.schemaVersion, required this.kind, required this.id, required this.key, required this.name, this.description, required this.icon, required this.defaultLocale, required this.supportedLocales, required this.theme, required this.entryRoute, this.navigation, required this.plugins, this.capabilities, required this.environments, this.variables, this.dataSources, this.nativeCatalogue, required this.securityProfile, this.security, required this.sync, required this.minRuntimeVersion, this.requiredFeatures, this.flags, this.types, this.state, this.collections, this.droppedCollections, this.userContext, this.hostEvents, this.telemetry, this.push, this.triggers});
+  const AppDocument({required this.schemaVersion, required this.kind, required this.id, required this.key, required this.name, this.description, required this.icon, required this.defaultLocale, required this.supportedLocales, required this.theme, required this.entryRoute, this.navigation, required this.plugins, this.capabilities, required this.environments, this.variables, this.dataSources, this.nativeCatalogue, required this.securityProfile, this.security, required this.sync, required this.minRuntimeVersion, this.requiredFeatures, this.flags, this.types, this.state, this.collections, this.droppedCollections, this.userContext, this.hostEvents, this.telemetry, this.push, this.triggers, this.localisation, this.goldens});
 
   /// Decodes a JSON object.
   factory AppDocument.fromJson(Object json) {
@@ -194,6 +194,8 @@ final class AppDocument {
       telemetry: m['telemetry'] == null ? null : TelemetryPolicy.fromJson(m['telemetry']!),
       push: m['push'] == null ? null : PushPolicy.fromJson(m['push']!),
       triggers: m['triggers'] == null ? null : Triggers.fromJson(m['triggers']!),
+      localisation: m['localisation'] == null ? null : LocalisationSettings.fromJson(m['localisation']!),
+      goldens: m['goldens'] == null ? null : GoldenSettings.fromJson(m['goldens']!),
     );
   }
 
@@ -272,6 +274,11 @@ final class AppDocument {
   /// owner's error handler (ACT-020). A page's runs are cancelled with the
   /// page; a plugin's and the app's run while the release is active.
   final Triggers? triggers;
+  /// Calendars, numbering systems and translation policy (I18N-010, I18N-011,
+  /// I18N-008, I18N-013).
+  final LocalisationSettings? localisation;
+  /// Golden-image test policy (TST-003).
+  final GoldenSettings? goldens;
 
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
@@ -308,6 +315,8 @@ final class AppDocument {
         if (telemetry != null) 'telemetry': telemetry!.toJson(),
         if (push != null) 'push': push!.toJson(),
         if (triggers != null) 'triggers': triggers!.toJson(),
+        if (localisation != null) 'localisation': localisation!.toJson(),
+        if (goldens != null) 'goldens': goldens!.toJson(),
       };
 }
 
@@ -412,7 +421,7 @@ final class ApprovedCapabilities {
 
 /// An asset file.
 final class AssetEntry {
-  const AssetEntry({required this.id, required this.key, required this.file, required this.mediaType, this.description});
+  const AssetEntry({required this.id, required this.key, required this.file, required this.mediaType, this.description, this.locales});
 
   /// Decodes a JSON object.
   factory AssetEntry.fromJson(Object json) {
@@ -423,6 +432,7 @@ final class AssetEntry {
       file: m['file']! as String,
       mediaType: MediaType.fromJson(m['mediaType']!),
       description: m['description'] == null ? null : m['description']! as String,
+      locales: m['locales'] == null ? null : {for (final e in (m['locales']! as Map<String, Object?>).entries) e.key: e.value! as String},
     );
   }
 
@@ -437,6 +447,8 @@ final class AssetEntry {
   final MediaType mediaType;
   /// Human-readable description.
   final String? description;
+  /// Per-locale variants of the file (I18N-012).
+  final Map<String, String>? locales;
 
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
@@ -445,6 +457,7 @@ final class AssetEntry {
         'file': file,
         'mediaType': mediaType.toJson(),
         if (description != null) 'description': description!,
+        if (locales != null) 'locales': {for (final e in locales!.entries) e.key: e.value},
       };
 }
 
@@ -513,6 +526,26 @@ enum AssuranceLevel {
   /// Decodes a JSON value.
   factory AssuranceLevel.fromJson(Object json) =>
       values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown AssuranceLevel', json));
+
+  /// The JSON value.
+  final String json;
+
+  /// Encodes the JSON value.
+  String toJson() => json;
+}
+
+/// A calendar system (I18N-010).
+enum Calendar {
+  gregorian('gregorian'),
+  ethiopic('ethiopic'),
+  islamicUmalqura('islamicUmalqura'),
+  persian('persian');
+
+  const Calendar(this.json);
+
+  /// Decodes a JSON value.
+  factory Calendar.fromJson(Object json) =>
+      values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown Calendar', json));
 
   /// The JSON value.
   final String json;
@@ -1424,7 +1457,7 @@ final class FormValidator {
     final m = json as Map<String, Object?>;
     return FormValidator(
       kind: FormValidatorKind.fromJson(m['kind']!),
-      message: m['message'] == null ? null : m['message']! as String,
+      message: m.containsKey('message') ? JsonValue(m['message']) : null,
       min: m.containsKey('min') ? JsonValue(m['min']) : null,
       max: m.containsKey('max') ? JsonValue(m['max']) : null,
       pattern: m['pattern'] == null ? null : m['pattern']! as String,
@@ -1439,9 +1472,10 @@ final class FormValidator {
 
   /// A built-in validator of a form field (STA-020, ADR-0047).
   final FormValidatorKind kind;
-  /// The message shown when the value is invalid; the runtime's built-in
-  /// message otherwise.
-  final String? message;
+  /// The message shown when the value is invalid: a literal string or a
+  /// translation reference resolved in the effective locale; the runtime's
+  /// built-in message otherwise (I18N-001).
+  final JsonValue? message;
   /// A JSON value interpreted against a declared type (defaults, mocks,
   /// environment values).
   final JsonValue? min;
@@ -1467,7 +1501,7 @@ final class FormValidator {
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
         'kind': kind.toJson(),
-        if (message != null) 'message': message!,
+        if (message != null) 'message': message!.value,
         if (min != null) 'min': min!.value,
         if (max != null) 'max': max!.value,
         if (pattern != null) 'pattern': pattern!,
@@ -1748,6 +1782,78 @@ final class FunctionTestError {
       };
 }
 
+/// What a golden run renders.
+final class GoldenMatrix {
+  const GoldenMatrix({this.frames, this.themes, this.textScales, this.locales});
+
+  /// Decodes a JSON object.
+  factory GoldenMatrix.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return GoldenMatrix(
+      frames: m['frames'] == null ? null : [for (final e in m['frames']! as List<Object?>) e! as String],
+      themes: m['themes'] == null ? null : [for (final e in m['themes']! as List<Object?>) GoldenTheme.fromJson(e!)],
+      textScales: m['textScales'] == null ? null : [for (final e in m['textScales']! as List<Object?>) (e! as num).toDouble()],
+      locales: m['locales'] == null ? null : [for (final e in m['locales']! as List<Object?>) e! as String],
+    );
+  }
+
+  final List<String>? frames;
+  final List<GoldenTheme>? themes;
+  final List<double>? textScales;
+  final List<String>? locales;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        if (frames != null) 'frames': [for (final e in frames!) e],
+        if (themes != null) 'themes': [for (final e in themes!) e.toJson()],
+        if (textScales != null) 'textScales': [for (final e in textScales!) e],
+        if (locales != null) 'locales': [for (final e in locales!) e],
+      };
+}
+
+/// Golden-image test policy (TST-003).
+final class GoldenSettings {
+  const GoldenSettings({this.blockPublish, this.matrix});
+
+  /// Decodes a JSON object.
+  factory GoldenSettings.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return GoldenSettings(
+      blockPublish: m['blockPublish'] == null ? null : m['blockPublish']! as bool,
+      matrix: m['matrix'] == null ? null : GoldenMatrix.fromJson(m['matrix']!),
+    );
+  }
+
+  /// Whether publishing needs an approved golden run.
+  final bool? blockPublish;
+  /// What a golden run renders.
+  final GoldenMatrix? matrix;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        if (blockPublish != null) 'blockPublish': blockPublish!,
+        if (matrix != null) 'matrix': matrix!.toJson(),
+      };
+}
+
+/// A theme a golden run renders.
+enum GoldenTheme {
+  light('light'),
+  dark('dark');
+
+  const GoldenTheme(this.json);
+
+  /// Decodes a JSON value.
+  factory GoldenTheme.fromJson(Object json) =>
+      values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown GoldenTheme', json));
+
+  /// The JSON value.
+  final String json;
+
+  /// Encodes the JSON value.
+  String toJson() => json;
+}
+
 /// The host app build the catalogue describes.
 final class HostBuild {
   const HostBuild({this.appId, required this.version, required this.build});
@@ -1923,6 +2029,45 @@ final class Lifecycle {
         if (onResume != null) 'onResume': onResume!.toJson(),
         if (onLeave != null) 'onLeave': onLeave!.toJson(),
         if (onDispose != null) 'onDispose': onDispose!.toJson(),
+      };
+}
+
+/// Calendars, numbering systems and translation policy (I18N-010, I18N-011,
+/// I18N-008, I18N-013).
+final class LocalisationSettings {
+  const LocalisationSettings({this.calendar, this.secondaryCalendar, this.numberingSystem, this.requireApprovedTranslations, this.pseudoLocales});
+
+  /// Decodes a JSON object.
+  factory LocalisationSettings.fromJson(Object json) {
+    final m = json as Map<String, Object?>;
+    return LocalisationSettings(
+      calendar: m['calendar'] == null ? null : Calendar.fromJson(m['calendar']!),
+      secondaryCalendar: m['secondaryCalendar'] == null ? null : Calendar.fromJson(m['secondaryCalendar']!),
+      numberingSystem: m['numberingSystem'] == null ? null : {for (final e in (m['numberingSystem']! as Map<String, Object?>).entries) e.key: NumberingSystem.fromJson(e.value!)},
+      requireApprovedTranslations: m['requireApprovedTranslations'] == null ? null : m['requireApprovedTranslations']! as bool,
+      pseudoLocales: m['pseudoLocales'] == null ? null : m['pseudoLocales']! as bool,
+    );
+  }
+
+  /// The calendar dates are shown in; `gregorian` when absent.
+  final Calendar? calendar;
+  /// A second calendar shown beside the first; none when absent.
+  final Calendar? secondaryCalendar;
+  /// Numbering system per locale; `latn` when absent.
+  final Map<String, NumberingSystem>? numberingSystem;
+  /// Whether publishing needs every message at `approved`.
+  final bool? requireApprovedTranslations;
+  /// Whether pseudo-locales are offered; refused in production environments
+  /// (PLX-1614).
+  final bool? pseudoLocales;
+
+  /// Encodes a JSON object.
+  Map<String, Object?> toJson() => {
+        if (calendar != null) 'calendar': calendar!.toJson(),
+        if (secondaryCalendar != null) 'secondaryCalendar': secondaryCalendar!.toJson(),
+        if (numberingSystem != null) 'numberingSystem': {for (final e in numberingSystem!.entries) e.key: e.value.toJson()},
+        if (requireApprovedTranslations != null) 'requireApprovedTranslations': requireApprovedTranslations!,
+        if (pseudoLocales != null) 'pseudoLocales': pseudoLocales!,
       };
 }
 
@@ -2180,7 +2325,7 @@ final class NavigationPolicy {
 /// A node of a page or component tree: a widget or a component instance
 /// (SCH-023).
 final class Node {
-  const Node({required this.id, this.type, this.component, this.props, this.events, this.children, this.slots, this.visible, this.semantics, this.testId, this.responsive, this.animation});
+  const Node({required this.id, this.type, this.component, this.props, this.events, this.children, this.slots, this.visible, this.semantics, this.testId, this.responsive, this.animation, this.direction, this.localeOverrides, this.a11yWaivers});
 
   /// Decodes a JSON object.
   factory Node.fromJson(Object json) {
@@ -2198,6 +2343,9 @@ final class Node {
       testId: m['testId'] == null ? null : m['testId']! as String,
       responsive: m['responsive'] == null ? null : Responsive.fromJson(m['responsive']!),
       animation: m['animation'] == null ? null : NodeAnimation.fromJson(m['animation']!),
+      direction: m['direction'] == null ? null : TextDirection.fromJson(m['direction']!),
+      localeOverrides: m['localeOverrides'] == null ? null : {for (final e in (m['localeOverrides']! as Map<String, Object?>).entries) e.key: {for (final e in (e.value! as Map<String, Object?>).entries) e.key: e.value}},
+      a11yWaivers: m['a11yWaivers'] == null ? null : {for (final e in (m['a11yWaivers']! as Map<String, Object?>).entries) e.key: e.value! as String},
     );
   }
 
@@ -2226,6 +2374,12 @@ final class Node {
   /// bound value changes; `enter` and `exit` play when the node is inserted or
   /// its visibility changes; `hero` is the tag of a shared-element transition.
   final NodeAnimation? animation;
+  /// Text direction of a subtree (I18N-005).
+  final TextDirection? direction;
+  /// Prop overrides per locale (I18N-012).
+  final Map<String, Map<String, Object?>>? localeOverrides;
+  /// Accessibility checks waived, each with its justification (A11Y-008).
+  final Map<String, String>? a11yWaivers;
 
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
@@ -2241,6 +2395,9 @@ final class Node {
         if (testId != null) 'testId': testId!,
         if (responsive != null) 'responsive': responsive!.toJson(),
         if (animation != null) 'animation': animation!.toJson(),
+        if (direction != null) 'direction': direction!.toJson(),
+        if (localeOverrides != null) 'localeOverrides': {for (final e in localeOverrides!.entries) e.key: {for (final e in e.value.entries) e.key: e.value}},
+        if (a11yWaivers != null) 'a11yWaivers': {for (final e in a11yWaivers!.entries) e.key: e.value},
       };
 }
 
@@ -2296,10 +2453,28 @@ final class NodeAnimation {
       };
 }
 
+/// `latn` for Western digits, `native` for the locale's own (I18N-011).
+enum NumberingSystem {
+  latn('latn'),
+  native('native');
+
+  const NumberingSystem(this.json);
+
+  /// Decodes a JSON value.
+  factory NumberingSystem.fromJson(Object json) =>
+      values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown NumberingSystem', json));
+
+  /// The JSON value.
+  final String json;
+
+  /// Encodes the JSON value.
+  String toJson() => json;
+}
+
 /// A page: route, parameters, state, data, lifecycle and node tree (SCH-022).
 /// File: `plugins/<plugin>/pages/<key>.page.json`.
 final class PageDocument {
-  const PageDocument({required this.schemaVersion, required this.kind, required this.id, required this.key, this.route, required this.pageKind, required this.title, this.description, this.params, this.result, this.state, this.dataSources, this.lifecycle, this.triggers, this.routeOptions, this.security, required this.root, this.forms, this.animations});
+  const PageDocument({required this.schemaVersion, required this.kind, required this.id, required this.key, this.route, required this.pageKind, required this.title, this.description, this.params, this.result, this.state, this.dataSources, this.lifecycle, this.triggers, this.routeOptions, this.security, required this.root, this.forms, this.animations, this.a11yWaivers});
 
   /// Decodes a JSON object.
   factory PageDocument.fromJson(Object json) {
@@ -2324,6 +2499,7 @@ final class PageDocument {
       root: Node.fromJson(m['root']!),
       forms: m['forms'] == null ? null : [for (final e in m['forms']! as List<Object?>) Form.fromJson(e!)],
       animations: m['animations'] == null ? null : [for (final e in m['animations']! as List<Object?>) Timeline.fromJson(e!)],
+      a11yWaivers: m['a11yWaivers'] == null ? null : {for (final e in (m['a11yWaivers']! as Map<String, Object?>).entries) e.key: e.value! as String},
     );
   }
 
@@ -2367,6 +2543,8 @@ final class PageDocument {
   /// The forms of the page (STA-020).
   final List<Form>? forms;
   final List<Timeline>? animations;
+  /// Accessibility checks waived, each with its justification (A11Y-008).
+  final Map<String, String>? a11yWaivers;
 
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
@@ -2389,6 +2567,7 @@ final class PageDocument {
         'root': root.toJson(),
         if (forms != null) 'forms': [for (final e in forms!) e.toJson()],
         if (animations != null) 'animations': [for (final e in animations!) e.toJson()],
+        if (a11yWaivers != null) 'a11yWaivers': {for (final e in a11yWaivers!.entries) e.key: e.value},
       };
 }
 
@@ -3212,7 +3391,7 @@ enum SecurityProfile {
 
 /// Accessibility semantics of a node (A11Y-002).
 final class Semantics {
-  const Semantics({this.label, this.hint, this.value, this.header, this.button, this.liveRegion, this.excludeSemantics});
+  const Semantics({this.label, this.hint, this.value, this.header, this.button, this.liveRegion, this.excludeSemantics, this.focusOrder, this.group, this.headingLevel, this.decorative});
 
   /// Decodes a JSON object.
   factory Semantics.fromJson(Object json) {
@@ -3225,6 +3404,10 @@ final class Semantics {
       button: m['button'] == null ? null : m['button']! as bool,
       liveRegion: m['liveRegion'] == null ? null : m['liveRegion']! as bool,
       excludeSemantics: m['excludeSemantics'] == null ? null : m['excludeSemantics']! as bool,
+      focusOrder: m['focusOrder'] == null ? null : (m['focusOrder']! as num).toDouble(),
+      group: m['group'] == null ? null : m['group']! as bool,
+      headingLevel: m['headingLevel'] == null ? null : (m['headingLevel']! as num).toInt(),
+      decorative: m['decorative'] == null ? null : m['decorative']! as bool,
     );
   }
 
@@ -3241,6 +3424,10 @@ final class Semantics {
   final bool? button;
   final bool? liveRegion;
   final bool? excludeSemantics;
+  final double? focusOrder;
+  final bool? group;
+  final int? headingLevel;
+  final bool? decorative;
 
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
@@ -3251,6 +3438,10 @@ final class Semantics {
         if (button != null) 'button': button!,
         if (liveRegion != null) 'liveRegion': liveRegion!,
         if (excludeSemantics != null) 'excludeSemantics': excludeSemantics!,
+        if (focusOrder != null) 'focusOrder': focusOrder!,
+        if (group != null) 'group': group!,
+        if (headingLevel != null) 'headingLevel': headingLevel!,
+        if (decorative != null) 'decorative': decorative!,
       };
 }
 
@@ -3789,6 +3980,25 @@ enum TemplateVisibility {
   String toJson() => json;
 }
 
+/// Text direction of a subtree (I18N-005).
+enum TextDirection {
+  ltr('ltr'),
+  rtl('rtl'),
+  inherit('inherit');
+
+  const TextDirection(this.json);
+
+  /// Decodes a JSON value.
+  factory TextDirection.fromJson(Object json) =>
+      values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown TextDirection', json));
+
+  /// The JSON value.
+  final String json;
+
+  /// Encodes the JSON value.
+  String toJson() => json;
+}
+
 /// Design tokens for light and dark modes (THM-001, THM-002). File:
 /// `theme.json`.
 final class ThemeDocument {
@@ -4075,7 +4285,7 @@ enum Transition {
 
 /// A translation key.
 final class TranslationKey {
-  const TranslationKey({required this.id, required this.key, this.description, this.maxLength, this.args});
+  const TranslationKey({required this.id, required this.key, this.description, this.maxLength, this.args, this.screenshot});
 
   /// Decodes a JSON object.
   factory TranslationKey.fromJson(Object json) {
@@ -4086,6 +4296,7 @@ final class TranslationKey {
       description: m['description'] == null ? null : m['description']! as String,
       maxLength: m['maxLength'] == null ? null : (m['maxLength']! as num).toInt(),
       args: m['args'] == null ? null : [for (final e in m['args']! as List<Object?>) Field.fromJson(e!)],
+      screenshot: m['screenshot'] == null ? null : AssetRef.fromJson(m['screenshot']!),
     );
   }
 
@@ -4096,6 +4307,8 @@ final class TranslationKey {
   final String? description;
   final int? maxLength;
   final List<Field>? args;
+  /// Asset reference (SCH-011).
+  final AssetRef? screenshot;
 
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
@@ -4104,6 +4317,7 @@ final class TranslationKey {
         if (description != null) 'description': description!,
         if (maxLength != null) 'maxLength': maxLength!,
         if (args != null) 'args': [for (final e in args!) e.toJson()],
+        if (screenshot != null) 'screenshot': screenshot!.toJson(),
       };
 }
 
@@ -4140,10 +4354,30 @@ final class TranslationKeysDocument {
       };
 }
 
+/// Review state of a message (I18N-008).
+enum TranslationState {
+  newValue('new'),
+  translated('translated'),
+  reviewed('reviewed'),
+  approved('approved');
+
+  const TranslationState(this.json);
+
+  /// Decodes a JSON value.
+  factory TranslationState.fromJson(Object json) =>
+      values.firstWhere((v) => v.json == json, orElse: () => throw FormatException('unknown TranslationState', json));
+
+  /// The JSON value.
+  final String json;
+
+  /// Encodes the JSON value.
+  String toJson() => json;
+}
+
 /// The messages of one locale, by translation-key identifier, in ICU
 /// MessageFormat (I18N-001). File: `translations/<locale>.json`.
 final class TranslationsDocument {
-  const TranslationsDocument({required this.schemaVersion, required this.kind, required this.id, required this.locale, required this.messages});
+  const TranslationsDocument({required this.schemaVersion, required this.kind, required this.id, required this.locale, required this.messages, this.states});
 
   /// Decodes a JSON object.
   factory TranslationsDocument.fromJson(Object json) {
@@ -4154,6 +4388,7 @@ final class TranslationsDocument {
       id: m['id']! as String,
       locale: m['locale']! as String,
       messages: {for (final e in (m['messages']! as Map<String, Object?>).entries) e.key: e.value! as String},
+      states: m['states'] == null ? null : {for (final e in (m['states']! as Map<String, Object?>).entries) e.key: TranslationState.fromJson(e.value!)},
     );
   }
 
@@ -4166,6 +4401,8 @@ final class TranslationsDocument {
   /// BCP 47 language tag: language, optional script, optional region.
   final String locale;
   final Map<String, String> messages;
+  /// Review state of each message, by translation-key identifier (I18N-008).
+  final Map<String, TranslationState>? states;
 
   /// Encodes a JSON object.
   Map<String, Object?> toJson() => {
@@ -4174,6 +4411,7 @@ final class TranslationsDocument {
         'id': id,
         'locale': locale,
         'messages': {for (final e in messages.entries) e.key: e.value},
+        if (states != null) 'states': {for (final e in states!.entries) e.key: e.value.toJson()},
       };
 }
 

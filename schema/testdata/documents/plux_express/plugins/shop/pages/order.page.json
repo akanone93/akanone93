@@ -49,7 +49,9 @@
           "title": {
             "id": "01d0c450-6c00-7000-8000-000000003036",
             "props": {
-              "data": "Your order"
+              "data": {
+                "$t": "01a14cd1-ca0f-7536-a1e1-c5c4941fbd7d"
+              }
             },
             "type": "Text"
           }
@@ -65,53 +67,291 @@
         },
         "slots": {
           "child": {
-            "children": [
-              {
-                "id": "01d0c450-6c00-7000-8000-000000003030",
-                "props": {
-                  "data": {
-                    "$expr": "\"Order \" + params.orderId"
+            "id": "01d0c450-6c00-7000-8000-000000005011",
+            "slots": {
+              "child": {
+                "children": [
+                  {
+                    "id": "01d0c450-6c00-7000-8000-000000003030",
+                    "props": {
+                      "data": {
+                        "$t": "01d0c450-6c00-7000-8000-00000000920a",
+                        "args": {
+                          "id": {
+                            "$expr": "params.orderId"
+                          }
+                        }
+                      }
+                    },
+                    "testId": "order-id",
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01d0c450-6c00-7000-8000-000000003031",
+                    "props": {
+                      "data": {
+                        "$t": "01d0c450-6c00-7000-8000-000000009207",
+                        "args": {
+                          "status": {
+                            "$expr": "data.tracking.value?.status ?? \"waiting\""
+                          }
+                        }
+                      }
+                    },
+                    "testId": "tracking-status",
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01d0c450-6c00-7000-8000-000000003032",
+                    "props": {
+                      "data": {
+                        "$t": "01d0c450-6c00-7000-8000-000000009208",
+                        "args": {
+                          "minutes": {
+                            "$expr": "string(data.tracking.value?.etaMinutes ?? 0)"
+                          }
+                        }
+                      }
+                    },
+                    "testId": "tracking-eta",
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01d0c450-6c00-7000-8000-000000003033",
+                    "props": {
+                      "data": {
+                        "$t": "01d0c450-6c00-7000-8000-000000009209",
+                        "args": {
+                          "lat": {
+                            "$expr": "string(data.tracking.value?.lat ?? 0.0)"
+                          },
+                          "lng": {
+                            "$expr": "string(data.tracking.value?.lng ?? 0.0)"
+                          }
+                        }
+                      }
+                    },
+                    "testId": "tracking-position",
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01d0c450-6c00-7000-8000-000000005201",
+                    "props": {
+                      "steps": [
+                        {
+                          "label": {
+                            "$t": "01d0c450-6c00-7000-8000-000000009009"
+                          },
+                          "state": "done"
+                        },
+                        {
+                          "label": {
+                            "$t": "01d0c450-6c00-7000-8000-00000000900a"
+                          },
+                          "state": "done"
+                        },
+                        {
+                          "label": {
+                            "$t": "01d0c450-6c00-7000-8000-00000000900b"
+                          },
+                          "state": "done"
+                        },
+                        {
+                          "label": {
+                            "$t": "01d0c450-6c00-7000-8000-00000000900c"
+                          },
+                          "state": "done"
+                        }
+                      ]
+                    },
+                    "testId": "timeline-delivered",
+                    "type": "StatusTimeline",
+                    "visible": {
+                      "$expr": "data.tracking.value?.status == \"delivered\""
+                    }
+                  },
+                  {
+                    "id": "01d0c450-6c00-7000-8000-000000005202",
+                    "props": {
+                      "steps": [
+                        {
+                          "label": {
+                            "$t": "01d0c450-6c00-7000-8000-000000009009"
+                          },
+                          "state": "done"
+                        },
+                        {
+                          "label": {
+                            "$t": "01d0c450-6c00-7000-8000-00000000900a"
+                          },
+                          "state": "done"
+                        },
+                        {
+                          "label": {
+                            "$t": "01d0c450-6c00-7000-8000-00000000900b"
+                          },
+                          "state": "current"
+                        },
+                        {
+                          "label": {
+                            "$t": "01d0c450-6c00-7000-8000-00000000900c"
+                          },
+                          "state": "pending"
+                        }
+                      ]
+                    },
+                    "testId": "timeline-on-the-way",
+                    "type": "StatusTimeline",
+                    "visible": {
+                      "$expr": "data.tracking.value?.status == \"on_the_way\""
+                    }
+                  },
+                  {
+                    "id": "01d0c450-6c00-7000-8000-000000005203",
+                    "props": {
+                      "steps": [
+                        {
+                          "label": {
+                            "$t": "01d0c450-6c00-7000-8000-000000009009"
+                          },
+                          "state": "done"
+                        },
+                        {
+                          "label": {
+                            "$t": "01d0c450-6c00-7000-8000-00000000900a"
+                          },
+                          "state": "done"
+                        },
+                        {
+                          "label": {
+                            "$t": "01d0c450-6c00-7000-8000-00000000900b"
+                          },
+                          "state": "pending"
+                        },
+                        {
+                          "label": {
+                            "$t": "01d0c450-6c00-7000-8000-00000000900c"
+                          },
+                          "state": "pending"
+                        }
+                      ]
+                    },
+                    "testId": "timeline",
+                    "type": "StatusTimeline",
+                    "visible": {
+                      "$expr": "data.tracking.value?.status != \"delivered\" && data.tracking.value?.status != \"on_the_way\""
+                    }
+                  },
+                  {
+                    "id": "01d0c450-6c00-7000-8000-00000000500d",
+                    "props": {
+                      "etaMinutes": {
+                        "$expr": "data.tracking.value?.etaMinutes ?? 0"
+                      },
+                      "icon": {
+                        "name": "local_shipping"
+                      },
+                      "minutesLabel": {
+                        "$t": "01d0c450-6c00-7000-8000-00000000900d"
+                      },
+                      "title": {
+                        "$t": "01a14cd1-ca0f-7536-a1e1-c5c4941fbd7d"
+                      }
+                    },
+                    "testId": "live-eta",
+                    "type": "LiveEtaCard"
+                  },
+                  {
+                    "id": "01d0c450-6c00-7000-8000-00000000500f",
+                    "props": {
+                      "height": 220.0
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01d0c450-6c00-7000-8000-00000000500e",
+                        "props": {
+                          "courier": {
+                            "lat": {
+                              "$expr": "data.tracking.value?.lat ?? 52.52"
+                            },
+                            "lng": {
+                              "$expr": "data.tracking.value?.lng ?? 13.405"
+                            }
+                          },
+                          "courierLabel": {
+                            "$t": "01d0c450-6c00-7000-8000-000000009011"
+                          },
+                          "destination": {
+                            "lat": 52.53,
+                            "lng": 13.42
+                          },
+                          "destinationLabel": {
+                            "$t": "01d0c450-6c00-7000-8000-000000009010"
+                          },
+                          "origin": {
+                            "lat": 52.52,
+                            "lng": 13.405
+                          },
+                          "originLabel": {
+                            "$t": "01d0c450-6c00-7000-8000-00000000900f"
+                          },
+                          "semanticLabel": {
+                            "$t": "01d0c450-6c00-7000-8000-00000000900e"
+                          }
+                        },
+                        "testId": "order-map",
+                        "type": "OrderTrackerMap"
+                      }
+                    },
+                    "type": "SizedBox"
+                  },
+                  {
+                    "events": {
+                      "onChanged": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "write",
+                            "input": {
+                              "path": "page.rating",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01d0c450-6c00-7000-8000-000000005010",
+                    "props": {
+                      "max": 5,
+                      "starLabel": {
+                        "$t": "01d0c450-6c00-7000-8000-000000009012"
+                      },
+                      "value": {
+                        "$expr": "page.rating"
+                      }
+                    },
+                    "semantics": {
+                      "label": {
+                        "$t": "01d0c450-6c00-7000-8000-000000009013"
+                      }
+                    },
+                    "testId": "rating",
+                    "type": "RatingInput",
+                    "visible": {
+                      "$expr": "data.tracking.value?.status == \"delivered\""
+                    }
                   }
-                },
-                "testId": "order-id",
-                "type": "Text"
-              },
-              {
-                "id": "01d0c450-6c00-7000-8000-000000003031",
+                ],
+                "id": "01d0c450-6c00-7000-8000-000000003034",
                 "props": {
-                  "data": {
-                    "$expr": "\"Status: \" + (data.tracking.value?.status ?? \"waiting\")"
-                  }
+                  "crossAxisAlignment": "stretch"
                 },
-                "testId": "tracking-status",
-                "type": "Text"
-              },
-              {
-                "id": "01d0c450-6c00-7000-8000-000000003032",
-                "props": {
-                  "data": {
-                    "$expr": "\"ETA: \" + string(data.tracking.value?.etaMinutes ?? 0) + \" min\""
-                  }
-                },
-                "testId": "tracking-eta",
-                "type": "Text"
-              },
-              {
-                "id": "01d0c450-6c00-7000-8000-000000003033",
-                "props": {
-                  "data": {
-                    "$expr": "\"Position: \" + string(data.tracking.value?.lat ?? 0.0) + \", \" + string(data.tracking.value?.lng ?? 0.0)"
-                  }
-                },
-                "testId": "tracking-position",
-                "type": "Text"
+                "type": "Column"
               }
-            ],
-            "id": "01d0c450-6c00-7000-8000-000000003034",
-            "props": {
-              "crossAxisAlignment": "stretch"
             },
-            "type": "Column"
+            "type": "SingleChildScrollView"
           }
         },
         "type": "Padding"
@@ -121,5 +361,15 @@
   },
   "route": "order",
   "schemaVersion": "1.0.0",
-  "title": "Order"
+  "state": [
+    {
+      "default": 0,
+      "id": "01d0c450-6c00-7000-8000-000000005012",
+      "name": "rating",
+      "type": "int"
+    }
+  ],
+  "title": {
+    "$t": "01a14cd1-ca0f-760e-abfe-4170d8ccf543"
+  }
 }

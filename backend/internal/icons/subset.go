@@ -519,3 +519,31 @@ func pad(b []byte, n int) []byte {
 	}
 	return b
 }
+
+// SubsetCovering returns the font reduced to the glyphs it has for every
+// character in ranges (inclusive pairs of code points), so a script stays
+// fully covered while the glyphs of other scripts are dropped (CMP-032).
+// Characters the font does not map are skipped. Otherwise it is Subset.
+func SubsetCovering(font []byte, ranges [][2]rune) ([]byte, error) {
+	tables, err := readTables(font)
+	if err != nil {
+		return nil, err
+	}
+	if tables["cmap"] == nil || len(tables["maxp"]) < 6 {
+		return nil, errors.New("icons: the font has no cmap or maxp table")
+	}
+	lookup, err := cmapLookup(tables["cmap"])
+	if err != nil {
+		return nil, err
+	}
+	numGlyphs := int(binary.BigEndian.Uint16(tables["maxp"][4:]))
+	var runes []rune
+	for _, r := range ranges {
+		for c := r[0]; c <= r[1]; c++ {
+			if g, ok := lookup(c); ok && g != 0 && int(g) < numGlyphs {
+				runes = append(runes, c)
+			}
+		}
+	}
+	return Subset(font, runes, nil)
+}

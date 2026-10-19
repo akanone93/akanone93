@@ -61,7 +61,12 @@
                   "id": "01d0c450-6c00-7000-8000-000000003018",
                   "props": {
                     "data": {
-                      "$expr": "\"Cart (\" + string(size(plugin.cartIds)) + \")\""
+                      "$t": "01d0c450-6c00-7000-8000-000000009201",
+                      "args": {
+                        "count": {
+                          "$expr": "string(size(plugin.cartIds))"
+                        }
+                      }
                     }
                   },
                   "type": "Text"
@@ -89,7 +94,9 @@
                 "child": {
                   "id": "01d0c450-6c00-7000-8000-00000000301a",
                   "props": {
-                    "data": "Courier"
+                    "data": {
+                      "$t": "01a14cd1-ca0f-72e8-b478-3f9258d8f480"
+                    }
                   },
                   "type": "Text"
                 }
@@ -101,7 +108,9 @@
           "title": {
             "id": "01d0c450-6c00-7000-8000-00000000301c",
             "props": {
-              "data": "Product"
+              "data": {
+                "$t": "01a14cd1-ca0f-707c-9f55-7bc395344043"
+              }
             },
             "type": "Text"
           }
@@ -138,14 +147,14 @@
                 "type": "Text"
               },
               {
-                "id": "01d0c450-6c00-7000-8000-000000003011",
+                "id": "01d0c450-6c00-7000-8000-000000005008",
                 "props": {
-                  "data": {
-                    "$expr": "string(div(decimal(data.product.value?.priceCents ?? 0), 100d, 2)) + \" EUR\""
+                  "price": {
+                    "$expr": "money(string(div(decimal(data.product.value?.priceCents ?? 0), 100d, 2)), \"EUR\")"
                   }
                 },
                 "testId": "product-price",
-                "type": "Text"
+                "type": "PriceTag"
               },
               {
                 "id": "01d0c450-6c00-7000-8000-000000003012",
@@ -156,8 +165,59 @@
               },
               {
                 "events": {
+                  "onChanged": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "write",
+                        "input": {
+                          "path": "page.quantity",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01d0c450-6c00-7000-8000-000000005009",
+                "props": {
+                  "decreaseLabel": {
+                    "$t": "01d0c450-6c00-7000-8000-000000009004"
+                  },
+                  "increaseLabel": {
+                    "$t": "01d0c450-6c00-7000-8000-000000009005"
+                  },
+                  "max": 9,
+                  "min": 1,
+                  "value": {
+                    "$expr": "page.quantity"
+                  }
+                },
+                "semantics": {
+                  "label": {
+                    "$t": "01d0c450-6c00-7000-8000-000000009006"
+                  }
+                },
+                "testId": "quantity",
+                "type": "QuantityStepper"
+              },
+              {
+                "events": {
                   "onPressed": {
                     "steps": [
+                      {
+                        "action": "forEach",
+                        "branches": {
+                          "body": "ids"
+                        },
+                        "id": "each",
+                        "input": {
+                          "items": {
+                            "$expr": "slice([\"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\"], 0, page.quantity)"
+                          }
+                        }
+                      },
                       {
                         "action": "setState",
                         "id": "ids",
@@ -198,7 +258,9 @@
                   "child": {
                     "id": "01d0c450-6c00-7000-8000-000000003013",
                     "props": {
-                      "data": "Add to cart"
+                      "data": {
+                        "$t": "01a14cd1-ca0f-7227-a2d6-8e227e3f845a"
+                      }
                     },
                     "type": "Text"
                   }
@@ -210,7 +272,12 @@
                 "id": "01d0c450-6c00-7000-8000-000000003015",
                 "props": {
                   "data": {
-                    "$expr": "\"In cart: \" + string(size(plugin.cartIds))"
+                    "$t": "01d0c450-6c00-7000-8000-00000000920b",
+                    "args": {
+                      "count": {
+                        "$expr": "string(size(plugin.cartIds))"
+                      }
+                    }
                   }
                 },
                 "testId": "in-cart",
@@ -231,5 +298,15 @@
   },
   "route": "product",
   "schemaVersion": "1.0.0",
-  "title": "Product"
+  "state": [
+    {
+      "default": 1,
+      "id": "01d0c450-6c00-7000-8000-00000000500a",
+      "name": "quantity",
+      "type": "int"
+    }
+  ],
+  "title": {
+    "$t": "01a14cd1-ca0f-77ba-b173-6385523045e3"
+  }
 }

@@ -1,0 +1,37 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "SettingsList",
+  "id": 178,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "layout",
+  "icon": "settings",
+  "description": "Settings rows grouped under section headers.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 60,
+  "accessibility": {
+    "role": "list",
+    "interactive": false
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "sections",
+      "id": 1,
+      "type": "list<SettingsSection>",
+      "required": true,
+      "description": "The groups; the children are divided among them in order by `count`."
+    }
+  ],
+  "children": {}
+}

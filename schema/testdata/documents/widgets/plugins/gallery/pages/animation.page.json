@@ -1,0 +1,931 @@
+{
+  "a11yWaivers": {
+    "fixedHeightText": "The aligned box and the pinch-zoom viewport need a fixed size; that is what the demo shows."
+  },
+  "animations": [
+    {
+      "durationMs": 400,
+      "id": "01c0c450-6c00-7000-8a1c-000000000049",
+      "name": "pulse",
+      "tracks": [
+        {
+          "keyframes": [
+            {
+              "atMs": 0,
+              "value": 1.0
+            },
+            {
+              "atMs": 400,
+              "value": 0.2
+            }
+          ],
+          "node": "01c0c450-6c00-7000-8a1c-00000000001c",
+          "prop": "opacity"
+        }
+      ]
+    },
+    {
+      "durationMs": 400,
+      "id": "01c0c450-6c00-7000-8a1c-00000000004a",
+      "name": "drive",
+      "tracks": [
+        {
+          "keyframes": [
+            {
+              "atMs": 0,
+              "value": 0.0
+            },
+            {
+              "atMs": 400,
+              "value": 1.0
+            }
+          ],
+          "node": "01c0c450-6c00-7000-8a1c-00000000003d",
+          "prop": "width"
+        },
+        {
+          "keyframes": [
+            {
+              "atMs": 0,
+              "value": 0.0
+            },
+            {
+              "atMs": 400,
+              "value": 0.5
+            }
+          ],
+          "node": "01c0c450-6c00-7000-8a1c-00000000003e",
+          "prop": "width"
+        },
+        {
+          "keyframes": [
+            {
+              "atMs": 0,
+              "value": 0.5
+            },
+            {
+              "atMs": 400,
+              "value": 1.5
+            }
+          ],
+          "node": "01c0c450-6c00-7000-8a1c-00000000003f",
+          "prop": "width"
+        },
+        {
+          "keyframes": [
+            {
+              "atMs": 0,
+              "value": 0.0
+            },
+            {
+              "atMs": 400,
+              "value": 0.25
+            }
+          ],
+          "node": "01c0c450-6c00-7000-8a1c-000000000040",
+          "prop": "width"
+        }
+      ]
+    }
+  ],
+  "id": "01c0c450-6c00-7000-8a1c-00000000fff0",
+  "key": "animation",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01c0c450-6c00-7000-8a1c-00000000004f",
+    "slots": {
+      "appBar": {
+        "id": "01c0c450-6c00-7000-8a1c-00000000004c",
+        "slots": {
+          "title": {
+            "id": "01c0c450-6c00-7000-8a1c-00000000004b",
+            "props": {
+              "data": "animation"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01c0c450-6c00-7000-8a1c-00000000004e",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "events": {
+                  "onPressed": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "flip",
+                        "input": {
+                          "path": "page.on",
+                          "value": {
+                            "$expr": "!page.on"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1c-000000000002",
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000001",
+                    "props": {
+                      "data": "Toggle"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "toggle",
+                "type": "FilledButton"
+              },
+              {
+                "events": {
+                  "onPressed": {
+                    "steps": [
+                      {
+                        "action": "startAnimation",
+                        "id": "play",
+                        "input": {
+                          "animation": "drive"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1c-000000000004",
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000003",
+                    "props": {
+                      "data": "Play"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "play",
+                "type": "FilledButton"
+              },
+              {
+                "events": {
+                  "onDismissed": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "set",
+                        "input": {
+                          "path": "page.dismissed",
+                          "value": "yes"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a1c-000000000008",
+                "props": {
+                  "direction": "horizontal",
+                  "movementDuration": 100,
+                  "resizeDuration": 100
+                },
+                "slots": {
+                  "background": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000007",
+                    "props": {
+                      "color": "#F4433633"
+                    },
+                    "type": "ColoredBox"
+                  },
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000006",
+                    "props": {
+                      "color": "#2196F333",
+                      "constraints": {
+                        "minHeight": 56
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a1c-000000000005",
+                        "props": {
+                          "data": "Swipe me"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "type": "Container"
+                  }
+                },
+                "testId": "dismissible",
+                "type": "Dismissible"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000009",
+                "props": {
+                  "data": {
+                    "$expr": "\"dismissed: \" + page.dismissed"
+                  }
+                },
+                "testId": "dismissed-text",
+                "type": "Text"
+              },
+              {
+                "children": [
+                  {
+                    "events": {
+                      "onDragStarted": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "set",
+                            "input": {
+                              "path": "page.drag",
+                              "value": "started"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a1c-00000000000f",
+                    "props": {
+                      "data": {
+                        "$expr": "page.item"
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a1c-00000000000b",
+                        "props": {
+                          "color": "#4CAF5033",
+                          "constraints": {
+                            "minHeight": 48
+                          },
+                          "width": 96
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01c0c450-6c00-7000-8a1c-00000000000a",
+                            "props": {
+                              "data": "Drag"
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "Container"
+                      },
+                      "childWhenDragging": {
+                        "id": "01c0c450-6c00-7000-8a1c-00000000000e",
+                        "props": {
+                          "color": "#BDBDBD33",
+                          "constraints": {
+                            "minHeight": 48
+                          },
+                          "width": 96
+                        },
+                        "type": "Container"
+                      },
+                      "feedback": {
+                        "id": "01c0c450-6c00-7000-8a1c-00000000000d",
+                        "props": {
+                          "color": "#FFC10733",
+                          "constraints": {
+                            "minHeight": 48
+                          },
+                          "width": 96
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01c0c450-6c00-7000-8a1c-00000000000c",
+                            "props": {
+                              "data": "Moving"
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "Container"
+                      }
+                    },
+                    "testId": "draggable",
+                    "type": "Draggable"
+                  },
+                  {
+                    "events": {
+                      "onAccept": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "set",
+                            "input": {
+                              "path": "page.drop",
+                              "value": "dropped"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a1c-000000000012",
+                    "props": {
+                      "accepts": {
+                        "$expr": "page.item"
+                      },
+                      "highlightColor": "#673AB733"
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a1c-000000000011",
+                        "props": {
+                          "color": "#E0E0E033",
+                          "constraints": {
+                            "minHeight": 80
+                          },
+                          "width": 160
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01c0c450-6c00-7000-8a1c-000000000010",
+                            "props": {
+                              "data": "Drop here"
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "Container"
+                      }
+                    },
+                    "testId": "drag-target",
+                    "type": "DragTarget"
+                  }
+                ],
+                "id": "01c0c450-6c00-7000-8a1c-000000000013",
+                "type": "Row"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000014",
+                "props": {
+                  "data": {
+                    "$expr": "\"drag: \" + page.drag + \", drop: \" + page.drop"
+                  }
+                },
+                "testId": "drag-text",
+                "type": "Text"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000018",
+                "props": {
+                  "height": 120,
+                  "width": 240
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000017",
+                    "props": {
+                      "maxScale": 4.0,
+                      "minScale": 0.5
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a1c-000000000016",
+                        "props": {
+                          "constraints": {
+                            "minHeight": 300
+                          },
+                          "width": 300
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01c0c450-6c00-7000-8a1c-000000000015",
+                            "props": {
+                              "data": "Pinch and pan"
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "Container"
+                      }
+                    },
+                    "type": "InteractiveViewer"
+                  }
+                },
+                "testId": "viewer",
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-00000000001a",
+                "props": {
+                  "tag": "gallery-hero"
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000019",
+                    "props": {
+                      "data": "Hero"
+                    },
+                    "testId": "hero-text",
+                    "type": "Text"
+                  }
+                },
+                "testId": "hero",
+                "type": "Hero"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-00000000001d",
+                "props": {
+                  "autoplay": true,
+                  "timeline": "pulse"
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-00000000001c",
+                    "props": {
+                      "opacity": 1.0
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a1c-00000000001b",
+                        "props": {
+                          "color": "#2196F3",
+                          "constraints": {
+                            "minHeight": 24
+                          },
+                          "margin": {
+                            "vertical": 8.0
+                          },
+                          "width": 80
+                        },
+                        "type": "Container"
+                      }
+                    },
+                    "testId": "pulse-target",
+                    "type": "Opacity"
+                  }
+                },
+                "testId": "timeline",
+                "type": "Timeline"
+              },
+              {
+                "children": [
+                  {
+                    "id": "01c0c450-6c00-7000-8a1c-00000000001f",
+                    "props": {
+                      "color": "#2196F333",
+                      "curve": "easeOut",
+                      "duration": 200,
+                      "height": 40.0,
+                      "width": {
+                        "$expr": "page.on ? 160.0 : 80.0"
+                      }
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a1c-00000000001e",
+                        "props": {
+                          "data": "container"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "anim-container",
+                    "type": "AnimatedContainer"
+                  }
+                ],
+                "id": "01c0c450-6c00-7000-8a1c-000000000020",
+                "type": "Row"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000022",
+                "props": {
+                  "curve": "linear",
+                  "duration": 200,
+                  "opacity": {
+                    "$expr": "page.on ? 1.0 : 0.25"
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000021",
+                    "props": {
+                      "color": "#2196F3",
+                      "constraints": {
+                        "minHeight": 24
+                      },
+                      "margin": {
+                        "vertical": 8.0
+                      },
+                      "width": 80
+                    },
+                    "type": "Container"
+                  }
+                },
+                "testId": "anim-opacity",
+                "type": "AnimatedOpacity"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000025",
+                "props": {
+                  "height": 40,
+                  "width": 240
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000024",
+                    "props": {
+                      "alignment": "centerRight",
+                      "duration": 200
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a1c-000000000023",
+                        "props": {
+                          "data": "Align"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "anim-align",
+                    "type": "AnimatedAlign"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000027",
+                "props": {
+                  "duration": 200,
+                  "padding": {
+                    "all": 8.0
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000026",
+                    "props": {
+                      "data": "Padding"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "anim-padding",
+                "type": "AnimatedPadding"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-00000000002b",
+                "props": {
+                  "height": 60,
+                  "width": 240
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "id": "01c0c450-6c00-7000-8a1c-000000000029",
+                        "props": {
+                          "duration": 200,
+                          "height": 40.0,
+                          "left": {
+                            "$expr": "page.on ? 160.0 : 0.0"
+                          },
+                          "top": 0.0,
+                          "width": 60.0
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01c0c450-6c00-7000-8a1c-000000000028",
+                            "props": {
+                              "color": "#FF572233",
+                              "constraints": {
+                                "minHeight": 40
+                              },
+                              "width": 60
+                            },
+                            "type": "Container"
+                          }
+                        },
+                        "testId": "anim-positioned",
+                        "type": "AnimatedPositioned"
+                      }
+                    ],
+                    "id": "01c0c450-6c00-7000-8a1c-00000000002a",
+                    "type": "Stack"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-00000000002d",
+                "props": {
+                  "duration": 200,
+                  "scale": {
+                    "$expr": "page.on ? 1.5 : 1.0"
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-00000000002c",
+                    "props": {
+                      "data": "Scale"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "anim-scale",
+                "type": "AnimatedScale"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-00000000002f",
+                "props": {
+                  "duration": 200,
+                  "turns": {
+                    "$expr": "page.on ? 0.25 : 0.0"
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-00000000002e",
+                    "props": {
+                      "data": "Rotation"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "anim-rotation",
+                "type": "AnimatedRotation"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000031",
+                "props": {
+                  "duration": 200,
+                  "offset": {
+                    "dx": 0.25,
+                    "dy": 0.0
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000030",
+                    "props": {
+                      "data": "Slide"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "anim-slide",
+                "type": "AnimatedSlide"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000035",
+                "props": {
+                  "duration": 200
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000034",
+                    "props": {
+                      "condition": {
+                        "$expr": "page.on"
+                      }
+                    },
+                    "slots": {
+                      "else": {
+                        "id": "01c0c450-6c00-7000-8a1c-000000000033",
+                        "props": {
+                          "data": "switch off"
+                        },
+                        "testId": "switch-off",
+                        "type": "Text"
+                      },
+                      "then": {
+                        "id": "01c0c450-6c00-7000-8a1c-000000000032",
+                        "props": {
+                          "data": "switch on"
+                        },
+                        "testId": "switch-on",
+                        "type": "Text"
+                      }
+                    },
+                    "type": "If"
+                  }
+                },
+                "testId": "anim-switcher",
+                "type": "AnimatedSwitcher"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000038",
+                "props": {
+                  "crossFadeState": "showSecond",
+                  "duration": 200
+                },
+                "slots": {
+                  "firstChild": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000036",
+                    "props": {
+                      "data": "first"
+                    },
+                    "testId": "cf-first",
+                    "type": "Text"
+                  },
+                  "secondChild": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000037",
+                    "props": {
+                      "data": "second"
+                    },
+                    "testId": "cf-second",
+                    "type": "Text"
+                  }
+                },
+                "testId": "anim-crossfade",
+                "type": "AnimatedCrossFade"
+              },
+              {
+                "children": [
+                  {
+                    "id": "01c0c450-6c00-7000-8a1c-00000000003b",
+                    "props": {
+                      "alignment": "topCenter",
+                      "duration": 200
+                    },
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a1c-00000000003a",
+                        "props": {
+                          "color": "#2196F333",
+                          "height": {
+                            "$expr": "page.on ? 80.0 : 40.0"
+                          },
+                          "width": 80.0
+                        },
+                        "slots": {
+                          "child": {
+                            "id": "01c0c450-6c00-7000-8a1c-000000000039",
+                            "props": {
+                              "data": "size"
+                            },
+                            "type": "Text"
+                          }
+                        },
+                        "type": "Container"
+                      }
+                    },
+                    "testId": "anim-size",
+                    "type": "AnimatedSize"
+                  }
+                ],
+                "id": "01c0c450-6c00-7000-8a1c-00000000003c",
+                "type": "Row"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000042",
+                "props": {
+                  "timeline": "drive",
+                  "track": 0
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000041",
+                    "props": {
+                      "data": "t-fade"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "fade-transition",
+                "type": "FadeTransition"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000044",
+                "props": {
+                  "axis": "horizontal",
+                  "timeline": "drive",
+                  "track": 1
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000043",
+                    "props": {
+                      "data": "t-slide"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "slide-transition",
+                "type": "SlideTransition"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000046",
+                "props": {
+                  "timeline": "drive",
+                  "track": 2
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000045",
+                    "props": {
+                      "data": "t-scale"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "scale-transition",
+                "type": "ScaleTransition"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000048",
+                "props": {
+                  "timeline": "drive",
+                  "track": 3
+                },
+                "slots": {
+                  "child": {
+                    "id": "01c0c450-6c00-7000-8a1c-000000000047",
+                    "props": {
+                      "data": "t-rotation"
+                    },
+                    "type": "Text"
+                  }
+                },
+                "testId": "rotation-transition",
+                "type": "RotationTransition"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-00000000003d",
+                "props": {
+                  "height": 0.0,
+                  "width": 0.0
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-00000000003e",
+                "props": {
+                  "height": 0.0,
+                  "width": 0.0
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-00000000003f",
+                "props": {
+                  "height": 0.0,
+                  "width": 0.0
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a1c-000000000040",
+                "props": {
+                  "height": 0.0,
+                  "width": 0.0
+                },
+                "type": "SizedBox"
+              }
+            ],
+            "id": "01c0c450-6c00-7000-8a1c-00000000004d",
+            "props": {
+              "crossAxisAlignment": "stretch"
+            },
+            "type": "Column"
+          }
+        },
+        "type": "SingleChildScrollView"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "animation",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": false,
+      "id": "01c0c450-6c00-7000-8a1c-000000000050",
+      "name": "on",
+      "type": "bool"
+    },
+    {
+      "default": "no",
+      "id": "01c0c450-6c00-7000-8a1c-000000000051",
+      "name": "dismissed",
+      "type": "string"
+    },
+    {
+      "default": "apple",
+      "id": "01c0c450-6c00-7000-8a1c-000000000052",
+      "name": "item",
+      "type": "string"
+    },
+    {
+      "default": "idle",
+      "id": "01c0c450-6c00-7000-8a1c-000000000053",
+      "name": "drag",
+      "type": "string"
+    },
+    {
+      "default": "none",
+      "id": "01c0c450-6c00-7000-8a1c-000000000054",
+      "name": "drop",
+      "type": "string"
+    }
+  ],
+  "title": "animation"
+}

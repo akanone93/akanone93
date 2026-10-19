@@ -330,6 +330,8 @@ final class PluxRuntime with WidgetsBindingObserver {
             verifierLimits: limits,
             diskQuota: config.diskQuota ?? PluxLimit.deviceDiskQuota.max,
             assets: assets,
+            locale: (config.locale ?? ui.PlatformDispatcher.instance.locale)
+                .toLanguageTag(),
           ),
         ),
         baselineAssets: overrides.baseline == null ? config.baseline : null,
@@ -826,6 +828,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     verified: _verified,
     data: _dataServices,
     secureUi: secureUi,
+    pinnedMedia: () => settings.value.flag(SecuritySetting.pinnedMediaOnly),
     actions: ActionServices(
       router: router,
       emit: emitHostEvent,

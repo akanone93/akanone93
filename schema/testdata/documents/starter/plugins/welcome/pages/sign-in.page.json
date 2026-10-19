@@ -12,7 +12,9 @@
           "title": {
             "id": "01e0c450-6c00-7000-8000-00000000009f",
             "props": {
-              "data": "Sign in"
+              "data": {
+                "$t": "01a14cd1-caee-743e-ada4-bec9cd0b4fb5"
+              }
             },
             "type": "Text"
           }
@@ -25,7 +27,9 @@
           "child": {
             "id": "01e0c450-6c00-7000-8000-0000000000a1",
             "props": {
-              "data": "Sign in on the home screen to see your account."
+              "data": {
+                "$t": "01a14cd1-caee-75fd-a4ab-aeda99f5cbe6"
+              }
             },
             "type": "Text"
           }
@@ -37,5 +41,7 @@
   },
   "route": "sign-in",
   "schemaVersion": "1.0.0",
-  "title": "Sign in"
+  "title": {
+    "$t": "01a14cd1-caee-77f4-b55c-f7b1c6d15e93"
+  }
 }

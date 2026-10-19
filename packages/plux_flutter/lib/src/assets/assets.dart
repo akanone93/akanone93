@@ -48,8 +48,14 @@ List<fbs.Asset> assetsOf(BundleContainer bundle) {
 /// raster image AVIF (where it decodes) before WebP, each at the smallest
 /// density at or above the pixel ratio, then the other densities from the
 /// nearest; the asset's own file for anything else, and last for a
-/// raster image.
-List<String> preferredFiles(fbs.Asset asset, AssetDevice device) {
+/// raster image. A file the asset has for one of [locales] (the effective
+/// locale and its fallbacks, most specific first) comes before all of
+/// them (I18N-012); an SVG has none.
+List<String> preferredFiles(
+  fbs.Asset asset,
+  AssetDevice device, {
+  List<String> locales = const [],
+}) {
   final variants = asset.variants ?? const <fbs.AssetVariant>[];
   String hex(List<int>? h) => hexEncode(h ?? const []);
   if (asset.mediaType == svgType) {
@@ -59,6 +65,13 @@ List<String> preferredFiles(fbs.Asset asset, AssetDevice device) {
     ];
   }
   final out = <String>[];
+  final localised = asset.localeFiles ?? const <fbs.AssetLocaleFile>[];
+  for (final tag in locales) {
+    for (final f in localised) {
+      if (f.tag == tag) out.add(hex(f.hash));
+    }
+    if (out.isNotEmpty) break;
+  }
   for (final type in [if (device.avif) avifType, webpType]) {
     final ofType = variants.where((v) => v.mediaType == type).toList()
       ..sort((a, b) {
@@ -77,6 +90,9 @@ int fileSize(fbs.Asset asset, String hash) {
   if (hexEncode(asset.hash ?? const []) == hash) return asset.size;
   for (final v in asset.variants ?? const <fbs.AssetVariant>[]) {
     if (hexEncode(v.hash ?? const []) == hash) return v.size;
+  }
+  for (final f in asset.localeFiles ?? const <fbs.AssetLocaleFile>[]) {
+    if (hexEncode(f.hash ?? const []) == hash) return f.size;
   }
   return 0;
 }

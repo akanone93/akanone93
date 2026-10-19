@@ -1,0 +1,39 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "StepState",
+  "id": 99,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "Mirrors the Flutter enum StepState.",
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "enum": "StepState"
+  },
+  "values": [
+    {
+      "name": "indexed",
+      "id": 1
+    },
+    {
+      "name": "editing",
+      "id": 2
+    },
+    {
+      "name": "complete",
+      "id": 3
+    },
+    {
+      "name": "disabled",
+      "id": 4
+    },
+    {
+      "name": "error",
+      "id": 5
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "TabBarItem",
+  "id": 57,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "One item of a CupertinoTabBar.",
+  "fields": [
+    {
+      "name": "label",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "translatable": true
+    },
+    {
+      "name": "icon",
+      "id": 2,
+      "type": "IconData",
+      "required": true,
+      "description": "Icon of the item."
+    }
+  ]
+}

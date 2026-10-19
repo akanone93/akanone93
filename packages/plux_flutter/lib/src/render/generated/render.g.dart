@@ -31,6 +31,13 @@ String? nameAnimationCommand(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a Assertiveness, from its permanent value ID or name.
+String? nameAssertiveness(Decoding d, Object? v) => switch (v) {
+  1 || 'polite' => 'polite',
+  2 || 'assertive' => 'assertive',
+  _ => null,
+};
+
 /// The member name of a AutovalidateMode, from its permanent value ID or name.
 String? nameAutovalidateMode(Decoding d, Object? v) => switch (v) {
   1 || 'disabled' => 'disabled',
@@ -183,6 +190,20 @@ BorderStyle? decodeBorderStyle(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a BottomNavigationBarType, from its permanent value ID or name.
+String? nameBottomNavigationBarType(Decoding d, Object? v) => switch (v) {
+  1 || 'fixed' => 'fixed',
+  2 || 'shifting' => 'shifting',
+  _ => null,
+};
+
+/// Decodes a BottomNavigationBarType.
+BottomNavigationBarType? decodeBottomNavigationBarType(Decoding d, Object? v) => switch (v) {
+  1 || 'fixed' => BottomNavigationBarType.fixed,
+  2 || 'shifting' => BottomNavigationBarType.shifting,
+  _ => null,
+};
+
 /// The member name of a BoxFit, from its permanent value ID or name.
 String? nameBoxFit(Decoding d, Object? v) => switch (v) {
   1 || 'fill' => 'fill',
@@ -271,6 +292,32 @@ Brightness? decodeBrightness(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a CalendarSystem, from its permanent value ID or name.
+String? nameCalendarSystem(Decoding d, Object? v) => switch (v) {
+  1 || 'gregorian' => 'gregorian',
+  2 || 'ethiopic' => 'ethiopic',
+  3 || 'islamicUmalqura' => 'islamicUmalqura',
+  4 || 'persian' => 'persian',
+  _ => null,
+};
+
+/// The member name of a CameraFacing, from its permanent value ID or name.
+String? nameCameraFacing(Decoding d, Object? v) => switch (v) {
+  1 || 'back' => 'back',
+  2 || 'front' => 'front',
+  _ => null,
+};
+
+/// The member name of a CardBrand, from its permanent value ID or name.
+String? nameCardBrand(Decoding d, Object? v) => switch (v) {
+  1 || 'visa' => 'visa',
+  2 || 'mastercard' => 'mastercard',
+  3 || 'amex' => 'amex',
+  4 || 'discover' => 'discover',
+  5 || 'other' => 'other',
+  _ => null,
+};
+
 /// The member name of a Clip, from its permanent value ID or name.
 String? nameClip(Decoding d, Object? v) => switch (v) {
   1 || 'none' => 'none',
@@ -286,6 +333,23 @@ Clip? decodeClip(Decoding d, Object? v) => switch (v) {
   2 || 'hardEdge' => Clip.hardEdge,
   3 || 'antiAlias' => Clip.antiAlias,
   4 || 'antiAliasWithSaveLayer' => Clip.antiAliasWithSaveLayer,
+  _ => null,
+};
+
+/// The member name of a ColumnWidthKind, from its permanent value ID or name.
+String? nameColumnWidthKind(Decoding d, Object? v) => switch (v) {
+  1 || 'flex' => 'flex',
+  2 || 'fixed' => 'fixed',
+  3 || 'fraction' => 'fraction',
+  4 || 'intrinsic' => 'intrinsic',
+  _ => null,
+};
+
+/// The member name of a CountdownFormat, from its permanent value ID or name.
+String? nameCountdownFormat(Decoding d, Object? v) => switch (v) {
+  1 || 'hms' => 'hms',
+  2 || 'dhms' => 'dhms',
+  3 || 'compact' => 'compact',
   _ => null,
 };
 
@@ -309,6 +373,20 @@ CrossAxisAlignment? decodeCrossAxisAlignment(Decoding d, Object? v) => switch (v
   _ => null,
 };
 
+/// The member name of a CrossFadeState, from its permanent value ID or name.
+String? nameCrossFadeState(Decoding d, Object? v) => switch (v) {
+  1 || 'showFirst' => 'showFirst',
+  2 || 'showSecond' => 'showSecond',
+  _ => null,
+};
+
+/// Decodes a CrossFadeState.
+CrossFadeState? decodeCrossFadeState(Decoding d, Object? v) => switch (v) {
+  1 || 'showFirst' => CrossFadeState.showFirst,
+  2 || 'showSecond' => CrossFadeState.showSecond,
+  _ => null,
+};
+
 /// The member name of a CupertinoButtonSize, from its permanent value ID or name.
 String? nameCupertinoButtonSize(Decoding d, Object? v) => switch (v) {
   1 || 'small' => 'small',
@@ -325,6 +403,39 @@ CupertinoButtonSize? decodeCupertinoButtonSize(Decoding d, Object? v) => switch 
   _ => null,
 };
 
+/// The member name of a CupertinoDatePickerMode, from its permanent value ID or name.
+String? nameCupertinoDatePickerMode(Decoding d, Object? v) => switch (v) {
+  1 || 'time' => 'time',
+  2 || 'date' => 'date',
+  3 || 'dateAndTime' => 'dateAndTime',
+  4 || 'monthYear' => 'monthYear',
+  _ => null,
+};
+
+/// Decodes a CupertinoDatePickerMode.
+CupertinoDatePickerMode? decodeCupertinoDatePickerMode(Decoding d, Object? v) => switch (v) {
+  1 || 'time' => CupertinoDatePickerMode.time,
+  2 || 'date' => CupertinoDatePickerMode.date,
+  3 || 'dateAndTime' => CupertinoDatePickerMode.dateAndTime,
+  4 || 'monthYear' => CupertinoDatePickerMode.monthYear,
+  _ => null,
+};
+
+/// The member name of a Curve, from its permanent value ID or name.
+String? nameCurve(Decoding d, Object? v) => switch (v) {
+  1 || 'linear' => 'linear',
+  2 || 'easeIn' => 'easeIn',
+  3 || 'easeOut' => 'easeOut',
+  4 || 'easeInOut' => 'easeInOut',
+  5 || 'fastOutSlowIn' => 'fastOutSlowIn',
+  6 || 'decelerate' => 'decelerate',
+  7 || 'bounceIn' => 'bounceIn',
+  8 || 'bounceOut' => 'bounceOut',
+  9 || 'elasticOut' => 'elasticOut',
+  10 || 'overshoot' => 'overshoot',
+  _ => null,
+};
+
 /// The member name of a DecorationPosition, from its permanent value ID or name.
 String? nameDecorationPosition(Decoding d, Object? v) => switch (v) {
   1 || 'background' => 'background',
@@ -336,6 +447,30 @@ String? nameDecorationPosition(Decoding d, Object? v) => switch (v) {
 DecorationPosition? decodeDecorationPosition(Decoding d, Object? v) => switch (v) {
   1 || 'background' => DecorationPosition.background,
   2 || 'foreground' => DecorationPosition.foreground,
+  _ => null,
+};
+
+/// The member name of a DismissDirection, from its permanent value ID or name.
+String? nameDismissDirection(Decoding d, Object? v) => switch (v) {
+  1 || 'vertical' => 'vertical',
+  2 || 'horizontal' => 'horizontal',
+  3 || 'endToStart' => 'endToStart',
+  4 || 'startToEnd' => 'startToEnd',
+  5 || 'up' => 'up',
+  6 || 'down' => 'down',
+  7 || 'none' => 'none',
+  _ => null,
+};
+
+/// Decodes a DismissDirection.
+DismissDirection? decodeDismissDirection(Decoding d, Object? v) => switch (v) {
+  1 || 'vertical' => DismissDirection.vertical,
+  2 || 'horizontal' => DismissDirection.horizontal,
+  3 || 'endToStart' => DismissDirection.endToStart,
+  4 || 'startToEnd' => DismissDirection.startToEnd,
+  5 || 'up' => DismissDirection.up,
+  6 || 'down' => DismissDirection.down,
+  7 || 'none' => DismissDirection.none,
   _ => null,
 };
 
@@ -674,6 +809,15 @@ MainAxisSize? decodeMainAxisSize(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a MaskKind, from its permanent value ID or name.
+String? nameMaskKind(Decoding d, Object? v) => switch (v) {
+  1 || 'card' => 'card',
+  2 || 'account' => 'account',
+  3 || 'phone' => 'phone',
+  4 || 'custom' => 'custom',
+  _ => null,
+};
+
 /// The member name of a MaterialTapTargetSize, from its permanent value ID or name.
 String? nameMaterialTapTargetSize(Decoding d, Object? v) => switch (v) {
   1 || 'padded' => 'padded',
@@ -704,6 +848,30 @@ MaxLengthEnforcement? decodeMaxLengthEnforcement(Decoding d, Object? v) => switc
   _ => null,
 };
 
+/// The member name of a MoneyDisplay, from its permanent value ID or name.
+String? nameMoneyDisplay(Decoding d, Object? v) => switch (v) {
+  1 || 'symbol' => 'symbol',
+  2 || 'narrowSymbol' => 'narrowSymbol',
+  3 || 'code' => 'code',
+  _ => null,
+};
+
+/// The member name of a NavigationDestinationLabelBehavior, from its permanent value ID or name.
+String? nameNavigationDestinationLabelBehavior(Decoding d, Object? v) => switch (v) {
+  1 || 'alwaysShow' => 'alwaysShow',
+  2 || 'alwaysHide' => 'alwaysHide',
+  3 || 'onlyShowSelected' => 'onlyShowSelected',
+  _ => null,
+};
+
+/// Decodes a NavigationDestinationLabelBehavior.
+NavigationDestinationLabelBehavior? decodeNavigationDestinationLabelBehavior(Decoding d, Object? v) => switch (v) {
+  1 || 'alwaysShow' => NavigationDestinationLabelBehavior.alwaysShow,
+  2 || 'alwaysHide' => NavigationDestinationLabelBehavior.alwaysHide,
+  3 || 'onlyShowSelected' => NavigationDestinationLabelBehavior.onlyShowSelected,
+  _ => null,
+};
+
 /// The member name of a NavigationMode, from its permanent value ID or name.
 String? nameNavigationMode(Decoding d, Object? v) => switch (v) {
   1 || 'push' => 'push',
@@ -713,10 +881,42 @@ String? nameNavigationMode(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a NavigationRailLabelType, from its permanent value ID or name.
+String? nameNavigationRailLabelType(Decoding d, Object? v) => switch (v) {
+  1 || 'none' => 'none',
+  2 || 'selected' => 'selected',
+  3 || 'all' => 'all',
+  _ => null,
+};
+
+/// Decodes a NavigationRailLabelType.
+NavigationRailLabelType? decodeNavigationRailLabelType(Decoding d, Object? v) => switch (v) {
+  1 || 'none' => NavigationRailLabelType.none,
+  2 || 'selected' => NavigationRailLabelType.selected,
+  3 || 'all' => NavigationRailLabelType.all,
+  _ => null,
+};
+
 /// The member name of a OtpAlphabet, from its permanent value ID or name.
 String? nameOtpAlphabet(Decoding d, Object? v) => switch (v) {
   1 || 'numeric' => 'numeric',
   2 || 'alphanumeric' => 'alphanumeric',
+  _ => null,
+};
+
+/// The member name of a OverflowBarAlignment, from its permanent value ID or name.
+String? nameOverflowBarAlignment(Decoding d, Object? v) => switch (v) {
+  1 || 'start' => 'start',
+  2 || 'end' => 'end',
+  3 || 'center' => 'center',
+  _ => null,
+};
+
+/// Decodes a OverflowBarAlignment.
+OverflowBarAlignment? decodeOverflowBarAlignment(Decoding d, Object? v) => switch (v) {
+  1 || 'start' => OverflowBarAlignment.start,
+  2 || 'end' => OverflowBarAlignment.end,
+  3 || 'center' => OverflowBarAlignment.center,
   _ => null,
 };
 
@@ -735,6 +935,47 @@ OverlayVisibilityMode? decodeOverlayVisibilityMode(Decoding d, Object? v) => swi
   2 || 'editing' => OverlayVisibilityMode.editing,
   3 || 'notEditing' => OverlayVisibilityMode.notEditing,
   4 || 'always' => OverlayVisibilityMode.always,
+  _ => null,
+};
+
+/// The member name of a PanAxis, from its permanent value ID or name.
+String? namePanAxis(Decoding d, Object? v) => switch (v) {
+  1 || 'free' => 'free',
+  2 || 'horizontal' => 'horizontal',
+  3 || 'vertical' => 'vertical',
+  4 || 'aligned' => 'aligned',
+  _ => null,
+};
+
+/// Decodes a PanAxis.
+PanAxis? decodePanAxis(Decoding d, Object? v) => switch (v) {
+  1 || 'free' => PanAxis.free,
+  2 || 'horizontal' => PanAxis.horizontal,
+  3 || 'vertical' => PanAxis.vertical,
+  4 || 'aligned' => PanAxis.aligned,
+  _ => null,
+};
+
+/// The member name of a QrErrorCorrection, from its permanent value ID or name.
+String? nameQrErrorCorrection(Decoding d, Object? v) => switch (v) {
+  1 || 'low' => 'low',
+  2 || 'medium' => 'medium',
+  3 || 'quartile' => 'quartile',
+  4 || 'high' => 'high',
+  _ => null,
+};
+
+/// The member name of a RefreshIndicatorTriggerMode, from its permanent value ID or name.
+String? nameRefreshIndicatorTriggerMode(Decoding d, Object? v) => switch (v) {
+  1 || 'anywhere' => 'anywhere',
+  2 || 'onEdge' => 'onEdge',
+  _ => null,
+};
+
+/// Decodes a RefreshIndicatorTriggerMode.
+RefreshIndicatorTriggerMode? decodeRefreshIndicatorTriggerMode(Decoding d, Object? v) => switch (v) {
+  1 || 'anywhere' => RefreshIndicatorTriggerMode.anywhere,
+  2 || 'onEdge' => RefreshIndicatorTriggerMode.onEdge,
   _ => null,
 };
 
@@ -810,6 +1051,15 @@ ShowValueIndicator? decodeShowValueIndicator(Decoding d, Object? v) => switch (v
   4 || 'onDrag' => ShowValueIndicator.onDrag,
   5 || 'alwaysVisible' => ShowValueIndicator.alwaysVisible,
   6 || 'never' => ShowValueIndicator.never,
+  _ => null,
+};
+
+/// The member name of a SignDisplay, from its permanent value ID or name.
+String? nameSignDisplay(Decoding d, Object? v) => switch (v) {
+  1 || 'auto' => 'auto',
+  2 || 'always' => 'always',
+  3 || 'never' => 'never',
+  4 || 'exceptZero' => 'exceptZero',
   _ => null,
 };
 
@@ -889,6 +1139,40 @@ StackFit? decodeStackFit(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a StepState, from its permanent value ID or name.
+String? nameStepState(Decoding d, Object? v) => switch (v) {
+  1 || 'indexed' => 'indexed',
+  2 || 'editing' => 'editing',
+  3 || 'complete' => 'complete',
+  4 || 'disabled' => 'disabled',
+  5 || 'error' => 'error',
+  _ => null,
+};
+
+/// Decodes a StepState.
+StepState? decodeStepState(Decoding d, Object? v) => switch (v) {
+  1 || 'indexed' => StepState.indexed,
+  2 || 'editing' => StepState.editing,
+  3 || 'complete' => StepState.complete,
+  4 || 'disabled' => StepState.disabled,
+  5 || 'error' => StepState.error,
+  _ => null,
+};
+
+/// The member name of a StepperType, from its permanent value ID or name.
+String? nameStepperType(Decoding d, Object? v) => switch (v) {
+  1 || 'vertical' => 'vertical',
+  2 || 'horizontal' => 'horizontal',
+  _ => null,
+};
+
+/// Decodes a StepperType.
+StepperType? decodeStepperType(Decoding d, Object? v) => switch (v) {
+  1 || 'vertical' => StepperType.vertical,
+  2 || 'horizontal' => StepperType.horizontal,
+  _ => null,
+};
+
 /// The member name of a StrokeCap, from its permanent value ID or name.
 String? nameStrokeCap(Decoding d, Object? v) => switch (v) {
   1 || 'butt' => 'butt',
@@ -902,6 +1186,42 @@ StrokeCap? decodeStrokeCap(Decoding d, Object? v) => switch (v) {
   1 || 'butt' => StrokeCap.butt,
   2 || 'round' => StrokeCap.round,
   3 || 'square' => StrokeCap.square,
+  _ => null,
+};
+
+/// The member name of a TabBarIndicatorSize, from its permanent value ID or name.
+String? nameTabBarIndicatorSize(Decoding d, Object? v) => switch (v) {
+  1 || 'tab' => 'tab',
+  2 || 'label' => 'label',
+  _ => null,
+};
+
+/// Decodes a TabBarIndicatorSize.
+TabBarIndicatorSize? decodeTabBarIndicatorSize(Decoding d, Object? v) => switch (v) {
+  1 || 'tab' => TabBarIndicatorSize.tab,
+  2 || 'label' => TabBarIndicatorSize.label,
+  _ => null,
+};
+
+/// The member name of a TableCellVerticalAlignment, from its permanent value ID or name.
+String? nameTableCellVerticalAlignment(Decoding d, Object? v) => switch (v) {
+  1 || 'top' => 'top',
+  2 || 'middle' => 'middle',
+  3 || 'bottom' => 'bottom',
+  4 || 'baseline' => 'baseline',
+  5 || 'fill' => 'fill',
+  6 || 'intrinsicHeight' => 'intrinsicHeight',
+  _ => null,
+};
+
+/// Decodes a TableCellVerticalAlignment.
+TableCellVerticalAlignment? decodeTableCellVerticalAlignment(Decoding d, Object? v) => switch (v) {
+  1 || 'top' => TableCellVerticalAlignment.top,
+  2 || 'middle' => TableCellVerticalAlignment.middle,
+  3 || 'bottom' => TableCellVerticalAlignment.bottom,
+  4 || 'baseline' => TableCellVerticalAlignment.baseline,
+  5 || 'fill' => TableCellVerticalAlignment.fill,
+  6 || 'intrinsicHeight' => TableCellVerticalAlignment.intrinsicHeight,
   _ => null,
 };
 
@@ -1144,6 +1464,15 @@ TileMode? decodeTileMode(Decoding d, Object? v) => switch (v) {
   _ => null,
 };
 
+/// The member name of a TimelineStepState, from its permanent value ID or name.
+String? nameTimelineStepState(Decoding d, Object? v) => switch (v) {
+  1 || 'done' => 'done',
+  2 || 'current' => 'current',
+  3 || 'pending' => 'pending',
+  4 || 'failed' => 'failed',
+  _ => null,
+};
+
 /// The member name of a TooltipTriggerMode, from its permanent value ID or name.
 String? nameTooltipTriggerMode(Decoding d, Object? v) => switch (v) {
   1 || 'manual' => 'manual',
@@ -1157,6 +1486,15 @@ TooltipTriggerMode? decodeTooltipTriggerMode(Decoding d, Object? v) => switch (v
   1 || 'manual' => TooltipTriggerMode.manual,
   2 || 'longPress' => TooltipTriggerMode.longPress,
   3 || 'tap' => TooltipTriggerMode.tap,
+  _ => null,
+};
+
+/// The member name of a TransactionStatus, from its permanent value ID or name.
+String? nameTransactionStatus(Decoding d, Object? v) => switch (v) {
+  1 || 'pending' => 'pending',
+  2 || 'completed' => 'completed',
+  3 || 'failed' => 'failed',
+  4 || 'reversed' => 'reversed',
   _ => null,
 };
 

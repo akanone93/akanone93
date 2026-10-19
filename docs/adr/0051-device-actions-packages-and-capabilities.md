@@ -200,3 +200,17 @@ so every build of an app must allow everything any build allows.
 
 - `com.google.android.gms:play-services-mlkit-barcode-scanning` (Play terms; accepted by the maintainer as for bundled ML Kit, P5 plan B5 (4)).
 - ZXing-C++ (Apache-2.0), vendored and built by the build hook; size per ABI measured in S10.
+
+### Measurement (P8 K3b, 2026-10-17)
+
+ZXing-C++ 2.3.0 (reader sources only, `packages/plux_scanner/third_party/zxing-cpp/VERSION`),
+built with `-Os` (the same results as `-O2`, about 10% smaller), decoding through FFI on the
+Linux host: 8 variants × 5 codes (three QR codes at error-correction levels L, M and H, EAN-13,
+Code 128). Clean, small, blurred, badly lit, low-contrast and grainy: 5/5 each; damaged: 3/5
+(the QR codes at levels L and M fail, H reads); harsh lighting gradient: 3/5 (both 1D codes
+fail: the per-row threshold); 36/40 in all, 0.7 ms per frame. The host library is 711 KB
+(586 KB stripped). Not yet measured: ML Kit on the same set (needs a device) and the per-ABI
+Android sizes (needs the NDK) — both on the real-device checklist. Frames for the fallback come
+from a CameraX analysis stream in the package's Android plugin (CameraX is already a
+dependency of `mobile_scanner`), since `mobile_scanner` exposes no raw frames (maintainer,
+2026-10-17).

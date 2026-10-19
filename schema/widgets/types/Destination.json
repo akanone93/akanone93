@@ -1,0 +1,34 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "Destination",
+  "id": 44,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "One destination of a NavigationBar, BottomNavigationBar, NavigationDrawer or NavigationRail.",
+  "fields": [
+    {
+      "name": "label",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "translatable": true
+    },
+    {
+      "name": "icon",
+      "id": 2,
+      "type": "IconData",
+      "required": true
+    },
+    {
+      "name": "selectedIcon",
+      "id": 3,
+      "type": "IconData",
+      "description": "Icon while the destination is selected; `icon` when absent."
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "ImageGallery",
+  "id": 189,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "photo_library",
+  "description": "Swipeable images, each pinch-zoomable, with page indicators.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 120,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "images",
+      "id": 1,
+      "type": "list<ImageSource>",
+      "required": true,
+      "description": "The images."
+    },
+    {
+      "name": "initialPage",
+      "id": 2,
+      "type": "int",
+      "default": 0,
+      "constraints": {
+        "min": 0
+      },
+      "description": "The index first shown."
+    },
+    {
+      "name": "indicators",
+      "id": 3,
+      "type": "bool",
+      "default": true,
+      "description": "Shows page indicators."
+    },
+    {
+      "name": "semanticLabel",
+      "id": 4,
+      "type": "string?",
+      "translatable": true,
+      "description": "The label screen readers announce for the gallery."
+    }
+  ],
+  "events": [
+    {
+      "name": "onPageChanged",
+      "id": 1,
+      "payload": "int",
+      "description": "Fires with the index of the image shown."
+    }
+  ]
+}

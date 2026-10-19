@@ -1,0 +1,84 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "QrCodeView",
+  "id": 201,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "display",
+  "icon": "qr_code",
+  "description": "Draws a QR code for a text, offline. Ships in `plux_scanner`.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 200,
+  "accessibility": {
+    "role": "image",
+    "interactive": false
+  },
+  "package": "plux_scanner",
+  "props": [
+    {
+      "name": "data",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The text the code holds. It can be sensitive; it is drawn on the device and never sent."
+    },
+    {
+      "name": "size",
+      "id": 2,
+      "type": "double",
+      "default": 200.0,
+      "constraints": {
+        "min": 16.0
+      },
+      "description": "The side of the square, in logical pixels."
+    },
+    {
+      "name": "errorCorrection",
+      "id": 3,
+      "type": "QrErrorCorrection",
+      "default": "medium",
+      "description": "How much damage the code survives; higher levels make a denser code."
+    },
+    {
+      "name": "foreground",
+      "id": 4,
+      "type": "color?",
+      "description": "The colour of the modules; black when absent."
+    },
+    {
+      "name": "background",
+      "id": 5,
+      "type": "color?",
+      "description": "The colour behind the modules; white when absent."
+    },
+    {
+      "name": "quietZone",
+      "id": 6,
+      "type": "int",
+      "default": 4,
+      "constraints": {
+        "min": 0,
+        "max": 16
+      },
+      "description": "The empty border around the modules, in modules; scanners need four."
+    },
+    {
+      "name": "semanticLabel",
+      "id": 7,
+      "type": "string",
+      "required": true,
+      "translatable": true,
+      "description": "What a screen reader announces for the code. It describes what the code is for, never the data it holds."
+    }
+  ]
+}

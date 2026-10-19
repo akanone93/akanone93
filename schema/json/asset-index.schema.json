@@ -53,6 +53,19 @@
           },
           "description": {
             "$ref": "common.schema.json#/$defs/description"
+          },
+          "locales": {
+            "type": "object",
+            "description": "Per-locale variants of the file (I18N-012).",
+            "propertyNames": {
+              "$ref": "common.schema.json#/$defs/locale"
+            },
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9._-]*(/[a-z0-9][a-z0-9._-]*)*$",
+              "maxLength": 255,
+              "description": "Path under `assets/`."
+            }
           }
         },
         "patternProperties": {

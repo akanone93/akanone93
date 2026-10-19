@@ -1,0 +1,66 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "LiveEtaCard",
+  "id": 181,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "feedback",
+  "icon": "local_shipping",
+  "description": "A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 60,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "title",
+      "id": 1,
+      "type": "string?",
+      "translatable": true,
+      "description": "The headline, such as the order or ride."
+    },
+    {
+      "name": "etaMinutes",
+      "id": 2,
+      "type": "int?",
+      "constraints": {
+        "min": 0
+      },
+      "description": "Minutes until arrival; bind it to a stream data source value."
+    },
+    {
+      "name": "status",
+      "id": 3,
+      "type": "string?",
+      "translatable": true,
+      "description": "The current status text, such as `On the way`."
+    },
+    {
+      "name": "minutesLabel",
+      "id": 4,
+      "type": "string",
+      "default": "min",
+      "translatable": true,
+      "description": "The unit shown after the minutes."
+    },
+    {
+      "name": "icon",
+      "id": 5,
+      "type": "IconData?",
+      "description": "A leading icon."
+    }
+  ]
+}

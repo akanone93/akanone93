@@ -1,0 +1,223 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "SearchAnchor",
+  "id": 123,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "class": "SearchAnchor",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "navigation",
+  "icon": "manage_search",
+  "description": "A search bar that opens a view listing the `suggestions` that match the text; choosing one fires `onSelected`.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "textField",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "suggestions",
+      "id": 1,
+      "type": "list<string>",
+      "required": true,
+      "description": "The suggestions; the runtime lists those that contain the typed text, ignoring case."
+    },
+    {
+      "name": "isFullScreen",
+      "id": 2,
+      "type": "bool",
+      "flutter": "isFullScreen"
+    },
+    {
+      "name": "viewHintText",
+      "id": 3,
+      "type": "string",
+      "flutter": "viewHintText",
+      "translatable": true
+    },
+    {
+      "name": "hintText",
+      "id": 4,
+      "type": "string",
+      "description": "The hint of the bar that opens the view.",
+      "translatable": true
+    }
+  ],
+  "events": [
+    {
+      "name": "onSelected",
+      "id": 1,
+      "payload": "string"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "searchController",
+      "reason": "controller→state",
+      "note": "The runtime owns it and binds it to state."
+    },
+    {
+      "flutter": "viewBuilder",
+      "reason": "builder→template",
+      "note": "The runtime builds the view from `suggestions`."
+    },
+    {
+      "flutter": "viewLeading",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "viewTrailing",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "viewBackgroundColor",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "viewElevation",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "viewSurfaceTintColor",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "viewSide",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "viewShape",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "viewBarPadding",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "headerHeight",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "headerTextStyle",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "headerHintStyle",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "dividerColor",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "viewConstraints",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "viewPadding",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "shrinkWrap",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "textCapitalization",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "viewOnChanged",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "viewOnSubmitted",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "viewOnClose",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "viewOnOpen",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "builder",
+      "reason": "builder→template",
+      "note": "The runtime builds it from the Plux props."
+    },
+    {
+      "flutter": "suggestionsBuilder",
+      "reason": "builder→template",
+      "note": "Replaced by the `suggestions` prop."
+    },
+    {
+      "flutter": "textInputAction",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "keyboardType",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "enabled",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "smartDashesType",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "smartQuotesType",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    }
+  ]
+}

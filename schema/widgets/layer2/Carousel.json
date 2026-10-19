@@ -1,0 +1,71 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "Carousel",
+  "id": 184,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "layout",
+  "icon": "view_carousel",
+  "description": "Pages of children swiped horizontally, with page indicators and optional autoplay. Autoplay stops when the device reduces motion.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 100,
+  "accessibility": {
+    "role": "list",
+    "interactive": false
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "autoplay",
+      "id": 1,
+      "type": "bool",
+      "default": false,
+      "description": "Advances on its own."
+    },
+    {
+      "name": "intervalMs",
+      "id": 2,
+      "type": "int",
+      "default": 5000,
+      "constraints": {
+        "min": 500
+      },
+      "description": "Milliseconds between automatic advances."
+    },
+    {
+      "name": "indicators",
+      "id": 3,
+      "type": "bool",
+      "default": true,
+      "description": "Shows page indicators."
+    },
+    {
+      "name": "semanticLabel",
+      "id": 4,
+      "type": "string?",
+      "translatable": true,
+      "description": "The label screen readers announce for the carousel."
+    }
+  ],
+  "events": [
+    {
+      "name": "onPageChanged",
+      "id": 1,
+      "payload": "int",
+      "description": "Fires with the index of the page shown."
+    }
+  ],
+  "children": {
+    "min": 1
+  }
+}

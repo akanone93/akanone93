@@ -19,6 +19,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/bundle"
 	"github.com/nightCode42/plux3/backend/internal/bundle/fbs"
+	"github.com/nightCode42/plux3/backend/internal/l10n"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/pxl"
 	"github.com/nightCode42/plux3/backend/internal/schema"
@@ -150,6 +151,12 @@ func encodeNode(e *valueEnc, n *node) flatbuffers.UOffsetT {
 	if anim != 0 {
 		fbs.NodeAddAnimation(b, anim)
 	}
+	switch n.doc.Direction {
+	case schema.TextDirectionLtr:
+		fbs.NodeAddDirection(b, fbs.TextDirectionOverrideLtr)
+	case schema.TextDirectionRtl:
+		fbs.NodeAddDirection(b, fbs.TextDirectionOverrideRtl)
+	}
 	return fbs.NodeEnd(b)
 }
 
@@ -229,6 +236,12 @@ func semanticsTable(e *valueEnc, s *semantics) flatbuffers.UOffsetT {
 	fbs.SemanticsAddButton(b, s.button)
 	fbs.SemanticsAddLiveRegion(b, s.liveRegion)
 	fbs.SemanticsAddExclude(b, s.excluded)
+	if s.focusOrder != nil {
+		fbs.SemanticsAddFocusOrder(b, *s.focusOrder)
+	}
+	fbs.SemanticsAddGroup(b, s.group)
+	fbs.SemanticsAddHeadingLevel(b, s.headingLevel)
+	fbs.SemanticsAddDecorative(b, s.decorative)
 	return fbs.SemanticsEnd(b)
 }
 
@@ -508,38 +521,83 @@ func stepTable(e *valueEnc, s *step) flatbuffers.UOffsetT {
 // clampU32 clamps a document integer to uint32.
 func clampU32(v int64) uint32 { return uint32(max(0, min(v, 1<<32-1))) } //nolint:gosec // G115: clamped.
 
-// localeSections encodes one l10n section per locale.
+// localeSections encodes one l10n section per locale: each message as its
+// text and its pre-parsed AST (I18N-001), after checking it against its key.
 func (u *unit) localeSections(o *out) {
-	for _, t := range u.project.Translations {
+	app := u.project.App.Doc
+	covered, translated := map[string]bool{}, map[string]bool{}
+	blobs := u.localeBlobs(app)
+	for i := range u.project.Translations {
+		t := &u.project.Translations[i]
 		if t.Doc == nil {
 			continue
 		}
-		id, err := bundle.LocaleID(t.Doc.Locale)
-		if err != nil {
-			u.report(plxerr.OutOfRange, t.Source.File, "/locale", "%v", err)
+		covered[t.Doc.Locale] = true
+		translated[t.Doc.Locale] = true
+		u.translationSection(o, app, t, blobs[t.Doc.Locale])
+	}
+	for _, tag := range app.SupportedLocales {
+		if covered[tag] {
 			continue
 		}
-		b := flatbuffers.NewBuilder(1024)
-		keys := sortedKeys(t.Doc.Messages)
-		slices.SortFunc(keys, func(a, c string) int {
-			x, y := uuidBytes(a), uuidBytes(c)
-			return bytes.Compare(x[:], y[:])
-		})
-		offs := make([]flatbuffers.UOffsetT, len(keys))
-		for i, k := range keys {
-			text := b.CreateString(t.Doc.Messages[k])
-			fbs.MessageStart(b)
-			hi, lo := uuidHalves(uuidBytes(k))
-			fbs.MessageAddKey(b, fbs.CreateUuid(b, hi, lo))
-			fbs.MessageAddText(b, text)
-			offs[i] = fbs.MessageEnd(b)
+		covered[tag] = true
+		id, err := bundle.LocaleID(tag)
+		if err != nil {
+			continue // reported with the unsupported locales
 		}
-		mv := offsetVector(b, offs)
-		tag := b.CreateString(t.Doc.Locale)
-		fbs.LocaleStart(b)
-		fbs.LocaleAddTag(b, tag)
-		fbs.LocaleAddMessages(b, mv)
-		o.add(bundle.SectionL10n, id, finish(b, fbs.LocaleEnd(b), bundle.SectionL10n))
+		b := flatbuffers.NewBuilder(256)
+		o.add(bundle.SectionL10n, id, u.finishLocale(b, tag, offsetVector(b, nil), blobs[tag]))
+	}
+	u.pseudoSections(o)
+	if tk := u.project.TranslationKeys; tk != nil && tk.Doc != nil {
+		for _, tag := range app.SupportedLocales {
+			if !translated[tag] {
+				u.reportMissingTranslations(tag, tk.Source.File, "/keys", nil)
+			}
+		}
+	}
+}
+
+// translationSection encodes the l10n section of one translation file,
+// keeping only the messages the release includes.
+func (u *unit) translationSection(o *out, app *schema.AppDocument, t *schema.Loaded[schema.TranslationsDocument], blob *localeBlob) {
+	id, err := bundle.LocaleID(t.Doc.Locale)
+	if err != nil {
+		u.report(plxerr.OutOfRange, t.Source.File, "/locale", "%v", err)
+		return
+	}
+	loc, lerr := l10n.Load(t.Doc.Locale)
+	if lerr != nil {
+		loc = nil // the plural categories cannot be checked
+	}
+	b := flatbuffers.NewBuilder(1024)
+	keys := sortedKeys(t.Doc.Messages)
+	slices.SortFunc(keys, func(a, c string) int {
+		x, y := uuidBytes(a), uuidBytes(c)
+		return bytes.Compare(x[:], y[:])
+	})
+	offs := make([]flatbuffers.UOffsetT, 0, len(keys))
+	kept, leftOut := u.approvedOnly(t.Doc, keys)
+	inRelease := make(map[string]bool, len(kept))
+	for _, k := range kept {
+		inRelease[k] = true
+	}
+	for _, k := range keys {
+		msg := u.checkMessage(t.Source.File, plxerr.Pointer("messages", k), k, t.Doc.Messages[k], loc, t.Doc.Locale == app.DefaultLocale)
+		if !inRelease[k] {
+			continue
+		}
+		var ast []byte
+		if msg != nil {
+			ast = msg.ast
+		}
+		offs = append(offs, messageTable(b, k, t.Doc.Messages[k], ast))
+	}
+	u.reportLeftOut(t.Doc, t.Source.File, leftOut, len(keys))
+	mv := offsetVector(b, offs)
+	o.add(bundle.SectionL10n, id, u.finishLocale(b, t.Doc.Locale, mv, blob))
+	if slices.Contains(app.SupportedLocales, t.Doc.Locale) {
+		u.reportMissingTranslations(t.Doc.Locale, t.Source.File, "/messages", t.Doc.Messages)
 	}
 }
 
@@ -702,7 +760,7 @@ func droppedVector(b *flatbuffers.Builder, ids []string) flatbuffers.UOffsetT {
 
 // assets adds the assets-index sections — every asset to the app bundle,
 // the assets it uses to each plugin bundle — and then the sections every
-// bundle shares: programs, styles, strings, meta and the source map.
+// bundle shares: styles, programs, strings, meta and the source map.
 // Asset files are not in the bundles: each is its own content-addressed
 // object, and the index lists it with its transcoded variants (CMP-030).
 func assets(u *unit) {
@@ -710,8 +768,9 @@ func assets(u *unit) {
 		u.assetsSection(o)
 		u.pluginAssetBytes(o)
 		u.metaSection(o)
-		programsSection(o)
+		// Styles hold expressions, which register their programs.
 		u.stylesSection(o)
+		programsSection(o)
 		stringsSection(o)
 		sourceMapSection(o)
 	}
@@ -726,6 +785,15 @@ type indexedAsset struct {
 	id         [16]byte
 	key, media string
 	data       []byte
+	// locales are the per-locale files of the asset, sorted by tag
+	// (I18N-012).
+	locales []localeFile
+}
+
+// localeFile is the file an asset has for one locale.
+type localeFile struct {
+	tag  string
+	data []byte
 }
 
 // iconFontKey is the key of an icon set's font in an assets index; asset
@@ -734,15 +802,7 @@ func iconFontKey(set icons.Set) string { return "@icons/" + string(set) }
 
 // assetsSection encodes the assets a bundle uses, with its icon fonts.
 func (u *unit) assetsSection(o *out) {
-	var entries []indexedAsset
-	if idx := u.project.Assets; idx != nil && idx.Doc != nil {
-		for i := range idx.Doc.Assets {
-			a := &idx.Doc.Assets[i]
-			if o.pl == nil || o.assets[a.ID] {
-				entries = append(entries, indexedAsset{uuidBytes(a.ID), a.Key, string(a.MediaType), u.project.AssetFiles[a.File]})
-			}
-		}
-	}
+	entries := u.documentAssets(o)
 	o.iconFonts = u.iconFonts(o)
 	entries = append(entries, o.iconFonts...)
 	if len(entries) == 0 {
@@ -752,26 +812,69 @@ func (u *unit) assetsSection(o *out) {
 	b := flatbuffers.NewBuilder(1024)
 	offs := make([]flatbuffers.UOffsetT, len(entries))
 	for i, a := range entries {
-		sum := sha256.Sum256(a.data)
-		hash := b.CreateByteVector(sum[:])
-		key, media := b.CreateString(a.key), b.CreateString(a.media)
-		variants := u.variantsOf(b, sum)
-		fbs.AssetStart(b)
-		hi, lo := uuidHalves(a.id)
-		fbs.AssetAddId(b, fbs.CreateUuid(b, hi, lo))
-		fbs.AssetAddKey(b, key)
-		fbs.AssetAddMediaType(b, media)
-		fbs.AssetAddHash(b, hash)
-		fbs.AssetAddSize(b, uint64(len(a.data)))
-		if variants != 0 {
-			fbs.AssetAddVariants(b, variants)
-		}
-		offs[i] = fbs.AssetEnd(b)
+		offs[i] = u.assetTable(b, a)
 	}
 	av := offsetVector(b, offs)
 	fbs.AssetIndexStart(b)
 	fbs.AssetIndexAddAssets(b, av)
 	o.add(bundle.SectionAssetsIndex, o.id, finish(b, fbs.AssetIndexEnd(b), bundle.SectionAssetsIndex))
+}
+
+// documentAssets lists the assets of the assets index a bundle carries: all
+// of them for the app bundle, the plugin's own for a plugin.
+func (u *unit) documentAssets(o *out) []indexedAsset {
+	idx := u.project.Assets
+	if idx == nil || idx.Doc == nil {
+		return nil
+	}
+	var entries []indexedAsset
+	for i := range idx.Doc.Assets {
+		a := &idx.Doc.Assets[i]
+		if o.pl != nil && !o.assets[a.ID] {
+			continue
+		}
+		data := u.project.AssetFiles[a.File]
+		if a.MediaType == schema.MediaTypeFontTtf {
+			data = u.textFont(data)
+		}
+		entries = append(entries, indexedAsset{uuidBytes(a.ID), a.Key, string(a.MediaType), data, u.localeFiles(a)})
+	}
+	return entries
+}
+
+// assetTable encodes one asset of the index: its hash, size, variants and
+// per-locale files.
+func (u *unit) assetTable(b *flatbuffers.Builder, a indexedAsset) flatbuffers.UOffsetT {
+	sum := sha256.Sum256(a.data)
+	hash := b.CreateByteVector(sum[:])
+	key, media := b.CreateString(a.key), b.CreateString(a.media)
+	variants := u.variantsOf(b, sum)
+	var locales flatbuffers.UOffsetT
+	if len(a.locales) > 0 {
+		los := make([]flatbuffers.UOffsetT, len(a.locales))
+		for j, lf := range a.locales {
+			lsum := sha256.Sum256(lf.data)
+			tag, lhash := b.CreateString(lf.tag), b.CreateByteVector(lsum[:])
+			fbs.AssetLocaleFileStart(b)
+			fbs.AssetLocaleFileAddTag(b, tag)
+			fbs.AssetLocaleFileAddHash(b, lhash)
+			fbs.AssetLocaleFileAddSize(b, uint64(len(lf.data)))
+			los[j] = fbs.AssetLocaleFileEnd(b)
+		}
+		locales = offsetVector(b, los)
+	}
+	fbs.AssetStart(b)
+	hi, lo := uuidHalves(a.id)
+	fbs.AssetAddId(b, fbs.CreateUuid(b, hi, lo))
+	fbs.AssetAddKey(b, key)
+	fbs.AssetAddMediaType(b, media)
+	fbs.AssetAddHash(b, hash)
+	fbs.AssetAddSize(b, uint64(len(a.data)))
+	if variants != 0 {
+		fbs.AssetAddVariants(b, variants)
+	}
+	addOptional(b, locales, fbs.AssetAddLocaleFiles)
+	return fbs.AssetEnd(b)
 }
 
 // iconFonts builds the icon fonts of a bundle: one per set its documents
@@ -792,7 +895,7 @@ func (u *unit) iconFonts(o *out) []indexedAsset {
 			return nil
 		}
 		u.files[sha256.Sum256(data)] = data
-		out = append(out, indexedAsset{derivedID("icons", o.key, string(set)), iconFontKey(set), "font/ttf", data})
+		out = append(out, indexedAsset{id: derivedID("icons", o.key, string(set)), key: iconFontKey(set), media: "font/ttf", data: data})
 	}
 	return out
 }
@@ -1127,7 +1230,7 @@ func (u *unit) metaSection(o *out) {
 		exported = componentEntries(b, o.pl)
 	} else {
 		plugins = u.pluginIDs(b)
-		locales = stringVector(b, app.SupportedLocales)
+		locales = stringVector(b, append(slices.Clone(app.SupportedLocales), u.generatedPseudo()...))
 		flags = u.flagTables(e, app.Flags)
 		sampling = samplingTables(b, app.Telemetry)
 		hostEvents = hostEventTables(b, app.HostEvents)
@@ -1136,7 +1239,7 @@ func (u *unit) metaSection(o *out) {
 	nameOff, keyOff := b.CreateString(name), b.CreateString(key)
 	compiler, schemaVersion, minRuntime := b.CreateString(u.opts.Version), b.CreateString(schema.CurrentVersion), b.CreateString(app.MinRuntimeVersion)
 	tv := triggerTables(b, u.ownTriggers(o))
-	var defLocale, entryRoute, profile, notFound, shells, links, push flatbuffers.UOffsetT
+	var defLocale, entryRoute, profile, notFound, shells, links, push, localisation flatbuffers.UOffsetT
 	if o.pl == nil {
 		defLocale, entryRoute, profile = b.CreateString(app.DefaultLocale), b.CreateString(app.EntryRoute), b.CreateString(string(app.SecurityProfile))
 		if nav := app.Navigation; nav != nil && nav.NotFound != "" {
@@ -1144,6 +1247,7 @@ func (u *unit) metaSection(o *out) {
 		}
 		shells = u.shellTables(e)
 		links, push = u.deepLinksTable(b), u.pushTable(b)
+		localisation = localisationTable(b, app.Localisation)
 	}
 	fbs.MetaStart(b)
 	fbs.MetaAddKind(b, fbs.BundleKind(o.kind)) //nolint:gosec // G115: bundle kinds are 1–3.
@@ -1182,8 +1286,46 @@ func (u *unit) metaSection(o *out) {
 		addOptional(b, shells, fbs.MetaAddShells)
 		addOptional(b, links, fbs.MetaAddDeepLinks)
 		addOptional(b, push, fbs.MetaAddPush)
+		addOptional(b, localisation, fbs.MetaAddLocalisation)
 	}
 	o.add(bundle.SectionMeta, o.id, finish(b, fbs.MetaEnd(b), bundle.SectionMeta))
+}
+
+// localisationTable writes the app's localisation settings (I18N-003,
+// I18N-011): the calendars and the numbering system per locale, sorted by
+// locale. It is 0 when the app declares none.
+func localisationTable(b *flatbuffers.Builder, l *schema.LocalisationSettings) flatbuffers.UOffsetT {
+	if l == nil {
+		return 0
+	}
+	var calendar, secondary flatbuffers.UOffsetT
+	if l.Calendar != "" {
+		calendar = b.CreateString(string(l.Calendar))
+	}
+	if l.SecondaryCalendar != "" {
+		secondary = b.CreateString(string(l.SecondaryCalendar))
+	}
+	var systems flatbuffers.UOffsetT
+	if tags := sortedKeys(l.NumberingSystem); len(tags) > 0 {
+		entries := make([]flatbuffers.UOffsetT, len(tags))
+		for i, tag := range tags {
+			loc, sys := b.CreateString(tag), b.CreateString(string(l.NumberingSystem[tag]))
+			fbs.NumberingSystemEntryStart(b)
+			fbs.NumberingSystemEntryAddLocale(b, loc)
+			fbs.NumberingSystemEntryAddSystem(b, sys)
+			entries[i] = fbs.NumberingSystemEntryEnd(b)
+		}
+		fbs.LocalisationSettingsStartNumberingSystemsVector(b, len(entries))
+		for i := len(entries) - 1; i >= 0; i-- {
+			b.PrependUOffsetT(entries[i])
+		}
+		systems = b.EndVector(len(entries))
+	}
+	fbs.LocalisationSettingsStart(b)
+	addOptional(b, calendar, fbs.LocalisationSettingsAddCalendar)
+	addOptional(b, secondary, fbs.LocalisationSettingsAddSecondaryCalendar)
+	addOptional(b, systems, fbs.LocalisationSettingsAddNumberingSystems)
+	return fbs.LocalisationSettingsEnd(b)
 }
 
 // capabilitiesOf writes the capabilities table of a bundle's meta: a

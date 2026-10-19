@@ -453,7 +453,7 @@ func TestPublishStoresIconFonts(t *testing.T) {
 	slots, _ := root["slots"].(map[string]any)
 	slots["floatingActionButton"] = map[string]any{
 		"id": "01a0c450-6c00-7fff-8000-0000000000f1", "type": "Icon",
-		"props": map[string]any{"icon": map[string]any{"name": "home"}},
+		"props": map[string]any{"icon": map[string]any{"name": "home"}, "semanticLabel": "Home"},
 	}
 	edited, err := json.Marshal(doc)
 	if err != nil {

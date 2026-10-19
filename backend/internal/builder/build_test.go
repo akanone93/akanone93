@@ -193,6 +193,15 @@ func TestBuildReportsLimitBreachesAsPLX7203_FN_016(t *testing.T) {
 		_, err := f.build(Options{}, twoFunctions()...)
 		wantCode(t, err, plxerr.FunctionBuildLimitExceeded)
 	})
+	t.Run("toolchain probe over the wall time", func(t *testing.T) {
+		// A probe the wall time stops is a limit breach, never a wrong
+		// toolchain: under load `rustc --version` itself can take long.
+		f := newFixture(t)
+		f.cfg.Limits.Wall = 300 * time.Millisecond
+		f.write("sleep-version", "1")
+		_, err := f.build(Options{}, twoFunctions()...)
+		wantCode(t, err, plxerr.FunctionBuildLimitExceeded)
+	})
 	t.Run("output", func(t *testing.T) {
 		f := newFixture(t)
 		f.cfg.Limits.OutputBytes = 64

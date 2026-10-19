@@ -584,6 +584,56 @@ var registry = []Definition{
 		"Set `semantics.label`, or give the node visible text.", false,
 	},
 	{
+		ImageAlternativeMissing, "IMAGE_ALTERNATIVE_MISSING", SeverityWarning, "Image without alternative text",
+		"An image has no `semanticLabel`, no `semantics.label` and is not marked decorative, so screen readers cannot describe it (A11Y-002).",
+		"Set `semanticLabel` or `semantics.label`, or mark the image `semantics.decorative`.", false,
+	},
+	{
+		ContrastInsufficient, "CONTRAST_INSUFFICIENT", SeverityWarning, "Contrast below WCAG 2.2 AA",
+		"The contrast ratio of a text or component colour against its background is below 4.5:1 (3:1 for large text and UI components) in a theme variant (A11Y-003).",
+		"Choose colours with a higher contrast ratio in every theme variant.", false,
+	},
+	{
+		TouchTargetTooSmall, "TOUCH_TARGET_TOO_SMALL", SeverityWarning, "Touch target too small",
+		"An interactive node has a fixed size below 44 x 44 logical pixels, or below 48 x 48 when the app targets Android (A11Y-004).",
+		"Enlarge the node, or remove the fixed size so the platform padding applies.", false,
+	},
+	{
+		FixedHeightText, "FIXED_HEIGHT_TEXT", SeverityWarning, "Text under a fixed height",
+		"A text node sits under an ancestor with a fixed height, which clips the text when the user scales it (A11Y-005).",
+		"Remove the fixed height or use a minimum height.", false,
+	},
+	{
+		FocusOrderInvalid, "FOCUS_ORDER_INVALID", SeverityWarning, "Focus order invalid",
+		"Sibling nodes in one group or page declare duplicate or non-dense `focusOrder` values (A11Y-006).",
+		"Number the focus order of siblings 1, 2, 3 without gaps or repeats.", false,
+	},
+	{
+		HeadingLevelInvalid, "HEADING_LEVEL_INVALID", SeverityWarning, "Heading level skipped",
+		"A heading level skips more than one level from the previous heading of the page (A11Y-006).",
+		"Use consecutive heading levels.", false,
+	},
+	{
+		LiveRegionStatic, "LIVE_REGION_STATIC", SeverityWarning, "Live region with constant content",
+		"A node is a live region but its label or text never changes, so it announces nothing useful (A11Y-006).",
+		"Bind the content to state, or remove `liveRegion`.", false,
+	},
+	{
+		ContrastNotChecked, "CONTRAST_NOT_CHECKED", SeverityInfo, "Contrast not checked",
+		"A colour or background depends on an expression, a gradient, an image or a theme the compiler cannot see, so its contrast was not checked (A11Y-003).",
+		"Check the contrast at run time, or use literal colours or theme tokens.", false,
+	},
+	{
+		A11yWaiverInvalid, "A11Y_WAIVER_INVALID", SeverityError, "Accessibility waiver invalid",
+		"An accessibility waiver names an unknown check or has a justification shorter than ten characters (A11Y-008).",
+		"Name a known check and justify the waiver in at least ten characters.", false,
+	},
+	{
+		A11yWaiverPermissionRequired, "A11Y_WAIVER_PERMISSION_REQUIRED", SeverityError, "Accessibility waiver needs permission",
+		"Under the maximum profile an accessibility waiver needs the `a11y.waive` permission of the saving principal (A11Y-008).",
+		"Ask a principal with `a11y.waive` to save the waiver.", false,
+	},
+	{
 		SecretLikeValue, "SECRET_LIKE_VALUE", SeverityError, "Secret-like value detected",
 		"A literal looks like an API key, token, private key or password. Bundles are readable on devices, so secrets must never be shipped in them (DAT-003).",
 		"Keep the secret on the server and use it through a Plux Function or the host's auth delegate.", false,
@@ -607,6 +657,108 @@ var registry = []Definition{
 		DirectSourceAssuranceUnenforceable, "DIRECT_SOURCE_ASSURANCE_UNENFORCEABLE", SeverityWarning, "Direct data source assurance cannot be enforced",
 		"A data source with route `direct` declares requiresAssurance, which the server cannot enforce on a call that does not pass through it (SEC-030).",
 		"Route the data source through the gateway, or remove requiresAssurance.", false,
+	},
+
+	// Localisation and translation import.
+	{
+		LocaleUnsupported, "LOCALE_UNSUPPORTED", SeverityError, "Locale not supported",
+		"The locale is not in the CLDR data pinned by this release, so its plural rules, dates and numbers cannot be formatted (I18N-002).",
+		"Choose a locale from the supported list, or remove it from the release's locales.", false,
+	},
+	{
+		MessageSyntaxInvalid, "MESSAGE_SYNTAX_INVALID", SeverityError, "Message syntax invalid",
+		"A translatable message is not valid ICU MessageFormat, so it cannot be parsed (I18N-001).",
+		"Fix the braces, plural and select blocks of the message; the error's details give the position.", false,
+	},
+	{
+		MessageArgumentUndeclared, "MESSAGE_ARGUMENT_UNDECLARED", SeverityError, "Message argument undeclared",
+		"A message uses an argument that the key does not declare, so the runtime has no value to put in its place (I18N-001).",
+		"Declare the argument on the key, or remove it from the message.", false,
+	},
+	{
+		MessageArgumentTypeMismatch, "MESSAGE_ARGUMENT_TYPE_MISMATCH", SeverityError, "Message argument type mismatch",
+		"A message uses an argument as a number, date or plural while the key declares it with another type (I18N-001).",
+		"Make the argument's declared type match its use in the message.", false,
+	},
+	{
+		PluralCategoryInvalid, "PLURAL_CATEGORY_INVALID", SeverityError, "Plural category not in locale",
+		"A plural branch names a category that the message's locale does not have, so no count can select it (I18N-001).",
+		"Remove the branch, or use the categories the locale defines; `other` is always required.", false,
+	},
+	{
+		PluralOtherMissing, "PLURAL_OTHER_MISSING", SeverityError, "Plural other branch missing",
+		"A plural message has no `other` branch, so a count that matches no other category has no text to show (I18N-001).",
+		"Add an `other` branch to the plural.", false,
+	},
+	{
+		TranslationMissing, "TRANSLATION_MISSING", SeverityWarning, "Translation missing",
+		"A locale of the release has no translation for a key, so the runtime falls back to the source locale for that key (I18N-006).",
+		"Translate the key for the locale, or accept the fallback.", false,
+	},
+	{
+		TranslationTooLong, "TRANSLATION_TOO_LONG", SeverityError, "Translation too long",
+		"A translation is longer than the key's maxLength, so it would overflow the layout it is shown in (I18N-007).",
+		"Shorten the translation, or raise the key's maxLength if the layout allows it.", false,
+	},
+	{
+		TranslationKeyUnused, "TRANSLATION_KEY_UNUSED", SeverityWarning, "Translation key unused",
+		"A translation key is not referenced by any document of the plugin, so it is shipped without being shown (I18N-007).",
+		"Remove the key, or use it in a document.", false,
+	},
+	{
+		LiteralTextUntranslated, "LITERAL_TEXT_UNTRANSLATED", SeverityWarning, "Literal text not translated",
+		"A translatable property holds literal text instead of a translation key, so it is shown in one language in every locale (I18N-007).",
+		"Replace the literal with a translation key.", false,
+	},
+	{
+		TranslationNotApproved, "TRANSLATION_NOT_APPROVED", SeverityInfo, "Translation not approved",
+		"A translation was left out of the release because requireApprovedTranslations is set and the translation is not approved (I18N-008).",
+		"Approve the translation, or accept that the locale falls back to the source.", false,
+	},
+	{
+		CalendarUnsupported, "CALENDAR_UNSUPPORTED", SeverityError, "Calendar unsupported",
+		"The calendar named for a locale is not one the runtime implements (I18N-003).",
+		"Choose a calendar from the supported list, or use the locale's default calendar.", false,
+	},
+	{
+		NumberingSystemUnsupported, "NUMBERING_SYSTEM_UNSUPPORTED", SeverityError, "Numbering system unsupported",
+		"The numbering system named for a locale is not one the pinned CLDR data defines (I18N-003).",
+		"Choose a numbering system from the supported list, or use the locale's default.", false,
+	},
+	{
+		LocaleOverrideInvalid, "LOCALE_OVERRIDE_INVALID", SeverityError, "Locale override invalid",
+		"A locale override names a locale that is malformed or not one of the release's locales, so it cannot be applied (I18N-012).",
+		"Use a BCP 47 tag from the release's locales, or remove the override.", false,
+	},
+	{
+		PseudoLocaleInProduction, "PSEUDO_LOCALE_IN_PRODUCTION", SeverityError, "Pseudo-locale in production",
+		"A pseudo-locale, used to test layout and encoding, is included in a production release (I18N-010).",
+		"Remove the pseudo-locale from the production release; keep it in test builds only.", false,
+	},
+	{
+		CalendarOutOfTable, "CALENDAR_OUT_OF_TABLE", SeverityWarning, "Calendar outside its table",
+		"The Umm al-Qura calendar is used outside the years 1300 to 1600 AH covered by its table, so tabular arithmetic is used for those dates (I18N-003).",
+		"Accept the tabular approximation, or use a date within the table's range.", false,
+	},
+	{
+		TranslationImportInvalid, "TRANSLATION_IMPORT_INVALID", SeverityError, "Translation import invalid",
+		"The imported translation file is not valid for its format, so no translation from it was applied (I18N-009).",
+		"Export the file again from the translation tool in a supported format, and check its structure.", false,
+	},
+	{
+		TranslationImportKeyUnknown, "TRANSLATION_IMPORT_KEY_UNKNOWN", SeverityError, "Imported key unknown",
+		"The imported file has a translation for a key that the plugin does not declare, so it cannot be applied (I18N-009).",
+		"Remove the key from the file, or declare it in the plugin.", false,
+	},
+	{
+		TranslationImportSourceChanged, "TRANSLATION_IMPORT_SOURCE_CHANGED", SeverityWarning, "Source text changed since translation",
+		"The source text of a key changed after it was translated, so the imported translation is out of date and its key is reset to translated (I18N-009).",
+		"Review the translation against the new source text and approve it again.", false,
+	},
+	{
+		TranslationImportDowngraded, "TRANSLATION_IMPORT_DOWNGRADED", SeverityWarning, "Imported status lowered to translated",
+		"The file asks for approved or final status, which only a translation approver may set, so the entries are stored as translated (I18N-008, I18N-009).",
+		"Have a translation approver approve the entries in Studio or import the file.", false,
 	},
 
 	// Compiler and PXL.
@@ -797,6 +949,31 @@ var registry = []Definition{
 		"The runtime could not complete a sync: the server was unreachable or answered with an error, a download failed after its retries, or a bundle failed verification after the full-bundle retry (SYN-010, SYN-011). The cause is in the error's details.",
 		"The device keeps its current release and retries at the next start or manual sync. Check the server's health and the device's connectivity.", false,
 	},
+	{
+		AccessibilityBlocksPublish, "ACCESSIBILITY_BLOCKS_PUBLISH", SeverityError, "Accessibility check blocks publish",
+		"The release's accessibility policy refused the publish because a blocking accessibility finding is present (A11Y-002).",
+		"Fix the findings listed in the error's details, or lower the policy in a reviewed configuration.", false,
+	},
+	{
+		GoldenRunMissing, "GOLDEN_RUN_MISSING", SeverityError, "Golden test run missing",
+		"The release's policy requires golden image tests, and no run for this plugin version is recorded (TST-003).",
+		"Run the golden tests for the plugin version and upload the results before publishing.", false,
+	},
+	{
+		GoldenDifferenceUnapproved, "GOLDEN_DIFFERENCE_UNAPPROVED", SeverityError, "Golden difference not approved",
+		"A golden image differs from its baseline and the difference has not been approved, so the publish is refused (TST-003).",
+		"Review the difference and approve it, or fix the rendering that changed.", false,
+	},
+	{
+		ReleaseProfileBelowEnvironment, "RELEASE_PROFILE_BELOW_ENVIRONMENT", SeverityError, "Release profile below the environment's",
+		"The release was compiled for a security profile that is less strict than the environment's effective profile, so it cannot be published or promoted into it (SEC-180).",
+		"Publish a release compiled with the environment's profile or a stricter one, or lower the environment's profile in a reviewed configuration.", false,
+	},
+	{
+		PseudoLocalesInProduction, "PSEUDO_LOCALES_IN_PRODUCTION", SeverityError, "Release carries pseudo-locales",
+		"The release supports the pseudo-locales en-XA or ar-XB, which are for development, so it cannot be promoted into a production environment (I18N-002).",
+		"Publish the release again from a build without pseudo-locales.", false,
+	},
 
 	// Runtime rendering and navigation.
 	{
@@ -893,6 +1070,27 @@ var registry = []Definition{
 		AnimationAssetFailed, "ANIMATION_ASSET_FAILED", SeverityError, "Lottie or Rive asset failed",
 		"A Lottie or Rive widget could not load or play its asset: the file is missing, malformed or not what the widget expects (ANI-005).",
 		"Check the asset and its media type; the widget shows nothing in its place.", false,
+	},
+	// Runtime localisation and widget packages.
+	{
+		LocaleNotInRelease, "LOCALE_NOT_IN_RELEASE", SeverityError, "Locale not in release",
+		"The app asked to switch to a locale that the current release does not contain, so the locale was not changed (I18N-005).",
+		"Set a locale from the release's list, or check the locale list the release publishes.", false,
+	},
+	{
+		TranslationFallback, "TRANSLATION_FALLBACK", SeverityWarning, "Translation fell back to source",
+		"A text had no translation in the current locale and the source text was shown instead (I18N-006).",
+		"Add the translation for the locale in Studio and publish a new release.", false,
+	},
+	{
+		MessageFormatFailed, "MESSAGE_FORMAT_FAILED", SeverityError, "Message could not be formatted",
+		"A translated message could not be formatted with its arguments at run time, so the source text or an empty string is shown (I18N-001).",
+		"Check the message and the argument values; the error's details name the argument.", false,
+	},
+	{
+		WidgetPackageMissing, "WIDGET_PACKAGE_MISSING", SeverityError, "Widget package not registered",
+		"A widget comes from an optional package that is not registered in this app, so the widget is not built (RT-060).",
+		"Register the package in the host app, or remove the widget from the page.", false,
 	},
 	{
 		ActionTimeout, "ACTION_TIMEOUT", SeverityError, "Action timed out",
@@ -1642,6 +1840,16 @@ var registry = []Definition{
 		"The server could not reach a service outside it that the call needs, such as the single sign-on provider.",
 		"Retry later. If it persists, the operator checks the service and the server's outbound network.", false,
 	},
+	{
+		TranslationStateForbidden, "TRANSLATION_STATE_FORBIDDEN", SeverityError, "Translation state not allowed",
+		"The save sets a message to approved, or changes the text of a message that stays approved, and the caller does not hold translations.approve (I18N-008).",
+		"Ask a member who holds translations.approve to approve the message, or save it at another state; a changed text of a message without that permission is saved as translated.", false,
+	},
+	{
+		TranslationDocumentForbidden, "TRANSLATION_DOCUMENT_FORBIDDEN", SeverityError, "Document not editable with translations.edit",
+		"A caller who holds translations.edit but not app.manage may save only the messages and states of an existing translations document (translations/<locale>.json); the save touches another document, another property, or creates the document (I18N-008).",
+		"Save only messages and states of an existing translations document, or ask for app.manage.", false,
+	},
 
 	// Studio, CLI and AI.
 	{
@@ -1658,5 +1866,17 @@ var registry = []Definition{
 		FileSystemError, "FILE_SYSTEM_ERROR", SeverityError, "File system error",
 		"A file or directory could not be read or written.",
 		"Check that the path exists and is accessible.", false,
+	},
+
+	// Golden test harness.
+	{
+		GoldenHarnessFailed, "GOLDEN_HARNESS_FAILED", SeverityError, "Golden test harness failed",
+		"The golden test harness could not render or compare a screen, so no result was recorded (TST-003).",
+		"Read the harness output in the error's details, and rerun the golden tests.", false,
+	},
+	{
+		FlutterSDKUnavailable, "FLUTTER_SDK_UNAVAILABLE", SeverityError, "Flutter SDK unavailable",
+		"The Flutter SDK needed to run golden tests is not installed or not on the path, so the tests could not start (TST-003).",
+		"Install the Flutter version pinned in the Makefile and make it available on the path.", false,
 	},
 }

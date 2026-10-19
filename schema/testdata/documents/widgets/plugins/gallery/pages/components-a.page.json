@@ -1,0 +1,702 @@
+{
+  "a11yWaivers": {
+    "fixedHeightText": "The paged list needs a bounded height to scroll in; its placeholder texts are short."
+  },
+  "forms": [
+    {
+      "fields": [
+        {
+          "initial": "",
+          "name": "a",
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required"
+            }
+          ]
+        },
+        {
+          "initial": "",
+          "name": "b",
+          "type": "string",
+          "validators": [
+            {
+              "kind": "required"
+            }
+          ]
+        }
+      ],
+      "id": "01c0c450-6c00-7000-8a2a-000000000129",
+      "name": "wiz"
+    }
+  ],
+  "id": "01c0c450-6c00-7000-8a2a-000000000128",
+  "key": "components-a",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01c0c450-6c00-7000-8a2a-000000000127",
+    "slots": {
+      "appBar": {
+        "id": "01c0c450-6c00-7000-8a2a-000000000126",
+        "slots": {
+          "title": {
+            "id": "01c0c450-6c00-7000-8a2a-000000000125",
+            "props": {
+              "data": "components a"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01c0c450-6c00-7000-8a2a-000000000124",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "events": {
+                  "onAccepted": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.accepted",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "onLinkTap": {
+                    "steps": [
+                      {
+                        "action": "haptic",
+                        "id": "h",
+                        "input": {
+                          "pattern": "light"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2a-000000000101",
+                "props": {
+                  "documentVersion": "2026-01",
+                  "label": "I accept the terms",
+                  "linkLabel": "Read the terms"
+                },
+                "testId": "consent",
+                "type": "ConsentCheckbox"
+              },
+              {
+                "events": {
+                  "onSearch": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.query",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "onSuggestionSelected": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.picked",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2a-000000000102",
+                "props": {
+                  "debounceMs": 50,
+                  "hint": "Search fruit",
+                  "suggestions": [
+                    "apple",
+                    "apricot"
+                  ]
+                },
+                "semantics": {
+                  "label": "Search fruit"
+                },
+                "testId": "search",
+                "type": "SearchField"
+              },
+              {
+                "events": {
+                  "onToggle": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.toggled",
+                          "value": {
+                            "$expr": "event.id + string(event.selected)"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2a-000000000103",
+                "props": {
+                  "filters": [
+                    {
+                      "id": "open",
+                      "label": "Open",
+                      "selected": false
+                    },
+                    {
+                      "id": "closed",
+                      "label": "Closed",
+                      "selected": true
+                    }
+                  ]
+                },
+                "semantics": {
+                  "label": "Filters"
+                },
+                "testId": "filters",
+                "type": "FilterBar"
+              },
+              {
+                "events": {
+                  "onSelected": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.sort",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2a-000000000104",
+                "props": {
+                  "options": [
+                    {
+                      "id": "new",
+                      "label": "Newest"
+                    },
+                    {
+                      "id": "price",
+                      "label": "Price"
+                    }
+                  ],
+                  "selected": "new",
+                  "title": "Sort by"
+                },
+                "testId": "sort",
+                "type": "SortSheet"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2a-00000000010a",
+                "props": {
+                  "height": 120.0
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onEndReached": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "w",
+                            "input": {
+                              "path": "page.ended",
+                              "value": true
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a2a-000000000109",
+                    "props": {
+                      "hasMore": true,
+                      "items": {
+                        "$expr": "page.items"
+                      }
+                    },
+                    "slots": {
+                      "empty": {
+                        "id": "01c0c450-6c00-7000-8a2a-000000000106",
+                        "props": {
+                          "data": "No results"
+                        },
+                        "type": "Text"
+                      },
+                      "error": {
+                        "id": "01c0c450-6c00-7000-8a2a-000000000108",
+                        "props": {
+                          "data": "Could not load"
+                        },
+                        "type": "Text"
+                      },
+                      "item": {
+                        "id": "01c0c450-6c00-7000-8a2a-000000000105",
+                        "props": {
+                          "data": {
+                            "$expr": "item"
+                          }
+                        },
+                        "type": "Text"
+                      },
+                      "loading": {
+                        "id": "01c0c450-6c00-7000-8a2a-000000000107",
+                        "props": {
+                          "data": "Loading more"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "testId": "infinite",
+                    "type": "InfiniteList"
+                  }
+                },
+                "type": "SizedBox"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2a-000000000113",
+                "props": {
+                  "form": "wiz"
+                },
+                "slots": {
+                  "child": {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "id": "01c0c450-6c00-7000-8a2a-00000000010b",
+                            "props": {
+                              "data": "Account step"
+                            },
+                            "type": "Text"
+                          },
+                          {
+                            "events": {
+                              "onChanged": {
+                                "steps": [
+                                  {
+                                    "action": "setState",
+                                    "id": "w",
+                                    "input": {
+                                      "path": "page.wiz.values.a",
+                                      "value": {
+                                        "$expr": "event"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01c0c450-6c00-7000-8a2a-00000000010c",
+                            "props": {
+                              "value": {
+                                "$expr": "page.wiz.values.a"
+                              }
+                            },
+                            "semantics": {
+                              "label": "field a"
+                            },
+                            "testId": "wiz-a",
+                            "type": "TextFormField"
+                          }
+                        ],
+                        "id": "01c0c450-6c00-7000-8a2a-00000000010d",
+                        "type": "Column"
+                      },
+                      {
+                        "children": [
+                          {
+                            "id": "01c0c450-6c00-7000-8a2a-00000000010e",
+                            "props": {
+                              "data": "Contact step"
+                            },
+                            "type": "Text"
+                          },
+                          {
+                            "events": {
+                              "onChanged": {
+                                "steps": [
+                                  {
+                                    "action": "setState",
+                                    "id": "w",
+                                    "input": {
+                                      "path": "page.wiz.values.b",
+                                      "value": {
+                                        "$expr": "event"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "id": "01c0c450-6c00-7000-8a2a-00000000010f",
+                            "props": {
+                              "value": {
+                                "$expr": "page.wiz.values.b"
+                              }
+                            },
+                            "semantics": {
+                              "label": "field b"
+                            },
+                            "testId": "wiz-b",
+                            "type": "TextFormField"
+                          }
+                        ],
+                        "id": "01c0c450-6c00-7000-8a2a-000000000110",
+                        "type": "Column"
+                      },
+                      {
+                        "id": "01c0c450-6c00-7000-8a2a-000000000111",
+                        "props": {
+                          "data": "Review step"
+                        },
+                        "type": "Text"
+                      }
+                    ],
+                    "events": {
+                      "onBack": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "w",
+                            "input": {
+                              "path": "page.step",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "onNext": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "w",
+                            "input": {
+                              "path": "page.step",
+                              "value": {
+                                "$expr": "event"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "onSubmit": {
+                        "steps": [
+                          {
+                            "action": "setState",
+                            "id": "w",
+                            "input": {
+                              "path": "page.submitted",
+                              "value": true
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a2a-000000000112",
+                    "props": {
+                      "stepFields": [
+                        "a",
+                        "b",
+                        ""
+                      ],
+                      "titles": [
+                        "Account",
+                        "Contact",
+                        "Review"
+                      ]
+                    },
+                    "testId": "wizard",
+                    "type": "WizardForm"
+                  }
+                },
+                "type": "FormScope"
+              },
+              {
+                "children": [
+                  {
+                    "id": "01c0c450-6c00-7000-8a2a-000000000115",
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a2a-000000000114",
+                        "props": {
+                          "data": "Welcome"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "type": "Center"
+                  },
+                  {
+                    "id": "01c0c450-6c00-7000-8a2a-000000000117",
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a2a-000000000116",
+                        "props": {
+                          "data": "Stay in sync"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "type": "Center"
+                  },
+                  {
+                    "id": "01c0c450-6c00-7000-8a2a-000000000119",
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a2a-000000000118",
+                        "props": {
+                          "data": "All set"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "type": "Center"
+                  }
+                ],
+                "events": {
+                  "onDone": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.done",
+                          "value": true
+                        }
+                      }
+                    ]
+                  },
+                  "onPageChanged": {
+                    "steps": [
+                      {
+                        "action": "setState",
+                        "id": "w",
+                        "input": {
+                          "path": "page.pageIndex",
+                          "value": {
+                            "$expr": "event"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "01c0c450-6c00-7000-8a2a-00000000011a",
+                "props": {
+                  "doneLabel": "Finish",
+                  "nextLabel": "Continue"
+                },
+                "testId": "pager",
+                "type": "OnboardingPager"
+              },
+              {
+                "children": [
+                  {
+                    "id": "01c0c450-6c00-7000-8a2a-00000000011b",
+                    "props": {
+                      "data": "Profile"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01c0c450-6c00-7000-8a2a-00000000011c",
+                    "props": {
+                      "data": "Password"
+                    },
+                    "type": "Text"
+                  },
+                  {
+                    "id": "01c0c450-6c00-7000-8a2a-00000000011d",
+                    "props": {
+                      "data": "Analytics"
+                    },
+                    "type": "Text"
+                  }
+                ],
+                "id": "01c0c450-6c00-7000-8a2a-00000000011e",
+                "props": {
+                  "sections": [
+                    {
+                      "count": 2,
+                      "title": "Account"
+                    },
+                    {
+                      "count": 1,
+                      "title": "Privacy"
+                    }
+                  ]
+                },
+                "testId": "settings",
+                "type": "SettingsList"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2a-000000000121",
+                "props": {
+                  "name": "Ada Lovelace",
+                  "subtitle": "Mathematician"
+                },
+                "slots": {
+                  "actions": {
+                    "id": "01c0c450-6c00-7000-8a2a-000000000120",
+                    "slots": {
+                      "child": {
+                        "id": "01c0c450-6c00-7000-8a2a-00000000011f",
+                        "props": {
+                          "data": "Follow"
+                        },
+                        "type": "Text"
+                      }
+                    },
+                    "type": "FilledButton"
+                  }
+                },
+                "testId": "profile",
+                "type": "ProfileHeader"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a2a-000000000122",
+                "props": {
+                  "steps": [
+                    {
+                      "detail": "Mon",
+                      "label": "Ordered",
+                      "state": "done"
+                    },
+                    {
+                      "label": "Packed",
+                      "state": "done"
+                    },
+                    {
+                      "detail": "In transit",
+                      "label": "Shipped",
+                      "state": "current"
+                    },
+                    {
+                      "label": "Delivered",
+                      "state": "pending"
+                    },
+                    {
+                      "label": "Returned",
+                      "state": "failed"
+                    }
+                  ]
+                },
+                "testId": "timeline",
+                "type": "StatusTimeline"
+              }
+            ],
+            "id": "01c0c450-6c00-7000-8a2a-000000000123",
+            "props": {
+              "crossAxisAlignment": "stretch"
+            },
+            "type": "Column"
+          }
+        },
+        "type": "SingleChildScrollView"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "components-a",
+  "schemaVersion": "1.0.0",
+  "state": [
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2a-00000000012a",
+      "name": "accepted",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2a-00000000012b",
+      "name": "query",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2a-00000000012c",
+      "name": "picked",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2a-00000000012d",
+      "name": "toggled",
+      "type": "string"
+    },
+    {
+      "default": "",
+      "id": "01c0c450-6c00-7000-8a2a-00000000012e",
+      "name": "sort",
+      "type": "string"
+    },
+    {
+      "default": false,
+      "id": "01c0c450-6c00-7000-8a2a-00000000012f",
+      "name": "ended",
+      "type": "bool"
+    },
+    {
+      "default": [
+        "one",
+        "two",
+        "three"
+      ],
+      "id": "01c0c450-6c00-7000-8a2a-000000000130",
+      "name": "items",
+      "type": "list<string>"
+    },
+    {
+      "default": 0,
+      "id": "01c0c450-6c00-7000-8a2a-000000000131",
+      "name": "step",
+      "type": "int"
+    },
+    {
+      "default": false,
+      "id": "01c0c450-6c00-7000-8a2a-000000000132",
+      "name": "submitted",
+      "type": "bool"
+    },
+    {
+      "default": 0,
+      "id": "01c0c450-6c00-7000-8a2a-000000000133",
+      "name": "pageIndex",
+      "type": "int"
+    },
+    {
+      "default": false,
+      "id": "01c0c450-6c00-7000-8a2a-000000000134",
+      "name": "done",
+      "type": "bool"
+    }
+  ],
+  "title": "components a"
+}

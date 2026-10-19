@@ -1,0 +1,101 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "CalendarDatePicker",
+  "id": 125,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "class": "CalendarDatePicker",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "navigation",
+  "icon": "calendar_month",
+  "description": "A month grid for picking a date in the Gregorian calendar.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "group",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "initialDate",
+      "id": 1,
+      "type": "date",
+      "required": true,
+      "flutter": "initialDate"
+    },
+    {
+      "name": "firstDate",
+      "id": 2,
+      "type": "date",
+      "required": true,
+      "flutter": "firstDate"
+    },
+    {
+      "name": "lastDate",
+      "id": 3,
+      "type": "date",
+      "required": true,
+      "flutter": "lastDate"
+    },
+    {
+      "name": "currentDate",
+      "id": 4,
+      "type": "date",
+      "flutter": "currentDate",
+      "description": "Today, as the picker marks it; the device date when absent."
+    }
+  ],
+  "events": [
+    {
+      "name": "onDateChanged",
+      "id": 1,
+      "payload": "date",
+      "flutter": "onDateChanged"
+    },
+    {
+      "name": "onDisplayedMonthChanged",
+      "id": 2,
+      "payload": "date",
+      "flutter": "onDisplayedMonthChanged"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "initialCalendarMode",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "selectableDayPredicate",
+      "reason": "deferred",
+      "note": "Replaced by `firstDate` and `lastDate`."
+    },
+    {
+      "flutter": "calendarDelegate",
+      "reason": "deferred",
+      "note": "The calendar choice arrives with Layer 3."
+    }
+  ]
+}

@@ -130,6 +130,8 @@ func (u *unit) checkNode(n *node) {
 		}
 		u.deprecation(sh.widget.Deprecated, sh.widget.Type, vctx{file: file, ptr: n.ptr + "/type"})
 	}
+	u.checkDeviceWidget(n, file)
+	u.checkWidgetRefs(n, file)
 	n.props = u.checkProps(n, sh, n.doc.Props, c, "props", true)
 	u.checkNodeAnimation(n, sh, c)
 	u.checkEvents(n, sh, c)
@@ -140,6 +142,8 @@ func (u *unit) checkNode(n *node) {
 	if sem := n.doc.Semantics; sem != nil {
 		n.semantics = u.checkSemantics(n, sem, c)
 	}
+	u.noteCalendar(n.doc.Props)
+	u.localeOverrides(n, sh, c)
 	if r := n.doc.Responsive; r != nil {
 		for _, layer := range []struct {
 			key   string
@@ -205,13 +209,18 @@ func (u *unit) memberType(n *node, m member, file, ptr string) *texpr {
 	if len(n.typeArgs) == 0 {
 		return te
 	}
+	return te.subst(typeBindings(n))
+}
+
+// typeBindings are the node's type arguments as type expressions.
+func typeBindings(n *node) map[string]*texpr {
 	bind := map[string]*texpr{}
 	for name, t := range n.typeArgs {
 		if b, err := parseTypeExpr(t.String()); err == nil {
 			bind[name] = b
 		}
 	}
-	return te.subst(bind)
+	return bind
 }
 
 // isBindingRaw reports whether a raw value is a binding.
@@ -310,6 +319,14 @@ func (u *unit) checkSemantics(n *node, sem *schema.Semantics, c vctx) *semantics
 	out := &semantics{
 		header: sem.Header != nil && *sem.Header, button: sem.Button != nil && *sem.Button,
 		liveRegion: sem.LiveRegion != nil && *sem.LiveRegion, excluded: sem.ExcludeSemantics != nil && *sem.ExcludeSemantics,
+		group: sem.Group != nil && *sem.Group, decorative: sem.Decorative != nil && *sem.Decorative,
+	}
+	if sem.FocusOrder != nil {
+		fo := float32(*sem.FocusOrder)
+		out.focusOrder = &fo
+	}
+	if sem.HeadingLevel != nil && *sem.HeadingLevel >= 1 && *sem.HeadingLevel <= 6 {
+		out.headingLevel = uint8(*sem.HeadingLevel) //nolint:gosec // G115: bounded to 1..6 above.
 	}
 	str := &texpr{name: "string"}
 	for _, f := range []struct {

@@ -25,6 +25,106 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// ReportKind says which report of a release to return.
+type ReportKind int32
+
+const (
+	ReportKind_REPORT_KIND_UNSPECIFIED   ReportKind = 0
+	ReportKind_REPORT_KIND_ACCESSIBILITY ReportKind = 1
+	ReportKind_REPORT_KIND_LOCALISATION  ReportKind = 2
+)
+
+// Enum value maps for ReportKind.
+var (
+	ReportKind_name = map[int32]string{
+		0: "REPORT_KIND_UNSPECIFIED",
+		1: "REPORT_KIND_ACCESSIBILITY",
+		2: "REPORT_KIND_LOCALISATION",
+	}
+	ReportKind_value = map[string]int32{
+		"REPORT_KIND_UNSPECIFIED":   0,
+		"REPORT_KIND_ACCESSIBILITY": 1,
+		"REPORT_KIND_LOCALISATION":  2,
+	}
+)
+
+func (x ReportKind) Enum() *ReportKind {
+	p := new(ReportKind)
+	*p = x
+	return p
+}
+
+func (x ReportKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ReportKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_plux_v1_release_proto_enumTypes[0].Descriptor()
+}
+
+func (ReportKind) Type() protoreflect.EnumType {
+	return &file_plux_v1_release_proto_enumTypes[0]
+}
+
+func (x ReportKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ReportKind.Descriptor instead.
+func (ReportKind) EnumDescriptor() ([]byte, []int) {
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{0}
+}
+
+// ReportFormat says how a report is rendered.
+type ReportFormat int32
+
+const (
+	ReportFormat_REPORT_FORMAT_UNSPECIFIED ReportFormat = 0
+	ReportFormat_REPORT_FORMAT_JSON        ReportFormat = 1
+	ReportFormat_REPORT_FORMAT_HTML        ReportFormat = 2
+)
+
+// Enum value maps for ReportFormat.
+var (
+	ReportFormat_name = map[int32]string{
+		0: "REPORT_FORMAT_UNSPECIFIED",
+		1: "REPORT_FORMAT_JSON",
+		2: "REPORT_FORMAT_HTML",
+	}
+	ReportFormat_value = map[string]int32{
+		"REPORT_FORMAT_UNSPECIFIED": 0,
+		"REPORT_FORMAT_JSON":        1,
+		"REPORT_FORMAT_HTML":        2,
+	}
+)
+
+func (x ReportFormat) Enum() *ReportFormat {
+	p := new(ReportFormat)
+	*p = x
+	return p
+}
+
+func (x ReportFormat) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ReportFormat) Descriptor() protoreflect.EnumDescriptor {
+	return file_plux_v1_release_proto_enumTypes[1].Descriptor()
+}
+
+func (ReportFormat) Type() protoreflect.EnumType {
+	return &file_plux_v1_release_proto_enumTypes[1]
+}
+
+func (x ReportFormat) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ReportFormat.Descriptor instead.
+func (ReportFormat) EnumDescriptor() ([]byte, []int) {
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{1}
+}
+
 // PluginVersion is an immutable published plugin (REL-001).
 type PluginVersion struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
@@ -1623,6 +1723,129 @@ func (x *GetCompatibilityResponse) GetCompatibility() *Compatibility {
 	return nil
 }
 
+type GetReportRequest struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	AppId    string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Sequence int64                  `protobuf:"varint,2,opt,name=sequence,proto3" json:"sequence,omitempty"`
+	Kind     ReportKind             `protobuf:"varint,3,opt,name=kind,proto3,enum=plux.v1.ReportKind" json:"kind,omitempty"`
+	// format defaults to JSON.
+	Format        ReportFormat `protobuf:"varint,4,opt,name=format,proto3,enum=plux.v1.ReportFormat" json:"format,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetReportRequest) Reset() {
+	*x = GetReportRequest{}
+	mi := &file_plux_v1_release_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetReportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReportRequest) ProtoMessage() {}
+
+func (x *GetReportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_release_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReportRequest.ProtoReflect.Descriptor instead.
+func (*GetReportRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *GetReportRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *GetReportRequest) GetSequence() int64 {
+	if x != nil {
+		return x.Sequence
+	}
+	return 0
+}
+
+func (x *GetReportRequest) GetKind() ReportKind {
+	if x != nil {
+		return x.Kind
+	}
+	return ReportKind_REPORT_KIND_UNSPECIFIED
+}
+
+func (x *GetReportRequest) GetFormat() ReportFormat {
+	if x != nil {
+		return x.Format
+	}
+	return ReportFormat_REPORT_FORMAT_UNSPECIFIED
+}
+
+type GetReportResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// content is the report: canonical JSON, or a standalone HTML page.
+	Content []byte `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
+	// content_type is "application/json" or "text/html; charset=utf-8".
+	ContentType   string `protobuf:"bytes,2,opt,name=content_type,json=contentType,proto3" json:"content_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetReportResponse) Reset() {
+	*x = GetReportResponse{}
+	mi := &file_plux_v1_release_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetReportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReportResponse) ProtoMessage() {}
+
+func (x *GetReportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_release_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReportResponse.ProtoReflect.Descriptor instead.
+func (*GetReportResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_release_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *GetReportResponse) GetContent() []byte {
+	if x != nil {
+		return x.Content
+	}
+	return nil
+}
+
+func (x *GetReportResponse) GetContentType() string {
+	if x != nil {
+		return x.ContentType
+	}
+	return ""
+}
+
 var File_plux_v1_release_proto protoreflect.FileDescriptor
 
 const file_plux_v1_release_proto_rawDesc = "" +
@@ -1756,7 +1979,24 @@ const file_plux_v1_release_proto_rawDesc = "" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1a\n" +
 	"\bsequence\x18\x02 \x01(\x03R\bsequence\"X\n" +
 	"\x18GetCompatibilityResponse\x12<\n" +
-	"\rcompatibility\x18\x01 \x01(\v2\x16.plux.v1.CompatibilityR\rcompatibility2\x8d\x06\n" +
+	"\rcompatibility\x18\x01 \x01(\v2\x16.plux.v1.CompatibilityR\rcompatibility\"\x9d\x01\n" +
+	"\x10GetReportRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1a\n" +
+	"\bsequence\x18\x02 \x01(\x03R\bsequence\x12'\n" +
+	"\x04kind\x18\x03 \x01(\x0e2\x13.plux.v1.ReportKindR\x04kind\x12-\n" +
+	"\x06format\x18\x04 \x01(\x0e2\x15.plux.v1.ReportFormatR\x06format\"P\n" +
+	"\x11GetReportResponse\x12\x18\n" +
+	"\acontent\x18\x01 \x01(\fR\acontent\x12!\n" +
+	"\fcontent_type\x18\x02 \x01(\tR\vcontentType*f\n" +
+	"\n" +
+	"ReportKind\x12\x1b\n" +
+	"\x17REPORT_KIND_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19REPORT_KIND_ACCESSIBILITY\x10\x01\x12\x1c\n" +
+	"\x18REPORT_KIND_LOCALISATION\x10\x02*]\n" +
+	"\fReportFormat\x12\x1d\n" +
+	"\x19REPORT_FORMAT_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12REPORT_FORMAT_JSON\x10\x01\x12\x16\n" +
+	"\x12REPORT_FORMAT_HTML\x10\x022\xd3\x06\n" +
 	"\x0eReleaseService\x12Y\n" +
 	"\x10GetPluginVersion\x12 .plux.v1.GetPluginVersionRequest\x1a!.plux.v1.GetPluginVersionResponse\"\x00\x12_\n" +
 	"\x12ListPluginVersions\x12\".plux.v1.ListPluginVersionsRequest\x1a#.plux.v1.ListPluginVersionsResponse\"\x00\x12P\n" +
@@ -1767,7 +2007,8 @@ const file_plux_v1_release_proto_rawDesc = "" +
 	"\x0ePromoteRelease\x12\x1e.plux.v1.PromoteReleaseRequest\x1a\x1f.plux.v1.PromoteReleaseResponse\"\x00\x12V\n" +
 	"\x0fRollbackRelease\x12\x1f.plux.v1.RollbackReleaseRequest\x1a .plux.v1.RollbackReleaseResponse\"\x00\x12M\n" +
 	"\fGetChangelog\x12\x1c.plux.v1.GetChangelogRequest\x1a\x1d.plux.v1.GetChangelogResponse\"\x00\x12Y\n" +
-	"\x10GetCompatibility\x12 .plux.v1.GetCompatibilityRequest\x1a!.plux.v1.GetCompatibilityResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"\x10GetCompatibility\x12 .plux.v1.GetCompatibilityRequest\x1a!.plux.v1.GetCompatibilityResponse\"\x00\x12D\n" +
+	"\tGetReport\x12\x19.plux.v1.GetReportRequest\x1a\x1a.plux.v1.GetReportResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_release_proto_rawDescOnce sync.Once
@@ -1781,85 +2022,94 @@ func file_plux_v1_release_proto_rawDescGZIP() []byte {
 	return file_plux_v1_release_proto_rawDescData
 }
 
-var file_plux_v1_release_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_plux_v1_release_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_plux_v1_release_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_plux_v1_release_proto_goTypes = []any{
-	(*PluginVersion)(nil),              // 0: plux.v1.PluginVersion
-	(*Release)(nil),                    // 1: plux.v1.Release
-	(*ReleaseFunction)(nil),            // 2: plux.v1.ReleaseFunction
-	(*ChangelogEntry)(nil),             // 3: plux.v1.ChangelogEntry
-	(*Compatibility)(nil),              // 4: plux.v1.Compatibility
-	(*IncompatibleHostBuild)(nil),      // 5: plux.v1.IncompatibleHostBuild
-	(*GetPluginVersionRequest)(nil),    // 6: plux.v1.GetPluginVersionRequest
-	(*GetPluginVersionResponse)(nil),   // 7: plux.v1.GetPluginVersionResponse
-	(*ListPluginVersionsRequest)(nil),  // 8: plux.v1.ListPluginVersionsRequest
-	(*ListPluginVersionsResponse)(nil), // 9: plux.v1.ListPluginVersionsResponse
-	(*CreateReleaseRequest)(nil),       // 10: plux.v1.CreateReleaseRequest
-	(*CreateReleaseResponse)(nil),      // 11: plux.v1.CreateReleaseResponse
-	(*GetReleaseRequest)(nil),          // 12: plux.v1.GetReleaseRequest
-	(*GetReleaseResponse)(nil),         // 13: plux.v1.GetReleaseResponse
-	(*ListReleasesRequest)(nil),        // 14: plux.v1.ListReleasesRequest
-	(*ListReleasesResponse)(nil),       // 15: plux.v1.ListReleasesResponse
-	(*PromoteReleaseRequest)(nil),      // 16: plux.v1.PromoteReleaseRequest
-	(*PromoteReleaseResponse)(nil),     // 17: plux.v1.PromoteReleaseResponse
-	(*RollbackReleaseRequest)(nil),     // 18: plux.v1.RollbackReleaseRequest
-	(*RollbackReleaseResponse)(nil),    // 19: plux.v1.RollbackReleaseResponse
-	(*GetChangelogRequest)(nil),        // 20: plux.v1.GetChangelogRequest
-	(*GetChangelogResponse)(nil),       // 21: plux.v1.GetChangelogResponse
-	(*GetCompatibilityRequest)(nil),    // 22: plux.v1.GetCompatibilityRequest
-	(*GetCompatibilityResponse)(nil),   // 23: plux.v1.GetCompatibilityResponse
-	nil,                                // 24: plux.v1.CreateReleaseRequest.PluginVersionsEntry
-	(*Actor)(nil),                      // 25: plux.v1.Actor
-	(*timestamppb.Timestamp)(nil),      // 26: google.protobuf.Timestamp
-	(*Page)(nil),                       // 27: plux.v1.Page
-	(*PageResult)(nil),                 // 28: plux.v1.PageResult
-	(*Diagnostic)(nil),                 // 29: plux.v1.Diagnostic
+	(ReportKind)(0),                    // 0: plux.v1.ReportKind
+	(ReportFormat)(0),                  // 1: plux.v1.ReportFormat
+	(*PluginVersion)(nil),              // 2: plux.v1.PluginVersion
+	(*Release)(nil),                    // 3: plux.v1.Release
+	(*ReleaseFunction)(nil),            // 4: plux.v1.ReleaseFunction
+	(*ChangelogEntry)(nil),             // 5: plux.v1.ChangelogEntry
+	(*Compatibility)(nil),              // 6: plux.v1.Compatibility
+	(*IncompatibleHostBuild)(nil),      // 7: plux.v1.IncompatibleHostBuild
+	(*GetPluginVersionRequest)(nil),    // 8: plux.v1.GetPluginVersionRequest
+	(*GetPluginVersionResponse)(nil),   // 9: plux.v1.GetPluginVersionResponse
+	(*ListPluginVersionsRequest)(nil),  // 10: plux.v1.ListPluginVersionsRequest
+	(*ListPluginVersionsResponse)(nil), // 11: plux.v1.ListPluginVersionsResponse
+	(*CreateReleaseRequest)(nil),       // 12: plux.v1.CreateReleaseRequest
+	(*CreateReleaseResponse)(nil),      // 13: plux.v1.CreateReleaseResponse
+	(*GetReleaseRequest)(nil),          // 14: plux.v1.GetReleaseRequest
+	(*GetReleaseResponse)(nil),         // 15: plux.v1.GetReleaseResponse
+	(*ListReleasesRequest)(nil),        // 16: plux.v1.ListReleasesRequest
+	(*ListReleasesResponse)(nil),       // 17: plux.v1.ListReleasesResponse
+	(*PromoteReleaseRequest)(nil),      // 18: plux.v1.PromoteReleaseRequest
+	(*PromoteReleaseResponse)(nil),     // 19: plux.v1.PromoteReleaseResponse
+	(*RollbackReleaseRequest)(nil),     // 20: plux.v1.RollbackReleaseRequest
+	(*RollbackReleaseResponse)(nil),    // 21: plux.v1.RollbackReleaseResponse
+	(*GetChangelogRequest)(nil),        // 22: plux.v1.GetChangelogRequest
+	(*GetChangelogResponse)(nil),       // 23: plux.v1.GetChangelogResponse
+	(*GetCompatibilityRequest)(nil),    // 24: plux.v1.GetCompatibilityRequest
+	(*GetCompatibilityResponse)(nil),   // 25: plux.v1.GetCompatibilityResponse
+	(*GetReportRequest)(nil),           // 26: plux.v1.GetReportRequest
+	(*GetReportResponse)(nil),          // 27: plux.v1.GetReportResponse
+	nil,                                // 28: plux.v1.CreateReleaseRequest.PluginVersionsEntry
+	(*Actor)(nil),                      // 29: plux.v1.Actor
+	(*timestamppb.Timestamp)(nil),      // 30: google.protobuf.Timestamp
+	(*Page)(nil),                       // 31: plux.v1.Page
+	(*PageResult)(nil),                 // 32: plux.v1.PageResult
+	(*Diagnostic)(nil),                 // 33: plux.v1.Diagnostic
 }
 var file_plux_v1_release_proto_depIdxs = []int32{
-	25, // 0: plux.v1.PluginVersion.published_by:type_name -> plux.v1.Actor
-	26, // 1: plux.v1.PluginVersion.created_at:type_name -> google.protobuf.Timestamp
-	25, // 2: plux.v1.Release.created_by:type_name -> plux.v1.Actor
-	26, // 3: plux.v1.Release.created_at:type_name -> google.protobuf.Timestamp
-	2,  // 4: plux.v1.Release.functions:type_name -> plux.v1.ReleaseFunction
-	5,  // 5: plux.v1.Compatibility.incompatible_host_builds:type_name -> plux.v1.IncompatibleHostBuild
-	0,  // 6: plux.v1.GetPluginVersionResponse.version:type_name -> plux.v1.PluginVersion
-	27, // 7: plux.v1.ListPluginVersionsRequest.page:type_name -> plux.v1.Page
-	0,  // 8: plux.v1.ListPluginVersionsResponse.versions:type_name -> plux.v1.PluginVersion
-	28, // 9: plux.v1.ListPluginVersionsResponse.page:type_name -> plux.v1.PageResult
-	24, // 10: plux.v1.CreateReleaseRequest.plugin_versions:type_name -> plux.v1.CreateReleaseRequest.PluginVersionsEntry
-	1,  // 11: plux.v1.CreateReleaseResponse.release:type_name -> plux.v1.Release
-	29, // 12: plux.v1.CreateReleaseResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	1,  // 13: plux.v1.GetReleaseResponse.release:type_name -> plux.v1.Release
-	0,  // 14: plux.v1.GetReleaseResponse.versions:type_name -> plux.v1.PluginVersion
-	27, // 15: plux.v1.ListReleasesRequest.page:type_name -> plux.v1.Page
-	1,  // 16: plux.v1.ListReleasesResponse.releases:type_name -> plux.v1.Release
-	28, // 17: plux.v1.ListReleasesResponse.page:type_name -> plux.v1.PageResult
-	1,  // 18: plux.v1.PromoteReleaseResponse.release:type_name -> plux.v1.Release
-	1,  // 19: plux.v1.RollbackReleaseResponse.release:type_name -> plux.v1.Release
-	3,  // 20: plux.v1.GetChangelogResponse.entries:type_name -> plux.v1.ChangelogEntry
-	4,  // 21: plux.v1.GetCompatibilityResponse.compatibility:type_name -> plux.v1.Compatibility
-	6,  // 22: plux.v1.ReleaseService.GetPluginVersion:input_type -> plux.v1.GetPluginVersionRequest
-	8,  // 23: plux.v1.ReleaseService.ListPluginVersions:input_type -> plux.v1.ListPluginVersionsRequest
-	10, // 24: plux.v1.ReleaseService.CreateRelease:input_type -> plux.v1.CreateReleaseRequest
-	12, // 25: plux.v1.ReleaseService.GetRelease:input_type -> plux.v1.GetReleaseRequest
-	14, // 26: plux.v1.ReleaseService.ListReleases:input_type -> plux.v1.ListReleasesRequest
-	16, // 27: plux.v1.ReleaseService.PromoteRelease:input_type -> plux.v1.PromoteReleaseRequest
-	18, // 28: plux.v1.ReleaseService.RollbackRelease:input_type -> plux.v1.RollbackReleaseRequest
-	20, // 29: plux.v1.ReleaseService.GetChangelog:input_type -> plux.v1.GetChangelogRequest
-	22, // 30: plux.v1.ReleaseService.GetCompatibility:input_type -> plux.v1.GetCompatibilityRequest
-	7,  // 31: plux.v1.ReleaseService.GetPluginVersion:output_type -> plux.v1.GetPluginVersionResponse
-	9,  // 32: plux.v1.ReleaseService.ListPluginVersions:output_type -> plux.v1.ListPluginVersionsResponse
-	11, // 33: plux.v1.ReleaseService.CreateRelease:output_type -> plux.v1.CreateReleaseResponse
-	13, // 34: plux.v1.ReleaseService.GetRelease:output_type -> plux.v1.GetReleaseResponse
-	15, // 35: plux.v1.ReleaseService.ListReleases:output_type -> plux.v1.ListReleasesResponse
-	17, // 36: plux.v1.ReleaseService.PromoteRelease:output_type -> plux.v1.PromoteReleaseResponse
-	19, // 37: plux.v1.ReleaseService.RollbackRelease:output_type -> plux.v1.RollbackReleaseResponse
-	21, // 38: plux.v1.ReleaseService.GetChangelog:output_type -> plux.v1.GetChangelogResponse
-	23, // 39: plux.v1.ReleaseService.GetCompatibility:output_type -> plux.v1.GetCompatibilityResponse
-	31, // [31:40] is the sub-list for method output_type
-	22, // [22:31] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	29, // 0: plux.v1.PluginVersion.published_by:type_name -> plux.v1.Actor
+	30, // 1: plux.v1.PluginVersion.created_at:type_name -> google.protobuf.Timestamp
+	29, // 2: plux.v1.Release.created_by:type_name -> plux.v1.Actor
+	30, // 3: plux.v1.Release.created_at:type_name -> google.protobuf.Timestamp
+	4,  // 4: plux.v1.Release.functions:type_name -> plux.v1.ReleaseFunction
+	7,  // 5: plux.v1.Compatibility.incompatible_host_builds:type_name -> plux.v1.IncompatibleHostBuild
+	2,  // 6: plux.v1.GetPluginVersionResponse.version:type_name -> plux.v1.PluginVersion
+	31, // 7: plux.v1.ListPluginVersionsRequest.page:type_name -> plux.v1.Page
+	2,  // 8: plux.v1.ListPluginVersionsResponse.versions:type_name -> plux.v1.PluginVersion
+	32, // 9: plux.v1.ListPluginVersionsResponse.page:type_name -> plux.v1.PageResult
+	28, // 10: plux.v1.CreateReleaseRequest.plugin_versions:type_name -> plux.v1.CreateReleaseRequest.PluginVersionsEntry
+	3,  // 11: plux.v1.CreateReleaseResponse.release:type_name -> plux.v1.Release
+	33, // 12: plux.v1.CreateReleaseResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	3,  // 13: plux.v1.GetReleaseResponse.release:type_name -> plux.v1.Release
+	2,  // 14: plux.v1.GetReleaseResponse.versions:type_name -> plux.v1.PluginVersion
+	31, // 15: plux.v1.ListReleasesRequest.page:type_name -> plux.v1.Page
+	3,  // 16: plux.v1.ListReleasesResponse.releases:type_name -> plux.v1.Release
+	32, // 17: plux.v1.ListReleasesResponse.page:type_name -> plux.v1.PageResult
+	3,  // 18: plux.v1.PromoteReleaseResponse.release:type_name -> plux.v1.Release
+	3,  // 19: plux.v1.RollbackReleaseResponse.release:type_name -> plux.v1.Release
+	5,  // 20: plux.v1.GetChangelogResponse.entries:type_name -> plux.v1.ChangelogEntry
+	6,  // 21: plux.v1.GetCompatibilityResponse.compatibility:type_name -> plux.v1.Compatibility
+	0,  // 22: plux.v1.GetReportRequest.kind:type_name -> plux.v1.ReportKind
+	1,  // 23: plux.v1.GetReportRequest.format:type_name -> plux.v1.ReportFormat
+	8,  // 24: plux.v1.ReleaseService.GetPluginVersion:input_type -> plux.v1.GetPluginVersionRequest
+	10, // 25: plux.v1.ReleaseService.ListPluginVersions:input_type -> plux.v1.ListPluginVersionsRequest
+	12, // 26: plux.v1.ReleaseService.CreateRelease:input_type -> plux.v1.CreateReleaseRequest
+	14, // 27: plux.v1.ReleaseService.GetRelease:input_type -> plux.v1.GetReleaseRequest
+	16, // 28: plux.v1.ReleaseService.ListReleases:input_type -> plux.v1.ListReleasesRequest
+	18, // 29: plux.v1.ReleaseService.PromoteRelease:input_type -> plux.v1.PromoteReleaseRequest
+	20, // 30: plux.v1.ReleaseService.RollbackRelease:input_type -> plux.v1.RollbackReleaseRequest
+	22, // 31: plux.v1.ReleaseService.GetChangelog:input_type -> plux.v1.GetChangelogRequest
+	24, // 32: plux.v1.ReleaseService.GetCompatibility:input_type -> plux.v1.GetCompatibilityRequest
+	26, // 33: plux.v1.ReleaseService.GetReport:input_type -> plux.v1.GetReportRequest
+	9,  // 34: plux.v1.ReleaseService.GetPluginVersion:output_type -> plux.v1.GetPluginVersionResponse
+	11, // 35: plux.v1.ReleaseService.ListPluginVersions:output_type -> plux.v1.ListPluginVersionsResponse
+	13, // 36: plux.v1.ReleaseService.CreateRelease:output_type -> plux.v1.CreateReleaseResponse
+	15, // 37: plux.v1.ReleaseService.GetRelease:output_type -> plux.v1.GetReleaseResponse
+	17, // 38: plux.v1.ReleaseService.ListReleases:output_type -> plux.v1.ListReleasesResponse
+	19, // 39: plux.v1.ReleaseService.PromoteRelease:output_type -> plux.v1.PromoteReleaseResponse
+	21, // 40: plux.v1.ReleaseService.RollbackRelease:output_type -> plux.v1.RollbackReleaseResponse
+	23, // 41: plux.v1.ReleaseService.GetChangelog:output_type -> plux.v1.GetChangelogResponse
+	25, // 42: plux.v1.ReleaseService.GetCompatibility:output_type -> plux.v1.GetCompatibilityResponse
+	27, // 43: plux.v1.ReleaseService.GetReport:output_type -> plux.v1.GetReportResponse
+	34, // [34:44] is the sub-list for method output_type
+	24, // [24:34] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_release_proto_init() }
@@ -1873,13 +2123,14 @@ func file_plux_v1_release_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_release_proto_rawDesc), len(file_plux_v1_release_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   25,
+			NumEnums:      2,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_plux_v1_release_proto_goTypes,
 		DependencyIndexes: file_plux_v1_release_proto_depIdxs,
+		EnumInfos:         file_plux_v1_release_proto_enumTypes,
 		MessageInfos:      file_plux_v1_release_proto_msgTypes,
 	}.Build()
 	File_plux_v1_release_proto = out.File

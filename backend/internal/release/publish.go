@@ -97,39 +97,58 @@ func (s *Service) Publish(ctx context.Context, p auth.Principal, r PublishReques
 	}
 	var out PublishJob
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		app, env, err := s.environment(ctx, q, r.AppID, r.EnvironmentID)
-		if err != nil {
-			return err
-		}
-		frozen, err := s.o.Documents.FreezeDraft(ctx, tx, r.AppID, r.PluginID, r.Revision)
-		if err != nil {
-			return err //nolint:wrapcheck // a domain error
-		}
-		id, err := s.newID()
-		if err != nil {
-			return err
-		}
-		var plugin pgtype.UUID
-		if r.PluginID != "" {
-			plugin = storage.MustUUID(r.PluginID)
-		}
-		row, err := q.CreatePublishJob(ctx, dbgen.CreatePublishJobParams{
-			ID: storage.MustUUID(id), OrganizationID: storage.MustUUID(p.OrganizationID), AppID: app, PluginID: plugin,
-			EnvironmentID: env.ID, Revision: frozen.Revision, SnapshotID: storage.MustUUID(frozen.SnapshotID),
-			Label: r.Label, Notes: r.Notes, AcknowledgeWarnings: r.AcknowledgeWarnings,
-			ActorKind: p.Kind, ActorID: p.ID, ActorDisplay: p.Display,
-		})
-		if err != nil {
-			return failure(err, "publish job")
-		}
-		if err := s.o.Jobs.Enqueue(ctx, tx, Job{OrganizationID: p.OrganizationID, JobID: id}); err != nil {
-			return fmt.Errorf("release: enqueue the publish: %w", err)
-		}
-		out = jobOf(row)
-		return nil
+		var err error
+		out, err = s.enqueuePublish(ctx, tx, p, r)
+		return err
 	})
 	return out, err
+}
+
+// enqueuePublish freezes the draft, checks the security-profile floor of the
+// environment, records the publish job and queues it, in the caller's
+// transaction.
+func (s *Service) enqueuePublish(ctx context.Context, tx pgx.Tx, p auth.Principal, r PublishRequest) (PublishJob, error) {
+	q := dbgen.New(tx)
+	app, env, err := s.environment(ctx, q, r.AppID, r.EnvironmentID)
+	if err != nil {
+		return PublishJob{}, err
+	}
+	frozen, err := s.o.Documents.FreezeDraft(ctx, tx, r.AppID, r.PluginID, r.Revision)
+	if err != nil {
+		return PublishJob{}, err //nolint:wrapcheck // a domain error
+	}
+	snapshot := ""
+	if r.PluginID == "" {
+		snapshot = frozen.SnapshotID
+	}
+	profile, err := s.o.Documents.AppProfile(ctx, tx, r.AppID, snapshot)
+	if err != nil {
+		return PublishJob{}, err //nolint:wrapcheck // a domain error
+	}
+	if err := s.requireProfileFloor(ctx, r.AppID, storage.ID(env.ID), string(profile)); err != nil {
+		return PublishJob{}, err
+	}
+	id, err := s.newID()
+	if err != nil {
+		return PublishJob{}, err
+	}
+	var plugin pgtype.UUID
+	if r.PluginID != "" {
+		plugin = storage.MustUUID(r.PluginID)
+	}
+	row, err := q.CreatePublishJob(ctx, dbgen.CreatePublishJobParams{
+		ID: storage.MustUUID(id), OrganizationID: storage.MustUUID(p.OrganizationID), AppID: app, PluginID: plugin,
+		EnvironmentID: env.ID, Revision: frozen.Revision, SnapshotID: storage.MustUUID(frozen.SnapshotID),
+		Label: r.Label, Notes: r.Notes, AcknowledgeWarnings: r.AcknowledgeWarnings,
+		ActorKind: p.Kind, ActorID: p.ID, ActorDisplay: p.Display,
+	})
+	if err != nil {
+		return PublishJob{}, failure(err, "publish job")
+	}
+	if err := s.o.Jobs.Enqueue(ctx, tx, Job{OrganizationID: p.OrganizationID, JobID: id}); err != nil {
+		return PublishJob{}, fmt.Errorf("release: enqueue the publish: %w", err)
+	}
+	return jobOf(row), nil
 }
 
 // environment resolves an app and one of its environments.
@@ -282,30 +301,9 @@ func (s *Service) RunPublish(ctx context.Context, job Job) error {
 	if err != nil {
 		return err
 	}
-	if err := s.progress(ctx, system, row, "check"); err != nil {
+	diags, stop, err := s.gatePublish(ctx, system, row, c)
+	if err != nil || stop {
 		return err
-	}
-	diags := c.result.Diagnostics
-	if diags.HasErrors() {
-		return s.fail(ctx, system, row, diags)
-	}
-	builds, err := s.hostBuildChecks(ctx, system, row, c)
-	if err != nil {
-		return err
-	}
-	diags = append(slices.Clone(diags), builds...)
-	stored, err := s.storedStateChecks(ctx, system, row, c)
-	if err != nil {
-		return err
-	}
-	if stored.HasErrors() {
-		return s.fail(ctx, system, row, append(diags, stored...))
-	}
-	diags = append(diags, stored...)
-	diags.Sort()
-	if !row.AcknowledgeWarnings && slices.ContainsFunc(diags, func(d plxerr.Diagnostic) bool { return d.Severity == plxerr.SeverityWarning }) {
-		d := plxerr.NewDiagnostic(plxerr.WarningsNotAcknowledged, plxerr.Location{}, "the publish found warnings; acknowledge them to publish")
-		return s.fail(ctx, system, row, append(diags, d))
 	}
 	b := pickBundle(c.result, c.key)
 	if b == nil {
@@ -333,6 +331,49 @@ func (s *Service) RunPublish(ctx context.Context, job Job) error {
 		return err
 	}
 	return s.recordVersion(ctx, system, row, b, c, versionSignature{sig: sig, keyID: keyID, mapSum: mapSum}, diags)
+}
+
+// gatePublish runs the checks between compiling and signing: accessibility,
+// goldens, host builds, stored state and unacknowledged warnings. It returns
+// the diagnostics to record with the version. When a check refuses the
+// publish it fails the job and returns stop, with the result of failing it
+// as the error.
+func (s *Service) gatePublish(ctx context.Context, system auth.Principal, row dbgen.PublishJob, c compiled) (diags plxerr.Diagnostics, stop bool, err error) {
+	if err := s.progress(ctx, system, row, "check"); err != nil {
+		return nil, false, err
+	}
+	diags, err = s.gateAccessibility(ctx, storage.ID(row.AppID), storage.ID(row.EnvironmentID), c.result.Diagnostics)
+	if err != nil {
+		return nil, false, err
+	}
+	if diags.HasErrors() {
+		return nil, true, s.fail(ctx, system, row, diags)
+	}
+	if diags, err = s.gateGoldens(ctx, system, row, c, diags); err != nil {
+		return nil, false, err
+	}
+	if diags.HasErrors() {
+		return nil, true, s.fail(ctx, system, row, diags)
+	}
+	builds, err := s.hostBuildChecks(ctx, system, row, c)
+	if err != nil {
+		return nil, false, err
+	}
+	diags = append(slices.Clone(diags), builds...)
+	stored, err := s.storedStateChecks(ctx, system, row, c)
+	if err != nil {
+		return nil, false, err
+	}
+	if stored.HasErrors() {
+		return nil, true, s.fail(ctx, system, row, append(diags, stored...))
+	}
+	diags = append(diags, stored...)
+	diags.Sort()
+	if !row.AcknowledgeWarnings && slices.ContainsFunc(diags, func(d plxerr.Diagnostic) bool { return d.Severity == plxerr.SeverityWarning }) {
+		d := plxerr.NewDiagnostic(plxerr.WarningsNotAcknowledged, plxerr.Location{}, "the publish found warnings; acknowledge them to publish")
+		return nil, true, s.fail(ctx, system, row, append(diags, d))
+	}
+	return diags, false, nil
 }
 
 // storeOutputs stores what a publish produced and returns the source
@@ -572,6 +613,15 @@ func (s *Service) compileOptions(ctx context.Context, tx pgx.Tx, orgID, appID, e
 	}
 	opts := compiler.DefaultOptions()
 	opts.Limits, opts.Version, opts.AssetVariants, opts.IconFont = lim, s.o.CompilerVersion, variants, fonts.Build
+	eid, err := parseID(environmentID, "environment")
+	if err != nil {
+		return compiler.Options{}, err
+	}
+	env, err := dbgen.New(tx).GetEnvironment(ctx, eid)
+	if err != nil {
+		return compiler.Options{}, failure(err, "environment")
+	}
+	opts.Production = env.Production
 	if s.o.Functions != nil {
 		if opts.Functions, err = s.o.Functions.Catalogue(ctx, orgID, appID, environmentID); err != nil {
 			return compiler.Options{}, fmt.Errorf("release: %w", err)

@@ -1,0 +1,205 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "SearchBar",
+  "id": 122,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "class": "SearchBar",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "navigation",
+  "icon": "search",
+  "description": "A text field styled as a search bar.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "textField",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "value",
+      "id": 1,
+      "type": "string",
+      "flutter": "controller",
+      "description": "The text, bound two-way: the runtime owns the controller and updates bound state on every change."
+    },
+    {
+      "name": "hintText",
+      "id": 2,
+      "type": "string",
+      "flutter": "hintText",
+      "translatable": true
+    }
+  ],
+  "events": [
+    {
+      "name": "onChanged",
+      "id": 1,
+      "payload": "string",
+      "flutter": "onChanged"
+    },
+    {
+      "name": "onSubmitted",
+      "id": 2,
+      "payload": "string",
+      "flutter": "onSubmitted"
+    },
+    {
+      "name": "onTap",
+      "id": 3,
+      "flutter": "onTap"
+    }
+  ],
+  "slots": [
+    {
+      "name": "leading",
+      "id": 1,
+      "flutter": "leading"
+    },
+    {
+      "name": "trailing",
+      "id": 2,
+      "list": true,
+      "flutter": "trailing"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "focusNode",
+      "reason": "controller→state",
+      "note": "The runtime owns it and binds it to state."
+    },
+    {
+      "flutter": "onTapOutside",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "constraints",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "elevation",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "backgroundColor",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "shadowColor",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "surfaceTintColor",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "overlayColor",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "side",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "shape",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "padding",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "textStyle",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "hintStyle",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "textCapitalization",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "enabled",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "autoFocus",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "textInputAction",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "keyboardType",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "scrollPadding",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "contextMenuBuilder",
+      "reason": "builder→template",
+      "note": "The runtime builds it from the Plux props."
+    },
+    {
+      "flutter": "readOnly",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "smartDashesType",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "smartQuotesType",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    }
+  ]
+}

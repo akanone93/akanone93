@@ -74,7 +74,7 @@ type entry struct {
 }
 
 // roles are the callers of the matrix, in the order they are checked.
-var matrixRoles = []auth.Role{auth.RoleViewer, auth.RoleDeveloper, auth.RoleAdmin, auth.RoleOwner}
+var matrixRoles = []auth.Role{auth.RoleViewer, auth.RoleTranslator, auth.RoleDeveloper, auth.RoleAdmin, auth.RoleOwner}
 
 // matrixFixture is an organisation with one member per role and the
 // resources the RPCs act on.
@@ -148,7 +148,7 @@ func newMatrixFixture(t *testing.T) *matrixFixture {
 	owner.org = f.org
 	w.withSecondFactor(t, owner)
 	f.callers[auth.RoleOwner] = owner
-	for _, role := range []auth.Role{auth.RoleAdmin, auth.RoleDeveloper, auth.RoleViewer} {
+	for _, role := range []auth.Role{auth.RoleAdmin, auth.RoleDeveloper, auth.RoleTranslator, auth.RoleViewer} {
 		email := string(role) + "@example.com"
 		added := must(w.org.AddMember(ctx, req(owner, &pluxv1.AddMemberRequest{Email: email, Role: string(role)})))(t)
 		must(w.identity.AcceptInvitation(ctx, connect.NewRequest(&pluxv1.AcceptInvitationRequest{Invitation: added.GetInvitation(), DisplayName: string(role), Password: password})))(t)
@@ -412,8 +412,11 @@ func TestEveryPermissionGuardsAnRPC(t *testing.T) {
 
 // permissionsWithoutRPC are permissions the catalogue defines that no
 // ConnectRPC procedure checks: key management is a command-line and
-// operator act (SEC-120).
-var permissionsWithoutRPC = []auth.Permission{auth.KeysManage}
+// operator act (SEC-120). The P8 permissions are checked inside the document
+// service (translations) or arrive with their RPCs (waivers).
+var permissionsWithoutRPC = []auth.Permission{
+	auth.A11yWaive, auth.KeysManage, auth.TranslationsApprove,
+}
 
 // Verifies: SEC-100, SEC-102, GOV-001, QA-008.
 // Each RPC is called as an anonymous caller and as each role. A role that

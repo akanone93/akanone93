@@ -12,6 +12,8 @@ workspace:
   - apps/plux_express
   - apps/starter
   - packages/plux_auto_route
+  - packages/plux_charts
+  - packages/plux_components
   - packages/plux_db_drift
   - packages/plux_devtools
   - packages/plux_flutter
@@ -19,8 +21,12 @@ workspace:
   - packages/plux_go_router
   - packages/plux_location
   - packages/plux_lottie
+  - packages/plux_maps
+  - packages/plux_maps_google
+  - packages/plux_markdown
   - packages/plux_media
   - packages/plux_native_scan
+  - packages/plux_player
   - packages/plux_rive
   - packages/plux_scanner
   - packages/plux_security

@@ -122,8 +122,10 @@ class OrderScreen extends StatelessWidget {
   'main.dart': '''
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:plux_components/plux_components.dart';
 import 'package:plux_flutter/plux_flutter.dart';
 import 'package:plux_location/plux_location.dart';
+import 'package:plux_maps_google/plux_maps_google.dart';
 import 'package:plux_media/plux_media.dart';
 
 class ProfileParams {
@@ -156,6 +158,7 @@ final config = PluxConfig(
     'ping': PluxNativeAction<void, void>(input: (j) {}, handler: (_) {}),
   },
   devicePackages: [PluxMedia(), PluxLocation()],
+  widgetPackages: [PluxComponents(), PluxMapsGoogle()],
 );
 ''',
   'map_card.dart': '''
@@ -268,8 +271,14 @@ void main() {
     ]);
   });
 
-  test('packages: the device packages the build registers are recorded by name, sorted [RT-060] [CLI-006]', () {
-    expect(r.catalogue['packages'], ['plux_location', 'plux_media']);
+  test('packages: the device and widget packages the build registers are recorded by name, sorted [RT-060] [CLI-006]', () {
+    expect(r.catalogue['packages'], [
+      'plux_components',
+      'plux_location',
+      'plux_maps',
+      'plux_maps_google',
+      'plux_media',
+    ]);
     expect(r.catalogue.keys.toList()..sort(), [
       'actions',
       'host',

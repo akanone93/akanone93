@@ -1,0 +1,78 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "AmountInput",
+  "id": 159,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "payments",
+  "description": "A money entry field: the locale's group and decimal separators, the currency's minor units, and a range.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 90,
+  "accessibility": {
+    "role": "textField",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "label",
+      "id": 1,
+      "type": "string?",
+      "translatable": true,
+      "description": "The field's label."
+    },
+    {
+      "name": "currency",
+      "id": 2,
+      "type": "string",
+      "required": true,
+      "description": "The ISO 4217 code of the amount."
+    },
+    {
+      "name": "value",
+      "id": 3,
+      "type": "money?",
+      "description": "The amount shown."
+    },
+    {
+      "name": "min",
+      "id": 4,
+      "type": "money?",
+      "description": "The smallest amount accepted."
+    },
+    {
+      "name": "max",
+      "id": 5,
+      "type": "money?",
+      "description": "The largest amount accepted."
+    },
+    {
+      "name": "rangeMessage",
+      "id": 6,
+      "type": "string?",
+      "translatable": true,
+      "description": "The error shown when the amount is outside the range."
+    }
+  ],
+  "events": [
+    {
+      "name": "onChanged",
+      "id": 1,
+      "payload": "money",
+      "sensitive": true,
+      "description": "Fires with the amount whenever the typed text is a valid amount."
+    }
+  ]
+}

@@ -275,3 +275,29 @@ func TestSubsetRefusesDamagedFonts(t *testing.T) {
 		t.Error("no cmap: no error")
 	}
 }
+
+// Verifies: CMP-032.
+// SubsetCovering keeps every mapped character of the ranges and skips the
+// unmapped ones.
+func TestSubsetCoveringKeepsMappedCharacters(t *testing.T) {
+	out, err := SubsetCovering(tinyFont(), [][2]rune{{'a', 'z'}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	tables, err := readTables(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	lookup, err := cmapLookup(tables["cmap"])
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, r := range "ab" {
+		if _, ok := lookup(r); !ok {
+			t.Errorf("%q lost", r)
+		}
+	}
+	if _, ok := lookup('c'); ok {
+		t.Error("c was never mapped")
+	}
+}

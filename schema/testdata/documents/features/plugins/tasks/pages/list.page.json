@@ -1,4 +1,8 @@
 {
+  "a11yWaivers": {
+    "imageAlternative": "Fixture page that exercises this on purpose.",
+    "contrast": "Fixture page that exercises this on purpose."
+  },
   "dataSources": [
     {
       "id": "01b0c450-6c00-7000-8000-000000000040",
@@ -254,7 +258,7 @@
             "props": {
               "zoom": 3
             },
-            "type": "MapView"
+            "type": "StoreMap"
           },
           {
             "id": "01b0c450-6c00-7000-8000-000000000058",

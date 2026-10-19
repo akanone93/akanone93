@@ -362,3 +362,43 @@ GitHub-hosted runner. Pull requests that change the runtime still wait for them;
 `main` no longer does. Not done, because their effect is not yet measured: timing the
 iOS prebuild step by step, an emulator snapshot, which would add about 1.5 GB of cache,
 and shorter page transitions in the benchmark, which would change what QA-007 measures.
+
+## Revision (2026-10-16, P8: localisation and accessibility)
+
+Plan p8 §7, put to the maintainer with the plan (D11, accepted 2026-10-16):
+
+- A Linux `goldens` job runs the reference apps' golden suites with the pinned Flutter and the
+  vendored fonts ([ADR-0070](0070-golden-tests.md)); it boots no emulator.
+- The accessibility-tree passes (`QA-011`) run inside the existing Android and iOS device flows.
+- `make catalogue-check` joins the lint job once the catch-up ends
+  ([ADR-0071](0071-catalogue-completion.md)).
+- `schema/l10n/**`, `tools/cmd/cldrdata`, `backend/internal/l10n/**`, `lib/src/l10n/**`,
+  `schema/goldens/**`, the golden harness and the new packages join `ci/affected.json`, with the
+  policy test that every path maps to a job.
+
+## Revision (2026-10-18, a manual run of one job)
+
+Asked for by the maintainer on 2026-10-18, after each attempt at the iOS bank flow's
+accessibility pass took a full run of over 30 minutes (runs 39149009669, 39153556766), though
+that job alone takes 20 to 30 minutes:
+
+- A manual run's inputs `only` (a job of `ci/affected.json`) and `shard` (one flow of
+  `e2e-ios`, `e2e-android` or `e2e-android-26`) narrow the selection to that job and flow; the
+  repository jobs, which always run, run beside it. The device jobs' flows are listed in the
+  changes job, which hands each matrix its list, as it hands Android its API levels.
+- CI OK fails in such a run: it checked one job, not the commit, so it must never count as a
+  full run's required check. Pull requests, pushes, the merge queue and the daily run never
+  set the inputs, so their selection is unchanged and no gate is removed.
+
+## Revision (2026-10-19, CodeQL in CI OK)
+
+Asked for by the maintainer on 2026-10-19, after pull request #36 was green in CI OK while
+GitHub's CodeQL check failed on three findings in the vendored ZXing-C++:
+
+- A `codeql` job runs CodeQL on the languages the default setup analyses (Go, Rust,
+  JavaScript and TypeScript, C and C++, Actions), one job per language, on every run, and CI OK
+  needs it. It fails on a finding the CodeQL check fails on, a security severity of high or
+  critical or a result at level error, anywhere in the repository, vendored code included; a
+  finding is fixed, or suppressed in the source with its reason, never left.
+- It uploads nothing, so it does not clash with the default setup, which still feeds the
+  Security tab.

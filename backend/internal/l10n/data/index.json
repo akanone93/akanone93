@@ -1,0 +1,1313 @@
+{
+  "cldrVersion": "48.2.3",
+  "currencies": {
+    "ADP": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "AFN": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "ALL": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "AMD": {
+      "cashDigits": 0,
+      "cashRounding": 0,
+      "digits": 2,
+      "rounding": 0
+    },
+    "BHD": {
+      "digits": 3,
+      "rounding": 0
+    },
+    "BIF": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "BYN": {
+      "digits": 2,
+      "rounding": 0
+    },
+    "BYR": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "CAD": {
+      "cashRounding": 5,
+      "digits": 2,
+      "rounding": 0
+    },
+    "CHF": {
+      "cashRounding": 5,
+      "digits": 2,
+      "rounding": 0
+    },
+    "CLF": {
+      "digits": 4,
+      "rounding": 0
+    },
+    "CLP": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "COP": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "CRC": {
+      "cashDigits": 0,
+      "cashRounding": 0,
+      "digits": 2,
+      "rounding": 0
+    },
+    "CZK": {
+      "cashDigits": 0,
+      "cashRounding": 0,
+      "digits": 2,
+      "rounding": 0
+    },
+    "DEFAULT": {
+      "digits": 2,
+      "rounding": 0
+    },
+    "DJF": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "DKK": {
+      "cashRounding": 50,
+      "digits": 2,
+      "rounding": 0
+    },
+    "ESP": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "GNF": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "GYD": {
+      "cashDigits": 0,
+      "cashRounding": 0,
+      "digits": 2,
+      "rounding": 0
+    },
+    "HUF": {
+      "cashRounding": 5,
+      "digits": 0,
+      "rounding": 0
+    },
+    "IDR": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "IQD": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "IRR": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "ISK": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "ITL": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "JOD": {
+      "digits": 3,
+      "rounding": 0
+    },
+    "JPY": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "KMF": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "KPW": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "KRW": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "KWD": {
+      "digits": 3,
+      "rounding": 0
+    },
+    "LAK": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "LBP": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "LUF": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "LYD": {
+      "digits": 3,
+      "rounding": 0
+    },
+    "MGA": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "MGF": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "MMK": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "MNT": {
+      "cashDigits": 0,
+      "cashRounding": 0,
+      "digits": 2,
+      "rounding": 0
+    },
+    "MRO": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "MUR": {
+      "cashDigits": 0,
+      "cashRounding": 0,
+      "digits": 2,
+      "rounding": 0
+    },
+    "NOK": {
+      "cashDigits": 0,
+      "cashRounding": 0,
+      "digits": 2,
+      "rounding": 0
+    },
+    "OMR": {
+      "digits": 3,
+      "rounding": 0
+    },
+    "PKR": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "PYG": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "RSD": {
+      "cashDigits": 0,
+      "cashRounding": 0,
+      "digits": 2,
+      "rounding": 0
+    },
+    "RWF": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "SEK": {
+      "cashDigits": 0,
+      "cashRounding": 0,
+      "digits": 2,
+      "rounding": 0
+    },
+    "SLE": {
+      "digits": 2,
+      "rounding": 0
+    },
+    "SLL": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "SOS": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "STD": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "SYP": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "TMM": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "TND": {
+      "digits": 3,
+      "rounding": 0
+    },
+    "TRL": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "TWD": {
+      "cashDigits": 0,
+      "cashRounding": 0,
+      "digits": 2,
+      "rounding": 0
+    },
+    "TZS": {
+      "cashDigits": 0,
+      "cashRounding": 0,
+      "digits": 2,
+      "rounding": 0
+    },
+    "UGX": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "UYI": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "UYW": {
+      "digits": 4,
+      "rounding": 0
+    },
+    "UZS": {
+      "cashDigits": 0,
+      "cashRounding": 0,
+      "digits": 2,
+      "rounding": 0
+    },
+    "VEF": {
+      "cashDigits": 0,
+      "cashRounding": 0,
+      "digits": 2,
+      "rounding": 0
+    },
+    "VND": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "VUV": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "XAD": {
+      "digits": 2,
+      "rounding": 0
+    },
+    "XAF": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "XAU": {
+      "digits": 2,
+      "rounding": 0
+    },
+    "XOF": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "XPF": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "YER": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "ZMK": {
+      "digits": 0,
+      "rounding": 0
+    },
+    "ZWD": {
+      "digits": 0,
+      "rounding": 0
+    }
+  },
+  "likelyScripts": {
+    "az-IQ": "Arab",
+    "az-IR": "Arab",
+    "az-RU": "Cyrl",
+    "ha-CM": "Arab",
+    "ha-SD": "Arab",
+    "kk-AF": "Arab",
+    "kk-CN": "Arab",
+    "kk-IR": "Arab",
+    "kk-MN": "Arab",
+    "ky-CN": "Arab",
+    "ky-TR": "Latn",
+    "mn-CN": "Mong",
+    "ms-CC": "Arab",
+    "pa-PK": "Arab",
+    "sd-IN": "Deva",
+    "sr-ME": "Latn",
+    "sr-RO": "Latn",
+    "sr-TR": "Latn",
+    "uz-AF": "Arab",
+    "uz-CN": "Cyrl",
+    "yue-CN": "Hans",
+    "zh-AU": "Hant",
+    "zh-BN": "Hant",
+    "zh-GB": "Hant",
+    "zh-GF": "Hant",
+    "zh-HK": "Hant",
+    "zh-ID": "Hant",
+    "zh-MO": "Hant",
+    "zh-PA": "Hant",
+    "zh-PF": "Hant",
+    "zh-PH": "Hant",
+    "zh-SR": "Hant",
+    "zh-TH": "Hant",
+    "zh-TW": "Hant",
+    "zh-US": "Hant",
+    "zh-VN": "Hant"
+  },
+  "locales": ["af", "ak", "am", "ar", "as", "az", "ba", "be", "bg", "bn", "bs", "ca", "chr", "cs", "cv", "cy", "da", "de", "dsb", "el", "en", "es", "et", "eu", "fa", "fi", "fil", "fr", "ga", "gd", "gl", "gu", "ha", "he", "hi", "hi-Latn", "hr", "hsb", "hu", "hy", "id", "ig", "is", "it", "ja", "jv", "ka", "kk", "kk-Arab", "km", "kn", "ko", "kok", "ky", "lo", "lt", "lv", "mk", "ml", "mn", "mr", "ms", "my", "ne", "nl", "nn", "no", "or", "pa", "pcm", "pl", "ps", "pt", "qu", "rm", "ro", "ru", "sd", "shn", "si", "sk", "sl", "so", "sq", "sr", "sr-Latn", "sv", "sw", "ta", "te", "th", "ti", "tk", "tr", "uk", "ur", "uz", "vi", "yo", "yue", "yue-Hans", "zh", "zh-Hant", "zu"],
+  "parentLocales": {
+    "az-Arab": "und",
+    "az-Cyrl": "und",
+    "bal-Latn": "und",
+    "blt-Latn": "und",
+    "bm-Nkoo": "und",
+    "bs-Cyrl": "und",
+    "byn-Latn": "und",
+    "cu-Glag": "und",
+    "dje-Arab": "und",
+    "dyo-Arab": "und",
+    "en-150": "en-001",
+    "en-AG": "en-001",
+    "en-AI": "en-001",
+    "en-AT": "en-150",
+    "en-AU": "en-001",
+    "en-BB": "en-001",
+    "en-BE": "en-150",
+    "en-BM": "en-001",
+    "en-BS": "en-001",
+    "en-BW": "en-001",
+    "en-BZ": "en-001",
+    "en-CC": "en-001",
+    "en-CH": "en-150",
+    "en-CK": "en-001",
+    "en-CM": "en-001",
+    "en-CX": "en-001",
+    "en-CY": "en-001",
+    "en-CZ": "en-150",
+    "en-DE": "en-150",
+    "en-DG": "en-001",
+    "en-DK": "en-150",
+    "en-DM": "en-001",
+    "en-Dsrt": "und",
+    "en-EE": "en-150",
+    "en-ER": "en-001",
+    "en-ES": "en-150",
+    "en-FI": "en-150",
+    "en-FJ": "en-001",
+    "en-FK": "en-001",
+    "en-FM": "en-001",
+    "en-FR": "en-150",
+    "en-GB": "en-001",
+    "en-GD": "en-001",
+    "en-GE": "en-150",
+    "en-GG": "en-001",
+    "en-GH": "en-001",
+    "en-GI": "en-001",
+    "en-GM": "en-001",
+    "en-GS": "en-001",
+    "en-GY": "en-001",
+    "en-HK": "en-001",
+    "en-HU": "en-150",
+    "en-ID": "en-001",
+    "en-IE": "en-001",
+    "en-IL": "en-001",
+    "en-IM": "en-001",
+    "en-IN": "en-001",
+    "en-IO": "en-001",
+    "en-IT": "en-150",
+    "en-JE": "en-001",
+    "en-JM": "en-001",
+    "en-KE": "en-001",
+    "en-KI": "en-001",
+    "en-KN": "en-001",
+    "en-KY": "en-001",
+    "en-LC": "en-001",
+    "en-LR": "en-001",
+    "en-LS": "en-001",
+    "en-LT": "en-150",
+    "en-LV": "en-150",
+    "en-MG": "en-001",
+    "en-MO": "en-001",
+    "en-MS": "en-001",
+    "en-MT": "en-001",
+    "en-MU": "en-001",
+    "en-MV": "en-001",
+    "en-MW": "en-001",
+    "en-MY": "en-001",
+    "en-NA": "en-001",
+    "en-NF": "en-001",
+    "en-NG": "en-001",
+    "en-NL": "en-150",
+    "en-NO": "en-150",
+    "en-NR": "en-001",
+    "en-NU": "en-001",
+    "en-NZ": "en-001",
+    "en-PG": "en-001",
+    "en-PK": "en-001",
+    "en-PL": "en-150",
+    "en-PN": "en-001",
+    "en-PT": "en-150",
+    "en-PW": "en-001",
+    "en-RO": "en-150",
+    "en-RW": "en-001",
+    "en-SB": "en-001",
+    "en-SC": "en-001",
+    "en-SD": "en-001",
+    "en-SE": "en-150",
+    "en-SG": "en-001",
+    "en-SH": "en-001",
+    "en-SI": "en-150",
+    "en-SK": "en-150",
+    "en-SL": "en-001",
+    "en-SS": "en-001",
+    "en-SX": "en-001",
+    "en-SZ": "en-001",
+    "en-Shaw": "und",
+    "en-TC": "en-001",
+    "en-TK": "en-001",
+    "en-TO": "en-001",
+    "en-TT": "en-001",
+    "en-TV": "en-001",
+    "en-TZ": "en-001",
+    "en-UA": "en-150",
+    "en-UG": "en-001",
+    "en-VC": "en-001",
+    "en-VG": "en-001",
+    "en-VU": "en-001",
+    "en-WS": "en-001",
+    "en-ZA": "en-001",
+    "en-ZM": "en-001",
+    "en-ZW": "en-001",
+    "es-AR": "es-419",
+    "es-BO": "es-419",
+    "es-BR": "es-419",
+    "es-BZ": "es-419",
+    "es-CL": "es-419",
+    "es-CO": "es-419",
+    "es-CR": "es-419",
+    "es-CU": "es-419",
+    "es-DO": "es-419",
+    "es-EC": "es-419",
+    "es-GT": "es-419",
+    "es-HN": "es-419",
+    "es-JP": "es-419",
+    "es-MX": "es-419",
+    "es-NI": "es-419",
+    "es-PA": "es-419",
+    "es-PE": "es-419",
+    "es-PR": "es-419",
+    "es-PY": "es-419",
+    "es-SV": "es-419",
+    "es-US": "es-419",
+    "es-UY": "es-419",
+    "es-VE": "es-419",
+    "ff-Adlm": "und",
+    "ff-Arab": "und",
+    "ha-Arab": "und",
+    "hi-Latn": "en-IN",
+    "ht": "fr-HT",
+    "iu-Latn": "und",
+    "kaa-Latn": "und",
+    "kk-Arab": "und",
+    "kok-Latn": "und",
+    "ks-Deva": "und",
+    "ku-Arab": "und",
+    "kxv-Deva": "und",
+    "kxv-Orya": "und",
+    "kxv-Telu": "und",
+    "ky-Arab": "und",
+    "ky-Latn": "und",
+    "ml-Arab": "und",
+    "mn-Mong": "und",
+    "mni-Mtei": "und",
+    "ms-Arab": "und",
+    "nb": "no",
+    "nn": "no",
+    "no-NO": "no",
+    "pa-Arab": "und",
+    "pt-AO": "pt-PT",
+    "pt-CH": "pt-PT",
+    "pt-CV": "pt-PT",
+    "pt-FR": "pt-PT",
+    "pt-GQ": "pt-PT",
+    "pt-GW": "pt-PT",
+    "pt-LU": "pt-PT",
+    "pt-MO": "pt-PT",
+    "pt-MZ": "pt-PT",
+    "pt-ST": "pt-PT",
+    "pt-TL": "pt-PT",
+    "sat-Deva": "und",
+    "sd-Deva": "und",
+    "sd-Khoj": "und",
+    "sd-Sind": "und",
+    "shi-Latn": "und",
+    "so-Arab": "und",
+    "sr-Latn": "und",
+    "suz-Sunu": "und",
+    "sw-Arab": "und",
+    "tg-Arab": "und",
+    "ug-Cyrl": "und",
+    "uz-Arab": "und",
+    "uz-Cyrl": "und",
+    "vai-Latn": "und",
+    "wo-Arab": "und",
+    "yo-Arab": "und",
+    "yue-Hans": "und",
+    "zh-Hant": "und",
+    "zh-Hant-MO": "zh-Hant-HK"
+  },
+  "plurals": {
+    "af": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "ak": {
+      "cardinal": {
+        "one": "n = 0..1"
+      },
+      "ordinal": {}
+    },
+    "am": {
+      "cardinal": {
+        "one": "i = 0 or n = 1"
+      },
+      "ordinal": {}
+    },
+    "ar": {
+      "cardinal": {
+        "few": "n % 100 = 3..10",
+        "many": "n % 100 = 11..99",
+        "one": "n = 1",
+        "two": "n = 2",
+        "zero": "n = 0"
+      },
+      "ordinal": {}
+    },
+    "as": {
+      "cardinal": {
+        "one": "i = 0 or n = 1"
+      },
+      "ordinal": {
+        "few": "n = 4",
+        "many": "n = 6",
+        "one": "n = 1,5,7,8,9,10",
+        "two": "n = 2,3"
+      }
+    },
+    "az": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {
+        "few": "i % 10 = 3,4 or i % 1000 = 100,200,300,400,500,600,700,800,900",
+        "many": "i = 0 or i % 10 = 6 or i % 100 = 40,60,90",
+        "one": "i % 10 = 1,2,5,7,8 or i % 100 = 20,50,70,80"
+      }
+    },
+    "ba": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "be": {
+      "cardinal": {
+        "few": "n % 10 = 2..4 and n % 100 != 12..14",
+        "many": "n % 10 = 0 or n % 10 = 5..9 or n % 100 = 11..14",
+        "one": "n % 10 = 1 and n % 100 != 11"
+      },
+      "ordinal": {
+        "few": "n % 10 = 2,3 and n % 100 != 12,13"
+      }
+    },
+    "bg": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "bn": {
+      "cardinal": {
+        "one": "i = 0 or n = 1"
+      },
+      "ordinal": {
+        "few": "n = 4",
+        "many": "n = 6",
+        "one": "n = 1,5,7,8,9,10",
+        "two": "n = 2,3"
+      }
+    },
+    "bs": {
+      "cardinal": {
+        "few": "v = 0 and i % 10 = 2..4 and i % 100 != 12..14 or f % 10 = 2..4 and f % 100 != 12..14",
+        "one": "v = 0 and i % 10 = 1 and i % 100 != 11 or f % 10 = 1 and f % 100 != 11"
+      },
+      "ordinal": {}
+    },
+    "ca": {
+      "cardinal": {
+        "many": "e = 0 and i != 0 and i % 1000000 = 0 and v = 0 or e != 0..5",
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {
+        "few": "n = 4",
+        "one": "n = 1,3",
+        "two": "n = 2"
+      }
+    },
+    "chr": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "cs": {
+      "cardinal": {
+        "few": "i = 2..4 and v = 0",
+        "many": "v != 0",
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {}
+    },
+    "cv": {
+      "cardinal": {
+        "one": "n = 1",
+        "zero": "n = 0"
+      },
+      "ordinal": {}
+    },
+    "cy": {
+      "cardinal": {
+        "few": "n = 3",
+        "many": "n = 6",
+        "one": "n = 1",
+        "two": "n = 2",
+        "zero": "n = 0"
+      },
+      "ordinal": {
+        "few": "n = 3,4",
+        "many": "n = 5,6",
+        "one": "n = 1",
+        "two": "n = 2",
+        "zero": "n = 0,7,8,9"
+      }
+    },
+    "da": {
+      "cardinal": {
+        "one": "n = 1 or t != 0 and i = 0,1"
+      },
+      "ordinal": {}
+    },
+    "de": {
+      "cardinal": {
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {}
+    },
+    "dsb": {
+      "cardinal": {
+        "few": "v = 0 and i % 100 = 3..4 or f % 100 = 3..4",
+        "one": "v = 0 and i % 100 = 1 or f % 100 = 1",
+        "two": "v = 0 and i % 100 = 2 or f % 100 = 2"
+      },
+      "ordinal": {}
+    },
+    "el": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "en": {
+      "cardinal": {
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {
+        "few": "n % 10 = 3 and n % 100 != 13",
+        "one": "n % 10 = 1 and n % 100 != 11",
+        "two": "n % 10 = 2 and n % 100 != 12"
+      }
+    },
+    "es": {
+      "cardinal": {
+        "many": "e = 0 and i != 0 and i % 1000000 = 0 and v = 0 or e != 0..5",
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "et": {
+      "cardinal": {
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {}
+    },
+    "eu": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "fa": {
+      "cardinal": {
+        "one": "i = 0 or n = 1"
+      },
+      "ordinal": {}
+    },
+    "fi": {
+      "cardinal": {
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {}
+    },
+    "fil": {
+      "cardinal": {
+        "one": "v = 0 and i = 1,2,3 or v = 0 and i % 10 != 4,6,9 or v != 0 and f % 10 != 4,6,9"
+      },
+      "ordinal": {
+        "one": "n = 1"
+      }
+    },
+    "fr": {
+      "cardinal": {
+        "many": "e = 0 and i != 0 and i % 1000000 = 0 and v = 0 or e != 0..5",
+        "one": "i = 0,1"
+      },
+      "ordinal": {
+        "one": "n = 1"
+      }
+    },
+    "ga": {
+      "cardinal": {
+        "few": "n = 3..6",
+        "many": "n = 7..10",
+        "one": "n = 1",
+        "two": "n = 2"
+      },
+      "ordinal": {
+        "one": "n = 1"
+      }
+    },
+    "gd": {
+      "cardinal": {
+        "few": "n = 3..10,13..19",
+        "one": "n = 1,11",
+        "two": "n = 2,12"
+      },
+      "ordinal": {
+        "few": "n = 3,13",
+        "one": "n = 1,11",
+        "two": "n = 2,12"
+      }
+    },
+    "gl": {
+      "cardinal": {
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {}
+    },
+    "gu": {
+      "cardinal": {
+        "one": "i = 0 or n = 1"
+      },
+      "ordinal": {
+        "few": "n = 4",
+        "many": "n = 6",
+        "one": "n = 1",
+        "two": "n = 2,3"
+      }
+    },
+    "ha": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "he": {
+      "cardinal": {
+        "one": "i = 1 and v = 0 or i = 0 and v != 0",
+        "two": "i = 2 and v = 0"
+      },
+      "ordinal": {}
+    },
+    "hi": {
+      "cardinal": {
+        "one": "i = 0 or n = 1"
+      },
+      "ordinal": {
+        "few": "n = 4",
+        "many": "n = 6",
+        "one": "n = 1",
+        "two": "n = 2,3"
+      }
+    },
+    "hi-Latn": {
+      "cardinal": {
+        "one": "i = 0 or n = 1"
+      },
+      "ordinal": {
+        "few": "n = 4",
+        "many": "n = 6",
+        "one": "n = 1",
+        "two": "n = 2,3"
+      }
+    },
+    "hr": {
+      "cardinal": {
+        "few": "v = 0 and i % 10 = 2..4 and i % 100 != 12..14 or f % 10 = 2..4 and f % 100 != 12..14",
+        "one": "v = 0 and i % 10 = 1 and i % 100 != 11 or f % 10 = 1 and f % 100 != 11"
+      },
+      "ordinal": {}
+    },
+    "hsb": {
+      "cardinal": {
+        "few": "v = 0 and i % 100 = 3..4 or f % 100 = 3..4",
+        "one": "v = 0 and i % 100 = 1 or f % 100 = 1",
+        "two": "v = 0 and i % 100 = 2 or f % 100 = 2"
+      },
+      "ordinal": {}
+    },
+    "hu": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {
+        "one": "n = 1,5"
+      }
+    },
+    "hy": {
+      "cardinal": {
+        "one": "i = 0,1"
+      },
+      "ordinal": {
+        "one": "n = 1"
+      }
+    },
+    "id": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "ig": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "is": {
+      "cardinal": {
+        "one": "t = 0 and i % 10 = 1 and i % 100 != 11 or t % 10 = 1 and t % 100 != 11"
+      },
+      "ordinal": {}
+    },
+    "it": {
+      "cardinal": {
+        "many": "e = 0 and i != 0 and i % 1000000 = 0 and v = 0 or e != 0..5",
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {
+        "many": "n = 11,8,80,800"
+      }
+    },
+    "ja": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "jv": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "ka": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {
+        "many": "i = 0 or i % 100 = 2..20,40,60,80",
+        "one": "i = 1"
+      }
+    },
+    "kk": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {
+        "many": "n % 10 = 6 or n % 10 = 9 or n % 10 = 0 and n != 0"
+      }
+    },
+    "kk-Arab": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {
+        "many": "n % 10 = 6 or n % 10 = 9 or n % 10 = 0 and n != 0"
+      }
+    },
+    "km": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "kn": {
+      "cardinal": {
+        "one": "i = 0 or n = 1"
+      },
+      "ordinal": {}
+    },
+    "ko": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "kok": {
+      "cardinal": {
+        "one": "i = 0 or n = 1"
+      },
+      "ordinal": {
+        "few": "n = 4",
+        "one": "n = 1",
+        "two": "n = 2,3"
+      }
+    },
+    "ky": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "lo": {
+      "cardinal": {},
+      "ordinal": {
+        "one": "n = 1"
+      }
+    },
+    "lt": {
+      "cardinal": {
+        "few": "n % 10 = 2..9 and n % 100 != 11..19",
+        "many": "f != 0",
+        "one": "n % 10 = 1 and n % 100 != 11..19"
+      },
+      "ordinal": {}
+    },
+    "lv": {
+      "cardinal": {
+        "one": "n % 10 = 1 and n % 100 != 11 or v = 2 and f % 10 = 1 and f % 100 != 11 or v != 2 and f % 10 = 1",
+        "zero": "n % 10 = 0 or n % 100 = 11..19 or v = 2 and f % 100 = 11..19"
+      },
+      "ordinal": {}
+    },
+    "mk": {
+      "cardinal": {
+        "one": "v = 0 and i % 10 = 1 and i % 100 != 11 or f % 10 = 1 and f % 100 != 11"
+      },
+      "ordinal": {
+        "many": "i % 10 = 7,8 and i % 100 != 17,18",
+        "one": "i % 10 = 1 and i % 100 != 11",
+        "two": "i % 10 = 2 and i % 100 != 12"
+      }
+    },
+    "ml": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "mn": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "mr": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {
+        "few": "n = 4",
+        "one": "n = 1",
+        "two": "n = 2,3"
+      }
+    },
+    "ms": {
+      "cardinal": {},
+      "ordinal": {
+        "one": "n = 1"
+      }
+    },
+    "my": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "ne": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {
+        "one": "n = 1..4"
+      }
+    },
+    "nl": {
+      "cardinal": {
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {}
+    },
+    "nn": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "no": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "or": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {
+        "few": "n = 4",
+        "many": "n = 6",
+        "one": "n = 1,5,7..9",
+        "two": "n = 2,3"
+      }
+    },
+    "pa": {
+      "cardinal": {
+        "one": "n = 0..1"
+      },
+      "ordinal": {}
+    },
+    "pcm": {
+      "cardinal": {
+        "one": "i = 0 or n = 1"
+      },
+      "ordinal": {}
+    },
+    "pl": {
+      "cardinal": {
+        "few": "v = 0 and i % 10 = 2..4 and i % 100 != 12..14",
+        "many": "v = 0 and i != 1 and i % 10 = 0..1 or v = 0 and i % 10 = 5..9 or v = 0 and i % 100 = 12..14",
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {}
+    },
+    "ps": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "pt": {
+      "cardinal": {
+        "many": "e = 0 and i != 0 and i % 1000000 = 0 and v = 0 or e != 0..5",
+        "one": "i = 0..1"
+      },
+      "ordinal": {}
+    },
+    "qu": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "rm": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "ro": {
+      "cardinal": {
+        "few": "v != 0 or n = 0 or n != 1 and n % 100 = 1..19",
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {
+        "one": "n = 1"
+      }
+    },
+    "ru": {
+      "cardinal": {
+        "few": "v = 0 and i % 10 = 2..4 and i % 100 != 12..14",
+        "many": "v = 0 and i % 10 = 0 or v = 0 and i % 10 = 5..9 or v = 0 and i % 100 = 11..14",
+        "one": "v = 0 and i % 10 = 1 and i % 100 != 11"
+      },
+      "ordinal": {}
+    },
+    "sd": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "shn": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "si": {
+      "cardinal": {
+        "one": "n = 0,1 or i = 0 and f = 1"
+      },
+      "ordinal": {}
+    },
+    "sk": {
+      "cardinal": {
+        "few": "i = 2..4 and v = 0",
+        "many": "v != 0",
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {}
+    },
+    "sl": {
+      "cardinal": {
+        "few": "v = 0 and i % 100 = 3..4 or v != 0",
+        "one": "v = 0 and i % 100 = 1",
+        "two": "v = 0 and i % 100 = 2"
+      },
+      "ordinal": {}
+    },
+    "so": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "sq": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {
+        "many": "n % 10 = 4 and n % 100 != 14",
+        "one": "n = 1"
+      }
+    },
+    "sr": {
+      "cardinal": {
+        "few": "v = 0 and i % 10 = 2..4 and i % 100 != 12..14 or f % 10 = 2..4 and f % 100 != 12..14",
+        "one": "v = 0 and i % 10 = 1 and i % 100 != 11 or f % 10 = 1 and f % 100 != 11"
+      },
+      "ordinal": {}
+    },
+    "sr-Latn": {
+      "cardinal": {
+        "few": "v = 0 and i % 10 = 2..4 and i % 100 != 12..14 or f % 10 = 2..4 and f % 100 != 12..14",
+        "one": "v = 0 and i % 10 = 1 and i % 100 != 11 or f % 10 = 1 and f % 100 != 11"
+      },
+      "ordinal": {}
+    },
+    "sv": {
+      "cardinal": {
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {
+        "one": "n % 10 = 1,2 and n % 100 != 11,12"
+      }
+    },
+    "sw": {
+      "cardinal": {
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {}
+    },
+    "ta": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "te": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "th": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "ti": {
+      "cardinal": {
+        "one": "n = 0..1"
+      },
+      "ordinal": {}
+    },
+    "tk": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {
+        "few": "n % 10 = 6,9 or n = 10"
+      }
+    },
+    "tr": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "uk": {
+      "cardinal": {
+        "few": "v = 0 and i % 10 = 2..4 and i % 100 != 12..14",
+        "many": "v = 0 and i % 10 = 0 or v = 0 and i % 10 = 5..9 or v = 0 and i % 100 = 11..14",
+        "one": "v = 0 and i % 10 = 1 and i % 100 != 11"
+      },
+      "ordinal": {
+        "few": "n % 10 = 3 and n % 100 != 13"
+      }
+    },
+    "ur": {
+      "cardinal": {
+        "one": "i = 1 and v = 0"
+      },
+      "ordinal": {}
+    },
+    "uz": {
+      "cardinal": {
+        "one": "n = 1"
+      },
+      "ordinal": {}
+    },
+    "vi": {
+      "cardinal": {},
+      "ordinal": {
+        "one": "n = 1"
+      }
+    },
+    "yo": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "yue": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "yue-Hans": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "zh": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "zh-Hant": {
+      "cardinal": {},
+      "ordinal": {}
+    },
+    "zu": {
+      "cardinal": {
+        "one": "i = 0 or n = 1"
+      },
+      "ordinal": {}
+    }
+  }
+}

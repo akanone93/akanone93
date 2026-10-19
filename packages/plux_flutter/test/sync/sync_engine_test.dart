@@ -78,45 +78,51 @@ void main() {
     Directory(root).deleteSync(recursive: true);
   });
 
-  SyncEngine engine({int quota = 200 << 20, bool Function(String)? supports}) =>
-      SyncEngine(
-        config: SyncConfig(
-          appId: FakePluxServer.app,
-          environment: FakePluxServer.environment,
-          channel: FakePluxServer.channel,
-          keys: [server.trustedKey],
-          device: const DeviceInfo(
-            platform: 'android',
-            osVersion: '14',
-            runtimeVersion: '0.1.0',
-            hostBuild: '1',
-          ),
-          supportsFeature: supports ?? (_) => true,
-          verifierLimits: const VerifierLimits(
-            maxDepth: 64,
-            maxVisits: 1000000,
-          ),
-          diskQuota: quota,
-        ),
-        store: ReleaseStore.open(root, syncDirectory: syncDirectory),
-        api: PluxApiClient(client, server.endpoint),
-        downloader: Downloader(
-          client,
-          sleep: (d) async => sleeps.add(d),
-          random: Random(1),
-        ),
-        credentials: credentials,
-        keys: keys,
-        attestation: FakeAttestation(),
-        clock: () => now,
-      );
+  SyncEngine engine({
+    int quota = 200 << 20,
+    bool Function(String)? supports,
+    String locale = '',
+  }) => SyncEngine(
+    config: SyncConfig(
+      appId: FakePluxServer.app,
+      environment: FakePluxServer.environment,
+      channel: FakePluxServer.channel,
+      keys: [server.trustedKey],
+      device: const DeviceInfo(
+        platform: 'android',
+        osVersion: '14',
+        runtimeVersion: '0.1.0',
+        hostBuild: '1',
+      ),
+      supportsFeature: supports ?? (_) => true,
+      verifierLimits: const VerifierLimits(maxDepth: 64, maxVisits: 1000000),
+      diskQuota: quota,
+      locale: locale,
+    ),
+    store: ReleaseStore.open(root, syncDirectory: syncDirectory),
+    api: PluxApiClient(client, server.endpoint),
+    downloader: Downloader(
+      client,
+      sleep: (d) async => sleeps.add(d),
+      random: Random(1),
+    ),
+    credentials: credentials,
+    keys: keys,
+    attestation: FakeAttestation(),
+    clock: () => now,
+  );
 
   Future<(SyncResult, List<SyncEvent>)> sync({
     int quota = 200 << 20,
     bool Function(String)? supports,
+    String locale = '',
   }) async {
     final events = <SyncEvent>[];
-    final r = await engine(quota: quota, supports: supports).run(events.add);
+    final r = await engine(
+      quota: quota,
+      supports: supports,
+      locale: locale,
+    ).run(events.add);
     return (r, events);
   }
 
@@ -213,6 +219,52 @@ void main() {
     expect(store.hasObject(ObjectKind.assets, logoHash), isFalse);
     final (again, _) = await sync();
     expect(again.outcome, SyncOutcome.staged, reason: '${again.error}');
+  });
+
+  // Verifies: I18N-012.
+  test('the per-locale files of an asset are fetched and verified, those of '
+      "the device's locale first [I18N-012]", () async {
+    final de = Uint8List.fromList([1, 2, 3, 4]);
+    final fr = Uint8List.fromList([5, 6, 7]);
+    final deHash = sha256.convert(de).toString();
+    final frHash = sha256.convert(fr).toString();
+    final app = withLocaleFiles(demo, {'de': de, 'fr': fr});
+    server
+      ..serveObject('assets', de)
+      ..serveObject('assets', fr)
+      ..release = FakeRelease(10, app, {'loans': loans});
+    final (r, _) = await sync(locale: 'fr-CA');
+    expect(r.outcome, SyncOutcome.staged, reason: '${r.error}');
+    final store = ReleaseStore.open(root);
+    expect(store.hasObject(ObjectKind.assets, deHash), isTrue);
+    expect(store.hasObject(ObjectKind.assets, frHash), isTrue);
+    expect(store.record(10)!.assets, containsAll([logoHash, deHash, frHash]));
+    final order = [
+      for (final p in server.requests)
+        if (p.contains('/assets/')) p,
+    ];
+    expect(
+      order.indexWhere((p) => p.endsWith(frHash)),
+      lessThan(order.indexWhere((p) => p.endsWith(deHash))),
+    );
+  });
+
+  // Verifies: I18N-012.
+  test('a per-locale file that does not match its signed hash fails the sync '
+      '[I18N-012]', () async {
+    final de = Uint8List.fromList([1, 2, 3, 4]);
+    server
+      ..serveObject(
+        'assets',
+        Uint8List.fromList([9, 9, 9, 9]),
+        name: sha256.convert(de).toString(),
+      )
+      ..release = FakeRelease(10, withLocaleFiles(demo, {'de': de}), {
+        'loans': loans,
+      });
+    final (r, _) = await sync();
+    expect(r.outcome, SyncOutcome.failed);
+    expect(r.error?.code, PluxErrorCode.assetHashMismatch);
   });
 
   test(
@@ -502,6 +554,60 @@ void main() {
 /// the bundle re-encoded (its hash changes; the fake server signs what it
 /// serves). The compiler writes no limit at its default, so the section is
 /// rebuilt with the fields a sync reads plus the override.
+/// [app] whose first asset has a file for each locale of [files].
+Uint8List withLocaleFiles(Uint8List app, Map<String, Uint8List> files) {
+  final b = BundleContainer.parse(app);
+  fbs.UuidObjectBuilder? uuid(fbs.Uuid? u) =>
+      u == null ? null : fbs.UuidObjectBuilder(hi: u.hi, lo: u.lo);
+  return encodeBundle(b.kind, [
+    for (final s in b.sections)
+      if (s.kind != SectionKind.assetsIndex)
+        s
+      else
+        () {
+          final all = fbs.AssetIndex(s.data).assets!;
+          final data = fbs.AssetIndexObjectBuilder(
+            assets: [
+              for (final (i, a) in all.indexed)
+                fbs.AssetObjectBuilder(
+                  id: uuid(a.id),
+                  key: a.key,
+                  mediaType: a.mediaType,
+                  hash: a.hash,
+                  size: a.size,
+                  variants: [
+                    for (final v in a.variants ?? const <fbs.AssetVariant>[])
+                      fbs.AssetVariantObjectBuilder(
+                        mediaType: v.mediaType,
+                        density: v.density,
+                        hash: v.hash,
+                        size: v.size,
+                      ),
+                  ],
+                  localeFiles: [
+                    for (final f
+                        in a.localeFiles ?? const <fbs.AssetLocaleFile>[])
+                      fbs.AssetLocaleFileObjectBuilder(
+                        tag: f.tag,
+                        hash: f.hash,
+                        size: f.size,
+                      ),
+                    if (i == 0)
+                      for (final e in files.entries)
+                        fbs.AssetLocaleFileObjectBuilder(
+                          tag: e.key,
+                          hash: sha256.convert(e.value).bytes,
+                          size: e.value.length,
+                        ),
+                  ],
+                ),
+            ],
+          ).toBytes(String.fromCharCodes(s.data, 4, 8));
+          return Section(s.kind, s.id, s.hash, data);
+        }(),
+  ]);
+}
+
 Uint8List withDiskQuota(Uint8List app, int quota) {
   final b = BundleContainer.parse(app);
   fbs.UuidObjectBuilder? uuid(fbs.Uuid? u) =>

@@ -1,0 +1,37 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "ChoiceItem",
+  "id": 62,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "One choice of a FilterBar or SortSheet.",
+  "fields": [
+    {
+      "name": "id",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The stable identifier the events report."
+    },
+    {
+      "name": "label",
+      "id": 2,
+      "type": "string",
+      "required": true,
+      "description": "The text shown.",
+      "translatable": true
+    },
+    {
+      "name": "selected",
+      "id": 3,
+      "type": "bool",
+      "default": false,
+      "description": "Whether the choice is on."
+    }
+  ]
+}

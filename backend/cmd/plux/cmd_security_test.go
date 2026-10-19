@@ -98,6 +98,7 @@ profile strict, version 3, device configuration sha256 ab00000000000000000000000
 
 SETTING                          VALUE                   SOURCE
 accessTokenLifetime              300                     profile
+accessibilityBlocksPublish       true                    profile
 allowDirectDataSources           true                    profile
 allowSoftwareKeys                false                   profile
 androidDeviceVerdictAL2          MEETS_DEVICE_INTEGRITY  profile
@@ -114,6 +115,7 @@ encryptLocalStores               true                    profile
 inactivityLock                   true                    profile
 inactivityLockTimeout            60                      override (profile: 300)
 minAssuranceForSync              AL1                     profile
+pinnedMediaOnly                  false                   profile
 raspAccessibilityResponse        warn                    profile
 raspDebuggerResponse             degrade                 profile
 raspEmulatorResponse             warn                    profile

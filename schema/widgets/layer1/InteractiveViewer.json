@@ -1,0 +1,154 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "InteractiveViewer",
+  "id": 136,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "InteractiveViewer",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "interaction",
+  "icon": "zoom_in",
+  "description": "Pans and zooms its child with gestures.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 40,
+  "accessibility": {
+    "role": "none",
+    "interactive": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "clipBehavior",
+      "id": 1,
+      "type": "Clip",
+      "default": "hardEdge",
+      "flutter": "clipBehavior"
+    },
+    {
+      "name": "panAxis",
+      "id": 2,
+      "type": "PanAxis",
+      "default": "free",
+      "flutter": "panAxis"
+    },
+    {
+      "name": "boundaryMargin",
+      "id": 3,
+      "type": "EdgeInsets",
+      "flutter": "boundaryMargin"
+    },
+    {
+      "name": "constrained",
+      "id": 4,
+      "type": "bool",
+      "default": true,
+      "flutter": "constrained"
+    },
+    {
+      "name": "maxScale",
+      "id": 5,
+      "type": "double",
+      "default": 2.5,
+      "flutter": "maxScale"
+    },
+    {
+      "name": "minScale",
+      "id": 6,
+      "type": "double",
+      "default": 0.8,
+      "flutter": "minScale"
+    },
+    {
+      "name": "interactionEndFrictionCoefficient",
+      "id": 7,
+      "type": "double",
+      "default": 1.35e-05,
+      "flutter": "interactionEndFrictionCoefficient"
+    },
+    {
+      "name": "panEnabled",
+      "id": 8,
+      "type": "bool",
+      "default": true,
+      "flutter": "panEnabled"
+    },
+    {
+      "name": "scaleEnabled",
+      "id": 9,
+      "type": "bool",
+      "default": true,
+      "flutter": "scaleEnabled"
+    },
+    {
+      "name": "scaleFactor",
+      "id": 10,
+      "type": "double",
+      "default": 200.0,
+      "flutter": "scaleFactor"
+    },
+    {
+      "name": "alignment",
+      "id": 11,
+      "type": "Alignment",
+      "flutter": "alignment"
+    },
+    {
+      "name": "trackpadScrollCausesScale",
+      "id": 12,
+      "type": "bool",
+      "default": false,
+      "flutter": "trackpadScrollCausesScale"
+    }
+  ],
+  "events": [
+    {
+      "name": "onInteractionStart",
+      "id": 1,
+      "flutter": "onInteractionStart"
+    },
+    {
+      "name": "onInteractionEnd",
+      "id": 2,
+      "flutter": "onInteractionEnd"
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "required": true,
+      "flutter": "child"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "transformationController",
+      "reason": "controller→state",
+      "note": "The runtime owns the controller."
+    },
+    {
+      "flutter": "onInteractionUpdate",
+      "reason": "deferred"
+    }
+  ]
+}

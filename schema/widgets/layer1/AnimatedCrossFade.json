@@ -1,0 +1,132 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "AnimatedCrossFade",
+  "id": 148,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "AnimatedCrossFade",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "animation",
+  "icon": "compare",
+  "description": "Cross-fades between two children, sizing to the one shown.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "crossFadeState",
+      "id": 1,
+      "type": "CrossFadeState",
+      "required": true,
+      "flutter": "crossFadeState"
+    },
+    {
+      "name": "firstCurve",
+      "id": 2,
+      "type": "Curve",
+      "default": "linear",
+      "flutter": "firstCurve"
+    },
+    {
+      "name": "secondCurve",
+      "id": 3,
+      "type": "Curve",
+      "default": "linear",
+      "flutter": "secondCurve"
+    },
+    {
+      "name": "sizeCurve",
+      "id": 4,
+      "type": "Curve",
+      "default": "linear",
+      "flutter": "sizeCurve"
+    },
+    {
+      "name": "alignment",
+      "id": 5,
+      "type": "Alignment",
+      "default": "topCenter",
+      "flutter": "alignment"
+    },
+    {
+      "name": "duration",
+      "id": 6,
+      "type": "duration",
+      "required": true,
+      "flutter": "duration",
+      "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."
+    },
+    {
+      "name": "reverseDuration",
+      "id": 7,
+      "type": "duration",
+      "flutter": "reverseDuration",
+      "description": "The length of the reverse animation in milliseconds."
+    },
+    {
+      "name": "excludeBottomFocus",
+      "id": 8,
+      "type": "bool",
+      "default": true,
+      "flutter": "excludeBottomFocus"
+    },
+    {
+      "name": "clipBehavior",
+      "id": 9,
+      "type": "Clip",
+      "default": "hardEdge",
+      "flutter": "clipBehavior"
+    }
+  ],
+  "events": [
+    {
+      "name": "onEnd",
+      "id": 1,
+      "flutter": "onEnd",
+      "description": "Fired when the animation ends."
+    }
+  ],
+  "slots": [
+    {
+      "name": "firstChild",
+      "id": 1,
+      "required": true,
+      "flutter": "firstChild"
+    },
+    {
+      "name": "secondChild",
+      "id": 2,
+      "required": true,
+      "flutter": "secondChild"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "layoutBuilder",
+      "reason": "builder→template"
+    }
+  ]
+}

@@ -1,0 +1,2670 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E, d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMMdd": "dd/MM/y GGGGG",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E, M/d/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d MMM y G",
+        "GyMMMMEEEEd": "EEEE, d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMd": "M/d/y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, d/M",
+        "MMM": "LLL",
+        "MMMEd": "E, d MMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "d/M",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "G y-MM",
+        "yyyyMEd": "G y-MM-dd, E",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E, d MMM y G",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "G y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "d MMM y G",
+        "short": "dd/MM/y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'am' {0}",
+        "long": "{1} 'am' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "yb",
+            "pm": "yh"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Sul", "Llun", "Maw", "Mer", "Iau", "Gwen", "Sad"],
+          "short": ["Su", "Ll", "Ma", "Me", "Ia", "Gw", "Sa"],
+          "wide": ["Dydd Sul", "Dydd Llun", "Dydd Mawrth", "Dydd Mercher", "Dydd Iau", "Dydd Gwener", "Dydd Sadwrn"]
+        },
+        "standAlone": {
+          "abbreviated": ["Sul", "Llun", "Maw", "Mer", "Iau", "Gwe", "Sad"],
+          "short": ["Su", "Ll", "Ma", "Me", "Ia", "Gw", "Sa"],
+          "wide": ["Dydd Sul", "Dydd Llun", "Dydd Mawrth", "Dydd Mercher", "Dydd Iau", "Dydd Gwener", "Dydd Sadwrn"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        },
+        "standAlone": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E, HH:mm",
+        "EHms": "E, HH:mm:ss",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E, h:mm\u202fa",
+        "Ehms": "E, h:mm:ss\u202fa",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E, M/d/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d MMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMd": "M/d/y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, d/M",
+        "MMM": "LLL",
+        "MMMEd": "E, d MMM",
+        "MMMMd": "MMMM d",
+        "MMMd": "d MMM",
+        "Md": "d/M",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M/y",
+        "yMEd": "E, d/M/y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E, d MMM y",
+        "yMMMM": "MMMM y",
+        "yMMMMEEEEd": "EEEE, d MMMM y",
+        "yMMMMd": "d MMMM y",
+        "yMMMd": "d MMM y",
+        "yMd": "d/M/y",
+        "yyMMdd": "dd/MM/yy"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MMMM y",
+        "long": "d MMMM y",
+        "medium": "d MMM y",
+        "short": "dd/MM/yy"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'am' {0}",
+        "long": "{1} 'am' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "narrow": {
+            "am": "b",
+            "pm": "h"
+          },
+          "wide": {
+            "am": "yb",
+            "pm": "yh"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "narrow": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Sul", "Llun", "Maw", "Mer", "Iau", "Gwen", "Sad"],
+          "narrow": ["S", "Ll", "M", "M", "I", "G", "S"],
+          "short": ["Su", "Ll", "Ma", "Me", "Ia", "Gw", "Sa"],
+          "wide": ["Dydd Sul", "Dydd Llun", "Dydd Mawrth", "Dydd Mercher", "Dydd Iau", "Dydd Gwener", "Dydd Sadwrn"]
+        },
+        "standAlone": {
+          "abbreviated": ["Sul", "Llun", "Maw", "Mer", "Iau", "Gwe", "Sad"],
+          "narrow": ["S", "Ll", "M", "M", "I", "G", "S"],
+          "short": ["Su", "Ll", "Ma", "Me", "Ia", "Gw", "Sa"],
+          "wide": ["Dydd Sul", "Dydd Llun", "Dydd Mawrth", "Dydd Mercher", "Dydd Iau", "Dydd Gwener", "Dydd Sadwrn"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["CC", "OC"],
+        "narrow": ["C", "O"],
+        "wide": ["Cyn Crist", "Oed Crist"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Ion", "Chwef", "Maw", "Ebr", "Mai", "Meh", "Gorff", "Awst", "Medi", "Hyd", "Tach", "Rhag"],
+          "narrow": ["I", "Ch", "M", "E", "M", "M", "G", "A", "M", "H", "T", "Rh"],
+          "wide": ["Ionawr", "Chwefror", "Mawrth", "Ebrill", "Mai", "Mehefin", "Gorffennaf", "Awst", "Medi", "Hydref", "Tachwedd", "Rhagfyr"]
+        },
+        "standAlone": {
+          "abbreviated": ["Ion", "Chw", "Maw", "Ebr", "Mai", "Meh", "Gor", "Awst", "Medi", "Hyd", "Tach", "Rhag"],
+          "narrow": ["I", "Ch", "M", "E", "M", "M", "G", "A", "M", "H", "T", "Rh"],
+          "wide": ["Ionawr", "Chwefror", "Mawrth", "Ebrill", "Mai", "Mehefin", "Gorffennaf", "Awst", "Medi", "Hydref", "Tachwedd", "Rhagfyr"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E, d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMMdd": "dd/MM/y GGGGG",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E, M/d/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d MMM y G",
+        "GyMMMMEEEEd": "EEEE, d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMd": "M/d/y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, d/M",
+        "MMM": "LLL",
+        "MMMEd": "E, d MMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "d/M",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "G y-MM",
+        "yyyyMEd": "G y-MM-dd, E",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E, d MMM y G",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "G y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "d MMM y G",
+        "short": "dd/MM/y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'am' {0}",
+        "long": "{1} 'am' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "yb",
+            "pm": "yh"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Sul", "Llun", "Maw", "Mer", "Iau", "Gwen", "Sad"],
+          "short": ["Su", "Ll", "Ma", "Me", "Ia", "Gw", "Sa"],
+          "wide": ["Dydd Sul", "Dydd Llun", "Dydd Mawrth", "Dydd Mercher", "Dydd Iau", "Dydd Gwener", "Dydd Sadwrn"]
+        },
+        "standAlone": {
+          "abbreviated": ["Sul", "Llun", "Maw", "Mer", "Iau", "Gwe", "Sad"],
+          "short": ["Su", "Ll", "Ma", "Me", "Ia", "Gw", "Sa"],
+          "wide": ["Dydd Sul", "Dydd Llun", "Dydd Mawrth", "Dydd Mercher", "Dydd Iau", "Dydd Gwener", "Dydd Sadwrn"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AH", "BH"],
+        "wide": ["AH", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        },
+        "standAlone": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E, d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm\u202fa",
+        "Ehms": "E h:mm:ss\u202fa",
+        "GGGGGyMMdd": "dd/MM/y GGGGG",
+        "Gy": "y G",
+        "GyM": "M/y G",
+        "GyMEd": "E, M/d/y G",
+        "GyMMM": "MMM y G",
+        "GyMMMEd": "E, d MMM y G",
+        "GyMMMMEEEEd": "EEEE, d MMMM y G",
+        "GyMMMMd": "d MMMM y G",
+        "GyMMMd": "d MMM y G",
+        "GyMd": "M/d/y GGGGG",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, d/M",
+        "MMM": "LLL",
+        "MMMEd": "E, d MMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "d/M",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y G",
+        "yyyy": "y G",
+        "yyyyM": "G y-MM",
+        "yyyyMEd": "G y-MM-dd, E",
+        "yyyyMMM": "MMM y G",
+        "yyyyMMMEd": "E, d MMM y G",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "d MMM y G",
+        "yyyyMd": "G y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MMMM y G",
+        "long": "d MMMM y G",
+        "medium": "d MMM y G",
+        "short": "dd/MM/y GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'am' {0}",
+        "long": "{1} 'am' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1}, {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "yb",
+            "pm": "yh"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "AM",
+            "pm": "PM"
+          },
+          "wide": {
+            "am": "AM",
+            "pm": "PM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Sul", "Llun", "Maw", "Mer", "Iau", "Gwen", "Sad"],
+          "short": ["Su", "Ll", "Ma", "Me", "Ia", "Gw", "Sa"],
+          "wide": ["Dydd Sul", "Dydd Llun", "Dydd Mawrth", "Dydd Mercher", "Dydd Iau", "Dydd Gwener", "Dydd Sadwrn"]
+        },
+        "standAlone": {
+          "abbreviated": ["Sul", "Llun", "Maw", "Mer", "Iau", "Gwe", "Sad"],
+          "short": ["Su", "Ll", "Ma", "Me", "Ia", "Gw", "Sa"],
+          "wide": ["Dydd Sul", "Dydd Llun", "Dydd Mawrth", "Dydd Mercher", "Dydd Iau", "Dydd Gwener", "Dydd Sadwrn"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AP"],
+        "wide": ["AP"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        },
+        "standAlone": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    }
+  },
+  "currencies": {
+    "AED": {
+      "name": "Dirham Yr Emiradau Arabaidd Unedig",
+      "plural": {
+        "few": "dirham yr Emiradau Arabaidd Unedig",
+        "many": "dirham yr Emiradau Arabaidd Unedig",
+        "one": "dirham yr Emiradau Arabaidd Unedig",
+        "other": "dirham yr Emiradau Arabaidd Unedig",
+        "two": "dirham yr Emiradau Arabaidd Unedig",
+        "zero": "dirham yr Emiradau Arabaidd Unedig"
+      }
+    },
+    "AFN": {
+      "name": "Afghani Afghanistan",
+      "narrow": "؋",
+      "plural": {
+        "few": "afghani Afghanistan",
+        "many": "afghani Afghanistan",
+        "one": "afghani Afghanistan",
+        "other": "afghani Afghanistan",
+        "two": "afghani Afghanistan",
+        "zero": "afghani Afghanistan"
+      }
+    },
+    "ALL": {
+      "name": "Lek Albania",
+      "plural": {
+        "few": "lek Albania",
+        "many": "lek Albania",
+        "one": "lek Albania",
+        "other": "lek Albania",
+        "two": "lek Albania",
+        "zero": "lek Albania"
+      }
+    },
+    "AMD": {
+      "name": "Dram Armenia",
+      "narrow": "֏",
+      "plural": {
+        "few": "dram Armenia",
+        "many": "dram Armenia",
+        "one": "dram Armenia",
+        "other": "dram Armenia",
+        "two": "dram Armenia",
+        "zero": "dram Armenia"
+      }
+    },
+    "AOA": {
+      "name": "Kwanza Angola",
+      "narrow": "Kz",
+      "plural": {
+        "few": "kwanza Angola",
+        "many": "kwanza Angola",
+        "one": "kwanza Angola",
+        "other": "kwanza Angola",
+        "two": "kwanza Angola",
+        "zero": "kwanza Angola"
+      }
+    },
+    "ARS": {
+      "name": "Peso yr Ariannin",
+      "narrow": "$",
+      "plural": {
+        "few": "peso yr Ariannin",
+        "many": "peso yr Ariannin",
+        "one": "peso yr Ariannin",
+        "other": "peso yr Ariannin",
+        "two": "peso yr Ariannin",
+        "zero": "peso yr Ariannin"
+      }
+    },
+    "AUD": {
+      "name": "Doler Awstralia",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Awstralia",
+        "many": "doler Awstralia",
+        "one": "doler Awstralia",
+        "other": "doler Awstralia",
+        "two": "ddoler Awstralia",
+        "zero": "doler Awstralia"
+      },
+      "symbol": "A$"
+    },
+    "AWG": {
+      "name": "Fflorin Aruba",
+      "plural": {
+        "few": "fflorin Aruba",
+        "many": "fflorin Aruba",
+        "one": "fflorin Aruba",
+        "other": "fflorin Aruba",
+        "two": "fflorin Aruba",
+        "zero": "fflorin Aruba"
+      }
+    },
+    "AZN": {
+      "name": "Manat Azerbaijan",
+      "narrow": "₼",
+      "plural": {
+        "few": "manat Azerbaijan",
+        "many": "manat Azerbaijan",
+        "one": "manat Azerbaijan",
+        "other": "manat Azerbaijan",
+        "two": "manat Azerbaijan",
+        "zero": "manat Azerbaijan"
+      }
+    },
+    "BAM": {
+      "name": "Marc Trosadwy Bosnia a Hercegovina",
+      "narrow": "KM",
+      "plural": {
+        "few": "marc trosadwy Bosnia a Hercegovina",
+        "many": "marc trosadwy Bosnia a Hercegovina",
+        "one": "marc trosadwy Bosnia a Hercegovina",
+        "other": "marc trosadwy Bosnia a Hercegovina",
+        "two": "farc trosiadwy Bosnia a Hercegovina",
+        "zero": "marc trosadwy Bosnia a Hercegovina"
+      }
+    },
+    "BBD": {
+      "name": "Doler Barbados",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Barbados",
+        "many": "doler Barbados",
+        "one": "ddoler Barbados",
+        "other": "doler Barbados",
+        "two": "ddoler Barbados",
+        "zero": "doler Barbados"
+      }
+    },
+    "BDT": {
+      "name": "Taka Bangladesh",
+      "narrow": "TK",
+      "plural": {
+        "few": "taka Bangladesh",
+        "many": "taka Bangladesh",
+        "one": "taka Bangladesh",
+        "other": "taka Bangladesh",
+        "two": "taka Bangladesh",
+        "zero": "taka Bangladesh"
+      }
+    },
+    "BHD": {
+      "name": "Dinar Bahrain",
+      "plural": {
+        "few": "dinar Bahrain",
+        "many": "dinar Bahrain",
+        "one": "dinar Bahrain",
+        "other": "dinar Bahrain",
+        "two": "dinar Bahrain",
+        "zero": "dinar Bahrain"
+      }
+    },
+    "BIF": {
+      "name": "Ffranc Burundi",
+      "plural": {
+        "few": "ffranc Burundi",
+        "many": "ffranc Burundi",
+        "one": "ffranc Burundi",
+        "other": "ffranc Burundi",
+        "two": "ffranc Burundi",
+        "zero": "ffranc Burundi"
+      }
+    },
+    "BMD": {
+      "name": "Doler Bermuda",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Bermuda",
+        "many": "doler Bermuda",
+        "one": "doler Bermuda",
+        "other": "doler Bermuda",
+        "two": "ddoler Bermuda",
+        "zero": "doler Bermuda"
+      }
+    },
+    "BND": {
+      "name": "Doler Brunei",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Brunei",
+        "many": "doler Brunei",
+        "one": "doler Brunei",
+        "other": "doler Brunei",
+        "two": "ddoler Brunei",
+        "zero": "doler Brunei"
+      }
+    },
+    "BOB": {
+      "name": "Boliviano Bolifia",
+      "narrow": "Bs",
+      "plural": {
+        "few": "boliviano Bolifia",
+        "many": "boliviano Bolifia",
+        "one": "boliviano Bolifia",
+        "other": "boliviano Bolifia",
+        "two": "boliviano Bolifia",
+        "zero": "boliviano Bolifia"
+      }
+    },
+    "BRL": {
+      "name": "Real Brasil",
+      "plural": {
+        "few": "real Brasil",
+        "many": "real Brasil",
+        "one": "real Brasil",
+        "other": "real Brasil",
+        "two": "real Brasil",
+        "zero": "real Brasil"
+      },
+      "symbol": "R$"
+    },
+    "BSD": {
+      "name": "Doler y Bahamas",
+      "narrow": "$",
+      "plural": {
+        "few": "doler y Bahamas",
+        "many": "doler y Bahamas",
+        "one": "doler y Bahamas",
+        "other": "doler y Bahamas",
+        "two": "ddoler y Bahamas",
+        "zero": "doler y Bahamas"
+      }
+    },
+    "BTN": {
+      "name": "Ngultrum Bhutan",
+      "plural": {
+        "few": "ngultrum Bhutan",
+        "many": "ngultrum Bhutan",
+        "one": "ngultrum Bhutan",
+        "other": "ngultrum Bhutan",
+        "two": "ngultrum Bhutan",
+        "zero": "ngultrum Bhutan"
+      }
+    },
+    "BWP": {
+      "name": "Pula Botswana",
+      "plural": {
+        "few": "pula Botswana",
+        "many": "pula Botswana",
+        "one": "pula Botswana",
+        "other": "pula Botswana",
+        "two": "pula Botswana",
+        "zero": "pula Botswana"
+      }
+    },
+    "BYN": {
+      "name": "Rwbl Belarws",
+      "narrow": "р.",
+      "plural": {
+        "few": "rwbl Belarws",
+        "many": "rwbl Belarws",
+        "one": "rwbl Belarws",
+        "other": "rwbl Belarws",
+        "two": "rwbl Belarws",
+        "zero": "rwbl Belarws"
+      }
+    },
+    "BZD": {
+      "name": "Doler Belize",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Belize",
+        "many": "doler Belize",
+        "one": "doler Belize",
+        "other": "doler Belize",
+        "two": "ddoler Belize",
+        "zero": "doler Belize"
+      }
+    },
+    "CAD": {
+      "name": "Doler Canada",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Canada",
+        "many": "doler Canada",
+        "one": "doler Canada",
+        "other": "doler Canada",
+        "two": "doler Canada",
+        "zero": "doler Canada"
+      },
+      "symbol": "CA$"
+    },
+    "CDF": {
+      "name": "Ffranc Congo",
+      "plural": {
+        "few": "ffranc Congo",
+        "many": "ffranc Congo",
+        "one": "ffranc Congo",
+        "other": "ffranc Congo",
+        "two": "ffranc Congo",
+        "zero": "ffranc Congo"
+      }
+    },
+    "CHF": {
+      "name": "Ffranc y Swistir",
+      "plural": {
+        "few": "ffranc y Swistir",
+        "many": "ffranc y Swistir",
+        "one": "ffranc y Swistir",
+        "other": "ffranc y Swistir",
+        "two": "ffranc y Swistir",
+        "zero": "ffranc y Swistir"
+      }
+    },
+    "CLP": {
+      "name": "Peso Chile",
+      "narrow": "$",
+      "plural": {
+        "few": "peso Chile",
+        "many": "peso Chile",
+        "one": "peso Chile",
+        "other": "peso Chile",
+        "two": "peso Chile",
+        "zero": "peso Chile"
+      }
+    },
+    "CNY": {
+      "name": "Yuan Tsieina",
+      "narrow": "¥",
+      "plural": {
+        "few": "yuan Tsieina",
+        "many": "yuan Tsieina",
+        "one": "yuan Tsieina",
+        "other": "yuan Tsieina",
+        "two": "yuan Tsieina",
+        "zero": "yuan Tsieina"
+      },
+      "symbol": "CN¥"
+    },
+    "COP": {
+      "name": "Peso Colombia",
+      "narrow": "$",
+      "plural": {
+        "few": "peso Colombia",
+        "many": "peso Colombia",
+        "one": "peso Colombia",
+        "other": "peso Colombia",
+        "two": "peso Colombia",
+        "zero": "peso Colombia"
+      }
+    },
+    "CRC": {
+      "name": "Colón Costa Rica",
+      "narrow": "₡",
+      "plural": {
+        "few": "colón Costa Rica",
+        "many": "colón Costa Rica",
+        "one": "colón Costa Rica",
+        "other": "colón Costa Rica",
+        "two": "colón Costa Rica",
+        "zero": "colón Costa Rica"
+      }
+    },
+    "CUP": {
+      "name": "Peso Ciwba",
+      "narrow": "$",
+      "plural": {
+        "few": "peso Ciwba",
+        "many": "peso Ciwba",
+        "one": "peso Ciwba",
+        "other": "peso Ciwba",
+        "two": "peso Ciwba",
+        "zero": "peso Ciwba"
+      }
+    },
+    "CVE": {
+      "name": "Esgwdo Cabo Verde",
+      "plural": {
+        "few": "esgwdo Cabo Verde",
+        "many": "esgwdo Cabo Verde",
+        "one": "esgwdo Cabo Verde",
+        "other": "esgwdo Cabo Verde",
+        "two": "esgwdo Cabo Verde",
+        "zero": "esgwdo Cabo Verde"
+      }
+    },
+    "CZK": {
+      "name": "Koruna’r Weriniaeth Tsiec",
+      "narrow": "Kč",
+      "plural": {
+        "few": "koruna’r Weriniaeth Tsiec",
+        "many": "koruna’r Weriniaeth Tsiec",
+        "one": "koruna’r Weriniaeth Tsiec",
+        "other": "koruna’r Weriniaeth Tsiec",
+        "two": "koruna’r Weriniaeth Tsiec",
+        "zero": "koruna’r Weriniaeth Tsiec"
+      }
+    },
+    "DJF": {
+      "name": "Ffranc Djibouti",
+      "plural": {
+        "few": "ffranc Djibouti",
+        "many": "ffranc Djibouti",
+        "one": "ffranc Djibouti",
+        "other": "ffranc Djibouti",
+        "two": "ffranc Djibouti",
+        "zero": "ffranc Djibouti"
+      }
+    },
+    "DKK": {
+      "name": "Krone Denmarc",
+      "narrow": "kr",
+      "plural": {
+        "few": "krone Denmarc",
+        "many": "krone Denmarc",
+        "one": "krone Denmarc",
+        "other": "krone Denmarc",
+        "two": "krone Denmarc",
+        "zero": "krone Denmarc"
+      }
+    },
+    "DOP": {
+      "name": "Peso Gweriniaeth Dominica",
+      "narrow": "$",
+      "plural": {
+        "few": "peso Gweriniaeth Dominica",
+        "many": "peso Gweriniaeth Dominica",
+        "one": "peso Gweriniaeth Dominica",
+        "other": "peso Gweriniaeth Dominica",
+        "two": "peso Gweriniaeth Dominica",
+        "zero": "peso Gweriniaeth Dominica"
+      }
+    },
+    "DZD": {
+      "name": "Dinar Algeria",
+      "plural": {
+        "few": "dinar Algeria",
+        "many": "dinar Algeria",
+        "one": "dinar Algeria",
+        "other": "dinar Algeria",
+        "two": "dinar Algeria",
+        "zero": "dinar Algeria"
+      }
+    },
+    "EGP": {
+      "name": "Punt Yr Aifft",
+      "narrow": "E£",
+      "plural": {
+        "few": "punt yr Aifft",
+        "many": "punt yr Aifft",
+        "one": "punt yr Aifft",
+        "other": "punt yr Aifft",
+        "two": "bunt yr Aifft",
+        "zero": "punt yr Aifft"
+      }
+    },
+    "ERN": {
+      "name": "Nakfa Eritrea",
+      "plural": {
+        "few": "nakfa Eritrea",
+        "many": "nakfa Eritrea",
+        "one": "nakfa Eritrea",
+        "other": "nakfa Eritrea",
+        "two": "nakfa Eritrea",
+        "zero": "nakfa Eritrea"
+      }
+    },
+    "ETB": {
+      "name": "Birr Ethiopia",
+      "plural": {
+        "few": "birr Ethiopia",
+        "many": "birr Ethiopia",
+        "one": "birr Ethiopia",
+        "other": "birr Ethiopia",
+        "two": "birr Ethiopia",
+        "zero": "birr Ethiopia"
+      }
+    },
+    "EUR": {
+      "name": "Ewro",
+      "plural": {
+        "few": "ewro",
+        "many": "ewro",
+        "one": "ewro",
+        "other": "ewro",
+        "two": "ewro",
+        "zero": "ewro"
+      },
+      "symbol": "€"
+    },
+    "FJD": {
+      "name": "Doler Ffiji",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Ffiji",
+        "many": "doler Ffiji",
+        "one": "doler Ffiji",
+        "other": "doler Ffiji",
+        "two": "ddoler Ffiji",
+        "zero": "doler Ffiji"
+      }
+    },
+    "FKP": {
+      "name": "Punt Ynysoedd Falkland/Malvinas",
+      "narrow": "£",
+      "plural": {
+        "few": "punt Ynysoedd Falkland/Malvinas",
+        "many": "punt Ynysoedd Falkland/Malvinas",
+        "one": "punt Ynysoedd Falkland/Malvinas",
+        "other": "punt Ynysoedd Falkland/Malvinas",
+        "two": "bunt Ynysoedd Falkland/Malvinas",
+        "zero": "punt Ynysoedd Falkland/Malvinas"
+      }
+    },
+    "GBP": {
+      "name": "Punt Prydain",
+      "plural": {
+        "few": "punt Prydain",
+        "many": "punt Prydain",
+        "one": "bunt Prydain",
+        "other": "punt Prydain",
+        "two": "bunt Prydain",
+        "zero": "punt Prydain"
+      },
+      "symbol": "£"
+    },
+    "GEL": {
+      "name": "Lari Georgia",
+      "narrow": "₾",
+      "plural": {
+        "few": "lari Georgia",
+        "many": "lari Georgia",
+        "one": "lari Georgia",
+        "other": "lari Georgia",
+        "two": "lari Georgia",
+        "zero": "lari Georgia"
+      }
+    },
+    "GHS": {
+      "name": "Cedi Ghana",
+      "narrow": "GH₵",
+      "plural": {
+        "few": "cedi Ghana",
+        "many": "cedi Ghana",
+        "one": "cedi Ghana",
+        "other": "cedi Ghana",
+        "two": "cedi Ghana",
+        "zero": "cedi Ghana"
+      }
+    },
+    "GIP": {
+      "name": "Punt Gibraltar",
+      "narrow": "£",
+      "plural": {
+        "few": "punt Gibraltar",
+        "many": "punt Gibraltar",
+        "one": "punt Gibraltar",
+        "other": "punt Gibraltar",
+        "two": "bunt Gibraltar",
+        "zero": "punt Gibraltar"
+      }
+    },
+    "GMD": {
+      "name": "Dalasi Gambia",
+      "plural": {
+        "few": "dalasi Gambia",
+        "many": "dalasi Gambia",
+        "one": "dalasi Gambia",
+        "other": "dalasi Gambia",
+        "two": "dalasi Gambia",
+        "zero": "dalasi Gambia"
+      }
+    },
+    "GNF": {
+      "name": "Ffranc Guinée",
+      "narrow": "FG",
+      "plural": {
+        "few": "ffranc Guinée",
+        "many": "ffranc Guinée",
+        "one": "ffranc Guinée",
+        "other": "ffranc Guinée",
+        "two": "ffranc Guinée",
+        "zero": "ffranc Guinée"
+      }
+    },
+    "GTQ": {
+      "name": "Quetzal Guatemala",
+      "narrow": "Q",
+      "plural": {
+        "few": "quetzal Guatemala",
+        "many": "quetzal Guatemala",
+        "one": "quetzal Guatemala",
+        "other": "quetzal Guatemala",
+        "two": "quetzal Guatemala",
+        "zero": "quetzal Guatemala"
+      }
+    },
+    "GYD": {
+      "name": "Doler Guyana",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Guyana",
+        "many": "doler Guyana",
+        "one": "doler Guyana",
+        "other": "doler Guyana",
+        "two": "ddoler Guyana",
+        "zero": "doler Guyana"
+      }
+    },
+    "HKD": {
+      "name": "Doler Hong Kong",
+      "plural": {
+        "few": "doler Hong Kong",
+        "many": "doler Hong Kong",
+        "one": "doler Hong Kong",
+        "other": "doler Hong Kong",
+        "two": "ddoler Hong Kong",
+        "zero": "doler Hong Kong"
+      },
+      "symbol": "HK$"
+    },
+    "HNL": {
+      "name": "Lempira Honduras",
+      "narrow": "L",
+      "plural": {
+        "few": "lempira Honduras",
+        "many": "lempira Honduras",
+        "one": "lempira Honduras",
+        "other": "lempira Honduras",
+        "two": "lempira Honduras",
+        "zero": "lempira Honduras"
+      }
+    },
+    "HTG": {
+      "name": "Gourde Haiti",
+      "plural": {
+        "few": "gourde Haiti",
+        "many": "gourde Haiti",
+        "one": "gourde Haiti",
+        "other": "gourde Haiti",
+        "two": "gourde Haiti",
+        "zero": "gourde Haiti"
+      }
+    },
+    "HUF": {
+      "name": "Fforint Hwngari",
+      "narrow": "Ft",
+      "plural": {
+        "few": "fforint Hwngari",
+        "many": "fforint Hwngari",
+        "one": "fforint Hwngari",
+        "other": "fforint Hwngari",
+        "two": "fforint Hwngari",
+        "zero": "fforint Hwngari"
+      }
+    },
+    "IDR": {
+      "name": "Rupiah Indonesia",
+      "narrow": "Rp",
+      "plural": {
+        "few": "rupiah Indonesia",
+        "many": "rupiah Indonesia",
+        "one": "rupiah Indonesia",
+        "other": "rupiah Indonesia",
+        "two": "rupiah Indonesia",
+        "zero": "rupiah Indonesia"
+      }
+    },
+    "ILS": {
+      "name": "Shegel Newydd Israel",
+      "plural": {
+        "few": "shegel newydd Israel",
+        "many": "shegel newydd Israel",
+        "one": "shegel newydd Israel",
+        "other": "shegel newydd Israel",
+        "two": "shegel newydd Israel",
+        "zero": "shegel newydd Israel"
+      },
+      "symbol": "₪"
+    },
+    "INR": {
+      "name": "Rwpî India",
+      "plural": {
+        "few": "rwpî India",
+        "many": "rwpî India",
+        "one": "rwpî India",
+        "other": "rwpî India",
+        "two": "rwpî India",
+        "zero": "rwpî India"
+      },
+      "symbol": "₹"
+    },
+    "IQD": {
+      "name": "Dinar Irac",
+      "plural": {
+        "few": "dinar Irac",
+        "many": "dinar Irac",
+        "one": "dinar Irac",
+        "other": "dinar Irac",
+        "two": "dinar Irac",
+        "zero": "dinar Irac"
+      }
+    },
+    "IRR": {
+      "name": "Rial Iran",
+      "plural": {
+        "few": "rial Iran",
+        "many": "rial Iran",
+        "one": "rial Iran",
+        "other": "rial Iran",
+        "two": "rial Iran",
+        "zero": "rial Iran"
+      }
+    },
+    "ISK": {
+      "name": "Króna Gwlad yr Iâ",
+      "narrow": "kr",
+      "plural": {
+        "few": "króna Gwlad yr Iâ",
+        "many": "króna Gwlad yr Iâ",
+        "one": "króna Gwlad yr Iâ",
+        "other": "króna Gwlad yr Iâ",
+        "two": "króna Gwlad yr Iâ",
+        "zero": "króna Gwlad yr Iâ"
+      }
+    },
+    "JMD": {
+      "name": "Doler Jamaica",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Jamaica",
+        "many": "doler Jamaica",
+        "one": "doler Jamaica",
+        "other": "doler Jamaica",
+        "two": "ddoler Jamaica",
+        "zero": "doler Jamaica"
+      }
+    },
+    "JOD": {
+      "name": "Dinar Gwlad yr Iorddonen",
+      "plural": {
+        "few": "dinar Gwlad yr Iorddonen",
+        "many": "dinar Gwlad yr Iorddonen",
+        "one": "dinar Gwlad yr Iorddonen",
+        "other": "dinar Gwlad yr Iorddonen",
+        "two": "dinar Gwlad yr Iorddonen",
+        "zero": "dinar Gwlad yr Iorddonen"
+      }
+    },
+    "JPY": {
+      "name": "Yen Japan",
+      "narrow": "¥",
+      "plural": {
+        "few": "yen Japan",
+        "many": "yen Japan",
+        "one": "yen Japan",
+        "other": "yen Japan",
+        "two": "yen Japan",
+        "zero": "yen Japan"
+      },
+      "symbol": "JP¥"
+    },
+    "KES": {
+      "name": "Swllt Kenya",
+      "plural": {
+        "few": "swllt Kenya",
+        "many": "swllt Kenya",
+        "one": "swllt Kenya",
+        "other": "swllt Kenya",
+        "two": "swllt Kenya",
+        "zero": "swllt Kenya"
+      }
+    },
+    "KGS": {
+      "name": "Som Kyrgyzstan",
+      "narrow": "⃀",
+      "plural": {
+        "few": "som Kyrgyzstan",
+        "many": "som Kyrgyzstan",
+        "one": "som Kyrgyzstan",
+        "other": "som Kyrgyzstan",
+        "two": "som Kyrgyzstan",
+        "zero": "som Kyrgyzstan"
+      }
+    },
+    "KHR": {
+      "name": "Riel Cambodia",
+      "narrow": "៛",
+      "plural": {
+        "few": "riel Cambodia",
+        "many": "riel Cambodia",
+        "one": "riel Cambodia",
+        "other": "riel Cambodia",
+        "two": "riel Cambodia",
+        "zero": "riel Cambodia"
+      }
+    },
+    "KMF": {
+      "name": "Ffranc Comoros",
+      "narrow": "CF",
+      "plural": {
+        "few": "ffranc Comoros",
+        "many": "ffranc Comoros",
+        "one": "ffranc Comoros",
+        "other": "ffranc Comoros",
+        "two": "ffranc Comoros",
+        "zero": "ffranc Comoros"
+      }
+    },
+    "KPW": {
+      "name": "Won Gogledd Corea",
+      "narrow": "₩",
+      "plural": {
+        "few": "won Gogledd Corea",
+        "many": "won Gogledd Corea",
+        "one": "won Gogledd Corea",
+        "other": "won Gogledd Corea",
+        "two": "won Gogledd Corea",
+        "zero": "won Gogledd Corea"
+      }
+    },
+    "KRW": {
+      "name": "Won De Corea",
+      "narrow": "₩",
+      "plural": {
+        "few": "won De Corea",
+        "many": "won De Corea",
+        "one": "won De Corea",
+        "other": "won De Corea",
+        "two": "won De Corea",
+        "zero": "won De Corea"
+      }
+    },
+    "KWD": {
+      "name": "Dinar Kuwait",
+      "plural": {
+        "few": "dinar Kuwait",
+        "many": "dinar Kuwait",
+        "one": "dinar Kuwait",
+        "other": "dinar Kuwait",
+        "two": "dinar Kuwait",
+        "zero": "dinar Kuwait"
+      }
+    },
+    "KYD": {
+      "name": "Doler Ynysoedd Cayman",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Ynysoedd Cayman",
+        "many": "doler Ynysoedd Cayman",
+        "one": "doler Ynysoedd Cayman",
+        "other": "doler Ynysoedd Cayman",
+        "two": "ddoler Ynysoedd Cayman",
+        "zero": "doler Ynysoedd Cayman"
+      }
+    },
+    "KZT": {
+      "name": "Tenge Kazakstan",
+      "narrow": "₸",
+      "plural": {
+        "few": "tenge Kazakstan",
+        "many": "tenge Kazakstan",
+        "one": "tenge Kazakstan",
+        "other": "tenge Kazakstan",
+        "two": "tenge Kazakstan",
+        "zero": "tenge Kazakstan"
+      }
+    },
+    "LAK": {
+      "name": "Kip Laos",
+      "narrow": "₭",
+      "plural": {
+        "few": "kip Laos",
+        "many": "kip Laos",
+        "one": "kip Laos",
+        "other": "kip Laos",
+        "two": "kip Laos",
+        "zero": "kip Laos"
+      }
+    },
+    "LBP": {
+      "name": "Punt Libanus",
+      "narrow": "L£",
+      "plural": {
+        "few": "punt Libanus",
+        "many": "punt Libanus",
+        "one": "punt Libanus",
+        "other": "punt Libanus",
+        "two": "bunt Libanus",
+        "zero": "punt Libanus"
+      }
+    },
+    "LKR": {
+      "name": "Rwpî Sri Lanka",
+      "narrow": "Rs",
+      "plural": {
+        "few": "rwpî Sri Lanka",
+        "many": "rwpî Sri Lanka",
+        "one": "rwpî Sri Lanka",
+        "other": "rwpî Sri Lanka",
+        "two": "rwpî Sri Lanka",
+        "zero": "rwpî Sri Lanka"
+      }
+    },
+    "LRD": {
+      "name": "Doler Liberia",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Liberia",
+        "many": "doler Liberia",
+        "one": "ddoler Liberia",
+        "other": "doler Liberia",
+        "two": "ddoler Liberia",
+        "zero": "doler Liberia"
+      }
+    },
+    "LSL": {
+      "name": "Loti Lesotho",
+      "plural": {
+        "few": "loti Lesotho",
+        "many": "loti Lesotho",
+        "one": "loti Lesotho",
+        "other": "loti Lesotho",
+        "two": "loti Lesotho",
+        "zero": "loti Lesotho"
+      }
+    },
+    "LYD": {
+      "name": "Dinar Libya",
+      "plural": {
+        "few": "dinar Libya",
+        "many": "dinar Libya",
+        "one": "dinar Libya",
+        "other": "dinar Libya",
+        "two": "dinar Libya",
+        "zero": "dinar Libya"
+      }
+    },
+    "MAD": {
+      "name": "Dirham Moroco",
+      "plural": {
+        "few": "dirham Moroco",
+        "many": "dirham Moroco",
+        "one": "dirham Moroco",
+        "other": "dirham Moroco",
+        "two": "dirham Moroco",
+        "zero": "dirham Moroco"
+      }
+    },
+    "MDL": {
+      "name": "Leu Moldofa",
+      "plural": {
+        "few": "leu Moldofa",
+        "many": "leu Moldofa",
+        "one": "leu Moldofa",
+        "other": "leu Moldofa",
+        "two": "leu Moldofa",
+        "zero": "leu Moldofa"
+      }
+    },
+    "MGA": {
+      "name": "Ariary Madagascar",
+      "narrow": "Ar",
+      "plural": {
+        "few": "ariary Madagascar",
+        "many": "ariary Madagascar",
+        "one": "ariary Madagascar",
+        "other": "ariary Madagascar",
+        "two": "ariary Madagascar",
+        "zero": "ariary Madagascar"
+      }
+    },
+    "MKD": {
+      "name": "Denar Macedonia",
+      "plural": {
+        "few": "denar Macedonia",
+        "many": "denar Macedonia",
+        "one": "denar Macedonia",
+        "other": "denar Macedonia",
+        "two": "denar Macedonia",
+        "zero": "denar Macedonia"
+      }
+    },
+    "MMK": {
+      "name": "Kyat Myanmar",
+      "narrow": "K",
+      "plural": {
+        "few": "kyat Myanmar",
+        "many": "kyat Myanmar",
+        "one": "kyat Myanmar",
+        "other": "kyat Myanmar",
+        "two": "kyat Myanmar",
+        "zero": "kyat Myanmar"
+      }
+    },
+    "MNT": {
+      "name": "Tugrik Mongolia",
+      "narrow": "₮",
+      "plural": {
+        "few": "tugrik Mongolia",
+        "many": "tugrik Mongolia",
+        "one": "tugrik Mongolia",
+        "other": "tugrik Mongolia",
+        "two": "tugrik Mongolia",
+        "zero": "tugrik Mongolia"
+      }
+    },
+    "MOP": {
+      "name": "pataca Macau"
+    },
+    "MRU": {
+      "name": "Ouguiya Mauritania",
+      "plural": {
+        "few": "ouguiya Mauritania",
+        "many": "ouguiya Mauritania",
+        "one": "ouguiya Mauritania",
+        "other": "ouguiya Mauritania",
+        "two": "ouguiya Mauritania",
+        "zero": "ouguiya Mauritania"
+      }
+    },
+    "MUR": {
+      "name": "Rwpî Mauritius",
+      "narrow": "Rs",
+      "plural": {
+        "few": "rwpî Mauritius",
+        "many": "rwpî Mauritius",
+        "one": "rwpî Mauritius",
+        "other": "rwpî Mauritius",
+        "two": "rwpî Mauritius",
+        "zero": "rwpî Mauritius"
+      }
+    },
+    "MVR": {
+      "name": "Rufiyaa’r Maldives",
+      "plural": {
+        "few": "rufiyaa’r Maldives",
+        "many": "rufiyaa’r Maldives",
+        "one": "rufiyaa’r Maldives",
+        "other": "rufiyaa’r Maldives",
+        "two": "rufiyaa’r Maldives",
+        "zero": "rufiyaa’r Maldives"
+      }
+    },
+    "MWK": {
+      "name": "Kwacha Malawi",
+      "plural": {
+        "few": "kwacha Malawi",
+        "many": "kwacha Malawi",
+        "one": "kwacha Malawi",
+        "other": "kwacha Malawi",
+        "two": "kwacha Malawi",
+        "zero": "kwacha Malawi"
+      }
+    },
+    "MXN": {
+      "name": "Peso Mecsico",
+      "narrow": "$",
+      "plural": {
+        "few": "peso Mecsico",
+        "many": "peso Mecsico",
+        "one": "peso Mecsico",
+        "other": "peso Mecsico",
+        "two": "peso Mecsico",
+        "zero": "peso Mecsico"
+      },
+      "symbol": "MX$"
+    },
+    "MYR": {
+      "name": "Ringgit Malaysia",
+      "narrow": "RM",
+      "plural": {
+        "few": "ringgit Malaysia",
+        "many": "ringgit Malaysia",
+        "one": "ringgit Malaysia",
+        "other": "ringgit Malaysia",
+        "two": "ringgit Malaysia",
+        "zero": "ringgit Malaysia"
+      }
+    },
+    "MZN": {
+      "name": "Metical Mozambique",
+      "plural": {
+        "few": "metical Mozambique",
+        "many": "metical Mozambique",
+        "one": "metical Mozambique",
+        "other": "metical Mozambique",
+        "two": "metical Mozambique",
+        "zero": "metical Mozambique"
+      }
+    },
+    "NAD": {
+      "name": "Doler Namibia",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Namibia",
+        "many": "doler Namibia",
+        "one": "doler Namibia",
+        "other": "doler Namibia",
+        "two": "ddoler Namibia",
+        "zero": "doler Namibia"
+      }
+    },
+    "NGN": {
+      "name": "Naira Nigeria",
+      "narrow": "₦",
+      "plural": {
+        "few": "naira Nigeria",
+        "many": "naira Nigeria",
+        "one": "naira Nigeria",
+        "other": "naira Nigeria",
+        "two": "naira Nigeria",
+        "zero": "naira Nigeria"
+      }
+    },
+    "NIO": {
+      "name": "Cordoba Nicaragwa",
+      "narrow": "C$",
+      "plural": {
+        "few": "cordoba Nicaragwa",
+        "many": "cordoba Nicaragwa",
+        "one": "cordoba Nicaragwa",
+        "other": "cordoba Nicaragwa",
+        "two": "cordoba Nicaragwa",
+        "zero": "cordoba Nicaragwa"
+      }
+    },
+    "NOK": {
+      "name": "Krone Norwy",
+      "narrow": "kr",
+      "plural": {
+        "few": "krone Norwy",
+        "many": "krone Norwy",
+        "one": "krone Norwy",
+        "other": "krone Norwy",
+        "two": "krone Norwy",
+        "zero": "krone Norwy"
+      }
+    },
+    "NPR": {
+      "name": "Rwpî Nepal",
+      "narrow": "Rs",
+      "plural": {
+        "few": "rwpî Nepal",
+        "many": "rwpî Nepal",
+        "one": "rwpî Nepal",
+        "other": "rwpî Nepal",
+        "two": "rwpî Nepal",
+        "zero": "rwpî Nepal"
+      }
+    },
+    "NZD": {
+      "name": "Doler Seland Newydd",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Seland Newydd",
+        "many": "doler Seland Newydd",
+        "one": "doler Seland Newydd",
+        "other": "doler Seland Newydd",
+        "two": "ddoler Seland Newydd",
+        "zero": "doler Seland Newydd"
+      },
+      "symbol": "NZ$"
+    },
+    "OMR": {
+      "name": "Rial Oman",
+      "plural": {
+        "few": "rial Oman",
+        "many": "rial Oman",
+        "one": "rial Oman",
+        "other": "rial Oman",
+        "two": "rial Oman",
+        "zero": "rial Oman"
+      }
+    },
+    "PAB": {
+      "name": "Balboa Panama",
+      "plural": {
+        "few": "balboa Panama",
+        "many": "balboa Panama",
+        "one": "balboa Panama",
+        "other": "balboa Panama",
+        "two": "balboa Panama",
+        "zero": "balboa Panama"
+      }
+    },
+    "PEN": {
+      "name": "Sol Periw",
+      "plural": {
+        "few": "sol Periw",
+        "many": "sol Periw",
+        "one": "sol Periw",
+        "other": "sol Periw",
+        "two": "sol Periw",
+        "zero": "sol Periw"
+      }
+    },
+    "PGK": {
+      "name": "Kina Papua Guinea Newydd",
+      "plural": {
+        "few": "kina Papua Guinea Newydd",
+        "many": "kina Papua Guinea Newydd",
+        "one": "kina Papua Guinea Newydd",
+        "other": "kina Papua Guinea Newydd",
+        "two": "kina Papua Guinea Newydd",
+        "zero": "kina Papua Guinea Newydd"
+      }
+    },
+    "PHP": {
+      "name": "Peso Philipinas",
+      "narrow": "₱",
+      "plural": {
+        "few": "peso Philipinas",
+        "many": "peso Philipinas",
+        "one": "peso Philipinas",
+        "other": "peso Philipinas",
+        "two": "peso Philipinas",
+        "zero": "peso Philipinas"
+      }
+    },
+    "PKR": {
+      "name": "Rwpî Pacistan",
+      "narrow": "Rs",
+      "plural": {
+        "few": "rwpî Pacistan",
+        "many": "rwpî Pacistan",
+        "one": "rwpî Pacistan",
+        "other": "rwpî Pacistan",
+        "two": "rwpî Pacistan",
+        "zero": "rwpî Pacistan"
+      }
+    },
+    "PLN": {
+      "name": "Zloty Gwlad Pwyl",
+      "narrow": "zł",
+      "plural": {
+        "few": "zloty Gwlad Pwyl",
+        "many": "zloty Gwlad Pwyl",
+        "one": "zloty Gwlad Pwyl",
+        "other": "zloty Gwlad Pwyl",
+        "two": "zloty Gwlad Pwyl",
+        "zero": "zloty Gwlad Pwyl"
+      }
+    },
+    "PYG": {
+      "name": "Guarani Paraguay",
+      "narrow": "₲",
+      "plural": {
+        "few": "guarani Paraguay",
+        "many": "guarani Paraguay",
+        "one": "guarani Paraguay",
+        "other": "guarani Paraguay",
+        "two": "guarani Paraguay",
+        "zero": "guarani Paraguay"
+      }
+    },
+    "QAR": {
+      "name": "Rial Qatar",
+      "plural": {
+        "few": "rial Qatar",
+        "many": "rial Qatar",
+        "one": "rial Qatar",
+        "other": "rial Qatar",
+        "two": "rial Qatar",
+        "zero": "rial Qatar"
+      }
+    },
+    "RON": {
+      "name": "Leu Rwmania",
+      "narrow": "lei",
+      "plural": {
+        "few": "leu Rwmania",
+        "many": "leu Rwmania",
+        "one": "leu Rwmania",
+        "other": "leu Rwmania",
+        "two": "leu Rwmania",
+        "zero": "leu Rwmania"
+      }
+    },
+    "RSD": {
+      "name": "Dinar Serbia",
+      "plural": {
+        "few": "dinar Serbia",
+        "many": "dinar Serbia",
+        "one": "dinar Serbia",
+        "other": "dinar Serbia",
+        "two": "dinar Serbia",
+        "zero": "dinar Serbia"
+      }
+    },
+    "RUB": {
+      "name": "Rwbl Rwsia",
+      "narrow": "₽",
+      "plural": {
+        "few": "rwbl Rwsia",
+        "many": "rwbl Rwsia",
+        "one": "rwbl Rwsia",
+        "other": "rwbl Rwsia",
+        "two": "rwbl Rwsia",
+        "zero": "rwbl Rwsia"
+      }
+    },
+    "RWF": {
+      "name": "Ffranc Rwanda",
+      "narrow": "RF",
+      "plural": {
+        "few": "ffranc Rwanda",
+        "many": "ffranc Rwanda",
+        "one": "ffranc Rwanda",
+        "other": "ffranc Rwanda",
+        "two": "ffranc Rwanda",
+        "zero": "ffranc Rwanda"
+      }
+    },
+    "SAR": {
+      "name": "Riyal Saudi Arabia",
+      "plural": {
+        "few": "riyal Saudi Arabia",
+        "many": "riyal Saudi Arabia",
+        "one": "riyal Saudi Arabia",
+        "other": "riyal Saudi Arabia",
+        "two": "riyal Saudi Arabia",
+        "zero": "riyal Saudi Arabia"
+      }
+    },
+    "SBD": {
+      "name": "Doler Ynysoedd Solomon",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Ynysoedd Solomon",
+        "many": "doler Ynysoedd Solomon",
+        "one": "doler Ynysoedd Solomon",
+        "other": "doler Ynysoedd Solomon",
+        "two": "ddoler Ynysoedd Solomon",
+        "zero": "doler Ynysoedd Solomon"
+      }
+    },
+    "SCR": {
+      "name": "Rwpî Seychelles",
+      "plural": {
+        "few": "rwpî Seychelles",
+        "many": "rwpî Seychelles",
+        "one": "rwpî Seychelles",
+        "other": "rwpî Seychelles",
+        "two": "rwpî Seychelles",
+        "zero": "rwpî Seychelles"
+      }
+    },
+    "SDG": {
+      "name": "Punt Sudan",
+      "plural": {
+        "few": "punt Sudan",
+        "many": "punt Sudan",
+        "one": "punt Sudan",
+        "other": "punt Sudan",
+        "two": "bunt Sudan",
+        "zero": "punt Sudan"
+      }
+    },
+    "SEK": {
+      "name": "Krona Sweden",
+      "narrow": "kr",
+      "plural": {
+        "few": "krona Sweden",
+        "many": "krona Sweden",
+        "one": "krona Sweden",
+        "other": "krona Sweden",
+        "two": "krona Sweden",
+        "zero": "krona Sweden"
+      }
+    },
+    "SGD": {
+      "name": "Doler Singapore",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Singapore",
+        "many": "doler Singapore",
+        "one": "doler Singapore",
+        "other": "doler Singapore",
+        "two": "ddoler Singapore",
+        "zero": "doler Singapore"
+      }
+    },
+    "SHP": {
+      "name": "Punt St Helena",
+      "narrow": "£",
+      "plural": {
+        "few": "punt St. Helena",
+        "many": "punt St. Helena",
+        "one": "punt St. Helena",
+        "other": "punt St. Helena",
+        "two": "bunt St. Helena",
+        "zero": "punt St. Helena"
+      }
+    },
+    "SLE": {
+      "name": "Leone Sierra Leone",
+      "plural": {
+        "few": "leone Sierra Leone",
+        "many": "leone Sierra Leone",
+        "one": "leone Sierra Leone",
+        "other": "leone Sierra Leone",
+        "two": "leone Sierra Leone",
+        "zero": "leone Sierra Leone"
+      }
+    },
+    "SOS": {
+      "name": "Swllt Somalia",
+      "plural": {
+        "few": "swllt Somalia",
+        "many": "swllt Somalia",
+        "one": "swllt Somalia",
+        "other": "swllt Somalia",
+        "two": "swllt Somalia",
+        "zero": "swllt Somalia"
+      }
+    },
+    "SRD": {
+      "name": "Doler Surinam",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Surinam",
+        "many": "doler Surinam",
+        "one": "doler Surinam",
+        "other": "doler Surinam",
+        "two": "ddoler Surinam",
+        "zero": "doler Surinam"
+      }
+    },
+    "SSP": {
+      "name": "Punt De Sudan",
+      "narrow": "£",
+      "plural": {
+        "few": "punt De Sudan",
+        "many": "punt De Sudan",
+        "one": "punt De Sudan",
+        "other": "punt De Sudan",
+        "two": "bunt De Sudan",
+        "zero": "punt De Sudan"
+      }
+    },
+    "STN": {
+      "name": "Dobra São Tomé a Príncipe",
+      "narrow": "Db",
+      "plural": {
+        "few": "dobra São Tomé a Príncipe",
+        "many": "dobra São Tomé a Príncipe",
+        "one": "dobra São Tomé a Príncipe",
+        "other": "dobra São Tomé a Príncipe",
+        "two": "dobra São Tomé a Príncipe",
+        "zero": "dobra São Tomé a Príncipe"
+      }
+    },
+    "SYP": {
+      "name": "Punt Syria",
+      "narrow": "£",
+      "plural": {
+        "few": "punt Syria",
+        "many": "punt Syria",
+        "one": "punt Syria",
+        "other": "punt Syria",
+        "two": "bunt Syria",
+        "zero": "punt Syria"
+      }
+    },
+    "SZL": {
+      "name": "Lilangeni Gwlad Swazi",
+      "plural": {
+        "few": "lilangeni Gwlad Swazi",
+        "many": "lilangeni Gwlad Swazi",
+        "one": "lilangeni Gwlad Swazi",
+        "other": "lilangeni Gwlad Swazi",
+        "two": "lilangeni Gwlad Swazi",
+        "zero": "lilangeni Gwlad Swazi"
+      }
+    },
+    "THB": {
+      "name": "Baht Gwlad Thai",
+      "plural": {
+        "few": "baht Gwlad Thai",
+        "many": "baht Gwlad Thai",
+        "one": "baht Gwlad Thai",
+        "other": "baht Gwlad Thai",
+        "two": "baht Gwlad Thai",
+        "zero": "baht Gwlad Thai"
+      },
+      "symbol": "฿"
+    },
+    "TJS": {
+      "name": "Somoni Tajikistan",
+      "plural": {
+        "few": "somoni Tajikstan",
+        "many": "somoni Tajikstan",
+        "one": "somoni Tajikstan",
+        "other": "somoni Tajikstan",
+        "two": "somoni Tajikstan",
+        "zero": "somoni Tajikstan"
+      }
+    },
+    "TMT": {
+      "name": "Manat Turkmenistan",
+      "plural": {
+        "few": "manat Turkmenistan",
+        "many": "manat Turkmenistan",
+        "one": "manat Turkmenistan",
+        "other": "manat Turkmenistan",
+        "two": "manat Turkmenistan",
+        "zero": "manat Turkmenistan"
+      }
+    },
+    "TND": {
+      "name": "Dinar Tunisia",
+      "plural": {
+        "few": "dinar Tunisia",
+        "many": "dinar Tunisia",
+        "one": "dinar Tunisia",
+        "other": "dinar Tunisia",
+        "two": "dinar Tunisia",
+        "zero": "dinar Tunisia"
+      }
+    },
+    "TOP": {
+      "name": "Paʻanga Tonga",
+      "narrow": "T$",
+      "plural": {
+        "few": "paʻanga Tonga",
+        "many": "paʻanga Tonga",
+        "one": "paʻanga Tonga",
+        "other": "paʻanga Tonga",
+        "two": "paʻanga Tonga",
+        "zero": "paʻanga Tonga"
+      }
+    },
+    "TRY": {
+      "name": "Lira Twrci",
+      "narrow": "₺",
+      "plural": {
+        "few": "lira Twrci",
+        "many": "lira Twrci",
+        "one": "lira Twrci",
+        "other": "lira Twrci",
+        "two": "lira Twrci",
+        "zero": "lira Twrci"
+      }
+    },
+    "TTD": {
+      "name": "Doler Trinidad a Tobago",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Trinidad a Tobago",
+        "many": "doler Trinidad a Tobago",
+        "one": "doler Trinidad a Tobago",
+        "other": "doler Trinidad a Tobago",
+        "two": "ddoler Trinidad a Tobago",
+        "zero": "doler Trinidad a Tobago"
+      }
+    },
+    "TWD": {
+      "name": "Doler Newydd Taiwan",
+      "plural": {
+        "few": "doler newydd Taiwan",
+        "many": "doler newydd Taiwan",
+        "one": "doler newydd Taiwan",
+        "other": "doler newydd Taiwan",
+        "two": "ddoler newydd Taiwan",
+        "zero": "doler newydd Taiwan"
+      },
+      "symbol": "NT$"
+    },
+    "TZS": {
+      "name": "Swllt Tanzania",
+      "plural": {
+        "few": "swllt Tanzania",
+        "many": "swllt Tanzania",
+        "one": "swllt Tanzania",
+        "other": "swllt Tanzania",
+        "two": "swllt Tanzania",
+        "zero": "swllt Tanzania"
+      }
+    },
+    "UAH": {
+      "name": "Hryvnia Wcráin",
+      "narrow": "₴",
+      "plural": {
+        "few": "hryvnia Wcráin",
+        "many": "hryvnia Wcráin",
+        "one": "hryvnia Wcráin",
+        "other": "hryvnia Wcráin",
+        "two": "hryvnia Wcráin",
+        "zero": "hryvnia Wcráin"
+      }
+    },
+    "UGX": {
+      "name": "Swllt Uganda",
+      "plural": {
+        "few": "swllt Uganda",
+        "many": "swllt Uganda",
+        "one": "swllt Uganda",
+        "other": "swllt Uganda",
+        "two": "swllt Uganda",
+        "zero": "swllt Uganda"
+      }
+    },
+    "USD": {
+      "name": "Doler UDA",
+      "narrow": "$",
+      "plural": {
+        "few": "doler UDA",
+        "many": "doler UDA",
+        "one": "doler UDA",
+        "other": "doler UDA",
+        "two": "ddoler UDA",
+        "zero": "doler UDA"
+      },
+      "symbol": "US$"
+    },
+    "UYU": {
+      "name": "Peso Uruguay",
+      "narrow": "$",
+      "plural": {
+        "few": "peso Uruguay",
+        "many": "peso Uruguay",
+        "one": "peso Uruguay",
+        "other": "peso Uruguay",
+        "two": "peso Uruguay",
+        "zero": "peso Uruguay"
+      }
+    },
+    "UZS": {
+      "name": "Som Uzbekistan",
+      "plural": {
+        "few": "som Uzbekistan",
+        "many": "som Uzbekistan",
+        "one": "som Uzbekistan",
+        "other": "som Uzbekistan",
+        "two": "som Uzbekistan",
+        "zero": "som Uzbekistan"
+      }
+    },
+    "VES": {
+      "name": "Bolívar Venezuela",
+      "plural": {
+        "few": "bolívar Venezuela",
+        "many": "bolívar Venezuela",
+        "one": "bolívar Venezuela",
+        "other": "bolívar Venezuela",
+        "two": "bolívar Venezuela",
+        "zero": "bolívar Venezuela"
+      }
+    },
+    "VND": {
+      "name": "Dong Fietnam",
+      "plural": {
+        "few": "dong Fietnam",
+        "many": "dong Fietnam",
+        "one": "dong Fietnam",
+        "other": "dong Fietnam",
+        "two": "dong Fietnam",
+        "zero": "dong Fietnam"
+      },
+      "symbol": "₫"
+    },
+    "VUV": {
+      "name": "Vatu Vanuatu",
+      "plural": {
+        "few": "vatu Vanuatu",
+        "many": "vatu Vanuatu",
+        "one": "vatu Vanuatu",
+        "other": "vatu Vanuatu",
+        "two": "vatu Vanuatu",
+        "zero": "vatu Vanuatu"
+      }
+    },
+    "WST": {
+      "name": "Tala Samoa",
+      "plural": {
+        "few": "tala Samoa",
+        "many": "tala Samoa",
+        "one": "tala Samoa",
+        "other": "tala Samoa",
+        "two": "tala Samoa",
+        "zero": "tala Samoa"
+      }
+    },
+    "XAF": {
+      "name": "Ffranc CFA Canol Affrica",
+      "plural": {
+        "few": "ffranc CFA Canol Affrica",
+        "many": "ffranc CFA Canol Affrica",
+        "one": "ffranc CFA Canol Affrica",
+        "other": "ffranc CFA Canol Affrica",
+        "two": "ffranc CFA Canol Affrica",
+        "zero": "ffranc CFA Canol Affrica"
+      },
+      "symbol": "FCFA"
+    },
+    "XCD": {
+      "name": "Doler Dwyrain y Caribî",
+      "narrow": "$",
+      "plural": {
+        "few": "doler Dwyrain y Caribî",
+        "many": "doler Dwyrain y Caribî",
+        "one": "doler Dwyrain y Caribî",
+        "other": "doler Dwyrain y Caribî",
+        "two": "ddoler Dwyrain y Caribî",
+        "zero": "doler Dwyrain y Caribî"
+      },
+      "symbol": "EC$"
+    },
+    "XCG": {
+      "name": "guilder Caribïaidd",
+      "symbol": "Cg."
+    },
+    "XOF": {
+      "name": "Ffranc CFA Gorllewin Affrica",
+      "plural": {
+        "few": "ffranc CFA Gorllewin Affrica",
+        "many": "ffranc CFA Gorllewin Affrica",
+        "one": "ffranc CFA Gorllewin Affrica",
+        "other": "ffranc CFA Gorllewin Affrica",
+        "two": "ffranc CFA Gorllewin Affrica",
+        "zero": "ffranc CFA Gorllewin Affrica"
+      },
+      "symbol": "F\u202fCFA"
+    },
+    "XPF": {
+      "name": "Ffranc CFP",
+      "plural": {
+        "few": "ffranc CPF",
+        "many": "ffranc CPF",
+        "one": "ffranc CPF",
+        "other": "ffranc CPF",
+        "two": "ffranc CPF",
+        "zero": "ffranc CPF"
+      },
+      "symbol": "CFPF"
+    },
+    "YER": {
+      "name": "Rial Yemen",
+      "plural": {
+        "few": "rial Yemen",
+        "many": "rial Yemen",
+        "one": "rial Yemen",
+        "other": "rial Yemen",
+        "two": "rial Yemen",
+        "zero": "rial Yemen"
+      }
+    },
+    "ZAR": {
+      "name": "Rand De Affrica",
+      "plural": {
+        "few": "rand De Affrica",
+        "many": "rand De Affrica",
+        "one": "rand De Affrica",
+        "other": "rand De Affrica",
+        "two": "rand De Affrica",
+        "zero": "rand De Affrica"
+      }
+    },
+    "ZMW": {
+      "name": "Kwacha Zambia",
+      "plural": {
+        "few": "kwacha Zambia",
+        "many": "kwacha Zambia",
+        "one": "kwacha Zambia",
+        "other": "kwacha Zambia",
+        "two": "kwacha Zambia",
+        "zero": "kwacha Zambia"
+      }
+    },
+    "ZWG": {
+      "name": "Zimbabwean Gold"
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "cy",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "¤#,##0.00;(¤#,##0.00)",
+      "compactShort": {
+        "1000": {
+          "other": "0K"
+        },
+        "10000": {
+          "other": "00K"
+        },
+        "100000": {
+          "other": "000K"
+        },
+        "1000000": {
+          "other": "0M"
+        },
+        "10000000": {
+          "other": "00M"
+        },
+        "100000000": {
+          "other": "000M"
+        },
+        "1000000000": {
+          "one": "0B",
+          "other": "0B"
+        },
+        "10000000000": {
+          "one": "00B",
+          "other": "00B"
+        },
+        "100000000000": {
+          "one": "000B",
+          "other": "000B"
+        },
+        "1000000000000": {
+          "other": "0T"
+        },
+        "10000000000000": {
+          "other": "00T"
+        },
+        "100000000000000": {
+          "other": "000T"
+        }
+      },
+      "currency": "¤#,##0.00",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ".",
+        "exponential": "E",
+        "group": ",",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "NaN",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {
+      "few": "n = 3",
+      "many": "n = 6",
+      "one": "n = 1",
+      "two": "n = 2",
+      "zero": "n = 0"
+    },
+    "ordinal": {
+      "few": "n = 3,4",
+      "many": "n = 5,6",
+      "one": "n = 1",
+      "two": "n = 2",
+      "zero": "n = 0,7,8,9"
+    }
+  },
+  "territories": {
+    "AC": "Ynys Ascension",
+    "AD": "Andorra",
+    "AE": "Emiradau Arabaidd Unedig",
+    "AF": "Afghanistan",
+    "AG": "Antigua a Barbuda",
+    "AI": "Anguilla",
+    "AL": "Albania",
+    "AM": "Armenia",
+    "AO": "Angola",
+    "AQ": "Antarctica",
+    "AR": "Yr Ariannin",
+    "AS": "Samoa America",
+    "AT": "Awstria",
+    "AU": "Awstralia",
+    "AW": "Aruba",
+    "AX": "Ynysoedd Åland",
+    "AZ": "Aserbaijan",
+    "BA": "Bosnia a Herzegovina",
+    "BB": "Barbados",
+    "BD": "Bangladesh",
+    "BE": "Gwlad Belg",
+    "BF": "Burkina Faso",
+    "BG": "Bwlgaria",
+    "BH": "Bahrain",
+    "BI": "Burundi",
+    "BJ": "Benin",
+    "BL": "Saint Barthélemy",
+    "BM": "Bermuda",
+    "BN": "Brunei",
+    "BO": "Bolifia",
+    "BQ": "Antilles yr Iseldiroedd",
+    "BR": "Brasil",
+    "BS": "Y Bahamas",
+    "BT": "Bhutan",
+    "BV": "Ynys Bouvet",
+    "BW": "Botswana",
+    "BY": "Belarws",
+    "BZ": "Belize",
+    "CA": "Canada",
+    "CC": "Ynysoedd Cocos (Keeling)",
+    "CD": "Y Congo - Kinshasa",
+    "CF": "Gweriniaeth Canolbarth Affrica",
+    "CG": "Y Congo - Brazzaville",
+    "CH": "Y Swistir",
+    "CI": "Côte d’Ivoire",
+    "CK": "Ynysoedd Cook",
+    "CL": "Chile",
+    "CM": "Camerŵn",
+    "CN": "Tsieina",
+    "CO": "Colombia",
+    "CP": "Ynys Clipperton",
+    "CQ": "Sarc",
+    "CR": "Costa Rica",
+    "CU": "Ciwba",
+    "CV": "Cabo Verde",
+    "CW": "Curaçao",
+    "CX": "Ynys y Nadolig",
+    "CY": "Cyprus",
+    "CZ": "Tsiecia",
+    "DE": "Yr Almaen",
+    "DG": "Diego Garcia",
+    "DJ": "Djibouti",
+    "DK": "Denmarc",
+    "DM": "Dominica",
+    "DO": "Gweriniaeth Dominica",
+    "DZ": "Algeria",
+    "EA": "Ceuta a Melilla",
+    "EC": "Ecuador",
+    "EE": "Estonia",
+    "EG": "Yr Aifft",
+    "EH": "Gorllewin Sahara",
+    "ER": "Eritrea",
+    "ES": "Sbaen",
+    "ET": "Ethiopia",
+    "EU": "Yr Undeb Ewropeaidd",
+    "EZ": "Ardal yr Ewro",
+    "FI": "Y Ffindir",
+    "FJ": "Fiji",
+    "FK": "Ynysoedd y Falkland/Malvinas",
+    "FM": "Micronesia",
+    "FO": "Ynysoedd Ffaro",
+    "FR": "Ffrainc",
+    "GA": "Gabon",
+    "GB": "Y Deyrnas Unedig",
+    "GD": "Grenada",
+    "GE": "Georgia",
+    "GF": "Guyane Ffrengig",
+    "GG": "Ynys y Garn",
+    "GH": "Ghana",
+    "GI": "Gibraltar",
+    "GL": "Yr Ynys Las",
+    "GM": "Gambia",
+    "GN": "Gini",
+    "GP": "Guadeloupe",
+    "GQ": "Gini Gyhydeddol",
+    "GR": "Gwlad Groeg",
+    "GS": "De Georgia ac Ynysoedd Sandwich y De",
+    "GT": "Guatemala",
+    "GU": "Guam",
+    "GW": "Guiné-Bissau",
+    "GY": "Guyana",
+    "HK": "Hong Kong SAR Tsieina",
+    "HM": "Ynys Heard ac Ynysoedd McDonald",
+    "HN": "Honduras",
+    "HR": "Croatia",
+    "HT": "Haiti",
+    "HU": "Hwngari",
+    "IC": "Yr Ynysoedd Dedwydd",
+    "ID": "Indonesia",
+    "IE": "Iwerddon",
+    "IL": "Israel",
+    "IM": "Ynys Manaw",
+    "IN": "India",
+    "IO": "Tiriogaeth Brydeinig Cefnfor India",
+    "IQ": "Irac",
+    "IR": "Iran",
+    "IS": "Gwlad yr Iâ",
+    "IT": "Yr Eidal",
+    "JE": "Jersey",
+    "JM": "Jamaica",
+    "JO": "Gwlad Iorddonen",
+    "JP": "Japan",
+    "KE": "Kenya",
+    "KG": "Kyrgyzstan",
+    "KH": "Cambodia",
+    "KI": "Kiribati",
+    "KM": "Comoros",
+    "KN": "Saint Kitts a Nevis",
+    "KP": "Gogledd Corea",
+    "KR": "De Corea",
+    "KW": "Kuwait",
+    "KY": "Ynysoedd Cayman",
+    "KZ": "Kazakhstan",
+    "LA": "Laos",
+    "LB": "Libanus",
+    "LC": "Saint Lucia",
+    "LI": "Liechtenstein",
+    "LK": "Sri Lanka",
+    "LR": "Liberia",
+    "LS": "Lesotho",
+    "LT": "Lithwania",
+    "LU": "Lwcsembwrg",
+    "LV": "Latfia",
+    "LY": "Libya",
+    "MA": "Moroco",
+    "MC": "Monaco",
+    "MD": "Moldofa",
+    "ME": "Montenegro",
+    "MF": "Saint Martin",
+    "MG": "Madagascar",
+    "MH": "Ynysoedd Marshall",
+    "MK": "Gogledd Macedonia",
+    "ML": "Mali",
+    "MM": "Myanmar (Burma)",
+    "MN": "Mongolia",
+    "MO": "Macau SAR Tsieina",
+    "MP": "Ynysoedd Gogledd Mariana",
+    "MQ": "Martinique",
+    "MR": "Mauritania",
+    "MS": "Montserrat",
+    "MT": "Malta",
+    "MU": "Mauritius",
+    "MV": "Y Maldives",
+    "MW": "Malawi",
+    "MX": "Mecsico",
+    "MY": "Malaysia",
+    "MZ": "Mozambique",
+    "NA": "Namibia",
+    "NC": "Caledonia Newydd",
+    "NE": "Niger",
+    "NF": "Ynys Norfolk",
+    "NG": "Nigeria",
+    "NI": "Nicaragua",
+    "NL": "Yr Iseldiroedd",
+    "NO": "Norwy",
+    "NP": "Nepal",
+    "NR": "Nauru",
+    "NU": "Niue",
+    "NZ": "Seland Newydd",
+    "OM": "Oman",
+    "PA": "Panama",
+    "PE": "Periw",
+    "PF": "Polynesia Ffrengig",
+    "PG": "Papua Guinea Newydd",
+    "PH": "Y Philipinau",
+    "PK": "Pacistan",
+    "PL": "Gwlad Pwyl",
+    "PM": "Saint-Pierre-et-Miquelon",
+    "PN": "Ynysoedd Pitcairn",
+    "PR": "Puerto Rico",
+    "PS": "Tiriogaethau Palesteinaidd",
+    "PT": "Portiwgal",
+    "PW": "Palau",
+    "PY": "Paraguay",
+    "QA": "Qatar",
+    "QO": "Oceania Bellennig",
+    "RE": "Réunion",
+    "RO": "Rwmania",
+    "RS": "Serbia",
+    "RU": "Rwsia",
+    "RW": "Rwanda",
+    "SA": "Saudi Arabia",
+    "SB": "Ynysoedd Solomon",
+    "SC": "Seychelles",
+    "SD": "Swdan",
+    "SE": "Sweden",
+    "SG": "Singapore",
+    "SH": "Saint Helena",
+    "SI": "Slofenia",
+    "SJ": "Svalbard a Jan Mayen",
+    "SK": "Slofacia",
+    "SL": "Sierra Leone",
+    "SM": "San Marino",
+    "SN": "Senegal",
+    "SO": "Somalia",
+    "SR": "Suriname",
+    "SS": "De Swdan",
+    "ST": "São Tomé a Príncipe",
+    "SV": "El Salvador",
+    "SX": "Sint Maarten",
+    "SY": "Syria",
+    "SZ": "Eswatini",
+    "TA": "Tristan da Cunha",
+    "TC": "Ynysoedd Turks a Caicos",
+    "TD": "Tsiad",
+    "TF": "Tiroedd Deheuol ac Antarctig Ffrainc",
+    "TG": "Togo",
+    "TH": "Gwlad Thai",
+    "TJ": "Tajicistan",
+    "TK": "Tokelau",
+    "TL": "Timor-Leste",
+    "TM": "Tyrcmenistan",
+    "TN": "Tiwnisia",
+    "TO": "Tonga",
+    "TR": "Twrci",
+    "TT": "Trinidad a Tobago",
+    "TV": "Tuvalu",
+    "TW": "Taiwan",
+    "TZ": "Tanzania",
+    "UA": "Wcráin",
+    "UG": "Uganda",
+    "UM": "Ynysoedd Pellennig UDA",
+    "UN": "Y Cenhedloedd Unedig",
+    "US": "Yr Unol Daleithiau",
+    "UY": "Uruguay",
+    "UZ": "Uzbekistan",
+    "VA": "Y Fatican",
+    "VC": "Saint Vincent a’r Grenadines",
+    "VE": "Venezuela",
+    "VG": "Ynysoedd Gwyryf Prydain",
+    "VI": "Ynysoedd Gwyryf yr Unol Daleithiau",
+    "VN": "Fietnam",
+    "VU": "Vanuatu",
+    "WF": "Wallis a Futuna",
+    "WS": "Samoa",
+    "XA": "Acenion Ffug",
+    "XB": "Bidi Ffug",
+    "XK": "Kosovo",
+    "YE": "Yemen",
+    "YT": "Mayotte",
+    "ZA": "De Affrica",
+    "ZM": "Zambia",
+    "ZW": "Zimbabwe"
+  }
+}

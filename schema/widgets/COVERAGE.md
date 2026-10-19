@@ -8,21 +8,21 @@ How the widget descriptors and value types cover the constructor parameters of t
 
 | | Count |
 |---|---|
-| Flutter classes | 125 |
-| Constructor parameters | 1898 |
-| Supported as props | 1059 |
-| Supported as events | 167 |
-| Supported as slots | 117 |
-| Supported as the children list | 6 |
+| Flutter classes | 172 |
+| Constructor parameters | 2549 |
+| Supported as props | 1353 |
+| Supported as events | 215 |
+| Supported as slots | 166 |
+| Supported as the children list | 9 |
 | Supported as value-type fields | 203 |
-| Excluded: callback→event | 0 |
-| Excluded: controller→state | 59 |
-| Excluded: builder→template | 0 |
-| Excluded: non-serialisable | 144 |
-| Excluded: deprecated | 24 |
-| Excluded: deferred | 119 |
-| Mirrored enums | 55 |
-| Enum values | 216 |
+| Excluded: callback→event | 4 |
+| Excluded: controller→state | 77 |
+| Excluded: builder→template | 18 |
+| Excluded: non-serialisable | 204 |
+| Excluded: deprecated | 26 |
+| Excluded: deferred | 274 |
+| Mirrored enums | 68 |
+| Enum values | 261 |
 | Enum values excluded | 0 |
 
 Callbacks are supported as events and builders as slots or item templates. A parameter is excluded as **callback→event** or **builder→template** when an event or template elsewhere covers its purpose, **controller→state** when the runtime owns the controller and binds it to state, **non-serialisable** when the value cannot be expressed as data, **deprecated** when Flutter deprecates it, and **deferred** when it is expressible but planned for a later revision.
@@ -69,6 +69,162 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `widthFactor` | `double?` | prop `widthFactor` |  |
 | `heightFactor` | `double?` | prop `heightFactor` |  |
 | `child` | `Widget?` | slot `child` |  |
+
+### AnimatedAlign · `AnimatedAlign`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `alignment` | `AlignmentGeometry` | prop `alignment` |  |
+| `child` | `Widget?` | slot `child` |  |
+| `heightFactor` | `double?` | prop `heightFactor` |  |
+| `widthFactor` | `double?` | prop `widthFactor` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedContainer · `AnimatedContainer`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `alignment` | `AlignmentGeometry?` | prop `alignment` |  |
+| `padding` | `EdgeInsetsGeometry?` | prop `padding` |  |
+| `color` | `Color?` | prop `color` |  |
+| `decoration` | `Decoration?` | prop `decoration` |  |
+| `foregroundDecoration` | `Decoration?` | prop `foregroundDecoration` |  |
+| `width` | `double?` | prop `width` |  |
+| `height` | `double?` | prop `height` |  |
+| `constraints` | `BoxConstraints?` | prop `constraints` |  |
+| `margin` | `EdgeInsetsGeometry?` | prop `margin` |  |
+| `transform` | `Matrix4?` | excluded: deferred | Matrix transforms are animated with `AnimatedRotation`, `AnimatedScale` and `AnimatedSlide`. |
+| `transformAlignment` | `AlignmentGeometry?` | prop `transformAlignment` |  |
+| `child` | `Widget?` | slot `child` |  |
+| `clipBehavior` | `Clip` | prop `clipBehavior` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedCrossFade · `AnimatedCrossFade`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `firstChild` | `Widget` | slot `firstChild` |  |
+| `secondChild` | `Widget` | slot `secondChild` |  |
+| `firstCurve` | `Curve` | prop `firstCurve` |  |
+| `secondCurve` | `Curve` | prop `secondCurve` |  |
+| `sizeCurve` | `Curve` | prop `sizeCurve` |  |
+| `alignment` | `AlignmentGeometry` | prop `alignment` |  |
+| `crossFadeState` | `CrossFadeState` | prop `crossFadeState` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `reverseDuration` | `Duration?` | prop `reverseDuration` |  |
+| `layoutBuilder` | `Widget Function(Widget, Key, Widget, Key)` | excluded: builder→template |  |
+| `excludeBottomFocus` | `bool` | prop `excludeBottomFocus` |  |
+| `clipBehavior` | `Clip` | prop `clipBehavior` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedOpacity · `AnimatedOpacity`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget?` | slot `child` |  |
+| `opacity` | `double` | prop `opacity` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+| `alwaysIncludeSemantics` | `bool` | prop `alwaysIncludeSemantics` |  |
+
+### AnimatedPadding · `AnimatedPadding`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `padding` | `EdgeInsetsGeometry` | prop `padding` |  |
+| `child` | `Widget?` | slot `child` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedPositioned · `AnimatedPositioned`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget` | slot `child` |  |
+| `left` | `double?` | prop `left` |  |
+| `top` | `double?` | prop `top` |  |
+| `right` | `double?` | prop `right` |  |
+| `bottom` | `double?` | prop `bottom` |  |
+| `width` | `double?` | prop `width` |  |
+| `height` | `double?` | prop `height` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedRotation · `AnimatedRotation`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget?` | slot `child` |  |
+| `turns` | `double` | prop `turns` |  |
+| `alignment` | `Alignment` | prop `alignment` |  |
+| `filterQuality` | `FilterQuality?` | prop `filterQuality` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedScale · `AnimatedScale`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget?` | slot `child` |  |
+| `scale` | `double` | prop `scale` |  |
+| `alignment` | `Alignment` | prop `alignment` |  |
+| `filterQuality` | `FilterQuality?` | prop `filterQuality` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedSize · `AnimatedSize`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget?` | slot `child` |  |
+| `alignment` | `AlignmentGeometry` | prop `alignment` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `reverseDuration` | `Duration?` | prop `reverseDuration` |  |
+| `clipBehavior` | `Clip` | prop `clipBehavior` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedSlide · `AnimatedSlide`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget?` | slot `child` |  |
+| `offset` | `Offset` | prop `offset` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `onEnd` | `void Function()?` | event `onEnd` |  |
+
+### AnimatedSwitcher · `AnimatedSwitcher`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget?` | slot `child` |  |
+| `duration` | `Duration` | prop `duration` |  |
+| `reverseDuration` | `Duration?` | prop `reverseDuration` |  |
+| `switchInCurve` | `Curve` | prop `switchInCurve` |  |
+| `switchOutCurve` | `Curve` | prop `switchOutCurve` |  |
+| `transitionBuilder` | `Widget Function(Widget, Animation<double>)` | excluded: builder→template |  |
+| `layoutBuilder` | `Widget Function(Widget?, List<Widget>)` | excluded: builder→template |  |
 
 ### AppBar · `AppBar`
 
@@ -117,6 +273,22 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `aspectRatio` | `double` | prop `aspectRatio` |  |
 | `child` | `Widget?` | slot `child` |  |
 
+### Autocomplete · `Autocomplete`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `optionsBuilder` | `FutureOr<Iterable<T>> Function(TextEditingValue)` | excluded: builder→template | Replaced by the `options` prop; the runtime filters. |
+| `displayStringForOption` | `String Function(T)` | excluded: deferred | Not supported yet. |
+| `fieldViewBuilder` | `Widget Function(BuildContext, TextEditingController, FocusNode, void Function())` | excluded: builder→template | The runtime builds it from the Plux props. |
+| `focusNode` | `FocusNode?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `onSelected` | `void Function(T)?` | event `onSelected` |  |
+| `optionsMaxHeight` | `double` | prop `optionsMaxHeight` |  |
+| `optionsViewBuilder` | `Widget Function(BuildContext, void Function(T), Iterable<T>)?` | excluded: builder→template | The runtime builds it from the Plux props. |
+| `optionsViewOpenDirection` | `OptionsViewOpenDirection` | excluded: deferred | Not supported yet. |
+| `textEditingController` | `TextEditingController?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `initialValue` | `TextEditingValue?` | excluded: deferred | Replaced by the `initialValue` prop. |
+
 ### BackButton · `BackButton`
 
 | Parameter | Flutter type | Plux | Note |
@@ -125,6 +297,18 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `color` | `Color?` | prop `color` |  |
 | `style` | `ButtonStyle?` | prop `style` |  |
 | `onPressed` | `void Function()?` | event `onPressed` |  |
+
+### BackdropFilter · `BackdropFilter`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `filter` | `ImageFilter?` | prop `filter` |  |
+| `filterConfig` | `ImageFilterConfig?` | excluded: non-serialisable | An engine object; `filter` covers blurs. |
+| `child` | `Widget?` | slot `child` |  |
+| `blendMode` | `BlendMode` | prop `blendMode` |  |
+| `enabled` | `bool` | prop `enabled` |  |
+| `backdropGroupKey` | `BackdropKey?` | excluded: non-serialisable | Backdrop groups are a runtime concern. |
 
 ### Badge · `Badge`
 
@@ -167,6 +351,49 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `surfaceTintColor` | `Color?` | prop `surfaceTintColor` |  |
 | `shadowColor` | `Color?` | prop `shadowColor` |  |
 | `height` | `double?` | prop `height` |  |
+
+### BottomNavigationBar · `BottomNavigationBar`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `items` | `List<BottomNavigationBarItem>` | excluded: deferred | Replaced by the `items` prop. |
+| `onTap` | `void Function(int)?` | event `onTap` |  |
+| `currentIndex` | `int` | prop `currentIndex` |  |
+| `elevation` | `double?` | prop `elevation` |  |
+| `type` | `BottomNavigationBarType?` | prop `type` |  |
+| `fixedColor` | `Color?` | excluded: deferred | Not supported yet. |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `iconSize` | `double` | prop `iconSize` |  |
+| `selectedItemColor` | `Color?` | prop `selectedItemColor` |  |
+| `unselectedItemColor` | `Color?` | prop `unselectedItemColor` |  |
+| `selectedIconTheme` | `IconThemeData?` | excluded: deferred | Not supported yet. |
+| `unselectedIconTheme` | `IconThemeData?` | excluded: deferred | Not supported yet. |
+| `selectedFontSize` | `double` | prop `selectedFontSize` |  |
+| `unselectedFontSize` | `double` | prop `unselectedFontSize` |  |
+| `selectedLabelStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `unselectedLabelStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `showSelectedLabels` | `bool?` | prop `showSelectedLabels` |  |
+| `showUnselectedLabels` | `bool?` | prop `showUnselectedLabels` |  |
+| `mouseCursor` | `MouseCursor?` | excluded: deferred | Not supported yet. |
+| `enableFeedback` | `bool?` | excluded: deferred | Not supported yet. |
+| `landscapeLayout` | `BottomNavigationBarLandscapeLayout?` | excluded: deferred | Not supported yet. |
+| `useLegacyColorScheme` | `bool` | excluded: deferred | Not supported yet. |
+
+### CalendarDatePicker · `CalendarDatePicker`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `initialDate` | `DateTime?` | prop `initialDate` |  |
+| `firstDate` | `DateTime` | prop `firstDate` |  |
+| `lastDate` | `DateTime` | prop `lastDate` |  |
+| `currentDate` | `DateTime?` | prop `currentDate` |  |
+| `onDateChanged` | `void Function(DateTime)` | event `onDateChanged` |  |
+| `onDisplayedMonthChanged` | `void Function(DateTime)?` | event `onDisplayedMonthChanged` |  |
+| `initialCalendarMode` | `DatePickerMode` | excluded: deferred | Not supported yet. |
+| `selectableDayPredicate` | `bool Function(DateTime)?` | excluded: deferred | Replaced by `firstDate` and `lastDate`. |
+| `calendarDelegate` | `CalendarDelegate<DateTime>` | excluded: deferred | The calendar choice arrives with Layer 3. |
 
 ### Card · `Card`
 
@@ -481,6 +708,38 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `onLongPress` | `void Function()?` | event `onLongPress` |  |
 | `onPressed` | `void Function()?` | event `onPressed` |  |
 
+### CupertinoContextMenu · `CupertinoContextMenu`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `actions` | `List<Widget>` | prop `actions` |  |
+| `child` | `Widget` | slot `child` |  |
+| `enableHapticFeedback` | `bool` | prop `enableHapticFeedback` |  |
+
+### CupertinoDatePicker · `CupertinoDatePicker`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `mode` | `CupertinoDatePickerMode` | prop `mode` |  |
+| `onDateTimeChanged` | `void Function(DateTime)` | event `onDateTimeChanged` |  |
+| `initialDateTime` | `DateTime?` | prop `initialDateTime` |  |
+| `minimumDate` | `DateTime?` | prop `minimumDate` |  |
+| `maximumDate` | `DateTime?` | prop `maximumDate` |  |
+| `minimumYear` | `int` | prop `minimumYear` |  |
+| `maximumYear` | `int?` | prop `maximumYear` |  |
+| `minuteInterval` | `int` | prop `minuteInterval` |  |
+| `use24hFormat` | `bool` | prop `use24hFormat` |  |
+| `dateOrder` | `DatePickerDateOrder?` | excluded: deferred | The locale decides the order. |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `showDayOfWeek` | `bool` | prop `showDayOfWeek` |  |
+| `showTimeSeparator` | `bool` | prop `showTimeSeparator` |  |
+| `itemExtent` | `double` | prop `itemExtent` |  |
+| `selectionOverlayBuilder` | `Widget? Function(BuildContext, {required int columnCount, required int selectedIndex})?` | excluded: builder→template | The default overlay is used. |
+| `selectableDayPredicate` | `bool Function(DateTime)?` | excluded: deferred | Predicates are not serialisable; use minimumDate and maximumDate. |
+| `changeReportingBehavior` | `ChangeReportingBehavior` | excluded: deferred | The default reporting is used. |
+
 ### CupertinoListSection · `CupertinoListSection`
 
 | Parameter | Flutter type | Plux | Note |
@@ -515,6 +774,46 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `padding` | `EdgeInsetsGeometry?` | prop `padding` |  |
 | `leadingSize` | `double` | prop `leadingSize` |  |
 | `leadingToTitle` | `double` | prop `leadingToTitle` |  |
+
+### CupertinoNavigationBar · `CupertinoNavigationBar`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `leading` | `Widget?` | slot `leading` |  |
+| `automaticallyImplyLeading` | `bool` | prop `automaticallyImplyLeading` |  |
+| `automaticallyImplyMiddle` | `bool` | prop `automaticallyImplyMiddle` |  |
+| `previousPageTitle` | `String?` | prop `previousPageTitle` |  |
+| `middle` | `Widget?` | slot `middle` |  |
+| `trailing` | `Widget?` | slot `trailing` |  |
+| `border` | `Border?` | excluded: deferred | Flutter draws a private default border; Plux keeps it. |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `automaticBackgroundVisibility` | `bool` | prop `automaticBackgroundVisibility` |  |
+| `enableBackgroundFilterBlur` | `bool` | prop `enableBackgroundFilterBlur` |  |
+| `brightness` | `Brightness?` | prop `brightness` |  |
+| `padding` | `EdgeInsetsDirectional?` | excluded: deferred | EdgeInsetsDirectional is not a Plux value type. |
+| `transitionBetweenRoutes` | `bool` | prop `transitionBetweenRoutes` |  |
+| `heroTag` | `Object` | excluded: non-serialisable | Hero tags come from the node-level hero. |
+| `bottom` | `PreferredSizeWidget?` | excluded: deferred | A second bar row is not part of the catalogue yet. |
+
+### CupertinoPicker · `CupertinoPicker`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `diameterRatio` | `double` | prop `diameterRatio` |  |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `offAxisFraction` | `double` | prop `offAxisFraction` |  |
+| `useMagnifier` | `bool` | prop `useMagnifier` |  |
+| `magnification` | `double` | prop `magnification` |  |
+| `scrollController` | `FixedExtentScrollController?` | excluded: controller→state | The runtime owns the controller; `selectedIndex` is the state. |
+| `squeeze` | `double` | prop `squeeze` |  |
+| `changeReportingBehavior` | `ChangeReportingBehavior` | excluded: deferred | The default reporting is used. |
+| `itemExtent` | `double` | prop `itemExtent` |  |
+| `onSelectedItemChanged` | `void Function(int)?` | event `onSelectedItemChanged` |  |
+| `children` | `List<Widget>` | `children` |  |
+| `selectionOverlay` | `Widget?` | excluded: deferred | The default overlay is used. |
+| `looping` | `bool` | prop `looping` |  |
 
 ### CupertinoSlider · `CupertinoSlider`
 
@@ -575,6 +874,21 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `onFocusChange` | `void Function(bool)?` | event `onFocusChange` |  |
 | `autofocus` | `bool` | prop `autofocus` |  |
 | `dragStartBehavior` | `DragStartBehavior` | prop `dragStartBehavior` |  |
+
+### CupertinoTabBar · `CupertinoTabBar`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `items` | `List<BottomNavigationBarItem>` | prop `items` |  |
+| `onTap` | `void Function(int)?` | event `onTap` |  |
+| `currentIndex` | `int` | prop `currentIndex` |  |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `activeColor` | `Color?` | prop `activeColor` |  |
+| `inactiveColor` | `Color` | prop `inactiveColor` |  |
+| `iconSize` | `double` | prop `iconSize` |  |
+| `height` | `double` | prop `height` |  |
+| `border` | `Border?` | excluded: deferred | Flutter draws a private default border; Plux keeps it. |
 
 ### CupertinoTextField · `CupertinoTextField`
 
@@ -679,6 +993,34 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `clipBehavior` | `Clip` | prop `clipBehavior` |  |
 | `hitTestBehavior` | `HitTestBehavior` | prop `hitTestBehavior` |  |
 
+### DataTable · `DataTable`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `columns` | `List<DataColumn>` | prop `columns` |  |
+| `sortColumnIndex` | `int?` | prop `sortColumnIndex` |  |
+| `sortAscending` | `bool` | prop `sortAscending` |  |
+| `onSelectAll` | `void Function(bool?)?` | event `onSelectAll` |  |
+| `decoration` | `Decoration?` | prop `decoration` |  |
+| `dataRowColor` | `WidgetStateProperty<Color?>?` | prop `dataRowColor` |  |
+| `dataRowHeight` (deprecated) | `double?` | excluded: deprecated | Use `dataRowMinHeight` and `dataRowMaxHeight`. |
+| `dataRowMinHeight` | `double?` | prop `dataRowMinHeight` |  |
+| `dataRowMaxHeight` | `double?` | prop `dataRowMaxHeight` |  |
+| `dataTextStyle` | `TextStyle?` | prop `dataTextStyle` |  |
+| `headingRowColor` | `WidgetStateProperty<Color?>?` | prop `headingRowColor` |  |
+| `headingRowHeight` | `double?` | prop `headingRowHeight` |  |
+| `headingTextStyle` | `TextStyle?` | prop `headingTextStyle` |  |
+| `horizontalMargin` | `double?` | prop `horizontalMargin` |  |
+| `columnSpacing` | `double?` | prop `columnSpacing` |  |
+| `showCheckboxColumn` | `bool` | prop `showCheckboxColumn` |  |
+| `showBottomBorder` | `bool` | prop `showBottomBorder` |  |
+| `dividerThickness` | `double?` | prop `dividerThickness` |  |
+| `rows` | `List<DataRow>` | prop `rows`, prop `selectedRows` |  |
+| `checkboxHorizontalMargin` | `double?` | prop `checkboxHorizontalMargin` |  |
+| `border` | `TableBorder?` | prop `border` |  |
+| `clipBehavior` | `Clip` | prop `clipBehavior` |  |
+
 ### DecoratedBox · `DecoratedBox`
 
 | Parameter | Flutter type | Plux | Note |
@@ -687,6 +1029,26 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `decoration` | `Decoration` | prop `decoration` |  |
 | `position` | `DecorationPosition` | prop `position` |  |
 | `child` | `Widget?` | slot `child` |  |
+
+### Dismissible · `Dismissible`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget` | slot `child` |  |
+| `background` | `Widget?` | slot `background` |  |
+| `secondaryBackground` | `Widget?` | slot `secondaryBackground` |  |
+| `confirmDismiss` | `Future<bool?> Function(DismissDirection)?` | excluded: callback→event | Dismissal is not vetoed from a handler. |
+| `onResize` | `void Function()?` | excluded: deferred |  |
+| `onUpdate` | `void Function(DismissUpdateDetails)?` | excluded: deferred |  |
+| `onDismissed` | `void Function(DismissDirection)?` | event `onDismissed` |  |
+| `direction` | `DismissDirection` | prop `direction` |  |
+| `resizeDuration` | `Duration?` | prop `resizeDuration` |  |
+| `dismissThresholds` | `Map<DismissDirection, double>` | excluded: deferred | The runtime uses Flutter's default thresholds. |
+| `movementDuration` | `Duration` | prop `movementDuration` |  |
+| `crossAxisEndOffset` | `double` | prop `crossAxisEndOffset` |  |
+| `dragStartBehavior` | `DragStartBehavior` | prop `dragStartBehavior` |  |
+| `behavior` | `HitTestBehavior` | prop `behavior` |  |
 
 ### Divider · `Divider`
 
@@ -699,6 +1061,60 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `endIndent` | `double?` | prop `endIndent` |  |
 | `color` | `Color?` | prop `color` |  |
 | `radius` | `BorderRadiusGeometry?` | prop `radius` |  |
+
+### DragTarget · `DragTarget`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `builder` | `Widget Function(BuildContext, List<T?>, List<dynamic>)` | slot `child` |  |
+| `onWillAccept` (deprecated) | `bool Function(T?)?` | excluded: callback→event | Acceptance is declared with `accepts`. |
+| `onWillAcceptWithDetails` | `bool Function(DragTargetDetails<T>)?` | excluded: callback→event | Acceptance is declared with `accepts`. |
+| `onAccept` (deprecated) | `void Function(T)?` | event `onAccept` |  |
+| `onAcceptWithDetails` | `void Function(DragTargetDetails<T>)?` | event `onAccept` |  |
+| `onLeave` | `void Function(T?)?` | event `onLeave` |  |
+| `onMove` | `void Function(DragTargetDetails<T>)?` | excluded: deferred |  |
+| `hitTestBehavior` | `HitTestBehavior` | prop `hitTestBehavior` |  |
+
+### Draggable · `Draggable`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `child` | `Widget` | slot `child` |  |
+| `feedback` | `Widget` | slot `feedback` |  |
+| `data` | `T?` | prop `data` |  |
+| `axis` | `Axis?` | prop `axis` |  |
+| `childWhenDragging` | `Widget?` | slot `childWhenDragging` |  |
+| `feedbackOffset` | `Offset` | prop `feedbackOffset` |  |
+| `dragAnchorStrategy` | `Offset Function(Draggable<Object>, BuildContext, Offset)` | excluded: non-serialisable |  |
+| `affinity` | `Axis?` | excluded: deferred |  |
+| `maxSimultaneousDrags` | `int?` | prop `maxSimultaneousDrags` |  |
+| `onDragStarted` | `void Function()?` | event `onDragStarted` |  |
+| `onDragUpdate` | `void Function(DragUpdateDetails)?` | excluded: deferred |  |
+| `onDraggableCanceled` | `void Function(Velocity, Offset)?` | event `onDraggableCanceled` |  |
+| `onDragEnd` | `void Function(DraggableDetails)?` | event `onDragEnd` |  |
+| `onDragCompleted` | `void Function()?` | event `onDragCompleted` |  |
+| `ignoringFeedbackSemantics` | `bool` | prop `ignoringFeedbackSemantics` |  |
+| `ignoringFeedbackPointer` | `bool` | prop `ignoringFeedbackPointer` |  |
+| `rootOverlay` | `bool` | prop `rootOverlay` |  |
+| `hitTestBehavior` | `HitTestBehavior` | prop `hitTestBehavior` |  |
+| `allowedButtonsFilter` | `bool Function(int)?` | excluded: non-serialisable |  |
+
+### Drawer · `Drawer`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `elevation` | `double?` | prop `elevation` |  |
+| `shadowColor` | `Color?` | prop `shadowColor` |  |
+| `surfaceTintColor` | `Color?` | prop `surfaceTintColor` |  |
+| `shape` | `ShapeBorder?` | prop `shape` |  |
+| `width` | `double?` | prop `width` |  |
+| `child` | `Widget?` | slot `child` |  |
+| `semanticLabel` | `String?` | prop `semanticLabel` |  |
+| `clipBehavior` | `Clip?` | prop `clipBehavior` |  |
 
 ### DropdownMenu · `DropdownMenu`
 
@@ -807,6 +1223,15 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `expansionAnimationStyle` | `AnimationStyle?` | excluded: deferred | Custom animation styles arrive with animations (P5). |
 | `internalAddSemanticForOnTap` | `bool` | excluded: non-serialisable | A framework-internal flag. |
 | `statesController` | `WidgetStatesController?` | excluded: controller→state | The runtime owns the controller and binds it to state. |
+
+### FadeTransition · `FadeTransition`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `opacity` | `Animation<double>` | excluded: controller→state | Driven by the timeline track. |
+| `alwaysIncludeSemantics` | `bool` | prop `alwaysIncludeSemantics` |  |
+| `child` | `Widget?` | slot `child` |  |
 
 ### FilledButton · `FilledButton`, `FilledButton.tonal`
 
@@ -1044,6 +1469,20 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `clipBehavior` | `Clip` | prop `clipBehavior` |  |
 | `hitTestBehavior` | `HitTestBehavior` | prop `hitTestBehavior` |  |
 
+### Hero · `Hero`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `tag` | `Object` | prop `tag` |  |
+| `createRectTween` | `Tween<Rect?> Function(Rect?, Rect?)?` | excluded: non-serialisable |  |
+| `flightShuttleBuilder` | `Widget Function(BuildContext, Animation<double>, HeroFlightDirection, BuildContext, BuildContext)?` | excluded: builder→template |  |
+| `placeholderBuilder` | `Widget Function(BuildContext, Size, Widget)?` | excluded: builder→template |  |
+| `transitionOnUserGestures` | `bool` | prop `transitionOnUserGestures` |  |
+| `curve` | `Curve` | prop `curve` |  |
+| `reverseCurve` | `Curve?` | prop `reverseCurve` |  |
+| `child` | `Widget` | slot `child` |  |
+
 ### Icon · `Icon`
 
 | Parameter | Flutter type | Plux | Note |
@@ -1221,6 +1660,29 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `chipAnimationStyle` | `ChipAnimationStyle?` | excluded: deferred | Custom animation styles arrive with animations (P5). |
 | `mouseCursor` | `MouseCursor?` | excluded: deferred | Pointer cursors matter only for desktop and web targets. |
 
+### InteractiveViewer · `InteractiveViewer`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `clipBehavior` | `Clip` | prop `clipBehavior` |  |
+| `panAxis` | `PanAxis` | prop `panAxis` |  |
+| `boundaryMargin` | `EdgeInsets` | prop `boundaryMargin` |  |
+| `constrained` | `bool` | prop `constrained` |  |
+| `maxScale` | `double` | prop `maxScale` |  |
+| `minScale` | `double` | prop `minScale` |  |
+| `interactionEndFrictionCoefficient` | `double` | prop `interactionEndFrictionCoefficient` |  |
+| `onInteractionEnd` | `void Function(ScaleEndDetails)?` | event `onInteractionEnd` |  |
+| `onInteractionStart` | `void Function(ScaleStartDetails)?` | event `onInteractionStart` |  |
+| `onInteractionUpdate` | `void Function(ScaleUpdateDetails)?` | excluded: deferred |  |
+| `panEnabled` | `bool` | prop `panEnabled` |  |
+| `scaleEnabled` | `bool` | prop `scaleEnabled` |  |
+| `scaleFactor` | `double` | prop `scaleFactor` |  |
+| `transformationController` | `TransformationController?` | excluded: controller→state | The runtime owns the controller. |
+| `alignment` | `Alignment?` | prop `alignment` |  |
+| `trackpadScrollCausesScale` | `bool` | prop `trackpadScrollCausesScale` |  |
+| `child` | `Widget` | slot `child` |  |
+
 ### LimitedBox · `LimitedBox`
 
 | Parameter | Flutter type | Plux | Note |
@@ -1322,6 +1784,140 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `clipBehavior` | `Clip` | prop `clipBehavior` |  |
 | `hitTestBehavior` | `HitTestBehavior` | prop `hitTestBehavior` |  |
 
+### MaterialBanner · `MaterialBanner`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `content` | `Widget` | slot `content` |  |
+| `contentTextStyle` | `TextStyle?` | prop `contentTextStyle` |  |
+| `actions` | `List<Widget>` | slot `actions` |  |
+| `elevation` | `double?` | prop `elevation` |  |
+| `leading` | `Widget?` | slot `leading` |  |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `surfaceTintColor` | `Color?` | prop `surfaceTintColor` |  |
+| `shadowColor` | `Color?` | prop `shadowColor` |  |
+| `dividerColor` | `Color?` | prop `dividerColor` |  |
+| `padding` | `EdgeInsetsGeometry?` | prop `padding` |  |
+| `margin` | `EdgeInsetsGeometry?` | prop `margin` |  |
+| `leadingPadding` | `EdgeInsetsGeometry?` | prop `leadingPadding` |  |
+| `forceActionsBelow` | `bool` | prop `forceActionsBelow` |  |
+| `overflowAlignment` | `OverflowBarAlignment` | prop `overflowAlignment` |  |
+| `animation` | `Animation<double>?` | excluded: non-serialisable | The runtime shows the banner without a transition. |
+| `onVisible` | `void Function()?` | event `onVisible` |  |
+| `minActionBarHeight` | `double` | prop `minActionBarHeight` |  |
+
+### MenuAnchor · `MenuAnchor`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `controller` | `MenuController?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `childFocusNode` | `FocusNode?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `style` | `MenuStyle?` | excluded: deferred | Not supported yet. |
+| `alignmentOffset` | `Offset?` | excluded: deferred | Not supported yet. |
+| `reservedPadding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `layerLink` | `LayerLink?` | excluded: deferred | Not supported yet. |
+| `clipBehavior` | `Clip` | excluded: deferred | Not supported yet. |
+| `anchorTapClosesMenu` (deprecated) | `bool` | excluded: deferred | Not supported yet. |
+| `consumeOutsideTap` | `bool` | prop `consumeOutsideTap` |  |
+| `onOpen` | `void Function()?` | event `onOpen` |  |
+| `onClose` | `void Function()?` | event `onClose` |  |
+| `crossAxisUnconstrained` | `bool` | excluded: deferred | Not supported yet. |
+| `useRootOverlay` | `bool` | excluded: deferred | Not supported yet. |
+| `animated` | `bool` | excluded: deferred | Not supported yet. |
+| `onAnimationStatusChanged` | `void Function(AnimationStatus)?` | excluded: deferred | Not supported yet. |
+| `menuChildren` | `List<Widget>` | excluded: deferred | Replaced by the `items` prop; the runtime builds the entries. |
+| `builder` | `Widget Function(BuildContext, MenuController, Widget?)?` | excluded: builder→template | The runtime builds the anchor around the `child` slot. |
+| `child` | `Widget?` | slot `child` |  |
+
+### NavigationBar · `NavigationBar`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `animationDuration` | `Duration?` | excluded: deferred | Not supported yet. |
+| `selectedIndex` | `int` | prop `selectedIndex` |  |
+| `destinations` | `List<Widget>` | excluded: deferred | Replaced by the `destinations` prop. |
+| `onDestinationSelected` | `void Function(int)?` | event `onDestinationSelected` |  |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `elevation` | `double?` | prop `elevation` |  |
+| `shadowColor` | `Color?` | prop `shadowColor` |  |
+| `surfaceTintColor` | `Color?` | prop `surfaceTintColor` |  |
+| `indicatorColor` | `Color?` | prop `indicatorColor` |  |
+| `indicatorShape` | `ShapeBorder?` | excluded: deferred | Not supported yet. |
+| `height` | `double?` | prop `height` |  |
+| `labelBehavior` | `NavigationDestinationLabelBehavior?` | prop `labelBehavior` |  |
+| `overlayColor` | `WidgetStateProperty<Color?>?` | excluded: deferred | Not supported yet. |
+| `labelTextStyle` | `WidgetStateProperty<TextStyle?>?` | excluded: deferred | Not supported yet. |
+| `labelPadding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `maintainBottomViewPadding` | `bool` | excluded: deferred | Not supported yet. |
+
+### NavigationDrawer · `NavigationDrawer`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `children` | `List<Widget>` | excluded: deferred | Replaced by the `destinations` prop. |
+| `header` | `Widget?` | slot `header` |  |
+| `footer` | `Widget?` | slot `footer` |  |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `shadowColor` | `Color?` | prop `shadowColor` |  |
+| `surfaceTintColor` | `Color?` | prop `surfaceTintColor` |  |
+| `elevation` | `double?` | prop `elevation` |  |
+| `indicatorColor` | `Color?` | prop `indicatorColor` |  |
+| `indicatorShape` | `ShapeBorder?` | excluded: deferred | Not supported yet. |
+| `onDestinationSelected` | `void Function(int)?` | event `onDestinationSelected` |  |
+| `selectedIndex` | `int?` | prop `selectedIndex` |  |
+| `tilePadding` | `EdgeInsetsGeometry` | excluded: deferred | Not supported yet. |
+
+### NavigationRail · `NavigationRail`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `extended` | `bool` | prop `extended` |  |
+| `leading` | `Widget?` | slot `leading` |  |
+| `trailing` | `Widget?` | slot `trailing` |  |
+| `destinations` | `List<NavigationRailDestination>` | excluded: deferred | Replaced by the `destinations` prop. |
+| `selectedIndex` | `int?` | prop `selectedIndex` |  |
+| `onDestinationSelected` | `void Function(int)?` | event `onDestinationSelected` |  |
+| `elevation` | `double?` | prop `elevation` |  |
+| `groupAlignment` | `double?` | prop `groupAlignment` |  |
+| `labelType` | `NavigationRailLabelType?` | prop `labelType` |  |
+| `unselectedLabelTextStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `selectedLabelTextStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `unselectedIconTheme` | `IconThemeData?` | excluded: deferred | Not supported yet. |
+| `selectedIconTheme` | `IconThemeData?` | excluded: deferred | Not supported yet. |
+| `minWidth` | `double?` | prop `minWidth` |  |
+| `minExtendedWidth` | `double?` | prop `minExtendedWidth` |  |
+| `useIndicator` | `bool?` | prop `useIndicator` |  |
+| `indicatorColor` | `Color?` | prop `indicatorColor` |  |
+| `indicatorShape` | `ShapeBorder?` | excluded: deferred | Not supported yet. |
+| `leadingAtTop` | `bool` | excluded: deferred | Not supported yet. |
+| `trailingAtBottom` | `bool` | excluded: deferred | Not supported yet. |
+| `scrollable` | `bool` | excluded: deferred | Not supported yet. |
+| `mainAxisAlignment` | `MainAxisAlignment?` | excluded: deferred | Not supported yet. |
+
+### NestedScrollView · `NestedScrollView`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `controller` | `ScrollController?` | excluded: controller→state | The runtime owns the controller and binds it to state. |
+| `scrollDirection` | `Axis` | prop `scrollDirection` |  |
+| `reverse` | `bool` | prop `reverse` |  |
+| `physics` | `ScrollPhysics?` | prop `physics` |  |
+| `headerSliverBuilder` | `List<Widget> Function(BuildContext, bool)` | slot `headerSlivers` |  |
+| `body` | `Widget` | slot `body` |  |
+| `dragStartBehavior` | `DragStartBehavior` | prop `dragStartBehavior` |  |
+| `floatHeaderSlivers` | `bool` | prop `floatHeaderSlivers` |  |
+| `clipBehavior` | `Clip` | prop `clipBehavior` |  |
+| `hitTestBehavior` | `HitTestBehavior` | prop `hitTestBehavior` |  |
+| `restorationId` | `String?` | excluded: non-serialisable | State restoration is managed by the runtime. |
+| `scrollBehavior` | `ScrollBehavior?` | excluded: non-serialisable |  |
+
 ### Opacity · `Opacity`
 
 | Parameter | Flutter type | Plux | Note |
@@ -1377,6 +1973,42 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `hitTestBehavior` | `HitTestBehavior` | prop `hitTestBehavior` |  |
 | `scrollBehavior` | `ScrollBehavior?` | excluded: non-serialisable |  |
 | `padEnds` | `bool` | prop `padEnds` |  |
+
+### PopupMenuButton · `PopupMenuButton`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `itemBuilder` | `List<PopupMenuEntry<T>> Function(BuildContext)` | excluded: builder→template | Replaced by the `items` prop; the runtime builds the entries. |
+| `initialValue` | `T?` | prop `initialValue` |  |
+| `onOpened` | `void Function()?` | event `onOpened` |  |
+| `onSelected` | `void Function(T)?` | event `onSelected` |  |
+| `onCanceled` | `void Function()?` | event `onCanceled` |  |
+| `tooltip` | `String?` | prop `tooltip` |  |
+| `elevation` | `double?` | prop `elevation` |  |
+| `shadowColor` | `Color?` | prop `shadowColor` |  |
+| `surfaceTintColor` | `Color?` | prop `surfaceTintColor` |  |
+| `padding` | `EdgeInsetsGeometry` | excluded: deferred | Not supported yet. |
+| `menuPadding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `child` | `Widget?` | slot `child` |  |
+| `borderRadius` | `BorderRadius?` | excluded: deferred | Not supported yet. |
+| `splashRadius` | `double?` | excluded: deferred | Not supported yet. |
+| `icon` | `Widget?` | slot `icon` |  |
+| `iconSize` | `double?` | prop `iconSize` |  |
+| `offset` | `Offset` | excluded: deferred | Not supported yet. |
+| `enabled` | `bool` | prop `enabled` |  |
+| `shape` | `ShapeBorder?` | excluded: deferred | Not supported yet. |
+| `color` | `Color?` | prop `color` |  |
+| `iconColor` | `Color?` | excluded: deferred | Not supported yet. |
+| `enableFeedback` | `bool?` | excluded: deferred | Not supported yet. |
+| `constraints` | `BoxConstraints?` | excluded: deferred | Not supported yet. |
+| `position` | `PopupMenuPosition?` | excluded: deferred | Not supported yet. |
+| `clipBehavior` | `Clip` | excluded: deferred | Not supported yet. |
+| `useRootNavigator` | `bool` | excluded: deferred | Not supported yet. |
+| `popUpAnimationStyle` | `AnimationStyle?` | excluded: deferred | Not supported yet. |
+| `routeSettings` | `RouteSettings?` | excluded: deferred | Not supported yet. |
+| `style` | `ButtonStyle?` | excluded: deferred | Not supported yet. |
+| `requestFocus` | `bool?` | excluded: deferred | Not supported yet. |
 
 ### Positioned · `Positioned`
 
@@ -1485,6 +2117,60 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `padding` | `EdgeInsetsGeometry?` | prop `padding` |  |
 | `year2023` (deprecated) | `bool?` | excluded: deprecated | Deprecated in Flutter. |
 
+### RefreshIndicator · `RefreshIndicator`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `displacement` | `double` | prop `displacement` |  |
+| `edgeOffset` | `double` | prop `edgeOffset` |  |
+| `onRefresh` | `Future<void> Function()` | event `onRefresh` |  |
+| `color` | `Color?` | prop `color` |  |
+| `backgroundColor` | `Color?` | prop `backgroundColor` |  |
+| `notificationPredicate` | `bool Function(ScrollNotification)` | excluded: non-serialisable | The runtime reacts to the child's own scroll notifications. |
+| `semanticsLabel` | `String?` | prop `semanticsLabel` |  |
+| `semanticsValue` | `String?` | prop `semanticsValue` |  |
+| `strokeWidth` | `double` | prop `strokeWidth` |  |
+| `triggerMode` | `RefreshIndicatorTriggerMode` | prop `triggerMode` |  |
+| `elevation` | `double` | prop `elevation` |  |
+| `child` | `Widget` | slot `child` |  |
+
+### ReorderableListView · `ReorderableListView.builder`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `itemBuilder` | `Widget Function(BuildContext, int)` | slot `item` |  |
+| `itemCount` | `int` | prop `items` |  |
+| `onReorder` (deprecated) | `void Function(int, int)?` | excluded: callback→event | Its `newIndex` is measured before the item is removed; the event `onReorder` uses `onReorderItem`, which is measured after. |
+| `onReorderItem` | `void Function(int, int)?` | event `onReorder` |  |
+| `onReorderStart` | `void Function(int)?` | event `onReorderStart` |  |
+| `onReorderEnd` | `void Function(int)?` | event `onReorderEnd` |  |
+| `itemExtent` | `double?` | prop `itemExtent` |  |
+| `itemExtentBuilder` | `double? Function(int, SliverLayoutDimensions)?` | excluded: builder→template | Item extents are measured by the runtime. |
+| `prototypeItem` | `Widget?` | excluded: deferred | Use `itemExtent`. |
+| `proxyDecorator` | `Widget Function(Widget, int, Animation<double>)?` | excluded: non-serialisable | The runtime draws the dragged item. |
+| `buildDefaultDragHandles` | `bool` | prop `buildDefaultDragHandles` |  |
+| `padding` | `EdgeInsets?` | prop `padding` |  |
+| `header` | `Widget?` | slot `header` |  |
+| `footer` | `Widget?` | slot `footer` |  |
+| `scrollDirection` | `Axis` | prop `scrollDirection` |  |
+| `reverse` | `bool` | prop `reverse` |  |
+| `scrollController` | `ScrollController?` | excluded: controller→state | The runtime owns the controller. |
+| `primary` | `bool?` | excluded: deferred | Scroll views are never primary inside a page. |
+| `physics` | `ScrollPhysics?` | prop `physics` |  |
+| `shrinkWrap` | `bool` | prop `shrinkWrap` |  |
+| `anchor` | `double` | prop `anchor` |  |
+| `cacheExtent` (deprecated) | `double?` | excluded: deprecated | Flutter replaced it with scrollCacheExtent, which is tuned by the runtime. |
+| `scrollCacheExtent` | `ScrollCacheExtent?` | excluded: deferred | Cache extents are tuned by the runtime. |
+| `dragStartBehavior` | `DragStartBehavior` | prop `dragStartBehavior` |  |
+| `keyboardDismissBehavior` | `ScrollViewKeyboardDismissBehavior?` | prop `keyboardDismissBehavior` |  |
+| `restorationId` | `String?` | excluded: non-serialisable | State restoration is managed by the runtime. |
+| `clipBehavior` | `Clip` | prop `clipBehavior` |  |
+| `autoScrollerVelocityScalar` | `double?` | prop `autoScrollerVelocityScalar` |  |
+| `dragBoundaryProvider` | `DragBoundaryDelegate<Rect>? Function(BuildContext)?` | excluded: non-serialisable |  |
+| `mouseCursor` | `MouseCursor?` | excluded: deferred | Pointer cursors matter only for desktop and web targets. |
+
 ### RichText · `Text.rich`
 
 | Parameter | Flutter type | Plux | Note |
@@ -1506,6 +2192,16 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `textWidthBasis` | `TextWidthBasis?` | prop `textWidthBasis` |  |
 | `textHeightBehavior` | `TextHeightBehavior?` | excluded: deferred | Fine-grained line-height behaviour is deferred. |
 | `selectionColor` | `Color?` | prop `selectionColor` |  |
+
+### RotationTransition · `RotationTransition`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `turns` | `Animation<double>` | excluded: controller→state | Driven by the timeline track. |
+| `alignment` | `Alignment` | prop `alignment` |  |
+| `filterQuality` | `FilterQuality?` | prop `filterQuality` |  |
+| `child` | `Widget?` | slot `child` |  |
 
 ### Row · `Row`
 
@@ -1567,6 +2263,16 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `endDrawerEnableOpenDragGesture` | `bool` | prop `endDrawerEnableOpenDragGesture` |  |
 | `restorationId` | `String?` | excluded: non-serialisable | State restoration is managed by the runtime. |
 
+### ScaleTransition · `ScaleTransition`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `scale` | `Animation<double>` | excluded: controller→state | Driven by the timeline track. |
+| `alignment` | `Alignment` | prop `alignment` |  |
+| `filterQuality` | `FilterQuality?` | prop `filterQuality` |  |
+| `child` | `Widget?` | slot `child` |  |
+
 ### Scrollbar · `Scrollbar`
 
 | Parameter | Flutter type | Plux | Note |
@@ -1581,6 +2287,79 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `notificationPredicate` | `bool Function(ScrollNotification)?` | excluded: non-serialisable | A Dart callback. |
 | `interactive` | `bool?` | prop `interactive` |  |
 | `scrollbarOrientation` | `ScrollbarOrientation?` | prop `scrollbarOrientation` |  |
+
+### SearchAnchor · `SearchAnchor`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `isFullScreen` | `bool?` | prop `isFullScreen` |  |
+| `searchController` | `SearchController?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `viewBuilder` | `Widget Function(Iterable<Widget>)?` | excluded: builder→template | The runtime builds the view from `suggestions`. |
+| `viewLeading` | `Widget?` | excluded: deferred | Not supported yet. |
+| `viewTrailing` | `Iterable<Widget>?` | excluded: deferred | Not supported yet. |
+| `viewHintText` | `String?` | prop `viewHintText` |  |
+| `viewBackgroundColor` | `Color?` | excluded: deferred | Not supported yet. |
+| `viewElevation` | `double?` | excluded: deferred | Not supported yet. |
+| `viewSurfaceTintColor` | `Color?` | excluded: deferred | Not supported yet. |
+| `viewSide` | `BorderSide?` | excluded: deferred | Not supported yet. |
+| `viewShape` | `OutlinedBorder?` | excluded: deferred | Not supported yet. |
+| `viewBarPadding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `headerHeight` | `double?` | excluded: deferred | Not supported yet. |
+| `headerTextStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `headerHintStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `dividerColor` | `Color?` | excluded: deferred | Not supported yet. |
+| `viewConstraints` | `BoxConstraints?` | excluded: deferred | Not supported yet. |
+| `viewPadding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `shrinkWrap` | `bool?` | excluded: deferred | Not supported yet. |
+| `textCapitalization` | `TextCapitalization?` | excluded: deferred | Not supported yet. |
+| `viewOnChanged` | `void Function(String)?` | excluded: deferred | Not supported yet. |
+| `viewOnSubmitted` | `void Function(String)?` | excluded: deferred | Not supported yet. |
+| `viewOnClose` | `void Function()?` | excluded: deferred | Not supported yet. |
+| `viewOnOpen` | `void Function()?` | excluded: deferred | Not supported yet. |
+| `builder` | `Widget Function(BuildContext, SearchController)` | excluded: builder→template | The runtime builds it from the Plux props. |
+| `suggestionsBuilder` | `FutureOr<Iterable<Widget>> Function(BuildContext, SearchController)` | excluded: builder→template | Replaced by the `suggestions` prop. |
+| `textInputAction` | `TextInputAction?` | excluded: deferred | Not supported yet. |
+| `keyboardType` | `TextInputType?` | excluded: deferred | Not supported yet. |
+| `enabled` | `bool` | excluded: deferred | Not supported yet. |
+| `smartDashesType` | `SmartDashesType?` | excluded: deferred | Not supported yet. |
+| `smartQuotesType` | `SmartQuotesType?` | excluded: deferred | Not supported yet. |
+
+### SearchBar · `SearchBar`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `controller` | `TextEditingController?` | prop `value` |  |
+| `focusNode` | `FocusNode?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `hintText` | `String?` | prop `hintText` |  |
+| `leading` | `Widget?` | slot `leading` |  |
+| `trailing` | `Iterable<Widget>?` | slot `trailing` |  |
+| `onTap` | `void Function()?` | event `onTap` |  |
+| `onTapOutside` | `void Function(PointerDownEvent)?` | excluded: deferred | Not supported yet. |
+| `onChanged` | `void Function(String)?` | event `onChanged` |  |
+| `onSubmitted` | `void Function(String)?` | event `onSubmitted` |  |
+| `constraints` | `BoxConstraints?` | excluded: deferred | Not supported yet. |
+| `elevation` | `WidgetStateProperty<double?>?` | excluded: deferred | Not supported yet. |
+| `backgroundColor` | `WidgetStateProperty<Color?>?` | excluded: deferred | Not supported yet. |
+| `shadowColor` | `WidgetStateProperty<Color?>?` | excluded: deferred | Not supported yet. |
+| `surfaceTintColor` | `WidgetStateProperty<Color?>?` | excluded: deferred | Not supported yet. |
+| `overlayColor` | `WidgetStateProperty<Color?>?` | excluded: deferred | Not supported yet. |
+| `side` | `WidgetStateProperty<BorderSide?>?` | excluded: deferred | Not supported yet. |
+| `shape` | `WidgetStateProperty<OutlinedBorder?>?` | excluded: deferred | Not supported yet. |
+| `padding` | `WidgetStateProperty<EdgeInsetsGeometry?>?` | excluded: deferred | Not supported yet. |
+| `textStyle` | `WidgetStateProperty<TextStyle?>?` | excluded: deferred | Not supported yet. |
+| `hintStyle` | `WidgetStateProperty<TextStyle?>?` | excluded: deferred | Not supported yet. |
+| `textCapitalization` | `TextCapitalization?` | excluded: deferred | Not supported yet. |
+| `enabled` | `bool` | excluded: deferred | Not supported yet. |
+| `autoFocus` | `bool` | excluded: deferred | Not supported yet. |
+| `textInputAction` | `TextInputAction?` | excluded: deferred | Not supported yet. |
+| `keyboardType` | `TextInputType?` | excluded: deferred | Not supported yet. |
+| `scrollPadding` | `EdgeInsets` | excluded: deferred | Not supported yet. |
+| `contextMenuBuilder` | `Widget Function(BuildContext, EditableTextState)?` | excluded: builder→template | The runtime builds it from the Plux props. |
+| `readOnly` | `bool` | excluded: deferred | Not supported yet. |
+| `smartDashesType` | `SmartDashesType?` | excluded: deferred | Not supported yet. |
+| `smartQuotesType` | `SmartQuotesType?` | excluded: deferred | Not supported yet. |
 
 ### SegmentedButton · `SegmentedButton`
 
@@ -1661,6 +2440,16 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
 | `width` | `double?` | prop `width` |  |
 | `height` | `double?` | prop `height` |  |
+| `child` | `Widget?` | slot `child` |  |
+
+### SlideTransition · `SlideTransition`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `position` | `Animation<Offset>` | excluded: controller→state | Driven by the timeline track. |
+| `transformHitTests` | `bool` | prop `transformHitTests` |  |
+| `textDirection` | `TextDirection?` | prop `textDirection` |  |
 | `child` | `Widget?` | slot `child` |  |
 
 ### Slider · `Slider`, `Slider.adaptive`
@@ -1779,6 +2568,15 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `padding` | `EdgeInsetsGeometry` | prop `padding` |  |
 | `sliver` | `Widget?` | slot `sliver` |  |
 
+### SliverPersistentHeader · `SliverPersistentHeader`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `delegate` | `SliverPersistentHeaderDelegate` | prop `minExtent`, prop `maxExtent`, slot `child` |  |
+| `pinned` | `bool` | prop `pinned` |  |
+| `floating` | `bool` | prop `floating` |  |
+
 ### SliverToBoxAdapter · `SliverToBoxAdapter`
 
 | Parameter | Flutter type | Plux | Note |
@@ -1803,6 +2601,32 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `fit` | `StackFit` | prop `fit` |  |
 | `clipBehavior` | `Clip` | prop `clipBehavior` |  |
 | `children` | `List<Widget>` | `children` |  |
+
+### Stepper · `Stepper`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `steps` | `List<Step>` | prop `steps`, `children` |  |
+| `controller` | `ScrollController?` | excluded: controller→state | The runtime owns the controller. |
+| `physics` | `ScrollPhysics?` | prop `physics` |  |
+| `type` | `StepperType` | prop `type` |  |
+| `currentStep` | `int` | prop `currentStep` |  |
+| `onStepTapped` | `void Function(int)?` | event `onStepTapped` |  |
+| `onStepContinue` | `void Function()?` | event `onStepContinue` |  |
+| `onStepCancel` | `void Function()?` | event `onStepCancel` |  |
+| `controlsBuilder` | `Widget Function(BuildContext, ControlsDetails)?` | excluded: builder→template | The default Continue and Cancel controls are used; they fire `onStepContinue` and `onStepCancel`. |
+| `elevation` | `double?` | prop `elevation` |  |
+| `margin` | `EdgeInsetsGeometry?` | prop `margin` |  |
+| `connectorColor` | `WidgetStateProperty<Color>?` | prop `connectorColor` |  |
+| `connectorThickness` | `double?` | prop `connectorThickness` |  |
+| `stepIconBuilder` | `Widget? Function(int, StepState)?` | excluded: builder→template | Step icons follow `StepItem.state`. |
+| `stepIconHeight` | `double?` | prop `stepIconHeight` |  |
+| `stepIconWidth` | `double?` | prop `stepIconWidth` |  |
+| `stepIconMargin` | `EdgeInsets?` | prop `stepIconMargin` |  |
+| `clipBehavior` | `Clip` | prop `clipBehavior` |  |
+| `headerPadding` | `EdgeInsetsGeometry?` | prop `headerPadding` |  |
+| `contentPadding` | `EdgeInsetsGeometry?` | prop `contentPadding` |  |
 
 ### Switch · `Switch`, `Switch.adaptive`
 
@@ -1887,6 +2711,68 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | `hoverColor` | `Color?` | prop `hoverColor` |  |
 | `internalAddSemanticForOnTap` | `bool` | excluded: non-serialisable | A framework-internal flag. |
 | `applyCupertinoTheme` — SwitchListTile.adaptive | `bool?` | prop `applyCupertinoTheme` |  |
+
+### TabBar · `TabBar`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `tabs` | `List<Widget>` | excluded: deferred | Replaced by the `tabs` prop. |
+| `controller` | `TabController?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `scrollController` | `TabBarScrollController?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `isScrollable` | `bool` | prop `isScrollable` |  |
+| `padding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `indicatorColor` | `Color?` | prop `indicatorColor` |  |
+| `automaticIndicatorColorAdjustment` | `bool` | excluded: deferred | Not supported yet. |
+| `indicatorWeight` | `double` | excluded: deferred | Not supported yet. |
+| `indicatorPadding` | `EdgeInsetsGeometry` | excluded: deferred | Not supported yet. |
+| `indicator` | `Decoration?` | excluded: deferred | Not supported yet. |
+| `indicatorSize` | `TabBarIndicatorSize?` | prop `indicatorSize` |  |
+| `dividerColor` | `Color?` | prop `dividerColor` |  |
+| `dividerHeight` | `double?` | excluded: deferred | Not supported yet. |
+| `labelColor` | `Color?` | prop `labelColor` |  |
+| `labelStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `labelPadding` | `EdgeInsetsGeometry?` | excluded: deferred | Not supported yet. |
+| `unselectedLabelColor` | `Color?` | prop `unselectedLabelColor` |  |
+| `unselectedLabelStyle` | `TextStyle?` | excluded: deferred | Not supported yet. |
+| `dragStartBehavior` | `DragStartBehavior` | excluded: deferred | Not supported yet. |
+| `overlayColor` | `WidgetStateProperty<Color?>?` | excluded: deferred | Not supported yet. |
+| `mouseCursor` | `MouseCursor?` | excluded: deferred | Not supported yet. |
+| `enableFeedback` | `bool?` | excluded: deferred | Not supported yet. |
+| `onTap` | `void Function(int)?` | event `onTap` |  |
+| `onHover` | `void Function(bool, int)?` | excluded: deferred | Not supported yet. |
+| `onFocusChange` | `void Function(bool, int)?` | excluded: deferred | Not supported yet. |
+| `physics` | `ScrollPhysics?` | excluded: deferred | Not supported yet. |
+| `splashFactory` | `InteractiveInkFeatureFactory?` | excluded: deferred | Not supported yet. |
+| `splashBorderRadius` | `BorderRadius?` | excluded: deferred | Not supported yet. |
+| `tabAlignment` | `TabAlignment?` | excluded: deferred | Not supported yet. |
+| `textScaler` | `TextScaler?` | excluded: deferred | Not supported yet. |
+| `indicatorAnimation` | `TabIndicatorAnimation?` | excluded: deferred | Not supported yet. |
+
+### TabBarView · `TabBarView`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `children` | `List<Widget>` | `children` |  |
+| `controller` | `TabController?` | excluded: controller→state | The runtime owns it and binds it to state. |
+| `physics` | `ScrollPhysics?` | excluded: deferred | Not supported yet. |
+| `dragStartBehavior` | `DragStartBehavior` | excluded: deferred | Not supported yet. |
+| `viewportFraction` | `double` | prop `viewportFraction` |  |
+| `clipBehavior` | `Clip` | excluded: deferred | Not supported yet. |
+
+### Table · `Table`
+
+| Parameter | Flutter type | Plux | Note |
+|---|---|---|---|
+| `key` | `Key?` | excluded: non-serialisable | Keys are derived from node identifiers. |
+| `children` | `List<TableRow>` | `children` |  |
+| `columnWidths` | `Map<int, TableColumnWidth>?` | prop `columnWidths` |  |
+| `defaultColumnWidth` | `TableColumnWidth` | prop `defaultColumnWidth` |  |
+| `textDirection` | `TextDirection?` | prop `textDirection` |  |
+| `border` | `TableBorder?` | prop `border` |  |
+| `defaultVerticalAlignment` | `TableCellVerticalAlignment` | prop `defaultVerticalAlignment` |  |
+| `textBaseline` | `TextBaseline?` | prop `textBaseline` |  |
 
 ### Text · `Text`
 
@@ -2563,6 +3449,7 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | BlendMode | `BlendMode` | 29 | — |
 | BlurStyle | `BlurStyle` | 4 | — |
 | BorderStyle | `BorderStyle` | 2 | — |
+| BottomNavigationBarType | `BottomNavigationBarType` | 2 | — |
 | BoxFit | `BoxFit` | 7 | — |
 | BoxHeightStyle | `BoxHeightStyle` | 6 | — |
 | BoxShape | `BoxShape` | 2 | — |
@@ -2570,8 +3457,11 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | Brightness | `Brightness` | 2 | — |
 | Clip | `Clip` | 4 | — |
 | CrossAxisAlignment | `CrossAxisAlignment` | 5 | — |
+| CrossFadeState | `CrossFadeState` | 2 | — |
 | CupertinoButtonSize | `CupertinoButtonSize` | 3 | — |
+| CupertinoDatePickerMode | `CupertinoDatePickerMode` | 4 | — |
 | DecorationPosition | `DecorationPosition` | 2 | — |
+| DismissDirection | `DismissDirection` | 7 | — |
 | DragStartBehavior | `DragStartBehavior` | 2 | — |
 | DropdownMenuCloseBehavior | `DropdownMenuCloseBehavior` | 3 | — |
 | FilterQuality | `FilterQuality` | 4 | — |
@@ -2588,7 +3478,12 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | MainAxisSize | `MainAxisSize` | 2 | — |
 | MaterialTapTargetSize | `MaterialTapTargetSize` | 2 | — |
 | MaxLengthEnforcement | `MaxLengthEnforcement` | 3 | — |
+| NavigationDestinationLabelBehavior | `NavigationDestinationLabelBehavior` | 3 | — |
+| NavigationRailLabelType | `NavigationRailLabelType` | 3 | — |
+| OverflowBarAlignment | `OverflowBarAlignment` | 3 | — |
 | OverlayVisibilityMode | `OverlayVisibilityMode` | 4 | — |
+| PanAxis | `PanAxis` | 4 | — |
+| RefreshIndicatorTriggerMode | `RefreshIndicatorTriggerMode` | 2 | — |
 | ScrollViewKeyboardDismissBehavior | `ScrollViewKeyboardDismissBehavior` | 2 | — |
 | ScrollbarOrientation | `ScrollbarOrientation` | 4 | — |
 | ShowValueIndicator | `ShowValueIndicator` | 6 | — |
@@ -2597,7 +3492,11 @@ Callbacks are supported as events and builders as slots or item templates. A par
 | SmartDashesType | `SmartDashesType` | 2 | — |
 | SmartQuotesType | `SmartQuotesType` | 2 | — |
 | StackFit | `StackFit` | 3 | — |
+| StepState | `StepState` | 5 | — |
+| StepperType | `StepperType` | 2 | — |
 | StrokeCap | `StrokeCap` | 3 | — |
+| TabBarIndicatorSize | `TabBarIndicatorSize` | 2 | — |
+| TableCellVerticalAlignment | `TableCellVerticalAlignment` | 6 | — |
 | TextAlign | `TextAlign` | 6 | — |
 | TextBaseline | `TextBaseline` | 2 | — |
 | TextCapitalization | `TextCapitalization` | 4 | — |

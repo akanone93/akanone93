@@ -1,0 +1,76 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "CupertinoContextMenu",
+  "id": 158,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/cupertino.dart",
+    "class": "CupertinoContextMenu",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "cupertino",
+  "icon": "touch_app",
+  "description": "Shows `actions` when `child` is long-pressed; choosing one fires `onAction` with its index.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 40,
+  "accessibility": {
+    "role": "menu",
+    "interactive": true,
+    "minTarget": true
+  },
+  "typeParameters": [],
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "actions",
+      "id": 1,
+      "type": "list<ContextMenuAction>",
+      "required": true,
+      "flutter": "actions",
+      "description": "The actions, in order."
+    },
+    {
+      "name": "enableHapticFeedback",
+      "id": 2,
+      "type": "bool",
+      "default": false,
+      "flutter": "enableHapticFeedback"
+    }
+  ],
+  "events": [
+    {
+      "name": "onAction",
+      "id": 1,
+      "payload": "int",
+      "description": "Fired with the index of the chosen action."
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "required": true,
+      "flutter": "child"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    }
+  ]
+}

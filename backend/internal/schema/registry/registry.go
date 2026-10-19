@@ -46,6 +46,12 @@ const (
 	RoleHeader
 	RoleList
 	RoleProgress
+	RoleTab
+	RoleMenu
+	RoleMenuItem
+	RoleLink
+	RoleGroup
+	RoleAlert
 )
 
 // Widget is a widget descriptor (WGT-001).
@@ -101,8 +107,10 @@ type Prop struct {
 	Revision   uint16
 	Deprecated *Deprecation
 	// Bindable is false when the prop accepts only literals.
-	Bindable    bool
-	Description string
+	Bindable bool
+	// Translatable is true for text shown to users (I18N-007).
+	Translatable bool
+	Description  string
 }
 
 // Constraints restrict literal values; a zero value restricts nothing.
@@ -124,7 +132,10 @@ type Event struct {
 	Name string
 	ID   uint32
 	// Payload is the type of `event` in handlers; empty for none.
-	Payload     string
+	Payload string
+	// Sensitive is true when the payload carries a personal or secret
+	// value (SCH-012, SEC-092).
+	Sensitive   bool
 	Revision    uint16
 	Deprecated  *Deprecation
 	Description string
@@ -172,14 +183,16 @@ type ValueType struct {
 
 // Field is a field of a value type.
 type Field struct {
-	Name        string
-	ID          uint32
-	Type        string
-	Required    bool
-	Default     string
-	Revision    uint16
-	Deprecated  *Deprecation
-	Description string
+	Name       string
+	ID         uint32
+	Type       string
+	Required   bool
+	Default    string
+	Revision   uint16
+	Deprecated *Deprecation
+	// Translatable is true for a string shown to users (I18N-007).
+	Translatable bool
+	Description  string
 }
 
 // Constant is a named value of a value type, as an object literal in JSON.

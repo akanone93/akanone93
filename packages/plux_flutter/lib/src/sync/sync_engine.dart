@@ -98,6 +98,7 @@ final class SyncConfig {
     this.diskQuota = 200 * 1024 * 1024,
     this.maxBundleSize = 20 * 1024 * 1024,
     this.assets = AssetDevice.plain,
+    this.locale = '',
     this.production = kReleaseMode,
     this.rootDocument,
     this.pins,
@@ -136,6 +137,11 @@ final class SyncConfig {
 
   /// What decides which file of each asset this device downloads.
   final AssetDevice assets;
+
+  /// The BCP 47 tag of the locale the device shows, or empty: the files an
+  /// asset has for it are fetched before those for the other locales
+  /// (I18N-012).
+  final String locale;
 
   /// Whether this is a production runtime, which refuses update metadata
   /// and keys of the `development` environment type (SEC-056). A release
@@ -601,6 +607,7 @@ final class SyncEngine {
     _Sealed? sealed,
   ) async {
     final sizes = <String, int>{};
+    final preferred = <String>{};
     for (final b in bundles) {
       final Uint8List? plain = b.confidential ? await sealed!.plain(b) : null;
       final file = plain == null
@@ -611,15 +618,30 @@ final class SyncEngine {
           final files = preferredFiles(a, config.assets);
           if (files.isEmpty) continue;
           sizes[files.first] = fileSize(a, files.first);
+          // The files for the release's other locales (I18N-012), each
+          // verified like the default file; the device's locale comes first.
+          for (final f in a.localeFiles ?? const <fbs.AssetLocaleFile>[]) {
+            final h = hexEncode(f.hash ?? const []);
+            if (h.isEmpty) continue;
+            sizes[h] = f.size;
+            final tag = f.tag ?? '';
+            if (tag == config.locale || config.locale.startsWith('$tag-')) {
+              preferred.add(h);
+            }
+          }
         }
       } finally {
         file?.release();
       }
     }
-    final missing = [
-      for (final h in sizes.keys)
-        if (!store.hasObject(ObjectKind.assets, h)) h,
-    ]..sort();
+    final missing =
+        [
+          for (final h in sizes.keys)
+            if (!store.hasObject(ObjectKind.assets, h)) h,
+        ]..sort((a, b) {
+          final pa = preferred.contains(a), pb = preferred.contains(b);
+          return pa == pb ? a.compareTo(b) : (pa ? -1 : 1);
+        });
     final needed = missing.fold<int>(0, (n, h) => n + sizes[h]!);
     if (store.keptUsage() + bundleBytes + needed > quota) {
       throw PluxException(

@@ -101,6 +101,10 @@ void main() {
             // (security.secureui.v1).
             : path.startsWith('features/')
             ? '0.4.0'
+            // The widgets gallery uses widgets that need 0.5.0 (navigation,
+            // menus and the P8 widget set).
+            : path.startsWith('widgets/')
+            ? '0.5.0'
             : '0.3.0',
         reason: path,
       );
@@ -183,7 +187,7 @@ void main() {
       isNot(contains('hidden')),
       reason: 'the node with visible false',
     );
-    expect(natives, ['MapView']);
+    expect(natives, ['StoreMap']);
     // Hints are a set of bits; a static repaint boundary would be 3.
     expect(
       hints,
@@ -201,12 +205,12 @@ void main() {
       final caps = fbs.Meta(app.ofKind(SectionKind.meta).single.data)
           .capabilities;
       expect(caps, isNotNull);
-      expect(caps!.deviceApis, ['haptics']);
+      expect(caps!.deviceApis, ['camera', 'files', 'haptics']);
       expect(caps.networkDomains ?? const <String>[], isEmpty);
       final plugin = BundleContainer.parse(bundles['widgets/gallery.pxb']!);
       final declared = fbs.Meta(plugin.ofKind(SectionKind.meta).single.data)
           .capabilities;
-      expect(declared?.deviceApis, ['haptics']);
+      expect(declared?.deviceApis, ['camera', 'files', 'haptics']);
     },
   );
 }

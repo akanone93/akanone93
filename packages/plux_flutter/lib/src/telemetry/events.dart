@@ -36,6 +36,7 @@ const Map<String, TelemetryCategory> telemetryCategories = {
   'api_call': TelemetryCategory.analytics,
   'function_call': TelemetryCategory.analytics,
   'custom': TelemetryCategory.analytics,
+  'l10n_missing': TelemetryCategory.analytics,
   'experiment_exposure': TelemetryCategory.experiments,
 };
 

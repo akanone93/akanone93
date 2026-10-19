@@ -7,6 +7,8 @@
 /// roots.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +38,8 @@ import 'package:plux_flutter/src/data/spec.dart';
 import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/forms/form_state.dart';
+import 'package:plux_flutter/src/l10n/locale_controller.dart';
+import 'package:plux_flutter/src/l10n/locale_host.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/navigation/guards.dart';
 import 'package:plux_flutter/src/navigation/page_navigator.dart';
@@ -43,7 +47,12 @@ import 'package:plux_flutter/src/platform/platform_services.dart';
 import 'package:plux_flutter/src/pxl/regex.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
 import 'package:plux_flutter/src/pxl/vm.dart';
+import 'package:plux_flutter/src/render/builders/animation.dart';
 import 'package:plux_flutter/src/render/builders/builders.dart';
+import 'package:plux_flutter/src/render/builders/calendar.dart';
+import 'package:plux_flutter/src/render/builders/cupertino_more.dart';
+import 'package:plux_flutter/src/render/builders/navigation.dart';
+import 'package:plux_flutter/src/render/builders/scrolling.dart';
 import 'package:plux_flutter/src/render/builders/secure.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
@@ -72,7 +81,12 @@ import 'package:plux_flutter/src/verify/manifest.dart';
 final Map<int, NodeBuilder> nodeBuilders = {
   ...generatedBuilders,
   ...manualBuilders,
+  ...navigationBuilders,
+  ...cupertinoMoreBuilders,
   ...secureBuilders,
+  ...scrollingBuilders,
+  ...animationBuilders,
+  ...calendarBuilders,
 };
 
 /// Renders pages of the active release.
@@ -89,11 +103,17 @@ final class PluxRenderer implements PageRenderer, RenderServices {
     this.actions,
     this.data,
     this.secureUi,
+    bool Function()? pinnedMedia,
     StatePersistence? statePersistence,
     VerifiedAssets? verified,
     int? cacheEntries,
     int? cacheBytes,
-  }) : statePersistence = statePersistence ?? StatePersistence.inMemory(),
+  }) : builders = {
+         ...nodeBuilders,
+         for (final p in config.widgetPackages) ...p.builders,
+       },
+       _pinnedMedia = pinnedMedia ?? (() => false),
+       statePersistence = statePersistence ?? StatePersistence.inMemory(),
        _verified = verified ?? VerifiedAssets(),
        cache = SectionCache(
          maxEntries:
@@ -105,12 +125,38 @@ final class PluxRenderer implements PageRenderer, RenderServices {
   /// The configuration.
   final PluxConfig config;
 
+  /// The builders by permanent widget ID: the runtime's, then those of
+  /// the registered widget packages, which win on a clash.
+  final Map<int, NodeBuilder> builders;
+
+  final Set<int> _missingReported = {};
+
+  @override
+  String? missingPackage(int id) {
+    if (_missingReported.contains(id)) return null;
+    for (final d in widgetDescriptors) {
+      if (d.id == id) {
+        final package = d.package;
+        return package;
+      }
+    }
+    return null;
+  }
+
+  @override
+  bool firstMissingReport(int id) => _missingReported.add(id);
+
   /// Creates the HTTP client images are fetched with; the platform's, or
   /// the configuration's, when null.
   final http.Client Function()? httpClient;
 
   /// Reports a problem.
   final void Function(PluxException error) report;
+
+  /// The locale PXL's `format` group and message numbers and dates are
+  /// formatted in; null until locale data is loaded (L4), which sets it once
+  /// per locale. The pages built after it is set use it.
+  PxlLocaleContext? localeContext;
 
   /// Records a failure attributed to Plux.
   final void Function(PluxException error) failure;
@@ -301,6 +347,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
     Map<String, Object?> Function()? extraRoots,
     List<fbs.Form>? forms,
     FormGraphRunner? runForm,
+    FormTexts formTexts = const FormTexts(),
   }) {
     final bundle = view(release, plugin);
     final limits = _pxlLimits(release.limits);
@@ -346,6 +393,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
         regex: limits.regex,
       ),
       runForm: runForm,
+      formTexts: formTexts,
       types: types,
       evaluate: (program, roots) => ValueResolver(
         plugin: bundle,
@@ -619,6 +667,11 @@ final class PluxRenderer implements PageRenderer, RenderServices {
             ThemeMode.system =>
               dispatcher.platformBrightness == Brightness.dark,
           },
+          reduceMotion: dispatcher.accessibilityFeatures.disableAnimations,
+          boldText: dispatcher.accessibilityFeatures.boldText,
+          highContrast: dispatcher.accessibilityFeatures.highContrast,
+          screenReader: dispatcher.accessibilityFeatures.accessibleNavigation,
+          textDirection: directionOfLocale(locale),
         ),
         'user': userRoot(release, env),
         'flags': flagsRoot(release),
@@ -870,7 +923,11 @@ final class PluxRenderer implements PageRenderer, RenderServices {
       return null;
     }
     if (a != null) {
-      for (final hash in preferredFiles(a, assets)) {
+      for (final hash in preferredFiles(
+        a,
+        assets,
+        locales: scope.localeChain,
+      )) {
         final path = scope.release.assetPath(hash);
         if (path != null) return PluxAssetImage(path, hash, _verified);
       }
@@ -887,9 +944,9 @@ final class PluxRenderer implements PageRenderer, RenderServices {
     return null;
   }
 
-  /// A remote image: HTTPS, on a domain the plugin declares (SEC-080,
-  /// AST-002), else blocked and reported (PLX-6030).
-  ImageProvider<Object>? _remote(RenderScope scope, String url) {
+  /// [url] as a [Uri] when it is HTTPS on a domain the plugin declares
+  /// (SEC-080, AST-002); else null, reported (PLX-6030) as `what`.
+  Uri? _allowed(RenderScope scope, String url, String what) {
     final uri = Uri.tryParse(url);
     final domains =
         scope.release.meta(scope.pluginKey).capabilities?.networkDomains ??
@@ -900,12 +957,40 @@ final class PluxRenderer implements PageRenderer, RenderServices {
       scope.report(
         PluxException(
           PluxErrorCode.outboundRequestBlocked,
-          'the image $url is not on an HTTPS domain the plugin declares',
+          'the $what $url is not on an HTTPS domain the plugin declares',
         ),
         path: scope.path,
       );
       return null;
     }
+    return uri;
+  }
+
+  final bool Function() _pinnedMedia;
+
+  @override
+  bool get pinnedMediaOnly => _pinnedMedia();
+
+  @override
+  Widget? deviceRefusal(BuildContext context, RenderScope scope, String api) {
+    final error = actions?.deviceGuard?.refusal(scope.pluginKey, api);
+    if (error == null) return null;
+    scope.report(error, path: scope.path);
+    return fallback(context, error, scope.pluginKey);
+  }
+
+  http.Client get _pinned =>
+      _client ??= (httpClient ?? config.httpClient ?? platformHttpClient)();
+
+  @override
+  http.Client? remoteClient(RenderScope scope, String url) =>
+      _allowed(scope, url, 'request') == null ? null : _pinned;
+
+  /// A remote image: HTTPS, on a domain the plugin declares (SEC-080,
+  /// AST-002), else blocked and reported (PLX-6030).
+  ImageProvider<Object>? _remote(RenderScope scope, String url) {
+    final uri = _allowed(scope, url, 'image');
+    if (uri == null) return null;
     final limits = scope.release.limits;
     return PluxNetworkImage(
       uri,
@@ -913,8 +998,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
         imageCacheDirectory,
         maxBytes: limits.valueOf(PluxLimit.runtimeImageDiskCacheBytes),
       ),
-      client: _client ??=
-          (httpClient ?? config.httpClient ?? platformHttpClient)(),
+      client: _pinned,
       maxBytes: limits.valueOf(PluxLimit.runtimeImageSize),
     );
   }
@@ -1119,8 +1203,10 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
           false,
       presenter: (error) {
         if (!mounted) return;
-        ScaffoldMessenger.maybeOf(context)
-            ?.showSnackBar(SnackBar(content: Text(fallbackMessage(error))));
+        final strings = ref.read(localeControllerProvider).strings;
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(content: Text(fallbackMessage(error, strings))),
+        );
       },
     );
   }();
@@ -1311,6 +1397,17 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
         extraRoots: () => {_component ? 'props' : 'params': _params},
         forms: page?.forms ?? component?.forms,
         runForm: _runForm,
+        formTexts: FormTexts(
+          reference: (v) {
+            try {
+              final text = _resolver?.resolve(v, _section.string);
+              return text is String ? text : null;
+            } on Object {
+              return null;
+            }
+          },
+          strings: () => ref.read(localeControllerProvider).strings,
+        ),
       ),
     );
     final appLiteral = ValueResolver(
@@ -1387,10 +1484,18 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     final env = ref.watch(environmentProvider);
     final media = MediaQuery.maybeOf(context);
     _reduceMotion = media?.disableAnimations ?? false;
+    final locales = ref.watch(localeControllerProvider);
+    final haveRelease = ref.watch(localeReleaseProvider) != null;
+    // Not before the release's locale is decoded: a page never shows in the
+    // wrong formats and is never built twice for it (I18N-005).
+    if (haveRelease && locales.loading) return const SizedBox.shrink();
+    // A locale set with Plux.setLocale or PluxConfig sets the direction; one
+    // that follows the host leaves the host's direction in force.
+    final ownDirection = haveRelease && env.locale != null;
     final locale =
         env.locale ??
         Localizations.maybeLocaleOf(context) ??
-        const Locale('en');
+        (haveRelease ? locales.locale : const Locale('en'));
     final source = widget.renderer.config.themeSource;
     final host = Theme.of(context);
     // The mode the host sets with Plux.setThemeMode; otherwise the host
@@ -1408,6 +1513,14 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       locale: locale,
       textScale: media?.textScaler.scale(1) ?? 1.0,
       dark: dark,
+      reduceMotion: media?.disableAnimations ?? false,
+      boldText: media?.boldText ?? false,
+      highContrast: media?.highContrast ?? false,
+      screenReader: media?.accessibleNavigation ?? false,
+      textDirection: ownDirection
+          ? locales.direction
+          : Directionality.maybeOf(context) ?? TextDirection.ltr,
+      calendar: locales.calendar,
     );
     Map<String, Object?> roots() => {
       _component ? 'props' : 'params': _params,
@@ -1442,6 +1555,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
         dark: dark,
         brand: env.brand,
         highContrast: tokens.highContrast,
+        boldText: media?.boldText ?? false,
       ),
       tokens,
       appResolver,
@@ -1449,14 +1563,42 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     final tags = [
       locale.toLanguageTag(),
       locale.languageCode,
+      if (haveRelease) ...locales.chain,
       widget.release.meta('').defaultLocale ?? '',
     ];
+    // The translations a locale further down the chain supplied for this
+    // build; debug builds mark their text (I18N-006).
+    final fellBack = <UuidKey>{};
     String? translation(UuidKey key) {
       for (final tag in tags) {
         if (tag.isEmpty) continue;
         // Plugin translations first, then the app's.
         final m = _plugin.message(tag, key) ?? _app.message(tag, key);
-        if (m != null) return m;
+        if (m != null) {
+          if (haveRelease && tag != tags.first && tag != locales.tag) {
+            fellBack.add(key);
+            // After the build: reporting must not rebuild what builds.
+            final requested = locales.tag;
+            final controller = ref.read(localeControllerProvider.notifier);
+            scheduleMicrotask(() {
+              if (mounted) {
+                controller.missing(uuidString(key), requested, tag);
+              }
+            });
+          }
+          return m;
+        }
+      }
+      return null;
+    }
+
+    List<int>? translationAst(UuidKey key) {
+      for (final tag in tags) {
+        if (tag.isEmpty) continue;
+        if (_plugin.message(tag, key) != null ||
+            _app.message(tag, key) != null) {
+          return _plugin.messageAst(tag, key) ?? _app.messageAst(tag, key);
+        }
       }
       return null;
     }
@@ -1466,6 +1608,12 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       roots: roots,
       token: (path) => theme.role(path) ?? tokens.read(path, appResolver),
       translation: translation,
+      translationAst: translationAst,
+      localeContext: locales.pxl ?? widget.renderer.localeContext,
+      translationFellBack: (key) => kDebugMode && fellBack.contains(key),
+      onMessageError: (problem) => widget.renderer.report(
+        PluxException(PluxErrorCode.messageFormatFailed, problem),
+      ),
       limits: _limits,
     );
     _resolver = resolver;
@@ -1477,7 +1625,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       section: _section,
       resolver: resolver,
       roots: roots,
-      builders: nodeBuilders,
+      builders: widget.renderer.builders,
       cache: widget.renderer.cache,
       report: _report,
       services: widget.renderer,
@@ -1487,12 +1635,17 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       componentState: _component ? _instance : null,
       emitEvent: _component ? _emitToHost : null,
       animations: _animations,
+      localeChain: haveRelease ? locales.chain : const [],
     );
     final plugin = widget.page.plugin;
     Widget page = PluxBoundary(
       path: _path,
       fallback: (c, e) => widget.renderer.fallback(c, e, plugin),
-      child: RenderScopeWidget(scope: scope, child: const PluxNode(0)),
+      // One traversal group per page: focus order follows the nodes'
+      // `focusOrder` (A11Y-006).
+      child: FocusTraversalGroup(
+        child: RenderScopeWidget(scope: scope, child: const PluxNode(0)),
+      ),
     );
     final secureUi = widget.renderer.secureUi;
     if (secureUi != null) {
@@ -1518,7 +1671,11 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     if (theme.cupertino case final cupertino?) {
       page = CupertinoTheme(data: cupertino, child: page);
     }
-    return Theme(data: theme.material, child: page);
+    return PluxLocaleHost(
+      state: locales,
+      ownDirection: ownDirection,
+      child: Theme(data: theme.material, child: page),
+    );
   }
 
   ({
@@ -1527,6 +1684,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
     bool dark,
     String? brand,
     bool highContrast,
+    bool boldText,
   })?
   _themeKey;
   PluxTheme? _theme;
@@ -1539,6 +1697,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       bool dark,
       String? brand,
       bool highContrast,
+      bool boldText,
     })
     key,
     TokenReader tokens,
@@ -1552,7 +1711,8 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
         old.source == key.source &&
         old.dark == key.dark &&
         old.brand == key.brand &&
-        old.highContrast == key.highContrast) {
+        old.highContrast == key.highContrast &&
+        old.boldText == key.boldText) {
       return have;
     }
     _themeKey = key;
@@ -1560,6 +1720,7 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       host: key.host,
       source: key.source,
       dark: key.dark,
+      boldText: key.boldText,
       tokens: (
         token: (path) => tokens.read(path, resolver),
         raw: (path) => tokens.raw(path, resolver),
@@ -1581,6 +1742,22 @@ PxlLimits _pxlLimits(Map<String, int> app) => PxlLimits(
   ),
 );
 
+/// The reading direction of [locale]'s language.
+TextDirection directionOfLocale(Locale locale) =>
+    const {
+      'ar',
+      'he',
+      'fa',
+      'ur',
+      'ps',
+      'sd',
+      'ug',
+      'yi',
+      'dv',
+    }.contains(locale.languageCode)
+    ? TextDirection.rtl
+    : TextDirection.ltr;
+
 /// PXL's `device` root (Appendix E.2) for a window [width] logical pixels
 /// wide.
 Map<String, Object?> deviceRoot({
@@ -1588,6 +1765,12 @@ Map<String, Object?> deviceRoot({
   required Locale locale,
   required double textScale,
   required bool dark,
+  bool reduceMotion = false,
+  bool boldText = false,
+  bool highContrast = false,
+  bool screenReader = false,
+  TextDirection textDirection = TextDirection.ltr,
+  String calendar = 'gregorian',
 }) => {
   'platform': defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
   'osVersion': '',
@@ -1601,6 +1784,13 @@ Map<String, Object?> deviceRoot({
       : 'compact',
   // Attestation arrives in P6; until then no assurance is claimed.
   'assuranceLevel': 'AL0',
+  // Platform accessibility settings (A11Y-007).
+  'reduceMotion': reduceMotion,
+  'boldText': boldText,
+  'highContrast': highContrast,
+  'screenReader': screenReader,
+  'textDirection': textDirection == TextDirection.rtl ? 'rtl' : 'ltr',
+  'calendar': calendar,
 };
 
 /// What a guard may navigate: nothing. A guard decides with the result it

@@ -1,0 +1,35 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "SignDisplay",
+  "id": 141,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "When MoneyText shows a sign.",
+  "values": [
+    {
+      "name": "auto",
+      "id": 1,
+      "description": "A minus for negative amounts only."
+    },
+    {
+      "name": "always",
+      "id": 2,
+      "description": "A sign on every amount."
+    },
+    {
+      "name": "never",
+      "id": 3,
+      "description": "No sign."
+    },
+    {
+      "name": "exceptZero",
+      "id": 4,
+      "description": "A sign on every amount but zero."
+    }
+  ]
+}

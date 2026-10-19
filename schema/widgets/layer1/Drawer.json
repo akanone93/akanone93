@@ -1,0 +1,98 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "Drawer",
+  "id": 130,
+  "layer": 1,
+  "phase": "P4",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "class": "Drawer",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "navigation",
+  "icon": "menu",
+  "description": "A panel that slides in from the edge; fill `Scaffold.drawer` or `Scaffold.endDrawer` with it.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "none",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "backgroundColor",
+      "id": 1,
+      "type": "color",
+      "flutter": "backgroundColor"
+    },
+    {
+      "name": "elevation",
+      "id": 2,
+      "type": "double",
+      "flutter": "elevation"
+    },
+    {
+      "name": "shadowColor",
+      "id": 3,
+      "type": "color",
+      "flutter": "shadowColor"
+    },
+    {
+      "name": "surfaceTintColor",
+      "id": 4,
+      "type": "color",
+      "flutter": "surfaceTintColor"
+    },
+    {
+      "name": "shape",
+      "id": 5,
+      "type": "ShapeBorder",
+      "flutter": "shape"
+    },
+    {
+      "name": "width",
+      "id": 6,
+      "type": "double",
+      "flutter": "width"
+    },
+    {
+      "name": "semanticLabel",
+      "id": 7,
+      "type": "string",
+      "flutter": "semanticLabel",
+      "translatable": true
+    },
+    {
+      "name": "clipBehavior",
+      "id": 8,
+      "type": "Clip",
+      "flutter": "clipBehavior"
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "flutter": "child"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    }
+  ]
+}

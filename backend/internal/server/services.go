@@ -35,8 +35,10 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
+	"github.com/nightCode42/plux3/backend/internal/localisation"
 	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -91,6 +93,9 @@ type Services struct {
 	// Gateway is the secure gateway; nil where the process runs neither
 	// role (SEC-030).
 	Gateway *GatewayParts
+	// Goldens holds golden-test baselines and runs (TST-003); nil where the
+	// installation has no object store.
+	Goldens *golden.Service
 	// KMS checks the key management service, when the signing backend
 	// is one; nil for the development file backend (SRV-007).
 	KMS func(context.Context) error
@@ -328,16 +333,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	if work.Metrics != nil {
-		work.Metrics.DevicesByAssurance(func(ctx context.Context) ([]observability.DeviceAssurance, error) {
-			counts, err := devices.AssuranceCounts(ctx)
-			out := make([]observability.DeviceAssurance, len(counts))
-			for i, c := range counts {
-				out[i] = observability.DeviceAssurance{App: c.AppID, Level: c.Level, Count: c.Count}
-			}
-			return out, err //nolint:wrapcheck // a domain error
-		})
-	}
+	reportDeviceAssurance(work.Metrics, devices)
 	events, err := telemetry.NewService(telemetry.Options{DB: db, IDs: gen, Limits: set, Retention: time.Duration(cfg.Telemetry.RetentionDays) * 24 * time.Hour})
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
@@ -373,12 +369,33 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
+	var goldens *golden.Service
+	if work.Objects != nil {
+		goldens = golden.New(golden.Options{DB: db, Audit: log, Objects: work.Objects, IDs: gen, Limits: set})
+	}
 	return &Services{
-		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
+		Goldens: goldens,
+		Audit:   log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
 		AttestationStatus: status, Metrics: work.Metrics, Functions: functions, FunctionRuntime: fnRuntime,
 	}, nil
+}
+
+// reportDeviceAssurance feeds the devices-by-assurance gauge from the device
+// service. It does nothing without a metrics sink.
+func reportDeviceAssurance(m *observability.Metrics, devices *device.Service) {
+	if m == nil {
+		return
+	}
+	m.DevicesByAssurance(func(ctx context.Context) ([]observability.DeviceAssurance, error) {
+		counts, err := devices.AssuranceCounts(ctx)
+		out := make([]observability.DeviceAssurance, len(counts))
+		for i, c := range counts {
+			out[i] = observability.DeviceAssurance{App: c.AppID, Level: c.Level, Count: c.Count}
+		}
+		return out, err //nolint:wrapcheck // a domain error
+	})
 }
 
 // coreServices are the services the others are built on: sign-in, tenancy
@@ -597,21 +614,7 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	if s.cache != nil {
 		limiter.Count = s.cache.Increment
 	}
-	h := &api.Handlers{
-		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
-		Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
-		Limiter: limiter, Limits: s.limits,
-	}
-	if svc.AuditCheckpoints != nil {
-		h.AuditCheckpoints = svc.AuditCheckpoints
-	}
-	if rt := svc.FunctionRuntime; rt != nil {
-		h.FunctionHosting, h.FunctionInvoker = rt.host, rt.invoker
-	}
-	if g := svc.Gateway; g != nil {
-		h.Gateway, h.Upstreams, h.Exchange = g.Gateway, g.Upstreams, g.Exchange
-		h.Configs, h.LiveConfig = g.Configs, g.Resolver
-	}
+	h := s.handlersFor(svc, limiter)
 	people := api.Authentication(svc.Auth, api.IdentityPublic, s.trusted, limiter, s.limits.Get(limits.APIRequestsPerMinute))
 	deviceAuth := s.deviceAuth(svc, limiter, people)
 	authn := api.DeviceAuthentication(deviceAuth)
@@ -623,6 +626,54 @@ func (s *Server) RegisterAPI(svc *Services) error {
 		connect.WithInterceptors(s.Interceptors(authn)...),
 		connect.WithReadMaxBytes(int(s.limits.Get(limits.APIRequestSize))),
 	)
+	registrations := apiRegistrations(svc, h, opts)
+	for _, register := range registrations {
+		path, handler := register()
+		s.Register(path, handler)
+	}
+	s.registerFunctionHost(h)
+	if h.FunctionInvoker != nil {
+		s.Register(pluxv1connect.NewFunctionServiceHandler(h.FunctionService(), opts))
+	}
+	if svc.Gateway != nil {
+		s.registerGateway(svc.Gateway, h, deviceAuth, opts)
+	}
+	if s.objects != nil {
+		s.Register("GET "+release.ObjectsPath, s.objectHandler())
+	}
+	if svc.Releases != nil {
+		s.Register(MetadataRoute, s.metadataHandler(svc.Releases))
+	}
+	return nil
+}
+
+// handlersFor collects the services into the handler set of the api role,
+// leaving out what the build did not provide.
+func (s *Server) handlersFor(svc *Services, limiter api.RateLimiter) *api.Handlers {
+	h := &api.Handlers{
+		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
+		Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
+		Limiter: limiter, Limits: s.limits,
+	}
+	if svc.AuditCheckpoints != nil {
+		h.AuditCheckpoints = svc.AuditCheckpoints
+	}
+	if svc.Documents != nil {
+		h.Translations = localisation.New(svc.Documents, NewIDs(), s.limits)
+	}
+	if rt := svc.FunctionRuntime; rt != nil {
+		h.FunctionHosting, h.FunctionInvoker = rt.host, rt.invoker
+	}
+	if g := svc.Gateway; g != nil {
+		h.Gateway, h.Upstreams, h.Exchange = g.Gateway, g.Upstreams, g.Exchange
+		h.Configs, h.LiveConfig = g.Configs, g.Resolver
+	}
+	return h
+}
+
+// apiRegistrations lists the Connect services to mount, by service group:
+// the always-present ones first, then those that depend on a built service.
+func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption) []func() (string, http.Handler) {
 	registrations := []func() (string, http.Handler){
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
@@ -646,6 +697,17 @@ func (s *Server) RegisterAPI(svc *Services) error {
 			},
 			func() (string, http.Handler) { return pluxv1connect.NewControlServiceHandler(h.Control(), opts) })
 	}
+	if h.Translations != nil {
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewLocalisationServiceHandler(h.Localisation(), opts)
+		})
+	}
+	if svc.Goldens != nil {
+		h.Goldens = svc.Goldens
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts)
+		})
+	}
 	if svc.SecurityConfig != nil {
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewSecurityAdminServiceHandler(h.SecurityAdmin(), opts)
@@ -656,24 +718,7 @@ func (s *Server) RegisterAPI(svc *Services) error {
 			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
 		})
 	}
-	for _, register := range registrations {
-		path, handler := register()
-		s.Register(path, handler)
-	}
-	s.registerFunctionHost(h)
-	if h.FunctionInvoker != nil {
-		s.Register(pluxv1connect.NewFunctionServiceHandler(h.FunctionService(), opts))
-	}
-	if svc.Gateway != nil {
-		s.registerGateway(svc.Gateway, h, deviceAuth, opts)
-	}
-	if s.objects != nil {
-		s.Register("GET "+release.ObjectsPath, s.objectHandler())
-	}
-	if svc.Releases != nil {
-		s.Register(MetadataRoute, s.metadataHandler(svc.Releases))
-	}
-	return nil
+	return registrations
 }
 
 // rejectionsOf feeds the reasons of refused proofs into the metrics.

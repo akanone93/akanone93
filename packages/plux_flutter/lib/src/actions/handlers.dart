@@ -9,6 +9,7 @@ library;
 
 import 'dart:async';
 
+import 'package:plux_flutter/src/actions/a11y_handlers.dart';
 import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/actions/clock.dart';
 import 'package:plux_flutter/src/actions/control.dart';
@@ -478,6 +479,7 @@ final Map<String, ActionHandler> builtInHandlers = {
   ...dbHandlers,
   ...securityHandlers,
   ...functionHandlers,
+  ...a11yHandlers,
 };
 
 /// A handler written as a function, for handler tables outside this

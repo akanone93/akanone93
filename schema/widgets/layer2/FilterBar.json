@@ -1,0 +1,45 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "FilterBar",
+  "id": 173,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "filter_list",
+  "description": "A horizontally scrolling row of filter chips.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 90,
+  "accessibility": {
+    "role": "list",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "filters",
+      "id": 1,
+      "type": "list<ChoiceItem>",
+      "required": true,
+      "description": "The chips."
+    }
+  ],
+  "events": [
+    {
+      "name": "onToggle",
+      "id": 1,
+      "payload": "ChoiceItem",
+      "description": "Fires with the chip's `id`, `label` and its new `selected` when the person taps it."
+    }
+  ]
+}

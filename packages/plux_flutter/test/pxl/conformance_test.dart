@@ -5,9 +5,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plux_flutter/src/l10n/message.dart';
 import 'package:plux_flutter/src/pxl/program.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
 import 'package:plux_flutter/src/pxl/vm.dart';
+
+import '../support/cldr.dart';
 
 /// The conformance vectors shared with the Go compiler and VM.
 final _vectors = Directory('../../schema/testdata/pxl');
@@ -38,6 +41,24 @@ bool _jsonEqual(Object? a, Object? b) => switch (a) {
         ),
   _ => a == b,
 };
+
+/// The locale context of a case (its locale, else the file's), or null. The
+/// messages `t` finds are the file's golden ASTs, evaluated by the message
+/// evaluator (the runtime does not parse message text).
+PxlLocaleContext? _localeOf(Map<String, Object?> f, Map<String, Object?> c) {
+  final tag = (c['locale'] ?? f['locale']) as String?;
+  if (tag == null) return null;
+  final locale = loadCldr(tag);
+  final asts = (f['asts'] as Map<String, Object?>?) ?? const {};
+  return PxlLocaleContext(
+    locale,
+    translate: (key, args) {
+      final b64 = asts[key] as String?;
+      final nodes = b64 == null ? null : decodeMessage(base64.decode(b64));
+      return nodes == null ? null : evaluateMessage(nodes, locale, args);
+    },
+  );
+}
 
 void main() {
   final files =
@@ -71,7 +92,12 @@ void main() {
               for (final e in inputs.entries)
                 e.key: fromJson(env.roots[e.key]!, e.value),
             };
-            final result = evaluate(program, values, limits);
+            final result = evaluate(
+              program,
+              values,
+              limits,
+              locale: _localeOf(f, c),
+            );
             if (c['error'] case final String kind) {
               expect(
                 result,

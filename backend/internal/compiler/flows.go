@@ -185,6 +185,9 @@ func (u *unit) stepFeatures(g *graph, a *registry.Action, st schema.Step, ptr st
 // (ACT-031, SCH-012).
 func (u *unit) redactions(g *graph) {
 	sensitive := u.sensitivePaths(g)
+	if g.eventSensitive {
+		sensitive = append(sensitive, "event")
+	}
 	if g.doc != nil {
 		for _, p := range g.doc.Inputs {
 			if p.Sensitive != nil && *p.Sensitive {

@@ -1,0 +1,87 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "SliverPersistentHeader",
+  "id": 116,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/widgets.dart",
+    "class": "SliverPersistentHeader",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "scrolling",
+  "icon": "vertical_align_top",
+  "description": "A sliver header between `minExtent` and `maxExtent` tall that can stay pinned or float (WGT-020).",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "header",
+    "interactive": false
+  },
+  "props": [
+    {
+      "name": "pinned",
+      "id": 1,
+      "type": "bool",
+      "default": false,
+      "flutter": "pinned"
+    },
+    {
+      "name": "floating",
+      "id": 2,
+      "type": "bool",
+      "default": false,
+      "flutter": "floating"
+    },
+    {
+      "name": "minExtent",
+      "id": 3,
+      "type": "double",
+      "required": true,
+      "constraints": {
+        "min": 0
+      },
+      "flutter": "delegate",
+      "description": "The height when collapsed."
+    },
+    {
+      "name": "maxExtent",
+      "id": 4,
+      "type": "double",
+      "required": true,
+      "constraints": {
+        "min": 0
+      },
+      "flutter": "delegate",
+      "description": "The height when expanded."
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "required": true,
+      "flutter": "delegate",
+      "description": "The header content; it is given the current height."
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    }
+  ]
+}

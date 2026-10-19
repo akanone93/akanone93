@@ -1,0 +1,1569 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyMMdd": "G y-MM-dd",
+        "Gy": "G y",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "G y MMM",
+        "GyMMMEd": "G y MMM d, E",
+        "GyMMMMEEEEd": "G y MMMM d, EEEE",
+        "GyMMMMd": "G y MMMM d",
+        "GyMMMd": "G y MMM d",
+        "GyMd": "M/d/y GGGGG",
+        "H": "HH",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "MM-dd, E",
+        "MMM": "LLL",
+        "MMMEd": "MMM d, E",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "MM-dd",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hmm": "h:mm a",
+        "hmmss": "h:mm:ss a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "G y",
+        "yyyy": "G y",
+        "yyyyM": "G y-MM",
+        "yyyyMEd": "G y-MM-dd, E",
+        "yyyyMMM": "G y MMM",
+        "yyyyMMMEd": "G y MMM d, E",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "G y MMM d",
+        "yyyyMd": "G y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "G y MMMM d, EEEE",
+        "long": "G y MMMM d",
+        "medium": "G y MMM d",
+        "short": "G y-MM-dd"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "صبح",
+            "pm": "شام"
+          },
+          "wide": {
+            "am": "صبح، منجهند",
+            "pm": "منجهند، شام"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "صبح",
+            "pm": "شام"
+          },
+          "wide": {
+            "am": "صبح، منجهند",
+            "pm": "منجهند، شام"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "short": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "wide": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"]
+        },
+        "standAlone": {
+          "abbreviated": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "short": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "wide": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        },
+        "standAlone": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        }
+      },
+      "timeFormats": {
+        "full": "h:mm:ss a zzzz",
+        "long": "h:mm:ss a z",
+        "medium": "h:mm:ss a",
+        "short": "h:mm a"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "Gy": "G y",
+        "GyM": "MM-y G",
+        "GyMEd": "E, dd-MM-y G",
+        "GyMMM": "G y MMM",
+        "GyMMMEd": "G y MMM d, E",
+        "GyMMMd": "G y MMM d",
+        "GyMd": "M/d/y G",
+        "H": "HH",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "MM-dd, E",
+        "MMM": "LLL",
+        "MMMEd": "MMM d, E",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "MM-dd",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hmm": "h:mm a",
+        "hmmss": "h:mm:ss a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "y-MM",
+        "yMEd": "y-MM-dd, E",
+        "yMMM": "y MMM",
+        "yMMMEd": "y MMM d, E",
+        "yMMMM": "y MMMM",
+        "yMMMMEEEEd": "EEEE, MMMM d, y",
+        "yMMMMd": "y MMMM d",
+        "yMMMd": "y MMM d",
+        "yMMdd": "y-MM-dd",
+        "yMd": "y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "EEEE, MMMM d, y",
+        "long": "y MMMM d",
+        "medium": "y MMM d",
+        "short": "y-MM-dd"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "صبح",
+            "pm": "شام"
+          },
+          "narrow": {
+            "am": "صبح",
+            "pm": "شام"
+          },
+          "wide": {
+            "am": "صبح، منجهند",
+            "pm": "منجهند، شام"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "صبح",
+            "pm": "شام"
+          },
+          "narrow": {
+            "am": "صبح",
+            "pm": "شام"
+          },
+          "wide": {
+            "am": "صبح، منجهند",
+            "pm": "منجهند، شام"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "narrow": ["آچر", "سو", "اڱ", "اربع", "خم", "جم", "ڇن"],
+          "short": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "wide": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"]
+        },
+        "standAlone": {
+          "abbreviated": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "narrow": ["آچر", "سو", "اڱ", "اربع", "خم", "جم", "ڇن"],
+          "short": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "wide": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["ق م", "ع"],
+        "narrow": ["ق م", "ع"],
+        "wide": ["قبل مسيح", "عيسوي کان پهرين"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["جنوري", "فيبروري", "مارچ", "اپريل", "مئي", "جون", "جولاءِ", "آگسٽ", "سيپٽمبر", "آڪٽوبر", "نومبر", "ڊسمبر"],
+          "narrow": ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+          "wide": ["جنوري", "فيبروري", "مارچ", "اپريل", "مئي", "جون", "جولاءِ", "آگسٽ", "سيپٽمبر", "آڪٽوبر", "نومبر", "ڊسمبر"]
+        },
+        "standAlone": {
+          "abbreviated": ["جنوري", "فيبروري", "مارچ", "اپريل", "مئي", "جون", "جولاءِ", "آگسٽ", "سيپٽمبر", "آڪٽوبر", "نومبر", "ڊسمبر"],
+          "narrow": ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+          "wide": ["جنوري", "فيبروري", "مارچ", "اپريل", "مئي", "جون", "جولاءِ", "آگسٽ", "سيپٽمبر", "آڪٽوبر", "نومبر", "ڊسمبر"]
+        }
+      },
+      "timeFormats": {
+        "full": "h:mm:ss a zzzz",
+        "long": "h:mm:ss a z",
+        "medium": "h:mm:ss a",
+        "short": "h:mm a"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyMMdd": "G y-MM-dd",
+        "Gy": "G y",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "G y MMM",
+        "GyMMMEd": "G y MMM d, E",
+        "GyMMMMEEEEd": "G y MMMM d, EEEE",
+        "GyMMMMd": "G y MMMM d",
+        "GyMMMd": "G y MMM d",
+        "GyMd": "M/d/y GGGGG",
+        "H": "HH",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "MM-dd, E",
+        "MMM": "LLL",
+        "MMMEd": "MMM d, E",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "MM-dd",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hmm": "h:mm a",
+        "hmmss": "h:mm:ss a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "G y",
+        "yyyy": "G y",
+        "yyyyM": "G y-MM",
+        "yyyyMEd": "G y-MM-dd, E",
+        "yyyyMMM": "G y MMM",
+        "yyyyMMMEd": "G y MMM d, E",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "G y MMM d",
+        "yyyyMd": "G y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "G y MMMM d, EEEE",
+        "long": "G y MMMM d",
+        "medium": "G y MMM d",
+        "short": "G y-MM-dd"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "صبح",
+            "pm": "شام"
+          },
+          "wide": {
+            "am": "صبح، منجهند",
+            "pm": "منجهند، شام"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "صبح",
+            "pm": "شام"
+          },
+          "wide": {
+            "am": "صبح، منجهند",
+            "pm": "منجهند، شام"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "short": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "wide": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"]
+        },
+        "standAlone": {
+          "abbreviated": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "short": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "wide": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AH", "BH"],
+        "wide": ["AH", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["محرم", "صفر", "ربيع الاول", "ربیع الاخر", "جمادی الاول", "جمادي الاخر", "رجب", "شعبان", "رمضان", "شوال", "ذوالقعد", "ذوالحجہ"],
+          "wide": ["محرم", "صفر", "ربيع الاول", "ربیع الاخر", "جمادی الاول", "جمادي الاخر", "رجب", "شعبان", "رمضان", "شوال", "ذوالقعد", "ذوالحجہ"]
+        },
+        "standAlone": {
+          "abbreviated": ["محرم", "صفر", "ربيع الاول", "ربیع الاخر", "جمادی الاول", "جمادي الاخر", "رجب", "شعبان", "رمضان", "شوال", "ذوالقعد", "ذوالحجہ"],
+          "wide": ["محرم", "صفر", "ربيع الاول", "ربیع الاخر", "جمادی الاول", "جمادي الاخر", "رجب", "شعبان", "رمضان", "شوال", "ذوالقعد", "ذوالحجہ"]
+        }
+      },
+      "timeFormats": {
+        "full": "h:mm:ss a zzzz",
+        "long": "h:mm:ss a z",
+        "medium": "h:mm:ss a",
+        "short": "h:mm a"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyMMdd": "G y-MM-dd",
+        "Gy": "G y",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "G y MMM",
+        "GyMMMEd": "G y MMM d, E",
+        "GyMMMMEEEEd": "G y MMMM d, EEEE",
+        "GyMMMMd": "G y MMMM d",
+        "GyMMMd": "G y MMM d",
+        "GyMd": "M/d/y GGGGG",
+        "H": "HH",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "MM-dd, E",
+        "MMM": "LLL",
+        "MMMEd": "MMM d, E",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "MM-dd",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hmm": "h:mm a",
+        "hmmss": "h:mm:ss a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "G y",
+        "yyyy": "G y",
+        "yyyyM": "G y-MM",
+        "yyyyMEd": "G y-MM-dd, E",
+        "yyyyMMM": "G y MMM",
+        "yyyyMMMEd": "G y MMM d, E",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "G y MMM d",
+        "yyyyMd": "G y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "G y MMMM d, EEEE",
+        "long": "G y MMMM d",
+        "medium": "G y MMM d",
+        "short": "G y-MM-dd"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "صبح",
+            "pm": "شام"
+          },
+          "wide": {
+            "am": "صبح، منجهند",
+            "pm": "منجهند، شام"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "صبح",
+            "pm": "شام"
+          },
+          "wide": {
+            "am": "صبح، منجهند",
+            "pm": "منجهند، شام"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "short": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "wide": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"]
+        },
+        "standAlone": {
+          "abbreviated": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "short": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"],
+          "wide": ["آچر", "سومر", "اڱارو", "اربع", "خميس", "جمعو", "ڇنڇر"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AP"],
+        "wide": ["AP"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        },
+        "standAlone": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        }
+      },
+      "timeFormats": {
+        "full": "h:mm:ss a zzzz",
+        "long": "h:mm:ss a z",
+        "medium": "h:mm:ss a",
+        "short": "h:mm a"
+      }
+    }
+  },
+  "currencies": {
+    "AED": {
+      "name": "گڏيل عرب امارات درهم"
+    },
+    "AFN": {
+      "name": "افغاني افغاني",
+      "narrow": "؋"
+    },
+    "ALL": {
+      "name": "الباني ليڪ"
+    },
+    "AMD": {
+      "name": "ارماني ڊرم",
+      "narrow": "֏"
+    },
+    "AOA": {
+      "name": "انگوليائي ڪوانزا",
+      "narrow": "Kz"
+    },
+    "ARS": {
+      "name": "ارجنٽائن پيسو",
+      "narrow": "$"
+    },
+    "AUD": {
+      "name": "آسٽريلوي ڊالر",
+      "narrow": "$",
+      "symbol": "A$"
+    },
+    "AWG": {
+      "name": "اروبن فلورن"
+    },
+    "AZN": {
+      "name": "آذربائيجاني منت",
+      "narrow": "₼"
+    },
+    "BAM": {
+      "name": "بوسنيا هرزگوينا ڪنورٽبل مارڪ",
+      "narrow": "KM"
+    },
+    "BBD": {
+      "name": "باربيڊين ڊالر",
+      "narrow": "$"
+    },
+    "BDT": {
+      "name": "بنگلاديشي ٽڪا",
+      "narrow": "৳"
+    },
+    "BHD": {
+      "name": "بحريني دينار"
+    },
+    "BIF": {
+      "name": "برونڊي فرينڪ"
+    },
+    "BMD": {
+      "name": "برمودي ڊالر",
+      "narrow": "$"
+    },
+    "BND": {
+      "name": "برونائي ڊالر",
+      "narrow": "$"
+    },
+    "BOB": {
+      "name": "بولیوین بولیویانو",
+      "narrow": "Bs"
+    },
+    "BRL": {
+      "name": "برازيلي ريل",
+      "symbol": "R$"
+    },
+    "BSD": {
+      "name": "بهاماني ڊادلر",
+      "narrow": "$"
+    },
+    "BTN": {
+      "name": "ڀوٽاني گلٽرم"
+    },
+    "BWP": {
+      "name": "بوستواني پولا",
+      "narrow": "P",
+      "plural": {
+        "one": "بوٽسواني پولا"
+      }
+    },
+    "BYN": {
+      "name": "بیلاروسی ربل",
+      "narrow": "р."
+    },
+    "BZD": {
+      "name": "بيليز ڊالر",
+      "narrow": "$"
+    },
+    "CAD": {
+      "name": "ڪئينڊيائي ڊالر",
+      "narrow": "$",
+      "symbol": "CA$"
+    },
+    "CDF": {
+      "name": "ڪانگو فرينڪ"
+    },
+    "CHF": {
+      "name": "سوئس فرينڪ"
+    },
+    "CLP": {
+      "name": "چلي پيسو",
+      "narrow": "$"
+    },
+    "CNY": {
+      "name": "چيني يوآن",
+      "narrow": "¥",
+      "symbol": "CN¥"
+    },
+    "COP": {
+      "name": "ڪولمبيائي پيسو",
+      "narrow": "$"
+    },
+    "CRC": {
+      "name": "ڪوسٽا ريڪا ڪولن",
+      "narrow": "₡"
+    },
+    "CUP": {
+      "name": "ڪيوبن پيسو",
+      "narrow": "$"
+    },
+    "CVE": {
+      "name": "ڪيپ وردي ايسڪوڊو"
+    },
+    "CZK": {
+      "name": "چيڪ ڪرونا",
+      "narrow": "Kč"
+    },
+    "DJF": {
+      "name": "جبوتي فرينڪ"
+    },
+    "DKK": {
+      "name": "دانش ڪرون",
+      "narrow": "kr",
+      "plural": {
+        "one": "ڊينش ڪرون"
+      }
+    },
+    "DOP": {
+      "name": "ڊومينيڪن پيسو",
+      "narrow": "$"
+    },
+    "DZD": {
+      "name": "الجيريائي دينار"
+    },
+    "EGP": {
+      "name": "مصري پائونڊ",
+      "narrow": "E£"
+    },
+    "ERN": {
+      "name": "ايريٽيريائي ناڪفا"
+    },
+    "ETB": {
+      "name": "ايٿوپيائي بر"
+    },
+    "EUR": {
+      "name": "يورو",
+      "symbol": "€"
+    },
+    "FJD": {
+      "name": "فجي ڊالر",
+      "narrow": "$"
+    },
+    "FKP": {
+      "name": "فاڪلينڊ ٻيٽ پائونڊ",
+      "narrow": "£"
+    },
+    "GBP": {
+      "name": "برطانوي پائونڊ",
+      "symbol": "£"
+    },
+    "GEL": {
+      "name": "جارجيائي لاري",
+      "narrow": "₾"
+    },
+    "GHS": {
+      "name": "گهانين سيدي",
+      "narrow": "GH₵"
+    },
+    "GIP": {
+      "name": "جبرالٽر پائونڊ",
+      "narrow": "£"
+    },
+    "GMD": {
+      "name": "گيمبيا دلاسائي"
+    },
+    "GNF": {
+      "name": "گني فرينڪ",
+      "narrow": "FG"
+    },
+    "GTQ": {
+      "name": "گوئٽي مالا ڪٽزل",
+      "narrow": "Q"
+    },
+    "GYD": {
+      "name": "گيانا ڊالر",
+      "narrow": "$"
+    },
+    "HKD": {
+      "name": "هانگ ڪانگ ڊالر",
+      "narrow": "$",
+      "symbol": "HK$"
+    },
+    "HNL": {
+      "name": "هونڊوراس ليمپرا",
+      "narrow": "L"
+    },
+    "HTG": {
+      "name": "هيٽي گورڊي"
+    },
+    "HUF": {
+      "name": "هنگيرين فورنٽ",
+      "narrow": "Ft"
+    },
+    "IDR": {
+      "name": "انڊونيشيائي رپيه",
+      "narrow": "Rp",
+      "plural": {
+        "other": "انڊونيشيائي رپيو"
+      }
+    },
+    "ILS": {
+      "name": "اسرائيلي نيو شيڪل",
+      "symbol": "₪"
+    },
+    "INR": {
+      "name": "انڊين رپي",
+      "symbol": "₹"
+    },
+    "IQD": {
+      "name": "عراقي دينار"
+    },
+    "IRR": {
+      "name": "ايراني ريال"
+    },
+    "ISK": {
+      "name": "آئيس لينڊي ڪرونا",
+      "narrow": "kr"
+    },
+    "JMD": {
+      "name": "جميڪائي ڊالر",
+      "narrow": "$"
+    },
+    "JOD": {
+      "name": "اردني دينار"
+    },
+    "JPY": {
+      "name": "جاپاني يين",
+      "narrow": "¥",
+      "symbol": "JP¥"
+    },
+    "KES": {
+      "name": "ڪينيائي سلنگ",
+      "plural": {
+        "one": "ڪينيائي شلنگ"
+      }
+    },
+    "KGS": {
+      "name": "ڪرغزستاني سوم",
+      "narrow": "⃀"
+    },
+    "KHR": {
+      "name": "ڪمبوڊيائي ريال",
+      "narrow": "៛"
+    },
+    "KMF": {
+      "name": "ڪوموريائي فرينڪ",
+      "narrow": "CF"
+    },
+    "KPW": {
+      "name": "اتر ڪوريائي ون",
+      "narrow": "₩"
+    },
+    "KRW": {
+      "name": "ڏکڻ ڪوريائي ون",
+      "symbol": "₩"
+    },
+    "KWD": {
+      "name": "ڪويتي دينار"
+    },
+    "KYD": {
+      "name": "ڪيمين ٻيٽ ڊالر",
+      "narrow": "$"
+    },
+    "KZT": {
+      "name": "قازقستان ٽينگا",
+      "narrow": "₸"
+    },
+    "LAK": {
+      "name": "لائوشيائي ڪپ",
+      "narrow": "₭"
+    },
+    "LBP": {
+      "name": "لبناني پائونڊ",
+      "narrow": "L£"
+    },
+    "LKR": {
+      "name": "سري لنڪن رپي",
+      "narrow": "Rs"
+    },
+    "LRD": {
+      "name": "لائبیریائی ڊالر",
+      "narrow": "$"
+    },
+    "LSL": {
+      "name": "ليسوٿو لوٽي"
+    },
+    "LYD": {
+      "name": "لبيائي دينار"
+    },
+    "MAD": {
+      "name": "موروڪيائي درهم"
+    },
+    "MDL": {
+      "name": "مالديپ ليو"
+    },
+    "MGA": {
+      "name": "ملاگاسي اریاری",
+      "narrow": "Ar"
+    },
+    "MKD": {
+      "name": "ميسي ڊوني دينار"
+    },
+    "MMK": {
+      "name": "ميانمار ڪياٽ",
+      "narrow": "K"
+    },
+    "MNT": {
+      "name": "منگولي تجرڪ",
+      "narrow": "₮"
+    },
+    "MOP": {
+      "name": "ميڪانيز پٽاڪا"
+    },
+    "MRU": {
+      "name": "موريشيائي اوگوئیا"
+    },
+    "MUR": {
+      "name": "ماريشيائي رپي",
+      "narrow": "Rs",
+      "plural": {
+        "one": "ماريشين روپي"
+      }
+    },
+    "MVR": {
+      "name": "مالديپ روفيا"
+    },
+    "MWK": {
+      "name": "ملاوي ڪواچا"
+    },
+    "MXN": {
+      "name": "ميڪسيڪو پيسو",
+      "narrow": "$",
+      "symbol": "MX$"
+    },
+    "MYR": {
+      "name": "ملائيشيائي رنگٽ",
+      "narrow": "RM"
+    },
+    "MZN": {
+      "name": "موزمبيق ميٽيڪل"
+    },
+    "NAD": {
+      "name": "نميبائي ڊالر",
+      "narrow": "$",
+      "plural": {
+        "one": "نميبيائي ڊالر"
+      }
+    },
+    "NGN": {
+      "name": "نائجريائي نائرا",
+      "narrow": "₦",
+      "plural": {
+        "one": "نائجيريائي نائرا"
+      }
+    },
+    "NIO": {
+      "name": "نڪارا گوا ڪارڊوبا",
+      "narrow": "C$"
+    },
+    "NOK": {
+      "name": "نارويائي ڪرون",
+      "narrow": "kr"
+    },
+    "NPR": {
+      "name": "نيپالي رپي",
+      "narrow": "Rs"
+    },
+    "NZD": {
+      "name": "نيوزي لينڊي ڊالر",
+      "narrow": "$",
+      "symbol": "NZ$"
+    },
+    "OMR": {
+      "name": "عماني ريال"
+    },
+    "PAB": {
+      "name": "پاناما پالبوا"
+    },
+    "PEN": {
+      "name": "پيرو سول"
+    },
+    "PGK": {
+      "name": "پاپوا نيو گني ڪنا"
+    },
+    "PHP": {
+      "name": "فلپائني پيسو",
+      "narrow": "₱"
+    },
+    "PKR": {
+      "name": "پاڪستاني رپي",
+      "symbol": "Rs"
+    },
+    "PLN": {
+      "name": "پولش زلاٽي",
+      "narrow": "zł"
+    },
+    "PYG": {
+      "name": "پيراگوئي گاراني",
+      "narrow": "₲"
+    },
+    "QAR": {
+      "name": "قطري ريال"
+    },
+    "RON": {
+      "name": "رومانیائي لیو",
+      "narrow": "lei"
+    },
+    "RSD": {
+      "name": "سربيا دينار"
+    },
+    "RUB": {
+      "name": "روسي ربل",
+      "narrow": "₽"
+    },
+    "RWF": {
+      "name": "روانڊا فرينڪ",
+      "narrow": "RF"
+    },
+    "SAR": {
+      "name": "سعودي ريال"
+    },
+    "SBD": {
+      "name": "سولومان ٻيٽ ڊالر",
+      "narrow": "$"
+    },
+    "SCR": {
+      "name": "سشلي رپي"
+    },
+    "SDG": {
+      "name": "سوڊاني پائونڊ"
+    },
+    "SEK": {
+      "name": "سويڊني ڪرونا",
+      "narrow": "kr"
+    },
+    "SGD": {
+      "name": "سنگاپوري ڊالر",
+      "narrow": "$"
+    },
+    "SHP": {
+      "name": "سينٽ هيلنا پائونڊ",
+      "narrow": "£"
+    },
+    "SLE": {
+      "name": "سیرا لیونيائي لیون"
+    },
+    "SOS": {
+      "name": "سومالي شلنگ"
+    },
+    "SRD": {
+      "name": "سرينامي ڊالر",
+      "narrow": "$"
+    },
+    "SSP": {
+      "name": "ڏکڻ سوڊاني پائونڊ",
+      "narrow": "£"
+    },
+    "STN": {
+      "name": "سائو ٽوم ۽ پرنسپي دوبرا",
+      "narrow": "Db"
+    },
+    "SYP": {
+      "name": "شامي پائونڊ",
+      "narrow": "£"
+    },
+    "SZL": {
+      "name": "سوازي للانگيني"
+    },
+    "THB": {
+      "name": "ٿائي باهت",
+      "narrow": "฿"
+    },
+    "TJS": {
+      "name": "تاجڪستاني سوموني"
+    },
+    "TMT": {
+      "name": "ترڪمانستان منت",
+      "plural": {
+        "one": "ترڪمانستاني منت"
+      }
+    },
+    "TND": {
+      "name": "تیونس دینار"
+    },
+    "TOP": {
+      "name": "تونگن پانگا",
+      "narrow": "T$"
+    },
+    "TRY": {
+      "name": "ترڪي لرا",
+      "narrow": "₺"
+    },
+    "TTD": {
+      "name": "ٽرينڊيڊ ۽ ٽوباگو ڊالر",
+      "narrow": "$"
+    },
+    "TWD": {
+      "name": "نيو تائيوان ڊالر",
+      "narrow": "$",
+      "symbol": "NT$"
+    },
+    "TZS": {
+      "name": "تنزانيائي شلنگ"
+    },
+    "UAH": {
+      "name": "یوڪرائن هریونیا",
+      "narrow": "₴"
+    },
+    "UGX": {
+      "name": "يگانڊا شلنگ"
+    },
+    "USD": {
+      "name": "آمريڪي ڊالر",
+      "narrow": "$",
+      "symbol": "US$"
+    },
+    "UYU": {
+      "name": "يوروگوئي پيسو",
+      "narrow": "$"
+    },
+    "UZS": {
+      "name": "ازبڪستاني سوم"
+    },
+    "VES": {
+      "name": "وینزویلا بولیور"
+    },
+    "VND": {
+      "name": "ويٽنامي ڊونگ",
+      "symbol": "₫"
+    },
+    "VUV": {
+      "name": "وانواتو واتو"
+    },
+    "WST": {
+      "name": "ساموآن ٽالا"
+    },
+    "XAF": {
+      "name": "وچ آفريڪا فرينڪ",
+      "symbol": "FCFA"
+    },
+    "XCD": {
+      "name": "اوڀر ڪيريبين ڊالر",
+      "narrow": "$",
+      "symbol": "EC$"
+    },
+    "XCG": {
+      "name": "ڪريبيئن گلڊر",
+      "symbol": "Cg."
+    },
+    "XOF": {
+      "name": "اولهه آفريڪا فرينڪ",
+      "symbol": "F\u202fCFA"
+    },
+    "XPF": {
+      "name": "CFP فرينڪ",
+      "symbol": "CFPF"
+    },
+    "YER": {
+      "name": "يمني ريال"
+    },
+    "ZAR": {
+      "name": "ڏکڻ آفريقي رانڊ",
+      "narrow": "R"
+    },
+    "ZMW": {
+      "name": "زمبائي ڪواچا",
+      "narrow": "ZK"
+    },
+    "ZWG": {
+      "name": "زمبابوي سون"
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "rtl",
+  "locale": "sd",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "arab",
+    "digits": "٠١٢٣٤٥٦٧٨٩"
+  },
+  "numbers": {
+    "arab": {
+      "accounting": "#,##0.00\u00a0¤",
+      "compactShort": {
+        "1000": {
+          "one": "0\u00a0هزار",
+          "other": "0\u00a0هزار"
+        },
+        "10000": {
+          "one": "00\u00a0هزار",
+          "other": "00\u00a0هزار"
+        },
+        "100000": {
+          "one": "000\u00a0هزار",
+          "other": "000\u00a0هزار"
+        },
+        "1000000": {
+          "one": "0\u00a0ملين",
+          "other": "0\u00a0ملين"
+        },
+        "10000000": {
+          "one": "00\u00a0ملين",
+          "other": "00\u00a0ملين"
+        },
+        "100000000": {
+          "one": "000\u00a0ملين",
+          "other": "000\u00a0ملين"
+        },
+        "1000000000": {
+          "one": "0\u00a0بلين",
+          "other": "0\u00a0بلين"
+        },
+        "10000000000": {
+          "one": "00\u00a0بلين",
+          "other": "00\u00a0بلين"
+        },
+        "100000000000": {
+          "one": "000\u00a0بلين",
+          "other": "000\u00a0بلين"
+        },
+        "1000000000000": {
+          "one": "0\u00a0ٽرلين",
+          "other": "0\u00a0ٽرلين"
+        },
+        "10000000000000": {
+          "one": "00\u00a0ٽرلين",
+          "other": "00\u00a0ٽرلين"
+        },
+        "100000000000000": {
+          "one": "000\u00a0ٽرلين",
+          "other": "000\u00a0ٽرلين"
+        }
+      },
+      "currency": "#,##0.00\u00a0¤",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ".",
+        "exponential": "اس",
+        "group": "٬",
+        "infinity": "∞",
+        "list": "؛",
+        "minusSign": "\u061c-",
+        "nan": "NaN",
+        "perMille": "؉",
+        "percentSign": "٪\u061c",
+        "plusSign": "\u061c+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    },
+    "latn": {
+      "accounting": "¤#,##0.00;(¤#,##0.00)",
+      "compactShort": {
+        "1000": {
+          "one": "0\u00a0هزار",
+          "other": "0\u00a0هزار"
+        },
+        "10000": {
+          "one": "00\u00a0هزار",
+          "other": "00\u00a0هزار"
+        },
+        "100000": {
+          "one": "000\u00a0هزار",
+          "other": "000\u00a0هزار"
+        },
+        "1000000": {
+          "one": "0\u00a0ملين",
+          "other": "0\u00a0ملين"
+        },
+        "10000000": {
+          "one": "00\u00a0ملين",
+          "other": "00\u00a0ملين"
+        },
+        "100000000": {
+          "one": "000\u00a0ملين",
+          "other": "000\u00a0ملين"
+        },
+        "1000000000": {
+          "one": "0\u00a0بلين",
+          "other": "0\u00a0بلين"
+        },
+        "10000000000": {
+          "one": "00\u00a0بلين",
+          "other": "00\u00a0بلين"
+        },
+        "100000000000": {
+          "one": "000\u00a0بلين",
+          "other": "000\u00a0بلين"
+        },
+        "1000000000000": {
+          "one": "0\u00a0ٽرلين",
+          "other": "0\u00a0ٽرلين"
+        },
+        "10000000000000": {
+          "one": "00\u00a0ٽرلين",
+          "other": "00\u00a0ٽرلين"
+        },
+        "100000000000000": {
+          "one": "000\u00a0ٽرلين",
+          "other": "000\u00a0ٽرلين"
+        }
+      },
+      "currency": "¤\u00a0#,##0.00",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ".",
+        "exponential": "E",
+        "group": ",",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "NaN",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {
+      "one": "n = 1"
+    },
+    "ordinal": {}
+  },
+  "territories": {
+    "AC": "طلوع ٻيٽ",
+    "AD": "اندورا",
+    "AE": "متحده عرب امارات",
+    "AF": "افغانستان",
+    "AG": "اينٽيگا ۽ باربوڊا",
+    "AI": "انگويلا",
+    "AL": "البانيا",
+    "AM": "آرمينيا",
+    "AO": "انگولا",
+    "AQ": "انٽارڪٽيڪا",
+    "AR": "ارجنٽينا",
+    "AS": "آمريڪي ساموا",
+    "AT": "آسٽريا",
+    "AU": "آسٽريليا",
+    "AW": "عروبا",
+    "AX": "الند ٻيٽ",
+    "AZ": "آذربائيجان",
+    "BA": "بوسنيا ۽ هرزيگووينا",
+    "BB": "باربڊوس",
+    "BD": "بنگلاديش",
+    "BE": "بيلجيم",
+    "BF": "برڪينا فاسو",
+    "BG": "بلغاريا",
+    "BH": "بحرين",
+    "BI": "برونڊي",
+    "BJ": "بينن",
+    "BL": "سینٽ برٿلیمی",
+    "BM": "برمودا",
+    "BN": "برونائي",
+    "BO": "بوليويا",
+    "BQ": "ڪيريبين نيدرلينڊ",
+    "BR": "برازيل",
+    "BS": "باهاماس",
+    "BT": "ڀوٽان",
+    "BV": "بووٽ ٻيٽ",
+    "BW": "بوٽسوانا",
+    "BY": "بيلاروس",
+    "BZ": "بيليز",
+    "CA": "ڪينيڊا",
+    "CC": "ڪوڪوس ٻيٽ",
+    "CD": "ڪانگو -ڪنشاسا",
+    "CF": "وچ آفريقي جمهوريه",
+    "CG": "ڪانگو - برازاویل",
+    "CH": "سوئزرلينڊ",
+    "CI": "ڪوٽي ويرا",
+    "CK": "ڪوڪ ٻيٽ",
+    "CL": "چلي",
+    "CM": "ڪيمرون",
+    "CN": "چين",
+    "CO": "ڪولمبيا",
+    "CP": "ڪلپرٽن ٻيٽ",
+    "CQ": "سارڪ",
+    "CR": "ڪوسٽا ريڪا",
+    "CU": "ڪيوبا",
+    "CV": "ڪيپ وردي",
+    "CW": "ڪيوراسائو",
+    "CX": "ڪرسمس ٻيٽ",
+    "CY": "سائپرس",
+    "CZ": "چيڪيا",
+    "DE": "جرمني",
+    "DG": "ڊئيگو گارسيا",
+    "DJ": "ڊجبيوتي",
+    "DK": "ڊينمارڪ",
+    "DM": "ڊومينيڪا",
+    "DO": "ڊومينيڪن جمهوريه",
+    "DZ": "الجيريا",
+    "EA": "سیوٽا ۽ میلیلا",
+    "EC": "ايڪواڊور",
+    "EE": "ايسٽونيا",
+    "EG": "مصر",
+    "EH": "اولهه صحارا",
+    "ER": "ايريٽيريا",
+    "ES": "اسپين",
+    "ET": "ايٿوپيا",
+    "EU": "يورپين يونين",
+    "EZ": "يورو زون",
+    "FI": "فن لينڊ",
+    "FJ": "فجي",
+    "FK": "فاڪ لينڊ ٻيٽ",
+    "FM": "مائڪرونيشيا",
+    "FO": "فارو ٻيٽ",
+    "FR": "فرانس",
+    "GA": "گبون",
+    "GB": "برطانيہ",
+    "GD": "گريناڊا",
+    "GE": "جارجيا",
+    "GF": "فرانسيسي گيانا",
+    "GG": "گورنسي",
+    "GH": "گهانا",
+    "GI": "جبرالٽر",
+    "GL": "گرين لينڊ",
+    "GM": "گيمبيا",
+    "GN": "گني",
+    "GP": "گواڊیلوپ",
+    "GQ": "ايڪوٽوريل گائينا",
+    "GR": "يونان",
+    "GS": "ڏکڻ جارجيا ۽ ڏکڻ سينڊوچ ٻيٽ",
+    "GT": "گوئٽي مالا",
+    "GU": "گوام",
+    "GW": "گني بسائو",
+    "GY": "گيانا",
+    "HK": "هانگ ڪانگ SAR چين",
+    "HM": "هرڊ ۽ مڪڊونلڊ ٻيٽ",
+    "HN": "هنڊورس",
+    "HR": "ڪروئيشيا",
+    "HT": "هيٽي",
+    "HU": "هنگري",
+    "IC": "ڪينري ٻيٽ",
+    "ID": "انڊونيشيا",
+    "IE": "آئرلينڊ",
+    "IL": "اسرائيل",
+    "IM": "انسانن جو ٻيٽ",
+    "IN": "ڀارت",
+    "IO": "برطانوي هندي سمنڊ خطو",
+    "IQ": "عراق",
+    "IR": "ايران",
+    "IS": "آئس لينڊ",
+    "IT": "اٽلي",
+    "JE": "جرسي",
+    "JM": "جميڪا",
+    "JO": "اردن",
+    "JP": "جاپان",
+    "KE": "ڪينيا",
+    "KG": "ڪرغستان",
+    "KH": "ڪمبوڊيا",
+    "KI": "ڪرباتي",
+    "KM": "ڪوموروس",
+    "KN": "سينٽ ڪٽس و نيوس",
+    "KP": "اتر ڪوريا",
+    "KR": "ڏکڻ ڪوريا",
+    "KW": "ڪويت",
+    "KY": "ڪي مين ٻيٽ",
+    "KZ": "قازقستان",
+    "LA": "لائوس",
+    "LB": "لبنان",
+    "LC": "سينٽ لوسيا",
+    "LI": "لچي ٽينسٽين",
+    "LK": "سري لنڪا",
+    "LR": "لائبیریا",
+    "LS": "ليسوٿو",
+    "LT": "لٿونيا",
+    "LU": "لگزمبرگ",
+    "LV": "لاتويا",
+    "LY": "لبيا",
+    "MA": "مراڪش",
+    "MC": "موناڪو",
+    "MD": "مالدووا",
+    "ME": "مونٽي نيگرو",
+    "MF": "سينٽ مارٽن",
+    "MG": "مدگاسڪر",
+    "MH": "مارشل ٻيٽ",
+    "MK": "اتر مقدونيا",
+    "ML": "مالي",
+    "MM": "ميانمار (برما)",
+    "MN": "منگوليا",
+    "MO": "مڪائو SAR چين",
+    "MP": "اتريان ماريانا ٻيٽ",
+    "MQ": "مارتينڪ",
+    "MR": "موريتانيا",
+    "MS": "مونٽسراٽ",
+    "MT": "مالٽا",
+    "MU": "موريشس",
+    "MV": "مالديپ",
+    "MW": "مالاوي",
+    "MX": "ميڪسيڪو",
+    "MY": "ملائيشيا",
+    "MZ": "موزمبیق",
+    "NA": "نيميبيا",
+    "NC": "نیو ڪالیڊونیا",
+    "NE": "نائيجر",
+    "NF": "نورفوڪ ٻيٽ",
+    "NG": "نائيجيريا",
+    "NI": "نڪراگوا",
+    "NL": "نيدرلينڊ",
+    "NO": "ناروي",
+    "NP": "نيپال",
+    "NR": "نائورو",
+    "NU": "نووي",
+    "NZ": "نيو زيلينڊ",
+    "OM": "عمان",
+    "PA": "پناما",
+    "PE": "پيرو",
+    "PF": "فرانسيسي پولينيشيا",
+    "PG": "پاپوا نیو گني",
+    "PH": "فلپائن",
+    "PK": "پاڪستان",
+    "PL": "پولينڊ",
+    "PM": "سينٽ پيئر ۽ ميڪيلون",
+    "PN": "پٽڪئرن ٻيٽ",
+    "PR": "پيوئرٽو ريڪو",
+    "PS": "فلسطيني علائقا",
+    "PT": "پرتگال",
+    "PW": "پلائو",
+    "PY": "پيراگوءِ",
+    "QA": "قطر",
+    "QO": "بيروني سامونڊي",
+    "RE": "ري يونين",
+    "RO": "رومانيا",
+    "RS": "سربيا",
+    "RU": "روس",
+    "RW": "روانڊا",
+    "SA": "سعودي عرب",
+    "SB": "سولومون ٻيٽَ",
+    "SC": "شي شلز",
+    "SD": "سوڊان",
+    "SE": "سوئيڊن",
+    "SG": "سنگاپور",
+    "SH": "سينٽ ھيلينا",
+    "SI": "سلوینیا",
+    "SJ": "سوالبارڊ ۽ يان ماین",
+    "SK": "سلوواڪيا",
+    "SL": "سيرا ليون",
+    "SM": "سان مرینو",
+    "SN": "سينيگال",
+    "SO": "سوماليا",
+    "SR": "سورينام",
+    "SS": "ڏکڻ سوڊان",
+    "ST": "سائو ٽومي ۽ پرنسپیي",
+    "SV": "ال سلواڊور",
+    "SX": "سنٽ مارٽن",
+    "SY": "شام",
+    "SZ": "ايسواٽني",
+    "TA": "ٽرسٽن دا ڪوها",
+    "TC": "ترڪ ۽ ڪيڪوس ٻيٽ",
+    "TD": "چاڊ",
+    "TF": "فرانسيسي ڏاکڻي علائقا",
+    "TG": "ٽوگو",
+    "TH": "ٿائيليند",
+    "TJ": "تاجڪستان",
+    "TK": "ٽوڪلائو",
+    "TL": "تيمور ليستي",
+    "TM": "ترڪمانستان",
+    "TN": "تيونيسيا",
+    "TO": "ٽونگا",
+    "TR": "ترڪييي",
+    "TT": "ٽرينيڊاڊ ۽ ٽوباگو",
+    "TV": "توالو",
+    "TW": "تائیوان",
+    "TZ": "تنزانيا",
+    "UA": "يوڪرين",
+    "UG": "يوگنڊا",
+    "UM": "آمريڪي خارجي ٻيٽ",
+    "UN": "گڏيل قومون",
+    "US": "آمريڪا جون گڏيل رياستون",
+    "UY": "يوروگوءِ",
+    "UZ": "ازبڪستان",
+    "VA": "ويٽڪين سٽي",
+    "VC": "سینٽ ونسنت ۽ گریناڊینز",
+    "VE": "وينزويلا",
+    "VG": "برطانوي ورجن ٻيٽ",
+    "VI": "آمريڪي ورجن ٻيٽ",
+    "VN": "ويتنام",
+    "VU": "وينيٽيو",
+    "WF": "والس ۽ فتونا",
+    "WS": "ساموا",
+    "XA": "سوڊو-لهجا",
+    "XB": "سوڊو-بي ڊي",
+    "XK": "ڪوسووو",
+    "YE": "يمن",
+    "YT": "مياتي",
+    "ZA": "ڏکڻ آفريقا",
+    "ZM": "زيمبيا",
+    "ZW": "زمبابوي"
+  }
+}

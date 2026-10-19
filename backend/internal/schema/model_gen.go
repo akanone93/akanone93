@@ -209,6 +209,11 @@ type AppDocument struct {
 	// the owner's error handler (ACT-020). A page's runs are cancelled with the
 	// page; a plugin's and the app's run while the release is active.
 	Triggers *Triggers `json:"triggers,omitempty"`
+	// Localisation: Calendars, numbering systems and translation policy
+	// (I18N-010, I18N-011, I18N-008, I18N-013).
+	Localisation *LocalisationSettings `json:"localisation,omitempty"`
+	// Goldens: Golden-image test policy (TST-003).
+	Goldens *GoldenSettings `json:"goldens,omitempty"`
 }
 
 // AppSecurity — App-level security settings (SEC-181).
@@ -265,6 +270,8 @@ type AssetEntry struct {
 	MediaType MediaType `json:"mediaType"`
 	// Description: Human-readable description.
 	Description string `json:"description,omitempty"`
+	// Locales: Per-locale variants of the file (I18N-012).
+	Locales map[string]string `json:"locales,omitempty"`
 }
 
 // AssetIndexDocument — The assets of an app, stored under `assets/` and
@@ -301,6 +308,26 @@ const (
 func (v AssuranceLevel) Valid() bool {
 	switch v {
 	case AssuranceLevelAL0, AssuranceLevelAL1, AssuranceLevelAL2, AssuranceLevelAL3:
+		return true
+	}
+	return false
+}
+
+// Calendar — A calendar system (I18N-010).
+type Calendar string
+
+// Values of Calendar.
+const (
+	CalendarGregorian       Calendar = "gregorian"
+	CalendarEthiopic        Calendar = "ethiopic"
+	CalendarIslamicUmalqura Calendar = "islamicUmalqura"
+	CalendarPersian         Calendar = "persian"
+)
+
+// Valid reports whether v is one of the values of Calendar.
+func (v Calendar) Valid() bool {
+	switch v {
+	case CalendarGregorian, CalendarEthiopic, CalendarIslamicUmalqura, CalendarPersian:
 		return true
 	}
 	return false
@@ -760,9 +787,10 @@ type FormField struct {
 type FormValidator struct {
 	// Kind: A built-in validator of a form field (STA-020, ADR-0047).
 	Kind FormValidatorKind `json:"kind"`
-	// Message: The message shown when the value is invalid; the runtime's
-	// built-in message otherwise.
-	Message string `json:"message,omitempty"`
+	// Message: The message shown when the value is invalid: a literal string or
+	// a translation reference resolved in the effective locale; the runtime's
+	// built-in message otherwise (I18N-001).
+	Message json.RawMessage `json:"message,omitempty"`
 	// Min: A JSON value interpreted against a declared type (defaults, mocks,
 	// environment values).
 	Min json.RawMessage `json:"min,omitempty"`
@@ -919,6 +947,40 @@ type FunctionTestError struct {
 	Code string `json:"code"`
 }
 
+// GoldenMatrix — What a golden run renders.
+type GoldenMatrix struct {
+	Frames     []string      `json:"frames,omitempty"`
+	Themes     []GoldenTheme `json:"themes,omitempty"`
+	TextScales []float64     `json:"textScales,omitempty"`
+	Locales    []string      `json:"locales,omitempty"`
+}
+
+// GoldenSettings — Golden-image test policy (TST-003).
+type GoldenSettings struct {
+	// BlockPublish: Whether publishing needs an approved golden run.
+	BlockPublish *bool `json:"blockPublish,omitempty"`
+	// Matrix: What a golden run renders.
+	Matrix *GoldenMatrix `json:"matrix,omitempty"`
+}
+
+// GoldenTheme — A theme a golden run renders.
+type GoldenTheme string
+
+// Values of GoldenTheme.
+const (
+	GoldenThemeLight GoldenTheme = "light"
+	GoldenThemeDark  GoldenTheme = "dark"
+)
+
+// Valid reports whether v is one of the values of GoldenTheme.
+func (v GoldenTheme) Valid() bool {
+	switch v {
+	case GoldenThemeLight, GoldenThemeDark:
+		return true
+	}
+	return false
+}
+
 // HostBuild — The host app build the catalogue describes.
 type HostBuild struct {
 	AppID   string `json:"appId,omitempty"`
@@ -997,6 +1059,24 @@ type Lifecycle struct {
 	// OnDispose: A trigger's handler: a reference to an action graph or an
 	// inline graph (SCH-023).
 	OnDispose *EventHandler `json:"onDispose,omitempty"`
+}
+
+// LocalisationSettings — Calendars, numbering systems and translation
+// policy (I18N-010, I18N-011, I18N-008, I18N-013).
+type LocalisationSettings struct {
+	// Calendar: The calendar dates are shown in; `gregorian` when absent.
+	Calendar Calendar `json:"calendar,omitempty"`
+	// SecondaryCalendar: A second calendar shown beside the first; none when
+	// absent.
+	SecondaryCalendar Calendar `json:"secondaryCalendar,omitempty"`
+	// NumberingSystem: Numbering system per locale; `latn` when absent.
+	NumberingSystem map[string]NumberingSystem `json:"numberingSystem,omitempty"`
+	// RequireApprovedTranslations: Whether publishing needs every message at
+	// `approved`.
+	RequireApprovedTranslations *bool `json:"requireApprovedTranslations,omitempty"`
+	// PseudoLocales: Whether pseudo-locales are offered; refused in production
+	// environments (PLX-1614).
+	PseudoLocales *bool `json:"pseudoLocales,omitempty"`
 }
 
 // MediaType — Media type of an asset.
@@ -1135,6 +1215,13 @@ type Node struct {
 	// is inserted or its visibility changes; `hero` is the tag of a
 	// shared-element transition.
 	Animation *NodeAnimation `json:"animation,omitempty"`
+	// Direction: Text direction of a subtree (I18N-005).
+	Direction TextDirection `json:"direction,omitempty"`
+	// LocaleOverrides: Prop overrides per locale (I18N-012).
+	LocaleOverrides map[string]map[string]json.RawMessage `json:"localeOverrides,omitempty"`
+	// A11yWaivers: Accessibility checks waived, each with its justification
+	// (A11Y-008).
+	A11yWaivers map[string]string `json:"a11yWaivers,omitempty"`
 }
 
 // NodeAnimation — The animations of a node (ANI-001, ANI-003, ANI-004):
@@ -1160,6 +1247,25 @@ type NodeAnimation struct {
 	// quarter of the duration, `ignore` plays as declared (for motion that
 	// carries meaning).
 	ReduceMotion ReduceMotion `json:"reduceMotion,omitempty"`
+}
+
+// NumberingSystem — `latn` for Western digits, `native` for the locale's
+// own (I18N-011).
+type NumberingSystem string
+
+// Values of NumberingSystem.
+const (
+	NumberingSystemLatn   NumberingSystem = "latn"
+	NumberingSystemNative NumberingSystem = "native"
+)
+
+// Valid reports whether v is one of the values of NumberingSystem.
+func (v NumberingSystem) Valid() bool {
+	switch v {
+	case NumberingSystemLatn, NumberingSystemNative:
+		return true
+	}
+	return false
 }
 
 // PageDocument — A page: route, parameters, state, data, lifecycle and node
@@ -1205,6 +1311,9 @@ type PageDocument struct {
 	// Forms: The forms of the page (STA-020).
 	Forms      []Form     `json:"forms,omitempty"`
 	Animations []Timeline `json:"animations,omitempty"`
+	// A11yWaivers: Accessibility checks waived, each with its justification
+	// (A11Y-008).
+	A11yWaivers map[string]string `json:"a11yWaivers,omitempty"`
 }
 
 // PageKind — How the page is presented (SCH-022).
@@ -1636,6 +1745,10 @@ type Semantics struct {
 	Button           *bool           `json:"button,omitempty"`
 	LiveRegion       *bool           `json:"liveRegion,omitempty"`
 	ExcludeSemantics *bool           `json:"excludeSemantics,omitempty"`
+	FocusOrder       *float64        `json:"focusOrder,omitempty"`
+	Group            *bool           `json:"group,omitempty"`
+	HeadingLevel     *int64          `json:"headingLevel,omitempty"`
+	Decorative       *bool           `json:"decorative,omitempty"`
 }
 
 // Shell — A tabbed shell; each tab keeps its own navigation stack, and
@@ -1892,6 +2005,25 @@ func (v TemplateVisibility) Valid() bool {
 	return false
 }
 
+// TextDirection — Text direction of a subtree (I18N-005).
+type TextDirection string
+
+// Values of TextDirection.
+const (
+	TextDirectionLtr     TextDirection = "ltr"
+	TextDirectionRtl     TextDirection = "rtl"
+	TextDirectionInherit TextDirection = "inherit"
+)
+
+// Valid reports whether v is one of the values of TextDirection.
+func (v TextDirection) Valid() bool {
+	switch v {
+	case TextDirectionLtr, TextDirectionRtl, TextDirectionInherit:
+		return true
+	}
+	return false
+}
+
 // ThemeDocument — Design tokens for light and dark modes (THM-001,
 // THM-002). File: `theme.json`.
 type ThemeDocument struct {
@@ -2060,6 +2192,8 @@ type TranslationKey struct {
 	Description string  `json:"description,omitempty"`
 	MaxLength   *int64  `json:"maxLength,omitempty"`
 	Args        []Field `json:"args,omitempty"`
+	// Screenshot: Asset reference (SCH-011).
+	Screenshot *AssetRef `json:"screenshot,omitempty"`
 }
 
 // TranslationKeysDocument — The translation keys of an app, referenced by
@@ -2072,6 +2206,26 @@ type TranslationKeysDocument struct {
 	// ID: Immutable UUIDv7 identifier in canonical lower-case form (SCH-002).
 	ID   string           `json:"id"`
 	Keys []TranslationKey `json:"keys"`
+}
+
+// TranslationState — Review state of a message (I18N-008).
+type TranslationState string
+
+// Values of TranslationState.
+const (
+	TranslationStateNew        TranslationState = "new"
+	TranslationStateTranslated TranslationState = "translated"
+	TranslationStateReviewed   TranslationState = "reviewed"
+	TranslationStateApproved   TranslationState = "approved"
+)
+
+// Valid reports whether v is one of the values of TranslationState.
+func (v TranslationState) Valid() bool {
+	switch v {
+	case TranslationStateNew, TranslationStateTranslated, TranslationStateReviewed, TranslationStateApproved:
+		return true
+	}
+	return false
 }
 
 // TranslationsDocument — The messages of one locale, by translation-key
@@ -2087,6 +2241,9 @@ type TranslationsDocument struct {
 	// Locale: BCP 47 language tag: language, optional script, optional region.
 	Locale   string            `json:"locale"`
 	Messages map[string]string `json:"messages"`
+	// States: Review state of each message, by translation-key identifier
+	// (I18N-008).
+	States map[string]TranslationState `json:"states,omitempty"`
 }
 
 // Triggers — Triggers besides widget events and page lifecycle (ACT-002),

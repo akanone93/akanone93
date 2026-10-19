@@ -6,7 +6,9 @@
 /// builtins.go, builtins2.go, value.go).
 library;
 
+import 'package:plux_flutter/src/pxl/calendar_builtins.dart';
 import 'package:plux_flutter/src/pxl/decimal.dart';
+import 'package:plux_flutter/src/pxl/locale_fns.dart';
 import 'package:plux_flutter/src/pxl/phone.dart';
 import 'package:plux_flutter/src/pxl/regex.dart';
 import 'package:plux_flutter/src/pxl/tables.g.dart';
@@ -30,9 +32,11 @@ final List<Builtin?> builtins = () {
     ..._decimalFns(),
     ..._moneyFns(),
     ..._dateFns(),
+    ...calendarFns(),
     ..._collectionFns(),
     ..._logicFns(),
     ..._regexFns(),
+    ...localeFns(),
   };
   return [
     for (final def in overloads) impl['${def.name}(${def.params.join(',')})'],
@@ -958,4 +962,6 @@ Map<String, Builtin> _regexFns() => {
   },
   'isPhone(string,string)': (_, a) =>
       isValidPhone(a[0]! as String, a[1]! as String),
+  'format.phone(string,string)': (_, a) =>
+      formatPhone(a[0]! as String, a[1]! as String),
 };

@@ -1,0 +1,35 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "ContextMenuAction",
+  "id": 58,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "One action of a CupertinoContextMenu.",
+  "fields": [
+    {
+      "name": "label",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "translatable": true
+    },
+    {
+      "name": "icon",
+      "id": 2,
+      "type": "IconData",
+      "description": "Icon after the label."
+    },
+    {
+      "name": "destructive",
+      "id": 3,
+      "type": "bool",
+      "default": false,
+      "description": "Drawn in the destructive colour."
+    }
+  ]
+}

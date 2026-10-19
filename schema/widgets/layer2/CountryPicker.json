@@ -1,0 +1,51 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "CountryPicker",
+  "id": 164,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "flag",
+  "description": "A searchable list of countries named in the locale, with flags.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 90,
+  "accessibility": {
+    "role": "list",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "value",
+      "id": 1,
+      "type": "string?",
+      "description": "The ISO 3166 code selected."
+    },
+    {
+      "name": "searchHint",
+      "id": 2,
+      "type": "string?",
+      "translatable": true,
+      "description": "The hint of the search field."
+    }
+  ],
+  "events": [
+    {
+      "name": "onSelected",
+      "id": 1,
+      "payload": "string",
+      "description": "Fires with the ISO 3166 code of the chosen country."
+    }
+  ]
+}

@@ -8,12 +8,17 @@
 /// only when Flutter builds them (RT-011).
 library;
 
+import 'dart:convert';
 import 'dart:developer' as developer;
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Theme, kToolbarHeight;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+import 'package:plux_flutter/src/actions/action_error.dart';
 import 'package:plux_flutter/src/actions/engine.dart';
 import 'package:plux_flutter/src/animation/interpolate.dart';
 import 'package:plux_flutter/src/animation/motion_node.dart';
@@ -23,21 +28,28 @@ import 'package:plux_flutter/src/bundle/container.dart';
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/bundle/safe_read.dart';
 import 'package:plux_flutter/src/core/app_state.dart';
-import 'package:plux_flutter/src/data/services.dart' show DataRoot;
+import 'package:plux_flutter/src/data/services.dart' show DataRoot, DataScope;
 import 'package:plux_flutter/src/db/row_identity.dart';
+import 'package:plux_flutter/src/device/types.dart'
+    show PluxMediaPicker, PluxPickedFile;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/forms/form_state.dart' show FormController;
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
 import 'package:plux_flutter/src/render/builders/secure.dart'
     show isSensitiveEvent;
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
+import 'package:plux_flutter/src/render/min_target.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
 import 'package:plux_flutter/src/render/renderer.dart'
     show PluxRenderer, fromHost;
 import 'package:plux_flutter/src/render/scope.dart';
 import 'package:plux_flutter/src/render/sections.dart';
+import 'package:plux_flutter/src/render/semantics_wrap.dart';
 import 'package:plux_flutter/src/render/values.dart';
+import 'package:plux_flutter/src/schema/limit_values.dart';
+import 'package:plux_flutter/src/schema/limits.g.dart';
 import 'package:plux_flutter/src/schema/registry.g.dart';
 import 'package:plux_flutter/src/secure/masking.dart';
 import 'package:plux_flutter/src/state/access.dart';
@@ -45,14 +57,26 @@ import 'package:plux_flutter/src/state/scope_state.dart';
 
 /// Widgets whose output must be a direct child of their parent's render
 /// object (flex and stack parent data, slivers): they are never wrapped in
-/// semantics or repaint boundaries.
+/// semantics or repaint boundaries. Slivers carry their semantics in
+/// `SliverSemantics` instead (see [_slivers]).
 final Set<int> _unwrapped = {
+  ..._slivers,
   for (final d in widgetDescriptors)
     if (const {
       'Expanded',
       'Flexible',
       'Spacer',
       'Positioned',
+      'AnimatedPositioned',
+    }.contains(d.type))
+      d.id,
+};
+
+/// Widgets whose output is a sliver: a box `Semantics` around one breaks
+/// the viewport, so their semantics wrap in `SliverSemantics`.
+final Set<int> _slivers = {
+  for (final d in widgetDescriptors)
+    if (const {
       'SliverAppBar',
       'SliverFillRemaining',
       'SliverGrid',
@@ -169,9 +193,28 @@ final class NodeContextImpl implements NodeContext, MotionSource {
   Widget build({bool force = false}) {
     if (!force && !_visible(node)) return const SizedBox.shrink();
     final w = _content();
+    if (node.widget != 0 && _slivers.contains(node.widget)) {
+      return _decorateSliver(w);
+    }
     return node.widget != 0 && _unwrapped.contains(node.widget)
         ? w
         : _decorate(w);
+  }
+
+  /// A sliver's semantics and test ID, in `SliverSemantics`.
+  Widget _decorateSliver(Widget w) => wrapSliverSemantics(
+    w,
+    sem: node.semantics,
+    testId: _testId,
+    text: _semText,
+  );
+
+  String? get _testId =>
+      node.testId == 0 ? null : scope.section.string(node.testId);
+
+  String? _semText(fbs.Value? v) {
+    final r = v == null ? null : resolve(v);
+    return r is String ? r : null;
   }
 
   Widget _content() {
@@ -181,7 +224,12 @@ final class NodeContextImpl implements NodeContext, MotionSource {
       return _unknown('a node with neither a widget nor a component');
     }
     final builder = scope.builders[node.widget];
-    if (builder == null) return _unknown('widget ${node.widget}');
+    if (builder == null) {
+      final package = scope.services.missingPackage(node.widget);
+      return package == null
+          ? _unknown('widget ${node.widget}')
+          : _packageMissing(package);
+    }
     if (_masked) {
       // Both are built, so that the node subscribes to everything its
       // bindings read; only one is shown.
@@ -264,6 +312,21 @@ final class NodeContextImpl implements NodeContext, MotionSource {
     scope.report(error, path: _path);
     PluxBoundary.fail(context, error);
     return const SizedBox.shrink();
+  }
+
+  Widget _packageMissing(String package) {
+    if (scope.services.firstMissingReport(node.widget)) {
+      scope.report(
+        PluxException(
+          PluxErrorCode.widgetPackageMissing,
+          'node $_path: widget ${node.widget} needs the package $package, '
+          'which this app does not register in PluxConfig.widgetPackages',
+          details: {'node': _path, 'package': package},
+        ),
+        path: _path,
+      );
+    }
+    return _placeholder('$package missing');
   }
 
   Widget _unknown(String what) {
@@ -421,6 +484,167 @@ final class NodeContextImpl implements NodeContext, MotionSource {
   @override
   PluxVectorSource? vector(String asset) => scope.services.vector(scope, asset);
 
+  @override
+  http.Client? remoteClient(String url) =>
+      scope.services.remoteClient(scope, url);
+
+  @override
+  Future<Uint8List?> remoteBytes(String url) async {
+    final client = remoteClient(url);
+    if (client == null) return null;
+    final limit = scope.release.limits.valueOf(PluxLimit.assetFileSize);
+    try {
+      final response = await client.send(http.Request('GET', Uri.parse(url)));
+      final length = response.contentLength;
+      if (response.statusCode != 200 || (length != null && length > limit)) {
+        _bad('the download was refused (status ${response.statusCode})');
+        return null;
+      }
+      final out = BytesBuilder(copy: false);
+      await for (final chunk in response.stream) {
+        out.add(chunk);
+        if (out.length > limit) {
+          _bad('the download is larger than the limit');
+          return null;
+        }
+      }
+      return out.takeBytes();
+    } on Object catch (e) {
+      _bad('the download failed: ${e.runtimeType}');
+      return null;
+    }
+  }
+
+  @override
+  Future<Uri?> mediaSource(String url) async {
+    final client = remoteClient(url);
+    if (client == null) return null;
+    final uri = Uri.parse(url);
+    if (!scope.services.pinnedMediaOnly) return uri;
+    final limit = scope.release.limits.valueOf(
+      PluxLimit.mediaPinnedDownloadSize,
+    );
+    File? file;
+    try {
+      final response = await client.send(http.Request('GET', uri));
+      final length = response.contentLength;
+      if (response.statusCode != 200 || (length != null && length > limit)) {
+        _bad('the media download was refused (status ${response.statusCode})');
+        return null;
+      }
+      final dir = await Directory.systemTemp.createTemp('plux_media');
+      file = File('${dir.path}/media');
+      final sink = file.openWrite();
+      var size = 0;
+      try {
+        await for (final chunk in response.stream) {
+          size += chunk.length;
+          if (size > limit) throw const FormatException('too large');
+          sink.add(chunk);
+        }
+      } finally {
+        await sink.close();
+      }
+      return file.uri;
+    } on Object catch (e) {
+      if (file != null && file.existsSync()) {
+        file.parent.deleteSync(recursive: true);
+      }
+      _bad('the media download failed: ${e.runtimeType}');
+      return null;
+    }
+  }
+
+  @override
+  Widget? deviceRefusal(String api) =>
+      scope.services.deviceRefusal(context, scope, api);
+
+  /// The form below the nearest `FormScope`, or null outside one.
+  FormController? _form() {
+    final alias = scope.formAlias;
+    if (alias == null) return null;
+    final parts = alias.split('.');
+    final instance = parts.first == 'component'
+        ? scope.componentState
+        : scope.state;
+    if (instance == null) return null;
+    return _ref.read(pageStateProvider(instance).notifier).form(parts.last);
+  }
+
+  @override
+  Future<bool> validateFields(Set<String> fields) async {
+    final form = _form();
+    if (form == null || fields.isEmpty) return true;
+    final touchedBefore = form.host.read()?['touched'];
+    await form.validate();
+    final state = form.host.read();
+    for (final f in form.decl.fields) {
+      if (fields.contains(f.name)) continue;
+      final was = touchedBefore is Map ? touchedBefore[f.name] == true : false;
+      form.writeTouched(f.name, touched: was);
+    }
+    final errors = state?['errors'];
+    return errors is! Map || fields.every((f) => errors[f] == null);
+  }
+
+  @override
+  Future<PluxPickedFile?> Function()? filePicker(List<String> mimeTypes) {
+    final step = scope.actions?.context;
+    final picker = step?.service<PluxMediaPicker>();
+    final device = step?.device;
+    if (picker == null || device == null) return null;
+    return () async {
+      try {
+        device.guard.admit(device.plugin, 'pickFile', {'mimeTypes': mimeTypes});
+      } on ActionError {
+        // Blocked: the guard has reported it.
+        return null;
+      }
+      final files = await picker.pickFiles(
+        mimeTypes: mimeTypes,
+        multiple: false,
+        limit: 1,
+      );
+      return files.isEmpty ? null : files.first;
+    };
+  }
+
+  @override
+  Future<String?> Function(
+    PluxPickedFile file,
+    void Function(double? fraction) progress,
+  )?
+  fileUpload(String source, String operation) {
+    final data = scope.actions?.context.data;
+    if (data == null) return null;
+    return (file, progress) async {
+      final param = data is DataScope
+          ? data[source]?.spec.operations[operation]?.transfer?.fileParam
+          : null;
+      try {
+        final out = await data.callOperation('$source.$operation', {
+          param ?? 'file': file.path,
+        }, onProgress: (p) => progress(p.total > 0 ? p.sent / p.total : null));
+        return out == null ? null : jsonEncode(toJson(out));
+      } on ActionError catch (e) {
+        throw PluxException(e.code, e.message);
+      }
+    };
+  }
+
+  @override
+  void reportDevicePackageMissing(String message) => scope.report(
+    PluxException(
+      PluxErrorCode.devicePackageMissing,
+      message,
+      details: {'plugin': scope.pluginKey},
+    ),
+    path: scope.path,
+  );
+
+  @override
+  ImageProvider<Object>? remoteImage(String url) => image(url: url);
+
   bool _visible(fbs.Node n) {
     final v = n.visible;
     if (v == null) return true;
@@ -440,6 +664,13 @@ final class NodeContextImpl implements NodeContext, MotionSource {
     final n = scope.section.node(i);
     final id = n.id;
     return PluxNode(i, key: id == null ? ValueKey(i) : ValueKey(uuidOf(id)));
+  }
+
+  @override
+  Map<String, Object?>? dataSource(String name) {
+    final data = scope.roots()['data'];
+    final snapshot = data is Map<String, Object?> ? data[name] : null;
+    return snapshot is Map<String, Object?> ? snapshot : null;
   }
 
   @override
@@ -645,6 +876,10 @@ final class NodeContextImpl implements NodeContext, MotionSource {
             roots: () => roots,
             token: s.resolver.token,
             translation: s.resolver.translation,
+            translationAst: s.resolver.translationAst,
+            localeContext: s.resolver.localeContext,
+            translationFellBack: s.resolver.translationFellBack,
+            onMessageError: s.resolver.onMessageError,
             limits: s.resolver.limits,
           ).resolve(v, s.plugin.string),
         ),
@@ -671,29 +906,15 @@ final class NodeContextImpl implements NodeContext, MotionSource {
 
   // ── Semantics and hints ──────────────────────────────────────────────────
 
-  Widget _decorate(Widget w) {
-    var out = w;
-    if (node.hints & 1 != 0) out = RepaintBoundary(child: out);
-    final sem = node.semantics;
-    final testId = node.testId == 0 ? null : scope.section.string(node.testId);
-    if (sem == null && testId == null) return out;
-    String? text(fbs.Value? v) {
-      final r = v == null ? null : resolve(v);
-      return r is String ? r : null;
-    }
-
-    if (sem != null && sem.exclude) out = ExcludeSemantics(child: out);
-    return Semantics(
-      identifier: testId,
-      label: text(sem?.label),
-      hint: text(sem?.hint),
-      value: text(sem?.value),
-      header: sem != null && sem.header ? true : null,
-      button: sem != null && sem.button ? true : null,
-      liveRegion: sem != null && sem.liveRegion ? true : null,
-      child: out,
-    );
-  }
+  Widget _decorate(Widget w) => wrapSemantics(
+    node.hints & 1 != 0 ? RepaintBoundary(child: w) : w,
+    sem: node.semantics,
+    direction: node.direction,
+    testId: _testId,
+    text: _semText,
+    minTarget: minTargetWidgets.contains(node.widget),
+    namesTapNode: iconOnlyButtonWidgets.contains(node.widget),
+  );
 
   // ── Native slots ─────────────────────────────────────────────────────────
 
@@ -782,6 +1003,10 @@ final class NodeContextImpl implements NodeContext, MotionSource {
       roots: scope.roots,
       token: scope.resolver.token,
       translation: scope.resolver.translation,
+      translationAst: scope.resolver.translationAst,
+      localeContext: scope.resolver.localeContext,
+      translationFellBack: scope.resolver.translationFellBack,
+      onMessageError: scope.resolver.onMessageError,
       limits: scope.resolver.limits,
     );
     final declared = component.props ?? const <fbs.Param>[];
@@ -861,6 +1086,10 @@ final class NodeContextImpl implements NodeContext, MotionSource {
                       roots: () => roots,
                       token: outer.resolver.token,
                       translation: outer.resolver.translation,
+                      translationAst: outer.resolver.translationAst,
+                      localeContext: outer.resolver.localeContext,
+                      translationFellBack: outer.resolver.translationFellBack,
+                      onMessageError: outer.resolver.onMessageError,
                       limits: outer.resolver.limits,
                     ).resolve(v, bundle.string),
                   ),
@@ -895,6 +1124,10 @@ final class NodeContextImpl implements NodeContext, MotionSource {
               roots: roots,
               token: outer.resolver.token,
               translation: outer.resolver.translation,
+              translationAst: outer.resolver.translationAst,
+              localeContext: outer.resolver.localeContext,
+              translationFellBack: outer.resolver.translationFellBack,
+              onMessageError: outer.resolver.onMessageError,
               limits: outer.resolver.limits,
             ),
             roots: roots,
@@ -909,6 +1142,7 @@ final class NodeContextImpl implements NodeContext, MotionSource {
             actions: outer.actions,
             componentState: instance,
             emitEvent: emit,
+            localeChain: outer.localeChain,
           );
           return RenderScopeWidget(scope: inner, child: const PluxNode(0));
         },

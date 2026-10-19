@@ -140,6 +140,9 @@ type Key string
 const (
 	// AccessTokenLifetime: How long an access token stays valid. (SEC-020)
 	AccessTokenLifetime Key = "accessTokenLifetime"
+	// AccessibilityBlocksPublish: Whether accessibility errors that are not
+	// waived block publishing a release. (A11Y-002, A11Y-008)
+	AccessibilityBlocksPublish Key = "accessibilityBlocksPublish"
 	// AllowDirectDataSources: Whether plugins may call data sources directly
 	// from the device instead of through the server. (SEC-030)
 	AllowDirectDataSources Key = "allowDirectDataSources"
@@ -189,6 +192,10 @@ const (
 	// MinAssuranceForSync: The lowest assurance level a device must hold to sync
 	// plugins. (SEC-007)
 	MinAssuranceForSync Key = "minAssuranceForSync"
+	// PinnedMediaOnly: Whether video and audio are downloaded through the pinned
+	// client to a temporary file before they play, because the platform players
+	// cannot pin certificates. (SEC-041, SEC-080, AST-002)
+	PinnedMediaOnly Key = "pinnedMediaOnly"
 	// RaspAccessibilityResponse: How the runtime responds when an accessibility
 	// service that can read the screen and perform gestures is enabled.
 	// (SEC-071)
@@ -248,6 +255,12 @@ func All() []Setting {
 			Defaults:        Defaults{Standard: IntValue(300), Strict: IntValue(300), Maximum: IntValue(300)},
 			TravelsToDevice: false, Phase: "P6", Requirements: []string{"SEC-020"},
 			Description: "How long an access token stays valid.",
+		},
+		{
+			Key: AccessibilityBlocksPublish, Type: TypeBool, Tighter: TighterTrue,
+			Defaults:        Defaults{Standard: BoolValue(false), Strict: BoolValue(true), Maximum: BoolValue(true)},
+			TravelsToDevice: false, Phase: "P8", Requirements: []string{"A11Y-002", "A11Y-008"},
+			Description: "Whether accessibility errors that are not waived block publishing a release.",
 		},
 		{
 			Key: AllowDirectDataSources, Type: TypeBool, Tighter: TighterFalse,
@@ -354,6 +367,12 @@ func All() []Setting {
 			Defaults:        Defaults{Standard: TextValue("AL0"), Strict: TextValue("AL1"), Maximum: TextValue("AL2")},
 			TravelsToDevice: true, Phase: "P6", Requirements: []string{"SEC-007"},
 			Description: "The lowest assurance level a device must hold to sync plugins.",
+		},
+		{
+			Key: PinnedMediaOnly, Type: TypeBool, Tighter: TighterTrue,
+			Defaults:        Defaults{Standard: BoolValue(false), Strict: BoolValue(false), Maximum: BoolValue(true)},
+			TravelsToDevice: true, Phase: "P8", Requirements: []string{"SEC-041", "SEC-080", "AST-002"},
+			Description: "Whether video and audio are downloaded through the pinned client to a temporary file before they play, because the platform players cannot pin certificates.",
 		},
 		{
 			Key: RaspAccessibilityResponse, Type: TypeEnum, Tighter: TighterOrder,

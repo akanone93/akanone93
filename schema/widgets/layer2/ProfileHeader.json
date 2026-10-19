@@ -1,0 +1,66 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "ProfileHeader",
+  "id": 179,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "layout",
+  "icon": "account_circle",
+  "description": "A person's avatar, name and subtitle with an actions row.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 50,
+  "accessibility": {
+    "role": "header",
+    "interactive": false
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "name",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The person's name."
+    },
+    {
+      "name": "subtitle",
+      "id": 2,
+      "type": "string?",
+      "translatable": true,
+      "description": "A line below the name."
+    },
+    {
+      "name": "avatar",
+      "id": 3,
+      "type": "ImageSource?",
+      "description": "The avatar image; the name's initial shows when absent or failing."
+    },
+    {
+      "name": "radius",
+      "id": 4,
+      "type": "double",
+      "default": 32.0,
+      "constraints": {
+        "min": 8.0
+      },
+      "description": "The avatar's radius."
+    }
+  ],
+  "slots": [
+    {
+      "name": "actions",
+      "id": 1,
+      "description": "Buttons below the name."
+    }
+  ]
+}

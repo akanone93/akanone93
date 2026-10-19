@@ -52,6 +52,18 @@ func (p *pattern) full(s string) bool {
 	return re != nil && re.FullMatch(s)
 }
 
+// fullFind returns the match against all of s with its groups, or nil.
+func (p *pattern) fullFind(s string) []int {
+	if p == nil {
+		return nil
+	}
+	re := p.once()
+	if re == nil {
+		return nil
+	}
+	return re.FullFind(s)
+}
+
 // prefix returns the leftmost-first match at the start of s, or nil.
 func (p *pattern) prefix(s string) []int {
 	if p == nil {
@@ -156,18 +168,26 @@ func (t *tables) region(r string) *territory {
 // as the default for numbers without a country calling code (schema/pxl/
 // phone.md §3). An unknown region validates only international numbers.
 func IsValid(number, region string) bool {
+	_, _, g := parse(number, region)
+	return g != nil
+}
+
+// parse reads number as IsValid does and returns the calling code, the
+// national significant number and the territory of a valid number; the
+// territory is nil when the number is invalid.
+func parse(number, region string) (int, string, *territory) {
 	if utf8.RuneCountInString(number) > maxInput {
-		return false
+		return 0, "", nil
 	}
 	digits, plus, ok := normalise(number)
 	if !ok {
-		return false
+		return 0, "", nil
 	}
 	t := load()
 	def := t.region(region)
 	code, national, fromNumber, ok := t.extractCode(digits, plus, def)
 	if !ok || len(national) < minNational {
-		return false
+		return 0, "", nil
 	}
 	meta := def
 	if fromNumber {
@@ -177,10 +197,12 @@ func IsValid(number, region string) bool {
 		national = p
 	}
 	if len(national) < minNational || len(national) > maxNational {
-		return false
+		return 0, "", nil
 	}
-	g := t.regionForNumber(code, national)
-	return g != nil && g.valid(national)
+	if g := t.regionForNumber(code, national); g != nil && g.valid(national) {
+		return code, national, g
+	}
+	return 0, "", nil
 }
 
 // normalise removes separators and returns the digits and whether a "+"

@@ -398,7 +398,7 @@ func (t *typer) payload(n *node, event string) string {
 	switch {
 	case n.widget != nil:
 		if e, ok := n.widget.Event(event); ok {
-			return e.Payload
+			return boundPayload(n, e.Payload)
 		}
 	case n.target != nil:
 		for _, e := range n.target.doc.Events {
@@ -416,6 +416,20 @@ func (t *typer) payload(n *node, event string) string {
 		}
 	}
 	return ""
+}
+
+// boundPayload substitutes the node's type arguments into a payload type
+// of its widget's event, so the payload of a DragTarget<Order> is Order
+// (ACT-001).
+func boundPayload(n *node, payload string) string {
+	if payload == "" || len(n.typeArgs) == 0 {
+		return payload
+	}
+	te, err := parseTypeExpr(payload)
+	if err != nil {
+		return payload
+	}
+	return te.subst(typeBindings(n)).String()
 }
 
 // useGraph records that a handler with the given payload runs g; every

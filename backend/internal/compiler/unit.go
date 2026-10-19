@@ -20,11 +20,17 @@ import (
 // resolve stage builds, the intermediate representation the later stages
 // refine, and the outputs.
 type unit struct {
+	// calendars are the calendars nodes name as literals (I18N-003).
+	calendars map[string]bool
 	// gateway are the data sources that go through the gateway.
 	gateway []GatewaySource
 	opts    Options
 	project *schema.Project
 	diags   plxerr.Diagnostics
+	// a11y collects the accessibility checks' findings (A11Y-008).
+	a11y a11yState
+	// l10n collects the localisation report's findings (I18N-008).
+	l10n l10nState
 	// focus is the page file ValidatePage checks: the checking stages
 	// then skip every other page, component and flow. Empty in Compile.
 	focus string
@@ -273,6 +279,11 @@ type override struct {
 type semantics struct {
 	label, hint, value                   *value
 	header, button, liveRegion, excluded bool
+	// focusOrder is nil when the document sets none (A11Y-006).
+	focusOrder   *float32
+	group        bool
+	headingLevel uint8
+	decorative   bool
 }
 
 // handler is an event or lifecycle handler bound to a graph.
@@ -305,11 +316,14 @@ type graph struct {
 	// on; "" when they carry none.
 	eventType string
 	eventSet  bool
-	scope     *scope
-	lowered   []*step
-	navs      []navigation
-	output    string
-	used      bool
+	// eventSensitive is true when a handler running the graph has a
+	// sensitive payload: `event` is then a sensitive path (SCH-012).
+	eventSensitive bool
+	scope          *scope
+	lowered        []*step
+	navs           []navigation
+	output         string
+	used           bool
 	// state are the run's variables (STA-001).
 	state []*stateEntry
 }

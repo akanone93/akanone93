@@ -1,0 +1,30 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "SettingsSection",
+  "id": 64,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "One group of rows of a SettingsList.",
+  "fields": [
+    {
+      "name": "title",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The section header.",
+      "translatable": true
+    },
+    {
+      "name": "count",
+      "id": 2,
+      "type": "int",
+      "required": true,
+      "description": "How many of the list's children, in order, belong to the section."
+    }
+  ]
+}

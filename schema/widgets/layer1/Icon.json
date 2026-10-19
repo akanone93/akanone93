@@ -90,7 +90,8 @@
       "name": "semanticLabel",
       "id": 9,
       "type": "string",
-      "flutter": "semanticLabel"
+      "flutter": "semanticLabel",
+      "translatable": true
     },
     {
       "name": "textDirection",

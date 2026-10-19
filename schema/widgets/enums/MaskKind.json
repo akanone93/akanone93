@@ -1,0 +1,35 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "MaskKind",
+  "id": 142,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "How MaskedText hides its value.",
+  "values": [
+    {
+      "name": "card",
+      "id": 1,
+      "description": "Groups of four, the last digits visible."
+    },
+    {
+      "name": "account",
+      "id": 2,
+      "description": "The last digits visible."
+    },
+    {
+      "name": "phone",
+      "id": 3,
+      "description": "The last digits visible, separators kept."
+    },
+    {
+      "name": "custom",
+      "id": 4,
+      "description": "Every character but the last digits hidden."
+    }
+  ]
+}

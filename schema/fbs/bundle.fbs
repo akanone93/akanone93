@@ -212,6 +212,12 @@ table Semantics {
   button: bool;
   live_region: bool;
   exclude: bool;
+  // Reading order among siblings; -1 when unset (A11Y-006).
+  focus_order: float = -1;
+  group: bool;
+  // Heading level 1 to 6; 0 when the node is no heading.
+  heading_level: ubyte;
+  decorative: bool;
 }
 
 // A slot filled with nodes, as indices into the section's node array.
@@ -230,6 +236,9 @@ enum NodeHints : ubyte (bit_flags) {
   // runtime masks it until the user unmasks it (SEC-092).
   Masked
 }
+
+// Text direction a node forces on its subtree (I18N-005).
+enum TextDirectionOverride : ubyte { Inherit = 0, Ltr, Rtl }
 
 // A node of a flat node array (BND-015). `widget` is the permanent widget
 // ID, or zero for a component instance, which names `component` and
@@ -256,6 +265,7 @@ table Node {
   // The node's animations: implicit, enter and exit, hero (ANI-001,
   // ANI-003, ANI-004); null when it declares none.
   animation: NodeAnimation;
+  direction: TextDirectionOverride;
 }
 
 // ── Section meta ──────────────────────────────────────────────────────────
@@ -403,6 +413,25 @@ table HostEvent {
   fields: [HostEventField];
 }
 
+// The numbering system of one locale (I18N-011).
+table NumberingSystemEntry {
+  // A canonical BCP 47 tag of a supported locale.
+  locale: string;
+  // `latn` or `native`.
+  system: string;
+}
+
+// The app's localisation settings (app.json `localisation`).
+table LocalisationSettings {
+  // A CalendarSystem value (`gregorian`, `ethiopic`, `islamicUmalqura`,
+  // `persian`); empty is gregorian.
+  calendar: string;
+  // A second calendar shown beside the first; empty for none.
+  secondary_calendar: string;
+  // Sorted by locale.
+  numbering_systems: [NumberingSystemEntry];
+}
+
 table Meta {
   kind: BundleKind;
   id: Uuid;
@@ -450,6 +479,9 @@ table Meta {
   // App bundles: the declared host events, sorted by name (HST-013);
   // absent when the app declares none.
   host_events: [HostEvent];
+  // App bundles: the app's localisation settings (I18N-003, I18N-011);
+  // absent when app.json declares none.
+  localisation: LocalisationSettings;
 }
 
 // ── Section page ──────────────────────────────────────────────────────────
@@ -541,6 +573,10 @@ table FormValidator {
   rule: ulong;
   graph: Uuid;
   debounce_ms: uint;
+  // The message as a translation reference (a Translation value),
+  // resolved in the effective locale; takes precedence over `message`
+  // (I18N-001).
+  message_ref: Value;
 }
 
 // A form field; `type` is a type expression, `initial` its initial value.
@@ -734,13 +770,29 @@ table Strings {
 
 table Message {
   key: Uuid;
+  // The source text; kept for debugging and as the fallback of a runtime
+  // that cannot read the AST.
   text: string;
+  // The pre-parsed message in the compact binary AST of
+  // backend/internal/l10n/mf (I18N-001); the device never parses text.
+  ast: [ubyte];
 }
 
 table Locale {
   tag: string;
   // Sorted by key.
   messages: [Message];
+  // Canonical JSON of the CLDR data of the locale reduced to what the app
+  // uses (I18N-002, ADR-0066 § Data): numbers, plurals, the currencies and
+  // calendars the app uses, date formats and skeletons, territory and
+  // currency names. Parsed once, off the UI isolate.
+  data: [ubyte];
+  // Canonical JSON of Flutter's widget strings for the locale
+  // ({"cupertino": {...}, "material": {...}, "widgets": {...}}); empty when
+  // Flutter has none for the locale or a parent of it.
+  flutter: [ubyte];
+  // The CLDR locale `data` came from (de for a request for de-DE).
+  tag_resolved: string;
 }
 
 // ── Section timelines ─────────────────────────────────────────────────────
@@ -965,6 +1017,19 @@ table Asset {
   // Transcoded forms, sorted by media type and then density; empty for
   // assets that are not raster images, or not yet transcoded.
   variants: [AssetVariant];
+  // The per-locale files of the asset (I18N-012), sorted by tag; empty when
+  // the asset has one file for every locale. `hash` and `size` above are
+  // the default file's.
+  locale_files: [AssetLocaleFile];
+}
+
+// The file an asset has for one locale.
+table AssetLocaleFile {
+  // The canonical BCP 47 tag of the locale.
+  tag: string;
+  // SHA-256 of the file.
+  hash: [ubyte];
+  size: ulong;
 }
 
 table AssetIndex {

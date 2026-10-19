@@ -335,6 +335,42 @@ class _NodeHintsReader extends fb.Reader<NodeHints> {
       NodeHints.fromValue(const fb.Uint8Reader().read(bc, offset));
 }
 
+enum TextDirectionOverride {
+  Inherit(0),
+  Ltr(1),
+  Rtl(2);
+
+  final int value;
+  const TextDirectionOverride(this.value);
+
+  factory TextDirectionOverride.fromValue(int value) {
+    switch (value) {
+      case 0: return TextDirectionOverride.Inherit;
+      case 1: return TextDirectionOverride.Ltr;
+      case 2: return TextDirectionOverride.Rtl;
+      default: throw StateError('Invalid value $value for bit flag enum');
+    }
+  }
+
+  static TextDirectionOverride? _createOrNull(int? value) =>
+      value == null ? null : TextDirectionOverride.fromValue(value);
+
+  static const int minValue = 0;
+  static const int maxValue = 2;
+  static const fb.Reader<TextDirectionOverride> reader = _TextDirectionOverrideReader();
+}
+
+class _TextDirectionOverrideReader extends fb.Reader<TextDirectionOverride> {
+  const _TextDirectionOverrideReader();
+
+  @override
+  int get size => 1;
+
+  @override
+  TextDirectionOverride read(fb.BufferContext bc, int offset) =>
+      TextDirectionOverride.fromValue(const fb.Uint8Reader().read(bc, offset));
+}
+
 enum BundleKind {
   Unknown(0),
   Plugin(1),
@@ -1924,10 +1960,14 @@ class Semantics {
   bool get button => const fb.BoolReader().vTableGet(_bc, _bcOffset, 12, false);
   bool get liveRegion => const fb.BoolReader().vTableGet(_bc, _bcOffset, 14, false);
   bool get exclude => const fb.BoolReader().vTableGet(_bc, _bcOffset, 16, false);
+  double get focusOrder => const fb.Float32Reader().vTableGet(_bc, _bcOffset, 18, -1.0);
+  bool get group => const fb.BoolReader().vTableGet(_bc, _bcOffset, 20, false);
+  int get headingLevel => const fb.Uint8Reader().vTableGet(_bc, _bcOffset, 22, 0);
+  bool get decorative => const fb.BoolReader().vTableGet(_bc, _bcOffset, 24, false);
 
   @override
   String toString() {
-    return 'Semantics{label: ${label}, hint: ${hint}, value: ${value}, header: ${header}, button: ${button}, liveRegion: ${liveRegion}, exclude: ${exclude}}';
+    return 'Semantics{label: ${label}, hint: ${hint}, value: ${value}, header: ${header}, button: ${button}, liveRegion: ${liveRegion}, exclude: ${exclude}, focusOrder: ${focusOrder}, group: ${group}, headingLevel: ${headingLevel}, decorative: ${decorative}}';
   }
 }
 
@@ -1945,7 +1985,7 @@ class SemanticsBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(7);
+    fbBuilder.startTable(11);
   }
 
   int addLabelOffset(int? offset) {
@@ -1976,6 +2016,22 @@ class SemanticsBuilder {
     fbBuilder.addBool(6, exclude);
     return fbBuilder.offset;
   }
+  int addFocusOrder(double? focusOrder) {
+    fbBuilder.addFloat32(7, focusOrder);
+    return fbBuilder.offset;
+  }
+  int addGroup(bool? group) {
+    fbBuilder.addBool(8, group);
+    return fbBuilder.offset;
+  }
+  int addHeadingLevel(int? headingLevel) {
+    fbBuilder.addUint8(9, headingLevel);
+    return fbBuilder.offset;
+  }
+  int addDecorative(bool? decorative) {
+    fbBuilder.addBool(10, decorative);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -1990,6 +2046,10 @@ class SemanticsObjectBuilder extends fb.ObjectBuilder {
   final bool? _button;
   final bool? _liveRegion;
   final bool? _exclude;
+  final double? _focusOrder;
+  final bool? _group;
+  final int? _headingLevel;
+  final bool? _decorative;
 
   SemanticsObjectBuilder({
     ValueObjectBuilder? label,
@@ -1999,6 +2059,10 @@ class SemanticsObjectBuilder extends fb.ObjectBuilder {
     bool? button,
     bool? liveRegion,
     bool? exclude,
+    double? focusOrder,
+    bool? group,
+    int? headingLevel,
+    bool? decorative,
   })
       : _label = label,
         _hint = hint,
@@ -2006,7 +2070,11 @@ class SemanticsObjectBuilder extends fb.ObjectBuilder {
         _header = header,
         _button = button,
         _liveRegion = liveRegion,
-        _exclude = exclude;
+        _exclude = exclude,
+        _focusOrder = focusOrder,
+        _group = group,
+        _headingLevel = headingLevel,
+        _decorative = decorative;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -2014,7 +2082,7 @@ class SemanticsObjectBuilder extends fb.ObjectBuilder {
     final int? labelOffset = _label?.getOrCreateOffset(fbBuilder);
     final int? hintOffset = _hint?.getOrCreateOffset(fbBuilder);
     final int? valueOffset = _value?.getOrCreateOffset(fbBuilder);
-    fbBuilder.startTable(7);
+    fbBuilder.startTable(11);
     fbBuilder.addOffset(0, labelOffset);
     fbBuilder.addOffset(1, hintOffset);
     fbBuilder.addOffset(2, valueOffset);
@@ -2022,6 +2090,10 @@ class SemanticsObjectBuilder extends fb.ObjectBuilder {
     fbBuilder.addBool(4, _button);
     fbBuilder.addBool(5, _liveRegion);
     fbBuilder.addBool(6, _exclude);
+    fbBuilder.addFloat32(7, _focusOrder);
+    fbBuilder.addBool(8, _group);
+    fbBuilder.addUint8(9, _headingLevel);
+    fbBuilder.addBool(10, _decorative);
     return fbBuilder.endTable();
   }
 
@@ -2143,10 +2215,11 @@ class Node {
   List<int>? get typeArguments => const fb.ListReader<int>(fb.Uint32Reader()).vTableGetNullable(_bc, _bcOffset, 30);
   int get nativeSlot => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 32, 0);
   NodeAnimation? get animation => NodeAnimation.reader.vTableGetNullable(_bc, _bcOffset, 34);
+  TextDirectionOverride get direction => TextDirectionOverride.fromValue(const fb.Uint8Reader().vTableGet(_bc, _bcOffset, 36, 0));
 
   @override
   String toString() {
-    return 'Node{id: ${id}, widget: ${widget}, component: ${component}, componentVersion: ${componentVersion}, props: ${props}, handlers: ${handlers}, children: ${children}, slots: ${slots}, visible: ${visible}, semantics: ${semantics}, testId: ${testId}, overrides: ${overrides}, hints: ${hints}, typeArguments: ${typeArguments}, nativeSlot: ${nativeSlot}, animation: ${animation}}';
+    return 'Node{id: ${id}, widget: ${widget}, component: ${component}, componentVersion: ${componentVersion}, props: ${props}, handlers: ${handlers}, children: ${children}, slots: ${slots}, visible: ${visible}, semantics: ${semantics}, testId: ${testId}, overrides: ${overrides}, hints: ${hints}, typeArguments: ${typeArguments}, nativeSlot: ${nativeSlot}, animation: ${animation}, direction: ${direction}}';
   }
 }
 
@@ -2164,7 +2237,7 @@ class NodeBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(16);
+    fbBuilder.startTable(17);
   }
 
   int addId(int offset) {
@@ -2231,6 +2304,10 @@ class NodeBuilder {
     fbBuilder.addOffset(15, offset);
     return fbBuilder.offset;
   }
+  int addDirection(TextDirectionOverride? direction) {
+    fbBuilder.addUint8(16, direction?.value);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -2254,6 +2331,7 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
   final List<int>? _typeArguments;
   final int? _nativeSlot;
   final NodeAnimationObjectBuilder? _animation;
+  final TextDirectionOverride? _direction;
 
   NodeObjectBuilder({
     UuidObjectBuilder? id,
@@ -2272,6 +2350,7 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
     List<int>? typeArguments,
     int? nativeSlot,
     NodeAnimationObjectBuilder? animation,
+    TextDirectionOverride? direction,
   })
       : _id = id,
         _widget = widget,
@@ -2288,7 +2367,8 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
         _hints = hints,
         _typeArguments = typeArguments,
         _nativeSlot = nativeSlot,
-        _animation = animation;
+        _animation = animation,
+        _direction = direction;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -2308,7 +2388,7 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
     final int? typeArgumentsOffset = _typeArguments == null ? null
         : fbBuilder.writeListUint32(_typeArguments!);
     final int? animationOffset = _animation?.getOrCreateOffset(fbBuilder);
-    fbBuilder.startTable(16);
+    fbBuilder.startTable(17);
     if (_id != null) {
       fbBuilder.addStruct(0, _id!.finish(fbBuilder));
     }
@@ -2329,6 +2409,7 @@ class NodeObjectBuilder extends fb.ObjectBuilder {
     fbBuilder.addOffset(13, typeArgumentsOffset);
     fbBuilder.addUint32(14, _nativeSlot);
     fbBuilder.addOffset(15, animationOffset);
+    fbBuilder.addUint8(16, _direction?.value);
     return fbBuilder.endTable();
   }
 
@@ -3726,6 +3807,185 @@ class HostEventObjectBuilder extends fb.ObjectBuilder {
     return fbBuilder.buffer;
   }
 }
+class NumberingSystemEntry {
+  NumberingSystemEntry._(this._bc, this._bcOffset);
+  factory NumberingSystemEntry(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<NumberingSystemEntry> reader = _NumberingSystemEntryReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  String? get locale => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
+  String? get system => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
+
+  @override
+  String toString() {
+    return 'NumberingSystemEntry{locale: ${locale}, system: ${system}}';
+  }
+}
+
+class _NumberingSystemEntryReader extends fb.TableReader<NumberingSystemEntry> {
+  const _NumberingSystemEntryReader();
+
+  @override
+  NumberingSystemEntry createObject(fb.BufferContext bc, int offset) => 
+    NumberingSystemEntry._(bc, offset);
+}
+
+class NumberingSystemEntryBuilder {
+  NumberingSystemEntryBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(2);
+  }
+
+  int addLocaleOffset(int? offset) {
+    fbBuilder.addOffset(0, offset);
+    return fbBuilder.offset;
+  }
+  int addSystemOffset(int? offset) {
+    fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class NumberingSystemEntryObjectBuilder extends fb.ObjectBuilder {
+  final String? _locale;
+  final String? _system;
+
+  NumberingSystemEntryObjectBuilder({
+    String? locale,
+    String? system,
+  })
+      : _locale = locale,
+        _system = system;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    final int? localeOffset = _locale == null ? null
+        : fbBuilder.writeString(_locale!);
+    final int? systemOffset = _system == null ? null
+        : fbBuilder.writeString(_system!);
+    fbBuilder.startTable(2);
+    fbBuilder.addOffset(0, localeOffset);
+    fbBuilder.addOffset(1, systemOffset);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
+class LocalisationSettings {
+  LocalisationSettings._(this._bc, this._bcOffset);
+  factory LocalisationSettings(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<LocalisationSettings> reader = _LocalisationSettingsReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  String? get calendar => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
+  String? get secondaryCalendar => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
+  List<NumberingSystemEntry>? get numberingSystems => const fb.ListReader<NumberingSystemEntry>(NumberingSystemEntry.reader).vTableGetNullable(_bc, _bcOffset, 8);
+
+  @override
+  String toString() {
+    return 'LocalisationSettings{calendar: ${calendar}, secondaryCalendar: ${secondaryCalendar}, numberingSystems: ${numberingSystems}}';
+  }
+}
+
+class _LocalisationSettingsReader extends fb.TableReader<LocalisationSettings> {
+  const _LocalisationSettingsReader();
+
+  @override
+  LocalisationSettings createObject(fb.BufferContext bc, int offset) => 
+    LocalisationSettings._(bc, offset);
+}
+
+class LocalisationSettingsBuilder {
+  LocalisationSettingsBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(3);
+  }
+
+  int addCalendarOffset(int? offset) {
+    fbBuilder.addOffset(0, offset);
+    return fbBuilder.offset;
+  }
+  int addSecondaryCalendarOffset(int? offset) {
+    fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+  int addNumberingSystemsOffset(int? offset) {
+    fbBuilder.addOffset(2, offset);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class LocalisationSettingsObjectBuilder extends fb.ObjectBuilder {
+  final String? _calendar;
+  final String? _secondaryCalendar;
+  final List<NumberingSystemEntryObjectBuilder>? _numberingSystems;
+
+  LocalisationSettingsObjectBuilder({
+    String? calendar,
+    String? secondaryCalendar,
+    List<NumberingSystemEntryObjectBuilder>? numberingSystems,
+  })
+      : _calendar = calendar,
+        _secondaryCalendar = secondaryCalendar,
+        _numberingSystems = numberingSystems;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    final int? calendarOffset = _calendar == null ? null
+        : fbBuilder.writeString(_calendar!);
+    final int? secondaryCalendarOffset = _secondaryCalendar == null ? null
+        : fbBuilder.writeString(_secondaryCalendar!);
+    final int? numberingSystemsOffset = _numberingSystems == null ? null
+        : fbBuilder.writeList(_numberingSystems!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
+    fbBuilder.startTable(3);
+    fbBuilder.addOffset(0, calendarOffset);
+    fbBuilder.addOffset(1, secondaryCalendarOffset);
+    fbBuilder.addOffset(2, numberingSystemsOffset);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
 class Meta {
   Meta._(this._bc, this._bcOffset);
   factory Meta(List<int> bytes) {
@@ -3767,10 +4027,11 @@ class Meta {
   List<ComponentEntry>? get components => const fb.ListReader<ComponentEntry>(ComponentEntry.reader).vTableGetNullable(_bc, _bcOffset, 56);
   List<Trigger>? get triggers => const fb.ListReader<Trigger>(Trigger.reader).vTableGetNullable(_bc, _bcOffset, 58);
   List<HostEvent>? get hostEvents => const fb.ListReader<HostEvent>(HostEvent.reader).vTableGetNullable(_bc, _bcOffset, 60);
+  LocalisationSettings? get localisation => LocalisationSettings.reader.vTableGetNullable(_bc, _bcOffset, 62);
 
   @override
   String toString() {
-    return 'Meta{kind: ${kind}, id: ${id}, key: ${key}, name: ${name}, version: ${version}, compilerVersion: ${compilerVersion}, schemaVersion: ${schemaVersion}, requiredFeatures: ${requiredFeatures}, minRuntime: ${minRuntime}, capabilities: ${capabilities}, limits: ${limits}, pages: ${pages}, entryPage: ${entryPage}, fallbackPage: ${fallbackPage}, plugins: ${plugins}, defaultLocale: ${defaultLocale}, supportedLocales: ${supportedLocales}, entryRoute: ${entryRoute}, flags: ${flags}, nativeCatalogue: ${nativeCatalogue}, securityProfile: ${securityProfile}, telemetrySampling: ${telemetrySampling}, notFoundRoute: ${notFoundRoute}, shells: ${shells}, deepLinks: ${deepLinks}, push: ${push}, components: ${components}, triggers: ${triggers}, hostEvents: ${hostEvents}}';
+    return 'Meta{kind: ${kind}, id: ${id}, key: ${key}, name: ${name}, version: ${version}, compilerVersion: ${compilerVersion}, schemaVersion: ${schemaVersion}, requiredFeatures: ${requiredFeatures}, minRuntime: ${minRuntime}, capabilities: ${capabilities}, limits: ${limits}, pages: ${pages}, entryPage: ${entryPage}, fallbackPage: ${fallbackPage}, plugins: ${plugins}, defaultLocale: ${defaultLocale}, supportedLocales: ${supportedLocales}, entryRoute: ${entryRoute}, flags: ${flags}, nativeCatalogue: ${nativeCatalogue}, securityProfile: ${securityProfile}, telemetrySampling: ${telemetrySampling}, notFoundRoute: ${notFoundRoute}, shells: ${shells}, deepLinks: ${deepLinks}, push: ${push}, components: ${components}, triggers: ${triggers}, hostEvents: ${hostEvents}, localisation: ${localisation}}';
   }
 }
 
@@ -3788,7 +4049,7 @@ class MetaBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(29);
+    fbBuilder.startTable(30);
   }
 
   int addKind(BundleKind? kind) {
@@ -3907,6 +4168,10 @@ class MetaBuilder {
     fbBuilder.addOffset(28, offset);
     return fbBuilder.offset;
   }
+  int addLocalisationOffset(int? offset) {
+    fbBuilder.addOffset(29, offset);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -3943,6 +4208,7 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
   final List<ComponentEntryObjectBuilder>? _components;
   final List<TriggerObjectBuilder>? _triggers;
   final List<HostEventObjectBuilder>? _hostEvents;
+  final LocalisationSettingsObjectBuilder? _localisation;
 
   MetaObjectBuilder({
     BundleKind? kind,
@@ -3974,6 +4240,7 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
     List<ComponentEntryObjectBuilder>? components,
     List<TriggerObjectBuilder>? triggers,
     List<HostEventObjectBuilder>? hostEvents,
+    LocalisationSettingsObjectBuilder? localisation,
   })
       : _kind = kind,
         _id = id,
@@ -4003,7 +4270,8 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
         _push = push,
         _components = components,
         _triggers = triggers,
-        _hostEvents = hostEvents;
+        _hostEvents = hostEvents,
+        _localisation = localisation;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -4051,7 +4319,8 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
         : fbBuilder.writeList(_triggers!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
     final int? hostEventsOffset = _hostEvents == null ? null
         : fbBuilder.writeList(_hostEvents!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
-    fbBuilder.startTable(29);
+    final int? localisationOffset = _localisation?.getOrCreateOffset(fbBuilder);
+    fbBuilder.startTable(30);
     fbBuilder.addUint8(0, _kind?.value);
     if (_id != null) {
       fbBuilder.addStruct(1, _id!.finish(fbBuilder));
@@ -4089,6 +4358,7 @@ class MetaObjectBuilder extends fb.ObjectBuilder {
     fbBuilder.addOffset(26, componentsOffset);
     fbBuilder.addOffset(27, triggersOffset);
     fbBuilder.addOffset(28, hostEventsOffset);
+    fbBuilder.addOffset(29, localisationOffset);
     return fbBuilder.endTable();
   }
 
@@ -4377,10 +4647,11 @@ class FormValidator {
   int get rule => const fb.Uint64Reader().vTableGet(_bc, _bcOffset, 20, 0);
   Uuid? get graph => Uuid.reader.vTableGetNullable(_bc, _bcOffset, 22);
   int get debounceMs => const fb.Uint32Reader().vTableGet(_bc, _bcOffset, 24, 0);
+  Value? get messageRef => Value.reader.vTableGetNullable(_bc, _bcOffset, 26);
 
   @override
   String toString() {
-    return 'FormValidator{kind: ${kind}, message: ${message}, min: ${min}, max: ${max}, pattern: ${pattern}, region: ${region}, maxScale: ${maxScale}, maxIntegerDigits: ${maxIntegerDigits}, rule: ${rule}, graph: ${graph}, debounceMs: ${debounceMs}}';
+    return 'FormValidator{kind: ${kind}, message: ${message}, min: ${min}, max: ${max}, pattern: ${pattern}, region: ${region}, maxScale: ${maxScale}, maxIntegerDigits: ${maxIntegerDigits}, rule: ${rule}, graph: ${graph}, debounceMs: ${debounceMs}, messageRef: ${messageRef}}';
   }
 }
 
@@ -4398,7 +4669,7 @@ class FormValidatorBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(11);
+    fbBuilder.startTable(12);
   }
 
   int addKind(ValidatorKind? kind) {
@@ -4445,6 +4716,10 @@ class FormValidatorBuilder {
     fbBuilder.addUint32(10, debounceMs);
     return fbBuilder.offset;
   }
+  int addMessageRefOffset(int? offset) {
+    fbBuilder.addOffset(11, offset);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -4463,6 +4738,7 @@ class FormValidatorObjectBuilder extends fb.ObjectBuilder {
   final int? _rule;
   final UuidObjectBuilder? _graph;
   final int? _debounceMs;
+  final ValueObjectBuilder? _messageRef;
 
   FormValidatorObjectBuilder({
     ValidatorKind? kind,
@@ -4476,6 +4752,7 @@ class FormValidatorObjectBuilder extends fb.ObjectBuilder {
     int? rule,
     UuidObjectBuilder? graph,
     int? debounceMs,
+    ValueObjectBuilder? messageRef,
   })
       : _kind = kind,
         _message = message,
@@ -4487,14 +4764,16 @@ class FormValidatorObjectBuilder extends fb.ObjectBuilder {
         _maxIntegerDigits = maxIntegerDigits,
         _rule = rule,
         _graph = graph,
-        _debounceMs = debounceMs;
+        _debounceMs = debounceMs,
+        _messageRef = messageRef;
 
   /// Finish building, and store into the [fbBuilder].
   @override
   int finish(fb.Builder fbBuilder) {
     final int? minOffset = _min?.getOrCreateOffset(fbBuilder);
     final int? maxOffset = _max?.getOrCreateOffset(fbBuilder);
-    fbBuilder.startTable(11);
+    final int? messageRefOffset = _messageRef?.getOrCreateOffset(fbBuilder);
+    fbBuilder.startTable(12);
     fbBuilder.addUint8(0, _kind?.value);
     fbBuilder.addUint32(1, _message);
     fbBuilder.addOffset(2, minOffset);
@@ -4508,6 +4787,7 @@ class FormValidatorObjectBuilder extends fb.ObjectBuilder {
       fbBuilder.addStruct(9, _graph!.finish(fbBuilder));
     }
     fbBuilder.addUint32(10, _debounceMs);
+    fbBuilder.addOffset(11, messageRefOffset);
     return fbBuilder.endTable();
   }
 
@@ -6144,10 +6424,11 @@ class Message {
 
   Uuid? get key => Uuid.reader.vTableGetNullable(_bc, _bcOffset, 4);
   String? get text => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 6);
+  List<int>? get ast => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 8);
 
   @override
   String toString() {
-    return 'Message{key: ${key}, text: ${text}}';
+    return 'Message{key: ${key}, text: ${text}, ast: ${ast}}';
   }
 }
 
@@ -6165,7 +6446,7 @@ class MessageBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(2);
+    fbBuilder.startTable(3);
   }
 
   int addKey(int offset) {
@@ -6174,6 +6455,10 @@ class MessageBuilder {
   }
   int addTextOffset(int? offset) {
     fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+  int addAstOffset(int? offset) {
+    fbBuilder.addOffset(2, offset);
     return fbBuilder.offset;
   }
 
@@ -6185,24 +6470,30 @@ class MessageBuilder {
 class MessageObjectBuilder extends fb.ObjectBuilder {
   final UuidObjectBuilder? _key;
   final String? _text;
+  final List<int>? _ast;
 
   MessageObjectBuilder({
     UuidObjectBuilder? key,
     String? text,
+    List<int>? ast,
   })
       : _key = key,
-        _text = text;
+        _text = text,
+        _ast = ast;
 
   /// Finish building, and store into the [fbBuilder].
   @override
   int finish(fb.Builder fbBuilder) {
     final int? textOffset = _text == null ? null
         : fbBuilder.writeString(_text!);
-    fbBuilder.startTable(2);
+    final int? astOffset = _ast == null ? null
+        : fbBuilder.writeListUint8(_ast!);
+    fbBuilder.startTable(3);
     if (_key != null) {
       fbBuilder.addStruct(0, _key!.finish(fbBuilder));
     }
     fbBuilder.addOffset(1, textOffset);
+    fbBuilder.addOffset(2, astOffset);
     return fbBuilder.endTable();
   }
 
@@ -6228,10 +6519,13 @@ class Locale {
 
   String? get tag => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
   List<Message>? get messages => const fb.ListReader<Message>(Message.reader).vTableGetNullable(_bc, _bcOffset, 6);
+  List<int>? get data => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 8);
+  List<int>? get flutter => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 10);
+  String? get tagResolved => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 12);
 
   @override
   String toString() {
-    return 'Locale{tag: ${tag}, messages: ${messages}}';
+    return 'Locale{tag: ${tag}, messages: ${messages}, data: ${data}, flutter: ${flutter}, tagResolved: ${tagResolved}}';
   }
 }
 
@@ -6249,7 +6543,7 @@ class LocaleBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(2);
+    fbBuilder.startTable(5);
   }
 
   int addTagOffset(int? offset) {
@@ -6258,6 +6552,18 @@ class LocaleBuilder {
   }
   int addMessagesOffset(int? offset) {
     fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+  int addDataOffset(int? offset) {
+    fbBuilder.addOffset(2, offset);
+    return fbBuilder.offset;
+  }
+  int addFlutterOffset(int? offset) {
+    fbBuilder.addOffset(3, offset);
+    return fbBuilder.offset;
+  }
+  int addTagResolvedOffset(int? offset) {
+    fbBuilder.addOffset(4, offset);
     return fbBuilder.offset;
   }
 
@@ -6269,13 +6575,22 @@ class LocaleBuilder {
 class LocaleObjectBuilder extends fb.ObjectBuilder {
   final String? _tag;
   final List<MessageObjectBuilder>? _messages;
+  final List<int>? _data;
+  final List<int>? _flutter;
+  final String? _tagResolved;
 
   LocaleObjectBuilder({
     String? tag,
     List<MessageObjectBuilder>? messages,
+    List<int>? data,
+    List<int>? flutter,
+    String? tagResolved,
   })
       : _tag = tag,
-        _messages = messages;
+        _messages = messages,
+        _data = data,
+        _flutter = flutter,
+        _tagResolved = tagResolved;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -6284,9 +6599,18 @@ class LocaleObjectBuilder extends fb.ObjectBuilder {
         : fbBuilder.writeString(_tag!);
     final int? messagesOffset = _messages == null ? null
         : fbBuilder.writeList(_messages!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
-    fbBuilder.startTable(2);
+    final int? dataOffset = _data == null ? null
+        : fbBuilder.writeListUint8(_data!);
+    final int? flutterOffset = _flutter == null ? null
+        : fbBuilder.writeListUint8(_flutter!);
+    final int? tagResolvedOffset = _tagResolved == null ? null
+        : fbBuilder.writeString(_tagResolved!);
+    fbBuilder.startTable(5);
     fbBuilder.addOffset(0, tagOffset);
     fbBuilder.addOffset(1, messagesOffset);
+    fbBuilder.addOffset(2, dataOffset);
+    fbBuilder.addOffset(3, flutterOffset);
+    fbBuilder.addOffset(4, tagResolvedOffset);
     return fbBuilder.endTable();
   }
 
@@ -8072,10 +8396,11 @@ class Asset {
   List<int>? get hash => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 10);
   int get size => const fb.Uint64Reader().vTableGet(_bc, _bcOffset, 12, 0);
   List<AssetVariant>? get variants => const fb.ListReader<AssetVariant>(AssetVariant.reader).vTableGetNullable(_bc, _bcOffset, 14);
+  List<AssetLocaleFile>? get localeFiles => const fb.ListReader<AssetLocaleFile>(AssetLocaleFile.reader).vTableGetNullable(_bc, _bcOffset, 16);
 
   @override
   String toString() {
-    return 'Asset{id: ${id}, key: ${key}, mediaType: ${mediaType}, hash: ${hash}, size: ${size}, variants: ${variants}}';
+    return 'Asset{id: ${id}, key: ${key}, mediaType: ${mediaType}, hash: ${hash}, size: ${size}, variants: ${variants}, localeFiles: ${localeFiles}}';
   }
 }
 
@@ -8093,7 +8418,7 @@ class AssetBuilder {
   final fb.Builder fbBuilder;
 
   void begin() {
-    fbBuilder.startTable(6);
+    fbBuilder.startTable(7);
   }
 
   int addId(int offset) {
@@ -8120,6 +8445,10 @@ class AssetBuilder {
     fbBuilder.addOffset(5, offset);
     return fbBuilder.offset;
   }
+  int addLocaleFilesOffset(int? offset) {
+    fbBuilder.addOffset(6, offset);
+    return fbBuilder.offset;
+  }
 
   int finish() {
     return fbBuilder.endTable();
@@ -8133,6 +8462,7 @@ class AssetObjectBuilder extends fb.ObjectBuilder {
   final List<int>? _hash;
   final int? _size;
   final List<AssetVariantObjectBuilder>? _variants;
+  final List<AssetLocaleFileObjectBuilder>? _localeFiles;
 
   AssetObjectBuilder({
     UuidObjectBuilder? id,
@@ -8141,13 +8471,15 @@ class AssetObjectBuilder extends fb.ObjectBuilder {
     List<int>? hash,
     int? size,
     List<AssetVariantObjectBuilder>? variants,
+    List<AssetLocaleFileObjectBuilder>? localeFiles,
   })
       : _id = id,
         _key = key,
         _mediaType = mediaType,
         _hash = hash,
         _size = size,
-        _variants = variants;
+        _variants = variants,
+        _localeFiles = localeFiles;
 
   /// Finish building, and store into the [fbBuilder].
   @override
@@ -8160,7 +8492,9 @@ class AssetObjectBuilder extends fb.ObjectBuilder {
         : fbBuilder.writeListUint8(_hash!);
     final int? variantsOffset = _variants == null ? null
         : fbBuilder.writeList(_variants!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
-    fbBuilder.startTable(6);
+    final int? localeFilesOffset = _localeFiles == null ? null
+        : fbBuilder.writeList(_localeFiles!.map((b) => b.getOrCreateOffset(fbBuilder)).toList());
+    fbBuilder.startTable(7);
     if (_id != null) {
       fbBuilder.addStruct(0, _id!.finish(fbBuilder));
     }
@@ -8169,6 +8503,100 @@ class AssetObjectBuilder extends fb.ObjectBuilder {
     fbBuilder.addOffset(3, hashOffset);
     fbBuilder.addUint64(4, _size);
     fbBuilder.addOffset(5, variantsOffset);
+    fbBuilder.addOffset(6, localeFilesOffset);
+    return fbBuilder.endTable();
+  }
+
+  /// Convenience method to serialize to byte list.
+  @override
+  Uint8List toBytes([String? fileIdentifier]) {
+    final fbBuilder = fb.Builder(deduplicateTables: false);
+    fbBuilder.finish(finish(fbBuilder), fileIdentifier);
+    return fbBuilder.buffer;
+  }
+}
+class AssetLocaleFile {
+  AssetLocaleFile._(this._bc, this._bcOffset);
+  factory AssetLocaleFile(List<int> bytes) {
+    final rootRef = fb.BufferContext.fromBytes(bytes);
+    return reader.read(rootRef, 0);
+  }
+
+  static const fb.Reader<AssetLocaleFile> reader = _AssetLocaleFileReader();
+
+  final fb.BufferContext _bc;
+  final int _bcOffset;
+
+  String? get tag => const fb.StringReader().vTableGetNullable(_bc, _bcOffset, 4);
+  List<int>? get hash => const fb.Uint8ListReader().vTableGetNullable(_bc, _bcOffset, 6);
+  int get size => const fb.Uint64Reader().vTableGet(_bc, _bcOffset, 8, 0);
+
+  @override
+  String toString() {
+    return 'AssetLocaleFile{tag: ${tag}, hash: ${hash}, size: ${size}}';
+  }
+}
+
+class _AssetLocaleFileReader extends fb.TableReader<AssetLocaleFile> {
+  const _AssetLocaleFileReader();
+
+  @override
+  AssetLocaleFile createObject(fb.BufferContext bc, int offset) => 
+    AssetLocaleFile._(bc, offset);
+}
+
+class AssetLocaleFileBuilder {
+  AssetLocaleFileBuilder(this.fbBuilder);
+
+  final fb.Builder fbBuilder;
+
+  void begin() {
+    fbBuilder.startTable(3);
+  }
+
+  int addTagOffset(int? offset) {
+    fbBuilder.addOffset(0, offset);
+    return fbBuilder.offset;
+  }
+  int addHashOffset(int? offset) {
+    fbBuilder.addOffset(1, offset);
+    return fbBuilder.offset;
+  }
+  int addSize(int? size) {
+    fbBuilder.addUint64(2, size);
+    return fbBuilder.offset;
+  }
+
+  int finish() {
+    return fbBuilder.endTable();
+  }
+}
+
+class AssetLocaleFileObjectBuilder extends fb.ObjectBuilder {
+  final String? _tag;
+  final List<int>? _hash;
+  final int? _size;
+
+  AssetLocaleFileObjectBuilder({
+    String? tag,
+    List<int>? hash,
+    int? size,
+  })
+      : _tag = tag,
+        _hash = hash,
+        _size = size;
+
+  /// Finish building, and store into the [fbBuilder].
+  @override
+  int finish(fb.Builder fbBuilder) {
+    final int? tagOffset = _tag == null ? null
+        : fbBuilder.writeString(_tag!);
+    final int? hashOffset = _hash == null ? null
+        : fbBuilder.writeListUint8(_hash!);
+    fbBuilder.startTable(3);
+    fbBuilder.addOffset(0, tagOffset);
+    fbBuilder.addOffset(1, hashOffset);
+    fbBuilder.addUint64(2, _size);
     return fbBuilder.endTable();
   }
 

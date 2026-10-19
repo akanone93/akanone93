@@ -1,0 +1,37 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "TimelineStep",
+  "id": 63,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "One step of a StatusTimeline.",
+  "fields": [
+    {
+      "name": "label",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The step's name.",
+      "translatable": true
+    },
+    {
+      "name": "detail",
+      "id": 2,
+      "type": "string?",
+      "description": "A line below the label, such as a time or a reason.",
+      "translatable": true
+    },
+    {
+      "name": "state",
+      "id": 3,
+      "type": "TimelineStepState",
+      "default": "pending",
+      "description": "Where the step stands."
+    }
+  ]
+}

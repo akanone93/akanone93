@@ -11,6 +11,7 @@
   "always": [
     "changes",
     "ci-ok",
+    "codeql",
     "commits",
     "dependency-review",
     "docs-site",
@@ -43,6 +44,7 @@
     "REUSE.toml",
     "docs/**",
     "ee/**",
+    "mk/l10n.mk",
     "mk/repo.mk",
     "scripts/check-commit-msg.sh",
     "scripts/install.sh",
@@ -225,6 +227,13 @@
       "goTest": ["backend/internal/server"],
       "dart": ["apps/starter", "apps/add_to_app/plux_module", "apps/plux_bank", "apps/plux_express"],
       "paths": ["test/compat/**", "test/refapi/**", "schema/**", "mk/device.mk", "backend/cmd/plux/**", "backend/internal/generator/**", "backend/internal/codegen/**"],
+      "exclude": ["**/*.md", "**/android/**", "**/ios/**"]
+    },
+    "goldens": {
+      "description": "The golden (visual regression) harness on Linux, the canonical renderer: plux golden renders the starter project with the real runtime and the vendored fonts, deterministically (TST-003, ADR-0070)",
+      "goTest": ["backend/cmd/plux", "backend/internal/plxgolden"],
+      "dart": ["apps/starter"],
+      "paths": ["schema/goldens/**", "schema/testdata/documents/starter/**", "backend/internal/plxtest/**"],
       "exclude": ["**/*.md", "**/android/**", "**/ios/**"]
     },
     "e2e-android": {

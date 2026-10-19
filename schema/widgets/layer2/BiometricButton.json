@@ -29,14 +29,16 @@
       "id": 1,
       "type": "string",
       "required": true,
-      "description": "The button text."
+      "description": "The button text.",
+      "translatable": true
     },
     {
       "name": "reason",
       "id": 2,
       "type": "string",
       "required": true,
-      "description": "Why the app asks, shown by the system prompt."
+      "description": "Why the app asks, shown by the system prompt.",
+      "translatable": true
     }
   ],
   "events": [

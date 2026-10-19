@@ -1,0 +1,169 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "Stepper",
+  "id": 118,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "class": "Stepper",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "structure",
+  "icon": "checklist",
+  "description": "A sequence of steps; the child at each step's index is its content (WGT-020).",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 60,
+  "accessibility": {
+    "role": "group",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "steps",
+      "id": 1,
+      "type": "list<StepItem>",
+      "required": true,
+      "flutter": "steps"
+    },
+    {
+      "name": "type",
+      "id": 2,
+      "type": "StepperType",
+      "default": "vertical",
+      "flutter": "type"
+    },
+    {
+      "name": "currentStep",
+      "id": 3,
+      "type": "int",
+      "default": 0,
+      "flutter": "currentStep",
+      "description": "The open step; bind it to a state key and update it from the events."
+    },
+    {
+      "name": "physics",
+      "id": 4,
+      "type": "ScrollPhysics",
+      "flutter": "physics"
+    },
+    {
+      "name": "elevation",
+      "id": 5,
+      "type": "double",
+      "flutter": "elevation"
+    },
+    {
+      "name": "margin",
+      "id": 6,
+      "type": "EdgeInsets",
+      "flutter": "margin"
+    },
+    {
+      "name": "connectorColor",
+      "id": 7,
+      "type": "color",
+      "flutter": "connectorColor"
+    },
+    {
+      "name": "connectorThickness",
+      "id": 8,
+      "type": "double",
+      "flutter": "connectorThickness"
+    },
+    {
+      "name": "stepIconHeight",
+      "id": 9,
+      "type": "double",
+      "flutter": "stepIconHeight"
+    },
+    {
+      "name": "stepIconWidth",
+      "id": 10,
+      "type": "double",
+      "flutter": "stepIconWidth"
+    },
+    {
+      "name": "stepIconMargin",
+      "id": 11,
+      "type": "EdgeInsets",
+      "flutter": "stepIconMargin"
+    },
+    {
+      "name": "clipBehavior",
+      "id": 12,
+      "type": "Clip",
+      "default": "none",
+      "flutter": "clipBehavior"
+    },
+    {
+      "name": "headerPadding",
+      "id": 13,
+      "type": "EdgeInsets",
+      "flutter": "headerPadding"
+    },
+    {
+      "name": "contentPadding",
+      "id": 14,
+      "type": "EdgeInsets",
+      "flutter": "contentPadding"
+    }
+  ],
+  "events": [
+    {
+      "name": "onStepTapped",
+      "id": 1,
+      "payload": "int",
+      "flutter": "onStepTapped"
+    },
+    {
+      "name": "onStepContinue",
+      "id": 2,
+      "flutter": "onStepContinue"
+    },
+    {
+      "name": "onStepCancel",
+      "id": 3,
+      "flutter": "onStepCancel"
+    }
+  ],
+  "children": {
+    "flutter": "steps"
+  },
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "controller",
+      "reason": "controller\u2192state",
+      "note": "The runtime owns the controller."
+    },
+    {
+      "flutter": "controlsBuilder",
+      "reason": "builder\u2192template",
+      "note": "The default Continue and Cancel controls are used; they fire `onStepContinue` and `onStepCancel`."
+    },
+    {
+      "flutter": "stepIconBuilder",
+      "reason": "builder\u2192template",
+      "note": "Step icons follow `StepItem.state`."
+    }
+  ]
+}

@@ -30,6 +30,7 @@ import 'package:plux_flutter/src/actions/run.dart';
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/forms/validators.dart';
+import 'package:plux_flutter/src/l10n/runtime_strings.dart';
 import 'package:plux_flutter/src/pxl/decimal.dart';
 import 'package:plux_flutter/src/pxl/program.dart';
 import 'package:plux_flutter/src/pxl/regex.dart';
@@ -62,6 +63,7 @@ final class FieldValidator {
   const FieldValidator({
     required this.kind,
     this.message,
+    this.messageRef,
     this.check,
     this.rule,
     this.graph,
@@ -73,6 +75,10 @@ final class FieldValidator {
 
   /// The declared message, or null for the built-in one.
   final String? message;
+
+  /// The declared message as a translation reference, resolved in the
+  /// effective locale; it wins over [message] (I18N-001).
+  final fbs.Value? messageRef;
 
   /// A built-in check, for every kind but Custom and Async.
   final Validator? check;
@@ -187,6 +193,7 @@ List<FormDecl> decodeForms(
                   FieldValidator(
                     kind: v.kind,
                     message: str(v.message),
+                    messageRef: v.messageRef,
                     check: _check(v, str, literal, regex, region),
                     rule: v.rule == 0 ? null : bundle.program(v.rule),
                     graph: v.graph,
@@ -261,25 +268,57 @@ Decimal? _decimal(Object? v) => switch (v) {
   _ => null,
 };
 
-/// The built-in message of [f] until P8 brings localised messages.
-String builtInMessage(ValidationFailure f) {
+/// The built-in message of [f] in the locale of [strings] (English by
+/// default; ACT-020, I18N-004).
+String builtInMessage(
+  ValidationFailure f, [
+  RuntimeStrings strings = RuntimeStrings.english,
+]) {
   final a = f.args;
-  return switch (f.code) {
-    'required' => 'Required',
-    'tooShort' => 'At least ${a['min']} characters',
-    'tooLong' => 'At most ${a['max']} characters',
-    'belowMin' => 'Must be at least ${a['min']}',
-    'aboveMax' => 'Must be at most ${a['max']}',
-    'pattern' => 'Not in the expected format',
-    'email' => 'Not a valid email address',
-    'phone' => 'Not a valid phone number',
-    'iban' => 'Not a valid IBAN',
-    'tooManyDecimals' => 'At most ${a['max']} decimal places',
-    'tooManyDigits' => 'At most ${a['max']} digits before the decimal point',
-    'notANumber' => 'Not a number',
-    'unchecked' => 'Could not be checked',
-    _ => 'Invalid',
+  final key = switch (f.code) {
+    'required' => 'required',
+    'tooShort' => 'tooShort',
+    'tooLong' => 'tooLong',
+    'belowMin' => 'belowMin',
+    'aboveMax' => 'aboveMax',
+    'pattern' => 'pattern',
+    'email' => 'email',
+    'phone' => 'phone',
+    'iban' => 'iban',
+    'tooManyDecimals' => 'tooManyDecimals',
+    'tooManyDigits' => 'tooManyDigits',
+    'notANumber' => 'notANumber',
+    'unchecked' => 'unchecked',
+    _ => 'invalid',
   };
+  return strings['plux.validation.$key']
+      .replaceAll('{min}', '${a['min']}')
+      .replaceAll('{max}', '${a['max']}');
+}
+
+/// How a form's messages reach the user's locale (I18N-001, ACT-020).
+final class FormTexts {
+  /// Creates texts; the defaults read English and ignore references.
+  const FormTexts({this.reference, this.strings});
+
+  /// Resolves a translation reference in the effective locale; null where
+  /// none can, or when the resolution fails.
+  final String? Function(fbs.Value ref)? reference;
+
+  /// The runtime strings of the effective locale; English when null.
+  final RuntimeStrings Function()? strings;
+
+  /// The message of validator [x] for failure [f]: its referenced
+  /// translation, its literal message, or the built-in one.
+  String messageOf(FieldValidator x, ValidationFailure f) {
+    final ref = x.messageRef;
+    if (ref != null) {
+      final text = reference?.call(ref);
+      if (text != null) return text;
+    }
+    return x.message ??
+        builtInMessage(f, strings?.call() ?? RuntimeStrings.english);
+  }
 }
 
 bool _absent(Object? v) => v == null || (v is String && v.isEmpty);
@@ -294,6 +333,7 @@ final class FormHost {
     required this.evaluate,
     this.run,
     this.report,
+    this.texts = const FormTexts(),
   });
 
   /// The form's scope entry.
@@ -310,6 +350,9 @@ final class FormHost {
 
   /// Reports problems.
   final void Function(PluxException error)? report;
+
+  /// Resolves the form's messages in the effective locale.
+  final FormTexts texts;
 }
 
 /// Finds a form of the scope where a run started (STA-020): the
@@ -349,6 +392,7 @@ final class FormController {
   ) => _derive(
     decl,
     evaluate,
+    const FormTexts(),
     values: decl.initialValues,
     dirty: {for (final f in decl.fields) f.name: false},
     touched: {for (final f in decl.fields) f.name: false},
@@ -379,6 +423,7 @@ final class FormController {
       _derive(
         decl,
         host.evaluate,
+        host.texts,
         values: values ?? this.values,
         dirty: dirty ?? _part('dirty'),
         touched: touched ?? _part('touched'),
@@ -413,7 +458,9 @@ final class FormController {
   /// and no finished check covers it.
   bool _needsCheck(FormFieldDecl f, Object? v) {
     if (!f.validators.any((x) => x.isAsync) || _absent(v)) return false;
-    if (_syncError(decl, f, v, values, host.evaluate) != null) return false;
+    if (_syncError(decl, f, v, values, host.evaluate, host.texts) != null) {
+      return false;
+    }
     final done = _checked[f.name];
     return done == null || !sameValue(done.$1, v);
   }
@@ -456,8 +503,7 @@ final class FormController {
       final run = host.run;
       final graph = x.graph;
       if (run == null || graph == null) {
-        message =
-            x.message ?? builtInMessage(const ValidationFailure('unchecked'));
+        message = host.texts.messageOf(x, const ValidationFailure('unchecked'));
         _failed('no engine runs the asynchronous validator of ${f.name}');
         continue;
       }
@@ -475,13 +521,11 @@ final class FormController {
       if (_generation[f.name] != generation) return; // stale
       if (r == null || r.outcome == RunOutcome.cancelled) {
         // No run took place, as when the page is closing.
-        message =
-            x.message ?? builtInMessage(const ValidationFailure('unchecked'));
+        message = host.texts.messageOf(x, const ValidationFailure('unchecked'));
         continue;
       }
       if (r.outcome == RunOutcome.failed) {
-        message =
-            x.message ?? builtInMessage(const ValidationFailure('unchecked'));
+        message = host.texts.messageOf(x, const ValidationFailure('unchecked'));
         _failed(
           'the asynchronous validator of ${decl.name}.${f.name} failed: '
           '${r.error?.code.id ?? 'no result'}',
@@ -490,7 +534,7 @@ final class FormController {
       }
       message = switch (r.result) {
         final String s when s.isNotEmpty => s,
-        false => x.message ?? builtInMessage(const ValidationFailure('')),
+        false => host.texts.messageOf(x, const ValidationFailure('')),
         _ => null,
       };
     }
@@ -575,13 +619,14 @@ String? _syncError(
   Object? v,
   Map<String, Object?> values,
   FormEvaluate evaluate,
+  FormTexts texts,
 ) {
   for (final x in f.validators) {
     if (x.isAsync) continue;
     final check = x.check;
     if (check != null) {
       final failure = check(v);
-      if (failure != null) return x.message ?? builtInMessage(failure);
+      if (failure != null) return texts.messageOf(x, failure);
       continue;
     }
     final rule = x.rule;
@@ -593,7 +638,7 @@ String? _syncError(
       ok = false;
     }
     if (ok != true) {
-      return x.message ?? builtInMessage(const ValidationFailure(''));
+      return texts.messageOf(x, const ValidationFailure(''));
     }
   }
   return null;
@@ -602,7 +647,8 @@ String? _syncError(
 /// A form's state from its values, flags, status and asynchronous checks.
 Map<String, Object?> _derive(
   FormDecl decl,
-  FormEvaluate evaluate, {
+  FormEvaluate evaluate,
+  FormTexts texts, {
   required Map<String, Object?> values,
   required Map<String, Object?> dirty,
   required Map<String, Object?> touched,
@@ -614,7 +660,7 @@ Map<String, Object?> _derive(
   var valid = true;
   for (final f in decl.fields) {
     final v = values[f.name];
-    var error = _syncError(decl, f, v, values, evaluate);
+    var error = _syncError(decl, f, v, values, evaluate, texts);
     if (error == null && f.validators.any((x) => x.isAsync) && !_absent(v)) {
       final done = checked[f.name];
       if (done != null && sameValue(done.$1, v)) {

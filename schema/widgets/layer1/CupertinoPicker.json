@@ -1,0 +1,132 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "CupertinoPicker",
+  "id": 156,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/cupertino.dart",
+    "class": "CupertinoPicker",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "cupertino",
+  "icon": "view_agenda",
+  "description": "An iOS-style scrolling wheel over its children; `selectedIndex` is bound to state and `onSelectedItemChanged` reports the wheel.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 50,
+  "accessibility": {
+    "role": "list",
+    "interactive": true,
+    "minTarget": true
+  },
+  "typeParameters": [],
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "itemExtent",
+      "id": 1,
+      "type": "double",
+      "required": true,
+      "flutter": "itemExtent",
+      "description": "The height of each child."
+    },
+    {
+      "name": "selectedIndex",
+      "id": 2,
+      "type": "int",
+      "default": 0,
+      "description": "The selected child; the wheel follows it when it changes."
+    },
+    {
+      "name": "diameterRatio",
+      "id": 3,
+      "type": "double",
+      "flutter": "diameterRatio"
+    },
+    {
+      "name": "backgroundColor",
+      "id": 4,
+      "type": "color",
+      "flutter": "backgroundColor"
+    },
+    {
+      "name": "offAxisFraction",
+      "id": 5,
+      "type": "double",
+      "default": 0.0,
+      "flutter": "offAxisFraction"
+    },
+    {
+      "name": "useMagnifier",
+      "id": 6,
+      "type": "bool",
+      "default": false,
+      "flutter": "useMagnifier"
+    },
+    {
+      "name": "magnification",
+      "id": 7,
+      "type": "double",
+      "default": 1.0,
+      "flutter": "magnification"
+    },
+    {
+      "name": "squeeze",
+      "id": 8,
+      "type": "double",
+      "flutter": "squeeze"
+    },
+    {
+      "name": "looping",
+      "id": 9,
+      "type": "bool",
+      "default": false,
+      "flutter": "looping"
+    }
+  ],
+  "events": [
+    {
+      "name": "onSelectedItemChanged",
+      "id": 1,
+      "payload": "int",
+      "flutter": "onSelectedItemChanged"
+    }
+  ],
+  "children": {
+    "flutter": "children"
+  },
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "scrollController",
+      "reason": "controller→state",
+      "note": "The runtime owns the controller; `selectedIndex` is the state."
+    },
+    {
+      "flutter": "selectionOverlay",
+      "reason": "deferred",
+      "note": "The default overlay is used."
+    },
+    {
+      "flutter": "changeReportingBehavior",
+      "reason": "deferred",
+      "note": "The default reporting is used."
+    }
+  ]
+}

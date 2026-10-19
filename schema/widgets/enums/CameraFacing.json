@@ -1,0 +1,23 @@
+{
+  "$schema": "../../json/registry/enum.schema.json",
+  "name": "CameraFacing",
+  "id": 155,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "Which camera a scanner opens.",
+  "values": [
+    {
+      "name": "back",
+      "id": 1
+    },
+    {
+      "name": "front",
+      "id": 2
+    }
+  ]
+}

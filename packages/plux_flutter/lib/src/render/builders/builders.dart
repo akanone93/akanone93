@@ -18,6 +18,7 @@ import 'package:plux_flutter/src/render/builders/layer2.dart';
 import 'package:plux_flutter/src/render/decoders.dart';
 import 'package:plux_flutter/src/render/decoding.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
+import 'package:plux_flutter/src/render/min_target.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
 import 'package:plux_flutter/src/render/plux_icon.dart';
 import 'package:plux_flutter/src/render/plux_node.dart';
@@ -124,9 +125,12 @@ Widget _slot(NodeContext c) {
 
 // ── Collections (WGT-012) ──────────────────────────────────────────────────
 
-/// What a collection shows: its items, or the slot of its status.
-final class _Collection {
-  _Collection(
+/// What a collection shows: its items, or the slot of its status. Shared with
+/// the Layer 2 `InfiniteList`.
+final class ItemCollection {
+  /// Reads collection [c] through the permanent IDs of its props, slots
+  /// and events.
+  ItemCollection(
     this.c, {
     required this.items,
     required this.status,
@@ -138,7 +142,11 @@ final class _Collection {
     required this.error,
   });
 
+  /// The node.
   final NodeContext c;
+
+  /// The IDs of the props `items`, `status` and `hasMore`, the event
+  /// `onEndReached`, and the slots `item`, `empty`, `loading` and `error`.
   final int items,
       status,
       hasMore,
@@ -148,6 +156,7 @@ final class _Collection {
       loading,
       error;
 
+  /// The items; empty when the prop is absent.
   late final List<Object?> values = switch (c.prop(items)) {
     final List<Object?> v => v,
     _ => const [],
@@ -231,7 +240,7 @@ SliverGridDelegate _gridDelegate(
 }
 
 Widget _listView(NodeContext c) {
-  final l = _Collection(
+  final l = ItemCollection(
     c,
     items: ListViewProps.items,
     status: ListViewProps.status,
@@ -279,7 +288,7 @@ Widget _listView(NodeContext c) {
 }
 
 Widget _gridView(NodeContext c) {
-  final l = _Collection(
+  final l = ItemCollection(
     c,
     items: GridViewProps.items,
     status: GridViewProps.status,
@@ -334,7 +343,7 @@ Widget _gridView(NodeContext c) {
 }
 
 Widget _pageView(NodeContext c) {
-  final l = _Collection(
+  final l = ItemCollection(
     c,
     items: PageViewProps.items,
     status: PageViewProps.status,
@@ -373,7 +382,7 @@ Widget _pageView(NodeContext c) {
 }
 
 Widget _sliverList(NodeContext c) {
-  final l = _Collection(
+  final l = ItemCollection(
     c,
     items: SliverListProps.items,
     status: SliverListProps.status,
@@ -401,7 +410,7 @@ Widget _sliverList(NodeContext c) {
 }
 
 Widget _sliverGrid(NodeContext c) {
-  final l = _Collection(
+  final l = ItemCollection(
     c,
     items: SliverGridProps.items,
     status: SliverGridProps.status,
@@ -802,43 +811,55 @@ Widget _slidingSegmentedControl(NodeContext c) {
     for (var i = 0; i < values.length && i < segments.length; i++)
       values[i]: segments[i],
   };
+  final keys = children.keys.toList();
   return c.controlled<String?>(
     CupertinoSlidingSegmentedControlEvents.onValueChanged,
     c.decode(CupertinoSlidingSegmentedControlProps.groupValue, asString),
-    (value, onChanged) => CupertinoSlidingSegmentedControl<String>(
-      children: children,
-      onValueChanged: (v) => onChanged?.call(v),
-      disabledChildren:
-          c.decode(
-            CupertinoSlidingSegmentedControlProps.disabledChildren,
-            asStringSet,
-          ) ??
-          (onChanged == null ? children.keys.toSet() : const {}),
-      groupValue: value,
-      thumbColor:
-          c.decode(CupertinoSlidingSegmentedControlProps.thumbColor, asColor) ??
-          _segmentDefaults.thumbColor,
-      padding:
-          c.decode(
-            CupertinoSlidingSegmentedControlProps.padding,
-            decodeEdgeInsets,
-          ) ??
-          _segmentDefaults.padding,
-      backgroundColor:
-          c.decode(
-            CupertinoSlidingSegmentedControlProps.backgroundColor,
-            asColor,
-          ) ??
-          CupertinoColors.tertiarySystemFill,
-      proportionalWidth:
-          c.decode(
-            CupertinoSlidingSegmentedControlProps.proportionalWidth,
-            asBool,
-          ) ??
-          false,
-      isMomentary:
-          c.decode(CupertinoSlidingSegmentedControlProps.isMomentary, asBool) ??
-          false,
+    (value, onChanged) => MinTargetSegments(
+      segments: children.values.toList(),
+      selected: value == null ? null : keys.indexOf(value),
+      onSelect: onChanged == null ? null : (i) => onChanged(keys[i]),
+      control: CupertinoSlidingSegmentedControl<String>(
+        children: children,
+        onValueChanged: (v) => onChanged?.call(v),
+        disabledChildren:
+            c.decode(
+              CupertinoSlidingSegmentedControlProps.disabledChildren,
+              asStringSet,
+            ) ??
+            (onChanged == null ? children.keys.toSet() : const {}),
+        groupValue: value,
+        thumbColor:
+            c.decode(
+              CupertinoSlidingSegmentedControlProps.thumbColor,
+              asColor,
+            ) ??
+            _segmentDefaults.thumbColor,
+        padding:
+            c.decode(
+              CupertinoSlidingSegmentedControlProps.padding,
+              decodeEdgeInsets,
+            ) ??
+            _segmentDefaults.padding,
+        backgroundColor:
+            c.decode(
+              CupertinoSlidingSegmentedControlProps.backgroundColor,
+              asColor,
+            ) ??
+            CupertinoColors.tertiarySystemFill,
+        proportionalWidth:
+            c.decode(
+              CupertinoSlidingSegmentedControlProps.proportionalWidth,
+              asBool,
+            ) ??
+            false,
+        isMomentary:
+            c.decode(
+              CupertinoSlidingSegmentedControlProps.isMomentary,
+              asBool,
+            ) ??
+            false,
+      ),
     ),
   );
 }

@@ -1,0 +1,58 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "SortSheet",
+  "id": 174,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "sort",
+  "description": "A list of radio rows to choose a sort order from; a page of kind bottom sheet hosts it.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 80,
+  "accessibility": {
+    "role": "radio",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "title",
+      "id": 1,
+      "type": "string?",
+      "translatable": true,
+      "description": "A header above the rows."
+    },
+    {
+      "name": "options",
+      "id": 2,
+      "type": "list<ChoiceItem>",
+      "required": true,
+      "description": "The orders offered; their `selected` is ignored in favour of `selected`."
+    },
+    {
+      "name": "selected",
+      "id": 3,
+      "type": "string?",
+      "description": "The `id` of the chosen option."
+    }
+  ],
+  "events": [
+    {
+      "name": "onSelected",
+      "id": 1,
+      "payload": "string",
+      "description": "Fires with the `id` of the option the person chose."
+    }
+  ]
+}

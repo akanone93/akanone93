@@ -36,7 +36,8 @@
       "name": "tooltip",
       "id": 1,
       "type": "string",
-      "flutter": "tooltip"
+      "flutter": "tooltip",
+      "translatable": true
     },
     {
       "name": "foregroundColor",

@@ -944,6 +944,86 @@
       "fix": "Set `semantics.label`, or give the node visible text."
     },
     {
+      "code": "PLX-1402",
+      "reason": "IMAGE_ALTERNATIVE_MISSING",
+      "severity": "warning",
+      "title": "Image without alternative text",
+      "cause": "An image has no `semanticLabel`, no `semantics.label` and is not marked decorative, so screen readers cannot describe it (A11Y-002).",
+      "fix": "Set `semanticLabel` or `semantics.label`, or mark the image `semantics.decorative`."
+    },
+    {
+      "code": "PLX-1403",
+      "reason": "CONTRAST_INSUFFICIENT",
+      "severity": "warning",
+      "title": "Contrast below WCAG 2.2 AA",
+      "cause": "The contrast ratio of a text or component colour against its background is below 4.5:1 (3:1 for large text and UI components) in a theme variant (A11Y-003).",
+      "fix": "Choose colours with a higher contrast ratio in every theme variant."
+    },
+    {
+      "code": "PLX-1404",
+      "reason": "TOUCH_TARGET_TOO_SMALL",
+      "severity": "warning",
+      "title": "Touch target too small",
+      "cause": "An interactive node has a fixed size below 44 x 44 logical pixels, or below 48 x 48 when the app targets Android (A11Y-004).",
+      "fix": "Enlarge the node, or remove the fixed size so the platform padding applies."
+    },
+    {
+      "code": "PLX-1405",
+      "reason": "FIXED_HEIGHT_TEXT",
+      "severity": "warning",
+      "title": "Text under a fixed height",
+      "cause": "A text node sits under an ancestor with a fixed height, which clips the text when the user scales it (A11Y-005).",
+      "fix": "Remove the fixed height or use a minimum height."
+    },
+    {
+      "code": "PLX-1406",
+      "reason": "FOCUS_ORDER_INVALID",
+      "severity": "warning",
+      "title": "Focus order invalid",
+      "cause": "Sibling nodes in one group or page declare duplicate or non-dense `focusOrder` values (A11Y-006).",
+      "fix": "Number the focus order of siblings 1, 2, 3 without gaps or repeats."
+    },
+    {
+      "code": "PLX-1407",
+      "reason": "HEADING_LEVEL_INVALID",
+      "severity": "warning",
+      "title": "Heading level skipped",
+      "cause": "A heading level skips more than one level from the previous heading of the page (A11Y-006).",
+      "fix": "Use consecutive heading levels."
+    },
+    {
+      "code": "PLX-1408",
+      "reason": "LIVE_REGION_STATIC",
+      "severity": "warning",
+      "title": "Live region with constant content",
+      "cause": "A node is a live region but its label or text never changes, so it announces nothing useful (A11Y-006).",
+      "fix": "Bind the content to state, or remove `liveRegion`."
+    },
+    {
+      "code": "PLX-1409",
+      "reason": "CONTRAST_NOT_CHECKED",
+      "severity": "info",
+      "title": "Contrast not checked",
+      "cause": "A colour or background depends on an expression, a gradient, an image or a theme the compiler cannot see, so its contrast was not checked (A11Y-003).",
+      "fix": "Check the contrast at run time, or use literal colours or theme tokens."
+    },
+    {
+      "code": "PLX-1410",
+      "reason": "A11Y_WAIVER_INVALID",
+      "severity": "error",
+      "title": "Accessibility waiver invalid",
+      "cause": "An accessibility waiver names an unknown check or has a justification shorter than ten characters (A11Y-008).",
+      "fix": "Name a known check and justify the waiver in at least ten characters."
+    },
+    {
+      "code": "PLX-1411",
+      "reason": "A11Y_WAIVER_PERMISSION_REQUIRED",
+      "severity": "error",
+      "title": "Accessibility waiver needs permission",
+      "cause": "Under the maximum profile an accessibility waiver needs the `a11y.waive` permission of the saving principal (A11Y-008).",
+      "fix": "Ask a principal with `a11y.waive` to save the waiver."
+    },
+    {
       "code": "PLX-1500",
       "reason": "SECRET_LIKE_VALUE",
       "severity": "error",
@@ -982,6 +1062,166 @@
       "title": "Direct data source assurance cannot be enforced",
       "cause": "A data source with route `direct` declares requiresAssurance, which the server cannot enforce on a call that does not pass through it (SEC-030).",
       "fix": "Route the data source through the gateway, or remove requiresAssurance."
+    },
+    {
+      "code": "PLX-1600",
+      "reason": "LOCALE_UNSUPPORTED",
+      "severity": "error",
+      "title": "Locale not supported",
+      "cause": "The locale is not in the CLDR data pinned by this release, so its plural rules, dates and numbers cannot be formatted (I18N-002).",
+      "fix": "Choose a locale from the supported list, or remove it from the release's locales."
+    },
+    {
+      "code": "PLX-1601",
+      "reason": "MESSAGE_SYNTAX_INVALID",
+      "severity": "error",
+      "title": "Message syntax invalid",
+      "cause": "A translatable message is not valid ICU MessageFormat, so it cannot be parsed (I18N-001).",
+      "fix": "Fix the braces, plural and select blocks of the message; the error's details give the position."
+    },
+    {
+      "code": "PLX-1602",
+      "reason": "MESSAGE_ARGUMENT_UNDECLARED",
+      "severity": "error",
+      "title": "Message argument undeclared",
+      "cause": "A message uses an argument that the key does not declare, so the runtime has no value to put in its place (I18N-001).",
+      "fix": "Declare the argument on the key, or remove it from the message."
+    },
+    {
+      "code": "PLX-1603",
+      "reason": "MESSAGE_ARGUMENT_TYPE_MISMATCH",
+      "severity": "error",
+      "title": "Message argument type mismatch",
+      "cause": "A message uses an argument as a number, date or plural while the key declares it with another type (I18N-001).",
+      "fix": "Make the argument's declared type match its use in the message."
+    },
+    {
+      "code": "PLX-1604",
+      "reason": "PLURAL_CATEGORY_INVALID",
+      "severity": "error",
+      "title": "Plural category not in locale",
+      "cause": "A plural branch names a category that the message's locale does not have, so no count can select it (I18N-001).",
+      "fix": "Remove the branch, or use the categories the locale defines; `other` is always required."
+    },
+    {
+      "code": "PLX-1605",
+      "reason": "PLURAL_OTHER_MISSING",
+      "severity": "error",
+      "title": "Plural other branch missing",
+      "cause": "A plural message has no `other` branch, so a count that matches no other category has no text to show (I18N-001).",
+      "fix": "Add an `other` branch to the plural."
+    },
+    {
+      "code": "PLX-1606",
+      "reason": "TRANSLATION_MISSING",
+      "severity": "warning",
+      "title": "Translation missing",
+      "cause": "A locale of the release has no translation for a key, so the runtime falls back to the source locale for that key (I18N-006).",
+      "fix": "Translate the key for the locale, or accept the fallback."
+    },
+    {
+      "code": "PLX-1607",
+      "reason": "TRANSLATION_TOO_LONG",
+      "severity": "error",
+      "title": "Translation too long",
+      "cause": "A translation is longer than the key's maxLength, so it would overflow the layout it is shown in (I18N-007).",
+      "fix": "Shorten the translation, or raise the key's maxLength if the layout allows it."
+    },
+    {
+      "code": "PLX-1608",
+      "reason": "TRANSLATION_KEY_UNUSED",
+      "severity": "warning",
+      "title": "Translation key unused",
+      "cause": "A translation key is not referenced by any document of the plugin, so it is shipped without being shown (I18N-007).",
+      "fix": "Remove the key, or use it in a document."
+    },
+    {
+      "code": "PLX-1609",
+      "reason": "LITERAL_TEXT_UNTRANSLATED",
+      "severity": "warning",
+      "title": "Literal text not translated",
+      "cause": "A translatable property holds literal text instead of a translation key, so it is shown in one language in every locale (I18N-007).",
+      "fix": "Replace the literal with a translation key."
+    },
+    {
+      "code": "PLX-1610",
+      "reason": "TRANSLATION_NOT_APPROVED",
+      "severity": "info",
+      "title": "Translation not approved",
+      "cause": "A translation was left out of the release because requireApprovedTranslations is set and the translation is not approved (I18N-008).",
+      "fix": "Approve the translation, or accept that the locale falls back to the source."
+    },
+    {
+      "code": "PLX-1611",
+      "reason": "CALENDAR_UNSUPPORTED",
+      "severity": "error",
+      "title": "Calendar unsupported",
+      "cause": "The calendar named for a locale is not one the runtime implements (I18N-003).",
+      "fix": "Choose a calendar from the supported list, or use the locale's default calendar."
+    },
+    {
+      "code": "PLX-1612",
+      "reason": "NUMBERING_SYSTEM_UNSUPPORTED",
+      "severity": "error",
+      "title": "Numbering system unsupported",
+      "cause": "The numbering system named for a locale is not one the pinned CLDR data defines (I18N-003).",
+      "fix": "Choose a numbering system from the supported list, or use the locale's default."
+    },
+    {
+      "code": "PLX-1613",
+      "reason": "LOCALE_OVERRIDE_INVALID",
+      "severity": "error",
+      "title": "Locale override invalid",
+      "cause": "A locale override names a locale that is malformed or not one of the release's locales, so it cannot be applied (I18N-012).",
+      "fix": "Use a BCP 47 tag from the release's locales, or remove the override."
+    },
+    {
+      "code": "PLX-1614",
+      "reason": "PSEUDO_LOCALE_IN_PRODUCTION",
+      "severity": "error",
+      "title": "Pseudo-locale in production",
+      "cause": "A pseudo-locale, used to test layout and encoding, is included in a production release (I18N-010).",
+      "fix": "Remove the pseudo-locale from the production release; keep it in test builds only."
+    },
+    {
+      "code": "PLX-1615",
+      "reason": "CALENDAR_OUT_OF_TABLE",
+      "severity": "warning",
+      "title": "Calendar outside its table",
+      "cause": "The Umm al-Qura calendar is used outside the years 1300 to 1600 AH covered by its table, so tabular arithmetic is used for those dates (I18N-003).",
+      "fix": "Accept the tabular approximation, or use a date within the table's range."
+    },
+    {
+      "code": "PLX-1620",
+      "reason": "TRANSLATION_IMPORT_INVALID",
+      "severity": "error",
+      "title": "Translation import invalid",
+      "cause": "The imported translation file is not valid for its format, so no translation from it was applied (I18N-009).",
+      "fix": "Export the file again from the translation tool in a supported format, and check its structure."
+    },
+    {
+      "code": "PLX-1621",
+      "reason": "TRANSLATION_IMPORT_KEY_UNKNOWN",
+      "severity": "error",
+      "title": "Imported key unknown",
+      "cause": "The imported file has a translation for a key that the plugin does not declare, so it cannot be applied (I18N-009).",
+      "fix": "Remove the key from the file, or declare it in the plugin."
+    },
+    {
+      "code": "PLX-1622",
+      "reason": "TRANSLATION_IMPORT_SOURCE_CHANGED",
+      "severity": "warning",
+      "title": "Source text changed since translation",
+      "cause": "The source text of a key changed after it was translated, so the imported translation is out of date and its key is reset to translated (I18N-009).",
+      "fix": "Review the translation against the new source text and approve it again."
+    },
+    {
+      "code": "PLX-1623",
+      "reason": "TRANSLATION_IMPORT_DOWNGRADED",
+      "severity": "warning",
+      "title": "Imported status lowered to translated",
+      "cause": "The file asks for approved or final status, which only a translation approver may set, so the entries are stored as translated (I18N-008, I18N-009).",
+      "fix": "Have a translation approver approve the entries in Studio or import the file."
     },
     {
       "code": "PLX-2001",
@@ -1280,6 +1520,46 @@
       "fix": "The device keeps its current release and retries at the next start or manual sync. Check the server's health and the device's connectivity."
     },
     {
+      "code": "PLX-3060",
+      "reason": "ACCESSIBILITY_BLOCKS_PUBLISH",
+      "severity": "error",
+      "title": "Accessibility check blocks publish",
+      "cause": "The release's accessibility policy refused the publish because a blocking accessibility finding is present (A11Y-002).",
+      "fix": "Fix the findings listed in the error's details, or lower the policy in a reviewed configuration."
+    },
+    {
+      "code": "PLX-3061",
+      "reason": "GOLDEN_RUN_MISSING",
+      "severity": "error",
+      "title": "Golden test run missing",
+      "cause": "The release's policy requires golden image tests, and no run for this plugin version is recorded (TST-003).",
+      "fix": "Run the golden tests for the plugin version and upload the results before publishing."
+    },
+    {
+      "code": "PLX-3062",
+      "reason": "GOLDEN_DIFFERENCE_UNAPPROVED",
+      "severity": "error",
+      "title": "Golden difference not approved",
+      "cause": "A golden image differs from its baseline and the difference has not been approved, so the publish is refused (TST-003).",
+      "fix": "Review the difference and approve it, or fix the rendering that changed."
+    },
+    {
+      "code": "PLX-3063",
+      "reason": "RELEASE_PROFILE_BELOW_ENVIRONMENT",
+      "severity": "error",
+      "title": "Release profile below the environment's",
+      "cause": "The release was compiled for a security profile that is less strict than the environment's effective profile, so it cannot be published or promoted into it (SEC-180).",
+      "fix": "Publish a release compiled with the environment's profile or a stricter one, or lower the environment's profile in a reviewed configuration."
+    },
+    {
+      "code": "PLX-3064",
+      "reason": "PSEUDO_LOCALES_IN_PRODUCTION",
+      "severity": "error",
+      "title": "Release carries pseudo-locales",
+      "cause": "The release supports the pseudo-locales en-XA or ar-XB, which are for development, so it cannot be promoted into a production environment (I18N-002).",
+      "fix": "Publish the release again from a build without pseudo-locales."
+    },
+    {
       "code": "PLX-4001",
       "reason": "NODE_BUILD_FAILED",
       "severity": "error",
@@ -1430,6 +1710,38 @@
       "title": "Lottie or Rive asset failed",
       "cause": "A Lottie or Rive widget could not load or play its asset: the file is missing, malformed or not what the widget expects (ANI-005).",
       "fix": "Check the asset and its media type; the widget shows nothing in its place."
+    },
+    {
+      "code": "PLX-4400",
+      "reason": "LOCALE_NOT_IN_RELEASE",
+      "severity": "error",
+      "title": "Locale not in release",
+      "cause": "The app asked to switch to a locale that the current release does not contain, so the locale was not changed (I18N-005).",
+      "fix": "Set a locale from the release's list, or check the locale list the release publishes."
+    },
+    {
+      "code": "PLX-4401",
+      "reason": "TRANSLATION_FALLBACK",
+      "severity": "warning",
+      "title": "Translation fell back to source",
+      "cause": "A text had no translation in the current locale and the source text was shown instead (I18N-006).",
+      "fix": "Add the translation for the locale in Studio and publish a new release."
+    },
+    {
+      "code": "PLX-4402",
+      "reason": "MESSAGE_FORMAT_FAILED",
+      "severity": "error",
+      "title": "Message could not be formatted",
+      "cause": "A translated message could not be formatted with its arguments at run time, so the source text or an empty string is shown (I18N-001).",
+      "fix": "Check the message and the argument values; the error's details name the argument."
+    },
+    {
+      "code": "PLX-4403",
+      "reason": "WIDGET_PACKAGE_MISSING",
+      "severity": "error",
+      "title": "Widget package not registered",
+      "cause": "A widget comes from an optional package that is not registered in this app, so the widget is not built (RT-060).",
+      "fix": "Register the package in the host app, or remove the widget from the page."
     },
     {
       "code": "PLX-5001",
@@ -2608,6 +2920,22 @@
       "fix": "Retry later. If it persists, the operator checks the service and the server's outbound network."
     },
     {
+      "code": "PLX-8092",
+      "reason": "TRANSLATION_STATE_FORBIDDEN",
+      "severity": "error",
+      "title": "Translation state not allowed",
+      "cause": "The save sets a message to approved, or changes the text of a message that stays approved, and the caller does not hold translations.approve (I18N-008).",
+      "fix": "Ask a member who holds translations.approve to approve the message, or save it at another state; a changed text of a message without that permission is saved as translated."
+    },
+    {
+      "code": "PLX-8093",
+      "reason": "TRANSLATION_DOCUMENT_FORBIDDEN",
+      "severity": "error",
+      "title": "Document not editable with translations.edit",
+      "cause": "A caller who holds translations.edit but not app.manage may save only the messages and states of an existing translations document (translations/\u003clocale\u003e.json); the save touches another document, another property, or creates the document (I18N-008).",
+      "fix": "Save only messages and states of an existing translations document, or ask for app.manage."
+    },
+    {
       "code": "PLX-9100",
       "reason": "CLI_CONFIGURATION_INVALID",
       "severity": "error",
@@ -2630,6 +2958,22 @@
       "title": "File system error",
       "cause": "A file or directory could not be read or written.",
       "fix": "Check that the path exists and is accessible."
+    },
+    {
+      "code": "PLX-9300",
+      "reason": "GOLDEN_HARNESS_FAILED",
+      "severity": "error",
+      "title": "Golden test harness failed",
+      "cause": "The golden test harness could not render or compare a screen, so no result was recorded (TST-003).",
+      "fix": "Read the harness output in the error's details, and rerun the golden tests."
+    },
+    {
+      "code": "PLX-9301",
+      "reason": "FLUTTER_SDK_UNAVAILABLE",
+      "severity": "error",
+      "title": "Flutter SDK unavailable",
+      "cause": "The Flutter SDK needed to run golden tests is not installed or not on the path, so the tests could not start (TST-003).",
+      "fix": "Install the Flutter version pinned in the Makefile and make it available on the path."
     }
   ]
 }

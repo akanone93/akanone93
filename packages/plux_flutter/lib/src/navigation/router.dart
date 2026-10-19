@@ -14,6 +14,7 @@ import 'package:plux_flutter/src/animation/timeline_spec.dart';
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/core/active_release.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/l10n/locale_host.dart';
 import 'package:plux_flutter/src/native_catalogue/host.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/navigation/delegate.dart';
@@ -425,13 +426,16 @@ final class PluxNotFoundPage extends StatelessWidget {
       appBar: AppBar(),
       body: Center(
         child: Semantics(
-          label: 'Page not found',
+          label: effectiveRuntimeStrings(context)['plux.router.notFound'],
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.explore_off_outlined, color: theme.disabledColor),
               const SizedBox(height: 12),
-              Text('Page not found', style: theme.textTheme.titleMedium),
+              Text(
+                effectiveRuntimeStrings(context)['plux.router.notFound'],
+                style: theme.textTheme.titleMedium,
+              ),
             ],
           ),
         ),

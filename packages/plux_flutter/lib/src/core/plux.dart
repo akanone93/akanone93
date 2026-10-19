@@ -15,6 +15,7 @@ import 'package:plux_flutter/src/core/host_events.dart';
 import 'package:plux_flutter/src/core/runtime.dart';
 import 'package:plux_flutter/src/devtools_api/diagnostics.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/l10n/locale_controller.dart';
 import 'package:plux_flutter/src/navigation/delegate.dart';
 import 'package:plux_flutter/src/navigation/plux_page.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
@@ -83,6 +84,9 @@ abstract final class Plux {
           ),
         );
     rt.attachSecurity();
+    // The release's locale is parsed by the first page that is built, which
+    // waits for it (I18N-005): nothing else reads it, so a start that shows
+    // no page does not pay for it, and one that does pays once, there.
     return startup;
   }
 
@@ -268,17 +272,11 @@ abstract final class Plux {
     n.replace(f(container.read(environmentProvider)));
   }
 
-  /// Sets the locale of Plux pages; null follows the host (I18N-005).
-  static void setLocale(Locale? locale) => _environment(
-    (e) => PluxEnvironment(
-      locale: locale,
-      themeMode: e.themeMode,
-      brand: e.brand,
-      consent: e.consent,
-      user: e.user,
-      authDelegate: e.authDelegate,
-    ),
-  );
+  /// Sets the locale of Plux pages; null follows the host (I18N-005). A
+  /// locale the active release has no translations for is reported
+  /// (PLX-4400) and the locale stays as it was.
+  static void setLocale(Locale? locale) =>
+      container.read(localeControllerProvider.notifier).request(locale);
 
   /// Sets light, dark or the system setting (THM-002).
   static void setThemeMode(ThemeMode mode) => _environment(

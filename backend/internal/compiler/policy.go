@@ -23,7 +23,8 @@ import (
 // policy applies the policy tier of validation (SCH-040): per-page
 // budgets (CMP-040), accessible names (PLX-1401), secret-like literals,
 // insecure URLs, sensitive values sent to analytics, and executable
-// content in assets (SEC-054).
+// content in assets (SEC-054). The accessibility checks of A11Y-002 to
+// A11Y-008 run here too (a11y.go).
 func policy(u *unit) {
 	for _, pl := range u.plugins {
 		for _, pg := range pl.pages {
@@ -42,6 +43,8 @@ func policy(u *unit) {
 			u.lintGraph(g)
 		}
 	}
+	u.accessibility()
+	u.localisation()
 	if u.focus == "" {
 		u.lintEnvironments()
 		u.lintAssets()
@@ -210,13 +213,14 @@ func (u *unit) accessibleName(n *node) {
 	if n.widget == nil || !n.widget.Interactive {
 		return
 	}
+	u.a11y.examined(checkAccessibleName)
 	if n.semantics != nil && n.semantics.label != nil {
 		return
 	}
 	if hasText(n) {
 		return
 	}
-	u.report(plxerr.AccessibleNameMissing, n.owner.file(), n.ptr, "%s has no semantics label and no text to announce", n.widget.Type)
+	u.a11yFinding(n, checkAccessibleName, plxerr.AccessibleNameMissing, n.ptr, "%s has no semantics label and no text to announce", n.widget.Type)
 }
 
 // hasText reports whether a subtree sets a text prop or field.
@@ -467,6 +471,7 @@ func (u *unit) lintAssets() {
 		if e.MediaType == schema.MediaTypeImageSvgXml && svgScript(data) {
 			u.report(plxerr.ExecutableContent, a.Source.File, ptr, "%s contains a script or an event handler", e.File)
 		}
+		u.checkAssetLocales(a.Source.File, i, e)
 	}
 }
 

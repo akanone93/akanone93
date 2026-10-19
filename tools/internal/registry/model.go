@@ -29,28 +29,31 @@ type Registry struct {
 
 // Widget is a widget descriptor (schema/json/registry/widget-descriptor.schema.json).
 type Widget struct {
-	Type           string          `json:"type"`
-	ID             uint32          `json:"id"`
-	Layer          int             `json:"layer"`
-	Phase          string          `json:"phase"`
-	Revision       int             `json:"revision"`
-	Revisions      []Revision      `json:"revisions"`
-	Flutter        *FlutterClass   `json:"flutter,omitempty"`
-	Category       string          `json:"category"`
-	Icon           string          `json:"icon"`
-	Description    string          `json:"description"`
-	Platforms      []string        `json:"platforms"`
-	Cost           int             `json:"cost"`
-	Accessibility  Accessibility   `json:"accessibility"`
-	TypeParameters []string        `json:"typeParameters,omitempty"`
-	Props          []Prop          `json:"props,omitempty"`
-	Events         []Event         `json:"events,omitempty"`
-	Children       *Children       `json:"children,omitempty"`
-	Slots          []Slot          `json:"slots,omitempty"`
-	Excluded       []Exclusion     `json:"excluded,omitempty"`
-	Deprecated     *Deprecation    `json:"deprecated,omitempty"`
-	File           string          `json:"-"`
-	Schema         json.RawMessage `json:"$schema,omitempty"`
+	Type           string        `json:"type"`
+	ID             uint32        `json:"id"`
+	Layer          int           `json:"layer"`
+	Phase          string        `json:"phase"`
+	Revision       int           `json:"revision"`
+	Revisions      []Revision    `json:"revisions"`
+	Flutter        *FlutterClass `json:"flutter,omitempty"`
+	Category       string        `json:"category"`
+	Icon           string        `json:"icon"`
+	Description    string        `json:"description"`
+	Platforms      []string      `json:"platforms"`
+	Cost           int           `json:"cost"`
+	Accessibility  Accessibility `json:"accessibility"`
+	TypeParameters []string      `json:"typeParameters,omitempty"`
+	Props          []Prop        `json:"props,omitempty"`
+	Events         []Event       `json:"events,omitempty"`
+	Children       *Children     `json:"children,omitempty"`
+	Slots          []Slot        `json:"slots,omitempty"`
+	Excluded       []Exclusion   `json:"excluded,omitempty"`
+	Deprecated     *Deprecation  `json:"deprecated,omitempty"`
+	// Package names the optional package whose builder renders the widget
+	// (RT-060, ADR-0071); empty for the core package.
+	Package string          `json:"package,omitempty"`
+	File    string          `json:"-"`
+	Schema  json.RawMessage `json:"$schema,omitempty"`
 }
 
 // Revision maps a descriptor revision to the first runtime implementing it.
@@ -73,6 +76,8 @@ func (c FlutterClass) Key() string { return c.Library + "#" + c.Class }
 type Accessibility struct {
 	Role        string `json:"role"`
 	Interactive bool   `json:"interactive"`
+	// MinTarget asks for the platform's minimum touch target (A11Y-004).
+	MinTarget bool `json:"minTarget,omitempty"`
 }
 
 // Prop is a widget prop.
@@ -86,7 +91,10 @@ type Prop struct {
 	Revision    int             `json:"revision,omitempty"`
 	Deprecated  *Deprecation    `json:"deprecated,omitempty"`
 	Bindable    *bool           `json:"bindable,omitempty"`
-	Flutter     FlutterNames    `json:"flutter,omitempty"`
+	// Translatable marks text shown to users: extraction and PLX-1609 read
+	// it (I18N-007).
+	Translatable bool         `json:"translatable,omitempty"`
+	Flutter      FlutterNames `json:"flutter,omitempty"`
 	// Constructor is the named Flutter constructor a bool prop selects
 	// when true (WGT-011).
 	Constructor string `json:"constructor,omitempty"`
@@ -98,9 +106,12 @@ func (p Prop) IsBindable() bool { return p.Bindable == nil || *p.Bindable }
 
 // Event is a widget event.
 type Event struct {
-	Name        string       `json:"name"`
-	ID          uint32       `json:"id"`
-	Payload     string       `json:"payload,omitempty"`
+	Name    string `json:"name"`
+	ID      uint32 `json:"id"`
+	Payload string `json:"payload,omitempty"`
+	// Sensitive marks a payload carrying a personal or secret value; traces
+	// and telemetry never record it (SCH-012, SEC-092).
+	Sensitive   bool         `json:"sensitive,omitempty"`
 	Revision    int          `json:"revision,omitempty"`
 	Deprecated  *Deprecation `json:"deprecated,omitempty"`
 	Flutter     FlutterNames `json:"flutter,omitempty"`
@@ -183,15 +194,17 @@ type ValueType struct {
 
 // Field is a field of a value type.
 type Field struct {
-	Name        string          `json:"name"`
-	ID          uint32          `json:"id"`
-	Type        string          `json:"type"`
-	Required    bool            `json:"required,omitempty"`
-	Default     json.RawMessage `json:"default,omitempty"`
-	Revision    int             `json:"revision,omitempty"`
-	Deprecated  *Deprecation    `json:"deprecated,omitempty"`
-	Flutter     FlutterNames    `json:"flutter,omitempty"`
-	Description string          `json:"description,omitempty"`
+	Name       string          `json:"name"`
+	ID         uint32          `json:"id"`
+	Type       string          `json:"type"`
+	Required   bool            `json:"required,omitempty"`
+	Default    json.RawMessage `json:"default,omitempty"`
+	Revision   int             `json:"revision,omitempty"`
+	Deprecated *Deprecation    `json:"deprecated,omitempty"`
+	Flutter    FlutterNames    `json:"flutter,omitempty"`
+	// Translatable marks a string field shown to users (I18N-007).
+	Translatable bool   `json:"translatable,omitempty"`
+	Description  string `json:"description,omitempty"`
 }
 
 // Constant is a named value of a value type, such as Alignment.center; a

@@ -32,6 +32,8 @@ const (
 	EdgeUsesFunction    EdgeKind = "usesFunction"
 	EdgeUsesToken       EdgeKind = "usesToken"
 	EdgeUsesAsset       EdgeKind = "usesAsset"
+	// EdgeUsesTimeline: a node plays a timeline of its page.
+	EdgeUsesTimeline EdgeKind = "usesTimeline"
 )
 
 // Edge is a reference from an entity to another.

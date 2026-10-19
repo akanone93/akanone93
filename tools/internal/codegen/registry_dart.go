@@ -6,6 +6,7 @@ package codegen
 import (
 	"bytes"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/nightCode42/plux3/tools/internal/registry"
@@ -22,12 +23,35 @@ func registryDart(r *registry.Registry) []byte {
 	b.WriteString("\n/// Every widget type, sorted by name.\nconst List<WidgetDescriptor> widgetDescriptors = [\n")
 	for _, w := range r.Widgets {
 		fmt.Fprintf(&b, "  WidgetDescriptor(\n    %s,\n    %d,\n    layer: %d,\n    revision: %d,\n", quoteDart(w.Type), w.ID, w.Layer, w.Revision)
+		if w.Package != "" {
+			fmt.Fprintf(&b, "    package: %s,\n", quoteDart(w.Package))
+		}
 		writeDartIDs(&b, "props", w.Props, func(p registry.Prop) (string, uint32) { return p.Name, p.ID })
 		writeDartIDs(&b, "events", w.Events, func(e registry.Event) (string, uint32) { return e.Name, e.ID })
+		sens := []string{}
+		for _, e := range sortedByID(w.Events, func(e registry.Event) uint32 { return e.ID }) {
+			if e.Sensitive {
+				sens = append(sens, quoteDart(e.Name))
+			}
+		}
+		if len(sens) > 0 {
+			fmt.Fprintf(&b, "    sensitiveEvents: {%s},\n", strings.Join(sens, ", "))
+		}
 		writeDartIDs(&b, "slots", w.Slots, func(s registry.Slot) (string, uint32) { return s.Name, s.ID })
 		b.WriteString("  ),\n")
 	}
-	b.WriteString("];\n\n/// Every value type, sorted by name.\nconst List<ValueTypeDescriptor> valueTypeDescriptors = [\n")
+	b.WriteString("];\n\n/// The types of the widgets whose descriptor sets `minTarget` (A11Y-004),\n/// sorted by name.\nconst Set<String> minTargetTypes = {\n")
+	minTarget := []string{}
+	for _, w := range r.Widgets {
+		if w.Accessibility.MinTarget {
+			minTarget = append(minTarget, w.Type)
+		}
+	}
+	slices.Sort(minTarget)
+	for _, t := range minTarget {
+		fmt.Fprintf(&b, "  %s,\n", quoteDart(t))
+	}
+	b.WriteString("};\n\n/// Every value type, sorted by name.\nconst List<ValueTypeDescriptor> valueTypeDescriptors = [\n")
 	for _, t := range r.Types {
 		fmt.Fprintf(&b, "  ValueTypeDescriptor(\n    %s,\n    %d,\n    revision: %d,\n", quoteDart(t.Name), t.ID, t.Revision)
 		writeDartIDs(&b, "fields", t.Fields, func(f registry.Field) (string, uint32) { return f.Name, f.ID })
@@ -75,7 +99,9 @@ final class WidgetDescriptor {
     required this.revision,
     this.props = const {},
     this.events = const {},
+    this.sensitiveEvents = const {},
     this.slots = const {},
+    this.package,
   });
 
   /// The type name used in documents.
@@ -96,8 +122,16 @@ final class WidgetDescriptor {
   /// Event IDs by name.
   final Map<String, int> events;
 
+  /// Names of the events whose payload is sensitive: traces and telemetry
+  /// never record it (SCH-012, SEC-092).
+  final Set<String> sensitiveEvents;
+
   /// Slot IDs by name.
   final Map<String, int> slots;
+
+  /// The optional package whose builder renders the widget; null for the
+  /// runtime's own (PLX-4403).
+  final String? package;
 }
 
 /// A value type and the permanent IDs of its fields.

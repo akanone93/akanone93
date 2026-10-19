@@ -6,7 +6,9 @@
 #     dependency graphs and this file's job blocks, and runs everything
 #     when in doubt. Pushes to main and the merge queue run every job
 #     except the iOS and Android 26 device flows; the daily run and manual
-#     runs run every job (ADR-0043, Revision 2026-10-16).
+#     runs run every job (ADR-0043, Revision 2026-10-16). A manual run may
+#     instead ask for one job, and one flow of a device job (inputs only
+#     and shard), to try a fix; CI OK then fails (Revision 2026-10-18).
 #   - Repository jobs (hygiene, secrets, specification, workflows, licensing,
 #     links, docs site, SBOM) always run; they are fast.
 #   - "CI OK" depends on every job and is the single required status check of
@@ -44,6 +46,14 @@ on:
         description: Select the jobs a push to main runs, leaving out the daily-only ones (iOS, Android 26)
         type: boolean
         default: false
+      only:
+        description: Run only this job of ci/affected.json (e2e-ios, say) beside the repository jobs, to try a fix; CI OK then fails, as the run is not a full one
+        type: string
+        default: ""
+      shard:
+        description: With only e2e-ios, e2e-android or e2e-android-26, run only this flow (bank, say)
+        type: string
+        default: ""
 
 permissions: {}
 
@@ -76,6 +86,8 @@ jobs:
     outputs:
       jobs: ${{ steps.select.outputs.jobs }}
       android-apis: ${{ steps.select.outputs.android-apis }}
+      android-shards: ${{ steps.select.outputs.android-shards }}
+      ios-shards: ${{ steps.select.outputs.ios-shards }}
     steps:
       # A pull request's checkout is its merge commit: the first parent is
       # the base branch, so HEAD^1..HEAD is exactly what the merge adds.
@@ -93,12 +105,45 @@ jobs:
         env:
           # A manual run with as-push selects as a push to main does.
           EVENT: ${{ github.event_name == 'workflow_dispatch' && inputs.as-push && 'push' || github.event_name }}
+          # Set only by a manual run that asks for one job (and flow).
+          ONLY: ${{ inputs.only }}
+          SHARD: ${{ inputs.shard }}
         run: |
           base=()
           if [ "$EVENT" = pull_request ]; then base=(-base HEAD^1 -head HEAD); fi
           go run ./tools/cmd/affected -event "$EVENT" "${base[@]}" \
             -github-output "$RUNNER_TEMP/selection" -summary "$GITHUB_STEP_SUMMARY"
           jobs=$(sed -n 's/^jobs=//p' "$RUNNER_TEMP/selection")
+          # The device flows, one job each. iOS has four, not five: GitHub
+          # runs at most five macOS jobs at once, and the iOS size job is
+          # the fifth (run 37630248033 queued a sixth for six minutes), so
+          # the two shortest flows share a job.
+          android_shards='["starter","generated","hosts","bank","express"]'
+          ios_shards='["starter","hosts","bank","express+generated"]'
+          if [ -n "$ONLY" ]; then
+            if ! jq -e --arg only "$ONLY" 'has($only)' <<<"$jobs" >/dev/null; then
+              echo "::error::only: \"$ONLY\" is not a job of ci/affected.json"
+              exit 1
+            fi
+            jobs=$(jq -c --arg only "$ONLY" 'with_entries(.value = (.key == $only))' <<<"$jobs")
+            echo "**Narrowed manual run:** only \`$ONLY\`${SHARD:+, flow \`$SHARD\`}; CI OK fails." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -n "$SHARD" ]; then
+            case "$ONLY" in
+              e2e-ios) shards=$ios_shards ;;
+              e2e-android | e2e-android-26) shards=$android_shards ;;
+              *)
+                echo "::error::shard needs only e2e-ios, e2e-android or e2e-android-26"
+                exit 1
+                ;;
+            esac
+            if ! jq -e --arg shard "$SHARD" 'index($shard) != null' <<<"$shards" >/dev/null; then
+              echo "::error::shard: \"$SHARD\" is not one of $shards"
+              exit 1
+            fi
+            android_shards=$(jq -nc --arg shard "$SHARD" '[$shard]')
+            ios_shards=$android_shards
+          fi
           # Android 35 when the device flows are affected; Android 26 as
           # well on pushes, daily and manual runs, and for changes to
           # Android-specific files (maintainer, 2026-10-01).
@@ -106,6 +151,8 @@ jobs:
           {
             echo "jobs=$jobs"
             echo "android-apis=$apis"
+            echo "android-shards=$android_shards"
+            echo "ios-shards=$ios_shards"
           } >> "$GITHUB_OUTPUT"
 
   # ── Repository ───────────────────────────────────────────────────────────
@@ -163,6 +210,9 @@ jobs:
       # Verifies: QA-070.
       - name: Traceability report
         run: make trace
+      # Verifies: QA-073 (Appendix C and D agree with the registries, builders and handlers).
+      - name: Catalogue consistency
+        run: make catalogue-check
       - name: Publish report
         if: always()
         run: |
@@ -320,9 +370,10 @@ jobs:
           # action reads as a non-SPDX "AND LicenseRef-…" expression. Each
           # was checked by hand against the package's LICENSE file:
           #   Apache-2.0    clock, cryptography, material_color_utilities,
-          #                 webdriver;
+          #                 webdriver, latlong2;
           #                 plux_flutter, plux_devtools, plux_go_router,
-          #                 plux_auto_route, plux_native_scan and plux_media
+          #                 plux_auto_route, plux_native_scan, plux_media,
+          #                 plux_components and plux_maps
           #                 are this repository's
           #                 (REUSE.toml), not yet on pub.dev
           #   BSD-3-Clause  the Dart team packages below, go_router,
@@ -335,12 +386,16 @@ jobs:
           #                 (Flutter team), mobile_scanner, win32;
           #                 image_picker, image_picker_android and
           #                 image_picker_ios also carry aFileChooser's
-          #                 Apache-2.0
+          #                 Apache-2.0; flutter_map, google_maps_flutter*
+          #                 and video_player* (Flutter team; the web
+          #                 plugin also carries to_screen_location's MIT),
+          #                 markdown, qr, stream_transform, dart_polylabel2
           #   MIT           auto_route, flutter_riverpod, node_preamble,
           #                 petitparser, riverpod, xml; yaml is BSD-3-Clause
           #                 and MIT; archive, drift, sqlite3, lottie, rive,
           #                 rive_native, geolocator*, file_picker*,
-          #                 android_file_picker, windows_file_picker;
+          #                 android_file_picker, windows_file_picker,
+          #                 wkt_parser; dart_earcut is MIT and ISC;
           #                 sqlcipher_flutter_libs, with OpenSSL's Apache-2.0
           #   MPL-2.0       dbus, gsettings; riverqueue/river/rivershared,
           #                 with a vendored MIT levenshtein package
@@ -352,37 +407,123 @@ jobs:
             pkg:pub/android_file_picker, pkg:pub/archive, pkg:pub/auto_route,
             pkg:pub/clock, pkg:pub/code_assets, pkg:pub/cronet_http,
             pkg:pub/cross_file, pkg:pub/crypto, pkg:pub/cryptography,
-            pkg:pub/cupertino_http, pkg:pub/cupertino_ui, pkg:pub/dbus,
-            pkg:pub/drift, pkg:pub/file_picker, pkg:pub/file_picker_darwin,
+            pkg:pub/cupertino_http, pkg:pub/cupertino_ui, pkg:pub/dart_earcut,
+            pkg:pub/dart_polylabel2, pkg:pub/dbus, pkg:pub/drift,
+            pkg:pub/file_picker, pkg:pub/file_picker_darwin,
             pkg:pub/file_picker_linux, pkg:pub/file_picker_platform_interface,
             pkg:pub/file_picker_web, pkg:pub/file_selector_linux,
             pkg:pub/file_selector_macos, pkg:pub/file_selector_windows,
-            pkg:pub/flutter_riverpod, pkg:pub/frontend_server_client,
-            pkg:pub/geolocator, pkg:pub/geolocator_android,
-            pkg:pub/geolocator_platform_interface, pkg:pub/geolocator_windows,
-            pkg:pub/glob, pkg:pub/go_router, pkg:pub/gsettings, pkg:pub/hooks,
+            pkg:pub/flutter_map, pkg:pub/flutter_riverpod,
+            pkg:pub/frontend_server_client, pkg:pub/geolocator,
+            pkg:pub/geolocator_android, pkg:pub/geolocator_platform_interface,
+            pkg:pub/geolocator_windows, pkg:pub/glob, pkg:pub/go_router,
+            pkg:pub/google_maps_flutter, pkg:pub/google_maps_flutter_android,
+            pkg:pub/google_maps_flutter_ios,
+            pkg:pub/google_maps_flutter_platform_interface,
+            pkg:pub/google_maps_flutter_web, pkg:pub/gsettings, pkg:pub/hooks,
             pkg:pub/http, pkg:pub/image_picker, pkg:pub/image_picker_android,
             pkg:pub/image_picker_ios, pkg:pub/image_picker_platform_interface,
             pkg:pub/intl, pkg:pub/io, pkg:pub/jni, pkg:pub/jni_flutter,
-            pkg:pub/listen, pkg:pub/lottie, pkg:pub/matcher,
-            pkg:pub/material_color_utilities, pkg:pub/material_ui,
-            pkg:pub/mime, pkg:pub/mobile_scanner, pkg:pub/native_toolchain_c,
-            pkg:pub/node_preamble, pkg:pub/objective_c, pkg:pub/path,
-            pkg:pub/petitparser, pkg:pub/platform, pkg:pub/plux_auto_route,
+            pkg:pub/latlong2, pkg:pub/listen, pkg:pub/lottie, pkg:pub/markdown,
+            pkg:pub/matcher, pkg:pub/material_color_utilities,
+            pkg:pub/material_ui, pkg:pub/mime, pkg:pub/mobile_scanner,
+            pkg:pub/native_toolchain_c, pkg:pub/node_preamble,
+            pkg:pub/objective_c, pkg:pub/path, pkg:pub/petitparser,
+            pkg:pub/platform, pkg:pub/plux_auto_route, pkg:pub/plux_components,
             pkg:pub/plux_devtools, pkg:pub/plux_flutter,
-            pkg:pub/plux_go_router, pkg:pub/plux_media,
+            pkg:pub/plux_go_router, pkg:pub/plux_maps, pkg:pub/plux_media,
             pkg:pub/plux_native_scan, pkg:pub/pool, pkg:pub/process,
-            pkg:pub/pub_semver, pkg:pub/record_use, pkg:pub/rive,
+            pkg:pub/pub_semver, pkg:pub/qr, pkg:pub/record_use, pkg:pub/rive,
             pkg:pub/rive_native, pkg:pub/riverpod, pkg:pub/source_maps,
             pkg:pub/sqlcipher_flutter_libs, pkg:pub/sqlite3,
-            pkg:pub/stack_trace, pkg:pub/test, pkg:pub/test_api,
-            pkg:pub/test_core, pkg:pub/url_launcher,
+            pkg:pub/stack_trace, pkg:pub/stream_transform, pkg:pub/test,
+            pkg:pub/test_api, pkg:pub/test_core, pkg:pub/url_launcher,
             pkg:pub/url_launcher_android, pkg:pub/url_launcher_ios,
             pkg:pub/url_launcher_linux, pkg:pub/url_launcher_macos,
             pkg:pub/url_launcher_windows, pkg:pub/vector_graphics,
-            pkg:pub/vector_math, pkg:pub/webdriver, pkg:pub/win32,
-            pkg:pub/windows_file_picker, pkg:pub/xml, pkg:pub/yaml
+            pkg:pub/vector_math, pkg:pub/video_player,
+            pkg:pub/video_player_avfoundation, pkg:pub/webdriver,
+            pkg:pub/win32, pkg:pub/windows_file_picker, pkg:pub/wkt_parser,
+            pkg:pub/xml, pkg:pub/yaml
           comment-summary-in-pr: never
+
+  # CodeQL on the languages GitHub's default setup analyses, inside this
+  # workflow so that CI OK holds it (maintainer, 2026-10-19): a finding the
+  # CodeQL check fails on, a security severity of high or critical or a
+  # result at level error, fails the job wherever it is in the
+  # repository. It uploads nothing; the default setup still feeds the
+  # Security tab.
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: c-cpp
+            build-mode: none
+          - language: go
+            build-mode: autobuild
+          - language: javascript-typescript
+            build-mode: none
+          - language: rust
+            build-mode: none
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - if: matrix.language == 'go'
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      - uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+      - uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        with:
+          category: /language:${{ matrix.language }}
+          upload: never
+          output: ${{ runner.temp }}/codeql
+      - name: Fail on a finding the CodeQL check fails on
+        env:
+          SARIF_DIR: ${{ runner.temp }}/codeql
+        run: |
+          python3 - <<'EOF'
+          import glob, json, os, sys
+
+          files = glob.glob(os.path.join(os.environ["SARIF_DIR"], "*.sarif"))
+          if not files:
+              sys.exit("::error::CodeQL wrote no results")
+          found = []
+          for path in files:
+              for run in json.load(open(path))["runs"]:
+                  rules = {}
+                  for part in [run["tool"]["driver"], *run["tool"].get("extensions", [])]:
+                      for rule in part.get("rules", []):
+                          rules[rule["id"]] = rule
+                  for res in run.get("results", []):
+                      if res.get("suppressions"):
+                          continue
+                      rule = rules.get(res.get("ruleId"), {})
+                      severity = float(rule.get("properties", {}).get("security-severity") or 0)
+                      level = res.get("level") or rule.get("defaultConfiguration", {}).get("level", "warning")
+                      if severity >= 7.0 or level == "error":
+                          loc = res["locations"][0]["physicalLocation"]
+                          line = loc.get("region", {}).get("startLine", "?")
+                          found.append(f"{loc['artifactLocation']['uri']}:{line}: {res.get('ruleId')} "
+                                       f"({severity or level}): {res['message']['text']}")
+          for f in found:
+              print("::error::" + f)
+          print(f"{len(found)} finding(s) at high, critical or error")
+          sys.exit(1 if found else 0)
+          EOF
 
   # ── Go ───────────────────────────────────────────────────────────────────
 
@@ -1034,6 +1175,65 @@ jobs:
       - name: Starter flows and the compatibility matrix
         run: make compat | tee -a "$GITHUB_STEP_SUMMARY"
 
+  # The golden (visual regression) harness on Linux, the canonical renderer
+  # (TST-003, ADR-0070): `plux golden run` renders the starter project's pages
+  # with the real runtime and the vendored Noto fonts, and two runs must
+  # produce the same bytes. Baselines live on the server, so the job needs no
+  # database.
+  goldens:
+    name: Golden tests
+    needs: changes
+    if: fromJSON(needs.changes.outputs.jobs)['goldens']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache: false
+      # Go's module and build caches, one per OS (header).
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            ~/AppData/Local/go-build
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.work', 'backend/go.mod', 'backend/go.sum', 'tools/go.mod', 'test/refapi/go.mod') }}
+          restore-keys: go-${{ runner.os }}-${{ runner.arch }}-
+      # Flutter and the pub cache, as in starter-e2e.
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        id: flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          dry-run: true
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: flutter-cache
+        with:
+          path: ${{ steps.flutter.outputs.CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.CACHE-KEY }}
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: pub-cache
+        with:
+          path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+          key: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ steps.flutter.outputs.PUB-CACHE-KEY }}-
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      # Verifies: TST-003.
+      - name: Render the golden matrix and compare two runs
+        working-directory: backend
+        run: go test -count=1 -run 'TestGolden' ./cmd/plux/ ./internal/plxgolden/
+
   # The same flows on an Android emulator and an iOS simulator, in the app
   # built for the device, with the platform's key store and HTTP client
   # (test/e2e/README.md). No emulator action: the runner's Android SDK
@@ -1063,7 +1263,9 @@ jobs:
         # on the emulator, ADR-0035); 35: current. Which of them run is
         # the selection's (changes job).
         api: ${{ fromJSON(needs.changes.outputs.android-apis) }}
-        shard: [starter, generated, hosts, bank, express]
+        # The flows, from the changes job: all of them, or the one a
+        # manual run asks for.
+        shard: ${{ fromJSON(needs.changes.outputs.android-shards) }}
     services:
       postgres:
         image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
@@ -1216,10 +1418,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Four, not five: GitHub runs at most five macOS jobs at once, and
-        # the iOS size job is the fifth (run 37630248033 queued a sixth
-        # for six minutes). The two shortest flows share a job.
-        shard: [starter, hosts, bank, express+generated]
+        # The flows, from the changes job (four, for the five macOS
+        # runners): all of them, or the one a manual run asks for.
+        shard: ${{ fromJSON(needs.changes.outputs.ios-shards) }}
     env:
       PLUX_TEST_DATABASE_URL: postgres://plux:plux@127.0.0.1:5432/plux_test?sslmode=disable
     steps:
@@ -1766,6 +1967,7 @@ jobs:
       - sbom
       - commits
       - dependency-review
+      - codeql
       - go-lint
       - api-contract
       - go-test
@@ -1780,6 +1982,7 @@ jobs:
       - go-vuln
       - dart
       - starter-e2e
+      - goldens
       - e2e-android
       - e2e-ios
       - bench-runtime
@@ -1798,8 +2001,15 @@ jobs:
           JOBS: ${{ needs.changes.outputs.jobs }}
           EVENT: ${{ github.event_name }}
           AUTHOR: ${{ github.event.pull_request.user.login }}
+          ONLY: ${{ inputs.only }}
         run: |
           echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          # A narrowed manual run checks one job, not the commit: it never
+          # passes, so its CI OK cannot stand in for a full run's.
+          if [ -n "$ONLY" ]; then
+            echo "::error::a manual run of only $ONLY is not a full CI run; read that job's result"
+            exit 1
+          fi
           # A job may be skipped only when the selection of the changes job
           # skipped it; the commit and dependency checks run only on pull
           # requests, and the commit check not on Dependabot's. Anything

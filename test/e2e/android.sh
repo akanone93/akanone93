@@ -68,9 +68,13 @@ log=$out/emulator-$api.log
 # emulator reported its boot complete and adb never answered for it; fail
 # now prints the devices adb sees.
 "$adb" start-server >/dev/null
-"$sdk/emulator/emulator" -avd "$avd" -no-window -no-audio -no-boot-anim -no-snapshot \
-	-gpu swiftshader_indirect -port 5554 -memory 4096 -no-metrics >"$log" 2>&1 &
-emulator=$!
+# start_emulator: boots the emulator from a cold start, logging to $log.
+start_emulator() {
+	"$sdk/emulator/emulator" -avd "$avd" -no-window -no-audio -no-boot-anim -no-snapshot \
+		-gpu swiftshader_indirect -port 5554 -memory 4096 -no-metrics >"$log" 2>&1 &
+	emulator=$!
+}
+start_emulator
 serial=emulator-5554
 trap '"$adb" -s "$serial" emu kill >/dev/null 2>&1 || kill "$emulator" 2>/dev/null || true' EXIT
 
@@ -148,14 +152,18 @@ adbs() {
 }
 
 # Booted when sys.boot_completed is 1; never waits on a dead emulator or
-# longer than ten minutes of wall time (adb wait-for-device would wait
-# forever). The emulator can report its boot complete while adb's shell
-# never answers on a stale connection (CI runs 36966274717, 37630248033:
-# listed as a device, no answer for ten minutes); 30 seconds after the
-# emulator's own report, and every 30 seconds after that, adb's server
-# restarts, dropping every connection, and finds the emulator again.
-# adb reconnect is not used: it can leave two connections under one serial,
-# which every later "adb -s" refuses (run 37633642167).
+# longer than ten minutes of wall time per boot (adb wait-for-device would
+# wait forever). The emulator can report its boot complete while adb's
+# shell never answers (CI runs 36966274717, 37630248033: listed as a
+# device, no answer for ten minutes). Restarting adb's server for it made
+# the new server register the running emulator twice, and every restart
+# after that did again, so every later "adb -s" was refused with "more
+# than one device/emulator" (all four such runs of 2026-10-18 failed; no
+# run without a restart did). adb reconnect leaves two connections too
+# (run 37633642167). So the server is never restarted here: an emulator
+# that has not answered 150 seconds after its own report is stopped and
+# booted again from cold, once, and a new emulator registers itself with
+# the running server once.
 booted=false
 deadline=$((SECONDS + 600))
 answer=
@@ -188,15 +196,20 @@ while [ "$SECONDS" -lt "$deadline" ]; do
 	if grep -q 'Boot completed' "$log"; then
 		if [ -z "$restart_at" ]; then
 			# adbd can answer well after the emulator reports its boot on
-			# API 26 with a software GPU; a restart is the last resort, as it
-			# can register the emulator twice (above).
-			restart_at=$((SECONDS + 90))
+			# API 26 with a software GPU.
+			restart_at=$((SECONDS + 150))
 		elif [ "$SECONDS" -ge "$restart_at" ]; then
+			[ "$restarts" -lt 1 ] || fail "adb has no answer from the emulator booted again (last: ${answer:-nothing})"
 			restarts=$((restarts + 1))
-			echo "adb has no answer from the booted emulator (last: ${answer:-nothing}); restarting adb's server ($restarts)"
-			timeout 10 "$adb" kill-server >/dev/null 2>&1 || true
-			timeout 10 "$adb" start-server >/dev/null 2>&1 || true
-			restart_at=$((SECONDS + 30))
+			echo "adb has no answer from the booted emulator (last: ${answer:-nothing}); booting it again from cold"
+			timeout 10 "$adb" -s "$serial" emu kill >/dev/null 2>&1 || kill "$emulator" 2>/dev/null || true
+			for _ in $(seq 30); do kill -0 "$emulator" 2>/dev/null || break; sleep 1; done
+			kill -9 "$emulator" 2>/dev/null || true
+			pkill -9 -f "qemu-system.*-avd $avd" 2>/dev/null || true
+			wait "$emulator" 2>/dev/null || true
+			start_emulator
+			restart_at=
+			deadline=$((SECONDS + 600))
 		fi
 	fi
 	sleep 2

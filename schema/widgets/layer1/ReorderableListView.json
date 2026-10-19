@@ -1,0 +1,251 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "ReorderableListView",
+  "id": 114,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "class": "ReorderableListView",
+    "constructors": [
+      "builder"
+    ]
+  },
+  "category": "scrolling",
+  "icon": "reorder",
+  "description": "A list whose `item` templates the user can drag into a new order; the page updates its list on `onReorder` (WGT-012).",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 40,
+  "accessibility": {
+    "role": "list",
+    "interactive": true,
+    "minTarget": true
+  },
+  "typeParameters": [
+    "T"
+  ],
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "items",
+      "id": 1,
+      "type": "list<T>",
+      "required": true,
+      "flutter": "itemCount",
+      "description": "The list the template repeats over; bind it with `$expr`. The item is available as `item`, its position as `index`."
+    },
+    {
+      "name": "scrollDirection",
+      "id": 2,
+      "type": "Axis",
+      "default": "vertical",
+      "flutter": "scrollDirection"
+    },
+    {
+      "name": "reverse",
+      "id": 3,
+      "type": "bool",
+      "default": false,
+      "flutter": "reverse"
+    },
+    {
+      "name": "physics",
+      "id": 4,
+      "type": "ScrollPhysics",
+      "flutter": "physics"
+    },
+    {
+      "name": "shrinkWrap",
+      "id": 5,
+      "type": "bool",
+      "default": false,
+      "flutter": "shrinkWrap"
+    },
+    {
+      "name": "padding",
+      "id": 6,
+      "type": "EdgeInsets",
+      "flutter": "padding"
+    },
+    {
+      "name": "buildDefaultDragHandles",
+      "id": 7,
+      "type": "bool",
+      "default": true,
+      "flutter": "buildDefaultDragHandles"
+    },
+    {
+      "name": "itemExtent",
+      "id": 8,
+      "type": "double",
+      "flutter": "itemExtent"
+    },
+    {
+      "name": "anchor",
+      "id": 9,
+      "type": "double",
+      "default": 0.0,
+      "flutter": "anchor"
+    },
+    {
+      "name": "dragStartBehavior",
+      "id": 11,
+      "type": "DragStartBehavior",
+      "default": "start",
+      "flutter": "dragStartBehavior"
+    },
+    {
+      "name": "keyboardDismissBehavior",
+      "id": 12,
+      "type": "ScrollViewKeyboardDismissBehavior",
+      "flutter": "keyboardDismissBehavior"
+    },
+    {
+      "name": "clipBehavior",
+      "id": 13,
+      "type": "Clip",
+      "default": "hardEdge",
+      "flutter": "clipBehavior"
+    },
+    {
+      "name": "autoScrollerVelocityScalar",
+      "id": 14,
+      "type": "double",
+      "flutter": "autoScrollerVelocityScalar"
+    },
+    {
+      "name": "status",
+      "id": 15,
+      "type": "ListStatus",
+      "default": "ready",
+      "description": "Loading, error or ready; selects the `loading` or `error` slot (WGT-012)."
+    }
+  ],
+  "events": [
+    {
+      "name": "onReorder",
+      "id": 1,
+      "payload": "map<string,int>",
+      "flutter": "onReorderItem",
+      "description": "Fired when an item is dropped; the payload holds `oldIndex` and `newIndex`, the final position of the item. The page moves the item in its list."
+    },
+    {
+      "name": "onReorderStart",
+      "id": 2,
+      "payload": "int",
+      "flutter": "onReorderStart"
+    },
+    {
+      "name": "onReorderEnd",
+      "id": 3,
+      "payload": "int",
+      "flutter": "onReorderEnd"
+    }
+  ],
+  "slots": [
+    {
+      "name": "item",
+      "id": 1,
+      "required": true,
+      "template": true,
+      "flutter": "itemBuilder",
+      "description": "The template built for each item, lazily."
+    },
+    {
+      "name": "header",
+      "id": 2,
+      "flutter": "header"
+    },
+    {
+      "name": "footer",
+      "id": 3,
+      "flutter": "footer"
+    },
+    {
+      "name": "empty",
+      "id": 4,
+      "description": "Shown when `items` is empty."
+    },
+    {
+      "name": "loading",
+      "id": 5,
+      "description": "Shown while `status` is loading."
+    },
+    {
+      "name": "error",
+      "id": 6,
+      "description": "Shown while `status` is error."
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "onReorder",
+      "reason": "callback\u2192event",
+      "note": "Its `newIndex` is measured before the item is removed; the event `onReorder` uses `onReorderItem`, which is measured after."
+    },
+    {
+      "flutter": "itemExtentBuilder",
+      "reason": "builder\u2192template",
+      "note": "Item extents are measured by the runtime."
+    },
+    {
+      "flutter": "prototypeItem",
+      "reason": "deferred",
+      "note": "Use `itemExtent`."
+    },
+    {
+      "flutter": "proxyDecorator",
+      "reason": "non-serialisable",
+      "note": "The runtime draws the dragged item."
+    },
+    {
+      "flutter": "scrollController",
+      "reason": "controller\u2192state",
+      "note": "The runtime owns the controller."
+    },
+    {
+      "flutter": "primary",
+      "reason": "deferred",
+      "note": "Scroll views are never primary inside a page."
+    },
+    {
+      "flutter": "scrollCacheExtent",
+      "reason": "deferred",
+      "note": "Cache extents are tuned by the runtime."
+    },
+    {
+      "flutter": "restorationId",
+      "reason": "non-serialisable",
+      "note": "State restoration is managed by the runtime."
+    },
+    {
+      "flutter": "dragBoundaryProvider",
+      "reason": "non-serialisable"
+    },
+    {
+      "flutter": "mouseCursor",
+      "reason": "deferred",
+      "note": "Pointer cursors matter only for desktop and web targets."
+    },
+    {
+      "flutter": "cacheExtent",
+      "reason": "deprecated",
+      "note": "Flutter replaced it with scrollCacheExtent, which is tuned by the runtime."
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "FileUploader",
+  "id": 190,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "upload_file",
+  "description": "Pick a file, preview it and upload it with progress. Picking needs `plux_media`; without it the control is disabled and PLX-5401 is reported. The upload is a transfer operation of a data source.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 140,
+  "accessibility": {
+    "role": "button",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "dataSource",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The data source holding the upload operation."
+    },
+    {
+      "name": "operation",
+      "id": 2,
+      "type": "string",
+      "required": true,
+      "description": "The upload operation of the data source."
+    },
+    {
+      "name": "accept",
+      "id": 3,
+      "type": "list<string>",
+      "description": "Accepted media types; any when empty."
+    },
+    {
+      "name": "maxBytes",
+      "id": 4,
+      "type": "int?",
+      "constraints": {
+        "min": 1
+      },
+      "description": "The largest file in bytes."
+    },
+    {
+      "name": "label",
+      "id": 5,
+      "type": "string",
+      "default": "Choose file",
+      "translatable": true,
+      "description": "The pick button's label."
+    },
+    {
+      "name": "uploadLabel",
+      "id": 6,
+      "type": "string",
+      "default": "Upload",
+      "translatable": true,
+      "description": "The upload button's label."
+    }
+  ],
+  "events": [
+    {
+      "name": "onUploaded",
+      "id": 1,
+      "payload": "FileUploadResult",
+      "sensitive": true,
+      "description": "Fires with the upload result when the upload succeeds."
+    },
+    {
+      "name": "onFailed",
+      "id": 2,
+      "payload": "FileUploadError",
+      "description": "Fires with the error when picking or uploading fails."
+    }
+  ]
+}

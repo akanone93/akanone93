@@ -1,0 +1,216 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "PopupMenuButton",
+  "id": 120,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/material.dart",
+    "class": "PopupMenuButton",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "navigation",
+  "icon": "more_vert",
+  "description": "A button that opens a menu of `items`; choosing one fires `onSelected` with its value.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 20,
+  "accessibility": {
+    "role": "menu",
+    "interactive": true,
+    "minTarget": true
+  },
+  "props": [
+    {
+      "name": "items",
+      "id": 1,
+      "type": "list<MenuItem>",
+      "required": true,
+      "description": "The menu entries."
+    },
+    {
+      "name": "initialValue",
+      "id": 2,
+      "type": "string",
+      "flutter": "initialValue",
+      "description": "The value of the entry shown as selected."
+    },
+    {
+      "name": "tooltip",
+      "id": 3,
+      "type": "string",
+      "flutter": "tooltip",
+      "translatable": true
+    },
+    {
+      "name": "enabled",
+      "id": 4,
+      "type": "bool",
+      "default": true,
+      "flutter": "enabled"
+    },
+    {
+      "name": "elevation",
+      "id": 5,
+      "type": "double",
+      "flutter": "elevation"
+    },
+    {
+      "name": "color",
+      "id": 6,
+      "type": "color",
+      "flutter": "color"
+    },
+    {
+      "name": "shadowColor",
+      "id": 7,
+      "type": "color",
+      "flutter": "shadowColor"
+    },
+    {
+      "name": "surfaceTintColor",
+      "id": 8,
+      "type": "color",
+      "flutter": "surfaceTintColor"
+    },
+    {
+      "name": "iconSize",
+      "id": 9,
+      "type": "double",
+      "flutter": "iconSize"
+    }
+  ],
+  "events": [
+    {
+      "name": "onSelected",
+      "id": 1,
+      "payload": "string",
+      "flutter": "onSelected"
+    },
+    {
+      "name": "onCanceled",
+      "id": 2,
+      "flutter": "onCanceled"
+    },
+    {
+      "name": "onOpened",
+      "id": 3,
+      "flutter": "onOpened"
+    }
+  ],
+  "slots": [
+    {
+      "name": "child",
+      "id": 1,
+      "flutter": "child"
+    },
+    {
+      "name": "icon",
+      "id": 2,
+      "flutter": "icon"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "itemBuilder",
+      "reason": "builder→template",
+      "note": "Replaced by the `items` prop; the runtime builds the entries."
+    },
+    {
+      "flutter": "padding",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "menuPadding",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "borderRadius",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "splashRadius",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "offset",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "shape",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "iconColor",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "enableFeedback",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "constraints",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "position",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "clipBehavior",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "useRootNavigator",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "popUpAnimationStyle",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "routeSettings",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "style",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    },
+    {
+      "flutter": "requestFocus",
+      "reason": "deferred",
+      "note": "Not supported yet."
+    }
+  ]
+}

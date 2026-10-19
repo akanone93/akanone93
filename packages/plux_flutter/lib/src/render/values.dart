@@ -45,6 +45,10 @@ final class ValueResolver {
     required this.token,
     required this.translation,
     required this.limits,
+    this.translationAst,
+    this.localeContext,
+    this.translationFellBack,
+    this.onMessageError,
   });
 
   /// The plugin's bundle.
@@ -61,6 +65,24 @@ final class ValueResolver {
 
   /// Limits of one evaluation.
   final vm.PxlLimits limits;
+
+  /// Whether the translation [key] came from a locale further down the
+  /// fallback chain than the requested one; debug builds mark such text
+  /// visibly (I18N-006).
+  final bool Function(UuidKey key)? translationFellBack;
+
+  /// A translation's pre-parsed MessageFormat AST by key, or null (I18N-001).
+  final List<int>? Function(UuidKey key)? translationAst;
+
+  /// The locale `format.*`, `t` and `plural` and the messages' numbers and
+  /// dates are formatted in. Null until the runtime loads locale data (L4):
+  /// PXL's `format` group then fails with `unsupported` and messages use the
+  /// English fallback. The renderer reads it from
+  /// `PluxRenderer.localeContext`, the one place locale loading sets.
+  final vm.PxlLocaleContext? localeContext;
+
+  /// Receives a message whose AST does not decode (PLX-4402).
+  final void Function(String problem)? onMessageError;
 
   /// Resolves [v], whose strings are in [strings]. The paths bindings read
   /// are added to [reads] (CMP-023). Throws [BindingError] when a binding
@@ -134,7 +156,12 @@ final class ValueResolver {
         DateTime.now().timeZoneOffset.inMinutes,
       ),
     };
-    return switch (vm.evaluate(program, inputs, limits)) {
+    return switch (vm.evaluate(
+      program,
+      inputs,
+      limits,
+      locale: localeContext,
+    )) {
       vm.PxlValue(:final value) => value,
       vm.PxlFailure(:final error) => throw BindingError(error.toString()),
     };
@@ -151,7 +178,14 @@ final class ValueResolver {
       for (final e in v.entries ?? const <fbs.Entry>[])
         strings(e.key): toPxl(resolve(e.value, strings, reads)),
     };
-    return formatMessage(pattern, args);
+    final text = formatMessage(
+      pattern,
+      args,
+      ast: translationAst?.call(uuidOf(key)),
+      locale: localeContext?.locale,
+      onError: onMessageError,
+    );
+    return translationFellBack?.call(uuidOf(key)) ?? false ? '⚠ $text' : text;
   }
 
   static Decimal _decimal(fbs.Value v) {

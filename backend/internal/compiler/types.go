@@ -61,12 +61,14 @@ func baseTypes() map[string]pxl.TypeSpec {
 		string(schema.ErrorKindFunction), string(schema.ErrorKindPermission), string(schema.ErrorKindCancelled), string(schema.ErrorKindCustom),
 	}
 	out["PluxPlatform"] = pxl.TypeSpec{Enum: []string{"android", "ios"}}
+	out["PluxTextDirection"] = pxl.TypeSpec{Enum: []string{"ltr", "rtl"}}
 	out["PluxSizeClass"] = pxl.TypeSpec{Enum: []string{"compact", "medium", "expanded"}}
 	out["PluxAssuranceLevel"] = pxl.TypeSpec{Enum: levels}
 	out["PluxErrorKind"] = pxl.TypeSpec{Enum: kinds}
 	out["PluxDevice"] = pxl.TypeSpec{Fields: map[string]string{
 		"platform": "PluxPlatform", "osVersion": "string", "locale": "string", "textScale": "double",
 		"darkMode": "bool", "sizeClass": "PluxSizeClass", "assuranceLevel": "PluxAssuranceLevel",
+		"reduceMotion": "bool", "boldText": "bool", "highContrast": "bool", "screenReader": "bool", "textDirection": "PluxTextDirection",
 	}}
 	// code is a function's or a custom error's code, status an HTTP status
 	// (ACT-020).

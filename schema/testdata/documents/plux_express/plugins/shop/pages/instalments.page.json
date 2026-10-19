@@ -12,7 +12,9 @@
           "title": {
             "id": "01d0c450-6c00-7000-8000-00000000400f",
             "props": {
-              "data": "Instalments"
+              "data": {
+                "$t": "01a14cd1-ca0e-76fd-b433-d62c051e6d16"
+              }
             },
             "type": "Text"
           }
@@ -49,7 +51,9 @@
                 "id": "01d0c450-6c00-7000-8000-000000004000",
                 "props": {
                   "decoration": {
-                    "labelText": "Amount (EUR)"
+                    "labelText": {
+                      "$t": "01a14cd1-ca0e-7302-8a9a-acda5134f164"
+                    }
                   },
                   "keyboardType": "number",
                   "value": {
@@ -63,7 +67,12 @@
                 "id": "01d0c450-6c00-7000-8000-000000004001",
                 "props": {
                   "data": {
-                    "$expr": "\"Term: \" + string(page.months) + \" months at 12 % a year\""
+                    "$t": "01d0c450-6c00-7000-8000-000000009203",
+                    "args": {
+                      "months": {
+                        "$expr": "string(page.months)"
+                      }
+                    }
                   }
                 },
                 "testId": "term",
@@ -91,7 +100,9 @@
                       "child": {
                         "id": "01d0c450-6c00-7000-8000-000000004003",
                         "props": {
-                          "data": "3 months"
+                          "data": {
+                            "$t": "01a14cd1-ca0e-7134-89b2-c72cdbbe477f"
+                          }
                         },
                         "type": "Text"
                       }
@@ -119,7 +130,9 @@
                       "child": {
                         "id": "01d0c450-6c00-7000-8000-000000004005",
                         "props": {
-                          "data": "6 months"
+                          "data": {
+                            "$t": "01a14cd1-ca0e-756e-abba-5f97c118b682"
+                          }
                         },
                         "type": "Text"
                       }
@@ -229,7 +242,9 @@
                   "child": {
                     "id": "01d0c450-6c00-7000-8000-000000004008",
                     "props": {
-                      "data": "Calculate on this device"
+                      "data": {
+                        "$t": "01a14cd1-ca0e-7077-9d37-17c23018e9be"
+                      }
                     },
                     "type": "Text"
                   }
@@ -241,7 +256,12 @@
                 "id": "01d0c450-6c00-7000-8000-000000004009",
                 "props": {
                   "data": {
-                    "$expr": "\"Monthly payment: \" + page.payment + \" EUR\""
+                    "$t": "01d0c450-6c00-7000-8000-000000009204",
+                    "args": {
+                      "payment": {
+                        "$expr": "page.payment"
+                      }
+                    }
                   }
                 },
                 "testId": "payment",
@@ -254,7 +274,12 @@
                 "id": "01d0c450-6c00-7000-8000-00000000400a",
                 "props": {
                   "data": {
-                    "$expr": "\"Instalments: \" + string(page.count)"
+                    "$t": "01d0c450-6c00-7000-8000-000000009205",
+                    "args": {
+                      "count": {
+                        "$expr": "string(page.count)"
+                      }
+                    }
                   }
                 },
                 "testId": "count",
@@ -267,7 +292,12 @@
                 "id": "01d0c450-6c00-7000-8000-00000000400b",
                 "props": {
                   "data": {
-                    "$expr": "\"Interest in the first month: \" + page.firstInterest + \" EUR\""
+                    "$t": "01d0c450-6c00-7000-8000-000000009206",
+                    "args": {
+                      "interest": {
+                        "$expr": "page.firstInterest"
+                      }
+                    }
                   }
                 },
                 "testId": "first-interest",
@@ -343,5 +373,7 @@
       "type": "string"
     }
   ],
-  "title": "Instalments"
+  "title": {
+    "$t": "01a14cd1-ca0e-7632-bf32-dadef589ac94"
+  }
 }

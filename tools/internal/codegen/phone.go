@@ -46,6 +46,16 @@ type PhoneTerritory struct {
 	NationalPrefixTransformRule string      `json:"nationalPrefixTransformRule"`
 	General                     PhoneDesc   `json:"generalDesc"`
 	Types                       []PhoneDesc `json:"types"`
+	Formats                     []PhoneFmt  `json:"formats"`
+}
+
+// PhoneFmt is one number format (see tools/cmd/phonemeta).
+type PhoneFmt struct {
+	Pattern        string `json:"pattern"`
+	LeadingDigits  string `json:"leadingDigits"`
+	Format         string `json:"format"`
+	NationalFormat string `json:"nationalFormat"`
+	IntlFormat     string `json:"intlFormat"`
 }
 
 // PhoneDesc is a pattern with its national lengths.
@@ -79,6 +89,9 @@ func LoadPhone(root string) (*Phone, error) {
 		for _, d := range t.Types {
 			fields = append(fields, d.Pattern)
 		}
+		for _, f := range t.Formats {
+			fields = append(fields, f.Pattern, f.LeadingDigits)
+		}
 		for _, f := range fields {
 			if f != "" && !phoneField.MatchString(f) {
 				errs = append(errs, fmt.Sprintf("%s: field %q has characters outside the table alphabet", key, f))
@@ -94,11 +107,12 @@ func LoadPhone(root string) (*Phone, error) {
 // PhoneFiles renders the Go and Dart tables: one text, read the same way
 // by both runtimes (schema/pxl/phone.md §2).
 func PhoneFiles(p *Phone) ([]File, error) {
-	table := phoneTable(p)
+	table, formats := phoneTable(p), phoneFormatTable(p)
 	var g bytes.Buffer
 	g.WriteString(header(LangGo, PhoneSource))
 	fmt.Fprintf(&g, "package phone\n\n// Version is the libphonenumber release the table is derived from.\nconst Version = %q\n\n", p.Source.Version)
-	g.WriteString("// table holds one territory per line (schema/pxl/phone.md §2).\nconst table = `" + table + "`\n")
+	g.WriteString("// table holds one territory per line (schema/pxl/phone.md §2).\nconst table = `" + table + "`\n\n")
+	g.WriteString("// formatTable holds the number formats of the territories that have them (schema/pxl/phone.md §2).\nconst formatTable = `" + formats + "`\n")
 	goSrc, err := goFile(phoneGoPath, g.Bytes())
 	if err != nil {
 		return nil, err
@@ -108,7 +122,8 @@ func PhoneFiles(p *Phone) ([]File, error) {
 	d.WriteString("/// The phone validation table of `pxl.phone.v1`, derived from libphonenumber\n")
 	fmt.Fprintf(&d, "/// %s (Apache-2.0, The Libphonenumber Authors); schema/pxl/phone.md.\nlibrary;\n\n", p.Source.Version)
 	fmt.Fprintf(&d, "/// The libphonenumber release the table is derived from.\nconst String phoneMetadataVersion = '%s';\n\n", p.Source.Version)
-	d.WriteString("/// One territory per line (schema/pxl/phone.md §2).\nconst String phoneTable = r'''" + table + "''';\n")
+	d.WriteString("/// One territory per line (schema/pxl/phone.md §2).\nconst String phoneTable = r'''" + table + "''';\n\n")
+	d.WriteString("/// The number formats of the territories that have them (schema/pxl/phone.md §2).\nconst String phoneFormatTable = r'''" + formats + "''';\n")
 	return []File{goSrc, {Path: phoneDartPath, Content: d.Bytes()}}, nil
 }
 
@@ -162,4 +177,44 @@ func lengthList(ls []int) string {
 		parts[i] = strconv.Itoa(l)
 	}
 	return strings.Join(parts, ",")
+}
+
+// phoneFormatTable renders the number formats, one line per territory that
+// has them: the id, then per format its pattern, last leading-digits pattern,
+// national format and international format, space-separated, "~" for an empty
+// leading-digits pattern, "_" for a space inside a format, "=" for an
+// international format equal to the national one and "-" for none
+// (schema/pxl/phone.md §2).
+func phoneFormatTable(p *Phone) string {
+	var b strings.Builder
+	text := func(s string) string { return strings.ReplaceAll(s, " ", "_") }
+	for _, t := range p.Territories {
+		if len(t.Formats) == 0 {
+			continue
+		}
+		b.WriteString(t.ID)
+		for _, f := range t.Formats {
+			nat := f.NationalFormat
+			if nat == "" {
+				nat = f.Format
+			}
+			intl := f.IntlFormat
+			switch intl {
+			case "":
+				intl = f.Format
+			case "NA":
+				intl = "-"
+			}
+			if intl == nat {
+				intl = "="
+			}
+			lead := f.LeadingDigits
+			if lead == "" {
+				lead = "~"
+			}
+			b.WriteString(" " + f.Pattern + " " + lead + " " + text(nat) + " " + text(intl))
+		}
+		b.WriteByte('\n')
+	}
+	return b.String()
 }

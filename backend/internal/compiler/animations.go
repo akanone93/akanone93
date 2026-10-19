@@ -61,7 +61,7 @@ var layoutProps = map[string]bool{
 // object, so nothing can wrap them to animate them.
 func parentDataWidgets(typ string) bool {
 	switch typ {
-	case "Expanded", "Flexible", "Spacer", "Positioned":
+	case "Expanded", "Flexible", "Spacer", "Positioned", "AnimatedPositioned":
 		return true
 	}
 	return strings.HasPrefix(typ, "Sliver")
@@ -402,12 +402,18 @@ func (u *unit) checkRouteTimeline(pg *page) {
 func (u *unit) checkHeroTags(pg *page) {
 	seen := map[string]bool{}
 	for _, n := range pg.nodes {
-		if n.anim == nil || n.anim.hero == nil || n.anim.hero.kind != fbs.ValueKindString {
+		var tag, at string
+		switch {
+		case n.anim != nil && n.anim.hero != nil && n.anim.hero.kind == fbs.ValueKindString:
+			tag, at = n.anim.hero.s, n.ptr+"/animation/hero"
+		case n.widget != nil && n.widget.Type == "Hero":
+			tag, at = literalString(n.doc.Props["tag"]), n.ptr+"/props/tag"
+		}
+		if tag == "" {
 			continue
 		}
-		tag := n.anim.hero.s
 		if seen[tag] {
-			u.report(plxerr.NodeAnimationInvalid, pg.file, n.ptr+"/animation/hero", "the hero tag %q is used twice on the page; bind it to the item to tell repeated nodes apart", tag)
+			u.report(plxerr.NodeAnimationInvalid, pg.file, at, "the hero tag %q is used twice on the page; bind it to the item to tell repeated nodes apart", tag)
 		}
 		seen[tag] = true
 	}

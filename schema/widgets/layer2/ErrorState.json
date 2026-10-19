@@ -35,19 +35,22 @@
       "id": 2,
       "type": "string",
       "required": true,
-      "description": "The headline."
+      "description": "The headline.",
+      "translatable": true
     },
     {
       "name": "message",
       "id": 3,
       "type": "string?",
-      "description": "An explanation below the title."
+      "description": "An explanation below the title.",
+      "translatable": true
     },
     {
       "name": "retryLabel",
       "id": 4,
       "type": "string?",
-      "description": "Label of a built-in retry button; hidden when absent."
+      "description": "Label of a built-in retry button; hidden when absent.",
+      "translatable": true
     }
   ],
   "events": [

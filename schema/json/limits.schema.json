@@ -92,7 +92,8 @@
               "compiler",
               "server",
               "runtime",
-              "studio"
+              "studio",
+              "cli"
             ]
           }
         },

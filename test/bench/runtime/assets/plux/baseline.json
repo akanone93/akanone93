@@ -7,20 +7,20 @@
     {
       "plugin": "",
       "version": 1,
-      "sha256": "fd435297f3872ee707b2426f782534749c57b9ec25cbf87a9fa0b642657e80d8",
+      "sha256": "f3a507a63f83db4f2291efcc20a99678935679751cec4a17f82c0c0aad3f9871",
       "file": "bundles/_app.pxb",
       "keyId": "08eab417e7060eb9846a89c885a94988",
       "algorithm": "ed25519",
-      "signature": "QKOC8T/hGtj7zFyJBwHSkGQxbLfI6QD5nAelEdUKBXDPzWXibhwCFUZEmj2+twK+3b4uZlMA5o/vz1EEJ3B1Dw=="
+      "signature": "wah0m0dQJAs2DVA0xpYx/Ym5yHmz/3JDsmQTHsm4icrUXH2pRmUX3xvTo7Hra2m19f+fTnJzT1EIpmzHWNZyAQ=="
     },
     {
       "plugin": "catalog",
       "version": 1,
-      "sha256": "2406fdf654bbe5f099d98187f6d6e51367238e58aa8d95bd7fd33349e965d4e8",
+      "sha256": "c8ab0b5214d30dff439522a4af7f0799dc06b73cc65b0a8d696f796fa8027ae6",
       "file": "bundles/catalog.pxb",
       "keyId": "08eab417e7060eb9846a89c885a94988",
       "algorithm": "ed25519",
-      "signature": "HW152rt5yxzmQMZCsBfJVg0WYWO2GfbzFQ9Vt0nbC2VUmPgOmKThQcpYgZ/Qa7niVfETut0X2lIF0Eg0tr1FCA=="
+      "signature": "I9eVoSXLmBvwBROgNw6X8cKPsB5KkSrnz4QOSnLYWi8PaAh7HGID2fehrczn202w9V1mBpHJ53T3huojB6rEBA=="
     },
     {
       "plugin": "extra01",

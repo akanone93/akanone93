@@ -1,0 +1,84 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "ProductCard",
+  "id": 182,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "commerce",
+  "icon": "shopping_bag",
+  "description": "A product tile: image, title, price, an optional struck-through original price and badge, and an add-to-cart button. Prices arrive as formatted strings.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 120,
+  "accessibility": {
+    "role": "button",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "image",
+      "id": 1,
+      "type": "ImageSource?",
+      "description": "The product image."
+    },
+    {
+      "name": "title",
+      "id": 2,
+      "type": "string",
+      "required": true,
+      "translatable": true,
+      "description": "The product name."
+    },
+    {
+      "name": "price",
+      "id": 3,
+      "type": "string",
+      "required": true,
+      "description": "The formatted price."
+    },
+    {
+      "name": "originalPrice",
+      "id": 4,
+      "type": "string?",
+      "description": "The formatted price before a discount, shown struck through."
+    },
+    {
+      "name": "badge",
+      "id": 5,
+      "type": "string?",
+      "translatable": true,
+      "description": "A short badge such as `New` or `-20%`."
+    },
+    {
+      "name": "addToCartLabel",
+      "id": 6,
+      "type": "string",
+      "default": "Add to cart",
+      "translatable": true,
+      "description": "The label of the add-to-cart button."
+    }
+  ],
+  "events": [
+    {
+      "name": "onTap",
+      "id": 1,
+      "description": "Fires when the card is tapped."
+    },
+    {
+      "name": "onAddToCart",
+      "id": 2,
+      "description": "Fires when the add-to-cart button is pressed. The button shows only when this is handled."
+    }
+  ]
+}

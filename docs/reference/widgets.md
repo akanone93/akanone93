@@ -8,16 +8,38 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 
 | Type | Layer | Category | Phase | Description |
 |---|---|---|---|---|
+| [AccountCard](#accountcard) | 2 | commerce | P5 | An account with its masked number and balance; flipping shows the back. |
 | [ActionChip](#actionchip) | 1 | display | P3 | A chip that triggers an action related to primary content. |
 | [Align](#align) | 1 | layout | P3 | Aligns its child within itself and optionally sizes itself based on the child. |
+| [AmountInput](#amountinput) | 2 | input | P5 | A money entry field: the locale's group and decimal separators, the currency's minor units, and a range. |
+| [AnimatedAlign](#animatedalign) | 1 | animation | P5 | Animates its child's alignment. |
+| [AnimatedContainer](#animatedcontainer) | 1 | animation | P5 | A `Container` that animates to new values of its props. |
+| [AnimatedCrossFade](#animatedcrossfade) | 1 | animation | P5 | Cross-fades between two children, sizing to the one shown. |
+| [AnimatedOpacity](#animatedopacity) | 1 | animation | P5 | Animates its child's opacity. |
+| [AnimatedPadding](#animatedpadding) | 1 | animation | P5 | Animates the padding around its child. |
+| [AnimatedPositioned](#animatedpositioned) | 1 | animation | P5 | Animates the position of its child in a `Stack`. |
+| [AnimatedRotation](#animatedrotation) | 1 | animation | P5 | Animates its child's rotation, in turns. |
+| [AnimatedScale](#animatedscale) | 1 | animation | P5 | Animates its child's scale. |
+| [AnimatedSize](#animatedsize) | 1 | animation | P5 | Animates its own size to its child's. |
+| [AnimatedSlide](#animatedslide) | 1 | animation | P5 | Animates its child's offset, in multiples of its size. |
+| [AnimatedSwitcher](#animatedswitcher) | 1 | animation | P5 | Cross-fades between its old and new child when the child changes. |
 | [AppBar](#appbar) | 1 | structure | P3 | A Material top app bar. |
 | [AspectRatio](#aspectratio) | 1 | layout | P3 | Sizes its child to a specific aspect ratio. |
+| [AudioPlayer](#audioplayer) | 2 | display | P5 | Audio from an https address with play and pause and a progress bar. It never starts by itself under reduce motion. |
+| [Autocomplete](#autocomplete) | 1 | navigation | P5 | A text field that offers the `options` containing the typed text, ignoring case. |
 | [BackButton](#backbutton) | 1 | input | P3 | A back-arrow button that pops the current route. |
+| [BackdropFilter](#backdropfilter) | 1 | display | P5 | Blurs everything painted behind its child (WGT-020). |
 | [Badge](#badge) | 1 | display | P3 | A small label, typically a count, on top of its child. |
+| [BarChart](#barchart) | 2 | display | P5 | Bars per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table. |
+| [BarcodeScanner](#barcodescanner) | 2 | input | P5 | A live camera preview that reads QR codes and one-dimensional barcodes of the chosen formats. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`. |
 | [Baseline](#baseline) | 1 | layout | P3 | Positions its child according to the child's baseline. |
 | [BiometricButton](#biometricbutton) | 2 | interaction | P6 | A button that triggers a biometric step-up (SEC-027). |
 | [BottomAppBar](#bottomappbar) | 1 | structure | P3 | A Material bottom app bar. |
+| [BottomNavigationBar](#bottomnavigationbar) | 1 | navigation | P4 | A bar of two or more items along the bottom; tapping one fires `onTap` with its index. |
+| [CalendarDatePicker](#calendardatepicker) | 1 | navigation | P5 | A month grid for picking a date in the Gregorian calendar. |
 | [Card](#card) | 1 | display | P3 | A Material card: a panel with slightly rounded corners and an elevation shadow. |
+| [Carousel](#carousel) | 2 | layout | P5 | Pages of children swiped horizontally, with page indicators and optional autoplay. Autoplay stops when the device reduces motion. |
+| [CartSummary](#cartsummary) | 2 | commerce | P5 | The lines, subtotal, tax and total of a cart, with a checkout action. |
 | [Center](#center) | 1 | layout | P3 | Centres its child within itself. |
 | [Checkbox](#checkbox) | 1 | input | P3 | A Material checkbox. |
 | [CheckboxListTile](#checkboxlisttile) | 1 | input | P3 | A list tile with a checkbox. |
@@ -30,26 +52,45 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [CloseButton](#closebutton) | 1 | input | P3 | A close button that pops the current route. |
 | [ColoredBox](#coloredbox) | 1 | layout | P3 | Paints a colour behind its child. |
 | [Column](#column) | 1 | layout | P3 | Lays out its children vertically. |
+| [ConsentCheckbox](#consentcheckbox) | 2 | input | P5 | A checkbox that records consent to a versioned document, with a link to read it. |
 | [ConstrainedBox](#constrainedbox) | 1 | layout | P3 | Imposes additional constraints on its child. |
 | [Container](#container) | 1 | layout | P3 | A box with optional padding, margin, size constraints, alignment, colour and decoration. |
+| [CountdownTimer](#countdowntimer) | 2 | commerce | P5 | The time left until `endsAt`, updated once a second. |
+| [CountryPicker](#countrypicker) | 2 | input | P5 | A searchable list of countries named in the locale, with flags. |
 | [CupertinoActivityIndicator](#cupertinoactivityindicator) | 1 | cupertino | P3 | An iOS-style activity indicator. |
 | [CupertinoButton](#cupertinobutton) | 1 | cupertino | P3 | An iOS-style button. |
+| [CupertinoContextMenu](#cupertinocontextmenu) | 1 | cupertino | P5 | Shows `actions` when `child` is long-pressed; choosing one fires `onAction` with its index. |
+| [CupertinoDatePicker](#cupertinodatepicker) | 1 | cupertino | P5 | An iOS-style date and time wheel; `onDateTimeChanged` carries the chosen dateTime in the offset of `initialDateTime`. |
 | [CupertinoListSection](#cupertinolistsection) | 1 | cupertino | P3 | An iOS-style list section with an optional header and footer. |
 | [CupertinoListTile](#cupertinolisttile) | 1 | cupertino | P3 | An iOS-style list row. |
+| [CupertinoNavigationBar](#cupertinonavigationbar) | 1 | cupertino | P4 | An iOS-style navigation bar with `leading`, `middle` and `trailing` slots. |
+| [CupertinoPicker](#cupertinopicker) | 1 | cupertino | P5 | An iOS-style scrolling wheel over its children; `selectedIndex` is bound to state and `onSelectedItemChanged` reports the wheel. |
 | [CupertinoSlider](#cupertinoslider) | 1 | cupertino | P3 | An iOS-style slider. |
 | [CupertinoSlidingSegmentedControl](#cupertinoslidingsegmentedcontrol) | 1 | cupertino | P3 | An iOS-style sliding segmented control; `values[i]` identifies segment `children[i]`. |
 | [CupertinoSwitch](#cupertinoswitch) | 1 | cupertino | P3 | An iOS-style switch. |
+| [CupertinoTabBar](#cupertinotabbar) | 1 | cupertino | P4 | An iOS-style tab bar; bind `currentIndex` to a state key and `onTap` to the action that changes it. |
 | [CupertinoTextField](#cupertinotextfield) | 1 | cupertino | P3 | An iOS-style text input whose text is bound to `value`. |
+| [CurrencyPicker](#currencypicker) | 2 | input | P5 | A searchable list of currencies named in the locale. |
 | [CustomScrollView](#customscrollview) | 1 | scrolling | P3 | A scroll view composed of slivers. |
+| [DataScope](#datascope) | 1 | structure | P5 | Shows one of `loading`, `empty`, `error` or `success` for a data source. Set `source` to derive the state from the named data source: loading and error from its status, empty when its value is null, an empty list or an empty map. An explicit `status` or `isEmpty` overrides what `source` derives. The subtree reads the source as `data.<source>`. |
+| [DataTable](#datatable) | 1 | display | P5 | A Material table with headings, sorting and optional row selection (WGT-020). |
 | [DecoratedBox](#decoratedbox) | 1 | layout | P3 | Paints a decoration behind or in front of its child. |
+| [Dismissible](#dismissible) | 1 | interaction | P5 | Dismisses its child with a swipe and fires `onDismissed` with the direction. |
 | [Divider](#divider) | 1 | display | P3 | A thin horizontal line with padding on either side. |
+| [DragTarget](#dragtarget) | 1 | interaction | P5 | Accepts a `Draggable`'s payload dropped on it; its child is highlighted while a candidate hovers. |
+| [Draggable](#draggable) | 1 | interaction | P5 | Lets the user drag its child, carrying a typed `data` payload to a `DragTarget`. |
+| [Drawer](#drawer) | 1 | navigation | P4 | A panel that slides in from the edge; fill `Scaffold.drawer` or `Scaffold.endDrawer` with it. |
 | [DropdownMenu](#dropdownmenu) | 1 | input | P3 | A Material 3 dropdown menu with optional text filtering. |
+| [DualCalendarDatePicker](#dualcalendardatepicker) | 2 | input | P8 | A month grid in one calendar with the day numbers of a second calendar beside them; Gregorian beside Hijri, Ethiopic or Persian (I18N-003). |
 | [ElevatedButton](#elevatedbutton) | 1 | input | P3 | A Material elevated button. |
 | [EmptyState](#emptystate) | 2 | feedback | P3 | A standard empty state: icon, title, message and an optional action. |
 | [ErrorState](#errorstate) | 2 | feedback | P3 | A standard error state: icon, title, message and an optional retry action. |
 | [Expanded](#expanded) | 1 | layout | P3 | Makes its child fill the available space along the main axis of a Row, Column or Flex. |
 | [ExpansionTile](#expansiontile) | 1 | display | P3 | A list tile that expands to reveal its children. |
+| [FadeTransition](#fadetransition) | 1 | animation | P5 | Fades its child by a track of a page timeline. |
+| [FileUploader](#fileuploader) | 2 | input | P5 | Pick a file, preview it and upload it with progress. Picking needs `plux_media`; without it the control is disabled and PLX-5401 is reported. The upload is a transfer operation of a data source. |
 | [FilledButton](#filledbutton) | 1 | input | P3 | A Material filled button; `tonal` selects the filled-tonal style. |
+| [FilterBar](#filterbar) | 2 | input | P5 | A horizontally scrolling row of filter chips. |
 | [FilterChip](#filterchip) | 1 | display | P3 | A chip that filters content by a tag or description. |
 | [FittedBox](#fittedbox) | 1 | layout | P3 | Scales and positions its child within itself according to `fit`. |
 | [Flex](#flex) | 1 | layout | P3 | Lays out its children along a configurable axis. |
@@ -60,62 +101,138 @@ Every widget type Plux documents can use, generated from the descriptors in `sch
 | [FractionallySizedBox](#fractionallysizedbox) | 1 | layout | P3 | Sizes its child to a fraction of the available space. |
 | [GestureDetector](#gesturedetector) | 1 | interaction | P3 | Detects taps, long presses, drags and scale gestures on its child. |
 | [GridView](#gridview) | 1 | scrolling | P3 | A lazily built, scrollable grid of `item` templates over `items` (WGT-012). |
+| [Hero](#hero) | 1 | animation | P5 | Marks its child as a shared element that flies between pages with the same `tag`. |
+| [IbanInput](#ibaninput) | 2 | input | P5 | An IBAN entry shown in groups of four, with the mod-97 check. |
 | [Icon](#icon) | 1 | display | P3 | An icon from the Material or Cupertino icon set. |
 | [IconButton](#iconbutton) | 1 | input | P3 | A Material icon button. |
 | [If](#if) | 1 | structure | P3 | Renders its `then` slot while `condition` is true, otherwise its optional `else` slot. |
 | [Image](#image) | 1 | display | P3 | An image from a bundled asset or a URL, with loading and error states. |
+| [ImageGallery](#imagegallery) | 2 | display | P5 | Swipeable images, each pinch-zoomable, with page indicators. |
 | [IndexedStack](#indexedstack) | 1 | layout | P3 | Shows the child at `index` from a stack of children. |
+| [InfiniteList](#infinitelist) | 2 | scrolling | P5 | A lazily built, paginated list of `item` templates over `items`, with empty, loading and error states (WGT-012). |
 | [InkWell](#inkwell) | 1 | interaction | P3 | A rectangular area that responds to touch with a Material ink splash. |
 | [InputChip](#inputchip) | 1 | display | P3 | A chip representing a complex piece of information, such as a contact. |
+| [InteractiveViewer](#interactiveviewer) | 1 | interaction | P5 | Pans and zooms its child with gestures. |
 | [KycCameraCapture](#kyccameracapture) | 2 | input | P6 | ID document and selfie capture with framing guides and quality checks. Ships in `plux_media`. |
 | [LimitedBox](#limitedbox) | 1 | layout | P3 | Limits its size only when it is unconstrained. |
+| [LineChart](#linechart) | 2 | display | P5 | A line per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table. |
 | [LinearProgressIndicator](#linearprogressindicator) | 1 | display | P3 | A linear progress indicator, determinate or indeterminate. |
 | [ListTile](#listtile) | 1 | display | P3 | A fixed-height row with leading and trailing content and one to three lines of text. |
 | [ListView](#listview) | 1 | scrolling | P3 | A lazily built, scrollable list of `item` templates over `items`, with empty, loading and error states (WGT-012). |
+| [LiveEtaCard](#liveetacard) | 2 | feedback | P5 | A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced. |
+| [LottieView](#lottieview) | 2 | display | P5 | A Lottie or dotLottie animation from an https address, controlled by props (ANI-005). |
+| [MapView](#mapview) | 2 | display | P5 | A map with markers and lines. Tiles come from `tileUrlTemplate`, fetched over HTTPS from a domain the plugin declares (SEC-080); the Google package ignores the template and uses the host's API key. Showing the user's location needs the `location` device API and its permission. Each marker is a semantics node with its title. |
+| [MarkdownView](#markdownview) | 2 | display | P5 | Formatted text from Markdown: headings, paragraphs, emphasis, lists, quotes, code and links. Raw HTML is shown as text; images are bundle assets. |
+| [MaskedText](#maskedtext) | 2 | display | P5 | A sensitive number with all but its last digits hidden; the hidden digits never reach screen readers. |
 | [Match](#match) | 1 | structure | P3 | Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`. |
+| [MaterialBanner](#materialbanner) | 1 | display | P5 | A banner with a message, an optional leading widget and actions (WGT-020). |
+| [MenuAnchor](#menuanchor) | 1 | navigation | P5 | Opens a menu of `items` from its anchor `child`; choosing one fires `onSelected` with its value. |
+| [MoneyText](#moneytext) | 2 | display | P5 | An amount written for the locale and currency, read aloud with the currency's name. |
+| [NativeSlot](#nativeslot) | 1 | structure | P4 | Places a host-app native slot, named by the literal `name`, with the props and events that slot declares. Equivalent to a node whose `type` is that name. |
+| [NavigationBar](#navigationbar) | 1 | navigation | P4 | A bar of destinations along the bottom; choosing one fires `onDestinationSelected` with its index. |
+| [NavigationDrawer](#navigationdrawer) | 1 | navigation | P4 | A drawer of destinations; choosing one fires `onDestinationSelected` with its index. |
+| [NavigationRail](#navigationrail) | 1 | navigation | P4 | A column of destinations along the side; choosing one fires `onDestinationSelected` with its index. |
+| [NestedScrollView](#nestedscrollview) | 1 | scrolling | P5 | A scroll view whose `headerSlivers` scroll together with a scrollable `body` (WGT-020). |
 | [OfflineBanner](#offlinebanner) | 2 | feedback | P3 | A banner shown while the device is offline. |
+| [OnboardingPager](#onboardingpager) | 2 | navigation | P5 | Swipeable onboarding pages with page indicators and a Done button on the last page. |
 | [Opacity](#opacity) | 1 | layout | P3 | Makes its child partially transparent. |
+| [OrderTrackerMap](#ordertrackermap) | 2 | display | P5 | A map of a delivery: origin, destination, route and a courier marker that glides between position updates. Tiles come from `tileUrlTemplate` as in `MapView`. |
 | [OtpInput](#otpinput) | 2 | input | P6 | One-time code entry with platform autofill: SMS User Consent API on Android, one-time-code autofill on iOS (SEC-090). |
 | [OutlinedButton](#outlinedbutton) | 1 | input | P3 | A Material outlined button. |
 | [Padding](#padding) | 1 | layout | P3 | Insets its child by the given padding. |
 | [PageView](#pageview) | 1 | scrolling | P3 | Pages through `item` templates over `items`, one page at a time (WGT-012). |
+| [PaymentCard](#paymentcard) | 2 | commerce | P5 | A payment card: brand, masked number, expiry and holder; flipping shows the back. |
+| [PhoneInput](#phoneinput) | 2 | input | P5 | A phone number entry in E.164 with a country picker and validation. |
+| [PieChart](#piechart) | 2 | display | P5 | A pie of labelled slices. Screen readers get a text summary per slice, and `showTable` adds a data table. |
+| [PopupMenuButton](#popupmenubutton) | 1 | navigation | P5 | A button that opens a menu of `items`; choosing one fires `onSelected` with its value. |
 | [Positioned](#positioned) | 1 | layout | P3 | Positions its child inside a Stack. |
+| [PriceTag](#pricetag) | 2 | commerce | P5 | A price, with the original price struck through and announced as the former price. |
+| [ProductCard](#productcard) | 2 | commerce | P5 | A product tile: image, title, price, an optional struck-through original price and badge, and an add-to-cart button. Prices arrive as formatted strings. |
+| [ProfileHeader](#profileheader) | 2 | layout | P5 | A person's avatar, name and subtitle with an actions row. |
+| [PromoBanner](#promobanner) | 2 | commerce | P5 | A campaign banner: image, title, subtitle, a call to action and, when `endsAt` is set, a countdown. |
+| [QrCodeView](#qrcodeview) | 2 | display | P5 | Draws a QR code for a text, offline. Ships in `plux_scanner`. |
+| [QrScanner](#qrscanner) | 2 | input | P5 | A live camera preview that reads QR codes. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`. |
+| [QuantityStepper](#quantitystepper) | 2 | commerce | P5 | A decrease button, the quantity and an increase button; screen readers adjust it with increase and decrease actions. |
 | [Radio](#radio) | 1 | input | P3 | A Material radio button, selected when `groupValue` equals `value`. |
 | [RadioListTile](#radiolisttile) | 1 | input | P3 | A list tile with a radio button. |
 | [RangeSlider](#rangeslider) | 1 | input | P3 | Selects a range from a continuous or discrete set of values. |
+| [RatingBar](#ratingbar) | 2 | display | P5 | A read-only row of stars; screen readers read `3.5 of 5`. |
+| [RatingInput](#ratinginput) | 2 | input | P5 | Stars the user taps to rate; each star is a button. |
+| [RefreshIndicator](#refreshindicator) | 1 | interaction | P5 | Pull-to-refresh over a scrollable child; `onRefresh` runs its handlers (WGT-020). |
+| [ReorderableListView](#reorderablelistview) | 1 | scrolling | P5 | A list whose `item` templates the user can drag into a new order; the page updates its list on `onReorder` (WGT-012). |
 | [Responsive](#responsive) | 1 | structure | P3 | Renders a different subtree per window-size class: `compact`, `medium` (600–839 dp) and `expanded` (≥ 840 dp). |
 | [RichText](#richtext) | 1 | display | P3 | Text built from styled spans (Flutter `Text.rich`). |
+| [RiveView](#riveview) | 2 | display | P5 | A Rive file from an https address whose state machine inputs follow Plux state (ANI-005). |
+| [RotationTransition](#rotationtransition) | 1 | animation | P5 | Rotates its child by a track of a page timeline, in turns. |
 | [Row](#row) | 1 | layout | P3 | Lays out its children horizontally. |
 | [SafeArea](#safearea) | 1 | layout | P3 | Insets its child to avoid system intrusions such as the status bar and notch. |
 | [Scaffold](#scaffold) | 1 | structure | P3 | The basic Material page structure: app bar, body, floating action button, bottom bar. |
+| [ScaleTransition](#scaletransition) | 1 | animation | P5 | Scales its child by a track of a page timeline. |
 | [Scrollbar](#scrollbar) | 1 | scrolling | P3 | Shows a Material scrollbar for its scrollable child. |
+| [SearchAnchor](#searchanchor) | 1 | navigation | P5 | A search bar that opens a view listing the `suggestions` that match the text; choosing one fires `onSelected`. |
+| [SearchBar](#searchbar) | 1 | navigation | P5 | A text field styled as a search bar. |
+| [SearchField](#searchfield) | 2 | input | P5 | A search box that reports the query once typing pauses, with optional suggestions. |
 | [SecurePinPad](#securepinpad) | 2 | input | P6 | PIN entry with an optional randomised layout and haptic-only key feedback (SEC-090). |
 | [SecureTextField](#securetextfield) | 2 | input | P6 | Hardened text entry: obscured, with no suggestions, autocorrect, clipboard or keyboard learning (SEC-090). |
 | [SegmentedButton](#segmentedbutton) | 1 | input | P3 | Selects one or more options from a small set of segments. |
 | [SelectableText](#selectabletext) | 1 | display | P3 | Text the user can select and copy. |
+| [SettingsList](#settingslist) | 2 | layout | P5 | Settings rows grouped under section headers. |
+| [SignaturePad](#signaturepad) | 2 | input | P5 | A box the user signs in with a finger. `onChanged` fires with SVG path data or a base64 PNG, and with an empty string when cleared. |
 | [SingleChildScrollView](#singlechildscrollview) | 1 | scrolling | P3 | Makes a single child scrollable. |
 | [SizedBox](#sizedbox) | 1 | layout | P3 | A box with a fixed width and height, or a spacer. |
 | [SkeletonLoader](#skeletonloader) | 2 | feedback | P3 | Shimmering placeholder blocks shown while content loads. |
+| [SlideTransition](#slidetransition) | 1 | animation | P5 | Slides its child by a track of a page timeline, in multiples of the child's size along `axis`. |
 | [Slider](#slider) | 1 | input | P3 | Selects a value from a continuous or discrete range. |
 | [SliverAppBar](#sliverappbar) | 1 | scrolling | P3 | A Material app bar that integrates with a CustomScrollView and can expand, float and pin. |
 | [SliverFillRemaining](#sliverfillremaining) | 1 | scrolling | P3 | Fills the remaining space of a CustomScrollView with its child. |
 | [SliverGrid](#slivergrid) | 1 | scrolling | P3 | A lazily built grid of `item` templates inside a CustomScrollView (WGT-012). |
 | [SliverList](#sliverlist) | 1 | scrolling | P3 | A lazily built list of `item` templates inside a CustomScrollView (WGT-012). |
 | [SliverPadding](#sliverpadding) | 1 | scrolling | P3 | Insets a sliver by the given padding. |
+| [SliverPersistentHeader](#sliverpersistentheader) | 1 | scrolling | P5 | A sliver header between `minExtent` and `maxExtent` tall that can stay pinned or float (WGT-020). |
 | [SliverToBoxAdapter](#slivertoboxadapter) | 1 | scrolling | P3 | Places an ordinary widget inside a CustomScrollView. |
 | [Slot](#slot) | 1 | structure | P3 | Inside a component, the place where an instance's slot fill is rendered; `fallback` renders when the instance leaves it empty. |
+| [SortSheet](#sortsheet) | 2 | input | P5 | A list of radio rows to choose a sort order from; a page of kind bottom sheet hosts it. |
 | [Spacer](#spacer) | 1 | layout | P3 | Takes up flexible empty space in a Row, Column or Flex. |
+| [Sparkline](#sparkline) | 2 | display | P5 | A small line of values with no axes, for lists and cards; screen readers get one text summary. |
 | [Stack](#stack) | 1 | layout | P3 | Places its children on top of each other. |
+| [StatusTimeline](#statustimeline) | 2 | feedback | P5 | A vertical timeline of steps, each done, current, pending or failed; the current step is announced. |
+| [Stepper](#stepper) | 1 | structure | P5 | A sequence of steps; the child at each step's index is its content (WGT-020). |
 | [Switch](#switch) | 1 | input | P3 | A Material on/off switch. |
 | [SwitchListTile](#switchlisttile) | 1 | input | P3 | A list tile with a switch. |
+| [TabBar](#tabbar) | 1 | navigation | P4 | A row of tabs; the selected one is `selectedIndex`, and tapping a tab fires `onTap` with its index. |
+| [TabBarView](#tabbarview) | 1 | navigation | P4 | Shows the child at `index`, and pages between children by swiping; `onIndexChanged` reports the page. |
+| [Table](#table) | 1 | layout | P5 | A grid of cells; `children` fill it row by row, `columns` to a row (WGT-020). |
+| [TermsViewer](#termsviewer) | 2 | display | P5 | Terms in Markdown that scroll, with an accept button that enables once the end was reached. |
 | [Text](#text) | 1 | display | P3 | A run of text with a single style. |
 | [TextButton](#textbutton) | 1 | input | P3 | A Material text button. |
 | [TextField](#textfield) | 1 | input | P3 | A Material text input whose text is bound to `value`. |
 | [TextFormField](#textformfield) | 1 | input | P3 | A text input for use inside a form (validation arrives with FormScope, P5). |
+| [Timeline](#timeline) | 1 | structure | P5 | Plays a page timeline for its subtree: it starts the named timeline when shown, and optionally restarts it when it ends (ANI-002). |
 | [Tooltip](#tooltip) | 1 | display | P3 | Shows a text label when its child is long-pressed or hovered. |
+| [TransactionListItem](#transactionlistitem) | 2 | commerce | P5 | A transaction row: title, subtitle, signed amount in a credit or debit colour, status and date. |
 | [Transform](#transform) | 1 | layout | P3 | Rotates, scales, translates or flips its child before painting. |
 | [VerticalDivider](#verticaldivider) | 1 | display | P3 | A thin vertical line with padding on either side. |
+| [VideoPlayer](#videoplayer) | 2 | display | P5 | A video from an https address with play and pause, a progress bar and optional captions. It never starts by itself under reduce motion. |
+| [WizardForm](#wizardform) | 2 | input | P5 | A multi-step form: one child per step, a progress indicator, and Back, Next and Submit buttons that validate the step through the enclosing form. |
 | [Wrap](#wrap) | 1 | layout | P3 | Lays out its children in runs, wrapping to the next run when a run is full. |
+
+### AccountCard
+
+An account with its masked number and balance; flipping shows the back.
+
+ID 169 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 90 µs · role button · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `name` | 1 | `string`, required | — | The account's name. |
+| `maskedNumber` | 2 | `string`, required | — | The account number, masked. |
+| `balance` | 3 | `money`, required | — | The balance. |
+| `flipped` | 4 | `bool` | `false` | Whether the back is shown. |
+| `backLabel` | 5 | `string?` | — | The text on the back. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onFlip` | 1 | `bool` | Fires with the side the person asked for. |
 
 ### ActionChip
 
@@ -164,6 +281,273 @@ ID 8 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Align` · androi
 | `alignment` | 1 | `Alignment` | `"center"` |  |
 | `widthFactor` | 2 | `double` | — | Must be at least 0. |
 | `heightFactor` | 3 | `double` | — | Must be at least 0. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AmountInput
+
+A money entry field: the locale's group and decimal separators, the currency's minor units, and a range.
+
+ID 159 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 90 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string?` | — | The field's label. |
+| `currency` | 2 | `string`, required | — | The ISO 4217 code of the amount. |
+| `value` | 3 | `money?` | — | The amount shown. |
+| `min` | 4 | `money?` | — | The smallest amount accepted. |
+| `max` | 5 | `money?` | — | The largest amount accepted. |
+| `rangeMessage` | 6 | `string?` | — | The error shown when the amount is outside the range. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `money` | Fires with the amount whenever the typed text is a valid amount. |
+
+### AnimatedAlign
+
+Animates its child's alignment.
+
+ID 141 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedAlign` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `alignment` | 1 | `Alignment`, required | — |  |
+| `heightFactor` | 2 | `double` | — |  |
+| `widthFactor` | 3 | `double` | — |  |
+| `curve` | 4 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 5 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedContainer
+
+A `Container` that animates to new values of its props.
+
+ID 139 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedContainer` · android, ios · cost 40 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `alignment` | 1 | `Alignment` | — |  |
+| `padding` | 2 | `EdgeInsets` | — |  |
+| `color` | 3 | `color` | — |  |
+| `decoration` | 4 | `BoxDecoration` | — |  |
+| `foregroundDecoration` | 5 | `BoxDecoration` | — |  |
+| `width` | 6 | `double` | — |  |
+| `height` | 7 | `double` | — |  |
+| `constraints` | 8 | `BoxConstraints` | — |  |
+| `margin` | 9 | `EdgeInsets` | — |  |
+| `transformAlignment` | 10 | `Alignment` | — |  |
+| `clipBehavior` | 11 | `Clip` | `"none"` |  |
+| `curve` | 12 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 13 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedCrossFade
+
+Cross-fades between two children, sizing to the one shown.
+
+ID 148 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedCrossFade` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `crossFadeState` | 1 | `CrossFadeState`, required | — |  |
+| `firstCurve` | 2 | `Curve` | `"linear"` |  |
+| `secondCurve` | 3 | `Curve` | `"linear"` |  |
+| `sizeCurve` | 4 | `Curve` | `"linear"` |  |
+| `alignment` | 5 | `Alignment` | `"topCenter"` |  |
+| `duration` | 6 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+| `reverseDuration` | 7 | `duration` | — | The length of the reverse animation in milliseconds. |
+| `excludeBottomFocus` | 8 | `bool` | `true` |  |
+| `clipBehavior` | 9 | `Clip` | `"hardEdge"` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `firstChild` | 1 | one node, required |  |
+| `secondChild` | 2 | one node, required |  |
+
+### AnimatedOpacity
+
+Animates its child's opacity.
+
+ID 140 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedOpacity` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `opacity` | 1 | `double`, required | — | Must be at least 0 and at most 1. |
+| `alwaysIncludeSemantics` | 2 | `bool` | `false` |  |
+| `curve` | 3 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 4 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedPadding
+
+Animates the padding around its child.
+
+ID 142 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedPadding` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `padding` | 1 | `EdgeInsets`, required | — |  |
+| `curve` | 2 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 3 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedPositioned
+
+Animates the position of its child in a `Stack`.
+
+ID 143 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedPositioned` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `left` | 1 | `double` | — |  |
+| `top` | 2 | `double` | — |  |
+| `right` | 3 | `double` | — |  |
+| `bottom` | 4 | `double` | — |  |
+| `width` | 5 | `double` | — |  |
+| `height` | 6 | `double` | — |  |
+| `curve` | 7 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 8 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+
+### AnimatedRotation
+
+Animates its child's rotation, in turns.
+
+ID 145 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedRotation` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `turns` | 1 | `double`, required | — |  |
+| `alignment` | 2 | `Alignment` | `"center"` |  |
+| `filterQuality` | 3 | `FilterQuality` | — |  |
+| `curve` | 4 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 5 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedScale
+
+Animates its child's scale.
+
+ID 144 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedScale` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `scale` | 1 | `double`, required | — |  |
+| `alignment` | 2 | `Alignment` | `"center"` |  |
+| `filterQuality` | 3 | `FilterQuality` | — |  |
+| `curve` | 4 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 5 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedSize
+
+Animates its own size to its child's.
+
+ID 149 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedSize` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `alignment` | 1 | `Alignment` | `"center"` |  |
+| `curve` | 2 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 3 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+| `reverseDuration` | 4 | `duration` | — | The length of the reverse animation in milliseconds. |
+| `clipBehavior` | 5 | `Clip` | `"hardEdge"` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedSlide
+
+Animates its child's offset, in multiples of its size.
+
+ID 146 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedSlide` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `offset` | 1 | `Offset`, required | — |  |
+| `curve` | 2 | `Curve` | `"linear"` | The curve of the animation. |
+| `duration` | 3 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnd` | 1 | — | Fired when the animation ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### AnimatedSwitcher
+
+Cross-fades between its old and new child when the child changes.
+
+ID 147 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `AnimatedSwitcher` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `duration` | 1 | `duration`, required | — | The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007). |
+| `reverseDuration` | 2 | `duration` | — | The length of the reverse animation in milliseconds. |
+| `switchInCurve` | 3 | `Curve` | `"linear"` |  |
+| `switchOutCurve` | 4 | `Curve` | `"linear"` |  |
 
 | Slot | ID | Holds | Description |
 |---|---|---|---|
@@ -224,6 +608,44 @@ ID 14 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `AspectRatio` ·
 |---|---|---|---|
 | `child` | 1 | one node |  |
 
+### AudioPlayer
+
+Audio from an https address with play and pause and a progress bar. It never starts by itself under reduce motion.
+
+ID 204 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 1000 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `url` | 1 | `string`, required | — | The https address of the audio. Must be matches `^https://`. |
+| `title` | 2 | `string?` | — | The title shown, and spoken for the player. |
+| `autoplay` | 3 | `bool` | `false` | Whether it starts by itself; ignored under reduce motion. |
+| `loop` | 4 | `bool` | `false` | Whether it starts again when it ends. |
+| `playLabel` | 5 | `string` | `"Play"` | The play button's label. |
+| `pauseLabel` | 6 | `string` | `"Pause"` | The pause button's label. |
+| `positionLabel` | 7 | `string` | `"Position"` | The progress bar's label. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnded` | 1 | — | Fires when playback ends. |
+| `onError` | 2 | — | Fires when the audio cannot be played. |
+
+### Autocomplete
+
+A text field that offers the `options` containing the typed text, ignoring case.
+
+ID 124 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Autocomplete` · android, ios · cost 20 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `options` | 1 | `list<string>`, required | — |  |
+| `hintText` | 2 | `string` | — |  |
+| `optionsMaxHeight` | 3 | `double` | `200.0` |  |
+| `initialValue` | 4 | `string` | — | The text the field starts with. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` |  |
+
 ### BackButton
 
 A back-arrow button that pops the current route.
@@ -238,6 +660,22 @@ ID 84 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `BackButton` · 
 | Event | ID | Payload | Description |
 |---|---|---|---|
 | `onPressed` | 1 | — |  |
+
+### BackdropFilter
+
+Blurs everything painted behind its child (WGT-020).
+
+ID 112 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `BackdropFilter` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `filter` | 1 | `BlurFilter` | — |  |
+| `blendMode` | 2 | `BlendMode` | `"srcOver"` |  |
+| `enabled` | 3 | `bool` | `true` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
 
 ### Badge
 
@@ -261,6 +699,41 @@ ID 62 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Badge` · andro
 |---|---|---|---|
 | `label` | 1 | one node |  |
 | `child` | 2 | one node |  |
+
+### BarChart
+
+Bars per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table.
+
+ID 194 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 400 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `series` | 1 | `list<ChartSeries>`, required | — | The series; they share the labels. |
+| `labels` | 2 | `list<string>?` | — | The label of each position along the horizontal axis. |
+| `title` | 3 | `string?` | — | A heading above the chart, also its spoken name. |
+| `summaryTemplate` | 4 | `string` | `"{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}"` | What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced. |
+| `showTable` | 5 | `bool` | `false` | Whether a table of the values is shown below the chart. |
+
+### BarcodeScanner
+
+A live camera preview that reads QR codes and one-dimensional barcodes of the chosen formats. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`.
+
+ID 200 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 400 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `formats` | 1 | `list<BarcodeFormat>?` | — | The formats to read; every format when empty or absent. |
+| `torch` | 2 | `bool` | `false` | Whether the torch is on. |
+| `cameraFacing` | 3 | `CameraFacing` | `"back"` | Which camera to open. |
+| `scanWindow` | 4 | `list<double>?` | — | The part of the preview that is read, as four fractions of the preview: left, top, width, height. The whole preview when absent. |
+| `continuous` | 5 | `bool` | `false` | Whether the scanner keeps reading after the first code; otherwise it reports once and stops. |
+| `overlayHint` | 6 | `string?` | — | A line of text under the viewfinder, such as "Point the camera at the code". |
+| `semanticLabel` | 7 | `string?` | — | What a screen reader announces for the scanner; the read value is announced when a code is detected. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDetected` | 1 | `ScanResult` | Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label. |
+| `onError` | 2 | `string` | Fires with an error code when the camera is denied, missing or fails. |
 
 ### Baseline
 
@@ -314,6 +787,49 @@ ID 88 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `BottomAppBar` �
 |---|---|---|---|
 | `child` | 1 | one node |  |
 
+### BottomNavigationBar
+
+A bar of two or more items along the bottom; tapping one fires `onTap` with its index.
+
+ID 129 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `BottomNavigationBar` · android, ios · cost 20 µs · role tab · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `items` | 1 | `list<Destination>`, required | — | Two or more items; `selectedIcon` is the active icon. |
+| `currentIndex` | 2 | `int` | `0` |  |
+| `elevation` | 3 | `double` | — |  |
+| `type` | 4 | `BottomNavigationBarType` | — |  |
+| `backgroundColor` | 5 | `color` | — |  |
+| `selectedItemColor` | 6 | `color` | — |  |
+| `unselectedItemColor` | 7 | `color` | — |  |
+| `iconSize` | 8 | `double` | `24.0` |  |
+| `selectedFontSize` | 9 | `double` | `14.0` |  |
+| `unselectedFontSize` | 10 | `double` | `12.0` |  |
+| `showSelectedLabels` | 11 | `bool` | — |  |
+| `showUnselectedLabels` | 12 | `bool` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onTap` | 1 | `int` |  |
+
+### CalendarDatePicker
+
+A month grid for picking a date in the Gregorian calendar.
+
+ID 125 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `CalendarDatePicker` · android, ios · cost 20 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `initialDate` | 1 | `date`, required | — |  |
+| `firstDate` | 2 | `date`, required | — |  |
+| `lastDate` | 3 | `date`, required | — |  |
+| `currentDate` | 4 | `date` | — | Today, as the picker marks it; the device date when absent. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDateChanged` | 1 | `date` |  |
+| `onDisplayedMonthChanged` | 2 | `date` |  |
+
 ### Card
 
 A Material card: a panel with slightly rounded corners and an elevation shadow.
@@ -335,6 +851,50 @@ ID 54 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Card` · androi
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node |  |
+
+### Carousel
+
+Pages of children swiped horizontally, with page indicators and optional autoplay. Autoplay stops when the device reduces motion.
+
+ID 184 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 100 µs · role list
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `autoplay` | 1 | `bool` | `false` | Advances on its own. |
+| `intervalMs` | 2 | `int` | `5000` | Milliseconds between automatic advances. Must be at least 500. |
+| `indicators` | 3 | `bool` | `true` | Shows page indicators. |
+| `semanticLabel` | 4 | `string?` | — | The label screen readers announce for the carousel. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onPageChanged` | 1 | `int` | Fires with the index of the page shown. |
+
+Takes a list of `children` (at least 1).
+
+### CartSummary
+
+The lines, subtotal, tax and total of a cart, with a checkout action.
+
+ID 167 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 100 µs · role group
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `lines` | 1 | `list<CartLine>`, required | — | The cart's lines. |
+| `subtotal` | 2 | `money`, required | — | The sum of the lines. |
+| `tax` | 3 | `money?` | — | The tax. |
+| `total` | 4 | `money`, required | — | The amount due. |
+| `subtotalLabel` | 5 | `string?` | — | The subtotal row's label. |
+| `taxLabel` | 6 | `string?` | — | The tax row's label. |
+| `totalLabel` | 7 | `string?` | — | The total row's label. |
+| `checkoutLabel` | 8 | `string?` | — | The label of the built-in checkout button. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onCheckout` | 1 | — | Fires when the person starts checkout. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `checkout` | 1 | one node | Replaces the built-in checkout button. |
 
 ### Center
 
@@ -635,6 +1195,25 @@ ID 25 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Column` · andr
 
 Takes a list of `children`.
 
+### ConsentCheckbox
+
+A checkbox that records consent to a versioned document, with a link to read it.
+
+ID 171 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60 µs · role checkbox · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — | What the person consents to. |
+| `documentVersion` | 2 | `string`, required | — | The version of the document the consent covers. |
+| `linkLabel` | 3 | `string?` | — | The text of the link that opens the document. |
+| `value` | 4 | `bool` | `false` | Whether consent is given. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `bool` | Fires with the new value when the person toggles the checkbox. |
+| `onAccepted` | 2 | `string` | Fires with `documentVersion` when consent is given, so the page records the accepted version. |
+| `onLinkTap` | 3 | — | Fires when the person taps the link. |
+
 ### ConstrainedBox
 
 Imposes additional constraints on its child.
@@ -673,6 +1252,36 @@ ID 6 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Container` · an
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node |  |
+
+### CountdownTimer
+
+The time left until `endsAt`, updated once a second.
+
+ID 186 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 40 µs · role text
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `endsAt` | 1 | `dateTime`, required | — | The instant the countdown ends. |
+| `format` | 2 | `CountdownFormat` | `"hms"` | How the remaining time is written. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onFinished` | 1 | — | Fires once when the countdown reaches zero. |
+
+### CountryPicker
+
+A searchable list of countries named in the locale, with flags.
+
+ID 164 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 90 µs · role list · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `string?` | — | The ISO 3166 code selected. |
+| `searchHint` | 2 | `string?` | — | The hint of the search field. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` | Fires with the ISO 3166 code of the chosen country. |
 
 ### CupertinoActivityIndicator
 
@@ -715,6 +1324,50 @@ ID 91 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `CupertinoButton
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node, required |  |
+
+### CupertinoContextMenu
+
+Shows `actions` when `child` is long-pressed; choosing one fires `onAction` with its index.
+
+ID 158 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `CupertinoContextMenu` · android, ios · cost 40 µs · role menu · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `actions` | 1 | `list<ContextMenuAction>`, required | — | The actions, in order. |
+| `enableHapticFeedback` | 2 | `bool` | `false` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onAction` | 1 | `int` | Fired with the index of the chosen action. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+
+### CupertinoDatePicker
+
+An iOS-style date and time wheel; `onDateTimeChanged` carries the chosen dateTime in the offset of `initialDateTime`.
+
+ID 157 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `CupertinoDatePicker` · android, ios · cost 60 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `mode` | 1 | `CupertinoDatePickerMode` | `"dateAndTime"` |  |
+| `initialDateTime` | 2 | `dateTime` | — |  |
+| `minimumDate` | 3 | `dateTime` | — |  |
+| `maximumDate` | 4 | `dateTime` | — |  |
+| `minimumYear` | 5 | `int` | `1` |  |
+| `maximumYear` | 6 | `int` | — |  |
+| `minuteInterval` | 7 | `int` | `1` |  |
+| `use24hFormat` | 8 | `bool` | `false` |  |
+| `backgroundColor` | 9 | `color` | — |  |
+| `showDayOfWeek` | 10 | `bool` | `false` |  |
+| `showTimeSeparator` | 11 | `bool` | `false` |  |
+| `itemExtent` | 12 | `double` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDateTimeChanged` | 1 | `dateTime` |  |
 
 ### CupertinoListSection
 
@@ -765,6 +1418,53 @@ ID 98 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `CupertinoListTi
 | `additionalInfo` | 3 | one node |  |
 | `leading` | 4 | one node |  |
 | `trailing` | 5 | one node |  |
+
+### CupertinoNavigationBar
+
+An iOS-style navigation bar with `leading`, `middle` and `trailing` slots.
+
+ID 154 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `CupertinoNavigationBar` · android, ios · cost 40 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `automaticallyImplyLeading` | 1 | `bool` | `true` |  |
+| `automaticallyImplyMiddle` | 2 | `bool` | `true` |  |
+| `previousPageTitle` | 3 | `string` | — |  |
+| `backgroundColor` | 4 | `color` | — |  |
+| `automaticBackgroundVisibility` | 5 | `bool` | `true` |  |
+| `enableBackgroundFilterBlur` | 6 | `bool` | `true` |  |
+| `brightness` | 7 | `Brightness` | — |  |
+| `transitionBetweenRoutes` | 8 | `bool` | `true` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `leading` | 1 | one node |  |
+| `middle` | 2 | one node |  |
+| `trailing` | 3 | one node |  |
+
+### CupertinoPicker
+
+An iOS-style scrolling wheel over its children; `selectedIndex` is bound to state and `onSelectedItemChanged` reports the wheel.
+
+ID 156 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `CupertinoPicker` · android, ios · cost 50 µs · role list · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `itemExtent` | 1 | `double`, required | — | The height of each child. |
+| `selectedIndex` | 2 | `int` | `0` | The selected child; the wheel follows it when it changes. |
+| `diameterRatio` | 3 | `double` | — |  |
+| `backgroundColor` | 4 | `color` | — |  |
+| `offAxisFraction` | 5 | `double` | `0.0` |  |
+| `useMagnifier` | 6 | `bool` | `false` |  |
+| `magnification` | 7 | `double` | `1.0` |  |
+| `squeeze` | 8 | `double` | — |  |
+| `looping` | 9 | `bool` | `false` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelectedItemChanged` | 1 | `int` |  |
+
+Takes a list of `children`.
 
 ### CupertinoSlider
 
@@ -843,6 +1543,26 @@ ID 92 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `CupertinoSwitch
 | `onInactiveThumbImageError` | 3 | — |  |
 | `onFocusChange` | 4 | `bool` |  |
 
+### CupertinoTabBar
+
+An iOS-style tab bar; bind `currentIndex` to a state key and `onTap` to the action that changes it.
+
+ID 155 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `CupertinoTabBar` · android, ios · cost 40 µs · role tab · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `items` | 1 | `list<TabBarItem>`, required | — | The tabs, at least two. |
+| `currentIndex` | 2 | `int` | `0` | The selected tab. |
+| `backgroundColor` | 3 | `color` | — |  |
+| `activeColor` | 4 | `color` | — |  |
+| `inactiveColor` | 5 | `color` | — |  |
+| `iconSize` | 6 | `double` | — |  |
+| `height` | 7 | `double` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onTap` | 1 | `int` |  |
+
 ### CupertinoTextField
 
 An iOS-style text input whose text is bound to `value`.
@@ -916,6 +1636,22 @@ ID 96 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `CupertinoTextFi
 | `prefix` | 1 | one node |  |
 | `suffix` | 2 | one node |  |
 
+### CurrencyPicker
+
+A searchable list of currencies named in the locale.
+
+ID 165 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 90 µs · role list · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `string?` | — | The ISO 4217 code selected. |
+| `currencies` | 2 | `list<string>?` | — | The codes offered; every currency of the locale when absent. |
+| `searchHint` | 3 | `string?` | — | The hint of the search field. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` | Fires with the ISO 4217 code of the chosen currency. |
+
 ### CustomScrollView
 
 A scroll view composed of slivers.
@@ -941,6 +1677,61 @@ ID 35 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `CustomScrollVie
 |---|---|---|---|
 | `slivers` | 1 | a list of nodes |  |
 
+### DataScope
+
+Shows one of `loading`, `empty`, `error` or `success` for a data source. Set `source` to derive the state from the named data source: loading and error from its status, empty when its value is null, an empty list or an empty map. An explicit `status` or `isEmpty` overrides what `source` derives. The subtree reads the source as `data.<source>`.
+
+ID 109 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 10 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `status` | 1 | `ListStatus` | `"ready"` | Loading, error or ready; overrides the status derived from `source`. |
+| `isEmpty` | 2 | `bool` | `false` | The source has no content; shows the `empty` slot while ready. Overrides the emptiness derived from `source`. |
+| `source` | 3 | `string` | — | The data source of the page or plugin whose loading, error and empty states the widget shows. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `success` | 1 | one node, required | Shown when the source is ready and not empty. |
+| `loading` | 2 | one node | Shown while `status` is loading. |
+| `empty` | 3 | one node | Shown when `isEmpty` is true. |
+| `error` | 4 | one node | Shown while `status` is error. |
+
+### DataTable
+
+A Material table with headings, sorting and optional row selection (WGT-020).
+
+ID 117 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `DataTable` · android, ios · cost 60 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `columns` | 1 | `list<DataColumn>`, required | — |  |
+| `rows` | 2 | `list<list<string>>`, required | — | One list of cell texts per row, each as long as `columns`; bind it with `$expr`. |
+| `selectedRows` | 3 | `list<int>` | — | Positions of the selected rows. |
+| `sortColumnIndex` | 4 | `int` | — |  |
+| `sortAscending` | 5 | `bool` | `true` |  |
+| `showCheckboxColumn` | 6 | `bool` | `true` | Shows the selection checkboxes when `onSelectChanged` is handled. |
+| `decoration` | 7 | `BoxDecoration` | — |  |
+| `dataRowColor` | 8 | `WidgetStateColor` | — |  |
+| `dataRowMinHeight` | 9 | `double` | — |  |
+| `dataRowMaxHeight` | 10 | `double` | — |  |
+| `dataTextStyle` | 11 | `TextStyle` | — |  |
+| `headingRowColor` | 12 | `WidgetStateColor` | — |  |
+| `headingRowHeight` | 13 | `double` | — |  |
+| `headingTextStyle` | 14 | `TextStyle` | — |  |
+| `horizontalMargin` | 15 | `double` | — |  |
+| `columnSpacing` | 16 | `double` | — |  |
+| `showBottomBorder` | 17 | `bool` | `false` |  |
+| `dividerThickness` | 18 | `double` | — |  |
+| `checkboxHorizontalMargin` | 19 | `double` | — |  |
+| `border` | 20 | `BorderSide` | — |  |
+| `clipBehavior` | 21 | `Clip` | `"none"` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSort` | 1 | `IndexFlag` | Fired when a sortable heading is tapped; `index` is the column, `value` whether the order is ascending. The page stores both and re-sorts `rows`. |
+| `onSelectChanged` | 2 | `IndexFlag` | Fired when a row is selected or deselected; `index` is the row, `value` whether it is selected. |
+| `onSelectAll` | 3 | `bool` |  |
+
 ### DecoratedBox
 
 Paints a decoration behind or in front of its child.
@@ -956,6 +1747,31 @@ ID 18 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `DecoratedBox` �
 |---|---|---|---|
 | `child` | 1 | one node |  |
 
+### Dismissible
+
+Dismisses its child with a swipe and fires `onDismissed` with the direction.
+
+ID 133 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Dismissible` · android, ios · cost 40 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `direction` | 1 | `DismissDirection` | `"horizontal"` |  |
+| `resizeDuration` | 2 | `duration` | `300` |  |
+| `movementDuration` | 3 | `duration` | `200` |  |
+| `crossAxisEndOffset` | 4 | `double` | `0.0` |  |
+| `dragStartBehavior` | 5 | `DragStartBehavior` | `"start"` |  |
+| `behavior` | 6 | `HitTestBehavior` | `"opaque"` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDismissed` | 1 | `DismissDirection` | Fired after the child was dismissed, with the direction it went. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+| `background` | 2 | one node | Shown behind the child while it is swiped. |
+| `secondaryBackground` | 3 | one node | Shown behind the child when it is swiped in the secondary direction; needs `background`. |
+
 ### Divider
 
 A thin horizontal line with padding on either side.
@@ -970,6 +1786,78 @@ ID 52 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Divider` · and
 | `endIndent` | 4 | `double` | — | Must be at least 0. |
 | `color` | 5 | `color` | — |  |
 | `radius` | 6 | `BorderRadius` | — |  |
+
+### DragTarget
+
+Accepts a `Draggable`'s payload dropped on it; its child is highlighted while a candidate hovers.
+
+ID 135 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `DragTarget` · android, ios · cost 30 µs · role none · interactive · type parameters T
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `accepts` | 1 | `T` | — | When set, only a `Draggable` whose `data` equals it is accepted. |
+| `highlightColor` | 2 | `color` | — | Tints the child while an acceptable candidate hovers over it. |
+| `hitTestBehavior` | 3 | `HitTestBehavior` | `"translucent"` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onAccept` | 1 | `T` | Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload. |
+| `onLeave` | 2 | — | Fired when a candidate leaves without being dropped. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required | The content; it is highlighted while a candidate hovers. |
+
+### Draggable
+
+Lets the user drag its child, carrying a typed `data` payload to a `DragTarget`.
+
+ID 134 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Draggable` · android, ios · cost 40 µs · role none · interactive · type parameters T
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `data` | 1 | `T` | — | The payload a `DragTarget` receives when the child is dropped on it. |
+| `axis` | 2 | `Axis` | — | Restricts the drag to one axis. |
+| `feedbackOffset` | 3 | `Offset` | — |  |
+| `maxSimultaneousDrags` | 4 | `int` | — |  |
+| `ignoringFeedbackSemantics` | 5 | `bool` | `true` |  |
+| `ignoringFeedbackPointer` | 6 | `bool` | `true` |  |
+| `rootOverlay` | 7 | `bool` | `false` |  |
+| `hitTestBehavior` | 8 | `HitTestBehavior` | `"deferToChild"` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDragStarted` | 1 | — |  |
+| `onDragEnd` | 2 | `bool` | Fired when the drag ends; the payload tells whether a target accepted it. |
+| `onDragCompleted` | 3 | — | Fired when a target accepted the drop. |
+| `onDraggableCanceled` | 4 | — | Fired when no target accepted the drop. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+| `feedback` | 2 | one node, required | Shown under the finger while dragging. |
+| `childWhenDragging` | 3 | one node | Shown in place of the child while it is dragged. |
+
+### Drawer
+
+A panel that slides in from the edge; fill `Scaffold.drawer` or `Scaffold.endDrawer` with it.
+
+ID 130 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `Drawer` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `backgroundColor` | 1 | `color` | — |  |
+| `elevation` | 2 | `double` | — |  |
+| `shadowColor` | 3 | `color` | — |  |
+| `surfaceTintColor` | 4 | `color` | — |  |
+| `shape` | 5 | `ShapeBorder` | — |  |
+| `width` | 6 | `double` | — |  |
+| `semanticLabel` | 7 | `string` | — |  |
+| `clipBehavior` | 8 | `Clip` | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
 
 ### DropdownMenu
 
@@ -1013,6 +1901,24 @@ ID 76 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `DropdownMenu` �
 | `trailingIcon` | 2 | one node |  |
 | `label` | 3 | one node |  |
 | `selectedTrailingIcon` | 4 | one node |  |
+
+### DualCalendarDatePicker
+
+A month grid in one calendar with the day numbers of a second calendar beside them; Gregorian beside Hijri, Ethiopic or Persian (I18N-003).
+
+ID 207 · Layer 2 · P8 · revision 1 (runtime 0.5.0) · android, ios · cost 120 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `date?` | — | The selected date. |
+| `firstDate` | 2 | `date?` | — | The earliest date that can be chosen; the start of 1900 when absent. |
+| `lastDate` | 3 | `date?` | — | The latest date that can be chosen; the end of 2100 when absent. |
+| `calendar` | 4 | `CalendarSystem?` | — | The calendar of the grid; the app's `localisation.calendar` when absent. |
+| `secondaryCalendar` | 5 | `CalendarSystem?` | — | The calendar of the small day numbers; the app's `localisation.secondaryCalendar` when absent, and none if that is absent too. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `date` | Fires with the date chosen. |
 
 ### ElevatedButton
 
@@ -1132,6 +2038,42 @@ ID 56 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `ExpansionTile` 
 | `trailing` | 4 | one node |  |
 | `children` | 5 | a list of nodes | The content shown when expanded. |
 
+### FadeTransition
+
+Fades its child by a track of a page timeline.
+
+ID 150 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `FadeTransition` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `timeline` | 1 | `string`, required | — | The name of a timeline of the page. |
+| `track` | 2 | `int` | `0` | The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value. Must be at least 0. |
+| `alwaysIncludeSemantics` | 3 | `bool` | `false` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
+### FileUploader
+
+Pick a file, preview it and upload it with progress. Picking needs `plux_media`; without it the control is disabled and PLX-5401 is reported. The upload is a transfer operation of a data source.
+
+ID 190 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 140 µs · role button · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `dataSource` | 1 | `string`, required | — | The data source holding the upload operation. |
+| `operation` | 2 | `string`, required | — | The upload operation of the data source. |
+| `accept` | 3 | `list<string>` | — | Accepted media types; any when empty. |
+| `maxBytes` | 4 | `int?` | — | The largest file in bytes. Must be at least 1. |
+| `label` | 5 | `string` | `"Choose file"` | The pick button's label. |
+| `uploadLabel` | 6 | `string` | `"Upload"` | The upload button's label. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onUploaded` | 1 | `FileUploadResult` | Fires with the upload result when the upload succeeds. |
+| `onFailed` | 2 | `FileUploadError` | Fires with the error when picking or uploading fails. |
+
 ### FilledButton
 
 A Material filled button; `tonal` selects the filled-tonal style.
@@ -1154,6 +2096,20 @@ ID 79 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `FilledButton`, 
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node |  |
+
+### FilterBar
+
+A horizontally scrolling row of filter chips.
+
+ID 173 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 90 µs · role list · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `filters` | 1 | `list<ChoiceItem>`, required | — | The chips. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onToggle` | 1 | `ChoiceItem` | Fires with the chip's `id`, `label` and its new `selected` when the person taps it. |
 
 ### FilterChip
 
@@ -1459,6 +2415,39 @@ ID 37 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `GridView.builde
 | `loading` | 3 | one node | Shown while `status` is loading. |
 | `error` | 4 | one node | Shown while `status` is error. |
 
+### Hero
+
+Marks its child as a shared element that flies between pages with the same `tag`.
+
+ID 137 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Hero` · android, ios · cost 15 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `tag` | 1 | `string`, required | — | The shared tag; the same strings as the node-level `hero` (ANI-004). |
+| `transitionOnUserGestures` | 2 | `bool` | `false` |  |
+| `curve` | 3 | `Curve` | `"fastOutSlowIn"` |  |
+| `reverseCurve` | 4 | `Curve` | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+
+### IbanInput
+
+An IBAN entry shown in groups of four, with the mod-97 check.
+
+ID 163 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 80 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string?` | — | The field's label. |
+| `value` | 2 | `string?` | — | The IBAN without spaces. |
+| `invalidMessage` | 3 | `string?` | — | The error shown for an invalid IBAN. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `string` | Fires with the IBAN without spaces when it is valid, and with an empty string when it is not. |
+
 ### Icon
 
 An icon from the Material or Cupertino icon set.
@@ -1564,6 +2553,23 @@ ID 50 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Image.asset`, `
 | `loading` | 1 | one node | Shown while a network image loads. |
 | `error` | 2 | one node | Shown when the image fails to load. |
 
+### ImageGallery
+
+Swipeable images, each pinch-zoomable, with page indicators.
+
+ID 189 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 120 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `images` | 1 | `list<ImageSource>`, required | — | The images. |
+| `initialPage` | 2 | `int` | `0` | The index first shown. Must be at least 0. |
+| `indicators` | 3 | `bool` | `true` | Shows page indicators. |
+| `semanticLabel` | 4 | `string?` | — | The label screen readers announce for the gallery. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onPageChanged` | 1 | `int` | Fires with the index of the image shown. |
+
 ### IndexedStack
 
 Shows the child at `index` from a stack of children.
@@ -1579,6 +2585,30 @@ ID 29 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `IndexedStack` �
 | `index` | 5 | `int` | `0` | Must be at least 0. |
 
 Takes a list of `children`.
+
+### InfiniteList
+
+A lazily built, paginated list of `item` templates over `items`, with empty, loading and error states (WGT-012).
+
+ID 175 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 50 µs · role list · type parameters T
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `items` | 1 | `list<T>`, required | — | The items loaded so far; the template repeats over them as `item` and `index`. |
+| `status` | 2 | `ListStatus` | `"ready"` | Loading, error or ready; selects the `loading` or `error` slot. |
+| `hasMore` | 3 | `bool` | `false` | More items can be loaded; `onEndReached` fires near the end. |
+| `padding` | 4 | `EdgeInsets` | — | Space around the items. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEndReached` | 1 | — | Fires once when the last item comes into view and `hasMore` is true. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `item` | 1 | an item template, required | The template built for each item, lazily. |
+| `empty` | 2 | one node | Shown when `items` is empty. |
+| `loading` | 3 | one node | Shown while `status` is loading. |
+| `error` | 4 | one node | Shown while `status` is error. |
 
 ### InkWell
 
@@ -1672,6 +2702,36 @@ ID 58 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `InputChip` · a
 | `label` | 2 | one node, required |  |
 | `deleteIcon` | 3 | one node |  |
 
+### InteractiveViewer
+
+Pans and zooms its child with gestures.
+
+ID 136 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `InteractiveViewer` · android, ios · cost 40 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `clipBehavior` | 1 | `Clip` | `"hardEdge"` |  |
+| `panAxis` | 2 | `PanAxis` | `"free"` |  |
+| `boundaryMargin` | 3 | `EdgeInsets` | — |  |
+| `constrained` | 4 | `bool` | `true` |  |
+| `maxScale` | 5 | `double` | `2.5` |  |
+| `minScale` | 6 | `double` | `0.8` |  |
+| `interactionEndFrictionCoefficient` | 7 | `double` | `1.35e-05` |  |
+| `panEnabled` | 8 | `bool` | `true` |  |
+| `scaleEnabled` | 9 | `bool` | `true` |  |
+| `scaleFactor` | 10 | `double` | `200.0` |  |
+| `alignment` | 11 | `Alignment` | — |  |
+| `trackpadScrollCausesScale` | 12 | `bool` | `false` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onInteractionStart` | 1 | — |  |
+| `onInteractionEnd` | 2 | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+
 ### KycCameraCapture
 
 ID document and selfie capture with framing guides and quality checks. Ships in `plux_media`.
@@ -1700,6 +2760,20 @@ ID 12 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `LimitedBox` · 
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node |  |
+
+### LineChart
+
+A line per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table.
+
+ID 193 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 400 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `series` | 1 | `list<ChartSeries>`, required | — | The series; they share the labels. |
+| `labels` | 2 | `list<string>?` | — | The label of each position along the horizontal axis. |
+| `title` | 3 | `string?` | — | A heading above the chart, also its spoken name. |
+| `summaryTemplate` | 4 | `string` | `"{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}"` | What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced. |
+| `showTable` | 5 | `bool` | `false` | Whether a table of the values is shown below the chart. |
 
 ### LinearProgressIndicator
 
@@ -1807,6 +2881,101 @@ ID 36 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `ListView.builde
 | `loading` | 4 | one node | Shown while `status` is loading. |
 | `error` | 5 | one node | Shown while `status` is error. |
 
+### LiveEtaCard
+
+A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced.
+
+ID 181 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `title` | 1 | `string?` | — | The headline, such as the order or ride. |
+| `etaMinutes` | 2 | `int?` | — | Minutes until arrival; bind it to a stream data source value. Must be at least 0. |
+| `status` | 3 | `string?` | — | The current status text, such as `On the way`. |
+| `minutesLabel` | 4 | `string` | `"min"` | The unit shown after the minutes. |
+| `icon` | 5 | `IconData?` | — | A leading icon. |
+
+### LottieView
+
+A Lottie or dotLottie animation from an https address, controlled by props (ANI-005).
+
+ID 205 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 1200 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `url` | 1 | `string`, required | — | The https address of the `.json` or `.lottie` file. Must be matches `^https://`. |
+| `animate` | 2 | `bool` | `true` | Whether it plays. |
+| `repeat` | 3 | `bool` | `true` | Whether it plays again when it ends. |
+| `reverse` | 4 | `bool` | `false` | Whether every second play runs backwards. |
+| `progress` | 5 | `double?` | — | The frame to show, 0 to 1; when set it does not play. Must be at least 0 and at most 1. |
+| `fit` | 6 | `string` | `"contain"` | How it fits its box, a `BoxFit` name. |
+| `width` | 7 | `double?` | — | The width, or the animation's own. |
+| `height` | 8 | `double?` | — | The height, or the animation's own. |
+| `reduceMotion` | 9 | `string` | `"skip"` | What it does under reduce motion: `skip` shows the last frame, `shorten` plays four times as fast, `ignore` plays as declared. Must be matches `^(skip\|shorten\|ignore)$`. |
+| `semanticLabel` | 10 | `string?` | — | What the animation shows; without one it is hidden from screen readers. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onCompleted` | 1 | — | Fires when an animation that does not repeat ends. |
+
+### MapView
+
+A map with markers and lines. Tiles come from `tileUrlTemplate`, fetched over HTTPS from a domain the plugin declares (SEC-080); the Google package ignores the template and uses the host's API key. Showing the user's location needs the `location` device API and its permission. Each marker is a semantics node with its title.
+
+ID 197 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 900 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `semanticLabel` | 1 | `string`, required | — | What the map shows, spoken before its markers. |
+| `center` | 2 | `LatLng`, required | — | The map centre. |
+| `zoom` | 3 | `double` | `13.0` | The zoom level. |
+| `minZoom` | 4 | `double` | `2.0` | The lowest zoom level. |
+| `maxZoom` | 5 | `double` | `19.0` | The highest zoom level. |
+| `markers` | 6 | `list<MapMarker>` | `[]` | The markers. |
+| `polylines` | 7 | `list<MapPolyline>` | `[]` | The lines. |
+| `tileUrlTemplate` | 8 | `string?` | — | The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain. Without it no tiles are drawn. |
+| `attribution` | 9 | `string?` | — | The tile provider's attribution, always shown; required when `tileUrlTemplate` is set. |
+| `showUserLocation` | 10 | `bool` | `false` | Show the user's position; needs the `location` device API. |
+| `interactive` | 11 | `bool` | `true` | Whether the user can pan and zoom. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onMarkerTap` | 1 | `string` | A marker was tapped; the payload is its `id`. |
+| `onMapTap` | 2 | `LatLng` | The map was tapped away from a marker; the payload is the position. |
+| `onCameraIdle` | 3 | `MapCamera` | The camera stopped moving; the payload is its centre and zoom. |
+
+### MarkdownView
+
+Formatted text from Markdown: headings, paragraphs, emphasis, lists, quotes, code and links. Raw HTML is shown as text; images are bundle assets.
+
+ID 192 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 500 µs · role text
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `source` | 1 | `string`, required | — | The Markdown text. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onLink` | 1 | `string` | Fires with the address of a tapped link; wire it to the `openUrl` action. The widget never opens a link itself. |
+
+### MaskedText
+
+A sensitive number with all but its last digits hidden; the hidden digits never reach screen readers.
+
+ID 161 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 50 µs · role text · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `string`, required | — | The full value. |
+| `mask` | 2 | `MaskKind` | `"card"` | How the value is hidden. |
+| `visibleDigits` | 3 | `int` | `4` | How many trailing digits stay visible. |
+| `revealable` | 4 | `bool` | `false` | A button shows the whole value. |
+| `revealLabel` | 5 | `string?` | — | The label of the reveal button. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onReveal` | 1 | — | Fires when the person reveals the value. |
+
 ### Match
 
 Renders the branch whose case equals `value`, or `otherwise`. `cases[i]` selects `branches[i]`.
@@ -1823,6 +2992,178 @@ ID 2 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · android, ios · cost 3 µ
 | `branches` | 1 | a list of nodes, required | One subtree per case, in the order of `cases`. |
 | `otherwise` | 2 | one node | Rendered when no case matches. |
 
+### MaterialBanner
+
+A banner with a message, an optional leading widget and actions (WGT-020).
+
+ID 119 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `MaterialBanner` · android, ios · cost 20 µs · role alert
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `contentTextStyle` | 1 | `TextStyle` | — |  |
+| `elevation` | 2 | `double` | — |  |
+| `backgroundColor` | 3 | `color` | — |  |
+| `surfaceTintColor` | 4 | `color` | — |  |
+| `shadowColor` | 5 | `color` | — |  |
+| `dividerColor` | 6 | `color` | — |  |
+| `padding` | 7 | `EdgeInsets` | — |  |
+| `margin` | 8 | `EdgeInsets` | — |  |
+| `leadingPadding` | 9 | `EdgeInsets` | — |  |
+| `forceActionsBelow` | 10 | `bool` | `false` |  |
+| `overflowAlignment` | 11 | `OverflowBarAlignment` | `"end"` |  |
+| `minActionBarHeight` | 12 | `double` | `52.0` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onVisible` | 1 | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `content` | 1 | one node, required |  |
+| `leading` | 2 | one node |  |
+| `actions` | 3 | a list of nodes, required |  |
+
+### MenuAnchor
+
+Opens a menu of `items` from its anchor `child`; choosing one fires `onSelected` with its value.
+
+ID 121 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `MenuAnchor` · android, ios · cost 20 µs · role menu · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `items` | 1 | `list<MenuItem>`, required | — | The menu entries. |
+| `consumeOutsideTap` | 2 | `bool` | `false` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` |  |
+| `onOpen` | 2 | — |  |
+| `onClose` | 3 | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node | The anchor the menu opens from; tapping it toggles the menu. |
+
+### MoneyText
+
+An amount written for the locale and currency, read aloud with the currency's name.
+
+ID 160 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 40 µs · role text
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `money`, required | — | The amount. |
+| `display` | 2 | `MoneyDisplay` | `"symbol"` | How the currency is written. |
+| `signDisplay` | 3 | `SignDisplay` | `"auto"` | When a sign is shown. |
+| `style` | 4 | `TextStyle?` | — | The text style. |
+
+### NativeSlot
+
+Places a host-app native slot, named by the literal `name`, with the props and events that slot declares. Equivalent to a node whose `type` is that name.
+
+ID 110 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · android, ios · cost 10 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `name` | 1 | `string`, required | — | The native slot name from the host catalogue; a literal. |
+
+### NavigationBar
+
+A bar of destinations along the bottom; choosing one fires `onDestinationSelected` with its index.
+
+ID 128 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `NavigationBar` · android, ios · cost 20 µs · role tab · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `destinations` | 1 | `list<Destination>`, required | — |  |
+| `selectedIndex` | 2 | `int` | `0` |  |
+| `backgroundColor` | 3 | `color` | — |  |
+| `elevation` | 4 | `double` | — |  |
+| `shadowColor` | 5 | `color` | — |  |
+| `surfaceTintColor` | 6 | `color` | — |  |
+| `indicatorColor` | 7 | `color` | — |  |
+| `height` | 8 | `double` | — |  |
+| `labelBehavior` | 9 | `NavigationDestinationLabelBehavior` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDestinationSelected` | 1 | `int` |  |
+
+### NavigationDrawer
+
+A drawer of destinations; choosing one fires `onDestinationSelected` with its index.
+
+ID 131 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `NavigationDrawer` · android, ios · cost 20 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `destinations` | 1 | `list<Destination>`, required | — |  |
+| `selectedIndex` | 2 | `int` | `0` |  |
+| `backgroundColor` | 3 | `color` | — |  |
+| `shadowColor` | 4 | `color` | — |  |
+| `surfaceTintColor` | 5 | `color` | — |  |
+| `elevation` | 6 | `double` | — |  |
+| `indicatorColor` | 7 | `color` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDestinationSelected` | 1 | `int` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `header` | 1 | one node |  |
+| `footer` | 2 | one node |  |
+
+### NavigationRail
+
+A column of destinations along the side; choosing one fires `onDestinationSelected` with its index.
+
+ID 132 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `NavigationRail` · android, ios · cost 20 µs · role tab · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `destinations` | 1 | `list<Destination>`, required | — |  |
+| `selectedIndex` | 2 | `int` | `0` |  |
+| `extended` | 3 | `bool` | `false` | Shows the labels beside the icons; `labelType` then reads as none. |
+| `labelType` | 4 | `NavigationRailLabelType` | — |  |
+| `backgroundColor` | 5 | `color` | — |  |
+| `elevation` | 6 | `double` | — |  |
+| `groupAlignment` | 7 | `double` | — |  |
+| `minWidth` | 8 | `double` | — |  |
+| `minExtendedWidth` | 9 | `double` | — |  |
+| `useIndicator` | 10 | `bool` | — |  |
+| `indicatorColor` | 11 | `color` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDestinationSelected` | 1 | `int` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `leading` | 1 | one node |  |
+| `trailing` | 2 | one node |  |
+
+### NestedScrollView
+
+A scroll view whose `headerSlivers` scroll together with a scrollable `body` (WGT-020).
+
+ID 115 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `NestedScrollView` · android, ios · cost 40 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `scrollDirection` | 1 | `Axis` | `"vertical"` |  |
+| `reverse` | 2 | `bool` | `false` |  |
+| `physics` | 3 | `ScrollPhysics` | — |  |
+| `dragStartBehavior` | 4 | `DragStartBehavior` | `"start"` |  |
+| `floatHeaderSlivers` | 5 | `bool` | `false` |  |
+| `clipBehavior` | 6 | `Clip` | `"hardEdge"` |  |
+| `hitTestBehavior` | 7 | `HitTestBehavior` | `"opaque"` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `headerSlivers` | 1 | a list of nodes | The slivers above the body, such as a `SliverAppBar`. |
+| `body` | 2 | one node, required | The scrollable body, such as a `ListView`. |
+
 ### OfflineBanner
 
 A banner shown while the device is offline.
@@ -1833,6 +3174,25 @@ ID 102 · Layer 2 · P3 · revision 1 (runtime 0.1.0) · android, ios · cost 15
 |---|---|---|---|---|
 | `message` | 1 | `string`, required | — | The text shown while offline. |
 | `visible` | 2 | `bool` | `true` | Whether the banner can show: while true it shows whenever the device is offline; false hides it. |
+
+### OnboardingPager
+
+Swipeable onboarding pages with page indicators and a Done button on the last page.
+
+ID 177 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 140 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `currentPage` | 1 | `int` | `0` | The zero-based page shown. Must be at least 0. |
+| `nextLabel` | 2 | `string` | `"Next"` | The Next button's text. |
+| `doneLabel` | 3 | `string` | `"Done"` | The Done button's text, on the last page. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onPageChanged` | 1 | `int` | Fires with the page now shown. |
+| `onDone` | 2 | — | Fires when the person finishes the last page. |
+
+Takes a list of `children` (at least 1).
 
 ### Opacity
 
@@ -1848,6 +3208,27 @@ ID 22 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Opacity` · and
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node |  |
+
+### OrderTrackerMap
+
+A map of a delivery: origin, destination, route and a courier marker that glides between position updates. Tiles come from `tileUrlTemplate` as in `MapView`.
+
+ID 198 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 1000 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `semanticLabel` | 1 | `string`, required | — | What the map shows, spoken before its markers. |
+| `origin` | 2 | `LatLng`, required | — | Where the order starts. |
+| `destination` | 3 | `LatLng`, required | — | Where the order goes. |
+| `courier` | 4 | `LatLng?` | — | The courier's position; bindable, the marker animates to each new value. |
+| `route` | 5 | `list<LatLng>` | `[]` | The route, in order. |
+| `etaLabel` | 6 | `string?` | — | The arrival estimate, shown over the map and spoken. |
+| `follow` | 7 | `bool` | `true` | Keep the courier in view. |
+| `tileUrlTemplate` | 8 | `string?` | — | The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain. |
+| `attribution` | 9 | `string?` | — | The tile provider's attribution, always shown; required when `tileUrlTemplate` is set. |
+| `originLabel` | 10 | `string?` | — | The origin marker's name for screen readers; the marker is silent without it. |
+| `destinationLabel` | 11 | `string?` | — | The destination marker's name for screen readers; the marker is silent without it. |
+| `courierLabel` | 12 | `string?` | — | The courier marker's name for screen readers; the marker is silent without it. |
 
 ### OtpInput
 
@@ -1935,6 +3316,84 @@ ID 38 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `PageView.builde
 | `loading` | 3 | one node | Shown while `status` is loading. |
 | `error` | 4 | one node | Shown while `status` is error. |
 
+### PaymentCard
+
+A payment card: brand, masked number, expiry and holder; flipping shows the back.
+
+ID 170 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 90 µs · role button · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `brand` | 1 | `CardBrand` | `"other"` | The card network. |
+| `maskedNumber` | 2 | `string`, required | — | The card number, masked. |
+| `expiry` | 3 | `string`, required | — | The expiry, as printed. |
+| `holder` | 4 | `string`, required | — | The holder's name. |
+| `flipped` | 5 | `bool` | `false` | Whether the back is shown. |
+| `backLabel` | 6 | `string?` | — | The text on the back. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onFlip` | 1 | `bool` | Fires with the side the person asked for. |
+
+### PhoneInput
+
+A phone number entry in E.164 with a country picker and validation.
+
+ID 162 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 100 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string?` | — | The field's label. |
+| `value` | 2 | `string?` | — | The number in E.164 form. |
+| `region` | 3 | `string?` | — | The default ISO 3166 region; the locale's region when absent. |
+| `invalidMessage` | 4 | `string?` | — | The error shown for an invalid number. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `string` | Fires with the E.164 number when it is valid, and with an empty string when it is not. |
+
+### PieChart
+
+A pie of labelled slices. Screen readers get a text summary per slice, and `showTable` adds a data table.
+
+ID 195 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 400 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `slices` | 1 | `list<PieSlice>`, required | — | The slices. |
+| `title` | 2 | `string?` | — | A heading above the chart, also its spoken name. |
+| `summaryTemplate` | 3 | `string` | `"{label}: {value}, {percent} percent"` | What a screen reader hears for each slice; `{label}`, `{value}` and `{percent}` are replaced. |
+| `showTable` | 4 | `bool` | `false` | Whether a table of the values is shown below the chart. |
+
+### PopupMenuButton
+
+A button that opens a menu of `items`; choosing one fires `onSelected` with its value.
+
+ID 120 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `PopupMenuButton` · android, ios · cost 20 µs · role menu · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `items` | 1 | `list<MenuItem>`, required | — | The menu entries. |
+| `initialValue` | 2 | `string` | — | The value of the entry shown as selected. |
+| `tooltip` | 3 | `string` | — |  |
+| `enabled` | 4 | `bool` | `true` |  |
+| `elevation` | 5 | `double` | — |  |
+| `color` | 6 | `color` | — |  |
+| `shadowColor` | 7 | `color` | — |  |
+| `surfaceTintColor` | 8 | `color` | — |  |
+| `iconSize` | 9 | `double` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` |  |
+| `onCanceled` | 2 | — |  |
+| `onOpened` | 3 | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+| `icon` | 2 | one node |  |
+
 ### Positioned
 
 Positions its child inside a Stack.
@@ -1953,6 +3412,128 @@ ID 28 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Positioned` · 
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node, required |  |
+
+### PriceTag
+
+A price, with the original price struck through and announced as the former price.
+
+ID 166 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 40 µs · role text
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `price` | 1 | `money`, required | — | The current price. |
+| `originalPrice` | 2 | `money?` | — | The price before a reduction. |
+| `wasLabel` | 3 | `string?` | — | What screen readers say before the original price. |
+
+### ProductCard
+
+A product tile: image, title, price, an optional struck-through original price and badge, and an add-to-cart button. Prices arrive as formatted strings.
+
+ID 182 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 120 µs · role button · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | 1 | `ImageSource?` | — | The product image. |
+| `title` | 2 | `string`, required | — | The product name. |
+| `price` | 3 | `string`, required | — | The formatted price. |
+| `originalPrice` | 4 | `string?` | — | The formatted price before a discount, shown struck through. |
+| `badge` | 5 | `string?` | — | A short badge such as `New` or `-20%`. |
+| `addToCartLabel` | 6 | `string` | `"Add to cart"` | The label of the add-to-cart button. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onTap` | 1 | — | Fires when the card is tapped. |
+| `onAddToCart` | 2 | — | Fires when the add-to-cart button is pressed. The button shows only when this is handled. |
+
+### ProfileHeader
+
+A person's avatar, name and subtitle with an actions row.
+
+ID 179 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 50 µs · role header
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `name` | 1 | `string`, required | — | The person's name. |
+| `subtitle` | 2 | `string?` | — | A line below the name. |
+| `avatar` | 3 | `ImageSource?` | — | The avatar image; the name's initial shows when absent or failing. |
+| `radius` | 4 | `double` | `32.0` | The avatar's radius. Must be at least 8. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `actions` | 1 | one node | Buttons below the name. |
+
+### PromoBanner
+
+A campaign banner: image, title, subtitle, a call to action and, when `endsAt` is set, a countdown.
+
+ID 185 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 110 µs · role button · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `title` | 1 | `string`, required | — | The headline. |
+| `subtitle` | 2 | `string?` | — | A line below the title. |
+| `image` | 3 | `ImageSource?` | — | A background image. |
+| `ctaLabel` | 4 | `string?` | — | The label of the call to action. |
+| `endsAt` | 5 | `dateTime?` | — | When the offer ends; shows a countdown. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onTap` | 1 | — | Fires when the banner or its call to action is tapped. |
+
+### QrCodeView
+
+Draws a QR code for a text, offline. Ships in `plux_scanner`.
+
+ID 201 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 200 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `data` | 1 | `string`, required | — | The text the code holds. It can be sensitive; it is drawn on the device and never sent. |
+| `size` | 2 | `double` | `200.0` | The side of the square, in logical pixels. Must be at least 16. |
+| `errorCorrection` | 3 | `QrErrorCorrection` | `"medium"` | How much damage the code survives; higher levels make a denser code. |
+| `foreground` | 4 | `color?` | — | The colour of the modules; black when absent. |
+| `background` | 5 | `color?` | — | The colour behind the modules; white when absent. |
+| `quietZone` | 6 | `int` | `4` | The empty border around the modules, in modules; scanners need four. Must be at least 0 and at most 16. |
+| `semanticLabel` | 7 | `string`, required | — | What a screen reader announces for the code. It describes what the code is for, never the data it holds. |
+
+### QrScanner
+
+A live camera preview that reads QR codes. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`.
+
+ID 199 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 400 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `torch` | 1 | `bool` | `false` | Whether the torch is on. |
+| `cameraFacing` | 2 | `CameraFacing` | `"back"` | Which camera to open. |
+| `scanWindow` | 3 | `list<double>?` | — | The part of the preview that is read, as four fractions of the preview: left, top, width, height. The whole preview when absent. |
+| `continuous` | 4 | `bool` | `false` | Whether the scanner keeps reading after the first code; otherwise it reports once and stops. |
+| `overlayHint` | 5 | `string?` | — | A line of text under the viewfinder, such as "Point the camera at the code". |
+| `semanticLabel` | 6 | `string?` | — | What a screen reader announces for the scanner; the read value is announced when a code is detected. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onDetected` | 1 | `ScanResult` | Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label. |
+| `onError` | 2 | `string` | Fires with an error code when the camera is denied, missing or fails. |
+
+### QuantityStepper
+
+A decrease button, the quantity and an increase button; screen readers adjust it with increase and decrease actions.
+
+ID 183 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60 µs · role slider · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `int` | `1` | The current quantity. |
+| `min` | 2 | `int` | `0` | The smallest quantity. |
+| `max` | 3 | `int` | `99` | The largest quantity. |
+| `step` | 4 | `int` | `1` | The change per press. Must be at least 1. |
+| `decreaseLabel` | 5 | `string` | `"Decrease"` | The accessibility label of the decrease button. |
+| `increaseLabel` | 6 | `string` | `"Increase"` | The accessibility label of the increase button. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `int` | Fires with the new quantity. |
 
 ### Radio
 
@@ -2061,6 +3642,99 @@ ID 75 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `RangeSlider` ·
 | `onChangeStart` | 2 | `RangeValues` |  |
 | `onChangeEnd` | 3 | `RangeValues` |  |
 
+### RatingBar
+
+A read-only row of stars; screen readers read `3.5 of 5`.
+
+ID 187 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 40 µs · role text
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `double`, required | — | The rating. Must be at least 0. |
+| `max` | 2 | `int` | `5` | The number of stars. Must be at least 1 and at most 10. |
+| `ofLabel` | 3 | `string` | `"of"` | The word between value and maximum in the spoken value. |
+| `semanticLabel` | 4 | `string?` | — | What is rated, spoken before the value. |
+
+### RatingInput
+
+Stars the user taps to rate; each star is a button.
+
+ID 188 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `int` | `0` | The current rating, 0 for none. Must be at least 0. |
+| `max` | 2 | `int` | `5` | The number of stars. Must be at least 1 and at most 10. |
+| `starLabel` | 3 | `string` | `"star"` | The noun in each star's label, such as `star`. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `int` | Fires with the rating chosen. |
+
+### RefreshIndicator
+
+Pull-to-refresh over a scrollable child; `onRefresh` runs its handlers (WGT-020).
+
+ID 113 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `RefreshIndicator` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `displacement` | 1 | `double` | `40.0` |  |
+| `edgeOffset` | 2 | `double` | `0.0` |  |
+| `color` | 3 | `color` | — |  |
+| `backgroundColor` | 4 | `color` | — |  |
+| `semanticsLabel` | 5 | `string` | — |  |
+| `semanticsValue` | 6 | `string` | — |  |
+| `strokeWidth` | 7 | `double` | — |  |
+| `triggerMode` | 8 | `RefreshIndicatorTriggerMode` | `"onEdge"` |  |
+| `elevation` | 9 | `double` | `2.0` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onRefresh` | 1 | — | Fired when the user pulls to refresh. The indicator hides when the handlers have been started. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required |  |
+
+### ReorderableListView
+
+A list whose `item` templates the user can drag into a new order; the page updates its list on `onReorder` (WGT-012).
+
+ID 114 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `ReorderableListView.builder` · android, ios · cost 40 µs · role list · interactive · type parameters T
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `items` | 1 | `list<T>`, required | — | The list the template repeats over; bind it with `$expr`. The item is available as `item`, its position as `index`. |
+| `scrollDirection` | 2 | `Axis` | `"vertical"` |  |
+| `reverse` | 3 | `bool` | `false` |  |
+| `physics` | 4 | `ScrollPhysics` | — |  |
+| `shrinkWrap` | 5 | `bool` | `false` |  |
+| `padding` | 6 | `EdgeInsets` | — |  |
+| `buildDefaultDragHandles` | 7 | `bool` | `true` |  |
+| `itemExtent` | 8 | `double` | — |  |
+| `anchor` | 9 | `double` | `0.0` |  |
+| `dragStartBehavior` | 11 | `DragStartBehavior` | `"start"` |  |
+| `keyboardDismissBehavior` | 12 | `ScrollViewKeyboardDismissBehavior` | — |  |
+| `clipBehavior` | 13 | `Clip` | `"hardEdge"` |  |
+| `autoScrollerVelocityScalar` | 14 | `double` | — |  |
+| `status` | 15 | `ListStatus` | `"ready"` | Loading, error or ready; selects the `loading` or `error` slot (WGT-012). |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onReorder` | 1 | `map<string,int>` | Fired when an item is dropped; the payload holds `oldIndex` and `newIndex`, the final position of the item. The page moves the item in its list. |
+| `onReorderStart` | 2 | `int` |  |
+| `onReorderEnd` | 3 | `int` |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `item` | 1 | an item template, required | The template built for each item, lazily. |
+| `header` | 2 | one node |  |
+| `footer` | 3 | one node |  |
+| `empty` | 4 | one node | Shown when `items` is empty. |
+| `loading` | 5 | one node | Shown while `status` is loading. |
+| `error` | 6 | one node | Shown while `status` is error. |
+
 ### Responsive
 
 Renders a different subtree per window-size class: `compact`, `medium` (600–839 dp) and `expanded` (≥ 840 dp).
@@ -2093,6 +3767,46 @@ ID 47 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Text.rich` · a
 | `semanticsIdentifier` | 10 | `string` | — |  |
 | `textWidthBasis` | 11 | `TextWidthBasis` | — |  |
 | `selectionColor` | 12 | `color` | — |  |
+
+### RiveView
+
+A Rive file from an https address whose state machine inputs follow Plux state (ANI-005).
+
+ID 206 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 1500 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `url` | 1 | `string`, required | — | The https address of the `.riv` file. Must be matches `^https://`. |
+| `artboard` | 2 | `string?` | — | The artboard to show, or the file's default. |
+| `stateMachine` | 3 | `string?` | — | The state machine to run, or the artboard's default. |
+| `inputs` | 4 | `map<string,double>?` | — | Number inputs of the state machine by name. |
+| `flags` | 5 | `map<string,bool>?` | — | Boolean inputs of the state machine by name. |
+| `triggers` | 6 | `map<string,double>?` | — | Triggers by name; each fires whenever its value changes. |
+| `fit` | 7 | `string` | `"contain"` | How it fits its box, a Rive `Fit` name. |
+| `reduceMotion` | 8 | `string` | `"skip"` | `skip` freezes the animation under reduce motion, `ignore` keeps it playing. Must be matches `^(skip\|ignore)$`. |
+| `semanticLabel` | 9 | `string?` | — | What the animation shows; without one it is hidden from screen readers. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onLoaded` | 1 | — | Fires when the file is loaded. |
+| `onFailed` | 2 | — | Fires when the file cannot be loaded. |
+
+### RotationTransition
+
+Rotates its child by a track of a page timeline, in turns.
+
+ID 153 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `RotationTransition` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `timeline` | 1 | `string`, required | — | The name of a timeline of the page. |
+| `track` | 2 | `int` | `0` | The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value. Must be at least 0. |
+| `alignment` | 3 | `Alignment` | `"center"` |  |
+| `filterQuality` | 4 | `FilterQuality` | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
 
 ### Row
 
@@ -2170,6 +3884,23 @@ ID 86 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Scaffold` · an
 | `bottomNavigationBar` | 7 | one node |  |
 | `bottomSheet` | 8 | one node |  |
 
+### ScaleTransition
+
+Scales its child by a track of a page timeline.
+
+ID 152 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `ScaleTransition` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `timeline` | 1 | `string`, required | — | The name of a timeline of the page. |
+| `track` | 2 | `int` | `0` | The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value. Must be at least 0. |
+| `alignment` | 3 | `Alignment` | `"center"` |  |
+| `filterQuality` | 4 | `FilterQuality` | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
+
 ### Scrollbar
 
 Shows a Material scrollbar for its scrollable child.
@@ -2188,6 +3919,63 @@ ID 45 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Scrollbar` · a
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node, required |  |
+
+### SearchAnchor
+
+A search bar that opens a view listing the `suggestions` that match the text; choosing one fires `onSelected`.
+
+ID 123 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `SearchAnchor` · android, ios · cost 20 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `suggestions` | 1 | `list<string>`, required | — | The suggestions; the runtime lists those that contain the typed text, ignoring case. |
+| `isFullScreen` | 2 | `bool` | — |  |
+| `viewHintText` | 3 | `string` | — |  |
+| `hintText` | 4 | `string` | — | The hint of the bar that opens the view. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` |  |
+
+### SearchBar
+
+A text field styled as a search bar.
+
+ID 122 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `SearchBar` · android, ios · cost 20 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `string` | — | The text, bound two-way: the runtime owns the controller and updates bound state on every change. |
+| `hintText` | 2 | `string` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `string` |  |
+| `onSubmitted` | 2 | `string` |  |
+| `onTap` | 3 | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `leading` | 1 | one node |  |
+| `trailing` | 2 | a list of nodes |  |
+
+### SearchField
+
+A search box that reports the query once typing pauses, with optional suggestions.
+
+ID 172 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 120 µs · role textField · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `string` | `""` | The text in the field. |
+| `hint` | 2 | `string?` | — | The placeholder. |
+| `debounceMs` | 3 | `int` | `300` | How long typing must pause before `onSearch` fires, in milliseconds. Must be at least 0 and at most 5000. |
+| `suggestions` | 4 | `list<string>` | `[]` | Suggestions shown below the field while it has text. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSearch` | 1 | `string` | Fires with the query after typing pauses for `debounceMs`. |
+| `onSuggestionSelected` | 2 | `string` | Fires with the suggestion the person picked. |
 
 ### SecurePinPad
 
@@ -2281,6 +4069,36 @@ ID 48 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `SelectableText`
 |---|---|---|---|
 | `onTap` | 1 | — |  |
 
+### SettingsList
+
+Settings rows grouped under section headers.
+
+ID 178 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60 µs · role list
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `sections` | 1 | `list<SettingsSection>`, required | — | The groups; the children are divided among them in order by `count`. |
+
+Takes a list of `children`.
+
+### SignaturePad
+
+A box the user signs in with a finger. `onChanged` fires with SVG path data or a base64 PNG, and with an empty string when cleared.
+
+ID 202 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 800 µs · role image · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `format` | 1 | `string` | `"svg"` | `svg` for path data, `png` for a base64 PNG. Must be matches `^(svg\|png)$`. |
+| `strokeWidth` | 2 | `double` | `2.0` | The pen width. Must be at least 0.5 and at most 12. |
+| `height` | 3 | `double` | `160.0` | The pad's height. Must be at least 80. |
+| `clearLabel` | 4 | `string` | `"Clear"` | The clear button's label. |
+| `semanticLabel` | 5 | `string?` | — | What the signature is for, spoken for the pad. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onChanged` | 1 | `string` | Fires after each stroke with the signature, and with an empty string when cleared. |
+
 ### SingleChildScrollView
 
 Makes a single child scrollable.
@@ -2329,6 +4147,24 @@ ID 99 · Layer 2 · P3 · revision 1 (runtime 0.1.0) · android, ios · cost 25 
 | `lines` | 1 | `int` | `3` | Number of text-line placeholders. Must be at least 1. |
 | `avatar` | 2 | `bool` | `false` | Show a round avatar placeholder. |
 | `shimmer` | 3 | `bool` | `true` | Animate a shimmer; disabled when the device reduces motion. |
+
+### SlideTransition
+
+Slides its child by a track of a page timeline, in multiples of the child's size along `axis`.
+
+ID 151 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `SlideTransition` · android, ios · cost 20 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `timeline` | 1 | `string`, required | — | The name of a timeline of the page. |
+| `track` | 2 | `int` | `0` | The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value. Must be at least 0. |
+| `axis` | 3 | `Axis` | `"horizontal"` |  |
+| `transformHitTests` | 4 | `bool` | `true` |  |
+| `textDirection` | 5 | `TextDirection` | — |  |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node |  |
 
 ### Slider
 
@@ -2500,6 +4336,23 @@ ID 43 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `SliverPadding` 
 |---|---|---|---|
 | `sliver` | 1 | one node |  |
 
+### SliverPersistentHeader
+
+A sliver header between `minExtent` and `maxExtent` tall that can stay pinned or float (WGT-020).
+
+ID 116 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `SliverPersistentHeader` · android, ios · cost 20 µs · role header
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `pinned` | 1 | `bool` | `false` |  |
+| `floating` | 2 | `bool` | `false` |  |
+| `minExtent` | 3 | `double`, required | — | The height when collapsed. Must be at least 0. |
+| `maxExtent` | 4 | `double`, required | — | The height when expanded. Must be at least 0. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required | The header content; it is given the current height. |
+
 ### SliverToBoxAdapter
 
 Places an ordinary widget inside a CustomScrollView.
@@ -2524,6 +4377,22 @@ ID 5 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · android, ios · cost 1 µ
 |---|---|---|---|
 | `fallback` | 1 | one node | Rendered when the instance does not fill the slot. |
 
+### SortSheet
+
+A list of radio rows to choose a sort order from; a page of kind bottom sheet hosts it.
+
+ID 174 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 80 µs · role radio · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `title` | 1 | `string?` | — | A header above the rows. |
+| `options` | 2 | `list<ChoiceItem>`, required | — | The orders offered; their `selected` is ignored in favour of `selected`. |
+| `selected` | 3 | `string?` | — | The `id` of the chosen option. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onSelected` | 1 | `string` | Fires with the `id` of the option the person chose. |
+
 ### Spacer
 
 Takes up flexible empty space in a Row, Column or Flex.
@@ -2533,6 +4402,18 @@ ID 33 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Spacer` · andr
 | Prop | ID | Type | Default | Description |
 |---|---|---|---|---|
 | `flex` | 1 | `int` | `1` | Must be at least 1. |
+
+### Sparkline
+
+A small line of values with no axes, for lists and cards; screen readers get one text summary.
+
+ID 196 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 150 µs · role image
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `values` | 1 | `list<double>`, required | — | The values. |
+| `semanticLabel` | 2 | `string?` | — | What the values are, spoken before the summary. |
+| `summaryTemplate` | 3 | `string` | `"{count} values, first {first}, last {last}, lowest {min}, highest {max}"` | What a screen reader hears; `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced. |
 
 ### Stack
 
@@ -2546,6 +4427,47 @@ ID 27 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Stack` · andro
 | `textDirection` | 2 | `TextDirection` | — |  |
 | `fit` | 3 | `StackFit` | `"loose"` |  |
 | `clipBehavior` | 4 | `Clip` | `"hardEdge"` |  |
+
+Takes a list of `children`.
+
+### StatusTimeline
+
+A vertical timeline of steps, each done, current, pending or failed; the current step is announced.
+
+ID 180 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 70 µs · role list
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `steps` | 1 | `list<TimelineStep>`, required | — | The steps, in order. |
+
+### Stepper
+
+A sequence of steps; the child at each step's index is its content (WGT-020).
+
+ID 118 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Stepper` · android, ios · cost 60 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `steps` | 1 | `list<StepItem>`, required | — |  |
+| `type` | 2 | `StepperType` | `"vertical"` |  |
+| `currentStep` | 3 | `int` | `0` | The open step; bind it to a state key and update it from the events. |
+| `physics` | 4 | `ScrollPhysics` | — |  |
+| `elevation` | 5 | `double` | — |  |
+| `margin` | 6 | `EdgeInsets` | — |  |
+| `connectorColor` | 7 | `color` | — |  |
+| `connectorThickness` | 8 | `double` | — |  |
+| `stepIconHeight` | 9 | `double` | — |  |
+| `stepIconWidth` | 10 | `double` | — |  |
+| `stepIconMargin` | 11 | `EdgeInsets` | — |  |
+| `clipBehavior` | 12 | `Clip` | `"none"` |  |
+| `headerPadding` | 13 | `EdgeInsets` | — |  |
+| `contentPadding` | 14 | `EdgeInsets` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onStepTapped` | 1 | `int` |  |
+| `onStepContinue` | 2 | — |  |
+| `onStepCancel` | 3 | — |  |
 
 Takes a list of `children`.
 
@@ -2639,6 +4561,80 @@ ID 73 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `SwitchListTile`
 | `title` | 1 | one node |  |
 | `subtitle` | 2 | one node |  |
 | `secondary` | 3 | one node |  |
+
+### TabBar
+
+A row of tabs; the selected one is `selectedIndex`, and tapping a tab fires `onTap` with its index.
+
+ID 126 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `TabBar` · android, ios · cost 20 µs · role tab · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `tabs` | 1 | `list<TabItem>`, required | — |  |
+| `selectedIndex` | 2 | `int` | `0` | The selected tab; bind it to the state key a TabBarView shares. |
+| `isScrollable` | 3 | `bool` | `false` |  |
+| `indicatorColor` | 4 | `color` | — |  |
+| `indicatorSize` | 5 | `TabBarIndicatorSize` | — |  |
+| `dividerColor` | 6 | `color` | — |  |
+| `labelColor` | 7 | `color` | — |  |
+| `unselectedLabelColor` | 8 | `color` | — |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onTap` | 1 | `int` |  |
+
+### TabBarView
+
+Shows the child at `index`, and pages between children by swiping; `onIndexChanged` reports the page.
+
+ID 127 · Layer 1 · P4 · revision 1 (runtime 0.5.0) · Flutter `TabBarView` · android, ios · cost 20 µs · role group
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `index` | 1 | `int` | `0` | The shown child; bind it to the state key a TabBar shares. |
+| `viewportFraction` | 2 | `double` | `1.0` |  |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onIndexChanged` | 1 | `int` |  |
+
+Takes a list of `children`.
+
+### Table
+
+A grid of cells; `children` fill it row by row, `columns` to a row (WGT-020).
+
+ID 111 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · Flutter `Table` · android, ios · cost 20 µs · role group
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `columns` | 1 | `int` | `1` | Cells per row; the children are laid out row-major and the last row is padded with empty cells. Must be at least 1. |
+| `columnWidths` | 2 | `list<ColumnWidth>` | — | The width rule of each column by position; columns beyond the list use `defaultColumnWidth`. |
+| `defaultColumnWidth` | 3 | `ColumnWidth` | — |  |
+| `textDirection` | 4 | `TextDirection` | — |  |
+| `border` | 5 | `BorderSide` | — | Draws the outside and the lines between all cells. |
+| `defaultVerticalAlignment` | 6 | `TableCellVerticalAlignment` | `"top"` |  |
+| `textBaseline` | 7 | `TextBaseline` | — |  |
+
+Takes a list of `children`.
+
+### TermsViewer
+
+Terms in Markdown that scroll, with an accept button that enables once the end was reached.
+
+ID 191 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 600 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `source` | 1 | `string`, required | — | The terms as Markdown. |
+| `version` | 2 | `string`, required | — | The version of the terms, sent with `onAccepted`. |
+| `acceptLabel` | 3 | `string` | `"Accept"` | The accept button's label. |
+| `scrollHint` | 4 | `string` | `"Scroll to the end to accept"` | Shown, and spoken, while the end has not been reached. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onAccepted` | 1 | `string` | Fires with the version when the user accepts. |
+| `onLink` | 2 | `string` | Fires with the address of a tapped link; wire it to the `openUrl` action. |
 
 ### Text
 
@@ -2818,6 +4814,22 @@ ID 67 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `TextFormField` 
 | `onFieldSubmitted` | 6 | `string` |  |
 | `onSaved` | 7 | `string?` |  |
 
+### Timeline
+
+Plays a page timeline for its subtree: it starts the named timeline when shown, and optionally restarts it when it ends (ANI-002).
+
+ID 138 · Layer 1 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 5 µs · role none
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `timeline` | 1 | `string`, required | — | The name of a timeline of the page. |
+| `autoplay` | 2 | `bool` | `true` | Start the timeline when the widget is shown. |
+| `repeat` | 3 | `bool` | `false` | Start the timeline again each time it ends. |
+
+| Slot | ID | Holds | Description |
+|---|---|---|---|
+| `child` | 1 | one node, required | The subtree the timeline's tracks move. |
+
 ### Tooltip
 
 Shows a text label when its child is long-pressed or hovered.
@@ -2852,6 +4864,25 @@ ID 63 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `Tooltip` · and
 | Slot | ID | Holds | Description |
 |---|---|---|---|
 | `child` | 1 | one node |  |
+
+### TransactionListItem
+
+A transaction row: title, subtitle, signed amount in a credit or debit colour, status and date.
+
+ID 168 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 60 µs · role button · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `title` | 1 | `string`, required | — | What the transaction was. |
+| `subtitle` | 2 | `string?` | — | A line below the title. |
+| `amount` | 3 | `money`, required | — | The signed amount; negative is a debit. |
+| `status` | 4 | `TransactionStatus` | `"completed"` | The state of the transaction. |
+| `date` | 5 | `dateTime?` | — | When it happened. |
+| `statusLabel` | 6 | `string?` | — | The status written for the person; the status name when absent. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onTap` | 1 | — | Fires when the row is tapped. |
 
 ### Transform
 
@@ -2892,6 +4923,53 @@ ID 53 · Layer 1 · P3 · revision 1 (runtime 0.1.0) · Flutter `VerticalDivider
 | `color` | 5 | `color` | — |  |
 | `radius` | 6 | `BorderRadius` | — |  |
 
+### VideoPlayer
+
+A video from an https address with play and pause, a progress bar and optional captions. It never starts by itself under reduce motion.
+
+ID 203 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 1500 µs · role group · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `url` | 1 | `string`, required | — | The https address of the video. Must be matches `^https://`. |
+| `captions` | 2 | `string?` | — | Captions as WebVTT text. |
+| `autoplay` | 3 | `bool` | `false` | Whether it starts by itself; ignored under reduce motion. |
+| `loop` | 4 | `bool` | `false` | Whether it starts again when it ends. |
+| `aspectRatio` | 5 | `double` | `1.7777778` | Width over height. Must be at least 0.2 and at most 5. |
+| `semanticLabel` | 6 | `string?` | — | What the video is, spoken for the player. |
+| `playLabel` | 7 | `string` | `"Play"` | The play button's label. |
+| `pauseLabel` | 8 | `string` | `"Pause"` | The pause button's label. |
+| `captionsLabel` | 9 | `string` | `"Captions"` | The captions switch's label. |
+| `positionLabel` | 10 | `string` | `"Position"` | The progress bar's label. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onEnded` | 1 | — | Fires when playback ends. |
+| `onError` | 2 | — | Fires when the video cannot be played. |
+
+### WizardForm
+
+A multi-step form: one child per step, a progress indicator, and Back, Next and Submit buttons that validate the step through the enclosing form.
+
+ID 176 · Layer 2 · P5 · revision 1 (runtime 0.5.0) · android, ios · cost 160 µs · role none · interactive
+
+| Prop | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `titles` | 1 | `list<string>`, required | — | The title of each step, in order. |
+| `currentStep` | 2 | `int` | `0` | The zero-based step shown. Must be at least 0. |
+| `stepFields` | 3 | `list<string>` | `[]` | For each step, the comma-separated form fields it holds; Next validates those fields through the enclosing `FormScope`. |
+| `backLabel` | 4 | `string` | `"Back"` | The Back button's text. |
+| `nextLabel` | 5 | `string` | `"Next"` | The Next button's text. |
+| `submitLabel` | 6 | `string` | `"Submit"` | The Submit button's text, on the last step. |
+
+| Event | ID | Payload | Description |
+|---|---|---|---|
+| `onNext` | 1 | `int` | Fires with the step now shown, once the current step is valid. |
+| `onBack` | 2 | `int` | Fires with the step now shown when the person goes back. |
+| `onSubmit` | 3 | — | Fires when the last step is valid and the person submits. |
+
+Takes a list of `children` (at least 1).
+
 ### Wrap
 
 Lays out its children in runs, wrapping to the next run when a run is full.
@@ -2929,6 +5007,18 @@ ID 1 · revision 1 · Flutter `Alignment`, `AlignmentDirectional`
 | `start` | 3 | `double` | — | Horizontal position along the text direction. |
 
 Constants: `topLeft`, `topCenter`, `topRight`, `centerLeft`, `center`, `centerRight`, `bottomLeft`, `bottomCenter`, `bottomRight`, `topStart`, `topEnd`, `centerStart`, `centerEnd`, `bottomStart`, `bottomEnd`.
+
+### BlurFilter
+
+A Gaussian blur of what is behind a widget (BackdropFilter).
+
+ID 47 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `sigmaX` | 1 | `double` | `0` | Blur standard deviation along x, in logical pixels. |
+| `sigmaY` | 2 | `double` | `0` | Blur standard deviation along y, in logical pixels. |
+| `tileMode` | 3 | `TileMode` | — | How the blur treats the edges; absent means the Flutter default. |
 
 ### Border
 
@@ -3060,6 +5150,87 @@ ID 9 · revision 1 · Flutter `ButtonStyle`
 | `enableFeedback` | 20 | `bool` | — |  |
 | `alignment` | 21 | `Alignment` | — |  |
 
+### CartLine
+
+One line of a CartSummary.
+
+ID 69 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — | What the line is. |
+| `amount` | 2 | `money`, required | — | The line's amount. |
+
+### ChartSeries
+
+One named series of a LineChart or BarChart.
+
+ID 76 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `name` | 1 | `string`, required | — | The series' name, spoken in its summary. |
+| `values` | 2 | `list<double>`, required | — | The values, one per label. |
+
+### ChoiceItem
+
+One choice of a FilterBar or SortSheet.
+
+ID 62 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `id` | 1 | `string`, required | — | The stable identifier the events report. |
+| `label` | 2 | `string`, required | — | The text shown. |
+| `selected` | 3 | `bool` | `false` | Whether the choice is on. |
+
+### ColumnWidth
+
+The width rule of one table column.
+
+ID 48 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `kind` | 1 | `ColumnWidthKind` | `"flex"` |  |
+| `value` | 2 | `double` | `1` | The flex factor, the logical pixels or the fraction of the table, by `kind`; ignored for `intrinsic`. |
+
+### ContextMenuAction
+
+One action of a CupertinoContextMenu.
+
+ID 58 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — |  |
+| `icon` | 2 | `IconData` | — | Icon after the label. |
+| `destructive` | 3 | `bool` | `false` | Drawn in the destructive colour. |
+
+### DataColumn
+
+A column heading of a DataTable.
+
+ID 49 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — | The heading text. |
+| `numeric` | 2 | `bool` | `false` | Right-aligns the column, for numbers. |
+| `tooltip` | 3 | `string` | — | Shown on long press of the heading. |
+
+### Destination
+
+One destination of a NavigationBar, BottomNavigationBar, NavigationDrawer or NavigationRail.
+
+ID 44 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — |  |
+| `icon` | 2 | `IconData`, required | — |  |
+| `selectedIcon` | 3 | `IconData` | — | Icon while the destination is selected; `icon` when absent. |
+
 ### DropdownMenuEntry
 
 One entry of a DropdownMenu.
@@ -3094,6 +5265,30 @@ ID 11 · revision 1 · Flutter `EdgeInsets.all`, `EdgeInsets.only`, `EdgeInsets.
 | `end` | 9 | `double` | — | Inset on the trailing side. |
 
 Constants: `zero`.
+
+### FileUploadError
+
+Why picking or uploading failed.
+
+ID 66 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `code` | 1 | `string`, required | — | The error code, such as PLX-5401. |
+| `message` | 2 | `string`, required | — | A description for developers. |
+
+### FileUploadResult
+
+What a finished upload reports.
+
+ID 65 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `name` | 1 | `string`, required | — | The file name. |
+| `mimeType` | 2 | `string`, required | — | The media type. |
+| `sizeBytes` | 3 | `int`, required | — | The size in bytes. |
+| `response` | 4 | `string?` | — | The server's response, JSON-encoded. |
 
 ### GeoLocation
 
@@ -3183,6 +5378,17 @@ ID 15 · revision 1
 | `url` | 2 | `string` | — | An HTTPS URL on a domain the plugin declares (SEC-080). |
 | `thumbHash` | 3 | `string` | — | A ThumbHash of the image, base64-encoded, shown blurred until the image loads (RT-014). |
 
+### IndexFlag
+
+An index and a flag: the payload of a DataTable sort (column, ascending) or row selection (row, selected).
+
+ID 51 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `index` | 1 | `int`, required | — |  |
+| `value` | 2 | `bool`, required | — |  |
+
 ### InputBorder
 
 The border of a text input.
@@ -3255,6 +5461,66 @@ ID 17 · revision 1 · Flutter `InputDecoration`
 | `constraints` | 49 | `BoxConstraints` | — |  |
 | `visualDensity` | 50 | `VisualDensity` | — |  |
 
+### LatLng
+
+A position on the Earth in degrees (WGS 84).
+
+ID 78 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `lat` | 1 | `double`, required | — | Latitude, -90 to 90. |
+| `lng` | 2 | `double`, required | — | Longitude, -180 to 180. |
+
+### MapCamera
+
+Where a map is looking.
+
+ID 81 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `center` | 1 | `LatLng`, required | — | The centre. |
+| `zoom` | 2 | `double`, required | — | The zoom level. |
+
+### MapMarker
+
+A marker on a map.
+
+ID 79 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `id` | 1 | `string`, required | — | Identifies the marker in `onMarkerTap`. |
+| `position` | 2 | `LatLng`, required | — | Where the marker is. |
+| `title` | 3 | `string?` | — | The marker's name, spoken by screen readers. |
+| `icon` | 4 | `string?` | — | The name of a built-in marker icon; the default pin when absent. |
+
+### MapPolyline
+
+A line on a map through its points, in order.
+
+ID 80 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `points` | 1 | `list<LatLng>`, required | — | The points; at least two draw a line. |
+| `color` | 2 | `string?` | — | A theme colour token; the primary colour when absent. |
+| `width` | 3 | `double` | `4.0` | Line width in logical pixels. |
+
+### MenuItem
+
+One entry of a PopupMenuButton or MenuAnchor menu.
+
+ID 42 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | 1 | `string`, required | — | What `onSelected` carries when the entry is chosen. |
+| `label` | 2 | `string`, required | — |  |
+| `icon` | 3 | `IconData` | — | Icon before the label. |
+| `enabled` | 4 | `bool` | `true` |  |
+
 ### Offset
 
 A two-dimensional offset.
@@ -3280,6 +5546,17 @@ ID 34 · revision 1
 | `name` | 2 | `string`, required | — | The file name. |
 | `mimeType` | 3 | `string`, required | — | The media type, such as image/jpeg. |
 | `sizeBytes` | 4 | `int`, required | — | The size in bytes. |
+
+### PieSlice
+
+One slice of a PieChart.
+
+ID 77 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — | The slice's name. |
+| `value` | 2 | `double`, required | — | The slice's size; negative values count as zero. |
 
 ### Radius
 
@@ -3326,6 +5603,17 @@ ID 36 · revision 1
 | `value` | 1 | `string`, required | — | The decoded text. |
 | `format` | 2 | `BarcodeFormat`, required | — | The format that was read. |
 
+### SettingsSection
+
+One group of rows of a SettingsList.
+
+ID 64 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `title` | 1 | `string`, required | — | The section header. |
+| `count` | 2 | `int`, required | — | How many of the list's children, in order, belong to the section. |
+
 ### Shadow
 
 A shadow cast by text or an icon.
@@ -3361,6 +5649,42 @@ ID 24 · revision 1 · Flutter `Size`
 |---|---|---|---|---|
 | `width` | 1 | `double` | — |  |
 | `height` | 2 | `double` | — |  |
+
+### StepItem
+
+One step of a Stepper; its content is the child at the same index.
+
+ID 50 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `title` | 1 | `string`, required | — |  |
+| `subtitle` | 2 | `string` | — |  |
+| `label` | 3 | `string` | — | Shown in place of the step number. |
+| `state` | 4 | `StepState` | `"indexed"` |  |
+| `isActive` | 5 | `bool` | `false` |  |
+
+### TabBarItem
+
+One item of a CupertinoTabBar.
+
+ID 57 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — |  |
+| `icon` | 2 | `IconData`, required | — | Icon of the item. |
+
+### TabItem
+
+One tab of a TabBar.
+
+ID 43 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — |  |
+| `icon` | 2 | `IconData` | — | Icon above the label. |
 
 ### TextSpan
 
@@ -3406,6 +5730,18 @@ ID 26 · revision 1 · Flutter `TextStyle`
 | `fontFamily` | 18 | `string` | — |  |
 | `fontFamilyFallback` | 19 | `list<string>` | — |  |
 | `overflow` | 20 | `TextOverflow` | — |  |
+
+### TimelineStep
+
+One step of a StatusTimeline.
+
+ID 63 · revision 1
+
+| Field | ID | Type | Default | Description |
+|---|---|---|---|---|
+| `label` | 1 | `string`, required | — | The step's name. |
+| `detail` | 2 | `string?` | — | A line below the label, such as a time or a reason. |
+| `state` | 3 | `TimelineStepState` | `"pending"` | Where the step stands. |
 
 ### WidgetStateBorderSide
 
@@ -3542,6 +5878,17 @@ ID 73 · revision 1
 | `seek` | 4 | Jump to a position. |
 | `stop` | 5 | Stop and return to the start. |
 
+### Assertiveness
+
+How urgently a screen reader announces a message (A11Y-006).
+
+ID 77 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `polite` | 1 |  |
+| `assertive` | 2 |  |
+
 ### AutovalidateMode
 
 Mirrors the Flutter enum AutovalidateMode.
@@ -3651,6 +5998,17 @@ ID 5 · revision 1 · Flutter `BorderStyle`
 | `none` | 1 |  |
 | `solid` | 2 |  |
 
+### BottomNavigationBarType
+
+Mirrors the Flutter enum BottomNavigationBarType.
+
+ID 87 · revision 1 · Flutter `BottomNavigationBarType`
+
+| Value | ID | Description |
+|---|---|---|
+| `fixed` | 1 |  |
+| `shifting` | 2 |  |
+
 ### BoxFit
 
 Mirrors the Flutter enum BoxFit.
@@ -3715,6 +6073,44 @@ ID 10 · revision 1 · Flutter `Brightness`
 | `dark` | 1 |  |
 | `light` | 2 |  |
 
+### CalendarSystem
+
+A calendar system a date is shown in (I18N-003).
+
+ID 175 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `gregorian` | 1 |  |
+| `ethiopic` | 2 |  |
+| `islamicUmalqura` | 3 |  |
+| `persian` | 4 |  |
+
+### CameraFacing
+
+Which camera a scanner opens.
+
+ID 155 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `back` | 1 |  |
+| `front` | 2 |  |
+
+### CardBrand
+
+The network of a payment card.
+
+ID 144 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `visa` | 1 | Visa. |
+| `mastercard` | 2 | Mastercard. |
+| `amex` | 3 | American Express. |
+| `discover` | 4 | Discover. |
+| `other` | 5 | Any other network. |
+
 ### Clip
 
 Mirrors the Flutter enum Clip.
@@ -3727,6 +6123,31 @@ ID 11 · revision 1 · Flutter `Clip`
 | `hardEdge` | 2 |  |
 | `antiAlias` | 3 |  |
 | `antiAliasWithSaveLayer` | 4 |  |
+
+### ColumnWidthKind
+
+How a table column takes its width: a share of the free space, a fixed size, a fraction of the table, or the widest cell.
+
+ID 100 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `flex` | 1 |  |
+| `fixed` | 2 |  |
+| `fraction` | 3 |  |
+| `intrinsic` | 4 |  |
+
+### CountdownFormat
+
+How a countdown writes the time left.
+
+ID 132 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `hms` | 1 |  |
+| `dhms` | 2 |  |
+| `compact` | 3 |  |
 
 ### CrossAxisAlignment
 
@@ -3742,6 +6163,17 @@ ID 12 · revision 1 · Flutter `CrossAxisAlignment`
 | `stretch` | 4 |  |
 | `baseline` | 5 |  |
 
+### CrossFadeState
+
+Mirrors the Flutter enum CrossFadeState.
+
+ID 106 · revision 1 · Flutter `CrossFadeState`
+
+| Value | ID | Description |
+|---|---|---|
+| `showFirst` | 1 |  |
+| `showSecond` | 2 |  |
+
 ### CupertinoButtonSize
 
 Mirrors the Flutter enum CupertinoButtonSize.
@@ -3754,6 +6186,38 @@ ID 13 · revision 1 · Flutter `CupertinoButtonSize`
 | `medium` | 2 |  |
 | `large` | 3 |  |
 
+### CupertinoDatePickerMode
+
+Mirrors the Flutter enum CupertinoDatePickerMode.
+
+ID 115 · revision 1 · Flutter `CupertinoDatePickerMode`
+
+| Value | ID | Description |
+|---|---|---|
+| `time` | 1 |  |
+| `date` | 2 |  |
+| `dateAndTime` | 3 |  |
+| `monthYear` | 4 |  |
+
+### Curve
+
+An animation curve by name; the same curves as the node-level animation (ANI-001, ANI-002).
+
+ID 108 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `linear` | 1 |  |
+| `easeIn` | 2 |  |
+| `easeOut` | 3 |  |
+| `easeInOut` | 4 |  |
+| `fastOutSlowIn` | 5 |  |
+| `decelerate` | 6 |  |
+| `bounceIn` | 7 |  |
+| `bounceOut` | 8 |  |
+| `elasticOut` | 9 |  |
+| `overshoot` | 10 |  |
+
 ### DecorationPosition
 
 Mirrors the Flutter enum DecorationPosition.
@@ -3764,6 +6228,22 @@ ID 14 · revision 1 · Flutter `DecorationPosition`
 |---|---|---|
 | `background` | 1 |  |
 | `foreground` | 2 |  |
+
+### DismissDirection
+
+Mirrors the Flutter enum DismissDirection.
+
+ID 105 · revision 1 · Flutter `DismissDirection`
+
+| Value | ID | Description |
+|---|---|---|
+| `vertical` | 1 |  |
+| `horizontal` | 2 |  |
+| `endToStart` | 3 |  |
+| `startToEnd` | 4 |  |
+| `up` | 5 |  |
+| `down` | 6 |  |
+| `none` | 7 |  |
 
 ### DragStartBehavior
 
@@ -4087,6 +6567,19 @@ ID 35 · revision 1 · Flutter `MainAxisSize`
 | `min` | 1 |  |
 | `max` | 2 |  |
 
+### MaskKind
+
+How MaskedText hides its value.
+
+ID 142 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `card` | 1 | Groups of four, the last digits visible. |
+| `account` | 2 | The last digits visible. |
+| `phone` | 3 | The last digits visible, separators kept. |
+| `custom` | 4 | Every character but the last digits hidden. |
+
 ### MaterialTapTargetSize
 
 Mirrors the Flutter enum MaterialTapTargetSize.
@@ -4110,6 +6603,30 @@ ID 37 · revision 1 · Flutter `MaxLengthEnforcement`
 | `enforced` | 2 |  |
 | `truncateAfterCompositionEnds` | 3 |  |
 
+### MoneyDisplay
+
+How MoneyText writes the currency.
+
+ID 140 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `symbol` | 1 | The locale's symbol. |
+| `narrowSymbol` | 2 | The narrow symbol. |
+| `code` | 3 | The ISO 4217 code. |
+
+### NavigationDestinationLabelBehavior
+
+Mirrors the Flutter enum NavigationDestinationLabelBehavior.
+
+ID 86 · revision 1 · Flutter `NavigationDestinationLabelBehavior`
+
+| Value | ID | Description |
+|---|---|---|
+| `alwaysShow` | 1 |  |
+| `alwaysHide` | 2 |  |
+| `onlyShowSelected` | 3 |  |
+
 ### NavigationMode
 
 How navigate changes the navigation stack.
@@ -4123,6 +6640,18 @@ ID 68 · revision 1
 | `popUntil` | 3 | Pop routes until the named route is on top. |
 | `clearAndPush` | 4 | Clear the stack, then push the route. |
 
+### NavigationRailLabelType
+
+Mirrors the Flutter enum NavigationRailLabelType.
+
+ID 85 · revision 1 · Flutter `NavigationRailLabelType`
+
+| Value | ID | Description |
+|---|---|---|
+| `none` | 1 |  |
+| `selected` | 2 |  |
+| `all` | 3 |  |
+
 ### OtpAlphabet
 
 The characters a one-time code may contain.
@@ -4133,6 +6662,18 @@ ID 75 · revision 1
 |---|---|---|
 | `numeric` | 1 |  |
 | `alphanumeric` | 2 |  |
+
+### OverflowBarAlignment
+
+Mirrors the Flutter enum OverflowBarAlignment.
+
+ID 98 · revision 1 · Flutter `OverflowBarAlignment`
+
+| Value | ID | Description |
+|---|---|---|
+| `start` | 1 |  |
+| `end` | 2 |  |
+| `center` | 3 |  |
 
 ### OverlayVisibilityMode
 
@@ -4146,6 +6687,43 @@ ID 38 · revision 1 · Flutter `OverlayVisibilityMode`
 | `editing` | 2 |  |
 | `notEditing` | 3 |  |
 | `always` | 4 |  |
+
+### PanAxis
+
+Mirrors the Flutter enum PanAxis.
+
+ID 107 · revision 1 · Flutter `PanAxis`
+
+| Value | ID | Description |
+|---|---|---|
+| `free` | 1 |  |
+| `horizontal` | 2 |  |
+| `vertical` | 3 |  |
+| `aligned` | 4 |  |
+
+### QrErrorCorrection
+
+How much of a QR code may be damaged before it stops reading: about 7% (low), 15% (medium), 25% (quartile) or 30% (high).
+
+ID 156 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `low` | 1 |  |
+| `medium` | 2 |  |
+| `quartile` | 3 |  |
+| `high` | 4 |  |
+
+### RefreshIndicatorTriggerMode
+
+Mirrors the Flutter enum RefreshIndicatorTriggerMode.
+
+ID 96 · revision 1 · Flutter `RefreshIndicatorTriggerMode`
+
+| Value | ID | Description |
+|---|---|---|
+| `anywhere` | 1 |  |
+| `onEdge` | 2 |  |
 
 ### ScrollPhysics
 
@@ -4215,6 +6793,19 @@ ID 43 · revision 1 · Flutter `ShowValueIndicator`
 | `alwaysVisible` | 5 |  |
 | `never` | 6 |  |
 
+### SignDisplay
+
+When MoneyText shows a sign.
+
+ID 141 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `auto` | 1 | A minus for negative amounts only. |
+| `always` | 2 | A sign on every amount. |
+| `never` | 3 | No sign. |
+| `exceptZero` | 4 | A sign on every amount but zero. |
+
 ### SliderInteraction
 
 Mirrors the Flutter enum SliderInteraction.
@@ -4273,6 +6864,31 @@ ID 48 · revision 1 · Flutter `StackFit`
 | `expand` | 2 |  |
 | `passthrough` | 3 |  |
 
+### StepState
+
+Mirrors the Flutter enum StepState.
+
+ID 99 · revision 1 · Flutter `StepState`
+
+| Value | ID | Description |
+|---|---|---|
+| `indexed` | 1 |  |
+| `editing` | 2 |  |
+| `complete` | 3 |  |
+| `disabled` | 4 |  |
+| `error` | 5 |  |
+
+### StepperType
+
+Mirrors the Flutter enum StepperType.
+
+ID 97 · revision 1 · Flutter `StepperType`
+
+| Value | ID | Description |
+|---|---|---|
+| `vertical` | 1 |  |
+| `horizontal` | 2 |  |
+
 ### StrokeCap
 
 Mirrors the Flutter enum StrokeCap.
@@ -4284,6 +6900,32 @@ ID 49 · revision 1 · Flutter `StrokeCap`
 | `butt` | 1 |  |
 | `round` | 2 |  |
 | `square` | 3 |  |
+
+### TabBarIndicatorSize
+
+Mirrors the Flutter enum TabBarIndicatorSize.
+
+ID 88 · revision 1 · Flutter `TabBarIndicatorSize`
+
+| Value | ID | Description |
+|---|---|---|
+| `tab` | 1 |  |
+| `label` | 2 |  |
+
+### TableCellVerticalAlignment
+
+Mirrors the Flutter enum TableCellVerticalAlignment.
+
+ID 95 · revision 1 · Flutter `TableCellVerticalAlignment`
+
+| Value | ID | Description |
+|---|---|---|
+| `top` | 1 |  |
+| `middle` | 2 |  |
+| `bottom` | 3 |  |
+| `baseline` | 4 |  |
+| `fill` | 5 |  |
+| `intrinsicHeight` | 6 |  |
 
 ### TextAlign
 
@@ -4478,6 +7120,19 @@ ID 62 · revision 1 · Flutter `TileMode`
 | `mirror` | 3 |  |
 | `decal` | 4 |  |
 
+### TimelineStepState
+
+Where a StatusTimeline step stands.
+
+ID 125 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `done` | 1 |  |
+| `current` | 2 |  |
+| `pending` | 3 |  |
+| `failed` | 4 |  |
+
 ### TooltipTriggerMode
 
 Mirrors the Flutter enum TooltipTriggerMode.
@@ -4489,6 +7144,19 @@ ID 63 · revision 1 · Flutter `TooltipTriggerMode`
 | `manual` | 1 |  |
 | `longPress` | 2 |  |
 | `tap` | 3 |  |
+
+### TransactionStatus
+
+The state of a transaction.
+
+ID 143 · revision 1
+
+| Value | ID | Description |
+|---|---|---|
+| `pending` | 1 | Not yet settled. |
+| `completed` | 2 | Settled. |
+| `failed` | 3 | Declined or failed. |
+| `reversed` | 4 | Reversed after settling. |
 
 ### VerticalDirection
 

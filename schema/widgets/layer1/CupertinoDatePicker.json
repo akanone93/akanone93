@@ -1,0 +1,151 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "CupertinoDatePicker",
+  "id": 157,
+  "layer": 1,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "flutter": {
+    "library": "package:flutter/cupertino.dart",
+    "class": "CupertinoDatePicker",
+    "constructors": [
+      ""
+    ]
+  },
+  "category": "cupertino",
+  "icon": "calendar_month",
+  "description": "An iOS-style date and time wheel; `onDateTimeChanged` carries the chosen dateTime in the offset of `initialDateTime`.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 60,
+  "accessibility": {
+    "role": "group",
+    "interactive": true,
+    "minTarget": true
+  },
+  "typeParameters": [],
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "mode",
+      "id": 1,
+      "type": "CupertinoDatePickerMode",
+      "default": "dateAndTime",
+      "flutter": "mode"
+    },
+    {
+      "name": "initialDateTime",
+      "id": 2,
+      "type": "dateTime",
+      "flutter": "initialDateTime"
+    },
+    {
+      "name": "minimumDate",
+      "id": 3,
+      "type": "dateTime",
+      "flutter": "minimumDate"
+    },
+    {
+      "name": "maximumDate",
+      "id": 4,
+      "type": "dateTime",
+      "flutter": "maximumDate"
+    },
+    {
+      "name": "minimumYear",
+      "id": 5,
+      "type": "int",
+      "default": 1,
+      "flutter": "minimumYear"
+    },
+    {
+      "name": "maximumYear",
+      "id": 6,
+      "type": "int",
+      "flutter": "maximumYear"
+    },
+    {
+      "name": "minuteInterval",
+      "id": 7,
+      "type": "int",
+      "default": 1,
+      "flutter": "minuteInterval"
+    },
+    {
+      "name": "use24hFormat",
+      "id": 8,
+      "type": "bool",
+      "default": false,
+      "flutter": "use24hFormat"
+    },
+    {
+      "name": "backgroundColor",
+      "id": 9,
+      "type": "color",
+      "flutter": "backgroundColor"
+    },
+    {
+      "name": "showDayOfWeek",
+      "id": 10,
+      "type": "bool",
+      "default": false,
+      "flutter": "showDayOfWeek"
+    },
+    {
+      "name": "showTimeSeparator",
+      "id": 11,
+      "type": "bool",
+      "default": false,
+      "flutter": "showTimeSeparator"
+    },
+    {
+      "name": "itemExtent",
+      "id": 12,
+      "type": "double",
+      "flutter": "itemExtent"
+    }
+  ],
+  "events": [
+    {
+      "name": "onDateTimeChanged",
+      "id": 1,
+      "payload": "dateTime",
+      "flutter": "onDateTimeChanged"
+    }
+  ],
+  "excluded": [
+    {
+      "flutter": "key",
+      "reason": "non-serialisable",
+      "note": "Keys are derived from node identifiers."
+    },
+    {
+      "flutter": "dateOrder",
+      "reason": "deferred",
+      "note": "The locale decides the order."
+    },
+    {
+      "flutter": "selectionOverlayBuilder",
+      "reason": "builder→template",
+      "note": "The default overlay is used."
+    },
+    {
+      "flutter": "selectableDayPredicate",
+      "reason": "deferred",
+      "note": "Predicates are not serialisable; use minimumDate and maximumDate."
+    },
+    {
+      "flutter": "changeReportingBehavior",
+      "reason": "deferred",
+      "note": "The default reporting is used."
+    }
+  ]
+}

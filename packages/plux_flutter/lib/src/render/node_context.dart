@@ -4,7 +4,11 @@
 /// What a widget builder reads its node through (ADR-0031).
 library;
 
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
+import 'package:http/http.dart' as http;
+import 'package:plux_flutter/src/device/types.dart' show PluxPickedFile;
 import 'package:plux_flutter/src/render/decoding.dart';
 
 /// Builds the widget of one node.
@@ -42,12 +46,70 @@ abstract interface class NodeContext implements Decoding {
   /// Whether slot [id] is filled.
   bool hasSlot(int id);
 
+  /// The snapshot of data source [name] (`value`, `loading`, `error`,
+  /// `status`) as `data.<name>` reads it; null when the page has no such
+  /// source.
+  Map<String, Object?>? dataSource(String name);
+
   /// The children, built lazily.
   List<Widget> children();
 
   /// Builds item [index] of item-template slot [slot], with `item` and
   /// `index` in scope for its bindings (WGT-012).
   Widget item(int slot, Object? item, int index);
+
+  /// The renderer's pinned HTTP client for fetching [url], when [url] is
+  /// HTTPS on a domain the plugin declares (SEC-080, AST-002); else null,
+  /// reported (PLX-6030).
+  http.Client? remoteClient(String url);
+
+  /// A remote image at [url] under the same rule as [remoteClient]; null,
+  /// reported (PLX-6030), when blocked.
+  ImageProvider<Object>? remoteImage(String url);
+
+  /// The bytes at [url] fetched through the pinned client under the same
+  /// rule as [remoteClient], at most the asset size limit; null, reported,
+  /// when blocked or the fetch failed.
+  Future<Uint8List?> remoteBytes(String url);
+
+  /// Where the platform player may read the media at [url] from: the
+  /// address itself, or with `pinnedMediaOnly` (SEC-041) a temporary file
+  /// the pinned client downloaded, at most the asset size limit. Null,
+  /// reported, when the domain is not declared (PLX-6030) or the download
+  /// failed.
+  Future<Uri?> mediaSource(String url);
+
+  /// Null when the plugin may use device API [api]; else the standard
+  /// refusal to return instead of opening the camera, files or location,
+  /// reported (PLX-5400) (SEC-080, X1.1).
+  Widget? deviceRefusal(String api);
+
+  /// Validates the fields named in [fields] of the form below the nearest
+  /// `FormScope`, as a wizard's Next and Submit do: the other fields keep
+  /// their touched state. True when none of [fields] has an error, and
+  /// outside a form.
+  Future<bool> validateFields(Set<String> fields);
+
+  /// Lets the user pick one file of [mimeTypes] through the host's media
+  /// package, once the device guard admits `pickFile`. Null when no media
+  /// package is installed; the function it returns gives null when the
+  /// guard blocks the pick (reported) or the user cancels.
+  Future<PluxPickedFile?> Function()? filePicker(List<String> mimeTypes);
+
+  /// Uploads a file through the transfer operation [operation] of data
+  /// source [source], reporting progress as a fraction (null when
+  /// unknown), and resolves to the JSON-encoded response. Null when the
+  /// page has no data layer; the function it returns throws a
+  /// `PluxException` when the transfer fails.
+  Future<String?> Function(
+    PluxPickedFile file,
+    void Function(double? fraction) progress,
+  )?
+  fileUpload(String source, String operation);
+
+  /// Reports that [message] needs a device package that is not installed
+  /// (PLX-5401).
+  void reportDevicePackageMissing(String message);
 
   /// Reports that an image of the node failed to load.
   void imageFailed(Object error);

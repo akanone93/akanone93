@@ -1,0 +1,91 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "BarcodeScanner",
+  "id": 200,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "barcode_reader",
+  "description": "A live camera preview that reads QR codes and one-dimensional barcodes of the chosen formats. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 400,
+  "accessibility": {
+    "role": "image",
+    "interactive": false
+  },
+  "package": "plux_scanner",
+  "props": [
+    {
+      "name": "formats",
+      "id": 1,
+      "type": "list<BarcodeFormat>?",
+      "description": "The formats to read; every format when empty or absent."
+    },
+    {
+      "name": "torch",
+      "id": 2,
+      "type": "bool",
+      "default": false,
+      "description": "Whether the torch is on."
+    },
+    {
+      "name": "cameraFacing",
+      "id": 3,
+      "type": "CameraFacing",
+      "default": "back",
+      "description": "Which camera to open."
+    },
+    {
+      "name": "scanWindow",
+      "id": 4,
+      "type": "list<double>?",
+      "description": "The part of the preview that is read, as four fractions of the preview: left, top, width, height. The whole preview when absent."
+    },
+    {
+      "name": "continuous",
+      "id": 5,
+      "type": "bool",
+      "default": false,
+      "description": "Whether the scanner keeps reading after the first code; otherwise it reports once and stops."
+    },
+    {
+      "name": "overlayHint",
+      "id": 6,
+      "type": "string?",
+      "translatable": true,
+      "description": "A line of text under the viewfinder, such as \"Point the camera at the code\"."
+    },
+    {
+      "name": "semanticLabel",
+      "id": 7,
+      "type": "string?",
+      "translatable": true,
+      "description": "What a screen reader announces for the scanner; the read value is announced when a code is detected."
+    }
+  ],
+  "events": [
+    {
+      "name": "onDetected",
+      "id": 1,
+      "payload": "ScanResult",
+      "sensitive": true,
+      "description": "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."
+    },
+    {
+      "name": "onError",
+      "id": 2,
+      "payload": "string",
+      "description": "Fires with an error code when the camera is denied, missing or fails."
+    }
+  ]
+}

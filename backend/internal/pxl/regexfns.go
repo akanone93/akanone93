@@ -17,6 +17,9 @@ func regexFns() map[string]builtinFn {
 		"isPhone(string,string)": func(_ *vm, a []Value) (Value, *EvalError) {
 			return just(phone.IsValid(arg[string](a, 0), arg[string](a, 1)))
 		},
+		"format.phone(string,string)": func(_ *vm, a []Value) (Value, *EvalError) {
+			return just(phone.Format(arg[string](a, 0), arg[string](a, 1)))
+		},
 	}
 }
 

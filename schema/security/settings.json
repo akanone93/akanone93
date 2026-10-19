@@ -28,6 +28,23 @@
       "description": "How long an access token stays valid."
     },
     {
+      "key": "accessibilityBlocksPublish",
+      "type": "bool",
+      "tighter": "true",
+      "defaults": {
+        "standard": false,
+        "strict": true,
+        "maximum": true
+      },
+      "travelsToDevice": false,
+      "phase": "P8",
+      "requirements": [
+        "A11Y-002",
+        "A11Y-008"
+      ],
+      "description": "Whether accessibility errors that are not waived block publishing a release."
+    },
+    {
       "key": "allowDirectDataSources",
       "type": "bool",
       "tighter": "false",
@@ -331,6 +348,24 @@
         "SEC-007"
       ],
       "description": "The lowest assurance level a device must hold to sync plugins."
+    },
+    {
+      "key": "pinnedMediaOnly",
+      "type": "bool",
+      "tighter": "true",
+      "defaults": {
+        "standard": false,
+        "strict": false,
+        "maximum": true
+      },
+      "travelsToDevice": true,
+      "phase": "P8",
+      "requirements": [
+        "SEC-041",
+        "SEC-080",
+        "AST-002"
+      ],
+      "description": "Whether video and audio are downloaded through the pinned client to a temporary file before they play, because the platform players cannot pin certificates."
     },
     {
       "key": "raspAccessibilityResponse",

@@ -17,7 +17,15 @@
         "id": "01d0c450-6c00-7000-8000-00000000304b",
         "props": {
           "data": {
-            "$expr": "\"Job \" + props.item.id + \": \" + props.item.status"
+            "$t": "01d0c450-6c00-7000-8000-00000000920c",
+            "args": {
+              "id": {
+                "$expr": "props.item.id"
+              },
+              "status": {
+                "$expr": "props.item.status"
+              }
+            }
           }
         },
         "type": "Text"
@@ -75,7 +83,9 @@
           "child": {
             "id": "01d0c450-6c00-7000-8000-00000000304c",
             "props": {
-              "data": "Confirm delivery"
+              "data": {
+                "$t": "01a14cd1-ca0b-7293-9086-065954d8eb86"
+              }
             },
             "type": "Text"
           }

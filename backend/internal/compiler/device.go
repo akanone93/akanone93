@@ -40,12 +40,67 @@ var deviceActions = map[string]struct{ api, pkg string }{
 	"getLocation":       {api: "location", pkg: "plux_location"},
 }
 
+// deviceWidget is what a widget needs besides the core runtime: a device
+// API, the optional package whose builder renders it (the descriptor's
+// package field) and, for a widget that picks or captures through a device
+// package, that package as well.
+type deviceWidget struct{ api, pkg, device string }
+
+// componentWidgets are the widgets plux_components renders: the Layer 2
+// components most apps do not use and the Layer 1 widgets that pull large
+// parts of the Flutter framework (RT-060, RT-061).
+var componentWidgets = []string{
+	"AccountCard", "AmountInput", "Autocomplete", "CalendarDatePicker", "CartSummary",
+	"Carousel", "ConsentCheckbox", "CountdownTimer", "CountryPicker", "CupertinoContextMenu",
+	"CupertinoDatePicker", "CupertinoPicker", "CurrencyPicker", "DataTable", "DragTarget",
+	"Draggable", "FileUploader", "FilterBar", "IbanInput", "ImageGallery", "InfiniteList",
+	"InteractiveViewer", "LiveEtaCard", "MaskedText", "MoneyText", "NavigationRail",
+	"NestedScrollView", "OnboardingPager", "PaymentCard", "PhoneInput", "PriceTag",
+	"ProductCard", "ProfileHeader", "PromoBanner", "QuantityStepper", "RatingBar",
+	"RatingInput", "ReorderableListView", "SearchAnchor", "SearchBar", "SearchField",
+	"SettingsList", "SortSheet", "StatusTimeline", "Stepper", "Table",
+	"TransactionListItem", "WizardForm",
+}
+
+// deviceWidgets is every widget that needs a device API or an optional
+// package, keyed by widget type (SEC-080, RT-060). The package is the
+// descriptor's package field; a test compares them. FileUploader and
+// KycCameraCapture also need plux_media to pick or capture, although their
+// descriptors name the package that renders them.
+var deviceWidgets = func() map[string]deviceWidget {
+	m := map[string]deviceWidget{
+		"QrScanner":        {api: "camera", pkg: "plux_scanner"},
+		"BarcodeScanner":   {api: "camera", pkg: "plux_scanner"},
+		"QrCodeView":       {pkg: "plux_scanner"},
+		"KycCameraCapture": {api: "camera", pkg: "plux_media"},
+		"SignaturePad":     {pkg: "plux_media"},
+		"VideoPlayer":      {pkg: "plux_player"},
+		"AudioPlayer":      {pkg: "plux_player"},
+		"MapView":          {pkg: "plux_maps"},
+		"OrderTrackerMap":  {pkg: "plux_maps"},
+		"LineChart":        {pkg: "plux_charts"},
+		"BarChart":         {pkg: "plux_charts"},
+		"PieChart":         {pkg: "plux_charts"},
+		"Sparkline":        {pkg: "plux_charts"},
+		"MarkdownView":     {pkg: "plux_markdown"},
+		"TermsViewer":      {pkg: "plux_markdown"},
+		"LottieView":       {pkg: "plux_lottie"},
+		"RiveView":         {pkg: "plux_rive"},
+	}
+	for _, w := range componentWidgets {
+		m[w] = deviceWidget{pkg: "plux_components"}
+	}
+	m["FileUploader"] = deviceWidget{api: "files", pkg: "plux_components", device: "plux_media"}
+	return m
+}()
+
 // permissionAPIs are the device APIs a platform asks the user to permit:
 // the values requestPermission accepts.
 var permissionAPIs = []string{"camera", "photos", "location", "contacts", "biometrics", "notifications"}
 
-// DeviceUse is a step that runs an action of an optional package, at the
-// JSON path of its action: what a host build must have installed (RT-060).
+// DeviceUse is a step that runs an action, or a node that shows a widget
+// (Action is then its type), of an optional package, at the JSON path of
+// the action or of the node's type: what a host build must have installed (RT-060).
 type DeviceUse struct {
 	Package string
 	Action  string
@@ -158,6 +213,38 @@ func (u *unit) checkDeviceStep(g *graph, action string, input map[string]json.Ra
 	}
 	if use.pkg != "" {
 		u.deviceUses = append(u.deviceUses, DeviceUse{Package: use.pkg, Action: action, File: g.file, Path: ptr + "/action"})
+	}
+}
+
+// checkDeviceWidget checks a widget node like a device action step
+// (SEC-080, RT-060): the device API it needs must be declared by its
+// plugin, and a widget of an optional package is recorded for the host
+// build check. A map needs the location API only when it shows the user:
+// showUserLocation is true or bound.
+func (u *unit) checkDeviceWidget(n *node, file string) {
+	if n.widget == nil {
+		return
+	}
+	use, ok := deviceWidgets[n.widget.Type]
+	if !ok {
+		return
+	}
+	api := use.api
+	if raw, set := n.doc.Props["showUserLocation"]; set && api == "" {
+		var b bool
+		if isBindingRaw(raw) || (json.Unmarshal(raw, &b) == nil && b) {
+			api = "location"
+		}
+	}
+	ptr := n.ptr + "/type"
+	if api != "" && !slices.Contains(u.declaredDeviceAPIs(n.owner.plugin()), schema.DeviceAPI(api)) {
+		u.report(plxerr.DeviceCapabilityUndeclared, file, ptr,
+			"%s needs the device API %q, which the plugin does not declare in capabilities.deviceApis", n.widget.Type, api)
+	}
+	for _, pkg := range []string{use.pkg, use.device} {
+		if pkg != "" {
+			u.deviceUses = append(u.deviceUses, DeviceUse{Package: pkg, Action: n.widget.Type, File: file, Path: ptr})
+		}
 	}
 }
 

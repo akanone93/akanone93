@@ -1,0 +1,1454 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "EHH:mm",
+        "EHms": "EHH:mm:ss",
+        "Ed": "d E",
+        "Eh": "Eah点",
+        "Ehm": "Eah:mm",
+        "Ehms": "Eah:mm:ss",
+        "Gy": "G y年",
+        "GyM": "G M/y",
+        "GyMEd": "G d/M/y (E)",
+        "GyMMM": "G y年M月",
+        "GyMMMEEEEd": "G y年M月d日 EEEE",
+        "GyMMMEd": "G y年M月d日 E",
+        "GyMMMd": "G y年M月d日",
+        "GyMd": "G d/M/y",
+        "H": "H点",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "H:mm",
+        "Hms": "H:mm:ss",
+        "M": "M月",
+        "MEd": "M/d（E）",
+        "MMM": "LLL",
+        "MMMEd": "M月d日 E",
+        "MMMMd": "M月d日",
+        "MMMd": "M月d日",
+        "Md": "M/d",
+        "d": "d日",
+        "h": "ah点",
+        "hm": "ah:mm",
+        "hms": "ah:mm:ss",
+        "ms": "mm:ss",
+        "y": "G y年",
+        "yyyy": "G y年",
+        "yyyyM": "G y/M",
+        "yyyyMEd": "G y/M/d（E）",
+        "yyyyMMM": "G y年M月",
+        "yyyyMMMEd": "G y年M月d日 E",
+        "yyyyMMMM": "G y年M月",
+        "yyyyMMMd": "G y年M月d日",
+        "yyyyMd": "G y/M/d"
+      },
+      "dateFormats": {
+        "full": "G y年M月d日 EEEE",
+        "long": "G y年M月d日",
+        "medium": "G y年M月d日",
+        "short": "G y/M/d"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "上昼",
+            "pm": "下昼"
+          },
+          "wide": {
+            "am": "上昼",
+            "pm": "下昼"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "上昼",
+            "pm": "下昼"
+          },
+          "wide": {
+            "am": "上昼",
+            "pm": "下昼"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+          "short": ["日", "一", "二", "三", "四", "五", "六"],
+          "wide": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+        },
+        "standAlone": {
+          "abbreviated": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+          "short": ["日", "一", "二", "三", "四", "五", "六"],
+          "wide": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "13月"],
+          "wide": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "13月"]
+        },
+        "standAlone": {
+          "abbreviated": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "13月"],
+          "wide": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "13月"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss [zzzz]",
+        "long": "HH:mm:ss [z]",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d E",
+        "Eh": "Eah\u202f点",
+        "Ehm": "E ah:mm",
+        "Ehms": "E ah:mm:ss",
+        "Gy": "Gy年",
+        "GyM": "GM/y",
+        "GyMEd": "Gd/M/y (E)",
+        "GyMMM": "Gy年M月",
+        "GyMMMEd": "Gy年M月d日 E",
+        "GyMMMd": "Gy年M月d日",
+        "GyMd": "Gd/M/y",
+        "H": "H点",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "M月",
+        "MEd": "M/d（E）",
+        "MMM": "LLL",
+        "MMMEd": "M月d日 E",
+        "MMMMd": "M月d日",
+        "MMMd": "M月d日",
+        "MMdd": "MM/dd",
+        "Md": "M/d",
+        "d": "d日",
+        "h": "ah时",
+        "hm": "ah:mm",
+        "hms": "ah:mm:ss",
+        "ms": "mm:ss",
+        "y": "y年",
+        "yM": "y/M",
+        "yMEd": "y/M/d（E）",
+        "yMM": "y/MM",
+        "yMMM": "y年M月",
+        "yMMMEEEEd": "y年M月d日 EEEE",
+        "yMMMEd": "y年M月d日 E",
+        "yMMMM": "y年M月",
+        "yMMMd": "y年M月d日",
+        "yMd": "y/M/d"
+      },
+      "dateFormats": {
+        "full": "y年M月d日 EEEE",
+        "long": "y年M月d日",
+        "medium": "y年M月d日",
+        "short": "y/M/d"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "上昼",
+            "pm": "下昼"
+          },
+          "narrow": {
+            "am": "上昼",
+            "pm": "下昼"
+          },
+          "wide": {
+            "am": "上昼",
+            "pm": "下昼"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "上昼",
+            "pm": "下昼"
+          },
+          "narrow": {
+            "am": "上昼",
+            "pm": "下昼"
+          },
+          "wide": {
+            "am": "上昼",
+            "pm": "下昼"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+          "narrow": ["日", "一", "二", "三", "四", "五", "六"],
+          "short": ["日", "一", "二", "三", "四", "五", "六"],
+          "wide": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+        },
+        "standAlone": {
+          "abbreviated": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+          "narrow": ["日", "一", "二", "三", "四", "五", "六"],
+          "short": ["日", "一", "二", "三", "四", "五", "六"],
+          "wide": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["西元前", "西元"],
+        "narrow": ["西元前", "西元"],
+        "wide": ["西元前", "西元"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+          "narrow": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+          "wide": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
+        },
+        "standAlone": {
+          "abbreviated": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+          "narrow": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+          "wide": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss [zzzz]",
+        "long": "HH:mm:ss [z]",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "EHH:mm",
+        "EHms": "EHH:mm:ss",
+        "Ed": "d日（E）",
+        "Eh": "Eah点",
+        "Ehm": "Eah:mm",
+        "Ehms": "Eah:mm:ss",
+        "Gy": "Gy年",
+        "GyM": "G M/y",
+        "GyMEd": "G d/M/y (E)",
+        "GyMMM": "Gy年M月",
+        "GyMMMEEEEd": "Gy年M月d日EEEE",
+        "GyMMMEd": "Gy年M月d日E",
+        "GyMMMd": "Gy年M月d日",
+        "GyMd": "G d/M/y",
+        "H": "H点",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "H:mm",
+        "Hms": "H:mm:ss",
+        "M": "M月",
+        "MEd": "M/d（E）",
+        "MMM": "LLL",
+        "MMMEd": "M月d日E",
+        "MMMMd": "M月d日",
+        "MMMd": "M月d日",
+        "Md": "M/d",
+        "d": "d日",
+        "h": "ah点",
+        "hm": "ah:mm",
+        "hms": "ah:mm:ss",
+        "ms": "mm:ss",
+        "y": "Gy年",
+        "yyyy": "Gy年",
+        "yyyyM": "Gy/M",
+        "yyyyMEd": "Gy/M/d（E）",
+        "yyyyMMM": "Gy年M月",
+        "yyyyMMMEd": "Gy年M月d日E",
+        "yyyyMMMM": "Gy年M月",
+        "yyyyMMMd": "Gy年M月d日",
+        "yyyyMd": "Gy/M/d"
+      },
+      "dateFormats": {
+        "full": "Gy年M月d日EEEE",
+        "long": "Gy年M月d日",
+        "medium": "Gy年M月d日",
+        "short": "Gy/M/d"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "上昼",
+            "pm": "下昼"
+          },
+          "wide": {
+            "am": "上昼",
+            "pm": "下昼"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "上昼",
+            "pm": "下昼"
+          },
+          "wide": {
+            "am": "上昼",
+            "pm": "下昼"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+          "short": ["日", "一", "二", "三", "四", "五", "六"],
+          "wide": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+        },
+        "standAlone": {
+          "abbreviated": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+          "short": ["日", "一", "二", "三", "四", "五", "六"],
+          "wide": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["伊斯兰历", "BH"],
+        "wide": ["伊斯兰历", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["穆哈兰姆月", "色法尔月", "赖比月 I", "赖比月 II", "主马达月 I", "主马达月 II", "赖哲卜月", "舍尔邦月", "赖买丹月", "闪瓦鲁月", "都尔喀尔德月", "都尔黑哲月"],
+          "wide": ["穆哈兰姆月", "色法尔月", "赖比月 I", "赖比月 II", "主马达月 I", "主马达月 II", "赖哲卜月", "舍尔邦月", "赖买丹月", "闪瓦鲁月", "都尔喀尔德月", "都尔黑哲月"]
+        },
+        "standAlone": {
+          "abbreviated": ["穆哈兰姆月", "色法尔月", "赖比月 I", "赖比月 II", "主马达月 I", "主马达月 II", "赖哲卜月", "舍尔邦月", "赖买丹月", "闪瓦鲁月", "都尔喀尔德月", "都尔黑哲月"],
+          "wide": ["穆哈兰姆月", "色法尔月", "赖比月 I", "赖比月 II", "主马达月 I", "主马达月 II", "赖哲卜月", "舍尔邦月", "赖买丹月", "闪瓦鲁月", "都尔喀尔德月", "都尔黑哲月"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss [zzzz]",
+        "long": "HH:mm:ss [z]",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "EHH:mm",
+        "EHms": "EHH:mm:ss",
+        "Ed": "d E",
+        "Eh": "Eah点",
+        "Ehm": "Eah:mm",
+        "Ehms": "Eah:mm:ss",
+        "Gy": "G y年",
+        "GyM": "G M/y",
+        "GyMEd": "G d/M/y (E)",
+        "GyMMM": "G y年M月",
+        "GyMMMEEEEd": "G y年M月d日 EEEE",
+        "GyMMMEd": "G y年M月d日 E",
+        "GyMMMd": "G y年M月d日",
+        "GyMd": "G d/M/y",
+        "H": "H点",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "H:mm",
+        "Hms": "H:mm:ss",
+        "M": "M月",
+        "MEd": "M/d（E）",
+        "MMM": "LLL",
+        "MMMEd": "M月d日 E",
+        "MMMMd": "M月d日",
+        "MMMd": "M月d日",
+        "Md": "M/d",
+        "d": "d日",
+        "h": "ah点",
+        "hm": "ah:mm",
+        "hms": "ah:mm:ss",
+        "ms": "mm:ss",
+        "y": "G y年",
+        "yyyy": "G y年",
+        "yyyyM": "G y/M",
+        "yyyyMEd": "G y/M/d（E）",
+        "yyyyMMM": "G y年M月",
+        "yyyyMMMEd": "G y年M月d日 E",
+        "yyyyMMMM": "G y年M月",
+        "yyyyMMMd": "G y年M月d日",
+        "yyyyMd": "G y/M/d"
+      },
+      "dateFormats": {
+        "full": "G y年M月d日 EEEE",
+        "long": "G y年M月d日",
+        "medium": "G y年M月d日",
+        "short": "G y/M/d"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1} {0}",
+        "medium": "{1} {0}",
+        "short": "{1} {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "上昼",
+            "pm": "下昼"
+          },
+          "wide": {
+            "am": "上昼",
+            "pm": "下昼"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "上昼",
+            "pm": "下昼"
+          },
+          "wide": {
+            "am": "上昼",
+            "pm": "下昼"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+          "short": ["日", "一", "二", "三", "四", "五", "六"],
+          "wide": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+        },
+        "standAlone": {
+          "abbreviated": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+          "short": ["日", "一", "二", "三", "四", "五", "六"],
+          "wide": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["波斯历"],
+        "wide": ["波斯历"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+          "wide": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
+        },
+        "standAlone": {
+          "abbreviated": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+          "wide": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss [zzzz]",
+        "long": "HH:mm:ss [z]",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    }
+  },
+  "currencies": {
+    "AED": {
+      "name": "阿拉伯联合大公国迪尔汗"
+    },
+    "AFN": {
+      "name": "阿富汗尼",
+      "narrow": "؋"
+    },
+    "ALL": {
+      "name": "阿尔巴尼亚列克"
+    },
+    "AMD": {
+      "name": "亚美尼亚德拉姆",
+      "narrow": "֏"
+    },
+    "AOA": {
+      "name": "安哥拉宽扎",
+      "narrow": "Kz"
+    },
+    "ARS": {
+      "name": "阿根廷披索",
+      "narrow": "$"
+    },
+    "AUD": {
+      "name": "澳币",
+      "narrow": "$",
+      "symbol": "AU$"
+    },
+    "AWG": {
+      "name": "阿路巴盾"
+    },
+    "AZN": {
+      "name": "亚塞拜然马纳特",
+      "narrow": "₼"
+    },
+    "BAM": {
+      "name": "波士尼亚-赫塞哥维纳可转换马克",
+      "narrow": "KM"
+    },
+    "BBD": {
+      "name": "巴贝多元",
+      "narrow": "$"
+    },
+    "BDT": {
+      "name": "孟加拉塔卡",
+      "narrow": "৳"
+    },
+    "BHD": {
+      "name": "巴林第纳尔"
+    },
+    "BIF": {
+      "name": "蒲隆地法郎"
+    },
+    "BMD": {
+      "name": "百慕达币",
+      "narrow": "$"
+    },
+    "BND": {
+      "name": "汶莱元",
+      "narrow": "$"
+    },
+    "BOB": {
+      "name": "玻利维亚诺",
+      "narrow": "Bs"
+    },
+    "BRL": {
+      "name": "巴西里拉",
+      "symbol": "R$"
+    },
+    "BSD": {
+      "name": "巴哈马元",
+      "narrow": "$"
+    },
+    "BTN": {
+      "name": "不丹那特伦"
+    },
+    "BWP": {
+      "name": "波札那普拉",
+      "narrow": "P"
+    },
+    "BYN": {
+      "name": "白俄罗斯卢布",
+      "narrow": "р."
+    },
+    "BZD": {
+      "name": "贝里斯元",
+      "narrow": "$"
+    },
+    "CAD": {
+      "name": "加币",
+      "narrow": "$",
+      "symbol": "CA$"
+    },
+    "CDF": {
+      "name": "刚果法郎"
+    },
+    "CHF": {
+      "name": "瑞士法郎"
+    },
+    "CLP": {
+      "name": "智利披索",
+      "narrow": "$"
+    },
+    "CNY": {
+      "name": "人民币",
+      "narrow": "¥",
+      "symbol": "CN¥"
+    },
+    "COP": {
+      "name": "哥伦比亚披索",
+      "narrow": "$"
+    },
+    "CRC": {
+      "name": "哥斯大黎加科朗",
+      "narrow": "₡"
+    },
+    "CUP": {
+      "name": "古巴披索",
+      "narrow": "$"
+    },
+    "CVE": {
+      "name": "维德角埃斯库多"
+    },
+    "CZK": {
+      "name": "捷克克朗",
+      "narrow": "Kč"
+    },
+    "DJF": {
+      "name": "吉布地法郎"
+    },
+    "DKK": {
+      "name": "丹麦克朗",
+      "narrow": "kr"
+    },
+    "DOP": {
+      "name": "多明尼加披索",
+      "narrow": "$"
+    },
+    "DZD": {
+      "name": "阿尔及利亚第纳尔"
+    },
+    "EGP": {
+      "name": "埃及镑",
+      "narrow": "E£"
+    },
+    "ERN": {
+      "name": "厄立特里亚纳克法"
+    },
+    "ETB": {
+      "name": "衣索比亚比尔"
+    },
+    "EUR": {
+      "name": "欧元",
+      "symbol": "€"
+    },
+    "FJD": {
+      "name": "斐济元",
+      "narrow": "$"
+    },
+    "FKP": {
+      "name": "福克兰群岛镑",
+      "narrow": "£"
+    },
+    "GBP": {
+      "name": "英镑",
+      "symbol": "£"
+    },
+    "GEL": {
+      "name": "乔治亚拉里",
+      "narrow": "₾"
+    },
+    "GHS": {
+      "name": "迦纳塞地",
+      "narrow": "GH₵"
+    },
+    "GIP": {
+      "name": "直布罗陀镑",
+      "narrow": "£"
+    },
+    "GMD": {
+      "name": "甘比亚达拉西"
+    },
+    "GNF": {
+      "name": "几内亚法郎",
+      "narrow": "FG"
+    },
+    "GTQ": {
+      "name": "瓜地马拉格查尔",
+      "narrow": "Q"
+    },
+    "GYD": {
+      "name": "圭亚那元",
+      "narrow": "$"
+    },
+    "HKD": {
+      "name": "港币",
+      "narrow": "$",
+      "symbol": "HK$"
+    },
+    "HNL": {
+      "name": "洪都拉斯伦皮拉",
+      "narrow": "L"
+    },
+    "HTG": {
+      "name": "海地古德"
+    },
+    "HUF": {
+      "name": "匈牙利福林",
+      "narrow": "Ft"
+    },
+    "IDR": {
+      "name": "印尼盾",
+      "narrow": "Rp"
+    },
+    "ILS": {
+      "name": "以色列新谢克尔",
+      "symbol": "₪"
+    },
+    "INR": {
+      "name": "印度卢比",
+      "symbol": "₹"
+    },
+    "IQD": {
+      "name": "伊拉克第纳尔"
+    },
+    "IRR": {
+      "name": "伊朗里亚尔"
+    },
+    "ISK": {
+      "name": "冰岛克朗",
+      "narrow": "kr"
+    },
+    "JMD": {
+      "name": "牙买加元",
+      "narrow": "$"
+    },
+    "JOD": {
+      "name": "约旦第纳尔"
+    },
+    "JPY": {
+      "name": "日圆",
+      "symbol": "¥"
+    },
+    "KES": {
+      "name": "肯尼亚先令"
+    },
+    "KGS": {
+      "name": "吉尔吉斯索姆",
+      "narrow": "⃀"
+    },
+    "KHR": {
+      "name": "柬埔寨瑞尔",
+      "narrow": "៛"
+    },
+    "KMF": {
+      "name": "科摩罗法郎",
+      "narrow": "CF"
+    },
+    "KPW": {
+      "name": "北韩圆",
+      "narrow": "₩"
+    },
+    "KRW": {
+      "name": "韩圆",
+      "narrow": "₩",
+      "symbol": "￦"
+    },
+    "KWD": {
+      "name": "科威特第纳尔"
+    },
+    "KYD": {
+      "name": "开曼群岛元",
+      "narrow": "$"
+    },
+    "KZT": {
+      "name": "卡扎克斯坦坦吉",
+      "narrow": "₸"
+    },
+    "LAK": {
+      "name": "寮国基普",
+      "narrow": "₭"
+    },
+    "LBP": {
+      "name": "黎巴嫩镑",
+      "narrow": "L£"
+    },
+    "LKR": {
+      "name": "斯里兰卡卢比",
+      "narrow": "Rs"
+    },
+    "LRD": {
+      "name": "赖比瑞亚元",
+      "narrow": "$"
+    },
+    "LSL": {
+      "name": "赖索托洛蒂"
+    },
+    "LYD": {
+      "name": "利比亚第纳尔"
+    },
+    "MAD": {
+      "name": "摩洛哥迪拉姆"
+    },
+    "MDL": {
+      "name": "摩杜云列伊"
+    },
+    "MGA": {
+      "name": "马达加斯加阿里亚里",
+      "narrow": "Ar"
+    },
+    "MKD": {
+      "name": "马其顿第纳尔"
+    },
+    "MMK": {
+      "name": "缅甸元",
+      "narrow": "K"
+    },
+    "MNT": {
+      "name": "蒙古图格里克",
+      "narrow": "₮"
+    },
+    "MOP": {
+      "name": "澳门元"
+    },
+    "MRU": {
+      "name": "茅利塔尼亚乌吉亚"
+    },
+    "MUR": {
+      "name": "模里西斯卢比",
+      "narrow": "Rs"
+    },
+    "MVR": {
+      "name": "马尔地夫卢非亚"
+    },
+    "MWK": {
+      "name": "马拉维克瓦查"
+    },
+    "MXN": {
+      "name": "墨西哥披索",
+      "narrow": "$",
+      "symbol": "MX$"
+    },
+    "MYR": {
+      "name": "马来西亚令吉",
+      "narrow": "RM"
+    },
+    "MZN": {
+      "name": "莫三比克梅蒂卡尔"
+    },
+    "NAD": {
+      "name": "纳米比亚元",
+      "narrow": "$"
+    },
+    "NGN": {
+      "name": "奈及利亚奈拉",
+      "narrow": "₦"
+    },
+    "NIO": {
+      "name": "尼加拉瓜金科多巴",
+      "narrow": "C$"
+    },
+    "NOK": {
+      "name": "挪威克朗",
+      "narrow": "kr"
+    },
+    "NPR": {
+      "name": "尼泊尔卢比",
+      "narrow": "Rs"
+    },
+    "NZD": {
+      "name": "纽西兰币",
+      "narrow": "$",
+      "symbol": "NZ$"
+    },
+    "OMR": {
+      "name": "阿曼里亚尔"
+    },
+    "PAB": {
+      "name": "巴拿马巴波亚"
+    },
+    "PEN": {
+      "name": "秘鲁太阳币"
+    },
+    "PGK": {
+      "name": "巴布亚纽几内亚基那"
+    },
+    "PHP": {
+      "name": "菲律宾披索",
+      "narrow": "₱"
+    },
+    "PKR": {
+      "name": "巴基斯坦卢比",
+      "narrow": "Rs"
+    },
+    "PLN": {
+      "name": "波兰兹罗提",
+      "narrow": "zł"
+    },
+    "PYG": {
+      "name": "巴拉圭瓜拉尼",
+      "narrow": "₲"
+    },
+    "QAR": {
+      "name": "卡达里亚尔"
+    },
+    "RON": {
+      "name": "罗马尼亚列伊",
+      "narrow": "lei"
+    },
+    "RSD": {
+      "name": "塞尔维亚戴纳"
+    },
+    "RUB": {
+      "name": "俄罗斯卢布",
+      "narrow": "₽"
+    },
+    "RWF": {
+      "name": "卢安达法郎",
+      "narrow": "RF"
+    },
+    "SAR": {
+      "name": "沙乌地里亚尔"
+    },
+    "SBD": {
+      "name": "索罗门群岛元",
+      "narrow": "$"
+    },
+    "SCR": {
+      "name": "塞席尔卢比"
+    },
+    "SDG": {
+      "name": "苏丹镑"
+    },
+    "SEK": {
+      "name": "瑞典克朗",
+      "narrow": "kr"
+    },
+    "SGD": {
+      "name": "新加坡币",
+      "narrow": "$"
+    },
+    "SHP": {
+      "name": "圣赫勒拿镑",
+      "narrow": "£"
+    },
+    "SLE": {
+      "name": "狮子山利昂"
+    },
+    "SOS": {
+      "name": "索马利亚先令"
+    },
+    "SRD": {
+      "name": "苏利南元",
+      "narrow": "$"
+    },
+    "SSP": {
+      "name": "南苏丹镑",
+      "narrow": "£"
+    },
+    "STN": {
+      "name": "圣多美岛和普林西比岛多布拉",
+      "narrow": "Db"
+    },
+    "SYP": {
+      "name": "叙利亚镑",
+      "narrow": "£"
+    },
+    "SZL": {
+      "name": "史瓦济兰里朗吉尼"
+    },
+    "THB": {
+      "name": "泰铢",
+      "narrow": "฿"
+    },
+    "TJS": {
+      "name": "塔吉克索莫尼"
+    },
+    "TMT": {
+      "name": "土库曼马纳特"
+    },
+    "TND": {
+      "name": "突尼西亚第纳尔"
+    },
+    "TOP": {
+      "name": "东加潘加",
+      "narrow": "T$"
+    },
+    "TRY": {
+      "name": "新土耳其里拉",
+      "narrow": "₺"
+    },
+    "TTD": {
+      "name": "千里达及托巴哥元",
+      "narrow": "$"
+    },
+    "TWD": {
+      "name": "新台币",
+      "narrow": "$",
+      "symbol": "NT$"
+    },
+    "TZS": {
+      "name": "坦尚尼亚先令"
+    },
+    "UAH": {
+      "name": "乌克兰格里夫纳",
+      "narrow": "₴"
+    },
+    "UGX": {
+      "name": "乌干达先令"
+    },
+    "USD": {
+      "name": "美元",
+      "narrow": "$",
+      "symbol": "US$"
+    },
+    "UYU": {
+      "name": "乌拉圭披索",
+      "narrow": "$"
+    },
+    "UZS": {
+      "name": "乌兹别克索姆"
+    },
+    "VES": {
+      "name": "委内瑞拉玻利瓦"
+    },
+    "VND": {
+      "name": "越南盾",
+      "symbol": "₫"
+    },
+    "VUV": {
+      "name": "万那杜瓦图"
+    },
+    "WST": {
+      "name": "西萨摩亚塔拉"
+    },
+    "XAF": {
+      "name": "法郎 (CFA–BEAC)",
+      "symbol": "FCFA"
+    },
+    "XCD": {
+      "name": "格瑞那达元",
+      "narrow": "$",
+      "symbol": "EC$"
+    },
+    "XCG": {
+      "name": "加勒比盾",
+      "symbol": "Cg."
+    },
+    "XOF": {
+      "name": "法郎 (CFA–BCEAO)",
+      "symbol": "F\u202fCFA"
+    },
+    "XPF": {
+      "name": "法郎 (CFP)",
+      "symbol": "CFPF"
+    },
+    "YER": {
+      "name": "叶门里亚尔"
+    },
+    "ZAR": {
+      "name": "南非兰特",
+      "narrow": "R"
+    },
+    "ZMW": {
+      "name": "尚比亚克瓦查",
+      "narrow": "ZK"
+    },
+    "ZWG": {
+      "name": "辛巴威金"
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "yue-Hans",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "¤#,##0.00;(¤#,##0.00)",
+      "compactShort": {
+        "1000": {
+          "other": "0千"
+        },
+        "10000": {
+          "other": "0万"
+        },
+        "100000": {
+          "other": "00万"
+        },
+        "1000000": {
+          "other": "000万"
+        },
+        "10000000": {
+          "other": "0000万"
+        },
+        "100000000": {
+          "other": "0亿"
+        },
+        "1000000000": {
+          "other": "00亿"
+        },
+        "10000000000": {
+          "other": "000亿"
+        },
+        "100000000000": {
+          "other": "0000亿"
+        },
+        "1000000000000": {
+          "other": "0兆"
+        },
+        "10000000000000": {
+          "other": "00兆"
+        },
+        "100000000000000": {
+          "other": "000兆"
+        }
+      },
+      "currency": "¤#,##0.00",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ".",
+        "exponential": "E",
+        "group": ",",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "非数值",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {},
+    "ordinal": {}
+  },
+  "territories": {
+    "AC": "阿森松岛",
+    "AD": "安道尔",
+    "AE": "阿拉伯联合大公国",
+    "AF": "阿富汗",
+    "AG": "安提瓜同巴布达",
+    "AI": "安圭拉",
+    "AL": "阿尔巴尼亚",
+    "AM": "亚美尼亚",
+    "AO": "安哥拉",
+    "AQ": "南极洲",
+    "AR": "阿根廷",
+    "AS": "美属萨摩亚",
+    "AT": "奥地利",
+    "AU": "澳洲",
+    "AW": "荷属阿鲁巴",
+    "AX": "奥兰群岛",
+    "AZ": "阿塞拜疆",
+    "BA": "波斯尼亚同黑塞哥维那",
+    "BB": "巴贝多",
+    "BD": "孟加拉",
+    "BE": "比利时",
+    "BF": "布吉纳法索",
+    "BG": "保加利亚",
+    "BH": "巴林",
+    "BI": "蒲隆地",
+    "BJ": "贝南",
+    "BL": "圣巴瑟米",
+    "BM": "百慕达",
+    "BN": "汶莱",
+    "BO": "玻利维亚",
+    "BQ": "荷兰加勒比区",
+    "BR": "巴西",
+    "BS": "巴哈马",
+    "BT": "不丹",
+    "BV": "布威岛",
+    "BW": "波札那",
+    "BY": "白俄罗斯",
+    "BZ": "贝里斯",
+    "CA": "加拿大",
+    "CC": "科科斯（基林）群岛",
+    "CD": "刚果（金夏沙）",
+    "CF": "中非共和国",
+    "CG": "刚果（布拉萨）",
+    "CH": "瑞士",
+    "CI": "象牙海岸",
+    "CK": "库克群岛",
+    "CL": "智利",
+    "CM": "喀麦隆",
+    "CN": "中国",
+    "CO": "哥伦比亚",
+    "CP": "克里派顿岛",
+    "CQ": "萨克",
+    "CR": "哥斯大黎加",
+    "CU": "古巴",
+    "CV": "维德角",
+    "CW": "库拉索",
+    "CX": "圣诞岛",
+    "CY": "赛普勒斯",
+    "CZ": "捷克",
+    "DE": "德国",
+    "DG": "迪亚哥加西亚岛",
+    "DJ": "吉布地",
+    "DK": "丹麦",
+    "DM": "多米尼克",
+    "DO": "多明尼加共和国",
+    "DZ": "阿尔及利亚",
+    "EA": "休达与梅利利亚",
+    "EC": "厄瓜多",
+    "EE": "爱沙尼亚",
+    "EG": "埃及",
+    "EH": "西撒哈拉",
+    "ER": "厄利垂亚",
+    "ES": "西班牙",
+    "ET": "衣索比亚",
+    "EU": "欧盟",
+    "EZ": "欧元区",
+    "FI": "芬兰",
+    "FJ": "斐济",
+    "FK": "福克兰群岛",
+    "FM": "密克罗尼西亚群岛",
+    "FO": "法罗群岛",
+    "FR": "法国",
+    "GA": "加彭",
+    "GB": "英国",
+    "GD": "格瑞那达",
+    "GE": "格鲁吉亚",
+    "GF": "法属圭亚那",
+    "GG": "根西岛",
+    "GH": "迦纳",
+    "GI": "直布罗陀",
+    "GL": "格陵兰",
+    "GM": "甘比亚",
+    "GN": "几内亚",
+    "GP": "瓜地洛普",
+    "GQ": "赤道几内亚",
+    "GR": "希腊",
+    "GS": "南佐治亚岛同南桑威奇群岛",
+    "GT": "瓜地马拉",
+    "GU": "关岛",
+    "GW": "几内亚比索",
+    "GY": "盖亚那",
+    "HK": "中国香港特别行政区",
+    "HM": "赫德岛同麦克唐纳群岛",
+    "HN": "宏都拉斯",
+    "HR": "克罗埃西亚",
+    "HT": "海地",
+    "HU": "匈牙利",
+    "IC": "加那利群岛",
+    "ID": "印尼",
+    "IE": "爱尔兰",
+    "IL": "以色列",
+    "IM": "曼岛",
+    "IN": "印度",
+    "IO": "英属印度洋领地",
+    "IQ": "伊拉克",
+    "IR": "伊朗",
+    "IS": "冰岛",
+    "IT": "意大利",
+    "JE": "泽西岛",
+    "JM": "牙买加",
+    "JO": "约旦",
+    "JP": "日本",
+    "KE": "肯亚",
+    "KG": "吉尔吉斯",
+    "KH": "柬埔寨",
+    "KI": "吉里巴斯",
+    "KM": "葛摩",
+    "KN": "圣基茨同尼维斯",
+    "KP": "北韩",
+    "KR": "南韩",
+    "KW": "科威特",
+    "KY": "开曼群岛",
+    "KZ": "哈萨克",
+    "LA": "老挝",
+    "LB": "黎巴嫩",
+    "LC": "圣露西亚",
+    "LI": "列支敦斯登",
+    "LK": "斯里兰卡",
+    "LR": "赖比瑞亚",
+    "LS": "赖索托",
+    "LT": "立陶宛",
+    "LU": "卢森堡",
+    "LV": "拉脱维亚",
+    "LY": "利比亚",
+    "MA": "摩洛哥",
+    "MC": "摩纳哥",
+    "MD": "摩尔多瓦",
+    "ME": "蒙特内哥罗",
+    "MF": "法属圣马丁",
+    "MG": "马达加斯加",
+    "MH": "马绍尔群岛",
+    "MK": "北马其顿",
+    "ML": "马利",
+    "MM": "缅甸",
+    "MN": "蒙古",
+    "MO": "中国澳门特别行政区",
+    "MP": "北马里亚纳群岛",
+    "MQ": "马丁尼克岛",
+    "MR": "茅利塔尼亚",
+    "MS": "蒙哲腊",
+    "MT": "马尔他",
+    "MU": "模里西斯",
+    "MV": "马尔地夫",
+    "MW": "马拉威",
+    "MX": "墨西哥",
+    "MY": "马来西亚",
+    "MZ": "莫三比克",
+    "NA": "纳米比亚",
+    "NC": "新喀里多尼亚",
+    "NE": "尼日",
+    "NF": "诺福克岛",
+    "NG": "奈及利亚",
+    "NI": "尼加拉瓜",
+    "NL": "荷兰",
+    "NO": "挪威",
+    "NP": "尼泊尔",
+    "NR": "诺鲁",
+    "NU": "纽埃岛",
+    "NZ": "新西兰",
+    "OM": "阿曼王国",
+    "PA": "巴拿马",
+    "PE": "秘鲁",
+    "PF": "法属玻里尼西亚",
+    "PG": "巴布亚纽几内亚",
+    "PH": "菲律宾",
+    "PK": "巴基斯坦",
+    "PL": "波兰",
+    "PM": "圣皮埃尔同密克隆群岛",
+    "PN": "皮特肯群岛",
+    "PR": "波多黎各",
+    "PS": "巴勒斯坦自治区",
+    "PT": "葡萄牙",
+    "PW": "帛琉",
+    "PY": "巴拉圭",
+    "QA": "卡达",
+    "QO": "大洋洲边疆群岛",
+    "RE": "留尼旺",
+    "RO": "罗马尼亚",
+    "RS": "塞尔维亚",
+    "RU": "俄罗斯",
+    "RW": "卢安达",
+    "SA": "沙特阿拉伯",
+    "SB": "索罗门群岛",
+    "SC": "塞席尔",
+    "SD": "苏丹",
+    "SE": "瑞典",
+    "SG": "新加坡",
+    "SH": "圣赫勒拿岛",
+    "SI": "斯洛维尼亚",
+    "SJ": "斯瓦尔巴特群岛同扬马延岛",
+    "SK": "斯洛伐克",
+    "SL": "狮子山",
+    "SM": "圣马利诺",
+    "SN": "塞内加尔",
+    "SO": "索马利亚",
+    "SR": "苏利南",
+    "SS": "南苏丹",
+    "ST": "圣多美同普林西比",
+    "SV": "萨尔瓦多",
+    "SX": "荷属圣马丁",
+    "SY": "叙利亚",
+    "SZ": "史瓦济兰",
+    "TA": "特里斯坦达库尼亚群岛",
+    "TC": "土克斯及开科斯群岛",
+    "TD": "查德",
+    "TF": "法属南方属地",
+    "TG": "多哥",
+    "TH": "泰国",
+    "TJ": "塔吉克",
+    "TK": "托克劳群岛",
+    "TL": "东帝汶",
+    "TM": "土库曼",
+    "TN": "突尼西亚",
+    "TO": "东加",
+    "TR": "土耳其",
+    "TT": "千里达同多巴哥",
+    "TV": "吐瓦鲁",
+    "TW": "台湾",
+    "TZ": "坦尚尼亚",
+    "UA": "乌克兰",
+    "UG": "乌干达",
+    "UM": "美国本土外小岛屿",
+    "UN": "联合国",
+    "US": "美国",
+    "UY": "乌拉圭",
+    "UZ": "乌兹别克",
+    "VA": "梵蒂冈",
+    "VC": "圣文森特同格林纳丁斯",
+    "VE": "委内瑞拉",
+    "VG": "英属维京群岛",
+    "VI": "美属维京群岛",
+    "VN": "越南",
+    "VU": "万那杜",
+    "WF": "瓦利斯同富图纳群岛",
+    "WS": "萨摩亚",
+    "XA": "伪口音",
+    "XB": "伪 Bidi",
+    "XK": "科索沃",
+    "YE": "也门",
+    "YT": "马约特",
+    "ZA": "南非",
+    "ZM": "尚比亚",
+    "ZW": "辛巴威"
+  }
+}

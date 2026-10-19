@@ -55,8 +55,12 @@ Future<void> pumpUntil(
 }
 
 /// Taps [finder] once the screen has settled: a page still sliding in
-/// moves its widgets, and a tap aimed at a moving widget can miss it.
+/// moves its widgets, and a tap aimed at a moving widget can miss it. The
+/// catalogue's product cards are taller than the test device's list, so the
+/// target is scrolled into view first, as a user scrolls to it.
 Future<void> tapSettled(WidgetTester tester, Finder finder) async {
+  await tester.pumpAndSettle();
+  await tester.ensureVisible(finder);
   await tester.pumpAndSettle();
   await tester.tap(finder);
 }
@@ -194,7 +198,7 @@ void expressFlows({
           of: find.byWidgetPredicate(
             (w) => w is Semantics && w.properties.identifier == 'product-price',
           ),
-          matching: find.text('1.99 EUR'),
+          matching: find.text('€1.99'),
         ),
       );
       await tapSettled(tester, find.text('Add to cart'));
@@ -204,14 +208,14 @@ void expressFlows({
       await tester.pageBack();
       await waitFor(tester, find.text('Cart (1)'));
       await tapSettled(tester, find.text('Cart (1)'));
-      await waitFor(tester, find.text('Total: 1.99 EUR'));
+      await waitFor(tester, find.text('€1.99'));
       // The cart's line, once the page has slid over the catalogue.
       await tester.pumpAndSettle();
       expect(find.text('Product 01'), findsOneWidget);
       await tester.pageBack();
       await waitFor(tester, find.text('Cart (1)'));
       await tapSettled(tester, find.text('Cart (1)'));
-      await waitFor(tester, find.text('Total: 1.99 EUR'));
+      await waitFor(tester, find.text('€1.99'));
 
       // Placing the order opens its tracking page: the server's status
       // steps arrive over the WebSocket until the order is delivered.

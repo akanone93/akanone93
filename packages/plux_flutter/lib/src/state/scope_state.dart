@@ -175,6 +175,7 @@ final class ScopeModel {
     this.extraRoots,
     this.forms = const [],
     this.runForm,
+    this.formTexts = const FormTexts(),
   }) : decls = List.unmodifiable(decls),
        byName = {for (final d in decls) d.name: d};
 
@@ -214,6 +215,9 @@ final class ScopeModel {
 
   /// Runs the forms' asynchronous validators; null where no engine runs.
   final FormGraphRunner? runForm;
+
+  /// Resolves the forms' messages in the effective locale (I18N-001).
+  final FormTexts formTexts;
 
   /// The root this scope's entries are read under.
   String get root => kind.name;
@@ -497,6 +501,7 @@ mixin ScopeValues on Notifier<Map<String, Object?>> {
           evaluate: m.evaluate,
           run: m.runForm,
           report: m.report,
+          texts: m.formTexts,
         ),
       );
     }

@@ -20,9 +20,10 @@
 ///   `PluxNativeAction<I, O>` takes its inputs from the constructor of `I`
 ///   and its output from `O`.
 /// - **Packages** are the optional Plux packages the build registers in
-///   `PluxConfig.devicePackages`, such as `plux_media`, named by the
-///   package each entry's class comes from; publishing warns when a release
-///   uses a device action whose package a build lacks (RT-060).
+///   `PluxConfig.devicePackages` or `PluxConfig.widgetPackages`, such as
+///   `plux_media` or `plux_components`, named by the package each entry's
+///   class comes from; publishing warns when a release uses a device
+///   action or a widget whose package a build lacks (RT-060).
 ///
 /// Dart types map to the document type system; one with no mapping is
 /// reported with its source location and never guessed. An optional
@@ -255,8 +256,8 @@ final class _Scan {
     for (final arg
         in config.argumentList.arguments.whereType<NamedArgument>()) {
       final which = arg.name.lexeme;
-      if (which == 'devicePackages') {
-        devicePackages(arg.argumentExpression);
+      if (which == 'devicePackages' || which == 'widgetPackages') {
+        packageList(which, arg.argumentExpression);
         continue;
       }
       if (which != 'nativeRoutes' && which != 'nativeActions') continue;
@@ -302,12 +303,13 @@ final class _Scan {
     }
   }
 
-  /// Records the packages of the entries of `devicePackages: [...]`.
-  void devicePackages(Expression list) {
+  /// Records the packages of the entries of `devicePackages: [...]` or
+  /// `widgetPackages: [...]`.
+  void packageList(String which, Expression list) {
     if (list is! ListLiteral) {
       report(
         list,
-        'devicePackages is not a list literal, so its packages cannot be read; list them in place',
+        '$which is not a list literal, so its packages cannot be read; list them in place',
       );
       return;
     }
@@ -320,11 +322,13 @@ final class _Scan {
       if (name == null || name == 'plux_flutter') {
         report(
           e,
-          'a devicePackages entry that is not a class of a Plux package cannot be recorded',
+          'a $which entry that is not a class of a Plux package cannot be recorded',
         );
         continue;
       }
       packages.add(name);
+      // plux_maps_google renders the widgets plux_maps names (RT-060).
+      if (name == 'plux_maps_google') packages.add('plux_maps');
     }
   }
 

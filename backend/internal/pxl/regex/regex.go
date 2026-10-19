@@ -301,6 +301,10 @@ func (re *Regexp) Find(s string) []int { return re.run(decode(s), search, true) 
 // s, as Find does; nil when none does.
 func (re *Regexp) Prefix(s string) []int { return re.run(decode(s), prefix, true) }
 
+// FullFind returns the match of the pattern against all of s, as Find does;
+// nil when the pattern does not match all of s.
+func (re *Regexp) FullFind(s string) []int { return re.run(decode(s), full, true) }
+
 // decode reads s as code points; an invalid UTF-8 byte reads as U+FFFD.
 func decode(s string) []rune {
 	out := make([]rune, 0, utf8.RuneCountInString(s))

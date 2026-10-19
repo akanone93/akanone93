@@ -19,6 +19,8 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/golden"
+	"github.com/nightCode42/plux3/backend/internal/localisation"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -36,9 +38,14 @@ type Handlers struct {
 	Auth      *auth.Service
 	Tenancy   *tenancy.Service
 	Documents *document.Service
-	Releases  *release.Service
-	Devices   *device.Service
-	Events    *telemetry.Service
+	// Translations serves LocalisationService (I18N-009); nil leaves it
+	// unmounted.
+	Translations *localisation.Service
+	// Goldens serves GoldenService (TST-003); nil leaves it unmounted.
+	Goldens  *golden.Service
+	Releases *release.Service
+	Devices  *device.Service
+	Events   *telemetry.Service
 	// SecurityConfig serves SecurityAdminService (SEC-182); nil leaves
 	// the service unmounted.
 	SecurityConfig *seccfg.Service

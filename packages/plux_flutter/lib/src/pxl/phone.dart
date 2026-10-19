@@ -119,28 +119,103 @@ final _Tables _tables = () {
 /// Whether [region], two ASCII letters in either case, has metadata.
 bool isPhoneRegion(String region) => _tables.region(region) != null;
 
+/// The country calling code of [region] (44 for GB), or null when the
+/// region has no metadata.
+int? phoneCallingCode(String region) => _tables.region(region)?.code;
+
+/// The regions that have metadata, as upper-case ISO 3166 codes, sorted.
+List<String> phoneRegions() => _tables.byRegion.keys.toList()..sort();
+
 /// Whether [number] is a valid phone number, read with [region] as the
 /// default for numbers without a country calling code (schema/pxl/phone.md
 /// §3). An unknown region validates only international numbers.
-bool isValidPhone(String number, String region) {
+bool isValidPhone(String number, String region) =>
+    _parse(number, region) != null;
+
+/// The calling code, the national significant number and the territory of
+/// a valid [number]; null when it is invalid.
+(int, String, _Territory)? _parse(String number, String region) {
   if (number.length > _maxInput && number.runes.length > _maxInput) {
-    return false;
+    return null;
   }
   final norm = _normalize(number);
-  if (norm == null) return false;
+  if (norm == null) return null;
   final def = _tables.region(region);
   final ext = _extractCode(norm.$1, norm.$2, def);
-  if (ext == null) return false;
+  if (ext == null) return null;
   var (code, national, fromNumber) = ext;
-  if (national.length < _minNational) return false;
+  if (national.length < _minNational) return null;
   final meta = fromNumber ? _tables.byCode[code]!.first : def!;
   final p = _stripNationalPrefix(national, meta);
   final r = _testLength(p, meta);
   if (r == _Length.possible || r == _Length.tooLong) national = p;
   if (national.length < _minNational || national.length > _maxNational) {
-    return false;
+    return null;
   }
-  return _regionForNumber(code, national)?.valid(national) ?? false;
+  final g = _regionForNumber(code, national);
+  return g != null && g.valid(national) ? (code, national, g) : null;
+}
+
+/// One entry of the format table (schema/pxl/phone.md §2).
+final class _NumberFormat {
+  _NumberFormat(this.pattern, this.leading, this.national, this.intl);
+
+  final _Pattern? pattern;
+  final _Pattern? leading;
+  final String national;
+
+  /// The international format; empty when there is none.
+  final String intl;
+}
+
+final Map<String, List<_NumberFormat>> _formats = () {
+  final out = <String, List<_NumberFormat>>{};
+  for (final line in phoneFormatTable.trim().split('\n')) {
+    final f = line.split(' ');
+    if (f.length < 5 || (f.length - 1) % 4 != 0) continue;
+    final list = <_NumberFormat>[];
+    for (var i = 1; i < f.length; i += 4) {
+      final national = f[i + 2].replaceAll('_', ' ');
+      list.add(
+        _NumberFormat(
+          _pattern(f[i]),
+          f[i + 1] == '~' ? null : _pattern(f[i + 1]),
+          national,
+          switch (f[i + 3]) {
+            '=' => national,
+            '-' => '',
+            final s => s.replaceAll('_', ' '),
+          },
+        ),
+      );
+    }
+    out[f[0]] = list;
+  }
+  return out;
+}();
+
+/// Formats a valid phone number for display (`format.phone`,
+/// schema/pxl/phone.md §4): in national format when the number belongs to
+/// [region], else in international format, "+" and the calling code first.
+/// An invalid number is returned unchanged.
+String formatPhone(String number, String region) {
+  final parsed = _parse(number, region);
+  if (parsed == null) return number;
+  final (code, national, g) = parsed;
+  final isNational = g.id.toUpperCase() == region.toUpperCase();
+  var body = national;
+  final List<_NumberFormat> formats =
+      _formats[_tables.byCode[code]!.first.id] ?? const <_NumberFormat>[];
+  for (final _NumberFormat f in formats) {
+    final leading = f.leading;
+    if (leading != null && leading.prefix(national) == null) continue;
+    final m = f.pattern?._re?.fullFind(national);
+    if (m == null) continue;
+    final layout = isNational ? f.national : f.intl;
+    if (layout.isNotEmpty) body = _expand(layout, m, national);
+    break;
+  }
+  return isNational ? body : '+$code $body';
 }
 
 /// The digits of [s] and whether a "+" preceded them; null when [s] has

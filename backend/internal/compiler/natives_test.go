@@ -58,7 +58,7 @@ func TestNativeDeclarationsReachTheAppBundle(t *testing.T) {
 	var event fbs.ComponentEvent
 	slot.Props(&prop, 0)
 	slot.Events(&event, 0)
-	if strs[slot.Type()] != "MapView" || slot.PropsLength() != 1 || strs[prop.Name()] != "zoom" ||
+	if strs[slot.Type()] != "StoreMap" || slot.PropsLength() != 1 || strs[prop.Name()] != "zoom" ||
 		slot.EventsLength() != 1 || strs[event.Name()] != "onPan" {
 		t.Errorf("slot %q %q %q", strs[slot.Type()], strs[prop.Name()], strs[event.Name()])
 	}
@@ -264,5 +264,44 @@ func TestHostBuildIncompatibilities(t *testing.T) {
 	}
 	if got := NativeUses(res, func(f string) bool { return f == "plugins/nav/pages/slots.page.json" }); len(got) != 1 || got[0].Name != "Counter" {
 		t.Errorf("uses of one file %+v", got)
+	}
+}
+
+// TestNativeSlotNodeIsTheSlotItNames checks that a NativeSlot node with a
+// literal name compiles to exactly what a node whose type is that name does,
+// and that an unknown name is reported as an unknown widget type (WGT-033,
+// ADR-0071).
+// Verifies: WGT-033.
+func TestNativeSlotNodeIsTheSlotItNames(t *testing.T) {
+	t.Parallel()
+	const page = "plugins/tasks/pages/list.page.json"
+	spelled := func(name string) *Result {
+		fsys := project(t, featuresDir)
+		src := string(fsys[page].Data)
+		src = strings.Replace(src, `"type": "StoreMap"`, `"type": "NativeSlot"`, 1)
+		src = strings.Replace(src, `"zoom": 3`, `"zoom": 3, "name": "`+name+`"`, 1)
+		fsys[page].Data = []byte(src)
+		return compileFS(fsys)
+	}
+	base := compileFS(project(t, featuresDir))
+	if base.Diagnostics.HasErrors() {
+		t.Fatalf("diagnostics:\n%v", base.Diagnostics)
+	}
+	named := spelled("StoreMap")
+	if named.Diagnostics.HasErrors() {
+		t.Fatalf("diagnostics:\n%v", named.Diagnostics)
+	}
+	want := mustListPage(t, readAll(t, base)[1]).Data
+	got := mustListPage(t, readAll(t, named)[1]).Data
+	if !reflect.DeepEqual(got, want) {
+		t.Error("a NativeSlot node does not compile to the node of the slot it names")
+	}
+	unknown := spelled("Nope")
+	found := false
+	for _, d := range unknown.Diagnostics {
+		found = found || d.Code == plxerr.UnknownWidgetType
+	}
+	if !found {
+		t.Errorf("an unknown slot name is not reported:\n%v", unknown.Diagnostics)
 	}
 }

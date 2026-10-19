@@ -1,0 +1,124 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// GoldenService holds the baselines of golden (visual regression) tests and
+// the runs compared with them (TST-003, ADR-0070). The CLI renders the
+// cases with the real runtime and uploads a run; the server compares the
+// images with the approved baselines, promotes images on approval and gates
+// publishing on them.
+service GoldenService {
+  // GetBaselines lists the approved image hashes of a plugin by case, so the
+  // CLI can compare locally and upload only the images that differ. It
+  // needs plugin.read.
+  rpc GetBaselines(GetBaselinesRequest) returns (GetBaselinesResponse) {}
+  // UploadRun records a run. Every case that differs from its baseline
+  // carries its image, which the server checks against the hash. It needs
+  // plugin.edit.
+  rpc UploadRun(UploadRunRequest) returns (UploadRunResponse) {}
+  // ListDifferences lists the cases of a run that differ from the approved
+  // baselines now. It needs plugin.read.
+  rpc ListDifferences(ListDifferencesRequest) returns (ListDifferencesResponse) {}
+  // Approve promotes the images of cases of a run to baselines; with no case
+  // IDs, every difference of the run. It needs goldens.approve and is
+  // audited.
+  rpc Approve(ApproveRequest) returns (ApproveResponse) {}
+  // GetRunStatus says whether the run for the exact bundles exists, is
+  // canonical and has unapproved differences: what the publish gate sees.
+  // It needs plugin.read.
+  rpc GetRunStatus(GetRunStatusRequest) returns (GetRunStatusResponse) {}
+}
+
+message GetBaselinesRequest {
+  string app_id = 1;
+  // plugin_key is the plugin's key, or empty for the app bundle.
+  string plugin_key = 2;
+}
+message GetBaselinesResponse {
+  // image_sha256 maps a case ID to the SHA-256 of its approved image.
+  map<string, bytes> image_sha256 = 1;
+}
+
+// GoldenCase is one rendered case: a page in a frame, locale, theme and text
+// scale. The case ID names all of them and is stable across runs.
+message GoldenCase {
+  string case_id = 1;
+  string frame = 2;
+  string locale = 3;
+  string theme = 4;
+  double text_scale = 5;
+  // image_sha256 is the SHA-256 of the PNG.
+  bytes image_sha256 = 6;
+  // image is the PNG; empty when the case matches its baseline.
+  bytes image = 7;
+}
+
+message UploadRunRequest {
+  string app_id = 1;
+  // plugin_key is the plugin's key, or empty for the app bundle.
+  string plugin_key = 2;
+  // bundle_sha256 is the hash of the bundle under test and app_sha256 the
+  // hash of the app bundle it was rendered with (BND-005).
+  bytes bundle_sha256 = 3;
+  bytes app_sha256 = 4;
+  // canonical is true when the run was rendered on Linux, the canonical
+  // renderer; other systems compare with a tolerance and the gate never
+  // accepts their runs.
+  bool canonical = 5;
+  // renderer names the system that rendered the run.
+  string renderer = 6;
+  repeated GoldenCase cases = 7;
+}
+message UploadRunResponse {
+  string run_id = 1;
+  // differences is the number of cases that differ from the baselines.
+  int32 differences = 2;
+}
+
+message ListDifferencesRequest {
+  string app_id = 1;
+  string run_id = 2;
+}
+message GoldenDifference {
+  string case_id = 1;
+  string frame = 2;
+  string locale = 3;
+  string theme = 4;
+  double text_scale = 5;
+  bytes image_sha256 = 6;
+  // baseline_sha256 is empty for a case with no baseline yet.
+  bytes baseline_sha256 = 7;
+}
+message ListDifferencesResponse {
+  repeated GoldenDifference differences = 1;
+}
+
+message ApproveRequest {
+  string app_id = 1;
+  string run_id = 2;
+  // case_ids are the cases to approve; empty approves every difference.
+  repeated string case_ids = 3;
+}
+message ApproveResponse {
+  repeated string approved_case_ids = 1;
+}
+
+message GetRunStatusRequest {
+  string app_id = 1;
+  string plugin_key = 2;
+  bytes bundle_sha256 = 3;
+  bytes app_sha256 = 4;
+}
+message GetRunStatusResponse {
+  // found is whether a canonical run exists for the exact bundles.
+  bool found = 1;
+  string run_id = 2;
+  int32 cases = 3;
+  // differences is the number of cases of that run still unapproved.
+  int32 differences = 4;
+}

@@ -7,6 +7,9 @@ package limits
 
 // Keys of the limits registry.
 const (
+	// A11yWaiversPerPlugin: Accessibility waivers one plugin may declare.
+	// (A11Y-008)
+	A11yWaiversPerPlugin Key = "a11y.waiversPerPlugin"
 	// ActionForEachItems: Items one forEach step may iterate over. (ACT-005)
 	ActionForEachItems Key = "action.forEachItems"
 	// ActionQueueLength: Triggers a handler with the queue policy may hold while
@@ -52,8 +55,12 @@ const (
 	APIRequestsPerMinutePerDevice Key = "api.requestsPerMinutePerDevice"
 	// AppFunctions: Functions per app. (LIM-001)
 	AppFunctions Key = "app.functions"
+	// AppLocales: Locales one app may declare. (I18N-002)
+	AppLocales Key = "app.locales"
 	// AppPlugins: Plugins per app. (SCH-005)
 	AppPlugins Key = "app.plugins"
+	// AppTranslationKeys: Translation keys one app may declare. (I18N-007)
+	AppTranslationKeys Key = "app.translationKeys"
 	// AssetFileSize: Size of one asset file, checked at upload and again at
 	// publish. (SRV-060, AST-003)
 	AssetFileSize Key = "asset.fileSize"
@@ -264,9 +271,21 @@ const (
 	// GatewayTimeout: Milliseconds the gateway waits for an upstream to answer.
 	// (SEC-031, LIM-004)
 	GatewayTimeout Key = "gateway.timeout"
+	// GoldenBaselineBytesPerPlugin: Golden baseline images one plugin may store.
+	// (TST-003)
+	GoldenBaselineBytesPerPlugin Key = "golden.baselineBytesPerPlugin"
+	// GoldenCasesPerRun: Golden cases one run may contain. (TST-003)
+	GoldenCasesPerRun Key = "golden.casesPerRun"
+	// GoldenImageBytes: Size of one golden image. (TST-003)
+	GoldenImageBytes Key = "golden.imageBytes"
 	// HTTPResponseSize: Size of a response the server reads when it fetches a
 	// URL, such as an identity provider's keys. (SEC-104, SEC-105)
 	HTTPResponseSize Key = "http.responseSize"
+	// MediaPinnedDownloadSize: Largest network video or audio file the player
+	// downloads through the pinned client when the security setting
+	// pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned
+	// client). (SEC-041)
+	MediaPinnedDownloadSize Key = "media.pinnedDownloadSize"
 	// PageAnimations: Animations that can run at the same time on one page.
 	// (CMP-040)
 	PageAnimations Key = "page.animations"
@@ -353,6 +372,10 @@ const (
 	// TelemetryEventsPerRequest: Runtime events one telemetry request may carry.
 	// (SEC-104)
 	TelemetryEventsPerRequest Key = "telemetry.eventsPerRequest"
+	// TranslationImportSize: Size of one translation import file. (I18N-009)
+	TranslationImportSize Key = "translation.importSize"
+	// TranslationMessageSize: Size of one translation message. (I18N-001)
+	TranslationMessageSize Key = "translation.messageSize"
 	// UpdateMetadataBytes: Size of one update metadata file (root, snapshot or
 	// timestamp) a device accepts and the server serves. (SEC-050)
 	UpdateMetadataBytes Key = "updateMetadata.bytes"
@@ -360,6 +383,7 @@ const (
 
 // registry holds every definition in key order. It is read-only.
 var registry = [...]Definition{
+	{Key: A11yWaiversPerPlugin, Unit: UnitCount, Default: 50, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler, Phase: "P8", Description: "Accessibility waivers one plugin may declare."},
 	{Key: ActionForEachItems, Unit: UnitCount, Default: 1000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerRuntime, Phase: "P5", Description: "Items one forEach step may iterate over."},
 	{Key: ActionQueueLength, Unit: UnitCount, Default: 32, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Triggers a handler with the queue policy may hold while its run is in progress; a trigger beyond it is dropped and reported."},
 	{Key: ActionRunTimeout, Unit: UnitMilliseconds, Default: 120000, Warning: 0, Max: 3600000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerRuntime, Phase: "P4", Description: "Time one action run may take."},
@@ -377,7 +401,9 @@ var registry = [...]Definition{
 	{Key: APIRequestsPerMinutePerAddress, Unit: UnitCount, Default: 300, Warning: 0, Max: 100000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "API calls one client address may make per minute, whoever is calling."},
 	{Key: APIRequestsPerMinutePerDevice, Unit: UnitCount, Default: 120, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P2", Description: "API calls one registered device may make per minute."},
 	{Key: AppFunctions, Unit: UnitCount, Default: 100, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P7", Description: "Functions per app."},
+	{Key: AppLocales, Unit: UnitCount, Default: 50, Warning: 0, Max: 300, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P8", Description: "Locales one app may declare."},
 	{Key: AppPlugins, Unit: UnitCount, Default: 200, Warning: 0, Max: 1000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Plugins per app."},
+	{Key: AppTranslationKeys, Unit: UnitCount, Default: 10000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P8", Description: "Translation keys one app may declare."},
 	{Key: AssetFileSize, Unit: UnitBytes, Default: 10485760, Warning: 0, Max: 104857600, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P2", Description: "Size of one asset file, checked at upload and again at publish."},
 	{Key: AssetImagePixels, Unit: UnitCount, Default: 40000000, Warning: 0, Max: 100000000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Pixels of one image asset, width times height, checked before it is decoded so that a small file cannot expand into a huge image."},
 	{Key: AttestAppAttestObjectBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 262144, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of an App Attest attestation object or assertion."},
@@ -449,7 +475,11 @@ var registry = [...]Definition{
 	{Key: GatewayRequestsPerMinutePerDevice, Unit: UnitCount, Default: 600, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Gateway requests one device may send per minute."},
 	{Key: GatewayResponseBytes, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of upstream response body the gateway returns to a device."},
 	{Key: GatewayTimeout, Unit: UnitMilliseconds, Default: 10000, Warning: 0, Max: 60000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Milliseconds the gateway waits for an upstream to answer."},
+	{Key: GoldenBaselineBytesPerPlugin, Unit: UnitBytes, Default: 268435456, Warning: 0, Max: 4294967296, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P8", Description: "Golden baseline images one plugin may store."},
+	{Key: GoldenCasesPerRun, Unit: UnitCount, Default: 500, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerCli, Phase: "P8", Description: "Golden cases one run may contain."},
+	{Key: GoldenImageBytes, Unit: UnitBytes, Default: 2097152, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerCli, Phase: "P8", Description: "Size of one golden image."},
 	{Key: HTTPResponseSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 67108864, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Size of a response the server reads when it fetches a URL, such as an identity provider's keys."},
+	{Key: MediaPinnedDownloadSize, Unit: UnitBytes, Default: 209715200, Warning: 0, Max: 1073741824, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P8", Description: "Largest network video or audio file the player downloads through the pinned client when the security setting pinnedMediaOnly is on (SEC-041: platform players cannot use the pinned client)."},
 	{Key: PageAnimations, Unit: UnitCount, Default: 30, Warning: 10, Max: 200, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Animations that can run at the same time on one page."},
 	{Key: PageBuildCost, Unit: UnitMicroseconds, Default: 16000, Warning: 8000, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Estimated build time of a page on the mid-tier reference device, the sum of its widgets' cost hints."},
 	{Key: PageDepth, Unit: UnitCount, Default: 64, Warning: 32, Max: 128, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Depth of a page's node tree."},
@@ -479,5 +509,7 @@ var registry = [...]Definition{
 	{Key: StateSecureBytes, Unit: UnitBytes, Default: 65536, Warning: 0, Max: 1048576, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes the secure state of one app may take in the runtime's local store (plain; secure state is the encrypted one, plan p5 B6); writes beyond it stay in memory and are reported."},
 	{Key: TelemetryBufferBytes, Unit: UnitBytes, Default: 262144, Warning: 0, Max: 4194304, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P3", Description: "The size of the runtime's buffer of unsent telemetry events; the oldest are dropped first."},
 	{Key: TelemetryEventsPerRequest, Unit: UnitCount, Default: 500, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Runtime events one telemetry request may carry."},
+	{Key: TranslationImportSize, Unit: UnitBytes, Default: 16777216, Warning: 0, Max: 134217728, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer | EnforcerCli, Phase: "P8", Description: "Size of one translation import file."},
+	{Key: TranslationMessageSize, Unit: UnitBytes, Default: 4096, Warning: 0, Max: 65536, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P8", Description: "Size of one translation message."},
 	{Key: UpdateMetadataBytes, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 4194304, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer | EnforcerRuntime, Phase: "P6", Description: "Size of one update metadata file (root, snapshot or timestamp) a device accepts and the server serves."},
 }

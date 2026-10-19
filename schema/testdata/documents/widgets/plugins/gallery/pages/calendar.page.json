@@ -1,0 +1,121 @@
+{
+  "id": "01c0c450-6c00-7000-8a13-000000000001",
+  "key": "calendar",
+  "kind": "page",
+  "pageKind": "screen",
+  "root": {
+    "id": "01c0c450-6c00-7000-8a13-000000000002",
+    "slots": {
+      "appBar": {
+        "id": "01c0c450-6c00-7000-8a13-000000000004",
+        "slots": {
+          "title": {
+            "id": "01c0c450-6c00-7000-8a13-000000000003",
+            "props": {
+              "data": "calendar"
+            },
+            "type": "Text"
+          }
+        },
+        "type": "AppBar"
+      },
+      "body": {
+        "id": "01c0c450-6c00-7000-8a13-000000000005",
+        "slots": {
+          "child": {
+            "children": [
+              {
+                "id": "01c0c450-6c00-7000-8a13-000000000006",
+                "props": {
+                  "padding": {
+                    "all": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onChanged": {
+                        "steps": [
+                          {
+                            "action": "haptic",
+                            "id": "h",
+                            "input": {
+                              "pattern": "light"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a13-000000000007",
+                    "props": {
+                      "calendar": "gregorian",
+                      "firstDate": "2020-01-01",
+                      "lastDate": "2030-12-31",
+                      "secondaryCalendar": "islamicUmalqura",
+                      "value": "2024-03-11"
+                    },
+                    "semantics": {
+                      "label": "date"
+                    },
+                    "testId": "dual-gregorian-hijri",
+                    "type": "DualCalendarDatePicker"
+                  }
+                },
+                "type": "Padding"
+              },
+              {
+                "id": "01c0c450-6c00-7000-8a13-000000000008",
+                "props": {
+                  "padding": {
+                    "all": 8
+                  }
+                },
+                "slots": {
+                  "child": {
+                    "events": {
+                      "onChanged": {
+                        "steps": [
+                          {
+                            "action": "haptic",
+                            "id": "h",
+                            "input": {
+                              "pattern": "light"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "id": "01c0c450-6c00-7000-8a13-000000000009",
+                    "props": {
+                      "calendar": "persian",
+                      "firstDate": "2020-01-01",
+                      "lastDate": "2030-12-31",
+                      "secondaryCalendar": "gregorian",
+                      "value": "2024-03-20"
+                    },
+                    "semantics": {
+                      "label": "date"
+                    },
+                    "testId": "dual-persian-gregorian",
+                    "type": "DualCalendarDatePicker"
+                  }
+                },
+                "type": "Padding"
+              }
+            ],
+            "id": "01c0c450-6c00-7000-8a13-00000000000a",
+            "props": {
+              "crossAxisAlignment": "stretch"
+            },
+            "type": "Column"
+          }
+        },
+        "type": "SingleChildScrollView"
+      }
+    },
+    "type": "Scaffold"
+  },
+  "route": "calendar",
+  "schemaVersion": "1.0.0",
+  "title": "calendar"
+}

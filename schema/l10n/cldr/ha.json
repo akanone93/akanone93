@@ -1,0 +1,1632 @@
+{
+  "calendars": {
+    "ethiopic": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyyMd": "d/M/yy GGGGG",
+        "Gy": "G y",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "G y MMM",
+        "GyMMMEd": "G y MMM d, E",
+        "GyMMMMEEEEd": "EEEE, d MMMM, y G",
+        "GyMMMMd": "d MMMM, y G",
+        "GyMMMd": "G y MMM d",
+        "GyMd": "G y-MM-dd",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, M/d",
+        "MMM": "LLL",
+        "MMMEd": "E, MMM d",
+        "MMMMEd": "E, MMMM d",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "M/d",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M/y",
+        "yMEd": "E, M/d/y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E, MMM d, y",
+        "yMMMM": "MMMM y",
+        "yyyy": "G y",
+        "yyyyM": "G y-MM",
+        "yyyyMEd": "G y-MM-dd, E",
+        "yyyyMMM": "G y MMM",
+        "yyyyMMMEd": "G y MMM d, E",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "G y MMM d",
+        "yyyyMd": "G y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MMMM, y G",
+        "long": "d MMMM, y G",
+        "medium": "d MMM, y G",
+        "short": "d/M/yy GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'a' {0}",
+        "long": "{1} 'a' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{0}, {1}",
+        "long": "{0}, {1}",
+        "medium": "{0}, {1}",
+        "short": "{0}, {1}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "SF",
+            "pm": "YM"
+          },
+          "wide": {
+            "am": "Safiya",
+            "pm": "Yamma"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "SF",
+            "pm": "YM"
+          },
+          "wide": {
+            "am": "SF",
+            "pm": "YM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Lah", "Lit", "Tal", "Lar", "Alh", "Jum", "Asa"],
+          "short": ["Lh", "Li", "Ta", "Lr", "Al", "Ju", "As"],
+          "wide": ["Lahadi", "Litinin", "Talata", "Laraba", "Alhamis", "Jummaʼa", "Asabar"]
+        },
+        "standAlone": {
+          "abbreviated": ["Lah", "Lit", "Tal", "Lar", "Alh", "Jum", "Asa"],
+          "short": ["Lh", "Li", "Ta", "Lr", "Al", "Ju", "As"],
+          "wide": ["Lahadi", "Litinin", "Talata", "Laraba", "Alhamis", "Jummaʼa", "Asabar"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AA", "AM"],
+        "wide": ["AA", "AM"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        },
+        "standAlone": {
+          "abbreviated": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"],
+          "wide": ["Meskerem", "Tekemt", "Hedar", "Tahsas", "Ter", "Yekatit", "Megabit", "Miazia", "Genbot", "Sene", "Hamle", "Nehasse", "Pagumen"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "gregorian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "E, d",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "Gy": "G y",
+        "GyM": "M/y G",
+        "GyMEd": "E, M/d/y G",
+        "GyMMM": "G y MMM",
+        "GyMMMEd": "G y MMM d, E",
+        "GyMMMd": "G y MMM d",
+        "GyMd": "G y-MM-dd",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, M/d",
+        "MMM": "LLL",
+        "MMMEd": "E, MMM d",
+        "MMMMEd": "E, MMMM d",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "M/d",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm\u202fa",
+        "hms": "h:mm:ss\u202fa",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M/y",
+        "yMEd": "E, M/d/y",
+        "yMMM": "MMM y",
+        "yMMMEd": "y MMM d, E",
+        "yMMMM": "MMMM y",
+        "yMMMMEEEEd": "EEEE d MMMM, y",
+        "yMMMMd": "d MMMM, y",
+        "yMMMd": "d MMM, y",
+        "yMd": "y-MM-dd",
+        "yyMd": "d/M/yy"
+      },
+      "dateFormats": {
+        "full": "EEEE d MMMM, y",
+        "long": "d MMMM, y",
+        "medium": "d MMM, y",
+        "short": "d/M/yy"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'da' {0}",
+        "long": "{1} 'da' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{1} {0}",
+        "long": "{1}, {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "SF",
+            "pm": "YM"
+          },
+          "narrow": {
+            "am": "SF",
+            "pm": "YM"
+          },
+          "wide": {
+            "am": "Safiya",
+            "pm": "Yamma"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "SF",
+            "pm": "YM"
+          },
+          "narrow": {
+            "am": "SF",
+            "pm": "YM"
+          },
+          "wide": {
+            "am": "SF",
+            "pm": "YM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Lah", "Lit", "Tal", "Lar", "Alh", "Jum", "Asa"],
+          "narrow": ["L", "L", "T", "L", "A", "J", "A"],
+          "short": ["Lh", "Li", "Ta", "Lr", "Al", "Ju", "As"],
+          "wide": ["Lahadi", "Litinin", "Talata", "Laraba", "Alhamis", "Jummaʼa", "Asabar"]
+        },
+        "standAlone": {
+          "abbreviated": ["Lah", "Lit", "Tal", "Lar", "Alh", "Jum", "Asa"],
+          "narrow": ["L", "L", "T", "L", "A", "J", "A"],
+          "short": ["Lh", "Li", "Ta", "Lr", "Al", "Ju", "As"],
+          "wide": ["Lahadi", "Litinin", "Talata", "Laraba", "Alhamis", "Jummaʼa", "Asabar"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["K.H", "BHAI"],
+        "narrow": ["K.H", "BHAI"],
+        "wide": ["Kafin haihuwar annab", "Bayan haihuwar annab"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Jan", "Fab", "Mar", "Afi", "May", "Yun", "Yul", "Agu", "Sat", "Okt", "Nuw", "Dis"],
+          "narrow": ["J", "F", "M", "A", "M", "Y", "Y", "A", "S", "O", "N", "D"],
+          "wide": ["Janairu", "Faburairu", "Maris", "Afirilu", "Mayu", "Yuni", "Yuli", "Agusta", "Satumba", "Oktoba", "Nuwamba", "Disamba"]
+        },
+        "standAlone": {
+          "abbreviated": ["Jan", "Fab", "Mar", "Afi", "May", "Yun", "Yul", "Agu", "Sat", "Okt", "Nuw", "Dis"],
+          "narrow": ["J", "F", "M", "A", "M", "Y", "Y", "A", "S", "O", "N", "D"],
+          "wide": ["Janairu", "Faburairu", "Maris", "Afirilu", "Mayu", "Yuni", "Yuli", "Agusta", "Satumba", "Oktoba", "Nuwamba", "Disamba"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "islamic-umalqura": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyyMd": "d/M/yy GGGGG",
+        "Gy": "y G",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "G MMM y",
+        "GyMMMEd": "G d MMM y, E",
+        "GyMMMMEEEEd": "EEEE, d MMMM, y G",
+        "GyMMMMd": "d MMMM, y G",
+        "GyMMMd": "G d MMM y",
+        "GyMd": "GGGGG dd-MM-y",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, d/M",
+        "MMM": "LLL",
+        "MMMEd": "E, d MMM",
+        "MMMMEd": "E d MMM",
+        "MMMMd": "d MMMM",
+        "MMMd": "d MMM",
+        "Md": "d/M",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "yM",
+        "yMEd": "E, d M y",
+        "yMMM": "y MMM",
+        "yMMMEd": "E, d MMM, y",
+        "yMMMM": "MMMM y",
+        "yyyy": "y G",
+        "yyyyM": "y/M GGGGG",
+        "yyyyMEd": "E, d/M/y GGGGG",
+        "yyyyMMM": "y G MMM",
+        "yyyyMMMEd": "y G d MMM, E",
+        "yyyyMMMM": "y G MMMM",
+        "yyyyMMMd": "y G d MMM",
+        "yyyyMd": "d/M/y GGGGG"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MMMM, y G",
+        "long": "d MMMM, y G",
+        "medium": "d MMM, y G",
+        "short": "d/M/yy GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'a' {0}",
+        "long": "{1} 'a' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{0}, {1}",
+        "long": "{0}, {1}",
+        "medium": "{0}, {1}",
+        "short": "{0}, {1}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "SF",
+            "pm": "YM"
+          },
+          "wide": {
+            "am": "Safiya",
+            "pm": "Yamma"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "SF",
+            "pm": "YM"
+          },
+          "wide": {
+            "am": "SF",
+            "pm": "YM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Lah", "Lit", "Tal", "Lar", "Alh", "Jum", "Asa"],
+          "short": ["Lh", "Li", "Ta", "Lr", "Al", "Ju", "As"],
+          "wide": ["Lahadi", "Litinin", "Talata", "Laraba", "Alhamis", "Jummaʼa", "Asabar"]
+        },
+        "standAlone": {
+          "abbreviated": ["Lah", "Lit", "Tal", "Lar", "Alh", "Jum", "Asa"],
+          "short": ["Lh", "Li", "Ta", "Lr", "Al", "Ju", "As"],
+          "wide": ["Lahadi", "Litinin", "Talata", "Laraba", "Alhamis", "Jummaʼa", "Asabar"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AH", "BH"],
+        "wide": ["AH", "BH"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʼaban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        },
+        "standAlone": {
+          "abbreviated": ["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."],
+          "wide": ["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʼaban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    },
+    "persian": {
+      "availableFormats": {
+        "E": "ccc",
+        "EHm": "E HH:mm",
+        "EHms": "E HH:mm:ss",
+        "Ed": "d, E",
+        "Eh": "E h\u202fa",
+        "Ehm": "E h:mm a",
+        "Ehms": "E h:mm:ss a",
+        "GGGGGyyMd": "d/M/yy GGGGG",
+        "Gy": "G y",
+        "GyM": "G y-MM",
+        "GyMEd": "G y-MM-dd, E",
+        "GyMMM": "G y MMM",
+        "GyMMMEd": "G y MMM d, E",
+        "GyMMMMEEEEd": "EEEE, d MMMM, y G",
+        "GyMMMMd": "d MMMM, y G",
+        "GyMMMd": "G y MMM d",
+        "GyMd": "G y-MM-dd",
+        "H": "HH",
+        "HHmm": "HH:mm",
+        "HHmmss": "HH:mm:ss",
+        "Hm": "HH:mm",
+        "Hms": "HH:mm:ss",
+        "M": "L",
+        "MEd": "E, M/d",
+        "MMM": "LLL",
+        "MMMEd": "E, MMM d",
+        "MMMMEd": "E, MMMM d",
+        "MMMMd": "MMMM d",
+        "MMMd": "MMM d",
+        "Md": "M/d",
+        "d": "d",
+        "h": "h\u202fa",
+        "hm": "h:mm a",
+        "hms": "h:mm:ss a",
+        "ms": "mm:ss",
+        "y": "y",
+        "yM": "M/y",
+        "yMEd": "E, M/d/y",
+        "yMMM": "MMM y",
+        "yMMMEd": "E, MMM d, y",
+        "yMMMM": "MMMM y",
+        "yyyy": "G y",
+        "yyyyM": "G y-MM",
+        "yyyyMEd": "G y-MM-dd, E",
+        "yyyyMMM": "G y MMM",
+        "yyyyMMMEd": "G y MMM d, E",
+        "yyyyMMMM": "G y MMMM",
+        "yyyyMMMd": "G y MMM d",
+        "yyyyMd": "G y-MM-dd"
+      },
+      "dateFormats": {
+        "full": "EEEE, d MMMM, y G",
+        "long": "d MMMM, y G",
+        "medium": "d MMM, y G",
+        "short": "d/M/yy GGGGG"
+      },
+      "dateTimeAtTime": {
+        "full": "{1} 'a' {0}",
+        "long": "{1} 'a' {0}",
+        "medium": "{1}, {0}",
+        "short": "{1}, {0}"
+      },
+      "dateTimeFormats": {
+        "full": "{0}, {1}",
+        "long": "{0}, {1}",
+        "medium": "{0}, {1}",
+        "short": "{0}, {1}"
+      },
+      "dayPeriods": {
+        "format": {
+          "abbreviated": {
+            "am": "SF",
+            "pm": "YM"
+          },
+          "wide": {
+            "am": "Safiya",
+            "pm": "Yamma"
+          }
+        },
+        "standAlone": {
+          "abbreviated": {
+            "am": "SF",
+            "pm": "YM"
+          },
+          "wide": {
+            "am": "SF",
+            "pm": "YM"
+          }
+        }
+      },
+      "days": {
+        "format": {
+          "abbreviated": ["Lah", "Lit", "Tal", "Lar", "Alh", "Jum", "Asa"],
+          "short": ["Lh", "Li", "Ta", "Lr", "Al", "Ju", "As"],
+          "wide": ["Lahadi", "Litinin", "Talata", "Laraba", "Alhamis", "Jummaʼa", "Asabar"]
+        },
+        "standAlone": {
+          "abbreviated": ["Lah", "Lit", "Tal", "Lar", "Alh", "Jum", "Asa"],
+          "short": ["Lh", "Li", "Ta", "Lr", "Al", "Ju", "As"],
+          "wide": ["Lahadi", "Litinin", "Talata", "Laraba", "Alhamis", "Jummaʼa", "Asabar"]
+        }
+      },
+      "eras": {
+        "abbreviated": ["AP"],
+        "wide": ["AP"]
+      },
+      "months": {
+        "format": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        },
+        "standAlone": {
+          "abbreviated": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"],
+          "wide": ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        }
+      },
+      "timeFormats": {
+        "full": "HH:mm:ss zzzz",
+        "long": "HH:mm:ss z",
+        "medium": "HH:mm:ss",
+        "short": "HH:mm"
+      }
+    }
+  },
+  "currencies": {
+    "AED": {
+      "name": "Dirham na Haɗaɗɗiyar Daular Larabawa"
+    },
+    "AFN": {
+      "name": "Afghani na ƙasar Afghanistan",
+      "narrow": "؋"
+    },
+    "ALL": {
+      "name": "Lek na Albania",
+      "plural": {
+        "other": "Lekë na Albania"
+      }
+    },
+    "AMD": {
+      "name": "Dram na Armeniya",
+      "narrow": "֏"
+    },
+    "AOA": {
+      "name": "Kwanza na Angola",
+      "narrow": "Kz"
+    },
+    "ARS": {
+      "name": "Peso na ƙasar Argentina",
+      "narrow": "$",
+      "plural": {
+        "one": "peso na ƙasar Argentina"
+      }
+    },
+    "AUD": {
+      "name": "Dalar Ostareliya",
+      "narrow": "$",
+      "plural": {
+        "other": "Dalolin Ostareliya"
+      },
+      "symbol": "A$"
+    },
+    "AWG": {
+      "name": "Florin na yankin Aruba",
+      "plural": {
+        "one": "florin na yankin Aruba"
+      }
+    },
+    "AZN": {
+      "name": "Manat na Azebaijan",
+      "narrow": "₼"
+    },
+    "BAM": {
+      "name": "Kuɗaɗen Bosnia da Herzegovina",
+      "narrow": "KM"
+    },
+    "BBD": {
+      "name": "Dalar ƙasar Barbados",
+      "narrow": "$"
+    },
+    "BDT": {
+      "name": "Taka na ƙasar Bangladesh",
+      "narrow": "৳"
+    },
+    "BHD": {
+      "name": "Zinaren Bahrain"
+    },
+    "BIF": {
+      "name": "Franc na Burundi"
+    },
+    "BMD": {
+      "name": "Dalar ƙasar Bermuda",
+      "narrow": "$"
+    },
+    "BND": {
+      "name": "Dalar Brunei",
+      "narrow": "$",
+      "plural": {
+        "other": "Dalolin Brunei"
+      }
+    },
+    "BOB": {
+      "name": "Boloviano na ƙasar Bolivia",
+      "narrow": "Bs"
+    },
+    "BRL": {
+      "name": "Ril Kudin Birazil",
+      "plural": {
+        "one": "Ril Kuɗin Birazil",
+        "other": "Ril Kuɗin Birazil"
+      },
+      "symbol": "R$"
+    },
+    "BSD": {
+      "name": "Dalar ƙasar Bahamas",
+      "narrow": "$",
+      "plural": {
+        "one": "dalar ƙasar Bahamas"
+      }
+    },
+    "BTN": {
+      "name": "Ngultrum na ƙasar Bhutan"
+    },
+    "BWP": {
+      "name": "Pula na Batsuwana",
+      "narrow": "P"
+    },
+    "BYN": {
+      "name": "Ruble na Belarus"
+    },
+    "BZD": {
+      "name": "Dalar ƙasar Belize",
+      "narrow": "$"
+    },
+    "CAD": {
+      "name": "Dalar Kanada",
+      "narrow": "$",
+      "symbol": "CA$"
+    },
+    "CDF": {
+      "name": "Franc na Kongo"
+    },
+    "CHF": {
+      "name": "Franc na Suwizilan",
+      "plural": {
+        "one": "Franc na Suwizalan"
+      }
+    },
+    "CLP": {
+      "name": "Peso na ƙasar Chile",
+      "narrow": "$"
+    },
+    "CNY": {
+      "name": "Yuwan na ƙasar Sin",
+      "narrow": "¥",
+      "symbol": "CN¥"
+    },
+    "COP": {
+      "name": "Peso na ƙasar Columbia",
+      "narrow": "$"
+    },
+    "CRC": {
+      "name": "Colón na ƙasar Costa Rica",
+      "narrow": "₡"
+    },
+    "CUP": {
+      "name": "Peso na ƙasar Kuba",
+      "narrow": "$",
+      "plural": {
+        "one": "peso na ƙasar Cuba"
+      }
+    },
+    "CVE": {
+      "name": "Escudo na Cape Verde",
+      "plural": {
+        "one": "Escudo na Cape Verd"
+      }
+    },
+    "CZK": {
+      "name": "Koruna na Czech",
+      "narrow": "Kč"
+    },
+    "DJF": {
+      "name": "Franc na Djibouti"
+    },
+    "DKK": {
+      "name": "Krone na ƙasar Denmark",
+      "narrow": "kr",
+      "plural": {
+        "one": "krone na ƙasar Denmark"
+      }
+    },
+    "DOP": {
+      "name": "Peso na jamhuriyar Dominica",
+      "narrow": "$",
+      "plural": {
+        "one": "peso na jamhuriyar Dominica"
+      }
+    },
+    "DZD": {
+      "name": "Dinarin Aljeriya"
+    },
+    "EGP": {
+      "name": "Fam na Masar",
+      "narrow": "E£"
+    },
+    "ERN": {
+      "name": "Kuɗin Eritireya",
+      "plural": {
+        "one": "Nafka na Eritrea",
+        "other": "Nafka na Eritrea"
+      }
+    },
+    "ETB": {
+      "name": "Birr na Habasha"
+    },
+    "EUR": {
+      "name": "Yuro",
+      "plural": {
+        "one": "yuro",
+        "other": "yuro"
+      },
+      "symbol": "€"
+    },
+    "FJD": {
+      "name": "Dalar Fiji",
+      "narrow": "$",
+      "plural": {
+        "other": "Dalolin Fiji"
+      }
+    },
+    "FKP": {
+      "name": "Fam na ƙasar Tsibirai na Falkland",
+      "narrow": "£"
+    },
+    "GBP": {
+      "name": "Fam na Ingila",
+      "symbol": "£"
+    },
+    "GEL": {
+      "name": "Lari na Georgia",
+      "narrow": "₾"
+    },
+    "GHS": {
+      "name": "Sidi na Ghana",
+      "narrow": "GH₵"
+    },
+    "GIP": {
+      "name": "Fam na Gibraltar",
+      "narrow": "£"
+    },
+    "GMD": {
+      "name": "Dalasi na Gambiya"
+    },
+    "GNF": {
+      "name": "Franc na Guinea",
+      "narrow": "FG"
+    },
+    "GTQ": {
+      "name": "Quetzal na ƙasar Guatemala",
+      "narrow": "Q",
+      "plural": {
+        "one": "quetzal na ƙasar Guatemala"
+      }
+    },
+    "GYD": {
+      "name": "Dalar Guyana",
+      "narrow": "$"
+    },
+    "HKD": {
+      "name": "Dalar Hong Kong",
+      "narrow": "$",
+      "symbol": "HK$"
+    },
+    "HNL": {
+      "name": "Lempira na ƙasar Honduras",
+      "narrow": "L",
+      "plural": {
+        "one": "lempira na ƙasar Honduras"
+      }
+    },
+    "HTG": {
+      "name": "Gourde na ƙasar Haiti",
+      "plural": {
+        "one": "gourde na ƙasar Haiti"
+      }
+    },
+    "HUF": {
+      "name": "Forint na Hungary",
+      "narrow": "Ft"
+    },
+    "IDR": {
+      "name": "Rupiah na ƙasar Indonesia",
+      "narrow": "Rp"
+    },
+    "ILS": {
+      "name": "Sabon shekel na Israʼila",
+      "symbol": "₪"
+    },
+    "INR": {
+      "name": "Rupee na ƙasar Indiya",
+      "symbol": "₹"
+    },
+    "IQD": {
+      "name": "Dinarin Iraqi",
+      "plural": {
+        "one": "dinarin Iraqi"
+      }
+    },
+    "IRR": {
+      "name": "Riyal na ƙasar Iran",
+      "plural": {
+        "other": "Riyal-riyal na ƙasar Iran"
+      }
+    },
+    "ISK": {
+      "name": "Króna na ƙasar Iceland",
+      "narrow": "kr",
+      "plural": {
+        "one": "króna na ƙasar Iceland"
+      }
+    },
+    "JMD": {
+      "name": "Dalar Jamaica",
+      "narrow": "$",
+      "plural": {
+        "one": "dalar Jamaica"
+      }
+    },
+    "JOD": {
+      "name": "Dinarin Jordan",
+      "plural": {
+        "one": "dinarin Jordan"
+      }
+    },
+    "JPY": {
+      "name": "Yen na ƙasar Japan",
+      "symbol": "¥"
+    },
+    "KES": {
+      "name": "Sulen Kenya"
+    },
+    "KGS": {
+      "name": "Som na ƙasar Kyrgystani",
+      "narrow": "⃀"
+    },
+    "KHR": {
+      "name": "Riel na ƙasar Cambodia",
+      "narrow": "៛"
+    },
+    "KMF": {
+      "name": "Franc na Kwamoras",
+      "narrow": "CF"
+    },
+    "KPW": {
+      "name": "Won na ƙasar Koriya ta Arewa",
+      "narrow": "₩"
+    },
+    "KRW": {
+      "name": "Won na Koriya ta Kudu",
+      "symbol": "₩"
+    },
+    "KWD": {
+      "name": "Dinarin Kuwaiti",
+      "plural": {
+        "one": "dinarin Kuwaiti"
+      }
+    },
+    "KYD": {
+      "name": "Dalar ƙasar Tsibirai na Cayman",
+      "narrow": "$",
+      "plural": {
+        "one": "dalar ƙasar Tsibirai na Cayman"
+      }
+    },
+    "KZT": {
+      "name": "Tenge na ƙasar Kazkhstan",
+      "narrow": "₸"
+    },
+    "LAK": {
+      "name": "Kip na ƙasar Laos",
+      "narrow": "₭"
+    },
+    "LBP": {
+      "name": "Fam na Lebanon",
+      "narrow": "L£"
+    },
+    "LKR": {
+      "name": "Rupee na ƙasar Sri Lanka",
+      "narrow": "Rs"
+    },
+    "LRD": {
+      "name": "Dalar Laberiya",
+      "narrow": "$"
+    },
+    "LSL": {
+      "name": "Loti na Lesoto"
+    },
+    "LYD": {
+      "name": "Dinarin Libya",
+      "plural": {
+        "one": "Dinarin Libiya",
+        "other": "Dinarin Libiya"
+      }
+    },
+    "MAD": {
+      "name": "Dirhamin Moroko",
+      "plural": {
+        "one": "Dirhamin Maroko",
+        "other": "Dirhamomin Maroko"
+      }
+    },
+    "MDL": {
+      "name": "Leu na Moldova",
+      "plural": {
+        "other": "Lei na Moldova"
+      }
+    },
+    "MGA": {
+      "name": "Ariary na Malagasy",
+      "narrow": "Ar"
+    },
+    "MKD": {
+      "name": "Dinarin Macedonia"
+    },
+    "MMK": {
+      "name": "Kyat na ƙasar Myanmar",
+      "narrow": "K"
+    },
+    "MNT": {
+      "name": "Tugrik na Mongolia",
+      "narrow": "₮"
+    },
+    "MOP": {
+      "name": "Pataca na ƙasar Macao"
+    },
+    "MRU": {
+      "name": "Ouguiya na Moritaniya"
+    },
+    "MUR": {
+      "name": "Rupee na Moritus",
+      "narrow": "Rs"
+    },
+    "MVR": {
+      "name": "Rufiyaa na ƙasar Maldives"
+    },
+    "MWK": {
+      "name": "Kwacha na Malawi"
+    },
+    "MXN": {
+      "name": "Peso na ƙasar Mekziko",
+      "narrow": "$",
+      "plural": {
+        "one": "peso na ƙasar Mekziko",
+        "other": "peso na ƙasar Mekziko"
+      },
+      "symbol": "MX$"
+    },
+    "MYR": {
+      "name": "Ringgit na ƙasar Malaysia",
+      "narrow": "RM"
+    },
+    "MZN": {
+      "name": "Metical na ƙasar Mozambique",
+      "plural": {
+        "one": "metical na ƙasar Mozambique"
+      }
+    },
+    "NAD": {
+      "name": "Dalar Namibiya",
+      "narrow": "$"
+    },
+    "NGN": {
+      "name": "Nairar Najeriya",
+      "plural": {
+        "one": "Nairar Nijeriya",
+        "other": "Nairorin Najeriya"
+      },
+      "symbol": "₦"
+    },
+    "NIO": {
+      "name": "Córdoba na ƙasar Nicaragua",
+      "narrow": "C$"
+    },
+    "NOK": {
+      "name": "Krone na ƙasar Norway",
+      "narrow": "kr",
+      "plural": {
+        "one": "krone na ƙasar Norway"
+      }
+    },
+    "NPR": {
+      "name": "Rupee na Nepal",
+      "narrow": "Rs"
+    },
+    "NZD": {
+      "name": "Dalar New Zealand",
+      "narrow": "$",
+      "plural": {
+        "other": "Dalolin New Zealand"
+      },
+      "symbol": "NZ$"
+    },
+    "OMR": {
+      "name": "Riyal ɗin Oman"
+    },
+    "PAB": {
+      "name": "Balboa na ƙasar Panama"
+    },
+    "PEN": {
+      "name": "Sol na ƙasar Peru"
+    },
+    "PGK": {
+      "name": "Kina na ƙasar Papua New Guinea"
+    },
+    "PHP": {
+      "name": "Peso na ƙasar Philippine",
+      "symbol": "₱"
+    },
+    "PKR": {
+      "name": "Rupee na ƙasar Pakistan",
+      "narrow": "Rs"
+    },
+    "PLN": {
+      "name": "Zloty na Polan",
+      "narrow": "zł",
+      "plural": {
+        "one": "zloty na Polan",
+        "other": "zloty na Polan"
+      }
+    },
+    "PYG": {
+      "name": "Guarani na ƙasar Paraguay",
+      "narrow": "₲"
+    },
+    "QAR": {
+      "name": "Riyal ɗin Qatar"
+    },
+    "RON": {
+      "name": "Leu na Romania",
+      "narrow": "lei"
+    },
+    "RSD": {
+      "name": "Dinarin Serbia",
+      "plural": {
+        "one": "dinarin Serbia"
+      }
+    },
+    "RUB": {
+      "name": "Ruble na ƙasar Rasha",
+      "narrow": "₽"
+    },
+    "RWF": {
+      "name": "Franc na Ruwanda",
+      "narrow": "RF"
+    },
+    "SAR": {
+      "name": "Riyal ɗin Saudiyya"
+    },
+    "SBD": {
+      "name": "Dalar Tsibiran Solomon",
+      "narrow": "$",
+      "plural": {
+        "other": "Dalolin Tsibiran Solomon"
+      }
+    },
+    "SCR": {
+      "name": "Rupee na Seychellois"
+    },
+    "SDG": {
+      "name": "Fam na Sudan"
+    },
+    "SEK": {
+      "name": "Krona na ƙasar Sweden",
+      "narrow": "kr",
+      "plural": {
+        "one": "krona na ƙasar Sweden"
+      }
+    },
+    "SGD": {
+      "name": "Dalar Singapore",
+      "narrow": "$",
+      "plural": {
+        "other": "Dalolin Singapore"
+      }
+    },
+    "SHP": {
+      "name": "Fam na San Helena",
+      "narrow": "£",
+      "plural": {
+        "other": "fam na San Helena"
+      }
+    },
+    "SLE": {
+      "name": "Leone na Saliyo"
+    },
+    "SOS": {
+      "name": "Sulen Somaliya"
+    },
+    "SRD": {
+      "name": "Dalar ƙasar Suriname",
+      "narrow": "$"
+    },
+    "SSP": {
+      "name": "Fam na Kudancin Sudan",
+      "narrow": "£",
+      "plural": {
+        "one": "fam na Kudancin Sudan"
+      }
+    },
+    "STN": {
+      "name": "Dobra na Sawo Tome",
+      "narrow": "Db"
+    },
+    "SYP": {
+      "name": "Fam ɗin Siriya",
+      "narrow": "£"
+    },
+    "SZL": {
+      "name": "Emalangeni na Swazi",
+      "plural": {
+        "one": "Lilangeni na Swazi"
+      }
+    },
+    "THB": {
+      "name": "Baht na ƙasar Thailand",
+      "narrow": "฿"
+    },
+    "TJS": {
+      "name": "Somoni na ƙasar Tajikistan"
+    },
+    "TMT": {
+      "name": "Manat na ƙasar Turkmenistan"
+    },
+    "TND": {
+      "name": "Dinarin Tunusiya"
+    },
+    "TOP": {
+      "name": "Paʻanga na ƙasar Tonga",
+      "narrow": "T$"
+    },
+    "TRY": {
+      "name": "Lira na Turkiyya",
+      "narrow": "₺"
+    },
+    "TTD": {
+      "name": "Dalar ƙasar Trinidad da Tobago",
+      "narrow": "$",
+      "plural": {
+        "one": "dalar ƙasar Trinidad da Tobago"
+      }
+    },
+    "TWD": {
+      "name": "Sabuwar Dalar Taiwan",
+      "narrow": "$",
+      "symbol": "NT$"
+    },
+    "TZS": {
+      "name": "Sulen Tanzaniya"
+    },
+    "UAH": {
+      "name": "Hryvnia na Ukrain",
+      "narrow": "₴"
+    },
+    "UGX": {
+      "name": "Sulen Yuganda",
+      "plural": {
+        "one": "Sulallan Yuganda",
+        "other": "Sulallan Yuganda"
+      }
+    },
+    "USD": {
+      "name": "Dalar Amurka",
+      "symbol": "$"
+    },
+    "UYU": {
+      "name": "Peso na ƙasar Uruguay",
+      "narrow": "$",
+      "plural": {
+        "one": "peso na ƙasar Uruguay"
+      }
+    },
+    "UZS": {
+      "name": "Som na ƙasar Uzbekistan"
+    },
+    "VES": {
+      "name": "Bolívar na ƙasar Venezuela"
+    },
+    "VND": {
+      "name": "Dong na ƙasar Vietnam",
+      "symbol": "₫"
+    },
+    "VUV": {
+      "name": "Vatu da ƙasar Vanuatu"
+    },
+    "WST": {
+      "name": "Tala na ƙasar Samoa"
+    },
+    "XAF": {
+      "name": "Kuɗin Sefa na Afirka Ta Tsakiya",
+      "symbol": "FCFA"
+    },
+    "XCD": {
+      "name": "Dalar Gabashin Karebiyan",
+      "narrow": "$",
+      "plural": {
+        "one": "dalar Gabashin Karebiyan",
+        "other": "dalar Gabashin Karebiyan"
+      },
+      "symbol": "EC$"
+    },
+    "XCG": {
+      "name": "Guilder na Caribbean",
+      "symbol": "Cg."
+    },
+    "XOF": {
+      "name": "Kuɗin Sefa na Afirka Ta Yamma",
+      "symbol": "F\u202fCFA"
+    },
+    "XPF": {
+      "name": "Kuɗin CFP franc",
+      "symbol": "CFPF"
+    },
+    "YER": {
+      "name": "Riyal ɗin Yemen",
+      "plural": {
+        "one": "riyal ɗin Yemen"
+      }
+    },
+    "ZAR": {
+      "name": "Rand na Afirka ta Kudu",
+      "narrow": "R"
+    },
+    "ZMW": {
+      "name": "Kwacha na Zambiya",
+      "narrow": "ZK"
+    },
+    "ZWG": {
+      "name": "Zinaren Zimbabwe"
+    }
+  },
+  "currencyDigits": {
+    "ADP": 0,
+    "AFN": 0,
+    "ALL": 0,
+    "BHD": 3,
+    "BIF": 0,
+    "BYR": 0,
+    "CLF": 4,
+    "CLP": 0,
+    "COP": 0,
+    "DJF": 0,
+    "ESP": 0,
+    "GNF": 0,
+    "HUF": 0,
+    "IDR": 0,
+    "IQD": 0,
+    "IRR": 0,
+    "ISK": 0,
+    "ITL": 0,
+    "JOD": 3,
+    "JPY": 0,
+    "KMF": 0,
+    "KPW": 0,
+    "KRW": 0,
+    "KWD": 3,
+    "LAK": 0,
+    "LBP": 0,
+    "LUF": 0,
+    "LYD": 3,
+    "MGA": 0,
+    "MGF": 0,
+    "MMK": 0,
+    "MRO": 0,
+    "OMR": 3,
+    "PKR": 0,
+    "PYG": 0,
+    "RWF": 0,
+    "SLL": 0,
+    "SOS": 0,
+    "STD": 0,
+    "SYP": 0,
+    "TMM": 0,
+    "TND": 3,
+    "TRL": 0,
+    "UGX": 0,
+    "UYI": 0,
+    "UYW": 4,
+    "VND": 0,
+    "VUV": 0,
+    "XAF": 0,
+    "XOF": 0,
+    "XPF": 0,
+    "YER": 0,
+    "ZMK": 0,
+    "ZWD": 0
+  },
+  "currencySpacing": {
+    "after": "\u00a0",
+    "before": "\u00a0"
+  },
+  "direction": "ltr",
+  "locale": "ha",
+  "minimumGroupingDigits": 1,
+  "numbering": {
+    "default": "latn",
+    "digits": "0123456789"
+  },
+  "numbers": {
+    "latn": {
+      "accounting": "¤\u00a0#,##0.00",
+      "compactShort": {
+        "1000": {
+          "one": "0K",
+          "other": "0K"
+        },
+        "10000": {
+          "one": "00D",
+          "other": "00D"
+        },
+        "100000": {
+          "one": "000D",
+          "other": "000D"
+        },
+        "1000000": {
+          "other": "0M"
+        },
+        "10000000": {
+          "other": "00M"
+        },
+        "100000000": {
+          "other": "000M"
+        },
+        "1000000000": {
+          "one": "0B",
+          "other": "0B"
+        },
+        "10000000000": {
+          "one": "00B",
+          "other": "00B"
+        },
+        "100000000000": {
+          "one": "000B",
+          "other": "000B"
+        },
+        "1000000000000": {
+          "other": "0T"
+        },
+        "10000000000000": {
+          "other": "00T"
+        },
+        "100000000000000": {
+          "other": "000T"
+        }
+      },
+      "currency": "¤\u00a0#,##0.00",
+      "decimal": "#,##0.###",
+      "percent": "#,##0%",
+      "symbols": {
+        "approximatelySign": "~",
+        "decimal": ".",
+        "exponential": "E",
+        "group": ",",
+        "infinity": "∞",
+        "list": ";",
+        "minusSign": "-",
+        "nan": "NaN",
+        "perMille": "‰",
+        "percentSign": "%",
+        "plusSign": "+",
+        "superscriptingExponent": "×",
+        "timeSeparator": ":"
+      }
+    }
+  },
+  "plurals": {
+    "cardinal": {
+      "one": "n = 1"
+    },
+    "ordinal": {}
+  },
+  "territories": {
+    "AC": "Tsibirin Ascension",
+    "AD": "Andora",
+    "AE": "Haɗaɗɗiyar Daular Larabawa",
+    "AF": "Afaganistan",
+    "AG": "Antigua da Barbuda",
+    "AI": "Angila",
+    "AL": "Albaniya",
+    "AM": "Armeniya",
+    "AO": "Angola",
+    "AQ": "Antatika",
+    "AR": "Ajentina",
+    "AS": "Samowa Ta Amurka",
+    "AT": "Ostiriya",
+    "AU": "Ostareliya",
+    "AW": "Aruba",
+    "AX": "Tsibirai na Åland",
+    "AZ": "Azarbaijan",
+    "BA": "Bosniya da Harzagobina",
+    "BB": "Barbadas",
+    "BD": "Bangladesh",
+    "BE": "Belgiyom",
+    "BF": "Burkina Faso",
+    "BG": "Bulgariya",
+    "BH": "Baharen",
+    "BI": "Burundi",
+    "BJ": "Binin",
+    "BL": "San Barthélemy",
+    "BM": "Barmuda",
+    "BN": "Burune",
+    "BO": "Bolibiya",
+    "BQ": "Caribbean Netherlands",
+    "BR": "Birazil",
+    "BS": "Bahamas",
+    "BT": "Butan",
+    "BV": "Tsibirin Bouvet",
+    "BW": "Baswana",
+    "BY": "Belarus",
+    "BZ": "Beliz",
+    "CA": "Kanada",
+    "CC": "Tsibirai Cocos (Keeling)",
+    "CD": "Jamhuriyar Dimokuraɗiyyar Kongo",
+    "CF": "Jamhuriyar Afirka Ta Tsakiya",
+    "CG": "Kongo",
+    "CH": "Suwizalan",
+    "CI": "Aibari Kwas",
+    "CK": "Tsibiran Cook",
+    "CL": "Chile",
+    "CM": "Kamaru",
+    "CN": "Sin",
+    "CO": "Kolambiya",
+    "CP": "Tsibirin Clipperton",
+    "CQ": "Sark",
+    "CR": "Kwasta Rika",
+    "CU": "Kyuba",
+    "CV": "Tsibiran Cape Verde",
+    "CW": "Ƙasar Curaçao",
+    "CX": "Tsibirin Kirsmati",
+    "CY": "Saifurus",
+    "CZ": "Czechia",
+    "DE": "Jamus",
+    "DG": "Tsibirn Diego Garcia",
+    "DJ": "Jibuti",
+    "DK": "Danmark",
+    "DM": "Dominika",
+    "DO": "Jamhuriyar Dominika",
+    "DZ": "Aljeriya",
+    "EA": "Ceuta da Melilla",
+    "EC": "Ekwador",
+    "EE": "Estoniya",
+    "EG": "Misira",
+    "EH": "Yammacin Sahara",
+    "ER": "Eritireya",
+    "ES": "Sipen",
+    "ET": "Habasha",
+    "EU": "Tarayyar Turai",
+    "EZ": "Sashin Turai",
+    "FI": "Finlan",
+    "FJ": "Fiji",
+    "FK": "Tsibiran Falkilan",
+    "FM": "Mikuronesiya",
+    "FO": "Tsibirai na Faroe",
+    "FR": "Faransa",
+    "GA": "Gabon",
+    "GB": "Biritaniya",
+    "GD": "Girnada",
+    "GE": "Jojiya",
+    "GF": "Gini Ta Faransa",
+    "GG": "Yankin Guernsey",
+    "GH": "Gana",
+    "GI": "Jibaraltar",
+    "GL": "Grinlan",
+    "GM": "Gambiya",
+    "GN": "Gini",
+    "GP": "Gwadaluf",
+    "GQ": "Ikwatoriyal Gini",
+    "GR": "Girka",
+    "GS": "Kudancin Geogia da Kudancin Tsibirin Sandiwic",
+    "GT": "Gwatamala",
+    "GU": "Guam",
+    "GW": "Gini Bisau",
+    "GY": "Guyana",
+    "HK": "Babban Yankin Mulkin Hong Kong na Ƙasar Sin",
+    "HM": "Tsibirin Heard da McDonald",
+    "HN": "Yankin Honduras",
+    "HR": "Kurowaishiya",
+    "HT": "Haiti",
+    "HU": "Hungari",
+    "IC": "Tsibiran Canary",
+    "ID": "Indunusiya",
+    "IE": "Ayalan",
+    "IL": "Israʼila",
+    "IM": "Isle of Man",
+    "IN": "Indiya",
+    "IO": "Yankin Birtaniya Na Tekun Indiya",
+    "IQ": "Iraƙi",
+    "IR": "Iran",
+    "IS": "Aisalan",
+    "IT": "Italiya",
+    "JE": "Kasar Jersey",
+    "JM": "Jamaika",
+    "JO": "Jordan",
+    "JP": "Japan",
+    "KE": "Kenya",
+    "KG": "Kirgizistan",
+    "KH": "Kambodiya",
+    "KI": "Kiribati",
+    "KM": "Kwamoras",
+    "KN": "San Kiti Da Nebis",
+    "KP": "Koriya Ta Arewa",
+    "KR": "Koriya Ta Kudu",
+    "KW": "Kuwet",
+    "KY": "Tsibiran Kaiman",
+    "KZ": "Kazakistan",
+    "LA": "Lawos",
+    "LB": "Labanan",
+    "LC": "San Lusiya",
+    "LI": "Licansitan",
+    "LK": "Siri Lanka",
+    "LR": "Laberiya",
+    "LS": "Lesoto",
+    "LT": "Lituweniya",
+    "LU": "Lukusambur",
+    "LV": "Litibiya",
+    "LY": "Libiya",
+    "MA": "Maroko",
+    "MC": "Monako",
+    "MD": "Maldoba",
+    "ME": "Manteneguro",
+    "MF": "San Martin",
+    "MG": "Madagaskar",
+    "MH": "Tsibiran Marshal",
+    "MK": "Macedonia ta Arewa",
+    "ML": "Mali",
+    "MM": "Burma, Miyamar",
+    "MN": "Mangoliya",
+    "MO": "Babban Yankin Mulkin Macao na Ƙasar Sin",
+    "MP": "Tsibiran Mariyana Na Arewa",
+    "MQ": "Martinik",
+    "MR": "Moritaniya",
+    "MS": "Manserati",
+    "MT": "Malta",
+    "MU": "Moritus",
+    "MV": "Maldibi",
+    "MW": "Malawi",
+    "MX": "Mesiko",
+    "MY": "Malesiya",
+    "MZ": "Mozambik",
+    "NA": "Namibiya",
+    "NC": "Kaledoniya Sabuwa",
+    "NE": "Nijar",
+    "NF": "Tsibirin Narfalk",
+    "NG": "Nijeriya",
+    "NI": "Nikaraguwa",
+    "NL": "Holan",
+    "NO": "Norwe",
+    "NP": "Nefal",
+    "NR": "Nauru",
+    "NU": "Niue",
+    "NZ": "Nuzilan",
+    "OM": "Oman",
+    "PA": "Panama",
+    "PE": "Feru",
+    "PF": "Folinesiya Ta Faransa",
+    "PG": "Papuwa Nugini",
+    "PH": "Filipin",
+    "PK": "Pakistan",
+    "PL": "Polan",
+    "PM": "San Piyar da Mikelan",
+    "PN": "Tsibiran Pitcairn",
+    "PR": "Porto Riko",
+    "PS": "Yankunan Palasɗinu",
+    "PT": "Portugal",
+    "PW": "Palau",
+    "PY": "Faragwai",
+    "QA": "Katar",
+    "QO": "Bakin Teku",
+    "RE": "Rawuniyan",
+    "RO": "Romaniya",
+    "RS": "Sabiya",
+    "RU": "Rasha",
+    "RW": "Ruwanda",
+    "SA": "Saudiyya",
+    "SB": "Tsibiran Salaman",
+    "SC": "Seychelles",
+    "SD": "Sudan",
+    "SE": "Suwedan",
+    "SG": "Singapur",
+    "SH": "San Helena",
+    "SI": "Sulobeniya",
+    "SJ": "Svalbard da Jan Mayen",
+    "SK": "Sulobakiya",
+    "SL": "Salewo",
+    "SM": "San Marino",
+    "SN": "Sanigal",
+    "SO": "Somaliya",
+    "SR": "Suriname",
+    "SS": "Sudan ta Kudu",
+    "ST": "Sawo Tome Da Paransip",
+    "SV": "El Salbador",
+    "SX": "San Maarten",
+    "SY": "Sham, Siriya",
+    "SZ": "Eswatini",
+    "TA": "Tritan da Kunha",
+    "TC": "Turkis Da Tsibiran Kaikwas",
+    "TD": "Cadi",
+    "TF": "Yankin Faransi ta Kudu",
+    "TG": "Togo",
+    "TH": "Tailan",
+    "TJ": "Tajikistan",
+    "TK": "Takelau",
+    "TL": "Timor-Leste",
+    "TM": "Turkumenistan",
+    "TN": "Tunisiya",
+    "TO": "Tonga",
+    "TR": "Turkiyya",
+    "TT": "Tirinidad Da Tobago",
+    "TV": "Tubalu",
+    "TW": "Taiwan",
+    "TZ": "Tanzaniya",
+    "UA": "Yukaran",
+    "UG": "Yuganda",
+    "UM": "Rukunin Tsibirin U.S",
+    "UN": "Majalisar Ɗinkin Duniya",
+    "US": "Amurka",
+    "UY": "Yurigwai",
+    "UZ": "Uzubekistan",
+    "VA": "Birnin Batikan",
+    "VC": "San Binsan Da Girnadin",
+    "VE": "Benezuwela",
+    "VG": "Tsibirin Birjin Na Birtaniya",
+    "VI": "Tsibiran Birjin Ta Amurka",
+    "VN": "Biyetinam",
+    "VU": "Banuwatu",
+    "WF": "Walis Da Futuna",
+    "WS": "Samoa",
+    "XA": "Gurɓataccen Karin harshe",
+    "XB": "Gurɓataccen Bidi",
+    "XK": "Kasar Kosovo",
+    "YE": "Yamen",
+    "YT": "Mayoti",
+    "ZA": "Afirka Ta Kudu",
+    "ZM": "Zambiya",
+    "ZW": "Zimbabuwe"
+  }
+}

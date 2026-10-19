@@ -9,7 +9,7 @@ import type { JsonValue } from "./document.gen.ts";
 export type Platform = "android" | "ios";
 
 /** The accessibility role of a widget (A11Y-002). */
-export type AccessibilityRole = "none" | "button" | "checkbox" | "radio" | "switch" | "slider" | "textField" | "image" | "text" | "header" | "list" | "progress";
+export type AccessibilityRole = "none" | "button" | "checkbox" | "radio" | "switch" | "slider" | "textField" | "image" | "text" | "header" | "list" | "progress" | "tab" | "menu" | "menuItem" | "link" | "group" | "alert";
 
 /** A category of the action catalogue (Appendix D). */
 export type ActionCategory = "navigation" | "feedback" | "state" | "forms" | "data" | "localDb" | "compute" | "control" | "analytics" | "app" | "device" | "security" | "animation" | "component" | "host" | "plux" | "payments";
@@ -54,6 +54,8 @@ export interface EventDescriptor {
   readonly name: string;
   readonly id: number;
   readonly payload?: string;
+  /** True when the payload carries a personal or secret value (SCH-012). */
+  readonly sensitive?: boolean;
   readonly revision: number;
   readonly deprecated?: Deprecation;
   readonly description?: string;
@@ -89,7 +91,7 @@ export interface WidgetDescriptor {
   readonly platforms: readonly Platform[];
   /** Estimated build cost in microseconds on the mid-tier reference device (CMP-040). */
   readonly cost: number;
-  readonly accessibility: { readonly role: AccessibilityRole; readonly interactive: boolean };
+  readonly accessibility: { readonly role: AccessibilityRole; readonly interactive: boolean; readonly minTarget?: boolean };
   readonly typeParameters: readonly string[];
   readonly props: readonly PropDescriptor[];
   readonly events: readonly EventDescriptor[];
@@ -173,13 +175,39 @@ export interface ActionDescriptor {
 }
 
 /** A widget type name. */
-export type WidgetType = "ActionChip" | "Align" | "AppBar" | "AspectRatio" | "BackButton" | "Badge" | "Baseline" | "BiometricButton" | "BottomAppBar" | "Card" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConstrainedBox" | "Container" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTextField" | "CustomScrollView" | "DecoratedBox" | "Divider" | "DropdownMenu" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FilledButton" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Icon" | "IconButton" | "If" | "Image" | "IndexedStack" | "InkWell" | "InputChip" | "KycCameraCapture" | "LimitedBox" | "LinearProgressIndicator" | "ListTile" | "ListView" | "Match" | "OfflineBanner" | "Opacity" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "Positioned" | "Radio" | "RadioListTile" | "RangeSlider" | "Responsive" | "RichText" | "Row" | "SafeArea" | "Scaffold" | "Scrollbar" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverToBoxAdapter" | "Slot" | "Spacer" | "Stack" | "Switch" | "SwitchListTile" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Tooltip" | "Transform" | "VerticalDivider" | "Wrap";
+export type WidgetType = "AccountCard" | "ActionChip" | "Align" | "AmountInput" | "AnimatedAlign" | "AnimatedContainer" | "AnimatedCrossFade" | "AnimatedOpacity" | "AnimatedPadding" | "AnimatedPositioned" | "AnimatedRotation" | "AnimatedScale" | "AnimatedSize" | "AnimatedSlide" | "AnimatedSwitcher" | "AppBar" | "AspectRatio" | "AudioPlayer" | "Autocomplete" | "BackButton" | "BackdropFilter" | "Badge" | "BarChart" | "BarcodeScanner" | "Baseline" | "BiometricButton" | "BottomAppBar" | "BottomNavigationBar" | "CalendarDatePicker" | "Card" | "Carousel" | "CartSummary" | "Center" | "Checkbox" | "CheckboxListTile" | "Chip" | "ChoiceChip" | "CircleAvatar" | "CircularProgressIndicator" | "ClipOval" | "ClipRRect" | "CloseButton" | "ColoredBox" | "Column" | "ConsentCheckbox" | "ConstrainedBox" | "Container" | "CountdownTimer" | "CountryPicker" | "CupertinoActivityIndicator" | "CupertinoButton" | "CupertinoContextMenu" | "CupertinoDatePicker" | "CupertinoListSection" | "CupertinoListTile" | "CupertinoNavigationBar" | "CupertinoPicker" | "CupertinoSlider" | "CupertinoSlidingSegmentedControl" | "CupertinoSwitch" | "CupertinoTabBar" | "CupertinoTextField" | "CurrencyPicker" | "CustomScrollView" | "DataScope" | "DataTable" | "DecoratedBox" | "Dismissible" | "Divider" | "DragTarget" | "Draggable" | "Drawer" | "DropdownMenu" | "DualCalendarDatePicker" | "ElevatedButton" | "EmptyState" | "ErrorState" | "Expanded" | "ExpansionTile" | "FadeTransition" | "FileUploader" | "FilledButton" | "FilterBar" | "FilterChip" | "FittedBox" | "Flex" | "Flexible" | "FloatingActionButton" | "ForEach" | "FormScope" | "FractionallySizedBox" | "GestureDetector" | "GridView" | "Hero" | "IbanInput" | "Icon" | "IconButton" | "If" | "Image" | "ImageGallery" | "IndexedStack" | "InfiniteList" | "InkWell" | "InputChip" | "InteractiveViewer" | "KycCameraCapture" | "LimitedBox" | "LineChart" | "LinearProgressIndicator" | "ListTile" | "ListView" | "LiveEtaCard" | "LottieView" | "MapView" | "MarkdownView" | "MaskedText" | "Match" | "MaterialBanner" | "MenuAnchor" | "MoneyText" | "NativeSlot" | "NavigationBar" | "NavigationDrawer" | "NavigationRail" | "NestedScrollView" | "OfflineBanner" | "OnboardingPager" | "Opacity" | "OrderTrackerMap" | "OtpInput" | "OutlinedButton" | "Padding" | "PageView" | "PaymentCard" | "PhoneInput" | "PieChart" | "PopupMenuButton" | "Positioned" | "PriceTag" | "ProductCard" | "ProfileHeader" | "PromoBanner" | "QrCodeView" | "QrScanner" | "QuantityStepper" | "Radio" | "RadioListTile" | "RangeSlider" | "RatingBar" | "RatingInput" | "RefreshIndicator" | "ReorderableListView" | "Responsive" | "RichText" | "RiveView" | "RotationTransition" | "Row" | "SafeArea" | "Scaffold" | "ScaleTransition" | "Scrollbar" | "SearchAnchor" | "SearchBar" | "SearchField" | "SecurePinPad" | "SecureTextField" | "SegmentedButton" | "SelectableText" | "SettingsList" | "SignaturePad" | "SingleChildScrollView" | "SizedBox" | "SkeletonLoader" | "SlideTransition" | "Slider" | "SliverAppBar" | "SliverFillRemaining" | "SliverGrid" | "SliverList" | "SliverPadding" | "SliverPersistentHeader" | "SliverToBoxAdapter" | "Slot" | "SortSheet" | "Spacer" | "Sparkline" | "Stack" | "StatusTimeline" | "Stepper" | "Switch" | "SwitchListTile" | "TabBar" | "TabBarView" | "Table" | "TermsViewer" | "Text" | "TextButton" | "TextField" | "TextFormField" | "Timeline" | "Tooltip" | "TransactionListItem" | "Transform" | "VerticalDivider" | "VideoPlayer" | "WizardForm" | "Wrap";
 
 /** An action name. */
-export type ActionName = "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "readConfig" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
+export type ActionName = "announce" | "apiCall" | "biometricAuth" | "callFlow" | "callNative" | "capturePhoto" | "condition" | "controlAnimation" | "copyToClipboard" | "dbDelete" | "dbInsert" | "dbQuery" | "dbUpdate" | "dbUpsert" | "delay" | "emitEvent" | "emitHostEvent" | "forEach" | "getLocation" | "haptic" | "invokeFunction" | "kvGet" | "kvRemove" | "kvSet" | "logout" | "navigate" | "openBottomSheet" | "openDialog" | "openUrl" | "parallel" | "patchState" | "pickFile" | "pickImage" | "pop" | "readConfig" | "refreshData" | "requestPermission" | "resetForm" | "resetState" | "scanCode" | "setLocale" | "setState" | "setThemeMode" | "share" | "showSnackbar" | "showToast" | "signTransaction" | "startAnimation" | "startPayment" | "stop" | "submitForm" | "subscribe" | "switch" | "switchTab" | "sync" | "trackEvent" | "unsubscribe" | "validateForm";
 
 /** Every widget descriptor, sorted by type name (WGT-001). */
 export const widgets: readonly WidgetDescriptor[] = [
+  {
+    "type": "AccountCard",
+    "id": 169,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "account_balance_wallet",
+    "description": "An account with its masked number and balance; flipping shows the back.",
+    "platforms": ["android", "ios"],
+    "cost": 90,
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "name", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The account's name."},
+      {"name": "maskedNumber", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The account number, masked."},
+      {"name": "balance", "id": 3, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The balance."},
+      {"name": "flipped", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the back is shown."},
+      {"name": "backLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The text on the back."}
+    ],
+    "events": [
+      {"name": "onFlip", "id": 1, "payload": "bool", "revision": 1, "description": "Fires with the side the person asked for."}
+    ],
+    "slots": []
+  },
   {
     "type": "ActionChip",
     "id": 61,
@@ -240,6 +268,349 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "alignment", "id": 1, "type": "Alignment", "required": false, "default": "center", "revision": 1, "bindable": true},
       {"name": "widthFactor", "id": 2, "type": "double", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true},
       {"name": "heightFactor", "id": 3, "type": "double", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "AmountInput",
+    "id": 159,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "payments",
+    "description": "A money entry field: the locale's group and decimal separators, the currency's minor units, and a range.",
+    "platforms": ["android", "ios"],
+    "cost": 90,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "label", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The field's label."},
+      {"name": "currency", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The ISO 4217 code of the amount."},
+      {"name": "value", "id": 3, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The amount shown."},
+      {"name": "min", "id": 4, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The smallest amount accepted."},
+      {"name": "max", "id": 5, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The largest amount accepted."},
+      {"name": "rangeMessage", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The error shown when the amount is outside the range."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "money", "sensitive": true, "revision": 1, "description": "Fires with the amount whenever the typed text is a valid amount."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "AnimatedAlign",
+    "id": 141,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "align_horizontal_center",
+    "description": "Animates its child's alignment.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "alignment", "id": 1, "type": "Alignment", "required": true, "revision": 1, "bindable": true},
+      {"name": "heightFactor", "id": 2, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "widthFactor", "id": 3, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "curve", "id": 4, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true, "description": "The curve of the animation."},
+      {"name": "duration", "id": 5, "type": "duration", "required": true, "revision": 1, "bindable": true, "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."}
+    ],
+    "events": [
+      {"name": "onEnd", "id": 1, "revision": 1, "description": "Fired when the animation ends."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "AnimatedContainer",
+    "id": 139,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "animation",
+    "description": "A `Container` that animates to new values of its props.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "alignment", "id": 1, "type": "Alignment", "required": false, "revision": 1, "bindable": true},
+      {"name": "padding", "id": 2, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "color", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "decoration", "id": 4, "type": "BoxDecoration", "required": false, "revision": 1, "bindable": true},
+      {"name": "foregroundDecoration", "id": 5, "type": "BoxDecoration", "required": false, "revision": 1, "bindable": true},
+      {"name": "width", "id": 6, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "height", "id": 7, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "constraints", "id": 8, "type": "BoxConstraints", "required": false, "revision": 1, "bindable": true},
+      {"name": "margin", "id": 9, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "transformAlignment", "id": 10, "type": "Alignment", "required": false, "revision": 1, "bindable": true},
+      {"name": "clipBehavior", "id": 11, "type": "Clip", "required": false, "default": "none", "revision": 1, "bindable": true},
+      {"name": "curve", "id": 12, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true, "description": "The curve of the animation."},
+      {"name": "duration", "id": 13, "type": "duration", "required": true, "revision": 1, "bindable": true, "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."}
+    ],
+    "events": [
+      {"name": "onEnd", "id": 1, "revision": 1, "description": "Fired when the animation ends."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "AnimatedCrossFade",
+    "id": 148,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "compare",
+    "description": "Cross-fades between two children, sizing to the one shown.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "crossFadeState", "id": 1, "type": "CrossFadeState", "required": true, "revision": 1, "bindable": true},
+      {"name": "firstCurve", "id": 2, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true},
+      {"name": "secondCurve", "id": 3, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true},
+      {"name": "sizeCurve", "id": 4, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true},
+      {"name": "alignment", "id": 5, "type": "Alignment", "required": false, "default": "topCenter", "revision": 1, "bindable": true},
+      {"name": "duration", "id": 6, "type": "duration", "required": true, "revision": 1, "bindable": true, "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+      {"name": "reverseDuration", "id": 7, "type": "duration", "required": false, "revision": 1, "bindable": true, "description": "The length of the reverse animation in milliseconds."},
+      {"name": "excludeBottomFocus", "id": 8, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "clipBehavior", "id": 9, "type": "Clip", "required": false, "default": "hardEdge", "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onEnd", "id": 1, "revision": 1, "description": "Fired when the animation ends."}
+    ],
+    "slots": [
+      {"name": "firstChild", "id": 1, "list": false, "required": true, "template": false, "revision": 1},
+      {"name": "secondChild", "id": 2, "list": false, "required": true, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "AnimatedOpacity",
+    "id": 140,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "opacity",
+    "description": "Animates its child's opacity.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "opacity", "id": 1, "type": "double", "required": true, "constraints": {"min": 0, "max": 1}, "revision": 1, "bindable": true},
+      {"name": "alwaysIncludeSemantics", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "curve", "id": 3, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true, "description": "The curve of the animation."},
+      {"name": "duration", "id": 4, "type": "duration", "required": true, "revision": 1, "bindable": true, "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."}
+    ],
+    "events": [
+      {"name": "onEnd", "id": 1, "revision": 1, "description": "Fired when the animation ends."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "AnimatedPadding",
+    "id": 142,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "padding",
+    "description": "Animates the padding around its child.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "padding", "id": 1, "type": "EdgeInsets", "required": true, "revision": 1, "bindable": true},
+      {"name": "curve", "id": 2, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true, "description": "The curve of the animation."},
+      {"name": "duration", "id": 3, "type": "duration", "required": true, "revision": 1, "bindable": true, "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."}
+    ],
+    "events": [
+      {"name": "onEnd", "id": 1, "revision": 1, "description": "Fired when the animation ends."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "AnimatedPositioned",
+    "id": 143,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "open_with",
+    "description": "Animates the position of its child in a `Stack`.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "left", "id": 1, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "top", "id": 2, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "right", "id": 3, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "bottom", "id": 4, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "width", "id": 5, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "height", "id": 6, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "curve", "id": 7, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true, "description": "The curve of the animation."},
+      {"name": "duration", "id": 8, "type": "duration", "required": true, "revision": 1, "bindable": true, "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."}
+    ],
+    "events": [
+      {"name": "onEnd", "id": 1, "revision": 1, "description": "Fired when the animation ends."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "AnimatedRotation",
+    "id": 145,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "rotate_right",
+    "description": "Animates its child's rotation, in turns.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "turns", "id": 1, "type": "double", "required": true, "revision": 1, "bindable": true},
+      {"name": "alignment", "id": 2, "type": "Alignment", "required": false, "default": "center", "revision": 1, "bindable": true},
+      {"name": "filterQuality", "id": 3, "type": "FilterQuality", "required": false, "revision": 1, "bindable": true},
+      {"name": "curve", "id": 4, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true, "description": "The curve of the animation."},
+      {"name": "duration", "id": 5, "type": "duration", "required": true, "revision": 1, "bindable": true, "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."}
+    ],
+    "events": [
+      {"name": "onEnd", "id": 1, "revision": 1, "description": "Fired when the animation ends."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "AnimatedScale",
+    "id": 144,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "zoom_out_map",
+    "description": "Animates its child's scale.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "scale", "id": 1, "type": "double", "required": true, "revision": 1, "bindable": true},
+      {"name": "alignment", "id": 2, "type": "Alignment", "required": false, "default": "center", "revision": 1, "bindable": true},
+      {"name": "filterQuality", "id": 3, "type": "FilterQuality", "required": false, "revision": 1, "bindable": true},
+      {"name": "curve", "id": 4, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true, "description": "The curve of the animation."},
+      {"name": "duration", "id": 5, "type": "duration", "required": true, "revision": 1, "bindable": true, "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."}
+    ],
+    "events": [
+      {"name": "onEnd", "id": 1, "revision": 1, "description": "Fired when the animation ends."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "AnimatedSize",
+    "id": 149,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "aspect_ratio",
+    "description": "Animates its own size to its child's.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "alignment", "id": 1, "type": "Alignment", "required": false, "default": "center", "revision": 1, "bindable": true},
+      {"name": "curve", "id": 2, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true, "description": "The curve of the animation."},
+      {"name": "duration", "id": 3, "type": "duration", "required": true, "revision": 1, "bindable": true, "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+      {"name": "reverseDuration", "id": 4, "type": "duration", "required": false, "revision": 1, "bindable": true, "description": "The length of the reverse animation in milliseconds."},
+      {"name": "clipBehavior", "id": 5, "type": "Clip", "required": false, "default": "hardEdge", "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onEnd", "id": 1, "revision": 1, "description": "Fired when the animation ends."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "AnimatedSlide",
+    "id": 146,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "arrow_right_alt",
+    "description": "Animates its child's offset, in multiples of its size.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "offset", "id": 1, "type": "Offset", "required": true, "revision": 1, "bindable": true},
+      {"name": "curve", "id": 2, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true, "description": "The curve of the animation."},
+      {"name": "duration", "id": 3, "type": "duration", "required": true, "revision": 1, "bindable": true, "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."}
+    ],
+    "events": [
+      {"name": "onEnd", "id": 1, "revision": 1, "description": "Fired when the animation ends."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "AnimatedSwitcher",
+    "id": 147,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "swap_horiz",
+    "description": "Cross-fades between its old and new child when the child changes.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "duration", "id": 1, "type": "duration", "required": true, "revision": 1, "bindable": true, "description": "The animation's length in milliseconds; zero when the platform asks for reduced motion (ANI-007)."},
+      {"name": "reverseDuration", "id": 2, "type": "duration", "required": false, "revision": 1, "bindable": true, "description": "The length of the reverse animation in milliseconds."},
+      {"name": "switchInCurve", "id": 3, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true},
+      {"name": "switchOutCurve", "id": 4, "type": "Curve", "required": false, "default": "linear", "revision": 1, "bindable": true}
     ],
     "events": [],
     "slots": [
@@ -318,6 +689,60 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "AudioPlayer",
+    "id": 204,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "headphones",
+    "description": "Audio from an https address with play and pause and a progress bar. It never starts by itself under reduce motion.",
+    "platforms": ["android", "ios"],
+    "cost": 1000,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "url", "id": 1, "type": "string", "required": true, "constraints": {"pattern": "^https://"}, "revision": 1, "bindable": true, "description": "The https address of the audio."},
+      {"name": "title", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The title shown, and spoken for the player."},
+      {"name": "autoplay", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether it starts by itself; ignored under reduce motion."},
+      {"name": "loop", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether it starts again when it ends."},
+      {"name": "playLabel", "id": 5, "type": "string", "required": false, "default": "Play", "revision": 1, "bindable": true, "description": "The play button's label."},
+      {"name": "pauseLabel", "id": 6, "type": "string", "required": false, "default": "Pause", "revision": 1, "bindable": true, "description": "The pause button's label."},
+      {"name": "positionLabel", "id": 7, "type": "string", "required": false, "default": "Position", "revision": 1, "bindable": true, "description": "The progress bar's label."}
+    ],
+    "events": [
+      {"name": "onEnded", "id": 1, "revision": 1, "description": "Fires when playback ends."},
+      {"name": "onError", "id": 2, "revision": 1, "description": "Fires when the audio cannot be played."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "Autocomplete",
+    "id": 124,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "checklist",
+    "description": "A text field that offers the `options` containing the typed text, ignoring case.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "options", "id": 1, "type": "list<string>", "required": true, "revision": 1, "bindable": true},
+      {"name": "hintText", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "optionsMaxHeight", "id": 3, "type": "double", "required": false, "default": 200.0, "revision": 1, "bindable": true},
+      {"name": "initialValue", "id": 4, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The text the field starts with."}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
     "type": "BackButton",
     "id": 84,
     "layer": 1,
@@ -339,6 +764,30 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "onPressed", "id": 1, "revision": 1}
     ],
     "slots": []
+  },
+  {
+    "type": "BackdropFilter",
+    "id": 112,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "blur_on",
+    "description": "Blurs everything painted behind its child (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "filter", "id": 1, "type": "BlurFilter", "required": false, "revision": 1, "bindable": true},
+      {"name": "blendMode", "id": 2, "type": "BlendMode", "required": false, "default": "srcOver", "revision": 1, "bindable": true},
+      {"name": "enabled", "id": 3, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
   },
   {
     "type": "Badge",
@@ -370,6 +819,59 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "label", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
       {"name": "child", "id": 2, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "BarChart",
+    "id": 194,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "bar_chart",
+    "description": "Bars per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table.",
+    "platforms": ["android", "ios"],
+    "cost": 400,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "series", "id": 1, "type": "list<ChartSeries>", "required": true, "revision": 1, "bindable": true, "description": "The series; they share the labels."},
+      {"name": "labels", "id": 2, "type": "list<string>?", "required": false, "revision": 1, "bindable": true, "description": "The label of each position along the horizontal axis."},
+      {"name": "title", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A heading above the chart, also its spoken name."},
+      {"name": "summaryTemplate", "id": 4, "type": "string", "required": false, "default": "{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}", "revision": 1, "bindable": true, "description": "What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."},
+      {"name": "showTable", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether a table of the values is shown below the chart."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
+    "type": "BarcodeScanner",
+    "id": 200,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "barcode_reader",
+    "description": "A live camera preview that reads QR codes and one-dimensional barcodes of the chosen formats. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`.",
+    "platforms": ["android", "ios"],
+    "cost": 400,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "formats", "id": 1, "type": "list<BarcodeFormat>?", "required": false, "revision": 1, "bindable": true, "description": "The formats to read; every format when empty or absent."},
+      {"name": "torch", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the torch is on."},
+      {"name": "cameraFacing", "id": 3, "type": "CameraFacing", "required": false, "default": "back", "revision": 1, "bindable": true, "description": "Which camera to open."},
+      {"name": "scanWindow", "id": 4, "type": "list<double>?", "required": false, "revision": 1, "bindable": true, "description": "The part of the preview that is read, as four fractions of the preview: left, top, width, height. The whole preview when absent."},
+      {"name": "continuous", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the scanner keeps reading after the first code; otherwise it reports once and stops."},
+      {"name": "overlayHint", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line of text under the viewfinder, such as \"Point the camera at the code\"."},
+      {"name": "semanticLabel", "id": 7, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What a screen reader announces for the scanner; the read value is announced when a code is detected."}
+    ],
+    "events": [
+      {"name": "onDetected", "id": 1, "payload": "ScanResult", "sensitive": true, "revision": 1, "description": "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
+      {"name": "onError", "id": 2, "payload": "string", "revision": 1, "description": "Fires with an error code when the camera is denied, missing or fails."}
+    ],
+    "slots": []
   },
   {
     "type": "Baseline",
@@ -448,6 +950,65 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "BottomNavigationBar",
+    "id": 129,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "bottom_app_bar",
+    "description": "A bar of two or more items along the bottom; tapping one fires `onTap` with its index.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "tab", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "items", "id": 1, "type": "list<Destination>", "required": true, "revision": 1, "bindable": true, "description": "Two or more items; `selectedIcon` is the active icon."},
+      {"name": "currentIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 3, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "type", "id": 4, "type": "BottomNavigationBarType", "required": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "selectedItemColor", "id": 6, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "unselectedItemColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "iconSize", "id": 8, "type": "double", "required": false, "default": 24.0, "revision": 1, "bindable": true},
+      {"name": "selectedFontSize", "id": 9, "type": "double", "required": false, "default": 14.0, "revision": 1, "bindable": true},
+      {"name": "unselectedFontSize", "id": 10, "type": "double", "required": false, "default": 12.0, "revision": 1, "bindable": true},
+      {"name": "showSelectedLabels", "id": 11, "type": "bool", "required": false, "revision": 1, "bindable": true},
+      {"name": "showUnselectedLabels", "id": 12, "type": "bool", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onTap", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
+    "type": "CalendarDatePicker",
+    "id": 125,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "calendar_month",
+    "description": "A month grid for picking a date in the Gregorian calendar.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "initialDate", "id": 1, "type": "date", "required": true, "revision": 1, "bindable": true},
+      {"name": "firstDate", "id": 2, "type": "date", "required": true, "revision": 1, "bindable": true},
+      {"name": "lastDate", "id": 3, "type": "date", "required": true, "revision": 1, "bindable": true},
+      {"name": "currentDate", "id": 4, "type": "date", "required": false, "revision": 1, "bindable": true, "description": "Today, as the picker marks it; the device date when absent."}
+    ],
+    "events": [
+      {"name": "onDateChanged", "id": 1, "payload": "date", "revision": 1},
+      {"name": "onDisplayedMonthChanged", "id": 2, "payload": "date", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
     "type": "Card",
     "id": 54,
     "layer": 1,
@@ -475,6 +1036,63 @@ export const widgets: readonly WidgetDescriptor[] = [
     "events": [],
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "Carousel",
+    "id": 184,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "layout",
+    "icon": "view_carousel",
+    "description": "Pages of children swiped horizontally, with page indicators and optional autoplay. Autoplay stops when the device reduces motion.",
+    "platforms": ["android", "ios"],
+    "cost": 100,
+    "accessibility": {"role": "list", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "autoplay", "id": 1, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Advances on its own."},
+      {"name": "intervalMs", "id": 2, "type": "int", "required": false, "default": 5000, "constraints": {"min": 500}, "revision": 1, "bindable": true, "description": "Milliseconds between automatic advances."},
+      {"name": "indicators", "id": 3, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Shows page indicators."},
+      {"name": "semanticLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label screen readers announce for the carousel."}
+    ],
+    "events": [
+      {"name": "onPageChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the index of the page shown."}
+    ],
+    "slots": [],
+    "children": {"min": 1}
+  },
+  {
+    "type": "CartSummary",
+    "id": 167,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "shopping_cart",
+    "description": "The lines, subtotal, tax and total of a cart, with a checkout action.",
+    "platforms": ["android", "ios"],
+    "cost": 100,
+    "accessibility": {"role": "group", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "lines", "id": 1, "type": "list<CartLine>", "required": true, "revision": 1, "bindable": true, "description": "The cart's lines."},
+      {"name": "subtotal", "id": 2, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The sum of the lines."},
+      {"name": "tax", "id": 3, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The tax."},
+      {"name": "total", "id": 4, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The amount due."},
+      {"name": "subtotalLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The subtotal row's label."},
+      {"name": "taxLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tax row's label."},
+      {"name": "totalLabel", "id": 7, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The total row's label."},
+      {"name": "checkoutLabel", "id": 8, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label of the built-in checkout button."}
+    ],
+    "events": [
+      {"name": "onCheckout", "id": 1, "revision": 1, "description": "Fires when the person starts checkout."}
+    ],
+    "slots": [
+      {"name": "checkout", "id": 1, "list": false, "required": false, "template": false, "revision": 1, "description": "Replaces the built-in checkout button."}
     ]
   },
   {
@@ -868,6 +1486,33 @@ export const widgets: readonly WidgetDescriptor[] = [
     "children": {}
   },
   {
+    "type": "ConsentCheckbox",
+    "id": 171,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "fact_check",
+    "description": "A checkbox that records consent to a versioned document, with a link to read it.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "checkbox", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What the person consents to."},
+      {"name": "documentVersion", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The version of the document the consent covers."},
+      {"name": "linkLabel", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The text of the link that opens the document."},
+      {"name": "value", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether consent is given."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "bool", "revision": 1, "description": "Fires with the new value when the person toggles the checkbox."},
+      {"name": "onAccepted", "id": 2, "payload": "string", "revision": 1, "description": "Fires with `documentVersion` when consent is given, so the page records the accepted version."},
+      {"name": "onLinkTap", "id": 3, "revision": 1, "description": "Fires when the person taps the link."}
+    ],
+    "slots": []
+  },
+  {
     "type": "ConstrainedBox",
     "id": 11,
     "layer": 1,
@@ -921,6 +1566,52 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "CountdownTimer",
+    "id": 186,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "timer",
+    "description": "The time left until `endsAt`, updated once a second.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "text", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "endsAt", "id": 1, "type": "dateTime", "required": true, "revision": 1, "bindable": true, "description": "The instant the countdown ends."},
+      {"name": "format", "id": 2, "type": "CountdownFormat", "required": false, "default": "hms", "revision": 1, "bindable": true, "description": "How the remaining time is written."}
+    ],
+    "events": [
+      {"name": "onFinished", "id": 1, "revision": 1, "description": "Fires once when the countdown reaches zero."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "CountryPicker",
+    "id": 164,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "flag",
+    "description": "A searchable list of countries named in the locale, with flags.",
+    "platforms": ["android", "ios"],
+    "cost": 90,
+    "accessibility": {"role": "list", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The ISO 3166 code selected."},
+      {"name": "searchHint", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The hint of the search field."}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the ISO 3166 code of the chosen country."}
+    ],
+    "slots": []
   },
   {
     "type": "CupertinoActivityIndicator",
@@ -979,6 +1670,64 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "CupertinoContextMenu",
+    "id": 158,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "cupertino",
+    "icon": "touch_app",
+    "description": "Shows `actions` when `child` is long-pressed; choosing one fires `onAction` with its index.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "menu", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "actions", "id": 1, "type": "list<ContextMenuAction>", "required": true, "revision": 1, "bindable": true, "description": "The actions, in order."},
+      {"name": "enableHapticFeedback", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onAction", "id": 1, "payload": "int", "revision": 1, "description": "Fired with the index of the chosen action."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "CupertinoDatePicker",
+    "id": 157,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "cupertino",
+    "icon": "calendar_month",
+    "description": "An iOS-style date and time wheel; `onDateTimeChanged` carries the chosen dateTime in the offset of `initialDateTime`.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "mode", "id": 1, "type": "CupertinoDatePickerMode", "required": false, "default": "dateAndTime", "revision": 1, "bindable": true},
+      {"name": "initialDateTime", "id": 2, "type": "dateTime", "required": false, "revision": 1, "bindable": true},
+      {"name": "minimumDate", "id": 3, "type": "dateTime", "required": false, "revision": 1, "bindable": true},
+      {"name": "maximumDate", "id": 4, "type": "dateTime", "required": false, "revision": 1, "bindable": true},
+      {"name": "minimumYear", "id": 5, "type": "int", "required": false, "default": 1, "revision": 1, "bindable": true},
+      {"name": "maximumYear", "id": 6, "type": "int", "required": false, "revision": 1, "bindable": true},
+      {"name": "minuteInterval", "id": 7, "type": "int", "required": false, "default": 1, "revision": 1, "bindable": true},
+      {"name": "use24hFormat", "id": 8, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 9, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "showDayOfWeek", "id": 10, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "showTimeSeparator", "id": 11, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "itemExtent", "id": 12, "type": "double", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onDateTimeChanged", "id": 1, "payload": "dateTime", "revision": 1}
+    ],
+    "slots": []
   },
   {
     "type": "CupertinoListSection",
@@ -1045,6 +1794,68 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "CupertinoNavigationBar",
+    "id": 154,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "cupertino",
+    "icon": "web_asset",
+    "description": "An iOS-style navigation bar with `leading`, `middle` and `trailing` slots.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "automaticallyImplyLeading", "id": 1, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "automaticallyImplyMiddle", "id": 2, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "previousPageTitle", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "automaticBackgroundVisibility", "id": 5, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "enableBackgroundFilterBlur", "id": 6, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "brightness", "id": 7, "type": "Brightness", "required": false, "revision": 1, "bindable": true},
+      {"name": "transitionBetweenRoutes", "id": 8, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "leading", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "middle", "id": 2, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "trailing", "id": 3, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "CupertinoPicker",
+    "id": 156,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "cupertino",
+    "icon": "view_agenda",
+    "description": "An iOS-style scrolling wheel over its children; `selectedIndex` is bound to state and `onSelectedItemChanged` reports the wheel.",
+    "platforms": ["android", "ios"],
+    "cost": 50,
+    "accessibility": {"role": "list", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "itemExtent", "id": 1, "type": "double", "required": true, "revision": 1, "bindable": true, "description": "The height of each child."},
+      {"name": "selectedIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true, "description": "The selected child; the wheel follows it when it changes."},
+      {"name": "diameterRatio", "id": 3, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "offAxisFraction", "id": 5, "type": "double", "required": false, "default": 0.0, "revision": 1, "bindable": true},
+      {"name": "useMagnifier", "id": 6, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "magnification", "id": 7, "type": "double", "required": false, "default": 1.0, "revision": 1, "bindable": true},
+      {"name": "squeeze", "id": 8, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "looping", "id": 9, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onSelectedItemChanged", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": [],
+    "children": {}
+  },
+  {
     "type": "CupertinoSlider",
     "id": 93,
     "layer": 1,
@@ -1085,7 +1896,7 @@ export const widgets: readonly WidgetDescriptor[] = [
     "description": "An iOS-style sliding segmented control; `values[i]` identifies segment `children[i]`.",
     "platforms": ["android", "ios"],
     "cost": 50,
-    "accessibility": {"role": "button", "interactive": true},
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
     "typeParameters": [],
     "props": [
       {"name": "values", "id": 1, "type": "list<string>", "required": true, "revision": 1, "bindable": true, "description": "The value of each segment, in order."},
@@ -1140,6 +1951,34 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "onActiveThumbImageError", "id": 2, "revision": 1},
       {"name": "onInactiveThumbImageError", "id": 3, "revision": 1},
       {"name": "onFocusChange", "id": 4, "payload": "bool", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
+    "type": "CupertinoTabBar",
+    "id": 155,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "cupertino",
+    "icon": "tab",
+    "description": "An iOS-style tab bar; bind `currentIndex` to a state key and `onTap` to the action that changes it.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "tab", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "items", "id": 1, "type": "list<TabBarItem>", "required": true, "revision": 1, "bindable": true, "description": "The tabs, at least two."},
+      {"name": "currentIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true, "description": "The selected tab."},
+      {"name": "backgroundColor", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "activeColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "inactiveColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "iconSize", "id": 6, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "height", "id": 7, "type": "double", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onTap", "id": 1, "payload": "int", "revision": 1}
     ],
     "slots": []
   },
@@ -1223,6 +2062,30 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "CurrencyPicker",
+    "id": 165,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "currency_exchange",
+    "description": "A searchable list of currencies named in the locale.",
+    "platforms": ["android", "ios"],
+    "cost": 90,
+    "accessibility": {"role": "list", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The ISO 4217 code selected."},
+      {"name": "currencies", "id": 2, "type": "list<string>?", "required": false, "revision": 1, "bindable": true, "description": "The codes offered; every currency of the locale when absent."},
+      {"name": "searchHint", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The hint of the search field."}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the ISO 4217 code of the chosen currency."}
+    ],
+    "slots": []
+  },
+  {
     "type": "CustomScrollView",
     "id": 35,
     "layer": 1,
@@ -1256,6 +2119,77 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "DataScope",
+    "id": 109,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "structure",
+    "icon": "cloud_sync",
+    "description": "Shows one of `loading`, `empty`, `error` or `success` for a data source. Set `source` to derive the state from the named data source: loading and error from its status, empty when its value is null, an empty list or an empty map. An explicit `status` or `isEmpty` overrides what `source` derives. The subtree reads the source as `data.<source>`.",
+    "platforms": ["android", "ios"],
+    "cost": 10,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "status", "id": 1, "type": "ListStatus", "required": false, "default": "ready", "revision": 1, "bindable": true, "description": "Loading, error or ready; overrides the status derived from `source`."},
+      {"name": "isEmpty", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "The source has no content; shows the `empty` slot while ready. Overrides the emptiness derived from `source`."},
+      {"name": "source", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The data source of the page or plugin whose loading, error and empty states the widget shows."}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "success", "id": 1, "list": false, "required": true, "template": false, "revision": 1, "description": "Shown when the source is ready and not empty."},
+      {"name": "loading", "id": 2, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is loading."},
+      {"name": "empty", "id": 3, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown when `isEmpty` is true."},
+      {"name": "error", "id": 4, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is error."}
+    ]
+  },
+  {
+    "type": "DataTable",
+    "id": 117,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "table_rows",
+    "description": "A Material table with headings, sorting and optional row selection (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "columns", "id": 1, "type": "list<DataColumn>", "required": true, "revision": 1, "bindable": true},
+      {"name": "rows", "id": 2, "type": "list<list<string>>", "required": true, "revision": 1, "bindable": true, "description": "One list of cell texts per row, each as long as `columns`; bind it with `$expr`."},
+      {"name": "selectedRows", "id": 3, "type": "list<int>", "required": false, "revision": 1, "bindable": true, "description": "Positions of the selected rows."},
+      {"name": "sortColumnIndex", "id": 4, "type": "int", "required": false, "revision": 1, "bindable": true},
+      {"name": "sortAscending", "id": 5, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "showCheckboxColumn", "id": 6, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Shows the selection checkboxes when `onSelectChanged` is handled."},
+      {"name": "decoration", "id": 7, "type": "BoxDecoration", "required": false, "revision": 1, "bindable": true},
+      {"name": "dataRowColor", "id": 8, "type": "WidgetStateColor", "required": false, "revision": 1, "bindable": true},
+      {"name": "dataRowMinHeight", "id": 9, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "dataRowMaxHeight", "id": 10, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "dataTextStyle", "id": 11, "type": "TextStyle", "required": false, "revision": 1, "bindable": true},
+      {"name": "headingRowColor", "id": 12, "type": "WidgetStateColor", "required": false, "revision": 1, "bindable": true},
+      {"name": "headingRowHeight", "id": 13, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "headingTextStyle", "id": 14, "type": "TextStyle", "required": false, "revision": 1, "bindable": true},
+      {"name": "horizontalMargin", "id": 15, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "columnSpacing", "id": 16, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "showBottomBorder", "id": 17, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "dividerThickness", "id": 18, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "checkboxHorizontalMargin", "id": 19, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "border", "id": 20, "type": "BorderSide", "required": false, "revision": 1, "bindable": true},
+      {"name": "clipBehavior", "id": 21, "type": "Clip", "required": false, "default": "none", "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onSort", "id": 1, "payload": "IndexFlag", "revision": 1, "description": "Fired when a sortable heading is tapped; `index` is the column, `value` whether the order is ascending. The page stores both and re-sorts `rows`."},
+      {"name": "onSelectChanged", "id": 2, "payload": "IndexFlag", "revision": 1, "description": "Fired when a row is selected or deselected; `index` is the row, `value` whether it is selected."},
+      {"name": "onSelectAll", "id": 3, "payload": "bool", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
     "type": "DecoratedBox",
     "id": 18,
     "layer": 1,
@@ -1276,6 +2210,37 @@ export const widgets: readonly WidgetDescriptor[] = [
     "events": [],
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "Dismissible",
+    "id": 133,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "interaction",
+    "icon": "swipe",
+    "description": "Dismisses its child with a swipe and fires `onDismissed` with the direction.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "none", "interactive": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "direction", "id": 1, "type": "DismissDirection", "required": false, "default": "horizontal", "revision": 1, "bindable": true},
+      {"name": "resizeDuration", "id": 2, "type": "duration", "required": false, "default": 300, "revision": 1, "bindable": true},
+      {"name": "movementDuration", "id": 3, "type": "duration", "required": false, "default": 200, "revision": 1, "bindable": true},
+      {"name": "crossAxisEndOffset", "id": 4, "type": "double", "required": false, "default": 0.0, "revision": 1, "bindable": true},
+      {"name": "dragStartBehavior", "id": 5, "type": "DragStartBehavior", "required": false, "default": "start", "revision": 1, "bindable": true},
+      {"name": "behavior", "id": 6, "type": "HitTestBehavior", "required": false, "default": "opaque", "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onDismissed", "id": 1, "payload": "DismissDirection", "revision": 1, "description": "Fired after the child was dismissed, with the direction it went."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1},
+      {"name": "background", "id": 2, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown behind the child while it is swiped."},
+      {"name": "secondaryBackground", "id": 3, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown behind the child when it is swiped in the secondary direction; needs `background`."}
     ]
   },
   {
@@ -1302,6 +2267,98 @@ export const widgets: readonly WidgetDescriptor[] = [
     ],
     "events": [],
     "slots": []
+  },
+  {
+    "type": "DragTarget",
+    "id": 135,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "interaction",
+    "icon": "move_to_inbox",
+    "description": "Accepts a `Draggable`'s payload dropped on it; its child is highlighted while a candidate hovers.",
+    "platforms": ["android", "ios"],
+    "cost": 30,
+    "accessibility": {"role": "none", "interactive": true},
+    "typeParameters": ["T"],
+    "props": [
+      {"name": "accepts", "id": 1, "type": "T", "required": false, "revision": 1, "bindable": true, "description": "When set, only a `Draggable` whose `data` equals it is accepted."},
+      {"name": "highlightColor", "id": 2, "type": "color", "required": false, "revision": 1, "bindable": true, "description": "Tints the child while an acceptable candidate hovers over it."},
+      {"name": "hitTestBehavior", "id": 3, "type": "HitTestBehavior", "required": false, "default": "translucent", "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onAccept", "id": 1, "payload": "T", "revision": 1, "description": "Fired when a candidate was dropped and accepted; the runtime passes the dropped `data` as the event payload."},
+      {"name": "onLeave", "id": 2, "revision": 1, "description": "Fired when a candidate leaves without being dropped."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1, "description": "The content; it is highlighted while a candidate hovers."}
+    ]
+  },
+  {
+    "type": "Draggable",
+    "id": 134,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "interaction",
+    "icon": "drag_indicator",
+    "description": "Lets the user drag its child, carrying a typed `data` payload to a `DragTarget`.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "none", "interactive": true},
+    "typeParameters": ["T"],
+    "props": [
+      {"name": "data", "id": 1, "type": "T", "required": false, "revision": 1, "bindable": true, "description": "The payload a `DragTarget` receives when the child is dropped on it."},
+      {"name": "axis", "id": 2, "type": "Axis", "required": false, "revision": 1, "bindable": true, "description": "Restricts the drag to one axis."},
+      {"name": "feedbackOffset", "id": 3, "type": "Offset", "required": false, "revision": 1, "bindable": true},
+      {"name": "maxSimultaneousDrags", "id": 4, "type": "int", "required": false, "revision": 1, "bindable": true},
+      {"name": "ignoringFeedbackSemantics", "id": 5, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "ignoringFeedbackPointer", "id": 6, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "rootOverlay", "id": 7, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "hitTestBehavior", "id": 8, "type": "HitTestBehavior", "required": false, "default": "deferToChild", "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onDragStarted", "id": 1, "revision": 1},
+      {"name": "onDragEnd", "id": 2, "payload": "bool", "revision": 1, "description": "Fired when the drag ends; the payload tells whether a target accepted it."},
+      {"name": "onDragCompleted", "id": 3, "revision": 1, "description": "Fired when a target accepted the drop."},
+      {"name": "onDraggableCanceled", "id": 4, "revision": 1, "description": "Fired when no target accepted the drop."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1},
+      {"name": "feedback", "id": 2, "list": false, "required": true, "template": false, "revision": 1, "description": "Shown under the finger while dragging."},
+      {"name": "childWhenDragging", "id": 3, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown in place of the child while it is dragged."}
+    ]
+  },
+  {
+    "type": "Drawer",
+    "id": 130,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "menu",
+    "description": "A panel that slides in from the edge; fill `Scaffold.drawer` or `Scaffold.endDrawer` with it.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "backgroundColor", "id": 1, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 2, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "shadowColor", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "surfaceTintColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "shape", "id": 5, "type": "ShapeBorder", "required": false, "revision": 1, "bindable": true},
+      {"name": "width", "id": 6, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticLabel", "id": 7, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "clipBehavior", "id": 8, "type": "Clip", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
   },
   {
     "type": "DropdownMenu",
@@ -1351,6 +2408,32 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "label", "id": 3, "list": false, "required": false, "template": false, "revision": 1},
       {"name": "selectedTrailingIcon", "id": 4, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "DualCalendarDatePicker",
+    "id": 207,
+    "layer": 2,
+    "phase": "P8",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "calendar_month",
+    "description": "A month grid in one calendar with the day numbers of a second calendar beside them; Gregorian beside Hijri, Ethiopic or Persian (I18N-003).",
+    "platforms": ["android", "ios"],
+    "cost": 120,
+    "accessibility": {"role": "none", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "date?", "required": false, "revision": 1, "bindable": true, "description": "The selected date."},
+      {"name": "firstDate", "id": 2, "type": "date?", "required": false, "revision": 1, "bindable": true, "description": "The earliest date that can be chosen; the start of 1900 when absent."},
+      {"name": "lastDate", "id": 3, "type": "date?", "required": false, "revision": 1, "bindable": true, "description": "The latest date that can be chosen; the end of 2100 when absent."},
+      {"name": "calendar", "id": 4, "type": "CalendarSystem?", "required": false, "revision": 1, "bindable": true, "description": "The calendar of the grid; the app's `localisation.calendar` when absent."},
+      {"name": "secondaryCalendar", "id": 5, "type": "CalendarSystem?", "required": false, "revision": 1, "bindable": true, "description": "The calendar of the small day numbers; the app's `localisation.secondaryCalendar` when absent, and none if that is absent too."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "date", "revision": 1, "description": "Fires with the date chosen."}
+    ],
+    "slots": []
   },
   {
     "type": "ElevatedButton",
@@ -1505,6 +2588,58 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "FadeTransition",
+    "id": 150,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "gradient",
+    "description": "Fades its child by a track of a page timeline.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "timeline", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The name of a timeline of the page."},
+      {"name": "track", "id": 2, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value."},
+      {"name": "alwaysIncludeSemantics", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "FileUploader",
+    "id": 190,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "upload_file",
+    "description": "Pick a file, preview it and upload it with progress. Picking needs `plux_media`; without it the control is disabled and PLX-5401 is reported. The upload is a transfer operation of a data source.",
+    "platforms": ["android", "ios"],
+    "cost": 140,
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "dataSource", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The data source holding the upload operation."},
+      {"name": "operation", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The upload operation of the data source."},
+      {"name": "accept", "id": 3, "type": "list<string>", "required": false, "revision": 1, "bindable": true, "description": "Accepted media types; any when empty."},
+      {"name": "maxBytes", "id": 4, "type": "int?", "required": false, "constraints": {"min": 1}, "revision": 1, "bindable": true, "description": "The largest file in bytes."},
+      {"name": "label", "id": 5, "type": "string", "required": false, "default": "Choose file", "revision": 1, "bindable": true, "description": "The pick button's label."},
+      {"name": "uploadLabel", "id": 6, "type": "string", "required": false, "default": "Upload", "revision": 1, "bindable": true, "description": "The upload button's label."}
+    ],
+    "events": [
+      {"name": "onUploaded", "id": 1, "payload": "FileUploadResult", "sensitive": true, "revision": 1, "description": "Fires with the upload result when the upload succeeds."},
+      {"name": "onFailed", "id": 2, "payload": "FileUploadError", "revision": 1, "description": "Fires with the error when picking or uploading fails."}
+    ],
+    "slots": []
+  },
+  {
     "type": "FilledButton",
     "id": 79,
     "layer": 1,
@@ -1532,6 +2667,28 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "FilterBar",
+    "id": 173,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "filter_list",
+    "description": "A horizontally scrolling row of filter chips.",
+    "platforms": ["android", "ios"],
+    "cost": 90,
+    "accessibility": {"role": "list", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "filters", "id": 1, "type": "list<ChoiceItem>", "required": true, "revision": 1, "bindable": true, "description": "The chips."}
+    ],
+    "events": [
+      {"name": "onToggle", "id": 1, "payload": "ChoiceItem", "revision": 1, "description": "Fires with the chip's `id`, `label` and its new `selected` when the person taps it."}
+    ],
+    "slots": []
   },
   {
     "type": "FilterChip",
@@ -1911,6 +3068,55 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "Hero",
+    "id": 137,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "flight_takeoff",
+    "description": "Marks its child as a shared element that flies between pages with the same `tag`.",
+    "platforms": ["android", "ios"],
+    "cost": 15,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "tag", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The shared tag; the same strings as the node-level `hero` (ANI-004)."},
+      {"name": "transitionOnUserGestures", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "curve", "id": 3, "type": "Curve", "required": false, "default": "fastOutSlowIn", "revision": 1, "bindable": true},
+      {"name": "reverseCurve", "id": 4, "type": "Curve", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "IbanInput",
+    "id": 163,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "account_balance",
+    "description": "An IBAN entry shown in groups of four, with the mod-97 check.",
+    "platforms": ["android", "ios"],
+    "cost": 80,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "label", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The field's label."},
+      {"name": "value", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The IBAN without spaces."},
+      {"name": "invalidMessage", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The error shown for an invalid IBAN."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "string", "sensitive": true, "revision": 1, "description": "Fires with the IBAN without spaces when it is valid, and with an empty string when it is not."}
+    ],
+    "slots": []
+  },
+  {
     "type": "Icon",
     "id": 49,
     "layer": 1,
@@ -2048,6 +3254,31 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "ImageGallery",
+    "id": 189,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "photo_library",
+    "description": "Swipeable images, each pinch-zoomable, with page indicators.",
+    "platforms": ["android", "ios"],
+    "cost": 120,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "images", "id": 1, "type": "list<ImageSource>", "required": true, "revision": 1, "bindable": true, "description": "The images."},
+      {"name": "initialPage", "id": 2, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The index first shown."},
+      {"name": "indicators", "id": 3, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Shows page indicators."},
+      {"name": "semanticLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label screen readers announce for the gallery."}
+    ],
+    "events": [
+      {"name": "onPageChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the index of the image shown."}
+    ],
+    "slots": []
+  },
+  {
     "type": "IndexedStack",
     "id": 29,
     "layer": 1,
@@ -2071,6 +3302,36 @@ export const widgets: readonly WidgetDescriptor[] = [
     "events": [],
     "slots": [],
     "children": {}
+  },
+  {
+    "type": "InfiniteList",
+    "id": 175,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "scrolling",
+    "icon": "view_list",
+    "description": "A lazily built, paginated list of `item` templates over `items`, with empty, loading and error states (WGT-012).",
+    "platforms": ["android", "ios"],
+    "cost": 50,
+    "accessibility": {"role": "list", "interactive": false},
+    "typeParameters": ["T"],
+    "props": [
+      {"name": "items", "id": 1, "type": "list<T>", "required": true, "revision": 1, "bindable": true, "description": "The items loaded so far; the template repeats over them as `item` and `index`."},
+      {"name": "status", "id": 2, "type": "ListStatus", "required": false, "default": "ready", "revision": 1, "bindable": true, "description": "Loading, error or ready; selects the `loading` or `error` slot."},
+      {"name": "hasMore", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "More items can be loaded; `onEndReached` fires near the end."},
+      {"name": "padding", "id": 4, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true, "description": "Space around the items."}
+    ],
+    "events": [
+      {"name": "onEndReached", "id": 1, "revision": 1, "description": "Fires once when the last item comes into view and `hasMore` is true."}
+    ],
+    "slots": [
+      {"name": "item", "id": 1, "list": false, "required": true, "template": true, "revision": 1, "description": "The template built for each item, lazily."},
+      {"name": "empty", "id": 2, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown when `items` is empty."},
+      {"name": "loading", "id": 3, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is loading."},
+      {"name": "error", "id": 4, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is error."}
+    ]
   },
   {
     "type": "InkWell",
@@ -2177,6 +3438,42 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "InteractiveViewer",
+    "id": 136,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "interaction",
+    "icon": "zoom_in",
+    "description": "Pans and zooms its child with gestures.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "none", "interactive": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "clipBehavior", "id": 1, "type": "Clip", "required": false, "default": "hardEdge", "revision": 1, "bindable": true},
+      {"name": "panAxis", "id": 2, "type": "PanAxis", "required": false, "default": "free", "revision": 1, "bindable": true},
+      {"name": "boundaryMargin", "id": 3, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "constrained", "id": 4, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "maxScale", "id": 5, "type": "double", "required": false, "default": 2.5, "revision": 1, "bindable": true},
+      {"name": "minScale", "id": 6, "type": "double", "required": false, "default": 0.8, "revision": 1, "bindable": true},
+      {"name": "interactionEndFrictionCoefficient", "id": 7, "type": "double", "required": false, "default": 1.35e-05, "revision": 1, "bindable": true},
+      {"name": "panEnabled", "id": 8, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "scaleEnabled", "id": 9, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "scaleFactor", "id": 10, "type": "double", "required": false, "default": 200.0, "revision": 1, "bindable": true},
+      {"name": "alignment", "id": 11, "type": "Alignment", "required": false, "revision": 1, "bindable": true},
+      {"name": "trackpadScrollCausesScale", "id": 12, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onInteractionStart", "id": 1, "revision": 1},
+      {"name": "onInteractionEnd", "id": 2, "revision": 1}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1}
+    ]
+  },
+  {
     "type": "KycCameraCapture",
     "id": 108,
     "layer": 2,
@@ -2220,6 +3517,30 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "LineChart",
+    "id": 193,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "show_chart",
+    "description": "A line per series over shared labels. Screen readers get a text summary per series, and `showTable` adds a data table.",
+    "platforms": ["android", "ios"],
+    "cost": 400,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "series", "id": 1, "type": "list<ChartSeries>", "required": true, "revision": 1, "bindable": true, "description": "The series; they share the labels."},
+      {"name": "labels", "id": 2, "type": "list<string>?", "required": false, "revision": 1, "bindable": true, "description": "The label of each position along the horizontal axis."},
+      {"name": "title", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A heading above the chart, also its spoken name."},
+      {"name": "summaryTemplate", "id": 4, "type": "string", "required": false, "default": "{name}: {count} values, first {first}, last {last}, lowest {min}, highest {max}", "revision": 1, "bindable": true, "description": "What a screen reader hears for each series; `{name}`, `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."},
+      {"name": "showTable", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether a table of the values is shown below the chart."}
+    ],
+    "events": [],
+    "slots": []
   },
   {
     "type": "LinearProgressIndicator",
@@ -2350,6 +3671,143 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "LiveEtaCard",
+    "id": 181,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "feedback",
+    "icon": "local_shipping",
+    "description": "A card with a live estimate of arrival: minutes left and a status line. Bind `etaMinutes` and `status` to a stream data source value; changes are announced.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "title", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The headline, such as the order or ride."},
+      {"name": "etaMinutes", "id": 2, "type": "int?", "required": false, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "Minutes until arrival; bind it to a stream data source value."},
+      {"name": "status", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The current status text, such as `On the way`."},
+      {"name": "minutesLabel", "id": 4, "type": "string", "required": false, "default": "min", "revision": 1, "bindable": true, "description": "The unit shown after the minutes."},
+      {"name": "icon", "id": 5, "type": "IconData?", "required": false, "revision": 1, "bindable": true, "description": "A leading icon."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
+    "type": "LottieView",
+    "id": 205,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "animation",
+    "description": "A Lottie or dotLottie animation from an https address, controlled by props (ANI-005).",
+    "platforms": ["android", "ios"],
+    "cost": 1200,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "url", "id": 1, "type": "string", "required": true, "constraints": {"pattern": "^https://"}, "revision": 1, "bindable": true, "description": "The https address of the `.json` or `.lottie` file."},
+      {"name": "animate", "id": 2, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Whether it plays."},
+      {"name": "repeat", "id": 3, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Whether it plays again when it ends."},
+      {"name": "reverse", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether every second play runs backwards."},
+      {"name": "progress", "id": 5, "type": "double?", "required": false, "constraints": {"min": 0, "max": 1}, "revision": 1, "bindable": true, "description": "The frame to show, 0 to 1; when set it does not play."},
+      {"name": "fit", "id": 6, "type": "string", "required": false, "default": "contain", "revision": 1, "bindable": true, "description": "How it fits its box, a `BoxFit` name."},
+      {"name": "width", "id": 7, "type": "double?", "required": false, "revision": 1, "bindable": true, "description": "The width, or the animation's own."},
+      {"name": "height", "id": 8, "type": "double?", "required": false, "revision": 1, "bindable": true, "description": "The height, or the animation's own."},
+      {"name": "reduceMotion", "id": 9, "type": "string", "required": false, "default": "skip", "constraints": {"pattern": "^(skip|shorten|ignore)$"}, "revision": 1, "bindable": true, "description": "What it does under reduce motion: `skip` shows the last frame, `shorten` plays four times as fast, `ignore` plays as declared."},
+      {"name": "semanticLabel", "id": 10, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the animation shows; without one it is hidden from screen readers."}
+    ],
+    "events": [
+      {"name": "onCompleted", "id": 1, "revision": 1, "description": "Fires when an animation that does not repeat ends."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "MapView",
+    "id": 197,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "map",
+    "description": "A map with markers and lines. Tiles come from `tileUrlTemplate`, fetched over HTTPS from a domain the plugin declares (SEC-080); the Google package ignores the template and uses the host's API key. Showing the user's location needs the `location` device API and its permission. Each marker is a semantics node with its title.",
+    "platforms": ["android", "ios"],
+    "cost": 900,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "semanticLabel", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What the map shows, spoken before its markers."},
+      {"name": "center", "id": 2, "type": "LatLng", "required": true, "revision": 1, "bindable": true, "description": "The map centre."},
+      {"name": "zoom", "id": 3, "type": "double", "required": false, "default": 13.0, "revision": 1, "bindable": true, "description": "The zoom level."},
+      {"name": "minZoom", "id": 4, "type": "double", "required": false, "default": 2.0, "revision": 1, "bindable": true, "description": "The lowest zoom level."},
+      {"name": "maxZoom", "id": 5, "type": "double", "required": false, "default": 19.0, "revision": 1, "bindable": true, "description": "The highest zoom level."},
+      {"name": "markers", "id": 6, "type": "list<MapMarker>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "The markers."},
+      {"name": "polylines", "id": 7, "type": "list<MapPolyline>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "The lines."},
+      {"name": "tileUrlTemplate", "id": 8, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain. Without it no tiles are drawn."},
+      {"name": "attribution", "id": 9, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tile provider's attribution, always shown; required when `tileUrlTemplate` is set."},
+      {"name": "showUserLocation", "id": 10, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Show the user's position; needs the `location` device API."},
+      {"name": "interactive", "id": 11, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Whether the user can pan and zoom."}
+    ],
+    "events": [
+      {"name": "onMarkerTap", "id": 1, "payload": "string", "revision": 1, "description": "A marker was tapped; the payload is its `id`."},
+      {"name": "onMapTap", "id": 2, "payload": "LatLng", "revision": 1, "description": "The map was tapped away from a marker; the payload is the position."},
+      {"name": "onCameraIdle", "id": 3, "payload": "MapCamera", "revision": 1, "description": "The camera stopped moving; the payload is its centre and zoom."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "MarkdownView",
+    "id": 192,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "markdown",
+    "description": "Formatted text from Markdown: headings, paragraphs, emphasis, lists, quotes, code and links. Raw HTML is shown as text; images are bundle assets.",
+    "platforms": ["android", "ios"],
+    "cost": 500,
+    "accessibility": {"role": "text", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "source", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The Markdown text."}
+    ],
+    "events": [
+      {"name": "onLink", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the address of a tapped link; wire it to the `openUrl` action. The widget never opens a link itself."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "MaskedText",
+    "id": 161,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "visibility_off",
+    "description": "A sensitive number with all but its last digits hidden; the hidden digits never reach screen readers.",
+    "platforms": ["android", "ios"],
+    "cost": 50,
+    "accessibility": {"role": "text", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The full value."},
+      {"name": "mask", "id": 2, "type": "MaskKind", "required": false, "default": "card", "revision": 1, "bindable": true, "description": "How the value is hidden."},
+      {"name": "visibleDigits", "id": 3, "type": "int", "required": false, "default": 4, "revision": 1, "bindable": true, "description": "How many trailing digits stay visible."},
+      {"name": "revealable", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "A button shows the whole value."},
+      {"name": "revealLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label of the reveal button."}
+    ],
+    "events": [
+      {"name": "onReveal", "id": 1, "revision": 1, "description": "Fires when the person reveals the value."}
+    ],
+    "slots": []
+  },
+  {
     "type": "Match",
     "id": 2,
     "layer": 1,
@@ -2374,6 +3832,238 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "MaterialBanner",
+    "id": 119,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "campaign",
+    "description": "A banner with a message, an optional leading widget and actions (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "alert", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "contentTextStyle", "id": 1, "type": "TextStyle", "required": false, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 2, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "surfaceTintColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "shadowColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "dividerColor", "id": 6, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "padding", "id": 7, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "margin", "id": 8, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "leadingPadding", "id": 9, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "forceActionsBelow", "id": 10, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "overflowAlignment", "id": 11, "type": "OverflowBarAlignment", "required": false, "default": "end", "revision": 1, "bindable": true},
+      {"name": "minActionBarHeight", "id": 12, "type": "double", "required": false, "default": 52.0, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onVisible", "id": 1, "revision": 1}
+    ],
+    "slots": [
+      {"name": "content", "id": 1, "list": false, "required": true, "template": false, "revision": 1},
+      {"name": "leading", "id": 2, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "actions", "id": 3, "list": true, "required": true, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "MenuAnchor",
+    "id": 121,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "menu_open",
+    "description": "Opens a menu of `items` from its anchor `child`; choosing one fires `onSelected` with its value.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "menu", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "items", "id": 1, "type": "list<MenuItem>", "required": true, "revision": 1, "bindable": true, "description": "The menu entries."},
+      {"name": "consumeOutsideTap", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1},
+      {"name": "onOpen", "id": 2, "revision": 1},
+      {"name": "onClose", "id": 3, "revision": 1}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1, "description": "The anchor the menu opens from; tapping it toggles the menu."}
+    ]
+  },
+  {
+    "type": "MoneyText",
+    "id": 160,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "attach_money",
+    "description": "An amount written for the locale and currency, read aloud with the currency's name.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "text", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The amount."},
+      {"name": "display", "id": 2, "type": "MoneyDisplay", "required": false, "default": "symbol", "revision": 1, "bindable": true, "description": "How the currency is written."},
+      {"name": "signDisplay", "id": 3, "type": "SignDisplay", "required": false, "default": "auto", "revision": 1, "bindable": true, "description": "When a sign is shown."},
+      {"name": "style", "id": 4, "type": "TextStyle?", "required": false, "revision": 1, "bindable": true, "description": "The text style."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
+    "type": "NativeSlot",
+    "id": 110,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "structure",
+    "icon": "extension",
+    "description": "Places a host-app native slot, named by the literal `name`, with the props and events that slot declares. Equivalent to a node whose `type` is that name.",
+    "platforms": ["android", "ios"],
+    "cost": 10,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "name", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The native slot name from the host catalogue; a literal."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
+    "type": "NavigationBar",
+    "id": 128,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "bottom_navigation",
+    "description": "A bar of destinations along the bottom; choosing one fires `onDestinationSelected` with its index.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "tab", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "destinations", "id": 1, "type": "list<Destination>", "required": true, "revision": 1, "bindable": true},
+      {"name": "selectedIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 4, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "shadowColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "surfaceTintColor", "id": 6, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "indicatorColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "height", "id": 8, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "labelBehavior", "id": 9, "type": "NavigationDestinationLabelBehavior", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onDestinationSelected", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
+    "type": "NavigationDrawer",
+    "id": 131,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "menu_open",
+    "description": "A drawer of destinations; choosing one fires `onDestinationSelected` with its index.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "destinations", "id": 1, "type": "list<Destination>", "required": true, "revision": 1, "bindable": true},
+      {"name": "selectedIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "shadowColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "surfaceTintColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 6, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "indicatorColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onDestinationSelected", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": [
+      {"name": "header", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "footer", "id": 2, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "NavigationRail",
+    "id": 132,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "side_navigation",
+    "description": "A column of destinations along the side; choosing one fires `onDestinationSelected` with its index.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "tab", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "destinations", "id": 1, "type": "list<Destination>", "required": true, "revision": 1, "bindable": true},
+      {"name": "selectedIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true},
+      {"name": "extended", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Shows the labels beside the icons; `labelType` then reads as none."},
+      {"name": "labelType", "id": 4, "type": "NavigationRailLabelType", "required": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 5, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 6, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "groupAlignment", "id": 7, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "minWidth", "id": 8, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "minExtendedWidth", "id": 9, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "useIndicator", "id": 10, "type": "bool", "required": false, "revision": 1, "bindable": true},
+      {"name": "indicatorColor", "id": 11, "type": "color", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onDestinationSelected", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": [
+      {"name": "leading", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "trailing", "id": 2, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "NestedScrollView",
+    "id": 115,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "scrolling",
+    "icon": "vertical_split",
+    "description": "A scroll view whose `headerSlivers` scroll together with a scrollable `body` (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "scrollDirection", "id": 1, "type": "Axis", "required": false, "default": "vertical", "revision": 1, "bindable": true},
+      {"name": "reverse", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "physics", "id": 3, "type": "ScrollPhysics", "required": false, "revision": 1, "bindable": true},
+      {"name": "dragStartBehavior", "id": 4, "type": "DragStartBehavior", "required": false, "default": "start", "revision": 1, "bindable": true},
+      {"name": "floatHeaderSlivers", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "clipBehavior", "id": 6, "type": "Clip", "required": false, "default": "hardEdge", "revision": 1, "bindable": true},
+      {"name": "hitTestBehavior", "id": 7, "type": "HitTestBehavior", "required": false, "default": "opaque", "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "headerSlivers", "id": 1, "list": true, "required": false, "template": false, "revision": 1, "description": "The slivers above the body, such as a `SliverAppBar`."},
+      {"name": "body", "id": 2, "list": false, "required": true, "template": false, "revision": 1, "description": "The scrollable body, such as a `ListView`."}
+    ]
+  },
+  {
     "type": "OfflineBanner",
     "id": 102,
     "layer": 2,
@@ -2393,6 +4083,32 @@ export const widgets: readonly WidgetDescriptor[] = [
     ],
     "events": [],
     "slots": []
+  },
+  {
+    "type": "OnboardingPager",
+    "id": 177,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "slideshow",
+    "description": "Swipeable onboarding pages with page indicators and a Done button on the last page.",
+    "platforms": ["android", "ios"],
+    "cost": 140,
+    "accessibility": {"role": "none", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "currentPage", "id": 1, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The zero-based page shown."},
+      {"name": "nextLabel", "id": 2, "type": "string", "required": false, "default": "Next", "revision": 1, "bindable": true, "description": "The Next button's text."},
+      {"name": "doneLabel", "id": 3, "type": "string", "required": false, "default": "Done", "revision": 1, "bindable": true, "description": "The Done button's text, on the last page."}
+    ],
+    "events": [
+      {"name": "onPageChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the page now shown."},
+      {"name": "onDone", "id": 2, "revision": 1, "description": "Fires when the person finishes the last page."}
+    ],
+    "slots": [],
+    "children": {"min": 1}
   },
   {
     "type": "Opacity",
@@ -2418,6 +4134,37 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "OrderTrackerMap",
+    "id": 198,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "delivery_dining",
+    "description": "A map of a delivery: origin, destination, route and a courier marker that glides between position updates. Tiles come from `tileUrlTemplate` as in `MapView`.",
+    "platforms": ["android", "ios"],
+    "cost": 1000,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "semanticLabel", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What the map shows, spoken before its markers."},
+      {"name": "origin", "id": 2, "type": "LatLng", "required": true, "revision": 1, "bindable": true, "description": "Where the order starts."},
+      {"name": "destination", "id": 3, "type": "LatLng", "required": true, "revision": 1, "bindable": true, "description": "Where the order goes."},
+      {"name": "courier", "id": 4, "type": "LatLng?", "required": false, "revision": 1, "bindable": true, "description": "The courier's position; bindable, the marker animates to each new value."},
+      {"name": "route", "id": 5, "type": "list<LatLng>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "The route, in order."},
+      {"name": "etaLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The arrival estimate, shown over the map and spoken."},
+      {"name": "follow", "id": 7, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Keep the courier in view."},
+      {"name": "tileUrlTemplate", "id": 8, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tile URL with `{z}`, `{x}` and `{y}`; HTTPS on a declared domain."},
+      {"name": "attribution", "id": 9, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The tile provider's attribution, always shown; required when `tileUrlTemplate` is set."},
+      {"name": "originLabel", "id": 10, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The origin marker's name for screen readers; the marker is silent without it."},
+      {"name": "destinationLabel", "id": 11, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The destination marker's name for screen readers; the marker is silent without it."},
+      {"name": "courierLabel", "id": 12, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The courier marker's name for screen readers; the marker is silent without it."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
     "type": "OtpInput",
     "id": 106,
     "layer": 2,
@@ -2437,7 +4184,7 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "autofill", "id": 3, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Uses the platform's one-time-code autofill."}
     ],
     "events": [
-      {"name": "onCompleted", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the code once `length` characters are entered. Sensitive: never logged, traced or persisted (SEC-092)."}
+      {"name": "onCompleted", "id": 1, "payload": "string", "sensitive": true, "revision": 1, "description": "Fires with the code once `length` characters are entered. Sensitive: never logged, traced or persisted (SEC-092)."}
     ],
     "slots": []
   },
@@ -2532,6 +4279,116 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "PaymentCard",
+    "id": 170,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "credit_card",
+    "description": "A payment card: brand, masked number, expiry and holder; flipping shows the back.",
+    "platforms": ["android", "ios"],
+    "cost": 90,
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "brand", "id": 1, "type": "CardBrand", "required": false, "default": "other", "revision": 1, "bindable": true, "description": "The card network."},
+      {"name": "maskedNumber", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The card number, masked."},
+      {"name": "expiry", "id": 3, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The expiry, as printed."},
+      {"name": "holder", "id": 4, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The holder's name."},
+      {"name": "flipped", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the back is shown."},
+      {"name": "backLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The text on the back."}
+    ],
+    "events": [
+      {"name": "onFlip", "id": 1, "payload": "bool", "revision": 1, "description": "Fires with the side the person asked for."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "PhoneInput",
+    "id": 162,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "phone",
+    "description": "A phone number entry in E.164 with a country picker and validation.",
+    "platforms": ["android", "ios"],
+    "cost": 100,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "label", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The field's label."},
+      {"name": "value", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The number in E.164 form."},
+      {"name": "region", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The default ISO 3166 region; the locale's region when absent."},
+      {"name": "invalidMessage", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The error shown for an invalid number."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "string", "sensitive": true, "revision": 1, "description": "Fires with the E.164 number when it is valid, and with an empty string when it is not."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "PieChart",
+    "id": 195,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "pie_chart",
+    "description": "A pie of labelled slices. Screen readers get a text summary per slice, and `showTable` adds a data table.",
+    "platforms": ["android", "ios"],
+    "cost": 400,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "slices", "id": 1, "type": "list<PieSlice>", "required": true, "revision": 1, "bindable": true, "description": "The slices."},
+      {"name": "title", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A heading above the chart, also its spoken name."},
+      {"name": "summaryTemplate", "id": 3, "type": "string", "required": false, "default": "{label}: {value}, {percent} percent", "revision": 1, "bindable": true, "description": "What a screen reader hears for each slice; `{label}`, `{value}` and `{percent}` are replaced."},
+      {"name": "showTable", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether a table of the values is shown below the chart."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
+    "type": "PopupMenuButton",
+    "id": 120,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "more_vert",
+    "description": "A button that opens a menu of `items`; choosing one fires `onSelected` with its value.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "menu", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "items", "id": 1, "type": "list<MenuItem>", "required": true, "revision": 1, "bindable": true, "description": "The menu entries."},
+      {"name": "initialValue", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The value of the entry shown as selected."},
+      {"name": "tooltip", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "enabled", "id": 4, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 5, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "color", "id": 6, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "shadowColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "surfaceTintColor", "id": 8, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "iconSize", "id": 9, "type": "double", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1},
+      {"name": "onCanceled", "id": 2, "revision": 1},
+      {"name": "onOpened", "id": 3, "revision": 1}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "icon", "id": 2, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
     "type": "Positioned",
     "id": 28,
     "layer": 1,
@@ -2557,6 +4414,188 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "PriceTag",
+    "id": 166,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "sell",
+    "description": "A price, with the original price struck through and announced as the former price.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "text", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "price", "id": 1, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The current price."},
+      {"name": "originalPrice", "id": 2, "type": "money?", "required": false, "revision": 1, "bindable": true, "description": "The price before a reduction."},
+      {"name": "wasLabel", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What screen readers say before the original price."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
+    "type": "ProductCard",
+    "id": 182,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "shopping_bag",
+    "description": "A product tile: image, title, price, an optional struck-through original price and badge, and an add-to-cart button. Prices arrive as formatted strings.",
+    "platforms": ["android", "ios"],
+    "cost": 120,
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "image", "id": 1, "type": "ImageSource?", "required": false, "revision": 1, "bindable": true, "description": "The product image."},
+      {"name": "title", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The product name."},
+      {"name": "price", "id": 3, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The formatted price."},
+      {"name": "originalPrice", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The formatted price before a discount, shown struck through."},
+      {"name": "badge", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A short badge such as `New` or `-20%`."},
+      {"name": "addToCartLabel", "id": 6, "type": "string", "required": false, "default": "Add to cart", "revision": 1, "bindable": true, "description": "The label of the add-to-cart button."}
+    ],
+    "events": [
+      {"name": "onTap", "id": 1, "revision": 1, "description": "Fires when the card is tapped."},
+      {"name": "onAddToCart", "id": 2, "revision": 1, "description": "Fires when the add-to-cart button is pressed. The button shows only when this is handled."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "ProfileHeader",
+    "id": 179,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "layout",
+    "icon": "account_circle",
+    "description": "A person's avatar, name and subtitle with an actions row.",
+    "platforms": ["android", "ios"],
+    "cost": 50,
+    "accessibility": {"role": "header", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "name", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The person's name."},
+      {"name": "subtitle", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line below the name."},
+      {"name": "avatar", "id": 3, "type": "ImageSource?", "required": false, "revision": 1, "bindable": true, "description": "The avatar image; the name's initial shows when absent or failing."},
+      {"name": "radius", "id": 4, "type": "double", "required": false, "default": 32.0, "constraints": {"min": 8}, "revision": 1, "bindable": true, "description": "The avatar's radius."}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "actions", "id": 1, "list": false, "required": false, "template": false, "revision": 1, "description": "Buttons below the name."}
+    ]
+  },
+  {
+    "type": "PromoBanner",
+    "id": 185,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "campaign",
+    "description": "A campaign banner: image, title, subtitle, a call to action and, when `endsAt` is set, a countdown.",
+    "platforms": ["android", "ios"],
+    "cost": 110,
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "title", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The headline."},
+      {"name": "subtitle", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line below the title."},
+      {"name": "image", "id": 3, "type": "ImageSource?", "required": false, "revision": 1, "bindable": true, "description": "A background image."},
+      {"name": "ctaLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The label of the call to action."},
+      {"name": "endsAt", "id": 5, "type": "dateTime?", "required": false, "revision": 1, "bindable": true, "description": "When the offer ends; shows a countdown."}
+    ],
+    "events": [
+      {"name": "onTap", "id": 1, "revision": 1, "description": "Fires when the banner or its call to action is tapped."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "QrCodeView",
+    "id": 201,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "qr_code",
+    "description": "Draws a QR code for a text, offline. Ships in `plux_scanner`.",
+    "platforms": ["android", "ios"],
+    "cost": 200,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "data", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The text the code holds. It can be sensitive; it is drawn on the device and never sent."},
+      {"name": "size", "id": 2, "type": "double", "required": false, "default": 200.0, "constraints": {"min": 16}, "revision": 1, "bindable": true, "description": "The side of the square, in logical pixels."},
+      {"name": "errorCorrection", "id": 3, "type": "QrErrorCorrection", "required": false, "default": "medium", "revision": 1, "bindable": true, "description": "How much damage the code survives; higher levels make a denser code."},
+      {"name": "foreground", "id": 4, "type": "color?", "required": false, "revision": 1, "bindable": true, "description": "The colour of the modules; black when absent."},
+      {"name": "background", "id": 5, "type": "color?", "required": false, "revision": 1, "bindable": true, "description": "The colour behind the modules; white when absent."},
+      {"name": "quietZone", "id": 6, "type": "int", "required": false, "default": 4, "constraints": {"min": 0, "max": 16}, "revision": 1, "bindable": true, "description": "The empty border around the modules, in modules; scanners need four."},
+      {"name": "semanticLabel", "id": 7, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What a screen reader announces for the code. It describes what the code is for, never the data it holds."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
+    "type": "QrScanner",
+    "id": 199,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "qr_code_scanner",
+    "description": "A live camera preview that reads QR codes. Needs the `camera` device API: the plugin declares it, the app approves it (SEC-080), and the host declares the camera usage description. Ships in `plux_scanner`.",
+    "platforms": ["android", "ios"],
+    "cost": 400,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "torch", "id": 1, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the torch is on."},
+      {"name": "cameraFacing", "id": 2, "type": "CameraFacing", "required": false, "default": "back", "revision": 1, "bindable": true, "description": "Which camera to open."},
+      {"name": "scanWindow", "id": 3, "type": "list<double>?", "required": false, "revision": 1, "bindable": true, "description": "The part of the preview that is read, as four fractions of the preview: left, top, width, height. The whole preview when absent."},
+      {"name": "continuous", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether the scanner keeps reading after the first code; otherwise it reports once and stops."},
+      {"name": "overlayHint", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line of text under the viewfinder, such as \"Point the camera at the code\"."},
+      {"name": "semanticLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What a screen reader announces for the scanner; the read value is announced when a code is detected."}
+    ],
+    "events": [
+      {"name": "onDetected", "id": 1, "payload": "ScanResult", "sensitive": true, "revision": 1, "description": "Fires with the code that was read. The value can be sensitive (a payment token, a ticket); do not log it or put it in a label."},
+      {"name": "onError", "id": 2, "payload": "string", "revision": 1, "description": "Fires with an error code when the camera is denied, missing or fails."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "QuantityStepper",
+    "id": 183,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "add_circle",
+    "description": "A decrease button, the quantity and an increase button; screen readers adjust it with increase and decrease actions.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "slider", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "int", "required": false, "default": 1, "revision": 1, "bindable": true, "description": "The current quantity."},
+      {"name": "min", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true, "description": "The smallest quantity."},
+      {"name": "max", "id": 3, "type": "int", "required": false, "default": 99, "revision": 1, "bindable": true, "description": "The largest quantity."},
+      {"name": "step", "id": 4, "type": "int", "required": false, "default": 1, "constraints": {"min": 1}, "revision": 1, "bindable": true, "description": "The change per press."},
+      {"name": "decreaseLabel", "id": 5, "type": "string", "required": false, "default": "Decrease", "revision": 1, "bindable": true, "description": "The accessibility label of the decrease button."},
+      {"name": "increaseLabel", "id": 6, "type": "string", "required": false, "default": "Increase", "revision": 1, "bindable": true, "description": "The accessibility label of the increase button."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the new quantity."}
+    ],
+    "slots": []
   },
   {
     "type": "Radio",
@@ -2688,6 +4727,129 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": []
   },
   {
+    "type": "RatingBar",
+    "id": 187,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "star",
+    "description": "A read-only row of stars; screen readers read `3.5 of 5`.",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "text", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "double", "required": true, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The rating."},
+      {"name": "max", "id": 2, "type": "int", "required": false, "default": 5, "constraints": {"min": 1, "max": 10}, "revision": 1, "bindable": true, "description": "The number of stars."},
+      {"name": "ofLabel", "id": 3, "type": "string", "required": false, "default": "of", "revision": 1, "bindable": true, "description": "The word between value and maximum in the spoken value."},
+      {"name": "semanticLabel", "id": 4, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What is rated, spoken before the value."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
+    "type": "RatingInput",
+    "id": 188,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "star_rate",
+    "description": "Stars the user taps to rate; each star is a button.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "none", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The current rating, 0 for none."},
+      {"name": "max", "id": 2, "type": "int", "required": false, "default": 5, "constraints": {"min": 1, "max": 10}, "revision": 1, "bindable": true, "description": "The number of stars."},
+      {"name": "starLabel", "id": 3, "type": "string", "required": false, "default": "star", "revision": 1, "bindable": true, "description": "The noun in each star's label, such as `star`."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the rating chosen."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "RefreshIndicator",
+    "id": 113,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "interaction",
+    "icon": "refresh",
+    "description": "Pull-to-refresh over a scrollable child; `onRefresh` runs its handlers (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "displacement", "id": 1, "type": "double", "required": false, "default": 40.0, "revision": 1, "bindable": true},
+      {"name": "edgeOffset", "id": 2, "type": "double", "required": false, "default": 0.0, "revision": 1, "bindable": true},
+      {"name": "color", "id": 3, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "backgroundColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticsLabel", "id": 5, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "semanticsValue", "id": 6, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "strokeWidth", "id": 7, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "triggerMode", "id": 8, "type": "RefreshIndicatorTriggerMode", "required": false, "default": "onEdge", "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 9, "type": "double", "required": false, "default": 2.0, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onRefresh", "id": 1, "revision": 1, "description": "Fired when the user pulls to refresh. The indicator hides when the handlers have been started."}
+    ],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "ReorderableListView",
+    "id": 114,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "scrolling",
+    "icon": "reorder",
+    "description": "A list whose `item` templates the user can drag into a new order; the page updates its list on `onReorder` (WGT-012).",
+    "platforms": ["android", "ios"],
+    "cost": 40,
+    "accessibility": {"role": "list", "interactive": true, "minTarget": true},
+    "typeParameters": ["T"],
+    "props": [
+      {"name": "items", "id": 1, "type": "list<T>", "required": true, "revision": 1, "bindable": true, "description": "The list the template repeats over; bind it with `$expr`. The item is available as `item`, its position as `index`."},
+      {"name": "scrollDirection", "id": 2, "type": "Axis", "required": false, "default": "vertical", "revision": 1, "bindable": true},
+      {"name": "reverse", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "physics", "id": 4, "type": "ScrollPhysics", "required": false, "revision": 1, "bindable": true},
+      {"name": "shrinkWrap", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "padding", "id": 6, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "buildDefaultDragHandles", "id": 7, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "itemExtent", "id": 8, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "anchor", "id": 9, "type": "double", "required": false, "default": 0.0, "revision": 1, "bindable": true},
+      {"name": "dragStartBehavior", "id": 11, "type": "DragStartBehavior", "required": false, "default": "start", "revision": 1, "bindable": true},
+      {"name": "keyboardDismissBehavior", "id": 12, "type": "ScrollViewKeyboardDismissBehavior", "required": false, "revision": 1, "bindable": true},
+      {"name": "clipBehavior", "id": 13, "type": "Clip", "required": false, "default": "hardEdge", "revision": 1, "bindable": true},
+      {"name": "autoScrollerVelocityScalar", "id": 14, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "status", "id": 15, "type": "ListStatus", "required": false, "default": "ready", "revision": 1, "bindable": true, "description": "Loading, error or ready; selects the `loading` or `error` slot (WGT-012)."}
+    ],
+    "events": [
+      {"name": "onReorder", "id": 1, "payload": "map<string,int>", "revision": 1, "description": "Fired when an item is dropped; the payload holds `oldIndex` and `newIndex`, the final position of the item. The page moves the item in its list."},
+      {"name": "onReorderStart", "id": 2, "payload": "int", "revision": 1},
+      {"name": "onReorderEnd", "id": 3, "payload": "int", "revision": 1}
+    ],
+    "slots": [
+      {"name": "item", "id": 1, "list": false, "required": true, "template": true, "revision": 1, "description": "The template built for each item, lazily."},
+      {"name": "header", "id": 2, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "footer", "id": 3, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "empty", "id": 4, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown when `items` is empty."},
+      {"name": "loading", "id": 5, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is loading."},
+      {"name": "error", "id": 6, "list": false, "required": false, "template": false, "revision": 1, "description": "Shown while `status` is error."}
+    ]
+  },
+  {
     "type": "Responsive",
     "id": 4,
     "layer": 1,
@@ -2739,6 +4901,62 @@ export const widgets: readonly WidgetDescriptor[] = [
     ],
     "events": [],
     "slots": []
+  },
+  {
+    "type": "RiveView",
+    "id": 206,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "animation",
+    "description": "A Rive file from an https address whose state machine inputs follow Plux state (ANI-005).",
+    "platforms": ["android", "ios"],
+    "cost": 1500,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "url", "id": 1, "type": "string", "required": true, "constraints": {"pattern": "^https://"}, "revision": 1, "bindable": true, "description": "The https address of the `.riv` file."},
+      {"name": "artboard", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The artboard to show, or the file's default."},
+      {"name": "stateMachine", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The state machine to run, or the artboard's default."},
+      {"name": "inputs", "id": 4, "type": "map<string,double>?", "required": false, "revision": 1, "bindable": true, "description": "Number inputs of the state machine by name."},
+      {"name": "flags", "id": 5, "type": "map<string,bool>?", "required": false, "revision": 1, "bindable": true, "description": "Boolean inputs of the state machine by name."},
+      {"name": "triggers", "id": 6, "type": "map<string,double>?", "required": false, "revision": 1, "bindable": true, "description": "Triggers by name; each fires whenever its value changes."},
+      {"name": "fit", "id": 7, "type": "string", "required": false, "default": "contain", "revision": 1, "bindable": true, "description": "How it fits its box, a Rive `Fit` name."},
+      {"name": "reduceMotion", "id": 8, "type": "string", "required": false, "default": "skip", "constraints": {"pattern": "^(skip|ignore)$"}, "revision": 1, "bindable": true, "description": "`skip` freezes the animation under reduce motion, `ignore` keeps it playing."},
+      {"name": "semanticLabel", "id": 9, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the animation shows; without one it is hidden from screen readers."}
+    ],
+    "events": [
+      {"name": "onLoaded", "id": 1, "revision": 1, "description": "Fires when the file is loaded."},
+      {"name": "onFailed", "id": 2, "revision": 1, "description": "Fires when the file cannot be loaded."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "RotationTransition",
+    "id": 153,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "autorenew",
+    "description": "Rotates its child by a track of a page timeline, in turns.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "timeline", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The name of a timeline of the page."},
+      {"name": "track", "id": 2, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value."},
+      {"name": "alignment", "id": 3, "type": "Alignment", "required": false, "default": "center", "revision": 1, "bindable": true},
+      {"name": "filterQuality", "id": 4, "type": "FilterQuality", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
   },
   {
     "type": "Row",
@@ -2840,6 +5058,31 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "ScaleTransition",
+    "id": 152,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "zoom_in_map",
+    "description": "Scales its child by a track of a page timeline.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "timeline", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The name of a timeline of the page."},
+      {"name": "track", "id": 2, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value."},
+      {"name": "alignment", "id": 3, "type": "Alignment", "required": false, "default": "center", "revision": 1, "bindable": true},
+      {"name": "filterQuality", "id": 4, "type": "FilterQuality", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
     "type": "Scrollbar",
     "id": 45,
     "layer": 1,
@@ -2865,6 +5108,85 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "SearchAnchor",
+    "id": 123,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "manage_search",
+    "description": "A search bar that opens a view listing the `suggestions` that match the text; choosing one fires `onSelected`.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "suggestions", "id": 1, "type": "list<string>", "required": true, "revision": 1, "bindable": true, "description": "The suggestions; the runtime lists those that contain the typed text, ignoring case."},
+      {"name": "isFullScreen", "id": 2, "type": "bool", "required": false, "revision": 1, "bindable": true},
+      {"name": "viewHintText", "id": 3, "type": "string", "required": false, "revision": 1, "bindable": true},
+      {"name": "hintText", "id": 4, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The hint of the bar that opens the view."}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
+    "type": "SearchBar",
+    "id": 122,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "search",
+    "description": "A text field styled as a search bar.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "string", "required": false, "revision": 1, "bindable": true, "description": "The text, bound two-way: the runtime owns the controller and updates bound state on every change."},
+      {"name": "hintText", "id": 2, "type": "string", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "string", "revision": 1},
+      {"name": "onSubmitted", "id": 2, "payload": "string", "revision": 1},
+      {"name": "onTap", "id": 3, "revision": 1}
+    ],
+    "slots": [
+      {"name": "leading", "id": 1, "list": false, "required": false, "template": false, "revision": 1},
+      {"name": "trailing", "id": 2, "list": true, "required": false, "template": false, "revision": 1}
+    ]
+  },
+  {
+    "type": "SearchField",
+    "id": 172,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "search",
+    "description": "A search box that reports the query once typing pauses, with optional suggestions.",
+    "platforms": ["android", "ios"],
+    "cost": 120,
+    "accessibility": {"role": "textField", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "value", "id": 1, "type": "string", "required": false, "default": "", "revision": 1, "bindable": true, "description": "The text in the field."},
+      {"name": "hint", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The placeholder."},
+      {"name": "debounceMs", "id": 3, "type": "int", "required": false, "default": 300, "constraints": {"min": 0, "max": 5000}, "revision": 1, "bindable": true, "description": "How long typing must pause before `onSearch` fires, in milliseconds."},
+      {"name": "suggestions", "id": 4, "type": "list<string>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "Suggestions shown below the field while it has text."}
+    ],
+    "events": [
+      {"name": "onSearch", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the query after typing pauses for `debounceMs`."},
+      {"name": "onSuggestionSelected", "id": 2, "payload": "string", "revision": 1, "description": "Fires with the suggestion the person picked."}
+    ],
+    "slots": []
   },
   {
     "type": "SecurePinPad",
@@ -2989,6 +5311,53 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": []
   },
   {
+    "type": "SettingsList",
+    "id": 178,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "layout",
+    "icon": "settings",
+    "description": "Settings rows grouped under section headers.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "list", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "sections", "id": 1, "type": "list<SettingsSection>", "required": true, "revision": 1, "bindable": true, "description": "The groups; the children are divided among them in order by `count`."}
+    ],
+    "events": [],
+    "slots": [],
+    "children": {}
+  },
+  {
+    "type": "SignaturePad",
+    "id": 202,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "draw",
+    "description": "A box the user signs in with a finger. `onChanged` fires with SVG path data or a base64 PNG, and with an empty string when cleared.",
+    "platforms": ["android", "ios"],
+    "cost": 800,
+    "accessibility": {"role": "image", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "format", "id": 1, "type": "string", "required": false, "default": "svg", "constraints": {"pattern": "^(svg|png)$"}, "revision": 1, "bindable": true, "description": "`svg` for path data, `png` for a base64 PNG."},
+      {"name": "strokeWidth", "id": 2, "type": "double", "required": false, "default": 2.0, "constraints": {"min": 0.5, "max": 12}, "revision": 1, "bindable": true, "description": "The pen width."},
+      {"name": "height", "id": 3, "type": "double", "required": false, "default": 160.0, "constraints": {"min": 80}, "revision": 1, "bindable": true, "description": "The pad's height."},
+      {"name": "clearLabel", "id": 4, "type": "string", "required": false, "default": "Clear", "revision": 1, "bindable": true, "description": "The clear button's label."},
+      {"name": "semanticLabel", "id": 5, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the signature is for, spoken for the pad."}
+    ],
+    "events": [
+      {"name": "onChanged", "id": 1, "payload": "string", "sensitive": true, "revision": 1, "description": "Fires after each stroke with the signature, and with an empty string when cleared."}
+    ],
+    "slots": []
+  },
+  {
     "type": "SingleChildScrollView",
     "id": 34,
     "layer": 1,
@@ -3062,6 +5431,32 @@ export const widgets: readonly WidgetDescriptor[] = [
     ],
     "events": [],
     "slots": []
+  },
+  {
+    "type": "SlideTransition",
+    "id": 151,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "animation",
+    "icon": "trending_flat",
+    "description": "Slides its child by a track of a page timeline, in multiples of the child's size along `axis`.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "timeline", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The name of a timeline of the page."},
+      {"name": "track", "id": 2, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The index of the track of that timeline whose value drives the widget; without a running timeline the child shows the track's start value."},
+      {"name": "axis", "id": 3, "type": "Axis", "required": false, "default": "horizontal", "revision": 1, "bindable": true},
+      {"name": "transformHitTests", "id": 4, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true},
+      {"name": "textDirection", "id": 5, "type": "TextDirection", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
+    ]
   },
   {
     "type": "Slider",
@@ -3276,6 +5671,31 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "SliverPersistentHeader",
+    "id": 116,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "scrolling",
+    "icon": "vertical_align_top",
+    "description": "A sliver header between `minExtent` and `maxExtent` tall that can stay pinned or float (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "header", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "pinned", "id": 1, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "floating", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "minExtent", "id": 3, "type": "double", "required": true, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The height when collapsed."},
+      {"name": "maxExtent", "id": 4, "type": "double", "required": true, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The height when expanded."}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1, "description": "The header content; it is given the current height."}
+    ]
+  },
+  {
     "type": "SliverToBoxAdapter",
     "id": 42,
     "layer": 1,
@@ -3318,6 +5738,30 @@ export const widgets: readonly WidgetDescriptor[] = [
     ]
   },
   {
+    "type": "SortSheet",
+    "id": 174,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "sort",
+    "description": "A list of radio rows to choose a sort order from; a page of kind bottom sheet hosts it.",
+    "platforms": ["android", "ios"],
+    "cost": 80,
+    "accessibility": {"role": "radio", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "title", "id": 1, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A header above the rows."},
+      {"name": "options", "id": 2, "type": "list<ChoiceItem>", "required": true, "revision": 1, "bindable": true, "description": "The orders offered; their `selected` is ignored in favour of `selected`."},
+      {"name": "selected", "id": 3, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The `id` of the chosen option."}
+    ],
+    "events": [
+      {"name": "onSelected", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the `id` of the option the person chose."}
+    ],
+    "slots": []
+  },
+  {
     "type": "Spacer",
     "id": 33,
     "layer": 1,
@@ -3333,6 +5777,28 @@ export const widgets: readonly WidgetDescriptor[] = [
     "typeParameters": [],
     "props": [
       {"name": "flex", "id": 1, "type": "int", "required": false, "default": 1, "constraints": {"min": 1}, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
+    "type": "Sparkline",
+    "id": 196,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "ssid_chart",
+    "description": "A small line of values with no axes, for lists and cards; screen readers get one text summary.",
+    "platforms": ["android", "ios"],
+    "cost": 150,
+    "accessibility": {"role": "image", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "values", "id": 1, "type": "list<double>", "required": true, "revision": 1, "bindable": true, "description": "The values."},
+      {"name": "semanticLabel", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the values are, spoken before the summary."},
+      {"name": "summaryTemplate", "id": 3, "type": "string", "required": false, "default": "{count} values, first {first}, last {last}, lowest {min}, highest {max}", "revision": 1, "bindable": true, "description": "What a screen reader hears; `{count}`, `{first}`, `{last}`, `{min}` and `{max}` are replaced."}
     ],
     "events": [],
     "slots": []
@@ -3358,6 +5824,64 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "clipBehavior", "id": 4, "type": "Clip", "required": false, "default": "hardEdge", "revision": 1, "bindable": true}
     ],
     "events": [],
+    "slots": [],
+    "children": {}
+  },
+  {
+    "type": "StatusTimeline",
+    "id": 180,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "feedback",
+    "icon": "timeline",
+    "description": "A vertical timeline of steps, each done, current, pending or failed; the current step is announced.",
+    "platforms": ["android", "ios"],
+    "cost": 70,
+    "accessibility": {"role": "list", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "steps", "id": 1, "type": "list<TimelineStep>", "required": true, "revision": 1, "bindable": true, "description": "The steps, in order."}
+    ],
+    "events": [],
+    "slots": []
+  },
+  {
+    "type": "Stepper",
+    "id": 118,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "structure",
+    "icon": "checklist",
+    "description": "A sequence of steps; the child at each step's index is its content (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "steps", "id": 1, "type": "list<StepItem>", "required": true, "revision": 1, "bindable": true},
+      {"name": "type", "id": 2, "type": "StepperType", "required": false, "default": "vertical", "revision": 1, "bindable": true},
+      {"name": "currentStep", "id": 3, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true, "description": "The open step; bind it to a state key and update it from the events."},
+      {"name": "physics", "id": 4, "type": "ScrollPhysics", "required": false, "revision": 1, "bindable": true},
+      {"name": "elevation", "id": 5, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "margin", "id": 6, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "connectorColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "connectorThickness", "id": 8, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "stepIconHeight", "id": 9, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "stepIconWidth", "id": 10, "type": "double", "required": false, "revision": 1, "bindable": true},
+      {"name": "stepIconMargin", "id": 11, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "clipBehavior", "id": 12, "type": "Clip", "required": false, "default": "none", "revision": 1, "bindable": true},
+      {"name": "headerPadding", "id": 13, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true},
+      {"name": "contentPadding", "id": 14, "type": "EdgeInsets", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onStepTapped", "id": 1, "payload": "int", "revision": 1},
+      {"name": "onStepContinue", "id": 2, "revision": 1},
+      {"name": "onStepCancel", "id": 3, "revision": 1}
+    ],
     "slots": [],
     "children": {}
   },
@@ -3465,6 +5989,112 @@ export const widgets: readonly WidgetDescriptor[] = [
       {"name": "subtitle", "id": 2, "list": false, "required": false, "template": false, "revision": 1},
       {"name": "secondary", "id": 3, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "TabBar",
+    "id": 126,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "tab",
+    "description": "A row of tabs; the selected one is `selectedIndex`, and tapping a tab fires `onTap` with its index.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "tab", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "tabs", "id": 1, "type": "list<TabItem>", "required": true, "revision": 1, "bindable": true},
+      {"name": "selectedIndex", "id": 2, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true, "description": "The selected tab; bind it to the state key a TabBarView shares."},
+      {"name": "isScrollable", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true},
+      {"name": "indicatorColor", "id": 4, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "indicatorSize", "id": 5, "type": "TabBarIndicatorSize", "required": false, "revision": 1, "bindable": true},
+      {"name": "dividerColor", "id": 6, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "labelColor", "id": 7, "type": "color", "required": false, "revision": 1, "bindable": true},
+      {"name": "unselectedLabelColor", "id": 8, "type": "color", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onTap", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": []
+  },
+  {
+    "type": "TabBarView",
+    "id": 127,
+    "layer": 1,
+    "phase": "P4",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "navigation",
+    "icon": "view_carousel",
+    "description": "Shows the child at `index`, and pages between children by swiping; `onIndexChanged` reports the page.",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "group", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "index", "id": 1, "type": "int", "required": false, "default": 0, "revision": 1, "bindable": true, "description": "The shown child; bind it to the state key a TabBar shares."},
+      {"name": "viewportFraction", "id": 2, "type": "double", "required": false, "default": 1.0, "revision": 1, "bindable": true}
+    ],
+    "events": [
+      {"name": "onIndexChanged", "id": 1, "payload": "int", "revision": 1}
+    ],
+    "slots": [],
+    "children": {}
+  },
+  {
+    "type": "Table",
+    "id": 111,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "layout",
+    "icon": "table_chart",
+    "description": "A grid of cells; `children` fill it row by row, `columns` to a row (WGT-020).",
+    "platforms": ["android", "ios"],
+    "cost": 20,
+    "accessibility": {"role": "group", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "columns", "id": 1, "type": "int", "required": false, "default": 1, "constraints": {"min": 1}, "revision": 1, "bindable": true, "description": "Cells per row; the children are laid out row-major and the last row is padded with empty cells."},
+      {"name": "columnWidths", "id": 2, "type": "list<ColumnWidth>", "required": false, "revision": 1, "bindable": true, "description": "The width rule of each column by position; columns beyond the list use `defaultColumnWidth`."},
+      {"name": "defaultColumnWidth", "id": 3, "type": "ColumnWidth", "required": false, "revision": 1, "bindable": true},
+      {"name": "textDirection", "id": 4, "type": "TextDirection", "required": false, "revision": 1, "bindable": true},
+      {"name": "border", "id": 5, "type": "BorderSide", "required": false, "revision": 1, "bindable": true, "description": "Draws the outside and the lines between all cells."},
+      {"name": "defaultVerticalAlignment", "id": 6, "type": "TableCellVerticalAlignment", "required": false, "default": "top", "revision": 1, "bindable": true},
+      {"name": "textBaseline", "id": 7, "type": "TextBaseline", "required": false, "revision": 1, "bindable": true}
+    ],
+    "events": [],
+    "slots": [],
+    "children": {}
+  },
+  {
+    "type": "TermsViewer",
+    "id": 191,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "gavel",
+    "description": "Terms in Markdown that scroll, with an accept button that enables once the end was reached.",
+    "platforms": ["android", "ios"],
+    "cost": 600,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "source", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The terms as Markdown."},
+      {"name": "version", "id": 2, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The version of the terms, sent with `onAccepted`."},
+      {"name": "acceptLabel", "id": 3, "type": "string", "required": false, "default": "Accept", "revision": 1, "bindable": true, "description": "The accept button's label."},
+      {"name": "scrollHint", "id": 4, "type": "string", "required": false, "default": "Scroll to the end to accept", "revision": 1, "bindable": true, "description": "Shown, and spoken, while the end has not been reached."}
+    ],
+    "events": [
+      {"name": "onAccepted", "id": 1, "payload": "string", "revision": 1, "description": "Fires with the version when the user accepts."},
+      {"name": "onLink", "id": 2, "payload": "string", "revision": 1, "description": "Fires with the address of a tapped link; wire it to the `openUrl` action."}
+    ],
+    "slots": []
   },
   {
     "type": "Text",
@@ -3677,6 +6307,30 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": []
   },
   {
+    "type": "Timeline",
+    "id": 138,
+    "layer": 1,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "structure",
+    "icon": "timeline",
+    "description": "Plays a page timeline for its subtree: it starts the named timeline when shown, and optionally restarts it when it ends (ANI-002).",
+    "platforms": ["android", "ios"],
+    "cost": 5,
+    "accessibility": {"role": "none", "interactive": false},
+    "typeParameters": [],
+    "props": [
+      {"name": "timeline", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "The name of a timeline of the page."},
+      {"name": "autoplay", "id": 2, "type": "bool", "required": false, "default": true, "revision": 1, "bindable": true, "description": "Start the timeline when the widget is shown."},
+      {"name": "repeat", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Start the timeline again each time it ends."}
+    ],
+    "events": [],
+    "slots": [
+      {"name": "child", "id": 1, "list": false, "required": true, "template": false, "revision": 1, "description": "The subtree the timeline's tracks move."}
+    ]
+  },
+  {
     "type": "Tooltip",
     "id": 63,
     "layer": 1,
@@ -3716,6 +6370,33 @@ export const widgets: readonly WidgetDescriptor[] = [
     "slots": [
       {"name": "child", "id": 1, "list": false, "required": false, "template": false, "revision": 1}
     ]
+  },
+  {
+    "type": "TransactionListItem",
+    "id": 168,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "commerce",
+    "icon": "receipt_long",
+    "description": "A transaction row: title, subtitle, signed amount in a credit or debit colour, status and date.",
+    "platforms": ["android", "ios"],
+    "cost": 60,
+    "accessibility": {"role": "button", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "title", "id": 1, "type": "string", "required": true, "revision": 1, "bindable": true, "description": "What the transaction was."},
+      {"name": "subtitle", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "A line below the title."},
+      {"name": "amount", "id": 3, "type": "money", "required": true, "revision": 1, "bindable": true, "description": "The signed amount; negative is a debit."},
+      {"name": "status", "id": 4, "type": "TransactionStatus", "required": false, "default": "completed", "revision": 1, "bindable": true, "description": "The state of the transaction."},
+      {"name": "date", "id": 5, "type": "dateTime?", "required": false, "revision": 1, "bindable": true, "description": "When it happened."},
+      {"name": "statusLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "The status written for the person; the status name when absent."}
+    ],
+    "events": [
+      {"name": "onTap", "id": 1, "revision": 1, "description": "Fires when the row is tapped."}
+    ],
+    "slots": []
   },
   {
     "type": "Transform",
@@ -3773,6 +6454,68 @@ export const widgets: readonly WidgetDescriptor[] = [
     ],
     "events": [],
     "slots": []
+  },
+  {
+    "type": "VideoPlayer",
+    "id": 203,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "display",
+    "icon": "videocam",
+    "description": "A video from an https address with play and pause, a progress bar and optional captions. It never starts by itself under reduce motion.",
+    "platforms": ["android", "ios"],
+    "cost": 1500,
+    "accessibility": {"role": "group", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "url", "id": 1, "type": "string", "required": true, "constraints": {"pattern": "^https://"}, "revision": 1, "bindable": true, "description": "The https address of the video."},
+      {"name": "captions", "id": 2, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "Captions as WebVTT text."},
+      {"name": "autoplay", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether it starts by itself; ignored under reduce motion."},
+      {"name": "loop", "id": 4, "type": "bool", "required": false, "default": false, "revision": 1, "bindable": true, "description": "Whether it starts again when it ends."},
+      {"name": "aspectRatio", "id": 5, "type": "double", "required": false, "default": 1.7777778, "constraints": {"min": 0.2, "max": 5}, "revision": 1, "bindable": true, "description": "Width over height."},
+      {"name": "semanticLabel", "id": 6, "type": "string?", "required": false, "revision": 1, "bindable": true, "description": "What the video is, spoken for the player."},
+      {"name": "playLabel", "id": 7, "type": "string", "required": false, "default": "Play", "revision": 1, "bindable": true, "description": "The play button's label."},
+      {"name": "pauseLabel", "id": 8, "type": "string", "required": false, "default": "Pause", "revision": 1, "bindable": true, "description": "The pause button's label."},
+      {"name": "captionsLabel", "id": 9, "type": "string", "required": false, "default": "Captions", "revision": 1, "bindable": true, "description": "The captions switch's label."},
+      {"name": "positionLabel", "id": 10, "type": "string", "required": false, "default": "Position", "revision": 1, "bindable": true, "description": "The progress bar's label."}
+    ],
+    "events": [
+      {"name": "onEnded", "id": 1, "revision": 1, "description": "Fires when playback ends."},
+      {"name": "onError", "id": 2, "revision": 1, "description": "Fires when the video cannot be played."}
+    ],
+    "slots": []
+  },
+  {
+    "type": "WizardForm",
+    "id": 176,
+    "layer": 2,
+    "phase": "P5",
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "category": "input",
+    "icon": "linear_scale",
+    "description": "A multi-step form: one child per step, a progress indicator, and Back, Next and Submit buttons that validate the step through the enclosing form.",
+    "platforms": ["android", "ios"],
+    "cost": 160,
+    "accessibility": {"role": "none", "interactive": true, "minTarget": true},
+    "typeParameters": [],
+    "props": [
+      {"name": "titles", "id": 1, "type": "list<string>", "required": true, "revision": 1, "bindable": true, "description": "The title of each step, in order."},
+      {"name": "currentStep", "id": 2, "type": "int", "required": false, "default": 0, "constraints": {"min": 0}, "revision": 1, "bindable": true, "description": "The zero-based step shown."},
+      {"name": "stepFields", "id": 3, "type": "list<string>", "required": false, "default": [], "revision": 1, "bindable": true, "description": "For each step, the comma-separated form fields it holds; Next validates those fields through the enclosing `FormScope`."},
+      {"name": "backLabel", "id": 4, "type": "string", "required": false, "default": "Back", "revision": 1, "bindable": true, "description": "The Back button's text."},
+      {"name": "nextLabel", "id": 5, "type": "string", "required": false, "default": "Next", "revision": 1, "bindable": true, "description": "The Next button's text."},
+      {"name": "submitLabel", "id": 6, "type": "string", "required": false, "default": "Submit", "revision": 1, "bindable": true, "description": "The Submit button's text, on the last step."}
+    ],
+    "events": [
+      {"name": "onNext", "id": 1, "payload": "int", "revision": 1, "description": "Fires with the step now shown, once the current step is valid."},
+      {"name": "onBack", "id": 2, "payload": "int", "revision": 1, "description": "Fires with the step now shown when the person goes back."},
+      {"name": "onSubmit", "id": 3, "revision": 1, "description": "Fires when the last step is valid and the person submits."}
+    ],
+    "slots": [],
+    "children": {"min": 1}
   },
   {
     "type": "Wrap",
@@ -3835,6 +6578,19 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
       {"name": "bottomStart", "value": {"start": -1, "y": 1}},
       {"name": "bottomEnd", "value": {"start": 1, "y": 1}}
     ]
+  },
+  {
+    "name": "BlurFilter",
+    "id": 47,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "A Gaussian blur of what is behind a widget (BackdropFilter).",
+    "fields": [
+      {"name": "sigmaX", "id": 1, "type": "double", "required": false, "default": 0, "revision": 1, "description": "Blur standard deviation along x, in logical pixels."},
+      {"name": "sigmaY", "id": 2, "type": "double", "required": false, "default": 0, "revision": 1, "description": "Blur standard deviation along y, in logical pixels."},
+      {"name": "tileMode", "id": 3, "type": "TileMode", "required": false, "revision": 1, "description": "How the blur treats the edges; absent means the Flutter default."}
+    ],
+    "constants": []
   },
   {
     "name": "Border",
@@ -3975,6 +6731,94 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "constants": []
   },
   {
+    "name": "CartLine",
+    "id": 69,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One line of a CartSummary.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "description": "What the line is."},
+      {"name": "amount", "id": 2, "type": "money", "required": true, "revision": 1, "description": "The line's amount."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "ChartSeries",
+    "id": 76,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One named series of a LineChart or BarChart.",
+    "fields": [
+      {"name": "name", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The series' name, spoken in its summary."},
+      {"name": "values", "id": 2, "type": "list<double>", "required": true, "revision": 1, "description": "The values, one per label."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "ChoiceItem",
+    "id": 62,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One choice of a FilterBar or SortSheet.",
+    "fields": [
+      {"name": "id", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The stable identifier the events report."},
+      {"name": "label", "id": 2, "type": "string", "required": true, "revision": 1, "description": "The text shown."},
+      {"name": "selected", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "description": "Whether the choice is on."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "ColumnWidth",
+    "id": 48,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "The width rule of one table column.",
+    "fields": [
+      {"name": "kind", "id": 1, "type": "ColumnWidthKind", "required": false, "default": "flex", "revision": 1},
+      {"name": "value", "id": 2, "type": "double", "required": false, "default": 1, "revision": 1, "description": "The flex factor, the logical pixels or the fraction of the table, by `kind`; ignored for `intrinsic`."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "ContextMenuAction",
+    "id": 58,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One action of a CupertinoContextMenu.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1},
+      {"name": "icon", "id": 2, "type": "IconData", "required": false, "revision": 1, "description": "Icon after the label."},
+      {"name": "destructive", "id": 3, "type": "bool", "required": false, "default": false, "revision": 1, "description": "Drawn in the destructive colour."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "DataColumn",
+    "id": 49,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "A column heading of a DataTable.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The heading text."},
+      {"name": "numeric", "id": 2, "type": "bool", "required": false, "default": false, "revision": 1, "description": "Right-aligns the column, for numbers."},
+      {"name": "tooltip", "id": 3, "type": "string", "required": false, "revision": 1, "description": "Shown on long press of the heading."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "Destination",
+    "id": 44,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One destination of a NavigationBar, BottomNavigationBar, NavigationDrawer or NavigationRail.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1},
+      {"name": "icon", "id": 2, "type": "IconData", "required": true, "revision": 1},
+      {"name": "selectedIcon", "id": 3, "type": "IconData", "required": false, "revision": 1, "description": "Icon while the destination is selected; `icon` when absent."}
+    ],
+    "constants": []
+  },
+  {
     "name": "DropdownMenuEntry",
     "id": 10,
     "revision": 1,
@@ -4010,6 +6854,32 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "constants": [
       {"name": "zero", "value": {"all": 0}}
     ]
+  },
+  {
+    "name": "FileUploadError",
+    "id": 66,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Why picking or uploading failed.",
+    "fields": [
+      {"name": "code", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The error code, such as PLX-5401."},
+      {"name": "message", "id": 2, "type": "string", "required": true, "revision": 1, "description": "A description for developers."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "FileUploadResult",
+    "id": 65,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "What a finished upload reports.",
+    "fields": [
+      {"name": "name", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The file name."},
+      {"name": "mimeType", "id": 2, "type": "string", "required": true, "revision": 1, "description": "The media type."},
+      {"name": "sizeBytes", "id": 3, "type": "int", "required": true, "revision": 1, "description": "The size in bytes."},
+      {"name": "response", "id": 4, "type": "string?", "required": false, "revision": 1, "description": "The server's response, JSON-encoded."}
+    ],
+    "constants": []
   },
   {
     "name": "GeoLocation",
@@ -4107,6 +6977,18 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "constants": []
   },
   {
+    "name": "IndexFlag",
+    "id": 51,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "An index and a flag: the payload of a DataTable sort (column, ascending) or row selection (row, selected).",
+    "fields": [
+      {"name": "index", "id": 1, "type": "int", "required": true, "revision": 1},
+      {"name": "value", "id": 2, "type": "bool", "required": true, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
     "name": "InputBorder",
     "id": 16,
     "revision": 1,
@@ -4181,6 +7063,71 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "constants": []
   },
   {
+    "name": "LatLng",
+    "id": 78,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "A position on the Earth in degrees (WGS 84).",
+    "fields": [
+      {"name": "lat", "id": 1, "type": "double", "required": true, "revision": 1, "description": "Latitude, -90 to 90."},
+      {"name": "lng", "id": 2, "type": "double", "required": true, "revision": 1, "description": "Longitude, -180 to 180."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "MapCamera",
+    "id": 81,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Where a map is looking.",
+    "fields": [
+      {"name": "center", "id": 1, "type": "LatLng", "required": true, "revision": 1, "description": "The centre."},
+      {"name": "zoom", "id": 2, "type": "double", "required": true, "revision": 1, "description": "The zoom level."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "MapMarker",
+    "id": 79,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "A marker on a map.",
+    "fields": [
+      {"name": "id", "id": 1, "type": "string", "required": true, "revision": 1, "description": "Identifies the marker in `onMarkerTap`."},
+      {"name": "position", "id": 2, "type": "LatLng", "required": true, "revision": 1, "description": "Where the marker is."},
+      {"name": "title", "id": 3, "type": "string?", "required": false, "revision": 1, "description": "The marker's name, spoken by screen readers."},
+      {"name": "icon", "id": 4, "type": "string?", "required": false, "revision": 1, "description": "The name of a built-in marker icon; the default pin when absent."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "MapPolyline",
+    "id": 80,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "A line on a map through its points, in order.",
+    "fields": [
+      {"name": "points", "id": 1, "type": "list<LatLng>", "required": true, "revision": 1, "description": "The points; at least two draw a line."},
+      {"name": "color", "id": 2, "type": "string?", "required": false, "revision": 1, "description": "A theme colour token; the primary colour when absent."},
+      {"name": "width", "id": 3, "type": "double", "required": false, "default": 4.0, "revision": 1, "description": "Line width in logical pixels."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "MenuItem",
+    "id": 42,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One entry of a PopupMenuButton or MenuAnchor menu.",
+    "fields": [
+      {"name": "value", "id": 1, "type": "string", "required": true, "revision": 1, "description": "What `onSelected` carries when the entry is chosen."},
+      {"name": "label", "id": 2, "type": "string", "required": true, "revision": 1},
+      {"name": "icon", "id": 3, "type": "IconData", "required": false, "revision": 1, "description": "Icon before the label."},
+      {"name": "enabled", "id": 4, "type": "bool", "required": false, "default": true, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
     "name": "Offset",
     "id": 18,
     "revision": 1,
@@ -4205,6 +7152,18 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
       {"name": "name", "id": 2, "type": "string", "required": true, "revision": 1, "description": "The file name."},
       {"name": "mimeType", "id": 3, "type": "string", "required": true, "revision": 1, "description": "The media type, such as image/jpeg."},
       {"name": "sizeBytes", "id": 4, "type": "int", "required": true, "revision": 1, "description": "The size in bytes."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "PieSlice",
+    "id": 77,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One slice of a PieChart.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The slice's name."},
+      {"name": "value", "id": 2, "type": "double", "required": true, "revision": 1, "description": "The slice's size; negative values count as zero."}
     ],
     "constants": []
   },
@@ -4258,6 +7217,18 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "constants": []
   },
   {
+    "name": "SettingsSection",
+    "id": 64,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One group of rows of a SettingsList.",
+    "fields": [
+      {"name": "title", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The section header."},
+      {"name": "count", "id": 2, "type": "int", "required": true, "revision": 1, "description": "How many of the list's children, in order, belong to the section."}
+    ],
+    "constants": []
+  },
+  {
     "name": "Shadow",
     "id": 22,
     "revision": 1,
@@ -4293,6 +7264,45 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
     "fields": [
       {"name": "width", "id": 1, "type": "double", "required": false, "revision": 1},
       {"name": "height", "id": 2, "type": "double", "required": false, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
+    "name": "StepItem",
+    "id": 50,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One step of a Stepper; its content is the child at the same index.",
+    "fields": [
+      {"name": "title", "id": 1, "type": "string", "required": true, "revision": 1},
+      {"name": "subtitle", "id": 2, "type": "string", "required": false, "revision": 1},
+      {"name": "label", "id": 3, "type": "string", "required": false, "revision": 1, "description": "Shown in place of the step number."},
+      {"name": "state", "id": 4, "type": "StepState", "required": false, "default": "indexed", "revision": 1},
+      {"name": "isActive", "id": 5, "type": "bool", "required": false, "default": false, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
+    "name": "TabBarItem",
+    "id": 57,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One item of a CupertinoTabBar.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1},
+      {"name": "icon", "id": 2, "type": "IconData", "required": true, "revision": 1, "description": "Icon of the item."}
+    ],
+    "constants": []
+  },
+  {
+    "name": "TabItem",
+    "id": 43,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One tab of a TabBar.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1},
+      {"name": "icon", "id": 2, "type": "IconData", "required": false, "revision": 1, "description": "Icon above the label."}
     ],
     "constants": []
   },
@@ -4340,6 +7350,19 @@ export const valueTypes: readonly ValueTypeDescriptor[] = [
       {"name": "fontFamily", "id": 18, "type": "string", "required": false, "revision": 1},
       {"name": "fontFamilyFallback", "id": 19, "type": "list<string>", "required": false, "revision": 1},
       {"name": "overflow", "id": 20, "type": "TextOverflow", "required": false, "revision": 1}
+    ],
+    "constants": []
+  },
+  {
+    "name": "TimelineStep",
+    "id": 63,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "One step of a StatusTimeline.",
+    "fields": [
+      {"name": "label", "id": 1, "type": "string", "required": true, "revision": 1, "description": "The step's name."},
+      {"name": "detail", "id": 2, "type": "string?", "required": false, "revision": 1, "description": "A line below the label, such as a time or a reason."},
+      {"name": "state", "id": 3, "type": "TimelineStepState", "required": false, "default": "pending", "revision": 1, "description": "Where the step stands."}
     ],
     "constants": []
   },
@@ -4488,6 +7511,17 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "Assertiveness",
+    "id": 77,
+    "revision": 1,
+    "runtimes": ["0.1.0"],
+    "description": "How urgently a screen reader announces a message (A11Y-006).",
+    "values": [
+      {"name": "polite", "id": 1, "revision": 1},
+      {"name": "assertive", "id": 2, "revision": 1}
+    ]
+  },
+  {
     "name": "AutovalidateMode",
     "id": 1,
     "revision": 1,
@@ -4597,6 +7631,17 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "BottomNavigationBarType",
+    "id": 87,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum BottomNavigationBarType.",
+    "values": [
+      {"name": "fixed", "id": 1, "revision": 1},
+      {"name": "shifting", "id": 2, "revision": 1}
+    ]
+  },
+  {
     "name": "BoxFit",
     "id": 6,
     "revision": 1,
@@ -4661,6 +7706,44 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "CalendarSystem",
+    "id": 175,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "A calendar system a date is shown in (I18N-003).",
+    "values": [
+      {"name": "gregorian", "id": 1, "revision": 1},
+      {"name": "ethiopic", "id": 2, "revision": 1},
+      {"name": "islamicUmalqura", "id": 3, "revision": 1},
+      {"name": "persian", "id": 4, "revision": 1}
+    ]
+  },
+  {
+    "name": "CameraFacing",
+    "id": 155,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Which camera a scanner opens.",
+    "values": [
+      {"name": "back", "id": 1, "revision": 1},
+      {"name": "front", "id": 2, "revision": 1}
+    ]
+  },
+  {
+    "name": "CardBrand",
+    "id": 144,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "The network of a payment card.",
+    "values": [
+      {"name": "visa", "id": 1, "revision": 1, "description": "Visa."},
+      {"name": "mastercard", "id": 2, "revision": 1, "description": "Mastercard."},
+      {"name": "amex", "id": 3, "revision": 1, "description": "American Express."},
+      {"name": "discover", "id": 4, "revision": 1, "description": "Discover."},
+      {"name": "other", "id": 5, "revision": 1, "description": "Any other network."}
+    ]
+  },
+  {
     "name": "Clip",
     "id": 11,
     "revision": 1,
@@ -4671,6 +7754,31 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "hardEdge", "id": 2, "revision": 1},
       {"name": "antiAlias", "id": 3, "revision": 1},
       {"name": "antiAliasWithSaveLayer", "id": 4, "revision": 1}
+    ]
+  },
+  {
+    "name": "ColumnWidthKind",
+    "id": 100,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "How a table column takes its width: a share of the free space, a fixed size, a fraction of the table, or the widest cell.",
+    "values": [
+      {"name": "flex", "id": 1, "revision": 1},
+      {"name": "fixed", "id": 2, "revision": 1},
+      {"name": "fraction", "id": 3, "revision": 1},
+      {"name": "intrinsic", "id": 4, "revision": 1}
+    ]
+  },
+  {
+    "name": "CountdownFormat",
+    "id": 132,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "How a countdown writes the time left.",
+    "values": [
+      {"name": "hms", "id": 1, "revision": 1},
+      {"name": "dhms", "id": 2, "revision": 1},
+      {"name": "compact", "id": 3, "revision": 1}
     ]
   },
   {
@@ -4688,6 +7796,17 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "CrossFadeState",
+    "id": 106,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum CrossFadeState.",
+    "values": [
+      {"name": "showFirst", "id": 1, "revision": 1},
+      {"name": "showSecond", "id": 2, "revision": 1}
+    ]
+  },
+  {
     "name": "CupertinoButtonSize",
     "id": 13,
     "revision": 1,
@@ -4700,6 +7819,38 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "CupertinoDatePickerMode",
+    "id": 115,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum CupertinoDatePickerMode.",
+    "values": [
+      {"name": "time", "id": 1, "revision": 1},
+      {"name": "date", "id": 2, "revision": 1},
+      {"name": "dateAndTime", "id": 3, "revision": 1},
+      {"name": "monthYear", "id": 4, "revision": 1}
+    ]
+  },
+  {
+    "name": "Curve",
+    "id": 108,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "An animation curve by name; the same curves as the node-level animation (ANI-001, ANI-002).",
+    "values": [
+      {"name": "linear", "id": 1, "revision": 1},
+      {"name": "easeIn", "id": 2, "revision": 1},
+      {"name": "easeOut", "id": 3, "revision": 1},
+      {"name": "easeInOut", "id": 4, "revision": 1},
+      {"name": "fastOutSlowIn", "id": 5, "revision": 1},
+      {"name": "decelerate", "id": 6, "revision": 1},
+      {"name": "bounceIn", "id": 7, "revision": 1},
+      {"name": "bounceOut", "id": 8, "revision": 1},
+      {"name": "elasticOut", "id": 9, "revision": 1},
+      {"name": "overshoot", "id": 10, "revision": 1}
+    ]
+  },
+  {
     "name": "DecorationPosition",
     "id": 14,
     "revision": 1,
@@ -4708,6 +7859,22 @@ export const enums: readonly EnumDescriptor[] = [
     "values": [
       {"name": "background", "id": 1, "revision": 1},
       {"name": "foreground", "id": 2, "revision": 1}
+    ]
+  },
+  {
+    "name": "DismissDirection",
+    "id": 105,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum DismissDirection.",
+    "values": [
+      {"name": "vertical", "id": 1, "revision": 1},
+      {"name": "horizontal", "id": 2, "revision": 1},
+      {"name": "endToStart", "id": 3, "revision": 1},
+      {"name": "startToEnd", "id": 4, "revision": 1},
+      {"name": "up", "id": 5, "revision": 1},
+      {"name": "down", "id": 6, "revision": 1},
+      {"name": "none", "id": 7, "revision": 1}
     ]
   },
   {
@@ -5033,6 +8200,19 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "MaskKind",
+    "id": 142,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "How MaskedText hides its value.",
+    "values": [
+      {"name": "card", "id": 1, "revision": 1, "description": "Groups of four, the last digits visible."},
+      {"name": "account", "id": 2, "revision": 1, "description": "The last digits visible."},
+      {"name": "phone", "id": 3, "revision": 1, "description": "The last digits visible, separators kept."},
+      {"name": "custom", "id": 4, "revision": 1, "description": "Every character but the last digits hidden."}
+    ]
+  },
+  {
     "name": "MaterialTapTargetSize",
     "id": 36,
     "revision": 1,
@@ -5056,6 +8236,30 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "MoneyDisplay",
+    "id": 140,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "How MoneyText writes the currency.",
+    "values": [
+      {"name": "symbol", "id": 1, "revision": 1, "description": "The locale's symbol."},
+      {"name": "narrowSymbol", "id": 2, "revision": 1, "description": "The narrow symbol."},
+      {"name": "code", "id": 3, "revision": 1, "description": "The ISO 4217 code."}
+    ]
+  },
+  {
+    "name": "NavigationDestinationLabelBehavior",
+    "id": 86,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum NavigationDestinationLabelBehavior.",
+    "values": [
+      {"name": "alwaysShow", "id": 1, "revision": 1},
+      {"name": "alwaysHide", "id": 2, "revision": 1},
+      {"name": "onlyShowSelected", "id": 3, "revision": 1}
+    ]
+  },
+  {
     "name": "NavigationMode",
     "id": 68,
     "revision": 1,
@@ -5066,6 +8270,18 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "replace", "id": 2, "revision": 1, "description": "Replace the current route."},
       {"name": "popUntil", "id": 3, "revision": 1, "description": "Pop routes until the named route is on top."},
       {"name": "clearAndPush", "id": 4, "revision": 1, "description": "Clear the stack, then push the route."}
+    ]
+  },
+  {
+    "name": "NavigationRailLabelType",
+    "id": 85,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum NavigationRailLabelType.",
+    "values": [
+      {"name": "none", "id": 1, "revision": 1},
+      {"name": "selected", "id": 2, "revision": 1},
+      {"name": "all", "id": 3, "revision": 1}
     ]
   },
   {
@@ -5080,6 +8296,18 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "OverflowBarAlignment",
+    "id": 98,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum OverflowBarAlignment.",
+    "values": [
+      {"name": "start", "id": 1, "revision": 1},
+      {"name": "end", "id": 2, "revision": 1},
+      {"name": "center", "id": 3, "revision": 1}
+    ]
+  },
+  {
     "name": "OverlayVisibilityMode",
     "id": 38,
     "revision": 1,
@@ -5090,6 +8318,43 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "editing", "id": 2, "revision": 1},
       {"name": "notEditing", "id": 3, "revision": 1},
       {"name": "always", "id": 4, "revision": 1}
+    ]
+  },
+  {
+    "name": "PanAxis",
+    "id": 107,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum PanAxis.",
+    "values": [
+      {"name": "free", "id": 1, "revision": 1},
+      {"name": "horizontal", "id": 2, "revision": 1},
+      {"name": "vertical", "id": 3, "revision": 1},
+      {"name": "aligned", "id": 4, "revision": 1}
+    ]
+  },
+  {
+    "name": "QrErrorCorrection",
+    "id": 156,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "How much of a QR code may be damaged before it stops reading: about 7% (low), 15% (medium), 25% (quartile) or 30% (high).",
+    "values": [
+      {"name": "low", "id": 1, "revision": 1},
+      {"name": "medium", "id": 2, "revision": 1},
+      {"name": "quartile", "id": 3, "revision": 1},
+      {"name": "high", "id": 4, "revision": 1}
+    ]
+  },
+  {
+    "name": "RefreshIndicatorTriggerMode",
+    "id": 96,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum RefreshIndicatorTriggerMode.",
+    "values": [
+      {"name": "anywhere", "id": 1, "revision": 1},
+      {"name": "onEdge", "id": 2, "revision": 1}
     ]
   },
   {
@@ -5161,6 +8426,19 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "SignDisplay",
+    "id": 141,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "When MoneyText shows a sign.",
+    "values": [
+      {"name": "auto", "id": 1, "revision": 1, "description": "A minus for negative amounts only."},
+      {"name": "always", "id": 2, "revision": 1, "description": "A sign on every amount."},
+      {"name": "never", "id": 3, "revision": 1, "description": "No sign."},
+      {"name": "exceptZero", "id": 4, "revision": 1, "description": "A sign on every amount but zero."}
+    ]
+  },
+  {
     "name": "SliderInteraction",
     "id": 44,
     "revision": 1,
@@ -5219,6 +8497,31 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "StepState",
+    "id": 99,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum StepState.",
+    "values": [
+      {"name": "indexed", "id": 1, "revision": 1},
+      {"name": "editing", "id": 2, "revision": 1},
+      {"name": "complete", "id": 3, "revision": 1},
+      {"name": "disabled", "id": 4, "revision": 1},
+      {"name": "error", "id": 5, "revision": 1}
+    ]
+  },
+  {
+    "name": "StepperType",
+    "id": 97,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum StepperType.",
+    "values": [
+      {"name": "vertical", "id": 1, "revision": 1},
+      {"name": "horizontal", "id": 2, "revision": 1}
+    ]
+  },
+  {
     "name": "StrokeCap",
     "id": 49,
     "revision": 1,
@@ -5228,6 +8531,32 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "butt", "id": 1, "revision": 1},
       {"name": "round", "id": 2, "revision": 1},
       {"name": "square", "id": 3, "revision": 1}
+    ]
+  },
+  {
+    "name": "TabBarIndicatorSize",
+    "id": 88,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum TabBarIndicatorSize.",
+    "values": [
+      {"name": "tab", "id": 1, "revision": 1},
+      {"name": "label", "id": 2, "revision": 1}
+    ]
+  },
+  {
+    "name": "TableCellVerticalAlignment",
+    "id": 95,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Mirrors the Flutter enum TableCellVerticalAlignment.",
+    "values": [
+      {"name": "top", "id": 1, "revision": 1},
+      {"name": "middle", "id": 2, "revision": 1},
+      {"name": "bottom", "id": 3, "revision": 1},
+      {"name": "baseline", "id": 4, "revision": 1},
+      {"name": "fill", "id": 5, "revision": 1},
+      {"name": "intrinsicHeight", "id": 6, "revision": 1}
     ]
   },
   {
@@ -5424,6 +8753,19 @@ export const enums: readonly EnumDescriptor[] = [
     ]
   },
   {
+    "name": "TimelineStepState",
+    "id": 125,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "Where a StatusTimeline step stands.",
+    "values": [
+      {"name": "done", "id": 1, "revision": 1},
+      {"name": "current", "id": 2, "revision": 1},
+      {"name": "pending", "id": 3, "revision": 1},
+      {"name": "failed", "id": 4, "revision": 1}
+    ]
+  },
+  {
     "name": "TooltipTriggerMode",
     "id": 63,
     "revision": 1,
@@ -5433,6 +8775,19 @@ export const enums: readonly EnumDescriptor[] = [
       {"name": "manual", "id": 1, "revision": 1},
       {"name": "longPress", "id": 2, "revision": 1},
       {"name": "tap", "id": 3, "revision": 1}
+    ]
+  },
+  {
+    "name": "TransactionStatus",
+    "id": 143,
+    "revision": 1,
+    "runtimes": ["0.5.0"],
+    "description": "The state of a transaction.",
+    "values": [
+      {"name": "pending", "id": 1, "revision": 1, "description": "Not yet settled."},
+      {"name": "completed", "id": 2, "revision": 1, "description": "Settled."},
+      {"name": "failed", "id": 3, "revision": 1, "description": "Declined or failed."},
+      {"name": "reversed", "id": 4, "revision": 1, "description": "Reversed after settling."}
     ]
   },
   {
@@ -5490,6 +8845,20 @@ export const enums: readonly EnumDescriptor[] = [
 
 /** Every action, sorted by name (Appendix D). */
 export const actions: readonly ActionDescriptor[] = [
+  {
+    "name": "announce",
+    "id": 58,
+    "phase": "P8",
+    "category": "feedback",
+    "description": "Has the screen reader announce a message without moving focus (A11Y-006).",
+    "typeParameters": [],
+    "inputs": [
+      {"name": "message", "id": 1, "type": "string", "required": true, "description": "The translated message to announce."},
+      {"name": "assertiveness", "id": 2, "type": "Assertiveness", "required": false, "default": "polite", "description": "Whether the announcement waits for the current speech or interrupts it."}
+    ],
+    "branches": [],
+    "effects": ["ui"]
+  },
   {
     "name": "apiCall",
     "id": 16,

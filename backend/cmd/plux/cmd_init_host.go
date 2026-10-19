@@ -25,7 +25,7 @@ import (
 // The constraints plux init adds, in step with the runtime this CLI
 // generates code for (a test keeps them in step with the packages).
 const (
-	runtimeConstraint  = "^0.4.0"
+	runtimeConstraint  = "^0.5.0"
 	adapterConstraint  = "^0.1.0"
 	optionalConstraint = "^0.1.0"
 )
@@ -193,7 +193,11 @@ func addDependencies(dir string, pkgs []string) (hostStep, error) {
 	}
 	for _, p := range pkgs {
 		if !has(p) {
-			add = append(add, "  "+p+": "+optionalConstraint)
+			constraint := optionalConstraint
+			if pkg, ok := codegen.PackageByName(p); ok && pkg.Constraint != "" {
+				constraint = pkg.Constraint
+			}
+			add = append(add, "  "+p+": "+constraint)
 		}
 	}
 	if len(add) == 0 {

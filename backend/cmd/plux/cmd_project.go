@@ -47,8 +47,9 @@ func (e env) initProject(args []string) int {
 		"the app up as a Plux host: plux_flutter and a router adapter in pubspec.yaml, plux.yaml,\n"+
 		"lib/plux/plux_options.g.dart with the environment's root keys, and the runtime's start\n"+
 		"in lib/main.dart when main only calls runApp; then the server checks of plux doctor.\n"+
-		"The optional packages the app uses (--packages, and those the device actions of the\n"+
-		"project at --project need) are added to pubspec.yaml and registered in the configuration.\n"+
+		"The optional packages the app uses (--packages, and those the device actions and widgets\n"+
+		"of the project at --project need) are added to pubspec.yaml and registered in the\n"+
+		"configuration.\n"+
 		"Running it again changes nothing.", 0); !ok {
 		return code
 	}
@@ -905,6 +906,45 @@ func (e env) releaseMove(ctx context.Context, cl *clients, c common, sub, arg, e
 	return e.emit(c.json, map[string]any{"sequence": n, "rollbackOf": seq}, fmt.Sprintf("Release %d, with the content of %d, is now on %s/%s.", n, seq, envKey, firstOf(channel, "production")))
 }
 
+// releaseReport fetches a report of a release (A11Y-008) and writes it to
+// a file, or to standard output.
+func (e env) releaseReport(ctx context.Context, cl *clients, c common, arg, kind, format, out string) int {
+	seq, err := strconv.ParseInt(arg, 10, 64)
+	if err != nil || seq <= 0 {
+		return e.fail("release", usageError("the sequence must be a positive number"))
+	}
+	req := &pluxv1.GetReportRequest{AppId: c.app, Sequence: seq}
+	switch kind {
+	case "accessibility":
+		req.Kind = pluxv1.ReportKind_REPORT_KIND_ACCESSIBILITY
+	case "localisation":
+		req.Kind = pluxv1.ReportKind_REPORT_KIND_LOCALISATION
+	default:
+		return e.fail("release", usageError("--kind is accessibility or localisation"))
+	}
+	switch format {
+	case "json":
+		req.Format = pluxv1.ReportFormat_REPORT_FORMAT_JSON
+	case "html":
+		req.Format = pluxv1.ReportFormat_REPORT_FORMAT_HTML
+	default:
+		return e.fail("release", usageError("--format is json or html"))
+	}
+	res, err := cl.release.GetReport(ctx, connect.NewRequest(req))
+	if err != nil {
+		return e.fail("release", err)
+	}
+	if out == "" {
+		_, _ = e.stdout.Write(res.Msg.GetContent())
+		return exitOK
+	}
+	if err := os.WriteFile(out, res.Msg.GetContent(), 0o644); err != nil { //nolint:gosec // G306: a report is meant to be shared.
+		return e.fail("release", fmt.Errorf("write %s: %w", out, err))
+	}
+	return e.emit(c.json, map[string]any{"sequence": seq, "kind": kind, "format": format, "file": out},
+		fmt.Sprintf("Wrote the %s report of release %d to %s.", kind, seq, out))
+}
+
 // releaseList lists releases, newest first.
 func (e env) releaseList(ctx context.Context, cl *clients, c common, envID string) int {
 	res, err := cl.release.ListReleases(ctx, connect.NewRequest(&pluxv1.ListReleasesRequest{AppId: c.app, EnvironmentId: envID, Page: &pluxv1.Page{PageSize: 100}}))
@@ -968,7 +1008,7 @@ func (e env) keys(args []string) int {
 // release lists, promotes and rolls back releases.
 func (e env) release(args []string) int {
 	if len(args) == 0 {
-		_, _ = fmt.Fprint(e.stderr, "Usage: plux release list|promote|rollback [flags]\n")
+		_, _ = fmt.Fprint(e.stderr, "Usage: plux release list|promote|rollback|report [flags]\n")
 		return exitUsage
 	}
 	var c common
@@ -978,6 +1018,9 @@ func (e env) release(args []string) int {
 	channel := set.String("channel", "", "the channel `key` (default production)")
 	notes := set.String("notes", "", "notes for a rollback")
 	wait := set.Duration("wait", defaultSignWait, "how long to wait for the signed manifest; 0 does not wait")
+	kind := set.String("kind", "accessibility", "the report: accessibility or localisation")
+	format := set.String("format", "json", "the report format: json or html")
+	out := set.String("out", "", "write the report to this `file` instead of standard output")
 	var usage string
 	positional := 0
 	switch args[0] {
@@ -987,6 +1030,8 @@ func (e env) release(args []string) int {
 		usage, positional = "Usage: plux release promote --env key [--channel key] [--wait duration] [-C dir] [--json] <sequence>", 1
 	case "rollback":
 		usage, positional = "Usage: plux release rollback --env key [--channel key] [--notes text] [--wait duration] [-C dir] [--json] <to-sequence>", 1
+	case "report":
+		usage, positional = "Usage: plux release report [--kind accessibility|localisation] [--format json|html] [--out file] [-C dir] <sequence>", 1
 	default:
 		_, _ = fmt.Fprintf(e.stderr, "%s release: unknown subcommand %q\n", name, args[0])
 		return exitUsage
@@ -1014,6 +1059,9 @@ func (e env) release(args []string) int {
 	}
 	if args[0] == "list" {
 		return e.releaseList(ctx, cl, c, envID)
+	}
+	if args[0] == "report" {
+		return e.releaseReport(ctx, cl, c, rest[0], *kind, *format, *out)
 	}
 	return e.releaseMove(ctx, cl, c, args[0], rest[0], envID, *envKey, *channel, *notes, *wait)
 }

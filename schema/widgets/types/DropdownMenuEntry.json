@@ -30,7 +30,8 @@
       "name": "label",
       "id": 2,
       "type": "string",
-      "flutter": "label"
+      "flutter": "label",
+      "translatable": true
     },
     {
       "name": "leadingIcon",

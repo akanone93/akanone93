@@ -123,5 +123,7 @@
       "type": "string"
     }
   ],
-  "title": "Identity check"
+  "title": {
+    "$t": "01a14bd7-5c1b-7187-927b-61521cd85502"
+  }
 }

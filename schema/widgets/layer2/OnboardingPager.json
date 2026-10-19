@@ -1,0 +1,72 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "OnboardingPager",
+  "id": 177,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "navigation",
+  "icon": "slideshow",
+  "description": "Swipeable onboarding pages with page indicators and a Done button on the last page.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 140,
+  "accessibility": {
+    "role": "none",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "currentPage",
+      "id": 1,
+      "type": "int",
+      "default": 0,
+      "constraints": {
+        "min": 0
+      },
+      "description": "The zero-based page shown."
+    },
+    {
+      "name": "nextLabel",
+      "id": 2,
+      "type": "string",
+      "default": "Next",
+      "translatable": true,
+      "description": "The Next button's text."
+    },
+    {
+      "name": "doneLabel",
+      "id": 3,
+      "type": "string",
+      "default": "Done",
+      "translatable": true,
+      "description": "The Done button's text, on the last page."
+    }
+  ],
+  "events": [
+    {
+      "name": "onPageChanged",
+      "id": 1,
+      "payload": "int",
+      "description": "Fires with the page now shown."
+    },
+    {
+      "name": "onDone",
+      "id": 2,
+      "description": "Fires when the person finishes the last page."
+    }
+  ],
+  "children": {
+    "min": 1
+  }
+}

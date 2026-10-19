@@ -8,6 +8,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import 'package:plux_flutter/src/actions/engine.dart';
 import 'package:plux_flutter/src/animation/registry.dart';
 import 'package:plux_flutter/src/assets/icon_fonts.dart';
@@ -75,6 +76,20 @@ abstract interface class RenderServices {
   /// none it may show.
   ImageProvider<Object>? image(RenderScope scope, {String? asset, String? url});
 
+  /// An HTTP client for a node of [scope] to fetch [url] with: the
+  /// renderer's pinned client when [url] is HTTPS on a domain the plugin
+  /// declares (SEC-080, AST-002); else null, reported (PLX-6030).
+  http.Client? remoteClient(RenderScope scope, String url);
+
+  /// Whether media must be downloaded through the pinned client before it
+  /// plays (`pinnedMediaOnly`, SEC-041).
+  bool get pinnedMediaOnly;
+
+  /// The refusal widget for a node of [scope] that needs device API [api]
+  /// when the plugin may not use it (SEC-080, X1.1), reported (PLX-5400);
+  /// null when it may.
+  Widget? deviceRefusal(BuildContext context, RenderScope scope, String api);
+
   /// The SVG asset [asset] for a node of [scope] (CMP-031); null when the
   /// asset is not an SVG.
   PluxVectorSource? vector(RenderScope scope, String asset);
@@ -88,6 +103,14 @@ abstract interface class RenderServices {
   /// or the catalogue declares none (WGT-033, ADR-0041).
   ({PluxNativeSlot slot, NativeSlotDecl decl, Map<String, NamedType> types})?
   nativeSlot(RenderScope scope, String type);
+
+  /// The package that provides widget [id], from its descriptor; null when
+  /// the widget is the runtime's or unknown.
+  String? missingPackage(int id);
+
+  /// Whether this is the first time the missing package of widget [id] is
+  /// reported: `PLX-4403` is reported once per widget type.
+  bool firstMissingReport(int id);
 }
 
 /// Reports a problem with a node's path (RT-020).
@@ -121,6 +144,7 @@ final class RenderScope {
     this.emitEvent,
     this.formAlias,
     this.animations,
+    this.localeChain = const [],
   });
 
   /// The release rendered.
@@ -184,6 +208,11 @@ final class RenderScope {
   /// component.
   final void Function(String event, Object? payload)? emitEvent;
 
+  /// The effective locale and its fallbacks, most specific first, for
+  /// picking an asset's per-locale file (I18N-012); empty without a
+  /// release's locales.
+  final List<String> localeChain;
+
   /// The state path the `form` root reads below a `FormScope`, such as
   /// `page.signup`; null outside one. A binding's read of `form.<path>`
   /// subscribes to `<formAlias>.<path>`.
@@ -229,6 +258,10 @@ final class RenderScope {
       roots: all,
       token: resolver.token,
       translation: resolver.translation,
+      translationAst: resolver.translationAst,
+      localeContext: resolver.localeContext,
+      translationFellBack: resolver.translationFellBack,
+      onMessageError: resolver.onMessageError,
       limits: resolver.limits,
     ),
     roots: all,
@@ -245,6 +278,7 @@ final class RenderScope {
     emitEvent: emitEvent,
     formAlias: alias,
     animations: animations,
+    localeChain: localeChain,
   );
 
   /// The scope of the nearest [RenderScopeWidget].

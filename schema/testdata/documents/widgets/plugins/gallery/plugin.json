@@ -1,12 +1,47 @@
 {
   "capabilities": {
     "deviceApis": [
+      "camera",
+      "files",
       "haptics"
     ],
     "networkDomains": [
       "example.com"
     ]
   },
+  "dataSources": [
+    {
+      "config": {
+        "auth": true,
+        "baseUrl": "apiBaseUrl",
+        "operations": {
+          "send": {
+            "input": "Upload",
+            "method": "POST",
+            "output": "Upload",
+            "path": "/uploads"
+          }
+        },
+        "path": "/uploads"
+      },
+      "id": "01c0c450-6c00-7000-8a1d-0000000f0003",
+      "kind": "rest",
+      "mock": [],
+      "name": "uploads",
+      "route": "plux",
+      "type": "list<string>"
+    },
+    {
+      "id": "01c0c450-6c00-7000-8a1d-000000000002",
+      "kind": "static",
+      "mock": [
+        "a",
+        "b"
+      ],
+      "name": "scope",
+      "type": "list<string>"
+    }
+  ],
   "entryPage": "01c0c450-6c00-7000-8000-000000000149",
   "icon": {
     "monogram": {
@@ -26,7 +61,15 @@
     "01c0c450-6c00-7000-8000-0000000001bd",
     "01c0c450-6c00-7000-8000-0000000001e2",
     "01c0c450-6c00-7000-8000-0000000001fc",
-    "01c0c450-6c00-7000-8000-00000000020e"
+    "01c0c450-6c00-7000-8000-00000000020e",
+    "01c0c450-6c00-7000-8a1b-000000000001",
+    "01c0c450-6c00-7000-8a2a-000000000128",
+    "01c0c450-6c00-7000-8a1c-00000000fff0",
+    "01c0c450-6c00-7000-8a2c-000000000017",
+    "01c0c450-6c00-7000-8a1d-000000000001",
+    "01c0c450-6c00-7000-8a1a-000000000000",
+    "01c0c450-6c00-7000-8a13-000000000001",
+    "01c0c450-6c00-7000-8a2b-000000000013"
   ],
   "schemaVersion": "1.0.0",
   "team": "gallery"

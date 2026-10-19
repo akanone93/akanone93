@@ -241,6 +241,37 @@ var matrix = map[string]entry{
 		return &pluxv1.InstantiateRequest{TemplateId: f.template, AppId: f.app, PluginId: f.plugin, Session: "tab-2", Key: "copy"}
 	})),
 
+	// LocalisationService
+	"LocalisationService/ExportTranslations": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ExportTranslationsRequest{AppId: f.app, Locale: "de", Format: "csv"}
+	})),
+	"LocalisationService/ImportTranslations": atPerm(auth.TranslationsEdit, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ImportTranslationsRequest{AppId: f.app, Locale: "de", Format: "csv", Content: []byte("keyId,target\n"), DryRun: true}
+	})),
+	"LocalisationService/GetStatus": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetStatusRequest{AppId: f.app}
+	})),
+	"LocalisationService/SetStates": atPerm(auth.TranslationsEdit, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetStatesRequest{AppId: f.app, Locale: "de", States: map[string]string{unknownID: "reviewed"}}
+	})),
+
+	// GoldenService
+	"GoldenService/GetBaselines": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetBaselinesRequest{AppId: f.app}
+	})),
+	"GoldenService/UploadRun": atPerm(auth.PluginEdit, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.UploadRunRequest{AppId: f.app}
+	})),
+	"GoldenService/ListDifferences": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListDifferencesRequest{AppId: f.app, RunId: unknownID}
+	})),
+	"GoldenService/Approve": atPerm(auth.GoldensApprove, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ApproveRequest{AppId: f.app, RunId: unknownID}
+	})),
+	"GoldenService/GetRunStatus": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetRunStatusRequest{AppId: f.app}
+	})),
+
 	// PublishService and ReleaseService
 	"PublishService/Publish": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.PublishRequest{AppId: f.app, PluginId: f.plugin, EnvironmentId: f.dev}
@@ -271,6 +302,9 @@ var matrix = map[string]entry{
 		return &pluxv1.RollbackReleaseRequest{AppId: f.app, EnvironmentId: f.dev, ChannelKey: f.channel, ToSequence: 1}
 	})),
 	"ReleaseService/GetChangelog": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message { return &pluxv1.GetChangelogRequest{AppId: f.app, Sequence: 1} })),
+	"ReleaseService/GetReport": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetReportRequest{AppId: f.app, Sequence: 1, Kind: pluxv1.ReportKind_REPORT_KIND_ACCESSIBILITY}
+	})),
 	"ReleaseService/GetCompatibility": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.GetCompatibilityRequest{AppId: f.app, Sequence: 1}
 	})),

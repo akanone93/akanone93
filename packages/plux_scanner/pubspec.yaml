@@ -1,7 +1,8 @@
 name: plux_scanner
 description: >-
-  Scan QR codes and barcodes from Plux plugins: the scanCode action, on
-  mobile_scanner (ML Kit on Android).
+  Scan and show QR codes and barcodes in Plux plugins: the scanCode action,
+  the QrScanner, BarcodeScanner and QrCodeView widgets. ML Kit through Play
+  services on Android with an offline ZXing-C++ fallback, Vision on iOS.
 version: 0.1.0
 repository: https://github.com/nightCode42/plux3/tree/main/packages/plux_scanner
 # Not published until its release is wired (release.yml, pub.dev).
@@ -14,11 +15,25 @@ environment:
 resolution: workspace
 
 dependencies:
+  code_assets: ^1.2.1
   flutter:
     sdk: flutter
+  hooks: ^2.2.0
   mobile_scanner: ^7.4.2
-  plux_flutter: ^0.4.0
+  native_toolchain_c: ^0.19.3
+  plux_flutter: ^0.5.0
+  qr: ^4.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter:
+  # Android only: the unbundled ML Kit model's download request and the
+  # engine probe (decision B21); the ZXing library comes from
+  # hook/build.dart. iOS needs no native code of its own.
+  plugin:
+    platforms:
+      android:
+        package: dev.plux.plux_scanner
+        pluginClass: PluxScannerPlugin

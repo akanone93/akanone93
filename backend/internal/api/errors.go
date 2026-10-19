@@ -48,13 +48,15 @@ var codes = map[plxerr.Code]connect.Code{
 	plxerr.IdempotencyConflict: connect.CodeAlreadyExists,
 
 	// The caller may not do this, or may not know that it exists.
-	plxerr.AuthenticationRequired: connect.CodeUnauthenticated,
-	plxerr.MultiFactorRequired:    connect.CodePermissionDenied,
-	plxerr.PermissionDenied:       connect.CodePermissionDenied,
-	plxerr.ResourceNotFound:       connect.CodeNotFound,
-	plxerr.ResourceExists:         connect.CodeAlreadyExists,
-	plxerr.PreconditionFailed:     connect.CodeFailedPrecondition,
-	plxerr.EditingLockHeld:        connect.CodeFailedPrecondition,
+	plxerr.AuthenticationRequired:       connect.CodeUnauthenticated,
+	plxerr.MultiFactorRequired:          connect.CodePermissionDenied,
+	plxerr.PermissionDenied:             connect.CodePermissionDenied,
+	plxerr.ResourceNotFound:             connect.CodeNotFound,
+	plxerr.ResourceExists:               connect.CodeAlreadyExists,
+	plxerr.PreconditionFailed:           connect.CodeFailedPrecondition,
+	plxerr.EditingLockHeld:              connect.CodeFailedPrecondition,
+	plxerr.TranslationStateForbidden:    connect.CodePermissionDenied,
+	plxerr.TranslationDocumentForbidden: connect.CodePermissionDenied,
 
 	// The caller must slow down or ask for less.
 	plxerr.RateLimited:      connect.CodeResourceExhausted,
@@ -134,6 +136,16 @@ var codes = map[plxerr.Code]connect.Code{
 	plxerr.FunctionModuleInvalid:     connect.CodeFailedPrecondition,
 	plxerr.FunctionCancelled:         connect.CodeCanceled,
 	plxerr.FunctionInputTooLarge:     connect.CodeInvalidArgument,
+
+	// Publish gates: the release was refused (A11Y-002, TST-003).
+	plxerr.AccessibilityBlocksPublish: connect.CodeFailedPrecondition,
+	plxerr.GoldenRunMissing:           connect.CodeFailedPrecondition,
+	plxerr.GoldenDifferenceUnapproved: connect.CodeFailedPrecondition,
+
+	// Translation import: the file or a key in it was refused (I18N-009).
+	plxerr.TranslationImportInvalid:       connect.CodeInvalidArgument,
+	plxerr.TranslationImportKeyUnknown:    connect.CodeInvalidArgument,
+	plxerr.TranslationImportSourceChanged: connect.CodeInvalidArgument,
 
 	// The server failed.
 	plxerr.InternalServerError: connect.CodeInternal,

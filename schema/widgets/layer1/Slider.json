@@ -72,7 +72,8 @@
       "name": "label",
       "id": 6,
       "type": "string",
-      "flutter": "label"
+      "flutter": "label",
+      "translatable": true
     },
     {
       "name": "activeColor",

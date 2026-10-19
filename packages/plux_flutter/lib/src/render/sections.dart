@@ -246,24 +246,45 @@ final class BundleView {
   }
 
   /// The translation [key] in locale [tag], or null.
-  String? message(String tag, UuidKey key) {
-    final locale = _locales.putIfAbsent(tag, () {
-      final id = Uint8List(16)..setAll(0, tag.codeUnits.take(16));
-      for (final s in bundle.container.ofKind(SectionKind.l10n)) {
-        if (_sameBytes(s.id, id)) {
-          gate.check(s);
-          return fbs.Locale(s.data);
-        }
+  String? message(String tag, UuidKey key) => _message(tag, key)?.text;
+
+  /// The pre-parsed AST of the translation [key] in locale [tag], or null
+  /// when the bundle has no message or no AST for it (I18N-001).
+  List<int>? messageAst(String tag, UuidKey key) {
+    final ast = _message(tag, key)?.ast;
+    return ast == null || ast.isEmpty ? null : ast;
+  }
+
+  fbs.Locale? _locale(String tag) => _locales.putIfAbsent(tag, () {
+    final id = Uint8List(16)..setAll(0, tag.codeUnits.take(16));
+    for (final s in bundle.container.ofKind(SectionKind.l10n)) {
+      if (_sameBytes(s.id, id)) {
+        gate.check(s);
+        return fbs.Locale(s.data);
       }
-      return null;
-    });
-    final list = locale?.messages;
+    }
+    return null;
+  });
+
+  /// The locale data and Flutter strings the bundle carries for locale
+  /// [tag] (I18N-004, I18N-011), copied so they can be sent to another
+  /// isolate; null when the bundle has no section for [tag].
+  ({Uint8List? data, Uint8List? flutter})? localeBlobs(String tag) {
+    final locale = _locale(tag);
+    if (locale == null) return null;
+    Uint8List? copy(List<int>? b) =>
+        b == null || b.isEmpty ? null : Uint8List.fromList(b);
+    return (data: copy(locale.data), flutter: copy(locale.flutter));
+  }
+
+  fbs.Message? _message(String tag, UuidKey key) {
+    final list = _locale(tag)?.messages;
     if (list == null) return null;
     final i = _search(list.length, (i) {
       final k = list[i].key;
       return k == null ? -1 : _compareUuid(uuidOf(k), key);
     });
-    return i < 0 ? null : list[i].text;
+    return i < 0 ? null : list[i];
   }
 
   Map<String, NamedType>? _types;

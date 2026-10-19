@@ -6,7 +6,12 @@
 
 .PHONY: gen proto sqlc sqlc-check go-check proto-check proto-lint proto-format-check proto-breaking go-fmt go-fmt-check \
 	go-lint go-tidy go-tidy-check go-gen-check registry-lock-check go-test go-test-race go-cover \
-	go-determinism go-budgets go-fuzz currencies-check phone-metadata go-vuln go-build go-reproducible
+	go-determinism go-budgets go-fuzz currencies-check phone-metadata go-vuln go-build go-reproducible catalogue-check
+
+# Phase and flags of `make catalogue-check`; it fails on any finding since the
+# P8 catch-up (plan p8 §5.12); `CATALOGUE_FLAGS=-report` only lists them.
+CATALOGUE_PHASE ?= P8
+CATALOGUE_FLAGS ?=
 
 # How long `make go-fuzz` runs each fuzz target.
 FUZZTIME      ?= 30s
@@ -130,6 +135,9 @@ registry-lock-check: ## Fail if a permanent ID recorded in the lock at LOCK_BASE
 		$(GO) run ./tools/cmd/schemagen -root . -lock-base "$$base"; \
 	else echo "registry-lock-check: no lock at $(LOCK_BASE); nothing to compare"; fi
 
+catalogue-check: ## Fail when Appendix C/D and the widget and action registries disagree (plan p8 §5.12)
+	cd tools && $(GO) run ./cmd/catalogue -root .. -phase $(CATALOGUE_PHASE) $(CATALOGUE_FLAGS)
+
 go-test: ## Run Go unit tests
 	@for m in $(GO_MODULES); do (cd $$m && $(GO) test ./...); done
 
@@ -144,9 +152,10 @@ go-cover: ## Run Go tests with coverage; enforce floors (QA-001)
 	@for m in $(GO_MODULES); do (cd $$m && $(GO) test -covermode=atomic -coverprofile=coverage.out ./...); done
 	$(COVGATE) -kind go $(addsuffix /coverage.out,$(GO_MODULES))
 
-# Verifies: CMP-002.
+# Verifies: CMP-002. `plux golden`'s own CLI tests (TST-003) match the name
+# filter but are not about determinism; the Go test jobs run them.
 go-determinism: ## Compile the conformance vectors and projects and compare with the goldens byte for byte (CMP-002)
-	cd backend && $(GO) test -count=1 -run 'Golden|Determinism|Repeated|Conformance' ./internal/pxl ./internal/bundle ./internal/compiler ./cmd/plux
+	cd backend && $(GO) test -count=1 -run 'Golden|Determinism|Repeated|Conformance' -skip '^TestGolden(Run|Approve)' ./internal/pxl ./internal/bundle ./internal/compiler ./cmd/plux
 
 go-budgets: ## Check the compiler's timing budgets on this machine (CMP-050, SCH-042)
 	cd backend && PLUX_BUDGETS=1 $(GO) test -count=1 -v -run '^TestPerformanceBudgets$$' ./internal/compiler

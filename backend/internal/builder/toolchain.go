@@ -29,11 +29,15 @@ func DefaultWasmOpt(dir string) []string {
 }
 
 // checkRustc runs `rustc --version` and returns the full version line; any
-// other toolchain than the pinned one is PLX-7200 (FN-001).
+// other toolchain than the pinned one is PLX-7200 (FN-001), and a probe the
+// sandbox's limits stopped is PLX-7203 like every other step (FN-016).
 func (r *run) checkRustc(ctx context.Context) (string, error) {
 	res, err := r.exec(ctx, r.b.cfg.Rustc, []string{"--version"})
 	if err != nil {
 		return "", err
+	}
+	if res.TimedOut || res.OutputExceeded {
+		return "", r.failure(res, "rustc --version")
 	}
 	line := strings.TrimSpace(string(res.Stdout))
 	if res.ExitCode != 0 || !strings.HasPrefix(line+" ", rustcPrefix) {
@@ -49,6 +53,9 @@ func (r *run) checkWasmOpt(ctx context.Context) error {
 	res, err := r.exec(ctx, prefix[0], append(append([]string{}, prefix[1:]...), "--version"))
 	if err != nil {
 		return err
+	}
+	if res.TimedOut || res.OutputExceeded {
+		return r.failure(res, "wasm-opt --version")
 	}
 	out := strings.TrimSpace(string(res.Stdout))
 	if res.ExitCode != 0 || !strings.Contains(out, wasmOptMarker) {

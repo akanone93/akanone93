@@ -247,6 +247,133 @@
         "name",
         "phone"
       ]
+    },
+    {
+      "name": "format.phone national DE",
+      "expr": "format.phone(\"030123456\", \"DE\")",
+      "value": "030 123456",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIECTAzMDEyMzQ1NgQCREUACgQAAAQBAEmCAAI=",
+      "asm": [
+        "0000 CONST 0 ; \"030123456\"",
+        "0003 CONST 1 ; \"DE\"",
+        "0006 CALL 130 2 ; format.phone"
+      ]
+    },
+    {
+      "name": "format.phone international from US",
+      "expr": "format.phone(\"+49 30 123456\", \"US\")",
+      "value": "+49 30 123456",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEDSs0OSAzMCAxMjM0NTYEAlVTAAoEAAAEAQBJggAC",
+      "asm": [
+        "0000 CONST 0 ; \"+49 30 123456\"",
+        "0003 CONST 1 ; \"US\"",
+        "0006 CALL 130 2 ; format.phone"
+      ]
+    },
+    {
+      "name": "format.phone national US",
+      "expr": "format.phone(\"650-253-0000\", \"US\")",
+      "value": "(650) 253-0000",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEDDY1MC0yNTMtMDAwMAQCVVMACgQAAAQBAEmCAAI=",
+      "asm": [
+        "0000 CONST 0 ; \"650-253-0000\"",
+        "0003 CONST 1 ; \"US\"",
+        "0006 CALL 130 2 ; format.phone"
+      ]
+    },
+    {
+      "name": "format.phone international US from DE",
+      "expr": "format.phone(\"+1 650 253 0000\", \"DE\")",
+      "value": "+1 650-253-0000",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEDysxIDY1MCAyNTMgMDAwMAQCREUACgQAAAQBAEmCAAI=",
+      "asm": [
+        "0000 CONST 0 ; \"+1 650 253 0000\"",
+        "0003 CONST 1 ; \"DE\"",
+        "0006 CALL 130 2 ; format.phone"
+      ]
+    },
+    {
+      "name": "format.phone national GB",
+      "expr": "format.phone(phone, region)",
+      "value": "07400 123456",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEBXBob25lBAZyZWdpb24CBXBob25lBnJlZ2lvbgoGAAAGAQBJggAC",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"phone\"",
+        "0003 LOAD_ROOT 1 ; \"region\"",
+        "0006 CALL 130 2 ; format.phone"
+      ],
+      "reads": [
+        "phone",
+        "region"
+      ]
+    },
+    {
+      "name": "format.phone international GB from US",
+      "expr": "format.phone(\"+44 7400 123456\", \"US\")",
+      "value": "+44 7400 123456",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEDys0NCA3NDAwIDEyMzQ1NgQCVVMACgQAAAQBAEmCAAI=",
+      "asm": [
+        "0000 CONST 0 ; \"+44 7400 123456\"",
+        "0003 CONST 1 ; \"US\"",
+        "0006 CALL 130 2 ; format.phone"
+      ]
+    },
+    {
+      "name": "format.phone national ET",
+      "expr": "format.phone(\"+251115511234\", \"ET\")",
+      "value": "011 551 1234",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEDSsyNTExMTU1MTEyMzQEAkVUAAoEAAAEAQBJggAC",
+      "asm": [
+        "0000 CONST 0 ; \"+251115511234\"",
+        "0003 CONST 1 ; \"ET\"",
+        "0006 CALL 130 2 ; format.phone"
+      ]
+    },
+    {
+      "name": "format.phone national SA",
+      "expr": "format.phone(\"0501234567\", \"SA\")",
+      "value": "050 123 4567",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIECjA1MDEyMzQ1NjcEAlNBAAoEAAAEAQBJggAC",
+      "asm": [
+        "0000 CONST 0 ; \"0501234567\"",
+        "0003 CONST 1 ; \"SA\"",
+        "0006 CALL 130 2 ; format.phone"
+      ]
+    },
+    {
+      "name": "format.phone invalid is unchanged",
+      "expr": "format.phone(\"12\", \"GB\")",
+      "value": "12",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEAjEyBAJHQgAKBAAABAEASYIAAg==",
+      "asm": [
+        "0000 CONST 0 ; \"12\"",
+        "0003 CONST 1 ; \"GB\"",
+        "0006 CALL 130 2 ; format.phone"
+      ]
+    },
+    {
+      "name": "format.phone letters are unchanged",
+      "expr": "format.phone(name, \"GB\")",
+      "value": "привет",
+      "type": "string",
+      "program": "AQACBnN0cmluZwIEBG5hbWUEAkdCAQRuYW1lCgYAAAQBAEmCAAI=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"name\"",
+        "0003 CONST 1 ; \"GB\"",
+        "0006 CALL 130 2 ; format.phone"
+      ],
+      "reads": [
+        "name"
+      ]
     }
   ]
 }

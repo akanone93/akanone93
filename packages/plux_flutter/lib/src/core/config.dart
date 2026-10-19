@@ -18,6 +18,7 @@ import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/functions/engine.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/navigation/delegate.dart';
+import 'package:plux_flutter/src/render/widget_package.dart';
 import 'package:plux_flutter/src/security/rasp.dart';
 import 'package:plux_flutter/src/verify/manifest.dart';
 
@@ -230,6 +231,7 @@ final class PluxConfig {
     this.nativeActions = const {},
     this.router,
     this.devicePackages = const [],
+    this.widgetPackages = const [],
     this.functionEngine,
     this.allowedCapabilities,
     this.databaseAdapter,
@@ -405,6 +407,13 @@ final class PluxConfig {
   /// plugin that uses another fails its step with `PLX-5401`. Each package
   /// is recorded in the native catalogue by `plux native scan`.
   final List<PluxDevicePackage> devicePackages;
+
+  /// The optional widget packages the app installs, such as `PluxCharts()`
+  /// of `plux_charts` (RT-060, ADR-0071): their builders render the
+  /// widgets the packages' descriptors declare. A node of a package that
+  /// is not registered here shows the node fallback and is reported as
+  /// `PLX-4403`, once per widget type.
+  final List<PluxWidgetPackage> widgetPackages;
 
   /// The device function engine, `PluxFunctions()` of `plux_functions`
   /// (FN-050, E9): functions placed on the device run only when it is

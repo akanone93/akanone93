@@ -12,11 +12,6 @@
       "key": "login.username"
     },
     {
-      "description": "Password",
-      "id": "01d0c450-6c00-7000-8000-000000000282",
-      "key": "login.password"
-    },
-    {
       "description": "Sign in",
       "id": "01d0c450-6c00-7000-8000-000000000283",
       "key": "login.submit"
@@ -130,6 +125,123 @@
       "description": "Code sent by SMS",
       "id": "01d0c450-6c00-7000-8000-000000000299",
       "key": "login.otp"
+    },
+    {
+      "description": "Extracted from data of a Text on transfer.",
+      "id": "01a14abf-1709-759b-b4e9-13dd4dda6b95",
+      "key": "banking.transfer.show-fee"
+    },
+    {
+      "description": "Extracted from title of a page on dashboard.",
+      "id": "01a14bd7-5c1a-7069-b84a-4eef10bb2250",
+      "key": "banking.dashboard.dashboard"
+    },
+    {
+      "description": "Extracted from title of a page on kyc.",
+      "id": "01a14bd7-5c1b-7187-927b-61521cd85502",
+      "key": "banking.kyc.identity-check"
+    },
+    {
+      "description": "Extracted from title of a page on login.",
+      "id": "01a14bd7-5c1c-717d-a9cf-f7d114b6f13e",
+      "key": "banking.login.sign-in"
+    },
+    {
+      "description": "Extracted from title of a page on result.",
+      "id": "01a14bd7-5c1d-73e6-8a52-43d148abd2f3",
+      "key": "banking.result.result"
+    },
+    {
+      "description": "Extracted from title of a page on transfer.",
+      "id": "01a14bd7-5c1d-71fe-8376-851b7f675e47",
+      "key": "banking.transfer.transfer"
+    },
+    {
+      "description": "Execution date",
+      "id": "01d0c450-6c00-7000-8000-000000009001",
+      "key": "tr.date"
+    },
+    {
+      "description": "Check the fields marked in red.",
+      "id": "01d0c450-6c00-7000-8000-000000009002",
+      "key": "tr.invalid"
+    },
+    {
+      "description": "Amount",
+      "id": "01d0c450-6c00-7000-8000-000000009003",
+      "key": "res.amount"
+    },
+    {
+      "description": "New balance",
+      "id": "01d0c450-6c00-7000-8000-000000009004",
+      "key": "res.newbalance"
+    },
+    {
+      "args": [
+        {
+          "name": "amount",
+          "type": "string"
+        }
+      ],
+      "description": "Available: {amount} EUR",
+      "id": "01d0c450-6c00-7000-8000-000000009201",
+      "key": "tr.available"
+    },
+    {
+      "args": [
+        {
+          "name": "fee",
+          "type": "string"
+        }
+      ],
+      "description": "Fee: {fee} EUR",
+      "id": "01d0c450-6c00-7000-8000-000000009202",
+      "key": "tr.fee"
+    },
+    {
+      "description": "Enter your username",
+      "id": "01d0c450-6c00-7000-8000-000000009301",
+      "key": "login.error.username"
+    },
+    {
+      "description": "Enter your PIN",
+      "id": "01d0c450-6c00-7000-8000-000000009302",
+      "key": "login.error.pin"
+    },
+    {
+      "description": "Enter the code",
+      "id": "01d0c450-6c00-7000-8000-000000009303",
+      "key": "login.error.code"
+    },
+    {
+      "description": "Enter the recipient's IBAN",
+      "id": "01d0c450-6c00-7000-8000-000000009304",
+      "key": "transfer.error.recipient"
+    },
+    {
+      "description": "Enter a valid IBAN",
+      "id": "01d0c450-6c00-7000-8000-000000009305",
+      "key": "transfer.error.iban"
+    },
+    {
+      "description": "Enter an amount",
+      "id": "01d0c450-6c00-7000-8000-000000009306",
+      "key": "transfer.error.amount"
+    },
+    {
+      "description": "Use at most two decimals",
+      "id": "01d0c450-6c00-7000-8000-000000009307",
+      "key": "transfer.error.decimals"
+    },
+    {
+      "description": "The amount must be above zero and within your balance",
+      "id": "01d0c450-6c00-7000-8000-000000009308",
+      "key": "transfer.error.range"
+    },
+    {
+      "description": "Use at most 40 characters",
+      "id": "01d0c450-6c00-7000-8000-000000009309",
+      "key": "transfer.error.reference"
     }
   ],
   "kind": "translationKeys",

@@ -1,0 +1,65 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "PhoneInput",
+  "id": 162,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "phone",
+  "description": "A phone number entry in E.164 with a country picker and validation.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 100,
+  "accessibility": {
+    "role": "textField",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "label",
+      "id": 1,
+      "type": "string?",
+      "translatable": true,
+      "description": "The field's label."
+    },
+    {
+      "name": "value",
+      "id": 2,
+      "type": "string?",
+      "description": "The number in E.164 form."
+    },
+    {
+      "name": "region",
+      "id": 3,
+      "type": "string?",
+      "description": "The default ISO 3166 region; the locale's region when absent."
+    },
+    {
+      "name": "invalidMessage",
+      "id": 4,
+      "type": "string?",
+      "translatable": true,
+      "description": "The error shown for an invalid number."
+    }
+  ],
+  "events": [
+    {
+      "name": "onChanged",
+      "id": 1,
+      "payload": "string",
+      "sensitive": true,
+      "description": "Fires with the E.164 number when it is valid, and with an empty string when it is not."
+    }
+  ]
+}

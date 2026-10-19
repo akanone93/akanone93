@@ -66,13 +66,15 @@
       "name": "semanticsLabel",
       "id": 5,
       "type": "string",
-      "flutter": "semanticsLabel"
+      "flutter": "semanticsLabel",
+      "translatable": true
     },
     {
       "name": "semanticsValue",
       "id": 6,
       "type": "string",
-      "flutter": "semanticsValue"
+      "flutter": "semanticsValue",
+      "translatable": true
     },
     {
       "name": "borderRadius",

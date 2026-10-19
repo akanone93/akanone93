@@ -1,0 +1,37 @@
+{
+  "$schema": "../../json/registry/value-type.schema.json",
+  "name": "DataColumn",
+  "id": 49,
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "description": "A column heading of a DataTable.",
+  "fields": [
+    {
+      "name": "label",
+      "id": 1,
+      "type": "string",
+      "required": true,
+      "description": "The heading text.",
+      "translatable": true
+    },
+    {
+      "name": "numeric",
+      "id": 2,
+      "type": "bool",
+      "default": false,
+      "description": "Right-aligns the column, for numbers."
+    },
+    {
+      "name": "tooltip",
+      "id": 3,
+      "type": "string",
+      "description": "Shown on long press of the heading.",
+      "translatable": true
+    }
+  ]
+}

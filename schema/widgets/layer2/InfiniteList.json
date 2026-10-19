@@ -1,0 +1,90 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "InfiniteList",
+  "id": 175,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "scrolling",
+  "icon": "view_list",
+  "description": "A lazily built, paginated list of `item` templates over `items`, with empty, loading and error states (WGT-012).",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 50,
+  "accessibility": {
+    "role": "list",
+    "interactive": false
+  },
+  "typeParameters": [
+    "T"
+  ],
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "items",
+      "id": 1,
+      "type": "list<T>",
+      "required": true,
+      "description": "The items loaded so far; the template repeats over them as `item` and `index`."
+    },
+    {
+      "name": "status",
+      "id": 2,
+      "type": "ListStatus",
+      "default": "ready",
+      "description": "Loading, error or ready; selects the `loading` or `error` slot."
+    },
+    {
+      "name": "hasMore",
+      "id": 3,
+      "type": "bool",
+      "default": false,
+      "description": "More items can be loaded; `onEndReached` fires near the end."
+    },
+    {
+      "name": "padding",
+      "id": 4,
+      "type": "EdgeInsets",
+      "description": "Space around the items."
+    }
+  ],
+  "events": [
+    {
+      "name": "onEndReached",
+      "id": 1,
+      "description": "Fires once when the last item comes into view and `hasMore` is true."
+    }
+  ],
+  "slots": [
+    {
+      "name": "item",
+      "id": 1,
+      "required": true,
+      "template": true,
+      "description": "The template built for each item, lazily."
+    },
+    {
+      "name": "empty",
+      "id": 2,
+      "description": "Shown when `items` is empty."
+    },
+    {
+      "name": "loading",
+      "id": 3,
+      "description": "Shown while `status` is loading."
+    },
+    {
+      "name": "error",
+      "id": 4,
+      "description": "Shown while `status` is error."
+    }
+  ]
+}

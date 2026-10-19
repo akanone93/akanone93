@@ -1,0 +1,9 @@
+{
+  "frames": [
+    { "id": "small-360x640", "width": 360, "height": 640, "pixelRatio": 2 },
+    { "id": "pixel-8", "width": 412, "height": 915, "pixelRatio": 2.625 },
+    { "id": "iphone-15", "width": 393, "height": 852, "pixelRatio": 3 },
+    { "id": "tablet-820x1180", "width": 820, "height": 1180, "pixelRatio": 2 }
+  ],
+  "textScales": [1, 2]
+}

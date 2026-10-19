@@ -32,8 +32,8 @@
     "app": "app-1",
     "environment": "production",
     "sequence": 7,
-    "ephemeralPublicKey": "BEhyQnJeESSSmdVT+OoOooMGHFz8LZ+6wKTRIZNiGsDos6vyLaJHCIrgmt78fXYRXRN+LvW0NmsJSvpWbUpHVaw=",
-    "wrapped": "OSSurfaTGc0gErEqPlcHyIAR/kJzmzLQDNECq4ogceZ9fnR6j/imBQ==",
+    "ephemeralPublicKey": "BCajy+sg9gZlXSn4MY+JcLvPhqWNauIyqKHbnMCgUbrjI0c56HJKgf4sAWvQvgCxRx+wFSfZCwPxIYasZ9IAR0k=",
+    "wrapped": "1e9axGQ9PeNFmo+OU2q3Xw9CWVbdEcO9VTtW9j40duE4ptj/bQXXxg==",
     "wrong": [
       {
         "name": "another device",
@@ -53,7 +53,7 @@
       },
       {
         "name": "an altered wrapped key",
-        "wrapped": "OSSurPaTGc0gErEqPlcHyIAR/kJzmzLQDNECq4ogceZ9fnR6j/imBQ=="
+        "wrapped": "1e9axWQ9PeNFmo+OU2q3Xw9CWVbdEcO9VTtW9j40duE4ptj/bQXXxg=="
       }
     ]
   }

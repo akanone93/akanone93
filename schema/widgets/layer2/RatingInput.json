@@ -1,0 +1,67 @@
+{
+  "$schema": "../../json/registry/widget-descriptor.schema.json",
+  "type": "RatingInput",
+  "id": 188,
+  "layer": 2,
+  "phase": "P5",
+  "revision": 1,
+  "revisions": [
+    {
+      "revision": 1,
+      "runtime": "0.5.0"
+    }
+  ],
+  "category": "input",
+  "icon": "star_rate",
+  "description": "Stars the user taps to rate; each star is a button.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "cost": 60,
+  "accessibility": {
+    "role": "none",
+    "interactive": true,
+    "minTarget": true
+  },
+  "package": "plux_components",
+  "props": [
+    {
+      "name": "value",
+      "id": 1,
+      "type": "int",
+      "default": 0,
+      "constraints": {
+        "min": 0
+      },
+      "description": "The current rating, 0 for none."
+    },
+    {
+      "name": "max",
+      "id": 2,
+      "type": "int",
+      "default": 5,
+      "constraints": {
+        "min": 1,
+        "max": 10
+      },
+      "description": "The number of stars."
+    },
+    {
+      "name": "starLabel",
+      "id": 3,
+      "type": "string",
+      "default": "star",
+      "translatable": true,
+      "description": "The noun in each star's label, such as `star`."
+    }
+  ],
+  "events": [
+    {
+      "name": "onChanged",
+      "id": 1,
+      "payload": "int",
+      "description": "Fires with the rating chosen."
+    }
+  ]
+}

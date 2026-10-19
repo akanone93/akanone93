@@ -549,6 +549,95 @@
     },
     "triggers": {
       "$ref": "common.schema.json#/$defs/triggers"
+    },
+    "localisation": {
+      "type": "object",
+      "x-plux-type": "LocalisationSettings",
+      "description": "Calendars, numbering systems and translation policy (I18N-010, I18N-011, I18N-008, I18N-013).",
+      "properties": {
+        "calendar": {
+          "$ref": "common.schema.json#/$defs/calendar",
+          "description": "The calendar dates are shown in; `gregorian` when absent."
+        },
+        "secondaryCalendar": {
+          "$ref": "common.schema.json#/$defs/calendar",
+          "description": "A second calendar shown beside the first; none when absent."
+        },
+        "numberingSystem": {
+          "type": "object",
+          "description": "Numbering system per locale; `latn` when absent.",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/locale"
+          },
+          "additionalProperties": {
+            "$ref": "common.schema.json#/$defs/numberingSystem"
+          }
+        },
+        "requireApprovedTranslations": {
+          "type": "boolean",
+          "description": "Whether publishing needs every message at `approved`."
+        },
+        "pseudoLocales": {
+          "type": "boolean",
+          "description": "Whether pseudo-locales are offered; refused in production environments (PLX-1614)."
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false
+    },
+    "goldens": {
+      "type": "object",
+      "x-plux-type": "GoldenSettings",
+      "description": "Golden-image test policy (TST-003).",
+      "properties": {
+        "blockPublish": {
+          "type": "boolean",
+          "description": "Whether publishing needs an approved golden run."
+        },
+        "matrix": {
+          "type": "object",
+          "x-plux-type": "GoldenMatrix",
+          "description": "What a golden run renders.",
+          "properties": {
+            "frames": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "themes": {
+              "type": "array",
+              "items": {
+                "$ref": "common.schema.json#/$defs/goldenTheme"
+              }
+            },
+            "textScales": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 3
+              }
+            },
+            "locales": {
+              "type": "array",
+              "items": {
+                "$ref": "common.schema.json#/$defs/locale"
+              }
+            }
+          },
+          "patternProperties": {
+            "^x-": true
+          },
+          "additionalProperties": false
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false
     }
   },
   "patternProperties": {

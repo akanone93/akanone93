@@ -6,6 +6,7 @@ package schema
 import (
 	"errors"
 	"io/fs"
+	"maps"
 	"path"
 	"regexp"
 	"slices"
@@ -131,6 +132,15 @@ func (r *run) loadAssets(p *Project) {
 			continue
 		}
 		p.AssetFiles[a.File] = data
+		for _, tag := range slices.Sorted(maps.Keys(a.Locales)) {
+			f := a.Locales[tag]
+			ldata, err := fs.ReadFile(r.fsys, path.Join("assets", f))
+			if err != nil {
+				r.report(plxerr.InvalidProjectLayout, "assets/index.json", plxerr.Pointer("assets", strconv.Itoa(i), "locales", tag), "asset file assets/%s is missing", f)
+				continue
+			}
+			p.AssetFiles[f] = ldata
+		}
 	}
 }
 

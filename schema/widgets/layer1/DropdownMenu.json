@@ -64,19 +64,22 @@
       "name": "hintText",
       "id": 5,
       "type": "string",
-      "flutter": "hintText"
+      "flutter": "hintText",
+      "translatable": true
     },
     {
       "name": "helperText",
       "id": 6,
       "type": "string",
-      "flutter": "helperText"
+      "flutter": "helperText",
+      "translatable": true
     },
     {
       "name": "errorText",
       "id": 7,
       "type": "string",
-      "flutter": "errorText"
+      "flutter": "errorText",
+      "translatable": true
     },
     {
       "name": "enableFilter",
