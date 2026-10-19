@@ -33,7 +33,7 @@ The lead's task list at the hand-off, as the maintainer followed it. Status word
 | 20 | P9 E4+E5: rollouts, health gates, flags, experiments | pending | Needs E3, E6 |
 | 21 | P9 E6+E7: telemetry/analytics, notifications, webhooks, triggers | **in progress** | E6a and E7 patches; E6b (ClickHouse, Parquet, dashboards, alerts, error grouping) not started |
 | 22 | P9 E8: SIEM export, reconstruction + viewer, DSR, egress, search, Git export | pending | Needs E2, E3, E6 |
-| 23 | P9 E9+E10: Helm/HA/backups/air-gap/observability/IaC; ee/ + licence | **in progress** | E9a and E10 patches; E9b (backups, drill, air-gap, observability, SLOs, sizing, IaC) not started |
+| 23 | P9 E9+E10: Helm/HA/backups/air-gap/observability/IaC; ee/ + licence | **in progress** | E9a done (§7 of README); E10 patch; E9b (backups, drill, air-gap, observability, SLOs, sizing, IaC) not started |
 | 24 | P9 E11+E12: reference apps, walkthrough, docs, close gates | pending | Last |
 
 ## Next steps for the new session, in order
@@ -41,7 +41,7 @@ The lead's task list at the hand-off, as the maintainer followed it. Status word
 1. Check CI run 39149009669 (`796ddbd`); on green, open the P8 pull request (README §2).
 2. On `feat/phase-9`, resume the seven stopped slices from their patches (README §4) —
    E1a and E10 first (others depend on `rbac_p9.go` and `backend/internal/edition`), then
-   E6a, E7, E9a, and restart E1c and E3 from their briefs (`briefs.md`, section B).
+   E6a, E7 (E9a is done, README §7), and restart E1c and E3 from their briefs (`briefs.md`, section B).
 3. Merge each finished slice into `feat/phase-9` with `tools/merge.sh`, run `make gen`, the
    slice's checks and the pre-push `go test`, push.
 4. Launch the next wave per plan §6.2: E1b, E2, E6b, E9b; then E4, E5, E8; then E11, E12.

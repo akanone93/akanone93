@@ -93,7 +93,7 @@ slice: create a worktree at its base, `gunzip -c <patch>.gz | git apply --3way`,
 
 | Patch | Milestone | Base | Size | Where it stopped |
 |---|---|---|---|---|
-| [`E9a-helm.patch.gz`](E9a-helm.patch.gz) | E9: Helm chart, HA topology, `kind` target, tool pins (`DEP-003`, `DEP-004`) | `0ed370f` | 28 files, +3834 | Chart, values schema and templates largely written; was dropping `ct` (chart-testing) from `lint.sh` because it could not be installed; CI jobs and docs to check |
+| ~~`E9a-helm.patch.gz`~~ | E9: Helm chart (`DEP-003`, `DEP-004`) | — | — | **Done and merged on `wip/p9-handoff`** (`c4fc1dd`, see §7) |
 | [`E10-ee-licence.patch.gz`](E10-ee-licence.patch.gz) | E10: `ee/` module, `backend/internal/edition`, licence verification, `plux-license`, `ee/LICENSE` draft (`GOV-030`, `GOV-033`) | `fcafe9a` | 61 files, +3855 −282 | Was writing the ee server binary (`ee/cmd/plux-server-ee`); CLI, CI core-without-ee job and tests to finish |
 | [`E1a-roles.patch.gz`](E1a-roles.patch.gz) | E1: permission catalogue, ten roles, teams, scoping, custom roles, `rbac_p9.go`, migrations 0024–0025, `governance.proto` (`GOV-002`, `GOV-003`) | `fcafe9a` | 38 files, +7098 −266 | Was adding the edge test at the end of the authorisation-matrix integration file |
 | [`E6a-telemetry.patch.gz`](E6a-telemetry.patch.gz) | E6: ingestion through Valkey streams, partitioned storage, rollups, retention, OTLP export, migrations 0039–0041 (`ANL-010`, `ANL-011`) | `fcafe9a` | 55 files, +7569 −200 | Was editing `telemetry.proto` and writing `analytics.proto` |
@@ -204,3 +204,34 @@ extension, SAML, SCIM), E11, E12 — plan §6.
   dispatched run in the same concurrency group can cancel an older one.
 - The pre-push hook runs `make go-test`; do not run `make gen` or clean caches while a push
   runs.
+
+---
+
+## 7. Done after the hand-off (lead, alone, 2026-10-19)
+
+The maintainer asked the lead to finish short slices without sub-agents and merge them into
+this branch, so the next session continues from here. `wip/p9-handoff` is therefore now
+`feat/phase-9` + this directory + the slices below; merge it into `feat/phase-9` (it is a
+fast-forward of it) when the next session starts.
+
+### E9a — the Helm chart (`c4fc1dd`, merged `c05385b`)
+
+- **Finished from the agent's work:** the chart (`deploy/helm/plux/`), `deploy/helm/lint.sh`
+  and `e2e-kind.sh`, `mk/helm.mk`, the Makefile pins (Helm v3.22.1, kind v0.33.0,
+  kubeconform v0.8.0, CloudNativePG 1.30.1 with its SHA-256), `dependencies.md` rows. The
+  agent had already dropped `ct` (chart-testing could not be installed); not pinned.
+- **Added by the lead:** CI jobs `helm` ("Helm lint and render", on chart changes) and
+  `kind` ("Kubernetes HA (kind)", `skipOnPush`; daily, manual, and pull requests changing
+  `deploy/helm/**`, `backend/Dockerfile` or `mk/helm.mk` — not server Go code, so a compiler
+  change does not start a 60-minute cluster test), both in `ci-ok`'s needs and in
+  `ci/affected.json`; `TestProjectPushesLeaveOnlyTheDailyJobs_CI_002` now expects `kind`
+  among the jobs pushes skip; `deploy/helm/plux/README.md` and the `deploy/README.md` row;
+  `.pre-commit-config.yaml` excludes `deploy/helm/*/templates/` from `check-yaml` (Go
+  templates; `make helm-lint` validates what they render).
+- **Verified:** `make install-helm-tools`; `make helm-lint` (default 34, external 19, HA 59,
+  kind 50 resources valid; values-schema and property checks pass);
+  `go test ./internal/affected/... ./cmd/affected/...` in `tools/`;
+  `ZIZMOR_FLAGS=--offline make workflows-lint`; `make reuse-lint`; the commit hooks.
+- **Not run:** `make e2e-kind` (no Docker here) — its first real run is the `kind` CI job;
+  expect to debug it there. Plan §5.11.1–2 items still open for E9b: none for the chart
+  itself; backups, air-gap, observability, sizing and IaC remain E9b.
