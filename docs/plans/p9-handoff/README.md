@@ -10,6 +10,8 @@ work to a new session. This directory holds everything that was in progress. It 
 temporary branch `wip/p9-handoff` (cut from `feat/phase-9` at `938e7b1`); delete the branch
 and this directory once the work is merged.
 
+Also here: [`briefs.md`](briefs.md) (the verbatim agent briefs) and [`tasks.md`](tasks.md) (the task list and next steps).
+
 Read first, in this order: `AGENTS.md`, `docs/WORKLOG.md`, `docs/plans/p9.md` (decisions §2,
 allocations §2.4, architecture §5, milestones §6), then this file.
 
