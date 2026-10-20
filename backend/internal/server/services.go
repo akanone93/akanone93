@@ -502,13 +502,22 @@ type releaseDeps struct {
 
 // buildReleases assembles the release service, or returns nil when the
 // installation has no object store to publish into.
+// publishMetrics hands the release service the process's metrics, or no
+// recorder at all when there are none (never a nil pointer in an interface).
+func publishMetrics(m *observability.Metrics) release.PublishMetrics {
+	if m == nil {
+		return nil
+	}
+	return m
+}
+
 func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work WorkDeps, deps releaseDeps) (*release.Service, error) {
 	if work.Objects == nil {
 		return nil, nil
 	}
 	releases, err := release.NewService(release.Options{
 		DB: db, Audit: deps.audit, Tenancy: deps.tenancy, Documents: deps.documents, Objects: work.Objects, IDs: deps.ids,
-		Jobs: publishQueue{work.Queue}, Signer: work.Signer, ProductionSigning: work.ProductionSigning, Limits: set,
+		Metrics: publishMetrics(work.Metrics), Jobs: publishQueue{work.Queue}, Signer: work.Signer, ProductionSigning: work.ProductionSigning, Limits: set,
 		Devices: deps.devices, Gateway: deps.gateway, SecurityConfig: deps.configs, PublicBaseURL: cfg.Server.PublicBaseURL,
 		Crypter: deps.crypter, Recipients: deps.devices, Functions: functionsOf(deps.functions),
 		CompilerVersion: buildinfo.Get().Version, DevelopmentDays: cfg.Retention.DevelopmentReleaseDays,

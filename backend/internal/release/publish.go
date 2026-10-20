@@ -273,6 +273,9 @@ func (s *Service) CancelPublishJob(ctx context.Context, p auth.Principal, jobID 
 		out = jobOf(cancelled)
 		return s.record(ctx, tx, p, audit.Entry{Action: audit.PublishCancelled, TargetKind: "publish", TargetID: jobID})
 	})
+	if err == nil {
+		s.publishFinished(StateCancelled)
+	}
 	return out, err
 }
 
@@ -663,7 +666,8 @@ func (s *Service) store(ctx context.Context, kind objects.Kind, sum, data []byte
 // recordVersion records a published version and finishes the job, in
 // one transaction: until it commits, nothing of the publish is visible.
 func (s *Service) recordVersion(ctx context.Context, p auth.Principal, row dbgen.PublishJob, b *compiler.Bundle, c compiled, sig versionSignature, diags plxerr.Diagnostics) error {
-	return s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+	succeeded := false
+	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		if _, err := q.LockApp(ctx, row.AppID); err != nil {
 			return failure(err, "app")
@@ -689,6 +693,7 @@ func (s *Service) recordVersion(ctx context.Context, p auth.Principal, row dbgen
 		if err := s.finishTx(ctx, q, row, StateSucceeded, diags, next); err != nil {
 			return err
 		}
+		succeeded = true
 		if err := s.enqueueDeltas(ctx, tx, p.OrganizationID, storage.ID(row.AppID), c.key, b.Hash[:]); err != nil {
 			return err
 		}
@@ -698,6 +703,10 @@ func (s *Service) recordVersion(ctx context.Context, p auth.Principal, row dbgen
 			AfterHash: hex.EncodeToString(b.Hash[:]), Detail: fmt.Sprintf("%s version %d", keyOrApp(b.Key, row), next),
 		})
 	})
+	if err == nil && succeeded {
+		s.publishFinished(StateSucceeded)
+	}
+	return err
 }
 
 // insertVersion records the next version of a job's draft.
@@ -743,9 +752,21 @@ func keyOrApp(key string, row dbgen.PublishJob) string {
 
 // fail ends a job without a version.
 func (s *Service) fail(ctx context.Context, p auth.Principal, row dbgen.PublishJob, diags plxerr.Diagnostics) error {
-	return s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		return s.finishTx(ctx, dbgen.New(tx), row, StateFailed, diags, 0)
 	})
+	if err == nil {
+		s.publishFinished(StateFailed)
+	}
+	return err
+}
+
+// publishFinished counts a publish job that ended, once its transaction
+// committed (plux_publish_jobs_total, the publish SLO of OBS-005).
+func (s *Service) publishFinished(state string) {
+	if s.o.Metrics != nil {
+		s.o.Metrics.PublishFinished(state)
+	}
 }
 
 // finishTx ends a job in the caller's transaction.

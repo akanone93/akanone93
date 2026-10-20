@@ -79,6 +79,8 @@ type Functions interface {
 
 // Options configures a Service.
 type Options struct {
+	// Metrics counts finished publish jobs; nil records none.
+	Metrics   PublishMetrics
 	DB        *storage.DB
 	Audit     *audit.Log
 	Tenancy   *tenancy.Service
@@ -138,6 +140,12 @@ type Service struct {
 	metadata  *metadataCache
 	// validator checks uploaded native catalogues.
 	validator *schema.Validator
+}
+
+// PublishMetrics receives the outcome of every finished publish job:
+// "succeeded", "failed" or "cancelled". *observability.Metrics implements it.
+type PublishMetrics interface {
+	PublishFinished(result string)
 }
 
 // NewService returns the service.
