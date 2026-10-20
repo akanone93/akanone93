@@ -214,18 +214,34 @@ func (s *Service) authenticateScim(ctx context.Context, token string) (string, e
 	if !strings.HasPrefix(token, PrefixSCIM+"_") {
 		return "", identity.ErrUnauthorized
 	}
-	var org string
+	var row dbgen.ScimToken
 	err := s.inTx(ctx, storage.Tenant{Scope: storage.ScopeAuthentication}, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		row, err := q.GetScimTokenByHash(ctx, HashSecret(token))
+		var err error
+		row, err = dbgen.New(tx).GetScimTokenByHash(ctx, HashSecret(token))
 		if err != nil {
 			return identity.ErrUnauthorized
 		}
-		if err := q.TouchScimToken(ctx, row.ID); err != nil {
-			return fmt.Errorf("auth: record a SCIM token's use: %w", err)
-		}
-		org = storage.ID(row.OrganizationID)
 		return nil
 	})
-	return org, err
+	if err != nil {
+		return "", err
+	}
+	return s.touchScimToken(ctx, row)
+}
+
+// touchScimToken records a SCIM token's use in its organisation's own
+// transaction: the row's policy admits a write only into the organisation
+// it belongs to, not into the authentication scope it was found in.
+func (s *Service) touchScimToken(ctx context.Context, row dbgen.ScimToken) (string, error) {
+	org := storage.ID(row.OrganizationID)
+	err := s.inTx(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
+		if err := dbgen.New(tx).TouchScimToken(ctx, row.ID); err != nil {
+			return fmt.Errorf("auth: record a SCIM token's use: %w", err)
+		}
+		return nil
+	})
+	if err != nil {
+		return "", err
+	}
+	return org, nil
 }
