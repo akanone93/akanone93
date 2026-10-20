@@ -41,6 +41,9 @@ type MetadataOptions struct {
 	// "<prefix>-<environment ID>", as the targets key is named; empty is
 	// "snapshot" and "timestamp".
 	SnapshotKeyPrefix, TimestampKeyPrefix string
+	// ControlKeyPrefix names the control role's key the same way; empty
+	// is "control" (ADR-0077).
+	ControlKeyPrefix string
 }
 
 // withDefaults fills what an operator left out.
@@ -63,6 +66,9 @@ func (o MetadataOptions) withDefaults() MetadataOptions {
 	}
 	if o.TimestampKeyPrefix == "" {
 		o.TimestampKeyPrefix = updatemeta.RoleTimestamp
+	}
+	if o.ControlKeyPrefix == "" {
+		o.ControlKeyPrefix = updatemeta.RoleControl
 	}
 	return o
 }
@@ -122,14 +128,20 @@ func currentRoot(ctx context.Context, q *dbgen.Queries, env dbgen.Environment) (
 
 // onlineRefs are the signing-backend references of an environment's
 // online keys.
-type onlineRefs struct{ targets, snapshot, timestamp string }
+type onlineRefs struct{ targets, snapshot, timestamp, control string }
 
 // roleRef pairs an online role with its key reference.
 type roleRef struct{ role, ref string }
 
-// list returns the references in a fixed order.
+// list returns the references of the roles every root delegates, in a
+// fixed order.
 func (r onlineRefs) list() []roleRef {
 	return []roleRef{{updatemeta.RoleTargets, r.targets}, {updatemeta.RoleSnapshot, r.snapshot}, {updatemeta.RoleTimestamp, r.timestamp}}
+}
+
+// all adds the control role, which a root may leave undelegated.
+func (r onlineRefs) all() []roleRef {
+	return append(r.list(), roleRef{updatemeta.RoleControl, r.control})
 }
 
 func (s *Service) onlineRefs(env dbgen.Environment) onlineRefs {
@@ -138,6 +150,7 @@ func (s *Service) onlineRefs(env dbgen.Environment) onlineRefs {
 		targets:   env.SigningKeyRef,
 		snapshot:  s.o.Metadata.SnapshotKeyPrefix + "-" + id,
 		timestamp: s.o.Metadata.TimestampKeyPrefix + "-" + id,
+		control:   s.o.Metadata.ControlKeyPrefix + "-" + id,
 	}
 }
 
@@ -177,12 +190,25 @@ func (s *Service) checkRoot(ctx context.Context, q *dbgen.Queries, env dbgen.Env
 		return onlineRefs{}, plxerr.New(plxerr.UpdateMetadataInvalid, "root %d expired at %s; upload a new root (SEC-050)", root.Version, root.Expires)
 	}
 	refs := s.onlineRefs(env)
-	for _, k := range refs.list() {
-		if err := s.checkOnlineKey(ctx, q, env, root, k.role, k.ref); err != nil {
-			return onlineRefs{}, err
-		}
+	if err := s.checkOnlineKeys(ctx, q, env, root, refs); err != nil {
+		return onlineRefs{}, err
 	}
 	return refs, nil
+}
+
+// checkOnlineKeys checks the keys a root must delegate to this
+// environment's online keys: targets, snapshot and timestamp always, and
+// control when the root delegates it.
+func (s *Service) checkOnlineKeys(ctx context.Context, q *dbgen.Queries, env dbgen.Environment, root updatemeta.Root, refs onlineRefs) error {
+	for _, k := range refs.list() {
+		if err := s.checkOnlineKey(ctx, q, env, root, k.role, k.ref); err != nil {
+			return err
+		}
+	}
+	if _, delegated := root.Roles.Named(updatemeta.RoleControl); delegated {
+		return s.checkOnlineKey(ctx, q, env, root, updatemeta.RoleControl, refs.control)
+	}
+	return nil
 }
 
 // publishMetadata writes the metadata of a release: it takes the next
@@ -492,10 +518,8 @@ func (s *Service) acceptRoot(ctx context.Context, q *dbgen.Queries, env dbgen.En
 			"a production root asks %d signatures; the server requires at least %d (updateMetadata.rootThreshold)", root.Roles.Root.Threshold, s.o.Metadata.RootThreshold)
 	}
 	if s.o.Signer != nil {
-		for _, k := range s.onlineRefs(env).list() {
-			if err := s.checkOnlineKey(ctx, q, env, root, k.role, k.ref); err != nil {
-				return updatemeta.Root{}, nil, err
-			}
+		if err := s.checkOnlineKeys(ctx, q, env, root, s.onlineRefs(env)); err != nil {
+			return updatemeta.Root{}, nil, err
 		}
 	}
 	canonical, err := doc.Bytes()
@@ -512,8 +536,8 @@ type OnlineKey struct {
 }
 
 // OnlineKeys returns the keys the worker signs this environment's
-// targets, snapshot and timestamp with, for the offline ceremony that
-// lists them in a root. It needs a signer, so only a process that may
+// targets, snapshot, timestamp and control documents with, for the offline
+// ceremony that lists them in a root. It needs a signer, so only a process that may
 // sign can answer.
 func (s *Service) OnlineKeys(ctx context.Context, org, environment string) ([]OnlineKey, error) {
 	if s.o.Signer == nil {
@@ -533,7 +557,7 @@ func (s *Service) OnlineKeys(ctx context.Context, org, environment string) ([]On
 		return nil, failure(err, "environment")
 	}
 	var out []OnlineKey
-	for _, k := range s.onlineRefs(env).list() {
+	for _, k := range s.onlineRefs(env).all() {
 		pub, id, err := s.o.Signer.PublicKey(ctx, k.ref)
 		if err != nil {
 			return nil, fmt.Errorf("release: the %s key: %w", k.role, err)

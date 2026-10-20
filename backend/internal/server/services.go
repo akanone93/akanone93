@@ -206,6 +206,10 @@ func (a assetQueue) Enqueue(ctx context.Context, tx pgx.Tx, job document.AssetJo
 type publishQueue struct{ q *JobQueue }
 
 func (p publishQueue) Enqueue(ctx context.Context, tx pgx.Tx, job release.Work) error {
+	if _, ok := job.(release.ControlJob); ok {
+		// A switch change must not wait behind a long publish (NFR-024).
+		return p.q.insert(ctx, tx, job, jobs.QueueControl)
+	}
 	return p.q.insert(ctx, tx, job, jobs.QueuePublish)
 }
 
@@ -218,6 +222,17 @@ type manifestWorker struct {
 // Work signs one channel's manifest.
 func (w *manifestWorker) Work(ctx context.Context, job *river.Job[release.ManifestJob]) error {
 	return w.svc.Releases.SignManifest(ctx, job.Args) //nolint:wrapcheck // a domain error
+}
+
+// controlWorker signs control documents (SYN-060).
+type controlWorker struct {
+	river.WorkerDefaults[release.ControlJob]
+	svc *Services
+}
+
+// Work signs one channel's newest control document.
+func (w *controlWorker) Work(ctx context.Context, job *river.Job[release.ControlJob]) error {
+	return w.svc.Releases.SignControl(ctx, job.Args) //nolint:wrapcheck // a domain error
 }
 
 // deltaWorker precomputes deltas after a publish (REL-022).
@@ -572,6 +587,7 @@ func metadataOptions(cfg *config.Config) release.MetadataOptions {
 		},
 		RootThreshold:     cfg.UpdateMetadata.RootThreshold,
 		SnapshotKeyPrefix: cfg.Signing.Keys.Snapshot, TimestampKeyPrefix: cfg.Signing.Keys.Timestamp,
+		ControlKeyPrefix: cfg.Signing.Keys.Control,
 	}
 }
 
@@ -898,6 +914,11 @@ func (w *maintenanceWorker) sweepReleases(ctx context.Context, org string, t *sw
 	// The timestamp and snapshot are re-signed before they expire
 	// (SEC-050).
 	m, err = w.svc.Releases.RefreshMetadata(ctx, org)
+	t.signed += m
+	t.resign = append(t.resign, err)
+	// A control document is re-signed before it expires, so that devices
+	// always find one in force (SYN-060).
+	m, err = w.svc.Releases.RefreshControl(ctx, org)
 	t.signed += m
 	t.resign = append(t.resign, err)
 	if _, err := w.svc.Releases.PurgeManifests(ctx, org); err != nil {

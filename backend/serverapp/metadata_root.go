@@ -313,14 +313,18 @@ func (o *rootOptions) checkType(now, expires time.Time, stderr io.Writer) error 
 }
 
 // addOnlineKeys reads the output of 'metadata keys' into the spec: each of
-// targets, snapshot and timestamp is signed by its key alone.
+// targets, snapshot and timestamp is signed by its key alone, and so is
+// control when the output lists one, which delegates control documents to
+// it (ADR-0077).
 func (o *rootOptions) addOnlineKeys(spec *updatemeta.RootSpec) error {
 	raw, err := readLimited(o.onlineKeys)
 	if err != nil {
 		return err
 	}
+	var control updatemeta.RoleSpec
 	roles := map[string]*updatemeta.RoleSpec{
 		updatemeta.RoleTargets: &spec.Targets, updatemeta.RoleSnapshot: &spec.Snapshot, updatemeta.RoleTimestamp: &spec.Timestamp,
+		updatemeta.RoleControl: &control,
 	}
 	sc := bufio.NewScanner(bytes.NewReader(raw))
 	for sc.Scan() {
@@ -331,7 +335,7 @@ func (o *rootOptions) addOnlineKeys(spec *updatemeta.RootSpec) error {
 		f := strings.Fields(line)
 		role, ok := roles[f[0]]
 		if len(f) != 4 || !ok || f[2] != updatemeta.AlgEd25519 {
-			return fmt.Errorf("%s: unexpected line %q; expected '<targets|snapshot|timestamp> <keyid> Ed25519 <base64>'", o.onlineKeys, f[0])
+			return fmt.Errorf("%s: unexpected line %q; expected '<targets|snapshot|timestamp|control> <keyid> Ed25519 <base64>'", o.onlineKeys, f[0])
 		}
 		pub, err := base64.StdEncoding.DecodeString(f[3])
 		if err != nil || updatemeta.KeyID(pub) != f[1] {
@@ -341,9 +345,12 @@ func (o *rootOptions) addOnlineKeys(spec *updatemeta.RootSpec) error {
 		role.Threshold = 1
 	}
 	for role, rs := range roles {
-		if len(rs.Keys) == 0 {
+		if len(rs.Keys) == 0 && role != updatemeta.RoleControl {
 			return fmt.Errorf("%s lists no %s key", o.onlineKeys, role)
 		}
+	}
+	if len(control.Keys) > 0 {
+		spec.Control = &control
 	}
 	return nil
 }

@@ -105,6 +105,13 @@ const (
 	// ConfigValuesPerEnvironment: Server-held configuration values one
 	// environment holds. (DAT-090, LIM-004)
 	ConfigValuesPerEnvironment Key = "config.valuesPerEnvironment"
+	// ControlExpiry: How long a signed control document is valid after the
+	// server signs it; a device keeps the kill switches of an expired document
+	// in force. (SYN-060)
+	ControlExpiry Key = "control.expiry"
+	// ControlKillSwitches: Kill switches one channel's control document may
+	// carry. (REL-060)
+	ControlKillSwitches Key = "control.killSwitches"
 	// DataCacheBytes: Bytes the response cache of data sources keeps on the
 	// device; the least recently used entries are evicted beyond it. (DAT-010,
 	// LIM-004)
@@ -318,6 +325,12 @@ const (
 	// app's image assets to finish processing before it fails. (CMP-030,
 	// REL-003)
 	PublishAssetWait Key = "publish.assetWait"
+	// PushBatchSize: Devices one silent-push job sends to before it hands the
+	// rest to a follow-up job. (SYN-060)
+	PushBatchSize Key = "push.batchSize"
+	// PushTokenBytes: Length of the push token a device may register for silent
+	// push. (SYN-060)
+	PushTokenBytes Key = "push.tokenBytes"
 	// PXLCollectionSize: Elements of a list or map produced during one PXL
 	// evaluation. (PXL-001)
 	PXLCollectionSize Key = "pxl.collectionSize"
@@ -448,6 +461,8 @@ var registry = [...]Definition{
 	{Key: ConfidentialBundleBytes, Unit: UnitBytes, Default: 16777216, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of confidential content one confidential bundle may hold."},
 	{Key: ConfigValueBytes, Unit: UnitBytes, Default: 4096, Warning: 0, Max: 65536, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Bytes of one server-held configuration value."},
 	{Key: ConfigValuesPerEnvironment, Unit: UnitCount, Default: 256, Warning: 0, Max: 4096, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Server-held configuration values one environment holds."},
+	{Key: ControlExpiry, Unit: UnitMilliseconds, Default: 86400000, Warning: 0, Max: 604800000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "How long a signed control document is valid after the server signs it; a device keeps the kill switches of an expired document in force."},
+	{Key: ControlKillSwitches, Unit: UnitCount, Default: 200, Warning: 0, Max: 5000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Kill switches one channel's control document may carry."},
 	{Key: DataCacheBytes, Unit: UnitBytes, Default: 16777216, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes the response cache of data sources keeps on the device; the least recently used entries are evicted beyond it."},
 	{Key: DataCacheEntries, Unit: UnitCount, Default: 1000, Warning: 0, Max: 100000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Responses the cache of data sources keeps on the device; the least recently used are evicted beyond it."},
 	{Key: DataDownloadSize, Unit: UnitBytes, Default: 52428800, Warning: 0, Max: 2147483648, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp, EnforcedBy: EnforcerRuntime, Phase: "P5", Description: "Bytes one download may have; checked against the declared length before the transfer and counted during it, a larger one is stopped."},
@@ -521,6 +536,8 @@ var registry = [...]Definition{
 	{Key: PluginAssetBytes, Unit: UnitBytes, Default: 20971520, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P2", Description: "Bytes of the asset files one plugin's pages and icon use, checked at publish."},
 	{Key: PluginPages, Unit: UnitCount, Default: 500, Warning: 0, Max: 2000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Pages per plugin."},
 	{Key: PublishAssetWait, Unit: UnitMilliseconds, Default: 600000, Warning: 0, Max: 3600000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P3", Description: "Time a publish waits, from when it was queued, for the app's image assets to finish processing before it fails."},
+	{Key: PushBatchSize, Unit: UnitCount, Default: 200, Warning: 0, Max: 5000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Devices one silent-push job sends to before it hands the rest to a follow-up job."},
+	{Key: PushTokenBytes, Unit: UnitBytes, Default: 1024, Warning: 0, Max: 4096, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Length of the push token a device may register for silent push."},
 	{Key: PXLCollectionSize, Unit: UnitCount, Default: 10000, Warning: 0, Max: 1000000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P1", Description: "Elements of a list or map produced during one PXL evaluation."},
 	{Key: PXLDecimalDigits, Unit: UnitCount, Default: 1000, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P1", Description: "Digits of a decimal produced during one PXL evaluation, in plain notation."},
 	{Key: PXLExpressionLength, Unit: UnitCodepoints, Default: 4096, Warning: 0, Max: 65536, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Length of one PXL expression."},

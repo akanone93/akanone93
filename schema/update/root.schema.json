@@ -146,6 +146,28 @@
                 }
               },
               "additionalProperties": false
+            },
+            "control": {
+              "type": "object",
+              "required": [
+                "keyids",
+                "threshold"
+              ],
+              "properties": {
+                "keyids": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "common.schema.json#/$defs/keyId"
+                  },
+                  "uniqueItems": true
+                },
+                "threshold": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "additionalProperties": false,
+              "description": "Delegates the control document (ADR-0077). Optional: a root made before P9 delegates none, and a device then accepts no control document under it."
             }
           },
           "additionalProperties": false

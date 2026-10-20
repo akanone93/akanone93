@@ -35,7 +35,7 @@ func Defaults() Config {
 			SignedURLTTL: Duration(15 * 60e9),
 		},
 		Cache:   Cache{Backend: "memory"},
-		Signing: Signing{Backend: "file", Directory: "data/keys", Keys: SigningKeys{Targets: "targets", Snapshot: "snapshot", Timestamp: "timestamp", Audit: "audit", FunctionArtifact: "function-artifact"}},
+		Signing: Signing{Backend: "file", Directory: "data/keys", Keys: SigningKeys{Targets: "targets", Snapshot: "snapshot", Timestamp: "timestamp", Control: "control", Audit: "audit", FunctionArtifact: "function-artifact"}},
 		Auth: Auth{
 			Studio: StudioAuth{
 				AllowPasswordLogin: true,
