@@ -37,6 +37,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/gitsync"
 	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
@@ -49,6 +50,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/scheduler"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
+	"github.com/nightCode42/plux3/backend/internal/search"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -112,6 +114,10 @@ type Services struct {
 	// AuditExporter delivers the audit chains to them; nil where the process
 	// holds no signer, which is every process without the worker role.
 	AuditExporter *auditexport.Exporter
+	// Search is the full-text search (SRV-061).
+	Search *search.Service
+	// GitExport exports apps to Git on publish (GOV-011).
+	GitExport *gitsync.Service
 	// KMS checks the key management service, when the signing backend
 	// is one; nil for the development file backend (SRV-007).
 	KMS func(context.Context) error
@@ -215,6 +221,13 @@ func (a assetQueue) Enqueue(ctx context.Context, tx pgx.Tx, job document.AssetJo
 	return a.q.insert(ctx, tx, job, jobs.QueueAsset)
 }
 
+// gitQueue enqueues Git export jobs (GOV-011).
+type gitQueue struct{ q *JobQueue }
+
+func (g gitQueue) Enqueue(ctx context.Context, tx pgx.Tx, job gitsync.ExportJob) error {
+	return g.q.insert(ctx, tx, job, jobs.QueueExport)
+}
+
 // publishQueue enqueues publish jobs (SRV-050).
 type publishQueue struct{ q *JobQueue }
 
@@ -231,6 +244,18 @@ type manifestWorker struct {
 // Work signs one channel's manifest.
 func (w *manifestWorker) Work(ctx context.Context, job *river.Job[release.ManifestJob]) error {
 	return w.svc.Releases.SignManifest(ctx, job.Args) //nolint:wrapcheck // a domain error
+}
+
+// gitExportWorker pushes publishes to Git remotes (GOV-011). River retries
+// a failed push with backoff.
+type gitExportWorker struct {
+	river.WorkerDefaults[gitsync.ExportJob]
+	svc *Services
+}
+
+// Work pushes one version.
+func (w *gitExportWorker) Work(ctx context.Context, job *river.Job[gitsync.ExportJob]) error {
+	return w.svc.GitExport.Work(ctx, job.Args) //nolint:wrapcheck // a domain error
 }
 
 // deltaWorker precomputes deltas after a publish (REL-022).
@@ -380,7 +405,17 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	releases, err := buildReleases(cfg, db, set, work, releaseDeps{ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw), functions: functions})
+	gitExport, err := gitsync.New(gitsync.Options{
+		DB: db, Audit: log, Documents: docs, Secrets: tenancyService, Jobs: gitQueue{work.Queue}, IDs: gen, Limits: set,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
+	searchService, err := search.NewService(search.Options{DB: db, Tenancy: tenancyService})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
+	releases, err := buildReleases(cfg, db, set, work, releaseDeps{published: gitExport, ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw), functions: functions})
 	if err != nil {
 		return nil, err
 	}
@@ -410,7 +445,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		return nil, err
 	}
 	return &Services{
-		Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter,
+		Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport,
 		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
@@ -546,6 +581,8 @@ func buildCheckpointer(cfg *config.Config, db *storage.DB, log *audit.Log, gen a
 
 // releaseDeps are the services the release service is built on.
 type releaseDeps struct {
+	// published follows every recorded version (GOV-011).
+	published release.Published
 	ids       interface{ New() (string, error) }
 	audit     *audit.Log
 	tenancy   *tenancy.Service
@@ -582,7 +619,7 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 		Devices: deps.devices, Gateway: deps.gateway, SecurityConfig: deps.configs, PublicBaseURL: cfg.Server.PublicBaseURL,
 		Crypter: deps.crypter, Recipients: deps.devices, Functions: functionsOf(deps.functions),
 		CompilerVersion: buildinfo.Get().Version, DevelopmentDays: cfg.Retention.DevelopmentReleaseDays,
-		Metadata: metadataOptions(cfg),
+		Metadata: metadataOptions(cfg), Published: deps.published,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
@@ -774,6 +811,18 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 	if h.Translations != nil {
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewLocalisationServiceHandler(h.Localisation(), opts)
+		})
+	}
+	if svc.Search != nil {
+		h.Searches = svc.Search
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewSearchServiceHandler(h.Search(), opts)
+		})
+	}
+	if svc.GitExport != nil {
+		h.GitExports = svc.GitExport
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewGitExportServiceHandler(h.GitExport(), opts)
 		})
 	}
 	if svc.Goldens != nil {

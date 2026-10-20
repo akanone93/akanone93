@@ -33,6 +33,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/fnpb/fnpbconnect"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/gitsync"
 	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/localisation"
 	"github.com/nightCode42/plux3/backend/internal/notify"
@@ -41,6 +42,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
+	"github.com/nightCode42/plux3/backend/internal/search"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
 	"github.com/nightCode42/plux3/backend/internal/security/settings"
 	"github.com/nightCode42/plux3/backend/internal/signing"
@@ -306,13 +308,22 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	searchService, err := search.NewService(search.Options{DB: db, Tenancy: tenancyService})
+	if err != nil {
+		t.Fatal(err)
+	}
+	gitService, err := gitsync.New(gitsync.Options{DB: db, Audit: log, Documents: docs, Secrets: tenancyService, IDs: gen})
+	if err != nil {
+		t.Fatal(err)
+	}
 	h := &api.Handlers{
 		Notify: notifier, AuditExport: auditExport, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
 		Translations: localisation.New(docs, gen, set),
-		Goldens:      golden.New(golden.Options{DB: db, Audit: log, Objects: files, IDs: gen, Limits: set}),
+		Searches:     searchService, GitExports: gitService,
+		Goldens: golden.New(golden.Options{DB: db, Audit: log, Objects: files, IDs: gen, Limits: set}),
 	}
 	people := api.Authentication(authService, api.IdentityPublic, nil, limiter, set.Get(limits.APIRequestsPerMinute))
 	nonceKey := make([]byte, 32)
@@ -335,6 +346,8 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	for _, r := range []func() (string, http.Handler){
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewSearchServiceHandler(h.Search(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewGitExportServiceHandler(h.GitExport(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGovernanceServiceHandler(h.Governance(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewAppServiceHandler(h.App(), opts) },

@@ -155,6 +155,10 @@ const (
 	// became invalid, or came back to a valid state (GOV-030). It is
 	// recorded in the installation's own chain.
 	LicenseStateChanged Action = "license.state_changed"
+	// GitExportConfigured: an app's Git export setting was set (GOV-011).
+	GitExportConfigured Action = "git.export_configured"
+	// GitExported: a publish was pushed to the app's Git remote (GOV-011).
+	GitExported Action = "git.exported"
 )
 
 // The actions of the audit export (SEC-143, ADR-0082).
@@ -236,6 +240,7 @@ var actions = sorted(
 	WebhookSet, WebhookDeleted, WebhookSecretRotated, DeliveryFailed,
 	FunctionTriggerSet, FunctionTriggerDeleted, FunctionHookSet, FunctionHookDeleted, FunctionHookSecretRotated,
 	ExportDestinationCreated, ExportDestinationUpdated, ExportDestinationDeleted,
+	GitExportConfigured, GitExported,
 )
 
 // sorted returns its arguments in order.

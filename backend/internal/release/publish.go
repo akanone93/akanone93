@@ -697,6 +697,12 @@ func (s *Service) recordVersion(ctx context.Context, p auth.Principal, row dbgen
 		if err := s.enqueueDeltas(ctx, tx, p.OrganizationID, storage.ID(row.AppID), c.key, b.Hash[:]); err != nil {
 			return err
 		}
+		if s.o.Published != nil {
+			summary := fmt.Sprintf("%s version %d", keyOrApp(b.Key, row), next)
+			if err := s.o.Published.Published(ctx, tx, p.OrganizationID, storage.ID(row.AppID), id, summary, row.ActorID, row.ActorDisplay); err != nil {
+				return fmt.Errorf("release: %w", err)
+			}
+		}
 		actor := auth.Principal{Identity: auth.Identity{Kind: row.ActorKind, ID: row.ActorID, Display: row.ActorDisplay}, OrganizationID: p.OrganizationID}
 		return s.record(ctx, tx, actor, audit.Entry{
 			Action: audit.VersionPublished, TargetKind: "version", TargetID: id,
