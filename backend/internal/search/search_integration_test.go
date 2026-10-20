@@ -91,7 +91,7 @@ func newFixture(t *testing.T) *fixture {
 	if _, err := authService.AcceptInvitation(ctx, invitation, "Admin", "correct horse battery"); err != nil {
 		t.Fatal(err)
 	}
-	id := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}
+	id := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
 	f := &fixture{db: db, tenancy: ten, docs: docs, search: svc, gen: gen}
 	f.org, f.owner, f.appA = f.organisation(t, authService, id, "acme", "Acme", "demo", "Demo")
 	_, err = ten.CreateApp(ctx, f.owner, "vault", "Vault")

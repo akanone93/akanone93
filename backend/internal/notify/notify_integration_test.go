@@ -118,7 +118,7 @@ func newWorld(t *testing.T, mutate func(*notify.Options)) *world {
 	if _, err := a.AcceptInvitation(ctx, invitation, "Admin", "correct horse battery"); err != nil {
 		t.Fatal(err)
 	}
-	adminID := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}
+	adminID := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
 	org, err := ten.CreateOrganization(ctx, adminID, "acme", "Acme")
 	if err != nil {
 		t.Fatal(err)

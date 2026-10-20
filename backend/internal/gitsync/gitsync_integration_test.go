@@ -216,7 +216,7 @@ func newFixture(t *testing.T, policy httpx.Policy) *fixture {
 	if _, err := authService.AcceptInvitation(ctx, invitation, "Admin", "correct horse battery"); err != nil {
 		t.Fatal(err)
 	}
-	id := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Ada Publisher", SecondFactor: true, InstallationAdmin: true}
+	id := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Ada Publisher", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
 	f := &fixture{db: db, tenancy: ten, docs: docs, audit: log, gen: gen, queue: &recorder{}, remote: newRemote(t)}
 	org, err := ten.CreateOrganization(ctx, id, "acme", "Acme")
 	if err != nil {
