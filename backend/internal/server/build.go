@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/nightCode42/plux3/backend/edition"
+	"github.com/nightCode42/plux3/backend/ext/export"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/compiler/media"
 	"github.com/nightCode42/plux3/backend/internal/config"
@@ -38,6 +39,7 @@ type buildOptions struct {
 	builder      function.Builder
 	linker       function.Linker
 	edition      edition.Provider
+	auditSinks   export.Provider
 }
 
 // WithEdition gives the process the licence provider of the enterprise
@@ -45,6 +47,13 @@ type buildOptions struct {
 // enterprise feature (GOV-030, GOV-033).
 func WithEdition(p edition.Provider) BuildOption {
 	return func(o *buildOptions) { o.edition = p }
+}
+
+// WithAuditSinks gives the worker role the enterprise sinks of the audit
+// export (CEF, OTLP logs, signed webhooks); without it the process exports
+// over syslog only (SEC-143, GOV-033).
+func WithAuditSinks(p export.Provider) BuildOption {
+	return func(o *buildOptions) { o.auditSinks = p }
 }
 
 // WithIdentityProviderClient makes the gateway read the key sets of
@@ -208,7 +217,7 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 			slog.String("directory", cfg.Signing.Directory))
 	}
 	queue := &JobQueue{}
-	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP}
+	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP, AuditSinks: o.auditSinks}
 	if cfg.Has(config.RoleWorker) {
 		// Only the worker transcodes and signs: compiling the codecs costs
 		// seconds of CPU the api role need not pay, and the api role must
@@ -253,6 +262,7 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 	periodic := append(MaintenanceJobs(workers, services, log),
 		CheckpointJobs(workers, services, cfg.Audit.CheckpointInterval.Duration(), log)...)
 	periodic = append(periodic, AttestationStatusJobs(workers, services, log)...)
+	periodic = append(periodic, AuditExportJobs(workers, services, o.edition, log)...)
 	jobClient, err := jobs.New(jobs.Options{
 		Pool:     db.Pool(),
 		Workers:  workers,

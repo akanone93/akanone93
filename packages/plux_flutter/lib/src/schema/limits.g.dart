@@ -87,6 +87,10 @@ enum PluxLimit {
   attestPlayIntegrityTokenBytes('attest.playIntegrityTokenBytes', PluxLimitUnit.bytes, 16384, 0, 65536),
   /// Size of the Android attestation status list the server fetches or reads.
   attestStatusListBytes('attest.statusListBytes', PluxLimitUnit.bytes, 8388608, 0, 33554432),
+  /// Audit entries delivered to an export destination in one batch.
+  auditExportBatchEntries('audit.exportBatchEntries', PluxLimitUnit.count, 500, 0, 10000),
+  /// Audit export destinations one organisation may configure.
+  auditExportDestinationsPerOrg('audit.exportDestinationsPerOrg', PluxLimitUnit.count, 5, 0, 50),
   /// Failed passwords or one-time codes one account may present in fifteen
   /// minutes before sign-in is refused.
   authFailedSignIns('auth.failedSignIns', PluxLimitUnit.count, 10, 0, 1000),

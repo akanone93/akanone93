@@ -18,11 +18,9 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"net/netip"
 	"strings"
-	"syscall"
 	"time"
 )
 
@@ -141,24 +139,7 @@ type TransportOptions struct {
 // proxy, which would resolve the name itself. Share one transport per
 // destination: it pools connections.
 func NewTransport(opts TransportOptions) *http.Transport {
-	policy := opts.Policy
-	dialer := &net.Dialer{
-		Timeout:   10 * time.Second,
-		KeepAlive: 30 * time.Second,
-		// Control runs after the name has been resolved, with the
-		// address the connection will actually use.
-		Control: func(_, address string, _ syscall.RawConn) error {
-			host, _, err := net.SplitHostPort(address)
-			if err != nil {
-				return fmt.Errorf("%w: %s", ErrBlocked, address)
-			}
-			addr, err := netip.ParseAddr(host)
-			if err != nil {
-				return fmt.Errorf("%w: %s is not an IP address", ErrBlocked, host)
-			}
-			return policy.Check(addr)
-		},
-	}
+	dialer := GuardedDialer(opts.Policy)
 	perHost := opts.MaxIdleConnsPerHost
 	if perHost <= 0 {
 		perHost = 32

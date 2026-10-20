@@ -93,10 +93,12 @@ type matrixFixture struct {
 	plugin   string
 	team     string
 	template string
-	snaps    []string
-	device   string
-	job      string
-	count    int
+	// destination is the fixture's shared export destination (sharedDestination).
+	destination string
+	snaps       []string
+	device      string
+	job         string
+	count       int
 }
 
 func (f *matrixFixture) owner() caller { return f.callers[auth.RoleOwner] }
@@ -216,6 +218,37 @@ func (f *matrixFixture) freshApp(t *testing.T) string {
 	t.Helper()
 	k := f.name()
 	return must(f.w.app.CreateApp(context.Background(), req(f.owner(), &pluxv1.CreateAppRequest{Key: k, Name: k})))(t).GetApp().GetId()
+}
+
+func (f *matrixFixture) freshDestination(t *testing.T) string {
+	t.Helper()
+	return must(f.w.audit.CreateExportDestination(context.Background(), req(f.owner(), &pluxv1.CreateExportDestinationRequest{
+		Name: "d" + f.name(), Kind: "syslog", Address: "siem.example.com:6514",
+	})))(t).GetDestination().GetId()
+}
+
+// sharedDestination returns the fixture's destination, creating it on first
+// use. Read and update calls share it so the matrix stays under the org's
+// destination limit (audit.exportDestinationsPerOrg).
+func (f *matrixFixture) sharedDestination(t *testing.T) string {
+	t.Helper()
+	if f.destination == "" {
+		f.destination = f.freshDestination(t)
+	}
+	return f.destination
+}
+
+// deleteFreshDestination deletes a new destination as c and returns the
+// outcome. A refused delete leaves its destination behind, so the owner
+// removes it.
+func (f *matrixFixture) deleteFreshDestination(t *testing.T, c caller) error {
+	t.Helper()
+	id := f.freshDestination(t)
+	_, err := f.w.audit.DeleteExportDestination(context.Background(), req(c, &pluxv1.DeleteExportDestinationRequest{Id: id}))
+	if err != nil {
+		must(f.w.audit.DeleteExportDestination(context.Background(), req(f.owner(), &pluxv1.DeleteExportDestinationRequest{Id: id})))(t)
+	}
+	return err //nolint:wrapcheck // the code is what the test reads
 }
 
 func (f *matrixFixture) freshEnvironment(t *testing.T) string {
@@ -438,7 +471,6 @@ var permissionsWithoutRPC = []auth.Permission{
 	auth.ExperimentsManage,
 	auth.AnalyticsRead,
 	auth.AlertsManage,
-	auth.AuditExport,
 	auth.ReconstructionView,
 	auth.DSRManage,
 	auth.SearchRead,
