@@ -15,6 +15,7 @@ import (
 	"syscall"
 
 	"github.com/nightCode42/plux3/backend/edition"
+	"github.com/nightCode42/plux3/backend/ext/identity"
 	"github.com/nightCode42/plux3/backend/internal/buildinfo"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/config"
@@ -71,6 +72,10 @@ type Options struct {
 	// lists (GOV-030, GOV-033). Nil is the open-source core, which enables
 	// none.
 	Edition edition.Verifier
+	// Identity, when its fields are set, is the enterprise edition's SAML
+	// 2.0 single sign-on and SCIM 2.0 provisioning (GOV-004, ADR-0074). A
+	// nil field is the community default, which refuses with PLX-8600.
+	Identity identity.Extensions
 }
 
 // Main runs the server as the process: it handles the interrupt and
@@ -261,7 +266,7 @@ func serve(ctx context.Context, args []string, stderr io.Writer, opts Options) i
 		_, _ = fmt.Fprintf(stderr, "%s: %s\n", name, err)
 		return exitFailed
 	}
-	built, err := server.Build(ctx, cfg, log, buildinfo.Get().Version, server.WithEdition(provider))
+	built, err := server.Build(ctx, cfg, log, buildinfo.Get().Version, server.WithEdition(provider), server.WithIdentityExtensions(opts.Identity))
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "%s: %s\n", name, err)
 		return exitFailed

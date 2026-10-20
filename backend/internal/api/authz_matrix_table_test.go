@@ -281,6 +281,40 @@ var matrix = map[string]entry{
 		return &pluxv1.DeleteGrantRequest{Id: unknownID}
 	})),
 
+	// FederationService (GOV-004): the sign-in page's calls carry no
+	// credential; every call that configures federation needs sso.manage.
+	"FederationService/ListSignInProviders":   {kind: public, build: anyone(&pluxv1.ListSignInProvidersRequest{})},
+	"FederationService/StartSamlLogin":        {kind: public, build: anyone(&pluxv1.StartSamlLoginRequest{})},
+	"FederationService/CompleteSamlLogin":     {kind: public, build: anyone(&pluxv1.CompleteSamlLoginRequest{})},
+	"FederationService/GetSamlMetadata":       {kind: public, build: anyone(&pluxv1.GetSamlMetadataRequest{})},
+	"FederationService/ListIdentityProviders": atPerm(auth.SSOManage, anyone(&pluxv1.ListIdentityProvidersRequest{})),
+	"FederationService/GetIdentityProvider": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.GetIdentityProviderRequest{Id: unknownID}
+	})),
+	"FederationService/CreateIdentityProvider": atPerm(auth.SSOManage, anyone(&pluxv1.CreateIdentityProviderRequest{})),
+	"FederationService/UpdateIdentityProvider": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.UpdateIdentityProviderRequest{Provider: &pluxv1.IdentityProvider{Id: unknownID}}
+	})),
+	"FederationService/DeleteIdentityProvider": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.DeleteIdentityProviderRequest{Id: unknownID}
+	})),
+	"FederationService/GetGroupMapping": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.GetGroupMappingRequest{ProviderId: unknownID}
+	})),
+	"FederationService/SetGroupMapping": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.SetGroupMappingRequest{ProviderId: unknownID, Mapping: &pluxv1.GroupMapping{}}
+	})),
+	"FederationService/ListScimTokens": atPerm(auth.SSOManage, anyone(&pluxv1.ListScimTokensRequest{})),
+	"FederationService/CreateScimToken": atPerm(auth.SSOManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateScimTokenRequest{Name: "scim-" + f.name()}
+	}),
+	"FederationService/RotateScimToken": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.RotateScimTokenRequest{Id: unknownID}
+	})),
+	"FederationService/RevokeScimToken": atPerm(auth.SSOManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.RevokeScimTokenRequest{Id: unknownID}
+	})),
+
 	// GoldenService
 	"GoldenService/GetBaselines": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.GetBaselinesRequest{AppId: f.app}
