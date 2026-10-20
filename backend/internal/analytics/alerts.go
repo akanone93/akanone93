@@ -283,7 +283,7 @@ func (s *Service) ListAlertStates(ctx context.Context, p auth.Principal, appID s
 func (s *Service) auditRule(ctx context.Context, tx pgx.Tx, p auth.Principal, action audit.Action, r Rule, what string) error {
 	_, err := s.o.Audit.Append(ctx, tx, audit.Entry{
 		Action: action, TargetKind: "alert_rule", TargetID: r.ID, OrganizationID: p.OrganizationID, Actor: p.Actor(),
-		Detail: fmt.Sprintf("%s %q: %s %s of %s over %s %s %g for %s, %s", what, r.Name, r.Aggregation, r.Metric, r.Window, r.Comparison, r.Threshold, r.For, r.Severity),
+		Detail: fmt.Sprintf("%s %q: %s of %s over %s %s %g for %s, %s", what, r.Name, r.Aggregation, r.Metric, r.Window, r.Comparison, r.Threshold, r.For, r.Severity),
 	})
 	return err //nolint:wrapcheck // wrapped by the audit log
 }
