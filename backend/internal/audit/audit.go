@@ -184,6 +184,15 @@ const (
 	ExportDestinationDeleted Action = "audit_export.destination_deleted"
 )
 
+// The actions of data subject requests (SEC-162).
+const (
+	// DataSubjectExported and DataSubjectErased: the data of a device or a
+	// pseudonymous user was exported or erased. The entry names the subject
+	// by its hash only, so the chain itself holds no erased identifier.
+	DataSubjectExported Action = "dsr.exported"
+	DataSubjectErased   Action = "dsr.erased"
+)
+
 // The actions of roles and grants (GOV-002, GOV-003, ADR-0073).
 const (
 	// RoleCreated, RoleUpdated and RoleDeleted: a custom role was made,
@@ -294,6 +303,7 @@ var actions = sorted(
 	ProviderCreated, ProviderUpdated, ProviderDeleted, MappingSet, UserProvisioned, FederatedSignIn, FederatedSignOut,
 	ScimTokenCreated, ScimTokenRotated, ScimTokenRevoked, ScimUserProvisioned, ScimUserChanged, ScimUserDeprovisioned,
 	ScimGroupCreated, ScimGroupChanged, ScimGroupDeleted,
+	DataSubjectExported, DataSubjectErased,
 )
 
 // sorted returns its arguments in order.

@@ -20,6 +20,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/dsr"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/gitsync"
@@ -80,6 +81,9 @@ type Handlers struct {
 	LiveConfig *gateway.ConfigResolver
 	// AuditExport serves AuditService (SEC-143); nil leaves it unmounted.
 	AuditExport *auditexport.Service
+	// DataSubjects serves DataSubjectService (SEC-162); nil leaves it
+	// unmounted.
+	DataSubjects *dsr.Service
 	// Edition answers what the licence allows (GOV-030); nil is the
 	// community provider.
 	Edition edition.Provider

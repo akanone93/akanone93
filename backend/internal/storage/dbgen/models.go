@@ -389,6 +389,29 @@ type Draft struct {
 	UpdatedAt      pgtype.Timestamptz
 }
 
+type DsrRequest struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	Action         string
+	SubjectKind    string
+	SubjectHash    []byte
+	Actor          string
+	RowCount       int64
+	ArchiveBytes   int64
+	RequestedAt    pgtype.Timestamptz
+}
+
+type DsrTombstone struct {
+	ID             int64
+	OrganizationID pgtype.UUID
+	RequestID      pgtype.UUID
+	SubjectKind    string
+	SubjectHash    []byte
+	Store          string
+	RowCount       int64
+	ErasedAt       pgtype.Timestamptz
+}
+
 type Environment struct {
 	ID             pgtype.UUID
 	OrganizationID pgtype.UUID

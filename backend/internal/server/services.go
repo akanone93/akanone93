@@ -37,6 +37,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/dsr"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/gitsync"
@@ -129,6 +130,9 @@ type Services struct {
 	// AuditExporter delivers the audit chains to them; nil where the process
 	// holds no signer, which is every process without the worker role.
 	AuditExporter *auditexport.Exporter
+	// DataSubjects exports and erases the data of a device or a
+	// pseudonymous user (SEC-162).
+	DataSubjects *dsr.Service
 	// Search is the full-text search (SRV-061).
 	Search *search.Service
 	// GitExport exports apps to Git on publish (GOV-011).
@@ -489,8 +493,17 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
+	dataSubjects, err := dsr.NewService(dsr.Options{
+		DB: db, Audit: log, IDs: gen,
+		Limits: func(ctx context.Context, tx pgx.Tx, org string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, "", "") //nolint:wrapcheck // a domain error
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
 	return &Services{
-		Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport, Push: pusher,
+		DataSubjects: dataSubjects, Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport, Push: pusher,
 		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Analytics: analyticsService, EventConsumer: consumer,
 		Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
@@ -903,6 +916,12 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 		h.AuditExport = svc.AuditExport
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewAuditServiceHandler(h.Audit(), opts)
+		})
+	}
+	if svc.DataSubjects != nil {
+		h.DataSubjects = svc.DataSubjects
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewDataSubjectServiceHandler(h.DataSubject(), opts)
 		})
 	}
 	if svc.SecurityConfig != nil {

@@ -496,6 +496,15 @@ var matrix = map[string]entry{
 	"AuditService/DeleteExportDestination": {kind: needs, perm: auth.AuditExport, call: func(t *testing.T, f *matrixFixture, c caller) error {
 		return f.deleteFreshDestination(t, c)
 	}},
+	"DataSubjectService/ExportSubject": atPerm(auth.DSRManage, anyone(&pluxv1.ExportSubjectRequest{
+		Kind: pluxv1.SubjectKind_SUBJECT_KIND_DEVICE, SubjectId: unknownID,
+	})),
+	"DataSubjectService/EraseSubject": atPerm(auth.DSRManage, anyone(&pluxv1.EraseSubjectRequest{
+		Kind: pluxv1.SubjectKind_SUBJECT_KIND_DEVICE, SubjectId: unknownID,
+	})),
+	"DataSubjectService/GetRequest":             atPerm(auth.DSRManage, anyone(&pluxv1.GetRequestRequest{Id: unknownID})),
+	"DataSubjectService/ListRequests":           atPerm(auth.DSRManage, anyone(&pluxv1.ListRequestsRequest{})),
+	"DataSubjectService/GetPersonalDataMap":     atPerm(auth.DSRManage, anyone(&pluxv1.GetPersonalDataMapRequest{})),
 	"LicenseService/GetLicenseState":            atPerm(auth.OrganizationManage, anyone(&pluxv1.GetLicenseStateRequest{})),
 	"SecurityAdminService/ListAuditCheckpoints": atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
 
