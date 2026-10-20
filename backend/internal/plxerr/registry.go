@@ -486,6 +486,9 @@ const (
 	ControlRollbackRejected         Code = 3102
 	MandatoryUpdatePending          Code = 3103
 	ForcedRollbackApplied           Code = 3104
+	ActionGraphSwitchedOff          Code = 3105
+	DataSourceSwitchedOff           Code = 3106
+	FunctionSwitchedOff             Code = 3107
 	RolloutPausedByHealthGate       Code = 3150
 	RolloutRolledBack               Code = 3151
 	TargetingRuleInvalid            Code = 3152

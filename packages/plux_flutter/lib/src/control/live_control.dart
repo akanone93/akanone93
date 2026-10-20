@@ -31,12 +31,17 @@ final class LiveControl {
   bool isOff(SwitchKind kind, String target) =>
       snapshot?.isOff(kind, target) ?? false;
 
-  /// The error a run, load or call of a switched-off [kind] fails with.
-  /// The registry has `PLX-4020` for a plugin turned off by a kill switch
-  /// and no code of its own for the other scopes, so it stands for all.
+  /// The error a run, load or call of a switched-off [kind] fails with:
+  /// `PLX-4020` for a plugin or page (their fallback shows, RT-022) and the
+  /// scope's own code for an action graph, data source or function.
   static PluxException disabled(SwitchKind kind, String target) =>
       PluxException(
-        PluxErrorCode.pluginDisabled,
+        switch (kind) {
+          SwitchKind.plugin || SwitchKind.page => PluxErrorCode.pluginDisabled,
+          SwitchKind.actionGraph => PluxErrorCode.actionGraphSwitchedOff,
+          SwitchKind.dataSource => PluxErrorCode.dataSourceSwitchedOff,
+          SwitchKind.function => PluxErrorCode.functionSwitchedOff,
+        },
         'the ${kind.name} $target is switched off',
         details: {'scope': kind.name, 'target': target, 'reason': 'killSwitch'},
       );

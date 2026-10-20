@@ -587,7 +587,7 @@ final class DataClient {
       if (disabled(s.id)) {
         throw DataFailure(
           ActionErrorKind.custom,
-          PluxErrorCode.pluginDisabled,
+          PluxErrorCode.dataSourceSwitchedOff,
           'the data source ${s.name} is switched off',
         );
       }

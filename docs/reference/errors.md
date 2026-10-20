@@ -1628,6 +1628,30 @@ This page is generated from the registry in `backend/internal/plxerr`; the machi
 
 **Fix.** Publish a fixed release to move forward again.
 
+### PLX-3105
+
+`ACTION_GRAPH_SWITCHED_OFF` · warning · Action graph switched off
+
+**Cause.** The control document's kill switch turns this action graph off, so it does not run (REL-060).
+
+**Fix.** Clear the kill switch once the problem is fixed.
+
+### PLX-3106
+
+`DATA_SOURCE_SWITCHED_OFF` · warning · Data source switched off
+
+**Cause.** The control document's kill switch turns this data source off, so it is not fetched (REL-060).
+
+**Fix.** Clear the kill switch once the problem is fixed.
+
+### PLX-3107
+
+`FUNCTION_SWITCHED_OFF` · warning · Function switched off
+
+**Cause.** The control document's kill switch turns this function off, so it is not called (REL-060).
+
+**Fix.** Clear the kill switch once the problem is fixed.
+
 ### PLX-3150
 
 `ROLLOUT_PAUSED_BY_HEALTH_GATE` · error · Rollout paused by a health gate

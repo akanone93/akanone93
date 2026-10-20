@@ -616,6 +616,15 @@ enum PluxErrorCode {
   /// Forced rollback applied.
   forcedRollbackApplied(3104, 'FORCED_ROLLBACK_APPLIED', 'Forced rollback applied'),
 
+  /// Action graph switched off.
+  actionGraphSwitchedOff(3105, 'ACTION_GRAPH_SWITCHED_OFF', 'Action graph switched off'),
+
+  /// Data source switched off.
+  dataSourceSwitchedOff(3106, 'DATA_SOURCE_SWITCHED_OFF', 'Data source switched off'),
+
+  /// Function switched off.
+  functionSwitchedOff(3107, 'FUNCTION_SWITCHED_OFF', 'Function switched off'),
+
   /// Rollout paused by a health gate.
   rolloutPausedByHealthGate(3150, 'ROLLOUT_PAUSED_BY_HEALTH_GATE', 'Rollout paused by a health gate'),
 

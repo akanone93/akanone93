@@ -40,6 +40,8 @@ void main() {
       'data/shop.pxb',
       'db/db.pxb',
       'db/todo.pxb',
+      'experiments/experiments.pxb',
+      'experiments/shop.pxb',
       'features/features.dev.pxb',
       'features/features.pxb',
       'features/tasks.dev.pxb',
@@ -105,6 +107,10 @@ void main() {
             // menus and the P8 widget set).
             : path.startsWith('widgets/')
             ? '0.5.0'
+            // The experiments project has Variant nodes, which need 0.6.0
+            // (ABT-002).
+            : path.startsWith('experiments/')
+            ? '0.6.0'
             : '0.3.0',
         reason: path,
       );
@@ -127,11 +133,13 @@ void main() {
             n.widget != 0,
             n.component != null,
             n.nativeSlot != 0,
+            n.variant != null,
           ].where((k) => k);
           expect(
             kinds.length,
             1,
-            reason: '$path: a node is one widget, instance or native slot',
+            reason:
+                '$path: a node is one widget, instance, native slot or variant',
           );
           for (final c in [
             ...?n.children,

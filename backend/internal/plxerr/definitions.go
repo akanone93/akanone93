@@ -1042,6 +1042,21 @@ var registry = []Definition{
 		"Publish a fixed release to move forward again.", false,
 	},
 	{
+		ActionGraphSwitchedOff, "ACTION_GRAPH_SWITCHED_OFF", SeverityWarning, "Action graph switched off",
+		"The control document's kill switch turns this action graph off, so it does not run (REL-060).",
+		"Clear the kill switch once the problem is fixed.", false,
+	},
+	{
+		DataSourceSwitchedOff, "DATA_SOURCE_SWITCHED_OFF", SeverityWarning, "Data source switched off",
+		"The control document's kill switch turns this data source off, so it is not fetched (REL-060).",
+		"Clear the kill switch once the problem is fixed.", false,
+	},
+	{
+		FunctionSwitchedOff, "FUNCTION_SWITCHED_OFF", SeverityWarning, "Function switched off",
+		"The control document's kill switch turns this function off, so it is not called (REL-060).",
+		"Clear the kill switch once the problem is fixed.", false,
+	},
+	{
 		RolloutPausedByHealthGate, "ROLLOUT_PAUSED_BY_HEALTH_GATE", SeverityError, "Rollout paused by a health gate",
 		"A health gate of the rollout failed, so the rollout stopped advancing.",
 		"Investigate the failing health signal, then resume or roll back.", false,

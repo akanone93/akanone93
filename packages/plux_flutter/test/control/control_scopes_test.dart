@@ -23,8 +23,8 @@ import 'package:plux_flutter/src/functions/invoke_function.dart';
 import '../actions/engine_test.dart' show FakeNavigator, id, input, lit;
 
 /// Kill switches by scope at the points where a graph runs, a data source
-/// is asked and a function is called (REL-060). The registry has no code of
-/// its own for these scopes, so each fails with `PLX-4020`.
+/// is asked and a function is called (REL-060): each fails with its scope's
+/// code, PLX-3105, PLX-3106 or PLX-3107.
 void main() {
   final switches = ControlSnapshot(
     version: 1,
@@ -79,11 +79,11 @@ void main() {
       events = [];
     });
 
-    test('a switched-off graph does not run and is reported with PLX-4020 '
+    test('a switched-off graph does not run and is reported with PLX-3105 '
         '[REL-060]', () async {
       expect(await run('g-off'), isNull);
       expect(events, isEmpty);
-      expect(reports.single.code, PluxErrorCode.pluginDisabled);
+      expect(reports.single.code, PluxErrorCode.actionGraphSwitchedOff);
       expect(reports.single.details['scope'], 'actionGraph');
       expect(reports.single.details['target'], 'g-off');
     });
@@ -127,7 +127,7 @@ void main() {
 
     setUp(() => requests = 0);
 
-    test('a switched-off source fails with PLX-4020 before anything is sent '
+    test('a switched-off source fails with PLX-3106 before anything is sent '
         '[REL-060]', () async {
       await expectLater(
         services().client.load(source('d-off'), caller, const {}),
@@ -135,7 +135,7 @@ void main() {
           isA<DataFailure>().having(
             (f) => f.code,
             'code',
-            PluxErrorCode.pluginDisabled,
+            PluxErrorCode.dataSourceSwitchedOff,
           ),
         ),
       );
@@ -150,7 +150,7 @@ void main() {
 
   group('function', () {
     test(
-      'a switched-off function fails its step with PLX-4020 [REL-060]',
+      'a switched-off function fails its step with PLX-3107 [REL-060]',
       () async {
         final reports = <PluxException>[];
         var resolved = 0;
@@ -205,8 +205,8 @@ void main() {
         );
         expect(resolved, 1);
         expect(result!.outcome, RunOutcome.failed);
-        expect(result.error!.code, PluxErrorCode.pluginDisabled);
-        expect(reports.single.code, PluxErrorCode.pluginDisabled);
+        expect(result.error!.code, PluxErrorCode.functionSwitchedOff);
+        expect(reports.single.code, PluxErrorCode.functionSwitchedOff);
       },
     );
   });
