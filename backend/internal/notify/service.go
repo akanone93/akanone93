@@ -76,7 +76,11 @@ func New(o Options) (*Service, error) {
 		return nil, errors.New("notify: a service needs a database, an audit log, envelope encryption and an ID generator")
 	}
 	if o.HTTP == nil {
-		o.HTTP = httpx.NewClient(httpx.Options{Policy: o.Policy, Timeout: 15 * time.Second})
+		client, err := httpx.NewClient(httpx.Options{Destination: httpx.KindNotify, Policy: o.Policy, Timeout: 15 * time.Second})
+		if err != nil {
+			return nil, fmt.Errorf("notify: %w", err)
+		}
+		o.HTTP = client
 	}
 	if o.Now == nil {
 		o.Now = time.Now

@@ -93,7 +93,11 @@ func New(o Options) (*Service, error) {
 	if now == nil {
 		now = time.Now
 	}
-	o.Export = o.Export.withDefaults()
+	export, err := o.Export.withDefaults()
+	if err != nil {
+		return nil, err
+	}
+	o.Export = export
 	return &Service{o: o, now: now}, nil
 }
 

@@ -43,6 +43,7 @@ var errRefusedAddress = errors.New("gitsync: the remote's address is not allowed
 type proxy struct {
 	policy  httpx.Policy
 	resolve Resolver
+	dialer  *httpx.Dialer
 	auth    string
 	ln      net.Listener
 	srv     *http.Server
@@ -56,12 +57,16 @@ type proxy struct {
 // startProxy listens on a loopback port. secret authenticates the one
 // client that knows it, so another process on the host cannot use the proxy.
 func startProxy(policy httpx.Policy, resolve Resolver, secret string) (*proxy, error) {
+	dialer, err := httpx.GuardedDialer(httpx.KindGitRemote, policy)
+	if err != nil {
+		return nil, fmt.Errorf("gitsync: %w", err)
+	}
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		return nil, fmt.Errorf("gitsync: listen for the proxy: %w", err)
 	}
 	p := &proxy{
-		policy: policy, resolve: resolve, ln: ln, conns: map[net.Conn]struct{}{},
+		policy: policy, resolve: resolve, dialer: dialer, ln: ln, conns: map[net.Conn]struct{}{},
 		auth: "Basic " + base64.StdEncoding.EncodeToString([]byte("plux:"+secret)),
 	}
 	p.srv = &http.Server{Handler: http.HandlerFunc(p.serve), ReadHeaderTimeout: 10 * time.Second}
@@ -175,10 +180,9 @@ func (p *proxy) dial(ctx context.Context, target string) (net.Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	d := net.Dialer{Timeout: 10 * time.Second}
 	var last error
 	for _, a := range addrs {
-		c, err := d.DialContext(ctx, "tcp", netip.AddrPortFrom(a, uint16(port)).String())
+		c, err := p.dialer.DialContext(ctx, "tcp", netip.AddrPortFrom(a, uint16(port)).String())
 		if err == nil {
 			return c, nil
 		}

@@ -18,7 +18,8 @@
 // that has no credentials is skipped. Push tokens are personal data: they
 // are stored encrypted with envelope encryption, bound to their device,
 // and deleted with it. All outbound requests go through the SSRF-safe
-// client of package httpx and only to the hosts egressDestinations lists.
+// client of package httpx and only to the hosts the egress registry lists
+// for it (httpx.KindPush, SEC-163).
 //
 // Invariants: a message never carries content beyond the marker and the
 // app identifier; a credential is never logged or returned; a token the

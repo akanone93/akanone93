@@ -176,7 +176,11 @@ func (o opener) open(ctx context.Context, row dbgen.AuditExportDestination) (exp
 		opts.Certificate = &pair
 	}
 	policy := policyOf(row.AllowPrivate)
-	dial := httpx.GuardedDialer(policy).DialContext
+	dialer, err := httpx.GuardedDialer(httpx.KindAuditExport, policy)
+	if err != nil {
+		return nil, nil, fmt.Errorf("auditexport: %w", err)
+	}
+	dial := dialer.DialContext
 	if row.Kind == KindSyslog {
 		opts.ServerName = host
 		cfg, err := httpx.ClientTLS(opts)
@@ -213,7 +217,10 @@ func (o opener) openProvided(ctx context.Context, row dbgen.AuditExportDestinati
 	if err != nil {
 		return nil, nil, fmt.Errorf("auditexport: %w", err)
 	}
-	transport := httpx.NewTransport(httpx.TransportOptions{Policy: policy, TLS: cfg, ResponseHeaderTimeout: requestTimeout})
+	transport, err := httpx.NewTransport(httpx.TransportOptions{Destination: httpx.KindAuditExport, Policy: policy, TLS: cfg, ResponseHeaderTimeout: requestTimeout})
+	if err != nil {
+		return nil, nil, fmt.Errorf("auditexport: %w", err)
+	}
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   requestTimeout,

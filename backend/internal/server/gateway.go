@@ -130,7 +130,10 @@ func buildGateway(d gatewayDeps) (*GatewayParts, error) {
 	}
 	identityHTTP := d.identityHTTP
 	if identityHTTP == nil {
-		identityHTTP = httpx.NewClient(httpx.Options{Timeout: 10 * time.Second})
+		identityHTTP, err = httpx.NewClient(httpx.Options{Destination: httpx.KindIdentityKeySet, Timeout: 10 * time.Second})
+		if err != nil {
+			return nil, fmt.Errorf("server: %w", err)
+		}
 	}
 	exchange := &gateway.Exchanger{
 		Providers: registry.ProviderFor, Upstreams: registry.Resolve, Production: d.devices.EnvironmentIsProduction,

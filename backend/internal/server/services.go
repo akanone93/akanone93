@@ -707,9 +707,13 @@ func oidcProvider(cfg *config.Config) (*auth.OIDCProvider, error) {
 	if o.Issuer == "" {
 		return nil, nil //nolint:nilnil // no provider is configured
 	}
+	client, err := httpx.NewClient(httpx.Options{Destination: httpx.KindOIDC, Timeout: 15 * time.Second})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
 	p, err := auth.NewOIDCProvider(auth.OIDCConfig{
 		Issuer: o.Issuer, ClientID: o.ClientID, ClientSecret: string(o.ClientSecret), RedirectURL: o.RedirectURL,
-		Client: httpx.NewClient(httpx.Options{Timeout: 15 * time.Second}),
+		Client: client,
 	}, nil)
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
@@ -733,7 +737,10 @@ func webAuthn(cfg *config.Config) auth.WebAuthnConfig {
 // (SRV-064). Their discovery documents and keys are fetched through the
 // SSRF-safe client (SEC-105).
 func trustedIssuers(cfg *config.Config) (map[string]auth.TrustedIssuer, error) {
-	client := httpx.NewClient(httpx.Options{Timeout: 15 * time.Second})
+	client, err := httpx.NewClient(httpx.Options{Destination: httpx.KindCIIssuer, Timeout: 15 * time.Second})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
 	out := map[string]auth.TrustedIssuer{}
 	for _, is := range cfg.Auth.CI.Issuers {
 		v, err := auth.NewVerifier(is.Issuer, client, nil)

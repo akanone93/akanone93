@@ -37,9 +37,13 @@ func (p pushQueue) Enqueue(ctx context.Context, tx pgx.Tx, job push.SendJob) err
 // client refuses private destinations, and the service itself is off until
 // the installation turns it on.
 func buildPush(cfg *config.Config, db *storage.DB, set limits.Set, crypter signing.Crypter, ten *tenancy.Service, work WorkDeps) (*push.Service, error) {
+	client, err := httpx.NewClient(httpx.Options{Destination: httpx.KindPush, Timeout: pushTimeout})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
 	svc, err := push.New(push.Options{
 		DB: db, Crypter: crypter, Secrets: ten, Jobs: pushQueue{work.Queue}, Enabled: cfg.Push.Enabled,
-		HTTP: httpx.NewClient(httpx.Options{Timeout: pushTimeout}), Limits: set, Log: work.Log,
+		HTTP: client, Limits: set, Log: work.Log,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
