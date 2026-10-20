@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plux.dev/schema/v1/reconstruction.schema.json",
+  "title": "Plux reconstruction manifest",
+  "description": "The signed manifest of a reconstruction release: the state of one device at one past moment, which the viewer host opens in reconstruction mode (SEC-142, ADR-0082). Its RFC 8785 canonical JSON is what the signatures cover; it holds no personal data beyond the device identifier and the pseudonymous user reference the history retained.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "specVersion",
+    "id",
+    "app",
+    "environment",
+    "channel",
+    "issuedAt",
+    "moment",
+    "subject",
+    "release",
+    "bundles",
+    "control",
+    "experiments",
+    "presentation"
+  ],
+  "properties": {
+    "type": {
+      "const": "reconstruction"
+    },
+    "specVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "description": "The reconstruction release's identifier."
+    },
+    "app": {
+      "type": "string",
+      "description": "The app's identifier."
+    },
+    "environment": {
+      "type": "string",
+      "description": "The key of the environment the device belongs to."
+    },
+    "channel": {
+      "const": "audit",
+      "description": "The audit channel, which no device is served."
+    },
+    "issuedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the release was made."
+    },
+    "moment": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The reconstructed instant."
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "deviceId"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "device",
+            "user"
+          ],
+          "description": "What the request named."
+        },
+        "deviceId": {
+          "type": "string",
+          "description": "The device the moment was resolved on."
+        },
+        "userRef": {
+          "type": "string",
+          "description": "The host's pseudonymous user identifier; present when the request named a user."
+        }
+      }
+    },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "channel"
+      ],
+      "properties": {
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The sequence of the release the device ran."
+        },
+        "channel": {
+          "type": "string",
+          "description": "The channel the device followed."
+        }
+      }
+    },
+    "bundles": {
+      "type": "array",
+      "description": "The bundles the device held, exactly as shipped, sorted by key; the app bundle has the empty key.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "version",
+          "hash",
+          "size"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "control": {
+      "type": "object",
+      "description": "The control document in force at the moment; version 0 with no switches when the channel had none yet.",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "killSwitches",
+        "mandatoryUpdate",
+        "forcedRollback"
+      ],
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "killSwitches": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "scope",
+              "target"
+            ],
+            "properties": {
+              "scope": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "mandatoryUpdate": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "forcedRollback": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      }
+    },
+    "experiments": {
+      "type": "array",
+      "description": "The experiment assignments in force; empty while no experiment engine records them.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "layer",
+          "variant"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "layer": {
+            "type": "string"
+          },
+          "variant": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "presentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "locale",
+        "deviceClass"
+      ],
+      "properties": {
+        "locale": {
+          "type": "string"
+        },
+        "deviceClass": {
+          "type": "string"
+        },
+        "theme": {
+          "type": "string",
+          "description": "Absent until the host reports one."
+        },
+        "textScalePercent": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Absent until the host reports one; 100 is the default scale."
+        }
+      }
+    },
+    "route": {
+      "type": "string",
+      "description": "The page the device last reported viewing in the release; absent when none was recorded."
+    }
+  }
+}
