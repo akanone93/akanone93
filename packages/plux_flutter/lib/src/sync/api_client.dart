@@ -378,6 +378,24 @@ final class ManifestResponse {
   final ({Uint8List ephemeralPublicKey, Uint8List wrappedKey})? contentKey;
 }
 
+/// A control document response: not modified, or the signed file.
+final class ControlResponse {
+  const ControlResponse._({
+    required this.notModified,
+    required this.etag,
+    this.signed,
+  });
+
+  /// Whether the document matches the ETag the device sent.
+  final bool notModified;
+
+  /// The document's ETag.
+  final String etag;
+
+  /// The signed file, not yet verified.
+  final Uint8List? signed;
+}
+
 /// What a device sends in place of its installed bundles on an
 /// up-to-date check (NFR-006, ADR-0037): the SHA-256 of one line
 /// `<key>:<sha256 hex>\n` per bundle, sorted by key, the app bundle's key
@@ -666,6 +684,41 @@ final class PluxApiClient {
           bundle(p['key']! as String, p['bundle']! as Map<String, Object?>),
       ],
     );
+  }
+
+  /// Fetches the signed control document of [channel] (SYN-060), with the
+  /// ETag of the one the device holds; the answer is not modified, or the
+  /// file to verify. Nothing in it is trusted yet (SEC-052).
+  Future<ControlResponse> signedControl({
+    required DeviceToken token,
+    required String channel,
+    required String ifNoneMatch,
+  }) async {
+    final r = await _call('plux.v1.ManifestService/GetSignedControl', {
+      'channel': channel,
+      'ifNoneMatch': ifNoneMatch,
+    }, token: token);
+    final etag = r['etag'] as String? ?? '';
+    if (r['notModified'] == true) {
+      return ControlResponse._(notModified: true, etag: etag);
+    }
+    final signed = r['signed'];
+    if (signed is! String || signed.isEmpty) {
+      throw const ApiError(200, 'unknown', 'the control document is missing');
+    }
+    try {
+      return ControlResponse._(
+        notModified: false,
+        etag: etag,
+        signed: base64.decode(signed),
+      );
+    } on FormatException {
+      throw const ApiError(
+        200,
+        'unknown',
+        'the control document is not base64',
+      );
+    }
   }
 
   /// Fetches the root files after [sinceRootVersion] and the keys of the

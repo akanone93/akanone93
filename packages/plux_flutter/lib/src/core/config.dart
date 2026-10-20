@@ -183,6 +183,15 @@ typedef PluxErrorHandler = void Function(
   StackTrace? stack,
 );
 
+/// Builds the screen Plux shows in place of every page while a mandatory
+/// update is pending (REL-070): [messageKey] is the translation key the
+/// control document names. The update has already been requested; the
+/// screen only informs, and goes away once the release is active.
+typedef PluxUpdateScreenBuilder = Widget Function(
+  BuildContext context,
+  String messageKey,
+);
+
 /// Builds what Plux shows in place of content it cannot render: a page or
 /// component instance that failed to build (RT-020), a plugin switched off
 /// or failing verification (RT-022), or no release yet.
@@ -222,6 +231,7 @@ final class PluxConfig {
     this.webSocketClient,
     this.onError,
     this.fallbackBuilder,
+    this.updateScreen,
     this.pluginFallbackBuilders = const {},
     this.notFoundBuilder,
     this.navigationDelegate,
@@ -358,6 +368,11 @@ final class PluxConfig {
   /// The app-level fallback (RT-020, RT-022); Plux's themed
   /// `PluxDefaultFallback` when null.
   final PluxFallbackBuilder? fallbackBuilder;
+
+  /// The screen shown in place of every Plux page while a mandatory update
+  /// is pending (REL-070); Plux's simple `PluxDefaultUpdateScreen` when
+  /// null.
+  final PluxUpdateScreenBuilder? updateScreen;
 
   /// Fallbacks for single plugins by plugin key, used instead of
   /// [fallbackBuilder] for that plugin's pages and component instances

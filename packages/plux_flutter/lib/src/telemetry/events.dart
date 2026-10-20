@@ -24,6 +24,7 @@ enum TelemetryCategory {
 /// The category of each catalogued event (ADR-0034 § Consent).
 const Map<String, TelemetryCategory> telemetryCategories = {
   'session_start': TelemetryCategory.necessary,
+  'control_applied': TelemetryCategory.necessary,
   'sync_result': TelemetryCategory.necessary,
   'error': TelemetryCategory.necessary,
   'rasp_detection': TelemetryCategory.necessary,

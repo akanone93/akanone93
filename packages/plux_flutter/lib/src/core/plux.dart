@@ -168,6 +168,15 @@ abstract final class Plux {
   static Future<bool> handlePushPayload(Map<String, Object?> payload) =>
       _rt.handlePushPayload(payload);
 
+  /// Handles the data message of a silent push (SYN-060, Q22): the host's
+  /// push SDK passes the payload of a message that arrived without a
+  /// notification. One that carries the Plux marker (`plux: control`) asks
+  /// for an immediate check of the control document; anything else is none
+  /// of Plux's business and is ignored. Plux ships no push SDK and sends
+  /// nothing itself. Completes with whether a check ran.
+  static Future<bool> handleSilentPush(Map<String, dynamic> payload) =>
+      _rt.handleSilentPush(payload);
+
   /// The typed events plugins emit with `emitHostEvent` (HST-013).
   static Stream<PluxHostEvent> get events => _rt.hostEvents;
 

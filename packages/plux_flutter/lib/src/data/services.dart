@@ -63,7 +63,9 @@ final class DataServices implements DataContext {
     this.gateway,
     this.authoriser,
     bool Function()? allowDirect,
+    bool Function(String sourceId)? disabled,
   }) : _allowDirect = allowDirect ?? (() => true),
+       _disabled = disabled ?? ((_) => false),
        _report = report, // ignore: prefer_initializing_formals
        _assurance = assurance ?? (() => 0),
        _auth = AuthSession(authDelegate),
@@ -71,6 +73,7 @@ final class DataServices implements DataContext {
 
   final int Function() _assurance;
   final bool Function() _allowDirect;
+  final bool Function(String sourceId) _disabled;
 
   @override
   int get assurance => _assurance();
@@ -162,6 +165,7 @@ final class DataServices implements DataContext {
     gateway: gateway,
     authoriser: authoriser,
     allowDirect: _allowDirect,
+    disabled: _disabled,
   );
 
   bool _network = true;

@@ -28,11 +28,13 @@ import 'package:plux_flutter/src/security/content_key.dart';
 import 'package:plux_flutter/src/security/device_keys.dart';
 import 'package:plux_flutter/src/security/pins.dart';
 import 'package:plux_flutter/src/security/security_config.dart';
+import 'package:plux_flutter/src/store/control_store.dart';
 import 'package:plux_flutter/src/store/kv_store.dart' show SecretStore;
 import 'package:plux_flutter/src/store/metadata_state.dart';
 import 'package:plux_flutter/src/store/release_record.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
+import 'package:plux_flutter/src/sync/control_sync.dart';
 import 'package:plux_flutter/src/sync/device_auth.dart';
 import 'package:plux_flutter/src/sync/downloader.dart';
 import 'package:plux_flutter/src/sync/gateway_agent.dart';
@@ -211,6 +213,16 @@ final class SyncEngine {
       production: config.production,
       clock: _clock,
     );
+    _control = ControlSync(
+      api: api,
+      metadata: _metadata,
+      releases: store,
+      documents: ControlDocumentStore(store.root),
+      limits: config.verifierLimits,
+      channel: config.channel,
+      token: _auth.token,
+      clock: _clock,
+    );
   }
 
   /// The configuration.
@@ -244,6 +256,7 @@ final class SyncEngine {
   /// (SEC-030).
   late final GatewayAgent gateway;
   late final MetadataSync _metadata;
+  late final ControlSync _control;
   final SecurityConfigStore? _configs;
 
   /// The settings in force: the verified stored configuration, or the
@@ -258,6 +271,11 @@ final class SyncEngine {
       : stored == null
       ? SecuritySettings.builtIn
       : SecuritySettings.fromDocument(stored.document, version: stored.version);
+
+  /// Fetches the signed control document once (SYN-060) and carries out the
+  /// forced rollback it orders. Never throws; runs beside a sync, since it
+  /// shares only the token and the metadata state.
+  Future<ControlOutcome> checkControl() => _control.check();
 
   /// Syncs once, reporting [SyncEvent]s to [emit]. Never throws: a failure
   /// is a [SyncResult] with [SyncOutcome.failed], and the active release

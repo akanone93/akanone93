@@ -28,14 +28,13 @@ import 'package:plux_flutter/src/verify/update_metadata.dart';
 
 /// What a verified chain yields.
 final class MetadataTrust {
-  const MetadataTrust._(this.targetsKeys, this._state, this._floor);
+  const MetadataTrust._(this.targetsKeys, this._floor);
 
   /// The keys the verified root lists for the targets role, in the form the
   /// manifest verifier takes: after a rotation they replace the embedded
   /// ones.
   final List<TrustedKey> targetsKeys;
 
-  final MetadataState _state;
   final MetadataFloor _floor;
 }
 
@@ -144,7 +143,7 @@ final class MetadataSync {
           targets: targets.version,
         );
       });
-      return MetadataTrust._(_targetsKeys(trusted.root), trusted.state, floor);
+      return MetadataTrust._(_targetsKeys(trusted.root), floor);
     });
   }
 
@@ -177,12 +176,43 @@ final class MetadataSync {
     );
   }
 
-  /// Records the versions of a chain whose manifest has been accepted, so
-  /// that nothing older is accepted later (SEC-050).
-  void commit(MetadataTrust trust) {
+  /// Verifies a control document file of [channel] under the trusted root
+  /// (SYN-060, SEC-052), following the root chain first when the keys are
+  /// not known or have rotated. Throws `PLX-3100`, `PLX-3101` or
+  /// `PLX-3102`; nothing of the document is read before the signature
+  /// holds. A version is trusted only once [commitControl] records it.
+  Future<ControlEnvelope> verifyControl(
+    DeviceToken token,
+    Uint8List raw,
+    String channel,
+  ) => _underRoot(token, store.read(), 0, (trusted, now) {
+    checkRootUnexpired(trusted.root, now);
+    return MetadataVerifier(
+      root: trusted.root,
+      now: now,
+      production: production,
+      keyEnvironments: trusted.state.keyEnvironments,
+      floor: trusted.state.floor,
+    ).control(raw, ControlScope(appId, environment, channel));
+  });
+
+  /// Records that control document [version] has been verified and read,
+  /// so that nothing older is accepted later (`PLX-3102`).
+  void commitControl(int version) {
+    final latest = store.read();
     store.write(
-      trust._state.copyWith(floor: trust._state.floor.raisedTo(trust._floor)),
+      latest.copyWith(
+        floor: latest.floor.raisedTo(MetadataFloor(control: version)),
+      ),
     );
+  }
+
+  /// Records the versions of a chain whose manifest has been accepted, so
+  /// that nothing older is accepted later (SEC-050). The state is read
+  /// again: a control document may have raised its own floor meanwhile.
+  void commit(MetadataTrust trust) {
+    final latest = store.read();
+    store.write(latest.copyWith(floor: latest.floor.raisedTo(trust._floor)));
   }
 
   /// Runs [action] under the trusted root, first following the root chain

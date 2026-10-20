@@ -23,6 +23,7 @@ export 'src/core/config.dart'
         PluxFallbackBuilder,
         PluxPublicKey,
         PluxThemeSource,
+        PluxUpdateScreenBuilder,
         PluxUser,
         StartupPolicy;
 export 'src/core/fallback.dart' show PluxDefaultFallback;
@@ -30,6 +31,7 @@ export 'src/core/host_events.dart' show PluxHostEvent;
 export 'src/core/plux.dart' show Plux, PluxScope, PluxSyncTile;
 export 'src/core/plux_view.dart' show PluxView, PluxViewEvent, PluxViewSizing;
 export 'src/core/runtime.dart' show PluxStartup;
+export 'src/core/update_screen.dart' show PluxDefaultUpdateScreen;
 export 'src/db/adapter.dart'
     show DbMigrationOutcome, DbOperations, PluxDatabaseAdapter, kvTypeOf;
 export 'src/db/memory_adapter.dart' show MemoryDatabaseAdapter;

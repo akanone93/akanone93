@@ -31,6 +31,7 @@ import 'package:plux_flutter/src/store/kv_store.dart' show SecretStore;
 import 'package:plux_flutter/src/store/pointer.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
+import 'package:plux_flutter/src/sync/control_sync.dart';
 import 'package:plux_flutter/src/sync/downloader.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
@@ -100,6 +101,11 @@ sealed class _Command {
 
 final class _Sync extends _Command {
   const _Sync(super.reply);
+}
+
+/// Checks the signed control document once (SYN-060).
+final class _Control extends _Command {
+  const _Control(super.reply);
 }
 
 final class _Store extends _Command {
@@ -284,6 +290,12 @@ final class SyncWorker
     _commands.send(_Sync(port.sendPort));
     return _running = done.future.whenComplete(() => _running = null);
   }
+
+  /// Fetches, verifies and keeps the signed control document, and carries
+  /// out the forced rollback it orders (SYN-060, REL-060). It does not wait
+  /// for a sync that is running. Never throws.
+  Future<ControlOutcome> control() async =>
+      await _ask(_Control.new) as ControlOutcome;
 
   /// Imports the embedded baseline; the sequence, or null.
   ///
@@ -646,6 +658,8 @@ Future<void> _main((SyncWorkerConfig, SendPort) args) async {
             ),
           ),
         );
+      case _Control(:final reply):
+        track(_serve(reply, engine.checkControl));
       case _ReadConfig(:final reply, :final key):
         track(_serve(reply, () => engine.gateway.live.read(key)));
       case _EnrolSca(:final reply):
