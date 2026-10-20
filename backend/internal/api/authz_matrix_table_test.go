@@ -281,6 +281,23 @@ var matrix = map[string]entry{
 		return &pluxv1.DeleteGrantRequest{Id: unknownID}
 	})),
 
+	// SearchService
+	"SearchService/Search": atPerm(auth.SearchRead, anyone(&pluxv1.SearchRequest{Query: "demo"})),
+
+	// GitExportService
+	"GitExportService/GetSettings": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetGitSettingsRequest{AppId: f.app}
+	})),
+	"GitExportService/ConfigureExport": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ConfigureGitExportRequest{Settings: &pluxv1.GitSettings{AppId: f.app, RemoteUrl: "not a url"}}
+	})),
+	"GitExportService/ListExports": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListGitExportsRequest{AppId: f.app}
+	})),
+	"GitExportService/RunExport": atPerm(auth.GitExport, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.RunGitExportRequest{AppId: f.app}
+	})),
+
 	// GoldenService
 	"GoldenService/GetBaselines": atPerm(auth.PluginRead, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.GetBaselinesRequest{AppId: f.app}

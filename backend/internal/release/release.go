@@ -62,6 +62,12 @@ type Enqueuer interface {
 	Enqueue(ctx context.Context, tx pgx.Tx, job Work) error
 }
 
+// Published follows a recorded version. summary says what was published
+// and actorID and actor who published it. *gitsync.Service is one.
+type Published interface {
+	Published(ctx context.Context, tx pgx.Tx, organizationID, appID, versionID, summary, actorID, actor string) error
+}
+
 // Devices counts the registered devices of an app that cannot use a
 // release, for REL-080: by runtime, or by host build; nil counts none.
 type Devices interface {
@@ -125,6 +131,11 @@ type Options struct {
 	DevelopmentDays int
 	// Metadata configures the update metadata roles (SEC-050).
 	Metadata MetadataOptions
+	// Published is told of every version a publish records, in the
+	// transaction that records it, so that work which follows a publish,
+	// such as the Git export (GOV-011), is queued with it or not at all.
+	// Nil does nothing.
+	Published Published
 	// Now is the clock; nil uses time.Now.
 	Now func() time.Time
 }

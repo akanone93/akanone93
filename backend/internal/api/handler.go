@@ -20,11 +20,13 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
+	"github.com/nightCode42/plux3/backend/internal/gitsync"
 	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/localisation"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
+	"github.com/nightCode42/plux3/backend/internal/search"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
 	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
@@ -43,10 +45,15 @@ type Handlers struct {
 	// unmounted.
 	Translations *localisation.Service
 	// Goldens serves GoldenService (TST-003); nil leaves it unmounted.
-	Goldens  *golden.Service
-	Releases *release.Service
-	Devices  *device.Service
-	Events   *telemetry.Service
+	Goldens *golden.Service
+	// Searches serves SearchService (SRV-061); nil leaves it unmounted.
+	Searches *search.Service
+	// GitExports serves GitExportService (GOV-011); nil leaves it
+	// unmounted.
+	GitExports *gitsync.Service
+	Releases   *release.Service
+	Devices    *device.Service
+	Events     *telemetry.Service
 	// SecurityConfig serves SecurityAdminService (SEC-182); nil leaves
 	// the service unmounted.
 	SecurityConfig *seccfg.Service
