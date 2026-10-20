@@ -12,6 +12,7 @@ import (
 	"testing/fstest"
 
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/pxl"
 	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 )
@@ -78,7 +79,9 @@ type promoter struct {
 	key, winner string
 	// props are the winner's value of each declared prop, as PXL source.
 	props map[string]string
-	diags plxerr.Diagnostics
+	// maxDepth bounds the syntax tree of an expression it rewrites.
+	maxDepth int
+	diags    plxerr.Diagnostics
 }
 
 // newPromoter finds the experiment and its winner and returns the file of
@@ -104,7 +107,7 @@ func newPromoter(project *schema.Project, key, winner string) (*promoter, string
 		d := plxerr.NewDiagnostic(plxerr.WinnerNotAVariant, plxerr.Location{File: exp.Source.File, Path: "/variants"}, "%q is not a variant of experiment %q", winner, key)
 		return nil, "", &d
 	}
-	p := &promoter{key: key, winner: winner, props: map[string]string{}}
+	p := &promoter{key: key, winner: winner, props: map[string]string{}, maxDepth: int(limits.Defaults().Get(limits.PXLNestingDepth))}
 	for i, prop := range exp.Doc.Props {
 		lit, ok := pxlLiteral(prop.Type, won.Props[prop.Name])
 		if !ok {
@@ -177,85 +180,29 @@ func (p *promoter) arm(m map[string]any) (any, bool) {
 }
 
 // inline replaces the bindings of the experiment in a PXL expression by
-// constants. It skips string literals and member names of other paths.
+// constants: `experiment.<key>.<prop>` by the winner's declared prop value
+// and `experiment.<key>` by the winner's name. The expression is parsed, so
+// string literals and other paths are left alone; one the parser refuses is
+// returned unchanged (the loader has accepted it, so that does not happen).
 func (p *promoter) inline(src string) string {
-	var b strings.Builder
-	for i := 0; i < len(src); {
-		c := src[i]
-		switch {
-		case c == '"' || c == '\'':
-			j := skipString(src, i)
-			b.WriteString(src[i:j])
-			i = j
-		case isIdentStart(c) && (i == 0 || !isIdentByte(src[i-1]) && src[i-1] != '.'):
-			j := identEnd(src, i)
-			if src[i:j] == "experiment" {
-				if lit, end, ok := p.binding(src, j); ok {
-					b.WriteString(lit)
-					i = end
-					continue
-				}
-			}
-			b.WriteString(src[i:j])
-			i = j
+	out, err := pxl.ReplaceMembers(src, "experiment", p.maxDepth, func(path []string) (string, bool) {
+		if path[0] != p.key {
+			return "", false
+		}
+		switch len(path) {
+		case 1:
+			return strconv.Quote(p.winner), true
+		case 2:
+			lit, declared := p.props[path[1]]
+			return lit, declared
 		default:
-			b.WriteByte(c)
-			i++
+			return "", false
 		}
+	})
+	if err != nil {
+		return src
 	}
-	return b.String()
-}
-
-// binding reads `.<key>` and an optional `.<prop>` after the root
-// `experiment` that ends at pos, and returns the constant that replaces
-// them and where they end.
-func (p *promoter) binding(src string, pos int) (string, int, bool) {
-	key, end, ok := memberAfter(src, pos)
-	if !ok || key != p.key {
-		return "", 0, false
-	}
-	prop, propEnd, ok := memberAfter(src, end)
-	if ok && !strings.HasPrefix(src[propEnd:], "(") {
-		if lit, declared := p.props[prop]; declared {
-			return lit, propEnd, true
-		}
-	}
-	return strconv.Quote(p.winner), end, true
-}
-
-// memberAfter reads `.name` at pos.
-func memberAfter(src string, pos int) (string, int, bool) {
-	if pos >= len(src) || src[pos] != '.' || pos+1 >= len(src) || !isIdentStart(src[pos+1]) {
-		return "", 0, false
-	}
-	end := identEnd(src, pos+1)
-	return src[pos+1 : end], end, true
-}
-
-// skipString returns the index after the string literal that starts at i.
-func skipString(src string, i int) int {
-	quote := src[i]
-	for j := i + 1; j < len(src); j++ {
-		switch src[j] {
-		case '\\':
-			j++
-		case quote:
-			return j + 1
-		}
-	}
-	return len(src)
-}
-
-func isIdentStart(c byte) bool { return c == '_' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' }
-
-func isIdentByte(c byte) bool { return isIdentStart(c) || c >= '0' && c <= '9' }
-
-// identEnd returns the index after the identifier that starts at i.
-func identEnd(src string, i int) int {
-	for i < len(src) && isIdentByte(src[i]) {
-		i++
-	}
-	return i
+	return out
 }
 
 // pxlLiteral writes a prop value as a PXL constant. It handles the types

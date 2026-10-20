@@ -86,7 +86,7 @@ func TestPromoteWinnerIsPureAndDeterministic_ABT_005(t *testing.T) {
 // Verifies: ABT-005.
 func TestPromoteInlinesBindings_ABT_005(t *testing.T) {
 	t.Parallel()
-	p := &promoter{key: "ctaLabel", winner: "bold", props: map[string]string{"label": `"Buy now"`, "n": "(-2)"}}
+	p := &promoter{key: "ctaLabel", winner: "bold", props: map[string]string{"label": `"Buy now"`, "n": "(-2)"}, maxDepth: 64}
 	tests := []struct{ in, want string }{
 		{`experiment.ctaLabel`, `"bold"`},
 		{`experiment.ctaLabel.label`, `"Buy now"`},
@@ -98,6 +98,9 @@ func TestPromoteInlinesBindings_ABT_005(t *testing.T) {
 		{`myexperiment.ctaLabel`, `myexperiment.ctaLabel`},
 		{`experiment.ctaLabels`, `experiment.ctaLabels`},
 		{`'it\'s ' + experiment.ctaLabel`, `'it\'s ' + "bold"`},
+		{`items.map(x, x + experiment.ctaLabel.label)`, `items.map(x, x + "Buy now")`},
+		{`experiment.ctaLabel == "bold" ? 1 : experiment.ctaLabel.n`, `"bold" == "bold" ? 1 : (-2)`},
+		{`experiment.ctaLabel +`, `experiment.ctaLabel +`},
 	}
 	for _, tc := range tests {
 		if got := p.inline(tc.in); got != tc.want {
