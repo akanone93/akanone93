@@ -34,6 +34,7 @@ func (f *fixture) principalOf(t *testing.T, email, org string) auth.Principal {
 		t.Fatalf("Resolve(%s): %v", email, err)
 	}
 	p.SecondFactor = true
+	p.Identity = p.WithStepUp(0)
 	return p
 }
 

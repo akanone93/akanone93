@@ -337,12 +337,20 @@ func (s *Service) CompleteWebAuthnLogin(ctx context.Context, challengeSecret str
 // advances its counter; the challenge is used once either way.
 func (s *Service) assertionMatches(ctx context.Context, q *dbgen.Queries, c dbgen.MfaChallenge, a WebAuthnAssertion) bool {
 	defer func() { _ = q.SetChallengeWebAuthn(ctx, dbgen.SetChallengeWebAuthnParams{ID: c.ID}) }()
-	f, err := q.GetFactorByCredentialForUpdate(ctx, dbgen.GetFactorByCredentialForUpdateParams{CredentialID: a.CredentialID, UserID: c.UserID})
+	return s.verifyUserAssertion(ctx, q, c.UserID, c.WebauthnChallenge, a, false)
+}
+
+// verifyUserAssertion verifies an assertion against one of the user's
+// confirmed security keys and advances the key's counter. With requireUV the
+// authenticator must also report that it verified the user (a PIN or a
+// biometric), which a step-up needs and a sign-in does not (SEC-103).
+func (s *Service) verifyUserAssertion(ctx context.Context, q *dbgen.Queries, user pgtype.UUID, challenge []byte, a WebAuthnAssertion, requireUV bool) bool {
+	f, err := q.GetFactorByCredentialForUpdate(ctx, dbgen.GetFactorByCredentialForUpdateParams{CredentialID: a.CredentialID, UserID: user})
 	if err != nil {
 		return false
 	}
 	stored := uint32(min(max(f.LastCounter, 0), int64(^uint32(0)))) //nolint:gosec // clamped to uint32
-	count, err := s.o.WebAuthn.verifyAssertion(c.WebauthnChallenge, f.PublicKey, stored, a.ClientDataJSON, a.AuthenticatorData, a.Signature)
+	count, err := s.o.WebAuthn.verifyAssertion(challenge, f.PublicKey, stored, a.ClientDataJSON, a.AuthenticatorData, a.Signature, requireUV)
 	if err != nil {
 		return false
 	}

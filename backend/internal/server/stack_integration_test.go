@@ -199,7 +199,7 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 	if _, err := svc.Auth.AcceptInvitation(ctx, invitation, "Admin", "correct horse battery"); err != nil {
 		t.Fatal(err)
 	}
-	id := auth.Identity{Kind: auth.KindUser, ID: user.ID, UserID: user.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}
+	id := auth.Identity{Kind: auth.KindUser, ID: user.ID, UserID: user.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
 	org, err := svc.Tenancy.CreateOrganization(ctx, id, "acme", "Acme")
 	if err != nil {
 		t.Fatal(err)

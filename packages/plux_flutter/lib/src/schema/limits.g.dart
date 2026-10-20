@@ -90,6 +90,15 @@ enum PluxLimit {
   /// Failed passwords or one-time codes one account may present in fifteen
   /// minutes before sign-in is refused.
   authFailedSignIns('auth.failedSignIns', PluxLimitUnit.count, 10, 0, 1000),
+  /// Time after sign-in at which a browser session ends however active it is;
+  /// an organisation may shorten it.
+  authSessionAbsoluteTimeout('auth.sessionAbsoluteTimeout', PluxLimitUnit.milliseconds, 43200000, 0, 2592000000),
+  /// Time without a request after which a browser session ends; an organisation
+  /// may shorten it.
+  authSessionIdleTimeout('auth.sessionIdleTimeout', PluxLimitUnit.milliseconds, 1800000, 0, 86400000),
+  /// Ceremonies one step-up request accepts before it is closed; each wrong
+  /// assertion uses one.
+  authStepUpAttempts('auth.stepUpAttempts', PluxLimitUnit.count, 5, 0, 20),
   /// Size of the WebAssembly module of the device-placed functions of one
   /// plugin.
   bundleDeviceFunctionModuleSize('bundle.deviceFunctionModuleSize', PluxLimitUnit.bytes, 4194304, 0, 67108864),

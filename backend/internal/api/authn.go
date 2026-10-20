@@ -37,19 +37,17 @@ type Authenticator interface {
 	AuthenticateToken(ctx context.Context, secret string) (auth.Identity, error)
 }
 
-// identityKey carries the caller's identity in a context.
-type identityKey struct{}
-
-// IdentityFrom returns the authenticated caller, when there is one.
+// IdentityFrom returns the authenticated caller, when there is one. The
+// context key belongs to the auth package, so that auth.RequireStepUp reads
+// the same caller (SEC-103).
 func IdentityFrom(ctx context.Context) (auth.Identity, bool) {
-	id, ok := ctx.Value(identityKey{}).(auth.Identity)
-	return id, ok
+	return auth.IdentityFrom(ctx)
 }
 
 // WithIdentity returns a context carrying an identity, for tests and
 // for calls the server makes on its own behalf.
 func WithIdentity(ctx context.Context, id auth.Identity) context.Context {
-	return context.WithValue(ctx, identityKey{}, id)
+	return auth.WithIdentity(ctx, id)
 }
 
 // Authentication resolves the caller's credential and puts the identity

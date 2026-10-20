@@ -22,6 +22,8 @@ type AccessToken struct {
 	ExpiresAt      pgtype.Timestamptz
 	LastUsedAt     pgtype.Timestamptz
 	RevokedAt      pgtype.Timestamptz
+	LastIpPrefix   string
+	LastUserAgent  string
 }
 
 type App struct {
@@ -882,14 +884,19 @@ type SecurityConfigVersion struct {
 }
 
 type Session struct {
-	ID         pgtype.UUID
-	UserID     pgtype.UUID
-	SecretHash []byte
-	CsrfToken  string
-	MfaAt      pgtype.Timestamptz
-	CreatedAt  pgtype.Timestamptz
-	ExpiresAt  pgtype.Timestamptz
-	RevokedAt  pgtype.Timestamptz
+	ID            pgtype.UUID
+	UserID        pgtype.UUID
+	SecretHash    []byte
+	CsrfToken     string
+	MfaAt         pgtype.Timestamptz
+	CreatedAt     pgtype.Timestamptz
+	ExpiresAt     pgtype.Timestamptz
+	RevokedAt     pgtype.Timestamptz
+	LastSeenAt    pgtype.Timestamptz
+	StepUpAt      pgtype.Timestamptz
+	IpPrefix      string
+	UserAgent     string
+	IdleTimeoutMs *int64
 }
 
 type Snapshot struct {
@@ -914,6 +921,25 @@ type SnapshotDocument struct {
 	Kind           string
 	Sha256         []byte
 	Carried        bool
+}
+
+type StepUpRequest struct {
+	ID             pgtype.UUID
+	UserID         pgtype.UUID
+	OrganizationID pgtype.UUID
+	Kind           string
+	SessionID      pgtype.UUID
+	TokenID        pgtype.UUID
+	Jkt            string
+	SecretHash     []byte
+	Challenge      []byte
+	Attempts       int32
+	State          string
+	ApprovedAt     pgtype.Timestamptz
+	GrantHash      []byte
+	GrantExpiresAt pgtype.Timestamptz
+	CreatedAt      pgtype.Timestamptz
+	ExpiresAt      pgtype.Timestamptz
 }
 
 type Team struct {
