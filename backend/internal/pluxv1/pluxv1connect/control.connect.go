@@ -42,12 +42,52 @@ const (
 	// ControlServiceSetControlProcedure is the fully-qualified name of the ControlService's SetControl
 	// RPC.
 	ControlServiceSetControlProcedure = "/plux.v1.ControlService/SetControl"
+	// ControlServiceGetControlDocumentProcedure is the fully-qualified name of the ControlService's
+	// GetControlDocument RPC.
+	ControlServiceGetControlDocumentProcedure = "/plux.v1.ControlService/GetControlDocument"
+	// ControlServiceSetKillSwitchProcedure is the fully-qualified name of the ControlService's
+	// SetKillSwitch RPC.
+	ControlServiceSetKillSwitchProcedure = "/plux.v1.ControlService/SetKillSwitch"
+	// ControlServiceClearKillSwitchProcedure is the fully-qualified name of the ControlService's
+	// ClearKillSwitch RPC.
+	ControlServiceClearKillSwitchProcedure = "/plux.v1.ControlService/ClearKillSwitch"
+	// ControlServiceSetMandatoryUpdateProcedure is the fully-qualified name of the ControlService's
+	// SetMandatoryUpdate RPC.
+	ControlServiceSetMandatoryUpdateProcedure = "/plux.v1.ControlService/SetMandatoryUpdate"
+	// ControlServiceClearMandatoryUpdateProcedure is the fully-qualified name of the ControlService's
+	// ClearMandatoryUpdate RPC.
+	ControlServiceClearMandatoryUpdateProcedure = "/plux.v1.ControlService/ClearMandatoryUpdate"
+	// ControlServiceSetForcedRollbackProcedure is the fully-qualified name of the ControlService's
+	// SetForcedRollback RPC.
+	ControlServiceSetForcedRollbackProcedure = "/plux.v1.ControlService/SetForcedRollback"
+	// ControlServiceClearForcedRollbackProcedure is the fully-qualified name of the ControlService's
+	// ClearForcedRollback RPC.
+	ControlServiceClearForcedRollbackProcedure = "/plux.v1.ControlService/ClearForcedRollback"
 )
 
 // ControlServiceClient is a client for the plux.v1.ControlService service.
 type ControlServiceClient interface {
 	GetControl(context.Context, *connect.Request[pluxv1.GetControlRequest]) (*connect.Response[pluxv1.GetControlResponse], error)
 	SetControl(context.Context, *connect.Request[pluxv1.SetControlRequest]) (*connect.Response[pluxv1.SetControlResponse], error)
+	// GetControlDocument returns a channel's signed control document as the
+	// operator sees it: its newest version, which may still wait for its
+	// signature, the switches it carries and the expiry of the signed one
+	// (REL-060).
+	GetControlDocument(context.Context, *connect.Request[pluxv1.GetControlDocumentRequest]) (*connect.Response[pluxv1.GetControlDocumentResponse], error)
+	// SetKillSwitch switches one plugin, page, action graph, data source or
+	// function off for a channel's devices (REL-060). Setting a switch that
+	// is on changes nothing.
+	SetKillSwitch(context.Context, *connect.Request[pluxv1.SetKillSwitchRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error)
+	// ClearKillSwitch switches it back on.
+	ClearKillSwitch(context.Context, *connect.Request[pluxv1.ClearKillSwitchRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error)
+	// SetMandatoryUpdate makes a release mandatory (REL-070).
+	SetMandatoryUpdate(context.Context, *connect.Request[pluxv1.SetMandatoryUpdateRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error)
+	// ClearMandatoryUpdate withdraws the mandatory update.
+	ClearMandatoryUpdate(context.Context, *connect.Request[pluxv1.ClearMandatoryUpdateRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error)
+	// SetForcedRollback directs devices to an earlier release they retain.
+	SetForcedRollback(context.Context, *connect.Request[pluxv1.SetForcedRollbackRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error)
+	// ClearForcedRollback withdraws the forced rollback.
+	ClearForcedRollback(context.Context, *connect.Request[pluxv1.ClearForcedRollbackRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error)
 }
 
 // NewControlServiceClient constructs a client for the plux.v1.ControlService service. By default,
@@ -73,13 +113,62 @@ func NewControlServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(controlServiceMethods.ByName("SetControl")),
 			connect.WithClientOptions(opts...),
 		),
+		getControlDocument: connect.NewClient[pluxv1.GetControlDocumentRequest, pluxv1.GetControlDocumentResponse](
+			httpClient,
+			baseURL+ControlServiceGetControlDocumentProcedure,
+			connect.WithSchema(controlServiceMethods.ByName("GetControlDocument")),
+			connect.WithClientOptions(opts...),
+		),
+		setKillSwitch: connect.NewClient[pluxv1.SetKillSwitchRequest, pluxv1.ControlDocumentResponse](
+			httpClient,
+			baseURL+ControlServiceSetKillSwitchProcedure,
+			connect.WithSchema(controlServiceMethods.ByName("SetKillSwitch")),
+			connect.WithClientOptions(opts...),
+		),
+		clearKillSwitch: connect.NewClient[pluxv1.ClearKillSwitchRequest, pluxv1.ControlDocumentResponse](
+			httpClient,
+			baseURL+ControlServiceClearKillSwitchProcedure,
+			connect.WithSchema(controlServiceMethods.ByName("ClearKillSwitch")),
+			connect.WithClientOptions(opts...),
+		),
+		setMandatoryUpdate: connect.NewClient[pluxv1.SetMandatoryUpdateRequest, pluxv1.ControlDocumentResponse](
+			httpClient,
+			baseURL+ControlServiceSetMandatoryUpdateProcedure,
+			connect.WithSchema(controlServiceMethods.ByName("SetMandatoryUpdate")),
+			connect.WithClientOptions(opts...),
+		),
+		clearMandatoryUpdate: connect.NewClient[pluxv1.ClearMandatoryUpdateRequest, pluxv1.ControlDocumentResponse](
+			httpClient,
+			baseURL+ControlServiceClearMandatoryUpdateProcedure,
+			connect.WithSchema(controlServiceMethods.ByName("ClearMandatoryUpdate")),
+			connect.WithClientOptions(opts...),
+		),
+		setForcedRollback: connect.NewClient[pluxv1.SetForcedRollbackRequest, pluxv1.ControlDocumentResponse](
+			httpClient,
+			baseURL+ControlServiceSetForcedRollbackProcedure,
+			connect.WithSchema(controlServiceMethods.ByName("SetForcedRollback")),
+			connect.WithClientOptions(opts...),
+		),
+		clearForcedRollback: connect.NewClient[pluxv1.ClearForcedRollbackRequest, pluxv1.ControlDocumentResponse](
+			httpClient,
+			baseURL+ControlServiceClearForcedRollbackProcedure,
+			connect.WithSchema(controlServiceMethods.ByName("ClearForcedRollback")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // controlServiceClient implements ControlServiceClient.
 type controlServiceClient struct {
-	getControl *connect.Client[pluxv1.GetControlRequest, pluxv1.GetControlResponse]
-	setControl *connect.Client[pluxv1.SetControlRequest, pluxv1.SetControlResponse]
+	getControl           *connect.Client[pluxv1.GetControlRequest, pluxv1.GetControlResponse]
+	setControl           *connect.Client[pluxv1.SetControlRequest, pluxv1.SetControlResponse]
+	getControlDocument   *connect.Client[pluxv1.GetControlDocumentRequest, pluxv1.GetControlDocumentResponse]
+	setKillSwitch        *connect.Client[pluxv1.SetKillSwitchRequest, pluxv1.ControlDocumentResponse]
+	clearKillSwitch      *connect.Client[pluxv1.ClearKillSwitchRequest, pluxv1.ControlDocumentResponse]
+	setMandatoryUpdate   *connect.Client[pluxv1.SetMandatoryUpdateRequest, pluxv1.ControlDocumentResponse]
+	clearMandatoryUpdate *connect.Client[pluxv1.ClearMandatoryUpdateRequest, pluxv1.ControlDocumentResponse]
+	setForcedRollback    *connect.Client[pluxv1.SetForcedRollbackRequest, pluxv1.ControlDocumentResponse]
+	clearForcedRollback  *connect.Client[pluxv1.ClearForcedRollbackRequest, pluxv1.ControlDocumentResponse]
 }
 
 // GetControl calls plux.v1.ControlService.GetControl.
@@ -92,10 +181,64 @@ func (c *controlServiceClient) SetControl(ctx context.Context, req *connect.Requ
 	return c.setControl.CallUnary(ctx, req)
 }
 
+// GetControlDocument calls plux.v1.ControlService.GetControlDocument.
+func (c *controlServiceClient) GetControlDocument(ctx context.Context, req *connect.Request[pluxv1.GetControlDocumentRequest]) (*connect.Response[pluxv1.GetControlDocumentResponse], error) {
+	return c.getControlDocument.CallUnary(ctx, req)
+}
+
+// SetKillSwitch calls plux.v1.ControlService.SetKillSwitch.
+func (c *controlServiceClient) SetKillSwitch(ctx context.Context, req *connect.Request[pluxv1.SetKillSwitchRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+	return c.setKillSwitch.CallUnary(ctx, req)
+}
+
+// ClearKillSwitch calls plux.v1.ControlService.ClearKillSwitch.
+func (c *controlServiceClient) ClearKillSwitch(ctx context.Context, req *connect.Request[pluxv1.ClearKillSwitchRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+	return c.clearKillSwitch.CallUnary(ctx, req)
+}
+
+// SetMandatoryUpdate calls plux.v1.ControlService.SetMandatoryUpdate.
+func (c *controlServiceClient) SetMandatoryUpdate(ctx context.Context, req *connect.Request[pluxv1.SetMandatoryUpdateRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+	return c.setMandatoryUpdate.CallUnary(ctx, req)
+}
+
+// ClearMandatoryUpdate calls plux.v1.ControlService.ClearMandatoryUpdate.
+func (c *controlServiceClient) ClearMandatoryUpdate(ctx context.Context, req *connect.Request[pluxv1.ClearMandatoryUpdateRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+	return c.clearMandatoryUpdate.CallUnary(ctx, req)
+}
+
+// SetForcedRollback calls plux.v1.ControlService.SetForcedRollback.
+func (c *controlServiceClient) SetForcedRollback(ctx context.Context, req *connect.Request[pluxv1.SetForcedRollbackRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+	return c.setForcedRollback.CallUnary(ctx, req)
+}
+
+// ClearForcedRollback calls plux.v1.ControlService.ClearForcedRollback.
+func (c *controlServiceClient) ClearForcedRollback(ctx context.Context, req *connect.Request[pluxv1.ClearForcedRollbackRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+	return c.clearForcedRollback.CallUnary(ctx, req)
+}
+
 // ControlServiceHandler is an implementation of the plux.v1.ControlService service.
 type ControlServiceHandler interface {
 	GetControl(context.Context, *connect.Request[pluxv1.GetControlRequest]) (*connect.Response[pluxv1.GetControlResponse], error)
 	SetControl(context.Context, *connect.Request[pluxv1.SetControlRequest]) (*connect.Response[pluxv1.SetControlResponse], error)
+	// GetControlDocument returns a channel's signed control document as the
+	// operator sees it: its newest version, which may still wait for its
+	// signature, the switches it carries and the expiry of the signed one
+	// (REL-060).
+	GetControlDocument(context.Context, *connect.Request[pluxv1.GetControlDocumentRequest]) (*connect.Response[pluxv1.GetControlDocumentResponse], error)
+	// SetKillSwitch switches one plugin, page, action graph, data source or
+	// function off for a channel's devices (REL-060). Setting a switch that
+	// is on changes nothing.
+	SetKillSwitch(context.Context, *connect.Request[pluxv1.SetKillSwitchRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error)
+	// ClearKillSwitch switches it back on.
+	ClearKillSwitch(context.Context, *connect.Request[pluxv1.ClearKillSwitchRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error)
+	// SetMandatoryUpdate makes a release mandatory (REL-070).
+	SetMandatoryUpdate(context.Context, *connect.Request[pluxv1.SetMandatoryUpdateRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error)
+	// ClearMandatoryUpdate withdraws the mandatory update.
+	ClearMandatoryUpdate(context.Context, *connect.Request[pluxv1.ClearMandatoryUpdateRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error)
+	// SetForcedRollback directs devices to an earlier release they retain.
+	SetForcedRollback(context.Context, *connect.Request[pluxv1.SetForcedRollbackRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error)
+	// ClearForcedRollback withdraws the forced rollback.
+	ClearForcedRollback(context.Context, *connect.Request[pluxv1.ClearForcedRollbackRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error)
 }
 
 // NewControlServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -117,12 +260,68 @@ func NewControlServiceHandler(svc ControlServiceHandler, opts ...connect.Handler
 		connect.WithSchema(controlServiceMethods.ByName("SetControl")),
 		connect.WithHandlerOptions(opts...),
 	)
+	controlServiceGetControlDocumentHandler := connect.NewUnaryHandler(
+		ControlServiceGetControlDocumentProcedure,
+		svc.GetControlDocument,
+		connect.WithSchema(controlServiceMethods.ByName("GetControlDocument")),
+		connect.WithHandlerOptions(opts...),
+	)
+	controlServiceSetKillSwitchHandler := connect.NewUnaryHandler(
+		ControlServiceSetKillSwitchProcedure,
+		svc.SetKillSwitch,
+		connect.WithSchema(controlServiceMethods.ByName("SetKillSwitch")),
+		connect.WithHandlerOptions(opts...),
+	)
+	controlServiceClearKillSwitchHandler := connect.NewUnaryHandler(
+		ControlServiceClearKillSwitchProcedure,
+		svc.ClearKillSwitch,
+		connect.WithSchema(controlServiceMethods.ByName("ClearKillSwitch")),
+		connect.WithHandlerOptions(opts...),
+	)
+	controlServiceSetMandatoryUpdateHandler := connect.NewUnaryHandler(
+		ControlServiceSetMandatoryUpdateProcedure,
+		svc.SetMandatoryUpdate,
+		connect.WithSchema(controlServiceMethods.ByName("SetMandatoryUpdate")),
+		connect.WithHandlerOptions(opts...),
+	)
+	controlServiceClearMandatoryUpdateHandler := connect.NewUnaryHandler(
+		ControlServiceClearMandatoryUpdateProcedure,
+		svc.ClearMandatoryUpdate,
+		connect.WithSchema(controlServiceMethods.ByName("ClearMandatoryUpdate")),
+		connect.WithHandlerOptions(opts...),
+	)
+	controlServiceSetForcedRollbackHandler := connect.NewUnaryHandler(
+		ControlServiceSetForcedRollbackProcedure,
+		svc.SetForcedRollback,
+		connect.WithSchema(controlServiceMethods.ByName("SetForcedRollback")),
+		connect.WithHandlerOptions(opts...),
+	)
+	controlServiceClearForcedRollbackHandler := connect.NewUnaryHandler(
+		ControlServiceClearForcedRollbackProcedure,
+		svc.ClearForcedRollback,
+		connect.WithSchema(controlServiceMethods.ByName("ClearForcedRollback")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.ControlService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ControlServiceGetControlProcedure:
 			controlServiceGetControlHandler.ServeHTTP(w, r)
 		case ControlServiceSetControlProcedure:
 			controlServiceSetControlHandler.ServeHTTP(w, r)
+		case ControlServiceGetControlDocumentProcedure:
+			controlServiceGetControlDocumentHandler.ServeHTTP(w, r)
+		case ControlServiceSetKillSwitchProcedure:
+			controlServiceSetKillSwitchHandler.ServeHTTP(w, r)
+		case ControlServiceClearKillSwitchProcedure:
+			controlServiceClearKillSwitchHandler.ServeHTTP(w, r)
+		case ControlServiceSetMandatoryUpdateProcedure:
+			controlServiceSetMandatoryUpdateHandler.ServeHTTP(w, r)
+		case ControlServiceClearMandatoryUpdateProcedure:
+			controlServiceClearMandatoryUpdateHandler.ServeHTTP(w, r)
+		case ControlServiceSetForcedRollbackProcedure:
+			controlServiceSetForcedRollbackHandler.ServeHTTP(w, r)
+		case ControlServiceClearForcedRollbackProcedure:
+			controlServiceClearForcedRollbackHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -138,4 +337,32 @@ func (UnimplementedControlServiceHandler) GetControl(context.Context, *connect.R
 
 func (UnimplementedControlServiceHandler) SetControl(context.Context, *connect.Request[pluxv1.SetControlRequest]) (*connect.Response[pluxv1.SetControlResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ControlService.SetControl is not implemented"))
+}
+
+func (UnimplementedControlServiceHandler) GetControlDocument(context.Context, *connect.Request[pluxv1.GetControlDocumentRequest]) (*connect.Response[pluxv1.GetControlDocumentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ControlService.GetControlDocument is not implemented"))
+}
+
+func (UnimplementedControlServiceHandler) SetKillSwitch(context.Context, *connect.Request[pluxv1.SetKillSwitchRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ControlService.SetKillSwitch is not implemented"))
+}
+
+func (UnimplementedControlServiceHandler) ClearKillSwitch(context.Context, *connect.Request[pluxv1.ClearKillSwitchRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ControlService.ClearKillSwitch is not implemented"))
+}
+
+func (UnimplementedControlServiceHandler) SetMandatoryUpdate(context.Context, *connect.Request[pluxv1.SetMandatoryUpdateRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ControlService.SetMandatoryUpdate is not implemented"))
+}
+
+func (UnimplementedControlServiceHandler) ClearMandatoryUpdate(context.Context, *connect.Request[pluxv1.ClearMandatoryUpdateRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ControlService.ClearMandatoryUpdate is not implemented"))
+}
+
+func (UnimplementedControlServiceHandler) SetForcedRollback(context.Context, *connect.Request[pluxv1.SetForcedRollbackRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ControlService.SetForcedRollback is not implemented"))
+}
+
+func (UnimplementedControlServiceHandler) ClearForcedRollback(context.Context, *connect.Request[pluxv1.ClearForcedRollbackRequest]) (*connect.Response[pluxv1.ControlDocumentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ControlService.ClearForcedRollback is not implemented"))
 }

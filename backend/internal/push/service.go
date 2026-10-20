@@ -288,7 +288,9 @@ func (s *Service) page(ctx context.Context, job SendJob) ([]dbgen.DevicePushToke
 	if err != nil {
 		return nil, plxerr.New(plxerr.InvalidFormat, "the environment identifier is not valid")
 	}
-	var after pgtype.UUID
+	// The first page starts after the nil UUID: a NULL cursor would compare
+	// unknown with every device and select none.
+	after := pgtype.UUID{Valid: true}
 	if job.After != "" {
 		if after, err = storage.UUID(job.After); err != nil {
 			return nil, plxerr.New(plxerr.InvalidFormat, "the cursor is not valid")

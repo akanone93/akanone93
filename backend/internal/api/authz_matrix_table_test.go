@@ -342,6 +342,30 @@ var matrix = map[string]entry{
 	"ControlService/SetControl": atPerm(auth.ReleasePromote, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.SetControlRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel}
 	})),
+	"ControlService/GetControlDocument": atPerm(auth.AppRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.GetControlDocumentRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel}
+	})),
+	"ControlService/SetKillSwitch": atPerm(auth.KillswitchManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetKillSwitchRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel, KillSwitch: &pluxv1.KillSwitchEntry{Scope: pluxv1.KillSwitchScope_KILL_SWITCH_SCOPE_PLUGIN, Target: "loans"}}
+	})),
+	"ControlService/ClearKillSwitch": atPerm(auth.KillswitchManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ClearKillSwitchRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel, KillSwitch: &pluxv1.KillSwitchEntry{Scope: pluxv1.KillSwitchScope_KILL_SWITCH_SCOPE_PLUGIN, Target: "loans"}}
+	})),
+	"ControlService/SetMandatoryUpdate": atPerm(auth.KillswitchManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetMandatoryUpdateRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel, ReleaseSequence: 1}
+	})),
+	"ControlService/ClearMandatoryUpdate": atPerm(auth.KillswitchManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ClearMandatoryUpdateRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel}
+	})),
+	"ControlService/SetForcedRollback": atPerm(auth.KillswitchManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.SetForcedRollbackRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel, ReleaseSequence: 1}
+	})),
+	"ControlService/ClearForcedRollback": atPerm(auth.KillswitchManage, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ClearForcedRollbackRequest{AppId: f.app, EnvironmentId: f.prod, ChannelKey: f.channel}
+	})),
+	"ManifestService/GetSignedControl": {kind: deviceRPC, build: anyone(&pluxv1.GetSignedControlRequest{})},
+	"DeviceService/RegisterPushToken":  {kind: deviceRPC, build: anyone(&pluxv1.RegisterPushTokenRequest{})},
+	"DeviceService/ClearPushToken":     {kind: deviceRPC, build: anyone(&pluxv1.ClearPushTokenRequest{})},
 	"NativeCatalogueService/UploadNativeCatalogue": atPerm(auth.ReleasePublish, fixed(func(f *matrixFixture) proto.Message {
 		return &pluxv1.UploadNativeCatalogueRequest{AppId: f.app, HostBuild: "1.0.0+1", Catalogue: []byte(`{}`)}
 	})),

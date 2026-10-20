@@ -25,6 +25,65 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// KillSwitchScope is what a kill switch disables.
+type KillSwitchScope int32
+
+const (
+	KillSwitchScope_KILL_SWITCH_SCOPE_UNSPECIFIED  KillSwitchScope = 0
+	KillSwitchScope_KILL_SWITCH_SCOPE_PLUGIN       KillSwitchScope = 1
+	KillSwitchScope_KILL_SWITCH_SCOPE_PAGE         KillSwitchScope = 2
+	KillSwitchScope_KILL_SWITCH_SCOPE_ACTION_GRAPH KillSwitchScope = 3
+	KillSwitchScope_KILL_SWITCH_SCOPE_DATA_SOURCE  KillSwitchScope = 4
+	KillSwitchScope_KILL_SWITCH_SCOPE_FUNCTION     KillSwitchScope = 5
+)
+
+// Enum value maps for KillSwitchScope.
+var (
+	KillSwitchScope_name = map[int32]string{
+		0: "KILL_SWITCH_SCOPE_UNSPECIFIED",
+		1: "KILL_SWITCH_SCOPE_PLUGIN",
+		2: "KILL_SWITCH_SCOPE_PAGE",
+		3: "KILL_SWITCH_SCOPE_ACTION_GRAPH",
+		4: "KILL_SWITCH_SCOPE_DATA_SOURCE",
+		5: "KILL_SWITCH_SCOPE_FUNCTION",
+	}
+	KillSwitchScope_value = map[string]int32{
+		"KILL_SWITCH_SCOPE_UNSPECIFIED":  0,
+		"KILL_SWITCH_SCOPE_PLUGIN":       1,
+		"KILL_SWITCH_SCOPE_PAGE":         2,
+		"KILL_SWITCH_SCOPE_ACTION_GRAPH": 3,
+		"KILL_SWITCH_SCOPE_DATA_SOURCE":  4,
+		"KILL_SWITCH_SCOPE_FUNCTION":     5,
+	}
+)
+
+func (x KillSwitchScope) Enum() *KillSwitchScope {
+	p := new(KillSwitchScope)
+	*p = x
+	return p
+}
+
+func (x KillSwitchScope) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (KillSwitchScope) Descriptor() protoreflect.EnumDescriptor {
+	return file_plux_v1_control_proto_enumTypes[0].Descriptor()
+}
+
+func (KillSwitchScope) Type() protoreflect.EnumType {
+	return &file_plux_v1_control_proto_enumTypes[0]
+}
+
+func (x KillSwitchScope) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use KillSwitchScope.Descriptor instead.
+func (KillSwitchScope) EnumDescriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{0}
+}
+
 // Control is the current set of switches for one channel.
 type Control struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
@@ -374,6 +433,809 @@ func (x *SetControlResponse) GetControl() *Control {
 	return nil
 }
 
+// KillSwitchEntry is one switched-off thing.
+type KillSwitchEntry struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Scope KillSwitchScope        `protobuf:"varint,1,opt,name=scope,proto3,enum=plux.v1.KillSwitchScope" json:"scope,omitempty"`
+	// target is the plugin key, document identifier or function name.
+	Target        string `protobuf:"bytes,2,opt,name=target,proto3" json:"target,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *KillSwitchEntry) Reset() {
+	*x = KillSwitchEntry{}
+	mi := &file_plux_v1_control_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KillSwitchEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KillSwitchEntry) ProtoMessage() {}
+
+func (x *KillSwitchEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KillSwitchEntry.ProtoReflect.Descriptor instead.
+func (*KillSwitchEntry) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *KillSwitchEntry) GetScope() KillSwitchScope {
+	if x != nil {
+		return x.Scope
+	}
+	return KillSwitchScope_KILL_SWITCH_SCOPE_UNSPECIFIED
+}
+
+func (x *KillSwitchEntry) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+// ControlRelease names the release a mandatory update or a forced rollback
+// points to.
+type ControlRelease struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	ReleaseId       string                 `protobuf:"bytes,1,opt,name=release_id,json=releaseId,proto3" json:"release_id,omitempty"`
+	ReleaseSequence int64                  `protobuf:"varint,2,opt,name=release_sequence,json=releaseSequence,proto3" json:"release_sequence,omitempty"`
+	// message_key is the localisation key of the update screen's message;
+	// only a mandatory update has one.
+	MessageKey    string `protobuf:"bytes,3,opt,name=message_key,json=messageKey,proto3" json:"message_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ControlRelease) Reset() {
+	*x = ControlRelease{}
+	mi := &file_plux_v1_control_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ControlRelease) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ControlRelease) ProtoMessage() {}
+
+func (x *ControlRelease) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ControlRelease.ProtoReflect.Descriptor instead.
+func (*ControlRelease) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ControlRelease) GetReleaseId() string {
+	if x != nil {
+		return x.ReleaseId
+	}
+	return ""
+}
+
+func (x *ControlRelease) GetReleaseSequence() int64 {
+	if x != nil {
+		return x.ReleaseSequence
+	}
+	return 0
+}
+
+func (x *ControlRelease) GetMessageKey() string {
+	if x != nil {
+		return x.MessageKey
+	}
+	return ""
+}
+
+// ControlDocument is a channel's control document as an operator sees it.
+type ControlDocument struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	ChannelKey    string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
+	// version is the newest version, signed or not; zero for a channel with
+	// no control document yet.
+	Version         int64                  `protobuf:"varint,4,opt,name=version,proto3" json:"version,omitempty"`
+	KillSwitches    []*KillSwitchEntry     `protobuf:"bytes,5,rep,name=kill_switches,json=killSwitches,proto3" json:"kill_switches,omitempty"`
+	MandatoryUpdate *ControlRelease        `protobuf:"bytes,6,opt,name=mandatory_update,json=mandatoryUpdate,proto3" json:"mandatory_update,omitempty"`
+	ForcedRollback  *ControlRelease        `protobuf:"bytes,7,opt,name=forced_rollback,json=forcedRollback,proto3" json:"forced_rollback,omitempty"`
+	UpdatedBy       *Actor                 `protobuf:"bytes,8,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`
+	UpdatedAt       *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// signed_version is the newest signed version, which devices are served;
+	// zero when none is signed yet.
+	SignedVersion int64                  `protobuf:"varint,10,opt,name=signed_version,json=signedVersion,proto3" json:"signed_version,omitempty"`
+	IssuedAt      *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=issued_at,json=issuedAt,proto3" json:"issued_at,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ControlDocument) Reset() {
+	*x = ControlDocument{}
+	mi := &file_plux_v1_control_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ControlDocument) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ControlDocument) ProtoMessage() {}
+
+func (x *ControlDocument) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ControlDocument.ProtoReflect.Descriptor instead.
+func (*ControlDocument) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ControlDocument) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *ControlDocument) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *ControlDocument) GetChannelKey() string {
+	if x != nil {
+		return x.ChannelKey
+	}
+	return ""
+}
+
+func (x *ControlDocument) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *ControlDocument) GetKillSwitches() []*KillSwitchEntry {
+	if x != nil {
+		return x.KillSwitches
+	}
+	return nil
+}
+
+func (x *ControlDocument) GetMandatoryUpdate() *ControlRelease {
+	if x != nil {
+		return x.MandatoryUpdate
+	}
+	return nil
+}
+
+func (x *ControlDocument) GetForcedRollback() *ControlRelease {
+	if x != nil {
+		return x.ForcedRollback
+	}
+	return nil
+}
+
+func (x *ControlDocument) GetUpdatedBy() *Actor {
+	if x != nil {
+		return x.UpdatedBy
+	}
+	return nil
+}
+
+func (x *ControlDocument) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *ControlDocument) GetSignedVersion() int64 {
+	if x != nil {
+		return x.SignedVersion
+	}
+	return 0
+}
+
+func (x *ControlDocument) GetIssuedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.IssuedAt
+	}
+	return nil
+}
+
+func (x *ControlDocument) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+type GetControlDocumentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	ChannelKey    string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetControlDocumentRequest) Reset() {
+	*x = GetControlDocumentRequest{}
+	mi := &file_plux_v1_control_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetControlDocumentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetControlDocumentRequest) ProtoMessage() {}
+
+func (x *GetControlDocumentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetControlDocumentRequest.ProtoReflect.Descriptor instead.
+func (*GetControlDocumentRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetControlDocumentRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *GetControlDocumentRequest) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *GetControlDocumentRequest) GetChannelKey() string {
+	if x != nil {
+		return x.ChannelKey
+	}
+	return ""
+}
+
+type GetControlDocumentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Document      *ControlDocument       `protobuf:"bytes,1,opt,name=document,proto3" json:"document,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetControlDocumentResponse) Reset() {
+	*x = GetControlDocumentResponse{}
+	mi := &file_plux_v1_control_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetControlDocumentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetControlDocumentResponse) ProtoMessage() {}
+
+func (x *GetControlDocumentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetControlDocumentResponse.ProtoReflect.Descriptor instead.
+func (*GetControlDocumentResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetControlDocumentResponse) GetDocument() *ControlDocument {
+	if x != nil {
+		return x.Document
+	}
+	return nil
+}
+
+type ControlDocumentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Document      *ControlDocument       `protobuf:"bytes,1,opt,name=document,proto3" json:"document,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ControlDocumentResponse) Reset() {
+	*x = ControlDocumentResponse{}
+	mi := &file_plux_v1_control_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ControlDocumentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ControlDocumentResponse) ProtoMessage() {}
+
+func (x *ControlDocumentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ControlDocumentResponse.ProtoReflect.Descriptor instead.
+func (*ControlDocumentResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ControlDocumentResponse) GetDocument() *ControlDocument {
+	if x != nil {
+		return x.Document
+	}
+	return nil
+}
+
+type SetKillSwitchRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	ChannelKey    string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
+	KillSwitch    *KillSwitchEntry       `protobuf:"bytes,4,opt,name=kill_switch,json=killSwitch,proto3" json:"kill_switch,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetKillSwitchRequest) Reset() {
+	*x = SetKillSwitchRequest{}
+	mi := &file_plux_v1_control_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetKillSwitchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetKillSwitchRequest) ProtoMessage() {}
+
+func (x *SetKillSwitchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetKillSwitchRequest.ProtoReflect.Descriptor instead.
+func (*SetKillSwitchRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *SetKillSwitchRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *SetKillSwitchRequest) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *SetKillSwitchRequest) GetChannelKey() string {
+	if x != nil {
+		return x.ChannelKey
+	}
+	return ""
+}
+
+func (x *SetKillSwitchRequest) GetKillSwitch() *KillSwitchEntry {
+	if x != nil {
+		return x.KillSwitch
+	}
+	return nil
+}
+
+type ClearKillSwitchRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	ChannelKey    string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
+	KillSwitch    *KillSwitchEntry       `protobuf:"bytes,4,opt,name=kill_switch,json=killSwitch,proto3" json:"kill_switch,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClearKillSwitchRequest) Reset() {
+	*x = ClearKillSwitchRequest{}
+	mi := &file_plux_v1_control_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClearKillSwitchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClearKillSwitchRequest) ProtoMessage() {}
+
+func (x *ClearKillSwitchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClearKillSwitchRequest.ProtoReflect.Descriptor instead.
+func (*ClearKillSwitchRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ClearKillSwitchRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *ClearKillSwitchRequest) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *ClearKillSwitchRequest) GetChannelKey() string {
+	if x != nil {
+		return x.ChannelKey
+	}
+	return ""
+}
+
+func (x *ClearKillSwitchRequest) GetKillSwitch() *KillSwitchEntry {
+	if x != nil {
+		return x.KillSwitch
+	}
+	return nil
+}
+
+type SetMandatoryUpdateRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	AppId           string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId   string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	ChannelKey      string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
+	ReleaseSequence int64                  `protobuf:"varint,4,opt,name=release_sequence,json=releaseSequence,proto3" json:"release_sequence,omitempty"`
+	MessageKey      string                 `protobuf:"bytes,5,opt,name=message_key,json=messageKey,proto3" json:"message_key,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *SetMandatoryUpdateRequest) Reset() {
+	*x = SetMandatoryUpdateRequest{}
+	mi := &file_plux_v1_control_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetMandatoryUpdateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetMandatoryUpdateRequest) ProtoMessage() {}
+
+func (x *SetMandatoryUpdateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetMandatoryUpdateRequest.ProtoReflect.Descriptor instead.
+func (*SetMandatoryUpdateRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *SetMandatoryUpdateRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *SetMandatoryUpdateRequest) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *SetMandatoryUpdateRequest) GetChannelKey() string {
+	if x != nil {
+		return x.ChannelKey
+	}
+	return ""
+}
+
+func (x *SetMandatoryUpdateRequest) GetReleaseSequence() int64 {
+	if x != nil {
+		return x.ReleaseSequence
+	}
+	return 0
+}
+
+func (x *SetMandatoryUpdateRequest) GetMessageKey() string {
+	if x != nil {
+		return x.MessageKey
+	}
+	return ""
+}
+
+type ClearMandatoryUpdateRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	ChannelKey    string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClearMandatoryUpdateRequest) Reset() {
+	*x = ClearMandatoryUpdateRequest{}
+	mi := &file_plux_v1_control_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClearMandatoryUpdateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClearMandatoryUpdateRequest) ProtoMessage() {}
+
+func (x *ClearMandatoryUpdateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClearMandatoryUpdateRequest.ProtoReflect.Descriptor instead.
+func (*ClearMandatoryUpdateRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ClearMandatoryUpdateRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *ClearMandatoryUpdateRequest) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *ClearMandatoryUpdateRequest) GetChannelKey() string {
+	if x != nil {
+		return x.ChannelKey
+	}
+	return ""
+}
+
+type SetForcedRollbackRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	AppId           string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId   string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	ChannelKey      string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
+	ReleaseSequence int64                  `protobuf:"varint,4,opt,name=release_sequence,json=releaseSequence,proto3" json:"release_sequence,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *SetForcedRollbackRequest) Reset() {
+	*x = SetForcedRollbackRequest{}
+	mi := &file_plux_v1_control_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetForcedRollbackRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetForcedRollbackRequest) ProtoMessage() {}
+
+func (x *SetForcedRollbackRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetForcedRollbackRequest.ProtoReflect.Descriptor instead.
+func (*SetForcedRollbackRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *SetForcedRollbackRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *SetForcedRollbackRequest) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *SetForcedRollbackRequest) GetChannelKey() string {
+	if x != nil {
+		return x.ChannelKey
+	}
+	return ""
+}
+
+func (x *SetForcedRollbackRequest) GetReleaseSequence() int64 {
+	if x != nil {
+		return x.ReleaseSequence
+	}
+	return 0
+}
+
+type ClearForcedRollbackRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	ChannelKey    string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClearForcedRollbackRequest) Reset() {
+	*x = ClearForcedRollbackRequest{}
+	mi := &file_plux_v1_control_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClearForcedRollbackRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClearForcedRollbackRequest) ProtoMessage() {}
+
+func (x *ClearForcedRollbackRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_control_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClearForcedRollbackRequest.ProtoReflect.Descriptor instead.
+func (*ClearForcedRollbackRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_control_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ClearForcedRollbackRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *ClearForcedRollbackRequest) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *ClearForcedRollbackRequest) GetChannelKey() string {
+	if x != nil {
+		return x.ChannelKey
+	}
+	return ""
+}
+
 var File_plux_v1_control_proto protoreflect.FileDescriptor
 
 const file_plux_v1_control_proto_rawDesc = "" +
@@ -409,12 +1271,100 @@ const file_plux_v1_control_proto_rawDesc = "" +
 	"\x10mandatory_update\x18\x06 \x01(\bR\x0fmandatoryUpdate\x12\x18\n" +
 	"\amessage\x18\a \x01(\tR\amessage\"@\n" +
 	"\x12SetControlResponse\x12*\n" +
-	"\acontrol\x18\x01 \x01(\v2\x10.plux.v1.ControlR\acontrol2\xa2\x01\n" +
+	"\acontrol\x18\x01 \x01(\v2\x10.plux.v1.ControlR\acontrol\"Y\n" +
+	"\x0fKillSwitchEntry\x12.\n" +
+	"\x05scope\x18\x01 \x01(\x0e2\x18.plux.v1.KillSwitchScopeR\x05scope\x12\x16\n" +
+	"\x06target\x18\x02 \x01(\tR\x06target\"{\n" +
+	"\x0eControlRelease\x12\x1d\n" +
+	"\n" +
+	"release_id\x18\x01 \x01(\tR\treleaseId\x12)\n" +
+	"\x10release_sequence\x18\x02 \x01(\x03R\x0freleaseSequence\x12\x1f\n" +
+	"\vmessage_key\x18\x03 \x01(\tR\n" +
+	"messageKey\"\xd4\x04\n" +
+	"\x0fControlDocument\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
+	"\vchannel_key\x18\x03 \x01(\tR\n" +
+	"channelKey\x12\x18\n" +
+	"\aversion\x18\x04 \x01(\x03R\aversion\x12=\n" +
+	"\rkill_switches\x18\x05 \x03(\v2\x18.plux.v1.KillSwitchEntryR\fkillSwitches\x12B\n" +
+	"\x10mandatory_update\x18\x06 \x01(\v2\x17.plux.v1.ControlReleaseR\x0fmandatoryUpdate\x12@\n" +
+	"\x0fforced_rollback\x18\a \x01(\v2\x17.plux.v1.ControlReleaseR\x0eforcedRollback\x12-\n" +
+	"\n" +
+	"updated_by\x18\b \x01(\v2\x0e.plux.v1.ActorR\tupdatedBy\x129\n" +
+	"\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12%\n" +
+	"\x0esigned_version\x18\n" +
+	" \x01(\x03R\rsignedVersion\x127\n" +
+	"\tissued_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\bissuedAt\x129\n" +
+	"\n" +
+	"expires_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"z\n" +
+	"\x19GetControlDocumentRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
+	"\vchannel_key\x18\x03 \x01(\tR\n" +
+	"channelKey\"R\n" +
+	"\x1aGetControlDocumentResponse\x124\n" +
+	"\bdocument\x18\x01 \x01(\v2\x18.plux.v1.ControlDocumentR\bdocument\"O\n" +
+	"\x17ControlDocumentResponse\x124\n" +
+	"\bdocument\x18\x01 \x01(\v2\x18.plux.v1.ControlDocumentR\bdocument\"\xb0\x01\n" +
+	"\x14SetKillSwitchRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
+	"\vchannel_key\x18\x03 \x01(\tR\n" +
+	"channelKey\x129\n" +
+	"\vkill_switch\x18\x04 \x01(\v2\x18.plux.v1.KillSwitchEntryR\n" +
+	"killSwitch\"\xb2\x01\n" +
+	"\x16ClearKillSwitchRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
+	"\vchannel_key\x18\x03 \x01(\tR\n" +
+	"channelKey\x129\n" +
+	"\vkill_switch\x18\x04 \x01(\v2\x18.plux.v1.KillSwitchEntryR\n" +
+	"killSwitch\"\xc6\x01\n" +
+	"\x19SetMandatoryUpdateRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
+	"\vchannel_key\x18\x03 \x01(\tR\n" +
+	"channelKey\x12)\n" +
+	"\x10release_sequence\x18\x04 \x01(\x03R\x0freleaseSequence\x12\x1f\n" +
+	"\vmessage_key\x18\x05 \x01(\tR\n" +
+	"messageKey\"|\n" +
+	"\x1bClearMandatoryUpdateRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
+	"\vchannel_key\x18\x03 \x01(\tR\n" +
+	"channelKey\"\xa4\x01\n" +
+	"\x18SetForcedRollbackRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
+	"\vchannel_key\x18\x03 \x01(\tR\n" +
+	"channelKey\x12)\n" +
+	"\x10release_sequence\x18\x04 \x01(\x03R\x0freleaseSequence\"{\n" +
+	"\x1aClearForcedRollbackRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
+	"\vchannel_key\x18\x03 \x01(\tR\n" +
+	"channelKey*\xd5\x01\n" +
+	"\x0fKillSwitchScope\x12!\n" +
+	"\x1dKILL_SWITCH_SCOPE_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18KILL_SWITCH_SCOPE_PLUGIN\x10\x01\x12\x1a\n" +
+	"\x16KILL_SWITCH_SCOPE_PAGE\x10\x02\x12\"\n" +
+	"\x1eKILL_SWITCH_SCOPE_ACTION_GRAPH\x10\x03\x12!\n" +
+	"\x1dKILL_SWITCH_SCOPE_DATA_SOURCE\x10\x04\x12\x1e\n" +
+	"\x1aKILL_SWITCH_SCOPE_FUNCTION\x10\x052\xab\x06\n" +
 	"\x0eControlService\x12G\n" +
 	"\n" +
 	"GetControl\x12\x1a.plux.v1.GetControlRequest\x1a\x1b.plux.v1.GetControlResponse\"\x00\x12G\n" +
 	"\n" +
-	"SetControl\x12\x1a.plux.v1.SetControlRequest\x1a\x1b.plux.v1.SetControlResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"SetControl\x12\x1a.plux.v1.SetControlRequest\x1a\x1b.plux.v1.SetControlResponse\"\x00\x12_\n" +
+	"\x12GetControlDocument\x12\".plux.v1.GetControlDocumentRequest\x1a#.plux.v1.GetControlDocumentResponse\"\x00\x12R\n" +
+	"\rSetKillSwitch\x12\x1d.plux.v1.SetKillSwitchRequest\x1a .plux.v1.ControlDocumentResponse\"\x00\x12V\n" +
+	"\x0fClearKillSwitch\x12\x1f.plux.v1.ClearKillSwitchRequest\x1a .plux.v1.ControlDocumentResponse\"\x00\x12\\\n" +
+	"\x12SetMandatoryUpdate\x12\".plux.v1.SetMandatoryUpdateRequest\x1a .plux.v1.ControlDocumentResponse\"\x00\x12`\n" +
+	"\x14ClearMandatoryUpdate\x12$.plux.v1.ClearMandatoryUpdateRequest\x1a .plux.v1.ControlDocumentResponse\"\x00\x12Z\n" +
+	"\x11SetForcedRollback\x12!.plux.v1.SetForcedRollbackRequest\x1a .plux.v1.ControlDocumentResponse\"\x00\x12^\n" +
+	"\x13ClearForcedRollback\x12#.plux.v1.ClearForcedRollbackRequest\x1a .plux.v1.ControlDocumentResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_control_proto_rawDescOnce sync.Once
@@ -428,30 +1378,70 @@ func file_plux_v1_control_proto_rawDescGZIP() []byte {
 	return file_plux_v1_control_proto_rawDescData
 }
 
-var file_plux_v1_control_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_plux_v1_control_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_plux_v1_control_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_plux_v1_control_proto_goTypes = []any{
-	(*Control)(nil),               // 0: plux.v1.Control
-	(*GetControlRequest)(nil),     // 1: plux.v1.GetControlRequest
-	(*GetControlResponse)(nil),    // 2: plux.v1.GetControlResponse
-	(*SetControlRequest)(nil),     // 3: plux.v1.SetControlRequest
-	(*SetControlResponse)(nil),    // 4: plux.v1.SetControlResponse
-	(*Actor)(nil),                 // 5: plux.v1.Actor
-	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+	(KillSwitchScope)(0),                // 0: plux.v1.KillSwitchScope
+	(*Control)(nil),                     // 1: plux.v1.Control
+	(*GetControlRequest)(nil),           // 2: plux.v1.GetControlRequest
+	(*GetControlResponse)(nil),          // 3: plux.v1.GetControlResponse
+	(*SetControlRequest)(nil),           // 4: plux.v1.SetControlRequest
+	(*SetControlResponse)(nil),          // 5: plux.v1.SetControlResponse
+	(*KillSwitchEntry)(nil),             // 6: plux.v1.KillSwitchEntry
+	(*ControlRelease)(nil),              // 7: plux.v1.ControlRelease
+	(*ControlDocument)(nil),             // 8: plux.v1.ControlDocument
+	(*GetControlDocumentRequest)(nil),   // 9: plux.v1.GetControlDocumentRequest
+	(*GetControlDocumentResponse)(nil),  // 10: plux.v1.GetControlDocumentResponse
+	(*ControlDocumentResponse)(nil),     // 11: plux.v1.ControlDocumentResponse
+	(*SetKillSwitchRequest)(nil),        // 12: plux.v1.SetKillSwitchRequest
+	(*ClearKillSwitchRequest)(nil),      // 13: plux.v1.ClearKillSwitchRequest
+	(*SetMandatoryUpdateRequest)(nil),   // 14: plux.v1.SetMandatoryUpdateRequest
+	(*ClearMandatoryUpdateRequest)(nil), // 15: plux.v1.ClearMandatoryUpdateRequest
+	(*SetForcedRollbackRequest)(nil),    // 16: plux.v1.SetForcedRollbackRequest
+	(*ClearForcedRollbackRequest)(nil),  // 17: plux.v1.ClearForcedRollbackRequest
+	(*Actor)(nil),                       // 18: plux.v1.Actor
+	(*timestamppb.Timestamp)(nil),       // 19: google.protobuf.Timestamp
 }
 var file_plux_v1_control_proto_depIdxs = []int32{
-	5, // 0: plux.v1.Control.updated_by:type_name -> plux.v1.Actor
-	6, // 1: plux.v1.Control.updated_at:type_name -> google.protobuf.Timestamp
-	0, // 2: plux.v1.GetControlResponse.control:type_name -> plux.v1.Control
-	0, // 3: plux.v1.SetControlResponse.control:type_name -> plux.v1.Control
-	1, // 4: plux.v1.ControlService.GetControl:input_type -> plux.v1.GetControlRequest
-	3, // 5: plux.v1.ControlService.SetControl:input_type -> plux.v1.SetControlRequest
-	2, // 6: plux.v1.ControlService.GetControl:output_type -> plux.v1.GetControlResponse
-	4, // 7: plux.v1.ControlService.SetControl:output_type -> plux.v1.SetControlResponse
-	6, // [6:8] is the sub-list for method output_type
-	4, // [4:6] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	18, // 0: plux.v1.Control.updated_by:type_name -> plux.v1.Actor
+	19, // 1: plux.v1.Control.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 2: plux.v1.GetControlResponse.control:type_name -> plux.v1.Control
+	1,  // 3: plux.v1.SetControlResponse.control:type_name -> plux.v1.Control
+	0,  // 4: plux.v1.KillSwitchEntry.scope:type_name -> plux.v1.KillSwitchScope
+	6,  // 5: plux.v1.ControlDocument.kill_switches:type_name -> plux.v1.KillSwitchEntry
+	7,  // 6: plux.v1.ControlDocument.mandatory_update:type_name -> plux.v1.ControlRelease
+	7,  // 7: plux.v1.ControlDocument.forced_rollback:type_name -> plux.v1.ControlRelease
+	18, // 8: plux.v1.ControlDocument.updated_by:type_name -> plux.v1.Actor
+	19, // 9: plux.v1.ControlDocument.updated_at:type_name -> google.protobuf.Timestamp
+	19, // 10: plux.v1.ControlDocument.issued_at:type_name -> google.protobuf.Timestamp
+	19, // 11: plux.v1.ControlDocument.expires_at:type_name -> google.protobuf.Timestamp
+	8,  // 12: plux.v1.GetControlDocumentResponse.document:type_name -> plux.v1.ControlDocument
+	8,  // 13: plux.v1.ControlDocumentResponse.document:type_name -> plux.v1.ControlDocument
+	6,  // 14: plux.v1.SetKillSwitchRequest.kill_switch:type_name -> plux.v1.KillSwitchEntry
+	6,  // 15: plux.v1.ClearKillSwitchRequest.kill_switch:type_name -> plux.v1.KillSwitchEntry
+	2,  // 16: plux.v1.ControlService.GetControl:input_type -> plux.v1.GetControlRequest
+	4,  // 17: plux.v1.ControlService.SetControl:input_type -> plux.v1.SetControlRequest
+	9,  // 18: plux.v1.ControlService.GetControlDocument:input_type -> plux.v1.GetControlDocumentRequest
+	12, // 19: plux.v1.ControlService.SetKillSwitch:input_type -> plux.v1.SetKillSwitchRequest
+	13, // 20: plux.v1.ControlService.ClearKillSwitch:input_type -> plux.v1.ClearKillSwitchRequest
+	14, // 21: plux.v1.ControlService.SetMandatoryUpdate:input_type -> plux.v1.SetMandatoryUpdateRequest
+	15, // 22: plux.v1.ControlService.ClearMandatoryUpdate:input_type -> plux.v1.ClearMandatoryUpdateRequest
+	16, // 23: plux.v1.ControlService.SetForcedRollback:input_type -> plux.v1.SetForcedRollbackRequest
+	17, // 24: plux.v1.ControlService.ClearForcedRollback:input_type -> plux.v1.ClearForcedRollbackRequest
+	3,  // 25: plux.v1.ControlService.GetControl:output_type -> plux.v1.GetControlResponse
+	5,  // 26: plux.v1.ControlService.SetControl:output_type -> plux.v1.SetControlResponse
+	10, // 27: plux.v1.ControlService.GetControlDocument:output_type -> plux.v1.GetControlDocumentResponse
+	11, // 28: plux.v1.ControlService.SetKillSwitch:output_type -> plux.v1.ControlDocumentResponse
+	11, // 29: plux.v1.ControlService.ClearKillSwitch:output_type -> plux.v1.ControlDocumentResponse
+	11, // 30: plux.v1.ControlService.SetMandatoryUpdate:output_type -> plux.v1.ControlDocumentResponse
+	11, // 31: plux.v1.ControlService.ClearMandatoryUpdate:output_type -> plux.v1.ControlDocumentResponse
+	11, // 32: plux.v1.ControlService.SetForcedRollback:output_type -> plux.v1.ControlDocumentResponse
+	11, // 33: plux.v1.ControlService.ClearForcedRollback:output_type -> plux.v1.ControlDocumentResponse
+	25, // [25:34] is the sub-list for method output_type
+	16, // [16:25] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_control_proto_init() }
@@ -465,13 +1455,14 @@ func file_plux_v1_control_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_control_proto_rawDesc), len(file_plux_v1_control_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   5,
+			NumEnums:      1,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_plux_v1_control_proto_goTypes,
 		DependencyIndexes: file_plux_v1_control_proto_depIdxs,
+		EnumInfos:         file_plux_v1_control_proto_enumTypes,
 		MessageInfos:      file_plux_v1_control_proto_msgTypes,
 	}.Build()
 	File_plux_v1_control_proto = out.File

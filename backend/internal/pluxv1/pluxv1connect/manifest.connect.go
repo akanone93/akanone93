@@ -42,6 +42,9 @@ const (
 	// ManifestServiceGetRootKeysProcedure is the fully-qualified name of the ManifestService's
 	// GetRootKeys RPC.
 	ManifestServiceGetRootKeysProcedure = "/plux.v1.ManifestService/GetRootKeys"
+	// ManifestServiceGetSignedControlProcedure is the fully-qualified name of the ManifestService's
+	// GetSignedControl RPC.
+	ManifestServiceGetSignedControlProcedure = "/plux.v1.ManifestService/GetSignedControl"
 )
 
 // ManifestServiceClient is a client for the plux.v1.ManifestService service.
@@ -54,6 +57,11 @@ type ManifestServiceClient interface {
 	GetManifest(context.Context, *connect.Request[pluxv1.GetManifestRequest]) (*connect.Response[pluxv1.GetManifestResponse], error)
 	// GetRootKeys returns the public keys host projects embed (SEC-051).
 	GetRootKeys(context.Context, *connect.Request[pluxv1.GetRootKeysRequest]) (*connect.Response[pluxv1.GetRootKeysResponse], error)
+	// GetSignedControl returns the signed control document of the device's
+	// channel, with the same ETag and If-None-Match handling as the manifest
+	// (SYN-060). The device verifies the file against its trusted root
+	// before it reads the document (SEC-052).
+	GetSignedControl(context.Context, *connect.Request[pluxv1.GetSignedControlRequest]) (*connect.Response[pluxv1.GetSignedControlResponse], error)
 }
 
 // NewManifestServiceClient constructs a client for the plux.v1.ManifestService service. By default,
@@ -79,13 +87,20 @@ func NewManifestServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			connect.WithSchema(manifestServiceMethods.ByName("GetRootKeys")),
 			connect.WithClientOptions(opts...),
 		),
+		getSignedControl: connect.NewClient[pluxv1.GetSignedControlRequest, pluxv1.GetSignedControlResponse](
+			httpClient,
+			baseURL+ManifestServiceGetSignedControlProcedure,
+			connect.WithSchema(manifestServiceMethods.ByName("GetSignedControl")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // manifestServiceClient implements ManifestServiceClient.
 type manifestServiceClient struct {
-	getManifest *connect.Client[pluxv1.GetManifestRequest, pluxv1.GetManifestResponse]
-	getRootKeys *connect.Client[pluxv1.GetRootKeysRequest, pluxv1.GetRootKeysResponse]
+	getManifest      *connect.Client[pluxv1.GetManifestRequest, pluxv1.GetManifestResponse]
+	getRootKeys      *connect.Client[pluxv1.GetRootKeysRequest, pluxv1.GetRootKeysResponse]
+	getSignedControl *connect.Client[pluxv1.GetSignedControlRequest, pluxv1.GetSignedControlResponse]
 }
 
 // GetManifest calls plux.v1.ManifestService.GetManifest.
@@ -98,6 +113,11 @@ func (c *manifestServiceClient) GetRootKeys(ctx context.Context, req *connect.Re
 	return c.getRootKeys.CallUnary(ctx, req)
 }
 
+// GetSignedControl calls plux.v1.ManifestService.GetSignedControl.
+func (c *manifestServiceClient) GetSignedControl(ctx context.Context, req *connect.Request[pluxv1.GetSignedControlRequest]) (*connect.Response[pluxv1.GetSignedControlResponse], error) {
+	return c.getSignedControl.CallUnary(ctx, req)
+}
+
 // ManifestServiceHandler is an implementation of the plux.v1.ManifestService service.
 type ManifestServiceHandler interface {
 	// GetManifest returns the manifest of an app's channel. The request
@@ -108,6 +128,11 @@ type ManifestServiceHandler interface {
 	GetManifest(context.Context, *connect.Request[pluxv1.GetManifestRequest]) (*connect.Response[pluxv1.GetManifestResponse], error)
 	// GetRootKeys returns the public keys host projects embed (SEC-051).
 	GetRootKeys(context.Context, *connect.Request[pluxv1.GetRootKeysRequest]) (*connect.Response[pluxv1.GetRootKeysResponse], error)
+	// GetSignedControl returns the signed control document of the device's
+	// channel, with the same ETag and If-None-Match handling as the manifest
+	// (SYN-060). The device verifies the file against its trusted root
+	// before it reads the document (SEC-052).
+	GetSignedControl(context.Context, *connect.Request[pluxv1.GetSignedControlRequest]) (*connect.Response[pluxv1.GetSignedControlResponse], error)
 }
 
 // NewManifestServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -129,12 +154,20 @@ func NewManifestServiceHandler(svc ManifestServiceHandler, opts ...connect.Handl
 		connect.WithSchema(manifestServiceMethods.ByName("GetRootKeys")),
 		connect.WithHandlerOptions(opts...),
 	)
+	manifestServiceGetSignedControlHandler := connect.NewUnaryHandler(
+		ManifestServiceGetSignedControlProcedure,
+		svc.GetSignedControl,
+		connect.WithSchema(manifestServiceMethods.ByName("GetSignedControl")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.ManifestService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ManifestServiceGetManifestProcedure:
 			manifestServiceGetManifestHandler.ServeHTTP(w, r)
 		case ManifestServiceGetRootKeysProcedure:
 			manifestServiceGetRootKeysHandler.ServeHTTP(w, r)
+		case ManifestServiceGetSignedControlProcedure:
+			manifestServiceGetSignedControlHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -150,4 +183,8 @@ func (UnimplementedManifestServiceHandler) GetManifest(context.Context, *connect
 
 func (UnimplementedManifestServiceHandler) GetRootKeys(context.Context, *connect.Request[pluxv1.GetRootKeysRequest]) (*connect.Response[pluxv1.GetRootKeysResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ManifestService.GetRootKeys is not implemented"))
+}
+
+func (UnimplementedManifestServiceHandler) GetSignedControl(context.Context, *connect.Request[pluxv1.GetSignedControlRequest]) (*connect.Response[pluxv1.GetSignedControlResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.ManifestService.GetSignedControl is not implemented"))
 }

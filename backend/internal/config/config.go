@@ -73,6 +73,9 @@ type Config struct {
 	// Notifications configures notification and webhook delivery (SRV-062,
 	// SRV-063).
 	Notifications Notifications `json:"notifications"`
+	// Push configures the silent push of control document changes (SYN-060,
+	// Q22).
+	Push Push `json:"push"`
 }
 
 // License configures the offline licence check of the enterprise edition.

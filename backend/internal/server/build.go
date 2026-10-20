@@ -246,6 +246,7 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 		jobs.AddWorker(workers, &publishWorker{svc: services})
 		jobs.AddWorker(workers, &manifestWorker{svc: services})
 		jobs.AddWorker(workers, &controlWorker{svc: services})
+		jobs.AddWorker(workers, &pushWorker{svc: services})
 		jobs.AddWorker(workers, &deltaWorker{svc: services})
 	}
 	if services.Functions != nil && deps.Builder != nil && deps.Signer != nil {

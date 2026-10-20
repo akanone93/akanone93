@@ -459,8 +459,8 @@ func TestControlForcedRollbackValidation_REL_060(t *testing.T) {
 }
 
 // Verifies: REL-060, GOV-003.
-// Switching needs release.promote, as before, or killswitch.manage; a
-// viewer has neither, and every malformed target is refused.
+// Switching needs killswitch.manage, so a viewer is refused, and every
+// malformed target is refused.
 func TestControlAuthorisationAndTargets_REL_060(t *testing.T) {
 	t.Parallel()
 	f := newControlFixture(t, true)

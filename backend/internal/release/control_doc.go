@@ -213,7 +213,8 @@ type controlTarget struct {
 
 // authorizeControl allows a principal who may promote releases, the
 // permission the unsigned control needed, or who holds killswitch.manage,
-// on the environment (REL-060).
+// on the environment. It is the check of the legacy SetControl call; the
+// calls on the signed document need killswitch.manage (REL-060).
 func authorizeControl(p auth.Principal, appID, environment string) error {
 	errPromote := p.AuthorizeEnvironment(auth.ReleasePromote, appID, environment)
 	if errPromote == nil {
@@ -302,12 +303,13 @@ type controlChange struct {
 }
 
 // change applies a change to a channel's control document in one
-// transaction: it takes the channel's lock, so versions are taken in one
+// transaction, for a principal who holds killswitch.manage on the
+// environment (the legacy SetControl still accepts release.promote): it takes the channel's lock, so versions are taken in one
 // order whoever changes the channel, writes the next version, keeps the
 // manifest's flags in step, queues the signature and audits the change.
 // A change that alters nothing writes nothing.
 func (s *Service) change(ctx context.Context, p auth.Principal, ref ChannelRef, c controlChange) (ControlState, error) {
-	if err := authorizeSomeControl(p, ref.AppID); err != nil {
+	if err := authorizeSomeEnvironment(p, auth.KillswitchManage, ref.AppID); err != nil {
 		return ControlState{}, err
 	}
 	var out ControlState
@@ -317,7 +319,7 @@ func (s *Service) change(ctx context.Context, p auth.Principal, ref ChannelRef, 
 		if err != nil {
 			return err
 		}
-		if err := authorizeControl(p, ref.AppID, env.Key); err != nil {
+		if err := authorizeEnvironment(p, auth.KillswitchManage, ref.AppID, env.Key); err != nil {
 			return err
 		}
 		ch, err := q.GetChannelForUpdate(ctx, dbgen.GetChannelForUpdateParams{EnvironmentID: env.ID, Key: channelOrDefault(ref.ChannelKey)})

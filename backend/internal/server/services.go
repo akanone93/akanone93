@@ -43,6 +43,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/scheduler"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -98,6 +99,9 @@ type Services struct {
 	// Notify delivers notifications and outbound webhooks (SRV-062,
 	// SRV-063); other services publish to it.
 	Notify *notify.Service
+	// Push stores device push tokens and sends the silent push of control
+	// document changes (SYN-060); off unless push.enabled is set.
+	Push *push.Service
 	// Scheduler drains the notification queues and fires function
 	// schedules on the elected leader; nil outside the worker role
 	// (FN-025).
@@ -382,7 +386,11 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
-	releases, err := buildReleases(cfg, db, set, work, releaseDeps{ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw), functions: functions})
+	pusher, err := buildPush(cfg, db, set, backend, tenancyService, work)
+	if err != nil {
+		return nil, err
+	}
+	releases, err := buildReleases(cfg, db, set, work, releaseDeps{push: pusher, ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw), functions: functions})
 	if err != nil {
 		return nil, err
 	}
@@ -408,7 +416,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		goldens = golden.New(golden.Options{DB: db, Audit: log, Objects: work.Objects, IDs: gen, Limits: set})
 	}
 	return &Services{
-		Goldens: goldens, Notify: notifier,
+		Goldens: goldens, Notify: notifier, Push: pusher,
 		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
@@ -532,6 +540,8 @@ type releaseDeps struct {
 	// functions supplies the function catalogue and device modules a
 	// compilation uses; nil where the installation runs no functions.
 	functions *function.Service
+	// push sends the silent push of a signed control document.
+	push *push.Service
 }
 
 // buildReleases assembles the release service, or returns nil when the
@@ -555,7 +565,7 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 		Devices: deps.devices, Gateway: deps.gateway, SecurityConfig: deps.configs, PublicBaseURL: cfg.Server.PublicBaseURL,
 		Crypter: deps.crypter, Recipients: deps.devices, Functions: functionsOf(deps.functions),
 		CompilerVersion: buildinfo.Get().Version, DevelopmentDays: cfg.Retention.DevelopmentReleaseDays,
-		Metadata: metadataOptions(cfg),
+		Metadata: metadataOptions(cfg), ControlNotifier: controlNotifier{push: deps.push},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
@@ -700,7 +710,7 @@ func (s *Server) handlersFor(svc *Services, limiter api.RateLimiter) *api.Handle
 	h := &api.Handlers{
 		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
 		Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
-		Limiter: limiter, Limits: s.limits, Edition: s.edition,
+		Limiter: limiter, Limits: s.limits, Edition: s.edition, Push: svc.Push,
 	}
 	if svc.AuditCheckpoints != nil {
 		h.AuditCheckpoints = svc.AuditCheckpoints
