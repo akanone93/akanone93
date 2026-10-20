@@ -15,10 +15,12 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
+	"github.com/nightCode42/plux3/backend/internal/storage/objects"
 )
 
 // The data classes retention applies to (maintainer decision Q17).
@@ -65,6 +67,13 @@ type Options struct {
 	Organizations func(ctx context.Context, f func(org string) error) error
 	// Export configures the OTLP export.
 	Export ExportOptions
+	// Notify announces alerts that fire and resolve (ANL-030); without it
+	// rules are still evaluated and their states kept, but nobody is told.
+	Notify notify.Publisher
+	// Objects reads the retained source maps and bundles that error groups
+	// are symbolicated from (ANL-040, CMP-041); without it groups are listed
+	// without a document path.
+	Objects objects.Store
 }
 
 // Service is analytics for the API and the worker.

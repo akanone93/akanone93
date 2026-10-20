@@ -49,6 +49,88 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.CancelRetentionChangeResponse'
+  /plux.v1.AnalyticsService/CreateAlertRule:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: CreateAlertRule
+      description: |-
+        CreateAlertRule defines an alert on a rollup metric (ANL-030). It needs
+         alerts.manage on the app and is audited.
+      operationId: plux.v1.AnalyticsService.CreateAlertRule
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateAlertRuleRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateAlertRuleResponse'
+  /plux.v1.AnalyticsService/DeleteAlertRule:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: DeleteAlertRule
+      description: |-
+        DeleteAlertRule removes a rule and its state. It needs alerts.manage on
+         the app and is audited.
+      operationId: plux.v1.AnalyticsService.DeleteAlertRule
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteAlertRuleRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteAlertRuleResponse'
   /plux.v1.AnalyticsService/DeleteExport:
     post:
       tags:
@@ -90,6 +172,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.DeleteExportResponse'
+  /plux.v1.AnalyticsService/GetErrorGroup:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: GetErrorGroup
+      description: |-
+        GetErrorGroup returns one group with its newest sample events. The first
+         read symbolicates it through the release's retained source map
+         (CMP-041). It needs analytics.read.
+      operationId: plux.v1.AnalyticsService.GetErrorGroup
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetErrorGroupRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetErrorGroupResponse'
   /plux.v1.AnalyticsService/GetExport:
     post:
       tags:
@@ -170,6 +294,129 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetRetentionResponse'
+  /plux.v1.AnalyticsService/ListAlertRules:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: ListAlertRules
+      description: |-
+        ListAlertRules lists the rules of an app, or of the organisation. It
+         needs analytics.read.
+      operationId: plux.v1.AnalyticsService.ListAlertRules
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListAlertRulesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListAlertRulesResponse'
+  /plux.v1.AnalyticsService/ListAlertStates:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: ListAlertStates
+      description: |-
+        ListAlertStates lists the current state of rules: ok, pending, firing or
+         resolved. It needs analytics.read.
+      operationId: plux.v1.AnalyticsService.ListAlertStates
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListAlertStatesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListAlertStatesResponse'
+  /plux.v1.AnalyticsService/ListErrorGroups:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: ListErrorGroups
+      description: |-
+        ListErrorGroups lists the error groups of an app, newest activity first,
+         with their trend by day (ANL-040). It needs analytics.read.
+      operationId: plux.v1.AnalyticsService.ListErrorGroups
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListErrorGroupsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListErrorGroupsResponse'
   /plux.v1.AnalyticsService/ListRetentionChanges:
     post:
       tags:
@@ -337,6 +584,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.SetRetentionResponse'
+  /plux.v1.AnalyticsService/UpdateAlertRule:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: UpdateAlertRule
+      description: |-
+        UpdateAlertRule replaces a rule's definition and resets its state. It
+         needs alerts.manage on the app and is audited.
+      operationId: plux.v1.AnalyticsService.UpdateAlertRule
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.UpdateAlertRuleRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.UpdateAlertRuleResponse'
   /plux.v1.AppService/CreateApp:
     post:
       tags:
@@ -9550,6 +9838,122 @@ components:
              exactly once and expires after seven days.
       title: AddMemberResponse
       additionalProperties: false
+    plux.v1.AlertRule:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        name:
+          type: string
+          title: name
+        metric:
+          type: string
+          title: metric
+          description: metric is an event name, such as render_perf or fatal_error.
+        environment:
+          type: string
+          title: environment
+          description: environment is an environment key; empty for all.
+        filters:
+          type: object
+          title: filters
+          additionalProperties:
+            type: string
+            title: value
+          description: |-
+            filters maps a rollup dimension (release, plugin, page, device_class,
+             locale) to the value a series must have.
+        aggregation:
+          type: string
+          title: aggregation
+          description: aggregation is count, sum, avg, min, max, p50, p90 or p99.
+        windowSeconds:
+          type: integer
+          title: window_seconds
+          format: int32
+        comparison:
+          type: string
+          title: comparison
+          description: comparison is >, >=, < or <=.
+        threshold:
+          type: number
+          title: threshold
+          format: double
+        forSeconds:
+          type: integer
+          title: for_seconds
+          format: int32
+        severity:
+          type: string
+          title: severity
+          description: severity is info, warning or critical.
+        enabled:
+          type: boolean
+          title: enabled
+        revision:
+          type: string
+          title: revision
+          format: int64
+        updatedBy:
+          type: string
+          title: updated_by
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+      title: AlertRule
+      additionalProperties: false
+      description: |-
+        AlertRule is a condition on a rollup metric (ANL-030). The aggregation of
+         the metric over the window is compared with the threshold; the rule fires
+         when the comparison has held for for_seconds.
+    plux.v1.AlertState:
+      type: object
+      properties:
+        ruleId:
+          type: string
+          title: rule_id
+        appId:
+          type: string
+          title: app_id
+        ruleName:
+          type: string
+          title: rule_name
+        state:
+          type: string
+          title: state
+          description: state is ok, pending, firing or resolved.
+        since:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: since
+          description: since is when the state began.
+        evaluatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: evaluated_at
+        value:
+          type:
+            - number
+            - "null"
+          title: value
+          format: double
+          description: value is the aggregation at the last evaluation; unset without data.
+        firedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: fired_at
+        resolvedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: resolved_at
+      title: AlertState
+      additionalProperties: false
+      description: AlertState is where a rule stands.
     plux.v1.Alias:
       type: object
       properties:
@@ -10870,6 +11274,25 @@ components:
           description: secret is returned exactly once and stored only as a hash.
       title: CreateAccessTokenResponse
       additionalProperties: false
+    plux.v1.CreateAlertRuleRequest:
+      type: object
+      properties:
+        rule:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.AlertRule'
+          title: rule
+          description: rule is the definition; id, revision and updated_* are ignored.
+      title: CreateAlertRuleRequest
+      additionalProperties: false
+    plux.v1.CreateAlertRuleResponse:
+      type: object
+      properties:
+        rule:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.AlertRule'
+          title: rule
+      title: CreateAlertRuleResponse
+      additionalProperties: false
     plux.v1.CreateAppRequest:
       type: object
       properties:
@@ -11462,6 +11885,18 @@ components:
             - $ref: '#/components/schemas/plux.v1.WorkloadIdentity'
           title: identity
       title: CreateWorkloadIdentityResponse
+      additionalProperties: false
+    plux.v1.DeleteAlertRuleRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: DeleteAlertRuleRequest
+      additionalProperties: false
+    plux.v1.DeleteAlertRuleResponse:
+      type: object
+      title: DeleteAlertRuleResponse
       additionalProperties: false
     plux.v1.DeleteAppRequest:
       type: object
@@ -12148,6 +12583,114 @@ components:
       description: |-
         Environment isolates variables, secrets, data-source URLs, signing keys
          and device registrations (GOV-010).
+    plux.v1.ErrorDay:
+      type: object
+      properties:
+        day:
+          type: string
+          title: day
+          description: day is YYYY-MM-DD.
+        events:
+          type: string
+          title: events
+          format: int64
+      title: ErrorDay
+      additionalProperties: false
+      description: ErrorDay is the events of a group on one UTC day.
+    plux.v1.ErrorGroup:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        releaseSequence:
+          type: string
+          title: release_sequence
+          format: int64
+        fingerprint:
+          type: string
+          title: fingerprint
+        code:
+          type: string
+          title: code
+          description: code is the error code, such as PLX-4101.
+        pluginKey:
+          type: string
+          title: plugin_key
+        route:
+          type: string
+          title: route
+        nodePath:
+          type: string
+          title: node_path
+          description: |-
+            node_path is where the runtime reported the error; Studio opens the
+             node by it (P11).
+        jsonPath:
+          type: string
+          title: json_path
+          description: |-
+            json_path and source_file are the document location the retained source
+             map gives for the node; empty when it cannot be resolved.
+        sourceFile:
+          type: string
+          title: source_file
+        frames:
+          type: array
+          items:
+            type: string
+          title: frames
+          description: frames are the normalised top frames the fingerprint covers.
+        fatal:
+          type: boolean
+          title: fatal
+        firstSeen:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: first_seen
+        lastSeen:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: last_seen
+        events:
+          type: string
+          title: events
+          format: int64
+        devices:
+          type: string
+          title: devices
+          format: int64
+        trend:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ErrorDay'
+          title: trend
+          description: trend is the events per UTC day over the window asked for.
+      title: ErrorGroup
+      additionalProperties: false
+      description: |-
+        ErrorGroup is the errors with one fingerprint in one release of an app
+         (ANL-040).
+    plux.v1.ErrorSample:
+      type: object
+      properties:
+        eventId:
+          type: string
+          title: event_id
+        occurredAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: occurred_at
+        fieldsJson:
+          type: string
+          title: fields_json
+          description: fields are the event's flat scalar fields as a JSON object.
+      title: ErrorSample
+      additionalProperties: false
+      description: ErrorSample is one event of a group.
     plux.v1.Event:
       type: object
       properties:
@@ -13129,6 +13672,32 @@ components:
             sha256 is the hash of effective_json, the value the manifest pins
              (SEC-182).
       title: GetEffectiveSecurityConfigResponse
+      additionalProperties: false
+    plux.v1.GetErrorGroupRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        days:
+          type: integer
+          title: days
+          format: int32
+      title: GetErrorGroupRequest
+      additionalProperties: false
+    plux.v1.GetErrorGroupResponse:
+      type: object
+      properties:
+        group:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ErrorGroup'
+          title: group
+        samples:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ErrorSample'
+          title: samples
+      title: GetErrorGroupResponse
       additionalProperties: false
     plux.v1.GetExportDestinationRequest:
       type: object
@@ -14519,6 +15088,47 @@ components:
           title: page
       title: ListAccessTokensResponse
       additionalProperties: false
+    plux.v1.ListAlertRulesRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+          description: app_id narrows the list to one app; empty for the organisation.
+      title: ListAlertRulesRequest
+      additionalProperties: false
+    plux.v1.ListAlertRulesResponse:
+      type: object
+      properties:
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.AlertRule'
+          title: rules
+      title: ListAlertRulesResponse
+      additionalProperties: false
+    plux.v1.ListAlertStatesRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        state:
+          type: string
+          title: state
+          description: state keeps one state; empty for all.
+      title: ListAlertStatesRequest
+      additionalProperties: false
+    plux.v1.ListAlertStatesResponse:
+      type: object
+      properties:
+        states:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.AlertState'
+          title: states
+      title: ListAlertStatesResponse
+      additionalProperties: false
     plux.v1.ListAppLimitsRequest:
       type: object
       properties:
@@ -14865,6 +15475,40 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListEnvironmentsResponse
+      additionalProperties: false
+    plux.v1.ListErrorGroupsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        releaseSequence:
+          type: string
+          title: release_sequence
+          format: int64
+          description: release_sequence keeps one release; 0 for all.
+        days:
+          type: integer
+          title: days
+          format: int32
+          description: |-
+            days is how far back groups were last seen and how long the trend is;
+             0 is the default of fourteen days.
+        limit:
+          type: integer
+          title: limit
+          format: int32
+      title: ListErrorGroupsRequest
+      additionalProperties: false
+    plux.v1.ListErrorGroupsResponse:
+      type: object
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ErrorGroup'
+          title: groups
+      title: ListErrorGroupsResponse
       additionalProperties: false
     plux.v1.ListEventTypesRequest:
       type: object
@@ -18542,6 +19186,25 @@ components:
     plux.v1.UnsubscribeResponse:
       type: object
       title: UnsubscribeResponse
+      additionalProperties: false
+    plux.v1.UpdateAlertRuleRequest:
+      type: object
+      properties:
+        rule:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.AlertRule'
+          title: rule
+          description: rule names the rule by id and carries its new definition.
+      title: UpdateAlertRuleRequest
+      additionalProperties: false
+    plux.v1.UpdateAlertRuleResponse:
+      type: object
+      properties:
+        rule:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.AlertRule'
+          title: rule
+      title: UpdateAlertRuleResponse
       additionalProperties: false
     plux.v1.UpdateAppRequest:
       type: object

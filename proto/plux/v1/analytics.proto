@@ -40,6 +40,28 @@ service AnalyticsService {
   // DeleteExport removes the OTLP destination. It needs organization.manage
   // and is audited.
   rpc DeleteExport(DeleteExportRequest) returns (DeleteExportResponse) {}
+  // CreateAlertRule defines an alert on a rollup metric (ANL-030). It needs
+  // alerts.manage on the app and is audited.
+  rpc CreateAlertRule(CreateAlertRuleRequest) returns (CreateAlertRuleResponse) {}
+  // UpdateAlertRule replaces a rule's definition and resets its state. It
+  // needs alerts.manage on the app and is audited.
+  rpc UpdateAlertRule(UpdateAlertRuleRequest) returns (UpdateAlertRuleResponse) {}
+  // DeleteAlertRule removes a rule and its state. It needs alerts.manage on
+  // the app and is audited.
+  rpc DeleteAlertRule(DeleteAlertRuleRequest) returns (DeleteAlertRuleResponse) {}
+  // ListAlertRules lists the rules of an app, or of the organisation. It
+  // needs analytics.read.
+  rpc ListAlertRules(ListAlertRulesRequest) returns (ListAlertRulesResponse) {}
+  // ListAlertStates lists the current state of rules: ok, pending, firing or
+  // resolved. It needs analytics.read.
+  rpc ListAlertStates(ListAlertStatesRequest) returns (ListAlertStatesResponse) {}
+  // ListErrorGroups lists the error groups of an app, newest activity first,
+  // with their trend by day (ANL-040). It needs analytics.read.
+  rpc ListErrorGroups(ListErrorGroupsRequest) returns (ListErrorGroupsResponse) {}
+  // GetErrorGroup returns one group with its newest sample events. The first
+  // read symbolicates it through the release's retained source map
+  // (CMP-041). It needs analytics.read.
+  rpc GetErrorGroup(GetErrorGroupRequest) returns (GetErrorGroupResponse) {}
 }
 
 // RollupGroup is the dimension values of a point; a dimension not grouped by
@@ -184,3 +206,153 @@ message SetExportResponse {
 
 message DeleteExportRequest {}
 message DeleteExportResponse {}
+
+// AlertRule is a condition on a rollup metric (ANL-030). The aggregation of
+// the metric over the window is compared with the threshold; the rule fires
+// when the comparison has held for for_seconds.
+message AlertRule {
+  string id = 1;
+  string app_id = 2;
+  string name = 3;
+  // metric is an event name, such as render_perf or fatal_error.
+  string metric = 4;
+  // environment is an environment key; empty for all.
+  string environment = 5;
+  // filters maps a rollup dimension (release, plugin, page, device_class,
+  // locale) to the value a series must have.
+  map<string, string> filters = 6;
+  // aggregation is count, sum, avg, min, max, p50, p90 or p99.
+  string aggregation = 7;
+  int32 window_seconds = 8;
+  // comparison is >, >=, < or <=.
+  string comparison = 9;
+  double threshold = 10;
+  int32 for_seconds = 11;
+  // severity is info, warning or critical.
+  string severity = 12;
+  // disabled stops the rule being evaluated; its state is kept.
+  bool disabled = 13;
+  int64 revision = 14;
+  string updated_by = 15;
+  google.protobuf.Timestamp updated_at = 16;
+}
+
+// AlertState is where a rule stands.
+message AlertState {
+  string rule_id = 1;
+  string app_id = 2;
+  string rule_name = 3;
+  // state is ok, pending, firing or resolved.
+  string state = 4;
+  // since is when the state began.
+  google.protobuf.Timestamp since = 5;
+  google.protobuf.Timestamp evaluated_at = 6;
+  // value is the aggregation at the last evaluation; unset without data.
+  optional double value = 7;
+  google.protobuf.Timestamp fired_at = 8;
+  google.protobuf.Timestamp resolved_at = 9;
+}
+
+message CreateAlertRuleRequest {
+  // rule is the definition; id, revision and updated_* are ignored.
+  AlertRule rule = 1;
+}
+message CreateAlertRuleResponse {
+  AlertRule rule = 1;
+}
+
+message UpdateAlertRuleRequest {
+  // rule names the rule by id and carries its new definition.
+  AlertRule rule = 1;
+}
+message UpdateAlertRuleResponse {
+  AlertRule rule = 1;
+}
+
+message DeleteAlertRuleRequest {
+  string id = 1;
+}
+message DeleteAlertRuleResponse {}
+
+message ListAlertRulesRequest {
+  // app_id narrows the list to one app; empty for the organisation.
+  string app_id = 1;
+}
+message ListAlertRulesResponse {
+  repeated AlertRule rules = 1;
+}
+
+message ListAlertStatesRequest {
+  string app_id = 1;
+  // state keeps one state; empty for all.
+  string state = 2;
+}
+message ListAlertStatesResponse {
+  repeated AlertState states = 1;
+}
+
+// ErrorDay is the events of a group on one UTC day.
+message ErrorDay {
+  // day is YYYY-MM-DD.
+  string day = 1;
+  int64 events = 2;
+}
+
+// ErrorGroup is the errors with one fingerprint in one release of an app
+// (ANL-040).
+message ErrorGroup {
+  string id = 1;
+  string app_id = 2;
+  int64 release_sequence = 3;
+  string fingerprint = 4;
+  // code is the error code, such as PLX-4101.
+  string code = 5;
+  string plugin_key = 6;
+  string route = 7;
+  // node_path is where the runtime reported the error; Studio opens the
+  // node by it (P11).
+  string node_path = 8;
+  // json_path and source_file are the document location the retained source
+  // map gives for the node; empty when it cannot be resolved.
+  string json_path = 9;
+  string source_file = 10;
+  // frames are the normalised top frames the fingerprint covers.
+  repeated string frames = 11;
+  bool fatal = 12;
+  google.protobuf.Timestamp first_seen = 13;
+  google.protobuf.Timestamp last_seen = 14;
+  int64 events = 15;
+  int64 devices = 16;
+  // trend is the events per UTC day over the window asked for.
+  repeated ErrorDay trend = 17;
+}
+
+// ErrorSample is one event of a group.
+message ErrorSample {
+  string event_id = 1;
+  google.protobuf.Timestamp occurred_at = 2;
+  // fields are the event's flat scalar fields as a JSON object.
+  string fields_json = 3;
+}
+
+message ListErrorGroupsRequest {
+  string app_id = 1;
+  // release_sequence keeps one release; 0 for all.
+  int64 release_sequence = 2;
+  // days is how far back groups were last seen and how long the trend is;
+  // 0 is the default of fourteen days.
+  int32 days = 3;
+  int32 limit = 4;
+}
+message ListErrorGroupsResponse {
+  repeated ErrorGroup groups = 1;
+}
+
+message GetErrorGroupRequest {
+  string id = 1;
+  int32 days = 2;
+}
+message GetErrorGroupResponse {
+  ErrorGroup group = 1;
+  repeated ErrorSample samples = 2;
+}
