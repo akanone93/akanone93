@@ -192,21 +192,22 @@ INSERT INTO scim_users (organization_id, user_id, external_id, display_name, act
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
--- name: GetScimUser :one
-SELECT * FROM scim_users WHERE organization_id = $1 AND user_id = $2;
-
 -- name: GetScimUserForUpdate :one
+-- The record including a deleted one, so that a rehire revives it.
 SELECT * FROM scim_users WHERE organization_id = $1 AND user_id = $2 FOR UPDATE;
 
 -- name: UpdateScimUser :one
+-- Sets the record; a record that was deleted is revived.
 UPDATE scim_users
-   SET external_id = $3, display_name = $4, active = $5, disabled_account = $6,
+   SET external_id = $3, display_name = $4, active = $5, disabled_account = $6, deleted_at = NULL,
        version = version + 1, updated_at = now()
  WHERE organization_id = $1 AND user_id = $2
 RETURNING *;
 
 -- name: DeleteScimUser :execrows
-DELETE FROM scim_users WHERE organization_id = $1 AND user_id = $2;
+UPDATE scim_users
+   SET deleted_at = now(), active = false, version = version + 1, updated_at = now()
+ WHERE organization_id = $1 AND user_id = $2 AND deleted_at IS NULL;
 
 -- name: ListScimUsers :many
 -- A page of the organisation's SCIM users joined to their accounts, by
@@ -218,7 +219,7 @@ SELECT s.organization_id, s.user_id, s.external_id, s.display_name, s.active, s.
        count(*) OVER ()::bigint AS total
   FROM scim_users s
   JOIN users u ON u.id = s.user_id
- WHERE s.organization_id = sqlc.arg(organization_id)
+ WHERE s.organization_id = sqlc.arg(organization_id) AND s.deleted_at IS NULL
    AND (sqlc.arg(attribute)::text = ''
         OR (sqlc.arg(attribute)::text = 'userName' AND lower(u.email) = lower(sqlc.arg(value)::text))
         OR (sqlc.arg(attribute)::text = 'externalId' AND s.external_id = sqlc.arg(value)::text)
@@ -228,11 +229,11 @@ SELECT s.organization_id, s.user_id, s.external_id, s.display_name, s.active, s.
 
 -- name: GetScimUserWithAccount :one
 SELECT s.organization_id, s.user_id, s.external_id, s.display_name, s.active, s.created_account,
-       s.disabled_account, s.version, s.created_at, s.updated_at,
+       s.disabled_account, s.deleted_at, s.version, s.created_at, s.updated_at,
        u.email, u.display_name AS account_name
   FROM scim_users s
   JOIN users u ON u.id = s.user_id
- WHERE s.organization_id = $1 AND s.user_id = $2;
+ WHERE s.organization_id = $1 AND s.user_id = $2 AND s.deleted_at IS NULL;
 
 -- name: ListScimGroupRefsOfUser :many
 SELECT t.id, t.name
@@ -301,3 +302,32 @@ SELECT m.user_id, u.email, u.display_name
 
 -- name: DeleteScimGroup :execrows
 DELETE FROM scim_groups WHERE organization_id = $1 AND team_id = $2;
+
+-- name: UserHasAccessIn :one
+-- Whether a person belongs to an organisation in any way: a membership, a
+-- grant, app access or a SCIM record.
+SELECT EXISTS (SELECT 1 FROM memberships m WHERE m.organization_id = sqlc.arg(organization_id)::uuid AND m.user_id = sqlc.arg(user_id)::uuid)
+    OR EXISTS (SELECT 1 FROM role_grants g WHERE g.organization_id = sqlc.arg(organization_id)::uuid AND g.user_id = sqlc.arg(user_id)::uuid)
+    OR EXISTS (SELECT 1 FROM app_access a WHERE a.organization_id = sqlc.arg(organization_id)::uuid AND a.user_id = sqlc.arg(user_id)::uuid)
+    OR EXISTS (SELECT 1 FROM scim_users s WHERE s.organization_id = sqlc.arg(organization_id)::uuid AND s.user_id = sqlc.arg(user_id)::uuid) AS has_access;
+
+-- name: SetUserEmail :execrows
+UPDATE users SET email = $2 WHERE id = $1;
+
+-- name: SetUserDisplayName :exec
+UPDATE users SET display_name = $2 WHERE id = $1;
+
+-- name: CountScimUsers :one
+SELECT count(*) FROM scim_users s JOIN users u ON u.id = s.user_id
+ WHERE s.organization_id = sqlc.arg(organization_id) AND s.deleted_at IS NULL
+   AND (sqlc.arg(attribute)::text = ''
+        OR (sqlc.arg(attribute)::text = 'userName' AND lower(u.email) = lower(sqlc.arg(value)::text))
+        OR (sqlc.arg(attribute)::text = 'externalId' AND s.external_id = sqlc.arg(value)::text)
+        OR (sqlc.arg(attribute)::text = 'displayName' AND s.display_name = sqlc.arg(value)::text));
+
+-- name: CountScimGroups :one
+SELECT count(*) FROM scim_groups g JOIN teams t ON t.id = g.team_id
+ WHERE g.organization_id = sqlc.arg(organization_id)
+   AND (sqlc.arg(attribute)::text = ''
+        OR (sqlc.arg(attribute)::text = 'externalId' AND g.external_id = sqlc.arg(value)::text)
+        OR (sqlc.arg(attribute)::text = 'displayName' AND t.name = sqlc.arg(value)::text));

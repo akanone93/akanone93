@@ -29,6 +29,12 @@ var IdentityPublic = map[string]bool{
 	pluxv1connect.IdentityServiceStartDeviceAuthorizationProcedure: true,
 	pluxv1connect.IdentityServicePollDeviceAuthorizationProcedure:  true,
 	pluxv1connect.IdentityServiceExchangeWorkloadIdentityProcedure: true,
+	// FederationService: the sign-in page's list of providers and the SAML
+	// sign-in, which authenticate by what they carry.
+	pluxv1connect.FederationServiceListSignInProvidersProcedure: true,
+	pluxv1connect.FederationServiceStartSamlLoginProcedure:      true,
+	pluxv1connect.FederationServiceCompleteSamlLoginProcedure:   true,
+	pluxv1connect.FederationServiceGetSamlMetadataProcedure:     true,
 }
 
 // Identity serves IdentityService.
@@ -110,8 +116,8 @@ func (s Identity) CompleteMfa(ctx context.Context, req *connect.Request[pluxv1.C
 }
 
 // StartOidcLogin begins a sign-in with the OpenID Connect provider.
-func (s Identity) StartOidcLogin(ctx context.Context, _ *connect.Request[pluxv1.StartOidcLoginRequest]) (*connect.Response[pluxv1.StartOidcLoginResponse], error) {
-	login, err := s.h.Auth.StartOIDCLogin(ctx)
+func (s Identity) StartOidcLogin(ctx context.Context, req *connect.Request[pluxv1.StartOidcLoginRequest]) (*connect.Response[pluxv1.StartOidcLoginResponse], error) {
+	login, err := s.h.Auth.StartProviderLogin(ctx, req.Msg.GetProviderId())
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
 	}

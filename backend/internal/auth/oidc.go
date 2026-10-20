@@ -19,8 +19,8 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/signing"
@@ -33,8 +33,10 @@ import (
 // a confidential client. The provider authenticates the person; Plux
 // decides who they are. An identity is linked to an account that already
 // exists — created by invitation, like every account — on its first
-// sign-in, by the address the provider says it verified. Provisioning,
-// group mapping and SAML are GOV-004's, in P9.
+// sign-in, by the address the provider says it verified. Several providers
+// may be configured, per installation and per organisation (federation.go,
+// GOV-004); the linking, group mapping and provisioning they share are in
+// signInExternal.
 
 // oidcLoginTTL is how long a sign-in may take at the provider.
 const oidcLoginTTL = 10 * time.Minute
@@ -159,6 +161,14 @@ type OIDCLogin struct {
 	ExpiresAt time.Time
 }
 
+// oidcTarget is the provider a sign-in goes through: the one in the
+// configuration file, or one an administrator configured.
+type oidcTarget struct {
+	provider *OIDCProvider
+	// row is nil for the provider in the configuration file.
+	row *dbgen.IdentityProvider
+}
+
 // oidcRequired refuses when no provider is configured.
 func (s *Service) oidcRequired() error {
 	if s.o.OIDC == nil {
@@ -172,13 +182,21 @@ func oidcBinding(stateHash []byte) []byte {
 	return append([]byte("oidc-login:"), stateHash...)
 }
 
-// StartOIDCLogin begins a sign-in with the provider and returns where to
-// send the browser.
+// StartOIDCLogin begins a sign-in with the provider in the configuration
+// file and returns where to send the browser.
 func (s *Service) StartOIDCLogin(ctx context.Context) (OIDCLogin, error) {
-	if err := s.oidcRequired(); err != nil {
+	return s.StartProviderLogin(ctx, "")
+}
+
+// StartProviderLogin begins a sign-in with an OpenID Connect provider and
+// returns where to send the browser. An empty providerID selects the
+// provider in the configuration file.
+func (s *Service) StartProviderLogin(ctx context.Context, providerID string) (OIDCLogin, error) {
+	target, err := s.oidcTargetFor(ctx, providerID)
+	if err != nil {
 		return OIDCLogin{}, err
 	}
-	m, err := s.o.OIDC.discover(ctx)
+	m, err := target.provider.discover(ctx)
 	if err != nil {
 		return OIDCLogin{}, plxerr.Wrap(plxerr.UpstreamUnavailable, err, "the sign-in provider cannot be reached")
 	}
@@ -192,16 +210,20 @@ func (s *Service) StartOIDCLogin(ctx context.Context) (OIDCLogin, error) {
 		return OIDCLogin{}, fmt.Errorf("auth: %w", err)
 	}
 	expires := s.now().Add(oidcLoginTTL)
+	var provider pgtype.UUID
+	if target.row != nil {
+		provider = target.row.ID
+	}
 	if err := s.inTx(ctx, storage.Tenant{Scope: storage.ScopeInstallation}, func(ctx context.Context, tx pgx.Tx) error {
-		return dbgen.New(tx).CreateOIDCLogin(ctx, dbgen.CreateOIDCLoginParams{ //nolint:wrapcheck // wrapped below
-			StateHash: state.Hash, Nonce: nonce, Verifier: sealed.Encode(), ExpiresAt: storage.Timestamp(expires),
+		return dbgen.New(tx).CreateProviderOIDCLogin(ctx, dbgen.CreateProviderOIDCLoginParams{ //nolint:wrapcheck // wrapped below
+			StateHash: state.Hash, Nonce: nonce, Verifier: sealed.Encode(), ExpiresAt: storage.Timestamp(expires), ProviderID: provider,
 		})
 	}); err != nil {
 		return OIDCLogin{}, fmt.Errorf("auth: record the sign-in: %w", err)
 	}
 	challenge := sha256.Sum256([]byte(verifier))
 	q := url.Values{
-		"response_type": {"code"}, "client_id": {s.o.OIDC.ClientID}, "redirect_uri": {s.o.OIDC.RedirectURL},
+		"response_type": {"code"}, "client_id": {target.provider.ClientID}, "redirect_uri": {target.provider.RedirectURL},
 		"scope": {"openid email profile"}, "state": {state.Value}, "nonce": {nonce},
 		"code_challenge": {base64.RawURLEncoding.EncodeToString(challenge[:])}, "code_challenge_method": {"S256"},
 	}
@@ -216,9 +238,6 @@ func (s *Service) StartOIDCLogin(ctx context.Context) (OIDCLogin, error) {
 // Like a password, it yields a session, or a challenge when the account
 // has a confirmed second factor.
 func (s *Service) CompleteOIDCLogin(ctx context.Context, state, code string) (Session, Challenge, error) {
-	if err := s.oidcRequired(); err != nil {
-		return Session{}, Challenge{}, err
-	}
 	var login dbgen.OidcLogin
 	err := s.inTx(ctx, storage.Tenant{Scope: storage.ScopeInstallation}, func(ctx context.Context, tx pgx.Tx) error {
 		var err error
@@ -231,39 +250,30 @@ func (s *Service) CompleteOIDCLogin(ctx context.Context, state, code string) (Se
 	if err != nil {
 		return Session{}, Challenge{}, fmt.Errorf("auth: read the sign-in: %w", err)
 	}
-	claims, err := s.oidcClaims(ctx, login, code)
+	target, err := s.oidcTargetFor(ctx, storage.ID(login.ProviderID))
 	if err != nil {
 		return Session{}, Challenge{}, err
 	}
-	var (
-		session   Session
-		challenge Challenge
-		refused   bool
-	)
-	err = s.inTx(ctx, storage.Tenant{Scope: storage.ScopeInstallation}, func(ctx context.Context, tx pgx.Tx) error {
-		row, ok, err := s.linkedUser(ctx, tx, claims)
-		if err != nil || !ok {
-			refused = !ok
-			return err
-		}
-		if row.DisabledAt.Valid {
-			refused = true
-			return s.refusal(ctx, tx, row)
-		}
-		session, challenge, err = s.signedIn(ctx, tx, row)
-		return err
-	})
+	claims, err := s.oidcClaims(ctx, login, code, target.provider)
 	if err != nil {
 		return Session{}, Challenge{}, err
 	}
-	if refused {
-		return Session{}, Challenge{}, signInRefused()
+	ext := externalLogin{
+		row: target.row, issuer: target.provider.Issuer, subject: claims.Subject, email: claims.Email,
+		emailVerified: claims.emailVerified(), name: claims.Name, sid: claims.SessionID, acr: claims.ACR, amr: claims.AMR,
 	}
-	return session, challenge, nil
+	if target.row != nil {
+		m, err := parseMapping(target.row.Mapping)
+		if err != nil {
+			return Session{}, Challenge{}, err
+		}
+		ext.groups = claims.StringsClaim(m.claim())
+	}
+	return s.signInExternal(ctx, ext)
 }
 
 // oidcClaims redeems the code and verifies the ID token and its nonce.
-func (s *Service) oidcClaims(ctx context.Context, login dbgen.OidcLogin, code string) (Claims, error) {
+func (s *Service) oidcClaims(ctx context.Context, login dbgen.OidcLogin, code string, provider *OIDCProvider) (Claims, error) {
 	sealed, err := signing.DecodeSealed(login.Verifier)
 	if err != nil {
 		return Claims{}, fmt.Errorf("auth: %w", err)
@@ -272,15 +282,15 @@ func (s *Service) oidcClaims(ctx context.Context, login dbgen.OidcLogin, code st
 	if err != nil {
 		return Claims{}, fmt.Errorf("auth: %w", err)
 	}
-	m, err := s.o.OIDC.discover(ctx)
+	m, err := provider.discover(ctx)
 	if err != nil {
 		return Claims{}, plxerr.Wrap(plxerr.UpstreamUnavailable, err, "the sign-in provider cannot be reached")
 	}
-	token, err := s.o.OIDC.exchange(ctx, m.TokenEndpoint, code, string(verifier))
+	token, err := provider.exchange(ctx, m.TokenEndpoint, code, string(verifier))
 	if err != nil {
 		return Claims{}, plxerr.Wrap(plxerr.AuthenticationRequired, err, "the sign-in provider did not confirm the sign-in")
 	}
-	claims, err := s.o.OIDC.verifier.Verify(ctx, token, s.o.OIDC.ClientID)
+	claims, err := provider.verifier.Verify(ctx, token, provider.ClientID)
 	if err != nil {
 		return Claims{}, plxerr.Wrap(plxerr.AuthenticationRequired, err, "the sign-in provider's token does not verify")
 	}
@@ -288,54 +298,6 @@ func (s *Service) oidcClaims(ctx context.Context, login dbgen.OidcLogin, code st
 		return Claims{}, plxerr.New(plxerr.AuthenticationRequired, "the sign-in provider's token belongs to another sign-in")
 	}
 	return claims, nil
-}
-
-// linkedUser finds the account of a provider identity, linking it by
-// verified address on its first sign-in. It reports false when no
-// account may be used.
-func (s *Service) linkedUser(ctx context.Context, tx pgx.Tx, c Claims) (dbgen.User, bool, error) {
-	q := dbgen.New(tx)
-	link, err := q.GetUserIdentity(ctx, dbgen.GetUserIdentityParams{Issuer: s.o.OIDC.Issuer, Subject: c.Subject})
-	switch {
-	case err == nil:
-		row, err := q.GetUser(ctx, link.UserID)
-		if err != nil {
-			return dbgen.User{}, false, fmt.Errorf("auth: read a user: %w", err)
-		}
-		return row, true, nil
-	case !errors.Is(err, pgx.ErrNoRows):
-		return dbgen.User{}, false, fmt.Errorf("auth: read an identity: %w", err)
-	}
-	if c.Email == "" || !c.emailVerified() {
-		return dbgen.User{}, false, nil
-	}
-	row, err := q.GetUserByEmail(ctx, strings.ToLower(strings.TrimSpace(c.Email)))
-	if errors.Is(err, pgx.ErrNoRows) {
-		return dbgen.User{}, false, nil
-	}
-	if err != nil {
-		return dbgen.User{}, false, fmt.Errorf("auth: read a user: %w", err)
-	}
-	id, err := s.newID()
-	if err != nil {
-		return dbgen.User{}, false, err
-	}
-	if _, err := q.LinkUserIdentity(ctx, dbgen.LinkUserIdentityParams{
-		ID: storage.MustUUID(id), UserID: row.ID, Issuer: s.o.OIDC.Issuer, Subject: c.Subject,
-	}); err != nil {
-		return dbgen.User{}, false, fmt.Errorf("auth: link an identity: %w", err)
-	}
-	if row.InvitationHash != nil {
-		// Signing in through the provider accepts the invitation: the
-		// provider has proved the address it was sent to.
-		if row, err = q.AcceptInvitationExternally(ctx, row.ID); err != nil {
-			return dbgen.User{}, false, fmt.Errorf("auth: accept the invitation: %w", err)
-		}
-	}
-	return row, true, s.record(ctx, tx, audit.Entry{
-		Actor:  audit.Actor{Kind: KindUser, ID: storage.ID(row.ID), Display: row.DisplayName},
-		Action: audit.IdentityLinked, TargetKind: "user", TargetID: storage.ID(row.ID), Detail: s.o.OIDC.Issuer,
-	})
 }
 
 // signedIn finishes a first-factor sign-in: a challenge when the account

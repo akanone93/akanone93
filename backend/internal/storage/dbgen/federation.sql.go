@@ -51,6 +51,49 @@ func (q *Queries) CountOtherEnabledInstallationProviders(ctx context.Context, ex
 	return count, err
 }
 
+const countScimGroups = `-- name: CountScimGroups :one
+SELECT count(*) FROM scim_groups g JOIN teams t ON t.id = g.team_id
+ WHERE g.organization_id = $1
+   AND ($2::text = ''
+        OR ($2::text = 'externalId' AND g.external_id = $3::text)
+        OR ($2::text = 'displayName' AND t.name = $3::text))
+`
+
+type CountScimGroupsParams struct {
+	OrganizationID pgtype.UUID
+	Attribute      string
+	Value          string
+}
+
+func (q *Queries) CountScimGroups(ctx context.Context, arg CountScimGroupsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countScimGroups, arg.OrganizationID, arg.Attribute, arg.Value)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countScimUsers = `-- name: CountScimUsers :one
+SELECT count(*) FROM scim_users s JOIN users u ON u.id = s.user_id
+ WHERE s.organization_id = $1 AND s.deleted_at IS NULL
+   AND ($2::text = ''
+        OR ($2::text = 'userName' AND lower(u.email) = lower($3::text))
+        OR ($2::text = 'externalId' AND s.external_id = $3::text)
+        OR ($2::text = 'displayName' AND s.display_name = $3::text))
+`
+
+type CountScimUsersParams struct {
+	OrganizationID pgtype.UUID
+	Attribute      string
+	Value          string
+}
+
+func (q *Queries) CountScimUsers(ctx context.Context, arg CountScimUsersParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countScimUsers, arg.OrganizationID, arg.Attribute, arg.Value)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createFederatedAssignment = `-- name: CreateFederatedAssignment :exec
 INSERT INTO federated_assignments (id, organization_id, provider_id, user_id, role_grant_id, membership_id)
 VALUES ($1, $2, $3, $4,
@@ -326,7 +369,7 @@ func (q *Queries) CreateScimToken(ctx context.Context, arg CreateScimTokenParams
 const createScimUser = `-- name: CreateScimUser :one
 INSERT INTO scim_users (organization_id, user_id, external_id, display_name, active, created_account)
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING organization_id, user_id, external_id, display_name, active, created_account, disabled_account, version, created_at, updated_at
+RETURNING organization_id, user_id, external_id, display_name, active, created_account, disabled_account, deleted_at, version, created_at, updated_at
 `
 
 type CreateScimUserParams struct {
@@ -356,6 +399,7 @@ func (q *Queries) CreateScimUser(ctx context.Context, arg CreateScimUserParams) 
 		&i.Active,
 		&i.CreatedAccount,
 		&i.DisabledAccount,
+		&i.DeletedAt,
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -494,7 +538,9 @@ func (q *Queries) DeleteScimGroup(ctx context.Context, arg DeleteScimGroupParams
 }
 
 const deleteScimUser = `-- name: DeleteScimUser :execrows
-DELETE FROM scim_users WHERE organization_id = $1 AND user_id = $2
+UPDATE scim_users
+   SET deleted_at = now(), active = false, version = version + 1, updated_at = now()
+ WHERE organization_id = $1 AND user_id = $2 AND deleted_at IS NULL
 `
 
 type DeleteScimUserParams struct {
@@ -763,35 +809,8 @@ func (q *Queries) GetScimTokenByHash(ctx context.Context, secretHash []byte) (Sc
 	return i, err
 }
 
-const getScimUser = `-- name: GetScimUser :one
-SELECT organization_id, user_id, external_id, display_name, active, created_account, disabled_account, version, created_at, updated_at FROM scim_users WHERE organization_id = $1 AND user_id = $2
-`
-
-type GetScimUserParams struct {
-	OrganizationID pgtype.UUID
-	UserID         pgtype.UUID
-}
-
-func (q *Queries) GetScimUser(ctx context.Context, arg GetScimUserParams) (ScimUser, error) {
-	row := q.db.QueryRow(ctx, getScimUser, arg.OrganizationID, arg.UserID)
-	var i ScimUser
-	err := row.Scan(
-		&i.OrganizationID,
-		&i.UserID,
-		&i.ExternalID,
-		&i.DisplayName,
-		&i.Active,
-		&i.CreatedAccount,
-		&i.DisabledAccount,
-		&i.Version,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
 const getScimUserForUpdate = `-- name: GetScimUserForUpdate :one
-SELECT organization_id, user_id, external_id, display_name, active, created_account, disabled_account, version, created_at, updated_at FROM scim_users WHERE organization_id = $1 AND user_id = $2 FOR UPDATE
+SELECT organization_id, user_id, external_id, display_name, active, created_account, disabled_account, deleted_at, version, created_at, updated_at FROM scim_users WHERE organization_id = $1 AND user_id = $2 FOR UPDATE
 `
 
 type GetScimUserForUpdateParams struct {
@@ -799,6 +818,7 @@ type GetScimUserForUpdateParams struct {
 	UserID         pgtype.UUID
 }
 
+// The record including a deleted one, so that a rehire revives it.
 func (q *Queries) GetScimUserForUpdate(ctx context.Context, arg GetScimUserForUpdateParams) (ScimUser, error) {
 	row := q.db.QueryRow(ctx, getScimUserForUpdate, arg.OrganizationID, arg.UserID)
 	var i ScimUser
@@ -810,6 +830,7 @@ func (q *Queries) GetScimUserForUpdate(ctx context.Context, arg GetScimUserForUp
 		&i.Active,
 		&i.CreatedAccount,
 		&i.DisabledAccount,
+		&i.DeletedAt,
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -819,11 +840,11 @@ func (q *Queries) GetScimUserForUpdate(ctx context.Context, arg GetScimUserForUp
 
 const getScimUserWithAccount = `-- name: GetScimUserWithAccount :one
 SELECT s.organization_id, s.user_id, s.external_id, s.display_name, s.active, s.created_account,
-       s.disabled_account, s.version, s.created_at, s.updated_at,
+       s.disabled_account, s.deleted_at, s.version, s.created_at, s.updated_at,
        u.email, u.display_name AS account_name
   FROM scim_users s
   JOIN users u ON u.id = s.user_id
- WHERE s.organization_id = $1 AND s.user_id = $2
+ WHERE s.organization_id = $1 AND s.user_id = $2 AND s.deleted_at IS NULL
 `
 
 type GetScimUserWithAccountParams struct {
@@ -839,6 +860,7 @@ type GetScimUserWithAccountRow struct {
 	Active          bool
 	CreatedAccount  bool
 	DisabledAccount bool
+	DeletedAt       pgtype.Timestamptz
 	Version         int64
 	CreatedAt       pgtype.Timestamptz
 	UpdatedAt       pgtype.Timestamptz
@@ -857,6 +879,7 @@ func (q *Queries) GetScimUserWithAccount(ctx context.Context, arg GetScimUserWit
 		&i.Active,
 		&i.CreatedAccount,
 		&i.DisabledAccount,
+		&i.DeletedAt,
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -1239,7 +1262,7 @@ SELECT s.organization_id, s.user_id, s.external_id, s.display_name, s.active, s.
        count(*) OVER ()::bigint AS total
   FROM scim_users s
   JOIN users u ON u.id = s.user_id
- WHERE s.organization_id = $1
+ WHERE s.organization_id = $1 AND s.deleted_at IS NULL
    AND ($2::text = ''
         OR ($2::text = 'userName' AND lower(u.email) = lower($3::text))
         OR ($2::text = 'externalId' AND s.external_id = $3::text)
@@ -1566,6 +1589,37 @@ func (q *Queries) SetIdentityProviderMapping(ctx context.Context, arg SetIdentit
 	return i, err
 }
 
+const setUserDisplayName = `-- name: SetUserDisplayName :exec
+UPDATE users SET display_name = $2 WHERE id = $1
+`
+
+type SetUserDisplayNameParams struct {
+	ID          pgtype.UUID
+	DisplayName string
+}
+
+func (q *Queries) SetUserDisplayName(ctx context.Context, arg SetUserDisplayNameParams) error {
+	_, err := q.db.Exec(ctx, setUserDisplayName, arg.ID, arg.DisplayName)
+	return err
+}
+
+const setUserEmail = `-- name: SetUserEmail :execrows
+UPDATE users SET email = $2 WHERE id = $1
+`
+
+type SetUserEmailParams struct {
+	ID    pgtype.UUID
+	Email string
+}
+
+func (q *Queries) SetUserEmail(ctx context.Context, arg SetUserEmailParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setUserEmail, arg.ID, arg.Email)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const takeSAMLLogin = `-- name: TakeSAMLLogin :one
 DELETE FROM saml_logins WHERE state_hash = $1 RETURNING state_hash, provider_id, request_id, created_at, expires_at
 `
@@ -1666,10 +1720,10 @@ func (q *Queries) UpdateScimGroup(ctx context.Context, arg UpdateScimGroupParams
 
 const updateScimUser = `-- name: UpdateScimUser :one
 UPDATE scim_users
-   SET external_id = $3, display_name = $4, active = $5, disabled_account = $6,
+   SET external_id = $3, display_name = $4, active = $5, disabled_account = $6, deleted_at = NULL,
        version = version + 1, updated_at = now()
  WHERE organization_id = $1 AND user_id = $2
-RETURNING organization_id, user_id, external_id, display_name, active, created_account, disabled_account, version, created_at, updated_at
+RETURNING organization_id, user_id, external_id, display_name, active, created_account, disabled_account, deleted_at, version, created_at, updated_at
 `
 
 type UpdateScimUserParams struct {
@@ -1681,6 +1735,7 @@ type UpdateScimUserParams struct {
 	DisabledAccount bool
 }
 
+// Sets the record; a record that was deleted is revived.
 func (q *Queries) UpdateScimUser(ctx context.Context, arg UpdateScimUserParams) (ScimUser, error) {
 	row := q.db.QueryRow(ctx, updateScimUser,
 		arg.OrganizationID,
@@ -1699,9 +1754,31 @@ func (q *Queries) UpdateScimUser(ctx context.Context, arg UpdateScimUserParams) 
 		&i.Active,
 		&i.CreatedAccount,
 		&i.DisabledAccount,
+		&i.DeletedAt,
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const userHasAccessIn = `-- name: UserHasAccessIn :one
+SELECT EXISTS (SELECT 1 FROM memberships m WHERE m.organization_id = $1::uuid AND m.user_id = $2::uuid)
+    OR EXISTS (SELECT 1 FROM role_grants g WHERE g.organization_id = $1::uuid AND g.user_id = $2::uuid)
+    OR EXISTS (SELECT 1 FROM app_access a WHERE a.organization_id = $1::uuid AND a.user_id = $2::uuid)
+    OR EXISTS (SELECT 1 FROM scim_users s WHERE s.organization_id = $1::uuid AND s.user_id = $2::uuid) AS has_access
+`
+
+type UserHasAccessInParams struct {
+	OrganizationID pgtype.UUID
+	UserID         pgtype.UUID
+}
+
+// Whether a person belongs to an organisation in any way: a membership, a
+// grant, app access or a SCIM record.
+func (q *Queries) UserHasAccessIn(ctx context.Context, arg UserHasAccessInParams) (*bool, error) {
+	row := q.db.QueryRow(ctx, userHasAccessIn, arg.OrganizationID, arg.UserID)
+	var has_access *bool
+	err := row.Scan(&has_access)
+	return has_access, err
 }

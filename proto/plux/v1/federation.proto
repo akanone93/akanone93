@@ -1,0 +1,305 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+import "plux/v1/common.proto";
+import "plux/v1/identity.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// FederationService manages identity federation (GOV-004, ADR-0074):
+// the OpenID Connect and SAML providers people sign in with, the mapping
+// from the groups a provider asserts to roles and teams, and the bearer
+// tokens of an organisation's SCIM client. Signing in with an OpenID
+// Connect provider is IdentityService.StartOidcLogin; the SAML sign-in is
+// here, beside the public list of providers a sign-in page offers.
+service FederationService {
+  // ListSignInProviders lists the providers a person may choose on the
+  // sign-in page: those of the installation and, when an organisation is
+  // named, its own. It takes no credential.
+  rpc ListSignInProviders(ListSignInProvidersRequest) returns (ListSignInProvidersResponse) {}
+  // StartSamlLogin begins a SAML sign-in and returns where to send the
+  // browser. SAML is an enterprise feature (PLX-8600).
+  rpc StartSamlLogin(StartSamlLoginRequest) returns (StartSamlLoginResponse) {}
+  // CompleteSamlLogin ends it with the response the identity provider
+  // posted to the assertion consumer service. An invalid response is
+  // PLX-6210, a replayed assertion PLX-6211. Like a password, it yields a
+  // session or a second-factor challenge.
+  rpc CompleteSamlLogin(CompleteSamlLoginRequest) returns (CompleteSamlLoginResponse) {}
+  // GetSamlMetadata returns the service provider's metadata document,
+  // which an identity provider's administrator imports.
+  rpc GetSamlMetadata(GetSamlMetadataRequest) returns (GetSamlMetadataResponse) {}
+
+  rpc ListIdentityProviders(ListIdentityProvidersRequest) returns (ListIdentityProvidersResponse) {}
+  rpc GetIdentityProvider(GetIdentityProviderRequest) returns (GetIdentityProviderResponse) {}
+  // CreateIdentityProvider configures a provider of the organisation, or of
+  // the whole installation (installation administrators only). The client
+  // secret is stored sealed and never returned.
+  rpc CreateIdentityProvider(CreateIdentityProviderRequest) returns (CreateIdentityProviderResponse) {}
+  rpc UpdateIdentityProvider(UpdateIdentityProviderRequest) returns (UpdateIdentityProviderResponse) {}
+  // DeleteIdentityProvider removes a provider and the grants and team
+  // memberships its mapping gave. It is refused while it is the last
+  // installation provider and password sign-in is off.
+  rpc DeleteIdentityProvider(DeleteIdentityProviderRequest) returns (DeleteIdentityProviderResponse) {}
+
+  rpc GetGroupMapping(GetGroupMappingRequest) returns (GetGroupMappingResponse) {}
+  // SetGroupMapping replaces a provider's mapping document. Every role must
+  // exist and be held by the caller, every app, environment and team must
+  // exist.
+  rpc SetGroupMapping(SetGroupMappingRequest) returns (SetGroupMappingResponse) {}
+
+  rpc ListScimTokens(ListScimTokensRequest) returns (ListScimTokensResponse) {}
+  // CreateScimToken makes a bearer token for the organisation's SCIM
+  // client. The secret is returned once. SCIM is an enterprise feature.
+  rpc CreateScimToken(CreateScimTokenRequest) returns (CreateScimTokenResponse) {}
+  // RotateScimToken makes a new token and lets the old one work for the
+  // overlap, so the identity provider can be switched over.
+  rpc RotateScimToken(RotateScimTokenRequest) returns (RotateScimTokenResponse) {}
+  rpc RevokeScimToken(RevokeScimTokenRequest) returns (RevokeScimTokenResponse) {}
+}
+
+// SignInProvider is a provider as the sign-in page shows it.
+message SignInProvider {
+  string id = 1;
+  // key names the provider within its organisation or the installation.
+  string key = 2;
+  // kind is "oidc" or "saml".
+  string kind = 3;
+  string name = 4;
+  // organization_key is empty for a provider of the installation.
+  string organization_key = 5;
+}
+
+message ListSignInProvidersRequest {
+  // organization_key is the organisation a person asks to sign in to; it
+  // may be empty.
+  string organization_key = 1;
+}
+message ListSignInProvidersResponse {
+  repeated SignInProvider providers = 1;
+}
+
+message StartSamlLoginRequest {
+  string provider_id = 1;
+}
+message StartSamlLoginResponse {
+  // url is where the browser goes to sign in.
+  string url = 1;
+  // state is the relay state; Studio keeps it for the callback.
+  string state = 2;
+  google.protobuf.Timestamp expires_at = 3;
+}
+
+message CompleteSamlLoginRequest {
+  string provider_id = 1;
+  // saml_response is the form field as posted: base64 of the XML.
+  string saml_response = 2;
+  // relay_state is empty for an identity-provider-initiated response.
+  string relay_state = 3;
+}
+message CompleteSamlLoginResponse {
+  Session session = 1;
+  MfaChallenge challenge = 2;
+}
+
+message GetSamlMetadataRequest {
+  string provider_id = 1;
+}
+message GetSamlMetadataResponse {
+  bytes metadata_xml = 1;
+}
+
+// OidcProviderConfig configures an OpenID Connect provider.
+message OidcProviderConfig {
+  string issuer = 1;
+  string client_id = 2;
+  // client_secret is write-only: it is sealed on create and update when
+  // set, and never returned.
+  string client_secret = 3;
+  // redirect_url is Studio's callback, registered with the provider.
+  string redirect_url = 4;
+  bool has_client_secret = 5;
+}
+
+// SamlProviderConfig configures a SAML provider.
+message SamlProviderConfig {
+  // idp_metadata_xml is the identity provider's metadata document, write-only;
+  // it fills the provider's entity ID, sign-on URL and signing certificates.
+  bytes idp_metadata_xml = 1;
+  string idp_entity_id = 2;
+  string idp_sso_url = 3;
+  repeated string idp_signing_certificates = 4;
+  // entity_id is the service provider's identifier (the audience); it
+  // defaults to the URL of the metadata.
+  string entity_id = 5;
+  // acs_url is the assertion consumer service URL: Studio's callback.
+  string acs_url = 6;
+  bool allow_idp_initiated = 7;
+  string email_attribute = 8;
+  string name_attribute = 9;
+  string groups_attribute = 10;
+  // service_provider_certificate_pem is the certificate for encrypted
+  // assertions, generated with the provider.
+  string service_provider_certificate_pem = 11;
+}
+
+// IdentityProvider is a configured provider.
+message IdentityProvider {
+  string id = 1;
+  // organization_id is empty for a provider of the whole installation.
+  string organization_id = 2;
+  string key = 3;
+  // kind is "oidc" or "saml".
+  string kind = 4;
+  string name = 5;
+  bool enabled = 6;
+  // jit_provisioning creates an account for a person the provider vouches
+  // for and no account exists for; off by default.
+  bool jit_provisioning = 7;
+  oneof config {
+    OidcProviderConfig oidc = 10;
+    SamlProviderConfig saml = 11;
+  }
+  google.protobuf.Timestamp created_at = 20;
+  google.protobuf.Timestamp updated_at = 21;
+}
+
+message ListIdentityProvidersRequest {
+  // installation_wide lists the installation's providers instead of the
+  // organisation's; it needs an installation administrator.
+  bool installation_wide = 1;
+  Page page = 2;
+}
+message ListIdentityProvidersResponse {
+  repeated IdentityProvider providers = 1;
+  PageResult page = 2;
+}
+
+message GetIdentityProviderRequest {
+  string id = 1;
+}
+message GetIdentityProviderResponse {
+  IdentityProvider provider = 1;
+}
+
+message CreateIdentityProviderRequest {
+  // installation_wide makes a provider of the whole installation; it needs
+  // an installation administrator. Otherwise the provider belongs to the
+  // organisation the call acts in.
+  bool installation_wide = 1;
+  IdentityProvider provider = 2;
+}
+message CreateIdentityProviderResponse {
+  IdentityProvider provider = 1;
+}
+
+message UpdateIdentityProviderRequest {
+  // provider.id names the provider; its key and kind cannot change.
+  IdentityProvider provider = 1;
+}
+message UpdateIdentityProviderResponse {
+  IdentityProvider provider = 1;
+}
+
+message DeleteIdentityProviderRequest {
+  string id = 1;
+}
+message DeleteIdentityProviderResponse {}
+
+// GrantRule is one grant a mapping rule gives.
+message GrantRule {
+  string role = 1;
+  // scope is "organization", "app" or "environment".
+  string scope = 2;
+  // app and environment are keys.
+  string app = 3;
+  string environment = 4;
+}
+
+// MappingRule gives the members of one group their grants and teams.
+message MappingRule {
+  // group is the value of the groups claim, compared exactly.
+  string group = 1;
+  // organization is the key of the organisation the rule acts in; required
+  // for a provider of the installation, absent for an organisation's.
+  string organization = 2;
+  repeated GrantRule grants = 3;
+  // teams are team keys.
+  repeated string teams = 4;
+}
+
+// GroupMapping is a provider's mapping document.
+message GroupMapping {
+  // groups_claim is the claim (OpenID Connect) or attribute (SAML) that
+  // carries the groups; empty selects "groups".
+  string groups_claim = 1;
+  repeated MappingRule rules = 2;
+}
+
+message GetGroupMappingRequest {
+  string provider_id = 1;
+}
+message GetGroupMappingResponse {
+  GroupMapping mapping = 1;
+}
+
+message SetGroupMappingRequest {
+  string provider_id = 1;
+  GroupMapping mapping = 2;
+}
+message SetGroupMappingResponse {
+  GroupMapping mapping = 1;
+}
+
+// ScimToken is a SCIM bearer token without its secret.
+message ScimToken {
+  string id = 1;
+  string organization_id = 2;
+  string name = 3;
+  // prefix identifies the token without revealing it.
+  string prefix = 4;
+  google.protobuf.Timestamp created_at = 5;
+  // expires_at is set on a token that was rotated away.
+  google.protobuf.Timestamp expires_at = 6;
+  google.protobuf.Timestamp revoked_at = 7;
+  google.protobuf.Timestamp last_used_at = 8;
+}
+
+message ListScimTokensRequest {
+  Page page = 1;
+}
+message ListScimTokensResponse {
+  repeated ScimToken tokens = 1;
+  PageResult page = 2;
+}
+
+message CreateScimTokenRequest {
+  string name = 1;
+}
+message CreateScimTokenResponse {
+  ScimToken token = 1;
+  // secret is the bearer token; it is shown once.
+  string secret = 2;
+}
+
+message RotateScimTokenRequest {
+  string id = 1;
+  // overlap_seconds is how long the old token keeps working; 0 selects the
+  // limit auth.scimTokenOverlapSeconds.
+  int64 overlap_seconds = 2;
+}
+message RotateScimTokenResponse {
+  ScimToken token = 1;
+  string secret = 2;
+  // previous is the rotated-away token, with the time it stops working.
+  ScimToken previous = 3;
+}
+
+message RevokeScimTokenRequest {
+  string id = 1;
+}
+message RevokeScimTokenResponse {}

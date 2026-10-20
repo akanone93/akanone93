@@ -744,7 +744,11 @@ func (x *CompleteMfaResponse) GetSession() *Session {
 }
 
 type StartOidcLoginRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// provider_id is the provider the person chose from
+	// FederationService.ListSignInProviders. Empty selects the provider in
+	// the server's configuration file.
+	ProviderId    string `protobuf:"bytes,1,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -777,6 +781,13 @@ func (x *StartOidcLoginRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use StartOidcLoginRequest.ProtoReflect.Descriptor instead.
 func (*StartOidcLoginRequest) Descriptor() ([]byte, []int) {
 	return file_plux_v1_identity_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *StartOidcLoginRequest) GetProviderId() string {
+	if x != nil {
+		return x.ProviderId
+	}
+	return ""
 }
 
 type StartOidcLoginResponse struct {
@@ -3499,8 +3510,10 @@ const file_plux_v1_identity_proto_rawDesc = "" +
 	"\fchallenge_id\x18\x01 \x01(\tR\vchallengeId\x12\x12\n" +
 	"\x04code\x18\x02 \x01(\tR\x04code\"A\n" +
 	"\x13CompleteMfaResponse\x12*\n" +
-	"\asession\x18\x01 \x01(\v2\x10.plux.v1.SessionR\asession\"\x17\n" +
-	"\x15StartOidcLoginRequest\"{\n" +
+	"\asession\x18\x01 \x01(\v2\x10.plux.v1.SessionR\asession\"8\n" +
+	"\x15StartOidcLoginRequest\x12\x1f\n" +
+	"\vprovider_id\x18\x01 \x01(\tR\n" +
+	"providerId\"{\n" +
 	"\x16StartOidcLoginResponse\x12\x10\n" +
 	"\x03url\x18\x01 \x01(\tR\x03url\x12\x14\n" +
 	"\x05state\x18\x02 \x01(\tR\x05state\x129\n" +

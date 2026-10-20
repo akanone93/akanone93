@@ -49,6 +49,54 @@ type Claims struct {
 	// EmailVerified is a boolean, or the string "true" some providers
 	// send.
 	EmailVerified any `json:"email_verified"`
+	// ID is the token's unique identifier (jti), which a logout token must
+	// carry so that a replay can be told.
+	ID string `json:"jti"`
+	// SessionID is the provider's session (sid), which a back-channel
+	// logout names.
+	SessionID string `json:"sid"`
+	// Events is the events claim of a logout token (OpenID Connect
+	// Back-Channel Logout 1.0 §2.4).
+	Events map[string]json.RawMessage `json:"events"`
+	// ACR and AMR are the authentication context class and methods the
+	// provider reports (OpenID Connect Core §2).
+	ACR string   `json:"acr"`
+	AMR []string `json:"amr"`
+
+	// raw holds every claim, for the ones a provider names by
+	// configuration, such as the group claim.
+	raw map[string]json.RawMessage
+}
+
+// Claim returns the raw value of a claim by name, and whether the token
+// carries it.
+func (c Claims) Claim(name string) (json.RawMessage, bool) {
+	v, ok := c.raw[name]
+	return v, ok
+}
+
+// StringsClaim returns a claim as a list of strings: a JSON array of
+// strings, or one string that may hold several separated by commas.
+func (c Claims) StringsClaim(name string) []string {
+	raw, ok := c.raw[name]
+	if !ok {
+		return nil
+	}
+	var list []string
+	if err := json.Unmarshal(raw, &list); err == nil {
+		return list
+	}
+	var one string
+	if err := json.Unmarshal(raw, &one); err != nil {
+		return nil
+	}
+	var out []string
+	for _, part := range strings.Split(one, ",") {
+		if part = strings.TrimSpace(part); part != "" {
+			out = append(out, part)
+		}
+	}
+	return out
 }
 
 // emailVerified reports whether the provider vouches for the address.
@@ -115,6 +163,19 @@ func NewVerifier(issuer string, client *http.Client, now func() time.Time) (*Ver
 // Verify checks a token's signature, issuer, audience and validity
 // window and returns its claims.
 func (v *Verifier) Verify(ctx context.Context, token, audience string) (Claims, error) {
+	claims, err := v.verify(ctx, token, audience)
+	if err != nil {
+		return Claims{}, err
+	}
+	if claims.Subject == "" {
+		return Claims{}, fmt.Errorf("%w: it names no subject", ErrInvalidToken)
+	}
+	return claims, nil
+}
+
+// verify checks everything about a token except that it names a subject,
+// which an ID token must and a logout token need not.
+func (v *Verifier) verify(ctx context.Context, token, audience string) (Claims, error) {
 	header, claims, signed, signature, err := split(token)
 	if err != nil {
 		return Claims{}, err
@@ -143,9 +204,6 @@ func (v *Verifier) Verify(ctx context.Context, token, audience string) (Claims, 
 	if claims.NotBefore != 0 && now.Add(v.maxSkew).Before(time.Unix(claims.NotBefore, 0)) {
 		return Claims{}, fmt.Errorf("%w: it is not valid yet", ErrInvalidToken)
 	}
-	if claims.Subject == "" {
-		return Claims{}, fmt.Errorf("%w: it names no subject", ErrInvalidToken)
-	}
 	return claims, nil
 }
 
@@ -168,6 +226,9 @@ func split(token string) (header, Claims, []byte, []byte, error) {
 	}
 	var c Claims
 	if err := decodeSegment(parts[1], &c); err != nil {
+		return header{}, Claims{}, nil, nil, err
+	}
+	if err := decodeSegment(parts[1], &c.raw); err != nil {
 		return header{}, Claims{}, nil, nil, err
 	}
 	signature, err := base64.RawURLEncoding.DecodeString(parts[2])

@@ -833,6 +833,7 @@ type ScimUser struct {
 	Active          bool
 	CreatedAccount  bool
 	DisabledAccount bool
+	DeletedAt       pgtype.Timestamptz
 	Version         int64
 	CreatedAt       pgtype.Timestamptz
 	UpdatedAt       pgtype.Timestamptz

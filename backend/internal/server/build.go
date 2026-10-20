@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/nightCode42/plux3/backend/edition"
+	"github.com/nightCode42/plux3/backend/ext/identity"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/compiler/media"
 	"github.com/nightCode42/plux3/backend/internal/config"
@@ -38,6 +39,7 @@ type buildOptions struct {
 	builder      function.Builder
 	linker       function.Linker
 	edition      edition.Provider
+	identity     identity.Extensions
 }
 
 // WithEdition gives the process the licence provider of the enterprise
@@ -45,6 +47,13 @@ type buildOptions struct {
 // enterprise feature (GOV-030, GOV-033).
 func WithEdition(p edition.Provider) BuildOption {
 	return func(o *buildOptions) { o.edition = p }
+}
+
+// WithIdentityExtensions gives the process the enterprise implementations of
+// SAML and SCIM (GOV-004); without it the process serves the community
+// defaults, which refuse with PLX-8600.
+func WithIdentityExtensions(e identity.Extensions) BuildOption {
+	return func(o *buildOptions) { o.identity = e }
 }
 
 // WithIdentityProviderClient makes the gateway read the key sets of
@@ -201,7 +210,7 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 			slog.String("directory", cfg.Signing.Directory))
 	}
 	queue := &JobQueue{}
-	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP}
+	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP, Identity: o.identity}
 	if cfg.Has(config.RoleWorker) {
 		// Only the worker transcodes and signs: compiling the codecs costs
 		// seconds of CPU the api role need not pay, and the api role must

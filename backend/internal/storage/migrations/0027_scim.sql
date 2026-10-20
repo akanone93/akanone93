@@ -47,12 +47,16 @@ CREATE TABLE scim_users (
     active           boolean     NOT NULL DEFAULT true,
     created_account  boolean     NOT NULL DEFAULT false,
     disabled_account boolean     NOT NULL DEFAULT false,
+    -- deleted_at marks a person the client deleted: the record is kept, so
+    -- that a rehire can be told from a stranger, and is invisible to SCIM.
+    deleted_at       timestamptz,
     version          bigint      NOT NULL DEFAULT 1,
     created_at       timestamptz NOT NULL DEFAULT now(),
     updated_at       timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY (organization_id, user_id)
 );
-CREATE UNIQUE INDEX scim_users_external ON scim_users (organization_id, external_id) WHERE external_id <> '';
+CREATE UNIQUE INDEX scim_users_external
+    ON scim_users (organization_id, external_id) WHERE external_id <> '' AND deleted_at IS NULL;
 SELECT plux_tenant_policy('scim_users');
 
 -- The teams SCIM manages as groups. A team an administrator made by hand is
@@ -67,3 +71,9 @@ CREATE TABLE scim_groups (
 );
 CREATE UNIQUE INDEX scim_groups_external ON scim_groups (organization_id, external_id) WHERE external_id <> '';
 SELECT plux_tenant_policy('scim_groups');
+
+-- A person reads their own grants and app access in every organisation, as
+-- they read their own memberships (0002): deprovisioning in one organisation
+-- needs to know whether they still belong to another, and only reads.
+CREATE POLICY plux_own ON role_grants FOR SELECT USING (user_id = plux_current_user());
+CREATE POLICY plux_own ON app_access FOR SELECT USING (user_id = plux_current_user());
