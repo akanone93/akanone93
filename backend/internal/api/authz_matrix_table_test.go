@@ -645,8 +645,8 @@ var matrix = map[string]entry{
 // variants are calls of an RPC that need more than the RPC's own entry
 // declares.
 var variants = map[string]entry{
-	// Deploying to a production environment is the stand-in for an
-	// approval until P9, with a second factor (FN-007).
+	// Deploying to a production environment needs a fresh step-up
+	// with a security key (FN-007, GOV-005).
 	"FunctionAdminService/Deploy (production)": atPerm(auth.FunctionDeployProduction, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeployRequest{BuildId: f.freshFunctionBuild(t, f.prod)}
 	}),

@@ -43,8 +43,8 @@ const (
 	// production (FN-006).
 	FunctionDeploy Permission = "function.deploy"
 	// FunctionDeployProduction deploys a function to a production
-	// environment. It is the stand-in for the approval engine until P9
-	// (FN-007), so it requires a second factor.
+	// environment (FN-007). It needs a fresh step-up with a security key
+	// (GOV-005, SEC-103); the approval engine (GOV-020) adds a second person.
 	FunctionDeployProduction Permission = "function.deploy.production"
 	// TranslationsEdit saves the messages and states of translations
 	// documents, under the per-locale lock (I18N-008).
