@@ -260,13 +260,27 @@ func (s *Service) GetErrorGroup(ctx context.Context, p auth.Principal, id string
 	if days, err = errorDays(days); err != nil {
 		return ErrorGroup{}, nil, err
 	}
-	var (
-		group   ErrorGroup
-		samples []ErrorSample
-	)
+	row, art, ok, err := s.loadGroup(ctx, p, gid)
+	if err != nil {
+		return ErrorGroup{}, nil, err
+	}
+	var outcome symbolOutcome
+	if ok && s.o.Objects != nil {
+		if outcome, err = s.symbolicateGroup(ctx, row, art); err != nil {
+			return ErrorGroup{}, nil, err
+		}
+	}
+	return s.readGroup(ctx, p, row, outcome, days)
+}
+
+// loadGroup reads a group, authorises the caller for its app and finds the
+// artifacts it can be symbolicated from, in one short transaction so that no
+// object is read while a connection is held.
+func (s *Service) loadGroup(ctx context.Context, p auth.Principal, id pgtype.UUID) (row dbgen.ErrorGroup, art dbgen.ReleasePluginArtifactsRow, ok bool, err error) {
 	err = s.inOrg(ctx, p.OrganizationID, p.UserID, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
-		row, err := q.GetErrorGroup(ctx, dbgen.GetErrorGroupParams{ID: gid, OrganizationID: storage.MustUUID(p.OrganizationID)})
+		var err error
+		row, err = q.GetErrorGroup(ctx, dbgen.GetErrorGroupParams{ID: id, OrganizationID: storage.MustUUID(p.OrganizationID)})
 		if errors.Is(err, pgx.ErrNoRows) {
 			return plxerr.New(plxerr.ResourceNotFound, "there is no such error group")
 		}
@@ -276,7 +290,22 @@ func (s *Service) GetErrorGroup(ctx context.Context, p auth.Principal, id string
 		if err := p.AuthorizeApp(auth.AnalyticsRead, storage.ID(row.AppID)); err != nil {
 			return fmt.Errorf("analytics: %w", err)
 		}
-		if row, err = s.symbolicated(ctx, q, row); err != nil {
+		art, ok, err = symbolArtifacts(ctx, q, row)
+		return err
+	})
+	return row, art, ok, err
+}
+
+// readGroup records the symbolication outcome and reads the group's trend and
+// samples.
+func (s *Service) readGroup(ctx context.Context, p auth.Principal, row dbgen.ErrorGroup, outcome symbolOutcome, days int) (ErrorGroup, []ErrorSample, error) {
+	var (
+		group   ErrorGroup
+		samples []ErrorSample
+	)
+	err := s.inOrg(ctx, p.OrganizationID, p.UserID, func(ctx context.Context, tx pgx.Tx) error {
+		q := dbgen.New(tx)
+		if err := s.recordSymbol(ctx, q, &row, outcome); err != nil {
 			return err
 		}
 		groups, err := s.withTrends(ctx, q, []dbgen.ErrorGroup{row}, s.now().UTC().AddDate(0, 0, -days))
