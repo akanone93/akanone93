@@ -52,4 +52,6 @@ networkPolicy:
           kubernetes.io/metadata.name: ingress-nginx
 observability:
   prometheusRule: {enabled: true, labels: {release: prometheus}}
-  dashboards: {enabled: true}
+  dashboards:
+    enabled: true
+    analytics: {url: plux-postgresql-rw:5432}

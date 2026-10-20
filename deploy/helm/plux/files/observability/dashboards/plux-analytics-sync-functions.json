@@ -1,0 +1,311 @@
+{
+  "uid": "plux-analytics-sync-functions",
+  "title": "Plux analytics: sync health and function latency",
+  "description": "Sync durations and function call latency and volume (ANL-020).",
+  "tags": [
+    "plux",
+    "analytics"
+  ],
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": false,
+  "timezone": "utc",
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "refresh": "5m",
+  "templating": {
+    "list": [
+      {
+        "name": "organization",
+        "label": "Organisation ID",
+        "type": "textbox",
+        "query": "",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "description": "The organisation UUID. Row-level security binds every query to it (SRV-022)."
+      },
+      {
+        "name": "app",
+        "label": "App",
+        "description": "The apps of the organisation with rollups.",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "plux-analytics"
+        },
+        "definition": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT DISTINCT app_id::text AS __value, app_id::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid;\n",
+        "query": {
+          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT DISTINCT app_id::text AS __value, app_id::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid;\n",
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "rawQuery": true,
+          "editorMode": "code"
+        },
+        "refresh": 1,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "hide": 0
+      },
+      {
+        "name": "release",
+        "label": "Release sequence",
+        "description": "The release sequences of the selected apps with rollups.",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "plux-analytics"
+        },
+        "definition": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT DISTINCT release_sequence::text AS __value, release_sequence::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.app_id::text IN ($app);\n",
+        "query": {
+          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT DISTINCT release_sequence::text AS __value, release_sequence::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.app_id::text IN ($app);\n",
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "rawQuery": true,
+          "editorMode": "code"
+        },
+        "refresh": 1,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "hide": 0
+      },
+      {
+        "name": "granularity",
+        "label": "Granularity",
+        "type": "custom",
+        "query": "5m,1h,1d",
+        "current": {
+          "text": "1h",
+          "value": "1h"
+        },
+        "hide": 0,
+        "options": [
+          {
+            "text": "5m",
+            "value": "5m",
+            "selected": false
+          },
+          {
+            "text": "1h",
+            "value": "1h",
+            "selected": true
+          },
+          {
+            "text": "1d",
+            "value": "1d",
+            "selected": false
+          }
+        ],
+        "description": "The rollup grain: 5m, 1h or 1d (ANL-010)."
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "text",
+      "title": "Sync outcome, bytes and delta ratio",
+      "description": "",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Not shown.** sync_result carries an outcome, bytes and a delta ratio (Appendix G.2), but the rollups keep only its duration, so success rates, transferred bytes and the delta ratio cannot be read from `analytics_rollups` (ANL-010)."
+      }
+    },
+    {
+      "id": 2,
+      "type": "table",
+      "title": "Sync duration by device class",
+      "description": "Duration of sync_result per device class; p50, p90 and p99 are bucket edges.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "plux-analytics"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 3,
+        "w": 12,
+        "h": 9
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nWITH hist AS (\n  SELECT r.device_class AS grp, u.idx - 1 AS k, SUM(u.n) AS n\n  FROM analytics_rollups r\n  CROSS JOIN LATERAL unnest(r.histogram) WITH ORDINALITY AS u(n, idx)\n  WHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.event_name = 'sync_result'\n  GROUP BY 1, 2\n), cum AS (\n  SELECT grp, k,\n    SUM(n) OVER (PARTITION BY grp ORDER BY k) AS run,\n    SUM(n) OVER (PARTITION BY grp) AS total\n  FROM hist\n), edges AS (\n  SELECT grp,\n    MIN(k) FILTER (WHERE run >= 0.50 * total) AS p50,\n    MIN(k) FILTER (WHERE run >= 0.90 * total) AS p90,\n    MIN(k) FILTER (WHERE run >= 0.99 * total) AS p99\n  FROM cum\n  GROUP BY grp\n), totals AS (\n  SELECT r.device_class AS grp, SUM(r.value_count) AS samples,\n    SUM(r.value_sum) / NULLIF(SUM(r.value_count), 0) AS mean, MAX(r.value_max) AS max\n  FROM analytics_rollups r\n  WHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.event_name = 'sync_result'\n  GROUP BY 1\n)\nSELECT t.grp AS \"Device class\", t.samples AS \"Samples\", ROUND(t.mean) AS \"Mean (ms)\",\n  (ARRAY[1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,30000,60000])[LEAST(e.p50 + 1, 15)] AS \"p50 (ms)\",\n  (ARRAY[1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,30000,60000])[LEAST(e.p90 + 1, 15)] AS \"p90 (ms)\",\n  (ARRAY[1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,30000,60000])[LEAST(e.p99 + 1, 15)] AS \"p99 (ms)\",\n  t.max AS \"Max (ms)\"\nFROM totals t\nLEFT JOIN edges e ON e.grp = t.grp\nORDER BY 1;\n"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Syncs over time by device class",
+      "description": "sync_result events per bucket, one series per device class.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "plux-analytics"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 3,
+        "w": 12,
+        "h": 9
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "format": "time_series",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT $__timeGroupAlias(r.bucket, $__interval), r.device_class AS metric, SUM(r.events) AS value\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.event_name = 'sync_result'\nGROUP BY 1, 2\nORDER BY 1;\n"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "text",
+      "title": "Function errors",
+      "description": "",
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Partly shown.** Latency is per plugin, from function_call durations. The function name and the status (success or error, Appendix G.2) are not rollup dimensions, so a per-function error rate needs a rollup dimension (ANL-010)."
+      }
+    },
+    {
+      "id": 5,
+      "type": "table",
+      "title": "Function latency by plugin",
+      "description": "Duration of function_call per plugin; p50, p90 and p99 are bucket edges.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "plux-analytics"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 15,
+        "w": 24,
+        "h": 9
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nWITH hist AS (\n  SELECT r.plugin_key AS grp, u.idx - 1 AS k, SUM(u.n) AS n\n  FROM analytics_rollups r\n  CROSS JOIN LATERAL unnest(r.histogram) WITH ORDINALITY AS u(n, idx)\n  WHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.event_name = 'function_call'\n  GROUP BY 1, 2\n), cum AS (\n  SELECT grp, k,\n    SUM(n) OVER (PARTITION BY grp ORDER BY k) AS run,\n    SUM(n) OVER (PARTITION BY grp) AS total\n  FROM hist\n), edges AS (\n  SELECT grp,\n    MIN(k) FILTER (WHERE run >= 0.50 * total) AS p50,\n    MIN(k) FILTER (WHERE run >= 0.90 * total) AS p90,\n    MIN(k) FILTER (WHERE run >= 0.99 * total) AS p99\n  FROM cum\n  GROUP BY grp\n), totals AS (\n  SELECT r.plugin_key AS grp, SUM(r.value_count) AS samples,\n    SUM(r.value_sum) / NULLIF(SUM(r.value_count), 0) AS mean, MAX(r.value_max) AS max\n  FROM analytics_rollups r\n  WHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.event_name = 'function_call'\n  GROUP BY 1\n)\nSELECT t.grp AS \"Plugin\", t.samples AS \"Samples\", ROUND(t.mean) AS \"Mean (ms)\",\n  (ARRAY[1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,30000,60000])[LEAST(e.p50 + 1, 15)] AS \"p50 (ms)\",\n  (ARRAY[1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,30000,60000])[LEAST(e.p90 + 1, 15)] AS \"p90 (ms)\",\n  (ARRAY[1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,30000,60000])[LEAST(e.p99 + 1, 15)] AS \"p99 (ms)\",\n  t.max AS \"Max (ms)\"\nFROM totals t\nLEFT JOIN edges e ON e.grp = t.grp\nORDER BY 1;\n"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Function calls over time by plugin",
+      "description": "function_call events per bucket, one series per plugin.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "plux-analytics"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 24,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "format": "time_series",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT $__timeGroupAlias(r.bucket, $__interval), r.plugin_key AS metric, SUM(r.events) AS value\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.event_name = 'function_call'\nGROUP BY 1, 2\nORDER BY 1;\n"
+        }
+      ]
+    }
+  ]
+}
