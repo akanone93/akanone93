@@ -77,6 +77,7 @@ func (c *Config) Validate() error {
 	c.validateFunctions(&p)
 	c.validateBuilder(&p)
 	c.validateLicense(&p)
+	c.validateNotifications(&p)
 	return errors.Join(p.errs...)
 }
 

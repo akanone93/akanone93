@@ -174,6 +174,13 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 	if err := registerRole(cfg, srv, services); err != nil {
 		return fail(err)
 	}
+	if cfg.Has(config.RoleWorker) {
+		sched, err := buildScheduler(services, log, db)
+		if err != nil {
+			return fail(err)
+		}
+		srv.AddComponent(sched)
+	}
 	return &Built{Server: srv, Close: closeAll}, nil
 }
 

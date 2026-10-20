@@ -363,6 +363,26 @@ type FunctionDeclaration struct {
 	CreatedAt      pgtype.Timestamptz
 }
 
+type FunctionHook struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	FunctionName   string
+	Alias          string
+	Verifier       string
+	Enabled        bool
+	CreatedBy      pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
+}
+
+type FunctionHookSeen struct {
+	HookID         pgtype.UUID
+	WebhookID      string
+	OrganizationID pgtype.UUID
+	SeenAt         pgtype.Timestamptz
+}
+
 type FunctionInvocation struct {
 	ID              int64
 	OrganizationID  pgtype.UUID
@@ -412,6 +432,32 @@ type FunctionSource struct {
 	SizeBytes      int64
 	CreatedBy      pgtype.UUID
 	CreatedAt      pgtype.Timestamptz
+}
+
+type FunctionTrigger struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	FunctionName   string
+	Alias          string
+	Expression     string
+	Timezone       string
+	Input          []byte
+	Enabled        bool
+	NextFireAt     pgtype.Timestamptz
+	LastFireAt     pgtype.Timestamptz
+	LastResult     string
+	CreatedBy      pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
+}
+
+type FunctionTriggerFire struct {
+	TriggerID      pgtype.UUID
+	FireAt         pgtype.Timestamptz
+	OrganizationID pgtype.UUID
+	Result         string
+	StartedAt      pgtype.Timestamptz
 }
 
 type FunctionVersion struct {
@@ -601,6 +647,73 @@ type NativeCatalogue struct {
 	UploadedByID   string
 	UploadedBy     string
 	UploadedAt     pgtype.Timestamptz
+}
+
+type Notification struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	UserID         pgtype.UUID
+	EventID        pgtype.UUID
+	EventType      string
+	AppID          pgtype.UUID
+	Title          string
+	Body           string
+	Link           string
+	CreatedAt      pgtype.Timestamptz
+	ReadAt         pgtype.Timestamptz
+}
+
+type NotificationChannel struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	Name           string
+	Kind           string
+	Settings       []byte
+	Ciphertext     []byte
+	WrappedKey     []byte
+	KeyID          string
+	Hint           string
+	Enabled        bool
+	CreatedBy      pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
+}
+
+type NotificationDelivery struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	Kind           string
+	ChannelID      pgtype.UUID
+	EndpointID     pgtype.UUID
+	EventID        pgtype.UUID
+	EventType      string
+	Recipient      string
+	Payload        []byte
+	State          string
+	Attempts       int32
+	NextAttemptAt  pgtype.Timestamptz
+	ExpiresAt      pgtype.Timestamptz
+	LastStatus     int32
+	LastError      string
+	CreatedAt      pgtype.Timestamptz
+	DeliveredAt    pgtype.Timestamptz
+}
+
+type NotificationHour struct {
+	OrganizationID pgtype.UUID
+	Hour           pgtype.Timestamptz
+	N              int32
+	Dropped        int32
+}
+
+type NotificationSubscription struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	SubjectKind    string
+	SubjectID      pgtype.UUID
+	EventType      string
+	ChannelID      pgtype.UUID
+	CreatedBy      pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
 }
 
 type OidcLogin struct {
@@ -896,6 +1009,30 @@ type UserIdentityProvider struct {
 	Audiences      []string
 	ForwardClaims  []string
 	UpdatedAt      pgtype.Timestamptz
+}
+
+type WebhookEndpoint struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	Name           string
+	Url            string
+	EventTypes     []string
+	Enabled        bool
+	CreatedBy      pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
+}
+
+type WebhookSecret struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	OwnerKind      string
+	OwnerID        pgtype.UUID
+	Ciphertext     []byte
+	WrappedKey     []byte
+	KeyID          string
+	Hint           string
+	CreatedAt      pgtype.Timestamptz
+	ExpiresAt      pgtype.Timestamptz
 }
 
 type WorkloadIdentity struct {

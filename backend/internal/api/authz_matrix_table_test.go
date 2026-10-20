@@ -396,6 +396,43 @@ var matrix = map[string]entry{
 	"LicenseService/GetLicenseState":            atPerm(auth.OrganizationManage, anyone(&pluxv1.GetLicenseStateRequest{})),
 	"SecurityAdminService/ListAuditCheckpoints": atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditCheckpointsRequest{})),
 
+	// NotificationService, WebhookService (SRV-062, SRV-063)
+	"NotificationService/ListEventTypes":    {kind: self, build: anyone(&pluxv1.ListEventTypesRequest{})},
+	"NotificationService/ListInbox":         {kind: self, build: anyone(&pluxv1.ListInboxRequest{})},
+	"NotificationService/MarkRead":          {kind: self, build: anyone(&pluxv1.MarkReadRequest{})},
+	"NotificationService/Subscribe":         {kind: self, build: anyone(&pluxv1.SubscribeRequest{Subscription: &pluxv1.NotificationSubscription{EventType: "release.published"}})},
+	"NotificationService/Unsubscribe":       {kind: self, build: anyone(&pluxv1.UnsubscribeRequest{Id: unknownID})},
+	"NotificationService/ListSubscriptions": {kind: self, build: anyone(&pluxv1.ListSubscriptionsRequest{})},
+	"NotificationService/CreateNotificationChannel": atPerm(auth.NotificationsManage, anyone(&pluxv1.CreateNotificationChannelRequest{
+		Name: "matrix", Kind: "slack", Secret: "https://hooks.slack.com/services/T0/B0/xxxxxxxx",
+	})),
+	"NotificationService/ListNotificationChannels":  atPerm(auth.NotificationsManage, anyone(&pluxv1.ListNotificationChannelsRequest{})),
+	"NotificationService/DeleteNotificationChannel": atPerm(auth.NotificationsManage, anyone(&pluxv1.DeleteNotificationChannelRequest{Id: unknownID})),
+	"NotificationService/TestNotificationChannel":   atPerm(auth.NotificationsManage, anyone(&pluxv1.TestNotificationChannelRequest{Id: unknownID})),
+	"NotificationService/ListDeliveries":            atPerm(auth.NotificationsManage, anyone(&pluxv1.ListDeliveriesRequest{})),
+	"WebhookService/CreateWebhook":                  atPerm(auth.WebhooksManage, anyone(&pluxv1.CreateWebhookRequest{Name: "matrix", Url: "https://example.invalid/hook"})),
+	"WebhookService/ListWebhooks":                   atPerm(auth.WebhooksManage, anyone(&pluxv1.ListWebhooksRequest{})),
+	"WebhookService/DeleteWebhook":                  atPerm(auth.WebhooksManage, anyone(&pluxv1.DeleteWebhookRequest{Id: unknownID})),
+	"WebhookService/RotateWebhookSecret":            atPerm(auth.WebhooksManage, anyone(&pluxv1.RotateWebhookSecretRequest{Id: unknownID})),
+	"WebhookService/ListWebhookDeliveries":          atPerm(auth.WebhooksManage, anyone(&pluxv1.ListDeliveriesRequest{})),
+
+	// FunctionTriggerService (FN-025)
+	"FunctionTriggerService/CreateTrigger": atPerm(auth.FunctionDeploy, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CreateTriggerRequest{AppId: f.app, EnvironmentId: f.dev, Function: "matrix.fn", Alias: "stable", Expression: "@daily"}
+	})),
+	"FunctionTriggerService/ListTriggers": atPerm(auth.FunctionRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListTriggersRequest{AppId: f.app}
+	})),
+	"FunctionTriggerService/DeleteTrigger": atPerm(auth.FunctionDeploy, anyone(&pluxv1.DeleteTriggerRequest{Id: unknownID})),
+	"FunctionTriggerService/CreateHook": atPerm(auth.FunctionDeploy, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.CreateHookRequest{AppId: f.app, EnvironmentId: f.dev, Function: "matrix.fn", Alias: "stable"}
+	})),
+	"FunctionTriggerService/ListHooks": atPerm(auth.FunctionRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListHooksRequest{AppId: f.app}
+	})),
+	"FunctionTriggerService/DeleteHook":       atPerm(auth.FunctionDeploy, anyone(&pluxv1.DeleteHookRequest{Id: unknownID})),
+	"FunctionTriggerService/RotateHookSecret": atPerm(auth.FunctionDeploy, anyone(&pluxv1.RotateHookSecretRequest{Id: unknownID})),
+
 	// FunctionAdminService
 	"FunctionAdminService/UploadSource": {kind: needs, perm: auth.FunctionDeploy, call: func(t *testing.T, f *matrixFixture, c caller) error {
 		_, err := f.w.uploadSource(t, c, f.app, f.dev, "matrix.fn", "archive")

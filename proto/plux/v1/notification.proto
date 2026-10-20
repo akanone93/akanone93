@@ -1,0 +1,368 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package plux.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1";
+
+// NotificationService delivers what happens in an organisation to the people
+// who follow it (SRV-062, ADR-0081): an in-app inbox, subscriptions of users
+// and teams to event types, and the channels beyond the inbox — SMTP, Slack,
+// Microsoft Teams and Telegram. A channel's credential is stored encrypted
+// and is never returned.
+service NotificationService {
+  // ListEventTypes returns the event types other parts of Plux publish.
+  rpc ListEventTypes(ListEventTypesRequest) returns (ListEventTypesResponse) {}
+
+  // ListInbox lists the caller's notifications, newest first.
+  rpc ListInbox(ListInboxRequest) returns (ListInboxResponse) {}
+  // MarkRead marks the named notifications read, or all of the caller's when
+  // none is named.
+  rpc MarkRead(MarkReadRequest) returns (MarkReadResponse) {}
+
+  // Subscribe follows an event type. A person subscribes themselves to their
+  // inbox or to a mail channel; any other subscription needs
+  // notifications.manage. Subscribing twice is not an error.
+  rpc Subscribe(SubscribeRequest) returns (SubscribeResponse) {}
+  rpc Unsubscribe(UnsubscribeRequest) returns (UnsubscribeResponse) {}
+  // ListSubscriptions lists the caller's subscriptions, or all of the
+  // organisation's with notifications.manage.
+  rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {}
+
+  // CreateNotificationChannel configures a destination. A channel that cannot work as
+  // configured is PLX-8400. Needs notifications.manage.
+  rpc CreateNotificationChannel(CreateNotificationChannelRequest) returns (CreateNotificationChannelResponse) {}
+  rpc ListNotificationChannels(ListNotificationChannelsRequest) returns (ListNotificationChannelsResponse) {}
+  rpc DeleteNotificationChannel(DeleteNotificationChannelRequest) returns (DeleteNotificationChannelResponse) {}
+  // TestNotificationChannel sends a test message through a channel; a failure is
+  // PLX-8400.
+  rpc TestNotificationChannel(TestNotificationChannelRequest) returns (TestNotificationChannelResponse) {}
+
+  // ListDeliveries reads the delivery log of channels, newest first.
+  rpc ListDeliveries(ListDeliveriesRequest) returns (ListDeliveriesResponse) {}
+}
+
+// EventTypeInfo describes an event type.
+message EventTypeInfo {
+  // type is the dotted name, for example "release.published".
+  string type = 1;
+  string description = 2;
+  // severity is "info", "warning" or "critical".
+  string severity = 3;
+}
+
+message ListEventTypesRequest {}
+message ListEventTypesResponse {
+  repeated EventTypeInfo event_types = 1;
+}
+
+// InboxItem is a stored notification.
+message InboxItem {
+  string id = 1;
+  string event_type = 2;
+  string app_id = 3;
+  string title = 4;
+  string body = 5;
+  // link is an https URL or a path in Studio.
+  string link = 6;
+  google.protobuf.Timestamp created_at = 7;
+  bool read = 8;
+}
+
+message ListInboxRequest {
+  bool unread_only = 1;
+  // limit is at most 200; zero is 50.
+  int32 limit = 2;
+}
+message ListInboxResponse {
+  repeated InboxItem items = 1;
+  int64 unread = 2;
+}
+
+message MarkReadRequest {
+  repeated string ids = 1;
+}
+message MarkReadResponse {
+  int64 marked = 1;
+}
+
+// NotificationSubscription says who follows an event type, and where it goes.
+message NotificationSubscription {
+  string id = 1;
+  // subject_kind is "user" or "team"; empty on a request means the caller.
+  string subject_kind = 2;
+  string subject_id = 3;
+  string event_type = 4;
+  // channel_id is empty for the in-app inbox.
+  string channel_id = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message SubscribeRequest {
+  NotificationSubscription subscription = 1;
+}
+message SubscribeResponse {
+  NotificationSubscription subscription = 1;
+}
+
+message UnsubscribeRequest {
+  string id = 1;
+}
+message UnsubscribeResponse {}
+
+message ListSubscriptionsRequest {
+  // all lists the organisation's subscriptions; it needs
+  // notifications.manage.
+  bool all = 1;
+}
+message ListSubscriptionsResponse {
+  repeated NotificationSubscription subscriptions = 1;
+}
+
+// NotificationChannel is a configured destination. The credential is never
+// returned; hint is its last characters, to tell channels apart.
+message NotificationChannel {
+  string id = 1;
+  string name = 2;
+  // kind is "smtp", "slack", "teams" or "telegram".
+  string kind = 3;
+  // settings are the non-secret settings: for SMTP host, port, from,
+  // username and tls (starttls, implicit or none); for Telegram chat_id.
+  map<string, string> settings = 4;
+  string hint = 5;
+  bool enabled = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message CreateNotificationChannelRequest {
+  string name = 1;
+  string kind = 2;
+  map<string, string> settings = 3;
+  // secret is the SMTP password, the Slack or Teams webhook URL, or the
+  // Telegram bot token. It is stored encrypted.
+  string secret = 4;
+}
+message CreateNotificationChannelResponse {
+  NotificationChannel channel = 1;
+}
+
+message ListNotificationChannelsRequest {}
+message ListNotificationChannelsResponse {
+  repeated NotificationChannel channels = 1;
+}
+
+message DeleteNotificationChannelRequest {
+  string id = 1;
+}
+message DeleteNotificationChannelResponse {}
+
+message TestNotificationChannelRequest {
+  string id = 1;
+}
+message TestNotificationChannelResponse {}
+
+// Delivery is a row of a delivery log.
+message Delivery {
+  string id = 1;
+  // kind is "channel" or "webhook".
+  string kind = 2;
+  string target_id = 3;
+  string event_type = 4;
+  // state is "pending", "delivered" or "failed".
+  string state = 5;
+  int32 attempts = 6;
+  google.protobuf.Timestamp next_attempt = 7;
+  // last_status is the HTTP status of the last attempt, or zero.
+  int32 last_status = 8;
+  // last_error describes the last failure without its payload.
+  string last_error = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp delivered_at = 11;
+}
+
+message ListDeliveriesRequest {
+  string target_id = 1;
+  string state = 2;
+  int32 limit = 3;
+}
+message ListDeliveriesResponse {
+  repeated Delivery deliveries = 1;
+}
+
+// WebhookService manages outbound webhooks (SRV-063, ADR-0081): HTTPS
+// endpoints that receive events as Standard Webhooks messages. A message that
+// cannot be delivered is retried with exponential backoff for up to 24 hours,
+// then given up on with PLX-8401.
+service WebhookService {
+  // CreateWebhook registers an endpoint and returns its signing secret, which
+  // is shown once. A private destination is refused.
+  rpc CreateWebhook(CreateWebhookRequest) returns (CreateWebhookResponse) {}
+  rpc ListWebhooks(ListWebhooksRequest) returns (ListWebhooksResponse) {}
+  rpc DeleteWebhook(DeleteWebhookRequest) returns (DeleteWebhookResponse) {}
+  // RotateWebhookSecret issues a new secret. Until the overlap ends both
+  // signatures are sent, so a receiver can change over without a gap.
+  rpc RotateWebhookSecret(RotateWebhookSecretRequest) returns (RotateWebhookSecretResponse) {}
+  // ListWebhookDeliveries reads the delivery log of webhooks.
+  rpc ListWebhookDeliveries(ListDeliveriesRequest) returns (ListDeliveriesResponse) {}
+}
+
+// OutboundWebhook is an endpoint that receives events.
+message OutboundWebhook {
+  string id = 1;
+  string name = 2;
+  string url = 3;
+  // event_types narrows the events sent; empty is all.
+  repeated string event_types = 4;
+  bool enabled = 5;
+  google.protobuf.Timestamp created_at = 6;
+  // secret_hint is the end of the newest secret.
+  string secret_hint = 7;
+}
+
+message CreateWebhookRequest {
+  string name = 1;
+  string url = 2;
+  repeated string event_types = 3;
+}
+message CreateWebhookResponse {
+  OutboundWebhook webhook = 1;
+  // secret is the "whsec_" signing secret, returned once.
+  string secret = 2;
+}
+
+message ListWebhooksRequest {}
+message ListWebhooksResponse {
+  repeated OutboundWebhook webhooks = 1;
+}
+
+message DeleteWebhookRequest {
+  string id = 1;
+}
+message DeleteWebhookResponse {}
+
+message RotateWebhookSecretRequest {
+  string id = 1;
+  // overlap_seconds is how long the previous secret stays valid; zero is 24
+  // hours, negative ends it at once. At most seven days.
+  int64 overlap_seconds = 2;
+}
+message RotateWebhookSecretResponse {
+  string secret = 1;
+}
+
+// FunctionTriggerService schedules functions and opens them to signed
+// inbound webhooks (FN-025, ADR-0081). A trigger runs the version an alias
+// points at, on the server, at the lowest assurance, with no credentials.
+service FunctionTriggerService {
+  // CreateTrigger schedules a function alias with a cron expression. An
+  // invalid expression or zone is PLX-7150.
+  rpc CreateTrigger(CreateTriggerRequest) returns (CreateTriggerResponse) {}
+  rpc ListTriggers(ListTriggersRequest) returns (ListTriggersResponse) {}
+  rpc DeleteTrigger(DeleteTriggerRequest) returns (DeleteTriggerResponse) {}
+
+  // CreateHook opens /hooks/{app}/{function} for a function alias and returns
+  // the signing secret once.
+  rpc CreateHook(CreateHookRequest) returns (CreateHookResponse) {}
+  rpc ListHooks(ListHooksRequest) returns (ListHooksResponse) {}
+  rpc DeleteHook(DeleteHookRequest) returns (DeleteHookResponse) {}
+  // RotateHookSecret issues a new secret, with the overlap of
+  // RotateWebhookSecret.
+  rpc RotateHookSecret(RotateHookSecretRequest) returns (RotateHookSecretResponse) {}
+}
+
+// FunctionTrigger is a cron schedule on a function alias.
+message FunctionTrigger {
+  string id = 1;
+  string app_id = 2;
+  string environment_id = 3;
+  string function = 4;
+  string alias = 5;
+  // expression is five cron fields, or @hourly, @daily, @weekly, @monthly.
+  string expression = 6;
+  // timezone is "UTC" or an IANA zone name.
+  string timezone = 7;
+  bytes input = 8;
+  bool enabled = 9;
+  google.protobuf.Timestamp next_fire_at = 10;
+  google.protobuf.Timestamp last_fire_at = 11;
+  // last_result is "ok", "business_error" or "failed: PLX-<code>".
+  string last_result = 12;
+}
+
+message CreateTriggerRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string function = 3;
+  string alias = 4;
+  string expression = 5;
+  string timezone = 6;
+  bytes input = 7;
+}
+message CreateTriggerResponse {
+  FunctionTrigger trigger = 1;
+}
+
+message ListTriggersRequest {
+  string app_id = 1;
+}
+message ListTriggersResponse {
+  repeated FunctionTrigger triggers = 1;
+}
+
+message DeleteTriggerRequest {
+  string id = 1;
+}
+message DeleteTriggerResponse {}
+
+// FunctionHook is an inbound webhook of a function.
+message FunctionHook {
+  string id = 1;
+  string app_id = 2;
+  string environment_id = 3;
+  string function = 4;
+  string alias = 5;
+  // verifier is "standard-webhooks" or a registered provider's name.
+  string verifier = 6;
+  bool enabled = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+message CreateHookRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string function = 3;
+  string alias = 4;
+  string verifier = 5;
+  // secret is a provider's signing secret for a provider verifier; a
+  // Standard Webhooks hook gets a generated one.
+  string secret = 6;
+}
+message CreateHookResponse {
+  FunctionHook hook = 1;
+  // secret is returned once.
+  string secret = 2;
+}
+
+message ListHooksRequest {
+  string app_id = 1;
+}
+message ListHooksResponse {
+  repeated FunctionHook hooks = 1;
+}
+
+message DeleteHookRequest {
+  string id = 1;
+}
+message DeleteHookResponse {}
+
+message RotateHookSecretRequest {
+  string id = 1;
+  int64 overlap_seconds = 2;
+}
+message RotateHookSecretResponse {
+  string secret = 1;
+}
