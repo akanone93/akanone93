@@ -313,8 +313,9 @@ func describe(name string, cause error) string {
 		text = urlErr.Op + ": " + urlErr.Err.Error()
 	}
 	text = clean(text)
-	if _, ok := plxerr.CodeOf(cause); ok && !errors.As(cause, &urlErr) {
-		return truncate(text)
+	var coded *plxerr.Error
+	if errors.As(cause, &coded) && !errors.As(cause, &urlErr) {
+		return truncate(clean(coded.Error()))
 	}
 	return truncate(plxerr.New(plxerr.SIEMDestinationUnreachable, "the destination %q did not accept the batch: %s", name, text).Error())
 }

@@ -232,7 +232,7 @@ func (s *Service) updateParams(ctx context.Context, current dbgen.AuditExportDes
 	case c.ClearCredentials && !creds.IsZero():
 		return params, plxerr.New(plxerr.InvalidFormat, "credentials cannot be both replaced and cleared")
 	case c.ClearCredentials:
-		params.CredentialsCiphertext, params.CredentialsWrappedKey, params.CredentialsKeyID, params.CredentialsHint = nil, nil, "", ""
+		params.CredentialsCiphertext, params.CredentialsWrappedKey, params.CredentialsKeyID, params.CredentialsHint = []byte{}, []byte{}, "", ""
 	case !creds.IsZero():
 		sealed, err := s.seal(ctx, storage.ID(current.ID), creds)
 		if err != nil {
@@ -278,7 +278,7 @@ func (s *Service) Delete(ctx context.Context, p auth.Principal, id string) error
 // seal encrypts credentials for storage; the zero value seals to nothing.
 func (s *Service) seal(ctx context.Context, destinationID string, c Credentials) (signing.Sealed, error) {
 	if c.IsZero() {
-		return signing.Sealed{}, nil
+		return signing.Sealed{Ciphertext: []byte{}, WrappedKey: []byte{}}, nil
 	}
 	plain, err := marshalCredentials(c)
 	if err != nil {
