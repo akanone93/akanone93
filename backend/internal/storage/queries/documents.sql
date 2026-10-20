@@ -116,14 +116,14 @@ SELECT d.*, dr.plugin_id FROM documents d
 
 -- name: InsertDocument :one
 INSERT INTO documents (id, organization_id, draft_id, path, kind, entity_id, entity_key, sha256, revision,
-                       updated_by_kind, updated_by_id, updated_by)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1, $9, $10, $11)
+                       updated_by_kind, updated_by_id, updated_by, search_text)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1, $9, $10, $11, $12)
 RETURNING *;
 
 -- name: UpdateDocument :one
 UPDATE documents
    SET kind = $2, entity_id = $3, entity_key = $4, sha256 = $5, revision = revision + 1,
-       updated_by_kind = $6, updated_by_id = $7, updated_by = $8, updated_at = now()
+       updated_by_kind = $6, updated_by_id = $7, updated_by = $8, search_text = $9, updated_at = now()
  WHERE id = $1 AND deleted_at IS NULL
 RETURNING *;
 

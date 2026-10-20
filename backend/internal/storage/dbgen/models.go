@@ -265,6 +265,7 @@ type Document struct {
 	UpdatedBy      string
 	UpdatedAt      pgtype.Timestamptz
 	DeletedAt      pgtype.Timestamptz
+	SearchText     string
 }
 
 type Draft struct {
@@ -500,6 +501,32 @@ type GatewayUpstream struct {
 	Version               int64
 	CreatedAt             pgtype.Timestamptz
 	UpdatedAt             pgtype.Timestamptz
+}
+
+type GitExport struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	VersionID      pgtype.UUID
+	State          string
+	CommitSha      string
+	Attempts       int32
+	ErrorCode      int32
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
+}
+
+type GitSetting struct {
+	AppID                   pgtype.UUID
+	OrganizationID          pgtype.UUID
+	Enabled                 bool
+	RemoteUrl               string
+	Branch                  string
+	Username                string
+	CredentialEnvironmentID pgtype.UUID
+	CredentialKey           string
+	UpdatedBy               pgtype.UUID
+	UpdatedAt               pgtype.Timestamptz
 }
 
 type GoldenBaseline struct {

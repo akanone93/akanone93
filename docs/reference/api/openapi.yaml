@@ -2878,6 +2878,169 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.CallResponse'
+  /plux.v1.GitExportService/ConfigureExport:
+    post:
+      tags:
+        - plux.v1.GitExportService
+      summary: ConfigureExport
+      description: |-
+        ConfigureExport sets the export of an app. The remote must be an HTTPS
+         address without credentials in it; one that names a reserved address
+         is PLX-8503. Audited.
+      operationId: plux.v1.GitExportService.ConfigureExport
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ConfigureGitExportRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ConfigureGitExportResponse'
+  /plux.v1.GitExportService/GetSettings:
+    post:
+      tags:
+        - plux.v1.GitExportService
+      summary: GetSettings
+      description: |-
+        GetSettings returns the app's export settings; PLX-8031 when none were
+         configured.
+      operationId: plux.v1.GitExportService.GetSettings
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetGitSettingsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetGitSettingsResponse'
+  /plux.v1.GitExportService/ListExports:
+    post:
+      tags:
+        - plux.v1.GitExportService
+      summary: ListExports
+      description: ListExports lists the newest exports of an app with their state.
+      operationId: plux.v1.GitExportService.ListExports
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListGitExportsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListGitExportsResponse'
+  /plux.v1.GitExportService/RunExport:
+    post:
+      tags:
+        - plux.v1.GitExportService
+      summary: RunExport
+      description: |-
+        RunExport queues the export of the app's newest published version, or
+         returns the finished one; a version is exported once.
+      operationId: plux.v1.GitExportService.RunExport
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.RunGitExportRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.RunGitExportResponse'
   /plux.v1.GoldenService/Approve:
     post:
       tags:
@@ -7041,6 +7204,51 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.CreateTransactionChallengeResponse'
+  /plux.v1.SearchService/Search:
+    post:
+      tags:
+        - plux.v1.SearchService
+      summary: Search
+      description: |-
+        Search returns the results for the words of a query, best first. Every
+         word matches as a prefix and all words must match. Only apps the caller
+         holds search.read on are searched; the restriction is part of the
+         database statement, so the rows of other apps are never fetched. The
+         page size is search.resultsPerPage. Words absent from the query are
+         PLX-1002; an unknown kind is PLX-1004.
+      operationId: plux.v1.SearchService.Search
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SearchRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SearchResponse'
   /plux.v1.SecurityAdminService/CreateUpstream:
     post:
       tags:
@@ -9403,6 +9611,24 @@ components:
       description: |-
         ConfigValue is one server-held configuration value of an environment
          (DAT-090).
+    plux.v1.ConfigureGitExportRequest:
+      type: object
+      properties:
+        settings:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.GitSettings'
+          title: settings
+      title: ConfigureGitExportRequest
+      additionalProperties: false
+    plux.v1.ConfigureGitExportResponse:
+      type: object
+      properties:
+        settings:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.GitSettings'
+          title: settings
+      title: ConfigureGitExportResponse
+      additionalProperties: false
     plux.v1.ConfirmFactorRequest:
       type: object
       properties:
@@ -11603,6 +11829,23 @@ components:
           title: aliases
       title: GetFunctionResponse
       additionalProperties: false
+    plux.v1.GetGitSettingsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: GetGitSettingsRequest
+      additionalProperties: false
+    plux.v1.GetGitSettingsResponse:
+      type: object
+      properties:
+        settings:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.GitSettings'
+          title: settings
+      title: GetGitSettingsResponse
+      additionalProperties: false
     plux.v1.GetLicenseStateRequest:
       type: object
       title: GetLicenseStateRequest
@@ -12229,6 +12472,84 @@ components:
             - $ref: '#/components/schemas/plux.v1.UserIdentityProvider'
           title: provider
       title: GetUserIdentityProviderResponse
+      additionalProperties: false
+    plux.v1.GitExport:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        versionId:
+          type: string
+          title: version_id
+          description: |-
+            version_id is the published version, the release identifier of the
+             commit message.
+        state:
+          type: string
+          title: state
+          description: |-
+            state is "pending", "pushed" or "failed" (the last attempt failed and
+             is retried).
+        commit:
+          type: string
+          title: commit
+        attempts:
+          type: integer
+          title: attempts
+          format: int32
+        errorCode:
+          type: integer
+          title: error_code
+          format: int32
+          description: error_code is the PLX code of the last failure, or zero.
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+      title: GitExport
+      additionalProperties: false
+    plux.v1.GitSettings:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        enabled:
+          type: boolean
+          title: enabled
+        remoteUrl:
+          type: string
+          title: remote_url
+          description: remote_url is the HTTPS address of the repository.
+        branch:
+          type: string
+          title: branch
+        username:
+          type: string
+          title: username
+          description: username is sent with the credential; empty uses "x-access-token".
+        credentialEnvironmentId:
+          type: string
+          title: credential_environment_id
+          description: |-
+            credential_environment_id and credential_key name the environment
+             secret that holds the token.
+        credentialKey:
+          type: string
+          title: credential_key
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+      title: GitSettings
       additionalProperties: false
     plux.v1.GoldenCase:
       type: object
@@ -13193,6 +13514,24 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListFunctionsResponse
+      additionalProperties: false
+    plux.v1.ListGitExportsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: ListGitExportsRequest
+      additionalProperties: false
+    plux.v1.ListGitExportsResponse:
+      type: object
+      properties:
+        exports:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.GitExport'
+          title: exports
+      title: ListGitExportsResponse
       additionalProperties: false
     plux.v1.ListGrantsRequest:
       type: object
@@ -15587,6 +15926,97 @@ components:
           title: secret
       title: RotateWebhookSecretResponse
       additionalProperties: false
+    plux.v1.RunGitExportRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+      title: RunGitExportRequest
+      additionalProperties: false
+    plux.v1.RunGitExportResponse:
+      type: object
+      properties:
+        export:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.GitExport'
+          title: export
+      title: RunGitExportResponse
+      additionalProperties: false
+    plux.v1.SearchHit:
+      type: object
+      properties:
+        kind:
+          type: string
+          title: kind
+          description: kind is one of the kinds a request may name.
+        id:
+          type: string
+          title: id
+          description: id is the identifier of the app, plugin or document.
+        appId:
+          type: string
+          title: app_id
+        name:
+          type: string
+          title: name
+          description: name is the name of an app or plugin, or the key of a document.
+        path:
+          type: string
+          title: path
+          description: |-
+            path is the key path of an app or plugin, or the document's path in
+             the project layout.
+        snippet:
+          type: string
+          title: snippet
+          description: |-
+            snippet is the matching text with each hit between « and ». It is
+             plain text from the document and must be escaped before it is shown as
+             markup.
+        rank:
+          type: number
+          title: rank
+          format: float
+          description: rank orders results; higher is a better match.
+      title: SearchHit
+      additionalProperties: false
+    plux.v1.SearchRequest:
+      type: object
+      properties:
+        query:
+          type: string
+          title: query
+          description: query holds the words to find; punctuation separates words.
+        kinds:
+          type: array
+          items:
+            type: string
+          title: kinds
+          description: |-
+            kinds restricts the results to "app", "plugin", "page", "component",
+             "template", "translation_key" or "function"; empty means all.
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+          description: page selects the page; only page_size and page_token are read.
+      title: SearchRequest
+      additionalProperties: false
+    plux.v1.SearchResponse:
+      type: object
+      properties:
+        hits:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.SearchHit'
+          title: hits
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: SearchResponse
+      additionalProperties: false
     plux.v1.Secret:
       type: object
       properties:
@@ -17152,6 +17582,12 @@ tags:
       ScaService issues the challenges behind strong customer authentication:
        the user confirms the exact transaction on the device and its SCA key
        signs it (SEC-027).
+  - name: plux.v1.GitExportService
+    description: |-
+      GitExportService exports an app to a Git repository on every publish
+       (GOV-011, ADR-0082). The export is off until configured. The credential
+       is a secret of an environment, held under envelope encryption; it is never
+       returned. Every call needs git.export on the app.
   - name: plux.v1.GoldenService
     description: |-
       GoldenService holds the baselines of golden (visual regression) tests and
@@ -17240,6 +17676,8 @@ tags:
     description: |-
       ReleaseService manages immutable plugin versions and app releases, their
        promotion between environments and their rollback (ADR-0020).
+  - name: plux.v1.SearchService
+    description: SearchService searches the apps the caller may read (SRV-061, ADR-0082).
   - name: plux.v1.TelemetryService
     description: |-
       TelemetryService ingests the runtime's batched events (Appendix G.2).
