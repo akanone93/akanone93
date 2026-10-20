@@ -622,15 +622,15 @@ func workloadOf(row dbgen.WorkloadIdentity) WorkloadIdentity {
 	}
 }
 
-// Expire deletes sessions, challenges and device grants that expired
-// more than a day ago, for the maintenance job. Tokens are kept after
+// Expire deletes sessions, step-up requests, challenges and device grants
+// that expired more than a day ago, for the maintenance job. Tokens are kept after
 // they expire, so that the audit log's references to them stay readable.
 func (s *Service) Expire(ctx context.Context) (int64, error) {
 	var n int64
 	err := s.inTx(ctx, storage.Tenant{}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		for _, del := range []func(context.Context) (int64, error){
-			q.DeleteExpiredSessions, q.DeleteExpiredStepUpRequests, q.DeleteExpiredChallenges, q.DeleteExpiredDeviceAuthorizations, q.DeleteExpiredOIDCLogins,
+			q.DeleteExpiredSessions, q.DeleteExpiredChallenges, q.DeleteExpiredDeviceAuthorizations, q.DeleteExpiredOIDCLogins,
 		} {
 			deleted, err := del(ctx)
 			if err != nil {
@@ -638,6 +638,19 @@ func (s *Service) Expire(ctx context.Context) (int64, error) {
 			}
 			n += deleted
 		}
+		return nil
+	})
+	if err != nil {
+		return n, err
+	}
+	// Step-up requests are visible only inside an organisation or the
+	// installation, so the sweep reads them in the authentication scope.
+	err = s.inTx(ctx, storage.Tenant{Scope: storage.ScopeAuthentication}, func(ctx context.Context, tx pgx.Tx) error {
+		deleted, err := dbgen.New(tx).DeleteExpiredStepUpRequests(ctx)
+		if err != nil {
+			return fmt.Errorf("auth: expire step-up requests: %w", err)
+		}
+		n += deleted
 		return nil
 	})
 	return n, err

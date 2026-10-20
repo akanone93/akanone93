@@ -45,3 +45,18 @@ CREATE TABLE step_up_requests (
 );
 
 CREATE INDEX step_up_requests_expiry ON step_up_requests (expires_at);
+
+-- A request of the CLI's belongs to the organisation of its token and is
+-- seen inside it; a browser session's belongs to none and is seen only in
+-- the installation scope. The authentication scope finds a request before
+-- its organisation is known, which the page a person opens and the
+-- maintenance sweep need.
+ALTER TABLE step_up_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE step_up_requests FORCE ROW LEVEL SECURITY;
+CREATE POLICY plux_tenant ON step_up_requests
+    USING (organization_id = plux_current_organization()
+        OR (organization_id IS NULL AND plux_in_scope('installation'))
+        OR plux_in_scope('authentication'))
+    WITH CHECK (organization_id = plux_current_organization()
+        OR (organization_id IS NULL AND plux_in_scope('installation'))
+        OR plux_in_scope('authentication'));

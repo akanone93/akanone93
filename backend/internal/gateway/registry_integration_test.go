@@ -84,7 +84,7 @@ func newWorld(t *testing.T) *world {
 	if _, err := authService.AcceptInvitation(ctx, invitation, "Admin", "correct horse battery"); err != nil {
 		t.Fatal(err)
 	}
-	adminID := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}
+	adminID := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
 	o, err := w.tenancy.CreateOrganization(ctx, adminID, "acme", "Acme")
 	if err != nil {
 		t.Fatal(err)
@@ -109,7 +109,7 @@ func newWorld(t *testing.T) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if w.viewer, err = authService.Resolve(ctx, auth.Identity{Kind: auth.KindUser, ID: m.UserID, UserID: m.UserID, Display: "v", SecondFactor: true}, w.org); err != nil {
+	if w.viewer, err = authService.Resolve(ctx, auth.Identity{Kind: auth.KindUser, ID: m.UserID, UserID: m.UserID, Display: "v", SecondFactor: true}.WithStepUp(0), w.org); err != nil {
 		t.Fatal(err)
 	}
 	return w
