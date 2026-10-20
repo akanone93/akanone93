@@ -185,6 +185,18 @@ func personalDataMap() []Store {
 			UserKey: "user_id", Personal: []string{"user_id", "subject"}, Retention: retentionAccount, Erase: EraseAccount,
 		},
 		{
+			Name: "federated_sign_ins", Description: "The single-sign-on sign-ins of a user, by issuer and subject.",
+			UserKey: "user_id", Personal: []string{"user_id", "subject"}, Retention: retentionAccount, Erase: EraseAccount,
+		},
+		{
+			Name: "federated_assignments", Description: "The grants and team memberships an identity provider's mapping gave a user.",
+			UserKey: "user_id", Personal: []string{"user_id"}, Retention: retentionAccount, Erase: EraseAccount,
+		},
+		{
+			Name: "scim_users", Description: "The users a SCIM client provisioned.",
+			UserKey: "user_id", Personal: []string{"user_id"}, Retention: retentionAccount, Erase: EraseAccount,
+		},
+		{
 			Name: "idempotency_keys", Description: "Stored responses of retried requests, sealed.",
 			Personal: []string{"subject"}, Retention: "The idempotency window, then the maintenance sweep.", Erase: EraseRetained,
 			Note: "Short-lived and sealed (SEC-106); the subject is the credential that made the request.",
@@ -221,7 +233,7 @@ func Render() string {
 	for _, group := range renderGroups() {
 		writeGroup(&b, group)
 	}
-	return b.String()
+	return strings.TrimRight(b.String(), "\n") + "\n"
 }
 
 // renderGroup is a section of the generated document.
