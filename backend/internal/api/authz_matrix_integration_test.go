@@ -467,7 +467,6 @@ var permissionsWithoutRPC = []auth.Permission{
 	auth.FlagsManage,
 	auth.ExperimentsManage,
 	auth.AlertsManage,
-	auth.ReconstructionView,
 	auth.LicenseManage,
 	auth.BackupManage,
 }

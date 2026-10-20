@@ -42,6 +42,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
+	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
@@ -86,6 +87,20 @@ func (q *assetQueue) Enqueue(_ context.Context, _ pgx.Tx, j document.AssetJob) e
 	return nil
 }
 
+// reconstructQueue records the signing jobs of reconstruction releases for
+// the test to run.
+type reconstructQueue struct {
+	mu   sync.Mutex
+	jobs []reconstruct.SignJob
+}
+
+func (q *reconstructQueue) Enqueue(_ context.Context, _ pgx.Tx, j reconstruct.SignJob) error {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	q.jobs = append(q.jobs, j)
+	return nil
+}
+
 // sharedCodecs are the image codecs the worker transcodes assets with,
 // compiled once for the package's tests: compiling costs seconds.
 var sharedCodecs = sync.OnceValues(func() (*media.Codecs, error) { return media.NewCodecs(context.Background()) })
@@ -101,29 +116,33 @@ type world struct {
 	auth     *auth.Service
 	releases *release.Service
 	queue    *publishQueue
-	assets   *assetQueue
-	docs     *document.Service
-	identity pluxv1connect.IdentityServiceClient
-	org      pluxv1connect.OrgServiceClient
-	govern   pluxv1connect.GovernanceServiceClient
-	app      pluxv1connect.AppServiceClient
-	plugin   pluxv1connect.PluginServiceClient
-	document pluxv1connect.DocumentServiceClient
-	comp     pluxv1connect.ComponentServiceClient
-	template pluxv1connect.TemplateServiceClient
-	asset    pluxv1connect.AssetServiceClient
-	publish  pluxv1connect.PublishServiceClient
-	release  pluxv1connect.ReleaseServiceClient
-	device   pluxv1connect.DeviceServiceClient
-	token    pluxv1connect.TokenServiceClient
-	manifest pluxv1connect.ManifestServiceClient
-	native   pluxv1connect.NativeCatalogueServiceClient
-	secAdmin pluxv1connect.SecurityAdminServiceClient
-	license  pluxv1connect.LicenseServiceClient
-	audit    pluxv1connect.AuditServiceClient
-	dsr      pluxv1connect.DataSubjectServiceClient
-	config   pluxv1connect.ConfigServiceClient
-	sca      pluxv1connect.ScaServiceClient
+	// reconstruction is the reconstruction service and reconQueue the signing
+	// jobs it enqueued.
+	reconstruction *reconstruct.Service
+	reconQueue     *reconstructQueue
+	assets         *assetQueue
+	docs           *document.Service
+	identity       pluxv1connect.IdentityServiceClient
+	org            pluxv1connect.OrgServiceClient
+	govern         pluxv1connect.GovernanceServiceClient
+	app            pluxv1connect.AppServiceClient
+	plugin         pluxv1connect.PluginServiceClient
+	document       pluxv1connect.DocumentServiceClient
+	comp           pluxv1connect.ComponentServiceClient
+	template       pluxv1connect.TemplateServiceClient
+	asset          pluxv1connect.AssetServiceClient
+	publish        pluxv1connect.PublishServiceClient
+	release        pluxv1connect.ReleaseServiceClient
+	device         pluxv1connect.DeviceServiceClient
+	token          pluxv1connect.TokenServiceClient
+	manifest       pluxv1connect.ManifestServiceClient
+	native         pluxv1connect.NativeCatalogueServiceClient
+	secAdmin       pluxv1connect.SecurityAdminServiceClient
+	license        pluxv1connect.LicenseServiceClient
+	audit          pluxv1connect.AuditServiceClient
+	dsr            pluxv1connect.DataSubjectServiceClient
+	config         pluxv1connect.ConfigServiceClient
+	sca            pluxv1connect.ScaServiceClient
 	// configs and resolver are the server-held configuration store and its
 	// reader, as the server wires them.
 	configs  *gateway.Configs
@@ -334,6 +353,17 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	reconQueue := &reconstructQueue{}
+	reconstruction, err := reconstruct.NewService(reconstruct.Options{
+		DB: db, Audit: log, IDs: gen, Objects: files, Locator: releases, Signer: releases, Jobs: reconQueue,
+		PublicBaseURL: base, Now: cfg.Now,
+		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, app, "")
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	searchService, err := search.NewService(search.Options{DB: db, Tenancy: tenancyService})
 	if err != nil {
 		t.Fatal(err)
@@ -343,7 +373,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		t.Fatal(err)
 	}
 	h := &api.Handlers{
-		Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
+		Reconstruction: reconstruction, Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Analytics: analyticsService,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
@@ -474,6 +504,8 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		issuer:     issuer,
 		releases:   releases,
 		queue:      queue,
+
+		reconstruction: reconstruction, reconQueue: reconQueue,
 	}
 }
 

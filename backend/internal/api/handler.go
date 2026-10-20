@@ -29,6 +29,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/push"
+	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/search"
@@ -81,6 +82,9 @@ type Handlers struct {
 	LiveConfig *gateway.ConfigResolver
 	// AuditExport serves AuditService (SEC-143); nil leaves it unmounted.
 	AuditExport *auditexport.Service
+	// Reconstruction serves the reconstruction calls of AuditService
+	// (SEC-142); nil leaves them unimplemented.
+	Reconstruction *reconstruct.Service
 	// DataSubjects serves DataSubjectService (SEC-162); nil leaves it
 	// unmounted.
 	DataSubjects *dsr.Service

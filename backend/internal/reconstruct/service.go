@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -244,6 +245,9 @@ func (s *Service) auditChannel(ctx context.Context, q *dbgen.Queries, env dbgen.
 // bundle locations. It needs reconstruction.view on the app and is audited
 // every time (SEC-142).
 func (s *Service) Get(ctx context.Context, p auth.Principal, id string) (Opened, error) {
+	if !holdsOnSomeApp(p) {
+		return Opened{}, fmt.Errorf("reconstruct: %w", p.Authorize(auth.ReconstructionView))
+	}
 	rid, err := storage.UUID(id)
 	if err != nil {
 		return Opened{}, plxerr.New(plxerr.InvalidFormat, "the reconstruction identifier is not valid")
@@ -272,6 +276,21 @@ func (s *Service) Get(ctx context.Context, p auth.Principal, id string) (Opened,
 		return Opened{}, err
 	}
 	return s.open(ctx, row)
+}
+
+// holdsOnSomeApp reports whether the principal holds reconstruction.view
+// across the organisation or on any app, so that a caller without it is
+// refused before the lookup says whether a release exists.
+func holdsOnSomeApp(p auth.Principal) bool {
+	if p.Holds(auth.ReconstructionView) {
+		return true
+	}
+	for _, perms := range p.AppPermissions {
+		if slices.Contains(perms, auth.ReconstructionView) {
+			return true
+		}
+	}
+	return false
 }
 
 // open adds the signed content and bundle locations to a stored release.

@@ -496,6 +496,13 @@ var matrix = map[string]entry{
 	"AuditService/DeleteExportDestination": {kind: needs, perm: auth.AuditExport, call: func(t *testing.T, f *matrixFixture, c caller) error {
 		return f.deleteFreshDestination(t, c)
 	}},
+	"AuditService/Reconstruct": atPerm(auth.ReconstructionView, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ReconstructRequest{AppId: f.app, DeviceId: unknownID, At: timestamppb.Now()}
+	})),
+	"AuditService/GetReconstruction": atPerm(auth.ReconstructionView, anyone(&pluxv1.GetReconstructionRequest{Id: unknownID})),
+	"AuditService/ListReconstructions": atPerm(auth.ReconstructionView, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListReconstructionsRequest{AppId: f.app}
+	})),
 	"DataSubjectService/ExportSubject": atPerm(auth.DSRManage, anyone(&pluxv1.ExportSubjectRequest{
 		Kind: pluxv1.SubjectKind_SUBJECT_KIND_DEVICE, SubjectId: unknownID,
 	})),
