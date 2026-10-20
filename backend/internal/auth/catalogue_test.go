@@ -74,8 +74,8 @@ func TestCatalogueEqualsTheConstants_GOV_002(t *testing.T) {
 func TestCatalogueEntries_GOV_002(t *testing.T) {
 	t.Parallel()
 	cat := auth.Catalogue()
-	if len(cat) != 48 {
-		t.Errorf("the catalogue has %d permissions, want 48 (24 existing, 24 of P9)", len(cat))
+	if len(cat) != 49 {
+		t.Errorf("the catalogue has %d permissions, want 49 (24 existing, 25 of P9)", len(cat))
 	}
 	for i, e := range cat {
 		if e.Description == "" || !strings.HasSuffix(e.Description, ".") {

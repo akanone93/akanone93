@@ -8,8 +8,10 @@ import (
 	"errors"
 	"io"
 	"testing"
+	"time"
 
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
@@ -257,7 +259,20 @@ var matrix = map[string]entry{
 
 	// GovernanceService (GOV-002, GOV-003)
 	"GovernanceService/ListPermissions": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListPermissionsRequest{})),
-	"GovernanceService/ListRoles":       atPerm(auth.OrganizationRead, anyone(&pluxv1.ListRolesRequest{})),
+	"AnalyticsService/QueryRollups": atPerm(auth.AnalyticsRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.QueryRollupsRequest{
+			AppId: f.app, Metric: "screen_view", Granularity: "1h",
+			From: timestamppb.New(time.Unix(0, 0)), To: timestamppb.New(time.Unix(3600, 0)),
+		}
+	})),
+	"AnalyticsService/GetRetention":          atPerm(auth.AnalyticsRead, anyone(&pluxv1.GetRetentionRequest{})),
+	"AnalyticsService/ListRetentionChanges":  atPerm(auth.AnalyticsRead, anyone(&pluxv1.ListRetentionChangesRequest{})),
+	"AnalyticsService/GetExport":             atPerm(auth.AnalyticsRead, anyone(&pluxv1.GetExportRequest{})),
+	"AnalyticsService/SetRetention":          atPerm(auth.RetentionManage, anyone(&pluxv1.SetRetentionRequest{DataClass: "raw_events", Days: 90})),
+	"AnalyticsService/CancelRetentionChange": atPerm(auth.RetentionManage, anyone(&pluxv1.CancelRetentionChangeRequest{Id: unknownID})),
+	"AnalyticsService/SetExport":             atPerm(auth.OrganizationManage, anyone(&pluxv1.SetExportRequest{Endpoint: "https://127.0.0.1:1"})),
+	"AnalyticsService/DeleteExport":          atPerm(auth.OrganizationManage, anyone(&pluxv1.DeleteExportRequest{})),
+	"GovernanceService/ListRoles":            atPerm(auth.OrganizationRead, anyone(&pluxv1.ListRolesRequest{})),
 	"GovernanceService/GetRole": atPerm(auth.OrganizationRead, fixed(func(*matrixFixture) proto.Message {
 		return &pluxv1.GetRoleRequest{Key: "viewer"}
 	})),
