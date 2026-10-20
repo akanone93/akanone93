@@ -2124,6 +2124,209 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ControlDocumentResponse'
+  /plux.v1.DataSubjectService/EraseSubject:
+    post:
+      tags:
+        - plux.v1.DataSubjectService
+      summary: EraseSubject
+      description: |-
+        EraseSubject erases the subject's data store by store, leaving
+         tombstones and an audit entry. Erasing again is a no-op that reports
+         the earlier erasure. PLX-8501 when the subject never had any data.
+      operationId: plux.v1.DataSubjectService.EraseSubject
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.EraseSubjectRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.EraseSubjectResponse'
+  /plux.v1.DataSubjectService/ExportSubject:
+    post:
+      tags:
+        - plux.v1.DataSubjectService
+      summary: ExportSubject
+      description: |-
+        ExportSubject returns a JSON archive of the subject's data, one section
+         per store. It is refused with PLX-1320 when the archive would exceed the
+         dsr.exportBytes limit, and with PLX-8501 when the subject has no data.
+      operationId: plux.v1.DataSubjectService.ExportSubject
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ExportSubjectRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ExportSubjectResponse'
+  /plux.v1.DataSubjectService/GetPersonalDataMap:
+    post:
+      tags:
+        - plux.v1.DataSubjectService
+      summary: GetPersonalDataMap
+      description: |-
+        GetPersonalDataMap returns the stores that hold personal data, their
+         personal fields, retention and what erasure does to each.
+      operationId: plux.v1.DataSubjectService.GetPersonalDataMap
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetPersonalDataMapRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetPersonalDataMapResponse'
+  /plux.v1.DataSubjectService/GetRequest:
+    post:
+      tags:
+        - plux.v1.DataSubjectService
+      summary: GetRequest
+      description: GetRequest returns one completed request.
+      operationId: plux.v1.DataSubjectService.GetRequest
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetRequestRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetRequestResponse'
+  /plux.v1.DataSubjectService/ListRequests:
+    post:
+      tags:
+        - plux.v1.DataSubjectService
+      summary: ListRequests
+      description: ListRequests lists the organisation's completed requests, newest first.
+      operationId: plux.v1.DataSubjectService.ListRequests
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListRequestsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListRequestsResponse'
   /plux.v1.DeviceService/ClearPushToken:
     post:
       tags:
@@ -11463,6 +11666,50 @@ components:
           title: identity
       title: CreateWorkloadIdentityResponse
       additionalProperties: false
+    plux.v1.DataSubjectRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        action:
+          type: string
+          title: action
+          description: action is "export" or "erase".
+        kind:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.SubjectKind'
+          title: kind
+        subjectHash:
+          type: string
+          title: subject_hash
+          description: subject_hash is the lower-case hex SHA-256 the tombstones carry.
+        actor:
+          type: string
+          title: actor
+        rowCount:
+          type: string
+          title: row_count
+          format: int64
+        archiveBytes:
+          type: string
+          title: archive_bytes
+          format: int64
+        requestedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: requested_at
+        tombstones:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.StoreCount'
+          title: tombstones
+          description: tombstones are the stores an erasure emptied.
+      title: DataSubjectRequest
+      additionalProperties: false
+      description: |-
+        DataSubjectRequest is a completed export or erasure. The subject appears
+         only as a hash.
     plux.v1.DeleteAppRequest:
       type: object
       properties:
@@ -12148,6 +12395,40 @@ components:
       description: |-
         Environment isolates variables, secrets, data-source URLs, signing keys
          and device registrations (GOV-010).
+    plux.v1.EraseSubjectRequest:
+      type: object
+      properties:
+        kind:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.SubjectKind'
+          title: kind
+        subjectId:
+          type: string
+          title: subject_id
+      title: EraseSubjectRequest
+      additionalProperties: false
+    plux.v1.EraseSubjectResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          title: request_id
+        erased:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.StoreCount'
+          title: erased
+          description: |-
+            erased lists the stores that lost rows in this call; empty when the
+             subject was already erased.
+        alreadyErased:
+          type: boolean
+          title: already_erased
+          description: |-
+            already_erased is true when an earlier erasure left tombstones and this
+             call found nothing more to remove.
+      title: EraseSubjectResponse
+      additionalProperties: false
     plux.v1.Event:
       type: object
       properties:
@@ -12420,6 +12701,36 @@ components:
           title: content
           format: byte
       title: ExportDraftResponse
+      additionalProperties: false
+    plux.v1.ExportSubjectRequest:
+      type: object
+      properties:
+        kind:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.SubjectKind'
+          title: kind
+        subjectId:
+          type: string
+          title: subject_id
+          description: subject_id is the device or user identifier (a UUID).
+      title: ExportSubjectRequest
+      additionalProperties: false
+    plux.v1.ExportSubjectResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          title: request_id
+        archive:
+          type: string
+          title: archive
+          format: byte
+          description: archive is the JSON document, one section per store.
+        rowCount:
+          type: string
+          title: row_count
+          format: int64
+      title: ExportSubjectResponse
       additionalProperties: false
     plux.v1.ExportTranslationsRequest:
       type: object
@@ -13521,6 +13832,20 @@ components:
           title: organization
       title: GetOrganizationResponse
       additionalProperties: false
+    plux.v1.GetPersonalDataMapRequest:
+      type: object
+      title: GetPersonalDataMapRequest
+      additionalProperties: false
+    plux.v1.GetPersonalDataMapResponse:
+      type: object
+      properties:
+        stores:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.PersonalDataStore'
+          title: stores
+      title: GetPersonalDataMapResponse
+      additionalProperties: false
     plux.v1.GetPluginRequest:
       type: object
       properties:
@@ -13636,6 +13961,23 @@ components:
           title: content_type
           description: content_type is "application/json" or "text/html; charset=utf-8".
       title: GetReportResponse
+      additionalProperties: false
+    plux.v1.GetRequestRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: GetRequestRequest
+      additionalProperties: false
+    plux.v1.GetRequestResponse:
+      type: object
+      properties:
+        request:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DataSubjectRequest'
+          title: request
+      title: GetRequestResponse
       additionalProperties: false
     plux.v1.GetRetentionRequest:
       type: object
@@ -15381,6 +15723,29 @@ components:
           title: page
       title: ListReleasesResponse
       additionalProperties: false
+    plux.v1.ListRequestsRequest:
+      type: object
+      properties:
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListRequestsRequest
+      additionalProperties: false
+    plux.v1.ListRequestsResponse:
+      type: object
+      properties:
+        requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.DataSubjectRequest'
+          title: requests
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListRequestsResponse
+      additionalProperties: false
     plux.v1.ListRetentionChangesRequest:
       type: object
       properties:
@@ -16320,6 +16685,43 @@ components:
       title: PermissionEntry
       additionalProperties: false
       description: PermissionEntry is one permission of the catalogue.
+    plux.v1.PersonalDataStore:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+          description: name is the store's stable name, such as "devices".
+        description:
+          type: string
+          title: description
+        deviceKey:
+          type: string
+          title: device_key
+          description: |-
+            device_key and user_key name the columns that select a device or a user;
+             empty when the store is not keyed by that subject.
+        userKey:
+          type: string
+          title: user_key
+        personalFields:
+          type: array
+          items:
+            type: string
+          title: personal_fields
+        retention:
+          type: string
+          title: retention
+        erase:
+          type: string
+          title: erase
+          description: erase is "delete", "aggregate", "retained" or "account".
+        note:
+          type: string
+          title: note
+      title: PersonalDataStore
+      additionalProperties: false
+      description: PersonalDataStore is one entry of the personal-data map.
     plux.v1.Plugin:
       type: object
       properties:
@@ -18376,6 +18778,27 @@ components:
           title: challenge
       title: StartPasswordLoginResponse
       additionalProperties: false
+    plux.v1.StoreCount:
+      type: object
+      properties:
+        store:
+          type: string
+          title: store
+        rows:
+          type: string
+          title: rows
+          format: int64
+      title: StoreCount
+      additionalProperties: false
+      description: StoreCount is the number of rows a store held for a subject.
+    plux.v1.SubjectKind:
+      type: string
+      title: SubjectKind
+      enum:
+        - SUBJECT_KIND_UNSPECIFIED
+        - SUBJECT_KIND_DEVICE
+        - SUBJECT_KIND_USER
+      description: SubjectKind says what a subject identifier names.
     plux.v1.SubscribeRequest:
       type: object
       properties:
@@ -19450,6 +19873,12 @@ tags:
        write appends a snapshot (SRV-031); writing requires the editing lock
        (SRV-040). Content travels as canonical JSON bytes, never as protobuf
        structures, so a document's hash is a property of the bytes (SCH-003).
+  - name: plux.v1.DataSubjectService
+    description: |-
+      DataSubjectService serves data subject requests (SEC-162): the export and
+       the erasure of everything an organisation holds about a device or a
+       pseudonymous user, and the map of where personal data is stored. Every
+       call needs the dsr.manage permission.
   - name: plux.v1.FunctionService
     description: |-
       FunctionService lets an attested device invoke a server-placed Plux
