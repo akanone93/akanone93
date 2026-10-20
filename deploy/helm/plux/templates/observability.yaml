@@ -42,4 +42,33 @@ data:
   {{ base $path }}: |
     {{- $.Files.Get $path | nindent 4 }}
   {{- end }}
+---
+# The read-only analytics datasource (ANL-020). Grafana reads the password from
+# the environment variable named by observability.dashboards.analytics.passwordEnv.
+{{- with $o.dashboards.analytics }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "plux.fullname" $ }}-analytics-datasource
+  labels:
+    {{- include "plux.labels" (dict "root" $ "component" "observability") | nindent 4 }}
+    {{ $o.dashboards.datasourceLabel }}: "1"
+data:
+  plux-analytics.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Plux analytics
+        uid: plux-analytics
+        type: grafana-postgresql-datasource
+        access: proxy
+        url: {{ required "observability.dashboards.analytics.url is required" .url }}
+        user: {{ .user }}
+        database: {{ .database }}
+        editable: false
+        jsonData:
+          sslmode: require
+          postgresVersion: 1600
+        secureJsonData:
+          password: ${{ .passwordEnv }}
+{{- end }}
 {{- end }}

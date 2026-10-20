@@ -204,13 +204,12 @@ func CheckDashboards(dir string, rules []Rule, cat Catalogue) []string {
 			continue
 		}
 		var d struct {
-			UID    string `json:"uid"`
-			Title  string `json:"title"`
-			Panels []struct {
-				Targets []struct {
-					Expr string `json:"expr"`
-				} `json:"targets"`
-			} `json:"panels"`
+			UID        string           `json:"uid"`
+			Title      string           `json:"title"`
+			Panels     []dashboardPanel `json:"panels"`
+			Templating struct {
+				List []dashboardVariable `json:"list"`
+			} `json:"templating"`
 		}
 		if err := json.Unmarshal(data, &d); err != nil {
 			problems = append(problems, fmt.Sprintf("%s: invalid JSON: %v", filepath.Base(f), err))
@@ -223,10 +222,43 @@ func CheckDashboards(dir string, rules []Rule, cat Catalogue) []string {
 			problems = append(problems, fmt.Sprintf("%s: uid %q is also used by %s", filepath.Base(f), d.UID, other))
 		}
 		uids[d.UID] = filepath.Base(f)
-		for _, p := range d.Panels {
-			for _, t := range p.Targets {
-				problems = append(problems, checkExpr(Rule{Name: filepath.Base(f), Expr: t.Expr}, recorded, cat)...)
+		problems = append(problems, checkDashboardQueries(filepath.Base(f), d.Panels, d.Templating.List, recorded, cat)...)
+	}
+	return problems
+}
+
+// dashboardTarget is one query of a dashboard panel: a PromQL expression or a SQL statement.
+type dashboardTarget struct {
+	Expr   string `json:"expr"`
+	RawSQL string `json:"rawSql"`
+}
+
+// dashboardPanel is the part of a dashboard panel the checks read.
+type dashboardPanel struct {
+	Targets []dashboardTarget `json:"targets"`
+}
+
+// dashboardVariable is the part of a template variable the checks read; a
+// textbox or custom variable has a string query, which holds no SQL.
+type dashboardVariable struct {
+	Query json.RawMessage `json:"query"`
+}
+
+// checkDashboardQueries checks the series of a dashboard's panels and the SQL
+// of its panels and template variables.
+func checkDashboardQueries(file string, panels []dashboardPanel, variables []dashboardVariable, recorded map[string]bool, cat Catalogue) []string {
+	var problems []string
+	for _, p := range panels {
+		for _, t := range p.Targets {
+			problems = append(problems, checkExpr(Rule{Name: file, Expr: t.Expr}, recorded, cat)...)
+			if t.RawSQL != "" {
+				problems = append(problems, CheckAnalyticsSQL(file, t.RawSQL)...)
 			}
+		}
+	}
+	for _, v := range variables {
+		if sql := variableSQL(v.Query); sql != "" {
+			problems = append(problems, CheckAnalyticsSQL(file, sql)...)
 		}
 	}
 	return problems

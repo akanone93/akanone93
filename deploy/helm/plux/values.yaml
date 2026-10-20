@@ -426,3 +426,15 @@ observability:
     # The label Grafana's sidecar selects ConfigMaps by.
     label: grafana_dashboard
     annotations: {}
+    # The label Grafana's sidecar selects the analytics datasource ConfigMap by.
+    datasourceLabel: grafana_datasource
+    # The read-only datasource over analytics_rollups (ANL-020). The role's
+    # grants are in deploy/observability/analytics-reader.sql.
+    analytics:
+      # host:port of the PostgreSQL primary, for example plux-postgresql-rw:5432.
+      url: ""
+      database: plux
+      user: plux_analytics_reader
+      # The environment variable Grafana reads the reader's password from. The
+      # operator sets it on the Grafana pod from an existing Secret (secretKeyRef).
+      passwordEnv: PLUX_ANALYTICS_READER_PASSWORD
