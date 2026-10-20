@@ -213,7 +213,7 @@ func (w *world) populate(t *testing.T) {
 	if _, err := w.auth.AcceptInvitation(ctx, invitation, "Admin", "correct horse battery"); err != nil {
 		t.Fatal(err)
 	}
-	w.adminID = auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}
+	w.adminID = auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
 	o, err := w.tenancy.CreateOrganization(ctx, w.adminID, "acme", "Acme")
 	if err != nil {
 		t.Fatal(err)
@@ -252,7 +252,11 @@ func (w *world) member(t *testing.T, email, role string, secondFactor bool) auth
 	if err != nil {
 		t.Fatal(err)
 	}
-	p, err := w.auth.Resolve(context.Background(), auth.Identity{Kind: auth.KindUser, ID: m.UserID, UserID: m.UserID, Display: role, SecondFactor: secondFactor}, w.org)
+	id := auth.Identity{Kind: auth.KindUser, ID: m.UserID, UserID: m.UserID, Display: role, SecondFactor: secondFactor}
+	if secondFactor {
+		id = id.WithStepUp(0)
+	}
+	p, err := w.auth.Resolve(context.Background(), id, w.org)
 	if err != nil {
 		t.Fatal(err)
 	}

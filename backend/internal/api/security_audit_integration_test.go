@@ -59,7 +59,7 @@ func TestListAuditCheckpoints(t *testing.T) {
 	if _, err := authService.AcceptInvitation(ctx, invitation, "Admin", "correct horse battery"); err != nil {
 		t.Fatal(err)
 	}
-	identity := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "admin", SecondFactor: true, InstallationAdmin: true}
+	identity := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "admin", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
 	org, err := tenancyService.CreateOrganization(ctx, identity, "acme", "Acme")
 	if err != nil {
 		t.Fatal(err)

@@ -628,6 +628,10 @@ var matrix = map[string]entry{
 	})),
 	"IdentityService/ListWorkloadIdentities": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListWorkloadIdentitiesRequest{})),
 	"IdentityService/DeleteWorkloadIdentity": atPerm(auth.TokensManage, anyone(&pluxv1.DeleteWorkloadIdentityRequest{Id: unknownID})),
+	"IdentityService/BeginStepUp":            {kind: self, build: anyone(&pluxv1.BeginStepUpRequest{})},
+	"IdentityService/CompleteStepUp":         {kind: self, build: anyone(&pluxv1.CompleteStepUpRequest{RequestId: unknownID})},
+	"IdentityService/ListSessions":           atPerm(auth.SessionsManage, anyone(&pluxv1.ListSessionsRequest{})),
+	"IdentityService/RevokeSession":          atPerm(auth.SessionsManage, anyone(&pluxv1.RevokeSessionRequest{Id: unknownID})),
 	"IdentityService/ListAuditEntries":       atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditEntriesRequest{})),
 
 	// The device's side: a person's session never satisfies these.
@@ -650,8 +654,8 @@ var matrix = map[string]entry{
 // variants are calls of an RPC that need more than the RPC's own entry
 // declares.
 var variants = map[string]entry{
-	// Deploying to a production environment is the stand-in for an
-	// approval until P9, with a second factor (FN-007).
+	// Deploying to a production environment needs a fresh step-up
+	// with a security key (FN-007, GOV-005).
 	"FunctionAdminService/Deploy (production)": atPerm(auth.FunctionDeployProduction, func(t *testing.T, f *matrixFixture) proto.Message {
 		return &pluxv1.DeployRequest{BuildId: f.freshFunctionBuild(t, f.prod)}
 	}),

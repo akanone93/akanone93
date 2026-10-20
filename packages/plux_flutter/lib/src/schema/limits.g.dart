@@ -100,6 +100,15 @@ enum PluxLimit {
   /// Seconds the previous SCIM bearer token of an organisation keeps working
   /// after it is rotated, so the identity provider can switch over.
   authScimTokenOverlapSeconds('auth.scimTokenOverlapSeconds', PluxLimitUnit.count, 86400, 0, 604800),
+  /// Time after sign-in at which a browser session ends however active it is;
+  /// an organisation may shorten it.
+  authSessionAbsoluteTimeout('auth.sessionAbsoluteTimeout', PluxLimitUnit.milliseconds, 43200000, 0, 2592000000),
+  /// Time without a request after which a browser session ends; an organisation
+  /// may shorten it.
+  authSessionIdleTimeout('auth.sessionIdleTimeout', PluxLimitUnit.milliseconds, 1800000, 0, 86400000),
+  /// Ceremonies one step-up request accepts before it is closed; each wrong
+  /// assertion uses one.
+  authStepUpAttempts('auth.stepUpAttempts', PluxLimitUnit.count, 5, 0, 20),
   /// Size of the WebAssembly module of the device-placed functions of one
   /// plugin.
   bundleDeviceFunctionModuleSize('bundle.deviceFunctionModuleSize', PluxLimitUnit.bytes, 4194304, 0, 67108864),

@@ -101,7 +101,7 @@ func authorizeSome(p auth.Principal) error {
 
 // authorizeEnv checks the permission to change triggers of an environment:
 // function.deploy, and function.deploy.production for a production one,
-// the stand-in for an approval until the approval engine decides (FN-007).
+// which needs a fresh step-up (FN-007, GOV-005).
 func authorizeEnv(p auth.Principal, appID string, env dbgen.Environment) error {
 	if err := authorize(p, auth.FunctionDeploy, appID); err != nil {
 		return err

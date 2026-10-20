@@ -96,7 +96,7 @@ func TestWorkloadIdentityFederation(t *testing.T) {
 	org := f.organisation(t, "acme", map[string]auth.Role{ada: auth.RoleOwner})
 	id := f.signIn(t, "ada@example.com")
 	_, id = f.enrol(t, id)
-	principal, err := f.svc.Resolve(ctx, id, org)
+	principal, err := f.svc.Resolve(ctx, id.WithStepUp(0), org)
 	if err != nil {
 		t.Fatal(err)
 	}

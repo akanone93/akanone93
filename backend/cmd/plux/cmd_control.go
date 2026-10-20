@@ -112,7 +112,7 @@ func (e env) controlRun(c common, f controlFlags, sub string, rest []string) int
 	if err != nil {
 		return e.fail("control", err)
 	}
-	client := pluxv1connect.NewControlServiceClient(e.httpClient, c.server, connect.WithInterceptors(headers{token: cl.token, org: c.org}))
+	client := pluxv1connect.NewControlServiceClient(e.httpClient, c.server, connect.WithInterceptors(e.headers(c.server, cl.token, c.org)))
 	doc, err := controlCall(ctx, client, controlTarget{app: c.app, env: envID, channel: f.channel}, f, sub, rest)
 	if err != nil {
 		return e.fail("control", stepUp(err))

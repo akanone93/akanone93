@@ -166,7 +166,7 @@ func personalDataMap() []Store {
 		},
 		{
 			Name: "sessions", Description: "Signed-in sessions of a user.",
-			UserKey: "user_id", Personal: []string{"user_id", "secret_hash"}, Retention: "Until the session expires or is revoked.", Erase: EraseAccount,
+			UserKey: "user_id", Personal: []string{"user_id", "secret_hash", "ip_prefix", "user_agent"}, Retention: "Until the session expires or is revoked.", Erase: EraseAccount,
 		},
 		{
 			Name: "mfa_factors", Description: "Second factors a user enrolled.",
@@ -178,7 +178,11 @@ func personalDataMap() []Store {
 		},
 		{
 			Name: "access_tokens", Description: "API tokens; a CI token names the workload it was minted for.",
-			UserKey: "user_id", Personal: []string{"user_id", "subject"}, Retention: "Until the token expires or is revoked.", Erase: EraseAccount,
+			UserKey: "user_id", Personal: []string{"user_id", "subject", "last_ip_prefix", "last_user_agent"}, Retention: "Until the token expires or is revoked.", Erase: EraseAccount,
+		},
+		{
+			Name: "step_up_requests", Description: "WebAuthn step-up ceremonies of a user and the CLI grants they issued (SEC-103); only hashes of their secrets.",
+			UserKey: "user_id", Personal: []string{"user_id", "jkt"}, Retention: "Minutes; a request or grant expires five minutes after it is made.", Erase: EraseAccount,
 		},
 		{
 			Name: "user_identities", Description: "The single-sign-on identities linked to a user.",

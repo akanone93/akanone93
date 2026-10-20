@@ -184,8 +184,10 @@ func (c WebAuthnConfig) verifyRegistration(challenge, clientDataJSON, attestatio
 // verifyAssertion checks a sign-in response against a stored credential
 // and returns the authenticator's new signature counter. A counter that
 // does not advance, where the authenticator keeps one, means the
-// credential may have been cloned and is refused.
-func (c WebAuthnConfig) verifyAssertion(challenge, publicKey []byte, storedCount uint32, clientDataJSON, authData, signature []byte) (uint32, error) {
+// credential may have been cloned and is refused. With requireUV the
+// authenticator must also have verified the user (the UV flag), as a
+// step-up requires (SEC-103).
+func (c WebAuthnConfig) verifyAssertion(challenge, publicKey []byte, storedCount uint32, clientDataJSON, authData, signature []byte, requireUV bool) (uint32, error) {
 	if err := c.checkClientData(clientDataJSON, "webauthn.get", challenge); err != nil {
 		return 0, err
 	}
@@ -195,6 +197,9 @@ func (c WebAuthnConfig) verifyAssertion(challenge, publicKey []byte, storedCount
 	}
 	if err := c.checkAuthenticatorData(a); err != nil {
 		return 0, err
+	}
+	if requireUV && a.flags&flagUserVerified == 0 {
+		return 0, fmt.Errorf("%w: the authenticator did not verify the user", errWebAuthn)
 	}
 	key, alg, err := parseCOSEKey(publicKey)
 	if err != nil {

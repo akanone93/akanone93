@@ -90,7 +90,7 @@ func newFixture(t *testing.T) *fixture {
 
 // person is a signed-in user who has presented a second factor.
 func person(userID string, admin bool) auth.Identity {
-	return auth.Identity{Kind: auth.KindUser, ID: userID, UserID: userID, Display: "user", SecondFactor: true, InstallationAdmin: admin}
+	return auth.Identity{Kind: auth.KindUser, ID: userID, UserID: userID, Display: "user", SecondFactor: true, InstallationAdmin: admin}.WithStepUp(0)
 }
 
 // principal resolves an identity in an organisation.

@@ -26,8 +26,8 @@ func ValidateAlias(alias string) error {
 }
 
 // deployPermission is the permission a deploy or an alias change needs in
-// an environment: until the approval engine (GOV-020, P9) the production
-// stand-in with step-up, and function.deploy elsewhere (FN-007, D6).
+// an environment: function.deploy.production, which needs a fresh step-up
+// (GOV-005), in production, and function.deploy elsewhere (FN-007, D6).
 func deployPermission(production bool) auth.Permission {
 	if production {
 		return auth.FunctionDeployProduction

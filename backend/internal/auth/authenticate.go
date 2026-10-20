@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
@@ -21,30 +22,6 @@ import (
 // revoked; the three are not told apart.
 func expired() error {
 	return plxerr.New(plxerr.AuthenticationRequired, "the credential is not valid; sign in again")
-}
-
-// AuthenticateSession resolves a session cookie's value (SEC-101).
-func (s *Service) AuthenticateSession(ctx context.Context, secret string) (Identity, error) {
-	if !strings.HasPrefix(secret, PrefixSession+"_") {
-		return Identity{}, expired()
-	}
-	var id Identity
-	err := s.inTx(ctx, storage.Tenant{}, func(ctx context.Context, tx pgx.Tx) error {
-		row, err := dbgen.New(tx).GetSessionByHash(ctx, HashSecret(secret))
-		if err != nil {
-			if errors.Is(err, pgx.ErrNoRows) {
-				return expired()
-			}
-			return fmt.Errorf("auth: read a session: %w", err)
-		}
-		id = Identity{
-			Kind: KindUser, ID: storage.ID(row.UserID), UserID: storage.ID(row.UserID),
-			Display: row.DisplayName, SessionID: storage.ID(row.ID), CSRFToken: row.CsrfToken,
-			SecondFactor: row.MfaAt.Valid, InstallationAdmin: row.InstallationAdmin,
-		}
-		return nil
-	})
-	return id, err
 }
 
 // AuthenticateToken resolves a bearer token: a personal access token, a
@@ -65,7 +42,8 @@ func (s *Service) AuthenticateToken(ctx context.Context, secret string) (Identit
 			}
 			return fmt.Errorf("auth: read a token: %w", err)
 		}
-		if err := q.TouchAccessToken(ctx, row.ID); err != nil {
+		req := audit.RequestFrom(ctx)
+		if err := q.TouchAccessToken(ctx, dbgen.TouchAccessTokenParams{ID: row.ID, LastIpPrefix: ipPrefix(req.SourceIP), LastUserAgent: req.UserAgent}); err != nil {
 			return fmt.Errorf("auth: record a token's use: %w", err)
 		}
 		id = tokenIdentity(row)

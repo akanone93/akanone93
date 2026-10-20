@@ -69,22 +69,36 @@ UPDATE mfa_factors
 DELETE FROM mfa_factors WHERE id = $1 AND user_id = $2;
 
 -- name: CreateSession :one
-INSERT INTO sessions (id, user_id, secret_hash, csrf_token, mfa_at, expires_at)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO sessions (id, user_id, secret_hash, csrf_token, mfa_at, created_at, last_seen_at, expires_at, ip_prefix, user_agent)
+VALUES ($1, $2, $3, $4, $5, sqlc.arg(created_at), sqlc.arg(created_at), $6, $7, $8)
 RETURNING *;
 
+-- A session is found whether or not it is still valid, so that the caller
+-- can say why it is not: revoked, idle or past its absolute lifetime
+-- (GOV-005). Only a disabled account is treated as unknown.
 -- name: GetSessionByHash :one
 SELECT s.*, u.display_name, u.installation_admin
   FROM sessions s
   JOIN users u ON u.id = s.user_id
- WHERE s.secret_hash = $1 AND s.revoked_at IS NULL AND s.expires_at > now()
-   AND u.disabled_at IS NULL;
+ WHERE s.secret_hash = $1 AND u.disabled_at IS NULL;
+
+-- name: TouchSession :exec
+-- Refreshes what the administrator sees and the timeouts in force. The
+-- absolute lifetime can only shrink: an organisation that shortens it ends
+-- the sessions that are older than the new limit at their next request.
+UPDATE sessions
+   SET last_seen_at = sqlc.arg(at), ip_prefix = $2, user_agent = $3, idle_timeout_ms = $4,
+       expires_at = least(expires_at, sqlc.arg(absolute_until)::timestamptz)
+ WHERE id = $1 AND revoked_at IS NULL AND last_seen_at < sqlc.arg(at)::timestamptz - interval '1 minute';
+
+-- name: SetSessionStepUp :execrows
+UPDATE sessions SET step_up_at = sqlc.arg(at) WHERE id = $1 AND revoked_at IS NULL;
 
 -- name: RecordSessionMFA :one
 UPDATE sessions SET mfa_at = now() WHERE id = $1 RETURNING *;
 
 -- name: RevokeSession :execrows
-UPDATE sessions SET revoked_at = now() WHERE id = $1 AND revoked_at IS NULL;
+UPDATE sessions SET revoked_at = sqlc.arg(at) WHERE id = $1 AND revoked_at IS NULL;
 
 -- name: RevokeUserSessions :execrows
 UPDATE sessions SET revoked_at = now()
@@ -92,6 +106,74 @@ UPDATE sessions SET revoked_at = now()
 
 -- name: DeleteExpiredSessions :execrows
 DELETE FROM sessions WHERE expires_at < now() - interval '1 day';
+
+-- name: ListUserOrganizations :many
+-- The organisations a person belongs to, directly or through a team.
+SELECT DISTINCT organization_id FROM memberships WHERE user_id = $1 ORDER BY organization_id LIMIT sqlc.arg(page_size);
+
+-- name: ListOrganizationSessions :many
+-- The active browser sessions of the people who belong to an organisation,
+-- and the active tokens of the organisation, oldest first (GOV-005). A
+-- token's kind is "cli" for one from `plux login` and "token" otherwise.
+-- Neither side reveals a secret: only hashes are stored.
+SELECT * FROM (
+    SELECT 'studio'::text AS client_kind, s.id, s.user_id, ''::text AS name, s.created_at,
+           s.last_seen_at, s.expires_at, s.ip_prefix, s.user_agent, s.step_up_at
+      FROM sessions s
+     WHERE s.revoked_at IS NULL AND s.expires_at > sqlc.arg(at)::timestamptz
+       AND s.user_id IN (SELECT m.user_id FROM memberships m WHERE m.organization_id = $1)
+    UNION ALL
+    SELECT CASE t.source WHEN 'cli' THEN 'cli' ELSE 'token' END::text, t.id, t.user_id, t.name, t.created_at,
+           coalesce(t.last_used_at, t.created_at), t.expires_at, t.last_ip_prefix, t.last_user_agent, NULL::timestamptz
+      FROM access_tokens t
+     WHERE t.organization_id = $1 AND t.revoked_at IS NULL AND t.expires_at > sqlc.arg(at)::timestamptz
+) AS entries
+ WHERE (created_at, id) > (sqlc.arg(after_time)::timestamptz, sqlc.arg(after_id)::uuid)
+ ORDER BY created_at, id
+ LIMIT sqlc.arg(page_size);
+
+-- name: GetOrganizationSession :one
+-- A session of a person who belongs to the organisation; any other is
+-- reported as absent, so an administrator cannot reach another
+-- organisation's sessions (GOV-005).
+SELECT s.* FROM sessions s
+ WHERE s.id = $1
+   AND s.user_id IN (SELECT m.user_id FROM memberships m WHERE m.organization_id = $2);
+
+-- name: CreateStepUpRequest :one
+INSERT INTO step_up_requests (id, user_id, organization_id, kind, session_id, token_id, jkt, secret_hash, created_at, expires_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, sqlc.arg(created_at), $9)
+RETURNING *;
+
+-- name: GetStepUpRequest :one
+SELECT * FROM step_up_requests WHERE id = $1;
+
+-- name: GetStepUpRequestForUpdate :one
+SELECT * FROM step_up_requests WHERE id = $1 FOR UPDATE;
+
+-- name: BeginStepUpCeremony :exec
+UPDATE step_up_requests SET challenge = $2, attempts = attempts + 1 WHERE id = $1;
+
+-- name: ClearStepUpChallenge :exec
+UPDATE step_up_requests SET challenge = NULL WHERE id = $1;
+
+-- name: ApproveStepUpRequest :exec
+UPDATE step_up_requests SET state = 'approved', approved_at = sqlc.arg(at), challenge = NULL WHERE id = $1;
+
+-- name: IssueStepUpGrant :exec
+UPDATE step_up_requests SET state = 'issued', grant_hash = $2, grant_expires_at = $3 WHERE id = $1;
+
+-- name: CloseStepUpRequest :exec
+UPDATE step_up_requests SET state = 'closed', challenge = NULL WHERE id = $1;
+
+-- name: GetStepUpRequestBySecretForUpdate :one
+SELECT * FROM step_up_requests WHERE id = $1 AND secret_hash = $2 FOR UPDATE;
+
+-- name: GetStepUpGrant :one
+SELECT * FROM step_up_requests WHERE grant_hash = $1 AND state = 'issued';
+
+-- name: DeleteExpiredStepUpRequests :execrows
+DELETE FROM step_up_requests WHERE expires_at < now() - interval '1 day';
 
 -- name: CreateChallenge :one
 INSERT INTO mfa_challenges (id, user_id, secret_hash, expires_at)
@@ -126,7 +208,7 @@ SELECT t.*, coalesce(u.display_name, '')::text AS user_display_name
 SELECT * FROM access_tokens WHERE id = $1;
 
 -- name: TouchAccessToken :exec
-UPDATE access_tokens SET last_used_at = now()
+UPDATE access_tokens SET last_used_at = now(), last_ip_prefix = $2, last_user_agent = $3
  WHERE id = $1 AND (last_used_at IS NULL OR last_used_at < now() - interval '1 minute');
 
 -- name: RevokeAccessToken :execrows

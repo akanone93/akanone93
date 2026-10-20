@@ -13,6 +13,28 @@
 // needs, and a principal that does not hold it is refused before any
 // work is done. Row-level security is the second barrier beneath this
 // one, never the first (SEC-102).
+//
+// Sessions (GOV-005). A browser session is held to three rules on every
+// request, each checked against its row in the database: it was not revoked
+// (PLX-6230), it is younger than the absolute lifetime (PLX-6232) and it was
+// used within the idle timeout (PLX-6231). Nothing about a session is cached
+// in a process or in Valkey, so a revocation takes effect on every node with
+// the next request and there is no invalidation message to lose; a cache
+// would have to be invalidated through Valkey pub/sub to match that, and
+// would leave a window in which a revoked session still works. The cost is
+// the indexed lookup by the secret's hash that authentication makes anyway.
+// The timeouts come from the limit registry and an organisation may only
+// shorten them; a person who belongs to several organisations is held to the
+// shortest. Last use is written at most once a minute, which is also when the
+// organisations' limits are read again.
+//
+// Step-up (SEC-103). A WebAuthn assertion with user verification sets
+// step_up_at on the session; the permissions the catalogue marks stepUp
+// require it to be less than StepUpWindow old, checked centrally in
+// Principal.Authorize. The CLI has no authenticator: a request bound to its
+// token and the thumbprint of its DPoP key is approved in a browser, and the
+// grant that follows counts only with that token and a proof of that key.
+// Machine identities (CI tokens, the server) keep the rules they had.
 package auth
 
 import (

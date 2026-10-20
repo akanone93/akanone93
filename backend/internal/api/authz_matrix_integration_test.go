@@ -458,7 +458,6 @@ var permissionsWithoutRPC = []auth.Permission{
 	// The P9 permissions whose RPCs a later milestone adds; each milestone
 	// removes its permissions from this list when its first call checks
 	// them (plan §2.4).
-	auth.SessionsManage,
 	auth.PoliciesManage,
 	auth.ApprovalsDecide,
 	auth.BreakglassInvoke,

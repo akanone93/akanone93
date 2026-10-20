@@ -40,10 +40,11 @@ Audit entries are never erased, because deleting one breaks the hash chain (`SEC
 | `memberships` | Which organisations and teams a user belongs to. | — | `user_id` | `user_id` | While the account exists. | account | — |
 | `role_grants` | Roles bound to a user at a scope. | — | `user_id` | `user_id` | While the account exists. | account | — |
 | `app_access` | Per-app access of a user. | — | `user_id` | `user_id` | While the account exists. | account | — |
-| `sessions` | Signed-in sessions of a user. | — | `user_id` | `user_id`, `secret_hash` | Until the session expires or is revoked. | account | — |
+| `sessions` | Signed-in sessions of a user. | — | `user_id` | `user_id`, `secret_hash`, `ip_prefix`, `user_agent` | Until the session expires or is revoked. | account | — |
 | `mfa_factors` | Second factors a user enrolled. | — | `user_id` | `user_id` | While the account exists. | account | — |
 | `mfa_challenges` | Pending second-factor challenges. | — | `user_id` | `user_id` | Minutes; the maintenance sweep removes expired ones. | account | — |
-| `access_tokens` | API tokens; a CI token names the workload it was minted for. | — | `user_id` | `user_id`, `subject` | Until the token expires or is revoked. | account | — |
+| `access_tokens` | API tokens; a CI token names the workload it was minted for. | — | `user_id` | `user_id`, `subject`, `last_ip_prefix`, `last_user_agent` | Until the token expires or is revoked. | account | — |
+| `step_up_requests` | WebAuthn step-up ceremonies of a user and the CLI grants they issued (SEC-103); only hashes of their secrets. | — | `user_id` | `user_id`, `jkt` | Minutes; a request or grant expires five minutes after it is made. | account | — |
 | `user_identities` | The single-sign-on identities linked to a user. | — | `user_id` | `user_id`, `subject` | While the account exists. | account | — |
 | `federated_sign_ins` | The single-sign-on sign-ins of a user, by issuer and subject. | — | `user_id` | `user_id`, `subject` | While the account exists. | account | — |
 | `federated_assignments` | The grants and team memberships an identity provider's mapping gave a user. | — | `user_id` | `user_id` | While the account exists. | account | — |

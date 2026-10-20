@@ -18,7 +18,13 @@ func errCode(err error) plxerr.Code {
 }
 
 func session(second bool) Identity {
-	return Identity{Kind: KindUser, ID: "u", UserID: "u", SecondFactor: second}
+	id := Identity{Kind: KindUser, ID: "u", UserID: "u", SecondFactor: second}
+	if second {
+		// A second factor at sign-in is not enough for what needs a
+		// step-up; a session that has one has also stepped up.
+		id = id.WithStepUp(0)
+	}
+	return id
 }
 
 // Verifies: GOV-001, GOV-003.
@@ -146,7 +152,7 @@ func TestResolveUnknownRolesHoldNothing_GOV_002(t *testing.T) {
 // A token never holds more than its scopes, at any level.
 func TestResolveTokenScopes_GOV_003(t *testing.T) {
 	t.Parallel()
-	id := Identity{Kind: KindToken, ID: "t", UserID: "u", Scopes: []Permission{ReleasePublish}, SecondFactor: true}
+	id := Identity{Kind: KindToken, ID: "t", UserID: "u", Scopes: []Permission{ReleasePublish}, SecondFactor: true}.WithStepUp(0)
 	p := resolve(id, "org", []roleGrant{
 		{Role: RoleAdmin, Scope: ScopeApp, AppID: "shop"},
 		{Role: RoleReleaseManager, Scope: ScopeEnvironment, AppID: "bank", Environment: "production"},
