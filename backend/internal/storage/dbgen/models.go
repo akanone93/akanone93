@@ -26,6 +26,39 @@ type AccessToken struct {
 	LastUserAgent  string
 }
 
+type AlertRule struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	Name           string
+	Metric         string
+	EnvironmentID  pgtype.UUID
+	Filters        []byte
+	Aggregation    string
+	WindowSeconds  int32
+	Comparison     string
+	Threshold      float64
+	ForSeconds     int32
+	Severity       string
+	Enabled        bool
+	Revision       int64
+	CreatedBy      string
+	CreatedAt      pgtype.Timestamptz
+	UpdatedBy      string
+	UpdatedAt      pgtype.Timestamptz
+}
+
+type AlertState struct {
+	RuleID         pgtype.UUID
+	OrganizationID pgtype.UUID
+	State          string
+	Since          pgtype.Timestamptz
+	EvaluatedAt    pgtype.Timestamptz
+	Value          *float64
+	FiredAt        pgtype.Timestamptz
+	ResolvedAt     pgtype.Timestamptz
+}
+
 type AnalyticsEvent struct {
 	ID              pgtype.UUID
 	OrganizationID  pgtype.UUID
@@ -455,6 +488,48 @@ type EnvironmentVariable struct {
 	Key            string
 	Value          string
 	UpdatedAt      pgtype.Timestamptz
+}
+
+type ErrorGroup struct {
+	ID              pgtype.UUID
+	OrganizationID  pgtype.UUID
+	AppID           pgtype.UUID
+	ReleaseSequence int64
+	Fingerprint     string
+	Code            string
+	PluginKey       string
+	Route           string
+	NodePath        string
+	Frames          string
+	Fatal           bool
+	JsonPath        string
+	SourceFile      string
+	SymbolicatedAt  pgtype.Timestamptz
+	FirstSeen       pgtype.Timestamptz
+	LastSeen        pgtype.Timestamptz
+	Events          int64
+	Devices         int64
+}
+
+type ErrorGroupDay struct {
+	GroupID        pgtype.UUID
+	OrganizationID pgtype.UUID
+	Day            pgtype.Date
+	Events         int64
+}
+
+type ErrorGroupDevice struct {
+	GroupID        pgtype.UUID
+	OrganizationID pgtype.UUID
+	DeviceID       pgtype.UUID
+}
+
+type ErrorSample struct {
+	GroupID        pgtype.UUID
+	OrganizationID pgtype.UUID
+	EventID        pgtype.UUID
+	OccurredAt     pgtype.Timestamptz
+	Fields         []byte
 }
 
 type FederatedAssignment struct {

@@ -115,6 +115,10 @@ func (w *world) seedDevice(x tenant) string {
 	w.exec(x.org, `INSERT INTO device_tokens (id, organization_id, device_id, secret_hash, expires_at) VALUES ($1, $2, $3, $4, now() + interval '1 hour')`,
 		storage.MustUUID(w.id()), o, dev, []byte(d))
 	w.exec(x.org, `INSERT INTO device_bundles (device_id, organization_id, plugin_key, bundle_sha256) VALUES ($1, $2, 'home', '\x01')`, dev, o)
+	group := storage.MustUUID(w.id())
+	w.exec(x.org, `INSERT INTO error_groups (id, organization_id, app_id, release_sequence, fingerprint, code, plugin_key, route, node_path, frames, fatal, first_seen, last_seen)
+		VALUES ($1, $2, $3, 1, $4, 'PLX-4020', 'home', '/', '/', '', false, now(), now())`, group, o, a, d)
+	w.exec(x.org, `INSERT INTO error_group_devices (group_id, organization_id, device_id) VALUES ($1, $2, $3)`, group, o, dev)
 	w.exec(x.org, `INSERT INTO device_sca_keys (device_id, organization_id, public_key, jkt, key_storage, attestation_provider) VALUES ($1, $2, '\x02', 'jkt', 'hardware', 'none')`, dev, o)
 	w.exec(x.org, `INSERT INTO device_push_tokens (device_id, organization_id, app_id, environment_id, provider, ciphertext, wrapped_key, key_id) VALUES ($1, $2, $3, $4, 'fcm', '\x03', '\x04', 'k1')`, dev, o, a, e)
 	w.exec(x.org, `INSERT INTO telemetry_events (id, organization_id, app_id, environment_id, device_id, name, time) VALUES ($1, $2, $3, $4, $5, 'open', now())`,
@@ -155,7 +159,7 @@ func (w *world) count(x tenant, table, column, id string) int {
 // deviceTables are the stores a device is erased from, with their key column.
 var deviceTables = map[string]string{
 	"telemetry_events": "device_id", "analytics_events": "device_id", "device_push_tokens": "device_id",
-	"device_sca_keys": "device_id", "device_tokens": "device_id", "device_bundles": "device_id", "devices": "id",
+	"device_sca_keys": "device_id", "device_tokens": "device_id", "device_bundles": "device_id", "error_group_devices": "device_id", "devices": "id",
 }
 
 // userTables are the stores a user is erased from, with their key column.

@@ -81,6 +81,15 @@ func deviceExecutors() []executor {
 			},
 		},
 		{
+			store: "error_group_devices",
+			export: func(ctx context.Context, q *dbgen.Queries, s resolved, limit int32) ([][]byte, error) {
+				return q.DsrExportErrorGroupDevices(ctx, dbgen.DsrExportErrorGroupDevicesParams{OrganizationID: s.org, DeviceID: s.id, RowLimit: limit})
+			},
+			erase: func(ctx context.Context, q *dbgen.Queries, s resolved) (int64, error) {
+				return q.DsrEraseErrorGroupDevices(ctx, dbgen.DsrEraseErrorGroupDevicesParams{OrganizationID: s.org, DeviceID: s.id})
+			},
+		},
+		{
 			store: "device_bundles",
 			export: func(ctx context.Context, q *dbgen.Queries, s resolved, limit int32) ([][]byte, error) {
 				return q.DsrExportDeviceBundles(ctx, dbgen.DsrExportDeviceBundlesParams{OrganizationID: s.org, DeviceID: s.id, RowLimit: limit})

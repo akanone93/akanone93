@@ -60,6 +60,27 @@ const (
 	// AnalyticsServiceDeleteExportProcedure is the fully-qualified name of the AnalyticsService's
 	// DeleteExport RPC.
 	AnalyticsServiceDeleteExportProcedure = "/plux.v1.AnalyticsService/DeleteExport"
+	// AnalyticsServiceCreateAlertRuleProcedure is the fully-qualified name of the AnalyticsService's
+	// CreateAlertRule RPC.
+	AnalyticsServiceCreateAlertRuleProcedure = "/plux.v1.AnalyticsService/CreateAlertRule"
+	// AnalyticsServiceUpdateAlertRuleProcedure is the fully-qualified name of the AnalyticsService's
+	// UpdateAlertRule RPC.
+	AnalyticsServiceUpdateAlertRuleProcedure = "/plux.v1.AnalyticsService/UpdateAlertRule"
+	// AnalyticsServiceDeleteAlertRuleProcedure is the fully-qualified name of the AnalyticsService's
+	// DeleteAlertRule RPC.
+	AnalyticsServiceDeleteAlertRuleProcedure = "/plux.v1.AnalyticsService/DeleteAlertRule"
+	// AnalyticsServiceListAlertRulesProcedure is the fully-qualified name of the AnalyticsService's
+	// ListAlertRules RPC.
+	AnalyticsServiceListAlertRulesProcedure = "/plux.v1.AnalyticsService/ListAlertRules"
+	// AnalyticsServiceListAlertStatesProcedure is the fully-qualified name of the AnalyticsService's
+	// ListAlertStates RPC.
+	AnalyticsServiceListAlertStatesProcedure = "/plux.v1.AnalyticsService/ListAlertStates"
+	// AnalyticsServiceListErrorGroupsProcedure is the fully-qualified name of the AnalyticsService's
+	// ListErrorGroups RPC.
+	AnalyticsServiceListErrorGroupsProcedure = "/plux.v1.AnalyticsService/ListErrorGroups"
+	// AnalyticsServiceGetErrorGroupProcedure is the fully-qualified name of the AnalyticsService's
+	// GetErrorGroup RPC.
+	AnalyticsServiceGetErrorGroupProcedure = "/plux.v1.AnalyticsService/GetErrorGroup"
 )
 
 // AnalyticsServiceClient is a client for the plux.v1.AnalyticsService service.
@@ -90,6 +111,28 @@ type AnalyticsServiceClient interface {
 	// DeleteExport removes the OTLP destination. It needs organization.manage
 	// and is audited.
 	DeleteExport(context.Context, *connect.Request[pluxv1.DeleteExportRequest]) (*connect.Response[pluxv1.DeleteExportResponse], error)
+	// CreateAlertRule defines an alert on a rollup metric (ANL-030). It needs
+	// alerts.manage on the app and is audited.
+	CreateAlertRule(context.Context, *connect.Request[pluxv1.CreateAlertRuleRequest]) (*connect.Response[pluxv1.CreateAlertRuleResponse], error)
+	// UpdateAlertRule replaces a rule's definition and resets its state. It
+	// needs alerts.manage on the app and is audited.
+	UpdateAlertRule(context.Context, *connect.Request[pluxv1.UpdateAlertRuleRequest]) (*connect.Response[pluxv1.UpdateAlertRuleResponse], error)
+	// DeleteAlertRule removes a rule and its state. It needs alerts.manage on
+	// the app and is audited.
+	DeleteAlertRule(context.Context, *connect.Request[pluxv1.DeleteAlertRuleRequest]) (*connect.Response[pluxv1.DeleteAlertRuleResponse], error)
+	// ListAlertRules lists the rules of an app, or of the organisation. It
+	// needs analytics.read.
+	ListAlertRules(context.Context, *connect.Request[pluxv1.ListAlertRulesRequest]) (*connect.Response[pluxv1.ListAlertRulesResponse], error)
+	// ListAlertStates lists the current state of rules: ok, pending, firing or
+	// resolved. It needs analytics.read.
+	ListAlertStates(context.Context, *connect.Request[pluxv1.ListAlertStatesRequest]) (*connect.Response[pluxv1.ListAlertStatesResponse], error)
+	// ListErrorGroups lists the error groups of an app, newest activity first,
+	// with their trend by day (ANL-040). It needs analytics.read.
+	ListErrorGroups(context.Context, *connect.Request[pluxv1.ListErrorGroupsRequest]) (*connect.Response[pluxv1.ListErrorGroupsResponse], error)
+	// GetErrorGroup returns one group with its newest sample events. The first
+	// read symbolicates it through the release's retained source map
+	// (CMP-041). It needs analytics.read.
+	GetErrorGroup(context.Context, *connect.Request[pluxv1.GetErrorGroupRequest]) (*connect.Response[pluxv1.GetErrorGroupResponse], error)
 }
 
 // NewAnalyticsServiceClient constructs a client for the plux.v1.AnalyticsService service. By
@@ -151,6 +194,48 @@ func NewAnalyticsServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(analyticsServiceMethods.ByName("DeleteExport")),
 			connect.WithClientOptions(opts...),
 		),
+		createAlertRule: connect.NewClient[pluxv1.CreateAlertRuleRequest, pluxv1.CreateAlertRuleResponse](
+			httpClient,
+			baseURL+AnalyticsServiceCreateAlertRuleProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("CreateAlertRule")),
+			connect.WithClientOptions(opts...),
+		),
+		updateAlertRule: connect.NewClient[pluxv1.UpdateAlertRuleRequest, pluxv1.UpdateAlertRuleResponse](
+			httpClient,
+			baseURL+AnalyticsServiceUpdateAlertRuleProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("UpdateAlertRule")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteAlertRule: connect.NewClient[pluxv1.DeleteAlertRuleRequest, pluxv1.DeleteAlertRuleResponse](
+			httpClient,
+			baseURL+AnalyticsServiceDeleteAlertRuleProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("DeleteAlertRule")),
+			connect.WithClientOptions(opts...),
+		),
+		listAlertRules: connect.NewClient[pluxv1.ListAlertRulesRequest, pluxv1.ListAlertRulesResponse](
+			httpClient,
+			baseURL+AnalyticsServiceListAlertRulesProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("ListAlertRules")),
+			connect.WithClientOptions(opts...),
+		),
+		listAlertStates: connect.NewClient[pluxv1.ListAlertStatesRequest, pluxv1.ListAlertStatesResponse](
+			httpClient,
+			baseURL+AnalyticsServiceListAlertStatesProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("ListAlertStates")),
+			connect.WithClientOptions(opts...),
+		),
+		listErrorGroups: connect.NewClient[pluxv1.ListErrorGroupsRequest, pluxv1.ListErrorGroupsResponse](
+			httpClient,
+			baseURL+AnalyticsServiceListErrorGroupsProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("ListErrorGroups")),
+			connect.WithClientOptions(opts...),
+		),
+		getErrorGroup: connect.NewClient[pluxv1.GetErrorGroupRequest, pluxv1.GetErrorGroupResponse](
+			httpClient,
+			baseURL+AnalyticsServiceGetErrorGroupProcedure,
+			connect.WithSchema(analyticsServiceMethods.ByName("GetErrorGroup")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -164,6 +249,13 @@ type analyticsServiceClient struct {
 	getExport             *connect.Client[pluxv1.GetExportRequest, pluxv1.GetExportResponse]
 	setExport             *connect.Client[pluxv1.SetExportRequest, pluxv1.SetExportResponse]
 	deleteExport          *connect.Client[pluxv1.DeleteExportRequest, pluxv1.DeleteExportResponse]
+	createAlertRule       *connect.Client[pluxv1.CreateAlertRuleRequest, pluxv1.CreateAlertRuleResponse]
+	updateAlertRule       *connect.Client[pluxv1.UpdateAlertRuleRequest, pluxv1.UpdateAlertRuleResponse]
+	deleteAlertRule       *connect.Client[pluxv1.DeleteAlertRuleRequest, pluxv1.DeleteAlertRuleResponse]
+	listAlertRules        *connect.Client[pluxv1.ListAlertRulesRequest, pluxv1.ListAlertRulesResponse]
+	listAlertStates       *connect.Client[pluxv1.ListAlertStatesRequest, pluxv1.ListAlertStatesResponse]
+	listErrorGroups       *connect.Client[pluxv1.ListErrorGroupsRequest, pluxv1.ListErrorGroupsResponse]
+	getErrorGroup         *connect.Client[pluxv1.GetErrorGroupRequest, pluxv1.GetErrorGroupResponse]
 }
 
 // QueryRollups calls plux.v1.AnalyticsService.QueryRollups.
@@ -206,6 +298,41 @@ func (c *analyticsServiceClient) DeleteExport(ctx context.Context, req *connect.
 	return c.deleteExport.CallUnary(ctx, req)
 }
 
+// CreateAlertRule calls plux.v1.AnalyticsService.CreateAlertRule.
+func (c *analyticsServiceClient) CreateAlertRule(ctx context.Context, req *connect.Request[pluxv1.CreateAlertRuleRequest]) (*connect.Response[pluxv1.CreateAlertRuleResponse], error) {
+	return c.createAlertRule.CallUnary(ctx, req)
+}
+
+// UpdateAlertRule calls plux.v1.AnalyticsService.UpdateAlertRule.
+func (c *analyticsServiceClient) UpdateAlertRule(ctx context.Context, req *connect.Request[pluxv1.UpdateAlertRuleRequest]) (*connect.Response[pluxv1.UpdateAlertRuleResponse], error) {
+	return c.updateAlertRule.CallUnary(ctx, req)
+}
+
+// DeleteAlertRule calls plux.v1.AnalyticsService.DeleteAlertRule.
+func (c *analyticsServiceClient) DeleteAlertRule(ctx context.Context, req *connect.Request[pluxv1.DeleteAlertRuleRequest]) (*connect.Response[pluxv1.DeleteAlertRuleResponse], error) {
+	return c.deleteAlertRule.CallUnary(ctx, req)
+}
+
+// ListAlertRules calls plux.v1.AnalyticsService.ListAlertRules.
+func (c *analyticsServiceClient) ListAlertRules(ctx context.Context, req *connect.Request[pluxv1.ListAlertRulesRequest]) (*connect.Response[pluxv1.ListAlertRulesResponse], error) {
+	return c.listAlertRules.CallUnary(ctx, req)
+}
+
+// ListAlertStates calls plux.v1.AnalyticsService.ListAlertStates.
+func (c *analyticsServiceClient) ListAlertStates(ctx context.Context, req *connect.Request[pluxv1.ListAlertStatesRequest]) (*connect.Response[pluxv1.ListAlertStatesResponse], error) {
+	return c.listAlertStates.CallUnary(ctx, req)
+}
+
+// ListErrorGroups calls plux.v1.AnalyticsService.ListErrorGroups.
+func (c *analyticsServiceClient) ListErrorGroups(ctx context.Context, req *connect.Request[pluxv1.ListErrorGroupsRequest]) (*connect.Response[pluxv1.ListErrorGroupsResponse], error) {
+	return c.listErrorGroups.CallUnary(ctx, req)
+}
+
+// GetErrorGroup calls plux.v1.AnalyticsService.GetErrorGroup.
+func (c *analyticsServiceClient) GetErrorGroup(ctx context.Context, req *connect.Request[pluxv1.GetErrorGroupRequest]) (*connect.Response[pluxv1.GetErrorGroupResponse], error) {
+	return c.getErrorGroup.CallUnary(ctx, req)
+}
+
 // AnalyticsServiceHandler is an implementation of the plux.v1.AnalyticsService service.
 type AnalyticsServiceHandler interface {
 	// QueryRollups reads one event name's rollups of an app over a time range,
@@ -234,6 +361,28 @@ type AnalyticsServiceHandler interface {
 	// DeleteExport removes the OTLP destination. It needs organization.manage
 	// and is audited.
 	DeleteExport(context.Context, *connect.Request[pluxv1.DeleteExportRequest]) (*connect.Response[pluxv1.DeleteExportResponse], error)
+	// CreateAlertRule defines an alert on a rollup metric (ANL-030). It needs
+	// alerts.manage on the app and is audited.
+	CreateAlertRule(context.Context, *connect.Request[pluxv1.CreateAlertRuleRequest]) (*connect.Response[pluxv1.CreateAlertRuleResponse], error)
+	// UpdateAlertRule replaces a rule's definition and resets its state. It
+	// needs alerts.manage on the app and is audited.
+	UpdateAlertRule(context.Context, *connect.Request[pluxv1.UpdateAlertRuleRequest]) (*connect.Response[pluxv1.UpdateAlertRuleResponse], error)
+	// DeleteAlertRule removes a rule and its state. It needs alerts.manage on
+	// the app and is audited.
+	DeleteAlertRule(context.Context, *connect.Request[pluxv1.DeleteAlertRuleRequest]) (*connect.Response[pluxv1.DeleteAlertRuleResponse], error)
+	// ListAlertRules lists the rules of an app, or of the organisation. It
+	// needs analytics.read.
+	ListAlertRules(context.Context, *connect.Request[pluxv1.ListAlertRulesRequest]) (*connect.Response[pluxv1.ListAlertRulesResponse], error)
+	// ListAlertStates lists the current state of rules: ok, pending, firing or
+	// resolved. It needs analytics.read.
+	ListAlertStates(context.Context, *connect.Request[pluxv1.ListAlertStatesRequest]) (*connect.Response[pluxv1.ListAlertStatesResponse], error)
+	// ListErrorGroups lists the error groups of an app, newest activity first,
+	// with their trend by day (ANL-040). It needs analytics.read.
+	ListErrorGroups(context.Context, *connect.Request[pluxv1.ListErrorGroupsRequest]) (*connect.Response[pluxv1.ListErrorGroupsResponse], error)
+	// GetErrorGroup returns one group with its newest sample events. The first
+	// read symbolicates it through the release's retained source map
+	// (CMP-041). It needs analytics.read.
+	GetErrorGroup(context.Context, *connect.Request[pluxv1.GetErrorGroupRequest]) (*connect.Response[pluxv1.GetErrorGroupResponse], error)
 }
 
 // NewAnalyticsServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -291,6 +440,48 @@ func NewAnalyticsServiceHandler(svc AnalyticsServiceHandler, opts ...connect.Han
 		connect.WithSchema(analyticsServiceMethods.ByName("DeleteExport")),
 		connect.WithHandlerOptions(opts...),
 	)
+	analyticsServiceCreateAlertRuleHandler := connect.NewUnaryHandler(
+		AnalyticsServiceCreateAlertRuleProcedure,
+		svc.CreateAlertRule,
+		connect.WithSchema(analyticsServiceMethods.ByName("CreateAlertRule")),
+		connect.WithHandlerOptions(opts...),
+	)
+	analyticsServiceUpdateAlertRuleHandler := connect.NewUnaryHandler(
+		AnalyticsServiceUpdateAlertRuleProcedure,
+		svc.UpdateAlertRule,
+		connect.WithSchema(analyticsServiceMethods.ByName("UpdateAlertRule")),
+		connect.WithHandlerOptions(opts...),
+	)
+	analyticsServiceDeleteAlertRuleHandler := connect.NewUnaryHandler(
+		AnalyticsServiceDeleteAlertRuleProcedure,
+		svc.DeleteAlertRule,
+		connect.WithSchema(analyticsServiceMethods.ByName("DeleteAlertRule")),
+		connect.WithHandlerOptions(opts...),
+	)
+	analyticsServiceListAlertRulesHandler := connect.NewUnaryHandler(
+		AnalyticsServiceListAlertRulesProcedure,
+		svc.ListAlertRules,
+		connect.WithSchema(analyticsServiceMethods.ByName("ListAlertRules")),
+		connect.WithHandlerOptions(opts...),
+	)
+	analyticsServiceListAlertStatesHandler := connect.NewUnaryHandler(
+		AnalyticsServiceListAlertStatesProcedure,
+		svc.ListAlertStates,
+		connect.WithSchema(analyticsServiceMethods.ByName("ListAlertStates")),
+		connect.WithHandlerOptions(opts...),
+	)
+	analyticsServiceListErrorGroupsHandler := connect.NewUnaryHandler(
+		AnalyticsServiceListErrorGroupsProcedure,
+		svc.ListErrorGroups,
+		connect.WithSchema(analyticsServiceMethods.ByName("ListErrorGroups")),
+		connect.WithHandlerOptions(opts...),
+	)
+	analyticsServiceGetErrorGroupHandler := connect.NewUnaryHandler(
+		AnalyticsServiceGetErrorGroupProcedure,
+		svc.GetErrorGroup,
+		connect.WithSchema(analyticsServiceMethods.ByName("GetErrorGroup")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.AnalyticsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AnalyticsServiceQueryRollupsProcedure:
@@ -309,6 +500,20 @@ func NewAnalyticsServiceHandler(svc AnalyticsServiceHandler, opts ...connect.Han
 			analyticsServiceSetExportHandler.ServeHTTP(w, r)
 		case AnalyticsServiceDeleteExportProcedure:
 			analyticsServiceDeleteExportHandler.ServeHTTP(w, r)
+		case AnalyticsServiceCreateAlertRuleProcedure:
+			analyticsServiceCreateAlertRuleHandler.ServeHTTP(w, r)
+		case AnalyticsServiceUpdateAlertRuleProcedure:
+			analyticsServiceUpdateAlertRuleHandler.ServeHTTP(w, r)
+		case AnalyticsServiceDeleteAlertRuleProcedure:
+			analyticsServiceDeleteAlertRuleHandler.ServeHTTP(w, r)
+		case AnalyticsServiceListAlertRulesProcedure:
+			analyticsServiceListAlertRulesHandler.ServeHTTP(w, r)
+		case AnalyticsServiceListAlertStatesProcedure:
+			analyticsServiceListAlertStatesHandler.ServeHTTP(w, r)
+		case AnalyticsServiceListErrorGroupsProcedure:
+			analyticsServiceListErrorGroupsHandler.ServeHTTP(w, r)
+		case AnalyticsServiceGetErrorGroupProcedure:
+			analyticsServiceGetErrorGroupHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -348,4 +553,32 @@ func (UnimplementedAnalyticsServiceHandler) SetExport(context.Context, *connect.
 
 func (UnimplementedAnalyticsServiceHandler) DeleteExport(context.Context, *connect.Request[pluxv1.DeleteExportRequest]) (*connect.Response[pluxv1.DeleteExportResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.DeleteExport is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) CreateAlertRule(context.Context, *connect.Request[pluxv1.CreateAlertRuleRequest]) (*connect.Response[pluxv1.CreateAlertRuleResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.CreateAlertRule is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) UpdateAlertRule(context.Context, *connect.Request[pluxv1.UpdateAlertRuleRequest]) (*connect.Response[pluxv1.UpdateAlertRuleResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.UpdateAlertRule is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) DeleteAlertRule(context.Context, *connect.Request[pluxv1.DeleteAlertRuleRequest]) (*connect.Response[pluxv1.DeleteAlertRuleResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.DeleteAlertRule is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) ListAlertRules(context.Context, *connect.Request[pluxv1.ListAlertRulesRequest]) (*connect.Response[pluxv1.ListAlertRulesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.ListAlertRules is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) ListAlertStates(context.Context, *connect.Request[pluxv1.ListAlertStatesRequest]) (*connect.Response[pluxv1.ListAlertStatesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.ListAlertStates is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) ListErrorGroups(context.Context, *connect.Request[pluxv1.ListErrorGroupsRequest]) (*connect.Response[pluxv1.ListErrorGroupsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.ListErrorGroups is not implemented"))
+}
+
+func (UnimplementedAnalyticsServiceHandler) GetErrorGroup(context.Context, *connect.Request[pluxv1.GetErrorGroupRequest]) (*connect.Response[pluxv1.GetErrorGroupResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AnalyticsService.GetErrorGroup is not implemented"))
 }

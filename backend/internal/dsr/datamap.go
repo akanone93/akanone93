@@ -96,6 +96,11 @@ func personalDataMap() []Store {
 			Note: "Deleting them revokes the device's sessions.",
 		},
 		{
+			Name: "error_group_devices", Description: "Which devices an error group was seen on, for its affected-device count (ANL-040).",
+			DeviceKey: "device_id", Personal: []string{"device_id"},
+			Retention: retentionDevice, Erase: EraseDelete,
+		},
+		{
 			Name: "device_bundles", Description: "The bundles a device reported holding.",
 			DeviceKey: "device_id", Personal: []string{"device_id"},
 			Retention: retentionDevice, Erase: EraseDelete,

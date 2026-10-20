@@ -24,6 +24,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 
+	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
@@ -99,6 +100,10 @@ type matrixFixture struct {
 	device      string
 	job         string
 	count       int
+	// rule and group are the alert rule and error group the read and update
+	// entries share, made on first use to spare the rate limit.
+	rule  *pluxv1.AlertRule
+	group string
 }
 
 func (f *matrixFixture) owner() caller { return f.callers[auth.RoleOwner] }
@@ -260,6 +265,51 @@ func (f *matrixFixture) freshEnvironment(t *testing.T) string {
 func (f *matrixFixture) freshChannel(t *testing.T) string {
 	t.Helper()
 	return must(f.w.app.CreateChannel(context.Background(), req(f.owner(), &pluxv1.CreateChannelRequest{EnvironmentId: f.prod, Key: f.name()})))(t).GetChannel().GetId()
+}
+
+// freshAlertRule creates an alert rule as the owner and returns it.
+func (f *matrixFixture) freshAlertRule(t *testing.T) *pluxv1.AlertRule {
+	t.Helper()
+	rule := &pluxv1.AlertRule{
+		AppId: f.app, Name: f.name(), Metric: "fatal_error", Aggregation: "count", WindowSeconds: 300,
+		Comparison: ">", Threshold: 5, Severity: "warning",
+	}
+	return must(f.w.analytics.CreateAlertRule(context.Background(), req(f.owner(), &pluxv1.CreateAlertRuleRequest{Rule: rule})))(t).GetRule()
+}
+
+// errorGroup records one error event, which is delivered once however often
+// this runs, and returns the group it falls into.
+func (f *matrixFixture) errorGroup(t *testing.T) string {
+	t.Helper()
+	if f.group != "" {
+		return f.group
+	}
+	ctx := context.Background()
+	b := analytics.Batch{OrganizationID: f.org, AppID: f.app, DeviceID: f.device, Events: []analytics.Event{{
+		ID: "018f0000-0000-7000-8000-0000000000e1", Name: analytics.EventError, Time: time.Now(), ReleaseSequence: 1, PluginKey: "main",
+		Fields: []byte(`{"code":"PLX-4101","node_path":"root/0"}`),
+	}}}
+	if err := f.w.analyticsSvc.RecordErrors(ctx, b); err != nil {
+		t.Fatalf("RecordErrors: %v", err)
+	}
+	groups := must(f.w.analytics.ListErrorGroups(ctx, req(f.owner(), &pluxv1.ListErrorGroupsRequest{AppId: f.app})))(t).GetGroups()
+	if len(groups) == 0 {
+		t.Fatal("no error group was recorded")
+	}
+	f.group = groups[0].GetId()
+	return f.group
+}
+
+// sharedAlertRule is an alert rule that entries may change but not remove.
+func (f *matrixFixture) sharedAlertRule(t *testing.T) *pluxv1.AlertRule {
+	t.Helper()
+	if f.rule == nil {
+		f.rule = f.freshAlertRule(t)
+	}
+	return &pluxv1.AlertRule{
+		Id: f.rule.GetId(), Name: f.rule.GetName(), Metric: f.rule.GetMetric(), Aggregation: f.rule.GetAggregation(),
+		WindowSeconds: f.rule.GetWindowSeconds(), Comparison: f.rule.GetComparison(), Threshold: 9, Severity: f.rule.GetSeverity(),
+	}
 }
 
 func (f *matrixFixture) freshPlugin(t *testing.T) string {
@@ -466,7 +516,6 @@ var permissionsWithoutRPC = []auth.Permission{
 	auth.RolloutManage,
 	auth.FlagsManage,
 	auth.ExperimentsManage,
-	auth.AlertsManage,
 	auth.ReconstructionView,
 	auth.LicenseManage,
 	auth.BackupManage,

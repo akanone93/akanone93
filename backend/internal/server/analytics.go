@@ -18,6 +18,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/jobs"
+	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/telemetry"
@@ -31,13 +32,30 @@ const analyticsEvery = 5 * time.Minute
 // buildAnalytics assembles ingestion and analytics storage. Events go
 // through a Valkey stream to worker consumers when the shared cache is
 // Valkey, and are written directly otherwise (ADR-0080).
-func buildAnalytics(cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, ids interface{ New() (string, error) }, auditLog *audit.Log, tenants *tenancy.Service, work WorkDeps) (*telemetry.Service, *analytics.Service, *telemetry.Consumer, error) {
+func buildAnalytics(cfg *config.Config, db *storage.DB, shared cache.Cache, set limits.Set, ids interface{ New() (string, error) }, auditLog *audit.Log, tenants *tenancy.Service, notifier *notify.Service, work WorkDeps) (*telemetry.Service, *analytics.Service, *telemetry.Consumer, error) {
 	store := work.AnalyticsStore
 	if store == nil {
 		store = analytics.NewPostgres(db, nil)
 	}
+	win, err := analytics.ParseWindow(cfg.Telemetry.MaintenanceWindow.Start, cfg.Telemetry.MaintenanceWindow.End, cfg.Telemetry.TimeZone)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("server: telemetry.maintenanceWindow: %w", err)
+	}
+	years := cfg.Retention.AuditYears
+	aopts := analytics.Options{
+		DB: db, Store: store, Audit: auditLog, IDs: ids, Limits: set, Window: win,
+		Defaults:      analytics.Defaults{RawDays: cfg.Telemetry.RetentionDays, AuditDays: years*365 + years/4},
+		Organizations: tenants.ForEachOrganization, Objects: work.Objects,
+	}
+	if notifier != nil {
+		aopts.Notify = notifier
+	}
+	svc, err := analytics.New(aopts)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("server: %w", err)
+	}
 	opts := telemetry.Options{
-		DB: db, IDs: ids, Limits: set, Store: store,
+		DB: db, IDs: ids, Limits: set, Store: store, Errors: svc,
 		Retention: time.Duration(cfg.Telemetry.RetentionDays) * 24 * time.Hour,
 	}
 	if c, ok := shared.(cache.Counter); ok {
@@ -48,19 +66,6 @@ func buildAnalytics(cfg *config.Config, db *storage.DB, shared cache.Cache, set 
 		opts.Queue = telemetry.StreamQueue{Streams: streams, MaxLen: int64(cfg.Telemetry.QueueMaxEntries)}
 	}
 	events, err := telemetry.NewService(opts)
-	if err != nil {
-		return nil, nil, nil, fmt.Errorf("server: %w", err)
-	}
-	win, err := analytics.ParseWindow(cfg.Telemetry.MaintenanceWindow.Start, cfg.Telemetry.MaintenanceWindow.End, cfg.Telemetry.TimeZone)
-	if err != nil {
-		return nil, nil, nil, fmt.Errorf("server: telemetry.maintenanceWindow: %w", err)
-	}
-	years := cfg.Retention.AuditYears
-	svc, err := analytics.New(analytics.Options{
-		DB: db, Store: store, Audit: auditLog, IDs: ids, Limits: set, Window: win,
-		Defaults:      analytics.Defaults{RawDays: cfg.Telemetry.RetentionDays, AuditDays: years*365 + years/4},
-		Organizations: tenants.ForEachOrganization,
-	})
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("server: %w", err)
 	}
@@ -94,6 +99,34 @@ func (AnalyticsExport) Kind() string { return "analytics.export" }
 // InsertOpts puts the job on the maintenance queue, at most one waiting.
 func (AnalyticsExport) InsertOpts() river.InsertOpts {
 	return river.InsertOpts{Queue: jobs.QueueMaintenance, UniqueOpts: river.UniqueOpts{ByPeriod: analyticsEvery}}
+}
+
+// AnalyticsAlerts is the periodic job that evaluates alert rules against
+// the rollups (ANL-030). River's unique period makes one evaluation per
+// minute across all workers.
+type AnalyticsAlerts struct{}
+
+// Kind names the job.
+func (AnalyticsAlerts) Kind() string { return "analytics.alerts" }
+
+// InsertOpts puts the job on the maintenance queue, at most one waiting.
+func (AnalyticsAlerts) InsertOpts() river.InsertOpts {
+	return river.InsertOpts{Queue: jobs.QueueMaintenance, UniqueOpts: river.UniqueOpts{ByPeriod: analytics.AlertEvery}}
+}
+
+type analyticsAlertsWorker struct {
+	river.WorkerDefaults[AnalyticsAlerts]
+	svc *analytics.Service
+	log *slog.Logger
+}
+
+// Work evaluates the rules once; a rule that fails is retried at the next
+// minute, so the job itself succeeds.
+func (w *analyticsAlertsWorker) Work(ctx context.Context, _ *river.Job[AnalyticsAlerts]) error {
+	if err := w.svc.EvaluateAlerts(ctx); err != nil && w.log != nil {
+		w.log.WarnContext(ctx, "analytics alerts", slog.Any("error", err))
+	}
+	return nil
 }
 
 type analyticsMaintainWorker struct {
@@ -133,5 +166,9 @@ func AnalyticsJobs(workers *jobs.Workers, svc *Services, log *slog.Logger) []*ri
 	}
 	jobs.AddWorker(workers, &analyticsMaintainWorker{svc: svc.Analytics, log: log})
 	jobs.AddWorker(workers, &analyticsExportWorker{svc: svc.Analytics, log: log})
-	return []*river.PeriodicJob{jobs.Every(analyticsEvery, AnalyticsMaintain{}), jobs.Every(analyticsEvery, AnalyticsExport{})}
+	jobs.AddWorker(workers, &analyticsAlertsWorker{svc: svc.Analytics, log: log})
+	return []*river.PeriodicJob{
+		jobs.Every(analyticsEvery, AnalyticsMaintain{}), jobs.Every(analyticsEvery, AnalyticsExport{}),
+		jobs.Every(analytics.AlertEvery, AnalyticsAlerts{}),
+	}
 }

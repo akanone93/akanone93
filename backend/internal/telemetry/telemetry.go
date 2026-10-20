@@ -84,6 +84,12 @@ var fieldName = regexp.MustCompile(`^[a-z][A-Za-z0-9_]{0,63}$`)
 // sensitiveWords mark a field name that must never be stored.
 var sensitiveWords = []string{"password", "passcode", "secret", "token", "pin", "otp", "cvv", "card", "iban", "ssn", "email", "phone"}
 
+// ErrorRecorder groups the error events of a stored batch (ANL-040); package
+// analytics implements it.
+type ErrorRecorder interface {
+	RecordErrors(ctx context.Context, b analytics.Batch) error
+}
+
 // IDs generates identifiers.
 type IDs interface {
 	New() (string, error)
@@ -100,6 +106,9 @@ type Options struct {
 	Retention time.Duration
 	// Store keeps the events; the default is the PostgreSQL store.
 	Store analytics.Store
+	// Errors, when set, groups the error events of every stored batch
+	// (ANL-040); without it errors stay in the events and rollups only.
+	Errors ErrorRecorder
 	// Queue, when set, takes accepted batches for the worker role's
 	// consumers to write in bulk. Without it, or when it fails, the batch
 	// is written directly.
@@ -320,6 +329,11 @@ func (s *Service) write(ctx context.Context, m message) error {
 	}
 	if err := s.o.Store.WriteEvents(ctx, b); err != nil {
 		return fmt.Errorf("telemetry: %w", err)
+	}
+	if s.o.Errors != nil {
+		if err := s.o.Errors.RecordErrors(ctx, b); err != nil {
+			return fmt.Errorf("telemetry: %w", err)
+		}
 	}
 	return nil
 }

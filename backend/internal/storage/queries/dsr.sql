@@ -27,6 +27,13 @@ SELECT jsonb_build_object('pluginKey', plugin_key, 'bundleSha256', encode(bundle
  ORDER BY plugin_key
  LIMIT sqlc.arg(row_limit);
 
+-- name: DsrExportErrorGroupDevices :many
+SELECT jsonb_build_object('errorGroup', group_id)::jsonb AS document
+  FROM error_group_devices
+ WHERE organization_id = $1 AND device_id = $2
+ ORDER BY group_id
+ LIMIT sqlc.arg(row_limit);
+
 -- name: DsrExportDeviceTokens :many
 SELECT jsonb_build_object('id', id, 'expiresAt', expires_at)::jsonb AS document
   FROM device_tokens
@@ -97,6 +104,9 @@ DELETE FROM device_sca_keys WHERE organization_id = $1 AND device_id = $2;
 
 -- name: DsrEraseDeviceTokens :execrows
 DELETE FROM device_tokens WHERE organization_id = $1 AND device_id = $2;
+
+-- name: DsrEraseErrorGroupDevices :execrows
+DELETE FROM error_group_devices WHERE organization_id = $1 AND device_id = $2;
 
 -- name: DsrEraseDeviceBundles :execrows
 DELETE FROM device_bundles WHERE organization_id = $1 AND device_id = $2;
