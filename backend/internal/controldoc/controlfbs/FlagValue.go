@@ -41,8 +41,71 @@ func (rcv *FlagValue) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
+func (rcv *FlagValue) Key() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *FlagValue) Type() FlagType {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return FlagType(rcv._tab.GetByte(o + rcv._tab.Pos))
+	}
+	return 0
+}
+
+func (rcv *FlagValue) MutateType(n FlagType) bool {
+	return rcv._tab.MutateByteSlot(6, byte(n))
+}
+
+func (rcv *FlagValue) DefaultValue() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *FlagValue) Segments(obj *FlagSegmentValue, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *FlagValue) SegmentsLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
 func FlagValueStart(builder *flatbuffers.Builder) {
-	builder.StartObject(0)
+	builder.StartObject(4)
+}
+func FlagValueAddKey(builder *flatbuffers.Builder, key flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(key), 0)
+}
+func FlagValueAddType(builder *flatbuffers.Builder, type_ FlagType) {
+	builder.PrependByteSlot(1, byte(type_), 0)
+}
+func FlagValueAddDefaultValue(builder *flatbuffers.Builder, defaultValue flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(defaultValue), 0)
+}
+func FlagValueAddSegments(builder *flatbuffers.Builder, segments flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(segments), 0)
+}
+func FlagValueStartSegmentsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func FlagValueEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

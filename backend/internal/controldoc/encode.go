@@ -26,7 +26,7 @@ var wireScopes = map[Scope]controlfbs.SwitchScope{
 // Encode returns the FlatBuffers buffer of a document, with the file
 // identifier PLXC. The document is validated first; the kill switches are
 // written sorted, so the same document always has the same bytes
-// (CMP-002). The reserved flags and experiments vectors are written empty.
+// (CMP-002), and so are the flags and the experiments, by key.
 func Encode(d Document) ([]byte, error) {
 	if err := d.Validate(); err != nil {
 		return nil, fmt.Errorf("controldoc.Encode: %w", err)
@@ -41,10 +41,7 @@ func Encode(d Document) ([]byte, error) {
 	if r := d.ForcedRollback; r != nil {
 		rollback = writeRollback(b, *r)
 	}
-	controlfbs.ControlDocumentStartFlagsVector(b, 0)
-	flags := b.EndVector(0)
-	controlfbs.ControlDocumentStartExperimentsVector(b, 0)
-	experiments := b.EndVector(0)
+	ex := writeExperimentation(b, d)
 
 	controlfbs.ControlDocumentStart(b)
 	controlfbs.ControlDocumentAddVersion(b, d.Version)
@@ -60,8 +57,11 @@ func Encode(d Document) ([]byte, error) {
 	if rollback != 0 {
 		controlfbs.ControlDocumentAddForcedRollback(b, rollback)
 	}
-	controlfbs.ControlDocumentAddFlags(b, flags)
-	controlfbs.ControlDocumentAddExperiments(b, experiments)
+	controlfbs.ControlDocumentAddFlags(b, ex.flags)
+	controlfbs.ControlDocumentAddExperiments(b, ex.experiments)
+	if ex.holdout != 0 {
+		controlfbs.ControlDocumentAddHoldout(b, ex.holdout)
+	}
 	controlfbs.FinishControlDocumentBuffer(b, controlfbs.ControlDocumentEnd(b))
 	return b.FinishedBytes(), nil
 }

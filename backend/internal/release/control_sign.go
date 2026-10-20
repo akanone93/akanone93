@@ -149,6 +149,7 @@ func (s *Service) signControlRow(ctx context.Context, tx pgx.Tx, env dbgen.Envir
 		Version: uint64(row.Version), AppID: storage.ID(env.AppID), Environment: env.Key, Channel: ch.Key, //nolint:gosec // versions are positive
 		IssuedAt: at, ExpiresAt: at.Add(s.controlLifetime()),
 		KillSwitches: content.Switches, MandatoryUpdate: content.Mandatory, ForcedRollback: content.Rollback,
+		Flags: content.Flags, Experiments: content.Experiments, Holdout: content.Holdout,
 	}
 	encoded, err := controldoc.Encode(doc)
 	if err != nil {
@@ -274,7 +275,7 @@ func (s *Service) ensureFreshDocument(ctx context.Context, q *dbgen.Queries, ch 
 	row, err := q.GetNewestControlDocument(ctx, ch.ID)
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
-		return s.insertControl(ctx, q, ch, 1, controlContent{}, systemActor)
+		return s.insertFirstControl(ctx, q, ch)
 	case err != nil:
 		return failure(err, "control document")
 	case row.Signed == nil:
@@ -287,6 +288,24 @@ func (s *Service) ensureFreshDocument(ctx context.Context, q *dbgen.Queries, ch 
 		return err
 	}
 	return s.insertControl(ctx, q, ch, row.Version+1, content, systemActor)
+}
+
+// insertFirstControl writes the first version of a channel's document. It
+// starts from the flags, experiments and holdout the environment's other
+// channels carry, so that a channel made later is not without them.
+func (s *Service) insertFirstControl(ctx context.Context, q *dbgen.Queries, ch dbgen.Channel) error {
+	var content controlContent
+	sibling, err := q.GetEnvironmentExperimentation(ctx, ch.EnvironmentID)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+	case err != nil:
+		return failure(err, "control document")
+	default:
+		if content.Experimentation, err = experimentationOf(sibling.Flags, sibling.Experiments, sibling.Holdout); err != nil {
+			return err
+		}
+	}
+	return s.insertControl(ctx, q, ch, 1, content, systemActor)
 }
 
 // ControlRequest is a device's request for its channel's control document.

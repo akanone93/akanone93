@@ -23,8 +23,30 @@ func (q *Queries) DeleteDevicePushToken(ctx context.Context, deviceID pgtype.UUI
 	return result.RowsAffected(), nil
 }
 
+const getEnvironmentExperimentation = `-- name: GetEnvironmentExperimentation :one
+SELECT d.flags, d.experiments, d.holdout
+  FROM control_documents d
+  JOIN channels c ON c.id = d.channel_id
+ WHERE c.environment_id = $1
+ ORDER BY d.created_at DESC, d.version DESC
+ LIMIT 1
+`
+
+type GetEnvironmentExperimentationRow struct {
+	Flags       []byte
+	Experiments []byte
+	Holdout     []byte
+}
+
+func (q *Queries) GetEnvironmentExperimentation(ctx context.Context, environmentID pgtype.UUID) (GetEnvironmentExperimentationRow, error) {
+	row := q.db.QueryRow(ctx, getEnvironmentExperimentation, environmentID)
+	var i GetEnvironmentExperimentationRow
+	err := row.Scan(&i.Flags, &i.Experiments, &i.Holdout)
+	return i, err
+}
+
 const getNewestControlDocument = `-- name: GetNewestControlDocument :one
-SELECT channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback, signed, signed_sha256, issued_at, expires_at, created_by_kind, created_by_id, created_by, created_at FROM control_documents WHERE channel_id = $1 ORDER BY version DESC LIMIT 1
+SELECT channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback, signed, signed_sha256, issued_at, expires_at, created_by_kind, created_by_id, created_by, created_at, flags, experiments, holdout FROM control_documents WHERE channel_id = $1 ORDER BY version DESC LIMIT 1
 `
 
 func (q *Queries) GetNewestControlDocument(ctx context.Context, channelID pgtype.UUID) (ControlDocument, error) {
@@ -45,12 +67,15 @@ func (q *Queries) GetNewestControlDocument(ctx context.Context, channelID pgtype
 		&i.CreatedByID,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.Flags,
+		&i.Experiments,
+		&i.Holdout,
 	)
 	return i, err
 }
 
 const getNewestSignedControlDocument = `-- name: GetNewestSignedControlDocument :one
-SELECT channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback, signed, signed_sha256, issued_at, expires_at, created_by_kind, created_by_id, created_by, created_at FROM control_documents WHERE channel_id = $1 AND signed IS NOT NULL ORDER BY version DESC LIMIT 1
+SELECT channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback, signed, signed_sha256, issued_at, expires_at, created_by_kind, created_by_id, created_by, created_at, flags, experiments, holdout FROM control_documents WHERE channel_id = $1 AND signed IS NOT NULL ORDER BY version DESC LIMIT 1
 `
 
 func (q *Queries) GetNewestSignedControlDocument(ctx context.Context, channelID pgtype.UUID) (ControlDocument, error) {
@@ -71,15 +96,18 @@ func (q *Queries) GetNewestSignedControlDocument(ctx context.Context, channelID 
 		&i.CreatedByID,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.Flags,
+		&i.Experiments,
+		&i.Holdout,
 	)
 	return i, err
 }
 
 const insertControlDocument = `-- name: InsertControlDocument :one
 INSERT INTO control_documents (channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback,
-                               created_by_kind, created_by_id, created_by)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback, signed, signed_sha256, issued_at, expires_at, created_by_kind, created_by_id, created_by, created_at
+                               created_by_kind, created_by_id, created_by, flags, experiments, holdout)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+RETURNING channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback, signed, signed_sha256, issued_at, expires_at, created_by_kind, created_by_id, created_by, created_at, flags, experiments, holdout
 `
 
 type InsertControlDocumentParams struct {
@@ -92,6 +120,9 @@ type InsertControlDocumentParams struct {
 	CreatedByKind   string
 	CreatedByID     string
 	CreatedBy       string
+	Flags           []byte
+	Experiments     []byte
+	Holdout         []byte
 }
 
 func (q *Queries) InsertControlDocument(ctx context.Context, arg InsertControlDocumentParams) (ControlDocument, error) {
@@ -105,6 +136,9 @@ func (q *Queries) InsertControlDocument(ctx context.Context, arg InsertControlDo
 		arg.CreatedByKind,
 		arg.CreatedByID,
 		arg.CreatedBy,
+		arg.Flags,
+		arg.Experiments,
+		arg.Holdout,
 	)
 	var i ControlDocument
 	err := row.Scan(
@@ -122,6 +156,9 @@ func (q *Queries) InsertControlDocument(ctx context.Context, arg InsertControlDo
 		&i.CreatedByID,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.Flags,
+		&i.Experiments,
+		&i.Holdout,
 	)
 	return i, err
 }
@@ -194,7 +231,7 @@ const storeControlSignature = `-- name: StoreControlSignature :one
 UPDATE control_documents
    SET signed = $3, signed_sha256 = $4, issued_at = $5, expires_at = $6
  WHERE channel_id = $1 AND version = $2 AND signed IS NULL
-RETURNING channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback, signed, signed_sha256, issued_at, expires_at, created_by_kind, created_by_id, created_by, created_at
+RETURNING channel_id, organization_id, version, kill_switches, mandatory_update, forced_rollback, signed, signed_sha256, issued_at, expires_at, created_by_kind, created_by_id, created_by, created_at, flags, experiments, holdout
 `
 
 type StoreControlSignatureParams struct {
@@ -231,6 +268,9 @@ func (q *Queries) StoreControlSignature(ctx context.Context, arg StoreControlSig
 		&i.CreatedByID,
 		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.Flags,
+		&i.Experiments,
+		&i.Holdout,
 	)
 	return i, err
 }

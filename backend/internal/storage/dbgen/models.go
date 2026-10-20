@@ -251,6 +251,9 @@ type ControlDocument struct {
 	CreatedByID     string
 	CreatedBy       string
 	CreatedAt       pgtype.Timestamptz
+	Flags           []byte
+	Experiments     []byte
+	Holdout         []byte
 }
 
 type CustomRole struct {
@@ -452,6 +455,63 @@ type EnvironmentVariable struct {
 	EnvironmentID  pgtype.UUID
 	Key            string
 	Value          string
+	UpdatedAt      pgtype.Timestamptz
+}
+
+type Experiment struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	Key            string
+	State          string
+	Definition     []byte
+	Salt           string
+	Layer          string
+	LayerShareBp   int32
+	LayerStart     *int32
+	LayerEnd       *int32
+	SegmentRule    []byte
+	StartedAt      pgtype.Timestamptz
+	StoppedAt      pgtype.Timestamptz
+	Winner         string
+	PromoteJobID   pgtype.UUID
+	CreatedByKind  string
+	CreatedByID    string
+	CreatedBy      string
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
+}
+
+type ExperimentHoldout struct {
+	EnvironmentID  pgtype.UUID
+	OrganizationID pgtype.UUID
+	BasisPoints    int32
+	Salt           string
+	UpdatedByKind  string
+	UpdatedByID    string
+	UpdatedBy      string
+	UpdatedAt      pgtype.Timestamptz
+}
+
+type FeatureFlag struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	Key            string
+	Type           string
+	Description    string
+	JsonSchema     []byte
+	DefaultValue   []byte
+	Segments       []byte
+	CreatedByKind  string
+	CreatedByID    string
+	CreatedBy      string
+	CreatedAt      pgtype.Timestamptz
+	UpdatedByKind  string
+	UpdatedByID    string
+	UpdatedBy      string
 	UpdatedAt      pgtype.Timestamptz
 }
 

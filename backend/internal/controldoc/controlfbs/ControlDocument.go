@@ -199,8 +199,21 @@ func (rcv *ControlDocument) ExperimentsLength() int {
 	return 0
 }
 
+func (rcv *ControlDocument) Holdout(obj *GlobalHoldout) *GlobalHoldout {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(26))
+	if o != 0 {
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(GlobalHoldout)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
+	}
+	return nil
+}
+
 func ControlDocumentStart(builder *flatbuffers.Builder) {
-	builder.StartObject(11)
+	builder.StartObject(12)
 }
 func ControlDocumentAddVersion(builder *flatbuffers.Builder, version uint64) {
 	builder.PrependUint64Slot(0, version, 0)
@@ -243,6 +256,9 @@ func ControlDocumentAddExperiments(builder *flatbuffers.Builder, experiments fla
 }
 func ControlDocumentStartExperimentsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
+}
+func ControlDocumentAddHoldout(builder *flatbuffers.Builder, holdout flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(11, flatbuffers.UOffsetT(holdout), 0)
 }
 func ControlDocumentEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
