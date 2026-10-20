@@ -47,6 +47,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/observability"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/scheduler"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -109,6 +110,9 @@ type Services struct {
 	// Notify delivers notifications and outbound webhooks (SRV-062,
 	// SRV-063); other services publish to it.
 	Notify *notify.Service
+	// Push stores device push tokens and sends the silent push of control
+	// document changes (SYN-060); off unless push.enabled is set.
+	Push *push.Service
 	// Scheduler drains the notification queues and fires function
 	// schedules on the elected leader; nil outside the worker role
 	// (FN-025).
@@ -242,6 +246,10 @@ func (g gitQueue) Enqueue(ctx context.Context, tx pgx.Tx, job gitsync.ExportJob)
 type publishQueue struct{ q *JobQueue }
 
 func (p publishQueue) Enqueue(ctx context.Context, tx pgx.Tx, job release.Work) error {
+	if _, ok := job.(release.ControlJob); ok {
+		// A switch change must not wait behind a long publish (NFR-024).
+		return p.q.insert(ctx, tx, job, jobs.QueueControl)
+	}
 	return p.q.insert(ctx, tx, job, jobs.QueuePublish)
 }
 
@@ -266,6 +274,17 @@ type gitExportWorker struct {
 // Work pushes one version.
 func (w *gitExportWorker) Work(ctx context.Context, job *river.Job[gitsync.ExportJob]) error {
 	return w.svc.GitExport.Work(ctx, job.Args) //nolint:wrapcheck // a domain error
+}
+
+// controlWorker signs control documents (SYN-060).
+type controlWorker struct {
+	river.WorkerDefaults[release.ControlJob]
+	svc *Services
+}
+
+// Work signs one channel's newest control document.
+func (w *controlWorker) Work(ctx context.Context, job *river.Job[release.ControlJob]) error {
+	return w.svc.Releases.SignControl(ctx, job.Args) //nolint:wrapcheck // a domain error
 }
 
 // deltaWorker precomputes deltas after a publish (REL-022).
@@ -425,7 +444,11 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
-	releases, err := buildReleases(cfg, db, set, work, releaseDeps{published: gitExport, ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw), functions: functions})
+	pusher, err := buildPush(cfg, db, set, backend, tenancyService, work)
+	if err != nil {
+		return nil, err
+	}
+	releases, err := buildReleases(cfg, db, set, work, releaseDeps{published: gitExport, push: pusher, ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw), functions: functions})
 	if err != nil {
 		return nil, err
 	}
@@ -455,7 +478,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		return nil, err
 	}
 	return &Services{
-		Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport,
+		Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport, Push: pusher,
 		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Analytics: analyticsService, EventConsumer: consumer,
 		Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
@@ -607,6 +630,8 @@ type releaseDeps struct {
 	// functions supplies the function catalogue and device modules a
 	// compilation uses; nil where the installation runs no functions.
 	functions *function.Service
+	// push sends the silent push of a signed control document.
+	push *push.Service
 }
 
 // buildReleases assembles the release service, or returns nil when the
@@ -630,7 +655,7 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 		Devices: deps.devices, Gateway: deps.gateway, SecurityConfig: deps.configs, PublicBaseURL: cfg.Server.PublicBaseURL,
 		Crypter: deps.crypter, Recipients: deps.devices, Functions: functionsOf(deps.functions),
 		CompilerVersion: buildinfo.Get().Version, DevelopmentDays: cfg.Retention.DevelopmentReleaseDays,
-		Metadata: metadataOptions(cfg), Published: deps.published,
+		Metadata: metadataOptions(cfg), Published: deps.published, ControlNotifier: controlNotifier{push: deps.push},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
@@ -662,6 +687,7 @@ func metadataOptions(cfg *config.Config) release.MetadataOptions {
 		},
 		RootThreshold:     cfg.UpdateMetadata.RootThreshold,
 		SnapshotKeyPrefix: cfg.Signing.Keys.Snapshot, TimestampKeyPrefix: cfg.Signing.Keys.Timestamp,
+		ControlKeyPrefix: cfg.Signing.Keys.Control,
 	}
 }
 
@@ -774,7 +800,7 @@ func (s *Server) handlersFor(svc *Services, limiter api.RateLimiter) *api.Handle
 	h := &api.Handlers{
 		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
 		Analytics: svc.Analytics, Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
-		Limiter: limiter, Limits: s.limits, Edition: s.edition,
+		Limiter: limiter, Limits: s.limits, Edition: s.edition, Push: svc.Push,
 	}
 	if svc.AuditCheckpoints != nil {
 		h.AuditCheckpoints = svc.AuditCheckpoints
@@ -1008,6 +1034,11 @@ func (w *maintenanceWorker) sweepReleases(ctx context.Context, org string, t *sw
 	// The timestamp and snapshot are re-signed before they expire
 	// (SEC-050).
 	m, err = w.svc.Releases.RefreshMetadata(ctx, org)
+	t.signed += m
+	t.resign = append(t.resign, err)
+	// A control document is re-signed before it expires, so that devices
+	// always find one in force (SYN-060).
+	m, err = w.svc.Releases.RefreshControl(ctx, org)
 	t.signed += m
 	t.resign = append(t.resign, err)
 	if _, err := w.svc.Releases.PurgeManifests(ctx, org); err != nil {

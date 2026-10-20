@@ -59,7 +59,7 @@ func TestMetadataCommand_SEC_051(t *testing.T) {
 		t.Fatalf("keys: %d; %s", code, stderr.String())
 	}
 	lines := strings.Split(strings.TrimSpace(stdout.String()), "\n")
-	if len(lines) != 3 {
+	if len(lines) != 4 {
 		t.Fatalf("keys printed %q", stdout.String())
 	}
 	root := updatemeta.Root{
@@ -80,6 +80,8 @@ func TestMetadataCommand_SEC_051(t *testing.T) {
 			root.Roles.Snapshot = keys
 		case updatemeta.RoleTimestamp:
 			root.Roles.Timestamp = keys
+		case updatemeta.RoleControl:
+			root.Roles.Control = &keys
 		}
 	}
 	pub, priv, err := ed25519.GenerateKey(rand.Reader)

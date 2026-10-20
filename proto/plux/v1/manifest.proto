@@ -22,6 +22,11 @@ service ManifestService {
   rpc GetManifest(GetManifestRequest) returns (GetManifestResponse) {}
   // GetRootKeys returns the public keys host projects embed (SEC-051).
   rpc GetRootKeys(GetRootKeysRequest) returns (GetRootKeysResponse) {}
+  // GetSignedControl returns the signed control document of the device's
+  // channel, with the same ETag and If-None-Match handling as the manifest
+  // (SYN-060). The device verifies the file against its trusted root
+  // before it reads the document (SEC-052).
+  rpc GetSignedControl(GetSignedControlRequest) returns (GetSignedControlResponse) {}
 }
 
 // Manifest describes one release as a device sees it (REL-030,
@@ -220,4 +225,19 @@ message PublicKey {
   // environment_type is "production" or "development"; a production
   // runtime refuses metadata signed by a development key (SEC-056).
   string environment_type = 5;
+}
+
+message GetSignedControlRequest {
+  // channel names the channel; empty is the default channel.
+  string channel = 1;
+  // if_none_match is the ETag of the document the device already holds.
+  string if_none_match = 2;
+}
+message GetSignedControlResponse {
+  // not_modified is true when if_none_match matched; signed is unset.
+  bool not_modified = 1;
+  string etag = 2;
+  int64 version = 3;
+  // signed is the control document file a device verifies.
+  bytes signed = 4;
 }

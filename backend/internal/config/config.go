@@ -73,6 +73,9 @@ type Config struct {
 	// Notifications configures notification and webhook delivery (SRV-062,
 	// SRV-063).
 	Notifications Notifications `json:"notifications"`
+	// Push configures the silent push of control document changes (SYN-060,
+	// Q22).
+	Push Push `json:"push"`
 }
 
 // License configures the offline licence check of the enterprise edition.
@@ -447,6 +450,10 @@ type SigningKeys struct {
 	// production (SEC-050, SEC-056).
 	Snapshot  string `json:"snapshot"`
 	Timestamp string `json:"timestamp"`
+	// Control is the prefix of the control document's key, named like the
+	// others. The key is online and limited to control documents; the root
+	// delegates to it (ADR-0077).
+	Control string `json:"control"`
 }
 
 // Vault is a HashiCorp Vault Transit engine (SEC-120).

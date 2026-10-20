@@ -124,6 +124,9 @@ type Options struct {
 	// compilation packs. Nil compiles without functions: grants are then not
 	// resolved, which is for installations that run none.
 	Functions Functions
+	// ControlNotifier is told when a control document has been signed, to
+	// send the silent push of Q22; nil sends none.
+	ControlNotifier ControlNotifier
 	// Limits are the installation's limits.
 	Limits limits.Set
 	// CompilerVersion is recorded in every bundle (CMP-005).
@@ -169,6 +172,9 @@ func NewService(o Options) (*Service, error) {
 	}
 	if o.Limits.IsZero() {
 		o.Limits = limits.Defaults()
+	}
+	if time.Duration(o.Limits.Get(limits.ControlExpiry))*time.Millisecond < MinControlExpiry {
+		return nil, fmt.Errorf("release: control.expiry is below %s, the least the hourly sweep can keep ahead of expiry", MinControlExpiry)
 	}
 	if o.CompilerVersion == "" {
 		o.CompilerVersion = "dev"

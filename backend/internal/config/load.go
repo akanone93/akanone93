@@ -35,7 +35,7 @@ func Defaults() Config {
 			SignedURLTTL: Duration(15 * 60e9),
 		},
 		Cache:   Cache{Backend: "memory"},
-		Signing: Signing{Backend: "file", Directory: "data/keys", Keys: SigningKeys{Targets: "targets", Snapshot: "snapshot", Timestamp: "timestamp", Audit: "audit", FunctionArtifact: "function-artifact"}},
+		Signing: Signing{Backend: "file", Directory: "data/keys", Keys: SigningKeys{Targets: "targets", Snapshot: "snapshot", Timestamp: "timestamp", Control: "control", Audit: "audit", FunctionArtifact: "function-artifact"}},
 		Auth: Auth{
 			Studio: StudioAuth{
 				AllowPasswordLogin: true,
@@ -84,7 +84,7 @@ func Defaults() Config {
 // knownSections are the top-level keys this phase accepts.
 var knownSections = []string{
 	"server", "database", "objectStorage", "cache", "signing", "auth",
-	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata", "gateway", "egress", "fnrunner", "functions", "builder", "notifications",
+	"observability", "telemetry", "limits", "retention", "assets", "attestation", "audit", "updateMetadata", "gateway", "egress", "fnrunner", "functions", "builder", "notifications", "push",
 }
 
 // futureSections are sections of Appendix H that belong to a later phase.

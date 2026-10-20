@@ -236,6 +236,23 @@ type ConfigValue struct {
 	UpdatedAt      pgtype.Timestamptz
 }
 
+type ControlDocument struct {
+	ChannelID       pgtype.UUID
+	OrganizationID  pgtype.UUID
+	Version         int64
+	KillSwitches    []byte
+	MandatoryUpdate []byte
+	ForcedRollback  []byte
+	Signed          []byte
+	SignedSha256    []byte
+	IssuedAt        pgtype.Timestamptz
+	ExpiresAt       pgtype.Timestamptz
+	CreatedByKind   string
+	CreatedByID     string
+	CreatedBy       string
+	CreatedAt       pgtype.Timestamptz
+}
+
 type CustomRole struct {
 	ID             pgtype.UUID
 	OrganizationID pgtype.UUID
@@ -312,6 +329,18 @@ type DeviceBundle struct {
 	OrganizationID pgtype.UUID
 	PluginKey      string
 	BundleSha256   []byte
+}
+
+type DevicePushToken struct {
+	DeviceID       pgtype.UUID
+	OrganizationID pgtype.UUID
+	AppID          pgtype.UUID
+	EnvironmentID  pgtype.UUID
+	Provider       string
+	Ciphertext     []byte
+	WrappedKey     []byte
+	KeyID          string
+	UpdatedAt      pgtype.Timestamptz
 }
 
 type DeviceScaKey struct {

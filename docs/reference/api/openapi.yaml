@@ -1768,6 +1768,123 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetLiveConfigResponse'
+  /plux.v1.ControlService/ClearForcedRollback:
+    post:
+      tags:
+        - plux.v1.ControlService
+      summary: ClearForcedRollback
+      description: ClearForcedRollback withdraws the forced rollback.
+      operationId: plux.v1.ControlService.ClearForcedRollback
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ClearForcedRollbackRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ControlDocumentResponse'
+  /plux.v1.ControlService/ClearKillSwitch:
+    post:
+      tags:
+        - plux.v1.ControlService
+      summary: ClearKillSwitch
+      description: ClearKillSwitch switches it back on.
+      operationId: plux.v1.ControlService.ClearKillSwitch
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ClearKillSwitchRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ControlDocumentResponse'
+  /plux.v1.ControlService/ClearMandatoryUpdate:
+    post:
+      tags:
+        - plux.v1.ControlService
+      summary: ClearMandatoryUpdate
+      description: ClearMandatoryUpdate withdraws the mandatory update.
+      operationId: plux.v1.ControlService.ClearMandatoryUpdate
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ClearMandatoryUpdateRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ControlDocumentResponse'
   /plux.v1.ControlService/GetControl:
     post:
       tags:
@@ -1806,6 +1923,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetControlResponse'
+  /plux.v1.ControlService/GetControlDocument:
+    post:
+      tags:
+        - plux.v1.ControlService
+      summary: GetControlDocument
+      description: |-
+        GetControlDocument returns a channel's signed control document as the
+         operator sees it: its newest version, which may still wait for its
+         signature, the switches it carries and the expiry of the signed one
+         (REL-060).
+      operationId: plux.v1.ControlService.GetControlDocument
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetControlDocumentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetControlDocumentResponse'
   /plux.v1.ControlService/SetControl:
     post:
       tags:
@@ -1844,6 +2004,165 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.SetControlResponse'
+  /plux.v1.ControlService/SetForcedRollback:
+    post:
+      tags:
+        - plux.v1.ControlService
+      summary: SetForcedRollback
+      description: SetForcedRollback directs devices to an earlier release they retain.
+      operationId: plux.v1.ControlService.SetForcedRollback
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetForcedRollbackRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ControlDocumentResponse'
+  /plux.v1.ControlService/SetKillSwitch:
+    post:
+      tags:
+        - plux.v1.ControlService
+      summary: SetKillSwitch
+      description: |-
+        SetKillSwitch switches one plugin, page, action graph, data source or
+         function off for a channel's devices (REL-060). Setting a switch that
+         is on changes nothing.
+      operationId: plux.v1.ControlService.SetKillSwitch
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetKillSwitchRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ControlDocumentResponse'
+  /plux.v1.ControlService/SetMandatoryUpdate:
+    post:
+      tags:
+        - plux.v1.ControlService
+      summary: SetMandatoryUpdate
+      description: SetMandatoryUpdate makes a release mandatory (REL-070).
+      operationId: plux.v1.ControlService.SetMandatoryUpdate
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetMandatoryUpdateRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ControlDocumentResponse'
+  /plux.v1.DeviceService/ClearPushToken:
+    post:
+      tags:
+        - plux.v1.DeviceService
+      summary: ClearPushToken
+      description: ClearPushToken deletes the device's push token.
+      operationId: plux.v1.DeviceService.ClearPushToken
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ClearPushTokenRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ClearPushTokenResponse'
   /plux.v1.DeviceService/CreateRegistrationChallenge:
     post:
       tags:
@@ -2126,6 +2445,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.RegisterDeviceResponse'
+  /plux.v1.DeviceService/RegisterPushToken:
+    post:
+      tags:
+        - plux.v1.DeviceService
+      summary: RegisterPushToken
+      description: |-
+        RegisterPushToken stores the device's push token for the silent push
+         that tells it to check its control document (SYN-060). A server that
+         has silent push off refuses it with a failed precondition.
+      operationId: plux.v1.DeviceService.RegisterPushToken
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.RegisterPushTokenRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.RegisterPushTokenResponse'
   /plux.v1.DeviceService/ReportInstalled:
     post:
       tags:
@@ -5612,6 +5973,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.GetRootKeysResponse'
+  /plux.v1.ManifestService/GetSignedControl:
+    post:
+      tags:
+        - plux.v1.ManifestService
+      summary: GetSignedControl
+      description: |-
+        GetSignedControl returns the signed control document of the device's
+         channel, with the same ETag and If-None-Match handling as the manifest
+         (SYN-060). The device verifies the file against its trusted root
+         before it reads the document (SEC-052).
+      operationId: plux.v1.ManifestService.GetSignedControl
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetSignedControlRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetSignedControlResponse'
   /plux.v1.NativeCatalogueService/GetNativeCatalogue:
     post:
       tags:
@@ -9843,6 +10247,60 @@ components:
              equals release_sequence once that promotion reaches devices.
       title: Channel
       additionalProperties: false
+    plux.v1.ClearForcedRollbackRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        channelKey:
+          type: string
+          title: channel_key
+      title: ClearForcedRollbackRequest
+      additionalProperties: false
+    plux.v1.ClearKillSwitchRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        channelKey:
+          type: string
+          title: channel_key
+        killSwitch:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.KillSwitchEntry'
+          title: kill_switch
+      title: ClearKillSwitchRequest
+      additionalProperties: false
+    plux.v1.ClearMandatoryUpdateRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        channelKey:
+          type: string
+          title: channel_key
+      title: ClearMandatoryUpdateRequest
+      additionalProperties: false
+    plux.v1.ClearPushTokenRequest:
+      type: object
+      title: ClearPushTokenRequest
+      additionalProperties: false
+    plux.v1.ClearPushTokenResponse:
+      type: object
+      title: ClearPushTokenResponse
+      additionalProperties: false
     plux.v1.CompareSnapshotsRequest:
       type: object
       properties:
@@ -10268,6 +10726,73 @@ components:
       title: Control
       additionalProperties: false
       description: Control is the current set of switches for one channel.
+    plux.v1.ControlDocument:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        channelKey:
+          type: string
+          title: channel_key
+        version:
+          type: string
+          title: version
+          format: int64
+          description: |-
+            version is the newest version, signed or not; zero for a channel with
+             no control document yet.
+        killSwitches:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.KillSwitchEntry'
+          title: kill_switches
+        mandatoryUpdate:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ControlRelease'
+          title: mandatory_update
+        forcedRollback:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ControlRelease'
+          title: forced_rollback
+        updatedBy:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Actor'
+          title: updated_by
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+        signedVersion:
+          type: string
+          title: signed_version
+          format: int64
+          description: |-
+            signed_version is the newest signed version, which devices are served;
+             zero when none is signed yet.
+        issuedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: issued_at
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+      title: ControlDocument
+      additionalProperties: false
+      description: ControlDocument is a channel's control document as an operator sees it.
+    plux.v1.ControlDocumentResponse:
+      type: object
+      properties:
+        document:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ControlDocument'
+          title: document
+      title: ControlDocumentResponse
+      additionalProperties: false
     plux.v1.ControlFlags:
       type: object
       properties:
@@ -10290,6 +10815,27 @@ components:
       title: ControlFlags
       additionalProperties: false
       description: ControlFlags are the switches a device obeys (REL-030).
+    plux.v1.ControlRelease:
+      type: object
+      properties:
+        releaseId:
+          type: string
+          title: release_id
+        releaseSequence:
+          type: string
+          title: release_sequence
+          format: int64
+        messageKey:
+          type: string
+          title: message_key
+          description: |-
+            message_key is the localisation key of the update screen's message;
+             only a mandatory update has one.
+      title: ControlRelease
+      additionalProperties: false
+      description: |-
+        ControlRelease names the release a mandatory update or a forced rollback
+         points to.
     plux.v1.CreateAccessTokenRequest:
       type: object
       properties:
@@ -12436,6 +12982,29 @@ components:
           title: value
       title: GetConfigValueResponse
       additionalProperties: false
+    plux.v1.GetControlDocumentRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        channelKey:
+          type: string
+          title: channel_key
+      title: GetControlDocumentRequest
+      additionalProperties: false
+    plux.v1.GetControlDocumentResponse:
+      type: object
+      properties:
+        document:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ControlDocument'
+          title: document
+      title: GetControlDocumentResponse
+      additionalProperties: false
     plux.v1.GetControlRequest:
       type: object
       properties:
@@ -13183,6 +13752,40 @@ components:
           description: differences is the number of cases of that run still unapproved.
       title: GetRunStatusResponse
       additionalProperties: false
+    plux.v1.GetSignedControlRequest:
+      type: object
+      properties:
+        channel:
+          type: string
+          title: channel
+          description: channel names the channel; empty is the default channel.
+        ifNoneMatch:
+          type: string
+          title: if_none_match
+          description: if_none_match is the ETag of the document the device already holds.
+      title: GetSignedControlRequest
+      additionalProperties: false
+    plux.v1.GetSignedControlResponse:
+      type: object
+      properties:
+        notModified:
+          type: boolean
+          title: not_modified
+          description: not_modified is true when if_none_match matched; signed is unset.
+        etag:
+          type: string
+          title: etag
+        version:
+          type: string
+          title: version
+          format: int64
+        signed:
+          type: string
+          title: signed
+          format: byte
+          description: signed is the control document file a device verifies.
+      title: GetSignedControlResponse
+      additionalProperties: false
     plux.v1.GetSnapshotRequest:
       type: object
       properties:
@@ -13804,6 +14407,31 @@ components:
         - KEY_STORAGE_STRONGBOX
         - KEY_STORAGE_SECURE_ENCLAVE
       description: KeyStorage says where a device key is held (SEC-002).
+    plux.v1.KillSwitchEntry:
+      type: object
+      properties:
+        scope:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.KillSwitchScope'
+          title: scope
+        target:
+          type: string
+          title: target
+          description: target is the plugin key, document identifier or function name.
+      title: KillSwitchEntry
+      additionalProperties: false
+      description: KillSwitchEntry is one switched-off thing.
+    plux.v1.KillSwitchScope:
+      type: string
+      title: KillSwitchScope
+      enum:
+        - KILL_SWITCH_SCOPE_UNSPECIFIED
+        - KILL_SWITCH_SCOPE_PLUGIN
+        - KILL_SWITCH_SCOPE_PAGE
+        - KILL_SWITCH_SCOPE_ACTION_GRAPH
+        - KILL_SWITCH_SCOPE_DATA_SOURCE
+        - KILL_SWITCH_SCOPE_FUNCTION
+      description: KillSwitchScope is what a kill switch disables.
     plux.v1.LimitUsage:
       type: object
       properties:
@@ -16076,6 +16704,14 @@ components:
       type: object
       title: PurgeFromTrashResponse
       additionalProperties: false
+    plux.v1.PushProvider:
+      type: string
+      title: PushProvider
+      enum:
+        - PUSH_PROVIDER_UNSPECIFIED
+        - PUSH_PROVIDER_FCM
+        - PUSH_PROVIDER_APNS
+      description: PushProvider is the push service a token belongs to.
     plux.v1.PutDocumentRequest:
       type: object
       properties:
@@ -16418,6 +17054,22 @@ components:
             device_secret is the device's credential for IssueDeviceToken. It is
              returned exactly once and stored only as a hash.
       title: RegisterDeviceResponse
+      additionalProperties: false
+    plux.v1.RegisterPushTokenRequest:
+      type: object
+      properties:
+        provider:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PushProvider'
+          title: provider
+        token:
+          type: string
+          title: token
+      title: RegisterPushTokenRequest
+      additionalProperties: false
+    plux.v1.RegisterPushTokenResponse:
+      type: object
+      title: RegisterPushTokenResponse
       additionalProperties: false
     plux.v1.Release:
       type: object
@@ -17305,6 +17957,63 @@ components:
             - $ref: '#/components/schemas/plux.v1.Export'
           title: export
       title: SetExportResponse
+      additionalProperties: false
+    plux.v1.SetForcedRollbackRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        channelKey:
+          type: string
+          title: channel_key
+        releaseSequence:
+          type: string
+          title: release_sequence
+          format: int64
+      title: SetForcedRollbackRequest
+      additionalProperties: false
+    plux.v1.SetKillSwitchRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        channelKey:
+          type: string
+          title: channel_key
+        killSwitch:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.KillSwitchEntry'
+          title: kill_switch
+      title: SetKillSwitchRequest
+      additionalProperties: false
+    plux.v1.SetMandatoryUpdateRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        channelKey:
+          type: string
+          title: channel_key
+        releaseSequence:
+          type: string
+          title: release_sequence
+          format: int64
+        messageKey:
+          type: string
+          title: message_key
+      title: SetMandatoryUpdateRequest
       additionalProperties: false
     plux.v1.SetOrganizationLimitRequest:
       type: object

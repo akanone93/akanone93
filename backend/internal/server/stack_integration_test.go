@@ -22,6 +22,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/cache"
+	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/fnpb/fnpbconnect"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
@@ -39,11 +40,15 @@ type stack struct {
 	server string
 	dir    string
 	svc    *Services
-	owner  auth.Principal
-	org    string
-	app    tenancy.App
-	token  string
-	cli    string
+	// cfg and db are those the stack was built with, for a test that needs
+	// a service of its own beside the running roles.
+	cfg   *config.Config
+	db    *storage.DB
+	owner auth.Principal
+	org   string
+	app   tenancy.App
+	token string
+	cli   string
 	// runner is the fnrunner role of a stack that runs functions, as the
 	// api role's internal identity calls it; nil otherwise.
 	runner fnpbconnect.FunctionRunnerServiceClient
@@ -229,7 +234,7 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 	if out, err := exec.CommandContext(ctx, "go", "build", "-o", cli, "../../cmd/plux").CombinedOutput(); err != nil { //nolint:gosec // G204: a path the test chose.
 		t.Fatalf("go build: %v\n%s", err, out)
 	}
-	return &stack{ctx: ctx, server: server, dir: dir, svc: svc, owner: owner, org: org.ID, app: app, token: minted.Secret, cli: cli, runner: runner, grants: grants}
+	return &stack{ctx: ctx, server: server, dir: dir, svc: svc, owner: owner, org: org.ID, app: app, token: minted.Secret, cli: cli, cfg: cfg, db: db, runner: runner, grants: grants}
 }
 
 // run runs the CLI with args and fails the test unless it exits with want;

@@ -14,6 +14,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/controldoc"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -62,8 +63,12 @@ func (s *Service) GetControl(ctx context.Context, p auth.Principal, appID, envID
 
 // SetControl replaces a channel's switches and has a manifest carrying
 // them signed; devices obey it at their next manifest check (REL-006).
+// The plugin kill switches and the mandatory update flag are also written
+// to the channel's signed control document (SYN-060), which supersedes
+// this call; the app-wide kill switch and the message exist only here and
+// in the manifest, for one release.
 func (s *Service) SetControl(ctx context.Context, p auth.Principal, c Control) (Control, error) {
-	if err := authorize(p, auth.ReleasePromote, c.AppID); err != nil {
+	if err := authorizeSomeControl(p, c.AppID); err != nil {
 		return Control{}, err
 	}
 	if len(c.Message) > maxControlMessage {
@@ -83,8 +88,11 @@ func (s *Service) SetControl(ctx context.Context, p auth.Principal, c Control) (
 	var out Control
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
-		_, env, err := s.environment(ctx, q, c.AppID, c.EnvironmentID)
+		app, env, err := s.environment(ctx, q, c.AppID, c.EnvironmentID)
 		if err != nil {
+			return err
+		}
+		if err := authorizeControl(p, c.AppID, env.Key); err != nil {
 			return err
 		}
 		ch, err := q.GetChannelForUpdate(ctx, dbgen.GetChannelForUpdateParams{EnvironmentID: env.ID, Key: channelOrDefault(c.ChannelKey)})
@@ -92,6 +100,10 @@ func (s *Service) SetControl(ctx context.Context, p auth.Principal, c Control) (
 			return failure(err, "channel")
 		}
 		actor := p.Actor()
+		change := controlChange{detail: "set through the legacy control call", apply: legacyApply(s, kills, c.MandatoryUpdate)}
+		if _, _, err := s.applyControl(ctx, tx, controlTarget{app: app, env: env, ch: ch}, change, actor); err != nil {
+			return err
+		}
 		row, err := q.UpsertChannelControl(ctx, dbgen.UpsertChannelControlParams{
 			ChannelID: ch.ID, OrganizationID: ch.OrganizationID, KillSwitchPlugins: kills,
 			AppKillSwitch: c.AppKillSwitch, MandatoryUpdate: c.MandatoryUpdate, Message: c.Message,
@@ -113,6 +125,34 @@ func (s *Service) SetControl(ctx context.Context, p auth.Principal, c Control) (
 		return nil
 	})
 	return out, err
+}
+
+// legacyApply is the change a legacy SetControl makes to the document: the
+// plugin kill switches are replaced, and the mandatory flag becomes a
+// mandatory update of the channel's current release. A channel without a
+// release cannot name one, so its flag stays in the legacy row only.
+func legacyApply(s *Service, kills []string, mandatory bool) func(context.Context, *dbgen.Queries, controlTarget, *controlContent) error {
+	return func(ctx context.Context, q *dbgen.Queries, t controlTarget, c *controlContent) error {
+		c.Switches = slices.DeleteFunc(c.Switches, func(k controldoc.KillSwitch) bool { return k.Scope == controldoc.ScopePlugin })
+		for _, k := range kills {
+			c.Switches = append(c.Switches, controldoc.KillSwitch{Scope: controldoc.ScopePlugin, Target: k})
+		}
+		switch {
+		case !mandatory:
+			c.Mandatory = nil
+		case t.ch.ReleaseSequence > 0:
+			rel, err := s.channelRelease(ctx, q, t, t.ch.ReleaseSequence, false)
+			if err != nil {
+				return err
+			}
+			next := &controldoc.MandatoryUpdate{ReleaseID: storage.ID(rel.ID), ReleaseSequence: uint64(rel.Sequence)} //nolint:gosec // a sequence is positive
+			if c.Mandatory != nil && c.Mandatory.ReleaseSequence == next.ReleaseSequence {
+				next.MessageKey = c.Mandatory.MessageKey
+			}
+			c.Mandatory = next
+		}
+		return nil
+	}
 }
 
 // controlRow reads a channel's switches, all off when never set.

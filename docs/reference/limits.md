@@ -44,6 +44,8 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `confidential.bundleBytes` | bytes | 16777216 | 80% | 268435456 | installation, organization, app | P6 | SEC-053, LIM-004 | Bytes of confidential content one confidential bundle may hold. |
 | `config.valueBytes` | bytes | 4096 | 80% | 65536 | installation, organization, app | P6 | DAT-090, LIM-004 | Bytes of one server-held configuration value. |
 | `config.valuesPerEnvironment` | count | 256 | 80% | 4096 | installation, organization, app | P6 | DAT-090, LIM-004 | Server-held configuration values one environment holds. |
+| `control.expiry` | milliseconds | 86400000 | 80% | 604800000 | installation, organization, app | P9 | SYN-060 | How long a signed control document is valid after the server signs it; a device keeps the kill switches of an expired document in force. |
+| `control.killSwitches` | count | 200 | 80% | 5000 | installation, organization, app | P9 | REL-060 | Kill switches one channel's control document may carry. |
 | `data.cacheBytes` | bytes | 16777216 | 80% | 268435456 | installation, organization, app | P5 | DAT-010, LIM-004 | Bytes the response cache of data sources keeps on the device; the least recently used entries are evicted beyond it. |
 | `data.cacheEntries` | count | 1000 | 80% | 100000 | installation, organization, app | P5 | DAT-010, LIM-004 | Responses the cache of data sources keeps on the device; the least recently used are evicted beyond it. |
 | `data.downloadSize` | bytes | 52428800 | 80% | 2147483648 | installation, organization, app | P5 | DAT-031, LIM-004 | Bytes one download may have; checked against the declared length before the transfer and counted during it, a larger one is stopped. |
@@ -117,6 +119,8 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `plugin.assetBytes` | bytes | 20971520 | 80% | 268435456 | installation, organization, app, plugin | P2 | AST-003 | Bytes of the asset files one plugin's pages and icon use, checked at publish. |
 | `plugin.pages` | count | 500 | 80% | 2000 | installation, organization, app, plugin | P1 | SCH-005 | Pages per plugin. |
 | `publish.assetWait` | milliseconds | 600000 | 80% | 3600000 | installation | P3 | CMP-030, REL-003 | Time a publish waits, from when it was queued, for the app's image assets to finish processing before it fails. |
+| `push.batchSize` | count | 200 | 80% | 5000 | installation | P9 | SYN-060 | Devices one silent-push job sends to before it hands the rest to a follow-up job. |
+| `push.tokenBytes` | bytes | 1024 | 80% | 4096 | installation | P9 | SYN-060 | Length of the push token a device may register for silent push. |
 | `pxl.collectionSize` | count | 10000 | 80% | 1000000 | installation, organization, app, plugin | P1 | PXL-001 | Elements of a list or map produced during one PXL evaluation. |
 | `pxl.decimalDigits` | count | 1000 | 80% | 10000 | installation, organization, app, plugin | P1 | PXL-001, PXL-005 | Digits of a decimal produced during one PXL evaluation, in plain notation. |
 | `pxl.expressionLength` | codepoints | 4096 | 80% | 65536 | installation, organization, app, plugin | P1 | PXL-001 | Length of one PXL expression. |

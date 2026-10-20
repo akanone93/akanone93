@@ -17,6 +17,25 @@ option go_package = "github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1
 service ControlService {
   rpc GetControl(GetControlRequest) returns (GetControlResponse) {}
   rpc SetControl(SetControlRequest) returns (SetControlResponse) {}
+  // GetControlDocument returns a channel's signed control document as the
+  // operator sees it: its newest version, which may still wait for its
+  // signature, the switches it carries and the expiry of the signed one
+  // (REL-060).
+  rpc GetControlDocument(GetControlDocumentRequest) returns (GetControlDocumentResponse) {}
+  // SetKillSwitch switches one plugin, page, action graph, data source or
+  // function off for a channel's devices (REL-060). Setting a switch that
+  // is on changes nothing.
+  rpc SetKillSwitch(SetKillSwitchRequest) returns (ControlDocumentResponse) {}
+  // ClearKillSwitch switches it back on.
+  rpc ClearKillSwitch(ClearKillSwitchRequest) returns (ControlDocumentResponse) {}
+  // SetMandatoryUpdate makes a release mandatory (REL-070).
+  rpc SetMandatoryUpdate(SetMandatoryUpdateRequest) returns (ControlDocumentResponse) {}
+  // ClearMandatoryUpdate withdraws the mandatory update.
+  rpc ClearMandatoryUpdate(ClearMandatoryUpdateRequest) returns (ControlDocumentResponse) {}
+  // SetForcedRollback directs devices to an earlier release they retain.
+  rpc SetForcedRollback(SetForcedRollbackRequest) returns (ControlDocumentResponse) {}
+  // ClearForcedRollback withdraws the forced rollback.
+  rpc ClearForcedRollback(ClearForcedRollbackRequest) returns (ControlDocumentResponse) {}
 }
 
 // Control is the current set of switches for one channel.
@@ -52,4 +71,99 @@ message SetControlRequest {
 }
 message SetControlResponse {
   Control control = 1;
+}
+
+// KillSwitchScope is what a kill switch disables.
+enum KillSwitchScope {
+  KILL_SWITCH_SCOPE_UNSPECIFIED = 0;
+  KILL_SWITCH_SCOPE_PLUGIN = 1;
+  KILL_SWITCH_SCOPE_PAGE = 2;
+  KILL_SWITCH_SCOPE_ACTION_GRAPH = 3;
+  KILL_SWITCH_SCOPE_DATA_SOURCE = 4;
+  KILL_SWITCH_SCOPE_FUNCTION = 5;
+}
+
+// KillSwitchEntry is one switched-off thing.
+message KillSwitchEntry {
+  KillSwitchScope scope = 1;
+  // target is the plugin key, document identifier or function name.
+  string target = 2;
+}
+
+// ControlRelease names the release a mandatory update or a forced rollback
+// points to.
+message ControlRelease {
+  string release_id = 1;
+  int64 release_sequence = 2;
+  // message_key is the localisation key of the update screen's message;
+  // only a mandatory update has one.
+  string message_key = 3;
+}
+
+// ControlDocument is a channel's control document as an operator sees it.
+message ControlDocument {
+  string app_id = 1;
+  string environment_id = 2;
+  string channel_key = 3;
+  // version is the newest version, signed or not; zero for a channel with
+  // no control document yet.
+  int64 version = 4;
+  repeated KillSwitchEntry kill_switches = 5;
+  ControlRelease mandatory_update = 6;
+  ControlRelease forced_rollback = 7;
+  Actor updated_by = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  // signed_version is the newest signed version, which devices are served;
+  // zero when none is signed yet.
+  int64 signed_version = 10;
+  google.protobuf.Timestamp issued_at = 11;
+  google.protobuf.Timestamp expires_at = 12;
+}
+
+message GetControlDocumentRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string channel_key = 3;
+}
+message GetControlDocumentResponse {
+  ControlDocument document = 1;
+}
+message ControlDocumentResponse {
+  ControlDocument document = 1;
+}
+
+message SetKillSwitchRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string channel_key = 3;
+  KillSwitchEntry kill_switch = 4;
+}
+message ClearKillSwitchRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string channel_key = 3;
+  KillSwitchEntry kill_switch = 4;
+}
+message SetMandatoryUpdateRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string channel_key = 3;
+  int64 release_sequence = 4;
+  string message_key = 5;
+}
+message ClearMandatoryUpdateRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string channel_key = 3;
+}
+message SetForcedRollbackRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string channel_key = 3;
+  int64 release_sequence = 4;
+}
+message ClearForcedRollbackRequest {
+  string app_id = 1;
+  string environment_id = 2;
+  string channel_key = 3;
 }

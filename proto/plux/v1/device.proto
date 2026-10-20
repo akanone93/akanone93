@@ -21,6 +21,12 @@ service DeviceService {
   rpc ListDevices(ListDevicesRequest) returns (ListDevicesResponse) {}
   // ReportInstalled records the release a device activated.
   rpc ReportInstalled(ReportInstalledRequest) returns (ReportInstalledResponse) {}
+  // RegisterPushToken stores the device's push token for the silent push
+  // that tells it to check its control document (SYN-060). A server that
+  // has silent push off refuses it with a failed precondition.
+  rpc RegisterPushToken(RegisterPushTokenRequest) returns (RegisterPushTokenResponse) {}
+  // ClearPushToken deletes the device's push token.
+  rpc ClearPushToken(ClearPushTokenRequest) returns (ClearPushTokenResponse) {}
   // CreateRegistrationChallenge issues the single-use, short-lived
   // challenge a registration binds its attestation to (SEC-005). It is
   // anonymous: the device has no identity yet.
@@ -268,3 +274,18 @@ message ReportInstalledRequest {
   int64 release_sequence = 2;
 }
 message ReportInstalledResponse {}
+
+// PushProvider is the push service a token belongs to.
+enum PushProvider {
+  PUSH_PROVIDER_UNSPECIFIED = 0;
+  PUSH_PROVIDER_FCM = 1;
+  PUSH_PROVIDER_APNS = 2;
+}
+
+message RegisterPushTokenRequest {
+  PushProvider provider = 1;
+  string token = 2;
+}
+message RegisterPushTokenResponse {}
+message ClearPushTokenRequest {}
+message ClearPushTokenResponse {}

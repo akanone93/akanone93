@@ -303,6 +303,8 @@ func (f *fixture) run(t *testing.T) {
 				err = f.rel.RunPublish(ctx, j)
 			case release.ManifestJob:
 				err = f.rel.SignManifest(ctx, j)
+			case release.ControlJob:
+				err = f.rel.SignControl(ctx, j)
 			case release.DeltaJob:
 				err = f.rel.PrecomputeDeltas(ctx, j)
 			}

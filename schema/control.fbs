@@ -1,0 +1,143 @@
+// SPDX-FileCopyrightText: 2026 Plux contributors
+// SPDX-License-Identifier: Apache-2.0
+
+// The control document (SYN-060, REL-060, REL-070, ADR-0077): the small,
+// signed, frequently refreshed document that tells a device which
+// features are switched off, which release it must activate, and, from
+// E5 on, which flag values and experiment allocations apply.
+//
+// One document exists per app, environment and channel. The server wraps
+// the encoded bytes of a ControlDocument in the update-metadata signed
+// envelope of the `control` role (ADR-0004 Revision of 2026-10-18); a
+// device verifies that signature against its trusted root before it reads
+// a single byte of the table (SEC-052). The wrapper is the JSON object
+// described in schema/update/control.schema.json; this file describes
+// what its `document` member holds once decoded from base64.
+//
+// Device obligations
+//
+//   - Refuse a document whose `version` is not above the newest it has
+//     applied for the same app, environment and channel (PLX-3102).
+//   - Refuse a document whose `expires_at` has passed (PLX-3101), and keep
+//     the kill switches of the newest document it ever verified in force
+//     for as long as no fresh document arrives (fail closed for switches
+//     only, ADR-0077). Mandatory update and forced rollback of an expired
+//     document are not acted on again once they have been applied.
+//   - Ignore a kill switch whose `scope` it does not know, and a field it
+//     does not know: both arrive only from a newer server (additive
+//     evolution).
+//   - Treat a kill switch that carries a `rule` as applying to every device
+//     when the device cannot evaluate the rule (fail closed).
+//
+// Evolution is additive only (BND-000): fields are appended, never
+// removed, renumbered or retyped, and enum members are appended. The
+// encoding is deterministic: the same ControlDocument value always yields
+// the same bytes (CMP-002); vectors are sorted as documented per field.
+
+namespace controlfbs;
+
+// What a kill switch disables (REL-060). Members are appended, never
+// reordered. Unspecified is never written by the server.
+enum SwitchScope : ubyte {
+  Unspecified = 0,
+  // A whole plugin. `target` is the plugin key. Its pages show their
+  // fallback (RT-022).
+  Plugin,
+  // One page. `target` is the page's document UUID in lower-case canonical
+  // text. The page shows its fallback (RT-022).
+  Page,
+  // One action graph. `target` is the graph's document UUID, as for Page.
+  // A run fails with the documented error of a disabled action graph.
+  ActionGraph,
+  // One data source. `target` is the data source's document UUID, as for
+  // Page. A read fails with the documented error of a disabled data source.
+  DataSource,
+  // One function. `target` is the function's dotted name, such as
+  // `orders.total`. A call fails with the documented error of a disabled
+  // function.
+  Function,
+}
+
+// Which devices a kill switch or, later, a flag or experiment applies to.
+// Reserved for E4 and E5: no field is defined yet, and the server writes
+// the table only once a rule language exists. A device that reads a rule it
+// cannot evaluate treats the switch as applying to everyone.
+table TargetingRule {
+}
+
+// One kill switch (REL-060).
+table KillSwitch {
+  // What the switch disables.
+  scope: SwitchScope;
+  // The identifier of the disabled thing; its form depends on `scope`.
+  target: string (required);
+  // Optional targeting; absent means every device of the channel.
+  rule: TargetingRule;
+}
+
+// A release every device must activate before it shows another Plux page
+// (REL-070, PLX-3103).
+table MandatoryUpdate {
+  // The release's identifier, for reports and audit.
+  release_id: string (required);
+  // The release's sequence number within the app, the number the manifest
+  // calls releaseSequence; the device matches on this.
+  release_sequence: ulong;
+  // Localisation key of the message the update screen shows; empty means
+  // the host's default.
+  message_key: string;
+}
+
+// An earlier release the device must activate from its retained bundles,
+// although the anti-rollback rule would otherwise forbid it (ADR-0004
+// Revision, PLX-3104). The device reports `control_applied` afterwards.
+table ForcedRollback {
+  // The release's identifier, for reports and audit.
+  release_id: string (required);
+  // The release's sequence number within the app, as for MandatoryUpdate.
+  release_sequence: ulong;
+}
+
+// Reserved for E5: the value of one feature flag, per segment. Defined
+// empty so that the document's `flags` vector exists from the first
+// version of the format.
+table FlagValue {
+}
+
+// Reserved for E5: the allocation of one running experiment. Defined empty
+// so that the document's `experiments` vector exists from the first
+// version of the format.
+table ExperimentAllocation {
+}
+
+// The control document of one app, environment and channel.
+table ControlDocument {
+  // Strictly increasing per app, environment and channel; starts at 1.
+  version: ulong;
+  // The app's identifier.
+  app_id: string (required);
+  // The environment's key.
+  environment: string (required);
+  // The channel's key.
+  channel: string (required);
+  // When the server signed the document, in seconds since 1970-01-01T00:00Z.
+  issued_at: long;
+  // The instant after which the document is expired (PLX-3101), in the same
+  // unit: 24 hours after issued_at unless the installation configures
+  // another lifetime within the registry's control.expiry limit.
+  expires_at: long;
+  // Kill switches, sorted by scope and then target; no pair repeats.
+  kill_switches: [KillSwitch];
+  // Absent when no update is mandatory.
+  mandatory_update: MandatoryUpdate;
+  // Absent when no rollback is forced.
+  forced_rollback: ForcedRollback;
+  // Reserved for E5; empty until then.
+  flags: [FlagValue];
+  // Reserved for E5; empty until then.
+  experiments: [ExperimentAllocation];
+}
+
+root_type ControlDocument;
+file_identifier "PLXC";
+file_extension "plxc";
