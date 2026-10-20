@@ -65,7 +65,7 @@ func (e env) goldenConnect(c common) (goldenTarget, error) {
 	if err != nil {
 		return goldenTarget{}, err
 	}
-	client := pluxv1connect.NewGoldenServiceClient(e.httpClient, c.server, connect.WithInterceptors(headers{token: cl.token, org: c.org}))
+	client := pluxv1connect.NewGoldenServiceClient(e.httpClient, c.server, connect.WithInterceptors(e.headers(c.server, cl.token, c.org)))
 	return goldenTarget{c: c, client: client}, nil
 }
 

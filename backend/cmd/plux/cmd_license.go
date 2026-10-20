@@ -170,7 +170,7 @@ func (e env) admin(args []string) int {
 	if err != nil {
 		return e.fail("admin license", err)
 	}
-	client := pluxv1connect.NewLicenseServiceClient(e.httpClient, c.server, connect.WithInterceptors(headers{token: cl.token, org: c.org}))
+	client := pluxv1connect.NewLicenseServiceClient(e.httpClient, c.server, connect.WithInterceptors(e.headers(c.server, cl.token, c.org)))
 	res, err := client.GetLicenseState(context.Background(), connect.NewRequest(&pluxv1.GetLicenseStateRequest{}))
 	if err != nil {
 		return e.fail("admin license", err)

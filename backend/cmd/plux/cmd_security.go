@@ -76,7 +76,7 @@ func (e env) securityConnect(c common, envKey string) (securityTarget, error) {
 	if err != nil {
 		return securityTarget{}, err
 	}
-	client := pluxv1connect.NewSecurityAdminServiceClient(e.httpClient, c.server, connect.WithInterceptors(headers{token: cl.token, org: c.org}))
+	client := pluxv1connect.NewSecurityAdminServiceClient(e.httpClient, c.server, connect.WithInterceptors(e.headers(c.server, cl.token, c.org)))
 	return securityTarget{c: c, app: c.app, envID: id, client: client}, nil
 }
 

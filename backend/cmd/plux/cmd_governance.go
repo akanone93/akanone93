@@ -64,7 +64,7 @@ func (e env) governanceClients(c common) (pluxv1connect.GovernanceServiceClient,
 	if token == "" {
 		return nil, nil, authError("not signed in to " + c.server + ": run plux login or set " + tokenEnv)
 	}
-	opts := connect.WithInterceptors(headers{token: token, org: c.org})
+	opts := connect.WithInterceptors(e.headers(c.server, token, c.org))
 	return pluxv1connect.NewGovernanceServiceClient(e.httpClient, c.server, opts),
 		pluxv1connect.NewOrgServiceClient(e.httpClient, c.server, opts), nil
 }

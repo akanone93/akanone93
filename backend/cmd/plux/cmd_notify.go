@@ -34,7 +34,7 @@ func (e env) authOptions(c common) (connect.ClientOption, error) {
 	if token == "" {
 		return nil, authError("not signed in to " + c.server + ": run plux login or set " + tokenEnv)
 	}
-	return connect.WithInterceptors(headers{token: token, org: c.org}), nil
+	return connect.WithInterceptors(e.headers(c.server, token, c.org)), nil
 }
 
 // secretFrom reads a credential from the environment variable a flag
