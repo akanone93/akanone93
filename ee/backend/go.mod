@@ -4,7 +4,12 @@ go 1.27.0
 
 toolchain go1.27.2
 
-require github.com/nightCode42/plux3/backend v0.0.0
+require (
+	github.com/beevik/etree v1.5.0
+	github.com/crewjam/saml v0.5.1
+	github.com/nightCode42/plux3/backend v0.0.0
+	github.com/russellhaering/goxmldsig v1.4.0
+)
 
 require (
 	connectrpc.com/connect v1.21.0 // indirect
@@ -26,11 +31,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.43.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.51.2 // indirect
 	github.com/aws/smithy-go v1.28.1 // indirect
-	github.com/beevik/etree v1.5.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/crewjam/saml v0.5.1 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.5 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -54,7 +57,6 @@ require (
 	github.com/riverqueue/river/riverdriver/riverpgxv5 v0.49.0 // indirect
 	github.com/riverqueue/river/rivershared v0.49.0 // indirect
 	github.com/riverqueue/river/rivertype v0.49.0 // indirect
-	github.com/russellhaering/goxmldsig v1.4.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
 	github.com/tetratelabs/wazero v1.12.0 // indirect
 	github.com/tidwall/gjson v1.19.0 // indirect
