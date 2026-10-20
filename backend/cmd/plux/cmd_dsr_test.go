@@ -112,10 +112,10 @@ func TestDSRCommand_SEC_162(t *testing.T) { //nolint:paralleltest // the environ
 	if code, out, _ := run("erase", "--kind", "device", "again"); code != exitOK || !strings.Contains(out, "Already erased") {
 		t.Errorf("a second erase: %d %q", code, out)
 	}
-	if code, out, _ := run("status", "--json"); code != exitOK {
-		t.Errorf("status list: %d", code)
-	} else if var listed struct{ Requests []map[string]any }; json.Unmarshal([]byte(out), &listed) != nil || len(listed.Requests) != 2 {
-		t.Errorf("status list should follow pages: %q", out)
+	code, out, _ := run("status", "--json")
+	var listed struct{ Requests []map[string]any }
+	if code != exitOK || json.Unmarshal([]byte(out), &listed) != nil || len(listed.Requests) != 2 {
+		t.Errorf("status list should follow pages: %d %q", code, out)
 	}
 	if code, out, _ := run("status", "r2"); code != exitOK || !strings.Contains(out, "devices\t1 rows") {
 		t.Errorf("status of one request: %d %q", code, out)
