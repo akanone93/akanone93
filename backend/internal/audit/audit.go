@@ -184,6 +184,15 @@ const (
 	ExportDestinationDeleted Action = "audit_export.destination_deleted"
 )
 
+// The actions of reconstruction (SEC-142).
+const (
+	// ReconstructionCreated and ReconstructionViewed: a reconstruction
+	// release was made, or opened by an auditor. The entry names the
+	// reconstruction and the moment, never the device or user.
+	ReconstructionCreated Action = "reconstruction.created"
+	ReconstructionViewed  Action = "reconstruction.viewed"
+)
+
 // The actions of data subject requests (SEC-162).
 const (
 	// DataSubjectExported and DataSubjectErased: the data of a device or a
@@ -327,6 +336,7 @@ var actions = sorted(
 	ScimTokenCreated, ScimTokenRotated, ScimTokenRevoked, ScimUserProvisioned, ScimUserChanged, ScimUserDeprovisioned,
 	ScimGroupCreated, ScimGroupChanged, ScimGroupDeleted,
 	DataSubjectExported, DataSubjectErased,
+	ReconstructionCreated, ReconstructionViewed,
 )
 
 // sorted returns its arguments in order.

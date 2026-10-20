@@ -1628,8 +1628,18 @@ type ReportInstalledRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	DeviceId        string                 `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	ReleaseSequence int64                  `protobuf:"varint,2,opt,name=release_sequence,json=releaseSequence,proto3" json:"release_sequence,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// theme is the theme in use, such as "dark"; empty when not reported. It,
+	// text_scale_percent and user_ref are kept in the device's history so that
+	// a reconstruction can show the page as the user saw it (SEC-142).
+	Theme string `protobuf:"bytes,3,opt,name=theme,proto3" json:"theme,omitempty"`
+	// text_scale_percent is the text scale in percent, 100 for the default;
+	// zero when not reported.
+	TextScalePercent int32 `protobuf:"varint,4,opt,name=text_scale_percent,json=textScalePercent,proto3" json:"text_scale_percent,omitempty"`
+	// user_ref is the host's pseudonymous user identifier (HST-011); empty when
+	// the host set none.
+	UserRef       string `protobuf:"bytes,5,opt,name=user_ref,json=userRef,proto3" json:"user_ref,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ReportInstalledRequest) Reset() {
@@ -1674,6 +1684,27 @@ func (x *ReportInstalledRequest) GetReleaseSequence() int64 {
 		return x.ReleaseSequence
 	}
 	return 0
+}
+
+func (x *ReportInstalledRequest) GetTheme() string {
+	if x != nil {
+		return x.Theme
+	}
+	return ""
+}
+
+func (x *ReportInstalledRequest) GetTextScalePercent() int32 {
+	if x != nil {
+		return x.TextScalePercent
+	}
+	return 0
+}
+
+func (x *ReportInstalledRequest) GetUserRef() string {
+	if x != nil {
+		return x.UserRef
+	}
+	return ""
 }
 
 type ReportInstalledResponse struct {
@@ -1988,10 +2019,13 @@ const file_plux_v1_device_proto_rawDesc = "" +
 	"\x04page\x18\x03 \x01(\v2\r.plux.v1.PageR\x04page\"i\n" +
 	"\x13ListDevicesResponse\x12)\n" +
 	"\adevices\x18\x01 \x03(\v2\x0f.plux.v1.DeviceR\adevices\x12'\n" +
-	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"`\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page\"\xbf\x01\n" +
 	"\x16ReportInstalledRequest\x12\x1b\n" +
 	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId\x12)\n" +
-	"\x10release_sequence\x18\x02 \x01(\x03R\x0freleaseSequence\"\x19\n" +
+	"\x10release_sequence\x18\x02 \x01(\x03R\x0freleaseSequence\x12\x14\n" +
+	"\x05theme\x18\x03 \x01(\tR\x05theme\x12,\n" +
+	"\x12text_scale_percent\x18\x04 \x01(\x05R\x10textScalePercent\x12\x19\n" +
+	"\buser_ref\x18\x05 \x01(\tR\auserRef\"\x19\n" +
 	"\x17ReportInstalledResponse\"c\n" +
 	"\x18RegisterPushTokenRequest\x121\n" +
 	"\bprovider\x18\x01 \x01(\x0e2\x15.plux.v1.PushProviderR\bprovider\x12\x14\n" +

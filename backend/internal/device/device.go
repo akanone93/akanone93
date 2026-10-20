@@ -199,39 +199,47 @@ type Installed struct {
 // ReportInstalled records the release a device runs and, when given, the
 // bundles it holds (REL-022, REL-080).
 func (s *Service) ReportInstalled(ctx context.Context, d Identity, sequence int64, bundles []Installed) error {
-	if sequence < 0 {
-		return plxerr.New(plxerr.InvalidFormat, "the release sequence is negative")
-	}
-	if len(bundles) > maxBundles {
-		return plxerr.New(plxerr.InvalidFormat, "more than %d bundles", maxBundles)
+	return s.Report(ctx, d, Report{Sequence: sequence, Bundles: bundles})
+}
+
+// Report records what a device says about itself: the release it runs,
+// the bundles it holds (REL-022, REL-080), and, appended to its history
+// when they changed, the channel and presentation it reports (SEC-142).
+func (s *Service) Report(ctx context.Context, d Identity, r Report) error {
+	if err := r.check(); err != nil {
+		return err
 	}
 	id := storage.MustUUID(d.DeviceID)
 	org := storage.MustUUID(d.OrganizationID)
 	return s.db.InTx(ctx, storage.Tenant{OrganizationID: d.OrganizationID}, func(ctx context.Context, tx pgx.Tx) error { //nolint:wrapcheck // InTx wraps its own failures
 		q := dbgen.New(tx)
-		if err := q.SetDeviceSequence(ctx, dbgen.SetDeviceSequenceParams{ID: id, InstalledSequence: sequence}); err != nil {
+		if err := q.SetDeviceSequence(ctx, dbgen.SetDeviceSequenceParams{ID: id, InstalledSequence: r.Sequence}); err != nil {
 			return fmt.Errorf("device: %w", err)
 		}
-		if bundles == nil {
-			return nil
-		}
-		keys := make([]string, 0, len(bundles))
-		for _, b := range bundles {
-			if len(b.SHA256) != 32 {
-				return plxerr.New(plxerr.InvalidFormat, "a bundle hash is not a SHA-256")
-			}
-			keys = append(keys, b.Key)
-			if err := q.UpsertDeviceBundle(ctx, dbgen.UpsertDeviceBundleParams{
-				DeviceID: id, OrganizationID: org, PluginKey: b.Key, BundleSha256: b.SHA256,
-			}); err != nil {
-				return fmt.Errorf("device: %w", err)
+		if r.Bundles != nil {
+			if err := replaceBundles(ctx, q, id, org, r.Bundles); err != nil {
+				return err
 			}
 		}
-		if err := q.DeleteDeviceBundles(ctx, dbgen.DeleteDeviceBundlesParams{DeviceID: id, Keep: keys}); err != nil {
-			return fmt.Errorf("device: %w", err)
-		}
-		return nil
+		return s.recordInstall(ctx, q, d, r)
 	})
+}
+
+// replaceBundles makes the device's recorded bundles the reported ones.
+func replaceBundles(ctx context.Context, q *dbgen.Queries, id, org pgtype.UUID, bundles []Installed) error {
+	keys := make([]string, 0, len(bundles))
+	for _, b := range bundles {
+		keys = append(keys, b.Key)
+		if err := q.UpsertDeviceBundle(ctx, dbgen.UpsertDeviceBundleParams{
+			DeviceID: id, OrganizationID: org, PluginKey: b.Key, BundleSha256: b.SHA256,
+		}); err != nil {
+			return fmt.Errorf("device: %w", err)
+		}
+	}
+	if err := q.DeleteDeviceBundles(ctx, dbgen.DeleteDeviceBundlesParams{DeviceID: id, Keep: keys}); err != nil {
+		return fmt.Errorf("device: %w", err)
+	}
+	return nil
 }
 
 // Get returns one device.

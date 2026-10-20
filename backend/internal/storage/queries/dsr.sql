@@ -135,3 +135,26 @@ SELECT * FROM dsr_requests
 
 -- name: ListDsrRequestTombstones :many
 SELECT store, row_count FROM dsr_tombstones WHERE request_id = $1 ORDER BY id;
+
+-- name: DsrExportDeviceInstalls :many
+SELECT jsonb_build_object('reportedAt', reported_at, 'channel', channel_key, 'releaseSequence', release_sequence,
+                          'bundles', bundles, 'deviceClass', device_class, 'locale', locale, 'theme', theme,
+                          'textScalePercent', text_scale_percent, 'userRef', user_ref)::jsonb AS document
+  FROM device_installs
+ WHERE organization_id = $1 AND device_id = $2
+ ORDER BY reported_at, id
+ LIMIT sqlc.arg(row_limit);
+
+-- name: DsrEraseDeviceInstalls :execrows
+DELETE FROM device_installs WHERE organization_id = $1 AND device_id = $2;
+
+-- name: DsrExportReconstructions :many
+SELECT jsonb_build_object('id', id, 'moment', moment, 'releaseSequence', release_sequence, 'createdAt', created_at,
+                          'manifest', manifest)::jsonb AS document
+  FROM reconstructions
+ WHERE organization_id = $1 AND device_id = $2
+ ORDER BY created_at, id
+ LIMIT sqlc.arg(row_limit);
+
+-- name: DsrEraseReconstructions :execrows
+DELETE FROM reconstructions WHERE organization_id = $1 AND device_id = $2;

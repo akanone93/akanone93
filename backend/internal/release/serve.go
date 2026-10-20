@@ -21,10 +21,12 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/bundle"
 	"github.com/nightCode42/plux3/backend/internal/delta"
+	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 	"github.com/nightCode42/plux3/backend/internal/storage/objects"
+	"github.com/nightCode42/plux3/backend/internal/tenancy"
 )
 
 // Precomputation defaults (REL-022): deltas from the newest RecentDeltas
@@ -137,6 +139,9 @@ type ServedManifest struct {
 // configuration is not the one the manifest pins is not answered "not
 // modified" and receives the patch to it (SEC-182).
 func (s *Service) GetManifest(ctx context.Context, r ManifestRequest) (ServedManifest, error) {
+	if r.Channel == tenancy.AuditChannelKey {
+		return ServedManifest{}, plxerr.New(plxerr.PermissionDenied, "the %s channel holds reconstruction releases and is never served to a device (SEC-142)", tenancy.AuditChannelKey)
+	}
 	base, err := s.latestManifest(ctx, r.OrganizationID, r.EnvironmentID, channelOrDefault(r.Channel), r.HostBuild)
 	if err != nil {
 		return ServedManifest{}, err
@@ -370,6 +375,12 @@ func mapsKeys[V any](m map[string]V) func(func(string) bool) {
 			}
 		}
 	}
+}
+
+// ObjectURL is where a client downloads a stored object of the given kind
+// and hash (DEP-041).
+func (s *Service) ObjectURL(ctx context.Context, kind objects.Kind, sum []byte) (string, error) {
+	return s.objectURL(ctx, kind, sum)
 }
 
 // objectURL is where a device downloads an object: the store's own

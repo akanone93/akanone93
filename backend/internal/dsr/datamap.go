@@ -101,6 +101,16 @@ func personalDataMap() []Store {
 			Retention: retentionDevice, Erase: EraseDelete,
 		},
 		{
+			Name: "device_installs", Description: "What a device reported running over time: release, bundles, channel, locale, device class, theme, text scale and the host's pseudonymous user reference (SEC-142).",
+			DeviceKey: "device_id", Personal: []string{"device_id", "locale", "user_ref"},
+			Retention: "reconstruction.retentionDays, 365 by default; the maintenance sweep deletes older history.", Erase: EraseDelete,
+		},
+		{
+			Name: "reconstructions", Description: "Reconstruction releases of what a device ran and showed at a past moment, with the device and pseudonymous user they name (SEC-142).",
+			DeviceKey: "device_id", Personal: []string{"device_id", "manifest"},
+			Retention: "reconstruction.retentionDays, 365 by default; the maintenance sweep deletes older releases.", Erase: EraseDelete,
+		},
+		{
 			Name: "devices", Description: "The device record: platform, versions, locale, hardware-bound key, attestation result and revocation.",
 			DeviceKey: "id", Personal: []string{"id", "os_version", "locale", "device_class", "dpop_public_key", "app_attest_public_key", "agreement_public_key"},
 			Retention: retentionDevice, Erase: EraseDelete,

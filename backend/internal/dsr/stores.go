@@ -90,6 +90,24 @@ func deviceExecutors() []executor {
 			},
 		},
 		{
+			store: "device_installs",
+			export: func(ctx context.Context, q *dbgen.Queries, s resolved, limit int32) ([][]byte, error) {
+				return q.DsrExportDeviceInstalls(ctx, dbgen.DsrExportDeviceInstallsParams{OrganizationID: s.org, DeviceID: s.id, RowLimit: limit})
+			},
+			erase: func(ctx context.Context, q *dbgen.Queries, s resolved) (int64, error) {
+				return q.DsrEraseDeviceInstalls(ctx, dbgen.DsrEraseDeviceInstallsParams{OrganizationID: s.org, DeviceID: s.id})
+			},
+		},
+		{
+			store: "reconstructions",
+			export: func(ctx context.Context, q *dbgen.Queries, s resolved, limit int32) ([][]byte, error) {
+				return q.DsrExportReconstructions(ctx, dbgen.DsrExportReconstructionsParams{OrganizationID: s.org, DeviceID: s.id, RowLimit: limit})
+			},
+			erase: func(ctx context.Context, q *dbgen.Queries, s resolved) (int64, error) {
+				return q.DsrEraseReconstructions(ctx, dbgen.DsrEraseReconstructionsParams{OrganizationID: s.org, DeviceID: s.id})
+			},
+		},
+		{
 			store: "devices",
 			export: func(ctx context.Context, q *dbgen.Queries, s resolved, limit int32) ([][]byte, error) {
 				return q.DsrExportDevice(ctx, dbgen.DsrExportDeviceParams{OrganizationID: s.org, ID: s.id, RowLimit: limit})

@@ -176,6 +176,9 @@ func controlOf(appID, envID, channel string, r dbgen.ChannelControl) Control {
 	}
 }
 
+// ChannelOrDefault is the channel a device without a named one follows.
+func ChannelOrDefault(key string) string { return channelOrDefault(key) }
+
 func channelOrDefault(key string) string {
 	if key == "" {
 		return "production"
