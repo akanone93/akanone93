@@ -60,6 +60,9 @@ func (s *Service) Promote(ctx context.Context, p auth.Principal, r PromoteReques
 	if s.o.Documents == nil || s.o.Publisher == nil {
 		return Promotion{}, errors.New("experiment: no document or release service to promote with")
 	}
+	if err := authorizeSomeApp(p, auth.ExperimentsManage); err != nil {
+		return Promotion{}, err
+	}
 	exp, err := s.GetExperiment(ctx, p, r.ExperimentID)
 	if err != nil {
 		return Promotion{}, err

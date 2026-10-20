@@ -45,8 +45,10 @@ type Experiment struct {
 	EnvironmentID string
 	Key           string
 	State         State
-	// Definition is the experiment document it was made from.
+	// Definition is the experiment document it was made from, and Document
+	// the same as stored JSON.
 	Definition schema.ExperimentDocument
+	Document   json.RawMessage
 	// Salt seeds the assignment of subjects to variants.
 	Salt string
 	// LayerShareBP is the share of its layer, in basis points, that the
@@ -71,7 +73,7 @@ func experimentOf(row dbgen.Experiment) (Experiment, error) {
 	}
 	e := Experiment{
 		ID: storage.ID(row.ID), AppID: storage.ID(row.AppID), EnvironmentID: storage.ID(row.EnvironmentID), Key: row.Key,
-		State: State(row.State), Definition: def, Salt: row.Salt, LayerShareBP: uint32(row.LayerShareBp), //nolint:gosec // checked by the table
+		State: State(row.State), Definition: def, Document: row.Definition, Salt: row.Salt, LayerShareBP: uint32(row.LayerShareBp), //nolint:gosec // checked by the table
 		StartedAt: storage.Time(row.StartedAt), StoppedAt: storage.Time(row.StoppedAt), Winner: row.Winner,
 		CreatedBy: actorOf(row.CreatedByKind, row.CreatedByID, row.CreatedBy), CreatedAt: storage.Time(row.CreatedAt), UpdatedAt: storage.Time(row.UpdatedAt),
 	}
@@ -237,6 +239,9 @@ func (s *Service) ListExperiments(ctx context.Context, p auth.Principal, appID, 
 // DeleteExperiment discards a draft experiment. One that has run is kept for
 // its results.
 func (s *Service) DeleteExperiment(ctx context.Context, p auth.Principal, id string) error {
+	if err := authorizeSomeApp(p, auth.ExperimentsManage); err != nil {
+		return err
+	}
 	return s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		row, err := loadExperiment(ctx, q, p, id, true)

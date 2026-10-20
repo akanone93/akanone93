@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -187,6 +188,22 @@ func authorizeExperiments(p auth.Principal, appID string) error {
 // authorizeRead checks that the principal may read the app.
 func authorizeRead(p auth.Principal, appID string) error {
 	return wrapAuth(p.AuthorizeApp(auth.AppRead, appID))
+}
+
+// authorizeSomeApp is the first check of a call that names an experiment by
+// identifier, made before the experiment is read so that a caller without
+// the permission learns nothing about what exists: it passes for a
+// principal who holds the permission across the organisation or on some app.
+// The call then checks the experiment's app.
+func authorizeSomeApp(p auth.Principal, want auth.Permission) error {
+	held := p.Holds(want)
+	for _, perms := range p.AppPermissions {
+		held = held || slices.Contains(perms, want)
+	}
+	if !held {
+		return wrapAuth(p.Authorize(want))
+	}
+	return nil
 }
 
 func wrapAuth(err error) error {

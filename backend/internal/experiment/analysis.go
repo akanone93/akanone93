@@ -85,6 +85,9 @@ type Result struct {
 // rate divided by their number, so that the family of comparisons keeps the
 // error rate.
 func (s *Service) Analyse(ctx context.Context, p auth.Principal, id string) (Result, error) {
+	if err := authorizeSomeApp(p, auth.AnalyticsRead); err != nil {
+		return Result{}, err
+	}
 	if s.o.Observations == nil {
 		return Result{}, errors.New("experiment: no event source to analyse with")
 	}

@@ -32,6 +32,9 @@ type StartOptions struct {
 // allocation into the control documents of the environment's channels
 // (ABT-001, ABT-004, ABT-007).
 func (s *Service) StartExperiment(ctx context.Context, p auth.Principal, id string, o StartOptions) (Experiment, error) {
+	if err := authorizeSomeApp(p, auth.ExperimentsManage); err != nil {
+		return Experiment{}, err
+	}
 	draft, err := s.GetExperiment(ctx, p, id)
 	if err != nil {
 		return Experiment{}, err
@@ -185,6 +188,9 @@ func spansOf(rows []dbgen.Experiment) []span {
 // StopExperiment takes a running experiment out of the control documents
 // and frees its range of the layer. Its results stay readable.
 func (s *Service) StopExperiment(ctx context.Context, p auth.Principal, id string) (Experiment, error) {
+	if err := authorizeSomeApp(p, auth.ExperimentsManage); err != nil {
+		return Experiment{}, err
+	}
 	var out Experiment
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)

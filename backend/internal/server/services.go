@@ -38,6 +38,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/dsr"
+	"github.com/nightCode42/plux3/backend/internal/experiment"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/gitsync"
@@ -133,6 +134,9 @@ type Services struct {
 	// DataSubjects exports and erases the data of a device or a
 	// pseudonymous user (SEC-162).
 	DataSubjects *dsr.Service
+	// Experiments administers feature flags and experiments and analyses
+	// experiments (ABT-001, ABT-006).
+	Experiments *experiment.Service
 	// Search is the full-text search (SRV-061).
 	Search *search.Service
 	// GitExport exports apps to Git on publish (GOV-011).
@@ -502,8 +506,12 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
+	experiments, err := buildExperiments(db, log, gen, tenancyService, docs, releases)
+	if err != nil {
+		return nil, err
+	}
 	return &Services{
-		DataSubjects: dataSubjects, Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport, Push: pusher,
+		Experiments: experiments, DataSubjects: dataSubjects, Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport, Push: pusher,
 		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Analytics: analyticsService, EventConsumer: consumer,
 		Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
@@ -917,6 +925,14 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewAuditServiceHandler(h.Audit(), opts)
 		})
+	}
+	if svc.Experiments != nil {
+		h.Experiments = svc.Experiments
+		registrations = append(registrations,
+			func() (string, http.Handler) { return pluxv1connect.NewFlagServiceHandler(h.Flags(), opts) },
+			func() (string, http.Handler) {
+				return pluxv1connect.NewExperimentServiceHandler(h.ExperimentAdmin(), opts)
+			})
 	}
 	if svc.DataSubjects != nil {
 		h.DataSubjects = svc.DataSubjects

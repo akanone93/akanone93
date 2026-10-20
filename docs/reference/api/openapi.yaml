@@ -3204,6 +3204,406 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ValidatePageResponse'
+  /plux.v1.ExperimentService/CreateExperiment:
+    post:
+      tags:
+        - plux.v1.ExperimentService
+      summary: CreateExperiment
+      description: CreateExperiment registers a draft from an experiment document.
+      operationId: plux.v1.ExperimentService.CreateExperiment
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateExperimentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ExperimentResponse'
+  /plux.v1.ExperimentService/DeleteExperiment:
+    post:
+      tags:
+        - plux.v1.ExperimentService
+      summary: DeleteExperiment
+      description: DeleteExperiment discards a draft.
+      operationId: plux.v1.ExperimentService.DeleteExperiment
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteExperimentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteExperimentResponse'
+  /plux.v1.ExperimentService/GetExperiment:
+    post:
+      tags:
+        - plux.v1.ExperimentService
+      summary: GetExperiment
+      description: GetExperiment returns one experiment.
+      operationId: plux.v1.ExperimentService.GetExperiment
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetExperimentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ExperimentResponse'
+  /plux.v1.ExperimentService/GetHoldout:
+    post:
+      tags:
+        - plux.v1.ExperimentService
+      summary: GetHoldout
+      description: GetHoldout returns the environment's holdout.
+      operationId: plux.v1.ExperimentService.GetHoldout
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetHoldoutRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.HoldoutResponse'
+  /plux.v1.ExperimentService/GetResults:
+    post:
+      tags:
+        - plux.v1.ExperimentService
+      summary: GetResults
+      description: |-
+        GetResults analyses an experiment with sequential inference valid at any
+         time. PLX-8201 until every variant has the minimum sample size; a sample
+         ratio mismatch (PLX-8202) is reported in the result.
+      operationId: plux.v1.ExperimentService.GetResults
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetResultsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetResultsResponse'
+  /plux.v1.ExperimentService/ListExperiments:
+    post:
+      tags:
+        - plux.v1.ExperimentService
+      summary: ListExperiments
+      description: ListExperiments lists an app's experiments.
+      operationId: plux.v1.ExperimentService.ListExperiments
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListExperimentsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListExperimentsResponse'
+  /plux.v1.ExperimentService/PromoteExperiment:
+    post:
+      tags:
+        - plux.v1.ExperimentService
+      summary: PromoteExperiment
+      description: |-
+        PromoteExperiment makes a variant the app: the project is rewritten with
+         the winner as the default and a publish job makes the release.
+      operationId: plux.v1.ExperimentService.PromoteExperiment
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.PromoteExperimentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.PromoteExperimentResponse'
+  /plux.v1.ExperimentService/SetHoldout:
+    post:
+      tags:
+        - plux.v1.ExperimentService
+      summary: SetHoldout
+      description: |-
+        SetHoldout sets the share of subjects kept out of every experiment of an
+         environment; zero removes it.
+      operationId: plux.v1.ExperimentService.SetHoldout
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetHoldoutRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.HoldoutResponse'
+  /plux.v1.ExperimentService/StartExperiment:
+    post:
+      tags:
+        - plux.v1.ExperimentService
+      summary: StartExperiment
+      description: |-
+        StartExperiment writes the allocation into the environment's control
+         documents. PLX-8200 when its layer has no free range, PLX-1320 past
+         experiments.activePerApp, PLX-8001 when approval is required.
+      operationId: plux.v1.ExperimentService.StartExperiment
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.StartExperimentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ExperimentResponse'
+  /plux.v1.ExperimentService/StopExperiment:
+    post:
+      tags:
+        - plux.v1.ExperimentService
+      summary: StopExperiment
+      description: StopExperiment takes a running experiment out of the control documents.
+      operationId: plux.v1.ExperimentService.StopExperiment
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.StopExperimentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ExperimentResponse'
   /plux.v1.FederationService/CompleteSamlLogin:
     post:
       tags:
@@ -3807,6 +4207,208 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.UpdateIdentityProviderResponse'
+  /plux.v1.FlagService/CreateFlag:
+    post:
+      tags:
+        - plux.v1.FlagService
+      summary: CreateFlag
+      description: |-
+        CreateFlag makes a flag. PLX-1701 for an unknown type, PLX-1702-style
+         value errors as PLX-1003 or PLX-1008, PLX-1102 for an unknown segment,
+         PLX-1101 when the key exists and PLX-1320 past flags.perApp.
+      operationId: plux.v1.FlagService.CreateFlag
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateFlagRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.FlagResponse'
+  /plux.v1.FlagService/DeleteFlag:
+    post:
+      tags:
+        - plux.v1.FlagService
+      summary: DeleteFlag
+      description: |-
+        DeleteFlag removes a flag; devices fall back to the default compiled into
+         the app.
+      operationId: plux.v1.FlagService.DeleteFlag
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteFlagRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteFlagResponse'
+  /plux.v1.FlagService/GetFlag:
+    post:
+      tags:
+        - plux.v1.FlagService
+      summary: GetFlag
+      description: GetFlag returns one flag.
+      operationId: plux.v1.FlagService.GetFlag
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetFlagRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.FlagResponse'
+  /plux.v1.FlagService/ListFlags:
+    post:
+      tags:
+        - plux.v1.FlagService
+      summary: ListFlags
+      description: ListFlags lists an environment's flags by key.
+      operationId: plux.v1.FlagService.ListFlags
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListFlagsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListFlagsResponse'
+  /plux.v1.FlagService/UpdateFlag:
+    post:
+      tags:
+        - plux.v1.FlagService
+      summary: UpdateFlag
+      description: |-
+        UpdateFlag replaces a flag's description, schema, default and segment
+         values. Changing the type is refused with PLX-8203.
+      operationId: plux.v1.FlagService.UpdateFlag
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.UpdateFlagRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.FlagResponse'
   /plux.v1.FunctionAdminService/Build:
     post:
       tags:
@@ -11129,6 +11731,57 @@ components:
           description: changes maps each changed path to the patch that turns from into to.
       title: CompareSnapshotsResponse
       additionalProperties: false
+    plux.v1.Comparison:
+      type: object
+      properties:
+        variant:
+          type: string
+          title: variant
+        diff:
+          type: number
+          title: diff
+          format: double
+        lower:
+          type: number
+          title: lower
+          format: double
+        upper:
+          type: number
+          title: upper
+          format: double
+        pValue:
+          type: number
+          title: p_value
+          format: double
+          description: p_value is the always-valid p-value of "no difference".
+        relativeDiff:
+          type: number
+          title: relative_diff
+          format: double
+        improved:
+          type: boolean
+          title: improved
+        worsened:
+          type: boolean
+          title: worsened
+        guardrailTripped:
+          type: boolean
+          title: guardrail_tripped
+        cuped:
+          type: boolean
+          title: cuped
+          description: |-
+            cuped says the pre-exposure covariate adjusted the estimate;
+             variance_reduction is the share of variance it removed.
+        varianceReduction:
+          type: number
+          title: variance_reduction
+          format: double
+      title: Comparison
+      additionalProperties: false
+      description: |-
+        Comparison is a variant against the control. lower and upper bound the true
+         difference at every look at once (an always-valid confidence sequence).
     plux.v1.Compatibility:
       type: object
       properties:
@@ -11774,6 +12427,22 @@ components:
           title: environment
       title: CreateEnvironmentResponse
       additionalProperties: false
+    plux.v1.CreateExperimentRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        document:
+          type: string
+          title: document
+          format: byte
+          description: document is the experiment document (experiments/<key>.experiment.json).
+      title: CreateExperimentRequest
+      additionalProperties: false
     plux.v1.CreateExportDestinationRequest:
       type: object
       properties:
@@ -11827,6 +12496,24 @@ components:
             - $ref: '#/components/schemas/plux.v1.ExportDestination'
           title: destination
       title: CreateExportDestinationResponse
+      additionalProperties: false
+    plux.v1.CreateFlagRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        key:
+          type: string
+          title: key
+        spec:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FlagSpec'
+          title: spec
+      title: CreateFlagRequest
       additionalProperties: false
     plux.v1.CreateGrantRequest:
       type: object
@@ -12491,6 +13178,18 @@ components:
       type: object
       title: DeleteEnvironmentResponse
       additionalProperties: false
+    plux.v1.DeleteExperimentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: DeleteExperimentRequest
+      additionalProperties: false
+    plux.v1.DeleteExperimentResponse:
+      type: object
+      title: DeleteExperimentResponse
+      additionalProperties: false
     plux.v1.DeleteExportDestinationRequest:
       type: object
       properties:
@@ -12522,6 +13221,24 @@ components:
     plux.v1.DeleteFactorResponse:
       type: object
       title: DeleteFactorResponse
+      additionalProperties: false
+    plux.v1.DeleteFlagRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        key:
+          type: string
+          title: key
+      title: DeleteFlagRequest
+      additionalProperties: false
+    plux.v1.DeleteFlagResponse:
+      type: object
+      title: DeleteFlagResponse
       additionalProperties: false
     plux.v1.DeleteGrantRequest:
       type: object
@@ -13228,6 +13945,74 @@ components:
           title: secret
       title: ExchangeWorkloadIdentityResponse
       additionalProperties: false
+    plux.v1.Experiment:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        key:
+          type: string
+          title: key
+        state:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ExperimentState'
+          title: state
+        definitionJson:
+          type: string
+          title: definition_json
+          description: definition_json is the experiment document it was made from.
+        salt:
+          type: string
+          title: salt
+        layerSharePercent:
+          type: number
+          title: layer_share_percent
+          format: double
+          description: |-
+            layer_share_percent is the share of its layer it asked for when it
+             started; layer_start and layer_end are the buckets (of 10000) it holds
+             while it runs.
+        layerStart:
+          type: integer
+          title: layer_start
+        layerEnd:
+          type: integer
+          title: layer_end
+        startedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: started_at
+        stoppedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: stopped_at
+        winner:
+          type: string
+          title: winner
+        promoteJobId:
+          type: string
+          title: promote_job_id
+        createdBy:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Actor'
+          title: created_by
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+      title: Experiment
+      additionalProperties: false
     plux.v1.ExperimentAssignment:
       type: object
       properties:
@@ -13243,6 +14028,25 @@ components:
       title: ExperimentAssignment
       additionalProperties: false
       description: ExperimentAssignment is one experiment's variant for this device.
+    plux.v1.ExperimentResponse:
+      type: object
+      properties:
+        experiment:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Experiment'
+          title: experiment
+      title: ExperimentResponse
+      additionalProperties: false
+    plux.v1.ExperimentState:
+      type: string
+      title: ExperimentState
+      enum:
+        - EXPERIMENT_STATE_UNSPECIFIED
+        - EXPERIMENT_STATE_DRAFT
+        - EXPERIMENT_STATE_RUNNING
+        - EXPERIMENT_STATE_STOPPED
+        - EXPERIMENT_STATE_CONCLUDED
+      description: ExperimentState is where an experiment is in its life.
     plux.v1.Export:
       type: object
       properties:
@@ -13504,6 +14308,120 @@ components:
           title: factor
       title: FinishWebAuthnRegistrationResponse
       additionalProperties: false
+    plux.v1.Flag:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        key:
+          type: string
+          title: key
+        type:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FlagType'
+          title: type
+        description:
+          type: string
+          title: description
+        schemaJson:
+          type: string
+          title: schema_json
+        defaultJson:
+          type: string
+          title: default_json
+          description: default_json is canonical JSON.
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.FlagSegmentValue'
+          title: segments
+        createdBy:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Actor'
+          title: created_by
+        updatedBy:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Actor'
+          title: updated_by
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+      title: Flag
+      additionalProperties: false
+    plux.v1.FlagResponse:
+      type: object
+      properties:
+        flag:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Flag'
+          title: flag
+      title: FlagResponse
+      additionalProperties: false
+    plux.v1.FlagSegmentValue:
+      type: object
+      properties:
+        segment:
+          type: string
+          title: segment
+        valueJson:
+          type: string
+          title: value_json
+      title: FlagSegmentValue
+      additionalProperties: false
+      description: |-
+        FlagSegmentValue is a flag's value for the devices of one segment. Values
+         are JSON text.
+    plux.v1.FlagSpec:
+      type: object
+      properties:
+        type:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FlagType'
+          title: type
+          description: type may be left unspecified on an update, but not changed.
+        description:
+          type: string
+          title: description
+        schemaJson:
+          type: string
+          title: schema_json
+          description: |-
+            schema_json is the JSON Schema of a json flag's values; empty on an
+             update keeps the current one.
+        defaultJson:
+          type: string
+          title: default_json
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.FlagSegmentValue'
+          title: segments
+          description: 'segments are in precedence order: the first a device belongs to wins.'
+      title: FlagSpec
+      additionalProperties: false
+      description: FlagSpec is the content of a flag; all of it replaces the flag's content.
+    plux.v1.FlagType:
+      type: string
+      title: FlagType
+      enum:
+        - FLAG_TYPE_UNSPECIFIED
+        - FLAG_TYPE_BOOL
+        - FLAG_TYPE_NUMBER
+        - FLAG_TYPE_STRING
+        - FLAG_TYPE_JSON
+      description: FlagType is the type of a flag.
     plux.v1.FunctionBusinessError:
       type: object
       properties:
@@ -14131,6 +15049,14 @@ components:
              (SEC-182).
       title: GetEffectiveSecurityConfigResponse
       additionalProperties: false
+    plux.v1.GetExperimentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: GetExperimentRequest
+      additionalProperties: false
     plux.v1.GetExportDestinationRequest:
       type: object
       properties:
@@ -14167,6 +15093,20 @@ components:
             - $ref: '#/components/schemas/plux.v1.Export'
           title: export
       title: GetExportResponse
+      additionalProperties: false
+    plux.v1.GetFlagRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        key:
+          type: string
+          title: key
+      title: GetFlagRequest
       additionalProperties: false
     plux.v1.GetFunctionRequest:
       type: object
@@ -14230,6 +15170,17 @@ components:
             - $ref: '#/components/schemas/plux.v1.GroupMapping'
           title: mapping
       title: GetGroupMappingResponse
+      additionalProperties: false
+    plux.v1.GetHoldoutRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+      title: GetHoldoutRequest
       additionalProperties: false
     plux.v1.GetIdentityProviderRequest:
       type: object
@@ -14702,6 +15653,62 @@ components:
             - $ref: '#/components/schemas/plux.v1.DataSubjectRequest'
           title: request
       title: GetRequestResponse
+      additionalProperties: false
+    plux.v1.GetResultsRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: GetResultsRequest
+      additionalProperties: false
+    plux.v1.GetResultsResponse:
+      type: object
+      properties:
+        experimentId:
+          type: string
+          title: experiment_id
+        key:
+          type: string
+          title: key
+        state:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ExperimentState'
+          title: state
+        at:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: at
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.VariantCount'
+          title: variants
+        sampleRatioPValue:
+          type: number
+          title: sample_ratio_p_value
+          format: double
+          description: |-
+            sample_ratio_p_value and sample_ratio_mismatch are the chi-squared check
+             of the subjects per variant; a mismatch is PLX-8202 and the comparisons are
+             not to be trusted.
+        sampleRatioMismatch:
+          type: boolean
+          title: sample_ratio_mismatch
+        sampleRatioCode:
+          type: integer
+          title: sample_ratio_code
+          format: int32
+        primary:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.MetricResult'
+          title: primary
+        guardrails:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.MetricResult'
+          title: guardrails
+      title: GetResultsResponse
       additionalProperties: false
     plux.v1.GetRetentionRequest:
       type: object
@@ -15181,6 +16188,21 @@ components:
       title: GroupMapping
       additionalProperties: false
       description: GroupMapping is a provider's mapping document.
+    plux.v1.HoldoutResponse:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        percent:
+          type: number
+          title: percent
+          format: double
+      title: HoldoutResponse
+      additionalProperties: false
     plux.v1.HostBuild:
       type: object
       properties:
@@ -16104,6 +17126,33 @@ components:
           title: page
       title: ListEventsResponse
       additionalProperties: false
+    plux.v1.ListExperimentsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+          description: environment_id restricts the list to one environment; empty for all.
+        state:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ExperimentState'
+          title: state
+          description: state restricts the list to one state; unspecified for all.
+      title: ListExperimentsRequest
+      additionalProperties: false
+    plux.v1.ListExperimentsResponse:
+      type: object
+      properties:
+        experiments:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Experiment'
+          title: experiments
+      title: ListExperimentsResponse
+      additionalProperties: false
     plux.v1.ListExportDestinationsRequest:
       type: object
       properties:
@@ -16149,6 +17198,27 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListFactorsResponse
+      additionalProperties: false
+    plux.v1.ListFlagsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+      title: ListFlagsRequest
+      additionalProperties: false
+    plux.v1.ListFlagsResponse:
+      type: object
+      properties:
+        flags:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Flag'
+          title: flags
+      title: ListFlagsResponse
       additionalProperties: false
     plux.v1.ListFunctionsRequest:
       type: object
@@ -17341,6 +18411,33 @@ components:
       title: Member
       additionalProperties: false
       description: Member binds a user to an organization or a team with a role.
+    plux.v1.MetricResult:
+      type: object
+      properties:
+        event:
+          type: string
+          title: event
+        property:
+          type: string
+          title: property
+        kind:
+          type: string
+          title: kind
+        direction:
+          type: string
+          title: direction
+        means:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.VariantMean'
+          title: means
+        comparisons:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Comparison'
+          title: comparisons
+      title: MetricResult
+      additionalProperties: false
     plux.v1.MfaChallenge:
       type: object
       properties:
@@ -17834,6 +18931,40 @@ components:
             secret is the token's value, returned exactly once, on the first
              poll after approval.
       title: PollDeviceAuthorizationResponse
+      additionalProperties: false
+    plux.v1.PromoteExperimentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        variant:
+          type: string
+          title: variant
+        environmentId:
+          type: string
+          title: environment_id
+          description: environment_id is the environment the release is made for.
+        label:
+          type: string
+          title: label
+        notes:
+          type: string
+          title: notes
+      title: PromoteExperimentRequest
+      additionalProperties: false
+    plux.v1.PromoteExperimentResponse:
+      type: object
+      properties:
+        experiment:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Experiment'
+          title: experiment
+        publishJobId:
+          type: string
+          title: publish_job_id
+          description: publish_job_id is the publish job that makes the release.
+      title: PromoteExperimentResponse
       additionalProperties: false
     plux.v1.PromoteFunctionRequest:
       type: object
@@ -19502,6 +20633,22 @@ components:
           title: mapping
       title: SetGroupMappingResponse
       additionalProperties: false
+    plux.v1.SetHoldoutRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        percent:
+          type: number
+          title: percent
+          format: double
+          description: percent is 0 to 100 with at most two decimals.
+      title: SetHoldoutRequest
+      additionalProperties: false
     plux.v1.SetKillSwitchRequest:
       type: object
       properties:
@@ -19879,6 +21026,21 @@ components:
           title: expires_at
       title: StartDeviceAuthorizationResponse
       additionalProperties: false
+    plux.v1.StartExperimentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        layerSharePercent:
+          type: number
+          title: layer_share_percent
+          format: double
+          description: |-
+            layer_share_percent is the share of the experiment's layer to take, above
+             0 and up to 100; zero takes the whole layer.
+      title: StartExperimentRequest
+      additionalProperties: false
     plux.v1.StartOidcLoginRequest:
       type: object
       properties:
@@ -19958,6 +21120,14 @@ components:
             - $ref: '#/components/schemas/google.protobuf.Timestamp'
           title: expires_at
       title: StartSamlLoginResponse
+      additionalProperties: false
+    plux.v1.StopExperimentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: StopExperimentRequest
       additionalProperties: false
     plux.v1.StoreCount:
       type: object
@@ -20233,6 +21403,24 @@ components:
             - $ref: '#/components/schemas/plux.v1.ExportDestination'
           title: destination
       title: UpdateExportDestinationResponse
+      additionalProperties: false
+    plux.v1.UpdateFlagRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        key:
+          type: string
+          title: key
+        spec:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.FlagSpec'
+          title: spec
+      title: UpdateFlagRequest
       additionalProperties: false
     plux.v1.UpdateGrantRequest:
       type: object
@@ -20941,6 +22129,44 @@ components:
           title: value
       title: Variable
       additionalProperties: false
+    plux.v1.VariantCount:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+        control:
+          type: boolean
+          title: control
+        subjects:
+          type: string
+          title: subjects
+          format: int64
+        share:
+          type: number
+          title: share
+          format: double
+          description: share is the fraction of exposed subjects the allocation promises.
+      title: VariantCount
+      additionalProperties: false
+      description: VariantCount is the subjects of a variant against the share promised.
+    plux.v1.VariantMean:
+      type: object
+      properties:
+        variant:
+          type: string
+          title: variant
+        subjects:
+          type: string
+          title: subjects
+          format: int64
+        mean:
+          type: number
+          title: mean
+          format: double
+      title: VariantMean
+      additionalProperties: false
+      description: VariantMean is the mean outcome of a variant.
     plux.v1.VerifySecondFactorRequest:
       type: object
       properties:
@@ -21079,6 +22305,17 @@ tags:
        the erasure of everything an organisation holds about a device or a
        pseudonymous user, and the map of where personal data is stored. Every
        call needs the dsr.manage permission.
+  - name: plux.v1.FlagService
+    description: |-
+      FlagService administers the feature flags of an environment (ABT-006): a
+       flag's type, default and per-segment values, which reach devices through the
+       control document of every channel of the environment without a release.
+       Writes need flags.manage on the environment; reads need app.read.
+  - name: plux.v1.ExperimentService
+    description: |-
+      ExperimentService administers and analyses experiments (ABT-001, ABT-003,
+       ABT-004, ABT-005). Changes need experiments.manage on the app, results need
+       analytics.read and the rest app.read.
   - name: plux.v1.OrgService
     description: |-
       OrgService manages the Installation → Organization → Teams hierarchy
