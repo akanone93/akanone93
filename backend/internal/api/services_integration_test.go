@@ -18,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
+	"github.com/nightCode42/plux3/backend/edition"
 	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/attest/playintegrity"
@@ -354,7 +355,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		Limiter: limiter, PerDevice: set.Get(limits.APIRequestsPerMinutePerDevice), People: people,
 	}
 	authn := api.DeviceAuthentication(deviceAuth)
-	opts := connect.WithInterceptors(api.Interceptors(api.Deps{Before: []api.Around{authn}})...)
+	opts := connect.WithInterceptors(api.Interceptors(api.Deps{Before: []api.Around{licensed(), authn}})...)
 	mux := http.NewServeMux()
 	for _, r := range []func() (string, http.Handler){
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
@@ -363,6 +364,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		func() (string, http.Handler) { return pluxv1connect.NewGitExportServiceHandler(h.GitExport(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGovernanceServiceHandler(h.Governance(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewFederationServiceHandler(h.Federation(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewAppServiceHandler(h.App(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewPluginServiceHandler(h.Plugin(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewDocumentServiceHandler(h.Document(), opts) },
@@ -833,4 +835,21 @@ func TestSignInWithChallengeOverTheAPI(t *testing.T) {
 		t.Error("a session opened with a second factor does not say so")
 	}
 	must(w.identity.GetCurrentUser(ctx, req(session, &pluxv1.GetCurrentUserRequest{})))(t)
+}
+
+// fullLicence is a valid licence that lists every enterprise feature.
+type fullLicence struct{}
+
+// Status returns a valid status with every feature.
+func (fullLicence) Status() edition.Status {
+	return edition.Status{State: edition.StateValid, Features: edition.Features()}
+}
+
+// licensed puts a licence with every enterprise feature into each request's
+// context, as the server's edition interceptor does with the installation's
+// own, so that the calls of enterprise features are reached.
+func licensed() api.Around {
+	return func(ctx context.Context, _ api.Call, next func(context.Context) error) error {
+		return next(edition.WithProvider(ctx, fullLicence{}))
+	}
 }

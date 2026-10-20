@@ -17,6 +17,7 @@ import (
 	"github.com/nightCode42/plux3/backend/edition"
 	extanalytics "github.com/nightCode42/plux3/backend/ext/analytics"
 	"github.com/nightCode42/plux3/backend/ext/export"
+	"github.com/nightCode42/plux3/backend/ext/identity"
 	"github.com/nightCode42/plux3/backend/internal/buildinfo"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/config"
@@ -81,6 +82,10 @@ type Options struct {
 	// (ClickHouse) in place of PostgreSQL (ANL-010, ADR-0080). Nil is the
 	// core's PostgreSQL store.
 	Analytics extanalytics.Opener
+	// Identity, when its fields are set, is the enterprise edition's SAML
+	// 2.0 single sign-on and SCIM 2.0 provisioning (GOV-004, ADR-0074). A
+	// nil field is the community default, which refuses with PLX-8600.
+	Identity identity.Extensions
 }
 
 // Main runs the server as the process: it handles the interrupt and
@@ -271,7 +276,7 @@ func serve(ctx context.Context, args []string, stderr io.Writer, opts Options) i
 		_, _ = fmt.Fprintf(stderr, "%s: %s\n", name, err)
 		return exitFailed
 	}
-	buildOpts := []server.BuildOption{server.WithEdition(provider), server.WithAuditSinks(opts.AuditSinks)}
+	buildOpts := []server.BuildOption{server.WithEdition(provider), server.WithAuditSinks(opts.AuditSinks), server.WithIdentityExtensions(opts.Identity)}
 	if opts.Analytics != nil {
 		store, err := opts.Analytics.Open(ctx, extanalytics.Settings{Log: log})
 		if err != nil {

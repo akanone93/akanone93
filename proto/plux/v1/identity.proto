@@ -169,7 +169,12 @@ message CompleteMfaResponse {
   Session session = 1;
 }
 
-message StartOidcLoginRequest {}
+message StartOidcLoginRequest {
+  // provider_id is the provider the person chose from
+  // FederationService.ListSignInProviders. Empty selects the provider in
+  // the server's configuration file.
+  string provider_id = 1;
+}
 message StartOidcLoginResponse {
   // url is the provider's authorization URL.
   string url = 1;

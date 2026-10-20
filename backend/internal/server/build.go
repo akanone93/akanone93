@@ -14,6 +14,7 @@ import (
 	"github.com/nightCode42/plux3/backend/edition"
 	extanalytics "github.com/nightCode42/plux3/backend/ext/analytics"
 	"github.com/nightCode42/plux3/backend/ext/export"
+	"github.com/nightCode42/plux3/backend/ext/identity"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/compiler/media"
 	"github.com/nightCode42/plux3/backend/internal/config"
@@ -43,6 +44,7 @@ type buildOptions struct {
 	edition      edition.Provider
 	auditSinks   export.Provider
 	analytics    extanalytics.Store
+	identity     identity.Extensions
 }
 
 // WithEdition gives the process the licence provider of the enterprise
@@ -65,6 +67,13 @@ func WithAuditSinks(p export.Provider) BuildOption {
 // unchanged.
 func WithAnalyticsStore(s extanalytics.Store) BuildOption {
 	return func(o *buildOptions) { o.analytics = s }
+}
+
+// WithIdentityExtensions gives the process the enterprise implementations of
+// SAML and SCIM (GOV-004); without it the process serves the community
+// defaults, which refuse with PLX-8600.
+func WithIdentityExtensions(e identity.Extensions) BuildOption {
+	return func(o *buildOptions) { o.identity = e }
 }
 
 // WithIdentityProviderClient makes the gateway read the key sets of
@@ -231,7 +240,7 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 			slog.String("directory", cfg.Signing.Directory))
 	}
 	queue := &JobQueue{}
-	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP, AuditSinks: o.auditSinks, AnalyticsStore: o.analytics}
+	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP, AuditSinks: o.auditSinks, AnalyticsStore: o.analytics, Identity: o.identity}
 	if cfg.Has(config.RoleWorker) {
 		// Only the worker transcodes and signs: compiling the codecs costs
 		// seconds of CPU the api role need not pay, and the api role must

@@ -42,7 +42,7 @@ type functionRoles struct {
 // before the server starts, so that the runner can be told to trust it.
 func newFunctionRoles(t *testing.T, signingDir string) functionRoles {
 	t.Helper()
-	certFile, keyFile, pool := identity(t)
+	certFile, keyFile, pool := testIdentity(t)
 	backend, err := signing.NewFile(signingDir)
 	if err != nil {
 		t.Fatal(err)

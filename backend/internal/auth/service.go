@@ -9,14 +9,17 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/nightCode42/plux3/backend/ext/identity"
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
@@ -77,6 +80,18 @@ type Options struct {
 	// for tests. Nil asks the licence provider in the request's context
 	// (backend/edition), which is no in the community edition.
 	CustomRolesEnabled func() bool
+	// HTTPClient is the SSRF-safe client for the endpoints of identity
+	// providers configured in the database (SEC-105); nil builds one.
+	HTTPClient *http.Client
+	// SAML verifies SAML 2.0 responses, an enterprise feature (GOV-004); nil
+	// is the community edition's, which refuses with PLX-8600.
+	SAML identity.SAMLProvider
+	// Sessions ends sessions on behalf of federation: a provider's
+	// back-channel logout. Nil ends them by user in the sessions table.
+	Sessions SessionEnder
+	// PasswordLoginDisabled turns password sign-in off once an installation
+	// provider exists (auth.studio.allowPasswordLogin is false).
+	PasswordLoginDisabled bool
 }
 
 // Durations the requirements or RFCs fix rather than configuration.
@@ -105,6 +120,11 @@ const (
 type Service struct {
 	o   Options
 	now func() time.Time
+
+	// oidc caches the runtime of the providers configured in the database,
+	// by identifier; mu guards it.
+	mu   sync.Mutex
+	oidc map[string]cachedOIDC
 }
 
 // NewService returns the service.
@@ -140,7 +160,13 @@ func NewService(o Options) (*Service, error) {
 	if o.Issuer == "" {
 		o.Issuer = "Plux"
 	}
-	return &Service{o: o, now: now}, nil
+	if o.SAML == nil {
+		o.SAML = identity.NoSAML{}
+	}
+	if o.Sessions == nil {
+		o.Sessions = userSessionEnder{}
+	}
+	return &Service{o: o, now: now, oidc: map[string]cachedOIDC{}}, nil
 }
 
 // Kinds of identity.

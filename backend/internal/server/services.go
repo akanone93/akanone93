@@ -25,6 +25,7 @@ import (
 	"github.com/riverqueue/river"
 
 	"github.com/nightCode42/plux3/backend/ext/export"
+	"github.com/nightCode42/plux3/backend/ext/identity"
 	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/attest/statuslist"
@@ -81,6 +82,9 @@ type Services struct {
 	EventConsumer *telemetry.Consumer
 	Idempotency   *idempotency.Store
 	Pages         *api.Pages
+	// Identity is the SAML and SCIM implementation the server serves
+	// (GOV-004); the community defaults refuse with PLX-8600.
+	Identity identity.Extensions
 	// AuditCheckpoints lists the signed audit checkpoints (SEC-141).
 	AuditCheckpoints *audit.CheckpointReader
 	// Checkpointer signs them; nil where the process holds no signer,
@@ -175,6 +179,9 @@ type WorkDeps struct {
 	// IdentityHTTP reads identity providers' key sets; nil is the
 	// SSRF-safe client (SEC-105).
 	IdentityHTTP *http.Client
+	// Identity holds the enterprise implementations of SAML and SCIM
+	// (GOV-004); a nil field is the community default.
+	Identity identity.Extensions
 }
 
 // scanner returns the configured malware scanner, or nil (SRV-060).
@@ -394,6 +401,11 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
+	// auth.studio.allowPasswordLogin may be false only once a provider
+	// exists, or nobody could sign in.
+	if err := core.auth.CheckPasswordPolicy(ctx); err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
 	authService, tenancyService, docs := core.auth, core.tenancy, core.docs
 	store, pages, err := buildEdge(ctx, db, backend, set)
 	if err != nil {
@@ -484,6 +496,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
 		AttestationStatus: status, Metrics: work.Metrics, Functions: functions, FunctionRuntime: fnRuntime,
+		Identity: work.Identity.OrDefault(),
 	}, nil
 }
 
@@ -555,6 +568,9 @@ func buildCore(cfg *config.Config, db *storage.DB, shared cache.Cache, set limit
 		Issuers:         issuers,
 		OIDC:            oidc,
 		WebAuthn:        webAuthn(cfg),
+
+		HTTPClient: work.IdentityHTTP, SAML: work.Identity.OrDefault().SAML,
+		PasswordLoginDisabled: !cfg.Auth.Studio.AllowPasswordLogin,
 	})
 	if err != nil {
 		return coreServices{}, fmt.Errorf("server: %w", err)
@@ -791,6 +807,8 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	if svc.Releases != nil {
 		s.Register(MetadataRoute, s.metadataHandler(svc.Releases))
 	}
+	s.Register(api.BackChannelLogoutRoute, h.BackChannelLogout())
+	s.Register(api.SCIMRoute, h.SCIM(svc.Identity.OrDefault().SCIM))
 	return nil
 }
 
@@ -825,6 +843,7 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 		func() (string, http.Handler) { return pluxv1connect.NewIdentityServiceHandler(h.Identity(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGovernanceServiceHandler(h.Governance(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewFederationServiceHandler(h.Federation(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewAppServiceHandler(h.App(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewPluginServiceHandler(h.Plugin(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewDocumentServiceHandler(h.Document(), opts) },

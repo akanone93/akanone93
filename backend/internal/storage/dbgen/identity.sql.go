@@ -1329,7 +1329,7 @@ func (q *Queries) SetUserPassword(ctx context.Context, arg SetUserPasswordParams
 }
 
 const takeOIDCLogin = `-- name: TakeOIDCLogin :one
-DELETE FROM oidc_logins WHERE state_hash = $1 RETURNING state_hash, nonce, verifier, created_at, expires_at
+DELETE FROM oidc_logins WHERE state_hash = $1 RETURNING state_hash, nonce, verifier, created_at, expires_at, provider_id
 `
 
 func (q *Queries) TakeOIDCLogin(ctx context.Context, stateHash []byte) (OidcLogin, error) {
@@ -1341,6 +1341,7 @@ func (q *Queries) TakeOIDCLogin(ctx context.Context, stateHash []byte) (OidcLogi
 		&i.Verifier,
 		&i.CreatedAt,
 		&i.ExpiresAt,
+		&i.ProviderID,
 	)
 	return i, err
 }

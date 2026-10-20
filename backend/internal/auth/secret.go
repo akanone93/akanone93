@@ -67,6 +67,8 @@ const (
 	PrefixInvitation = "plux_inv"
 	// PrefixOIDCState ties a provider's callback to the sign-in it ends.
 	PrefixOIDCState = "plux_oidc"
+	// PrefixSCIM is an organisation's SCIM bearer token (GOV-004).
+	PrefixSCIM = "plux_scim"
 	// PrefixDeviceSecret is the credential a device receives when it
 	// registers (GOV-010).
 	PrefixDeviceSecret = "plux_dsec" //nolint:gosec // G101: a prefix, not a credential.

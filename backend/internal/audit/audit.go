@@ -226,6 +226,42 @@ const (
 	FunctionHookSecretRotated Action = "function.hook_secret_rotated"
 )
 
+// The actions of identity federation (GOV-004, ADR-0074).
+const (
+	// ProviderCreated, ProviderUpdated and ProviderDeleted: an identity
+	// provider was configured, changed or removed. The entry never carries
+	// the provider's secret.
+	ProviderCreated Action = "identity_provider.created"
+	ProviderUpdated Action = "identity_provider.updated"
+	ProviderDeleted Action = "identity_provider.deleted"
+	// MappingSet: a provider's group mapping document was replaced.
+	MappingSet Action = "identity_provider.mapping_set"
+	// UserProvisioned: a provider's just-in-time provisioning created an
+	// account.
+	UserProvisioned Action = "user.provisioned"
+	// FederatedSignIn: a person signed in through a provider; the detail
+	// names it and the authentication context and methods it reported.
+	FederatedSignIn Action = "user.federated_sign_in"
+	// FederatedSignOut: a provider's back-channel logout ended sessions.
+	FederatedSignOut Action = "user.federated_sign_out"
+	// ScimTokenCreated, ScimTokenRotated and ScimTokenRevoked: a SCIM bearer
+	// token was made, replaced or withdrawn.
+	ScimTokenCreated Action = "scim.token_created"
+	ScimTokenRotated Action = "scim.token_rotated"
+	ScimTokenRevoked Action = "scim.token_revoked"
+	// ScimUserProvisioned, ScimUserChanged and ScimUserDeprovisioned: the
+	// organisation's SCIM client created or adopted a person, changed them,
+	// or removed their access.
+	ScimUserProvisioned   Action = "scim.user_provisioned"
+	ScimUserChanged       Action = "scim.user_changed"
+	ScimUserDeprovisioned Action = "scim.user_deprovisioned"
+	// ScimGroupCreated, ScimGroupChanged and ScimGroupDeleted: the SCIM
+	// client made, changed or removed a group, which is a team.
+	ScimGroupCreated Action = "scim.group_created"
+	ScimGroupChanged Action = "scim.group_changed"
+	ScimGroupDeleted Action = "scim.group_deleted"
+)
+
 // actions is the registry, sorted, so that Registered can search it and
 // a test can print the catalogue.
 var actions = sorted(
@@ -255,6 +291,9 @@ var actions = sorted(
 	FunctionTriggerSet, FunctionTriggerDeleted, FunctionHookSet, FunctionHookDeleted, FunctionHookSecretRotated,
 	ExportDestinationCreated, ExportDestinationUpdated, ExportDestinationDeleted,
 	GitExportConfigured, GitExported,
+	ProviderCreated, ProviderUpdated, ProviderDeleted, MappingSet, UserProvisioned, FederatedSignIn, FederatedSignOut,
+	ScimTokenCreated, ScimTokenRotated, ScimTokenRevoked, ScimUserProvisioned, ScimUserChanged, ScimUserDeprovisioned,
+	ScimGroupCreated, ScimGroupChanged, ScimGroupDeleted,
 )
 
 // sorted returns its arguments in order.

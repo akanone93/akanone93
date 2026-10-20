@@ -238,6 +238,8 @@ var nonTenantTables = map[string]string{ //nolint:gosec // table names, not cred
 	"device_authorizations": "a grant is anonymous until it is approved",
 	"user_identities":       "a provider identity belongs to a person, who may be in many organisations",
 	"oidc_logins":           "a sign-in in progress has no person yet",
+	"saml_logins":           "a SAML sign-in in progress has no person yet",
+	"federated_sign_ins":    "a federated sign-in belongs to a person, like the session it leads to",
 	"installation_secrets":  "keys of the installation itself, sealed",
 	"imported_keys":         "keys an issuer generated for the installation, sealed",
 	"idempotency_keys":      "keyed by the credential's subject, which may act in no organisation; responses are sealed",
