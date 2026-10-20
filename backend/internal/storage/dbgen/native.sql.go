@@ -76,7 +76,7 @@ const insertBuildManifest = `-- name: InsertBuildManifest :one
 INSERT INTO manifests (id, organization_id, channel_id, release_sequence, signed, signatures, issued_at, expires_at,
                        host_build, own_manifest_id)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-RETURNING id, organization_id, channel_id, release_sequence, signed, signatures, issued_at, expires_at, host_build, own_manifest_id
+RETURNING id, organization_id, channel_id, release_sequence, signed, signatures, issued_at, expires_at, host_build, own_manifest_id, rollout_id
 `
 
 type InsertBuildManifestParams struct {
@@ -117,6 +117,7 @@ func (q *Queries) InsertBuildManifest(ctx context.Context, arg InsertBuildManife
 		&i.ExpiresAt,
 		&i.HostBuild,
 		&i.OwnManifestID,
+		&i.RolloutID,
 	)
 	return i, err
 }
@@ -172,9 +173,9 @@ func (q *Queries) InsertNativeCatalogue(ctx context.Context, arg InsertNativeCat
 
 const latestManifestForBuild = `-- name: LatestManifestForBuild :one
 WITH own AS (
-    SELECT o.id FROM manifests o WHERE o.channel_id = $1 AND o.host_build = '' ORDER BY o.issued_at DESC, o.id DESC LIMIT 1
+    SELECT o.id FROM manifests o WHERE o.channel_id = $1 AND o.host_build = '' AND o.rollout_id IS NULL ORDER BY o.issued_at DESC, o.id DESC LIMIT 1
 )
-SELECT m.id, m.organization_id, m.channel_id, m.release_sequence, m.signed, m.signatures, m.issued_at, m.expires_at, m.host_build, m.own_manifest_id FROM manifests m, own
+SELECT m.id, m.organization_id, m.channel_id, m.release_sequence, m.signed, m.signatures, m.issued_at, m.expires_at, m.host_build, m.own_manifest_id, m.rollout_id FROM manifests m, own
  WHERE m.id = own.id OR (m.own_manifest_id = own.id AND m.host_build = $2::text)
  ORDER BY (m.host_build <> '') DESC
  LIMIT 1
@@ -201,6 +202,7 @@ func (q *Queries) LatestManifestForBuild(ctx context.Context, arg LatestManifest
 		&i.ExpiresAt,
 		&i.HostBuild,
 		&i.OwnManifestID,
+		&i.RolloutID,
 	)
 	return i, err
 }

@@ -8902,6 +8902,250 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.RollbackReleaseResponse'
+  /plux.v1.RolloutService/AbortRollout:
+    post:
+      tags:
+        - plux.v1.RolloutService
+      summary: AbortRollout
+      description: |-
+        AbortRollout ends a rollout and returns the channel to the release it had
+         before, as a new release (REL-006).
+      operationId: plux.v1.RolloutService.AbortRollout
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.AbortRolloutRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.AbortRolloutResponse'
+  /plux.v1.RolloutService/CreateRollout:
+    post:
+      tags:
+        - plux.v1.RolloutService
+      summary: CreateRollout
+      description: |-
+        CreateRollout schedules a rollout of a release on a channel. PLX-3153 when
+         its window overlaps another rollout of the channel, PLX-3152 when a
+         targeting rule is invalid, PLX-1320 when the app already has the most
+         rollouts the rollouts.activePerApp limit allows.
+      operationId: plux.v1.RolloutService.CreateRollout
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateRolloutRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateRolloutResponse'
+  /plux.v1.RolloutService/GetRollout:
+    post:
+      tags:
+        - plux.v1.RolloutService
+      summary: GetRollout
+      description: |-
+        GetRollout returns one rollout with the figures of its newest health
+         check.
+      operationId: plux.v1.RolloutService.GetRollout
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetRolloutRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetRolloutResponse'
+  /plux.v1.RolloutService/ListRollouts:
+    post:
+      tags:
+        - plux.v1.RolloutService
+      summary: ListRollouts
+      description: ListRollouts lists an app's rollouts, newest first.
+      operationId: plux.v1.RolloutService.ListRollouts
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListRolloutsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListRolloutsResponse'
+  /plux.v1.RolloutService/PauseRollout:
+    post:
+      tags:
+        - plux.v1.RolloutService
+      summary: PauseRollout
+      description: |-
+        PauseRollout stops a rollout from advancing; devices keep the release
+         they were offered.
+      operationId: plux.v1.RolloutService.PauseRollout
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.PauseRolloutRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.PauseRolloutResponse'
+  /plux.v1.RolloutService/ResumeRollout:
+    post:
+      tags:
+        - plux.v1.RolloutService
+      summary: ResumeRollout
+      description: ResumeRollout continues a paused rollout with the current stage afresh.
+      operationId: plux.v1.RolloutService.ResumeRollout
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ResumeRolloutRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ResumeRolloutResponse'
   /plux.v1.ScaService/CreateTransactionChallenge:
     post:
       tags:
@@ -10171,6 +10415,26 @@ components:
         - "2024-12-25T12:00:00Z"
       format: date-time
       description: A point in time in RFC 3339 format, with up to nanosecond precision. Output uses UTC (`Z`); input may use an offset from UTC.
+    plux.v1.AbortRolloutRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        reason:
+          type: string
+          title: reason
+      title: AbortRolloutRequest
+      additionalProperties: false
+    plux.v1.AbortRolloutResponse:
+      type: object
+      properties:
+        rollout:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Rollout'
+          title: rollout
+      title: AbortRolloutResponse
+      additionalProperties: false
     plux.v1.AcceptInvitationRequest:
       type: object
       properties:
@@ -12100,6 +12364,75 @@ components:
           title: role
       title: CreateRoleResponse
       additionalProperties: false
+    plux.v1.CreateRolloutRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        channel:
+          type: string
+          title: channel
+          description: channel defaults to production.
+        candidateSequence:
+          type: string
+          title: candidate_sequence
+          format: int64
+        stages:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Stage'
+          title: stages
+        startAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: start_at
+          description: start_at defaults to now.
+        endAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: end_at
+          description: end_at, when set, reverts the rollout at that time (REL-052).
+        rule:
+          type: string
+          title: rule
+          format: byte
+          description: rule is a segment rule as JSON that devices must satisfy.
+        segments:
+          type: array
+          items:
+            type: string
+            format: byte
+          title: segments
+          description: segments are segment documents as JSON; devices must satisfy every one.
+        allowDevices:
+          type: array
+          items:
+            type: string
+          title: allow_devices
+        denyDevices:
+          type: array
+          items:
+            type: string
+          title: deny_devices
+        health:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.HealthGate'
+          title: health
+      title: CreateRolloutRequest
+      additionalProperties: false
+    plux.v1.CreateRolloutResponse:
+      type: object
+      properties:
+        rollout:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Rollout'
+          title: rollout
+      title: CreateRolloutResponse
+      additionalProperties: false
     plux.v1.CreateScimTokenRequest:
       type: object
       properties:
@@ -12344,6 +12677,23 @@ components:
           title: identity
       title: CreateWorkloadIdentityResponse
       additionalProperties: false
+    plux.v1.CustomMetricGate:
+      type: object
+      properties:
+        event:
+          type: string
+          title: event
+          description: event is the event name the analytics rollups count.
+        maxIncreaseBasisPoints:
+          type: integer
+          title: max_increase_basis_points
+          format: int32
+          description: |-
+            max_increase_basis_points is the most the candidate's events per session
+             may exceed the previous release's, in 1/10000.
+      title: CustomMetricGate
+      additionalProperties: false
+      description: CustomMetricGate gates on the rate of a custom event.
     plux.v1.DataSubjectRequest:
       type: object
       properties:
@@ -12873,6 +13223,52 @@ components:
              (SEC-020).
       title: Device
       additionalProperties: false
+    plux.v1.DeviceTargeting:
+      type: object
+      properties:
+        os:
+          type: string
+          title: os
+        osVersion:
+          type: string
+          title: os_version
+        runtimeVersion:
+          type: string
+          title: runtime_version
+        deviceClass:
+          type: string
+          title: device_class
+        locale:
+          type: string
+          title: locale
+        region:
+          type: string
+          title: region
+          description: region is the device's region setting, never derived from its address.
+        userHash:
+          type: string
+          title: user_hash
+          description: |-
+            user_hash is the hex SHA-256 of the pseudonymous user identifier that
+             setUserContext provided, empty if there is none. It places the device in
+             a rollout's bucket in place of its own identifier.
+        userAttributes:
+          type: object
+          title: user_attributes
+          additionalProperties:
+            type: string
+            title: value
+          description: |-
+            user_attributes maps the name of a user-context attribute to the hex
+             SHA-256 of the name, a zero byte and the value; plain values never leave
+             the device.
+      title: DeviceTargeting
+      additionalProperties: false
+      description: |-
+        DeviceTargeting is what a device reports about itself so that the server
+         can decide, when it fetches its manifest, which release a rollout offers it
+         (REL-050, REL-051, ADR-0078). The host build and the channel are the
+         server's own knowledge and are not repeated here.
     plux.v1.Diagnostic:
       type: object
       properties:
@@ -14403,6 +14799,13 @@ components:
           description: |-
             config_version is the security configuration version the device
              holds, zero for none (SEC-182).
+        targeting:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.DeviceTargeting'
+          title: targeting
+          description: |-
+            targeting tells the server what rollouts may target the device by
+             (REL-051); a device that sends none is outside every targeted rollout.
       title: GetManifestRequest
       additionalProperties: false
     plux.v1.GetManifestResponse:
@@ -14738,6 +15141,23 @@ components:
             - $ref: '#/components/schemas/plux.v1.RoleDefinition'
           title: role
       title: GetRoleResponse
+      additionalProperties: false
+    plux.v1.GetRolloutRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: GetRolloutRequest
+      additionalProperties: false
+    plux.v1.GetRolloutResponse:
+      type: object
+      properties:
+        rollout:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Rollout'
+          title: rollout
+      title: GetRolloutResponse
       additionalProperties: false
     plux.v1.GetRootKeysRequest:
       type: object
@@ -15181,6 +15601,61 @@ components:
       title: GroupMapping
       additionalProperties: false
       description: GroupMapping is a provider's mapping document.
+    plux.v1.HealthAction:
+      type: string
+      title: HealthAction
+      enum:
+        - HEALTH_ACTION_UNSPECIFIED
+        - HEALTH_ACTION_PAUSE
+        - HEALTH_ACTION_ROLLBACK
+      description: HealthAction says what a failed health gate does.
+    plux.v1.HealthGate:
+      type: object
+      properties:
+        minSample:
+          type: string
+          title: min_sample
+          format: int64
+          description: |-
+            min_sample is the fewest sessions both releases need in the window
+             before a verdict is made; zero is the server's default.
+        windowSeconds:
+          type: string
+          title: window_seconds
+          format: int64
+          description: window_seconds is how far back the comparison reaches; zero is six hours.
+        maxCrashFreeDropBasisPoints:
+          type: integer
+          title: max_crash_free_drop_basis_points
+          format: int32
+        maxErrorRateIncreaseBasisPoints:
+          type: integer
+          title: max_error_rate_increase_basis_points
+          format: int32
+        maxActionErrorRateIncreaseBasisPoints:
+          type: integer
+          title: max_action_error_rate_increase_basis_points
+          format: int32
+        maxFunctionErrorRateIncreaseBasisPoints:
+          type: integer
+          title: max_function_error_rate_increase_basis_points
+          format: int32
+        custom:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.CustomMetricGate'
+          title: custom
+        action:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.HealthAction'
+          title: action
+          description: action is what a failed gate does; unspecified is pause.
+      title: HealthGate
+      additionalProperties: false
+      description: |-
+        HealthGate compares the candidate with the previous release (REL-053). A
+         threshold of zero switches its check off; every drop and increase is
+         absolute, in basis points (1/10000) of the rate.
     plux.v1.HostBuild:
       type: object
       properties:
@@ -16666,6 +17141,36 @@ components:
           title: page
       title: ListRolesResponse
       additionalProperties: false
+    plux.v1.ListRolloutsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        onlyOpen:
+          type: boolean
+          title: only_open
+          description: only_open leaves out finished rollouts.
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListRolloutsRequest
+      additionalProperties: false
+    plux.v1.ListRolloutsResponse:
+      type: object
+      properties:
+        rollouts:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Rollout'
+          title: rollouts
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListRolloutsResponse
+      additionalProperties: false
     plux.v1.ListScimTokensRequest:
       type: object
       properties:
@@ -17623,6 +18128,26 @@ components:
       title: PatchOp
       additionalProperties: false
       description: PatchOp is one JSON Patch (RFC 6902) operation.
+    plux.v1.PauseRolloutRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        reason:
+          type: string
+          title: reason
+      title: PauseRolloutRequest
+      additionalProperties: false
+    plux.v1.PauseRolloutResponse:
+      type: object
+      properties:
+        rollout:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Rollout'
+          title: rollout
+      title: PauseRolloutResponse
+      additionalProperties: false
     plux.v1.PermissionEntry:
       type: object
       properties:
@@ -18691,6 +19216,23 @@ components:
           title: diagnostics
       title: RestoreSnapshotResponse
       additionalProperties: false
+    plux.v1.ResumeRolloutRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: ResumeRolloutRequest
+      additionalProperties: false
+    plux.v1.ResumeRolloutResponse:
+      type: object
+      properties:
+        rollout:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Rollout'
+          title: rollout
+      title: ResumeRolloutResponse
+      additionalProperties: false
     plux.v1.RetentionChange:
       type: object
       properties:
@@ -18921,6 +19463,135 @@ components:
           title: release
       title: RollbackReleaseResponse
       additionalProperties: false
+    plux.v1.Rollout:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        appId:
+          type: string
+          title: app_id
+        environmentId:
+          type: string
+          title: environment_id
+        channel:
+          type: string
+          title: channel
+        candidateSequence:
+          type: string
+          title: candidate_sequence
+          format: int64
+        previousSequence:
+          type: string
+          title: previous_sequence
+          format: int64
+          description: |-
+            previous_sequence is the channel's release when the rollout started; zero
+             while it is scheduled.
+        state:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.RolloutState'
+          title: state
+        stateReason:
+          type: string
+          title: state_reason
+        stages:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Stage'
+          title: stages
+        stageIndex:
+          type: integer
+          title: stage_index
+          format: int32
+        basisPoints:
+          type: integer
+          title: basis_points
+          format: int32
+          description: basis_points is the share offered the candidate now.
+        startAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: start_at
+        endAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: end_at
+        rule:
+          type: string
+          title: rule
+          format: byte
+          description: rule is the targeting rule as JSON, empty for none.
+        segments:
+          type: array
+          items:
+            type: string
+            format: byte
+          title: segments
+          description: |-
+            segments are the named segments the rollout targets, as the documents
+             given at creation.
+        allowDevices:
+          type: array
+          items:
+            type: string
+          title: allow_devices
+        denyDevices:
+          type: array
+          items:
+            type: string
+          title: deny_devices
+        health:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.HealthGate'
+          title: health
+        lastCheck:
+          type: string
+          title: last_check
+          format: byte
+          description: last_check is the figures of the gate's newest check as JSON.
+        lastCheckAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: last_check_at
+        revertedSequence:
+          type: string
+          title: reverted_sequence
+          format: int64
+          description: reverted_sequence is the release made to revert the rollout, zero if none.
+        createdBy:
+          type: string
+          title: created_by
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+        environmentKey:
+          type: string
+          title: environment_key
+          description: environment_key is the key of the rollout's environment.
+      title: Rollout
+      additionalProperties: false
+      description: Rollout is a release offered to a share of a channel's devices.
+    plux.v1.RolloutState:
+      type: string
+      title: RolloutState
+      enum:
+        - ROLLOUT_STATE_UNSPECIFIED
+        - ROLLOUT_STATE_SCHEDULED
+        - ROLLOUT_STATE_ACTIVE
+        - ROLLOUT_STATE_PAUSED
+        - ROLLOUT_STATE_CLOSING
+        - ROLLOUT_STATE_COMPLETED
+        - ROLLOUT_STATE_ENDED
+        - ROLLOUT_STATE_ABORTED
+        - ROLLOUT_STATE_ROLLED_BACK
+      description: RolloutState is where a rollout is in its life.
     plux.v1.RollupGroup:
       type: object
       properties:
@@ -19837,6 +20508,28 @@ components:
       title: Snapshot
       additionalProperties: false
       description: Snapshot is one entry of the append-only history (SRV-031).
+    plux.v1.Stage:
+      type: object
+      properties:
+        basisPoints:
+          type: integer
+          title: basis_points
+          format: int32
+          description: |-
+            basis_points is the share of devices offered the candidate, in 1/10000;
+             it never decreases from one stage to the next.
+        durationSeconds:
+          type: string
+          title: duration_seconds
+          format: int64
+          description: |-
+            duration_seconds is how long the stage lasts before the next begins. The
+             last stage has none unless it is 10000: a full rollout soaks for its
+             duration and is then promoted; a last stage below 10000 holds until the
+             rollout ends.
+      title: Stage
+      additionalProperties: false
+      description: Stage is one step of a rollout's schedule.
     plux.v1.StartDeviceAuthorizationRequest:
       type: object
       properties:
@@ -21206,6 +21899,12 @@ tags:
     description: |-
       ReleaseService manages immutable plugin versions and app releases, their
        promotion between environments and their rollback (ADR-0020).
+  - name: plux.v1.RolloutService
+    description: |-
+      RolloutService serves staged rollouts of a release to a share of a
+       channel's devices (REL-050 to REL-053, ADR-0078). Every call needs the
+       rollout.manage permission on the app, and on the environment for calls that
+       name one.
   - name: plux.v1.SearchService
     description: SearchService searches the apps the caller may read (SRV-061, ADR-0082).
   - name: plux.v1.TelemetryService

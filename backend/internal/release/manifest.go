@@ -194,8 +194,11 @@ func (s *Service) signAndStore(ctx context.Context, q *dbgen.Queries, channel db
 	if err != nil {
 		return failure(err, "release")
 	}
-	own, err := s.signRelease(ctx, q, channel, env, rel, signAt{at: at, version: version}, "", pgtype.UUID{})
+	own, err := s.signRelease(ctx, q, channel, env, rel, signAt{at: at, version: version}, "", pgtype.UUID{}, pgtype.UUID{})
 	if err != nil {
+		return err
+	}
+	if err := s.signRollouts(ctx, q, channel, env, signAt{at: at, version: version}); err != nil {
 		return err
 	}
 	builds, err := catalogues(ctx, q, env.AppID)
@@ -222,7 +225,7 @@ func (s *Service) signAndStore(ctx context.Context, q *dbgen.Queries, channel db
 		if i < 0 {
 			continue // no release the build can run: it gets the channel's
 		}
-		if _, err := s.signRelease(ctx, q, channel, env, all[i], signAt{at: at, version: version}, b.build, own); err != nil {
+		if _, err := s.signRelease(ctx, q, channel, env, all[i], signAt{at: at, version: version}, b.build, own, pgtype.UUID{}); err != nil {
 			return err
 		}
 	}
@@ -237,9 +240,10 @@ type signAt struct {
 }
 
 // signRelease signs and stores the manifest of one release on a channel:
-// the channel's own when build is "", else build's, signed with own.
+// the channel's own when build is "", else build's, signed with own. A
+// rollout's candidate is signed for the rollout, not as the channel's.
 func (s *Service) signRelease(ctx context.Context, q *dbgen.Queries, channel dbgen.Channel, env dbgen.Environment,
-	rel dbgen.Release, when signAt, build string, own pgtype.UUID,
+	rel dbgen.Release, when signAt, build string, own, rollout pgtype.UUID,
 ) (pgtype.UUID, error) {
 	doc, err := s.manifestDocument(ctx, q, channel, env, rel, when)
 	if err != nil {
@@ -277,13 +281,20 @@ func (s *Service) signRelease(ctx context.Context, q *dbgen.Queries, channel dbg
 	}
 	issued, _ := time.Parse(time.RFC3339, doc.IssuedAt)
 	expires, _ := time.Parse(time.RFC3339, doc.Expires)
-	if build == "" {
+	switch {
+	case rollout.Valid:
+		_, err = q.InsertRolloutManifest(ctx, dbgen.InsertRolloutManifestParams{
+			ID: storage.MustUUID(id), OrganizationID: channel.OrganizationID, ChannelID: channel.ID,
+			ReleaseSequence: rel.Sequence, Signed: signed, Signatures: sigs,
+			IssuedAt: storage.Timestamp(issued), ExpiresAt: storage.Timestamp(expires), RolloutID: rollout,
+		})
+	case build == "":
 		_, err = q.InsertManifest(ctx, dbgen.InsertManifestParams{
 			ID: storage.MustUUID(id), OrganizationID: channel.OrganizationID, ChannelID: channel.ID,
 			ReleaseSequence: rel.Sequence, Signed: signed, Signatures: sigs,
 			IssuedAt: storage.Timestamp(issued), ExpiresAt: storage.Timestamp(expires),
 		})
-	} else {
+	default:
 		_, err = q.InsertBuildManifest(ctx, dbgen.InsertBuildManifestParams{
 			ID: storage.MustUUID(id), OrganizationID: channel.OrganizationID, ChannelID: channel.ID,
 			ReleaseSequence: rel.Sequence, Signed: signed, Signatures: sigs,

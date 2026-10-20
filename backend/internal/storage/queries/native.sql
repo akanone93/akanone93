@@ -46,7 +46,7 @@ RETURNING *;
 -- The manifest a device of a host build receives: the build's own when
 -- the channel's newest manifest was signed with one, else the channel's.
 WITH own AS (
-    SELECT o.id FROM manifests o WHERE o.channel_id = $1 AND o.host_build = '' ORDER BY o.issued_at DESC, o.id DESC LIMIT 1
+    SELECT o.id FROM manifests o WHERE o.channel_id = $1 AND o.host_build = '' AND o.rollout_id IS NULL ORDER BY o.issued_at DESC, o.id DESC LIMIT 1
 )
 SELECT m.* FROM manifests m, own
  WHERE m.id = own.id OR (m.own_manifest_id = own.id AND m.host_build = sqlc.arg(host_build)::text)

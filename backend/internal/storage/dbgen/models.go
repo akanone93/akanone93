@@ -802,6 +802,7 @@ type Manifest struct {
 	ExpiresAt       pgtype.Timestamptz
 	HostBuild       string
 	OwnManifestID   pgtype.UUID
+	RolloutID       pgtype.UUID
 }
 
 type Membership struct {
@@ -1087,6 +1088,39 @@ type RoleGrant struct {
 	AppID          pgtype.UUID
 	EnvironmentID  pgtype.UUID
 	CreatedAt      pgtype.Timestamptz
+}
+
+type Rollout struct {
+	ID                pgtype.UUID
+	OrganizationID    pgtype.UUID
+	AppID             pgtype.UUID
+	EnvironmentID     pgtype.UUID
+	ChannelID         pgtype.UUID
+	EnvironmentKey    string
+	ChannelKey        string
+	CandidateSequence int64
+	PreviousSequence  *int64
+	Salt              []byte
+	State             string
+	CloseAction       *string
+	CloseState        *string
+	Stages            []byte
+	StageIndex        int32
+	StageStartedAt    pgtype.Timestamptz
+	BasisPoints       int32
+	StartAt           pgtype.Timestamptz
+	EndAt             pgtype.Timestamptz
+	Targeting         []byte
+	AllowDevices      []pgtype.UUID
+	DenyDevices       []pgtype.UUID
+	Health            []byte
+	StateReason       string
+	LastCheck         []byte
+	LastCheckAt       pgtype.Timestamptz
+	RevertedSequence  *int64
+	CreatedBy         string
+	CreatedAt         pgtype.Timestamptz
+	UpdatedAt         pgtype.Timestamptz
 }
 
 type SamlLogin struct {

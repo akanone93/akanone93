@@ -152,6 +152,8 @@ type Service struct {
 	flights   *flightGroup
 	manifests *manifestCache
 	metadata  *metadataCache
+	// rollouts decides which release a device receives; see UseRollouts.
+	rollouts RolloutSelector
 	// validator checks uploaded native catalogues.
 	validator *schema.Validator
 }

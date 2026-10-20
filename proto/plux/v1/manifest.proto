@@ -161,6 +161,31 @@ message GetManifestRequest {
   // config_version is the security configuration version the device
   // holds, zero for none (SEC-182).
   int64 config_version = 8;
+  // targeting tells the server what rollouts may target the device by
+  // (REL-051); a device that sends none is outside every targeted rollout.
+  DeviceTargeting targeting = 9;
+}
+
+// DeviceTargeting is what a device reports about itself so that the server
+// can decide, when it fetches its manifest, which release a rollout offers it
+// (REL-050, REL-051, ADR-0078). The host build and the channel are the
+// server's own knowledge and are not repeated here.
+message DeviceTargeting {
+  string os = 1;
+  string os_version = 2;
+  string runtime_version = 3;
+  string device_class = 4;
+  string locale = 5;
+  // region is the device's region setting, never derived from its address.
+  string region = 6;
+  // user_hash is the hex SHA-256 of the pseudonymous user identifier that
+  // setUserContext provided, empty if there is none. It places the device in
+  // a rollout's bucket in place of its own identifier.
+  string user_hash = 7;
+  // user_attributes maps the name of a user-context attribute to the hex
+  // SHA-256 of the name, a zero byte and the value; plain values never leave
+  // the device.
+  map<string, string> user_attributes = 8;
 }
 
 message GetManifestResponse {

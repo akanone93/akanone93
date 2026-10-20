@@ -51,6 +51,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/release"
+	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/scheduler"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
@@ -122,6 +123,9 @@ type Services struct {
 	// schedules on the elected leader; nil outside the worker role
 	// (FN-025).
 	Scheduler *scheduler.Scheduler
+	// Rollouts runs staged rollouts and health gates (REL-050 to REL-053); nil
+	// where the installation has no object store.
+	Rollouts *rollout.Service
 	// Goldens holds golden-test baselines and runs (TST-003); nil where the
 	// installation has no object store.
 	Goldens *golden.Service
@@ -502,8 +506,12 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
 	}
+	rollouts, err := buildRollouts(db, log, gen, tenancyService, releases, analyticsService, notifier, work.Log)
+	if err != nil {
+		return nil, err
+	}
 	return &Services{
-		DataSubjects: dataSubjects, Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport, Push: pusher,
+		Rollouts: rollouts, DataSubjects: dataSubjects, Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport, Push: pusher,
 		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Analytics: analyticsService, EventConsumer: consumer,
 		Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
@@ -916,6 +924,12 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 		h.AuditExport = svc.AuditExport
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewAuditServiceHandler(h.Audit(), opts)
+		})
+	}
+	if svc.Rollouts != nil {
+		h.Rollouts = svc.Rollouts
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewRolloutServiceHandler(h.RolloutAdmin(), opts)
 		})
 	}
 	if svc.DataSubjects != nil {

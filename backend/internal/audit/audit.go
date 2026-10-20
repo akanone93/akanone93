@@ -193,6 +193,29 @@ const (
 	DataSubjectErased   Action = "dsr.erased"
 )
 
+// The actions of rollouts (REL-050 to REL-053, ADR-0078).
+const (
+	// RolloutCreated: a rollout was scheduled; the entry's detail names the
+	// channel, the candidate release and the schedule.
+	RolloutCreated Action = "rollout.created"
+	// RolloutStarted and RolloutAdvanced: the scheduler started a rollout or
+	// moved it to its next stage; the actor is the system.
+	RolloutStarted  Action = "rollout.started"
+	RolloutAdvanced Action = "rollout.advanced"
+	// RolloutPaused and RolloutResumed: a person or the health gate stopped a
+	// rollout from advancing, or let it continue; the detail gives the reason
+	// and, for a gate, the figures.
+	RolloutPaused  Action = "rollout.paused"
+	RolloutResumed Action = "rollout.resumed"
+	// RolloutCompleted: the rollout reached every device and the channel
+	// points at the candidate.
+	RolloutCompleted Action = "rollout.completed"
+	// RolloutReverted: the rollout was ended by its schedule, a person or the
+	// health gate and the channel returned to the previous release as a new
+	// release; the detail says which.
+	RolloutReverted Action = "rollout.reverted"
+)
+
 // The actions of roles and grants (GOV-002, GOV-003, ADR-0073).
 const (
 	// RoleCreated, RoleUpdated and RoleDeleted: a custom role was made,
@@ -304,6 +327,7 @@ var actions = sorted(
 	ScimTokenCreated, ScimTokenRotated, ScimTokenRevoked, ScimUserProvisioned, ScimUserChanged, ScimUserDeprovisioned,
 	ScimGroupCreated, ScimGroupChanged, ScimGroupDeleted,
 	DataSubjectExported, DataSubjectErased,
+	RolloutCreated, RolloutStarted, RolloutAdvanced, RolloutPaused, RolloutResumed, RolloutCompleted, RolloutReverted,
 )
 
 // sorted returns its arguments in order.

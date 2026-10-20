@@ -496,6 +496,14 @@ var matrix = map[string]entry{
 	"AuditService/DeleteExportDestination": {kind: needs, perm: auth.AuditExport, call: func(t *testing.T, f *matrixFixture, c caller) error {
 		return f.deleteFreshDestination(t, c)
 	}},
+	"RolloutService/CreateRollout": atPerm(auth.RolloutManage, anyone(&pluxv1.CreateRolloutRequest{
+		AppId: unknownID, EnvironmentId: unknownID, CandidateSequence: 2, Stages: []*pluxv1.Stage{{BasisPoints: 10000}},
+	})),
+	"RolloutService/GetRollout":    atPerm(auth.RolloutManage, anyone(&pluxv1.GetRolloutRequest{Id: unknownID})),
+	"RolloutService/ListRollouts":  atPerm(auth.RolloutManage, anyone(&pluxv1.ListRolloutsRequest{AppId: unknownID})),
+	"RolloutService/PauseRollout":  atPerm(auth.RolloutManage, anyone(&pluxv1.PauseRolloutRequest{Id: unknownID})),
+	"RolloutService/ResumeRollout": atPerm(auth.RolloutManage, anyone(&pluxv1.ResumeRolloutRequest{Id: unknownID})),
+	"RolloutService/AbortRollout":  atPerm(auth.RolloutManage, anyone(&pluxv1.AbortRolloutRequest{Id: unknownID})),
 	"DataSubjectService/ExportSubject": atPerm(auth.DSRManage, anyone(&pluxv1.ExportSubjectRequest{
 		Kind: pluxv1.SubjectKind_SUBJECT_KIND_DEVICE, SubjectId: unknownID,
 	})),
