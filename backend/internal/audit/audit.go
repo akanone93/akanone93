@@ -115,14 +115,18 @@ const (
 	RetentionApplied       Action = "analytics.retention_applied"
 	AnalyticsExportSet     Action = "analytics.export_set"
 	AnalyticsExportDeleted Action = "analytics.export_deleted"
-	ReleasesPurged         Action = "release.purged"
-	ControlChanged         Action = "release.control_changed"
-	SnapshotRestored       Action = "snapshot.restored"
-	TemplateInstantiated   Action = "template.instantiated"
-	LockAcquired           Action = "plugin.lock.acquired"
-	LockTakenOver          Action = "plugin.lock.override"
-	LockReleased           Action = "plugin.lock.released"
-	LockRequested          Action = "plugin.lock.requested"
+	// AlertRuleSet and AlertRuleDeleted: an alert rule was created or
+	// changed, or removed (ANL-030).
+	AlertRuleSet         Action = "analytics.alert_rule_set"
+	AlertRuleDeleted     Action = "analytics.alert_rule_deleted"
+	ReleasesPurged       Action = "release.purged"
+	ControlChanged       Action = "release.control_changed"
+	SnapshotRestored     Action = "snapshot.restored"
+	TemplateInstantiated Action = "template.instantiated"
+	LockAcquired         Action = "plugin.lock.acquired"
+	LockTakenOver        Action = "plugin.lock.override"
+	LockReleased         Action = "plugin.lock.released"
+	LockRequested        Action = "plugin.lock.requested"
 
 	// DeviceRevoked: a device's trust was withdrawn (SEC-006).
 	DeviceRevoked Action = "device.revoked"
@@ -277,7 +281,7 @@ var actions = sorted(
 	PluginCreated, PluginUpdated, PluginDeleted, PluginRestored, PluginPurged,
 	DocumentWritten, DocumentDeleted, DocumentRestored, DocumentPurged, DraftImported, AssetUploaded, AssetDeleted,
 	VersionPublished, PublishCancelled, ReleaseCreated, ReleasePromoted, ReleaseRolledBack, ReleasesPurged, ControlChanged, NativeCatalogueUploaded, A11yWaiverChanged, GoldensApproved,
-	RetentionSet, RetentionScheduled, RetentionCancelled, RetentionApplied, AnalyticsExportSet, AnalyticsExportDeleted,
+	RetentionSet, RetentionScheduled, RetentionCancelled, RetentionApplied, AnalyticsExportSet, AnalyticsExportDeleted, AlertRuleSet, AlertRuleDeleted,
 	SnapshotRestored, TemplateInstantiated, LockAcquired, LockTakenOver, LockReleased, LockRequested,
 	DeviceRevoked, SecurityConfigSet, UpdateMetadataRootUploaded,
 	SCAKeyEnrolled, UpstreamCreated, UpstreamUpdated, UpstreamDeleted, UserIdentityProviderSet, UserIdentityProviderDeleted,
