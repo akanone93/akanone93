@@ -92,16 +92,32 @@ func TestAuditCheckpointSettings(t *testing.T) {
 	}
 }
 
-// Verifies: SEC-160.
-// Telemetry is kept 30 days unless the operator sets telemetry.retentionDays.
+// Verifies: SEC-160, ANL-010.
+// Raw telemetry is kept 13 months (396 days, maintainer decision Q17) unless
+// the operator sets telemetry.retentionDays.
 func TestTelemetryRetentionIsConfigurable(t *testing.T) {
 	t.Parallel()
-	if c := parse(t, minimal); c.Telemetry.RetentionDays != 30 {
-		t.Errorf("default = %d days, want 30", c.Telemetry.RetentionDays)
+	if c := parse(t, minimal); c.Telemetry.RetentionDays != 396 {
+		t.Errorf("default = %d days, want 396", c.Telemetry.RetentionDays)
 	}
 	if c := parse(t, minimal+"telemetry:\n  retentionDays: 7\n"); c.Telemetry.RetentionDays != 7 {
 		t.Errorf("configured = %d days, want 7", c.Telemetry.RetentionDays)
 	}
+}
+
+// Verifies: ANL-010.
+// The maintenance window defaults to 02:00 to 04:00 in UTC and is validated.
+func TestTelemetryMaintenanceWindow(t *testing.T) {
+	t.Parallel()
+	c := parse(t, minimal)
+	if w := c.Telemetry.MaintenanceWindow; w.Start != "02:00" || w.End != "04:00" || c.Telemetry.TimeZone != "UTC" {
+		t.Errorf("default window = %+v in %q", w, c.Telemetry.TimeZone)
+	}
+	mentions(t, []struct{ name, src, want string }{
+		{"bad zone", minimal + "telemetry:\n  timeZone: Mars/Olympus\n", "telemetry.timeZone"},
+		{"bad time", minimal + "telemetry:\n  maintenanceWindow:\n    start: \"25:00\"\n    end: \"04:00\"\n", "telemetry.maintenanceWindow.start"},
+		{"empty window", minimal + "telemetry:\n  maintenanceWindow:\n    start: \"03:00\"\n    end: \"03:00\"\n", "telemetry.maintenanceWindow"},
+	})
 }
 
 // Verifies: SRV-008.

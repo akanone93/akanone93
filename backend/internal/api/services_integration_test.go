@@ -18,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
+	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/attest/playintegrity"
 	"github.com/nightCode42/plux3/backend/internal/audit"
@@ -257,6 +258,18 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	window, err := analytics.ParseWindow("02:00", "04:00", "UTC")
+	if err != nil {
+		t.Fatal(err)
+	}
+	analyticsService, err := analytics.New(analytics.Options{
+		DB: db, Store: analytics.NewPostgres(db, nil), Audit: log, IDs: gen, Window: window,
+		Defaults:      analytics.Defaults{RawDays: 396, AuditDays: 3653},
+		Organizations: func(context.Context, func(string) error) error { return nil },
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	upstreams, err := gateway.NewRegistry(gateway.RegistryOptions{DB: db, Audit: log, IDs: gen})
 	if err != nil {
 		t.Fatal(err)
@@ -298,7 +311,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	h := &api.Handlers{
 		Notify: notifier, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
-		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events,
+		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Analytics: analyticsService,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
 		Translations: localisation.New(docs, gen, set),
 		Goldens:      golden.New(golden.Options{DB: db, Audit: log, Objects: files, IDs: gen, Limits: set}),
@@ -348,6 +361,9 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 			return pluxv1connect.NewSecurityAdminServiceHandler(h.SecurityAdmin(), opts)
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewTelemetryServiceHandler(h.Telemetry(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewAnalyticsServiceHandler(h.AnalyticsService(), opts)
+		},
 		func() (string, http.Handler) { return pluxv1connect.NewLicenseServiceHandler(h.License(), opts) },
 		func() (string, http.Handler) {
 			return pluxv1connect.NewNotificationServiceHandler(h.Notification(), opts)

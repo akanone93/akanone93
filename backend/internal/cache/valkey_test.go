@@ -38,6 +38,8 @@ type respServer struct {
 	replica bool
 	// readonly makes every write answer -READONLY.
 	readonly bool
+	// streams are the streams XADD created, by key.
+	streams map[string]*fakeStream
 }
 
 // respValue is one stored value with its expiry.
@@ -204,6 +206,9 @@ func (s *respServer) reply(args []string) []byte {
 		delete(s.values, args[1])
 		return []byte(":1\r\n")
 	default:
+		if r, ok := s.streamCommand(name, args); ok {
+			return r
+		}
 		return []byte("-ERR unknown command\r\n")
 	}
 }

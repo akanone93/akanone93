@@ -15,6 +15,7 @@ import (
 	"syscall"
 
 	"github.com/nightCode42/plux3/backend/edition"
+	extanalytics "github.com/nightCode42/plux3/backend/ext/analytics"
 	"github.com/nightCode42/plux3/backend/internal/buildinfo"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/config"
@@ -71,6 +72,10 @@ type Options struct {
 	// lists (GOV-030, GOV-033). Nil is the open-source core, which enables
 	// none.
 	Edition edition.Verifier
+	// Analytics, when set, opens the enterprise edition's analytics store
+	// (ClickHouse) in place of PostgreSQL (ANL-010, ADR-0080). Nil is the
+	// core's PostgreSQL store.
+	Analytics extanalytics.Opener
 }
 
 // Main runs the server as the process: it handles the interrupt and
@@ -261,7 +266,19 @@ func serve(ctx context.Context, args []string, stderr io.Writer, opts Options) i
 		_, _ = fmt.Fprintf(stderr, "%s: %s\n", name, err)
 		return exitFailed
 	}
-	built, err := server.Build(ctx, cfg, log, buildinfo.Get().Version, server.WithEdition(provider))
+	buildOpts := []server.BuildOption{server.WithEdition(provider)}
+	if opts.Analytics != nil {
+		store, err := opts.Analytics.Open(ctx, extanalytics.Settings{Log: log})
+		if err != nil {
+			_, _ = fmt.Fprintf(stderr, "%s: open the analytics store: %s\n", name, err)
+			return exitFailed
+		}
+		if closer, ok := store.(io.Closer); ok {
+			defer func() { _ = closer.Close() }()
+		}
+		buildOpts = append(buildOpts, server.WithAnalyticsStore(store))
+	}
+	built, err := server.Build(ctx, cfg, log, buildinfo.Get().Version, buildOpts...)
 	if err != nil {
 		_, _ = fmt.Fprintf(stderr, "%s: %s\n", name, err)
 		return exitFailed

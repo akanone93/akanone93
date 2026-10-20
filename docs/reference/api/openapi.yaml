@@ -8,6 +8,335 @@ info:
     name: AGPL-3.0-only
     identifier: AGPL-3.0-only
 paths:
+  /plux.v1.AnalyticsService/CancelRetentionChange:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: CancelRetentionChange
+      description: |-
+        CancelRetentionChange withdraws a scheduled change. It needs
+         retention.manage and is audited.
+      operationId: plux.v1.AnalyticsService.CancelRetentionChange
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CancelRetentionChangeRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CancelRetentionChangeResponse'
+  /plux.v1.AnalyticsService/DeleteExport:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: DeleteExport
+      description: |-
+        DeleteExport removes the OTLP destination. It needs organization.manage
+         and is audited.
+      operationId: plux.v1.AnalyticsService.DeleteExport
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteExportRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteExportResponse'
+  /plux.v1.AnalyticsService/GetExport:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: GetExport
+      description: GetExport returns the OTLP destination. It needs analytics.read.
+      operationId: plux.v1.AnalyticsService.GetExport
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetExportRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetExportResponse'
+  /plux.v1.AnalyticsService/GetRetention:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: GetRetention
+      description: |-
+        GetRetention returns the effective retention of every data class and
+         the changes waiting for the maintenance window. It needs analytics.read.
+      operationId: plux.v1.AnalyticsService.GetRetention
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetRetentionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetRetentionResponse'
+  /plux.v1.AnalyticsService/ListRetentionChanges:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: ListRetentionChanges
+      description: |-
+        ListRetentionChanges lists scheduled and finished changes, newest first.
+         It needs analytics.read.
+      operationId: plux.v1.AnalyticsService.ListRetentionChanges
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListRetentionChangesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListRetentionChangesResponse'
+  /plux.v1.AnalyticsService/QueryRollups:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: QueryRollups
+      description: |-
+        QueryRollups reads one event name's rollups of an app over a time range,
+         optionally grouped by dimensions. A result cut off by the limit carries a
+         page token. It needs analytics.read.
+      operationId: plux.v1.AnalyticsService.QueryRollups
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.QueryRollupsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.QueryRollupsResponse'
+  /plux.v1.AnalyticsService/SetExport:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: SetExport
+      description: |-
+        SetExport sets the OTLP destination after sending it an empty request;
+         an unreachable destination is PLX-8302. It needs organization.manage and
+         is audited.
+      operationId: plux.v1.AnalyticsService.SetExport
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetExportRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SetExportResponse'
+  /plux.v1.AnalyticsService/SetRetention:
+    post:
+      tags:
+        - plux.v1.AnalyticsService
+      summary: SetRetention
+      description: |-
+        SetRetention changes the retention of a data class. The change waits
+         for the maintenance window and the response carries PLX-8301, unless
+         immediate is set. It needs retention.manage and is audited.
+      operationId: plux.v1.AnalyticsService.SetRetention
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetRetentionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SetRetentionResponse'
   /plux.v1.AppService/CreateApp:
     post:
       tags:
@@ -9019,6 +9348,23 @@ components:
           title: job
       title: CancelPublishJobResponse
       additionalProperties: false
+    plux.v1.CancelRetentionChangeRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: CancelRetentionChangeRequest
+      additionalProperties: false
+    plux.v1.CancelRetentionChangeResponse:
+      type: object
+      properties:
+        change:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.RetentionChange'
+          title: change
+      title: CancelRetentionChangeResponse
+      additionalProperties: false
     plux.v1.ChangePasswordRequest:
       type: object
       properties:
@@ -9423,6 +9769,20 @@ components:
           title: factor
       title: ConfirmFactorResponse
       additionalProperties: false
+    plux.v1.Consent:
+      type: object
+      properties:
+        analytics:
+          type: boolean
+          title: analytics
+        experiments:
+          type: boolean
+          title: experiments
+      title: Consent
+      additionalProperties: false
+      description: |-
+        Consent is what the host app's user agreed to (SEC-161). Operational
+         events need none.
     plux.v1.ContentKey:
       type: object
       properties:
@@ -10179,6 +10539,14 @@ components:
       type: object
       title: DeleteEnvironmentResponse
       additionalProperties: false
+    plux.v1.DeleteExportRequest:
+      type: object
+      title: DeleteExportRequest
+      additionalProperties: false
+    plux.v1.DeleteExportResponse:
+      type: object
+      title: DeleteExportResponse
+      additionalProperties: false
     plux.v1.DeleteFactorRequest:
       type: object
       properties:
@@ -10865,6 +11233,32 @@ components:
       title: ExperimentAssignment
       additionalProperties: false
       description: ExperimentAssignment is one experiment's variant for this device.
+    plux.v1.Export:
+      type: object
+      properties:
+        endpoint:
+          type: string
+          title: endpoint
+          description: endpoint is the OTLP/HTTP metrics URL.
+        enabled:
+          type: boolean
+          title: enabled
+        exportedUntil:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: exported_until
+          description: exported_until is the end of the last bucket sent.
+        lastError:
+          type: string
+          title: last_error
+          description: last_error says why the last attempt failed; empty when it did not.
+        lastAttemptAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: last_attempt_at
+      title: Export
+      additionalProperties: false
+      description: Export is the OTLP destination of an organisation.
     plux.v1.ExportDraftRequest:
       type: object
       properties:
@@ -11574,6 +11968,19 @@ components:
              (SEC-182).
       title: GetEffectiveSecurityConfigResponse
       additionalProperties: false
+    plux.v1.GetExportRequest:
+      type: object
+      title: GetExportRequest
+      additionalProperties: false
+    plux.v1.GetExportResponse:
+      type: object
+      properties:
+        export:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Export'
+          title: export
+      title: GetExportResponse
+      additionalProperties: false
     plux.v1.GetFunctionRequest:
       type: object
       properties:
@@ -12026,6 +12433,25 @@ components:
           title: content_type
           description: content_type is "application/json" or "text/html; charset=utf-8".
       title: GetReportResponse
+      additionalProperties: false
+    plux.v1.GetRetentionRequest:
+      type: object
+      title: GetRetentionRequest
+      additionalProperties: false
+    plux.v1.GetRetentionResponse:
+      type: object
+      properties:
+        settings:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.RetentionSetting'
+          title: settings
+        scheduled:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.RetentionChange'
+          title: scheduled
+      title: GetRetentionResponse
       additionalProperties: false
     plux.v1.GetRoleRequest:
       type: object
@@ -12512,6 +12938,15 @@ components:
           items:
             $ref: '#/components/schemas/plux.v1.Event'
           title: events
+        consent:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Consent'
+          title: consent
+          description: |-
+            consent is the consent the runtime had when it recorded the events.
+             When present the server refuses events of a category the user did not
+             agree to, and drops the locale without analytics consent; when absent
+             the events are taken as the device gated them (ANL-003, SEC-161).
       title: IngestEventsRequest
       additionalProperties: false
     plux.v1.IngestEventsResponse:
@@ -13564,6 +13999,28 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListReleasesResponse
+      additionalProperties: false
+    plux.v1.ListRetentionChangesRequest:
+      type: object
+      properties:
+        onlyScheduled:
+          type: boolean
+          title: only_scheduled
+        limit:
+          type: integer
+          title: limit
+          format: int32
+      title: ListRetentionChangesRequest
+      additionalProperties: false
+    plux.v1.ListRetentionChangesResponse:
+      type: object
+      properties:
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.RetentionChange'
+          title: changes
+      title: ListRetentionChangesResponse
       additionalProperties: false
     plux.v1.ListRolesRequest:
       type: object
@@ -14909,6 +15366,69 @@ components:
           title: diagnostics
       title: PutDocumentResponse
       additionalProperties: false
+    plux.v1.QueryRollupsRequest:
+      type: object
+      properties:
+        appId:
+          type: string
+          title: app_id
+        environment:
+          type: string
+          title: environment
+          description: environment restricts the query to one environment key; empty for all.
+        metric:
+          type: string
+          title: metric
+          description: metric is the event name, such as render_perf.
+        granularity:
+          type: string
+          title: granularity
+          description: granularity is 5m, 1h or 1d.
+        from:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: from
+        to:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: to
+        groupBy:
+          type: array
+          items:
+            type: string
+          title: group_by
+          description: |-
+            group_by names dimensions to keep apart: environment, release, plugin,
+             page, device_class, locale.
+        limit:
+          type: integer
+          title: limit
+          format: int32
+          description: limit is the most points to return, up to api.pageSize.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            page_token continues a result cut off by the limit: the
+             next_page_token of the previous response, with the same other fields.
+      title: QueryRollupsRequest
+      additionalProperties: false
+    plux.v1.QueryRollupsResponse:
+      type: object
+      properties:
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.RollupPoint'
+          title: points
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: |-
+            next_page_token is set when the limit was reached; it is empty on the
+             last page.
+      title: QueryRollupsResponse
+      additionalProperties: false
     plux.v1.Range:
       type: object
       properties:
@@ -15393,6 +15913,73 @@ components:
           title: diagnostics
       title: RestoreSnapshotResponse
       additionalProperties: false
+    plux.v1.RetentionChange:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        dataClass:
+          type: string
+          title: data_class
+        days:
+          type: integer
+          title: days
+          format: int32
+          description: days is 0 for indefinitely.
+        state:
+          type: string
+          title: state
+          description: state is scheduled, applied or cancelled.
+        requestedBy:
+          type: string
+          title: requested_by
+        requestedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: requested_at
+        applyAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: apply_at
+        finishedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: finished_at
+      title: RetentionChange
+      additionalProperties: false
+      description: RetentionChange is a retention change that was scheduled or made.
+    plux.v1.RetentionSetting:
+      type: object
+      properties:
+        dataClass:
+          type: string
+          title: data_class
+        days:
+          type: integer
+          title: days
+          format: int32
+          description: days is 0 for indefinitely.
+        isDefault:
+          type: boolean
+          title: is_default
+          description: is_default says the installation default applies.
+        enforced:
+          type: boolean
+          title: enforced
+          description: enforced is false where nothing deletes yet (audit_production).
+        changedBy:
+          type: string
+          title: changed_by
+        changedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: changed_at
+      title: RetentionSetting
+      additionalProperties: false
+      description: |-
+        RetentionSetting is the retention of one data class: raw_events, rollups
+         or audit_production.
     plux.v1.RevokeAccessRequest:
       type: object
       properties:
@@ -15544,6 +16131,81 @@ components:
           title: release
       title: RollbackReleaseResponse
       additionalProperties: false
+    plux.v1.RollupGroup:
+      type: object
+      properties:
+        environmentId:
+          type: string
+          title: environment_id
+        releaseSequence:
+          type: string
+          title: release_sequence
+          format: int64
+        pluginKey:
+          type: string
+          title: plugin_key
+        page:
+          type: string
+          title: page
+        deviceClass:
+          type: string
+          title: device_class
+        locale:
+          type: string
+          title: locale
+      title: RollupGroup
+      additionalProperties: false
+      description: |-
+        RollupGroup is the dimension values of a point; a dimension not grouped by
+         is empty.
+    plux.v1.RollupPoint:
+      type: object
+      properties:
+        bucket:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: bucket
+        group:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.RollupGroup'
+          title: group
+        events:
+          type: string
+          title: events
+          format: int64
+        valueCount:
+          type: string
+          title: value_count
+          format: int64
+        sum:
+          type: number
+          title: sum
+          format: double
+        min:
+          type: number
+          title: min
+          format: double
+        max:
+          type: number
+          title: max
+          format: double
+        p50:
+          type: number
+          title: p50
+          format: double
+        p90:
+          type: number
+          title: p90
+          format: double
+        p99:
+          type: number
+          title: p99
+          format: double
+      title: RollupPoint
+      additionalProperties: false
+      description: |-
+        RollupPoint is one bucket of one series. Durations are milliseconds; the
+         percentiles are estimated from a fixed-bucket histogram.
     plux.v1.RotateHookSecretRequest:
       type: object
       properties:
@@ -15779,6 +16441,27 @@ components:
           title: control
       title: SetControlResponse
       additionalProperties: false
+    plux.v1.SetExportRequest:
+      type: object
+      properties:
+        endpoint:
+          type: string
+          title: endpoint
+          description: endpoint is the collector's base URL or its /v1/metrics URL, https only.
+        enabled:
+          type: boolean
+          title: enabled
+      title: SetExportRequest
+      additionalProperties: false
+    plux.v1.SetExportResponse:
+      type: object
+      properties:
+        export:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Export'
+          title: export
+      title: SetExportResponse
+      additionalProperties: false
     plux.v1.SetOrganizationLimitRequest:
       type: object
       properties:
@@ -15826,6 +16509,38 @@ components:
             - $ref: '#/components/schemas/plux.v1.LimitUsage'
           title: limit
       title: SetPluginLimitResponse
+      additionalProperties: false
+    plux.v1.SetRetentionRequest:
+      type: object
+      properties:
+        dataClass:
+          type: string
+          title: data_class
+        days:
+          type: integer
+          title: days
+          format: int32
+          description: days is 1 to 36500, or 0 for indefinitely.
+        immediate:
+          type: boolean
+          title: immediate
+          description: immediate applies the change now instead of in the maintenance window.
+      title: SetRetentionRequest
+      additionalProperties: false
+    plux.v1.SetRetentionResponse:
+      type: object
+      properties:
+        change:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.RetentionChange'
+          title: change
+        diagnostics:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.Diagnostic'
+          title: diagnostics
+          description: diagnostics carries PLX-8301 for a scheduled change.
+      title: SetRetentionResponse
       additionalProperties: false
     plux.v1.SetSecretRequest:
       type: object
@@ -17083,6 +17798,11 @@ components:
       description: WorkloadIdentity binds CI workloads to an organisation (SRV-064).
 security: []
 tags:
+  - name: plux.v1.AnalyticsService
+    description: |-
+      AnalyticsService queries the rollups of runtime events, manages how long
+       events, rollups and the production audit log are kept, and configures the
+       OTLP export (ANL-010, ANL-011, ADR-0080, maintainer decision Q17).
   - name: plux.v1.AppService
     description: |-
       AppService manages apps, their environments and channels (GOV-010), and

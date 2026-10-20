@@ -120,18 +120,77 @@ func (x *Event) GetFields() []byte {
 	return nil
 }
 
-type IngestEventsRequest struct {
+// Consent is what the host app's user agreed to (SEC-161). Operational
+// events need none.
+type Consent struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	Environment   string                 `protobuf:"bytes,2,opt,name=environment,proto3" json:"environment,omitempty"`
-	Events        []*Event               `protobuf:"bytes,3,rep,name=events,proto3" json:"events,omitempty"`
+	Analytics     bool                   `protobuf:"varint,1,opt,name=analytics,proto3" json:"analytics,omitempty"`
+	Experiments   bool                   `protobuf:"varint,2,opt,name=experiments,proto3" json:"experiments,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Consent) Reset() {
+	*x = Consent{}
+	mi := &file_plux_v1_telemetry_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Consent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Consent) ProtoMessage() {}
+
+func (x *Consent) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_telemetry_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Consent.ProtoReflect.Descriptor instead.
+func (*Consent) Descriptor() ([]byte, []int) {
+	return file_plux_v1_telemetry_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Consent) GetAnalytics() bool {
+	if x != nil {
+		return x.Analytics
+	}
+	return false
+}
+
+func (x *Consent) GetExperiments() bool {
+	if x != nil {
+		return x.Experiments
+	}
+	return false
+}
+
+type IngestEventsRequest struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	AppId       string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Environment string                 `protobuf:"bytes,2,opt,name=environment,proto3" json:"environment,omitempty"`
+	Events      []*Event               `protobuf:"bytes,3,rep,name=events,proto3" json:"events,omitempty"`
+	// consent is the consent the runtime had when it recorded the events.
+	// When present the server refuses events of a category the user did not
+	// agree to, and drops the locale without analytics consent; when absent
+	// the events are taken as the device gated them (ANL-003, SEC-161).
+	Consent       *Consent `protobuf:"bytes,4,opt,name=consent,proto3" json:"consent,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *IngestEventsRequest) Reset() {
 	*x = IngestEventsRequest{}
-	mi := &file_plux_v1_telemetry_proto_msgTypes[1]
+	mi := &file_plux_v1_telemetry_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -143,7 +202,7 @@ func (x *IngestEventsRequest) String() string {
 func (*IngestEventsRequest) ProtoMessage() {}
 
 func (x *IngestEventsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_telemetry_proto_msgTypes[1]
+	mi := &file_plux_v1_telemetry_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -156,7 +215,7 @@ func (x *IngestEventsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IngestEventsRequest.ProtoReflect.Descriptor instead.
 func (*IngestEventsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_telemetry_proto_rawDescGZIP(), []int{1}
+	return file_plux_v1_telemetry_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *IngestEventsRequest) GetAppId() string {
@@ -180,6 +239,13 @@ func (x *IngestEventsRequest) GetEvents() []*Event {
 	return nil
 }
 
+func (x *IngestEventsRequest) GetConsent() *Consent {
+	if x != nil {
+		return x.Consent
+	}
+	return nil
+}
+
 type IngestEventsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Accepted      int32                  `protobuf:"varint,1,opt,name=accepted,proto3" json:"accepted,omitempty"`
@@ -191,7 +257,7 @@ type IngestEventsResponse struct {
 
 func (x *IngestEventsResponse) Reset() {
 	*x = IngestEventsResponse{}
-	mi := &file_plux_v1_telemetry_proto_msgTypes[2]
+	mi := &file_plux_v1_telemetry_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -203,7 +269,7 @@ func (x *IngestEventsResponse) String() string {
 func (*IngestEventsResponse) ProtoMessage() {}
 
 func (x *IngestEventsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_telemetry_proto_msgTypes[2]
+	mi := &file_plux_v1_telemetry_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -216,7 +282,7 @@ func (x *IngestEventsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IngestEventsResponse.ProtoReflect.Descriptor instead.
 func (*IngestEventsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_telemetry_proto_rawDescGZIP(), []int{2}
+	return file_plux_v1_telemetry_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *IngestEventsResponse) GetAccepted() int32 {
@@ -253,7 +319,7 @@ type ListEventsRequest struct {
 
 func (x *ListEventsRequest) Reset() {
 	*x = ListEventsRequest{}
-	mi := &file_plux_v1_telemetry_proto_msgTypes[3]
+	mi := &file_plux_v1_telemetry_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -265,7 +331,7 @@ func (x *ListEventsRequest) String() string {
 func (*ListEventsRequest) ProtoMessage() {}
 
 func (x *ListEventsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_telemetry_proto_msgTypes[3]
+	mi := &file_plux_v1_telemetry_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -278,7 +344,7 @@ func (x *ListEventsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEventsRequest.ProtoReflect.Descriptor instead.
 func (*ListEventsRequest) Descriptor() ([]byte, []int) {
-	return file_plux_v1_telemetry_proto_rawDescGZIP(), []int{3}
+	return file_plux_v1_telemetry_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListEventsRequest) GetAppId() string {
@@ -326,7 +392,7 @@ type ListEventsResponse struct {
 
 func (x *ListEventsResponse) Reset() {
 	*x = ListEventsResponse{}
-	mi := &file_plux_v1_telemetry_proto_msgTypes[4]
+	mi := &file_plux_v1_telemetry_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -338,7 +404,7 @@ func (x *ListEventsResponse) String() string {
 func (*ListEventsResponse) ProtoMessage() {}
 
 func (x *ListEventsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_plux_v1_telemetry_proto_msgTypes[4]
+	mi := &file_plux_v1_telemetry_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -351,7 +417,7 @@ func (x *ListEventsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEventsResponse.ProtoReflect.Descriptor instead.
 func (*ListEventsResponse) Descriptor() ([]byte, []int) {
-	return file_plux_v1_telemetry_proto_rawDescGZIP(), []int{4}
+	return file_plux_v1_telemetry_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListEventsResponse) GetEvents() []*Event {
@@ -381,11 +447,15 @@ const file_plux_v1_telemetry_proto_rawDesc = "" +
 	"\n" +
 	"plugin_key\x18\x05 \x01(\tR\tpluginKey\x12\x14\n" +
 	"\x05route\x18\x06 \x01(\tR\x05route\x12\x16\n" +
-	"\x06fields\x18\a \x01(\fR\x06fields\"v\n" +
+	"\x06fields\x18\a \x01(\fR\x06fields\"I\n" +
+	"\aConsent\x12\x1c\n" +
+	"\tanalytics\x18\x01 \x01(\bR\tanalytics\x12 \n" +
+	"\vexperiments\x18\x02 \x01(\bR\vexperiments\"\xa2\x01\n" +
 	"\x13IngestEventsRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12&\n" +
-	"\x06events\x18\x03 \x03(\v2\x0e.plux.v1.EventR\x06events\"\x85\x01\n" +
+	"\x06events\x18\x03 \x03(\v2\x0e.plux.v1.EventR\x06events\x12*\n" +
+	"\aconsent\x18\x04 \x01(\v2\x10.plux.v1.ConsentR\aconsent\"\x85\x01\n" +
 	"\x14IngestEventsResponse\x12\x1a\n" +
 	"\baccepted\x18\x01 \x01(\x05R\baccepted\x12\x1a\n" +
 	"\brejected\x18\x02 \x01(\x05R\brejected\x125\n" +
@@ -416,35 +486,37 @@ func file_plux_v1_telemetry_proto_rawDescGZIP() []byte {
 	return file_plux_v1_telemetry_proto_rawDescData
 }
 
-var file_plux_v1_telemetry_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_plux_v1_telemetry_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_plux_v1_telemetry_proto_goTypes = []any{
 	(*Event)(nil),                 // 0: plux.v1.Event
-	(*IngestEventsRequest)(nil),   // 1: plux.v1.IngestEventsRequest
-	(*IngestEventsResponse)(nil),  // 2: plux.v1.IngestEventsResponse
-	(*ListEventsRequest)(nil),     // 3: plux.v1.ListEventsRequest
-	(*ListEventsResponse)(nil),    // 4: plux.v1.ListEventsResponse
-	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
-	(*Diagnostic)(nil),            // 6: plux.v1.Diagnostic
-	(*Page)(nil),                  // 7: plux.v1.Page
-	(*PageResult)(nil),            // 8: plux.v1.PageResult
+	(*Consent)(nil),               // 1: plux.v1.Consent
+	(*IngestEventsRequest)(nil),   // 2: plux.v1.IngestEventsRequest
+	(*IngestEventsResponse)(nil),  // 3: plux.v1.IngestEventsResponse
+	(*ListEventsRequest)(nil),     // 4: plux.v1.ListEventsRequest
+	(*ListEventsResponse)(nil),    // 5: plux.v1.ListEventsResponse
+	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+	(*Diagnostic)(nil),            // 7: plux.v1.Diagnostic
+	(*Page)(nil),                  // 8: plux.v1.Page
+	(*PageResult)(nil),            // 9: plux.v1.PageResult
 }
 var file_plux_v1_telemetry_proto_depIdxs = []int32{
-	5, // 0: plux.v1.Event.time:type_name -> google.protobuf.Timestamp
-	0, // 1: plux.v1.IngestEventsRequest.events:type_name -> plux.v1.Event
-	6, // 2: plux.v1.IngestEventsResponse.diagnostics:type_name -> plux.v1.Diagnostic
-	5, // 3: plux.v1.ListEventsRequest.since:type_name -> google.protobuf.Timestamp
-	7, // 4: plux.v1.ListEventsRequest.page:type_name -> plux.v1.Page
-	0, // 5: plux.v1.ListEventsResponse.events:type_name -> plux.v1.Event
-	8, // 6: plux.v1.ListEventsResponse.page:type_name -> plux.v1.PageResult
-	1, // 7: plux.v1.TelemetryService.IngestEvents:input_type -> plux.v1.IngestEventsRequest
-	3, // 8: plux.v1.TelemetryService.ListEvents:input_type -> plux.v1.ListEventsRequest
-	2, // 9: plux.v1.TelemetryService.IngestEvents:output_type -> plux.v1.IngestEventsResponse
-	4, // 10: plux.v1.TelemetryService.ListEvents:output_type -> plux.v1.ListEventsResponse
-	9, // [9:11] is the sub-list for method output_type
-	7, // [7:9] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	6,  // 0: plux.v1.Event.time:type_name -> google.protobuf.Timestamp
+	0,  // 1: plux.v1.IngestEventsRequest.events:type_name -> plux.v1.Event
+	1,  // 2: plux.v1.IngestEventsRequest.consent:type_name -> plux.v1.Consent
+	7,  // 3: plux.v1.IngestEventsResponse.diagnostics:type_name -> plux.v1.Diagnostic
+	6,  // 4: plux.v1.ListEventsRequest.since:type_name -> google.protobuf.Timestamp
+	8,  // 5: plux.v1.ListEventsRequest.page:type_name -> plux.v1.Page
+	0,  // 6: plux.v1.ListEventsResponse.events:type_name -> plux.v1.Event
+	9,  // 7: plux.v1.ListEventsResponse.page:type_name -> plux.v1.PageResult
+	2,  // 8: plux.v1.TelemetryService.IngestEvents:input_type -> plux.v1.IngestEventsRequest
+	4,  // 9: plux.v1.TelemetryService.ListEvents:input_type -> plux.v1.ListEventsRequest
+	3,  // 10: plux.v1.TelemetryService.IngestEvents:output_type -> plux.v1.IngestEventsResponse
+	5,  // 11: plux.v1.TelemetryService.ListEvents:output_type -> plux.v1.ListEventsResponse
+	10, // [10:12] is the sub-list for method output_type
+	8,  // [8:10] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_telemetry_proto_init() }
@@ -459,7 +531,7 @@ func file_plux_v1_telemetry_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_telemetry_proto_rawDesc), len(file_plux_v1_telemetry_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

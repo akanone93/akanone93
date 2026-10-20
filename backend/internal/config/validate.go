@@ -357,6 +357,19 @@ func (c *Config) validateTelemetry(p *problems) {
 		p.addf("telemetry.store", "clickhouse arrives in P9 (ANL-010)")
 	}
 	p.positive("telemetry.retentionDays", int64(c.Telemetry.RetentionDays))
+	p.positive("telemetry.queueMaxEntries", int64(c.Telemetry.QueueMaxEntries))
+	if _, err := time.LoadLocation(c.Telemetry.TimeZone); err != nil || c.Telemetry.TimeZone == "" || c.Telemetry.TimeZone == "Local" {
+		p.addf("telemetry.timeZone", "%q is not an IANA time zone such as UTC or Europe/Berlin", c.Telemetry.TimeZone)
+	}
+	start, end := c.Telemetry.MaintenanceWindow.Start, c.Telemetry.MaintenanceWindow.End
+	for _, f := range []struct{ path, value string }{{"telemetry.maintenanceWindow.start", start}, {"telemetry.maintenanceWindow.end", end}} {
+		if _, err := time.Parse("15:04", f.value); err != nil {
+			p.addf(f.path, "%q is not a time of day as HH:MM", f.value)
+		}
+	}
+	if start == end {
+		p.addf("telemetry.maintenanceWindow", "the window must not be empty: start and end are both %q", start)
+	}
 }
 
 // validateLimits checks the installation-level tightenings against the

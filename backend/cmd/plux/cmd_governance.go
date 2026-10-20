@@ -57,14 +57,10 @@ type subUsage struct {
 
 // governanceClients connects to the governance and organisation services.
 func (e env) governanceClients(c common) (pluxv1connect.GovernanceServiceClient, pluxv1connect.OrgServiceClient, error) {
-	token, err := e.creds.load(c.server)
+	opts, err := e.authOptions(c)
 	if err != nil {
 		return nil, nil, err
 	}
-	if token == "" {
-		return nil, nil, authError("not signed in to " + c.server + ": run plux login or set " + tokenEnv)
-	}
-	opts := connect.WithInterceptors(headers{token: token, org: c.org})
 	return pluxv1connect.NewGovernanceServiceClient(e.httpClient, c.server, opts),
 		pluxv1connect.NewOrgServiceClient(e.httpClient, c.server, opts), nil
 }
