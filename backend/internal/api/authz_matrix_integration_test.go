@@ -426,7 +426,6 @@ var permissionsWithoutRPC = []auth.Permission{
 	// removes its permissions from this list when its first call checks
 	// them (plan §2.4).
 	auth.SSOManage,
-	auth.SessionsManage,
 	auth.PoliciesManage,
 	auth.ApprovalsDecide,
 	auth.BreakglassInvoke,

@@ -516,6 +516,10 @@ var matrix = map[string]entry{
 	})),
 	"IdentityService/ListWorkloadIdentities": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListWorkloadIdentitiesRequest{})),
 	"IdentityService/DeleteWorkloadIdentity": atPerm(auth.TokensManage, anyone(&pluxv1.DeleteWorkloadIdentityRequest{Id: unknownID})),
+	"IdentityService/BeginStepUp":            {kind: self, build: anyone(&pluxv1.BeginStepUpRequest{})},
+	"IdentityService/CompleteStepUp":         {kind: self, build: anyone(&pluxv1.CompleteStepUpRequest{RequestId: unknownID})},
+	"IdentityService/ListSessions":           atPerm(auth.SessionsManage, anyone(&pluxv1.ListSessionsRequest{})),
+	"IdentityService/RevokeSession":          atPerm(auth.SessionsManage, anyone(&pluxv1.RevokeSessionRequest{Id: unknownID})),
 	"IdentityService/ListAuditEntries":       atPerm(auth.AuditRead, anyone(&pluxv1.ListAuditEntriesRequest{})),
 
 	// The device's side: a person's session never satisfies these.
