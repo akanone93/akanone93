@@ -11,7 +11,7 @@ import (
 // commands are the top-level commands, for help and completion.
 var commands = []string{
 	"login", "logout", "whoami", "init", "doctor", "validate", "build", "codegen", "diff", "publish", "pull",
-	"release", "export", "import", "mock", "keys", "native", "security", "l10n", "golden", "config", "license", "admin", "roles", "grants", "teams", "notifications", "webhooks", "search", "git", "create", "completion", "version", "help",
+	"release", "export", "import", "mock", "keys", "native", "security", "l10n", "golden", "config", "license", "admin", "roles", "grants", "teams", "notifications", "webhooks", "search", "git", "analytics", "create", "completion", "version", "help",
 }
 
 // releaseCommands are the release subcommands.

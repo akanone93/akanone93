@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
@@ -572,9 +573,14 @@ func (s Telemetry) IngestEvents(ctx context.Context, req *connect.Request[pluxv1
 	if err := s.h.Devices.RecordRiskEvents(ctx, d, risk); err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
 	}
-	n, diags, err := s.h.Events.Ingest(ctx, telemetry.Source{
+	src := telemetry.Source{
 		OrganizationID: d.OrganizationID, AppID: d.AppID, EnvironmentID: d.EnvironmentID, DeviceID: d.DeviceID,
-	}, events)
+		Bytes: proto.Size(req.Msg),
+	}
+	if c := req.Msg.GetConsent(); c != nil {
+		src.Consent = &telemetry.Consent{Analytics: c.GetAnalytics(), Experiments: c.GetExperiments()}
+	}
+	n, diags, err := s.h.Events.Ingest(ctx, src, events)
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
 	}

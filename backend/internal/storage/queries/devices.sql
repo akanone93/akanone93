@@ -203,22 +203,14 @@ ON CONFLICT DO NOTHING;
 -- name: ListEnvironmentKeys :many
 SELECT * FROM environment_keys WHERE environment_id = $1 ORDER BY created_at, key_id;
 
--- name: InsertTelemetryEvent :exec
-INSERT INTO telemetry_events (id, organization_id, app_id, environment_id, device_id, name, time, release_sequence,
-                              plugin_key, route, fields)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
-
 -- name: ListTelemetryEvents :many
-SELECT * FROM telemetry_events
+SELECT * FROM analytics_events
  WHERE app_id = $1 AND environment_id = $2
    AND (sqlc.arg(name)::text = '' OR name = sqlc.arg(name)::text)
    AND time >= sqlc.arg(since)::timestamptz
    AND (time, id) < (sqlc.arg(before_time)::timestamptz, sqlc.arg(before_id)::uuid)
  ORDER BY time DESC, id DESC
  LIMIT sqlc.arg(page_size);
-
--- name: PurgeTelemetry :execrows
-DELETE FROM telemetry_events WHERE received_at < $1;
 
 -- name: RecentVersionBundles :many
 -- The bundles of a plugin's newest versions (REL-022); plugin_key is ''

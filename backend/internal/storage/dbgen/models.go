@@ -24,6 +24,60 @@ type AccessToken struct {
 	RevokedAt      pgtype.Timestamptz
 }
 
+type AnalyticsEvent struct {
+	ID              pgtype.UUID
+	OrganizationID  pgtype.UUID
+	AppID           pgtype.UUID
+	EnvironmentID   pgtype.UUID
+	DeviceID        pgtype.UUID
+	Name            string
+	Time            pgtype.Timestamptz
+	ReleaseSequence int64
+	PluginKey       string
+	Route           string
+	Fields          []byte
+	ReceivedAt      pgtype.Timestamptz
+	DeviceClass     string
+	Locale          string
+	Category        string
+}
+
+type AnalyticsExport struct {
+	OrganizationID pgtype.UUID
+	Endpoint       string
+	Enabled        bool
+	ExportedUntil  pgtype.Timestamptz
+	LastError      string
+	LastAttemptAt  pgtype.Timestamptz
+	ChangedBy      string
+	ChangedAt      pgtype.Timestamptz
+}
+
+type AnalyticsRollup struct {
+	OrganizationID  pgtype.UUID
+	AppID           pgtype.UUID
+	EnvironmentID   pgtype.UUID
+	Granularity     string
+	EventName       string
+	Bucket          pgtype.Timestamptz
+	ReleaseSequence int64
+	PluginKey       string
+	Page            string
+	DeviceClass     string
+	Locale          string
+	Events          int64
+	ValueCount      int64
+	ValueSum        float64
+	ValueMin        float64
+	ValueMax        float64
+	Histogram       []int64
+}
+
+type AnalyticsWatermark struct {
+	OrganizationID pgtype.UUID
+	RolledUntil    pgtype.Timestamptz
+}
+
 type App struct {
 	ID               pgtype.UUID
 	OrganizationID   pgtype.UUID
@@ -234,6 +288,8 @@ type Device struct {
 	RaspDetectedAt        pgtype.Timestamptz
 	RaspKinds             []string
 	AgreementPublicKey    []byte
+	DeviceClass           string
+	Locale                string
 }
 
 type DeviceAuthorization struct {
@@ -907,6 +963,26 @@ type ReleaseVersion struct {
 	ReleaseID       pgtype.UUID
 	OrganizationID  pgtype.UUID
 	PluginVersionID pgtype.UUID
+}
+
+type RetentionChange struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	DataClass      string
+	Days           *int32
+	State          string
+	RequestedBy    string
+	RequestedAt    pgtype.Timestamptz
+	ApplyAt        pgtype.Timestamptz
+	FinishedAt     pgtype.Timestamptz
+}
+
+type RetentionSetting struct {
+	OrganizationID pgtype.UUID
+	DataClass      string
+	Days           *int32
+	ChangedBy      string
+	ChangedAt      pgtype.Timestamptz
 }
 
 type RoleGrant struct {

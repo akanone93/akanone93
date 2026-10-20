@@ -46,6 +46,7 @@ Every call to the Plux Server names the permission it needs, and a principal tha
 | `reconstruction.view` | View a reconstruction of what a release ran at a past time. | medium |  | app | yes |
 | `release.promote` | Promote or roll back a release to an environment. | high | yes | environment |  |
 | `release.publish` | Publish a plugin or app version. | high | yes | environment |  |
+| `retention.manage` | Change how long events and rollups are kept, and schedule or cancel retention changes. | high | yes | organization |  |
 | `roles.manage` | Create, change and delete custom roles. | high | yes | organization |  |
 | `rollout.manage` | Create, pause, resume and roll back rollouts. | high |  | environment |  |
 | `search.read` | Search across the apps the caller can read. | low |  | app | yes |
@@ -112,6 +113,7 @@ A role holds exactly the permissions marked below; there is no inheritance.
 | `reconstruction.view` | ✓ |  |  |  |  |  |  | ✓ | ✓ |  |
 | `release.promote` | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |
 | `release.publish` | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  |
+| `retention.manage` | ✓ |  |  |  |  |  |  |  |  |  |
 | `roles.manage` | ✓ |  |  |  |  |  |  |  |  |  |
 | `rollout.manage` | ✓ |  | ✓ |  |  |  |  |  |  |  |
 | `search.read` | ✓ |  | ✓ |  | ✓ |  | ✓ | ✓ | ✓ |  |

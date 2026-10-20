@@ -74,8 +74,8 @@ func TestCatalogueEqualsTheConstants_GOV_002(t *testing.T) {
 func TestCatalogueEntries_GOV_002(t *testing.T) {
 	t.Parallel()
 	cat := auth.Catalogue()
-	if len(cat) != 48 {
-		t.Errorf("the catalogue has %d permissions, want 48 (24 existing, 24 of P9)", len(cat))
+	if len(cat) != 49 {
+		t.Errorf("the catalogue has %d permissions, want 49 (24 existing, 25 of P9)", len(cat))
 	}
 	for i, e := range cat {
 		if e.Description == "" || !strings.HasSuffix(e.Description, ".") {
@@ -103,7 +103,7 @@ func TestCatalogueEntries_GOV_002(t *testing.T) {
 		auth.RolloutManage, auth.KillswitchManage, auth.FlagsManage, auth.ExperimentsManage,
 		auth.AnalyticsRead, auth.AlertsManage, auth.NotificationsManage, auth.WebhooksManage,
 		auth.AuditExport, auth.ReconstructionView, auth.DSRManage, auth.SearchRead, auth.GitExport,
-		auth.LicenseManage, auth.BackupManage,
+		auth.LicenseManage, auth.BackupManage, auth.RetentionManage,
 	}
 	for _, p := range p9 {
 		if !auth.InCatalogue(p) {
@@ -222,7 +222,7 @@ func TestPredefinedRoles_GOV_002(t *testing.T) {
 		if r == auth.RoleOwner {
 			continue
 		}
-		for _, p := range []auth.Permission{auth.RolesManage, auth.SSOManage, auth.SessionsManage, auth.LicenseManage, auth.BackupManage, auth.KeysManage, auth.MembersManage} {
+		for _, p := range []auth.Permission{auth.RolesManage, auth.SSOManage, auth.SessionsManage, auth.LicenseManage, auth.BackupManage, auth.RetentionManage, auth.KeysManage, auth.MembersManage} {
 			if slices.Contains(auth.RolePermissions(r), p) {
 				t.Errorf("%s holds %s", r, p)
 			}

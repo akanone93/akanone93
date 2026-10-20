@@ -25,6 +25,7 @@ import (
 	"github.com/riverqueue/river"
 
 	"github.com/nightCode42/plux3/backend/ext/export"
+	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/api"
 	"github.com/nightCode42/plux3/backend/internal/attest/statuslist"
 	"github.com/nightCode42/plux3/backend/internal/audit"
@@ -64,15 +65,21 @@ import (
 // jobs. They hold envelope encryption only: signing is the worker's, and
 // arrives with the publish pipeline.
 type Services struct {
-	Audit       *audit.Log
-	Auth        *auth.Service
-	Tenancy     *tenancy.Service
-	Documents   *document.Service
-	Releases    *release.Service
-	Devices     *device.Service
-	Events      *telemetry.Service
-	Idempotency *idempotency.Store
-	Pages       *api.Pages
+	Audit     *audit.Log
+	Auth      *auth.Service
+	Tenancy   *tenancy.Service
+	Documents *document.Service
+	Releases  *release.Service
+	Devices   *device.Service
+	Events    *telemetry.Service
+	// Analytics queries rollups, manages retention and the OTLP export, and
+	// does the worker's analytics duties (ANL-010, ANL-011).
+	Analytics *analytics.Service
+	// EventConsumer writes queued telemetry batches; nil unless the process
+	// is a worker and the cache is Valkey (ADR-0080).
+	EventConsumer *telemetry.Consumer
+	Idempotency   *idempotency.Store
+	Pages         *api.Pages
 	// AuditCheckpoints lists the signed audit checkpoints (SEC-141).
 	AuditCheckpoints *audit.CheckpointReader
 	// Checkpointer signs them; nil where the process holds no signer,
@@ -128,9 +135,12 @@ type Services struct {
 // and the signer (SRV-052, ADR-0006). The zero value refuses uploads and
 // leaves releases out.
 type WorkDeps struct {
-	Objects objects.Store
-	Queue   *JobQueue
-	Codecs  *media.Codecs
+	// AnalyticsStore is the enterprise edition's analytics store; nil uses
+	// PostgreSQL (ANL-010).
+	AnalyticsStore analytics.Store
+	Objects        objects.Store
+	Queue          *JobQueue
+	Codecs         *media.Codecs
 	// SVG compiles SVGs; nil where the server has no SVG compiler.
 	SVG    *media.SVGCompiler
 	Signer signing.Signer
@@ -381,9 +391,9 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		return nil, err
 	}
 	reportDeviceAssurance(work.Metrics, devices)
-	events, err := telemetry.NewService(telemetry.Options{DB: db, IDs: gen, Limits: set, Retention: time.Duration(cfg.Telemetry.RetentionDays) * 24 * time.Hour})
+	events, analyticsService, consumer, err := buildAnalytics(cfg, db, shared, set, gen, log, tenancyService, work)
 	if err != nil {
-		return nil, fmt.Errorf("server: %w", err)
+		return nil, err
 	}
 	runnerLink, err := buildRunnerLink(ctx, cfg, db, backend, work)
 	if err != nil {
@@ -447,7 +457,8 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	return &Services{
 		Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport,
 		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
-		Devices: devices, Events: events, Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
+		Devices: devices, Events: events, Analytics: analyticsService, EventConsumer: consumer,
+		Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
 		AttestationStatus: status, Metrics: work.Metrics, Functions: functions, FunctionRuntime: fnRuntime,
 	}, nil
@@ -762,7 +773,7 @@ func (s *Server) RegisterAPI(svc *Services) error {
 func (s *Server) handlersFor(svc *Services, limiter api.RateLimiter) *api.Handlers {
 	h := &api.Handlers{
 		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
-		Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
+		Analytics: svc.Analytics, Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
 		Limiter: limiter, Limits: s.limits, Edition: s.edition,
 	}
 	if svc.AuditCheckpoints != nil {
@@ -823,6 +834,11 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 		h.GitExports = svc.GitExport
 		registrations = append(registrations, func() (string, http.Handler) {
 			return pluxv1connect.NewGitExportServiceHandler(h.GitExport(), opts)
+		})
+	}
+	if svc.Analytics != nil {
+		registrations = append(registrations, func() (string, http.Handler) {
+			return pluxv1connect.NewAnalyticsServiceHandler(h.AnalyticsService(), opts)
 		})
 	}
 	if svc.Goldens != nil {
@@ -960,9 +976,6 @@ func (w *maintenanceWorker) sweepOrganization(ctx context.Context, org string, t
 		}
 	}
 	if _, err := w.svc.Devices.ExpireTokens(ctx, org); err != nil {
-		return err //nolint:wrapcheck // a domain error
-	}
-	if _, err := w.svc.Events.Purge(ctx, org); err != nil {
 		return err //nolint:wrapcheck // a domain error
 	}
 	if w.svc.Functions != nil {

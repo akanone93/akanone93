@@ -50,6 +50,7 @@ Commands:
   webhooks    outbound webhooks (Standard Webhooks)
   search      full-text search over the apps, plugins, pages, components, templates, translation keys and functions
   git         export | import an app's source through a Git repository
+  analytics   query rollups; show and change retention; set the OTLP export
   create      Generate the Flutter project of a no-code app
   completion  Print a shell completion script (bash, zsh, fish, powershell)
   version     Print version information
@@ -114,6 +115,6 @@ func (e env) commands() map[string]func([]string) int {
 		"login": e.login, "logout": e.logout, "whoami": e.whoami, "init": e.initProject, "doctor": e.doctor,
 		"diff": e.diff, "publish": e.publish, "pull": e.pull, "release": e.release, "export": e.export,
 		"import": e.importCmd, "mock": e.mockCmd, "keys": e.keys, "native": e.native, "security": e.security, "config": e.config, "create": e.create, "completion": e.completion, "fn": e.fn, "l10n": e.l10n, "golden": e.golden, "license": e.license, "admin": e.admin, "roles": e.roles, "grants": e.grants, "teams": e.teams, "notifications": e.notifications, "webhooks": e.webhooks,
-		"search": e.search, "git": e.git,
+		"search": e.search, "git": e.git, "analytics": e.analytics,
 	}
 }

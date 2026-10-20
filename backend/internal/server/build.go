@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/nightCode42/plux3/backend/edition"
+	extanalytics "github.com/nightCode42/plux3/backend/ext/analytics"
 	"github.com/nightCode42/plux3/backend/ext/export"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/compiler/media"
@@ -22,6 +23,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/objects"
+	"github.com/nightCode42/plux3/backend/internal/telemetry"
 )
 
 // Built is an assembled process together with the function that
@@ -40,6 +42,7 @@ type buildOptions struct {
 	linker       function.Linker
 	edition      edition.Provider
 	auditSinks   export.Provider
+	analytics    extanalytics.Store
 }
 
 // WithEdition gives the process the licence provider of the enterprise
@@ -54,6 +57,14 @@ func WithEdition(p edition.Provider) BuildOption {
 // over syslog only (SEC-143, GOV-033).
 func WithAuditSinks(p export.Provider) BuildOption {
 	return func(o *buildOptions) { o.auditSinks = p }
+}
+
+// WithAnalyticsStore replaces the PostgreSQL analytics store with the
+// enterprise edition's (ANL-010, ADR-0080). The store must implement the
+// whole of Store; the core's rollup, retention and export logic runs on it
+// unchanged.
+func WithAnalyticsStore(s extanalytics.Store) BuildOption {
+	return func(o *buildOptions) { o.analytics = s }
 }
 
 // WithIdentityProviderClient makes the gateway read the key sets of
@@ -190,6 +201,9 @@ func Build(ctx context.Context, cfg *config.Config, log *slog.Logger, version st
 		}
 		srv.AddComponent(sched)
 	}
+	if services.EventConsumer != nil {
+		srv.AddComponent(&telemetry.Component{Consumer: services.EventConsumer})
+	}
 	return &Built{Server: srv, Close: closeAll}, nil
 }
 
@@ -217,7 +231,7 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 			slog.String("directory", cfg.Signing.Directory))
 	}
 	queue := &JobQueue{}
-	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP, AuditSinks: o.auditSinks}
+	deps := WorkDeps{Objects: store, Queue: queue, Log: log, Metrics: metrics, IdentityHTTP: o.identityHTTP, AuditSinks: o.auditSinks, AnalyticsStore: o.analytics}
 	if cfg.Has(config.RoleWorker) {
 		// Only the worker transcodes and signs: compiling the codecs costs
 		// seconds of CPU the api role need not pay, and the api role must
@@ -266,6 +280,7 @@ func buildWork(ctx context.Context, cfg *config.Config, log *slog.Logger, metric
 		CheckpointJobs(workers, services, cfg.Audit.CheckpointInterval.Duration(), log)...)
 	periodic = append(periodic, AttestationStatusJobs(workers, services, log)...)
 	periodic = append(periodic, AuditExportJobs(workers, services, o.edition, log)...)
+	periodic = append(periodic, AnalyticsJobs(workers, services, log)...)
 	jobClient, err := jobs.New(jobs.Options{
 		Pool:     db.Pool(),
 		Workers:  workers,
