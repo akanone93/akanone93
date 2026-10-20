@@ -36,7 +36,7 @@ func fnrunnerConfig(roles, addr, certFile, keyFile string) string {
 // process registry and drains on shutdown.
 func TestFnRunnerRoleRunsWithoutData_FN_013(t *testing.T) {
 	t.Parallel()
-	certFile, keyFile, pool := identity(t)
+	certFile, keyFile, pool := testIdentity(t)
 	addr := freeAddr(t)
 	cfg := testConfig(t, fnrunnerConfig("fnrunner, egress", addr, certFile, keyFile))
 	if !cfg.NoDataAccess() || cfg.Database.URL != "" {

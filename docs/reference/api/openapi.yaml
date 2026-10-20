@@ -2110,6 +2110,609 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ValidatePageResponse'
+  /plux.v1.FederationService/CompleteSamlLogin:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: CompleteSamlLogin
+      description: |-
+        CompleteSamlLogin ends it with the response the identity provider
+         posted to the assertion consumer service. An invalid response is
+         PLX-6210, a replayed assertion PLX-6211. Like a password, it yields a
+         session or a second-factor challenge.
+      operationId: plux.v1.FederationService.CompleteSamlLogin
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CompleteSamlLoginRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CompleteSamlLoginResponse'
+  /plux.v1.FederationService/CreateIdentityProvider:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: CreateIdentityProvider
+      description: |-
+        CreateIdentityProvider configures a provider of the organisation, or of
+         the whole installation (installation administrators only). The client
+         secret is stored sealed and never returned.
+      operationId: plux.v1.FederationService.CreateIdentityProvider
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateIdentityProviderRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateIdentityProviderResponse'
+  /plux.v1.FederationService/CreateScimToken:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: CreateScimToken
+      description: |-
+        CreateScimToken makes a bearer token for the organisation's SCIM
+         client. The secret is returned once. SCIM is an enterprise feature.
+      operationId: plux.v1.FederationService.CreateScimToken
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CreateScimTokenRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CreateScimTokenResponse'
+  /plux.v1.FederationService/DeleteIdentityProvider:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: DeleteIdentityProvider
+      description: |-
+        DeleteIdentityProvider removes a provider and the grants and team
+         memberships its mapping gave. It is refused while it is the last
+         installation provider and password sign-in is off.
+      operationId: plux.v1.FederationService.DeleteIdentityProvider
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.DeleteIdentityProviderRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.DeleteIdentityProviderResponse'
+  /plux.v1.FederationService/GetGroupMapping:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: GetGroupMapping
+      operationId: plux.v1.FederationService.GetGroupMapping
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetGroupMappingRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetGroupMappingResponse'
+  /plux.v1.FederationService/GetIdentityProvider:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: GetIdentityProvider
+      operationId: plux.v1.FederationService.GetIdentityProvider
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetIdentityProviderRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetIdentityProviderResponse'
+  /plux.v1.FederationService/GetSamlMetadata:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: GetSamlMetadata
+      description: |-
+        GetSamlMetadata returns the service provider's metadata document,
+         which an identity provider's administrator imports.
+      operationId: plux.v1.FederationService.GetSamlMetadata
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.GetSamlMetadataRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.GetSamlMetadataResponse'
+  /plux.v1.FederationService/ListIdentityProviders:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: ListIdentityProviders
+      operationId: plux.v1.FederationService.ListIdentityProviders
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListIdentityProvidersRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListIdentityProvidersResponse'
+  /plux.v1.FederationService/ListScimTokens:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: ListScimTokens
+      operationId: plux.v1.FederationService.ListScimTokens
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListScimTokensRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListScimTokensResponse'
+  /plux.v1.FederationService/ListSignInProviders:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: ListSignInProviders
+      description: |-
+        ListSignInProviders lists the providers a person may choose on the
+         sign-in page: those of the installation and, when an organisation is
+         named, its own. It takes no credential.
+      operationId: plux.v1.FederationService.ListSignInProviders
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListSignInProvidersRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListSignInProvidersResponse'
+  /plux.v1.FederationService/RevokeScimToken:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: RevokeScimToken
+      operationId: plux.v1.FederationService.RevokeScimToken
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.RevokeScimTokenRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.RevokeScimTokenResponse'
+  /plux.v1.FederationService/RotateScimToken:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: RotateScimToken
+      description: |-
+        RotateScimToken makes a new token and lets the old one work for the
+         overlap, so the identity provider can be switched over.
+      operationId: plux.v1.FederationService.RotateScimToken
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.RotateScimTokenRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.RotateScimTokenResponse'
+  /plux.v1.FederationService/SetGroupMapping:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: SetGroupMapping
+      description: |-
+        SetGroupMapping replaces a provider's mapping document. Every role must
+         exist and be held by the caller, every app, environment and team must
+         exist.
+      operationId: plux.v1.FederationService.SetGroupMapping
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.SetGroupMappingRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.SetGroupMappingResponse'
+  /plux.v1.FederationService/StartSamlLogin:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: StartSamlLogin
+      description: |-
+        StartSamlLogin begins a SAML sign-in and returns where to send the
+         browser. SAML is an enterprise feature (PLX-8600).
+      operationId: plux.v1.FederationService.StartSamlLogin
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.StartSamlLoginRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.StartSamlLoginResponse'
+  /plux.v1.FederationService/UpdateIdentityProvider:
+    post:
+      tags:
+        - plux.v1.FederationService
+      summary: UpdateIdentityProvider
+      operationId: plux.v1.FederationService.UpdateIdentityProvider
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.UpdateIdentityProviderRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.UpdateIdentityProviderResponse'
   /plux.v1.FunctionAdminService/Build:
     post:
       tags:
@@ -9186,6 +9789,35 @@ components:
           title: challenge
       title: CompleteOidcLoginResponse
       additionalProperties: false
+    plux.v1.CompleteSamlLoginRequest:
+      type: object
+      properties:
+        providerId:
+          type: string
+          title: provider_id
+        samlResponse:
+          type: string
+          title: saml_response
+          description: 'saml_response is the form field as posted: base64 of the XML.'
+        relayState:
+          type: string
+          title: relay_state
+          description: relay_state is empty for an identity-provider-initiated response.
+      title: CompleteSamlLoginRequest
+      additionalProperties: false
+    plux.v1.CompleteSamlLoginResponse:
+      type: object
+      properties:
+        session:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Session'
+          title: session
+        challenge:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.MfaChallenge'
+          title: challenge
+      title: CompleteSamlLoginResponse
+      additionalProperties: false
     plux.v1.CompleteWebAuthnLoginRequest:
       type: object
       properties:
@@ -9678,6 +10310,31 @@ components:
           description: secret is returned once.
       title: CreateHookResponse
       additionalProperties: false
+    plux.v1.CreateIdentityProviderRequest:
+      type: object
+      properties:
+        installationWide:
+          type: boolean
+          title: installation_wide
+          description: |-
+            installation_wide makes a provider of the whole installation; it needs
+             an installation administrator. Otherwise the provider belongs to the
+             organisation the call acts in.
+        provider:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.IdentityProvider'
+          title: provider
+      title: CreateIdentityProviderRequest
+      additionalProperties: false
+    plux.v1.CreateIdentityProviderResponse:
+      type: object
+      properties:
+        provider:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.IdentityProvider'
+          title: provider
+      title: CreateIdentityProviderResponse
+      additionalProperties: false
     plux.v1.CreateNotificationChannelRequest:
       type: object
       properties:
@@ -9852,6 +10509,27 @@ components:
             - $ref: '#/components/schemas/plux.v1.RoleDefinition'
           title: role
       title: CreateRoleResponse
+      additionalProperties: false
+    plux.v1.CreateScimTokenRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          title: name
+      title: CreateScimTokenRequest
+      additionalProperties: false
+    plux.v1.CreateScimTokenResponse:
+      type: object
+      properties:
+        token:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ScimToken'
+          title: token
+        secret:
+          type: string
+          title: secret
+          description: secret is the bearer token; it is shown once.
+      title: CreateScimTokenResponse
       additionalProperties: false
     plux.v1.CreateTeamRequest:
       type: object
@@ -10214,6 +10892,18 @@ components:
     plux.v1.DeleteHookResponse:
       type: object
       title: DeleteHookResponse
+      additionalProperties: false
+    plux.v1.DeleteIdentityProviderRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: DeleteIdentityProviderRequest
+      additionalProperties: false
+    plux.v1.DeleteIdentityProviderResponse:
+      type: object
+      title: DeleteIdentityProviderResponse
       additionalProperties: false
     plux.v1.DeleteNotificationChannelRequest:
       type: object
@@ -11603,6 +12293,40 @@ components:
           title: aliases
       title: GetFunctionResponse
       additionalProperties: false
+    plux.v1.GetGroupMappingRequest:
+      type: object
+      properties:
+        providerId:
+          type: string
+          title: provider_id
+      title: GetGroupMappingRequest
+      additionalProperties: false
+    plux.v1.GetGroupMappingResponse:
+      type: object
+      properties:
+        mapping:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.GroupMapping'
+          title: mapping
+      title: GetGroupMappingResponse
+      additionalProperties: false
+    plux.v1.GetIdentityProviderRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: GetIdentityProviderRequest
+      additionalProperties: false
+    plux.v1.GetIdentityProviderResponse:
+      type: object
+      properties:
+        provider:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.IdentityProvider'
+          title: provider
+      title: GetIdentityProviderResponse
+      additionalProperties: false
     plux.v1.GetLicenseStateRequest:
       type: object
       title: GetLicenseStateRequest
@@ -12123,6 +12847,23 @@ components:
           description: differences is the number of cases of that run still unapproved.
       title: GetRunStatusResponse
       additionalProperties: false
+    plux.v1.GetSamlMetadataRequest:
+      type: object
+      properties:
+        providerId:
+          type: string
+          title: provider_id
+      title: GetSamlMetadataRequest
+      additionalProperties: false
+    plux.v1.GetSamlMetadataResponse:
+      type: object
+      properties:
+        metadataXml:
+          type: string
+          title: metadata_xml
+          format: byte
+      title: GetSamlMetadataResponse
+      additionalProperties: false
     plux.v1.GetSnapshotRequest:
       type: object
       properties:
@@ -12320,6 +13061,43 @@ components:
           title: grant
       title: GrantAccessResponse
       additionalProperties: false
+    plux.v1.GrantRule:
+      type: object
+      properties:
+        role:
+          type: string
+          title: role
+        scope:
+          type: string
+          title: scope
+          description: scope is "organization", "app" or "environment".
+        app:
+          type: string
+          title: app
+          description: app and environment are keys.
+        environment:
+          type: string
+          title: environment
+      title: GrantRule
+      additionalProperties: false
+      description: GrantRule is one grant a mapping rule gives.
+    plux.v1.GroupMapping:
+      type: object
+      properties:
+        groupsClaim:
+          type: string
+          title: groups_claim
+          description: |-
+            groups_claim is the claim (OpenID Connect) or attribute (SAML) that
+             carries the groups; empty selects "groups".
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.MappingRule'
+          title: rules
+      title: GroupMapping
+      additionalProperties: false
+      description: GroupMapping is a provider's mapping document.
     plux.v1.HostBuild:
       type: object
       properties:
@@ -12352,6 +13130,74 @@ components:
       title: HostBuild
       additionalProperties: false
       description: HostBuild is one build of the host app with its native catalogue.
+    plux.v1.IdentityProvider:
+      type: object
+      anyOf:
+        - type: object
+          properties:
+            oidc:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.OidcProviderConfig'
+              title: oidc
+          title: oidc
+        - type: object
+          properties:
+            saml:
+              allOf:
+                - $ref: '#/components/schemas/plux.v1.SamlProviderConfig'
+              title: saml
+          title: saml
+      unevaluatedProperties: false
+      not:
+        allOf:
+          - anyOf:
+              - required:
+                  - oidc
+              - required:
+                  - saml
+          - not:
+              oneOf:
+                - required:
+                    - oidc
+                - required:
+                    - saml
+      properties:
+        id:
+          type: string
+          title: id
+        organizationId:
+          type: string
+          title: organization_id
+          description: organization_id is empty for a provider of the whole installation.
+        key:
+          type: string
+          title: key
+        kind:
+          type: string
+          title: kind
+          description: kind is "oidc" or "saml".
+        name:
+          type: string
+          title: name
+        enabled:
+          type: boolean
+          title: enabled
+        jitProvisioning:
+          type: boolean
+          title: jit_provisioning
+          description: |-
+            jit_provisioning creates an account for a person the provider vouches
+             for and no account exists for; off by default.
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        updatedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: updated_at
+      title: IdentityProvider
+      description: IdentityProvider is a configured provider.
     plux.v1.ImportDraftRequest:
       type: object
       properties:
@@ -13271,6 +14117,35 @@ components:
           title: page
       title: ListHostBuildsResponse
       additionalProperties: false
+    plux.v1.ListIdentityProvidersRequest:
+      type: object
+      properties:
+        installationWide:
+          type: boolean
+          title: installation_wide
+          description: |-
+            installation_wide lists the installation's providers instead of the
+             organisation's; it needs an installation administrator.
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListIdentityProvidersRequest
+      additionalProperties: false
+    plux.v1.ListIdentityProvidersResponse:
+      type: object
+      properties:
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.IdentityProvider'
+          title: providers
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListIdentityProvidersResponse
+      additionalProperties: false
     plux.v1.ListInboxRequest:
       type: object
       properties:
@@ -13588,6 +14463,29 @@ components:
           title: page
       title: ListRolesResponse
       additionalProperties: false
+    plux.v1.ListScimTokensRequest:
+      type: object
+      properties:
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListScimTokensRequest
+      additionalProperties: false
+    plux.v1.ListScimTokensResponse:
+      type: object
+      properties:
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.ScimToken'
+          title: tokens
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListScimTokensResponse
+      additionalProperties: false
     plux.v1.ListSecretsRequest:
       type: object
       properties:
@@ -13613,6 +14511,27 @@ components:
             - $ref: '#/components/schemas/plux.v1.PageResult'
           title: page
       title: ListSecretsResponse
+      additionalProperties: false
+    plux.v1.ListSignInProvidersRequest:
+      type: object
+      properties:
+        organizationKey:
+          type: string
+          title: organization_key
+          description: |-
+            organization_key is the organisation a person asks to sign in to; it
+             may be empty.
+      title: ListSignInProvidersRequest
+      additionalProperties: false
+    plux.v1.ListSignInProvidersResponse:
+      type: object
+      properties:
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.SignInProvider'
+          title: providers
+      title: ListSignInProvidersResponse
       additionalProperties: false
     plux.v1.ListSnapshotsRequest:
       type: object
@@ -14140,6 +15059,33 @@ components:
          Appendix B.3). The signatures cover `signed`, the RFC 8785 canonical
          JSON of the document's signed part, not this message: a device
          verifies the bytes it received rather than a re-encoding.
+    plux.v1.MappingRule:
+      type: object
+      properties:
+        group:
+          type: string
+          title: group
+          description: group is the value of the groups claim, compared exactly.
+        organization:
+          type: string
+          title: organization
+          description: |-
+            organization is the key of the organisation the rule acts in; required
+             for a provider of the installation, absent for an organisation's.
+        grants:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.GrantRule'
+          title: grants
+        teams:
+          type: array
+          items:
+            type: string
+          title: teams
+          description: teams are team keys.
+      title: MappingRule
+      additionalProperties: false
+      description: MappingRule gives the members of one group their grants and teams.
     plux.v1.MarkReadRequest:
       type: object
       properties:
@@ -14275,6 +15221,31 @@ components:
       title: NotificationSubscription
       additionalProperties: false
       description: NotificationSubscription says who follows an event type, and where it goes.
+    plux.v1.OidcProviderConfig:
+      type: object
+      properties:
+        issuer:
+          type: string
+          title: issuer
+        clientId:
+          type: string
+          title: client_id
+        clientSecret:
+          type: string
+          title: client_secret
+          description: |-
+            client_secret is write-only: it is sealed on create and update when
+             set, and never returned.
+        redirectUrl:
+          type: string
+          title: redirect_url
+          description: redirect_url is Studio's callback, registered with the provider.
+        hasClientSecret:
+          type: boolean
+          title: has_client_secret
+      title: OidcProviderConfig
+      additionalProperties: false
+      description: OidcProviderConfig configures an OpenID Connect provider.
     plux.v1.Organization:
       type: object
       properties:
@@ -15438,6 +16409,18 @@ components:
           title: device
       title: RevokeDeviceResponse
       additionalProperties: false
+    plux.v1.RevokeScimTokenRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+      title: RevokeScimTokenRequest
+      additionalProperties: false
+    plux.v1.RevokeScimTokenResponse:
+      type: object
+      title: RevokeScimTokenResponse
+      additionalProperties: false
     plux.v1.RoleDefinition:
       type: object
       properties:
@@ -15564,6 +16547,38 @@ components:
           title: secret
       title: RotateHookSecretResponse
       additionalProperties: false
+    plux.v1.RotateScimTokenRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        overlapSeconds:
+          type: string
+          title: overlap_seconds
+          format: int64
+          description: |-
+            overlap_seconds is how long the old token keeps working; 0 selects the
+             limit auth.scimTokenOverlapSeconds.
+      title: RotateScimTokenRequest
+      additionalProperties: false
+    plux.v1.RotateScimTokenResponse:
+      type: object
+      properties:
+        token:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ScimToken'
+          title: token
+        secret:
+          type: string
+          title: secret
+        previous:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.ScimToken'
+          title: previous
+          description: previous is the rotated-away token, with the time it stops working.
+      title: RotateScimTokenResponse
+      additionalProperties: false
     plux.v1.RotateWebhookSecretRequest:
       type: object
       properties:
@@ -15587,6 +16602,94 @@ components:
           title: secret
       title: RotateWebhookSecretResponse
       additionalProperties: false
+    plux.v1.SamlProviderConfig:
+      type: object
+      properties:
+        idpMetadataXml:
+          type: string
+          title: idp_metadata_xml
+          format: byte
+          description: |-
+            idp_metadata_xml is the identity provider's metadata document, write-only;
+             it fills the provider's entity ID, sign-on URL and signing certificates.
+        idpEntityId:
+          type: string
+          title: idp_entity_id
+        idpSsoUrl:
+          type: string
+          title: idp_sso_url
+        idpSigningCertificates:
+          type: array
+          items:
+            type: string
+          title: idp_signing_certificates
+        entityId:
+          type: string
+          title: entity_id
+          description: |-
+            entity_id is the service provider's identifier (the audience); it
+             defaults to the URL of the metadata.
+        acsUrl:
+          type: string
+          title: acs_url
+          description: 'acs_url is the assertion consumer service URL: Studio''s callback.'
+        allowIdpInitiated:
+          type: boolean
+          title: allow_idp_initiated
+        emailAttribute:
+          type: string
+          title: email_attribute
+        nameAttribute:
+          type: string
+          title: name_attribute
+        groupsAttribute:
+          type: string
+          title: groups_attribute
+        serviceProviderCertificatePem:
+          type: string
+          title: service_provider_certificate_pem
+          description: |-
+            service_provider_certificate_pem is the certificate for encrypted
+             assertions, generated with the provider.
+      title: SamlProviderConfig
+      additionalProperties: false
+      description: SamlProviderConfig configures a SAML provider.
+    plux.v1.ScimToken:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        organizationId:
+          type: string
+          title: organization_id
+        name:
+          type: string
+          title: name
+        prefix:
+          type: string
+          title: prefix
+          description: prefix identifies the token without revealing it.
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+          description: expires_at is set on a token that was rotated away.
+        revokedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: revoked_at
+        lastUsedAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: last_used_at
+      title: ScimToken
+      additionalProperties: false
+      description: ScimToken is a SCIM bearer token without its secret.
     plux.v1.Secret:
       type: object
       properties:
@@ -15779,6 +16882,27 @@ components:
           title: control
       title: SetControlResponse
       additionalProperties: false
+    plux.v1.SetGroupMappingRequest:
+      type: object
+      properties:
+        providerId:
+          type: string
+          title: provider_id
+        mapping:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.GroupMapping'
+          title: mapping
+      title: SetGroupMappingRequest
+      additionalProperties: false
+    plux.v1.SetGroupMappingResponse:
+      type: object
+      properties:
+        mapping:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.GroupMapping'
+          title: mapping
+      title: SetGroupMappingResponse
+      additionalProperties: false
     plux.v1.SetOrganizationLimitRequest:
       type: object
       properties:
@@ -15964,6 +17088,30 @@ components:
         - SEVERITY_WARNING
         - SEVERITY_ERROR
       description: Severity of a diagnostic (ADR-0018).
+    plux.v1.SignInProvider:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        key:
+          type: string
+          title: key
+          description: key names the provider within its organisation or the installation.
+        kind:
+          type: string
+          title: kind
+          description: kind is "oidc" or "saml".
+        name:
+          type: string
+          title: name
+        organizationKey:
+          type: string
+          title: organization_key
+          description: organization_key is empty for a provider of the installation.
+      title: SignInProvider
+      additionalProperties: false
+      description: SignInProvider is a provider as the sign-in page shows it.
     plux.v1.Signature:
       type: object
       properties:
@@ -16063,6 +17211,14 @@ components:
       additionalProperties: false
     plux.v1.StartOidcLoginRequest:
       type: object
+      properties:
+        providerId:
+          type: string
+          title: provider_id
+          description: |-
+            provider_id is the provider the person chose from
+             FederationService.ListSignInProviders. Empty selects the provider in
+             the server's configuration file.
       title: StartOidcLoginRequest
       additionalProperties: false
     plux.v1.StartOidcLoginResponse:
@@ -16107,6 +17263,31 @@ components:
             - $ref: '#/components/schemas/plux.v1.MfaChallenge'
           title: challenge
       title: StartPasswordLoginResponse
+      additionalProperties: false
+    plux.v1.StartSamlLoginRequest:
+      type: object
+      properties:
+        providerId:
+          type: string
+          title: provider_id
+      title: StartSamlLoginRequest
+      additionalProperties: false
+    plux.v1.StartSamlLoginResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          title: url
+          description: url is where the browser goes to sign in.
+        state:
+          type: string
+          title: state
+          description: state is the relay state; Studio keeps it for the callback.
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+      title: StartSamlLoginResponse
       additionalProperties: false
     plux.v1.SubscribeRequest:
       type: object
@@ -16337,6 +17518,25 @@ components:
             - $ref: '#/components/schemas/plux.v1.RoleGrant'
           title: grant
       title: UpdateGrantResponse
+      additionalProperties: false
+    plux.v1.UpdateIdentityProviderRequest:
+      type: object
+      properties:
+        provider:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.IdentityProvider'
+          title: provider
+          description: provider.id names the provider; its key and kind cannot change.
+      title: UpdateIdentityProviderRequest
+      additionalProperties: false
+    plux.v1.UpdateIdentityProviderResponse:
+      type: object
+      properties:
+        provider:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.IdentityProvider'
+          title: provider
+      title: UpdateIdentityProviderResponse
       additionalProperties: false
     plux.v1.UpdateMetadataRef:
       type: object
@@ -17127,6 +18327,30 @@ tags:
        write appends a snapshot (SRV-031); writing requires the editing lock
        (SRV-040). Content travels as canonical JSON bytes, never as protobuf
        structures, so a document's hash is a property of the bytes (SCH-003).
+  - name: plux.v1.OrgService
+    description: |-
+      OrgService manages the Installation → Organization → Teams hierarchy
+       (GOV-001). Apps are owned by an organization; access is granted to teams
+       or to users per app.
+  - name: plux.v1.IdentityService
+    description: |-
+      IdentityService authenticates people and machines: built-in accounts
+       with Argon2id passwords or an OpenID Connect provider, and a second
+       factor — TOTP or a WebAuthn security key — mandatory for sensitive
+       capabilities (SEC-100), browser sessions for the Studio
+       backend-for-frontend (SEC-101), personal access tokens and CI
+       workload-identity federation (SRV-064), and the OAuth 2.0 device
+       authorization grant `plux login` uses (CLI-002). SAML, provisioning
+       and group mapping arrive with GOV-004, and WebAuthn step-up with
+       SEC-103, both in P9.
+  - name: plux.v1.FederationService
+    description: |-
+      FederationService manages identity federation (GOV-004, ADR-0074):
+       the OpenID Connect and SAML providers people sign in with, the mapping
+       from the groups a provider asserts to roles and teams, and the bearer
+       tokens of an organisation's SCIM client. Signing in with an OpenID
+       Connect provider is IdentityService.StartOidcLogin; the SAML sign-in is
+       here, beside the public list of providers a sign-in page offers.
   - name: plux.v1.FunctionService
     description: |-
       FunctionService lets an attested device invoke a server-placed Plux
@@ -17165,22 +18389,6 @@ tags:
        the permission catalogue, the predefined and custom roles, and the grants
        that bind a role to a user or a team at a scope. Teams and their members
        are managed by OrgService.
-  - name: plux.v1.OrgService
-    description: |-
-      OrgService manages the Installation → Organization → Teams hierarchy
-       (GOV-001). Apps are owned by an organization; access is granted to teams
-       or to users per app.
-  - name: plux.v1.IdentityService
-    description: |-
-      IdentityService authenticates people and machines: built-in accounts
-       with Argon2id passwords or an OpenID Connect provider, and a second
-       factor — TOTP or a WebAuthn security key — mandatory for sensitive
-       capabilities (SEC-100), browser sessions for the Studio
-       backend-for-frontend (SEC-101), personal access tokens and CI
-       workload-identity federation (SRV-064), and the OAuth 2.0 device
-       authorization grant `plux login` uses (CLI-002). SAML, provisioning
-       and group mapping arrive with GOV-004, and WebAuthn step-up with
-       SEC-103, both in P9.
   - name: plux.v1.LicenseService
     description: |-
       LicenseService reports the installation's enterprise licence (GOV-030,

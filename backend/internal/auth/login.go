@@ -191,6 +191,13 @@ func (s *Service) AcceptInvitation(ctx context.Context, invitation, displayName,
 // StartPasswordLogin verifies a password and either issues a session or
 // returns the challenge the user must answer (SEC-100).
 func (s *Service) StartPasswordLogin(ctx context.Context, email, password string) (Session, Challenge, error) {
+	off, err := s.passwordLoginOff(ctx)
+	if err != nil {
+		return Session{}, Challenge{}, err
+	}
+	if off {
+		return Session{}, Challenge{}, plxerr.New(plxerr.PreconditionFailed, "password sign-in is turned off; sign in with your identity provider")
+	}
 	if err := s.throttled(ctx, email); err != nil {
 		return Session{}, Challenge{}, err
 	}
@@ -199,7 +206,7 @@ func (s *Service) StartPasswordLogin(ctx context.Context, email, password string
 		challenge Challenge
 		refused   bool
 	)
-	err := s.inTx(ctx, storage.Tenant{Scope: storage.ScopeInstallation}, func(ctx context.Context, tx pgx.Tx) error {
+	err = s.inTx(ctx, storage.Tenant{Scope: storage.ScopeInstallation}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		row, err := q.GetUserByEmail(ctx, strings.TrimSpace(email))
 		switch {

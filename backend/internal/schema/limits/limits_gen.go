@@ -83,6 +83,14 @@ const (
 	// AuthFailedSignIns: Failed passwords or one-time codes one account may
 	// present in fifteen minutes before sign-in is refused. (SEC-100)
 	AuthFailedSignIns Key = "auth.failedSignIns"
+	// AuthSamlClockSkewSeconds: Seconds of clock difference between an identity
+	// provider and the server that a SAML assertion's validity window tolerates.
+	// (GOV-004)
+	AuthSamlClockSkewSeconds Key = "auth.samlClockSkewSeconds"
+	// AuthScimTokenOverlapSeconds: Seconds the previous SCIM bearer token of an
+	// organisation keeps working after it is rotated, so the identity provider
+	// can switch over. (GOV-004)
+	AuthScimTokenOverlapSeconds Key = "auth.scimTokenOverlapSeconds"
 	// BundleDeviceFunctionModuleSize: Size of the WebAssembly module of the
 	// device-placed functions of one plugin. (FN-050)
 	BundleDeviceFunctionModuleSize Key = "bundle.deviceFunctionModuleSize"
@@ -440,6 +448,8 @@ var registry = [...]Definition{
 	{Key: AttestPlayIntegrityTokenBytes, Unit: UnitBytes, Default: 16384, Warning: 0, Max: 65536, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of a Play Integrity token the server accepts."},
 	{Key: AttestStatusListBytes, Unit: UnitBytes, Default: 8388608, Warning: 0, Max: 33554432, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P6", Description: "Size of the Android attestation status list the server fetches or reads."},
 	{Key: AuthFailedSignIns, Unit: UnitCount, Default: 10, Warning: 0, Max: 1000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P2", Description: "Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused."},
+	{Key: AuthSamlClockSkewSeconds, Unit: UnitCount, Default: 120, Warning: 0, Max: 180, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Seconds of clock difference between an identity provider and the server that a SAML assertion's validity window tolerates."},
+	{Key: AuthScimTokenOverlapSeconds, Unit: UnitCount, Default: 86400, Warning: 0, Max: 604800, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Seconds the previous SCIM bearer token of an organisation keeps working after it is rotated, so the identity provider can switch over."},
 	{Key: BundleDeviceFunctionModuleSize, Unit: UnitBytes, Default: 4194304, Warning: 0, Max: 67108864, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P7", Description: "Size of the WebAssembly module of the device-placed functions of one plugin."},
 	{Key: BundlePageSectionSize, Unit: UnitBytes, Default: 1048576, Warning: 0, Max: 16777216, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Size of one page section in a bundle."},
 	{Key: BundlePluginSize, Unit: UnitBytes, Default: 20971520, Warning: 0, Max: 268435456, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Size of one plugin bundle."},

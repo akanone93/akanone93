@@ -90,6 +90,12 @@ enum PluxLimit {
   /// Failed passwords or one-time codes one account may present in fifteen
   /// minutes before sign-in is refused.
   authFailedSignIns('auth.failedSignIns', PluxLimitUnit.count, 10, 0, 1000),
+  /// Seconds of clock difference between an identity provider and the server
+  /// that a SAML assertion's validity window tolerates.
+  authSamlClockSkewSeconds('auth.samlClockSkewSeconds', PluxLimitUnit.count, 120, 0, 180),
+  /// Seconds the previous SCIM bearer token of an organisation keeps working
+  /// after it is rotated, so the identity provider can switch over.
+  authScimTokenOverlapSeconds('auth.scimTokenOverlapSeconds', PluxLimitUnit.count, 86400, 0, 604800),
   /// Size of the WebAssembly module of the device-placed functions of one
   /// plugin.
   bundleDeviceFunctionModuleSize('bundle.deviceFunctionModuleSize', PluxLimitUnit.bytes, 4194304, 0, 67108864),

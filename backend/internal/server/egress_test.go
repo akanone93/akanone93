@@ -19,7 +19,7 @@ import (
 // serves the proxy over mutual TLS, and drains on shutdown.
 func TestEgressRoleRunsAlone_FN_017(t *testing.T) {
 	t.Parallel()
-	certFile, keyFile, pool := identity(t)
+	certFile, keyFile, pool := testIdentity(t)
 	addr := freeAddr(t)
 	cfg := testConfig(t, "server:\n  roles: [egress]\n  shutdownGrace: 5s\negress:\n  listen: \""+addr+"\"\n"+
 		"  internalTLS:\n    caFile: "+certFile+"\n    certFile: "+certFile+"\n    keyFile: "+keyFile+"\n")
@@ -89,7 +89,7 @@ func TestEgressRoleRunsAlone_FN_017(t *testing.T) {
 // Verifies: FN-017.
 func TestEgressMetricsJoinTheProcessRegistry_FN_017(t *testing.T) {
 	t.Parallel()
-	certFile, keyFile, _ := identity(t)
+	certFile, keyFile, _ := testIdentity(t)
 	cfg := testConfig(t, "server:\n  roles: [egress]\negress:\n  listen: \"127.0.0.1:0\"\n"+
 		"  internalTLS:\n    caFile: "+certFile+"\n    certFile: "+certFile+"\n    keyFile: "+keyFile+"\n")
 	m := observability.NewMetrics()
