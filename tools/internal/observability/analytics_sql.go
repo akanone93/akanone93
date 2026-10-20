@@ -24,7 +24,11 @@ var (
 	// sqlAnalyticsTable matches every analytics table name in a query.
 	sqlAnalyticsTable = regexp.MustCompile(`(?i)\banalytics_[a-z_]+`)
 	// sqlBindsOrganisation matches the call that binds row-level security to the organisation.
-	sqlBindsOrganisation = regexp.MustCompile(`(?i)set_config\s*\(\s*'plux\.organization_id'\s*,\s*'\$organization'`)
+	sqlBindsOrganisation = regexp.MustCompile(`(?i)set_config\s*\(\s*'plux\.organization_id'\s*,\s*\$\{organization:sqlstring\}`)
+	// sqlRawVariable matches a template variable pasted between quotes, which
+	// Grafana does not escape: a value with a quote in it would rewrite the
+	// query. A variable must use the sqlstring format, ${name:sqlstring}.
+	sqlRawVariable = regexp.MustCompile(`'\$\{?[A-Za-z_]`)
 )
 
 // CheckAnalyticsSQL returns the problems of one dashboard query: it must bind
@@ -32,7 +36,10 @@ var (
 func CheckAnalyticsSQL(file, query string) []string {
 	var problems []string
 	if !sqlBindsOrganisation.MatchString(query) {
-		problems = append(problems, fmt.Sprintf("%s: a query does not bind the organisation with set_config('plux.organization_id', '$organization', ...)", file))
+		problems = append(problems, fmt.Sprintf("%s: a query does not bind the organisation with set_config('plux.organization_id', ${organization:sqlstring}, ...)", file))
+	}
+	if sqlRawVariable.MatchString(query) {
+		problems = append(problems, fmt.Sprintf("%s: a query quotes a template variable by hand; use ${name:sqlstring} so Grafana escapes it", file))
 	}
 	ctes := map[string]bool{}
 	for _, m := range sqlCTE.FindAllStringSubmatch(query, -1) {

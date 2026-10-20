@@ -38,9 +38,9 @@
           "type": "grafana-postgresql-datasource",
           "uid": "plux-analytics"
         },
-        "definition": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT DISTINCT app_id::text AS __value, app_id::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid;\n",
+        "definition": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT DISTINCT app_id::text AS __value, app_id::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid;\n",
         "query": {
-          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT DISTINCT app_id::text AS __value, app_id::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid;\n",
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT DISTINCT app_id::text AS __value, app_id::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid;\n",
           "refId": "A",
           "format": "table",
           "datasource": {
@@ -73,9 +73,9 @@
           "type": "grafana-postgresql-datasource",
           "uid": "plux-analytics"
         },
-        "definition": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT DISTINCT release_sequence::text AS __value, release_sequence::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.app_id::text IN ($app);\n",
+        "definition": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT DISTINCT release_sequence::text AS __value, release_sequence::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.app_id::text IN ($app);\n",
         "query": {
-          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT DISTINCT release_sequence::text AS __value, release_sequence::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.app_id::text IN ($app);\n",
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT DISTINCT release_sequence::text AS __value, release_sequence::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.app_id::text IN ($app);\n",
           "refId": "A",
           "format": "table",
           "datasource": {
@@ -163,7 +163,7 @@
           "format": "table",
           "rawQuery": true,
           "editorMode": "code",
-          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT GREATEST(0, 1 - COALESCE(SUM(r.events) FILTER (WHERE r.event_name = 'fatal_error'), 0)::float8\n  / NULLIF(SUM(r.events) FILTER (WHERE r.event_name = 'session_start'), 0)) AS \"Crash-free sessions\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release);\n"
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT GREATEST(0, 1 - COALESCE(SUM(r.events) FILTER (WHERE r.event_name = 'fatal_error'), 0)::float8\n  / NULLIF(SUM(r.events) FILTER (WHERE r.event_name = 'session_start'), 0)) AS \"Crash-free sessions\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.granularity = ${granularity:sqlstring}\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release);\n"
         }
       ]
     },
@@ -199,7 +199,7 @@
           "format": "table",
           "rawQuery": true,
           "editorMode": "code",
-          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT 1000.0 * SUM(r.events) FILTER (WHERE r.event_name = 'error') / NULLIF(SUM(r.events) FILTER (WHERE r.event_name = 'session_start'), 0) AS \"Errors per 1000 sessions\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release);\n"
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT 1000.0 * SUM(r.events) FILTER (WHERE r.event_name = 'error') / NULLIF(SUM(r.events) FILTER (WHERE r.event_name = 'session_start'), 0) AS \"Errors per 1000 sessions\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.granularity = ${granularity:sqlstring}\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release);\n"
         }
       ]
     },
@@ -235,7 +235,7 @@
           "format": "time_series",
           "rawQuery": true,
           "editorMode": "code",
-          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT $__timeGroupAlias(r.bucket, $__interval),\n  1000.0 * SUM(r.events) FILTER (WHERE r.event_name = 'error') / NULLIF(SUM(r.events) FILTER (WHERE r.event_name = 'session_start'), 0) AS \"Errors per 1000 sessions\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\nGROUP BY 1\nORDER BY 1;\n"
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT $__timeGroupAlias(r.bucket, $__interval),\n  1000.0 * SUM(r.events) FILTER (WHERE r.event_name = 'error') / NULLIF(SUM(r.events) FILTER (WHERE r.event_name = 'session_start'), 0) AS \"Errors per 1000 sessions\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.granularity = ${granularity:sqlstring}\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\nGROUP BY 1\nORDER BY 1;\n"
         }
       ]
     },
@@ -271,7 +271,7 @@
           "format": "table",
           "rawQuery": true,
           "editorMode": "code",
-          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT t.rel AS \"Release\", t.sessions AS \"Sessions\", t.fatal AS \"Fatal errors\",\n  t.plux AS \"Plux errors\", GREATEST(0, 1 - t.fatal::float8 / NULLIF(t.sessions, 0)) AS \"Crash-free sessions\"\nFROM (\n  SELECT r.release_sequence AS rel, SUM(r.events) FILTER (WHERE r.event_name = 'session_start') AS sessions,\n    SUM(r.events) FILTER (WHERE r.event_name = 'fatal_error') AS fatal, SUM(r.events) FILTER (WHERE r.event_name = 'error') AS plux\n  FROM analytics_rollups r\n  WHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  GROUP BY 1\n) t\nORDER BY 1 DESC;\n"
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT t.rel AS \"Release\", t.sessions AS \"Sessions\", t.fatal AS \"Fatal errors\",\n  t.plux AS \"Plux errors\", GREATEST(0, 1 - t.fatal::float8 / NULLIF(t.sessions, 0)) AS \"Crash-free sessions\"\nFROM (\n  SELECT r.release_sequence AS rel, SUM(r.events) FILTER (WHERE r.event_name = 'session_start') AS sessions,\n    SUM(r.events) FILTER (WHERE r.event_name = 'fatal_error') AS fatal, SUM(r.events) FILTER (WHERE r.event_name = 'error') AS plux\n  FROM analytics_rollups r\n  WHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.granularity = ${granularity:sqlstring}\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  GROUP BY 1\n) t\nORDER BY 1 DESC;\n"
         }
       ]
     },
@@ -307,7 +307,7 @@
           "format": "table",
           "rawQuery": true,
           "editorMode": "code",
-          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT r.plugin_key AS \"Plugin\", SUM(r.events) FILTER (WHERE r.event_name = 'error') AS \"Plux errors\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.plugin_key <> ''\nGROUP BY 1\nORDER BY 2 DESC\nLIMIT 100;\n"
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT r.plugin_key AS \"Plugin\", SUM(r.events) FILTER (WHERE r.event_name = 'error') AS \"Plux errors\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.granularity = ${granularity:sqlstring}\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.plugin_key <> ''\nGROUP BY 1\nORDER BY 2 DESC\nLIMIT 100;\n"
         }
       ]
     },
@@ -343,7 +343,7 @@
           "format": "table",
           "rawQuery": true,
           "editorMode": "code",
-          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT r.page AS \"Page\", SUM(r.events) FILTER (WHERE r.event_name = 'error') AS \"Plux errors\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.page <> ''\nGROUP BY 1\nORDER BY 2 DESC\nLIMIT 100;\n"
+          "rawSql": "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\nSELECT r.page AS \"Page\", SUM(r.events) FILTER (WHERE r.event_name = 'error') AS \"Plux errors\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF(${organization:sqlstring}, '')::uuid\n  AND r.granularity = ${granularity:sqlstring}\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.page <> ''\nGROUP BY 1\nORDER BY 2 DESC\nLIMIT 100;\n"
         }
       ]
     }

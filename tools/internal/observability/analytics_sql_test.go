@@ -12,7 +12,7 @@ import (
 )
 
 // bound is the organisation binding every dashboard query starts with.
-const bound = "SELECT set_config('plux.organization_id', '$organization', false);\n"
+const bound = "SELECT set_config('plux.organization_id', ${organization:sqlstring}, false);\n"
 
 // TestCheckAnalyticsSQL_ANL_020 accepts a query that binds the organisation and
 // reads only the rollups, CTEs and set-returning functions included, and flags
@@ -37,6 +37,7 @@ SELECT grp FROM cum JOIN analytics_rollups r2 ON true;`
 		"a joined table":  {bound + "SELECT 1 FROM analytics_rollups r JOIN organizations o ON true;", "reads organizations"},
 		"a comma list":    {bound + "SELECT 1 FROM analytics_rollups r, analytics_events e;", "names analytics_events"},
 		"no binding":      {"SELECT 1 FROM analytics_rollups;", "does not bind the organisation"},
+		"raw variable":    {bound + "SELECT 1 FROM analytics_rollups WHERE grain = '$granularity';", "quotes a template variable"},
 		"a watermark":     {bound + "SELECT rolled_until FROM analytics_watermarks;", "names analytics_watermarks"},
 		"a personal data": {bound + "SELECT email FROM users;", "reads users"},
 	}
