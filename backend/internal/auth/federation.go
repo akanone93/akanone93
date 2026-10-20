@@ -42,11 +42,15 @@ type cachedOIDC struct {
 }
 
 // httpClient is the SSRF-safe client for provider endpoints (SEC-105).
-func (s *Service) httpClient() *http.Client {
+func (s *Service) httpClient() (*http.Client, error) {
 	if s.o.HTTPClient != nil {
-		return s.o.HTTPClient
+		return s.o.HTTPClient, nil
 	}
-	return httpx.NewClient(httpx.Options{Timeout: federatedHTTPTimeout})
+	client, err := httpx.NewClient(httpx.Options{Destination: httpx.KindOIDC, Timeout: federatedHTTPTimeout})
+	if err != nil {
+		return nil, fmt.Errorf("auth: %w", err)
+	}
+	return client, nil
 }
 
 // forgetProvider drops a provider's cached runtime after a change.
@@ -106,8 +110,12 @@ func (s *Service) oidcRuntime(ctx context.Context, row dbgen.IdentityProvider) (
 	if err != nil {
 		return nil, err
 	}
+	client, err := s.httpClient()
+	if err != nil {
+		return nil, err
+	}
 	p, err := NewOIDCProvider(OIDCConfig{
-		Issuer: c.Issuer, ClientID: c.ClientID, ClientSecret: string(secret), RedirectURL: c.RedirectURL, Client: s.httpClient(),
+		Issuer: c.Issuer, ClientID: c.ClientID, ClientSecret: string(secret), RedirectURL: c.RedirectURL, Client: client,
 	}, s.now)
 	if err != nil {
 		return nil, plxerr.Wrap(plxerr.PreconditionFailed, err, "the sign-in provider is misconfigured")
