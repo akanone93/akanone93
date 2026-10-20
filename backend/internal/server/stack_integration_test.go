@@ -20,6 +20,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/cache"
 	"github.com/nightCode42/plux3/backend/internal/fnpb/fnpbconnect"
@@ -217,6 +219,8 @@ func startStackWith(t *testing.T, addr string, o stackOptions) *stack {
 		t.Fatal(err)
 	}
 
+	approveStepUps(t, db, org.ID)
+
 	var grants *function.Grants
 	if o.functions != nil {
 		if grants, err = function.OpenGrants(ctx, db, backend, nil); err != nil {
@@ -382,4 +386,36 @@ func (s *stack) setIdentityProvider(t *testing.T, environment string, idp gatewa
 	if err := s.svc.Gateway.Upstreams.SetProvider(s.ctx, s.owner, idp); err != nil {
 		t.Fatalf("set the identity provider: %v", err)
 	}
+}
+
+// approveStepUps plays the person's browser for the CLI: it approves every
+// step-up request the CLI makes, recording the outcome of the ceremony the way
+// the ceremony records it. The ceremony itself (a WebAuthn assertion with user
+// verification) is exercised by the auth tests (SEC-103); the CLI's side, the
+// request, the poll and the grant bound to its key, runs for real.
+func approveStepUps(t *testing.T, db *storage.DB, organizationID string) {
+	t.Helper()
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
+	t.Cleanup(func() {
+		cancel()
+		<-done
+	})
+	go func() {
+		defer close(done)
+		tick := time.NewTicker(50 * time.Millisecond)
+		defer tick.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-tick.C:
+				_ = db.InTx(ctx, storage.Tenant{OrganizationID: organizationID}, func(ctx context.Context, tx pgx.Tx) error {
+					_, err := tx.Exec(ctx, `UPDATE step_up_requests SET state = 'approved', approved_at = $1, challenge = NULL
+						WHERE kind = 'cli' AND state = 'pending'`, time.Now())
+					return err
+				})
+			}
+		}
+	}()
 }
