@@ -208,6 +208,9 @@ type Identity struct {
 	SecondFactor bool
 	// InstallationAdmin may create organisations.
 	InstallationAdmin bool
+	// stepUp is the identity's last step-up, set by the authenticator
+	// that verified it (SEC-103).
+	stepUp stepUp
 }
 
 // Actor is how the audit log records the identity.

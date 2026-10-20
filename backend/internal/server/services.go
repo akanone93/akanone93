@@ -37,6 +37,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
+	"github.com/nightCode42/plux3/backend/internal/dpop"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/gitsync"
@@ -775,7 +776,11 @@ func (s *Server) RegisterAPI(svc *Services) error {
 		limiter.Count = s.cache.Increment
 	}
 	h := s.handlersFor(svc, limiter)
-	people := api.Authentication(svc.Auth, api.IdentityPublic, s.trusted, limiter, s.limits.Get(limits.APIRequestsPerMinute))
+	perPrincipal := s.limits.Get(limits.APIRequestsPerMinute)
+	proofs := s.stepUpProofs(svc)
+	people := api.Chain(
+		api.Authentication(svc.Auth, api.IdentityPublic, s.trusted, limiter, perPrincipal),
+		api.StepUpGrants(proofs, svc.Auth))
 	deviceAuth := s.deviceAuth(svc, limiter, people)
 	authn := api.DeviceAuthentication(deviceAuth)
 	// api.requestSize bounds a body as sent, before a handler reads it
@@ -790,6 +795,9 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	for _, register := range registrations {
 		path, handler := register()
 		s.Register(path, handler)
+	}
+	if err := s.registerStepUp(svc, proofs, limiter, perPrincipal); err != nil {
+		return err
 	}
 	s.registerFunctionHost(h)
 	if svc.Functions != nil {
@@ -809,6 +817,33 @@ func (s *Server) RegisterAPI(svc *Services) error {
 	}
 	s.Register(api.BackChannelLogoutRoute, h.BackChannelLogout())
 	s.Register(api.SCIMRoute, h.SCIM(svc.Identity.OrDefault().SCIM))
+	return nil
+}
+
+// stepUpProofs verifies the DPoP proofs a person's CLI sends to prove it holds
+// the key a step-up grant is bound to (SEC-103). They carry no server nonce:
+// see api.ProofChecker.
+func (s *Server) stepUpProofs(svc *Services) api.ProofChecker {
+	trust := svc.DeviceTrust
+	return api.ProofChecker{
+		Proofs: &dpop.Verifier{}, Replay: trust.Replay, BaseURL: s.cfg.Server.PublicBaseURL,
+		Window: trust.Window, FallbackWindow: trust.FallbackWindow,
+	}
+}
+
+// registerStepUp mounts the CLI's step-up: the two calls it makes and the
+// page a person completes the ceremony in (SEC-103, ADR-0075).
+func (s *Server) registerStepUp(svc *Services, proofs api.ProofChecker, limiter api.RateLimiter, perPrincipal int64) error {
+	routes, err := api.NewStepUpRoutes(api.StepUpRoutes{
+		Auth: svc.Auth, Proofs: proofs, BaseURL: s.cfg.Server.PublicBaseURL, Trusted: s.trusted,
+		Limiter: limiter, PerPrincipal: perPrincipal,
+	})
+	if err != nil {
+		return fmt.Errorf("server: %w", err)
+	}
+	s.Register("POST "+api.StepUpRequestsPath, http.HandlerFunc(routes.Create))
+	s.Register("POST "+api.StepUpPollPath, http.HandlerFunc(routes.Poll))
+	s.Register("GET "+api.StepUpPagePath, http.HandlerFunc(routes.Page))
 	return nil
 }
 

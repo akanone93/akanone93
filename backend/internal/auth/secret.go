@@ -59,6 +59,12 @@ const (
 	// PrefixDeviceCode is the device authorization grant's device code
 	// (CLI-002).
 	PrefixDeviceCode = "plux_dev"
+	// PrefixStepUp is the one-time secret a CLI polls its step-up request
+	// with (SEC-103).
+	PrefixStepUp = "plux_stp"
+	// PrefixStepUpGrant is a step-up grant, bound to a token and a DPoP key
+	// (SEC-103).
+	PrefixStepUpGrant = "plux_sug"
 	// PrefixCSRF is the token a state-changing Studio call must echo.
 	PrefixCSRF = "plux_csrf"
 	// PrefixChallenge identifies a sign-in waiting for its second factor.

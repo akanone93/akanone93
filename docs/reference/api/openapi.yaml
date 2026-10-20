@@ -5223,6 +5223,51 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ApproveDeviceAuthorizationResponse'
+  /plux.v1.IdentityService/BeginStepUp:
+    post:
+      tags:
+        - plux.v1.IdentityService
+      summary: BeginStepUp
+      description: |-
+        BeginStepUp starts a WebAuthn step-up in the caller's browser
+         session, or for a request of the CLI's that the session performs:
+         it returns the options for navigator.credentials.get() with user
+         verification required. CompleteStepUp verifies the assertion and
+         records stepUpAt on the session, or approves the CLI's request
+         (SEC-103, ADR-0075).
+      operationId: plux.v1.IdentityService.BeginStepUp
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.BeginStepUpRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.BeginStepUpResponse'
   /plux.v1.IdentityService/BeginWebAuthnLogin:
     post:
       tags:
@@ -5424,6 +5469,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.CompleteOidcLoginResponse'
+  /plux.v1.IdentityService/CompleteStepUp:
+    post:
+      tags:
+        - plux.v1.IdentityService
+      summary: CompleteStepUp
+      operationId: plux.v1.IdentityService.CompleteStepUp
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.CompleteStepUpRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.CompleteStepUpResponse'
   /plux.v1.IdentityService/CompleteWebAuthnLogin:
     post:
       tags:
@@ -5968,6 +6051,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.ListFactorsResponse'
+  /plux.v1.IdentityService/ListSessions:
+    post:
+      tags:
+        - plux.v1.IdentityService
+      summary: ListSessions
+      description: |-
+        ListSessions lists the sessions of the organisation's members and
+         the organisation's tokens, with where and when each was last used;
+         RevokeSession ends one at once (GOV-005).
+      operationId: plux.v1.IdentityService.ListSessions
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.ListSessionsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.ListSessionsResponse'
   /plux.v1.IdentityService/ListWorkloadIdentities:
     post:
       tags:
@@ -6121,6 +6246,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/plux.v1.RevokeAccessTokenResponse'
+  /plux.v1.IdentityService/RevokeSession:
+    post:
+      tags:
+        - plux.v1.IdentityService
+      summary: RevokeSession
+      operationId: plux.v1.IdentityService.RevokeSession
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/plux.v1.RevokeSessionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/plux.v1.RevokeSessionResponse'
   /plux.v1.IdentityService/StartDeviceAuthorization:
     post:
       tags:
@@ -10527,6 +10690,37 @@ components:
       title: AuditEntry
       additionalProperties: false
       description: AuditEntry is one record of the append-only audit log (SEC-140).
+    plux.v1.BeginStepUpRequest:
+      type: object
+      properties:
+        cliRequestId:
+          type: string
+          title: cli_request_id
+          description: |-
+            cli_request_id names a step-up the CLI asked for with
+             POST /stepup/requests, which the caller's browser session performs
+             for it (ADR-0075). Empty steps up the caller's own session.
+      title: BeginStepUpRequest
+      additionalProperties: false
+    plux.v1.BeginStepUpResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+          title: request_id
+          description: request_id names the step-up for CompleteStepUp.
+        optionsJson:
+          type: string
+          title: options_json
+          description: |-
+            options_json is PublicKeyCredentialRequestOptions in WebAuthn's JSON
+             serialisation, with user verification required.
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+      title: BeginStepUpResponse
+      additionalProperties: false
     plux.v1.BeginWebAuthnLoginRequest:
       type: object
       properties:
@@ -11030,6 +11224,42 @@ components:
             - $ref: '#/components/schemas/plux.v1.MfaChallenge'
           title: challenge
       title: CompleteSamlLoginResponse
+      additionalProperties: false
+    plux.v1.CompleteStepUpRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          title: request_id
+        credentialId:
+          type: string
+          title: credential_id
+          format: byte
+        clientDataJson:
+          type: string
+          title: client_data_json
+          format: byte
+        authenticatorData:
+          type: string
+          title: authenticator_data
+          format: byte
+        signature:
+          type: string
+          title: signature
+          format: byte
+      title: CompleteStepUpRequest
+      additionalProperties: false
+    plux.v1.CompleteStepUpResponse:
+      type: object
+      properties:
+        stepUpAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: step_up_at
+          description: |-
+            step_up_at is when the assertion verified; for a step-up of the
+             CLI's, it starts the five minutes its grant is good for.
+      title: CompleteStepUpResponse
       additionalProperties: false
     plux.v1.CompleteWebAuthnLoginRequest:
       type: object
@@ -16350,6 +16580,32 @@ components:
           title: page
       title: ListSecretsResponse
       additionalProperties: false
+    plux.v1.ListSessionsRequest:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          title: organization_id
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.Page'
+          title: page
+      title: ListSessionsRequest
+      additionalProperties: false
+    plux.v1.ListSessionsResponse:
+      type: object
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/plux.v1.SessionInfo'
+          title: sessions
+        page:
+          allOf:
+            - $ref: '#/components/schemas/plux.v1.PageResult'
+          title: page
+      title: ListSessionsResponse
+      additionalProperties: false
     plux.v1.ListSignInProvidersRequest:
       type: object
       properties:
@@ -18413,6 +18669,19 @@ components:
       type: object
       title: RevokeScimTokenResponse
       additionalProperties: false
+    plux.v1.RevokeSessionRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+          description: id is a session's or a token's identifier, as ListSessions gives it.
+      title: RevokeSessionRequest
+      additionalProperties: false
+    plux.v1.RevokeSessionResponse:
+      type: object
+      title: RevokeSessionResponse
+      additionalProperties: false
     plux.v1.RoleDefinition:
       type: object
       properties:
@@ -18906,6 +19175,13 @@ components:
           type: boolean
           title: second_factor
           description: second_factor is true when a second factor was presented in it.
+        stepUpAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: step_up_at
+          description: |-
+            step_up_at is when a WebAuthn step-up last succeeded in it; unset
+             when none did (SEC-103).
       title: Session
       additionalProperties: false
       description: |-
@@ -18913,6 +19189,54 @@ components:
          body: the edge sets it as a __Host- prefixed, HttpOnly, Secure,
          SameSite=Strict cookie, and state-changing calls must echo csrf_token
          in the X-CSRF-Token header (SEC-101).
+    plux.v1.SessionInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          title: id
+        userId:
+          type: string
+          title: user_id
+        clientKind:
+          type: string
+          title: client_kind
+          description: |-
+            client_kind is "studio" for a browser session, "cli" for a token from
+             `plux login`, and "token" for a personal access token or a CI token.
+        name:
+          type: string
+          title: name
+          description: name is a token's name; empty for a browser session.
+        createdAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: created_at
+        lastSeenAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: last_seen_at
+        expiresAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expires_at
+        ipPrefix:
+          type: string
+          title: ip_prefix
+          description: ip_prefix is the /24 (IPv4) or /48 (IPv6) the last request came from.
+        userAgent:
+          type: string
+          title: user_agent
+        stepUpAt:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: step_up_at
+          description: step_up_at is when a step-up last succeeded in a browser session.
+      title: SessionInfo
+      additionalProperties: false
+      description: |-
+        SessionInfo is one session or token of a person, as an administrator
+         sees it (GOV-005). The secret is never part of it.
     plux.v1.SetAliasRequest:
       type: object
       properties:

@@ -49,6 +49,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/security/settings"
 	"github.com/nightCode42/plux3/backend/internal/signing"
 	"github.com/nightCode42/plux3/backend/internal/storage"
+	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
 	"github.com/nightCode42/plux3/backend/internal/storage/idempotency"
 	"github.com/nightCode42/plux3/backend/internal/storage/objects"
 	"github.com/nightCode42/plux3/backend/internal/storage/storagetest"
@@ -503,8 +504,42 @@ func codeOf(err error) connect.Code {
 	return 0
 }
 
-// signIn signs a person in through the API and returns the caller.
+// signIn signs a person in through the API and returns the caller, whose
+// session has stepped up just now. The ceremony itself (a WebAuthn assertion
+// with user verification) is exercised by the auth and step-up tests; here the
+// session only carries its outcome, recorded the way the ceremony records it.
 func (w *world) signIn(t *testing.T, email string) caller {
+	t.Helper()
+	c := w.signInWithoutStepUp(t, email)
+	w.recordStepUp(t, c)
+	return c
+}
+
+// recordStepUp stamps the caller's session as having stepped up now.
+func (w *world) recordStepUp(t *testing.T, c caller) {
+	t.Helper()
+	ctx := context.Background()
+	_, secret, _ := strings.Cut(c.cookie, "=")
+	id, err := w.auth.AuthenticateSession(ctx, secret)
+	if err != nil {
+		t.Fatalf("AuthenticateSession: %v", err)
+	}
+	sessionID, err := storage.UUID(id.SessionID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = w.db.InTx(ctx, storage.Tenant{}, func(ctx context.Context, tx pgx.Tx) error {
+		_, err := dbgen.New(tx).SetSessionStepUp(ctx, dbgen.SetSessionStepUpParams{ID: sessionID, At: storage.Timestamp(time.Now())})
+		return err
+	})
+	if err != nil {
+		t.Fatalf("record a step-up: %v", err)
+	}
+}
+
+// signInWithoutStepUp signs a person in through the API; the session has not
+// stepped up, so permissions the catalogue marks stepUp are refused (GOV-005).
+func (w *world) signInWithoutStepUp(t *testing.T, email string) caller {
 	const password = "correct horse battery"
 	t.Helper()
 	res, err := w.identity.StartPasswordLogin(context.Background(), connect.NewRequest(&pluxv1.StartPasswordLoginRequest{Email: email, Password: password}))

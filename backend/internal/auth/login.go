@@ -439,10 +439,16 @@ func (s *Service) issueSession(ctx context.Context, tx pgx.Tx, user dbgen.User, 
 	if err != nil {
 		return Session{}, err
 	}
+	now := s.now()
 	var mfaAt time.Time
 	if secondFactor {
-		mfaAt = s.now()
+		mfaAt = now
 	}
+	// The session starts with the installation's lifetimes; the limits of
+	// the person's organisations are read at its first request after a
+	// minute, which is also when they are read again (GOV-005).
+	t := s.installationTimeouts()
+	req := audit.RequestFrom(ctx)
 	q := dbgen.New(tx)
 	row, err := q.CreateSession(ctx, dbgen.CreateSessionParams{
 		ID:         storage.MustUUID(id),
@@ -450,7 +456,10 @@ func (s *Service) issueSession(ctx context.Context, tx pgx.Tx, user dbgen.User, 
 		SecretHash: secret.Hash,
 		CsrfToken:  csrf.Value,
 		MfaAt:      storage.Timestamp(mfaAt),
-		ExpiresAt:  storage.Timestamp(s.now().Add(s.o.SessionTTL)),
+		CreatedAt:  storage.Timestamp(now),
+		ExpiresAt:  storage.Timestamp(now.Add(t.absolute)),
+		IpPrefix:   ipPrefix(req.SourceIP),
+		UserAgent:  req.UserAgent,
 	})
 	if err != nil {
 		return Session{}, fmt.Errorf("auth: create a session: %w", err)
@@ -521,7 +530,7 @@ func (s *Service) Logout(ctx context.Context, id Identity) error {
 		return nil
 	}
 	return s.inTx(ctx, storage.Tenant{Scope: storage.ScopeInstallation}, func(ctx context.Context, tx pgx.Tx) error {
-		if _, err := dbgen.New(tx).RevokeSession(ctx, storage.MustUUID(id.SessionID)); err != nil {
+		if _, err := dbgen.New(tx).RevokeSession(ctx, dbgen.RevokeSessionParams{ID: storage.MustUUID(id.SessionID), At: storage.Timestamp(s.now())}); err != nil {
 			return fmt.Errorf("auth: revoke a session: %w", err)
 		}
 		return s.record(ctx, tx, audit.Entry{

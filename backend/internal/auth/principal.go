@@ -217,10 +217,17 @@ func (p Principal) check(want Permission, held bool) error {
 	if !held {
 		return plxerr.New(plxerr.PermissionDenied, "%s is required", want)
 	}
-	if NeedsSecondFactor(want) && !p.SecondFactor {
+	if !NeedsSecondFactor(want) {
+		return nil
+	}
+	if !p.SecondFactor {
 		return plxerr.New(plxerr.MultiFactorRequired, "%s requires a second factor in this session", want)
 	}
-	return nil
+	// The second factor of the sign-in is not enough: the permissions the
+	// catalogue marks stepUp need a WebAuthn assertion with user
+	// verification from the last five minutes, in the browser session or
+	// through the CLI's grant (SEC-103, ADR-0075).
+	return p.Identity.StepUpError(StepUpWindow)
 }
 
 // AllowedApps returns nil when the principal may read every app, and

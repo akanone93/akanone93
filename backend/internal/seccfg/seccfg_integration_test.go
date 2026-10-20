@@ -79,7 +79,7 @@ func newFixture(t *testing.T, limitSet limits.Set) *fixture {
 	if _, err := authService.AcceptInvitation(ctx, invitation, "Admin", "correct horse battery"); err != nil {
 		t.Fatal(err)
 	}
-	adminID := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}
+	adminID := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
 	o, err := f.tenancy.CreateOrganization(ctx, adminID, "acme", "Acme")
 	if err != nil {
 		t.Fatal(err)
@@ -104,7 +104,7 @@ func newFixture(t *testing.T, limitSet limits.Set) *fixture {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if f.viewer, err = authService.Resolve(ctx, auth.Identity{Kind: auth.KindUser, ID: m.UserID, UserID: m.UserID, Display: "v", SecondFactor: true}, f.org); err != nil {
+	if f.viewer, err = authService.Resolve(ctx, auth.Identity{Kind: auth.KindUser, ID: m.UserID, UserID: m.UserID, Display: "v", SecondFactor: true}.WithStepUp(0), f.org); err != nil {
 		t.Fatal(err)
 	}
 	return f

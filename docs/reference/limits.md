@@ -38,6 +38,9 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `auth.failedSignIns` | count | 10 | 80% | 1000 | installation | P2 | SEC-100 | Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused. |
 | `auth.samlClockSkewSeconds` | count | 120 | 80% | 180 | installation | P9 | GOV-004 | Seconds of clock difference between an identity provider and the server that a SAML assertion's validity window tolerates. |
 | `auth.scimTokenOverlapSeconds` | count | 86400 | 80% | 604800 | installation | P9 | GOV-004 | Seconds the previous SCIM bearer token of an organisation keeps working after it is rotated, so the identity provider can switch over. |
+| `auth.sessionAbsoluteTimeout` | milliseconds | 43200000 | 80% | 2592000000 | installation, organization | P9 | GOV-005 | Time after sign-in at which a browser session ends however active it is; an organisation may shorten it. |
+| `auth.sessionIdleTimeout` | milliseconds | 1800000 | 80% | 86400000 | installation, organization | P9 | GOV-005 | Time without a request after which a browser session ends; an organisation may shorten it. |
+| `auth.stepUpAttempts` | count | 5 | 80% | 20 | installation | P9 | SEC-103 | Ceremonies one step-up request accepts before it is closed; each wrong assertion uses one. |
 | `bundle.deviceFunctionModuleSize` | bytes | 4194304 | 80% | 67108864 | installation, organization, app, plugin | P7 | FN-050 | Size of the WebAssembly module of the device-placed functions of one plugin. |
 | `bundle.pageSectionSize` | bytes | 1048576 | 80% | 16777216 | installation, organization, app, plugin | P1 | BND-010 | Size of one page section in a bundle. |
 | `bundle.pluginSize` | bytes | 20971520 | 80% | 268435456 | installation, organization, app, plugin | P1 | BND-010 | Size of one plugin bundle. |

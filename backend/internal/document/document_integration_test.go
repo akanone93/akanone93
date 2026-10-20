@@ -114,7 +114,7 @@ func newFixture(t *testing.T, configure ...func(*document.Options)) *fixture {
 }
 
 func person(userID string, admin bool) auth.Identity {
-	return auth.Identity{Kind: auth.KindUser, ID: userID, UserID: userID, Display: "user", SecondFactor: true, InstallationAdmin: admin}
+	return auth.Identity{Kind: auth.KindUser, ID: userID, UserID: userID, Display: "user", SecondFactor: true, InstallationAdmin: admin}.WithStepUp(0)
 }
 
 func (f *fixture) principal(t *testing.T, id auth.Identity) auth.Principal {

@@ -68,7 +68,7 @@ func TestIngestList(t *testing.T) {
 	if _, err := authService.AcceptInvitation(ctx, invitation, "Admin", "correct horse battery"); err != nil {
 		t.Fatal(err)
 	}
-	id := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}
+	id := auth.Identity{Kind: auth.KindUser, ID: admin.ID, UserID: admin.ID, Display: "Admin", SecondFactor: true, InstallationAdmin: true}.WithStepUp(0)
 	o, err := ten.CreateOrganization(ctx, id, "acme", "Acme")
 	if err != nil {
 		t.Fatal(err)

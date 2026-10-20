@@ -92,6 +92,52 @@ func (q *Queries) ApproveDeviceAuthorization(ctx context.Context, arg ApproveDev
 	return result.RowsAffected(), nil
 }
 
+const approveStepUpRequest = `-- name: ApproveStepUpRequest :exec
+UPDATE step_up_requests SET state = 'approved', approved_at = $2, challenge = NULL WHERE id = $1
+`
+
+type ApproveStepUpRequestParams struct {
+	ID pgtype.UUID
+	At pgtype.Timestamptz
+}
+
+func (q *Queries) ApproveStepUpRequest(ctx context.Context, arg ApproveStepUpRequestParams) error {
+	_, err := q.db.Exec(ctx, approveStepUpRequest, arg.ID, arg.At)
+	return err
+}
+
+const beginStepUpCeremony = `-- name: BeginStepUpCeremony :exec
+UPDATE step_up_requests SET challenge = $2, attempts = attempts + 1 WHERE id = $1
+`
+
+type BeginStepUpCeremonyParams struct {
+	ID        pgtype.UUID
+	Challenge []byte
+}
+
+func (q *Queries) BeginStepUpCeremony(ctx context.Context, arg BeginStepUpCeremonyParams) error {
+	_, err := q.db.Exec(ctx, beginStepUpCeremony, arg.ID, arg.Challenge)
+	return err
+}
+
+const clearStepUpChallenge = `-- name: ClearStepUpChallenge :exec
+UPDATE step_up_requests SET challenge = NULL WHERE id = $1
+`
+
+func (q *Queries) ClearStepUpChallenge(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, clearStepUpChallenge, id)
+	return err
+}
+
+const closeStepUpRequest = `-- name: CloseStepUpRequest :exec
+UPDATE step_up_requests SET state = 'closed', challenge = NULL WHERE id = $1
+`
+
+func (q *Queries) CloseStepUpRequest(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, closeStepUpRequest, id)
+	return err
+}
+
 const confirmFactor = `-- name: ConfirmFactor :one
 UPDATE mfa_factors
    SET confirmed_at = now(), last_counter = $3, last_used_at = now()
@@ -217,7 +263,7 @@ func (q *Queries) CountInstallationAdmins(ctx context.Context) (int64, error) {
 const createAccessToken = `-- name: CreateAccessToken :one
 INSERT INTO access_tokens (id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, expires_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-RETURNING id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at
+RETURNING id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at, last_ip_prefix, last_user_agent
 `
 
 type CreateAccessTokenParams struct {
@@ -261,6 +307,8 @@ func (q *Queries) CreateAccessToken(ctx context.Context, arg CreateAccessTokenPa
 		&i.ExpiresAt,
 		&i.LastUsedAt,
 		&i.RevokedAt,
+		&i.LastIpPrefix,
+		&i.LastUserAgent,
 	)
 	return i, err
 }
@@ -402,9 +450,9 @@ func (q *Queries) CreateOIDCLogin(ctx context.Context, arg CreateOIDCLoginParams
 }
 
 const createSession = `-- name: CreateSession :one
-INSERT INTO sessions (id, user_id, secret_hash, csrf_token, mfa_at, expires_at)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, user_id, secret_hash, csrf_token, mfa_at, created_at, expires_at, revoked_at
+INSERT INTO sessions (id, user_id, secret_hash, csrf_token, mfa_at, created_at, last_seen_at, expires_at, ip_prefix, user_agent)
+VALUES ($1, $2, $3, $4, $5, $9, $9, $6, $7, $8)
+RETURNING id, user_id, secret_hash, csrf_token, mfa_at, created_at, expires_at, revoked_at, last_seen_at, step_up_at, ip_prefix, user_agent, idle_timeout_ms
 `
 
 type CreateSessionParams struct {
@@ -414,6 +462,9 @@ type CreateSessionParams struct {
 	CsrfToken  string
 	MfaAt      pgtype.Timestamptz
 	ExpiresAt  pgtype.Timestamptz
+	IpPrefix   string
+	UserAgent  string
+	CreatedAt  pgtype.Timestamptz
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
@@ -424,6 +475,9 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 		arg.CsrfToken,
 		arg.MfaAt,
 		arg.ExpiresAt,
+		arg.IpPrefix,
+		arg.UserAgent,
+		arg.CreatedAt,
 	)
 	var i Session
 	err := row.Scan(
@@ -435,6 +489,65 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 		&i.CreatedAt,
 		&i.ExpiresAt,
 		&i.RevokedAt,
+		&i.LastSeenAt,
+		&i.StepUpAt,
+		&i.IpPrefix,
+		&i.UserAgent,
+		&i.IdleTimeoutMs,
+	)
+	return i, err
+}
+
+const createStepUpRequest = `-- name: CreateStepUpRequest :one
+INSERT INTO step_up_requests (id, user_id, organization_id, kind, session_id, token_id, jkt, secret_hash, created_at, expires_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $10, $9)
+RETURNING id, user_id, organization_id, kind, session_id, token_id, jkt, secret_hash, challenge, attempts, state, approved_at, grant_hash, grant_expires_at, created_at, expires_at
+`
+
+type CreateStepUpRequestParams struct {
+	ID             pgtype.UUID
+	UserID         pgtype.UUID
+	OrganizationID pgtype.UUID
+	Kind           string
+	SessionID      pgtype.UUID
+	TokenID        pgtype.UUID
+	Jkt            string
+	SecretHash     []byte
+	ExpiresAt      pgtype.Timestamptz
+	CreatedAt      pgtype.Timestamptz
+}
+
+func (q *Queries) CreateStepUpRequest(ctx context.Context, arg CreateStepUpRequestParams) (StepUpRequest, error) {
+	row := q.db.QueryRow(ctx, createStepUpRequest,
+		arg.ID,
+		arg.UserID,
+		arg.OrganizationID,
+		arg.Kind,
+		arg.SessionID,
+		arg.TokenID,
+		arg.Jkt,
+		arg.SecretHash,
+		arg.ExpiresAt,
+		arg.CreatedAt,
+	)
+	var i StepUpRequest
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.OrganizationID,
+		&i.Kind,
+		&i.SessionID,
+		&i.TokenID,
+		&i.Jkt,
+		&i.SecretHash,
+		&i.Challenge,
+		&i.Attempts,
+		&i.State,
+		&i.ApprovedAt,
+		&i.GrantHash,
+		&i.GrantExpiresAt,
+		&i.CreatedAt,
+		&i.ExpiresAt,
 	)
 	return i, err
 }
@@ -615,6 +728,18 @@ func (q *Queries) DeleteExpiredSessions(ctx context.Context) (int64, error) {
 	return result.RowsAffected(), nil
 }
 
+const deleteExpiredStepUpRequests = `-- name: DeleteExpiredStepUpRequests :execrows
+DELETE FROM step_up_requests WHERE expires_at < now() - interval '1 day'
+`
+
+func (q *Queries) DeleteExpiredStepUpRequests(ctx context.Context) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteExpiredStepUpRequests)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const deleteFactor = `-- name: DeleteFactor :execrows
 DELETE FROM mfa_factors WHERE id = $1 AND user_id = $2
 `
@@ -657,7 +782,7 @@ func (q *Queries) DenyDeviceAuthorization(ctx context.Context, id pgtype.UUID) (
 }
 
 const getAccessToken = `-- name: GetAccessToken :one
-SELECT id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at FROM access_tokens WHERE id = $1
+SELECT id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at, last_ip_prefix, last_user_agent FROM access_tokens WHERE id = $1
 `
 
 func (q *Queries) GetAccessToken(ctx context.Context, id pgtype.UUID) (AccessToken, error) {
@@ -677,12 +802,14 @@ func (q *Queries) GetAccessToken(ctx context.Context, id pgtype.UUID) (AccessTok
 		&i.ExpiresAt,
 		&i.LastUsedAt,
 		&i.RevokedAt,
+		&i.LastIpPrefix,
+		&i.LastUserAgent,
 	)
 	return i, err
 }
 
 const getAccessTokenByHash = `-- name: GetAccessTokenByHash :one
-SELECT t.id, t.organization_id, t.user_id, t.name, t.prefix, t.secret_hash, t.scopes, t.source, t.subject, t.created_at, t.expires_at, t.last_used_at, t.revoked_at, coalesce(u.display_name, '')::text AS user_display_name
+SELECT t.id, t.organization_id, t.user_id, t.name, t.prefix, t.secret_hash, t.scopes, t.source, t.subject, t.created_at, t.expires_at, t.last_used_at, t.revoked_at, t.last_ip_prefix, t.last_user_agent, coalesce(u.display_name, '')::text AS user_display_name
   FROM access_tokens t
   LEFT JOIN users u ON u.id = t.user_id
  WHERE t.secret_hash = $1 AND t.revoked_at IS NULL AND t.expires_at > now()
@@ -703,6 +830,8 @@ type GetAccessTokenByHashRow struct {
 	ExpiresAt       pgtype.Timestamptz
 	LastUsedAt      pgtype.Timestamptz
 	RevokedAt       pgtype.Timestamptz
+	LastIpPrefix    string
+	LastUserAgent   string
 	UserDisplayName string
 }
 
@@ -723,6 +852,8 @@ func (q *Queries) GetAccessTokenByHash(ctx context.Context, secretHash []byte) (
 		&i.ExpiresAt,
 		&i.LastUsedAt,
 		&i.RevokedAt,
+		&i.LastIpPrefix,
+		&i.LastUserAgent,
 		&i.UserDisplayName,
 	)
 	return i, err
@@ -855,12 +986,46 @@ func (q *Queries) GetFactorByCredentialForUpdate(ctx context.Context, arg GetFac
 	return i, err
 }
 
+const getOrganizationSession = `-- name: GetOrganizationSession :one
+SELECT s.id, s.user_id, s.secret_hash, s.csrf_token, s.mfa_at, s.created_at, s.expires_at, s.revoked_at, s.last_seen_at, s.step_up_at, s.ip_prefix, s.user_agent, s.idle_timeout_ms FROM sessions s
+ WHERE s.id = $1
+   AND s.user_id IN (SELECT m.user_id FROM memberships m WHERE m.organization_id = $2)
+`
+
+type GetOrganizationSessionParams struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+}
+
+// A session of a person who belongs to the organisation; any other is
+// reported as absent, so an administrator cannot reach another
+// organisation's sessions (GOV-005).
+func (q *Queries) GetOrganizationSession(ctx context.Context, arg GetOrganizationSessionParams) (Session, error) {
+	row := q.db.QueryRow(ctx, getOrganizationSession, arg.ID, arg.OrganizationID)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.SecretHash,
+		&i.CsrfToken,
+		&i.MfaAt,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+		&i.RevokedAt,
+		&i.LastSeenAt,
+		&i.StepUpAt,
+		&i.IpPrefix,
+		&i.UserAgent,
+		&i.IdleTimeoutMs,
+	)
+	return i, err
+}
+
 const getSessionByHash = `-- name: GetSessionByHash :one
-SELECT s.id, s.user_id, s.secret_hash, s.csrf_token, s.mfa_at, s.created_at, s.expires_at, s.revoked_at, u.display_name, u.installation_admin
+SELECT s.id, s.user_id, s.secret_hash, s.csrf_token, s.mfa_at, s.created_at, s.expires_at, s.revoked_at, s.last_seen_at, s.step_up_at, s.ip_prefix, s.user_agent, s.idle_timeout_ms, u.display_name, u.installation_admin
   FROM sessions s
   JOIN users u ON u.id = s.user_id
- WHERE s.secret_hash = $1 AND s.revoked_at IS NULL AND s.expires_at > now()
-   AND u.disabled_at IS NULL
+ WHERE s.secret_hash = $1 AND u.disabled_at IS NULL
 `
 
 type GetSessionByHashRow struct {
@@ -872,10 +1037,18 @@ type GetSessionByHashRow struct {
 	CreatedAt         pgtype.Timestamptz
 	ExpiresAt         pgtype.Timestamptz
 	RevokedAt         pgtype.Timestamptz
+	LastSeenAt        pgtype.Timestamptz
+	StepUpAt          pgtype.Timestamptz
+	IpPrefix          string
+	UserAgent         string
+	IdleTimeoutMs     *int64
 	DisplayName       string
 	InstallationAdmin bool
 }
 
+// A session is found whether or not it is still valid, so that the caller
+// can say why it is not: revoked, idle or past its absolute lifetime
+// (GOV-005). Only a disabled account is treated as unknown.
 func (q *Queries) GetSessionByHash(ctx context.Context, secretHash []byte) (GetSessionByHashRow, error) {
 	row := q.db.QueryRow(ctx, getSessionByHash, secretHash)
 	var i GetSessionByHashRow
@@ -888,8 +1061,130 @@ func (q *Queries) GetSessionByHash(ctx context.Context, secretHash []byte) (GetS
 		&i.CreatedAt,
 		&i.ExpiresAt,
 		&i.RevokedAt,
+		&i.LastSeenAt,
+		&i.StepUpAt,
+		&i.IpPrefix,
+		&i.UserAgent,
+		&i.IdleTimeoutMs,
 		&i.DisplayName,
 		&i.InstallationAdmin,
+	)
+	return i, err
+}
+
+const getStepUpGrant = `-- name: GetStepUpGrant :one
+SELECT id, user_id, organization_id, kind, session_id, token_id, jkt, secret_hash, challenge, attempts, state, approved_at, grant_hash, grant_expires_at, created_at, expires_at FROM step_up_requests WHERE grant_hash = $1 AND state = 'issued'
+`
+
+func (q *Queries) GetStepUpGrant(ctx context.Context, grantHash []byte) (StepUpRequest, error) {
+	row := q.db.QueryRow(ctx, getStepUpGrant, grantHash)
+	var i StepUpRequest
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.OrganizationID,
+		&i.Kind,
+		&i.SessionID,
+		&i.TokenID,
+		&i.Jkt,
+		&i.SecretHash,
+		&i.Challenge,
+		&i.Attempts,
+		&i.State,
+		&i.ApprovedAt,
+		&i.GrantHash,
+		&i.GrantExpiresAt,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+	)
+	return i, err
+}
+
+const getStepUpRequest = `-- name: GetStepUpRequest :one
+SELECT id, user_id, organization_id, kind, session_id, token_id, jkt, secret_hash, challenge, attempts, state, approved_at, grant_hash, grant_expires_at, created_at, expires_at FROM step_up_requests WHERE id = $1
+`
+
+func (q *Queries) GetStepUpRequest(ctx context.Context, id pgtype.UUID) (StepUpRequest, error) {
+	row := q.db.QueryRow(ctx, getStepUpRequest, id)
+	var i StepUpRequest
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.OrganizationID,
+		&i.Kind,
+		&i.SessionID,
+		&i.TokenID,
+		&i.Jkt,
+		&i.SecretHash,
+		&i.Challenge,
+		&i.Attempts,
+		&i.State,
+		&i.ApprovedAt,
+		&i.GrantHash,
+		&i.GrantExpiresAt,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+	)
+	return i, err
+}
+
+const getStepUpRequestBySecretForUpdate = `-- name: GetStepUpRequestBySecretForUpdate :one
+SELECT id, user_id, organization_id, kind, session_id, token_id, jkt, secret_hash, challenge, attempts, state, approved_at, grant_hash, grant_expires_at, created_at, expires_at FROM step_up_requests WHERE id = $1 AND secret_hash = $2 FOR UPDATE
+`
+
+type GetStepUpRequestBySecretForUpdateParams struct {
+	ID         pgtype.UUID
+	SecretHash []byte
+}
+
+func (q *Queries) GetStepUpRequestBySecretForUpdate(ctx context.Context, arg GetStepUpRequestBySecretForUpdateParams) (StepUpRequest, error) {
+	row := q.db.QueryRow(ctx, getStepUpRequestBySecretForUpdate, arg.ID, arg.SecretHash)
+	var i StepUpRequest
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.OrganizationID,
+		&i.Kind,
+		&i.SessionID,
+		&i.TokenID,
+		&i.Jkt,
+		&i.SecretHash,
+		&i.Challenge,
+		&i.Attempts,
+		&i.State,
+		&i.ApprovedAt,
+		&i.GrantHash,
+		&i.GrantExpiresAt,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+	)
+	return i, err
+}
+
+const getStepUpRequestForUpdate = `-- name: GetStepUpRequestForUpdate :one
+SELECT id, user_id, organization_id, kind, session_id, token_id, jkt, secret_hash, challenge, attempts, state, approved_at, grant_hash, grant_expires_at, created_at, expires_at FROM step_up_requests WHERE id = $1 FOR UPDATE
+`
+
+func (q *Queries) GetStepUpRequestForUpdate(ctx context.Context, id pgtype.UUID) (StepUpRequest, error) {
+	row := q.db.QueryRow(ctx, getStepUpRequestForUpdate, id)
+	var i StepUpRequest
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.OrganizationID,
+		&i.Kind,
+		&i.SessionID,
+		&i.TokenID,
+		&i.Jkt,
+		&i.SecretHash,
+		&i.Challenge,
+		&i.Attempts,
+		&i.State,
+		&i.ApprovedAt,
+		&i.GrantHash,
+		&i.GrantExpiresAt,
+		&i.CreatedAt,
+		&i.ExpiresAt,
 	)
 	return i, err
 }
@@ -983,6 +1278,21 @@ func (q *Queries) GetUserIdentity(ctx context.Context, arg GetUserIdentityParams
 	return i, err
 }
 
+const issueStepUpGrant = `-- name: IssueStepUpGrant :exec
+UPDATE step_up_requests SET state = 'issued', grant_hash = $2, grant_expires_at = $3 WHERE id = $1
+`
+
+type IssueStepUpGrantParams struct {
+	ID             pgtype.UUID
+	GrantHash      []byte
+	GrantExpiresAt pgtype.Timestamptz
+}
+
+func (q *Queries) IssueStepUpGrant(ctx context.Context, arg IssueStepUpGrantParams) error {
+	_, err := q.db.Exec(ctx, issueStepUpGrant, arg.ID, arg.GrantHash, arg.GrantExpiresAt)
+	return err
+}
+
 const linkUserIdentity = `-- name: LinkUserIdentity :one
 INSERT INTO user_identities (id, user_id, issuer, subject)
 VALUES ($1, $2, $3, $4)
@@ -1015,7 +1325,7 @@ func (q *Queries) LinkUserIdentity(ctx context.Context, arg LinkUserIdentityPara
 }
 
 const listAccessTokens = `-- name: ListAccessTokens :many
-SELECT id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at FROM access_tokens
+SELECT id, organization_id, user_id, name, prefix, secret_hash, scopes, source, subject, created_at, expires_at, last_used_at, revoked_at, last_ip_prefix, last_user_agent FROM access_tokens
  WHERE organization_id = $1
    AND ($2::uuid IS NULL OR user_id = $2::uuid)
    AND (created_at, id) > ($3::timestamptz, $4::uuid)
@@ -1060,6 +1370,8 @@ func (q *Queries) ListAccessTokens(ctx context.Context, arg ListAccessTokensPara
 			&i.ExpiresAt,
 			&i.LastUsedAt,
 			&i.RevokedAt,
+			&i.LastIpPrefix,
+			&i.LastUserAgent,
 		); err != nil {
 			return nil, err
 		}
@@ -1146,6 +1458,116 @@ func (q *Queries) ListFactors(ctx context.Context, userID pgtype.UUID) ([]MfaFac
 	return items, nil
 }
 
+const listOrganizationSessions = `-- name: ListOrganizationSessions :many
+SELECT client_kind, id, user_id, name, created_at, last_seen_at, expires_at, ip_prefix, user_agent, step_up_at FROM (
+    SELECT 'studio'::text AS client_kind, s.id, s.user_id, ''::text AS name, s.created_at,
+           s.last_seen_at, s.expires_at, s.ip_prefix, s.user_agent, s.step_up_at
+      FROM sessions s
+     WHERE s.revoked_at IS NULL AND s.expires_at > $2::timestamptz
+       AND s.user_id IN (SELECT m.user_id FROM memberships m WHERE m.organization_id = $1)
+    UNION ALL
+    SELECT CASE t.source WHEN 'cli' THEN 'cli' ELSE 'token' END::text, t.id, t.user_id, t.name, t.created_at,
+           coalesce(t.last_used_at, t.created_at), t.expires_at, t.last_ip_prefix, t.last_user_agent, NULL::timestamptz
+      FROM access_tokens t
+     WHERE t.organization_id = $1 AND t.revoked_at IS NULL AND t.expires_at > $2::timestamptz
+) AS entries
+ WHERE (created_at, id) > ($3::timestamptz, $4::uuid)
+ ORDER BY created_at, id
+ LIMIT $5
+`
+
+type ListOrganizationSessionsParams struct {
+	OrganizationID pgtype.UUID
+	At             pgtype.Timestamptz
+	AfterTime      pgtype.Timestamptz
+	AfterID        pgtype.UUID
+	PageSize       int32
+}
+
+type ListOrganizationSessionsRow struct {
+	ClientKind string
+	ID         pgtype.UUID
+	UserID     pgtype.UUID
+	Name       string
+	CreatedAt  pgtype.Timestamptz
+	LastSeenAt pgtype.Timestamptz
+	ExpiresAt  pgtype.Timestamptz
+	IpPrefix   string
+	UserAgent  string
+	StepUpAt   pgtype.Timestamptz
+}
+
+// The active browser sessions of the people who belong to an organisation,
+// and the active tokens of the organisation, oldest first (GOV-005). A
+// token's kind is "cli" for one from `plux login` and "token" otherwise.
+// Neither side reveals a secret: only hashes are stored.
+func (q *Queries) ListOrganizationSessions(ctx context.Context, arg ListOrganizationSessionsParams) ([]ListOrganizationSessionsRow, error) {
+	rows, err := q.db.Query(ctx, listOrganizationSessions,
+		arg.OrganizationID,
+		arg.At,
+		arg.AfterTime,
+		arg.AfterID,
+		arg.PageSize,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListOrganizationSessionsRow{}
+	for rows.Next() {
+		var i ListOrganizationSessionsRow
+		if err := rows.Scan(
+			&i.ClientKind,
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.CreatedAt,
+			&i.LastSeenAt,
+			&i.ExpiresAt,
+			&i.IpPrefix,
+			&i.UserAgent,
+			&i.StepUpAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listUserOrganizations = `-- name: ListUserOrganizations :many
+SELECT DISTINCT organization_id FROM memberships WHERE user_id = $1 ORDER BY organization_id LIMIT $2
+`
+
+type ListUserOrganizationsParams struct {
+	UserID   pgtype.UUID
+	PageSize int32
+}
+
+// The organisations a person belongs to, directly or through a team.
+func (q *Queries) ListUserOrganizations(ctx context.Context, arg ListUserOrganizationsParams) ([]pgtype.UUID, error) {
+	rows, err := q.db.Query(ctx, listUserOrganizations, arg.UserID, arg.PageSize)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []pgtype.UUID{}
+	for rows.Next() {
+		var organization_id pgtype.UUID
+		if err := rows.Scan(&organization_id); err != nil {
+			return nil, err
+		}
+		items = append(items, organization_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listWorkloadIdentities = `-- name: ListWorkloadIdentities :many
 SELECT id, organization_id, issuer, audience, subject_pattern, scopes, created_by, created_at FROM workload_identities
  WHERE organization_id = $1
@@ -1208,7 +1630,7 @@ func (q *Queries) RecordLogin(ctx context.Context, id pgtype.UUID) error {
 }
 
 const recordSessionMFA = `-- name: RecordSessionMFA :one
-UPDATE sessions SET mfa_at = now() WHERE id = $1 RETURNING id, user_id, secret_hash, csrf_token, mfa_at, created_at, expires_at, revoked_at
+UPDATE sessions SET mfa_at = now() WHERE id = $1 RETURNING id, user_id, secret_hash, csrf_token, mfa_at, created_at, expires_at, revoked_at, last_seen_at, step_up_at, ip_prefix, user_agent, idle_timeout_ms
 `
 
 func (q *Queries) RecordSessionMFA(ctx context.Context, id pgtype.UUID) (Session, error) {
@@ -1223,6 +1645,11 @@ func (q *Queries) RecordSessionMFA(ctx context.Context, id pgtype.UUID) (Session
 		&i.CreatedAt,
 		&i.ExpiresAt,
 		&i.RevokedAt,
+		&i.LastSeenAt,
+		&i.StepUpAt,
+		&i.IpPrefix,
+		&i.UserAgent,
+		&i.IdleTimeoutMs,
 	)
 	return i, err
 }
@@ -1271,11 +1698,16 @@ func (q *Queries) RevokeAccessToken(ctx context.Context, id pgtype.UUID) (int64,
 }
 
 const revokeSession = `-- name: RevokeSession :execrows
-UPDATE sessions SET revoked_at = now() WHERE id = $1 AND revoked_at IS NULL
+UPDATE sessions SET revoked_at = $2 WHERE id = $1 AND revoked_at IS NULL
 `
 
-func (q *Queries) RevokeSession(ctx context.Context, id pgtype.UUID) (int64, error) {
-	result, err := q.db.Exec(ctx, revokeSession, id)
+type RevokeSessionParams struct {
+	ID pgtype.UUID
+	At pgtype.Timestamptz
+}
+
+func (q *Queries) RevokeSession(ctx context.Context, arg RevokeSessionParams) (int64, error) {
+	result, err := q.db.Exec(ctx, revokeSession, arg.ID, arg.At)
 	if err != nil {
 		return 0, err
 	}
@@ -1314,6 +1746,23 @@ func (q *Queries) SetChallengeWebAuthn(ctx context.Context, arg SetChallengeWebA
 	return err
 }
 
+const setSessionStepUp = `-- name: SetSessionStepUp :execrows
+UPDATE sessions SET step_up_at = $2 WHERE id = $1 AND revoked_at IS NULL
+`
+
+type SetSessionStepUpParams struct {
+	ID pgtype.UUID
+	At pgtype.Timestamptz
+}
+
+func (q *Queries) SetSessionStepUp(ctx context.Context, arg SetSessionStepUpParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setSessionStepUp, arg.ID, arg.At)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const setUserPassword = `-- name: SetUserPassword :exec
 UPDATE users SET password_hash = $2 WHERE id = $1
 `
@@ -1347,12 +1796,49 @@ func (q *Queries) TakeOIDCLogin(ctx context.Context, stateHash []byte) (OidcLogi
 }
 
 const touchAccessToken = `-- name: TouchAccessToken :exec
-UPDATE access_tokens SET last_used_at = now()
+UPDATE access_tokens SET last_used_at = now(), last_ip_prefix = $2, last_user_agent = $3
  WHERE id = $1 AND (last_used_at IS NULL OR last_used_at < now() - interval '1 minute')
 `
 
-func (q *Queries) TouchAccessToken(ctx context.Context, id pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, touchAccessToken, id)
+type TouchAccessTokenParams struct {
+	ID            pgtype.UUID
+	LastIpPrefix  string
+	LastUserAgent string
+}
+
+func (q *Queries) TouchAccessToken(ctx context.Context, arg TouchAccessTokenParams) error {
+	_, err := q.db.Exec(ctx, touchAccessToken, arg.ID, arg.LastIpPrefix, arg.LastUserAgent)
+	return err
+}
+
+const touchSession = `-- name: TouchSession :exec
+UPDATE sessions
+   SET last_seen_at = $5, ip_prefix = $2, user_agent = $3, idle_timeout_ms = $4,
+       expires_at = least(expires_at, $6::timestamptz)
+ WHERE id = $1 AND revoked_at IS NULL AND last_seen_at < $5::timestamptz - interval '1 minute'
+`
+
+type TouchSessionParams struct {
+	ID            pgtype.UUID
+	IpPrefix      string
+	UserAgent     string
+	IdleTimeoutMs *int64
+	At            pgtype.Timestamptz
+	AbsoluteUntil pgtype.Timestamptz
+}
+
+// Refreshes what the administrator sees and the timeouts in force. The
+// absolute lifetime can only shrink: an organisation that shortens it ends
+// the sessions that are older than the new limit at their next request.
+func (q *Queries) TouchSession(ctx context.Context, arg TouchSessionParams) error {
+	_, err := q.db.Exec(ctx, touchSession,
+		arg.ID,
+		arg.IpPrefix,
+		arg.UserAgent,
+		arg.IdleTimeoutMs,
+		arg.At,
+		arg.AbsoluteUntil,
+	)
 	return err
 }
 
