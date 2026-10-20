@@ -422,15 +422,15 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		return nil, err
 	}
 	reportDeviceAssurance(work.Metrics, devices)
-	events, analyticsService, consumer, err := buildAnalytics(cfg, db, shared, set, gen, log, tenancyService, work)
-	if err != nil {
-		return nil, err
-	}
 	runnerLink, err := buildRunnerLink(ctx, cfg, db, backend, work)
 	if err != nil {
 		return nil, err
 	}
 	notifier, err := buildNotify(cfg, db, backend, gen, log, tenancyService, work)
+	if err != nil {
+		return nil, err
+	}
+	events, analyticsService, consumer, err := buildAnalytics(cfg, db, shared, set, gen, log, tenancyService, notifier, work)
 	if err != nil {
 		return nil, err
 	}

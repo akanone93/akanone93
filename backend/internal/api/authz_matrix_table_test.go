@@ -272,7 +272,27 @@ var matrix = map[string]entry{
 	"AnalyticsService/CancelRetentionChange": atPerm(auth.RetentionManage, anyone(&pluxv1.CancelRetentionChangeRequest{Id: unknownID})),
 	"AnalyticsService/SetExport":             atPerm(auth.OrganizationManage, anyone(&pluxv1.SetExportRequest{Endpoint: "https://127.0.0.1:1"})),
 	"AnalyticsService/DeleteExport":          atPerm(auth.OrganizationManage, anyone(&pluxv1.DeleteExportRequest{})),
-	"GovernanceService/ListRoles":            atPerm(auth.OrganizationRead, anyone(&pluxv1.ListRolesRequest{})),
+	"AnalyticsService/CreateAlertRule": atPerm(auth.AlertsManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.CreateAlertRuleRequest{Rule: &pluxv1.AlertRule{
+			AppId: f.app, Name: f.name(), Metric: "fatal_error", Aggregation: "count", WindowSeconds: 300,
+			Comparison: ">", Threshold: 5, Severity: "warning",
+		}}
+	}),
+	"AnalyticsService/UpdateAlertRule": atPerm(auth.AlertsManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.UpdateAlertRuleRequest{Rule: f.sharedAlertRule(t)}
+	}),
+	"AnalyticsService/DeleteAlertRule": atPerm(auth.AlertsManage, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.DeleteAlertRuleRequest{Id: f.freshAlertRule(t).GetId()}
+	}),
+	"AnalyticsService/ListAlertRules":  atPerm(auth.AnalyticsRead, anyone(&pluxv1.ListAlertRulesRequest{})),
+	"AnalyticsService/ListAlertStates": atPerm(auth.AnalyticsRead, anyone(&pluxv1.ListAlertStatesRequest{})),
+	"AnalyticsService/ListErrorGroups": atPerm(auth.AnalyticsRead, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListErrorGroupsRequest{AppId: f.app}
+	})),
+	"AnalyticsService/GetErrorGroup": atPerm(auth.AnalyticsRead, func(t *testing.T, f *matrixFixture) proto.Message {
+		return &pluxv1.GetErrorGroupRequest{Id: f.errorGroup(t)}
+	}),
+	"GovernanceService/ListRoles": atPerm(auth.OrganizationRead, anyone(&pluxv1.ListRolesRequest{})),
 	"GovernanceService/GetRole": atPerm(auth.OrganizationRead, fixed(func(*matrixFixture) proto.Message {
 		return &pluxv1.GetRoleRequest{Key: "viewer"}
 	})),
