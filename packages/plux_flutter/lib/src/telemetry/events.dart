@@ -39,6 +39,7 @@ const Map<String, TelemetryCategory> telemetryCategories = {
   'custom': TelemetryCategory.analytics,
   'l10n_missing': TelemetryCategory.analytics,
   'experiment_exposure': TelemetryCategory.experiments,
+  'flag_evaluated': TelemetryCategory.experiments,
 };
 
 /// Words that mark a field name as sensitive; the server refuses such a

@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /// What a verified control document says (SYN-060, REL-060, REL-070,
-/// ADR-0077), as plain values: the kill switches by scope, the mandatory
-/// update and the forced rollback. It is made on the sync isolate once the
+/// ABT-006, ADR-0077, ADR-0079), as plain values: the kill switches by
+/// scope, the mandatory update, the forced rollback, the flag values and
+/// the experiment allocations. It is made on the sync isolate once the
 /// document has been verified and read, kept on disk, and sent to the UI
 /// isolate, which applies it. Nothing here parses FlatBuffers.
 library;
+
+import 'package:plux_flutter/src/experiments/control_models.dart';
 
 /// What a kill switch disables (`SwitchScope` of `schema/control.fbs`,
 /// without the unspecified member).
@@ -129,6 +132,9 @@ final class ControlSnapshot {
     this.switches = const [],
     this.mandatory,
     this.rollback,
+    this.flags = const [],
+    this.experiments = const [],
+    this.holdout,
   }) : _off = {for (final s in switches) _key(s.kind, s.target)};
 
   /// Reads the stored form; null when it is not one.
@@ -149,8 +155,22 @@ final class ControlSnapshot {
       switches: switches,
       mandatory: MandatoryUpdate.fromJson(json['mandatory']),
       rollback: ForcedRollback.fromJson(json['rollback']),
+      flags: _list(json['flags'], ControlFlag.fromJson),
+      experiments: _list(json['experiments'], ControlExperiment.fromJson),
+      holdout: ControlHoldout.fromJson(json['holdout']),
     );
   }
+
+  /// The entries of [json] that [read] accepts; none when it is no list.
+  static List<T> _list<T extends Object>(
+    Object? json,
+    T? Function(Object?) read,
+  ) => json is List<Object?>
+      ? [
+          for (final e in json)
+            if (read(e) case final T parsed) parsed,
+        ]
+      : const [];
 
   /// The document's version.
   final int version;
@@ -168,6 +188,15 @@ final class ControlSnapshot {
 
   /// The forced rollback, or null.
   final ForcedRollback? rollback;
+
+  /// The per-segment values of the feature flags (ABT-006).
+  final List<ControlFlag> flags;
+
+  /// The running experiments (ABT-002).
+  final List<ControlExperiment> experiments;
+
+  /// The global holdout, or null (ABT-004).
+  final ControlHoldout? holdout;
 
   final Set<String> _off;
 
@@ -192,5 +221,8 @@ final class ControlSnapshot {
     'switches': [for (final s in switches) s.toJson()],
     'mandatory': mandatory?.toJson(),
     'rollback': rollback?.toJson(),
+    'flags': [for (final f in flags) f.toJson()],
+    'experiments': [for (final e in experiments) e.toJson()],
+    'holdout': holdout?.toJson(),
   };
 }

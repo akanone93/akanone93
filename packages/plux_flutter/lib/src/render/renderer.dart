@@ -37,6 +37,7 @@ import 'package:plux_flutter/src/data/source.dart';
 import 'package:plux_flutter/src/data/spec.dart';
 import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/experiments/experiment_service.dart';
 import 'package:plux_flutter/src/forms/form_state.dart';
 import 'package:plux_flutter/src/l10n/locale_controller.dart';
 import 'package:plux_flutter/src/l10n/locale_host.dart';
@@ -103,6 +104,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
     this.actions,
     this.data,
     this.secureUi,
+    ExperimentService? experiments,
     bool Function()? pinnedMedia,
     StatePersistence? statePersistence,
     VerifiedAssets? verified,
@@ -112,6 +114,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
          ...nodeBuilders,
          for (final p in config.widgetPackages) ...p.builders,
        },
+       experiments = experiments ?? ExperimentService.none(),
        _pinnedMedia = pinnedMedia ?? (() => false),
        statePersistence = statePersistence ?? StatePersistence.inMemory(),
        _verified = verified ?? VerifiedAssets(),
@@ -124,6 +127,9 @@ final class PluxRenderer implements PageRenderer, RenderServices {
 
   /// The configuration.
   final PluxConfig config;
+
+  @override
+  final ExperimentService experiments;
 
   /// The builders by permanent widget ID: the runtime's, then those of
   /// the registered widget packages, which win on a clash.
@@ -486,8 +492,20 @@ final class PluxRenderer implements PageRenderer, RenderServices {
     return out;
   }
 
-  /// The app's flags with their defaults, PXL's `flags` root.
-  Map<String, Object?> flagsRoot(ActiveRelease release) {
+  final Expando<Map<String, Object?>> _flagDefaults = Expando();
+
+  /// The app's flags, PXL's `flags` root: each flag's value for this
+  /// device from the control document in force, else its default in the
+  /// app document (ABT-006). Read at the moment of use, so a new control
+  /// document changes it without a release or a restart.
+  Map<String, Object?> flagsRoot(ActiveRelease release) =>
+      experiments.flags(_flagDefaults[release] ??= _defaultFlags(release));
+
+  /// PXL's `experiment` root: the variant of each running experiment on
+  /// this device and the values of its props (ABT-002).
+  Map<String, Object?> experimentRoot() => experiments.root();
+
+  Map<String, Object?> _defaultFlags(ActiveRelease release) {
     final app = view(release, '');
     final literal = ValueResolver(
       plugin: app,
@@ -676,6 +694,7 @@ final class PluxRenderer implements PageRenderer, RenderServices {
         ),
         'user': userRoot(release, env),
         'flags': flagsRoot(release),
+        'experiment': experimentRoot(),
       };
     } on FormatException {
       return null;
@@ -797,22 +816,14 @@ final class PluxRenderer implements PageRenderer, RenderServices {
   Object? _appValue(ActiveRelease release, fbs.Value? v, PluxEnvironment? env) {
     final app = view(release, '');
     final limits = _pxlLimits(release.limits);
-    final literal = ValueResolver(
-      plugin: app,
-      roots: () => const {},
-      token: (_) => null,
-      translation: (_) => null,
-      limits: limits,
-    );
-    final flags = {
-      for (final f in release.meta('').flags ?? const <fbs.Flag>[])
-        if (f.name != null) f.name!: literal.resolve(f.$default, app.string),
-    };
     try {
       return toPxl(
         ValueResolver(
           plugin: app,
-          roots: () => {'flags': flags, 'user': userRoot(release, env)},
+          roots: () => {
+            'flags': flagsRoot(release),
+            'user': userRoot(release, env),
+          },
           token: (_) => null,
           translation: (_) => null,
           limits: limits,
@@ -1095,7 +1106,6 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
   late final PxlLimits _limits = _pxlLimits(widget.release.limits);
   late final Map<String, Object?> _params;
   late final PageInstance _instance;
-  late final Map<String, Object?> _flags;
 
   /// Why the page's parameters cannot be used (NAV-007), or null.
   PluxException? _paramError;
@@ -1412,17 +1422,6 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
         ),
       ),
     );
-    final appLiteral = ValueResolver(
-      plugin: _app,
-      roots: () => const {},
-      token: (_) => null,
-      translation: (_) => null,
-      limits: _limits,
-    );
-    _flags = {
-      for (final f in widget.release.meta('').flags ?? const <fbs.Flag>[])
-        if (f.name != null) f.name!: read(appLiteral, f.$default, _app.string),
-    };
   }
 
   /// The declared types the page's values may have: the app's and the
@@ -1533,7 +1532,8 @@ final class _PluxPageViewState extends ConsumerState<PluxPageView>
       // Read on every evaluation: user.authenticated is the host's answer
       // at that moment (ADR-0040).
       'user': widget.renderer.userRoot(widget.release, env),
-      'flags': _flags,
+      'flags': widget.renderer.flagsRoot(widget.release),
+      'experiment': widget.renderer.experimentRoot(),
       'data': _data?.root ?? const <String, Object?>{},
     };
     _roots = roots;

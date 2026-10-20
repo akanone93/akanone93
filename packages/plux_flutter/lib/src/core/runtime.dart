@@ -13,6 +13,8 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,6 +53,9 @@ import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/device/services.dart';
 import 'package:plux_flutter/src/devtools_api/diagnostics.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/experiments/experiment_service.dart';
+import 'package:plux_flutter/src/experiments/targeting.dart';
+import 'package:plux_flutter/src/experiments/targeting_facts.dart';
 import 'package:plux_flutter/src/functions/engine.dart';
 import 'package:plux_flutter/src/functions/invoke_function.dart';
 import 'package:plux_flutter/src/native_catalogue/host.dart';
@@ -839,6 +844,45 @@ final class PluxRuntime with WidgetsBindingObserver {
     platforms: overrides.secure,
   );
 
+  /// Evaluates feature flags and assigns experiment variants from the
+  /// control document in force (ABT-002, ABT-006, ADR-0079).
+  late final ExperimentService experiments = ExperimentService(
+    snapshot: () => control.value.snapshot,
+    consent: () => telemetry.consent.experiments,
+    facts: _targetingFacts,
+    userId: () => environment().user?.id,
+    installId: _installId,
+    persistence: statePersistence,
+    record: (name, {fields = const {}}) =>
+        telemetry.record(name, fields: fields),
+    clock: _clock,
+  );
+
+  /// What targeting rules compare, read now.
+  TargetingFacts _targetingFacts() {
+    final dispatcher = ui.PlatformDispatcher.instance;
+    final view = dispatcher.views.firstOrNull;
+    return targetingFacts(
+      hostBuild: config.hostBuild,
+      channel: config.channel,
+      os: defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
+      locale: environment().locale ?? dispatcher.locale,
+      width: view == null ? 0 : view.physicalSize.width / view.devicePixelRatio,
+      user: environment().user,
+    );
+  }
+
+  /// The ID of this installation, made on first use and kept with the
+  /// persisted state: the assignment subject of a device with no user ID.
+  String _installId() {
+    const key = 'plux.experiment/installation';
+    final stored = statePersistence.read(Persistence.persisted, key)?.value;
+    if (stored is String && stored.isNotEmpty) return stored;
+    final id = newInstallId(math.Random.secure());
+    statePersistence.write(Persistence.persisted, key, 'installation-1', id);
+    return id;
+  }
+
   /// Turns page sections into widgets (ADR-0031).
   late PageRenderer? renderer = PluxRenderer(
     config: config,
@@ -847,6 +891,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     imageCacheDirectory: '$_root/images',
     httpClient: _httpClient,
     statePersistence: statePersistence,
+    experiments: experiments,
     assets: assets,
     verified: _verified,
     data: _dataServices,

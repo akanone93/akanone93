@@ -39,6 +39,7 @@ import 'package:plux_flutter/src/pxl/types.dart';
 import 'package:plux_flutter/src/render/builders/secure.dart'
     show isSensitiveEvent;
 import 'package:plux_flutter/src/render/decoding.dart';
+import 'package:plux_flutter/src/render/exposure_probe.dart';
 import 'package:plux_flutter/src/render/generated/render.g.dart';
 import 'package:plux_flutter/src/render/min_target.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
@@ -219,6 +220,7 @@ final class NodeContextImpl implements NodeContext, MotionSource {
 
   Widget _content() {
     if (node.widget == 0) {
+      if (node.variant != null) return _variant(node.variant!);
       if (node.component != null) return _component();
       if (node.nativeSlot != 0) return _nativeSlot();
       return _unknown('a node with neither a widget nor a component');
@@ -399,8 +401,7 @@ final class NodeContextImpl implements NodeContext, MotionSource {
             when locale != null &&
                 (key == locale.toLanguageTag() || key == locale.languageCode) =>
           key.contains('-') ? 5 : 4,
-        // Experiment assignment arrives with experiments; until then no
-        // variant is active.
+        fbs.OverrideKind.Experiment when _isAssigned(key) => 6,
         _ => 0,
       };
     }
@@ -410,6 +411,15 @@ final class NodeContextImpl implements NodeContext, MotionSource {
         if (rank(o) > 0) o,
     ]..sort((a, b) => rank(a).compareTo(rank(b)));
     return active;
+  }
+
+  /// Whether this device is enrolled in the variant that an experiment
+  /// override's key `<experiment>:<variant>` names (ABT-002).
+  bool _isAssigned(String key) {
+    final colon = key.lastIndexOf(':');
+    return colon > 0 &&
+        scope.services.experiments.variantOf(key.substring(0, colon)) ==
+            key.substring(colon + 1);
   }
 
   @override
@@ -975,6 +985,30 @@ final class NodeContextImpl implements NodeContext, MotionSource {
           textDirection: TextDirection.ltr,
           style: const TextStyle(fontSize: 10),
         );
+
+  // ── Experiments ──────────────────────────────────────────────────────────
+
+  /// Builds the arm of a `Variant` node that this device is assigned: the
+  /// control (`arms[0]`) when it is not enrolled, the experiment is not in
+  /// the control document or the variant has no arm (ABT-002). The exposure
+  /// is recorded when the arm mounts, not now (a node can be built and
+  /// never shown) and only for a device that is enrolled.
+  Widget _variant(fbs.Variant variant) {
+    final arms = variant.arms ?? const <fbs.VariantArm>[];
+    if (arms.isEmpty) return _unknown('a Variant node without arms');
+    final key = scope.section.string(variant.experiment);
+    final assigned = scope.services.experiments.variantOf(key);
+    final arm = arms.firstWhere(
+      (a) => scope.section.string(a.name) == assigned,
+      orElse: () => arms.first,
+    );
+    final shown = PluxNode(arm.node);
+    if (assigned == null) return shown;
+    return ExposureProbe(
+      onShown: () => scope.services.experiments.recordExposure(key, assigned),
+      child: shown,
+    );
+  }
 
   // ── Components ───────────────────────────────────────────────────────────
 
