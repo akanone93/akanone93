@@ -101,7 +101,14 @@ func (u *unit) optimiseNode(n *node) {
 	if n.visible != nil && n.visible.kind == fbs.ValueKindBool && n.visible.i == 1 {
 		n.visible = nil // visible is the default
 	}
-	n.children = u.keep(n.children)
+	if n.variant != nil {
+		// An arm is never dropped: the arms are addressed by position.
+		for _, c := range n.children {
+			u.optimiseNode(c)
+		}
+	} else {
+		n.children = u.keep(n.children)
+	}
 	for _, sf := range n.slots {
 		sf.nodes = u.keep(sf.nodes)
 		for _, c := range sf.nodes {
@@ -308,6 +315,9 @@ func (u *unit) equalsDefault(n *node, d registry.Prop, v *value) bool {
 // translations and handles no events, so the runtime can build it once
 // (CMP-024).
 func static(n *node) bool {
+	if n.variant != nil {
+		return false
+	}
 	if len(n.handlers) > 0 || n.visible != nil || len(n.overrides) > 0 || n.anim != nil || n.animated {
 		return false
 	}

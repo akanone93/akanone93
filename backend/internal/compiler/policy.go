@@ -161,12 +161,17 @@ func (u *unit) cost(n *node, level int) (int64, int) {
 	for _, sf := range n.slots {
 		kids = append(kids, sf.nodes...)
 	}
+	var armCost int64
 	for _, k := range kids {
 		c, d := u.cost(k, level+1)
-		total += c
+		if n.variant != nil {
+			armCost = max(armCost, c) // one arm builds
+		} else {
+			total += c
+		}
 		depth = max(depth, d)
 	}
-	return total, depth
+	return total + armCost, depth
 }
 
 // imageBytes sums the files of the distinct image assets a page uses.

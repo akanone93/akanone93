@@ -52,6 +52,18 @@ func renumber(n *Node, newID IDSource, ids map[string]string) error {
 			return err
 		}
 	}
+	if n.Control != nil {
+		if err := renumber(n.Control, newID, ids); err != nil {
+			return err
+		}
+	}
+	for _, name := range slices.Sorted(maps.Keys(n.Variants)) {
+		arm := n.Variants[name]
+		if err := renumber(&arm, newID, ids); err != nil {
+			return err
+		}
+		n.Variants[name] = arm
+	}
 	for _, name := range slices.Sorted(maps.Keys(n.Slots)) {
 		fill := n.Slots[name]
 		if fill.One != nil {

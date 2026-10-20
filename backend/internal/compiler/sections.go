@@ -105,7 +105,15 @@ func encodeNode(e *valueEnc, n *node) flatbuffers.UOffsetT {
 	b := e.b
 	props := propVector(e, n.props)
 	hs := handlers(b, n.handlers)
-	children := u32Vector(b, indices(n.children))
+	var childIndices []uint32
+	if n.variant == nil {
+		childIndices = indices(n.children)
+	}
+	children := u32Vector(b, childIndices)
+	var variant flatbuffers.UOffsetT
+	if n.variant != nil {
+		variant = variantTable(e, n)
+	}
 	slots := slotVector(b, n.slots)
 	visible := e.value(n.visible)
 	sem := semanticsTable(e, n.semantics)
@@ -114,7 +122,7 @@ func encodeNode(e *valueEnc, n *node) flatbuffers.UOffsetT {
 	anim := nodeAnimationTable(e, n)
 	testID := e.strs.of(n.doc.TestID)
 	var native uint32
-	if n.widget == nil && n.target == nil {
+	if n.widget == nil && n.target == nil && n.variant == nil {
 		native = e.strs.of(n.doc.Type)
 	}
 	fbs.NodeStart(b)
@@ -156,6 +164,9 @@ func encodeNode(e *valueEnc, n *node) flatbuffers.UOffsetT {
 		fbs.NodeAddDirection(b, fbs.TextDirectionOverrideLtr)
 	case schema.TextDirectionRtl:
 		fbs.NodeAddDirection(b, fbs.TextDirectionOverrideRtl)
+	}
+	if variant != 0 {
+		fbs.NodeAddVariant(b, variant)
 	}
 	return fbs.NodeEnd(b)
 }

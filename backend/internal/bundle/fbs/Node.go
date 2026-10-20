@@ -310,8 +310,21 @@ func (rcv *Node) MutateDirection(n TextDirectionOverride) bool {
 	return rcv._tab.MutateByteSlot(36, byte(n))
 }
 
+func (rcv *Node) Variant(obj *Variant) *Variant {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(38))
+	if o != 0 {
+		x := rcv._tab.Indirect(o + rcv._tab.Pos)
+		if obj == nil {
+			obj = new(Variant)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
+	}
+	return nil
+}
+
 func NodeStart(builder *flatbuffers.Builder) {
-	builder.StartObject(17)
+	builder.StartObject(18)
 }
 func NodeAddId(builder *flatbuffers.Builder, id flatbuffers.UOffsetT) {
 	builder.PrependStructSlot(0, flatbuffers.UOffsetT(id), 0)
@@ -381,6 +394,9 @@ func NodeAddAnimation(builder *flatbuffers.Builder, animation flatbuffers.UOffse
 }
 func NodeAddDirection(builder *flatbuffers.Builder, direction TextDirectionOverride) {
 	builder.PrependByteSlot(16, byte(direction), 0)
+}
+func NodeAddVariant(builder *flatbuffers.Builder, variant flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(17, flatbuffers.UOffsetT(variant), 0)
 }
 func NodeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

@@ -1,0 +1,15 @@
+{
+  "default": false,
+  "description": "Shows the new checkout.",
+  "id": "01f0c450-6c00-7000-8000-000000000704",
+  "key": "newCheckout",
+  "kind": "flag",
+  "schemaVersion": "1.0.0",
+  "segments": [
+    {
+      "segment": "beta-testers",
+      "value": true
+    }
+  ],
+  "type": "bool"
+}

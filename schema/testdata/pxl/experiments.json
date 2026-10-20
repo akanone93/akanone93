@@ -1,0 +1,153 @@
+{
+  "description": "experiment.<key> is the variant assigned to the device, an enum of the experiment's variant names, and experiment.<key>.<prop> the value of a declared prop for that variant: the root holds the prop as a field named \"<key>.<prop>\" and the checker reads it through the enum (ABT-001, ABT-002).",
+  "env": {
+    "types": {
+      "PluxExperiments": {
+        "fields": {
+          "cta": "PluxVariantCta",
+          "cta.label": "string",
+          "cta.rank": "int",
+          "hero": "PluxVariantHero"
+        }
+      },
+      "PluxVariantCta": {
+        "enum": [
+          "control",
+          "bold",
+          "short"
+        ]
+      },
+      "PluxVariantHero": {
+        "enum": [
+          "control",
+          "wide"
+        ]
+      }
+    },
+    "roots": {
+      "experiment": "PluxExperiments"
+    }
+  },
+  "inputs": {
+    "experiment": {
+      "cta": "bold",
+      "cta.label": "Buy now",
+      "cta.rank": 2,
+      "hero": "control"
+    }
+  },
+  "cases": [
+    {
+      "name": "the assigned variant",
+      "expr": "experiment.cta",
+      "value": "bold",
+      "type": "PluxVariantCta",
+      "program": "AQABDlBsdXhWYXJpYW50Q3RhAgQKZXhwZXJpbWVudAQDY3RhAQ5leHBlcmltZW50LmN0YQYGAAAIAQA=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"experiment\"",
+        "0003 GET_FIELD 1 ; \"cta\""
+      ],
+      "reads": [
+        "experiment.cta"
+      ]
+    },
+    {
+      "name": "compare the variant with a member",
+      "expr": "experiment.cta == \"bold\"",
+      "value": true,
+      "type": "bool",
+      "program": "AQACBGJvb2wDBApleHBlcmltZW50BANjdGEEBGJvbGQBDmV4cGVyaW1lbnQuY3RhCgYAAAgBAAQCADU=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"experiment\"",
+        "0003 GET_FIELD 1 ; \"cta\"",
+        "0006 CONST 2 ; \"bold\"",
+        "0009 EQ"
+      ],
+      "reads": [
+        "experiment.cta"
+      ]
+    },
+    {
+      "name": "a variant name that is not a member",
+      "expr": "experiment.cta == \"huge\"",
+      "diagnostics": [
+        {
+          "code": "PLX-2014",
+          "range": [
+            18,
+            24
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a prop of the assigned variant",
+      "expr": "experiment.cta.label",
+      "value": "Buy now",
+      "type": "string",
+      "program": "AQABBnN0cmluZwIECmV4cGVyaW1lbnQECWN0YS5sYWJlbAEUZXhwZXJpbWVudC5jdGEubGFiZWwGBgAACAEA",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"experiment\"",
+        "0003 GET_FIELD 1 ; \"cta.label\""
+      ],
+      "reads": [
+        "experiment.cta.label"
+      ]
+    },
+    {
+      "name": "a prop used in an expression",
+      "expr": "experiment.cta.rank + 1",
+      "value": 3,
+      "type": "int",
+      "program": "AQACA2ludAMECmV4cGVyaW1lbnQECGN0YS5yYW5rAgEAAAAAAAAAARNleHBlcmltZW50LmN0YS5yYW5rCgYAAAgBAAQCABM=",
+      "asm": [
+        "0000 LOAD_ROOT 0 ; \"experiment\"",
+        "0003 GET_FIELD 1 ; \"cta.rank\"",
+        "0006 CONST 2 ; 1",
+        "0009 ADD_INT"
+      ],
+      "reads": [
+        "experiment.cta.rank"
+      ]
+    },
+    {
+      "name": "a prop that the experiment does not declare",
+      "expr": "experiment.cta.colour",
+      "diagnostics": [
+        {
+          "code": "PLX-2002",
+          "range": [
+            0,
+            21
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an experiment without props has no fields",
+      "expr": "experiment.hero.label",
+      "diagnostics": [
+        {
+          "code": "PLX-2002",
+          "range": [
+            0,
+            21
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an experiment that does not exist",
+      "expr": "experiment.price",
+      "diagnostics": [
+        {
+          "code": "PLX-2012",
+          "range": [
+            0,
+            16
+          ]
+        }
+      ]
+    }
+  ]
+}

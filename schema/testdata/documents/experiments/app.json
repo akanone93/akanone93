@@ -1,0 +1,42 @@
+{
+  "defaultLocale": "en",
+  "entryRoute": "home",
+  "environments": [
+    {
+      "key": "production",
+      "name": "Production"
+    }
+  ],
+  "icon": {
+    "monogram": {
+      "background": "#0B6E4F",
+      "text": "EX"
+    }
+  },
+  "id": "01f0c450-6c00-7000-8000-000000000701",
+  "key": "experiments",
+  "kind": "app",
+  "minRuntimeVersion": "0.6.0",
+  "name": "Experiments",
+  "plugins": [
+    "shop"
+  ],
+  "schemaVersion": "1.0.0",
+  "securityProfile": "standard",
+  "supportedLocales": [
+    "en"
+  ],
+  "sync": {
+    "activation": "atSafePoint",
+    "startup": {
+      "mode": "useCacheThenSync"
+    }
+  },
+  "theme": "01f0c450-6c00-7000-8000-000000000702",
+  "userContext": [
+    {
+      "name": "tier",
+      "type": "string?"
+    }
+  ]
+}

@@ -100,7 +100,9 @@ type typer struct {
 	// The app-level roots, checked once.
 	appState, flags, vars, user [][2]string
 	appIDs                      map[string]string
-	appSources                  []sourceField
+	// experiments are the PXL types of the experiment root (ABT-001).
+	experiments map[string]pxl.TypeSpec
+	appSources  []sourceField
 }
 
 // sourceField is a data source visible as data.<name>.
@@ -134,6 +136,7 @@ func (t *typer) appDecls() {
 		}
 	}
 	t.appSources = t.sources(nil, app.DataSources, "app.json")
+	t.experiments = t.u.experimentTypes()
 }
 
 // stateFields checks state entries and returns their root fields and IDs.
@@ -205,10 +208,11 @@ func dataTypes(sources []sourceField) map[string]pxl.TypeSpec {
 // and plugin state, flags, variables, user context, device and data.
 func (t *typer) baseScope(pl *plugin) *scope {
 	s := &scope{plugin: pl, roots: map[string]string{
-		"app": "PluxAppState", "flags": "PluxFlags", "env": "PluxEnv", "user": "PluxUser", "device": "PluxDevice", "data": "PluxData",
+		"app": "PluxAppState", "flags": "PluxFlags", "env": "PluxEnv", "user": "PluxUser", "device": "PluxDevice", "data": "PluxData", "experiment": "PluxExperiments",
 	}, synth: map[string]pxl.TypeSpec{
 		"PluxAppState": objectType(t.appState), "PluxFlags": objectType(t.flags), "PluxEnv": objectType(t.vars), "PluxUser": objectType(t.user),
 	}, ids: map[string]map[string]string{"app": t.appIDs, "data": {}}}
+	maps.Copy(s.synth, t.experiments)
 	sources := t.appSources
 	if pl != nil {
 		fields, ids := t.stateFields(pl, pl.doc.State, pl.file)
