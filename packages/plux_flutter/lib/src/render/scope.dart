@@ -17,6 +17,7 @@ import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/core/active_release.dart';
 import 'package:plux_flutter/src/core/app_state.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
+import 'package:plux_flutter/src/experiments/experiment_service.dart';
 import 'package:plux_flutter/src/native_catalogue/registration.dart';
 import 'package:plux_flutter/src/pxl/types.dart';
 import 'package:plux_flutter/src/render/node_context.dart';
@@ -67,6 +68,10 @@ final pageStateProvider = NotifierProvider.autoDispose
 /// the release and URLs (RT-014), and the fallback of failed pages and
 /// components (RT-020).
 abstract interface class RenderServices {
+  /// Assigns experiment variants and records their exposure for `Variant`
+  /// nodes (ABT-002).
+  ExperimentService get experiments;
+
   /// Icon [name] of [set] for a node of [scope], from the icon font of
   /// its bundle or the app's; null, reported, when there is none.
   PluxIconSource? icon(RenderScope scope, String name, String set);

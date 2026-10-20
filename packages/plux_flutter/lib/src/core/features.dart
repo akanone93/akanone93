@@ -10,6 +10,7 @@
 /// confidential bundles' `security.confidential.v1` (SEC-053, ADR-0055),
 /// animation's `anim.v1`, `anim.timelines.v1` and `anim.transitions.v1`
 /// (ANI-001–ANI-006, NAV-010), the local database's `db.v1` (ADR-0049), the
+/// experiment variants' `experiments.variant.v1` (ABT-002), the
 /// device-function section `section.wasm.v1` when the host registers a
 /// function engine (FN-050, FN-051), and
 /// registry revisions — `widget.<Type>.v<n>`,
@@ -117,6 +118,10 @@ final class RuntimeFeatures {
   /// protection, requires it, first in 0.4.0.
   static const Set<String> secureUi = {'security.secureui.v1'};
 
+  /// Experiment variants (ABT-001, ABT-002, ADR-0079): a bundle with a
+  /// `Variant` node requires it.
+  static const Set<String> experiments = {'experiments.variant.v1'};
+
   /// Device-placed functions (FN-051): a bundle whose plugin calls one
   /// carries the linked module in a wasm section and requires it. Without
   /// an engine the bundle is refused before download, as for any feature
@@ -132,6 +137,7 @@ final class RuntimeFeatures {
         device.contains(feature) ||
         animation.contains(feature) ||
         db.contains(feature) ||
+        experiments.contains(feature) ||
         pxl.contains(feature) ||
         navigation.contains(feature) ||
         actions.contains(feature) ||

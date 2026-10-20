@@ -130,6 +130,7 @@ final class ReleaseOwners {
       if (key.isNotEmpty) 'plugin': container.read(pluginStateProvider(key)),
       'user': renderer.userRoot(release, environment()),
       'flags': renderer.flagsRoot(release),
+      'experiment': renderer.experimentRoot(),
       'device': _device(),
       'data': data?.root ?? const <String, Object?>{},
     };
