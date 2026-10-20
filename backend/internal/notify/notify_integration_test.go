@@ -102,7 +102,7 @@ func newWorld(t *testing.T, mutate func(*notify.Options)) *world {
 		Jitter:        func() float64 { return 0 },
 		Limits:        func(context.Context, string) (limits.Set, error) { return *w.limits.Load(), nil },
 	}
-	o.HTTP = httpx.NewClient(httpx.Options{Policy: o.Policy, Timeout: 5 * time.Second})
+	o.HTTP = mustClient(t, httpx.Options{Destination: httpx.KindNotify, Policy: o.Policy, Timeout: 5 * time.Second})
 	if mutate != nil {
 		mutate(&o)
 	}
@@ -568,7 +568,7 @@ func TestSRV063DialRefusesInternalAddress(t *testing.T) {
 	cap := newCapture(t)
 	// The policy that created the channel allowed loopback; the sender does not.
 	w := newWorld(t, func(o *notify.Options) {
-		o.HTTP = httpx.NewClient(httpx.Options{Policy: httpx.Policy{}, Timeout: 5 * time.Second})
+		o.HTTP = mustClient(t, httpx.Options{Destination: httpx.KindNotify, Policy: httpx.Policy{}, Timeout: 5 * time.Second})
 	})
 	ctx := context.Background()
 	ch, err := w.svc.CreateChannel(ctx, w.owner, notify.ChannelSpec{Name: "s", Kind: notify.KindSlack, Secret: cap.srv.URL + "/hook"})
@@ -1004,4 +1004,14 @@ func TestSRV063EndpointLimitAndSSRF(t *testing.T) {
 	if _, _, err := w.svc.CreateEndpoint(ctx, w.owner, notify.EndpointSpec{Name: "d", URL: "https://example.com/d", EventTypes: []notify.EventType{"made.up"}}); err == nil {
 		t.Error("an unknown event type was accepted")
 	}
+}
+
+// mustClient builds an SSRF-safe client for a registered destination.
+func mustClient(t *testing.T, o httpx.Options) *http.Client {
+	t.Helper()
+	c, err := httpx.NewClient(o)
+	if err != nil {
+		t.Fatalf("httpx.NewClient: %v", err)
+	}
+	return c
 }

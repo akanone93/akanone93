@@ -44,9 +44,15 @@ type ExportOptions struct {
 	Chunk int
 }
 
-func (o ExportOptions) withDefaults() ExportOptions {
+// withDefaults fills the unset options. It fails when the default client
+// cannot be built.
+func (o ExportOptions) withDefaults() (ExportOptions, error) {
 	if o.Client == nil {
-		o.Client = httpx.NewClient(httpx.Options{Timeout: 30 * time.Second})
+		client, err := httpx.NewClient(httpx.Options{Destination: httpx.KindAnalyticsOTLP, Timeout: 30 * time.Second})
+		if err != nil {
+			return ExportOptions{}, fmt.Errorf("analytics: %w", err)
+		}
+		o.Client = client
 	}
 	if o.Lag <= 0 {
 		o.Lag = 10 * time.Minute
@@ -54,7 +60,7 @@ func (o ExportOptions) withDefaults() ExportOptions {
 	if o.Chunk <= 0 {
 		o.Chunk = 1000
 	}
-	return o
+	return o, nil
 }
 
 // Export is an organisation's OTLP destination.

@@ -270,9 +270,13 @@ const statusListTimeout = 20 * time.Second
 // the operator's file where one is configured, otherwise Google's list,
 // fetched by the worker through the guarded client (SEC-002, DEP-040).
 func buildStatusList(cfg *config.Config, shared cache.Cache, set limits.Set) (*statuslist.List, error) {
+	client, err := httpx.NewClient(httpx.Options{Destination: httpx.KindAndroidStatusList, Timeout: statusListTimeout})
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
 	l, err := statuslist.New(statuslist.Options{
 		File:     cfg.Attestation.Android.StatusListFile,
-		Client:   httpx.NewClient(httpx.Options{Timeout: statusListTimeout}),
+		Client:   client,
 		Cache:    shared,
 		MaxBytes: set.Get(limits.AttestStatusListBytes),
 	})

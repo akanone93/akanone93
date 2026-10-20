@@ -12,11 +12,9 @@ import (
 	"mime"
 	"mime/quotedprintable"
 	"net"
-	"net/netip"
 	"net/smtp"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/nightCode42/plux3/backend/internal/httpx"
@@ -102,20 +100,9 @@ func (s *Service) dial(ctx context.Context, address string) (net.Conn, error) {
 	if s.o.SMTPDial != nil {
 		return s.o.SMTPDial(ctx, "tcp", address)
 	}
-	policy := s.o.Policy
-	d := &net.Dialer{
-		Timeout: 10 * time.Second,
-		Control: func(_, address string, _ syscall.RawConn) error {
-			host, _, err := net.SplitHostPort(address)
-			if err != nil {
-				return fmt.Errorf("%w: %s", httpx.ErrBlocked, address)
-			}
-			addr, err := netip.ParseAddr(host)
-			if err != nil {
-				return fmt.Errorf("%w: %s is not an IP address", httpx.ErrBlocked, host)
-			}
-			return policy.Check(addr)
-		},
+	d, err := httpx.GuardedDialer(httpx.KindSMTP, s.o.Policy)
+	if err != nil {
+		return nil, fmt.Errorf("notify: %w", err)
 	}
 	return d.DialContext(ctx, "tcp", address)
 }

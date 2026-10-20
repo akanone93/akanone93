@@ -4,6 +4,7 @@
 package httpx
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -15,28 +16,61 @@ import (
 	"time"
 )
 
-// GuardedDialer returns a dialer that checks the address a connection will
-// use, after the name has been resolved, against the policy. It is the
-// guard of every outbound connection that is not HTTP, such as syslog over
-// TLS (SEC-104), and of NewTransport.
-func GuardedDialer(policy Policy) *net.Dialer {
-	return &net.Dialer{
-		Timeout:   10 * time.Second,
-		KeepAlive: 30 * time.Second,
-		// Control runs after the name has been resolved, with the
-		// address the connection will actually use.
-		Control: func(_, address string, _ syscall.RawConn) error {
-			host, _, err := net.SplitHostPort(address)
-			if err != nil {
-				return fmt.Errorf("%w: %s", ErrBlocked, address)
-			}
-			addr, err := netip.ParseAddr(host)
-			if err != nil {
-				return fmt.Errorf("%w: %s is not an IP address", ErrBlocked, host)
-			}
-			return policy.Check(addr)
-		},
+// Dialer opens connections for one registered destination. It refuses a
+// host the destination does not list before the name is resolved, and an
+// address the policy blocks after (SEC-104, SEC-163).
+type Dialer struct {
+	destination Destination
+	dialer      *net.Dialer
+}
+
+// GuardedDialer returns a dialer for the destination kind that checks the
+// address a connection will use, after the name has been resolved, against
+// the policy. It is the guard of every outbound connection that is not
+// HTTP, such as syslog over TLS (SEC-104), and of NewTransport. It fails
+// for a kind the registry does not list.
+func GuardedDialer(kind Kind, policy Policy) (*Dialer, error) {
+	destination, err := Lookup(kind)
+	if err != nil {
+		return nil, err
 	}
+	return &Dialer{
+		destination: destination,
+		dialer: &net.Dialer{
+			Timeout:   10 * time.Second,
+			KeepAlive: 30 * time.Second,
+			// Control runs after the name has been resolved, with the
+			// address the connection will actually use.
+			Control: func(_, address string, _ syscall.RawConn) error {
+				host, _, err := net.SplitHostPort(address)
+				if err != nil {
+					return fmt.Errorf("%w: %s", ErrBlocked, address)
+				}
+				addr, err := netip.ParseAddr(host)
+				if err != nil {
+					return fmt.Errorf("%w: %s is not an IP address", ErrBlocked, host)
+				}
+				return policy.Check(addr)
+			},
+		},
+	}, nil
+}
+
+// DialContext connects to address, which is host:port, the way
+// net.Dialer.DialContext does.
+func (d *Dialer) DialContext(ctx context.Context, network, address string) (net.Conn, error) {
+	host, _, err := net.SplitHostPort(address)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrBlocked, address)
+	}
+	if !d.destination.allows(host) {
+		return nil, fmt.Errorf("%w: %s is not a host of %s", ErrBlocked, host, d.destination.Kind)
+	}
+	conn, err := d.dialer.DialContext(ctx, network, address)
+	if err != nil {
+		return nil, fmt.Errorf("httpx: %w", err)
+	}
+	return conn, nil
 }
 
 // PrivateNetworksPolicy is the policy of a destination that may be on a

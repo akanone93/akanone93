@@ -61,9 +61,10 @@ func (c *collector) requests() [][]byte {
 }
 
 // loopbackOptions let the exporter reach an httptest server on 127.0.0.1.
-func loopbackOptions() analytics.ExportOptions {
+func loopbackOptions(t *testing.T) analytics.ExportOptions {
+	t.Helper()
 	return analytics.ExportOptions{
-		Client:    httpx.NewClient(httpx.Options{Policy: httpx.Policy{AllowLoopback: true}, Timeout: 5 * time.Second}),
+		Client:    mustClient(t, httpx.Options{Destination: httpx.KindAnalyticsOTLP, Policy: httpx.Policy{AllowLoopback: true}, Timeout: 5 * time.Second}),
 		AllowHTTP: true, Lag: 10 * time.Minute, Chunk: 50,
 	}
 }
@@ -140,7 +141,7 @@ func TestExportDestinationIsChecked_ANL_011(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	col := newCollector(t)
-	f := analyticstest.New(t, analyticstest.Options{Export: loopbackOptions()})
+	f := analyticstest.New(t, analyticstest.Options{Export: loopbackOptions(t)})
 
 	e, err := f.Analytics.SetExport(ctx, f.Owner, col.URL, true)
 	if err != nil || e.Endpoint != col.URL+"/v1/metrics" || !e.Enabled {
@@ -205,7 +206,7 @@ func TestExportSendsRollupsOnce_ANL_011(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	col := newCollector(t)
-	f := analyticstest.New(t, analyticstest.Options{Export: loopbackOptions()})
+	f := analyticstest.New(t, analyticstest.Options{Export: loopbackOptions(t)})
 	if _, err := f.Analytics.SetExport(ctx, f.Owner, col.URL, true); err != nil {
 		t.Fatal(err)
 	}
@@ -259,7 +260,7 @@ func TestExportFailureAndRecovery_ANL_011(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	col := newCollector(t)
-	f := analyticstest.New(t, analyticstest.Options{Export: loopbackOptions()})
+	f := analyticstest.New(t, analyticstest.Options{Export: loopbackOptions(t)})
 	if _, err := f.Analytics.SetExport(ctx, f.Owner, col.URL, true); err != nil {
 		t.Fatal(err)
 	}
@@ -316,4 +317,14 @@ func TestExportFailureAndRecovery_ANL_011(t *testing.T) {
 	if got := auditActions(t, f); len(got) != 3 || got[0] != "analytics.export_set" || got[2] != "analytics.export_deleted" {
 		t.Errorf("audit = %v", got)
 	}
+}
+
+// mustClient builds an SSRF-safe client for a registered destination.
+func mustClient(t *testing.T, o httpx.Options) *http.Client {
+	t.Helper()
+	c, err := httpx.NewClient(o)
+	if err != nil {
+		t.Fatalf("httpx.NewClient: %v", err)
+	}
+	return c
 }
