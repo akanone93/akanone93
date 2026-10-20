@@ -41,8 +41,10 @@
 //     and says why in its text for the log; the core shows the caller only
 //     the code (PLX-6210, PLX-6211).
 //
-// The package keeps no state and reads no clock or random source of its
-// own; the decryption key it is given is used within the call.
+// The package keeps no state and reads no clock: the instant of every
+// check and of every request is the one the core passes in. The only
+// randomness it does not receive is the identifier the library gives an
+// AuthnRequest. The decryption key it is given is used within the call.
 //
 // Specification: GOV-004, GOV-033, SEC-103; ADR-0074.
 package saml
