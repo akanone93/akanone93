@@ -15,6 +15,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/nightCode42/plux3/backend/edition"
+	"github.com/nightCode42/plux3/backend/internal/auditexport"
 	"github.com/nightCode42/plux3/backend/internal/auth"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
@@ -65,6 +66,8 @@ type Handlers struct {
 	// Unimplemented.
 	Configs    *gateway.Configs
 	LiveConfig *gateway.ConfigResolver
+	// AuditExport serves AuditService (SEC-143); nil leaves it unmounted.
+	AuditExport *auditexport.Service
 	// Edition answers what the licence allows (GOV-030); nil is the
 	// community provider.
 	Edition edition.Provider

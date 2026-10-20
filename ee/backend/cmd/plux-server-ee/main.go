@@ -14,13 +14,17 @@ import (
 
 	"github.com/nightCode42/plux3/backend/edition/licensefile"
 	"github.com/nightCode42/plux3/backend/serverapp"
+	"github.com/nightCode42/plux3/ee/backend/auditexport"
 	"github.com/nightCode42/plux3/ee/backend/license"
 )
 
 // options registers the licence verifier with the keys compiled into this
-// build.
+// build, and the enterprise audit export sinks (SEC-143).
 func options() serverapp.Options {
-	return serverapp.Options{Edition: license.Verifier{Keys: licensefile.TrustedKeys()}}
+	return serverapp.Options{
+		Edition:    license.Verifier{Keys: licensefile.TrustedKeys()},
+		AuditSinks: auditexport.Provider{},
+	}
 }
 
 func main() {
