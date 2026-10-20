@@ -441,8 +441,6 @@ var permissionsWithoutRPC = []auth.Permission{
 	auth.AuditExport,
 	auth.ReconstructionView,
 	auth.DSRManage,
-	auth.SearchRead,
-	auth.GitExport,
 	auth.LicenseManage,
 	auth.BackupManage,
 }
