@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
+
+	"github.com/nightCode42/plux3/backend/internal/httpx"
 )
 
 // The production endpoints of the push services.
@@ -19,16 +21,18 @@ const (
 	apnsSandboxEndpoint = "https://api.sandbox.push.apple.com"
 )
 
-// egressDestinations lists the hosts this package talks to, for the egress
-// list (ADR-0082). Nothing else is reachable: the client refuses any other
-// host, whatever a credential or a response names.
+// egressDestinations lists the hosts this package talks to: those of the
+// push destination in the egress registry (SEC-163, ADR-0082). Nothing
+// else is reachable: the client refuses any other host, whatever a
+// credential or a response names. An unregistered kind lists none, which
+// refuses everything.
 func egressDestinations() []string {
-	return []string{"api.push.apple.com", "api.sandbox.push.apple.com", "fcm.googleapis.com", "oauth2.googleapis.com"}
+	d, err := httpx.Lookup(httpx.KindPush)
+	if err != nil {
+		return nil
+	}
+	return slices.Clone(d.Hosts)
 }
-
-// EgressDestinations returns the hosts the push senders may reach, sorted,
-// for the egress registry.
-func EgressDestinations() []string { return slices.Clone(egressDestinations()) }
 
 // errHostNotListed is returned for a request to a host the senders do not
 // list.

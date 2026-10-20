@@ -141,7 +141,7 @@ func (e *Egress) connectionFor(ctx context.Context, u Upstream) (*connection, er
 // build makes the connection of an upstream, reading the secrets its
 // authentication names.
 func (e *Egress) build(ctx context.Context, u Upstream) (*connection, error) {
-	opts := httpx.TransportOptions{Policy: policyFor(u), MaxIdleConnsPerHost: 64}
+	opts := httpx.TransportOptions{Destination: httpx.KindGatewayUpstream, Policy: policyFor(u), MaxIdleConnsPerHost: 64}
 	if e.roots != nil {
 		opts.TLS = &tls.Config{RootCAs: e.roots, MinVersion: tls.VersionTLS12}
 	}
@@ -167,7 +167,11 @@ func (e *Egress) build(ctx context.Context, u Upstream) (*connection, error) {
 		}
 		c.header, c.value = u.Auth.Header, strings.TrimSpace(string(key))
 	}
-	c.transport = httpx.NewTransport(opts)
+	transport, err := httpx.NewTransport(opts)
+	if err != nil {
+		return nil, fmt.Errorf("gateway: %w", err)
+	}
+	c.transport = transport
 	return c, nil
 }
 

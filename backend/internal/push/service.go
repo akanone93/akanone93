@@ -18,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/nightCode42/plux3/backend/internal/httpx"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/signing"
@@ -117,7 +118,11 @@ func New(o Options) (*Service, error) {
 		o.Log = slog.New(slog.DiscardHandler)
 	}
 	if o.HTTP == nil {
-		o.HTTP = &http.Client{Timeout: 15 * time.Second}
+		client, err := httpx.NewClient(httpx.Options{Destination: httpx.KindPush, Timeout: 15 * time.Second})
+		if err != nil {
+			return nil, fmt.Errorf("push: %w", err)
+		}
+		o.HTTP = client
 	}
 	e := &o.Endpoints
 	for _, d := range []struct {
