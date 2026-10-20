@@ -57,6 +57,9 @@ type Options struct {
 	Organizations func(ctx context.Context, f func(organizationID string) error) error
 	// Jobs run, in order, for every organisation on every pass.
 	Jobs []Job
+	// LockKey names the advisory lock; zero is LockKey. Replicas that are to
+	// elect one leader must share it.
+	LockKey int64
 	// Interval is the time between passes; zero is DefaultInterval.
 	Interval time.Duration
 	// Log receives the failures of jobs; nil discards them.
@@ -77,6 +80,9 @@ type Scheduler struct {
 func New(o Options) (*Scheduler, error) {
 	if o.Locker == nil || o.Organizations == nil {
 		return nil, errors.New("scheduler: a scheduler needs a locker and a way to list organisations")
+	}
+	if o.LockKey == 0 {
+		o.LockKey = LockKey
 	}
 	if o.Interval <= 0 {
 		o.Interval = DefaultInterval
@@ -116,7 +122,7 @@ func (s *Scheduler) elect(ctx context.Context) bool {
 		s.lock.Release(ctx)
 		s.lock = nil
 	}
-	lock, err := s.o.Locker.TryAdvisoryLock(ctx, LockKey)
+	lock, err := s.o.Locker.TryAdvisoryLock(ctx, s.o.LockKey)
 	if err != nil {
 		s.warn(ctx, "leader election failed", slog.Any("error", err))
 		return false

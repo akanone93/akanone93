@@ -313,8 +313,12 @@ func (s *Service) record(ctx context.Context, tx pgx.Tx, p auth.Principal, actio
 	return nil
 }
 
-// failure turns a database error into the refusal a caller understands.
+// failure turns a database error into the refusal a caller understands;
+// nil stays nil, so a call can wrap the result of a query directly.
 func failure(err error, what string) error {
+	if err == nil {
+		return nil
+	}
 	if errors.Is(err, pgx.ErrNoRows) {
 		return plxerr.New(plxerr.ResourceNotFound, "no such %s", what)
 	}

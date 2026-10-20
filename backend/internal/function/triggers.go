@@ -6,6 +6,7 @@ package function
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -75,6 +76,27 @@ func triggerOf(r dbgen.FunctionTrigger) Trigger {
 		t.LastFireAt = storage.Time(r.LastFireAt)
 	}
 	return t
+}
+
+// authorizeSome is the first check of a call that names a trigger or a hook
+// by its identifier: the caller must hold function.deploy somewhere, so a
+// caller who holds it nowhere learns nothing about which identifiers exist.
+// The call then checks the app and the environment of the row it finds.
+func authorizeSome(p auth.Principal) error {
+	if p.Holds(auth.FunctionDeploy) {
+		return nil
+	}
+	for _, perms := range p.AppPermissions {
+		if slices.Contains(perms, auth.FunctionDeploy) {
+			return nil
+		}
+	}
+	for _, perms := range p.EnvPermissions {
+		if slices.Contains(perms, auth.FunctionDeploy) {
+			return nil
+		}
+	}
+	return authorize(p, auth.FunctionDeploy, "")
 }
 
 // authorizeEnv checks the permission to change triggers of an environment:
@@ -186,6 +208,9 @@ func (s *Service) ListTriggers(ctx context.Context, p auth.Principal, appID stri
 
 // DeleteTrigger removes a schedule.
 func (s *Service) DeleteTrigger(ctx context.Context, p auth.Principal, id string) error {
+	if err := authorizeSome(p); err != nil {
+		return err
+	}
 	u, err := parseID(id, "trigger")
 	if err != nil {
 		return err
@@ -269,13 +294,16 @@ func (s *Service) RunTriggers(ctx context.Context, org string) (int, error) {
 	}
 	for _, f := range fires {
 		result := s.runFire(ctx, inv, f.t)
-		_ = s.inTenant(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
+		err := s.inTenant(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
 			q := dbgen.New(tx)
 			if err := q.FinishTriggerFire(ctx, dbgen.FinishTriggerFireParams{TriggerID: f.t.ID, FireAt: storage.Timestamp(f.at), Result: result}); err != nil {
 				return failure(err, "trigger")
 			}
 			return failure(q.SetFunctionTriggerResult(ctx, dbgen.SetFunctionTriggerResultParams{ID: f.t.ID, LastResult: result}), "trigger")
 		})
+		if err != nil && s.o.Log != nil {
+			s.o.Log.WarnContext(ctx, "function: record the outcome of a schedule", "trigger", storage.ID(f.t.ID), "error", err)
+		}
 		s.noteOutcome(ctx, f.t, result)
 	}
 	return len(fires), nil
@@ -459,6 +487,9 @@ func (s *Service) hookForChange(ctx context.Context, q *dbgen.Queries, p auth.Pr
 
 // DeleteHook closes a hook and forgets its secrets.
 func (s *Service) DeleteHook(ctx context.Context, p auth.Principal, id string) error {
+	if err := authorizeSome(p); err != nil {
+		return err
+	}
 	u, err := parseID(id, "hook")
 	if err != nil {
 		return err
@@ -483,6 +514,9 @@ func (s *Service) DeleteHook(ctx context.Context, p auth.Principal, id string) e
 // the overlap (zero is a day, negative ends it at once). The new secret is
 // returned once.
 func (s *Service) RotateHookSecret(ctx context.Context, p auth.Principal, id string, overlap time.Duration) (string, error) {
+	if err := authorizeSome(p); err != nil {
+		return "", err
+	}
 	u, err := parseID(id, "hook")
 	if err != nil {
 		return "", err

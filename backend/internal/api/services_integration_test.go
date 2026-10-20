@@ -34,6 +34,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/golden"
 	"github.com/nightCode42/plux3/backend/internal/localisation"
+	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/release"
@@ -280,6 +281,10 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	notifier, err := notify.New(notify.Options{DB: db, Audit: log, Crypter: backend, IDs: gen})
+	if err != nil {
+		t.Fatal(err)
+	}
 	fnrt := newFnRuntime(t, fnRuntimeDeps{
 		db: db, backend: backend, service: functions, keys: store, devices: devices, resolver: resolver, set: set, count: shared.Increment,
 		defaultAssurance: func(ctx context.Context, appID, environmentID string) (string, error) {
@@ -291,7 +296,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		},
 	})
 	h := &api.Handlers{
-		Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
+		Notify: notifier, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
@@ -344,6 +349,13 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewTelemetryServiceHandler(h.Telemetry(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewLicenseServiceHandler(h.License(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewNotificationServiceHandler(h.Notification(), opts)
+		},
+		func() (string, http.Handler) { return pluxv1connect.NewWebhookServiceHandler(h.Webhook(), opts) },
+		func() (string, http.Handler) {
+			return pluxv1connect.NewFunctionTriggerServiceHandler(h.FunctionTrigger(), opts)
+		},
 		func() (string, http.Handler) { return pluxv1connect.NewConfigServiceHandler(h.ConfigService(), opts) },
 		func() (string, http.Handler) {
 			return pluxv1connect.NewFunctionAdminServiceHandler(h.FunctionAdmin(), opts)
