@@ -119,14 +119,39 @@ void verifySection(
 }) {
   final ident = sectionIdentifiers[kind];
   final root = ident == null ? null : rootLayouts[ident];
-  if (root == null) throw _fail('no layout for section kind $kind');
+  if (ident == null || root == null) {
+    throw _fail('no layout for section kind $kind');
+  }
+  verifyBuffer(
+    data,
+    identifier: ident,
+    layouts: tableLayouts,
+    root: root,
+    maxDepth: maxDepth,
+    maxVisits: maxVisits,
+  );
+}
+
+/// Checks that [data] is a well-formed FlatBuffers buffer with the file
+/// [identifier], whose root table is [root] in [layouts]; throws a
+/// [PluxException] with `PLX-3042` otherwise. The layouts of the bundle
+/// sections are [tableLayouts]; a document that is not a section brings
+/// its own.
+void verifyBuffer(
+  Uint8List data, {
+  required String identifier,
+  required List<TableLayout> layouts,
+  required int root,
+  required int maxDepth,
+  required int maxVisits,
+}) {
   if (data.length < 8 || data.length > 0x7fffffff) {
     throw _fail('size ${data.length}');
   }
-  if (String.fromCharCodes(data, 4, 8) != ident) {
-    throw _fail('file identifier is not $ident');
+  if (String.fromCharCodes(data, 4, 8) != identifier) {
+    throw _fail('file identifier is not $identifier');
   }
-  _Verifier(data, maxDepth, maxVisits).table(_u32(data, 0), root, 1);
+  _Verifier(data, layouts, maxDepth, maxVisits).table(_u32(data, 0), root, 1);
 }
 
 PluxException _fail(String message) => PluxException(
@@ -140,9 +165,10 @@ int _u32(Uint8List b, int pos) =>
 int _u16(Uint8List b, int pos) => b[pos] | b[pos + 1] << 8;
 
 final class _Verifier {
-  _Verifier(this.buf, this.maxDepth, this.maxVisits);
+  _Verifier(this.buf, this.layouts, this.maxDepth, this.maxVisits);
 
   final Uint8List buf;
+  final List<TableLayout> layouts;
   final int maxDepth;
   final int maxVisits;
   int visits = 0;
@@ -185,7 +211,7 @@ final class _Verifier {
         !inBounds(pos, tableSize)) {
       throw _fail('table at $pos has an invalid vtable');
     }
-    final layout = tableLayouts[t];
+    final layout = layouts[t];
     for (final f in layout.fields) {
       final slot = 4 + 2 * f.id;
       final off = slot + 2 <= vtSize ? _u16(buf, vt + slot) : 0;

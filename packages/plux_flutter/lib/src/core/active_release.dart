@@ -14,8 +14,11 @@ import 'dart:typed_data';
 
 import 'package:plux_flutter/src/bundle/container.dart';
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
+import 'package:plux_flutter/src/control/control_snapshot.dart';
+import 'package:plux_flutter/src/control/live_control.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/mmap/mapped_file.dart';
+import 'package:plux_flutter/src/render/values.dart' show uuidString;
 import 'package:plux_flutter/src/store/release_record.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/verify/bundle_verifier.dart';
@@ -64,6 +67,13 @@ final class PageRef {
 
   /// The page section, verified on first use.
   final Section section;
+
+  /// The page's document UUID in canonical text, which a page kill switch
+  /// names (REL-060).
+  String get id {
+    final b = ByteData.sublistView(section.id);
+    return uuidString((b.getUint64(0), b.getUint64(8)));
+  }
 }
 
 /// The pins an app bundle's [meta] sets for customer API domains, by host
@@ -80,6 +90,7 @@ final class ActiveRelease {
     this._store,
     this.gate,
     this.control,
+    this._live,
     this._report,
     this._decrypted,
   );
@@ -90,19 +101,23 @@ final class ActiveRelease {
   /// once and fails every later use the same way. [decrypted] holds the
   /// plain containers of the record's confidential bundles by plugin key,
   /// opened beforehand off the UI isolate (SEC-053); the reader works on
-  /// those buffers instead of a mapping.
+  /// those buffers instead of a mapping. [live] gives the control document
+  /// in force when a switch is asked about, so a document that arrives
+  /// later applies to a release already open (SYN-060).
   factory ActiveRelease.open(
     ReleaseStore store,
     ReleaseRecord record,
     VerifierLimits limits, {
     void Function(PluxException error)? report,
     Map<String, Uint8List> decrypted = const {},
+    LiveControl Function()? live,
   }) {
     final r = ActiveRelease._(
       record,
       store,
       SectionGate(limits),
       _control(store, record),
+      live ?? () => LiveControl.none,
       report,
       decrypted,
     );
@@ -121,6 +136,7 @@ final class ActiveRelease {
   /// The control switches in force (RT-022).
   final ControlState control;
 
+  final LiveControl Function() _live;
   final void Function(PluxException error)? _report;
   final Map<String, Uint8List> _decrypted;
   final Map<String, MappedBundle> _bundles = {};
@@ -364,9 +380,29 @@ final class ActiveRelease {
     return out;
   }
 
-  /// Whether plugin [key] is switched off (RT-022).
+  /// Whether plugin [key] is switched off (RT-022), by the manifest or by
+  /// the control document (REL-060).
   bool disabled(String key) =>
-      control.appKillSwitch || control.killSwitches.contains(key);
+      control.appKillSwitch ||
+      control.killSwitches.contains(key) ||
+      _live().isOff(SwitchKind.plugin, key);
+
+  /// Whether the control document switches [page] off (RT-022, REL-060).
+  bool pageDisabled(PageRef page) => _live().isOff(SwitchKind.page, page.id);
+
+  /// Whether the control document switches off the action graph [id], a
+  /// document UUID (REL-060).
+  bool graphDisabled(String id) => _live().isOff(SwitchKind.actionGraph, id);
+
+  /// Whether the control document switches off the data source [id], a
+  /// document UUID (REL-060).
+  bool dataSourceDisabled(String id) =>
+      _live().isOff(SwitchKind.dataSource, id);
+
+  /// Whether the control document switches off the function [name]
+  /// (REL-060).
+  bool functionDisabled(String name) =>
+      _live().isOff(SwitchKind.function, name);
 
   /// Takes a lease for a page.
   void acquire() => _leases++;

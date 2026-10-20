@@ -19,6 +19,7 @@ import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
 import 'package:plux_flutter/src/core/active_release.dart';
 import 'package:plux_flutter/src/core/fallback.dart';
 import 'package:plux_flutter/src/core/runtime.dart';
+import 'package:plux_flutter/src/core/update_screen.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/navigation/guards.dart';
 import 'package:plux_flutter/src/state/providers.dart';
@@ -132,6 +133,16 @@ final class PluxView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final rt = ref.watch(pluxRuntimeProvider);
     final release = ref.watch(activeReleaseProvider);
+    final pendingUpdate = ref.watch(liveControlProvider).pendingUpdate;
+    if (rt != null && pendingUpdate != null) {
+      // No Plux page shows until the release the control document names is
+      // active (REL-070).
+      return _sized(
+        rt,
+        null,
+        buildUpdateScreen(context, rt.config, pendingUpdate.messageKey),
+      );
+    }
     if (rt == null || release == null) {
       return _sized(
         rt,
@@ -171,7 +182,7 @@ final class PluxView extends ConsumerWidget {
     }
     final component = page.section.kind == SectionKind.component;
     var shown = page;
-    if (release.disabled(page.plugin)) {
+    if (release.disabled(page.plugin) || release.pageDisabled(page)) {
       final message = release.control.message;
       final off = PluxException(
         PluxErrorCode.pluginDisabled,
@@ -189,7 +200,9 @@ final class PluxView extends ConsumerWidget {
       } on PluxException catch (e) {
         return fallback(e, page.plugin);
       }
-      if (declared == null) return fallback(off, page.plugin);
+      if (declared == null || release.pageDisabled(declared)) {
+        return fallback(off, page.plugin);
+      }
       // The kill switch never opens a guarded page: a declared fallback
       // page with guards or an assurance level, or whose requirements
       // cannot be read yet, gives way to the generic fallback (ADR-0040).

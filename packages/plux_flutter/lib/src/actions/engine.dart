@@ -21,6 +21,8 @@ import 'package:plux_flutter/src/actions/run.dart';
 import 'package:plux_flutter/src/actions/trace.dart';
 import 'package:plux_flutter/src/actions/triggers.dart';
 import 'package:plux_flutter/src/bundle/fbs/bundle_fbs_generated.dart' as fbs;
+import 'package:plux_flutter/src/control/control_snapshot.dart' show SwitchKind;
+import 'package:plux_flutter/src/control/live_control.dart';
 import 'package:plux_flutter/src/device/guard.dart';
 import 'package:plux_flutter/src/errors/plux_exception.dart';
 import 'package:plux_flutter/src/l10n/runtime_strings.dart';
@@ -220,7 +222,13 @@ final class ActionHost {
     this.presenter,
     this.honoursParallel = false,
     this.lease,
+    this.disabled,
   });
+
+  /// Whether the control document switches off the graph with the UUID it
+  /// is given (REL-060): such a graph does not run, and the refusal is
+  /// reported.
+  final bool Function(String graphId)? disabled;
 
   /// Holds the release whose bundles a run reads, for as long as the run
   /// lasts: called as a run starts, it returns what ends the hold. A run
@@ -427,6 +435,10 @@ final class ActionHost {
     bool sensitiveEvent = false,
   }) async {
     if (_disposed || _ownerGone(owner)) return null;
+    if (disabled?.call(graph.id) ?? false) {
+      report(LiveControl.disabled(SwitchKind.actionGraph, graph.id));
+      return null;
+    }
     Future<RunResult?> launch() => _launch(
       graph,
       roots: roots,

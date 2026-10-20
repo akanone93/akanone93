@@ -26,6 +26,9 @@ import 'package:plux_flutter/src/assets/avif_probe.dart';
 import 'package:plux_flutter/src/assets/fonts.dart';
 import 'package:plux_flutter/src/assets/icon_fonts.dart';
 import 'package:plux_flutter/src/assets/image_providers.dart';
+import 'package:plux_flutter/src/control/control_poller.dart';
+import 'package:plux_flutter/src/control/control_snapshot.dart';
+import 'package:plux_flutter/src/control/live_control.dart';
 import 'package:plux_flutter/src/core/active_release.dart';
 import 'package:plux_flutter/src/core/app_state.dart';
 import 'package:plux_flutter/src/core/confidential_bundles.dart';
@@ -80,12 +83,14 @@ import 'package:plux_flutter/src/security/security_config.dart';
 import 'package:plux_flutter/src/state/persistence.dart';
 import 'package:plux_flutter/src/state/providers.dart';
 import 'package:plux_flutter/src/store/baseline.dart';
+import 'package:plux_flutter/src/store/control_store.dart';
 import 'package:plux_flutter/src/store/kv_store.dart';
 import 'package:plux_flutter/src/store/metadata_state.dart';
 import 'package:plux_flutter/src/store/pointer.dart';
 import 'package:plux_flutter/src/store/release_store.dart';
 import 'package:plux_flutter/src/store/sealed_store.dart';
 import 'package:plux_flutter/src/sync/api_client.dart';
+import 'package:plux_flutter/src/sync/control_sync.dart' show ControlOutcome;
 import 'package:plux_flutter/src/sync/metadata_sync.dart';
 import 'package:plux_flutter/src/sync/sync_engine.dart';
 import 'package:plux_flutter/src/sync/sync_event.dart';
@@ -131,7 +136,12 @@ final class RuntimeOverrides {
     this.aead,
     this.secure = const SecurePlatforms(),
     this.userAuthSigner,
+    this.controlTimer,
   });
+
+  /// Makes the timer of the foreground control checks (SYN-060); a timer of
+  /// the root zone, every five minutes, when null.
+  final PeriodicTimerFactory? controlTimer;
 
   /// Creates the credential store on the sync isolate.
   final CredentialStore Function()? credentials;
@@ -486,6 +496,18 @@ final class PluxRuntime with WidgetsBindingObserver {
   /// The latest sync event, for status displays.
   final ValueNotifier<SyncEvent?> lastEvent = ValueNotifier(null);
 
+  /// The control document in force (SYN-060): the kill switches, and the
+  /// mandatory update while one is pending. Pages and runs ask it as they
+  /// decide, so a change applies without a restart.
+  final ValueNotifier<LiveControl> control = ValueNotifier(LiveControl.none);
+  late final ControlPoller _controlPoller = ControlPoller(
+    check: checkControl,
+    timer: overrides.controlTimer,
+  );
+  final Set<PluxErrorCode> _reportedControl = {};
+  int _updateReportedVersion = 0;
+  bool _fulfilling = false;
+
   /// The security settings in force (SEC-182): the built-in defaults until
   /// the stored configuration has been read, then the verified remote
   /// configuration on top of them. Read-only; it changes when a sync
@@ -586,6 +608,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     authoriser: _sca,
     allowDirect: () =>
         settings.value.flag(SecuritySetting.allowDirectDataSources),
+    disabled: (id) => control.value.isOff(SwitchKind.dataSource, id),
   );
 
   /// Strong customer authentication (SEC-027, ADR-0056): challenge,
@@ -888,6 +911,9 @@ final class PluxRuntime with WidgetsBindingObserver {
   FunctionTarget? _resolveFunction(String plugin, String function) {
     final release = active.value;
     if (release == null) return null;
+    if (release.functionDisabled(function)) {
+      throw LiveControl.disabled(SwitchKind.function, function);
+    }
     final grant = (release.meta(plugin).capabilities?.functions ?? const [])
         .where((g) => g.function == function)
         .firstOrNull;
@@ -1284,10 +1310,14 @@ final class PluxRuntime with WidgetsBindingObserver {
         ),
       );
     }
+    // The switches and the pending update of the last document, before any
+    // page shows; the check for a newer one follows below.
+    _applyStoredControl();
     await _load();
     // Before the first sync, so the flush after it carries the session's
     // start with the release the device runs.
     _startSession();
+    _controlPoller.resume();
     final timeout = config.startup.timeout;
     if (active.value == null) {
       final r = await sync();
@@ -1312,6 +1342,160 @@ final class PluxRuntime with WidgetsBindingObserver {
       unawaited(sync());
     }
     return PluxStartup._(active.value?.sequence, null);
+  }
+
+  /// Checks the signed control document now (SYN-060) and applies it:
+  /// kill switches take effect at once, a forced rollback activates the
+  /// retained release, and a mandatory update is fetched and activated
+  /// before any page shows again. Never throws.
+  Future<void> checkControl() async {
+    if (_disposed) return;
+    final ControlOutcome outcome;
+    try {
+      outcome = await _worker.control();
+    } on Object catch (e) {
+      developer.log('control check failed: ${e.runtimeType}', name: 'plux');
+      return;
+    }
+    if (_disposed) return;
+    await _applyControl(outcome);
+  }
+
+  /// Handles the data message of a silent push (SYN-060, Q22): one that
+  /// carries the Plux marker asks for an immediate control check, anything
+  /// else is ignored. Completes with whether a check ran.
+  Future<bool> handleSilentPush(Map<String, Object?> payload) async {
+    if (_disposed || !isControlPush(payload, config.appId)) return false;
+    await _controlPoller.checkNow();
+    return true;
+  }
+
+  /// Puts the document kept from the last launch in force (SYN-060): its
+  /// switches hold, and so does its mandatory update while it is fresh.
+  void _applyStoredControl() {
+    final stored = ControlDocumentStore(_root).read();
+    if (stored != null) _refreshControl(stored.snapshot);
+  }
+
+  Future<void> _applyControl(ControlOutcome outcome) async {
+    final snapshot = outcome.snapshot;
+    if (outcome.fresh) _reportedControl.clear();
+    if (outcome.error case final PluxException error) _reportControl(error);
+    if (outcome.expired && snapshot != null) {
+      _reportControl(
+        PluxException(
+          PluxErrorCode.controlDocumentExpired,
+          'control document ${snapshot.version} has expired; its kill '
+          'switches stay in force',
+        ),
+      );
+    }
+    if (snapshot == null) return;
+    final before = control.value.snapshot;
+    _refreshControl(snapshot);
+    final rolledBack = outcome.rolledBackTo;
+    if (rolledBack != null) {
+      await _serially(_load);
+      _report(
+        PluxException(
+          PluxErrorCode.forcedRollbackApplied,
+          'release $rolledBack is active again by order of control '
+          'document ${snapshot.version}',
+          details: {'sequence': '$rolledBack'},
+        ),
+      );
+    }
+    if (outcome.fresh || rolledBack != null) {
+      _recordApplied(snapshot, before, rolledBack);
+    }
+  }
+
+  /// Reports a control problem once until a fresh document arrives, so a
+  /// server that keeps answering the same wrong thing is not a stream of
+  /// reports every five minutes.
+  void _reportControl(PluxException error) {
+    if (_reportedControl.add(error.code)) _report(error);
+  }
+
+  void _recordApplied(
+    ControlSnapshot snapshot,
+    ControlSnapshot? before,
+    int? rolledBack,
+  ) {
+    final pending = control.value.pendingUpdate;
+    telemetry.record(
+      'control_applied',
+      fields: {
+        'version': snapshot.version,
+        'switches': snapshot.switches.length,
+        'switches_changed': snapshot.switchesChangedFrom(before),
+        'outcome': rolledBack != null
+            ? 'rolled_back'
+            : pending != null
+            ? 'update_pending'
+            : 'applied',
+        'rolled_back_to': ?rolledBack,
+      },
+    );
+  }
+
+  /// Makes [next], or the document in force, current: recomputes whether a
+  /// mandatory update is pending and asks the pages to rebuild when
+  /// something they depend on changed.
+  void _refreshControl([ControlSnapshot? next]) {
+    final snapshot = next ?? control.value.snapshot;
+    if (snapshot == null) return;
+    final pending = _pendingUpdate(snapshot);
+    final now = control.value;
+    final unchanged =
+        now.snapshot?.version == snapshot.version &&
+        now.pendingUpdate?.releaseSequence == pending?.releaseSequence;
+    if (!unchanged) {
+      control.value = LiveControl(snapshot: snapshot, pendingUpdate: pending);
+    }
+    if (pending != null) _awaitUpdate(snapshot.version, pending);
+  }
+
+  /// The mandatory update of [snapshot] still to be activated, or null.
+  /// An expired document no longer holds the app back: only its switches
+  /// are kept in force.
+  MandatoryUpdate? _pendingUpdate(ControlSnapshot snapshot) {
+    final update = snapshot.mandatory;
+    if (update == null || !_clock().isBefore(snapshot.expiresAt)) return null;
+    final have = active.value?.sequence;
+    return have != null && have >= update.releaseSequence ? null : update;
+  }
+
+  void _awaitUpdate(int version, MandatoryUpdate update) {
+    if (_updateReportedVersion != version) {
+      _updateReportedVersion = version;
+      _report(
+        PluxException(
+          PluxErrorCode.mandatoryUpdatePending,
+          'release ${update.releaseId} must be active before a page shows',
+          details: {'sequence': '${update.releaseSequence}'},
+        ),
+      );
+    }
+    unawaited(_fulfilUpdate());
+  }
+
+  /// Fetches the release a mandatory update names and activates it, now:
+  /// the update screen has replaced the pages, so nothing holds the old
+  /// release (REL-070). A sync that cannot reach the server leaves the
+  /// update pending; the next check tries again.
+  Future<void> _fulfilUpdate() async {
+    if (_fulfilling || _disposed) return;
+    _fulfilling = true;
+    try {
+      final r = await sync();
+      if (r.outcome == SyncOutcome.staged || _reopen().staged != null) {
+        await _activateNow();
+      }
+    } finally {
+      _fulfilling = false;
+    }
+    _refreshControl();
   }
 
   /// Syncs now (SYN-002); a running sync is joined, and [SyncRun.progress]
@@ -1423,6 +1607,7 @@ final class PluxRuntime with WidgetsBindingObserver {
           _limits,
           report: _report,
           decrypted: decrypted,
+          live: () => control.value,
         );
       } on PluxException catch (e) {
         _report(e);
@@ -1430,6 +1615,7 @@ final class PluxRuntime with WidgetsBindingObserver {
       }
     }
     previous?.retire();
+    _refreshControl();
   }
 
   /// A page mounted: it holds the active release until [unmount].
@@ -1484,8 +1670,10 @@ final class PluxRuntime with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       triggers.appResumed();
       _dataServices.appResumed();
+      _controlPoller.resume();
     }
     if (state == AppLifecycleState.paused) {
+      _controlPoller.pause();
       // Reaching the background normally ends the launch healthily.
       if (_healthyScheduled) unawaited(_worker.markHealthy());
       if (_inForeground) {
@@ -1524,6 +1712,7 @@ final class PluxRuntime with WidgetsBindingObserver {
     secureUi.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _flushEvery?.cancel();
+    _controlPoller.close();
     if (_inForeground) _endStretch();
     // The sync isolate handles messages in order: once this answers, every
     // event recorded before it is in the buffer, for the next launch. A

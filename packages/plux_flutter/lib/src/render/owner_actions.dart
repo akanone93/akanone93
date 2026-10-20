@@ -137,6 +137,7 @@ final class ReleaseOwners {
     final navigator = navigatorKey;
     final host = ActionHost(
       lease: release.hold,
+      disabled: release.graphDisabled,
       context: StepContext(
         services: services.services,
         navigator: PageNavigator(

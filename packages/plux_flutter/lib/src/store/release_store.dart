@@ -267,6 +267,31 @@ final class ReleaseStore {
     return LaunchOutcome.revertedToLastKnownGood;
   }
 
+  /// Makes the retained earlier release [sequence] the active one, as the
+  /// signed control document orders (REL-060, ADR-0004 Revision): the
+  /// release it replaces is the rejected one, so the manifest naming it is
+  /// ignored until a higher sequence arrives, as after a revert. Returns
+  /// false, changing nothing, when [sequence] is the active release or is
+  /// not retained with its record.
+  bool rollbackTo(int sequence) {
+    final p = _pointer;
+    if (p.active == sequence ||
+        !p.kept.contains(sequence) ||
+        record(sequence) == null) {
+      return false;
+    }
+    writePointer(
+      StorePointer(
+        active: sequence,
+        pinned: sequence,
+        rejected: p.active,
+        highestAccepted: p.highestAccepted,
+        etag: '',
+      ),
+    );
+    return true;
+  }
+
   /// The latest verified control switches, or null.
   ControlState? control() {
     final f = File('$root/control');
