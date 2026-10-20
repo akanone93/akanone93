@@ -1,0 +1,259 @@
+{
+  "uid": "plux-analytics-localisation",
+  "title": "Plux analytics: missing translations",
+  "description": "Sampled l10n_missing events by locale (I18N-006, ANL-020).",
+  "tags": [
+    "plux",
+    "analytics"
+  ],
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": false,
+  "timezone": "utc",
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "refresh": "5m",
+  "templating": {
+    "list": [
+      {
+        "name": "organization",
+        "label": "Organisation ID",
+        "type": "textbox",
+        "query": "",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "description": "The organisation UUID. Row-level security binds every query to it (SRV-022)."
+      },
+      {
+        "name": "app",
+        "label": "App",
+        "description": "The apps of the organisation with rollups.",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "plux-analytics"
+        },
+        "definition": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT DISTINCT app_id::text AS __value, app_id::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid;\n",
+        "query": {
+          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT DISTINCT app_id::text AS __value, app_id::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid;\n",
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "rawQuery": true,
+          "editorMode": "code"
+        },
+        "refresh": 1,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "hide": 0
+      },
+      {
+        "name": "release",
+        "label": "Release sequence",
+        "description": "The release sequences of the selected apps with rollups.",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "plux-analytics"
+        },
+        "definition": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT DISTINCT release_sequence::text AS __value, release_sequence::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.app_id::text IN ($app);\n",
+        "query": {
+          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT DISTINCT release_sequence::text AS __value, release_sequence::text AS __text\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.app_id::text IN ($app);\n",
+          "refId": "A",
+          "format": "table",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "rawQuery": true,
+          "editorMode": "code"
+        },
+        "refresh": 1,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "hide": 0
+      },
+      {
+        "name": "granularity",
+        "label": "Granularity",
+        "type": "custom",
+        "query": "5m,1h,1d",
+        "current": {
+          "text": "1h",
+          "value": "1h"
+        },
+        "hide": 0,
+        "options": [
+          {
+            "text": "5m",
+            "value": "5m",
+            "selected": false
+          },
+          {
+            "text": "1h",
+            "value": "1h",
+            "selected": true
+          },
+          {
+            "text": "1d",
+            "value": "1d",
+            "selected": false
+          }
+        ],
+        "description": "The rollup grain: 5m, 1h or 1d (ANL-010)."
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "text",
+      "title": "Translation keys",
+      "description": "",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Not shown per key.** l10n_missing carries the translation key (Appendix G.2), but the rollups have no key dimension, so the panels group by locale only. The event is also not yet in the telemetry catalogue, so the panels stay empty until it is ingested. The events are sampled (I18N-006)."
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Missing translations",
+      "description": "l10n_missing events in the range (sampled).",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "plux-analytics"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 8,
+        "h": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT COALESCE(SUM(r.events), 0) AS \"Events\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.event_name = 'l10n_missing';\n"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Missing translations by locale",
+      "description": "l10n_missing events per requested locale over time.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "plux-analytics"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 4,
+        "w": 16,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "format": "time_series",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT $__timeGroupAlias(r.bucket, $__interval), r.locale AS metric, SUM(r.events) AS value\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.event_name = 'l10n_missing'\nGROUP BY 1, 2\nORDER BY 1;\n"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "table",
+      "title": "Missing translations by locale",
+      "description": "l10n_missing events per locale in the range.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "plux-analytics"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 24,
+        "h": 9
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {},
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "plux-analytics"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT set_config('plux.organization_id', '$organization', false);\nSELECT r.locale AS \"Locale\", SUM(r.events) AS \"Events\"\nFROM analytics_rollups r\nWHERE r.organization_id = NULLIF('$organization', '')::uuid\n  AND r.granularity = '$granularity'\n  AND $__timeFilter(r.bucket)\n  AND r.app_id::text IN ($app)\n  AND r.release_sequence::text IN ($release)\n  AND r.event_name = 'l10n_missing'\nGROUP BY 1\nORDER BY 2 DESC\nLIMIT 100;\n"
+        }
+      ]
+    }
+  ]
+}
