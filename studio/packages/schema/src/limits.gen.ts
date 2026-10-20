@@ -1144,6 +1144,16 @@ export const limits = [
     description: "Devices one silent-push job sends to before it hands the rest to a follow-up job.",
   },
   {
+    key: "push.tokenBytes",
+    unit: "bytes",
+    default: 1024,
+    warning: 0,
+    max: 4096,
+    scopes: ["installation"],
+    phase: "P9",
+    description: "Length of the push token a device may register for silent push.",
+  },
+  {
     key: "pxl.collectionSize",
     unit: "count",
     default: 10000,

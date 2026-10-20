@@ -444,6 +444,10 @@ type SigningKeys struct {
 	// production (SEC-050, SEC-056).
 	Snapshot  string `json:"snapshot"`
 	Timestamp string `json:"timestamp"`
+	// Control is the prefix of the control document's key, named like the
+	// others. The key is online and limited to control documents; the root
+	// delegates to it (ADR-0077).
+	Control string `json:"control"`
 }
 
 // Vault is a HashiCorp Vault Transit engine (SEC-120).

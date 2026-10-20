@@ -328,6 +328,9 @@ const (
 	// PushBatchSize: Devices one silent-push job sends to before it hands the
 	// rest to a follow-up job. (SYN-060)
 	PushBatchSize Key = "push.batchSize"
+	// PushTokenBytes: Length of the push token a device may register for silent
+	// push. (SYN-060)
+	PushTokenBytes Key = "push.tokenBytes"
 	// PXLCollectionSize: Elements of a list or map produced during one PXL
 	// evaluation. (PXL-001)
 	PXLCollectionSize Key = "pxl.collectionSize"
@@ -534,6 +537,7 @@ var registry = [...]Definition{
 	{Key: PluginPages, Unit: UnitCount, Default: 500, Warning: 0, Max: 2000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Pages per plugin."},
 	{Key: PublishAssetWait, Unit: UnitMilliseconds, Default: 600000, Warning: 0, Max: 3600000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P3", Description: "Time a publish waits, from when it was queued, for the app's image assets to finish processing before it fails."},
 	{Key: PushBatchSize, Unit: UnitCount, Default: 200, Warning: 0, Max: 5000, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Devices one silent-push job sends to before it hands the rest to a follow-up job."},
+	{Key: PushTokenBytes, Unit: UnitBytes, Default: 1024, Warning: 0, Max: 4096, Scopes: ScopeInstallation, EnforcedBy: EnforcerServer, Phase: "P9", Description: "Length of the push token a device may register for silent push."},
 	{Key: PXLCollectionSize, Unit: UnitCount, Default: 10000, Warning: 0, Max: 1000000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P1", Description: "Elements of a list or map produced during one PXL evaluation."},
 	{Key: PXLDecimalDigits, Unit: UnitCount, Default: 1000, Warning: 0, Max: 10000, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer | EnforcerRuntime, Phase: "P1", Description: "Digits of a decimal produced during one PXL evaluation, in plain notation."},
 	{Key: PXLExpressionLength, Unit: UnitCodepoints, Default: 4096, Warning: 0, Max: 65536, Scopes: ScopeInstallation | ScopeOrganization | ScopeApp | ScopePlugin, EnforcedBy: EnforcerCompiler | EnforcerServer, Phase: "P1", Description: "Length of one PXL expression."},

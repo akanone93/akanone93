@@ -222,7 +222,7 @@ func (c *Config) validateSigning(p *problems) {
 	// the 64 characters a key reference may have.
 	prefixes := map[string]string{
 		"signing.keys.targets": c.Signing.Keys.Targets, "signing.keys.snapshot": c.Signing.Keys.Snapshot,
-		"signing.keys.timestamp": c.Signing.Keys.Timestamp,
+		"signing.keys.timestamp": c.Signing.Keys.Timestamp, "signing.keys.control": c.Signing.Keys.Control,
 	}
 	seen := map[string]string{}
 	for _, path := range slices.Sorted(maps.Keys(prefixes)) {

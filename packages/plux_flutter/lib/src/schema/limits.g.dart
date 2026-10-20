@@ -286,6 +286,8 @@ enum PluxLimit {
   /// Devices one silent-push job sends to before it hands the rest to a
   /// follow-up job.
   pushBatchSize('push.batchSize', PluxLimitUnit.count, 200, 0, 5000),
+  /// Length of the push token a device may register for silent push.
+  pushTokenBytes('push.tokenBytes', PluxLimitUnit.bytes, 1024, 0, 4096),
   /// Elements of a list or map produced during one PXL evaluation.
   pxlCollectionSize('pxl.collectionSize', PluxLimitUnit.count, 10000, 0, 1000000),
   /// Digits of a decimal produced during one PXL evaluation, in plain notation.

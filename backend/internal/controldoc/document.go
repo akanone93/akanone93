@@ -154,6 +154,10 @@ func validRelease(what, id string, sequence uint64) error {
 
 func validText(s string) bool { return len(s) <= MaxText && textPattern.MatchString(s) }
 
+// ValidIdentifier reports whether s can be an identifier, key or message key
+// of a document: up to MaxText printable ASCII characters without spaces.
+func ValidIdentifier(s string) bool { return validText(s) }
+
 // sortedSwitches returns the kill switches in the order the wire format
 // promises: by scope in wire order, then by target.
 func sortedSwitches(in []KillSwitch) []KillSwitch {
