@@ -201,8 +201,10 @@ nothing, and `STU-001`/`STU-002` already require a React SPA served by a Bun BFF
   (`STU-002`); utility CSS stops growing with the app (`STU-122`). No runtime CSS-in-JS.
 
 ### A4.9 Routing: TanStack Router
-- Typed routes, params and `<Link>`; **schema-validated typed search params**: open
-  app/plugin/screen, selection, zoom, device frame, locale, theme, open overlay live in the URL.
+- Typed routes, params and `<Link>`; **schema-validated typed search params**: the URL holds
+  location only — app, plugin, screen, selection anchor, viewport, open overlay and drawer. Preview
+  switches (device frame, locale, theme, text scale) live in the user's profile (functional
+  decisions F10). Full route map: [p11-studio-routing.md](p11-studio-routing.md).
 - Loaders prefetch Query caches (preload on hover/intent); lazy route files (`STU-122`);
   overlays are search-param or nested routes inside the canvas route, so the canvas never
   unmounts (`STU-063`).

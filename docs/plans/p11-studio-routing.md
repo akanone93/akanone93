@@ -361,8 +361,8 @@ Settings. The Publish button (action bar) opens A1.
 | Process-flow step | C2 `?screen&sel&overlay=actions&target` |
 | Command palette result | the entity's canonical route |
 
-## R8. Changes this implies to earlier decisions (applied when this file is accepted)
+## R8. Changes this implied to earlier decisions (applied)
 
 - **A4.9** (decisions file) said device frame, locale and theme live in the URL. Superseded by F10 and
   R1: preview switches live in the profile; the URL holds location (app, plugin, screen, anchor,
-  viewport, overlay, drawer). A4.9 is reworded to match.
+  viewport, overlay, drawer). A4.9 has been reworded to match.
