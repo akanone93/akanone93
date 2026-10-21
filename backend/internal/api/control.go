@@ -39,6 +39,20 @@ func channelRef(app, environment, channel string) release.ChannelRef {
 	return release.ChannelRef{AppID: app, EnvironmentID: environment, ChannelKey: channel}
 }
 
+// breakGlassOptions turns the break-glass fields of a request into the
+// option of the call (GOV-024). A justification without break_glass is
+// refused rather than ignored, so that nobody believes a change was made as
+// an emergency when it was not.
+func breakGlassOptions(breakGlass bool, justification string) ([]release.ChangeOption, error) {
+	switch {
+	case breakGlass:
+		return []release.ChangeOption{release.WithBreakGlass(justification)}, nil
+	case justification != "":
+		return nil, plxerr.New(plxerr.InvalidFormat, "a justification belongs to a break-glass action; set break_glass or leave it out")
+	}
+	return nil, nil
+}
+
 // controlResult answers a change with the document it produced.
 func controlResult(state release.ControlState, err error) (*pluxv1.ControlDocumentResponse, error) {
 	if err != nil {
@@ -104,7 +118,11 @@ func (s Control) SetKillSwitch(ctx context.Context, req *connect.Request[pluxv1.
 		if err != nil {
 			return nil, err
 		}
-		return controlResult(s.h.Releases.SetKillSwitch(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), k))
+		opts, err := breakGlassOptions(m.GetBreakGlass(), m.GetJustification())
+		if err != nil {
+			return nil, err
+		}
+		return controlResult(s.h.Releases.SetKillSwitch(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), k, opts...))
 	})
 }
 
@@ -120,7 +138,11 @@ func (s Control) ClearKillSwitch(ctx context.Context, req *connect.Request[pluxv
 		if err != nil {
 			return nil, err
 		}
-		return controlResult(s.h.Releases.ClearKillSwitch(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), k))
+		opts, err := breakGlassOptions(m.GetBreakGlass(), m.GetJustification())
+		if err != nil {
+			return nil, err
+		}
+		return controlResult(s.h.Releases.ClearKillSwitch(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), k, opts...))
 	})
 }
 
@@ -156,7 +178,11 @@ func (s Control) SetForcedRollback(ctx context.Context, req *connect.Request[plu
 			return nil, err
 		}
 		m := req.Msg
-		return controlResult(s.h.Releases.SetForcedRollback(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), m.GetReleaseSequence()))
+		opts, err := breakGlassOptions(m.GetBreakGlass(), m.GetJustification())
+		if err != nil {
+			return nil, err
+		}
+		return controlResult(s.h.Releases.SetForcedRollback(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), m.GetReleaseSequence(), opts...))
 	})
 }
 
@@ -168,7 +194,11 @@ func (s Control) ClearForcedRollback(ctx context.Context, req *connect.Request[p
 			return nil, err
 		}
 		m := req.Msg
-		return controlResult(s.h.Releases.ClearForcedRollback(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey())))
+		opts, err := breakGlassOptions(m.GetBreakGlass(), m.GetJustification())
+		if err != nil {
+			return nil, err
+		}
+		return controlResult(s.h.Releases.ClearForcedRollback(ctx, p, channelRef(m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey()), opts...))
 	})
 }
 

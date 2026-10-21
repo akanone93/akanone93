@@ -48,6 +48,9 @@ RETURNING *;
 -- name: CountChangeFreezes :one
 SELECT count(*) FROM change_freezes;
 
+-- name: GetChangeFreezeByName :one
+SELECT * FROM change_freezes WHERE name = $1;
+
 -- name: ListChangeFreezes :many
 SELECT * FROM change_freezes ORDER BY name, id;
 

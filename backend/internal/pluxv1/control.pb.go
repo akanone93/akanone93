@@ -930,6 +930,10 @@ type ClearKillSwitchRequest struct {
 	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	ChannelKey    string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
 	KillSwitch    *KillSwitchEntry       `protobuf:"bytes,4,opt,name=kill_switch,json=killSwitch,proto3" json:"kill_switch,omitempty"`
+	// break_glass and justification make this an emergency action, as in
+	// SetKillSwitchRequest (GOV-024).
+	BreakGlass    bool   `protobuf:"varint,5,opt,name=break_glass,json=breakGlass,proto3" json:"break_glass,omitempty"`
+	Justification string `protobuf:"bytes,6,opt,name=justification,proto3" json:"justification,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -990,6 +994,20 @@ func (x *ClearKillSwitchRequest) GetKillSwitch() *KillSwitchEntry {
 		return x.KillSwitch
 	}
 	return nil
+}
+
+func (x *ClearKillSwitchRequest) GetBreakGlass() bool {
+	if x != nil {
+		return x.BreakGlass
+	}
+	return false
+}
+
+func (x *ClearKillSwitchRequest) GetJustification() string {
+	if x != nil {
+		return x.Justification
+	}
+	return ""
 }
 
 type SetMandatoryUpdateRequest struct {
@@ -1221,6 +1239,10 @@ type ClearForcedRollbackRequest struct {
 	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	ChannelKey    string                 `protobuf:"bytes,3,opt,name=channel_key,json=channelKey,proto3" json:"channel_key,omitempty"`
+	// break_glass and justification make this an emergency action, as in
+	// SetKillSwitchRequest (GOV-024).
+	BreakGlass    bool   `protobuf:"varint,4,opt,name=break_glass,json=breakGlass,proto3" json:"break_glass,omitempty"`
+	Justification string `protobuf:"bytes,5,opt,name=justification,proto3" json:"justification,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1272,6 +1294,20 @@ func (x *ClearForcedRollbackRequest) GetEnvironmentId() string {
 func (x *ClearForcedRollbackRequest) GetChannelKey() string {
 	if x != nil {
 		return x.ChannelKey
+	}
+	return ""
+}
+
+func (x *ClearForcedRollbackRequest) GetBreakGlass() bool {
+	if x != nil {
+		return x.BreakGlass
+	}
+	return false
+}
+
+func (x *ClearForcedRollbackRequest) GetJustification() string {
+	if x != nil {
+		return x.Justification
 	}
 	return ""
 }
@@ -1357,14 +1393,17 @@ const file_plux_v1_control_proto_rawDesc = "" +
 	"killSwitch\x12\x1f\n" +
 	"\vbreak_glass\x18\x05 \x01(\bR\n" +
 	"breakGlass\x12$\n" +
-	"\rjustification\x18\x06 \x01(\tR\rjustification\"\xb2\x01\n" +
+	"\rjustification\x18\x06 \x01(\tR\rjustification\"\xf9\x01\n" +
 	"\x16ClearKillSwitchRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
 	"\vchannel_key\x18\x03 \x01(\tR\n" +
 	"channelKey\x129\n" +
 	"\vkill_switch\x18\x04 \x01(\v2\x18.plux.v1.KillSwitchEntryR\n" +
-	"killSwitch\"\xc6\x01\n" +
+	"killSwitch\x12\x1f\n" +
+	"\vbreak_glass\x18\x05 \x01(\bR\n" +
+	"breakGlass\x12$\n" +
+	"\rjustification\x18\x06 \x01(\tR\rjustification\"\xc6\x01\n" +
 	"\x19SetMandatoryUpdateRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
@@ -1386,12 +1425,15 @@ const file_plux_v1_control_proto_rawDesc = "" +
 	"\x10release_sequence\x18\x04 \x01(\x03R\x0freleaseSequence\x12\x1f\n" +
 	"\vbreak_glass\x18\x05 \x01(\bR\n" +
 	"breakGlass\x12$\n" +
-	"\rjustification\x18\x06 \x01(\tR\rjustification\"{\n" +
+	"\rjustification\x18\x06 \x01(\tR\rjustification\"\xc2\x01\n" +
 	"\x1aClearForcedRollbackRequest\x12\x15\n" +
 	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
 	"\vchannel_key\x18\x03 \x01(\tR\n" +
-	"channelKey*\xd5\x01\n" +
+	"channelKey\x12\x1f\n" +
+	"\vbreak_glass\x18\x04 \x01(\bR\n" +
+	"breakGlass\x12$\n" +
+	"\rjustification\x18\x05 \x01(\tR\rjustification*\xd5\x01\n" +
 	"\x0fKillSwitchScope\x12!\n" +
 	"\x1dKILL_SWITCH_SCOPE_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18KILL_SWITCH_SCOPE_PLUGIN\x10\x01\x12\x1a\n" +

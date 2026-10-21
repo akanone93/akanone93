@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/breakglass"
 	"github.com/nightCode42/plux3/backend/internal/controldoc"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/storage"
@@ -19,13 +20,16 @@ import (
 )
 
 // SetKillSwitch switches one thing off for a channel's devices (REL-060).
-// Setting a switch that is already on changes nothing.
-func (s *Service) SetKillSwitch(ctx context.Context, p auth.Principal, ref ChannelRef, k controldoc.KillSwitch) (ControlState, error) {
+// Setting a switch that is already on changes nothing. With WithBreakGlass
+// it is an emergency action (GOV-024); a function is disabled with a switch
+// of scope function.
+func (s *Service) SetKillSwitch(ctx context.Context, p auth.Principal, ref ChannelRef, k controldoc.KillSwitch, opts ...ChangeOption) (ControlState, error) {
 	if err := checkSwitch(k); err != nil {
 		return ControlState{}, err
 	}
 	return s.change(ctx, p, ref, controlChange{
-		detail: fmt.Sprintf("kill switch %s %s on", k.Scope, k.Target),
+		emergency: emergencyOf(opts, breakglass.ActionKillSwitch, switchSubject(ref, k, "on"), emergencyHash(string(k.Scope), k.Target, "on")),
+		detail:    fmt.Sprintf("kill switch %s %s on", k.Scope, k.Target),
 		apply: func(_ context.Context, _ *dbgen.Queries, _ controlTarget, c *controlContent) error {
 			if !slices.Contains(c.Switches, k) {
 				c.Switches = append(c.Switches, k)
@@ -36,13 +40,15 @@ func (s *Service) SetKillSwitch(ctx context.Context, p auth.Principal, ref Chann
 }
 
 // ClearKillSwitch switches one thing back on. Clearing a switch that is not
-// set changes nothing.
-func (s *Service) ClearKillSwitch(ctx context.Context, p auth.Principal, ref ChannelRef, k controldoc.KillSwitch) (ControlState, error) {
+// set changes nothing. With WithBreakGlass it is an emergency action
+// (GOV-024), for putting back what a mistaken switch took away.
+func (s *Service) ClearKillSwitch(ctx context.Context, p auth.Principal, ref ChannelRef, k controldoc.KillSwitch, opts ...ChangeOption) (ControlState, error) {
 	if err := checkSwitch(k); err != nil {
 		return ControlState{}, err
 	}
 	return s.change(ctx, p, ref, controlChange{
-		detail: fmt.Sprintf("kill switch %s %s off", k.Scope, k.Target),
+		emergency: emergencyOf(opts, breakglass.ActionKillSwitch, switchSubject(ref, k, "off"), emergencyHash(string(k.Scope), k.Target, "off")),
+		detail:    fmt.Sprintf("kill switch %s %s off", k.Scope, k.Target),
 		apply: func(_ context.Context, _ *dbgen.Queries, _ controlTarget, c *controlContent) error {
 			c.Switches = slices.DeleteFunc(c.Switches, func(o controldoc.KillSwitch) bool { return o == k })
 			return nil
@@ -87,10 +93,12 @@ func (s *Service) ClearMandatoryUpdate(ctx context.Context, p auth.Principal, re
 // that they retain (REL-006, ADR-0004 Revision). The release must exist,
 // be earlier than the channel's current one and, in a production
 // environment, have been promoted to one, which keeps it for ever (REL-007);
-// a release that has been purged is gone and refused.
-func (s *Service) SetForcedRollback(ctx context.Context, p auth.Principal, ref ChannelRef, sequence int64) (ControlState, error) {
+// a release that has been purged is gone and refused. With WithBreakGlass it
+// is an emergency action (GOV-024).
+func (s *Service) SetForcedRollback(ctx context.Context, p auth.Principal, ref ChannelRef, sequence int64, opts ...ChangeOption) (ControlState, error) {
 	return s.change(ctx, p, ref, controlChange{
-		detail: fmt.Sprintf("forced rollback to release %d", sequence),
+		emergency: emergencyOf(opts, breakglass.ActionForcedRollback, fmt.Sprintf("forced rollback to release %d on %s", sequence, channelName(ref)), emergencyHash("forcedRollback", fmt.Sprint(sequence))),
+		detail:    fmt.Sprintf("forced rollback to release %d", sequence),
 		apply: func(ctx context.Context, q *dbgen.Queries, t controlTarget, c *controlContent) error {
 			rel, err := s.channelRelease(ctx, q, t, sequence, true)
 			if err != nil {
@@ -102,10 +110,12 @@ func (s *Service) SetForcedRollback(ctx context.Context, p auth.Principal, ref C
 	})
 }
 
-// ClearForcedRollback withdraws the forced rollback.
-func (s *Service) ClearForcedRollback(ctx context.Context, p auth.Principal, ref ChannelRef) (ControlState, error) {
+// ClearForcedRollback withdraws the forced rollback. With WithBreakGlass it
+// is an emergency action (GOV-024).
+func (s *Service) ClearForcedRollback(ctx context.Context, p auth.Principal, ref ChannelRef, opts ...ChangeOption) (ControlState, error) {
 	return s.change(ctx, p, ref, controlChange{
-		detail: "forced rollback withdrawn",
+		emergency: emergencyOf(opts, breakglass.ActionForcedRollback, "forced rollback withdrawn on "+channelName(ref), emergencyHash("forcedRollback", "withdrawn")),
+		detail:    "forced rollback withdrawn",
 		apply: func(_ context.Context, _ *dbgen.Queries, _ controlTarget, c *controlContent) error {
 			c.Rollback = nil
 			return nil
@@ -142,3 +152,12 @@ func (*Service) channelRelease(ctx context.Context, q *dbgen.Queries, t controlT
 	}
 	return rel, nil
 }
+
+// switchSubject names a kill-switch change for an emergency record.
+func switchSubject(ref ChannelRef, k controldoc.KillSwitch, state string) string {
+	return fmt.Sprintf("kill switch %s %s %s on %s", k.Scope, k.Target, state, channelName(ref))
+}
+
+// channelName is the channel a change is made to, as an emergency record
+// names it.
+func channelName(ref ChannelRef) string { return channelOrDefault(ref.ChannelKey) }

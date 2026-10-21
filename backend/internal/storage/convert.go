@@ -97,6 +97,28 @@ func (c Cursor) AfterID() pgtype.UUID {
 	return id
 }
 
+// BeforeID is the tie-breaking identifier a newest-first list continues
+// before; the largest UUID, which sorts last, at the beginning.
+func (c Cursor) BeforeID() pgtype.UUID {
+	if id, err := UUID(c.ID); err == nil && c.ID != "" {
+		return id
+	}
+	largest := pgtype.UUID{Valid: true}
+	for i := range largest.Bytes {
+		largest.Bytes[i] = 0xff
+	}
+	return largest
+}
+
+// BeforeTime is the time a newest-first list continues before; plus
+// infinity at the beginning.
+func (c Cursor) BeforeTime() pgtype.Timestamptz {
+	if c.Time.IsZero() {
+		return pgtype.Timestamptz{InfinityModifier: pgtype.Infinity, Valid: true}
+	}
+	return pgtype.Timestamptz{Time: c.Time.UTC(), Valid: true}
+}
+
 // AfterTime is the time to continue after; minus infinity at the
 // beginning.
 func (c Cursor) AfterTime() pgtype.Timestamptz {

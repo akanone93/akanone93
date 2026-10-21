@@ -310,7 +310,11 @@ func (s Release) RollbackRelease(ctx context.Context, req *connect.Request[pluxv
 			return nil, err
 		}
 		m := req.Msg
-		r, err := s.h.Releases.RollbackRelease(ctx, p, m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey(), m.GetToSequence(), m.GetNotes())
+		opts, err := breakGlassOptions(m.GetBreakGlass(), m.GetJustification())
+		if err != nil {
+			return nil, err
+		}
+		r, err := s.h.Releases.RollbackReleaseWith(ctx, p, m.GetAppId(), m.GetEnvironmentId(), m.GetChannelKey(), m.GetToSequence(), m.GetNotes(), opts...)
 		if err != nil {
 			return nil, err //nolint:wrapcheck // a domain error
 		}

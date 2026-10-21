@@ -42,6 +42,9 @@ const (
 	FunctionFailing EventType = "function.failing"
 	// AlertFired: an alert rule on a metric fired (ANL-030).
 	AlertFired EventType = "alert.fired"
+	// BreakGlassOverdue: the post-hoc review of a break-glass action is
+	// overdue (GOV-024, PLX-8006).
+	BreakGlassOverdue EventType = "breakglass.review_overdue"
 	// BreakGlassUsed: someone used break-glass (GOV-024).
 	BreakGlassUsed EventType = "breakglass.used"
 	// LicenceExpiring: the licence nears its end (GOV-040).
@@ -69,6 +72,7 @@ type TypeInfo struct {
 var types = []TypeInfo{
 	{AlertFired, "An alert rule on a metric fired", SeverityWarning},
 	{ApprovalRequested, "A change is waiting for an approver", SeverityInfo},
+	{BreakGlassOverdue, "The review of a break-glass action is overdue", SeverityCritical},
 	{BreakGlassUsed, "Break-glass was used to bypass an approval", SeverityCritical},
 	{FunctionFailing, "A function keeps failing", SeverityWarning},
 	{LicenceExpiring, "The licence is about to expire", SeverityWarning},

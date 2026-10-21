@@ -455,7 +455,7 @@ service FreezeService {
   // organization.read.
   rpc ListFreezes(ListFreezesRequest) returns (ListFreezesResponse) {}
   // PutFreeze creates a window, or replaces the one of the same name. It
-  // needs freezes.manage. The window is checked by the calendar (PLX-1700
+  // needs freezes.manage. The window is checked by the calendar (PLX-1005
   // for a window that cannot be evaluated).
   rpc PutFreeze(PutFreezeRequest) returns (PutFreezeResponse) {}
   // DeleteFreeze removes a window. It needs freezes.manage.

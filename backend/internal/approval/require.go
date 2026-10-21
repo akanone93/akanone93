@@ -14,8 +14,10 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
+	"github.com/nightCode42/plux3/backend/internal/freeze"
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
+	"github.com/nightCode42/plux3/backend/internal/prodchange"
 	"github.com/nightCode42/plux3/backend/internal/schema"
 	"github.com/nightCode42/plux3/backend/internal/storage"
 	"github.com/nightCode42/plux3/backend/internal/storage/dbgen"
@@ -63,36 +65,95 @@ type spendable struct {
 	req Request
 }
 
-// Require implements Gate.
+// Require implements Gate. A change to a production environment is first held
+// back by a change freeze in force (PLX-8010, GOV-025), and when it goes
+// through it is entered in the ledger of production changes that compliance
+// reports are read from, whether or not a policy asked for approval
+// (GOV-026).
 func (s *Service) Require(ctx context.Context, tx pgx.Tx, arts ...Artifact) error {
+	if err := s.holdForFreeze(ctx, tx, arts); err != nil {
+		return err
+	}
 	var (
 		refused error
-		spend   []spendable
+		passed  []spendable
 	)
 	for _, a := range arts {
 		sp, err := s.check(ctx, tx, a)
 		switch {
 		case err != nil && refused == nil:
 			refused = err
-		case err == nil && sp != nil:
-			spend = append(spend, *sp)
+		case err == nil:
+			passed = append(passed, sp)
 		}
 	}
 	if refused != nil {
 		return refused
 	}
-	for _, sp := range spend {
-		if err := s.spend(ctx, tx, sp.art, sp.req); err != nil {
+	for _, sp := range passed {
+		if err := s.settleChange(ctx, tx, sp); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// check decides one artifact without spending anything: nil with nothing to
-// spend when no policy matches, nil with the approval to spend when it is
-// satisfied, and otherwise the refusal, having opened the request.
-func (s *Service) check(ctx context.Context, tx pgx.Tx, a Artifact) (*spendable, error) {
+// holdForFreeze refuses a call that changes a production environment inside
+// a freeze window.
+func (s *Service) holdForFreeze(ctx context.Context, tx pgx.Tx, arts []Artifact) error {
+	asked := map[string]bool{}
+	for _, a := range arts {
+		if !a.Environment.Production || asked[a.Environment.Key] {
+			continue
+		}
+		asked[a.Environment.Key] = true
+		if err := freeze.Check(ctx, s.freezes, tx, a.Environment.Key); err != nil {
+			return err //nolint:wrapcheck // a refusal for the caller
+		}
+	}
+	return nil
+}
+
+// settleChange spends the approval a change used, if it used one, and enters
+// a production change in the ledger.
+func (s *Service) settleChange(ctx context.Context, tx pgx.Tx, sp spendable) error {
+	if sp.req.ID != "" {
+		if err := s.spend(ctx, tx, sp.art, sp.req); err != nil {
+			return err
+		}
+	}
+	if !sp.art.Environment.Production {
+		return nil
+	}
+	a := sp.art
+	err := prodchange.Record(ctx, tx, s.o.IDs, prodchange.Change{
+		OrganizationID: a.OrganizationID, AppID: a.AppID, EnvironmentID: a.Environment.ID, EnvironmentKey: a.Environment.Key,
+		Resource: string(a.Resource), Action: a.Action, Subject: a.Subject, ContentHash: a.Hash, Summary: a.Summary,
+		AuthorID: a.Author, By: a.Requester, At: s.now(), RequestID: sp.req.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("approval: %w", err)
+	}
+	return nil
+}
+
+// check decides one artifact without spending anything: the artifact alone
+// when no policy matches, with the approval to spend when it is satisfied,
+// and otherwise the refusal, having opened the request.
+func (s *Service) check(ctx context.Context, tx pgx.Tx, a Artifact) (spendable, error) {
+	sp, err := s.decide(ctx, tx, a)
+	if err != nil {
+		return spendable{}, err
+	}
+	if sp == nil {
+		return spendable{art: a}, nil
+	}
+	return *sp, nil
+}
+
+// decide is check for an artifact that may need nothing: it answers nil
+// with no refusal when no policy matches.
+func (s *Service) decide(ctx context.Context, tx pgx.Tx, a Artifact) (*spendable, error) {
 	if err := a.validate(); err != nil {
 		return nil, err
 	}

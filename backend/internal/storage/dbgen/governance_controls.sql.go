@@ -78,6 +78,30 @@ func (q *Queries) GetBreakGlassForUpdate(ctx context.Context, id pgtype.UUID) (B
 	return i, err
 }
 
+const getChangeFreezeByName = `-- name: GetChangeFreezeByName :one
+SELECT id, organization_id, name, environment_key, time_zone, start_local, duration_minutes, recurrence, reason, created_by, created_at, updated_at FROM change_freezes WHERE name = $1
+`
+
+func (q *Queries) GetChangeFreezeByName(ctx context.Context, name string) (ChangeFreeze, error) {
+	row := q.db.QueryRow(ctx, getChangeFreezeByName, name)
+	var i ChangeFreeze
+	err := row.Scan(
+		&i.ID,
+		&i.OrganizationID,
+		&i.Name,
+		&i.EnvironmentKey,
+		&i.TimeZone,
+		&i.StartLocal,
+		&i.DurationMinutes,
+		&i.Recurrence,
+		&i.Reason,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getComplianceReport = `-- name: GetComplianceReport :one
 SELECT id, organization_id, period_from, period_to, changes, requested_by_id, requested_by, requested_at, statement, key_id, signature, signed_at FROM compliance_reports WHERE id = $1
 `

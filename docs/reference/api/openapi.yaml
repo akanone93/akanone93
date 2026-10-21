@@ -5476,7 +5476,7 @@ paths:
       summary: PutFreeze
       description: |-
         PutFreeze creates a window, or replaces the one of the same name. It
-         needs freezes.manage. The window is checked by the calendar (PLX-1700
+         needs freezes.manage. The window is checked by the calendar (PLX-1005
          for a window that cannot be evaluated).
       operationId: plux.v1.FreezeService.PutFreeze
       parameters:
@@ -13574,6 +13574,15 @@ components:
         channelKey:
           type: string
           title: channel_key
+        breakGlass:
+          type: boolean
+          title: break_glass
+          description: |-
+            break_glass and justification make this an emergency action, as in
+             SetKillSwitchRequest (GOV-024).
+        justification:
+          type: string
+          title: justification
       title: ClearForcedRollbackRequest
       additionalProperties: false
     plux.v1.ClearKillSwitchRequest:
@@ -13592,6 +13601,15 @@ components:
           allOf:
             - $ref: '#/components/schemas/plux.v1.KillSwitchEntry'
           title: kill_switch
+        breakGlass:
+          type: boolean
+          title: break_glass
+          description: |-
+            break_glass and justification make this an emergency action, as in
+             SetKillSwitchRequest (GOV-024).
+        justification:
+          type: string
+          title: justification
       title: ClearKillSwitchRequest
       additionalProperties: false
     plux.v1.ClearMandatoryUpdateRequest:

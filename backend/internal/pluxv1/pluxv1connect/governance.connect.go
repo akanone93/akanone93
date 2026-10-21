@@ -876,7 +876,7 @@ type FreezeServiceClient interface {
 	// organization.read.
 	ListFreezes(context.Context, *connect.Request[pluxv1.ListFreezesRequest]) (*connect.Response[pluxv1.ListFreezesResponse], error)
 	// PutFreeze creates a window, or replaces the one of the same name. It
-	// needs freezes.manage. The window is checked by the calendar (PLX-1700
+	// needs freezes.manage. The window is checked by the calendar (PLX-1005
 	// for a window that cannot be evaluated).
 	PutFreeze(context.Context, *connect.Request[pluxv1.PutFreezeRequest]) (*connect.Response[pluxv1.PutFreezeResponse], error)
 	// DeleteFreeze removes a window. It needs freezes.manage.
@@ -943,7 +943,7 @@ type FreezeServiceHandler interface {
 	// organization.read.
 	ListFreezes(context.Context, *connect.Request[pluxv1.ListFreezesRequest]) (*connect.Response[pluxv1.ListFreezesResponse], error)
 	// PutFreeze creates a window, or replaces the one of the same name. It
-	// needs freezes.manage. The window is checked by the calendar (PLX-1700
+	// needs freezes.manage. The window is checked by the calendar (PLX-1005
 	// for a window that cannot be evaluated).
 	PutFreeze(context.Context, *connect.Request[pluxv1.PutFreezeRequest]) (*connect.Response[pluxv1.PutFreezeResponse], error)
 	// DeleteFreeze removes a window. It needs freezes.manage.

@@ -18,6 +18,7 @@ import (
 
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/breakglass"
 	"github.com/nightCode42/plux3/backend/internal/controldoc"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/schema"
@@ -383,6 +384,8 @@ func (*Service) controlState(ctx context.Context, q *dbgen.Queries, ref ChannelR
 type controlChange struct {
 	detail string
 	apply  func(ctx context.Context, q *dbgen.Queries, t controlTarget, c *controlContent) error
+	// emergency is set when the change is a break-glass action (GOV-024).
+	emergency *emergency
 }
 
 // change applies a change to a channel's control document in one
@@ -395,7 +398,10 @@ func (s *Service) change(ctx context.Context, p auth.Principal, ref ChannelRef, 
 	if err := authorizeSomeEnvironment(p, auth.KillswitchManage, ref.AppID); err != nil {
 		return ControlState{}, err
 	}
-	var out ControlState
+	var (
+		out   ControlState
+		alert *breakglass.Record
+	)
 	err := s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		app, env, err := s.environment(ctx, q, ref.AppID, ref.EnvironmentID)
@@ -403,6 +409,9 @@ func (s *Service) change(ctx context.Context, p auth.Principal, ref ChannelRef, 
 			return err
 		}
 		if err := authorizeEnvironment(p, auth.KillswitchManage, ref.AppID, env.Key); err != nil {
+			return err
+		}
+		if alert, err = s.gateChange(ctx, tx, p, ref.AppID, env, c.emergency); err != nil {
 			return err
 		}
 		ch, err := q.GetChannelForUpdate(ctx, dbgen.GetChannelForUpdateParams{EnvironmentID: env.ID, Key: channelOrDefault(ref.ChannelKey)})
@@ -415,6 +424,9 @@ func (s *Service) change(ctx context.Context, p auth.Principal, ref ChannelRef, 
 		out, err = s.controlState(ctx, q, ref, ch)
 		return err
 	})
+	if err == nil {
+		s.alert(ctx, alert)
+	}
 	return out, err
 }
 

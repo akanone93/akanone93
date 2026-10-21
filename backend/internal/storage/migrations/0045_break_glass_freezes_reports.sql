@@ -70,11 +70,12 @@ SELECT plux_tenant_policy('change_freezes');
 -- it, when, to what content, and the approval request that authorised it.
 -- A compliance report is a reading of this table and of the decisions it
 -- points to. A row is written in the transaction of the change, so a change
--- that is refused or rolled back leaves none.
+-- that is refused or rolled back leaves none. app_id is NULL for a change that
+-- belongs to no app.
 CREATE TABLE production_changes (
     id               uuid        PRIMARY KEY,
     organization_id  uuid        NOT NULL REFERENCES organizations (id) ON DELETE CASCADE,
-    app_id           uuid        NOT NULL,
+    app_id           uuid,
     environment_id   uuid,
     environment_key  text        NOT NULL DEFAULT '',
     resource         text        NOT NULL,

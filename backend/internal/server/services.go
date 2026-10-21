@@ -25,6 +25,7 @@ import (
 	"github.com/riverqueue/river"
 
 	"github.com/nightCode42/plux3/backend/ext/export"
+	"github.com/nightCode42/plux3/backend/ext/governance"
 	"github.com/nightCode42/plux3/backend/ext/identity"
 	"github.com/nightCode42/plux3/backend/internal/analytics"
 	"github.com/nightCode42/plux3/backend/internal/api"
@@ -33,14 +34,17 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/audit"
 	"github.com/nightCode42/plux3/backend/internal/auditexport"
 	"github.com/nightCode42/plux3/backend/internal/auth"
+	"github.com/nightCode42/plux3/backend/internal/breakglass"
 	"github.com/nightCode42/plux3/backend/internal/buildinfo"
 	"github.com/nightCode42/plux3/backend/internal/cache"
+	"github.com/nightCode42/plux3/backend/internal/compliance"
 	"github.com/nightCode42/plux3/backend/internal/config"
 	"github.com/nightCode42/plux3/backend/internal/device"
 	"github.com/nightCode42/plux3/backend/internal/document"
 	"github.com/nightCode42/plux3/backend/internal/dpop"
 	"github.com/nightCode42/plux3/backend/internal/dsr"
 	"github.com/nightCode42/plux3/backend/internal/experiment"
+	"github.com/nightCode42/plux3/backend/internal/freeze"
 	"github.com/nightCode42/plux3/backend/internal/function"
 	"github.com/nightCode42/plux3/backend/internal/gateway"
 	"github.com/nightCode42/plux3/backend/internal/gitsync"
@@ -120,6 +124,12 @@ type Services struct {
 	Gateway *GatewayParts
 	// Approvals is the approval engine (GOV-020 to GOV-023).
 	Approvals *approval.Service
+	// BreakGlass records emergency actions and their reviews (GOV-024);
+	// Freezes holds production changes back inside a change-freeze window
+	// (GOV-025); Reports produces compliance reports (GOV-026).
+	BreakGlass *breakglass.Service
+	Freezes    *freeze.Service
+	Reports    *compliance.Service
 	// Notify delivers notifications and outbound webhooks (SRV-062,
 	// SRV-063); other services publish to it.
 	Notify *notify.Service
@@ -207,6 +217,10 @@ type WorkDeps struct {
 	// Identity holds the enterprise implementations of SAML and SCIM
 	// (GOV-004); a nil field is the community default.
 	Identity identity.Extensions
+	// Governance holds the enterprise change-freeze calendar and compliance
+	// report renderer (GOV-025, GOV-026); a nil field is the community
+	// default.
+	Governance governance.Extensions
 }
 
 // scanner returns the configured malware scanner, or nil (SRV-060).
@@ -481,6 +495,10 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		return nil, err
 	}
 	approvals.Use(approvalProfiles(configs), notifier)
+	governed, err := buildGovernance(cfg, db, log, gen, tenancyService, notifier, approvals, work)
+	if err != nil {
+		return nil, err
+	}
 	events, analyticsService, consumer, err := buildAnalytics(cfg, db, shared, set, gen, log, tenancyService, notifier, work)
 	if err != nil {
 		return nil, err
@@ -515,7 +533,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if work.Objects != nil {
 		goldens = golden.New(golden.Options{DB: db, Audit: log, Objects: work.Objects, IDs: gen, Limits: set, Approvals: approvals})
 	}
-	releases, err := buildReleases(cfg, db, set, work, releaseDeps{approvals: approvals, goldens: goldens, published: gitExport, push: pusher, ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw), functions: functions})
+	releases, err := buildReleases(cfg, db, set, work, releaseDeps{approvals: approvals, breakGlass: governed.breakGlass, freezes: governed.freezes, goldens: goldens, published: gitExport, push: pusher, ids: gen, audit: log, tenancy: tenancyService, documents: docs, devices: devices, configs: configs, crypter: backend, gateway: gatewayRegistry(gw), functions: functions})
 	if err != nil {
 		return nil, err
 	}
@@ -563,7 +581,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	}
 	return &Services{
 		Rollouts: rollouts, Experiments: experiments, Reconstruction: reconstruction, DataSubjects: dataSubjects, Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport, Push: pusher,
-		Approvals: approvals, Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
+		Approvals: approvals, BreakGlass: governed.breakGlass, Freezes: governed.freezes, Reports: governed.reports, Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Analytics: analyticsService, EventConsumer: consumer,
 		Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
 		AuditCheckpoints: audit.NewCheckpointReader(db, log), Checkpointer: checkpointer, SecurityConfig: configs,
@@ -733,6 +751,10 @@ type releaseDeps struct {
 	// supplies the golden-image differences of a review.
 	approvals *approval.Service
 	goldens   *golden.Service
+	// breakGlass and freezes serve the emergency path and the change-freeze
+	// check of the control and rollback calls (GOV-024, GOV-025).
+	breakGlass *breakglass.Service
+	freezes    *freeze.Service
 	// published follows every recorded version (GOV-011).
 	published release.Published
 	ids       interface{ New() (string, error) }
@@ -774,7 +796,7 @@ func buildReleases(cfg *config.Config, db *storage.DB, set limits.Set, work Work
 		Crypter: deps.crypter, Recipients: deps.devices, Functions: functionsOf(deps.functions),
 		CompilerVersion: buildinfo.Get().Version, DevelopmentDays: cfg.Retention.DevelopmentReleaseDays,
 		Metadata: metadataOptions(cfg), Published: deps.published, ControlNotifier: controlNotifier{push: deps.push},
-		Approvals: deps.approvals, Goldens: deps.goldens,
+		Approvals: deps.approvals, BreakGlass: deps.breakGlass, Freezes: deps.freezes, Goldens: deps.goldens,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("server: %w", err)
@@ -964,6 +986,7 @@ func (s *Server) handlersFor(svc *Services, limiter api.RateLimiter) *api.Handle
 		Auth: svc.Auth, Tenancy: svc.Tenancy, Documents: svc.Documents, Releases: svc.Releases, Devices: svc.Devices, Events: svc.Events,
 		Analytics: svc.Analytics, Idempotency: svc.Idempotency, Pages: svc.Pages, SecurityConfig: svc.SecurityConfig, Functions: svc.Functions,
 		Limiter: limiter, Limits: s.limits, Edition: s.edition, Push: svc.Push, Approvals: svc.Approvals,
+		Emergencies: svc.BreakGlass, Freezes: svc.Freezes, Reports: svc.Reports,
 	}
 	if svc.AuditCheckpoints != nil {
 		h.AuditCheckpoints = svc.AuditCheckpoints
@@ -989,6 +1012,9 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 		func() (string, http.Handler) { return pluxv1connect.NewOrgServiceHandler(h.Org(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewGovernanceServiceHandler(h.Governance(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewApprovalServiceHandler(h.Approval(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewBreakGlassServiceHandler(h.BreakGlass(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewFreezeServiceHandler(h.Freeze(), opts) },
+		func() (string, http.Handler) { return pluxv1connect.NewComplianceServiceHandler(h.Compliance(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewFederationServiceHandler(h.Federation(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewAppServiceHandler(h.App(), opts) },
 		func() (string, http.Handler) { return pluxv1connect.NewPluginServiceHandler(h.Plugin(), opts) },
