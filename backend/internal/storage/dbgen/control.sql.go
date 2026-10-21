@@ -23,6 +23,31 @@ func (q *Queries) DeleteDevicePushToken(ctx context.Context, deviceID pgtype.UUI
 	return result.RowsAffected(), nil
 }
 
+const getControlChangeTime = `-- name: GetControlChangeTime :one
+SELECT d.created_at
+  FROM control_documents d
+  JOIN channels c ON c.id = d.channel_id
+ WHERE c.environment_id = $1
+   AND d.version = $2
+   AND NOT EXISTS (SELECT 1 FROM control_documents n WHERE n.channel_id = d.channel_id AND n.version > d.version)
+ ORDER BY d.created_at DESC
+ LIMIT 1
+`
+
+type GetControlChangeTimeParams struct {
+	EnvironmentID pgtype.UUID
+	Version       int64
+}
+
+// When the control document of the given version was created, for the
+// channel of the environment on which it is still the newest (NFR-024).
+func (q *Queries) GetControlChangeTime(ctx context.Context, arg GetControlChangeTimeParams) (pgtype.Timestamptz, error) {
+	row := q.db.QueryRow(ctx, getControlChangeTime, arg.EnvironmentID, arg.Version)
+	var created_at pgtype.Timestamptz
+	err := row.Scan(&created_at)
+	return created_at, err
+}
+
 const getEnvironmentExperimentation = `-- name: GetEnvironmentExperimentation :one
 SELECT d.flags, d.experiments, d.holdout
   FROM control_documents d

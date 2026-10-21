@@ -29,6 +29,8 @@ type Metrics struct {
 	publishDuration  *prometheus.HistogramVec
 	jobsQueueDepth   *prometheus.GaugeVec
 
+	controlPropagation *prometheus.HistogramVec
+
 	replayDegraded prometheus.Gauge
 	replayFallback prometheus.Counter
 
@@ -109,8 +111,13 @@ func NewMetrics() *Metrics {
 		Name: "plux_attestation_results_total",
 		Help: "Attestation verifications by platform and verdict.",
 	}, []string{"platform", "verdict"})
+	m.controlPropagation = prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		Name:    "plux_control_propagation_seconds",
+		Help:    "Time from a control-document change to a device reporting control_applied for that version, by app.",
+		Buckets: []float64{0.5, 1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120, 300, 600},
+	}, []string{"app"})
 	m.newFunctionMetrics()
-	r.MustRegister(m.dpopRejections, m.attestationResults)
+	r.MustRegister(m.dpopRejections, m.attestationResults, m.controlPropagation)
 	r.MustRegister(m.rpcRequests, m.rpcDuration, m.manifestRequests, m.deltaBytes,
 		m.deltaGeneration, m.publishJobs, m.publishDuration, m.jobsQueueDepth,
 		m.replayDegraded, m.replayFallback)
@@ -310,4 +317,21 @@ func (m *Metrics) Invoked(result string, d time.Duration, replayed bool) {
 // module (FN-023) by its result, ok or failed.
 func (m *Metrics) Prepared(result string) {
 	m.functionPrepares.WithLabelValues(result).Inc()
+}
+
+// ControlPropagationWindow is the longest time a control change is counted
+// as propagating: a device that reports a version later was offline or
+// applied its first document, and NFR-024 speaks of online devices.
+const ControlPropagationWindow = 10 * time.Minute
+
+// ControlPropagated records the time a control-document change took to
+// reach one device: from the change to the device's control_applied event
+// for that version (NFR-024, OBS-005). A report later than
+// ControlPropagationWindow is not recorded; a negative duration, which a
+// clock step can produce, is recorded as zero.
+func (m *Metrics) ControlPropagated(app string, d time.Duration) {
+	if d > ControlPropagationWindow {
+		return
+	}
+	m.controlPropagation.WithLabelValues(app).Observe(max(d, 0).Seconds())
 }

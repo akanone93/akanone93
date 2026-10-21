@@ -46,3 +46,15 @@ SELECT * FROM device_push_tokens
  WHERE environment_id = $1 AND device_id > sqlc.arg(after_device)::uuid
  ORDER BY device_id
  LIMIT sqlc.arg(page_size);
+
+-- name: GetControlChangeTime :one
+-- When the control document of the given version was created, for the
+-- channel of the environment on which it is still the newest (NFR-024).
+SELECT d.created_at
+  FROM control_documents d
+  JOIN channels c ON c.id = d.channel_id
+ WHERE c.environment_id = $1
+   AND d.version = $2
+   AND NOT EXISTS (SELECT 1 FROM control_documents n WHERE n.channel_id = d.channel_id AND n.version > d.version)
+ ORDER BY d.created_at DESC
+ LIMIT 1;

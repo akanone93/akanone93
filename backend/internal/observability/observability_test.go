@@ -365,3 +365,27 @@ func TestFunctionInvocationMetrics_FN_032(t *testing.T) {
 		}
 	}
 }
+
+// Verifies: NFR-024, OBS-005.
+// A control change's propagation is exported as plux_control_propagation_seconds
+// by app, a negative duration is clamped to zero and a report after the
+// window (an offline device) is not recorded.
+func TestControlPropagatedIsExported_NFR_024(t *testing.T) {
+	t.Parallel()
+	m := NewMetrics()
+	m.ControlPropagated("app-1", 12*time.Second)
+	m.ControlPropagated("app-1", -time.Second)
+	m.ControlPropagated("app-1", ControlPropagationWindow+time.Second)
+
+	rec := httptest.NewRecorder()
+	m.Handler().ServeHTTP(rec, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/metrics", nil))
+	body := rec.Body.String()
+	for _, want := range []string{
+		`plux_control_propagation_seconds_count{app="app-1"} 2`,
+		`plux_control_propagation_seconds_sum{app="app-1"} 12`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("/metrics lacks %q", want)
+		}
+	}
+}
