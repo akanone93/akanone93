@@ -114,7 +114,7 @@ This keeps the lead's output tokens tiny and the agents' shared prefix identical
 ## 7. Lead-only work still to do
 
 1. Merge `origin/main` into `feat/phase-9` (§2).
-2. CI (`.github/workflows/ci.yml`, `ci/affected.json`), after the maintainer's decision on §9.3/§9.4: nightly + path-selected jobs for `make restore-drill`, `make airgap-kind`, `make iac-check`, `make walkthrough-kind`, `make load-test`, `make bench-control`; the `ee` build/test job; keep `make go-test-core`. `make workflows-lint` (use `ZIZMOR_FLAGS=--offline` here).
+2. CI (`.github/workflows/ci.yml`, `ci/affected.json`), after the maintainer's decision on §9.3/§9.4: nightly + path-selected jobs for `make restore-drill`, `make airgap-kind`, `make iac-check`, `make walkthrough-kind`, `make load-test`, `make bench-control` (when the IaC job is added, move `mk/iac.mk` out of `noJob` in `ci/affected.json` into it; it is in `noJob` only because no job runs it yet); the `ee` build/test job; keep `make go-test-core`. `make workflows-lint` (use `ZIZMOR_FLAGS=--offline` here).
 3. Run the Dart suites that never ran to completion after the E5-runtime merge (they timed out under load): `cd packages/plux_flutter && flutter test test/experiments test/control test/bundle test/pxl test/render`.
 4. E12: spec statuses in `docs/requirements.md` (only the `Status` column; `make spec-lint`), `make trace` (0 violations), `make check` with every gate, `make e2e-starter`, 40× race runs of `TestPublishWithTheCLIAndSyncADevice`, a dispatched CI run green, `docs/WORKLOG.md`, the PR body. Coverage floors for the new packages (plan §8, A6: 85 % security-relevant — auth, approval, control, licence, egress — 80 % elsewhere) go into `coverage.json`.
 

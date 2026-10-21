@@ -43,6 +43,7 @@
     "LICENSES/**",
     "REUSE.toml",
     "docs/**",
+    "mk/iac.mk",
     "mk/l10n.mk",
     "mk/repo.mk",
     "scripts/check-commit-msg.sh",
