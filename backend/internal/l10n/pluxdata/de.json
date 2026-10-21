@@ -26,6 +26,7 @@
   "plux.timeline.done": "erledigt",
   "plux.timeline.failed": "fehlgeschlagen",
   "plux.timeline.pending": "ausstehend",
+  "plux.update.required": "Zum Fortfahren ist ein Update erforderlich",
   "plux.uploader.choose": "Datei auswählen",
   "plux.uploader.upload": "Hochladen",
   "plux.validation.aboveMax": "Darf höchstens {max} sein",
