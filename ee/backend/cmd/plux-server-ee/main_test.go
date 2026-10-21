@@ -8,8 +8,10 @@ import (
 	"strings"
 	"testing"
 
+	extgovernance "github.com/nightCode42/plux3/backend/ext/governance"
 	"github.com/nightCode42/plux3/backend/ext/identity"
 	"github.com/nightCode42/plux3/backend/serverapp"
+	"github.com/nightCode42/plux3/ee/backend/governance"
 	"github.com/nightCode42/plux3/ee/backend/license"
 	"github.com/nightCode42/plux3/ee/backend/saml"
 	"github.com/nightCode42/plux3/ee/backend/scim"
@@ -43,5 +45,22 @@ func TestEnterpriseBinaryRegistersSAMLAndSCIM_GOV_004(t *testing.T) {
 	}
 	if _, ok := ext.OrDefault().SAML.(identity.NoSAML); ok {
 		t.Error("a community default replaced the enterprise SAML")
+	}
+}
+
+// Verifies: GOV-025, GOV-026, GOV-033.
+// The enterprise binary carries the enterprise change-freeze calendar and
+// report writer, not the community defaults.
+func TestEnterpriseBinaryRegistersGovernance_GOV_025(t *testing.T) {
+	t.Parallel()
+	ext := options().Governance
+	if _, ok := ext.Freezes.(governance.Calendar); !ok {
+		t.Errorf("Freezes = %T, want governance.Calendar", ext.Freezes)
+	}
+	if _, ok := ext.Reports.(governance.Reports); !ok {
+		t.Errorf("Reports = %T, want governance.Reports", ext.Reports)
+	}
+	if _, ok := ext.OrDefault().Freezes.(extgovernance.NoFreezes); ok {
+		t.Error("the community calendar replaced the enterprise one")
 	}
 }

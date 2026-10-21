@@ -7,7 +7,8 @@
 // against the public keys compiled into this build, and the enterprise
 // features it lists are enabled. It also carries the enterprise identity
 // federation, SAML 2.0 single sign-on and SCIM 2.0 provisioning (GOV-004),
-// which the licence switches on. Without a valid licence it behaves as the
+// and the change freezes and compliance reports of GOV-025 and GOV-026, which
+// the licence switches on. Without a valid licence it behaves as the
 // open-source core.
 package main
 
@@ -16,10 +17,12 @@ import (
 	"os"
 
 	"github.com/nightCode42/plux3/backend/edition/licensefile"
+	extgovernance "github.com/nightCode42/plux3/backend/ext/governance"
 	"github.com/nightCode42/plux3/backend/ext/identity"
 	"github.com/nightCode42/plux3/backend/serverapp"
 	"github.com/nightCode42/plux3/ee/backend/analytics"
 	"github.com/nightCode42/plux3/ee/backend/auditexport"
+	"github.com/nightCode42/plux3/ee/backend/governance"
 	"github.com/nightCode42/plux3/ee/backend/license"
 	"github.com/nightCode42/plux3/ee/backend/saml"
 	"github.com/nightCode42/plux3/ee/backend/scim"
@@ -27,9 +30,10 @@ import (
 
 // options registers the licence verifier with the keys compiled into this
 // build, the enterprise audit export sinks (SEC-143), the ClickHouse
-// analytics store named by PLUX_ANALYTICS_CLICKHOUSE_URL (ANL-010), and the
-// SAML and SCIM implementations. The SCIM server logs the failures it does not tell
-// its client about to the process's error stream.
+// analytics store named by PLUX_ANALYTICS_CLICKHOUSE_URL (ANL-010), the SAML
+// and SCIM implementations, and the change-freeze calendar and compliance
+// report writer (GOV-025, GOV-026). The SCIM server logs the failures it
+// does not tell its client about to the process's error stream.
 func options() serverapp.Options {
 	return serverapp.Options{
 		Edition:    license.Verifier{Keys: licensefile.TrustedKeys()},
@@ -39,6 +43,7 @@ func options() serverapp.Options {
 			SAML: saml.Provider{},
 			SCIM: scim.New(scim.Options{Log: slog.New(slog.NewJSONHandler(os.Stderr, nil))}),
 		},
+		Governance: extgovernance.Extensions{Freezes: governance.Calendar{}, Reports: governance.Reports{}},
 	}
 }
 
