@@ -3,46 +3,41 @@ SPDX-FileCopyrightText: 2026 Plux contributors
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# Task list snapshot (2026-10-18, 17:45 UTC)
+# Task list snapshot (2026-10-21, hand-off 2)
 
-The lead's task list at the hand-off, as the maintainer followed it. Status words:
-`completed`, `in progress` (stopped mid-work; see README §4 and the patches), `pending`
-(not started).
+The lead's task list at hand-off 2. Details for every row are in [README.md](README.md);
+the earlier snapshot (2026-10-18) is in git history. Status words: `done` (merged on
+`feat/phase-9`), `in progress` (stopped; work saved on a `wip/` branch), `next` (brief
+ready, not started), `lead` (the lead's own work, no agent).
 
-| # | Task | Status | Notes |
+| # | Task | Status | Where |
 |---|---|---|---|
-| 1 | L4a: locale data in the bundle | completed | P8 |
-| 2 | Fix catalogue-check "no builder" | completed | P8 |
-| 3 | L4b: runtime localisation | completed | P8 |
-| 4 | Dart test fixes | completed | P8 |
-| 5 | L5c: compiler l10n checks, pseudo-locales, report | completed | P8 |
-| 6 | K3b-maps: MapView, OrderTrackerMap | completed | P8 |
-| 7 | K3b-scan: scanners, QrCodeView, B21 | completed | P8 |
-| 8 | Small batch: decisions to implement | completed | P8 |
-| 9 | X1: cross-phase integration X1.1–X1.7 | completed | P8 |
-| 10 | Wave 5: L8 goldens, L7 a11y passes, L9 reference apps | completed | P8 |
-| 11 | Wave 6 / L10: docs, CI, version, statuses, gates | completed | P8 |
-| 12 | Fix device e2e CI shards and re-run CI | completed | P8; the last iOS bank fix (`796ddbd`) still needs its green run |
-| 13 | 40× race run of TestPublishWithTheCLIAndSyncADevice, e2e-starter, WORKLOG + report | completed | Both passed locally |
-| 14 | P9 plan written; approvals A1–A6 | completed | `docs/plans/p9.md` |
-| 15 | P8: CI on `796ddbd` (iOS doubled-key fix) → open PR to main | **in progress** | Run 39149009669; PR body `p8-pr-body.md` (README §2) |
-| 16 | P9 E0: spec 1.7.0, ADRs 0072–0085, error codes, Q24 fixes | completed | Merged on `feat/phase-9` |
-| 17 | P9 E1: roles, scoping, OIDC, SAML, SCIM, sessions, step-up | **in progress** | E1a done (§7 of README); E1c patch; E1b (OIDC extension, SAML, SCIM) not started |
-| 18 | P9 E2: approval engine, break-glass, freezes, compliance reports | pending | Needs E1 merged |
-| 19 | P9 E3: signed control document, kill switch, mandatory update, silent push | **in progress** | E3 patch (barely started) |
-| 20 | P9 E4+E5: rollouts, health gates, flags, experiments | pending | Needs E3, E6 |
-| 21 | P9 E6+E7: telemetry/analytics, notifications, webhooks, triggers | **in progress** | E6a and E7 patches; E6b (ClickHouse, Parquet, dashboards, alerts, error grouping) not started |
-| 22 | P9 E8: SIEM export, reconstruction + viewer, DSR, egress, search, Git export | pending | Needs E2, E3, E6 |
-| 23 | P9 E9+E10: Helm/HA/backups/air-gap/observability/IaC; ee/ + licence | **in progress** | E9a and E10 done (§7 of README); E9b (backups, drill, air-gap, observability, SLOs, sizing, IaC) not started |
-| 24 | P9 E11+E12: reference apps, walkthrough, docs, close gates | pending | Last |
+| 1 | E0: spec 1.7.0, ADRs 0072–0085, error codes | done | README §3 |
+| 2 | E1: roles, scoping, OIDC, SAML, SCIM, sessions, step-up | done | README §3 |
+| 3 | E2a: approval engine (+ E5 `ApprovalGate`, ABT-007) | in progress | `wip/p9-e2a-approvals`; brief `agents/briefs/next/E2a-approvals-continue.md` |
+| 4 | E2b: break-glass, freezes, compliance reports | next (after 3) | `agents/briefs/next/E2b-breakglass-freezes-compliance.md` |
+| 5 | E3: signed control document, kill switch, mandatory update, silent push | done | README §3 (bench in row 7) |
+| 6 | E4/E5: rollouts, health gates, flags, experiments — core | done | README §3 |
+| 7 | E9e: load tests and sizing (incl. `bench-control`) | in progress | `wip/p9-e9e-load`; brief `agents/briefs/next/E9e-load-continue.md` |
+| 8 | E5i: runtime integration (Dart) | next | `agents/briefs/next/E5i-runtime-integration.md` |
+| 9 | E5j: server integration (Go) | next | `agents/briefs/next/E5j-server-integration.md` |
+| 10 | E6/E7: telemetry, analytics, notifications, webhooks, triggers | done | README §3 (export scheduling in row 9) |
+| 11 | E8: SIEM, reconstruction, DSR, egress, search, Git export — core | done | README §3 |
+| 12 | E8f: viewer host + runtime reconstruction mode | next | `agents/briefs/next/E8f-viewer-host.md` |
+| 13 | E9: Helm/HA/backups/air-gap/observability/IaC | done except row 7 | README §3 |
+| 14 | E10: `ee/` + licence | done | README §3 |
+| 15 | E11b: reference apps | next (after 3, 4, 8, 9) | `agents/briefs/next/E11b-reference-apps.md` |
+| 16 | E11c: end-to-end walkthrough (exit criterion) | next (after all above) | `agents/briefs/next/E11c-walkthrough.md` |
+| 17 | E11a: docs, runbooks, threat model, compliance pack | next (last agent) | `agents/briefs/next/E11a-docs.md` |
+| 18 | Merge `origin/main` (#37, #39, #40) into `feat/phase-9` | lead | README §7 |
+| 19 | CI jobs for IaC/air-gap; re-run Dart suites | lead | README §7, §9 |
+| 20 | E12: gates, statuses, coverage floors, P9 PR | lead (last) | README §7 |
 
 ## Next steps for the new session, in order
 
-1. Check CI run 39149009669 (`796ddbd`); on green, open the P8 pull request (README §2).
-2. On `feat/phase-9`, resume the seven stopped slices from their patches (README §4) —
-   E6a and E7 (E1a, E9a and E10 are done, README §7: `rbac_p9.go` and `backend/edition` exist), and restart E1c and E3 from their briefs (`briefs.md`, section B).
-3. Merge each finished slice into `feat/phase-9` with `tools/merge.sh`, run `make gen`, the
-   slice's checks and the pre-push `go test`, push.
-4. Launch the next wave per plan §6.2: E1b, E2, E6b, E9b; then E4, E5, E8; then E11, E12.
-5. Keep `docs/WORKLOG.md` and this task list current; report progress as a percentage table
-   per milestone.
+1. Session protocol (`AGENTS.md` §2), then README §6 "Session start" (install the agent
+   definitions, fill the `Claude-Session` line in `agents/prefix.md`).
+2. Launch rows 3, 7, 8, 9, 12 together (five agents; types in README §5).
+3. Review, fix and merge each as it finishes (README §6); then row 4; then 15, 16, 17.
+4. Rows 18–20 (lead).
+5. Keep `docs/WORKLOG.md` and this list current; report progress as a percentage table.

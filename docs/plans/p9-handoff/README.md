@@ -3,310 +3,161 @@ SPDX-FileCopyrightText: 2026 Plux contributors
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# P8 close-out and P9 hand-off (2026-10-18, 17:40 UTC)
+# P9 hand-off 2 (2026-10-21, 09:30 UTC)
 
-The session that ran P8 and started P9 stopped here on the maintainer's request, to move the
-work to a new session. This directory holds everything that was in progress. It lives on the
-temporary branch `wip/p9-handoff` (cut from `feat/phase-9` at `938e7b1`); delete the branch
-and this directory once the work is merged.
+The session that ran P9 from 2026-10-19 to 2026-10-21 stopped here on the maintainer's request, to continue in a new session **exactly as it was working**: the lead (one session) writes briefs, launches 5–6 sub-agents at a time, reviews and fixes every result, merges into `feat/phase-9`, and runs the gates once at the end. This file is everything the next lead needs; nothing lives only in the old session.
 
-Also here: [`briefs.md`](briefs.md) (the verbatim agent briefs) and [`tasks.md`](tasks.md) (the task list and next steps).
-
-Read first, in this order: `AGENTS.md`, `docs/WORKLOG.md`, `docs/plans/p9.md` (decisions §2,
-allocations §2.4, architecture §5, milestones §6), then this file.
+**Read first, in this order:** `AGENTS.md`, `docs/WORKLOG.md` (latest hand-off note), this file, `agents/AGENT-PLAYBOOK.md` (the maintainer's binding playbook), `agents/prefix.md` (the rules every agent gets), then the plan `docs/plans/p9.md` sections a task needs. The first hand-off (2026-10-18, P8 close and P9 start) is kept as `README-2026-10-18.md`; its patches were consumed and deleted.
 
 ---
 
-## 1. Branches
+## 1. State in one paragraph
 
-| Branch | Head | State |
-|---|---|---|
-| `feat/phase-8` | `796ddbd` | **Done: P8 is squash-merged to `main` as `e0a5fe6` ([#36](https://github.com/nightCode42/plux3/pull/36)), with the maintainer's later CI and code fixes.** §2 is history. |
-| `feat/phase-9` | `938e7b1` | Cut from `feat/phase-8`, P8 merged in; E0 merged (§3). |
-| `wip/p9-handoff` | this commit | `feat/phase-9` + this directory: the in-progress P9 slices as patches. |
+`feat/phase-9` (pushed) holds P8 plus everything of P9 below. P9 is **≈ 72 %**: E0, E1, E10 complete; E3, E4, E6, E7, E8 mostly complete; E5 and E9 well advanced; E2 (approvals) under way; E11 (reference apps, walkthrough, docs) and E12 (gates) not started. Two agents were mid-task when the session stopped; their work is saved on pushed branches. No agent is running. **The full gate (`make check`) has not been run in P9**; every merge was verified by building both Go modules, `go vet` and the touched packages' tests (see §8).
 
-`feat/phase-9` was cut from `feat/phase-8`, not from `main`, because P8 was not merged yet.
-**`main` is now merged into `wip/p9-handoff`** (`39edc2b`, §7): it is the latest state of the
-repository. Merge `wip/p9-handoff` into `feat/phase-9` (a fast-forward) and continue there.
+## 2. Branches
 
----
-
-## 2. P8: what remains
-
-1. **CI run 39149009669** on `796ddbd` (dispatched 17:19 UTC). Run 322 on `c0479a3` was green
-   in 47 of 49 jobs; only "Device end-to-end (iOS, bank)" failed. Its diagnostics showed the
-   cause: XCTest's first key into a Flutter text field arrives twice (the username read
-   `ddemo`), so every iOS bank sign-in had a wrong username. `796ddbd` types one key at a
-   time, reads the field after each key and deletes what a key added beyond itself
-   (`apps/plux_bank/ios/RunnerUITests/AccessibilityTreeTests.swift`, `type(_:_:)`); it also
-   checks that the PIN pad reads "6 of 6 digits entered". Every Android shard (26 and 35),
-   iOS express+generated, iOS starter and iOS hosts are green on the earlier runs.
-2. **If the run is green:** open the pull request `feat/phase-8` → `main`, title
-   `feat: localisation and accessibility (P8)`, body [`p8-pr-body.md`](p8-pr-body.md)
-   (update the run number in "How it was verified" to the green run). The maintainer merges.
-3. **If iOS bank fails again:** read the XCTest assertion (`grep ": error: -\["` in the job
-   log; the driver prints it, and a timed-out wait lists what the screen reads), fix in
-   `AccessibilityTreeTests.swift` on `feat/phase-8`, push, re-dispatch
-   (`actions_run_trigger run_workflow ci.yml ref feat/phase-8`), then merge `feat/phase-8`
-   into `feat/phase-9`.
-4. **Gates:** no CI gate was lowered in P8 (`coverage.json` unchanged; `ci.yml`, the
-   Makefile and `mk/` only gained checks). Narrowed test scopes, all documented in their
-   code: the Android bank pass is skipped below API 28 (Flutter names text fields to
-   Android only from API 28), the transfer page's reading order is checked on its first
-   three entries, and `go-determinism` skips `plux golden`'s CLI tests (run in the Go jobs).
-5. **Decisions answered by the maintainer at the end of P8:** `session_start`,
-   `session_end`, `fatal_error` and `control_applied` are `necessary` (no consent needed);
-   `experimentApproval` follows `ABT-007` under `maximum` (committed).
-6. **Open for the maintainer:** confirm the defaults of the ten new limit keys in
-   `schema/limits.json` (`telemetry.eventsPerDevicePerHour` 600, `telemetry.batchBytes`
-   256 KiB, `experiments.activePerApp` 20, `flags.perApp` 500, `rollouts.activePerApp` 10,
-   `webhooks.perOrg` 50, `notifications.perHour` 600, `reconstruction.retentionDays` 365,
-   `search.resultsPerPage` 50, `dsr.exportBytes` 256 MiB); keep or drop the compiler rule
-   that keeps all locale data when an app declares native slots (ADR-0066 Revision).
-
----
-
-## 3. P9: merged on `feat/phase-9` (milestone E0, complete)
-
-| Item | Commit(s) |
+| Branch | State |
 |---|---|
-| P9 plan with the maintainer's decisions Q1–Q24 and approvals A1–A6 | `093f2df`, `c5f5809` |
-| Spec 1.7.0: phase P16, `HST-020` → P16, `SEC-191` → P12, `DX-005`/`DEP-060` withdrawn, §15.12 settings, §18.2 default policies, Appendix F ranges, Appendix G.2 events; spec lint accepts P16 | `86c79e2` (+ `0ed370f`) |
-| ADR-0072 to ADR-0085 (Accepted) and revisions of ADR-0004, 0007, 0022, 0026, 0034 | `afb9062` |
-| 56 error codes and 10 limit keys (generated catalogues regenerated) | `a13b84f` |
-| `DualCalendarDatePicker` opens on the current month (Q24) | `2cd1a49` |
-| Locale data trimmed to what the app uses (ADR-0066 Revision; bank −19%, express −41% of l10n bytes; goldens and vectors regenerated) | `aad6ec6`, `938e7b1` |
+| `feat/phase-9` | **The lead branch.** Everything merged; pushed. Continue here. |
+| `wip/p9-e2a-approvals` | E2a approval engine, in progress (one save commit on an older base). Pushed. |
+| `wip/p9-e9e-load` | E9e load generator / sizing / bench, in progress (two commits). Pushed. |
+| `wip/p9-handoff` (remote) | Obsolete (the first hand-off). Delete once the maintainer agrees. |
+| `claude/tender-mendel-b4bh9u` (remote) | Obsolete (an early copy of `feat/phase-9`). Delete once the maintainer agrees. |
+| `main` | P8 (`e0a5fe6`) plus three later commits (#37 scorecard bump, #39 CI function modules, #40 Go dependency group bump) **not yet merged into `feat/phase-9`** — merge `origin/main` into `feat/phase-9` once (a merge commit; regenerate with `make gen`; run the Go tests). |
 
-Verified on `938e7b1`: `go build ./...`; `go test` of `plxerr`, `api`, `compiler`, `l10n`,
-`pxl`, `bundle`, `cmd/plux`; `make go-determinism`; `make spec-lint`; `make go-gen-check`;
-`make reuse-lint`; the pre-push `go test`. Not run: `make check` in full, the Dart suites
-beyond the touched tests, CI on `feat/phase-9`.
+## 3. Done and merged (this session)
 
----
+Migrations are contiguous `0024`–`0043`; the next free number is **`0044`**. The brief of every slice below is kept in `agents/briefs/done/` as it was sent (a few name the old session's scratch directory; ignore those paths).
 
-## 4. P9: in progress (stopped mid-slice), saved as patches
+| Slice | Requirements | What landed | Lead fixes at review/merge |
+|---|---|---|---|
+| E9b backups, drill, observability | DEP-010, OBS-004, OBS-005 | CNPG WAL archiving + ScheduledBackup + consistency marker; `make restore-drill`; 38 alerts with runbooks under `docs/runbooks/alerts/`; 5 infra dashboards; SLO burn-rate rules; checker `tools/internal/observability` | `plux_publish_jobs_total` was never recorded — release service now counts finished jobs |
+| E7 notifications, webhooks, triggers | SRV-062, SRV-063, FN-025 | `internal/notify`, Standard Webhooks, cron + inbound hooks, `internal/scheduler` | — |
+| E5 contracts + compiler | ABT-001/002/005/006 (compile time) | `Variant` node, flag/segment/experiment/policy schemas, diagnostics 1700–1704/2300–2302, `PromoteWinner` | winner promotion rewritten on the PXL parser (`pxl.ReplaceMembers`) instead of a hand-written scanner; codegen test counts 17 documents |
+| E8a SIEM export | SEC-143 | `internal/auditexport`, syslog RFC 5424/TLS core; CEF, OTLP logs, signed webhooks in `ee/backend/auditexport` | — |
+| E8b search, Git export | SRV-061, GOV-011 | `internal/search` (filtered in SQL), `internal/gitsync` (go-git), CLI | — |
+| E6a telemetry + analytics | ANL-010, ANL-011 | Valkey streams, monthly partitions, rollups, retention with off-peak window, OTLP export, CLI | partition drop moved from a migration into Go (`pgx.Identifier`) so migrations stay expand-only |
+| E3 control document (server) | SYN-060, REL-060, REL-070 | `schema/control.fbs`, online `control` role, `GetSignedControl` (ETag, DPoP), `plux control`, FCM/APNs senders | — |
+| E1b federation | GOV-004 | OIDC providers/mapping/JIT/back-channel (core); SAML (`ee/backend/saml`), SCIM (`ee/backend/scim`) | person-scoped sign-in tables listed as non-tenant |
+| E6b dashboards | ANL-020, I18N-006 | 8 analytics dashboards over `analytics_rollups`, reader datasource | **SQL injection**: template variables were pasted raw into SQL — now `${var:sqlstring}`, checker refuses hand-quoted variables |
+| E3 runtime | SYN-060, REL-060, REL-070, RT-022 | fetch/verify/apply on device, `PluxConfig.updateScreen`, `Plux.handleSilentPush` | dedicated codes PLX-3105–3107 for switched-off graph/source/function (they reused the plugin code); golden-bundle test learns the experiments bundles |
+| E8c egress registry | SEC-163 | every outbound client names a registered `Destination`; generated `docs/operations/egress.md`; completeness scan | — |
+| E8d data-subject requests | SEC-162 | export/erase, tombstones, generated `docs/operations/personal-data.md` + completeness test | map extended for later tables (step-up, error groups, reconstruction) |
+| E1c sessions + step-up | GOV-005, SEC-103 | idle/absolute timeouts, revocation, WebAuthn step-up, CLI browser step-up grant bound to the DPoP key | admin fixtures in notify/search/gitsync/analytics step up |
+| E6b alerts + error grouping | ANL-030, ANL-040 | alert rules (River unique period), error groups with lazy symbolication | — |
+| E1d federation tests | GOV-004 | core tests for providers, mapping, JIT, back-channel logout, Directory | the agent found and fixed a real bug: every SCIM request failed (token touch under the wrong tenant scope) |
+| E5 runtime | ABT-002/004/006, NAV-009 | assignment, layers, holdout, Variant rendering, exposure on build, flag guards | — |
+| E4 rollouts | REL-050–053 | bucketing, targeting at manifest time, schedules, health gates, CLI | (agent's commit was refused by its permission check; the lead committed) |
+| E8e reconstruction (server) | SEC-142 | resolve the moment, signed release on the `audit` channel, `plux audit reconstruct` | dev-release retention keeps releases a reconstruction references; test world's request allowance raised (the matrix now exceeds 600 calls/min) |
+| E5 server | ABT-001/003/004/005/006 | flags, experiments, layers, holdout, in-house mSPRT/SRM/CUPED, promotion, `ApprovalGate` seam | — |
+| E6c ClickHouse, Parquet (ee) | ANL-010, ANL-011 (ee) | `ee/backend/analytics`: ClickHouse store (verified live against ClickHouse 25.8), Parquet and webhook exporters, store conformance suite `backend/ext/analytics/storetest` | — |
+| E9c air-gapped bundle (ee) | DEP-040 | `ee/backend/cmd/plux-airgap` (keygen, bundle, verify), OCI layout, signed manifest, `make airgap-kind`, `docs/operations/air-gapped.md` | — |
+| E9d IaC | DEP-050 | OpenTofu modules `deploy/iac/{aws,gcp,azure}` with `mock_provider` tests, `policy.sh`, `make install-tofu` (built from the Go module), `make iac-check` | — |
 
-Each patch is the slice's whole work (its commits plus uncommitted files) against the
-commit it started from. None of them was reviewed, built or tested by the lead. To resume a
-slice: create a worktree at its base, `gunzip -c <patch>.gz | git apply --3way`, read the slice's brief
-(§5), finish the remaining steps, run its checks, then merge into `feat/phase-9`.
+Earlier (first hand-off): E0, E9a Helm chart, E10 `ee/` + licence, E1a roles and catalogue.
 
-| Patch | Milestone | Base | Size | Where it stopped |
+## 4. In progress (agents stopped by the usage limit; nothing running)
+
+| Slice | Branch | Brief | State when stopped |
+|---|---|---|---|
+| E2a approval engine core | `wip/p9-e2a-approvals` | `agents/briefs/in-progress/E2a-approvals.md` | ~61 files written; was "writing the CLI test". Base is older than `feat/phase-9` (expect wiring conflicts). |
+| E9e load, sizing, bench-control | `wip/p9-e9e-load` | `agents/briefs/in-progress/E9e-load-sizing.md` | generator and propagation metric committed; was "applying the server edits". |
+
+Relaunch them with the continuation briefs in `agents/briefs/next/` (§5); they read the original brief themselves.
+
+## 5. Next agents, in order (none started)
+
+Launch 5–6 at a time; the model is chosen for the job (Haiku where the lead can verify everything, Sonnet otherwise; never Opus for agent code). Each prompt is two lines (template in §6).
+
+| # | Brief (`agents/briefs/next/`) | Agent type | Depends on | Notes |
 |---|---|---|---|---|
-| ~~`E9a-helm.patch.gz`~~ | E9: Helm chart (`DEP-003`, `DEP-004`) | — | — | **Done and merged on `wip/p9-handoff`** (`c4fc1dd`, see §7) |
-| ~~`E10-ee-licence.patch.gz`~~ | E10: `ee/` module, edition boundary, offline licence (`GOV-030`, `GOV-033`) | — | — | **Done and merged on `wip/p9-handoff`** (`ee14449`, see §7) |
-| ~~`E1a-roles.patch.gz`~~ | E1: permission catalogue, ten roles, scoped grants, custom roles (`GOV-002`, `GOV-003`) | — | — | **Done and merged on `wip/p9-handoff`** (`c350c9d`, see §7) |
-| [`E6a-telemetry.patch.gz`](E6a-telemetry.patch.gz) | E6: ingestion through Valkey streams, partitioned storage, rollups, retention, OTLP export, migrations 0039–0041 (`ANL-010`, `ANL-011`) | `fcafe9a` | 55 files, +7569 −200 | Was editing `telemetry.proto` and writing `analytics.proto` |
-| [`E7-notify.patch.gz`](E7-notify.patch.gz) | E7: notifications, Standard Webhooks, cron and inbound-webhook function triggers, migration 0042 (`SRV-062`, `SRV-063`, `FN-025`) | `fcafe9a` | 26 files, +6838 | Was writing `triggers.go` (the notify import added) |
-| [`E1c-stepup.patch.gz`](E1c-stepup.patch.gz) | E1: sessions, idle/absolute timeouts, WebAuthn step-up, CLI browser step-up, migrations 0026–0027 (`GOV-005`, `SEC-103`) | `938e7b1` | 7 files, +187 | Early: first files only |
-| [`E3-control.patch.gz`](E3-control.patch.gz) | E3: signed control document, kill-switch scopes, mandatory update, forced rollback, silent push, migrations 0032–0033 (`SYN-060`, `REL-060`, `REL-070`) | `938e7b1` | 3 files, +26 | Just started; effectively not begun |
+| 1 | `E2a-approvals-continue.md` | coder-high | — | security; also implements E5's `ApprovalGate` (ABT-007) |
+| 2 | `E9e-load-continue.md` | coder | — | |
+| 3 | `E5i-runtime-integration.md` | coder | — | Dart: control tables → models, device targeting, reconstruction inputs, translations |
+| 4 | `E5j-server-integration.md` | coder | — | Go: prop defaults in bundle, typed flag accessors, error-rate series, ee export scheduling, generated control layout, purge test |
+| 5 | `E8f-viewer-host.md` | coder | — | `apps/plux_viewer` + runtime reconstruction mode |
+| 6 | `E2b-breakglass-freezes-compliance.md` | coder-high | E2a merged | break-glass core; freezes + compliance reports ee; in-house PDF |
+| 7 | `E11b-reference-apps.md` | coder | E2a, E2b, E5i/j | |
+| 8 | `E11c-walkthrough.md` | coder-high | everything above | the exit criterion |
+| 9 | `E11a-docs.md` | coder-light | everything above | runbooks, guides, threat model, compliance pack |
 
-**Shared-file conflicts to expect when merging these:** `backend/internal/auth/rbac_p9.go`
-(E1a creates it with all P9 permissions; E6a, E7, E1c and E3 were told to append their own
-const blocks if it did not exist — reconcile into E1a's version), `go.work` (E10 adds
-`ee/backend`), `Makefile`/`mk/*.mk` and `.github/workflows/ci.yml` (E9a, E10),
-`docs/engineering/dependencies.md` (E9a), the migration numbers (each slice has its own block
-of plan §2.4), generated code (re-run `make gen` after each merge; never hand-merge generated
-files).
+Then the lead's own work (§7).
 
----
+## 6. How to run it (the practice that worked, and its traps)
 
-## 5. The briefs (what each slice must deliver)
+**Session start.**
+1. Install the agent types (they load only at session start — if you install them mid-session, use `subagent_type: general-purpose` with `model`/`effort` instead):
+   `mkdir -p ~/.claude/agents && for f in coder coder-high coder-light; do tail -n +6 docs/plans/p9-handoff/agents/definitions/$f.md > ~/.claude/agents/$f.md; done`
+2. Put your own session URL into `agents/prefix.md` (the `Claude-Session:` line) and use the commit attribution your session's system reminder gives.
+3. `git fetch && git checkout feat/phase-9 && git pull`; merge `origin/main` (§2).
 
-Every brief began with rule 0 (`git merge --ff-only feat/phase-9`), committed in its
-worktree with the two attribution lines, never pushed, and never used `--no-verify`. The
-detailed requirements are in the plan section named; the summaries below list what "done"
-means.
+**Launching.** `Agent(subagent_type=<type>, isolation=worktree, run_in_background=true)` with a prompt of exactly:
+> First read, completely, the binding rules `docs/plans/p9-handoff/agents/prefix.md` and your task `docs/plans/p9-handoff/agents/briefs/next/<file>.md`. Then do the task.
 
-- **E9a (coder-high)** — plan §5.11.1–2, §7, A3–A4. Pin Helm, kind, kubeconform, ct
-  (Go-installable where downloads are blocked) in the Makefile like the other pinned tools;
-  `dependencies.md` rows for them and for CloudNativePG, Valkey (Sentinel), SeaweedFS.
-  `deploy/helm/plux/`: Chart.yaml, values.yaml, strict `values.schema.json`, templates
-  mirroring `deploy/compose` (api, worker, fnrunner, egress, builder), existingSecret pattern,
-  default-deny NetworkPolicies (fnrunner/builder reach only egress; L-4), Pod Security
-  `restricted`, PDBs, HPAs, topology spread, probes, checksum annotations, pre-upgrade
-  migration Job, `helm test` hook; HA defaults (≥ 2 replicas, CNPG 3 instances,
-  `postgresql.mode: cnpg|external`, `valkey.mode: sentinel|external`, object storage
-  `seaweedfs|external`). Make targets `helm-lint` (lint + template + kubeconform over default,
-  HA and external value files in `deploy/helm/plux/ci/`) and `e2e-kind`. CI: "Helm lint and
-  render" job and a nightly/path-selected "kind HA e2e" job with `ci/affected.json` rules;
-  `make workflows-lint`. Docs: chart README, note in `deploy/README.md`.
-- **E10 (coder)** — plan §2.2 D-L, §2.6, §5.10. `ee/backend` module in `go.work`; core
-  `backend/internal/edition` (feature constants for the right column of §2.6,
-  `Enabled`/`EnabledForWrite`/`Readable`, PLX-8600; no licence → all ee features off; core
-  builds without ee). `ee/backend/license`: verify the signed licence in the update-metadata
-  envelope (Ed25519, compiled-in keys by ID, test key pair in testdata, production key slot
-  left empty), states valid/grace/expired/invalid/absent, hourly re-verification, metric
-  `plux_license_days_remaining`, limits only for registry keys, never gating security
-  (`GOV-032`). `ee/cmd/plux-license` (keygen, sign, verify). `ee/cmd/plux-server-ee`;
-  `PLUX_LICENSE_FILE` config. CLI `plux license inspect`, `plux admin license`
-  (`license.proto`). `ee/LICENSE` draft "Plux Enterprise License 1.0" marked for legal
-  review; `REUSE.toml` `ee/**` → `LicenseRef-Plux-Enterprise` with
-  `LICENSES/LicenseRef-Plux-Enterprise.txt`. A `make go-test-core` (core without ee) wired
-  into CI. Tests for every licence state; coverage ≥ 85%.
-- **E1a (coder-high)** — plan §5.1, §2.4. Generated permission catalogue (description,
-  risk, `stepUp`) and `docs/reference/permissions.md`; `auth/rbac_p9.go` with all P9
-  permissions; the ten roles (existing grants unchanged, proven by a test); teams; grants
-  `(principal, role, scope)` with scope organisation | app | app+environment and
-  `<permission>:<environment>`; custom roles (gated by `edition.Enabled(FeatureCustomRoles)`
-  once E10 is merged); codes 8100–8103; migrations 0024–0025; `governance.proto`; CLI
-  `plux roles|teams|grants`; regenerated authorisation matrix (`QA-008`).
-- **E6a (coder)** — plan §5.8, Q17, §2.4. Valkey-stream ingestion (extend the in-house
-  RESP client), bulk writes by the worker, quotas (PLX-8300), server-side consent check,
-  direct-write fallback without Valkey; monthly partitions; 5-minute/hourly/daily rollups
-  with histogram percentiles; `analytics.Store` interface (PostgreSQL now, ClickHouse later in
-  ee); retention defaults (13 months raw, rollups indefinitely, 10 years production audit)
-  configurable per organisation and data class, applied in the off-peak window (default
-  02:00–04:00) or immediately, schedulable and cancellable, audited (PLX-8301); OTLP export
-  through the SSRF-safe client; `analytics.proto`; CLI `plux analytics`; migrations
-  0039–0041.
-- **E7 (coder)** — plan §5.7, §2.4. `backend/internal/notify` with the event registry,
-  subscriptions per user and team, inbox, SMTP (STARTTLS), Slack, Teams, Telegram, per-hour
-  limit, delivery log; Standard Webhooks (headers, `whsec_` secrets with rotation overlap,
-  24 h retry with backoff and jitter from a PostgreSQL queue, PLX-8401, the published test
-  vectors); cron triggers (5-field + macros, zones, DST-correct, advisory-lock leader) and
-  inbound webhooks `/hooks/{app}/{function}` (Standard Webhooks or a `Verifier`
-  interface, replay protection, PLX-7150–7152) invoking through the function service's
-  workload identity; migration 0042; `notification.proto`; CLI.
-- **E1c (coder-high)** — plan §5.2, Q15, §2.4. Sessions table, idle 30 min / absolute 12 h
-  defaults per organisation, listing and revocation (immediate), PLX-6230–6232; WebAuthn
-  step-up with user verification recorded as `stepUpAt`, `auth.RequireStepUp(ctx, 5*time.Minute)`
-  on the stepUp actions (production promotion, keys, members/roles, secrets, security
-  configuration, function production deploy — replacing P7's stand-in without loosening it),
-  PLX-6200–6202; CLI browser step-up (request bound to the CLI's DPoP thumbprint, page with
-  `navigator.credentials.get`, 5-minute grant, polling with DPoP, audited); migrations
-  0026–0027; `identity.proto` additions; CLI `plux sessions`.
-- **E3 (coder-high)** — plan §5.4, Q9, Q22, §2.4. `schema/control.fbs` (version, expiry,
-  kill-switch scopes plugin|page|action graph|data source|function with targeting
-  placeholders, mandatory update, forced rollback, reserved slots for flags and experiments)
-  in the update-metadata envelope signed by the new online `control` role through
-  `signing/`; migrate the unsigned per-channel `Control` (migration 0032); ETag + DPoP
-  endpoint; FCM HTTP v1 and APNs senders in-house, push tokens (migration 0033), off by
-  default, destinations listed for the egress list. Runtime: fetch on resume and every 5
-  min off the UI isolate, verify before parse, refuse older versions (PLX-3102), apply
-  without restart with fallbacks (`RT-022`), keep switches in force past expiry (PLX-3101),
-  mandatory update behind `PluxConfig.updateScreen` (PLX-3103), forced rollback
-  (PLX-3104) with `control_applied`, `Plux.handleSilentPush`.
+This keeps the lead's output tokens tiny and the agents' shared prefix identical. Agents report in ≤ 8 lines; do not converse with them beyond "continue" after a limit or a one-line correction.
 
-Not started: E2 (approvals), E4 (rollouts), E5 (flags and experiments), E6b (ClickHouse,
-Parquet, dashboards, alerts, error grouping), E8 (audit export, reconstruction, DSR, egress,
-search, Git export), E9b (backups, air-gap, observability, sizing, IaC), E1b (OIDC
-extension, SAML, SCIM), E11, E12 — plan §6.
+**Traps seen and how to handle them.**
+- **Worktree base:** agent worktrees are created from the default branch (`main`), not `feat/phase-9`. The prefix tells agents to `git reset --hard feat/phase-9` when the fast-forward fails; check the first report line.
+- **Usage limits** stop all agents at once (resets every ~5 h). Their work is saved in their worktrees; resume each with `SendMessage(to=<agentId>, "The usage limit has reset: continue from where you stopped.")`.
+- **Container restarts** kill agents silently (no notification) and mark them "stopped by the user" — they cannot be resumed. Check liveness with `uptime` and file mtimes in `.claude/worktrees/agent-*`; save their work (`git add -A && git commit` in the worktree, never `--no-verify`), rename the branch `wip/p9-<slice>`, and relaunch a continuation brief.
+- **Agents' own commits** are sometimes refused by their permission check; commit for them in their worktree.
+- **Merging:** do merges in a separate lead worktree (`git worktree add -B lead/merge <scratch>/lead feat/phase-9`), then `git merge --ff-only lead/merge` in the main checkout. **Never edit the main checkout while a push runs**: the pre-push hook runs `make go-test` on the working tree and a half-resolved merge fails it (this cost two pushes).
+- **Conflicts** are almost always the shared wiring lists: `backend/cmd/plux/{main.go,completion.go}`, `backend/internal/api/{handler.go,authz_matrix_table_test.go,authz_matrix_integration_test.go,services_integration_test.go}`, `backend/internal/server/{services.go,build.go}`, `backend/serverapp/main.go`, `ee/backend/cmd/plux-server-ee/main.go`, `backend/internal/audit/audit.go`, `docs/engineering/dependencies.md`. Keep both sides. In `permissionsWithoutRPC` (authz_matrix_integration_test.go) a conflict usually means *both* sides removed entries — the result is neither. For generated files (`dbgen/`, `*.pb.go`, `openapi.yaml`, `docs/reference/*`) take either side, then `make gen` with `PATH=$PATH:/root/.cache/plux/flatc-25.9.23`. A Python resolver that opens the file for writing before the substitution can empty it on an exception — `git checkout -m <file>` restores the conflict.
+- **Migrations:** every agent takes the next free number on its base, so collisions are routine; renumber at merge with `git mv` in merge order (nothing deployed reads the numbers yet; the runner requires contiguity).
+- **Cross-slice gaps** found only at merge: new tables must be added to the personal-data map (`backend/internal/dsr/datamap.go` + export/erase executors), new person-scoped tables to `nonTenantTables`, new admin fixtures need `.WithStepUp(0)`, new RPCs need matrix entries. The completeness tests catch them — run `./internal/dsr/ ./internal/storage/ ./internal/api/` after every merge.
+- **Disk** fills (Go cache, parallel test temp dirs): `go clean -cache; rm -rf /tmp/go-build*`. PostgreSQL then fails with "could not write init file" — that is the disk, not the code.
+- **Killing a background push:** kill by PID (`pgrep -f "git push origin feat/phase-9"`); `pkill -f` with a pattern also matches your own shell.
 
----
+**Review standard.** The lead reads every security-relevant part of a diff (signing, auth, SQL built from input, SSRF, secrets, migrations) and spot-checks the rest; it raises to the maintainer only wrong behaviour or large debt, with a recommendation, and otherwise fixes and merges.
 
-## 6. How the work was run (for the next session)
+## 7. Lead-only work still to do
 
-- The lead merged agent branches with a helper that took `ours` for generated files and
-  re-ran `make gen` afterwards; generated files are never merged by hand.
-- Agent worktrees start from `main`; rule 0 brings them to `feat/phase-9`.
-- CI runs only on dispatch (`ci.yml`, `workflow_dispatch`) for these branches; a newer
-  dispatched run in the same concurrency group can cancel an older one.
-- The pre-push hook runs `make go-test`; do not run `make gen` or clean caches while a push
-  runs.
+1. Merge `origin/main` into `feat/phase-9` (§2).
+2. CI (`.github/workflows/ci.yml`, `ci/affected.json`), after the maintainer's decision on §9.3/§9.4: nightly + path-selected jobs for `make restore-drill`, `make airgap-kind`, `make iac-check`, `make walkthrough-kind`, `make load-test`, `make bench-control`; the `ee` build/test job; keep `make go-test-core`. `make workflows-lint` (use `ZIZMOR_FLAGS=--offline` here).
+3. Run the Dart suites that never ran to completion after the E5-runtime merge (they timed out under load): `cd packages/plux_flutter && flutter test test/experiments test/control test/bundle test/pxl test/render`.
+4. E12: spec statuses in `docs/requirements.md` (only the `Status` column; `make spec-lint`), `make trace` (0 violations), `make check` with every gate, `make e2e-starter`, 40× race runs of `TestPublishWithTheCLIAndSyncADevice`, a dispatched CI run green, `docs/WORKLOG.md`, the PR body. Coverage floors for the new packages (plan §8, A6: 85 % security-relevant — auth, approval, control, licence, egress — 80 % elsewhere) go into `coverage.json`.
 
----
+## 8. What has and has not been verified
 
-## 7. Done after the hand-off (lead, alone, 2026-10-19)
+**Verified at each merge (this session):** `go build ./...` in `backend` (with and without `GOWORK=off`) and `ee/backend`; `go vet` of touched packages; `go test -count=1` of the merged and neighbouring packages against PostgreSQL (api, server, storage, dsr, release, auth, cmd/plux and the slice's own); `dart analyze lib test` (clean); the pre-push `make go-test` on every push.
 
-The maintainer asked the lead to finish short slices without sub-agents and merge them into
-this branch, so the next session continues from here. `wip/p9-handoff` is therefore now
-`feat/phase-9` + this directory + the slices below; merge it into `feat/phase-9` (it is a
-fast-forward of it) when the next session starts.
+**Not verified:** `make check` (lint, coverage floors, govulncheck, reproducibility, REUSE over everything, spec lint after statuses); `-race` across the board; the full Flutter suite; `make e2e-starter`; any `kind`, drill, air-gapped or walkthrough run (no Docker here); OpenTofu `init/validate/test` (provider registry blocked here — CI only); CI on `feat/phase-9`.
 
-### `main` merged in (`39edc2b`, 2026-10-19)
+## 9. Open decisions for the maintainer (with the lead's recommendation)
 
-`main` squash-merged P8 as `e0a5fe6`, so git's merge base for this branch predates P8 and a
-plain `git merge origin/main` conflicts in about 50 P8 files. The merge was made instead as
-`git merge -s ours --no-commit origin/main` followed by
-`git diff --binary 796ddbd origin/main | git apply --3way --index` — only main's changes since
-`796ddbd` (the P8 commit this branch already held): 13 files (CI workflow, `ci/affected.json`,
-the iOS bank accessibility pass, ADR-0043, `ci.md`, `testing.md`, the work log, a secure-widgets
-test, zxing-cpp). All applied cleanly. Verified: the tree differs from `main` by exactly the
-files the P9 work changed since `796ddbd`; `go test` of `tools/internal/affected` and
-`tools/cmd/affected`; `make workflows-lint`. Use the same recipe for `feat/phase-9` if it is
-merged with `main` separately.
+1. **SCIM deprovisioning and sessions** — deprovisioning revokes the person's tokens in the organisation at once and ends their sessions only when they belong to no other organisation (sessions are user-wide). ADR-0074 says "revokes sessions at once". *Recommend:* accept and note it in ADR-0074.
+2. **Chart egress default** — `networkPolicy.externalHTTPS.enabled` defaults to `true` (api and worker may reach any HTTPS host), which arguably conflicts with SEC-163 "by default no data leaves". *Recommend:* default `false`, enabled explicitly with the egress list; it is a security default, so it needs approval.
+3. **CI jobs** for IaC (`make iac-check`; the provider registry is blocked in agent sessions) and the air-gapped kind install. *Recommend:* add (nightly + path-selected).
+4. **New tools** for `make airgap-kind`: `skopeo` and the `registry:2` image need `dependencies.md` rows. *Recommend:* approve.
+5. **Smaller items accepted by the lead, for the maintainer's awareness:** SAML refuses SHA-1, PKCS#1 v1.5 key transport and documents with comments; ClickHouse retention runs through `Purge`/`Compact` instead of table TTL (retention is per organisation); experiment analysis reads raw events (rollups carry no per-subject variance); flags and experiments are scoped per environment; health gates default to a 200-sample minimum and a 6-hour window (per-rollout overrides; not registry limits); `retention.manage` is owner-only; the `admin` role lacks `killswitch.manage` (the release manager has it); Grafana analytics dashboards are an installation-operator tool (any Grafana viewer may pick any organisation); same-version control documents are accepted idempotently on the device; two parser bounds are constants, not registry limits (`ee/backend/saml/xml.go` depth 64, `ee/backend/airgap/layout.go` 16 MiB).
+6. **Limit keys added in P9 since the first hand-off** (defaults to confirm, with the ten of the first hand-off): `audit.exportBatchEntries`, `audit.exportDestinationsPerOrg`, `auth.samlClockSkewSeconds`, `auth.scimTokenOverlapSeconds`, `auth.sessionAbsoluteTimeout`, `auth.sessionIdleTimeout`, `auth.stepUpAttempts`, `control.expiry`, `control.killSwitches`, `push.batchSize`, `push.tokenBytes`.
+7. From the first hand-off, still open: the ten limit defaults; the ADR-0066 native-slot locale rule; the legal review of the draft `ee/LICENSE`.
 
-### E9a — the Helm chart (`c4fc1dd`, merged `c05385b`)
+## 10. Known follow-ups not yet in a brief
 
-- **Finished from the agent's work:** the chart (`deploy/helm/plux/`), `deploy/helm/lint.sh`
-  and `e2e-kind.sh`, `mk/helm.mk`, the Makefile pins (Helm v3.22.1, kind v0.33.0,
-  kubeconform v0.8.0, CloudNativePG 1.30.1 with its SHA-256), `dependencies.md` rows. The
-  agent had already dropped `ct` (chart-testing could not be installed); not pinned.
-- **Added by the lead:** CI jobs `helm` ("Helm lint and render", on chart changes) and
-  `kind` ("Kubernetes HA (kind)", `skipOnPush`; daily, manual, and pull requests changing
-  `deploy/helm/**`, `backend/Dockerfile` or `mk/helm.mk` — not server Go code, so a compiler
-  change does not start a 60-minute cluster test), both in `ci-ok`'s needs and in
-  `ci/affected.json`; `TestProjectPushesLeaveOnlyTheDailyJobs_CI_002` now expects `kind`
-  among the jobs pushes skip; `deploy/helm/plux/README.md` and the `deploy/README.md` row;
-  `.pre-commit-config.yaml` excludes `deploy/helm/*/templates/` from `check-yaml` (Go
-  templates; `make helm-lint` validates what they render).
-- **Verified:** `make install-helm-tools`; `make helm-lint` (default 34, external 19, HA 59,
-  kind 50 resources valid; values-schema and property checks pass);
-  `go test ./internal/affected/... ./cmd/affected/...` in `tools/`;
-  `ZIZMOR_FLAGS=--offline make workflows-lint`; `make reuse-lint`; the commit hooks.
-- **Not run:** `make e2e-kind` (no Docker here) — its first real run is the `kind` CI job;
-  expect to debug it there. Plan §5.11.1–2 items still open for E9b: none for the chart
-  itself; backups, air-gap, observability, sizing and IaC remain E9b.
+- ClickHouse writes are gated at `Open` only (a licence expiring mid-run does not stop writes).
+- The production bundle-signing public key for `plux-airgap verify` is not compiled in (`--key` needed).
+- `DeleteUnreferencedVersions` is safe now only because releases referenced by reconstructions are kept; reconstructions expire on `reconstruction.retentionDays`.
+- Rollout user attributes accept hashes only (no allowed plaintext attributes).
+- Promotion of an experiment winner is not atomic across services (the error says so).
+- The chart has no KMS signing backend values; Azure Blob has no S3 API for the chart's object storage (IaC README notes both).
 
-### E10 — `ee/` module and licence (`ee14449`, merged `e4a2d5f`)
+## 11. Progress (lead's estimate)
 
-- **Finished from the agent's work:** `backend/edition` (the `Provider` interface the core
-  asks; `Community()` enables nothing) and `backend/edition/licensefile` (Apache-2.0, offline
-  Ed25519 verification in the update-metadata envelope, used by the CLI);
-  `backend/serverapp` (the server's main moved out of `cmd/plux-server`, which is now a
-  thin wrapper, so `ee/backend/cmd/plux-server-ee` can wrap it with the licence provider);
-  `ee/backend` (own Go module in `go.work`: `license`, `cmd/plux-license` signing tool,
-  `cmd/plux-server-ee`); `proto/plux/v1/license.proto` (`GetLicenseState`, organisation
-  managers only); `plux license inspect` and `plux admin license`; `PLUX_LICENSE_FILE`; the
-  licence days-remaining metric; coverage floors `backend/edition` 85 and
-  `ee/backend/license` 85.
-- **Added by the lead:** `LICENSES/LicenseRef-Plux-Enterprise.txt` and `ee/LICENSE` — a
-  **draft** "Plux Enterprise License 1.0", marked for legal review before the first ee
-  release (open item for the maintainer); the `REUSE.toml` annotation for `ee/**`;
-  `ee/README.md`; `make go-test-core` (builds, vets and tests the core with `GOWORK=off`)
-  and the CI step "The core builds and tests without ee/" in `go-build`; `ee/backend` in
-  `GO_MODULES` and in `.github/dependabot.yml` (`CI-007`; added after the merge, `TestProjectDependabotCoversEveryManifest_CI_007` caught it); `ee/**` moved from `noJob` to the `go-lint` and `go-test` rules of
-  `ci/affected.json`; lint fixes (gosec G304, wrapcheck, gocritic, gofumpt, ST1023, and
-  `server.New`'s complexity via `useEdition`); `make gen`; `GOV-030` and `GOV-033` → `DONE`.
-- **Verified:** `make go-lint` (all four modules, 0 issues); `make go-gen-check` (clean after
-  the commit); `make go-test-core`; `go test` of `edition`, `serverapp`, `cmd/...`,
-  `internal/config`, `internal/server`, `internal/api` and all of `ee/backend`;
-  `go test ./internal/affected/...` in `tools/`; `make spec-lint`; `make trace` (0
-  violations); `make reuse-lint`; `make workflows-lint`; the commit hooks.
-- **For E1a (next):** gate custom roles with `edition.Enabled(ctx, edition.FeatureCustomRoles)`
-  from the server's `Provider` (the interceptor `withEdition` puts it in the context).
+| Milestone | % | Left |
+|---|---|---|
+| E0, E1, E10 | 100 | — |
+| E7 | 95 | gates |
+| E3 | 90 | `bench-control` (E9e) |
+| E6 | 90 | export scheduling (E5j) |
+| E4 | 85 | device targeting (E5i), error-rate series (E5j) |
+| E8 | 85 | viewer host + reconstruction mode (E8f) |
+| E5 | 75 | integration (E5i, E5j), ABT-007 (E2a) |
+| E9 | 75 | load/sizing (E9e), CI runs |
+| E2 | 35 | E2a finish, E2b |
+| E11 | 0 | E11a–c |
+| E12 | 0 | §7 |
+| **P9** | **≈ 72** | |
 
-### E1a — roles, catalogue, scoping (`b0dde31`, `c350c9d`; fast-forwarded onto `wip/p9-handoff`)
-
-- **Finished from the agent's work (`b0dde31`):** the permission catalogue
-  (`backend/internal/auth/permissions.json` → generated `catalogue_gen.go` and
-  `docs/reference/permissions.md`, wired into `make gen`) with risk and step-up per
-  permission; every P9 permission in `rbac_p9.go` (**E6a, E7, E1c and E3 use these
-  constants; do not add a second const block**); the ten predefined roles (`roles.json`;
-  existing roles keep exactly their grants, tested); `role_grants` (user or team;
-  organisation, app or environment scope) and custom roles, migrations 0024 and 0025 (teams
-  already existed since 0002, so 0024 adds no team table); the resolver (`principal.go`);
-  `GovernanceService` (`governance.proto`); the matrix and scoped tests
-  (`TestScopedGrantsAtTheEdge_QA_008` is the "edge test" the agent was writing — it was
-  already complete). The tenancy tests now expect `PLX-8100` (unknown role) and `PLX-8103`
-  (last owner), the codes plan §2.4 allocates; the old "grant role" malformed-input case is
-  split so the malformed IDs are still checked with a valid role.
-- **Added by the lead (`c350c9d`):** custom roles are gated on the licence in the request's
-  context (`edition.EnabledForWrite(ctx, edition.FeatureCustomRoles)`, put there by E10's
-  `withEdition` interceptor); `Options.CustomRolesEnabled` stays as a test override; test
-  `TestCustomRolesFollowTheLicenceInTheContext_GOV_033`. CLI `plux roles|grants|teams`
-  (`backend/cmd/plux/cmd_governance.go`, test `TestGovernanceCommands_GOV_002`); rows for
-  these and for E10's `plux license` / `plux admin license` in `docs/reference/cli.md`;
-  `resolve` and `checkScope` split under gocognit; `GOV-002` and `GOV-003` → `DONE`.
-- **Also fixed (`1ce4802`):** `make go-lint` failed on `feat/phase-9` itself since
-  `aad6ec6`/`a2c5fef` (gocognit on `compiler.(*unit).messageUse` and `l10n.Reduce`); both
-  split, behaviour unchanged.
-- **Verified:** `go test ./...` in `backend/` against the local PostgreSQL
-  (`PLUX_TEST_DATABASE_URL`), all packages pass; `make go-lint` (four modules, 0 issues);
-  `make go-gen-check`; `make go-test-core`; `make spec-lint`; `make trace` (0 violations);
-  `make reuse-lint`; `go test` of `tools/internal/affected` and `tools/internal/policy`; the
-  commit hooks and the pre-push `go test`.
-- **Environment note:** the container's disk filled up (14 GB Go build cache); `go clean
-  -cache` freed it. If a build fails with "no space left on device", do the same.
-- **Open for the maintainer:** none new. Studio's roles and grants screens are P11.
+Numbers on `feat/phase-9` since `main`: 383 commits, 963 files, +184 k / −16 k lines, migrations 0024–0043, 20 agent slices merged this session.
