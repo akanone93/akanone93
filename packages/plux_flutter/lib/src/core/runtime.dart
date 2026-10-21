@@ -14,7 +14,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, TargetPlatform;
+    show defaultTargetPlatform, TargetPlatform, visibleForTesting;
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -542,6 +542,11 @@ final class PluxRuntime with WidgetsBindingObserver {
     check: checkControl,
     timer: overrides.controlTimer,
   );
+
+  /// The control check running now, or null; a test awaits it so that a
+  /// timer-fired check has finished before the next lifecycle change.
+  @visibleForTesting
+  Future<void>? get controlCheckInFlight => _controlPoller.running;
   final Set<PluxErrorCode> _reportedControl = {};
   int _updateReportedVersion = 0;
   bool _fulfilling = false;
