@@ -689,7 +689,7 @@ func (s *Service) GrantAccess(ctx context.Context, p auth.Principal, appID, team
 		return AccessGrant{}, err
 	}
 	var out AccessGrant
-	err = s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+	err = s.inOrgChanging(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
 		app, err := s.app(ctx, q, p, auth.AppRead, appID)
 		if err != nil {
@@ -761,7 +761,7 @@ func (s *Service) RevokeAccess(ctx context.Context, p auth.Principal, grantID st
 	if err != nil {
 		return err
 	}
-	return s.inOrg(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
+	return s.inOrgChanging(ctx, p, func(ctx context.Context, tx pgx.Tx) error {
 		n, err := dbgen.New(tx).RevokeAppAccess(ctx, gid)
 		if err != nil {
 			return failure(err, "grant")

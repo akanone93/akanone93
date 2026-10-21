@@ -318,6 +318,32 @@ var matrix = map[string]entry{
 		return &pluxv1.DeleteGrantRequest{Id: unknownID}
 	})),
 
+	// Restrictions and effective permissions (GOV-006, GOV-007): managing
+	// restrictions needs restrictions.manage; a person's own effective
+	// permissions, change notices and explanation need nothing.
+	"GovernanceService/CreateRestriction": atPerm(auth.RestrictionsManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.CreateRestrictionRequest{SubjectKind: "user", SubjectId: unknownID, Patterns: []string{"app.read"}}
+	})),
+	"GovernanceService/ListRestrictions": atPerm(auth.RestrictionsManage, anyone(&pluxv1.ListRestrictionsRequest{})),
+	"GovernanceService/DeleteRestriction": atPerm(auth.RestrictionsManage, fixed(func(*matrixFixture) proto.Message {
+		return &pluxv1.DeleteRestrictionRequest{Id: unknownID}
+	})),
+	"GovernanceService/GetEffectivePermissions": {kind: self, build: anyone(&pluxv1.GetEffectivePermissionsRequest{})},
+	"GovernanceService/WatchPermissions": {kind: self, call: func(t *testing.T, f *matrixFixture, c caller) error {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		stream, err := f.w.govern.WatchPermissions(ctx, req(c, &pluxv1.WatchPermissionsRequest{}))
+		if err != nil {
+			return err //nolint:wrapcheck // the code is what the test reads
+		}
+		defer func() { _ = stream.Close() }()
+		if !stream.Receive() {
+			return stream.Err() //nolint:wrapcheck // the code is what the test reads
+		}
+		return nil
+	}},
+	"GovernanceService/ExplainAccess": {kind: self, build: anyone(&pluxv1.ExplainAccessRequest{Permission: "app.read"})},
+
 	// ApprovalService (GOV-020 to GOV-023): reading policies and requests
 	// needs the app, writing a policy needs policies.manage and deciding
 	// needs approvals.decide.

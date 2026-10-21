@@ -213,11 +213,12 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	shared := cache.NewMemory(cfg.Now)
 	authService, err := auth.NewService(auth.Options{
 		DB: db, Audit: log, Cache: shared, Crypter: backend, IDs: gen, VerificationURI: "https://p.example/device",
-		CustomRolesEnabled: func() bool { return true },
+		CustomRolesEnabled: func() bool { return true }, Notifier: shared,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Cleanup(authService.Close)
 	tenancyService, err := tenancy.NewService(tenancy.Options{
 		DB: db, Audit: log, Auth: authService, Crypter: backend, IDs: gen, SigningKeyPrefix: "targets",
 	})

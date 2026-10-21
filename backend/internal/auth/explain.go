@@ -6,7 +6,6 @@ package auth
 import (
 	"context"
 	"errors"
-	"fmt"
 	"slices"
 
 	"github.com/jackc/pgx/v5"
@@ -221,5 +220,3 @@ func (r Restriction) coversScope(scope AccessScope) bool {
 	}
 	return r.Environment == "" || r.Environment == scope.Environment
 }
-
-var _ = fmt.Sprint
