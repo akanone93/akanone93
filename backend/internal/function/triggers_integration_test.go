@@ -188,7 +188,7 @@ func TestTriggerReplicasRunOnce_FN_025(t *testing.T) {
 	}
 }
 
-// Verifies: FN-025, PLX-7150.
+// Verifies: FN-025.
 // Bad expressions and zones, unknown aliases and device functions are
 // refused, and creating a schedule needs function.deploy.
 func TestTriggerCreateRefusals_FN_025(t *testing.T) {
@@ -283,7 +283,7 @@ func hookRequest(svc *function.Service, app, name string, body string, h http.He
 	return rec
 }
 
-// Verifies: FN-025, PLX-7151, PLX-7152.
+// Verifies: FN-025.
 // An inbound hook runs the function for a correctly signed message, and
 // refuses a wrong signature, a replay, a stale timestamp and an unknown hook.
 func TestHookVerifiesAndRejectsReplay_FN_025(t *testing.T) {

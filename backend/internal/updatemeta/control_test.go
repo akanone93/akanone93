@@ -110,7 +110,7 @@ func TestControlSignedAndVerifiedFromRoot_SYN_060(t *testing.T) {
 // TestControlRefusals_SYN_060 checks each way a device refuses a control
 // document, with the error that maps to its code.
 //
-// Verifies: SYN-060, SEC-052, PLX-3100, PLX-3101, PLX-3102.
+// Verifies: SYN-060, SEC-052.
 func TestControlRefusals_SYN_060(t *testing.T) {
 	t.Parallel()
 	rig := newControlRig(t, true)
@@ -149,7 +149,7 @@ func TestControlRefusals_SYN_060(t *testing.T) {
 // TestControlRootWithoutDelegation_SYN_060 checks that a root that
 // delegates no control role accepts no control document, whoever signed.
 //
-// Verifies: SYN-060, ADR-0004.
+// Verifies: SYN-060.
 func TestControlRootWithoutDelegation_SYN_060(t *testing.T) {
 	t.Parallel()
 	rig := newControlRig(t, false)

@@ -848,7 +848,7 @@ sequenceDiagram
 | `SYN-013` | P3 | MUST | The runtime **MUST** publish typed sync events (`checking`, `upToDate`, `downloading(progress)`, `staged`, `activated`, `failed(error)`, `rolledBack`) on `Plux.syncEvents`. | DONE |
 | `SYN-014` | P3 | SHOULD | The runtime **SHOULD** offer opt-in background sync (Android WorkManager, iOS BGTaskScheduler) so updates are staged before the next app start. | SPEC |
 | `SYN-015` | P3 | MUST | Sync **MUST** emit telemetry: duration, bytes transferred, delta ratio, number of plugins updated, failures by reason (`ANL-001`). | DONE |
-| `SYN-060` | P9 | MUST | The runtime **MUST** check a lightweight signed **control document** (kill switches, forced rollback, mandatory update) on app resume and at most every 5 minutes while in foreground, and **SHOULD** accept silent push notifications (FCM/APNs) that trigger an immediate check. Target propagation for online devices: ≤ 60 s p95. | SPEC |
+| `SYN-060` | P9 | MUST | The runtime **MUST** check a lightweight signed **control document** (kill switches, forced rollback, mandatory update) on app resume and at most every 5 minutes while in foreground, and **SHOULD** accept silent push notifications (FCM/APNs) that trigger an immediate check. Target propagation for online devices: ≤ 60 s p95. | DONE |
 
 ### 10.5 Compatibility gating
 
@@ -910,9 +910,9 @@ Branching is deliberately **not** part of the model (ADR-0015). Each plugin has 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `SRV-060` | P2 | MUST | Asset uploads **MUST** be size-limited, type-sniffed (not trusted by extension), stripped of metadata and deduplicated by hash; an optional malware-scanning hook (e.g. ClamAV) **MUST** be supported. | DONE |
-| `SRV-061` | P9 | SHOULD | The server **SHOULD** provide full-text search across apps, plugins, pages, components, templates, translation keys and functions, scoped by the caller's permissions. | SPEC |
-| `SRV-062` | P9 | MUST | The server **MUST** send notifications (approval requested, release published, rollout paused, lock requested, function failing) via in-app inbox, email (SMTP), and webhooks to Slack, Microsoft Teams and Telegram. | SPEC |
-| `SRV-063` | P9 | MUST | Outbound webhooks **MUST** follow the Standard Webhooks specification (signed with HMAC, timestamped, with IDs for deduplication) and retry with backoff. | SPEC |
+| `SRV-061` | P9 | SHOULD | The server **SHOULD** provide full-text search across apps, plugins, pages, components, templates, translation keys and functions, scoped by the caller's permissions. | DONE |
+| `SRV-062` | P9 | MUST | The server **MUST** send notifications (approval requested, release published, rollout paused, lock requested, function failing) via in-app inbox, email (SMTP), and webhooks to Slack, Microsoft Teams and Telegram. | DONE |
+| `SRV-063` | P9 | MUST | Outbound webhooks **MUST** follow the Standard Webhooks specification (signed with HMAC, timestamped, with IDs for deduplication) and retry with backoff. | DONE |
 | `SRV-064` | P2 | MUST | A public API **MUST** be available to personal access tokens (scoped, expiring, revocable) and to CI via OIDC workload identity federation (e.g. GitHub Actions) without long-lived secrets. | DONE |
 | `SRV-065` | P2 | MUST | Rate limits **MUST** apply per principal, per device and per IP, returning `RESOURCE_EXHAUSTED` with retry information. | DONE |
 
@@ -1222,7 +1222,7 @@ The update channel follows the design of **The Update Framework (TUF)**: separat
 | `SEC-072` | P6 | MUST | Tokens, keys and secure state **MUST** be stored only in Keystore/Keychain-protected storage; nothing sensitive may be stored in plain shared preferences, files or logs. | WIP |
 | `SEC-073` | P6 | MUST | The local database, response cache, outbox, `persisted` state and key-value store **MUST** be encrypted at rest under the `strict` and `maximum` profiles (setting `encryptLocalStores`), with keys wrapped by secure hardware and unwrapped once per launch (ADR-0058). | DONE |
 | `SEC-074` | P6 | MUST | Release builds **MUST** contain no Plux dev tooling, verbose logging or source maps; this **MUST** be enforced by compile-time constants and verified by a test inspecting a release build (`DEV-050`). | WIP |
-| `SEC-080` | P5 | MUST | Plugins **MUST** only perform operations covered by their declared capabilities (network domains, functions, device APIs such as camera, location, contacts, biometrics, native routes); the host **MUST** approve the capability set per app, and undeclared operations **MUST** be blocked and reported. The approved set is the app document's optional `capabilities`, checked when a release is published; `PluxConfig.allowedCapabilities` lets the host narrow it further at run time. Governance approval of the set arrives with the approval engine in P9 (ADR-0051). | WIP |
+| `SEC-080` | P5 | MUST | Plugins **MUST** only perform operations covered by their declared capabilities (network domains, functions, device APIs such as camera, location, contacts, biometrics, native routes); the host **MUST** approve the capability set per app, and undeclared operations **MUST** be blocked and reported. The approved set is the app document's optional `capabilities`, checked when a release is published; `PluxConfig.allowedCapabilities` lets the host narrow it further at run time. Governance approval of the set arrives with the approval engine in P9 (ADR-0051). | DONE |
 
 ### 15.7 Secure UI
 
@@ -1241,7 +1241,7 @@ The update channel follows the design of **The Update Framework (TUF)**: separat
 | `SEC-100` | P2 | MUST | Studio users **MUST** authenticate via OIDC (any compliant IdP) or built-in accounts with Argon2id password hashing; multi-factor authentication (TOTP or WebAuthn/passkeys) **MUST** be mandatory for roles that can publish, approve, manage keys or manage members. | DONE |
 | `SEC-101` | P2 | MUST | Studio **MUST** use a backend-for-frontend: OAuth tokens stay server-side; the browser holds only a `__Host-` prefixed, `HttpOnly`, `Secure`, `SameSite=Strict` session cookie; state-changing requests require a CSRF token; a strict nonce-based Content Security Policy with Trusted Types is enforced. | WIP |
 | `SEC-102` | P2 | MUST | Authorisation **MUST** be deny-by-default, evaluated in the service layer for every call against RBAC permissions and resource scope (`GOV-002`), with PostgreSQL row-level security as a second barrier. | DONE |
-| `SEC-103` | P9 | MUST | Approving releases, publishing to production, key operations, role changes, secret changes and break-glass actions **MUST** require WebAuthn step-up authentication performed within the last 5 minutes. | SPEC |
+| `SEC-103` | P9 | MUST | Approving releases, publishing to production, key operations, role changes, secret changes and break-glass actions **MUST** require WebAuthn step-up authentication performed within the last 5 minutes. | DONE |
 | `SEC-104` | P2 | MUST | All inputs **MUST** be validated with size limits (request body, JSON depth, string length, array length) to prevent resource-exhaustion attacks. | DONE |
 | `SEC-105` | P2 | MUST | Every server-side fetch of a user-supplied URL (OpenAPI import, AI providers, function HTTP, webhooks) **MUST** go through an SSRF-safe client that blocks private, link-local and metadata address ranges unless explicitly allowlisted, and re-validates after DNS resolution and redirects. | DONE |
 | `SEC-106` | P2 | MUST | Secrets (environment secrets, provider credentials) **MUST** be encrypted with envelope encryption under a KMS key, never returned in full after creation, and accessible only to the components that need them. | DONE |
@@ -1264,8 +1264,8 @@ The update channel follows the design of **The Update Framework (TUF)**: separat
 |---|---|---|---|---|
 | `SEC-140` | P2 | MUST | Every state-changing operation and every security-relevant event **MUST** be recorded in an append-only audit log: actor, action, target, timestamp, source IP, user agent, request ID, and hashes of before and after content. | DONE |
 | `SEC-141` | P6 | MUST | Audit entries **MUST** be hash-chained (each entry includes the previous entry's hash), with periodic signed checkpoints, so any deletion or modification is detectable by `plux-server audit verify`. | DONE |
-| `SEC-142` | P9 | MUST | Given an app, a device or user identifier, and a timestamp, the server **MUST** reconstruct which release was active, which bundle hashes were loaded, and render the page exactly as the user saw it (from the retained bundle) — "what did the user see". | SPEC |
-| `SEC-143` | P9 | MUST | Audit logs **MUST** be exportable to SIEMs via syslog (RFC 5424), CEF, OTLP logs and signed webhooks, with configurable retention (default 10 years for production audit data, reflecting financial-sector record-keeping obligations). | SPEC |
+| `SEC-142` | P9 | MUST | Given an app, a device or user identifier, and a timestamp, the server **MUST** reconstruct which release was active, which bundle hashes were loaded, and render the page exactly as the user saw it (from the retained bundle) — "what did the user see". | DONE |
+| `SEC-143` | P9 | MUST | Audit logs **MUST** be exportable to SIEMs via syslog (RFC 5424), CEF, OTLP logs and signed webhooks, with configurable retention (default 10 years for production audit data, reflecting financial-sector record-keeping obligations). | DONE |
 
 ### 15.11 Privacy and data protection
 
@@ -1273,8 +1273,8 @@ The update channel follows the design of **The Update Framework (TUF)**: separat
 |---|---|---|---|---|
 | `SEC-160` | P6 | MUST | Plux **MUST** be designed for compliance with the EU GDPR (DSGVO) and comparable national data-protection laws (§31): data minimisation, purpose limitation, pseudonymous device identifiers, configurable retention, and documented processing activities. | WIP |
 | `SEC-161` | P6 | MUST | Telemetry and analytics **MUST** be gated by a host-provided consent state (`setConsent`), with categories (`necessary`, `analytics`, `experiments`, `replay`); only `necessary` operational telemetry is sent without consent, and it contains no personal data. | WIP |
-| `SEC-162` | P9 | MUST | Administrators **MUST** be able to export and erase all data associated with a device or pseudonymous user ID (data subject requests) and see where personal data is stored. | SPEC |
-| `SEC-163` | P9 | MUST | By default no data **MUST** leave a self-hosted installation except calls the customer configures (attestation verification, AI provider, push, webhooks); a documented egress list **MUST** be maintained (`DEP-040`). | SPEC |
+| `SEC-162` | P9 | MUST | Administrators **MUST** be able to export and erase all data associated with a device or pseudonymous user ID (data subject requests) and see where personal data is stored. | DONE |
+| `SEC-163` | P9 | MUST | By default no data **MUST** leave a self-hosted installation except calls the customer configures (attestation verification, AI provider, push, webhooks); a documented egress list **MUST** be maintained (`DEP-040`). | DONE |
 
 ### 15.12 Security profiles
 
@@ -1307,7 +1307,7 @@ Security profiles bundle settings so that operators do not need to understand fi
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `SEC-180` | P6 | MUST | The profiles above **MUST** be implemented as presets; every setting **MUST** be visible in the effective configuration of each release, through the API, the CLI and the release's metadata (P6), and in Studio (P11). | WIP |
+| `SEC-180` | P6 | MUST | The profiles above **MUST** be implemented as presets; every setting **MUST** be visible in the effective configuration of each release, through the API, the CLI and the release's metadata (P6), and in Studio (P11). | DONE |
 | `SEC-181` | P6 | MUST | A plugin or page **MUST** be able to tighten, but never loosen, the app's effective security settings. | DONE |
 | `SEC-182` | P6 | MUST | Every security setting **MUST** have a built-in default on the device and the server, generated from one source (`schema/security/settings.json`). Operators **MUST** be able to change settings per app and environment, within each setting's hard bounds and only tightening the profile's preset (`PLX-6041`). Changes **MUST** reach the device on the manifest request it already makes, as an RFC 7396 merge patch from the version it holds, bound to the signed manifest by a hash (`PLX-6040`); nothing is sent when nothing changed, and server-only settings never travel to the device (ADR-0053). | DONE |
 
@@ -1421,7 +1421,7 @@ plux_fn::function!(calculate_schedule);
 | `FN-022` | P7 | MUST | Errors **MUST** distinguish **business errors** (declared by the function with a code and a localisable message key, surfaced to action graphs) from **system errors** (timeouts, limits, crashes), which are reported and shown generically. | DONE |
 | `FN-023` | P7 | MUST | Warm invocation overhead **MUST** be ≤ 1 ms p99 and first invocation after deploy — after the deploy-time compile on `fnrunner` — ≤ 50 ms p99 on the CI reference runner (as `CMP-050`), excluding the function's own work. | DONE |
 | `FN-024` | P7 | MUST | Rate limits and quotas **MUST** apply per function, per app and per device. | DONE |
-| `FN-025` | P9 | SHOULD | Server functions **SHOULD** also be triggerable by schedules (cron) and by signed inbound webhooks (e.g. payment provider callbacks, `PAY-006`). | SPEC |
+| `FN-025` | P9 | SHOULD | Server functions **SHOULD** also be triggerable by schedules (cron) and by signed inbound webhooks (e.g. payment provider callbacks, `PAY-006`). | DONE |
 
 ### 16.5 Testing and operations
 
@@ -1486,12 +1486,12 @@ Plux targets **WCAG 2.2 level AA** and the harmonised European standard **EN 301
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `GOV-001` | P2 | MUST | The hierarchy **MUST** be Installation → Organization → Teams, with apps owned by an organization and access granted to teams or users per app. | DONE |
-| `GOV-002` | P9 | MUST | Predefined roles **MUST** include Owner, Admin, Release Manager, Developer, Designer, Translator, Reviewer, Compliance Officer, Auditor (read-only including audit log) and Viewer. Custom roles **MUST** be composable from a documented permission catalogue (e.g. `plugin.edit`, `release.publish:production`, `approval.grant`, `function.deploy`, `secrets.manage`, `keys.manage`, `members.manage`, `audit.read`). The catalogue **MUST** be fine-grained per feature and grouped as area → feature → action; each entry **MUST** state its area, feature, action, description and whether it can be scoped by app or environment, and a feature's permissions are added in the phase that builds the feature (ADR-0086). The Translator role and the `translations.edit` and `translations.approve` permissions exist from P8 (ADR-0068). | WIP |
+| `GOV-002` | P9 | MUST | Predefined roles **MUST** include Owner, Admin, Release Manager, Developer, Designer, Translator, Reviewer, Compliance Officer, Auditor (read-only including audit log) and Viewer. Custom roles **MUST** be composable from a documented permission catalogue (e.g. `plugin.edit`, `release.publish:production`, `approval.grant`, `function.deploy`, `secrets.manage`, `keys.manage`, `members.manage`, `audit.read`). The catalogue **MUST** be fine-grained per feature and grouped as area → feature → action; each entry **MUST** state its area, feature, action, description and whether it can be scoped by app or environment, and a feature's permissions are added in the phase that builds the feature (ADR-0086). The Translator role and the `translations.edit` and `translations.approve` permissions exist from P8 (ADR-0068). | DONE |
 | `GOV-003` | P9 | MUST | Permissions **MUST** be scopable by environment (e.g. publish to staging but not production) and by app. | DONE |
-| `GOV-004` | P9 | MUST | Single sign-on **MUST** support OIDC and SAML 2.0, with group-to-role mapping and just-in-time provisioning; SCIM 2.0 **MUST** support provisioning and deprovisioning of users and groups. | SPEC |
-| `GOV-005` | P9 | MUST | Administrators **MUST** be able to view and revoke active sessions and tokens and set session idle and absolute timeouts. | SPEC |
-| `GOV-006` | P9 | MUST | **Restriction policies** **MUST** be ceilings that remove permissions whatever the grants say; a restriction always wins over a grant. The Owner sets restrictions for the organisation; Admins set them for a team or a person, optionally scoped to an app and an environment, naming permissions or wildcards over the catalogue's areas and features (`GOV-002`). Effective permissions **MUST** be the grants minus every restriction that applies (organisation, team, person), evaluated deny-by-default in the service layer (`SEC-102`); a restriction on a whole app **MUST** also be enforced by PostgreSQL row-level security. A restriction **MUST NOT** remove the last Owner's ability to manage members, roles and restrictions; nobody may restrict a permission or scope they do not hold; break-glass (`GOV-024`) does not override a restriction. Changing a restriction requires step-up (`SEC-103`), restriction counts come from the limits registry (`LIM-001`), and every change to grants, roles or restrictions and every refused lockout **MUST** be audited (ADR-0086). | SPEC |
-| `GOV-007` | P9 | MUST | The server **MUST** return a person's effective permissions for an (organisation, app, environment) as one compact, versioned set, and **MUST** push a change notice to connected clients when grants, roles or restrictions change, so that they refetch without polling. An **explain** call **MUST** say why a person can or cannot perform an action, naming the grant or restriction responsible, and **MUST** be able to evaluate a proposed grant or restriction change without saving it. Anyone may explain their own access; explaining or simulating another person's needs `members.manage`; both calls are rate-limited (ADR-0086). | SPEC |
+| `GOV-004` | P9 | MUST | Single sign-on **MUST** support OIDC and SAML 2.0, with group-to-role mapping and just-in-time provisioning; SCIM 2.0 **MUST** support provisioning and deprovisioning of users and groups. | DONE |
+| `GOV-005` | P9 | MUST | Administrators **MUST** be able to view and revoke active sessions and tokens and set session idle and absolute timeouts. | DONE |
+| `GOV-006` | P9 | MUST | **Restriction policies** **MUST** be ceilings that remove permissions whatever the grants say; a restriction always wins over a grant. The Owner sets restrictions for the organisation; Admins set them for a team or a person, optionally scoped to an app and an environment, naming permissions or wildcards over the catalogue's areas and features (`GOV-002`). Effective permissions **MUST** be the grants minus every restriction that applies (organisation, team, person), evaluated deny-by-default in the service layer (`SEC-102`); a restriction on a whole app **MUST** also be enforced by PostgreSQL row-level security. A restriction **MUST NOT** remove the last Owner's ability to manage members, roles and restrictions; nobody may restrict a permission or scope they do not hold; break-glass (`GOV-024`) does not override a restriction. Changing a restriction requires step-up (`SEC-103`), restriction counts come from the limits registry (`LIM-001`), and every change to grants, roles or restrictions and every refused lockout **MUST** be audited (ADR-0086). | DONE |
+| `GOV-007` | P9 | MUST | The server **MUST** return a person's effective permissions for an (organisation, app, environment) as one compact, versioned set, and **MUST** push a change notice to connected clients when grants, roles or restrictions change, so that they refetch without polling. An **explain** call **MUST** say why a person can or cannot perform an action, naming the grant or restriction responsible, and **MUST** be able to evaluate a proposed grant or restriction change without saving it. Anyone may explain their own access; explaining or simulating another person's needs `members.manage`; both calls are rate-limited (ADR-0086). | DONE |
 
 ### 18.2 Approval engine
 
@@ -1501,20 +1501,20 @@ Approvals are generic: the same engine governs publishing, function deployment, 
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `GOV-020` | P9 | MUST | Approval **policies** **MUST** be declarative (stored as documents, editable in Studio, exportable) and match on resource type, environment, action and risk attributes (e.g. "touches a page marked `secure`", "changes a function used by a payment flow"). | SPEC |
-| `GOV-021` | P9 | MUST | A policy **MUST** be able to require: a number of approvers; approver roles; approvers distinct from the author (**four-eyes**); approvers from distinct teams; named approvers (e.g. compliance); sequential stages or parallel approval; and an expiry. | SPEC |
-| `GOV-022` | P9 | MUST | An approval **MUST** be bound to the content hash of the artifact it approves (release, function version, policy change). Any change to the artifact **MUST** invalidate existing approvals. | SPEC |
-| `GOV-023` | P9 | MUST | Approvers **MUST** see the visual diff, JSON diff, validation and accessibility reports, affected install base, changelog and risk summary before deciding, and **MUST** confirm with WebAuthn step-up (`SEC-103`). Each approval is a signed, audited record. | SPEC |
-| `GOV-024` | P9 | MUST | **Break-glass** **MUST** allow designated roles to perform emergency actions (kill switch, rollback, disabling a function) without prior approval, requiring a written justification, alerting approvers immediately, and opening a mandatory post-hoc review due within a configurable time (default 24 h). | SPEC |
-| `GOV-025` | P9 | MUST | **Change freezes** **MUST** block production changes during configured windows (e.g. month-end close), overridable only by break-glass. | SPEC |
-| `GOV-026` | P9 | MUST | Compliance reports **MUST** list, for a period, every production change with author, approvers, timestamps, content hashes and evidence, exportable as signed JSON and PDF. | SPEC |
+| `GOV-020` | P9 | MUST | Approval **policies** **MUST** be declarative (stored as documents, editable in Studio, exportable) and match on resource type, environment, action and risk attributes (e.g. "touches a page marked `secure`", "changes a function used by a payment flow"). | WIP |
+| `GOV-021` | P9 | MUST | A policy **MUST** be able to require: a number of approvers; approver roles; approvers distinct from the author (**four-eyes**); approvers from distinct teams; named approvers (e.g. compliance); sequential stages or parallel approval; and an expiry. | DONE |
+| `GOV-022` | P9 | MUST | An approval **MUST** be bound to the content hash of the artifact it approves (release, function version, policy change). Any change to the artifact **MUST** invalidate existing approvals. | DONE |
+| `GOV-023` | P9 | MUST | Approvers **MUST** see the visual diff, JSON diff, validation and accessibility reports, affected install base, changelog and risk summary before deciding, and **MUST** confirm with WebAuthn step-up (`SEC-103`). Each approval is a signed, audited record. | DONE |
+| `GOV-024` | P9 | MUST | **Break-glass** **MUST** allow designated roles to perform emergency actions (kill switch, rollback, disabling a function) without prior approval, requiring a written justification, alerting approvers immediately, and opening a mandatory post-hoc review due within a configurable time (default 24 h). | DONE |
+| `GOV-025` | P9 | MUST | **Change freezes** **MUST** block production changes during configured windows (e.g. month-end close), overridable only by break-glass. | DONE |
+| `GOV-026` | P9 | MUST | Compliance reports **MUST** list, for a period, every production change with author, approvers, timestamps, content hashes and evidence, exportable as signed JSON and PDF. | DONE |
 
 ### 18.3 Environments, GitOps and licensing
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
 | `GOV-010` | P2 | MUST | Apps **MUST** have environments (default development, staging, production; custom allowed) with their own variables, secrets, data source URLs, signing keys and device registrations. | DONE |
-| `GOV-011` | P9 | SHOULD | Each app **SHOULD** be exportable to a Git repository in the file layout of `SCH-006` on every publish (for review and audit), and **MAY** be imported from Git through the CLI for teams that prefer docs-as-code. | SPEC |
+| `GOV-011` | P9 | SHOULD | Each app **SHOULD** be exportable to a Git repository in the file layout of `SCH-006` on every publish (for review and audit), and **MAY** be imported from Git through the CLI for teams that prefer docs-as-code. | DONE |
 | `GOV-030` | P9 | MUST | Self-hosted installations **MUST** validate a signed, offline license file (organisation, limits, features, expiry, grace period) without calling home. | DONE |
 | `GOV-031` | P2 | MUST | Deleted apps, plugins and pages **MUST** go to a trash with 30-day restore before permanent deletion, except where retention rules require longer. | DONE |
 
@@ -1522,24 +1522,24 @@ Approvals are generic: the same engine governs publishing, function deployment, 
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `REL-050` | P9 | MUST | A release rollout **MUST** support a percentage of devices, with deterministic bucketing by `hash(deviceId or userId, rolloutId)` so a device stays in its bucket as the percentage grows. | SPEC |
-| `REL-051` | P9 | MUST | Targeting rules **MUST** support app build, runtime version, OS and version, device class, locale, country/region, channel, user attributes from `setUserContext`, named segments and explicit allow/deny lists of devices (for internal testers). | SPEC |
-| `REL-052` | P9 | MUST | Rollouts **MUST** support scheduled start, scheduled stages (e.g. 1% → 10% → 50% → 100% with durations) and scheduled end (auto-revert to the previous release), for campaigns. | SPEC |
-| `REL-053` | P9 | MUST | Rollouts **MUST** support **health gates**: automatic pause or rollback when crash-free sessions, Plux error rate, action error rate, function error rate or a custom metric regresses beyond thresholds compared with the previous release. | SPEC |
-| `REL-060` | P9 | MUST | A **kill switch** **MUST** be able to disable a plugin, a page, an action graph, a data source or a function, per environment and targeting rule, delivered through the control document (`SYN-060`); disabled plugins and pages show their fallback (`RT-022`). | SPEC |
-| `REL-070` | P9 | MUST | A release **MAY** be marked **mandatory**; devices **MUST** then activate it before showing any Plux page again (e.g. to remove a vulnerable flow), showing a host-customisable update screen while syncing. | SPEC |
+| `REL-050` | P9 | MUST | A release rollout **MUST** support a percentage of devices, with deterministic bucketing by `hash(deviceId or userId, rolloutId)` so a device stays in its bucket as the percentage grows. | DONE |
+| `REL-051` | P9 | MUST | Targeting rules **MUST** support app build, runtime version, OS and version, device class, locale, country/region, channel, user attributes from `setUserContext`, named segments and explicit allow/deny lists of devices (for internal testers). | DONE |
+| `REL-052` | P9 | MUST | Rollouts **MUST** support scheduled start, scheduled stages (e.g. 1% → 10% → 50% → 100% with durations) and scheduled end (auto-revert to the previous release), for campaigns. | DONE |
+| `REL-053` | P9 | MUST | Rollouts **MUST** support **health gates**: automatic pause or rollback when crash-free sessions, Plux error rate, action error rate, function error rate or a custom metric regresses beyond thresholds compared with the previous release. | DONE |
+| `REL-060` | P9 | MUST | A **kill switch** **MUST** be able to disable a plugin, a page, an action graph, a data source or a function, per environment and targeting rule, delivered through the control document (`SYN-060`); disabled plugins and pages show their fallback (`RT-022`). | DONE |
+| `REL-070` | P9 | MUST | A release **MAY** be marked **mandatory**; devices **MUST** then activate it before showing any Plux page again (e.g. to remove a vulnerable flow), showing a host-customisable update screen while syncing. | DONE |
 
 ### 18.5 Experiments and feature flags
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `ABT-001` | P9 | MUST | Experiments **MUST** be definable on a page, a component subtree, a prop value, a flow or a whole plugin version, with a control and one or more variants, allocation percentages, targeting (`REL-051`), schedule, primary metric, guardrail metrics and minimum sample size. | SPEC |
-| `ABT-002` | P9 | MUST | Variants **MUST** be compiled into the release so no extra download is needed; assignment **MUST** be deterministic and sticky; an **exposure** event **MUST** be recorded only when a variant is actually rendered. | SPEC |
-| `ABT-003` | P9 | MUST | Analysis **MUST** report effect sizes with confidence intervals using a method that is valid under continuous monitoring (sequential testing), **MUST** detect sample ratio mismatch, and **SHOULD** support variance reduction (CUPED). | SPEC |
-| `ABT-004` | P9 | MUST | Mutually exclusive experiment layers and global holdouts **MUST** be supported. | SPEC |
-| `ABT-005` | P9 | MUST | Promoting a winning variant **MUST** create a release in which the winner is the default and the experiment code paths are removed. | SPEC |
-| `ABT-006` | P9 | MUST | Typed **feature flags** (bool, number, string, JSON) with per-segment values **MUST** be available in PXL as `flags.<key>` and to the host through generated accessors, updated through the control document without a new release. | SPEC |
-| `ABT-007` | P9 | MUST | Experiments touching pages marked `secure` or flows involving money **MUST** require approval under the `maximum` profile. | SPEC |
+| `ABT-001` | P9 | MUST | Experiments **MUST** be definable on a page, a component subtree, a prop value, a flow or a whole plugin version, with a control and one or more variants, allocation percentages, targeting (`REL-051`), schedule, primary metric, guardrail metrics and minimum sample size. | DONE |
+| `ABT-002` | P9 | MUST | Variants **MUST** be compiled into the release so no extra download is needed; assignment **MUST** be deterministic and sticky; an **exposure** event **MUST** be recorded only when a variant is actually rendered. | DONE |
+| `ABT-003` | P9 | MUST | Analysis **MUST** report effect sizes with confidence intervals using a method that is valid under continuous monitoring (sequential testing), **MUST** detect sample ratio mismatch, and **SHOULD** support variance reduction (CUPED). | DONE |
+| `ABT-004` | P9 | MUST | Mutually exclusive experiment layers and global holdouts **MUST** be supported. | DONE |
+| `ABT-005` | P9 | MUST | Promoting a winning variant **MUST** create a release in which the winner is the default and the experiment code paths are removed. | DONE |
+| `ABT-006` | P9 | MUST | Typed **feature flags** (bool, number, string, JSON) with per-segment values **MUST** be available in PXL as `flags.<key>` and to the host through generated accessors, updated through the control document without a new release. | DONE |
+| `ABT-007` | P9 | MUST | Experiments touching pages marked `secure` or flows involving money **MUST** require approval under the `maximum` profile. | DONE |
 
 ---
 
@@ -1552,21 +1552,21 @@ Approvals are generic: the same engine governs publishing, function deployment, 
 | `OBS-001` | P2 | MUST | The server **MUST** emit OpenTelemetry traces for every request and job, propagating W3C Trace Context from Studio, the CLI and devices through `api`, `worker` and `fnrunner`. | DONE |
 | `OBS-002` | P2 | MUST | The server **MUST** expose Prometheus metrics as catalogued in Appendix G, with bounded label cardinality. | DONE |
 | `OBS-003` | P2 | MUST | Logs **MUST** be structured JSON (`log/slog`) with request ID, trace ID, org and app IDs where applicable, and **MUST** redact secrets, tokens and sensitive fields. | DONE |
-| `OBS-004` | P9 | MUST | Grafana dashboards, Prometheus alert rules and runbooks for each alert **MUST** ship in `deploy/`. | SPEC |
-| `OBS-005` | P9 | MUST | Service level objectives **MUST** be defined and measured: manifest endpoint availability 99.95%, function invocation success 99.9% (excluding business errors), publish job success 99.5%, control-document propagation ≤ 60 s p95. | SPEC |
+| `OBS-004` | P9 | MUST | Grafana dashboards, Prometheus alert rules and runbooks for each alert **MUST** ship in `deploy/`. | DONE |
+| `OBS-005` | P9 | MUST | Service level objectives **MUST** be defined and measured: manifest endpoint availability 99.95%, function invocation success 99.9% (excluding business errors), publish job success 99.5%, control-document propagation ≤ 60 s p95. | DONE |
 
 ### 19.2 Runtime telemetry and analytics
 
 | ID | Phase | Priority | Requirement | Status |
 |---|---|---|---|---|
-| `ANL-001` | P3 | MUST | The runtime **MUST** emit events for screen views, action runs and errors, data-source calls (timing and status only, never payloads), render performance (build time, first frame, janky frames), sync results, function calls, experiment exposures, RASP detections and custom `trackEvent` calls (Appendix G). | WIP |
+| `ANL-001` | P3 | MUST | The runtime **MUST** emit events for screen views, action runs and errors, data-source calls (timing and status only, never payloads), render performance (build time, first frame, janky frames), sync results, function calls, experiment exposures, RASP detections and custom `trackEvent` calls (Appendix G). | DONE |
 | `ANL-002` | P3 | MUST | Events **MUST** be batched, compressed, buffered offline with a bounded size, sent with DPoP, and **MUST** cost less than 1% of battery and less than 100 KiB per day of data for a typical user (measured on reference devices). | WIP |
 | `ANL-003` | P3 | MUST | Telemetry **MUST** respect consent (`SEC-161`), support sampling per event type, and strip sensitive fields. | DONE |
-| `ANL-010` | P9 | MUST | Analytics storage **MUST** be pluggable: PostgreSQL by default (time-partitioned event tables with pre-computed rollups) and ClickHouse as the supported alternative, with documented guidance to switch at around 10 million events per day or 1 million active devices. | SPEC |
-| `ANL-011` | P9 | MUST | Events **MUST** be exportable via OTLP, signed webhooks and periodic Parquet files to object storage, so customers can use their own analytics stack. | SPEC |
-| `ANL-020` | P9 | MUST | Dashboards **MUST** include: organisation overview; app overview (active devices, sessions, release adoption over time); page and plugin usage; funnels defined from page sequences or events; crash-free sessions and error rates per release, plugin and page; performance (build time and jank percentiles by device class); sync health (success, bytes, delta ratio); function health; security (attestation failures, DPoP rejections, RASP detections by type, assurance-level distribution); experiment results. | SPEC |
-| `ANL-030` | P9 | MUST | Alerts **MUST** be configurable on any dashboard metric and routed to notification channels (`SRV-062`). | SPEC |
-| `ANL-040` | P9 | MUST | Errors and crashes **MUST** be grouped by fingerprint and symbolicated to document JSON paths using the retained source maps (`CMP-041`), with a link to open the offending node in Studio. | SPEC |
+| `ANL-010` | P9 | MUST | Analytics storage **MUST** be pluggable: PostgreSQL by default (time-partitioned event tables with pre-computed rollups) and ClickHouse as the supported alternative, with documented guidance to switch at around 10 million events per day or 1 million active devices. | DONE |
+| `ANL-011` | P9 | MUST | Events **MUST** be exportable via OTLP, signed webhooks and periodic Parquet files to object storage, so customers can use their own analytics stack. | DONE |
+| `ANL-020` | P9 | MUST | Dashboards **MUST** include: organisation overview; app overview (active devices, sessions, release adoption over time); page and plugin usage; funnels defined from page sequences or events; crash-free sessions and error rates per release, plugin and page; performance (build time and jank percentiles by device class); sync health (success, bytes, delta ratio); function health; security (attestation failures, DPoP rejections, RASP detections by type, assurance-level distribution); experiment results. | DONE |
+| `ANL-030` | P9 | MUST | Alerts **MUST** be configurable on any dashboard metric and routed to notification channels (`SRV-062`). | DONE |
+| `ANL-040` | P9 | MUST | Errors and crashes **MUST** be grouped by fingerprint and symbolicated to document JSON paths using the retained source maps (`CMP-041`), with a link to open the offending node in Studio. | WIP |
 | `ANL-050` | P11 | SHOULD | **Structural session replay** **SHOULD** be offered as opt-in: because pages are declarative, the runtime can record page, node and state changes (not video) and Studio can replay them on the canvas. Sensitive values are never recorded; replay is disabled and cannot be enabled under the `maximum` profile. | SPEC |
 
 ---
@@ -1817,7 +1817,7 @@ The screen editor is the canvas of §21.6 with a screen selected for editing and
 | `TST-002` | P5 | MUST | `plux test` **MUST** run scenarios headlessly in CI using Flutter's test harness with the real runtime, and report results in JUnit XML and to Studio. | WIP |
 | `TST-003` | P8 | MUST | Golden (visual regression) tests **MUST** render pages per device frame, locale, theme and text scale with the real runtime (`plux golden`, Linux as the canonical renderer), compare them with approved baselines held by the server, and optionally block publication on unapproved differences (`goldens.blockPublish`, [ADR-0070](adr/0070-golden-tests.md)). | DONE |
 | `TST-004` | P5 | SHOULD | Mock servers **SHOULD** be generated from imported OpenAPI definitions for local development and tests. | DONE |
-| `TST-005` | P9 | MUST | Release policies **MUST** be able to require passing Plux tests and golden tests before production (mandatory under the `maximum` profile). | SPEC |
+| `TST-005` | P9 | MUST | Release policies **MUST** be able to require passing Plux tests and golden tests before production (mandatory under the `maximum` profile). | DONE |
 
 ### 22.3 Developer experience and documentation
 
@@ -1826,7 +1826,7 @@ The screen editor is the canvas of §21.6 with a screen selected for editing and
 | `DX-001` | P10 | MUST | The quick start **MUST** get a new developer from `flutter create` to a published Plux page on a device in ≤ 10 minutes (`HST-034`). | SPEC |
 | `DX-002` | P3 | MUST | A documentation site **MUST** cover concepts, quick start, guides per use case (financial services, delivery, campaigns, super-app, no-code apps), the widget catalogue (generated from descriptors), the action catalogue, PXL reference, API references (dartdoc, Go doc, protobuf docs), the security whitepaper, the compliance pack and runbooks. | WIP |
 | `DX-003` | P1 | MUST | Every error and diagnostic **MUST** have a stable code (Appendix F), a clear message, the likely cause, a suggested fix and a link to its documentation page. | DONE |
-| `DX-004` | P5 | MUST | Reference host apps **MUST** be maintained: **Plux Bank** (accounts, transfers with SCA, loan calculator via Functions, KYC capture, secure PIN, English/German/Arabic/Amharic, `maximum` profile) and **Plux Express** (catalogue, cart, scheduled campaign, A/B banners, live order tracking via WebSocket, courier flow with offline outbox), plus a minimal **Starter** app. | WIP |
+| `DX-004` | P5 | MUST | Reference host apps **MUST** be maintained: **Plux Bank** (accounts, transfers with SCA, loan calculator via Functions, KYC capture, secure PIN, English/German/Arabic/Amharic, `maximum` profile) and **Plux Express** (catalogue, cart, scheduled campaign, A/B banners, live order tracking via WebSocket, courier flow with offline outbox), plus a minimal **Starter** app. | DONE |
 | `DX-005` | P9 | — | Withdrawn: a VS Code extension is not worth its cost (maintainer, 2026-10-18, ADR-0072). *Original text:* A VS Code extension **MAY** provide schema validation, PXL highlighting and completion, and CLI integration for developers authoring Plux JSON in repositories. | WITHDRAWN |
 | `DX-006` | P3 | MUST | Every release of every component **MUST** have release notes and, where needed, an upgrade guide. | DONE |
 
@@ -1926,15 +1926,15 @@ One Plux installation can serve many independent organisations — for example a
 |---|---|---|---|---|
 | `DEP-001` | P2 | MUST | Every server component and Studio **MUST** ship as a multi-arch (amd64, arm64) distroless container image, signed with cosign, with an attached CycloneDX SBOM and SLSA provenance (`CI-004`). | WIP |
 | `DEP-002` | P2 | MUST | A Docker Compose stack **MUST** start a complete single-node installation with one command: `plux-server` (all roles), Studio, PostgreSQL, an S3-compatible object store (SeaweedFS), Valkey, OpenTelemetry Collector, Prometheus and Grafana, with optional Keycloak and Ollama profiles. | WIP |
-| `DEP-003` | P9 | MUST | A Helm chart **MUST** deploy an HA installation on Kubernetes with separate `api`, `worker` and `fnrunner` deployments, a values schema, NetworkPolicies isolating `fnrunner`, Pod Security `restricted`, PodDisruptionBudgets, horizontal autoscaling and topology spread. | SPEC |
-| `DEP-004` | P9 | MUST | HA **MUST** be supported with ≥ 2 replicas per role, PostgreSQL HA (e.g. CloudNativePG or Patroni), HA object storage and Valkey with replication; rolling upgrades **MUST** cause no downtime. | SPEC |
-| `DEP-010` | P9 | MUST | Backups **MUST** include point-in-time recovery for PostgreSQL and versioning or replication for object storage, consistent with each other; restore **MUST** be documented and drilled in CI. Enterprise targets: RPO ≤ 5 min, RTO ≤ 1 h. | SPEC |
+| `DEP-003` | P9 | MUST | A Helm chart **MUST** deploy an HA installation on Kubernetes with separate `api`, `worker` and `fnrunner` deployments, a values schema, NetworkPolicies isolating `fnrunner`, Pod Security `restricted`, PodDisruptionBudgets, horizontal autoscaling and topology spread. | DONE |
+| `DEP-004` | P9 | MUST | HA **MUST** be supported with ≥ 2 replicas per role, PostgreSQL HA (e.g. CloudNativePG or Patroni), HA object storage and Valkey with replication; rolling upgrades **MUST** cause no downtime. | WIP |
+| `DEP-010` | P9 | MUST | Backups **MUST** include point-in-time recovery for PostgreSQL and versioning or replication for object storage, consistent with each other; restore **MUST** be documented and drilled in CI. Enterprise targets: RPO ≤ 5 min, RTO ≤ 1 h. | WIP |
 | `DEP-020` | P2 | MUST | `make dev` **MUST** start the full stack locally with hot reload for Go, Bun and Flutter, and seed sample apps. | WIP |
 | `DEP-030` | P2 | MUST | Upgrades **MUST** be supported from any N-1 minor version with automatic migrations; release notes **MUST** state upgrade steps and any required actions. | DONE |
-| `DEP-040` | P9 | MUST | **Air-gapped** installation **MUST** be supported: an offline bundle (images, charts, docs), no required outbound connections except those the customer enables, a documented egress list (attestation revocation lists and roots, optional Play Integrity verification endpoint, push services) with instructions for mirroring, and local AI via Ollama. | SPEC |
+| `DEP-040` | P9 | MUST | **Air-gapped** installation **MUST** be supported: an offline bundle (images, charts, docs), no required outbound connections except those the customer enables, a documented egress list (attestation revocation lists and roots, optional Play Integrity verification endpoint, push services) with instructions for mirroring, and local AI via Ollama. | DONE |
 | `DEP-041` | P2 | MUST | The server **MUST** serve bundles and deltas itself when no CDN is configured, and **MUST** support any CDN in front of object storage because artifacts are immutable and content-addressed. | DONE |
-| `DEP-050` | P9 | SHOULD | Reference infrastructure-as-code modules (OpenTofu/Terraform) **SHOULD** be provided for AWS, Google Cloud and Azure, and an on-premises reference architecture for regulated industries. | SPEC |
-| `DEP-051` | P9 | MUST | A sizing guide **MUST** document resource needs by active devices, apps and publish frequency, backed by load-test results (`QA-007`). | SPEC |
+| `DEP-050` | P9 | SHOULD | Reference infrastructure-as-code modules (OpenTofu/Terraform) **SHOULD** be provided for AWS, Google Cloud and Azure, and an on-premises reference architecture for regulated industries. | DONE |
+| `DEP-051` | P9 | MUST | A sizing guide **MUST** document resource needs by active devices, apps and publish frequency, backed by load-test results (`QA-007`). | DONE |
 | `DEP-060` | P5 | — | Withdrawn: the maintainer deploys the product for its market, so no public demonstration environment is built (maintainer, 2026-10-18, ADR-0072). *Original text:* A public demonstration environment **SHOULD** run the latest release with the reference apps, reset nightly, with abuse and cost controls. *Note: deferred to P9, which brings HA deployment and cost controls (maintainer, 2026-10-04, P5 plan B1).* | WITHDRAWN |
 
 ---
@@ -2012,14 +2012,14 @@ This section concerns how Plux itself is verified. §22.2 covers the testing too
 | `NFR-020` | P2 | MUST | Manifest endpoint throughput | ≥ 5,000 req/s per `api` replica at p99 ≤ 50 ms (cache hit) | DONE |
 | `NFR-021` | P2 | MUST | Publish of a 50-page plugin with deltas | ≤ 15 s p95 (`SRV-053`) | DONE |
 | `NFR-022` | P7 | MUST | Function invocation overhead | warm ≤ 1 ms p99 (median of five rounds); first after deploy, after the deploy-time compile, ≤ 50 ms p99, on the CI reference runner (`FN-023`) | DONE |
-| `NFR-023` | P9 | MUST | Scale of one HA installation (with CDN) | ≥ 1,000,000 active devices, ≥ 100 apps | SPEC |
-| `NFR-024` | P9 | MUST | Kill-switch / control propagation | ≤ 60 s p95 for online devices | SPEC |
+| `NFR-023` | P9 | MUST | Scale of one HA installation (with CDN) | ≥ 1,000,000 active devices, ≥ 100 apps | DONE |
+| `NFR-024` | P9 | MUST | Kill-switch / control propagation | ≤ 60 s p95 for online devices | DONE |
 | `NFR-025` | P6 | MUST | Gateway overhead and device-request verification at the server | gateway ≤ 5 ms p95 added per request, excluding the upstream's time, at 1,000 req/s per `api` replica (`SEC-031`); DPoP and access-token verification ≤ 1 ms p95 (`SEC-022`) | WIP |
 | `NFR-030` | P10 | MUST | Edit → paired device | ≤ 500 ms p95 (`DEV-010`) | SPEC |
 | `NFR-031` | P11 | MUST | Studio canvas frame rate | 60 fps with 100 screens / 200 plugins (`STU-120`) | SPEC |
 | `NFR-032` | P11 | MUST | Studio property change → canvas | ≤ 50 ms p95 (`STU-121`) | SPEC |
 | `NFR-033` | P1 | MUST | Incremental validation of one page | ≤ 50 ms p95 (`SCH-042`) | DONE |
-| `NFR-040` | P9 | MUST | Availability of manifest and control endpoints (HA reference deployment) | 99.95% monthly | SPEC |
+| `NFR-040` | P9 | MUST | Availability of manifest and control endpoints (HA reference deployment) | 99.95% monthly | WIP |
 | `NFR-041` | P3 | MUST | Telemetry cost on device | < 1% battery, < 100 KiB/day typical (`ANL-002`) | WIP |
 
 ### 30.3 Default compile-time budgets per page
@@ -2050,7 +2050,7 @@ Every size and resource in Plux is governed by one limits framework. Limits are 
 | `LIM-003` | P2 | MUST | Publication **MUST** fail with a clear diagnostic when a release would exceed a limit, and **MUST** warn at 80% of any limit. | DONE |
 | `LIM-004` | P3 | MUST | Device-side limits **MUST** be delivered in the signed app bundle and enforced by the runtime, which **MUST** degrade gracefully (evict caches, pause telemetry, refuse new outbox entries with a typed error) rather than fail. | DONE |
 | `LIM-005` | P2 | MUST | Current usage against every limit **MUST** be readable through the API and shown in Studio per app and plugin (`STU-025`). | WIP |
-| `LIM-006` | P9 | MUST | Changing a limit **MUST** be audited, and raising an organisation-level limit **MUST** be subject to the approval engine when a policy requires it. | SPEC |
+| `LIM-006` | P9 | MUST | Changing a limit **MUST** be audited, and raising an organisation-level limit **MUST** be subject to the approval engine when a policy requires it. | DONE |
 
 ---
 

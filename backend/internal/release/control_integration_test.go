@@ -176,7 +176,7 @@ func (f *controlFixture) auditCount(t *testing.T, action audit.Action) int {
 	return n
 }
 
-// Verifies: SYN-060, SEC-052, PLX-3100.
+// Verifies: SYN-060, SEC-052.
 // A device refuses tampered bytes, a document signed by a key the root does
 // not delegate to, and a root that delegates no control role.
 func TestControlRefusedWhenTamperedOrUndelegated_SYN_060(t *testing.T) {
@@ -212,7 +212,7 @@ func TestControlRefusedWhenTamperedOrUndelegated_SYN_060(t *testing.T) {
 	}
 }
 
-// Verifies: SYN-060, PLX-3101, PLX-3102.
+// Verifies: SYN-060.
 // A document expires after its lifetime and the sweep signs a fresh
 // version before it does; a device refuses an older version.
 func TestControlExpiryAndRefresh_SYN_060(t *testing.T) {
