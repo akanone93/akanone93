@@ -50,7 +50,8 @@
     "scripts/session-start.sh",
     "scripts/test-db.sh",
     "site/**",
-    "test/load/**"
+    "test/load/**",
+    "test/walkthrough/**"
   ],
   "jobs": {
     "helm": {
