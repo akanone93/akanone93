@@ -10,6 +10,7 @@ package main
 
 import (
 	"bytes"
+	"cmp"
 	"encoding/json"
 	"fmt"
 	"go/format"
@@ -22,6 +23,9 @@ import (
 type permission struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Area        string `json:"area"`
+	Feature     string `json:"feature"`
+	Action      string `json:"action"`
 	Risk        string `json:"risk"`
 	StepUp      bool   `json:"stepUp"`
 	Scope       string `json:"scope"`
@@ -111,6 +115,8 @@ func check(perms []permission, roles []role) error {
 			return fmt.Errorf("permission %q is out of order or repeated; keep the file sorted", p.Name)
 		case strings.TrimSpace(p.Description) == "":
 			return fmt.Errorf("permission %q has no description", p.Name)
+		case !groupedCorrectly(p):
+			return fmt.Errorf("permission %q: area %q, feature %q and action %q must spell the name as <area>.<action> or <area>.<feature>.<action>", p.Name, p.Area, p.Feature, p.Action)
 		case !slices.Contains(risks, p.Risk):
 			return fmt.Errorf("permission %q: risk %q is not low, medium or high", p.Name, p.Risk)
 		case !slices.Contains(scopes, p.Scope):
@@ -142,6 +148,16 @@ func check(perms []permission, roles []role) error {
 	return nil
 }
 
+// groupedCorrectly reports whether a permission's area, feature and action
+// are present and spell its name, so the grouping and the name cannot
+// disagree (GOV-002).
+func groupedCorrectly(p permission) bool {
+	if p.Area == "" || p.Feature == "" || p.Action == "" {
+		return false
+	}
+	return p.Name == p.Area+"."+p.Action || p.Name == p.Area+"."+p.Feature+"."+p.Action
+}
+
 // expand returns a role's permissions, with "*" meaning the whole catalogue.
 func expand(r role, perms []permission) []string {
 	if len(r.Permissions) == 1 && r.Permissions[0] == "*" {
@@ -159,8 +175,8 @@ func renderGo(perms []permission, roles []role) string {
 	b.WriteString(goHeader)
 	b.WriteString("// catalogue is the permission catalogue, sorted by name.\nvar catalogue = []PermissionInfo{\n")
 	for _, p := range perms {
-		fmt.Fprintf(&b, "\t{Name: %q, Description: %q, Risk: %s, StepUp: %t, Scope: %s, ReadOnly: %t},\n",
-			p.Name, p.Description, goRisk(p.Risk), p.StepUp, goScope(p.Scope), p.ReadOnly)
+		fmt.Fprintf(&b, "\t{Name: %q, Description: %q, Area: %q, Feature: %q, Action: %q, Risk: %s, StepUp: %t, Scope: %s, ReadOnly: %t},\n",
+			p.Name, p.Description, p.Area, p.Feature, p.Action, goRisk(p.Risk), p.StepUp, goScope(p.Scope), p.ReadOnly)
 	}
 	b.WriteString("}\n\n// predefined are the predefined roles, in the order the specification lists them.\nvar predefined = []RoleInfo{\n")
 	for _, r := range roles {
@@ -201,10 +217,8 @@ func renderDoc(perms []permission, roles []role) string {
 	b.WriteString("**Scope** is the narrowest scope a permission can be granted at: `organization` permissions apply across the organisation only; `app` permissions can also be granted on one app; ")
 	b.WriteString("`environment` permissions can also be granted on one environment of an app and written `<permission>:<environment>`, for example `release.publish:production` (`GOV-003`). ")
 	b.WriteString("**Read-only** permissions change nothing.\n\n")
-	b.WriteString("| Permission | Description | Risk | Step-up | Scope | Read-only |\n|---|---|---|---|---|---|\n")
-	for _, p := range perms {
-		fmt.Fprintf(&b, "| `%s` | %s | %s | %s | %s | %s |\n", p.Name, p.Description, p.Risk, yes(p.StepUp), p.Scope, yes(p.ReadOnly))
-	}
+	b.WriteString("The catalogue is grouped as area, feature, action (`GOV-002`). A restriction policy names a permission or one of the wildcards `*`, `<area>.*` and `<area>.<feature>.*` (`GOV-006`, [ADR-0086](../adr/0086-restriction-policies-and-effective-permissions.md)).\n\n")
+	renderGroups(&b, perms)
 	b.WriteString("\n## Predefined roles\n\n")
 	for _, r := range roles {
 		fmt.Fprintf(&b, "- **%s** — %s\n", r.Name, r.Description)
@@ -238,6 +252,29 @@ func renderDoc(perms []permission, roles []role) string {
 		b.WriteString("\n")
 	}
 	return b.String()
+}
+
+// renderGroups writes the permission table grouped by area, then feature,
+// each group with its own heading.
+func renderGroups(b *strings.Builder, perms []permission) {
+	sorted := slices.Clone(perms)
+	slices.SortStableFunc(sorted, func(x, y permission) int {
+		return cmp.Or(strings.Compare(x.Area, y.Area), strings.Compare(x.Feature, y.Feature))
+	})
+	for i, p := range sorted {
+		newArea := i == 0 || p.Area != sorted[i-1].Area
+		if newArea {
+			fmt.Fprintf(b, "### Area `%s`\n\n", p.Area)
+		}
+		if newArea || p.Feature != sorted[i-1].Feature {
+			fmt.Fprintf(b, "#### Feature `%s`\n\n", p.Feature)
+			b.WriteString("| Permission | Action | Description | Risk | Step-up | Scope | Read-only |\n|---|---|---|---|---|---|---|\n")
+		}
+		fmt.Fprintf(b, "| `%s` | `%s` | %s | %s | %s | %s | %s |\n", p.Name, p.Action, p.Description, p.Risk, yes(p.StepUp), p.Scope, yes(p.ReadOnly))
+		if i+1 == len(sorted) || sorted[i+1].Area != p.Area || sorted[i+1].Feature != p.Feature {
+			b.WriteString("\n")
+		}
+	}
 }
 
 func yes(v bool) string {

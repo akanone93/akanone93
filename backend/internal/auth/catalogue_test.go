@@ -69,13 +69,14 @@ func TestCatalogueEqualsTheConstants_GOV_002(t *testing.T) {
 }
 
 // Verifies: GOV-002.
-// Every permission has a description, a risk and a scope; the P9
-// permissions of the plan are all in the catalogue.
+// Every permission has a description, a risk, a scope and its area, feature
+// and action, which spell its name; the P9 permissions of the plan are all
+// in the catalogue.
 func TestCatalogueEntries_GOV_002(t *testing.T) {
 	t.Parallel()
 	cat := auth.Catalogue()
-	if len(cat) != 49 {
-		t.Errorf("the catalogue has %d permissions, want 49 (24 existing, 25 of P9)", len(cat))
+	if len(cat) != 50 {
+		t.Errorf("the catalogue has %d permissions, want 50 (24 existing, 26 of P9)", len(cat))
 	}
 	for i, e := range cat {
 		if e.Description == "" || !strings.HasSuffix(e.Description, ".") {
@@ -90,6 +91,12 @@ func TestCatalogueEntries_GOV_002(t *testing.T) {
 		if i > 0 && cat[i-1].Name >= e.Name {
 			t.Errorf("%s is out of order", e.Name)
 		}
+		if e.Area == "" || e.Feature == "" || e.Action == "" {
+			t.Errorf("%s: area %q, feature %q, action %q; each is required", e.Name, e.Area, e.Feature, e.Action)
+		}
+		if name := string(e.Name); name != e.Area+"."+e.Action && name != e.Area+"."+e.Feature+"."+e.Action {
+			t.Errorf("%s: area %q, feature %q and action %q do not spell the name", e.Name, e.Area, e.Feature, e.Action)
+		}
 		if e.ReadOnly && e.Risk == auth.RiskHigh && !e.StepUp {
 			t.Errorf("%s: a read-only permission of high risk needs a second factor", e.Name)
 		}
@@ -103,7 +110,7 @@ func TestCatalogueEntries_GOV_002(t *testing.T) {
 		auth.RolloutManage, auth.KillswitchManage, auth.FlagsManage, auth.ExperimentsManage,
 		auth.AnalyticsRead, auth.AlertsManage, auth.NotificationsManage, auth.WebhooksManage,
 		auth.AuditExport, auth.ReconstructionView, auth.DSRManage, auth.SearchRead, auth.GitExport,
-		auth.LicenseManage, auth.BackupManage, auth.RetentionManage,
+		auth.LicenseManage, auth.BackupManage, auth.RetentionManage, auth.RestrictionsManage,
 	}
 	for _, p := range p9 {
 		if !auth.InCatalogue(p) {
@@ -141,7 +148,8 @@ func TestStepUpOfExistingPermissionsIsUnchanged_GOV_002(t *testing.T) {
 // Verifies: GOV-002, SEC-102.
 // Nobody gains or loses a permission of the five roles that existed before
 // P9: each holds exactly what it held, and the owner also holds the P9
-// permissions, which guard only calls that did not exist.
+// permissions, which guard only calls that did not exist. The one addition
+// is restrictions.manage, which Admins hold beside the Owner (GOV-006).
 func TestExistingRolesKeepTheirGrants_GOV_002(t *testing.T) {
 	t.Parallel()
 	held := map[auth.Role][]auth.Permission{
@@ -151,6 +159,7 @@ func TestExistingRolesKeepTheirGrants_GOV_002(t *testing.T) {
 			auth.OrganizationManage, auth.OrganizationRead, auth.PluginEdit, auth.PluginLockOverride,
 			auth.PluginRead, auth.ReleasePromote, auth.ReleasePublish, auth.SecretsManage, auth.TokensManage,
 			auth.TrashManage, auth.A11yWaive, auth.GoldensApprove, auth.TranslationsApprove, auth.TranslationsEdit,
+			auth.RestrictionsManage,
 		},
 		auth.RoleDeveloper: {
 			auth.AppRead, auth.FunctionDeploy, auth.FunctionRead, auth.OrganizationRead, auth.PluginEdit,
@@ -278,13 +287,44 @@ func TestPermissionsDocument_GOV_002(t *testing.T) {
 	}
 	doc := string(b)
 	for _, e := range auth.Catalogue() {
-		if !strings.Contains(doc, "| `"+string(e.Name)+"` | "+e.Description) {
+		if !strings.Contains(doc, "| `"+string(e.Name)+"` | `"+e.Action+"` | "+e.Description) {
 			t.Errorf("docs/reference/permissions.md lacks %s; run make gen", e.Name)
 		}
 	}
 	for _, r := range auth.PredefinedRoles() {
 		if !strings.Contains(doc, "**"+string(r.Name)+"**") {
 			t.Errorf("docs/reference/permissions.md lacks the role %s; run make gen", r.Name)
+		}
+	}
+}
+
+// Verifies: GOV-002, GOV-006.
+// The catalogue is grouped as area, feature, action without renaming
+// anything: plugin.lock.override is area plugin, feature plugin, action
+// lock.override, and restrictions.manage is a high-risk, step-up
+// organisation permission held by Owner and Admin.
+func TestCatalogueGrouping_GOV_002(t *testing.T) {
+	t.Parallel()
+	lock, ok := auth.Describe(auth.PluginLockOverride)
+	if !ok || lock.Area != "plugin" || lock.Feature != "plugin" || lock.Action != "lock.override" {
+		t.Errorf("plugin.lock.override = %+v", lock)
+	}
+	deploy, _ := auth.Describe(auth.FunctionDeployProduction)
+	if deploy.Area != "function" || deploy.Action != "deploy.production" {
+		t.Errorf("function.deploy.production = %+v", deploy)
+	}
+	r, ok := auth.Describe(auth.RestrictionsManage)
+	if !ok || r.Risk != auth.RiskHigh || !r.StepUp || r.Scope != auth.ScopeOrganization || r.ReadOnly {
+		t.Errorf("restrictions.manage = %+v", r)
+	}
+	for _, role := range []auth.Role{auth.RoleOwner, auth.RoleAdmin} {
+		if !slices.Contains(auth.RolePermissions(role), auth.RestrictionsManage) {
+			t.Errorf("%s does not hold restrictions.manage", role)
+		}
+	}
+	for _, role := range []auth.Role{auth.RoleDeveloper, auth.RoleViewer, auth.RoleReleaseManager, auth.RoleAuditor} {
+		if slices.Contains(auth.RolePermissions(role), auth.RestrictionsManage) {
+			t.Errorf("%s holds restrictions.manage", role)
 		}
 	}
 }

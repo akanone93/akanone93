@@ -570,6 +570,77 @@
       "description": "Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused."
     },
     {
+      "key": "auth.permissionCacheSeconds",
+      "unit": "count",
+      "default": 60,
+      "max": 600,
+      "scopes": [
+        "installation"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-006"
+      ],
+      "description": "Seconds a replica keeps a resolved permission set before it resolves again; a change drops it sooner, and the lifetime covers a missed change message."
+    },
+    {
+      "key": "auth.restrictionPatterns",
+      "unit": "count",
+      "default": 20,
+      "max": 200,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-006"
+      ],
+      "description": "Permission names and wildcards one restriction policy may list."
+    },
+    {
+      "key": "auth.restrictionsPerOrg",
+      "unit": "count",
+      "default": 200,
+      "max": 5000,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-006"
+      ],
+      "description": "Restriction policies one organisation may hold."
+    },
+    {
+      "key": "auth.restrictionsPerSubject",
+      "unit": "count",
+      "default": 20,
+      "max": 200,
+      "scopes": [
+        "installation",
+        "organization"
+      ],
+      "enforcedBy": [
+        "server"
+      ],
+      "phase": "P9",
+      "requirements": [
+        "GOV-006"
+      ],
+      "description": "Restriction policies one organisation, team or person may be the subject of."
+    },
+    {
       "key": "auth.samlClockSkewSeconds",
       "unit": "count",
       "default": 120,

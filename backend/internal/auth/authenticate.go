@@ -96,13 +96,25 @@ func (s *Service) Resolve(ctx context.Context, id Identity, organizationID strin
 		return Principal{}, err
 	}
 	if id.Kind == KindCI {
-		return resolve(id, organizationID, nil, nil, id.Scopes), nil
+		restrictions, err := s.restrictionsOf(ctx, organizationID, org, pgtype.UUID{})
+		if err != nil {
+			return Principal{}, err
+		}
+		return resolve(id, organizationID, nil, nil, id.Scopes, restrictions...), nil
 	}
-	given, custom, err := s.grants(ctx, organizationID, org, storage.MustUUID(id.UserID))
+	loaded, err := s.grants(ctx, organizationID, org, storage.MustUUID(id.UserID))
 	if err != nil {
 		return Principal{}, err
 	}
-	return resolve(id, organizationID, given, custom, nil), nil
+	return resolve(id, organizationID, loaded.given, loaded.custom, nil, loaded.restrictions...), nil
+}
+
+// loadedGrants is what the resolver reads for a person: their grants, the
+// custom roles those use, and the restrictions that apply to them.
+type loadedGrants struct {
+	given        []roleGrant
+	custom       map[Role][]ScopedPermission
+	restrictions []Restriction
 }
 
 // grants reads a person's grants in an organisation, directly or through
@@ -111,11 +123,13 @@ func (s *Service) Resolve(ctx context.Context, id Identity, organizationID strin
 // role_grants hold grants at any scope. It reads the organisation's custom
 // roles with them, to resolve grants of custom roles. A person with no
 // grant and no membership is not part of the organisation, which is
-// reported as not found.
-func (s *Service) grants(ctx context.Context, organizationID string, org, user pgtype.UUID) ([]roleGrant, map[Role][]ScopedPermission, error) {
+// reported as not found. The restrictions that apply to the person, to
+// their teams and to the organisation are read in the same transaction
+// (GOV-006).
+func (s *Service) grants(ctx context.Context, organizationID string, org, user pgtype.UUID) (loadedGrants, error) {
 	var (
+		loaded loadedGrants
 		given  []roleGrant
-		custom map[Role][]ScopedPermission
 	)
 	err := s.inTx(ctx, storage.Tenant{OrganizationID: organizationID}, func(ctx context.Context, tx pgx.Tx) error {
 		q := dbgen.New(tx)
@@ -151,10 +165,15 @@ func (s *Service) grants(ctx context.Context, organizationID string, org, user p
 		if len(memberships) == 0 && len(appGrants) == 0 && len(scoped) == 0 {
 			return plxerr.New(plxerr.ResourceNotFound, "no such organisation")
 		}
-		custom, err = s.customRoleTable(ctx, q, org, given)
+		loaded.custom, err = s.customRoleTable(ctx, q, org, given)
+		if err != nil {
+			return err
+		}
+		loaded.restrictions, err = restrictionsApplying(ctx, q, org, user)
 		return err
 	})
-	return given, custom, err
+	loaded.given = given
+	return loaded, err
 }
 
 // deref returns the string a nullable column holds, or "".

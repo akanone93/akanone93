@@ -3,6 +3,9 @@
     {
       "name": "a11y.waive",
       "description": "Waive an accessibility finding with a recorded reason.",
+      "area": "a11y",
+      "feature": "a11y",
+      "action": "waive",
       "risk": "high",
       "stepUp": true,
       "scope": "app",
@@ -11,6 +14,9 @@
     {
       "name": "alerts.manage",
       "description": "Create, change and delete alert rules and their routes.",
+      "area": "alerts",
+      "feature": "alerts",
+      "action": "manage",
       "risk": "medium",
       "stepUp": false,
       "scope": "organization",
@@ -19,6 +25,9 @@
     {
       "name": "analytics.read",
       "description": "Read analytics, rollups and experiment results.",
+      "area": "analytics",
+      "feature": "analytics",
+      "action": "read",
       "risk": "low",
       "stepUp": false,
       "scope": "app",
@@ -27,6 +36,9 @@
     {
       "name": "app.manage",
       "description": "Create, change and delete apps.",
+      "area": "app",
+      "feature": "app",
+      "action": "manage",
       "risk": "medium",
       "stepUp": false,
       "scope": "app",
@@ -35,6 +47,9 @@
     {
       "name": "app.read",
       "description": "Read apps, their environments and channels.",
+      "area": "app",
+      "feature": "app",
+      "action": "read",
       "risk": "low",
       "stepUp": false,
       "scope": "app",
@@ -43,6 +58,9 @@
     {
       "name": "approvals.decide",
       "description": "Approve or reject a change that needs approval.",
+      "area": "approvals",
+      "feature": "approvals",
+      "action": "decide",
       "risk": "high",
       "stepUp": true,
       "scope": "environment",
@@ -51,6 +69,9 @@
     {
       "name": "audit.export",
       "description": "Export the audit log to a file or a SIEM destination.",
+      "area": "audit",
+      "feature": "audit",
+      "action": "export",
       "risk": "high",
       "stepUp": true,
       "scope": "organization",
@@ -59,6 +80,9 @@
     {
       "name": "audit.read",
       "description": "Read the audit log.",
+      "area": "audit",
+      "feature": "audit",
+      "action": "read",
       "risk": "medium",
       "stepUp": false,
       "scope": "organization",
@@ -67,6 +91,9 @@
     {
       "name": "backup.manage",
       "description": "Run, schedule and restore backups.",
+      "area": "backup",
+      "feature": "backup",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "organization",
@@ -75,6 +102,9 @@
     {
       "name": "breakglass.invoke",
       "description": "Perform an emergency action without prior approval, with a written justification.",
+      "area": "breakglass",
+      "feature": "breakglass",
+      "action": "invoke",
       "risk": "high",
       "stepUp": true,
       "scope": "environment",
@@ -83,6 +113,9 @@
     {
       "name": "compliance.report",
       "description": "Generate and read compliance reports.",
+      "area": "compliance",
+      "feature": "compliance",
+      "action": "report",
       "risk": "medium",
       "stepUp": false,
       "scope": "organization",
@@ -91,6 +124,9 @@
     {
       "name": "dsr.manage",
       "description": "Handle data-subject requests: search, export and erase personal data.",
+      "area": "dsr",
+      "feature": "dsr",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "organization",
@@ -99,6 +135,9 @@
     {
       "name": "environment.manage",
       "description": "Create, change and delete environments and channels.",
+      "area": "environment",
+      "feature": "environment",
+      "action": "manage",
       "risk": "medium",
       "stepUp": false,
       "scope": "app",
@@ -107,6 +146,9 @@
     {
       "name": "experiments.manage",
       "description": "Create, start, stop and conclude experiments.",
+      "area": "experiments",
+      "feature": "experiments",
+      "action": "manage",
       "risk": "medium",
       "stepUp": false,
       "scope": "app",
@@ -115,6 +157,9 @@
     {
       "name": "flags.manage",
       "description": "Create and change feature flags and segments.",
+      "area": "flags",
+      "feature": "flags",
+      "action": "manage",
       "risk": "medium",
       "stepUp": false,
       "scope": "environment",
@@ -123,6 +168,9 @@
     {
       "name": "freezes.manage",
       "description": "Create and change change-freeze windows.",
+      "area": "freezes",
+      "feature": "freezes",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "app",
@@ -131,6 +179,9 @@
     {
       "name": "function.deploy",
       "description": "Upload, build and deploy functions outside production.",
+      "area": "function",
+      "feature": "function",
+      "action": "deploy",
       "risk": "medium",
       "stepUp": false,
       "scope": "environment",
@@ -139,6 +190,9 @@
     {
       "name": "function.deploy.production",
       "description": "Deploy a function to a production environment.",
+      "area": "function",
+      "feature": "function",
+      "action": "deploy.production",
       "risk": "high",
       "stepUp": true,
       "scope": "environment",
@@ -147,6 +201,9 @@
     {
       "name": "function.read",
       "description": "Read functions, their versions and builds.",
+      "area": "function",
+      "feature": "function",
+      "action": "read",
       "risk": "low",
       "stepUp": false,
       "scope": "app",
@@ -155,6 +212,9 @@
     {
       "name": "git.export",
       "description": "Export an app to a Git repository.",
+      "area": "git",
+      "feature": "git",
+      "action": "export",
       "risk": "medium",
       "stepUp": false,
       "scope": "app",
@@ -163,6 +223,9 @@
     {
       "name": "goldens.approve",
       "description": "Approve a golden-image change.",
+      "area": "goldens",
+      "feature": "goldens",
+      "action": "approve",
       "risk": "high",
       "stepUp": true,
       "scope": "app",
@@ -171,6 +234,9 @@
     {
       "name": "keys.manage",
       "description": "Manage signing keys.",
+      "area": "keys",
+      "feature": "keys",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "organization",
@@ -179,6 +245,9 @@
     {
       "name": "killswitch.manage",
       "description": "Switch a plugin or an app off, or force a mandatory update.",
+      "area": "killswitch",
+      "feature": "killswitch",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "environment",
@@ -187,6 +256,9 @@
     {
       "name": "license.manage",
       "description": "Install and replace the licence file.",
+      "area": "license",
+      "feature": "license",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "organization",
@@ -195,6 +267,9 @@
     {
       "name": "limits.manage",
       "description": "Change the limits of the organisation.",
+      "area": "limits",
+      "feature": "limits",
+      "action": "manage",
       "risk": "medium",
       "stepUp": false,
       "scope": "organization",
@@ -203,6 +278,9 @@
     {
       "name": "members.manage",
       "description": "Invite, remove and change the roles of members, and grant roles.",
+      "area": "members",
+      "feature": "members",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "organization",
@@ -211,6 +289,9 @@
     {
       "name": "notifications.manage",
       "description": "Manage notification channels and subscriptions.",
+      "area": "notifications",
+      "feature": "notifications",
+      "action": "manage",
       "risk": "medium",
       "stepUp": false,
       "scope": "organization",
@@ -219,6 +300,9 @@
     {
       "name": "organization.manage",
       "description": "Change the organisation.",
+      "area": "organization",
+      "feature": "organization",
+      "action": "manage",
       "risk": "medium",
       "stepUp": false,
       "scope": "organization",
@@ -227,6 +311,9 @@
     {
       "name": "organization.read",
       "description": "Read the organisation, its teams and members.",
+      "area": "organization",
+      "feature": "organization",
+      "action": "read",
       "risk": "low",
       "stepUp": false,
       "scope": "organization",
@@ -235,6 +322,9 @@
     {
       "name": "plugin.edit",
       "description": "Edit plugins, pages and documents.",
+      "area": "plugin",
+      "feature": "plugin",
+      "action": "edit",
       "risk": "medium",
       "stepUp": false,
       "scope": "app",
@@ -243,6 +333,9 @@
     {
       "name": "plugin.lock.override",
       "description": "Take over an editing lock held by someone else.",
+      "area": "plugin",
+      "feature": "plugin",
+      "action": "lock.override",
       "risk": "medium",
       "stepUp": false,
       "scope": "app",
@@ -251,6 +344,9 @@
     {
       "name": "plugin.read",
       "description": "Read plugins, pages and documents.",
+      "area": "plugin",
+      "feature": "plugin",
+      "action": "read",
       "risk": "low",
       "stepUp": false,
       "scope": "app",
@@ -259,6 +355,9 @@
     {
       "name": "policies.manage",
       "description": "Create and change approval policies.",
+      "area": "policies",
+      "feature": "policies",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "app",
@@ -267,6 +366,9 @@
     {
       "name": "reconstruction.view",
       "description": "View a reconstruction of what a release ran at a past time.",
+      "area": "reconstruction",
+      "feature": "reconstruction",
+      "action": "view",
       "risk": "medium",
       "stepUp": false,
       "scope": "app",
@@ -275,6 +377,9 @@
     {
       "name": "release.promote",
       "description": "Promote or roll back a release to an environment.",
+      "area": "release",
+      "feature": "release",
+      "action": "promote",
       "risk": "high",
       "stepUp": true,
       "scope": "environment",
@@ -283,14 +388,31 @@
     {
       "name": "release.publish",
       "description": "Publish a plugin or app version.",
+      "area": "release",
+      "feature": "release",
+      "action": "publish",
       "risk": "high",
       "stepUp": true,
       "scope": "environment",
       "readOnly": false
     },
     {
+      "name": "restrictions.manage",
+      "description": "Create, list and delete restriction policies that remove permissions from the organisation, a team or a person.",
+      "area": "restrictions",
+      "feature": "restrictions",
+      "action": "manage",
+      "risk": "high",
+      "stepUp": true,
+      "scope": "organization",
+      "readOnly": false
+    },
+    {
       "name": "retention.manage",
       "description": "Change how long events and rollups are kept, and schedule or cancel retention changes.",
+      "area": "retention",
+      "feature": "retention",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "organization",
@@ -299,6 +421,9 @@
     {
       "name": "roles.manage",
       "description": "Create, change and delete custom roles.",
+      "area": "roles",
+      "feature": "roles",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "organization",
@@ -307,6 +432,9 @@
     {
       "name": "rollout.manage",
       "description": "Create, pause, resume and roll back rollouts.",
+      "area": "rollout",
+      "feature": "rollout",
+      "action": "manage",
       "risk": "high",
       "stepUp": false,
       "scope": "environment",
@@ -315,6 +443,9 @@
     {
       "name": "search.read",
       "description": "Search across the apps the caller can read.",
+      "area": "search",
+      "feature": "search",
+      "action": "read",
       "risk": "low",
       "stepUp": false,
       "scope": "app",
@@ -323,6 +454,9 @@
     {
       "name": "secrets.manage",
       "description": "Create, change and delete secrets.",
+      "area": "secrets",
+      "feature": "secrets",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "environment",
@@ -331,6 +465,9 @@
     {
       "name": "sessions.manage",
       "description": "List and revoke the sessions of other members.",
+      "area": "sessions",
+      "feature": "sessions",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "organization",
@@ -339,6 +476,9 @@
     {
       "name": "sso.manage",
       "description": "Configure identity providers, SAML, SCIM and group mappings.",
+      "area": "sso",
+      "feature": "sso",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "organization",
@@ -347,6 +487,9 @@
     {
       "name": "teams.manage",
       "description": "Create, change and delete teams.",
+      "area": "teams",
+      "feature": "teams",
+      "action": "manage",
       "risk": "medium",
       "stepUp": true,
       "scope": "organization",
@@ -355,6 +498,9 @@
     {
       "name": "tokens.manage",
       "description": "Manage the access tokens of all members.",
+      "area": "tokens",
+      "feature": "tokens",
+      "action": "manage",
       "risk": "high",
       "stepUp": true,
       "scope": "organization",
@@ -363,6 +509,9 @@
     {
       "name": "translations.approve",
       "description": "Set or keep a translated message at the approved state.",
+      "area": "translations",
+      "feature": "translations",
+      "action": "approve",
       "risk": "medium",
       "stepUp": true,
       "scope": "app",
@@ -371,6 +520,9 @@
     {
       "name": "translations.edit",
       "description": "Edit the messages and states of translations.",
+      "area": "translations",
+      "feature": "translations",
+      "action": "edit",
       "risk": "low",
       "stepUp": false,
       "scope": "app",
@@ -379,6 +531,9 @@
     {
       "name": "trash.manage",
       "description": "Restore and purge trashed items.",
+      "area": "trash",
+      "feature": "trash",
+      "action": "manage",
       "risk": "medium",
       "stepUp": false,
       "scope": "app",
@@ -387,6 +542,9 @@
     {
       "name": "webhooks.manage",
       "description": "Manage outbound and inbound webhooks.",
+      "area": "webhooks",
+      "feature": "webhooks",
+      "action": "manage",
       "risk": "medium",
       "stepUp": false,
       "scope": "organization",

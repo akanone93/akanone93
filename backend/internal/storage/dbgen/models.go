@@ -1142,11 +1142,12 @@ type OidcLogin struct {
 
 // The tenant boundary. Not itself tenant data: a row is the tenant (GOV-001).
 type Organization struct {
-	ID        pgtype.UUID
-	Key       string
-	Name      string
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	ID                 pgtype.UUID
+	Key                string
+	Name               string
+	CreatedAt          pgtype.Timestamptz
+	UpdatedAt          pgtype.Timestamptz
+	PermissionsVersion int64
 }
 
 type Plugin struct {
@@ -1290,6 +1291,21 @@ type ReleaseVersion struct {
 	ReleaseID       pgtype.UUID
 	OrganizationID  pgtype.UUID
 	PluginVersionID pgtype.UUID
+}
+
+type RestrictionPolicy struct {
+	ID             pgtype.UUID
+	OrganizationID pgtype.UUID
+	SubjectKind    string
+	TeamID         pgtype.UUID
+	UserID         pgtype.UUID
+	SubjectID      pgtype.UUID
+	Patterns       []string
+	AppID          pgtype.UUID
+	Environment    *string
+	Reason         string
+	CreatedBy      pgtype.UUID
+	CreatedAt      pgtype.Timestamptz
 }
 
 type RetentionChange struct {

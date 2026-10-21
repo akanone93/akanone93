@@ -1222,6 +1222,18 @@ enum PluxErrorCode {
   /// Last owner cannot be removed.
   lastOwnerCannotBeRemoved(8103, 'LAST_OWNER_CANNOT_BE_REMOVED', 'Last owner cannot be removed'),
 
+  /// Restriction pattern invalid.
+  restrictionPatternInvalid(8104, 'RESTRICTION_PATTERN_INVALID', 'Restriction pattern invalid'),
+
+  /// Restriction would lock out the last owner.
+  restrictionLocksOutOwner(8105, 'RESTRICTION_LOCKS_OUT_OWNER', 'Restriction would lock out the last owner'),
+
+  /// Restriction exceeds the caller's own rights.
+  restrictionExceedsCaller(8106, 'RESTRICTION_EXCEEDS_CALLER', 'Restriction exceeds the caller\'s own rights'),
+
+  /// Restriction limit reached.
+  restrictionLimitReached(8107, 'RESTRICTION_LIMIT_REACHED', 'Restriction limit reached'),
+
   /// Experiment overlaps its layer.
   experimentOverlapsLayer(8200, 'EXPERIMENT_OVERLAPS_LAYER', 'Experiment overlaps its layer'),
 

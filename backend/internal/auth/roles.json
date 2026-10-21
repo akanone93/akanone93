@@ -28,6 +28,7 @@
         "plugin.read",
         "release.promote",
         "release.publish",
+        "restrictions.manage",
         "secrets.manage",
         "tokens.manage",
         "translations.approve",

@@ -8,57 +8,345 @@ Every call to the Plux Server names the permission it needs, and a principal tha
 
 **Risk** is the damage a misused permission can do. **Step-up** permissions are usable only in a session that presented a second factor (`SEC-100`, `SEC-103`). **Scope** is the narrowest scope a permission can be granted at: `organization` permissions apply across the organisation only; `app` permissions can also be granted on one app; `environment` permissions can also be granted on one environment of an app and written `<permission>:<environment>`, for example `release.publish:production` (`GOV-003`). **Read-only** permissions change nothing.
 
-| Permission | Description | Risk | Step-up | Scope | Read-only |
-|---|---|---|---|---|---|
-| `a11y.waive` | Waive an accessibility finding with a recorded reason. | high | yes | app |  |
-| `alerts.manage` | Create, change and delete alert rules and their routes. | medium |  | organization |  |
-| `analytics.read` | Read analytics, rollups and experiment results. | low |  | app | yes |
-| `app.manage` | Create, change and delete apps. | medium |  | app |  |
-| `app.read` | Read apps, their environments and channels. | low |  | app | yes |
-| `approvals.decide` | Approve or reject a change that needs approval. | high | yes | environment |  |
-| `audit.export` | Export the audit log to a file or a SIEM destination. | high | yes | organization | yes |
-| `audit.read` | Read the audit log. | medium |  | organization | yes |
-| `backup.manage` | Run, schedule and restore backups. | high | yes | organization |  |
-| `breakglass.invoke` | Perform an emergency action without prior approval, with a written justification. | high | yes | environment |  |
-| `compliance.report` | Generate and read compliance reports. | medium |  | organization | yes |
-| `dsr.manage` | Handle data-subject requests: search, export and erase personal data. | high | yes | organization |  |
-| `environment.manage` | Create, change and delete environments and channels. | medium |  | app |  |
-| `experiments.manage` | Create, start, stop and conclude experiments. | medium |  | app |  |
-| `flags.manage` | Create and change feature flags and segments. | medium |  | environment |  |
-| `freezes.manage` | Create and change change-freeze windows. | high | yes | app |  |
-| `function.deploy` | Upload, build and deploy functions outside production. | medium |  | environment |  |
-| `function.deploy.production` | Deploy a function to a production environment. | high | yes | environment |  |
-| `function.read` | Read functions, their versions and builds. | low |  | app | yes |
-| `git.export` | Export an app to a Git repository. | medium |  | app |  |
-| `goldens.approve` | Approve a golden-image change. | high | yes | app |  |
-| `keys.manage` | Manage signing keys. | high | yes | organization |  |
-| `killswitch.manage` | Switch a plugin or an app off, or force a mandatory update. | high | yes | environment |  |
-| `license.manage` | Install and replace the licence file. | high | yes | organization |  |
-| `limits.manage` | Change the limits of the organisation. | medium |  | organization |  |
-| `members.manage` | Invite, remove and change the roles of members, and grant roles. | high | yes | organization |  |
-| `notifications.manage` | Manage notification channels and subscriptions. | medium |  | organization |  |
-| `organization.manage` | Change the organisation. | medium |  | organization |  |
-| `organization.read` | Read the organisation, its teams and members. | low |  | organization | yes |
-| `plugin.edit` | Edit plugins, pages and documents. | medium |  | app |  |
-| `plugin.lock.override` | Take over an editing lock held by someone else. | medium |  | app |  |
-| `plugin.read` | Read plugins, pages and documents. | low |  | app | yes |
-| `policies.manage` | Create and change approval policies. | high | yes | app |  |
-| `reconstruction.view` | View a reconstruction of what a release ran at a past time. | medium |  | app | yes |
-| `release.promote` | Promote or roll back a release to an environment. | high | yes | environment |  |
-| `release.publish` | Publish a plugin or app version. | high | yes | environment |  |
-| `retention.manage` | Change how long events and rollups are kept, and schedule or cancel retention changes. | high | yes | organization |  |
-| `roles.manage` | Create, change and delete custom roles. | high | yes | organization |  |
-| `rollout.manage` | Create, pause, resume and roll back rollouts. | high |  | environment |  |
-| `search.read` | Search across the apps the caller can read. | low |  | app | yes |
-| `secrets.manage` | Create, change and delete secrets. | high | yes | environment |  |
-| `sessions.manage` | List and revoke the sessions of other members. | high | yes | organization |  |
-| `sso.manage` | Configure identity providers, SAML, SCIM and group mappings. | high | yes | organization |  |
-| `teams.manage` | Create, change and delete teams. | medium | yes | organization |  |
-| `tokens.manage` | Manage the access tokens of all members. | high | yes | organization |  |
-| `translations.approve` | Set or keep a translated message at the approved state. | medium | yes | app |  |
-| `translations.edit` | Edit the messages and states of translations. | low |  | app |  |
-| `trash.manage` | Restore and purge trashed items. | medium |  | app |  |
-| `webhooks.manage` | Manage outbound and inbound webhooks. | medium |  | organization |  |
+The catalogue is grouped as area, feature, action (`GOV-002`). A restriction policy names a permission or one of the wildcards `*`, `<area>.*` and `<area>.<feature>.*` (`GOV-006`, [ADR-0086](../adr/0086-restriction-policies-and-effective-permissions.md)).
+
+### Area `a11y`
+
+#### Feature `a11y`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `a11y.waive` | `waive` | Waive an accessibility finding with a recorded reason. | high | yes | app |  |
+
+### Area `alerts`
+
+#### Feature `alerts`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `alerts.manage` | `manage` | Create, change and delete alert rules and their routes. | medium |  | organization |  |
+
+### Area `analytics`
+
+#### Feature `analytics`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `analytics.read` | `read` | Read analytics, rollups and experiment results. | low |  | app | yes |
+
+### Area `app`
+
+#### Feature `app`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `app.manage` | `manage` | Create, change and delete apps. | medium |  | app |  |
+| `app.read` | `read` | Read apps, their environments and channels. | low |  | app | yes |
+
+### Area `approvals`
+
+#### Feature `approvals`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `approvals.decide` | `decide` | Approve or reject a change that needs approval. | high | yes | environment |  |
+
+### Area `audit`
+
+#### Feature `audit`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `audit.export` | `export` | Export the audit log to a file or a SIEM destination. | high | yes | organization | yes |
+| `audit.read` | `read` | Read the audit log. | medium |  | organization | yes |
+
+### Area `backup`
+
+#### Feature `backup`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `backup.manage` | `manage` | Run, schedule and restore backups. | high | yes | organization |  |
+
+### Area `breakglass`
+
+#### Feature `breakglass`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `breakglass.invoke` | `invoke` | Perform an emergency action without prior approval, with a written justification. | high | yes | environment |  |
+
+### Area `compliance`
+
+#### Feature `compliance`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `compliance.report` | `report` | Generate and read compliance reports. | medium |  | organization | yes |
+
+### Area `dsr`
+
+#### Feature `dsr`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `dsr.manage` | `manage` | Handle data-subject requests: search, export and erase personal data. | high | yes | organization |  |
+
+### Area `environment`
+
+#### Feature `environment`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `environment.manage` | `manage` | Create, change and delete environments and channels. | medium |  | app |  |
+
+### Area `experiments`
+
+#### Feature `experiments`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `experiments.manage` | `manage` | Create, start, stop and conclude experiments. | medium |  | app |  |
+
+### Area `flags`
+
+#### Feature `flags`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `flags.manage` | `manage` | Create and change feature flags and segments. | medium |  | environment |  |
+
+### Area `freezes`
+
+#### Feature `freezes`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `freezes.manage` | `manage` | Create and change change-freeze windows. | high | yes | app |  |
+
+### Area `function`
+
+#### Feature `function`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `function.deploy` | `deploy` | Upload, build and deploy functions outside production. | medium |  | environment |  |
+| `function.deploy.production` | `deploy.production` | Deploy a function to a production environment. | high | yes | environment |  |
+| `function.read` | `read` | Read functions, their versions and builds. | low |  | app | yes |
+
+### Area `git`
+
+#### Feature `git`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `git.export` | `export` | Export an app to a Git repository. | medium |  | app |  |
+
+### Area `goldens`
+
+#### Feature `goldens`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `goldens.approve` | `approve` | Approve a golden-image change. | high | yes | app |  |
+
+### Area `keys`
+
+#### Feature `keys`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `keys.manage` | `manage` | Manage signing keys. | high | yes | organization |  |
+
+### Area `killswitch`
+
+#### Feature `killswitch`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `killswitch.manage` | `manage` | Switch a plugin or an app off, or force a mandatory update. | high | yes | environment |  |
+
+### Area `license`
+
+#### Feature `license`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `license.manage` | `manage` | Install and replace the licence file. | high | yes | organization |  |
+
+### Area `limits`
+
+#### Feature `limits`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `limits.manage` | `manage` | Change the limits of the organisation. | medium |  | organization |  |
+
+### Area `members`
+
+#### Feature `members`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `members.manage` | `manage` | Invite, remove and change the roles of members, and grant roles. | high | yes | organization |  |
+
+### Area `notifications`
+
+#### Feature `notifications`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `notifications.manage` | `manage` | Manage notification channels and subscriptions. | medium |  | organization |  |
+
+### Area `organization`
+
+#### Feature `organization`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `organization.manage` | `manage` | Change the organisation. | medium |  | organization |  |
+| `organization.read` | `read` | Read the organisation, its teams and members. | low |  | organization | yes |
+
+### Area `plugin`
+
+#### Feature `plugin`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `plugin.edit` | `edit` | Edit plugins, pages and documents. | medium |  | app |  |
+| `plugin.lock.override` | `lock.override` | Take over an editing lock held by someone else. | medium |  | app |  |
+| `plugin.read` | `read` | Read plugins, pages and documents. | low |  | app | yes |
+
+### Area `policies`
+
+#### Feature `policies`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `policies.manage` | `manage` | Create and change approval policies. | high | yes | app |  |
+
+### Area `reconstruction`
+
+#### Feature `reconstruction`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `reconstruction.view` | `view` | View a reconstruction of what a release ran at a past time. | medium |  | app | yes |
+
+### Area `release`
+
+#### Feature `release`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `release.promote` | `promote` | Promote or roll back a release to an environment. | high | yes | environment |  |
+| `release.publish` | `publish` | Publish a plugin or app version. | high | yes | environment |  |
+
+### Area `restrictions`
+
+#### Feature `restrictions`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `restrictions.manage` | `manage` | Create, list and delete restriction policies that remove permissions from the organisation, a team or a person. | high | yes | organization |  |
+
+### Area `retention`
+
+#### Feature `retention`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `retention.manage` | `manage` | Change how long events and rollups are kept, and schedule or cancel retention changes. | high | yes | organization |  |
+
+### Area `roles`
+
+#### Feature `roles`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `roles.manage` | `manage` | Create, change and delete custom roles. | high | yes | organization |  |
+
+### Area `rollout`
+
+#### Feature `rollout`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `rollout.manage` | `manage` | Create, pause, resume and roll back rollouts. | high |  | environment |  |
+
+### Area `search`
+
+#### Feature `search`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `search.read` | `read` | Search across the apps the caller can read. | low |  | app | yes |
+
+### Area `secrets`
+
+#### Feature `secrets`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `secrets.manage` | `manage` | Create, change and delete secrets. | high | yes | environment |  |
+
+### Area `sessions`
+
+#### Feature `sessions`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `sessions.manage` | `manage` | List and revoke the sessions of other members. | high | yes | organization |  |
+
+### Area `sso`
+
+#### Feature `sso`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `sso.manage` | `manage` | Configure identity providers, SAML, SCIM and group mappings. | high | yes | organization |  |
+
+### Area `teams`
+
+#### Feature `teams`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `teams.manage` | `manage` | Create, change and delete teams. | medium | yes | organization |  |
+
+### Area `tokens`
+
+#### Feature `tokens`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `tokens.manage` | `manage` | Manage the access tokens of all members. | high | yes | organization |  |
+
+### Area `translations`
+
+#### Feature `translations`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `translations.approve` | `approve` | Set or keep a translated message at the approved state. | medium | yes | app |  |
+| `translations.edit` | `edit` | Edit the messages and states of translations. | low |  | app |  |
+
+### Area `trash`
+
+#### Feature `trash`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `trash.manage` | `manage` | Restore and purge trashed items. | medium |  | app |  |
+
+### Area `webhooks`
+
+#### Feature `webhooks`
+
+| Permission | Action | Description | Risk | Step-up | Scope | Read-only |
+|---|---|---|---|---|---|---|
+| `webhooks.manage` | `manage` | Manage outbound and inbound webhooks. | medium |  | organization |  |
+
 
 ## Predefined roles
 
@@ -113,6 +401,7 @@ A role holds exactly the permissions marked below; there is no inheritance.
 | `reconstruction.view` | ✓ |  |  |  |  |  |  | ✓ | ✓ |  |
 | `release.promote` | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |
 | `release.publish` | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  |
+| `restrictions.manage` | ✓ | ✓ |  |  |  |  |  |  |  |  |
 | `retention.manage` | ✓ |  |  |  |  |  |  |  |  |  |
 | `roles.manage` | ✓ |  |  |  |  |  |  |  |  |  |
 | `rollout.manage` | ✓ |  | ✓ |  |  |  |  |  |  |  |

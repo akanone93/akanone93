@@ -686,7 +686,7 @@ func (q *Queries) GetIdentityProviderByKey(ctx context.Context, arg GetIdentityP
 }
 
 const getOrganizationByKey = `-- name: GetOrganizationByKey :one
-SELECT id, key, name, created_at, updated_at FROM organizations WHERE key = $1
+SELECT id, key, name, created_at, updated_at, permissions_version FROM organizations WHERE key = $1
 `
 
 func (q *Queries) GetOrganizationByKey(ctx context.Context, key string) (Organization, error) {
@@ -698,6 +698,7 @@ func (q *Queries) GetOrganizationByKey(ctx context.Context, key string) (Organiz
 		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.PermissionsVersion,
 	)
 	return i, err
 }

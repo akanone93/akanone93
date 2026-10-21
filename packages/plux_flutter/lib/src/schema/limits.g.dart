@@ -94,6 +94,17 @@ enum PluxLimit {
   /// Failed passwords or one-time codes one account may present in fifteen
   /// minutes before sign-in is refused.
   authFailedSignIns('auth.failedSignIns', PluxLimitUnit.count, 10, 0, 1000),
+  /// Seconds a replica keeps a resolved permission set before it resolves
+  /// again; a change drops it sooner, and the lifetime covers a missed change
+  /// message.
+  authPermissionCacheSeconds('auth.permissionCacheSeconds', PluxLimitUnit.count, 60, 0, 600),
+  /// Permission names and wildcards one restriction policy may list.
+  authRestrictionPatterns('auth.restrictionPatterns', PluxLimitUnit.count, 20, 0, 200),
+  /// Restriction policies one organisation may hold.
+  authRestrictionsPerOrg('auth.restrictionsPerOrg', PluxLimitUnit.count, 200, 0, 5000),
+  /// Restriction policies one organisation, team or person may be the subject
+  /// of.
+  authRestrictionsPerSubject('auth.restrictionsPerSubject', PluxLimitUnit.count, 20, 0, 200),
   /// Seconds of clock difference between an identity provider and the server
   /// that a SAML assertion's validity window tolerates.
   authSamlClockSkewSeconds('auth.samlClockSkewSeconds', PluxLimitUnit.count, 120, 0, 180),

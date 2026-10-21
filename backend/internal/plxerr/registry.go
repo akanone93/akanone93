@@ -516,6 +516,10 @@ const (
 	PermissionNotInCatalogue        Code = 8101
 	ScopeInvalid                    Code = 8102
 	LastOwnerCannotBeRemoved        Code = 8103
+	RestrictionPatternInvalid       Code = 8104
+	RestrictionLocksOutOwner        Code = 8105
+	RestrictionExceedsCaller        Code = 8106
+	RestrictionLimitReached         Code = 8107
 	ExperimentOverlapsLayer         Code = 8200
 	SampleSizeNotReached            Code = 8201
 	SampleRatioMismatch             Code = 8202
