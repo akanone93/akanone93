@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -92,6 +93,15 @@ type Options struct {
 	// PasswordLoginDisabled turns password sign-in off once an installation
 	// provider exists (auth.studio.allowPasswordLogin is false).
 	PasswordLoginDisabled bool
+	// Notifier carries permission change notices between replicas
+	// (GOV-007, ADR-0086). With one the service keeps a per-replica cache of
+	// resolved permissions, announces every change to grants, roles,
+	// memberships and restrictions, and serves WatchPermissions; without
+	// one it resolves every call afresh and cannot watch.
+	Notifier cache.Notifier
+	// Log receives the failures of best-effort work, such as announcing a
+	// change; nil discards them.
+	Log *slog.Logger
 }
 
 // Durations the requirements or RFCs fix rather than configuration.
@@ -120,6 +130,10 @@ const (
 type Service struct {
 	o   Options
 	now func() time.Time
+	log *slog.Logger
+	// bus is the replica's side of the permission change notices; nil when
+	// Options.Notifier is.
+	bus *permissionBus
 
 	// oidc caches the runtime of the providers configured in the database,
 	// by identifier; mu guards it.
@@ -166,7 +180,60 @@ func NewService(o Options) (*Service, error) {
 	if o.Sessions == nil {
 		o.Sessions = userSessionEnder{}
 	}
-	return &Service{o: o, now: now, oidc: map[string]cachedOIDC{}}, nil
+	s := &Service{o: o, now: now, log: o.Log, oidc: map[string]cachedOIDC{}}
+	if s.log == nil {
+		s.log = slog.New(slog.DiscardHandler)
+	}
+	if o.Notifier != nil {
+		lifetime := time.Duration(o.Limits.Get(limits.AuthPermissionCacheSeconds)) * time.Second
+		// The subscription belongs to the service, not to a request: Close
+		// ends it.
+		bus, err := newPermissionBus(context.Background(), o.Notifier, lifetime, now)
+		if err != nil {
+			return nil, err
+		}
+		s.bus = bus
+	}
+	return s, nil
+}
+
+// Close stops the goroutine that listens for permission changes. It is
+// for shutdown, and does nothing for a service without a notifier.
+func (s *Service) Close() {
+	if s.bus != nil {
+		s.bus.close()
+	}
+}
+
+// inTxChanging runs f like inTx for a transaction that changes grants,
+// roles, memberships or restrictions, and once it has committed announces
+// the organisation's new permissions version, so that every replica drops
+// what it cached (GOV-007). The version itself is raised in the
+// transaction, by a trigger, whoever writes.
+func (s *Service) inTxChanging(ctx context.Context, t storage.Tenant, f func(context.Context, pgx.Tx) error) error {
+	if err := s.inTx(ctx, t, f); err != nil {
+		return err
+	}
+	s.announce(ctx, t.OrganizationID)
+	return nil
+}
+
+// announce publishes an organisation's current permissions version. It is
+// best effort: a notice that is lost costs a stale cache entry for at most
+// its lifetime, never a failed change that has already committed.
+func (s *Service) announce(ctx context.Context, organizationID string) {
+	if s.bus == nil || organizationID == "" {
+		return
+	}
+	ctx = context.WithoutCancel(ctx)
+	version, err := s.PermissionsVersion(ctx, organizationID)
+	if err == nil {
+		err = s.bus.publish(ctx, organizationID, version)
+	}
+	if err != nil {
+		s.log.WarnContext(ctx, "a permissions change was not announced to the other replicas; their caches expire on their own",
+			slog.String("organization_id", organizationID), slog.Any("error", err))
+	}
 }
 
 // Kinds of identity.

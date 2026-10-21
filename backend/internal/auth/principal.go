@@ -37,12 +37,19 @@ type Principal struct {
 	// (GOV-006, GOV-007). The permission sets above are already net of
 	// them.
 	Restrictions []AppliedRestriction
+	// Version is the organisation's permissions version the sets above
+	// were resolved at (GOV-007); zero for an identity resolved without
+	// reading one.
+	Version int64
 }
 
 // roleGrant is one grant as the resolver reads it: a role at a scope
 // (GOV-003). AppID is set for app and environment scope, Environment (the
 // environment's key) for environment scope.
 type roleGrant struct {
+	// ID identifies the grant, membership or app access entry it was read
+	// from, for explaining a decision (GOV-007); "" for a proposal.
+	ID          string
 	Role        Role
 	Scope       Scope
 	AppID       string
@@ -261,8 +268,26 @@ func (p Principal) check(want Permission, held bool) error {
 	return p.Identity.StepUpError(StepUpWindow)
 }
 
+// ExcludedApps returns the apps on which a restriction takes a permission
+// away from a principal who holds it across the organisation, sorted. A
+// listing that reads an organisation-wide permission as "every app" must
+// leave these out; the permission sets of an app granted one by one are
+// already net of restrictions (GOV-006).
+func (p Principal) ExcludedApps(want Permission) []string {
+	var out []string
+	for _, r := range p.Restrictions {
+		if r.AppID != "" && r.Environment == "" && slices.Contains(r.Removed, want) {
+			out = append(out, r.AppID)
+		}
+	}
+	slices.Sort(out)
+	return slices.Compact(out)
+}
+
 // AllowedApps returns nil when the principal may read every app, and
-// otherwise the apps it was granted one by one.
+// otherwise the apps it was granted one by one. A principal that may read
+// every app may still be barred from some by restrictions; those are
+// ExcludedApps, and a listing leaves them out (GOV-006).
 func (p Principal) AllowedApps() []string {
 	if p.Holds(AppRead) {
 		return nil

@@ -35,6 +35,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `attest.statusListBytes` | bytes | 8388608 | 80% | 33554432 | installation | P6 | SEC-002 | Size of the Android attestation status list the server fetches or reads. |
 | `audit.exportBatchEntries` | count | 500 | 80% | 10000 | installation, organization | P9 | SEC-143 | Audit entries delivered to an export destination in one batch. |
 | `audit.exportDestinationsPerOrg` | count | 5 | 80% | 50 | installation, organization | P9 | SEC-143 | Audit export destinations one organisation may configure. |
+| `auth.explainPerMinute` | count | 30 | 80% | 1000 | installation | P9 | GOV-007 | Explain calls one principal may make per minute to learn why a person can or cannot perform an action. |
 | `auth.failedSignIns` | count | 10 | 80% | 1000 | installation | P2 | SEC-100 | Failed passwords or one-time codes one account may present in fifteen minutes before sign-in is refused. |
 | `auth.permissionCacheSeconds` | count | 60 | 80% | 600 | installation | P9 | GOV-006 | Seconds a replica keeps a resolved permission set before it resolves again; a change drops it sooner, and the lifetime covers a missed change message. |
 | `auth.restrictionPatterns` | count | 20 | 80% | 200 | installation, organization | P9 | GOV-006 | Permission names and wildcards one restriction policy may list. |
@@ -44,6 +45,7 @@ Every size and count in Plux is governed by one registry, `schema/limits.json` (
 | `auth.scimTokenOverlapSeconds` | count | 86400 | 80% | 604800 | installation | P9 | GOV-004 | Seconds the previous SCIM bearer token of an organisation keeps working after it is rotated, so the identity provider can switch over. |
 | `auth.sessionAbsoluteTimeout` | milliseconds | 43200000 | 80% | 2592000000 | installation, organization | P9 | GOV-005 | Time after sign-in at which a browser session ends however active it is; an organisation may shorten it. |
 | `auth.sessionIdleTimeout` | milliseconds | 1800000 | 80% | 86400000 | installation, organization | P9 | GOV-005 | Time without a request after which a browser session ends; an organisation may shorten it. |
+| `auth.simulatePerMinute` | count | 10 | 80% | 1000 | installation | P9 | GOV-007 | Explain calls with a proposed grant or restriction one principal may make per minute; each evaluates the resolver on a state that does not exist. |
 | `auth.stepUpAttempts` | count | 5 | 80% | 20 | installation | P9 | SEC-103 | Ceremonies one step-up request accepts before it is closed; each wrong assertion uses one. |
 | `bundle.deviceFunctionModuleSize` | bytes | 4194304 | 80% | 67108864 | installation, organization, app, plugin | P7 | FN-050 | Size of the WebAssembly module of the device-placed functions of one plugin. |
 | `bundle.pageSectionSize` | bytes | 1048576 | 80% | 16777216 | installation, organization, app, plugin | P1 | BND-010 | Size of one page section in a bundle. |

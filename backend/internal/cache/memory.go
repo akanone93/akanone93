@@ -22,6 +22,8 @@ type Memory struct {
 	// entries are swept lazily on read and in bulk when the map grows
 	// past sweepAt, so an idle cache does not need a goroutine.
 	entries map[string]entry
+	// subs are the subscriptions to in-process channels, by channel.
+	subs map[string]map[*memorySubscription]struct{}
 }
 
 // entry is one cached value.
@@ -164,5 +166,6 @@ func (m *Memory) Close() error {
 	defer m.mu.Unlock()
 	m.closed = true
 	m.entries = nil
+	m.closeSubscriptions()
 	return nil
 }
