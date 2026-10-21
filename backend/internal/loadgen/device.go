@@ -48,7 +48,9 @@ type device struct {
 	controlETag    string
 	controlVersion int64
 	pending        []*pluxv1.Event
-	nudges         chan struct{}
+	// release is the sequence of the release the device's manifest names.
+	release int64
+	nudges  chan struct{}
 }
 
 // newDevice builds the device with the given index; it does not touch the
@@ -161,6 +163,9 @@ func (d *device) checkManifest(ctx context.Context) {
 	if err == nil && res.Msg.GetEtag() != "" {
 		d.manifestETag = res.Msg.GetEtag()
 	}
+	if err == nil && res.Msg.GetManifest() != nil {
+		d.release = res.Msg.GetManifest().GetReleaseSequence()
+	}
 }
 
 // checkControl fetches the signed control document with its ETag and, when
@@ -213,11 +218,15 @@ func (d *device) sessionStart() {
 		`{"runtime_version":%q,"host_build":%q,"os_version":"synthetic","device_class":"phone","locale":"en"}`, runtimeVersion, hostBuild))
 }
 
-// activity queues the events of a minute of use: two screens and an action.
+// activity queues the events of a minute of use: two screens and an action,
+// and an error when the run injects a regression.
 func (d *device) activity() {
 	d.queue("screen_view", "/home", `{"screen":"home"}`)
 	d.queue("screen_view", "/detail", `{"screen":"detail"}`)
 	d.queue("action_run", "/detail", `{"action":"refresh","steps":3}`)
+	if d.cfg.InjectErrors && (d.cfg.ErrorRelease == 0 || d.release == d.cfg.ErrorRelease) {
+		d.queue("error", "/detail", `{"code":"synthetic_regression"}`)
+	}
 }
 
 // flush sends the buffered events as one batch. The consent it declares

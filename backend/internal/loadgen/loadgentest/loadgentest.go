@@ -47,6 +47,8 @@ type Server struct {
 
 	// FailTelemetry, when set, makes IngestEvents fail with that code.
 	failTelemetry atomic.Int32
+	// release is the release sequence the manifest names.
+	release atomic.Int64
 }
 
 // New starts a fake endpoint that serves until the test ends.
@@ -91,6 +93,9 @@ func (s *Server) SetControlVersion(v int64) {
 	s.control = v
 	s.mu.Unlock()
 }
+
+// SetReleaseSequence makes the manifests name the given release.
+func (s *Server) SetReleaseSequence(n int64) { s.release.Store(n) }
 
 // FailTelemetry makes IngestEvents answer with the given Connect code from
 // now on; zero restores it.
@@ -219,11 +224,11 @@ type manifestHandler struct {
 
 const manifestETag = `"manifest-1"`
 
-func (manifestHandler) GetManifest(_ context.Context, r *connect.Request[pluxv1.GetManifestRequest]) (*connect.Response[pluxv1.GetManifestResponse], error) {
+func (h manifestHandler) GetManifest(_ context.Context, r *connect.Request[pluxv1.GetManifestRequest]) (*connect.Response[pluxv1.GetManifestResponse], error) {
 	if r.Msg.GetIfNoneMatch() == manifestETag {
 		return connect.NewResponse(&pluxv1.GetManifestResponse{NotModified: true, Etag: manifestETag}), nil
 	}
-	return connect.NewResponse(&pluxv1.GetManifestResponse{Manifest: &pluxv1.Manifest{}, Etag: manifestETag}), nil
+	return connect.NewResponse(&pluxv1.GetManifestResponse{Manifest: &pluxv1.Manifest{ReleaseSequence: h.s.release.Load()}, Etag: manifestETag}), nil
 }
 
 func (h manifestHandler) GetSignedControl(_ context.Context, r *connect.Request[pluxv1.GetSignedControlRequest]) (*connect.Response[pluxv1.GetSignedControlResponse], error) {

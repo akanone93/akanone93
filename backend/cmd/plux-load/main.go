@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -45,6 +46,7 @@ type options struct {
 	function      string
 	functionInput string
 	functionVer   uint
+	deviceIDsFile string
 }
 
 // run executes one load run, prints its report as JSON on stdout and
@@ -66,6 +68,10 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	regErr := fleet.Register(ctx)
 	var report loadgen.Report
 	if regErr == nil {
+		if err := writeDeviceIDs(opts.deviceIDsFile, fleet.DeviceIDs()); err != nil {
+			_, _ = fmt.Fprintln(stderr, "plux-load:", err)
+			return exitFailed
+		}
 		report = fleet.Run(ctx)
 	} else {
 		report = fleet.Report(0)
@@ -79,6 +85,22 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 		return exitFailed
 	}
 	return verdict(report, opts.maxErrorRatio, stderr)
+}
+
+// writeDeviceIDs writes the device IDs, one per line, to a file; an empty
+// name writes nothing.
+func writeDeviceIDs(name string, ids []string) error {
+	if name == "" {
+		return nil
+	}
+	var b strings.Builder
+	for _, id := range ids {
+		b.WriteString(id + "\n")
+	}
+	if err := os.WriteFile(name, []byte(b.String()), 0o600); err != nil {
+		return fmt.Errorf("plux-load: write the device IDs: %w", err)
+	}
+	return nil
 }
 
 // printReport writes the report as indented JSON.
@@ -125,6 +147,9 @@ func parseArgs(args []string, stderr io.Writer) (options, error) {
 	fs.Float64Var(&o.speedup, "speedup", 1, "run the pacing this many times faster; reported rates are also given at real pacing")
 	fs.Uint64Var(&c.Seed, "seed", 1, "seed of the pacing jitter")
 	fs.BoolVar(&c.ForwardedFor, "forwarded-for", false, "give each device its own X-Forwarded-For address (needs a trusted proxy; the load overlay)")
+	fs.BoolVar(&c.InjectErrors, "inject-errors", false, "report an error event with every minute of use: a synthetic regression for a rollout's health gate")
+	fs.Int64Var(&c.ErrorRelease, "error-release", 0, "with -inject-errors, only devices running this release `sequence` report the error")
+	fs.StringVar(&o.deviceIDsFile, "device-ids-file", "", "write the IDs of the registered devices, one per line, to this `file` before the run starts (for audit scripts)")
 	fs.BoolVar(&c.PushTokens, "push-tokens", false, "register a push token for each device (needs push.enabled)")
 	fs.StringVar(&o.caFile, "ca-file", "", "PEM `file` of the certificate authority to trust, for the development CA")
 	fs.Float64Var(&o.maxErrorRatio, "max-error-ratio", 0.001, "fail the run when more than this share of requests fail")

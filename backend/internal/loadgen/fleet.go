@@ -76,6 +76,16 @@ func (f *Fleet) Register(ctx context.Context) error {
 // Registered is the number of devices that registered.
 func (f *Fleet) Registered() int { return len(f.registered) }
 
+// DeviceIDs returns the identifiers the registered devices were given, in
+// registration order of completion; they are synthetic and identify nobody.
+func (f *Fleet) DeviceIDs() []string {
+	ids := make([]string, 0, len(f.registered))
+	for _, d := range f.registered {
+		ids = append(ids, d.id)
+	}
+	return ids
+}
+
 // Nudge makes the device that holds the push token check its control
 // document at once, as the host app does when a silent push arrives. It
 // reports whether the token belongs to a device of the fleet.

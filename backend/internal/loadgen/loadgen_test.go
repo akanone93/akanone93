@@ -122,6 +122,35 @@ func TestRunAgainstFakeEndpoint_DEP_051(t *testing.T) {
 	}
 }
 
+// Verifies: DEP-051, REL-053.
+// A run that injects errors reports an error event, the synthetic regression
+// a rollout's health gate trips on; an ordinary run sends none, and a run
+// limited to another release sends none either.
+func TestInjectErrorsSendsErrorEvents_REL_053(t *testing.T) {
+	t.Parallel()
+	for name, tc := range map[string]struct {
+		inject  bool
+		release int64
+		want    bool
+	}{
+		"off":               {inject: false, want: false},
+		"every device":      {inject: true, want: true},
+		"the named release": {inject: true, release: 7, want: true},
+		"another release":   {inject: true, release: 8, want: false},
+	} {
+		srv := loadgentest.New(t)
+		srv.SetReleaseSequence(7)
+		cfg := config(srv, 2, time.Second)
+		cfg.InjectErrors, cfg.ErrorRelease = tc.inject, tc.release
+		if _, err := loadgen.Run(t.Context(), cfg); err != nil {
+			t.Fatal(err)
+		}
+		if got := slices.Contains(srv.Events(), "error"); got != tc.want {
+			t.Errorf("%s: error event sent = %v, want %v", name, got, tc.want)
+		}
+	}
+}
+
 // Verifies: DEP-051.
 // The report is JSON with the documented keys, and nothing but counts,
 // rates and latencies.
