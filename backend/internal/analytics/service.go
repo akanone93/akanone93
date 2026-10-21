@@ -528,3 +528,7 @@ func (s *Service) compactDue(now time.Time) bool {
 	s.compactedAt = now
 	return true
 }
+
+// Rollups returns the store the service reads, for consumers such as the
+// health gates of rollouts that count events by release (REL-053).
+func (s *Service) Rollups() Store { return s.o.Store }

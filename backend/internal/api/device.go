@@ -366,6 +366,7 @@ func (s Manifest) GetManifest(ctx context.Context, req *connect.Request[pluxv1.G
 		DeviceID:          d.DeviceID,
 		InstalledSequence: m.GetInstalledSequence(), Installed: installed, IfNoneMatch: m.GetIfNoneMatch(),
 		InstalledDigest: m.GetInstalledDigest(), ConfigVersion: m.GetConfigVersion(),
+		Targeting: targetingOf(m.GetTargeting()),
 	})
 	if err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
@@ -645,4 +646,13 @@ func decodeBase64(s string) ([]byte, error) {
 		return nil, err //nolint:wrapcheck // callers skip the value
 	}
 	return b, nil
+}
+
+// targetingOf converts what a device reports about itself for rollouts
+// (REL-051); a device that reports nothing has an empty targeting.
+func targetingOf(t *pluxv1.DeviceTargeting) release.Targeting {
+	return release.Targeting{
+		OS: t.GetOs(), OSVersion: t.GetOsVersion(), RuntimeVersion: t.GetRuntimeVersion(), DeviceClass: t.GetDeviceClass(),
+		Locale: t.GetLocale(), Region: t.GetRegion(), UserHash: t.GetUserHash(), UserAttributes: t.GetUserAttributes(),
+	}
 }

@@ -160,11 +160,15 @@ func (q *Queries) ExpireDeviceTokens(ctx context.Context, expiresAt pgtype.Times
 const expiringChannels = `-- name: ExpiringChannels :many
 SELECT c.id, c.organization_id, c.environment_id, c.key, c.release_sequence, c.updated_at FROM channels c
  WHERE c.release_sequence > 0
-   AND NOT EXISTS (SELECT 1 FROM manifests m WHERE m.channel_id = c.id AND m.host_build = '' AND m.expires_at >= $1::timestamptz)
+   AND (NOT EXISTS (SELECT 1 FROM manifests m WHERE m.channel_id = c.id AND m.host_build = '' AND m.rollout_id IS NULL AND m.expires_at >= $1::timestamptz)
+        OR EXISTS (SELECT 1 FROM rollouts r
+                    WHERE r.channel_id = c.id AND r.state IN ('active', 'paused')
+                      AND NOT EXISTS (SELECT 1 FROM manifests m WHERE m.rollout_id = r.id AND m.expires_at >= $1::timestamptz)))
 `
 
 // Channels pointing at a release whose newest manifest expires before
-// the given time, or that have none.
+// the given time, or that have none; and channels with a rollout in
+// progress whose candidate manifest does likewise.
 func (q *Queries) ExpiringChannels(ctx context.Context, before pgtype.Timestamptz) ([]Channel, error) {
 	rows, err := q.db.Query(ctx, expiringChannels, before)
 	if err != nil {
@@ -658,7 +662,7 @@ func (q *Queries) InsertDeviceToken(ctx context.Context, arg InsertDeviceTokenPa
 const insertManifest = `-- name: InsertManifest :one
 INSERT INTO manifests (id, organization_id, channel_id, release_sequence, signed, signatures, issued_at, expires_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, organization_id, channel_id, release_sequence, signed, signatures, issued_at, expires_at, host_build, own_manifest_id
+RETURNING id, organization_id, channel_id, release_sequence, signed, signatures, issued_at, expires_at, host_build, own_manifest_id, rollout_id
 `
 
 type InsertManifestParams struct {
@@ -695,12 +699,13 @@ func (q *Queries) InsertManifest(ctx context.Context, arg InsertManifestParams) 
 		&i.ExpiresAt,
 		&i.HostBuild,
 		&i.OwnManifestID,
+		&i.RolloutID,
 	)
 	return i, err
 }
 
 const latestManifest = `-- name: LatestManifest :one
-SELECT id, organization_id, channel_id, release_sequence, signed, signatures, issued_at, expires_at, host_build, own_manifest_id FROM manifests WHERE channel_id = $1 AND host_build = '' ORDER BY issued_at DESC, id DESC LIMIT 1
+SELECT id, organization_id, channel_id, release_sequence, signed, signatures, issued_at, expires_at, host_build, own_manifest_id, rollout_id FROM manifests WHERE channel_id = $1 AND host_build = '' AND rollout_id IS NULL ORDER BY issued_at DESC, id DESC LIMIT 1
 `
 
 // The channel's own manifest, the one devices of any build without one
@@ -719,6 +724,7 @@ func (q *Queries) LatestManifest(ctx context.Context, channelID pgtype.UUID) (Ma
 		&i.ExpiresAt,
 		&i.HostBuild,
 		&i.OwnManifestID,
+		&i.RolloutID,
 	)
 	return i, err
 }
@@ -940,12 +946,13 @@ const purgeManifests = `-- name: PurgeManifests :execrows
 DELETE FROM manifests m
  WHERE m.expires_at < $1
    AND m.host_build = ''
-   AND m.id <> (SELECT n.id FROM manifests n WHERE n.channel_id = m.channel_id AND n.host_build = ''
+   AND m.id <> (SELECT n.id FROM manifests n
+                 WHERE n.channel_id = m.channel_id AND n.host_build = '' AND n.rollout_id IS NOT DISTINCT FROM m.rollout_id
                  ORDER BY n.issued_at DESC, n.id DESC LIMIT 1)
 `
 
-// Keeps each channel's newest manifest; the host builds' manifests
-// signed with an older one go with it.
+// Keeps each channel's newest manifest, and each rollout's; the host
+// builds' manifests signed with an older one go with it.
 func (q *Queries) PurgeManifests(ctx context.Context, expiresAt pgtype.Timestamptz) (int64, error) {
 	result, err := q.db.Exec(ctx, purgeManifests, expiresAt)
 	if err != nil {

@@ -30,6 +30,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/push"
 	"github.com/nightCode42/plux3/backend/internal/release"
+	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/search"
 	"github.com/nightCode42/plux3/backend/internal/seccfg"
@@ -84,6 +85,9 @@ type Handlers struct {
 	// DataSubjects serves DataSubjectService (SEC-162); nil leaves it
 	// unmounted.
 	DataSubjects *dsr.Service
+	// Rollouts serves RolloutService (REL-050 to REL-053); nil leaves it
+	// unmounted.
+	Rollouts *rollout.Service
 	// Edition answers what the licence allows (GOV-030); nil is the
 	// community provider.
 	Edition edition.Provider

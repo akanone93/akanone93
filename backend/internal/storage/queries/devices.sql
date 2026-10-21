@@ -177,22 +177,27 @@ RETURNING *;
 -- name: LatestManifest :one
 -- The channel's own manifest, the one devices of any build without one
 -- of their own receive.
-SELECT * FROM manifests WHERE channel_id = $1 AND host_build = '' ORDER BY issued_at DESC, id DESC LIMIT 1;
+SELECT * FROM manifests WHERE channel_id = $1 AND host_build = '' AND rollout_id IS NULL ORDER BY issued_at DESC, id DESC LIMIT 1;
 
 -- name: ExpiringChannels :many
 -- Channels pointing at a release whose newest manifest expires before
--- the given time, or that have none.
+-- the given time, or that have none; and channels with a rollout in
+-- progress whose candidate manifest does likewise.
 SELECT c.* FROM channels c
  WHERE c.release_sequence > 0
-   AND NOT EXISTS (SELECT 1 FROM manifests m WHERE m.channel_id = c.id AND m.host_build = '' AND m.expires_at >= sqlc.arg(before)::timestamptz);
+   AND (NOT EXISTS (SELECT 1 FROM manifests m WHERE m.channel_id = c.id AND m.host_build = '' AND m.rollout_id IS NULL AND m.expires_at >= sqlc.arg(before)::timestamptz)
+        OR EXISTS (SELECT 1 FROM rollouts r
+                    WHERE r.channel_id = c.id AND r.state IN ('active', 'paused')
+                      AND NOT EXISTS (SELECT 1 FROM manifests m WHERE m.rollout_id = r.id AND m.expires_at >= sqlc.arg(before)::timestamptz)));
 
 -- name: PurgeManifests :execrows
--- Keeps each channel's newest manifest; the host builds' manifests
--- signed with an older one go with it.
+-- Keeps each channel's newest manifest, and each rollout's; the host
+-- builds' manifests signed with an older one go with it.
 DELETE FROM manifests m
  WHERE m.expires_at < $1
    AND m.host_build = ''
-   AND m.id <> (SELECT n.id FROM manifests n WHERE n.channel_id = m.channel_id AND n.host_build = ''
+   AND m.id <> (SELECT n.id FROM manifests n
+                 WHERE n.channel_id = m.channel_id AND n.host_build = '' AND n.rollout_id IS NOT DISTINCT FROM m.rollout_id
                  ORDER BY n.issued_at DESC, n.id DESC LIMIT 1);
 
 -- name: UpsertEnvironmentKey :exec

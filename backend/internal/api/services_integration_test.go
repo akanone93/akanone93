@@ -43,6 +43,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/release"
+	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
 	"github.com/nightCode42/plux3/backend/internal/schema/uuid7"
 	"github.com/nightCode42/plux3/backend/internal/search"
@@ -336,6 +337,15 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	rollouts, err := rollout.NewService(rollout.Options{
+		DB: db, Audit: log, IDs: gen, Releases: releases, Now: cfg.Now,
+		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, app, "")
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	searchService, err := search.NewService(search.Options{DB: db, Tenancy: tenancyService})
 	if err != nil {
 		t.Fatal(err)
@@ -345,7 +355,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		t.Fatal(err)
 	}
 	h := &api.Handlers{
-		Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
+		Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Rollouts: rollouts, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Analytics: analyticsService,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
@@ -415,6 +425,9 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		func() (string, http.Handler) { return pluxv1connect.NewAuditServiceHandler(h.Audit(), opts) },
 		func() (string, http.Handler) {
 			return pluxv1connect.NewDataSubjectServiceHandler(h.DataSubject(), opts)
+		},
+		func() (string, http.Handler) {
+			return pluxv1connect.NewRolloutServiceHandler(h.RolloutAdmin(), opts)
 		},
 		func() (string, http.Handler) { return pluxv1connect.NewConfigServiceHandler(h.ConfigService(), opts) },
 		func() (string, http.Handler) {

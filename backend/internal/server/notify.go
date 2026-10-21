@@ -104,6 +104,9 @@ func buildScheduler(svc *Services, log *slog.Logger, db *storage.DB) (*scheduler
 				return err //nolint:wrapcheck // a domain error
 			}})
 	}
+	if svc.Rollouts != nil {
+		jobs = append(jobs, scheduler.JobFunc{Label: "rollouts", F: svc.Rollouts.Job()})
+	}
 	s, err := scheduler.New(scheduler.Options{
 		Locker: db, Organizations: svc.Tenancy.ForEachOrganization, Jobs: jobs, Log: log,
 	})

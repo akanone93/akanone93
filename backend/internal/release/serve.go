@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/nightCode42/plux3/backend/internal/bundle"
 	"github.com/nightCode42/plux3/backend/internal/delta"
@@ -80,6 +81,9 @@ type ManifestRequest struct {
 	// ConfigVersion is the version of the security configuration the
 	// device holds, 0 for the built-in defaults (SEC-182).
 	ConfigVersion int64
+	// Targeting is what the device reports about itself for rollouts
+	// (REL-051).
+	Targeting Targeting
 }
 
 // SyncStep tells a device how to obtain one bundle.
@@ -137,7 +141,7 @@ type ServedManifest struct {
 // configuration is not the one the manifest pins is not answered "not
 // modified" and receives the patch to it (SEC-182).
 func (s *Service) GetManifest(ctx context.Context, r ManifestRequest) (ServedManifest, error) {
-	base, err := s.latestManifest(ctx, r.OrganizationID, r.EnvironmentID, channelOrDefault(r.Channel), r.HostBuild)
+	base, err := s.manifestFor(ctx, r)
 	if err != nil {
 		return ServedManifest{}, err
 	}
@@ -209,7 +213,9 @@ type cachedManifest struct {
 	signatures []ManifestSignature
 	signed     []byte
 	metadata   MetadataRef
-	until      time.Time
+	// incompatible is set on a rollout's manifest, see manifestRead.
+	incompatible map[string]bool
+	until        time.Time
 }
 
 // manifestCache holds each channel's newest manifest for manifestTTL.
@@ -231,7 +237,47 @@ const maxCachedManifests = 10000
 // latestManifest returns a channel's newest manifest, from the cache when
 // it is fresh.
 func (s *Service) latestManifest(ctx context.Context, org, env, channel, build string) (cachedManifest, error) {
-	key := org + "/" + env + "/" + channel + "/" + build
+	return s.cachedManifest(ctx, org, org+"/"+env+"/"+channel+"/"+build, func(ctx context.Context, q *dbgen.Queries) (manifestRead, error) {
+		ch, err := q.GetChannel(ctx, dbgen.GetChannelParams{EnvironmentID: storage.MustUUID(env), Key: channel})
+		if err != nil {
+			return manifestRead{}, failure(err, "channel")
+		}
+		var row dbgen.Manifest
+		if build == "" {
+			row, err = q.LatestManifest(ctx, ch.ID)
+		} else {
+			row, err = q.LatestManifestForBuild(ctx, dbgen.LatestManifestForBuildParams{ChannelID: ch.ID, HostBuild: build})
+		}
+		if err != nil {
+			return manifestRead{}, failure(err, "manifest")
+		}
+		ref, err := metadataRef(ctx, q, ch.EnvironmentID)
+		return manifestRead{row: row, ref: ref}, err
+	})
+}
+
+// manifestRead is what reading a manifest from the database yields.
+type manifestRead struct {
+	row dbgen.Manifest
+	ref MetadataRef
+	// incompatible holds the host builds that cannot run the manifest's
+	// release; only a rollout's manifest has them, since the channel's own
+	// has a fallback manifest per such build (REL-080).
+	incompatible map[string]bool
+}
+
+// metadataRef names the update-metadata versions current for an environment.
+func metadataRef(ctx context.Context, q *dbgen.Queries, environment pgtype.UUID) (MetadataRef, error) {
+	v, err := q.LatestMetadataVersions(ctx, environment)
+	if err != nil {
+		return MetadataRef{}, failure(err, "metadata")
+	}
+	return MetadataRef{Root: v.RootVersion, Snapshot: v.SnapshotVersion, Timestamp: v.TimestampVersion}, nil
+}
+
+// cachedManifest returns the manifest read names, from the cache when it is
+// fresh under key.
+func (s *Service) cachedManifest(ctx context.Context, org, key string, read func(context.Context, *dbgen.Queries) (manifestRead, error)) (cachedManifest, error) {
 	now := s.now()
 	s.manifests.mu.Lock()
 	c, ok := s.manifests.entries[key]
@@ -239,37 +285,20 @@ func (s *Service) latestManifest(ctx context.Context, org, env, channel, build s
 	if ok && now.Before(c.until) {
 		return c, nil
 	}
-	var row dbgen.Manifest
-	var ref MetadataRef
+	var got manifestRead
 	err := s.o.DB.InTx(ctx, storage.Tenant{OrganizationID: org}, func(ctx context.Context, tx pgx.Tx) error {
-		q := dbgen.New(tx)
-		ch, err := q.GetChannel(ctx, dbgen.GetChannelParams{EnvironmentID: storage.MustUUID(env), Key: channel})
-		if err != nil {
-			return failure(err, "channel")
-		}
-		if build == "" {
-			row, err = q.LatestManifest(ctx, ch.ID)
-		} else {
-			row, err = q.LatestManifestForBuild(ctx, dbgen.LatestManifestForBuildParams{ChannelID: ch.ID, HostBuild: build})
-		}
-		if err != nil {
-			return failure(err, "manifest")
-		}
-		v, err := q.LatestMetadataVersions(ctx, ch.EnvironmentID)
-		if err != nil {
-			return failure(err, "metadata")
-		}
-		ref = MetadataRef{Root: v.RootVersion, Snapshot: v.SnapshotVersion, Timestamp: v.TimestampVersion}
-		return nil
+		var err error
+		got, err = read(ctx, dbgen.New(tx))
+		return err
 	})
 	if err != nil {
 		return cachedManifest{}, fmt.Errorf("release: %w", err)
 	}
-	c = cachedManifest{id: row.ID.Bytes, signed: row.Signed, metadata: ref, until: now.Add(manifestTTL)}
-	if err := json.Unmarshal(row.Signed, &c.doc); err != nil {
+	c = cachedManifest{id: got.row.ID.Bytes, signed: got.row.Signed, metadata: got.ref, incompatible: got.incompatible, until: now.Add(manifestTTL)}
+	if err := json.Unmarshal(got.row.Signed, &c.doc); err != nil {
 		return cachedManifest{}, fmt.Errorf("release: a stored manifest: %w", err)
 	}
-	if err := json.Unmarshal(row.Signatures, &c.signatures); err != nil {
+	if err := json.Unmarshal(got.row.Signatures, &c.signatures); err != nil {
 		return cachedManifest{}, fmt.Errorf("release: a stored manifest: %w", err)
 	}
 	s.manifests.mu.Lock()
