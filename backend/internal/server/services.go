@@ -51,6 +51,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
 	"github.com/nightCode42/plux3/backend/internal/plxerr"
 	"github.com/nightCode42/plux3/backend/internal/push"
+	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/scheduler"
@@ -130,6 +131,9 @@ type Services struct {
 	// Goldens holds golden-test baselines and runs (TST-003); nil where the
 	// installation has no object store.
 	Goldens *golden.Service
+	// Reconstruction reconstructs what a device ran and showed (SEC-142); nil
+	// where the installation has no object store.
+	Reconstruction *reconstruct.Service
 	// AuditExport administers the audit export destinations (SEC-143).
 	AuditExport *auditexport.Service
 	// AuditExporter delivers the audit chains to them; nil where the process
@@ -249,6 +253,25 @@ type assetQueue struct{ q *JobQueue }
 
 func (a assetQueue) Enqueue(ctx context.Context, tx pgx.Tx, job document.AssetJob) error {
 	return a.q.insert(ctx, tx, job, jobs.QueueAsset)
+}
+
+// reconstructQueue enqueues the signing of reconstruction releases
+// (SEC-142) beside the other signing jobs.
+type reconstructQueue struct{ q *JobQueue }
+
+func (r reconstructQueue) Enqueue(ctx context.Context, tx pgx.Tx, job reconstruct.SignJob) error {
+	return r.q.insert(ctx, tx, job, jobs.QueueControl)
+}
+
+// reconstructWorker signs reconstruction releases (SEC-142).
+type reconstructWorker struct {
+	river.WorkerDefaults[reconstruct.SignJob]
+	svc *Services
+}
+
+// Work signs one reconstruction release.
+func (w *reconstructWorker) Work(ctx context.Context, job *river.Job[reconstruct.SignJob]) error {
+	return w.svc.Reconstruction.Sign(ctx, job.Args) //nolint:wrapcheck // a domain error
 }
 
 // gitQueue enqueues Git export jobs (GOV-011).
@@ -498,6 +521,10 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 	if err != nil {
 		return nil, err
 	}
+	reconstruction, err := buildReconstruction(cfg, db, gen, log, tenancyService, releases, work)
+	if err != nil {
+		return nil, err
+	}
 	dataSubjects, err := dsr.NewService(dsr.Options{
 		DB: db, Audit: log, IDs: gen,
 		Limits: func(ctx context.Context, tx pgx.Tx, org string) (limits.Set, error) {
@@ -512,7 +539,7 @@ func BuildServices(ctx context.Context, cfg *config.Config, db *storage.DB, shar
 		return nil, err
 	}
 	return &Services{
-		Rollouts: rollouts, DataSubjects: dataSubjects, Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport, Push: pusher,
+		Rollouts: rollouts, Reconstruction: reconstruction, DataSubjects: dataSubjects, Goldens: goldens, Notify: notifier, AuditExport: auditExport, AuditExporter: auditExporter, Search: searchService, GitExport: gitExport, Push: pusher,
 		Audit: log, Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases,
 		Devices: devices, Events: events, Analytics: analyticsService, EventConsumer: consumer,
 		Idempotency: store, Pages: pages, DeviceTrust: trust, Gateway: gw,
@@ -545,6 +572,32 @@ func buildAuditExport(db *storage.DB, log *audit.Log, gen auditexport.IDs, backe
 		return nil, nil, fmt.Errorf("server: %w", err)
 	}
 	return service, exporter, nil
+}
+
+// buildReconstruction builds the reconstruction service (SEC-142). It needs
+// the object store its bundles are kept in; the worker role, which holds the
+// signer, signs through the release service.
+func buildReconstruction(cfg *config.Config, db *storage.DB, gen reconstruct.IDs, log *audit.Log, ten *tenancy.Service, releases *release.Service, work WorkDeps) (*reconstruct.Service, error) {
+	if work.Objects == nil || releases == nil {
+		return nil, nil
+	}
+	o := reconstruct.Options{
+		DB: db, Audit: log, IDs: gen, Objects: work.Objects, Locator: releases, PublicBaseURL: cfg.Server.PublicBaseURL,
+		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
+			return ten.Effective(ctx, tx, org, app, "") //nolint:wrapcheck // a domain error
+		},
+	}
+	if work.Queue != nil {
+		o.Jobs = reconstructQueue{q: work.Queue}
+	}
+	if work.Signer != nil {
+		o.Signer = releases
+	}
+	svc, err := reconstruct.NewService(o)
+	if err != nil {
+		return nil, fmt.Errorf("server: %w", err)
+	}
+	return svc, nil
 }
 
 // reportDeviceAssurance feeds the devices-by-assurance gauge from the device
@@ -955,6 +1008,7 @@ func apiRegistrations(svc *Services, h *api.Handlers, opts connect.HandlerOption
 			return pluxv1connect.NewGoldenServiceHandler(h.Golden(), opts)
 		})
 	}
+	h.Reconstruction = svc.Reconstruction
 	if svc.AuditExport != nil {
 		h.AuditExport = svc.AuditExport
 		registrations = append(registrations, func() (string, http.Handler) {
@@ -1097,6 +1151,11 @@ func (w *maintenanceWorker) sweepOrganization(ctx context.Context, org string, t
 	}
 	if _, err := w.svc.Devices.ExpireTokens(ctx, org); err != nil {
 		return err //nolint:wrapcheck // a domain error
+	}
+	if w.svc.Reconstruction != nil {
+		if _, err := w.svc.Reconstruction.Purge(ctx, org); err != nil {
+			return err //nolint:wrapcheck // a domain error
+		}
 	}
 	if w.svc.Functions != nil {
 		if _, err := w.svc.Functions.PurgeObservations(ctx, org); err != nil {

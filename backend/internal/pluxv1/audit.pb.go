@@ -827,6 +827,623 @@ func (*DeleteExportDestinationResponse) Descriptor() ([]byte, []int) {
 	return file_plux_v1_audit_proto_rawDescGZIP(), []int{10}
 }
 
+// Reconstruction is a reconstruction release: the state of one device at one
+// moment, packaged for the viewer host (SEC-142).
+type Reconstruction struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id is the release identifier; the viewer opens the release by it.
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	AppId         string `protobuf:"bytes,2,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	EnvironmentId string `protobuf:"bytes,3,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	// device_id is the device the moment was resolved on.
+	DeviceId string `protobuf:"bytes,4,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// user_ref is the pseudonymous user the request named; empty when it named
+	// a device.
+	UserRef string `protobuf:"bytes,5,opt,name=user_ref,json=userRef,proto3" json:"user_ref,omitempty"`
+	// moment is the point in time that was reconstructed.
+	Moment *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=moment,proto3" json:"moment,omitempty"`
+	// release_sequence is the release the device ran at the moment.
+	ReleaseSequence int64 `protobuf:"varint,7,opt,name=release_sequence,json=releaseSequence,proto3" json:"release_sequence,omitempty"`
+	// state is "pending" until the worker has signed the release, then
+	// "signed". A pending release cannot be opened.
+	State     string                 `protobuf:"bytes,8,opt,name=state,proto3" json:"state,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	SignedAt  *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=signed_at,json=signedAt,proto3" json:"signed_at,omitempty"`
+	// created_by names who asked for it.
+	CreatedBy string `protobuf:"bytes,11,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	// open_uri is what opens the release in the viewer host:
+	// plux-viewer://reconstruction/<id>?server=<server URL>. The viewer
+	// authenticates as the auditor and calls GetReconstruction.
+	OpenUri       string `protobuf:"bytes,12,opt,name=open_uri,json=openUri,proto3" json:"open_uri,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Reconstruction) Reset() {
+	*x = Reconstruction{}
+	mi := &file_plux_v1_audit_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Reconstruction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Reconstruction) ProtoMessage() {}
+
+func (x *Reconstruction) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_audit_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Reconstruction.ProtoReflect.Descriptor instead.
+func (*Reconstruction) Descriptor() ([]byte, []int) {
+	return file_plux_v1_audit_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *Reconstruction) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Reconstruction) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *Reconstruction) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *Reconstruction) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
+	}
+	return ""
+}
+
+func (x *Reconstruction) GetUserRef() string {
+	if x != nil {
+		return x.UserRef
+	}
+	return ""
+}
+
+func (x *Reconstruction) GetMoment() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Moment
+	}
+	return nil
+}
+
+func (x *Reconstruction) GetReleaseSequence() int64 {
+	if x != nil {
+		return x.ReleaseSequence
+	}
+	return 0
+}
+
+func (x *Reconstruction) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *Reconstruction) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Reconstruction) GetSignedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.SignedAt
+	}
+	return nil
+}
+
+func (x *Reconstruction) GetCreatedBy() string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return ""
+}
+
+func (x *Reconstruction) GetOpenUri() string {
+	if x != nil {
+		return x.OpenUri
+	}
+	return ""
+}
+
+type ReconstructRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	AppId string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	// device_id or user_ref, exactly one: the device to reconstruct, or the
+	// host's pseudonymous user identifier (HST-011) whose device at the moment
+	// is.
+	DeviceId string `protobuf:"bytes,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	UserRef  string `protobuf:"bytes,3,opt,name=user_ref,json=userRef,proto3" json:"user_ref,omitempty"`
+	// at is the moment to reconstruct.
+	At            *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=at,proto3" json:"at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReconstructRequest) Reset() {
+	*x = ReconstructRequest{}
+	mi := &file_plux_v1_audit_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReconstructRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReconstructRequest) ProtoMessage() {}
+
+func (x *ReconstructRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_audit_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReconstructRequest.ProtoReflect.Descriptor instead.
+func (*ReconstructRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_audit_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ReconstructRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *ReconstructRequest) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
+	}
+	return ""
+}
+
+func (x *ReconstructRequest) GetUserRef() string {
+	if x != nil {
+		return x.UserRef
+	}
+	return ""
+}
+
+func (x *ReconstructRequest) GetAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.At
+	}
+	return nil
+}
+
+type ReconstructResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Reconstruction *Reconstruction        `protobuf:"bytes,1,opt,name=reconstruction,proto3" json:"reconstruction,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ReconstructResponse) Reset() {
+	*x = ReconstructResponse{}
+	mi := &file_plux_v1_audit_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReconstructResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReconstructResponse) ProtoMessage() {}
+
+func (x *ReconstructResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_audit_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReconstructResponse.ProtoReflect.Descriptor instead.
+func (*ReconstructResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_audit_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ReconstructResponse) GetReconstruction() *Reconstruction {
+	if x != nil {
+		return x.Reconstruction
+	}
+	return nil
+}
+
+type GetReconstructionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetReconstructionRequest) Reset() {
+	*x = GetReconstructionRequest{}
+	mi := &file_plux_v1_audit_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetReconstructionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReconstructionRequest) ProtoMessage() {}
+
+func (x *GetReconstructionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_audit_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReconstructionRequest.ProtoReflect.Descriptor instead.
+func (*GetReconstructionRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_audit_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetReconstructionRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// ReconstructionBundle is one bundle of a reconstruction release, exactly as
+// it was shipped.
+type ReconstructionBundle struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// key is the plugin key, empty for the app bundle.
+	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// sha256 is "sha256:<hex>" of the bundle, as the manifest names it.
+	Sha256 string `protobuf:"bytes,2,opt,name=sha256,proto3" json:"sha256,omitempty"`
+	Size   int64  `protobuf:"varint,3,opt,name=size,proto3" json:"size,omitempty"`
+	// url is where the bundle is downloaded from.
+	Url           string `protobuf:"bytes,4,opt,name=url,proto3" json:"url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReconstructionBundle) Reset() {
+	*x = ReconstructionBundle{}
+	mi := &file_plux_v1_audit_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReconstructionBundle) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReconstructionBundle) ProtoMessage() {}
+
+func (x *ReconstructionBundle) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_audit_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReconstructionBundle.ProtoReflect.Descriptor instead.
+func (*ReconstructionBundle) Descriptor() ([]byte, []int) {
+	return file_plux_v1_audit_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ReconstructionBundle) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *ReconstructionBundle) GetSha256() string {
+	if x != nil {
+		return x.Sha256
+	}
+	return ""
+}
+
+func (x *ReconstructionBundle) GetSize() int64 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
+}
+
+func (x *ReconstructionBundle) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+// ReconstructionSignature is one signature over the manifest.
+type ReconstructionSignature struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	KeyId     string                 `protobuf:"bytes,1,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"`
+	Algorithm string                 `protobuf:"bytes,2,opt,name=algorithm,proto3" json:"algorithm,omitempty"`
+	// signature is base64 of the signature.
+	Signature     string `protobuf:"bytes,3,opt,name=signature,proto3" json:"signature,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReconstructionSignature) Reset() {
+	*x = ReconstructionSignature{}
+	mi := &file_plux_v1_audit_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReconstructionSignature) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReconstructionSignature) ProtoMessage() {}
+
+func (x *ReconstructionSignature) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_audit_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReconstructionSignature.ProtoReflect.Descriptor instead.
+func (*ReconstructionSignature) Descriptor() ([]byte, []int) {
+	return file_plux_v1_audit_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ReconstructionSignature) GetKeyId() string {
+	if x != nil {
+		return x.KeyId
+	}
+	return ""
+}
+
+func (x *ReconstructionSignature) GetAlgorithm() string {
+	if x != nil {
+		return x.Algorithm
+	}
+	return ""
+}
+
+func (x *ReconstructionSignature) GetSignature() string {
+	if x != nil {
+		return x.Signature
+	}
+	return ""
+}
+
+type GetReconstructionResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Reconstruction *Reconstruction        `protobuf:"bytes,1,opt,name=reconstruction,proto3" json:"reconstruction,omitempty"`
+	// manifest is the canonical JSON (RFC 8785) of the reconstruction manifest,
+	// which the signatures cover; empty while the release is pending. Its form
+	// is schema/json/reconstruction.schema.json. The viewer verifies the
+	// signatures against the environment's root keys before it parses it.
+	Manifest      []byte                     `protobuf:"bytes,2,opt,name=manifest,proto3" json:"manifest,omitempty"`
+	Signatures    []*ReconstructionSignature `protobuf:"bytes,3,rep,name=signatures,proto3" json:"signatures,omitempty"`
+	Bundles       []*ReconstructionBundle    `protobuf:"bytes,4,rep,name=bundles,proto3" json:"bundles,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetReconstructionResponse) Reset() {
+	*x = GetReconstructionResponse{}
+	mi := &file_plux_v1_audit_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetReconstructionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReconstructionResponse) ProtoMessage() {}
+
+func (x *GetReconstructionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_audit_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReconstructionResponse.ProtoReflect.Descriptor instead.
+func (*GetReconstructionResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_audit_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetReconstructionResponse) GetReconstruction() *Reconstruction {
+	if x != nil {
+		return x.Reconstruction
+	}
+	return nil
+}
+
+func (x *GetReconstructionResponse) GetManifest() []byte {
+	if x != nil {
+		return x.Manifest
+	}
+	return nil
+}
+
+func (x *GetReconstructionResponse) GetSignatures() []*ReconstructionSignature {
+	if x != nil {
+		return x.Signatures
+	}
+	return nil
+}
+
+func (x *GetReconstructionResponse) GetBundles() []*ReconstructionBundle {
+	if x != nil {
+		return x.Bundles
+	}
+	return nil
+}
+
+type ListReconstructionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Page          *Page                  `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListReconstructionsRequest) Reset() {
+	*x = ListReconstructionsRequest{}
+	mi := &file_plux_v1_audit_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListReconstructionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListReconstructionsRequest) ProtoMessage() {}
+
+func (x *ListReconstructionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_audit_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListReconstructionsRequest.ProtoReflect.Descriptor instead.
+func (*ListReconstructionsRequest) Descriptor() ([]byte, []int) {
+	return file_plux_v1_audit_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ListReconstructionsRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *ListReconstructionsRequest) GetPage() *Page {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type ListReconstructionsResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Reconstructions []*Reconstruction      `protobuf:"bytes,1,rep,name=reconstructions,proto3" json:"reconstructions,omitempty"`
+	Page            *PageResult            `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ListReconstructionsResponse) Reset() {
+	*x = ListReconstructionsResponse{}
+	mi := &file_plux_v1_audit_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListReconstructionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListReconstructionsResponse) ProtoMessage() {}
+
+func (x *ListReconstructionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_plux_v1_audit_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListReconstructionsResponse.ProtoReflect.Descriptor instead.
+func (*ListReconstructionsResponse) Descriptor() ([]byte, []int) {
+	return file_plux_v1_audit_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ListReconstructionsResponse) GetReconstructions() []*Reconstruction {
+	if x != nil {
+		return x.Reconstructions
+	}
+	return nil
+}
+
+func (x *ListReconstructionsResponse) GetPage() *PageResult {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
 var File_plux_v1_audit_proto protoreflect.FileDescriptor
 
 const file_plux_v1_audit_proto_rawDesc = "" +
@@ -894,13 +1511,63 @@ const file_plux_v1_audit_proto_rawDesc = "" +
 	"\vdestination\x18\x01 \x01(\v2\x1a.plux.v1.ExportDestinationR\vdestination\"0\n" +
 	"\x1eDeleteExportDestinationRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"!\n" +
-	"\x1fDeleteExportDestinationResponse2\xb2\x04\n" +
+	"\x1fDeleteExportDestinationResponse\"\xb9\x03\n" +
+	"\x0eReconstruction\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
+	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12%\n" +
+	"\x0eenvironment_id\x18\x03 \x01(\tR\renvironmentId\x12\x1b\n" +
+	"\tdevice_id\x18\x04 \x01(\tR\bdeviceId\x12\x19\n" +
+	"\buser_ref\x18\x05 \x01(\tR\auserRef\x122\n" +
+	"\x06moment\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x06moment\x12)\n" +
+	"\x10release_sequence\x18\a \x01(\x03R\x0freleaseSequence\x12\x14\n" +
+	"\x05state\x18\b \x01(\tR\x05state\x129\n" +
+	"\n" +
+	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x127\n" +
+	"\tsigned_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\bsignedAt\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\v \x01(\tR\tcreatedBy\x12\x19\n" +
+	"\bopen_uri\x18\f \x01(\tR\aopenUri\"\x8f\x01\n" +
+	"\x12ReconstructRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x1b\n" +
+	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\x12\x19\n" +
+	"\buser_ref\x18\x03 \x01(\tR\auserRef\x12*\n" +
+	"\x02at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\"V\n" +
+	"\x13ReconstructResponse\x12?\n" +
+	"\x0ereconstruction\x18\x01 \x01(\v2\x17.plux.v1.ReconstructionR\x0ereconstruction\"*\n" +
+	"\x18GetReconstructionRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"f\n" +
+	"\x14ReconstructionBundle\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x16\n" +
+	"\x06sha256\x18\x02 \x01(\tR\x06sha256\x12\x12\n" +
+	"\x04size\x18\x03 \x01(\x03R\x04size\x12\x10\n" +
+	"\x03url\x18\x04 \x01(\tR\x03url\"l\n" +
+	"\x17ReconstructionSignature\x12\x15\n" +
+	"\x06key_id\x18\x01 \x01(\tR\x05keyId\x12\x1c\n" +
+	"\talgorithm\x18\x02 \x01(\tR\talgorithm\x12\x1c\n" +
+	"\tsignature\x18\x03 \x01(\tR\tsignature\"\xf3\x01\n" +
+	"\x19GetReconstructionResponse\x12?\n" +
+	"\x0ereconstruction\x18\x01 \x01(\v2\x17.plux.v1.ReconstructionR\x0ereconstruction\x12\x1a\n" +
+	"\bmanifest\x18\x02 \x01(\fR\bmanifest\x12@\n" +
+	"\n" +
+	"signatures\x18\x03 \x03(\v2 .plux.v1.ReconstructionSignatureR\n" +
+	"signatures\x127\n" +
+	"\abundles\x18\x04 \x03(\v2\x1d.plux.v1.ReconstructionBundleR\abundles\"V\n" +
+	"\x1aListReconstructionsRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12!\n" +
+	"\x04page\x18\x02 \x01(\v2\r.plux.v1.PageR\x04page\"\x89\x01\n" +
+	"\x1bListReconstructionsResponse\x12A\n" +
+	"\x0freconstructions\x18\x01 \x03(\v2\x17.plux.v1.ReconstructionR\x0freconstructions\x12'\n" +
+	"\x04page\x18\x02 \x01(\v2\x13.plux.v1.PageResultR\x04page2\xc0\x06\n" +
 	"\fAuditService\x12n\n" +
 	"\x17CreateExportDestination\x12'.plux.v1.CreateExportDestinationRequest\x1a(.plux.v1.CreateExportDestinationResponse\"\x00\x12e\n" +
 	"\x14GetExportDestination\x12$.plux.v1.GetExportDestinationRequest\x1a%.plux.v1.GetExportDestinationResponse\"\x00\x12k\n" +
 	"\x16ListExportDestinations\x12&.plux.v1.ListExportDestinationsRequest\x1a'.plux.v1.ListExportDestinationsResponse\"\x00\x12n\n" +
 	"\x17UpdateExportDestination\x12'.plux.v1.UpdateExportDestinationRequest\x1a(.plux.v1.UpdateExportDestinationResponse\"\x00\x12n\n" +
-	"\x17DeleteExportDestination\x12'.plux.v1.DeleteExportDestinationRequest\x1a(.plux.v1.DeleteExportDestinationResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
+	"\x17DeleteExportDestination\x12'.plux.v1.DeleteExportDestinationRequest\x1a(.plux.v1.DeleteExportDestinationResponse\"\x00\x12J\n" +
+	"\vReconstruct\x12\x1b.plux.v1.ReconstructRequest\x1a\x1c.plux.v1.ReconstructResponse\"\x00\x12\\\n" +
+	"\x11GetReconstruction\x12!.plux.v1.GetReconstructionRequest\x1a\".plux.v1.GetReconstructionResponse\"\x00\x12b\n" +
+	"\x13ListReconstructions\x12#.plux.v1.ListReconstructionsRequest\x1a$.plux.v1.ListReconstructionsResponse\"\x00B=Z;github.com/nightCode42/plux3/backend/internal/pluxv1;pluxv1b\x06proto3"
 
 var (
 	file_plux_v1_audit_proto_rawDescOnce sync.Once
@@ -914,7 +1581,7 @@ func file_plux_v1_audit_proto_rawDescGZIP() []byte {
 	return file_plux_v1_audit_proto_rawDescData
 }
 
-var file_plux_v1_audit_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_plux_v1_audit_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_plux_v1_audit_proto_goTypes = []any{
 	(*ExportDestination)(nil),               // 0: plux.v1.ExportDestination
 	(*CreateExportDestinationRequest)(nil),  // 1: plux.v1.CreateExportDestinationRequest
@@ -927,37 +1594,63 @@ var file_plux_v1_audit_proto_goTypes = []any{
 	(*UpdateExportDestinationResponse)(nil), // 8: plux.v1.UpdateExportDestinationResponse
 	(*DeleteExportDestinationRequest)(nil),  // 9: plux.v1.DeleteExportDestinationRequest
 	(*DeleteExportDestinationResponse)(nil), // 10: plux.v1.DeleteExportDestinationResponse
-	(*timestamppb.Timestamp)(nil),           // 11: google.protobuf.Timestamp
-	(*Page)(nil),                            // 12: plux.v1.Page
-	(*PageResult)(nil),                      // 13: plux.v1.PageResult
+	(*Reconstruction)(nil),                  // 11: plux.v1.Reconstruction
+	(*ReconstructRequest)(nil),              // 12: plux.v1.ReconstructRequest
+	(*ReconstructResponse)(nil),             // 13: plux.v1.ReconstructResponse
+	(*GetReconstructionRequest)(nil),        // 14: plux.v1.GetReconstructionRequest
+	(*ReconstructionBundle)(nil),            // 15: plux.v1.ReconstructionBundle
+	(*ReconstructionSignature)(nil),         // 16: plux.v1.ReconstructionSignature
+	(*GetReconstructionResponse)(nil),       // 17: plux.v1.GetReconstructionResponse
+	(*ListReconstructionsRequest)(nil),      // 18: plux.v1.ListReconstructionsRequest
+	(*ListReconstructionsResponse)(nil),     // 19: plux.v1.ListReconstructionsResponse
+	(*timestamppb.Timestamp)(nil),           // 20: google.protobuf.Timestamp
+	(*Page)(nil),                            // 21: plux.v1.Page
+	(*PageResult)(nil),                      // 22: plux.v1.PageResult
 }
 var file_plux_v1_audit_proto_depIdxs = []int32{
-	11, // 0: plux.v1.ExportDestination.last_error_at:type_name -> google.protobuf.Timestamp
-	11, // 1: plux.v1.ExportDestination.last_success_at:type_name -> google.protobuf.Timestamp
-	11, // 2: plux.v1.ExportDestination.next_attempt_at:type_name -> google.protobuf.Timestamp
-	11, // 3: plux.v1.ExportDestination.created_at:type_name -> google.protobuf.Timestamp
-	11, // 4: plux.v1.ExportDestination.updated_at:type_name -> google.protobuf.Timestamp
+	20, // 0: plux.v1.ExportDestination.last_error_at:type_name -> google.protobuf.Timestamp
+	20, // 1: plux.v1.ExportDestination.last_success_at:type_name -> google.protobuf.Timestamp
+	20, // 2: plux.v1.ExportDestination.next_attempt_at:type_name -> google.protobuf.Timestamp
+	20, // 3: plux.v1.ExportDestination.created_at:type_name -> google.protobuf.Timestamp
+	20, // 4: plux.v1.ExportDestination.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 5: plux.v1.CreateExportDestinationResponse.destination:type_name -> plux.v1.ExportDestination
 	0,  // 6: plux.v1.GetExportDestinationResponse.destination:type_name -> plux.v1.ExportDestination
-	12, // 7: plux.v1.ListExportDestinationsRequest.page:type_name -> plux.v1.Page
+	21, // 7: plux.v1.ListExportDestinationsRequest.page:type_name -> plux.v1.Page
 	0,  // 8: plux.v1.ListExportDestinationsResponse.destinations:type_name -> plux.v1.ExportDestination
-	13, // 9: plux.v1.ListExportDestinationsResponse.page:type_name -> plux.v1.PageResult
+	22, // 9: plux.v1.ListExportDestinationsResponse.page:type_name -> plux.v1.PageResult
 	0,  // 10: plux.v1.UpdateExportDestinationResponse.destination:type_name -> plux.v1.ExportDestination
-	1,  // 11: plux.v1.AuditService.CreateExportDestination:input_type -> plux.v1.CreateExportDestinationRequest
-	3,  // 12: plux.v1.AuditService.GetExportDestination:input_type -> plux.v1.GetExportDestinationRequest
-	5,  // 13: plux.v1.AuditService.ListExportDestinations:input_type -> plux.v1.ListExportDestinationsRequest
-	7,  // 14: plux.v1.AuditService.UpdateExportDestination:input_type -> plux.v1.UpdateExportDestinationRequest
-	9,  // 15: plux.v1.AuditService.DeleteExportDestination:input_type -> plux.v1.DeleteExportDestinationRequest
-	2,  // 16: plux.v1.AuditService.CreateExportDestination:output_type -> plux.v1.CreateExportDestinationResponse
-	4,  // 17: plux.v1.AuditService.GetExportDestination:output_type -> plux.v1.GetExportDestinationResponse
-	6,  // 18: plux.v1.AuditService.ListExportDestinations:output_type -> plux.v1.ListExportDestinationsResponse
-	8,  // 19: plux.v1.AuditService.UpdateExportDestination:output_type -> plux.v1.UpdateExportDestinationResponse
-	10, // 20: plux.v1.AuditService.DeleteExportDestination:output_type -> plux.v1.DeleteExportDestinationResponse
-	16, // [16:21] is the sub-list for method output_type
-	11, // [11:16] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	20, // 11: plux.v1.Reconstruction.moment:type_name -> google.protobuf.Timestamp
+	20, // 12: plux.v1.Reconstruction.created_at:type_name -> google.protobuf.Timestamp
+	20, // 13: plux.v1.Reconstruction.signed_at:type_name -> google.protobuf.Timestamp
+	20, // 14: plux.v1.ReconstructRequest.at:type_name -> google.protobuf.Timestamp
+	11, // 15: plux.v1.ReconstructResponse.reconstruction:type_name -> plux.v1.Reconstruction
+	11, // 16: plux.v1.GetReconstructionResponse.reconstruction:type_name -> plux.v1.Reconstruction
+	16, // 17: plux.v1.GetReconstructionResponse.signatures:type_name -> plux.v1.ReconstructionSignature
+	15, // 18: plux.v1.GetReconstructionResponse.bundles:type_name -> plux.v1.ReconstructionBundle
+	21, // 19: plux.v1.ListReconstructionsRequest.page:type_name -> plux.v1.Page
+	11, // 20: plux.v1.ListReconstructionsResponse.reconstructions:type_name -> plux.v1.Reconstruction
+	22, // 21: plux.v1.ListReconstructionsResponse.page:type_name -> plux.v1.PageResult
+	1,  // 22: plux.v1.AuditService.CreateExportDestination:input_type -> plux.v1.CreateExportDestinationRequest
+	3,  // 23: plux.v1.AuditService.GetExportDestination:input_type -> plux.v1.GetExportDestinationRequest
+	5,  // 24: plux.v1.AuditService.ListExportDestinations:input_type -> plux.v1.ListExportDestinationsRequest
+	7,  // 25: plux.v1.AuditService.UpdateExportDestination:input_type -> plux.v1.UpdateExportDestinationRequest
+	9,  // 26: plux.v1.AuditService.DeleteExportDestination:input_type -> plux.v1.DeleteExportDestinationRequest
+	12, // 27: plux.v1.AuditService.Reconstruct:input_type -> plux.v1.ReconstructRequest
+	14, // 28: plux.v1.AuditService.GetReconstruction:input_type -> plux.v1.GetReconstructionRequest
+	18, // 29: plux.v1.AuditService.ListReconstructions:input_type -> plux.v1.ListReconstructionsRequest
+	2,  // 30: plux.v1.AuditService.CreateExportDestination:output_type -> plux.v1.CreateExportDestinationResponse
+	4,  // 31: plux.v1.AuditService.GetExportDestination:output_type -> plux.v1.GetExportDestinationResponse
+	6,  // 32: plux.v1.AuditService.ListExportDestinations:output_type -> plux.v1.ListExportDestinationsResponse
+	8,  // 33: plux.v1.AuditService.UpdateExportDestination:output_type -> plux.v1.UpdateExportDestinationResponse
+	10, // 34: plux.v1.AuditService.DeleteExportDestination:output_type -> plux.v1.DeleteExportDestinationResponse
+	13, // 35: plux.v1.AuditService.Reconstruct:output_type -> plux.v1.ReconstructResponse
+	17, // 36: plux.v1.AuditService.GetReconstruction:output_type -> plux.v1.GetReconstructionResponse
+	19, // 37: plux.v1.AuditService.ListReconstructions:output_type -> plux.v1.ListReconstructionsResponse
+	30, // [30:38] is the sub-list for method output_type
+	22, // [22:30] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_plux_v1_audit_proto_init() }
@@ -972,7 +1665,7 @@ func file_plux_v1_audit_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plux_v1_audit_proto_rawDesc), len(file_plux_v1_audit_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

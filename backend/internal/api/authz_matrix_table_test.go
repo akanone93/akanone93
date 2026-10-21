@@ -524,6 +524,14 @@ var matrix = map[string]entry{
 	"RolloutService/PauseRollout":  atPerm(auth.RolloutManage, anyone(&pluxv1.PauseRolloutRequest{Id: unknownID})),
 	"RolloutService/ResumeRollout": atPerm(auth.RolloutManage, anyone(&pluxv1.ResumeRolloutRequest{Id: unknownID})),
 	"RolloutService/AbortRollout":  atPerm(auth.RolloutManage, anyone(&pluxv1.AbortRolloutRequest{Id: unknownID})),
+
+	"AuditService/Reconstruct": atPerm(auth.ReconstructionView, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ReconstructRequest{AppId: f.app, DeviceId: unknownID, At: timestamppb.Now()}
+	})),
+	"AuditService/GetReconstruction": atPerm(auth.ReconstructionView, anyone(&pluxv1.GetReconstructionRequest{Id: unknownID})),
+	"AuditService/ListReconstructions": atPerm(auth.ReconstructionView, fixed(func(f *matrixFixture) proto.Message {
+		return &pluxv1.ListReconstructionsRequest{AppId: f.app}
+	})),
 	"DataSubjectService/ExportSubject": atPerm(auth.DSRManage, anyone(&pluxv1.ExportSubjectRequest{
 		Kind: pluxv1.SubjectKind_SUBJECT_KIND_DEVICE, SubjectId: unknownID,
 	})),

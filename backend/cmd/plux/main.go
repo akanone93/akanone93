@@ -52,6 +52,7 @@ Commands:
   webhooks    outbound webhooks (Standard Webhooks)
   rollout     create | show | pause | resume | abort | list staged rollouts with health gates
   dsr         export | erase | status of data subject requests; map of where personal data is stored
+  audit       reconstruct what a user saw (a signed, read-only reconstruction release); list reconstructions
   search      full-text search over the apps, plugins, pages, components, templates, translation keys and functions
   git         export | import an app's source through a Git repository
   analytics   query rollups; show and change retention; set the OTLP export
@@ -119,7 +120,7 @@ func (e env) commands() map[string]func([]string) int {
 	return map[string]func([]string) int{
 		"login": e.login, "logout": e.logout, "whoami": e.whoami, "init": e.initProject, "doctor": e.doctor,
 		"diff": e.diff, "publish": e.publish, "pull": e.pull, "release": e.release, "export": e.export,
-		"import": e.importCmd, "mock": e.mockCmd, "keys": e.keys, "native": e.native, "security": e.security, "config": e.config, "create": e.create, "completion": e.completion, "fn": e.fn, "l10n": e.l10n, "golden": e.golden, "license": e.license, "admin": e.admin, "roles": e.roles, "grants": e.grants, "teams": e.teams, "sessions": e.sessions, "tokens": e.tokens, "notifications": e.notifications, "webhooks": e.webhooks, "dsr": e.dsr, "rollout": e.rollout,
+		"import": e.importCmd, "mock": e.mockCmd, "keys": e.keys, "native": e.native, "security": e.security, "config": e.config, "create": e.create, "completion": e.completion, "fn": e.fn, "l10n": e.l10n, "golden": e.golden, "license": e.license, "admin": e.admin, "roles": e.roles, "grants": e.grants, "teams": e.teams, "sessions": e.sessions, "tokens": e.tokens, "notifications": e.notifications, "webhooks": e.webhooks, "dsr": e.dsr, "rollout": e.rollout, "audit": e.audit,
 		"search": e.search, "git": e.git, "analytics": e.analytics, "control": e.control,
 	}
 }

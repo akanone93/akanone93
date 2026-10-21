@@ -366,6 +366,23 @@ type DeviceBundle struct {
 	BundleSha256   []byte
 }
 
+type DeviceInstall struct {
+	ID               pgtype.UUID
+	OrganizationID   pgtype.UUID
+	AppID            pgtype.UUID
+	EnvironmentID    pgtype.UUID
+	DeviceID         pgtype.UUID
+	ChannelKey       string
+	ReleaseSequence  int64
+	Bundles          []byte
+	DeviceClass      string
+	Locale           string
+	Theme            *string
+	TextScalePercent *int32
+	UserRef          *string
+	ReportedAt       pgtype.Timestamptz
+}
+
 type DevicePushToken struct {
 	DeviceID       pgtype.UUID
 	OrganizationID pgtype.UUID
@@ -1072,6 +1089,26 @@ type PublishJob struct {
 	ActorDisplay        string
 	CreatedAt           pgtype.Timestamptz
 	FinishedAt          pgtype.Timestamptz
+}
+
+type Reconstruction struct {
+	ID              pgtype.UUID
+	OrganizationID  pgtype.UUID
+	AppID           pgtype.UUID
+	EnvironmentID   pgtype.UUID
+	ChannelID       pgtype.UUID
+	DeviceID        pgtype.UUID
+	SubjectKind     string
+	Moment          pgtype.Timestamptz
+	ReleaseSequence int64
+	Manifest        []byte
+	Signed          []byte
+	Signatures      []byte
+	SignedAt        pgtype.Timestamptz
+	CreatedByKind   string
+	CreatedByID     string
+	CreatedBy       string
+	CreatedAt       pgtype.Timestamptz
 }
 
 type Release struct {

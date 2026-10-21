@@ -51,6 +51,15 @@ const (
 	// AuditServiceDeleteExportDestinationProcedure is the fully-qualified name of the AuditService's
 	// DeleteExportDestination RPC.
 	AuditServiceDeleteExportDestinationProcedure = "/plux.v1.AuditService/DeleteExportDestination"
+	// AuditServiceReconstructProcedure is the fully-qualified name of the AuditService's Reconstruct
+	// RPC.
+	AuditServiceReconstructProcedure = "/plux.v1.AuditService/Reconstruct"
+	// AuditServiceGetReconstructionProcedure is the fully-qualified name of the AuditService's
+	// GetReconstruction RPC.
+	AuditServiceGetReconstructionProcedure = "/plux.v1.AuditService/GetReconstruction"
+	// AuditServiceListReconstructionsProcedure is the fully-qualified name of the AuditService's
+	// ListReconstructions RPC.
+	AuditServiceListReconstructionsProcedure = "/plux.v1.AuditService/ListReconstructions"
 )
 
 // AuditServiceClient is a client for the plux.v1.AuditService service.
@@ -68,6 +77,18 @@ type AuditServiceClient interface {
 	// Its cursor is kept.
 	UpdateExportDestination(context.Context, *connect.Request[pluxv1.UpdateExportDestinationRequest]) (*connect.Response[pluxv1.UpdateExportDestinationResponse], error)
 	DeleteExportDestination(context.Context, *connect.Request[pluxv1.DeleteExportDestinationRequest]) (*connect.Response[pluxv1.DeleteExportDestinationResponse], error)
+	// Reconstruct resolves what a device, or the device a pseudonymous user was
+	// last on, was running at a moment and packages it as a signed, read-only
+	// reconstruction release on the environment's audit channel (SEC-142). The
+	// moment must lie within reconstruction.retentionDays and the bundles must
+	// still be retained (PLX-8502 otherwise). Creating one is audited. The
+	// release is signed by the worker, so it is pending for a moment.
+	Reconstruct(context.Context, *connect.Request[pluxv1.ReconstructRequest]) (*connect.Response[pluxv1.ReconstructResponse], error)
+	// GetReconstruction returns a reconstruction release: its signed manifest,
+	// signatures and where to download its bundles. Every call is audited.
+	GetReconstruction(context.Context, *connect.Request[pluxv1.GetReconstructionRequest]) (*connect.Response[pluxv1.GetReconstructionResponse], error)
+	// ListReconstructions lists an app's reconstruction releases, newest first.
+	ListReconstructions(context.Context, *connect.Request[pluxv1.ListReconstructionsRequest]) (*connect.Response[pluxv1.ListReconstructionsResponse], error)
 }
 
 // NewAuditServiceClient constructs a client for the plux.v1.AuditService service. By default, it
@@ -111,6 +132,24 @@ func NewAuditServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(auditServiceMethods.ByName("DeleteExportDestination")),
 			connect.WithClientOptions(opts...),
 		),
+		reconstruct: connect.NewClient[pluxv1.ReconstructRequest, pluxv1.ReconstructResponse](
+			httpClient,
+			baseURL+AuditServiceReconstructProcedure,
+			connect.WithSchema(auditServiceMethods.ByName("Reconstruct")),
+			connect.WithClientOptions(opts...),
+		),
+		getReconstruction: connect.NewClient[pluxv1.GetReconstructionRequest, pluxv1.GetReconstructionResponse](
+			httpClient,
+			baseURL+AuditServiceGetReconstructionProcedure,
+			connect.WithSchema(auditServiceMethods.ByName("GetReconstruction")),
+			connect.WithClientOptions(opts...),
+		),
+		listReconstructions: connect.NewClient[pluxv1.ListReconstructionsRequest, pluxv1.ListReconstructionsResponse](
+			httpClient,
+			baseURL+AuditServiceListReconstructionsProcedure,
+			connect.WithSchema(auditServiceMethods.ByName("ListReconstructions")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -121,6 +160,9 @@ type auditServiceClient struct {
 	listExportDestinations  *connect.Client[pluxv1.ListExportDestinationsRequest, pluxv1.ListExportDestinationsResponse]
 	updateExportDestination *connect.Client[pluxv1.UpdateExportDestinationRequest, pluxv1.UpdateExportDestinationResponse]
 	deleteExportDestination *connect.Client[pluxv1.DeleteExportDestinationRequest, pluxv1.DeleteExportDestinationResponse]
+	reconstruct             *connect.Client[pluxv1.ReconstructRequest, pluxv1.ReconstructResponse]
+	getReconstruction       *connect.Client[pluxv1.GetReconstructionRequest, pluxv1.GetReconstructionResponse]
+	listReconstructions     *connect.Client[pluxv1.ListReconstructionsRequest, pluxv1.ListReconstructionsResponse]
 }
 
 // CreateExportDestination calls plux.v1.AuditService.CreateExportDestination.
@@ -148,6 +190,21 @@ func (c *auditServiceClient) DeleteExportDestination(ctx context.Context, req *c
 	return c.deleteExportDestination.CallUnary(ctx, req)
 }
 
+// Reconstruct calls plux.v1.AuditService.Reconstruct.
+func (c *auditServiceClient) Reconstruct(ctx context.Context, req *connect.Request[pluxv1.ReconstructRequest]) (*connect.Response[pluxv1.ReconstructResponse], error) {
+	return c.reconstruct.CallUnary(ctx, req)
+}
+
+// GetReconstruction calls plux.v1.AuditService.GetReconstruction.
+func (c *auditServiceClient) GetReconstruction(ctx context.Context, req *connect.Request[pluxv1.GetReconstructionRequest]) (*connect.Response[pluxv1.GetReconstructionResponse], error) {
+	return c.getReconstruction.CallUnary(ctx, req)
+}
+
+// ListReconstructions calls plux.v1.AuditService.ListReconstructions.
+func (c *auditServiceClient) ListReconstructions(ctx context.Context, req *connect.Request[pluxv1.ListReconstructionsRequest]) (*connect.Response[pluxv1.ListReconstructionsResponse], error) {
+	return c.listReconstructions.CallUnary(ctx, req)
+}
+
 // AuditServiceHandler is an implementation of the plux.v1.AuditService service.
 type AuditServiceHandler interface {
 	// CreateExportDestination registers a SIEM destination. The organisation's
@@ -163,6 +220,18 @@ type AuditServiceHandler interface {
 	// Its cursor is kept.
 	UpdateExportDestination(context.Context, *connect.Request[pluxv1.UpdateExportDestinationRequest]) (*connect.Response[pluxv1.UpdateExportDestinationResponse], error)
 	DeleteExportDestination(context.Context, *connect.Request[pluxv1.DeleteExportDestinationRequest]) (*connect.Response[pluxv1.DeleteExportDestinationResponse], error)
+	// Reconstruct resolves what a device, or the device a pseudonymous user was
+	// last on, was running at a moment and packages it as a signed, read-only
+	// reconstruction release on the environment's audit channel (SEC-142). The
+	// moment must lie within reconstruction.retentionDays and the bundles must
+	// still be retained (PLX-8502 otherwise). Creating one is audited. The
+	// release is signed by the worker, so it is pending for a moment.
+	Reconstruct(context.Context, *connect.Request[pluxv1.ReconstructRequest]) (*connect.Response[pluxv1.ReconstructResponse], error)
+	// GetReconstruction returns a reconstruction release: its signed manifest,
+	// signatures and where to download its bundles. Every call is audited.
+	GetReconstruction(context.Context, *connect.Request[pluxv1.GetReconstructionRequest]) (*connect.Response[pluxv1.GetReconstructionResponse], error)
+	// ListReconstructions lists an app's reconstruction releases, newest first.
+	ListReconstructions(context.Context, *connect.Request[pluxv1.ListReconstructionsRequest]) (*connect.Response[pluxv1.ListReconstructionsResponse], error)
 }
 
 // NewAuditServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -202,6 +271,24 @@ func NewAuditServiceHandler(svc AuditServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(auditServiceMethods.ByName("DeleteExportDestination")),
 		connect.WithHandlerOptions(opts...),
 	)
+	auditServiceReconstructHandler := connect.NewUnaryHandler(
+		AuditServiceReconstructProcedure,
+		svc.Reconstruct,
+		connect.WithSchema(auditServiceMethods.ByName("Reconstruct")),
+		connect.WithHandlerOptions(opts...),
+	)
+	auditServiceGetReconstructionHandler := connect.NewUnaryHandler(
+		AuditServiceGetReconstructionProcedure,
+		svc.GetReconstruction,
+		connect.WithSchema(auditServiceMethods.ByName("GetReconstruction")),
+		connect.WithHandlerOptions(opts...),
+	)
+	auditServiceListReconstructionsHandler := connect.NewUnaryHandler(
+		AuditServiceListReconstructionsProcedure,
+		svc.ListReconstructions,
+		connect.WithSchema(auditServiceMethods.ByName("ListReconstructions")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/plux.v1.AuditService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AuditServiceCreateExportDestinationProcedure:
@@ -214,6 +301,12 @@ func NewAuditServiceHandler(svc AuditServiceHandler, opts ...connect.HandlerOpti
 			auditServiceUpdateExportDestinationHandler.ServeHTTP(w, r)
 		case AuditServiceDeleteExportDestinationProcedure:
 			auditServiceDeleteExportDestinationHandler.ServeHTTP(w, r)
+		case AuditServiceReconstructProcedure:
+			auditServiceReconstructHandler.ServeHTTP(w, r)
+		case AuditServiceGetReconstructionProcedure:
+			auditServiceGetReconstructionHandler.ServeHTTP(w, r)
+		case AuditServiceListReconstructionsProcedure:
+			auditServiceListReconstructionsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -241,4 +334,16 @@ func (UnimplementedAuditServiceHandler) UpdateExportDestination(context.Context,
 
 func (UnimplementedAuditServiceHandler) DeleteExportDestination(context.Context, *connect.Request[pluxv1.DeleteExportDestinationRequest]) (*connect.Response[pluxv1.DeleteExportDestinationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AuditService.DeleteExportDestination is not implemented"))
+}
+
+func (UnimplementedAuditServiceHandler) Reconstruct(context.Context, *connect.Request[pluxv1.ReconstructRequest]) (*connect.Response[pluxv1.ReconstructResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AuditService.Reconstruct is not implemented"))
+}
+
+func (UnimplementedAuditServiceHandler) GetReconstruction(context.Context, *connect.Request[pluxv1.GetReconstructionRequest]) (*connect.Response[pluxv1.GetReconstructionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AuditService.GetReconstruction is not implemented"))
+}
+
+func (UnimplementedAuditServiceHandler) ListReconstructions(context.Context, *connect.Request[pluxv1.ListReconstructionsRequest]) (*connect.Response[pluxv1.ListReconstructionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("plux.v1.AuditService.ListReconstructions is not implemented"))
 }

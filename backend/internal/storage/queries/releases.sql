@@ -116,9 +116,12 @@ UPDATE channels SET release_sequence = $2, updated_at = now() WHERE id = $1 RETU
 -- name: ListPurgeableReleases :many
 -- Development releases past their retention: never promoted to a
 -- production environment, current on no channel, and not the app's
--- newest (REL-007).
+-- newest (REL-007), and held by no reconstruction an auditor may still
+-- open (SEC-142; reconstructions expire on their own retention).
 SELECT r.* FROM releases r
  WHERE NOT r.production
+   AND NOT EXISTS (
+       SELECT 1 FROM reconstructions x WHERE x.app_id = r.app_id AND x.release_sequence = r.sequence)
    AND r.created_at < sqlc.arg(before)::timestamptz
    AND r.sequence < (SELECT MAX(sequence) FROM releases n WHERE n.app_id = r.app_id)
    AND NOT EXISTS (

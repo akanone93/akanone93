@@ -257,21 +257,11 @@ func (s *Service) signRelease(ctx context.Context, q *dbgen.Queries, channel dbg
 	if err != nil {
 		return pgtype.UUID{}, fmt.Errorf("release: %w", err)
 	}
-	sig, keyID, err := s.o.Signer.Sign(ctx, env.SigningKeyRef, signed)
+	sigs, err := s.SignDocument(ctx, q, env, signed)
 	if err != nil {
-		return pgtype.UUID{}, fmt.Errorf("release: sign the manifest: %w", err)
+		return pgtype.UUID{}, err
 	}
-	pub, _, err := s.o.Signer.PublicKey(ctx, env.SigningKeyRef)
-	if err != nil {
-		return pgtype.UUID{}, fmt.Errorf("release: %w", err)
-	}
-	if err := q.UpsertEnvironmentKey(ctx, dbgen.UpsertEnvironmentKeyParams{
-		EnvironmentID: env.ID, OrganizationID: env.OrganizationID, KeyID: keyID, Algorithm: signing.Algorithm, PublicKey: pub,
-		Role: updatemeta.RoleTargets, EnvironmentType: environmentType(env),
-	}); err != nil {
-		return pgtype.UUID{}, failure(err, "environment key")
-	}
-	sigs, err := json.Marshal([]ManifestSignature{{KeyID: keyID, Algorithm: signing.Algorithm, Signature: base64.StdEncoding.EncodeToString(sig)}})
+	sigsJSON, err := json.Marshal(sigs)
 	if err != nil {
 		return pgtype.UUID{}, fmt.Errorf("release: %w", err)
 	}
@@ -285,19 +275,19 @@ func (s *Service) signRelease(ctx context.Context, q *dbgen.Queries, channel dbg
 	case rollout.Valid:
 		_, err = q.InsertRolloutManifest(ctx, dbgen.InsertRolloutManifestParams{
 			ID: storage.MustUUID(id), OrganizationID: channel.OrganizationID, ChannelID: channel.ID,
-			ReleaseSequence: rel.Sequence, Signed: signed, Signatures: sigs,
+			ReleaseSequence: rel.Sequence, Signed: signed, Signatures: sigsJSON,
 			IssuedAt: storage.Timestamp(issued), ExpiresAt: storage.Timestamp(expires), RolloutID: rollout,
 		})
 	case build == "":
 		_, err = q.InsertManifest(ctx, dbgen.InsertManifestParams{
 			ID: storage.MustUUID(id), OrganizationID: channel.OrganizationID, ChannelID: channel.ID,
-			ReleaseSequence: rel.Sequence, Signed: signed, Signatures: sigs,
+			ReleaseSequence: rel.Sequence, Signed: signed, Signatures: sigsJSON,
 			IssuedAt: storage.Timestamp(issued), ExpiresAt: storage.Timestamp(expires),
 		})
 	default:
 		_, err = q.InsertBuildManifest(ctx, dbgen.InsertBuildManifestParams{
 			ID: storage.MustUUID(id), OrganizationID: channel.OrganizationID, ChannelID: channel.ID,
-			ReleaseSequence: rel.Sequence, Signed: signed, Signatures: sigs,
+			ReleaseSequence: rel.Sequence, Signed: signed, Signatures: sigsJSON,
 			IssuedAt: storage.Timestamp(issued), ExpiresAt: storage.Timestamp(expires),
 			HostBuild: build, OwnManifestID: own,
 		})
@@ -306,6 +296,36 @@ func (s *Service) signRelease(ctx context.Context, q *dbgen.Queries, channel dbg
 		return pgtype.UUID{}, failure(err, "manifest")
 	}
 	return storage.MustUUID(id), nil
+}
+
+// SignDocument signs a canonical JSON document with the environment's
+// manifest key, the key its manifests are signed with, and records the
+// key's public half for GetRootKeys (SEC-051). A production environment
+// refuses a backend that keeps keys on disk (SEC-056). Only a role given a
+// signer can call it. It is how a reconstruction release is signed through
+// the normal manifest path (SEC-142).
+func (s *Service) SignDocument(ctx context.Context, q *dbgen.Queries, env dbgen.Environment, canonical []byte) ([]ManifestSignature, error) {
+	if s.o.Signer == nil {
+		return nil, errors.New("release: this role cannot sign")
+	}
+	if env.Production && !s.o.ProductionSigning {
+		return nil, plxerr.New(plxerr.PermissionDenied, "the signing backend keeps keys on disk and cannot sign for production environment %s (SEC-056)", env.Key)
+	}
+	sig, keyID, err := s.o.Signer.Sign(ctx, env.SigningKeyRef, canonical)
+	if err != nil {
+		return nil, fmt.Errorf("release: sign the manifest: %w", err)
+	}
+	pub, _, err := s.o.Signer.PublicKey(ctx, env.SigningKeyRef)
+	if err != nil {
+		return nil, fmt.Errorf("release: %w", err)
+	}
+	if err := q.UpsertEnvironmentKey(ctx, dbgen.UpsertEnvironmentKeyParams{
+		EnvironmentID: env.ID, OrganizationID: env.OrganizationID, KeyID: keyID, Algorithm: signing.Algorithm, PublicKey: pub,
+		Role: updatemeta.RoleTargets, EnvironmentType: environmentType(env),
+	}); err != nil {
+		return nil, failure(err, "environment key")
+	}
+	return []ManifestSignature{{KeyID: keyID, Algorithm: signing.Algorithm, Signature: base64.StdEncoding.EncodeToString(sig)}}, nil
 }
 
 // manifestDocument builds the signed part for a release on a channel.

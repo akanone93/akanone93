@@ -841,6 +841,8 @@ func (q *Queries) ListPublishJobs(ctx context.Context, arg ListPublishJobsParams
 const listPurgeableReleases = `-- name: ListPurgeableReleases :many
 SELECT r.id, r.organization_id, r.app_id, r.environment_id, r.sequence, r.app_version_id, r.rollback_of, r.notes, r.min_runtime, r.required_features, r.size, r.production, r.created_by_kind, r.created_by_id, r.created_by, r.created_at, r.native_uses, r.confidential FROM releases r
  WHERE NOT r.production
+   AND NOT EXISTS (
+       SELECT 1 FROM reconstructions x WHERE x.app_id = r.app_id AND x.release_sequence = r.sequence)
    AND r.created_at < $1::timestamptz
    AND r.sequence < (SELECT MAX(sequence) FROM releases n WHERE n.app_id = r.app_id)
    AND NOT EXISTS (
@@ -856,7 +858,8 @@ type ListPurgeableReleasesParams struct {
 
 // Development releases past their retention: never promoted to a
 // production environment, current on no channel, and not the app's
-// newest (REL-007).
+// newest (REL-007), and held by no reconstruction an auditor may still
+// open (SEC-142; reconstructions expire on their own retention).
 func (q *Queries) ListPurgeableReleases(ctx context.Context, arg ListPurgeableReleasesParams) ([]Release, error) {
 	rows, err := q.db.Query(ctx, listPurgeableReleases, arg.Before, arg.PageSize)
 	if err != nil {

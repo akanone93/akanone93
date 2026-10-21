@@ -272,6 +272,16 @@ message ListDevicesResponse {
 message ReportInstalledRequest {
   string device_id = 1;
   int64 release_sequence = 2;
+  // theme is the theme in use, such as "dark"; empty when not reported. It,
+  // text_scale_percent and user_ref are kept in the device's history so that
+  // a reconstruction can show the page as the user saw it (SEC-142).
+  string theme = 3;
+  // text_scale_percent is the text scale in percent, 100 for the default;
+  // zero when not reported.
+  int32 text_scale_percent = 4;
+  // user_ref is the host's pseudonymous user identifier (HST-011); empty when
+  // the host set none.
+  string user_ref = 5;
 }
 message ReportInstalledResponse {}
 

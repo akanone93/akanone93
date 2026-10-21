@@ -197,7 +197,10 @@ func (s Device) ReportInstalled(ctx context.Context, req *connect.Request[pluxv1
 	if id := req.Msg.GetDeviceId(); id != "" && id != d.DeviceID {
 		return nil, plxerr.New(plxerr.PermissionDenied, "a device reports only for itself")
 	}
-	if err := s.h.Devices.ReportInstalled(ctx, d, req.Msg.GetReleaseSequence(), nil); err != nil {
+	if err := s.h.Devices.Report(ctx, d, device.Report{
+		Sequence: req.Msg.GetReleaseSequence(), Theme: req.Msg.GetTheme(),
+		TextScalePercent: req.Msg.GetTextScalePercent(), UserRef: req.Msg.GetUserRef(),
+	}); err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
 	}
 	return connect.NewResponse(&pluxv1.ReportInstalledResponse{}), nil
@@ -378,7 +381,7 @@ func (s Manifest) GetManifest(ctx context.Context, req *connect.Request[pluxv1.G
 	if served.NotModified || served.InstalledRequired {
 		return res, nil
 	}
-	if err := s.h.Devices.ReportInstalled(ctx, d, m.GetInstalledSequence(), bundles); err != nil {
+	if err := s.h.Devices.Report(ctx, d, device.Report{Sequence: m.GetInstalledSequence(), Bundles: bundles, Channel: m.GetChannel()}); err != nil {
 		return nil, err //nolint:wrapcheck // a domain error
 	}
 	res.Msg.Manifest = manifestProto(d, served)

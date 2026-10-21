@@ -80,6 +80,23 @@ func (q *Queries) DsrEraseDeviceBundles(ctx context.Context, arg DsrEraseDeviceB
 	return result.RowsAffected(), nil
 }
 
+const dsrEraseDeviceInstalls = `-- name: DsrEraseDeviceInstalls :execrows
+DELETE FROM device_installs WHERE organization_id = $1 AND device_id = $2
+`
+
+type DsrEraseDeviceInstallsParams struct {
+	OrganizationID pgtype.UUID
+	DeviceID       pgtype.UUID
+}
+
+func (q *Queries) DsrEraseDeviceInstalls(ctx context.Context, arg DsrEraseDeviceInstallsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, dsrEraseDeviceInstalls, arg.OrganizationID, arg.DeviceID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const dsrEraseDeviceTokens = `-- name: DsrEraseDeviceTokens :execrows
 DELETE FROM device_tokens WHERE organization_id = $1 AND device_id = $2
 `
@@ -159,6 +176,23 @@ type DsrErasePushTokensParams struct {
 
 func (q *Queries) DsrErasePushTokens(ctx context.Context, arg DsrErasePushTokensParams) (int64, error) {
 	result, err := q.db.Exec(ctx, dsrErasePushTokens, arg.OrganizationID, arg.DeviceID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const dsrEraseReconstructions = `-- name: DsrEraseReconstructions :execrows
+DELETE FROM reconstructions WHERE organization_id = $1 AND device_id = $2
+`
+
+type DsrEraseReconstructionsParams struct {
+	OrganizationID pgtype.UUID
+	DeviceID       pgtype.UUID
+}
+
+func (q *Queries) DsrEraseReconstructions(ctx context.Context, arg DsrEraseReconstructionsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, dsrEraseReconstructions, arg.OrganizationID, arg.DeviceID)
 	if err != nil {
 		return 0, err
 	}
@@ -301,6 +335,42 @@ type DsrExportDeviceBundlesParams struct {
 
 func (q *Queries) DsrExportDeviceBundles(ctx context.Context, arg DsrExportDeviceBundlesParams) ([][]byte, error) {
 	rows, err := q.db.Query(ctx, dsrExportDeviceBundles, arg.OrganizationID, arg.DeviceID, arg.RowLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := [][]byte{}
+	for rows.Next() {
+		var document []byte
+		if err := rows.Scan(&document); err != nil {
+			return nil, err
+		}
+		items = append(items, document)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const dsrExportDeviceInstalls = `-- name: DsrExportDeviceInstalls :many
+SELECT jsonb_build_object('reportedAt', reported_at, 'channel', channel_key, 'releaseSequence', release_sequence,
+                          'bundles', bundles, 'deviceClass', device_class, 'locale', locale, 'theme', theme,
+                          'textScalePercent', text_scale_percent, 'userRef', user_ref)::jsonb AS document
+  FROM device_installs
+ WHERE organization_id = $1 AND device_id = $2
+ ORDER BY reported_at, id
+ LIMIT $3
+`
+
+type DsrExportDeviceInstallsParams struct {
+	OrganizationID pgtype.UUID
+	DeviceID       pgtype.UUID
+	RowLimit       int32
+}
+
+func (q *Queries) DsrExportDeviceInstalls(ctx context.Context, arg DsrExportDeviceInstallsParams) ([][]byte, error) {
+	rows, err := q.db.Query(ctx, dsrExportDeviceInstalls, arg.OrganizationID, arg.DeviceID, arg.RowLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -507,6 +577,41 @@ type DsrExportNotificationsParams struct {
 
 func (q *Queries) DsrExportNotifications(ctx context.Context, arg DsrExportNotificationsParams) ([][]byte, error) {
 	rows, err := q.db.Query(ctx, dsrExportNotifications, arg.OrganizationID, arg.UserID, arg.RowLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := [][]byte{}
+	for rows.Next() {
+		var document []byte
+		if err := rows.Scan(&document); err != nil {
+			return nil, err
+		}
+		items = append(items, document)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const dsrExportReconstructions = `-- name: DsrExportReconstructions :many
+SELECT jsonb_build_object('id', id, 'moment', moment, 'releaseSequence', release_sequence, 'createdAt', created_at,
+                          'manifest', manifest)::jsonb AS document
+  FROM reconstructions
+ WHERE organization_id = $1 AND device_id = $2
+ ORDER BY created_at, id
+ LIMIT $3
+`
+
+type DsrExportReconstructionsParams struct {
+	OrganizationID pgtype.UUID
+	DeviceID       pgtype.UUID
+	RowLimit       int32
+}
+
+func (q *Queries) DsrExportReconstructions(ctx context.Context, arg DsrExportReconstructionsParams) ([][]byte, error) {
+	rows, err := q.db.Query(ctx, dsrExportReconstructions, arg.OrganizationID, arg.DeviceID, arg.RowLimit)
 	if err != nil {
 		return nil, err
 	}

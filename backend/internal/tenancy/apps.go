@@ -572,10 +572,18 @@ func (s *Service) DeleteSecret(ctx context.Context, p auth.Principal, envID, key
 	})
 }
 
+// AuditChannelKey is the key of the channel that holds an environment's
+// reconstruction releases (SEC-142). It is created by the reconstruction
+// service, never by a person, and never served to a device.
+const AuditChannelKey = "audit"
+
 // CreateChannel adds a channel to an environment (REL-005).
 func (s *Service) CreateChannel(ctx context.Context, p auth.Principal, envID, key string) (Channel, error) {
 	if err := checkKey("channel", key); err != nil {
 		return Channel{}, err
+	}
+	if key == AuditChannelKey {
+		return Channel{}, plxerr.New(plxerr.InvalidFormat, "the channel key %q is reserved for reconstruction releases", AuditChannelKey)
 	}
 	id, err := s.newID()
 	if err != nil {

@@ -42,6 +42,7 @@ import (
 	"github.com/nightCode42/plux3/backend/internal/notify"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1"
 	"github.com/nightCode42/plux3/backend/internal/pluxv1/pluxv1connect"
+	"github.com/nightCode42/plux3/backend/internal/reconstruct"
 	"github.com/nightCode42/plux3/backend/internal/release"
 	"github.com/nightCode42/plux3/backend/internal/rollout"
 	"github.com/nightCode42/plux3/backend/internal/schema/limits"
@@ -81,6 +82,20 @@ type assetQueue struct {
 }
 
 func (q *assetQueue) Enqueue(_ context.Context, _ pgx.Tx, j document.AssetJob) error {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	q.jobs = append(q.jobs, j)
+	return nil
+}
+
+// reconstructQueue records the signing jobs of reconstruction releases for
+// the test to run.
+type reconstructQueue struct {
+	mu   sync.Mutex
+	jobs []reconstruct.SignJob
+}
+
+func (q *reconstructQueue) Enqueue(_ context.Context, _ pgx.Tx, j reconstruct.SignJob) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	q.jobs = append(q.jobs, j)
@@ -127,6 +142,10 @@ type world struct {
 	sca          pluxv1connect.ScaServiceClient
 	analytics    pluxv1connect.AnalyticsServiceClient
 	analyticsSvc *analytics.Service
+	// reconstruction is the reconstruction service and reconQueue the signing
+	// jobs it enqueued.
+	reconstruction *reconstruct.Service
+	reconQueue     *reconstructQueue
 	// configs and resolver are the server-held configuration store and its
 	// reader, as the server wires them.
 	configs  *gateway.Configs
@@ -337,6 +356,17 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 	if err != nil {
 		t.Fatal(err)
 	}
+	reconQueue := &reconstructQueue{}
+	reconstruction, err := reconstruct.NewService(reconstruct.Options{
+		DB: db, Audit: log, IDs: gen, Objects: files, Locator: releases, Signer: releases, Jobs: reconQueue,
+		PublicBaseURL: base, Now: cfg.Now,
+		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
+			return tenancyService.Effective(ctx, tx, org, app, "")
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
 	rollouts, err := rollout.NewService(rollout.Options{
 		DB: db, Audit: log, IDs: gen, Releases: releases, Now: cfg.Now,
 		Limits: func(ctx context.Context, tx pgx.Tx, org, app string) (limits.Set, error) {
@@ -355,7 +385,7 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		t.Fatal(err)
 	}
 	h := &api.Handlers{
-		Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Rollouts: rollouts, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
+		Notify: notifier, AuditExport: auditExport, DataSubjects: dataSubjects, Rollouts: rollouts, Reconstruction: reconstruction, Functions: functions, FunctionHosting: fnrt.host, FunctionInvoker: fnrt.invoker,
 		Upstreams: upstreams, Configs: configs, LiveConfig: resolver,
 		Auth: authService, Tenancy: tenancyService, Documents: docs, Releases: releases, Devices: devices, Events: events, Analytics: analyticsService,
 		Idempotency: store, Pages: pages, Limiter: limiter, Limits: set, SecurityConfig: secConfig, AuditCheckpoints: cfg.Checkpoints,
@@ -363,7 +393,10 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		Searches:     searchService, GitExports: gitService,
 		Goldens: golden.New(golden.Options{DB: db, Audit: log, Objects: files, IDs: gen, Limits: set}),
 	}
-	people := api.Authentication(authService, api.IdentityPublic, nil, limiter, set.Get(limits.APIRequestsPerMinute))
+	// The world's one signed-in person calls every RPC of the authorisation
+	// matrix within a minute, which is more than one person's default
+	// allowance; the allowance itself is tested at the edge (edge_test.go).
+	people := api.Authentication(authService, api.IdentityPublic, nil, limiter, 10*set.Get(limits.APIRequestsPerMinute))
 	nonceKey := make([]byte, 32)
 	if _, err := rand.Read(nonceKey); err != nil {
 		t.Fatal(err)
@@ -491,6 +524,8 @@ func newWorldWith(t *testing.T, cfg worldConfig) *world {
 		issuer:     issuer,
 		releases:   releases,
 		queue:      queue,
+
+		reconstruction: reconstruction, reconQueue: reconQueue,
 	}
 }
 
